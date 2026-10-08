@@ -27,20 +27,17 @@
 definition traversable
   let G be an undirected multigraph with vertices V and edges E      (H1)
   then        G is traversable ↔ there is n ∈ ℕ₀ with there is
-              f : {0, …, n − 1} → E with there is v : {0, …, n} → V with
-              f : {0, …, n − 1} → E is one-to-one and
-              (for all a ∈ E, there is k ∈ {0, …, n − 1} with a = f(k)) and
-              (for all k ∈ {0, …, n − 1}, f(k) joins v(k) and v(k + 1))
+              e : {1, …, n} → E with there is v : {0, …, n} → V with
+              v and e form an Euler path of n edges
   metamath    iseupthf1o and upgriswlk, the walk's word of edges read as a
-              function on {0, …, n − 1}, which this corpus proves together in
-              elaboration/stdlib/proved.mm
+              function on {0, …, n − 1} and renumbered from 1, which this
+              corpus proves together in elaboration/stdlib/proved.mm
   target      gtrav
   note        A walk that crosses every edge exactly once is an Euler path,
               and a graph that has one is traversable (ProofWiki,
-              "Characteristics of Traversable Graph"). f(k) is the edge the
-              walk crosses after k edges, and v(k) where it is then. The edges
-              are counted from 0 here because set.mm counts them so; a proof
-              that wants them from 1 renumbers them itself.
+              "Characteristics of Traversable Graph"). The edges are counted
+              from 1, as `def:stdlib/graphs/euler-path` counts them; set.mm
+              counts them from 0, and `gtrav` carries one count to the other.
 
 definition walk
   let G be an undirected multigraph with vertices V and edges E      (H1)
@@ -69,8 +66,9 @@ definition euler-path
   note        A walk that crosses every edge exactly once: its edges e(1), …,
               e(n) are all different and every edge is one of them (Bondy and
               Murty, "Graph Theory", §3.3; set.mm's `EulerPaths` counts the
-              edges from 0, as `def:stdlib/graphs/traversable` does). A
-              Hamiltonian path is the same for vertices.
+              edges from 0, and `def:stdlib/graphs/traversable` says the one
+              count is the other). A Hamiltonian path is the same for
+              vertices.
 
 mundane theorem walk-step
   let G be an undirected multigraph with vertices V and edges E      (H1)

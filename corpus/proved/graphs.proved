@@ -21,18 +21,27 @@
 # - a multigraph is traversable exactly when there is n and a walk f of n
 #   edges, counted from 0, one-to-one and reaching every edge, with vertices
 #   v: `iseupthf1o` and `upgriswlk`, the word of edges read as a function on
-#   {0, …, n − 1} by `wrdmap` and `fzoval`, for
-#   `def:stdlib/graphs/traversable`.
+#   {0, …, n − 1} by `wrdmap` and `fzoval`;
+# - and exactly when there is such a walk e with its edges counted from 1,
+#   e(j) being f(j − 1): the shift j ↦ j − 1 takes {1, …, n} one to one
+#   onto {0, …, n − 1} (`mptfzshft`), so e is f composed with it, one-to-one
+#   and reaching every edge when f is (`f1oco`), and the edges join the same
+#   vertices with the range of the "for all" shifted (`fzshftral`), for
+#   `def:stdlib/graphs/traversable`, which counts from 1 as
+#   `def:stdlib/graphs/euler-path` does.
 
 $( Graphs: the ends of an edge of a multigraph, the degree of a vertex, and
    a graph that has an Euler path. $)
 $( The degree's set-builder binds x, apart from the graph and the vertex.
    The walk's length n, its edges f, its vertices v and the letters a and k
    the page's conditions bind are kept apart from the graph and each
-   other. $)
+   other; so are the walk's edges e counted from 1, the letters y and z the
+   page binds for it, and the places i and j the shift between the two
+   countings runs over. $)
 $d x G $.  $d x U $.
 $d z F $.  $d z G $.  $d z I $.  $d z N $.  $d z P $.  $d z ph $.
 $d a k n f v G $.
+$d a e f i j k n v y z G $.
 
 # ( ph -> the edge at place I joins the vertices on either side of it ),
 # from a walk and I among its places: `rspcv`, the instance tied by
@@ -244,10 +253,10 @@ lemma gtravne0
   8 exbii 7 |- ( E. f f e. dom ( EulerPaths ` G ) <-> E. f E. v f ( EulerPaths ` G ) v )
   9 3bitri 4 5 8 |- ( ( EulerPaths ` G ) =/= (/) <-> E. f E. v f ( EulerPaths ` G ) v )
 
-# ( G e. UMGraph -> G is traversable <-> the page's walk from 0 ): at each
+# ( G e. UMGraph -> G is traversable <-> a walk counted from 0 ): at each
 # n by `gtravpt`, the length n then folded away, since every Euler path's
 # length is a whole number (`wlkcl`).
-lemma gtrav
+lemma gtrav0
   |- ( G e. UMGraph -> ( ( EulerPaths ` G ) =/= (/) <-> E. n e. NN0 E. f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) E. v e. ( ( Vtx ` G ) ^m ( 0 ... n ) ) ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) )
   1 r2ex |- ( E. f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) E. v e. ( ( Vtx ` G ) ^m ( 0 ... n ) ) ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) <-> E. f E. v ( ( f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) /\ v e. ( ( Vtx ` G ) ^m ( 0 ... n ) ) ) /\ ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) )
   2 gtravpt |- ( ( G e. UMGraph /\ n e. NN0 ) -> ( ( ( f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) /\ v e. ( ( Vtx ` G ) ^m ( 0 ... n ) ) ) /\ ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) <-> ( f ( EulerPaths ` G ) v /\ ( # ` f ) = n ) ) )
@@ -275,3 +284,256 @@ lemma gtrav
   24 bitr4i 22 23 |- ( E. n e. NN0 E. f E. v ( f ( EulerPaths ` G ) v /\ ( # ` f ) = n ) <-> ( EulerPaths ` G ) =/= (/) )
   25 bitrdi 5 24 |- ( G e. UMGraph -> ( E. n e. NN0 E. f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) E. v e. ( ( Vtx ` G ) ^m ( 0 ... n ) ) ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) <-> ( EulerPaths ` G ) =/= (/) ) )
   26 bicomd 25 |- ( G e. UMGraph -> ( ( EulerPaths ` G ) =/= (/) <-> E. n e. NN0 E. f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) E. v e. ( ( Vtx ` G ) ^m ( 0 ... n ) ) ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) )
+
+# {0 + 1, …, (n − 1) + 1} is {1, …, n}: `0p1e1` and `npcan`.
+lemma gtravfz
+  |- ( n e. ZZ -> ( ( 0 + 1 ) ... ( ( n - 1 ) + 1 ) ) = ( 1 ... n ) )
+  1 0p1e1 |- ( 0 + 1 ) = 1
+  2 a1i 1 |- ( n e. ZZ -> ( 0 + 1 ) = 1 )
+  3 zcn |- ( n e. ZZ -> n e. CC )
+  4 1cnd |- ( n e. ZZ -> 1 e. CC )
+  5 npcan |- ( ( n e. CC /\ 1 e. CC ) -> ( ( n - 1 ) + 1 ) = n )
+  6 syl2anc 3 4 5 |- ( n e. ZZ -> ( ( n - 1 ) + 1 ) = n )
+  7 oveq12d 2 6 |- ( n e. ZZ -> ( ( 0 + 1 ) ... ( ( n - 1 ) + 1 ) ) = ( 1 ... n ) )
+
+# The shift i ↦ i − 1 takes {1, …, n} one to one onto {0, …, n − 1}:
+# `mptfzshft` at K = 1, its range read by `gtravfz`.
+lemma gtravshf
+  |- ( n e. NN0 -> ( i e. ( 1 ... n ) |-> ( i - 1 ) ) : ( 1 ... n ) -1-1-onto-> ( 0 ... ( n - 1 ) ) )
+  1 nn0z |- ( n e. NN0 -> n e. ZZ )
+  2 1zzd |- ( n e. NN0 -> 1 e. ZZ )
+  3 0zd |- ( n e. NN0 -> 0 e. ZZ )
+  4 peano2zm |- ( n e. ZZ -> ( n - 1 ) e. ZZ )
+  5 syl 1 4 |- ( n e. NN0 -> ( n - 1 ) e. ZZ )
+  6 mptfzshft 2 3 5 |- ( n e. NN0 -> ( i e. ( ( 0 + 1 ) ... ( ( n - 1 ) + 1 ) ) |-> ( i - 1 ) ) : ( ( 0 + 1 ) ... ( ( n - 1 ) + 1 ) ) -1-1-onto-> ( 0 ... ( n - 1 ) ) )
+  7 gtravfz |- ( n e. ZZ -> ( ( 0 + 1 ) ... ( ( n - 1 ) + 1 ) ) = ( 1 ... n ) )
+  8 syl 1 7 |- ( n e. NN0 -> ( ( 0 + 1 ) ... ( ( n - 1 ) + 1 ) ) = ( 1 ... n ) )
+  9 mpteq1d 8 |- ( n e. NN0 -> ( i e. ( ( 0 + 1 ) ... ( ( n - 1 ) + 1 ) ) |-> ( i - 1 ) ) = ( i e. ( 1 ... n ) |-> ( i - 1 ) ) )
+  10 eqidd |- ( n e. NN0 -> ( 0 ... ( n - 1 ) ) = ( 0 ... ( n - 1 ) ) )
+  11 f1oeq123d 9 8 10 |- ( n e. NN0 -> ( ( i e. ( ( 0 + 1 ) ... ( ( n - 1 ) + 1 ) ) |-> ( i - 1 ) ) : ( ( 0 + 1 ) ... ( ( n - 1 ) + 1 ) ) -1-1-onto-> ( 0 ... ( n - 1 ) ) <-> ( i e. ( 1 ... n ) |-> ( i - 1 ) ) : ( 1 ... n ) -1-1-onto-> ( 0 ... ( n - 1 ) ) ) )
+  12 mpbid 6 11 |- ( n e. NN0 -> ( i e. ( 1 ... n ) |-> ( i - 1 ) ) : ( 1 ... n ) -1-1-onto-> ( 0 ... ( n - 1 ) ) )
+
+# `gtravf1o` for the edges counted from 1: `df-f1o` and `dffo3`.
+lemma gtravf1o1
+  |- ( e : ( 1 ... n ) -1-1-onto-> dom ( iEdg ` G ) <-> ( e : ( 1 ... n ) -1-1-> dom ( iEdg ` G ) /\ A. y e. dom ( iEdg ` G ) E. z e. ( 1 ... n ) y = ( e ` z ) ) )
+  1 df-f1o |- ( e : ( 1 ... n ) -1-1-onto-> dom ( iEdg ` G ) <-> ( e : ( 1 ... n ) -1-1-> dom ( iEdg ` G ) /\ e : ( 1 ... n ) -onto-> dom ( iEdg ` G ) ) )
+  2 dffo3 |- ( e : ( 1 ... n ) -onto-> dom ( iEdg ` G ) <-> ( e : ( 1 ... n ) --> dom ( iEdg ` G ) /\ A. y e. dom ( iEdg ` G ) E. z e. ( 1 ... n ) y = ( e ` z ) ) )
+  3 anbi2i 2 |- ( ( e : ( 1 ... n ) -1-1-> dom ( iEdg ` G ) /\ e : ( 1 ... n ) -onto-> dom ( iEdg ` G ) ) <-> ( e : ( 1 ... n ) -1-1-> dom ( iEdg ` G ) /\ ( e : ( 1 ... n ) --> dom ( iEdg ` G ) /\ A. y e. dom ( iEdg ` G ) E. z e. ( 1 ... n ) y = ( e ` z ) ) ) )
+  4 f1f |- ( e : ( 1 ... n ) -1-1-> dom ( iEdg ` G ) -> e : ( 1 ... n ) --> dom ( iEdg ` G ) )
+  5 pm4.71i 4 |- ( e : ( 1 ... n ) -1-1-> dom ( iEdg ` G ) <-> ( e : ( 1 ... n ) -1-1-> dom ( iEdg ` G ) /\ e : ( 1 ... n ) --> dom ( iEdg ` G ) ) )
+  6 anbi1i 5 |- ( ( e : ( 1 ... n ) -1-1-> dom ( iEdg ` G ) /\ A. y e. dom ( iEdg ` G ) E. z e. ( 1 ... n ) y = ( e ` z ) ) <-> ( ( e : ( 1 ... n ) -1-1-> dom ( iEdg ` G ) /\ e : ( 1 ... n ) --> dom ( iEdg ` G ) ) /\ A. y e. dom ( iEdg ` G ) E. z e. ( 1 ... n ) y = ( e ` z ) ) )
+  7 anass |- ( ( ( e : ( 1 ... n ) -1-1-> dom ( iEdg ` G ) /\ e : ( 1 ... n ) --> dom ( iEdg ` G ) ) /\ A. y e. dom ( iEdg ` G ) E. z e. ( 1 ... n ) y = ( e ` z ) ) <-> ( e : ( 1 ... n ) -1-1-> dom ( iEdg ` G ) /\ ( e : ( 1 ... n ) --> dom ( iEdg ` G ) /\ A. y e. dom ( iEdg ` G ) E. z e. ( 1 ... n ) y = ( e ` z ) ) ) )
+  8 bitri 6 7 |- ( ( e : ( 1 ... n ) -1-1-> dom ( iEdg ` G ) /\ A. y e. dom ( iEdg ` G ) E. z e. ( 1 ... n ) y = ( e ` z ) ) <-> ( e : ( 1 ... n ) -1-1-> dom ( iEdg ` G ) /\ ( e : ( 1 ... n ) --> dom ( iEdg ` G ) /\ A. y e. dom ( iEdg ` G ) E. z e. ( 1 ... n ) y = ( e ` z ) ) ) )
+  9 bitri 1 3 |- ( e : ( 1 ... n ) -1-1-onto-> dom ( iEdg ` G ) <-> ( e : ( 1 ... n ) -1-1-> dom ( iEdg ` G ) /\ ( e : ( 1 ... n ) --> dom ( iEdg ` G ) /\ A. y e. dom ( iEdg ` G ) E. z e. ( 1 ... n ) y = ( e ` z ) ) ) )
+  10 bitr4i 9 8 |- ( e : ( 1 ... n ) -1-1-onto-> dom ( iEdg ` G ) <-> ( e : ( 1 ... n ) -1-1-> dom ( iEdg ` G ) /\ A. y e. dom ( iEdg ` G ) E. z e. ( 1 ... n ) y = ( e ` z ) ) )
+
+# ( ph -> e is an Euler path with v counted from 1 <-> f is one counted
+# from 0 ), where e is f composed with the shift S of `gtravshf`. One-to-one
+# and reaching every edge: e is f o. S, and f is e o. `' S (`f1ococnv2`,
+# `fcoi1`), each a composition of one-to-one correspondences (`f1oco`), read
+# as the page says them by `gtravf1o1` and `gtravf1o`. The edges: e(z) is
+# f(z − 1) (`fvco3`), and `fzshftral` shifts the range of the "for all".
+lemma gtravsh
+  hypothesis gtravsh.1 |- ( ph -> n e. NN0 )
+  hypothesis gtravsh.2 |- ( ph -> f : ( 0 ... ( n - 1 ) ) --> dom ( iEdg ` G ) )
+  hypothesis gtravsh.3 |- ( ph -> e = ( f o. ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ) )
+  |- ( ph -> ( ( ( A. z e. ( 1 ... n ) ( ( iEdg ` G ) ` ( e ` z ) ) = { ( v ` ( z - 1 ) ) , ( v ` z ) } /\ e : ( 1 ... n ) -1-1-> dom ( iEdg ` G ) ) /\ A. y e. dom ( iEdg ` G ) E. z e. ( 1 ... n ) y = ( e ` z ) ) <-> ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) )
+  1 gtravshf |- ( n e. NN0 -> ( i e. ( 1 ... n ) |-> ( i - 1 ) ) : ( 1 ... n ) -1-1-onto-> ( 0 ... ( n - 1 ) ) )
+  2 syl gtravsh.1 1 |- ( ph -> ( i e. ( 1 ... n ) |-> ( i - 1 ) ) : ( 1 ... n ) -1-1-onto-> ( 0 ... ( n - 1 ) ) )
+  3 f1ocnv |- ( ( i e. ( 1 ... n ) |-> ( i - 1 ) ) : ( 1 ... n ) -1-1-onto-> ( 0 ... ( n - 1 ) ) -> `' ( i e. ( 1 ... n ) |-> ( i - 1 ) ) : ( 0 ... ( n - 1 ) ) -1-1-onto-> ( 1 ... n ) )
+  4 syl 2 3 |- ( ph -> `' ( i e. ( 1 ... n ) |-> ( i - 1 ) ) : ( 0 ... ( n - 1 ) ) -1-1-onto-> ( 1 ... n ) )
+  5 f1ococnv2 |- ( ( i e. ( 1 ... n ) |-> ( i - 1 ) ) : ( 1 ... n ) -1-1-onto-> ( 0 ... ( n - 1 ) ) -> ( ( i e. ( 1 ... n ) |-> ( i - 1 ) ) o. `' ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ) = ( _I |` ( 0 ... ( n - 1 ) ) ) )
+  6 syl 2 5 |- ( ph -> ( ( i e. ( 1 ... n ) |-> ( i - 1 ) ) o. `' ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ) = ( _I |` ( 0 ... ( n - 1 ) ) ) )
+  7 coeq2d 6 |- ( ph -> ( f o. ( ( i e. ( 1 ... n ) |-> ( i - 1 ) ) o. `' ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ) ) = ( f o. ( _I |` ( 0 ... ( n - 1 ) ) ) ) )
+  8 coass |- ( ( f o. ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ) o. `' ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ) = ( f o. ( ( i e. ( 1 ... n ) |-> ( i - 1 ) ) o. `' ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ) )
+  9 eqtrid 8 7 |- ( ph -> ( ( f o. ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ) o. `' ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ) = ( f o. ( _I |` ( 0 ... ( n - 1 ) ) ) ) )
+  10 fcoi1 |- ( f : ( 0 ... ( n - 1 ) ) --> dom ( iEdg ` G ) -> ( f o. ( _I |` ( 0 ... ( n - 1 ) ) ) ) = f )
+  11 syl gtravsh.2 10 |- ( ph -> ( f o. ( _I |` ( 0 ... ( n - 1 ) ) ) ) = f )
+  12 eqtrd 9 11 |- ( ph -> ( ( f o. ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ) o. `' ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ) = f )
+  13 coeq1d gtravsh.3 |- ( ph -> ( e o. `' ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ) = ( ( f o. ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ) o. `' ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ) )
+  14 eqtrd 13 12 |- ( ph -> ( e o. `' ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ) = f )
+  15 f1oco |- ( ( e : ( 1 ... n ) -1-1-onto-> dom ( iEdg ` G ) /\ `' ( i e. ( 1 ... n ) |-> ( i - 1 ) ) : ( 0 ... ( n - 1 ) ) -1-1-onto-> ( 1 ... n ) ) -> ( e o. `' ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ) : ( 0 ... ( n - 1 ) ) -1-1-onto-> dom ( iEdg ` G ) )
+  16 sylan2 4 15 |- ( ( e : ( 1 ... n ) -1-1-onto-> dom ( iEdg ` G ) /\ ph ) -> ( e o. `' ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ) : ( 0 ... ( n - 1 ) ) -1-1-onto-> dom ( iEdg ` G ) )
+  17 ancoms 16 |- ( ( ph /\ e : ( 1 ... n ) -1-1-onto-> dom ( iEdg ` G ) ) -> ( e o. `' ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ) : ( 0 ... ( n - 1 ) ) -1-1-onto-> dom ( iEdg ` G ) )
+  18 f1oeq1 |- ( ( e o. `' ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ) = f -> ( ( e o. `' ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ) : ( 0 ... ( n - 1 ) ) -1-1-onto-> dom ( iEdg ` G ) <-> f : ( 0 ... ( n - 1 ) ) -1-1-onto-> dom ( iEdg ` G ) ) )
+  19 syl 14 18 |- ( ph -> ( ( e o. `' ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ) : ( 0 ... ( n - 1 ) ) -1-1-onto-> dom ( iEdg ` G ) <-> f : ( 0 ... ( n - 1 ) ) -1-1-onto-> dom ( iEdg ` G ) ) )
+  20 adantr 19 |- ( ( ph /\ e : ( 1 ... n ) -1-1-onto-> dom ( iEdg ` G ) ) -> ( ( e o. `' ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ) : ( 0 ... ( n - 1 ) ) -1-1-onto-> dom ( iEdg ` G ) <-> f : ( 0 ... ( n - 1 ) ) -1-1-onto-> dom ( iEdg ` G ) ) )
+  21 mpbid 17 20 |- ( ( ph /\ e : ( 1 ... n ) -1-1-onto-> dom ( iEdg ` G ) ) -> f : ( 0 ... ( n - 1 ) ) -1-1-onto-> dom ( iEdg ` G ) )
+  22 ex 21 |- ( ph -> ( e : ( 1 ... n ) -1-1-onto-> dom ( iEdg ` G ) -> f : ( 0 ... ( n - 1 ) ) -1-1-onto-> dom ( iEdg ` G ) ) )
+  23 f1oco |- ( ( f : ( 0 ... ( n - 1 ) ) -1-1-onto-> dom ( iEdg ` G ) /\ ( i e. ( 1 ... n ) |-> ( i - 1 ) ) : ( 1 ... n ) -1-1-onto-> ( 0 ... ( n - 1 ) ) ) -> ( f o. ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ) : ( 1 ... n ) -1-1-onto-> dom ( iEdg ` G ) )
+  24 sylan2 2 23 |- ( ( f : ( 0 ... ( n - 1 ) ) -1-1-onto-> dom ( iEdg ` G ) /\ ph ) -> ( f o. ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ) : ( 1 ... n ) -1-1-onto-> dom ( iEdg ` G ) )
+  25 ancoms 24 |- ( ( ph /\ f : ( 0 ... ( n - 1 ) ) -1-1-onto-> dom ( iEdg ` G ) ) -> ( f o. ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ) : ( 1 ... n ) -1-1-onto-> dom ( iEdg ` G ) )
+  26 f1oeq1 |- ( e = ( f o. ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ) -> ( e : ( 1 ... n ) -1-1-onto-> dom ( iEdg ` G ) <-> ( f o. ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ) : ( 1 ... n ) -1-1-onto-> dom ( iEdg ` G ) ) )
+  27 syl gtravsh.3 26 |- ( ph -> ( e : ( 1 ... n ) -1-1-onto-> dom ( iEdg ` G ) <-> ( f o. ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ) : ( 1 ... n ) -1-1-onto-> dom ( iEdg ` G ) ) )
+  28 adantr 27 |- ( ( ph /\ f : ( 0 ... ( n - 1 ) ) -1-1-onto-> dom ( iEdg ` G ) ) -> ( e : ( 1 ... n ) -1-1-onto-> dom ( iEdg ` G ) <-> ( f o. ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ) : ( 1 ... n ) -1-1-onto-> dom ( iEdg ` G ) ) )
+  29 mpbird 25 28 |- ( ( ph /\ f : ( 0 ... ( n - 1 ) ) -1-1-onto-> dom ( iEdg ` G ) ) -> e : ( 1 ... n ) -1-1-onto-> dom ( iEdg ` G ) )
+  30 ex 29 |- ( ph -> ( f : ( 0 ... ( n - 1 ) ) -1-1-onto-> dom ( iEdg ` G ) -> e : ( 1 ... n ) -1-1-onto-> dom ( iEdg ` G ) ) )
+  31 impbid 22 30 |- ( ph -> ( e : ( 1 ... n ) -1-1-onto-> dom ( iEdg ` G ) <-> f : ( 0 ... ( n - 1 ) ) -1-1-onto-> dom ( iEdg ` G ) ) )
+  32 gtravf1o1 |- ( e : ( 1 ... n ) -1-1-onto-> dom ( iEdg ` G ) <-> ( e : ( 1 ... n ) -1-1-> dom ( iEdg ` G ) /\ A. y e. dom ( iEdg ` G ) E. z e. ( 1 ... n ) y = ( e ` z ) ) )
+  33 gtravf1o |- ( f : ( 0 ... ( n - 1 ) ) -1-1-onto-> dom ( iEdg ` G ) <-> ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) )
+  34 3bitr3g 31 32 33 |- ( ph -> ( ( e : ( 1 ... n ) -1-1-> dom ( iEdg ` G ) /\ A. y e. dom ( iEdg ` G ) E. z e. ( 1 ... n ) y = ( e ` z ) ) <-> ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) ) )
+  35 nn0zd gtravsh.1 |- ( ph -> n e. ZZ )
+  36 0zd |- ( ph -> 0 e. ZZ )
+  37 peano2zm |- ( n e. ZZ -> ( n - 1 ) e. ZZ )
+  38 syl 35 37 |- ( ph -> ( n - 1 ) e. ZZ )
+  39 1zzd |- ( ph -> 1 e. ZZ )
+  40 fzshftral |- ( ( 0 e. ZZ /\ ( n - 1 ) e. ZZ /\ 1 e. ZZ ) -> ( A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } <-> A. z e. ( ( 0 + 1 ) ... ( ( n - 1 ) + 1 ) ) [. ( z - 1 ) / k ]. ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) )
+  41 syl3anc 36 38 39 40 |- ( ph -> ( A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } <-> A. z e. ( ( 0 + 1 ) ... ( ( n - 1 ) + 1 ) ) [. ( z - 1 ) / k ]. ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) )
+  42 gtravfz |- ( n e. ZZ -> ( ( 0 + 1 ) ... ( ( n - 1 ) + 1 ) ) = ( 1 ... n ) )
+  43 syl 35 42 |- ( ph -> ( ( 0 + 1 ) ... ( ( n - 1 ) + 1 ) ) = ( 1 ... n ) )
+  44 raleqdv 43 |- ( ph -> ( A. z e. ( ( 0 + 1 ) ... ( ( n - 1 ) + 1 ) ) [. ( z - 1 ) / k ]. ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } <-> A. z e. ( 1 ... n ) [. ( z - 1 ) / k ]. ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) )
+  45 bitrd 41 44 |- ( ph -> ( A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } <-> A. z e. ( 1 ... n ) [. ( z - 1 ) / k ]. ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) )
+  46 ovex |- ( z - 1 ) e. _V
+  47 fveq2 |- ( k = ( z - 1 ) -> ( f ` k ) = ( f ` ( z - 1 ) ) )
+  48 fveq2d 47 |- ( k = ( z - 1 ) -> ( ( iEdg ` G ) ` ( f ` k ) ) = ( ( iEdg ` G ) ` ( f ` ( z - 1 ) ) ) )
+  49 fveq2 |- ( k = ( z - 1 ) -> ( v ` k ) = ( v ` ( z - 1 ) ) )
+  50 oveq1 |- ( k = ( z - 1 ) -> ( k + 1 ) = ( ( z - 1 ) + 1 ) )
+  51 fveq2d 50 |- ( k = ( z - 1 ) -> ( v ` ( k + 1 ) ) = ( v ` ( ( z - 1 ) + 1 ) ) )
+  52 preq12d 49 51 |- ( k = ( z - 1 ) -> { ( v ` k ) , ( v ` ( k + 1 ) ) } = { ( v ` ( z - 1 ) ) , ( v ` ( ( z - 1 ) + 1 ) ) } )
+  53 eqeq12d 48 52 |- ( k = ( z - 1 ) -> ( ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } <-> ( ( iEdg ` G ) ` ( f ` ( z - 1 ) ) ) = { ( v ` ( z - 1 ) ) , ( v ` ( ( z - 1 ) + 1 ) ) } ) )
+  54 sbcie 46 53 |- ( [. ( z - 1 ) / k ]. ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } <-> ( ( iEdg ` G ) ` ( f ` ( z - 1 ) ) ) = { ( v ` ( z - 1 ) ) , ( v ` ( ( z - 1 ) + 1 ) ) } )
+  55 simpr |- ( ( ph /\ z e. ( 1 ... n ) ) -> z e. ( 1 ... n ) )
+  56 adantr gtravsh.3 |- ( ( ph /\ z e. ( 1 ... n ) ) -> e = ( f o. ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ) )
+  57 fveq1d 56 |- ( ( ph /\ z e. ( 1 ... n ) ) -> ( e ` z ) = ( ( f o. ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ) ` z ) )
+  58 f1of |- ( ( i e. ( 1 ... n ) |-> ( i - 1 ) ) : ( 1 ... n ) -1-1-onto-> ( 0 ... ( n - 1 ) ) -> ( i e. ( 1 ... n ) |-> ( i - 1 ) ) : ( 1 ... n ) --> ( 0 ... ( n - 1 ) ) )
+  59 syl 2 58 |- ( ph -> ( i e. ( 1 ... n ) |-> ( i - 1 ) ) : ( 1 ... n ) --> ( 0 ... ( n - 1 ) ) )
+  60 adantr 59 |- ( ( ph /\ z e. ( 1 ... n ) ) -> ( i e. ( 1 ... n ) |-> ( i - 1 ) ) : ( 1 ... n ) --> ( 0 ... ( n - 1 ) ) )
+  61 fvco3 |- ( ( ( i e. ( 1 ... n ) |-> ( i - 1 ) ) : ( 1 ... n ) --> ( 0 ... ( n - 1 ) ) /\ z e. ( 1 ... n ) ) -> ( ( f o. ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ) ` z ) = ( f ` ( ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ` z ) ) )
+  62 syl2anc 60 55 61 |- ( ( ph /\ z e. ( 1 ... n ) ) -> ( ( f o. ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ) ` z ) = ( f ` ( ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ` z ) ) )
+  63 oveq1 |- ( i = z -> ( i - 1 ) = ( z - 1 ) )
+  64 eqid |- ( i e. ( 1 ... n ) |-> ( i - 1 ) ) = ( i e. ( 1 ... n ) |-> ( i - 1 ) )
+  65 fvmpt 63 64 46 |- ( z e. ( 1 ... n ) -> ( ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ` z ) = ( z - 1 ) )
+  66 adantl 65 |- ( ( ph /\ z e. ( 1 ... n ) ) -> ( ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ` z ) = ( z - 1 ) )
+  67 fveq2d 66 |- ( ( ph /\ z e. ( 1 ... n ) ) -> ( f ` ( ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ` z ) ) = ( f ` ( z - 1 ) ) )
+  68 3eqtrd 57 62 67 |- ( ( ph /\ z e. ( 1 ... n ) ) -> ( e ` z ) = ( f ` ( z - 1 ) ) )
+  69 fveq2d 68 |- ( ( ph /\ z e. ( 1 ... n ) ) -> ( ( iEdg ` G ) ` ( e ` z ) ) = ( ( iEdg ` G ) ` ( f ` ( z - 1 ) ) ) )
+  70 elfzelz |- ( z e. ( 1 ... n ) -> z e. ZZ )
+  71 syl 55 70 |- ( ( ph /\ z e. ( 1 ... n ) ) -> z e. ZZ )
+  72 zcnd 71 |- ( ( ph /\ z e. ( 1 ... n ) ) -> z e. CC )
+  73 1cnd |- ( ( ph /\ z e. ( 1 ... n ) ) -> 1 e. CC )
+  74 npcan |- ( ( z e. CC /\ 1 e. CC ) -> ( ( z - 1 ) + 1 ) = z )
+  75 syl2anc 72 73 74 |- ( ( ph /\ z e. ( 1 ... n ) ) -> ( ( z - 1 ) + 1 ) = z )
+  76 fveq2d 75 |- ( ( ph /\ z e. ( 1 ... n ) ) -> ( v ` ( ( z - 1 ) + 1 ) ) = ( v ` z ) )
+  77 eqcomd 76 |- ( ( ph /\ z e. ( 1 ... n ) ) -> ( v ` z ) = ( v ` ( ( z - 1 ) + 1 ) ) )
+  78 preq2d 77 |- ( ( ph /\ z e. ( 1 ... n ) ) -> { ( v ` ( z - 1 ) ) , ( v ` z ) } = { ( v ` ( z - 1 ) ) , ( v ` ( ( z - 1 ) + 1 ) ) } )
+  79 eqeq12d 69 78 |- ( ( ph /\ z e. ( 1 ... n ) ) -> ( ( ( iEdg ` G ) ` ( e ` z ) ) = { ( v ` ( z - 1 ) ) , ( v ` z ) } <-> ( ( iEdg ` G ) ` ( f ` ( z - 1 ) ) ) = { ( v ` ( z - 1 ) ) , ( v ` ( ( z - 1 ) + 1 ) ) } ) )
+  80 bitr4di 79 54 |- ( ( ph /\ z e. ( 1 ... n ) ) -> ( ( ( iEdg ` G ) ` ( e ` z ) ) = { ( v ` ( z - 1 ) ) , ( v ` z ) } <-> [. ( z - 1 ) / k ]. ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) )
+  81 ralbidva 80 |- ( ph -> ( A. z e. ( 1 ... n ) ( ( iEdg ` G ) ` ( e ` z ) ) = { ( v ` ( z - 1 ) ) , ( v ` z ) } <-> A. z e. ( 1 ... n ) [. ( z - 1 ) / k ]. ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) )
+  82 bitr4d 81 45 |- ( ph -> ( A. z e. ( 1 ... n ) ( ( iEdg ` G ) ` ( e ` z ) ) = { ( v ` ( z - 1 ) ) , ( v ` z ) } <-> A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) )
+  83 anbi12d 82 34 |- ( ph -> ( ( A. z e. ( 1 ... n ) ( ( iEdg ` G ) ` ( e ` z ) ) = { ( v ` ( z - 1 ) ) , ( v ` z ) } /\ ( e : ( 1 ... n ) -1-1-> dom ( iEdg ` G ) /\ A. y e. dom ( iEdg ` G ) E. z e. ( 1 ... n ) y = ( e ` z ) ) ) <-> ( A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } /\ ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) ) ) )
+  84 anass |- ( ( ( A. z e. ( 1 ... n ) ( ( iEdg ` G ) ` ( e ` z ) ) = { ( v ` ( z - 1 ) ) , ( v ` z ) } /\ e : ( 1 ... n ) -1-1-> dom ( iEdg ` G ) ) /\ A. y e. dom ( iEdg ` G ) E. z e. ( 1 ... n ) y = ( e ` z ) ) <-> ( A. z e. ( 1 ... n ) ( ( iEdg ` G ) ` ( e ` z ) ) = { ( v ` ( z - 1 ) ) , ( v ` z ) } /\ ( e : ( 1 ... n ) -1-1-> dom ( iEdg ` G ) /\ A. y e. dom ( iEdg ` G ) E. z e. ( 1 ... n ) y = ( e ` z ) ) ) )
+  85 ancom |- ( ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) <-> ( A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } /\ ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) ) )
+  86 3bitr4g 83 84 85 |- ( ph -> ( ( ( A. z e. ( 1 ... n ) ( ( iEdg ` G ) ` ( e ` z ) ) = { ( v ` ( z - 1 ) ) , ( v ` z ) } /\ e : ( 1 ... n ) -1-1-> dom ( iEdg ` G ) ) /\ A. y e. dom ( iEdg ` G ) E. z e. ( 1 ... n ) y = ( e ` z ) ) <-> ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) )
+
+# At each n, there are edges e counted from 1 and vertices v forming an
+# Euler path exactly when there are such edges f counted from 0: `rexxfrd2`
+# with e the map j ↦ f(j − 1), which is a map into the edges, and every e is
+# one, at f the map k ↦ e(k + 1). That map is f composed with the shift
+# (`fcompt`), so `gtravsh` says the two paths are one.
+lemma gtravxfr
+  |- ( n e. NN0 -> ( E. e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) E. v e. ( ( Vtx ` G ) ^m ( 0 ... n ) ) ( ( A. z e. ( 1 ... n ) ( ( iEdg ` G ) ` ( e ` z ) ) = { ( v ` ( z - 1 ) ) , ( v ` z ) } /\ e : ( 1 ... n ) -1-1-> dom ( iEdg ` G ) ) /\ A. y e. dom ( iEdg ` G ) E. z e. ( 1 ... n ) y = ( e ` z ) ) <-> E. f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) E. v e. ( ( Vtx ` G ) ^m ( 0 ... n ) ) ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) )
+  1 fvex |- ( iEdg ` G ) e. _V
+  2 dmex 1 |- dom ( iEdg ` G ) e. _V
+  3 ovex |- ( 1 ... n ) e. _V
+  4 ovex |- ( 0 ... ( n - 1 ) ) e. _V
+  5 elmapi |- ( f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) -> f : ( 0 ... ( n - 1 ) ) --> dom ( iEdg ` G ) )
+  6 nn0z |- ( n e. NN0 -> n e. ZZ )
+  7 fzoval |- ( n e. ZZ -> ( 0 ..^ n ) = ( 0 ... ( n - 1 ) ) )
+  8 syl 6 7 |- ( n e. NN0 -> ( 0 ..^ n ) = ( 0 ... ( n - 1 ) ) )
+  9 fz1fzo0m1 |- ( j e. ( 1 ... n ) -> ( j - 1 ) e. ( 0 ..^ n ) )
+  10 adantl 9 |- ( ( ( n e. NN0 /\ f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) ) /\ j e. ( 1 ... n ) ) -> ( j - 1 ) e. ( 0 ..^ n ) )
+  11 ad2antrr 8 |- ( ( ( n e. NN0 /\ f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) ) /\ j e. ( 1 ... n ) ) -> ( 0 ..^ n ) = ( 0 ... ( n - 1 ) ) )
+  12 eleqtrd 10 11 |- ( ( ( n e. NN0 /\ f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) ) /\ j e. ( 1 ... n ) ) -> ( j - 1 ) e. ( 0 ... ( n - 1 ) ) )
+  13 adantl 5 |- ( ( n e. NN0 /\ f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) ) -> f : ( 0 ... ( n - 1 ) ) --> dom ( iEdg ` G ) )
+  14 adantr 13 |- ( ( ( n e. NN0 /\ f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) ) /\ j e. ( 1 ... n ) ) -> f : ( 0 ... ( n - 1 ) ) --> dom ( iEdg ` G ) )
+  15 ffvelcdmd 14 12 |- ( ( ( n e. NN0 /\ f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) ) /\ j e. ( 1 ... n ) ) -> ( f ` ( j - 1 ) ) e. dom ( iEdg ` G ) )
+  16 eqid |- ( j e. ( 1 ... n ) |-> ( f ` ( j - 1 ) ) ) = ( j e. ( 1 ... n ) |-> ( f ` ( j - 1 ) ) )
+  17 fmptd 15 16 |- ( ( n e. NN0 /\ f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) ) -> ( j e. ( 1 ... n ) |-> ( f ` ( j - 1 ) ) ) : ( 1 ... n ) --> dom ( iEdg ` G ) )
+  18 a1i 2 |- ( ( n e. NN0 /\ f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) ) -> dom ( iEdg ` G ) e. _V )
+  19 a1i 3 |- ( ( n e. NN0 /\ f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) ) -> ( 1 ... n ) e. _V )
+  20 elmapd 18 19 |- ( ( n e. NN0 /\ f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) ) -> ( ( j e. ( 1 ... n ) |-> ( f ` ( j - 1 ) ) ) e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) <-> ( j e. ( 1 ... n ) |-> ( f ` ( j - 1 ) ) ) : ( 1 ... n ) --> dom ( iEdg ` G ) ) )
+  21 mpbird 17 20 |- ( ( n e. NN0 /\ f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) ) -> ( j e. ( 1 ... n ) |-> ( f ` ( j - 1 ) ) ) e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) )
+  22 elmapi |- ( e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) -> e : ( 1 ... n ) --> dom ( iEdg ` G ) )
+  23 adantl 22 |- ( ( n e. NN0 /\ e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) ) -> e : ( 1 ... n ) --> dom ( iEdg ` G ) )
+  24 simpr |- ( ( ( n e. NN0 /\ e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) ) /\ k e. ( 0 ... ( n - 1 ) ) ) -> k e. ( 0 ... ( n - 1 ) ) )
+  25 0zd |- ( ( ( n e. NN0 /\ e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) ) /\ k e. ( 0 ... ( n - 1 ) ) ) -> 0 e. ZZ )
+  26 simpll |- ( ( ( n e. NN0 /\ e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) ) /\ k e. ( 0 ... ( n - 1 ) ) ) -> n e. NN0 )
+  27 syl 26 6 |- ( ( ( n e. NN0 /\ e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) ) /\ k e. ( 0 ... ( n - 1 ) ) ) -> n e. ZZ )
+  28 peano2zm |- ( n e. ZZ -> ( n - 1 ) e. ZZ )
+  29 syl 27 28 |- ( ( ( n e. NN0 /\ e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) ) /\ k e. ( 0 ... ( n - 1 ) ) ) -> ( n - 1 ) e. ZZ )
+  30 elfzelz |- ( k e. ( 0 ... ( n - 1 ) ) -> k e. ZZ )
+  31 syl 24 30 |- ( ( ( n e. NN0 /\ e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) ) /\ k e. ( 0 ... ( n - 1 ) ) ) -> k e. ZZ )
+  32 1zzd |- ( ( ( n e. NN0 /\ e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) ) /\ k e. ( 0 ... ( n - 1 ) ) ) -> 1 e. ZZ )
+  33 fzaddel |- ( ( ( 0 e. ZZ /\ ( n - 1 ) e. ZZ ) /\ ( k e. ZZ /\ 1 e. ZZ ) ) -> ( k e. ( 0 ... ( n - 1 ) ) <-> ( k + 1 ) e. ( ( 0 + 1 ) ... ( ( n - 1 ) + 1 ) ) ) )
+  34 syl22anc 25 29 31 32 33 |- ( ( ( n e. NN0 /\ e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) ) /\ k e. ( 0 ... ( n - 1 ) ) ) -> ( k e. ( 0 ... ( n - 1 ) ) <-> ( k + 1 ) e. ( ( 0 + 1 ) ... ( ( n - 1 ) + 1 ) ) ) )
+  35 mpbid 24 34 |- ( ( ( n e. NN0 /\ e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) ) /\ k e. ( 0 ... ( n - 1 ) ) ) -> ( k + 1 ) e. ( ( 0 + 1 ) ... ( ( n - 1 ) + 1 ) ) )
+  36 gtravfz |- ( n e. ZZ -> ( ( 0 + 1 ) ... ( ( n - 1 ) + 1 ) ) = ( 1 ... n ) )
+  37 syl 27 36 |- ( ( ( n e. NN0 /\ e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) ) /\ k e. ( 0 ... ( n - 1 ) ) ) -> ( ( 0 + 1 ) ... ( ( n - 1 ) + 1 ) ) = ( 1 ... n ) )
+  38 eleqtrd 35 37 |- ( ( ( n e. NN0 /\ e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) ) /\ k e. ( 0 ... ( n - 1 ) ) ) -> ( k + 1 ) e. ( 1 ... n ) )
+  39 adantr 23 |- ( ( ( n e. NN0 /\ e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) ) /\ k e. ( 0 ... ( n - 1 ) ) ) -> e : ( 1 ... n ) --> dom ( iEdg ` G ) )
+  40 ffvelcdmd 39 38 |- ( ( ( n e. NN0 /\ e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) ) /\ k e. ( 0 ... ( n - 1 ) ) ) -> ( e ` ( k + 1 ) ) e. dom ( iEdg ` G ) )
+  41 eqid |- ( k e. ( 0 ... ( n - 1 ) ) |-> ( e ` ( k + 1 ) ) ) = ( k e. ( 0 ... ( n - 1 ) ) |-> ( e ` ( k + 1 ) ) )
+  42 fmptd 40 41 |- ( ( n e. NN0 /\ e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) ) -> ( k e. ( 0 ... ( n - 1 ) ) |-> ( e ` ( k + 1 ) ) ) : ( 0 ... ( n - 1 ) ) --> dom ( iEdg ` G ) )
+  43 a1i 2 |- ( ( n e. NN0 /\ e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) ) -> dom ( iEdg ` G ) e. _V )
+  44 a1i 4 |- ( ( n e. NN0 /\ e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) ) -> ( 0 ... ( n - 1 ) ) e. _V )
+  45 elmapd 43 44 |- ( ( n e. NN0 /\ e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) ) -> ( ( k e. ( 0 ... ( n - 1 ) ) |-> ( e ` ( k + 1 ) ) ) e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) <-> ( k e. ( 0 ... ( n - 1 ) ) |-> ( e ` ( k + 1 ) ) ) : ( 0 ... ( n - 1 ) ) --> dom ( iEdg ` G ) ) )
+  46 mpbird 42 45 |- ( ( n e. NN0 /\ e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) ) -> ( k e. ( 0 ... ( n - 1 ) ) |-> ( e ` ( k + 1 ) ) ) e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) )
+  47 eqidd |- ( ( ( n e. NN0 /\ e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) ) /\ j e. ( 1 ... n ) ) -> ( k e. ( 0 ... ( n - 1 ) ) |-> ( e ` ( k + 1 ) ) ) = ( k e. ( 0 ... ( n - 1 ) ) |-> ( e ` ( k + 1 ) ) ) )
+  48 oveq1 |- ( k = ( j - 1 ) -> ( k + 1 ) = ( ( j - 1 ) + 1 ) )
+  49 fveq2d 48 |- ( k = ( j - 1 ) -> ( e ` ( k + 1 ) ) = ( e ` ( ( j - 1 ) + 1 ) ) )
+  50 adantl 49 |- ( ( ( ( n e. NN0 /\ e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) ) /\ j e. ( 1 ... n ) ) /\ k = ( j - 1 ) ) -> ( e ` ( k + 1 ) ) = ( e ` ( ( j - 1 ) + 1 ) ) )
+  51 adantl 9 |- ( ( ( n e. NN0 /\ e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) ) /\ j e. ( 1 ... n ) ) -> ( j - 1 ) e. ( 0 ..^ n ) )
+  52 ad2antrr 8 |- ( ( ( n e. NN0 /\ e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) ) /\ j e. ( 1 ... n ) ) -> ( 0 ..^ n ) = ( 0 ... ( n - 1 ) ) )
+  53 eleqtrd 51 52 |- ( ( ( n e. NN0 /\ e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) ) /\ j e. ( 1 ... n ) ) -> ( j - 1 ) e. ( 0 ... ( n - 1 ) ) )
+  54 fvexd |- ( ( ( n e. NN0 /\ e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) ) /\ j e. ( 1 ... n ) ) -> ( e ` ( ( j - 1 ) + 1 ) ) e. _V )
+  55 fvmptd 47 50 53 54 |- ( ( ( n e. NN0 /\ e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) ) /\ j e. ( 1 ... n ) ) -> ( ( k e. ( 0 ... ( n - 1 ) ) |-> ( e ` ( k + 1 ) ) ) ` ( j - 1 ) ) = ( e ` ( ( j - 1 ) + 1 ) ) )
+  56 elfzelz |- ( j e. ( 1 ... n ) -> j e. ZZ )
+  57 adantl 56 |- ( ( ( n e. NN0 /\ e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) ) /\ j e. ( 1 ... n ) ) -> j e. ZZ )
+  58 zcnd 57 |- ( ( ( n e. NN0 /\ e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) ) /\ j e. ( 1 ... n ) ) -> j e. CC )
+  59 1cnd |- ( ( ( n e. NN0 /\ e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) ) /\ j e. ( 1 ... n ) ) -> 1 e. CC )
+  60 npcan |- ( ( j e. CC /\ 1 e. CC ) -> ( ( j - 1 ) + 1 ) = j )
+  61 syl2anc 58 59 60 |- ( ( ( n e. NN0 /\ e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) ) /\ j e. ( 1 ... n ) ) -> ( ( j - 1 ) + 1 ) = j )
+  62 fveq2d 61 |- ( ( ( n e. NN0 /\ e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) ) /\ j e. ( 1 ... n ) ) -> ( e ` ( ( j - 1 ) + 1 ) ) = ( e ` j ) )
+  63 eqtrd 55 62 |- ( ( ( n e. NN0 /\ e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) ) /\ j e. ( 1 ... n ) ) -> ( ( k e. ( 0 ... ( n - 1 ) ) |-> ( e ` ( k + 1 ) ) ) ` ( j - 1 ) ) = ( e ` j ) )
+  64 eqcomd 63 |- ( ( ( n e. NN0 /\ e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) ) /\ j e. ( 1 ... n ) ) -> ( e ` j ) = ( ( k e. ( 0 ... ( n - 1 ) ) |-> ( e ` ( k + 1 ) ) ) ` ( j - 1 ) ) )
+  65 mpteq2dva 64 |- ( ( n e. NN0 /\ e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) ) -> ( j e. ( 1 ... n ) |-> ( e ` j ) ) = ( j e. ( 1 ... n ) |-> ( ( k e. ( 0 ... ( n - 1 ) ) |-> ( e ` ( k + 1 ) ) ) ` ( j - 1 ) ) ) )
+  66 ffn |- ( e : ( 1 ... n ) --> dom ( iEdg ` G ) -> e Fn ( 1 ... n ) )
+  67 syl 23 66 |- ( ( n e. NN0 /\ e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) ) -> e Fn ( 1 ... n ) )
+  68 dffn5 |- ( e Fn ( 1 ... n ) <-> e = ( j e. ( 1 ... n ) |-> ( e ` j ) ) )
+  69 sylib 67 68 |- ( ( n e. NN0 /\ e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) ) -> e = ( j e. ( 1 ... n ) |-> ( e ` j ) ) )
+  70 eqtrd 69 65 |- ( ( n e. NN0 /\ e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) ) -> e = ( j e. ( 1 ... n ) |-> ( ( k e. ( 0 ... ( n - 1 ) ) |-> ( e ` ( k + 1 ) ) ) ` ( j - 1 ) ) ) )
+  71 fveq1 |- ( f = ( k e. ( 0 ... ( n - 1 ) ) |-> ( e ` ( k + 1 ) ) ) -> ( f ` ( j - 1 ) ) = ( ( k e. ( 0 ... ( n - 1 ) ) |-> ( e ` ( k + 1 ) ) ) ` ( j - 1 ) ) )
+  72 mpteq2dv 71 |- ( f = ( k e. ( 0 ... ( n - 1 ) ) |-> ( e ` ( k + 1 ) ) ) -> ( j e. ( 1 ... n ) |-> ( f ` ( j - 1 ) ) ) = ( j e. ( 1 ... n ) |-> ( ( k e. ( 0 ... ( n - 1 ) ) |-> ( e ` ( k + 1 ) ) ) ` ( j - 1 ) ) ) )
+  73 eqeq2d 72 |- ( f = ( k e. ( 0 ... ( n - 1 ) ) |-> ( e ` ( k + 1 ) ) ) -> ( e = ( j e. ( 1 ... n ) |-> ( f ` ( j - 1 ) ) ) <-> e = ( j e. ( 1 ... n ) |-> ( ( k e. ( 0 ... ( n - 1 ) ) |-> ( e ` ( k + 1 ) ) ) ` ( j - 1 ) ) ) ) )
+  74 rspcev 73 |- ( ( ( k e. ( 0 ... ( n - 1 ) ) |-> ( e ` ( k + 1 ) ) ) e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) /\ e = ( j e. ( 1 ... n ) |-> ( ( k e. ( 0 ... ( n - 1 ) ) |-> ( e ` ( k + 1 ) ) ) ` ( j - 1 ) ) ) ) -> E. f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) e = ( j e. ( 1 ... n ) |-> ( f ` ( j - 1 ) ) ) )
+  75 syl2anc 46 70 74 |- ( ( n e. NN0 /\ e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) ) -> E. f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) e = ( j e. ( 1 ... n ) |-> ( f ` ( j - 1 ) ) ) )
+  76 simp1 |- ( ( n e. NN0 /\ f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) /\ e = ( j e. ( 1 ... n ) |-> ( f ` ( j - 1 ) ) ) ) -> n e. NN0 )
+  77 simp2 |- ( ( n e. NN0 /\ f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) /\ e = ( j e. ( 1 ... n ) |-> ( f ` ( j - 1 ) ) ) ) -> f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) )
+  78 syl 77 5 |- ( ( n e. NN0 /\ f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) /\ e = ( j e. ( 1 ... n ) |-> ( f ` ( j - 1 ) ) ) ) -> f : ( 0 ... ( n - 1 ) ) --> dom ( iEdg ` G ) )
+  79 simp3 |- ( ( n e. NN0 /\ f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) /\ e = ( j e. ( 1 ... n ) |-> ( f ` ( j - 1 ) ) ) ) -> e = ( j e. ( 1 ... n ) |-> ( f ` ( j - 1 ) ) ) )
+  80 gtravshf |- ( n e. NN0 -> ( i e. ( 1 ... n ) |-> ( i - 1 ) ) : ( 1 ... n ) -1-1-onto-> ( 0 ... ( n - 1 ) ) )
+  81 f1of |- ( ( i e. ( 1 ... n ) |-> ( i - 1 ) ) : ( 1 ... n ) -1-1-onto-> ( 0 ... ( n - 1 ) ) -> ( i e. ( 1 ... n ) |-> ( i - 1 ) ) : ( 1 ... n ) --> ( 0 ... ( n - 1 ) ) )
+  82 syl 80 81 |- ( n e. NN0 -> ( i e. ( 1 ... n ) |-> ( i - 1 ) ) : ( 1 ... n ) --> ( 0 ... ( n - 1 ) ) )
+  83 syl 76 82 |- ( ( n e. NN0 /\ f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) /\ e = ( j e. ( 1 ... n ) |-> ( f ` ( j - 1 ) ) ) ) -> ( i e. ( 1 ... n ) |-> ( i - 1 ) ) : ( 1 ... n ) --> ( 0 ... ( n - 1 ) ) )
+  84 fcompt |- ( ( f : ( 0 ... ( n - 1 ) ) --> dom ( iEdg ` G ) /\ ( i e. ( 1 ... n ) |-> ( i - 1 ) ) : ( 1 ... n ) --> ( 0 ... ( n - 1 ) ) ) -> ( f o. ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ) = ( j e. ( 1 ... n ) |-> ( f ` ( ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ` j ) ) ) )
+  85 syl2anc 78 83 84 |- ( ( n e. NN0 /\ f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) /\ e = ( j e. ( 1 ... n ) |-> ( f ` ( j - 1 ) ) ) ) -> ( f o. ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ) = ( j e. ( 1 ... n ) |-> ( f ` ( ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ` j ) ) ) )
+  86 oveq1 |- ( i = j -> ( i - 1 ) = ( j - 1 ) )
+  87 eqid |- ( i e. ( 1 ... n ) |-> ( i - 1 ) ) = ( i e. ( 1 ... n ) |-> ( i - 1 ) )
+  88 ovex |- ( j - 1 ) e. _V
+  89 fvmpt 86 87 88 |- ( j e. ( 1 ... n ) -> ( ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ` j ) = ( j - 1 ) )
+  90 fveq2d 89 |- ( j e. ( 1 ... n ) -> ( f ` ( ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ` j ) ) = ( f ` ( j - 1 ) ) )
+  91 mpteq2ia 90 |- ( j e. ( 1 ... n ) |-> ( f ` ( ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ` j ) ) ) = ( j e. ( 1 ... n ) |-> ( f ` ( j - 1 ) ) )
+  92 eqtrdi 85 91 |- ( ( n e. NN0 /\ f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) /\ e = ( j e. ( 1 ... n ) |-> ( f ` ( j - 1 ) ) ) ) -> ( f o. ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ) = ( j e. ( 1 ... n ) |-> ( f ` ( j - 1 ) ) ) )
+  93 eqtr4d 79 92 |- ( ( n e. NN0 /\ f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) /\ e = ( j e. ( 1 ... n ) |-> ( f ` ( j - 1 ) ) ) ) -> e = ( f o. ( i e. ( 1 ... n ) |-> ( i - 1 ) ) ) )
+  94 gtravsh 76 78 93 |- ( ( n e. NN0 /\ f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) /\ e = ( j e. ( 1 ... n ) |-> ( f ` ( j - 1 ) ) ) ) -> ( ( ( A. z e. ( 1 ... n ) ( ( iEdg ` G ) ` ( e ` z ) ) = { ( v ` ( z - 1 ) ) , ( v ` z ) } /\ e : ( 1 ... n ) -1-1-> dom ( iEdg ` G ) ) /\ A. y e. dom ( iEdg ` G ) E. z e. ( 1 ... n ) y = ( e ` z ) ) <-> ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) )
+  95 rexbidv 94 |- ( ( n e. NN0 /\ f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) /\ e = ( j e. ( 1 ... n ) |-> ( f ` ( j - 1 ) ) ) ) -> ( E. v e. ( ( Vtx ` G ) ^m ( 0 ... n ) ) ( ( A. z e. ( 1 ... n ) ( ( iEdg ` G ) ` ( e ` z ) ) = { ( v ` ( z - 1 ) ) , ( v ` z ) } /\ e : ( 1 ... n ) -1-1-> dom ( iEdg ` G ) ) /\ A. y e. dom ( iEdg ` G ) E. z e. ( 1 ... n ) y = ( e ` z ) ) <-> E. v e. ( ( Vtx ` G ) ^m ( 0 ... n ) ) ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) )
+  96 rexxfrd2 21 75 95 |- ( n e. NN0 -> ( E. e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) E. v e. ( ( Vtx ` G ) ^m ( 0 ... n ) ) ( ( A. z e. ( 1 ... n ) ( ( iEdg ` G ) ` ( e ` z ) ) = { ( v ` ( z - 1 ) ) , ( v ` z ) } /\ e : ( 1 ... n ) -1-1-> dom ( iEdg ` G ) ) /\ A. y e. dom ( iEdg ` G ) E. z e. ( 1 ... n ) y = ( e ` z ) ) <-> E. f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) E. v e. ( ( Vtx ` G ) ^m ( 0 ... n ) ) ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) )
+
+# ( G e. UMGraph -> G is traversable <-> the page's Euler path, its edges
+# counted from 1 ): `gtrav0` at each n carried across by `gtravxfr`.
+lemma gtrav
+  |- ( G e. UMGraph -> ( ( EulerPaths ` G ) =/= (/) <-> E. n e. NN0 E. e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) E. v e. ( ( Vtx ` G ) ^m ( 0 ... n ) ) ( ( A. z e. ( 1 ... n ) ( ( iEdg ` G ) ` ( e ` z ) ) = { ( v ` ( z - 1 ) ) , ( v ` z ) } /\ e : ( 1 ... n ) -1-1-> dom ( iEdg ` G ) ) /\ A. y e. dom ( iEdg ` G ) E. z e. ( 1 ... n ) y = ( e ` z ) ) ) )
+  1 gtrav0 |- ( G e. UMGraph -> ( ( EulerPaths ` G ) =/= (/) <-> E. n e. NN0 E. f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) E. v e. ( ( Vtx ` G ) ^m ( 0 ... n ) ) ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) )
+  2 gtravxfr |- ( n e. NN0 -> ( E. e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) E. v e. ( ( Vtx ` G ) ^m ( 0 ... n ) ) ( ( A. z e. ( 1 ... n ) ( ( iEdg ` G ) ` ( e ` z ) ) = { ( v ` ( z - 1 ) ) , ( v ` z ) } /\ e : ( 1 ... n ) -1-1-> dom ( iEdg ` G ) ) /\ A. y e. dom ( iEdg ` G ) E. z e. ( 1 ... n ) y = ( e ` z ) ) <-> E. f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) E. v e. ( ( Vtx ` G ) ^m ( 0 ... n ) ) ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) ) )
+  3 rexbiia 2 |- ( E. n e. NN0 E. e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) E. v e. ( ( Vtx ` G ) ^m ( 0 ... n ) ) ( ( A. z e. ( 1 ... n ) ( ( iEdg ` G ) ` ( e ` z ) ) = { ( v ` ( z - 1 ) ) , ( v ` z ) } /\ e : ( 1 ... n ) -1-1-> dom ( iEdg ` G ) ) /\ A. y e. dom ( iEdg ` G ) E. z e. ( 1 ... n ) y = ( e ` z ) ) <-> E. n e. NN0 E. f e. ( dom ( iEdg ` G ) ^m ( 0 ... ( n - 1 ) ) ) E. v e. ( ( Vtx ` G ) ^m ( 0 ... n ) ) ( ( f : ( 0 ... ( n - 1 ) ) -1-1-> dom ( iEdg ` G ) /\ A. a e. dom ( iEdg ` G ) E. k e. ( 0 ... ( n - 1 ) ) a = ( f ` k ) ) /\ A. k e. ( 0 ... ( n - 1 ) ) ( ( iEdg ` G ) ` ( f ` k ) ) = { ( v ` k ) , ( v ` ( k + 1 ) ) } ) )
+  4 bitr4di 1 3 |- ( G e. UMGraph -> ( ( EulerPaths ` G ) =/= (/) <-> E. n e. NN0 E. e e. ( dom ( iEdg ` G ) ^m ( 1 ... n ) ) E. v e. ( ( Vtx ` G ) ^m ( 0 ... n ) ) ( ( A. z e. ( 1 ... n ) ( ( iEdg ` G ) ` ( e ` z ) ) = { ( v ` ( z - 1 ) ) , ( v ` z ) } /\ e : ( 1 ... n ) -1-1-> dom ( iEdg ` G ) ) /\ A. y e. dom ( iEdg ` G ) E. z e. ( 1 ... n ) y = ( e ` z ) ) ) )

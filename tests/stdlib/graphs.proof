@@ -1,0 +1,12 @@
+import definition stdlib/graphs/walk as graphs-walk
+
+theorem walk
+  let G be an undirected multigraph with vertices V and edges E      (H1)
+  let n ∈ ℕ₀                                                          (H2)
+  let e : {1, …, n} → E                                               (H3)
+  let v : {0, …, n} → V                                               (H4)
+  assume for all i ∈ {1, …, n}, e(i) joins v(i − 1) and v(i)          (H5)
+  then v and e form a walk of n edges
+
+1.  v and e form a walk of n edges
+    def:graphs-walk, from H2, H5
