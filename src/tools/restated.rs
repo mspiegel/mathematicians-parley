@@ -464,6 +464,75 @@ fn is_claim(text: &str) -> bool {
 
 /// Build every restatement and verify what was built.
 pub fn run(source: &dyn Source, libraries: Option<&Libraries>) -> Said {
+    restated(source, libraries, true)
+}
+
+/// What `run` says after the files `edited` were changed, for asking whether
+/// an edit is reported. Building and verifying read nothing under `docs/`,
+/// so where every edit is there what they say is what they said before, and
+/// only the list of items not restated is compared.
+pub fn run_edited(
+    source: &dyn Source,
+    libraries: Option<&Libraries>,
+    edited: &[String],
+) -> Said {
+    let built = !edited.iter().all(|path| path.starts_with("docs/"));
+    restated(source, libraries, built)
+}
+
+/// Every restatement `wanted` built over the corpus `all`, and what was
+/// built verified with the library files it includes: green where each
+/// builds and verifies.
+fn built_and_verified(
+    source: &dyn Source,
+    all: &Corpus,
+    wanted: &[Artifact],
+    libraries: &Libraries,
+) -> Said {
+    let mut said = Said::default();
+    let mut made: Vec<(String, String)> = Vec::new();
+    {
+        let mut maker = match Maker::new(source, all, libraries) {
+            Ok(maker) => maker,
+            Err(problem) => {
+                return Said {
+                    printed: String::new(),
+                    complained: format!("{problem}\n"),
+                    status: 2,
+                }
+            }
+        };
+        for artifact in wanted {
+            match maker.make(artifact) {
+                Ok(text) => made.push((artifact.path(), text)),
+                Err(problem) => {
+                    said.printed += &format!("{problem}\n");
+                }
+            }
+        }
+    }
+    let unbuilt = wanted.len() - made.len();
+    if unbuilt > 0 {
+        said.printed += &format!(
+            "\n{unbuilt} of {} library items do not give their target what it asks\n",
+            wanted.len()
+        );
+        said.status = 1;
+        return said;
+    }
+    let mut built = Overlay::new(source);
+    let mut paths = vec![path_of(DEFINITIONS), path_of(PROVED)];
+    for (path, text) in made {
+        built.write(&path, text.into_bytes());
+        paths.push(path);
+    }
+    verify::run(&built, &paths, Some(libraries))
+}
+
+/// Build every restatement and verify what was built, where `build` asks
+/// for it, and compare what no proof restates with what ELABORATION.md
+/// lists.
+fn restated(source: &dyn Source, libraries: Option<&Libraries>, build: bool) -> Said {
     let fail = |message: String| Said {
         printed: String::new(),
         complained: format!("{message}\n"),
@@ -518,41 +587,11 @@ pub fn run(source: &dyn Source, libraries: Option<&Libraries>) -> Said {
         .collect();
 
     let mut said = Said::default();
-    let mut made: Vec<(String, String)> = Vec::new();
-    {
-        let mut maker = match Maker::new(source, &all, libraries) {
-            Ok(maker) => maker,
-            Err(problem) => return fail(problem.to_string()),
-        };
-        for artifact in &wanted {
-            match maker.make(artifact) {
-                Ok(text) => made.push((artifact.path(), text)),
-                Err(problem) => {
-                    said.printed += &format!("{problem}\n");
-                }
-            }
+    if build {
+        let built = built_and_verified(source, &all, &wanted, libraries);
+        if !built.green() {
+            return built;
         }
-    }
-    let unbuilt = wanted.len() - made.len();
-    if unbuilt > 0 {
-        said.printed += &format!(
-            "\n{unbuilt} of {} library items do not give their target what it asks\n",
-            wanted.len()
-        );
-        said.status = 1;
-        return said;
-    }
-
-    // What was built is verified with the library files it includes.
-    let mut built = Overlay::new(source);
-    let mut paths = vec![path_of(DEFINITIONS), path_of(PROVED)];
-    for (path, text) in made {
-        built.write(&path, text.into_bytes());
-        paths.push(path);
-    }
-    let verified = verify::run(&built, &paths, Some(libraries));
-    if !verified.green() {
-        return verified;
     }
     // What is skipped is written up, and only that (GOALS.md, decision 17).
     let text = source.read_text("docs/ELABORATION.md").unwrap_or_default();

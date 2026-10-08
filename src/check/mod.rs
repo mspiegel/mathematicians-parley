@@ -12,12 +12,15 @@ mod formulas;
 mod library;
 mod structure;
 
+use std::collections::BTreeSet;
+
 use indexmap::{IndexMap, IndexSet};
 
 use crate::citing::{Library, Proved};
 use crate::corpus::{
-    index, link_definitions, link_functions, parse_database, parse_proof, proof_files,
-    record_files, written_text, FileScope, Intro, Item, Record, RecordKind, Theorem,
+    index, link_definitions, link_functions, module_of, parse_database, parse_proof,
+    proof_files, record_files, written_text, FileScope, Intro, Item, Record,
+    RecordKind, Theorem,
 };
 use crate::formula::Grammar;
 use crate::formula::Sorts;
@@ -78,6 +81,31 @@ pub fn run(source: &dyn Source) -> Outcome {
     }
 }
 
+/// Check the corpus under the source's root, after the files `edited` were
+/// changed, with only the theorems an edit to them can reach checked
+/// (`Checking::reached_from`). What is checked of the corpus as a whole is
+/// checked, and the counts are the whole corpus's.
+///
+/// A theorem's problems depend on the corpus as read and on nothing another
+/// theorem's check did, so what this reports is what `run` reports less the
+/// problems of the theorems it passes over. It is for asking whether an edit
+/// is reported, which it answers as `run` does; whether nothing is reported
+/// is `run`'s to answer.
+pub fn run_edited(source: &dyn Source, edited: &[String]) -> Outcome {
+    let checked = prepared(source, |report, c| {
+        let reached = c.reached_from(edited);
+        for (i, thm) in c.theorems.iter().enumerate() {
+            if reached.contains(thm.path.as_str()) {
+                check_theorem(report, c, thm, &c.known[i], &c.clashes[i]);
+            }
+        }
+    });
+    match checked {
+        Ok((report, counts, ())) => summary(report, counts),
+        Err(out) => out,
+    }
+}
+
 /// The corpus read once, which every theorem's checks are given.
 pub struct Checking<'a> {
     theorems: &'a [Theorem],
@@ -114,7 +142,49 @@ pub fn check_cuts(
     .map(|(_, _, said)| said)
 }
 
-impl Checking<'_> {
+impl<'a> Checking<'a> {
+    /// The proof files an edit to `edited` can change what is said of: the
+    /// edited files, and every file importing from one of them, and every
+    /// file importing from one of those. Where a file edited is not a proof
+    /// file, a record or a notation, every theorem reads it, and every proof
+    /// file is reached.
+    fn reached_from(&self, edited: &[String]) -> BTreeSet<&'a str> {
+        let every: BTreeSet<&'a str> =
+            self.scopes.iter().map(|s| s.path.as_str()).collect();
+        let mut reached: BTreeSet<&'a str> = BTreeSet::new();
+        for path in edited {
+            match every.get(path.as_str()) {
+                Some(&proof) => {
+                    reached.insert(proof);
+                }
+                None => return every,
+            }
+        }
+        loop {
+            let modules: BTreeSet<&str> =
+                reached.iter().map(|p| module_of(p)).collect();
+            let importing: Vec<&'a str> = self
+                .scopes
+                .iter()
+                .filter(|s| !reached.contains(s.path.as_str()))
+                .filter(|s| {
+                    let mut from = s
+                        .imports
+                        .iter()
+                        .map(|i| i.module.as_str())
+                        .chain(s.items.iter().map(|i| i.module.as_str()))
+                        .chain(s.functions.iter().map(|f| f.module.as_str()));
+                    from.any(|m| modules.contains(m))
+                })
+                .map(|s| s.path.as_str())
+                .collect();
+            if importing.is_empty() {
+                return reached;
+            }
+            reached.extend(importing);
+        }
+    }
+
     /// The problems one cut's theorem has, read from the cut's text. What a
     /// requires line says does not change what the theorem states, so the
     /// rest of the corpus is read as it was.

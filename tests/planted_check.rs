@@ -6,8 +6,8 @@
 //!
 //! The corpus is read once into memory and each case edits it through an
 //! overlay of its own, so no case copies a directory and none can see
-//! another's edit. The cases run on as many threads as the machine has, and
-//! are reported in the order they are written. The tool itself runs on one.
+//! another's edit. The clean corpus is checked whole; a case checks the
+//! theorems its edits can reach (`check::run_edited`).
 
 use std::path::Path;
 
@@ -78,7 +78,11 @@ fn outcome(case: &Case, clean: &Memory) -> (String, bool) {
         Ok(tree) => tree,
         Err(why) => return (why, true),
     };
-    let out = parley::check::run(&tree).printed;
+    // Only what the edits reach is checked: a case passes only where its
+    // problem is reported, and a theorem left unchecked can only leave a
+    // problem out.
+    let edited: Vec<String> = case.edits.iter().map(|e| e.file.to_string()).collect();
+    let out = parley::check::run_edited(&tree, &edited).printed;
     if out.contains(case.expect) {
         return (format!("  caught        {}", case.name), false);
     }

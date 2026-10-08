@@ -140,6 +140,41 @@ pub fn artifacts(found: &Corpus) -> Vec<Artifact> {
     out
 }
 
+/// The artifacts of `every` an edit to the files `edited` can change, with
+/// every artifact they read, so that each is made from what a whole build
+/// makes it from. An edited artifact's own file reaches that artifact, and
+/// a library proof worksheet reaches `proved.mm`, the one recipe that reads
+/// it; any other file is read by every recipe, through the corpus, and
+/// reaches every artifact.
+pub fn reached_by<'a>(every: &'a [Artifact], edited: &[String]) -> Vec<&'a Artifact> {
+    let mut wanted: BTreeSet<&str> = BTreeSet::new();
+    for path in edited {
+        if let Some(artifact) = every.iter().find(|a| a.path() == *path) {
+            wanted.insert(&artifact.name);
+        } else if path.starts_with(crate::proofs::stdlib::WORKSHEETS) {
+            wanted.insert(PROVED);
+        } else {
+            return every.iter().collect();
+        }
+    }
+    loop {
+        let needed: Vec<&str> = every
+            .iter()
+            .filter(|a| wanted.contains(a.name.as_str()))
+            .flat_map(|a| a.needs.iter().map(String::as_str))
+            .filter(|name| !wanted.contains(name))
+            .collect();
+        if needed.is_empty() {
+            break;
+        }
+        wanted.extend(needed);
+    }
+    every
+        .iter()
+        .filter(|a| wanted.contains(a.name.as_str()))
+        .collect()
+}
+
 /// The files the verifier is given: every artifact, the hand-written
 /// comparisons among them, since a comparison that did not verify would be
 /// no comparison.

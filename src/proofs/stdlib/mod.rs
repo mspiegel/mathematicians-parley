@@ -46,6 +46,9 @@ $[ stdlib/definitions.mm $]
 
 ";
 
+/// Where the worksheets `proved` reads are, each by its name.
+pub const WORKSHEETS: &str = "corpus/proved/";
+
 /// The text of `proved.mm`, from each group's worksheet, which `read` gives
 /// by its path, and the library read alongside the corpus's definitions:
 /// the angle is a constant this corpus introduces, `angval` says what a
@@ -57,7 +60,7 @@ pub fn proved(
     let mut b = Builder::new(sigs);
     let mut out = String::from(HEAD);
     for name in NAMES {
-        let path = format!("corpus/proved/{name}.proved");
+        let path = format!("{WORKSHEETS}{name}.proved");
         let text =
             read(&path).ok_or_else(|| Problem::new(&path, 0, "cannot read it"))?;
         let group = super::worksheet::read(&path, &text, &mut b)?;

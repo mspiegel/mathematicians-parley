@@ -18,7 +18,7 @@ use parley::mm::where_set_mm;
 use parley::said::Said;
 use parley::source::{Disk, Memory, Overlay, Source};
 use parley::tools::build::Libraries;
-use parley::tools::gate::{as_built, verifies};
+use parley::tools::gate::{as_built, as_built_edited, verifies};
 use parley::tools::{assumed, labels, needed, restated, tested};
 
 /// set.mm, where it is and as it reads, read once for every stage and case.
@@ -64,6 +64,41 @@ fn needed_stage(tree: &dyn Source, setmm: &SetMm) -> Said {
     needed::run_over(tree, Some(&setmm.libraries), &[NEEDED_FILE.to_string()])
 }
 
+/// A stage as a case asks it, told the files the case edited. A case passes
+/// only where its stage says what it should, and a stage that does only
+/// the part of its work an edit reaches can only leave something unsaid;
+/// so the fresh build and the restatements, whose work an edit reaches in
+/// part, do that part, and the others do all of it.
+type CaseStage = fn(&dyn Source, &SetMm, &[String]) -> Said;
+
+fn labels_case(tree: &dyn Source, setmm: &SetMm, _: &[String]) -> Said {
+    labels_stage(tree, setmm)
+}
+
+fn tested_case(tree: &dyn Source, setmm: &SetMm, _: &[String]) -> Said {
+    tested_stage(tree, setmm)
+}
+
+fn assumed_case(tree: &dyn Source, setmm: &SetMm, _: &[String]) -> Said {
+    assumed_stage(tree, setmm)
+}
+
+fn as_built_case(tree: &dyn Source, setmm: &SetMm, edited: &[String]) -> Said {
+    as_built_edited(tree, Some(&setmm.libraries), edited)
+}
+
+fn verify_case(tree: &dyn Source, setmm: &SetMm, _: &[String]) -> Said {
+    verify_stage(tree, setmm)
+}
+
+fn restated_case(tree: &dyn Source, setmm: &SetMm, edited: &[String]) -> Said {
+    restated::run_edited(tree, Some(&setmm.libraries), edited)
+}
+
+fn needed_case(tree: &dyn Source, setmm: &SetMm, _: &[String]) -> Said {
+    needed_stage(tree, setmm)
+}
+
 const STAGES: [(&str, Stage); 7] = [
     ("set.mm labels", labels_stage),
     ("cited or tested", tested_stage),
@@ -79,7 +114,7 @@ const STAGES: [(&str, Stage); 7] = [
 /// must say.
 struct Case {
     name: &'static str,
-    stage: Stage,
+    stage: CaseStage,
     file: &'static str,
     old: &'static str,
     new: &'static str,
@@ -96,7 +131,7 @@ fn cases() -> Vec<Case> {
     vec![
         Case {
             name: "a target names a label set.mm does not have",
-            stage: labels_stage,
+            stage: labels_case,
             file: "corpus/stdlib/numbers.records",
             old: "  target      nnrecl\n",
             new: "  target      nnreclzz\n",
@@ -104,7 +139,7 @@ fn cases() -> Vec<Case> {
         },
         Case {
             name: "a library item nothing cites",
-            stage: tested_stage,
+            stage: tested_case,
             file: "corpus/stdlib/sets.records",
             old: "mundane theorem union-self\n",
             new: "mundane theorem union-self-again\n  then        Y ∪ Y = Y\n  metamath    unidm\n  target      unidm\n\nmundane theorem union-self\n",
@@ -112,7 +147,7 @@ fn cases() -> Vec<Case> {
         },
         Case {
             name: "a built proof takes a step as stated that is not recorded",
-            stage: assumed_stage,
+            stage: assumed_case,
             file: CANTOR,
             old: "\n$}",
             new: "\n  planted $a |- ph $.\n$}",
@@ -120,7 +155,7 @@ fn cases() -> Vec<Case> {
         },
         Case {
             name: "a step recorded as taken as stated that no file takes",
-            stage: assumed_stage,
+            stage: assumed_case,
             file: "docs/ELABORATION.md",
             old: "None: every step of every proof and every library test is built.\n",
             new: "- `corpus/elaboration/proofs/cantor/cantor.mm` `ghost`: planted.\n",
@@ -128,7 +163,7 @@ fn cases() -> Vec<Case> {
         },
         Case {
             name: "a built file that is not what the build makes",
-            stage: as_built_stage,
+            stage: as_built_case,
             file: CANTOR,
             old: CANTOR_SAYS,
             new: CANTOR_WRONG,
@@ -136,7 +171,7 @@ fn cases() -> Vec<Case> {
         },
         Case {
             name: "a library proof step that does not follow",
-            stage: as_built_stage,
+            stage: as_built_case,
             file: "corpus/proved/divisors.proved",
             old: "  8 1gcd |- ( C e. ZZ -> ( 1 gcd C ) = 1 )\n",
             new: "  8 1gcd |- ( C e. ZZ -> ( 1 gcd C ) = 2 )\n",
@@ -144,7 +179,7 @@ fn cases() -> Vec<Case> {
         },
         Case {
             name: "a proof whose statement it does not prove",
-            stage: verify_stage,
+            stage: verify_case,
             file: CANTOR,
             old: CANTOR_SAYS,
             new: CANTOR_WRONG,
@@ -152,7 +187,7 @@ fn cases() -> Vec<Case> {
         },
         Case {
             name: "an item no proof restates that ELABORATION.md does not list",
-            stage: restated_stage,
+            stage: restated_case,
             file: "docs/ELABORATION.md",
             old: "`stdlib/reasoning/or-right`",
             new: "or-right",
@@ -160,7 +195,7 @@ fn cases() -> Vec<Case> {
         },
         Case {
             name: "an item listed as not restated that is restated",
-            stage: restated_stage,
+            stage: restated_case,
             file: "docs/ELABORATION.md",
             old: "`stdlib/counting/count-last-fails`.",
             new: "`stdlib/counting/count-last-fails`, `stdlib/sets/union-self`.",
@@ -168,7 +203,7 @@ fn cases() -> Vec<Case> {
         },
         Case {
             name: "a requires line the step is checked and built without",
-            stage: needed_stage,
+            stage: needed_case,
             file: NEEDED_FILE,
             old: "          algebra\n          requires k ∈ ℝ: from K\n",
             new: "          algebra\n          requires 2 ≠ 0: arithmetic\n          requires k ∈ ℝ: from K\n",
@@ -210,7 +245,7 @@ fn outcome(case: &Case, clean: &Memory, setmm: &SetMm) -> (String, bool) {
         );
     }
     tree.write(case.file, text.replacen(case.old, case.new, 1).into_bytes());
-    let said = (case.stage)(&tree, setmm);
+    let said = (case.stage)(&tree, setmm, &[case.file.to_string()]);
     let all = format!("{}{}", said.printed, said.complained);
     if !said.green() && all.contains(case.expect) {
         return (format!("  caught        {}", case.name), false);

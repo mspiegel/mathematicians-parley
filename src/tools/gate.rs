@@ -42,7 +42,9 @@ use crate::mm::library::where_set_mm;
 use crate::said::Said;
 use crate::source::{Disk, Source};
 
-use super::build::{artifacts, verified, waves, Artifact, Libraries, Maker};
+use super::build::{
+    artifacts, reached_by, verified, waves, Artifact, Libraries, Maker,
+};
 use super::{assumed, labels, needed, restated, tested, verify};
 
 /// Where a label missing from a rule table is said to be written.
@@ -50,6 +52,28 @@ const TABLES_AT: &str = "src/rules.rs";
 
 /// Every artifact made afresh and compared with its file in the tree.
 pub fn as_built(source: &dyn Source, libraries: Option<&Libraries>) -> Said {
+    built_as(source, libraries, None)
+}
+
+/// What `as_built` says after the files `edited` were changed, for asking
+/// whether an edit is reported: only the artifacts an edit to them reaches
+/// are made and compared (`build::reached_by`), each from what a whole build
+/// makes it from, so what this says of each is what `as_built` says of it.
+pub fn as_built_edited(
+    source: &dyn Source,
+    libraries: Option<&Libraries>,
+    edited: &[String],
+) -> Said {
+    built_as(source, libraries, Some(edited))
+}
+
+/// The artifacts made and compared with the tree's: every one, or those an
+/// edit to the files `edited` reaches.
+fn built_as(
+    source: &dyn Source,
+    libraries: Option<&Libraries>,
+    edited: Option<&[String]>,
+) -> Said {
     let mut said = Said::default();
     let found = match corpus(source) {
         Ok(found) => found,
@@ -76,7 +100,10 @@ pub fn as_built(source: &dyn Source, libraries: Option<&Libraries>) -> Said {
             return said;
         }
     };
-    let all: Vec<&Artifact> = every.iter().collect();
+    let all: Vec<&Artifact> = match edited {
+        Some(edited) => reached_by(&every, edited),
+        None => every.iter().collect(),
+    };
     let mut differ = 0;
     for wave in waves(&all) {
         for artifact in wave {
@@ -103,7 +130,7 @@ pub fn as_built(source: &dyn Source, libraries: Option<&Libraries>) -> Said {
     }
     said.printed += &format!(
         "\n{} artifacts built, {differ} not as the tree has them\n",
-        every.len()
+        all.len()
     );
     if differ > 0 {
         said.printed += "\nrun parley build\n";
