@@ -463,9 +463,11 @@ pub fn check_requires(
 /// inequalities, from 3.1`, or `requires b − a ≠ 0` above `requires (f(a) −
 /// f(b))/(b − a) ∈ ℝ: membership`. An order between terms is what
 /// `inequalities` reasons from, so `requires sin(∠PQR) > 0` is asked for by
-/// `requires sin(∠PQR) ≠ 0: inequalities` below it. Such a line is asked
-/// for as surely as an item's hypothesis is (`SYNTAX.md`: a requires line
-/// rests on the lines above it).
+/// `requires sin(∠PQR) ≠ 0: inequalities` below it. The term may reach the
+/// line below through a line it cites, as `requires deg(x) ∈ ℕ₀:
+/// membership, from 2` rests on `requires |S| ∈ ℕ₀` where line 2 says deg(x)
+/// = |S|. Such a line is asked for as surely as an item's hypothesis is
+/// (`SYNTAX.md`: a requires line rests on the lines above it).
 fn built_on(req: &crate::corpus::Requires, step: &Step, known: &Known) -> bool {
     const ASKING: [&str; 3] = ["membership", "inequalities", "algebra"];
     let Some(said) = known.read(step, &req.fact) else {
@@ -503,6 +505,12 @@ fn built_on(req: &crate::corpus::Requires, step: &Step, known: &Known) -> bool {
         _ => return false,
     };
     let atoms: Vec<String> = held.iter().map(|h| h.shape().to_string()).collect();
+    let holds_atom = |n: &Node| {
+        atoms
+            .iter()
+            .any(|atom| n.walk().iter().any(|part| part.shape() == *atom))
+    };
+    let scope = known.scope(step);
     step.requires
         .iter()
         .skip_while(|r| r.line != req.line)
@@ -513,17 +521,28 @@ fn built_on(req: &crate::corpus::Requires, step: &Step, known: &Known) -> bool {
                 .iter()
                 .any(|m| how == *m || how.starts_with(&format!("{m},")))
         })
-        .filter_map(|r| known.read(step, &r.fact))
-        .any(|n| {
+        .filter_map(|r| known.read(step, &r.fact).map(|n| (r, n)))
+        .any(|(r, n)| {
             let held = if n.notation == "membership" && n.children.len() == 2 {
                 &n.children[0]
             } else {
                 &n
             };
-            atoms.iter().any(|atom| {
+            let written = atoms.iter().any(|atom| {
                 held.shape() != *atom
                     && held.walk().iter().any(|part| part.shape() == *atom)
-            })
+            });
+            // A line the lower one cites carries the term to it: `deg(x) ∈
+            // ℕ₀: membership, from 2` rests on `|S| ∈ ℕ₀` above it where
+            // line 2 says deg(x) = |S|.
+            written
+                || references(&r.how)
+                    .0
+                    .iter()
+                    .filter_map(|c| scope.get(c))
+                    .flat_map(|text| supplied_by(text))
+                    .filter_map(|s| known.read(step, &s))
+                    .any(|line| holds_atom(&line))
         })
 }
 

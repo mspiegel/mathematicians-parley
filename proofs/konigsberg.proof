@@ -138,29 +138,25 @@ define r := |{i ∈ {1, …, n} : x = v(i)}|                              (D3)
 13. |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}| = m + m
     substitute r = m (line 11) into line 12
 
-14. m ∈ ℕ₀
-    mun:count-nat0 k := n − 1, from D1
-    requires n − 1 ∈ ℤ: membership, from H2
-
-15. m + m = 2m
+14. m + m = 2m
     algebra
-    requires m ∈ ℝ: membership, from 14
+    requires n − 1 ∈ ℤ: membership, from H2
+    requires m ∈ ℕ₀: mun:count-nat0 k := n − 1, from D1
 
-16. deg(x) = 2m
+15. deg(x) = 2m
     calculation
       deg(x) = |{i ∈ {1, …, n} : x is an end of e(i)}|                 2
              = |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}|           5
              = m + m                                                  13
-             = 2m                                                     15
+             = 2m                                                     14
 
-17. |{i ∈ {1, …, n} : x is an end of e(i)}| ∈ ℕ₀
-    mun:count-nat0 k := n
+16. deg(x) is even
+    mun:even n := deg(x), from 15
+    requires n − 1 ∈ ℤ: membership, from H2
+    requires m ∈ ℕ₀: mun:count-nat0 k := n − 1, from D1
     requires n ∈ ℤ: membership, from H2
-
-18. deg(x) is even
-    mun:even n := deg(x), from 16
-    requires m ∈ ℤ: membership, from 14
-    requires deg(x) ∈ ℕ₀: membership, from 2, 17
+    requires |{i ∈ {1, …, n} : x is an end of e(i)}| ∈ ℕ₀: mun:count-nat0 k := n
+    requires deg(x) ∈ ℕ₀: membership, from 2
 
 theorem degree-by-walk
   note        A list of the edges that names each exactly once counts the
