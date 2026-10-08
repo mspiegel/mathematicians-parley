@@ -149,7 +149,15 @@ pub fn run(
 /// Every problem the verifier finds in the files, starting from the joined
 /// one, each written out with the statement it is in.
 pub fn verified(files: Vec<(String, Vec<u8>)>) -> Vec<String> {
-    let mut db = Database::new(DbOptions::default());
+    // metamath-rs works segment by segment, and set.mm read whole is one
+    // segment on one thread: split at its chapters, it is checked on every
+    // core at once.
+    let options = DbOptions {
+        autosplit: true,
+        jobs: std::thread::available_parallelism().map_or(1, |n| n.get()),
+        ..DbOptions::default()
+    };
+    let mut db = Database::new(options);
     db.parse(JOINED.to_string(), files);
     db.verify_pass();
     let diags = db.diag_notations();
