@@ -265,10 +265,10 @@ theorem subsets-count
           assume |X| = k + 1                                          (C2)
 
           1.2.1.  a ∈ X
-                  obtain a: mun:card-nonempty, from K2, C2
+                  obtain a: mun:card-nonempty, from C2
 
           1.2.2.  |X ∖ {a}| = k
-                  mun:card-remove, from 1.2.1, K2, C2
+                  mun:card-remove, from 1.2.1, C2
 
           define U := 𝒫(X ∖ {a})                                         (D1)
                  reads the subsets of X that do not contain a
@@ -280,14 +280,12 @@ theorem subsets-count
 
           1.2.4.  There is a bijection from U to T.
                   thm:add-element-bijection X := X ∖ {a}, from D1, D2
-                  requires a ∉ X ∖ {a}: mun:not-in-difference,
-                    from K3
+                  requires a ∉ X ∖ {a}: mun:not-in-difference
 
           1.2.5.  |T| = 2^k
                   mun:card-bijection X := U, Y := T, m := 2^k,
                     from 1.2.3, 1.2.4
-                  requires 2 ∈ ℕ₀: arithmetic
-                  requires 2^k ∈ ℕ₀: mun:power-nat0 a := 2, m := k, from K2
+                  requires 2^k ∈ ℕ₀: mun:power-nat0 a := 2, m := k
 
           1.2.6.  U ∩ T = ∅
                   thm:powerset-split-disjoint, from D1, D2, 1.2.1
@@ -298,20 +296,17 @@ theorem subsets-count
           1.2.8.  |U ∪ T| = 2^k + 2^k
                   mun:card-disjoint-union X := U, Y := T, m := 2^k,
                     n := 2^k, from 1.2.3, 1.2.5, 1.2.6
-                  requires 2 ∈ ℕ₀: arithmetic
-                  requires 2^k ∈ ℕ₀: mun:power-nat0 a := 2, m := k, from K2
+                  requires 2^k ∈ ℕ₀: mun:power-nat0 a := 2, m := k
 
           1.2.9.  |𝒫X| = 2^k + 2^k
                   substitute 𝒫X = U ∪ T (line 1.2.7) into line 1.2.8
 
           1.2.10. 2^k + 2^k = 2^k·2
                   algebra
-                  requires 2 ∈ ℝ: arithmetic
-                  requires 2^k ∈ ℝ: mun:power-real a := 2, m := k, from K2
+                  requires 2^k ∈ ℝ: mun:power-real a := 2, m := k
 
           1.2.11. 2^(k + 1) = 2^k·2
-                  mun:exponent-step a := 2, m := k, from K2
-                  requires 2 ∈ ℝ: arithmetic
+                  mun:exponent-step a := 2, m := k
 
           1.2.12. |𝒫X| = 2^(k + 1)
                   calculation
@@ -320,4 +315,4 @@ theorem subsets-count
                          = 2^(k + 1)      1.2.11
 
 2.  |𝒫A| = 2^n
-    instantiate k := n, X := A in line 1, from H1, H2, H3
+    instantiate k := n, X := A in line 1, from H2, H3

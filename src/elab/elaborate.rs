@@ -490,6 +490,8 @@ impl<'a> Elaborator<'a> {
         }
         let more = self.sethoods(&nodes, &terms, &scope, &facts)?;
         self.sorts.extend(more);
+        self.introduced = IndexMap::new();
+        self.note_introduced(&scope, &facts)?;
 
         // Each keeps the sentence it was read from, as a block's opening
         // line does, so a step may substitute into it.
@@ -1459,7 +1461,20 @@ impl<'a> Elaborator<'a> {
         for (name, value) in self.instantiated_nodes(cites)? {
             seed.insert(name, expand(&value, &defined));
         }
-        Ok(finished(facts, claims, seed, library, &self.sorts_now))
+        let mut parts = finished(facts, claims, seed, library, &self.sorts_now);
+        // The memberships the page says once, as the checker reads them.
+        let introduced: citing::Introduced = self
+            .sets
+            .iter()
+            .filter_map(|(letter, set)| {
+                rules::SYSTEM_OF
+                    .iter()
+                    .find(|(_, label)| label == set)
+                    .map(|(_, label)| (letter.clone(), *label))
+            })
+            .collect();
+        citing::said_once(&mut parts, &introduced, library, &self.sorts_now);
+        Ok(parts)
     }
 
     /// The values a citation gives its item's letters, `name := value`, each
@@ -4167,6 +4182,13 @@ impl<'a> Elaborator<'a> {
         let supplied = self.supplied(Some(step), scope, facts)?;
         let known = self.with_cited(Some(step), scope, &supplied, None);
         for one in &wanted {
+            // A membership the page says once is taken from where it says
+            // it, and not from the scope's copy of a line the step does not
+            // name.
+            if let Built(p) = self.said_once_proof(&self.to_term(one), scope, &known)? {
+                self.know(&known, one.clone(), p);
+                continue;
+            }
             if self.holds(&known, one) {
                 continue;
             }

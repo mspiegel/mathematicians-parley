@@ -43,13 +43,9 @@ define f(r) := (r·a) mod n, for r ∈ S                                (D2)
 
 1.  {0, …, n − 1} is finite
     mun:range-finite
-    requires 0 ∈ ℤ: arithmetic
-    requires n − 1 ∈ ℤ: membership, from H1
 
 2.  {0, …, n − 1} ⊆ ℤ
     mun:range-in-integers
-    requires 0 ∈ ℤ: arithmetic
-    requires n − 1 ∈ ℤ: membership, from H1
 
 3.  S ⊆ {0, …, n − 1}
     mun:set-builder-subset, from D1
@@ -68,17 +64,12 @@ define f(r) := (r·a) mod n, for r ∈ S                                (D2)
           mun:set-builder u := r, from K1, D1
 
     6.2.  gcd(r·a, n) = 1
-          mun:coprime-product, from H2, H1, 6.1, H3
-          requires 0 ∈ ℤ: arithmetic
-          requires n − 1 ∈ ℤ: membership, from H1
+          mun:coprime-product, from 6.1, H3
           requires r ∈ ℤ: mun:range-integer, from 6.1
 
     6.3.  gcd((r·a) mod n, n) = gcd(r·a, n)
-          thm:gcd-mod, from H1
-          requires 0 ∈ ℤ: arithmetic
-          requires n − 1 ∈ ℤ: membership, from H1
+          thm:gcd-mod
           requires r ∈ ℤ: mun:range-integer, from 6.1
-          requires r·a ∈ ℤ: membership, from H2
 
     6.4.  gcd((r·a) mod n, n) = 1
           calculation
@@ -86,18 +77,12 @@ define f(r) := (r·a) mod n, for r ∈ S                                (D2)
                                 = 1                  6.2
 
     6.5.  (r·a) mod n < n
-          mun:mod-less, from H1
-          requires 0 ∈ ℤ: arithmetic
-          requires n − 1 ∈ ℤ: membership, from H1
+          mun:mod-less
           requires r ∈ ℤ: mun:range-integer, from 6.1
-          requires r·a ∈ ℤ: membership, from H2
 
     6.6.  (r·a) mod n ∈ {0, …, n − 1}
-          mun:range-from-bounds, from H1, 6.5
-          requires 0 ∈ ℤ: arithmetic
-          requires n − 1 ∈ ℤ: membership, from H1
+          mun:range-from-bounds, from 6.5
           requires r ∈ ℤ: mun:range-integer, from 6.1
-          requires r·a ∈ ℤ: membership, from H2
           requires (r·a) mod n ∈ ℕ₀: mun:mod-natural, from H1
 
     6.7.  (r·a) mod n ∈ S
@@ -134,23 +119,17 @@ define f(r) := (r·a) mod n, for r ∈ S                                (D2)
                         = (t·a) mod n   7.4
 
     7.6.  s·a ≡ t·a (mod n)
-          mun:mod-equal-congruent, from H1, 7.5
-          requires 0 ∈ ℤ: arithmetic
-          requires n − 1 ∈ ℤ: membership, from H1
+          mun:mod-equal-congruent, from 7.5
           requires s ∈ ℤ: mun:range-integer, from 7.1
           requires t ∈ ℤ: mun:range-integer, from 7.2
-          requires s·a ∈ ℤ: membership, from H2
-          requires t·a ∈ ℤ: membership, from H2
 
     7.7.  s ≡ t (mod n)
-          thm:congruent-cancel c := a, from H2, H1, 7.6, H3
-          requires 0 ∈ ℤ: arithmetic
-          requires n − 1 ∈ ℤ: membership, from H1
+          thm:congruent-cancel c := a, from 7.6, H3
           requires s ∈ ℤ: mun:range-integer, from 7.1
           requires t ∈ ℤ: mun:range-integer, from 7.2
 
     7.8.  s = t
-          mun:congruent-in-range, from H1, 7.1, 7.2, 7.7
+          mun:congruent-in-range, from 7.1, 7.2, 7.7
 
 8.  f : S → S
     mun:function-into, from 6
@@ -170,11 +149,8 @@ define f(r) := (r·a) mod n, for r ∈ S                                (D2)
           mun:set-builder u := r, from K5, D1
 
     11.2. r·a ≡ (r·a) mod n (mod n)
-          mun:mod-congruent, from H1
-          requires 0 ∈ ℤ: arithmetic
-          requires n − 1 ∈ ℤ: membership, from H1
+          mun:mod-congruent
           requires r ∈ ℤ: mun:range-integer, from 11.1
-          requires r·a ∈ ℤ: membership, from H2
 
     11.3. f(r) = (r·a) mod n
           D2, from K5
@@ -183,14 +159,14 @@ define f(r) := (r·a) mod n, for r ∈ S                                (D2)
           substitute f(r) = (r·a) mod n (line 11.3) into line 11.2
 
 12. ∏(r ∈ S) r·a ≡ ∏(r ∈ S) f(r) (mod n)
-    thm:product-congruent X := S, f := f, from 5, 4, H2, H1, 11
+    thm:product-congruent X := S, f := f, from 5, 4, 11
     requires f : S → S: from 8
 
 13. ∏(r ∈ S) r·a = a^|S|·∏(r ∈ S) r
-    thm:product-factor, from 5, 4, H2
+    thm:product-factor, from 5, 4
 
 14. φ(n) = |S|
-    def:φ, from H1, D1
+    def:φ, from D1
 
 15. a^|S|·∏(r ∈ S) r ≡ ∏(r ∈ S) f(r) (mod n)
     substitute ∏(r ∈ S) r·a = a^|S|·∏(r ∈ S) r (line 13) into line 12
@@ -205,18 +181,17 @@ define f(r) := (r·a) mod n, for r ∈ S                                (D2)
     mun:set-builder u := r, from D1
 
 19. gcd(∏(r ∈ S) r, n) = 1
-    thm:product-coprime, from 5, 4, H1, 18
+    thm:product-coprime, from 5, 4, 18
 
 20. a^φ(n)·∏(r ∈ S) r − ∏(r ∈ S) r = (a^φ(n) − 1)·∏(r ∈ S) r
     algebra
-    requires φ(n) ∈ ℕ: mun:phi-natural, from H1
+    requires φ(n) ∈ ℕ: mun:phi-natural
     requires a^φ(n) ∈ ℝ: membership, from H2
     requires ∏(r ∈ S) r ∈ ℤ: mun:product-integer, from 5, 4
 
 21. n divides a^φ(n)·∏(r ∈ S) r − ∏(r ∈ S) r
     mun:congruent-mod, from 17
-    requires n ∈ ℤ: membership, from H1
-    requires φ(n) ∈ ℕ: mun:phi-natural, from H1
+    requires φ(n) ∈ ℕ: mun:phi-natural
     requires a^φ(n) ∈ ℤ: membership, from H2
     requires ∏(r ∈ S) r ∈ ℤ: mun:product-integer, from 5, 4
     requires a^φ(n)·∏(r ∈ S) r ∈ ℤ: mun:int-closure
@@ -225,14 +200,12 @@ define f(r) := (r·a) mod n, for r ∈ S                                (D2)
     substitute a^φ(n)·∏(r ∈ S) r − ∏(r ∈ S) r = (a^φ(n) − 1)·∏(r ∈ S) r (line 20) into line 21
 
 23. n divides a^φ(n) − 1
-    thm:coprime-divides c := ∏(r ∈ S) r, from H1, 22, 19
+    thm:coprime-divides c := ∏(r ∈ S) r, from 22, 19
     requires ∏(r ∈ S) r ∈ ℤ: mun:product-integer, from 5, 4
-    requires φ(n) ∈ ℕ: mun:phi-natural, from H1
+    requires φ(n) ∈ ℕ: mun:phi-natural
     requires a^φ(n) − 1 ∈ ℤ: membership, from H2
 
 24. a^φ(n) ≡ 1 (mod n)
     mun:congruent-mod, from 23
-    requires n ∈ ℤ: membership, from H1
-    requires φ(n) ∈ ℕ: mun:phi-natural, from H1
+    requires φ(n) ∈ ℕ: mun:phi-natural
     requires a^φ(n) ∈ ℤ: membership, from H2
-    requires 1 ∈ ℤ: arithmetic

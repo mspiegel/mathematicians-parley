@@ -24,7 +24,7 @@ theorem termwise-under-a-hypothesis-over-its-letter
   then Σ(k = 1 to n) (k + 0) = Σ(k = 1 to n) k
 
 1.  n ∈ ℤ
-    mun:nat-int, from H1
+    mun:nat-int
 
 2.  For all k ∈ {1, …, n}, k + 0 = k.
     proof
@@ -32,8 +32,6 @@ theorem termwise-under-a-hypothesis-over-its-letter
 
     2.1.  k ∈ ℤ
           mun:range-integer a := 1, b := n, from J
-          requires 1 ∈ ℤ: arithmetic
-          requires n ∈ ℤ: from 1
 
     2.2.  k ∈ ℝ
           mun:int-real, from 2.1
@@ -44,5 +42,3 @@ theorem termwise-under-a-hypothesis-over-its-letter
 
 3.  Σ(k = 1 to n) (k + 0) = Σ(k = 1 to n) k
     mun:sum-termwise a := 1, b := n, from 2
-    requires 1 ∈ ℤ: arithmetic
-    requires n ∈ ℤ: from 1

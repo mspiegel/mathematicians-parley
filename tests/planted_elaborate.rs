@@ -246,8 +246,8 @@ fn cases() -> Vec<Case> {
             "a requires line that does not lex",
             "proofs/geometric-series/geometric-sum",
             "proofs/geometric-series.proof",
-            "          requires a ∈ ℝ: from H1\n          requires 1 − a ≠ 0: algebra, from H2\n          requires k + 1 ∈ ℕ₀",
-            "          requires a ¿ ℝ: from H1\n          requires 1 − a ≠ 0: algebra, from H2\n          requires k + 1 ∈ ℕ₀",
+            "          requires 1 − a ≠ 0: algebra, from H2\n          requires a^(k + 1) ∈ ℝ",
+            "          requires 1 − a ¿ 0: algebra, from H2\n          requires a^(k + 1) ∈ ℝ",
             "",
         )
         .at(
@@ -324,46 +324,49 @@ fn cases() -> Vec<Case> {
             "mun:triangle, from H5 does not reach",
         ),
         // A requires line below that cites an item asks for that item's
-        // hypotheses, and only those: mun:sum-real asks 0 ∈ ℤ and m ∈ ℤ of
-        // the range, and nothing asks 1 ∈ ℤ of an `algebra` step whose atoms
-        // are x, y and the sum.
+        // hypotheses, and only those: mun:sum-real asks nothing of x^m, and
+        // nothing asks x^m ∈ ℝ of an `algebra` step whose atoms are x, y and
+        // the sum. A power to a letter is written where it is needed, so the
+        // line is not one the step is spared; it is one nothing needs.
         case(
             "a requires line above an item's line that the item does not ask for",
             "proofs/binomial/binomial-step",
             "proofs/binomial.proof",
-            "    requires y ∈ ℝ: from H2\n    requires 0 ∈ ℤ: arithmetic\n    requires m ∈ ℕ₀: from H3\n    requires Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k ∈ ℝ: mun:sum-real a := 0, b := m\n",
-            "    requires y ∈ ℝ: from H2\n    requires 1 ∈ ℤ: arithmetic\n    requires 0 ∈ ℤ: arithmetic\n    requires m ∈ ℕ₀: from H3\n    requires Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k ∈ ℝ: mun:sum-real a := 0, b := m\n",
-            "the requires line of step 1 says 1 ∈ ℤ, and the step neither uses nor asks for it",
+            "    algebra\n    requires Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k ∈ ℝ: mun:sum-real a := 0, b := m\n\n2.",
+            "    algebra\n    requires x^m ∈ ℝ: mun:power-real a := x, m := m, from H1\n    requires Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k ∈ ℝ: mun:sum-real a := 0, b := m\n\n2.",
+            "the requires line of step 1 says x^m ∈ ℝ, and the step neither uses nor asks for it",
         ),
         // A step's proof rests only on what it names (`GOALS.md` decision 9).
-        // Without its requires line, `algebra` wants k ∈ ℂ, and the scope holds
-        // k ∈ ℤ from line 1, which step 3 does not cite. Offered that, the step
-        // would elaborate and verify; it is not offered, so nothing says k ∈ ℂ.
+        // Without its requires line, `algebra` wants n! ∈ ℂ, and the scope
+        // holds n! ∈ ℕ from line 1, which step 5.4 does not cite. A factorial
+        // is not a membership said once, so only a line can give it. Offered
+        // that line, the step would elaborate and verify; it is not offered,
+        // so nothing says n! ∈ ℂ.
         case(
             "lean on a line the step does not name",
-            "proofs/sqrt2-irrational/odd-square",
-            "proofs/sqrt2-irrational.proof",
-            "3.  (2k + 1)² = 4k² + 4k + 1\n    algebra\n    requires k ∈ ℝ: from 1\n",
-            "3.  (2k + 1)² = 4k² + 4k + 1\n    algebra\n",
-            "nothing says k ∈ ℂ, which this step needs",
+            "proofs/infinitely-many-primes/prime-above",
+            "proofs/infinitely-many-primes.proof",
+            "          algebra\n          requires n! ∈ ℝ: from 1\n",
+            "          algebra\n",
+            "nothing says n! ∈ ℂ, which this step needs",
         )
-        .at("proofs/sqrt2-irrational.proof", "3.  (2k + 1)² = 4k² + 4k + 1"),
-        // A requires line rests only on its reason. Line 2 does not say k is an
-        // integer, and `mun:int-real` asks it; the scope has it from line 1,
-        // which the line does not cite, so the item it names reaches nothing.
-        // The import puts the requires line at 31, where it is reported.
+        .at("proofs/infinitely-many-primes.proof", "5.4.  (n! + 1) − n! = 1"),
+        // A requires line rests only on its reason. Line 2 does not say n! is
+        // an integer, and `mun:int-real` asks it; the scope has it from line
+        // 1, which the line does not cite, so the item it names reaches
+        // nothing.
         case_importing(
             "give a requires line a reason that is not where its proof comes from",
-            "proofs/sqrt2-irrational/odd-square",
-            "proofs/sqrt2-irrational.proof",
+            "proofs/infinitely-many-primes/prime-above",
+            "proofs/infinitely-many-primes.proof",
             "import mundane theorem stdlib/numbers/int-real",
-            "3.  (2k + 1)² = 4k² + 4k + 1\n    algebra\n    requires k ∈ ℝ: from 1\n",
-            "3.  (2k + 1)² = 4k² + 4k + 1\n    algebra\n    requires k ∈ ℝ: mun:int-real, from 2\n",
-            "the requires line k ∈ ℝ of step 3, read as a step citing what it cites: no clause of mun:int-real reaches",
+            "          algebra\n          requires n! ∈ ℝ: from 1\n",
+            "          algebra\n          requires n! ∈ ℝ: mun:int-real, from 2\n",
+            "the requires line n! ∈ ℝ of step 5.4, read as a step citing what it cites: no clause of mun:int-real reaches",
         )
         .at(
-            "proofs/sqrt2-irrational.proof",
-            "requires k ∈ ℝ: mun:int-real, from 2",
+            "proofs/infinitely-many-primes.proof",
+            "requires n! ∈ ℝ: mun:int-real, from 2",
         ),
         // Everything a step names does work. 2 is a numeral, not an atom, so
         // `algebra` asks nothing about its being real, and the kernel has it
@@ -372,8 +375,8 @@ fn cases() -> Vec<Case> {
             "write a requires line nothing asks for",
             "proofs/sum-formula/sum-formula",
             "proofs/sum-formula.proof",
-            "          algebra\n          requires k ∈ ℝ: from K\n",
-            "          algebra\n          requires 2 ∈ ℝ: arithmetic\n          requires k ∈ ℝ: from K\n",
+            "    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2\n          algebra\n",
+            "    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2\n          algebra\n          requires 2 ∈ ℝ: arithmetic\n",
             "says 2 ∈ ℝ, and the step neither uses nor asks for it",
         ),
         // The certificate combines lines 2 and 3; line 1 says a + b is at
@@ -387,17 +390,19 @@ fn cases() -> Vec<Case> {
             "    4.2.  a + b ≤ |a| + |b|\n          inequalities, from 1, 2, 3\n",
             "step 4.2 cites 1 and uses nothing it says",
         ),
-        // Each atom a method combines is real, and the step says so. The
-        // kernel's `ltne` never needs p ∈ ℝ here, and line 4, which the step
-        // cites, says only p > 1, so nothing else would see the line gone:
-        // only what the method asks for does.
+        // Each atom a method combines is real, and the step says so where
+        // the atom is not a letter, a numeral or built from them by the
+        // operations a membership said once covers: 2^p is a power to a
+        // letter. The kernel's `ltne` never needs 2^p ∈ ℝ here, and line 4.8,
+        // which the step cites, says only 2^p − 1 > 1, so nothing else would
+        // see the line gone: only what the method asks for does.
         case(
             "leave out the membership of an atom the method combines",
-            "proofs/infinitely-many-primes/prime-above",
-            "proofs/infinitely-many-primes.proof",
-            "          inequalities, from 4, contradicting 5.6\n          requires p ∈ ℝ: from 3\n",
-            "          inequalities, from 4, contradicting 5.6\n",
-            "step 5.7 combines p, and nothing it writes or cites says it is a number",
+            "proofs/perfect-numbers/euclid-perfect",
+            "proofs/perfect-numbers.proof",
+            "          inequalities, from 4.8, contradicting 4.7\n          requires 2^p ∈ ℝ: membership, from H1\n",
+            "          inequalities, from 4.8, contradicting 4.7\n",
+            "step 4.9 combines 2^p, and nothing it writes or cites says it is a number",
         ),
         // A step said to be impossible is worked out, and one that holds is
         // refused rather than closing the block on it.
@@ -405,7 +410,7 @@ fn cases() -> Vec<Case> {
             "say a true claim is impossible",
             "proofs/reals-uncountable/digit-step",
             "proofs/reals-uncountable.proof",
-            "    2.4.  10 ≤ 1, which is impossible\n          mun:divides-le e := 10, m := 1, from 2.3\n          requires 10 ∈ ℕ: arithmetic\n          requires 1 ∈ ℕ: arithmetic\n",
+            "    2.4.  10 ≤ 1, which is impossible\n          mun:divides-le e := 10, m := 1, from 2.3\n",
             "    2.4.  1 ≤ 10, which is impossible\n          inequalities\n",
             "step 2.4 says 1 ≤ 10 is impossible, which is true",
         ),
@@ -551,24 +556,24 @@ fn cases() -> Vec<Case> {
             "divide by zero in a numeral fact",
             "proofs/divisibility-by-three/ten-power-congruent",
             "proofs/divisibility-by-three.proof",
-            "          requires 10 ∈ ℝ: arithmetic\n\n    1.9.",
-            "          requires 10 ∈ ℝ: arithmetic\n          requires 3/0 ∈ ℝ: arithmetic\n\n    1.9.",
+            "          requires 10^m ∈ ℝ: mun:power-real a := 10, m := m\n\n    1.10.",
+            "          requires 10^m ∈ ℝ: mun:power-real a := 10, m := m\n          requires 3/0 ∈ ℝ: arithmetic\n\n    1.10.",
             "which divides by zero",
         ),
         case(
             "state a numeral too large to work out",
             "proofs/divisibility-by-three/ten-power-congruent",
             "proofs/divisibility-by-three.proof",
-            "          requires 10 ∈ ℝ: arithmetic\n\n    1.9.",
-            "          requires 10 ∈ ℝ: arithmetic\n          requires 9^(9^9) ∈ ℕ: arithmetic\n\n    1.9.",
+            "          requires 10^m ∈ ℝ: mun:power-real a := 10, m := m\n\n    1.10.",
+            "          requires 10^m ∈ ℝ: mun:power-real a := 10, m := m\n          requires 9^(9^9) ∈ ℕ: arithmetic\n\n    1.10.",
             "which is too large to work out",
         ),
         case(
             "raise a numeral to a power that is not whole",
             "proofs/divisibility-by-three/ten-power-congruent",
             "proofs/divisibility-by-three.proof",
-            "          requires 10 ∈ ℝ: arithmetic\n\n    1.9.",
-            "          requires 10 ∈ ℝ: arithmetic\n          requires 4^(1/2) ∈ ℕ: arithmetic\n\n    1.9.",
+            "          requires 10^m ∈ ℝ: mun:power-real a := 10, m := m\n\n    1.10.",
+            "          requires 10^m ∈ ℝ: mun:power-real a := 10, m := m\n          requires 4^(1/2) ∈ ℕ: arithmetic\n\n    1.10.",
             "which is not a rational number",
         ),
         // Named where it is used, `arithmetic` works the fact out first, as it
@@ -590,16 +595,17 @@ fn cases() -> Vec<Case> {
             "a link of step 1.2 claims 1 = 1(1 + 1)/3, which is false",
         ),
         // `membership` builds from what the line cites and the lines above it:
-        // ε > 0 does not say ε is a real number, no line above says it once
-        // this line comes first, and the scope's copy of the line that does is
-        // not the requires line's to use unnamed.
+        // f(a) is real because a is in f's domain [a, b], which line 1 says
+        // and no introducing line says once. H3 says a < b, nothing of where
+        // a lies, and line 1 in scope is not the requires line's to use
+        // unnamed, so the quotient is not built.
         case(
             "membership from a line that says nothing of the atom",
-            "proofs/triangular-reciprocals/triangular-reciprocals",
-            "proofs/triangular-reciprocals.proof",
-            "          requires ε ∈ ℝ: from K3\n          requires ε/2 > 0: inequalities, from A1\n          requires ε/2 ∈ ℝ: membership, from K3\n",
-            "          requires ε/2 ∈ ℝ: membership, from A1\n          requires ε ∈ ℝ: from K3\n          requires ε/2 > 0: inequalities, from A1\n",
-            "rests on K3, which it does not name",
+            "proofs/mean-value/mean-value",
+            "proofs/mean-value.proof",
+            "    membership, from D1, D2\n    requires f(x) ∈ ℝ: from H4\n    requires b − a ≠ 0: inequalities, from H1, H2, H3\n    requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H4, 1, 2, H1, H2\n",
+            "    membership, from D1, D2\n    requires f(x) ∈ ℝ: from H4\n    requires b − a ≠ 0: inequalities, from H1, H2, H3\n    requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H4, H3, 2, H1, H2\n",
+            "the requires line (f(a) − f(b))/(b − a) ∈ ℝ of step 8, read as a step citing what it cites: (f(a) − f(b)) / (b − a) ∈ ℝ is not built",
         ),
         // g(x) is real because of what g is, and a step that uses what a
         // define says cites it (`SYNTAX.md`). Without the define g stays a
@@ -623,15 +629,16 @@ fn cases() -> Vec<Case> {
             "requires s(x) ∈ ℕ₀: from 2",
             "does not reach",
         ),
-        // G(a, 0) is the rule at a and 0 only where a is in G's first
-        // domain, and nothing the step names says a is real.
+        // g(a) is the rule at a only where a is in g's domain [a, b]. That
+        // is no number system, so no introducing line says it once, and
+        // line 1, which does, is not named.
         case(
-            "read a function of two at a value nothing puts in its domain",
-            "proofs/geometric-series/geometric-sum",
-            "proofs/geometric-series.proof",
-            "                    = 1                     1.2\n          requires a ∈ ℝ: from H1\n",
-            "                    = 1                     1.2\n",
-            "cannot settle a ∈ ℝ",
+            "read a defined function at a value nothing puts in its domain",
+            "proofs/mean-value/mean-value",
+            "proofs/mean-value.proof",
+            "    D1, from 1\n",
+            "    D1\n",
+            "cannot settle a ∈ [a, b]",
         ),
         // a ∈ S because S is the points of [a, b] where f is below zero; the
         // item speaks of a set written by its condition, and without the
@@ -650,8 +657,8 @@ fn cases() -> Vec<Case> {
             "membership of a sum whose first term divides by zero",
             "proofs/triangular-reciprocals/triangular-reciprocals",
             "proofs/triangular-reciprocals.proof",
-            "                  requires Σ(k = 1 to n) 1/T(k) ∈ ℝ: membership, from D1\n                  requires ε ∈ ℝ: from K3\n                  requires n ∈ ℝ: from K4\n                  requires n + 1 ≠ 0: inequalities, from K4\n",
-            "                  requires Σ(k = 0 to n) 1/T(k) ∈ ℝ: membership, from D1\n                  requires ε ∈ ℝ: from K3\n                  requires n ∈ ℝ: from K4\n                  requires n + 1 ≠ 0: inequalities, from K4\n",
+            "          3.2.5.  2 − ε < Σ(k = 1 to n) 1/T(k)\n                  inequalities, from D1, 3.2.1, 3.2.3, 3.1\n                  requires Σ(k = 1 to n) 1/T(k) ∈ ℝ: membership, from D1\n",
+            "          3.2.5.  2 − ε < Σ(k = 1 to n) 1/T(k)\n                  inequalities, from D1, 3.2.1, 3.2.3, 3.1\n                  requires Σ(k = 0 to n) 1/T(k) ∈ ℝ: membership, from D1\n",
             "the requires line Σ(k = 0 to n) 1/T(k) ∈ ℝ of step 3.2.5, read as a step citing what it cites:",
         ),
         // Said of every member, a term's divisor must not be zero for each: k ∈ ℤ
@@ -666,7 +673,11 @@ fn cases() -> Vec<Case> {
         ),
         // A membership line says what the table in `rules` says it does and
         // nothing more: k ∈ ℤ gives no k ≠ 0, and n ∈ ℝ gives no n ∈ ℤ, since
-        // the table goes one way.
+        // the table goes one way. A membership said once is carried up the
+        // same table and never down: with n let into ℝ, nothing gives the
+        // n ∈ ℤ that sum-telescopes asks of its range's end. Its bound line
+        // goes too, as n ∈ ℝ gives no n + 1 ≥ 1 either, and would be reported
+        // first.
         case(
             "a membership read for a bound it does not give",
             "proofs/triangular-reciprocals/triangular-reciprocals",
@@ -679,9 +690,9 @@ fn cases() -> Vec<Case> {
             "a membership read into a smaller number system",
             "proofs/triangular-reciprocals/triangular-reciprocals",
             "proofs/triangular-reciprocals.proof",
-            "    let n ∈ ℕ                                                         (K2)",
-            "    let n ∈ ℝ                                                         (K2)",
-            "does not reach",
+            "    let n ∈ ℕ                                                         (K2)\n\n    2.1.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))\n          mun:sum-termwise a := 1, b := n, from 1\n\n    2.2.  Σ(k = 1 to n) (2/k − 2/(k + 1)) = 2/1 − 2/(n + 1)\n          thm:sum-telescopes a := 1, b := n\n          requires n + 1 ≥ 1: inequalities, from K2\n",
+            "    let n ∈ ℝ                                                         (K2)\n\n    2.1.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))\n          mun:sum-termwise a := 1, b := n, from 1\n\n    2.2.  Σ(k = 1 to n) (2/k − 2/(k + 1)) = 2/1 − 2/(n + 1)\n          thm:sum-telescopes a := 1, b := n\n",
+            "no clause of thm:sum-telescopes reaches what step 2.2 claims: cannot settle n ∈ ℤ",
         ),
         // A link whose terms have a letter may name `arithmetic` where only a
         // piece of numerals alone changes, and that piece is worked out like
@@ -700,8 +711,8 @@ fn cases() -> Vec<Case> {
             "sum what no cited line says each term of is divisible",
             "proofs/divisibility-by-three/divisibility-by-three",
             "proofs/divisibility-by-three.proof",
-            "mun:sum-divisible m := 3, from H1, 1",
-            "mun:sum-divisible m := 3, from H1",
+            "    mun:sum-divisible m := 3, from 1\n",
+            "    mun:sum-divisible m := 3\n",
             "no clause of mun:sum-divisible reaches what step 2 claims",
         ),
         // A link of a calculation is what the line it cites says, and a line
@@ -730,13 +741,15 @@ fn cases() -> Vec<Case> {
         // The item asks |X| = k + 1, which C2 says. Without C2 cited, the
         // equation is in scope and not in hand, and the hypothesis must go
         // unanswered rather than be answered by a line the step does not name.
+        // C2 is also what binds the item's k, so k ∈ ℕ₀ goes unanswered with
+        // it: the item's letter is not the proof's k said once by K2.
         case(
             "answer a side condition by an equation the step does not cite",
             "proofs/subsets/subsets-count",
             "proofs/subsets.proof",
-            "obtain a: mun:card-nonempty, from K2, C2",
-            "obtain a: mun:card-nonempty, from K2",
-            "step 1.2.1 cites mun:stdlib/counting/card-nonempty, which asks for |X| = k + 1",
+            "obtain a: mun:card-nonempty, from C2\n",
+            "obtain a: mun:card-nonempty\n",
+            "step 1.2.1 cites mun:stdlib/counting/card-nonempty, which asks for k ∈ ℕ₀; |X| = k + 1, and what it cites does not supply it",
         )
         .at("proofs/subsets.proof", "1.2.1.  a ∈ X"),
         // `elrnmpt1s` reads its map at a term only a cited line supplies. With
@@ -913,6 +926,38 @@ fn cases() -> Vec<Case> {
             "",
             "is not built from what step 8 cites",
         ),
+        // k's membership is said once, by K, and every step has it without
+        // naming K. A step citing K for it cites a line it uses nothing of.
+        case(
+            "cite a let line only for the membership it says once",
+            "proofs/sum-formula/sum-formula",
+            "proofs/sum-formula.proof",
+            "    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2\n          algebra\n",
+            "    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2\n          algebra, from K\n",
+            "step 1.6 cites K and uses nothing it says",
+        ),
+        // A power to a letter is no membership said once, though 10 and k
+        // are: the step writes 10^k ∈ ℝ where it combines it, and an atom
+        // whose membership is neither said once nor on the page is reported.
+        case(
+            "leave out the membership of a power to a letter the method combines",
+            "proofs/divisibility-by-three/divisibility-by-three",
+            "proofs/divisibility-by-three.proof",
+            "          requires d(k) ∈ ℝ: from H2, K\n          requires 10^k ∈ ℝ: mun:power-real a := 10, m := k\n",
+            "          requires d(k) ∈ ℝ: from H2, K\n",
+            "step 1.4 combines 10^k, and nothing it writes or cites says it is a number",
+        ),
+        // k + 1 is a membership said once, and its being no zero is not: a
+        // divisor's `≠ 0` is written, and without it the step divides by
+        // what nothing says is not zero.
+        case(
+            "leave out a divisor's ≠ 0 built from a letter said once",
+            "proofs/triangular-reciprocals/triangular-reciprocals",
+            "proofs/triangular-reciprocals.proof",
+            "          requires k ≠ 0: from K1\n          requires k + 1 ≠ 0: inequalities, from K1\n",
+            "          requires k ≠ 0: from K1\n",
+            "=/= 0, which this step needs to divide by it",
+        ),
     ]
 }
 
@@ -931,21 +976,21 @@ fn nets() -> Vec<Case> {
             "n := 2^k, from 1.2.3, 1.2.6",
             "step 1.2.8 rests on 1.2.5, which it does not name",
         ),
-        // The requires line's reason cites line 2, and `mun:int-real` asks k
-        // an integer, which line 1 says. With R2 taken away the step would
-        // elaborate. The import puts the line one lower.
+        // The requires line's reason cites line 2, and `mun:int-real` asks
+        // n! an integer, which line 1 says. With R2 taken away the step would
+        // elaborate.
         case_importing(
             "give a requires line a reason that is not where its proof comes from, with nothing to stop the search",
-            "proofs/sqrt2-irrational/odd-square",
-            "proofs/sqrt2-irrational.proof",
+            "proofs/infinitely-many-primes/prime-above",
+            "proofs/infinitely-many-primes.proof",
             "import mundane theorem stdlib/numbers/int-real",
-            "    requires k ∈ ℝ: from 1\n\n4.",
-            "    requires k ∈ ℝ: mun:int-real, from 2\n\n4.",
+            "          algebra\n          requires n! ∈ ℝ: from 1\n",
+            "          algebra\n          requires n! ∈ ℝ: mun:int-real, from 2\n",
             "the requires line rests on 1, which it does not name",
         )
         .at(
-            "proofs/sqrt2-irrational.proof",
-            "requires k ∈ ℝ: mun:int-real, from 2",
+            "proofs/infinitely-many-primes.proof",
+            "requires n! ∈ ℝ: mun:int-real, from 2",
         ),
     ]
 }

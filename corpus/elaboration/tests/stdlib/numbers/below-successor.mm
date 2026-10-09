@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.numbers.below-successor $p |- ( A e. RR -> A < ( A + 1 ) ) $=
-    ( ltp1 ) AB $.
+    ( cr wcel c1 caddc co clt wbr id ltp1 syl ) ABCZLAADEFGHLIAJK $.
 $}

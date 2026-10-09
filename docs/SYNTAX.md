@@ -120,7 +120,8 @@ the 2 that is not there, and the checker reports it. A step is:
    instantiation, and the lines, hypotheses and suppositions it uses. The
    forms are listed below.
 3. Zero or more **requires** lines, one per hypothesis of the cited item
-   that is not the conclusion of a cited line, each with a justification
+   that is not the conclusion of a cited line nor a membership the page
+   says once (below, what a membership line says), each with a justification
    of exactly one citation: a method such as `arithmetic`, an item applied
    to lines already present, or a line that states the fact — or the lines
    that state it together, a function's type and a point of its domain,
@@ -448,12 +449,33 @@ each by the set.mm lemma that says so of a member. The table is in
 `let k ∈ ℕ (K1)` also says k ∈ ℕ₀, k ∈ ℤ, k ∈ ℚ and k ∈ ℝ, by the table
 above, and k ≥ 1 and k ≠ 0; a line saying k ∈ ℕ₀ also says k ≥ 0. Whatever
 reads a cited line reads these as well: a method (`inequalities, from K1`
-has k ≥ 1 and k ∈ ℝ), a requires line (`requires k ∈ ℝ: from K1`), and an
-item's hypothesis (an item asking x ∈ ℝ, answered by K1). Each is one
-set.mm lemma from the line, so the fact still comes from a line the step
-names; the dull-fact rule of `READERS.md` holds, and one written line counts
-for what it plainly says. Nothing past the table is read: that an integer
-above 0 is a natural number is the item `pos-int-nat`.
+has k ≥ 1), a requires line (`requires k ≠ 0: from K1`), and an item's
+hypothesis (an item asking x ≥ 1, answered by K1). Each is one set.mm lemma
+from the line, so the fact still comes from a line the step names, and one
+written line counts for what it plainly says. Nothing past the table is
+read: that an integer above 0 is a natural number is the item `pos-int-nat`.
+
+**A membership in a number system is said once, where a letter is
+introduced** (`READERS.md`). A step neither writes nor cites the membership
+of
+- a numeral: `3 ∈ ℤ`, `10 − 1 ∈ ℕ`, worked out;
+- a letter, in the set the line introducing it names and every number system
+  containing that one: a `let` of the theorem or of a block around the
+  step, an induction's `let k ∈ X`, or an `obtain`'s sentence `p ∈ ℤ`, which
+  every obtain states of each name it introduces;
+- a term built from those by +, −, ·, unary −, a power to a numeral, and /,
+  in each number system closed under what builds it (the table of closure
+  lemmas in `src/rules.rs`): a·x + b·y ∈ ℤ where a, b, x and y are integers.
+  A quotient's divisor not being zero is the step's to write or cite, unless
+  the divisor is a numeral.
+
+`let k ∈ ℕ` is still cited for k ≥ 1 and k ≠ 0, which the line says beyond
+the membership. A citation made only for one of these memberships is a line
+doing no work, in a step's citation and in a requires line's reason alike,
+and the checker reports both; the elaborator reports a method step's. Everything else a step needs to be
+a number is written as before: a defined name, a function's value, a sum, a
+power to a letter, |x|, n!, a remainder, C(n, k), and anything a library
+item builds.
 
 **A function's type and a point of its domain say the value is in the
 codomain.** `let a : {1, …, n} → ℝ (H2)` and `let k ∈ {1, …, n} (K4)`, cited
@@ -700,17 +722,12 @@ it; each is worked out as a closed fact is. A change touching a letter,
 ```
 4.4.  |a + b| = −(a + b)
       mun:abs x := a + b, from C2
-      requires a + b ∈ ℝ: mun:real-closure, from H1, H2
 
 4.5.  −(a + b) = −a + −b
       algebra
-      requires a ∈ ℝ: from H1
-      requires b ∈ ℝ: from H2
 
 4.6.  −a + −b ≤ |a| + |b|
       inequalities, from 2, 3
-      requires a ∈ ℝ: from H1
-      requires b ∈ ℝ: from H2
       requires |a| ∈ ℝ: mun:abs-real x := a, from H1
       requires |b| ∈ ℝ: mun:abs-real x := b, from H2
 
@@ -812,9 +829,9 @@ theorem or definition in a step of its own.
 ## Not settled
 
 - Settled, and no longer on this list: the hypotheses of `algebra` and
-  `inequalities`. "p is a real number" is a requires line, as `READERS.md` now
-  says explicitly, and the corpus complies throughout: 97 membership lines
-  across the 42 steps that cite one of the two methods.
+  `inequalities`. "p is a real number" is said once, where p is introduced,
+  and a requires line where p is not a letter, a numeral or built from them
+  (above, a membership is said once).
 - Settled, and no longer on this list: whether "line 2.1" names one formula or
   each of its sentences. It supplies each of them, as the citation conventions
   above now say.

@@ -37,7 +37,7 @@ theorem even-leg
   then a is even or b is even
 
 1.  a is even or a is odd
-    mun:even-or-odd n := a, from H1
+    mun:even-or-odd n := a
 
 2.  a is even or b is even
     cases, from 1
@@ -56,10 +56,10 @@ theorem even-leg
           suppose b is odd                                            (S)
 
           2.2.1.  p ∈ ℤ. a = 2p + 1.
-                  obtain p: mun:odd n := a, from H1, C2
+                  obtain p: mun:odd n := a, from C2
 
           2.2.2.  q ∈ ℤ. b = 2q + 1.
-                  obtain q: mun:odd n := b, from H2, S
+                  obtain q: mun:odd n := b, from S
 
           2.2.3.  (2p + 1)² + b² = c²
                   substitute a = 2p + 1 (line 2.2.1) into H4
@@ -69,8 +69,6 @@ theorem even-leg
 
           2.2.5.  (2p + 1)² + (2q + 1)² = 2(2p² + 2p + 2q² + 2q + 1)
                   algebra
-                  requires p ∈ ℝ: from 2.2.1
-                  requires q ∈ ℝ: from 2.2.2
 
           2.2.6.  c² = 2(2p² + 2p + 2q² + 2q + 1)
                   calculation
@@ -79,37 +77,27 @@ theorem even-leg
 
           2.2.7.  c² is even
                   mun:even n := c², from 2.2.6
-                  requires c² ∈ ℤ: membership, from H3
-                  requires 2p² + 2p + 2q² + 2q + 1 ∈ ℤ: membership, from 2.2.1, 2.2.2
 
           2.2.8.  c is even
-                  thm:even-square n := c, from H3, 2.2.7
+                  thm:even-square n := c, from 2.2.7
 
           2.2.9.  r ∈ ℤ. c = 2r.
-                  obtain r: mun:even n := c, from H3, 2.2.8
+                  obtain r: mun:even n := c, from 2.2.8
 
           2.2.10. (2p + 1)² + (2q + 1)² = (2r)²
                   substitute c = 2r (line 2.2.9) into line 2.2.4
 
           2.2.11. 2 = 4(r² − p² − p − q² − q)
                   algebra, from 2.2.10
-                  requires p ∈ ℝ: from 2.2.1
-                  requires q ∈ ℝ: from 2.2.2
-                  requires r ∈ ℝ: from 2.2.9
 
           2.2.12. 4 divides 2
                   mun:divides d := 4, n := 2, from 2.2.11
-                  requires 4 ∈ ℤ: arithmetic
-                  requires 2 ∈ ℤ: arithmetic
-                  requires r² − p² − p − q² − q ∈ ℤ: membership, from 2.2.1, 2.2.2, 2.2.9
 
           2.2.13. 4 ≤ 2, which is impossible
                   mun:divides-le e := 4, m := 2, from 2.2.12
-                  requires 4 ∈ ℕ: arithmetic
-                  requires 2 ∈ ℕ: arithmetic
 
     2.3.  b is even or b is odd
-          mun:even-or-odd n := b, from H2
+          mun:even-or-odd n := b
 
     2.4.  b is even
           mun:disjunctive-syllogism P := b is even, Q := b is odd, from 2.3, 2.2
@@ -127,19 +115,13 @@ theorem leg-hypotenuse-coprime
 
 1.  gcd(b, c) ∈ ℕ. gcd(b, c) divides b. gcd(b, c) divides c.
     For all e ∈ ℕ, if e divides b and e divides c then e ≤ gcd(b, c).
-    mun:gcd a := b, b := c, from H2, H3
+    mun:gcd a := b, b := c
 
 2.  gcd(b, c) divides c·c + b·(−b)
     mun:divides-combination e := gcd(b, c), a := c, b := b, x := c, y := −b, from 1
-    requires c ∈ ℤ: membership, from H3
-    requires b ∈ ℤ: membership, from H2
-    requires −b ∈ ℤ: membership, from H2
 
 3.  c·c + b·(−b) = a·a
     algebra, from H4
-    requires a ∈ ℝ: membership, from H1
-    requires b ∈ ℝ: membership, from H2
-    requires c ∈ ℝ: membership, from H3
 
 4.  gcd(b, c) divides a·a
     substitute c·c + b·(−b) = a·a (line 3) into line 2
@@ -147,16 +129,13 @@ theorem leg-hypotenuse-coprime
 5.  gcd(gcd(b, c), a) ∈ ℕ. gcd(gcd(b, c), a) divides gcd(b, c).
     gcd(gcd(b, c), a) divides a.
     For all e ∈ ℕ, if e divides gcd(b, c) and e divides a then e ≤ gcd(gcd(b, c), a).
-    mun:gcd a := gcd(b, c), b := a, from 1, H1
+    mun:gcd a := gcd(b, c), b := a, from 1
 
 6.  gcd(gcd(b, c), a) divides b
     mun:divides-transitive d := gcd(gcd(b, c), a), e := gcd(b, c), n := b, from 5, 1
-    requires b ∈ ℤ: membership, from H2
 
 7.  gcd(gcd(b, c), a) divides gcd(a, b)
     thm:divides-gcd d := gcd(gcd(b, c), a), a := a, b := b, from 5, 6
-    requires a ∈ ℤ: membership, from H1
-    requires b ∈ ℤ: membership, from H2
 
 8.  gcd(gcd(b, c), a) divides 1
     substitute gcd(a, b) = 1 (H5) into line 7
@@ -166,7 +145,6 @@ theorem leg-hypotenuse-coprime
 
 10. gcd(a, gcd(b, c)) = gcd(gcd(b, c), a)
     mun:gcd-commutes a := a, b := gcd(b, c)
-    requires a ∈ ℤ: membership, from H1
     requires gcd(b, c) ∈ ℤ: membership, from 1
 
 11. gcd(a, gcd(b, c)) = 1
@@ -176,7 +154,6 @@ theorem leg-hypotenuse-coprime
 
 12. gcd(a·a, gcd(b, c)) = 1
     mun:coprime-product x := a, y := a, n := gcd(b, c), from 11, 11, 1
-    requires a ∈ ℤ: membership, from H1
 
 13. gcd(b, c) divides gcd(b, c)
     mun:divides-self n := gcd(b, c)
@@ -184,7 +161,6 @@ theorem leg-hypotenuse-coprime
 
 14. gcd(b, c) divides gcd(a·a, gcd(b, c))
     thm:divides-gcd d := gcd(b, c), a := a·a, b := gcd(b, c), from 4, 13
-    requires a·a ∈ ℤ: membership, from H1
     requires gcd(b, c) ∈ ℤ: membership, from 1
 
 15. gcd(b, c) divides 1
@@ -204,51 +180,42 @@ theorem primitive-triple
        a = 2mn, b = m² − n², and c = m² + n²
 
 1.  w ∈ ℤ. a = 2w.
-    obtain w: mun:even n := a, from H1, H6
+    obtain w: mun:even n := a, from H6
 
 2.  w ∈ ℕ
-    mun:pos-int-nat m := w, from 1
+    mun:pos-int-nat m := w
     requires 0 < w: inequalities, from 1, H1
 
 3.  2 divides a
     mun:divides d := 2, n := a, from 1
-    requires 2 ∈ ℤ: arithmetic
-    requires a ∈ ℤ: membership, from H1
 
 4.  b is odd
     contradiction
     suppose b is not odd                                              (S1)
 
     4.1.  b is even or b is odd
-          mun:even-or-odd n := b, from H2
+          mun:even-or-odd n := b
 
     4.2.  b is even
           mun:disjunctive-syllogism P := b is even, Q := b is odd, from 4.1, S1
 
     4.3.  v ∈ ℤ. b = 2v.
-          obtain v: mun:even n := b, from H2, 4.2
+          obtain v: mun:even n := b, from 4.2
 
     4.4.  2 divides b
           mun:divides d := 2, n := b, from 4.3
-          requires 2 ∈ ℤ: arithmetic
-          requires b ∈ ℤ: membership, from H2
 
     4.5.  2 divides gcd(a, b)
           thm:divides-gcd d := 2, a := a, b := b, from 3, 4.4
-          requires 2 ∈ ℤ: arithmetic
-          requires a ∈ ℤ: membership, from H1
-          requires b ∈ ℤ: membership, from H2
 
     4.6.  2 divides 1
           substitute gcd(a, b) = 1 (H5) into line 4.5
 
     4.7.  2 ≤ 1, which is impossible
           mun:divides-le e := 2, m := 1, from 4.6
-          requires 2 ∈ ℕ: arithmetic
-          requires 1 ∈ ℕ: arithmetic
 
 5.  q ∈ ℤ. b = 2q + 1.
-    obtain q: mun:odd n := b, from H2, 4
+    obtain q: mun:odd n := b, from 4
 
 6.  (2w)² + b² = c²
     substitute a = 2w (line 1) into H4
@@ -261,81 +228,56 @@ theorem primitive-triple
     suppose c is not odd                                              (S2)
 
     8.1.  c is even or c is odd
-          mun:even-or-odd n := c, from H3
+          mun:even-or-odd n := c
 
     8.2.  c is even
           mun:disjunctive-syllogism P := c is even, Q := c is odd, from 8.1, S2
 
     8.3.  r ∈ ℤ. c = 2r.
-          obtain r: mun:even n := c, from H3, 8.2
+          obtain r: mun:even n := c, from 8.2
 
     8.4.  (2w)² + (2q + 1)² = (2r)²
           substitute c = 2r (line 8.3) into line 7
 
     8.5.  1 = 2(2r² − 2w² − 2q² − 2q)
           algebra, from 8.4
-          requires w ∈ ℝ: membership, from 1
-          requires q ∈ ℝ: membership, from 5
-          requires r ∈ ℝ: membership, from 8.3
 
     8.6.  2 divides 1
           mun:divides d := 2, n := 1, from 8.5
-          requires 2 ∈ ℤ: arithmetic
-          requires 1 ∈ ℤ: arithmetic
-          requires 2r² − 2w² − 2q² − 2q ∈ ℤ: membership, from 1, 5, 8.3
 
     8.7.  2 ≤ 1, which is impossible
           mun:divides-le e := 2, m := 1, from 8.6
-          requires 2 ∈ ℕ: arithmetic
-          requires 1 ∈ ℕ: arithmetic
 
 9.  r ∈ ℤ. c = 2r + 1.
-    obtain r: mun:odd n := c, from H3, 8
+    obtain r: mun:odd n := c, from 8
 
 10. c + b = 2(r + q + 1)
     algebra, from 9, 5
-    requires b ∈ ℝ: membership, from H2
-    requires c ∈ ℝ: membership, from H3
 
 11. c + b is even
     mun:even n := c + b, from 10
-    requires c + b ∈ ℤ: membership, from H2, H3
-    requires r + q + 1 ∈ ℤ: membership, from 5, 9
 
 12. s ∈ ℤ. c + b = 2s.
     obtain s: mun:even n := c + b, from 11
-    requires c + b ∈ ℤ: membership, from H2, H3
 
 13. c − b = 2(r − q)
     algebra, from 9, 5
-    requires b ∈ ℝ: membership, from H2
-    requires c ∈ ℝ: membership, from H3
 
 14. c − b is even
     mun:even n := c − b, from 13
-    requires c − b ∈ ℤ: membership, from H2, H3
-    requires r − q ∈ ℤ: membership, from 5, 9
 
 15. t ∈ ℤ. c − b = 2t.
     obtain t: mun:even n := c − b, from 14
-    requires c − b ∈ ℤ: membership, from H2, H3
 
 16. c·2 = (s + t)·2
     algebra, from 12, 15
-    requires b ∈ ℝ: membership, from H2
-    requires c ∈ ℝ: membership, from H3
 
 17. c = s + t
     mun:multiply-cancel a := c, b := s + t, c := 2, from 16
-    requires c ∈ ℝ: membership, from H3
-    requires s + t ∈ ℝ: membership, from 12, 15
-    requires 2 ∈ ℝ: arithmetic
     requires 2 ≠ 0: arithmetic
 
 18. (s − t)·2 = 2s − 2t
     algebra
-    requires s ∈ ℝ: membership, from 12
-    requires t ∈ ℝ: membership, from 15
 
 19. (s − t)·2 = (c + b) − 2t
     substitute c + b = 2s (line 12) into line 18
@@ -345,8 +287,6 @@ theorem primitive-triple
 
 21. (c + b) − (c − b) = b·2
     algebra
-    requires b ∈ ℝ: membership, from H2
-    requires c ∈ ℝ: membership, from H3
 
 22. b·2 = (s − t)·2
     calculation
@@ -355,9 +295,6 @@ theorem primitive-triple
 
 23. b = s − t
     mun:multiply-cancel a := b, b := s − t, c := 2, from 22
-    requires b ∈ ℝ: membership, from H2
-    requires s − t ∈ ℝ: membership, from 12, 15
-    requires 2 ∈ ℝ: arithmetic
     requires 2 ≠ 0: arithmetic
 
 24. a² > 0
@@ -365,23 +302,18 @@ theorem primitive-triple
 
 25. b² < c²
     inequalities, from H4, 24
-    requires a ∈ ℝ: membership, from H1
-    requires b ∈ ℝ: membership, from H2
-    requires c ∈ ℝ: membership, from H3
 
 26. b < c
     mun:square-less x := b, y := c, from 25
-    requires b ∈ ℝ: membership, from H2
-    requires c ∈ ℝ: membership, from H3
     requires b ≥ 0: inequalities, from H2
     requires c ≥ 0: inequalities, from H3
 
 27. t ∈ ℕ
-    mun:pos-int-nat m := t, from 15
+    mun:pos-int-nat m := t
     requires 0 < t: inequalities, from 15, 26, H2, H3
 
 28. s ∈ ℕ
-    mun:pos-int-nat m := s, from 12
+    mun:pos-int-nat m := s
     requires 0 < s: inequalities, from 12, H2, H3
 
 29. a² = (2w)²
@@ -389,14 +321,9 @@ theorem primitive-triple
 
 30. c² − b² = a²
     algebra, from H4
-    requires a ∈ ℝ: membership, from H1
-    requires b ∈ ℝ: membership, from H2
-    requires c ∈ ℝ: membership, from H3
 
 31. (c + b)·(c − b) = c² − b²
     algebra
-    requires b ∈ ℝ: membership, from H2
-    requires c ∈ ℝ: membership, from H3
 
 32. (2s)·(c − b) = c² − b²
     substitute c + b = 2s (line 12) into line 31
@@ -406,12 +333,9 @@ theorem primitive-triple
 
 34. w²·4 = (2w)²
     algebra
-    requires w ∈ ℝ: membership, from 1
 
 35. (2s)·(2t) = (s·t)·4
     algebra
-    requires s ∈ ℝ: membership, from 12
-    requires t ∈ ℝ: membership, from 15
 
 36. w²·4 = (s·t)·4
     calculation
@@ -423,13 +347,10 @@ theorem primitive-triple
 
 37. w² = s·t
     mun:multiply-cancel a := w², b := s·t, c := 4, from 36
-    requires w² ∈ ℝ: membership, from 1
-    requires s·t ∈ ℝ: membership, from 12, 15
-    requires 4 ∈ ℝ: arithmetic
     requires 4 ≠ 0: arithmetic
 
 38. gcd(b, c) = 1
-    thm:leg-hypotenuse-coprime a := a, b := b, c := c, from H1, H2, H3, H4, H5
+    thm:leg-hypotenuse-coprime a := a, b := b, c := c, from H4, H5
 
 39. gcd(s, t) ∈ ℕ. gcd(s, t) divides s. gcd(s, t) divides t.
     For all e ∈ ℕ, if e divides s and e divides t then e ≤ gcd(s, t).
@@ -437,16 +358,12 @@ theorem primitive-triple
 
 40. gcd(s, t) divides s + t
     mun:divides-sum d := gcd(s, t), a := s, b := t, from 39
-    requires s ∈ ℤ: from 12
-    requires t ∈ ℤ: from 15
 
 41. gcd(s, t) divides c
     substitute c = s + t (line 17) into line 40
 
 42. gcd(s, t) divides s − t
     mun:divides-difference d := gcd(s, t), a := s, b := t, from 39
-    requires s ∈ ℤ: from 12
-    requires t ∈ ℤ: from 15
 
 43. gcd(s, t) divides b
     substitute b = s − t (line 23) into line 42
@@ -454,8 +371,6 @@ theorem primitive-triple
 44. gcd(s, t) divides gcd(b, c)
     thm:divides-gcd d := gcd(s, t), a := b, b := c, from 43, 41
     requires gcd(s, t) ∈ ℤ: membership, from 39
-    requires b ∈ ℤ: membership, from H2
-    requires c ∈ ℤ: membership, from H3
 
 45. gcd(s, t) divides 1
     substitute gcd(b, c) = 1 (line 38) into line 44
@@ -490,20 +405,13 @@ theorem primitive-triple
     substitute t = n² (line 52) into line 53
 
 55. m·n ∈ ℕ
-    membership, from 50, 52
+    membership
 
 56. w² = (m·n)²
     algebra, from 54
-    requires w ∈ ℝ: membership, from 1
-    requires m ∈ ℝ: membership, from 50
-    requires n ∈ ℝ: membership, from 52
 
 57. w = m·n
     mun:square-equal x := w, y := m·n, from 56
-    requires w ∈ ℝ: membership, from 1
-    requires m·n ∈ ℝ: membership, from 50, 52
-    requires m ∈ ℝ: membership, from 50
-    requires n ∈ ℝ: membership, from 52
     requires w ≥ 0: inequalities, from 2
     requires m·n ≥ 0: inequalities, from 55
 
@@ -524,38 +432,30 @@ theorem primitive-triple
 
 63. n² < m²
     inequalities, from 60, H2
-    requires m ∈ ℝ: membership, from 50
-    requires n ∈ ℝ: membership, from 52
 
 64. n < m
     mun:square-less x := n, y := m, from 63
-    requires n ∈ ℝ: membership, from 52
-    requires m ∈ ℝ: membership, from 50
     requires n ≥ 0: inequalities, from 52
     requires m ≥ 0: inequalities, from 50
 
 65. gcd(m, n) ∈ ℕ. gcd(m, n) divides m. gcd(m, n) divides n.
     For all e ∈ ℕ, if e divides m and e divides n then e ≤ gcd(m, n).
-    mun:gcd a := m, b := n, from 50, 52
+    mun:gcd a := m, b := n
 
 66. gcd(m, n) divides m·m
     mun:divides-multiple e := gcd(m, n), a := m, x := m, from 65
-    requires m ∈ ℤ: from 50
 
 67. m·m = s
     algebra, from 50
-    requires s ∈ ℝ: membership, from 12
 
 68. gcd(m, n) divides s
     substitute m·m = s (line 67) into line 66
 
 69. gcd(m, n) divides n·n
     mun:divides-multiple e := gcd(m, n), a := n, x := n, from 65
-    requires n ∈ ℤ: from 52
 
 70. n·n = t
     algebra, from 52
-    requires t ∈ ℝ: membership, from 15
 
 71. gcd(m, n) divides t
     substitute n·n = t (line 70) into line 69
@@ -563,8 +463,6 @@ theorem primitive-triple
 72. gcd(m, n) divides gcd(s, t)
     thm:divides-gcd d := gcd(m, n), a := s, b := t, from 68, 71
     requires gcd(m, n) ∈ ℤ: membership, from 65
-    requires s ∈ ℤ: from 12
-    requires t ∈ ℤ: from 15
 
 73. gcd(m, n) divides 1
     substitute gcd(s, t) = 1 (line 46) into line 72
@@ -578,28 +476,21 @@ theorem primitive-triple
 
     75.1. m + n is even or m + n is odd
           mun:even-or-odd n := m + n
-          requires m + n ∈ ℤ: membership, from 50, 52
 
     75.2. m + n is even
           mun:disjunctive-syllogism P := m + n is even, Q := m + n is odd, from 75.1, S3
 
     75.3. u ∈ ℤ. m + n = 2u.
           obtain u: mun:even n := m + n, from 75.2
-          requires m + n ∈ ℤ: membership, from 50, 52
 
     75.4. m² − n² = (m + n)·(m − n)
           algebra
-          requires m ∈ ℝ: membership, from 50
-          requires n ∈ ℝ: membership, from 52
 
     75.5. m² − n² = (2u)·(m − n)
           substitute m + n = 2u (line 75.3) into line 75.4
 
     75.6. (2u)·(m − n) = 2(u·(m − n))
           algebra
-          requires u ∈ ℝ: membership, from 75.3
-          requires m ∈ ℝ: membership, from 50
-          requires n ∈ ℝ: membership, from 52
 
     75.7. b = 2(u·(m − n))
           calculation
@@ -609,16 +500,13 @@ theorem primitive-triple
 
     75.8. b is even
           mun:even n := b, from 75.7
-          requires b ∈ ℤ: membership, from H2
-          requires u·(m − n) ∈ ℤ: membership, from 75.3, 50, 52
 
     75.9. b is not odd
           mun:not-both n := b, from 75.8, contradicting 4
-          requires b ∈ ℤ: membership, from H2
 
 76. There are m, n ∈ ℕ with n < m, gcd(m, n) = 1, m + n is odd,
     a = 2mn, b = m² − n², and c = m² + n².
-    exhibit, from 50, 52, 64, 74, 75, 60, 62
+    exhibit, from 64, 74, 75, 60, 62
     requires a = 2mn: algebra, from 58, H1, 50, 52
 
 theorem triple-scaled
@@ -631,27 +519,23 @@ theorem triple-scaled
 
 1.  gcd(a, b) ∈ ℕ. gcd(a, b) divides a. gcd(a, b) divides b.
     For all e ∈ ℕ, if e divides a and e divides b then e ≤ gcd(a, b).
-    mun:gcd a := a, b := b, from H1, H2
+    mun:gcd a := a, b := b
 
 2.  a/gcd(a, b) ∈ ℕ
-    mun:divides-quotient n := a, d := gcd(a, b), from H1, 1
+    mun:divides-quotient n := a, d := gcd(a, b), from 1
 
 3.  b/gcd(a, b) ∈ ℕ
-    mun:divides-quotient n := b, d := gcd(a, b), from H2, 1
+    mun:divides-quotient n := b, d := gcd(a, b), from 1
 
 4.  gcd(a, b)² divides a²
     mun:divides-square d := gcd(a, b), n := a, from 1
-    requires a ∈ ℤ: membership, from H1
 
 5.  gcd(a, b)² divides b²
     mun:divides-square d := gcd(a, b), n := b, from 1
-    requires b ∈ ℤ: membership, from H2
 
 6.  gcd(a, b)² divides a² + b²
     mun:divides-sum d := gcd(a, b)², a := a², b := b², from 4, 5
     requires gcd(a, b)² ∈ ℤ: membership, from 1
-    requires a² ∈ ℤ: membership, from H1
-    requires b² ∈ ℤ: membership, from H2
 
 7.  gcd(a, b)² divides c²
     substitute a² + b² = c² (H4) into line 6
@@ -659,21 +543,16 @@ theorem triple-scaled
 8.  gcd(a, b) divides c
     mun:divides-square d := gcd(a, b), n := c, from 7
     requires gcd(a, b) ∈ ℤ: membership, from 1
-    requires c ∈ ℤ: membership, from H3
 
 9.  c/gcd(a, b) ∈ ℕ
-    mun:divides-quotient n := c, d := gcd(a, b), from H3, 1, 8
+    mun:divides-quotient n := c, d := gcd(a, b), from 1, 8
 
 10. gcd(a/gcd(a, b), b/gcd(a, b)) = 1
     mun:gcd-quotients-coprime a := a, b := b
-    requires a ∈ ℤ: membership, from H1
-    requires b ∈ ℤ: membership, from H2
     requires b ≠ 0: inequalities, from H2
 
 11. (a/gcd(a, b))² + (b/gcd(a, b))² = (a² + b²)/gcd(a, b)²
     algebra
-    requires a ∈ ℝ: membership, from H1
-    requires b ∈ ℝ: membership, from H2
     requires gcd(a, b) ∈ ℝ: membership, from 1
     requires gcd(a, b) ≠ 0: inequalities, from 1
 
@@ -682,7 +561,6 @@ theorem triple-scaled
 
 13. c²/gcd(a, b)² = (c/gcd(a, b))²
     algebra
-    requires c ∈ ℝ: membership, from H3
     requires gcd(a, b) ∈ ℝ: membership, from 1
     requires gcd(a, b) ≠ 0: inequalities, from 1
 
@@ -708,9 +586,6 @@ theorem triple-from-parameters
 
 1.  (k(m² − n²))² + (2kmn)² = (k(m² + n²))²
     algebra
-    requires k ∈ ℝ: membership, from H4
-    requires m ∈ ℝ: membership, from H5
-    requires n ∈ ℝ: membership, from H6
 
 2.  a² + b² = c²
     cases, from H8
@@ -745,9 +620,6 @@ theorem triple-from-parameters
 
     2.7.  (2kmn)² + (k(m² − n²))² = (k(m² + n²))²
           algebra
-          requires k ∈ ℝ: membership, from H4
-          requires m ∈ ℝ: membership, from H5
-          requires n ∈ ℝ: membership, from H6
 
     2.8.  (k(m² + n²))² = c²
           substitute c = k(m² + n²) (H7)
@@ -769,7 +641,7 @@ theorem triple-parameters
 
 1.  k ∈ ℕ. a/k ∈ ℕ. b/k ∈ ℕ. c/k ∈ ℕ. gcd(a/k, b/k) = 1.
     (a/k)² + (b/k)² = (c/k)².
-    obtain k: thm:triple-scaled a := a, b := b, c := c, from H1, H2, H3, H4
+    obtain k: thm:triple-scaled a := a, b := b, c := c, from H4
 
 2.  a/k is even or b/k is even
     thm:even-leg a := a/k, b := b/k, c := c/k, from 1
@@ -787,20 +659,14 @@ theorem triple-parameters
 
     3.2.  a = 2kmn
           algebra, from 3.1
-          requires a ∈ ℝ: membership, from H1
-          requires k ∈ ℝ: membership, from 1
           requires k ≠ 0: inequalities, from 1
 
     3.3.  b = k(m² − n²)
           algebra, from 3.1
-          requires b ∈ ℝ: membership, from H2
-          requires k ∈ ℝ: membership, from 1
           requires k ≠ 0: inequalities, from 1
 
     3.4.  c = k(m² + n²)
           algebra, from 3.1
-          requires c ∈ ℝ: membership, from H3
-          requires k ∈ ℝ: membership, from 1
           requires k ≠ 0: inequalities, from 1
 
     3.5.  a = 2kmn and b = k(m² − n²)
@@ -811,7 +677,7 @@ theorem triple-parameters
 
     3.7.  There are k, m, n ∈ ℕ with c = k(m² + n²),
           and ((a = k(m² − n²) and b = 2kmn) or (a = 2kmn and b = k(m² − n²))).
-          exhibit, from 1, 3.1, 3.4, 3.6
+          exhibit, from 3.4, 3.6
 
     case
     assume b/k is even                                                (C2)
@@ -828,9 +694,6 @@ theorem triple-parameters
 
     3.10. (b/k)² + (a/k)² = (c/k)²
           algebra, from 1
-          requires a ∈ ℝ: membership, from H1
-          requires b ∈ ℝ: membership, from H2
-          requires c ∈ ℝ: membership, from H3
 
     3.11. m ∈ ℕ. n ∈ ℕ. n < m. gcd(m, n) = 1. m + n is odd.
           b/k = 2mn. a/k = m² − n². c/k = m² + n².
@@ -838,20 +701,14 @@ theorem triple-parameters
 
     3.12. a = k(m² − n²)
           algebra, from 3.11
-          requires a ∈ ℝ: membership, from H1
-          requires k ∈ ℝ: membership, from 1
           requires k ≠ 0: inequalities, from 1
 
     3.13. b = 2kmn
           algebra, from 3.11
-          requires b ∈ ℝ: membership, from H2
-          requires k ∈ ℝ: membership, from 1
           requires k ≠ 0: inequalities, from 1
 
     3.14. c = k(m² + n²)
           algebra, from 3.11
-          requires c ∈ ℝ: membership, from H3
-          requires k ∈ ℝ: membership, from 1
           requires k ≠ 0: inequalities, from 1
 
     3.15. a = k(m² − n²) and b = 2kmn
@@ -862,7 +719,7 @@ theorem triple-parameters
 
     3.17. There are k, m, n ∈ ℕ with c = k(m² + n²),
           and ((a = k(m² − n²) and b = 2kmn) or (a = 2kmn and b = k(m² − n²))).
-          exhibit, from 1, 3.11, 3.14, 3.16
+          exhibit, from 3.14, 3.16
 
 theorem pythagorean-triples
   metamath    pythagtrip
@@ -881,7 +738,7 @@ theorem pythagorean-triples
 
     1.1.  There are k, m, n ∈ ℕ with c = k(m² + n²),
           and ((a = k(m² − n²) and b = 2kmn) or (a = 2kmn and b = k(m² − n²))).
-          thm:triple-parameters a := a, b := b, c := c, from H1, H2, H3, D1
+          thm:triple-parameters a := a, b := b, c := c, from D1
 
     direction
     assume there are k, m, n ∈ ℕ with c = k(m² + n²), and ((a = k(m² − n²) and b = 2kmn) or (a = 2kmn and b = k(m² − n²))) (D2)
@@ -891,4 +748,4 @@ theorem pythagorean-triples
           obtain k, m, n from D2
 
     1.3.  a² + b² = c²
-          thm:triple-from-parameters a := a, b := b, c := c, k := k, m := m, n := n, from H1, H2, H3, 1.2
+          thm:triple-from-parameters a := a, b := b, c := c, k := k, m := m, n := n, from 1.2

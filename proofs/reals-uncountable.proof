@@ -4,7 +4,6 @@ import mundane definition stdlib/calculus/upper-bound
 import mundane axiom      stdlib/reasoning/excluded-middle
 import mundane theorem    stdlib/reasoning/or-left
 import mundane theorem    stdlib/reasoning/or-right
-import mundane theorem    stdlib/numbers/nat0-real
 import mundane theorem    stdlib/numbers/nat-minus-one
 import mundane theorem    stdlib/numbers/nat0-as-int
 import mundane theorem    stdlib/numbers/pos-int-nat
@@ -42,22 +41,18 @@ theorem digit-range
 
 1.  s(t) = (t + 1) mod 10
     D2
-    requires t ∈ ℤ: from H1
 
 2.  (t + 1) mod 10 < 10
     mun:mod-less a := t + 1, b := 10
-    requires t + 1 ∈ ℤ: membership, from H1
-    requires 10 ∈ ℕ: arithmetic
 
 3.  s(t) < 10
     substitute s(t) = (t + 1) mod 10 (line 1) into line 2
 
 4.  s(t) ∈ ℕ₀
-    membership, from 1, H1
+    membership, from 1
 
 5.  s(t) + 1 ≤ 10
     mun:integer-step m := s(t), n := 10, from 4, 3
-    requires 10 ∈ ℤ: arithmetic
 
 6.  0 ≤ s(t) and s(t) ≤ 9
     inequalities, from 5, 4
@@ -68,17 +63,12 @@ theorem digit-step-divides
 
 1.  s(t) = (t + 1) mod 10
     D2
-    requires t ∈ ℤ: from H1
 
 2.  t + 1 ≡ (t + 1) mod 10 (mod 10)
     mun:mod-congruent x := t + 1, n := 10
-    requires t + 1 ∈ ℤ: membership, from H1
-    requires 10 ∈ ℕ: arithmetic
 
 3.  10 divides (t + 1) − (t + 1) mod 10
     mun:congruent-mod n := 10, a := t + 1, b := (t + 1) mod 10, from 2
-    requires 10 ∈ ℤ: arithmetic
-    requires t + 1 ∈ ℤ: membership, from H1
     requires (t + 1) mod 10 ∈ ℤ: membership, from H1
 
 4.  10 divides (t + 1) − s(t)
@@ -89,7 +79,7 @@ theorem digit-step
   then s(t) ≠ t
 
 1.  10 divides (t + 1) − s(t)
-    thm:digit-step-divides t := t, from H1
+    thm:digit-step-divides t := t
 
 2.  s(t) ≠ t
     contradiction
@@ -100,25 +90,22 @@ theorem digit-step
 
     2.2.  (t + 1) − t = 1
           algebra
-          requires t ∈ ℝ: membership, from H1
 
     2.3.  10 divides 1
           substitute (t + 1) − t = 1 (line 2.2) into line 2.1
 
     2.4.  10 ≤ 1, which is impossible
           mun:divides-le e := 10, m := 1, from 2.3
-          requires 10 ∈ ℕ: arithmetic
-          requires 1 ∈ ℕ: arithmetic
 
 theorem digit-step-twice
   let t ∈ ℤ                                                           (H1)
   then s(s(t)) ≠ t
 
 1.  s(t) ∈ ℤ
-    membership, from D2, H1
+    membership, from D2
 
 2.  10 divides (t + 1) − s(t)
-    thm:digit-step-divides t := t, from H1
+    thm:digit-step-divides t := t
 
 3.  10 divides (s(t) + 1) − s(s(t))
     thm:digit-step-divides t := s(t), from 1
@@ -132,13 +119,11 @@ theorem digit-step-twice
 
     4.2.  10 divides ((t + 1) − s(t)) + ((s(t) + 1) − t)
           mun:divides-sum d := 10, a := (t + 1) − s(t), b := (s(t) + 1) − t, from 2, 4.1
-          requires 10 ∈ ℤ: arithmetic
           requires (t + 1) − s(t) ∈ ℤ: membership, from H1, 1
           requires (s(t) + 1) − t ∈ ℤ: membership, from H1, 1
 
     4.3.  ((t + 1) − s(t)) + ((s(t) + 1) − t) = 2
           algebra
-          requires t ∈ ℝ: membership, from H1
           requires s(t) ∈ ℝ: membership, from 1
 
     4.4.  10 divides 2
@@ -146,8 +131,6 @@ theorem digit-step-twice
 
     4.5.  10 ≤ 2, which is impossible
           mun:divides-le e := 10, m := 2, from 4.4
-          requires 10 ∈ ℕ: arithmetic
-          requires 2 ∈ ℕ: arithmetic
 
 theorem decimal-number
   let d : ℕ → ℤ                                                       (H1)
@@ -176,11 +159,9 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
 
     2.2.  N(k + 1) = 10·N(k) + d(k + 1)
           D3
-          requires k ∈ ℕ₀: from K
 
     2.3.  k + 1 ∈ ℕ
           mun:pos-int-nat
-          requires k + 1 ∈ ℤ: membership, from K
           requires 0 < k + 1: inequalities, from K
 
     2.4.  N(k + 1) ∈ ℤ
@@ -194,18 +175,16 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
 
     3.1.  N(k + 1) = 10·N(k) + d(k + 1)
           D3
-          requires k ∈ ℕ₀: from K1
 
     3.2.  k + 1 ∈ ℕ
           mun:pos-int-nat
-          requires k + 1 ∈ ℤ: membership, from K1
           requires 0 < k + 1: inequalities, from K1
 
     3.3.  0 ≤ d(k + 1) and d(k + 1) ≤ 9
           instantiate n := k + 1 in H2, from 3.2
 
     3.4.  N(k) ∈ ℤ
-          instantiate k := k in line 2, from K1
+          instantiate k := k in line 2
 
     3.5.  10·N(k) ≤ N(k + 1) and N(k + 1) + 1 ≤ 10·(N(k) + 1)
           inequalities, from 3.1, 3.3
@@ -214,22 +193,17 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
           requires N(k + 1) ∈ ℝ: membership, from 3.1, 3.4, H1, 3.2
 
     3.6.  10^k ∈ ℕ
-          mun:power-nat a := 10, m := k, from K1
-          requires 10 ∈ ℕ: arithmetic
+          mun:power-nat a := 10, m := k
 
     3.7.  10^(k + 1) ∈ ℕ
           mun:power-nat a := 10, m := k + 1
-          requires 10 ∈ ℕ: arithmetic
-          requires k + 1 ∈ ℕ₀: membership, from K1
 
     3.8.  10^(k + 1) = 10^k·10
-          mun:exponent-step a := 10, m := k, from K1
-          requires 10 ∈ ℂ: arithmetic
+          mun:exponent-step a := 10, m := k
 
     3.9.  N(k)/10^k = (10·N(k))/(10^k·10)
           algebra
           requires N(k) ∈ ℝ: membership, from 3.4
-          requires 10^k ∈ ℝ: membership, from 3.6
           requires 10^k ≠ 0: inequalities, from 3.6
 
     3.10. N(k)/10^k = (10·N(k))/10^(k + 1)
@@ -238,7 +212,6 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
     3.11. (N(k) + 1)/10^k = (10·(N(k) + 1))/(10^k·10)
           algebra
           requires N(k) ∈ ℝ: membership, from 3.4
-          requires 10^k ∈ ℝ: membership, from 3.6
           requires 10^k ≠ 0: inequalities, from 3.6
 
     3.12. (N(k) + 1)/10^k = (10·(N(k) + 1))/10^(k + 1)
@@ -274,11 +247,10 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
     let k ∈ ℕ₀                                                        (K2)
 
     4.1.  N(k) ∈ ℤ
-          instantiate k := k in line 2, from K2
+          instantiate k := k in line 2
 
     4.2.  10^k ∈ ℕ
-          mun:power-nat a := 10, m := k, from K2
-          requires 10 ∈ ℕ: arithmetic
+          mun:power-nat a := 10, m := k
 
     4.3.  N(k)/10^k ∈ ℝ
           membership, from 4.1, 4.2
@@ -312,11 +284,10 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
           let p ∈ ℕ₀                                                  (P1)
 
           5.1.1.  N(p) ∈ ℤ
-                  instantiate k := p in line 2, from P1
+                  instantiate k := p in line 2
 
           5.1.2.  10^p ∈ ℕ
-                  mun:power-nat a := 10, m := p, from P1
-                  requires 10 ∈ ℕ: arithmetic
+                  mun:power-nat a := 10, m := p
 
           5.1.3.  N(p)/10^p ≤ N(p)/10^p and (N(p) + 1)/10^p ≤ (N(p) + 1)/10^p
                   inequalities
@@ -325,7 +296,6 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
 
           5.1.4.  p = p + 0
                   algebra
-                  requires p ∈ ℝ: mun:nat0-real, from P1
 
           5.1.5.  N(p)/10^p ≤ N(p + 0)/10^(p + 0)
                   and (N(p + 0) + 1)/10^(p + 0) ≤ (N(p) + 1)/10^p
@@ -342,29 +312,26 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
 
           5.2.1.  N(p)/10^p ≤ N(p + g)/10^(p + g)
                   and (N(p + g) + 1)/10^(p + g) ≤ (N(p) + 1)/10^p
-                  instantiate p := p in IH2, from P2
+                  instantiate p := p in IH2
 
           5.2.2.  N(p + g)/10^(p + g) ≤ N((p + g) + 1)/10^((p + g) + 1)
                   and (N((p + g) + 1) + 1)/10^((p + g) + 1) ≤ (N(p + g) + 1)/10^(p + g)
                   instantiate k := p + g in line 3
-                  requires p + g ∈ ℕ₀: membership, from P2, G
 
           5.2.3.  N(p) ∈ ℤ and 10^p ∈ ℕ and N(p)/10^p ∈ ℝ
                   and (N(p) + 1)/10^p ∈ ℝ and N(p)/10^p ≤ (N(p) + 1)/10^p
-                  instantiate k := p in line 4, from P2
+                  instantiate k := p in line 4
 
           5.2.4.  N(p + g) ∈ ℤ and 10^(p + g) ∈ ℕ and N(p + g)/10^(p + g) ∈ ℝ
                   and (N(p + g) + 1)/10^(p + g) ∈ ℝ
                   and N(p + g)/10^(p + g) ≤ (N(p + g) + 1)/10^(p + g)
                   instantiate k := p + g in line 4
-                  requires p + g ∈ ℕ₀: membership, from P2, G
 
           5.2.5.  N((p + g) + 1) ∈ ℤ and 10^((p + g) + 1) ∈ ℕ
                   and N((p + g) + 1)/10^((p + g) + 1) ∈ ℝ
                   and (N((p + g) + 1) + 1)/10^((p + g) + 1) ∈ ℝ
                   and N((p + g) + 1)/10^((p + g) + 1) ≤ (N((p + g) + 1) + 1)/10^((p + g) + 1)
                   instantiate k := (p + g) + 1 in line 4
-                  requires (p + g) + 1 ∈ ℕ₀: membership, from P2, G
 
           5.2.6.  N(p)/10^p ≤ N((p + g) + 1)/10^((p + g) + 1)
                   and (N((p + g) + 1) + 1)/10^((p + g) + 1) ≤ (N(p) + 1)/10^p
@@ -372,8 +339,6 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
 
           5.2.7.  (p + g) + 1 = p + (g + 1)
                   algebra
-                  requires p ∈ ℝ: mun:nat0-real, from P2
-                  requires g ∈ ℝ: mun:nat0-real, from G
 
           5.2.8.  N(p)/10^p ≤ N(p + (g + 1))/10^(p + (g + 1))
                   and (N(p + (g + 1)) + 1)/10^(p + (g + 1)) ≤ (N(p) + 1)/10^p
@@ -386,11 +351,11 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
 
     6.1.  N(j) ∈ ℤ and 10^j ∈ ℕ and N(j)/10^j ∈ ℝ
           and (N(j) + 1)/10^j ∈ ℝ and N(j)/10^j ≤ (N(j) + 1)/10^j
-          instantiate k := j in line 4, from J1
+          instantiate k := j in line 4
 
     6.2.  N(k) ∈ ℤ and 10^k ∈ ℕ and N(k)/10^k ∈ ℝ
           and (N(k) + 1)/10^k ∈ ℝ and N(k)/10^k ≤ (N(k) + 1)/10^k
-          instantiate k := k in line 4, from K3
+          instantiate k := k in line 4
 
     6.3.  j ≤ k or not (j ≤ k)
           mun:excluded-middle P := j ≤ k
@@ -403,19 +368,14 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
 
           6.4.1.  k − j ∈ ℕ₀
                   mun:nat0-as-int
-                  requires k − j ∈ ℤ: membership, from J1, K3
-                  requires j ∈ ℝ: mun:nat0-real, from J1
-                  requires k ∈ ℝ: mun:nat0-real, from K3
                   requires 0 ≤ k − j: inequalities, from C5
 
           6.4.2.  N(j)/10^j ≤ N(j + (k − j))/10^(j + (k − j))
                   and (N(j + (k − j)) + 1)/10^(j + (k − j)) ≤ (N(j) + 1)/10^j
-                  instantiate g := k − j, p := j in line 5, from 6.4.1, J1
+                  instantiate g := k − j, p := j in line 5, from 6.4.1
 
           6.4.3.  j + (k − j) = k
                   algebra
-                  requires j ∈ ℝ: mun:nat0-real, from J1
-                  requires k ∈ ℝ: mun:nat0-real, from K3
 
           6.4.4.  N(j)/10^j ≤ N(k)/10^k and (N(k) + 1)/10^k ≤ (N(j) + 1)/10^j
                   substitute j + (k − j) = k (line 6.4.3) into line 6.4.2
@@ -428,19 +388,14 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
 
           6.4.6.  j − k ∈ ℕ₀
                   mun:nat0-as-int
-                  requires j − k ∈ ℤ: membership, from J1, K3
-                  requires j ∈ ℝ: mun:nat0-real, from J1
-                  requires k ∈ ℝ: mun:nat0-real, from K3
                   requires 0 ≤ j − k: inequalities, from C6
 
           6.4.7.  N(k)/10^k ≤ N(k + (j − k))/10^(k + (j − k))
                   and (N(k + (j − k)) + 1)/10^(k + (j − k)) ≤ (N(k) + 1)/10^k
-                  instantiate g := j − k, p := k in line 5, from 6.4.6, K3
+                  instantiate g := j − k, p := k in line 5, from 6.4.6
 
           6.4.8.  k + (j − k) = j
                   algebra
-                  requires j ∈ ℝ: mun:nat0-real, from J1
-                  requires k ∈ ℝ: mun:nat0-real, from K3
 
           6.4.9.  N(k)/10^k ≤ N(j)/10^j and (N(j) + 1)/10^j ≤ (N(k) + 1)/10^k
                   substitute k + (j − k) = j (line 6.4.8) into line 6.4.7
@@ -457,22 +412,19 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
 
     8.1.  N(k) ∈ ℤ and 10^k ∈ ℕ and N(k)/10^k ∈ ℝ
           and (N(k) + 1)/10^k ∈ ℝ and N(k)/10^k ≤ (N(k) + 1)/10^k
-          instantiate k := k in line 4, from K8
+          instantiate k := k in line 4
 
     8.2.  N(k)/10^k = N(k)/10^k
           algebra
           requires N(k) ∈ ℝ: membership, from 8.1
-          requires 10^k ∈ ℝ: membership, from 8.1
           requires 10^k ≠ 0: inequalities, from 8.1
 
     8.3.  N(k)/10^k ∈ S
           mun:set-builder u := N(k)/10^k, from D4, 8.2
           requires N(k)/10^k ∈ ℝ: from 8.1
-          requires k ∈ ℕ₀: from K8
 
 9.  N(0)/10^0 ∈ S
     instantiate k := 0 in line 8
-    requires 0 ∈ ℕ₀: arithmetic
 
 10. For all k ∈ ℕ₀, (N(k) + 1)/10^k is an upper bound of S.
     proof
@@ -486,7 +438,7 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
                   obtain j: mun:set-builder u := y, from D4, Y
 
           10.1.2. N(j)/10^j ≤ (N(k) + 1)/10^k
-                  instantiate j := j, k := k in line 6, from 10.1.1, K4
+                  instantiate j := j, k := k in line 6
 
           10.1.3. y ≤ (N(k) + 1)/10^k
                   substitute y = N(j)/10^j (line 10.1.1) into line 10.1.2
@@ -496,7 +448,6 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
 
 11. (N(0) + 1)/10^0 is an upper bound of S
     instantiate k := 0 in line 10
-    requires 0 ∈ ℕ₀: arithmetic
 
 12. c ∈ ℝ. c is a least upper bound of S.
     obtain c: axi:completeness S := S, from 7, 9, 11
@@ -515,16 +466,16 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
 
     15.1. N(k) ∈ ℤ and 10^k ∈ ℕ and N(k)/10^k ∈ ℝ
           and (N(k) + 1)/10^k ∈ ℝ and N(k)/10^k ≤ (N(k) + 1)/10^k
-          instantiate k := k in line 4, from K5
+          instantiate k := k in line 4
 
     15.2. N(k)/10^k ∈ S
-          instantiate k := k in line 8, from K5
+          instantiate k := k in line 8
 
     15.3. N(k)/10^k ≤ c
           instantiate y := N(k)/10^k in line 14, from 15.2
 
     15.4. (N(k) + 1)/10^k is an upper bound of S
-          instantiate k := k in line 10, from K5
+          instantiate k := k in line 10
 
     15.5. c ≤ (N(k) + 1)/10^k
           instantiate u := (N(k) + 1)/10^k in line 13, from 15.4
@@ -538,7 +489,7 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
     let n ∈ ℕ                                                         (K6)
 
     16.1. n − 1 ∈ ℕ₀
-          mun:nat-minus-one, from K6
+          mun:nat-minus-one
 
     16.2. N((n − 1) + 1) = 10·N(n − 1) + d((n − 1) + 1)
           D3
@@ -546,7 +497,6 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
 
     16.3. (n − 1) + 1 = n
           algebra
-          requires n ∈ ℝ: membership, from K6
 
     16.4. N(n) = 10·N(n − 1) + d(n)
           substitute (n − 1) + 1 = n (line 16.3) into line 16.2
@@ -555,7 +505,7 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
           instantiate k := n − 1 in line 2, from 16.1
 
     16.6. 0 ≤ d(n) and d(n) ≤ 9
-          instantiate n := n in H2, from K6
+          instantiate n := n in H2
 
     16.7. N(n) ∈ ℤ
           membership, from 16.4, 16.5
@@ -563,23 +513,18 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
 
     16.8. 10^n ∈ ℕ
           mun:power-nat a := 10, m := n
-          requires 10 ∈ ℕ: arithmetic
-          requires n ∈ ℕ₀: membership, from K6
 
     16.9. N(n)/10^n ≤ c and c ≤ (N(n) + 1)/10^n
           instantiate k := n in line 15
-          requires n ∈ ℕ₀: membership, from K6
 
     16.10. 10^n·(N(n)/10^n) ≤ 10^n·c
            mun:multiply-le x := N(n)/10^n, y := c, c := 10^n, from 16.9
            requires N(n)/10^n ∈ ℝ: membership, from 16.7, 16.8
-           requires c ∈ ℝ: from 12
            requires 10^n ∈ ℝ: membership, from 16.8
            requires 10^n > 0: inequalities, from 16.8
 
     16.11. 10^n·c ≤ 10^n·((N(n) + 1)/10^n)
            mun:multiply-le x := c, y := (N(n) + 1)/10^n, c := 10^n, from 16.9
-           requires c ∈ ℝ: from 12
            requires (N(n) + 1)/10^n ∈ ℝ: membership, from 16.7, 16.8
            requires 10^n ∈ ℝ: membership, from 16.8
            requires 10^n > 0: inequalities, from 16.8
@@ -587,18 +532,15 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
     16.12. 10^n·(N(n)/10^n) = N(n)
            algebra
            requires N(n) ∈ ℝ: membership, from 16.7
-           requires 10^n ∈ ℝ: membership, from 16.8
            requires 10^n ≠ 0: inequalities, from 16.8
 
     16.13. 10^n·((N(n) + 1)/10^n) = N(n) + 1
            algebra
            requires N(n) ∈ ℝ: membership, from 16.7
-           requires 10^n ∈ ℝ: membership, from 16.8
            requires 10^n ≠ 0: inequalities, from 16.8
 
     16.14. N(n) ≤ 10^n·c and 10^n·c ≤ N(n) + 1
            inequalities, from 16.10, 16.11, 16.12, 16.13, 16.8
-           requires c ∈ ℝ: from 12
            requires 10^n·(N(n)/10^n) ∈ ℝ: membership, from 16.7, 16.8
 
     16.15. ⌊10^n·c⌋ ∈ ℤ
@@ -614,7 +556,7 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
            requires 10^n·c ∈ ℝ: membership, from 12, 16.8
 
     16.18. N(n) < ⌊10^n·c⌋ + 1
-           inequalities, from 16.14, 16.17, 12, 16.8, 16.15
+           inequalities, from 16.14, 16.17, 16.8, 16.15
            requires N(n) ∈ ℝ: membership, from 16.7
 
     16.19. N(n) + 1 ≤ ⌊10^n·c⌋ + 1
@@ -623,8 +565,6 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
 
     16.20. D(c, n) = ⌊10^n·c⌋ mod 10
            D1
-           requires c ∈ ℝ: from 12
-           requires n ∈ ℕ: from K6
 
     16.21. d(n) ∈ ℕ₀
            mun:nat0-as-int
@@ -662,7 +602,6 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
 
            16.24.4. ⌊10^n·c⌋ mod 10 = d(n)
                     mun:mod-remainder a := ⌊10^n·c⌋, m := 10, r := d(n), from 16.15, 16.24.3
-                    requires 10 ∈ ℕ: arithmetic
                     requires d(n) ∈ ℕ₀: from 16.21
                     requires d(n) < 10: inequalities, from 16.6
 
@@ -688,8 +627,6 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
                     requires ⌊10^n·c⌋ ∈ ℝ: membership, from 16.15
                     requires N(n) ∈ ℝ: membership, from 16.7
                     requires N(n) + 1 ∈ ℝ: membership, from 16.7
-                    requires 10^n ∈ ℝ: membership, from 16.8
-                    requires c ∈ ℝ: from 12
                     requires ⌊10^n·c⌋ ≤ N(n) + 1: inequalities, from 16.14, 16.16
                     requires N(n) + 1 ≤ ⌊10^n·c⌋: from 16.24.8
 
@@ -706,7 +643,6 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
            16.24.12. (N(n − 1)·10 + (d(n) + 1)) mod 10 = (d(n) + 1) mod 10
                      mun:mod-multiple r := d(n) + 1, m := 10, q := N(n − 1), from 16.5
                      requires d(n) + 1 ∈ ℤ: from 16.22
-                     requires 10 ∈ ℕ: arithmetic
 
            16.24.13. s(d(n)) = (d(n) + 1) mod 10
                      D2
@@ -722,7 +658,7 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
                      mun:or-right, from 16.24.14
 
 17. There is x ∈ ℝ with for all n ∈ ℕ, D(x, n) = d(n) or D(x, n) = s(d(n)).
-    exhibit, from 12, 16
+    exhibit, from 16
 
 theorem sequence-misses-real
   metamath    ruclem12, the form in which a sequence misses a real; proved by
@@ -740,12 +676,9 @@ define e(n) := s(D(f(n), n)), for n ∈ ℕ                              (D5)
     1.1.  D(f(n), n) = ⌊10^n·f(n)⌋ mod 10
           D1
           requires f(n) ∈ ℝ: from H1, K1
-          requires n ∈ ℕ: from K1
 
     1.2.  10^n ∈ ℕ
           mun:power-nat a := 10, m := n
-          requires 10 ∈ ℕ: arithmetic
-          requires n ∈ ℕ₀: membership, from K1
 
     1.3.  ⌊10^n·f(n)⌋ ∈ ℤ
           mun:floor-integer x := 10^n·f(n)
@@ -754,7 +687,6 @@ define e(n) := s(D(f(n), n)), for n ∈ ℕ                              (D5)
 
     1.4.  ⌊10^n·f(n)⌋ mod 10 ∈ ℕ₀
           mun:mod-natural a := ⌊10^n·f(n)⌋, b := 10, from 1.3
-          requires 10 ∈ ℕ: arithmetic
 
     1.5.  D(f(n), n) ∈ ℕ₀
           substitute D(f(n), n) = ⌊10^n·f(n)⌋ mod 10 (line 1.1) into line 1.4
@@ -768,7 +700,7 @@ define e(n) := s(D(f(n), n)), for n ∈ ℕ                              (D5)
     let n ∈ ℕ                                                         (K2)
 
     2.1.  D(f(n), n) ∈ ℤ
-          instantiate n := n in line 1, from K2
+          instantiate n := n in line 1
 
     2.2.  s(D(f(n), n)) ∈ ℤ
           membership, from D2, 2.1
@@ -781,14 +713,13 @@ define e(n) := s(D(f(n), n)), for n ∈ ℕ                              (D5)
 
     2.5.  s(s(D(f(n), n))) ≠ D(f(n), n)
           thm:digit-step-twice t := D(f(n), n), from 2.1
-          requires s(D(f(n), n)) ∈ ℤ: from 2.2
 
     2.6.  s(D(f(n), n)) ∈ ℤ and 0 ≤ s(D(f(n), n)) and s(D(f(n), n)) ≤ 9
           and s(D(f(n), n)) ≠ D(f(n), n) and s(s(D(f(n), n))) ≠ D(f(n), n)
           join 2.2, 2.3, 2.4, 2.5
 
     2.7.  e(n) = s(D(f(n), n))
-          D5, from K2
+          D5
 
     2.8.  e(n) ∈ ℤ and 0 ≤ e(n) and e(n) ≤ 9
           and e(n) ≠ D(f(n), n) and s(e(n)) ≠ D(f(n), n)
@@ -800,7 +731,7 @@ define e(n) := s(D(f(n), n)), for n ∈ ℕ                              (D5)
 
     3.1.  e(n) ∈ ℤ and 0 ≤ e(n) and e(n) ≤ 9
           and e(n) ≠ D(f(n), n) and s(e(n)) ≠ D(f(n), n)
-          instantiate n := n in line 2, from K3
+          instantiate n := n in line 2
 
     3.2.  e(n) ∈ ℤ
           membership, from 3.1
@@ -814,11 +745,11 @@ define e(n) := s(D(f(n), n)), for n ∈ ℕ                              (D5)
     let n ∈ ℕ                                                         (K4)
 
     5.1.  D(f(n), n) ∈ ℤ
-          instantiate n := n in line 1, from K4
+          instantiate n := n in line 1
 
     5.2.  e(n) ∈ ℤ and 0 ≤ e(n) and e(n) ≤ 9
           and e(n) ≠ D(f(n), n) and s(e(n)) ≠ D(f(n), n)
-          instantiate n := n in line 2, from K4
+          instantiate n := n in line 2
 
     5.3.  0 ≤ e(n) and e(n) ≤ 9
           inequalities, from 5.2, 5.1
@@ -833,10 +764,10 @@ define e(n) := s(D(f(n), n)), for n ∈ ℕ                              (D5)
 
     7.1.  e(n) ∈ ℤ and 0 ≤ e(n) and e(n) ≤ 9
           and e(n) ≠ D(f(n), n) and s(e(n)) ≠ D(f(n), n)
-          instantiate n := n in line 2, from K5
+          instantiate n := n in line 2
 
     7.2.  D(x, n) = e(n) or D(x, n) = s(e(n))
-          instantiate n := n in line 6, from K5
+          instantiate n := n in line 6
 
     7.3.  D(x, n) ≠ D(f(n), n)
           cases, from 7.2
@@ -861,7 +792,7 @@ define e(n) := s(D(f(n), n)), for n ∈ ℕ                              (D5)
                   substitute f(n) = x (S), contradicting 7.3
 
 8.  There is x ∈ ℝ with for all n ∈ ℕ, f(n) ≠ x.
-    exhibit, from 6, 7
+    exhibit, from 7
 
 theorem reals-uncountable
   metamath    ruc, which says as well that ℕ is no larger than ℝ
@@ -878,10 +809,10 @@ theorem reals-uncountable
           obtain x: thm:sequence-misses-real f := f
 
     1.3.  There is n ∈ ℕ with x = f(n).
-          instantiate y := x in line 1.1, from 1.2
+          instantiate y := x in line 1.1
 
     1.4.  m ∈ ℕ. x = f(m).
           obtain m from line 1.3
 
     1.5.  x ≠ f(m)
-          instantiate n := m in line 1.2, from 1.4, contradicting 1.4
+          instantiate n := m in line 1.2, contradicting 1.4

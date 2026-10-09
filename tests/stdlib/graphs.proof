@@ -9,4 +9,4 @@ theorem walk
   then v and e form a walk of n edges
 
 1.  v and e form a walk of n edges
-    def:graphs-walk, from H2, H5
+    def:graphs-walk, from H5

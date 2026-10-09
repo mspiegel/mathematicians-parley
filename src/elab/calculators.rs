@@ -679,7 +679,12 @@ impl<'a> Elaborator<'a> {
             return Ok(found);
         }
         let want = t!(said, "cc0", "wne");
-        match self.settle(&self.to_term(&want), scope, facts, 3, None, None)? {
+        // A divisor not being zero is the page's to say, so no membership
+        // said once leads to it (`READERS.md`).
+        self.beyond_once += 1;
+        let found = self.settle(&self.to_term(&want), scope, facts, 3, None, None);
+        self.beyond_once -= 1;
+        match found? {
             Built(p) => Ok(p),
             Declined(_) => Err(self.defect(
                 self.at,

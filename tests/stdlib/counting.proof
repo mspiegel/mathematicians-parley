@@ -17,7 +17,7 @@ theorem factorial-step
   then (n + 1)! = n!·(n + 1)
 
 1.  (n + 1)! = n!·(n + 1)
-    mun:factorial, from H1
+    mun:factorial
 
 theorem binomial-coefficient
   let n ∈ ℕ₀                                                          (H1)
@@ -26,7 +26,7 @@ theorem binomial-coefficient
   then C(n, k) = n!/((n − k)!·k!)
 
 1.  C(n, k) = n!/((n − k)!·k!)
-    def:C, from H1, H2, H3
+    def:C, from H3
 
 theorem card-empty
   then |∅| = 0
@@ -45,7 +45,6 @@ theorem size-of-a-range
 
 1.  |{1, …, 12}| = 12
     mun:range-size n := 12
-    requires 12 ∈ ℕ₀: arithmetic
 
 theorem functions-counted
   let A be a set                                                      (H1)

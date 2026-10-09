@@ -27,6 +27,18 @@ use crate::{pf, t};
 
 pub const REQUIRES: &str = "requires@";
 
+/// What a letter's membership in a number system is called as the origin of
+/// a proof (`Elaborator::introduced_membership`): the page says it once, on
+/// the line introducing the letter, and a step rests on it without naming
+/// that line.
+pub const MEMBERSHIP: &str = "membership@";
+
+/// Whether a proof resting on `origin` may be offered where a proof may rest
+/// on `resting`: what it names, and a membership the page says once.
+pub fn may_rest_on(resting: &BTreeSet<String>, origin: &str) -> bool {
+    resting.contains(origin) || origin.starts_with(MEMBERSHIP)
+}
+
 /// What a `requires` line is called as the origin of a proof: it has no
 /// number of its own, so it is named by where it stands.
 pub fn requirement(line: usize) -> String {
@@ -310,6 +322,9 @@ impl<'a> Elaborator<'a> {
             allowed.extend(step.requires.iter().flat_map(|r| references(&r.how).0));
         }
         let unsaid = atoms.iter().find(|atom| {
+            if self.said_once(atom) {
+                return false;
+            }
             let mut said = written.iter().any(|c| {
                 let held = self.rpn(&c.children()[0]);
                 c.label() == Some("wcel") && self.one_atom(&held, atom)
@@ -468,10 +483,12 @@ impl<'a> Elaborator<'a> {
         line: usize,
         what: &str,
     ) -> Checked<()> {
+        // A letter's membership is said where the letter is introduced, and
+        // every line rests on it unnamed (`introduced_membership`).
         let extra: Vec<&String> = proof
             .origin
             .iter()
-            .filter(|o| !allowed.contains(*o))
+            .filter(|o| !allowed.contains(*o) && !o.starts_with(MEMBERSHIP))
             .collect();
         if extra.is_empty() {
             return Ok(());
@@ -973,8 +990,12 @@ impl<'a> Elaborator<'a> {
             written.insert(self.term(&node)?);
         }
         // The scope's copy of a claim is taken only where no line of the step
-        // writes it.
+        // writes it, and a membership the page says once is taken from where
+        // it says it.
         if !written.contains(goal) {
+            if let Built(p) = self.said_once_proof(&self.to_term(goal), scope, facts)? {
+                return Ok(p);
+            }
             if let Some(p) = self.held(facts, goal, scope)? {
                 return Ok(p);
             }

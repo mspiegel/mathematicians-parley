@@ -318,8 +318,9 @@ repaired.
 - **The hypotheses of `algebra` and `inequalities` are written.** Each method
   record carries a `hypotheses` field — `algebra`'s reads "every atom is a real
   number, and every denominator is nonzero" — and `SYNTAX.md` has moved the
-  question off its unsettled list: a membership is a `requires` line, and the
-  corpus complies throughout.
+  question off its unsettled list: a membership is said once, where a letter
+  is introduced, or written as a `requires` line where the page does not say
+  it once.
 - **Every formula in the corpus parses, and none is ambiguous.** That is 313
   sentences in the ten proofs and 131 statements and assumptions here, and the
   checker parses all of them on every run. Getting there took six notations

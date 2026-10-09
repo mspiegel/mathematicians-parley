@@ -1,7 +1,6 @@
 import mundane theorem    stdlib/numbers/exponent-one
 import mundane theorem    stdlib/numbers/exponent-step
 import mundane theorem    stdlib/numbers/exponent-zero
-import mundane theorem    stdlib/numbers/nat0-closure
 import mundane theorem    stdlib/numbers/power-real
 import mundane theorem    stdlib/sums/sum-last
 import mundane theorem    stdlib/sums/sum-single
@@ -22,25 +21,21 @@ theorem geometric-sum
     base
     1.1.  Σ(j = 0 to 0) a^j = a^0
           mun:sum-single a := 0
-          requires 0 ∈ ℤ: arithmetic
-          requires a ∈ ℝ: from H1
 
     1.2.  a^0 = 1
-          mun:exponent-zero a := a, from H1
+          mun:exponent-zero a := a
 
     1.3.  G(a, 0) = 1
           calculation
             G(a, 0) = Σ(j = 0 to 0) a^j     D1
                     = a^0                   1.1
                     = 1                     1.2
-          requires a ∈ ℝ: from H1
-          requires 0 ∈ ℕ₀: arithmetic
 
     1.4.  a^(0 + 1) = a^1
           substitute 0 + 1 = 1 (arithmetic)
 
     1.5.  a^1 = a
-          mun:exponent-one a := a, from H1
+          mun:exponent-one a := a
 
     1.6.  a^(0 + 1) = a
           calculation
@@ -49,7 +44,6 @@ theorem geometric-sum
 
     1.7.  1 = (1 − a)/(1 − a)
           algebra
-          requires a ∈ ℝ: from H1
           requires 1 − a ≠ 0: algebra, from H2
 
     1.8.  (1 − a)/(1 − a) = (1 − a^(0 + 1))/(1 − a)
@@ -66,31 +60,24 @@ theorem geometric-sum
     assume step 1 is true for k, the induction hypothesis             (IH)
 
     1.10. Σ(j = 0 to k + 1) a^j = Σ(j = 0 to k) a^j + a^(k + 1)
-          mun:sum-last n := k, from K
-          requires a ∈ ℝ: from H1
+          mun:sum-last n := k
 
     1.11. G(a, k + 1) = G(a, k) + a^(k + 1)
           calculation
             G(a, k + 1) = Σ(j = 0 to k + 1) a^j              D1
                         = Σ(j = 0 to k) a^j + a^(k + 1)      1.10
                         = G(a, k) + a^(k + 1)                D1
-          requires a ∈ ℝ: from H1
-          requires k + 1 ∈ ℕ₀: mun:nat0-closure, from K
-          requires k ∈ ℕ₀: from K
 
     1.12. G(a, k) + a^(k + 1) = (1 − a^(k + 1))/(1 − a) + a^(k + 1)
           substitute G(a, k) = (1 − a^(k + 1))/(1 − a) (IH)
 
     1.13. a^((k + 1) + 1) = a^(k + 1)·a
-          mun:exponent-step m := k + 1, from H1
-          requires k + 1 ∈ ℕ₀: mun:nat0-closure, from K
+          mun:exponent-step m := k + 1
 
     1.14. (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a)
           algebra
-          requires a ∈ ℝ: from H1
           requires 1 − a ≠ 0: algebra, from H2
-          requires k + 1 ∈ ℕ₀: mun:nat0-closure, from K
-          requires a^(k + 1) ∈ ℝ: mun:power-real m := k + 1, from H1
+          requires a^(k + 1) ∈ ℝ: mun:power-real m := k + 1
 
     1.15. (1 − a^(k + 1)·a)/(1 − a) = (1 − a^((k + 1) + 1))/(1 − a)
           substitute a^((k + 1) + 1) = a^(k + 1)·a (line 1.13)
@@ -103,4 +90,4 @@ theorem geometric-sum
                         = (1 − a^((k + 1) + 1))/(1 − a)              1.15
 
 2.  G(a, n) = (1 − a^(n + 1))/(1 − a)
-    instantiate k := n in line 1, from H3
+    instantiate k := n in line 1

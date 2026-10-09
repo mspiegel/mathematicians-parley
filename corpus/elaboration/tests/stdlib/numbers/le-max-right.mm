@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.numbers.le-max-right $p |- ( ( A e. RR /\ B e. RR ) -> B <_ if ( A <_ B , B , A ) ) $=
-    ( max2 ) ABC $.
+    ( cr wcel wa cle wbr cif simpl id syl simpr jca max2 ) ACDZBCDZEZQBABFGBAHFGQOPQOOOPIOJKOPLMABNK $.
 $}

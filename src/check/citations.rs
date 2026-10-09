@@ -6,13 +6,13 @@ use std::collections::BTreeSet;
 use indexmap::{IndexMap, IndexSet};
 
 use super::formulas::chain_links;
-use super::library::Known;
+use super::library::{introduced, Known};
 use super::structure::instantiated_line;
 use super::Report;
 use crate::citing::{
     asked, bound_in, claimed_member, concludes, conjuncts, derives, filled, finished,
-    names_of, obtained, obtains, readings, search, supply, taken, taken_ways,
-    with_parts, Group, Library, Parts, Sites, Ways,
+    names_of, obtained, obtains, readings, said_once, search, supply, taken,
+    taken_ways, with_parts, Group, Library, Parts, Sites, Ways,
 };
 use crate::corpus::proof::{requires_as_step, requires_item, Requires, METHODS};
 use crate::corpus::{
@@ -25,6 +25,7 @@ use crate::matching::{
     Context, PROPERTY,
 };
 use crate::outcome::{Built, Declined};
+use crate::rules;
 use crate::sorts::{sentences, supplied_by};
 use crate::text::squash;
 
@@ -129,8 +130,11 @@ fn requires_parts(
         }
     }
     // The facts a step's own citation is given, so that an item cited
-    // on a requires line reaches what it reaches cited by a step.
-    Some(finished(read, claims, seed, library, &known.sorts))
+    // on a requires line reaches what it reaches cited by a step, the
+    // memberships the page says once among them.
+    let mut parts = finished(read, claims, seed, library, &known.sorts);
+    said_once(&mut parts, &introduced(known, step), library, &known.sorts);
+    Some(parts)
 }
 
 /// What the record each requires line cites asks of it, and what the
@@ -1452,8 +1456,10 @@ pub fn check_repeated(
                 |parts: &Parts| parts.facts.iter().any(|f| known.alike(f, &said));
             let mut uncited = lighter.clone();
             uncited.just.refs.clear();
-            let repeated = says(&known.parts(&uncited, library))
+            let bounded = bound_below(step, i, &said, known);
+            let repeated = (says(&known.parts(&uncited, library)) && !bounded)
                 || (says(&known.parts(&lighter, library))
+                    && !bounded
                     && !needed_below(step, i, &said, known, library));
             if repeated {
                 report.say(
@@ -1468,6 +1474,79 @@ pub fn check_repeated(
             }
         }
     }
+}
+
+/// Whether the line `r` says where a function or a point lies: a function's
+/// type, `H : [a, b] → ℝ`, or a term in a set other than a number system,
+/// `j + 1 ∈ {1, …, n}`. A citation of a function's value or of an item about
+/// a function names these beside the function (`READERS.md`, a function's
+/// type cited for its values), and an item's `let f : D → E` is a sort the
+/// search does not match; taking such a line away would let D be read off a
+/// membership said once instead.
+fn in_a_domain(step: &Step, r: &str, known: &Known) -> bool {
+    let scope = known.scope(step);
+    let Some(text) = scope.get(r) else {
+        return false;
+    };
+    sentences(text).iter().any(|s| {
+        known.read_as_written(s).is_some_and(|n| {
+            n.notation == "function-type"
+                || (n.notation == "membership"
+                    && n.children.len() == 2
+                    && n.children[1].notation != "number-systems")
+        })
+    })
+}
+
+/// Whether `lighter`, `step` with a line taken away, is no longer supplied.
+/// Taking a line away leaves a step whose facts are some of `step`'s, so a
+/// way that step could supply the item, by either route, is one of the ways
+/// `step`'s do (`ways`, found the first time a line asks). Where no way they
+/// supply it fits in what is left, the step without the line is not
+/// supplied; the one search takes the place of a search for each line.
+fn fails_without(
+    step: &Step,
+    lighter: &Step,
+    ways: &OnceCell<Option<Vec<Vec<Node>>>>,
+    facts: &Parts,
+    known: &Known,
+    library: &Library,
+) -> bool {
+    let Some(ways) = ways.get_or_init(|| ways_supplied(step, known, library)) else {
+        return false;
+    };
+    let left = known.parts(lighter, library);
+    // What the argument rests on, asked rather than assumed: the facts left
+    // are among these, and the claim and the seed are these, so the claim's
+    // route is the one the ways were found by.
+    within(&left.facts, &facts.facts)
+        && same_shapes(&left.claims, &facts.claims)
+        && same_shapes(
+            &left.seed.values().cloned().collect::<Vec<_>>(),
+            &facts.seed.values().cloned().collect::<Vec<_>>(),
+        )
+        && left.seed.keys().eq(facts.seed.keys())
+        && !ways.iter().any(|way| within(way, &left.facts))
+}
+
+/// Whether a requires line below the step's `i`-th states a bound on the term
+/// `said` puts in ℕ or ℕ₀, which that membership implies (`SYNTAX.md`, what a
+/// membership line says) and the same membership said once does not
+/// (`READERS.md`): `requires m·n ≥ 0` below `requires m·n ∈ ℕ`.
+fn bound_below(step: &Step, i: usize, said: &Node, known: &Known) -> bool {
+    let [term, set] = said.children.as_slice() else {
+        return false;
+    };
+    let system = rules::system_of(&set.text);
+    if said.notation != "membership" || rules::implied(system).is_empty() {
+        return false;
+    }
+    step.requires[i + 1..].iter().any(|o| {
+        known.read(step, &o.fact).is_some_and(|f| {
+            matches!(f.notation.as_str(), "order" | "equality")
+                && f.walk().iter().any(|n| known.alike(n, term))
+        })
+    })
 }
 
 /// Whether a requires line below the step's `i`-th rests on what it says,
@@ -1547,6 +1626,51 @@ pub fn check_surplus(
     };
 
     for step in &thm.steps {
+        // A requires line citing an item is the step it would be, whatever
+        // its own step's reason, and what its reason names it needs as a
+        // step's citation does: a line cited only for a membership said once
+        // is cited for nothing there too.
+        for req in &step.requires {
+            let Some((named, _)) = requires_item(&req.how) else {
+                continue;
+            };
+            let Ok(as_step) = requires_as_step(step, req, &thm.path) else {
+                continue;
+            };
+            if library.groups(&as_step.just.item(&named)).is_none() || !holds(&as_step)
+            {
+                continue;
+            }
+            let ways: OnceCell<Option<Vec<Vec<Node>>>> = OnceCell::new();
+            let facts = known.parts(&as_step, library);
+            let mut named_refs: IndexSet<&String> = IndexSet::new();
+            named_refs.extend(as_step.just.refs.iter());
+            for r in named_refs {
+                if defines.contains(r.as_str()) || in_a_domain(step, r, known) {
+                    continue;
+                }
+                let mut lighter = as_step.clone();
+                lighter.just.refs = as_step
+                    .just
+                    .refs
+                    .iter()
+                    .filter(|x| *x != r)
+                    .cloned()
+                    .collect();
+                if !fails_without(&as_step, &lighter, &ways, &facts, known, library)
+                    && holds(&lighter)
+                {
+                    report.say(
+                        &thm.path,
+                        req.line,
+                        format!(
+                            "the requires line of step {} cites {r}, and {named} asks for nothing it says",
+                            step.number
+                        ),
+                    );
+                }
+            }
+        }
         let just = &step.just;
         let Some(item) = cited_item(just) else {
             continue;
@@ -1556,33 +1680,12 @@ pub fn check_surplus(
         }
         let mut refs: IndexSet<&String> = IndexSet::new();
         refs.extend(just.refs.iter());
-        // Taking a line away leaves a step whose facts are some of these, so
-        // a way that step could supply the item, by either route, is one of
-        // the ways these do. Where no way these supply it fits in what is
-        // left, the step without the line is not supplied, and asking again
-        // would only say so; the one search here takes the place of a search
-        // for each line, each of which had to try everything to find nothing.
-        // Found the first time a line asks, since a step whose every line is
-        // kept without a search never needs them.
+        // The ways the step supplies its item, searched once and only if a
+        // line asks (`fails_without`).
         let ways: OnceCell<Option<Vec<Vec<Node>>>> = OnceCell::new();
         let facts = known.parts(step, library);
-        let fails_without = |lighter: &Step| -> bool {
-            let Some(ways) = ways.get_or_init(|| ways_supplied(step, known, library))
-            else {
-                return false;
-            };
-            let left = known.parts(lighter, library);
-            // What the argument rests on, asked rather than assumed: the
-            // facts left are among these, and the claim and the seed are
-            // these, so the claim's route is the one the ways were found by.
-            within(&left.facts, &facts.facts)
-                && same_shapes(&left.claims, &facts.claims)
-                && same_shapes(
-                    &left.seed.values().cloned().collect::<Vec<_>>(),
-                    &facts.seed.values().cloned().collect::<Vec<_>>(),
-                )
-                && left.seed.keys().eq(facts.seed.keys())
-                && !ways.iter().any(|way| within(way, &left.facts))
+        let lost_without = |lighter: &Step| {
+            fails_without(step, lighter, &ways, &facts, known, library)
         };
         for r in refs {
             if defines.contains(r.as_str()) {
@@ -1590,7 +1693,7 @@ pub fn check_surplus(
             }
             let mut lighter = step.clone();
             lighter.just.refs = just.refs.iter().filter(|x| *x != r).cloned().collect();
-            if !fails_without(&lighter) && holds(&lighter) {
+            if !lost_without(&lighter) && holds(&lighter) {
                 report.say(
                     &thm.path,
                     just.line,
@@ -1618,7 +1721,7 @@ pub fn check_surplus(
             if !asks.asks(step, &req.fact, known)
                 && !domain
                 && !built_on(req, step, known)
-                && !fails_without(&lighter)
+                && !lost_without(&lighter)
                 && holds(&lighter)
             {
                 report.say(

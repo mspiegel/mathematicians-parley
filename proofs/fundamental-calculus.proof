@@ -25,17 +25,17 @@ theorem zero-derivative-ends
   then H(b) = H(a)
 
 1.  a ∈ [a, b]
-    mun:interval x := a, from H1, H2
+    mun:interval x := a
     requires a ≤ a: inequalities, from H1
     requires a ≤ b: inequalities, from H1, H2, H3
 
 2.  b ∈ [a, b]
-    mun:interval x := b, from H1, H2
+    mun:interval x := b
     requires a ≤ b: inequalities, from H1, H2, H3
     requires b ≤ b: inequalities, from H2
 
 3.  c ∈ (a, b). H′(c) = (H(b) − H(a))/(b − a).
-    obtain c: thm:mean-value a := a, b := b, f := H, from H1, H2, H3, H5, H6
+    obtain c: thm:mean-value a := a, b := b, f := H, from H3, H5, H6
 
 4.  H′(c) = 0
     instantiate x := c in H7, from 3
@@ -48,8 +48,6 @@ theorem zero-derivative-ends
 6.  H(b) = H(a)
     algebra, from 5
     requires b − a ≠ 0: inequalities, from H1, H2, H3
-    requires a ∈ ℝ: from H1
-    requires b ∈ ℝ: from H2
     requires H(a) ∈ ℝ: from H4, 1
     requires H(b) ∈ ℝ: from H4, 2
 
@@ -77,20 +75,20 @@ define H(x) := G(x) − F(x), for x ∈ [a, b]                            (D2)
        reads the area function less F
 
 1.  a ∈ [a, b]
-    mun:interval x := a, from H1, H2
+    mun:interval x := a
     requires a ≤ a: inequalities, from H1
     requires a ≤ b: inequalities, from H1, H2, H3
 
 2.  b ∈ [a, b]
-    mun:interval x := b, from H1, H2
+    mun:interval x := b
     requires a ≤ b: inequalities, from H1, H2, H3
     requires b ≤ b: inequalities, from H2
 
 3.  [a, b] ⊆ ℝ
-    mun:interval-real, from H1, H2
+    mun:interval-real
 
 4.  (a, b) ⊆ [a, b]
-    mun:open-within-closed, from H1, H2
+    mun:open-within-closed
 
 5.  For all x ∈ [a, b], G(x) = ∫(a to x) f(t) dt.
     D1
@@ -103,7 +101,7 @@ define H(x) := G(x) − F(x), for x ∈ [a, b]                            (D2)
     let x ∈ [a, b]                                                    (K1)
 
     7.1.  G(x) ∈ ℝ
-          mun:integral-real a := a, b := b, f := f, x := x, from H1, H2, H3, H5, K1, D1
+          mun:integral-real a := a, b := b, f := f, x := x, from H3, H5, K1, D1
 
 8.  G : [a, b] → ℝ
     mun:function-into, from 7
@@ -119,15 +117,15 @@ define H(x) := G(x) − F(x), for x ∈ [a, b]                            (D2)
     requires H is a function on [a, b]: from D2
 
 11. G is continuous on [a, b]
-    thm:area-function a := a, b := b, f := f, G := G, from H1, H2, H3, H5, 5
+    thm:area-function a := a, b := b, f := f, G := G, from H3, H5, 5
     requires G : [a, b] → ℝ: from 8
 
 12. G is differentiable on (a, b)
-    thm:area-function a := a, b := b, f := f, G := G, from H1, H2, H3, H5, 5
+    thm:area-function a := a, b := b, f := f, G := G, from H3, H5, 5
     requires G : [a, b] → ℝ: from 8
 
 13. For all x ∈ (a, b), G′(x) = f(x).
-    thm:area-function a := a, b := b, f := f, G := G, from H1, H2, H3, H5, 5
+    thm:area-function a := a, b := b, f := f, G := G, from H3, H5, 5
     requires G : [a, b] → ℝ: from 8
 
 14. H is continuous on [a, b]
@@ -172,10 +170,10 @@ define H(x) := G(x) − F(x), for x ∈ [a, b]                            (D2)
     17.7. H′(x) = 0
           algebra, from 17.5
           requires f(x) ∈ ℝ: from H4, 17.6
-          requires H′(x) ∈ ℝ: mun:derivative-real a := a, b := b, f := H, x := x, from H1, H2, 10, 15, K1
+          requires H′(x) ∈ ℝ: mun:derivative-real a := a, b := b, f := H, x := x, from 10, 15, K1
 
 18. H(b) = H(a)
-    thm:zero-derivative-ends a := a, b := b, H := H, from H1, H2, H3, 14, 15, 17
+    thm:zero-derivative-ends a := a, b := b, H := H, from H3, 14, 15, 17
     requires H : [a, b] → ℝ: from 10
 
 19. H(a) = G(a) − F(a)
@@ -188,7 +186,7 @@ define H(x) := G(x) − F(x), for x ∈ [a, b]                            (D2)
     D1, from 1
 
 22. ∫(a to a) f(t) dt = 0
-    mun:integral-point a := a, f := f, from H1
+    mun:integral-point a := a, f := f
 
 23. G(b) = ∫(a to b) f(t) dt
     D1, from 2

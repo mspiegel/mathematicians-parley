@@ -12,12 +12,14 @@
 mod asked;
 mod conclude;
 mod library;
+mod once;
 mod parts;
 mod supply;
 
 pub use asked::{asked, filled, Asked};
 pub use conclude::{concludes, derives, obtained, obtains, taken, taken_ways, Taken};
 pub use library::{conjuncts, readings, with_parts, Group, Library, Proved};
+pub use once::{introduction, said_once, Introduced};
 pub use parts::{
     bound_in, claimed_member, finished, function_values, implied_facts, Parts,
 };

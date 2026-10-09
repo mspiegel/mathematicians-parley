@@ -24,13 +24,9 @@ theorem cauchy-schwarz
 
     1.2.  Σ(k = 1 to n) (a(k)·t + b(k))² ≥ 0
           mun:sum-nonneg a := 1, b := n, from 1.1
-          requires 1 ∈ ℤ: arithmetic
-          requires n ∈ ℤ: membership, from H1
-          requires t ∈ ℝ: from K1
 
     1.3.  Σ(k = 1 to n) (a(k)·t + b(k))² = t²·(Σ(k = 1 to n) a(k)²) + 2t·(Σ(k = 1 to n) a(k)·b(k)) + Σ(k = 1 to n) b(k)²
           algebra
-          requires t ∈ ℝ: from K1
 
     1.4.  t²·(Σ(k = 1 to n) a(k)²) + 2t·(Σ(k = 1 to n) a(k)·b(k)) + Σ(k = 1 to n) b(k)² ≥ 0
           substitute Σ(k = 1 to n) (a(k)·t + b(k))² = t²·(Σ(k = 1 to n) a(k)²) + 2t·(Σ(k = 1 to n) a(k)·b(k)) + Σ(k = 1 to n) b(k)² (line 1.3) into line 1.2
@@ -40,8 +36,6 @@ theorem cauchy-schwarz
 
 3.  Σ(k = 1 to n) a(k)² ≥ 0
     mun:sum-nonneg a := 1, b := n, from 2
-    requires 1 ∈ ℤ: arithmetic
-    requires n ∈ ℤ: membership, from H1
 
 4.  Σ(k = 1 to n) a(k)² < 0 or Σ(k = 1 to n) a(k)² = 0 or 0 < Σ(k = 1 to n) a(k)²
     mun:trichotomy x := Σ(k = 1 to n) a(k)²
@@ -62,8 +56,6 @@ theorem cauchy-schwarz
 
     5.2.  For all k ∈ {1, …, n}, a(k)² = 0.
           mun:sum-zero-terms a := 1, b := n, from 2, C2
-          requires 1 ∈ ℤ: arithmetic
-          requires n ∈ ℤ: membership, from H1
 
     5.3.  For all k ∈ {1, …, n}, a(k)·b(k) = 0.
           proof
@@ -82,19 +74,13 @@ theorem cauchy-schwarz
 
     5.4.  Σ(k = 1 to n) a(k)·b(k) = Σ(k = 1 to n) 0
           mun:sum-termwise a := 1, b := n, from 5.3
-          requires 1 ∈ ℤ: arithmetic
-          requires n ∈ ℤ: membership, from H1
 
     5.5.  Σ(k = 1 to n) 0 = (n − 1 + 1)·0
           mun:sum-constant a := 1, b := n, c := 0
-          requires 1 ∈ ℤ: arithmetic
-          requires n ∈ ℤ: membership, from H1
           requires 1 ≤ n: inequalities, from H1
-          requires 0 ∈ ℝ: arithmetic
 
     5.6.  (n − 1 + 1)·0 = 0
           algebra
-          requires n ∈ ℝ: membership, from H1
 
     5.7.  Σ(k = 1 to n) a(k)·b(k) = 0
           calculation

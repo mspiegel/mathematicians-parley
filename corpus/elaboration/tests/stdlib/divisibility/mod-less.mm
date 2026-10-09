@@ -7,5 +7,5 @@ $[ stdlib/proved.mm $]
 
 ${
   tests.stdlib.divisibility.mod-less $p |- ( ( A e. ZZ /\ B e. NN ) -> ( A mod B ) < B ) $=
-    ( gzmodlt ) ABC $.
+    ( cz wcel cn wa cmo co clt wbr simpl id syl simpr jca gzmodlt ) ACDZBEDZFZSABGHBIJSQRSQQQRKQLMQRNOABPM $.
 $}

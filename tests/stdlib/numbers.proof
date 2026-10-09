@@ -38,56 +38,56 @@ theorem half-positive
   then x/2 > 0
 
 1.  x/2 > 0
-    mun:numbers-half-positive, from H1, H2
+    mun:numbers-half-positive, from H2
 
 theorem nat-int
   let m ∈ ℕ                                                           (H1)
   then m ∈ ℤ
 
 1.  m ∈ ℤ
-    mun:numbers-nat-int, from H1
+    mun:numbers-nat-int
 
 theorem int-real
   let m ∈ ℤ                                                           (H1)
   then m ∈ ℝ
 
 1.  m ∈ ℝ
-    mun:numbers-int-real, from H1
+    mun:numbers-int-real
 
 theorem nat-real
   let m ∈ ℕ                                                           (H1)
   then m ∈ ℝ
 
 1.  m ∈ ℝ
-    mun:numbers-nat-real, from H1
+    mun:numbers-nat-real
 
 theorem nat0-real
   let m ∈ ℕ₀                                                          (H1)
   then m ∈ ℝ
 
 1.  m ∈ ℝ
-    mun:numbers-nat0-real, from H1
+    mun:numbers-nat0-real
 
 theorem below-successor
   let a ∈ ℝ                                                           (H1)
   then a < a + 1
 
 1.  a < a + 1
-    mun:numbers-below-successor, from H1
+    mun:numbers-below-successor
 
 theorem nat0-int
   let m ∈ ℕ₀                                                          (H1)
   then m ∈ ℤ
 
 1.  m ∈ ℤ
-    mun:numbers-nat0-int, from H1
+    mun:numbers-nat0-int
 
 theorem nat-ge-1
   let m ∈ ℕ                                                           (H1)
   then m ≥ 1
 
 1.  m ≥ 1
-    mun:numbers-nat-ge-1, from H1
+    mun:numbers-nat-ge-1
 
 theorem max-real
   let x ∈ ℝ                                                           (H1)
@@ -95,7 +95,7 @@ theorem max-real
   then max(x, y) ∈ ℝ
 
 1.  max(x, y) ∈ ℝ
-    mun:numbers-max-real, from H1, H2
+    mun:numbers-max-real
 
 theorem le-max-left
   let x ∈ ℝ                                                           (H1)
@@ -103,7 +103,7 @@ theorem le-max-left
   then x ≤ max(x, y)
 
 1.  x ≤ max(x, y)
-    mun:le-max, from H1, H2
+    mun:le-max
 
 theorem le-max-right
   let x ∈ ℝ                                                           (H1)
@@ -111,7 +111,7 @@ theorem le-max-right
   then y ≤ max(x, y)
 
 1.  y ≤ max(x, y)
-    mun:le-max, from H1, H2
+    mun:le-max
 
 theorem max-le
   let x ∈ ℝ                                                           (H1)
@@ -120,7 +120,7 @@ theorem max-le
   then max(x, y) ≤ z ↔ x ≤ z and y ≤ z
 
 1.  max(x, y) ≤ z ↔ x ≤ z and y ≤ z
-    mun:numbers-max-le, from H1, H2, H3
+    mun:numbers-max-le
 
 theorem quotient-real
   let x ∈ ℝ                                                           (H1)
@@ -129,7 +129,7 @@ theorem quotient-real
   then x/y ∈ ℝ
 
 1.  x/y ∈ ℝ
-    mun:numbers-quotient-real, from H1, H2, H3
+    mun:numbers-quotient-real, from H3
 
 theorem abs-product
   let x ∈ ℝ                                                           (H1)
@@ -137,7 +137,7 @@ theorem abs-product
   then |x·y| = |x|·|y|
 
 1.  |x·y| = |x|·|y|
-    mun:numbers-abs-product, from H1, H2
+    mun:numbers-abs-product
 
 theorem abs-quotient
   let x ∈ ℝ                                                           (H1)
@@ -146,14 +146,14 @@ theorem abs-quotient
   then |x/y| = |x|/|y|
 
 1.  |x/y| = |x|/|y|
-    mun:numbers-abs-quotient, from H1, H2, H3
+    mun:numbers-abs-quotient, from H3
 
 theorem abs-negative
   let x ∈ ℝ                                                           (H1)
   then |−x| = |x|
 
 1.  |−x| = |x|
-    mun:numbers-abs-negative, from H1
+    mun:numbers-abs-negative
 
 theorem abs-zero
   then |0| = 0
@@ -172,7 +172,7 @@ theorem abs-square
   then |x|² = x²
 
 1.  |x|² = x²
-    mun:numbers-abs-square, from H1
+    mun:numbers-abs-square
 
 theorem abs-power
   let x ∈ ℝ                                                           (H1)
@@ -180,7 +180,7 @@ theorem abs-power
   then |x^n| = |x|^n
 
 1.  |x^n| = |x|^n
-    mun:numbers-abs-power, from H1, H2
+    mun:numbers-abs-power
 
 theorem nat0
   let n ∈ ℝ                                                           (H1)
@@ -203,7 +203,7 @@ theorem nat0-nonzero
   then m ∈ ℕ
 
 1.  m ∈ ℕ
-    mun:numbers-nat0-nonzero, from H1, H2
+    mun:numbers-nat0-nonzero, from H2
 
 theorem integer-step
   let m ∈ ℤ                                                           (H1)
@@ -212,4 +212,4 @@ theorem integer-step
   then m + 1 ≤ n
 
 1.  m + 1 ≤ n
-    mun:numbers-integer-step, from H1, H2, H3
+    mun:numbers-integer-step, from H3

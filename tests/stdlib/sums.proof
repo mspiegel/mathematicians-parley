@@ -12,7 +12,7 @@ theorem range-nat
   then k ∈ ℕ
 
 1.  k ∈ ℕ
-    mun:sums-range-nat, from H1, H2
+    mun:sums-range-nat, from H2
 
 theorem range
   let n ∈ ℤ                                                           (H1)
@@ -21,7 +21,7 @@ theorem range
   then k ∈ ℕ and k ≤ n
 
 1.  k ∈ ℕ and k ≤ n
-    mun:sums-range, from H1, H3
+    mun:sums-range, from H3
 
 theorem range0
   let n ∈ ℕ₀                                                          (H1)
@@ -30,7 +30,7 @@ theorem range0
   then k ∈ ℕ₀ and k ≤ n
 
 1.  k ∈ ℕ₀ and k ≤ n
-    mun:sums-range0, from H1, H3
+    mun:sums-range0, from H3
 
 theorem range-between
   let k ∈ ℤ                                                           (H1)
@@ -41,14 +41,14 @@ theorem range-between
   then k ∈ {a, …, b}
 
 1.  k ∈ {a, …, b}
-    mun:sums-range-between, from H1, H2, H3, H4, H5
+    mun:sums-range-between, from H4, H5
 
 theorem range-single
   let m ∈ ℤ                                                           (H1)
   then {m, …, m} = {m}
 
 1.  {m, …, m} = {m}
-    mun:sums-range-single, from H1
+    mun:sums-range-single
 
 theorem range-empty
   then {1, …, 0} = ∅

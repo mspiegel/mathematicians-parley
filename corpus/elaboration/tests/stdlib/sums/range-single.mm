@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.sums.range-single $p |- ( A e. ZZ -> ( A ... A ) = { A } ) $=
-    ( fzsn ) AB $.
+    ( cz wcel cfz co csn wceq id fzsn syl ) ABCZKAADEAFGKHAIJ $.
 $}

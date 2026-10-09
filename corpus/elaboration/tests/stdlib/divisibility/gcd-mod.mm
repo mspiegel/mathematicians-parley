@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.divisibility.gcd-mod $p |- ( ( A e. ZZ /\ B e. NN ) -> ( ( A mod B ) gcd B ) = ( A gcd B ) ) $=
-    ( modgcd ) ABC $.
+    ( cz wcel cn wa cmo co cgcd wceq simpl id syl simpr jca modgcd ) ACDZBEDZFZSABGHBIHABIHJSQRSQQQRKQLMQRNOABPM $.
 $}

@@ -75,8 +75,8 @@ for. A case analysis whose cases need reasons of their own is still written
 out, each case with its conclusion.
 
 **Dull facts.** Some steps exist only to satisfy a hypothesis of a cited
-definition, theorem or method: that a divisor is not zero, that a product of
-integers is an integer, that 2 > 1. These are dull facts. The name describes
+definition, theorem or method: that a divisor is not zero, that a sine is
+a real number, that 2 > 1. These are dull facts. The name describes
 how they read, but they are classified by role, never by how obvious they
 look: a step is a dull fact exactly when its only use is to discharge a
 hypothesis of an item or a method cited by another step, directly or through
@@ -96,9 +96,9 @@ Each step that needs it carries the requires line, word for word, and a dull
 fact another one rests on is a requires line written above it on the same
 step, which the line below rests on (`SYNTAX.md`: a requires line rests on its
 reason and on the requires lines above it). In the intermediate value proof
-x₁ ∈ ℝ is never a step: each of the seven steps that use it writes δ/2 ∈ ℝ,
-c + δ/2 ∈ ℝ and x₁ ∈ ℝ, in that order. The repetition is the price of each
-step saying everything it rests on where it is read. One kind of dull fact
+x₁ ∈ ℝ is never a step: each step that uses it writes `requires x₁ ∈ ℝ`,
+citing the lemma that a minimum of two reals is real. The repetition is the
+price of each step saying everything it rests on where it is read. One kind of dull fact
 stays a numbered step: a fact said of every member whose own reason needs
 facts said at the member, as `For all x ∈ [a, b], g(x) ∈ ℝ` in the mean value
 proof needs x ∈ ℝ and the slope's membership. A requires line has no requires
@@ -128,8 +128,8 @@ on no item at all: a requires line justified by `arithmetic`, or by a line that
 already says the fact, is dull by its role alone, and most requires lines are
 of this kind. A mundane step may be one the argument uses, which makes it no
 dull fact, so it stays a numbered step and is still taken for granted. In the
-corpus every requires line that cites a library item cites a mundane one, 290
-lines over 50 items, and 346 of the 395 numbered steps that cite a library
+corpus every requires line that cites a library item cites a mundane one, 254
+lines over 53 items, and 346 of the 395 numbered steps that cite a library
 item cite a mundane one. The forty-nine others are thirty-eight steps citing
 named theorems, four citing named axioms (completeness, well-ordering,
 side-angle-side and the parallel through a point) and seven citing named
@@ -147,23 +147,38 @@ which says `definition`, and not by the line, which says `mun:`. Of the
 methods, only `arithmetic` is marked mundane; it never justifies a numbered
 step, and the mark is for the reader alone.
 
-**Membership in a number system is a dull fact and merits no exception.**
-That p is a real number is written, exactly as q ≠ 0 is, wherever a cited item
-or method requires it. Exempting it was tempting: such a fact never fails, the
-`let` line that states it is always in view, and writing it is expensive,
-since the closure methods of `METHODS.md` work over a field and so need it for
-every atom of every algebra and inequalities step. That is 327 lines across
-111 steps in the current corpus, and one step carries eleven. The exemption was
-rejected. Whether a fact can fail is not the test. Whether the cited item
-demands it is, and that is the test every other dull fact is held to. An
-exemption here would be the first place the text asked a reader to supply
-something the page does not say.
+**Membership in a number system is said once, where a letter is
+introduced.** That p is a real number is a dull fact wherever a cited item or
+method demands it, and it is written once: on the line that introduces p,
+`let p ∈ ℝ`, or the sentence `p ∈ ℤ` that an `obtain` states of each name it
+introduces (`SYNTAX.md`). A step does not write it again, and does not cite
+that line for it. The same holds of three kinds of term, and of nothing else:
 
-What a written membership says is not an exemption. `let k ∈ ℕ` says that k
-is a real number, and that k ≥ 1 and k ≠ 0, as plainly as it says k ∈ ℕ, so a
-step may cite it for any of those (`SYNTAX.md`, what a membership line says).
-The fact is still named on the page, by the line that says it; what goes is
-the numbered step restating it.
+- **a numeral**, `3 ∈ ℤ` or `10 − 1 ∈ ℕ`, which the page shows whole;
+- **a letter**, in the set its introducing line names and every number system
+  containing that one, ℕ ⊆ ℕ₀ ⊆ ℤ ⊆ ℚ ⊆ ℝ ⊆ ℂ;
+- **a term built from those** by +, −, ·, a power with a numeral exponent,
+  and /, in the smallest number system closed under what builds it: a·x + b·y
+  is an integer when a, b, x and y are.
+
+This is the move a sort makes (below): the line that says it is in view in
+the scope it opens, and the reader is no more asked to supply something the
+page does not say than they are asked where X came from when `X ∖ {a}` is a
+set. The test that applies to every other dull fact is whether a cited item
+demands it, and it still applies; what changes is where the page says it.
+Writing it at each use cost 990 of the corpus's 1,195 requires lines, eleven
+on one step, and those lines buried the ones that can fail.
+
+What a quotient demands is still written: its divisor's `≠ 0`, which can fail,
+unless the divisor is a numeral. So is every membership the three kinds do
+not reach: a defined name, a function's value, a sum, |x|, n!, a power with a
+letter exponent, and any term a library item builds. These rest on a lemma or
+a line a reader may want to see, and a requires line points to it.
+
+What a written membership says beyond the membership is not carried this way.
+`let k ∈ ℕ` also says that k ≥ 1 and k ≠ 0 (`SYNTAX.md`, what a membership line
+says), and a step that uses either cites the line, as it cites any line it
+uses.
 
 **A sort is stated once, and is not a dull fact.** `let X be a set`, `let
 A be a point` and `let f : A → B` say what kind of thing a name is, the way a
@@ -174,12 +189,11 @@ step does not cite a sort at all — a citation says the step uses what the
 line says, and this one uses nothing the reader does not already have — and
 the checker reports one that does, as it reports any cited line doing no
 work. Nor does a step write that a set built from sets is a set: `X ∖ {a}`
-is a set because X is, which is the sort again. This is not the exemption
-refused above. `let n ∈ ℤ` says what n is too, but it does so by a membership
-claim a cited item may demand, and that is written wherever it is demanded.
-The two are told apart by the form of the line, as `SYNTAX.md` gives it: `be
-a set`, `be a point` and a function's arrow are introductions and never
-formulas.
+is a set because X is, which is the sort again. `let n ∈ ℤ` is a formula
+rather than an introduction, as `SYNTAX.md` tells the two apart by the form
+of the line (`be a set`, `be a point` and a function's arrow are never
+formulas), and what it says beyond n's membership is cited where it is used;
+its membership is carried as a sort's is, by the paragraph above.
 
 **A function's type is cited for its values.** `let a : {1, …, n} → ℝ` says
 what a is, and it also says that a(k) is real for each k in {1, …, n}, as

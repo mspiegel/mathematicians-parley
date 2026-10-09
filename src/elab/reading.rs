@@ -142,9 +142,11 @@ impl<'a> Elaborator<'a> {
     pub fn names_and_sets_kept<T>(&mut self, f: impl FnOnce(&mut Self) -> T) -> T {
         let saved = self.names.clone();
         let kept = self.sets.clone();
+        let introduced = self.introduced.clone();
         let out = f(self);
         self.names = saved;
         self.sets = kept;
+        self.introduced = introduced;
         out
     }
 

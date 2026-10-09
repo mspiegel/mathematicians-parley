@@ -208,8 +208,8 @@ fn cases() -> Vec<Case> {
             name: "a requires line the step is checked and built without",
             stage: needed_case,
             file: NEEDED_FILE,
-            old: "          algebra\n          requires k ∈ ℝ: from K\n",
-            new: "          algebra\n          requires 2 ≠ 0: arithmetic\n          requires k ∈ ℝ: from K\n",
+            old: "    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2\n          algebra\n",
+            new: "    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2\n          algebra\n          requires 2 ≠ 0: arithmetic\n",
             expect: "says 2 ≠ 0: arithmetic, and the step is checked and built without it",
         },
     ]

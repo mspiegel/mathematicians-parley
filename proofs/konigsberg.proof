@@ -148,8 +148,6 @@ define g(i) := e(i), for i ∈ S                                        (D3)
 8.  |S| = |T|
     mun:card-equal, from 7
     requires S ⊆ {1, …, n}: mun:set-builder-subset, from D1
-    requires 1 ∈ ℤ: arithmetic
-    requires n ∈ ℤ: membership, from H2
     requires {1, …, n} is finite: mun:range-finite
     requires S is finite: mun:finite-part
 
@@ -182,17 +180,17 @@ theorem walk-parity
 
 1.  v and e form a walk of n edges. e : {1, …, n} → E is one-to-one.
     For all a ∈ E, there is i ∈ {1, …, n} with a = e(i).
-    def:euler-path, from H2, H5
+    def:euler-path, from H5
 
 2.  deg(x) = |{i ∈ {1, …, n} : x is incident with e(i)}|
-    thm:degree-by-walk, from H2, 1, H6
+    thm:degree-by-walk, from 1, H6
 
 3.  For all i ∈ {1, …, n}, x is incident with e(i) ↔ x = v(i − 1) or x = v(i).
     proof
     let i ∈ {1, …, n}                                                 (K1)
 
     3.1.  e(i) joins v(i − 1) and v(i)
-          mun:walk-step, from H2, 1, K1
+          mun:walk-step, from 1, K1
 
     3.2.  x is incident with e(i) ↔ x = v(i − 1) or x = v(i)
           mun:incident-of-joined a := e(i), u := v(i − 1), w := v(i), from H6, 3.1
@@ -202,7 +200,7 @@ theorem walk-parity
     let i ∈ {1, …, n}                                                 (K2)
 
     4.1.  v(i − 1) ≠ v(i)
-          mun:walk-distinct, from H2, 1, K2
+          mun:walk-distinct, from 1, K2
 
     4.2.  not (x = v(i − 1) and x = v(i))
           contradiction
@@ -224,7 +222,6 @@ theorem walk-parity
 
 5.  |{i ∈ {1, …, n} : x is incident with e(i)}| = |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}|
     mun:count-same, from 3
-    requires n ∈ ℤ: membership, from H2
 
 define d := |{i ∈ {1, …, n} : x = v(i − 1)}|                          (D1)
        reads how many of the walk's edges leave x
@@ -234,19 +231,15 @@ define r := |{i ∈ {1, …, n} : x = v(i)}|                              (D2)
 
 6.  |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}| = d + r
     mun:count-either, from 4, D1, D2
-    requires n ∈ ℤ: membership, from H2
 
 7.  d = |{i ∈ {0, …, n − 1} : x = v(i)}|
     mun:count-shift, from D1
-    requires n ∈ ℤ: membership, from H2
 
 8.  |{i ∈ {0, …, n − 1} : x = v(i)}| = |{i ∈ {1, …, n − 1} : x = v(i)}|
     mun:count-first-fails, from H7
-    requires n − 1 ∈ ℤ: membership, from H2
 
 9.  r = |{i ∈ {1, …, n − 1} : x = v(i)}|
     mun:count-last-fails, from H8, D2
-    requires n ∈ ℤ: membership, from H2
 
 define m := |{i ∈ {1, …, n − 1} : x = v(i)}|                          (D3)
        reads how many times the walk passes through x
@@ -270,7 +263,6 @@ define m := |{i ∈ {1, …, n − 1} : x = v(i)}|                          (D3)
 
 14. m + m = 2m
     algebra
-    requires n − 1 ∈ ℤ: membership, from H2
     requires m ∈ ℕ₀: mun:count-nat0 k := n − 1, from D3
 
 15. deg(x) = 2m
@@ -282,9 +274,7 @@ define m := |{i ∈ {1, …, n − 1} : x = v(i)}|                          (D3)
 
 16. deg(x) is even
     mun:even n := deg(x), from 15
-    requires n − 1 ∈ ℤ: membership, from H2
     requires m ∈ ℕ₀: mun:count-nat0 k := n − 1, from D3
-    requires n ∈ ℤ: membership, from H2
     requires |{i ∈ {1, …, n} : x is incident with e(i)}| ∈ ℕ₀: mun:count-nat0 k := n
     requires deg(x) ∈ ℕ₀: membership, from 2
 
@@ -335,8 +325,7 @@ theorem odd-vertices
 
                   3.3.2.2.  deg(u) is not odd
                             mun:not-both, from 3.3.2.1, contradicting 3.1
-                            requires deg(u) = |{i ∈ {1, …, n} : u is incident with e(i)}|: thm:degree-by-walk x := u, from 1, 2, 3.1
-                            requires n ∈ ℤ: membership, from 1
+                            requires deg(u) = |{i ∈ {1, …, n} : u is incident with e(i)}|: thm:degree-by-walk x := u, from 2, 3.1
                             requires |{i ∈ {1, …, n} : u is incident with e(i)}| ∈ ℕ₀: mun:count-nat0 k := n
                             requires deg(u) ∈ ℤ: membership
 
@@ -394,16 +383,12 @@ theorem konigsberg
 
 7.  5 is odd
     mun:odd n := 5, from 6
-    requires 5 ∈ ℤ: arithmetic
-    requires 2 ∈ ℤ: arithmetic
 
 8.  3 = 2·1 + 1
     arithmetic
 
 9.  3 is odd
     mun:odd n := 3, from 8
-    requires 3 ∈ ℤ: arithmetic
-    requires 1 ∈ ℤ: arithmetic
 
 10. deg(A) is odd
     substitute deg(A) = 5 (line 2) into line 7

@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.numbers.nat-int $p |- ( A e. NN -> A e. ZZ ) $=
-    ( nnz ) AB $.
+    ( cn wcel cz id nnz syl ) ABCZHADCHEAFG $.
 $}

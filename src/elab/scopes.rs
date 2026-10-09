@@ -463,6 +463,7 @@ impl<'a> Elaborator<'a> {
                         );
                     }
                 }
+                self.note_introduced(&block.scope.clone(), &block.facts.clone())?;
             }
             "cases" | "both directions" => {
                 // Every other block opens one scope for all its children. A
@@ -648,6 +649,7 @@ impl<'a> Elaborator<'a> {
                 },
             );
         }
+        self.note_introduced(&block.scope.clone(), &block.facts.clone())?;
         Ok((block.scope.clone(), block.facts.clone()))
     }
 
@@ -1672,6 +1674,7 @@ impl<'a> Elaborator<'a> {
         };
         let (outer, held) = self.widen(scope, facts, &member, Some(&members));
         let (inner, lifted) = self.widen_to(&outer, &held, &body, Some(number), deep);
+        self.note_introduced(&inner, &lifted)?;
         // A function obtained among the functions from X to Y has the type
         // f : X → Y, as `let f : X → Y` gives it: `elmapi`.
         for (variable, over_term) in &layers {

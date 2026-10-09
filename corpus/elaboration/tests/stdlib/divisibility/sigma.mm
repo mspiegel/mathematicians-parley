@@ -9,5 +9,5 @@ ${
   $d d m $.
   $d A d m $.
   tests.stdlib.divisibility.sigma $p |- ( A e. NN -> ( 1 sigma A ) = sum_ d e. { d e. NN | d || A } d ) $=
-    ( cn wcel c1 csgm co cv cdvds wbr crab vm csu g1sgmval wceq id cbvsumv a1i eqtrd ) ACDZEAFGBHZAIJZBCKZLHZLMZUCUABMZALBNUEUFOTUCUDUALBUDUAOPQRS $.
+    ( cn wcel c1 csgm co cv cdvds wbr crab vm csu wceq id g1sgmval syl cbvsumv a1i eqtrd ) ACDZEAFGZBHZAIJZBCKZLHZLMZUEUCBMZUAUAUBUGNUAOALBPQUGUHNUAUEUFUCLBUFUCNORST $.
 $}

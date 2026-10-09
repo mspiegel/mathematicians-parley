@@ -9,5 +9,5 @@ theorem a-member-of-a-nonempty-set
   then there is a ∈ X
 
 1.  There is a ∈ X.
-    mun:card-nonempty, from H2, H3
+    mun:card-nonempty, from H3
 

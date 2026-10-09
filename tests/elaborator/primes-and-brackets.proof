@@ -8,8 +8,6 @@ theorem prime-name
 
 1.  c′ − c = 1
     algebra, from H3
-    requires c ∈ ℝ: from H1
-    requires c′ ∈ ℝ: from H2
 
 theorem derivative-names
   let a ∈ ℝ                                                           (H1)
@@ -23,7 +21,7 @@ theorem derivative-names
   then f′(x) ∈ ℝ
 
 1.  f′(x) ∈ ℝ
-    mun:derivative-real a := a, b := b, f := f, x := x, from H1, H2, H4, H7
+    mun:derivative-real a := a, b := b, f := f, x := x, from H4, H7
 
 theorem order-apart
   let a ∈ ℝ                                                           (H1)
@@ -33,8 +31,6 @@ theorem order-apart
 
 1.  b − a ≠ 0
     inequalities, from H3
-    requires a ∈ ℝ: from H1
-    requires b ∈ ℝ: from H2
 
 theorem bracketed-formula
   let a ∈ ℝ                                                           (H1)
@@ -42,4 +38,4 @@ theorem bracketed-formula
   then a ≤ a
 
 1.  a ≤ a
-    instantiate x := a in H2, from H1
+    instantiate x := a in H2

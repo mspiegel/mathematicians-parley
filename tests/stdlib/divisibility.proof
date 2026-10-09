@@ -13,7 +13,7 @@ theorem sigma
   then σ(n) = Σ(d ∈ ℕ : d divides n) d
 
 1.  σ(n) = Σ(d ∈ ℕ : d divides n) d
-    def:σ n := n, from H1
+    def:σ n := n
 
 theorem gcd-commutes
   let a ∈ ℤ                                                           (H1)
@@ -21,21 +21,21 @@ theorem gcd-commutes
   then gcd(a, b) = gcd(b, a)
 
 1.  gcd(a, b) = gcd(b, a)
-    mun:divisibility-gcd-commutes, from H1, H2
+    mun:divisibility-gcd-commutes
 
 theorem gcd-one
   let a ∈ ℤ                                                           (H1)
   then gcd(a, 1) = 1
 
 1.  gcd(a, 1) = 1
-    mun:divisibility-gcd-one, from H1
+    mun:divisibility-gcd-one
 
 theorem gcd-zero
   let n ∈ ℕ₀                                                          (H1)
   then gcd(n, 0) = n
 
 1.  gcd(n, 0) = n
-    mun:divisibility-gcd-zero, from H1
+    mun:divisibility-gcd-zero
 
 theorem gcd-mod
   let a ∈ ℤ                                                           (H1)
@@ -43,7 +43,7 @@ theorem gcd-mod
   then gcd(a mod b, b) = gcd(a, b)
 
 1.  gcd(a mod b, b) = gcd(a, b)
-    thm:divisibility-gcd-mod, from H1, H2
+    thm:divisibility-gcd-mod
 
 theorem mod-natural
   let a ∈ ℤ                                                           (H1)
@@ -51,7 +51,7 @@ theorem mod-natural
   then a mod b ∈ ℕ₀
 
 1.  a mod b ∈ ℕ₀
-    mun:divisibility-mod-natural, from H1, H2
+    mun:divisibility-mod-natural
 
 theorem mod-less
   let a ∈ ℤ                                                           (H1)
@@ -59,11 +59,11 @@ theorem mod-less
   then a mod b < b
 
 1.  a mod b < b
-    mun:divisibility-mod-less, from H1, H2
+    mun:divisibility-mod-less
 
 theorem zero-divides
   let n ∈ ℤ                                                           (H1)
   then 0 divides n ↔ n = 0
 
 1.  0 divides n ↔ n = 0
-    mun:divisibility-zero-divides, from H1
+    mun:divisibility-zero-divides

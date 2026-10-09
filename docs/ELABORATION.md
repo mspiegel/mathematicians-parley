@@ -481,8 +481,9 @@ a point` says it is: what it is in is a sort, which a step rests on without
 citing the line, and the checker refuses a citation made only for it. So is
 a function obtained, f from "there is f : X → Y with …", as `let f : X → Y`
 says it: it is held as a member of the functions from X to Y, and a step
-asking f : X → Y has it by `elmapi`. A number obtained is cited for its
-membership in a `requires` line, from the obtain. So one readable step
+asking f : X → Y has it by `elmapi`. A number obtained in a number system
+has its membership said once, by the obtain (`READERS.md`), and a step uses
+it without citing the obtain for it. So one readable step
 changes which lemma every step after it uses, and an elaborator cannot expand
 a step in isolation and concatenate the results.
 
@@ -1108,13 +1109,63 @@ is for. What says one thing two ways, set.mm's form and the page's, is a
 rule of the standard form (`rules.STANDARD`), and the matcher compares
 through it (`same`).
 
-`READERS.md` weighed dropping the `requires` lines and leaving all of this to
-be found — the fact never fails, the `let` line is in view, the price is 97
-lines — and rejected the exemption, because whether a fact can fail is not the
-test and whether the cited item demands it is.
+#### A membership said once
+
+`READERS.md` has a membership in a number system said once, where a letter is
+introduced, and the step writes nothing for a numeral, a letter, or a term
+built from them by +, −, ·, negation, a power to a numeral and /
+(`SYNTAX.md`). The elaborator builds each such fact itself, by a walk that
+searches nothing (`introduced_membership` in `src/elab/tables.rs`):
+
+- a numeral is worked out, as `settle` works one out (`numeral_within`);
+- a letter is in the set its introducing line names, and in each number
+  system containing that one, carried up `rules.WITHIN` a lemma at a time.
+  Where a letter is let into a number system, by a `let` of the theorem, of
+  a block or of an induction's step part, or by an `obtain`, its membership
+  as the scope there holds it is kept with that scope (`note_introduced`),
+  and carried to any scope inside it (`lifted_to`). A letter introduced
+  twice, as a δ obtained in each of two cases, keeps both, and the one whose
+  scope holds where the step is is taken;
+- a compound is built by the closure table, as `built` builds one, its parts
+  by the same walk and its divisor's `≠ 0` from what the step names
+  (`divisor_written`), and only for the operations listed: a remainder, a
+  binomial coefficient, a sum, a function's value or a defined name is not
+  walked.
+
+The proof of a letter's membership is sealed as `membership@<letter>`, an
+origin a proof may rest on without the step naming it, as it rests on a sort
+(R1, below), and a step citing a line only for such a membership cites it
+for nothing and is reported. `part` takes the walk after the step's own
+requires lines and before a cited line, so that the citation is the one
+reported. `settle` takes it after what is held, so that an item's hypothesis
+and a witness's membership are answered the same way, and so does the
+checker's reading of a citation, by the same function in `src/citing`
+(`said_once`), so that the two tools agree on which lines a step need not
+write.
+
+Only a membership comes out of the walk, and a bound the page uses is still
+the page's to cite. An item that asks k ≠ 0 or k ≥ 1 is answered, in the
+checker, by the lines the step cites and writes, among which the memberships
+said once are memberships and nothing more (`said_once`); `inequalities` and
+a quotient's divisor read a bound only off a line the step names
+(`divisor_written`, the method's facts in). What the kernel derives from a
+membership on its own way, as 0 ≤ k to put k ∈ ℕ₀ into set.mm's ℤ≥0, is
+apparatus, and takes the membership as it takes any fact it holds.
+
+Which memberships the page writes is settled where the page is judged, not by
+what the kernel can build. The checker reads an item's hypotheses with the
+memberships said once and nothing more (`said_once`), and `does_work` asks
+each atom a method combines, a power to a letter or a function's value among
+them, to be said once or on the page. Inside, the elaborator builds a
+compound as it always has, from its parts however each is given, so a letter
+said once is a part as a letter written was: x^(m − k) is built from x ∈ ℝ.
+The one search that could reach past the page is `not_zero`'s for a
+divisor's `≠ 0`, which a method asks and no check judges; while it runs, no
+membership said once is offered (`beyond_once`), so `k + 1 ≠ 0` needs the
+line the page writes for it.
 
 A membership a step needs is looked for in a fixed order, which `part` holds:
-the step's own line for exactly that claim; that line carried to another
+the step's own line for exactly that claim; the walk above; that line carried to another
 number system by one of the twelve lemmas `rules.MEMBERSHIP` declares for it
 (`bridged` — `recn` takes `k ∈ ℝ` to `k ∈ ℂ`); a compound built from its parts
 by the closure lemma for its operator (`built` — `readdcld` from `a ∈ ℝ` and
@@ -1385,7 +1436,10 @@ above as asked for when a `membership` line below builds on it, as
 - the kernel's sethood of what a let introduces: `let x be an element` and
   `let a ∉ X` give that the thing is a set, which `READERS.md` keeps off the
   page;
-- what a membership implies by one lemma: `let k ∈ ℕ` gives k ∈ ℝ and k ≠ 0;
+- what a membership implies by one lemma: a cited `let k ∈ ℕ` gives k ≠ 0;
+- a membership the page says once, of a numeral, a letter or a term built
+  from them (`introduced_membership`, above): `let k ∈ ℕ` gives k ∈ ℝ with
+  no line saying so;
 - the same claim over other bound letters: a `proof` block elsewhere took n, so the
   line saying every partial sum is real binds another letter, and the
   requires line citing it writes n. The two are one claim, and `same` says
@@ -1652,7 +1706,8 @@ search while the step is built. A requires line is checked by R2 where it is
 proved (`discharged_by`).
 
 - **R1 — a step rests only on what it names**: the lines it cites, its own
-  requires lines, and the sorts in scope; a block also on its own steps, what it
+  requires lines, the sorts in scope, and the memberships the page says once
+  (`membership@`); a block also on its own steps, what it
   assumes, and what a `join` closing it names (requirement 8). *step 3 rests
   on 1, which it does not name.*
 - **R2 — a requires line rests only on its reason**: the lines its reason
@@ -1686,8 +1741,9 @@ proved (`discharged_by`).
   it whose reason is a bare `from`, and what each of those implies (`READERS.md`,
   what a membership says); a line below with any other reason may rest on
   this one, as `2^p − 1 ∈ ℕ: mun:prime-nat` rests on `2^p − 1 ∈ ℤ` above it.
-  So `requires k ∈ ℝ: membership` under `requires k ∈ ℤ` is refused, and so is
-  `requires r ∈ ℝ: from 1` on a step citing line 1, which says r ∈ ℤ. What
+  So `requires A ∈ ℂ: membership` under `requires A ∈ ℝ` is refused, and so is
+  `requires f(c) ∈ ℂ: from 14` on a step citing line 14, which says f(c) ∈ ℝ;
+  a letter's or a numeral's membership is not written at all (`said_once`). What
   only the step's own citations give is not in hand on a requires line below,
   which sees its own reason and the lines above it (R2), so a line saying it
   is refused only where no line below needs it: none cites a record asking it
@@ -1706,12 +1762,11 @@ proved (`discharged_by`).
     from the one search both tools use (`citing::asked`): the line's fact is
     the claim, and the lines its reason cites, the requires lines above it
     and the member a claim said of every member names are the facts. A
-    record none of whose groups concludes the fact asks nothing. Each atom combined has its membership on the page,
-    written, or cited by the step or by one of its requires lines, whose
-    method may be what combined it (`METHODS.md`). A cited line is read as
-    the page writes it, so an `obtain`'s witnesses' memberships, which the
-    scope holds rather than its proved line, are on the page where it is
-    cited; and a defined name is the atom it names where a line saying its
+    record none of whose groups concludes the fact asks nothing. Each atom combined has its membership on the page:
+    said once, where the atom is a numeral, a letter or built from them
+    (`said_once`); otherwise written, or cited by the step or by one of its
+    requires lines, whose method may be what combined it (`METHODS.md`). A
+    cited line is read as the page writes it, and a defined name is the atom it names where a line saying its
     membership cites the define. What a step writes, which a method reads
     for a term not zero as for a membership, is its requires lines and the
     lines it cites, with what each implies: a cited `N ∈ ℕ` says N ≠ 0. An atom is what the method treats as a number it knows
@@ -1750,15 +1805,16 @@ proved (`discharged_by`).
     built-up term's included (`READERS.md`, dull facts).
     `exhibit` claims "there is d ∈ ℤ with d > 1, …", and its lines say
     each part of the body at one value, the value's domain among them:
-    sqrt2-irrational's 2.16 writes `requires 2 ∈ ℤ` and `requires 2 > 1`
-    (`check_exhibited`). An equation whose sides are one term at the value
+    sqrt2-irrational's 2.16 writes `requires 2 > 1`, and 2 ∈ ℤ, a numeral's,
+    is said once (`check_exhibited`). An equation whose sides are one term at the value
     is said by nothing and needs nothing, as `settle` proves a term equal to
     itself without a line: Lagrange's 11.2 exhibits a = g for gH = aH.
     `instantiate v := t in line L` asks t in what v ranges over (`SYNTAX.md`),
     as intermediate-value's 16.4 writes `requires −f(c) ∈ ℝ` for ε := −f(c)
     (`check_instantiated`). A step citing a define with parameters, itself
     or on a calculation line, asks each argument in its domain, as
-    sum-formula's 1.2 writes `requires 1 ∈ ℕ` for S(1); a recursion's
+    mean-value's 16 cites line 1, a ∈ [a, b], for F(a), where a numeral or
+    a letter in a number system the domain holds is said once; a recursion's
     domain is its step's index, so a(k + 1) asks k ∈ ℕ₀ and a(0) asks
     nothing (`check_define_domains`, `step_index`). An argument holding a
     sum's index is not asked: it is a term of the sum, whose values are a

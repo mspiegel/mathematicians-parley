@@ -26,14 +26,13 @@ theorem de-moivre
     base
     2.1.  (cos(x) + i·sin(x))^0 = 1
           mun:exponent-zero a := cos(x) + i·sin(x)
-          requires cos(x) ∈ ℝ: mun:cos-real a := x, from H1
-          requires sin(x) ∈ ℝ: mun:sin-real a := x, from H1
+          requires cos(x) ∈ ℝ: mun:cos-real a := x
+          requires sin(x) ∈ ℝ: mun:sin-real a := x
           requires i ∈ ℂ: mun:i-complex
           requires cos(x) + i·sin(x) ∈ ℂ: membership
 
     2.2.  0·x = 0
           algebra
-          requires x ∈ ℝ: from H1
 
     2.3.  cos(0·x) + i·sin(0·x) = cos(0) + i·sin(0)
           substitute 0·x = 0 (line 2.2)
@@ -67,9 +66,9 @@ theorem de-moivre
     assume step 2 is true for k, the induction hypothesis             (IH)
 
     2.10. (cos(x) + i·sin(x))^(k + 1) = (cos(x) + i·sin(x))^k·(cos(x) + i·sin(x))
-          mun:exponent-step a := cos(x) + i·sin(x), m := k, from K
-          requires cos(x) ∈ ℝ: mun:cos-real a := x, from H1
-          requires sin(x) ∈ ℝ: mun:sin-real a := x, from H1
+          mun:exponent-step a := cos(x) + i·sin(x), m := k
+          requires cos(x) ∈ ℝ: mun:cos-real a := x
+          requires sin(x) ∈ ℝ: mun:sin-real a := x
           requires i ∈ ℂ: mun:i-complex
           requires cos(x) + i·sin(x) ∈ ℂ: membership
 
@@ -78,11 +77,10 @@ theorem de-moivre
 
     2.12. (cos(k·x) + i·sin(k·x))·(cos(x) + i·sin(x)) = cos(k·x)·cos(x) + i·(sin(k·x)·cos(x) + cos(k·x)·sin(x)) + (i·i)·(sin(k·x)·sin(x))
           algebra
-          requires k·x ∈ ℝ: membership, from K, H1
           requires cos(k·x) ∈ ℝ: mun:cos-real a := k·x
           requires sin(k·x) ∈ ℝ: mun:sin-real a := k·x
-          requires cos(x) ∈ ℝ: mun:cos-real a := x, from H1
-          requires sin(x) ∈ ℝ: mun:sin-real a := x, from H1
+          requires cos(x) ∈ ℝ: mun:cos-real a := x
+          requires sin(x) ∈ ℝ: mun:sin-real a := x
           requires i ∈ ℂ: mun:i-complex
 
     2.13. cos(k·x)·cos(x) + i·(sin(k·x)·cos(x) + cos(k·x)·sin(x)) + (i·i)·(sin(k·x)·sin(x)) = cos(k·x)·cos(x) + i·(sin(k·x)·cos(x) + cos(k·x)·sin(x)) + (−1)·(sin(k·x)·sin(x))
@@ -90,27 +88,20 @@ theorem de-moivre
 
     2.14. cos(k·x)·cos(x) + i·(sin(k·x)·cos(x) + cos(k·x)·sin(x)) + (−1)·(sin(k·x)·sin(x)) = (cos(k·x)·cos(x) − sin(k·x)·sin(x)) + i·(sin(k·x)·cos(x) + cos(k·x)·sin(x))
           algebra
-          requires k·x ∈ ℝ: membership, from K, H1
           requires cos(k·x) ∈ ℝ: mun:cos-real a := k·x
           requires sin(k·x) ∈ ℝ: mun:sin-real a := k·x
-          requires cos(x) ∈ ℝ: mun:cos-real a := x, from H1
-          requires sin(x) ∈ ℝ: mun:sin-real a := x, from H1
+          requires cos(x) ∈ ℝ: mun:cos-real a := x
+          requires sin(x) ∈ ℝ: mun:sin-real a := x
           requires i ∈ ℂ: mun:i-complex
 
     2.15. cos(k·x + x) = cos(k·x)·cos(x) − sin(k·x)·sin(x)
           thm:cos-add a := k·x, b := x
-          requires k·x ∈ ℂ: membership, from K, H1
-          requires x ∈ ℂ: from H1
 
     2.16. sin(k·x + x) = sin(k·x)·cos(x) + cos(k·x)·sin(x)
           thm:sin-add a := k·x, b := x
-          requires k·x ∈ ℂ: membership, from K, H1
-          requires x ∈ ℂ: from H1
 
     2.17. k·x + x = (k + 1)·x
           algebra
-          requires k ∈ ℝ: from K
-          requires x ∈ ℝ: from H1
 
     2.18. (cos(k·x)·cos(x) − sin(k·x)·sin(x)) + i·(sin(k·x)·cos(x) + cos(k·x)·sin(x)) = cos(k·x + x) + i·(sin(k·x)·cos(x) + cos(k·x)·sin(x))
           substitute cos(k·x + x) = cos(k·x)·cos(x) − sin(k·x)·sin(x) (line 2.15)
@@ -133,4 +124,4 @@ theorem de-moivre
                 = cos((k + 1)·x) + i·sin((k + 1)·x)                                                  2.20
 
 3.  (cos(x) + i·sin(x))^n = cos(n·x) + i·sin(n·x)
-    instantiate k := n in line 2, from H2
+    instantiate k := n in line 2

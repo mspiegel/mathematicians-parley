@@ -35,10 +35,10 @@ define g(x) := 2^|numer(x)|·3^denom(x)·5^s(x), for x ∈ ℚ    (D3)
     assume f(m) = f(n)                                                (A1)
 
     2.1.  f(m) = m
-          D1, from K2
+          D1
 
     2.2.  f(n) = n
-          D1, from K3
+          D1
 
     2.3.  m = n
           calculation
@@ -54,7 +54,7 @@ define g(x) := 2^|numer(x)|·3^denom(x)·5^s(x), for x ∈ ℚ    (D3)
     let x ∈ ℚ                                                         (K4)
 
     4.1.  s(x) ∈ ℕ₀
-          membership, from D2, K4
+          membership, from D2
 
     4.2.  numer(x) ≥ 0 or not numer(x) ≥ 0
           mun:excluded-middle P := numer(x) ≥ 0
@@ -67,11 +67,10 @@ define g(x) := 2^|numer(x)|·3^denom(x)·5^s(x), for x ∈ ℚ    (D3)
 
           4.3.1.  s(x) = 0
                   D2, from C1
-                  requires x ∈ ℚ: from K4
 
           4.3.2.  |numer(x)| = numer(x)
                   mun:abs x := numer(x), from C1
-                  requires numer(x) ∈ ℤ: mun:lowest-terms-parts x := x, from K4
+                  requires numer(x) ∈ ℤ: mun:lowest-terms-parts x := x
 
           4.3.3.  (1 − 2·s(x))·|numer(x)| = (1 − 2·0)·|numer(x)|
                   substitute s(x) = 0 (line 4.3.1)
@@ -81,7 +80,7 @@ define g(x) := 2^|numer(x)|·3^denom(x)·5^s(x), for x ∈ ℚ    (D3)
 
           4.3.5.  (1 − 2·0)·numer(x) = numer(x)
                   algebra
-                  requires numer(x) ∈ ℤ: mun:lowest-terms-parts x := x, from K4
+                  requires numer(x) ∈ ℤ: mun:lowest-terms-parts x := x
 
           4.3.6.  numer(x) = (1 − 2·s(x))·|numer(x)|
                   calculation
@@ -94,15 +93,14 @@ define g(x) := 2^|numer(x)|·3^denom(x)·5^s(x), for x ∈ ℚ    (D3)
 
           4.3.7.  s(x) = 1
                   D2, from C2
-                  requires x ∈ ℚ: from K4
 
           4.3.8.  numer(x) < 0
                   inequalities, from C2
-                  requires numer(x) ∈ ℤ: mun:lowest-terms-parts x := x, from K4
+                  requires numer(x) ∈ ℤ: mun:lowest-terms-parts x := x
 
           4.3.9.  |numer(x)| = −numer(x)
                   mun:abs x := numer(x), from 4.3.8
-                  requires numer(x) ∈ ℤ: mun:lowest-terms-parts x := x, from K4
+                  requires numer(x) ∈ ℤ: mun:lowest-terms-parts x := x
 
           4.3.10. (1 − 2·s(x))·|numer(x)| = (1 − 2·1)·|numer(x)|
                   substitute s(x) = 1 (line 4.3.7)
@@ -112,7 +110,7 @@ define g(x) := 2^|numer(x)|·3^denom(x)·5^s(x), for x ∈ ℚ    (D3)
 
           4.3.12. (1 − 2·1)·(−numer(x)) = numer(x)
                   algebra
-                  requires numer(x) ∈ ℤ: mun:lowest-terms-parts x := x, from K4
+                  requires numer(x) ∈ ℤ: mun:lowest-terms-parts x := x
 
           4.3.13. numer(x) = (1 − 2·s(x))·|numer(x)|
                   calculation
@@ -142,23 +140,23 @@ define g(x) := 2^|numer(x)|·3^denom(x)·5^s(x), for x ∈ ℚ    (D3)
 
     7.1.  numer(x) ∈ ℤ. denom(x) ∈ ℕ.
           x = numer(x)/denom(x).
-          mun:lowest-terms-parts x := x, from K6
+          mun:lowest-terms-parts x := x
 
     7.2.  numer(y) ∈ ℤ. denom(y) ∈ ℕ.
           y = numer(y)/denom(y).
-          mun:lowest-terms-parts x := y, from K7
+          mun:lowest-terms-parts x := y
 
     7.3.  s(x) ∈ ℕ₀ and numer(x) = (1 − 2·s(x))·|numer(x)|
-          instantiate x := x in line 4, from K6
+          instantiate x := x in line 4
 
     7.4.  s(y) ∈ ℕ₀ and numer(y) = (1 − 2·s(y))·|numer(y)|
-          instantiate x := y in line 4, from K7
+          instantiate x := y in line 4
 
     7.5.  g(x) = 2^|numer(x)|·3^denom(x)·5^s(x)
-          D3, from K6
+          D3
 
     7.6.  g(y) = 2^|numer(y)|·3^denom(y)·5^s(y)
-          D3, from K7
+          D3
 
     7.7.  2^|numer(x)|·3^denom(x)·5^s(x) = 2^|numer(y)|·3^denom(y)·5^s(y)
           calculation

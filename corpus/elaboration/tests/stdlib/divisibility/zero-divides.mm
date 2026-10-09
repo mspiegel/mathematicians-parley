@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.divisibility.zero-divides $p |- ( A e. ZZ -> ( 0 || A <-> A = 0 ) ) $=
-    ( 0dvds ) AB $.
+    ( cz wcel cc0 cdvds wbr wceq wb id 0dvds syl ) ABCZLDAEFADGHLIAJK $.
 $}

@@ -16,7 +16,7 @@ use num_traits::{ToPrimitive, Zero};
 use super::field::{self, Value};
 use super::linear;
 use super::matcher::ChainLink;
-use super::provenance::{from_requires, rests_on_only};
+use super::provenance::{from_requires, may_rest_on, rests_on_only, MEMBERSHIP};
 use super::state::{fit, names_of, Binding, Elaborator};
 use super::{Facts, Lines, Written};
 use crate::binds;
@@ -1498,6 +1498,211 @@ impl<'a> Elaborator<'a> {
         )))
     }
 
+    /// `said ∈ system` as the page says it once (`READERS.md`, membership said
+    /// once), or a decline: a numeral; a letter in the number system its
+    /// introducing line names, carried up `WITHIN`; or a term built from those
+    /// by +, −, ·, negation, a power to a numeral, and a quotient whose
+    /// divisor's `≠ 0` the step writes. A letter's membership is sealed as
+    /// `membership@<letter>`, which a step rests on without naming it, as it
+    /// does a sort; nothing but a membership in a number system is ever proved
+    /// from it, since only this walk reads it.
+    pub fn introduced_membership(
+        &mut self,
+        said: &str,
+        system: &str,
+        scope: &str,
+        facts: &Facts,
+    ) -> Checked<Route<Proof>> {
+        if lookup(rules::SYSTEMS, system).is_none() {
+            return Ok(Route::no("not a number system"));
+        }
+        if self.beyond_once > 0 {
+            return Ok(Route::no("a part of a fact the page writes"));
+        }
+        if said.split_whitespace().all(rules::numeric) {
+            let goal = self.to_term(&t!(said, system, "wcel"));
+            return self.numeral_within(&goal, scope, facts);
+        }
+        if let Some((letter, set)) = self.introduced_in(said) {
+            return self.letter_within(said, &letter, &set, system, scope, facts);
+        }
+        if self.built_once(said).is_none() {
+            return Ok(Route::no(
+                "not a numeral, an introduced letter, or built from them",
+            ));
+        }
+        // A divisor's `≠ 0` is the page's, from what the step names.
+        let named = match &self.resting {
+            Some(resting) => {
+                let resting = resting.clone();
+                facts.filtered(|_, v| v.origin.iter().all(|o| may_rest_on(&resting, o)))
+            }
+            None => facts.clone(),
+        };
+        self.built(
+            said,
+            system,
+            scope,
+            &mut |me, term, into| me.introduced_membership(term, into, scope, facts),
+            Some(&mut |me, divisor| me.divisor_written(divisor, scope, &named)),
+        )
+    }
+
+    /// Keep, for each letter let into a number system and not yet kept, its
+    /// membership as `facts` hold it under `scope`, the scope its line opens:
+    /// what `introduced_membership` carries to any scope inside it.
+    pub fn note_introduced(&mut self, scope: &str, facts: &Facts) -> Checked<()> {
+        for (letter, set) in self.sets.clone() {
+            if lookup(rules::SYSTEMS, &set).is_none() {
+                continue;
+            }
+            let Some(kernel) = self.names.get(&letter).cloned() else {
+                continue;
+            };
+            let claim = t!(kernel, set, "wcel");
+            let kept = self.introduced.get(&letter).is_some_and(|all| {
+                all.iter().any(|(c, _, at)| *c == claim && at == scope)
+            });
+            if kept {
+                continue;
+            }
+            if let Some(proof) = self.held(facts, &claim, scope)? {
+                self.introduced.entry(letter).or_default().push((
+                    claim,
+                    proof,
+                    scope.to_string(),
+                ));
+            }
+        }
+        Ok(())
+    }
+
+    /// `wanted` where it is a membership the page says once, or several
+    /// joined by "and", as a lemma may ask its side conditions together; a
+    /// decline for anything else.
+    pub fn said_once_proof(
+        &mut self,
+        wanted: &Term,
+        scope: &str,
+        facts: &Facts,
+    ) -> Checked<Route<Proof>> {
+        if wanted.label() == Some("wcel") && wanted.children().len() == 2 {
+            let (said, system) = (
+                self.rpn(&wanted.children()[0]),
+                self.rpn(&wanted.children()[1]),
+            );
+            return self.introduced_membership(&said, &system, scope, facts);
+        }
+        let joined = self.conjoined(wanted, scope, &mut |me, one| {
+            me.said_once_proof(one, scope, facts)
+        })?;
+        Ok(joined.unwrap_or_else(|| Route::no("not a membership")))
+    }
+
+    /// The parts of `said` where it is built by +, −, ·, negation, a power to
+    /// a numeral or a quotient, the shapes `introduced_membership` walks;
+    /// None for any other term.
+    fn built_once(&self, said: &str) -> Option<Vec<String>> {
+        let node = self.to_term(said);
+        if node.variable().is_some() {
+            return None;
+        }
+        let kids = node.children();
+        match node.label() {
+            Some("cneg") if kids.len() == 1 => Some(vec![self.rpn(&kids[0])]),
+            Some("co") if kids.len() == 3 => {
+                let (left, right) = (self.rpn(&kids[0]), self.rpn(&kids[1]));
+                match self.rpn(&kids[2]).as_str() {
+                    "caddc" | "cmin" | "cmul" | "cdiv" => Some(vec![left, right]),
+                    "cexp" if right.split_whitespace().all(rules::numeric) => {
+                        Some(vec![left])
+                    }
+                    _ => None,
+                }
+            }
+            _ => None,
+        }
+    }
+
+    /// Whether the page says `said` is a number once, where its letters are
+    /// introduced (`introduced_membership`), read off its shape alone.
+    pub fn said_once(&self, said: &str) -> bool {
+        if said.split_whitespace().all(rules::numeric)
+            || self.introduced_in(said).is_some()
+        {
+            return true;
+        }
+        self.built_once(said)
+            .is_some_and(|parts| parts.iter().all(|p| self.said_once(p)))
+    }
+
+    /// The letter whose kernel term is `said`, and the number system the
+    /// line introducing it put it in; None for anything else.
+    fn introduced_in(&self, said: &str) -> Option<(String, String)> {
+        self.sets.iter().find_map(|(letter, set)| {
+            let ours = self.names.get(letter).is_some_and(|k| k == said);
+            (ours && lookup(rules::SYSTEMS, set).is_some())
+                .then(|| (letter.clone(), set.clone()))
+        })
+    }
+
+    /// `said ∈ system` for a letter introduced in `set`, from the scope's
+    /// copy of its introducing line, sealed as `membership@<letter>` and
+    /// carried up `WITHIN` one lemma at a time.
+    fn letter_within(
+        &mut self,
+        said: &str,
+        letter: &str,
+        set: &str,
+        system: &str,
+        scope: &str,
+        facts: &Facts,
+    ) -> Checked<Route<Proof>> {
+        if rules::within_path(Some(set), Some(system)).is_none() {
+            return Ok(Route::no(format!("{set} is not inside {system}")));
+        }
+        let claim = t!(said, set, "wcel");
+        let mut held = self.held(facts, &claim, scope)?;
+        if held.is_none() {
+            let all = self.introduced.get(letter).cloned().unwrap_or_default();
+            held = all
+                .iter()
+                .rev()
+                .filter(|(kept, _, _)| *kept == claim)
+                .find_map(|(_, proof, at)| self.lifted_to(&claim, proof, at, scope));
+        }
+        let Some(held) = held else {
+            return Ok(Route::no("the introducing line is not in scope"));
+        };
+        let mut proof = self.seal(held, &format!("{MEMBERSHIP}{letter}"));
+        let mut at = set.to_string();
+        while at != system {
+            let row = lookup(rules::WITHIN, &at).unwrap_or(&[]);
+            let next = row
+                .iter()
+                .find(|(to, _)| *to == system)
+                .or_else(|| {
+                    row.iter().find(|(to, _)| {
+                        rules::within_path(Some(to), Some(system)).is_some()
+                    })
+                })
+                .copied();
+            let Some((to, lemma)) = next else {
+                return Ok(Route::no(format!("{at} is not inside {system}")));
+            };
+            let push = self.sig(lemma).push()[0].to_string();
+            let law = self.b.ap(lemma, &binds! {push => said}, &[]);
+            proof = self.b.ap(
+                "syl",
+                &binds! {"ph" => scope, "ps" => t!(said, &at, "wcel"),
+                "ch" => t!(said, to, "wcel")},
+                &[&proof, &law],
+            );
+            at = to.to_string();
+        }
+        Ok(Built(proof))
+    }
+
     /// One part of a compound, in a number system, or a decline.
     ///
     /// The step's own line first, then that line carried by one lemma, then
@@ -1523,6 +1728,13 @@ impl<'a> Elaborator<'a> {
             if let Some(lifted) = self.lifted_to(&want, &w.proof, &w.at, scope) {
                 return Ok(Built(lifted));
             }
+        }
+        // What the page says once, where the letters are introduced, before
+        // a cited line: a line cited only for it is cited for nothing.
+        if let Built(said_once) =
+            self.introduced_membership(said, system, scope, facts)?
+        {
+            return Ok(Built(said_once));
         }
         if let Some(carried) = self.bridged(said, system, scope, facts)? {
             return Ok(Built(carried));

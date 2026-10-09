@@ -23,7 +23,7 @@ use std::rc::Rc;
 use indexmap::{IndexMap, IndexSet};
 
 use super::elaborate::Sides;
-use super::provenance::item_clauses;
+use super::provenance::{item_clauses, may_rest_on};
 use super::state::{
     fit, fit_respelt, names_of, Binding, Elaborator, Frame, HeadKey, Role, Shape, Vars,
 };
@@ -268,6 +268,29 @@ impl<'a> Elaborator<'a> {
 
     // --- facts the text never writes ------------------------------------
 
+    /// `wanted` from the declared lemmas, or said another way. Every lemma is
+    /// tried as it is written before any is read backwards, so that a
+    /// biconditional turned round never stands in for one that says what is
+    /// wanted outright.
+    fn searched(
+        &mut self,
+        wanted: &Term,
+        scope: &str,
+        facts: &Facts,
+        depth: i32,
+    ) -> Checked<Option<Proof>> {
+        for backwards in [false, true] {
+            for lemma in self.declared(wanted, backwards) {
+                if let Some(found) =
+                    self.fits(&lemma, wanted, scope, facts, depth, backwards)?
+                {
+                    return Ok(Some(found));
+                }
+            }
+        }
+        self.said_otherwise(wanted, scope, facts, depth)
+    }
+
     /// A proof of something a step needs and the text does not write.
     ///
     /// `depth` bounds how many declared lemmas a chain applies one on top of
@@ -287,13 +310,29 @@ impl<'a> Elaborator<'a> {
         step: Option<&Step>,
         lines: Option<&Lines>,
     ) -> Checked<Route<Proof>> {
+        let unfiltered = facts;
         let facts = match &self.resting {
             Some(resting) => {
                 let resting = resting.clone();
-                facts.filtered(|_, v| v.origin.iter().all(|o| resting.contains(o)))
+                facts.filtered(|_, v| v.origin.iter().all(|o| may_rest_on(&resting, o)))
             }
             None => facts.clone(),
         };
+        // A membership the page says once. It comes before what is held,
+        // since the scope holds a copy of the line introducing a letter that
+        // the step does not name. A numeral's is worked out below, and
+        // `numeral_within` comes back here for it.
+        let numeral = wanted.label() == Some("wcel")
+            && wanted.children().len() == 2
+            && self
+                .rpn(&wanted.children()[0])
+                .split_whitespace()
+                .all(rules::numeric);
+        if !numeral {
+            if let Built(p) = self.said_once_proof(wanted, scope, unfiltered)? {
+                return Ok(Built(p));
+            }
+        }
         let rpn = self.rpn(wanted);
         if let Some(p) = self.held(&facts, &rpn, scope)? {
             return Ok(Built(p));
@@ -432,19 +471,7 @@ impl<'a> Elaborator<'a> {
                     None => made,
                 });
             }
-            // Every lemma is tried as it is written before any is read
-            // backwards, so that a biconditional turned round never stands in
-            // for one that says what is wanted outright.
-            for backwards in [false, true] {
-                for lemma in self.declared(wanted, backwards) {
-                    if let Some(found) =
-                        self.fits(&lemma, wanted, scope, &facts, depth, backwards)?
-                    {
-                        return Ok(Built(found));
-                    }
-                }
-            }
-            if let Some(found) = self.said_otherwise(wanted, scope, &facts, depth)? {
+            if let Some(found) = self.searched(wanted, scope, &facts, depth)? {
                 return Ok(Built(found));
             }
             let found = self.rewritten(wanted, scope, &facts, depth)?;
@@ -4917,7 +4944,7 @@ impl<'a> Elaborator<'a> {
         // decide a class the lemma leaves open.
         let known_keys = match &self.resting {
             Some(resting) => known
-                .filtered(|_, v| v.origin.iter().all(|o| resting.contains(o)))
+                .filtered(|_, v| v.origin.iter().all(|o| may_rest_on(resting, o)))
                 .keys(),
             None => known.keys(),
         };
@@ -5008,7 +5035,19 @@ impl<'a> Elaborator<'a> {
         for (i, slot) in antecedents.iter().enumerate() {
             let asks = slot.substitute(&binding);
             let asks_rpn = self.rpn(&asks);
-            let is_scope = asks_rpn == where_;
+            let mut is_scope = asks_rpn == where_;
+            // Standing under a scope rests on every line it is made of. Where
+            // the step does not name them all, as where a letter's membership
+            // is said once and its line not cited, the formula is settled a
+            // part at a time like any other.
+            if is_scope && slot.variable().is_none() {
+                if let Some(resting) = self.resting.clone() {
+                    let more = self.scope_origin(&where_, &known)?;
+                    if !more.iter().all(|o| may_rest_on(&resting, o)) {
+                        is_scope = false;
+                    }
+                }
+            }
             // A variable slot is the context a deduction-form lemma is stated
             // in, and uses nothing; a formula the scope happens to be is what
             // the lemma asks, and uses all of it.
@@ -5262,7 +5301,7 @@ impl<'a> Elaborator<'a> {
         let facts = match &self.resting {
             Some(resting) => {
                 let resting = resting.clone();
-                facts.filtered(|_, v| v.origin.iter().all(|o| resting.contains(o)))
+                facts.filtered(|_, v| v.origin.iter().all(|o| may_rest_on(&resting, o)))
             }
             None => facts.clone(),
         };

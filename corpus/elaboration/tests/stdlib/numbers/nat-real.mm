@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.numbers.nat-real $p |- ( A e. NN -> A e. RR ) $=
-    ( nnre ) AB $.
+    ( cn wcel cr id nnre syl ) ABCZHADCHEAFG $.
 $}

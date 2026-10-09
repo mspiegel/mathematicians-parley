@@ -18,7 +18,12 @@ use parley::threads::in_order;
 
 /// A file that defines a function outside its theorems, for the cases below
 /// that import it, use it, or define its name again.
-const TRI: &str = "define T(k) := k(k + 1)/2, for k ∈ ℕ                                  (D1)\n       reads the k-th triangular number\n\ntheorem tri-one\n  then T(1) = 1\n\n1.  T(1) = 1\n    calculation\n      T(1) = 1(1 + 1)/2        D1\n           = 1                 arithmetic\n    requires 1 ∈ ℕ: arithmetic\n";
+const TRI: &str = "define T(k) := k(k + 1)/2, for k ∈ ℕ                                  (D1)\n       reads the k-th triangular number\n\ntheorem tri-one\n  then T(1) = 1\n\n1.  T(1) = 1\n    calculation\n      T(1) = 1(1 + 1)/2        D1\n           = 1                 arithmetic\n";
+
+/// A file that squares a quotient whose divisor is a letter. x/y is real by
+/// what the page says once of x and y only where a line says y ≠ 0, so H3
+/// is cited for it.
+const QUOTIENT: &str = "import mundane theorem    stdlib/numbers/square-nonneg\n\ntheorem quotient-square\n  let x ∈ ℝ                                                           (H1)\n  let y ∈ ℝ                                                           (H2)\n  assume y ≠ 0                                                        (H3)\n  then (x/y)² ≥ 0\n\n1.  (x/y)² ≥ 0\n    mun:square-nonneg x := x/y, from H3\n";
 
 /// One edit: the file, the text replaced (its first occurrence), and what
 /// replaces it. No text replaced writes a file that was not there.
@@ -126,37 +131,45 @@ fn a_file_that_does_not_import_a_library_function_may_use_its_name() {
     assert!(out.contains("\n0 problem(s)\n"), "{out}");
 }
 
+/// A quotient's divisor not being zero is what a line cited for it says, and
+/// that line does work: the case below that takes it away is a defect only
+/// if the file with it is clean.
+#[test]
+fn a_line_saying_a_divisor_is_not_zero_does_work() {
+    let clean = clean();
+    let case = case(
+        "cite y ≠ 0 for a quotient by y",
+        vec![edit("proofs/quotient.proof", None, QUOTIENT.to_string())],
+        "",
+    );
+    let tree = plant(&case, &clean).unwrap();
+    let out = parley::check::run(&tree).printed;
+    assert!(out.contains("\n0 problem(s)\n"), "{out}");
+}
+
 /// A requires line whose fact the step's own citation gives is not repeated
 /// where a line below needs it: the line below sees only its reason and the
-/// lines above it (R2). Here step 16.10 cites line 8, which says c ∈ ℝ, and
-/// `c + δ/2 ∈ ℝ: mun:real-closure` below asks c ∈ ℝ of the line above it.
+/// lines above it (R2). Here the birthday problem's step 8 cites line 1,
+/// which says {1, …, 23} is finite, and `|{1, …, 23}| ∈ ℕ₀: mun:card-nat0`
+/// below asks that of the line above it.
 #[test]
 fn a_line_the_step_cites_may_be_restated_for_a_line_below() {
     let clean = clean();
     let case = case(
         "restate a fact the step cites, for a requires line below",
         vec![edit(
-            "proofs/intermediate-value.proof",
+            "proofs/birthday.proof",
             Some(
                 "\
-    16.10. x₁ − c < δ
-           inequalities, from 16.9, 16.6
-           requires δ/2 ∈ ℝ: mun:half-real x := δ, from 16.5
-           requires c + δ/2 ∈ ℝ: mun:real-closure x := c, y := δ/2, from 8
-           requires x₁ ∈ ℝ: mun:min-real x := b, y := c + δ/2, from D2, H2
-           requires c ∈ ℝ: from 8
-           requires δ ∈ ℝ: from 16.5
+    inequalities, from 3, 4
+    requires |{1, …, 23}| ∈ ℕ₀: mun:card-nat0, from 1
 "
                 .to_string(),
             ),
             "\
-    16.10. x₁ − c < δ
-           inequalities, from 16.9, 16.6, 8
-           requires c ∈ ℝ: from 8
-           requires δ/2 ∈ ℝ: mun:half-real x := δ, from 16.5
-           requires c + δ/2 ∈ ℝ: mun:real-closure x := c, y := δ/2, from 8
-           requires x₁ ∈ ℝ: mun:min-real x := b, y := c + δ/2, from D2, H2
-           requires δ ∈ ℝ: from 16.5
+    inequalities, from 3, 4, 1
+    requires {1, …, 23} is finite: from 1
+    requires |{1, …, 23}| ∈ ℕ₀: mun:card-nat0, from 1
 "
             .to_string(),
         )],
@@ -466,7 +479,7 @@ fn cases() -> Vec<Case> {
         case(
             "cite a line that does not exist",
             vec![
-                edit("proofs/sqrt2-irrational.proof", Some("    2.5.  p is even\n          thm:even-square n := p, from 2.1, 2.4".to_string()), "    2.5.  p is even\n          thm:even-square n := p, from 2.1, 2.99".to_string()),
+                edit("proofs/sqrt2-irrational.proof", Some("    2.5.  p is even\n          thm:even-square n := p, from 2.4".to_string()), "    2.5.  p is even\n          thm:even-square n := p, from 2.99".to_string()),
             ],
             "does not exist",
         ),
@@ -517,16 +530,16 @@ fn cases() -> Vec<Case> {
         case(
             "use def: for something that is mundane",
             vec![
-                edit("proofs/sqrt2-irrational.proof", Some("          requires n² ∈ ℤ: mun:int-closure, from H1".to_string()), "          requires n² ∈ ℤ: def:int-closure, from H1".to_string()),
+                edit("proofs/sqrt2-irrational.proof", Some("    mun:even-or-odd n := n\n".to_string()), "    def:even-or-odd n := n\n".to_string()),
             ],
-            "def:int-closure names a mundane",
+            "def:even-or-odd names a mundane",
         ),
         case(
             "cite a mundane item as a theorem",
             vec![
-                edit("proofs/sqrt2-irrational.proof", Some("          requires n² ∈ ℤ: mun:int-closure, from H1".to_string()), "          requires n² ∈ ℤ: thm:int-closure, from H1".to_string()),
+                edit("proofs/sqrt2-irrational.proof", Some("    mun:even-or-odd n := n\n".to_string()), "    thm:even-or-odd n := n\n".to_string()),
             ],
-            "thm:int-closure names a mundane",
+            "thm:even-or-odd names a mundane",
         ),
         case(
             "cite an axiom as a theorem",
@@ -552,7 +565,7 @@ fn cases() -> Vec<Case> {
         case(
             "instantiate an item instead of a line",
             vec![
-                edit("proofs/intermediate-value.proof", Some("    instantiate u := b in line 9, from H2, 7".to_string()), "    instantiate u := b in mun:least-upper-bound, from H2, 7".to_string()),
+                edit("proofs/intermediate-value.proof", Some("    instantiate u := b in line 9, from 7".to_string()), "    instantiate u := b in mun:least-upper-bound, from 7".to_string()),
             ],
             "never an item",
         ),
@@ -582,7 +595,7 @@ fn cases() -> Vec<Case> {
         case(
             "a block whose method takes none",
             vec![
-                edit("proofs/sum-formula.proof", Some("          requires k ∈ ℝ: from K\n".to_string()), "          requires k ∈ ℝ: from K\n\n          1.6.1.  k = k\n                  algebra\n".to_string()),
+                edit("proofs/sum-formula.proof", Some("    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2\n          algebra\n".to_string()), "    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2\n          algebra\n\n          1.6.1.  k = k\n                  algebra\n".to_string()),
             ],
             "takes no block",
         ),
@@ -596,16 +609,16 @@ fn cases() -> Vec<Case> {
             ],
             "the requires line of step 2 needs something that mun:triangle does not conclude",
         ),
-        // A requires line's item asks for what the lines above it supply:
-        // `count-nat0` lets k ∈ ℤ, and without `requires 0 ∈ ℕ₀` above it,
-        // which says 0 is an integer, the line says what is missing rather
-        // than that the item concludes something else.
+        // A requires line's item asks for what the lines it cites supply:
+        // `nat0-nonzero` asks m ≠ 0, and without C2, which says b(k) ≠ 0,
+        // the line says what is missing rather than that the item concludes
+        // something else.
         case(
             "a requires line whose item's hypothesis nothing supplies",
             vec![
-                edit("tests/elaborator/induction-under-a-condition.proof", Some("                  mun:not-both n := c(0, y), from 1.1.6\n                  requires 0 ∈ ℕ₀: arithmetic\n".to_string()), "                  mun:not-both n := c(0, y), from 1.1.6\n".to_string()),
+                edit("proofs/euclid.proof", Some("thm:gcd-mod\n                   requires b(k) ∈ ℕ: mun:nat0-nonzero, from IH, C2\n".to_string()), "thm:gcd-mod\n                   requires b(k) ∈ ℕ: mun:nat0-nonzero, from IH\n".to_string()),
             ],
-            "the requires line of step 1.1.7 cites mun:count-nat0, which asks for k ∈ ℤ, and what it cites does not supply them",
+            "the requires line of step 3.10.17 cites mun:nat0-nonzero, which asks for m ∈ ℕ₀; m ≠ 0, and what it cites does not supply them",
         ),
         // A define of two arguments gives each one's domain in the order
         // the brackets name them (`SYNTAX.md`).
@@ -891,7 +904,7 @@ fn cases() -> Vec<Case> {
         case(
             "obtain a name without stating its sort",
             vec![
-                edit("proofs/sqrt2-irrational.proof", Some("1.  k ∈ ℤ. n = 2k + 1.\n    obtain k: mun:odd n := n, from H1, H2".to_string()), "1.  n = 2k + 1.\n    obtain k: mun:odd n := n, from H1, H2".to_string()),
+                edit("proofs/sqrt2-irrational.proof", Some("1.  k ∈ ℤ. n = 2k + 1.\n    obtain k: mun:odd n := n, from H2".to_string()), "1.  n = 2k + 1.\n    obtain k: mun:odd n := n, from H2".to_string()),
             ],
             "without stating its sort",
         ),
@@ -909,17 +922,20 @@ fn cases() -> Vec<Case> {
             ],
             "'|W| = 2^k' reads as absolute-value or as cardinality, and nothing says what W is",
         ),
+        // `divides-difference` asks that d divide b, which line 5.2 says.
         case(
             "drop a line a citation needs for a hypothesis",
             vec![
-                edit("proofs/intermediate-value.proof", Some("    mun:interval x := a, from H1, H2".to_string()), "    mun:interval x := a, from H1".to_string()),
+                edit("proofs/infinitely-many-primes.proof", Some("mun:divides-difference d := p, a := n! + 1, b := n!, from 3, 5.2".to_string()), "mun:divides-difference d := p, a := n! + 1, b := n!, from 3".to_string()),
             ],
             "does not supply them",
         ),
+        // `mod-natural` asks b ∈ ℕ, and IH says b(k) ∈ ℕ₀: a function's
+        // value is in what a line says it is in, and ℕ₀ holds 0.
         case(
             "supply a hypothesis with the wrong number system",
             vec![
-                edit("proofs/geometric-series.proof", Some("mun:exponent-zero a := a, from H1".to_string()), "mun:exponent-zero a := a, from H3".to_string()),
+                edit("proofs/euclid.proof", Some("mun:mod-natural\n                   requires b(k) ∈ ℕ: mun:nat0-nonzero, from IH, C2\n".to_string()), "mun:mod-natural, from IH\n".to_string()),
             ],
             "does not supply them",
         ),
@@ -969,16 +985,17 @@ fn cases() -> Vec<Case> {
             "point a requires line at an item that does not cover it",
             vec![
                 edit("proofs/sqrt2-irrational.proof", Some("theorem odd-square\n".to_string()), "import mundane theorem stdlib/numbers/int-real\n\ntheorem odd-square\n".to_string()),
-                edit("proofs/sqrt2-irrational.proof", Some("    requires n² ∈ ℤ: mun:int-closure, from H1".to_string()), "    requires n² ∈ ℤ: mun:int-real, from H1".to_string()),
+                edit("proofs/sqrt2-irrational.proof", Some("    requires √2 ∈ ℝ: mun:sqrt x := 2".to_string()), "    requires √2 ∈ ℝ: mun:int-real m := 2".to_string()),
             ],
             "does not conclude",
         ),
+        // `requires √2 ∈ ℝ: mun:sqrt x := 2` rests on 2 ≥ 0 written above it.
         case(
             "drop the dull fact a requires line leans on",
             vec![
-                edit("proofs/sqrt2-irrational.proof", Some("    requires 2 ∈ ℤ: arithmetic\n".to_string()), "".to_string()),
+                edit("proofs/sqrt2-irrational.proof", Some("    mun:irrational x := √2, from 2\n    requires 2 ≥ 0: arithmetic\n".to_string()), "    mun:irrational x := √2, from 2\n".to_string()),
             ],
-            "does not conclude",
+            "the requires line of step 3 cites mun:sqrt, which asks for x ∈ ℝ; x ≥ 0, and what it cites does not supply them",
         ),
         case(
             "claim something the cited item does not conclude",
@@ -1130,7 +1147,7 @@ fn cases() -> Vec<Case> {
         case(
             "contradict a line before the end of the block",
             vec![
-                edit("proofs/infinitely-many-primes.proof", Some("mun:divides-one d := p, from 3, 5.5".to_string()), "mun:divides-one d := p, from 3, 5.5, contradicting 5.5".to_string()),
+                edit("proofs/infinitely-many-primes.proof", Some("mun:divides-one d := p, from 5.5".to_string()), "mun:divides-one d := p, from 5.5, contradicting 5.5".to_string()),
             ],
             "only the last step of a contradiction block, a case or a proof block may do",
         ),
@@ -1239,14 +1256,15 @@ fn cases() -> Vec<Case> {
             "step 1 cites H1, and mun:nonneg-or-neg asks for nothing it says",
         ),
         // A "there is" given by an instance is given only where the instance is
-        // in the domain. Bezout's step 2 puts a in S by exhibiting 1 and 0, and
-        // without `requires 1 ∈ ℤ` the 1 could be anything.
+        // in the domain. The mean value theorem's step 30 exhibits c, and
+        // without line 24, which says c ∈ (a, b), the witness could be
+        // anywhere.
         case(
             "exhibit a witness without saying it is in the domain",
             vec![
-                edit("proofs/bezout.proof", Some("    mun:set-builder u := a, from D1, H1, 1\n    requires 1 ∈ ℤ: arithmetic\n".to_string()), "    mun:set-builder u := a, from D1, H1, 1\n".to_string()),
+                edit("proofs/mean-value.proof", Some("    exhibit, from 24, 29\n".to_string()), "    exhibit, from 29\n".to_string()),
             ],
-            "step 2 claims something that mun:set-builder does not conclude",
+            "step 30 exhibits c := c, so it needs c ∈ (a, b)",
         ),
         // A requires line rests on the lines above it, read top to bottom
         // (`SYNTAX.md`). Written first, |numer(x)| ∈ ℕ₀ asks for numer(x) ∈ ℤ,
@@ -1275,7 +1293,7 @@ fn cases() -> Vec<Case> {
         case(
             "cite a line a count step asks nothing of",
             vec![
-                edit("tests/elaborator/induction-under-a-condition.proof", Some("mun:count-step-holds k := j, from K2, 1.2.12.7, D1\n".to_string()), "mun:count-step-holds k := j, from K2, 1.2.12.7, 1.2.12.3, D1\n".to_string()),
+                edit("tests/elaborator/induction-under-a-condition.proof", Some("mun:count-step-holds k := j, from 1.2.12.7, D1\n".to_string()), "mun:count-step-holds k := j, from 1.2.12.7, 1.2.12.3, D1\n".to_string()),
             ],
             "step 1.2.12.8 cites 1.2.12.3, and mun:count-step-holds asks for nothing it says",
         ),
@@ -1285,7 +1303,7 @@ fn cases() -> Vec<Case> {
         case(
             "cite a define in a requires line without its argument's domain",
             vec![
-                edit("tests/elaborator/induction-under-a-condition.proof", Some("requires c(j, y) ∈ ℕ₀: mun:count-nat0 k := j, from D1, K2, 1.2.1\n".to_string()), "requires c(j, y) ∈ ℕ₀: mun:count-nat0 k := j, from D1, K2\n".to_string()),
+                edit("tests/elaborator/induction-under-a-condition.proof", Some("requires c(j, y) ∈ ℕ₀: mun:count-nat0 k := j, from D1, 1.2.1\n".to_string()), "requires c(j, y) ∈ ℕ₀: mun:count-nat0 k := j, from D1\n".to_string()),
             ],
             "cites D1 at y, so it needs y ∈ V, and nothing it cites or the requires lines above it say it",
         ),
@@ -1357,7 +1375,7 @@ fn cases() -> Vec<Case> {
         case(
             "obtain from a definition without the line it unfolds",
             vec![
-                edit("proofs/sqrt2-irrational.proof", Some("    obtain k: mun:odd n := n, from H1, H2".to_string()), "    obtain k: mun:odd n := n, from H1".to_string()),
+                edit("proofs/sqrt2-irrational.proof", Some("    obtain k: mun:odd n := n, from H2".to_string()), "    obtain k: mun:odd n := n".to_string()),
             ],
             "step 1 obtains from mun:odd, which says there is one only from",
         ),
@@ -1391,7 +1409,7 @@ fn cases() -> Vec<Case> {
         case(
             "a coefficient called zero where k is not above n",
             vec![
-                edit("proofs/binomial.proof", Some("    def:C n := m, k := m + 1, from H3, 5".to_string()), "    def:C n := m + 1, k := m + 1, from H3, 5".to_string()),
+                edit("proofs/binomial.proof", Some("    def:C n := m, k := m + 1, from 5".to_string()), "    def:C n := m + 1, k := m + 1, from 5".to_string()),
             ],
             "step 6 claims something that def:C does not conclude",
         ),
@@ -1401,7 +1419,7 @@ fn cases() -> Vec<Case> {
         case(
             "a label read as a sibling block's",
             vec![
-                edit("proofs/binomial.proof", Some("           requires 1 ∈ ℤ: arithmetic\n           requires m + 1 ∈ ℤ: membership, from H3\n           requires k ∈ ℤ: mun:range-integer a := 1, b := m + 1, from J\n".to_string()), "           requires 0 ∈ ℤ: arithmetic\n           requires m + 1 ∈ ℤ: membership, from H3\n           requires k ∈ ℤ: mun:range-integer a := 0, b := m + 1, from J\n".to_string()),
+                edit("proofs/binomial.proof", Some("           requires k ∈ ℤ: mun:range-integer a := 1, b := m + 1, from J\n".to_string()), "           requires k ∈ ℤ: mun:range-integer a := 0, b := m + 1, from J\n".to_string()),
             ],
             "the requires line of step 23.1 cites mun:range-integer, which asks for a ∈ ℤ; b ∈ ℤ; k ∈ {a, …, b}, and what it cites does not supply them",
         ),
@@ -1450,13 +1468,13 @@ fn cases() -> Vec<Case> {
             "step 2.1 cites mun:sum-termwise, which asks for",
         ),
         // What a summand's function hypothesis asks is the membership of the
-        // names the summand is built from, and 1 is none of them.
+        // names the summand is built from, and asks nothing of 1 > 0.
         case(
             "a requires line the summand does not ask for",
             vec![
-                edit("proofs/binomial.proof", Some("    mun:sum-scaled a := 0, b := m, c := x\n    requires 0 ∈ ℤ: arithmetic\n".to_string()), "    mun:sum-scaled a := 0, b := m, c := x\n    requires 1 ∈ ℤ: arithmetic\n    requires 0 ∈ ℤ: arithmetic\n".to_string()),
+                edit("proofs/binomial.proof", Some("    mun:sum-scaled a := 0, b := m, c := x\n".to_string()), "    mun:sum-scaled a := 0, b := m, c := x\n    requires 1 > 0: arithmetic\n".to_string()),
             ],
-            "says 1 ∈ ℤ, and neither mun:sum-scaled nor",
+            "says 1 > 0, and neither mun:sum-scaled nor",
         ),
         // A hypothesis asking a = b is answered by a line saying b = a, and by
         // nothing else: line 2 says |CB| = |BC|, which is neither way round the
@@ -1497,7 +1515,7 @@ fn cases() -> Vec<Case> {
         case(
             "lean on a define the line does not cite",
             vec![
-                edit("proofs/intermediate-value.proof", Some("requires x₁ ∈ ℝ: mun:min-real x := b, y := c + δ/2, from D2, H2\n".to_string()), "requires x₁ ∈ ℝ: mun:min-real x := b, y := c + δ/2, from H2\n".to_string()),
+                edit("proofs/intermediate-value.proof", Some("requires x₁ ∈ ℝ: mun:min-real x := b, y := c + δ/2, from D2\n".to_string()), "requires x₁ ∈ ℝ: mun:min-real x := b, y := c + δ/2\n".to_string()),
             ],
             "the requires line of step 16.10 needs something that mun:min-real does not conclude",
         ),
@@ -1675,10 +1693,12 @@ fn cases() -> Vec<Case> {
             ],
             "names b, which has no value before 0",
         ),
+        // n − 1 for n ∈ ℕ is an integer by what the page says once, and in ℕ₀
+        // only by a line saying so.
         case(
             "cite a step rule without saying the index is in ℕ₀",
             vec![
-                edit("proofs/euclid.proof", Some("3.10.2.  b(k + 1) = 0\n                   D1, from C1\n                   requires k ∈ ℕ₀: from K".to_string()), "3.10.2.  b(k + 1) = 0\n                   D1, from C1".to_string()),
+                edit("proofs/reals-uncountable.proof", Some("          D3\n          requires n − 1 ∈ ℕ₀: from 16.1\n".to_string()), "          D3\n".to_string()),
             ],
             "no line it cites says the index is in ℕ₀",
         ),
@@ -1824,7 +1844,7 @@ fn cases() -> Vec<Case> {
         case(
             "divide by x − a without saying p is a polynomial",
             vec![
-                edit("proofs/factor.proof", Some("p := p, a := a, from H1, H2".to_string()), "p := p, a := a, from H2".to_string()),
+                edit("proofs/factor.proof", Some("p := p, a := a, from H1".to_string()), "p := p, a := a".to_string()),
             ],
             "step 1 cites thm:remainder, which asks for p is a polynomial",
         ),
@@ -1865,21 +1885,70 @@ fn cases() -> Vec<Case> {
             ],
             "step 16.4 puts −f(c) for ε in line 15, so it needs −f(c) ∈ ℝ, and nothing it cites or requires says it",
         ),
-        // A define used for what it is has its argument in its domain.
+        // A define used for what it is has its argument in its domain: c(j, y)
+        // is defined for y ∈ V, which no line introduces y in.
         case(
-            "unfold S(1) without saying 1 ∈ ℕ",
+            "unfold c(0, y) without saying y ∈ V",
             vec![
-                edit("proofs/sum-formula.proof", Some("                 = 1(1 + 1)/2            arithmetic\n          requires 1 ∈ ℕ: arithmetic\n".to_string()), "                 = 1(1 + 1)/2            arithmetic\n".to_string()),
+                edit("tests/elaborator/induction-under-a-condition.proof", Some("                  D1\n                  requires y ∈ V: from 1.1.1\n".to_string()), "                  D1\n".to_string()),
             ],
-            "step 1.2 cites D1 at 1, so it needs 1 ∈ ℕ, and nothing it cites or requires says it",
+            "step 1.1.2 cites D1 at y, so it needs y ∈ V, and nothing it cites or requires says it",
         ),
-        // A recursion's domain is its index: a(k + 1) asks k.
+        // A recursion's domain is its index: N((n − 1) + 1) asks n − 1.
         case(
-            "unfold a(k + 1) without saying k ∈ ℕ₀",
+            "unfold N((n − 1) + 1) without saying n − 1 ∈ ℕ₀",
             vec![
-                edit("proofs/euclid.proof", Some("                   D1, from C1\n                   requires k ∈ ℕ₀: from K\n".to_string()), "                   D1, from C1\n".to_string()),
+                edit("proofs/reals-uncountable.proof", Some("          D3\n          requires n − 1 ∈ ℕ₀: from 16.1\n".to_string()), "          D3\n".to_string()),
             ],
-            "step 3.10.1 cites D1 at k + 1, so it needs k ∈ ℕ₀, and nothing it cites or requires says it",
+            "step 16.2 cites D3 at n − 1 + 1, so it needs n − 1 ∈ ℕ₀, and nothing it cites or requires says it",
+        ),
+        // The edges of the rule that a membership is said once (`READERS.md`).
+        // A quotient is in a number system only where its divisor is not
+        // zero, and for a letter that is the step's to say: x/y is real only
+        // with y ≠ 0 cited.
+        case(
+            "divide by a letter without saying it is not zero",
+            vec![
+                edit("proofs/quotient.proof", None, QUOTIENT.replacen("x := x/y, from H3", "x := x/y", 1)),
+            ],
+            "step 1 cites mun:square-nonneg, which asks for x ∈ ℝ",
+        ),
+        // A define's name is not a letter introduced in a number system:
+        // that x₁ is real rests on min-real, and abs-difference-lt asks it.
+        case(
+            "leave out a define's membership where an item asks it",
+            vec![
+                edit("proofs/intermediate-value.proof", Some("           mun:abs-difference-lt x := x₁, c := c, δ := δ, from 16.13, 16.14\n           requires x₁ ∈ ℝ: mun:min-real x := b, y := c + δ/2, from D2\n".to_string()), "           mun:abs-difference-lt x := x₁, c := c, δ := δ, from 16.13, 16.14\n".to_string()),
+            ],
+            "step 16.15 cites mun:abs-difference-lt, which asks for",
+        ),
+        // `let k ∈ ℕ` says k ≥ 1 beyond the membership, and a step using it
+        // cites the line: sum-extended asks n ≥ a at n := k, a := 1.
+        case(
+            "lean on let k ∈ ℕ for k ≥ 1 without citing it",
+            vec![
+                edit("proofs/sum-formula.proof", Some("          requires k ≥ 1: from K\n".to_string()), String::new()),
+            ],
+            "step 1.3 cites mun:sum-extended, which asks for",
+        ),
+        // A letter's membership is said where it is introduced, and a line
+        // cited only for it does no work: H1 says a ∈ ℝ, and exponent-zero
+        // asks nothing else of it.
+        case(
+            "cite a let line only for the membership it introduces",
+            vec![
+                edit("proofs/geometric-series.proof", Some("    1.2.  a^0 = 1\n          mun:exponent-zero a := a\n".to_string()), "    1.2.  a^0 = 1\n          mun:exponent-zero a := a, from H1\n".to_string()),
+            ],
+            "step 1.2 cites H1, and mun:exponent-zero asks for nothing it says",
+        ),
+        // The same of an obtain's sentence `p ∈ ℤ`: even-square asks
+        // p ∈ ℤ at n := p, which 2.1 says once, where it obtains p.
+        case(
+            "cite an obtain only for the membership it states",
+            vec![
+                edit("proofs/sqrt2-irrational.proof", Some("          thm:even-square n := p, from 2.4\n".to_string()), "          thm:even-square n := p, from 2.1, 2.4\n".to_string()),
+            ],
+            "step 2.5 cites 2.1, and thm:even-square asks for nothing it says",
         ),
     ]
 }

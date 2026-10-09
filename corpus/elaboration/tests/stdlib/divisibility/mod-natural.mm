@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.divisibility.mod-natural $p |- ( ( A e. ZZ /\ B e. NN ) -> ( A mod B ) e. NN0 ) $=
-    ( zmodcl ) ABC $.
+    ( cz wcel cn wa cmo co cn0 simpl id syl simpr jca zmodcl ) ACDZBEDZFZRABGHIDRPQRPPPQJPKLPQMNABOL $.
 $}

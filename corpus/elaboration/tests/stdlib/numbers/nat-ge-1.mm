@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.numbers.nat-ge-1 $p |- ( A e. NN -> 1 <_ A ) $=
-    ( nnge1 ) AB $.
+    ( cn wcel c1 cle wbr id nnge1 syl ) ABCZJDAEFJGAHI $.
 $}

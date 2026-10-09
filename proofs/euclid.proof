@@ -55,7 +55,6 @@ theorem euclid
 
     3.6.  b(0) + 0 ≤ N
           inequalities, from 2
-          requires N ∈ ℝ: mun:nat0-real, from H2
           requires b(0) ∈ ℝ: mun:nat0-real, from 3.2
 
     3.7.  b(0) + 0 ≤ N or b(0) = 0
@@ -82,11 +81,9 @@ theorem euclid
 
           3.10.1.  a(k + 1) = a(k)
                    D1, from C1
-                   requires k ∈ ℕ₀: from K
 
           3.10.2.  b(k + 1) = 0
                    D1, from C1
-                   requires k ∈ ℕ₀: from K
 
           3.10.3.  a(k + 1) ∈ ℕ₀
                    substitute a(k + 1) = a(k) (line 3.10.1) into IH
@@ -126,11 +123,9 @@ theorem euclid
 
           3.10.12. a(k + 1) = b(k)
                    D1, from C2
-                   requires k ∈ ℕ₀: from K
 
           3.10.13. b(k + 1) = a(k) mod b(k)
                    D1, from C2
-                   requires k ∈ ℕ₀: from K
 
           3.10.14. a(k) mod b(k) ∈ ℕ₀
                    mun:mod-natural
@@ -187,8 +182,6 @@ theorem euclid
                    inequalities, from 3.10.25, 3.10.22
                    requires b(k + 1) ∈ ℝ: mun:nat0-real, from 3.10.16
                    requires b(k) ∈ ℝ: mun:nat0-real, from IH
-                   requires k ∈ ℝ: mun:nat0-real, from K
-                   requires N ∈ ℝ: mun:nat0-real, from H2
 
           3.10.27. b(k + 1) + (k + 1) ≤ N or b(k + 1) = 0
                    mun:or-left, from 3.10.26
@@ -200,7 +193,7 @@ theorem euclid
 
 4.  a(N) ∈ ℕ₀ and b(N) ∈ ℕ₀ and gcd(a(N), b(N)) = gcd(M, N)
     and (b(N) + N ≤ N or b(N) = 0)
-    instantiate k := N in line 3, from H2
+    instantiate k := N in line 3
 
 5.  b(N) = 0 or b(N) ≠ 0
     mun:excluded-middle P := b(N) = 0
@@ -222,7 +215,6 @@ theorem euclid
 
     6.3.  not b(N) + N ≤ N
           inequalities, from 6.2, contradicting 6.1
-          requires N ∈ ℝ: mun:nat0-real, from H2
 
 7.  gcd(a(N), 0) = a(N)
     mun:gcd-zero, from 4

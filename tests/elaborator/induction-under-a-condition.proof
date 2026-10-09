@@ -7,7 +7,6 @@ import mundane theorem    stdlib/counting/count-empty-range
 import mundane theorem    stdlib/counting/count-step-holds
 import mundane theorem    stdlib/counting/count-step-fails
 import mundane theorem    stdlib/numbers/nat0-successor
-import mundane theorem    stdlib/numbers/nat0-closure
 import mundane theorem    stdlib/functions/function-value
 import mundane definition stdlib/sums/range
 import mundane definition stdlib/sums/range0
@@ -57,7 +56,6 @@ theorem walk-parity-by-induction
 
           1.1.2.  c(0, y) = |{i ∈ {1, …, 0} : y is incident with e(i)}|
                   D1
-                  requires 0 ∈ ℕ₀: arithmetic
                   requires y ∈ V: from 1.1.1
 
           1.1.3.  |{i ∈ {1, …, 0} : y is incident with e(i)}| = 0
@@ -74,12 +72,10 @@ theorem walk-parity-by-induction
 
           1.1.6.  c(0, y) is even
                   mun:even n := c(0, y), from 1.1.5
-                  requires 0 ∈ ℕ₀: arithmetic
                   requires c(0, y) ∈ ℕ₀: mun:count-nat0 k := 0, from D1, 1.1.1
 
           1.1.7.  c(0, y) is not odd
                   mun:not-both n := c(0, y), from 1.1.6
-                  requires 0 ∈ ℕ₀: arithmetic
                   requires c(0, y) ∈ ℕ₀: mun:count-nat0 k := 0, from D1, 1.1.1
 
           1.1.8.  y ≠ v(0)
@@ -107,30 +103,22 @@ theorem walk-parity-by-induction
 
           1.2.2.  j + 1 ∈ {1, …, n}
                   mun:range k := j + 1, from C2
-                  requires n ∈ ℤ: membership, from H2
-                  requires j + 1 ∈ ℕ: mun:nat0-successor, from K2
+                  requires j + 1 ∈ ℕ: mun:nat0-successor
 
           1.2.3.  j ≤ n
                   inequalities, from C2
-                  requires j ∈ ℝ: membership, from K2
-                  requires n ∈ ℝ: membership, from H2
 
           1.2.4.  j ∈ {0, …, n}
                   mun:range0 k := j, from 1.2.3
-                  requires n ∈ ℕ₀: from H2
-                  requires j ∈ ℕ₀: from K2
 
           1.2.5.  j + 1 ∈ {0, …, n}
                   mun:range0 k := j + 1, from C2
-                  requires n ∈ ℕ₀: from H2
-                  requires j + 1 ∈ ℕ₀: mun:nat0-closure, from K2
 
           1.2.6.  e(j + 1) joins v(j + 1 − 1) and v(j + 1)
-                  mun:walk-step i := j + 1, from H2, H5, 1.2.2
+                  mun:walk-step i := j + 1, from H5, 1.2.2
 
           1.2.7.  j + 1 − 1 = j
                   algebra
-                  requires j ∈ ℝ: membership, from K2
 
           1.2.8.  e(j + 1) joins v(j) and v(j + 1)
                   substitute j + 1 − 1 = j (line 1.2.7) into line 1.2.6
@@ -153,9 +141,9 @@ theorem walk-parity-by-induction
                   1.2.12.1.  v(j) ≠ v(j + 1)
                              mun:join-distinct a := e(j + 1), u := v(j), w := v(j + 1),
                                from 1.2.8
-                             requires e(j + 1) ∈ E: mun:function-value, from H3, 1.2.2
-                             requires v(j) ∈ V: mun:function-value, from H4, 1.2.4
-                             requires v(j + 1) ∈ V: mun:function-value, from H4, 1.2.5
+                             requires e(j + 1) ∈ E: mun:function-value, from 1.2.2
+                             requires v(j) ∈ V: mun:function-value, from 1.2.4
+                             requires v(j + 1) ∈ V: mun:function-value, from 1.2.5
 
                   1.2.12.2.  y ≠ v(j)
                              substitute y = v(j + 1) (C3) into line 1.2.12.1
@@ -165,7 +153,7 @@ theorem walk-parity-by-induction
 
                   1.2.12.4.  c(j, y) is even or c(j, y) is odd
                              mun:even-or-odd n := c(j, y)
-                             requires c(j, y) ∈ ℕ₀: mun:count-nat0 k := j, from D1, K2, 1.2.1
+                             requires c(j, y) ∈ ℕ₀: mun:count-nat0 k := j, from D1, 1.2.1
 
                   1.2.12.5.  c(j, y) is even
                              mun:disjunctive-syllogism, from 1.2.12.4, 1.2.12.3
@@ -173,30 +161,27 @@ theorem walk-parity-by-induction
                   1.2.12.6.  v(j + 1) is incident with e(j + 1)
                              mun:joined-incident a := e(j + 1), u := v(j), w := v(j + 1),
                                from 1.2.8
-                             requires e(j + 1) ∈ E: mun:function-value, from H3, 1.2.2
-                             requires v(j) ∈ V: mun:function-value, from H4, 1.2.4
-                             requires v(j + 1) ∈ V: mun:function-value, from H4, 1.2.5
+                             requires e(j + 1) ∈ E: mun:function-value, from 1.2.2
+                             requires v(j) ∈ V: mun:function-value, from 1.2.4
+                             requires v(j + 1) ∈ V: mun:function-value, from 1.2.5
 
                   1.2.12.7.  y is incident with e(j + 1)
                              substitute y = v(j + 1) (C3) into line 1.2.12.6
 
                   1.2.12.8.  c(j + 1, y) = c(j, y) + 1
-                             mun:count-step-holds k := j, from K2, 1.2.12.7, D1
+                             mun:count-step-holds k := j, from 1.2.12.7, D1
                              requires y ∈ V: from 1.2.1
-                             requires j + 1 ∈ ℕ₀: mun:nat0-closure, from K2
 
                   1.2.12.9.  m ∈ ℤ. c(j, y) = 2m.
                              obtain m: mun:even n := c(j, y), from 1.2.12.5
-                             requires c(j, y) ∈ ℕ₀: mun:count-nat0 k := j, from D1, K2, 1.2.1
+                             requires c(j, y) ∈ ℕ₀: mun:count-nat0 k := j, from D1, 1.2.1
 
                   1.2.12.10. c(j + 1, y) = 2m + 1
                              substitute c(j, y) = 2m (line 1.2.12.9) into line 1.2.12.8
 
                   1.2.12.11. c(j + 1, y) is odd
                              mun:odd n := c(j + 1, y), from 1.2.12.10
-                             requires j + 1 ∈ ℕ₀: mun:nat0-closure, from K2
                              requires c(j + 1, y) ∈ ℕ₀: mun:count-nat0 k := j + 1, from D1, 1.2.1
-                             requires m ∈ ℤ: from 1.2.12.9
 
                   1.2.12.12. c(j + 1, y) is odd ↔ y = v(j + 1)
                              mun:iff-both-true, from 1.2.12.11, C3
@@ -216,31 +201,29 @@ theorem walk-parity-by-induction
                              1.2.12.14.1.  v(j) is incident with e(j + 1)
                                            mun:joined-incident a := e(j + 1), u := v(j), w := v(j + 1),
                                              from 1.2.8
-                                           requires e(j + 1) ∈ E: mun:function-value, from H3, 1.2.2
-                                           requires v(j) ∈ V: mun:function-value, from H4, 1.2.4
-                                           requires v(j + 1) ∈ V: mun:function-value, from H4, 1.2.5
+                                           requires e(j + 1) ∈ E: mun:function-value, from 1.2.2
+                                           requires v(j) ∈ V: mun:function-value, from 1.2.4
+                                           requires v(j + 1) ∈ V: mun:function-value, from 1.2.5
 
                              1.2.12.14.2.  y is incident with e(j + 1)
                                            substitute y = v(j) (C5) into line 1.2.12.14.1
 
                              1.2.12.14.3.  c(j + 1, y) = c(j, y) + 1
-                                           mun:count-step-holds k := j, from K2, 1.2.12.14.2, D1
+                                           mun:count-step-holds k := j, from 1.2.12.14.2, D1
                                            requires y ∈ V: from 1.2.1
-                                           requires j + 1 ∈ ℕ₀: mun:nat0-closure, from K2
 
                              1.2.12.14.4.  c(j, y) is odd
                                            mun:iff-from-right, from 1.2.10, C5
 
                              1.2.12.14.5.  m ∈ ℤ. c(j, y) = 2m + 1.
                                            obtain m: mun:odd n := c(j, y), from 1.2.12.14.4
-                                           requires c(j, y) ∈ ℕ₀: mun:count-nat0 k := j, from D1, K2, 1.2.1
+                                           requires c(j, y) ∈ ℕ₀: mun:count-nat0 k := j, from D1, 1.2.1
 
                              1.2.12.14.6.  c(j + 1, y) = (2m + 1) + 1
                                            substitute c(j, y) = 2m + 1 (line 1.2.12.14.5) into line 1.2.12.14.3
 
                              1.2.12.14.7.  (2m + 1) + 1 = 2(m + 1)
                                            algebra
-                                           requires m ∈ ℝ: membership, from 1.2.12.14.5
 
                              1.2.12.14.8.  c(j + 1, y) = 2(m + 1)
                                            calculation
@@ -249,9 +232,7 @@ theorem walk-parity-by-induction
 
                              1.2.12.14.9.  c(j + 1, y) is even
                                            mun:even n := c(j + 1, y), from 1.2.12.14.8
-                                           requires j + 1 ∈ ℕ₀: mun:nat0-closure, from K2
                                            requires c(j + 1, y) ∈ ℕ₀: mun:count-nat0 k := j + 1, from D1, 1.2.1
-                                           requires m + 1 ∈ ℤ: membership, from 1.2.12.14.5
 
                              case
                              assume y ≠ v(j)                          (C6)
@@ -259,22 +240,21 @@ theorem walk-parity-by-induction
                              1.2.12.14.10. y is not incident with e(j + 1)
                                            mun:not-incident a := e(j + 1), u := v(j), w := v(j + 1),
                                              from 1.2.8, C6, C4
-                                           requires e(j + 1) ∈ E: mun:function-value, from H3, 1.2.2
-                                           requires v(j) ∈ V: mun:function-value, from H4, 1.2.4
-                                           requires v(j + 1) ∈ V: mun:function-value, from H4, 1.2.5
+                                           requires e(j + 1) ∈ E: mun:function-value, from 1.2.2
+                                           requires v(j) ∈ V: mun:function-value, from 1.2.4
+                                           requires v(j + 1) ∈ V: mun:function-value, from 1.2.5
                                            requires y ∈ V: from 1.2.1
 
                              1.2.12.14.11. c(j + 1, y) = c(j, y)
-                                           mun:count-step-fails k := j, from K2, 1.2.12.14.10, D1
+                                           mun:count-step-fails k := j, from 1.2.12.14.10, D1
                                            requires y ∈ V: from 1.2.1
-                                           requires j + 1 ∈ ℕ₀: mun:nat0-closure, from K2
 
                              1.2.12.14.12. c(j, y) is not odd
                                            mun:iff-not-from-right, from 1.2.10, C6
 
                              1.2.12.14.13. c(j, y) is even or c(j, y) is odd
                                            mun:even-or-odd n := c(j, y)
-                                           requires c(j, y) ∈ ℕ₀: mun:count-nat0 k := j, from D1, K2, 1.2.1
+                                           requires c(j, y) ∈ ℕ₀: mun:count-nat0 k := j, from D1, 1.2.1
 
                              1.2.12.14.14. c(j, y) is even
                                            mun:disjunctive-syllogism, from 1.2.12.14.13, 1.2.12.14.12
@@ -284,14 +264,13 @@ theorem walk-parity-by-induction
 
                   1.2.12.15. c(j + 1, y) is not odd
                              mun:not-both n := c(j + 1, y), from 1.2.12.14
-                             requires j + 1 ∈ ℕ₀: mun:nat0-closure, from K2
                              requires c(j + 1, y) ∈ ℕ₀: mun:count-nat0 k := j + 1, from D1, 1.2.1
 
                   1.2.12.16. c(j + 1, y) is odd ↔ y = v(j + 1)
                              mun:iff-both-false, from 1.2.12.15, C4
 
 2.  k ∈ ℕ₀. k ≤ n.
-    mun:range0, from H2, H6
+    mun:range0, from H6
 
 3.  For all y ∈ V ∖ {v(0)}, c(k, y) is odd ↔ y = v(k).
     instantiate j := k in line 1, from 2

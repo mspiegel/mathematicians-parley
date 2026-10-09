@@ -40,7 +40,7 @@ listed in the checker instead.
   `1.1`, `17.25.5.10`.
 - `<ref>` is a `<number>` or a `<label>`.
 - `<name>` is `[A-Za-z][A-Za-z0-9-]*`, as in `least-upper-bound` and
-  `nat0-closure`. Every item's name is lowercase words joined by hyphens; the
+  `nat0-successor`. Every item's name is lowercase words joined by hyphens; the
   capital is there for the name a `define` gives a function, `S` in
   `define S(m) := …`.
 - `<module>` is `<name> { / <name> }`, a file's path from the root of the
@@ -187,10 +187,10 @@ wrongly between two notations, and where two compete and the sort is unknown
 the formula is ambiguous and the parser refuses. It reads correctly or stops.
 
 What gets past parsing is unambiguous but wrongly sorted text, and elaboration
-catches most of it. A step writing `s ≤ b` with `s` not a number still needs
-`requires s ∈ ℝ`, because the membership rule makes every atom of an
-`inequalities` step a written dull fact, and that requires line cannot be
-discharged. The verbosity that rule costs is doing double duty here.
+catches most of it. A step writing `s ≤ b` with `s` not a number needs s to be
+real, because every atom of an `inequalities` step must be: no line
+introduces s into a number system, so the page does not say it once, and a
+`requires s ∈ ℝ` line cannot be discharged either.
 
 The residue is not unsound and mostly not wrong. If `s ⊆ X` slips through with
 `s` a number, that is a meaningful statement in ZF and may be true, since 2
@@ -199,7 +199,7 @@ presented as a number, which the kernel does not share and has no reason to.
 
 So the stages catch different things: parsing catches ambiguity and any sort
 that is known and wrong, elaboration catches the rest through the membership
-dull facts, and the kernel guarantees soundness regardless because it works with
+every number needs, and the kernel guarantees soundness regardless because it works with
 classes. Nothing unsound reaches the archive. What is lost is that a proof can
 break our own presentation convention and be found out late rather than early.
 
@@ -688,9 +688,9 @@ not say it again:
 | `axiom completeness` | `obtain c: axi:completeness S := S, from 5, 2, 7` |
 | `mundane axiom trichotomy` | `mun:trichotomy x := f(c), from H4, 13` |
 | `theorem prime-factor` | `obtain p: thm:prime-factor m := n! + 1, from 2` |
-| `mundane theorem int-closure` | `requires n² ∈ ℤ: mun:int-closure, from H1` |
-| `definition C` | `def:C n := m, k := m + 1, from H3, 5` |
-| `mundane definition gcd` | `mun:gcd a := a, b := b, from H1, H2` |
+| `mundane theorem int-closure` | `requires 10^k − 1 ∈ ℤ: mun:int-closure` |
+| `definition C` | `def:C n := m, k := m + 1, from 5` |
+| `mundane definition gcd` | `mun:gcd a := a, b := b` |
 
 The prefix stays because it says on the line whether a reader needs to see
 the step, which is what a viewer collapses by, and because it keeps an item's

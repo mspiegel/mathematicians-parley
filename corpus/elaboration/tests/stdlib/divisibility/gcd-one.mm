@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.divisibility.gcd-one $p |- ( A e. ZZ -> ( A gcd 1 ) = 1 ) $=
-    ( gcd1 ) AB $.
+    ( cz wcel c1 cgcd co wceq id gcd1 syl ) ABCZKADEFDGKHAIJ $.
 $}

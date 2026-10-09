@@ -81,12 +81,6 @@ mundane theorem real-closure
               intermediate value pilot stated both. Merged to both, which is the
               shape of int-closure and nat-closure. Neither proof changes.
 
-mundane theorem half-real
-  let x ∈ ℝ                                                           (H1)
-  then        x/2 ∈ ℝ
-  metamath    rehalfcl
-  target      rehalfcl
-
 mundane theorem half-positive
   let x ∈ ℝ                                                           (H1)
   assume x > 0                                                        (H2)
@@ -97,12 +91,6 @@ mundane theorem half-positive
               builds x/2 > 0 from x > 0 by taking the claim twice over, and
               the intermediate value and triangular reciprocals proofs use the
               method.
-
-mundane theorem nat0-closure
-  let k ∈ ℕ₀                                                          (H1)
-  then        k + 1 ∈ ℕ₀
-  metamath    peano2nn0
-  target      peano2nn0
 
 mundane theorem nat0-successor
   let k ∈ ℕ₀                                                          (H1)
@@ -406,8 +394,8 @@ mundane theorem quotient-real
   metamath    redivcl
   target      redivcl
   note        No proof cites it: the method `membership` builds a quotient's
-              membership from its parts. `half-real` is the case y = 2, which
-              needs no hypothesis on y.
+              membership from its parts, and a quotient of letters and
+              numerals is said once (`READERS.md`).
 
 mundane theorem square-nonneg
   let x ∈ ℝ                                                           (H1)

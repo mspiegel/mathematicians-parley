@@ -6,8 +6,11 @@ use std::rc::Rc;
 use indexmap::IndexMap;
 
 use super::structure::{labels_in_scope, Declared};
-use crate::citing::{claimed_member, finished, with_parts, Library, Parts};
-use crate::corpus::{Step, StepNo, Theorem};
+use crate::citing::{
+    claimed_member, finished, introduction, said_once, with_parts, Introduced, Library,
+    Parts,
+};
+use crate::corpus::{Intro, Method, Step, StepNo, Theorem};
 use crate::formula::{parse_here, Node, Sorts};
 use crate::matching::{
     alike, expand, instantiation, standard, Binding, Context, Definitions,
@@ -16,7 +19,7 @@ use crate::sorts::{
     cited_defines, file_definitions, said_by_line, sentences, supplied_by, Env,
 };
 
-type PartsKey = (StepNo, Vec<String>, Vec<String>);
+type PartsKey = (StepNo, String, String, Vec<String>, Vec<String>);
 
 /// Every line a step's citation may name, by the reference that names it.
 pub type Statements = IndexMap<String, String>;
@@ -30,7 +33,8 @@ pub type Statements = IndexMap<String, String>;
 /// them changes them.
 ///
 /// What a step's citation supplies is kept by what it depends on — the
-/// step, the lines it names and its requires lines — so that a step with a
+/// step, its claim and reason, the lines it names and its requires lines —
+/// so that a step with a
 /// line taken away, as `check_surplus` asks about, is read afresh.
 pub struct Known<'a> {
     pub thm: &'a Theorem,
@@ -157,8 +161,12 @@ impl<'a> Known<'a> {
 
     /// What a step's justification supplies and claims.
     pub fn parts(&self, step: &Step, library: &Library) -> Rc<Parts> {
+        // A requires line read as a step has its step's number and its own
+        // claim and reason, so those are part of what the parts depend on.
         let key = (
             step.number.clone(),
+            step.claim_text(),
+            step.just.text.clone(),
             step.just.refs.clone(),
             step.requires.iter().map(|r| r.fact.clone()).collect(),
         );
@@ -232,14 +240,54 @@ fn citation_parts(step: &Step, library: &Library, known: &Known) -> Parts {
             seed.insert(name, got);
         }
     }
-    match at_a_member(step, &claims, library, &known.sorts) {
+    let mut parts = match at_a_member(step, &claims, library, &known.sorts) {
         Some((member, body)) => {
             let mut facts = facts;
             facts.push(member);
             finished(facts, vec![body], seed, library, &known.sorts)
         }
         None => finished(facts, claims, seed, library, &known.sorts),
+    };
+    said_once(&mut parts, &introduced(known, step), library, &known.sorts);
+    parts
+}
+
+/// The number system each letter in scope at `step` was introduced in, by
+/// the line introducing it: a `let` of the theorem or of a block around the
+/// step, or an `obtain` above it in a block around it, whose claim states
+/// each name's membership (`SYNTAX.md`). A later introduction of a letter
+/// stands over an earlier one.
+pub fn introduced(known: &Known, step: &Step) -> Introduced {
+    // What each introducing line says, by the line it is on.
+    let mut said: Vec<(usize, Vec<String>)> = known
+        .thm
+        .hypotheses
+        .iter()
+        .filter(|h| h.kind == Intro::Let)
+        .map(|h| (h.line, vec![said_by_line(h.kind, &h.text)]))
+        .collect();
+    let visible = labels_in_scope(known.thm, step, known.env.scopes);
+    for other in &known.thm.steps {
+        for o in &other.openers {
+            if o.kind == Intro::Let
+                && visible.get(&o.label) == Some(&Declared::Block(o.line))
+            {
+                said.push((o.line, vec![said_by_line(o.kind, &o.text)]));
+            }
+        }
+        let around = step.number.0.starts_with(&other.number.parent().0);
+        if other.just.head.is(Method::Obtain) && other.line < step.line && around {
+            said.push((other.line, sentences(&other.claim_text())));
+        }
     }
+    said.sort_by_key(|(line, _)| *line);
+    let mut out = Introduced::new();
+    for sentence in said.iter().flat_map(|(_, s)| s) {
+        if let Some((letter, system)) = introduction(sentence) {
+            out.insert(letter, system);
+        }
+    }
+    out
 }
 
 /// A claim "for all k ∈ X, P" read at a member: the membership k ∈ X, which

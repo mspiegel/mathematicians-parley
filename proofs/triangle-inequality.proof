@@ -1,7 +1,6 @@
 import mundane definition stdlib/numbers/abs
 import mundane theorem    stdlib/numbers/abs-real
 import mundane theorem    stdlib/numbers/nonneg-or-neg
-import mundane theorem    stdlib/numbers/real-closure
 
 theorem abs-bounds
   metamath    leabs, absneg
@@ -9,7 +8,7 @@ theorem abs-bounds
   then x ≤ |x|. −x ≤ |x|.
 
 1.  x ≥ 0 or x < 0
-    mun:nonneg-or-neg x := x, from H1
+    mun:nonneg-or-neg x := x
 
 2.  x ≤ |x|. −x ≤ |x|.
     cases, from 1
@@ -18,17 +17,15 @@ theorem abs-bounds
     assume x ≥ 0                                                      (C1)
 
     2.1.  |x| = x
-          mun:abs x := x, from H1, C1
+          mun:abs x := x, from C1
 
     2.2.  x ≤ |x|
           inequalities, from 2.1
-          requires x ∈ ℝ: from H1
-          requires |x| ∈ ℝ: mun:abs-real, from H1
+          requires |x| ∈ ℝ: mun:abs-real
 
     2.3.  −x ≤ |x|
           inequalities, from 2.1, C1
-          requires x ∈ ℝ: from H1
-          requires |x| ∈ ℝ: mun:abs-real, from H1
+          requires |x| ∈ ℝ: mun:abs-real
 
     2.4.  x ≤ |x|. −x ≤ |x|.
           join 2.2, 2.3
@@ -37,17 +34,15 @@ theorem abs-bounds
     assume x < 0                                                      (C2)
 
     2.5.  |x| = −x
-          mun:abs x := x, from H1, C2
+          mun:abs x := x, from C2
 
     2.6.  −x ≤ |x|
           inequalities, from 2.5
-          requires x ∈ ℝ: from H1
-          requires |x| ∈ ℝ: mun:abs-real, from H1
+          requires |x| ∈ ℝ: mun:abs-real
 
     2.7.  x ≤ |x|
           inequalities, from 2.5, C2
-          requires x ∈ ℝ: from H1
-          requires |x| ∈ ℝ: mun:abs-real, from H1
+          requires |x| ∈ ℝ: mun:abs-real
 
     2.8.  x ≤ |x|. −x ≤ |x|.
           join 2.6, 2.7
@@ -61,13 +56,12 @@ theorem triangle-inequality
 
 1.  a + b ≥ 0 or a + b < 0
     mun:nonneg-or-neg x := a + b
-    requires a + b ∈ ℝ: mun:real-closure, from H1, H2
 
 2.  a ≤ |a|. −a ≤ |a|.
-    thm:abs-bounds x := a, from H1
+    thm:abs-bounds x := a
 
 3.  b ≤ |b|. −b ≤ |b|.
-    thm:abs-bounds x := b, from H2
+    thm:abs-bounds x := b
 
 4.  |a + b| ≤ |a| + |b|
     cases, from 1
@@ -77,14 +71,11 @@ theorem triangle-inequality
 
     4.1.  |a + b| = a + b
           mun:abs x := a + b, from C1
-          requires a + b ∈ ℝ: mun:real-closure, from H1, H2
 
     4.2.  a + b ≤ |a| + |b|
           inequalities, from 2, 3
-          requires a ∈ ℝ: from H1
-          requires b ∈ ℝ: from H2
-          requires |a| ∈ ℝ: mun:abs-real x := a, from H1
-          requires |b| ∈ ℝ: mun:abs-real x := b, from H2
+          requires |a| ∈ ℝ: mun:abs-real x := a
+          requires |b| ∈ ℝ: mun:abs-real x := b
 
     4.3.  |a + b| ≤ |a| + |b|
           calculation
@@ -96,19 +87,14 @@ theorem triangle-inequality
 
     4.4.  |a + b| = −(a + b)
           mun:abs x := a + b, from C2
-          requires a + b ∈ ℝ: mun:real-closure, from H1, H2
 
     4.5.  −(a + b) = −a + −b
           algebra
-          requires a ∈ ℝ: from H1
-          requires b ∈ ℝ: from H2
 
     4.6.  −a + −b ≤ |a| + |b|
           inequalities, from 2, 3
-          requires a ∈ ℝ: from H1
-          requires b ∈ ℝ: from H2
-          requires |a| ∈ ℝ: mun:abs-real x := a, from H1
-          requires |b| ∈ ℝ: mun:abs-real x := b, from H2
+          requires |a| ∈ ℝ: mun:abs-real x := a
+          requires |b| ∈ ℝ: mun:abs-real x := b
 
     4.7.  |a + b| ≤ |a| + |b|
           calculation

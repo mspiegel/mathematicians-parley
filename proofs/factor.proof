@@ -9,24 +9,22 @@ theorem factor
   then there is a polynomial q with p(x) = (x − a)·q(x) for all x ∈ ℂ
 
 1.  q is a polynomial. p(x) = (x − a)·q(x) + p(a) for all x ∈ ℂ.
-    obtain q: thm:remainder p := p, a := a, from H1, H2
+    obtain q: thm:remainder p := p, a := a, from H1
 
 2.  For all x ∈ ℂ, p(x) = (x − a)·q(x).
     proof
     let x ∈ ℂ                                                         (K1)
 
     2.1.  p(x) = (x − a)·q(x) + p(a)
-          instantiate x := x in line 1, from K1
+          instantiate x := x in line 1
 
     2.2.  p(x) = (x − a)·q(x) + 0
           substitute p(a) = 0 (H3) into line 2.1
 
     2.3.  p(x) = (x − a)·q(x)
           algebra, from 2.2
-          requires x ∈ ℂ: from K1
-          requires a ∈ ℂ: from H2
-          requires q(x) ∈ ℂ: mun:polynomial-value p := q, x := x, from 1, K1
-          requires p(x) ∈ ℂ: mun:polynomial-value p := p, x := x, from H1, K1
+          requires q(x) ∈ ℂ: mun:polynomial-value p := q, x := x, from 1
+          requires p(x) ∈ ℂ: mun:polynomial-value p := p, x := x, from H1
 
 3.  There is a polynomial q with p(x) = (x − a)·q(x) for all x ∈ ℂ.
     exhibit, from 1, 2

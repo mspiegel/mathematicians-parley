@@ -105,9 +105,10 @@ sentence that has this shape and is ignored for the rest, so citing a line that
 also states a membership or a quantified sentence is not an error.
 
 A membership supplies the bounds it implies (`SYNTAX.md`): a line saying
-k ∈ ℕ supplies k ≥ 1 and k ≠ 0, and one saying k ∈ ℕ₀ supplies k ≥ 0. It
-also discharges the hypothesis that k is real. So `requires k ≠ 0:
-inequalities, from K1` needs nothing but `let k ∈ ℕ (K1)`. A membership that
+k ∈ ℕ supplies k ≥ 1 and k ≠ 0, and one saying k ∈ ℕ₀ supplies k ≥ 0. So
+`requires k ≠ 0: inequalities, from K1` needs nothing but `let k ∈ ℕ (K1)`.
+That k is real the step neither cites nor writes: it is said once, where k
+is introduced (`SYNTAX.md`, a membership is said once). A membership that
 is one part of a cited line discharges it as a line of its own would: a line
 saying `a(k) ∈ ℝ and b(k) ∈ ℝ and a(k) < b(k)` says a(k) and b(k) are real.
 
@@ -159,49 +160,36 @@ atoms, with three additions:
 ### Hypotheses
 
 Every atom must be a real number. This is a hypothesis of the method exactly as
-`q ≠ 0` is a hypothesis of a division, so by the dull-fact rule of `READERS.md`
-it is discharged by a cited line or written as a requires line.
+`q ≠ 0` is a hypothesis of a division. Where the atom is a numeral, a letter,
+or built from those by +, −, ·, a power to a numeral and /, the page says it
+once, where the letters are introduced (`READERS.md`), and the step writes
+nothing; any other atom, a function's value or a sum, is discharged by a
+cited line or written as a requires line.
 
 A reciprocal atom brings its divisor's hypothesis with it: `1/(n + 1)` is a
-real number when `n + 1` is one and is not zero, and both are the page's to
-write. Its membership is then built from those as a sum's is from its
-parts', and no line says that `1/(n + 1)` is real. A divisor that is a numeral
-other than zero needs no line: that 2 is not zero is a closed numeral fact,
-so `δ/2` is real because `δ` is.
+real number when `n + 1` is one and is not zero. That `n + 1` is real is said
+once, with n; that it is not zero is the page's to write. A divisor that is a
+numeral other than zero needs no line: that 2 is not zero is a closed numeral
+fact, so `δ/2` is real because `δ` is.
 
 An atom is one of the claim or of the facts the step combines — not of every
 sentence a cited line says. Line 1 of `least-combination-divides` says
 `0 ≤ r` and `r < d` among five things, and step 3.1's `requires 0 < r:
 inequalities, from 1, S` takes `0 < r` from the first of them and the
 supposition `r ≠ 0`; d is in none of what it combines,
-so `d ∈ ℝ` is not one of its hypotheses and is not written. A dull fact is one
-that discharges a hypothesis, and one that discharges nothing is a line doing
-no work. `READERS.md`
-already names this kind of fact, "that a product of integers is an integer",
-among its examples of dull facts.
+so `d ∈ ℝ` is not one of its hypotheses. A dull fact is one that discharges a
+hypothesis, and one that discharges nothing is a line doing no work.
 
-The corpus complies. Writing the specification showed that many steps could not
-have stated their hypotheses at all, because the facts had no item behind them:
-nothing said the absolute value of a real number is real, nothing carried an
-integer, a natural or a natural-with-zero into the reals, and nothing said a
-power is real. `mun:stdlib/numbers/abs-real`, `mun:stdlib/numbers/int-real`, `mun:stdlib/numbers/nat-real`,
-`mun:stdlib/numbers/nat0-real` and `mun:stdlib/numbers/power-real` were added for that, and the sweep then
-wrote 97 membership lines across the 42 steps citing this method or `algebra`.
-
-Two shapes are worth knowing. Most are a bare citation of a fact already on the
-page, as step 16.7 of the intermediate value proof is with `requires c ∈ ℝ:
-from 8`. The heaviest is step 2 of the Bezout lemma, which has ten atoms and so
-carries ten.
-
-Every natural bridge is direct rather than through ℤ, for a reason the rule
-forces: a requires line carries one citation, so a two-step chain would make
-every natural atom need a numbered step of its own.
+The memberships a step still writes are those the page does not say once:
+the absolute value of a real number (`mun:stdlib/numbers/abs-real`), a power to
+a letter (`mun:stdlib/numbers/power-real`), a function's value from its type, a
+finite sum from its terms. Every natural bridge is direct rather than through
+ℤ, for a reason the rule forces: a requires line carries one citation, so a
+two-step chain would make every natural atom need a numbered step of its own.
 
 This is the answer to the "Not settled" item in `SYNTAX.md` about whether
-`algebra` and `inequalities` carry their membership hypotheses. They do. If
-forty lines is judged too high a price, the thing to change is the dull-fact
-rule in `READERS.md`, not this method, because the same argument would exempt
-every other dull fact in the corpus.
+`algebra` and `inequalities` carry their membership hypotheses. They do, and
+`READERS.md` says where each is said.
 
 ### Boundary with substitute
 
@@ -368,14 +356,13 @@ fact about the field rather than an identity.
 
 ### Hypotheses
 
-Two kinds, and the corpus is complete on one and silent on the other.
+Two kinds.
 
-Every denominator is nonzero. Five steps divide, and all five write the
-condition as a requires line. This was the last of the three disagreements
-reconciled, and it now holds throughout.
+Every denominator is nonzero, unless it is a numeral other than zero, and a
+step that divides writes the condition or cites a line saying it.
 
-Every atom is a real number, as for `inequalities`, and none of the seventeen
-steps says so.
+Every atom is a real number, as for `inequalities`: said once where the atom
+is a numeral, a letter or built from them, and otherwise written.
 
 ### Expansion
 
@@ -417,19 +404,25 @@ into every line.
 `arithmetic` decides **closed numeral facts**. No step of the corpus is
 justified by it: a fact with no letter in it gives a reader nothing to check
 but working it out, so it names `arithmetic` where it is used rather than
-standing as a step of its own (`SYNTAX.md`). It justifies a requires line,
-which makes it the most common terminator of a dull fact in the corpus; it is
+standing as a step of its own (`SYNTAX.md`). It justifies a requires line; it is
 the source of a `substitute`, `substitute 0 + 1 = 1 (arithmetic)`; and it is
 the reason on a chain line of numerals alone, `= 1(1 + 1)/2    arithmetic`.
 In each place the same procedure and the same refusals apply, and the
 checker refuses the method for a fact with a letter in it.
 
-| what the claim is | uses |
+The requires lines of the corpus that cite it, counted 2026-10-09:
+
+| what the claim is | requires lines |
 |---|---|
-| membership of a numeral in a number system | 13 |
-| a value, as 1 = 1(1 + 1)/2 | 3 |
+| membership of a closed term in a number system | 1 |
+| a value, as 9 = 3·3 | 2 |
 | an order relation, as 2 ≥ 0 | 3 |
-| a disequality, as 2 ≠ 0 | 2 |
+| a disequality, as 2 ≠ 0 | 4 |
+
+A numeral's membership is not written at all (`READERS.md`, said once); the
+one membership left is of a product over a range, ∏(k ∈ {0, …, 22}) (365 − k),
+which is closed but not built from numerals by the operations the page says
+once.
 
 ### Facts in
 
@@ -483,8 +476,7 @@ states it.
 
 None, and that is the point of it. Requires lines do not nest, so whatever
 justifies one must need nothing further. `arithmetic` is where that recursion
-stops, which is why thirteen of its twenty-one uses are memberships discharging
-somebody else's hypothesis.
+stops.
 
 ### Boundary with algebra and inequalities
 
@@ -544,7 +536,10 @@ is worked as exactly as a digit.
 system because its parts are. The method states as a step's claim what `algebra` and
 `inequalities` already work out for every atom they touch, and it exists so
 that a dull fact of this kind is one line rather than a climb up the term one
-library item at a time.
+library item at a time. A term built from numerals and letters by +, −, ·, a
+power to a numeral and / needs no line at all, since the page says it once
+(`SYNTAX.md`); the method is for a term with a defined name, a function's
+value, a sum, a remainder or a binomial coefficient in it.
 
 ### Facts in
 
@@ -589,7 +584,8 @@ The term is walked by the operation at its head, as `algebra` walks it:
   starts at 1, by the table of `SYNTAX.md`, so Σ(k = 1 to n) 1/T(k) ∈ ℝ asks
   the page for nothing;
 - anything else is an atom, and its membership is a line the step cites or
-  writes, carried to S by at most one lemma (`nnre`, `zcn` and the rest), or
+  writes, or for a letter the line introducing it, carried to S by at most one
+  lemma (`nnre`, `zcn` and the rest), or
   a cited equation with the atom on one side, the other side's membership
   read the same way and carried across by `eqeltrd`.
 
@@ -863,9 +859,9 @@ each is the only way to prove its kind of claim.
 
 ## What specifying both larger methods cost the corpus
 
-`READERS.md` settles that membership in a number system is a written dull fact
-and merits no exception. Applying that to both methods is the largest single
-change the corpus has taken.
+`READERS.md` first settled that membership in a number system is a written
+dull fact and merits no exception. Applying that to both methods was then the
+largest single change the corpus had taken.
 
 | | |
 |---|---|
@@ -884,3 +880,27 @@ steps instead. The geometric series now states `k + 1 ∈ ℕ₀` as a step, sin
 `mun:stdlib/numbers/power-real` needs it and it had only ever been a requires line. The
 intermediate value proof now states `b ∈ [a, b]` and then `f(b) ∈ ℝ`, neither
 of which the proof had ever established, although it used `f(b)` freely.
+
+### Membership said once
+
+The corpus grew to 1,195 requires lines in its 31 proofs, 990 of them a
+membership in a number system and 157 of those a numeral's, eleven on one
+step. `READERS.md` now has the membership of a numeral, of a letter and of a
+term built from them by +, −, ·, a power to a numeral and / said once, where
+the letter is introduced, and the two tools build it (`ELABORATION.md`, a
+membership said once). Counted 2026-10-09:
+
+| | before | after |
+|---|---|---|
+| requires lines in the 31 proofs | 1,195 | 603 |
+| of them a membership in a number system | 990 | 398 |
+| of them a numeral's | 157 | 0 |
+| most membership lines on one step | 11 | 8 |
+| requires lines in the corpus and its tests, all needed (`parley gate`) | — | 631 |
+
+Two library items no proof needed once, `half-real` and `nat0-closure`, were
+removed.
+
+The memberships still written are those the page does not say once: a power
+to a letter (`2^p − 1 ∈ ℤ`), a function's value, a distance or an angle in
+the geometry proofs, a sum, |x|, a remainder, C(n, k) and a defined name.

@@ -25,11 +25,9 @@ theorem derivative-on-the-line
 
 3.  g is differentiable on ℝ
     thm:derivative-linear D := ℝ, U := ℝ, m := 3, g := g, from 1, 2, H4
-    requires 3 ∈ ℝ: arithmetic
 
 4.  For all x ∈ ℝ, g′(x) = 3.
     thm:derivative-linear D := ℝ, U := ℝ, m := 3, g := g, from 1, 2, H4
-    requires 3 ∈ ℝ: arithmetic
 
 5.  For all x ∈ ℝ, F′(x) = f′(x) + g′(x).
     thm:derivative-sum D := ℝ, U := ℝ, F := F, f := f, g := g, from 1, H6, H2, 3
@@ -39,10 +37,10 @@ theorem derivative-on-the-line
     let x ∈ ℝ                                                         (K1)
 
     6.1.  F′(x) = f′(x) + g′(x)
-          instantiate x := x in line 5, from K1
+          instantiate x := x in line 5
 
     6.2.  g′(x) = 3
-          instantiate x := x in line 4, from K1
+          instantiate x := x in line 4
 
     6.3.  F′(x) = f′(x) + 3
           substitute g′(x) = 3 (line 6.2) into line 6.1
@@ -64,11 +62,9 @@ theorem derivative-of-a-difference
 
 3.  g is differentiable on ℝ
     thm:derivative-linear D := ℝ, U := ℝ, m := 3, g := g, from 1, 2, H4
-    requires 3 ∈ ℝ: arithmetic
 
 4.  For all x ∈ ℝ, g′(x) = 3.
     thm:derivative-linear D := ℝ, U := ℝ, m := 3, g := g, from 1, 2, H4
-    requires 3 ∈ ℝ: arithmetic
 
 5.  For all x ∈ ℝ, F′(x) = f′(x) − g′(x).
     thm:derivative-difference D := ℝ, U := ℝ, F := F, f := f, g := g, from 1, H6, H2, 3
@@ -78,10 +74,10 @@ theorem derivative-of-a-difference
     let x ∈ ℝ                                                         (K1)
 
     6.1.  F′(x) = f′(x) − g′(x)
-          instantiate x := x in line 5, from K1
+          instantiate x := x in line 5
 
     6.2.  g′(x) = 3
-          instantiate x := x in line 4, from K1
+          instantiate x := x in line 4
 
     6.3.  F′(x) = f′(x) − 3
           substitute g′(x) = 3 (line 6.2) into line 6.1
@@ -100,7 +96,7 @@ theorem area-under-other-letters
   then for all y ∈ (c, d), H′(y) = g(y)
 
 1.  For all y ∈ (c, d), H′(y) = g(y).
-    thm:area-function a := c, b := d, f := g, G := H, from H1, H2, H3, H5, H7
+    thm:area-function a := c, b := d, f := g, G := H, from H3, H5, H7
 
 theorem area-is-continuous
   let c ∈ ℝ                                                           (H1)
@@ -113,7 +109,7 @@ theorem area-is-continuous
   then H is continuous on [c, d]
 
 1.  H is continuous on [c, d]
-    thm:area-function a := c, b := d, f := g, G := H, from H1, H2, H3, H5, H7
+    thm:area-function a := c, b := d, f := g, G := H, from H3, H5, H7
 
 theorem integral-is-real
   let c ∈ ℝ                                                           (H1)
@@ -125,7 +121,7 @@ theorem integral-is-real
   then ∫(c to y) g(s) ds ∈ ℝ
 
 1.  ∫(c to y) g(s) ds ∈ ℝ
-    mun:integral-real a := c, b := d, f := g, x := y, from H1, H2, H3, H5, H6
+    mun:integral-real a := c, b := d, f := g, x := y, from H3, H5, H6
 
 theorem continuous-of-a-difference
   let f : ℝ → ℝ                                                       (H1)
@@ -148,4 +144,4 @@ theorem integral-over-a-point
   then ∫(c to c) g(s) ds = 0
 
 1.  ∫(c to c) g(s) ds = 0
-    mun:integral-point a := c, f := g, from H1
+    mun:integral-point a := c, f := g

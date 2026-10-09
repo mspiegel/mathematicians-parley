@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.divisibility.gcd-zero $p |- ( A e. NN0 -> ( A gcd 0 ) = A ) $=
-    ( nn0gcdid0 ) AB $.
+    ( cn0 wcel cc0 cgcd co wceq id nn0gcdid0 syl ) ABCZKADEFAGKHAIJ $.
 $}

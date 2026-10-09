@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.numbers.abs-square $p |- ( A e. RR -> ( ( abs ` A ) ^ 2 ) = ( A ^ 2 ) ) $=
-    ( absresq ) AB $.
+    ( cr wcel cabs cfv c2 cexp co wceq id absresq syl ) ABCZMADEFGHAFGHIMJAKL $.
 $}

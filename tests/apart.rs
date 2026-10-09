@@ -47,6 +47,11 @@ const PLAIN: &[(&str, &str, &str)] = &[
         ".map(|t| substitute(&template(t, env, &local), &put))",
         "each template says one thing of x and binds nothing",
     ),
+    (
+        "src/citing/once.rs",
+        "Some(standard(&substitute(&made, &put), ctx))",
+        "`x ∈ ℝ` and `x ≠ 0` say one thing of x and bind nothing",
+    ),
 ];
 
 /// Where the elaborator reads a citation's values, which is one place.

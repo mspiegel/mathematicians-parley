@@ -209,6 +209,11 @@ pub struct Elaborator<'a> {
     pub names: IndexMap<String, String>,
     /// Readable name -> the set it was let into.
     pub sets: IndexMap<String, String>,
+    /// Readable name -> its membership as each line introducing it says it:
+    /// the claim, its proof, and the scope that proof is under, carried to
+    /// any scope inside that one (`introduced_membership`). Two cases may
+    /// each obtain a δ, so a name may be introduced more than once.
+    pub introduced: IndexMap<String, Vec<(String, Proof, String)>>,
     /// Setvars the conclusion quantifies over, and those a step said of
     /// every member was proved over: none is a letter nothing holds.
     pub reserved: IndexSet<String>,
@@ -272,6 +277,10 @@ pub struct Elaborator<'a> {
     pub answers: Option<Vec<String>>,
     /// What the proof being built may rest on.
     pub resting: Option<BTreeSet<String>>,
+    /// How many searches for a divisor's `≠ 0` enclose this point. That a
+    /// divisor is not zero is the page's to say, so no membership said once
+    /// is offered on the way to it (`introduced_membership`, `not_zero`).
+    pub beyond_once: u32,
     /// By step line, what its method combined.
     pub combined: IndexMap<usize, IndexSet<String>>,
     /// Labels of sort lines and `define` lines.
@@ -385,6 +394,7 @@ impl<'a> Elaborator<'a> {
             at: thm.line,
             names: IndexMap::new(),
             sets: IndexMap::new(),
+            introduced: IndexMap::new(),
             reserved: IndexSet::new(),
             rules_read: IndexMap::new(),
             supplying: IndexSet::new(),
@@ -407,6 +417,7 @@ impl<'a> Elaborator<'a> {
             said_back: None,
             answers: None,
             resting: None,
+            beyond_once: 0,
             combined: IndexMap::new(),
             sorts: BTreeSet::new(),
             written: Written::new(),

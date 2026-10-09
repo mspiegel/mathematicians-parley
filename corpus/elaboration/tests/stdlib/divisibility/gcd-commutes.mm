@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.divisibility.gcd-commutes $p |- ( ( A e. ZZ /\ B e. ZZ ) -> ( A gcd B ) = ( B gcd A ) ) $=
-    ( gcdcom ) ABC $.
+    ( cz wcel wa cgcd co wceq simpl id syl simpr jca gcdcom ) ACDZBCDZEZQABFGBAFGHQOPQOOOPIOJKOPLMABNK $.
 $}
