@@ -31,7 +31,7 @@ use parley::elab::elaborate::Options;
 use parley::elab::Library;
 use parley::mm::where_set_mm;
 use parley::source::{Disk, Memory, Overlay, Source};
-use parley::threads::in_order;
+use parley::threads::{in_order, in_order_on};
 use parley::tools::build::{library, verified, Libraries, Loaded};
 use parley::tools::{path_of, verify};
 
@@ -42,6 +42,9 @@ use rewrites::{Context, Declined, Rewritten};
 
 /// The breaks there are, each a gap a later change closes.
 const KNOWN: &[&str] = &[];
+
+/// How many changes' files are verified at once.
+const VERIFYING: usize = 3;
 
 /// How a change rewrites a proof file.
 enum Rewrite {
@@ -411,16 +414,24 @@ fn a_proof_means_what_it_says_however_it_spells_it() {
             .expect("set.mm is found: say where it is with SET_MM"),
     )
     .expect("set.mm reads");
-    for (i, done) in trees.iter().enumerate() {
-        if made[i].is_empty() {
-            continue;
-        }
-        let mut tree = Overlay::new(&done.tree);
-        for (path, text) in &made[i] {
-            tree.write(path, text.clone().into_bytes());
-        }
-        let every = verified(&corpus(&tree).expect("the changed corpus reads"));
-        let said = verify::run(&tree, &every, Some(&libraries));
+    // A few at a time: each verification runs on every core already, and
+    // holds a copy of set.mm of its own.
+    let to_verify: Vec<usize> =
+        (0..trees.len()).filter(|&i| !made[i].is_empty()).collect();
+    let verdicts = in_order_on(
+        VERIFYING,
+        &to_verify,
+        || (),
+        |_, &i| {
+            let mut tree = Overlay::new(&trees[i].tree);
+            for (path, text) in &made[i] {
+                tree.write(path, text.clone().into_bytes());
+            }
+            let every = verified(&corpus(&tree).expect("the changed corpus reads"));
+            verify::run(&tree, &every, Some(&libraries))
+        },
+    );
+    for (&i, said) in to_verify.iter().zip(verdicts) {
         println!(
             "{}: {} files built otherwise, verified",
             changes[i].name,

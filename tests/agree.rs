@@ -20,10 +20,13 @@
 
 use std::collections::BTreeSet;
 use std::path::Path;
+use std::sync::Arc;
 
 use parley::corpus::corpus;
 use parley::elab::elaborate::Options;
+use parley::elab::Library;
 use parley::source::{Disk, Memory};
+use parley::threads::in_order;
 use parley::tools::build::{library, Loaded};
 
 /// The differences there are, each a gap a later change closes.
@@ -43,17 +46,29 @@ fn the_tools_answer_alike() {
         list_answers: true,
         ..Options::default()
     };
-    let lib = library(root, None).expect(
-        "set.mm is found: say where it is with SET_MM, or leave a copy at the root",
+    // Each thread elaborates with a library of its own on set.mm read once,
+    // and reads the corpus once.
+    let read = library(root, None)
+        .expect(
+            "set.mm is found: say where it is with SET_MM, or leave a copy at the root",
+        )
+        .shared();
+    let answers = in_order(
+        &names,
+        || {
+            (
+                Library::new(Arc::clone(&read)),
+                Loaded::new(&tree).expect("the corpus reads"),
+            )
+        },
+        |(lib, loaded), name| {
+            loaded
+                .elaborate(name, lib, options)
+                .unwrap_or_else(|p| panic!("{name} does not elaborate: {p}"))
+                .answers
+        },
     );
-    let loaded = Loaded::new(&tree).expect("the corpus reads");
-    let mut all: BTreeSet<String> = BTreeSet::new();
-    for name in &names {
-        let done = loaded
-            .elaborate(name, &lib, options)
-            .unwrap_or_else(|p| panic!("{name} does not elaborate: {p}"));
-        all.extend(done.answers);
-    }
+    let all: BTreeSet<String> = answers.into_iter().flatten().collect();
     // What a cited record asks, and what an obtain says there is: each tool
     // lists its own answer, read from the page its own way, and the two
     // lists are compared line by line. Each list is counted, so that a hook

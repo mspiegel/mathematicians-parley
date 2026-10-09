@@ -7,10 +7,13 @@
 //! if set.mm cannot be found.
 
 use std::path::Path;
+use std::sync::Arc;
 
 use parley::corpus::corpus;
 use parley::elab::elaborate::Options;
+use parley::elab::Library;
 use parley::source::{Disk, Memory};
+use parley::threads::in_order;
 use parley::tools::build::{library, Loaded};
 
 #[test]
@@ -27,17 +30,27 @@ fn every_claim_is_said_back_as_itself() {
         say_back: true,
         ..Options::default()
     };
-    let lib = library(root, None).expect(
-        "set.mm is found: say where it is with SET_MM, or leave a copy at the root",
+    // Each thread elaborates with a library of its own on set.mm read once,
+    // and reads the corpus once.
+    let read = library(root, None)
+        .expect(
+            "set.mm is found: say where it is with SET_MM, or leave a copy at the root",
+        )
+        .shared();
+    let said = in_order(
+        &names,
+        || {
+            (
+                Library::new(Arc::clone(&read)),
+                Loaded::new(&tree).expect("the corpus reads"),
+            )
+        },
+        |(lib, loaded), name| match loaded.elaborate(name, lib, options) {
+            Ok(done) => done.said_back,
+            Err(p) => vec![format!("{name} fails: {p}")],
+        },
     );
-    let loaded = Loaded::new(&tree).expect("the corpus reads");
-    let mut differ: Vec<String> = Vec::new();
-    for name in &names {
-        match loaded.elaborate(name, &lib, options) {
-            Ok(done) => differ.extend(done.said_back),
-            Err(p) => differ.push(format!("{name} fails: {p}")),
-        }
-    }
+    let differ: Vec<String> = said.into_iter().flatten().collect();
     println!("{} theorems said back", names.len());
     assert!(
         differ.is_empty(),

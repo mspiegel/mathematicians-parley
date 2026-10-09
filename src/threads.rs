@@ -34,10 +34,22 @@ pub fn in_order<I: Sync, S, T: Send>(
     init: impl Fn() -> S + Sync,
     run: impl Fn(&mut S, &I) -> T + Sync,
 ) -> Vec<T> {
+    in_order_on(threads(), items, init, run)
+}
+
+/// `in_order` on at most `most` threads, for work whose items each take
+/// much of the machine themselves, as a verification takes every core and
+/// a copy of set.mm.
+pub fn in_order_on<I: Sync, S, T: Send>(
+    most: usize,
+    items: &[I],
+    init: impl Fn() -> S + Sync,
+    run: impl Fn(&mut S, &I) -> T + Sync,
+) -> Vec<T> {
     let next = AtomicUsize::new(0);
     let done: Mutex<Vec<Option<T>>> = Mutex::new(items.iter().map(|_| None).collect());
     std::thread::scope(|scope| {
-        for _ in 0..threads().min(items.len()) {
+        for _ in 0..most.min(threads()).min(items.len()).max(1) {
             scope.spawn(|| {
                 let mut state = init();
                 loop {
