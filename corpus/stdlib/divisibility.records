@@ -23,6 +23,7 @@ mundane definition divides
   let d ∈ ℤ                                                           (H1)
   let n ∈ ℤ                                                           (H2)
   then        d divides n ↔ there is k ∈ ℤ with n = d·k
+  decided     arithmetic, inspection
   metamath    df-dvds, as divides states it
   target      divides, equation reversed
   note        Defined once on ℤ. A proof about ℕ discharges membership of ℤ as a
@@ -32,6 +33,7 @@ mundane definition divides
 mundane definition even
   let n ∈ ℤ                                                           (H1)
   then        n is even ↔ there is k ∈ ℤ with n = 2k
+  decided     arithmetic, inspection
   metamath    df-dvds, whose right side is the same existential
   target      divides, equation reversed
   note        set.mm writes 2 ∥ n and has no primitive for "even". This names the
@@ -45,6 +47,7 @@ mundane definition even
 mundane definition odd
   let n ∈ ℤ                                                           (H1)
   then        n is odd ↔ there is k ∈ ℤ with n = 2k + 1
+  decided     arithmetic, inspection
   metamath    not 2 ∥ n
   target      odd2np1, equation reversed
 
@@ -187,6 +190,7 @@ mundane definition congruent-mod
   let a ∈ ℤ                                                           (H2)
   let b ∈ ℤ                                                           (H3)
   then        a ≡ b (mod n) ↔ n divides a − b
+  decided     arithmetic
   metamath    the notation's own target, n ∥ ( a − b )
   note        The two sides are one formula in the kernel, so unfolding it is
               saying the same thing the other way, and nothing is stated: a

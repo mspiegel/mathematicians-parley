@@ -426,7 +426,7 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
 | `induction on k starting at m`, with parts `base` and `step` | the claim is "for all k ∈ X, P(k)", X being ℕ or ℕ₀ and m its first element; the `base` part's last step claims P(m); the `step` part opens with `let k ∈ X (K)` and `assume step N is true for k, the induction hypothesis (IH)`, N being the induction's number, and its last step claims P(k + 1), with P read off the claim. A claim about only some k, "for all k ∈ ℕ₀ with k ≤ n, S", is the formula "for all k ∈ ℕ₀, if k ≤ n then S", so P(k) is "if k ≤ n then S": the base claims "if 0 ≤ n then …", and each part proves its "if" by a `proof` block opening `assume`. The starting point is written even when the set fixes it, so that every induction reads the same way and inductions from 2 or 4 need no new form |
 | `cases, from L`, with one `case` part per disjunct | L claims "P or Q"; each part opens with `assume` of its disjunct, labelled, in the order of L, and its last step claims the same formula as the step above the block |
 | `both directions`, with two `direction` parts | the claim is "A ↔ B"; the first part opens with `assume A`, labelled, and its last step claims B; the second opens with `assume B` and its last step claims A. It is how a textbook proves "if and only if", a direction at a time |
-| `calculation`, then a chain | each line of the chain is `rel t  L`, where rel is =, ≤ or < and L is one cited line whose claim is exactly the previous term rel t, or `arithmetic` where the previous term and t differ only in pieces with no letter in them, each piece worked out; the claim is first term rel last term, with rel being = if every line is =, ≤ if every line is = or ≤, and < if any line is < |
+| `calculation`, then a chain | each line of the chain is `rel t  L`, where rel is =, ≤ or <, or `≡ t (mod n)`, and L is one cited line whose claim is exactly the previous term rel t, or `arithmetic` where the previous term and t differ only in pieces with no letter in them, each piece worked out, or where the line is a congruence of numerals alone; the claim is first term rel last term, with rel being = if every line is =, ≤ if every line is = or ≤, < if any line is <, and ≡ (mod n) if any line is ≡, every ≡ line saying the same n, none mixed with ≤ or <, and every line after the first ≡ a ≡ too (`GRAMMAR.md`) |
 
 `L` is a list of line numbers, hypothesis labels and supposition labels,
 and nothing else: an item's sentence that a step needs as a fact is first
@@ -711,6 +711,14 @@ and as a `requires` line an item's hypothesis reads, `requires 9 = 3·3:
 arithmetic` under `3 divides 9`. The checker refuses `arithmetic` in any of
 these places for a fact with a letter in it, and the elaborator works each
 fact out before proving it, as it does a step's.
+
+Where none of those places can carry it, the fact is a numbered step after
+all, justified by `arithmetic`: where the proof's shape asks a line and not a
+reason. An induction's base case of numerals alone is one, read by the
+induction as its base, and so is a fact a method takes only from the lines it
+cites, as `inequalities` takes the birthday problem's 2·∏(k ∈ {0, …, 22})
+(365 − k) < 365^23. A step a numeral fact could have been written beside
+instead is still a line too many.
 
 A chain line whose terms have a letter in them may still name `arithmetic`
 where the only change between them is closed: `2/1 − 2/(n + 1)` to

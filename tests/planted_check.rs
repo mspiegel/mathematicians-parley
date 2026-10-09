@@ -204,6 +204,80 @@ fn the_checker_catches_every_planted_defect() {
 
 fn cases() -> Vec<Case> {
     vec![
+        // A method decides a word only where the word's record names it
+        // (`DATABASE.md`, `decided`). With `inspection` struck from the
+        // record of `odd`, Königsberg's count of its odd vertices asks it to
+        // decide "is odd", which no line the count cites says.
+        case(
+            "a parity inspection decides with its record not naming it",
+            vec![edit(
+                "corpus/stdlib/divisibility.records",
+                Some("  then        n is odd ↔ there is k ∈ ℤ with n = 2k + 1\n  decided     arithmetic, inspection".to_string()),
+                "  then        n is odd ↔ there is k ∈ ℤ with n = 2k + 1\n  decided     arithmetic".to_string(),
+            )],
+            "step 6 asks inspection to decide a word odd defines",
+        ),
+        // A chain's congruence says what it is modulo, on its own line, and
+        // every congruence of the chain says the same (`GRAMMAR.md`).
+        case(
+            "a congruence link that says no modulus",
+            vec![edit(
+                "proofs/divisibility-by-three.proof",
+                Some("                       ≡ 1·10 (mod 3)     1.3".to_string()),
+                "                       ≡ 1·10     1.3".to_string(),
+            )],
+            "says ≡ and not what modulo",
+        ),
+        case(
+            "two congruence links modulo different numbers",
+            vec![edit(
+                "proofs/divisibility-by-three.proof",
+                Some("                       ≡ 1 (mod 3)        arithmetic".to_string()),
+                "                       ≡ 1 (mod 9)        arithmetic".to_string(),
+            )],
+            "is a congruence modulo 9, and an earlier one modulo 3",
+        ),
+        case(
+            "a congruence and an order in one chain",
+            vec![edit(
+                "proofs/divisibility-by-three.proof",
+                Some("            10^0 = 1              arithmetic".to_string()),
+                "            10^0 ≤ 1              arithmetic".to_string(),
+            )],
+            "joins a congruence with an order",
+        ),
+        // Once a chain says ≡, it says ≡ to the end: 1·10 = 10 holds, and is
+        // written as a congruence after one.
+        case(
+            "go back to equality after a congruence",
+            vec![edit(
+                "proofs/divisibility-by-three.proof",
+                Some("                       ≡ 10 (mod 3)       arithmetic".to_string()),
+                "                       = 10               arithmetic".to_string(),
+            )],
+            "says = after a congruence",
+        ),
+        // That 3 is prime holds plainly, and the record of `prime` does not
+        // say `arithmetic` decides it.
+        case(
+            "ask arithmetic to decide a word its record does not name it for",
+            vec![edit(
+                "proofs/divisibility-by-three.proof",
+                Some("          requires 10^m ∈ ℤ: mun:power-integer a := 10\n".to_string()),
+                "          requires 10^m ∈ ℤ: mun:power-integer a := 10\n          requires 3 is prime: arithmetic\n".to_string(),
+            )],
+            "is a word prime defines, and arithmetic decides a word only where its record says so",
+        ),
+        // A `decided` field names a method that decides words.
+        case(
+            "say a method decides a word that decides none",
+            vec![edit(
+                "corpus/stdlib/divisibility.records",
+                Some("  then        n is even ↔ there is k ∈ ℤ with n = 2k\n  decided     arithmetic, inspection".to_string()),
+                "  then        n is even ↔ there is k ∈ ℤ with n = 2k\n  decided     arithmetic, algebra".to_string(),
+            )],
+            "even says algebra decides it, and algebra decides no word",
+        ),
         // A letter is written only where something introduced it, and a
         // `for all` introduces its letter to the end of its sentence only.
         case(
@@ -1153,14 +1227,14 @@ fn cases() -> Vec<Case> {
         case(
             "say a step is impossible and contradict a line as well",
             vec![
-                edit("proofs/reals-uncountable.proof", Some("          mun:divides-le e := 10, m := 1, from 2.3\n".to_string()), "          mun:divides-le e := 10, m := 1, from 2.3, contradicting 2.3\n".to_string()),
+                edit("proofs/pythagorean-triples.proof", Some("          mun:divides d := 2, n := 1, from 8.5\n".to_string()), "          mun:divides d := 2, n := 1, from 8.5, contradicting 8.5\n".to_string()),
             ],
             "says it is impossible and contradicts a line",
         ),
         case(
             "say a claim with a letter in it is impossible",
             vec![
-                edit("proofs/reals-uncountable.proof", Some("    2.4.  10 ≤ 1, which is impossible\n".to_string()), "    2.4.  10 ≤ t, which is impossible\n".to_string()),
+                edit("proofs/reals-uncountable.proof", Some("    2.3.  10 divides 1, which is impossible\n".to_string()), "    2.3.  10 divides t, which is impossible\n".to_string()),
             ],
             "says it is impossible and names t",
         ),

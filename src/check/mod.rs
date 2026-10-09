@@ -48,7 +48,7 @@ const IDENTIFIER_CHARACTERS: &str =
     "αβγδεζηθικλμνξοπρστυφχψωΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ₀₁₂₃₄₅₆₇₈₉′";
 
 /// The relations a calculation's lines join by.
-const RELATIONS: [&str; 3] = ["=", "≤", "<"];
+const RELATIONS: [&str; 4] = ["=", "≤", "<", "≡"];
 
 /// What a run found: every defect, and every step accepted without being
 /// examined because it rests on a closure method.
@@ -115,6 +115,10 @@ pub struct Checking<'a> {
     library: &'a Library<'a>,
     scopes: &'a [FileScope],
     words: &'a IndexSet<String>,
+    /// Each definition's word, and the methods its record says decide it.
+    defined: &'a IndexMap<(String, String), formulas::DefinedWord>,
+    /// Each operation a notation declares, and whether arithmetic works it out.
+    operations: &'a IndexMap<String, bool>,
     methods: &'a IndexMap<String, &'a Record>,
     items: &'a IndexMap<String, Item<'a>>,
     statements: &'a IndexMap<String, infer::Reader>,
@@ -445,6 +449,8 @@ fn prepared<T>(
     database::check_statements(&mut report, &records, env, &record_sorts);
     database::check_unsorted(&mut report, &records, env, &record_sorts);
     database::check_symbols(&mut report, &records);
+    let defined = formulas::defined_words(&mut report, &records, env, &record_sorts);
+    let operations = formulas::operations(&records);
 
     // Each theorem's lines, read once, after every statement it may cite.
     for thm in &theorems {
@@ -483,6 +489,8 @@ fn prepared<T>(
         library: &library,
         scopes: &scopes,
         words: &words,
+        defined: &defined,
+        operations: &operations,
         methods: &methods,
         items: &items,
         statements: &statements,
@@ -508,6 +516,8 @@ fn check_theorem(
     formulas::check_contradiction(report, thm, env, k);
     formulas::check_contradicting(report, thm, env, k);
     formulas::check_impossible(report, thm, k);
+    formulas::check_decided_words(report, thm, k, c.defined, c.operations);
+    formulas::check_chain_congruences(report, thm);
     formulas::check_both_directions(report, thm, k);
     formulas::check_claimed_cases(report, thm, k);
     formulas::check_cases_cited(report, thm, k);

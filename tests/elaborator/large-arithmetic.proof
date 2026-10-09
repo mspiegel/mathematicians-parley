@@ -56,3 +56,19 @@ theorem twenty-three-factors-as-a-fraction
 
 1.  (∏(k ∈ {0, …, 22}) (365 − k))/365^23 < 1/2
     arithmetic
+
+theorem remainder-of-a-power
+  note        A remainder worked out: 10^3 is 142 sevens and 6, so what is
+              left on dividing it by 7 is 6. The mod notation's record says
+              arithmetic works it out.
+  then 10^3 mod 7 = 6
+
+1.  10^3 mod 7 = 6
+    arithmetic
+
+theorem remainder-of-a-small-number
+  note        A number below what it is divided by is its own remainder.
+  then 4 mod 7 = 4
+
+1.  4 mod 7 = 4
+    arithmetic

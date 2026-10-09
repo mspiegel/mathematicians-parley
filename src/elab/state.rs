@@ -194,6 +194,10 @@ pub struct Elaborator<'a> {
     pub taken: IndexSet<String>,
     pub spare: Vec<String>,
     pub commutes: Vec<Commuting>,
+    /// For each method, the words whose records name it in their `decided`
+    /// field, each the kernel form of what its `then` line defines, read
+    /// when a method first asks (`decided_by`).
+    pub decided: IndexMap<String, Vec<Term>>,
     /// Corpus theorems this proof leans on.
     pub cited: Vec<String>,
     /// What the last step of the contradiction block being elaborated
@@ -387,6 +391,7 @@ impl<'a> Elaborator<'a> {
             taken,
             spare,
             commutes: targets::commuting(records),
+            decided: IndexMap::new(),
             cited: Vec::new(),
             contradicted: None,
             in_contradiction: false,

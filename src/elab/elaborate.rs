@@ -2492,11 +2492,26 @@ impl<'a> Elaborator<'a> {
                 ),
             ));
         };
-        let mut rest = words[at + 1..].join(" ");
+        let mut rest = without_modulus(&words[at + 1..].join(" "));
         let first_term = self.term(&first)?;
         let whole = self.to_term(&first_term);
-        let left = self.rpn(&whole.children()[0]);
-        let mut right = self.rpn(&whole.children()[1]);
+        // A congruence joins the two terms whose difference its modulus
+        // divides, and the chain goes on from the second.
+        let mut modulus: Option<String> = None;
+        let (left, mut right) = match self.congruence_sides(&whole) {
+            Some(Congruence {
+                modulus: n,
+                left,
+                right,
+            }) => {
+                modulus = Some(n);
+                (left, right)
+            }
+            None => (
+                self.rpn(&whole.children()[0]),
+                self.rpn(&whole.children()[1]),
+            ),
+        };
         let mut said = whole.label().unwrap_or("").to_string();
         let mut reached = first_term.clone();
         let mut relation = if said == "wbr" {
@@ -2528,6 +2543,69 @@ impl<'a> Elaborator<'a> {
             let joined_term = self.term(&node)?;
             let joined = self.to_term(&joined_term);
             let joined_label = joined.label().unwrap_or("").to_string();
+            let joined_congruence = self.congruence_sides(&joined);
+            if modulus.is_some() || joined_congruence.is_some() {
+                let ordered = (modulus.is_none() && said == "wbr")
+                    || (joined_congruence.is_none() && joined_label == "wbr");
+                if ordered {
+                    return Err(self.defect(
+                        step.line,
+                        "a congruence and an order join into nothing",
+                    ));
+                }
+                let (n, from, to) = match &joined_congruence {
+                    Some(c) => {
+                        (Some(c.modulus.clone()), c.left.clone(), c.right.clone())
+                    }
+                    None => (
+                        None,
+                        self.rpn(&joined.children()[0]),
+                        self.rpn(&joined.children()[1]),
+                    ),
+                };
+                if from != right {
+                    return Err(self.defect(
+                        step.line,
+                        "a link that reads the other way round from the one above it",
+                    ));
+                }
+                if modulus.is_some() && n.is_none() {
+                    return Err(self.defect(
+                        step.line,
+                        "a chain that has become a congruence does not go back to =",
+                    ));
+                }
+                if let (Some(a), Some(b)) = (&modulus, &n) {
+                    if a != b {
+                        return Err(self.defect(
+                            step.line,
+                            "a chain's congruences are modulo one number",
+                        ));
+                    }
+                }
+                let held = self.link_held(
+                    step, cite, &joined, &written, scope, facts, lines, &defines,
+                )?;
+                let m = modulus.clone().or(n.clone()).expect("a congruence");
+                proof = self.congruence_joined(
+                    Joining {
+                        modulus: &m,
+                        left: &left,
+                        middle: &right,
+                        right: &to,
+                        before: proof,
+                        before_congruent: modulus.is_some(),
+                        after: held,
+                    },
+                    scope,
+                    facts,
+                )?;
+                modulus = Some(m.clone());
+                right = to;
+                rest = without_modulus(&added);
+                reached = t!(m, t!(left, right, "cmin", "co"), "cdvds", "wbr");
+                continue;
+            }
             let Some(fold) = rules::folding(&said, &joined_label) else {
                 return Err(self.defect(
                     step.line,
@@ -2574,6 +2652,100 @@ impl<'a> Elaborator<'a> {
         Ok(Built(
             pf!(self.b; scope, reached, term, proof, alike, "mpbid"),
         ))
+    }
+
+    /// A congruence's modulus and the two terms whose difference it divides,
+    /// `n ∥ (a − b)` read as a ≡ b (mod n); None for any other term.
+    fn congruence_sides(&self, term: &Term) -> Option<Congruence> {
+        if term.variable().is_some() || term.label() != Some("wbr") {
+            return None;
+        }
+        let kids = term.children();
+        if kids.len() != 3 || kids[2].label() != Some("cdvds") {
+            return None;
+        }
+        let difference = &kids[1];
+        let parts = difference.children();
+        if difference.variable().is_some()
+            || difference.label() != Some("co")
+            || parts.len() != 3
+            || parts[2].label() != Some("cmin")
+        {
+            return None;
+        }
+        Some(Congruence {
+            modulus: self.rpn(&kids[0]),
+            left: self.rpn(&parts[0]),
+            right: self.rpn(&parts[1]),
+        })
+    }
+
+    /// ( scope -> left ≡ right (mod n) ), from a chain's proof up to the
+    /// middle term, an equation or a congruence modulo n, and its next link,
+    /// a congruence modulo n: a chain that has become a congruence does not
+    /// go back to = (`GRAMMAR.md`). An equation before is carried into the
+    /// difference the link's modulus divides (`oveq1d`); two congruences are
+    /// added, n dividing both differences and so their sum, which is the
+    /// whole difference (`dvds2addd`, `npncand`).
+    fn congruence_joined(
+        &mut self,
+        j: Joining,
+        scope: &str,
+        facts: &Facts,
+    ) -> Checked<Proof> {
+        let Joining {
+            modulus: n,
+            left,
+            middle,
+            right,
+            before,
+            before_congruent,
+            after,
+        } = j;
+        let differ = |a: &str, b: &str| t!(a, b, "cmin", "co");
+        let whole = differ(left, right);
+        Ok(if !before_congruent {
+            // left = middle, and n divides middle − right.
+            let moved = self.b.ap(
+                "oveq1d",
+                &binds! {"ph" => scope, "A" => left, "B" => middle, "C" => right, "F" => "cmin"},
+                &[&before],
+            );
+            self.b.ap(
+                "breqtrrd",
+                &binds! {"ph" => scope, "A" => n, "R" => "cdvds",
+                "B" => differ(middle, right), "C" => &whole},
+                &[&after, &moved],
+            )
+        } else {
+            let (first, second) = (differ(left, middle), differ(middle, right));
+            let integers = [
+                self.membership(n, "cz", scope, facts)?,
+                self.membership(&first, "cz", scope, facts)?,
+                self.membership(&second, "cz", scope, facts)?,
+            ];
+            let summed = self.b.ap(
+                "dvds2addd",
+                &binds! {"ph" => scope, "K" => n, "M" => &first, "N" => &second},
+                &[&integers[0], &integers[1], &integers[2], &before, &after],
+            );
+            let numbers = [
+                self.membership(left, "cc", scope, facts)?,
+                self.membership(middle, "cc", scope, facts)?,
+                self.membership(right, "cc", scope, facts)?,
+            ];
+            let cancelled = self.b.ap(
+                "npncand",
+                &binds! {"ph" => scope, "A" => left, "B" => middle, "C" => right},
+                &[&numbers[0], &numbers[1], &numbers[2]],
+            );
+            self.b.ap(
+                "breqtrd",
+                &binds! {"ph" => scope, "A" => n, "R" => "cdvds",
+                "B" => t!(first, second, "caddc", "co"), "C" => &whole},
+                &[&summed, &cancelled],
+            )
+        })
     }
 
     /// The proof of one link of a chain, from what it cites.
@@ -4775,6 +4947,42 @@ fn unsupplied_alone(
         }
     }
     out
+}
+
+/// A congruence a ≡ b (mod n), as set.mm writes it, n ∥ (a − b).
+struct Congruence {
+    modulus: String,
+    /// a.
+    left: String,
+    /// b.
+    right: String,
+}
+
+/// A chain's proof from `left` to `middle`, an equation or a congruence
+/// modulo `modulus`, and its next link from `middle` to `right`, a
+/// congruence modulo `modulus`.
+struct Joining<'s> {
+    modulus: &'s str,
+    left: &'s str,
+    middle: &'s str,
+    right: &'s str,
+    /// ( scope -> left = middle ), or the congruence where
+    /// `before_congruent`.
+    before: Proof,
+    before_congruent: bool,
+    /// ( scope -> middle ≡ right (mod modulus) ).
+    after: Proof,
+}
+
+regex!(MODULUS_WRITTEN, r"^(.*?)\s*\(mod\s+.+\)\s*$");
+
+/// A chain line's term without the modulus a congruence writes after it:
+/// the next line continues from 1·10, not from `1·10 (mod 3)`.
+fn without_modulus(text: &str) -> String {
+    match MODULUS_WRITTEN.captures(text) {
+        Some(m) => m[1].to_string(),
+        None => text.to_string(),
+    }
 }
 
 /// The statement a written file proves, read off its `$p` line: what a

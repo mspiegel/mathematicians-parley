@@ -9,6 +9,7 @@
 //! equation is read through it. Every proof here is in deduction form under
 //! the step's scope.
 
+use super::field::{self, Verdict};
 use super::state::Elaborator;
 use super::Facts;
 use crate::binds;
@@ -811,6 +812,9 @@ impl Elaborator<'_> {
         if let Some(p) = self.held(known, &t!(said, "wn"), scope)? {
             return Ok(Built(Settled::Fails(p)));
         }
+        if let Some(settled) = self.decided_at_value(&at, scope, known)? {
+            return Ok(Built(settled));
+        }
         if at.label() != Some("wcel") || at.variable().is_some() {
             return Ok(Route::no(format!(
                 "nothing cited settles {}",
@@ -835,6 +839,135 @@ impl Elaborator<'_> {
         Ok(Built(Settled::Fails(
             self.carried_out(member, set, &listing, outside, scope)?,
         )))
+    }
+
+    /// A word `at` says, settled at the values the cited lines give its
+    /// terms, where its record names `inspection` in its `decided` field
+    /// (`METHODS.md`, inspection): "deg(A) is odd" from "deg(A) = 5", decided
+    /// at 5 as `arithmetic` decides it and carried back by the equation
+    /// (`breq12d`). None where the word is not such a one, or a term has no
+    /// such value.
+    fn decided_at_value(
+        &mut self,
+        at: &Term,
+        scope: &str,
+        known: &Facts,
+    ) -> Checked<Option<Settled>> {
+        let negated = at.label() == Some("wn") && at.children().len() == 1;
+        let core = if negated {
+            at.children()[0].clone()
+        } else {
+            at.clone()
+        };
+        if core.variable().is_some()
+            || core.label() != Some("wbr")
+            || core.children().len() != 3
+            || core.children()[2].label() != Some("cdvds")
+            || !self.decided_by("inspection", at)?
+        {
+            return Ok(None);
+        }
+        // Each side, and ( scope -> side = its value ).
+        let mut sides: Vec<(String, String, Proof)> = Vec::new();
+        for side in &core.children()[..2] {
+            let written = self.rpn(side);
+            if written.split_whitespace().all(rules::numeric) {
+                let same =
+                    self.b
+                        .ap("eqidd", &binds! {"ph" => scope, "A" => &written}, &[]);
+                sides.push((written.clone(), written, same));
+                continue;
+            }
+            let Some((value, proof)) = self.cited_value(&written, scope, known)? else {
+                return Ok(None);
+            };
+            sides.push((written, value, proof));
+        }
+        let at_values = t!(sides[0].1, sides[1].1, "cdvds", "wbr");
+        let Built(Verdict::Holds(holds)) =
+            field::decide_closed(&self.to_term(&at_values))
+        else {
+            return Ok(None);
+        };
+        let Built(shown) =
+            self.numeral_divides(&self.to_term(&at_values), !holds, scope)
+        else {
+            return Ok(None);
+        };
+        let written = self.rpn(&core);
+        let mut same = self.b.ap(
+            "breq12d",
+            &binds! {"ph" => scope, "A" => &sides[0].0, "B" => &sides[0].1,
+            "C" => &sides[1].0, "D" => &sides[1].1, "R" => "cdvds"},
+            &[&sides[0].2, &sides[1].2],
+        );
+        let (claim, value_claim) = if holds {
+            (written.clone(), at_values.clone())
+        } else {
+            same = self.b.ap(
+                "notbid",
+                &binds! {"ph" => scope, "ps" => &written, "ch" => &at_values},
+                &[&same],
+            );
+            (t!(written, "wn"), t!(at_values, "wn"))
+        };
+        let proved = self.b.ap(
+            "mpbird",
+            &binds! {"ph" => scope, "ps" => &claim, "ch" => &value_claim},
+            &[&shown, &same],
+        );
+        // `proved` says the divisibility or its denial; `at` is one of the two.
+        Ok(Some(match (negated, holds) {
+            (false, true) | (true, false) => Settled::Holds(proved),
+            (false, false) => Settled::Fails(proved),
+            (true, true) => Settled::Fails(self.b.ap(
+                "notnotd",
+                &binds! {"ph" => scope, "ps" => &written},
+                &[&proved],
+            )),
+        }))
+    }
+
+    /// The value of numerals alone a cited equation gives `side`, and
+    /// ( scope -> side = value ), the equation turned where it is written
+    /// the other way round. None where no cited line gives one.
+    fn cited_value(
+        &mut self,
+        side: &str,
+        scope: &str,
+        known: &Facts,
+    ) -> Checked<Option<(String, Proof)>> {
+        let numeric = |x: &str| x.split_whitespace().all(rules::numeric);
+        for claim in known.keys() {
+            let said = self.to_term(&claim);
+            if said.variable().is_some()
+                || said.label() != Some("wceq")
+                || said.children().len() != 2
+            {
+                continue;
+            }
+            let (l, r) = (self.rpn(&said.children()[0]), self.rpn(&said.children()[1]));
+            let (value, turned) = if l == side && numeric(&r) {
+                (r, false)
+            } else if r == side && numeric(&l) {
+                (l, true)
+            } else {
+                continue;
+            };
+            let Some(proof) = self.held(known, &claim, scope)? else {
+                continue;
+            };
+            if !turned {
+                return Ok(Some((value, proof)));
+            }
+            let back = self.b.ap(
+                "eqcomd",
+                &binds! {"ph" => scope, "A" => &value, "B" => side},
+                &[&proof],
+            );
+            return Ok(Some((value, back)));
+        }
+        Ok(None)
     }
 
     /// ( scope -> {x ∈ the union of `elements`' singletons : body} = the

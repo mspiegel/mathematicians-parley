@@ -150,6 +150,30 @@ what it is given is the witness: `axi:stdlib/calculus/completeness` targets `sup
 suprub, suprleub with c := sup S`, and the least upper bound it promises is
 the supremum, which each of the three lemmas says one thing about.
 
+**A word a method decides says so in its record.** A definition may carry a
+`decided` field naming the methods that decide its word where every term it
+is said of is a closed numeral expression: `mun:stdlib/divisibility/odd` carries
+`decided arithmetic, inspection`, so `requires 5 is odd: arithmetic` and an
+`inspection` that works deg(A) out to 5 both settle "is odd" without a line
+saying 5 = 2·2 + 1. A method decides such a word only where its record names
+it: support added to a method is declared on the record of the word it
+supports, where a reader of the library sees it, and not in the method's code
+alone. The checker refuses a word whose record does not name the method,
+except where `inspection` reads the word off a line the step cites. The
+elaborator reads the field too, but to it "divides", "is even" and "is odd"
+are one relation, set.mm's ∥, so it refuses only a divisibility no such
+record names the method for; the word is told apart by the checker. The
+words carrying it are `divides`, `even` and `odd`, for both methods, and
+`congruent-mod`, for `arithmetic`; what each method does with them is in
+`METHODS.md`.
+
+An operation is annotated the same way, on its notation record: `mod` carries
+`decided arithmetic`, so `arithmetic` works out 10^0 mod 3. The operations
+`arithmetic` works out by its nature, +, −, ·, /, powers and a product over a
+range, carry none, as the relations it decides by its nature do not; any
+other is worked out only where its record says so, and both tools refuse a
+closed fact holding one that does not.
+
 **A `target` that never fires is an error, not a shrug.** An item with no
 `target` builds nothing, and a step citing it stops the build, except a
 definition read off a line the step cites that already says the claim. An

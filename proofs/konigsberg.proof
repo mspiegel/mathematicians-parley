@@ -10,7 +10,6 @@ import mundane theorem    stdlib/counting/count-last-fails
 import mundane theorem    stdlib/counting/count-nat0
 import mundane theorem    stdlib/functions/function-value
 import mundane definition stdlib/divisibility/even
-import mundane definition stdlib/divisibility/odd
 import mundane axiom      stdlib/reasoning/excluded-middle
 import mundane theorem    stdlib/reasoning/or-left
 import mundane theorem    stdlib/reasoning/or-right
@@ -378,39 +377,15 @@ theorem konigsberg
 5.  deg(D) = 3
     inspection, from H1, 1
 
-6.  5 = 2·2 + 1
-    arithmetic
+6.  |{x ∈ V : deg(x) is odd}| = 4
+    inspection, from H1, 2, 3, 4, 5
 
-7.  5 is odd
-    mun:odd n := 5, from 6
-
-8.  3 = 2·1 + 1
-    arithmetic
-
-9.  3 is odd
-    mun:odd n := 3, from 8
-
-10. deg(A) is odd
-    substitute deg(A) = 5 (line 2) into line 7
-
-11. deg(B) is odd
-    substitute deg(B) = 3 (line 3) into line 9
-
-12. deg(C) is odd
-    substitute deg(C) = 3 (line 4) into line 9
-
-13. deg(D) is odd
-    substitute deg(D) = 3 (line 5) into line 9
-
-14. |{x ∈ V : deg(x) is odd}| = 4
-    inspection, from H1, 10, 11, 12, 13
-
-15. G is not traversable
+7.  G is not traversable
     contradiction
     suppose G is traversable                                          (S1)
 
-    15.1. |{x ∈ V : deg(x) is odd}| ≤ 2
+    7.1.  |{x ∈ V : deg(x) is odd}| ≤ 2
           thm:odd-vertices, from S1
 
-    15.2. 4 ≤ 2, which is impossible
-          substitute |{x ∈ V : deg(x) is odd}| = 4 (line 14) into line 15.1
+    7.2.  4 ≤ 2, which is impossible
+          substitute |{x ∈ V : deg(x) is odd}| = 4 (line 6) into line 7.1

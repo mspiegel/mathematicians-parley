@@ -106,8 +106,9 @@ mundane method arithmetic
   note        The line between arithmetic and algebra is closed numerals against
               symbols: a claim containing a variable is never arithmetic.
               It is the one method marked mundane: a proof never says it is
-              using it, and it never justifies a numbered step. The mark is
-              for the reader and changes nothing a tool does.
+              using it, and it justifies a numbered step only where the
+              proof's shape asks a line, as an induction's base case does.
+              The mark is for the reader and changes nothing a tool does.
 
 method membership
   form        membership, from L
@@ -273,11 +274,16 @@ method both-directions
 method calculation
   form        calculation, then a chain
   block       required
-  checks      each line of the chain is `rel t  L`, where rel is =, ≤ or < and L
-              is one cited line whose claim is exactly the previous term rel t.
-              The claim is first term rel last term, with rel being = if every
-              line is =, ≤ if every line is = or ≤, and < if any line is <.
-  metamath    eqtrd, 3eqtrd, eqbrtrd, lelttrd
+  checks      each line of the chain is `rel t  L`, where rel is =, ≤ or <, or
+              `≡ t (mod n)`, and L is one cited line whose claim is exactly the
+              previous term rel t. The claim is first term rel last term, with
+              rel being = if every line is =, ≤ if every line is = or ≤, < if
+              any line is <, and ≡ (mod n) if any line is ≡, every ≡ line
+              saying the same n, none mixed with ≤ or <, and every line after
+              the first ≡ a ≡ too.
+  metamath    eqtrd, 3eqtrd, eqbrtrd, lelttrd; for a congruence, oveq1d
+              carrying the equations before it into the difference n
+              divides, and dvds2addd with npncand joining two congruences
   note        A calculation only joins. Every line cites a numbered step or
               label that states that line's relation, and all reasoning is in
               those steps. A chain never carries a method on a line. A line may

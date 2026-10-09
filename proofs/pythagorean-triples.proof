@@ -1,6 +1,5 @@
 import theorem            proofs/sqrt2-irrational/even-square
 import mundane definition stdlib/divisibility/divides
-import mundane theorem    stdlib/divisibility/divides-le
 import theorem            stdlib/divisibility/divides-gcd
 import mundane theorem    stdlib/divisibility/divides-combination
 import mundane theorem    stdlib/divisibility/divides-one
@@ -93,11 +92,8 @@ theorem even-leg
           2.2.11. 2 = 4(r² − p² − p − q² − q)
                   algebra, from 2.2.10
 
-          2.2.12. 4 divides 2
+          2.2.12. 4 divides 2, which is impossible
                   mun:divides d := 4, n := 2, from 2.2.11
-
-          2.2.13. 4 ≤ 2, which is impossible
-                  mun:divides-le e := 4, m := 2, from 2.2.12
 
     2.3.  b is even or b is odd
           mun:even-or-odd n := b
@@ -216,11 +212,8 @@ theorem primitive-triple
     4.5.  2 divides gcd(a, b)
           thm:divides-gcd d := 2, a := a, b := b, from 3, 4.4
 
-    4.6.  2 divides 1
+    4.6.  2 divides 1, which is impossible
           substitute gcd(a, b) = 1 (H5) into line 4.5
-
-    4.7.  2 ≤ 1, which is impossible
-          mun:divides-le e := 2, m := 1, from 4.6
 
 5.  q ∈ ℤ. b = 2q + 1.
     obtain q: mun:odd n := b, from 4
@@ -250,11 +243,8 @@ theorem primitive-triple
     8.5.  1 = 2(2r² − 2w² − 2q² − 2q)
           algebra, from 8.4
 
-    8.6.  2 divides 1
+    8.6.  2 divides 1, which is impossible
           mun:divides d := 2, n := 1, from 8.5
-
-    8.7.  2 ≤ 1, which is impossible
-          mun:divides-le e := 2, m := 1, from 8.6
 
 9.  r ∈ ℤ. c = 2r + 1.
     obtain r: mun:odd n := c, from 8

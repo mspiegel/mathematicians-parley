@@ -30,11 +30,12 @@ use super::provenance::requirement;
 use super::state::{Elaborator, Vars};
 use super::{Facts, Line, Lines};
 use crate::binds;
-use crate::corpus::{fmt, Step};
+use crate::corpus::{fmt, Item, RecordKind, Step};
 use crate::mm::kernel::Term;
 use crate::mm::spell::{Builder, Proof};
 use crate::outcome::{Built, Checked, Declined, Problem, Route};
 use crate::rules::{self, lookup};
+use crate::targets;
 use crate::{pf, t, take};
 
 /// What an emitter asks of the elaborator: the scope, the facts a
@@ -136,6 +137,37 @@ impl Oracle for Ask<'_, '_> {
         let (scope, facts) = (self.spec.scope.clone(), self.spec.facts.clone());
         self.el.linear_sum(said, &letter, &scope, &facts)
     }
+}
+
+/// Whether a claim is a divisibility or its denial, which is the kernel form
+/// of every word `arithmetic` may be asked to decide.
+fn divisibility(claim: &Term) -> bool {
+    let core = if claim.label() == Some("wn") && claim.children().len() == 1 {
+        &claim.children()[0]
+    } else {
+        claim
+    };
+    core.variable().is_none()
+        && core.label() == Some("wbr")
+        && core.children().len() == 3
+        && core.children()[2].label() == Some("cdvds")
+}
+
+/// Whether `claim` is the word `word` is the kernel form of: the same tree,
+/// where each letter of the word's record, read as a set variable's class,
+/// stands for any term.
+fn fits_word(word: &Term, claim: &Term) -> bool {
+    if word.variable().is_some() || word.label() == Some("cv") {
+        return true;
+    }
+    claim.variable().is_none()
+        && word.label() == claim.label()
+        && word.children().len() == claim.children().len()
+        && word
+            .children()
+            .iter()
+            .zip(claim.children())
+            .all(|(w, c)| fits_word(w, c))
 }
 
 /// The two sides of a claim and which relation stands between them: `=`,
@@ -1271,6 +1303,19 @@ impl<'a> Elaborator<'a> {
         step: Option<&Step>,
     ) -> Checked<Proof> {
         self.worked_out(term, what)?;
+        let said = self.to_term(term);
+        if let Some(op) = self.undecided_operation(&said) {
+            return Err(self.defect(
+                self.at,
+                format!("{what}, which works out {op}, and no notation's record says arithmetic works it out (`decided`)"),
+            ));
+        }
+        if divisibility(&said) && !self.decided_by("arithmetic", &said)? {
+            return Err(self.defect(
+                self.at,
+                format!("{what}, which is a word no record says arithmetic decides (`decided`)"),
+            ));
+        }
         if let Built(p) = self.prove_numeral(term, scope, facts)? {
             return Ok(p);
         }
@@ -1337,11 +1382,54 @@ impl<'a> Elaborator<'a> {
         {
             return self.numeral_within(&goal, scope, facts);
         }
+        // A divisibility, which is what "is even" and "is odd" are too, where
+        // the word's record says `arithmetic` decides it.
+        if goal.variable().is_none()
+            && goal.label() == Some("wbr")
+            && goal.children().len() == 3
+            && goal.children()[2].label() == Some("cdvds")
+        {
+            let whole = if negated {
+                Term::apply("wn", vec![goal.clone()])
+            } else {
+                goal.clone()
+            };
+            if !self.decided_by("arithmetic", &whole)? {
+                return Ok(Route::no(
+                    "no record of a word says arithmetic decides this divisibility",
+                ));
+            }
+            return Ok(self.numeral_divides(&goal, negated, scope));
+        }
         let Some((first, second, how)) = order_sides(&goal) else {
             return Ok(Route::no("the claim states no relation"));
         };
         let (Some(a), Some(b)) = (numerals::value(&first), numerals::value(&second))
         else {
+            // An equation of whole numbers each side works out to, a
+            // remainder among them, is the two worked out and joined
+            // (`eqtr4i`).
+            if how == "=" && !negated {
+                let labels = self.b.flabel.clone();
+                if let (Some((a, a_is)), Some((b, b_is))) = (
+                    numerals::worked(&self.b, &first, &labels),
+                    numerals::worked(&self.b, &second, &labels),
+                ) {
+                    if a == b {
+                        let (sf, ss) = (self.rpn(&first), self.rpn(&second));
+                        let joined = self.b.ap(
+                            "eqtr4i",
+                            &binds! {"A" => &sf, "B" => numerals::spell(a), "C" => &ss},
+                            &[&a_is, &b_is],
+                        );
+                        return Ok(Built(self.b.ap(
+                            "a1i",
+                            &binds! {"ph" => t!(sf, ss, "wceq"), "ps" => scope},
+                            &[&joined],
+                        )));
+                    }
+                }
+            }
             // An equation is the normaliser's, which works fractions too.
             if how == "=" {
                 return Ok(Route::no(
@@ -1414,6 +1502,216 @@ impl<'a> Elaborator<'a> {
         Ok(Route::no(format!(
             "{a} {how} {b} is not what the numbers do"
         )))
+    }
+
+    /// An operation `term` holds that `arithmetic` does not work out: one
+    /// beyond those of its own nature whose notation's record does not name
+    /// it in a `decided` field (`DATABASE.md`). The operation is its kernel
+    /// label, read off the records' targets.
+    fn undecided_operation(&self, term: &Term) -> Option<String> {
+        // The range a product over a range runs over is written `cfz co`,
+        // and is part of that product.
+        let native = [
+            field::ADD,
+            field::SUB,
+            field::MUL,
+            field::DIV,
+            field::EXP,
+            "cfz",
+        ];
+        let decided: BTreeSet<String> = self
+            .records
+            .iter()
+            .filter(|r| r.kind == RecordKind::Notation)
+            .filter(|r| {
+                r.field("decided").is_some_and(|v| {
+                    targets::split_entries(v)
+                        .iter()
+                        .any(|m| m.trim() == "arithmetic")
+                })
+            })
+            .flat_map(|r| targets::split_entries(r.field_or_empty("target")))
+            .filter_map(|entry| {
+                let tokens: Vec<&str> = entry.split_whitespace().collect();
+                (tokens.len() >= 2 && tokens[tokens.len() - 1] == "co")
+                    .then(|| tokens[tokens.len() - 2].to_string())
+            })
+            .collect();
+        let mut rest = vec![term.clone()];
+        while let Some(node) = rest.pop() {
+            if node.variable().is_some() {
+                continue;
+            }
+            let kids = node.children();
+            if node.label() == Some("co") && kids.len() == 3 {
+                if let Some(op) = kids[2].label() {
+                    if !native.contains(&op) && !decided.contains(op) {
+                        return Some(op.to_string());
+                    }
+                }
+            }
+            rest.extend(kids.iter().cloned());
+        }
+        None
+    }
+
+    /// Whether the word `claim` says, or for a denial the word it denies, is
+    /// one whose record names `method` in its `decided` field
+    /// (`DATABASE.md`). Each such record's `then` line is read in its own
+    /// sorts, and the kernel form of what it defines, its letters standing
+    /// for any term, is fitted to the claim.
+    pub fn decided_by(&mut self, method: &str, claim: &Term) -> Checked<bool> {
+        if !self.decided.contains_key(method) {
+            let records = self.records;
+            let mut words = Vec::new();
+            for r in records {
+                let names = r.field("decided").map(targets::split_entries);
+                if r.kind != RecordKind::Definition
+                    || !names.is_some_and(|n| n.iter().any(|m| m.trim() == method))
+                {
+                    continue;
+                }
+                // Each letter the word is said of stands for a set variable's
+                // class, which `fits_word` lets any term fill.
+                let hole = format!("{} cv", self.spare[0]);
+                let said =
+                    self.in_its_names(Item::Record(r), |me| -> Checked<String> {
+                        me.names_kept(|me| {
+                            let node = me.read(&r.conclusions[0].0)?;
+                            let left = node.children[0].clone();
+                            for name in left.names() {
+                                me.names.insert(name, hole.clone());
+                            }
+                            me.term(&left)
+                        })
+                    })?;
+                words.push(self.to_term(&said));
+            }
+            self.decided.insert(method.to_string(), words);
+        }
+        let mut forms = vec![claim.clone()];
+        if claim.label() == Some("wn") && claim.children().len() == 1 {
+            forms.push(claim.children()[0].clone());
+        }
+        Ok(self.decided[method]
+            .iter()
+            .any(|word| forms.iter().any(|f| fits_word(word, f))))
+    }
+
+    /// ( scope -> d ∥ n ), or its denial where `negated`, for closed d and n
+    /// that work out to whole numbers, d at least 1 (`METHODS.md`,
+    /// arithmetic): at their values by `dvdsmul1` at the quotient, or by
+    /// `ndvdsi` from the quotient and the remainder, and carried back to the
+    /// terms as written by `breq12i`. A decline where the sides do not work
+    /// out so, or where what is asked is not what the numbers do.
+    pub fn numeral_divides(
+        &self,
+        core: &Term,
+        negated: bool,
+        scope: &str,
+    ) -> Route<Proof> {
+        let labels = self.b.flabel.clone();
+        let kids = core.children();
+        let (Some((d, d_is)), Some((num, n_is))) = (
+            numerals::worked(&self.b, &kids[0], &labels),
+            numerals::worked(&self.b, &kids[1], &labels),
+        ) else {
+            return Route::no(
+                "a side of the divisibility is not a whole number worked out",
+            );
+        };
+        if d.is_zero() {
+            return Route::no("a divisor of 0");
+        }
+        let (quotient, rest) = (&num / &d, &num % &d);
+        if rest.is_zero() == negated {
+            return Route::no("a divisibility that is not what the numbers do");
+        }
+        let (sd, sn, sq) = (
+            numerals::spell(d.clone()),
+            numerals::spell(num.clone()),
+            numerals::spell(quotient.clone()),
+        );
+        let times = t!(sd, sq, "cmul", "co");
+        let product = numerals::product(&self.b, d.clone(), quotient.clone());
+        let at_values = t!(sd, sn, "cdvds", "wbr");
+        let shown = if negated {
+            // n = d·q + r with 0 < r < d.
+            let sr = numerals::spell(rest.clone());
+            let sp = numerals::spell(&d * &quotient);
+            let moved = self.b.ap(
+                "oveq1i",
+                &binds! {"A" => &times, "B" => &sp, "C" => &sr, "F" => "caddc"},
+                &[&product],
+            );
+            let total = self.b.ap(
+                "eqtri",
+                &binds! {"A" => t!(times, sr, "caddc", "co"), "B" => t!(sp, sr, "caddc", "co"), "C" => &sn},
+                &[&moved, &numerals::sum(&self.b, &d * &quotient, rest.clone())],
+            );
+            self.b.ap(
+                "ndvdsi",
+                &binds! {"A" => &sd, "B" => &sn, "Q" => &sq, "R" => &sr},
+                &[
+                    &numerals::nn(&self.b, d.clone()),
+                    &numerals::nn0(&self.b, quotient.clone()),
+                    &numerals::nn(&self.b, rest.clone()),
+                    &total,
+                    &numerals::below(&self.b, rest.clone(), d.clone()),
+                ],
+            )
+        } else {
+            let whole_d = self.b.ap(
+                "nnzi",
+                &binds! {"N" => &sd},
+                &[&numerals::nn(&self.b, d.clone())],
+            );
+            let whole_q = self.b.ap(
+                "nn0zi",
+                &binds! {"N" => &sq},
+                &[&numerals::nn0(&self.b, quotient.clone())],
+            );
+            let law = self.b.ap("dvdsmul1", &binds! {"M" => &sd, "N" => &sq}, &[]);
+            let held = self.b.ap(
+                "mp2an",
+                &binds! {"ph" => t!(sd, "cz", "wcel"), "ps" => t!(sq, "cz", "wcel"),
+                "ch" => t!(sd, times, "cdvds", "wbr")},
+                &[&whole_d, &whole_q, &law],
+            );
+            self.b.ap(
+                "breqtri",
+                &binds! {"A" => &sd, "R" => "cdvds", "B" => &times, "C" => &sn},
+                &[&held, &product],
+            )
+        };
+        let said = |t: String| if negated { t!(t, "wn") } else { t };
+        let (written, at) = (said(self.rpn(core)), said(at_values.clone()));
+        let closed = if written == at {
+            shown
+        } else {
+            let (rd, rn) = (self.rpn(&kids[0]), self.rpn(&kids[1]));
+            let mut same = self.b.ap(
+                "breq12i",
+                &binds! {"A" => &rd, "B" => &sd, "C" => &rn, "D" => &sn, "R" => "cdvds"},
+                &[&d_is, &n_is],
+            );
+            if negated {
+                same = self.b.ap(
+                    "notbii",
+                    &binds! {"ph" => self.rpn(core), "ps" => &at_values},
+                    &[&same],
+                );
+            }
+            self.b.ap(
+                "mpbir",
+                &binds! {"ph" => &written, "ps" => &at},
+                &[&shown, &same],
+            )
+        };
+        Built(
+            self.b
+                .ap("a1i", &binds! {"ph" => &written, "ps" => scope}, &[&closed]),
+        )
     }
 
     /// A side as a fraction of two numerals, the second not zero, with

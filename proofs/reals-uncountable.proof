@@ -22,7 +22,6 @@ import mundane theorem    stdlib/divisibility/mod-remainder
 import mundane theorem    stdlib/divisibility/mod-multiple
 import mundane theorem    stdlib/divisibility/mod-congruent
 import mundane definition stdlib/divisibility/congruent-mod
-import mundane theorem    stdlib/divisibility/divides-le
 import mundane theorem    stdlib/divisibility/divides-sum
 import mundane theorem    stdlib/functions/function-into
 import mundane theorem    stdlib/functions/bijection-onto
@@ -97,11 +96,8 @@ theorem digit-step
     2.2.  (t + 1) − t = 1
           algebra
 
-    2.3.  10 divides 1
+    2.3.  10 divides 1, which is impossible
           substitute (t + 1) − t = 1 (line 2.2) into line 2.1
-
-    2.4.  10 ≤ 1, which is impossible
-          mun:divides-le e := 10, m := 1, from 2.3
 
 theorem digit-step-twice
   note        Changing it twice does not bring it back either: if s(s(t))
@@ -136,11 +132,8 @@ theorem digit-step-twice
           algebra
           requires s(t) ∈ ℝ: membership, from 1
 
-    4.4.  10 divides 2
+    4.4.  10 divides 2, which is impossible
           substitute ((t + 1) − s(t)) + ((s(t) + 1) − t) = 2 (line 4.3) into line 4.2
-
-    4.5.  10 ≤ 2, which is impossible
-          mun:divides-le e := 10, m := 2, from 4.4
 
 theorem decimal-number
   note        The digits name a real number x: the least upper bound of the

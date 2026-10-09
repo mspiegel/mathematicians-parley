@@ -35,6 +35,7 @@ pub const SUB: &str = "cmin";
 pub const MUL: &str = "cmul";
 pub const DIV: &str = "cdiv";
 pub const EXP: &str = "cexp";
+pub const MOD: &str = "cmo";
 pub const NEG: &str = "cneg";
 
 /// An exponent past anything the corpus writes.
@@ -701,6 +702,18 @@ pub fn closed_value(term: &Term) -> Route<Value> {
                 }
                 left / right
             }
+            MOD => {
+                if !left.is_integer()
+                    || left.is_negative()
+                    || !right.is_integer()
+                    || right < q(1)
+                {
+                    return Built(Value::Unworked(
+                        "is a remainder arithmetic works out only of a whole number, on dividing by one of at least 1",
+                    ));
+                }
+                Q::from_integer(left.to_integer() % right.to_integer())
+            }
             EXP => {
                 if !right.is_integer() {
                     return Built(Value::Unworked(
@@ -818,17 +831,52 @@ fn system_test(system: &str) -> Option<fn(&Q) -> bool> {
     })
 }
 
+/// The two sides of a divisibility worked out, a divisor of at least 1 and a
+/// number of at least 0: the whole numbers `arithmetic` decides one of, and
+/// what set.mm's `ndvdsi` is stated for (`METHODS.md`, arithmetic).
+pub fn whole_division(
+    divisor: &Term,
+    number: &Term,
+) -> Route<Result<(BigInt, BigInt), &'static str>> {
+    let mut values = Vec::new();
+    for side in [divisor, number] {
+        match closed_value(side) {
+            Declined(d) => return Declined(d),
+            Built(Value::Unworked(why)) => return Built(Err(why)),
+            Built(Value::Exact(v)) => values.push(v),
+        }
+    }
+    let (d, n) = (&values[0], &values[1]);
+    if !d.is_integer() || !n.is_integer() || *d < q(1) || n.is_negative() {
+        return Built(Err(
+            "is a divisibility arithmetic decides only of whole numbers, by a divisor of at least 1",
+        ));
+    }
+    Built(Ok((d.to_integer(), n.to_integer())))
+}
+
 /// Whether a relation between closed numeral terms holds.
 ///
 /// `METHODS.md`'s procedure for `arithmetic`: evaluate each side to a
 /// rational and decide the relation, or for a membership test the value.
 /// `=`, `≠`, `<` and `≤` — a reader's `>` and `≥` arrive as these with the
-/// sides turned — denials of any of them, and membership of ℕ, ℕ₀, ℤ, ℚ, ℝ
-/// and ℂ. A decline where the claim is none of these or holds a letter.
+/// sides turned — divisibility of whole numbers, which is what "is even" and
+/// "is odd" are too, denials of any of them, and membership of ℕ, ℕ₀, ℤ, ℚ,
+/// ℝ and ℂ. A decline where the claim is none of these or holds a letter.
 pub fn decide_closed(claim: &Term) -> Route<Verdict> {
     let negated = claim.label() == Some("wn") && claim.children().len() == 1;
     let claim = if negated { &claim.children()[0] } else { claim };
     let kids = claim.children();
+    if claim.label() == Some("wbr")
+        && kids.len() == 3
+        && kids[2].label() == Some("cdvds")
+    {
+        return match whole_division(&kids[0], &kids[1]) {
+            Declined(d) => Declined(d),
+            Built(Err(why)) => Built(Verdict::Unworked(why)),
+            Built(Ok((d, n))) => Built(Verdict::Holds((n % d).is_zero() != negated)),
+        };
+    }
     enum Test {
         Two(fn(&Q, &Q) -> bool),
         One(fn(&Q) -> bool),

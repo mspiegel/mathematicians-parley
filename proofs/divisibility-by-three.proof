@@ -1,7 +1,5 @@
 import mundane theorem    stdlib/divisibility/congruent-divides
 import mundane definition stdlib/divisibility/congruent-mod
-import mundane definition stdlib/divisibility/divides
-import mundane theorem    stdlib/divisibility/divides-combination
 import mundane theorem    stdlib/divisibility/divides-multiple
 import mundane theorem    stdlib/numbers/exponent-step
 import mundane theorem    stdlib/numbers/int-closure
@@ -11,10 +9,36 @@ import mundane theorem    stdlib/sums/sum-difference
 import mundane theorem    stdlib/sums/sum-divisible
 import mundane theorem    stdlib/sums/sum-integer
 
+theorem congruent-times
+  note        Both sides of a congruence may be multiplied by the same
+              number: n divides a − b, so it divides (a − b)·c, which is
+              a·c − b·c.
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  let c ∈ ℤ                                                           (H3)
+  let n ∈ ℕ                                                           (H4)
+  assume a ≡ b (mod n)                                                (H5)
+  then a·c ≡ b·c (mod n)
+
+1.  n divides a − b
+    mun:congruent-mod, from H5
+
+2.  n divides (a − b)·c
+    mun:divides-multiple e := n, a := a − b, x := c, from 1
+
+3.  (a − b)·c = a·c − b·c
+    algebra
+
+4.  n divides a·c − b·c
+    substitute (a − b)·c = a·c − b·c (line 3) into line 2
+
+5.  a·c ≡ b·c (mod n)
+    mun:congruent-mod, from 4
+
 theorem ten-power-congruent
   note        10 leaves remainder 1 on division by 3, so every power of 10
-              does: by induction, 10^(m + 1) − 1 is (10^m − 1)·10 + 9, and 3
-              divides both parts.
+              does: 10^(m + 1) is 10^m·10, and with 10^m ≡ 1 that is
+              1·10 ≡ 10 ≡ 1.
   let k ∈ ℕ₀                                                         (H1)
   then 10^k ≡ 1 (mod 3)
 
@@ -22,58 +46,28 @@ theorem ten-power-congruent
     induction on m starting at 0
 
     base
-    1.1.  3 divides 10^0 − 1
-          mun:divides d := 3, n := 10^0 − 1
-          requires 10^0 − 1 = 3·0: arithmetic
-
-    1.2.  10^0 ≡ 1 (mod 3)
-          mun:congruent-mod, from 1.1
+    1.1.  10^0 ≡ 1 (mod 3)
+          calculation
+            10^0 = 1              arithmetic
+                 ≡ 1 (mod 3)      arithmetic
 
     step
     let m ∈ ℕ₀                                                        (K)
     assume step 1 is true for m, the induction hypothesis             (IH)
 
-    1.3.  3 divides 10^m − 1
-          mun:congruent-mod, from IH
-          requires 10^m ∈ ℤ: mun:power-integer a := 10
-
-    1.4.  3 divides 9
-          mun:divides d := 3, n := 9
-          requires 9 = 3·3: arithmetic
-
-    1.5.  10 − 1 = 9
-          arithmetic
-
-    1.6.  3 divides 10 − 1
-          substitute 10 − 1 = 9 (line 1.5) into line 1.4
-
-    1.7.  3 divides (10^m − 1)·10 + (10 − 1)·1
-          mun:divides-combination e := 3, a := 10^m − 1, b := 10 − 1,
-            x := 10, y := 1, from 1.3, 1.6
-          requires 10^m ∈ ℤ: mun:power-integer a := 10
-          requires 10^m − 1 ∈ ℤ: mun:int-closure
-
-    1.8.  10^(m + 1) = 10^m·10
+    1.2.  10^(m + 1) = 10^m·10
           mun:exponent-step a := 10
 
-    1.9.  (10^m − 1)·10 + (10 − 1)·1 = 10^m·10 − 1
-          algebra
-          requires 10^m ∈ ℝ: mun:power-real a := 10, m := m
+    1.3.  10^m·10 ≡ 1·10 (mod 3)
+          thm:congruent-times a := 10^m, b := 1, c := 10, n := 3, from IH
+          requires 10^m ∈ ℤ: mun:power-integer a := 10
 
-    1.10. 10^m·10 − 1 = 10^(m + 1) − 1
-          substitute 10^(m + 1) = 10^m·10 (line 1.8)
-
-    1.11. (10^m − 1)·10 + (10 − 1)·1 = 10^(m + 1) − 1
+    1.4.  10^(m + 1) ≡ 1 (mod 3)
           calculation
-            (10^m − 1)·10 + (10 − 1)·1 = 10^m·10 − 1       1.9
-                                       = 10^(m + 1) − 1    1.10
-
-    1.12. 3 divides 10^(m + 1) − 1
-          substitute (10^m − 1)·10 + (10 − 1)·1 = 10^(m + 1) − 1 (line 1.11) into line 1.7
-
-    1.13. 10^(m + 1) ≡ 1 (mod 3)
-          mun:congruent-mod, from 1.12
-          requires 10^(m + 1) ∈ ℤ: mun:power-integer a := 10, m := m + 1
+            10^(m + 1) = 10^m·10          1.2
+                       ≡ 1·10 (mod 3)     1.3
+                       ≡ 10 (mod 3)       arithmetic
+                       ≡ 1 (mod 3)        arithmetic
 
 2.  10^k ≡ 1 (mod 3)
     instantiate m := k in line 1

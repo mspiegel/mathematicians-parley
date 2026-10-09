@@ -74,6 +74,13 @@ of it and by their saying which names are distinct, and nothing is searched
 for. A case analysis whose cases need reasons of their own is still written
 out, each case with its conclusion.
 
+**That 5 is odd is seen, not argued.** A reader knows 5 is odd and 3 divides
+9 at a glance, and a line writing 5 = 2·2 + 1 to unfold "odd" asks them to
+check what they never doubted. So `arithmetic` decides such a word of
+numerals, and `inspection` decides it of a value it works out, but only for a
+word whose record says so (`DATABASE.md`, `decided`): the library is where a
+reader learns which words a method takes as seen.
+
 **Dull facts.** Some steps exist only to satisfy a hypothesis of a cited
 definition, theorem or method: that a divisor is not zero, that a sine is
 a real number, that 2 > 1. These are dull facts. The name describes

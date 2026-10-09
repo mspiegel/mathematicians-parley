@@ -33,6 +33,11 @@
 #   commutes    that the pattern's two holes may be exchanged without changing
 #               what it denotes, so 2k and k·2 are the same number. One entry
 #               per pattern, `yes` or `no`; absent where no pattern commutes.
+#   decided     for an operation, that `arithmetic` works it out of numerals,
+#               as `mod` says. The operations it works out by its nature, the
+#               additive and multiplicative ones, powers and a product over a
+#               range, carry none; any other is worked out only where its
+#               record says so (`DATABASE.md`, `METHODS.md`).
 #
 #               Unlike `spells` and `negates`, the two are not the same
 #               formula. The kernel writes one of them, a proof offering the
@@ -435,6 +440,7 @@ notation mod
   level       multiplicative
   assoc       left
   reads       the remainder on dividing by
+  decided     arithmetic
   metamath    cmo
   target      _1 _2 cmo co
   note        The remainder, a mod b, as Euclid's algorithm writes each

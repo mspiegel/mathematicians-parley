@@ -97,7 +97,7 @@ pub const FIELDS: [(RecordKind, &[&str]); 5] = [
         &[
             "pattern", "sort", "level", "assoc", "commutes", "negates", "spells",
             "places", "nests", "bounds", "joins", "wraps", "fills", "shadowed",
-            "binds", "reads", "target", "metamath", "note",
+            "binds", "reads", "target", "metamath", "decided", "note",
         ],
     ),
     (
@@ -120,7 +120,7 @@ pub const FIELDS: [(RecordKind, &[&str]); 5] = [
         RecordKind::Definition,
         &[
             "sort", "builds", "reads", "metamath", "target", "open", "symbol",
-            "defines", "note",
+            "defines", "decided", "note",
         ],
     ),
     (RecordKind::Axiom, &["metamath", "target", "open", "note"]),

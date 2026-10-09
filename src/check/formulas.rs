@@ -13,7 +13,7 @@ use crate::citing::Library;
 use crate::corpus::proof::requires_item;
 use crate::corpus::{
     cited_item, define_parts, outermost, DefineParts, FileScope, Intro, Item,
-    Justification, Method, Recursion, Step, Theorem,
+    Justification, Method, Record, RecordKind, Recursion, Step, Theorem,
 };
 use crate::formula::{parse_here, walk, Node, Sort, Sorts};
 use crate::matching::{
@@ -23,6 +23,7 @@ use crate::outcome::{Built, Checked, Declined};
 use crate::regex;
 use crate::sorts::infer::{self, Reader, Store};
 use crate::sorts::{define_sorts, sentences, unlabel, Env};
+use crate::targets::split_entries;
 
 /// The sorts an item's statement relates fit, as its reading found.
 pub fn check_item_clashes(
@@ -227,6 +228,213 @@ pub fn check_formulas(report: &mut Report, thm: &Theorem, env: Env, known: &Know
                 d.line,
                 format!("define {}: {}", d.label, p.message),
             );
+        }
+    }
+}
+
+/// A word a definition defines, and the methods its record's `decided` field
+/// names (`DATABASE.md`).
+pub struct DefinedWord {
+    pub record: String,
+    pub methods: Vec<String>,
+}
+
+/// Every definition's word, keyed by the notation and the pattern a parse
+/// of its `then` line's left side gives it: a relation `arithmetic` does not
+/// decide of its own nature, as an equation or a membership it does. Words
+/// are what a `decided` field is about, so it may name only a method that
+/// decides words, and one naming another is reported.
+pub fn defined_words(
+    report: &mut Report,
+    records: &[Record],
+    env: Env,
+    sorts: &IndexMap<usize, Sorts>,
+) -> IndexMap<(String, String), DefinedWord> {
+    let mut out = IndexMap::new();
+    for (i, r) in records.iter().enumerate() {
+        if r.kind != RecordKind::Definition {
+            continue;
+        }
+        let methods: Vec<String> = r
+            .field("decided")
+            .map(|v| {
+                split_entries(v)
+                    .into_iter()
+                    .map(|m| str::trim(m).to_string())
+                    .collect()
+            })
+            .unwrap_or_default();
+        for m in &methods {
+            if !DECIDING.contains(&m.as_str()) {
+                report.say(
+                    &r.path,
+                    r.lines.get("decided").copied().unwrap_or(r.line),
+                    format!(
+                        "{} says {m} decides it, and {m} decides no word; the methods that do are {}",
+                        r.name,
+                        DECIDING.join(" and ")
+                    ),
+                );
+            }
+        }
+        let (Some((text, _)), Some(s)) = (r.conclusions.first(), sorts.get(&i)) else {
+            continue;
+        };
+        let Ok(node) = parse_here(text, env.g, s) else {
+            continue;
+        };
+        if node.notation != "biconditional" || node.children.len() != 2 {
+            continue;
+        }
+        let left = &node.children[0];
+        if NATIVE.contains(&left.notation.as_str()) {
+            continue;
+        }
+        out.insert(
+            (left.notation.clone(), left.text.clone()),
+            DefinedWord {
+                record: r.name.clone(),
+                methods,
+            },
+        );
+    }
+    out
+}
+
+/// The methods a `decided` field may name: those that decide a word of
+/// numerals (`METHODS.md`).
+const DECIDING: [&str; 2] = ["arithmetic", "inspection"];
+
+/// The notations of the relations `arithmetic` decides of its own nature,
+/// which a definition may unfold without making them words.
+const NATIVE: [&str; 3] = ["membership", "equality", "order"];
+
+/// The notations of the operations `arithmetic` works out of its own
+/// nature, which carry no `decided` field (`DATABASE.md`).
+const NATIVE_OPERATIONS: [&str; 7] = [
+    "additive",
+    "multiplicative",
+    "unary-minus",
+    "power",
+    "square",
+    "juxtaposition",
+    "product-over",
+];
+
+/// Every operation a notation declares, one building a number from numbers,
+/// by its notation's name, and whether `arithmetic` works it out: one of
+/// its own nature, or one whose record names it in a `decided` field.
+pub fn operations(records: &[Record]) -> IndexMap<String, bool> {
+    records
+        .iter()
+        .filter(|r| r.kind == RecordKind::Notation)
+        .filter(|r| {
+            r.field_or_empty("sort").trim_end().ends_with("→ number")
+                && r.field_or_empty("pattern").contains('_')
+        })
+        .map(|r| {
+            let decided = r.field("decided").is_some_and(|v| {
+                split_entries(v)
+                    .iter()
+                    .any(|m| str::trim(m) == "arithmetic")
+            });
+            let native = NATIVE_OPERATIONS.contains(&r.name.as_str());
+            (r.name.clone(), decided || native)
+        })
+        .collect()
+}
+
+/// A method decides a word only where the word's record names it
+/// (`DATABASE.md`, `decided`). `arithmetic` is asked of a step it justifies,
+/// a requires line it is the reason for, and a claim said to be impossible,
+/// which is a closed fact it shows false; a denial is asked of the word it
+/// denies. `inspection` is asked of each word its claim says, where no line
+/// the step cites says that word, since a word a cited line says of each
+/// element is read off the line and not decided. The elaborator sees
+/// "divides", "is even" and "is odd" as one relation, so the word is told
+/// apart here.
+pub fn check_decided_words(
+    report: &mut Report,
+    thm: &Theorem,
+    known: &Known,
+    words: &IndexMap<(String, String), DefinedWord>,
+    operations: &IndexMap<String, bool>,
+) {
+    let key = |n: &Node| (n.notation.clone(), n.text.clone());
+    for step in &thm.steps {
+        if step.just.head.is(Method::Inspection) {
+            let scope = known.scope(step);
+            let cited: BTreeSet<(String, String)> = step
+                .just
+                .refs
+                .iter()
+                .filter_map(|r| scope.get(r))
+                .filter_map(|text| known.read(step, text))
+                .flat_map(|n| n.walk().into_iter().map(|m| key(&m)).collect::<Vec<_>>())
+                .collect();
+            if let Some(claim) = known.read(step, &step.claim_text()) {
+                for node in claim.walk() {
+                    let Some(word) = words.get(&key(&node)) else {
+                        continue;
+                    };
+                    if cited.contains(&key(&node))
+                        || word.methods.iter().any(|m| m == "inspection")
+                    {
+                        continue;
+                    }
+                    report.say(
+                        &thm.path,
+                        step.line,
+                        format!(
+                            "step {} asks inspection to decide a word {} defines, which no line it cites says, and inspection decides a word only where its record says so in a `decided` field",
+                            step.number, word.record
+                        ),
+                    );
+                }
+            }
+        }
+        let mut asked: Vec<(usize, String)> = Vec::new();
+        if step.just.head.is(Method::Arithmetic) || step.impossible {
+            asked.push((step.line, step.claim_text()));
+        }
+        for r in &step.requires {
+            if str::trim(&r.how) == "arithmetic" {
+                asked.push((r.line, r.fact.clone()));
+            }
+        }
+        for (line, text) in asked {
+            let Some(mut node) = known.read(step, &text) else {
+                continue;
+            };
+            for part in node.walk() {
+                if operations.get(&part.notation) == Some(&false) {
+                    report.say(
+                        &thm.path,
+                        line,
+                        format!(
+                            "{text} works out {}, and arithmetic works out an operation beyond its own only where the notation's record says so in a `decided` field",
+                            part.notation
+                        ),
+                    );
+                }
+            }
+            while node.notation == "logical-not" && node.children.len() == 1 {
+                node = node.children[0].clone();
+            }
+            let Some(word) = words.get(&(node.notation.clone(), node.text.clone()))
+            else {
+                continue;
+            };
+            if !word.methods.iter().any(|m| m == "arithmetic") {
+                report.say(
+                    &thm.path,
+                    line,
+                    format!(
+                        "{text} is a word {} defines, and arithmetic decides a word only where its record says so in a `decided` field",
+                        word.record
+                    ),
+                );
+            }
         }
     }
 }
@@ -683,13 +891,94 @@ pub fn check_cases_cited(report: &mut Report, thm: &Theorem, known: &Known) {
 
 /// One link of a calculation.
 pub struct Link {
-    /// What the link claims: `previous rel t`.
+    /// What the link claims: `previous rel t`, with its modulus where the
+    /// relation is a congruence.
     pub claim: String,
     /// Its two terms, where the first line says where its relation stands.
     pub sides: Option<(String, String)>,
+    /// The relation it joins by.
+    pub relation: String,
+    /// The modulus a congruence says, `(mod 3)` read as 3.
+    pub modulus: Option<String>,
     /// What it cites.
     pub cite: String,
     pub line: usize,
+}
+
+regex!(MODULUS, r"^(.*?)\s*\(mod\s+(.+)\)$");
+
+/// A chain with a congruence in it says its modulus on each `≡` line and on
+/// no other, says the same one on all of them, has no `≤` or `<`, since an
+/// order and a congruence join into nothing, and once a line says `≡` does
+/// not go back to `=` (`GRAMMAR.md`, calculation chains).
+pub fn check_chain_congruences(report: &mut Report, thm: &Theorem) {
+    for step in &thm.steps {
+        let links = chain_links(&step.just);
+        let mut said: Option<&str> = None;
+        for link in &links {
+            if said.is_some() && link.relation == "=" {
+                report.say(
+                    &thm.path,
+                    link.line,
+                    format!(
+                        "a link of step {} says = after a congruence; once a chain says ≡ every line after says ≡",
+                        step.number
+                    ),
+                );
+            }
+            match (link.relation.as_str(), &link.modulus) {
+                ("≡", None) => report.say(
+                    &thm.path,
+                    link.line,
+                    format!(
+                        "a link of step {} says ≡ and not what modulo; write it after the term, as (mod n)",
+                        step.number
+                    ),
+                ),
+                ("≡", Some(n)) => match said {
+                    Some(first) if first != n => report.say(
+                        &thm.path,
+                        link.line,
+                        format!(
+                            "a link of step {} is a congruence modulo {n}, and an earlier one modulo {first}; a chain's congruences are modulo one number",
+                            step.number
+                        ),
+                    ),
+                    _ => said = Some(n),
+                },
+                (_, Some(n)) => report.say(
+                    &thm.path,
+                    link.line,
+                    format!(
+                        "a link of step {} says (mod {n}) after a relation that is not ≡",
+                        step.number
+                    ),
+                ),
+                _ => {}
+            }
+        }
+        let ordered = links.iter().any(|l| l.relation == "≤" || l.relation == "<");
+        if said.is_some() && ordered {
+            report.say(
+                &thm.path,
+                step.line,
+                format!(
+                    "step {} joins a congruence with an order, and the two join into nothing",
+                    step.number
+                ),
+            );
+        }
+    }
+}
+
+/// A link's term and the modulus written after it, `1·10 (mod 3)` read as
+/// 1·10 and 3: the modulus says what the congruence is modulo, and is not
+/// part of the term the next line continues from.
+fn split_modulus(text: &str) -> (String, Option<String>) {
+    match MODULUS.captures(str::trim(text)) {
+        Some(m) => (m[1].to_string(), Some(str::trim(&m[2]).to_string())),
+        None => (str::trim(text).to_string(), None),
+    }
 }
 
 /// Each link of a calculation. The first line is written whole; each later
@@ -708,17 +997,21 @@ pub fn chain_links(just: &Justification) -> Vec<Link> {
             None => ("", whole),
         };
         let body = str::trim(body);
-        let (claim, sides);
+        let (claim, sides, relation, modulus);
         match &previous {
             None => {
                 let words: Vec<&str> = body.split_whitespace().collect();
-                let at = RELATIONS.iter().find_map(|r| outermost(&words, r));
+                let at = RELATIONS
+                    .iter()
+                    .find_map(|r| outermost(&words, r).map(|at| (at, *r)));
                 claim = body.to_string();
-                let before = match at {
-                    Some(at) => words[at + 1..].join(" "),
-                    None => String::new(),
+                let (before, said) = match at {
+                    Some((at, _)) => split_modulus(&words[at + 1..].join(" ")),
+                    None => (String::new(), None),
                 };
-                sides = at.map(|at| (words[..at].join(" "), before.clone()));
+                relation = at.map(|(_, r)| r.to_string()).unwrap_or_default();
+                modulus = said;
+                sides = at.map(|(at, _)| (words[..at].join(" "), before.clone()));
                 previous = Some(before);
             }
             Some(prev) => {
@@ -726,8 +1019,10 @@ pub fn chain_links(just: &Justification) -> Vec<Link> {
                     Some(at) => (&body[..at], &body[at + 1..]),
                     None => (body, ""),
                 };
-                let added = str::trim(added).to_string();
-                claim = format!("{prev} {mark} {added}");
+                let (added, said) = split_modulus(added);
+                claim = format!("{prev} {mark} {}", str::trim(&body[mark.len()..]));
+                relation = mark.to_string();
+                modulus = said;
                 sides = Some((prev.clone(), added.clone()));
                 previous = Some(added);
             }
@@ -735,6 +1030,8 @@ pub fn chain_links(just: &Justification) -> Vec<Link> {
         out.push(Link {
             claim,
             sides,
+            relation,
+            modulus,
             cite: cite.to_string(),
             line: *no,
         });
@@ -824,6 +1121,7 @@ pub fn check_closed_arithmetic(
             sides,
             cite,
             line: no,
+            ..
         } in chain_links(just)
         {
             if cite == "arithmetic"

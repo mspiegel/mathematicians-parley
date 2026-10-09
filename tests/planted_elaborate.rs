@@ -228,6 +228,50 @@ fn the_elaborator_reports_every_planted_defect() {
 
 fn cases() -> Vec<Case> {
     vec![
+        // A chain's congruence of numerals is worked out like any closed
+        // fact: 10 is not 2 more than a multiple of 3.
+        case(
+            "a congruence link of numerals that does not hold",
+            "proofs/divisibility-by-three/ten-power-congruent",
+            "proofs/divisibility-by-three.proof",
+            "                       ≡ 1 (mod 3)        arithmetic",
+            "                       ≡ 2 (mod 3)        arithmetic",
+            "which is false",
+        ),
+        // `arithmetic` decides a divisibility of numerals, and a false one
+        // is reported as false rather than proved.
+        case(
+            "a divisibility of numerals that does not hold",
+            "proofs/divisibility-by-three/ten-power-congruent",
+            "proofs/divisibility-by-three.proof",
+            "          requires 10^m ∈ ℤ: mun:power-integer a := 10\n",
+            "          requires 10^m ∈ ℤ: mun:power-integer a := 10\n          requires 3 divides 10 − 2: arithmetic\n",
+            "which is false",
+        ),
+        // A method decides a divisibility only where the record of a word
+        // whose kernel form it fits names the method. 10 divides 1 fits
+        // only `divides`: its divisor is not 2, as "is even" and "is odd"
+        // have, and its number is not a difference, as a congruence has. With
+        // `arithmetic` struck from `divides`, it is refused.
+        case(
+            "a divisibility arithmetic decides with its record not naming it",
+            "proofs/reals-uncountable/digit-step",
+            "corpus/stdlib/divisibility.records",
+            "  then        d divides n ↔ there is k ∈ ℤ with n = d·k\n  decided     arithmetic, inspection",
+            "  then        d divides n ↔ there is k ∈ ℤ with n = d·k\n  decided     inspection",
+            "a word no record says arithmetic decides",
+        ),
+        // `inspection` decides "deg(x) is odd" at each vertex from the degree
+        // a cited line gives, so a count that leaves one out is refused:
+        // 5 is odd, and A is among the vertices of odd degree.
+        case(
+            "a parity inspection settles that a count leaves out",
+            "proofs/konigsberg/konigsberg",
+            "proofs/konigsberg.proof",
+            "6.  |{x ∈ V : deg(x) is odd}| = 4",
+            "6.  |{x ∈ V : deg(x) is odd}| = 3",
+            "|{x ∈ V : deg(x) is odd}| is 3",
+        ),
         // Two equations each multiplied by a term is two steps: the proof
         // multiplies each law of sines in a step of its own and joins them by
         // a calculation, and one `algebra` step citing both is refused.
@@ -410,8 +454,8 @@ fn cases() -> Vec<Case> {
             "say a true claim is impossible",
             "proofs/reals-uncountable/digit-step",
             "proofs/reals-uncountable.proof",
-            "    2.4.  10 ≤ 1, which is impossible\n          mun:divides-le e := 10, m := 1, from 2.3\n",
-            "    2.4.  1 ≤ 10, which is impossible\n          inequalities\n",
+            "    2.3.  10 divides 1, which is impossible\n          substitute (t + 1) − t = 1 (line 2.2) into line 2.1\n",
+            "    2.3.  10 divides 1\n          substitute (t + 1) − t = 1 (line 2.2) into line 2.1\n\n    2.4.  1 ≤ 10, which is impossible\n          inequalities\n",
             "step 2.4 says 1 ≤ 10 is impossible, which is true",
         ),
         // `decide_field` refuses a claim that is not an identity, before
@@ -524,16 +568,16 @@ fn cases() -> Vec<Case> {
             "claim a false numeral fact with a number past one digit",
             "proofs/divisibility-by-three/ten-power-congruent",
             "proofs/divisibility-by-three.proof",
-            "requires 10^0 − 1 = 3·0: arithmetic",
-            "requires 10^0 − 1 = 3·1: arithmetic",
-            "claims 10^0 − 1 = 3·1, which is false",
+            "          requires 10^m ∈ ℤ: mun:power-integer a := 10\n",
+            "          requires 10^m ∈ ℤ: mun:power-integer a := 10\n          requires 10 − 1 = 3·4: arithmetic\n",
+            "claims 10 − 1 = 3·4, which is false",
         ),
         case(
             "claim a false numeral fact of digits",
             "proofs/divisibility-by-three/ten-power-congruent",
             "proofs/divisibility-by-three.proof",
-            "requires 9 = 3·3: arithmetic",
-            "requires 9 = 3·4: arithmetic",
+            "          requires 10^m ∈ ℤ: mun:power-integer a := 10\n",
+            "          requires 10^m ∈ ℤ: mun:power-integer a := 10\n          requires 9 = 3·4: arithmetic\n",
             "claims 9 = 3·4, which is false",
         ),
         // True, and past what the method shows, an order with a side that
@@ -544,9 +588,9 @@ fn cases() -> Vec<Case> {
             "ask arithmetic for a true fact it cannot show",
             "proofs/divisibility-by-three/ten-power-congruent",
             "proofs/divisibility-by-three.proof",
-            "10 − 1 = 9\n          arithmetic",
-            "10 − 11 ≤ 9\n          arithmetic",
-            "step 1.5 claims 10 − 11 ≤ 9, which is true, and arithmetic cannot show it yet",
+            "          requires 10^m ∈ ℤ: mun:power-integer a := 10\n",
+            "          requires 10^m ∈ ℤ: mun:power-integer a := 10\n          requires 10 − 11 ≤ 9: arithmetic\n",
+            "claims 10 − 11 ≤ 9, which is true, and arithmetic cannot show it yet",
         ),
         // What has no exact value is refused before anything is computed or
         // stated: a division by zero, a number too large to work out, which
@@ -556,24 +600,24 @@ fn cases() -> Vec<Case> {
             "divide by zero in a numeral fact",
             "proofs/divisibility-by-three/ten-power-congruent",
             "proofs/divisibility-by-three.proof",
-            "          requires 10^m ∈ ℝ: mun:power-real a := 10, m := m\n\n    1.10.",
-            "          requires 10^m ∈ ℝ: mun:power-real a := 10, m := m\n          requires 3/0 ∈ ℝ: arithmetic\n\n    1.10.",
+            "          requires 10^m ∈ ℤ: mun:power-integer a := 10\n",
+            "          requires 10^m ∈ ℤ: mun:power-integer a := 10\n          requires 3/0 ∈ ℝ: arithmetic\n",
             "which divides by zero",
         ),
         case(
             "state a numeral too large to work out",
             "proofs/divisibility-by-three/ten-power-congruent",
             "proofs/divisibility-by-three.proof",
-            "          requires 10^m ∈ ℝ: mun:power-real a := 10, m := m\n\n    1.10.",
-            "          requires 10^m ∈ ℝ: mun:power-real a := 10, m := m\n          requires 9^(9^9) ∈ ℕ: arithmetic\n\n    1.10.",
+            "          requires 10^m ∈ ℤ: mun:power-integer a := 10\n",
+            "          requires 10^m ∈ ℤ: mun:power-integer a := 10\n          requires 9^(9^9) ∈ ℕ: arithmetic\n",
             "which is too large to work out",
         ),
         case(
             "raise a numeral to a power that is not whole",
             "proofs/divisibility-by-three/ten-power-congruent",
             "proofs/divisibility-by-three.proof",
-            "          requires 10^m ∈ ℝ: mun:power-real a := 10, m := m\n\n    1.10.",
-            "          requires 10^m ∈ ℝ: mun:power-real a := 10, m := m\n          requires 4^(1/2) ∈ ℕ: arithmetic\n\n    1.10.",
+            "          requires 10^m ∈ ℤ: mun:power-integer a := 10\n",
+            "          requires 10^m ∈ ℤ: mun:power-integer a := 10\n          requires 4^(1/2) ∈ ℕ: arithmetic\n",
             "which is not a rational number",
         ),
         // Named where it is used, `arithmetic` works the fact out first, as it

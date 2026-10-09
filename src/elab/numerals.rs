@@ -28,6 +28,7 @@ const ADD: &str = "caddc";
 const SUB: &str = "cmin";
 const MUL: &str = "cmul";
 const EXP: &str = "cexp";
+const MOD: &str = "cmo";
 
 /// The digits before the last, and the last.
 fn last_off(n: &BigUint) -> (BigUint, u32) {
@@ -410,8 +411,96 @@ fn power_of(b: &Builder, a: &BigUint, k: u32) -> Proof {
     )
 }
 
-/// A closed term of whole numbers, sums, products and whole powers, with
-/// its value and |- term = value; None for anything else. A numeral is its
+/// |- ( x mod n ) = r, for n at least 1 and r what is left of x on taking
+/// away the most whole multiples of n it holds (`METHODS.md`, arithmetic):
+/// x is r + q·n, `modcyc` takes the q·n away, and `modid` says r, being
+/// below n, is its own remainder.
+fn remainder_of(b: &Builder, x: &BigUint, n: &BigUint) -> Proof {
+    let (q, r) = (x / n, x % n);
+    let (sx, sn, sq, sr) = (spelt(x), spelt(n), spelt(&q), spelt(&r));
+    let positive = b.ap(
+        "ax-mp",
+        &binds! {"ph" => t!(sn, "cn", "wcel"), "ps" => t!(sn, "crp", "wcel")},
+        &[&nn_of(b, n), &b.ap("nnrp", &binds! {"A" => &sn}, &[])],
+    );
+    let real_r = re(b, r.clone());
+    let sizes = b.ap(
+        "pm3.2i",
+        &binds! {"ph" => t!(sr, "cr", "wcel"), "ps" => t!(sn, "crp", "wcel")},
+        &[&real_r, &positive],
+    );
+    let bounds = b.ap(
+        "pm3.2i",
+        &binds! {"ph" => t!("cc0", sr, "cle", "wbr"), "ps" => t!(sr, sn, "clt", "wbr")},
+        &[
+            &b.ap("nn0ge0i", &binds! {"N" => &sr}, &[&nn0_of(b, &r)]),
+            &below_of(b, &r, n),
+        ],
+    );
+    let own = b.ap(
+        "mp2an",
+        &binds! {
+            "ph" => t!(t!(sr, "cr", "wcel"), t!(sn, "crp", "wcel"), "wa"),
+            "ps" => t!(t!("cc0", sr, "cle", "wbr"), t!(sr, sn, "clt", "wbr"), "wa"),
+            "ch" => t!(op(&sr, &sn, MOD), sr, "wceq"),
+        },
+        &[
+            &sizes,
+            &bounds,
+            &b.ap("modid", &binds! {"A" => &sr, "B" => &sn}, &[]),
+        ],
+    );
+    if q.is_zero() {
+        return own;
+    }
+    // x = r + q·n, worked from q·n = p and r + p = x.
+    let times = op(&sq, &sn, MUL);
+    let p = &q * n;
+    let sp = spelt(&p);
+    let added = op(&sr, &times, ADD);
+    let moved = b.ap(
+        "oveq2i",
+        &binds! {"A" => &times, "B" => &sp, "C" => &sr, "F" => ADD},
+        &[&product_of(b, &q, n)],
+    );
+    let total = b.ap(
+        "eqtri",
+        &binds! {"A" => &added, "B" => op(&sr, &sp, ADD), "C" => &sx},
+        &[&moved, &sum_of(b, &r, &p)],
+    );
+    let written = b.ap(
+        "oveq1i",
+        &binds! {"A" => &sx, "B" => &added, "C" => &sn, "F" => MOD},
+        &[&b.ap("eqcomi", &binds! {"A" => &added, "B" => &sx}, &[&total])],
+    );
+    let cycled = b.ap(
+        "mp3an",
+        &binds! {
+            "ph" => t!(sr, "cr", "wcel"), "ps" => t!(sn, "crp", "wcel"),
+            "ch" => t!(sq, "cz", "wcel"),
+            "th" => t!(op(&added, &sn, MOD), op(&sr, &sn, MOD), "wceq"),
+        },
+        &[
+            &real_r,
+            &positive,
+            &b.ap("nn0zi", &binds! {"N" => &sq}, &[&nn0_of(b, &q)]),
+            &b.ap("modcyc", &binds! {"A" => &sr, "B" => &sn, "N" => &sq}, &[]),
+        ],
+    );
+    let gone = b.ap(
+        "eqtri",
+        &binds! {"A" => op(&added, &sn, MOD), "B" => op(&sr, &sn, MOD), "C" => &sr},
+        &[&cycled, &own],
+    );
+    b.ap(
+        "eqtri",
+        &binds! {"A" => op(&sx, &sn, MOD), "B" => op(&added, &sn, MOD), "C" => &sr},
+        &[&written, &gone],
+    )
+}
+
+/// A closed term of whole numbers, sums, products, whole powers and
+/// remainders, with its value and |- term = value; None for anything else. A numeral is its
 /// own value, and is proved so by `eqid`.
 pub fn worked(
     b: &Builder,
@@ -434,7 +523,7 @@ pub fn worked(
     }
     let kids = term.children();
     let how = kids[2].label()?;
-    if ![ADD, SUB, MUL, EXP].contains(&how) {
+    if ![ADD, SUB, MUL, EXP, MOD].contains(&how) {
         return None;
     }
     let (left, first) = worked(b, &kids[0], labels)?;
@@ -459,6 +548,10 @@ pub fn worked(
         }
         SUB => return None,
         MUL => (&left * &right, product_of(b, &left, &right)),
+        // A remainder is worked only on dividing by a whole number of at
+        // least 1.
+        MOD if right.is_zero() => return None,
+        MOD => (&left % &right, remainder_of(b, &left, &right)),
         _ => {
             let k = right.to_u32()?;
             (left.pow(k), power_of(b, &left, k))

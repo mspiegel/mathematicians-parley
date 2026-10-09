@@ -401,12 +401,15 @@ into every line.
 
 ## arithmetic
 
-`arithmetic` decides **closed numeral facts**. No step of the corpus is
-justified by it: a fact with no letter in it gives a reader nothing to check
-but working it out, so it names `arithmetic` where it is used rather than
-standing as a step of its own (`SYNTAX.md`). It justifies a requires line; it is
-the source of a `substitute`, `substitute 0 + 1 = 1 (arithmetic)`; and it is
-the reason on a chain line of numerals alone, `= 1(1 + 1)/2    arithmetic`.
+`arithmetic` decides **closed numeral facts**. A fact with no letter in it
+gives a reader nothing to check but working it out, so it names `arithmetic`
+where it is used rather than standing as a step of its own (`SYNTAX.md`). It
+justifies a requires line; it is the source of a `substitute`, `substitute 0
++ 1 = 1 (arithmetic)`; and it is the reason on a chain line of numerals alone,
+`= 1(1 + 1)/2    arithmetic`. It justifies a numbered step only where the
+proof's shape asks a line there: an induction's base case, and a fact a
+method takes only from a cited line. One step of the corpus is such, the
+birthday problem's step 13.
 In each place the same procedure and the same refusals apply, and the
 checker refuses the method for a fact with a letter in it.
 
@@ -415,7 +418,7 @@ The requires lines of the corpus that cite it, counted 2026-10-09:
 | what the claim is | requires lines |
 |---|---|
 | membership of a closed term in a number system | 1 |
-| a value, as 9 = 3·3 | 2 |
+| a word its record lets it decide, as 3 divides 10 − 1 | 1 |
 | an order relation, as 2 ≥ 0 | 3 |
 | a disequality, as 2 ≠ 0 | 4 |
 
@@ -432,17 +435,36 @@ that cites nothing.
 ### Fact out
 
 A relation between **closed numeral expressions**, where a closed numeral
-expression is built from decimal numerals by `+`, `−`, `·`, `/` and powers,
-and by products over a range of numerals, ∏(k ∈ {0, …, 22}) (365 − k), with
-every operand closed. The relation is `=`, `≠`, `<`, `≤`, `>`, `≥`, or
+expression is built from decimal numerals by `+`, `−`, `·`, `/`, powers and
+`mod`, and by products over a range of numerals, ∏(k ∈ {0, …, 22}) (365 −
+k), with every operand closed. `x mod n` is worked out where x is a whole
+number and n one of at least 1: `10^0 mod 3 = 1`. `mod` is not one of the
+operations arithmetic works out by its nature, and its notation record says
+`decided arithmetic` (`DATABASE.md`); an operation whose record does not is
+refused. The relation is `=`, `≠`, `<`, `≤`, `>`, `≥`, or
 membership of ℕ, ℕ₀, ℤ, ℚ or ℝ.
+
+Or a word whose record names `arithmetic` in its `decided` field
+(`DATABASE.md`), said of closed numeral expressions, or its denial: `3
+divides 10 − 1`, `5 is odd`, `not (2 divides 7)`, `10^0 ≡ 1 (mod 3)`. The
+library's are `divides`, `even`, `odd` and `congruent-mod`. A word whose record does not name the method is
+refused however plainly it holds, so what `arithmetic` decides can be read off
+the records.
 
 ### The procedure
 
-Evaluate each side to a rational in lowest terms and decide the relation. For a
+Evaluate each side to a rational in lowest terms and decide the relation; a
+remainder `x mod n` is what is left of x after taking away the most whole
+multiples of n it holds, so 10 mod 3 is 1. For a
 membership, evaluate and test the value: a rational is in ℤ when its
 denominator is 1, in ℕ when it is also positive, in ℕ₀ when it is also
 non-negative, and in ℚ and ℝ always.
+
+The four words are one relation to set.mm: "n is even" is 2 ∥ n, "n is
+odd" is its denial, and a ≡ b (mod n) is n ∥ (a − b), as their notation
+records' targets say. So d divides n is
+decided by evaluating both, each a whole number with d ≥ 1 and n ≥ 0, and
+dividing: it holds when the remainder is 0, and fails otherwise.
 
 ### Refusals
 
@@ -464,6 +486,14 @@ non-negative, and in ℚ and ℝ always.
   memory without end. The size
   of a power is estimated before it is computed, and anything past ten
   thousand bits is refused.
+- **A word whose record does not name `arithmetic`.** "5 is prime" is
+  refused, though it holds, until the record of `prime` says the method
+  decides it and the method can.
+- **A remainder outside the whole numbers,** `(−7) mod 3` or `7 mod 0`:
+  set.mm gives each a value, and nothing in the corpus asks one.
+- **A divisibility outside the whole numbers,** a divisor below 1 or a
+  number below 0: `−2 divides 4` is not worked out. Nothing in the corpus
+  asks one, and set.mm's lemma for the denial is stated for those.
 - **Anything false.** The claim is worked out before a proof is attempted,
   so a false one is reported as false.
 
@@ -527,6 +557,17 @@ products. The order between the two numerals is proved digit by digit, and
 term, ∏(k ∈ {0, …, 22}) (365 − k) ∈ ℝ, is its numeral's, carried back by
 `eqeltrrd`. The numbers are held as big integers, so a side of sixty digits
 is worked as exactly as a digit.
+
+A remainder of whole numbers, x mod n with x = q·n + r and 0 ≤ r < n, is r
+by `modcyc`, which takes the q·n away, and `modid`, which says a number below
+n is its own remainder; where q is 0 `modid` alone says it.
+
+A divisibility of whole numbers is proved at their values and carried back to
+the terms as written by `breq12d`. That d divides n, with n = d·q, is
+`dvdsmul1` at d and q, the product worked out (`breqtri`). That it does not,
+with n = d·q + r and 0 < r < d, is `ndvdsi` from the quotient, the remainder
+and the sum and order the numeral lemmas prove: 5 is odd because 2·2 + 1 = 5
+and 1 < 2.
 
 ---
 
@@ -641,7 +682,9 @@ The lines the step cites, read for four kinds of sentence and nothing else:
   elements, as "for all x ∈ V, deg(x) = |{a ∈ E : x is incident with a}|"
   gives deg(B) once V is listed;
 - **what holds of a listed thing:** a line saying the property itself at a
-  listed name, or its negation, as "deg(A) is odd" says it of A.
+  listed name, or its negation, as "deg(A) is odd" says it of A;
+- **what a term is worth:** an equation giving a term a value of numerals
+  alone, as "deg(A) = 5" does.
 
 ### Fact out
 
@@ -667,7 +710,12 @@ where the facts say t differs from each of them. A property P is settled at
 an element by a cited line that says P there or denies it, or else by
 reading P there through what the facts say that element is, until it is a
 membership of that kind: "A is incident with f" is A ∈ {B, D} once f joins B
-and D, and that fails because A, B and D are distinct. The
+and D, and that fails because A, B and D are distinct. Where P is a word
+whose record names `inspection` in its `decided` field (`DATABASE.md`), said
+of a term a cited line gives a value of numerals alone, P is decided at that
+value as `arithmetic` decides it and carried back by the line's equation:
+"deg(A) is odd" from "deg(A) = 5". So Königsberg counts its odd vertices from
+the four degrees, and no line says that 5 or 3 is odd. The
 set S is replaced by its listing and P is settled at each element in turn.
 A size is the length of the list once the facts say its names are distinct.
 A term a "for all" line gives is read at the listed element it names, and
@@ -681,7 +729,8 @@ working out the sum that counts one against the other.
   the facts do not list: `inspection` checks a finite list a reader can see,
   and nothing it has to find.
 - **A property that does not come down to listed membership** through what
-  the cited lines say: an element whose case needs a lemma, a calculation or
+  the cited lines say, nor to a word its record lets `inspection` decide at a
+  value the lines give: an element whose case needs a lemma, a calculation or
   a reason of its own is a case to write, and `cases` writes it.
 - **Two names not said to differ**, where the answer depends on it.
 - **A search.** Only the cited lines are read, never the scope.
