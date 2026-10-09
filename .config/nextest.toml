@@ -1,0 +1,8 @@
+# The two tests that spread their work over every core count as six slots
+# each, so fewer others run beside them and parley build, which runs beside
+# the tests in scripts/precommit.sh, keeps a share of the machine. Measured
+# with nothing to compile, the script takes 64s with every test one slot,
+# 54 to 60s with four, 53 to 54s with six and 54 to 55s with eight.
+[[profile.default.overrides]]
+filter = 'binary(invariance) | binary(planted_gate)'
+threads-required = 6

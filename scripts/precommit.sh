@@ -6,10 +6,17 @@
 #
 #   debug:    cargo clippy                           (target/debug)
 #   release:  cargo build --release, then parley build, then parley gate
-#   test:     cargo test --release                   (target/release)
+#   test:     cargo nextest run --release            (target/release)
 #
 # The tests elaborate proofs and load set.mm, and run several times faster
-# built with optimisations. The release and test lanes share a build
+# built with optimisations. nextest runs the test binaries side by side,
+# where cargo test runs them one after another; each binary that reads
+# set.mm holds one test, so set.mm is read no more often than with cargo
+# test. With nothing to compile the script takes 98s with cargo test and
+# 53s with nextest, the two heavy tests counted as several slots each
+# (`.config/nextest.toml`). It is installed with
+# `cargo install cargo-nextest --locked`. nextest does not run doc tests,
+# and the crate has none. The release and test lanes share a build
 # directory, whose lock cargo holds while it compiles: one lane compiles the
 # library and the other waits for it, then uses it. parley build and the gate
 # run the binary without cargo, beside the tests. The release profile keeps
@@ -81,7 +88,7 @@ release_lane() {
 }
 
 test_lane() {
-    step test "cargo test --release" cargo test --release || return 1
+    step test "cargo nextest run --release" cargo nextest run --release || return 1
 }
 
 debug_lane >"$logs/debug.log" 2>&1 &
