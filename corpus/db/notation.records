@@ -513,6 +513,7 @@ notation singleton
 notation listed-two
   pattern     {_, _}
   sort        α, α → set of α
+  commutes    yes
   reads       the set whose elements are, and
   metamath    cpr
   target      _1 _2 cpr

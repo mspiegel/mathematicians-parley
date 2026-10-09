@@ -89,6 +89,17 @@ mundane definition pair
   target      elprg
   note        What is in a set of two listed things is one of the two.
 
+mundane theorem pair-equal
+  let a be an element                                                 (H1)
+  let b be an element                                                 (H2)
+  let c be an element                                                 (H3)
+  let d be an element                                                 (H4)
+  then        {a, b} = {c, d} ↔ (a = c and b = d) or (a = d and b = c)
+  metamath    preq12bg
+  target      preq12bg
+  note        Two sets of two listed things are one set when they list the
+              same two, in either order.
+
 mundane definition singleton
   let x be an element                                                 (H1)
   then        x ∈ {a} ↔ x = a

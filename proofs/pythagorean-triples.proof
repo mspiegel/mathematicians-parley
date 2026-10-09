@@ -28,6 +28,7 @@ import mundane definition stdlib/divisibility/odd
 import mundane theorem    stdlib/reasoning/disjunctive-syllogism
 import mundane theorem    stdlib/reasoning/or-left
 import mundane theorem    stdlib/reasoning/or-right
+import mundane theorem    stdlib/sets/pair-equal
 
 theorem even-leg
   note        If both legs were odd, c² would be twice an odd number: then c is
@@ -589,55 +590,58 @@ theorem triple-from-parameters
   let m ∈ ℕ                                                           (H5)
   let n ∈ ℕ                                                           (H6)
   assume c = k(m² + n²)                                               (H7)
-  assume (a = k(m² − n²) and b = 2kmn) or (a = 2kmn and b = k(m² − n²)) (H8)
+  assume {a, b} = {k(m² − n²), 2kmn}                                   (H8)
   then a² + b² = c²
 
 1.  (k(m² − n²))² + (2kmn)² = (k(m² + n²))²
     algebra
 
-2.  a² + b² = c²
-    cases, from H8
+2.  (a = k(m² − n²) and b = 2kmn) or (a = 2kmn and b = k(m² − n²))
+    mun:pair-equal a := a, b := b, c := k(m² − n²), d := 2kmn, from H8
+
+3.  a² + b² = c²
+    cases, from 2
 
     case
     assume a = k(m² − n²) and b = 2kmn                                (C1)
 
-    2.1.  a² + b² = (k(m² − n²))² + b²
+    3.1.  a² + b² = (k(m² − n²))² + b²
           substitute a = k(m² − n²) (C1)
 
-    2.2.  (k(m² − n²))² + b² = (k(m² − n²))² + (2kmn)²
+    3.2.  (k(m² − n²))² + b² = (k(m² − n²))² + (2kmn)²
           substitute b = 2kmn (C1)
 
-    2.3.  (k(m² + n²))² = c²
+    3.3.  (k(m² + n²))² = c²
           substitute c = k(m² + n²) (H7)
 
-    2.4.  a² + b² = c²
+    3.4.  a² + b² = c²
           calculation
-            a² + b² = (k(m² − n²))² + b²            2.1
-                    = (k(m² − n²))² + (2kmn)²       2.2
+            a² + b² = (k(m² − n²))² + b²            3.1
+                    = (k(m² − n²))² + (2kmn)²       3.2
                     = (k(m² + n²))²                 1
-                    = c²                            2.3
+                    = c²                            3.3
 
     case
     assume a = 2kmn and b = k(m² − n²)                                (C2)
 
-    2.5.  a² + b² = (2kmn)² + b²
+    3.5.  a² + b² = (2kmn)² + b²
           substitute a = 2kmn (C2)
 
-    2.6.  (2kmn)² + b² = (2kmn)² + (k(m² − n²))²
+    3.6.  (2kmn)² + b² = (2kmn)² + (k(m² − n²))²
           substitute b = k(m² − n²) (C2)
 
-    2.7.  (2kmn)² + (k(m² − n²))² = (k(m² + n²))²
+    3.7.  (2kmn)² + (k(m² − n²))² = (k(m² + n²))²
           algebra
 
-    2.8.  (k(m² + n²))² = c²
+    3.8.  (k(m² + n²))² = c²
           substitute c = k(m² + n²) (H7)
 
-    2.9.  a² + b² = c²
+    3.9.  a² + b² = c²
           calculation
-            a² + b² = (2kmn)² + b²                  2.5
-                    = (2kmn)² + (k(m² − n²))²       2.6
-                    = (k(m² + n²))²                 2.7
-                    = c²                            2.8
+            a² + b² = (2kmn)² + b²                  3.5
+                    = (2kmn)² + (k(m² − n²))²       3.6
+                    = (k(m² + n²))²                 3.7
+                    = c²                            3.8
 
 theorem triple-parameters
   note        Every triple is k times one whose legs share no factor
@@ -647,8 +651,7 @@ theorem triple-parameters
   let b ∈ ℕ                                                           (H2)
   let c ∈ ℕ                                                           (H3)
   assume a² + b² = c²                                                 (H4)
-  then there are k, m, n ∈ ℕ with c = k(m² + n²),
-       and ((a = k(m² − n²) and b = 2kmn) or (a = 2kmn and b = k(m² − n²)))
+  then there are k, m, n ∈ ℕ with c = k(m² + n²) and {a, b} = {k(m² − n²), 2kmn}
 
 1.  k ∈ ℕ. a/k ∈ ℕ. b/k ∈ ℕ. c/k ∈ ℕ. gcd(a/k, b/k) = 1.
     (a/k)² + (b/k)² = (c/k)².
@@ -657,8 +660,7 @@ theorem triple-parameters
 2.  a/k is even or b/k is even
     thm:even-leg a := a/k, b := b/k, c := c/k, from 1
 
-3.  There are k, m, n ∈ ℕ with c = k(m² + n²),
-    and ((a = k(m² − n²) and b = 2kmn) or (a = 2kmn and b = k(m² − n²))).
+3.  There are k, m, n ∈ ℕ with c = k(m² + n²) and {a, b} = {k(m² − n²), 2kmn}.
     cases, from 2
 
     case
@@ -680,85 +682,90 @@ theorem triple-parameters
           algebra, from 3.1
           requires k ≠ 0: inequalities, from 1
 
-    3.5.  a = 2kmn and b = k(m² − n²)
-          join 3.2, 3.3
+    3.5.  {a, b} = {2kmn, b}
+          substitute a = 2kmn (line 3.2)
 
-    3.6.  (a = k(m² − n²) and b = 2kmn) or (a = 2kmn and b = k(m² − n²))
-          mun:or-right, from 3.5
+    3.6.  {2kmn, b} = {2kmn, k(m² − n²)}
+          substitute b = k(m² − n²) (line 3.3)
 
-    3.7.  There are k, m, n ∈ ℕ with c = k(m² + n²),
-          and ((a = k(m² − n²) and b = 2kmn) or (a = 2kmn and b = k(m² − n²))).
-          exhibit, from 3.4, 3.6
+    3.7.  {a, b} = {k(m² − n²), 2kmn}
+          calculation
+            {a, b} = {2kmn, b}                  3.5
+                   = {2kmn, k(m² − n²)}         3.6
+
+    3.8.  There are k, m, n ∈ ℕ with c = k(m² + n²) and {a, b} = {k(m² − n²), 2kmn}.
+          exhibit, from 3.4, 3.7
 
     case
     assume b/k is even                                                (C2)
 
-    3.8.  gcd(b/k, a/k) = gcd(a/k, b/k)
+    3.9.  gcd(b/k, a/k) = gcd(a/k, b/k)
           mun:gcd-commutes a := b/k, b := a/k
           requires b/k ∈ ℤ: membership, from 1
           requires a/k ∈ ℤ: membership, from 1
 
-    3.9.  gcd(b/k, a/k) = 1
+    3.10. gcd(b/k, a/k) = 1
           calculation
-            gcd(b/k, a/k) = gcd(a/k, b/k)    3.8
+            gcd(b/k, a/k) = gcd(a/k, b/k)    3.9
                           = 1                1
 
-    3.10. (b/k)² + (a/k)² = (c/k)²
+    3.11. (b/k)² + (a/k)² = (c/k)²
           algebra, from 1
 
-    3.11. m ∈ ℕ. n ∈ ℕ. n < m. gcd(m, n) = 1. m + n is odd.
+    3.12. m ∈ ℕ. n ∈ ℕ. n < m. gcd(m, n) = 1. m + n is odd.
           b/k = 2mn. a/k = m² − n². c/k = m² + n².
-          obtain m, n: thm:primitive-triple a := b/k, b := a/k, c := c/k, from 1, 3.9, 3.10, C2
+          obtain m, n: thm:primitive-triple a := b/k, b := a/k, c := c/k, from 1, 3.10, 3.11, C2
 
-    3.12. a = k(m² − n²)
-          algebra, from 3.11
+    3.13. a = k(m² − n²)
+          algebra, from 3.12
           requires k ≠ 0: inequalities, from 1
 
-    3.13. b = 2kmn
-          algebra, from 3.11
+    3.14. b = 2kmn
+          algebra, from 3.12
           requires k ≠ 0: inequalities, from 1
 
-    3.14. c = k(m² + n²)
-          algebra, from 3.11
+    3.15. c = k(m² + n²)
+          algebra, from 3.12
           requires k ≠ 0: inequalities, from 1
 
-    3.15. a = k(m² − n²) and b = 2kmn
-          join 3.12, 3.13
+    3.16. {a, b} = {k(m² − n²), b}
+          substitute a = k(m² − n²) (line 3.13)
 
-    3.16. (a = k(m² − n²) and b = 2kmn) or (a = 2kmn and b = k(m² − n²))
-          mun:or-left, from 3.15
+    3.17. {k(m² − n²), b} = {k(m² − n²), 2kmn}
+          substitute b = 2kmn (line 3.14)
 
-    3.17. There are k, m, n ∈ ℕ with c = k(m² + n²),
-          and ((a = k(m² − n²) and b = 2kmn) or (a = 2kmn and b = k(m² − n²))).
-          exhibit, from 3.14, 3.16
+    3.18. {a, b} = {k(m² − n²), 2kmn}
+          calculation
+            {a, b} = {k(m² − n²), b}            3.16
+                   = {k(m² − n²), 2kmn}         3.17
+
+    3.19. There are k, m, n ∈ ℕ with c = k(m² + n²) and {a, b} = {k(m² − n²), 2kmn}.
+          exhibit, from 3.15, 3.18
 
 theorem pythagorean-triples
-  metamath    pythagtrip
+  metamath    pythagtrip, which says the two legs' places with an "or"
   note        Both directions: every triple has the form (triple-parameters),
               and every number of the form is a triple
-              (triple-from-parameters).
+              (triple-from-parameters). The legs are k(m² − n²) and 2kmn in
+              either order, so the statement lists them as a set.
   let a ∈ ℕ                                                           (H1)
   let b ∈ ℕ                                                           (H2)
   let c ∈ ℕ                                                           (H3)
-  then a² + b² = c² ↔ there are k, m, n ∈ ℕ with c = k(m² + n²),
-       and ((a = k(m² − n²) and b = 2kmn) or (a = 2kmn and b = k(m² − n²)))
+  then a² + b² = c² ↔ there are k, m, n ∈ ℕ with c = k(m² + n²) and {a, b} = {k(m² − n²), 2kmn}
 
-1.  a² + b² = c² ↔ there are k, m, n ∈ ℕ with c = k(m² + n²),
-    and ((a = k(m² − n²) and b = 2kmn) or (a = 2kmn and b = k(m² − n²))).
+1.  a² + b² = c² ↔ there are k, m, n ∈ ℕ with c = k(m² + n²) and {a, b} = {k(m² − n²), 2kmn}.
     both directions
 
     direction
     assume a² + b² = c²                                               (D1)
 
-    1.1.  There are k, m, n ∈ ℕ with c = k(m² + n²),
-          and ((a = k(m² − n²) and b = 2kmn) or (a = 2kmn and b = k(m² − n²))).
+    1.1.  There are k, m, n ∈ ℕ with c = k(m² + n²) and {a, b} = {k(m² − n²), 2kmn}.
           thm:triple-parameters a := a, b := b, c := c, from D1
 
     direction
-    assume there are k, m, n ∈ ℕ with c = k(m² + n²), and ((a = k(m² − n²) and b = 2kmn) or (a = 2kmn and b = k(m² − n²))) (D2)
+    assume there are k, m, n ∈ ℕ with c = k(m² + n²) and {a, b} = {k(m² − n²), 2kmn} (D2)
 
-    1.2.  k ∈ ℕ. m ∈ ℕ. n ∈ ℕ. c = k(m² + n²).
-          (a = k(m² − n²) and b = 2kmn) or (a = 2kmn and b = k(m² − n²)).
+    1.2.  k ∈ ℕ. m ∈ ℕ. n ∈ ℕ. c = k(m² + n²). {a, b} = {k(m² − n²), 2kmn}.
           obtain k, m, n from D2
 
     1.3.  a² + b² = c²

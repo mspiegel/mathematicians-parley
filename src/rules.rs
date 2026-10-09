@@ -807,6 +807,7 @@ pub const MEMBERSHIP: &[&str] = &[
     // by notation and this answers by statement
     "mulcom",
     "addcom",
+    "prcom",
     // A singleton holds what it names, which `elpwg`'s users ask.
     "snidg",
     // A map sends no two things to the same place, and set.mm reaches
