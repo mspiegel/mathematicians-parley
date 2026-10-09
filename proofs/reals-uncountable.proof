@@ -144,9 +144,11 @@ theorem digit-step-twice
 
 theorem decimal-number
   note        The digits name a real number x: the least upper bound of the
-              decimals cut off after k digits, N(k)/10^k. Its n-th digit is
-              d(n), except where every later digit is 9; then the digit is
-              the next one up, s(d(n)), as 0.0999… is 0.1.
+              decimals cut off after k digits, L(k). Each U(k), the same
+              decimal with its last digit one higher, is an upper bound, so x
+              lies between L(k) and U(k) for every k. Its n-th digit is d(n),
+              except where every later digit is 9; then the digit is the next
+              one up, s(d(n)), as 0.0999… is 0.1.
   let d : ℕ → ℤ                                                      (H1)
   assume for all n ∈ ℕ, 0 ≤ d(n) and d(n) ≤ 9                          (H2)
   then there is x ∈ ℝ with for all n ∈ ℕ, D(x, n) = d(n) or D(x, n) = s(d(n))
@@ -156,6 +158,12 @@ define N(0) := 0,  N(k + 1) := 10·N(k) + d(k + 1),  for k ∈ ℕ₀       (D3)
 
 define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              (D4)
        reads the numbers 0.d(1)…d(k), the decimal cut off after k digits
+
+define L(k) := N(k)/10^k, for k ∈ ℕ₀                                   (D5)
+       reads the lower end: the decimal cut off after k digits
+
+define U(k) := (N(k) + 1)/10^k, for k ∈ ℕ₀                             (D6)
+       reads the upper end: the same decimal with its last digit one higher
 
 1.  N(0) = 0
     D3
@@ -182,9 +190,9 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
           membership, from 2.2, IH
           requires d(k + 1) ∈ ℤ: from H1, 2.3
 
-3.  For all k ∈ ℕ₀, N(k)/10^k ≤ N(k + 1)/10^(k + 1)
-    and (N(k + 1) + 1)/10^(k + 1) ≤ (N(k) + 1)/10^k.
+3.  For all k ∈ ℕ₀, L(k) ≤ L(k + 1) and U(k + 1) ≤ U(k).
     proof
+    note one more digit raises the lower end and lowers the upper one, or keeps them
     let k ∈ ℕ₀                                                        (K1)
 
     3.1.  N(k + 1) = 10·N(k) + d(k + 1)
@@ -251,13 +259,24 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
     3.16. (N(k + 1) + 1)/10^(k + 1) ≤ (N(k) + 1)/10^k
           substitute (N(k) + 1)/10^k = (10·(N(k) + 1))/10^(k + 1) (line 3.12) into line 3.14
 
-    3.17. N(k)/10^k ≤ N(k + 1)/10^(k + 1)
-          and (N(k + 1) + 1)/10^(k + 1) ≤ (N(k) + 1)/10^k
-          join 3.15, 3.16
+    3.17. L(k) ≤ L(k + 1)
+          calculation
+            L(k) = N(k)/10^k                     D5
+                 ≤ N(k + 1)/10^(k + 1)           3.15
+                 = L(k + 1)                      D5
 
-4.  For all k ∈ ℕ₀, N(k) ∈ ℤ and 10^k ∈ ℕ and N(k)/10^k ∈ ℝ
-    and (N(k) + 1)/10^k ∈ ℝ and N(k)/10^k ≤ (N(k) + 1)/10^k.
+    3.18. U(k + 1) ≤ U(k)
+          calculation
+            U(k + 1) = (N(k + 1) + 1)/10^(k + 1)    D6
+                     ≤ (N(k) + 1)/10^k              3.16
+                     = U(k)                         D6
+
+    3.19. L(k) ≤ L(k + 1) and U(k + 1) ≤ U(k)
+          join 3.17, 3.18
+
+4.  For all k ∈ ℕ₀, L(k) ∈ ℝ and U(k) ∈ ℝ and L(k) ≤ U(k).
     proof
+    note each lower end and its upper end are real, and in order
     let k ∈ ℕ₀                                                        (K2)
 
     4.1.  N(k) ∈ ℤ
@@ -266,11 +285,11 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
     4.2.  10^k ∈ ℕ
           mun:power-nat a := 10, m := k
 
-    4.3.  N(k)/10^k ∈ ℝ
-          membership, from 4.1, 4.2
+    4.3.  L(k) ∈ ℝ
+          membership, from D5, 4.1, 4.2
 
-    4.4.  (N(k) + 1)/10^k ∈ ℝ
-          membership, from 4.1, 4.2
+    4.4.  U(k) ∈ ℝ
+          membership, from D6, 4.1, 4.2
 
     4.5.  N(k) ≤ N(k) + 1
           inequalities
@@ -283,98 +302,85 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
           requires 10^k ∈ ℝ: membership, from 4.2
           requires 10^k > 0: inequalities, from 4.2
 
-    4.7.  N(k) ∈ ℤ and 10^k ∈ ℕ and N(k)/10^k ∈ ℝ
-          and (N(k) + 1)/10^k ∈ ℝ and N(k)/10^k ≤ (N(k) + 1)/10^k
-          join 4.1, 4.2, 4.3, 4.4, 4.6
+    4.7.  L(k) ≤ U(k)
+          calculation
+            L(k) = N(k)/10^k               D5
+                 ≤ (N(k) + 1)/10^k         4.6
+                 = U(k)                    D6
 
-5.  For all g ∈ ℕ₀, for all p ∈ ℕ₀, N(p)/10^p ≤ N(p + g)/10^(p + g)
-    and (N(p + g) + 1)/10^(p + g) ≤ (N(p) + 1)/10^p.
+    4.8.  L(k) ∈ ℝ. U(k) ∈ ℝ. L(k) ≤ U(k).
+          join 4.3, 4.4, 4.7
+
+5.  For all g ∈ ℕ₀, for all p ∈ ℕ₀, L(p) ≤ L(p + g) and U(p + g) ≤ U(p).
     induction on g starting at 0
+    note the lower ends only rise and the upper ends only fall
 
     base
-    5.1.  For all p ∈ ℕ₀, N(p)/10^p ≤ N(p + 0)/10^(p + 0)
-          and (N(p + 0) + 1)/10^(p + 0) ≤ (N(p) + 1)/10^p.
+    5.1.  For all p ∈ ℕ₀, L(p) ≤ L(p + 0) and U(p + 0) ≤ U(p).
           proof
           let p ∈ ℕ₀                                                  (P1)
 
-          5.1.1.  N(p) ∈ ℤ
-                  instantiate k := p in line 2
+          5.1.1.  L(p) ∈ ℝ. U(p) ∈ ℝ. L(p) ≤ U(p).
+                  instantiate k := p in line 4
 
-          5.1.2.  10^p ∈ ℕ
-                  mun:power-nat a := 10, m := p
+          5.1.2.  L(p) ≤ L(p) and U(p) ≤ U(p)
+                  inequalities, from 5.1.1
 
-          5.1.3.  N(p)/10^p ≤ N(p)/10^p and (N(p) + 1)/10^p ≤ (N(p) + 1)/10^p
-                  inequalities
-                  requires N(p)/10^p ∈ ℝ: membership, from 5.1.1, 5.1.2
-                  requires (N(p) + 1)/10^p ∈ ℝ: membership, from 5.1.1, 5.1.2
-
-          5.1.4.  p = p + 0
+          5.1.3.  p = p + 0
                   algebra
 
-          5.1.5.  N(p)/10^p ≤ N(p + 0)/10^(p + 0)
-                  and (N(p + 0) + 1)/10^(p + 0) ≤ (N(p) + 1)/10^p
-                  substitute p = p + 0 (line 5.1.4) into line 5.1.3
+          5.1.4.  L(p) ≤ L(p + 0) and U(p + 0) ≤ U(p)
+                  substitute p = p + 0 (line 5.1.3) into line 5.1.2
 
     step
     let g ∈ ℕ₀                                                        (G)
     assume step 5 is true for g, the induction hypothesis             (IH2)
 
-    5.2.  For all p ∈ ℕ₀, N(p)/10^p ≤ N(p + (g + 1))/10^(p + (g + 1))
-          and (N(p + (g + 1)) + 1)/10^(p + (g + 1)) ≤ (N(p) + 1)/10^p.
+    5.2.  For all p ∈ ℕ₀, L(p) ≤ L(p + (g + 1)) and U(p + (g + 1)) ≤ U(p).
           proof
           let p ∈ ℕ₀                                                  (P2)
 
-          5.2.1.  N(p)/10^p ≤ N(p + g)/10^(p + g)
-                  and (N(p + g) + 1)/10^(p + g) ≤ (N(p) + 1)/10^p
+          5.2.1.  L(p) ≤ L(p + g) and U(p + g) ≤ U(p)
                   instantiate p := p in IH2
 
-          5.2.2.  N(p + g)/10^(p + g) ≤ N((p + g) + 1)/10^((p + g) + 1)
-                  and (N((p + g) + 1) + 1)/10^((p + g) + 1) ≤ (N(p + g) + 1)/10^(p + g)
+          5.2.2.  L(p + g) ≤ L((p + g) + 1) and U((p + g) + 1) ≤ U(p + g)
                   instantiate k := p + g in line 3
 
-          5.2.3.  N(p) ∈ ℤ and 10^p ∈ ℕ and N(p)/10^p ∈ ℝ
-                  and (N(p) + 1)/10^p ∈ ℝ and N(p)/10^p ≤ (N(p) + 1)/10^p
+          5.2.3.  L(p) ∈ ℝ. U(p) ∈ ℝ. L(p) ≤ U(p).
                   instantiate k := p in line 4
 
-          5.2.4.  N(p + g) ∈ ℤ and 10^(p + g) ∈ ℕ and N(p + g)/10^(p + g) ∈ ℝ
-                  and (N(p + g) + 1)/10^(p + g) ∈ ℝ
-                  and N(p + g)/10^(p + g) ≤ (N(p + g) + 1)/10^(p + g)
+          5.2.4.  L(p + g) ∈ ℝ. U(p + g) ∈ ℝ. L(p + g) ≤ U(p + g).
                   instantiate k := p + g in line 4
 
-          5.2.5.  N((p + g) + 1) ∈ ℤ and 10^((p + g) + 1) ∈ ℕ
-                  and N((p + g) + 1)/10^((p + g) + 1) ∈ ℝ
-                  and (N((p + g) + 1) + 1)/10^((p + g) + 1) ∈ ℝ
-                  and N((p + g) + 1)/10^((p + g) + 1) ≤ (N((p + g) + 1) + 1)/10^((p + g) + 1)
+          5.2.5.  L((p + g) + 1) ∈ ℝ. U((p + g) + 1) ∈ ℝ.
+                  L((p + g) + 1) ≤ U((p + g) + 1).
                   instantiate k := (p + g) + 1 in line 4
 
-          5.2.6.  N(p)/10^p ≤ N((p + g) + 1)/10^((p + g) + 1)
-                  and (N((p + g) + 1) + 1)/10^((p + g) + 1) ≤ (N(p) + 1)/10^p
+          5.2.6.  L(p) ≤ L((p + g) + 1) and U((p + g) + 1) ≤ U(p)
                   inequalities, from 5.2.1, 5.2.2, 5.2.3, 5.2.4, 5.2.5
 
           5.2.7.  (p + g) + 1 = p + (g + 1)
                   algebra
 
-          5.2.8.  N(p)/10^p ≤ N(p + (g + 1))/10^(p + (g + 1))
-                  and (N(p + (g + 1)) + 1)/10^(p + (g + 1)) ≤ (N(p) + 1)/10^p
+          5.2.8.  L(p) ≤ L(p + (g + 1)) and U(p + (g + 1)) ≤ U(p)
                   substitute (p + g) + 1 = p + (g + 1) (line 5.2.7) into line 5.2.6
 
-6.  For all j ∈ ℕ₀, for all k ∈ ℕ₀, N(j)/10^j ≤ (N(k) + 1)/10^k.
+6.  For all j ∈ ℕ₀, for all k ∈ ℕ₀, L(j) ≤ U(k).
     proof
+    note every lower end is below every upper end: compare both at the later one
     let j ∈ ℕ₀                                                        (J1)
     let k ∈ ℕ₀                                                        (K3)
 
-    6.1.  N(j) ∈ ℤ and 10^j ∈ ℕ and N(j)/10^j ∈ ℝ
-          and (N(j) + 1)/10^j ∈ ℝ and N(j)/10^j ≤ (N(j) + 1)/10^j
+    6.1.  L(j) ∈ ℝ. U(j) ∈ ℝ. L(j) ≤ U(j).
           instantiate k := j in line 4
 
-    6.2.  N(k) ∈ ℤ and 10^k ∈ ℕ and N(k)/10^k ∈ ℝ
-          and (N(k) + 1)/10^k ∈ ℝ and N(k)/10^k ≤ (N(k) + 1)/10^k
+    6.2.  L(k) ∈ ℝ. U(k) ∈ ℝ. L(k) ≤ U(k).
           instantiate k := k in line 4
 
     6.3.  j ≤ k or not (j ≤ k)
           mun:excluded-middle P := j ≤ k
 
-    6.4.  N(j)/10^j ≤ (N(k) + 1)/10^k
+    6.4.  L(j) ≤ U(k)
           cases, from 6.3
 
           case
@@ -384,17 +390,16 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
                   mun:nat0-as-int
                   requires 0 ≤ k − j: inequalities, from C5
 
-          6.4.2.  N(j)/10^j ≤ N(j + (k − j))/10^(j + (k − j))
-                  and (N(j + (k − j)) + 1)/10^(j + (k − j)) ≤ (N(j) + 1)/10^j
+          6.4.2.  L(j) ≤ L(j + (k − j)) and U(j + (k − j)) ≤ U(j)
                   instantiate g := k − j, p := j in line 5, from 6.4.1
 
           6.4.3.  j + (k − j) = k
                   algebra
 
-          6.4.4.  N(j)/10^j ≤ N(k)/10^k and (N(k) + 1)/10^k ≤ (N(j) + 1)/10^j
+          6.4.4.  L(j) ≤ L(k) and U(k) ≤ U(j)
                   substitute j + (k − j) = k (line 6.4.3) into line 6.4.2
 
-          6.4.5.  N(j)/10^j ≤ (N(k) + 1)/10^k
+          6.4.5.  L(j) ≤ U(k)
                   inequalities, from 6.4.4, 6.1, 6.2
 
           case
@@ -404,68 +409,69 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
                   mun:nat0-as-int
                   requires 0 ≤ j − k: inequalities, from C6
 
-          6.4.7.  N(k)/10^k ≤ N(k + (j − k))/10^(k + (j − k))
-                  and (N(k + (j − k)) + 1)/10^(k + (j − k)) ≤ (N(k) + 1)/10^k
+          6.4.7.  L(k) ≤ L(k + (j − k)) and U(k + (j − k)) ≤ U(k)
                   instantiate g := j − k, p := k in line 5, from 6.4.6
 
           6.4.8.  k + (j − k) = j
                   algebra
 
-          6.4.9.  N(k)/10^k ≤ N(j)/10^j and (N(j) + 1)/10^j ≤ (N(k) + 1)/10^k
+          6.4.9.  L(k) ≤ L(j) and U(j) ≤ U(k)
                   substitute k + (j − k) = j (line 6.4.8) into line 6.4.7
 
-          6.4.10. N(j)/10^j ≤ (N(k) + 1)/10^k
+          6.4.10. L(j) ≤ U(k)
                   inequalities, from 6.4.9, 6.1, 6.2
 
 7.  S ⊆ ℝ
     mun:set-builder-subset, from D4
 
-8.  For all k ∈ ℕ₀, N(k)/10^k ∈ S.
+8.  For all k ∈ ℕ₀, L(k) ∈ S.
     proof
     let k ∈ ℕ₀                                                        (K8)
 
-    8.1.  N(k) ∈ ℤ and 10^k ∈ ℕ and N(k)/10^k ∈ ℝ
-          and (N(k) + 1)/10^k ∈ ℝ and N(k)/10^k ≤ (N(k) + 1)/10^k
+    8.1.  L(k) ∈ ℝ. U(k) ∈ ℝ. L(k) ≤ U(k).
           instantiate k := k in line 4
 
-    8.2.  N(k)/10^k = N(k)/10^k
-          algebra
-          requires N(k) ∈ ℝ: membership, from 8.1
-          requires 10^k ≠ 0: inequalities, from 8.1
+    8.2.  L(k) = N(k)/10^k
+          D5
 
-    8.3.  N(k)/10^k ∈ S
-          mun:set-builder u := N(k)/10^k, from D4, 8.2
-          requires N(k)/10^k ∈ ℝ: from 8.1
+    8.3.  L(k) ∈ S
+          mun:set-builder u := L(k), from D4, 8.2
+          requires L(k) ∈ ℝ: from 8.1
 
-9.  N(0)/10^0 ∈ S
+9.  L(0) ∈ S
     instantiate k := 0 in line 8
 
-10. For all k ∈ ℕ₀, (N(k) + 1)/10^k is an upper bound of S.
+10. For all k ∈ ℕ₀, U(k) is an upper bound of S.
     proof
     let k ∈ ℕ₀                                                        (K4)
 
-    10.1. For all y ∈ S, y ≤ (N(k) + 1)/10^k.
+    10.1. For all y ∈ S, y ≤ U(k).
           proof
           let y ∈ S                                                   (Y)
 
           10.1.1. j ∈ ℕ₀. y = N(j)/10^j.
                   obtain j: mun:set-builder u := y, from D4, Y
 
-          10.1.2. N(j)/10^j ≤ (N(k) + 1)/10^k
+          10.1.2. L(j) ≤ U(k)
                   instantiate j := j, k := k in line 6
 
-          10.1.3. y ≤ (N(k) + 1)/10^k
-                  substitute y = N(j)/10^j (line 10.1.1) into line 10.1.2
+          10.1.3. y = L(j)
+                  calculation
+                    y = N(j)/10^j     10.1.1
+                      = L(j)          D5
 
-    10.2. (N(k) + 1)/10^k is an upper bound of S
+          10.1.4. y ≤ U(k)
+                  substitute y = L(j) (line 10.1.3) into line 10.1.2
+
+    10.2. U(k) is an upper bound of S
           mun:upper-bound, from 10.1
 
-11. (N(0) + 1)/10^0 is an upper bound of S
+11. U(0) is an upper bound of S
     instantiate k := 0 in line 10
 
 12. c ∈ ℝ. c is a least upper bound of S.
     obtain c: axi:completeness S := S, from 7, 9, 11
-    requires (N(0) + 1)/10^0 ∈ ℝ: membership, from 1
+    requires U(0) ∈ ℝ: membership, from D6, 1
 
 13. c is an upper bound of S.
     For all u ∈ ℝ, if u is an upper bound of S then c ≤ u.
@@ -474,28 +480,28 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
 14. For all y ∈ S, y ≤ c.
     mun:upper-bound, from 13
 
-15. For all k ∈ ℕ₀, N(k)/10^k ≤ c and c ≤ (N(k) + 1)/10^k.
+15. For all k ∈ ℕ₀, L(k) ≤ c and c ≤ U(k).
     proof
+    note c lies between the two ends after any number of digits
     let k ∈ ℕ₀                                                        (K5)
 
-    15.1. N(k) ∈ ℤ and 10^k ∈ ℕ and N(k)/10^k ∈ ℝ
-          and (N(k) + 1)/10^k ∈ ℝ and N(k)/10^k ≤ (N(k) + 1)/10^k
+    15.1. L(k) ∈ ℝ. U(k) ∈ ℝ. L(k) ≤ U(k).
           instantiate k := k in line 4
 
-    15.2. N(k)/10^k ∈ S
+    15.2. L(k) ∈ S
           instantiate k := k in line 8
 
-    15.3. N(k)/10^k ≤ c
-          instantiate y := N(k)/10^k in line 14, from 15.2
+    15.3. L(k) ≤ c
+          instantiate y := L(k) in line 14, from 15.2
 
-    15.4. (N(k) + 1)/10^k is an upper bound of S
+    15.4. U(k) is an upper bound of S
           instantiate k := k in line 10
 
-    15.5. c ≤ (N(k) + 1)/10^k
-          instantiate u := (N(k) + 1)/10^k in line 13, from 15.4
-          requires (N(k) + 1)/10^k ∈ ℝ: from 15.1
+    15.5. c ≤ U(k)
+          instantiate u := U(k) in line 13, from 15.4
+          requires U(k) ∈ ℝ: from 15.1
 
-    15.6. N(k)/10^k ≤ c and c ≤ (N(k) + 1)/10^k
+    15.6. L(k) ≤ c and c ≤ U(k)
           join 15.3, 15.5
 
 16. For all n ∈ ℕ, D(c, n) = d(n) or D(c, n) = s(d(n)).
@@ -528,17 +534,17 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
     16.8. 10^n ∈ ℕ
           mun:power-nat a := 10, m := n
 
-    16.9. N(n)/10^n ≤ c and c ≤ (N(n) + 1)/10^n
+    16.9. L(n) ≤ c and c ≤ U(n)
           instantiate k := n in line 15
 
     16.10. 10^n·(N(n)/10^n) ≤ 10^n·c
-           mun:multiply-le x := N(n)/10^n, y := c, c := 10^n, from 16.9
+           mun:multiply-le x := N(n)/10^n, y := c, c := 10^n, from 16.9, D5
            requires N(n)/10^n ∈ ℝ: membership, from 16.7, 16.8
            requires 10^n ∈ ℝ: membership, from 16.8
            requires 10^n > 0: inequalities, from 16.8
 
     16.11. 10^n·c ≤ 10^n·((N(n) + 1)/10^n)
-           mun:multiply-le x := c, y := (N(n) + 1)/10^n, c := 10^n, from 16.9
+           mun:multiply-le x := c, y := (N(n) + 1)/10^n, c := 10^n, from 16.9, D6
            requires (N(n) + 1)/10^n ∈ ℝ: membership, from 16.7, 16.8
            requires 10^n ∈ ℝ: membership, from 16.8
            requires 10^n > 0: inequalities, from 16.8
@@ -685,7 +691,7 @@ theorem sequence-misses-real
   let f : ℕ → ℝ                                                      (H1)
   then there is x ∈ ℝ with for all n ∈ ℕ, f(n) ≠ x
 
-define e(n) := s(D(f(n), n)), for n ∈ ℕ                              (D5)
+define e(n) := s(D(f(n), n)), for n ∈ ℕ                              (D7)
        reads the diagonal changed: the n-th digit of f(n), plus one, with 9 becoming 0
 
 1.  For all n ∈ ℕ, D(f(n), n) ∈ ℤ.
@@ -738,7 +744,7 @@ define e(n) := s(D(f(n), n)), for n ∈ ℕ                              (D5)
           join 2.2, 2.3, 2.4, 2.5
 
     2.7.  e(n) = s(D(f(n), n))
-          D5
+          D7
 
     2.8.  e(n) ∈ ℤ and 0 ≤ e(n) and e(n) ≤ 9
           and e(n) ≠ D(f(n), n) and s(e(n)) ≠ D(f(n), n)
@@ -757,7 +763,7 @@ define e(n) := s(D(f(n), n)), for n ∈ ℕ                              (D5)
 
 4.  e : ℕ → ℤ
     mun:function-into, from 3
-    requires e is a function on ℕ: from D5
+    requires e is a function on ℕ: from D7
 
 5.  For all n ∈ ℕ, 0 ≤ e(n) and e(n) ≤ 9.
     proof

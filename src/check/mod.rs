@@ -502,6 +502,7 @@ fn check_theorem(
 ) {
     let (env, library, scopes) = (c.env, c.library, c.scopes);
     formulas::check_formulas(report, thm, env, k);
+    formulas::check_letters_introduced(report, thm, env, k);
     structure::check_defined_below(report, thm, scopes);
     formulas::check_clashes(report, thm, clashes);
     formulas::check_contradiction(report, thm, env, k);

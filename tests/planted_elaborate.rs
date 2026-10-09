@@ -325,16 +325,16 @@ fn cases() -> Vec<Case> {
         ),
         // A requires line below that cites an item asks for that item's
         // hypotheses, and only those: mun:sum-real asks nothing of x^m, and
-        // nothing asks x^m ∈ ℝ of an `algebra` step whose atoms are x, y and
-        // the sum. A power to a letter is written where it is needed, so the
-        // line is not one the step is spared; it is one nothing needs.
+        // nothing asks x^m ∈ ℝ of an `algebra` step whose one atom is the sum.
+        // A power to a letter is written where it is needed, so the line is
+        // not one the step is spared; it is one nothing needs.
         case(
             "a requires line above an item's line that the item does not ask for",
             "proofs/binomial/binomial-step",
             "proofs/binomial.proof",
-            "    algebra\n    requires Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k ∈ ℝ: mun:sum-real a := 0, b := m\n\n2.",
-            "    algebra\n    requires x^m ∈ ℝ: mun:power-real a := x, m := m, from H1\n    requires Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k ∈ ℝ: mun:sum-real a := 0, b := m\n\n2.",
-            "the requires line of step 1 says x^m ∈ ℝ, and the step neither uses nor asks for it",
+            "    algebra\n    requires Σ(k = 1 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k ∈ ℝ: mun:sum-real a := 1, b := m + 1\n",
+            "    algebra\n    requires x^m ∈ ℝ: mun:power-real a := x, m := m, from H1\n    requires Σ(k = 1 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k ∈ ℝ: mun:sum-real a := 1, b := m + 1\n",
+            "the requires line of step 45 says x^m ∈ ℝ, and the step neither uses nor asks for it",
         ),
         // A step's proof rests only on what it names (`GOALS.md` decision 9).
         // Without its requires line, `algebra` wants n! ∈ ℂ, and the scope

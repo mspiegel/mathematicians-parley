@@ -7,7 +7,7 @@ use std::collections::BTreeSet;
 use indexmap::{IndexMap, IndexSet};
 
 use super::library::Known;
-use super::structure::{defined_below, introduced};
+use super::structure::{bound_by_claim, defined_below, introduced, letters_in_scope};
 use super::{Report, RELATIONS};
 use crate::citing::Library;
 use crate::corpus::proof::requires_item;
@@ -16,7 +16,9 @@ use crate::corpus::{
     Justification, Method, Recursion, Step, Theorem,
 };
 use crate::formula::{parse_here, walk, Node, Sort, Sorts};
-use crate::matching::{alike_top, instantiation, substitute_apart_by, Binding};
+use crate::matching::{
+    alike_top, free_names, instantiation, substitute_apart_by, Binding,
+};
 use crate::outcome::{Built, Checked, Declined};
 use crate::regex;
 use crate::sorts::infer::{self, Reader, Store};
@@ -225,6 +227,61 @@ pub fn check_formulas(report: &mut Report, thm: &Theorem, env: Env, known: &Know
                 d.line,
                 format!("define {}: {}", d.label, p.message),
             );
+        }
+    }
+}
+
+/// Each letter a step's claim or requires line writes free is one the step
+/// may use (`letters_in_scope`). A `for all` binds its letter to the end of
+/// its sentence, so "for all k ∈ ℕ₀, A. B." leaves k free in B.
+pub fn check_letters_introduced(
+    report: &mut Report,
+    thm: &Theorem,
+    env: Env,
+    known: &Known,
+) {
+    let binders = env.g.binders();
+    for s in &thm.steps {
+        let claim = s.claim_text();
+        let mut texts: Vec<(usize, String, String, bool)> =
+            vec![(s.line, format!("step {}", s.number), claim.clone(), false)];
+        for r in &s.requires {
+            texts.push((
+                r.line,
+                format!("the requires line of step {}", s.number),
+                r.fact.clone(),
+                true,
+            ));
+        }
+        let mut in_scope: Option<BTreeSet<String>> = None;
+        for (line, what, text, under_claim) in texts {
+            let mut earlier = String::new();
+            for sentence in sentences(&text) {
+                let ended = bound_by_claim(&earlier);
+                earlier.push_str(&sentence);
+                earlier.push(' ');
+                let Ok(node) = parse_here(&sentence, env.g, &known.sorts) else {
+                    continue;
+                };
+                let scope = in_scope.get_or_insert_with(|| {
+                    letters_in_scope(thm, s, env.scopes, &known.sorts)
+                });
+                for name in free_names(&node, &binders) {
+                    let bound = under_claim && bound_by_claim(&claim).contains(&name);
+                    if !scope.contains(&name) && !bound {
+                        let why = if ended.contains(&name) {
+                            "; a `for all` binds its letter only to the end of its sentence"
+                        } else {
+                            ""
+                        };
+                        report.say(
+                            &thm.path,
+                            line,
+                            format!("{what}: {name} is not introduced here{why}"),
+                        );
+                    }
+                }
+            }
         }
     }
 }

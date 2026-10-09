@@ -928,8 +928,17 @@ cite `17.1`.
 
 A label is in scope inside the block that declares it and nowhere else. A
 theorem's hypothesis labels are in scope throughout its proof. So two sibling
-blocks may use one label, as `binomial-step`'s four `proof` blocks each fix k
+blocks may use one label, as each of `binomial-step`'s `proof` blocks fixes k
 as `(J)`, and a citation of it means the line of the block it sits in.
+
+A letter is in scope where a label introducing it would be: a theorem's `let`
+lines throughout, a block's `let` lines inside the block, an `obtain`'s letters
+from its step on, and a define's name below the define. A requires line may
+also write the letters its step's claim binds. A binder inside a formula, `for
+all` or `there is`, holds its letter to the end of that formula, so in "For all
+k ∈ ℕ₀, L(k) ∈ ℝ. U(k) ∈ ℝ." the second formula's k is introduced by nothing.
+Both tools refuse a letter out of scope: the checker says so, and the
+elaborator finds no name for it.
 
 References cannot be found by scanning a line for digits. Claims are full of
 numerals that look like step numbers: a square-root instantiation contains a 2

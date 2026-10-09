@@ -1454,6 +1454,86 @@ pub fn introduced(thm: &Theorem) -> BTreeSet<String> {
     out
 }
 
+/// The letters a line of `step` may write free: the theorem's hypotheses,
+/// the defines above it, the library functions in scope, the `let` lines of
+/// the blocks around it (of its own part only, as `labels_in_scope` reads
+/// labels), and what the steps it may cite obtained, its own included.
+pub fn letters_in_scope(
+    thm: &Theorem,
+    step: &Step,
+    scopes: &[FileScope],
+    sorts: &Sorts,
+) -> BTreeSet<String> {
+    let mut out: BTreeSet<String> = named_by_hypotheses(thm);
+    for h in &thm.hypotheses {
+        if let Some(m) = LET_LIST.captures(&h.text) {
+            out.extend(names_listed(&m[1]));
+        }
+        // A `let … be` line may name things in the sets it lists, as a
+        // graph's vertices and edges are named.
+        if h.kind == Intro::Let {
+            for list in LISTED.captures_iter(&h.text) {
+                out.extend(names_listed(&list[1]));
+            }
+        }
+    }
+    out.extend(
+        visible(scopes, thm.scope, thm.line)
+            .into_iter()
+            .map(|(n, _, _)| n),
+    );
+    out.extend(sorts.imported.iter().cloned());
+    for d in &thm.defines {
+        if d.line < step.line {
+            if let Built(said) = define_parts(&d.text) {
+                out.extend(said.names());
+            }
+        }
+    }
+    let by_number: IndexMap<&StepNo, &Step> =
+        thm.steps.iter().map(|s| (&s.number, s)).collect();
+    for other in &thm.steps {
+        let k = other.number.len();
+        let encloses =
+            other.number == step.number.prefix(k) && other.number != step.number;
+        if encloses {
+            let child = by_number.get(&step.number.prefix(k + 1));
+            for o in &other.openers {
+                let own_part =
+                    o.part.is_none() || child.is_some_and(|c| c.part == o.part);
+                if o.kind == Intro::Let && own_part {
+                    if let Some(m) = LET_LIST.captures(&o.text) {
+                        out.extend(names_listed(&m[1]));
+                    }
+                }
+            }
+        }
+        let visible_here =
+            other.number == step.number || in_scope(&other.number, &step.number);
+        if visible_here && other.just.head.is(Method::Obtain) {
+            if let Some(names) = obtains(&other.just.text) {
+                out.extend(names_listed(&names));
+            }
+        }
+    }
+    out
+}
+regex!(LET_LIST, r"^let\s+(.+?)\s*(?:∈|∉|⊆|:|\sbe\s)");
+regex!(LISTED, r"\{([^{}:…]*)\}");
+
+/// The letters a claim binds, which its requires lines may write: they say
+/// what the claim needs of each such letter.
+pub fn bound_by_claim(claim: &str) -> BTreeSet<String> {
+    // A claim opens a sentence, so its binder is capitalised there.
+    let claim = claim
+        .replace("For all", "for all")
+        .replace("There ", "there ");
+    BOUND_HERE
+        .captures_iter(&claim)
+        .flat_map(|m| names_listed(&m[1]))
+        .collect()
+}
+
 /// (name, line) for each name `text` writes that the theorem's file defines
 /// outside its theorems only below it, and that the theorem does not
 /// introduce itself: `own`, and what the text binds.

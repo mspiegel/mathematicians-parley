@@ -204,6 +204,26 @@ fn the_checker_catches_every_planted_defect() {
 
 fn cases() -> Vec<Case> {
     vec![
+        // A letter is written only where something introduced it, and a
+        // `for all` introduces its letter to the end of its sentence only.
+        case(
+            "write a for-all's letter in the sentence after it",
+            vec![edit(
+                "proofs/reals-uncountable.proof",
+                Some("4.  For all k ∈ ℕ₀, L(k) ∈ ℝ and U(k) ∈ ℝ and L(k) ≤ U(k).".to_string()),
+                "4.  For all k ∈ ℕ₀, L(k) ∈ ℝ. U(k) ∈ ℝ. L(k) ≤ U(k).".to_string(),
+            )],
+            "k is not introduced here; a `for all` binds its letter only to the end of its sentence",
+        ),
+        case(
+            "write a letter nothing introduces",
+            vec![edit(
+                "proofs/euler.proof",
+                Some("2.  {0, …, n − 1} ⊆ ℤ".to_string()),
+                "2.  {0, …, m − 1} ⊆ ℤ".to_string(),
+            )],
+            "m is not introduced here",
+        ),
         // Definitions outside a theorem, and definitions imported.
         case(
             "import a definition from a file that is not there",
@@ -1396,36 +1416,36 @@ fn cases() -> Vec<Case> {
         case(
             "Pascal with the shift going the wrong way",
             vec![
-                edit("proofs/binomial.proof", Some("    39.1.  C(m, k) + C(m, k − 1) = C(m + 1, k)\n".to_string()), "    39.1.  C(m, k) + C(m, k + 1) = C(m + 1, k)\n".to_string()),
+                edit("proofs/binomial.proof", Some("    50.3.  C(m, k) + C(m, k − 1) = C(m + 1, k)\n".to_string()), "    50.3.  C(m, k) + C(m, k + 1) = C(m + 1, k)\n".to_string()),
             ],
-            "step 39.1 claims something that thm:pascal does not conclude",
+            "step 50.3 claims something that thm:pascal does not conclude",
         ),
         // Shifting the index moves the range with it.
         case(
             "a shifted sum left over the range it came from",
             vec![
-                edit("proofs/binomial.proof", Some("21. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 0 + 1 to m + 1)".to_string()), "21. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 0 to m)".to_string()),
+                edit("proofs/binomial.proof", Some("30. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 0 + 1 to m + 1)".to_string()), "30. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 0 to m)".to_string()),
             ],
-            "step 21 claims something that mun:sum-shift does not conclude",
+            "step 30 claims something that mun:sum-shift does not conclude",
         ),
         // A line saying something of every index from 0 to m says nothing of
         // the index m + 1, which the sum to m + 1 takes.
         case(
             "a term-by-term line over too short a range",
             vec![
-                edit("proofs/binomial.proof", Some("    mun:sum-termwise a := 0, b := m + 1, from 39\n".to_string()), "    mun:sum-termwise a := 0, b := m + 1, from 3\n".to_string()),
+                edit("proofs/binomial.proof", Some("    mun:sum-termwise a := 0, b := m + 1, from 50\n".to_string()), "    mun:sum-termwise a := 0, b := m + 1, from 10\n".to_string()),
             ],
-            "step 40 cites mun:sum-termwise, which asks for",
+            "step 51 cites mun:sum-termwise, which asks for",
         ),
         // C(n, k) is zero above n, and C(m + 1, m + 1) is not above it.
         case(
             "a coefficient called zero where k is not above n",
             vec![
-                edit("proofs/binomial.proof", Some("    def:C n := m, k := m + 1, from 5".to_string()), "    def:C n := m + 1, k := m + 1, from 5".to_string()),
+                edit("proofs/binomial.proof", Some("    def:C n := m, k := m + 1, from 12".to_string()), "    def:C n := m + 1, k := m + 1, from 12".to_string()),
             ],
-            "step 6 claims something that def:C does not conclude",
+            "step 13 claims something that def:C does not conclude",
         ),
-        // Four blocks of binomial-step each fix k under the label J, and J means
+        // Every block of binomial-step fixes k under the label J, and J means
         // what the block around the citing step says: here k runs from 1. Read
         // theorem-wide, J was the last block's, from 0, and this edit passed.
         case(
@@ -1433,7 +1453,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/binomial.proof", Some("           requires k ∈ ℤ: mun:range-integer a := 1, b := m + 1, from J\n".to_string()), "           requires k ∈ ℤ: mun:range-integer a := 0, b := m + 1, from J\n".to_string()),
             ],
-            "the requires line of step 23.1 cites mun:range-integer, which asks for a ∈ ℤ; b ∈ ℤ; k ∈ {a, …, b}, and what it cites does not supply them",
+            "the requires line of step 32.1 cites mun:range-integer, which asks for a ∈ ℤ; b ∈ ℤ; k ∈ {a, …, b}, and what it cites does not supply them",
         ),
         // `arithmetic` may stand where a closed-numeral fact is used, and only
         // there: an equation with a letter in it gives a reader something to
@@ -1441,7 +1461,7 @@ fn cases() -> Vec<Case> {
         case(
             "take an equation with a letter in it from arithmetic",
             vec![
-                edit("proofs/binomial.proof", Some("substitute (m + 1) − 0 = m + 1 (line 28)".to_string()), "substitute (m + 1) − 0 = m + 1 (arithmetic)".to_string()),
+                edit("proofs/binomial.proof", Some("substitute (m + 1) − 0 = m + 1 (line 37)".to_string()), "substitute (m + 1) − 0 = m + 1 (arithmetic)".to_string()),
             ],
             "takes (m + 1) − 0 = m + 1 from arithmetic, and it has a letter in it",
         ),
@@ -1484,7 +1504,7 @@ fn cases() -> Vec<Case> {
         case(
             "a requires line the summand does not ask for",
             vec![
-                edit("proofs/binomial.proof", Some("    mun:sum-scaled a := 0, b := m, c := x\n".to_string()), "    mun:sum-scaled a := 0, b := m, c := x\n    requires 1 > 0: arithmetic\n".to_string()),
+                edit("proofs/binomial.proof", Some("    mun:sum-scaled a := 0, b := m, c := x, t := t\n".to_string()), "    mun:sum-scaled a := 0, b := m, c := x, t := t\n    requires 1 > 0: arithmetic\n".to_string()),
             ],
             "says 1 > 0, and neither mun:sum-scaled nor",
         ),
@@ -1640,7 +1660,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/binomial.proof", Some("          requires k ∈ ℤ: mun:range-integer a := 0, b := m, from J\n\n".to_string()), "          requires k ∈ ℤ: mun:range-integer a := 0, b := m, from J\n          requires k ∈ ℝ: membership\n\n".to_string()),
             ],
-            "the requires line of step 3.2 says k ∈ ℝ, which the step's other lines already say",
+            "the requires line of step 10.3 says k ∈ ℝ, which the step's other lines already say",
         ),
         // A line saying a term is not zero is asked for by a line below that
         // divides by it, and only by such a line: nothing in step 11 divides

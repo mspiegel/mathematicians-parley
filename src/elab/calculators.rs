@@ -93,13 +93,11 @@ impl Ask<'_, '_> {
         if let Some(p) = self.el.sums_in_cc.get(&key) {
             return Ok(p.clone());
         }
-        let term = self.el.to_term(said);
-        if term.variable().is_none() && term.label() == Some("csu") {
-            let (scope, facts) = (self.spec.scope.clone(), self.spec.facts.clone());
-            if let Built(p) = self.el.summed(&term, "cc", &scope, &facts, None)? {
-                return Ok(p);
-            }
-        }
+        // Any other atom, a sum included, is a number by what the step's own
+        // lines say before it is built from its parts: a sum whose terms are
+        // a defined function's values is real by the line the step cites,
+        // and building it from the function's type would rest on a line the
+        // step does not name.
         self.el
             .membership(said, "cc", &self.spec.scope, &self.spec.facts)
     }
