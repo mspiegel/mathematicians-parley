@@ -14,7 +14,7 @@ use crate::citing::{
     names_of, obtained, obtains, readings, search, supply, taken, taken_ways,
     with_parts, Group, Library, Parts, Sites, Ways,
 };
-use crate::corpus::proof::{requires_item, Requires};
+use crate::corpus::proof::{requires_as_step, requires_item, Requires, METHODS};
 use crate::corpus::{
     cited_item, define_parts, for_pieces, references, step_index, DefineParts,
     FileScope, Item, Method, Step, Theorem,
@@ -972,59 +972,14 @@ pub fn check_define_domains(
     if functions.is_empty() {
         return;
     }
+    let needs = |asked: &Applied| {
+        known
+            .read_as_written(&asked.says[0])
+            .map(|n| known.print(&n))
+            .unwrap_or_else(|| asked.says[0].clone())
+    };
     for step in &thm.steps {
-        let links = chain_links(&step.just);
-        let mut cited: BTreeSet<String> = step.just.refs.iter().cloned().collect();
-        for link in &links {
-            cited.extend(references(&link.cite).0);
-        }
-        let used: Vec<Defined> = functions
-            .iter()
-            .filter(|f| cited.contains(&f.label))
-            .cloned()
-            .collect();
-        if used.is_empty() {
-            continue;
-        }
-        let parts = known.parts(step, library);
-        let mut facts = parts.facts.clone();
-        let from_links: Vec<String> =
-            links.iter().flat_map(|l| references(&l.cite).0).collect();
-        let refs: Vec<&str> = from_links.iter().map(String::as_str).collect();
-        facts.extend(known.lines_say(step, &refs, library));
-        // A claim said of every member puts the member in its domain.
-        facts.extend(
-            parts
-                .claims
-                .iter()
-                .filter_map(|c| claimed_member(c, library, &known.sorts))
-                .map(|(member, _)| member),
-        );
-        let facts =
-            finished(facts, Vec::new(), Binding::new(), library, &known.sorts).facts;
-        // A sum's index is in the range the sum runs over, and what holds it
-        // is a term of the sum, whose values are a family's (`family_asks`).
-        let mut indices: BTreeSet<String> = BTreeSet::new();
-        for claim in &parts.claims {
-            sum_indices(claim, &library.ctx, &mut indices);
-        }
-        let shapes: BTreeSet<&str> = facts.iter().map(|f| f.shape()).collect();
-        let mut seen: BTreeSet<String> = BTreeSet::new();
-        for asked in evaluated(step, &used, known, library) {
-            let holds_index = known
-                .read_as_written(&asked.arg)
-                .is_some_and(|a| !a.names().is_disjoint(&indices));
-            if holds_index {
-                continue;
-            }
-            let said = asked.says.iter().any(|s| {
-                known
-                    .read(step, s)
-                    .is_some_and(|n| shapes.contains(n.shape()))
-            });
-            if said || !seen.insert(asked.says[0].clone()) {
-                continue;
-            }
+        for asked in domains_unsaid(step, &functions, known, library) {
             report.say(
                 &thm.path,
                 step.just.line,
@@ -1033,14 +988,131 @@ pub fn check_define_domains(
                     step.number,
                     asked.label,
                     asked.arg,
-                    known
-                        .read_as_written(&asked.says[0])
-                        .map(|n| known.print(&n))
-                        .unwrap_or_else(|| asked.says[0].clone())
+                    needs(&asked)
                 ),
             );
         }
+        // A requires line whose reason is a method or an item is the step it
+        // would be, and cites a define as a step does.
+        for req in &step.requires {
+            let Some(as_step) = requires_read_as_step(report, thm, step, req) else {
+                continue;
+            };
+            for asked in domains_unsaid(&as_step, &functions, known, library) {
+                report.say(
+                    &thm.path,
+                    req.line,
+                    format!(
+                        "the requires line {} of step {} cites {} at {}, so it needs {}, and nothing it cites or the requires lines above it say it",
+                        str::trim(&req.fact),
+                        step.number,
+                        asked.label,
+                        asked.arg,
+                        needs(&asked)
+                    ),
+                );
+            }
+        }
     }
+}
+
+/// A requires line whose reason is a method or an item, read as the step it
+/// would be (`requires_as_step`), with the requires lines above it as its
+/// own, since it rests on them (`ELABORATION.md`, R2); None for a reason
+/// that is only `from`, which is read from the lines it names. A reason that
+/// does not read is reported.
+fn requires_read_as_step(
+    report: &mut Report,
+    thm: &Theorem,
+    step: &Step,
+    req: &Requires,
+) -> Option<Step> {
+    let how = str::trim(&req.how);
+    let method = METHODS.iter().any(|m| {
+        how == m.as_str()
+            || how.starts_with(&format!("{} ", m.as_str()))
+            || how.starts_with(&format!("{},", m.as_str()))
+    });
+    if requires_item(how).is_none() && !method {
+        return None;
+    }
+    match requires_as_step(step, req, &thm.path) {
+        Ok(mut as_step) => {
+            as_step.requires = step.requires_above(req.line).cloned().collect();
+            Some(as_step)
+        }
+        Err(problem) => {
+            report.problems.push(problem);
+            None
+        }
+    }
+}
+
+/// What a step citing a define, itself or on a calculation line, needs of
+/// each argument's domain and nothing it cites or requires says, with what
+/// each of those implies: each application once.
+fn domains_unsaid(
+    step: &Step,
+    functions: &[Defined],
+    known: &Known,
+    library: &Library,
+) -> Vec<Applied> {
+    let links = chain_links(&step.just);
+    let mut cited: BTreeSet<String> = step.just.refs.iter().cloned().collect();
+    for link in &links {
+        cited.extend(references(&link.cite).0);
+    }
+    let used: Vec<Defined> = functions
+        .iter()
+        .filter(|f| cited.contains(&f.label))
+        .cloned()
+        .collect();
+    if used.is_empty() {
+        return Vec::new();
+    }
+    let parts = known.parts(step, library);
+    let mut facts = parts.facts.clone();
+    let from_links: Vec<String> =
+        links.iter().flat_map(|l| references(&l.cite).0).collect();
+    let refs: Vec<&str> = from_links.iter().map(String::as_str).collect();
+    facts.extend(known.lines_say(step, &refs, library));
+    // A claim said of every member puts the member in its domain.
+    facts.extend(
+        parts
+            .claims
+            .iter()
+            .filter_map(|c| claimed_member(c, library, &known.sorts))
+            .map(|(member, _)| member),
+    );
+    let facts =
+        finished(facts, Vec::new(), Binding::new(), library, &known.sorts).facts;
+    // A sum's index is in the range the sum runs over, and what holds it is a
+    // term of the sum, whose values are a family's (`family_asks`).
+    let mut indices: BTreeSet<String> = BTreeSet::new();
+    for claim in &parts.claims {
+        sum_indices(claim, &library.ctx, &mut indices);
+    }
+    let shapes: BTreeSet<&str> = facts.iter().map(|f| f.shape()).collect();
+    let mut seen: BTreeSet<String> = BTreeSet::new();
+    let mut out = Vec::new();
+    for asked in evaluated(step, &used, known, library) {
+        let holds_index = known
+            .read_as_written(&asked.arg)
+            .is_some_and(|a| !a.names().is_disjoint(&indices));
+        if holds_index {
+            continue;
+        }
+        let said = asked.says.iter().any(|s| {
+            known
+                .read(step, s)
+                .is_some_and(|n| shapes.contains(n.shape()))
+        });
+        if said || !seen.insert(asked.says[0].clone()) {
+            continue;
+        }
+        out.push(asked);
+    }
+    out
 }
 
 /// An exhibit's lines say every part of its body at one value.
@@ -1445,10 +1517,16 @@ pub fn check_surplus(
 ) {
     let defines: BTreeSet<&str> =
         thm.defines.iter().map(|d| d.label.as_str()).collect();
+    let functions =
+        defined_functions(thm.defines.iter().chain(&scopes[thm.scope].defines));
 
+    // A step holds where its item is supplied and concluded, and every
+    // define it cites has its arguments in their domains: a line saying one
+    // is in its domain does work as surely as one supplying a hypothesis.
     let holds = |step: &Step| -> bool {
         if unsupplied(step, known, library).is_some()
             || !unconcluded(step, known, library).is_empty()
+            || !domains_unsaid(step, &functions, known, library).is_empty()
         {
             return false;
         }

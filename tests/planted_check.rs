@@ -597,13 +597,13 @@ fn cases() -> Vec<Case> {
             "the requires line of step 2 needs something that mun:triangle does not conclude",
         ),
         // A requires line's item asks for what the lines above it supply:
-        // `count-nat0` lets k ∈ ℤ, and without `requires 0 ∈ ℤ` above it the
-        // line says what is missing rather than that the item concludes
-        // something else.
+        // `count-nat0` lets k ∈ ℤ, and without `requires 0 ∈ ℕ₀` above it,
+        // which says 0 is an integer, the line says what is missing rather
+        // than that the item concludes something else.
         case(
             "a requires line whose item's hypothesis nothing supplies",
             vec![
-                edit("tests/elaborator/induction-under-a-condition.proof", Some("                  mun:not-both n := c(0, y), from 1.1.6\n                  requires 0 ∈ ℤ: arithmetic\n".to_string()), "                  mun:not-both n := c(0, y), from 1.1.6\n".to_string()),
+                edit("tests/elaborator/induction-under-a-condition.proof", Some("                  mun:not-both n := c(0, y), from 1.1.6\n                  requires 0 ∈ ℕ₀: arithmetic\n".to_string()), "                  mun:not-both n := c(0, y), from 1.1.6\n".to_string()),
             ],
             "the requires line of step 1.1.7 cites mun:count-nat0, which asks for k ∈ ℤ, and what it cites does not supply them",
         ),
@@ -1278,6 +1278,16 @@ fn cases() -> Vec<Case> {
                 edit("tests/elaborator/induction-under-a-condition.proof", Some("mun:count-step-holds k := j, from K2, 1.2.12.7, D1\n".to_string()), "mun:count-step-holds k := j, from K2, 1.2.12.7, 1.2.12.3, D1\n".to_string()),
             ],
             "step 1.2.12.8 cites 1.2.12.3, and mun:count-step-holds asks for nothing it says",
+        ),
+        // A requires line citing a define is the step it would be, and has
+        // each argument in its domain as a step does: c(j, y) is defined for
+        // y ∈ V, which 1.2.1 says.
+        case(
+            "cite a define in a requires line without its argument's domain",
+            vec![
+                edit("tests/elaborator/induction-under-a-condition.proof", Some("requires c(j, y) ∈ ℕ₀: mun:count-nat0 k := j, from D1, K2, 1.2.1\n".to_string()), "requires c(j, y) ∈ ℕ₀: mun:count-nat0 k := j, from D1, K2\n".to_string()),
+            ],
+            "cites D1 at y, so it needs y ∈ V, and nothing it cites or the requires lines above it say it",
         ),
         // An obtain names its item after the word `obtain`, and the checks that
         // read an item citation read only a step the item heads. The three

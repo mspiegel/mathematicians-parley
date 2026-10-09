@@ -74,12 +74,12 @@ theorem walk-parity-by-induction
 
           1.1.6.  c(0, y) is even
                   mun:even n := c(0, y), from 1.1.5
-                  requires 0 ∈ ℤ: arithmetic
+                  requires 0 ∈ ℕ₀: arithmetic
                   requires c(0, y) ∈ ℕ₀: mun:count-nat0 k := 0, from D1, 1.1.1
 
           1.1.7.  c(0, y) is not odd
                   mun:not-both n := c(0, y), from 1.1.6
-                  requires 0 ∈ ℤ: arithmetic
+                  requires 0 ∈ ℕ₀: arithmetic
                   requires c(0, y) ∈ ℕ₀: mun:count-nat0 k := 0, from D1, 1.1.1
 
           1.1.8.  y ≠ v(0)
