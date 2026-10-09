@@ -873,9 +873,10 @@ impl<'a> Elaborator<'a> {
     /// step it would be (`requires_as_step`): the same method, chosen the
     /// same way, by the same route a numbered step takes. The step's
     /// requires lines above it, which `supplied` has proved and put in hand,
-    /// are lines it cites (R2), offered as what `inequalities` combines from
-    /// a line above: orders and equations. Two terms differing is taken only
-    /// from a line the requires line cites (`METHODS.md`).
+    /// are lines it cites (R2), with what each says: `m·n ≥ 0: inequalities`
+    /// reads it off `m·n ∈ ℕ` above as off a cited line saying so. Two terms
+    /// differing is taken only from a line the requires line cites
+    /// (`METHODS.md`), so a disequality above is not among them.
     pub fn as_a_step(
         &mut self,
         step: &Step,
@@ -893,9 +894,9 @@ impl<'a> Elaborator<'a> {
             let sealed = self
                 .held(facts, &above, scope)?
                 .filter(|p| p.origin.contains(&key));
-            let bound = linear::fact(&self.to_term(&above), &labels)
-                .is_some_and(|f| f.how != linear::How::Ne);
-            if let Some(proof) = sealed.filter(|_| bound) {
+            let differing = linear::fact(&self.to_term(&above), &labels)
+                .is_some_and(|f| f.how == linear::How::Ne);
+            if let Some(proof) = sealed.filter(|_| !differing) {
                 lines.set(
                     key.clone(),
                     Line {
@@ -1162,7 +1163,7 @@ impl<'a> Elaborator<'a> {
                     self.substitute(step, node, term, scope, facts, lines)?
                 }
                 "instantiate" => self.instantiate(step, term, scope, facts, lines)?,
-                "calculation" => self.calculation(step, scope, facts, lines)?,
+                "calculation" => self.calculation(step, term, scope, facts, lines)?,
                 "join" => return self.join(step, scope, facts).map(Built),
                 "exhibit" => self.exhibit(step, node, term, scope, facts, lines)?,
                 "define" => self.by_define(step, term, scope, facts)?,
@@ -2439,10 +2440,13 @@ impl<'a> Elaborator<'a> {
     /// A chain folded by transitivity, one link at a time: each link is read
     /// as the claim relating the run so far to what the link adds, and the
     /// lemma that folds it is chosen by the two relations either side of the
-    /// join.
+    /// join. The chain reaches its first term related to its last; a claim
+    /// saying that another way, as an equation turned round, is reached from
+    /// it by `same`, as any method's claim is.
     fn calculation(
         &mut self,
         step: &Step,
+        term: &str,
         scope: &str,
         facts: &Facts,
         lines: &Lines,
@@ -2479,6 +2483,7 @@ impl<'a> Elaborator<'a> {
         let left = self.rpn(&whole.children()[0]);
         let mut right = self.rpn(&whole.children()[1]);
         let mut said = whole.label().unwrap_or("").to_string();
+        let mut reached = first_term.clone();
         let mut relation = if said == "wbr" {
             self.rpn(&whole.children()[2])
         } else {
@@ -2535,8 +2540,25 @@ impl<'a> Elaborator<'a> {
             } else {
                 "wbr".to_string()
             };
+            reached = if said == "wceq" {
+                t!(left, right, "wceq")
+            } else {
+                t!(left, right, relation, "wbr")
+            };
         }
-        Ok(Built(proof))
+        if reached == term {
+            return Ok(Built(proof));
+        }
+        let alike = take!(self.same(
+            &self.to_term(&reached),
+            &self.to_term(term),
+            scope,
+            facts,
+            Some(step)
+        )?);
+        Ok(Built(
+            pf!(self.b; scope, reached, term, proof, alike, "mpbid"),
+        ))
     }
 
     /// The proof of one link of a chain, from what it cites.

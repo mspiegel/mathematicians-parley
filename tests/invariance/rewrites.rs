@@ -2094,89 +2094,146 @@ pub fn dull_steps_moved(ctx: &Context, path: &str, text: &str) -> Rewritten {
     }
 }
 
-/// The theorems of a file in another order, each still after every theorem
-/// of the file it cites: konigsberg put degree-by-walk before walk-parity
-/// by hand, and so found that a proof's files were included in the order it
-/// cited them rather than the order they rest on one another. The order is
-/// built from the bottom: the last-written theorem whose cited theorems are
-/// all placed goes next, so the order differs wherever the citations leave
-/// room. A define of the file written between its theorems must stay above
-/// what uses it, and such a file is left as it is.
-pub fn theorems_reordered(ctx: &Context, path: &str, text: &str) -> Rewritten {
-    let lines: Vec<String> = text.lines().map(str::to_string).collect();
-    let mut thms = theorems_of(ctx, path, lines.len());
-    thms.reverse();
-    let unchanged = |declined: Vec<Declined>| Rewritten {
-        text: text.to_string(),
-        lines: 0,
-        theorems: Vec::new(),
-        declined,
-    };
-    if thms.len() < 2 {
-        return unchanged(Vec::new());
-    }
-    let first = thms[0].0.line;
-    let scope = &ctx.corpus.scopes[thms[0].0.scope];
-    if scope.defines.iter().any(|d| d.line > first) {
-        return unchanged(vec![Declined {
-            theorem: thms[0].0.qualified(),
-            why: "a define of the file stands between its theorems, above what uses it"
-                .to_string(),
-        }]);
-    }
-    let names: Vec<String> = thms.iter().map(|(t, _)| t.qualified()).collect();
-    let rests: Vec<BTreeSet<usize>> = thms
-        .iter()
-        .map(|(t, _)| {
-            parley::corpus::proof::cited_items(t)
-                .iter()
-                .filter_map(|(cited, _)| names.iter().position(|n| n == cited))
-                .filter(|&i| names[i] != t.qualified())
-                .collect()
-        })
-        .collect();
-    let mut order: Vec<usize> = Vec::new();
-    let mut left: Vec<usize> = (0..thms.len()).collect();
-    while !left.is_empty() {
-        let Some(at) = left
-            .iter()
-            .rposition(|&i| rests[i].iter().all(|r| order.contains(r)))
-        else {
-            return unchanged(Vec::new());
-        };
-        order.push(left.remove(at));
-    }
-    if order.iter().enumerate().all(|(place, &i)| place == i) {
-        return unchanged(Vec::new());
-    }
-    let chunk = |i: usize| -> Vec<String> {
-        let (t, end) = thms[i];
-        let mut out: Vec<String> = lines[t.line - 1..end].to_vec();
-        while out.last().is_some_and(|l| l.trim().is_empty()) {
-            out.pop();
-        }
-        out
-    };
-    let mut out: Vec<String> = lines[..first - 1].to_vec();
-    let mut moved = 0;
+/// A step's one requires line, citing an item, written as a numbered step
+/// just before it, which the step cites in its `from` list: a fact that
+/// needs a citation of its own may be a numbered step before the step that
+/// needs it (`SYNTAX.md`), and is the hypothesis of the step's item a cited
+/// line supplies. The item the requires line cites is then cited before the
+/// step's own, which changes the order a theorem cites what it cites:
+/// konigsberg's odd-vertices cited walk-parity in a step and degree-by-walk
+/// in its requires line, and its files were included in that order, though
+/// walk-parity rests on degree-by-walk. The steps from there on are numbered
+/// again, with every citation of them.
+///
+/// Only a requires line that is its step's only one moves, so nothing rests
+/// on it or is rested on unseen; its fact is one sentence and its reason one
+/// line; and the step cites an item on one line, ending in its `from` list
+/// and not in `contradicting`, so the new step's number joins that list.
+/// The first such line of each theorem moves.
+pub fn requires_raised(ctx: &Context, path: &str, text: &str) -> Rewritten {
+    let mut lines: Vec<String> = text.lines().map(str::to_string).collect();
+    let mut count = 0;
     let mut theorems = Vec::new();
-    for (place, &i) in order.iter().enumerate() {
-        if place > 0 {
-            out.push(String::new());
+    for (thm, end) in theorems_of(ctx, path, lines.len()) {
+        if let Some(changed) = requires_raised_in(thm, &mut lines, end) {
+            count += changed;
+            theorems.push(thm.qualified());
         }
-        let c = chunk(i);
-        if place != i {
-            moved += c.len();
-            theorems.push(names[i].clone());
-        }
-        out.extend(c);
     }
     Rewritten {
-        text: joined(out, text),
-        lines: moved,
+        text: joined(lines, text),
+        lines: count,
         theorems,
         declined: Vec::new(),
     }
+}
+
+/// The first requires line of `thm` that can be raised to a step, raised;
+/// the number of lines it changed, or None where none can.
+fn requires_raised_in(
+    thm: &Theorem,
+    lines: &mut Vec<String>,
+    end: usize,
+) -> Option<usize> {
+    let single = |l: usize| !lines[l - 1].trim_end().ends_with(',');
+    for step in &thm.steps {
+        let [req] = step.requires.as_slice() else {
+            continue;
+        };
+        let claim = step.claim.first()?;
+        if !step.just.head.is_item()
+            || step.just.target.is_some()
+            || step.just.contradicting.is_some()
+            || !step.just.chain.is_empty()
+            || parley::corpus::proof::requires_item(&req.how).is_none()
+            || req.fact.contains(". ")
+            || !single(step.just.line)
+            || !single(req.line)
+            || !lines[step.line - 1].contains(claim.as_str())
+        {
+            continue;
+        }
+        // The new step takes the step's number; it and the rest of its run
+        // move down one.
+        let depth = step.number.len();
+        let mut map: BTreeMap<String, String> = BTreeMap::new();
+        for other in &thm.steps {
+            let v = &other.number.0;
+            if v.len() >= depth
+                && v[..depth - 1] == step.number.0[..depth - 1]
+                && v[depth - 1] >= step.number.0[depth - 1]
+            {
+                let mut w = v.clone();
+                w[depth - 1] += 1;
+                map.insert(
+                    other.number.to_string(),
+                    parley::corpus::proof::StepNo(w).to_string(),
+                );
+            }
+        }
+        let raised = step.number.to_string();
+        let heading = step.line - 1;
+        let prefix: String = {
+            let at = lines[heading].find(claim.as_str())?;
+            lines[heading][..at].to_string()
+        };
+        let reason_indent: String = lines[step.just.line - 1]
+            .chars()
+            .take_while(|c| c.is_whitespace())
+            .collect();
+        let mut changed = 0;
+        for other in &thm.steps {
+            let at = other.line - 1;
+            if let Some(new) = map.get(&other.number.to_string()) {
+                let old = format!("{}.", other.number);
+                if let Some(i) = lines[at].find(&old) {
+                    lines[at].replace_range(i..i + old.len(), &format!("{new}."));
+                    changed += 1;
+                }
+            }
+            let mut cited: Vec<usize> = vec![other.just.line - 1];
+            cited.extend(continued(lines, other.just.line - 1, end));
+            for r in &other.requires {
+                cited.push(r.line - 1);
+                cited.extend(continued(lines, r.line - 1, end));
+            }
+            for l in cited {
+                let new = renumbered_refs(&lines[l], &map);
+                if new != lines[l] {
+                    lines[l] = new;
+                    changed += 1;
+                }
+            }
+            for (_, at) in &other.just.chain {
+                let new = renumbered_link(&lines[at - 1], &map);
+                if new != lines[at - 1] {
+                    lines[at - 1] = new;
+                    changed += 1;
+                }
+            }
+        }
+        // The step cites the new one, and its requires line goes.
+        let reason = step.just.line - 1;
+        let cites = if references(&step.just.text).0.is_empty() {
+            format!("{}, from {raised}", lines[reason].trim_end())
+        } else {
+            format!("{}, {raised}", lines[reason].trim_end())
+        };
+        lines[reason] = cites;
+        lines.remove(req.line - 1);
+        // The heading as the step was written, before it was numbered again,
+        // carries the number the new step takes.
+        let new_step = vec![
+            format!("{prefix}{}", req.fact.trim()),
+            format!("{reason_indent}{}", req.how.trim()),
+            String::new(),
+        ];
+        for (i, line) in new_step.into_iter().enumerate() {
+            lines.insert(heading + i, line);
+        }
+        return Some(changed + 4);
+    }
+    None
 }
 
 /// Every define in a proof raised to the start of its run of steps: above

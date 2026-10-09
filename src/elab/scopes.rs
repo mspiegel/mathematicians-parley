@@ -377,6 +377,7 @@ impl<'a> Elaborator<'a> {
             over: None,
             base: None,
             variable: None,
+            opened: Vec::new(),
             // Taken before the block names anything, so that what it names is
             // what closing it gives back.
             named: self.names.clone(),
@@ -438,6 +439,7 @@ impl<'a> Elaborator<'a> {
                     }
                     let node = self.read(&body)?;
                     let added = self.term(&node)?;
+                    block.opened.push(added.clone());
                     let origin = assumption(&block, &o.label);
                     let (inner, lifted) = self.widen(
                         &block.scope.clone(),
@@ -1027,13 +1029,15 @@ impl<'a> Elaborator<'a> {
         let claim = claim?;
         let (layers, rest) = self.opener_layers(step, &claim)?;
         // The scope each layer was taken at, which is what it is given back
-        // to.
+        // to. An assumption widened the scope as the block writes it, which
+        // may be the claim's supposition said another way, `g(t) = g(s)`
+        // for `g(s) = g(t)`; its steps were proved under that.
         let mut scopes = Vec::new();
         let mut scope = block.outer.clone();
-        for OpenerLayer { how, what, over } in &layers {
+        for (i, OpenerLayer { how, what, over }) in layers.iter().enumerate() {
             scopes.push(scope.clone());
             scope = if *how == "ex" {
-                t!(scope, what, "wa")
+                t!(scope, block.opened.get(i).unwrap_or(what), "wa")
             } else {
                 t!(
                     scope,
@@ -1063,12 +1067,31 @@ impl<'a> Elaborator<'a> {
             ));
         };
         let mut said = want;
-        for (OpenerLayer { how, what, over }, outer) in
-            layers.iter().zip(scopes.iter()).rev()
+        for (i, (OpenerLayer { how, what, over }, outer)) in
+            layers.iter().zip(scopes.iter()).enumerate().rev()
         {
             match *how {
                 "ex" => {
-                    proof = pf!(self.b; outer, what, said, proof, "ex");
+                    // Given back as written, and then as the claim supposes
+                    // it, where the two are one claim said two ways.
+                    let written = block.opened.get(i).unwrap_or(what);
+                    proof = pf!(self.b; outer, written, said, proof, "ex");
+                    if written != what {
+                        let Built(alike) = self.same(
+                            &self.to_term(what),
+                            &self.to_term(written),
+                            outer,
+                            &block.outside,
+                            Some(step),
+                        )?
+                        else {
+                            return Err(self.defect(
+                                step.line,
+                                "the block assumes other than what its claim supposes",
+                            ));
+                        };
+                        proof = pf!(self.b; outer, what, written, said, alike, proof, "sylbid");
+                    }
                     said = t!(what, said, "wi");
                 }
                 "alrimiv" => {

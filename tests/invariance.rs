@@ -29,9 +29,11 @@ use std::sync::Arc;
 use parley::corpus::corpus;
 use parley::elab::elaborate::Options;
 use parley::elab::Library;
+use parley::mm::where_set_mm;
 use parley::source::{Disk, Memory, Overlay, Source};
 use parley::threads::in_order;
-use parley::tools::build::{library, Loaded};
+use parley::tools::build::{library, verified, Libraries, Loaded};
+use parley::tools::{path_of, verify};
 
 #[path = "invariance/rewrites.rs"]
 mod rewrites;
@@ -118,8 +120,8 @@ fn changes() -> Vec<Change> {
             rewrite: Rewrite::File(rewrites::dull_steps_moved),
         },
         Change {
-            name: "the theorems of a file in another order their citations allow",
-            rewrite: Rewrite::File(rewrites::theorems_reordered),
+            name: "a requires line citing an item written as a step before its own",
+            rewrite: Rewrite::File(rewrites::requires_raised),
         },
         Change {
             name: "a define in a proof raised to the start of its run of steps",
@@ -371,7 +373,7 @@ fn a_proof_means_what_it_says_however_it_spells_it() {
             "set.mm is found: say where it is with SET_MM, or leave a copy at the root",
         )
         .shared();
-    let broken = in_order(
+    let built = in_order(
         &work,
         || (Library::new(Arc::clone(&read)), BTreeMap::new()),
         |(lib, loaded): &mut (Library, BTreeMap<usize, Loaded>), (i, name)| {
@@ -379,11 +381,59 @@ fn a_proof_means_what_it_says_however_it_spells_it() {
                 Loaded::new(&trees[*i].tree).expect("the changed corpus reads")
             });
             tree.elaborate(name, lib, Options::default())
-                .err()
-                .map(|p| format!("{} | elaborate | {p}", changes[*i].name))
+                .map(|e| e.text)
+                .map_err(|p| format!("{} | elaborate | {p}", changes[*i].name))
         },
     );
-    found.extend(broken.into_iter().flatten());
+    // What each change built, verified as the gate verifies the tree: every
+    // file the tree holds, each built one in place of the one committed.
+    // Only a change that built some file otherwise than it is committed is
+    // verified, since the committed files are the gate's to verify.
+    let mut made: Vec<BTreeMap<String, String>> =
+        trees.iter().map(|_| BTreeMap::new()).collect();
+    for ((i, name), result) in work.iter().zip(built) {
+        match result {
+            Ok(text) => {
+                let path = path_of(name);
+                if trees[*i].tree.read_text(&path).ok().as_deref()
+                    != Some(text.as_str())
+                {
+                    made[*i].insert(path, text);
+                }
+            }
+            Err(broke) => {
+                found.insert(broke);
+            }
+        }
+    }
+    let libraries = Libraries::read(
+        &where_set_mm(None, root)
+            .expect("set.mm is found: say where it is with SET_MM"),
+    )
+    .expect("set.mm reads");
+    for (i, done) in trees.iter().enumerate() {
+        if made[i].is_empty() {
+            continue;
+        }
+        let mut tree = Overlay::new(&done.tree);
+        for (path, text) in &made[i] {
+            tree.write(path, text.clone().into_bytes());
+        }
+        let every = verified(&corpus(&tree).expect("the changed corpus reads"));
+        let said = verify::run(&tree, &every, Some(&libraries));
+        println!(
+            "{}: {} files built otherwise, verified",
+            changes[i].name,
+            made[i].len()
+        );
+        if !said.green() {
+            found.insert(format!(
+                "{} | verify | {}",
+                changes[i].name,
+                said.printed.trim().replace('\n', " | ")
+            ));
+        }
+    }
     let known: BTreeSet<String> = KNOWN.iter().map(|s| s.to_string()).collect();
     let new: Vec<&String> = found.difference(&known).collect();
     let gone: Vec<&String> = known.difference(&found).collect();

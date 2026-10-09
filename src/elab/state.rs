@@ -121,6 +121,9 @@ pub struct Block {
     pub base: Option<String>,
     /// The setvar a `proof` block's `let` introduced.
     pub variable: Option<String>,
+    /// What each opener of a `proof` block laid down, as it is written, in
+    /// order: the scope its steps are proved under.
+    pub opened: Vec<String>,
     /// The names in hand before it opened, and which variable each binder
     /// had; and which each had while it was open.
     pub named: IndexMap<String, String>,

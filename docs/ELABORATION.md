@@ -1662,10 +1662,12 @@ proved (`discharged_by`).
   method or an item is proved as the step it would be (`requires_as_step`,
   `as_a_step`): its fact the claim, its reason the justification, the method
   chosen and run by the route a numbered step takes. Among the lines it cites
-  are the orders and equations above it, each known by the proof `supplied`
-  sealed as that line; two terms differing is taken only from a line the
-  requires line cites (`METHODS.md`). So `requires sin(∠PQR) ≠ 0: inequalities` stands on
-  `requires sin(∠PQR) > 0` above it; `requires A > 0: inequalities, from D1,
+  are the requires lines above it, each known by the proof `supplied` sealed
+  as that line, with what each says, as a cited line's is; two terms
+  differing is taken only from a line the requires line cites (`METHODS.md`),
+  so a disequality above is not among them. So `requires sin(∠PQR) ≠ 0:
+  inequalities` stands on `requires sin(∠PQR) > 0` above it, and `requires
+  m·n ≥ 0: inequalities` on `requires m·n ∈ ℕ`; `requires A > 0: inequalities, from D1,
   C3` reads the sum D1 names as a step does, and `requires 1 − a ≠ 0:
   algebra, from H2` rescales `a ≠ 1` as a step does. What that route reports
   of the line is said of the requires line. Only a reason with no step form
