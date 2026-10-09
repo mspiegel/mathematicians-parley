@@ -1266,6 +1266,18 @@ fn cases() -> Vec<Case> {
             ],
             "step 30 exhibits c := c, so it needs c ∈ (a, b)",
         ),
+        // The witness is read off what the body says, not off the bare
+        // membership, which any number in ℕ satisfies: harmonic-unbounded's
+        // step 6 exhibits 2^N, which line 4 says the sum is above M at, and
+        // without line 5 nothing says 2^N ∈ ℕ. The numeral 1 in the sum is
+        // in ℕ too, and is no candidate.
+        case(
+            "exhibit a witness whose membership is not said, with a numeral in the body",
+            vec![
+                edit("proofs/harmonic.proof", Some("    exhibit, from 5, 4\n".to_string()), "    exhibit, from 4\n".to_string()),
+            ],
+            "step 6 exhibits n := 2^N, so it needs 2^N ∈ ℕ",
+        ),
         // A requires line rests on the lines above it, read top to bottom
         // (`SYNTAX.md`). Written first, |numer(x)| ∈ ℕ₀ asks for numer(x) ∈ ℤ,
         // which no line above it states.

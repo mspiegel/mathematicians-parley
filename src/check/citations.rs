@@ -1191,8 +1191,22 @@ pub fn check_exhibited(
                 let w = substitute_apart(w, at, &library.ctx);
                 itself(&w) || facts.iter().any(|f| known.alike(f, &w))
             };
+            // A letter's bare membership, n ∈ ℕ, fits every number in ℕ, and
+            // a numeral's membership is said once (`said_once`), so the value
+            // it suggests is no reading of the claim: what the body says is
+            // asked first, and wins where as many parts are said of each.
+            let bare = |w: &Node| {
+                w.notation == "membership"
+                    && w.children
+                        .first()
+                        .is_some_and(|t| letters.contains(&t.text))
+            };
             let mut best: Option<(usize, Binding)> = None;
-            for w in &wants {
+            for w in wants
+                .iter()
+                .filter(|w| !bare(w))
+                .chain(wants.iter().filter(|w| bare(w)))
+            {
                 let Some(at) = stated(std::slice::from_ref(w)) else {
                     continue;
                 };
