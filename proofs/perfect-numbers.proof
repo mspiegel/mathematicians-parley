@@ -21,6 +21,10 @@ import definition         stdlib/divisibility/σ
 
 theorem euclid-perfect
   metamath    perfect1
+  note        σ multiplies over numbers that share no factor, as 2^(p − 1) and
+              2^p − 1 do. σ(2^(p − 1)) = 2^p − 1 by the geometric sum, and
+              σ(2^p − 1) = 2^p since it is prime. Their product is twice the
+              number, which is what perfect means.
   let p ∈ ℕ                                                           (H1)
   assume 2^p − 1 is prime                                             (H2)
   then 2^(p − 1)·(2^p − 1) is perfect

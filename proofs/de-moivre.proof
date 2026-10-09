@@ -13,6 +13,9 @@ import mundane theorem    stdlib/trigonometry/sin-zero
 
 theorem de-moivre
   metamath    demoivre
+  note        By induction on the power: multiplying cos(kx) + i·sin(kx) by
+              cos(x) + i·sin(x), with i·i = −1 and the addition formulas for
+              cos and sin, gives cos((k + 1)x) + i·sin((k + 1)x).
   let x ∈ ℝ                                                           (H1)
   let n ∈ ℕ₀                                                          (H2)
   then (cos(x) + i·sin(x))^n = cos(n·x) + i·sin(n·x)

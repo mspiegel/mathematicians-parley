@@ -185,6 +185,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
 
 7.  For all b ∈ G, for all y ∈ bH, yH = bH.
     proof
+    note a coset is the coset of any of its elements: steps 5 and 6 give both inclusions
     let b ∈ G                                                         (K9)
     let y ∈ bH                                                        (K10)
 
@@ -208,6 +209,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
 
 8.  For all g ∈ G, |gH| = |H|.
     proof
+    note multiplying by g sends H one to one onto gH
     let g ∈ G                                                         (K11)
 
     define t(c) := g·c, for c ∈ H                                     (D2)
@@ -291,6 +293,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
 
 11. For all g ∈ G, g ∈ ⋃(Y ∈ K) Y.
     proof
+    note the cosets cover G: g is in its own coset gH
     let g ∈ G                                                         (K17)
 
     11.1. gH ⊆ G
@@ -319,6 +322,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
 
 14. For all Y, Z ∈ K, for all x ∈ Y ∩ Z, Y = Z.
     proof
+    note two cosets that share an element x are both xH, so they do not overlap otherwise
     let Y ∈ K                                                         (K18)
     let Z ∈ K                                                         (K19)
     let x ∈ Y ∩ Z                                                     (K20)

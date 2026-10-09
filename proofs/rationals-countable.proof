@@ -11,6 +11,10 @@ import mundane axiom      stdlib/reasoning/excluded-middle
 
 theorem rationals-countable
   metamath    qnnen, which says it of ℚ and ℕ the other way round
+  note        ℕ goes one to one into ℚ as itself, and ℚ goes one to one into
+              ℕ by a code: p/q in lowest terms, with sign s, goes to
+              2^|p|·3^q·5^s, and a number has only one factoring into primes.
+              Schröder–Bernstein then gives a bijection.
   then there is a bijection from ℕ to ℚ
 
 define f(n) := n, for n ∈ ℕ                                           (D1)
@@ -51,6 +55,7 @@ define g(x) := 2^|numer(x)|·3^denom(x)·5^s(x), for x ∈ ℚ    (D3)
 
 4.  For all x ∈ ℚ, s(x) ∈ ℕ₀ and numer(x) = (1 − 2·s(x))·|numer(x)|.
     proof
+    note 1 − 2·s(x) is 1 or −1, the sign, so size and sign give the numerator back
     let x ∈ ℚ                                                         (K4)
 
     4.1.  s(x) ∈ ℕ₀

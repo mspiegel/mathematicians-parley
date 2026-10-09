@@ -4,6 +4,8 @@ import mundane theorem    stdlib/numbers/nonneg-or-neg
 
 theorem abs-bounds
   metamath    leabs, absneg
+  note        |x| is x or −x, whichever is not negative, so it is at least
+              both.
   let x ∈ ℝ                                                           (H1)
   then x ≤ |x|. −x ≤ |x|.
 
@@ -50,6 +52,9 @@ theorem abs-bounds
 
 theorem triangle-inequality
   metamath    abstri, over ℂ
+  note        |a + b| is a + b or −(a + b), and each of those is at most
+              |a| + |b|, since a and −a are at most |a| (abs-bounds), and the
+              same for b.
   let a ∈ ℝ                                                           (H1)
   let b ∈ ℝ                                                           (H2)
   then |a + b| ≤ |a| + |b|

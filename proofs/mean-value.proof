@@ -12,6 +12,10 @@ import mundane theorem    stdlib/functions/function-into
 
 theorem mean-value
   metamath    mvth
+  note        Add to f the line through 0 whose slope is the chord's, negated.
+              The result F takes one value at a and at b, so Rolle's theorem
+              gives a c inside where F′(c) = 0, and there f′(c) is the
+              chord's slope.
   let a ∈ ℝ                                                           (H1)
   let b ∈ ℝ                                                           (H2)
   assume a < b                                                        (H3)

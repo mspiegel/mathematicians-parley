@@ -17,7 +17,10 @@ import mundane definition stdlib/trigonometry/sin
 import mundane theorem    stdlib/trigonometry/sin-real
 
 theorem similar-triangles
-  let P be a point                                                    (H1)
+  note        Two triangles with two angles equal have the third equal too
+              (angle-sum), and the law of sines then gives their sides in
+              proportion.
+  let P be a point                                                   (H1)
   let Q be a point                                                    (H2)
   let R be a point                                                    (H3)
   let P′ be a point                                                   (H4)
@@ -102,6 +105,10 @@ theorem similar-triangles
 
 theorem pythagoras
   metamath    pythag
+  note        Drop the altitude from C to its foot D on AB. The two smaller
+              triangles are each similar to ABC, which gives |AD|·|AB| = |AC|²
+              and |DB|·|AB| = |BC|². Adding, with |AD| + |DB| = |AB|, gives
+              |AB|².
   let A be a point                                                    (H1)
   let B be a point                                                    (H2)
   let C be a point                                                    (H3)

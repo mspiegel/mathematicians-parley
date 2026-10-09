@@ -36,7 +36,9 @@ define s(a) := (a + 1) mod 10, for a ∈ ℤ                            (D2)
        reads the digit after a: add 1 and keep the last digit, so 9 becomes 0
 
 theorem digit-range
-  let t ∈ ℤ                                                           (H1)
+  note        A remainder on division by 10 is one of 0 to 9, so s(t) is a
+              digit.
+  let t ∈ ℤ                                                          (H1)
   then 0 ≤ s(t) and s(t) ≤ 9
 
 1.  s(t) = (t + 1) mod 10
@@ -58,7 +60,9 @@ theorem digit-range
     inequalities, from 5, 4
 
 theorem digit-step-divides
-  let t ∈ ℤ                                                           (H1)
+  note        s(t) is what t + 1 leaves on division by 10, so the two differ
+              by a multiple of 10.
+  let t ∈ ℤ                                                          (H1)
   then 10 divides (t + 1) − s(t)
 
 1.  s(t) = (t + 1) mod 10
@@ -75,7 +79,9 @@ theorem digit-step-divides
     substitute s(t) = (t + 1) mod 10 (line 1) into line 3
 
 theorem digit-step
-  let t ∈ ℤ                                                           (H1)
+  note        Changing a digit with s always changes it: if s(t) were t, 10
+              would divide (t + 1) − t, which is 1.
+  let t ∈ ℤ                                                          (H1)
   then s(t) ≠ t
 
 1.  10 divides (t + 1) − s(t)
@@ -98,7 +104,11 @@ theorem digit-step
           mun:divides-le e := 10, m := 1, from 2.3
 
 theorem digit-step-twice
-  let t ∈ ℤ                                                           (H1)
+  note        Changing it twice does not bring it back either: if s(s(t))
+              were t, 10 would divide the two steps' sum, which is 2. The
+              diagonal needs this, since its decimal may round its digit up
+              once more (decimal-number).
+  let t ∈ ℤ                                                          (H1)
   then s(s(t)) ≠ t
 
 1.  s(t) ∈ ℤ
@@ -133,7 +143,11 @@ theorem digit-step-twice
           mun:divides-le e := 10, m := 2, from 4.4
 
 theorem decimal-number
-  let d : ℕ → ℤ                                                       (H1)
+  note        The digits name a real number x: the least upper bound of the
+              decimals cut off after k digits, N(k)/10^k. Its n-th digit is
+              d(n), except where every later digit is 9; then the digit is
+              the next one up, s(d(n)), as 0.0999… is 0.1.
+  let d : ℕ → ℤ                                                      (H1)
   assume for all n ∈ ℕ, 0 ≤ d(n) and d(n) ≤ 9                          (H2)
   then there is x ∈ ℝ with for all n ∈ ℕ, D(x, n) = d(n) or D(x, n) = s(d(n))
 
@@ -663,7 +677,12 @@ define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              
 theorem sequence-misses-real
   metamath    ruclem12, the form in which a sequence misses a real; proved by
               Cantor's diagonal argument rather than set.mm's nested intervals
-  let f : ℕ → ℝ                                                       (H1)
+  note        Cantor's diagonal argument. Change the n-th digit of f(n) with s
+              for every n, and let x be the real number with those digits.
+              Each digit of x is the changed one or the next one up, and
+              neither is f(n)'s, so x differs from every f(n) at its n-th
+              digit.
+  let f : ℕ → ℝ                                                      (H1)
   then there is x ∈ ℝ with for all n ∈ ℕ, f(n) ≠ x
 
 define e(n) := s(D(f(n), n)), for n ∈ ℕ                              (D5)
@@ -796,6 +815,8 @@ define e(n) := s(D(f(n), n)), for n ∈ ℕ                              (D5)
 
 theorem reals-uncountable
   metamath    ruc, which says as well that ℕ is no larger than ℝ
+  note        A bijection from ℕ to ℝ would list every real as some f(n), and
+              sequence-misses-real gives a real the list misses.
   then there is no bijection from ℕ to ℝ
 
 1.  There is no bijection from ℕ to ℝ.

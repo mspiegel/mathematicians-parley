@@ -12,7 +12,10 @@ import mundane theorem    stdlib/sums/sum-divisible
 import mundane theorem    stdlib/sums/sum-integer
 
 theorem ten-power-congruent
-  let k ∈ ℕ₀                                                          (H1)
+  note        10 leaves remainder 1 on division by 3, so every power of 10
+              does: by induction, 10^(m + 1) − 1 is (10^m − 1)·10 + 9, and 3
+              divides both parts.
+  let k ∈ ℕ₀                                                         (H1)
   then 10^k ≡ 1 (mod 3)
 
 1.  For all m ∈ ℕ₀, 10^m ≡ 1 (mod 3).
@@ -77,9 +80,11 @@ theorem ten-power-congruent
 
 
 theorem divisibility-by-three
-  note        Wiedijk's 85, `3dvds` in set.mm, which states it for a digit
-              function on ( 0 ... N ). The digits here are any integers d(k),
-              as set.mm's are; a reader's decimal digits are the case 0 to 9.
+  note        A number and the sum of its digits differ by a multiple of 3:
+              each term d(k)·10^k differs from its digit d(k) by
+              d(k)·(10^k − 1), which 3 divides. So 3 divides one exactly when
+              it divides the other. The digits may be any integers; decimal
+              digits are the case 0 to 9.
   let n ∈ ℕ₀                                                          (H1)
   let d : ℕ₀ → ℤ                                                      (H2)
   then 3 divides Σ(k = 0 to n) d(k)·10^k ↔ 3 divides Σ(k = 0 to n) d(k)

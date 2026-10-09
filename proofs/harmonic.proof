@@ -13,9 +13,9 @@ import mundane theorem    stdlib/numbers/power-nat
 import mundane theorem    stdlib/numbers/reciprocal-order
 
 theorem harmonic-block
-  note        The induction step's block, stated apart from the induction as
-              binomial-step is: inside the step the hypothesis is in scope and
-              names the sum's index, which set.mm's sum lemmas forbid there.
+  note        Doubling the number of terms from 2^j to 2^(j + 1) adds 2^j
+              terms, each at least 1/2^(j + 1), so the sum grows by at
+              least 1/2.
   let j ∈ ℕ₀                                                          (H1)
   then Σ(k = 1 to 2^(j + 1)) 1/k ≥ Σ(k = 1 to 2^j) 1/k + 1/2
 
@@ -106,6 +106,9 @@ theorem harmonic-block
 
 
 theorem harmonic-unbounded
+  note        Each doubling of the terms adds at least 1/2 (harmonic-block), so
+              the first 2^m terms add up to at least m/2. Taking N above 2M,
+              the first 2^N terms add up to more than M.
   let M ∈ ℝ                                                           (H1)
   then there is n ∈ ℕ with Σ(k = 1 to n) 1/k > M
 
@@ -163,6 +166,8 @@ theorem harmonic-unbounded
 
 theorem harmonic
   metamath    harmonic
+  note        A sum with a limit is bounded, and the harmonic sums are not:
+              harmonic-unbounded passes any bound B.
   then there is no L ∈ ℝ with Σ(k = 1 to n) 1/k → L as n → ∞
 
 1.  There is no L ∈ ℝ with Σ(k = 1 to n) 1/k → L as n → ∞.

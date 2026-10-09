@@ -3,6 +3,8 @@ import mundane theorem    stdlib/polynomials/polynomial-value
 
 theorem factor
   metamath    facth
+  note        Dividing p by x − a leaves a constant remainder, which is p(a),
+              and that is 0.
   let p be a polynomial                                               (H1)
   let a ∈ ℂ                                                           (H2)
   assume p(a) = 0                                                     (H3)

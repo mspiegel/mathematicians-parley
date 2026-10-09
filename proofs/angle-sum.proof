@@ -7,6 +7,9 @@ import mundane theorem    stdlib/geometry/triangle-swap
 
 theorem angle-sum
   metamath    ang180
+  note        Draw through B the line parallel to AC. The angles it makes with
+              BA and BC equal the triangle's angles at A and at C (alternate
+              angles), and with the angle at B they make a straight line.
   let A be a point                                                    (H1)
   let B be a point                                                    (H2)
   let C be a point                                                    (H3)

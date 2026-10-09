@@ -30,7 +30,9 @@ import mundane theorem    stdlib/reasoning/or-left
 import mundane theorem    stdlib/reasoning/or-right
 
 theorem even-leg
-  let a ∈ ℕ                                                           (H1)
+  note        If both legs were odd, c² would be twice an odd number: then c is
+              even, c² is a multiple of 4, and 4 would divide 2.
+  let a ∈ ℕ                                                          (H1)
   let b ∈ ℕ                                                           (H2)
   let c ∈ ℕ                                                           (H3)
   assume a² + b² = c²                                                 (H4)
@@ -106,7 +108,10 @@ theorem even-leg
           mun:or-right, from 2.4
 
 theorem leg-hypotenuse-coprime
-  let a ∈ ℕ                                                           (H1)
+  note        A common factor of b and c divides c² − b², which is a². It
+              shares no factor with a, since such a factor would divide
+              gcd(a, b) = 1; so it shares none with a² either, and divides 1.
+  let a ∈ ℕ                                                          (H1)
   let b ∈ ℕ                                                           (H2)
   let c ∈ ℕ                                                           (H3)
   assume a² + b² = c²                                                 (H4)
@@ -170,7 +175,11 @@ theorem leg-hypotenuse-coprime
     mun:divides-one d := gcd(b, c), from 1, 15
 
 theorem primitive-triple
-  let a ∈ ℕ                                                           (H1)
+  note        With a even, b and c are odd, so c + b = 2s and c − b = 2t.
+              Then s + t = c and s − t = b, so s and t share no factor, and
+              s·t = (a/2)² is a square. Numbers that share no factor and
+              multiply to a square are squares themselves: s = m², t = n².
+  let a ∈ ℕ                                                          (H1)
   let b ∈ ℕ                                                           (H2)
   let c ∈ ℕ                                                           (H3)
   assume a² + b² = c²                                                 (H4)
@@ -510,7 +519,10 @@ theorem primitive-triple
     requires a = 2mn: algebra, from 58, H1, 50, 52
 
 theorem triple-scaled
-  let a ∈ ℕ                                                           (H1)
+  note        Divide the triple by k = gcd(a, b). k divides c too, since k²
+              divides a² + b² = c², and the triple divided by k is still one,
+              with legs that share no factor.
+  let a ∈ ℕ                                                          (H1)
   let b ∈ ℕ                                                           (H2)
   let c ∈ ℕ                                                           (H3)
   assume a² + b² = c²                                                 (H4)
@@ -574,7 +586,9 @@ theorem triple-scaled
     exhibit, from 1, 2, 3, 9, 10, 14
 
 theorem triple-from-parameters
-  let a ∈ ℕ                                                           (H1)
+  note        The formulas give a triple by algebra: (m² − n²)² + (2mn)² is
+              (m² + n²)², and multiplying all three by k keeps it one.
+  let a ∈ ℕ                                                          (H1)
   let b ∈ ℕ                                                           (H2)
   let c ∈ ℕ                                                           (H3)
   let k ∈ ℕ                                                           (H4)
@@ -632,7 +646,10 @@ theorem triple-from-parameters
                     = c²                            2.8
 
 theorem triple-parameters
-  let a ∈ ℕ                                                           (H1)
+  note        Every triple is k times one whose legs share no factor
+              (triple-scaled). One of those legs is even (even-leg), and
+              primitive-triple gives m and n for it, whichever leg it is.
+  let a ∈ ℕ                                                          (H1)
   let b ∈ ℕ                                                           (H2)
   let c ∈ ℕ                                                           (H3)
   assume a² + b² = c²                                                 (H4)
@@ -723,6 +740,9 @@ theorem triple-parameters
 
 theorem pythagorean-triples
   metamath    pythagtrip
+  note        Both directions: every triple has the form (triple-parameters),
+              and every number of the form is a triple
+              (triple-from-parameters).
   let a ∈ ℕ                                                           (H1)
   let b ∈ ℕ                                                           (H2)
   let c ∈ ℕ                                                           (H3)

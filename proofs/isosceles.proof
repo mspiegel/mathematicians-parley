@@ -8,6 +8,9 @@ import definition         stdlib/geometry/congruent
 
 theorem isosceles
   metamath    isosctr
+  note        Read the triangle as ACB and as BCA. Two sides and the angle
+              between them agree, |CA| = |CB| and the angle at C, so the two
+              are congruent and the angles at A and at B match.
   let A be a point                                                    (H1)
   let B be a point                                                    (H2)
   let C be a point                                                    (H3)

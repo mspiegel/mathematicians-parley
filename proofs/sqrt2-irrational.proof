@@ -14,6 +14,8 @@ import mundane theorem    stdlib/reasoning/disjunctive-syllogism
 
 theorem odd-square
   metamath    zesq covers it
+  note        An odd number is 2k + 1, and its square 4k² + 4k + 1 is twice
+              2k² + 2k, plus 1.
   let n ∈ ℤ                                                           (H1)
   assume n is odd                                                     (H2)
   then n² is odd
@@ -42,6 +44,8 @@ theorem odd-square
 
 theorem even-square
   metamath    zesq
+  note        If n were odd, its square would be odd by odd-square, and n² is
+              even. Every integer is even or odd, so n is even.
   let n ∈ ℤ                                                           (H1)
   assume n² is even                                                   (H2)
   then n is even
@@ -64,9 +68,9 @@ theorem even-square
 
 
 theorem lowest-terms
-  note        Hammack chapter 6 takes a fraction in lowest terms as given.
-              set.mm has it as elq2, which says lowest terms with a gcd where
-              a reader says it with divisors, and that step is the proof.
+  note        Every rational is p/q with q > 0 and gcd(p, q) = 1. Lowest
+              terms says that with divisors instead: a common divisor of p
+              and q divides their gcd, which is 1, so none is above 1.
   let x ∈ ℚ                                                           (H1)
   then there exist p, q ∈ ℤ such that q > 0, x = p/q,
        and there is no d ∈ ℤ with d > 1, d divides p, and d divides q
@@ -105,9 +109,9 @@ theorem lowest-terms
 
 theorem sqrt2-irrational
   metamath    sqrt2irr
-  note        No pilot table carried a row for it. Added by the merge. set.mm
-              proves it by descent with strong induction, so the elaborated
-              kernel proof will differ.
+  note        Suppose √2 = p/q in lowest terms. Then p² = 2q², so p is even;
+              writing p = 2r gives q² = 2r², so q is even too, and 2 divides
+              both, which lowest terms rules out.
   then √2 is irrational
 
 1.  (√2)² = 2

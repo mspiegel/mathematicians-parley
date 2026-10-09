@@ -308,7 +308,7 @@ fn cases() -> Vec<Case> {
         case(
             "let a function of the proof's take a library function's name",
             vec![
-                edit("proofs/bezout.proof", Some("  metamath    bezout\n".to_string()), "  metamath    bezout\n  let gcd : ℕ → ℕ                                                     (H9)\n".to_string()),
+                edit("proofs/bezout.proof", Some("              gcd(a, b) ≤ d.\n".to_string()), "              gcd(a, b) ≤ d.\n  let gcd : ℕ → ℕ                                                     (H9)\n".to_string()),
             ],
             "gcd is the library's function, mun:stdlib/divisibility/gcd, which this file imports; name this function something else",
         ),

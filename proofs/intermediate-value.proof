@@ -19,6 +19,10 @@ import definition         stdlib/calculus/continuous-on
 
 theorem intermediate-value
   metamath    ivth, the general form
+  note        Let c be the least upper bound of the points where f is below 0.
+              If f(c) < 0, f stays below 0 a little to the right of c, so c is
+              no upper bound. If f(c) > 0, f stays above 0 a little to the
+              left of c, so a smaller number is an upper bound. So f(c) = 0.
   let a ∈ ℝ                                                           (H1)
   let b ∈ ℝ                                                           (H2)
   assume a < b                                                        (H3)
@@ -93,6 +97,7 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
     cases, from 14
 
     case
+    note f stays below 0 at a point x₁ just right of c, so x₁ ∈ S and c is no bound
     assume f(c) < 0                                                   (C1)
 
     16.1.  c ≠ b
@@ -194,6 +199,7 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
     assume f(c) = 0, which is the claim                               (C2)
 
     case
+    note f stays above 0 within δ of c, so c − δ is a bound below c
     assume 0 < f(c)                                                   (C3)
 
     16.22. There exists δ > 0 such that

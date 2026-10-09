@@ -152,6 +152,9 @@ define C := ⋃(X ∈ D) X                                               (D3)
 theorem schroeder-bernstein
   metamath    sbth, which says it of one set dominating another, where this
               says it of the one-to-one functions that dominating names
+  note        Take the part C of A that fixed-part gives. Send C along f and
+              the rest of A back along g. Each element of B is reached once:
+              those in f[C] by f, the others by g run backwards.
   let A be a set                                                      (H1)
   let B be a set                                                      (H2)
   let f : A → B be one-to-one                                         (H3)

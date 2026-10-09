@@ -35,9 +35,9 @@ import mundane theorem    stdlib/sets/subset-transitive
 import mundane theorem    stdlib/sets/union-subset
 
 theorem add-element-bijection
-  note        The pilot's row was itself incomplete, reading "Let X be a set, a
-              with not a ∈ X... the map S ↦ S ∪ {a} is a bijection". The
-              statement in the proof is the merge's reading of it.
+  note        Adding a to each part of X matches the parts of X one to one
+              with the sets that add a to one: since a is not in X, taking a
+              away again gives back the part it was added to.
   let X be a set                                                      (H1)
   let a ∉ X                                                           (H2)
   then there is a bijection from 𝒫X to {S ∪ {a} : S ∈ 𝒫X}
@@ -88,8 +88,9 @@ theorem add-element-bijection
 
 
 theorem powerset-split-disjoint
-  note        The pilot's row read only "the two parts above are disjoint". The
-              statement in the proof is the merge's reading of it.
+  note        The parts of X without a, and those with a added, share no set:
+              every set in the second family holds a, and no set in the first
+              does.
   let X be a set                                                      (H1)
   let a ∈ X                                                           (H2)
   then 𝒫(X ∖ {a}) ∩ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})} = ∅
@@ -122,7 +123,9 @@ theorem powerset-split-disjoint
 
 
 theorem powerset-split
-  let X be a set                                                      (H1)
+  note        Every part of X either leaves a out, and is a part of X ∖ {a},
+              or holds a, and is a part of X ∖ {a} with a put back.
+  let X be a set                                                     (H1)
   let a ∈ X                                                           (H2)
   then 𝒫X = 𝒫(X ∖ {a}) ∪ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})}
 
@@ -215,7 +218,10 @@ theorem powerset-split
 
 theorem subsets-count
   metamath    hashpw
-  let n ∈ ℕ₀                                                          (H1)
+  note        By induction on the size. Taking one element a out of a set of
+              k + 1 splits its parts into those without a and those with it,
+              2^k of each, and 2^k + 2^k = 2^(k + 1).
+  let n ∈ ℕ₀                                                         (H1)
   let A be a set                                                      (H2)
   assume |A| = n                                                      (H3)
   then |𝒫A| = 2^n

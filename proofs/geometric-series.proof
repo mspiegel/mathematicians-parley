@@ -10,6 +10,8 @@ define G(a, n) := Σ(j = 0 to n) a^j, for a ∈ ℝ, n ∈ ℕ₀               
 
 theorem geometric-sum
   metamath    geoser
+  note        By induction on n: adding the next power a^(k + 1) to
+              (1 − a^(k + 1))/(1 − a) gives (1 − a^(k + 2))/(1 − a).
   let a ∈ ℝ                                                           (H1)
   assume a ≠ 1                                                        (H2)
   let n ∈ ℕ₀                                                          (H3)

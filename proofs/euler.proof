@@ -30,6 +30,11 @@ import mundane theorem    stdlib/sets/subset-transitive
 
 theorem euler
   metamath    eulerth
+  note        Multiplying each remainder in S by a, and taking the remainder
+              again, only reorders S. So the product of the r·a is the
+              product of S, up to multiples of n, and it is also a^φ(n) times
+              the product of S. That product shares no factor with n, so it
+              cancels, leaving a^φ(n) ≡ 1.
   let n ∈ ℕ                                                           (H1)
   let a ∈ ℤ                                                           (H2)
   assume gcd(a, n) = 1                                                (H3)
@@ -58,6 +63,7 @@ define f(r) := (r·a) mod n, for r ∈ S                                (D2)
 
 6.  For all r ∈ S, f(r) ∈ S.
     proof
+    note r·a shares no factor with n, and neither does its remainder
     let r ∈ S                                                         (K1)
 
     6.1.  r ∈ {0, …, n − 1}. gcd(r, n) = 1.
@@ -96,6 +102,7 @@ define f(r) := (r·a) mod n, for r ∈ S                                (D2)
 
 7.  For all s, t ∈ S, if f(s) = f(t) then s = t.
     proof
+    note a shares no factor with n, so it cancels from s·a ≡ t·a
     let s ∈ S                                                         (K2)
     let t ∈ S                                                         (K3)
     assume f(s) = f(t)                                                (K4)

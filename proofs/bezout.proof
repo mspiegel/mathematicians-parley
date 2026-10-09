@@ -10,7 +10,10 @@ import mundane theorem    stdlib/sets/set-builder-subset
 import mundane definition stdlib/sets/subset
 
 theorem least-combination-divides
-  let a ∈ ℕ                                                           (H1)
+  note        Divide c by d: c = q·d + r with 0 ≤ r < d. Then r is a·x + b·y as
+              well, so if r were positive, d, the least such number, would be
+              at most r, which is below d. So r = 0 and d divides c.
+  let a ∈ ℕ                                                          (H1)
   let b ∈ ℕ                                                           (H2)
   let c ∈ ℕ                                                           (H3)
   let d ∈ ℕ                                                           (H4)
@@ -61,6 +64,10 @@ theorem least-combination-divides
 
 theorem bezout
   metamath    bezout
+  note        Let d be the least positive number of the form a·x + b·y. It
+              divides a and b (least-combination-divides), so d ≤ gcd(a, b);
+              and gcd(a, b) divides every a·x + b·y, d among them, so
+              gcd(a, b) ≤ d.
   let a ∈ ℕ                                                           (H1)
   let b ∈ ℕ                                                           (H2)
   then there exist x, y ∈ ℤ such that a·x + b·y = gcd(a, b)

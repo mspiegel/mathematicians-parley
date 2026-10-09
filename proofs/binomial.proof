@@ -17,10 +17,11 @@ import mundane theorem    stdlib/sums/sum-termwise
 import definition         stdlib/counting/C
 
 theorem binomial-step
-  note        The induction step's algebra, stated apart from the induction.
-              Inside the step the hypothesis is in scope and names the sum's
-              index, and set.mm's lemma for rewriting a sum term by term
-              forbids its index in the scope; here nothing in scope names it.
+  note        Multiplying row m by x + y gives row m + 1. Times x, each term
+              keeps its k and gains a power of x; times y, each term moves to
+              k + 1. Each sum gains a zero term so that both run from 0 to
+              m + 1, and then the two coefficients at each k add up to
+              C(m + 1, k) by Pascal's rule.
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)
   let m ∈ ℕ₀                                                          (H3)
@@ -288,6 +289,9 @@ theorem binomial-step
 
 theorem binomial
   metamath    binom
+  note        By induction on the power: (x + y)^0 = 1 is the one term of row
+              0, and (x + y)^(m + 1) is (x + y)^m·(x + y), which binomial-step
+              turns into row m + 1.
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)
   let n ∈ ℕ₀                                                          (H3)

@@ -12,6 +12,8 @@ define T(k) := k(k + 1)/2, for k ∈ ℕ                                  (D1)
 
 theorem triangular-reciprocals
   metamath    trirecip
+  note        1/T(k) = 2/k − 2/(k + 1), so the first n terms telescope to
+              2 − 2/(n + 1), which tends to 2.
   ε ranges over ℝ
   n ranges over ℕ
   then Σ(k = 1 to ∞) 1/T(k) = 2

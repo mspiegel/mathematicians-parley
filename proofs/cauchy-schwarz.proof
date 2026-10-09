@@ -9,6 +9,9 @@ import mundane axiom      stdlib/numbers/trichotomy
 
 theorem cauchy-schwarz
   metamath    csbren
+  note        The sum of the squares (a(k)·t + b(k))² is never negative, and it
+              is A·t² + 2B·t + C. If A = 0, every a(k) is 0 and both sides are
+              0. If A > 0, t = −B/A gives C − B²/A ≥ 0, so B² ≤ A·C.
   let n ∈ ℕ                                                           (H1)
   let a : {1, …, n} → ℝ                                               (H2)
   let b : {1, …, n} → ℝ                                               (H3)
@@ -45,6 +48,7 @@ theorem cauchy-schwarz
     cases, from 4
 
     case
+    note a sum of squares is never negative, so this case cannot occur
     assume Σ(k = 1 to n) a(k)² < 0                                    (C1)
 
     5.1.  not Σ(k = 1 to n) a(k)² < 0
@@ -52,6 +56,7 @@ theorem cauchy-schwarz
           requires Σ(k = 1 to n) a(k)² ∈ ℝ: membership
 
     case
+    note every a(k) is 0, so both sides are 0
     assume Σ(k = 1 to n) a(k)² = 0                                    (C2)
 
     5.2.  For all k ∈ {1, …, n}, a(k)² = 0.
@@ -104,6 +109,7 @@ theorem cauchy-schwarz
           requires Σ(k = 1 to n) b(k)² ∈ ℝ: membership
 
     case
+    note step 1 at t = −B/A, where the quadratic is smallest, gives C − B²/A ≥ 0
     assume 0 < Σ(k = 1 to n) a(k)²                                    (C3)
 
     define A := Σ(k = 1 to n) a(k)²                                   (D1)

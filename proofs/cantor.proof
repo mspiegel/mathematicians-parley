@@ -4,6 +4,8 @@ import mundane theorem    stdlib/sets/set-builder-subset
 
 theorem cantor
   metamath    canth
+  note        Let B be the elements of A that their own image leaves out. If B
+              were some f(x), then x would be in B exactly when it is not.
   let A be a set                                                      (H1)
   let f : A → 𝒫A                                                      (H2)
   then there exists B ⊆ A such that f(x) ≠ B for all x ∈ A

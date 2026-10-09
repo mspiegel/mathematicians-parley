@@ -15,6 +15,10 @@ import mundane theorem    stdlib/reasoning/or-right
 
 theorem euclid
   metamath    eucalg
+  note        Each step replaces (a, b) by (b, a mod b), which keeps the gcd
+              and makes b smaller, until b is 0 and the gcd is a itself. b
+              starts at N and falls by at least 1 a step, so after N steps
+              it is 0.
   let M ∈ ℕ₀                                                          (H1)
   let N ∈ ℕ₀                                                          (H2)
   define a(0) := M,  b(0) := N,
@@ -34,6 +38,7 @@ theorem euclid
 3.  For all k ∈ ℕ₀, a(k) ∈ ℕ₀ and b(k) ∈ ℕ₀ and gcd(a(k), b(k)) = gcd(M, N)
     and (b(k) + k ≤ N or b(k) = 0).
     induction on k starting at 0
+    note the gcd never changes, and b falls by at least 1 a step until it is 0
 
     base
     3.1.  a(0) ∈ ℕ₀

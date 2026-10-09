@@ -3,6 +3,8 @@ import mundane theorem    stdlib/sums/sum-single
 
 theorem sum-formula
   metamath    arisum
+  note        By induction on n: adding k + 1 to k(k + 1)/2 gives
+              (k + 1)(k + 2)/2.
   let n ∈ ℕ                                                           (H1)
   then Σ(k = 1 to n) k = n(n + 1)/2
 
