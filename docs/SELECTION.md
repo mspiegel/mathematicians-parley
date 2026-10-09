@@ -19,9 +19,9 @@ statement's variables.
 
 ## State
 
-All twenty-eight are written and elaborate from set.mm with nothing assumed.
-Three more are chosen and not yet started: the rest of "The next ten", at the
-end. Each of the twenty-eight has its proof in `proofs/` and its design record
+All twenty-nine are written and elaborate from set.mm with nothing assumed.
+Two more are chosen and not yet started: the rest of "The next ten", at the
+end. Each of the twenty-nine has its proof in `proofs/` and its design record
 in `docs/pilot/`, under the same name:
 
 | # | proof | # | proof |
@@ -40,6 +40,7 @@ in `docs/pilot/`, under the same name:
 | 23 | euler | 24 | harmonic |
 | 25 | factor | 26 | cauchy-schwarz |
 | 27 | reals-uncountable | 28 | pythagorean-triples |
+| 29 | konigsberg | | |
 
 Theorem 17 is Euclid's half of the Euclid–Euler theorem only; Euler's half,
 that every even perfect number has that form, is not proved. The informal
@@ -486,7 +487,12 @@ textbook's.
     read with `Vtx` and `iEdg`, hidden as groups are, and this one is a
     particular graph given by listing its seven edges. The argument is
     that a walk crossing every edge once leaves at most two vertices of odd
-    degree, and Königsberg has four.
+    degree, and Königsberg has four. Written: `proofs/konigsberg.proof`,
+    with `docs/pilot/konigsberg.md`, and all four of its theorems
+    elaborate with nothing assumed. The reader chose "is incident with" for
+    a vertex at an end of an edge, an Euler path counting its edges from 1
+    as a walk does, and each degree read off the graph by `inspection`;
+    the page never sees set.mm's count from 0.
 30. **Fundamental theorem of calculus.** The first integral, in the form
     ∫ₐᵇ f′ = f(b) − f(a). set.mm's integral is Lebesgue's, far from the
     Riemann sums a textbook uses, so the integral enters as a library item
@@ -502,6 +508,18 @@ corpus has (the plane, divisibility, functions); then 24 and 26, which
 extend sums and series; then 27 and 28, large but built on the corpus's
 own results; then 29, 30 and 31, which each bring a kind of object the
 corpus has not met. Before each pilot, its informal source is checked.
+
+A pilot that brings what no proof yet writes has it tested first. Each
+notation it adds, each library item it needs, and each shape of a method
+it leans on that no proof writes gets a short proof in `tests/stdlib/` or
+`tests/elaborator/`, which builds and verifies before the theorem's own
+proof is begun. Königsberg brought graphs, counting over a range and new
+shapes of `inspection` together with its proof, and the tools refused some
+thirty-five correct steps of it, each a fault in a reader, a rule table or
+a method met for the first time in the middle of the argument; a test proof
+of one shape meets the same fault in a few lines, where what is at fault is
+plain. For 30 that is the integral and its notation; for 31, counting
+functions and `arithmetic` on a product of twenty-three numerals.
 
 Considered for these ten and not chosen: Wilson's theorem (#51), which
 needs the same residues modulo n as 23 and pairs each with its inverse
