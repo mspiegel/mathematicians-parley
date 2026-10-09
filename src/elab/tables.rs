@@ -508,19 +508,6 @@ impl<'a> Elaborator<'a> {
         {
             return self.over_spare_letter(given, want, 1, scope, facts, step, leaf);
         }
-        let moved: Vec<&String> =
-            slots.iter().flat_map(|&i| [&spelt[i], &other[i]]).collect();
-        let rest: Vec<&String> = spelt
-            .iter()
-            .enumerate()
-            .filter(|(i, _)| !slots.contains(i))
-            .map(|(_, s)| s)
-            .collect();
-        let head = if wrapped {
-            g[g.len() - 1].clone()
-        } else {
-            String::new()
-        };
         let mut under = Vec::new();
         for &i in &slots {
             under.push(self.congruence(&kids[i], &wants[i], scope, facts, step, leaf)?);
@@ -541,17 +528,26 @@ impl<'a> Elaborator<'a> {
                 }
             }
         }
-        let mut all: Vec<crate::mm::spell::Part> = vec![crate::elab::part(scope)];
-        all.extend(moved.iter().map(|m| crate::elab::part(*m)));
-        all.extend(rest.iter().map(|r| crate::elab::part(*r)));
-        all.push(crate::elab::part(&head));
-        all.extend(proofs.iter().map(|p| crate::elab::part(p)));
-        all.push(crate::elab::part(lifting));
-        let parts: Vec<_> = all
-            .into_iter()
-            .filter(|p| !matches!(p, crate::mm::spell::Part::Text("")))
-            .collect();
-        Ok(Built(self.b.proof(&parts)))
+        // The lemma's letters are read off its conclusion fitted to what it
+        // lifts, ( scope -> given = want ), or <-> for a statement, so the
+        // order set.mm declares them in does not matter: an integral's
+        // letter x is declared before every class, a sum's k after.
+        let is_class = given.label().is_some_and(|l| self.typecode(l) == "class");
+        let lifted = if is_class {
+            t!(self.rpn(given), self.rpn(want), "wceq")
+        } else {
+            t!(self.rpn(given), self.rpn(want), "wb")
+        };
+        let target = self.to_term(&t!(scope, lifted, "wi"));
+        let says = self.statement(lifting);
+        let variables = names_of(&says);
+        let Some(binding) = fit(&says, &target, &Binding::new(), &variables) else {
+            return Ok(Route::no(
+                "the lemma that carries this change up says otherwise",
+            ));
+        };
+        let proofs: Vec<&Proof> = proofs.iter().collect();
+        Ok(Built(self.b.ap(lifting, &self.spelt(&binding), &proofs)))
     }
 
     /// ( scope -> given = want ), a map whose domain changes to one spelling

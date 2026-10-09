@@ -79,6 +79,12 @@ pub const CONGRUENCE: &[(&str, &[usize], &str)] = &[
     ("wcel", &[0, 1], "eleq12d"),
     ("csu", &[0], "sumeq1d"),
     ("cprod", &[0], "prodeq1d"),
+    // An integral's two ends, its letter first among what it holds. set.mm
+    // has the two ends at once in deduction form, and each alone only
+    // closed; `proved.mm` gives each alone as the others are.
+    ("cdit", &[1], "gditgeq1d"),
+    ("cdit", &[2], "gditgeq2d"),
+    ("cdit", &[1, 2], "ditgeq12d"),
     ("cpw", &[0], "pweqd"),
     ("csn", &[0], "sneqd"),
     ("cneg", &[0], "negeqd"),

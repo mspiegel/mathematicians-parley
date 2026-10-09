@@ -200,6 +200,25 @@ theorem derivative-sum
               differentiable at each point both its parts are, so U may be any
               set: (a, b) inside [a, b], or ℝ itself.
 
+theorem derivative-difference
+  let D ⊆ ℝ                                                           (H1)
+  let U ⊆ D                                                           (H2)
+  let F : D → ℝ                                                       (H3)
+  let f : D → ℝ                                                       (H4)
+  let g : D → ℝ                                                       (H5)
+  assume for all x ∈ D, F(x) = f(x) − g(x)                            (H6)
+  assume f is differentiable on U                                     (H7)
+  assume g is differentiable on U                                     (H8)
+  then        F is differentiable on U.
+              For all x ∈ U, F′(x) = f′(x) − g′(x).
+  metamath    gdvdif, gdvdifv, which this corpus proves in
+              elaboration/stdlib/proved.mm from dvaddbr and dvmulbr
+  target      gdvdif, gdvdifv with D := D, F := f, G := g
+  note        As derivative-sum, at each point both parts are differentiable.
+              set.mm has no rule for a difference at a point; f − g is
+              f + (−1)·g (ofnegsub), and the constant −1 has derivative 0
+              wherever a neighbourhood lies in D.
+
 theorem derivative-linear
   let D ⊆ ℝ                                                           (H1)
   let U ⊆ D                                                           (H2)
@@ -214,6 +233,26 @@ theorem derivative-linear
   target      gdvlin, gdvlinv with D := D, M := m
   note        U is open because a line on [a, b] has no derivative at a or b:
               the derivative is taken where a neighbourhood lies in the domain.
+
+theorem area-function
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a < b                                                        (H3)
+  let f : [a, b] → ℝ                                                  (H4)
+  assume f is continuous on [a, b]                                    (H5)
+  let G : [a, b] → ℝ                                                  (H6)
+  assume for all x ∈ [a, b], G(x) = ∫(a to x) f(t) dt                 (H7)
+  then        G is differentiable on (a, b).
+              For all x ∈ (a, b), G′(x) = f(x).
+  metamath    gftc1, gftc1v, which this corpus proves in
+              elaboration/stdlib/proved.mm from ftc1, ditgpos and cniccibl
+  target      gftc1, gftc1v with A := a, B := b, F := f, G := G
+  note        The fundamental theorem of calculus, part one: the integral
+              of f from a up to x, as x moves, has derivative f. set.mm's
+              ftc1 asks f be integrable, which a function continuous on
+              [a, b] is (cniccibl), so the page never says it; and its
+              integral is over (a, x), which the directed one is where a ≤ x
+              (ditgpos).
 
 mundane theorem integral-point
   let a ∈ ℝ                                                           (H1)

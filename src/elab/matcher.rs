@@ -462,7 +462,10 @@ impl<'a> Elaborator<'a> {
     /// another puts a term in that set whose instance it is (`rspcv`), as
     /// `instantiate` reads a line at a name the step gives. A sum lemma
     /// moved to a letter the scope does not hold asks its terms at that
-    /// letter, and the line the step cites says them of every index.
+    /// letter, and the line the step cites says them of every index. The
+    /// instance may spell a letter it binds otherwise than the wanted, as an
+    /// integral inside it over t where the lemma's is over k, and is carried
+    /// across that renaming as any fact is (`held_rebound`).
     pub(crate) fn instance_of_universal(
         &mut self,
         wanted: &str,
@@ -489,23 +492,40 @@ impl<'a> Elaborator<'a> {
                     continue;
                 }
                 let at = self.rpn(&m.children()[0]);
-                if self.rpn(&self.restated(&body, &mark, &at)) != wanted {
+                let instance = self.rpn(&self.restated(&body, &mark, &at));
+                let across = if instance == wanted {
+                    None
+                } else if self.rebound(&instance, wanted) {
+                    let Some(across) = self.renaming_apart(&instance, wanted)? else {
+                        continue;
+                    };
+                    Some(across)
+                } else {
                     continue;
-                }
+                };
                 let ph = self.rpn(&body);
-                let tie =
-                    self.to_term(&t!(t!(mark, at, "wceq"), t!(ph, wanted, "wb"), "wi"));
+                let tie = self.to_term(&t!(
+                    t!(mark, at, "wceq"),
+                    t!(ph, instance, "wb"),
+                    "wi"
+                ));
                 let Built(asked) = self.prove_essential(&tie, scope, facts)? else {
                     continue;
                 };
                 let applied = self.b.ap(
                     "rspcv",
-                    &binds! {"ph" => &ph, "ps" => wanted, "x" => &letter, "A" => &at, "B" => &domain},
+                    &binds! {"ph" => &ph, "ps" => &instance, "x" => &letter, "A" => &at, "B" => &domain},
                     &[&asked],
                 );
-                let carried = pf!(self.b; scope, member, t!(said, wanted, "wi"), inside, applied, "syl");
+                let carried = pf!(self.b; scope, member, t!(said, instance, "wi"), inside, applied, "syl");
+                let proof = pf!(self.b; scope, said, instance, held, carried, "mpd");
+                let Some(across) = across else {
+                    return Ok(Some(proof));
+                };
+                let turned =
+                    pf!(self.b; t!(instance, wanted, "wb"), scope, across, "a1i");
                 return Ok(Some(
-                    pf!(self.b; scope, said, wanted, held, carried, "mpd"),
+                    pf!(self.b; scope, instance, wanted, proof, turned, "mpbid"),
                 ));
             }
         }

@@ -136,13 +136,14 @@ impl Context {
                 }
             }
         }
+        // The letters a pattern spells, as the grammar reads its parts: the
+        // d of ∫(_ to _) _ d_ is written against its hole, and is a literal
+        // all the same.
         let mut constants = BTreeSet::new();
-        for record in &corpus.records {
-            if let Some(pattern) = record.field("pattern") {
-                for token in pattern.split_whitespace() {
-                    if is_one_letter(token) {
-                        constants.insert(token.to_string());
-                    }
+        for notation in &g.notations {
+            for literal in notation.parts.iter().filter_map(|p| p.literal()) {
+                if is_one_letter(literal) {
+                    constants.insert(literal.to_string());
                 }
             }
         }
