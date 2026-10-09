@@ -630,15 +630,15 @@ fn cases() -> Vec<Case> {
             "the requires line of step 2 needs something that mun:triangle does not conclude",
         ),
         // A requires line's item asks for what the lines it cites supply:
-        // `nat0-nonzero` asks m ≠ 0, and without C2, which says b(k) ≠ 0,
+        // `mod-natural` asks b ∈ ℕ, and without 4.6.9, which says b(k) ∈ ℕ,
         // the line says what is missing rather than that the item concludes
         // something else.
         case(
             "a requires line whose item's hypothesis nothing supplies",
             vec![
-                edit("proofs/euclid.proof", Some("thm:gcd-mod\n                   requires b(k) ∈ ℕ: mun:nat0-nonzero, from IH, C2\n".to_string()), "thm:gcd-mod\n                   requires b(k) ∈ ℕ: mun:nat0-nonzero, from IH\n".to_string()),
+                edit("proofs/euclid.proof", Some("requires a(k) mod b(k) ∈ ℕ₀: mun:mod-natural, from 4.6.9, 4.6.10\n".to_string()), "requires a(k) mod b(k) ∈ ℕ₀: mun:mod-natural, from 4.6.10\n".to_string()),
             ],
-            "the requires line of step 3.10.17 cites mun:nat0-nonzero, which asks for m ∈ ℕ₀; m ≠ 0, and what it cites does not supply them",
+            "the requires line of step 4.6.12 cites mun:mod-natural, which asks for",
         ),
         // A define of two arguments gives each one's domain in the order
         // the brackets name them (`SYNTAX.md`).
@@ -950,12 +950,12 @@ fn cases() -> Vec<Case> {
             ],
             "does not supply them",
         ),
-        // `mod-natural` asks b ∈ ℕ, and IH says b(k) ∈ ℕ₀: a function's
+        // `mod-natural` asks b ∈ ℕ, and IH1 says b(k) ∈ ℕ₀: a function's
         // value is in what a line says it is in, and ℕ₀ holds 0.
         case(
             "supply a hypothesis with the wrong number system",
             vec![
-                edit("proofs/euclid.proof", Some("mun:mod-natural\n                   requires b(k) ∈ ℕ: mun:nat0-nonzero, from IH, C2\n".to_string()), "mun:mod-natural, from IH\n".to_string()),
+                edit("proofs/euclid.proof", Some("mun:mod-natural, from 3.5.8\n".to_string()), "mun:mod-natural, from IH1\n".to_string()),
             ],
             "does not supply them",
         ),
@@ -1176,14 +1176,14 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/euclid.proof", Some("assume b(N) = 0, which is the claim".to_string()), "assume b(N) = 1, which is the claim".to_string()),
             ],
-            "case C3 says it is the claim of step 6, and it is not",
+            "case C7 says it is the claim of step 10, and it is not",
         ),
         case(
             "say a case with steps is the claim",
             vec![
-                edit("proofs/euclid.proof", Some("assume b(N) ≠ 0                                                   (C4)".to_string()), "assume b(N) ≠ 0, which is the claim                               (C4)".to_string()),
+                edit("proofs/euclid.proof", Some("assume b(N) ≠ 0                                                   (C8)".to_string()), "assume b(N) ≠ 0, which is the claim                               (C8)".to_string()),
             ],
-            "case C4 is the claim and has steps of its own",
+            "case C8 is the claim and has steps of its own",
         ),
         case(
             "say a line is the claim outside any cases block",
@@ -1707,9 +1707,9 @@ fn cases() -> Vec<Case> {
         case(
             "take cases from a disjunction in the other order",
             vec![
-                edit("proofs/euclid.proof", Some("    3.9.  b(k) = 0 or b(k) ≠ 0".to_string()), "    3.9.  b(k) ≠ 0 or b(k) = 0".to_string()),
+                edit("proofs/euclid.proof", Some("    3.4.  b(k) = 0 or b(k) ≠ 0".to_string()), "    3.4.  b(k) ≠ 0 or b(k) = 0".to_string()),
             ],
-            "step 3.10 takes its cases from 3.9, which does not claim their assumptions joined by \"or\", in the order the cases take them",
+            "step 3.5 takes its cases from 3.4, which does not claim their assumptions joined by \"or\", in the order the cases take them",
         ),
         case(
             "give a first value in terms of the index",
@@ -1737,14 +1737,14 @@ fn cases() -> Vec<Case> {
         case(
             "claim the value of the other case",
             vec![
-                edit("proofs/euclid.proof", Some("3.10.1.  a(k + 1) = a(k)".to_string()), "3.10.1.  a(k + 1) = b(k)".to_string()),
+                edit("proofs/euclid.proof", Some("3.5.1.  a(k + 1) = a(k)".to_string()), "3.5.1.  a(k + 1) = b(k)".to_string()),
             ],
-            "step 3.10.1 cites D1 and claims a value it does not give",
+            "step 3.5.1 cites D1 and claims a value it does not give",
         ),
         case(
             "cite a step rule by cases without saying which case",
             vec![
-                edit("proofs/euclid.proof", Some("3.10.13. b(k + 1) = a(k) mod b(k)\n                   D1, from C2".to_string()), "3.10.13. b(k + 1) = a(k) mod b(k)\n                   D1".to_string()),
+                edit("proofs/euclid.proof", Some("3.5.7.  b(k + 1) = a(k) mod b(k)\n                  D1, from C2".to_string()), "3.5.7.  b(k + 1) = a(k) mod b(k)\n                  D1".to_string()),
             ],
             "says whether a case's condition holds",
         ),
@@ -1753,7 +1753,7 @@ fn cases() -> Vec<Case> {
         case(
             "cite an equation for a link that substitutes it inside a term",
             vec![
-                edit("proofs/euclid.proof", Some("            gcd(a(0), b(0)) = gcd(M, b(0))     3.3".to_string()), "            gcd(a(0), b(0)) = gcd(M, b(0))     1".to_string()),
+                edit("proofs/euclid.proof", Some("            gcd(a(0), b(0)) = gcd(M, b(0))     4.1".to_string()), "            gcd(a(0), b(0)) = gcd(M, b(0))     1".to_string()),
             ],
             "cites 1, which does not say gcd(a(0), b(0)) = gcd(M, b(0))",
         ),

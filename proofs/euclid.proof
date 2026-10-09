@@ -35,10 +35,9 @@ theorem euclid
 2.  b(0) = N
     D1
 
-3.  For all k ∈ ℕ₀, a(k) ∈ ℕ₀ and b(k) ∈ ℕ₀ and gcd(a(k), b(k)) = gcd(M, N)
-    and (b(k) + k ≤ N or b(k) = 0).
+3.  For all k ∈ ℕ₀, a(k) ∈ ℕ₀ and b(k) ∈ ℕ₀.
     induction on k starting at 0
-    note the gcd never changes, and b falls by at least 1 a step until it is 0
+    note the two numbers stay whole: a remainder of whole numbers is whole
 
     base
     3.1.  a(0) ∈ ℕ₀
@@ -47,188 +46,268 @@ theorem euclid
     3.2.  b(0) ∈ ℕ₀
           substitute b(0) = N (line 2) into H2
 
-    3.3.  gcd(a(0), b(0)) = gcd(M, b(0))
-          substitute a(0) = M (line 1)
-
-    3.4.  gcd(M, b(0)) = gcd(M, N)
-          substitute b(0) = N (line 2)
-
-    3.5.  gcd(a(0), b(0)) = gcd(M, N)
-          calculation
-            gcd(a(0), b(0)) = gcd(M, b(0))     3.3
-                            = gcd(M, N)        3.4
-
-    3.6.  b(0) + 0 ≤ N
-          inequalities, from 2
-          requires b(0) ∈ ℝ: mun:nat0-real, from 3.2
-
-    3.7.  b(0) + 0 ≤ N or b(0) = 0
-          mun:or-left, from 3.6
-
-    3.8.  a(0) ∈ ℕ₀ and b(0) ∈ ℕ₀ and gcd(a(0), b(0)) = gcd(M, N)
-          and (b(0) + 0 ≤ N or b(0) = 0)
-          join 3.1, 3.2, 3.5, 3.7
+    3.3.  a(0) ∈ ℕ₀ and b(0) ∈ ℕ₀
+          join 3.1, 3.2
 
     step
-    let k ∈ ℕ₀                                                        (K)
-    assume step 3 is true for k, the induction hypothesis             (IH)
+    let k ∈ ℕ₀                                                        (K1)
+    assume step 3 is true for k, the induction hypothesis             (IH1)
 
-    3.9.  b(k) = 0 or b(k) ≠ 0
+    3.4.  b(k) = 0 or b(k) ≠ 0
           mun:excluded-middle P := b(k) = 0
 
-    3.10. a(k + 1) ∈ ℕ₀ and b(k + 1) ∈ ℕ₀
-          and gcd(a(k + 1), b(k + 1)) = gcd(M, N)
-          and (b(k + 1) + (k + 1) ≤ N or b(k + 1) = 0)
-          cases, from 3.9
+    3.5.  a(k + 1) ∈ ℕ₀ and b(k + 1) ∈ ℕ₀
+          cases, from 3.4
 
           case
           assume b(k) = 0                                             (C1)
 
-          3.10.1.  a(k + 1) = a(k)
-                   D1, from C1
+          3.5.1.  a(k + 1) = a(k)
+                  D1, from C1
 
-          3.10.2.  b(k + 1) = 0
-                   D1, from C1
+          3.5.2.  b(k + 1) = 0
+                  D1, from C1
 
-          3.10.3.  a(k + 1) ∈ ℕ₀
-                   substitute a(k + 1) = a(k) (line 3.10.1) into IH
+          3.5.3.  a(k + 1) ∈ ℕ₀
+                  substitute a(k + 1) = a(k) (line 3.5.1) into IH1
 
-          3.10.4.  0 ∈ ℕ₀
-                   membership
+          3.5.4.  b(k + 1) ∈ ℕ₀
+                  membership, from 3.5.2
 
-          3.10.5.  b(k + 1) ∈ ℕ₀
-                   substitute b(k + 1) = 0 (line 3.10.2) into line 3.10.4
-
-          3.10.6.  gcd(a(k + 1), b(k + 1)) = gcd(a(k), b(k + 1))
-                   substitute a(k + 1) = a(k) (line 3.10.1)
-
-          3.10.7.  gcd(a(k), b(k + 1)) = gcd(a(k), 0)
-                   substitute b(k + 1) = 0 (line 3.10.2)
-
-          3.10.8.  gcd(a(k), 0) = gcd(a(k), b(k))
-                   substitute b(k) = 0 (C1)
-
-          3.10.9.  gcd(a(k + 1), b(k + 1)) = gcd(M, N)
-                   calculation
-                     gcd(a(k + 1), b(k + 1)) = gcd(a(k), b(k + 1))    3.10.6
-                                             = gcd(a(k), 0)           3.10.7
-                                             = gcd(a(k), b(k))        3.10.8
-                                             = gcd(M, N)              IH
-
-          3.10.10. b(k + 1) + (k + 1) ≤ N or b(k + 1) = 0
-                   mun:or-right, from 3.10.2
-
-          3.10.11. a(k + 1) ∈ ℕ₀ and b(k + 1) ∈ ℕ₀
-                   and gcd(a(k + 1), b(k + 1)) = gcd(M, N)
-                   and (b(k + 1) + (k + 1) ≤ N or b(k + 1) = 0)
-                   join 3.10.3, 3.10.5, 3.10.9, 3.10.10
+          3.5.5.  a(k + 1) ∈ ℕ₀ and b(k + 1) ∈ ℕ₀
+                  join 3.5.3, 3.5.4
 
           case
           assume b(k) ≠ 0                                             (C2)
 
-          3.10.12. a(k + 1) = b(k)
-                   D1, from C2
+          3.5.6.  a(k + 1) = b(k)
+                  D1, from C2
 
-          3.10.13. b(k + 1) = a(k) mod b(k)
-                   D1, from C2
+          3.5.7.  b(k + 1) = a(k) mod b(k)
+                  D1, from C2
 
-          3.10.14. a(k) mod b(k) ∈ ℕ₀
-                   mun:mod-natural
-                   requires b(k) ∈ ℕ: mun:nat0-nonzero, from IH, C2
-                   requires a(k) ∈ ℤ: mun:nat0-int, from IH
+          3.5.8.  b(k) ∈ ℕ
+                  mun:nat0-nonzero, from IH1, C2
 
-          3.10.15. a(k + 1) ∈ ℕ₀
-                   substitute a(k + 1) = b(k) (line 3.10.12) into IH
+          3.5.9.  a(k) mod b(k) ∈ ℕ₀
+                  mun:mod-natural, from 3.5.8
+                  requires a(k) ∈ ℤ: mun:nat0-int, from IH1
 
-          3.10.16. b(k + 1) ∈ ℕ₀
-                   substitute b(k + 1) = a(k) mod b(k) (line 3.10.13) into line 3.10.14
+          3.5.10. a(k + 1) ∈ ℕ₀
+                  substitute a(k + 1) = b(k) (line 3.5.6) into IH1
 
-          3.10.17. gcd(a(k) mod b(k), b(k)) = gcd(a(k), b(k))
-                   thm:gcd-mod
-                   requires b(k) ∈ ℕ: mun:nat0-nonzero, from IH, C2
-                   requires a(k) ∈ ℤ: mun:nat0-int, from IH
+          3.5.11. b(k + 1) ∈ ℕ₀
+                  substitute b(k + 1) = a(k) mod b(k) (line 3.5.7) into line 3.5.9
 
-          3.10.18. gcd(b(k), a(k) mod b(k)) = gcd(a(k) mod b(k), b(k))
-                   mun:gcd-commutes
-                   requires b(k) ∈ ℤ: mun:nat0-int, from IH
-                   requires a(k) mod b(k) ∈ ℤ: mun:nat0-int, from 3.10.14
+          3.5.12. a(k + 1) ∈ ℕ₀ and b(k + 1) ∈ ℕ₀
+                  join 3.5.10, 3.5.11
 
-          3.10.19. gcd(a(k + 1), b(k + 1)) = gcd(b(k), b(k + 1))
-                   substitute a(k + 1) = b(k) (line 3.10.12)
+4.  For all k ∈ ℕ₀, gcd(a(k), b(k)) = gcd(M, N).
+    induction on k starting at 0
+    note each step keeps the gcd: gcd(b, a mod b) is gcd(a, b)
 
-          3.10.20. gcd(b(k), b(k + 1)) = gcd(b(k), a(k) mod b(k))
-                   substitute b(k + 1) = a(k) mod b(k) (line 3.10.13)
+    base
+    4.1.  gcd(a(0), b(0)) = gcd(M, b(0))
+          substitute a(0) = M (line 1)
 
-          3.10.21. gcd(a(k + 1), b(k + 1)) = gcd(M, N)
-                   calculation
-                     gcd(a(k + 1), b(k + 1)) = gcd(b(k), b(k + 1))         3.10.19
-                                             = gcd(b(k), a(k) mod b(k))    3.10.20
-                                             = gcd(a(k) mod b(k), b(k))    3.10.18
-                                             = gcd(a(k), b(k))             3.10.17
-                                             = gcd(M, N)                   IH
+    4.2.  gcd(M, b(0)) = gcd(M, N)
+          substitute b(0) = N (line 2)
 
-          3.10.22. b(k) + k ≤ N
-                   mun:disjunctive-syllogism, from IH, C2
+    4.3.  gcd(a(0), b(0)) = gcd(M, N)
+          calculation
+            gcd(a(0), b(0)) = gcd(M, b(0))     4.1
+                            = gcd(M, N)        4.2
 
-          3.10.23. a(k) mod b(k) < b(k)
-                   mun:mod-less
-                   requires b(k) ∈ ℕ: mun:nat0-nonzero, from IH, C2
-                   requires a(k) ∈ ℤ: mun:nat0-int, from IH
+    step
+    let k ∈ ℕ₀                                                        (K2)
+    assume step 4 is true for k, the induction hypothesis             (IH2)
 
-          3.10.24. b(k + 1) < b(k)
-                   substitute b(k + 1) = a(k) mod b(k) (line 3.10.13) into line 3.10.23
+    4.4.  a(k) ∈ ℕ₀ and b(k) ∈ ℕ₀
+          instantiate k := k in line 3
 
-          3.10.25. b(k + 1) + 1 ≤ b(k)
-                   mun:integer-step, from 3.10.24
-                   requires b(k + 1) ∈ ℤ: mun:nat0-int, from 3.10.16
-                   requires b(k) ∈ ℤ: mun:nat0-int, from IH
+    4.5.  b(k) = 0 or b(k) ≠ 0
+          mun:excluded-middle P := b(k) = 0
 
-          3.10.26. b(k + 1) + (k + 1) ≤ N
-                   inequalities, from 3.10.25, 3.10.22
-                   requires b(k + 1) ∈ ℝ: mun:nat0-real, from 3.10.16
-                   requires b(k) ∈ ℝ: mun:nat0-real, from IH
+    4.6.  gcd(a(k + 1), b(k + 1)) = gcd(M, N)
+          cases, from 4.5
 
-          3.10.27. b(k + 1) + (k + 1) ≤ N or b(k + 1) = 0
-                   mun:or-left, from 3.10.26
+          case
+          assume b(k) = 0                                             (C3)
 
-          3.10.28. a(k + 1) ∈ ℕ₀ and b(k + 1) ∈ ℕ₀
-                   and gcd(a(k + 1), b(k + 1)) = gcd(M, N)
-                   and (b(k + 1) + (k + 1) ≤ N or b(k + 1) = 0)
-                   join 3.10.15, 3.10.16, 3.10.21, 3.10.27
+          4.6.1.  a(k + 1) = a(k)
+                  D1, from C3
 
-4.  a(N) ∈ ℕ₀ and b(N) ∈ ℕ₀ and gcd(a(N), b(N)) = gcd(M, N)
-    and (b(N) + N ≤ N or b(N) = 0)
+          4.6.2.  b(k + 1) = 0
+                  D1, from C3
+
+          4.6.3.  gcd(a(k + 1), b(k + 1)) = gcd(a(k), b(k + 1))
+                  substitute a(k + 1) = a(k) (line 4.6.1)
+
+          4.6.4.  gcd(a(k), b(k + 1)) = gcd(a(k), 0)
+                  substitute b(k + 1) = 0 (line 4.6.2)
+
+          4.6.5.  gcd(a(k), 0) = gcd(a(k), b(k))
+                  substitute b(k) = 0 (C3)
+
+          4.6.6.  gcd(a(k + 1), b(k + 1)) = gcd(M, N)
+                  calculation
+                    gcd(a(k + 1), b(k + 1)) = gcd(a(k), b(k + 1))    4.6.3
+                                            = gcd(a(k), 0)           4.6.4
+                                            = gcd(a(k), b(k))        4.6.5
+                                            = gcd(M, N)              IH2
+
+          case
+          assume b(k) ≠ 0                                             (C4)
+
+          4.6.7.  a(k + 1) = b(k)
+                  D1, from C4
+
+          4.6.8.  b(k + 1) = a(k) mod b(k)
+                  D1, from C4
+
+          4.6.9.  b(k) ∈ ℕ
+                  mun:nat0-nonzero, from 4.4, C4
+
+          4.6.10. a(k) ∈ ℤ
+                  mun:nat0-int, from 4.4
+
+          4.6.11. gcd(a(k) mod b(k), b(k)) = gcd(a(k), b(k))
+                  thm:gcd-mod, from 4.6.9, 4.6.10
+
+          4.6.12. gcd(b(k), a(k) mod b(k)) = gcd(a(k) mod b(k), b(k))
+                  mun:gcd-commutes
+                  requires b(k) ∈ ℤ: mun:nat0-int, from 4.4
+                  requires a(k) mod b(k) ∈ ℕ₀: mun:mod-natural, from 4.6.9, 4.6.10
+
+          4.6.13. gcd(a(k + 1), b(k + 1)) = gcd(b(k), b(k + 1))
+                  substitute a(k + 1) = b(k) (line 4.6.7)
+
+          4.6.14. gcd(b(k), b(k + 1)) = gcd(b(k), a(k) mod b(k))
+                  substitute b(k + 1) = a(k) mod b(k) (line 4.6.8)
+
+          4.6.15. gcd(a(k + 1), b(k + 1)) = gcd(M, N)
+                  calculation
+                    gcd(a(k + 1), b(k + 1)) = gcd(b(k), b(k + 1))         4.6.13
+                                            = gcd(b(k), a(k) mod b(k))    4.6.14
+                                            = gcd(a(k) mod b(k), b(k))    4.6.12
+                                            = gcd(a(k), b(k))             4.6.11
+                                            = gcd(M, N)                   IH2
+
+5.  For all k ∈ ℕ₀, b(k) + k ≤ N or b(k) = 0.
+    induction on k starting at 0
+    note b starts at N and falls by at least 1 a step until it is 0
+
+    base
+    5.1.  a(0) ∈ ℕ₀ and b(0) ∈ ℕ₀
+          instantiate k := 0 in line 3
+
+    5.2.  b(0) + 0 ≤ N
+          inequalities, from 2
+          requires b(0) ∈ ℝ: mun:nat0-real, from 5.1
+
+    5.3.  b(0) + 0 ≤ N or b(0) = 0
+          mun:or-left, from 5.2
+
+    step
+    let k ∈ ℕ₀                                                        (K3)
+    assume step 5 is true for k, the induction hypothesis             (IH3)
+
+    5.4.  a(k) ∈ ℕ₀ and b(k) ∈ ℕ₀
+          instantiate k := k in line 3
+
+    5.5.  b(k) = 0 or b(k) ≠ 0
+          mun:excluded-middle P := b(k) = 0
+
+    5.6.  b(k + 1) + (k + 1) ≤ N or b(k + 1) = 0
+          cases, from 5.5
+
+          case
+          assume b(k) = 0                                             (C5)
+
+          5.6.1.  b(k + 1) = 0
+                  D1, from C5
+
+          5.6.2.  b(k + 1) + (k + 1) ≤ N or b(k + 1) = 0
+                  mun:or-right, from 5.6.1
+
+          case
+          assume b(k) ≠ 0                                             (C6)
+
+          5.6.3.  b(k + 1) = a(k) mod b(k)
+                  D1, from C6
+
+          5.6.4.  b(k) ∈ ℕ
+                  mun:nat0-nonzero, from 5.4, C6
+
+          5.6.5.  a(k) ∈ ℤ
+                  mun:nat0-int, from 5.4
+
+          5.6.6.  a(k) mod b(k) < b(k)
+                  mun:mod-less, from 5.6.4, 5.6.5
+
+          5.6.7.  a(k) mod b(k) ∈ ℕ₀
+                  mun:mod-natural, from 5.6.4, 5.6.5
+
+          5.6.8.  b(k + 1) < b(k)
+                  substitute b(k + 1) = a(k) mod b(k) (line 5.6.3) into line 5.6.6
+
+          5.6.9.  b(k + 1) ∈ ℕ₀
+                  substitute b(k + 1) = a(k) mod b(k) (line 5.6.3) into line 5.6.7
+
+          5.6.10. b(k + 1) + 1 ≤ b(k)
+                  mun:integer-step, from 5.6.8
+                  requires b(k + 1) ∈ ℤ: mun:nat0-int, from 5.6.9
+                  requires b(k) ∈ ℤ: mun:nat0-int, from 5.4
+
+          5.6.11. b(k) + k ≤ N
+                  mun:disjunctive-syllogism, from IH3, C6
+
+          5.6.12. b(k + 1) + (k + 1) ≤ N
+                  inequalities, from 5.6.10, 5.6.11
+                  requires b(k + 1) ∈ ℝ: mun:nat0-real, from 5.6.9
+                  requires b(k) ∈ ℝ: mun:nat0-real, from 5.4
+
+          5.6.13. b(k + 1) + (k + 1) ≤ N or b(k + 1) = 0
+                  mun:or-left, from 5.6.12
+
+6.  a(N) ∈ ℕ₀ and b(N) ∈ ℕ₀
     instantiate k := N in line 3
 
-5.  b(N) = 0 or b(N) ≠ 0
+7.  gcd(a(N), b(N)) = gcd(M, N)
+    instantiate k := N in line 4
+
+8.  b(N) + N ≤ N or b(N) = 0
+    instantiate k := N in line 5
+
+9.  b(N) = 0 or b(N) ≠ 0
     mun:excluded-middle P := b(N) = 0
 
-6.  b(N) = 0
-    cases, from 5
+10. b(N) = 0
+    cases, from 9
 
     case
-    assume b(N) = 0, which is the claim                               (C3)
+    assume b(N) = 0, which is the claim                               (C7)
 
     case
-    assume b(N) ≠ 0                                                   (C4)
+    assume b(N) ≠ 0                                                   (C8)
 
-    6.1.  b(N) + N ≤ N
-          mun:disjunctive-syllogism, from 4, C4
+    10.1. b(N) + N ≤ N
+          mun:disjunctive-syllogism, from 8, C8
 
-    6.2.  b(N) ∈ ℕ
-          mun:nat0-nonzero, from 4, C4
+    10.2. b(N) ∈ ℕ
+          mun:nat0-nonzero, from 6, C8
 
-    6.3.  not b(N) + N ≤ N
-          inequalities, from 6.2, contradicting 6.1
+    10.3. not b(N) + N ≤ N
+          inequalities, from 10.2, contradicting 10.1
 
-7.  gcd(a(N), 0) = a(N)
-    mun:gcd-zero, from 4
+11. gcd(a(N), 0) = a(N)
+    mun:gcd-zero, from 6
 
-8.  gcd(a(N), 0) = gcd(a(N), b(N))
-    substitute b(N) = 0 (line 6)
+12. gcd(a(N), 0) = gcd(a(N), b(N))
+    substitute b(N) = 0 (line 10)
 
-9.  a(N) = gcd(M, N)
+13. a(N) = gcd(M, N)
     calculation
-      a(N) = gcd(a(N), 0)          7
-           = gcd(a(N), b(N))       8
-           = gcd(M, N)             4
+      a(N) = gcd(a(N), 0)          11
+           = gcd(a(N), b(N))       12
+           = gcd(M, N)             7
