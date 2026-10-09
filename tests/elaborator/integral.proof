@@ -1,0 +1,28 @@
+theorem integral-letters
+  note        The integral's notation, ∫(a to b) f(t) dt, binds the letter
+              after d, whichever it is: the define writes the integrand over
+              s and the statement over u, and x, which the theorem lets,
+              stands free inside both.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let x ∈ ℝ                                                           (H3)
+  define I := ∫(a to b) x·s ds                                        (D1)
+         reads the integral of x times s from a to b
+  then I = ∫(a to b) x·u du
+
+1.  I = ∫(a to b) x·u du
+    D1
+
+theorem integral-over-a-letter-in-use
+  note        The letter an integral binds may be one the theorem uses
+              elsewhere: inside ∫(a to b) x dx, x is the integral's own, and
+              the integral is the one written over t.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let x ∈ ℝ                                                           (H3)
+  define J := ∫(a to b) x dx                                          (D1)
+         reads the integral of the identity from a to b
+  then J = ∫(a to b) t dt
+
+1.  J = ∫(a to b) t dt
+    D1

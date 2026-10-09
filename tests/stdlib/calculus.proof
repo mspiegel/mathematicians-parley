@@ -1,5 +1,6 @@
 import theorem            stdlib/calculus/derivative-linear
 import theorem            stdlib/calculus/derivative-sum
+import mundane theorem    stdlib/calculus/integral-point
 import mundane theorem    stdlib/calculus/reals-open
 import mundane theorem    stdlib/sets/subset-self
 
@@ -41,3 +42,11 @@ theorem derivative-on-the-line
 
     6.3.  F′(x) = f′(x) + 3
           substitute g′(x) = 3 (line 6.2) into line 6.1
+
+theorem integral-over-a-point
+  let c ∈ ℝ                                                           (H1)
+  let g : ℝ → ℝ                                                       (H2)
+  then ∫(c to c) g(s) ds = 0
+
+1.  ∫(c to c) g(s) ds = 0
+    mun:integral-point a := c, f := g, from H1

@@ -1299,6 +1299,21 @@ notation series
               says is the limit of its partial sums. set.mm sums over the
               upper integers from M, and ℕ is those from 1.
 
+notation integral
+  pattern     ∫(_ to _) _ d_
+  sort        number, number, number, number → number
+  binds       hole 4 over hole 3
+  reads       the integral from, to, of, with respect to
+  metamath    cdit, the directed integral S_ [ A -> B ] C _d x
+  target      _4 _1 _2 _3 cdit
+  note        The integral from the first hole to the second of the third,
+              in the letter the fourth names, as a textbook writes
+              ∫ₐᵇ f(t) dt: `dt` is the literal d and the letter it binds,
+              any letter, read a letter at a time as every run of letters
+              that is no word is. set.mm's integral is Lebesgue's; the
+              directed one runs from the first hole to the second, and
+              backwards gives the integral negated, as a textbook's does.
+
 notation sum-over
   pattern     Σ(_ ∈ _) _
   sort        number, set of number, number → number

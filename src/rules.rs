@@ -210,6 +210,7 @@ pub const CLASS_BOUND: &[(&str, &str)] = &[
     ("csu", "cbvsumv"),
     ("cprod", "cbvprodv"),
     ("ciun", "cbviunv"),
+    ("cdit", "cbvditgv"),
 ];
 
 // And the lemma that changes what such a class says of each member, its
@@ -591,6 +592,7 @@ pub const SETHOOD: &[(&str, &str)] = &[
     ("cc", "cnex"),
     ("csu", "sumex"),
     ("cprod", "prodex"),
+    ("cdit", "ditgex"),
     ("cima", "imaexg"),
     ("cop", "opex"),
     ("cdc", "decex"),

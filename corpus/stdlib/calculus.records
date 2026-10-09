@@ -1,7 +1,7 @@
 # Standard library: calculus
 #
-# Intervals of the real line, upper bounds and completeness, continuity, and
-# derivatives.
+# Intervals of the real line, upper bounds and completeness, continuity,
+# derivatives, and integrals.
 #
 # One record per item. A record begins at column 0 with its kind, axiom,
 # theorem or definition, and its name; `mundane` before the kind marks an
@@ -214,3 +214,13 @@ theorem derivative-linear
   target      gdvlin, gdvlinv with D := D, M := m
   note        U is open because a line on [a, b] has no derivative at a or b:
               the derivative is taken where a neighbourhood lies in the domain.
+
+mundane theorem integral-point
+  let a ∈ ℝ                                                           (H1)
+  let f : ℝ → ℝ                                                       (H2)
+  then        ∫(a to a) f(t) dt = 0
+  metamath    ditg0
+  target      ditg0
+  note        An integral from a point to itself is 0, whatever the
+              integrand: set.mm's directed integral over [a, a] is the
+              integral over the empty interval (a, a).

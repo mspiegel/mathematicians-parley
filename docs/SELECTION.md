@@ -496,7 +496,17 @@ textbook's.
 30. **Fundamental theorem of calculus.** The first integral, in the form
     ∫ₐᵇ f′ = f(b) − f(a). set.mm's integral is Lebesgue's, far from the
     Riemann sums a textbook uses, so the integral enters as a library item
-    with a pointer, as completeness did.
+    with a pointer, as completeness did. The informal source, checked, is
+    ProofWiki's first proof, by the area function G(x) = ∫(a to x) f(t) dt:
+    its derivative is f by part one, two antiderivatives differ by a
+    constant, which the mean value theorem of 19 gives, and G(a) = 0.
+    set.mm's `ftc2` argues the same way; ProofWiki's second proof, by
+    Darboux sums, would put the sums on the page. The reader chose the
+    textbook statement, f continuous on [a, b] and F an antiderivative of
+    f, which a function continuous on [a, b] being integrable carries to
+    set.mm's, and the notation ∫(a to b) f(t) dt for set.mm's directed
+    integral (`cdit`), whose theorem in that form is `ftc2ditg`. The
+    notation is tested first, in `tests/elaborator/integral.proof`.
 31. **Birthday problem.** set.mm states it as a ratio of counts of
     functions from 23 people to 365 days: the one-to-one functions against
     all of them. Below 1/2 is a calculation with a product of 23 factors
