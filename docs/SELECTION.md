@@ -19,9 +19,9 @@ statement's variables.
 
 ## State
 
-All twenty-nine are written and elaborate from set.mm with nothing assumed.
-Two more are chosen and not yet started: the rest of "The next ten", at the
-end. Each of the twenty-nine has its proof in `proofs/` and its design record
+All thirty are written and elaborate from set.mm with nothing assumed.
+One more is chosen and not yet started: the rest of "The next ten", at the
+end. Each of the thirty has its proof in `proofs/` and its design record
 in `docs/pilot/`, under the same name:
 
 | # | proof | # | proof |
@@ -40,7 +40,7 @@ in `docs/pilot/`, under the same name:
 | 23 | euler | 24 | harmonic |
 | 25 | factor | 26 | cauchy-schwarz |
 | 27 | reals-uncountable | 28 | pythagorean-triples |
-| 29 | konigsberg | | |
+| 29 | konigsberg | 30 | fundamental-calculus |
 
 Theorem 17 is Euclid's half of the Euclid–Euler theorem only; Euler's half,
 that every even perfect number has that form, is not proved. The informal
@@ -507,6 +507,11 @@ textbook's.
     set.mm's, and the notation ∫(a to b) f(t) dt for set.mm's directed
     integral (`cdit`), whose theorem in that form is `ftc2ditg`. The
     notation is tested first, in `tests/elaborator/integral.proof`.
+    Written: `proofs/fundamental-calculus.proof`, with
+    `docs/pilot/fundamental-calculus.md`, and both of its theorems
+    elaborate with nothing assumed. "Zero derivative means constant" is
+    proved on the page from the mean value theorem, in the endpoint form
+    the proof uses; part one is the library item `area-function`.
 31. **Birthday problem.** set.mm states it as a ratio of counts of
     functions from 23 people to 365 days: the one-to-one functions against
     all of them. Below 1/2 is a calculation with a product of 23 factors

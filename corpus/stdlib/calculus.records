@@ -172,6 +172,19 @@ theorem continuous-sum
               elaboration/stdlib/proved.mm from addcncf
   target      gcncfadd with F := f, G := g
 
+theorem continuous-difference
+  let D ⊆ ℝ                                                           (H1)
+  let F : D → ℝ                                                       (H2)
+  let f : D → ℝ                                                       (H3)
+  let g : D → ℝ                                                       (H4)
+  assume for all x ∈ D, F(x) = f(x) − g(x)                            (H5)
+  assume f is continuous on D                                         (H6)
+  assume g is continuous on D                                         (H7)
+  then        F is continuous on D
+  metamath    gcncfsub, which this corpus proves in
+              elaboration/stdlib/proved.mm from subcncf
+  target      gcncfsub with F := f, G := g
+
 theorem continuous-linear
   let D ⊆ ℝ                                                           (H1)
   let m ∈ ℝ                                                           (H2)
@@ -242,17 +255,35 @@ theorem area-function
   assume f is continuous on [a, b]                                    (H5)
   let G : [a, b] → ℝ                                                  (H6)
   assume for all x ∈ [a, b], G(x) = ∫(a to x) f(t) dt                 (H7)
-  then        G is differentiable on (a, b).
+  then        G is continuous on [a, b].
+              G is differentiable on (a, b).
               For all x ∈ (a, b), G′(x) = f(x).
-  metamath    gftc1, gftc1v, which this corpus proves in
-              elaboration/stdlib/proved.mm from ftc1, ditgpos and cniccibl
-  target      gftc1, gftc1v with A := a, B := b, F := f, G := G
+  metamath    gftc1c, gftc1, gftc1v, which this corpus proves in
+              elaboration/stdlib/proved.mm from ftc1a, ftc1, ditgpos and
+              cniccibl
+  target      gftc1c, gftc1, gftc1v with A := a, B := b, F := f, G := G
   note        The fundamental theorem of calculus, part one: the integral
               of f from a up to x, as x moves, has derivative f. set.mm's
               ftc1 asks f be integrable, which a function continuous on
               [a, b] is (cniccibl), so the page never says it; and its
               integral is over (a, x), which the directed one is where a ≤ x
               (ditgpos).
+
+mundane theorem integral-real
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a < b                                                        (H3)
+  let f : [a, b] → ℝ                                                  (H4)
+  assume f is continuous on [a, b]                                    (H5)
+  let x ∈ [a, b]                                                      (H6)
+  then        ∫(a to x) f(t) dt ∈ ℝ
+  metamath    gditgre, which this corpus proves in
+              elaboration/stdlib/proved.mm from itgrecl and ditgpos
+  target      gditgre with A := a, B := b, F := f, C := x
+  note        The integral of a real function continuous on [a, b], from a
+              to a point of [a, b], is a real number: f is integrable there
+              because it is continuous (cniccibl), and real where it is
+              integrated.
 
 mundane theorem integral-point
   let a ∈ ℝ                                                           (H1)

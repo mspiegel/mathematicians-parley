@@ -3,6 +3,8 @@ import theorem            stdlib/calculus/derivative-sum
 import theorem            stdlib/calculus/derivative-difference
 import mundane theorem    stdlib/calculus/integral-point
 import theorem            stdlib/calculus/area-function
+import mundane theorem    stdlib/calculus/integral-real
+import theorem            stdlib/calculus/continuous-difference
 import mundane theorem    stdlib/calculus/reals-open
 import mundane theorem    stdlib/sets/subset-self
 
@@ -99,6 +101,46 @@ theorem area-under-other-letters
 
 1.  For all y ∈ (c, d), H′(y) = g(y).
     thm:area-function a := c, b := d, f := g, G := H, from H1, H2, H3, H5, H7
+
+theorem area-is-continuous
+  let c ∈ ℝ                                                           (H1)
+  let d ∈ ℝ                                                           (H2)
+  assume c < d                                                        (H3)
+  let g : [c, d] → ℝ                                                  (H4)
+  assume g is continuous on [c, d]                                    (H5)
+  let H : [c, d] → ℝ                                                  (H6)
+  assume for all y ∈ [c, d], H(y) = ∫(c to y) g(s) ds                 (H7)
+  then H is continuous on [c, d]
+
+1.  H is continuous on [c, d]
+    thm:area-function a := c, b := d, f := g, G := H, from H1, H2, H3, H5, H7
+
+theorem integral-is-real
+  let c ∈ ℝ                                                           (H1)
+  let d ∈ ℝ                                                           (H2)
+  assume c < d                                                        (H3)
+  let g : [c, d] → ℝ                                                  (H4)
+  assume g is continuous on [c, d]                                    (H5)
+  let y ∈ [c, d]                                                      (H6)
+  then ∫(c to y) g(s) ds ∈ ℝ
+
+1.  ∫(c to y) g(s) ds ∈ ℝ
+    mun:integral-real a := c, b := d, f := g, x := y, from H1, H2, H3, H5, H6
+
+theorem continuous-of-a-difference
+  let f : ℝ → ℝ                                                       (H1)
+  assume f is continuous on ℝ                                         (H2)
+  let g : ℝ → ℝ                                                       (H3)
+  assume g is continuous on ℝ                                         (H4)
+  let F : ℝ → ℝ                                                       (H5)
+  assume for all x ∈ ℝ, F(x) = f(x) − g(x)                            (H6)
+  then F is continuous on ℝ
+
+1.  ℝ ⊆ ℝ
+    mun:subset-self X := ℝ
+
+2.  F is continuous on ℝ
+    thm:continuous-difference D := ℝ, F := F, f := f, g := g, from 1, H6, H2, H4
 
 theorem integral-over-a-point
   let c ∈ ℝ                                                           (H1)

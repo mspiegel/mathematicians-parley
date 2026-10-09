@@ -844,6 +844,21 @@ $d t F $.
   $}
 
   ${
+    gcncfsub.1 $e |- ( ph -> D C_ RR ) $.
+    gcncfsub.2 $e |- ( ph -> H : D --> RR ) $.
+    gcncfsub.3 $e |- ( ph -> F : D --> RR ) $.
+    gcncfsub.4 $e |- ( ph -> G : D --> RR ) $.
+    gcncfsub.5 $e |- ( ph -> A. x e. D ( H ` x ) = ( ( F ` x ) - ( G ` x ) ) ) $.
+    gcncfsub.6 $e |- ( ph -> F e. ( D -cn-> RR ) ) $.
+    gcncfsub.7 $e |- ( ph -> G e. ( D -cn-> RR ) ) $.
+  gcncfsub $p |- ( ph -> H e. ( D -cn-> RR ) ) $=
+    ( cv cfv cmin co cmpt cr ccncf wfn wceq ffnd dffn5 sylib r19.21bi
+    mpteq2dva eqtrd wcel wf feq1d mpbid cc wss wb ax-resscn a1i ssid cncfss
+    mp2an sseldd eqeltrrd subcncf cncfcdm syl2anc mpbird eqeltrd )
+    AFBCBNZDOZVHEOZPQZRZCSTQZAFBCVHFOZRZVLAFCUAZFVOUBZACSFHUCZBCFUDZUEZABCVNVKAVNVKUBZBCKUFZUGZUHZAVLVMUIZCSVLUJZACSFUJWFHACSFVLWDUKULASUMUNZVLCUMTQZUIWEWFUOWGAUPUQABVIVJCADBCVIRZWHADCUADWIUBACSDIUCBCDUDUEAVMWHDVMWHUNZAWGUMUMUNZWJUPUMURZCSUMUSZUTZUQZLVAVBAEBCVJRZWHAECUAEWPUBACSEJUCBCEUDUEAVMWHEWOMVAVBVCCUMSVLVDVEVFVG $.
+  $}
+
+  ${
     gdvdifof.1 $e |- ( ph -> D C_ RR ) $.
     gdvdifof.2 $e |- ( ph -> H : D --> RR ) $.
     gdvdifof.3 $e |- ( ph -> F : D --> RR ) $.
@@ -933,6 +948,39 @@ $d t F $.
     toponuni syl cncnpi ftc1 wfn ffnd dffn5 sylib wa cdit r19.21bi cle w3a wb
     elicc2 biimpa simp2d ditgpos eqtrd mpteq2dva oveq2d breqd mpbird )
     AFFGQZRHSTZUAFXFRBDEUBTZCDBUCZUDTZCUCZGQZUEZUFZSTZUAABCDEFXHGXNUGUHQZRUITZXPXHUITZXPXNUJIJADEIJKUKDEUDTZXHULZADEUMZUNZADRUOZERUOZXHRULZIJDEUPZUQZAYCYDGXHURUSTZUOGUTUOIJAXHRUSTZYHGYIYHULZARURULZURURULZYJVAURVBZXHRURVCZVDZUNZMVEZDEGVFVGPAGXRXPVHTZUOFXRVIZUOGFXRXPVJTQUOAGXRXPURUITZVHTZYRAGYHUUAYQAXHURULZYLYHUUAVKAXHRURYGYKAVAUNZVLZYLAYMUNXHURXPXRYTXPUJZXRUJZYTUJVMUQVNYTXPXRVHXPURVOQZUOZYTXPVKXPUUEVPZXPUUGURURXPUUIVQVRVSVTWAAFXHYSAXSXHFYBPVEAXRXHVOQZUOZXHYSVKAUUHUUBUUKUUHAUUIUNUUDXHXPURWBUQXHXRWCWDVNFGXRXPYSYSUJWEUQXQUJUUFUUEWFAXGXOFXFAHXNRSAHBXHXIHQZUFZXNAHXHWGHUUMVKAXHRHNWHBXHHWIWJABXHUULXMAXIXHUOZWKZUULCDXIXLWLZXMAUULUUPVKBXHOWMUUOCDXIXLUUOXIRUOZDXIWNUAZXIEWNUAZAUUNUUQUURUUSWOZAYCYDUUNUUTWPIJDEXIWQUQWRWSWTXAXBXAXCXDXE $.
+  $}
+
+  ${
+    gftc1c.1 $e |- ( ph -> A e. RR ) $.
+    gftc1c.2 $e |- ( ph -> B e. RR ) $.
+    gftc1c.3 $e |- ( ph -> A < B ) $.
+    gftc1c.4 $e |- ( ph -> F : ( A [,] B ) --> RR ) $.
+    gftc1c.5 $e |- ( ph -> F e. ( ( A [,] B ) -cn-> RR ) ) $.
+    gftc1c.6 $e |- ( ph -> G : ( A [,] B ) --> RR ) $.
+    gftc1c.7 $e |- ( ph -> A. x e. ( A [,] B ) ( G ` x ) = S_ [ A -> x ] ( F ` t ) _d t ) $.
+  gftc1c $p |- ( ph -> G e. ( ( A [,] B ) -cn-> RR ) ) $=
+    ( cicc co cr ccncf wcel wf cc wss wb ax-resscn a1i cv cioo cfv citg cmpt
+    wfn wceq ffnd dffn5 sylib wa cdit r19.21bi cle wbr w3a elicc2 syl2anc
+    biimpa simp2d ditgpos eqtrd mpteq2dva eqid ltled ioossicc iccssre cibl
+    ssid cncfss mp2an sseldd cniccibl syl3anc fssd ftc1a eqeltrd cncfcdm
+    mpbird )
+    AGDEOPZQRPZSZWEQGTZMAQUAUBZGWEUARPZSWGWHUCWIAUDUEZAGBWECDBUFZUGPZCUFZFUHZUIZUJZWJAGBWEWLGUHZUJZWQAGWEUKGWSULAWEQGMUMBWEGUNUOABWEWRWPAWLWESZUPZWRCDWLWOUQZWPAWRXBULBWENURXACDWLWOXAWLQSZDWLUSUTZWLEUSUTZAWTXCXDXEVAZADQSZEQSZWTXFUCHIDEWLVBVCVDVEVFVGVHVGABCDEWEFWQWQVIHIADEHIJVJDEUGPWEUBADEVKUEAXGXHWEQUBHIDEVLVCAXGXHFWJSFVMSHIAWFWJFWFWJUBZAWIUAUAUBXIUDUAVNWEQUAVOVPUELVQDEFVRVSAWEQUAFKWKVTWAWBWEUAQGWCVCWD $.
+  $}
+
+  ${
+    gditgre.1 $e |- ( ph -> A e. RR ) $.
+    gditgre.2 $e |- ( ph -> B e. RR ) $.
+    gditgre.3 $e |- ( ph -> A < B ) $.
+    gditgre.4 $e |- ( ph -> F : ( A [,] B ) --> RR ) $.
+    gditgre.5 $e |- ( ph -> F e. ( ( A [,] B ) -cn-> RR ) ) $.
+    gditgre.6 $e |- ( ph -> C e. ( A [,] B ) ) $.
+  gditgre $p |- ( ph -> S_ [ A -> C ] ( F ` t ) _d t e. RR ) $=
+    ( cv cfv cdit cioo co citg cr wcel cle wbr cicc w3a wb elicc2 syl2anc
+    mpbid simp2d ditgpos wa wf adantr cxr wss rexrd simp3d iooss2 ioossicc
+    sstrdi sselda ffvelcdmd cvol cdm ioombl a1i ffvelcdmda cmpt cibl wfn wceq
+    ffnd dffn5 sylib cc ccncf ax-resscn ssid cncfss mp2an sseldd cniccibl
+    syl3anc eqeltrrd iblss itgrecl eqeltrd )
+    ABCEBMZFNZOBCEPQZWIRSABCEWIAESTZCEUAUBZEDUAUBZAECDUCQZTZWKWLWMUDZLACSTZDSTZWOWPUEZGHCDEUFZUGZUHZUIUJABWJWIAWHWJTZUKWNSWHFAWNSFULXCJUMAWJWNWHAWJCDPQZWNADUNTZWMWJXDUOZADHUPZAWKWLWMXBUQZCEDURZUGZCDUSZUTZVAVBABWJWNWISXLWJVCVDTACEVEVFAWNSWHFJVGAFBWNWIVHZVIAFWNVJFXMVKAWNSFJVLBWNFVMVNAWQWRFWNVOVPQZTFVITGHAWNSVPQZXNFXOXNUOZASVOUOVOVOUOXPVQVOVRWNSVOVSVTVFKWACDFWBWCWDWEWFWG $.
   $}
 
   ${

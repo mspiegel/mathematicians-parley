@@ -629,13 +629,38 @@ impl<'a> Elaborator<'a> {
             &binds! {"ph" => &u, "ps" => &quotient, "ch" => &crossed_eq},
             &[&matched, &turn],
         );
-        let s1 = self.same_polynomial(w, left, &t!(a, d, "cmul", "co"))?;
-        let s2 = self.same_polynomial(w, right, &t!(c, b, "cmul", "co"))?;
-        let (s1, s2) = (take!(s1), take!(s2));
+        // The claim and the crossed equation are one polynomial, which says
+        // their differences agree and not their sides: (H(b) − H(a))·1 =
+        // 0·(b − a) carries H(b) = H(a) with each side split otherwise.
+        let facts = w.spec.facts.clone();
+        let (p, q) = (t!(a, d, "cmul", "co"), t!(c, b, "cmul", "co"));
+        let p_cc = self.in_cc(&p, &u, &facts)?;
+        let gap = t!(p, q, "cmin", "co");
+        let whole = t!(left, right, "cmin", "co");
+        let alike = self.same_polynomial(w, &gap, &whole)?;
+        let left_cc = self.in_cc(left, &u, &facts)?;
+        let right_cc = self.in_cc(right, &u, &facts)?;
+        let (p_cc, alike, left_cc, right_cc) =
+            (take!(p_cc), take!(alike), take!(left_cc), take!(right_cc));
+        let vanishes = self.b.ap(
+            "subeq0bd",
+            &binds! {"ph" => &u, "A" => &p, "B" => &q},
+            &[&p_cc, &crossed],
+        );
+        let reached = self.b.ap(
+            "eqtr3d",
+            &binds! {"ph" => &u, "A" => &gap, "B" => &whole, "C" => "cc0"},
+            &[&alike, &vanishes],
+        );
+        let turn = self.b.ap(
+            "subeq0ad",
+            &binds! {"ph" => &u, "A" => left, "B" => right},
+            &[&left_cc, &right_cc],
+        );
         Ok(Built(self.b.ap(
-            "3eqtr4d",
-            &binds! {"ph" => &u, "A" => t!(a, d, "cmul", "co"), "B" => t!(c, b, "cmul", "co"), "C" => left, "D" => right},
-            &[&crossed, &s1, &s2],
+            "mpbid",
+            &binds! {"ph" => &u, "ps" => t!(whole, "cc0", "wceq"), "ch" => t!(left, right, "wceq")},
+            &[&reached, &turn],
         )))
     }
 

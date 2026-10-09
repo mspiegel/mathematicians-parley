@@ -1,0 +1,219 @@
+import theorem            proofs/mean-value/mean-value
+import theorem            stdlib/calculus/area-function
+import theorem            stdlib/calculus/continuous-difference
+import theorem            stdlib/calculus/derivative-difference
+import mundane theorem    stdlib/calculus/derivative-real
+import mundane theorem    stdlib/calculus/integral-point
+import mundane theorem    stdlib/calculus/integral-real
+import mundane definition stdlib/calculus/interval
+import mundane theorem    stdlib/calculus/interval-real
+import mundane theorem    stdlib/calculus/open-within-closed
+import mundane theorem    stdlib/functions/function-into
+import mundane theorem    stdlib/sets/in-subset
+
+theorem zero-derivative-ends
+  note        A function whose derivative is 0 inside [a, b] takes the same
+              value at both ends: by the mean value theorem, its chord's
+              slope is a derivative, which is 0.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a < b                                                        (H3)
+  let H : [a, b] → ℝ                                                  (H4)
+  assume H is continuous on [a, b]                                    (H5)
+  assume H is differentiable on (a, b)                                (H6)
+  assume for all x ∈ (a, b), H′(x) = 0                                (H7)
+  then H(b) = H(a)
+
+1.  a ∈ [a, b]
+    mun:interval x := a, from H1, H2
+    requires a ≤ a: inequalities, from H1
+    requires a ≤ b: inequalities, from H1, H2, H3
+
+2.  b ∈ [a, b]
+    mun:interval x := b, from H1, H2
+    requires a ≤ b: inequalities, from H1, H2, H3
+    requires b ≤ b: inequalities, from H2
+
+3.  c ∈ (a, b). H′(c) = (H(b) − H(a))/(b − a).
+    obtain c: thm:mean-value a := a, b := b, f := H, from H1, H2, H3, H5, H6
+
+4.  H′(c) = 0
+    instantiate x := c in H7, from 3
+
+5.  (H(b) − H(a))/(b − a) = 0
+    calculation
+      (H(b) − H(a))/(b − a) = H′(c)                            3
+                            = 0                                4
+
+6.  H(b) = H(a)
+    algebra, from 5
+    requires b − a ≠ 0: inequalities, from H1, H2, H3
+    requires a ∈ ℝ: from H1
+    requires b ∈ ℝ: from H2
+    requires H(a) ∈ ℝ: from H4, 1
+    requires H(b) ∈ ℝ: from H4, 2
+
+theorem fundamental-calculus
+  metamath    ftc2
+  note        The integral of f from a to b is F(b) − F(a), for F an
+              antiderivative of f. The area function G, the integral from a
+              up to x, has derivative f, as F does; so G − F has derivative 0
+              and takes one value at a and at b, and G(a) = 0.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a < b                                                        (H3)
+  let f : [a, b] → ℝ                                                  (H4)
+  assume f is continuous on [a, b]                                    (H5)
+  let F : [a, b] → ℝ                                                  (H6)
+  assume F is continuous on [a, b]                                    (H7)
+  assume F is differentiable on (a, b)                                (H8)
+  assume for all x ∈ (a, b), F′(x) = f(x)                             (H9)
+  then ∫(a to b) f(t) dt = F(b) − F(a)
+
+define G(x) := ∫(a to x) f(t) dt, for x ∈ [a, b]                      (D1)
+       reads the integral of f from a up to x
+
+define H(x) := G(x) − F(x), for x ∈ [a, b]                            (D2)
+       reads the area function less F
+
+1.  a ∈ [a, b]
+    mun:interval x := a, from H1, H2
+    requires a ≤ a: inequalities, from H1
+    requires a ≤ b: inequalities, from H1, H2, H3
+
+2.  b ∈ [a, b]
+    mun:interval x := b, from H1, H2
+    requires a ≤ b: inequalities, from H1, H2, H3
+    requires b ≤ b: inequalities, from H2
+
+3.  [a, b] ⊆ ℝ
+    mun:interval-real, from H1, H2
+
+4.  (a, b) ⊆ [a, b]
+    mun:open-within-closed, from H1, H2
+
+5.  For all x ∈ [a, b], G(x) = ∫(a to x) f(t) dt.
+    D1
+
+6.  For all x ∈ [a, b], H(x) = G(x) − F(x).
+    D2
+
+7.  For all x ∈ [a, b], G(x) ∈ ℝ.
+    proof
+    let x ∈ [a, b]                                                    (K1)
+
+    7.1.  G(x) ∈ ℝ
+          mun:integral-real a := a, b := b, f := f, x := x, from H1, H2, H3, H5, K1, D1
+
+8.  G : [a, b] → ℝ
+    mun:function-into, from 7
+    requires G is a function on [a, b]: from D1
+
+9.  For all x ∈ [a, b], H(x) ∈ ℝ.
+    membership, from D2
+    requires G(x) ∈ ℝ: from 8
+    requires F(x) ∈ ℝ: from H6
+
+10. H : [a, b] → ℝ
+    mun:function-into, from 9
+    requires H is a function on [a, b]: from D2
+
+11. G is continuous on [a, b]
+    thm:area-function a := a, b := b, f := f, G := G, from H1, H2, H3, H5, 5
+    requires G : [a, b] → ℝ: from 8
+
+12. G is differentiable on (a, b)
+    thm:area-function a := a, b := b, f := f, G := G, from H1, H2, H3, H5, 5
+    requires G : [a, b] → ℝ: from 8
+
+13. For all x ∈ (a, b), G′(x) = f(x).
+    thm:area-function a := a, b := b, f := f, G := G, from H1, H2, H3, H5, 5
+    requires G : [a, b] → ℝ: from 8
+
+14. H is continuous on [a, b]
+    thm:continuous-difference D := [a, b], F := H, f := G, g := F, from 3, 6, 11, H7
+    requires H : [a, b] → ℝ: from 10
+    requires G : [a, b] → ℝ: from 8
+
+15. H is differentiable on (a, b)
+    thm:derivative-difference D := [a, b], U := (a, b), F := H, f := G, g := F, from 3, 6, 12, H8
+    requires (a, b) ⊆ [a, b]: from 4
+    requires H : [a, b] → ℝ: from 10
+    requires G : [a, b] → ℝ: from 8
+
+16. For all x ∈ (a, b), H′(x) = G′(x) − F′(x).
+    thm:derivative-difference D := [a, b], U := (a, b), F := H, f := G, g := F, from 3, 6, 12, H8
+    requires (a, b) ⊆ [a, b]: from 4
+    requires H : [a, b] → ℝ: from 10
+    requires G : [a, b] → ℝ: from 8
+
+17. For all x ∈ (a, b), H′(x) = 0.
+    proof
+    let x ∈ (a, b)                                                    (K1)
+
+    17.1. H′(x) = G′(x) − F′(x)
+          instantiate x := x in line 16, from K1
+
+    17.2. G′(x) = f(x)
+          instantiate x := x in line 13, from K1
+
+    17.3. F′(x) = f(x)
+          instantiate x := x in H9, from K1
+
+    17.4. H′(x) = f(x) − F′(x)
+          substitute G′(x) = f(x) (line 17.2) into line 17.1
+
+    17.5. H′(x) = f(x) − f(x)
+          substitute F′(x) = f(x) (line 17.3) into line 17.4
+
+    17.6. x ∈ [a, b]
+          mun:in-subset, from 4, K1
+
+    17.7. H′(x) = 0
+          algebra, from 17.5
+          requires f(x) ∈ ℝ: from H4, 17.6
+          requires H′(x) ∈ ℝ: mun:derivative-real a := a, b := b, f := H, x := x, from H1, H2, 10, 15, K1
+
+18. H(b) = H(a)
+    thm:zero-derivative-ends a := a, b := b, H := H, from H1, H2, H3, 14, 15, 17
+    requires H : [a, b] → ℝ: from 10
+
+19. H(a) = G(a) − F(a)
+    D2, from 1
+
+20. H(b) = G(b) − F(b)
+    D2, from 2
+
+21. G(a) = ∫(a to a) f(t) dt
+    D1, from 1
+
+22. ∫(a to a) f(t) dt = 0
+    mun:integral-point a := a, f := f, from H1
+
+23. G(b) = ∫(a to b) f(t) dt
+    D1, from 2
+
+24. G(b) − F(b) = G(a) − F(a)
+    calculation
+      G(b) − F(b) = H(b)                                       20
+                  = H(a)                                       18
+                  = G(a) − F(a)                                19
+
+25. G(a) = 0
+    calculation
+      G(a) = ∫(a to a) f(t) dt                                 21
+           = 0                                                 22
+
+26. G(b) − F(b) = 0 − F(a)
+    substitute G(a) = 0 (line 25) into line 24
+
+27. G(b) = F(b) − F(a)
+    algebra, from 26
+    requires G(b) ∈ ℝ: from 8, 2
+    requires F(b) ∈ ℝ: from H6, 2
+    requires F(a) ∈ ℝ: from H6, 1
+
+28. ∫(a to b) f(t) dt = F(b) − F(a)
+    calculation
+      ∫(a to b) f(t) dt = G(b)                                 23
+                        = F(b) − F(a)                          27

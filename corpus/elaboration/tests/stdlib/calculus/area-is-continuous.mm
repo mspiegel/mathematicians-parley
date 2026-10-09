@@ -1,0 +1,16 @@
+$( tests/stdlib/calculus/area-is-continuous, elaborated from tests/stdlib/calculus.proof by parley build.
+   Nothing here is assumed.
+   Checked against a set.mm of 51,256 assertions, sha256
+   0d7fb3e59afff60f4cec2287cbb616bf651bbfbf2356a611a43a5c98b5e0462d. $)
+
+$[ stdlib/proved.mm $]
+
+${
+  $d i j k m s y $.
+  $d A i j k m s y $.
+  $d B i j k m s y $.
+  $d C i j k m s y $.
+  $d D i j k m s y $.
+  tests.stdlib.calculus.area-is-continuous $p |- ( ( ( ( ( ( ( A e. RR /\ B e. RR ) /\ A < B ) /\ C : ( A [,] B ) --> RR ) /\ C e. ( ( A [,] B ) -cn-> RR ) ) /\ D : ( A [,] B ) --> RR ) /\ A. y e. ( A [,] B ) ( D ` y ) = S_ [ A -> y ] ( C ` s ) _d s ) -> D e. ( ( A [,] B ) -cn-> RR ) ) $=
+    ( cr wcel wa clt wbr cicc co wf ccncf cv cfv cdit wceq wral vk vm simpl id syl simpr wb vj vi fveq2d cbvditgv eqeq2i ralbii gditgeq2d eqeq12d cbvralvw bitri a1i mpbid gftc1c ) BGHZCGHZIZBCJKZIZBCLMZGDNZIZDVFGOMZHZIZVFGENZIZAPZEQZFBVNFPZDQZRZSZAVFTZIZUAUBBCDEWAVMVAVMVTUCZVMVKVAVKVLUCZVKVHVAVHVJUCZVHVEVAVEVGUCZVEVCVAVCVDUCZVCVAVAVAVBUCVAUDUEUEUEUEUEUEWAVMVBWBVMVKVBWCVKVHVBWDVHVEVBWEVEVCVBWFVAVBUFUEUEUEUEUEWAVMVDWBVMVKVDWCVKVHVDWDVHVEVDWEVCVDUFUEUEUEUEWAVMVGWBVMVKVGWCVKVHVGWDVEVGUFUEUEUEWAVMVJWBVMVKVJWCVHVJUFUEUEWAVMVLWBVKVLUFUEWAVTUAPZEQZUBBWGUBPZDQZRZSZUAVFTZVMVTUFVTWMUGWAVTUHPZEQZUIBWNUIPZDQZRZSZUHVFTZWMVTVOUIBVNWQRZSZAVFTWTVSXBAVFVRXAVOFUIBVNVQWQVPWPSZVPWPDXCUDUJUKULUMXBWSAUHVFVNWNSZVOWOXAWRXDVNWNEXDUDZUJXDUIVNWNBWQXEUNUOUPUQWTWOUBBWNWJRZSZUHVFTWMWSXGUHVFWRXFWOUIUBBWNWQWJWPWISZWPWIDXHUDUJUKULUMXGWLUHUAVFWNWGSZWOWHXFWKXIWNWGEXIUDZUJXIUBWNWGBWJXJUNUOUPUQUQURUSUT $.
+$}
