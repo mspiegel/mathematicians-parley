@@ -531,17 +531,17 @@ fn cases() -> Vec<Case> {
             "requires 9 = 3·4: arithmetic",
             "claims 9 = 3·4, which is false",
         ),
-        // True, and past what the method shows, an order between two sides
-        // that are not numerals until worked out: a theorem stating it is
-        // what the page cites, and saying so is the report, and the fact is
-        // not stated.
+        // True, and past what the method shows, an order with a side that
+        // passes below zero on the way: a theorem stating it is what the
+        // page cites, and saying so is the report, and the fact is not
+        // stated.
         case(
             "ask arithmetic for a true fact it cannot show",
             "proofs/divisibility-by-three/ten-power-congruent",
             "proofs/divisibility-by-three.proof",
             "10 − 1 = 9\n          arithmetic",
-            "10 − 1 ≤ 9\n          arithmetic",
-            "step 1.5 claims 10 − 1 ≤ 9, which is true, and arithmetic cannot show it yet",
+            "10 − 11 ≤ 9\n          arithmetic",
+            "step 1.5 claims 10 − 11 ≤ 9, which is true, and arithmetic cannot show it yet",
         ),
         // What has no exact value is refused before anything is computed or
         // stated: a division by zero, a number too large to work out, which

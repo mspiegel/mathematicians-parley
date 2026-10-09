@@ -1,0 +1,58 @@
+theorem sides-equal
+  note        Each side of an order is worked out before the two are
+              compared: a sum of a product and a power, equal to the other.
+  then 3·4 + 2^3 ≤ 20
+
+1.  3·4 + 2^3 ≤ 20
+    arithmetic
+
+theorem sides-below
+  note        A power below a sum with a product in it.
+  then 2^10 < 1000 + 5·5
+
+1.  2^10 < 1000 + 5·5
+    arithmetic
+
+theorem fractions-below
+  note        Two fractions compared by their cross products.
+  then 2/3 < 5/7
+
+1.  2/3 < 5/7
+    arithmetic
+
+theorem fractions-equal
+  note        Two spellings of one fraction, at most each other.
+  then 2/4 ≤ 3/6
+
+1.  2/4 ≤ 3/6
+    arithmetic
+
+theorem fraction-at-most-a-whole-number
+  note        A whole number on one side is a fraction over 1.
+  then (3 + 4)/2 ≤ 2^2
+
+1.  (3 + 4)/2 ≤ 2^2
+    arithmetic
+
+theorem product-over-a-range
+  note        A product over a range of numerals is worked a factor at a
+              time, each factor a difference.
+  then ∏(k ∈ {0, …, 3}) (7 − k) ≤ 840
+
+1.  ∏(k ∈ {0, …, 3}) (7 − k) ≤ 840
+    arithmetic
+
+theorem twenty-three-factors-as-a-product
+  note        The birthday problem's comparison, its 23 factors written as
+              one product.
+  then 2·∏(k ∈ {0, …, 22}) (365 − k) < 365^23
+
+1.  2·∏(k ∈ {0, …, 22}) (365 − k) < 365^23
+    arithmetic
+
+theorem twenty-three-factors-as-a-fraction
+  note        The same comparison as the birthday problem's ratio.
+  then (∏(k ∈ {0, …, 22}) (365 − k))/365^23 < 1/2
+
+1.  (∏(k ∈ {0, …, 22}) (365 − k))/365^23 < 1/2
+    arithmetic

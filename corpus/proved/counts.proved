@@ -30,7 +30,13 @@
 #   out and `fzdif1` says what the range is without it, for
 #   `mun:stdlib/counting/count-first-fails`;
 # - a last number without the property adds nothing: the same with
-#   `fzdif2`, for `mun:stdlib/counting/count-last-fails`.
+#   `fzdif2`, for `mun:stdlib/counting/count-last-fails`;
+# - there are |Y|^|X| functions from X to Y: `hashmap`, for
+#   `thm:stdlib/counting/count-functions`;
+# - there are ∏(k ∈ {0, …, |X| − 1}) (|Y| − k) one-to-one functions from X
+#   to Y: `rababg` drops the set every one-to-one function is in, `hashf1`
+#   counts them as |X|!·C(|Y|, |X|), and `bcfallfac` and `fallfacval` make
+#   that the product, for `thm:stdlib/counting/count-one-to-one`.
 #
 # A second property with i free is ta, since ch is kept apart from i.
 # Shifting the range ties P(i), ps, to P(i − 1), ta, through th, the
@@ -43,6 +49,9 @@ $( The set-builder binds i, apart from the end of the range, the scope and
 $d i K $.  $d i ph $.  $d i ch $.
 $d i A $.  $d i B $.  $d i M $.  $d i N $.  $d i th $.
 $d i j $.  $d j N $.  $d j ph $.  $d j ps $.  $d j ta $.
+$( The functions counted are f, apart from their two sets and the scope; a
+   product's letter k is apart from the two sets. $)
+$d f X $.  $d f Y $.  $d f ph $.  $d k X $.  $d k Y $.
 
 # ( ph -> ( # ` { i e. ( 1 ... K ) | ps } ) e. NN0 ), from K in ZZ. The
 # range is finite whatever its ends, so the hypothesis is the page's and the
@@ -285,3 +294,55 @@ lemma gcntlast
   21 rabeqdv 20 |- ( ph -> { i e. ( ( 1 ... N ) \ { N } ) | ps } = { i e. ( 1 ... ( N - 1 ) ) | ps } )
   22 eqtrd 1 21 |- ( ph -> { i e. ( 1 ... N ) | ps } = { i e. ( 1 ... ( N - 1 ) ) | ps } )
   23 fveq2d 22 |- ( ph -> ( # ` { i e. ( 1 ... N ) | ps } ) = ( # ` { i e. ( 1 ... ( N - 1 ) ) | ps } ) )
+
+# ( ph -> ( # ` ( Y ^m X ) ) = ( ( # ` Y ) ^ ( # ` X ) ) )
+lemma gmapcnt
+  hypothesis gmapcnt.1 |- ( ph -> X e. Fin )
+  hypothesis gmapcnt.2 |- ( ph -> Y e. Fin )
+  |- ( ph -> ( # ` ( Y ^m X ) ) = ( ( # ` Y ) ^ ( # ` X ) ) )
+  1 hashmap |- ( ( Y e. Fin /\ X e. Fin ) -> ( # ` ( Y ^m X ) ) = ( ( # ` Y ) ^ ( # ` X ) ) )
+  2 syl2anc gmapcnt.2 gmapcnt.1 1 |- ( ph -> ( # ` ( Y ^m X ) ) = ( ( # ` Y ) ^ ( # ` X ) ) )
+
+# The one-to-one functions from X to Y counted as a falling product.
+lemma gf1cnt
+  hypothesis gf1cnt.1 |- ( ph -> X e. Fin )
+  hypothesis gf1cnt.2 |- ( ph -> Y e. Fin )
+  hypothesis gf1cnt.3 |- ( ph -> ( # ` X ) <_ ( # ` Y ) )
+  |- ( ph -> ( # ` { f e. ( Y ^m X ) | f : X -1-1-> Y } ) = prod_ k e. ( 0 ... ( ( # ` X ) - 1 ) ) ( ( # ` Y ) - k ) )
+  1 simpr |- ( ( ph /\ f : X -1-1-> Y ) -> f : X -1-1-> Y )
+  2 f1f |- ( f : X -1-1-> Y -> f : X --> Y )
+  3 syl 1 2 |- ( ( ph /\ f : X -1-1-> Y ) -> f : X --> Y )
+  4 elexd gf1cnt.2 |- ( ph -> Y e. _V )
+  5 elexd gf1cnt.1 |- ( ph -> X e. _V )
+  6 elmapg |- ( ( Y e. _V /\ X e. _V ) -> ( f e. ( Y ^m X ) <-> f : X --> Y ) )
+  7 syl2anc 4 5 6 |- ( ph -> ( f e. ( Y ^m X ) <-> f : X --> Y ) )
+  8 adantr 7 |- ( ( ph /\ f : X -1-1-> Y ) -> ( f e. ( Y ^m X ) <-> f : X --> Y ) )
+  9 mpbird 3 8 |- ( ( ph /\ f : X -1-1-> Y ) -> f e. ( Y ^m X ) )
+  10 ex 9 |- ( ph -> ( f : X -1-1-> Y -> f e. ( Y ^m X ) ) )
+  11 alrimiv 10 |- ( ph -> A. f ( f : X -1-1-> Y -> f e. ( Y ^m X ) ) )
+  12 rababg |- ( A. f ( f : X -1-1-> Y -> f e. ( Y ^m X ) ) <-> { f e. ( Y ^m X ) | f : X -1-1-> Y } = { f | f : X -1-1-> Y } )
+  13 sylib 11 12 |- ( ph -> { f e. ( Y ^m X ) | f : X -1-1-> Y } = { f | f : X -1-1-> Y } )
+  14 fveq2d 13 |- ( ph -> ( # ` { f e. ( Y ^m X ) | f : X -1-1-> Y } ) = ( # ` { f | f : X -1-1-> Y } ) )
+  15 hashf1 |- ( ( X e. Fin /\ Y e. Fin ) -> ( # ` { f | f : X -1-1-> Y } ) = ( ( ! ` ( # ` X ) ) x. ( ( # ` Y ) _C ( # ` X ) ) ) )
+  16 syl2anc gf1cnt.1 gf1cnt.2 15 |- ( ph -> ( # ` { f | f : X -1-1-> Y } ) = ( ( ! ` ( # ` X ) ) x. ( ( # ` Y ) _C ( # ` X ) ) ) )
+  17 hashcl |- ( X e. Fin -> ( # ` X ) e. NN0 )
+  18 syl gf1cnt.1 17 |- ( ph -> ( # ` X ) e. NN0 )
+  19 hashcl |- ( Y e. Fin -> ( # ` Y ) e. NN0 )
+  20 syl gf1cnt.2 19 |- ( ph -> ( # ` Y ) e. NN0 )
+  21 elfz2nn0 |- ( ( # ` X ) e. ( 0 ... ( # ` Y ) ) <-> ( ( # ` X ) e. NN0 /\ ( # ` Y ) e. NN0 /\ ( # ` X ) <_ ( # ` Y ) ) )
+  22 syl3anbrc 18 20 gf1cnt.3 21 |- ( ph -> ( # ` X ) e. ( 0 ... ( # ` Y ) ) )
+  23 bcfallfac |- ( ( # ` X ) e. ( 0 ... ( # ` Y ) ) -> ( ( # ` Y ) _C ( # ` X ) ) = ( ( ( # ` Y ) FallFac ( # ` X ) ) / ( ! ` ( # ` X ) ) ) )
+  24 syl 22 23 |- ( ph -> ( ( # ` Y ) _C ( # ` X ) ) = ( ( ( # ` Y ) FallFac ( # ` X ) ) / ( ! ` ( # ` X ) ) ) )
+  25 oveq2d 24 |- ( ph -> ( ( ! ` ( # ` X ) ) x. ( ( # ` Y ) _C ( # ` X ) ) ) = ( ( ! ` ( # ` X ) ) x. ( ( ( # ` Y ) FallFac ( # ` X ) ) / ( ! ` ( # ` X ) ) ) ) )
+  26 nn0cnd 20 |- ( ph -> ( # ` Y ) e. CC )
+  27 fallfaccl |- ( ( ( # ` Y ) e. CC /\ ( # ` X ) e. NN0 ) -> ( ( # ` Y ) FallFac ( # ` X ) ) e. CC )
+  28 syl2anc 26 18 27 |- ( ph -> ( ( # ` Y ) FallFac ( # ` X ) ) e. CC )
+  29 faccl |- ( ( # ` X ) e. NN0 -> ( ! ` ( # ` X ) ) e. NN )
+  30 syl 18 29 |- ( ph -> ( ! ` ( # ` X ) ) e. NN )
+  31 nncnd 30 |- ( ph -> ( ! ` ( # ` X ) ) e. CC )
+  32 nnne0d 30 |- ( ph -> ( ! ` ( # ` X ) ) =/= 0 )
+  33 divcan2d 28 31 32 |- ( ph -> ( ( ! ` ( # ` X ) ) x. ( ( ( # ` Y ) FallFac ( # ` X ) ) / ( ! ` ( # ` X ) ) ) ) = ( ( # ` Y ) FallFac ( # ` X ) ) )
+  34 fallfacval |- ( ( ( # ` Y ) e. CC /\ ( # ` X ) e. NN0 ) -> ( ( # ` Y ) FallFac ( # ` X ) ) = prod_ k e. ( 0 ... ( ( # ` X ) - 1 ) ) ( ( # ` Y ) - k ) )
+  35 syl2anc 26 18 34 |- ( ph -> ( ( # ` Y ) FallFac ( # ` X ) ) = prod_ k e. ( 0 ... ( ( # ` X ) - 1 ) ) ( ( # ` Y ) - k ) )
+  36 3eqtrd 25 33 35 |- ( ph -> ( ( ! ` ( # ` X ) ) x. ( ( # ` Y ) _C ( # ` X ) ) ) = prod_ k e. ( 0 ... ( ( # ` X ) - 1 ) ) ( ( # ` Y ) - k ) )
+  37 3eqtrd 14 16 36 |- ( ph -> ( # ` { f e. ( Y ^m X ) | f : X -1-1-> Y } ) = prod_ k e. ( 0 ... ( ( # ` X ) - 1 ) ) ( ( # ` Y ) - k ) )

@@ -1,0 +1,64 @@
+# Fractions, for `proved.mm`.
+#
+# What the elaborator's normaliser asks when it multiplies two fractions: a
+# factor G of one numerator and the other denominator cancels before the
+# product is taken, so (G·A)/B times C/(G·D) is A/B times C/D. set.mm says
+# it in pieces: `divassd` moves G out of a quotient, `mulassd` and `mul12d`
+# bring it beside the other fraction, and `divcan5d` cancels it there.
+#
+# - G cancelled between the first numerator and the second denominator:
+#   `gdivcanx`;
+# - G cancelled between the first denominator and the second numerator,
+#   the same with the two fractions exchanged (`mulcomd`): `gdivcanx2`.
+
+$( Fractions: a factor common to one numerator and the other denominator
+   cancels in a product. $)
+
+# ( ph -> ( ( ( G x. A ) / B ) x. ( C / ( G x. D ) ) ) = ( ( A / B ) x. ( C / D ) ) )
+lemma gdivcanx
+  hypothesis gdivcanx.1 |- ( ph -> A e. CC )
+  hypothesis gdivcanx.2 |- ( ph -> B e. CC )
+  hypothesis gdivcanx.3 |- ( ph -> B =/= 0 )
+  hypothesis gdivcanx.4 |- ( ph -> C e. CC )
+  hypothesis gdivcanx.5 |- ( ph -> D e. CC )
+  hypothesis gdivcanx.6 |- ( ph -> D =/= 0 )
+  hypothesis gdivcanx.7 |- ( ph -> G e. CC )
+  hypothesis gdivcanx.8 |- ( ph -> G =/= 0 )
+  |- ( ph -> ( ( ( G x. A ) / B ) x. ( C / ( G x. D ) ) ) = ( ( A / B ) x. ( C / D ) ) )
+  1 divassd gdivcanx.7 gdivcanx.1 gdivcanx.2 gdivcanx.3 |- ( ph -> ( ( G x. A ) / B ) = ( G x. ( A / B ) ) )
+  2 oveq1d 1 |- ( ph -> ( ( ( G x. A ) / B ) x. ( C / ( G x. D ) ) ) = ( ( G x. ( A / B ) ) x. ( C / ( G x. D ) ) ) )
+  3 divcld gdivcanx.1 gdivcanx.2 gdivcanx.3 |- ( ph -> ( A / B ) e. CC )
+  4 mulcld gdivcanx.7 gdivcanx.5 |- ( ph -> ( G x. D ) e. CC )
+  5 mulne0d gdivcanx.7 gdivcanx.5 gdivcanx.8 gdivcanx.6 |- ( ph -> ( G x. D ) =/= 0 )
+  6 divcld gdivcanx.4 4 5 |- ( ph -> ( C / ( G x. D ) ) e. CC )
+  7 mulassd gdivcanx.7 3 6 |- ( ph -> ( ( G x. ( A / B ) ) x. ( C / ( G x. D ) ) ) = ( G x. ( ( A / B ) x. ( C / ( G x. D ) ) ) ) )
+  8 mul12d gdivcanx.7 3 6 |- ( ph -> ( G x. ( ( A / B ) x. ( C / ( G x. D ) ) ) ) = ( ( A / B ) x. ( G x. ( C / ( G x. D ) ) ) ) )
+  9 divassd gdivcanx.7 gdivcanx.4 4 5 |- ( ph -> ( ( G x. C ) / ( G x. D ) ) = ( G x. ( C / ( G x. D ) ) ) )
+  10 divcan5d gdivcanx.4 gdivcanx.5 gdivcanx.7 gdivcanx.6 gdivcanx.8 |- ( ph -> ( ( G x. C ) / ( G x. D ) ) = ( C / D ) )
+  11 eqtr3d 9 10 |- ( ph -> ( G x. ( C / ( G x. D ) ) ) = ( C / D ) )
+  12 oveq2d 11 |- ( ph -> ( ( A / B ) x. ( G x. ( C / ( G x. D ) ) ) ) = ( ( A / B ) x. ( C / D ) ) )
+  13 3eqtrd 2 7 8 |- ( ph -> ( ( ( G x. A ) / B ) x. ( C / ( G x. D ) ) ) = ( ( A / B ) x. ( G x. ( C / ( G x. D ) ) ) ) )
+  14 eqtrd 13 12 |- ( ph -> ( ( ( G x. A ) / B ) x. ( C / ( G x. D ) ) ) = ( ( A / B ) x. ( C / D ) ) )
+
+# ( ph -> ( ( A / ( G x. B ) ) x. ( ( G x. C ) / D ) ) = ( ( A / B ) x. ( C / D ) ) )
+lemma gdivcanx2
+  hypothesis gdivcanx2.1 |- ( ph -> A e. CC )
+  hypothesis gdivcanx2.2 |- ( ph -> B e. CC )
+  hypothesis gdivcanx2.3 |- ( ph -> B =/= 0 )
+  hypothesis gdivcanx2.4 |- ( ph -> C e. CC )
+  hypothesis gdivcanx2.5 |- ( ph -> D e. CC )
+  hypothesis gdivcanx2.6 |- ( ph -> D =/= 0 )
+  hypothesis gdivcanx2.7 |- ( ph -> G e. CC )
+  hypothesis gdivcanx2.8 |- ( ph -> G =/= 0 )
+  |- ( ph -> ( ( A / ( G x. B ) ) x. ( ( G x. C ) / D ) ) = ( ( A / B ) x. ( C / D ) ) )
+  1 mulcld gdivcanx2.7 gdivcanx2.2 |- ( ph -> ( G x. B ) e. CC )
+  2 mulne0d gdivcanx2.7 gdivcanx2.2 gdivcanx2.8 gdivcanx2.3 |- ( ph -> ( G x. B ) =/= 0 )
+  3 divcld gdivcanx2.1 1 2 |- ( ph -> ( A / ( G x. B ) ) e. CC )
+  4 mulcld gdivcanx2.7 gdivcanx2.4 |- ( ph -> ( G x. C ) e. CC )
+  5 divcld 4 gdivcanx2.5 gdivcanx2.6 |- ( ph -> ( ( G x. C ) / D ) e. CC )
+  6 mulcomd 3 5 |- ( ph -> ( ( A / ( G x. B ) ) x. ( ( G x. C ) / D ) ) = ( ( ( G x. C ) / D ) x. ( A / ( G x. B ) ) ) )
+  7 gdivcanx gdivcanx2.4 gdivcanx2.5 gdivcanx2.6 gdivcanx2.1 gdivcanx2.2 gdivcanx2.3 gdivcanx2.7 gdivcanx2.8 |- ( ph -> ( ( ( G x. C ) / D ) x. ( A / ( G x. B ) ) ) = ( ( C / D ) x. ( A / B ) ) )
+  8 divcld gdivcanx2.4 gdivcanx2.5 gdivcanx2.6 |- ( ph -> ( C / D ) e. CC )
+  9 divcld gdivcanx2.1 gdivcanx2.2 gdivcanx2.3 |- ( ph -> ( A / B ) e. CC )
+  10 mulcomd 8 9 |- ( ph -> ( ( C / D ) x. ( A / B ) ) = ( ( A / B ) x. ( C / D ) ) )
+  11 3eqtrd 6 7 10 |- ( ph -> ( ( A / ( G x. B ) ) x. ( ( G x. C ) / D ) ) = ( ( A / B ) x. ( C / D ) ) )

@@ -16,7 +16,7 @@ use super::Lemma;
 
 /// The groups, in the order they are written: a later group may take a
 /// label an earlier one proved. Each is `corpus/proved/<name>.proved`.
-const NAMES: [&str; 17] = [
+const NAMES: [&str; 18] = [
     "geometry",
     "parallels",
     "triangles",
@@ -34,6 +34,7 @@ const NAMES: [&str; 17] = [
     "polynomials",
     "counts",
     "graphs",
+    "fractions",
 ];
 
 const HEAD: &str = "$( stdlib/proved, built by parley build.

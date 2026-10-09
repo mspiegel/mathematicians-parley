@@ -308,3 +308,35 @@ mundane theorem card-subset
   then        |A| ≤ |B|
   metamath    hashss
   target      hashss
+
+mundane theorem range-size
+  let n ∈ ℕ₀                                                          (H1)
+  then        |{1, …, n}| = n
+  metamath    hashfz1
+  target      hashfz1
+
+theorem count-functions
+  let X be a set                                                     (H1)
+  let Y be a set                                                      (H2)
+  assume X is finite                                                  (H3)
+  assume Y is finite                                                  (H4)
+  then        |the functions from X to Y| = |Y|^|X|
+  metamath    hashmap, which this corpus states in
+              elaboration/stdlib/proved.mm
+  target      gmapcnt
+  note        Each of the |X| elements of X goes to one of the |Y| elements
+              of Y.
+
+theorem count-one-to-one
+  let X be a set                                                      (H1)
+  let Y be a set                                                      (H2)
+  assume X is finite                                                  (H3)
+  assume Y is finite                                                  (H4)
+  assume |X| ≤ |Y|                                                    (H5)
+  then        |{f ∈ the functions from X to Y : f : X → Y is one-to-one}| = ∏(k ∈ {0, …, |X| − 1}) (|Y| − k)
+  metamath    hashf1, bcfallfac and fallfacval, which this corpus proves
+              together in elaboration/stdlib/proved.mm
+  target      gf1cnt
+  note        The one-to-one functions from X to Y number
+              |Y|·(|Y| − 1)·…·(|Y| − |X| + 1): each element of X in turn
+              goes to one of the elements of Y not yet used.

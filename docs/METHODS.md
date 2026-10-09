@@ -64,7 +64,9 @@ table of named laws.
 
 Before anything else, both the cited facts and the claim are read as linear
 expressions over **atoms**. An atom is a maximal subterm that is not built from
-numerals and the operations `+`, `−`, `·` by a numeral, and `/` by a numeral.
+numerals and the operations `+`, `−`, `·` by a numeral, and `/` by a numeral;
+a whole power of a numeral, 365^23, is a numeral here, and the proof scales
+by it as exactly as by 2.
 A numeral divided by a term that is not one is that numeral times the term's
 reciprocal, and the reciprocal is the atom: `2/(n + 1)` is `2 · (1/(n + 1))`,
 the same atom `1/(n + 1)` a line bounding it names. It is the rule for `/` by
@@ -438,7 +440,8 @@ that cites nothing.
 
 A relation between **closed numeral expressions**, where a closed numeral
 expression is built from decimal numerals by `+`, `−`, `·`, `/` and powers,
-with every operand closed. The relation is `=`, `≠`, `<`, `≤`, `>`, `≥`, or
+and by products over a range of numerals, ∏(k ∈ {0, …, 22}) (365 − k), with
+every operand closed. The relation is `=`, `≠`, `<`, `≤`, `>`, `≥`, or
 membership of ℕ, ℕ₀, ℤ, ℚ or ℝ.
 
 ### The procedure
@@ -515,6 +518,23 @@ same procedure, and a carry where the last digits pass nine (`decadd`,
 result past nine only with the larger digit first, and the other order is
 turned round by `addcomi` or `mulcomi`. So 10 − 1 = 9 is proved, and so is
 the −6·3 = −18 a cut into thirds asks of `inequalities`.
+
+An order whose sides are sums, differences, products and whole powers of
+whole numbers, and products over a range of numerals,
+2·∏(k ∈ {0, …, 22}) (365 − k) < 365^23, has each side worked to its numeral
+first: a power is its base times one power less (`numexpp1`), a difference
+is worked only where it is not negative (`subaddrii`), a product over a
+range has its last factor taken off (`fprodp1`) down to its first alone
+(`fprod1`), and each part is replaced by its value (`oveq12i`). A side that
+divides is a fraction of two such values, and a whole number w on the other
+side is w/1 (`div1i`): A/D < C/B is A·B < C·D (`lt2mul2div`), and
+A/D ≤ C/B is that C/B < A/D does not hold (`lenlt`), so
+(∏(k ∈ {0, …, 22}) (365 − k))/365^23 < 1/2 is decided by its cross
+products. The order between the two numerals is proved digit by digit, and
+`breq12i` carries it back to the sides as written. A membership of such a
+term, ∏(k ∈ {0, …, 22}) (365 − k) ∈ ℝ, is its numeral's, carried back by
+`eqeltrrd`. The numbers are held as big integers, so a side of sixty digits
+is worked as exactly as a digit.
 
 ---
 

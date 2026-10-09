@@ -24,7 +24,9 @@
 use std::rc::Rc;
 
 use indexmap::IndexMap;
-use num_traits::{ToPrimitive, Zero};
+use num_bigint::BigInt;
+use num_integer::Integer;
+use num_traits::{One, Signed, Zero};
 
 use super::field::{
     self, numeral as n, order, q, spell_coefficient, spell_monomial, Monomial, Q,
@@ -90,8 +92,73 @@ fn join(terms: &[String], what: &str) -> String {
     out
 }
 
-fn whole(weight: &Q) -> i64 {
-    weight.to_integer().to_i64().unwrap_or(0)
+/// Two fractions multiplied, ( over / under ) x. ( below / beneath ), each
+/// part in canonical form.
+#[derive(Clone)]
+struct Fractions {
+    over: Run,
+    under: Run,
+    below: Run,
+    beneath: Run,
+}
+
+impl Fractions {
+    fn spelt(&self) -> String {
+        op(
+            &op(
+                &Emitter::spell_run(&self.over),
+                &Emitter::spell_run(&self.under),
+                DIV,
+            ),
+            &op(
+                &Emitter::spell_run(&self.below),
+                &Emitter::spell_run(&self.beneath),
+                DIV,
+            ),
+            MUL,
+        )
+    }
+}
+
+/// The greatest whole number dividing every coefficient of a run, where
+/// every one is whole and one is not zero.
+fn content(run: &Run) -> Option<BigInt> {
+    let mut g = BigInt::zero();
+    for (_, w) in run {
+        if !w.is_integer() {
+            return None;
+        }
+        g = g.gcd(&w.to_integer());
+    }
+    (!g.is_zero()).then_some(g)
+}
+
+/// A run that is one whole number alone, its size.
+fn constant(run: &Run) -> Option<BigInt> {
+    match run.as_slice() {
+        [(m, w)] if m.is_empty() && w.is_integer() => Some(w.to_integer().abs()),
+        _ => None,
+    }
+}
+
+/// A run with every coefficient divided by g.
+fn divided(run: &Run, g: &BigInt) -> Run {
+    let by = Q::from_integer(g.clone());
+    run.iter().map(|(m, w)| (m.clone(), w / &by)).collect()
+}
+
+/// A whole coefficient's value, of any size.
+fn whole(weight: &Q) -> BigInt {
+    weight.to_integer()
+}
+
+/// A whole number's magnitude as set.mm spells it.
+fn spelt(value: &BigInt) -> String {
+    numerals::spell(value.magnitude().clone())
+}
+
+fn big(value: i64) -> BigInt {
+    BigInt::from(value)
 }
 
 fn coeff(weight: &Q) -> String {
@@ -103,7 +170,7 @@ fn coeff(weight: &Q) -> String {
 /// change while one emitter is alive.
 #[derive(Clone, PartialEq, Eq, Hash)]
 enum Made {
-    Number(i64),
+    Number(BigInt),
     Index(i64),
     Coefficient(Q),
     MonomialCc(Monomial),
@@ -165,16 +232,16 @@ impl Emitter {
     // --- membership -----------------------------------------------------
 
     /// ( under -> n e. CC ) for a whole number the kernel spells.
-    pub fn number(&mut self, o: &dyn Oracle, value: i64) -> Proof {
-        let key = Made::Number(value);
+    pub fn number(&mut self, o: &dyn Oracle, value: &BigInt) -> Proof {
+        let key = Made::Number(value.clone());
         if let Some(p) = self.made.get(&key) {
             return p.clone();
         }
         let b = o.b();
         let made = b.ap(
             "a1i",
-            &binds! {"ph" => t!(n(value as u32), "cc", "wcel"), "ps" => &self.under},
-            &[&numerals::cc(b, value as u64)],
+            &binds! {"ph" => t!(spelt(value), "cc", "wcel"), "ps" => &self.under},
+            &[&numerals::cc(b, value.magnitude().clone())],
         );
         self.made.insert(key, made.clone());
         made
@@ -202,13 +269,13 @@ impl Emitter {
         if let Some(p) = self.made.get(&key) {
             return p.clone();
         }
-        let numerator = whole(&Q::from_integer(weight.numer().clone()));
+        let numerator = weight.numer().clone();
         let magnitude = numerator.abs();
-        let held = self.number(o, magnitude);
-        let made = if numerator < 0 {
+        let held = self.number(o, &magnitude);
+        let made = if numerator.is_negative() {
             o.b().ap(
                 "negcld",
-                &binds! {"ph" => &self.under, "A" => n(magnitude as u32)},
+                &binds! {"ph" => &self.under, "A" => spelt(&magnitude)},
                 &[&held],
             )
         } else {
@@ -229,7 +296,7 @@ impl Emitter {
             return Ok(p.clone());
         }
         let made = if monomial.is_empty() {
-            self.number(o, 1)
+            self.number(o, &big(1))
         } else {
             let mut said: Option<String> = None;
             let mut out: Option<Proof> = None;
@@ -308,7 +375,7 @@ impl Emitter {
             return Ok(p.clone());
         }
         let out = if items.is_empty() {
-            self.number(o, 0)
+            self.number(o, &big(0))
         } else {
             let mut out = self.term_cc(o, &items[0].0, &items[0].1)?;
             let mut running = Self::spell_term(&items[0]);
@@ -440,15 +507,15 @@ impl Emitter {
         };
         let claim = t!(op(&c, &d, ADD), said, "wceq");
         let (a, bn) = (whole(first), whole(second));
-        if a == -bn && a != 0 {
-            let whole_n = n(a.unsigned_abs() as u32);
-            let num = self.number(o, a.abs());
+        if a == -&bn && !a.is_zero() {
+            let whole_n = spelt(&a);
+            let num = self.number(o, &a.abs());
             let cancels = o.b().ap(
                 "negidd",
                 &binds! {"ph" => &self.under, "A" => whole_n},
                 &[&num],
             );
-            if a > 0 {
+            if a.is_positive() {
                 return Built(cancels);
             }
             // The negative one first, so the two are commuted before they
@@ -473,16 +540,16 @@ impl Emitter {
                 n(0),
             ));
         }
-        if a < 0 && bn < 0 {
+        if a.is_negative() && bn.is_negative() {
             // -u i + -u j is -u ( i + j ), which `negdi` says read
             // backwards, and the two are then both positive.
-            let w = [n((-a) as u32).to_string(), n((-bn) as u32).to_string()];
+            let w = [spelt(&a), spelt(&bn)];
             let both = match self.coefficient_sum(o, &-first, &-second) {
                 Built(p) => p,
                 Declined(d) => return Declined(d),
             };
-            let pa = self.number(o, -a);
-            let pb = self.number(o, -bn);
+            let pa = self.number(o, &-&a);
+            let pb = self.number(o, &-&bn);
             let bb = o.b();
             let sum = op(&w[0], &w[1], ADD);
             let law = bb.ap("negdi", &binds! {"A" => &w[0], "B" => &w[1]}, &[]);
@@ -500,7 +567,7 @@ impl Emitter {
             );
             let negated = bb.ap(
                 "negeqd",
-                &binds! {"ph" => &self.under, "A" => &sum, "B" => n((-a - bn) as u32)},
+                &binds! {"ph" => &self.under, "A" => &sum, "B" => spelt(&(&a + &bn))},
                 &[&both],
             );
             return Built(self.chain(
@@ -512,8 +579,8 @@ impl Emitter {
                 &said,
             ));
         }
-        if a < 0 || bn < 0 {
-            if a < 0 {
+        if a.is_negative() || bn.is_negative() {
+            if a.is_negative() {
                 // The negative one second, so one case covers both.
                 let swapped = match self.coefficient_sum(o, second, first) {
                     Built(p) => p,
@@ -539,9 +606,9 @@ impl Emitter {
                     &said,
                 ));
             }
-            return self.minus_numeral(o, a, -bn, &c, &d, &said);
+            return self.minus_numeral(o, &a, &-&bn, &c, &d, &said);
         }
-        let held = numerals::sum(o.b(), a as u64, bn as u64);
+        let held = numerals::sum(o.b(), a.magnitude().clone(), bn.magnitude().clone());
         Built(self.a1i(o, &claim, &held))
     }
 
@@ -553,18 +620,23 @@ impl Emitter {
     fn gap_numeral(
         &mut self,
         o: &dyn Oracle,
-        bigger: i64,
-        smaller: i64,
+        bigger: &BigInt,
+        smaller: &BigInt,
     ) -> Route<Proof> {
-        let (left, right) = (n(bigger as u32), n(smaller as u32));
-        let out = n((bigger - smaller) as u32);
-        let back = match self.coefficient_sum(o, &q(smaller), &q(bigger - smaller)) {
+        let gap = bigger - smaller;
+        let (left, right, out) = (spelt(bigger), spelt(smaller), spelt(&gap));
+        let (left, right, out) = (left.as_str(), right.as_str(), out.as_str());
+        let back = match self.coefficient_sum(
+            o,
+            &Q::from_integer(smaller.clone()),
+            &Q::from_integer(gap.clone()),
+        ) {
             Built(p) => p,
             Declined(d) => return Declined(d),
         };
         let p0 = self.number(o, bigger);
         let p1 = self.number(o, smaller);
-        let p2 = self.number(o, bigger - smaller);
+        let p2 = self.number(o, &gap);
         let b = o.b();
         let law = b.ap(
             "subadd",
@@ -594,13 +666,14 @@ impl Emitter {
     fn minus_numeral(
         &mut self,
         o: &dyn Oracle,
-        first: i64,
-        second: i64,
+        first: &BigInt,
+        second: &BigInt,
         c: &str,
         d: &str,
         said: &str,
     ) -> Route<Proof> {
-        let gap = op(n(first as u32), n(second as u32), "cmin");
+        let (sf, ss) = (spelt(first), spelt(second));
+        let gap = op(&sf, &ss, "cmin");
         let apart = match self.same_gap(o, first, second) {
             Built(p) => p,
             Declined(d) => return Declined(d),
@@ -608,15 +681,11 @@ impl Emitter {
         let p0 = self.number(o, first);
         let p1 = self.number(o, second);
         let b = o.b();
-        let law = b.ap(
-            "negsub",
-            &binds! {"A" => n(first as u32), "B" => n(second as u32)},
-            &[],
-        );
+        let law = b.ap("negsub", &binds! {"A" => &sf, "B" => &ss}, &[]);
         let turned = b.ap(
             "syl2anc",
-            &binds! {"ph" => &self.under, "ps" => t!(n(first as u32), "cc", "wcel"),
-            "ch" => t!(n(second as u32), "cc", "wcel"),
+            &binds! {"ph" => &self.under, "ps" => t!(&sf, "cc", "wcel"),
+            "ch" => t!(&ss, "cc", "wcel"),
             "th" => t!(op(c, d, ADD), gap, "wceq")},
             &[&p0, &p1, &law],
         );
@@ -624,11 +693,18 @@ impl Emitter {
     }
 
     /// ( under -> ( i - j ) = k ), whichever way round the two are.
-    fn same_gap(&mut self, o: &dyn Oracle, first: i64, second: i64) -> Route<Proof> {
+    fn same_gap(
+        &mut self,
+        o: &dyn Oracle,
+        first: &BigInt,
+        second: &BigInt,
+    ) -> Route<Proof> {
         if first >= second {
             return self.gap_numeral(o, first, second);
         }
-        let (f, s) = (n(first as u32), n(second as u32));
+        let (f, s) = (spelt(first), spelt(second));
+        let (f, s) = (f.as_str(), s.as_str());
+        let gap = spelt(&(second - first));
         let other = op(s, f, "cmin");
         let back = match self.gap_numeral(o, second, first) {
             Built(p) => p,
@@ -652,7 +728,7 @@ impl Emitter {
         );
         let negated = b.ap(
             "negeqd",
-            &binds! {"ph" => &self.under, "A" => &other, "B" => n((second - first) as u32)},
+            &binds! {"ph" => &self.under, "A" => &other, "B" => &gap},
             &[&back],
         );
         Built(self.chain(
@@ -661,7 +737,7 @@ impl Emitter {
             &negated,
             &op(f, s, "cmin"),
             &t!(other, "cneg"),
-            &t!(n((second - first) as u32), "cneg"),
+            &t!(&gap, "cneg"),
         ))
     }
 
@@ -1056,7 +1132,7 @@ impl Emitter {
         factors: &[(Rc<str>, u32)],
     ) -> Checked<Proof> {
         if factors.is_empty() {
-            return Ok(self.number(o, 1));
+            return Ok(self.number(o, &big(1)));
         }
         let mut out = self.factor_cc(o, &factors[0].0, factors[0].1)?;
         let mut running = spell_factor(&factors[0]);
@@ -1384,10 +1460,19 @@ impl Emitter {
 
     /// ( under -> ( a x. b ) = c ) for two whole numbers, worked digit by
     /// digit (`numerals::product`).
-    fn positive_product(&mut self, o: &dyn Oracle, first: i64, second: i64) -> Proof {
-        let (a, b) = (n(first as u32), n(second as u32));
-        let claim = t!(op(a, b, MUL), n((first * second) as u32), "wceq");
-        let held = numerals::product(o.b(), first as u64, second as u64);
+    fn positive_product(
+        &mut self,
+        o: &dyn Oracle,
+        first: &BigInt,
+        second: &BigInt,
+    ) -> Proof {
+        let (a, b) = (spelt(first), spelt(second));
+        let claim = t!(op(&a, &b, MUL), spelt(&(first * second)), "wceq");
+        let held = numerals::product(
+            o.b(),
+            first.magnitude().clone(),
+            second.magnitude().clone(),
+        );
         self.a1i(o, &claim, &held)
     }
 
@@ -1414,14 +1499,15 @@ impl Emitter {
             ));
         };
         let (a, b) = (whole(first), whole(second));
-        if a >= 0 && b >= 0 {
-            return Built(self.positive_product(o, a, b));
+        if !a.is_negative() && !b.is_negative() {
+            return Built(self.positive_product(o, &a, &b));
         }
-        let size = self.positive_product(o, a.abs(), b.abs());
-        let whole_p = op(n(a.unsigned_abs() as u32), n(b.unsigned_abs() as u32), MUL);
-        if a < 0 && b < 0 {
+        let (size_a, size_b) = (a.abs(), b.abs());
+        let size = self.positive_product(o, &size_a, &size_b);
+        let whole_p = op(&spelt(&a), &spelt(&b), MUL);
+        if a.is_negative() && b.is_negative() {
             let paired =
-                self.pair(o, "mul2neg", a.abs(), b.abs(), &op(&c, &d, MUL), &whole_p);
+                self.pair(o, "mul2neg", &size_a, &size_b, &op(&c, &d, MUL), &whole_p);
             return Built(self.chain(
                 o,
                 &paired,
@@ -1431,18 +1517,22 @@ impl Emitter {
                 &said,
             ));
         }
-        let label = if a < 0 { "mulneg1" } else { "mulneg2" };
+        let label = if a.is_negative() {
+            "mulneg1"
+        } else {
+            "mulneg2"
+        };
         let paired = self.pair(
             o,
             label,
-            a.abs(),
-            b.abs(),
+            &size_a,
+            &size_b,
             &op(&c, &d, MUL),
             &t!(whole_p, "cneg"),
         );
         let negated = o.b().ap(
             "negeqd",
-            &binds! {"ph" => &self.under, "A" => &whole_p, "B" => n((a * b).unsigned_abs() as u32)},
+            &binds! {"ph" => &self.under, "A" => &whole_p, "B" => spelt(&(&a * &b))},
             &[&size],
         );
         Built(self.chain(
@@ -1460,12 +1550,13 @@ impl Emitter {
         &mut self,
         o: &dyn Oracle,
         label: &str,
-        first: i64,
-        second: i64,
+        first: &BigInt,
+        second: &BigInt,
         before: &str,
         after: &str,
     ) -> Proof {
-        let (left, right) = (n(first as u32), n(second as u32));
+        let (left, right) = (spelt(first), spelt(second));
+        let (left, right) = (left.as_str(), right.as_str());
         let pl = self.number(o, first);
         let pr = self.number(o, second);
         let b = o.b();
@@ -1794,7 +1885,7 @@ impl Emitter {
 
     /// ( under -> 1 = ( 1 x. 1 ) ), the canonical form of one.
     fn one_as_term(&mut self, o: &dyn Oracle) -> Proof {
-        let product = self.positive_product(o, 1, 1);
+        let product = self.positive_product(o, &big(1), &big(1));
         o.b().ap(
             "eqcomd",
             &binds! {"ph" => &self.under, "A" => op(n(1), n(1), MUL), "B" => n(1)},
@@ -1819,24 +1910,24 @@ impl Emitter {
         let said = term.rpn(labels).to_string();
         if term.variable().is_none() {
             if let Some(value) = numerals::value(term) {
-                let value = value as i64;
-                if value == 0 {
+                let value = BigInt::from(value);
+                if value.is_zero() {
                     // The empty run, not a term of weight zero: a canonical
                     // form holds no such term, and one left in it would be
                     // carried through every sum it took part in.
                     return Ok(Built((Vec::new(), self.same(o, n(0)))));
                 }
-                if value == 1 {
+                if value == big(1) {
                     return Ok(Built((vec![(Vec::new(), q(1))], self.one_as_term(o))));
                 }
-                let product = self.positive_product(o, value, 1);
+                let product = self.positive_product(o, &value, &big(1));
                 let p = o.b().ap(
                     "eqcomd",
-                    &binds! {"ph" => &self.under, "A" => op(n(value as u32), n(1), MUL),
-                    "B" => n(value as u32)},
+                    &binds! {"ph" => &self.under, "A" => op(&spelt(&value), n(1), MUL),
+                    "B" => spelt(&value)},
                     &[&product],
                 );
-                return Ok(Built((vec![(Vec::new(), q(value))], p)));
+                return Ok(Built((vec![(Vec::new(), Q::from_integer(value))], p)));
             }
         }
         if term.variable().is_none()
@@ -2273,18 +2364,18 @@ impl Emitter {
         weight: &Q,
     ) -> Checked<Route<Proof>> {
         let digit = coeff(weight);
-        let numerator = whole(&Q::from_integer(weight.numer().clone()));
+        let numerator = weight.numer().clone();
         let magnitude = numerator.abs();
         let mut nonzero = self.a1i(
             o,
-            &t!(n(magnitude as u32), "cc0", "wne"),
-            &numerals::ne0(o.b(), magnitude as u64),
+            &t!(spelt(&magnitude), "cc0", "wne"),
+            &numerals::ne0(o.b(), magnitude.magnitude().clone()),
         );
-        if numerator < 0 {
-            let num = self.number(o, magnitude);
+        if numerator.is_negative() {
+            let num = self.number(o, &magnitude);
             nonzero = o.b().ap(
                 "negne0d",
-                &binds! {"ph" => &self.under, "A" => n(magnitude as u32)},
+                &binds! {"ph" => &self.under, "A" => spelt(&magnitude)},
                 &[&num, &nonzero],
             );
         }
@@ -2309,7 +2400,7 @@ impl Emitter {
             return Ok(Built(self.a1i(
                 o,
                 &t!(n(1), "cc0", "wne"),
-                &numerals::ne0(o.b(), 1),
+                &numerals::ne0(o.b(), 1u32),
             )));
         }
         let mut out: Option<(Proof, String, Proof)> = None;
@@ -2732,7 +2823,7 @@ impl Emitter {
     ) -> Checked<Route<Proof>> {
         let said = term.rpn(labels).to_string();
         if let Some(value) = numerals::value(term) {
-            if value != 0 {
+            if !value.is_zero() {
                 return Ok(Built(self.a1i(
                     o,
                     &t!(said, "cc0", "wne"),
@@ -2789,6 +2880,158 @@ impl Emitter {
         )))
     }
 
+    /// ( under -> ( a / b ) x. ( c / d ) = the same with a whole number
+    /// common to one numerator and the other denominator taken out of both ):
+    /// the first numerator against the second denominator (`gdivcanx`), or,
+    /// `second`, the second numerator against the first denominator
+    /// (`gdivcanx2`). None where nothing above one is common.
+    fn cancelled(
+        &mut self,
+        o: &mut dyn Oracle,
+        p: &Fractions,
+        second: bool,
+    ) -> Checked<Option<(Fractions, Proof)>> {
+        let (top, bottom) = if second {
+            (&p.below, &p.under)
+        } else {
+            (&p.over, &p.beneath)
+        };
+        let (Some(t), Some(bt)) = (content(top), constant(bottom)) else {
+            return Ok(None);
+        };
+        let g = t.gcd(&bt);
+        if g <= BigInt::one() {
+            return Ok(None);
+        }
+        let g_run: Run = vec![(Vec::new(), Q::from_integer(g.clone()))];
+        let (top_left, bottom_left) = (divided(top, &g), divided(bottom, &g));
+        // Each part is G times what is left of it, in canonical form.
+        let Built((made_top, top_is)) = self.multiply(o, &g_run, &top_left)? else {
+            return Ok(None);
+        };
+        let Built((made_bottom, bottom_is)) = self.multiply(o, &g_run, &bottom_left)?
+        else {
+            return Ok(None);
+        };
+        let (st, sb) = (Self::spell_run(top), Self::spell_run(bottom));
+        if Self::spell_run(&made_top) != st || Self::spell_run(&made_bottom) != sb {
+            return Ok(None);
+        }
+        let gs = Self::spell_run(&g_run);
+        let (tl, bl) = (Self::spell_run(&top_left), Self::spell_run(&bottom_left));
+        let (gt, gb) = (op(&gs, &tl, MUL), op(&gs, &bl, MUL));
+        let (a, b) = (Self::spell_run(&p.over), Self::spell_run(&p.under));
+        let (c, d) = (Self::spell_run(&p.below), Self::spell_run(&p.beneath));
+        let mut next = p.clone();
+        if second {
+            next.below = top_left.clone();
+            next.under = bottom_left.clone();
+        } else {
+            next.over = top_left.clone();
+            next.beneath = bottom_left.clone();
+        }
+        let ac = self.run_cc(o, &p.over)?;
+        let cc = self.run_cc(o, &p.below)?;
+        let tc = self.run_cc(o, &top_left)?;
+        let Built(left_pair) = self.pair_of(o, &bottom_left)? else {
+            return Ok(None);
+        };
+        let Built(g_pair) = self.pair_of(o, &g_run)? else {
+            return Ok(None);
+        };
+        let other = if second { &p.beneath } else { &p.under };
+        let Built(other_pair) = self.pair_of(o, other)? else {
+            return Ok(None);
+        };
+        let under = self.under.clone();
+        let bb = o.b();
+        let parts = |pair: &Proof, x: &str| {
+            let both = t!(x, "cc", "wcel");
+            let apart = t!(x, "cc0", "wne");
+            (
+                bb.ap(
+                    "simpld",
+                    &binds! {"ph" => &under, "ps" => &both, "ch" => &apart},
+                    &[pair],
+                ),
+                bb.ap(
+                    "simprd",
+                    &binds! {"ph" => &under, "ps" => &both, "ch" => &apart},
+                    &[pair],
+                ),
+            )
+        };
+        let (left_cc, left_apart) = parts(&left_pair, &bl);
+        let (g_cc, g_apart) = parts(&g_pair, &gs);
+        let top_back = bb.ap(
+            "eqcomd",
+            &binds! {"ph" => &under, "A" => &gt, "B" => &st},
+            &[&top_is],
+        );
+        let bottom_back = bb.ap(
+            "eqcomd",
+            &binds! {"ph" => &under, "A" => &gb, "B" => &sb},
+            &[&bottom_is],
+        );
+        let (written, made) = if second {
+            // ( a / b ) x. ( c / d ) = ( a / ( G x. B ) ) x. ( ( G x. C ) / d )
+            let (other_cc, other_apart) = parts(&other_pair, &d);
+            let first = bb.ap(
+                "oveq2d",
+                &binds! {"ph" => &under, "A" => &b, "B" => &gb, "C" => &a, "F" => DIV},
+                &[&bottom_back],
+            );
+            let then = bb.ap(
+                "oveq1d",
+                &binds! {"ph" => &under, "A" => &c, "B" => &gt, "C" => &d, "F" => DIV},
+                &[&top_back],
+            );
+            let written = op(&op(&a, &gb, DIV), &op(&gt, &d, DIV), MUL);
+            let rewritten = bb.ap(
+                "oveq12d",
+                &binds! {"ph" => &under, "A" => op(&a, &b, DIV), "B" => op(&a, &gb, DIV),
+                "C" => op(&c, &d, DIV), "D" => op(&gt, &d, DIV), "F" => MUL},
+                &[&first, &then],
+            );
+            let law = bb.ap(
+                "gdivcanx2",
+                &binds! {"ph" => &under, "A" => &a, "B" => &bl, "C" => &tl, "D" => &d, "G" => &gs},
+                &[&ac, &left_cc, &left_apart, &tc, &other_cc, &other_apart, &g_cc, &g_apart],
+            );
+            (written, (rewritten, law))
+        } else {
+            // ( a / b ) x. ( c / d ) = ( ( G x. A ) / b ) x. ( c / ( G x. D ) )
+            let (other_cc, other_apart) = parts(&other_pair, &b);
+            let first = bb.ap(
+                "oveq1d",
+                &binds! {"ph" => &under, "A" => &a, "B" => &gt, "C" => &b, "F" => DIV},
+                &[&top_back],
+            );
+            let then = bb.ap(
+                "oveq2d",
+                &binds! {"ph" => &under, "A" => &d, "B" => &gb, "C" => &c, "F" => DIV},
+                &[&bottom_back],
+            );
+            let written = op(&op(&gt, &b, DIV), &op(&c, &gb, DIV), MUL);
+            let rewritten = bb.ap(
+                "oveq12d",
+                &binds! {"ph" => &under, "A" => op(&a, &b, DIV), "B" => op(&gt, &b, DIV),
+                "C" => op(&c, &d, DIV), "D" => op(&c, &gb, DIV), "F" => MUL},
+                &[&first, &then],
+            );
+            let law = bb.ap(
+                "gdivcanx",
+                &binds! {"ph" => &under, "A" => &tl, "B" => &b, "C" => &c, "D" => &bl, "G" => &gs},
+                &[&tc, &other_cc, &other_apart, &cc, &left_cc, &left_apart, &g_cc, &g_apart],
+            );
+            (written, (rewritten, law))
+        };
+        let (rewritten, law) = made;
+        let proof =
+            self.chain(o, &rewritten, &law, &p.spelt(), &written, &next.spelt());
+        Ok(Some((next, proof)))
+    }
+
     /// `a + b`, `a - b` or `a x. b` where one of them divides: `divadddiv`,
     /// `divsubdiv` and `divmuldiv` say what the pair becomes, and the
     /// numerator and denominator they land on are then multiplied out.
@@ -2830,6 +3073,38 @@ impl Emitter {
             "C" => &*right.rpn(labels), "D" => op(&c, &d, DIV), "F" => written_op},
             &[&first, &second],
         );
+        // A whole number common to one numerator and the other denominator
+        // is cancelled before anything is multiplied out, as on paper:
+        // 2·365^23 times a fraction over 2·365^23 would otherwise be worked
+        // out as a product of 119 digits, which the comparison after it
+        // divides away again.
+        let (mut over, mut under, mut below, mut beneath) =
+            (over, under, below, beneath);
+        let (mut a, mut b, mut c, mut d) = (a, b, c, d);
+        let mut joined = joined;
+        if how == field::MUL {
+            for second in [false, true] {
+                let now = Fractions {
+                    over: over.clone(),
+                    under: under.clone(),
+                    below: below.clone(),
+                    beneath: beneath.clone(),
+                };
+                let Some((next, proof)) = self.cancelled(o, &now, second)? else {
+                    continue;
+                };
+                joined =
+                    self.chain(o, &joined, &proof, said, &now.spelt(), &next.spelt());
+                Fractions {
+                    over,
+                    under,
+                    below,
+                    beneath,
+                } = next;
+                (a, b) = (Self::spell_run(&over), Self::spell_run(&under));
+                (c, d) = (Self::spell_run(&below), Self::spell_run(&beneath));
+            }
+        }
         let (label, top, made, numerator);
         if how == field::SUB {
             // The numerator a difference lands on is two products, the

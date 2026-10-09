@@ -19,10 +19,9 @@ statement's variables.
 
 ## State
 
-All thirty are written and elaborate from set.mm with nothing assumed.
-One more is chosen and not yet started: the rest of "The next ten", at the
-end. Each of the thirty has its proof in `proofs/` and its design record
-in `docs/pilot/`, under the same name:
+All thirty-one are written and elaborate from set.mm with nothing assumed;
+none is chosen and not yet started. Each of the thirty-one has its proof in
+`proofs/` and its design record in `docs/pilot/`, under the same name:
 
 | # | proof | # | proof |
 |---|---|---|---|
@@ -41,6 +40,7 @@ in `docs/pilot/`, under the same name:
 | 25 | factor | 26 | cauchy-schwarz |
 | 27 | reals-uncountable | 28 | pythagorean-triples |
 | 29 | konigsberg | 30 | fundamental-calculus |
+| 31 | birthday | | |
 
 Theorem 17 is Euclid's half of the Euclid–Euler theorem only; Euler's half,
 that every even perfect number has that form, is not proved. The informal
@@ -517,6 +517,18 @@ textbook's.
     all of them. Below 1/2 is a calculation with a product of 23 factors
     against 365²³, the longest computation with concrete numbers the corpus
     will have, and the test of the `arithmetic` method at that size.
+    The informal source, checked, is ProofWiki's only proof: the chance
+    that 23 birthdays all differ is the product of (365 − k)/365 for k from
+    0 to 22, which it evaluates to about 0.493 without showing the
+    arithmetic. set.mm's `birthday` argues otherwise, as Feller does: each
+    factor is at most e^(−k/365), and log 2 < 253/365 (`log2ub`). The reader
+    chose ProofWiki's argument with its arithmetic done: set.mm's counts
+    (`hashf1`, `hashmap`) and the 23 factors multiplied out, which
+    `tests/elaborator/large-arithmetic.proof` tests first. Written:
+    `proofs/birthday.proof`, with `docs/pilot/birthday.md`, and its
+    theorem elaborates with nothing assumed. The reader chose the count of
+    one-to-one functions as ∏(k ∈ {0, …, |X| − 1}) (|Y| − k), the product
+    written with ∏, and 2·∏ < 365^23 as a line of its own before the ratio.
 
 Order: 22, 23 and 25 first, since each adds one object to machinery the
 corpus has (the plane, divisibility, functions); then 24 and 26, which

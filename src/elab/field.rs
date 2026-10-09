@@ -197,9 +197,9 @@ pub fn spell_coefficient(weight: &Q) -> Option<String> {
     if !weight.is_integer() {
         return None;
     }
-    let whole = weight.to_integer().to_i64()?;
-    let said = super::numerals::spell(whole.unsigned_abs());
-    Some(if whole < 0 {
+    let whole = weight.to_integer();
+    let said = super::numerals::spell(whole.magnitude().clone());
+    Some(if whole.is_negative() {
         format!("{said} cneg")
     } else {
         said
@@ -725,6 +725,11 @@ pub fn closed_value(term: &Term) -> Route<Value> {
             }
             _ => return Route::no("not an operation arithmetic reads"),
         }
+    } else if label == "cprod" && term.children().len() == 3 {
+        match range_product(term) {
+            Built(Value::Exact(v)) => v,
+            other => return other,
+        }
     } else {
         return Route::no("not built from numerals");
     };
@@ -732,6 +737,45 @@ pub fn closed_value(term: &Term) -> Route<Value> {
         return Built(Value::Unworked("is too large to work out"));
     }
     Built(Value::Exact(value))
+}
+
+/// The value of a product over a range of whole numbers from zero up,
+/// ∏(k ∈ {a, …, b}) body, each factor its body with k worked as a numeral.
+fn range_product(term: &Term) -> Route<Value> {
+    let kids = term.children();
+    let (range, body) = (&kids[0], &kids[1]);
+    let Some(k) = kids[2].variable() else {
+        return Route::no("not built from numerals");
+    };
+    if range.label() != Some("co")
+        || range.children().len() != 3
+        || range.children()[2].label() != Some("cfz")
+    {
+        return Route::no("not a product over a range");
+    }
+    let (Some(from), Some(to)) = (
+        super::numerals::value(&range.children()[0]),
+        super::numerals::value(&range.children()[1]),
+    ) else {
+        return Route::no("not a range between numerals");
+    };
+    // A range of more factors than a value may have bits.
+    if to > from && &to - &from > BITS.into() {
+        return Built(Value::Unworked("is too large to work out"));
+    }
+    let mut total = q(1);
+    let mut at = from;
+    while at <= to {
+        match closed_value(&super::numerals::at_number(body, k, &at)) {
+            Built(Value::Exact(v)) => total *= v,
+            other => return other,
+        }
+        if size(&total) > BITS {
+            return Built(Value::Unworked("is too large to work out"));
+        }
+        at += 1u32;
+    }
+    Built(Value::Exact(total))
 }
 
 enum Stop {

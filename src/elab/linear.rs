@@ -25,7 +25,7 @@ use std::rc::Rc;
 use indexmap::{IndexMap, IndexSet};
 use num_traits::{Signed, Zero};
 
-use super::field::{q, ADD, DIV, MUL, NEG, Q, SUB};
+use super::field::{q, ADD, DIV, EXP, MUL, NEG, Q, SUB};
 use crate::mm::kernel::{FloatLabels, Term};
 use crate::rules::numeral_label;
 
@@ -148,7 +148,7 @@ pub fn relation(label: &str) -> Option<How> {
 /// The value a term denotes, if it is built only from numerals.
 pub fn numeral(term: &Term, labels: &FloatLabels) -> Option<Q> {
     if let Some(whole) = super::numerals::value(term) {
-        return Some(q(whole as i64));
+        return Some(Q::from_integer(whole.into()));
     }
     if term.variable().is_some() {
         return None;
@@ -168,6 +168,12 @@ pub fn numeral(term: &Term, labels: &FloatLabels) -> Option<Q> {
         SUB => Some(left - right),
         MUL => Some(left * right),
         DIV if !right.is_zero() => Some(left / right),
+        // A whole power is a number as the closed value of `field` reads
+        // it, refused past the same size.
+        EXP => match super::field::closed_value(term) {
+            crate::outcome::Built(super::field::Value::Exact(v)) => Some(v),
+            _ => None,
+        },
         _ => None,
     }
 }

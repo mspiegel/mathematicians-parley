@@ -882,7 +882,12 @@ and `not A ≤ B` is `B < A` by `ltnle`.
 A claim about a quotient is built the same way: the normaliser brings a sum,
 a difference or a product of quotients to one numerator over one denominator
 (`divadddiv`, `divsubdiv`, `divmuldiv`), so the intermediate value proof's
-`c < c + δ/2` comes from `δ/2 > 0` like any other bound.
+`c < c + δ/2` comes from `δ/2 > 0` like any other bound. In a product of
+quotients, a whole number common to one numerator and the other denominator
+is cancelled first (`gdivcanx`, `gdivcanx2` in `proved.mm`), as on paper:
+the birthday problem's 2·365^23 times a quotient over 2·365^23 is the
+numerator alone, and no product of 119 digits is worked out to be divided
+away again.
 
 **`membership`** is the membership lookup `algebra` and `inequalities`
 already make for every atom (`part`), made a step's claim. The claim is read

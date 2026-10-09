@@ -17,6 +17,7 @@ use std::collections::BTreeSet;
 use std::rc::Rc;
 
 use indexmap::IndexMap;
+use num_bigint::{BigInt, BigUint};
 use num_integer::Integer;
 use num_traits::{One, Signed, ToPrimitive, Zero};
 
@@ -1089,7 +1090,8 @@ impl<'a> Elaborator<'a> {
             let Some(times) = times else {
                 continue;
             };
-            let numeral = n(times as u32);
+            let numeral = numerals::spell(times.unsigned_abs());
+            let numeral = numeral.as_str();
             let scaled: Vec<String> = [left, right]
                 .iter()
                 .map(|one| t!(numeral, one, "cmul", "co"))
@@ -1131,7 +1133,8 @@ impl<'a> Elaborator<'a> {
         scope: &str,
         facts: &Facts,
     ) -> Checked<Proof> {
-        let numeral = n(times as u32);
+        let numeral = numerals::spell(times.unsigned_abs());
+        let numeral = numeral.as_str();
         let matched = self.b.ap(
             "3eqtr3d",
             &binds! {"ph" => scope, "A" => self.rpn(&cited.children()[0]), "B" => self.rpn(&cited.children()[1]),
@@ -1140,11 +1143,11 @@ impl<'a> Elaborator<'a> {
         );
         let ml = self.membership(left, "cc", scope, facts)?;
         let mr = self.membership(right, "cc", scope, facts)?;
-        let num = w.e.number(&self.ask(&w.spec), times);
+        let num = w.e.number(&self.ask(&w.spec), &BigInt::from(times));
         let apart = self.b.ap(
             "a1i",
             &binds! {"ph" => t!(numeral, "cc0", "wne"), "ps" => scope},
-            &[&numerals::ne0(&self.b, times as u64)],
+            &[&numerals::ne0(&self.b, times.unsigned_abs())],
         );
         let both = self.b.ap(
             "jca",
@@ -1334,35 +1337,27 @@ impl<'a> Elaborator<'a> {
         let Some((first, second, how)) = order_sides(&goal) else {
             return Ok(Route::no("the claim states no relation"));
         };
-        let labels = self.b.flabel.clone();
-        let whole = |v: Option<Q>| -> Option<i64> {
-            let v = v?;
-            if !v.is_integer() {
-                return None;
+        let (Some(a), Some(b)) = (numerals::value(&first), numerals::value(&second))
+        else {
+            // An equation is the normaliser's, which works fractions too.
+            if how == "=" {
+                return Ok(Route::no(
+                    "a side works out to a whole number but is one only after working out",
+                ));
             }
-            let n = v.to_integer().to_i64()?;
-            (n >= 0).then_some(n)
+            return self
+                .order_by_values(&goal, &first, &second, how, negated, scope, facts);
         };
-        let (Some(a), Some(b)) = (
-            whole(linear::numeral(&first, &labels)),
-            whole(linear::numeral(&second, &labels)),
-        ) else {
-            return Ok(Route::no("the two sides are not whole numbers"));
-        };
-        // Each side must *be* its numeral, not merely come to it.
-        if self.rpn(&first) != n(a as u32) || self.rpn(&second) != n(b as u32) {
-            return Ok(Route::no(
-                "a side works out to a whole number but is one only after working out",
-            ));
-        }
-        let (na, nb) = (n(a as u32), n(b as u32));
+        let (na, nb) = (numerals::spell(a.clone()), numerals::spell(b.clone()));
+        let na = na.as_str();
+        let nb = nb.as_str();
         if negated {
             return Ok(match how {
-                "=" if a != b => Built(self.numerals_differ(scope, a, b)),
+                "=" if a != b => Built(self.numerals_differ(scope, &a, &b)),
                 // not a ≤ b is b < a, and not a < b is b ≤ a, each turned by
                 // the law that says so (`ltnled`, `lenltd`).
                 "<=" if b < a => {
-                    let below = self.numeral_below(scope, b, a);
+                    let below = self.numeral_below(scope, &b, &a);
                     Built(self.denied(scope, nb, na, below, "clt", "cle", "ltnled"))
                 }
                 "<" if b <= a => {
@@ -1385,11 +1380,11 @@ impl<'a> Elaborator<'a> {
             )));
         }
         if how == "<" && a < b {
-            return Ok(Built(self.numeral_below(scope, a, b)));
+            return Ok(Built(self.numeral_below(scope, &a, &b)));
         }
         if how == "<=" && a <= b {
             if a == b {
-                let real = self.real_numeral(scope, &q(a));
+                let real = self.real_numeral(scope, &Q::from_integer(a.clone().into()));
                 let law = self.b.ap("leid", &binds! {"A" => na}, &[]);
                 return Ok(Built(self.b.ap(
                     "syl",
@@ -1397,9 +1392,9 @@ impl<'a> Elaborator<'a> {
                     &[&real, &law],
                 )));
             }
-            let below = self.numeral_below(scope, a, b);
-            let ra = self.real_numeral(scope, &q(a));
-            let rb = self.real_numeral(scope, &q(b));
+            let below = self.numeral_below(scope, &a, &b);
+            let ra = self.real_numeral(scope, &Q::from_integer(a.clone().into()));
+            let rb = self.real_numeral(scope, &Q::from_integer(b.clone().into()));
             let law = self.b.ap("ltle", &binds! {"A" => na, "B" => nb}, &[]);
             let weaken = self.b.ap(
                 "syl2anc",
@@ -1415,6 +1410,308 @@ impl<'a> Elaborator<'a> {
         }
         Ok(Route::no(format!(
             "{a} {how} {b} is not what the numbers do"
+        )))
+    }
+
+    /// A side as a fraction of two numerals, the second not zero, with
+    /// |- side = ( over / under ): a quotient has each part worked
+    /// (`numerals::worked`), and a whole number w is w/1 (`div1i`).
+    fn as_fraction(&self, side: &Term) -> Option<(BigUint, BigUint, Proof)> {
+        let labels = self.b.flabel.clone();
+        let kids = side.children();
+        if side.variable().is_none()
+            && side.label() == Some("co")
+            && kids.len() == 3
+            && kids[2].label() == Some("cdiv")
+        {
+            let (over, over_is) = numerals::worked(&self.b, &kids[0], &labels)?;
+            let (under, under_is) = numerals::worked(&self.b, &kids[1], &labels)?;
+            if under.is_zero() {
+                return None;
+            }
+            let proof = self.b.ap(
+                "oveq12i",
+                &binds! {
+                    "A" => self.rpn(&kids[0]), "B" => numerals::spell(over.clone()),
+                    "C" => self.rpn(&kids[1]), "D" => numerals::spell(under.clone()),
+                    "F" => "cdiv",
+                },
+                &[&over_is, &under_is],
+            );
+            return Some((over, under, proof));
+        }
+        let (whole, whole_is) = numerals::worked(&self.b, side, &labels)?;
+        let sw = numerals::spell(whole.clone());
+        let over_one = t!(&sw, n(1), "cdiv", "co");
+        let one = self.b.ap(
+            "div1i",
+            &binds! {"A" => &sw},
+            &[&numerals::cc(&self.b, whole.clone())],
+        );
+        let back = self
+            .b
+            .ap("eqcomi", &binds! {"A" => &over_one, "B" => &sw}, &[&one]);
+        let proof = self.b.ap(
+            "eqtri",
+            &binds! {"A" => self.rpn(side), "B" => &sw, "C" => &over_one},
+            &[&whole_is, &back],
+        );
+        Some((whole, BigUint::from(1u32), proof))
+    }
+
+    /// |- first R second, R being < or ≤, where the sides are fractions of
+    /// whole numbers: A/D < C/B is A·B < C·D for positive B and D
+    /// (`lt2mul2div`), and A/D ≤ C/B is that C/B < A/D does not hold
+    /// (`lenlt`). None where a side is no such fraction or the order is not
+    /// what the numbers do.
+    fn fractions_ordered(
+        &self,
+        goal: &Term,
+        first: &Term,
+        second: &Term,
+        how: &str,
+    ) -> Option<Proof> {
+        let (a, d, first_is) = self.as_fraction(first)?;
+        let (c, b, second_is) = self.as_fraction(second)?;
+        let sp = |v: &BigUint| numerals::spell(v.clone());
+        let (sa, sb, sc, sd) = (sp(&a), sp(&b), sp(&c), sp(&d));
+        let (p, q) = (&a * &b, &c * &d);
+        let (ab, cd) = (t!(&sa, &sb, "cmul", "co"), t!(&sc, &sd, "cmul", "co"));
+        let (ad, cb) = (t!(&sa, &sd, "cdiv", "co"), t!(&sc, &sb, "cdiv", "co"));
+        let (ab_is, cd_is) = (
+            numerals::product(&self.b, a.clone(), b.clone()),
+            numerals::product(&self.b, c.clone(), d.clone()),
+        );
+        let real = |v: &BigUint| numerals::re(&self.b, v.clone());
+        let and = |x: &str, y: &str, px: &Proof, py: &Proof| {
+            self.b
+                .ap("pm3.2i", &binds! {"ph" => x, "ps" => y}, &[px, py])
+        };
+        // ( x e. RR /\ ( y e. RR /\ 0 < y ) ), y positive.
+        let held = |x: &BigUint, y: &BigUint| {
+            let (sx, sy) = (sp(x), sp(y));
+            let positive =
+                t!(t!(&sy, "cr", "wcel"), t!("cc0", &sy, "clt", "wbr"), "wa");
+            let inner = and(
+                &t!(&sy, "cr", "wcel"),
+                &t!("cc0", &sy, "clt", "wbr"),
+                &real(y),
+                &numerals::pos(&self.b, y.clone()),
+            );
+            (
+                t!(t!(&sx, "cr", "wcel"), &positive, "wa"),
+                and(&t!(&sx, "cr", "wcel"), &positive, &real(x), &inner),
+            )
+        };
+        // ( ( A x. B ) < ( C x. D ) <-> ( A / D ) < ( C / B ) ), and the
+        // same with the two fractions exchanged.
+        let crossed = |x: &BigUint, y: &BigUint, z: &BigUint, w: &BigUint| {
+            let (left, left_held) = held(x, y);
+            let (right, right_held) = held(z, w);
+            let both = and(&left, &right, &left_held, &right_held);
+            let law = self.b.ap(
+                "lt2mul2div",
+                &binds! {"A" => sp(x), "B" => sp(y), "C" => sp(z), "D" => sp(w)},
+                &[],
+            );
+            let lt = |l: String, r: String| t!(l, r, "clt", "wbr");
+            self.b.ap(
+                "ax-mp",
+                &binds! {
+                    "ph" => t!(&left, &right, "wa"),
+                    "ps" => t!(
+                        lt(t!(sp(x), sp(y), "cmul", "co"), t!(sp(z), sp(w), "cmul", "co")),
+                        lt(t!(sp(x), sp(w), "cdiv", "co"), t!(sp(z), sp(y), "cdiv", "co")),
+                        "wb"
+                    ),
+                },
+                &[&both, &law],
+            )
+        };
+        let (sp_, sq) = (sp(&p), sp(&q));
+        let relation = if how == "<" { "clt" } else { "cle" };
+        let between = if how == "<" {
+            if p >= q {
+                return None;
+            }
+            // A·B < C·D, from the numerals they come to.
+            let valued = self.b.ap(
+                "breq12i",
+                &binds! {"A" => &ab, "B" => &sp_, "C" => &cd, "D" => &sq, "R" => "clt"},
+                &[&ab_is, &cd_is],
+            );
+            let products = self.b.ap(
+                "mpbir",
+                &binds! {"ph" => t!(&ab, &cd, "clt", "wbr"), "ps" => t!(&sp_, &sq, "clt", "wbr")},
+                &[&numerals::below(&self.b, p.clone(), q.clone()), &valued],
+            );
+            self.b.ap(
+                "mpbi",
+                &binds! {"ph" => t!(&ab, &cd, "clt", "wbr"), "ps" => t!(&ad, &cb, "clt", "wbr")},
+                &[&products, &crossed(&a, &b, &c, &d)],
+            )
+        } else {
+            if p > q {
+                return None;
+            }
+            // not C·D < A·B, from the numerals: P ≤ Q is not Q < P.
+            let at_most = if p == q {
+                self.b.ap("leidi", &binds! {"A" => &sp_}, &[&real(&p)])
+            } else {
+                let law = self.b.ap(
+                    "ltlei",
+                    &binds! {"A" => &sp_, "B" => &sq},
+                    &[&real(&p), &real(&q)],
+                );
+                self.b.ap(
+                    "ax-mp",
+                    &binds! {"ph" => t!(&sp_, &sq, "clt", "wbr"), "ps" => t!(&sp_, &sq, "cle", "wbr")},
+                    &[&numerals::below(&self.b, p.clone(), q.clone()), &law],
+                )
+            };
+            let not_less = |x: &str, y: &str| t!(t!(y, x, "clt", "wbr"), "wn");
+            let reals = |x: &str, y: &str, px: &Proof, py: &Proof| {
+                and(&t!(x, "cr", "wcel"), &t!(y, "cr", "wcel"), px, py)
+            };
+            // ( x <_ y <-> -. y < x ), for x and y real.
+            let lenlt = |x: &str, y: &str, px: &Proof, py: &Proof| {
+                self.b.ap(
+                    "ax-mp",
+                    &binds! {
+                        "ph" => t!(t!(x, "cr", "wcel"), t!(y, "cr", "wcel"), "wa"),
+                        "ps" => t!(t!(x, y, "cle", "wbr"), not_less(x, y), "wb"),
+                    },
+                    &[
+                        &reals(x, y, px, py),
+                        &self.b.ap("lenlt", &binds! {"A" => x, "B" => y}, &[]),
+                    ],
+                )
+            };
+            let numerals_not = self.b.ap(
+                "mpbi",
+                &binds! {"ph" => t!(&sp_, &sq, "cle", "wbr"), "ps" => not_less(&sp_, &sq)},
+                &[&at_most, &lenlt(&sp_, &sq, &real(&p), &real(&q))],
+            );
+            let valued = self.b.ap(
+                "breq12i",
+                &binds! {"A" => &cd, "B" => &sq, "C" => &ab, "D" => &sp_, "R" => "clt"},
+                &[&cd_is, &ab_is],
+            );
+            let valued = self.b.ap(
+                "notbii",
+                &binds! {"ph" => t!(&cd, &ab, "clt", "wbr"), "ps" => t!(&sq, &sp_, "clt", "wbr")},
+                &[&valued],
+            );
+            let products_not = self.b.ap(
+                "mpbir",
+                &binds! {"ph" => t!(t!(&cd, &ab, "clt", "wbr"), "wn"), "ps" => not_less(&sp_, &sq)},
+                &[&numerals_not, &valued],
+            );
+            let exchanged = self.b.ap(
+                "notbii",
+                &binds! {"ph" => t!(&cd, &ab, "clt", "wbr"), "ps" => t!(&cb, &ad, "clt", "wbr")},
+                &[&crossed(&c, &d, &a, &b)],
+            );
+            let fractions_not = self.b.ap(
+                "mpbi",
+                &binds! {"ph" => t!(t!(&cd, &ab, "clt", "wbr"), "wn"), "ps" => not_less(&ad, &cb)},
+                &[&products_not, &exchanged],
+            );
+            let real_fraction = |x: &BigUint, y: &BigUint| {
+                self.b.ap(
+                    "redivcli",
+                    &binds! {"A" => sp(x), "B" => sp(y)},
+                    &[&real(x), &real(y), &numerals::ne0(&self.b, y.clone())],
+                )
+            };
+            self.b.ap(
+                "mpbir",
+                &binds! {"ph" => t!(&ad, &cb, "cle", "wbr"), "ps" => not_less(&ad, &cb)},
+                &[
+                    &fractions_not,
+                    &lenlt(&ad, &cb, &real_fraction(&a, &d), &real_fraction(&c, &b)),
+                ],
+            )
+        };
+        let back = self.b.ap(
+            "breq12i",
+            &binds! {"A" => self.rpn(first), "B" => &ad, "C" => self.rpn(second), "D" => &cb, "R" => relation},
+            &[&first_is, &second_is],
+        );
+        Some(self.b.ap(
+            "mpbir",
+            &binds! {"ph" => self.rpn(goal), "ps" => t!(&ad, &cb, relation, "wbr")},
+            &[&between, &back],
+        ))
+    }
+
+    /// An order between sums, products and whole powers of whole numbers:
+    /// each side is worked to its numeral (`numerals::worked`), the order
+    /// between the two numerals is proved, and `breq12i` carries it back to
+    /// the sides as written.
+    #[allow(clippy::too_many_arguments)]
+    fn order_by_values(
+        &mut self,
+        goal: &Term,
+        first: &Term,
+        second: &Term,
+        how: &str,
+        negated: bool,
+        scope: &str,
+        facts: &Facts,
+    ) -> Checked<Route<Proof>> {
+        let labels = self.b.flabel.clone();
+        let divides = |side: &Term| {
+            side.variable().is_none()
+                && side.label() == Some("co")
+                && side.children().len() == 3
+                && side.children()[2].label() == Some("cdiv")
+        };
+        if divides(first) || divides(second) {
+            if negated {
+                return Ok(Route::no("a denial between fractions"));
+            }
+            return Ok(match self.fractions_ordered(goal, first, second, how) {
+                Some(closed) => Built(self.b.ap(
+                    "a1i",
+                    &binds! {"ph" => self.rpn(goal), "ps" => scope},
+                    &[&closed],
+                )),
+                None => Route::no(
+                    "the two sides are not fractions of whole numbers in that order",
+                ),
+            });
+        }
+        let (Some((a, a_is)), Some((b, b_is))) = (
+            numerals::worked(&self.b, first, &labels),
+            numerals::worked(&self.b, second, &labels),
+        ) else {
+            return Ok(Route::no(
+                "a side is not a sum, product or whole power of whole numbers",
+            ));
+        };
+        let relation = if how == "<" { "clt" } else { "cle" };
+        let (na, nb) = (numerals::spell(a), numerals::spell(b));
+        let said = self.rpn(goal);
+        let valued = t!(&na, &nb, relation, "wbr");
+        let mut turn = self.b.ap(
+            "breq12i",
+            &binds! {"A" => self.rpn(first), "B" => &na, "C" => self.rpn(second), "D" => &nb, "R" => relation},
+            &[&a_is, &b_is],
+        );
+        let (said, valued) = if negated {
+            turn =
+                self.b
+                    .ap("notbii", &binds! {"ph" => &said, "ps" => &valued}, &[&turn]);
+            (t!(said, "wn"), t!(valued, "wn"))
+        } else {
+            (said, valued)
+        };
+        let held = take!(self.prove_numeral(&valued, scope, facts)?);
+        Ok(Built(self.b.ap(
+            "sylibr",
+            &binds! {"ph" => scope, "ps" => &valued, "ch" => &said},
+            &[&held, &turn],
         )))
     }
 
@@ -1448,15 +1745,14 @@ impl<'a> Elaborator<'a> {
 
     /// ( scope -> n e. RR ) for a whole multiplier.
     fn real_numeral(&self, scope: &str, times: &Q) -> Proof {
-        let numerator = times.numer().to_i64().unwrap_or(0);
-        let whole = numerator.abs();
-        let nw = n(whole as u32);
+        let whole = times.numer().magnitude().clone();
+        let nw = numerals::spell(whole.clone());
         let held = self.b.ap(
             "a1i",
             &binds! {"ph" => t!(nw, "cr", "wcel"), "ps" => scope},
-            &[&numerals::re(&self.b, whole as u64)],
+            &[&numerals::re(&self.b, whole)],
         );
-        if numerator >= 0 {
+        if !times.numer().is_negative() {
             return held;
         }
         self.b
@@ -1464,19 +1760,20 @@ impl<'a> Elaborator<'a> {
     }
 
     /// ( scope -> a < b ), for whole numbers a below b (`numerals::below`).
-    fn numeral_below(&self, scope: &str, a: i64, b: i64) -> Proof {
+    fn numeral_below(&self, scope: &str, a: &BigUint, b: &BigUint) -> Proof {
         self.b.ap(
             "a1i",
-            &binds! {"ph" => t!(n(a as u32), n(b as u32), "clt", "wbr"), "ps" => scope},
-            &[&numerals::below(&self.b, a as u64, b as u64)],
+            &binds! {"ph" => t!(numerals::spell(a.clone()), numerals::spell(b.clone()), "clt", "wbr"), "ps" => scope},
+            &[&numerals::below(&self.b, a.clone(), b.clone())],
         )
     }
 
     /// ( scope -> -. a = b ), from whichever of the two is below.
-    fn numerals_differ(&self, scope: &str, a: i64, b: i64) -> Proof {
+    fn numerals_differ(&self, scope: &str, a: &BigUint, b: &BigUint) -> Proof {
         let (low, high) = if a < b { (a, b) } else { (b, a) };
-        let (nl, nh) = (n(low as u32), n(high as u32));
-        let real = self.real_numeral(scope, &q(low));
+        let (nl, nh) = (numerals::spell(low.clone()), numerals::spell(high.clone()));
+        let (nl, nh) = (nl.as_str(), nh.as_str());
+        let real = self.real_numeral(scope, &Q::from_integer(low.clone().into()));
         let below = self.numeral_below(scope, low, high);
         let both = self.b.ap(
             "jca",
@@ -1490,7 +1787,7 @@ impl<'a> Elaborator<'a> {
             "ch" => t!(nh, nl, "wne")},
             &[&both, &law],
         );
-        let (na, nb) = (n(a as u32), n(b as u32));
+        let (na, nb) = (numerals::spell(a.clone()), numerals::spell(b.clone()));
         if a != low {
             return self.b.ap(
                 "neneqd",
@@ -2464,7 +2761,7 @@ impl<'a> Elaborator<'a> {
         for Part { times, .. } in parts {
             whole = whole.lcm(times.denom());
         }
-        let whole = whole.to_i64().unwrap_or(i64::MAX);
+        let whole_q = Q::from_integer(whole.clone());
         // A reciprocal atom's divisor not being zero is the page's to say, in
         // its own spelling, which `written_nonzero` reads as a polynomial.
         let known = facts.copy();
@@ -2492,12 +2789,12 @@ impl<'a> Elaborator<'a> {
                 &mut w,
                 said,
                 given,
-                &(times * q(whole)),
+                &(times * &whole_q),
                 facts
             )?);
             terms.push(one);
         }
-        let left_over = spare * q(whole);
+        let left_over = spare * &whole_q;
         if left_over.is_positive() {
             return Ok(Route::no("what is left over is above zero"));
         }
@@ -2531,13 +2828,13 @@ impl<'a> Elaborator<'a> {
             &[&rl, &rr],
         );
         let (mut times_span, mut times_real) = (span.clone(), span_real.clone());
-        if whole != 1 {
-            let numeral = n(whole as u32);
-            times_span = t!(numeral, span, "cmul", "co");
-            let real = self.real_numeral(scope, &q(whole));
+        let numeral = numerals::spell(whole.magnitude().clone());
+        if !whole.is_one() {
+            times_span = t!(&numeral, span, "cmul", "co");
+            let real = self.real_numeral(scope, &whole_q);
             times_real = self.b.ap(
                 "remulcld",
-                &binds! {"ph" => scope, "A" => numeral, "B" => &span},
+                &binds! {"ph" => scope, "A" => &numeral, "B" => &span},
                 &[&real, &span_real],
             );
         }
@@ -2560,16 +2857,9 @@ impl<'a> Elaborator<'a> {
             );
             rel = "cle";
         }
-        if whole != 1 {
-            reached = self.unscaled(
-                &mut w,
-                &span,
-                &span_real,
-                n(whole as u32),
-                whole,
-                rel,
-                &reached,
-            );
+        if !whole.is_one() {
+            reached = self
+                .unscaled(&mut w, &span, &span_real, &numeral, &whole, rel, &reached);
         }
         let turn = t!(
             t!(span, "cc0", rel, "wbr"),
@@ -2677,17 +2967,17 @@ impl<'a> Elaborator<'a> {
                 real,
             }));
         }
-        let times_n = times.to_integer().to_i64().unwrap_or(0);
-        let numeral = n(times_n as u32);
-        let scaled = t!(numeral, gap, "cmul", "co");
+        let times_n = times.to_integer();
+        let numeral = numerals::spell(times_n.magnitude().clone());
+        let scaled = t!(&numeral, gap, "cmul", "co");
         let rn = self.real_numeral(&scope, times);
         let scaled_real = self.b.ap(
             "remulcld",
-            &binds! {"ph" => &scope, "A" => numeral, "B" => &gap},
+            &binds! {"ph" => &scope, "A" => &numeral, "B" => &gap},
             &[&rn, &real],
         );
         let moved =
-            self.times_positive(w, &gap, &real, numeral, times_n, "clt", &below);
+            self.times_positive(w, &gap, &real, &numeral, &times_n, "clt", &below);
         Ok(Built(Against {
             term: scaled,
             strict: true,
@@ -2704,7 +2994,7 @@ impl<'a> Elaborator<'a> {
         gap: &str,
         real: &Proof,
         numeral: &str,
-        whole: i64,
+        whole: &BigInt,
         rel: &str,
         below: &Proof,
     ) -> Proof {
@@ -2712,11 +3002,12 @@ impl<'a> Elaborator<'a> {
         let lemma = if rel == "clt" { "ltmul2" } else { "lemul2" };
         let scaled = t!(numeral, gap, "cmul", "co");
         let at_zero = t!(numeral, "cc0", "cmul", "co");
-        let rn = self.real_numeral(&scope, &q(whole));
+        let whole_q = Q::from_integer(whole.clone());
+        let rn = self.real_numeral(&scope, &whole_q);
         let pos = self.b.ap(
             "a1i",
             &binds! {"ph" => t!("cc0", numeral, "clt", "wbr"), "ps" => &scope},
-            &[&numerals::pos(&self.b, whole as u64)],
+            &[&numerals::pos(&self.b, whole.magnitude().clone())],
         );
         let positive = self.b.ap(
             "jca",
@@ -2745,7 +3036,7 @@ impl<'a> Elaborator<'a> {
             &binds! {"ph" => &scope, "ps" => t!(gap, "cc0", rel, "wbr"), "ch" => t!(scaled, at_zero, rel, "wbr")},
             &[below, &turn],
         );
-        let c = w.e.coefficient(&self.ask(&w.spec), &q(whole));
+        let c = w.e.coefficient(&self.ask(&w.spec), &whole_q);
         let law = self.b.ap("mul01", &binds! {"A" => numeral}, &[]);
         let zeroed = self.b.ap(
             "syl",
@@ -2767,7 +3058,7 @@ impl<'a> Elaborator<'a> {
         span: &str,
         span_real: &Proof,
         numeral: &str,
-        whole: i64,
+        whole: &BigInt,
         rel: &str,
         reached: &Proof,
     ) -> Proof {
@@ -2775,18 +3066,19 @@ impl<'a> Elaborator<'a> {
         let lemma = if rel == "clt" { "ltmul2" } else { "lemul2" };
         let scaled = t!(numeral, span, "cmul", "co");
         let at_zero = t!(numeral, "cc0", "cmul", "co");
-        let rn = self.real_numeral(&scope, &q(whole));
+        let whole_q = Q::from_integer(whole.clone());
+        let rn = self.real_numeral(&scope, &whole_q);
         let pos = self.b.ap(
             "a1i",
             &binds! {"ph" => t!("cc0", numeral, "clt", "wbr"), "ps" => &scope},
-            &[&numerals::pos(&self.b, whole as u64)],
+            &[&numerals::pos(&self.b, whole.magnitude().clone())],
         );
         let positive = self.b.ap(
             "jca",
             &binds! {"ph" => &scope, "ps" => t!(numeral, "cr", "wcel"), "ch" => t!("cc0", numeral, "clt", "wbr")},
             &[&rn, &pos],
         );
-        let c = w.e.coefficient(&self.ask(&w.spec), &q(whole));
+        let c = w.e.coefficient(&self.ask(&w.spec), &whole_q);
         let law = self.b.ap("mul01", &binds! {"A" => numeral}, &[]);
         let zeroed = self.b.ap(
             "syl",
@@ -2825,22 +3117,20 @@ impl<'a> Elaborator<'a> {
     /// (−n, True, ( scope -> -u n < 0 ), ( scope -> -u n e. RR )), the
     /// number a combination leaves over, as a closed numeral fact.
     fn number_below(&self, scope: &str, value: &Q) -> Route<Against> {
-        let whole = value
-            .to_integer()
-            .to_i64()
-            .filter(|w| value.is_integer() && *w > 0);
-        let Some(whole) = whole else {
+        if !value.is_integer() || !value.is_positive() {
             return Route::no(format!(
                 "{} is not a positive whole number",
                 super::normal::show(value)
             ));
-        };
-        let numeral = n(whole as u32);
-        let real = self.real_numeral(scope, &q(whole));
+        }
+        let whole = value.to_integer();
+        let numeral = numerals::spell(whole.magnitude().clone());
+        let numeral = numeral.as_str();
+        let real = self.real_numeral(scope, value);
         let positive = self.b.ap(
             "a1i",
             &binds! {"ph" => t!("cc0", numeral, "clt", "wbr"), "ps" => scope},
-            &[&numerals::pos(&self.b, whole as u64)],
+            &[&numerals::pos(&self.b, whole.magnitude().clone())],
         );
         let negated = t!(numeral, "cneg");
         let turn = self.b.ap(
@@ -3354,7 +3644,7 @@ impl<'a> Elaborator<'a> {
         let pos = self.b.ap(
             "a1i",
             &binds! {"ph" => t!("cc0", numeral, "clt", "wbr"), "ps" => &scope},
-            &[&numerals::pos(&self.b, times.numer().to_u64().unwrap_or(0))],
+            &[&numerals::pos(&self.b, times.numer().magnitude().clone())],
         );
         let positive = self.b.ap(
             "jca",

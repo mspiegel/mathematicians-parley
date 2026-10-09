@@ -230,6 +230,14 @@ pub const CLASS_BODY: &[(&str, &str)] = &[
     ("ciun", "iuneq2i"),
 ];
 
+// The lemmas that carry a change into an indexed sum's or product's term,
+// under its letter's membership of the range, in deduction form: the term
+// alone, and the range and the term together.
+pub const INDEXED_BODY: &[(&str, (&str, &str))] = &[
+    ("csu", ("sumeq2dv", "sumeq12dv")),
+    ("cprod", ("prodeq2dv", "prodeq12dv")),
+];
+
 // A statement about classes carried across one class spelt with other bound
 // letters, closed, by the predicate and the place: `eqeq1i` makes `A = B`
 // into ( A = C <-> B = C ). What a renaming of the letters a class binds

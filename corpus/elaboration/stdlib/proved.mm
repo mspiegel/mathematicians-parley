@@ -1190,6 +1190,9 @@ $( The set-builder binds i, apart from the end of the range, the scope and
 $d i K $.  $d i ph $.  $d i ch $.
 $d i A $.  $d i B $.  $d i M $.  $d i N $.  $d i th $.
 $d i j $.  $d j N $.  $d j ph $.  $d j ps $.  $d j ta $.
+$( The functions counted are f, apart from their two sets and the scope; a
+   product's letter k is apart from the two sets. $)
+$d f X $.  $d f Y $.  $d f ph $.  $d k X $.  $d k Y $.
 
   ${
     gcntcl.1 $e |- ( ph -> K e. ZZ ) $.
@@ -1293,6 +1296,27 @@ $d i j $.  $d j N $.  $d j ph $.  $d j ps $.  $d j ta $.
     sseq0 sylan eqtr4d ex wne wi cuz cfv fzn0 fzdif2 sylbi a1i pm2.61dne
     rabeqdv eqtrd fveq2d )
     ABDIEJKZLZBDIEIMKZJKZLZNAVLBDVKEOZPZLVOABCEVKDGHQABDVQVNAVQVNRZVKSAVKSRZVRAVSTVQSVNVSVQSRAVSVQSVPPSVKSVPUAVPUBUCUDAVNVKUEVSVNSRAIVMIUFKZJKVNVKIVMUGAVTEIJAEUHUIVTERAEFUJEUKULUMUNVNVKUOUPUQURVKSUSZVRUTAWAEIVAVBUIVRIEVCIEVDVEVFVGVHVIVJ $.
+  $}
+
+  ${
+    gmapcnt.1 $e |- ( ph -> X e. Fin ) $.
+    gmapcnt.2 $e |- ( ph -> Y e. Fin ) $.
+  gmapcnt $p |- ( ph -> ( # ` ( Y ^m X ) ) = ( ( # ` Y ) ^ ( # ` X ) ) ) $=
+    ( cfn wcel cmap co chash cfv cexp wceq hashmap syl2anc )
+    ACFGBFGCBHIJKCJKBJKLIMEDCBNO $.
+  $}
+
+  ${
+    gf1cnt.1 $e |- ( ph -> X e. Fin ) $.
+    gf1cnt.2 $e |- ( ph -> Y e. Fin ) $.
+    gf1cnt.3 $e |- ( ph -> ( # ` X ) <_ ( # ` Y ) ) $.
+  gf1cnt $p |- ( ph -> ( # ` { f e. ( Y ^m X ) | f : X -1-1-> Y } ) = prod_ k e. ( 0 ... ( ( # ` X ) - 1 ) ) ( ( # ` Y ) - k ) ) $=
+    ( cv wf1 cmap co crab chash cfv cab cfa cbc cmul cc0 c1 cmin cfz cprod
+    wcel wi wal wceq wa wf simpr f1f syl wb cvv cfn elexd elmapg syl2anc
+    adantr mpbird ex alrimiv rababg sylib fveq2d hashf1 cfallfac cdiv cn0 cle
+    wbr hashcl elfz2nn0 syl3anbrc bcfallfac oveq2d cc nn0cnd fallfaccl cn
+    faccl nncnd nnne0d divcan2d fallfacval 3eqtrd )
+    ADEBIZJZBEDKLZMZNOWIBPZNOZDNOZQOZENOZWNRLZSLZTWNUAUBLZUCLZWPCIZUBLZCUDZAWKWLNAWIWHWJUEZUFZBUGWKWLUHAXEBAWIXDAWIUIZXDDEWHUJZXFWIXGAWIUKDEWHULUMAXDXGUNZWIAEUOUEDUOUEXHAEUPGUQADUPFUQEDWHUOUOURUSUTVAVBVCWIBWJVDVEVFADUPUEZEUPUEZWMWRUHFGDEBVGUSAWRWOWPWNVHLZWOVILZSLXKXCAWQXLWOSAWNTWPUCLZUEZWQXLUHAWNVJUEZWPVJUEZWNWPVKVLXNAXIXOFDVMZUMZAXJXPGEVMZUMZHWNWPVNVOWNWPVPUMVQAXKWOAWPVRUEZXOXKVRUEAWPXTVSZXRWPWNVTUSAWOAXOWOWAUEZXRWNWBZUMZWCAWOYEWDWEAYAXOXKXCUHYBXRWPCWNWFUSWGWG $.
   $}
 
 $}
@@ -1463,6 +1487,41 @@ $d a e f i j k n v y z G $.
     vk wceq wrex wral wa caddc cpr cvtx cmap cn0 gtrav0 gtravxfr rexbiia
     bitr4di )
     FGHFIJKLMENZOPQZRQZFSJZTZUANZUBZUCNZUDNZVCJZUEZUDUTUFZUCVBUGZUHZVGVAJZVFCNZJZVFOUIQZVMJZUJZUEZUDUTUGZUHZCFUKJZMURRQZULQZUFZUAVBUTULQZUFZEUMUFBNZDNZJZVAJZWGOPQZVMJZWGVMJZUJZUEZBOURRQZUGZWPVBWHUBZUHZANZWIUEZBWPUFZAVBUGZUHZCWCUFZDVBWPULQZUFZEUMUFCUAUDEFUCUNXGWFEUMABCDUAUDEFUCUOUPUQ $.
+
+$}
+
+${
+$( Fractions: a factor common to one numerator and the other denominator
+   cancels in a product. $)
+
+  ${
+    gdivcanx.1 $e |- ( ph -> A e. CC ) $.
+    gdivcanx.2 $e |- ( ph -> B e. CC ) $.
+    gdivcanx.3 $e |- ( ph -> B =/= 0 ) $.
+    gdivcanx.4 $e |- ( ph -> C e. CC ) $.
+    gdivcanx.5 $e |- ( ph -> D e. CC ) $.
+    gdivcanx.6 $e |- ( ph -> D =/= 0 ) $.
+    gdivcanx.7 $e |- ( ph -> G e. CC ) $.
+    gdivcanx.8 $e |- ( ph -> G =/= 0 ) $.
+  gdivcanx $p |- ( ph -> ( ( ( G x. A ) / B ) x. ( C / ( G x. D ) ) ) = ( ( A / B ) x. ( C / D ) ) ) $=
+    ( cmul co cdiv divassd oveq1d divcld mulcld mulne0d mulassd mul12d 3eqtrd
+    divcan5d eqtr3d oveq2d eqtrd )
+    AFBOPZCQPZDFEOPZQPZOPZBCQPZFUMOPZOPZUODEQPZOPAUNFUOOPZUMOPFUOUMOPOPUQAUKUSUMOAFBCMGHIRSAFUOUMMABCGHITZADULJAFEMKUAZAFEMKNLUBZTZUCAFUOUMMUTVCUDUEAUPURUOOAFDOPULQPUPURAFDULMJVAVBRADEFJKMLNUFUGUHUI $.
+  $}
+
+  ${
+    gdivcanx2.1 $e |- ( ph -> A e. CC ) $.
+    gdivcanx2.2 $e |- ( ph -> B e. CC ) $.
+    gdivcanx2.3 $e |- ( ph -> B =/= 0 ) $.
+    gdivcanx2.4 $e |- ( ph -> C e. CC ) $.
+    gdivcanx2.5 $e |- ( ph -> D e. CC ) $.
+    gdivcanx2.6 $e |- ( ph -> D =/= 0 ) $.
+    gdivcanx2.7 $e |- ( ph -> G e. CC ) $.
+    gdivcanx2.8 $e |- ( ph -> G =/= 0 ) $.
+  gdivcanx2 $p |- ( ph -> ( ( A / ( G x. B ) ) x. ( ( G x. C ) / D ) ) = ( ( A / B ) x. ( C / D ) ) ) $=
+    ( cmul co cdiv mulcld mulne0d divcld mulcomd gdivcanx 3eqtrd )
+    ABFCOPZQPZFDOPZEQPZOPUGUEOPDEQPZBCQPZOPUIUHOPAUEUGABUDGAFCMHRAFCMHNISTAUFEAFDMJRKLTUAADEBCFJKLGHIMNUBAUHUIADEJKLTABCGHITUAUC $.
+  $}
 
 $}
 

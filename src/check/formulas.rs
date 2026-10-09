@@ -799,14 +799,24 @@ pub fn check_closed_by_arithmetic(
     known: &Known,
 ) {
     // Numerals alone: every leaf a numeral, so that no name and no constant
-    // such as i, which arithmetic cannot work out, stands in it.
+    // such as i, which arithmetic cannot work out, stands in it; and no part
+    // a set, since |{1, …, 23}| has numerals for leaves and arithmetic cannot
+    // work out the size of a set.
     let closed = |text: &str| -> bool {
         match parse_here(text, env.g, &known.sorts) {
-            Ok(n) => n
-                .walk()
-                .iter()
-                .filter(|m| m.children.is_empty())
-                .all(|m| m.notation == "numeral"),
+            Ok(n) => {
+                let parts = n.walk();
+                parts
+                    .iter()
+                    .filter(|m| m.children.is_empty())
+                    .all(|m| m.notation == "numeral")
+                    && !parts.iter().any(|m| {
+                        matches!(
+                            m.sort.name(),
+                            Some("set" | "group-set" | "set-of-sets")
+                        )
+                    })
+            }
             Err(_) => false, // `check_formulas` says it does not read
         }
     };

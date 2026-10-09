@@ -11,7 +11,7 @@
 use std::collections::BTreeSet;
 
 use indexmap::IndexMap;
-use num_traits::ToPrimitive;
+use num_traits::{ToPrimitive, Zero};
 
 use super::field::{self, Value};
 use super::linear;
@@ -250,8 +250,12 @@ impl<'a> Elaborator<'a> {
                 pf!(self.b; scope, self.rpn(body), self.rpn(&other), name, runs, made, "rexbidva"),
             ));
         }
-        // A sum's summand is carried the same way, under its index's range.
-        if label == "csu" && g[0] == w[0] && g[2] == w[2] && g[1] != w[1] {
+        // A sum's summand, or a product's factor, is carried the same way,
+        // under its index's range.
+        let indexed = lookup(rules::INDEXED_BODY, &label);
+        if let Some((body_lemma, _)) =
+            indexed.filter(|_| g[0] == w[0] && g[2] == w[2] && g[1] != w[1])
+        {
             let kids = given.children();
             let (runs, body, name) = (g[0].clone(), &kids[1], g[2].clone());
             if words.contains(&name.as_str()) {
@@ -266,7 +270,7 @@ impl<'a> Elaborator<'a> {
             })?;
             let made = take!(made);
             return Ok(Built(self.b.ap(
-                "sumeq2dv",
+                body_lemma,
                 &binds! {"ph" => scope, "A" => &runs, "B" => self.rpn(body), "C" => self.rpn(&other), "k" => &name},
                 &[&made],
             )));
@@ -274,7 +278,9 @@ impl<'a> Elaborator<'a> {
         // A sum whose range and summand both change, as Σ(k = 0 to m) C(m, k)
         // read at m := n: the range carried as it stands, and the summand
         // under the index's membership of the range it had (`sumeq12dv`).
-        if label == "csu" && g[2] == w[2] && g[0] != w[0] && g[1] != w[1] {
+        if let Some((_, both_lemma)) =
+            indexed.filter(|_| g[2] == w[2] && g[0] != w[0] && g[1] != w[1])
+        {
             let kids = given.children();
             let (runs, body, name) = (g[0].clone(), &kids[1], g[2].clone());
             if words.contains(&name.as_str()) {
@@ -297,7 +303,7 @@ impl<'a> Elaborator<'a> {
             })?;
             let made = take!(made);
             return Ok(Built(self.b.ap(
-                "sumeq12dv",
+                both_lemma,
                 &binds! {"ph" => scope, "A" => &runs, "B" => &w[0], "C" => self.rpn(body),
                 "D" => self.rpn(&other), "k" => &name},
                 &[&moved, &made],
@@ -666,7 +672,28 @@ impl<'a> Elaborator<'a> {
         }
         let said = self.rpn(&goal.children()[0]);
         if said.split_whitespace().any(|t| !rules::numeric(t)) {
-            return Ok(named);
+            // A closed term that binds a letter of its own, a product over
+            // a range of numerals, is worked to its numeral, and the
+            // membership is the numeral's, carried back by `eqeltrrd`.
+            let labels = self.b.flabel.clone();
+            let Some((value, is)) =
+                super::numerals::worked(&self.b, &goal.children()[0], &labels)
+            else {
+                return Ok(named);
+            };
+            let spelt = super::numerals::spell(value);
+            let system = self.rpn(&goal.children()[1]);
+            let at = self.to_term(&t!(&spelt, &system, "wcel"));
+            let held = take!(self.numeral_within(&at, scope, facts)?);
+            let back =
+                self.b
+                    .ap("eqcomi", &binds! {"A" => &said, "B" => &spelt}, &[&is]);
+            let back = pf!(self.b; t!(&spelt, &said, "wceq"), scope, back, "a1i");
+            return Ok(Built(self.b.ap(
+                "eqeltrrd",
+                &binds! {"ph" => scope, "A" => &spelt, "B" => &said, "C" => &system},
+                &[&back, &held],
+            )));
         }
         // One level deeper than `settle`'s default. Nothing in it is a
         // proof's own, so what it comes to is the same wherever it is asked
@@ -739,7 +766,8 @@ impl<'a> Elaborator<'a> {
         // In ℕ by its digits (`numerals::nn`), as 10 is by `decnncl2`: a
         // decimal is never zero, since its digits before the last are not.
         if system.label() == Some("cn") {
-            let Some(value) = super::numerals::value(&said).filter(|v| *v > 0) else {
+            let Some(value) = super::numerals::value(&said).filter(|v| !v.is_zero())
+            else {
                 return Ok(Route::no("not a numeral other than zero"));
             };
             let closed = super::numerals::nn(&self.b, value);
@@ -1364,7 +1392,7 @@ impl<'a> Elaborator<'a> {
         // A numeral other than zero says so itself: a closed numeral fact,
         // which a method may use unwritten.
         let numeral =
-            super::numerals::value(&self.to_term(divisor)).filter(|v| *v != 0);
+            super::numerals::value(&self.to_term(divisor)).filter(|v| !v.is_zero());
         if let Some(value) = numeral {
             let closed = super::numerals::ne0(&self.b, value);
             return Ok(Built(pf!(self.b; apart, scope, closed, "a1i")));

@@ -29,7 +29,6 @@ use parley::source::Disk;
 /// stands under and the literal it writes.
 const UNWRITTEN: &[&str] = &[
     "notation collinear ,,arecollinear",
-    "notation functions-from thefunctionsfromto",
     "notation holds-of ()",
     "notation implication →",
     "notation map themapsending∈to",
