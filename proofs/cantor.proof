@@ -10,7 +10,7 @@ theorem cantor
   let f : A → 𝒫A                                                      (H2)
   then there exists B ⊆ A such that f(x) ≠ B for all x ∈ A
 
-define B := {x ∈ A : x ∉ f(x)}                                        (D1)
+let B = {x ∈ A : x ∉ f(x)}                                            (D1)
        reads the members of A that their own image leaves out
 
 1.  B ⊆ A

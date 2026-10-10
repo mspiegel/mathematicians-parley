@@ -378,131 +378,133 @@ theorem primitive-triple
 47. s = gcd(s, w)². t = gcd(t, w)².
     thm:coprime-square, from 28, 27, 2, 46, 37
 
-48. gcd(s, w) ∈ ℕ. gcd(s, w) divides s. gcd(s, w) divides w.
+let m = gcd(s, w), a natural number                                 (D1)
     mun:gcd a := s, b := w, from 28, 2
+    reads the number whose square is s
 
-49. There is m ∈ ℕ with s = m².
-    exhibit, from 48, 47
+48. s = m²
+    calculation
+      s = gcd(s, w)²    47
+        = m²            D1
 
-50. m ∈ ℕ. s = m².
-    obtain m from line 49
+let n = gcd(t, w), a natural number                                 (D2)
+    mun:gcd a := t, b := w, from 27, 2
+    reads the number whose square is t
 
-51. There is n ∈ ℕ with t = n².
-    exhibit, from 47
-    requires gcd(t, w) ∈ ℕ: mun:gcd a := t, b := w, from 27, 2
+49. t = n²
+    calculation
+      t = gcd(t, w)²    47
+        = n²            D2
 
-52. n ∈ ℕ. t = n².
-    obtain n from line 51
+50. w² = m²·t
+    substitute s = m² (line 48) into line 37
 
-53. w² = m²·t
-    substitute s = m² (line 50) into line 37
+51. w² = m²·n²
+    substitute t = n² (line 49) into line 50
 
-54. w² = m²·n²
-    substitute t = n² (line 52) into line 53
-
-55. m·n ∈ ℕ
+52. m·n ∈ ℕ
     membership
 
-56. w² = (m·n)²
-    algebra, from 54
+53. w² = (m·n)²
+    algebra, from 51
 
-57. w = m·n
-    mun:square-equal x := w, y := m·n, from 56
+54. w = m·n
+    mun:square-equal x := w, y := m·n, from 53
     requires w ≥ 0: inequalities, from 2
-    requires m·n ≥ 0: inequalities, from 55
+    requires m·n ≥ 0: inequalities, from 52
 
-58. a = 2(m·n)
-    substitute w = m·n (line 57) into line 1
+55. a = 2(m·n)
+    substitute w = m·n (line 54) into line 1
 
-59. b = m² − t
-    substitute s = m² (line 50) into line 23
+56. b = m² − t
+    substitute s = m² (line 48) into line 23
 
-60. b = m² − n²
-    substitute t = n² (line 52) into line 59
+57. b = m² − n²
+    substitute t = n² (line 49) into line 56
 
-61. c = m² + t
-    substitute s = m² (line 50) into line 17
+58. c = m² + t
+    substitute s = m² (line 48) into line 17
 
-62. c = m² + n²
-    substitute t = n² (line 52) into line 61
+59. c = m² + n²
+    substitute t = n² (line 49) into line 58
 
-63. n² < m²
-    inequalities, from 60, H2
+60. n² < m²
+    inequalities, from 57, H2
 
-64. n < m
-    mun:square-less x := n, y := m, from 63
-    requires n ≥ 0: inequalities, from 52
-    requires m ≥ 0: inequalities, from 50
+61. n < m
+    mun:square-less x := n, y := m, from 60
+    requires n ≥ 0: inequalities, from D2
+    requires m ≥ 0: inequalities, from D1
 
-65. gcd(m, n) ∈ ℕ. gcd(m, n) divides m. gcd(m, n) divides n.
+62. gcd(m, n) ∈ ℕ. gcd(m, n) divides m. gcd(m, n) divides n.
     mun:gcd a := m, b := n
 
-66. gcd(m, n) divides m·m
-    mun:divides-multiple e := gcd(m, n), a := m, x := m, from 65
+63. gcd(m, n) divides m·m
+    mun:divides-multiple e := gcd(m, n), a := m, x := m, from 62
 
-67. m·m = s
-    algebra, from 50
+64. m·m = s
+    algebra, from 48
 
-68. gcd(m, n) divides s
-    substitute m·m = s (line 67) into line 66
+65. gcd(m, n) divides s
+    substitute m·m = s (line 64) into line 63
 
-69. gcd(m, n) divides n·n
-    mun:divides-multiple e := gcd(m, n), a := n, x := n, from 65
+66. gcd(m, n) divides n·n
+    mun:divides-multiple e := gcd(m, n), a := n, x := n, from 62
 
-70. n·n = t
-    algebra, from 52
+67. n·n = t
+    algebra, from 49
 
-71. gcd(m, n) divides t
-    substitute n·n = t (line 70) into line 69
+68. gcd(m, n) divides t
+    substitute n·n = t (line 67) into line 66
 
-72. gcd(m, n) divides gcd(s, t)
-    thm:divides-gcd d := gcd(m, n), a := s, b := t, from 68, 71
-    requires gcd(m, n) ∈ ℤ: membership, from 65
+69. gcd(m, n) divides gcd(s, t)
+    thm:divides-gcd d := gcd(m, n), a := s, b := t, from 65, 68
+    requires gcd(m, n) ∈ ℤ: membership, from 62
 
-73. gcd(m, n) divides 1
-    substitute gcd(s, t) = 1 (line 46) into line 72
+70. gcd(m, n) divides 1
+    substitute gcd(s, t) = 1 (line 46) into line 69
 
-74. gcd(m, n) = 1
-    mun:divides-one d := gcd(m, n), from 65, 73
+71. gcd(m, n) = 1
+    mun:divides-one d := gcd(m, n), from 62, 70
 
-75. m + n is odd
+72. m + n is odd
     contradiction
     suppose m + n is not odd                                          (S3)
 
-    75.1. m + n is even or m + n is odd
+    72.1. m + n is even or m + n is odd
           mun:even-or-odd n := m + n
 
-    75.2. m + n is even
-          mun:disjunctive-syllogism P := m + n is even, Q := m + n is odd, from 75.1, S3
+    72.2. m + n is even
+          mun:disjunctive-syllogism P := m + n is even, Q := m + n is odd, from 72.1, S3
 
-    75.3. u ∈ ℤ. m + n = 2u.
-          obtain u: mun:even n := m + n, from 75.2
+    72.3. u ∈ ℤ. m + n = 2u.
+          obtain u: mun:even n := m + n, from 72.2
 
-    75.4. m² − n² = (m + n)·(m − n)
+    72.4. m² − n² = (m + n)·(m − n)
           algebra
 
-    75.5. m² − n² = (2u)·(m − n)
-          substitute m + n = 2u (line 75.3) into line 75.4
+    72.5. m² − n² = (2u)·(m − n)
+          substitute m + n = 2u (line 72.3) into line 72.4
 
-    75.6. (2u)·(m − n) = 2(u·(m − n))
+    72.6. (2u)·(m − n) = 2(u·(m − n))
           algebra
 
-    75.7. b = 2(u·(m − n))
+    72.7. b = 2(u·(m − n))
           calculation
-            b = m² − n²            60
-              = (2u)·(m − n)       75.5
-              = 2(u·(m − n))       75.6
+            b = m² − n²            57
+              = (2u)·(m − n)       72.5
+              = 2(u·(m − n))       72.6
 
-    75.8. b is even
-          mun:even n := b, from 75.7
+    72.8. b is even
+          mun:even n := b, from 72.7
 
-    75.9. b is not odd
-          mun:not-both n := b, from 75.8, contradicting 4
+    72.9. b is not odd
+          mun:not-both n := b, from 72.8, contradicting 4
 
-76. There are m, n ∈ ℕ with n < m, gcd(m, n) = 1, m + n is odd,
+73. There are m, n ∈ ℕ with n < m, gcd(m, n) = 1, m + n is odd,
     a = 2mn, b = m² − n², and c = m² + n².
-    exhibit, from 64, 74, 75, 60, 62
-    requires a = 2mn: algebra, from 58, H1, 50, 52
+    exhibit, from 61, 71, 72, 57, 59
+    requires a = 2mn: algebra, from 55, H1
 
 theorem triple-scaled
   note        Divide the triple by k = gcd(a, b). k divides c too, since k²
@@ -515,60 +517,60 @@ theorem triple-scaled
   then there is k ∈ ℕ with a/k ∈ ℕ, b/k ∈ ℕ, c/k ∈ ℕ, gcd(a/k, b/k) = 1,
        and (a/k)² + (b/k)² = (c/k)²
 
-1.  gcd(a, b) ∈ ℕ. gcd(a, b) divides a. gcd(a, b) divides b.
+let k = gcd(a, b), a natural number                                 (D1)
     mun:gcd
+    reads the largest number dividing both legs
 
-2.  a/gcd(a, b) ∈ ℕ
-    mun:divides-quotient n := a, d := gcd(a, b), from 1
+1.  k divides a. k divides b.
+    mun:gcd, from D1
 
-3.  b/gcd(a, b) ∈ ℕ
-    mun:divides-quotient n := b, d := gcd(a, b), from 1
+2.  a/k ∈ ℕ
+    mun:divides-quotient n := a, d := k, from 1
 
-4.  gcd(a, b)² divides a²
-    mun:divides-square d := gcd(a, b), n := a, from 1
+3.  b/k ∈ ℕ
+    mun:divides-quotient n := b, d := k, from 1
 
-5.  gcd(a, b)² divides b²
-    mun:divides-square d := gcd(a, b), n := b, from 1
+4.  k² divides a²
+    mun:divides-square d := k, n := a, from 1
 
-6.  gcd(a, b)² divides a² + b²
-    mun:divides-sum d := gcd(a, b)², a := a², b := b², from 4, 5
-    requires gcd(a, b)² ∈ ℤ: membership, from 1
+5.  k² divides b²
+    mun:divides-square d := k, n := b, from 1
 
-7.  gcd(a, b)² divides c²
+6.  k² divides a² + b²
+    mun:divides-sum d := k², a := a², b := b², from 4, 5
+
+7.  k² divides c²
     substitute a² + b² = c² (H4) into line 6
 
-8.  gcd(a, b) divides c
-    mun:divides-square d := gcd(a, b), n := c, from 7
-    requires gcd(a, b) ∈ ℤ: membership, from 1
+8.  k divides c
+    mun:divides-square d := k, n := c, from 7
 
-9.  c/gcd(a, b) ∈ ℕ
-    mun:divides-quotient n := c, d := gcd(a, b), from 1, 8
+9.  c/k ∈ ℕ
+    mun:divides-quotient n := c, d := k, from 8
 
-10. gcd(a/gcd(a, b), b/gcd(a, b)) = 1
-    mun:gcd-quotients-coprime
+10. gcd(a/k, b/k) = 1
+    mun:gcd-quotients-coprime, from D1
     requires b ≠ 0: inequalities, from H2
 
-11. (a/gcd(a, b))² + (b/gcd(a, b))² = (a² + b²)/gcd(a, b)²
+11. (a/k)² + (b/k)² = (a² + b²)/k²
     algebra
-    requires gcd(a, b) ∈ ℝ: membership, from 1
-    requires gcd(a, b) ≠ 0: inequalities, from 1
+    requires k ≠ 0: inequalities, from D1
 
-12. (a/gcd(a, b))² + (b/gcd(a, b))² = c²/gcd(a, b)²
+12. (a/k)² + (b/k)² = c²/k²
     substitute a² + b² = c² (H4) into line 11
 
-13. c²/gcd(a, b)² = (c/gcd(a, b))²
+13. c²/k² = (c/k)²
     algebra
-    requires gcd(a, b) ∈ ℝ: membership, from 1
-    requires gcd(a, b) ≠ 0: inequalities, from 1
+    requires k ≠ 0: inequalities, from D1
 
-14. (a/gcd(a, b))² + (b/gcd(a, b))² = (c/gcd(a, b))²
+14. (a/k)² + (b/k)² = (c/k)²
     calculation
-      (a/gcd(a, b))² + (b/gcd(a, b))² = c²/gcd(a, b)²        12
-                                      = (c/gcd(a, b))²       13
+      (a/k)² + (b/k)² = c²/k²        12
+                      = (c/k)²       13
 
 15. There is k ∈ ℕ with a/k ∈ ℕ, b/k ∈ ℕ, c/k ∈ ℕ, gcd(a/k, b/k) = 1,
     and (a/k)² + (b/k)² = (c/k)².
-    exhibit, from 1, 2, 3, 9, 10, 14
+    exhibit, from 2, 3, 9, 10, 14
 
 theorem triple-from-parameters
   note        The formulas give a triple by algebra: (m² − n²)² + (2mn)² is

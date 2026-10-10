@@ -276,9 +276,9 @@ theorem subsets-count
           1.2.2.  |X ∖ {a}| = k
                   mun:card-remove, from 1.2.1, C2
 
-          define U := 𝒫(X ∖ {a})                                         (D1)
+          let U = 𝒫(X ∖ {a})                                             (D1)
                  reads the subsets of X that do not contain a
-          define T := {S ∪ {a} : S ∈ U}                                  (D2)
+          let T = {S ∪ {a} : S ∈ U}                                      (D2)
                  reads the subsets of X that do contain a
 
           1.2.3.  |U| = 2^k

@@ -21,8 +21,8 @@ pub use load::{
 pub use proof::{
     cited_item, cited_items, cites_define, fmt, item_prefix, outermost, parse_proof,
     references, written_text, DefineLine, FileScope, Head, Hypothesis, Import, Intro,
-    ItemImport, ItemKind, Justification, Method, Names, Opener, Range, Requires,
-    ScopeId, Step, StepNo, Theorem,
+    ItemImport, ItemKind, Justification, Kinded, Method, Names, Opener, Range, Reason,
+    Requires, ScopeId, Step, StepNo, Theorem,
 };
 pub use records::{parse_database, Record, RecordKind, FIELDS};
 

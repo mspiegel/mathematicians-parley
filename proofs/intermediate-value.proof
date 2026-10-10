@@ -33,7 +33,7 @@ theorem intermediate-value
   ε, δ range over ℝ
   then there exists c ∈ [a, b] such that f(c) = 0
 
-define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
+let S = {x ∈ [a, b] : f(x) < 0}                                       (D1)
        reads the points of the interval where f is still below zero
 
 1.  a ∈ [a, b]
@@ -132,7 +132,8 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
            For all x ∈ [a, b], if |x − c| < δ then |f(x) − f(c)| < −f(c).
            obtain δ from line 16.4
 
-    define x₁ := min(b, c + δ/2)                                       (D2)
+    let x₁ = min(b, c + δ/2), a real number                            (D2)
+           mun:min-real x := b, y := c + δ/2
            reads a point right of c, within δ of it, and not past b
 
     16.6.  δ/2 > 0
@@ -149,27 +150,21 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
 
     16.10. x₁ − c < δ
            inequalities, from 16.9, 16.6
-           requires x₁ ∈ ℝ: mun:min-real x := b, y := c + δ/2, from D2
 
     16.11. a ≤ x₁
            inequalities, from 11, 16.8
-           requires x₁ ∈ ℝ: mun:min-real x := b, y := c + δ/2, from D2
 
     16.12. x₁ ∈ [a, b]
            mun:interval x := x₁, from 16.11, 16.9
-           requires x₁ ∈ ℝ: mun:min-real x := b, y := c + δ/2, from D2
 
     16.13. c − δ < x₁
            inequalities, from 16.8, 16.5
-           requires x₁ ∈ ℝ: mun:min-real x := b, y := c + δ/2, from D2
 
     16.14. x₁ < c + δ
            inequalities, from 16.10
-           requires x₁ ∈ ℝ: mun:min-real x := b, y := c + δ/2, from D2
 
     16.15. |x₁ − c| < δ
            mun:abs-difference-lt x := x₁, from 16.13, 16.14
-           requires x₁ ∈ ℝ: mun:min-real x := b, y := c + δ/2, from D2
 
     16.16. |f(x₁) − f(c)| < −f(c)
            instantiate x := x₁ in line 16.5, from 16.12, 16.15
@@ -193,7 +188,6 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
 
     16.21. not x₁ ≤ c
            inequalities, from 16.8, contradicting 16.20
-           requires x₁ ∈ ℝ: mun:min-real x := b, y := c + δ/2, from D2
 
     case
     assume f(c) = 0, which is the claim                               (C2)

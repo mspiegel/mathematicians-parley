@@ -146,16 +146,16 @@ theorem decimal-number
   assume for all n ∈ ℕ, 0 ≤ d(n) and d(n) ≤ 9                          (H2)
   then there is x ∈ ℝ with for all n ∈ ℕ, D(x, n) = d(n) or D(x, n) = s(d(n))
 
-define N(0) := 0,  N(k + 1) := 10·N(k) + d(k + 1),  for k ∈ ℕ₀       (D3)
+let N(0) = 0,  N(k + 1) = 10·N(k) + d(k + 1),  for k ∈ ℕ₀             (D3)
        reads the whole number whose digits are d(1), d(2), …, d(k)
 
-define S := {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}              (D4)
+let S = {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}                  (D4)
        reads the numbers 0.d(1)…d(k), the decimal cut off after k digits
 
-define L(k) := N(k)/10^k, for k ∈ ℕ₀                                   (D5)
+let L(k) = N(k)/10^k, for k ∈ ℕ₀                                       (D5)
        reads the lower end: the decimal cut off after k digits
 
-define U(k) := (N(k) + 1)/10^k, for k ∈ ℕ₀                             (D6)
+let U(k) = (N(k) + 1)/10^k, for k ∈ ℕ₀                                 (D6)
        reads the upper end: the same decimal with its last digit one higher
 
 1.  N(0) = 0
@@ -678,7 +678,7 @@ theorem sequence-misses-real
   let f : ℕ → ℝ                                                      (H1)
   then there is x ∈ ℝ with for all n ∈ ℕ, f(n) ≠ x
 
-define e(n) := s(D(f(n), n)), for n ∈ ℕ                              (D7)
+let e(n) = s(D(f(n), n)), for n ∈ ℕ                                  (D7)
        reads the diagonal changed: the n-th digit of f(n), plus one, with 9 becoming 0
 
 1.  For all n ∈ ℕ, D(f(n), n) ∈ ℤ.

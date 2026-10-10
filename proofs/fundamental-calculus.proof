@@ -68,10 +68,10 @@ theorem fundamental-calculus
   assume for all x ∈ (a, b), F′(x) = f(x)                             (H9)
   then ∫(a to b) f(t) dt = F(b) − F(a)
 
-define G(x) := ∫(a to x) f(t) dt, for x ∈ [a, b]                      (D1)
+let G(x) = ∫(a to x) f(t) dt, for x ∈ [a, b]                          (D1)
        reads the integral of f from a up to x
 
-define H(x) := G(x) − F(x), for x ∈ [a, b]                            (D2)
+let H(x) = G(x) − F(x), for x ∈ [a, b]                                (D2)
        reads the area function less F
 
 1.  a ∈ [a, b]

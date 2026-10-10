@@ -28,13 +28,13 @@ theorem binomial-step
   let m ∈ ℕ₀                                                          (H3)
   then (Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)·(x + y) = Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k
 
-define t(k) := C(m, k)·x^(m − k)·y^k, for k ∈ {0, …, m}               (D1)
+let t(k) = C(m, k)·x^(m − k)·y^k, for k ∈ {0, …, m}                   (D1)
        reads the k-th term of row m
 
-define p(k) := C(m, k)·x^((m + 1) − k)·y^k, for k ∈ {0, …, m + 1}     (D2)
+let p(k) = C(m, k)·x^((m + 1) − k)·y^k, for k ∈ {0, …, m + 1}         (D2)
        reads row m's k-th coefficient, with the powers of row m + 1
 
-define q(k) := C(m, k − 1)·x^((m + 1) − k)·y^k, for k ∈ {0, …, m + 1} (D3)
+let q(k) = C(m, k − 1)·x^((m + 1) − k)·y^k, for k ∈ {0, …, m + 1}     (D3)
        reads row m's coefficient before the k-th, with the powers of row m + 1
 
 1.  For all k ∈ {0, …, m}, t(k) ∈ ℝ.

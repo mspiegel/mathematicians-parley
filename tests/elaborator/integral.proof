@@ -6,7 +6,7 @@ theorem integral-letters
   let a ∈ ℝ                                                           (H1)
   let b ∈ ℝ                                                           (H2)
   let x ∈ ℝ                                                           (H3)
-  define I := ∫(a to b) x·s ds                                        (D1)
+  let I = ∫(a to b) x·s ds                                            (D1)
          reads the integral of x times s from a to b
   then I = ∫(a to b) x·u du
 
@@ -20,7 +20,7 @@ theorem integral-over-a-letter-in-use
   let a ∈ ℝ                                                           (H1)
   let b ∈ ℝ                                                           (H2)
   let x ∈ ℝ                                                           (H3)
-  define J := ∫(a to b) x dx                                          (D1)
+  let J = ∫(a to b) x dx                                              (D1)
          reads the integral of the identity from a to b
   then J = ∫(a to b) t dt
 

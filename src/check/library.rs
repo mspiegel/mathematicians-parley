@@ -10,7 +10,7 @@ use crate::citing::{
     claimed_member, finished, introduction, said_once, with_parts, Introduced, Library,
     Parts,
 };
-use crate::corpus::{Intro, Method, Step, StepNo, Theorem};
+use crate::corpus::{Intro, Kinded, Method, Step, StepNo, Theorem};
 use crate::formula::{parse_here, Node, Sorts};
 use crate::matching::{
     alike, expand, instantiation, standard, Binding, Context, Definitions,
@@ -208,7 +208,23 @@ pub fn statements_in_scope(
             }
         }
     }
+    // A let saying what kind of number its name is says so to a line citing
+    // it, besides what it names; a kind no record names is reported where
+    // the lets are checked (`check_kinds`).
+    for k in kinded_above(thm, step, env) {
+        out.insert(k.label.clone(), k.membership());
+    }
     out
+}
+
+/// The lets above `step` that say what kind of number their names are, each
+/// read; one whose kind no record names is left out.
+pub fn kinded_above(thm: &Theorem, step: &Step, env: Env) -> Vec<Kinded> {
+    thm.defines
+        .iter()
+        .filter(|d| d.line < step.line)
+        .filter_map(|d| d.kinded(&thm.path, &env.g.members).ok().flatten())
+        .collect()
 }
 
 /// What a citation supplies, what it claims, and what it says its variables
@@ -279,6 +295,9 @@ pub fn introduced(known: &Known, step: &Step) -> Introduced {
         if other.just.head.is(Method::Obtain) && other.line < step.line && around {
             said.push((other.line, sentences(&other.claim_text())));
         }
+    }
+    for k in kinded_above(known.thm, step, known.env) {
+        said.push((k.shown.line, vec![k.membership()]));
     }
     said.sort_by_key(|(line, _)| *line);
     let mut out = Introduced::new();

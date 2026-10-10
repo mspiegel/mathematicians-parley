@@ -495,6 +495,60 @@ pub fn check_requires(
     }
 }
 
+/// A let saying what kind of number its name is gives the reason on the
+/// line under it, and the reason shows the term the let names is one, as a
+/// requires line's reason shows its fact: it is read as a requires line of
+/// the step below the let, whose scope the let stands in (`SYNTAX.md`,
+/// naming a thing).
+pub fn check_kinds(
+    report: &mut Report,
+    thm: &Theorem,
+    library: &Library,
+    known: &Known,
+) {
+    for d in &thm.defines {
+        let kinded = match d.kinded(&thm.path, &known.env.g.members) {
+            Ok(Some(kinded)) => kinded,
+            Ok(None) => continue,
+            Err(problem) => {
+                report.problems.push(problem);
+                continue;
+            }
+        };
+        let Some(after) = thm.step_after(d.line) else {
+            report.say(
+                &thm.path,
+                d.line,
+                format!(
+                    "let {} stands below every step, where no step uses it",
+                    d.label
+                ),
+            );
+            continue;
+        };
+        let under = Step {
+            requires: vec![kinded.shown.clone()],
+            ..after.clone()
+        };
+        let _ = requires_read_as_step(report, thm, &under, &kinded.shown);
+        for found in unconcluded(&under, known, library) {
+            let said = match &found.missing {
+                Some(missing) => format!(
+                    "the reason under let {} cites {}, which asks for {}, and what it cites does not supply them",
+                    d.label,
+                    found.item,
+                    missing.join("; ")
+                ),
+                None => format!(
+                    "the reason under let {} needs {}, which {} does not conclude",
+                    d.label, kinded.shown.fact, found.item
+                ),
+            };
+            report.say(&thm.path, found.line, said);
+        }
+    }
+}
+
 /// Whether a requires line below `req` in its step rests on what `req` says
 /// is a member, or not zero, by a method that asks it of its atoms and the
 /// terms it divides by (`METHODS.md`): `requires |PQ| ∈ ℝ` above `requires

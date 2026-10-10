@@ -24,10 +24,10 @@ theorem mean-value
   assume f is differentiable on (a, b)                                (H6)
   then there is c ∈ (a, b) with f′(c) = (f(b) − f(a))/(b − a)
 
-define g(x) := ((f(a) − f(b))/(b − a))·x, for x ∈ [a, b]              (D1)
+let g(x) = ((f(a) − f(b))/(b − a))·x, for x ∈ [a, b]                  (D1)
        reads the line through 0 whose slope is the chord's, negated
 
-define F(x) := f(x) + g(x), for x ∈ [a, b]                            (D2)
+let F(x) = f(x) + g(x), for x ∈ [a, b]                                (D2)
        reads f with the line g added, so that it takes one value at a and b
 
 1.  a ∈ [a, b]

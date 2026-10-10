@@ -112,47 +112,38 @@ theorem cauchy-schwarz
     note step 1 at t = −B/A, where the quadratic is smallest, gives C − B²/A ≥ 0
     assume 0 < Σ(k = 1 to n) a(k)²                                    (C3)
 
-    define A := Σ(k = 1 to n) a(k)²                                   (D1)
+    let A = Σ(k = 1 to n) a(k)², a real number                        (D1)
+           membership
            reads the sum of the squares of the a's
 
-    define B := Σ(k = 1 to n) a(k)·b(k)                               (D2)
+    let B = Σ(k = 1 to n) a(k)·b(k), a real number                    (D2)
+           membership
            reads the sum of the products
 
-    define C := Σ(k = 1 to n) b(k)²                                   (D3)
+    let C = Σ(k = 1 to n) b(k)², a real number                        (D3)
+           membership
            reads the sum of the squares of the b's
 
     5.11. (−B/A)²·A + 2(−B/A)·B + C ≥ 0
           instantiate t := −B/A in line 1, from D1, D2, D3
-          requires A ∈ ℝ: membership, from D1
           requires A > 0: inequalities, from D1, C3
           requires −B/A ∈ ℝ: membership, from D1, D2
 
     5.12. (−B/A)²·A + 2(−B/A)·B + C = C − B²/A
           algebra
-          requires A ∈ ℝ: membership, from D1
-          requires B ∈ ℝ: membership, from D2
-          requires C ∈ ℝ: membership, from D3
           requires A ≠ 0: inequalities, from D1, C3
 
     5.13. B²/A ≤ C
           inequalities, from 5.11, 5.12
-          requires A ∈ ℝ: membership, from D1
           requires A > 0: inequalities, from D1, C3
-          requires B ∈ ℝ: membership, from D2
-          requires C ∈ ℝ: membership, from D3
           requires A ≠ 0: inequalities
 
     5.14. A·(B²/A) ≤ A·C
           mun:multiply-le, from 5.13
-          requires A ∈ ℝ: membership, from D1
           requires A > 0: inequalities, from D1, C3
-          requires B²/A ∈ ℝ: membership, from D1, D2
-          requires C ∈ ℝ: membership, from D3
 
     5.15. A·(B²/A) = B²
           algebra
-          requires A ∈ ℝ: membership, from D1
-          requires B ∈ ℝ: membership, from D2
           requires A ≠ 0: inequalities, from D1, C3
 
     5.16. B² ≤ A·C

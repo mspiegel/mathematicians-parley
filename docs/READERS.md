@@ -157,9 +157,11 @@ step, and the mark is for the reader alone.
 **Membership in a number system is said once, where a letter is
 introduced.** That p is a real number is a dull fact wherever a cited item or
 method demands it, and it is written once: on the line that introduces p,
-`let p ∈ ℝ`, or the sentence `p ∈ ℤ` that an `obtain` states of each name it
-introduces (`SYNTAX.md`). A step does not write it again, and does not cite
-that line for it. The same holds of three kinds of term, and of nothing else:
+`let p ∈ ℝ`, the sentence `p ∈ ℤ` that an `obtain` states of each name it
+introduces, or the kind of number a naming line says its name is, `let m =
+gcd(s, w), a natural number` (`SYNTAX.md`). A step does not write it again,
+and does not cite that line for it. The same holds of three kinds of term,
+and of nothing else:
 
 - **a numeral**, `3 ∈ ℤ` or `10 − 1 ∈ ℕ`, which the page shows whole;
 - **a letter**, in the set its introducing line names and every number system
@@ -178,7 +180,8 @@ on one step, and those lines buried the ones that can fail.
 
 What a quotient demands is still written: its divisor's `≠ 0`, which can fail,
 unless the divisor is a numeral. So is every membership the three kinds do
-not reach: a defined name, a function's value, a sum, |x|, n!, a power with a
+not reach: a defined name whose naming line says no kind of number, a
+function's value, a sum, |x|, n!, a power with a
 letter exponent, and any term a library item builds. These rest on a lemma or
 a line a reader may want to see, and a requires line points to it.
 

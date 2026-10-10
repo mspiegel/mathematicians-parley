@@ -41,8 +41,8 @@ listed in the checker instead.
 - `<ref>` is a `<number>` or a `<label>`.
 - `<name>` is `[A-Za-z][A-Za-z0-9-]*`, as in `least-upper-bound` and
   `nat0-successor`. Every item's name is lowercase words joined by hyphens; the
-  capital is there for the name a `define` gives a function, `S` in
-  `define S(m) := …`.
+  capital is there for the name a naming line gives a function, `S` in
+  `let S(m) = …`.
 - `<module>` is `<name> { / <name> }`, a file's path from the root of the
   corpus without its extension: `stdlib/numbers`, `proofs/bezout`.
 - `<cited>` is a `<name>`, what follows an item's prefix, `thm:` or another:
@@ -536,9 +536,9 @@ substitution in the corpus comes close.
 <kind>        ::= `axiom` | `theorem` | `definition`
 <theorem>     ::= `theorem` <name>
                   { <theorem field> }
-                  { <hypothesis> | <define> }
+                  { <hypothesis> | <naming> }
                   <conclusion>
-                  { <define> | <step> }
+                  { <naming> | <step> }
 <theorem field> ::= ( `metamath` | `note` ) <words>
 <hypothesis>  ::= ( `let` <introduction> | `assume` <formula> ) `(` <label> `)`
 <introduction>::= <name> `∈` <term>
@@ -558,13 +558,37 @@ substitution in the corpus comes close.
 <define>      ::= `define` <name> [ `(` <name> `)` ] `:=` <rule>
                   [ `,` `for` <name> ( `∈` | `⊆` ) <term> ] `(` <label> `)`
                   `reads` <words>
-                | `define` <recursion> `,` `for` <name> `∈` `ℕ₀`
+<naming>      ::= `let` <name> [ `(` <name> `)` ] `=` <rule>
+                  [ `,` `for` <name> ( `∈` | `⊆` ) <term> ] `(` <label> `)`
+                  `reads` <words>
+                | `let` <name> `=` <term> `,` <kind> `(` <label> `)`
+                  <newline> <reason>
+                  `reads` <words>
+                | `let` <recursion> `,` `for` <name> `∈` `ℕ₀`
                   `(` <label> `)` `reads` <words>
-<recursion>   ::= <name> `(` `0` `)` `:=` <rule>
-                  { `,` <name> `(` ( `0` | <name> `+` `1` ) `)` `:=` <rule> }
+<recursion>   ::= <name> `(` `0` `)` `=` <rule>
+                  { `,` <name> `(` ( `0` | <name> `+` `1` ) `)` `=` <rule> }
 <rule>        ::= <term>
                 | { <term> `if` <formula> <newline> } <term> `otherwise`
+<kind>        ::= one entry of the number systems' `member` field:
+                  `a natural number`, `a natural number or 0`, `an integer`,
+                  `a rational number`, `a real number`, `a complex number`
+<reason>      ::= what follows the colon of a <requires> line
 ```
+
+A `define` is the file's and stands outside every theorem; a `<naming>` is a
+`let` followed by `=`, one theorem's, and stands inside it (`SYNTAX.md`). The
+two are one line in what follows, and this document calls either a define. A
+`define` inside a theorem, and a naming `let` outside one, are defects. What
+follows the name tells a naming `let` from a `<hypothesis>`'s: `=`, and not
+`∈`, `∉`, `⊆`, `:` or `be`.
+
+A naming `let` that ends with a `<kind>` says its name is that kind of
+number, and the `<reason>` on the next line shows the term is: it is read as
+a requires line saying `<term> ∈ S` of the first step below the let, and it
+cites nothing below the let. Citing the let's label then gives the membership
+beside the equation. A naming `let` in a theorem's statement, before `then`,
+says no kind.
 
 A define whose first rule is said at 0 defines sequences by recursion. Each
 name it gives has exactly one rule at `0` and one at the index `+ 1`, where
@@ -579,7 +603,7 @@ line, and the lines are the term `_ if _, _ otherwise` (`corpus/db/notation.reco
 `by-cases`) nested from the right; set.mm's `if ( P , a , b )` is what it
 reads into. Otherwise the lines are one term wrapped.
 
-A define with a name in brackets after its own is a function: `define S(m) :=
+A define with a name in brackets after its own is a function: `let S(m) =
 Σ(j = 1 to m) j, for m ∈ ℕ` says S is the function on ℕ that sends each m to
 that sum, as a reader writes "let S(m) = 1 + 2 + … + m". Its domain is said
 with it, after `for`, and names the same letter as the brackets; a parameter

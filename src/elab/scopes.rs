@@ -24,7 +24,8 @@ use super::state::{
 use super::{Facts, Line, Lines};
 use crate::binds;
 use crate::corpus::{
-    define_parts, fmt, item_prefix, DefineParts, Intro, Item, Step, CITED, ITEM_PREFIX,
+    define_parts, fmt, item_prefix, DefineParts, Intro, Item, Kinded, Step, CITED,
+    ITEM_PREFIX,
 };
 use crate::matching::standard;
 use crate::mm::kernel::Term;
@@ -2069,10 +2070,122 @@ impl<'a> Elaborator<'a> {
                     (scope, facts, closers) = self.one_define(
                         &d.label, d.line, &one.name, &made, &scope, &facts, closers,
                     )?;
+                    if let Some(kinded) = d.kinded(&self.thm.path, &self.g.members)? {
+                        self.kind_shown(&kinded, &made, &scope, &facts)?;
+                    }
                 }
             }
         }
         Ok((scope, facts, closers))
+    }
+
+    /// What a let saying a kind of number says of its name, `m ∈ ℕ`: the
+    /// term it names is in the set by its reason, read as a requires line of
+    /// the step below the let (`as_a_step`), and the name is equal to the
+    /// term. The name is then in the set as a letter `let m ∈ ℕ` puts there
+    /// is: a step has the membership without citing the let
+    /// (`introduced_membership`), and a step citing the let has it as a line
+    /// the let says.
+    fn kind_shown(
+        &mut self,
+        kinded: &Kinded,
+        body: &str,
+        scope: &str,
+        facts: &Facts,
+    ) -> Checked<()> {
+        let line = kinded.shown.line;
+        // The step's own requires lines are below the let and nothing the
+        // reason rests on.
+        let Some(after) = self.thm.step_after(line).map(|s| Step {
+            requires: Vec::new(),
+            ..s.clone()
+        }) else {
+            return Err(self.defect(
+                line,
+                format!(
+                    "let {} stands below every step, where no step uses it",
+                    kinded.label
+                ),
+            ));
+        };
+        let node = self.read(&kinded.shown.fact)?;
+        let shown = self.term(&node)?;
+        let set = self.rpn(&self.to_term(&shown).children()[1]);
+        let what = format!("the reason under let {}", kinded.label);
+        let in_set = match self.as_a_step(&after, &kinded.shown, &what, scope, facts)? {
+            Built(proof) => proof,
+            Declined(why) => {
+                return Err(self.defect(
+                    line,
+                    format!(
+                        "the reason under let {} does not show {}: {}",
+                        kinded.label,
+                        kinded.shown.fact,
+                        self.say(&why)
+                    ),
+                ));
+            }
+        };
+        // The let's term is read with the letters it binds kept apart from
+        // the proof's (`apart`), and its reason's fact as the page writes
+        // it; where the two differ in a bound letter, the one is carried to
+        // the other.
+        let want = t!(body, set, "wcel");
+        let in_set = if want == shown {
+            in_set
+        } else {
+            let (given, wanted) = (self.to_term(&shown), self.to_term(&want));
+            let Built(alike) =
+                self.same(&given, &wanted, scope, facts, Some(&after))?
+            else {
+                return Err(self.defect(
+                    line,
+                    format!(
+                        "the reason under let {} shows {}, which is not carried to what the let names",
+                        kinded.label, kinded.shown.fact
+                    ),
+                ));
+            };
+            pf!(self.b; scope, shown, want, in_set, alike, "mpbid")
+        };
+        let name = self.names[&kinded.name].clone();
+        let equation = t!(name, body, "wceq");
+        let equal = self
+            .held(facts, &equation, scope)?
+            .expect("the equation the let laid down");
+        let membership = t!(name, set, "wcel");
+        let proof = self.b.ap(
+            "eqeltrd",
+            &binds! {"ph" => scope, "A" => &name, "B" => body, "C" => &set},
+            &[&equal, &in_set],
+        );
+        let proof = self.seal(proof, &kinded.label);
+        self.know(facts, membership.clone(), proof.clone());
+        // The let's line says both, as a hypothesis line of two sentences
+        // does, so a step citing it reads the membership as it reads the
+        // equation, written out where it writes the name out.
+        let said = self
+            .lines
+            .get(&kinded.label)
+            .expect("the line the let laid down");
+        let both = self.b.ap(
+            "jca",
+            &binds! {"ph" => scope, "ps" => &said.term, "ch" => &membership},
+            &[&said.proof, &proof],
+        );
+        let term = t!(said.term, membership, "wa");
+        // Held as a fact too, so it is carried into each scope opened below.
+        self.know(facts, term.clone(), both.clone());
+        self.lines.set(
+            kinded.label.clone(),
+            Line {
+                term,
+                proof: both,
+                sentences: said.sentences,
+            },
+        );
+        self.sets.insert(kinded.name.clone(), set);
+        self.note_introduced(scope, facts)
     }
 
     /// One define taken: its name a spare variable, its equation laid down,

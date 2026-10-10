@@ -43,13 +43,13 @@ theorem degree-by-walk
   let x ∈ V                                                           (H6)
   then deg(x) = |{i ∈ {1, …, n} : x is incident with e(i)}|
 
-define S := {i ∈ {1, …, n} : x is incident with e(i)}                     (D1)
+let S = {i ∈ {1, …, n} : x is incident with e(i)}                         (D1)
        reads the places in the list whose edge is incident with x
 
-define T := {a ∈ E : x is incident with a}                                (D2)
+let T = {a ∈ E : x is incident with a}                                    (D2)
        reads the edges incident with x
 
-define g(i) := e(i), for i ∈ S                                        (D3)
+let g(i) = e(i), for i ∈ S                                            (D3)
        reads the list, read only at the places in S
 
 1.  For all i ∈ S, g(i) ∈ T.
@@ -222,10 +222,10 @@ theorem walk-parity
 5.  |{i ∈ {1, …, n} : x is incident with e(i)}| = |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}|
     mun:count-same, from 3
 
-define d := |{i ∈ {1, …, n} : x = v(i − 1)}|                          (D1)
+let d = |{i ∈ {1, …, n} : x = v(i − 1)}|                              (D1)
        reads how many of the walk's edges leave x
 
-define r := |{i ∈ {1, …, n} : x = v(i)}|                              (D2)
+let r = |{i ∈ {1, …, n} : x = v(i)}|                                  (D2)
        reads how many of the walk's edges arrive at x
 
 6.  |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}| = d + r
@@ -240,8 +240,9 @@ define r := |{i ∈ {1, …, n} : x = v(i)}|                              (D2)
 9.  r = |{i ∈ {1, …, n − 1} : x = v(i)}|
     mun:count-last-fails, from H8, D2
 
-define m := |{i ∈ {1, …, n − 1} : x = v(i)}|                          (D3)
-       reads how many times the walk passes through x
+let m = |{i ∈ {1, …, n − 1} : x = v(i)}|, a natural number or 0       (D3)
+    mun:count-nat0 k := n − 1
+    reads how many times the walk passes through x
 
 10. d = m
     calculation
@@ -262,7 +263,6 @@ define m := |{i ∈ {1, …, n − 1} : x = v(i)}|                          (D3)
 
 14. m + m = 2m
     algebra
-    requires m ∈ ℕ₀: mun:count-nat0 k := n − 1, from D3
 
 15. deg(x) = 2m
     calculation
@@ -273,7 +273,6 @@ define m := |{i ∈ {1, …, n − 1} : x = v(i)}|                          (D3)
 
 16. deg(x) is even
     mun:even n := deg(x), from 15
-    requires m ∈ ℕ₀: mun:count-nat0 k := n − 1, from D3
     requires |{i ∈ {1, …, n} : x is incident with e(i)}| ∈ ℕ₀: mun:count-nat0 k := n
     requires deg(x) ∈ ℕ₀: membership, from 2
 

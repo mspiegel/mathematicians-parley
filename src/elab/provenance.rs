@@ -956,7 +956,12 @@ impl<'a> Elaborator<'a> {
         // be, by the route a numbered step takes (`as_a_step`): a requires
         // line and a step have one way of being proved.
         if let (Some(step), Some(req)) = (step, req) {
-            if let Built(p) = self.as_a_step(step, req, scope, facts)? {
+            let what = format!(
+                "the requires line {} of step {}",
+                str::trim(&req.fact),
+                step.number
+            );
+            if let Built(p) = self.as_a_step(step, req, &what, scope, facts)? {
                 return Ok(Built(p));
             }
         }

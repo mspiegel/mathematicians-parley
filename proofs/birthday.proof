@@ -10,9 +10,9 @@ theorem birthday
               fewer than half give no two of them the same day: the one-to-
               one functions are 365·364·…·343 of the 365^23 functions, and
               twice that product is less than 365^23.
-  define S := the functions from {1, …, 23} to {1, …, 365}            (D1)
+  let S = the functions from {1, …, 23} to {1, …, 365}                (D1)
          reads the ways 23 people can have their birthdays
-  define T := {f ∈ S : f : {1, …, 23} → {1, …, 365} is one-to-one}    (D2)
+  let T = {f ∈ S : f : {1, …, 23} → {1, …, 365} is one-to-one}        (D2)
          reads the ways in which no two of them share one
   then |T|/|S| < 1/2
 

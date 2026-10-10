@@ -299,7 +299,7 @@ repaired.
   puts all hypotheses before all conclusions. It is written with two `then`
   groups, which no other record uses. The sum of the first m numbers and the
   sum of the first powers of a were written that way too, as S and G with a
-  notation each; they are functions their proofs define now (`define S(m) :=
+  notation each; they are functions their proofs define now (`let S(m) =
   …, for m ∈ ℕ`), which took two global letters out of the notation file.
 - **`axi:stdlib/geometry/side-angle-side` and its one citation disagree on variable names.** The
   statement uses P, Q, R, P′, Q′, R′ and the isosceles proof instantiates A, B,

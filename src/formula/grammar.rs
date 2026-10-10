@@ -117,6 +117,9 @@ pub struct Grammar {
     long_names: IndexSet<String>,
     /// The sort each library function's name has in a formula.
     function_sorts: IndexMap<String, Sort>,
+    /// How a reader says one member of a set, by the words, and the set's
+    /// symbol: `a natural number` is a member of ℕ (the `member` field).
+    pub members: IndexMap<String, String>,
     /// The two caches are hashed with Fx rather than the default SipHash:
     /// every sentence read is looked up in both, and with SipHash the looking
     /// up took about half the time reading did.
@@ -169,6 +172,7 @@ impl Grammar {
             .iter()
             .filter_map(|(name, f)| Some((name.clone(), function_sort(&f.sort)?)))
             .collect();
+        let members = members(records, &notations)?;
         Ok(Grammar {
             notations,
             words,
@@ -176,6 +180,7 @@ impl Grammar {
             functions,
             long_names,
             function_sorts,
+            members,
             tighter: compile_precedence(records),
             tokens: RefCell::new(IndexMap::default()),
             readings: RefCell::new(IndexMap::default()),
@@ -221,6 +226,49 @@ impl Grammar {
             .insert(text.to_string(), Rc::clone(&read));
         Ok(read)
     }
+}
+
+/// The words for one member of each set a notation record names one for,
+/// one entry of its `member` field per pattern, with the set's symbol.
+fn members(
+    records: &[Record],
+    notations: &[Notation],
+) -> Checked<IndexMap<String, String>> {
+    let mut out = IndexMap::new();
+    for r in records {
+        let Some(said) = r.field("member") else {
+            continue;
+        };
+        let says = crate::targets::split_entries(said);
+        let patterns: Vec<&Notation> =
+            notations.iter().filter(|n| n.name == r.name).collect();
+        let line = r.lines.get("member").copied().unwrap_or(r.line);
+        if says.len() != patterns.len() {
+            return Err(Problem::new(
+                &r.path,
+                line,
+                format!(
+                    "notation {} says the member of {} sets and has {} patterns",
+                    r.name,
+                    says.len(),
+                    patterns.len()
+                ),
+            ));
+        }
+        for (words, pattern) in says.into_iter().zip(patterns) {
+            if out
+                .insert(words.to_string(), pattern.literal.clone())
+                .is_some()
+            {
+                return Err(Problem::new(
+                    &r.path,
+                    line,
+                    format!("{} is said of the members of two sets", repr(words)),
+                ));
+            }
+        }
+    }
+    Ok(out)
 }
 
 /// What a reading of these tokens depends on besides the grammar: the text,

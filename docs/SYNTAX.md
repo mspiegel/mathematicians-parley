@@ -510,11 +510,51 @@ equation, is read at a member, and so are `membership`, `algebra` and
 `inequalities`, which each prove one fact. A step whose body needs more than
 one step is still a block.
 
-A `define` line names an object: `define S := E (D1)` is an unnumbered,
-labelled line placed where S is first needed. It introduces S and states one
-fact, that S is E, as a textbook's "let x₁ = min(b, c + δ/2)" does, and it is
-cited by its label wherever a step needs to know what S stands for. It is the
-third kind of unnumbered line beside `let` and `assume`.
+A naming line gives an object a name. In a theorem it opens with `let` and
+`=`, is labelled rather than numbered, and stands where the name is first
+needed:
+
+```
+let m = gcd(s, w), a natural number                                 (D1)
+    mun:gcd a := s, b := w, from 28, 2
+    reads the number whose square is s
+
+48. s = m²
+    calculation
+      s = gcd(s, w)²    47
+        = m²            D1
+```
+
+It introduces m and states that m is gcd(s, w), as a textbook's "let x₁ =
+min(b, c + δ/2)" does, and a step that needs what m stands for cites it by
+its label. After a comma it may say which numbers m is among, in the words
+the number system's notation record gives (`member`): a natural number, a
+natural number or 0, an integer, a rational number, a real number, a
+complex number. That says gcd(s, w) ∈ ℕ, and the line under it gives the
+reason, written as a requires line's reason is: a method or an item, and
+what it cites, all of it above the let. The equation is what the name means
+and needs no reason. The membership m ∈ ℕ is then said there once, as an
+`obtain`'s membership sentence is: no later step writes it, and a step that
+cites the let has it as a line the let says, as `inequalities, from D1`
+reads m ≥ 1 off it (`READERS.md`). A naming line that says no kind of number
+has no reason line, and one that names a function says none.
+
+A naming line in a theorem's statement, between its hypotheses and `then`,
+says no kind of number: the statement is what the theorem assumes, and a
+reason is a step of its proof.
+
+What follows the name tells a naming line from the `let` that takes any
+member: `let x ∈ ℝ` lets x be anything in ℝ, and `let m = gcd(s, w)` names
+this one number. The name is new, so the line is never read as assuming
+something of a letter already in use.
+
+Above a file's first theorem a name belongs to the whole file, and another
+file may import it (`import definition`). There it is a `define`, with `:=`:
+`define T(k) := k(k + 1)/2, for k ∈ ℕ (D1)`. The word says where the name
+lives: a `define` is the file's and may travel, a naming `let` is one
+theorem's and goes no further. A `define` inside a theorem, and a naming
+`let` above one, are reported. Each is cited by its label, each carries a
+`reads` line, and what this document says of a define says it of either.
 
 **A defined name and the term it names are one formula in a step that cites
 the define.** A define states that the name is the term and nothing more, so
@@ -523,7 +563,7 @@ step claiming `𝒫X = U ∪ T`, citing the defines of U and T, and a theorem
 concluding the same thing with both sets written out say the same thing, and
 the citation is checked as such. Expansion repeats, since a define may be
 written in terms of an earlier one, and the step cites each define it passes
-through: F(x) ∈ ℝ, where F(x) := f(x) + g(x), cites the defines of F and g.
+through: F(x) ∈ ℝ, where F(x) = f(x) + g(x), cites the defines of F and g.
 A defined function applied is its rule at the argument, and standing alone it
 is the rule itself, so `f : S → S` and a line saying every f(r) lies in S are
 about one function however each is written (Euler's theorem, steps 8 to 10).
@@ -544,7 +584,7 @@ is and nothing of what x₁ is, and cites the one define
 (intermediate-value, step 16.19). A reader asking where x₁ came from follows
 the lines it cites back to the steps that cite the define of x₁.
 
-**A define may name a function.** `define S(m) := Σ(j = 1 to m) j, for m ∈ ℕ
+**A define may name a function.** `let S(m) = Σ(j = 1 to m) j, for m ∈ ℕ
 (D1)` is "let S(m) = 1 + 2 + … + m", with the domain said beside the rule.
 `S(n)` is then S applied to n, and a step that needs what that is writes it
 and cites the define: `S(k + 1) = Σ(j = 1 to k + 1) j` is a link cited `D1`,
@@ -578,8 +618,8 @@ G, and the reader meets G before the fact. A define over the theorem's own
 prints it inside a brace:
 
 ```
-define h(x) := f(x)      if x ∈ C
-               g⁻¹(x)    otherwise,  for x ∈ A                (D4)
+let h(x) = f(x)      if x ∈ C
+           g⁻¹(x)    otherwise,  for x ∈ A                    (D4)
 ```
 
 Every line but the last gives a value and the condition it is taken under;
@@ -600,11 +640,11 @@ for the value at k + 1, and several together, as a textbook writes an
 algorithm that keeps several numbers:
 
 ```
-define a(0) := M,  b(0) := N,
-       a(k + 1) := b(k)             if b(k) ≠ 0
-                   a(k)             otherwise,
-       b(k + 1) := a(k) mod b(k)    if b(k) ≠ 0
-                   0                otherwise,   for k ∈ ℕ₀           (D1)
+let a(0) = M,  b(0) = N,
+    a(k + 1) = b(k)             if b(k) ≠ 0
+               a(k)             otherwise,
+    b(k + 1) = a(k) mod b(k)    if b(k) ≠ 0
+               0                otherwise,   for k ∈ ℕ₀               (D1)
 ```
 
 Each name has one value at 0 and one rule at k + 1, and a rule may be by
@@ -629,12 +669,12 @@ This is the reading a calculation link citing the define makes, as a step
 of its own.
 
 **A define with a parameter also states what its function is on**, since the
-domain is written beside the rule: `define t(c) := g·c, for c ∈ H (D2)`
+domain is written beside the rule: `let t(c) = g·c, for c ∈ H (D2)`
 gives `t is a function on H`, cited `D2` as a step or `from D2` in a
 `requires` line. It states nothing about where the values lie: `t : H → gH`
 is proved, from a line saying each value is in gH, as Lagrange's step 8.2
-does. The domain may be a set another define names, as Euler's `define f(r)
-:= (r·a) mod n, for r ∈ S` is on S. A cited item whose `let g : D → ℝ` the citation fills with a defined
+does. The domain may be a set another define names, as Euler's `let f(r) =
+(r·a) mod n, for r ∈ S` is on S. A cited item whose `let g : D → ℝ` the citation fills with a defined
 function, `g := g`, asks that type in a `requires` line citing the step that
 proves it, as the mean value theorem's steps 10 to 15 do.
 

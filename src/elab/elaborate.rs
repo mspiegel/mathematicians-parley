@@ -886,11 +886,14 @@ impl<'a> Elaborator<'a> {
     /// are lines it cites (R2), with what each says: `m·n ≥ 0: inequalities`
     /// reads it off `m·n ∈ ℕ` above as off a cited line saying so. Two terms
     /// differing is taken only from a line the requires line cites
-    /// (`METHODS.md`), so a disequality above is not among them.
+    /// (`METHODS.md`), so a disequality above is not among them. `what`
+    /// names the line in a message: a requires line of its step, or the
+    /// reason under a let.
     pub fn as_a_step(
         &mut self,
         step: &Step,
         req: &Requires,
+        what: &str,
         scope: &str,
         facts: &Facts,
     ) -> Checked<Route<Proof>> {
@@ -935,9 +938,7 @@ impl<'a> Elaborator<'a> {
         let made = made.map_err(|mut p| {
             if p.line.line == req.line {
                 p.message = format!(
-                    "the requires line {} of step {}, read as a step citing what it cites: {}",
-                    str::trim(&req.fact),
-                    fmt(&step.number),
+                    "{what}, read as a step citing what it cites: {}",
                     p.message
                 );
             }
@@ -3779,10 +3780,15 @@ impl<'a> Elaborator<'a> {
         let said = node.children[0].text.clone();
         let mut stands = format!("{} cv", self.binder_var(&said)?);
         // The witness stands where the claim's name does in a cited line,
-        // read against the whole of what the claim asks of it.
+        // read against the whole of what the claim asks of it: what it says
+        // of the witness first, and then that the witness lies in the
+        // domain. `k ∈ ℕ` fits any line saying some term is a natural
+        // number, so a line saying `a/k ∈ ℕ` names k by the body's `a/k ∈ ℕ`
+        // and never a/k by the domain; a line saying only `g ∈ G` still
+        // names g, where the body is nothing a line says.
         let asked_shape = self.to_term(&t!(
-            t!(stands, self.rpn(&domain), "wcel"),
             self.rpn(&body),
+            t!(stands, self.rpn(&domain), "wcel"),
             "wa"
         ));
         let asked = self.applications_read(&asked_shape);

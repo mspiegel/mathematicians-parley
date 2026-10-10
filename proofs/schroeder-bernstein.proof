@@ -37,11 +37,11 @@ theorem fixed-part
   let g : B → A                                                       (H4)
   then there exists C ⊆ A such that g[B ∖ f[C]] = A ∖ C
 
-define M(X) := g[B ∖ f[X]], for X ⊆ A                              (D1)
+let M(X) = g[B ∖ f[X]], for X ⊆ A                                  (D1)
        reads take what f misses from X, and see where g sends it
-define D := {X ⊆ A : M(X) ∩ X = ∅}                                  (D2)
+let D = {X ⊆ A : M(X) ∩ X = ∅}                                      (D2)
        reads the parts X of A that share nothing with M(X)
-define C := ⋃(X ∈ D) X                                               (D3)
+let C = ⋃(X ∈ D) X                                                   (D3)
        reads everything in at least one of them: the largest part of A that shares nothing with its M
 
 1.  For all X ⊆ A, M(X) ⊆ A.
@@ -167,10 +167,10 @@ theorem schroeder-bernstein
 2.  C ⊆ A. g[B ∖ f[C]] = A ∖ C.
     obtain C: thm:fixed-part
 
-    define R := f[C]                                                  (D1)
+    let R = f[C]                                                      (D1)
            reads what f reaches from C
-    define h(x) := f(x)      if x ∈ C
-                   g⁻¹(x)    otherwise,  for x ∈ A                    (D2)
+    let h(x) = f(x)      if x ∈ C
+               g⁻¹(x)    otherwise,  for x ∈ A                        (D2)
            reads f on C, and the way back along g on the rest of A
 
 3.  For all t ∈ A ∖ C, h(t) ∈ B ∖ R and g(h(t)) = t.

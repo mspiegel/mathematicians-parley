@@ -38,7 +38,7 @@ theorem walk-parity-by-induction
   assume v and e form a walk of n edges                               (H5)
   let k ∈ {0, …, n}                                                   (H6)
   let x ∈ V ∖ {v(0)}                                                  (H7)
-  define c(j, y) := |{i ∈ {1, …, j} : y is incident with e(i)}|, for j ∈ ℕ₀, y ∈ V  (D1)
+  let c(j, y) = |{i ∈ {1, …, j} : y is incident with e(i)}|, for j ∈ ℕ₀, y ∈ V  (D1)
          reads how many of the first j edges are incident with y
   then c(k, x) is odd ↔ x = v(k)
 

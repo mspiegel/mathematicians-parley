@@ -21,6 +21,10 @@ pub struct Define {
     /// The arguments, in the order the name takes them; none for a name
     /// that stands for a term.
     pub params: Vec<Param>,
+    /// What kind of number a let says its name is, in a reader's words:
+    /// `let m = gcd(s, w), a natural number`. The reason is the line under
+    /// it (`DefineLine::reason`).
+    pub kind: Option<String>,
 }
 
 /// One argument of a defined function, and the set it runs over.
@@ -87,8 +91,49 @@ impl DefineParts {
 
 regex!(
     DEFINED,
-    r"(?s)^define\s+(?P<name>[^\s(]+)(?:\((?P<params>[^()]+)\))?\s*:=\s*(?P<body>.+?)(?:,\s*for\s+(?P<fors>.+))?$"
+    r"(?s)^(?:define|let)\s+(?P<name>[^\s(]+)(?:\((?P<params>[^()]+)\))?\s*(?P<gives>:=|=)\s*(?P<body>.+?)(?:,\s*for\s+(?P<fors>.+))?$"
 );
+
+/// Which word a naming line opens with (`SYNTAX.md`): `define`, for a name
+/// the file gives and another may import, written outside every theorem; or
+/// `let` followed by `=`, for a name one theorem gives, written inside it.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Naming {
+    Define,
+    Let,
+}
+
+impl Naming {
+    /// The word itself.
+    pub fn word(self) -> &'static str {
+        match self {
+            Naming::Define => "define",
+            Naming::Let => "let",
+        }
+    }
+
+    /// What the word puts between a name and what it names.
+    pub fn gives(self) -> &'static str {
+        match self {
+            Naming::Define => ":=",
+            Naming::Let => "=",
+        }
+    }
+}
+
+// A `let` that names: a name, perhaps applied, and `=`, or the `:=` a let
+// does not take, which `define_parts` then reports. Any other `let` takes a
+// member of a set, or a letter of a sort, and is no naming line.
+regex!(LET_NAMING, r"^let\s+[^\s(=∈∉⊆:]+(?:\([^()]*\))?\s*:?=[^=]");
+
+/// The word a naming line opens with, or None for a line that names
+/// nothing: `let x ∈ ℝ` takes any member and is no naming line.
+pub fn naming(text: &str) -> Option<Naming> {
+    if text.starts_with("define ") {
+        return Some(Naming::Define);
+    }
+    LET_NAMING.is_match(text).then_some(Naming::Let)
+}
 // One argument's domain in a define's `for` clause: `m ∈ ℕ₀`, or `X ⊆ A`.
 regex!(
     FOR_ONE,
@@ -159,7 +204,7 @@ pub const SEQUENCE_NAME: &str = r"[A-Za-zα-ω][₀-₉′]*";
 // `:=`. A rule runs to the next head or to the closing `for`.
 regex!(
     RECURSIVE_HEAD,
-    format!(r"(?s)(?:^|,)\s*(?P<name>{SEQUENCE_NAME})\((?P<at>[^()]*)\)\s*:=")
+    format!(r"(?s)(?:^|,)\s*(?P<name>{SEQUENCE_NAME})\((?P<at>[^()]*)\)\s*(?::=|=)")
 );
 regex!(
     RECURSIVE_FOR,
@@ -202,7 +247,8 @@ fn recursion_parts(said: &str) -> Route<DefineParts> {
             "a define by recursion starts at 0, so its index runs over ℕ₀, not {domain}"
         ));
     }
-    let body = &said["define".len()..closing.get(0).unwrap().start()];
+    let word = naming(said).map_or("define", Naming::word);
+    let body = &said[word.len()..closing.get(0).unwrap().start()];
     let heads: Vec<_> = RECURSIVE_HEAD.captures_iter(body).collect();
     let mut names: Vec<String> = Vec::new();
     let mut start: IndexMap<String, String> = IndexMap::new();
@@ -266,7 +312,7 @@ pub fn is_one_name(name: &str) -> bool {
 }
 regex!(
     RECURSION_START,
-    format!(r"^define\s+{SEQUENCE_NAME}\(0\)\s*:=")
+    format!(r"^(?:define|let)\s+{SEQUENCE_NAME}\(0\)\s*(?::=|=)")
 );
 
 /// A `define` line, without its label, read into its parts; or a decline
@@ -275,12 +321,27 @@ regex!(
 pub fn define_parts(text: &str) -> Route<DefineParts> {
     let unlabelled = TRAILING_LABEL.replace(text, "");
     let said = str::trim(&unlabelled);
+    // A define gives its name with `:=` and a let with `=`, as a textbook's
+    // "let x₁ = …" does.
+    match naming(said) {
+        Some(Naming::Let) if said.contains(":=") => {
+            return Route::no("a let names with `=`, and `:=` is a define's");
+        }
+        Some(Naming::Define) if !said.contains(":=") => {
+            return Route::no("a define names with `:=`, and `=` is a let's");
+        }
+        _ => {}
+    }
     if RECURSION_START.is_match(said) {
         return recursion_parts(said);
     }
     let m = match DEFINED.captures(said) {
         Some(m) if !str::trim(&m["body"]).is_empty() => m,
-        _ => return Route::no("a define says `define <name> := <term>`"),
+        _ => {
+            return Route::no(
+                "a naming line says `let <name> = <term>`, or `define <name> := <term>` outside the theorems",
+            )
+        }
     };
     let name = m["name"].to_string();
     // Every name on the page is a letter, so `avg(x)` is three names and never
@@ -304,7 +365,21 @@ pub fn define_parts(text: &str) -> Route<DefineParts> {
         .name("fors")
         .map(|f| for_pieces(f.as_str()))
         .unwrap_or_default();
-    let body = str::trim(&m["body"]);
+    let (body, kind) = match kind_said(str::trim(&m["body"])) {
+        Some((body, kind)) => (body, Some(kind)),
+        None => (str::trim(&m["body"]), None),
+    };
+    if kind.is_some() && naming(said) == Some(Naming::Define) {
+        return Route::no(
+            "a define says no kind of number: a let says one, with its reason on the line under it",
+        );
+    }
+    if kind.is_some() && !names.is_empty() {
+        return Route::no(format!(
+            "let {name}({}) says a kind of number, and a function is no number",
+            names.join(", ")
+        ));
+    }
     // A define over several lines is either one term wrapped by the comma
     // rule, or a function by cases, one case to a line.
     let pieces: Vec<&str> = body.split('\n').map(str::trim).collect();
@@ -376,5 +451,30 @@ pub fn define_parts(text: &str) -> Route<DefineParts> {
             params.len()
         ));
     }
-    Built(DefineParts::One(Define { name, body, params }))
+    Built(DefineParts::One(Define {
+        name,
+        body,
+        params,
+        kind,
+    }))
+}
+
+/// The term a let gives and the kind of number it says its name is, where
+/// the last piece after a comma outside brackets opens with `a` or `an`: `let
+/// m = gcd(s, w), a natural number`. None where the line says no kind.
+fn kind_said(body: &str) -> Option<(&str, String)> {
+    let mut depth = 0i32;
+    let mut cut = None;
+    for (at, c) in body.char_indices() {
+        match c {
+            '(' | '[' | '{' => depth += 1,
+            ')' | ']' | '}' => depth -= 1,
+            ',' if depth == 0 => cut = Some(at),
+            _ => {}
+        }
+    }
+    let at = cut?;
+    let kind = squash(&body[at + 1..]);
+    (kind.starts_with("a ") || kind.starts_with("an "))
+        .then(|| (str::trim(&body[..at]), kind))
 }

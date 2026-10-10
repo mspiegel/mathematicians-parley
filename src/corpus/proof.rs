@@ -5,7 +5,7 @@ use std::sync::Arc;
 
 use indexmap::{IndexMap, IndexSet};
 
-use super::define::{define_parts, DefineParts};
+use super::define::{define_parts, naming, DefineParts, Naming};
 use super::lines::{read_lines, Line};
 use super::records::{Record, RecordKind};
 use super::{cited_name, full, in_stdlib, module_of};
@@ -106,12 +106,83 @@ pub struct Opener {
     pub is_hypothesis: bool,
 }
 
-/// A `define` line as written.
+/// A `define` or naming `let` line as written.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct DefineLine {
     pub text: String,
     pub label: String,
     pub line: usize,
+    /// For a let that says what kind of number its name is, the line under
+    /// it giving the reason the term it names is one.
+    pub reason: Option<Reason>,
+}
+
+/// The reason under a let that says a kind of number: a method or an item,
+/// as a requires line's reason is written, and the line it is on.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Reason {
+    pub how: String,
+    pub line: usize,
+}
+
+/// A let that says what kind of number its name is, read with the sets the
+/// notation records name a member of (`Grammar::members`).
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Kinded {
+    pub label: String,
+    pub name: String,
+    /// The set its kind is the members of, as a formula writes it: ℕ.
+    pub set: String,
+    /// What its reason shows, the term the let names in that set, as a
+    /// requires line says it: `gcd(s, w) ∈ ℕ`.
+    pub shown: Requires,
+}
+
+impl Kinded {
+    /// What the let says of its name, once its reason is shown: `m ∈ ℕ`.
+    pub fn membership(&self) -> String {
+        format!("{} ∈ {}", self.name, self.set)
+    }
+}
+
+impl DefineLine {
+    /// The let read with its kind of number, where it says one; None where
+    /// it says none. A kind no record names a member of is a defect.
+    pub fn kinded(
+        &self,
+        path: &str,
+        members: &IndexMap<String, String>,
+    ) -> Checked<Option<Kinded>> {
+        let Built(DefineParts::One(one)) = define_parts(&self.text) else {
+            return Ok(None);
+        };
+        let (Some(kind), Some(reason)) = (&one.kind, &self.reason) else {
+            return Ok(None);
+        };
+        let Some(set) = members.get(kind) else {
+            let known: Vec<&str> = members.keys().map(String::as_str).collect();
+            return Err(Problem::new(
+                path,
+                self.line,
+                format!(
+                    "let {} says its name is {}, and the kinds of number are {}",
+                    self.label,
+                    repr(kind),
+                    known.join("; ")
+                ),
+            ));
+        };
+        Ok(Some(Kinded {
+            label: self.label.clone(),
+            name: one.name.clone(),
+            set: set.clone(),
+            shown: Requires {
+                fact: format!("{} ∈ {set}", one.body),
+                how: reason.how.clone(),
+                line: reason.line,
+            },
+        }))
+    }
 }
 
 /// An import of a define from a proof file: `import definition
@@ -644,6 +715,25 @@ impl Theorem {
     pub fn qualified(&self) -> String {
         format!("{}/{}", self.module(), self.name)
     }
+
+    /// Each let that says what kind of number its name is, read
+    /// (`DefineLine::kinded`).
+    pub fn kinded(&self, members: &IndexMap<String, String>) -> Checked<Vec<Kinded>> {
+        let mut out = Vec::new();
+        for d in &self.defines {
+            if let Some(k) = d.kinded(&self.path, members)? {
+                out.push(k);
+            }
+        }
+        Ok(out)
+    }
+
+    /// The step a let's reason is read under, as a requires line is read
+    /// under its step (`requires_as_step`): the first step below the let,
+    /// whose scope the let stands in. None for a let below every step.
+    pub fn step_after(&self, line: usize) -> Option<&Step> {
+        self.steps.iter().find(|s| s.line > line)
+    }
 }
 
 /// Everything a theorem's lines say, as one run of text: the statement, its
@@ -653,6 +743,11 @@ pub fn written_text(thm: &Theorem) -> String {
     let mut parts: Vec<&str> = thm.hypotheses.iter().map(|h| h.text.as_str()).collect();
     parts.push(&thm.conclusion);
     parts.extend(thm.defines.iter().map(|d| d.text.as_str()));
+    parts.extend(
+        thm.defines
+            .iter()
+            .filter_map(|d| d.reason.as_ref().map(|r| r.how.as_str())),
+    );
     for step in &thm.steps {
         parts.extend(step.claim.iter().map(String::as_str));
         parts.extend(step.openers.iter().map(|o| o.text.as_str()));
@@ -937,6 +1032,12 @@ pub fn cited_items(thm: &Theorem) -> Vec<(String, usize)> {
             if let Some((cited, _)) = requires_item(&req.how) {
                 out.push((just.item(&cited), req.line));
             }
+        }
+    }
+    // A let's reason is written as a requires line's is.
+    for reason in thm.defines.iter().filter_map(|d| d.reason.as_ref()) {
+        if let Some((cited, _)) = requires_item(&reason.how) {
+            out.push((thm.names.full(&cited), reason.line));
         }
     }
     out
@@ -1249,6 +1350,9 @@ pub fn parse_proof(
     // index of the draft step in the theorem being read.
     let mut step: Option<usize> = None;
     let mut just_defined: Option<DefineLine> = None;
+    // A let saying what kind of number its name is, whose reason is the
+    // next line.
+    let mut awaiting_reason: Option<DefineLine> = None;
     // What the file's citations name, settled at its first theorem: every
     // import comes before it.
     let mut names: Option<Arc<Names>> = None;
@@ -1400,17 +1504,47 @@ pub fn parse_proof(
     /// A define after a theorem's last step is the file's, for the theorems
     /// below it: that theorem could never use it.
     fn settle(
+        path: &str,
         thm: Option<DraftTheorem>,
         scope: &mut FileScope,
         theorems: &mut Vec<Theorem>,
-    ) {
-        let Some(mut draft) = thm else { return };
+    ) -> Checked<()> {
+        let Some(mut draft) = thm else { return Ok(()) };
         let last = draft
             .steps
             .iter()
             .map(|s| s.step.line)
             .max()
             .unwrap_or(draft.thm.line);
+        // A name the theorem gives is a let, and one below its last step is
+        // the file's and a define (`SYNTAX.md`).
+        for d in &draft.thm.defines {
+            if d.reason.is_some() && d.line < draft.thm.conclusion_line {
+                return Err(Problem::new(
+                    path,
+                    d.line,
+                    "a let in a theorem's statement says no kind of number: the statement is what the theorem assumes, and a reason is a step of its proof",
+                ));
+            }
+            let outside = d.line > last;
+            match (naming(&d.text), outside) {
+                (Some(Naming::Define), false) => {
+                    return Err(Problem::new(
+                        path,
+                        d.line,
+                        "a define inside a theorem: a name one theorem gives is a let, `let <name> = <term>`, and a define is the file's, outside the theorems",
+                    ));
+                }
+                (Some(Naming::Let), true) => {
+                    return Err(Problem::new(
+                        path,
+                        d.line,
+                        "a let below a theorem's last step names a thing for the file, which a define does",
+                    ));
+                }
+                _ => {}
+            }
+        }
         let moved: Vec<DefineLine> = draft
             .thm
             .defines
@@ -1431,6 +1565,7 @@ pub fn parse_proof(
             .map(|s| impossible(s.step))
             .collect();
         theorems.push(draft.thm);
+        Ok(())
     }
 
     for line in read_lines(text) {
@@ -1438,9 +1573,41 @@ pub fn parse_proof(
         // A `reads` line belongs to the define immediately above it, so what
         // a define leaves behind survives exactly one line.
         let previous = just_defined.take();
+        if let Some(d) = awaiting_reason.take() {
+            let head = t.split_whitespace().next().unwrap_or_default();
+            if line.indent == 0
+                || head == "reads"
+                || STEP_RE.is_match(&t)
+                || naming(&t).is_some()
+            {
+                return Err(Problem::new(
+                    path,
+                    d.line,
+                    format!(
+                        "let {} says what kind of number its name is, and the line under it gives no reason",
+                        d.label
+                    ),
+                ));
+            }
+            let reason = Reason {
+                how: t.clone(),
+                line: line.no,
+            };
+            if let Some(draft) = thm.as_mut() {
+                for written in draft.thm.defines.iter_mut().filter(|x| x.line == d.line)
+                {
+                    written.reason = Some(reason.clone());
+                }
+            }
+            just_defined = Some(DefineLine {
+                reason: Some(reason),
+                ..d
+            });
+            continue;
+        }
         if t.starts_with("theorem ") && line.indent == 0 {
             close_step(path, &thm, &mut step)?;
-            settle(thm.take(), &mut scope, &mut theorems);
+            settle(path, thm.take(), &mut scope, &mut theorems)?;
             let name = str::trim(&t["theorem ".len()..]).to_string();
             if !full(&THEOREM_NAME, &name) {
                 return Err(Problem::new(
@@ -1490,7 +1657,15 @@ pub fn parse_proof(
                 }
                 continue;
             }
-            // A define before any theorem is the file's, for every theorem.
+            // A define before any theorem is the file's, for every theorem; a
+            // let names a thing within one theorem, and none is open here.
+            if naming(&t) == Some(Naming::Let) {
+                return Err(Problem::new(
+                    path,
+                    line.no,
+                    "a let names a thing within a theorem; a name the whole file gives, and another may import, is a define",
+                ));
+            }
             if t.starts_with("define ") {
                 let Some(label) = label_at_end(&t) else {
                     return Err(Problem::new(
@@ -1516,6 +1691,7 @@ pub fn parse_proof(
                     text: t.clone(),
                     label,
                     line: line.no,
+                    reason: None,
                 };
                 scope.defines.push(d.clone());
                 just_defined = Some(d);
@@ -1607,6 +1783,38 @@ pub fn parse_proof(
                 continue;
             }
         }
+        // A naming line, read before a `let` that takes a member, which it
+        // also opens with. Which word it may open with is settled once the
+        // theorem's last step is known (`settle`).
+        if naming(&t).is_some() {
+            let Some(label) = label_at_end(&t) else {
+                return Err(Problem::new(
+                    path,
+                    line.no,
+                    format!("{} line carries no label", head),
+                ));
+            };
+            let says_kind = match define_parts(&t) {
+                crate::outcome::Declined(d) => {
+                    return Err(d.into_problem(path, line.no))
+                }
+                Built(parts) => parts.one().is_some_and(|one| one.kind.is_some()),
+            };
+            // A define names an object and is in scope from where it stands on.
+            let d = DefineLine {
+                text: t.clone(),
+                label,
+                line: line.no,
+                reason: None,
+            };
+            draft.thm.defines.push(d.clone());
+            if says_kind {
+                awaiting_reason = Some(d);
+            } else {
+                just_defined = Some(d);
+            }
+            continue;
+        }
         let intro = Intro::parse(&head);
         if matches!(intro, Some(Intro::Let | Intro::Assume)) && step.is_none() {
             draft.thm.hypotheses.push(Hypothesis {
@@ -1620,27 +1828,6 @@ pub fn parse_proof(
         if head == "then" && step.is_none() {
             draft.thm.conclusion = str::trim(&t["then".len()..]).to_string();
             draft.thm.conclusion_line = line.no;
-            continue;
-        }
-        if head == "define" {
-            let Some(label) = label_at_end(&t) else {
-                return Err(Problem::new(
-                    path,
-                    line.no,
-                    "define line carries no label",
-                ));
-            };
-            if let crate::outcome::Declined(d) = define_parts(&t) {
-                return Err(d.into_problem(path, line.no));
-            }
-            // A define names an object and is in scope from where it stands on.
-            let d = DefineLine {
-                text: t.clone(),
-                label,
-                line: line.no,
-            };
-            draft.thm.defines.push(d.clone());
-            just_defined = Some(d);
             continue;
         }
         if head == "reads" {
@@ -1827,7 +2014,17 @@ pub fn parse_proof(
             format!("unexpected line {}", repr(prefix(&t, 48))),
         ));
     }
+    if let Some(d) = awaiting_reason {
+        return Err(Problem::new(
+            path,
+            d.line,
+            format!(
+                "let {} says what kind of number its name is, and the line under it gives no reason",
+                d.label
+            ),
+        ));
+    }
     close_step(path, &thm, &mut step)?;
-    settle(thm.take(), &mut scope, &mut theorems);
+    settle(path, thm.take(), &mut scope, &mut theorems)?;
     Ok((scope, theorems))
 }

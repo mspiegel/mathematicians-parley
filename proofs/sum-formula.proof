@@ -8,7 +8,7 @@ theorem sum-formula
   let n ∈ ℕ                                                           (H1)
   then Σ(k = 1 to n) k = n(n + 1)/2
 
-define S(m) := Σ(j = 1 to m) j, for m ∈ ℕ                             (D1)
+let S(m) = Σ(j = 1 to m) j, for m ∈ ℕ                                 (D1)
        reads the sum of the first m natural numbers
 
 1.  For all k ∈ ℕ, S(k) = k(k + 1)/2.

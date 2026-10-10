@@ -97,7 +97,8 @@ pub const FIELDS: [(RecordKind, &[&str]); 5] = [
         &[
             "pattern", "sort", "level", "assoc", "commutes", "identity", "negates",
             "spells", "places", "nests", "bounds", "joins", "wraps", "fills",
-            "shadowed", "binds", "reads", "target", "metamath", "decided", "note",
+            "shadowed", "binds", "reads", "member", "target", "metamath", "decided",
+            "note",
         ],
     ),
     (

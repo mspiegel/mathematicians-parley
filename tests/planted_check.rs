@@ -531,6 +531,79 @@ fn cases() -> Vec<Case> {
             ],
             "T is already defined at line",
         ),
+        // A name one theorem gives is a let, and a name the file gives, which
+        // another file may import, is a define (`SYNTAX.md`): each word stands
+        // only where its name lives.
+        case(
+            "write define for a name one theorem gives",
+            vec![
+                edit("proofs/cantor.proof", Some("let B = {x ∈ A : x ∉ f(x)}".to_string()), "define B := {x ∈ A : x ∉ f(x)}".to_string()),
+            ],
+            "a define inside a theorem",
+        ),
+        case(
+            "write let for a name the file gives",
+            vec![
+                edit("proofs/tri.proof", None, TRI.replacen("define T(k) := ", "let T(k) = ", 1)),
+            ],
+            "a let names a thing within a theorem",
+        ),
+        case(
+            "say a let's name is a kind of number no record names",
+            vec![
+                edit("proofs/pythagorean-triples.proof", Some("let m = gcd(s, w), a natural number".to_string()), "let m = gcd(s, w), a whole number".to_string()),
+            ],
+            "and the kinds of number are",
+        ),
+        case(
+            "say what kind of number a let's name is with no reason under it",
+            vec![
+                edit("proofs/pythagorean-triples.proof", Some("    mun:gcd a := s, b := w, from 28, 2\n    reads the number whose square is s".to_string()), "    reads the number whose square is s".to_string()),
+            ],
+            "the line under it gives no reason",
+        ),
+        case(
+            "give a let a reason that shows another term in the set",
+            vec![
+                edit("proofs/pythagorean-triples.proof", Some("    mun:gcd a := t, b := w, from 27, 2".to_string()), "    mun:gcd a := s, b := w, from 28, 2".to_string()),
+            ],
+            "the reason under let D2 needs gcd(t, w) ∈ ℕ",
+        ),
+        case(
+            "cite in a let's reason a step below the let",
+            vec![
+                edit("proofs/pythagorean-triples.proof", Some("    mun:gcd a := t, b := w, from 27, 2".to_string()), "    mun:gcd a := t, b := w, from 27, 49".to_string()),
+            ],
+            "the reason under let D2 cites 49, which is not above the let",
+        ),
+        case(
+            "say what kind of number a let in a theorem's statement names",
+            vec![
+                edit("proofs/birthday.proof", Some("  let S = the functions from {1, …, 23} to {1, …, 365}                (D1)\n".to_string()), "  let S = |{1, …, 23}|, a natural number                              (D1)\n    mun:range-size a := 1, b := 23\n".to_string()),
+            ],
+            "a let in a theorem's statement says no kind of number",
+        ),
+        case(
+            "say what kind of number a define's name is",
+            vec![
+                edit("proofs/tri.proof", None, TRI.replacen("k(k + 1)/2, for k ∈ ℕ", "1, a natural number", 1).replacen("T(k) :=", "T :=", 1)),
+            ],
+            "a define says no kind of number",
+        ),
+        case(
+            "say what kind of number a let's function is",
+            vec![
+                edit("proofs/cantor.proof", Some("let B = {x ∈ A : x ∉ f(x)}".to_string()), "let B(x) = x, a natural number".to_string()),
+            ],
+            "and a function is no number",
+        ),
+        case(
+            "give a let's name with :=",
+            vec![
+                edit("proofs/cantor.proof", Some("let B = {x ∈ A : x ∉ f(x)}".to_string()), "let B := {x ∈ A : x ∉ f(x)}".to_string()),
+            ],
+            "a let names with `=`",
+        ),
         case(
             "define inside a proof a name the file defines outside it",
             vec![
@@ -994,7 +1067,7 @@ fn cases() -> Vec<Case> {
         case(
             "a let line that asserts instead of introducing",
             vec![
-                edit("proofs/cantor.proof", Some("  let A be a set                                                      (H1)".to_string()), "  let A = B                                                           (H1)".to_string()),
+                edit("proofs/cantor.proof", Some("  let A be a set                                                      (H1)".to_string()), "  let A ≠ B                                                           (H1)".to_string()),
             ],
             "none of the 13 introductions",
         ),
@@ -1153,7 +1226,7 @@ fn cases() -> Vec<Case> {
         case(
             "define a function and give no domain",
             vec![
-                edit("proofs/cantor.proof", Some("define B := {x ∈ A : x ∉ f(x)}".to_string()), "define B(y) := {x ∈ A : x ∉ f(x)}".to_string()),
+                edit("proofs/cantor.proof", Some("let B = {x ∈ A : x ∉ f(x)}".to_string()), "let B(y) = {x ∈ A : x ∉ f(x)}".to_string()),
             ],
             "says no domain",
         ),
@@ -1168,7 +1241,7 @@ fn cases() -> Vec<Case> {
         case(
             "give a domain to a define that takes no argument",
             vec![
-                edit("proofs/cantor.proof", Some("define B := {x ∈ A : x ∉ f(x)}".to_string()), "define B := {x ∈ A : x ∉ f(x)}, for y ∈ A".to_string()),
+                edit("proofs/cantor.proof", Some("let B = {x ∈ A : x ∉ f(x)}".to_string()), "let B = {x ∈ A : x ∉ f(x)}, for y ∈ A".to_string()),
             ],
             "gives a domain and takes no argument",
         ),
@@ -1650,9 +1723,9 @@ fn cases() -> Vec<Case> {
         case(
             "lean on a define the line does not cite",
             vec![
-                edit("proofs/intermediate-value.proof", Some("requires x₁ ∈ ℝ: mun:min-real x := b, y := c + δ/2, from D2\n".to_string()), "requires x₁ ∈ ℝ: mun:min-real x := b, y := c + δ/2\n".to_string()),
+                edit("proofs/konigsberg.proof", Some("requires S ⊆ {1, …, n}: mun:set-builder-subset, from D1\n".to_string()), "requires S ⊆ {1, …, n}: mun:set-builder-subset\n".to_string()),
             ],
-            "the requires line of step 16.10 needs something that mun:min-real does not conclude",
+            "the requires line of step 8 needs something that mun:set-builder-subset does not conclude",
         ),
         // A `let` names a function's type and nothing more, unless `be` says a
         // property of it; a property slipped in as the codomain went unasked.
@@ -1789,21 +1862,21 @@ fn cases() -> Vec<Case> {
         case(
             "define a sequence with no value at 0",
             vec![
-                edit("proofs/euclid.proof", Some("define a(0) := M,  b(0) := N,".to_string()), "define a(0) := M,".to_string()),
+                edit("proofs/euclid.proof", Some("let a(0) = M,  b(0) = N,".to_string()), "let a(0) = M,".to_string()),
             ],
             "b has no value at 0",
         ),
         case(
             "give a sequence its first value at 1",
             vec![
-                edit("proofs/euclid.proof", Some("define a(0) := M,  b(0) := N,".to_string()), "define a(0) := M,  b(1) := N,".to_string()),
+                edit("proofs/euclid.proof", Some("let a(0) = M,  b(0) = N,".to_string()), "let a(0) = M,  b(1) = N,".to_string()),
             ],
             "b(1) is neither b(0) nor b(k + 1)",
         ),
         case(
             "write a step rule that names the value it defines",
             vec![
-                edit("proofs/euclid.proof", Some("  a(k + 1) := a(k)             if b(k) = 0".to_string()), "  a(k + 1) := a(k + 1)         if b(k) = 0".to_string()),
+                edit("proofs/euclid.proof", Some("  a(k + 1) = a(k)             if b(k) = 0".to_string()), "  a(k + 1) = a(k + 1)         if b(k) = 0".to_string()),
             ],
             "names a at a place other than k",
         ),
@@ -1817,14 +1890,14 @@ fn cases() -> Vec<Case> {
         case(
             "give a first value in terms of the index",
             vec![
-                edit("proofs/euclid.proof", Some("define a(0) := M,  b(0) := N,".to_string()), "define a(0) := k,  b(0) := N,".to_string()),
+                edit("proofs/euclid.proof", Some("let a(0) = M,  b(0) = N,".to_string()), "let a(0) = k,  b(0) = N,".to_string()),
             ],
             "names k, which has no value at 0",
         ),
         case(
             "give a first value in terms of a sequence",
             vec![
-                edit("proofs/euclid.proof", Some("define a(0) := M,  b(0) := N,".to_string()), "define a(0) := b(0),  b(0) := N,".to_string()),
+                edit("proofs/euclid.proof", Some("let a(0) = M,  b(0) = N,".to_string()), "let a(0) = b(0),  b(0) = N,".to_string()),
             ],
             "names b, which has no value before 0",
         ),
@@ -2053,7 +2126,7 @@ fn cases() -> Vec<Case> {
         case(
             "leave out a define's membership where an item asks it",
             vec![
-                edit("proofs/intermediate-value.proof", Some("           mun:abs-difference-lt x := x₁, from 16.13, 16.14\n           requires x₁ ∈ ℝ: mun:min-real x := b, y := c + δ/2, from D2\n".to_string()), "           mun:abs-difference-lt x := x₁, from 16.13, 16.14\n".to_string()),
+                edit("proofs/intermediate-value.proof", Some("    let x₁ = min(b, c + δ/2), a real number                            (D2)\n           mun:min-real x := b, y := c + δ/2\n".to_string()), "    let x₁ = min(b, c + δ/2)                                           (D2)\n".to_string()),
             ],
             "step 16.15 cites mun:abs-difference-lt, which asks for",
         ),

@@ -17,14 +17,14 @@ theorem rationals-countable
               Schröder–Bernstein then gives a bijection.
   then there is a bijection from ℕ to ℚ
 
-define f(n) := n, for n ∈ ℕ                                           (D1)
+let f(n) = n, for n ∈ ℕ                                               (D1)
        reads each natural number, as a rational
 
-define s(x) := 0    if numer(x) ≥ 0
-               1    otherwise,  for x ∈ ℚ                             (D2)
+let s(x) = 0    if numer(x) ≥ 0
+           1    otherwise,  for x ∈ ℚ                                 (D2)
        reads whether x is negative
 
-define g(x) := 2^|numer(x)|·3^denom(x)·5^s(x), for x ∈ ℚ    (D3)
+let g(x) = 2^|numer(x)|·3^denom(x)·5^s(x), for x ∈ ℚ        (D3)
        reads a code for x: the size and sign of its numerator, and its denominator
 
 1.  f : ℕ → ℚ

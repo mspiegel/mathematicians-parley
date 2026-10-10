@@ -40,10 +40,10 @@ theorem euler
   assume gcd(a, n) = 1                                                (H3)
   then a^φ(n) ≡ 1 (mod n)
 
-define S := {r ∈ {0, …, n − 1} : gcd(r, n) = 1}                      (D1)
+let S = {r ∈ {0, …, n − 1} : gcd(r, n) = 1}                          (D1)
        reads the remainders on dividing by n that have no factor in common with n
 
-define f(r) := (r·a) mod n, for r ∈ S                                (D2)
+let f(r) = (r·a) mod n, for r ∈ S                                    (D2)
        reads the remainder of r times a on dividing by n
 
 1.  {0, …, n − 1} is finite

@@ -72,7 +72,7 @@ theorem bezout
   let b ∈ ℕ                                                           (H2)
   then there exist x, y ∈ ℤ such that a·x + b·y = gcd(a, b)
 
-define S := {t ∈ ℕ : there are m, n ∈ ℤ with t = a·m + b·n}   (D1)
+let S = {t ∈ ℕ : there are m, n ∈ ℤ with t = a·m + b·n}       (D1)
        reads the positive whole numbers that a and b can be combined into
 
 1.  a = a·1 + b·0

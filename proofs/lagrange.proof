@@ -35,7 +35,7 @@ theorem lagrange
   assume H is a subgroup of G                                         (H2)
   then |H| divides |G|
 
-define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
+let K = {X ⊆ G : there is g ∈ G with X = gH}                        (D1)
        reads the cosets of H: the parts of G of the form gH
 
 1.  H ⊆ G
@@ -205,7 +205,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
     note multiplying by g sends H one to one onto gH
     let g ∈ G                                                         (K11)
 
-    define t(c) := g·c, for c ∈ H                                     (D2)
+    let t(c) = g·c, for c ∈ H                                         (D2)
            reads g times c
 
     8.1.  For all h ∈ H, t(h) ∈ gH.

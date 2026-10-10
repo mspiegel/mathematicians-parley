@@ -39,7 +39,7 @@ pub fn read_lines(text: &str) -> Vec<Line> {
         // Indentation is counted in characters of leading whitespace.
         let indent = raw.chars().count() - raw.trim_start().chars().count();
         if let Some(line) = pending.as_mut() {
-            let defining = line.text.starts_with("define ");
+            let defining = super::define::naming(&line.text).is_some();
             line.text.push(if defining { '\n' } else { ' ' });
             line.text.push_str(stripped);
             let goes_on = if defining {
@@ -58,7 +58,7 @@ pub fn read_lines(text: &str) -> Vec<Line> {
             indent,
         };
         if stripped.ends_with(',')
-            || (stripped.starts_with("define ") && unlabelled(stripped))
+            || (super::define::naming(stripped).is_some() && unlabelled(stripped))
         {
             pending = Some(line);
         } else {

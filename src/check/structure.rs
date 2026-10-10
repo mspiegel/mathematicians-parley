@@ -11,7 +11,7 @@ use crate::corpus::proof::{requires_item, starts_with_head, visible};
 use crate::corpus::{
     cited_item, cited_items, define_parts, fmt, full, item_prefix, references,
     written_text, FileScope, Head, Intro, Item, Justification, Method, Range, Record,
-    RecordKind, Step, StepNo, Theorem, ITEM_PREFIX, LABEL, NUMBER, REF,
+    RecordKind, Requires, Step, StepNo, Theorem, ITEM_PREFIX, LABEL, NUMBER, REF,
 };
 use crate::formula::library::Function;
 use crate::formula::{holds, parse_here, Sorts};
@@ -558,79 +558,148 @@ pub fn check_citations(
                 Some(_) => {}
             }
         }
+        let at = Cited {
+            thm,
+            items,
+            scopes,
+            numbers: &numbers,
+            scope: &scope,
+            step,
+        };
         for req in &step.requires {
-            let text = &req.how;
-            let no = req.line;
-            if !starts_with_head(text) && !FROM_REF.is_match(text) {
-                report.say(
-                    &thm.path,
-                    no,
-                    format!(
-                        "requires line justified by {}, which is neither a method, an item, nor a line",
-                        repr(prefix(text, 40))
-                    ),
-                );
-            }
-            // A requires line cites an item like any other citation, so its
-            // pointer resolves and its prefix matches the item's kind.
-            if let Some((cited, kind)) = requires_item(text) {
-                match items.get(&just.item(&cited)) {
-                    None => report.say(&thm.path, no, unresolved(&cited)),
-                    Some(item) if item.cited_as() != kind => report.say(
-                        &thm.path,
-                        no,
-                        format!("{cited} names {}", item.described()),
-                    ),
-                    Some(_) => {}
-                }
-            }
-            let (refs, bad) = references(text);
-            if let Some(bad) = bad {
-                report.say(
-                    &thm.path,
-                    no,
-                    format!(
-                        "`from` names {}, which is neither a line nor a label",
-                        repr(&bad)
-                    ),
-                );
-            }
-            for r in refs {
-                if full(&LABEL_RE, &r) {
-                    if !scope.contains_key(&r) {
-                        report.say(
-                            &thm.path,
-                            no,
-                            out_of_scope(
-                                &scopes[thm.scope],
-                                &r,
-                                format!("requires line cites {r}, which is not in scope here"),
-                            ),
-                        );
-                    }
-                    continue;
-                }
-                let cited = StepNo::parse(&r);
-                if !numbers.contains(&cited) {
-                    report.say(
-                        &thm.path,
-                        no,
-                        format!("requires line cites line {r}, which does not exist"),
-                    );
-                } else if !in_scope(&cited, &step.number) {
-                    report.say(
-                        &thm.path,
-                        no,
-                        format!("requires line cites line {r}, which is inside a block that has closed"),
-                    );
-                }
-            }
+            at.check_reason(report, req, "requires line");
         }
         if let Some(m) = just.head.method() {
             if CLOSURE.contains(&m.as_str()) {
                 report
                     .trusted
                     .push((m.as_str().to_string(), fmt(&step.number)));
+            }
+        }
+    }
+    // A let's reason is written as a requires line's is, and is read under
+    // the step below the let (`Theorem::step_after`).
+    for d in &thm.defines {
+        let (Some(reason), Some(step)) = (&d.reason, thm.step_after(d.line)) else {
+            continue;
+        };
+        let scope = labels_in_scope(thm, step, scopes);
+        let at = Cited {
+            thm,
+            items,
+            scopes,
+            numbers: &numbers,
+            scope: &scope,
+            step,
+        };
+        let req = Requires {
+            fact: String::new(),
+            how: reason.how.clone(),
+            line: reason.line,
+        };
+        at.check_reason(report, &req, &format!("the reason under let {}", d.label));
+        // It is the let's, and rests on nothing written below the let.
+        for r in references(&reason.how).0 {
+            let below = thm
+                .steps
+                .iter()
+                .find(|s| fmt(&s.number) == r)
+                .is_some_and(|s| s.line > d.line);
+            if below || r == d.label {
+                report.say(
+                    &thm.path,
+                    reason.line,
+                    format!(
+                        "the reason under let {} cites {r}, which is not above the let",
+                        d.label
+                    ),
+                );
+            }
+        }
+    }
+}
+
+/// Where a requires line's citations are read: its step, and what is in
+/// scope there.
+struct Cited<'a> {
+    thm: &'a Theorem,
+    items: &'a IndexMap<String, Item<'a>>,
+    scopes: &'a [FileScope],
+    numbers: &'a IndexSet<&'a StepNo>,
+    scope: &'a IndexMap<String, Declared>,
+    step: &'a Step,
+}
+
+impl Cited<'_> {
+    /// A requires line's reason, or a let's, names a method, an item or a
+    /// line, and each thing it cites is there to cite. `what` names the line
+    /// in a message.
+    fn check_reason(&self, report: &mut Report, req: &Requires, what: &str) {
+        let (thm, scopes) = (self.thm, self.scopes);
+        let text = &req.how;
+        let no = req.line;
+        if !starts_with_head(text) && !FROM_REF.is_match(text) {
+            report.say(
+                &thm.path,
+                no,
+                format!(
+                    "{what} justified by {}, which is neither a method, an item, nor a line",
+                    repr(prefix(text, 40))
+                ),
+            );
+        }
+        // A requires line cites an item like any other citation, so its
+        // pointer resolves and its prefix matches the item's kind.
+        if let Some((cited, kind)) = requires_item(text) {
+            match self.items.get(&self.step.just.item(&cited)) {
+                None => report.say(&thm.path, no, unresolved(&cited)),
+                Some(item) if item.cited_as() != kind => report.say(
+                    &thm.path,
+                    no,
+                    format!("{cited} names {}", item.described()),
+                ),
+                Some(_) => {}
+            }
+        }
+        let (refs, bad) = references(text);
+        if let Some(bad) = bad {
+            report.say(
+                &thm.path,
+                no,
+                format!(
+                    "`from` names {}, which is neither a line nor a label",
+                    repr(&bad)
+                ),
+            );
+        }
+        for r in refs {
+            if full(&LABEL_RE, &r) {
+                if !self.scope.contains_key(&r) {
+                    report.say(
+                        &thm.path,
+                        no,
+                        out_of_scope(
+                            &scopes[thm.scope],
+                            &r,
+                            format!("{what} cites {r}, which is not in scope here"),
+                        ),
+                    );
+                }
+                continue;
+            }
+            let cited = StepNo::parse(&r);
+            if !self.numbers.contains(&cited) {
+                report.say(
+                    &thm.path,
+                    no,
+                    format!("{what} cites line {r}, which does not exist"),
+                );
+            } else if !in_scope(&cited, &self.step.number) {
+                report.say(
+                    &thm.path,
+                    no,
+                    format!("{what} cites line {r}, which is inside a block that has closed"),
+                );
             }
         }
     }
@@ -911,7 +980,7 @@ pub fn check_readings(report: &mut Report, thm: &Theorem) {
                 &thm.path,
                 d.line,
                 format!(
-                    "define {} carries no `reads` line saying what the name means",
+                    "let {} carries no `reads` line saying what the name means",
                     d.label
                 ),
             );
@@ -1185,6 +1254,12 @@ pub fn check_definitions(
                     .chain(just.defined.clone())
                     .chain(s.requires.iter().flat_map(|r| references(&r.how).0))
             })
+            .chain(
+                thms.iter()
+                    .flat_map(|t| &t.defines)
+                    .filter_map(|d| d.reason.as_ref())
+                    .flat_map(|r| references(&r.how).0),
+            )
             .collect();
         for i in &scope.imports {
             if let Some(label) = i.label.as_ref().filter(|l| !cited.contains(*l)) {

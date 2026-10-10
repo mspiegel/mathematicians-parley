@@ -15,11 +15,12 @@ use std::rc::Rc;
 use indexmap::IndexSet;
 use parley::check::statements_in_scope;
 use parley::corpus::proof::{chain_cited, references, Head, Intro, Method, Theorem};
-use parley::corpus::Corpus;
+use parley::corpus::{define_parts, Corpus, DefineParts};
 use parley::formula::grammar::{parse_here, Grammar};
 use parley::formula::node::Node;
 use parley::formula::token::{is_letter, is_mark, tokenise, Token, TokenKind};
 use parley::matching::{free_names, instantiation, split_commas};
+use parley::outcome::Built;
 use parley::sorts::{sentences, sorts_in_scope, Env};
 use regex::Regex;
 
@@ -96,6 +97,22 @@ fn class(letter: &str) -> u8 {
     }
 }
 
+/// Every reason a theorem writes: each step's justification, each requires
+/// line's, and each let's under it.
+fn reasons(thm: &Theorem) -> Vec<String> {
+    let mut out = Vec::new();
+    for step in &thm.steps {
+        out.push(step.just.text.clone());
+        out.extend(step.requires.iter().map(|r| r.how.clone()));
+    }
+    out.extend(
+        thm.defines
+            .iter()
+            .filter_map(|d| d.reason.as_ref().map(|r| r.how.clone())),
+    );
+    out
+}
+
 /// The items a justification or requires line cites, by full name.
 fn cites(thm: &Theorem, text: &str) -> Vec<String> {
     let names = &thm.names;
@@ -124,14 +141,10 @@ impl Context {
         let theorems: BTreeSet<String> =
             corpus.theorems.iter().map(|t| t.qualified()).collect();
         for thm in &corpus.theorems {
-            for step in &thm.steps {
-                let mut texts = vec![step.just.text.clone()];
-                texts.extend(step.requires.iter().map(|r| r.how.clone()));
-                for text in texts {
-                    for full in cites(thm, &text) {
-                        if theorems.contains(&full) && full != thm.qualified() {
-                            cited.insert(full);
-                        }
+            for text in reasons(thm) {
+                for full in cites(thm, &text) {
+                    if theorems.contains(&full) && full != thm.qualified() {
+                        cited.insert(full);
                     }
                 }
             }
@@ -428,14 +441,24 @@ fn layout(thm: &Theorem, lines: &[String], end: usize) -> Layout {
             checked.insert(i);
         }
     }
-    // `define B := {x ∈ A : x ∉ f(x)} (D1)`: the name defined and its rule.
+    // `let B = {x ∈ A : x ∉ f(x)} (D1)`: the name defined and its rule.
     for d in &thm.defines {
         let l = at(d.line);
         let c = chars(&lines[l]);
-        let from = first_text(&c) + "define ".len();
+        let word = parley::corpus::define::naming(lines[l].trim())
+            .map_or("define", |w| w.word());
+        let from = first_text(&c) + word.chars().count() + 1;
         let mut to = trimmed_end(&c);
         if let Some(cut) = char_rfind(&c, &format!("({})", d.label)) {
             to = cut;
+        }
+        // The kind of number a let says its name is, `, a natural number`,
+        // is words.
+        if let Built(DefineParts::One(one)) = define_parts(&d.text) {
+            let phrase = one.kind.map(|kind| format!(", {kind}"));
+            if let Some(cut) = phrase.and_then(|p| char_rfind(&c, &p)) {
+                to = to.min(cut);
+            }
         }
         while to > from && c[to - 1].is_whitespace() {
             to -= 1;
@@ -443,7 +466,7 @@ fn layout(thm: &Theorem, lines: &[String], end: usize) -> Layout {
         push(&mut regions, l, Some((from, to)));
         checked.insert(l);
         // A rule laid out as a table goes on over every line indented past
-        // its `define`, up to the line that says what it `reads`.
+        // its naming line, up to the line that says what it `reads`.
         let indent = first_text(&c);
         for (next, line) in lines.iter().enumerate().take(end).skip(l + 1) {
             let n = chars(line);
@@ -451,6 +474,14 @@ fn layout(thm: &Theorem, lines: &[String], end: usize) -> Layout {
             let rest: String = n[start..].iter().collect();
             if rest.is_empty() || start <= indent || rest.starts_with("reads ") {
                 break;
+            }
+            // A let's reason is written as a requires line's is.
+            if d.reason.as_ref().is_some_and(|r| at(r.line) == next) {
+                for span in justification(&n, start) {
+                    push(&mut regions, next, Some(span));
+                }
+                checked.insert(next);
+                continue;
             }
             let mut to = trimmed_end(&n);
             if let Some(cut) = char_rfind(&n, &format!("({})", d.label)) {
@@ -828,26 +859,22 @@ fn held(ctx: &Context, thm: &Theorem) -> BTreeSet<String> {
 /// stand for the cited theorem's letter of the same name.
 fn held_own(ctx: &Context, thm: &Theorem) -> BTreeSet<String> {
     let mut out = ctx.constants.clone();
-    for step in &thm.steps {
-        let mut texts = vec![step.just.text.clone()];
-        texts.extend(step.requires.iter().map(|r| r.how.clone()));
-        for text in texts {
-            let named: BTreeSet<String> =
-                instantiation(&text).into_iter().map(|(n, _)| n).collect();
-            for full in cites(thm, &text) {
-                if let Some(other) =
-                    ctx.corpus.theorems.iter().find(|t| t.qualified() == full)
-                {
-                    for h in &other.hypotheses {
-                        if h.kind != Intro::Let {
-                            continue;
-                        }
-                        if let Some(l) =
-                            let_letter(&parley::sorts::body_of(h.text.trim(), "let"))
-                        {
-                            if !named.contains(&l) {
-                                out.insert(l);
-                            }
+    for text in reasons(thm) {
+        let named: BTreeSet<String> =
+            instantiation(&text).into_iter().map(|(n, _)| n).collect();
+        for full in cites(thm, &text) {
+            if let Some(other) =
+                ctx.corpus.theorems.iter().find(|t| t.qualified() == full)
+            {
+                for h in &other.hypotheses {
+                    if h.kind != Intro::Let {
+                        continue;
+                    }
+                    if let Some(l) =
+                        let_letter(&parley::sorts::body_of(h.text.trim(), "let"))
+                    {
+                        if !named.contains(&l) {
+                            out.insert(l);
                         }
                     }
                 }
@@ -1033,22 +1060,16 @@ fn swap(
 /// library's, most used first.
 fn library_pool(ctx: &Context, thm: &Theorem) -> Vec<String> {
     let mut pool: Vec<String> = Vec::new();
-    for step in &thm.steps {
-        let mut texts = vec![step.just.text.clone()];
-        texts.extend(step.requires.iter().map(|r| r.how.clone()));
-        for text in texts {
-            for full in cites(thm, &text) {
-                if let Some(r) =
-                    ctx.corpus.records.iter().find(|r| r.qualified() == full)
-                {
-                    let mut texts: Vec<&str> =
-                        r.hypotheses.iter().map(|h| h.text.as_str()).collect();
-                    texts.extend(r.conclusions.iter().map(|(c, _)| c.as_str()));
-                    for t in texts {
-                        for l in ctx.letters_of(t) {
-                            if !pool.contains(&l) {
-                                pool.push(l);
-                            }
+    for text in reasons(thm) {
+        for full in cites(thm, &text) {
+            if let Some(r) = ctx.corpus.records.iter().find(|r| r.qualified() == full) {
+                let mut texts: Vec<&str> =
+                    r.hypotheses.iter().map(|h| h.text.as_str()).collect();
+                texts.extend(r.conclusions.iter().map(|(c, _)| c.as_str()));
+                for t in texts {
+                    for l in ctx.letters_of(t) {
+                        if !pool.contains(&l) {
+                            pool.push(l);
                         }
                     }
                 }
@@ -1794,7 +1815,7 @@ pub fn parts_named(ctx: &Context, path: &str, text: &str) -> Rewritten {
         let mut inserts: Vec<&Named> = chosen.iter().collect();
         inserts.sort_by_key(|c| std::cmp::Reverse(c.at));
         for c in inserts {
-            let head = format!("define {} := {}", c.name, c.part);
+            let head = format!("let {} = {}", c.name, c.part);
             let pad = 70usize.saturating_sub(head.chars().count()).max(1);
             let define = format!("{head}{}({})", " ".repeat(pad), c.label);
             let reads = format!("       reads the part step {} writes out", c.step);
@@ -2346,17 +2367,13 @@ fn define_raised(
     d: &parley::corpus::proof::DefineLine,
     lines: &mut Vec<String>,
 ) -> Option<usize> {
-    let body = d.text.trim().strip_prefix("define ")?;
-    if body.matches(":=").count() != 1 {
+    // One name, read as the tools read it; sequences by recursion stay.
+    let parts = parley::corpus::define::define_parts(&d.text);
+    let parley::outcome::Built(parley::corpus::define::DefineParts::One(one)) = parts
+    else {
         return None;
-    }
-    let name: String = body
-        .split(":=")
-        .next()?
-        .trim()
-        .chars()
-        .take_while(|c| !matches!(c, '(' | ' '))
-        .collect();
+    };
+    let name = one.name;
     let reads = d.line;
     if !lines.get(reads)?.trim_start().starts_with("reads ") {
         return None;

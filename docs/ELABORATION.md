@@ -49,7 +49,7 @@ bridged on set.mm's side, and a proof reads as a mathematician writes it.
 1. **Reading.** Given a line of the page and the notation records, it produces
    kernel terms, with each name the page uses standing for a kernel variable.
    The sections on names and on the statement a theorem becomes describe it.
-2. **Scopes.** Given the blocks, hypotheses, cases and `define` lines, it
+2. **Scopes.** Given the blocks, hypotheses, cases and naming lines, it
    produces the context each line is proved under, carries a fact into an
    inner scope, and closes a block into the claim it owns. This is working in
    deduction form, and the section on scopes describes it.
@@ -561,10 +561,13 @@ matched against each sentence of the lines the step cites and then of its
 `requires` lines, taking all the marked places together, and a body that
 says nothing of its one variable takes a member of the domain a line names.
 The introduction is built from the innermost quantifier out. The witness is read against the whole of what the
-claim asks of it, that it is in the domain and the body, with a defined
+claim asks of it, the body and then that it is in the domain, with a defined
 function applied read as its rule on both sides alike, so a line saying
 either names it: `there is a ∈ G with gH = aH` takes g from g ∈ G, and its
-body at g, a term equal to itself, is `settle`'s by `eqidd`. An equation
+body at g, a term equal to itself, is `settle`'s by `eqidd`. The body is
+read first within each line, since `k ∈ ℕ` fits any line saying some term is
+a natural number: `a/k ∈ ℕ`, cited for `there is k ∈ ℕ with a/k ∈ ℕ, …`,
+names k by the body, never a/k by the domain. An equation
 names its witness read either way round, as `g·e = g` does for g = g·h. A witness is taken from the lines a step cites and
 never searched for among the facts in scope, so this runs only where a step is
 there to have cited one. The one exception is an equation of the body one side
@@ -595,8 +598,10 @@ are one formula. The lemma is applied at the claim's own letter, which
 as the claim writes it. Every other method consumes a claim whole; this one
 takes one apart and rebuilds it.
 
-**`define`** introduces a name and the equation saying what it is, as a
-textbook's "let x₁ = min(b, c + δ/2)" does, and the steps after it are about
+**A naming line**, a theorem's `let x₁ = …` or a file's `define T(k) := …`,
+introduces a name and the equation saying what it is, as a textbook's "let
+x₁ = min(b, c + δ/2)" does; the two words are elaborated alike, and differ
+only in where the name may be used (`SYNTAX.md`). The steps after it are about
 the name. It is taken the way an `obtain` is: `elisset` gives `∃x x = E` once E
 is a set (`rules.SETHOOD`), the scope is widened by `x = E`, and `exlimdv`
 discharges it where the scope ends (`scopes.define`). The variable is a spare,
@@ -605,6 +610,18 @@ its conclusion binds. A body naming an earlier define is held as written, so
 a step citing the later define rests on the earlier one only where it reads
 that name too: F(a) = f(a) + g(a), by the define of F, needs nothing of what g
 is.
+
+A let that says its name is a kind of number, `let m = gcd(s, w), a natural
+number (D1)`, has its reason proved as the requires line `gcd(s, w) ∈ ℕ` of
+the step below it would be (`as_a_step`), under the scope the let has just
+widened; where the let's body was read with its bound letters apart, `same`
+carries the reason's fact to it. `eqeltrd` turns that and the equation into
+`m ∈ ℕ` (`scopes.kind_shown`), sealed as the let's label. The name then joins
+`sets` as a letter `let m ∈ ℕ` puts there, so `introduced_membership` offers
+it to every step below without a citation; and the let's line becomes the
+equation and the membership joined by `jca`, held as a fact so that each
+scope opened below carries it, so a step citing the let reads the membership
+as it reads the equation, written out where it writes the name out.
 
 A lemma speaks of the body and a line of the name, and the standard form
 reads the name as the body wherever two things are compared (`named_body`),
@@ -694,15 +711,15 @@ Block scope is a snapshot. A block records the names before it opens anything
 and gives them back where it gives back its frames — in `close_block`, and in
 `enter_case`, which resets a `cases` block between its parts. A `define` is
 read where it stands rather than all of them at the top, which is what lets
-`subsets` write `define U := 𝒫(X ∖ {a})` eighteen columns in, with `X` from a
+`subsets` write `let U = 𝒫(X ∖ {a})` eighteen columns in, with `X` from a
 `proof` block and `a` from an `obtain`. A define written in a case is read once the
 case is entered, under its assumption, so the case owns it and the next case
 starts without it: Cauchy–Schwarz names A, B and C only in its third case,
 where Σ(k = 1 to n) a(k)² > 0.
 
-**A defined function is a map and its equation.** `define S(m) := Σ(j = 1 to
+**A defined function is a map and its equation.** `let S(m) = Σ(j = 1 to
 m) j, for m ∈ ℕ` is read as the map sending each m ∈ ℕ to that sum, which
-is what set.mm has a function be, and `define` gives it a name and an equation
+is what set.mm has a function be, and the line gives it a name and an equation
 as it gives any define. `S(n)` is the map applied to n: the calculators see it
 as one atom, and the standard form reads it as the rule at n wherever two
 things are compared (`applied_body`), proved by `fvmptd3` once the name is
@@ -721,7 +738,7 @@ two letters equal to the rule at the two values, is proved one letter at a
 time and joined by `sylan9eq`. A value that spells a letter the rule binds is
 not read, since it would be captured. The map is a set by `mpoexga`.
 
-A define with a parameter also says what its function is on: `define t(c) :=
+A define with a parameter also says what its function is on: `let t(c) =
 g·c, for c ∈ H` cited for `t is a function on H` is read as the map being a
 function on its domain, which it is where each value its rule gives is a set
 (`mptfng`), settled as any sethood is, and carried from the map to the name
@@ -757,7 +774,7 @@ no such leave: its defines reach the step only through an import, which a
 step cites.
 
 **Sequences defined by recursion are one recursion over a state.** Euclid's
-`define a(0) := M, b(0) := N, a(k + 1) := …, b(k + 1) := …, for k ∈ ℕ₀`
+`let a(0) = M, b(0) = N, a(k + 1) = …, b(k + 1) = …, for k ∈ ℕ₀`
 gives two sequences, and set.mm has one way to define by recursion: `seq`,
 stepping one value. So the n values at k are held as one state, the value
 itself for one sequence and a pair for two (for more, a pair whose second is

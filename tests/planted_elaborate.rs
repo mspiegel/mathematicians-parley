@@ -228,6 +228,17 @@ fn the_elaborator_reports_every_planted_defect() {
 
 fn cases() -> Vec<Case> {
     vec![
+        // A let's reason shows the term it names is the kind of number the
+        // let says; the checker takes `membership` on trust, and a sum of
+        // squares of reals is not shown to be a natural number.
+        case(
+            "a let saying a kind of number its reason does not show",
+            "proofs/cauchy-schwarz/cauchy-schwarz",
+            "proofs/cauchy-schwarz.proof",
+            "    let A = Σ(k = 1 to n) a(k)², a real number                        (D1)",
+            "    let A = Σ(k = 1 to n) a(k)², a natural number                     (D1)",
+            "the reason under let D1",
+        ),
         // A chain's congruence of numerals is worked out like any closed
         // fact: 10 is not 2 more than a multiple of 3.
         case(
