@@ -810,6 +810,13 @@ pub const MEMBERSHIP: &[&str] = &[
     "prcom",
     // A singleton holds what it names, which `elpwg`'s users ask.
     "snidg",
+    // A subgroup is a part of its group: a library item saying "H is a
+    // subgroup of G", as the reader does, answers a lemma asking H ⊆ G.
+    "subgss",
+    // Three points form a triangle in any order (`forms-a-triangle`,
+    // `commutes yes`): a swap and a rotation reach every order.
+    "gtriswap",
+    "gtrirotate",
     // A map sends no two things to the same place, and set.mm reaches
     // equinumerosity from it through the map itself.
     "f1f1orn",

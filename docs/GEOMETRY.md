@@ -171,6 +171,17 @@ angle, which `isosceles` would do about sixteen times across twelve steps.
 
 That is an ordinary dull-fact load and not a reason against ℂ: about 1.3
 lines a step, each a fact that can fail where the points coincide.
+
+**A triangle is its three points, in no order.** "A, B, C form a triangle"
+and "C, A, B form a triangle" are one claim: the three are distinct and not
+on one line, whichever is named first. The notation record says so
+(`commutes yes`), the checker matches its holes in any order, and the
+elaborator carries one order to another by `gtriswap` and `gtrirotate`. So
+an item that needs its three points to form a triangle says so in that
+phrase, `mun:stdlib/geometry/angle-symmetric` among them, and a proof cites
+its own triangle line for it in whatever order it names the points. Order
+matters only where a statement says which vertex is which, as "triangle ACB
+≅ triangle BCA" does, and that is another notation.
 Distinctness of an angle's points is exactly what the `requires` machinery is
 for, and it is not a membership the page says once.
 

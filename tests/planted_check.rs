@@ -693,13 +693,13 @@ fn cases() -> Vec<Case> {
             ],
             "takes no block",
         ),
-        // `requires C ≠ A: mun:triangle` unfolds a line saying B, C, A form a
-        // triangle; written above it, that line is what it rests on, and
-        // without it nothing is.
+        // `requires C ≠ A: mun:triangle` unfolds a line saying A, B, C form a
+        // triangle; cited, that line is what it rests on, and without it
+        // nothing is.
         case(
             "unfold a triangle no line above says",
             vec![
-                edit("proofs/angle-sum.proof", Some("    requires B, C, A form a triangle: mun:triangle-rotate P := A, Q := B, R := C, from H4\n".to_string()), "".to_string()),
+                edit("proofs/pythagoras.proof", Some("    requires C ≠ A: mun:triangle, from H4\n".to_string()), "    requires C ≠ A: mun:triangle\n".to_string()),
             ],
             "the requires line of step 2 needs something that mun:triangle does not conclude",
         ),
@@ -1588,7 +1588,7 @@ fn cases() -> Vec<Case> {
         case(
             "answer an equation with one that says it neither way round",
             vec![
-                edit("proofs/isosceles.proof", Some("      from 3, 4, H5\n".to_string()), "      from 3, 4, 2\n".to_string()),
+                edit("proofs/isosceles.proof", Some("      from 3, 4, H4, H5\n".to_string()), "      from 3, 4, H4, 2\n".to_string()),
             ],
             "step 5 cites axi:side-angle-side, which asks for",
         ),
@@ -1678,14 +1678,14 @@ fn cases() -> Vec<Case> {
             ],
             "is none of the 13 introductions",
         ),
-        // gH is read as the coset only of a part of the group, and the step
-        // says H is one.
+        // gH is read as a coset of a subgroup, and the step cites the line
+        // that says H is one.
         case(
-            "read a coset without saying H lies in G",
+            "read a coset without saying H is a subgroup",
             vec![
-                edit("proofs/lagrange.proof", Some("          mun:coset u := g, from K3, 4.1, 4.2\n          requires H ⊆ G: from 1\n".to_string()), "          mun:coset u := g, from K3, 4.1, 4.2\n".to_string()),
+                edit("proofs/lagrange.proof", Some("          mun:coset u := g, from H2, K3, 4.1, 4.2\n".to_string()), "          mun:coset u := g, from K3, 4.1, 4.2\n".to_string()),
             ],
-            "step 4.3 cites mun:coset, which asks for H ⊆ G",
+            "step 4.3 cites mun:coset, which asks for H is a subgroup of G",
         ),
         // An equation names a witness read either way round, and only so: g
         // is in gH as g = g·h for some h ∈ H, and e·g = g fits that neither

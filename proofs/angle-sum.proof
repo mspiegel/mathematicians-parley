@@ -1,9 +1,6 @@
 import axiom              stdlib/geometry/parallel-through
 import theorem            stdlib/geometry/alternate-angles
 import theorem            stdlib/geometry/angles-on-a-line
-import mundane definition stdlib/geometry/triangle
-import mundane theorem    stdlib/geometry/triangle-rotate
-import mundane theorem    stdlib/geometry/triangle-swap
 
 theorem angle-sum
   metamath    ang180
@@ -21,19 +18,13 @@ theorem angle-sum
     D and C are on opposite sides of line BA.
     E and A are on opposite sides of line BC.
     A and C are on the same side of line BD.
-    obtain D, E: axi:parallel-through P := A, Q := C, R := B
-    requires A, C, B form a triangle: mun:triangle-swap P := A, Q := B, R := C, from H4
+    obtain D, E: axi:parallel-through P := A, Q := C, R := B, from H4
 
 2.  ∠DBA = ∠BAC
-    thm:alternate-angles P := A, Q := C, R := B, S := D, from 1
-    requires B, C, A form a triangle: mun:triangle-rotate P := A, Q := B, R := C, from H4
-    requires C ≠ A: mun:triangle
-    requires B ≠ A: mun:triangle
+    thm:alternate-angles P := A, Q := C, R := B, S := D, from H4, 1
 
 3.  ∠EBC = ∠BCA
-    thm:alternate-angles P := C, Q := A, R := B, S := E, from 1
-    requires A ≠ C: mun:triangle, from H4
-    requires B ≠ C: mun:triangle, from H4
+    thm:alternate-angles P := C, Q := A, R := B, S := E, from H4, 1
 
 4.  ∠DBA + ∠ABC + ∠EBC = 180°
     thm:angles-on-a-line P := A, Q := C, R := B, S := D, T := E, from 1

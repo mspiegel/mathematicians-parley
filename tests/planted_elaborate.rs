@@ -350,21 +350,21 @@ fn cases() -> Vec<Case> {
         // with `necom` would verify, and leave the line the page named unused.
         case(
             "name a line that does not state the side condition",
-            "proofs/isosceles/isosceles",
-            "proofs/isosceles.proof",
-            "    requires B, C, A form a triangle: mun:triangle-rotate P := A, Q := B, R := C, from H4\n    requires C ≠ A: mun:triangle\n",
-            "    requires C ≠ A: mun:triangle, from H5\n    requires B, C, A form a triangle: mun:triangle-rotate P := A, Q := B, R := C, from H4\n",
+            "proofs/pythagoras/pythagoras",
+            "proofs/pythagoras.proof",
+            "    requires C ≠ A: mun:triangle, from H4\n",
+            "    requires C ≠ A: mun:triangle, from H5\n",
             "mun:triangle, from H5 does not reach",
         ),
         // The same, where the scope already holds the claim for another reason:
-        // the hypothesis says A, B, C form a triangle, so `A ≠ C` is held before
+        // the hypothesis says A, B, C form a triangle, so `C ≠ B` is held before
         // the line is read, and H5 does not say it.
         case(
             "name a line that does not state a claim the scope already holds",
-            "proofs/isosceles/isosceles",
-            "proofs/isosceles.proof",
-            "    requires A ≠ C: mun:triangle, from H4\n",
-            "    requires A ≠ C: mun:triangle, from H5\n",
+            "proofs/pythagoras/pythagoras",
+            "proofs/pythagoras.proof",
+            "    requires C ≠ B: mun:triangle, from H4\n",
+            "    requires C ≠ B: mun:triangle, from H5\n",
             "mun:triangle, from H5 does not reach",
         ),
         // A requires line below that cites an item asks for that item's
@@ -946,8 +946,8 @@ fn cases() -> Vec<Case> {
             "a coset member with no line naming what it is the element times",
             "proofs/lagrange/lagrange",
             "proofs/lagrange.proof",
-            "mun:coset u := g, from K3, 4.1, 4.2",
-            "mun:coset u := g, from K3, 4.1",
+            "mun:coset u := g, from H2, K3, 4.1, 4.2",
+            "mun:coset u := g, from H2, K3, 4.1",
             "no cited line names a witness",
         )
         .at("proofs/lagrange.proof", "4.3.  g ∈ gH"),

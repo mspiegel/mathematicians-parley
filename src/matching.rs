@@ -108,6 +108,43 @@ pub struct Context {
     /// Each spelling that is another of its notation's with the holes in
     /// another order, by (notation, literal): `x > 0` is `0 < x` (`turned`).
     pub turned: IndexMap<(String, String), Turned>,
+    /// The notations whose holes stand in any order, more than two of them
+    /// and `commutes yes`: "A, B, C form a triangle" is "C, A, B form a
+    /// triangle".
+    pub unordered: IndexSet<String>,
+}
+
+/// The notations of more than two holes whose record says `commutes yes`.
+fn unordered(records: &[Record]) -> IndexSet<String> {
+    records
+        .iter()
+        .filter(|r| r.kind == RecordKind::Notation)
+        .filter(|r| {
+            let says: Vec<&str> = r.field_or_empty("commutes").split(',').collect();
+            crate::formula::notation::patterns_of(r.field_or_empty("pattern"))
+                .into_iter()
+                .zip(says.iter().map(|s| s.trim()))
+                .any(|(p, yes)| yes == "yes" && p.matches('_').count() > 2)
+        })
+        .map(|r| r.name.clone())
+        .collect()
+}
+
+/// Every order of a node's parts.
+fn permutations(parts: &[Node]) -> Vec<Vec<Node>> {
+    if parts.len() <= 1 {
+        return vec![parts.to_vec()];
+    }
+    let mut out = Vec::new();
+    for i in 0..parts.len() {
+        let mut rest = parts.to_vec();
+        let first = rest.remove(i);
+        for mut tail in permutations(&rest) {
+            tail.insert(0, first.clone());
+            out.push(tail);
+        }
+    }
+    out
 }
 
 /// What a spelling is in its notation's standard order: the literal it is
@@ -129,6 +166,7 @@ impl Context {
             functions_on: functions_on(records),
             sums: sums(records),
             turned: turned(notations, records),
+            unordered: unordered(records),
         }
     }
 
@@ -420,13 +458,16 @@ pub fn sums(records: &[Record]) -> IndexSet<String> {
         .collect()
 }
 
-/// The ways b's parts may stand against a's: as written, and turned round
-/// where a is an equation.
-pub fn orders(a: &Node, b: &Node, equations: &IndexSet<String>) -> Vec<Vec<Node>> {
-    if equations.contains(&a.notation) && b.children.len() == 2 {
+/// The ways b's parts may stand against a's: as written, turned round where
+/// a is an equation, and in every order where a's notation is unordered.
+pub fn orders(a: &Node, b: &Node, ctx: &Context) -> Vec<Vec<Node>> {
+    if ctx.equations.contains(&a.notation) && b.children.len() == 2 {
         let mut turned = b.children.clone();
         turned.reverse();
         return vec![b.children.clone(), turned];
+    }
+    if ctx.unordered.contains(&a.notation) {
+        return permutations(&b.children);
     }
     vec![b.children.clone()]
 }
@@ -525,7 +566,7 @@ fn fit(
     }
     let pattern = bound_as(pattern, ground, variables, ctx);
     let before = binding.len();
-    for children in orders(&pattern, ground, &ctx.equations) {
+    for children in orders(&pattern, ground, ctx) {
         let all = pattern
             .children
             .iter()
@@ -621,7 +662,7 @@ pub fn alike(
         return false;
     }
     let Some(shape) = ctx.binders.get(&a.notation) else {
-        return orders(a, b, &ctx.equations).iter().any(|kids| {
+        return orders(a, b, ctx).iter().any(|kids| {
             a.children
                 .iter()
                 .zip(kids.iter())

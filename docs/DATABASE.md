@@ -306,9 +306,10 @@ repaired.
   C, A′, B′, C′. One of the two must change. Settled since: the proof changed,
   because every other geometry item names its points P, Q and R.
 - **`thm:triangle-permute`'s conclusion was not a formula.** "Any ordering of P,
-  Q, R forms a triangle" is replaced by `mun:stdlib/geometry/triangle-swap` and
-  `mun:stdlib/geometry/triangle-rotate`, which generate all six orderings and are the two the
-  isosceles proof cites.
+  Q, R forms a triangle" is no item: the `forms-a-triangle` notation says
+  `commutes yes`, so a triangle is one claim in any order of its points, and
+  the elaborator reaches each order by the lemmas `gtriswap` and `gtrirotate`
+  (`GEOMETRY.md`).
 - **Set-existence hypotheses are inconsistent.** `axi:stdlib/numbers/well-ordering` and
   `axi:stdlib/calculus/completeness` are stated with `assume S ⊆ ℕ` and no `let S be a set`,
   because that is what the pilot tables said and what the proofs discharge.
@@ -389,8 +390,7 @@ leaned on are theorems of its proof file, and
 `mun:stdlib/functions/function`, which no proof cited, is not an item. Six
 more were open and are not. `thm:proofs/intermediate-value/point-right`
 existed only because the language had no `min`; with the `min` notation the
-proof defines x₁ := min(b, c + δ/2) as a textbook does, and the lemma is gone. `mun:stdlib/geometry/angle-symmetric`, `axi:stdlib/geometry/side-angle-side`,
-`mun:stdlib/geometry/triangle-swap` and `mun:stdlib/geometry/triangle-rotate` are proved in
+proof defines x₁ := min(b, c + δ/2) as a textbook does, and the lemma is gone. `mun:stdlib/geometry/angle-symmetric` and `axi:stdlib/geometry/side-angle-side` are proved in
 `corpus/elaboration/stdlib/proved.mm`, which is a third way to supply an item: neither a
 set.mm label nor a proof file in the readable layer, but a Metamath proof
 below it, for what set.mm does not state and the readable layer cannot.

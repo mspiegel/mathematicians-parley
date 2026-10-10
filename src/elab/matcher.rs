@@ -176,7 +176,7 @@ impl<'a> Elaborator<'a> {
                     }
                 }
             }
-            return Ok(None);
+            return self.held_reordered(facts, wanted, scope);
         };
         let Some(proof) = facts.proof(stored) else {
             return Ok(None);
@@ -202,6 +202,115 @@ impl<'a> Elaborator<'a> {
             }
             Declined(_) => None,
         })
+    }
+
+    /// A triangle held with its points named in another order: three points
+    /// form a triangle in any order (`forms-a-triangle`, `commutes yes`), and
+    /// the one held is carried to the order wanted by as few swaps and
+    /// rotations as reach it (`gtriswap`, `gtrirotate`). None where `wanted`
+    /// is no triangle, or no order of its points is held.
+    fn held_reordered(
+        &mut self,
+        facts: &Facts,
+        wanted: &str,
+        scope: &str,
+    ) -> Checked<Option<Proof>> {
+        const SWAP: &str = "gtriswap";
+        const ROTATE: &str = "gtrirotate";
+        if !self.b.sigs.contains_key(SWAP) || !self.b.sigs.contains_key(ROTATE) {
+            return Ok(None);
+        }
+        // ( the points are numbers -> ( P, Q, R form a triangle -> … ) ).
+        let whole = self.statement(SWAP);
+        let shape = whole.children()[1].children()[0].clone();
+        let mut letters: Vec<String> = Vec::new();
+        let mut rest = vec![shape.clone()];
+        while let Some(node) = rest.pop() {
+            if let Some(v) = node.variable() {
+                if !letters.iter().any(|l| l == v) {
+                    letters.push(v.to_string());
+                }
+                continue;
+            }
+            rest.extend(node.children().iter().rev().cloned());
+        }
+        if letters.len() != 3 {
+            return Ok(None);
+        }
+        let Some(at) =
+            self.fits_as(&shape, &self.to_term(wanted), &names_of(&shape), None)
+        else {
+            return Ok(None);
+        };
+        let Some(points) = letters
+            .iter()
+            .map(|l| at.get(l.as_str()).cloned())
+            .collect::<Option<Vec<Term>>>()
+        else {
+            return Ok(None);
+        };
+        let named = |me: &Self, order: &[usize]| -> String {
+            let mut put = Binding::new();
+            for (letter, &i) in letters.iter().zip(order) {
+                put.insert(letter.clone(), points[i].clone());
+            }
+            me.rpn(&shape.substitute(&put))
+        };
+        let swap = |o: &[usize]| vec![o[0], o[2], o[1]];
+        let rotate = |o: &[usize]| vec![o[1], o[2], o[0]];
+        let goal = vec![0, 1, 2];
+        for start in [[0, 2, 1], [1, 2, 0], [2, 0, 1], [1, 0, 2], [2, 1, 0]] {
+            let said = named(self, &start);
+            if facts.under(&self.fact_key(&said)).is_empty() {
+                continue;
+            }
+            let Some(mut proof) = self.held(facts, &said, scope)? else {
+                continue;
+            };
+            // The fewest moves from the order held to the order wanted.
+            let mut paths: Vec<(Vec<usize>, Vec<&str>)> =
+                vec![(start.to_vec(), Vec::new())];
+            let moves = loop {
+                let Some((order, path)) = paths.first().cloned() else {
+                    break None;
+                };
+                paths.remove(0);
+                if order == goal {
+                    break Some(path);
+                }
+                if path.len() < 3 {
+                    for (label, next) in
+                        [(SWAP, swap(&order)), (ROTATE, rotate(&order))]
+                    {
+                        let mut longer = path.clone();
+                        longer.push(label);
+                        paths.push((next, longer));
+                    }
+                }
+            };
+            let Some(moves) = moves else {
+                continue;
+            };
+            let known = facts.copy();
+            let mut order = start.to_vec();
+            for label in moves {
+                self.know(&known, named(self, &order), proof);
+                order = if label == SWAP {
+                    swap(&order)
+                } else {
+                    rotate(&order)
+                };
+                let next = self.to_term(&named(self, &order));
+                let Built(made) =
+                    self.apply_lemma(label, &next, scope, &known, None, false, None)?
+                else {
+                    return Ok(None);
+                };
+                proof = made;
+            }
+            return Ok(Some(proof));
+        }
+        Ok(None)
     }
 
     /// `wanted` from a fact that says it over other bound letters, under any

@@ -10,8 +10,6 @@ import mundane theorem    stdlib/geometry/distance-symmetric
 import mundane theorem    stdlib/geometry/sine-positive
 import mundane definition stdlib/geometry/triangle
 import mundane theorem    stdlib/geometry/triangle-angle-real
-import mundane theorem    stdlib/geometry/triangle-rotate
-import mundane theorem    stdlib/geometry/triangle-swap
 import mundane theorem    stdlib/numbers/multiply-cancel
 import mundane definition stdlib/trigonometry/sin
 import mundane theorem    stdlib/trigonometry/sin-real
@@ -122,14 +120,10 @@ theorem pythagoras
 
 2.  ∠DAC = ∠BAC
     mun:angle-along-segment P := A, Q := B, R := C, S := D, from 1
-    requires B, C, A form a triangle: mun:triangle-rotate P := A, Q := B, R := C, from H4
-    requires C ≠ A: mun:triangle
+    requires C ≠ A: mun:triangle, from H4
 
 3.  ∠BAC = ∠CAB
-    mun:angle-symmetric P := B, Q := A, R := C
-    requires B, C, A form a triangle: mun:triangle-rotate P := A, Q := B, R := C, from H4
-    requires B ≠ A: mun:triangle
-    requires C ≠ A: mun:triangle
+    mun:angle-symmetric P := B, Q := A, R := C, from H4
 
 4.  ∠DAC = ∠CAB
     calculation
@@ -143,22 +137,17 @@ theorem pythagoras
 
 6.  |AD|·|AB| = |AC|·|AC|
     thm:similar-triangles P := A, Q := D, R := C, P′ := A, Q′ := C, R′ := B,
-      from 1, 4, 5
-    requires A, C, B form a triangle: mun:triangle-swap P := A, Q := B, R := C, from H4
+      from H4, 1, 4, 5
 
 7.  D is between B and A
     mun:between-symmetric R := D, S := A, T := B, from 1
 
 8.  ∠DBC = ∠ABC
     mun:angle-along-segment P := B, Q := A, R := C, S := D, from 7
-    requires A, C, B form a triangle: mun:triangle-swap P := A, Q := B, R := C, from H4
-    requires C ≠ B: mun:triangle
+    requires C ≠ B: mun:triangle, from H4
 
 9.  ∠ABC = ∠CBA
-    mun:angle-symmetric P := A, Q := B, R := C
-    requires A ≠ B: mun:triangle, from H4
-    requires A, C, B form a triangle: mun:triangle-swap P := A, Q := B, R := C, from H4
-    requires C ≠ B: mun:triangle
+    mun:angle-symmetric P := A, Q := B, R := C, from H4
 
 10. ∠DBC = ∠CBA
     calculation
@@ -166,9 +155,7 @@ theorem pythagoras
            = ∠CBA       9
 
 11. ∠BCA = ∠ACB
-    mun:angle-symmetric P := B, Q := C, R := A
-    requires B ≠ C: mun:triangle, from H4
-    requires A ≠ C: mun:triangle, from H4
+    mun:angle-symmetric P := B, Q := C, R := A, from H4
 
 12. ∠BDC = ∠BCA
     calculation
@@ -178,8 +165,7 @@ theorem pythagoras
 
 13. |BD|·|BA| = |BC|·|BC|
     thm:similar-triangles P := B, Q := D, R := C, P′ := B, Q′ := C, R′ := A,
-      from 1, 10, 12
-    requires B, C, A form a triangle: mun:triangle-rotate P := A, Q := B, R := C, from H4
+      from H4, 1, 10, 12
 
 14. |AD| + |DB| = |AB|
     thm:segment-addition P := A, Q := B, S := D, from 1
