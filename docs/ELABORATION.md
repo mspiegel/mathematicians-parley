@@ -567,7 +567,10 @@ either names it: `there is a ∈ G with gH = aH` takes g from g ∈ G, and its
 body at g, a term equal to itself, is `settle`'s by `eqidd`. An equation
 names its witness read either way round, as `g·e = g` does for g = g·h. A witness is taken from the lines a step cites and
 never searched for among the facts in scope, so this runs only where a step is
-there to have cited one.
+there to have cited one. The one exception is an equation of the body one side
+of which names no witness, which names them itself: it is the same on both
+sides once they are read off the other, and needs no line (`An identity
+element left out`, below).
 
 **`induction`** is one lemma whose two hypotheses are the two parts the text
 writes. The `base` part stands under the block's scope. The `step` part opens
@@ -576,7 +579,9 @@ fixes the claim's letter as a `proof` block does, and its induction hypothesis i
 claim's statement at that letter, so its last step is proved under `((ph ∧ k
 ∈ X) ∧ P(k))`, which is the antecedent `nn0indd` asks its step under, and
 nothing is turned round. `INDUCTION` chooses `nnindd` or `nn0indd` by the set
-the claim says "for all k ∈ X" of.
+the claim says "for all k ∈ X" of. Each part ends on its instance, which the
+page may write over other bound letters or without an identity element it has
+(`reached`).
 
 The claim's statement has to be abstracted over the letter, which the text
 never does: the lemma wants it general, at the base, at the step part's
@@ -1109,6 +1114,69 @@ is for. What says one thing two ways, set.mm's form and the page's, is a
 rule of the standard form (`rules.STANDARD`), and the matcher compares
 through it (`same`).
 
+#### An identity element left out
+
+An identity element goes without saying wherever it stands (`SYNTAX.md`):
+L(p) ≤ L(p) for L(p) ≤ L(p + 0), Σ(k = 1 to m + 1) for Σ(k = 0 + 1 to m +
+1), p(x) = (x − a)·q(x) for what substituting p(a) = 0 makes. Which element
+is an identity, and in which hole, is each operation's notation record's
+(`identity`, read by `targets::identities`), and the laws that drop one are
+`rules.IDENTITY`: `addrid`, `addlid`, `subid1`, `mulrid`, `mullid`, `div1`,
+`exp1` (`identity_law`). Each asks that the operand be a number, settled as
+any side condition is, from the scope's facts and the step's requires lines.
+
+The laws are a row of the congruence walk of their own (`Row::Identity`):
+two terms are one where they agree once their identity elements are
+dropped, and each is carried to that bare form (`bared`), its parts first and
+then its head, so a^(0 + 1) becomes a^1 and then a. A fact is filed under
+its form with its identity elements dropped (`written_form`), so a line
+saying x + 0 = y is found where x = y is asked, and `held` carries the one to
+the other by that row. They are not a rule of the standard form `same`
+compares by: a comparison made with no facts, as `respelt`'s is, could not
+show the operand a number, and would lose the plain route, k = k + 0 turned
+round, that it takes now. The places that compare a claim with what it must
+be use the row:
+
+- **A part of a block** ends on the instance its owner wants (`reached`): an
+  induction's base on P at the start, its step part on P at the successor.
+  A claim written as its instance is taken as it is. Otherwise the page's
+  claim is bared, renamed to the instance's bound letters, and carried to
+  the instance as it stands. What a drop asks is answered from what the
+  part's own lines say, whole and in parts, and nothing else in scope
+  (`resting_on`), so Euclid's base takes b(0) ∈ ℕ₀ from its 5.1 and not from
+  the same line in step 3.
+- **A lemma's conclusion** reaches a claim written without an element it has
+  (`as_tidied`), tried only where every other route of `apply_lemma` has
+  declined. The conclusion is fitted reading x + 0 as x where the claim has
+  x (`fit_tidied`); a variable a hypothesis decides is taken at that value;
+  the lemma is proved there and carried to the claim. The element must be
+  one the instance has: a hole is read as the element only where the binding
+  already fixes it so, and never bound to make it so, or `zaddcl` would
+  read x ∈ ℤ as 0 + x ∈ ℤ. A lemma proved at its own value, as `fsum1` is at
+  its summand at k := 0, is carried the same way where nothing settles the
+  claim from it (`at_its_own_value`).
+- **A witness** need not be named by a line where the body's equation has a
+  side that names none (`witnessed`): t = a·m + b·n at t := a·x + b·y is
+  a·x + b·y = a·x + b·y once m and n are read off the other side, and
+  `eqidd` proves it.
+- **A substitution** whose line leaves out an element it makes
+  (`substituted_tidied`, `replaced_tidied`): the equation is put in at every
+  place, either way round, that line is reached by the equation alone as any
+  substitution is, and it is carried to the claim by the row. Only where the
+  plain substitution misses.
+- **A calculation's link** citing a line that says it with an element the
+  link leaves out, or the other way about (`link_held`).
+
+The checker reads them all the same way, in every match and comparison it
+makes (`Context::identities`): a pattern's operation may stand with its
+identity in a hole the binding already fixes as it, a ground's operation
+with its identity written in a hole stands for its other hole, and two
+terms are alike once an element is dropped from either; and a "there is"
+whose body is such an equation supplies itself (`self_evident`). Induction
+is a closure method the checker leaves to the elaborator. Reading every
+comparison this way costs the checker about a third more time, most of it
+in Bezout, whose a·1 is now a wherever a line is compared.
+
 #### A membership said once
 
 `READERS.md` has a membership in a number system said once, where a letter is
@@ -1562,7 +1630,8 @@ The orders follow five rules, and each search below is one of them applied.
      words (`said_otherwise`), and last a rewrite by an equation in hand.
    - `apply_lemma`, where the conclusion does not fit as written: through an
      existential, at the seed the target gives, through a conjunct, a
-     universal generalised, and last in other words.
+     universal generalised, in other words, and last with an identity
+     element left out (`as_tidied`).
    - `prove_field`: the two sides as one polynomial, then a cited line
      scaled, crossed, or summed.
    - a `requires` line (`by_its_reason`): read from the lines it cites before

@@ -177,6 +177,72 @@ pub fn commuting(records: &[Record]) -> Vec<Commuting> {
     out
 }
 
+/// An operation's identity element, from `identity`: the constructor, the
+/// positions its two holes occupy, what stands in every other position, the
+/// element, and which of the two holes it may stand in, 0 for the first.
+#[derive(Clone, Debug)]
+pub struct Identity {
+    pub constructor: String,
+    pub places: (usize, usize),
+    pub fixed: IndexMap<usize, String>,
+    pub element: u32,
+    pub holes: Vec<usize>,
+}
+
+/// The identity elements the notation records declare, one entry per
+/// pattern that has one: `0 on either side`, `0 on the right`.
+pub fn identities(records: &[Record]) -> Vec<Identity> {
+    let mut out = Vec::new();
+    for r in records {
+        if r.kind != RecordKind::Notation {
+            continue;
+        }
+        let Some(says) = r.field("identity") else {
+            continue;
+        };
+        let says = split_entries(says);
+        let patterns = split_entries(r.field_or_empty("target"));
+        for (pattern, said) in patterns.iter().zip(says.iter()) {
+            let Some(law) = identity_said(said) else {
+                continue;
+            };
+            let places = slots(pattern);
+            if *pattern == FOLDED || places.len() != 2 {
+                continue;
+            }
+            let tokens: Vec<&str> = pattern.split_whitespace().collect();
+            let fixed = tokens[..tokens.len() - 1]
+                .iter()
+                .enumerate()
+                .filter(|(i, _)| !places.values().any(|p| p == i))
+                .map(|(i, t)| (i, t.to_string()))
+                .collect();
+            out.push(Identity {
+                constructor: tokens[tokens.len() - 1].to_string(),
+                places: (places[&0], places[&1]),
+                fixed,
+                element: law.0,
+                holes: law.1,
+            });
+        }
+    }
+    out
+}
+
+/// An `identity` entry read: the element, and the holes it may stand in.
+/// None for `none`, and for anything the field does not say.
+pub fn identity_said(said: &str) -> Option<(u32, Vec<usize>)> {
+    let (element, side) = said.split_once(" on ")?;
+    let element = element.trim().parse::<u32>().ok()?;
+    let holes = match side.trim() {
+        "either side" => vec![0, 1],
+        "the left" => vec![0],
+        "the right" => vec![1],
+        _ => return None,
+    };
+    Some((element, holes))
+}
+
 /// The lemmas an item's `target` names, one per `then` group.
 ///
 /// An item may state several things at once — that a sum and a difference

@@ -29,7 +29,7 @@ use super::matcher::ChainLink;
 use super::provenance::{item_clauses, requirement};
 use super::reading::{hypothesis_body, is_subgroup, subject_of, CLASS_NAMES};
 use super::state::{
-    fit, names_of, number_of, Binding, Block, Closer, Elaborator, Vars,
+    fit, names_of, number_of, Binding, Block, Closer, Elaborator, PartEnd, Vars,
 };
 use super::tables::Leaf;
 use super::{Facts, Line, Lines};
@@ -656,7 +656,15 @@ impl<'a> Elaborator<'a> {
                     }
                     (None, None) => (held.term, held.proof),
                 };
-                block.parts.insert(part, (term, proof, scope.clone()));
+                block.parts.insert(
+                    part,
+                    PartEnd {
+                        claim: term,
+                        proof,
+                        scope: scope.clone(),
+                        facts: facts.clone(),
+                    },
+                );
             }
             // A `proof` block whose assumption cannot hold ends on the step that
             // reaches the opposite of an earlier line, as a case that cannot
@@ -1856,9 +1864,18 @@ impl<'a> Elaborator<'a> {
                 Some(step),
                 &leaf,
             )?;
-            return match alike {
-                Built(p) if start != other => Ok(Built(p)),
-                _ => Err(self.defect(step.line, "the substitution misses the claim")),
+            if let Built(p) = alike {
+                if start != other {
+                    return Ok(Built(p));
+                }
+            }
+            return match self.replaced_tidied(
+                &start, &other, &old, &new, scope, &equation, facts, step,
+            )? {
+                Some(p) => Ok(Built(p)),
+                None => {
+                    Err(self.defect(step.line, "the substitution misses the claim"))
+                }
             };
         };
         let where_ = into_text
@@ -1925,18 +1942,29 @@ impl<'a> Elaborator<'a> {
                 let Some(given) = self.held(&known, start, scope)? else {
                     continue;
                 };
-                let Built(alike) = self.congruence(
+                let walked = self.congruence(
                     &self.to_term(start),
                     &self.to_term(aim),
                     scope,
                     &equation,
                     Some(step),
                     &leaf,
-                )?
-                else {
-                    continue;
+                )?;
+                let made = match walked {
+                    Built(alike) => {
+                        pf!(self.b; scope, start, aim, given, alike, "mpbid")
+                    }
+                    Declined(_) => {
+                        let tidy = self.substituted_tidied(
+                            start, aim, &given, &old, &new, scope, &equation, facts,
+                            step,
+                        )?;
+                        let Some(made) = tidy else {
+                            continue;
+                        };
+                        made
+                    }
                 };
-                let made = pf!(self.b; scope, start, aim, given, alike, "mpbid");
                 let Some(flip) = flip else {
                     return Ok(Built(made));
                 };
@@ -1945,6 +1973,123 @@ impl<'a> Elaborator<'a> {
             }
         }
         Err(self.defect(step.line, "the substitution misses the claim"))
+    }
+
+    /// ( scope -> start = other ), where `other` is `start` with the
+    /// equation put in and an identity element it makes left out:
+    /// C(0, 0)·x^0 with C(0, 0) = 1 put in is 1·x^0, written x^0
+    /// (`substituted_tidied` for a line put into).
+    #[allow(clippy::too_many_arguments)]
+    fn replaced_tidied(
+        &mut self,
+        start: &str,
+        other: &str,
+        old: &str,
+        new: &str,
+        scope: &str,
+        equation: &Facts,
+        facts: &Facts,
+        step: &Step,
+    ) -> Checked<Option<Proof>> {
+        let bare =
+            |me: &Self, rpn: &str| me.rpn(&me.without_identities(&me.to_term(rpn)));
+        let goal = bare(self, other);
+        for (was, now) in [(old, new), (new, old)] {
+            let now_term = self.to_term(now);
+            let made = self.replaced(&self.to_term(start), was, &now_term);
+            let literal = self.rpn(&made);
+            if literal == start || bare(self, &literal) != goal {
+                continue;
+            }
+            let Built(put) = self.congruence(
+                &self.to_term(start),
+                &made,
+                scope,
+                equation,
+                Some(step),
+                &Leaf::Rows(vec![super::tables::Row::Held]),
+            )?
+            else {
+                continue;
+            };
+            let Built(across) = self.congruence(
+                &made,
+                &self.to_term(other),
+                scope,
+                facts,
+                None,
+                &Leaf::Rows(vec![super::tables::Row::Identity]),
+            )?
+            else {
+                continue;
+            };
+            return Ok(Some(self.chained(
+                scope,
+                &[
+                    ChainLink {
+                        from: self.to_term(start),
+                        to: made.clone(),
+                        proof: put,
+                    },
+                    ChainLink {
+                        from: made,
+                        to: self.to_term(other),
+                        proof: across,
+                    },
+                ],
+            )));
+        }
+        Ok(None)
+    }
+
+    /// A substitution whose claim leaves out an identity element it makes
+    /// (`SYNTAX.md`): p(a) = 0 put into p(x) = (x − a)·q(x) + p(a) makes
+    /// p(x) = (x − a)·q(x) + 0, and the claim says p(x) = (x − a)·q(x). The
+    /// equation is put in at every place, that line is reached by the
+    /// equation alone as any substitution is, and it is carried to the claim
+    /// by dropping its identity elements (`tidied`). None where the two
+    /// differ in anything else.
+    #[allow(clippy::too_many_arguments)]
+    fn substituted_tidied(
+        &mut self,
+        start: &str,
+        aim: &str,
+        given: &Proof,
+        old: &str,
+        new: &str,
+        scope: &str,
+        equation: &Facts,
+        facts: &Facts,
+        step: &Step,
+    ) -> Checked<Option<Proof>> {
+        let bare =
+            |me: &Self, rpn: &str| me.rpn(&me.without_identities(&me.to_term(rpn)));
+        let goal = bare(self, aim);
+        // Either side of the equation may be the one the line holds.
+        for (was, now) in [(old, new), (new, old)] {
+            let now_term = self.to_term(now);
+            let made = self.replaced(&self.to_term(start), was, &now_term);
+            let literal = self.rpn(&made);
+            if literal == start || bare(self, &literal) != goal {
+                continue;
+            }
+            let Built(alike) = self.congruence(
+                &self.to_term(start),
+                &made,
+                scope,
+                equation,
+                Some(step),
+                &Leaf::Rows(vec![super::tables::Row::Held]),
+            )?
+            else {
+                continue;
+            };
+            let reached = pf!(self.b; scope, start, literal, given, alike, "mpbid");
+            if let Some(p) = self.tidied(&reached, &literal, aim, scope, facts)? {
+                return Ok(Some(p));
+            }
+        }
+        Ok(None)
     }
 
     /// A definition whose right side is not an existence claim, read the way
@@ -2848,6 +2993,28 @@ impl<'a> Elaborator<'a> {
                     (self.rpn(&said.children()[0]), self.rpn(&said.children()[1]));
                 if t!(now, was, "wceq") == wanted {
                     return Ok(pf!(self.b; scope, was, now, held, "eqcomd"));
+                }
+            }
+        }
+        // Or one of them with an identity element written that the link
+        // leaves out, or the other way about (`SYNTAX.md`).
+        let bare =
+            |me: &Self, rpn: &str| me.rpn(&me.without_identities(&me.to_term(rpn)));
+        let goal = bare(self, &wanted);
+        let turned = self.turned_claim(&wanted);
+        for (said_as, held) in known.entries() {
+            if bare(self, &said_as) == goal {
+                if let Some(p) = self.tidied(&held, &said_as, &wanted, scope, facts)? {
+                    return Ok(p);
+                }
+            }
+            let Some((turned, flip)) = &turned else {
+                continue;
+            };
+            if bare(self, &said_as) == bare(self, turned) {
+                if let Some(p) = self.tidied(&held, &said_as, turned, scope, facts)? {
+                    let Sides { left, right } = self.equation_sides(turned);
+                    return Ok(pf!(self.b; scope, left, right, p, *flip));
                 }
             }
         }

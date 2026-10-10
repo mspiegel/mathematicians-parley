@@ -81,6 +81,7 @@ impl<'a> Library<'a> {
                 items.insert(r.qualified(), i);
             }
         }
+        let ctx = Context::new(&env.g.notations, records);
         let mut lib = Library {
             env,
             records,
@@ -94,7 +95,7 @@ impl<'a> Library<'a> {
             bicond: IndexSet::new(),
             implies: IndexSet::new(),
             negations: IndexSet::new(),
-            ctx: Context::new(&env.g.notations, records),
+            ctx,
         };
         // A metamath field may say more after the target, as "wrex, and wrex
         // under wn" does, so the target is its first word.

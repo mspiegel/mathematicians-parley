@@ -20,13 +20,9 @@ theorem factor
     2.1.  p(x) = (x − a)·q(x) + p(a)
           instantiate x := x in line 1
 
-    2.2.  p(x) = (x − a)·q(x) + 0
+    2.2.  p(x) = (x − a)·q(x)
           substitute p(a) = 0 (H3) into line 2.1
-
-    2.3.  p(x) = (x − a)·q(x)
-          algebra, from 2.2
           requires q(x) ∈ ℂ: mun:polynomial-value p := q, from 1
-          requires p(x) ∈ ℂ: mun:polynomial-value, from H1
 
 3.  There is a polynomial q with p(x) = (x − a)·q(x) for all x ∈ ℂ.
     exhibit, from 1, 2

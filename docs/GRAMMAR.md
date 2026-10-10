@@ -515,6 +515,12 @@ is what lets the sum formula write `(k + 1)((k + 1) + 1)/2`, since substituting
 the characters of `k + 1` into `n(n + 1)/2` would give something that parses
 quite differently.
 
+Nor is an identity element compared, here or wherever two trees are. They are
+compared as if each operation with its identity in a hole its notation record
+allows it (`identity`) were the other hole: n − k at k := 0 is n, and P(n)
+saying L(p + n) has L(p) at 0. The element has to be written in one of the
+two; a tree is never read as x + 0 to match an x.
+
 A substitution may not capture. If the term names a variable bound where it
 lands, the step is rejected and the text carries a variable condition in words
 rather than the variable being renamed in silence. The checker enforces this

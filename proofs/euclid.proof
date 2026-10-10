@@ -201,11 +201,11 @@ theorem euclid
     5.1.  a(0) ∈ ℕ₀ and b(0) ∈ ℕ₀
           instantiate k := 0 in line 3
 
-    5.2.  b(0) + 0 ≤ N
+    5.2.  b(0) ≤ N
           inequalities, from 2
           requires b(0) ∈ ℝ: mun:nat0-real, from 5.1
 
-    5.3.  b(0) + 0 ≤ N or b(0) = 0
+    5.3.  b(0) ≤ N or b(0) = 0
           mun:or-left, from 5.2
 
     step

@@ -296,7 +296,7 @@ fn cases() -> Vec<Case> {
         )
         .at(
             "proofs/geometric-series.proof",
-            "1.14. (1 − a^(k + 1))/(1 − a) + a^(k + 1)",
+            "1.10. (1 − a^(k + 1))/(1 − a) + a^(k + 1)",
         ),
         // `substitute` walks its equation both ways and each sentence of the
         // line it names, trying the next where one declines. A name the proof
@@ -305,8 +305,8 @@ fn cases() -> Vec<Case> {
             "substitute a name the proof never introduced",
             "proofs/geometric-series/geometric-sum",
             "proofs/geometric-series.proof",
-            "          substitute a^(0 + 1) = a (line 1.6)",
-            "          substitute a^(0 + 1) = z (line 1.6)",
+            "          substitute a^((k + 1) + 1) = a^(k + 1)·a (line 1.9)",
+            "          substitute a^((k + 1) + 1) = z (line 1.9)",
             "no kernel name for 'z'",
         ),
         // A gap in the database rather than in the text, reported at the line
@@ -344,6 +344,60 @@ fn cases() -> Vec<Case> {
             "no clause of mun:abs gives what step 2.5 claims",
         )
         .at("proofs/triangle-inequality.proof", "2.5.  |x| = x"),
+        // A base may be written without an identity element its instance
+        // has, and nothing else: 1 = (1 − a)/(1 − a) is no instance of
+        // G(a, 0) = (1 − a^(0 + 1))/(1 − a) however its elements are read.
+        case(
+            "end an induction's base on what is not its instance",
+            "proofs/geometric-series/geometric-sum",
+            "proofs/geometric-series.proof",
+            "    1.5.  G(a, 0) = (1 − a)/(1 − a)\n          calculation\n            G(a, 0) = 1                    1.3\n                    = (1 − a)/(1 − a)      1.4\n\n",
+            "",
+            "the base does not reach the first instance",
+        ),
+        // A conclusion is matched with an identity element dropped where the
+        // instance has one, and with nothing else changed: the shifted sum
+        // starts at 0 + 1, which is 1 and not 2.
+        case(
+            "claim a lemma's conclusion with more than an identity element dropped",
+            "proofs/binomial/binomial-step",
+            "proofs/binomial.proof",
+            "29. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 1 to m + 1)",
+            "29. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 2 to m + 1)",
+            "no clause of mun:sum-shift reaches what step 29 claims",
+        ),
+        // A substitution's line may leave out the + 0 it makes, and nothing
+        // else: the product written the other way round is a reordering, which
+        // no identity law gives.
+        case(
+            "a substitution that reorders where it drops a 0",
+            "proofs/factor/factor",
+            "proofs/factor.proof",
+            "    2.2.  p(x) = (x − a)·q(x)\n",
+            "    2.2.  p(x) = q(x)·(x − a)\n",
+            "the substitution misses the claim",
+        ),
+        // Dropping the + 0 asks that what is left be a number, and q(x) ∈ ℂ is
+        // a function's value, which the step says in a requires line: without
+        // it nothing does.
+        case(
+            "drop a 0 from a term no line says is a number",
+            "proofs/factor/factor",
+            "proofs/factor.proof",
+            "          substitute p(a) = 0 (H3) into line 2.1\n          requires q(x) ∈ ℂ: mun:polynomial-value p := q, from 1\n",
+            "          substitute p(a) = 0 (H3) into line 2.1\n",
+            "the substitution misses the claim",
+        ),
+        // 0 is an identity on the right of a difference and not on its left:
+        // C(m, 0 − 1) is not C(m, −1) by any identity law.
+        case(
+            "drop a 0 from the side of a difference where it is no identity",
+            "proofs/binomial/binomial-step",
+            "proofs/binomial.proof",
+            "= C(m, 0 − 1)·x^(m + 1)·y^0 + Σ(k = 1 to m + 1)",
+            "= C(m, −1)·x^(m + 1)·y^0 + Σ(k = 1 to m + 1)",
+            "no clause of mun:sum-first reaches what step 38 claims",
+        ),
         // A `requires` line has a claim and a reason, and the reason is what
         // proves it. Here H5 does not say `C ≠ A`, and no line above this one
         // does; taking it from the theorem's own hypothesis and turning it
@@ -369,16 +423,16 @@ fn cases() -> Vec<Case> {
         ),
         // A requires line below that cites an item asks for that item's
         // hypotheses, and only those: mun:sum-real asks nothing of x^m, and
-        // nothing asks x^m ∈ ℝ of an `algebra` step whose one atom is the sum.
-        // A power to a letter is written where it is needed, so the line is
-        // not one the step is spared; it is one nothing needs.
+        // nothing asks x^m ∈ ℝ of a substitution that drops the 0 before the
+        // sum. A power to a letter is written where it is needed, so the line
+        // is not one the step is spared; it is one nothing needs.
         case(
             "a requires line above an item's line that the item does not ask for",
             "proofs/binomial/binomial-step",
             "proofs/binomial.proof",
-            "    algebra\n    requires Σ(k = 1 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k ∈ ℝ: mun:sum-real a := 1, b := m + 1\n",
-            "    algebra\n    requires x^m ∈ ℝ: mun:power-real a := x, m := m, from H1\n    requires Σ(k = 1 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k ∈ ℝ: mun:sum-real a := 1, b := m + 1\n",
-            "the requires line of step 45 says x^m ∈ ℝ, and the step neither uses nor asks for it",
+            "    substitute C(m, 0 − 1)·x^(m + 1)·y^0 = 0 (line 37) into line 38\n    requires Σ(k = 1 to m + 1)",
+            "    substitute C(m, 0 − 1)·x^(m + 1)·y^0 = 0 (line 37) into line 38\n    requires x^m ∈ ℝ: mun:power-real a := x, m := m, from H1\n    requires Σ(k = 1 to m + 1)",
+            "the requires line of step 39 says x^m ∈ ℝ, and the step neither uses nor asks for it",
         ),
         // A step's proof rests only on what it names (`GOALS.md` decision 9).
         // Without its requires line, `algebra` wants n! ∈ ℂ, and the scope
@@ -464,8 +518,8 @@ fn cases() -> Vec<Case> {
             "claim an algebra step the cited lines do not give",
             "proofs/geometric-series/geometric-sum",
             "proofs/geometric-series.proof",
-            "    1.14. (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a)",
-            "    1.14. (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a) + 1",
+            "    1.10. (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a)",
+            "    1.10. (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a) + 1",
             "is not an identity",
         ),
         // A side condition is searched for among what the step names, not among
@@ -624,11 +678,11 @@ fn cases() -> Vec<Case> {
         // does a step of its own: a false one is reported, never rewritten by.
         case(
             "substitute by a false fact of numerals",
-            "proofs/geometric-series/geometric-sum",
-            "proofs/geometric-series.proof",
-            "substitute 0 + 1 = 1 (arithmetic)",
-            "substitute 0 + 1 = 2 (arithmetic)",
-            "step 1.4 substitutes 0 + 1 = 2, which is false",
+            "proofs/binomial/binomial-step",
+            "proofs/binomial.proof",
+            "substitute 0 − 1 = −1 (arithmetic)",
+            "substitute 0 − 1 = 1 (arithmetic)",
+            "step 33 substitutes 0 − 1 = 1, which is false",
         ),
         case(
             "a chain link of numerals that is false",
@@ -734,8 +788,8 @@ fn cases() -> Vec<Case> {
             "a membership read into a smaller number system",
             "proofs/triangular-reciprocals/triangular-reciprocals",
             "proofs/triangular-reciprocals.proof",
-            "    let n ∈ ℕ                                                         (K2)\n\n    2.1.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))\n          mun:sum-termwise a := 1, b := n, from 1\n\n    2.2.  Σ(k = 1 to n) (2/k − 2/(k + 1)) = 2/1 − 2/(n + 1)\n          thm:sum-telescopes a := 1, b := n\n          requires n + 1 ≥ 1: inequalities, from K2\n",
-            "    let n ∈ ℝ                                                         (K2)\n\n    2.1.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))\n          mun:sum-termwise a := 1, b := n, from 1\n\n    2.2.  Σ(k = 1 to n) (2/k − 2/(k + 1)) = 2/1 − 2/(n + 1)\n          thm:sum-telescopes a := 1, b := n\n",
+            "    let n ∈ ℕ                                                         (K2)\n\n    2.1.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))\n          mun:sum-termwise a := 1, b := n, from 1\n\n    2.2.  Σ(k = 1 to n) (2/k − 2/(k + 1)) = 2 − 2/(n + 1)\n          thm:sum-telescopes a := 1, b := n\n          requires n + 1 ≥ 1: inequalities, from K2\n",
+            "    let n ∈ ℝ                                                         (K2)\n\n    2.1.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))\n          mun:sum-termwise a := 1, b := n, from 1\n\n    2.2.  Σ(k = 1 to n) (2/k − 2/(k + 1)) = 2 − 2/(n + 1)\n          thm:sum-telescopes a := 1, b := n\n",
             "no clause of thm:sum-telescopes reaches what step 2.2 claims: cannot settle n ∈ ℤ",
         ),
         // A link whose terms have a letter may name `arithmetic` where only a
@@ -745,8 +799,8 @@ fn cases() -> Vec<Case> {
             "a chain link whose closed piece is false",
             "proofs/triangular-reciprocals/triangular-reciprocals",
             "proofs/triangular-reciprocals.proof",
-            "= 2 − 2/(n + 1)                      arithmetic",
-            "= 3 − 2/(n + 1)                      arithmetic",
+            "    2.3.  Σ(k = 1 to n) 1/T(k) = 2 − 2/(n + 1)\n          calculation\n            Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))    2.1\n                                 = 2 − 2/(n + 1)                      2.2\n",
+            "    2.3.  Σ(k = 1 to n) 1/T(k) = 3 − 2/(n + 1)\n          calculation\n            Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))    2.1\n                                 = 2/1 − 2/(n + 1)                    2.2\n                                 = 3 − 2/(n + 1)                      arithmetic\n",
             "which is false",
         ),
         // `fsumdvds` asks that 3 divide each term, for k in the range, and line 1
@@ -847,7 +901,7 @@ fn cases() -> Vec<Case> {
             "a closed exponent that is not a whole number",
             "proofs/binomial/binomial",
             "proofs/binomial.proof",
-            "    1.1.  Σ(k = 0 to 0) C(0, k)·x^(0 − k)·y^k = C(0, 0)·x^(0 − 0)·y^0\n",
+            "    1.1.  Σ(k = 0 to 0) C(0, k)·x^(0 − k)·y^k = C(0, 0)·x^0·y^0\n",
             "    1.1.  Σ(k = 0 to 0) C(0, k)·x^((0 − 1) − k)·y^k = C(0, 0)·x^((0 − 1) − 0)·y^0\n",
             "no clause of mun:sum-single reaches what step 1.1 claims",
         ),

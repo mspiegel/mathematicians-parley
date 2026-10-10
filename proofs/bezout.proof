@@ -52,7 +52,7 @@ theorem least-combination-divides
     3.5.  not d ≤ r
           inequalities, from 1, contradicting 3.4
 
-4.  c = q·d + 0
+4.  c = q·d
     substitute r = 0 (line 3) into line 1
 
 5.  c = d·q
@@ -102,14 +102,11 @@ define S := {t ∈ ℕ : there are m, n ∈ ℤ with t = a·m + b·n}   (D1)
     let y ∈ ℤ                                                         (K2)
     assume a·x + b·y ∈ ℕ                                              (K3)
 
-    8.1.  a·x + b·y = a·x + b·y
-          algebra
+    8.1.  a·x + b·y ∈ S
+          mun:set-builder u := a·x + b·y, from D1, K3
 
-    8.2.  a·x + b·y ∈ S
-          mun:set-builder u := a·x + b·y, from D1, K3, 8.1
-
-    8.3.  d ≤ a·x + b·y
-          instantiate s := a·x + b·y in line 4, from 8.2
+    8.2.  d ≤ a·x + b·y
+          instantiate s := a·x + b·y in line 4, from 8.1
 
 9.  a = a·1 + b·0
     algebra

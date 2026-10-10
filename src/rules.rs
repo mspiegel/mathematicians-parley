@@ -698,6 +698,16 @@ pub const STANDARD: &[(&str, Side)] = &[
     ("elpwg", Side::Right),
 ];
 
+// The identity laws, by which an identity element goes without saying
+// wherever it stands (`SYNTAX.md`): each says an operation with its identity
+// element in one hole is the other hole, as the notation records' `identity`
+// field declares. They are the proof of `Row::Identity`. They are not a rule
+// of the standard form `same` compares by, since each asks that the operand
+// be a number and `same` is often asked with no facts to say so.
+pub const IDENTITY: [&str; 7] = [
+    "addrid", "addlid", "subid1", "mulrid", "mullid", "div1", "exp1",
+];
+
 // The rules whose two sides are the same shape the other way round, which no
 // direction can orient: the two sides are put in a fixed order instead, the
 // one whose reverse Polish sorts first on the left. Inequalities are never

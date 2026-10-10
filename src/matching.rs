@@ -112,6 +112,59 @@ pub struct Context {
     /// and `commutes yes`: "A, B, C form a triangle" is "C, A, B form a
     /// triangle".
     pub unordered: IndexSet<String>,
+    /// Each operation's identity element, by (notation, literal), from the
+    /// records' `identity` field. It goes without saying wherever it
+    /// stands, so every match and comparison reads x + 0 as x (`SYNTAX.md`).
+    pub identities: IndexMap<(String, String), IdentityElement>,
+}
+
+/// An operation's identity element, and the holes, counted from 0, it may
+/// stand in: 0 in either of x + y's, 0 in the second of x − y's.
+#[derive(Clone, Debug)]
+pub struct IdentityElement {
+    pub element: String,
+    pub holes: Vec<usize>,
+}
+
+impl IdentityElement {
+    /// Whether the node is this element, a numeral written as it.
+    fn is(&self, node: &Node) -> bool {
+        node.children.is_empty()
+            && node.notation == "numeral"
+            && node.text == self.element
+    }
+}
+
+/// Each operation's identity element, from the `identity` field.
+fn identities(
+    notations: &[Notation],
+    records: &[Record],
+) -> IndexMap<(String, String), IdentityElement> {
+    let mut out = IndexMap::new();
+    for r in records.iter().filter(|r| r.kind == RecordKind::Notation) {
+        let Some(says) = r.field("identity") else {
+            continue;
+        };
+        let patterns: Vec<&Notation> =
+            notations.iter().filter(|n| n.name == r.name).collect();
+        let says = crate::targets::split_entries(says);
+        if says.len() != patterns.len() {
+            continue;
+        }
+        for (pattern, said) in patterns.iter().zip(says) {
+            let Some((element, holes)) = crate::targets::identity_said(said) else {
+                continue;
+            };
+            out.insert(
+                (pattern.key().to_string(), pattern.literal.clone()),
+                IdentityElement {
+                    element: element.to_string(),
+                    holes,
+                },
+            );
+        }
+    }
+    out
 }
 
 /// The notations of more than two holes whose record says `commutes yes`.
@@ -167,6 +220,7 @@ impl Context {
             sums: sums(records),
             turned: turned(notations, records),
             unordered: unordered(records),
+            identities: identities(notations, records),
         }
     }
 
@@ -488,7 +542,7 @@ pub fn match_tree(
 ) -> Option<Binding> {
     // Most matches are refused at the root, by a notation that differs, and
     // the binding is copied only for one that is not.
-    if refused_at_root(pattern, ground, variables, ctx) {
+    if refused_at_root(pattern, ground, binding, variables, ctx) {
         return None;
     }
     let mut out = binding.clone();
@@ -519,16 +573,52 @@ fn differs(pattern: &Node, ground: &Node) -> bool {
         || pattern.children.len() != ground.children.len()
 }
 
-/// `fit` would give back false at the root without looking at the binding.
+/// `fit` would give back false at the root without copying the binding.
 fn refused_at_root(
     pattern: &Node,
     ground: &Node,
+    binding: &Binding,
     variables: &BTreeSet<String>,
     ctx: &Context,
 ) -> bool {
     !is_variable(pattern, variables)
         && !applies_variable(pattern, variables, ctx)
         && differs(pattern, ground)
+        && !holds_identity(pattern, binding, variables, ctx)
+        && identity_kept(ground, ctx).is_none()
+}
+
+/// Whether a pattern's operation holds its identity element in a hole:
+/// written there, or a variable there the binding holds as it.
+fn holds_identity(
+    pattern: &Node,
+    binding: &Binding,
+    variables: &BTreeSet<String>,
+    ctx: &Context,
+) -> bool {
+    identity_of(pattern, ctx).is_some_and(|law| {
+        law.holes.iter().any(|&hole| {
+            let unit = &pattern.children[hole];
+            law.is(unit)
+                || (is_variable(unit, variables)
+                    && binding.get(&unit.text).is_some_and(|b| law.is(b)))
+        })
+    })
+}
+
+/// The identity element of the operation a node applies, where it has one
+/// and two holes. The table is a handful of entries, read in place rather
+/// than keyed, since this is asked wherever two nodes fail to match.
+fn identity_of<'c>(node: &Node, ctx: &'c Context) -> Option<&'c IdentityElement> {
+    if node.children.len() != 2 {
+        return None;
+    }
+    ctx.identities
+        .iter()
+        .find(|((notation, literal), _)| {
+            *notation == node.notation && *literal == node.text
+        })
+        .map(|(_, law)| law)
 }
 
 /// `match_tree` into one binding, growing it in place.
@@ -561,18 +651,54 @@ fn fit(
             return fits;
         }
     }
-    if differs(pattern, ground) {
-        return false;
-    }
-    let pattern = bound_as(pattern, ground, variables, ctx);
     let before = binding.len();
-    for children in orders(&pattern, ground, ctx) {
-        let all = pattern
-            .children
-            .iter()
-            .zip(children.iter())
-            .all(|(a, b)| fit(a, b, binding, variables, sites, ctx));
-        if all {
+    if !differs(pattern, ground) {
+        let pattern = bound_as(pattern, ground, variables, ctx);
+        for children in orders(&pattern, ground, ctx) {
+            let all = pattern
+                .children
+                .iter()
+                .zip(children.iter())
+                .all(|(a, b)| fit(a, b, binding, variables, sites, ctx));
+            if all {
+                return true;
+            }
+            binding.truncate(before);
+        }
+    }
+    // x + 0 is x wherever it stands (`Context::identities`): in the pattern,
+    // or in the ground.
+    if without_identity(pattern, ground, binding, variables, sites, ctx) {
+        return true;
+    }
+    match identity_kept(ground, ctx) {
+        Some(kept) => fit(pattern, &kept, binding, variables, sites, ctx),
+        None => false,
+    }
+}
+
+/// A pattern's operation read with its identity element in one hole, the
+/// other hole matched against the ground: a + c against 1 with a := 0.
+fn without_identity(
+    pattern: &Node,
+    ground: &Node,
+    binding: &mut Binding,
+    variables: &BTreeSet<String>,
+    sites: &IndexSet<NodeId>,
+    ctx: &Context,
+) -> bool {
+    let Some(law) = identity_of(pattern, ctx) else {
+        return false;
+    };
+    let before = binding.len();
+    for &hole in &law.holes {
+        let (unit, kept) = (&pattern.children[hole], &pattern.children[1 - hole]);
+        // The element is one the instance has, written or a variable already
+        // fixed as it: none is made up to read x as 0 + x.
+        let written = law.is(unit)
+            || (is_variable(unit, variables)
+                && binding.get(&unit.text).is_some_and(|b| law.is(b)));
+        if written && fit(kept, ground, binding, variables, sites, ctx) {
             return true;
         }
         binding.truncate(before);
@@ -642,6 +768,33 @@ fn bound_as(
 /// never one the other side binds. An equation is alike either way round
 /// (`orders`).
 pub fn alike(
+    a: &Node,
+    b: &Node,
+    ctx: &Context,
+    ours: &IndexMap<String, String>,
+    theirs: &IndexMap<String, String>,
+) -> bool {
+    if alike_as_written(a, b, ctx, ours, theirs) {
+        return true;
+    }
+    // x + 0 is x wherever it stands (`Context::identities`).
+    identity_kept(a, ctx).is_some_and(|k| alike(&k, b, ctx, ours, theirs))
+        || identity_kept(b, ctx).is_some_and(|k| alike(a, &k, ctx, ours, theirs))
+}
+
+/// The operand an identity element leaves, where `node` is an operation
+/// with its identity in a hole the record allows it: x for x + 0. None
+/// otherwise.
+fn identity_kept(node: &Node, ctx: &Context) -> Option<Node> {
+    let law = identity_of(node, ctx)?;
+    law.holes
+        .iter()
+        .find(|&&hole| law.is(&node.children[hole]))
+        .map(|&hole| node.children[1 - hole].clone())
+}
+
+/// `alike`, the two read as written at the head.
+fn alike_as_written(
     a: &Node,
     b: &Node,
     ctx: &Context,

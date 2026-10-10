@@ -251,9 +251,10 @@ mundane theorem exponent-one
   then        a^1 = a
   metamath    exp1
   target      exp1
-  note        The base case of the geometric series needs a^(0 + 1) = a. The
-              arithmetic is 0 + 1 = 1; that a^1 is a is this exponent law, and
-              exponent laws are theorems rather than closure methods.
+  note        That a^1 is a is an exponent law, and exponent laws are theorems
+              rather than closure methods. A literal instance leaves a ^1 out
+              without citing it (the power notation's `identity`); a step
+              that says a^1 = a cites this.
 
 mundane theorem exponent-zero
   let a ∈ ℂ                                                           (H1)

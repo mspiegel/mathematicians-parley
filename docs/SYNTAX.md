@@ -770,6 +770,28 @@ substitution made and nothing else changed. A tidier form is a separate
 `algebra` step, before or after the literal instance, and is never written
 in its place.
 
+**An identity element goes without saying, wherever it stands.** Two
+formulas that are the same once their identity elements are dropped are one
+formula, wherever the tools compare two: a claim and the instance it must
+be, a `substitute` and the line it makes, a calculation's links, a cited
+line and what it answers. P(n) saying L(p) ≤ L(p + n) has the base case
+L(p) ≤ L(p), not L(p) ≤ L(p + 0); substituting p(a) = 0 into p(x) = (x −
+a)·q(x) + p(a) gives p(x) = (x − a)·q(x); and no step says p = p + 0.
+Nothing is cited for it. Which element is an identity, and on which side,
+is the operation's notation record's to say (`identity`): 0 on either side
+of +, and on the right of −; 1 on either side of ·, and on the right of /
+and of a power. So x − 0 is x and 0 − x is not, x^1 is x and 1^x is not.
+Nothing else is tidied: 0·x stays 0·x, since 0 is not an identity of the
+product, terms are not reordered, and an element is never supposed where
+none is written, to read x as x + 0. And an equation whose two sides are
+then the same needs no line, as a set-builder's "t = a·m + b·n" at t :=
+a·x + b·y with m := x and n := y.
+
+An identity law holds of a number, so dropping an element asks that what is
+left be one. That is said once where it is a letter's or a numeral's
+(`READERS.md`), and is a `requires` line like any other membership where it
+is not: x + 0 is x for a function's value only where the step says b(0) ∈ ℝ.
+
 "The substitution made" is made on the parsed formula, not on the characters.
 Replacing the characters of n with those of k + 1 in n(n + 1)/2 would give
 k + 1(k + 1 + 1)/2, and the sum formula writes (k + 1)((k + 1) + 1)/2. The

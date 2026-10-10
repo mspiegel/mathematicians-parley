@@ -19,7 +19,7 @@ use super::elaborate::Sides;
 use super::reading::subject_of;
 use super::state::{
     fit, number_of, Binding, Block, Closer, DefineCloser, Elaborator, Frame,
-    ObtainCloser, Vars,
+    ObtainCloser, PartEnd, Vars,
 };
 use super::{Facts, Line, Lines};
 use crate::binds;
@@ -694,7 +694,15 @@ impl<'a> Elaborator<'a> {
                 };
                 proof = pf!(self.b; scope, assumed, claim, proof, alike, "mpbid");
             }
-            block.parts.insert(part, (claim, proof, scope));
+            block.parts.insert(
+                part,
+                PartEnd {
+                    claim,
+                    proof,
+                    scope,
+                    facts,
+                },
+            );
         }
         Ok(closers)
     }
@@ -712,14 +720,20 @@ impl<'a> Elaborator<'a> {
         };
         let inside = &closers[opened..];
         if let (false, Some(entered)) = (inside.is_empty(), block.entered) {
-            if let Some((claim, proof, _where)) = block.parts.get(&entered).cloned() {
-                let mut proof = proof;
+            if let Some(end) = block.parts.get(&entered).cloned() {
+                let mut proof = end.proof;
                 for close in inside.iter().rev() {
-                    proof = self.close(close, proof, &claim)?;
+                    proof = self.close(close, proof, &end.claim)?;
                 }
-                block
-                    .parts
-                    .insert(entered, (claim, proof, block.scope.clone()));
+                block.parts.insert(
+                    entered,
+                    PartEnd {
+                        claim: end.claim,
+                        proof,
+                        scope: block.scope.clone(),
+                        facts: block.facts.clone(),
+                    },
+                );
             }
         }
         Ok(closers[..opened].to_vec())
@@ -731,11 +745,12 @@ impl<'a> Elaborator<'a> {
         if let (Some(part), Some(parent)) = (done.owner.part, blocks.last_mut()) {
             parent.parts.insert(
                 part,
-                (
-                    done.claim.clone(),
-                    done.proof.clone().expect("a closed block's proof"),
-                    done.outer.clone(),
-                ),
+                PartEnd {
+                    claim: done.claim.clone(),
+                    proof: done.proof.clone().expect("a closed block's proof"),
+                    scope: done.outer.clone(),
+                    facts: done.outside.clone(),
+                },
             );
         }
     }
@@ -1137,8 +1152,16 @@ impl<'a> Elaborator<'a> {
         let claim = self.claim_of(&step.claim_text())?;
         let left = self.term(&block.assumed[&0].0)?;
         let right = self.term(&block.assumed[&1].0)?;
-        let (forward_end, forward, _) = block.parts[&0].clone();
-        let (backward_end, backward, _) = block.parts[&1].clone();
+        let PartEnd {
+            claim: forward_end,
+            proof: forward,
+            ..
+        } = block.parts[&0].clone();
+        let PartEnd {
+            claim: backward_end,
+            proof: backward,
+            ..
+        } = block.parts[&1].clone();
         if forward_end != right || backward_end != left {
             return Err(self.defect(
                 step.line,
@@ -1189,7 +1212,8 @@ impl<'a> Elaborator<'a> {
             let node = block.assumed[p].0.clone();
             assumed.push(self.term(&node)?);
         }
-        let said: Vec<Proof> = order.iter().map(|p| block.parts[p].1.clone()).collect();
+        let said: Vec<Proof> =
+            order.iter().map(|p| block.parts[p].proof.clone()).collect();
         let mut which = assumed[0].clone();
         let mut proof = said[0].clone();
         let last = assumed.len() - 1;
@@ -1250,8 +1274,18 @@ impl<'a> Elaborator<'a> {
         if keys != [0usize, 1].into_iter().collect() {
             return Err(self.defect(step.line, "induction wants a base and a step"));
         }
-        let (base_claim, base, beneath) = block.parts[&0].clone();
-        let (step_claim, stepped, under) = block.parts[&1].clone();
+        let PartEnd {
+            claim: base_claim,
+            proof: base,
+            scope: beneath,
+            facts: outside,
+        } = block.parts[&0].clone();
+        let PartEnd {
+            claim: step_claim,
+            proof: stepped,
+            scope: under,
+            facts: inside,
+        } = block.parts[&1].clone();
         let name = block.over.clone().unwrap_or_default();
         let general = format!("{} cv", block.base.clone().unwrap_or_default());
         let Some(variable) = block.variable.clone() else {
@@ -1352,8 +1386,17 @@ impl<'a> Elaborator<'a> {
                 "the step part does not assume the claim's statement at its letter",
             ));
         }
-        let base = self.respelt(&base, &base_claim, &claimed, &beneath)?;
-        let stepped = self.respelt(&stepped, &step_claim, &reached, &under)?;
+        // Each part ends on its instance as the text writes it, which may
+        // rename a bound letter or leave out an identity element (`SYNTAX.md`).
+        // What an identity element asks, x ∈ ℂ, is answered from what the
+        // induction's own lines name and nothing else in scope.
+        let allowed = Some(self.named(step, &number_of(step), true));
+        let base = self.resting_on(allowed.clone(), |me| {
+            me.reached(&base, &base_claim, &claimed, &beneath, &outside)
+        })?;
+        let stepped = self.resting_on(allowed, |me| {
+            me.reached(&stepped, &step_claim, &reached, &under, &inside)
+        })?;
         let Some(stepped) = stepped else {
             return Err(
                 self.defect(step.line, "the step does not reach the next instance")

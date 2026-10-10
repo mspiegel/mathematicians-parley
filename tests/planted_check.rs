@@ -693,6 +693,35 @@ fn cases() -> Vec<Case> {
             ],
             "takes no block",
         ),
+        // A conclusion is matched with an identity element dropped where the
+        // instance has one, and with nothing else changed: the shifted sum
+        // starts at 0 + 1, which is 1 and not 2.
+        case(
+            "claim a lemma's conclusion with more than an identity element dropped",
+            vec![
+                edit("proofs/binomial.proof", Some("29. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 1 to m + 1)".to_string()), "29. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 2 to m + 1)".to_string()),
+            ],
+            "step 29 claims something that mun:sum-shift does not conclude",
+        ),
+        // 0 is an identity on the right of a difference and not on its left:
+        // C(m, 0 − 1) is not C(m, −1) by any identity law.
+        case(
+            "drop a 0 from the side of a difference where it is no identity",
+            vec![
+                edit("proofs/binomial.proof", Some("= C(m, 0 − 1)·x^(m + 1)·y^0 + Σ(k = 1 to m + 1)".to_string()), "= C(m, −1)·x^(m + 1)·y^0 + Σ(k = 1 to m + 1)".to_string()),
+            ],
+            "step 38 claims something that mun:sum-first does not conclude",
+        ),
+        // A set-builder's equation needs no line where it is the same on both
+        // sides once its witnesses are read off, and one where it is not:
+        // a·x + b·y + 1 = a·m + b·n has no m and n of that shape.
+        case(
+            "a set-builder's equation that no witness makes the same on both sides",
+            vec![
+                edit("proofs/bezout.proof", Some("    8.1.  a·x + b·y ∈ S\n          mun:set-builder u := a·x + b·y, from D1, K3\n".to_string()), "    8.1.  a·x + b·y + 1 ∈ S\n          mun:set-builder u := a·x + b·y + 1, from D1, K3\n".to_string()),
+            ],
+            "step 8.1",
+        ),
         // `requires C ≠ A: mun:triangle` unfolds a line saying A, B, C form a
         // triangle; cited, that line is what it rests on, and without it
         // nothing is.
@@ -983,7 +1012,7 @@ fn cases() -> Vec<Case> {
         case(
             "substitute a term that captures a bound variable",
             vec![
-                edit("proofs/bezout.proof", Some("          instantiate s := a·x + b·y in line 4, from 8.2".to_string()), "          instantiate s := a·x + b·s in line 4, from 8.2".to_string()),
+                edit("proofs/bezout.proof", Some("          instantiate s := a·x + b·y in line 4, from 8.1".to_string()), "          instantiate s := a·x + b·s in line 4, from 8.1".to_string()),
             ],
             "may not capture",
         ),
@@ -991,7 +1020,7 @@ fn cases() -> Vec<Case> {
         case(
             "substitute a term with a comma that captures a bound variable",
             vec![
-                edit("proofs/bezout.proof", Some("          instantiate s := a·x + b·y in line 4, from 8.2".to_string()), "          instantiate s := gcd(s, b) in line 4, from 8.2".to_string()),
+                edit("proofs/bezout.proof", Some("          instantiate s := a·x + b·y in line 4, from 8.1".to_string()), "          instantiate s := gcd(s, b) in line 4, from 8.1".to_string()),
             ],
             "may not capture",
         ),
@@ -1490,26 +1519,26 @@ fn cases() -> Vec<Case> {
         case(
             "Pascal with the shift going the wrong way",
             vec![
-                edit("proofs/binomial.proof", Some("    50.3.  C(m, k) + C(m, k − 1) = C(m + 1, k)\n".to_string()), "    50.3.  C(m, k) + C(m, k + 1) = C(m + 1, k)\n".to_string()),
+                edit("proofs/binomial.proof", Some("    44.3.  C(m, k) + C(m, k − 1) = C(m + 1, k)\n".to_string()), "    44.3.  C(m, k) + C(m, k + 1) = C(m + 1, k)\n".to_string()),
             ],
-            "step 50.3 claims something that thm:pascal does not conclude",
+            "step 44.3 claims something that thm:pascal does not conclude",
         ),
         // Shifting the index moves the range with it.
         case(
             "a shifted sum left over the range it came from",
             vec![
-                edit("proofs/binomial.proof", Some("30. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 0 + 1 to m + 1)".to_string()), "30. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 0 to m)".to_string()),
+                edit("proofs/binomial.proof", Some("29. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 1 to m + 1)".to_string()), "29. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 0 to m)".to_string()),
             ],
-            "step 30 claims something that mun:sum-shift does not conclude",
+            "step 29 claims something that mun:sum-shift does not conclude",
         ),
         // A line saying something of every index from 0 to m says nothing of
         // the index m + 1, which the sum to m + 1 takes.
         case(
             "a term-by-term line over too short a range",
             vec![
-                edit("proofs/binomial.proof", Some("    mun:sum-termwise a := 0, b := m + 1, from 50\n".to_string()), "    mun:sum-termwise a := 0, b := m + 1, from 10\n".to_string()),
+                edit("proofs/binomial.proof", Some("    mun:sum-termwise a := 0, b := m + 1, from 44\n".to_string()), "    mun:sum-termwise a := 0, b := m + 1, from 10\n".to_string()),
             ],
-            "step 51 cites mun:sum-termwise, which asks for",
+            "step 45 cites mun:sum-termwise, which asks for",
         ),
         // C(n, k) is zero above n, and C(m + 1, m + 1) is not above it.
         case(
@@ -1527,7 +1556,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/binomial.proof", Some("           requires k ∈ ℤ: mun:range-integer a := 1, b := m + 1, from J\n".to_string()), "           requires k ∈ ℤ: mun:range-integer a := 0, b := m + 1, from J\n".to_string()),
             ],
-            "the requires line of step 32.1 cites mun:range-integer, which asks for a ∈ ℤ; b ∈ ℤ; k ∈ {a, …, b}, and what it cites does not supply them",
+            "the requires line of step 30.1 cites mun:range-integer, which asks for a ∈ ℤ; b ∈ ℤ; k ∈ {a, …, b}, and what it cites does not supply them",
         ),
         // `arithmetic` may stand where a closed-numeral fact is used, and only
         // there: an equation with a letter in it gives a reader something to
@@ -1535,9 +1564,9 @@ fn cases() -> Vec<Case> {
         case(
             "take an equation with a letter in it from arithmetic",
             vec![
-                edit("proofs/binomial.proof", Some("substitute (m + 1) − 0 = m + 1 (line 37)".to_string()), "substitute (m + 1) − 0 = m + 1 (arithmetic)".to_string()),
+                edit("proofs/binomial.proof", Some("substitute m − (k − 1) = (m + 1) − k (line 30.1)".to_string()), "substitute m − (k − 1) = (m + 1) − k (arithmetic)".to_string()),
             ],
-            "takes (m + 1) − 0 = m + 1 from arithmetic, and it has a letter in it",
+            "takes m − (k − 1) = (m + 1) − k from arithmetic, and it has a letter in it",
         ),
         case(
             "a chain link with a letter in it naming arithmetic",

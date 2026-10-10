@@ -23,7 +23,7 @@ use std::rc::Rc;
 use indexmap::{IndexMap, IndexSet};
 
 use super::elaborate::Sides;
-use super::provenance::{item_clauses, may_rest_on};
+use super::provenance::{from_requires, item_clauses, may_rest_on};
 use super::state::{
     fit, fit_respelt, names_of, Binding, Elaborator, Frame, HeadKey, Role, Shape, Vars,
 };
@@ -105,7 +105,10 @@ impl<'a> Elaborator<'a> {
         key
     }
 
-    /// The term with every rule `written_step` takes applied, parts first.
+    /// The term with every rule `written_step` takes applied, parts first,
+    /// and every identity element dropped: an identity element goes without
+    /// saying wherever it stands (`SYNTAX.md`), so x + 0 = y is found where
+    /// x = y is asked, and `held` carries the one to the other.
     fn written_form(&mut self, term: &Term) -> Term {
         if term.variable().is_some() || term.children().is_empty() {
             return term.clone();
@@ -116,6 +119,9 @@ impl<'a> Elaborator<'a> {
             .map(|c| self.written_form(c))
             .collect();
         let parts = Term::apply(term.label().unwrap_or(""), kids);
+        if let Some(kept) = self.identity_dropped(&parts) {
+            return self.written_form(&kept);
+        }
         match self.written_step(&parts) {
             None => parts,
             Some((_, next)) => self.written_form(&next),
@@ -196,12 +202,15 @@ impl<'a> Elaborator<'a> {
             });
             me.same(&was, &now, scope, &Facts::new(), None)
         })?;
-        Ok(match across {
-            Built(across) => {
-                Some(pf!(self.b; scope, stored, wanted, proof, across, "mpbid"))
-            }
-            Declined(_) => None,
-        })
+        match across {
+            Built(across) => Ok(Some(
+                pf!(self.b; scope, stored, wanted, proof, across, "mpbid"),
+            )),
+            // The two may differ by an identity element, which is filed
+            // under the same form and asks the scope that what is left is a
+            // number.
+            Declined(_) => self.tidied(&proof, stored, wanted, scope, facts),
+        }
     }
 
     /// A triangle held with its points named in another order: three points
@@ -871,7 +880,7 @@ impl<'a> Elaborator<'a> {
     }
 
     /// `term` with every occurrence of the term spelt `was` put as `new`.
-    fn replaced(&self, term: &Term, was: &str, new: &Term) -> Term {
+    pub(crate) fn replaced(&self, term: &Term, was: &str, new: &Term) -> Term {
         if self.rpn(term) == was {
             return new.clone();
         }
@@ -1495,6 +1504,10 @@ impl<'a> Elaborator<'a> {
                             self.closed_standard(one, other, where_, held)?
                         }
                         Row::Toward => self.closed_toward(one, other, where_, held)?,
+                        Row::Identity => {
+                            self.closed_identity(one, other, where_, held)?
+                        }
+                        Row::Bare => self.closed_bare(one, other, where_, held)?,
                     };
                     if found.is_some() {
                         return Ok(found);
@@ -1511,6 +1524,186 @@ impl<'a> Elaborator<'a> {
                     .map(|p| Some(Built(p)))
             }
         }
+    }
+
+    /// Two terms that are one once their identity elements are dropped, x + 0
+    /// and x, or a^(0 + 1) and a: each is carried to that one (`bared`).
+    /// The walk goes a level in at a formula, and where the two are not one.
+    fn closed_identity(
+        &mut self,
+        one: &Term,
+        other: &Term,
+        where_: &str,
+        held: &Facts,
+    ) -> Checked<Option<Route<Proof>>> {
+        if self.rpn(one) == self.rpn(other) || self.is_wff(one) {
+            return Ok(None);
+        }
+        let bare = self.without_identities(one);
+        if self.rpn(&bare) != self.rpn(&self.without_identities(other)) {
+            return Ok(None);
+        }
+        let mut links = Vec::new();
+        if self.rpn(one) != self.rpn(&bare) {
+            let made = match self.bared(one, where_, held)? {
+                Built(p) => p,
+                declined => return Ok(Some(declined)),
+            };
+            links.push(ChainLink {
+                from: one.clone(),
+                to: bare.clone(),
+                proof: made,
+            });
+        }
+        if self.rpn(other) != self.rpn(&bare) {
+            let made = match self.bared(other, where_, held)? {
+                Built(p) => p,
+                declined => return Ok(Some(declined)),
+            };
+            links.push(ChainLink {
+                from: bare.clone(),
+                to: other.clone(),
+                proof: self.flipped(where_, other, &bare, &made),
+            });
+        }
+        Ok(Some(Built(self.chained(where_, &links))))
+    }
+
+    /// A part of a term carried to itself with its identity elements
+    /// dropped, inside `bared`, where an element stands at its head; the
+    /// walk goes a level in elsewhere.
+    fn closed_bare(
+        &mut self,
+        one: &Term,
+        other: &Term,
+        where_: &str,
+        held: &Facts,
+    ) -> Checked<Option<Route<Proof>>> {
+        if self.rpn(one) == self.rpn(other)
+            || self.rpn(&self.without_identities(one)) != self.rpn(other)
+            || one.variable().is_some()
+        {
+            return Ok(None);
+        }
+        let kids: Vec<Term> = one
+            .children()
+            .iter()
+            .map(|c| self.without_identities(c))
+            .collect();
+        if self
+            .identity_dropped(&Term::apply(one.label().unwrap_or(""), kids))
+            .is_none()
+        {
+            return Ok(None);
+        }
+        Ok(Some(self.bared(one, where_, held)?))
+    }
+
+    /// ( where_ -> term = the term with its identity elements dropped ): its
+    /// parts first, then each element at its head, by the law of
+    /// `rules::IDENTITY` that drops it, which asks the operand be a number.
+    fn bared(
+        &mut self,
+        term: &Term,
+        where_: &str,
+        held: &Facts,
+    ) -> Checked<Route<Proof>> {
+        let mut links = Vec::new();
+        let kids: Vec<Term> = term
+            .children()
+            .iter()
+            .map(|c| self.without_identities(c))
+            .collect();
+        let mut cur = Term::apply(term.label().unwrap_or(""), kids);
+        if self.rpn(&cur) != self.rpn(term) {
+            let made = take!(self.congruence(
+                term,
+                &cur,
+                where_,
+                held,
+                None,
+                &Leaf::Rows(vec![Row::Bare]),
+            )?);
+            links.push(ChainLink {
+                from: term.clone(),
+                to: cur.clone(),
+                proof: made,
+            });
+        }
+        while let Some(kept) = self.identity_dropped(&cur) {
+            let made = take!(self.identity_law(&cur, &kept, where_, held)?);
+            links.push(ChainLink {
+                from: cur.clone(),
+                to: kept.clone(),
+                proof: made,
+            });
+            cur = kept;
+        }
+        Ok(Built(self.chained(where_, &links)))
+    }
+
+    /// ( where_ -> term = kept ), where `kept` is `term` with the identity
+    /// element at its head dropped, by the law of `rules::IDENTITY` that
+    /// drops it.
+    fn identity_law(
+        &mut self,
+        term: &Term,
+        kept: &Term,
+        where_: &str,
+        held: &Facts,
+    ) -> Checked<Route<Proof>> {
+        // What a law asks, that the operand is a number, may be what a
+        // requires line of the step says (`SYNTAX.md`), so the step's own
+        // lines are offered over the scope's, as a membership is searched
+        // for elsewhere.
+        let written = held.filtered(|_, v| from_requires(v));
+        for (k, w) in self.written.entries() {
+            if let Some(lifted) = self.lifted_to(&k, &w.proof, &w.at, where_) {
+                self.know(&written, k, lifted);
+            }
+        }
+        let offered = held.with(&written);
+        let goal = self.to_term(&t!(self.rpn(term), self.rpn(kept), "wceq"));
+        for label in rules::IDENTITY {
+            if let Built(p) =
+                self.apply_lemma(label, &goal, where_, &offered, None, false, None)?
+            {
+                return Ok(Built(p));
+            }
+        }
+        Ok(self.no("no identity law drops it from {}", &[&self.rpn(term)]))
+    }
+
+    /// The operand an identity element leaves, where `term` is an operation
+    /// with its identity in a hole the notation record allows it: x for
+    /// x + 0, 0 + x, x − 0, x·1, 1·x, x/1 and x^1. None otherwise.
+    fn identity_dropped(&self, term: &Term) -> Option<Term> {
+        if term.variable().is_some() {
+            return None;
+        }
+        for law in &self.identities {
+            if term.label() != Some(law.constructor.as_str())
+                || term.children().len() != law.fixed.len() + 2
+                || law
+                    .fixed
+                    .iter()
+                    .any(|(k, token)| self.rpn(&term.children()[*k]) != *token)
+            {
+                continue;
+            }
+            let element = super::field::numeral(law.element);
+            for &hole in &law.holes {
+                let (at, other) = if hole == 0 {
+                    (law.places.0, law.places.1)
+                } else {
+                    (law.places.1, law.places.0)
+                };
+                if self.rpn(&term.children()[at]) == element {
+                    return Some(term.children()[other].clone());
+                }
+            }
+        }
+        None
     }
 
     /// Two terms an equation in hand says are equal.
@@ -2964,6 +3157,30 @@ impl<'a> Elaborator<'a> {
         Some(out)
     }
 
+    /// The side of an equation, the innermost body of an existential, that
+    /// names none of its witnesses, where the other names one; else None.
+    fn witnessless_side(
+        &self,
+        body: &Term,
+        layers: &[(Term, String, String)],
+    ) -> Option<String> {
+        if body.label() != Some("wceq") || body.children().len() != 2 {
+            return None;
+        }
+        let names = |t: &Term| {
+            let spelt = self.rpn(t);
+            layers
+                .iter()
+                .any(|(_, v, _)| spelt.split_whitespace().any(|w| w == v))
+        };
+        let (left, right) = (&body.children()[0], &body.children()[1]);
+        match (names(left), names(right)) {
+            (false, true) => Some(self.rpn(left)),
+            (true, false) => Some(self.rpn(right)),
+            _ => None,
+        }
+    }
+
     /// A restricted existential, with as many witnesses as it quantifies
     /// over, from the lines a step names for it: what `exhibit` proves, and
     /// the right side a definition concludes from (`conclude`).
@@ -3004,6 +3221,17 @@ impl<'a> Elaborator<'a> {
             if let Some(proof) = self.held(facts, &said, scope)? {
                 sources.push((said, proof));
             }
+        }
+        // An equation the body asks whose one side names no witness is the
+        // same on both sides once the witnesses are read off the other, and
+        // needs no line (`SYNTAX.md`, the literal-instance rule): a·x + b·y =
+        // a·m + b·n is met by m := x and n := y.
+        if let Some(sides) = self.witnessless_side(&rest, &layers) {
+            let said = t!(sides, sides, "wceq");
+            let proof = self
+                .b
+                .ap("eqidd", &binds! {"ph" => scope, "A" => &sides}, &[]);
+            sources.push((said, proof));
         }
         // The witnesses are as many as a line names, from the outermost
         // quantifier in: a line saying "n ∈ ℕ₀ and there is f with …" names
@@ -3504,6 +3732,99 @@ impl<'a> Elaborator<'a> {
             });
         }
         Ok(proof)
+    }
+
+    /// A proof of a claim, made a proof of the literal instance it is with
+    /// identity elements dropped (`Row::Identity`): L(p) ≤ L(p) carried to
+    /// L(p) ≤ L(p + 0). None where the two differ in anything else.
+    pub fn tidied(
+        &mut self,
+        proof: &Proof,
+        said: &str,
+        want: &str,
+        scope: &str,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        if said == want {
+            return Ok(Some(proof.clone()));
+        }
+        let (from, to) = (self.to_term(said), self.to_term(want));
+        let across = self.congruence(
+            &from,
+            &to,
+            scope,
+            facts,
+            None,
+            &Leaf::Rows(vec![Row::Identity]),
+        )?;
+        Ok(match across {
+            Built(across) => {
+                Some(pf!(self.b; scope, said, want, proof, across, "mpbid"))
+            }
+            Declined(_) => None,
+        })
+    }
+
+    /// A proof of what a part of a block ends on, made a proof of the
+    /// instance it is written for: the page's claim with its identity
+    /// elements dropped, renamed to the instance's bound letters, and
+    /// carried to the instance as it stands (`SYNTAX.md`). None where they
+    /// differ in anything else.
+    pub fn reached(
+        &mut self,
+        proof: &Proof,
+        said: &str,
+        want: &str,
+        scope: &str,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        // A claim written as its instance, letters renamed or not, is the
+        // instance, and no element is dropped from it to be put back.
+        if let Some(p) = self.respelt(proof, said, want, scope)? {
+            return Ok(Some(p));
+        }
+        // Each line the part may rest on is read in its parts as well, as a
+        // cited line is: "a(0) ∈ ℕ₀ and b(0) ∈ ℕ₀" says b(0) ∈ ℕ₀. What it may
+        // not rest on is left out first, so that a copy of a part proved
+        // elsewhere does not stand in the way of this one.
+        let known = match &self.resting {
+            Some(resting) => {
+                let resting = resting.clone();
+                facts.filtered(|_, v| v.origin.iter().all(|o| may_rest_on(&resting, o)))
+            }
+            None => facts.copy(),
+        };
+        for (line, held) in known.entries() {
+            self.unpack(&line, &held, scope, &known, 4);
+        }
+        let facts = &known;
+        let said_bare = self.rpn(&self.without_identities(&self.to_term(said)));
+        let want_bare = self.rpn(&self.without_identities(&self.to_term(want)));
+        let Some(bare) = self.tidied(proof, said, &said_bare, scope, facts)? else {
+            return Ok(None);
+        };
+        let Some(renamed) = self.respelt(&bare, &said_bare, &want_bare, scope)? else {
+            return Ok(None);
+        };
+        self.tidied(&renamed, &want_bare, want, scope, facts)
+    }
+
+    /// The term with every identity element dropped where it stands, parts
+    /// first.
+    pub fn without_identities(&self, term: &Term) -> Term {
+        if term.variable().is_some() || term.children().is_empty() {
+            return term.clone();
+        }
+        let kids: Vec<Term> = term
+            .children()
+            .iter()
+            .map(|c| self.without_identities(c))
+            .collect();
+        let mut out = Term::apply(term.label().unwrap_or(""), kids);
+        while let Some(kept) = self.identity_dropped(&out) {
+            out = kept;
+        }
+        out
     }
 
     /// A proof of a claim, made a proof of it spelt another way: what is
@@ -4778,6 +5099,125 @@ impl<'a> Elaborator<'a> {
         Some(out)
     }
 
+    /// A lemma reaching a claim written without an identity element its
+    /// conclusion has (`SYNTAX.md`, the literal-instance rule): the
+    /// conclusion is fitted reading x + 0 as x where the claim has x
+    /// (`fit_tidied`), the lemma is applied to that literal instance, and
+    /// the instance is carried to the claim (`tidied`).
+    #[allow(clippy::too_many_arguments)]
+    fn as_tidied(
+        &mut self,
+        label: &str,
+        reads: &Term,
+        goal: &Term,
+        scope: &str,
+        facts: &Facts,
+        step: Option<&Step>,
+        seed: Option<&Binding>,
+    ) -> Checked<Route<Proof>> {
+        let variables = names_of(&self.statement(label));
+        let start = seed.cloned().unwrap_or_default();
+        let Some(binding) = self.fit_tidied(reads, goal, &start, &variables) else {
+            return Ok(Route::no(format!("{label} does not conclude the claim")));
+        };
+        // A variable a hypothesis decides is taken at that value, which may
+        // hold an identity element the claim leaves out: `fsum1p`'s first
+        // term is its summand at the bottom of the range.
+        let sig = self.sig(label).clone();
+        let binding = self.read_off(&sig, binding, &variables);
+        let settled = self.instanced(&sig, binding);
+        let literal = reads.substitute(&settled);
+        let (said, want) = (self.rpn(&literal), self.rpn(goal));
+        if said == want {
+            return Ok(Route::no(format!("{label} does not conclude the claim")));
+        }
+        let made =
+            take!(self.apply_lemma(label, &literal, scope, facts, step, true, seed)?);
+        Ok(match self.tidied(&made, &said, &want, scope, facts)? {
+            Some(p) => Built(p),
+            None => Route::no(format!(
+                "{label} concludes {} and nothing drops its identity elements",
+                self.render(&said)
+            )),
+        })
+    }
+
+    /// `fit`, where a pattern's operation may stand with its identity
+    /// element in a hole the notation record allows it and the other hole
+    /// matched against the term: ( A + C ) against 1 with A := 0.
+    fn fit_tidied(
+        &self,
+        pattern: &Term,
+        term: &Term,
+        binding: &Binding,
+        variables: &Vars,
+    ) -> Option<Binding> {
+        if let Some(found) = fit(pattern, term, binding, variables) {
+            return Some(found);
+        }
+        if pattern.variable().is_some() {
+            return None;
+        }
+        if pattern.label() == term.label()
+            && pattern.children().len() == term.children().len()
+        {
+            let mut at = binding.clone();
+            let all = pattern
+                .children()
+                .iter()
+                .zip(term.children())
+                .all(|(p, t)| match self.fit_tidied(p, t, &at, variables) {
+                    Some(next) => {
+                        at = next;
+                        true
+                    }
+                    None => false,
+                });
+            if all {
+                return Some(at);
+            }
+        }
+        for law in &self.identities {
+            if pattern.label() != Some(law.constructor.as_str())
+                || pattern.children().len() != law.fixed.len() + 2
+                || law
+                    .fixed
+                    .iter()
+                    .any(|(k, token)| self.rpn(&pattern.children()[*k]) != *token)
+            {
+                continue;
+            }
+            let element = self.to_term(super::field::numeral(law.element));
+            for &hole in &law.holes {
+                let (unit, kept) = if hole == 0 {
+                    (law.places.0, law.places.1)
+                } else {
+                    (law.places.1, law.places.0)
+                };
+                // The element is one the instance has, a variable already
+                // fixed as it: none is made up to read x as 0 + x.
+                let unit = &pattern.children()[unit];
+                if unit
+                    .names()
+                    .iter()
+                    .any(|n| variables.contains(n) && !binding.contains_key(&**n))
+                {
+                    continue;
+                }
+                let Some(at) = self.fit_tidied(unit, &element, binding, variables)
+                else {
+                    continue;
+                };
+                if let Some(found) =
+                    self.fit_tidied(&pattern.children()[kept], term, &at, variables)
+                {
+                    return Some(found);
+                }
+            }
+        }
+        None
+    }
+
     /// Apply one set.mm lemma to reach a claim, side conditions and all.
     ///
     /// What a lemma states before the claim it reaches may be an implication
@@ -4830,9 +5270,15 @@ impl<'a> Elaborator<'a> {
                     if !every.is_declined() {
                         return Ok(every);
                     }
-                    return self.in_other_words(
+                    let other = self.in_other_words(
                         label, &whole, &reads, goal, scope, facts, step, seed,
-                    );
+                    )?;
+                    if !other.is_declined() {
+                        return Ok(other);
+                    }
+                    let tidy =
+                        self.as_tidied(label, &reads, goal, scope, facts, step, seed)?;
+                    return Ok(if tidy.is_declined() { other } else { tidy });
                 }
                 return Ok(Route::no(format!("{label} does not conclude the claim")));
             }
@@ -5277,8 +5723,19 @@ impl<'a> Elaborator<'a> {
             take!(self.apply_lemma(label, &said, scope, facts, step, false, None)?);
         let known = facts.copy();
         let said = self.rpn(&said);
-        self.know(&known, said, proof);
-        self.settle(goal, scope, &known, 3, None, None)
+        self.know(&known, said.clone(), proof.clone());
+        let settled = self.settle(goal, scope, &known, 3, None, None)?;
+        if !settled.is_declined() {
+            return Ok(settled);
+        }
+        // The value may hold an identity element the claim leaves out: fsum1's
+        // one term, the summand at k := 0, has x^(0 − 0) where the claim
+        // writes x^0 (`SYNTAX.md`, the literal-instance rule).
+        let want = self.rpn(goal);
+        Ok(match self.tidied(&proof, &said, &want, scope, facts)? {
+            Some(p) => Built(p),
+            None => settled,
+        })
     }
 
     /// One hypothesis a lemma states in full rather than asking for.

@@ -233,8 +233,75 @@ pub fn search(
                 }
             }
         }
+        // An equation the body asks whose one side names no open letter is
+        // the same on both sides once the witnesses are read off the other,
+        // and needs no line (`SYNTAX.md`, the literal-instance rule):
+        // t = a·m + b·n at t := a·x + b·y is met by m := x and n := y.
+        if let Some((body, seen)) = &body_form {
+            if let Some(same) = self_evident(body, binding, seen, ctx) {
+                if let Some(found) = match_tree(body, &same, binding, seen, sites, ctx)
+                {
+                    let remaining: Vec<Node> = facts
+                        .iter()
+                        .zip(used.iter())
+                        .filter(|(_, u)| !**u)
+                        .map(|(f, _)| f.clone())
+                        .collect();
+                    if witnessed_in(&first, &found, &remaining, seen, library, sites) {
+                        let done = search(
+                            rest,
+                            facts,
+                            used,
+                            &found,
+                            variables,
+                            library,
+                            sites,
+                            reuse,
+                            ways.as_deref_mut(),
+                        );
+                        if done.is_some() {
+                            return done;
+                        }
+                    }
+                }
+            }
+        }
     }
     None
+}
+
+/// The equation L = L, where `body` is an equation one side of which, L
+/// under the binding, names no letter still open; else None.
+fn self_evident(
+    body: &Node,
+    binding: &Binding,
+    open: &BTreeSet<String>,
+    ctx: &Context,
+) -> Option<Node> {
+    if !ctx.equations.contains(&body.notation) || body.children.len() != 2 {
+        return None;
+    }
+    let closed = |side: &Node| {
+        side.names()
+            .iter()
+            .all(|n| !open.contains(n.as_str()) || binding.contains_key(n.as_str()))
+    };
+    let side = body.children.iter().find(|s| closed(s))?;
+    if body.children.iter().all(closed) {
+        return None;
+    }
+    let terms: Binding = binding
+        .iter()
+        .filter(|(_, t)| t.notation != PROPERTY)
+        .map(|(v, t)| (v.clone(), t.clone()))
+        .collect();
+    let spelt = substitute_apart(side, &terms, ctx);
+    Some(Node::new(
+        &body.notation,
+        body.sort.clone(),
+        vec![spelt.clone(), spelt],
+        &body.text,
+    ))
 }
 
 /// Every one of the variables the tree names is bound already.

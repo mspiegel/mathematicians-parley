@@ -52,6 +52,13 @@ pub enum Row {
     Standard,
     /// A term carried to its standard form.
     Toward,
+    /// The two are one once an identity element is dropped where it stands,
+    /// x + 0 as x: a literal instance and how the page writes it
+    /// (`SYNTAX.md`). Nothing else is rewritten.
+    Identity,
+    /// A term and the same term with its identity elements dropped, the
+    /// parts of one carried to the other's (`Elaborator::bared`).
+    Bare,
 }
 
 /// What the walk asks where two terms differ.

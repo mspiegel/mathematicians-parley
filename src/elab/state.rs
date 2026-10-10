@@ -24,7 +24,7 @@ use crate::mm::library::{render, Layered, Signature};
 use crate::mm::spell::{Binds, Builder, Proof};
 use crate::outcome::{Checked, Decline, Problem, Route};
 use crate::sorts::{sorts_of_record, Env};
-use crate::targets::{self, Commuting};
+use crate::targets::{self, Commuting, Identity};
 
 /// Variables for a name the proof does not spell: what a `define` renames
 /// its body's binders to, and what an `obtain` introduces. A name the text
@@ -136,9 +136,20 @@ pub struct Block {
     pub opened_at: usize,
     pub claim: String,
     pub proof: Option<Proof>,
-    /// Part number -> the last fact in it: claim, proof, and the scope it was
-    /// proved under.
-    pub parts: IndexMap<usize, (String, Proof, String)>,
+    /// Part number -> the last fact in it.
+    pub parts: IndexMap<usize, PartEnd>,
+}
+
+/// What a part of a block ends on.
+#[derive(Clone)]
+pub struct PartEnd {
+    pub claim: String,
+    pub proof: Proof,
+    /// The scope the claim is proved under.
+    pub scope: String,
+    /// What is known there, which is what carrying the claim to the instance
+    /// the block wants may rest on (`Elaborator::reached`).
+    pub facts: Facts,
 }
 
 /// How a define by recursion is built in set.mm (`recursion_terms`).
@@ -194,6 +205,9 @@ pub struct Elaborator<'a> {
     pub taken: IndexSet<String>,
     pub spare: Vec<String>,
     pub commutes: Vec<Commuting>,
+    /// The identity elements the notation records declare, which a literal
+    /// instance is written without (`Row::Identity`).
+    pub identities: Vec<Identity>,
     /// For each method, the words whose records name it in their `decided`
     /// field, each the kernel form of what its `then` line defines, read
     /// when a method first asks (`decided_by`).
@@ -391,6 +405,7 @@ impl<'a> Elaborator<'a> {
             taken,
             spare,
             commutes: targets::commuting(records),
+            identities: targets::identities(records),
             decided: IndexMap::new(),
             cited: Vec::new(),
             contradicted: None,

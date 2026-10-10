@@ -36,11 +36,6 @@
 #               For a pattern of more than two holes, `yes` says they may
 #               stand in any order: "A, B, C form a triangle" and "C, A, B
 #               form a triangle" are one claim about three points.
-#   decided     for an operation, that `arithmetic` works it out of numerals,
-#               as `mod` says. The operations it works out by its nature, the
-#               additive and multiplicative ones, powers and a product over a
-#               range, carry none; any other is worked out only where its
-#               record says so (`DATABASE.md`, `METHODS.md`).
 #
 #               Unlike `spells` and `negates`, the two are not the same
 #               formula. The kernel writes one of them, a proof offering the
@@ -48,6 +43,17 @@
 #               the crossing is sound. Without it a corpus that writes 2k
 #               could not cite a set.mm theorem that writes k · 2, which is
 #               what `divides` writes.
+#   identity    the element that leaves the other hole unchanged, and on
+#               which side it does: `0 on either side` for +, `0 on the
+#               right` for −, so x − 0 is x and 0 − x is not. One entry per
+#               pattern, `none` where a pattern has no identity; absent where
+#               none has. It goes without saying wherever it stands: two
+#               formulas that differ only by it are one (`SYNTAX.md`).
+#   decided     for an operation, that `arithmetic` works it out of numerals,
+#               as `mod` says. The operations it works out by its nature, the
+#               additive and multiplicative ones, powers and a product over a
+#               range, carry none; any other is worked out only where its
+#               record says so (`DATABASE.md`, `METHODS.md`).
 #   binds       for a binder, which hole introduces the variable and which
 #               hole it scopes over.
 #   negates     that one of the record's patterns is the negation of another,
@@ -227,6 +233,7 @@ notation additive
   sort        number, number → number
   level       additive
   assoc       left
+  identity    0 on either side, 0 on the right
   reads       plus, minus
   metamath    caddc, cmin
   target      _1 _2 caddc co, _1 _2 cmin co
@@ -241,6 +248,7 @@ notation multiplicative
   level       multiplicative
   assoc       left
   commutes    yes, no
+  identity    1 on either side, 1 on the right
   reads       times, divided by
   metamath    cmul, cdiv
   target      _1 _2 cmul co, _1 _2 cdiv co
@@ -274,6 +282,7 @@ notation power
   sort        number, number → number
   level       power
   assoc       right
+  identity    1 on the right
   reads       to the power
   metamath    cexp
   target      _1 _2 cexp co
