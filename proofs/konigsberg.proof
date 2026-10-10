@@ -240,7 +240,7 @@ let r = |{i ∈ {1, …, n} : x = v(i)}|                                  (D2)
 9.  r = |{i ∈ {1, …, n − 1} : x = v(i)}|
     mun:count-last-fails, from H8, D2
 
-let m = |{i ∈ {1, …, n − 1} : x = v(i)}|, a natural number or 0       (D3)
+let m = |{i ∈ {1, …, n − 1} : x = v(i)}|, a nonnegative integer       (D3)
     mun:count-nat0 k := n − 1
     reads how many times the walk passes through x
 

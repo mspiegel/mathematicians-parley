@@ -255,16 +255,17 @@ fn members(
                 ),
             ));
         }
-        for (words, pattern) in says.into_iter().zip(patterns) {
-            if out
-                .insert(words.to_string(), pattern.literal.clone())
-                .is_some()
-            {
-                return Err(Problem::new(
-                    &r.path,
-                    line,
-                    format!("{} is said of the members of two sets", repr(words)),
-                ));
+        // An entry may give several wordings for one set: `a natural number /
+        // a positive integer`.
+        for (entry, pattern) in says.into_iter().zip(patterns) {
+            for words in entry.split('/').map(crate::text::squash) {
+                if out.insert(words.clone(), pattern.literal.clone()).is_some() {
+                    return Err(Problem::new(
+                        &r.path,
+                        line,
+                        format!("{} is said of the members of two sets", repr(&words)),
+                    ));
+                }
             }
         }
     }

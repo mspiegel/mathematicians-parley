@@ -570,9 +570,11 @@ substitution in the corpus comes close.
                   { `,` <name> `(` ( `0` | <name> `+` `1` ) `)` `=` <rule> }
 <rule>        ::= <term>
                 | { <term> `if` <formula> <newline> } <term> `otherwise`
-<kind>        ::= one entry of the number systems' `member` field:
-                  `a natural number`, `a natural number or 0`, `an integer`,
-                  `a rational number`, `a real number`, `a complex number`
+<kind>        ::= one wording in the number systems' `member` field:
+                  `a natural number`, `a positive integer`,
+                  `a natural number or 0`, `a nonnegative integer`,
+                  `an integer`, `a rational number`, `a real number`,
+                  `a complex number`
 <reason>      ::= what follows the colon of a <requires> line
 ```
 

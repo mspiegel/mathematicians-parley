@@ -378,7 +378,7 @@ theorem primitive-triple
 47. s = gcd(s, w)². t = gcd(t, w)².
     thm:coprime-square, from 28, 27, 2, 46, 37
 
-let m = gcd(s, w), a natural number                                 (D1)
+let m = gcd(s, w), a positive integer                               (D1)
     mun:gcd a := s, b := w, from 28, 2
     reads the number whose square is s
 
@@ -387,7 +387,7 @@ let m = gcd(s, w), a natural number                                 (D1)
       s = gcd(s, w)²    47
         = m²            D1
 
-let n = gcd(t, w), a natural number                                 (D2)
+let n = gcd(t, w), a positive integer                               (D2)
     mun:gcd a := t, b := w, from 27, 2
     reads the number whose square is t
 
@@ -517,7 +517,7 @@ theorem triple-scaled
   then there is k ∈ ℕ with a/k ∈ ℕ, b/k ∈ ℕ, c/k ∈ ℕ, gcd(a/k, b/k) = 1,
        and (a/k)² + (b/k)² = (c/k)²
 
-let k = gcd(a, b), a natural number                                 (D1)
+let k = gcd(a, b), a positive integer                               (D1)
     mun:gcd
     reads the largest number dividing both legs
 

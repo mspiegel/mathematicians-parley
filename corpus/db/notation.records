@@ -69,8 +69,10 @@
 #               tree, so the two spellings are one formula wherever two are
 #               compared, and the page writes whichever reads better.
 #   member      for a set, how a reader says one member of it, one entry per
-#               pattern: `a natural number` for ℕ. A naming let says its name
-#               is one in these words (`SYNTAX.md`).
+#               pattern: `a natural number` for ℕ. An entry may give several
+#               wordings for the one set, separated by `/`: `a natural number
+#               / a positive integer`. A naming let says its name is one in
+#               any of these words (`SYNTAX.md`).
 #   places      for a spelling that writes the other notation's holes in
 #               another order, which of this record's holes fills each hole of
 #               the other's, in order: `places 2 3 1` puts the condition of
@@ -197,8 +199,9 @@ notation number-systems
   sort        → set of number
   reads       the natural numbers, the natural numbers with zero, the integers,
               the rationals, the reals, the complex numbers
-  member      a natural number, a natural number or 0, an integer, a rational
-              number, a real number, a complex number
+  member      a natural number / a positive integer, a natural number or 0 /
+              a nonnegative integer, an integer, a rational number, a real
+              number, a complex number
   metamath    cn, cn0, cz, cq, cr, cc
   target      cn, cn0, cz, cq, cr, cc
   note        ℕ starts at 1, as set.mm's cn does, and ℕ₀ starts at 0. A reader

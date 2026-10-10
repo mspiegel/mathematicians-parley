@@ -515,7 +515,7 @@ A naming line gives an object a name. In a theorem it opens with `let` and
 needed:
 
 ```
-let m = gcd(s, w), a natural number                                 (D1)
+let m = gcd(s, w), a positive integer                               (D1)
     mun:gcd a := s, b := w, from 28, 2
     reads the number whose square is s
 
@@ -528,11 +528,16 @@ let m = gcd(s, w), a natural number                                 (D1)
 It introduces m and states that m is gcd(s, w), as a textbook's "let x₁ =
 min(b, c + δ/2)" does, and a step that needs what m stands for cites it by
 its label. After a comma it may say which numbers m is among, in the words
-the number system's notation record gives (`member`): a natural number, a
-natural number or 0, an integer, a rational number, a real number, a
-complex number. That says gcd(s, w) ∈ ℕ, and the line under it gives the
-reason, written as a requires line's reason is: a method or an item, and
-what it cites, all of it above the let. The equation is what the name means
+the number system's notation record gives (`member`): a natural number or a
+positive integer, a natural number or 0 or a nonnegative integer, an
+integer, a rational number, a real number, a complex number. The record
+gives a set more than one wording where textbooks use more than one, and
+each is the same set: `a positive integer` says ℕ. A sign is no part of a
+kind beyond those, since that a number is positive is a fact that can fail,
+and a step that needs it cites the line saying it. So the let above says
+gcd(s, w) ∈ ℕ, and the line under it gives the reason, written as a
+requires line's reason is: a method or an item, and what it cites, all of it
+above the let. The equation is what the name means
 and needs no reason. The membership m ∈ ℕ is then said there once, as an
 `obtain`'s membership sentence is: no later step writes it, and a step that
 cites the let has it as a line the let says, as `inequalities, from D1`

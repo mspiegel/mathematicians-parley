@@ -159,7 +159,7 @@ introduced.** That p is a real number is a dull fact wherever a cited item or
 method demands it, and it is written once: on the line that introduces p,
 `let p ∈ ℝ`, the sentence `p ∈ ℤ` that an `obtain` states of each name it
 introduces, or the kind of number a naming line says its name is, `let m =
-gcd(s, w), a natural number` (`SYNTAX.md`). A step does not write it again,
+gcd(s, w), a positive integer` (`SYNTAX.md`). A step does not write it again,
 and does not cite that line for it. The same holds of three kinds of term,
 and of nothing else:
 

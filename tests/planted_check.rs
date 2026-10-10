@@ -551,7 +551,7 @@ fn cases() -> Vec<Case> {
         case(
             "say a let's name is a kind of number no record names",
             vec![
-                edit("proofs/pythagorean-triples.proof", Some("let m = gcd(s, w), a natural number".to_string()), "let m = gcd(s, w), a whole number".to_string()),
+                edit("proofs/pythagorean-triples.proof", Some("let m = gcd(s, w), a positive integer".to_string()), "let m = gcd(s, w), a whole number".to_string()),
             ],
             "and the kinds of number are",
         ),
