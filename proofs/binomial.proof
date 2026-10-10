@@ -77,7 +77,7 @@ define q(k) := C(m, k − 1)·x^((m + 1) − k)·y^k, for k ∈ {0, …, m + 1} 
     requires q is a function on {0, …, m + 1}: from D3
 
 7.  Σ(k = 0 to m) t(k) ∈ ℝ
-    mun:sum-real a := 0, b := m, t := t
+    mun:sum-real a := 0, b := m
     requires t : {0, …, m} → ℝ: from 2
 
 8.  (Σ(k = 0 to m) t(k))·(x + y) = x·(Σ(k = 0 to m) t(k)) + y·(Σ(k = 0 to m) t(k))
@@ -85,7 +85,7 @@ define q(k) := C(m, k − 1)·x^((m + 1) − k)·y^k, for k ∈ {0, …, m + 1} 
     requires Σ(k = 0 to m) t(k) ∈ ℝ: from 7
 
 9.  x·(Σ(k = 0 to m) t(k)) = Σ(k = 0 to m) x·t(k)
-    mun:sum-scaled a := 0, b := m, c := x, t := t
+    mun:sum-scaled a := 0, b := m, c := x
     requires t : {0, …, m} → ℝ: from 2
 
 10. For all k ∈ {0, …, m}, x·t(k) = C(m, k)·x^((m + 1) − k)·y^k.
@@ -196,7 +196,7 @@ define q(k) := C(m, k − 1)·x^((m + 1) − k)·y^k, for k ∈ {0, …, m + 1} 
                              = Σ(k = 0 to m + 1) p(k)                         25
 
 27. y·(Σ(k = 0 to m) t(k)) = Σ(k = 0 to m) y·t(k)
-    mun:sum-scaled a := 0, b := m, c := y, t := t
+    mun:sum-scaled a := 0, b := m, c := y
     requires t : {0, …, m} → ℝ: from 2
 
 28. For all k ∈ {0, …, m}, y·t(k) = C(m, k)·x^(m − k)·y^(k + 1).
@@ -348,7 +348,7 @@ define q(k) := C(m, k − 1)·x^((m + 1) − k)·y^k, for k ∈ {0, …, m + 1} 
            D3, from J
 
     50.3.  C(m, k) + C(m, k − 1) = C(m + 1, k)
-           thm:pascal n := m, k := k
+           thm:pascal n := m
            requires k ∈ ℤ: mun:range-integer a := 0, b := m + 1, from J
 
     50.4.  C(m, k)·x^((m + 1) − k)·y^k + C(m, k − 1)·x^((m + 1) − k)·y^k = (C(m, k) + C(m, k − 1))·x^((m + 1) − k)·y^k
@@ -394,7 +394,7 @@ define q(k) := C(m, k − 1)·x^((m + 1) − k)·y^k, for k ∈ {0, …, m + 1} 
           D1, from J
 
 55. Σ(k = 0 to m) t(k) = Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k
-    mun:sum-termwise a := 0, b := m, t := t, from 54
+    mun:sum-termwise a := 0, b := m, from 54
 
 56. (Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)·(x + y) = (Σ(k = 0 to m) t(k))·(x + y)
     substitute Σ(k = 0 to m) t(k) = Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k (line 55)
@@ -460,7 +460,7 @@ theorem binomial
           substitute (x + y)^m = Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k (IH)
 
     1.10. (Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)·(x + y) = Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k
-          thm:binomial-step m := m
+          thm:binomial-step
 
     1.11. (x + y)^(m + 1) = Σ(k = 0 to m + 1) C(m + 1, k)·x^((m + 1) − k)·y^k
           calculation

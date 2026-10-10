@@ -53,7 +53,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
           let u ∈ gH                                                  (K2)
 
           3.1.1.  h ∈ H. u = g·h.
-                  obtain h: mun:coset u := u, from K1, K2
+                  obtain h: mun:coset, from K1, K2
                   requires H ⊆ G: from 1
 
           3.1.2.  h ∈ G
@@ -105,7 +105,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
           let u ∈ xH                                                  (K6)
 
           5.5.1.  c ∈ H. u = x·c.
-                  obtain c: mun:coset u := u, g := x, from 5.3, K6
+                  obtain c: mun:coset g := x, from 5.3, K6
                   requires H ⊆ G: from 1
 
           5.5.2.  c ∈ G
@@ -115,7 +115,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
                   mun:subgroup-closed a := h, b := c, from H2, 5.1, 5.5.1
 
           5.5.4.  (a·h)·c = a·(h·c)
-                  mun:group-associative a := a, b := h, c := c, from K4, 5.4, 5.5.2
+                  mun:group-associative b := h, from K4, 5.4, 5.5.2
 
           5.5.5.  x·c = (a·h)·c
                   substitute x = a·h (line 5.1)
@@ -127,7 +127,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
                       = a·(h·c)          5.5.4
 
           5.5.7.  u ∈ aH
-                  mun:coset u := u, g := a, from K4, 5.5.3, 5.5.6
+                  mun:coset g := a, from K4, 5.5.3, 5.5.6
                   requires H ⊆ G: from 1
 
     5.6.  xH ⊆ aH
@@ -152,7 +152,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
           mun:group-inverse-closed a := h, from 6.2
 
     6.5.  (a·h)·h⁻¹ = a·(h·h⁻¹)
-          mun:group-associative a := a, b := h, c := h⁻¹, from K7, 6.2, 6.4
+          mun:group-associative b := h, c := h⁻¹, from K7, 6.2, 6.4
 
     6.6.  h·h⁻¹ = e
           mun:group-inverse a := h, from 6.2
@@ -161,7 +161,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
           substitute h·h⁻¹ = e (line 6.6)
 
     6.8.  a·e = a
-          mun:group-identity a := a, from K7
+          mun:group-identity, from K7
 
     6.9.  x·h⁻¹ = (a·h)·h⁻¹
           substitute x = a·h (line 6.1)
@@ -255,7 +255,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
                   mun:in-subset, from 1, K14
 
           8.3.6.  s = r
-                  thm:group-cancel a := s, b := r, g := g, from 8.3.4, 8.3.5, K11, 8.3.3
+                  thm:group-cancel a := s, b := r, from 8.3.4, 8.3.5, K11, 8.3.3
 
     8.4.  t : H → gH is one-to-one
           mun:one-to-one, from 8.2, 8.3
@@ -265,7 +265,7 @@ define K := {X ⊆ G : there is g ∈ G with X = gH}                    (D1)
           let u ∈ gH                                                  (K15)
 
           8.5.1.  h ∈ H. u = g·h.
-                  obtain h: mun:coset u := u, from K11, K15
+                  obtain h: mun:coset, from K11, K15
                   requires H ⊆ G: from 1
 
           8.5.2.  t(h) = g·h

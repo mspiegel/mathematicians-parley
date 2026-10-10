@@ -119,7 +119,7 @@ theorem leg-hypotenuse-coprime
     mun:gcd a := b, b := c
 
 2.  gcd(b, c) divides c·c + b·(−b)
-    mun:divides-combination e := gcd(b, c), a := c, b := b, x := c, y := −b, from 1
+    mun:divides-combination e := gcd(b, c), a := c, x := c, y := −b, from 1
 
 3.  c·c + b·(−b) = a·a
     algebra, from H4
@@ -135,7 +135,7 @@ theorem leg-hypotenuse-coprime
     mun:divides-transitive d := gcd(gcd(b, c), a), e := gcd(b, c), n := b, from 5, 1
 
 7.  gcd(gcd(b, c), a) divides gcd(a, b)
-    thm:divides-gcd d := gcd(gcd(b, c), a), a := a, b := b, from 5, 6
+    thm:divides-gcd d := gcd(gcd(b, c), a), from 5, 6
 
 8.  gcd(gcd(b, c), a) divides 1
     substitute gcd(a, b) = 1 (H5) into line 7
@@ -144,7 +144,7 @@ theorem leg-hypotenuse-coprime
     mun:divides-one d := gcd(gcd(b, c), a), from 5, 8
 
 10. gcd(a, gcd(b, c)) = gcd(gcd(b, c), a)
-    mun:gcd-commutes a := a, b := gcd(b, c)
+    mun:gcd-commutes b := gcd(b, c)
     requires gcd(b, c) ∈ ℤ: membership, from 1
 
 11. gcd(a, gcd(b, c)) = 1
@@ -210,7 +210,7 @@ theorem primitive-triple
           mun:divides d := 2, n := b, from 4.3
 
     4.5.  2 divides gcd(a, b)
-          thm:divides-gcd d := 2, a := a, b := b, from 3, 4.4
+          thm:divides-gcd d := 2, from 3, 4.4
 
     4.6.  2 divides 1, which is impossible
           substitute gcd(a, b) = 1 (H5) into line 4.5
@@ -348,7 +348,7 @@ theorem primitive-triple
     requires 4 ≠ 0: arithmetic
 
 38. gcd(b, c) = 1
-    thm:leg-hypotenuse-coprime a := a, b := b, c := c, from H4, H5
+    thm:leg-hypotenuse-coprime, from H4, H5
 
 39. gcd(s, t) ∈ ℕ. gcd(s, t) divides s. gcd(s, t) divides t.
     mun:gcd a := s, b := t, from 28, 27
@@ -376,7 +376,7 @@ theorem primitive-triple
     mun:divides-one d := gcd(s, t), from 39, 45
 
 47. s = gcd(s, w)². t = gcd(t, w)².
-    thm:coprime-square s := s, t := t, w := w, from 28, 27, 2, 46, 37
+    thm:coprime-square, from 28, 27, 2, 46, 37
 
 48. gcd(s, w) ∈ ℕ. gcd(s, w) divides s. gcd(s, w) divides w.
     mun:gcd a := s, b := w, from 28, 2
@@ -516,7 +516,7 @@ theorem triple-scaled
        and (a/k)² + (b/k)² = (c/k)²
 
 1.  gcd(a, b) ∈ ℕ. gcd(a, b) divides a. gcd(a, b) divides b.
-    mun:gcd a := a, b := b
+    mun:gcd
 
 2.  a/gcd(a, b) ∈ ℕ
     mun:divides-quotient n := a, d := gcd(a, b), from 1
@@ -545,7 +545,7 @@ theorem triple-scaled
     mun:divides-quotient n := c, d := gcd(a, b), from 1, 8
 
 10. gcd(a/gcd(a, b), b/gcd(a, b)) = 1
-    mun:gcd-quotients-coprime a := a, b := b
+    mun:gcd-quotients-coprime
     requires b ≠ 0: inequalities, from H2
 
 11. (a/gcd(a, b))² + (b/gcd(a, b))² = (a² + b²)/gcd(a, b)²
@@ -587,7 +587,7 @@ theorem triple-from-parameters
     algebra
 
 2.  (a = k(m² − n²) and b = 2kmn) or (a = 2kmn and b = k(m² − n²))
-    mun:pair-equal a := a, b := b, c := k(m² − n²), d := 2kmn, from H8
+    mun:pair-equal c := k(m² − n²), d := 2kmn, from H8
 
 3.  a² + b² = c²
     cases, from 2
@@ -645,7 +645,7 @@ theorem triple-parameters
 
 1.  k ∈ ℕ. a/k ∈ ℕ. b/k ∈ ℕ. c/k ∈ ℕ. gcd(a/k, b/k) = 1.
     (a/k)² + (b/k)² = (c/k)².
-    obtain k: thm:triple-scaled a := a, b := b, c := c, from H4
+    obtain k: thm:triple-scaled, from H4
 
 2.  a/k is even or b/k is even
     thm:even-leg a := a/k, b := b/k, c := c/k, from 1
@@ -750,7 +750,7 @@ theorem pythagorean-triples
     assume a² + b² = c²                                               (D1)
 
     1.1.  There are k, m, n ∈ ℕ with c = k(m² + n²) and {a, b} = {k(m² − n²), 2kmn}.
-          thm:triple-parameters a := a, b := b, c := c, from D1
+          thm:triple-parameters, from D1
 
     direction
     assume there are k, m, n ∈ ℕ with c = k(m² + n²) and {a, b} = {k(m² − n²), 2kmn} (D2)
@@ -759,4 +759,4 @@ theorem pythagorean-triples
           obtain k, m, n from D2
 
     1.3.  a² + b² = c²
-          thm:triple-from-parameters a := a, b := b, c := c, k := k, m := m, n := n, from 1.2
+          thm:triple-from-parameters, from 1.2

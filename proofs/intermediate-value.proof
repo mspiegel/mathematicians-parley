@@ -67,7 +67,7 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
     mun:upper-bound, from 6
 
 8.  c ∈ ℝ. c is a least upper bound of S.
-    obtain c: axi:completeness S := S, from 5, 2, 7
+    obtain c: axi:completeness, from 5, 2, 7
 
 9.  c is an upper bound of S.
     For all u ∈ ℝ, if u is an upper bound of S then c ≤ u.
@@ -168,7 +168,7 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
            requires x₁ ∈ ℝ: mun:min-real x := b, y := c + δ/2, from D2
 
     16.15. |x₁ − c| < δ
-           mun:abs-difference-lt x := x₁, c := c, δ := δ, from 16.13, 16.14
+           mun:abs-difference-lt x := x₁, from 16.13, 16.14
            requires x₁ ∈ ℝ: mun:min-real x := b, y := c + δ/2, from D2
 
     16.16. |f(x₁) − f(c)| < −f(c)
@@ -236,7 +236,7 @@ define S := {x ∈ [a, b] : f(x) < 0}                                   (D1)
                                  requires s ∈ ℝ: mun:interval, from 16.24.1
 
                      16.24.4.3.  |s − c| < δ
-                                 mun:abs-difference-lt x := s, c := c, δ := δ,
+                                 mun:abs-difference-lt x := s,
                                    from 16.24.4.1, 16.24.4.2
                                  requires s ∈ ℝ: mun:interval, from 16.24.1
 

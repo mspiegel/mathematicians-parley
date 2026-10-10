@@ -499,7 +499,7 @@ fn cases() -> Vec<Case> {
             "a requires line its method cannot prove",
             "proofs/pythagoras/similar-triangles",
             "proofs/pythagoras.proof",
-            "    requires sin(∠PQR) > 0: mun:sine-positive P := P, Q := Q, R := R, from H7\n",
+            "    requires sin(∠PQR) > 0: mun:sine-positive, from H7\n",
             "",
             "the requires line sin(∠PQR) ≠ 0 of step 12, read as a step citing what it cites:",
         ),
@@ -542,8 +542,8 @@ fn cases() -> Vec<Case> {
             "obtain the least upper bound without the line bounding the set",
             "proofs/intermediate-value/intermediate-value",
             "proofs/intermediate-value.proof",
-            "obtain c: axi:completeness S := S, from 5, 2, 7",
-            "obtain c: axi:completeness S := S, from 5, 2",
+            "obtain c: axi:completeness, from 5, 2, 7",
+            "obtain c: axi:completeness, from 5, 2",
             "step 8 cites axi:stdlib/calculus/completeness, which asks for there is u ∈ ℝ with u is an upper bound of S",
         )
         .at(
@@ -851,16 +851,28 @@ fn cases() -> Vec<Case> {
             "    1.1.  Σ(k = 0 to 0) C(0, k)·x^((0 − 1) − k)·y^k = C(0, 0)·x^((0 − 1) − 0)·y^0\n",
             "no clause of mun:sum-single reaches what step 1.1 claims",
         ),
-        // A definition concluded of a value names that value: line 5 says what
-        // n² is, and the step says n² is odd only by writing n := n². The pair
-        // is found by its name, and it is not optional (`SYNTAX.md`).
+        // A definition read with no pair for its subject is about the proof's
+        // letter of the same name (`SYNTAX.md`). odd-square has an n, so
+        // `mun:odd` with no pair is read of n, whose witness no line names;
+        // the claim is that n² is odd.
         case(
             "leave out the value a definition is concluded of",
             "proofs/sqrt2-irrational/odd-square",
             "proofs/sqrt2-irrational.proof",
             "    mun:odd n := n², from 5",
             "    mun:odd, from 5",
-            "is about n, and the step gives n no value",
+            "with 2 · j + 1 = n",
+        ),
+        // Where the proof has no letter of the subject's name, the pair is
+        // the only thing that says what the definition is about: even-leg
+        // has no d.
+        case(
+            "leave out a definition's subject where the proof has no such letter",
+            "proofs/pythagorean-triples/even-leg",
+            "proofs/pythagorean-triples.proof",
+            "mun:divides d := 4, n := 2, from 2.2.11",
+            "mun:divides n := 2, from 2.2.11",
+            "mun:divides is about d, and the step gives d no value and the proof has no d",
         ),
         // A link reads its cited equation from either side, and nothing on the
         // page says which: line 2 says |CB| = |BC|, which is neither way round

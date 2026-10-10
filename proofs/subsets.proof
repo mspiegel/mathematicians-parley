@@ -50,7 +50,7 @@ theorem add-element-bijection
     assume S ∪ {a} = T ∪ {a}                                          (K3)
 
     1.1.  S ⊆ X
-          mun:powerset S := S, from K1
+          mun:powerset, from K1
 
     1.2.  T ⊆ X
           mun:powerset S := T, from K2
@@ -192,7 +192,7 @@ theorem powerset-split
     let S ∈ 𝒫(X ∖ {a})                                                (K2)
 
     5.1.  S ⊆ X ∖ {a}
-          mun:powerset S := S, from K2
+          mun:powerset, from K2
 
     5.2.  S ⊆ X
           mun:subset-transitive, from 5.1, 3

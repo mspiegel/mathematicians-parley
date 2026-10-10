@@ -298,7 +298,7 @@ theorem odd-vertices
     let u ∈ {x ∈ V : deg(x) is odd}                                   (K1)
 
     3.1.  u ∈ V. deg(u) is odd.
-          mun:set-builder u := u, from K1
+          mun:set-builder, from K1
 
     3.2.  u = v(0) or u ≠ v(0)
           mun:excluded-middle

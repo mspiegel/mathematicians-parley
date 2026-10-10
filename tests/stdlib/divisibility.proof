@@ -13,7 +13,7 @@ theorem sigma
   then σ(n) = Σ(d ∈ ℕ : d divides n) d
 
 1.  σ(n) = Σ(d ∈ ℕ : d divides n) d
-    def:σ n := n
+    def:σ
 
 theorem gcd-commutes
   let a ∈ ℤ                                                           (H1)

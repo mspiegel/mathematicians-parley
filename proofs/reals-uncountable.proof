@@ -84,7 +84,7 @@ theorem digit-step
   then s(t) ≠ t
 
 1.  10 divides (t + 1) − s(t)
-    thm:digit-step-divides t := t
+    thm:digit-step-divides
 
 2.  s(t) ≠ t
     contradiction
@@ -111,7 +111,7 @@ theorem digit-step-twice
     membership, from D2
 
 2.  10 divides (t + 1) − s(t)
-    thm:digit-step-divides t := t
+    thm:digit-step-divides
 
 3.  10 divides (s(t) + 1) − s(s(t))
     thm:digit-step-divides t := s(t), from 1
@@ -463,7 +463,7 @@ define U(k) := (N(k) + 1)/10^k, for k ∈ ℕ₀                             (D6
     instantiate k := 0 in line 10
 
 12. c ∈ ℝ. c is a least upper bound of S.
-    obtain c: axi:completeness S := S, from 7, 9, 11
+    obtain c: axi:completeness, from 7, 9, 11
     requires U(0) ∈ ℝ: membership, from D6, 1
 
 13. c is an upper bound of S.
@@ -826,7 +826,7 @@ theorem reals-uncountable
           obtain f: mun:bijection-onto X := ℕ, Y := ℝ, from S
 
     1.2.  x ∈ ℝ. For all n ∈ ℕ, f(n) ≠ x.
-          obtain x: thm:sequence-misses-real f := f
+          obtain x: thm:sequence-misses-real
 
     1.3.  There is n ∈ ℕ with x = f(n).
           instantiate y := x in line 1.1

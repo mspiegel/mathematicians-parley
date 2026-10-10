@@ -75,7 +75,7 @@ define g(x) := 2^|numer(x)|·3^denom(x)·5^s(x), for x ∈ ℚ    (D3)
 
           4.3.2.  |numer(x)| = numer(x)
                   mun:abs x := numer(x), from C1
-                  requires numer(x) ∈ ℤ: mun:lowest-terms-parts x := x
+                  requires numer(x) ∈ ℤ: mun:lowest-terms-parts
 
           4.3.3.  (1 − 2·s(x))·|numer(x)| = (1 − 2·0)·|numer(x)|
                   substitute s(x) = 0 (line 4.3.1)
@@ -85,7 +85,7 @@ define g(x) := 2^|numer(x)|·3^denom(x)·5^s(x), for x ∈ ℚ    (D3)
 
           4.3.5.  (1 − 2·0)·numer(x) = numer(x)
                   algebra
-                  requires numer(x) ∈ ℤ: mun:lowest-terms-parts x := x
+                  requires numer(x) ∈ ℤ: mun:lowest-terms-parts
 
           4.3.6.  numer(x) = (1 − 2·s(x))·|numer(x)|
                   calculation
@@ -101,11 +101,11 @@ define g(x) := 2^|numer(x)|·3^denom(x)·5^s(x), for x ∈ ℚ    (D3)
 
           4.3.8.  numer(x) < 0
                   inequalities, from C2
-                  requires numer(x) ∈ ℤ: mun:lowest-terms-parts x := x
+                  requires numer(x) ∈ ℤ: mun:lowest-terms-parts
 
           4.3.9.  |numer(x)| = −numer(x)
                   mun:abs x := numer(x), from 4.3.8
-                  requires numer(x) ∈ ℤ: mun:lowest-terms-parts x := x
+                  requires numer(x) ∈ ℤ: mun:lowest-terms-parts
 
           4.3.10. (1 − 2·s(x))·|numer(x)| = (1 − 2·1)·|numer(x)|
                   substitute s(x) = 1 (line 4.3.7)
@@ -115,7 +115,7 @@ define g(x) := 2^|numer(x)|·3^denom(x)·5^s(x), for x ∈ ℚ    (D3)
 
           4.3.12. (1 − 2·1)·(−numer(x)) = numer(x)
                   algebra
-                  requires numer(x) ∈ ℤ: mun:lowest-terms-parts x := x
+                  requires numer(x) ∈ ℤ: mun:lowest-terms-parts
 
           4.3.13. numer(x) = (1 − 2·s(x))·|numer(x)|
                   calculation
@@ -128,8 +128,8 @@ define g(x) := 2^|numer(x)|·3^denom(x)·5^s(x), for x ∈ ℚ    (D3)
 
 5.  For all x ∈ ℚ, g(x) ∈ ℕ.
     membership, from D3
-    requires numer(x) ∈ ℤ: mun:lowest-terms-parts x := x
-    requires denom(x) ∈ ℕ: mun:lowest-terms-parts x := x
+    requires numer(x) ∈ ℤ: mun:lowest-terms-parts
+    requires denom(x) ∈ ℕ: mun:lowest-terms-parts
     requires |numer(x)| ∈ ℕ₀: mun:abs-integer z := numer(x)
     requires s(x) ∈ ℕ₀: from 4
 
@@ -145,7 +145,7 @@ define g(x) := 2^|numer(x)|·3^denom(x)·5^s(x), for x ∈ ℚ    (D3)
 
     7.1.  numer(x) ∈ ℤ. denom(x) ∈ ℕ.
           x = numer(x)/denom(x).
-          mun:lowest-terms-parts x := x
+          mun:lowest-terms-parts
 
     7.2.  numer(y) ∈ ℤ. denom(y) ∈ ℕ.
           y = numer(y)/denom(y).
@@ -207,4 +207,4 @@ define g(x) := 2^|numer(x)|·3^denom(x)·5^s(x), for x ∈ ℚ    (D3)
     mun:one-to-one, from 6, 7
 
 9.  There is a bijection from ℕ to ℚ.
-    thm:schroeder-bernstein A := ℕ, B := ℚ, f := f, g := g, from 3, 8
+    thm:schroeder-bernstein A := ℕ, B := ℚ, from 3, 8

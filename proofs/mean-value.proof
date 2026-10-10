@@ -71,18 +71,18 @@ define F(x) := f(x) + g(x), for x ∈ [a, b]                            (D2)
     requires F is a function on [a, b]: from D2
 
 10. g is continuous on [a, b]
-    thm:continuous-linear D := [a, b], m := (f(a) − f(b))/(b − a), g := g, from 3, 4
+    thm:continuous-linear D := [a, b], m := (f(a) − f(b))/(b − a), from 3, 4
     requires b − a ≠ 0: inequalities, from H1, H2, H3
     requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H4, 1, 2, H1, H2
     requires g : [a, b] → ℝ: from 7
 
 11. F is continuous on [a, b]
-    thm:continuous-sum D := [a, b], F := F, f := f, g := g, from 3, 5, H5, 10
+    thm:continuous-sum D := [a, b], from 3, 5, H5, 10
     requires F : [a, b] → ℝ: from 9
     requires g : [a, b] → ℝ: from 7
 
 12. g is differentiable on (a, b)
-    thm:derivative-linear D := [a, b], U := (a, b), m := (f(a) − f(b))/(b − a), g := g, from 3, 4
+    thm:derivative-linear D := [a, b], U := (a, b), m := (f(a) − f(b))/(b − a), from 3, 4
     requires b − a ≠ 0: inequalities, from H1, H2, H3
     requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H4, 1, 2, H1, H2
     requires (a, b) ⊆ [a, b]: mun:open-within-closed
@@ -90,7 +90,7 @@ define F(x) := f(x) + g(x), for x ∈ [a, b]                            (D2)
     requires g : [a, b] → ℝ: from 7
 
 13. For all x ∈ (a, b), g′(x) = (f(a) − f(b))/(b − a).
-    thm:derivative-linear D := [a, b], U := (a, b), m := (f(a) − f(b))/(b − a), g := g, from 3, 4
+    thm:derivative-linear D := [a, b], U := (a, b), m := (f(a) − f(b))/(b − a), from 3, 4
     requires b − a ≠ 0: inequalities, from H1, H2, H3
     requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H4, 1, 2, H1, H2
     requires (a, b) ⊆ [a, b]: mun:open-within-closed
@@ -98,13 +98,13 @@ define F(x) := f(x) + g(x), for x ∈ [a, b]                            (D2)
     requires g : [a, b] → ℝ: from 7
 
 14. F is differentiable on (a, b)
-    thm:derivative-sum D := [a, b], U := (a, b), F := F, f := f, g := g, from 3, 5, H6, 12
+    thm:derivative-sum D := [a, b], U := (a, b), from 3, 5, H6, 12
     requires (a, b) ⊆ [a, b]: mun:open-within-closed
     requires F : [a, b] → ℝ: from 9
     requires g : [a, b] → ℝ: from 7
 
 15. For all x ∈ (a, b), F′(x) = f′(x) + g′(x).
-    thm:derivative-sum D := [a, b], U := (a, b), F := F, f := f, g := g, from 3, 5, H6, 12
+    thm:derivative-sum D := [a, b], U := (a, b), from 3, 5, H6, 12
     requires (a, b) ⊆ [a, b]: mun:open-within-closed
     requires F : [a, b] → ℝ: from 9
     requires g : [a, b] → ℝ: from 7
@@ -142,7 +142,7 @@ define F(x) := f(x) + g(x), for x ∈ [a, b]                            (D2)
            = F(b)                                              18
 
 24. c ∈ (a, b). F′(c) = 0.
-    obtain c: thm:rolle a := a, b := b, f := F, from H3, 11, 14, 23
+    obtain c: thm:rolle f := F, from H3, 11, 14, 23
 
 25. F′(c) = f′(c) + g′(c)
     instantiate x := c in line 15, from 24
@@ -162,7 +162,7 @@ define F(x) := f(x) + g(x), for x ∈ [a, b]                            (D2)
 29. f′(c) = (f(b) − f(a))/(b − a)
     algebra, from 28
     requires b − a ≠ 0: inequalities, from H1, H2, H3
-    requires f′(c) ∈ ℝ: mun:derivative-real a := a, b := b, f := f, x := c, from H6, 24
+    requires f′(c) ∈ ℝ: mun:derivative-real x := c, from H6, 24
     requires f(a) ∈ ℝ: from H4, 1
     requires f(b) ∈ ℝ: from H4, 2
 

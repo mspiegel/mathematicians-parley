@@ -166,7 +166,7 @@ define f(r) := (r·a) mod n, for r ∈ S                                (D2)
           substitute f(r) = (r·a) mod n (line 11.3) into line 11.2
 
 12. ∏(r ∈ S) r·a ≡ ∏(r ∈ S) f(r) (mod n)
-    thm:product-congruent X := S, f := f, from 5, 4, 11
+    thm:product-congruent X := S, from 5, 4, 11
     requires f : S → S: from 8
 
 13. ∏(r ∈ S) r·a = a^|S|·∏(r ∈ S) r

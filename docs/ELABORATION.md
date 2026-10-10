@@ -1640,9 +1640,10 @@ unless "Steps taken as stated" above records it; a verifier over every
 proof the elaborator has written; and that every library item with a target
 gives its target what it asks, by a theorem restating the item and citing
 it from its own lines, built and verified (`src/tools/restated.rs`); and
-that every requires line is needed, each taken away in turn and its theorem
-checked and elaborated without it (`src/tools/needed.rs`, "Lines taken away"
-below). `scripts/precommit.sh` runs both.
+that every requires line is needed, and every pair naming a variable for
+itself (`SYNTAX.md`, no pair says what goes without saying), each taken away
+in turn and its theorem checked and elaborated without it
+(`src/tools/needed.rs`, "Lines taken away" below). `scripts/precommit.sh` runs both.
 
 A route gives back `Route::Declined` when it does not apply, and a caller that
 used one as though it were what the route builds would have a proof that is

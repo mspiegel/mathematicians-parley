@@ -8,7 +8,7 @@ theorem obtained-i
   then n² is odd
 
 1.  i ∈ ℤ. n = 2i + 1.
-    obtain i: mun:odd n := n, from H2
+    obtain i: mun:odd, from H2
 
 2.  n² = (2i + 1)²
     substitute n = 2i + 1 (line 1)

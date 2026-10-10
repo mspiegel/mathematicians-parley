@@ -8,7 +8,7 @@ theorem distances-out-of-order
   then |RS|·|PQ| ∈ ℝ
 
 1.  |PQ| ∈ ℝ
-    mun:distance-real P := P, Q := Q
+    mun:distance-real
 
 2.  |RS| ∈ ℝ
     mun:distance-real P := R, Q := S

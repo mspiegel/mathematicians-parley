@@ -59,7 +59,7 @@ theorem least-combination-divides
     algebra, from 4
 
 6.  d divides c
-    mun:divides d := d, n := c, from 5
+    mun:divides n := c, from 5
 
 
 theorem bezout
@@ -85,7 +85,7 @@ define S := {t ∈ ℕ : there are m, n ∈ ℤ with t = a·m + b·n}   (D1)
     mun:set-builder-subset, from D1
 
 4.  d ∈ S. For all s ∈ S, d ≤ s.
-    obtain d: axi:well-ordering S := S, from 3, 2
+    obtain d: axi:well-ordering, from 3, 2
 
 5.  For all t ∈ S, t ∈ ℕ
     mun:subset, from 3
@@ -125,7 +125,7 @@ define S := {t ∈ ℕ : there are m, n ∈ ℤ with t = a·m + b·n}   (D1)
 
 13. gcd(a, b) ∈ ℕ. gcd(a, b) divides a. gcd(a, b) divides b.
     For all e ∈ ℕ, if e divides a and e divides b then e ≤ gcd(a, b).
-    mun:gcd a := a, b := b
+    mun:gcd
 
 14. d ≤ gcd(a, b)
     instantiate e := d in line 13, from 6, 10, 12

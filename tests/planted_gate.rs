@@ -57,12 +57,12 @@ fn restated_stage(tree: &dyn Source, setmm: &SetMm) -> Said {
     restated::run(tree, Some(&setmm.libraries))
 }
 
-/// The proof file the requires-line case edits.
+/// The proof file the clean run of the needed stage asks.
 const NEEDED_FILE: &str = "proofs/sum-formula.proof";
 
-/// Whether every requires line is needed, asked of the one file the case
-/// edits: a line planted there is caught there, and the gate asks it of
-/// every file.
+/// Whether every requires line and every pair naming a variable for itself
+/// is needed, asked of one file: a case asks it of the file it edits, and
+/// the gate asks it of every file.
 fn needed_stage(tree: &dyn Source, setmm: &SetMm) -> Said {
     needed::run_over(tree, Some(&setmm.libraries), &[NEEDED_FILE.to_string()])
 }
@@ -98,8 +98,8 @@ fn restated_case(tree: &dyn Source, setmm: &SetMm, edited: &[String]) -> Said {
     restated::run_edited(tree, Some(&setmm.libraries), edited)
 }
 
-fn needed_case(tree: &dyn Source, setmm: &SetMm, _: &[String]) -> Said {
-    needed_stage(tree, setmm)
+fn needed_case(tree: &dyn Source, setmm: &SetMm, edited: &[String]) -> Said {
+    needed::run_over(tree, Some(&setmm.libraries), edited)
 }
 
 const STAGES: [(&str, Stage); 7] = [
@@ -211,6 +211,16 @@ fn cases() -> Vec<Case> {
             old: "    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2\n          algebra\n",
             new: "    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2\n          algebra\n          requires 2 ≠ 0: arithmetic\n",
             expect: "says 2 ≠ 0: arithmetic, and the step is checked and built without it",
+        },
+        // A pair naming a variable for itself is written only where matching
+        // does not find the variable (`SYNTAX.md`); here the claim fixes f.
+        Case {
+            name: "a pair naming a variable for itself that matching finds",
+            stage: needed_case,
+            file: "proofs/euler.proof",
+            old: "    thm:product-congruent X := S, from 5, 4, 11",
+            new: "    thm:product-congruent X := S, f := f, from 5, 4, 11",
+            expect: "cites with the pair f := f, and the step is checked and built without it",
         },
     ]
 }

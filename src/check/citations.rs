@@ -289,7 +289,15 @@ fn ways_supplied(
             .map(|i| parts.facts[i].clone())
             .collect()
     };
-    if !parts.claims.is_empty() {
+    // A step whose claim the item concludes is supplied by the ways that
+    // conclude it: the item's letters are what matching its conclusion
+    // against the claim fixes, and its hypotheses are supplied under that.
+    // Its hypotheses searched alone would bind the letters to anything the
+    // facts hold, which is not what the step does and, with few pairs
+    // written, is a search over every arrangement of the facts. An `obtain`
+    // claims the body of what the item concludes, not the conclusion, and
+    // is supplied by its hypotheses alone.
+    if !parts.claims.is_empty() && !step.just.head.is(Method::Obtain) {
         taken_ways(
             &groups,
             &parts.claims,
@@ -298,6 +306,7 @@ fn ways_supplied(
             library,
             &mut |path| out.push(took(path)),
         );
+        return Some(out);
     }
     for Group { wants: want, .. } in groups.iter() {
         if want.is_empty() {

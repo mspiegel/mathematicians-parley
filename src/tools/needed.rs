@@ -14,6 +14,12 @@
 //! theorem it sits in is checked and elaborated without it. The lines are
 //! shared out among workers that run side by side; set.mm is read once for
 //! all of them, and each builds its own library on it.
+//!
+//! A pair naming a variable for itself, `n := n` in a citation, is asked the
+//! same way (`SYNTAX.md`, no pair says what goes without saying): a
+//! definition's subject with no pair is the proof's letter of that name, and
+//! a theorem's variable is found by matching, so such a pair does work only
+//! where matching would find something else.
 
 use std::sync::Arc;
 
@@ -28,15 +34,92 @@ use crate::tools::build::{elaborate_one, Libraries, PROVED};
 use crate::tools::path_of;
 
 regex!(STEP_HEAD, r"^\s*(\d+(?:\.\d+)*)\.\s");
+regex!(CITED_ITEM, r"\b(?:mun|thm|def|axi):[^\s,]+");
 
-/// One requires line taken away: where it was, the file lines it spans,
-/// what it said, the step it sat in, and the file without it.
+/// What is taken away: a requires line, by the file lines it spans, or a
+/// pair naming a variable for itself, by its file line and its variable.
+#[derive(Clone)]
+enum Removal {
+    Lines { start: usize, end: usize },
+    Pair { line: usize, name: String },
+}
+
+/// One thing taken away: where it was, what it was, what it said, the step
+/// it sat in, and the file without it.
 struct Taken {
     line: usize,
-    span: (usize, usize),
+    removal: Removal,
     said: String,
     step: String,
     cut: Cut,
+}
+
+/// The text with each removal made: a requires line's lines dropped, and a
+/// pair taken out of its citation with the comma that joined it.
+fn without(text: &str, removals: &[&Removal]) -> String {
+    let mut lines: Vec<Option<String>> =
+        text.split('\n').map(|l| Some(l.to_string())).collect();
+    for removal in removals {
+        match removal {
+            Removal::Lines { start, end } => {
+                for line in &mut lines[*start..*end] {
+                    *line = None;
+                }
+            }
+            Removal::Pair { line, name } => {
+                if let Some(Some(was)) = lines.get(*line) {
+                    if let Some(now) = pair_taken_out(was, name) {
+                        lines[*line] = Some(now);
+                    }
+                }
+            }
+        }
+    }
+    lines.into_iter().flatten().collect::<Vec<_>>().join("\n")
+}
+
+/// The pairs naming a variable for itself in the citation a line writes:
+/// each `v := v` after the item, by its variable.
+fn identity_pairs(line: &str) -> Vec<String> {
+    let Some(item) = CITED_ITEM.find(line) else {
+        return Vec::new();
+    };
+    let rest = &line[item.end()..];
+    let mut out = Vec::new();
+    for (at, _) in rest.match_indices(" := ") {
+        let name = rest[..at].rsplit([' ', ',']).next().unwrap_or("");
+        let value = rest[at + 4..].split(',').next().unwrap_or("").trim();
+        if !name.is_empty() && name == value {
+            out.push(name.to_string());
+        }
+    }
+    out
+}
+
+/// The line with the pair `name := name` taken out of its citation, and the
+/// comma that joined it to the next pair, or to `from`, with it.
+fn pair_taken_out(line: &str, name: &str) -> Option<String> {
+    let item = CITED_ITEM.find(line)?;
+    let pair = format!("{name} := {name}");
+    let rest = &line[item.end()..];
+    let at = rest.match_indices(&pair).map(|(i, _)| i).find(|&i| {
+        let after = &rest[i + pair.len()..];
+        (rest[..i].ends_with(' ') || rest[..i].ends_with(','))
+            && (after.is_empty() || after.starts_with(','))
+    })?;
+    let (start, end) = (item.end() + at, item.end() + at + pair.len());
+    let (before, after) = (&line[..start], &line[end..]);
+    if let Some(kept) = before.strip_suffix(", ") {
+        return Some(format!("{kept}{after}"));
+    }
+    // The first pair: the next one moves up, or the item stands alone.
+    let next_is_pair = after
+        .strip_prefix(", ")
+        .is_some_and(|a| a.split(',').next().is_some_and(|p| p.contains(" := ")));
+    if next_is_pair {
+        return Some(format!("{before}{}", &after[2..]));
+    }
+    Some(format!("{}{after}", before.trim_end()))
 }
 
 /// Every requires line of the proof files `files`, each as the file without
@@ -56,10 +139,27 @@ fn every_line(source: &dyn Source, files: &[String]) -> Result<Vec<Taken>, Strin
             if let Some(m) = STEP_HEAD.captures(line) {
                 step = m[1].to_string();
             }
+            let Some(theorem) = &theorem else { continue };
+            for name in identity_pairs(line) {
+                let removal = Removal::Pair {
+                    line: i,
+                    name: name.clone(),
+                };
+                out.push(Taken {
+                    line: i + 1,
+                    said: format!("{name} := {name}"),
+                    step: step.clone(),
+                    cut: Cut {
+                        path: path.clone(),
+                        text: without(&text, &[&removal]),
+                        theorem: theorem.clone(),
+                    },
+                    removal,
+                });
+            }
             let Some(said) = line.trim_start().strip_prefix("requires ") else {
                 continue;
             };
-            let Some(theorem) = &theorem else { continue };
             // A requires line may go on in a deeper line that starts `from`.
             let indent = line.len() - line.trim_start().len();
             let mut end = i + 1;
@@ -69,18 +169,17 @@ fn every_line(source: &dyn Source, files: &[String]) -> Result<Vec<Taken>, Strin
             {
                 end += 1;
             }
-            let mut without: Vec<&str> = lines[..i].to_vec();
-            without.extend(&lines[end..]);
+            let removal = Removal::Lines { start: i, end };
             out.push(Taken {
                 line: i + 1,
-                span: (i, end),
                 said: str::trim(said).to_string(),
                 step: step.clone(),
                 cut: Cut {
                     path: path.clone(),
-                    text: without.join("\n"),
+                    text: without(&text, &[&removal]),
                     theorem: theorem.clone(),
                 },
+                removal,
             });
         }
     }
@@ -151,25 +250,21 @@ fn together<'t>(
                 continue;
             };
             let text = tree.read_text(&next.cut.path).map_err(|e| e.to_string())?;
-            let lines: Vec<&str> = text.split('\n').collect();
-            let gone: Vec<(usize, usize)> =
-                kept[i].iter().map(|t| t.span).chain([next.span]).collect();
-            let without: Vec<&str> = lines
+            let gone: Vec<&Removal> = kept[i]
                 .iter()
-                .enumerate()
-                .filter(|(n, _)| !gone.iter().any(|(a, b)| a <= n && n < b))
-                .map(|(_, l)| *l)
+                .map(|t| &t.removal)
+                .chain([&next.removal])
                 .collect();
             asked.push((
                 i,
                 Taken {
                     line: next.line,
-                    span: next.span,
+                    removal: next.removal.clone(),
                     said: next.said.clone(),
                     step: next.step.clone(),
                     cut: Cut {
                         path: next.cut.path.clone(),
-                        text: without.join("\n"),
+                        text: without(&text, &gone),
                         theorem: next.cut.theorem.clone(),
                     },
                 },
@@ -284,14 +379,26 @@ pub fn run_over(
         }
     };
     for t in &surplus {
+        let what = match t.removal {
+            Removal::Lines { .. } => {
+                format!("the requires line of step {} says", t.step)
+            }
+            Removal::Pair { .. } => format!("step {} cites with the pair", t.step),
+        };
         said.printed.push_str(&format!(
-            "{}:{}  the requires line of step {} says {}, and the step is checked and built without it\n",
-            t.cut.path, t.line, t.step, t.said
+            "{}:{}  {what} {}, and the step is checked and built without it\n",
+            t.cut.path, t.line, t.said
         ));
     }
     if surplus.is_empty() {
-        said.printed
-            .push_str(&format!("all {} requires lines are needed\n", taken.len()));
+        let pairs = taken
+            .iter()
+            .filter(|t| matches!(t.removal, Removal::Pair { .. }))
+            .count();
+        said.printed.push_str(&format!(
+            "all {} requires lines and {pairs} pairs naming a variable for itself are needed\n",
+            taken.len() - pairs
+        ));
     } else {
         said.status = 1;
     }

@@ -271,7 +271,7 @@ theorem schroeder-bernstein
                   requires s ∈ A: from K4
 
           5.2.2.  f(s) ∈ B
-                  mun:function-value f := f, x := s, from K4
+                  mun:function-value x := s, from K4
 
           5.2.3.  h(s) ∈ B
                   substitute h(s) = f(s) (line 5.2.1) into line 5.2.2

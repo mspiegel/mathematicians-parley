@@ -15,8 +15,7 @@ without a viewer.
 
 A viewer may show a **rendered view** of the skeleton: the fields read back
 as sentences, the statement of each cited item pulled in from the database
-at its pointer, and links on every pointer. An instantiation that
-substitutes a variable for itself, such as `n := n`, is not rendered. A
+at its pointer, and links on every pointer. A
 viewer may fold a calculation with the steps its lines cite, showing each
 step's justification on its chain line and hiding the step, which gives
 the textbook form of a calculation; like collapsing a block, this changes
@@ -751,9 +750,18 @@ nothing.** Each `v := t` gives the value of the variable v, found by its
 name: `def:divides n := c, d := d` and `d := d, n := c`
 are one citation, and so are `instantiate x := 1, y := 2` and
 `instantiate y := 2, x := 1`. This holds wherever `:=` is written: citing a
-definition or a theorem, obtaining from one, and `instantiate`. Matching by
-name does not make a pair optional: a definition folded or obtained from
-names the value of its subject, `d := d` where it is the proof's own d.
+definition or a theorem, obtaining from one, and `instantiate`.
+
+**No pair says what goes without saying.** A theorem's or an axiom's
+variable is found by matching its statement against what the step claims
+and cites, and its pair is written only where that does not fix it: `thm:
+triple-from-parameters, from 1.2`, not `a := a, b := b, …`. A definition
+folded or obtained from is about one letter, its subject, and with no pair
+for it the subject is the proof's letter of the same name: `mun:coset, from
+K1, K2` is about the proof's u. Its pair is written where the subject is
+anything else, `mun:coset u := x`. So a definition's pair never names its
+subject for itself, and a theorem's, `n := n`, only where matching does not
+find n; the gate reports one a step is checked and built without.
 
 Wherever a step's claim must be an instance of a formula, such as P(k + 1)
 in an induction step, the conclusion of a theorem applied with `n := p`, or

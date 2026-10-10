@@ -922,6 +922,7 @@ fn renaming(ctx: &Context, path: &str, text: &str, choose: Choose) -> Rewritten 
         let mut attempt = lines.clone();
         match rename(ctx, &mut attempt, &lay, &map) {
             Ok(n) => {
+                subjects_named(ctx, thm, &mut attempt, &map);
                 lines = attempt;
                 count += n;
                 if n > 0 {
@@ -939,6 +940,69 @@ fn renaming(ctx: &Context, path: &str, text: &str, choose: Choose) -> Rewritten 
         lines: count,
         theorems,
         declined,
+    }
+}
+
+/// The pair a renaming has to write back. A definition cited with no pair
+/// for its subject is about the proof's letter of that name (`SYNTAX.md`)
+/// where the step says something of that letter, as "u ∈ aH" cited from
+/// `coset` does; where the step does not write it, matching finds the
+/// subject, as it finds u for "Y ⊆ G" from `part-builder`. So where the
+/// renaming changed a letter the step's claim writes, the citation is given
+/// the pair `u := w` and means what it meant.
+fn subjects_named(
+    ctx: &Context,
+    thm: &Theorem,
+    lines: &mut [String],
+    map: &BTreeMap<String, String>,
+) {
+    let item = re(r"\b[a-z]+:([A-Za-z0-9′-]+)");
+    let mut cited: Vec<(usize, String)> = Vec::new();
+    for step in &thm.steps {
+        cited.push((step.just.line, step.claim_text()));
+        cited.extend(step.requires.iter().map(|r| (r.line, r.fact.clone())));
+    }
+    for (no, claim) in cited {
+        let Some(line) = no.checked_sub(1).and_then(|i| lines.get_mut(i)) else {
+            continue;
+        };
+        let Some(m) = item.captures(line) else {
+            continue;
+        };
+        let full = thm.names.full(&m[1]);
+        let Some(record) = ctx.corpus.records.iter().find(|r| {
+            r.qualified() == full && r.kind == parley::corpus::RecordKind::Definition
+        }) else {
+            continue;
+        };
+        let Some((said, _)) = record.conclusions.first() else {
+            continue;
+        };
+        let left = said.split(" ↔ ").next().unwrap_or("");
+        let Some(subject) = ctx.tokens(left).and_then(|t| {
+            t.into_iter()
+                .find(|t| t.kind == TokenKind::Name)
+                .map(|t| t.text)
+        }) else {
+            continue;
+        };
+        let Some(new) = map.get(&subject) else {
+            continue;
+        };
+        let written = ctx.tokens(&claim).is_some_and(|t| {
+            t.iter()
+                .any(|t| t.kind == TokenKind::Name && t.text == subject)
+        });
+        let at = m.get(0).expect("the whole match").end();
+        if !written || line[at..].contains(&format!("{subject} :=")) {
+            continue;
+        }
+        let pair = if line[at..].is_empty() || line[at..].starts_with(',') {
+            format!(" {subject} := {new}")
+        } else {
+            format!(" {subject} := {new},")
+        };
+        line.insert_str(at, &pair);
     }
 }
 

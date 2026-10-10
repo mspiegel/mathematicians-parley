@@ -21,7 +21,7 @@ theorem derivative-names
   then f′(x) ∈ ℝ
 
 1.  f′(x) ∈ ℝ
-    mun:derivative-real a := a, b := b, f := f, x := x, from H4, H7
+    mun:derivative-real, from H4, H7
 
 theorem order-apart
   let a ∈ ℝ                                                           (H1)

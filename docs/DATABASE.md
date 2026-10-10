@@ -334,8 +334,9 @@ repaired.
   proof takes a step as stated that `ELABORATION.md` does not record; a
   verifier not written for this project, `metamath-rs`, over every proof the
   elaborator has written; every library item with a target restated by a
-  theorem citing it, built and verified; and every requires line needed, each
-  taken away in turn and its theorem checked and elaborated without it. set.mm belongs to metamath and is not vendored: it
+  theorem citing it, built and verified; and every requires line needed, and
+  every pair naming a variable for itself, each taken away in turn and its
+  theorem checked and elaborated without it. set.mm belongs to metamath and is not vendored: it
   is found by `SET_MM` or by a copy or link at the root, and without it the
   gate fails and says how to supply it, because a gate that skipped a stage
   would be saying green about something it had not looked at.

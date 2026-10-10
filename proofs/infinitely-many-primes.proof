@@ -14,7 +14,7 @@ theorem prime-above
   then there exists p ∈ ℕ such that p is prime and p > n
 
 1.  n! ∈ ℕ
-    mun:factorial-nat n := n
+    mun:factorial-nat
 
 2.  n! + 1 > 1
     inequalities, from 1
@@ -24,7 +24,7 @@ theorem prime-above
     requires n! + 1 ∈ ℕ: mun:nat-closure a := n!, b := 1, from 1
 
 4.  p > 1
-    mun:prime p := p, from 3
+    mun:prime, from 3
 
 5.  p > n
     contradiction
@@ -34,7 +34,7 @@ theorem prime-above
           inequalities, from S
 
     5.2.  p divides n!
-          mun:factorial-divisible n := n, m := p, from 5.1
+          mun:factorial-divisible m := p, from 5.1
 
     5.3.  p divides (n! + 1) − n!
           mun:divides-difference d := p, a := n! + 1, b := n!, from 3, 5.2

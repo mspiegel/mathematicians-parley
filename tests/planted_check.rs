@@ -624,14 +624,14 @@ fn cases() -> Vec<Case> {
         case(
             "use def: for something that is mundane",
             vec![
-                edit("proofs/sqrt2-irrational.proof", Some("    mun:even-or-odd n := n\n".to_string()), "    def:even-or-odd n := n\n".to_string()),
+                edit("proofs/sqrt2-irrational.proof", Some("    mun:even-or-odd\n".to_string()), "    def:even-or-odd\n".to_string()),
             ],
             "def:even-or-odd names a mundane",
         ),
         case(
             "cite a mundane item as a theorem",
             vec![
-                edit("proofs/sqrt2-irrational.proof", Some("    mun:even-or-odd n := n\n".to_string()), "    thm:even-or-odd n := n\n".to_string()),
+                edit("proofs/sqrt2-irrational.proof", Some("    mun:even-or-odd\n".to_string()), "    thm:even-or-odd\n".to_string()),
             ],
             "thm:even-or-odd names a mundane",
         ),
@@ -998,14 +998,14 @@ fn cases() -> Vec<Case> {
         case(
             "obtain a name without stating its sort",
             vec![
-                edit("proofs/sqrt2-irrational.proof", Some("1.  k ∈ ℤ. n = 2k + 1.\n    obtain k: mun:odd n := n, from H2".to_string()), "1.  n = 2k + 1.\n    obtain k: mun:odd n := n, from H2".to_string()),
+                edit("proofs/sqrt2-irrational.proof", Some("1.  k ∈ ℤ. n = 2k + 1.\n    obtain k: mun:odd, from H2".to_string()), "1.  n = 2k + 1.\n    obtain k: mun:odd, from H2".to_string()),
             ],
             "without stating its sort",
         ),
         case(
             "write a claim in a notation nobody declared",
             vec![
-                edit("proofs/infinitely-many-primes.proof", Some("4.  p > 1\n    mun:prime p := p, from 3".to_string()), "4.  p exceeds 1\n    mun:prime p := p, from 3".to_string()),
+                edit("proofs/infinitely-many-primes.proof", Some("4.  p > 1\n    mun:prime, from 3".to_string()), "4.  p exceeds 1\n    mun:prime, from 3".to_string()),
             ],
             "token(s) left over",
         ),
@@ -1094,7 +1094,7 @@ fn cases() -> Vec<Case> {
         case(
             "claim something the cited item does not conclude",
             vec![
-                edit("proofs/infinitely-many-primes.proof", Some("4.  p > 1\n    mun:prime p := p, from 3".to_string()), "4.  p > 2\n    mun:prime p := p, from 3".to_string()),
+                edit("proofs/infinitely-many-primes.proof", Some("4.  p > 1\n    mun:prime, from 3".to_string()), "4.  p > 2\n    mun:prime, from 3".to_string()),
             ],
             "does not conclude",
         ),
@@ -1378,7 +1378,7 @@ fn cases() -> Vec<Case> {
         case(
             "a requires line resting on one written below it",
             vec![
-                edit("proofs/rationals-countable.proof", Some("    requires numer(x) ∈ ℤ: mun:lowest-terms-parts x := x\n    requires denom(x) ∈ ℕ: mun:lowest-terms-parts x := x\n    requires |numer(x)| ∈ ℕ₀: mun:abs-integer z := numer(x)\n".to_string()), "    requires |numer(x)| ∈ ℕ₀: mun:abs-integer z := numer(x)\n    requires numer(x) ∈ ℤ: mun:lowest-terms-parts x := x\n    requires denom(x) ∈ ℕ: mun:lowest-terms-parts x := x\n".to_string()),
+                edit("proofs/rationals-countable.proof", Some("    requires numer(x) ∈ ℤ: mun:lowest-terms-parts\n    requires denom(x) ∈ ℕ: mun:lowest-terms-parts\n    requires |numer(x)| ∈ ℕ₀: mun:abs-integer z := numer(x)\n".to_string()), "    requires |numer(x)| ∈ ℕ₀: mun:abs-integer z := numer(x)\n    requires numer(x) ∈ ℤ: mun:lowest-terms-parts\n    requires denom(x) ∈ ℕ: mun:lowest-terms-parts\n".to_string()),
             ],
             "the requires line of step 5 cites mun:abs-integer, which asks for z ∈ ℤ, and what it cites does not supply them",
         ),
@@ -1419,14 +1419,14 @@ fn cases() -> Vec<Case> {
         case(
             "obtain from an item without what it asks for",
             vec![
-                edit("proofs/intermediate-value.proof", Some("    obtain c: axi:completeness S := S, from 5, 2, 7".to_string()), "    obtain c: axi:completeness S := S, from 5, 7".to_string()),
+                edit("proofs/intermediate-value.proof", Some("    obtain c: axi:completeness, from 5, 2, 7".to_string()), "    obtain c: axi:completeness, from 5, 7".to_string()),
             ],
             "step 8 cites axi:completeness, which asks for",
         ),
         case(
             "obtain from an item and cite a line it does not ask for",
             vec![
-                edit("proofs/intermediate-value.proof", Some("    obtain c: axi:completeness S := S, from 5, 2, 7".to_string()), "    obtain c: axi:completeness S := S, from 5, 2, 7, H3".to_string()),
+                edit("proofs/intermediate-value.proof", Some("    obtain c: axi:completeness, from 5, 2, 7".to_string()), "    obtain c: axi:completeness, from 5, 2, 7, H3".to_string()),
             ],
             "step 8 cites H3, and axi:completeness asks for nothing it says",
         ),
@@ -1481,7 +1481,7 @@ fn cases() -> Vec<Case> {
         case(
             "obtain from a definition without the line it unfolds",
             vec![
-                edit("proofs/sqrt2-irrational.proof", Some("    obtain k: mun:odd n := n, from H2".to_string()), "    obtain k: mun:odd n := n".to_string()),
+                edit("proofs/sqrt2-irrational.proof", Some("    obtain k: mun:odd, from H2".to_string()), "    obtain k: mun:odd".to_string()),
             ],
             "step 1 obtains from mun:odd, which says there is one only from",
         ),
@@ -1578,7 +1578,7 @@ fn cases() -> Vec<Case> {
         case(
             "a requires line the summand does not ask for",
             vec![
-                edit("proofs/binomial.proof", Some("    mun:sum-scaled a := 0, b := m, c := x, t := t\n".to_string()), "    mun:sum-scaled a := 0, b := m, c := x, t := t\n    requires 1 > 0: arithmetic\n".to_string()),
+                edit("proofs/binomial.proof", Some("    mun:sum-scaled a := 0, b := m, c := x\n".to_string()), "    mun:sum-scaled a := 0, b := m, c := x\n    requires 1 > 0: arithmetic\n".to_string()),
             ],
             "says 1 > 0, and neither mun:sum-scaled nor",
         ),
@@ -1950,7 +1950,7 @@ fn cases() -> Vec<Case> {
         case(
             "divide by x − a without saying p is a polynomial",
             vec![
-                edit("proofs/factor.proof", Some("p := p, a := a, from H1".to_string()), "p := p, a := a".to_string()),
+                edit("proofs/factor.proof", Some("thm:remainder a := a, from H1".to_string()), "thm:remainder a := a".to_string()),
             ],
             "step 1 cites thm:remainder, which asks for p is a polynomial",
         ),
@@ -2024,7 +2024,7 @@ fn cases() -> Vec<Case> {
         case(
             "leave out a define's membership where an item asks it",
             vec![
-                edit("proofs/intermediate-value.proof", Some("           mun:abs-difference-lt x := x₁, c := c, δ := δ, from 16.13, 16.14\n           requires x₁ ∈ ℝ: mun:min-real x := b, y := c + δ/2, from D2\n".to_string()), "           mun:abs-difference-lt x := x₁, c := c, δ := δ, from 16.13, 16.14\n".to_string()),
+                edit("proofs/intermediate-value.proof", Some("           mun:abs-difference-lt x := x₁, from 16.13, 16.14\n           requires x₁ ∈ ℝ: mun:min-real x := b, y := c + δ/2, from D2\n".to_string()), "           mun:abs-difference-lt x := x₁, from 16.13, 16.14\n".to_string()),
             ],
             "step 16.15 cites mun:abs-difference-lt, which asks for",
         ),
@@ -2043,7 +2043,7 @@ fn cases() -> Vec<Case> {
         case(
             "cite a let line only for the membership it introduces",
             vec![
-                edit("proofs/geometric-series.proof", Some("    1.2.  a^0 = 1\n          mun:exponent-zero a := a\n".to_string()), "    1.2.  a^0 = 1\n          mun:exponent-zero a := a, from H1\n".to_string()),
+                edit("proofs/geometric-series.proof", Some("    1.2.  a^0 = 1\n          mun:exponent-zero\n".to_string()), "    1.2.  a^0 = 1\n          mun:exponent-zero, from H1\n".to_string()),
             ],
             "step 1.2 cites H1, and mun:exponent-zero asks for nothing it says",
         ),

@@ -442,8 +442,9 @@ impl<'a> Elaborator<'a> {
 
     /// What the step gives the letter a definition is about, found by that
     /// letter's name among its values as `instantiated` reads them
-    /// (`SYNTAX.md`: a substitution names its variable). A step that gives
-    /// the subject no value is refused: the pair is not optional.
+    /// (`SYNTAX.md`: a substitution names its variable). With no pair for
+    /// it, the subject is the proof's letter of the same name, and a step
+    /// whose proof has no such letter is refused.
     pub fn subject_given(
         &mut self,
         name: &str,
@@ -462,12 +463,15 @@ impl<'a> Elaborator<'a> {
             .iter()
             .map(|(a, b)| (a.as_str(), b.as_str()))
             .collect();
-        match given.get(letter.as_str()) {
-            Some(v) => Ok(v.to_string()),
+        if let Some(v) = given.get(letter.as_str()) {
+            return Ok(v.to_string());
+        }
+        match self.names.get(&letter) {
+            Some(own) => Ok(own.clone()),
             None => Err(self.defect(
                 line,
                 format!(
-                    "{name} is about {letter}, and the step gives {letter} no value; write it, as {letter} := t"
+                    "{name} is about {letter}, and the step gives {letter} no value and the proof has no {letter}; write it, as {letter} := t"
                 ),
             )),
         }

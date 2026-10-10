@@ -178,7 +178,7 @@ theorem harmonic
           obtain L from S
 
     1.2.  B ∈ ℝ. For all m ∈ ℕ, Σ(k = 1 to m) 1/k ≤ B.
-          obtain B: thm:convergent-bounded L := L, from 1.1
+          obtain B: thm:convergent-bounded, from 1.1
 
     1.3.  N ∈ ℕ. Σ(k = 1 to N) 1/k > B.
           obtain N: thm:harmonic-unbounded M := B

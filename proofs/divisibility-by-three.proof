@@ -89,7 +89,7 @@ theorem divisibility-by-three
     let k ∈ ℕ₀                                                        (K)
 
     1.1.  10^k ≡ 1 (mod 3)
-          thm:ten-power-congruent k := k
+          thm:ten-power-congruent
 
     1.2.  3 divides 10^k − 1
           mun:congruent-mod, from 1.1
