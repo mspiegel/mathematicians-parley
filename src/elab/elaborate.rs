@@ -552,6 +552,7 @@ impl<'a> Elaborator<'a> {
                 closers = self.settle_claimed(&mut done, closers, None)?;
                 (scope, facts, closers) =
                     self.close_block(&mut done, &facts, closers, &scope)?;
+                self.line_built_as_stated(done.owner.line)?;
                 Self::hand_up(&done, &mut blocks);
             }
             // A step in a case sits under the case's assumption, and one in
@@ -594,6 +595,7 @@ impl<'a> Elaborator<'a> {
                 .last()
                 .is_some_and(|b| b.owner.just.head.to_string() == "contradiction");
             (scope, facts, closers) = self.take_step(&step, &scope, &facts, closers)?;
+            self.line_built_as_stated(step.line)?;
             // A step contradicting a line closes a contradiction block on the
             // two of them, as its last pair.
             if let (Some(other), true) =
@@ -698,6 +700,7 @@ impl<'a> Elaborator<'a> {
             closers = self.settle_claimed(&mut done, closers, None)?;
             (scope, facts, closers) =
                 self.close_block(&mut done, &facts, closers, &scope)?;
+            self.line_built_as_stated(done.owner.line)?;
             Self::hand_up(&done, &mut blocks);
         }
 
@@ -732,6 +735,7 @@ impl<'a> Elaborator<'a> {
         for close in closers.iter().rev() {
             proof = self.close(close, proof, &goal)?;
         }
+        self.built_as_stated(self.thm.line, &proof)?;
         let unproved = self.unproved_requires();
         if let Some(first) = unproved.first() {
             let all: Vec<String> = unproved.iter().map(|n| n.to_string()).collect();
@@ -744,6 +748,28 @@ impl<'a> Elaborator<'a> {
             ));
         }
         Ok((goal, terms, proof))
+    }
+
+    /// Every label in the proof of the line last kept is applied as its
+    /// statement says (`Builder::fault`); a defect at `line` where one is
+    /// not. It is the elaborator's own fault, not the page's, and is
+    /// reported where it was built, which the verifier cannot say.
+    fn line_built_as_stated(&self, line: usize) -> Checked<()> {
+        let Some(held) = self.last.as_ref().and_then(|l| self.lines.get(l)) else {
+            return Ok(());
+        };
+        self.built_as_stated(line, &held.proof)
+    }
+
+    /// `line_built_as_stated` of a proof in hand.
+    fn built_as_stated(&self, line: usize, proof: &Proof) -> Checked<()> {
+        match self.b.fault(proof) {
+            Some(fault) => Err(self.defect(
+                line,
+                format!("the elaborator built a step the kernel would refuse: {fault}"),
+            )),
+            None => Ok(()),
+        }
     }
 
     /// ( scope -> claim ) from a step's line and the line it contradicts, the

@@ -1739,6 +1739,18 @@ used as the value it may hold: a `Route` is not a term or a proof, and it is
 out of kernel variables is a `Problem`, not a decline: it is the tool at its
 limit, and never happens on a run where nothing is wrong.
 
+The elaborator also checks what it builds as a verifier would, line by line
+(`Builder::fault`): as each line's proof is kept, and the theorem's at the
+end, every label in it must be handed, for each essential hypothesis, a
+proof of that hypothesis with the label's variables filled in, and no two
+variables the label keeps apart (`$d`) may be given terms sharing a
+variable. A step that fails is a defect at the line that kept it, where the
+verifier names only the theorem. What a step says is held as a print of its
+tokens, not the tokens: the check adds about a quarter to the build's peak
+memory, where held as tokens it more than doubled it. A step resting on a theorem of the corpus cited
+from another file, whose statement the builder does not hold, is not checked
+there; the verifier still is.
+
 The verifier is the only stage that is evidence the elaborator is right rather
 than consistent. The others read the corpus against itself or against a list of
 names, and a proof that assumes nothing and proves the wrong thing passes all

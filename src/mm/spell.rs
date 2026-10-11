@@ -268,6 +268,85 @@ pub struct Builder {
     pub arities: IndexMap<String, Signature>,
     arity_of: RefCell<IndexMap<String, Taking>>,
     term_steps: RefCell<IndexMap<String, Vec<StepRef>>>,
+    /// What each step built says, by the step (`says`).
+    said: RefCell<IndexMap<usize, Said>>,
+    /// What a step was built as that the kernel would refuse, oldest first,
+    /// until the elaborator takes it (`fault`).
+    faults: RefCell<Vec<String>>,
+}
+
+/// What one step says, kept by the step it was worked out for; the step is
+/// held weakly, so a step dropped and its address reused is not taken for
+/// another.
+struct Said {
+    step: std::rc::Weak<Step>,
+    /// The expression after its typecode, or None where it rests on a label
+    /// whose statement the builder does not have.
+    says: Option<Print>,
+}
+
+/// An expression by its print: its tokens hashed as a polynomial, two ways,
+/// and its length. Two expressions with one print are one expression but
+/// for a collision of both hashes. A print of a term put into a statement
+/// is worked out from the print of the term, so what a step says is held in
+/// the same small space however long it is; kept as tokens, the statements
+/// of the birthday problem's proof doubled the build's memory.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+struct Print {
+    hash: [u64; 2],
+    len: u64,
+}
+
+/// 2^61 − 1, a prime, and the two bases the prints are taken in.
+const MODULUS: u64 = (1 << 61) - 1;
+const BASES: [u64; 2] = [1_000_003, 998_244_353];
+
+fn mul_mod(a: u64, b: u64) -> u64 {
+    ((u128::from(a) * u128::from(b)) % u128::from(MODULUS)) as u64
+}
+
+fn pow_mod(mut base: u64, mut exp: u64) -> u64 {
+    let mut out = 1;
+    while exp > 0 {
+        if exp & 1 == 1 {
+            out = mul_mod(out, base);
+        }
+        base = mul_mod(base, base);
+        exp >>= 1;
+    }
+    out
+}
+
+impl Print {
+    const EMPTY: Print = Print {
+        hash: [0, 0],
+        len: 0,
+    };
+
+    /// One token.
+    fn token(text: &str) -> Print {
+        use std::hash::{Hash, Hasher};
+        let mut hash = [0; 2];
+        for (n, h) in hash.iter_mut().enumerate() {
+            let mut hasher = std::collections::hash_map::DefaultHasher::new();
+            (n, text).hash(&mut hasher);
+            *h = hasher.finish() % MODULUS;
+        }
+        Print { hash, len: 1 }
+    }
+
+    /// This expression followed by `then`.
+    fn then(self, then: Print) -> Print {
+        let mut hash = [0; 2];
+        for (n, h) in hash.iter_mut().enumerate() {
+            let shifted = mul_mod(self.hash[n], pow_mod(BASES[n], then.len));
+            *h = (shifted + then.hash[n]) % MODULUS;
+        }
+        Print {
+            hash,
+            len: self.len + then.len,
+        }
+    }
 }
 
 impl Builder {
@@ -292,7 +371,177 @@ impl Builder {
             arities: IndexMap::new(),
             arity_of: RefCell::new(IndexMap::new()),
             term_steps: RefCell::new(IndexMap::new()),
+            said: RefCell::new(IndexMap::new()),
+            faults: RefCell::new(Vec::new()),
         }
+    }
+
+    /// The first step of `proof` that the kernel would refuse, said; None
+    /// where every label in it is applied as its statement says (`says`).
+    ///
+    /// A fault the verifier finds names only the theorem; asked of each
+    /// line as it is kept, this names the line. Only what is kept is asked:
+    /// a route may build a step, find it does not fit, and drop it.
+    pub fn fault(&self, proof: &Proof) -> Option<String> {
+        for step in &proof.items {
+            self.says(step);
+        }
+        let mut faults = self.faults.borrow_mut();
+        let first = faults.first().cloned();
+        faults.clear();
+        first
+    }
+
+    /// What the step proves or builds after its typecode, by its print,
+    /// worked out from the statements of the labels it applies, as a
+    /// verifier works it out. Each application is checked on the way: what
+    /// it is handed for each essential hypothesis proves that hypothesis,
+    /// and no two variables it keeps apart (`$d`) are given terms sharing a
+    /// variable. A step that is not is a fault (`fault`). None where the
+    /// step rests on a label whose statement the builder does not have: a
+    /// theorem of the corpus cited from another file.
+    ///
+    /// Steps are shared, so each is worked out once; and worked out without
+    /// recursion, since a proof runs deeper than a stack.
+    fn says(&self, root: &StepRef) -> Option<Print> {
+        let key = |s: &StepRef| Rc::as_ptr(s) as usize;
+        let known = |s: &StepRef| -> Option<Option<Print>> {
+            let said = self.said.borrow();
+            let entry = said.get(&key(s))?;
+            let same = entry
+                .step
+                .upgrade()
+                .is_some_and(|held| Rc::ptr_eq(&held, s));
+            same.then_some(entry.says)
+        };
+        let mut work: Vec<(StepRef, bool)> = vec![(root.clone(), false)];
+        while let Some((step, ready)) = work.pop() {
+            if known(&step).is_some() {
+                continue;
+            }
+            if !ready {
+                work.push((step.clone(), true));
+                for kid in step.kids.iter().rev() {
+                    if known(kid).is_none() {
+                        work.push((kid.clone(), false));
+                    }
+                }
+                continue;
+            }
+            let kids: Option<Vec<Print>> =
+                step.kids.iter().map(|k| known(k).flatten()).collect();
+            let says = kids.and_then(|kids| self.applied(&step, &kids));
+            self.said.borrow_mut().insert(
+                key(&step),
+                Said {
+                    step: Rc::downgrade(&step),
+                    says,
+                },
+            );
+        }
+        known(root).flatten()
+    }
+
+    /// What `step` says after its typecode, from what its kids say, and
+    /// each fault in the application recorded.
+    fn applied(&self, step: &Step, kids: &[Print]) -> Option<Print> {
+        let sig = self.sigs.get(&step.label)?;
+        if kids.len() != sig.floats.len() + sig.essentials.len() {
+            return None;
+        }
+        let (floats, essentials) = kids.split_at(sig.floats.len());
+        let put: IndexMap<&str, Print> = sig
+            .floats
+            .iter()
+            .zip(floats)
+            .map(|((_, var), kid)| (var.as_str(), *kid))
+            .collect();
+        let filled = |tokens: &[String]| -> Print {
+            tokens.iter().fold(Print::EMPTY, |out, t| {
+                out.then(
+                    put.get(t.as_str())
+                        .copied()
+                        .unwrap_or_else(|| Print::token(t)),
+                )
+            })
+        };
+        let given = &step.kids[sig.floats.len()..];
+        for (n, ((asked, print), kid)) in
+            sig.essentials.iter().zip(essentials).zip(given).enumerate()
+        {
+            if asked[0] != *kid.typecode || filled(&asked[1..]) != *print {
+                let floats = &step.kids[..sig.floats.len()];
+                self.faults.borrow_mut().push(format!(
+                    "{} asks in its hypothesis {} for {} and is handed a proof of {}",
+                    step.label,
+                    n + 1,
+                    shortened(&self.filled_text(sig, floats, asked)),
+                    shortened(&self.spelt_statement(kid).unwrap_or_default())
+                ));
+            }
+        }
+        for (x, y) in &sig.disjoint {
+            let at = |v: &str| sig.floats.iter().position(|(_, f)| f == v);
+            let (Some(a), Some(b)) = (at(x), at(y)) else {
+                continue;
+            };
+            let theirs = self.variables(&step.kids[b]);
+            let shared = self
+                .variables(&step.kids[a])
+                .into_iter()
+                .find(|v| theirs.contains(v));
+            if let Some(v) = shared {
+                self.faults.borrow_mut().push(format!(
+                    "{} keeps {x} and {y} apart and is given {v} in both",
+                    step.label
+                ));
+            }
+        }
+        Some(filled(&sig.statement[1..]))
+    }
+
+    /// The variables a term's steps write: those of the floats it rests on.
+    fn variables(&self, term: &Step) -> BTreeSet<String> {
+        let mut out = BTreeSet::new();
+        let mut work = vec![term];
+        while let Some(step) = work.pop() {
+            match self.sigs.get(&step.label) {
+                Some(sig) if sig.kind == Kind::Float => {
+                    out.insert(sig.statement[1].clone());
+                }
+                _ => work.extend(step.kids.iter().map(|k| &**k)),
+            }
+        }
+        out
+    }
+
+    /// A label's statement, or one of its hypotheses, with the terms of
+    /// `floats` put for its variables, as text: for a message.
+    fn filled_text(
+        &self,
+        sig: &Signature,
+        floats: &[StepRef],
+        tokens: &[String],
+    ) -> Vec<String> {
+        let mut out = Vec::new();
+        for t in tokens {
+            match sig.floats.iter().position(|(_, v)| v == t) {
+                Some(n) => match self.spelt_statement(&floats[n]) {
+                    Some(term) => out.extend(term.into_iter().skip(1)),
+                    None => out.push(t.clone()),
+                },
+                None => out.push(t.clone()),
+            }
+        }
+        out
+    }
+
+    /// What a step says, as text, its typecode first: for a message. None
+    /// where it rests on a label whose statement the builder does not have.
+    fn spelt_statement(&self, step: &Step) -> Option<Vec<String>> {
+        let sig = self.sigs.get(&step.label)?;
+        let floats = step.kids.get(..sig.floats.len())?;
+        Some(self.filled_text(sig, floats, &sig.statement))
     }
 
     /// set.mm's syntax axioms, built the first time one is parsed unless
@@ -566,8 +815,82 @@ impl Builder {
     }
 }
 
+/// A statement as a message prints it: its first 200 characters.
+fn shortened(tokens: &[String]) -> String {
+    let text = tokens.join(" ");
+    match text.char_indices().nth(200) {
+        Some((at, _)) => format!("{} …", &text[..at]),
+        None => text,
+    }
+}
+
 /// The last `n` characters of a text, for a message.
 fn tail(text: &str, n: usize) -> String {
     let chars: Vec<char> = text.chars().collect();
     chars[chars.len().saturating_sub(n)..].iter().collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::mm::library::read_texts;
+
+    /// A database small enough to read: implication, modus ponens, three
+    /// axioms to hand it, and one that keeps two set variables apart.
+    fn builder() -> Builder {
+        Builder::new(read_texts(&["
+            $c wff setvar |- ( -> ) = $.
+            $v ph ps x y $.
+            wph $f wff ph $. wps $f wff ps $.
+            vx $f setvar x $. vy $f setvar y $.
+            wi $a wff ( ph -> ps ) $.
+            weq $a wff x = y $.
+            ${ mp.1 $e |- ph $. mp.2 $e |- ( ph -> ps ) $. ax-mp $a |- ps $. $}
+            a1 $a |- ph $.
+            a2 $a |- ( ph -> ps ) $.
+            a3 $a |- ( ps -> ph ) $.
+            ${ $d x y $. apart $a |- x = y $. $}
+        "]))
+    }
+
+    #[test]
+    fn a_label_applied_as_its_statement_says_is_no_fault() {
+        let b = builder();
+        let ph = b.ap("a1", &binds! {"ph" => "wph"}, &[]);
+        let imp = b.ap("a2", &binds! {"ph" => "wph", "ps" => "wps"}, &[]);
+        let proof = b.ap(
+            "ax-mp",
+            &binds! {"ph" => "wph", "ps" => "wps"},
+            &[&ph, &imp],
+        );
+        assert_eq!(b.fault(&proof), None);
+        let apart = b.ap("apart", &binds! {"x" => "vx", "y" => "vy"}, &[]);
+        assert_eq!(b.fault(&apart), None);
+    }
+
+    #[test]
+    fn a_hypothesis_handed_another_statement_is_a_fault() {
+        let b = builder();
+        let ph = b.ap("a1", &binds! {"ph" => "wph"}, &[]);
+        let turned = b.ap("a3", &binds! {"ph" => "wph", "ps" => "wps"}, &[]);
+        let proof = b.ap(
+            "ax-mp",
+            &binds! {"ph" => "wph", "ps" => "wps"},
+            &[&ph, &turned],
+        );
+        assert_eq!(
+            b.fault(&proof).as_deref(),
+            Some("ax-mp asks in its hypothesis 2 for |- ( ph -> ps ) and is handed a proof of |- ( ps -> ph )")
+        );
+    }
+
+    #[test]
+    fn variables_kept_apart_given_one_letter_are_a_fault() {
+        let b = builder();
+        let same = b.ap("apart", &binds! {"x" => "vx", "y" => "vx"}, &[]);
+        assert_eq!(
+            b.fault(&same).as_deref(),
+            Some("apart keeps x and y apart and is given x in both")
+        );
+    }
 }
