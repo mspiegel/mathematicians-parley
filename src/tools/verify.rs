@@ -22,7 +22,7 @@
 //! day it is written, where a list of roots would leave the gate green and
 //! the new proof unread.
 
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 use std::sync::LazyLock;
 use std::time::Instant;
 
@@ -40,6 +40,15 @@ static INCLUDE: LazyLock<Regex> =
 /// A labelled `$p`, which is what there is one of per theorem proved.
 static PROVES: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"(?m)^\s*(\S+)\s+\$p\s").expect("a valid pattern"));
+
+/// A labelled statement, by its label.
+static DECLARES: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"(?m)^\s*(\S+)\s+\$[apef]\s").expect("a valid pattern")
+});
+/// A proof, by the label it proves and what stands between `$=` and `$.`.
+static PROOF: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"(?ms)^\s*(\S+)\s+\$p\s.*?\$=(.*?)\$\.").expect("a valid pattern")
+});
 
 /// The file the verifier starts from, which includes every root.
 const JOINED: &str = "everything.mm";
@@ -69,6 +78,71 @@ fn roots(built: &[(String, String)]) -> Vec<String> {
         }
     }
     here.difference(&included).map(|s| s.to_string()).collect()
+}
+
+/// The labels a text declares: each `$a`, `$p`, `$e` and `$f`.
+fn declared(text: &str) -> BTreeSet<&str> {
+    DECLARES
+        .captures_iter(text)
+        .filter_map(|c| c.get(1).map(|m| m.as_str()))
+        .collect()
+}
+
+/// The labels each proof of a text uses, by the label it proves: a
+/// compressed proof's list, or an uncompressed proof's steps.
+fn used(text: &str) -> Vec<(&str, Vec<&str>)> {
+    PROOF
+        .captures_iter(text)
+        .map(|c| {
+            let label = c.get(1).map_or("", |m| m.as_str());
+            let body = c.get(2).map_or("", |m| m.as_str()).trim_start();
+            let labels = match body.strip_prefix('(') {
+                Some(rest) => rest.split(')').next().unwrap_or("").split_whitespace(),
+                None => body.split_whitespace(),
+            };
+            (label, labels.filter(|l| *l != "?").collect())
+        })
+        .collect()
+}
+
+/// Each proof using a label that neither set.mm nor any file its own file
+/// reaches through its inclusions declares.
+fn unreached(texts: &[(String, String)], setmm: &str) -> Vec<String> {
+    let by_name: BTreeMap<&str, &str> = texts
+        .iter()
+        .map(|(p, t)| (included_as(p), t.as_str()))
+        .collect();
+    let base = declared(setmm);
+    let mut out = Vec::new();
+    for (path, text) in texts {
+        let mut reached: BTreeSet<&str> = BTreeSet::new();
+        let mut todo: Vec<&str> = vec![text];
+        let mut seen: BTreeSet<&str> = BTreeSet::new();
+        while let Some(here) = todo.pop() {
+            reached.extend(declared(here));
+            for c in INCLUDE.captures_iter(here) {
+                let name = c.get(1).map_or("", |m| m.as_str());
+                if let Some(next) = by_name.get(name) {
+                    if seen.insert(name) {
+                        todo.push(next);
+                    }
+                }
+            }
+        }
+        for (proves, labels) in used(text) {
+            let missing: Vec<&str> = labels
+                .into_iter()
+                .filter(|l| !base.contains(l) && !reached.contains(l))
+                .collect();
+            if !missing.is_empty() {
+                out.push(format!(
+                    "{path}: the proof of {proves} uses {}, which nothing the file includes declares",
+                    missing.join(", ")
+                ));
+            }
+        }
+    }
+    out
 }
 
 /// Verify the files at `built`, paths in `source`, against set.mm as
@@ -108,6 +182,22 @@ pub fn run(
         }
     }
     let setmm = libraries.setmm.as_bytes().to_vec();
+
+    // Verified together, every file sees every other's labels; each must
+    // reach the ones it uses through its own inclusions, as a reader
+    // verifying that one file does.
+    let unreached = unreached(&texts, &libraries.setmm);
+    if !unreached.is_empty() {
+        for u in &unreached {
+            said.printed += &format!("{u}\n");
+        }
+        said.printed += &format!(
+            "\n{} proof(s) use a label nothing their file includes declares\n",
+            unreached.len()
+        );
+        said.status = 1;
+        return said;
+    }
 
     let top = roots(&texts);
     let proved: usize = texts.iter().map(|(_, t)| PROVES.find_iter(t).count()).sum();

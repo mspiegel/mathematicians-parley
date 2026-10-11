@@ -80,7 +80,11 @@ impl<'a> Known<'a> {
     }
 
     /// The text read with its defined names kept, as a message prints it.
+    /// A claim of one sentence may end on its full stop, which is no part of
+    /// the formula.
     pub fn read_as_written(&self, text: &str) -> Option<Node> {
+        let text = text.trim_end();
+        let text = text.strip_suffix('.').unwrap_or(text);
         parse_here(text, self.env.g, &self.sorts).ok()
     }
 

@@ -529,6 +529,7 @@ fn check_theorem(
     citations::check_conclusion(report, thm, library, k);
     formulas::check_define_citation(report, thm, library, k, scopes);
     citations::check_obtained(report, thm, library, k);
+    citations::check_obtained_claims(report, thm, library, k);
     citations::check_requires(report, thm, library, k);
     citations::check_kinds(report, thm, library, k);
     citations::check_surplus(report, thm, library, k, scopes);

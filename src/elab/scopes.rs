@@ -54,6 +54,13 @@ pub(crate) struct OpenerLayer {
     pub over: Option<String>,
 }
 
+/// A set of functions, as kernel terms: the functions from `domain` to
+/// `codomain`.
+struct FunctionSet {
+    domain: String,
+    codomain: String,
+}
+
 /// What proves a claim under a widened scope, given the claim, the scope and
 /// what is known there.
 pub type Prove<'p, 'a> =
@@ -1439,6 +1446,18 @@ impl<'a> Elaborator<'a> {
         ))
     }
 
+    /// The functions from X to Y, where `over` is that set (`X ↑m Y` in
+    /// set.mm, the codomain first).
+    fn function_set(&self, over: &str) -> Option<FunctionSet> {
+        let set = self.to_term(over);
+        let kids = set.children();
+        (set.label() == Some("co") && kids.len() == 3 && self.rpn(&kids[2]) == "cmap")
+            .then(|| FunctionSet {
+                domain: self.rpn(&kids[1]),
+                codomain: self.rpn(&kids[0]),
+            })
+    }
+
     /// Names introduced from an existence claim, which opens a scope.
     ///
     /// This is the step that changes the shape of every step after it: the
@@ -1670,6 +1689,16 @@ impl<'a> Elaborator<'a> {
         let mut rest = self.to_term(&ex);
         while layers.len() < got.len() {
             let kids = rest.children().to_vec();
+            if rest.label() != Some("wrex") || kids.len() != 3 {
+                return Err(self.defect(
+                    step.line,
+                    format!(
+                        "step {number} obtains {} from {}, which is no \"there is\" of as many",
+                        got.join(", "),
+                        self.render(&ex)
+                    ),
+                ));
+            }
             layers.push((self.rpn(&kids[1]), self.rpn(&kids[2])));
             rest = kids[0].clone();
         }
@@ -1721,15 +1750,10 @@ impl<'a> Elaborator<'a> {
         // A function obtained among the functions from X to Y has the type
         // f : X → Y, as `let f : X → Y` gives it: `elmapi`.
         for (variable, over_term) in &layers {
-            let over = self.to_term(over_term);
-            if over.label() != Some("co")
-                || over.children().len() != 3
-                || self.rpn(&over.children()[2]) != "cmap"
-            {
+            let Some(FunctionSet { domain, codomain }) = self.function_set(over_term)
+            else {
                 continue;
-            }
-            let (codomain, domain) =
-                (self.rpn(&over.children()[0]), self.rpn(&over.children()[1]));
+            };
             let named = format!("{variable} cv");
             let member = t!(named, over_term, "wcel");
             let Some(is_member) = self.held(&lifted, &member, &inner)? else {
@@ -1748,6 +1772,40 @@ impl<'a> Elaborator<'a> {
             self.sorts.insert(sort.clone());
             let sealed = self.seal(made, &sort);
             self.know(&lifted, typed, sealed);
+        }
+        // The claim's first sentences are the memberships of the names, each
+        // the one the existence lays down by one standard form: `C ⊆ A` is
+        // `C ∈ 𝒫A`. A function among the functions from X to Y is said by
+        // its type, `f : X → Y`, as above.
+        for (sentence, (variable, over)) in sentences.iter().zip(&layers) {
+            let said = self.term(sentence)?;
+            let named = format!("{variable} cv");
+            let member = match self.function_set(over) {
+                Some(FunctionSet { domain, codomain }) => {
+                    t!(domain, codomain, named, "wf")
+                }
+                None => t!(named, over, "wcel"),
+            };
+            if said == member {
+                continue;
+            }
+            let alike = self.same(
+                &self.to_term(&member),
+                &self.to_term(&said),
+                &inner,
+                &lifted,
+                Some(step),
+            )?;
+            if alike.is_declined() {
+                return Err(self.defect(
+                    step.line,
+                    format!(
+                        "step {number} claims {}, and what it obtains says {}",
+                        self.render(&said),
+                        self.render(&member)
+                    ),
+                ));
+            }
         }
         let proof = self
             .held(&lifted, &body, &inner)?
@@ -1774,7 +1832,33 @@ impl<'a> Elaborator<'a> {
                         self.know(&lifted, &said, proof.clone());
                         (said, proof)
                     }
-                    None => (body.clone(), proof),
+                    None if said == body => (body.clone(), proof),
+                    // Written another way, `1 < d` for `d > 1`, the claim is
+                    // the body by one standard form; anything else is a claim
+                    // the existence does not give.
+                    None => {
+                        let alike = self.same(
+                            &self.to_term(&body),
+                            &self.to_term(&said),
+                            &inner,
+                            &lifted,
+                            Some(step),
+                        )?;
+                        let Built(alike) = alike else {
+                            return Err(self.defect(
+                                step.line,
+                                format!(
+                                    "step {number} claims {}, and what it obtains says {}",
+                                    self.render(&said),
+                                    self.render(&body)
+                                ),
+                            ));
+                        };
+                        let proof =
+                            pf!(self.b; &inner, body, said, proof, alike, "mpbid");
+                        self.know(&lifted, &said, proof.clone());
+                        (said, proof)
+                    }
                 }
             }
             _ => (body.clone(), proof),

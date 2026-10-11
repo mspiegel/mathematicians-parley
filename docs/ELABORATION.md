@@ -1713,7 +1713,9 @@ an elaborator can be held to.
 
 What checks the tool and what checks the corpus are kept apart. `cargo test`
 is whether the tool is right: the planted defects the checker must catch
-(`tests/planted_check.rs`), the planted defects the elaborator must report
+(`tests/planted_check.rs`), with every message the checker writes said by
+one of them or listed there as one no edit can plant, the planted defects
+the elaborator must report
 (`tests/planted_elaborate.rs`), the planted defects each of the gate's other
 stages must catch (`tests/planted_gate.rs`), that a compressed proof is the
 proof it was made from (`tests/compress.rs`), and that the hand elaborations
@@ -1723,13 +1725,30 @@ compared with the file in the tree; every set.mm label the database names;
 that every library item is cited by a proof or tested in `tests/stdlib/`
 (`DATABASE.md`); that no elaborated proof or test takes a step as stated
 unless "Steps taken as stated" above records it; a verifier over every
-proof the elaborator has written; and that every library item with a target
+proof the elaborator has written, all of them joined, after asking that
+each file reach every label it uses through its own inclusions, since
+joined each sees the others' (`intermediate-value` used `proved.mm`'s
+`gdivcanx` and included only `abs-bounds`); and that every library item with a target
 gives its target what it asks, by a theorem restating the item and citing
 it from its own lines, built and verified (`src/tools/restated.rs`); and
 that every requires line is needed, and every pair naming a variable for
 itself (`SYNTAX.md`, no pair says what goes without saying), each taken away
 in turn and its theorem checked and elaborated without it
 (`src/tools/needed.rs`, "Lines taken away" below). `scripts/precommit.sh` runs both.
+
+`tests/mutation.rs` asks the tools of pages made wrong on purpose, and is
+run on its own, not before every commit: about 8,600 mutants, each one
+edit of a proof (a numeral one more, an order turned or made strict, a
+number system narrowed, a cited line or item another or left out, a
+hypothesis taken out, two values of a citation swapped). Each the checker
+accepts is elaborated, and each the elaborator builds is verified with only
+what its file includes. A mutant both accept that the verifier refuses, an
+elaboration that panics, and a file that assumes anything are faults of the
+tools, and fail it; the rest of what passed is listed for reading. It found
+an `obtain` whose claim the elaborator set aside for the existence's body,
+so a line claiming `d > 2` was built as `d > 1`; an `obtain` from a line
+with no "there is" in it that panicked; the include above; and a checker
+search that ran for hours where a step cited the wrong line.
 
 A route gives back `Route::Declined` when it does not apply, and a caller that
 used one as though it were what the route builds would have a proof that is

@@ -5036,6 +5036,15 @@ pub fn elaborate(
         library.digest
     ));
     out.push('\n');
+    // A proof that reaches a label of proved.mm includes it, whatever else it
+    // includes: a cited theorem's file brings in only what that proof
+    // reached. It rests on no theorem of the corpus, so it comes first.
+    // proved.mm includes the definitions, so it is the one include where
+    // nothing is cited.
+    let wants = used.iter().any(|l| library.provided.contains(&**l));
+    if wants {
+        out.push_str("$[ stdlib/proved.mm $]\n");
+    }
     // A theorem this corpus proves is cited as one label, so the file that
     // elaborated it is read first and the rest comes in through it. With a
     // cited theorem's file included after one that rests on it, metamath-rs
@@ -5047,16 +5056,8 @@ pub fn elaborate(
             crate::text::spelt_in_ascii(&name)
         ));
     }
-    if work.cited.is_empty() {
-        // proved.mm includes the definitions, so a proof that reaches one of
-        // its labels needs only the one include.
-        let wants = used.iter().any(|l| library.provided.contains(&**l));
-        let file = if wants {
-            "stdlib/proved"
-        } else {
-            "stdlib/definitions"
-        };
-        out.push_str(&format!("$[ {file}.mm $]\n"));
+    if work.cited.is_empty() && !wants {
+        out.push_str("$[ stdlib/definitions.mm $]\n");
     }
     out.push('\n');
     // Every variable the proof touches has to be disjoint from every other

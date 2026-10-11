@@ -10,6 +10,11 @@
 //! theorems its edits can reach (`check::run_edited`). The cases run side by
 //! side (`threads::in_order`), and are reported in the order they are
 //! written.
+//!
+//! Every message the checker writes out where it reports it is said by some
+//! case, so that a check no case reaches is found: one that had stopped
+//! running said nothing, and nothing here noticed. A message put together
+//! elsewhere and handed to the report is not read this way.
 
 use std::path::Path;
 
@@ -79,12 +84,13 @@ fn plant<'a>(case: &Case, clean: &'a Memory) -> Result<Overlay<'a>, String> {
     Ok(tree)
 }
 
-/// What one case says, and whether it missed: its edit could not be planted,
-/// or the checker did not report it.
-fn outcome(case: &Case, clean: &Memory) -> (String, bool) {
+/// What one case says, whether it missed, and everything the checker
+/// printed: a case misses where its edit could not be planted, or the
+/// checker did not report it.
+fn outcome(case: &Case, clean: &Memory) -> (String, bool, String) {
     let tree = match plant(case, clean) {
         Ok(tree) => tree,
-        Err(why) => return (why, true),
+        Err(why) => return (why, true, String::new()),
     };
     // Only what the edits reach is checked: a case passes only where its
     // problem is reported, and a theorem left unchecked can only leave a
@@ -92,7 +98,7 @@ fn outcome(case: &Case, clean: &Memory) -> (String, bool) {
     let edited: Vec<String> = case.edits.iter().map(|e| e.file.to_string()).collect();
     let out = parley::check::run_edited(&tree, &edited).printed;
     if out.contains(case.expect) {
-        return (format!("  caught        {}", case.name), false);
+        return (format!("  caught        {}", case.name), false, out);
     }
     let lines: Vec<&str> = out
         .lines()
@@ -105,7 +111,117 @@ fn outcome(case: &Case, clean: &Memory) -> (String, bool) {
             case.name, case.expect
         ),
         true,
+        out,
     )
+}
+
+/// A message the checker can give: the words its format string writes
+/// between the values it fills in.
+struct Message {
+    words: Vec<String>,
+}
+
+impl Message {
+    /// Whether a line of `out` is this message: its words in it, in order.
+    fn said_in(&self, out: &str) -> bool {
+        out.lines().any(|line| {
+            let mut rest = line;
+            self.words.iter().all(|w| match rest.find(w.as_str()) {
+                Some(at) => {
+                    rest = &rest[at + w.len()..];
+                    true
+                }
+                None => false,
+            })
+        })
+    }
+}
+
+/// The first string literal of the call that opens at `text`, up to the
+/// bracket that closes it, as the string it writes: an escaped quote a
+/// quote, and a backslash ending a line the end of the line and the spaces
+/// after it.
+fn first_literal(text: &str) -> Option<String> {
+    let mut depth = 0;
+    let mut chars = text.chars().peekable();
+    while let Some(c) = chars.next() {
+        match c {
+            '(' => depth += 1,
+            ')' => {
+                depth -= 1;
+                if depth == 0 {
+                    return None;
+                }
+            }
+            '"' => {
+                let mut out = String::new();
+                while let Some(c) = chars.next() {
+                    match c {
+                        '"' => return Some(out),
+                        '\\' => match chars.next() {
+                            Some('\n') => {
+                                while chars.next_if(|c| c.is_whitespace()).is_some() {}
+                            }
+                            Some('n') => out.push('\n'),
+                            Some(other) => out.push(other),
+                            None => return None,
+                        },
+                        _ => out.push(c),
+                    }
+                }
+                return None;
+            }
+            _ => {}
+        }
+    }
+    None
+}
+
+/// Every message the checker writes out where it reports it: each `.say(`
+/// under `src/check/` whose message is a string written there. The words
+/// are the pieces of the string between its `{…}`, each with a word of
+/// three letters in it, so that a piece of punctuation between two values
+/// matches anything.
+fn messages() -> Vec<Message> {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("src/check");
+    let mut files: Vec<_> = std::fs::read_dir(&root)
+        .expect("src/check reads")
+        .filter_map(|e| e.ok())
+        .map(|e| e.path())
+        .filter(|p| p.extension().is_some_and(|x| x == "rs"))
+        .collect();
+    files.sort();
+    let mut out = Vec::new();
+    for file in files {
+        let text = std::fs::read_to_string(&file).expect("a source file reads");
+        for (at, _) in text.match_indices(".say(") {
+            let Some(said) = first_literal(&text[at + ".say".len()..]) else {
+                continue;
+            };
+            let words: Vec<String> = said
+                .split('{')
+                .enumerate()
+                .map(|(i, piece)| {
+                    if i == 0 {
+                        piece
+                    } else {
+                        piece.split_once('}').map_or("", |(_, rest)| rest)
+                    }
+                })
+                .filter(|piece| {
+                    piece
+                        .split(|c: char| !c.is_alphabetic())
+                        .any(|w| w.chars().count() >= 3)
+                })
+                .map(String::from)
+                .collect();
+            if words.is_empty() {
+                continue;
+            }
+            out.push(Message { words });
+        }
+    }
+    out
 }
 
 /// A file that does not import the library's C may give the letter to a
@@ -191,8 +307,8 @@ fn the_checker_catches_every_planted_defect() {
     );
     let cases = cases();
     let results = in_order(&cases, || (), |_, case| outcome(case, &clean));
-    let missed = results.iter().filter(|(_, missed)| *missed).count();
-    let said: Vec<&str> = results.iter().map(|(line, _)| line.as_str()).collect();
+    let missed = results.iter().filter(|(_, missed, _)| *missed).count();
+    let said: Vec<&str> = results.iter().map(|(line, _, _)| line.as_str()).collect();
     println!("{}", said.join("\n"));
     println!(
         "\n{} caught, {missed} missed, of {} planted defects",
@@ -200,7 +316,47 @@ fn the_checker_catches_every_planted_defect() {
         cases.len()
     );
     assert_eq!(missed, 0, "{}", said.join("\n"));
+    // Every message the checker writes is said by some case, or none can be
+    // planted, and the list below says why.
+    let every = messages();
+    let unsaid: Vec<String> = every
+        .iter()
+        .filter(|m| !results.iter().any(|(_, _, out)| m.said_in(out)))
+        .map(|m| m.words.join(" … "))
+        .collect();
+    let known: Vec<String> = UNPLANTED.iter().map(|(w, _)| w.to_string()).collect();
+    let new: Vec<&String> = unsaid.iter().filter(|u| !known.contains(u)).collect();
+    let gone: Vec<&String> = known.iter().filter(|k| !unsaid.contains(k)).collect();
+    println!(
+        "\n{} messages, {} said by no case, of which {} cannot be planted",
+        every.len(),
+        unsaid.len(),
+        known.len()
+    );
+    assert!(
+        new.is_empty() && gone.is_empty(),
+        "messages no case says:\n{}\n\nmessages listed as unplanted that a case says, or no longer written:\n{}",
+        new.iter().map(|s| s.as_str()).collect::<Vec<_>>().join("\n"),
+        gone.iter().map(|s| s.as_str()).collect::<Vec<_>>().join("\n")
+    );
 }
+
+/// The checker's messages no planted edit can make it say, by their words
+/// as `messages` reads them, each with why.
+const UNPLANTED: &[(&str, &str)] = &[
+    (
+        "cannot be read: ",
+        "a file the source cannot read at all; an edit writes text, which reads",
+    ),
+    (
+        "let  …  stands below every step, where no step uses it",
+        "the parser refuses a let below a theorem's last step first",
+    ),
+    (
+        ", which no define in scope carries",
+        "only a define by recursion has no one name, and the parser refuses one outside the theorem that uses it, where `recursion_cited` reads it first",
+    ),
+];
 
 fn cases() -> Vec<Case> {
     vec![
@@ -883,6 +1039,36 @@ fn cases() -> Vec<Case> {
                 edit("proofs/reals-uncountable.proof", Some("    4.8.  L(k) ∈ ℝ. U(k) ∈ ℝ. L(k) ≤ U(k).\n          join 4.3, 4.4, 4.7".to_string()), "    4.8.  L(k) ∈ ℝ. U(k) ∈ ℝ.\n          join 4.3, 4.4".to_string()),
             ],
             "step 4.8 ends the proof block of step 4, which owes",
+        ),
+        // What an obtain claims is the "there is" it obtains from, the line
+        // it names or what the item gives (`SYNTAX.md`), and no more.
+        case(
+            "an obtain from a line that claims more than the line's there is",
+            vec![
+                edit("proofs/sqrt2-irrational.proof", Some("    3.1.  d ∈ ℤ. d > 1. d divides p. d divides q.".to_string()), "    3.1.  d ∈ ℤ. d > 2. d divides p. d divides q.".to_string()),
+            ],
+            "step 3.1 claims other than what it obtains, which says",
+        ),
+        case(
+            "an obtain from an item that claims more than the item's there is",
+            vec![
+                edit("proofs/bezout.proof", Some("4.  d ∈ S. For all s ∈ S, d ≤ s.".to_string()), "4.  d ∈ S. For all s ∈ S, d < s.".to_string()),
+            ],
+            "step 4 claims other than what it obtains, which says",
+        ),
+        case(
+            "an obtain whose membership is not the one its there is gives",
+            vec![
+                edit("proofs/harmonic.proof", Some("    1.2.  B ∈ ℝ. For all m ∈ ℕ, Σ(k = 1 to m) 1/k ≤ B.".to_string()), "    1.2.  B ∈ ℚ. For all m ∈ ℕ, Σ(k = 1 to m) 1/k ≤ B.".to_string()),
+            ],
+            "step 1.2 claims B ∈ ℚ, and what it obtains says B ∈ ℝ",
+        ),
+        case(
+            "an obtain from a line that says no there is",
+            vec![
+                edit("proofs/pythagorean-triples.proof", Some("          obtain k, m, n from D2".to_string()), "          obtain k, m, n from H1".to_string()),
+            ],
+            "step 1.2 obtains k, m, n from a line that says no \"there is\" of as many",
         ),
         case(
             "a contradiction whose block does not suppose anything",
@@ -2189,6 +2375,237 @@ fn cases() -> Vec<Case> {
                 edit("proofs/sqrt2-irrational.proof", Some("          thm:even-square n := p, from 2.4\n".to_string()), "          thm:even-square n := p, from 2.1, 2.4\n".to_string()),
             ],
             "step 2.5 cites 2.1, and thm:even-square asks for nothing it says",
+        ),
+        case(
+            "an exhibit citing nothing that says the claim of a value",
+            vec![
+                edit("proofs/bezout.proof", Some("    exhibit, from 19\n".to_string()), "    exhibit, from 17\n".to_string()),
+            ],
+            "step 20 exhibits a value, and nothing it cites or requires says the claim's body of any one value",
+        ),
+        // A record states what it says; one with nothing to say is a
+        // record of nothing.
+        case(
+            "a theorem record with no then line",
+            vec![
+                edit("corpus/stdlib/sums.records", Some("  then        Σ(k = 0 to n) t(k) ∈ ℤ\n  metamath    fsumzcl".to_string()), "  metamath    fsumzcl".to_string()),
+            ],
+            "sum-integer has no `then` line",
+        ),
+        case(
+            "a method declaring a part that is no part marker",
+            vec![
+                edit("corpus/db/methods.records", Some("  parts       base, step\n".to_string()), "  parts       basis, step\n".to_string()),
+            ],
+            "method induction declares part",
+        ),
+        // A notation record says what it writes, what each hole takes, and
+        // what its target makes of the holes.
+        case(
+            "a notation with no pattern",
+            vec![
+                edit("corpus/db/notation.records", Some("notation sum\n  pattern     Σ(_ = _ to _) _\n".to_string()), "notation sum\n".to_string()),
+            ],
+            "notation sum declares no pattern",
+        ),
+        case(
+            "a notation whose sort does not read",
+            vec![
+                edit("corpus/db/notation.records", Some("  sort        number, number, number, number → number\n  level       summation".to_string()), "  sort        number number\n  level       summation".to_string()),
+            ],
+            "notation sum: sort",
+        ),
+        case(
+            "a notation target naming a hole it does not have",
+            vec![
+                edit("corpus/db/notation.records", Some("  target      _2 _3 cfz co _4 _1 csu".to_string()), "  target      _2 _3 cfz co _5 _1 csu".to_string()),
+            ],
+            "notation sum target",
+        ),
+        case(
+            "a notation that can nest in itself with no assoc",
+            vec![
+                edit("corpus/db/notation.records", Some("  assoc       left\n  identity    0 on either side, 0 on the right".to_string()), "  identity    0 on either side, 0 on the right".to_string()),
+            ],
+            "notation additive has a hole at each edge",
+        ),
+        case(
+            "a notation with an assoc it does not need",
+            vec![
+                edit("corpus/db/notation.records", Some("  level       summation\n".to_string()), "  level       summation\n  assoc       left\n".to_string()),
+            ],
+            "notation indexed-union declares an assoc it does not need",
+        ),
+        // arithmetic works out + − · / and powers of numerals, and another
+        // operation only where its record says so: mod's does.
+        case(
+            "arithmetic working out an operation its record does not give it",
+            vec![
+                edit("corpus/db/notation.records", Some("  reads       the remainder on dividing by\n  decided     arithmetic\n".to_string()), "  reads       the remainder on dividing by\n".to_string()),
+                edit("proofs/sum-formula.proof", Some("          algebra\n".to_string()), "          algebra\n          requires 7 mod 3 = 1: arithmetic\n".to_string()),
+            ],
+            "7 mod 3 = 1 works out",
+        ),
+        case(
+            "a step that is impossible and not the last of its block",
+            vec![
+                edit("proofs/reals-uncountable.proof", Some("    2.3.  10 divides 1, which is impossible\n          substitute (t + 1) − t = 1 (line 2.2) into line 2.1\n".to_string()), "    2.3.  10 divides 1, which is impossible\n          substitute (t + 1) − t = 1 (line 2.2) into line 2.1\n\n    2.4.  10 divides 1\n          substitute (t + 1) − t = 1 (line 2.2) into line 2.1\n".to_string()),
+            ],
+            "step 2.3 says it is impossible, which only the last step",
+        ),
+        case(
+            "contradicting a line that is not in scope",
+            vec![
+                edit("proofs/bezout.proof", Some("inequalities, from 1, contradicting 3.4".to_string()), "inequalities, from 1, contradicting 3.9".to_string()),
+            ],
+            "contradicts 3.9, which is no line in scope",
+        ),
+        case(
+            "a direction that does not assume a side of the claim",
+            vec![
+                edit("proofs/pythagorean-triples.proof", Some("    assume a² + b² = c²                                               (D1)".to_string()), "    assume a² + b² = c² + 1                                           (D1)".to_string()),
+            ],
+            "step 1 proves both directions, and direction 1 does not assume the claim's side it starts from",
+        ),
+        case(
+            "a chain link saying a modulus after a relation that is not ≡",
+            vec![
+                edit("proofs/divisibility-by-three.proof", Some("                 ≡ 1 (mod 3)      arithmetic".to_string()), "                 = 1 (mod 3)      arithmetic".to_string()),
+            ],
+            "says (mod 3) after a relation that is not ≡",
+        ),
+        case(
+            "algebra giving a claim of numerals alone",
+            vec![
+                edit("proofs/sum-formula.proof", Some("    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2\n          algebra".to_string()), "    1.6.  2 + 2 = 4\n          algebra".to_string()),
+            ],
+            "step 1.6 gives algebra for 2 + 2 = 4, which has no letter in it",
+        ),
+        // A step citing a define is the define at its values: one equation,
+        // or that its name is a function on a set.
+        case(
+            "a step citing a define for another function on a set",
+            vec![
+                edit("proofs/binomial.proof", Some("    10.1. t(k) = C(m, k)·x^(m − k)·y^k\n          D1, from J".to_string()), "    10.1. p is a function on {0, …, m}\n          D1, from J".to_string()),
+            ],
+            "and claims that something other than t is a function on a set",
+        ),
+        case(
+            "a step citing a define for no equation",
+            vec![
+                edit("proofs/binomial.proof", Some("    10.1. t(k) = C(m, k)·x^(m − k)·y^k\n          D1, from J".to_string()), "    10.1. t(k) ≠ C(m, k)·x^(m − k)·y^k\n          D1, from J".to_string()),
+            ],
+            "step 10.1 cites D1 and claims no one equation",
+        ),
+        // The steps are numbered as a reader counts them.
+        case(
+            "a step number written twice",
+            vec![
+                edit("proofs/sum-formula.proof", Some("    1.4.  S(k + 1) = S(k) + (k + 1)".to_string()), "    1.3.  S(k + 1) = S(k) + (k + 1)".to_string()),
+            ],
+            "step 1.3 is numbered twice",
+        ),
+        // A method that opens a block has one, with the parts its record
+        // declares, each opening as the record says.
+        case(
+            "a method that needs a block with none",
+            vec![
+                edit("proofs/sum-formula.proof", Some("2.  S(n) = n(n + 1)/2\n    instantiate k := n in line 1".to_string()), "2.  S(n) = n(n + 1)/2\n    contradiction".to_string()),
+            ],
+            "step 2 is justified by contradiction, which needs a block, and has no sub-steps",
+        ),
+        case(
+            "an induction block with no part markers",
+            vec![
+                edit("proofs/sum-formula.proof", Some("\n    base\n    1.1.".to_string()), "\n    1.1.".to_string()),
+                edit("proofs/sum-formula.proof", Some("\n    step\n    let k ∈ ℕ".to_string()), "\n    let k ∈ ℕ".to_string()),
+            ],
+            "step 1 cites induction, whose block carries the parts",
+        ),
+        case(
+            "a part marker in a block that has no parts",
+            vec![
+                edit("proofs/sqrt2-irrational.proof", Some("    3.1.  d ∈ ℤ. d > 1. d divides p. d divides q.".to_string()), "    base\n    3.1.  d ∈ ℤ. d > 1. d divides p. d divides q.".to_string()),
+            ],
+            "under a contradiction block, which declares no parts",
+        ),
+        case(
+            "a proof block that opens with neither let nor assume",
+            vec![
+                edit("proofs/reals-uncountable.proof", Some("    let k ∈ ℕ₀                                                        (K1)\n".to_string()), String::new()),
+            ],
+            "is a proof whose block does not open with `let` or `assume`",
+        ),
+        case(
+            "a case that does not open with an assumption",
+            vec![
+                edit("proofs/triangle-inequality.proof", Some("    case\n    assume x ≥ 0                                                      (C1)\n".to_string()), "    case\n".to_string()),
+            ],
+            "part of step 2 does not open with a labelled `assume`",
+        ),
+        case(
+            "an induction's base that opens with a let",
+            vec![
+                edit("proofs/sum-formula.proof", Some("\n    base\n    1.1.".to_string()), "\n    base\n    let j ∈ ℕ                                                         (J)\n\n    1.1.".to_string()),
+            ],
+            "the base part of step 1 opens with a",
+        ),
+        // A calculation joins lines; the reasoning is in the lines it cites.
+        case(
+            "a calculation with no chain",
+            vec![
+                edit("proofs/sum-formula.proof", Some("    calculation\n      Σ(k = 1 to n) k = S(n)              D1\n                      = n(n + 1)/2        2".to_string()), "    calculation".to_string()),
+            ],
+            "step 3 is a calculation with no chain",
+        ),
+        case(
+            "a chain line that cites an item",
+            vec![
+                edit("proofs/sum-formula.proof", Some("                 = 1                     1.1".to_string()), "                 = 1                     mun:sum-single a := 1".to_string()),
+            ],
+            "a chain line carries a justification",
+        ),
+        case(
+            "a chain line with no relation",
+            vec![
+                edit("proofs/sum-formula.proof", Some("                 = 1                     1.1".to_string()), "                 1                       1.1".to_string()),
+            ],
+            "chain line carries no relation",
+        ),
+        case(
+            "a method no record declares",
+            vec![
+                edit("corpus/db/methods.records", Some("method join\n".to_string()), "method joins\n".to_string()),
+            ],
+            "join is in no record of corpus/db/methods.records",
+        ),
+        case(
+            "a requires line whose reason is neither a method, an item, nor a line",
+            vec![
+                edit("proofs/sum-formula.proof", Some("          requires k ≥ 1: from K".to_string()), "          requires k ≥ 1: because K".to_string()),
+            ],
+            "which is neither a method, an item, nor a line",
+        ),
+        case(
+            "a theorem with no steps",
+            vec![edit("proofs/empty.proof", None, "theorem empty\n  then 1 = 1\n".to_string())],
+            "theorem empty has no steps",
+        ),
+        // A label outside a file's theorems is one label for every theorem
+        // below it, and a define says what its name means.
+        case(
+            "a label given twice outside the theorems",
+            vec![
+                edit("proofs/geometric-series.proof", Some("       reads the geometric series: the powers of a, from a^0 up to a^n\n".to_string()), "       reads the geometric series: the powers of a, from a^0 up to a^n\n\ndefine H(n) := n + 1, for n ∈ ℕ                                    (D1)\n       reads one more than n\n".to_string()),
+            ],
+            "label D1 is already used at line 7",
+        ),
+        case(
+            "a define with no reads line",
+            vec![
+                edit("proofs/geometric-series.proof", Some("       reads the geometric series: the powers of a, from a^0 up to a^n\n".to_string()), String::new()),
+            ],
+            "carries no `reads` line",
         ),
     ]
 }

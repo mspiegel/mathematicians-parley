@@ -78,6 +78,29 @@ pub fn search(
     reuse: bool,
     mut ways: Option<&mut Ways>,
 ) -> Option<Binding> {
+    // A bare membership of a letter still open, k ∈ ℕ, fits every fact
+    // putting a number in ℕ, so asked first it multiplies the search by those
+    // facts for each such letter, and a hypothesis nothing supplies is found
+    // out only after every arrangement of them: a step citing the wrong line
+    // for six letters ran for hours. Asked once the other hypotheses have
+    // fixed the letter, it is a closed fact, looked up.
+    let open_member = |p: &Node| {
+        p.notation == "membership"
+            && p.children.len() == 2
+            && p.children[0].is_name()
+            && variables.contains(&p.children[0].text)
+            && !binding.contains_key(&p.children[0].text)
+    };
+    if patterns.first().is_some_and(open_member) {
+        if let Some(at) = patterns.iter().position(|p| !open_member(p)) {
+            let mut turned = patterns.to_vec();
+            let next = turned.remove(at);
+            turned.insert(0, next);
+            return search(
+                &turned, facts, used, binding, variables, library, sites, reuse, ways,
+            );
+        }
+    }
     let Some((first, rest)) = patterns.split_first() else {
         if let Some(ways) = ways {
             (ways.found)(&ways.path, binding);

@@ -188,6 +188,16 @@ fn cases() -> Vec<Case> {
             new: CANTOR_WRONG,
             expect: "rejected the proofs",
         },
+        // Verified together, the files see each other's labels; one file
+        // must reach what it uses through its own inclusions.
+        Case {
+            name: "a proof using a label its file does not include",
+            stage: verify_case,
+            file: "corpus/elaboration/proofs/intermediate-value/intermediate-value.mm",
+            old: "$[ stdlib/proved.mm $]\n",
+            new: "",
+            expect: "uses gdivcanx, which nothing the file includes declares",
+        },
         Case {
             name: "an item no proof restates that ELABORATION.md does not list",
             stage: restated_case,

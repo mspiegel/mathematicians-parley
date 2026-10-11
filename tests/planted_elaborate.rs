@@ -1079,6 +1079,41 @@ fn cases() -> Vec<Case> {
             "          requires k ≠ 0: from K1\n",
             "=/= 0, which this step needs to divide by it",
         ),
+        // What an obtain claims is the "there is" it obtains from: d > 2 is
+        // not what the supposition gives, and the line is the page's claim,
+        // never the existence's body in its place.
+        case(
+            "an obtain claiming more than the line it obtains from",
+            "proofs/sqrt2-irrational/lowest-terms",
+            "proofs/sqrt2-irrational.proof",
+            "    3.1.  d ∈ ℤ. d > 1. d divides p. d divides q.",
+            "    3.1.  d ∈ ℤ. d > 2. d divides p. d divides q.",
+            "step 3.1 claims",
+        ),
+        case(
+            "an obtain claiming more than the item it obtains from",
+            "proofs/bezout/bezout",
+            "proofs/bezout.proof",
+            "4.  d ∈ S. For all s ∈ S, d ≤ s.",
+            "4.  d ∈ S. For all s ∈ S, d < s.",
+            "step 4 claims",
+        ),
+        case(
+            "an obtain whose membership is not the one its there is gives",
+            "proofs/harmonic/harmonic",
+            "proofs/harmonic.proof",
+            "    1.2.  B ∈ ℝ. For all m ∈ ℕ, Σ(k = 1 to m) 1/k ≤ B.",
+            "    1.2.  B ∈ ℚ. For all m ∈ ℕ, Σ(k = 1 to m) 1/k ≤ B.",
+            "step 1.2 claims B ∈ ℚ",
+        ),
+        case(
+            "an obtain from a line that says no there is",
+            "proofs/pythagorean-triples/pythagorean-triples",
+            "proofs/pythagorean-triples.proof",
+            "          obtain k, m, n from D2",
+            "          obtain k, m, n from H1",
+            "step 1.2 obtains k, m, n from",
+        ),
     ]
 }
 
