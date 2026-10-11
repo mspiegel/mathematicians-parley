@@ -23,7 +23,7 @@ use parley::formula::token::{is_letter, is_mark, tokenise, Token, TokenKind};
 use parley::matching::{free_names, instantiation, split_commas};
 use parley::outcome::Built;
 use parley::sorts::introduction::Introduction;
-use parley::sorts::{sentences, sorts_in_scope, Env};
+use parley::sorts::{sorts_in_scope, Env};
 use regex::Regex;
 
 /// What every rewrite reads: the corpus, its grammar, and what the corpus
@@ -66,7 +66,19 @@ fn read_one(
     g: &Grammar,
     sorts: &Sorts,
 ) -> parley::outcome::Checked<Node> {
-    Written::here(sentence).sentence()?.read(g, sorts)
+    Written::new(sentence, "rewritten", 0)
+        .sentence()?
+        .read(g, sorts)
+}
+
+/// The sentences of a text the test rewrites, as the front end's splitter
+/// cuts them.
+fn sentences(text: &str) -> Vec<String> {
+    Written::new(text, "rewritten", 0)
+        .sentences()
+        .iter()
+        .map(|s| s.text().to_string())
+        .collect()
 }
 
 /// The compiled `pattern`, compiled once: the rewrites ask for the same few

@@ -130,9 +130,13 @@ pub struct Opener {
     /// the block claims, and which has no steps. The words are not in `text`.
     pub is_claim: bool,
     /// The line says `step N is true for k, the induction hypothesis`: the
-    /// step part of induction N assumes N's statement at k. `text` holds that
-    /// statement, read off N's claim "for all k ∈ X, …", and not the words.
+    /// step part of induction N assumes N's statement at k, which is what
+    /// the tree of N's claim "for all k ∈ X, …" says after the comma. The
+    /// line writes no formula of its own; `text` holds its words.
     pub is_hypothesis: bool,
+    /// The letter the induction hypothesis says it is for, the k of `true
+    /// for k`; None for any other line.
+    pub hypothesis_for: Option<String>,
 }
 
 /// A `define` or naming `let` line as written.
@@ -1269,6 +1273,18 @@ pub fn chain_cited(text: &str) -> Option<String> {
     (&m[1] != "arithmetic").then(|| m[1].to_string())
 }
 
+regex!(
+    SUBSTITUTED,
+    r"^substitute\s+(.*?)\s*\(([^()]*)\)(?:\s+into\s+\S.*?)?\s*$"
+);
+
+/// The equation a `substitute` justification writes before the line it
+/// takes it from: `substitute x = 2 (line 3)` writes `x = 2`.
+pub fn substituted(just: &Justification, path: &str) -> Option<Written> {
+    let m = SUBSTITUTED.captures(str::trim(&just.text))?;
+    Some(Written::new(str::trim(&m[1]), path, just.line))
+}
+
 /// The relations a chain line joins by (`GRAMMAR.md`, calculation chains).
 pub const CHAIN_RELATIONS: [&str; 4] = ["=", "≤", "<", "≡"];
 
@@ -1387,40 +1403,6 @@ regex!(
     INDUCTION_HYPOTHESIS,
     r"^assume\s+step\s+(\S+)\s+is\s+true\s+for\s+(\S+),\s*the\s+induction\s+hypothesis\s+(\([A-Z]+[0-9]*\))$"
 );
-// An induction's claim: "for all k ∈ X, …" or "for all k ∈ X with C, …",
-// the letter, the set and what follows the set. The sets an induction runs
-// over are ℕ and ℕ₀, which hold no comma.
-regex!(
-    FOR_ALL_CLAIM,
-    r"^[Ff]or\s+all\s+(\S+)\s*∈\s*([^,\s]+)(.*?)\.?$"
-);
-
-/// What an induction's claim says at its letter, from what follows "for all
-/// k ∈ X": the statement after the comma, or for "with C, S" the statement
-/// "if C then S", which is the formula `for-all-with` builds. The condition
-/// ends at the first comma outside brackets, as the grammar reads it. None
-/// where the words fit neither.
-fn statement_at_letter(rest: &str) -> Option<String> {
-    if let Some(after) = rest.strip_prefix(',') {
-        return Some(str::trim(after).to_string());
-    }
-    let condition = str::trim_start(rest).strip_prefix("with ")?;
-    let mut depth: i64 = 0;
-    for (i, ch) in condition.char_indices() {
-        match ch {
-            '(' | '[' | '{' => depth += 1,
-            ')' | ']' | '}' => depth -= 1,
-            ',' if depth == 0 => {
-                let (c, s) =
-                    (str::trim(&condition[..i]), str::trim(&condition[i + 1..]));
-                return Some(format!("if {c} then {s}"));
-            }
-            _ => {}
-        }
-    }
-    None
-}
-
 fn label_at_end(text: &str) -> Option<String> {
     LABEL_END.captures(text).map(|c| c[1].to_string())
 }
@@ -1571,30 +1553,33 @@ pub fn parse_proof(
                     format!("{kind} line outside any block"),
                 ));
             };
-            let hypothesis = INDUCTION_HYPOTHESIS.captures(&text);
-            let is_hypothesis = hypothesis.is_some();
-            let text = match &hypothesis {
-                Some(m) => induction_hypothesis(path, &draft.steps[owner].step, m, no)?,
-                None => text.clone(),
+            let hypothesis_for = match INDUCTION_HYPOTHESIS.captures(&text) {
+                Some(m) => Some(induction_hypothesis(
+                    path,
+                    &draft.steps[owner].step,
+                    &m,
+                    no,
+                )?),
+                None => None,
             };
             draft.steps[owner].step.openers.push(Opener {
                 kind,
-                text,
+                text: text.clone(),
                 label,
                 line: no,
                 part: current,
                 is_claim: false,
-                is_hypothesis,
+                is_hypothesis: hypothesis_for.is_some(),
+                hypothesis_for,
             });
         }
         Ok(current)
     }
 
-    /// What `assume step N is true for k, the induction hypothesis` assumes:
-    /// N's statement at k, read off N's claim "for all k ∈ X, …". N is the
-    /// induction the line opens the step part of, and k is the letter its
-    /// claim binds, so the statement is the claim's own words after the
-    /// comma and nothing is put in for anything.
+    /// The letter `assume step N is true for k, the induction hypothesis`
+    /// says it is for. N is the induction the line opens the step part of;
+    /// that k is the letter N's claim binds, and the hypothesis N's
+    /// statement at it, is read off the claim's tree by the tools.
     fn induction_hypothesis(
         path: &str,
         owner: &Step,
@@ -1619,32 +1604,7 @@ pub fn parse_proof(
                 ),
             ));
         }
-        let claim = owner.claim_text();
-        let said = FOR_ALL_CLAIM.captures(str::trim(&claim));
-        let statement = said.as_ref().and_then(|s| statement_at_letter(&s[3]));
-        let (Some(said), Some(statement)) = (said, statement) else {
-            return Err(Problem::new(
-                path,
-                no,
-                format!(
-                    "step {} is an induction whose claim does not say \"for all k ∈ X, …\"",
-                    &m[1]
-                ),
-            ));
-        };
-        if said[1] != m[2] {
-            return Err(Problem::new(
-                path,
-                no,
-                format!(
-                    "the induction hypothesis is for {}, and step {} is said for all {}",
-                    &m[2],
-                    &m[1],
-                    &said[1]
-                ),
-            ));
-        }
-        Ok(format!("assume {} {}", statement, &m[3]))
+        Ok(m[2].to_string())
     }
 
     /// A define after a theorem's last step is the file's, for the theorems
@@ -2084,6 +2044,7 @@ pub fn parse_proof(
                 part: current,
                 is_claim: true,
                 is_hypothesis: false,
+                hypothesis_for: None,
             });
             continue;
         }

@@ -1,6 +1,7 @@
 //! What each theorem's lines give the checks that read them.
 
 use std::cell::RefCell;
+use std::collections::BTreeSet;
 use std::rc::Rc;
 
 use indexmap::IndexMap;
@@ -39,6 +40,9 @@ pub enum Stated {
         name: Written,
         set: Written,
     },
+    /// An induction hypothesis: what its induction's claim, "for all k ∈ X,
+    /// …", says at its letter.
+    Hypothesis(Written),
 }
 
 impl Stated {
@@ -48,6 +52,7 @@ impl Stated {
             Stated::Written(w) => w.text(),
             Stated::Introduced(i) => i.body.text(),
             Stated::Kind { name, .. } => name.text(),
+            Stated::Hypothesis(claim) => claim.text(),
         }
     }
 }
@@ -180,6 +185,17 @@ impl<'a> Known<'a> {
                 };
                 vec![member.map(cited)]
             }
+            Stated::Hypothesis(claim) => {
+                let statement = claim
+                    .sentence()
+                    .ok()
+                    .and_then(|s| self.read_as_written(&s))
+                    .and_then(|c| match (c.notation.as_str(), c.children.as_slice()) {
+                        ("for-all", [_, _, body]) => Some(body.clone()),
+                        _ => None,
+                    });
+                vec![statement.map(cited)]
+            }
         }
     }
 
@@ -191,6 +207,25 @@ impl<'a> Known<'a> {
             .into_iter()
             .flatten()
             .collect()
+    }
+
+    /// The letters a formula binds for itself: each a binder holds, by what
+    /// the grammar declares it holds (`for all c ∈ ℕ`, `{c ∈ A : …}`,
+    /// `Σ(c = 1 to n)`).
+    pub fn bound(&self, node: &Node) -> BTreeSet<String> {
+        let binders = self.env.g.binders();
+        let mut out = BTreeSet::new();
+        for n in node.walk() {
+            let Some(binds) = binders.get(&n.notation) else {
+                continue;
+            };
+            for &at in &binds.held {
+                if let Some(letter) = n.children.get(at).filter(|l| l.is_name()) {
+                    out.insert(letter.text.clone());
+                }
+            }
+        }
+        out
     }
 
     /// A tree read as written, as the checks compare it once `defined` is
@@ -351,6 +386,12 @@ pub fn statements_in_scope(thm: &Theorem, step: &Step, env: Env) -> Statements {
         Intro::Let => Stated::Introduced(Introduction::read(body)),
         _ => Stated::Written(body),
     };
+    // An induction hypothesis says what its induction's claim says at the
+    // letter.
+    let opened = |owner: &Step, o: &crate::corpus::Opener| match o.is_hypothesis {
+        true => Stated::Hypothesis(owner.claim.clone()),
+        false => said(o.kind, o.body(&thm.path)),
+    };
     let mut out: Statements = thm
         .steps
         .iter()
@@ -365,7 +406,7 @@ pub fn statements_in_scope(thm: &Theorem, step: &Step, env: Env) -> Statements {
     for other in &thm.steps {
         for o in &other.openers {
             if visible.get(&o.label) == Some(&Declared::Block(o.line)) {
-                out.insert(o.label.clone(), said(o.kind, o.body(&thm.path)));
+                out.insert(o.label.clone(), opened(other, o));
             }
         }
     }

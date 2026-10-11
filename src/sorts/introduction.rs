@@ -150,6 +150,43 @@ impl Introduction {
         }
     }
 
+    /// The parts of the line that are formula text, each as written: the
+    /// whole of a membership, a thing not in a set and a function's type;
+    /// otherwise the names it introduces and the sets and types it names,
+    /// and none of its words.
+    pub fn parts(&self) -> Vec<Written> {
+        let texts: Vec<&str> = match &self.form {
+            Form::Member | Form::NotIn(_) | Form::Function | Form::Other => {
+                return vec![self.body.clone()];
+            }
+            Form::GraphListed(line) | Form::Graph(line) => {
+                let mut out = vec![line.graph.as_str()];
+                match &line.listed {
+                    Some(l) => {
+                        out.extend([l.vertex_set.as_str(), l.edge_set.as_str()]);
+                        out.extend(l.joins.iter().map(|j| j.said.as_str()));
+                    }
+                    None => out.extend([line.vertices.as_str(), line.edges.as_str()]),
+                }
+                out
+            }
+            Form::Group {
+                group, identity, ..
+            } => vec![group, identity],
+            Form::Set(name)
+            | Form::Point(name)
+            | Form::Element(name)
+            | Form::Polynomial(name) => {
+                vec![name]
+            }
+            Form::Property { name, domain } => vec![name, domain],
+            Form::FunctionOn { name, set } => vec![name, set],
+            Form::FunctionBeing { typed, .. } => vec![typed],
+            Form::Part { name, whole } => vec![name, whole],
+        };
+        texts.into_iter().map(|t| self.part(t)).collect()
+    }
+
     /// A part of the line that is formula text, with where it is written.
     pub fn part(&self, text: &str) -> Written {
         Written::new(text, self.body.path(), self.body.line())

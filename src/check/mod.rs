@@ -19,8 +19,7 @@ use indexmap::{IndexMap, IndexSet};
 use crate::citing::{Library, Proved};
 use crate::corpus::{
     index, link_definitions, link_functions, module_of, parse_database, parse_proof,
-    proof_files, record_files, written_text, FileScope, Intro, Item, Record,
-    RecordKind, Theorem,
+    proof_files, record_files, FileScope, Intro, Item, Record, RecordKind, Theorem,
 };
 use crate::formula::page::{Sentence, Written};
 use crate::formula::Grammar;
@@ -256,8 +255,12 @@ pub fn printed_back(source: &dyn Source) -> Result<(usize, Vec<String>), Outcome
                         continue;
                     };
                     read_count += 1;
+                    // What the printer wrote, read back where the sentence
+                    // is written, to test the printer.
                     let printed = c.env.g.print(&node);
-                    let again = Written::here(&printed).sentence().ok();
+                    let again =
+                        Written::new(&printed, sentence.path(), sentence.line());
+                    let again = again.sentence().ok();
                     let again = again.as_ref().and_then(read);
                     if again.as_ref().map(|a| a.shape()) != Some(node.shape()) {
                         out.push(format!(
@@ -377,7 +380,6 @@ fn prepared<T>(
         .map(|r| r.module().to_string())
         .collect();
     structure::check_imports(&mut report, &theorems, &scopes, &items, &library);
-    structure::check_definitions(&mut report, &theorems, &scopes);
 
     let steps: usize = theorems.iter().map(|t| t.steps.len()).sum();
     let counts = (theorems.len(), steps, items.len(), methods.len());
@@ -401,7 +403,10 @@ fn prepared<T>(
         &scopes,
         &grammar.functions,
     );
-    structure::check_function_imports(&mut report, &theorems, &scopes);
+    // Which names a file writes is read off its formulas' tokens, which the
+    // grammar lexes.
+    structure::check_definitions(&mut report, &theorems, &scopes, &grammar);
+    structure::check_function_imports(&mut report, &theorems, &scopes, &grammar);
     database::check_functions(&mut report, &grammar);
     // A library function's name of several letters reads as one, as a word
     // does, so two names run together into it are caught as into a word.
@@ -437,15 +442,13 @@ fn prepared<T>(
             .filter(|h| h.kind == Intro::Let)
             .map(|h| (h.text.as_str(), h.line))
             .collect();
-        let mut text: Vec<&str> =
-            r.hypotheses.iter().map(|h| h.text.as_str()).collect();
-        text.extend(r.conclusions.iter().map(|(c, _)| c.as_str()));
+        let parts = crate::sorts::record_formulas(r);
         structure::check_ranges(
             &mut report,
             &r.path,
             &r.ranges,
             &lets,
-            &text.join(" "),
+            &crate::sorts::written_tokens(&parts, &grammar),
             env,
             &record_sorts[&i],
         );
@@ -515,7 +518,7 @@ fn check_theorem(
     let (env, library, scopes) = (c.env, c.library, c.scopes);
     formulas::check_formulas(report, thm, env, k);
     formulas::check_letters_introduced(report, thm, env, k);
-    structure::check_defined_below(report, thm, scopes);
+    structure::check_defined_below(report, thm, scopes, env.g);
     formulas::check_clashes(report, thm, clashes);
     formulas::check_contradiction(report, thm, env, k);
     formulas::check_contradicting(report, thm, env, k);
@@ -546,7 +549,7 @@ fn check_theorem(
     structure::check_readings(report, thm);
     database::check_introductions(report, thm, env, k);
     formulas::check_recursions(report, thm, env, k);
-    structure::check_sorts(report, thm);
+    structure::check_sorts(report, thm, k);
     let lets: Vec<(&str, usize)> = thm
         .hypotheses
         .iter()
@@ -564,14 +567,14 @@ fn check_theorem(
         &thm.path,
         &thm.ranges,
         &lets,
-        &written_text(thm),
+        &crate::sorts::written_tokens(&crate::sorts::written_formulas(thm), env.g),
         env,
         &k.sorts,
     );
-    structure::check_capture(report, thm, &structure::claims_of(thm));
-    structure::check_run_together(report, thm, c.words);
+    structure::check_capture(report, thm, k);
+    structure::check_run_together(report, thm, c.words, c.env.g);
     structure::check_numbering(report, thm);
-    structure::check_blocks(report, thm, c.methods);
+    structure::check_blocks(report, thm, c.methods, k);
     for step in &thm.steps {
         structure::check_justification_form(report, &thm.path, &step.just);
         structure::check_chain(report, thm, step);

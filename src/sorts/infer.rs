@@ -1132,7 +1132,11 @@ pub fn read_theorem(
     }
     for step in &thm.steps {
         for o in &step.openers {
-            events.push((o.line.into(), false, opening(o.kind, &o.text)));
+            // An induction hypothesis says what its induction's claim does,
+            // which is read where the claim is.
+            if !o.is_hypothesis {
+                events.push((o.line.into(), false, opening(o.kind, &o.text)));
+            }
         }
         events.push((step.line.into(), true, Event::Claim(step)));
         for r in &step.requires {

@@ -420,7 +420,9 @@ impl<'a> Elaborator<'a> {
             .map(|h| (h.kind, h.body(path), h.label.clone().unwrap_or_default()))
             .collect();
         for s in &self.thm.steps {
-            for o in &s.openers {
+            // An induction hypothesis assumes its claim's statement, and is
+            // no sort.
+            for o in s.openers.iter().filter(|o| !o.is_hypothesis) {
                 lets.push((o.kind, o.body(path), o.label.clone()));
             }
         }

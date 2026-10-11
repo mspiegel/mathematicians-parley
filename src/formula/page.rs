@@ -10,6 +10,7 @@
 
 use super::grammar::{parse, Grammar, Sorts};
 use super::node::{Node, Sort};
+use super::token::Token;
 use crate::outcome::{Checked, Problem};
 
 /// Formula text as the skeleton reader cut it out of a line, and where.
@@ -43,11 +44,6 @@ impl Written {
     pub fn continued(&mut self, more: &str) {
         self.text.push(' ');
         self.text.push_str(more);
-    }
-
-    /// Formula text no file holds.
-    pub fn here(text: impl Into<String>) -> Written {
-        Written::new(text, "", 0)
     }
 
     /// The text as written, for a message or a key.
@@ -150,13 +146,27 @@ pub fn made(g: &Grammar, name: &str, literal: &str, children: Vec<Node>) -> Node
     Node::new(n.key(), Sort::of(&n.yields), children, &n.literal)
 }
 
+/// The tokens the front end lexes a written part into, for a question about
+/// how it is written rather than what it says: which names it writes, or
+/// whether a quantifier writes a bound in place of its set, which reads as
+/// the same tree as the long form. Lexing is the parser's first stage, so
+/// this is the same reading, stopped before the tree.
+pub fn tokens(written: &Written, g: &Grammar) -> Checked<Vec<Token>> {
+    written
+        .sentences()
+        .iter()
+        .map(|s| g.tokens(s.text(), s.path(), s.line()))
+        .collect::<Checked<Vec<_>>>()
+        .map(|all| all.iter().flat_map(|t| t.iter().cloned()).collect())
+}
+
 /// A formula the code writes with letters to fill, `x ≠ 0`, read as the
 /// page's are, by the one parser; the letters are then filled with trees
 /// (`matching::substitute`). The text is the code's own, fixed when it is
 /// compiled, so no formula is put together as text and read: what fills it
 /// is a tree.
 pub fn template(text: &'static str, g: &Grammar, sorts: &Sorts) -> Checked<Node> {
-    Written::here(text).sentence()?.read(g, sorts)
+    Written::new(text, "", 0).sentence()?.read(g, sorts)
 }
 
 /// A template filled: each letter it writes read with the sort of the tree

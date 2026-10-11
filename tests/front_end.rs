@@ -18,7 +18,7 @@ fn grammar() -> Rc<Grammar> {
 
 fn read(text: &str, g: &Grammar) -> Vec<Node> {
     let sorts = Sorts::new();
-    Written::here(text)
+    Written::new(text, "front-end", 0)
         .sentences()
         .iter()
         .map(|s| s.read(g, &sorts).unwrap())

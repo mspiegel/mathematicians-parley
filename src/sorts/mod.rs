@@ -15,18 +15,20 @@
 
 use std::collections::BTreeSet;
 
-use crate::corpus::proof::visible;
+use crate::corpus::proof::{chain, substituted, visible};
 use crate::corpus::{
-    define_parts, DefineLine, DefineParts, FileScope, Record, ScopeId, Theorem,
+    define_parts, DefineLine, DefineParts, FileScope, Intro, Record, ScopeId, Theorem,
 };
 pub mod infer;
 pub mod introduction;
 
-use crate::formula::page::Written;
+use crate::formula::page::{tokens, Written};
+use crate::formula::token::{Token, TokenKind};
 use crate::formula::{holds, Grammar, Sort, Sorts};
-use crate::matching::{expand, Defined, Definitions, Rule};
-use crate::outcome::Built;
+use crate::matching::{expand, namings, Defined, Definitions, Rule};
+use crate::outcome::{Built, Declined};
 use crate::regex;
+use introduction::Introduction;
 
 pub const NUMBER_SYSTEMS: [&str; 5] = ["ℕ", "ℕ₀", "ℤ", "ℚ", "ℝ"];
 
@@ -210,14 +212,149 @@ pub fn unlabel(text: &str) -> String {
     LABEL.replace(text, "").into_owned()
 }
 
-/// The sentences of a line, each without its full stop, as the splitter
-/// cuts them (`formula::page`).
-pub fn sentences(text: &str) -> Vec<String> {
-    Written::here(text)
-        .sentences()
+/// Every part of a theorem that is formula text, as the skeleton cuts it
+/// out: its hypotheses, a `let` line's parts (`Introduction::parts`), its
+/// statement, its defines' rules and domains, and each step's claim,
+/// opening lines, requires lines, the values its citations name, the
+/// equation a substitution writes and the terms of a calculation. A
+/// question about how the theorem is written, which names it writes, asks
+/// the tokens of these (`page::tokens`), and never its words.
+pub fn written_formulas(thm: &Theorem) -> Vec<Written> {
+    let path = &thm.path;
+    let lines = |kind: Intro, body: Written| match kind {
+        Intro::Let => Introduction::read(body).parts(),
+        _ => vec![body],
+    };
+    let mut out: Vec<Written> = Vec::new();
+    for h in &thm.hypotheses {
+        out.extend(lines(h.kind, h.body(path)));
+    }
+    out.push(thm.stated());
+    for d in &thm.defines {
+        out.extend(define_formulas(d));
+        if let Some(reason) = &d.reason {
+            out.extend(
+                namings(&reason.how, path, reason.line)
+                    .into_iter()
+                    .map(|n| n.value),
+            );
+        }
+    }
+    for step in &thm.steps {
+        out.push(step.claim.clone());
+        for o in step.openers.iter().filter(|o| !o.is_hypothesis) {
+            out.extend(lines(o.kind, o.body(path)));
+        }
+        for r in &step.requires {
+            out.push(r.fact.clone());
+            out.extend(namings(&r.how, path, r.line).into_iter().map(|n| n.value));
+        }
+        out.extend(
+            namings(&step.just.text, path, step.just.line)
+                .into_iter()
+                .map(|n| n.value),
+        );
+        out.extend(substituted(&step.just, path));
+        if let Some(Ok(chain)) = chain(&step.just, path) {
+            out.push(chain.start);
+            for line in chain.lines {
+                out.push(line.term);
+                out.extend(line.modulus);
+            }
+        }
+    }
+    out
+}
+
+/// Every part of a library record that is formula text: its hypotheses, a
+/// `let` line's parts (`Introduction::parts`), and its statements.
+pub fn record_formulas(r: &Record) -> Vec<Written> {
+    let mut out: Vec<Written> = Vec::new();
+    for h in &r.hypotheses {
+        let body = h.body(&r.path);
+        match h.kind {
+            Intro::Let => out.extend(Introduction::read(body).parts()),
+            _ => out.push(body),
+        }
+    }
+    out.extend(r.stated());
+    out
+}
+
+/// A define's parts that are formula text: its rule and each domain, or a
+/// recursion's rules and the set its index runs over.
+pub fn define_formulas(d: &DefineLine) -> Vec<Written> {
+    match define_parts(&d.text) {
+        Built(DefineParts::One(one)) => std::iter::once(d.formula(&one.body))
+            .chain(one.params.iter().map(|p| d.formula(&p.domain)))
+            .collect(),
+        Built(DefineParts::Recursion(r)) => std::iter::once(d.formula(&r.domain))
+            .chain(
+                r.start
+                    .values()
+                    .chain(r.step.values())
+                    .map(|v| d.formula(v)),
+            )
+            .collect(),
+        Declined(_) => Vec::new(),
+    }
+}
+
+/// The tokens of each part, as the front end lexes it; a part that does not
+/// lex is left out, as `check_formulas` reports it.
+pub fn written_tokens(parts: &[Written], g: &Grammar) -> Vec<Vec<Token>> {
+    parts.iter().filter_map(|p| tokens(p, g).ok()).collect()
+}
+
+/// The names the tokens write.
+pub fn names_written(tokens: &[Vec<Token>]) -> BTreeSet<String> {
+    tokens
         .iter()
-        .map(|s| s.text().to_string())
+        .flatten()
+        .filter(|t| t.kind == TokenKind::Name)
+        .map(|t| t.text.clone())
         .collect()
+}
+
+/// The letters a binder written in the tokens binds, read off how they are
+/// written where the text may not read: the names after `for all`, `there
+/// is`, `there are`, `there exists`, `sending`, `{` or `Σ(`, up to the `∈`,
+/// `=` or order that follows them, `for all c, d ∈ ℕ` and `{c ∈ A : …}`.
+pub fn bound_written(tokens: &[Vec<Token>]) -> BTreeSet<String> {
+    const OPENS: [&str; 6] = ["all", "is", "are", "exists", "exist", "sending"];
+    const AFTER: [&str; 7] = ["∈", "=", ">", "≥", "<", "≤", "≠"];
+    let mut out = BTreeSet::new();
+    for line in tokens {
+        for (i, t) in line.iter().enumerate() {
+            let opens = (t.kind == TokenKind::Word && OPENS.contains(&t.text.as_str()))
+                || t.text == "{"
+                || (t.text == "Σ" && line.get(i + 1).is_some_and(|n| n.text == "("));
+            if !opens {
+                continue;
+            }
+            let mut at = if t.text == "Σ" { i + 2 } else { i + 1 };
+            if line.get(at).is_some_and(|n| n.text == "no") {
+                at += 1;
+            }
+            let mut names = Vec::new();
+            while let Some(n) = line.get(at).filter(|n| n.kind == TokenKind::Name) {
+                names.push(n.text.clone());
+                at += 1;
+                if line.get(at).is_some_and(|c| c.text == ",") {
+                    at += 1;
+                } else {
+                    break;
+                }
+            }
+            if line
+                .get(at)
+                .is_some_and(|r| AFTER.contains(&r.text.as_str()))
+            {
+                out.extend(names);
+            }
+        }
+    }
+    out
 }
 
 /// A line without its keyword and without its trailing label.

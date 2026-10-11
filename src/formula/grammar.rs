@@ -209,7 +209,12 @@ impl Grammar {
     }
 
     /// The sentence's tokens, read once.
-    fn tokens(&self, text: &str, path: &str, line: usize) -> Checked<Rc<Vec<Token>>> {
+    pub(super) fn tokens(
+        &self,
+        text: &str,
+        path: &str,
+        line: usize,
+    ) -> Checked<Rc<Vec<Token>>> {
         if let Some(found) = self.tokens.borrow().get(text) {
             return Ok(Rc::clone(found));
         }

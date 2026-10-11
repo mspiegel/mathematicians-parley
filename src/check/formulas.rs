@@ -7,7 +7,7 @@ use std::collections::BTreeSet;
 use indexmap::{IndexMap, IndexSet};
 
 use super::library::Known;
-use super::structure::{bound_by_claim, defined_below, introduced, letters_in_scope};
+use super::structure::{defined_below, introduced, letters_in_scope};
 use super::Report;
 use crate::citing::Library;
 use crate::corpus::proof::{chain, requires_item, ChainLine};
@@ -23,7 +23,7 @@ use crate::matching::{
 use crate::outcome::{Built, Checked, Declined};
 use crate::regex;
 use crate::sorts::infer::{self, Reader, Store};
-use crate::sorts::{define_sorts, Env};
+use crate::sorts::{define_sorts, written_tokens, Env};
 use crate::targets::split_entries;
 
 /// The sorts an item's statement relates fit, as its reading found.
@@ -196,9 +196,11 @@ pub fn check_formulas(report: &mut Report, thm: &Theorem, env: Env, known: &Know
     for h in thm.hypotheses.iter().filter(|h| assumed(h.kind)) {
         places.push((h.line, format!("the `{}` line", h.kind), h.body(&thm.path)));
     }
+    // An induction hypothesis writes no formula: it assumes what its
+    // induction's claim says.
     for s in &thm.steps {
         for o in &s.openers {
-            if assumed(o.kind) {
+            if assumed(o.kind) && !o.is_hypothesis {
                 places.push((
                     o.line,
                     format!("the `{}` line", o.kind),
@@ -219,7 +221,8 @@ pub fn check_formulas(report: &mut Report, thm: &Theorem, env: Env, known: &Know
                 // `check_defined_below` says so: above its define it names
                 // nothing, and `U(0)` then reads several ways because
                 // nothing says U is a function.
-                if defined_below(thm, sentence.text(), &own, env.scopes).is_empty() {
+                let lexed = written_tokens(std::slice::from_ref(&written), env.g);
+                if defined_below(thm, &lexed, &own, env.scopes).is_empty() {
                     report.say(&thm.path, line, format!("{what}: {}", p.message));
                 }
             }
@@ -469,7 +472,14 @@ pub fn check_letters_introduced(
 ) {
     let binders = env.g.binders();
     for s in &thm.steps {
-        let claim = s.claim_text();
+        // The letters the claim binds, which its requires lines may write.
+        let claimed: BTreeSet<String> = s
+            .claim
+            .sentences()
+            .iter()
+            .filter_map(|c| c.read(env.g, &known.sorts).ok())
+            .flat_map(|c| known.bound(&c))
+            .collect();
         let mut texts: Vec<(usize, String, &Written, bool)> =
             vec![(s.line, format!("step {}", s.number), &s.claim, false)];
         for r in &s.requires {
@@ -482,11 +492,10 @@ pub fn check_letters_introduced(
         }
         let mut in_scope: Option<BTreeSet<String>> = None;
         for (line, what, written, under_claim) in texts {
-            let mut earlier = String::new();
+            // What the sentences before this one bound, whose letters end
+            // with them.
+            let mut ended: BTreeSet<String> = BTreeSet::new();
             for sentence in written.sentences() {
-                let ended = bound_by_claim(&earlier);
-                earlier.push_str(sentence.text());
-                earlier.push(' ');
                 let Ok(node) = sentence.read(env.g, &known.sorts) else {
                     continue;
                 };
@@ -494,7 +503,7 @@ pub fn check_letters_introduced(
                     letters_in_scope(thm, s, env.scopes, &known.sorts)
                 });
                 for name in free_names(&node, &binders) {
-                    let bound = under_claim && bound_by_claim(&claim).contains(&name);
+                    let bound = under_claim && claimed.contains(&name);
                     if !scope.contains(&name) && !bound {
                         let why = if ended.contains(&name) {
                             "; a `for all` binds its letter only to the end of its sentence"
@@ -508,6 +517,7 @@ pub fn check_letters_introduced(
                         );
                     }
                 }
+                ended.extend(known.bound(&node));
             }
         }
     }

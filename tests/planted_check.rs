@@ -990,6 +990,14 @@ fn cases() -> Vec<Case> {
             ],
             "the induction hypothesis names step 2, and the induction is step 1",
         ),
+        // It is for the letter the claim binds, and no other.
+        case(
+            "an induction hypothesis for another letter",
+            vec![
+                edit("proofs/sum-formula.proof", Some("assume step 1 is true for k".to_string()), "assume step 1 is true for j".to_string()),
+            ],
+            "the induction hypothesis is for j, and step 1 is said for all k",
+        ),
         // The hypothesis is the claim's words where they stand; written out
         // again, the step part does not say it is the induction hypothesis.
         case(
@@ -1299,11 +1307,12 @@ fn cases() -> Vec<Case> {
             ],
             "run together",
         ),
-        // Line 4 of bezout binds s, so substituting a term naming s would capture.
+        // Line 15 of intermediate-value still binds δ once c′ and ε are given,
+        // so a value naming δ would be caught by it.
         case(
             "substitute a term that captures a bound variable",
             vec![
-                edit("proofs/bezout.proof", Some("          instantiate s := a·x + b·y in line 4, from 8.1".to_string()), "          instantiate s := a·x + b·s in line 4, from 8.1".to_string()),
+                edit("proofs/intermediate-value.proof", Some("           instantiate c′ := c, ε := −f(c) in line 15, from 13, H4, 16.3".to_string()), "           instantiate c′ := c, ε := −f(δ) in line 15, from 13, H4, 16.3".to_string()),
             ],
             "may not capture",
         ),
@@ -1311,7 +1320,7 @@ fn cases() -> Vec<Case> {
         case(
             "substitute a term with a comma that captures a bound variable",
             vec![
-                edit("proofs/bezout.proof", Some("          instantiate s := a·x + b·y in line 4, from 8.1".to_string()), "          instantiate s := gcd(s, b) in line 4, from 8.1".to_string()),
+                edit("proofs/intermediate-value.proof", Some("           instantiate c′ := c, ε := −f(c) in line 15, from 13, H4, 16.3".to_string()), "           instantiate c′ := c, ε := −f(c)·|[δ, c]| in line 15, from 13, H4, 16.3".to_string()),
             ],
             "may not capture",
         ),

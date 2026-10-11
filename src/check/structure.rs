@@ -4,24 +4,29 @@
 use std::collections::BTreeSet;
 
 use indexmap::{IndexMap, IndexSet};
-use regex::Regex;
 
+use super::library::Known;
 use super::{Report, CLOSURE, RELATIONS};
 use crate::corpus::proof::{requires_item, starts_with_head, visible};
 use crate::corpus::{
     cited_item, cited_items, define_parts, fmt, full, item_prefix, references,
-    written_text, FileScope, Head, Intro, Item, Justification, Method, Range, Record,
-    RecordKind, Requires, Step, StepNo, Theorem, ITEM_PREFIX, LABEL, NUMBER, REF,
+    FileScope, Head, Intro, Item, Justification, Method, Range, Record, RecordKind,
+    Requires, Step, StepNo, Theorem, ITEM_PREFIX, LABEL, NUMBER, REF,
 };
 use crate::formula::library::Function;
 use crate::formula::page::Written;
+use crate::formula::token::{Token, TokenKind};
 use crate::formula::{holds, Sorts};
-use crate::matching::instantiation;
+use crate::matching::namings;
 use crate::outcome::{Built, Declined};
+use crate::regex;
 use crate::sorts::infer::obtains;
-use crate::sorts::named_by_hypotheses;
+use crate::sorts::introduction::{Form, Introduction};
+use crate::sorts::{
+    bound_written, define_formulas, named_by_hypotheses, names_written,
+    written_formulas, written_tokens,
+};
 use crate::text::{prefix, repr};
-use crate::{fancy, regex};
 
 /// A step numbered `cited` is visible from the step numbered `here` when it
 /// is an ancestor, or shares `here`'s path to some position and comes before
@@ -205,6 +210,7 @@ pub fn check_blocks(
     report: &mut Report,
     thm: &Theorem,
     methods: &IndexMap<String, &Record>,
+    known: &Known,
 ) {
     for step in &thm.steps {
         let has_children = thm.steps.iter().any(|s| s.number.parent() == step.number);
@@ -293,7 +299,7 @@ pub fn check_blocks(
             );
         }
         if step.just.head.is(Method::Induction) {
-            check_step_part(report, thm, step);
+            check_step_part(report, thm, step, known);
         }
         if method.and_then(|m| m.field("part-opens")) == Some("assume, labelled") {
             for (index, (marker, no)) in step.parts.iter().enumerate() {
@@ -317,26 +323,27 @@ pub fn check_blocks(
     }
 }
 
-regex!(
-    INDUCTION_CLAIM,
-    r"^[Ff]or\s+all\s+(\S+)\s*∈\s*([^,\s]+)(?:,|\s+with\s)"
-);
-regex!(INDUCTION_LET, r"^let\s+(\S+)\s*∈\s*(\S+)");
-
 /// An induction's step part opens as a textbook's does: `let k ∈ X`, with
 /// the letter and the set the claim "for all k ∈ X, …" binds, and `assume
 /// step N is true for k, the induction hypothesis`. Its base part opens with
 /// nothing.
-fn check_step_part(report: &mut Report, thm: &Theorem, step: &Step) {
+fn check_step_part(report: &mut Report, thm: &Theorem, step: &Step, known: &Known) {
     let number = fmt(&step.number);
-    let claim = step.claim_text();
-    let Some(claimed) = INDUCTION_CLAIM.captures(str::trim(&claim)) else {
-        report.say(
-            &thm.path,
-            step.line,
-            format!("step {number} is an induction whose claim does not say \"for all k ∈ X, …\""),
-        );
-        return;
+    let Some(claim) = known.whole_as_written(&step.claim) else {
+        return; // `check_formulas` says it does not read
+    };
+    let (letter, set) = match (claim.notation.as_str(), claim.children.as_slice()) {
+        ("for-all", [letter, set, _]) if letter.is_name() => (letter, set),
+        _ => {
+            report.say(
+                &thm.path,
+                step.line,
+                format!(
+                    "step {number} is an induction whose claim does not say \"for all k ∈ X, …\""
+                ),
+            );
+            return;
+        }
     };
     for (index, (marker, no)) in step.parts.iter().enumerate() {
         let opens: Vec<_> = step
@@ -357,21 +364,39 @@ fn check_step_part(report: &mut Report, thm: &Theorem, step: &Step) {
             }
             continue;
         }
+        // The membership the part's `let` line introduces, `k ∈ X`.
         let fixed = opens
             .iter()
             .filter(|o| o.kind == Intro::Let)
-            .find_map(|o| INDUCTION_LET.captures(str::trim(&o.text)));
+            .map(|o| Introduction::read(o.body(&thm.path)))
+            .filter(|i| matches!(i.form, Form::Member))
+            .find_map(|i| i.asserted(known.env.g, &known.sorts).ok()?.pop());
         let opened = opens.iter().any(|o| o.is_hypothesis)
-            && fixed
-                .as_ref()
-                .is_some_and(|f| f[1] == claimed[1] && f[2] == claimed[2]);
+            && fixed.as_ref().is_some_and(|f| match f.children.as_slice() {
+                [k, x] => k.text == letter.text && known.alike(x, set),
+                _ => false,
+            });
         if !opened {
+            let (k, x) = (known.print(letter), known.print(set));
             report.say(
                 &thm.path,
                 *no,
                 format!(
-                    "the step part of step {number} does not open with `let {} ∈ {}` and `assume step {number} is true for {}, the induction hypothesis`",
-                    &claimed[1], &claimed[2], &claimed[1]
+                    "the step part of step {number} does not open with `let {k} ∈ {x}` and `assume step {number} is true for {k}, the induction hypothesis`"
+                ),
+            );
+        }
+        for o in opens.iter().filter(|o| o.is_hypothesis) {
+            let Some(said) = o.hypothesis_for.as_ref().filter(|k| **k != letter.text)
+            else {
+                continue;
+            };
+            report.say(
+                &thm.path,
+                o.line,
+                format!(
+                    "the induction hypothesis is for {said}, and step {number} is said for all {}",
+                    letter.text
                 ),
             );
         }
@@ -409,26 +434,6 @@ pub fn check_chain(report: &mut Report, thm: &Theorem, step: &Step) {
             report.say(&thm.path, *no, "chain line carries no relation");
         }
     }
-}
-
-/// Every line's claim, by the reference that names it.
-pub fn claims_of(thm: &Theorem) -> IndexMap<String, String> {
-    let mut out: IndexMap<String, String> = thm
-        .steps
-        .iter()
-        .map(|s| (fmt(&s.number), s.claim_text()))
-        .collect();
-    for h in &thm.hypotheses {
-        if let Some(lab) = &h.label {
-            out.insert(lab.clone(), h.text.clone());
-        }
-    }
-    for s in &thm.steps {
-        for o in &s.openers {
-            out.insert(o.label.clone(), o.text.clone());
-        }
-    }
-    out
 }
 
 /// What to say of a label cited and not in scope: where it is the name of a
@@ -706,19 +711,6 @@ impl Cited<'_> {
     }
 }
 
-// `for all`, `there is`, `there are`, `there exists` and `there exist` open
-// a scope, over one name or a list of them, `for all x, y ∈ ℤ`, or over a
-// name with a bound in place of its set, `for all ε > 0`. The corpus
-// capitalises each at the start of a sentence, so this is deliberately
-// case-insensitive.
-regex!(
-    BINDER,
-    r"(?i)(?:for all|there is(?: no)?|there are|there exists?)\s+([A-Za-zα-ω][₀-₉′]*(?:\s*,\s*[A-Za-zα-ω][₀-₉′]*)*)\s*(?:∈|>|≥|<|≤|≠)"
-);
-fancy!(
-    VARNAME,
-    r"(?<![A-Za-zα-ω])([A-Za-zα-ω][₀-₉′]*)(?![A-Za-zα-ω])"
-);
 regex!(CAPTURE_TARGET, r"\bin\s+(?:line\s+)?([\w.]+)");
 
 /// The line an `instantiate` justification instantiates, by its number or
@@ -727,10 +719,6 @@ pub fn instantiated_line(just: &str) -> Option<String> {
     CAPTURE_TARGET.captures(just).map(|m| m[1].to_string())
 }
 
-// Patterns whose holes sit next to each other with no token between them,
-// so that the names filling them run together in the text.
-regex!(ADJACENT_BARS, r"\|([A-Za-z]{2,})\|");
-regex!(ADJACENT_ANGLE, r"∠([A-Za-z]{2,})");
 regex!(DECLARED_WORD, r"[A-Za-z]{2,}");
 
 /// Every literal word appearing in a declared pattern.
@@ -760,25 +748,44 @@ pub fn check_run_together(
     report: &mut Report,
     thm: &Theorem,
     words: &IndexSet<String>,
+    g: &crate::formula::Grammar,
 ) {
+    // A run of letters the lexer read whole as a word, between the bars of
+    // |xy| or straight after ∠, where two names were meant.
+    let whole = |t: &Token, next: Option<&Token>| {
+        words.contains(&t.text)
+            && t.text.chars().count() > 1
+            && !next.is_some_and(|n| {
+                n.kind == TokenKind::Name && n.at == t.at + t.text.chars().count()
+            })
+    };
     for s in &thm.steps {
-        for text in [s.claim.text()] {
-            for pattern in [&*ADJACENT_BARS, &*ADJACENT_ANGLE] {
-                for c in pattern.captures_iter(text) {
-                    let run = &c[1];
-                    if words.contains(run) {
-                        report.say(
-                            &thm.path,
-                            s.line,
-                            format!(
-                                "step {} writes {} in a notation whose holes are adjacent, and {} is a declared word; rename one of the names so the two do not run together",
-                                s.number,
-                                repr(run),
-                                repr(run)
-                            ),
-                        );
-                    }
+        for line in written_tokens(std::slice::from_ref(&s.claim), g) {
+            for (i, t) in line.iter().enumerate() {
+                let next = line.get(i + 1);
+                let end = t.at + t.text.chars().count();
+                // The mark touches the run, with no space between: `|xy|`,
+                // and not the bars of `|H| divides |G|`.
+                let before = i
+                    .checked_sub(1)
+                    .and_then(|b| line.get(b))
+                    .filter(|b| b.at + b.text.chars().count() == t.at);
+                let barred = before.is_some_and(|b| b.text == "|")
+                    && next.is_some_and(|n| n.text == "|" && n.at == end);
+                let angled = before.is_some_and(|b| b.text == "∠") && whole(t, next);
+                if !((barred && whole(t, next)) || angled) {
+                    continue;
                 }
+                report.say(
+                    &thm.path,
+                    s.line,
+                    format!(
+                        "step {} writes {} in a notation whose holes are adjacent, and {} is a declared word; rename one of the names so the two do not run together",
+                        s.number,
+                        repr(&t.text),
+                        repr(&t.text)
+                    ),
+                );
             }
         }
     }
@@ -788,38 +795,62 @@ pub fn check_run_together(
 /// variable bound where it lands, the step is rejected rather than the
 /// variable quietly renamed, because renaming would make the machine do
 /// something the page does not show.
-pub fn check_capture(
-    report: &mut Report,
-    thm: &Theorem,
-    claims: &IndexMap<String, String>,
-) {
+pub fn check_capture(report: &mut Report, thm: &Theorem, known: &Known) {
+    let binders = known.env.g.binders();
     for s in &thm.steps {
         if !s.just.head.is(Method::Instantiate) {
             continue;
         }
-        let Some(m) = CAPTURE_TARGET.captures(&s.just.text) else {
+        let Some(target) = instantiated_line(&s.just.text) else {
             continue;
         };
-        let landing = claims.get(&m[1]).map(String::as_str).unwrap_or("");
-        let bound: BTreeSet<String> = BINDER
-            .captures_iter(landing)
-            .flat_map(|c| names_listed(&c[1]))
-            .collect();
+        // The letters a binder in the target line binds: what the grammar
+        // says each binding notation holds. A line that does not read is
+        // `check_formulas`'s to report.
+        let landing = known.scope(s).get(&target).cloned();
+        let mut bound: BTreeSet<String> = BTreeSet::new();
+        for tree in landing
+            .iter()
+            .flat_map(|l| known.said_parts(l, None))
+            .flatten()
+        {
+            for node in tree.walk() {
+                let Some(binds) = binders.get(&node.notation) else {
+                    continue;
+                };
+                for &at in &binds.held {
+                    if let Some(letter) = node.children.get(at).filter(|l| l.is_name())
+                    {
+                        bound.insert(letter.text.clone());
+                    }
+                }
+            }
+        }
+        // A letter given a value is the one the instantiation takes its
+        // binder off, so the value lands where it is no longer bound.
+        let named = namings(&s.just.text, &thm.path, s.just.line);
+        for n in &named {
+            bound.remove(&n.name);
+        }
         if bound.is_empty() {
             continue;
         }
-        for (v, value) in instantiation(&s.just.text) {
+        for n in named {
+            let Some(value) = n
+                .value
+                .sentence()
+                .ok()
+                .and_then(|v| known.read_as_written(&v))
+            else {
+                continue; // the elaborator says it does not read
+            };
             // Substituting a variable for itself changes nothing and cannot
             // capture. A term that merely mentions the bound name does: that
             // mention refers to an outer binding and would be swallowed.
-            if value == v {
+            if value.is_name() && value.text == n.name {
                 continue;
             }
-            let named: BTreeSet<String> = VARNAME
-                .captures_iter(&value)
-                .filter_map(|c| c.ok())
-                .map(|c| c[1].to_string())
-                .collect();
+            let named = value.names();
             let clash: Vec<&String> = named.intersection(&bound).collect();
             if !clash.is_empty() {
                 let shown: Vec<&str> = clash.iter().map(|s| s.as_str()).collect();
@@ -854,7 +885,7 @@ pub fn check_ranges(
     path: &str,
     ranges: &[Range],
     lets: &[(&str, usize)],
-    text: &str,
+    tokens: &[Vec<Token>],
     env: crate::sorts::Env,
     sorts: &Sorts,
 ) {
@@ -883,12 +914,23 @@ pub fn check_ranges(
                 continue;
             }
             said.insert(name, range);
-            let short = Regex::new(&format!(
-                r"(?i)(?:for all|there is|there exists)\s+{}\s*(?:>|≥|<|≤|≠)",
-                regex::escape(name)
-            ))
-            .unwrap();
-            if !short.is_match(text) {
+            // `for all ε > 0`, `there is δ > 0`: the quantifier, the name,
+            // and an order in place of the set. Its tree is the long form's,
+            // so it is told by how it is written.
+            const ORDERS: [&str; 5] = [">", "≥", "<", "≤", "≠"];
+            let short = tokens.iter().any(|line| {
+                line.windows(4).any(|w| {
+                    let opens = matches!(
+                        (w[0].text.as_str(), w[1].text.as_str()),
+                        ("for", "all") | ("there", "is") | ("there", "exists")
+                    );
+                    opens
+                        && w[2].kind == TokenKind::Name
+                        && &w[2].text == name
+                        && ORDERS.contains(&w[3].text.as_str())
+                })
+            });
+            if !short {
                 report.say(
                     path,
                     range.line,
@@ -927,7 +969,18 @@ pub fn check_ranges(
 /// cited item's conclusion to learn a sort, and sorts are what disambiguate
 /// a notation, so two implementations chasing differently would parse the
 /// same formula differently.
-pub fn check_sorts(report: &mut Report, thm: &Theorem) {
+pub fn check_sorts(report: &mut Report, thm: &Theorem, known: &Known) {
+    // What says a name's sort: its membership, a part of a set by ⊆ as
+    // surely as by ∈ 𝒫, its being a set, a point or a polynomial, or a
+    // function's type.
+    const SAYING: [&str; 6] = [
+        "membership",
+        "subset",
+        "is-a-set",
+        "is-a-point",
+        "is-a-polynomial",
+        "function-type",
+    ];
     for s in &thm.steps {
         if !s.just.head.is(Method::Obtain) {
             continue;
@@ -935,24 +988,19 @@ pub fn check_sorts(report: &mut Report, thm: &Theorem) {
         let Some(names) = obtains(&s.just.text) else {
             continue;
         };
-        let claim = s.claim_text();
+        let Some(claim) = known.whole_as_written(&s.claim) else {
+            continue; // `check_formulas` says it does not read
+        };
+        let said = claim.walk();
         for v in names.split(',').map(str::trim) {
             if v.is_empty() {
                 continue;
             }
-            let n = regex::escape(v);
-            // A part of a set is stated by ⊆ as surely as by ∈ 𝒫.
-            let stated = [
-                format!(r"(?<![A-Za-z]){n}\s*[∈⊆]"),
-                format!(r"(?<![A-Za-z]){n}\s+is a (set|point|polynomial)"),
-                format!(r"(?<![A-Za-z]){n}\s*:"),
-            ]
-            .iter()
-            .any(|p| {
-                fancy_regex::Regex::new(p)
-                    .ok()
-                    .and_then(|re| re.is_match(&claim).ok())
-                    .unwrap_or(false)
+            let stated = said.iter().any(|n| {
+                SAYING.contains(&n.notation.as_str())
+                    && n.children
+                        .first()
+                        .is_some_and(|x| x.is_name() && x.text == v)
             });
             if !stated {
                 report.say(
@@ -1024,11 +1072,6 @@ fn by_file(theorems: &[Theorem]) -> IndexMap<&str, Vec<&Theorem>> {
     files
 }
 
-fn word_bounded(name: &str) -> fancy_regex::Regex {
-    fancy_regex::Regex::new(&format!(r"(?<![\w]){}(?![\w])", regex::escape(name)))
-        .unwrap()
-}
-
 /// What a proof file defines outside its theorems and what it imports.
 ///
 /// Two definitions of one name are a defect wherever both could be read:
@@ -1056,15 +1099,10 @@ pub fn check_function_imports(
     report: &mut Report,
     theorems: &[Theorem],
     scopes: &[FileScope],
+    g: &crate::formula::Grammar,
 ) {
     for (id, scope) in scopes.iter().enumerate() {
-        let mut text: Vec<String> = theorems
-            .iter()
-            .filter(|t| t.scope == id)
-            .map(written_text)
-            .collect();
-        text.extend(scope.defines.iter().map(|d| d.text.clone()));
-        let text = text.join(" ");
+        let tokens = file_tokens(theorems, id, scope, g);
         let mut seen: IndexSet<&str> = IndexSet::new();
         for fi in &scope.functions {
             let (path, no, name) = (&scope.path, fi.line, fi.name.as_str());
@@ -1072,14 +1110,36 @@ pub fn check_function_imports(
                 report.say(path, no, format!("{name} is imported twice"));
                 continue;
             }
-            let applied =
-                Regex::new(&format!(r"(?:^|[^A-Za-zα-ω]){}\(", regex::escape(name)))
-                    .unwrap();
-            if !applied.is_match(&text) {
+            // Applied: the name written with a bracket after it.
+            let applied = tokens.iter().any(|line| {
+                line.windows(2).any(|w| {
+                    w[0].kind == TokenKind::Name
+                        && w[0].text == name
+                        && w[1].text == "("
+                })
+            });
+            if !applied {
                 report.say(path, no, format!("imports {name} and never applies it"));
             }
         }
     }
+}
+
+/// The tokens of every formula a file writes: its theorems' and its own
+/// defines' (`written_formulas`, `define_formulas`).
+fn file_tokens(
+    theorems: &[Theorem],
+    scope_id: usize,
+    scope: &FileScope,
+    g: &crate::formula::Grammar,
+) -> Vec<Vec<Token>> {
+    let mut parts: Vec<Written> = theorems
+        .iter()
+        .filter(|t| t.scope == scope_id)
+        .flat_map(written_formulas)
+        .collect();
+    parts.extend(scope.defines.iter().flat_map(define_formulas));
+    written_tokens(&parts, g)
 }
 
 /// A proof's own function does not take the name of a library function its
@@ -1168,6 +1228,7 @@ pub fn check_definitions(
     report: &mut Report,
     theorems: &[Theorem],
     scopes: &[FileScope],
+    g: &crate::formula::Grammar,
 ) {
     for thms in by_file(theorems).values() {
         let scope_id = thms[0].scope;
@@ -1225,13 +1286,9 @@ pub fn check_definitions(
                 );
             }
         }
-        let mut parts: Vec<String> = thms.iter().map(|t| written_text(t)).collect();
-        parts.extend(scope.defines.iter().map(|d| d.text.clone()));
-        let text = parts.join(" ");
+        let written = names_written(&file_tokens(theorems, scope_id, scope, g));
         for i in &scope.imports {
-            if scope.linked.contains_key(&i.alias)
-                && !word_bounded(&i.alias).is_match(&text).unwrap_or(false)
-            {
+            if scope.linked.contains_key(&i.alias) && !written.contains(&i.alias) {
                 let message = if i.alias != i.name {
                     format!(
                         "imports definition {} as {} and never uses it",
@@ -1490,14 +1547,6 @@ pub fn check_imports(
     }
 }
 
-// A name a formula binds for itself: `for all c ∈ ℕ`, `for all c, d ∈ ℕ`,
-// `for all c > 0`, `there is c ∈ A`, `{c ∈ A : …}`, `Σ(c = 1 to n)`, `the
-// map sending c ∈ A to …`.
-regex!(
-    BOUND_HERE,
-    r"(?:for all|there (?:is|are|exists?)(?: no)?|sending|\{|Σ\()\s*([A-Za-zα-ω][₀-₉′]*(?:\s*,\s*[A-Za-zα-ω][₀-₉′]*)*)\s*(?:∈|=|>|≥|<|≤|≠)"
-);
-
 /// The names in a list a binder writes, `x` or `x, y`.
 fn names_listed(list: &str) -> Vec<String> {
     list.split(',').map(|n| str::trim(n).to_string()).collect()
@@ -1598,25 +1647,12 @@ pub fn letters_in_scope(
 regex!(LET_LIST, r"^let\s+(.+?)\s*(?:∈|∉|⊆|:|\sbe\s)");
 regex!(LISTED, r"\{([^{}:…]*)\}");
 
-/// The letters a claim binds, which its requires lines may write: they say
-/// what the claim needs of each such letter.
-pub fn bound_by_claim(claim: &str) -> BTreeSet<String> {
-    // A claim opens a sentence, so its binder is capitalised there.
-    let claim = claim
-        .replace("For all", "for all")
-        .replace("There ", "there ");
-    BOUND_HERE
-        .captures_iter(&claim)
-        .flat_map(|m| names_listed(&m[1]))
-        .collect()
-}
-
-/// (name, line) for each name `text` writes that the theorem's file defines
-/// outside its theorems only below it, and that the theorem does not
+/// (name, line) for each name the tokens write that the theorem's file
+/// defines outside its theorems only below it, and that the theorem does not
 /// introduce itself: `own`, and what the text binds.
 pub fn defined_below(
     thm: &Theorem,
-    text: &str,
+    tokens: &[Vec<Token>],
     own: &BTreeSet<String>,
     scopes: &[FileScope],
 ) -> Vec<(String, usize)> {
@@ -1625,11 +1661,8 @@ pub fn defined_below(
         .map(|(n, _, _)| n)
         .collect();
     seen.extend(own.iter().cloned());
-    seen.extend(
-        BOUND_HERE
-            .captures_iter(text)
-            .flat_map(|c| names_listed(&c[1])),
-    );
+    seen.extend(bound_written(tokens));
+    let written = names_written(tokens);
     let mut out = Vec::new();
     for d in &scopes[thm.scope].defines {
         let Built(said) = define_parts(&d.text) else {
@@ -1639,7 +1672,7 @@ pub fn defined_below(
         if d.line < thm.line || seen.contains(name) {
             continue;
         }
-        if word_bounded(name).is_match(text).unwrap_or(false) {
+        if written.contains(name) {
             out.push((name.to_string(), d.line));
         }
     }
@@ -1653,8 +1686,14 @@ pub fn defined_below(
 /// several ways because nothing says U is a function. So a name the file
 /// defines outside its theorems only further down, used in a theorem that
 /// does not introduce it itself, is said once, at the theorem.
-pub fn check_defined_below(report: &mut Report, thm: &Theorem, scopes: &[FileScope]) {
-    for (name, at) in defined_below(thm, &written_text(thm), &introduced(thm), scopes) {
+pub fn check_defined_below(
+    report: &mut Report,
+    thm: &Theorem,
+    scopes: &[FileScope],
+    g: &crate::formula::Grammar,
+) {
+    let tokens = written_tokens(&written_formulas(thm), g);
+    for (name, at) in defined_below(thm, &tokens, &introduced(thm), scopes) {
         report.say(
             &thm.path,
             thm.line,

@@ -27,8 +27,8 @@ use crate::corpus::{
     define_parts, fmt, item_prefix, DefineParts, Intro, Item, Kinded, Step, CITED,
     ITEM_PREFIX,
 };
-use crate::formula::page::Written;
-use crate::formula::Node;
+use crate::formula::page::{made_as, Written};
+use crate::formula::{Node, Sorts};
 use crate::matching::standard;
 use crate::mm::kernel::Term;
 use crate::mm::spell::Proof;
@@ -603,10 +603,38 @@ impl<'a> Elaborator<'a> {
             .cloned()
             .collect();
         for o in openers {
-            let said = self.hypothesis_node(o.kind, &o.body(&self.thm.path))?;
-            let node = said.clone();
-            if o.kind == Intro::Let {
-                let name = subject_of(&node).text.clone();
+            // An induction hypothesis writes no formula of its own: what it
+            // says is read off the claim below.
+            if let Some(letter) = &o.hypothesis_for {
+                let claim = self.claim_node(&block.owner.claim)?;
+                let bound = match (claim.notation.as_str(), claim.children.as_slice()) {
+                    ("for-all", [k, _, _]) => k.text.clone(),
+                    _ => {
+                        return Err(self.defect(
+                            o.line,
+                            format!(
+                                "step {} is an induction whose claim does not say \"for all k ∈ X, …\"",
+                                fmt(&block.owner.number)
+                            ),
+                        ))
+                    }
+                };
+                if &bound != letter {
+                    return Err(self.defect(
+                        o.line,
+                        format!(
+                            "the induction hypothesis is for {letter}, and step {} is said for all {bound}",
+                            fmt(&block.owner.number)
+                        ),
+                    ));
+                }
+            }
+            let said = match o.is_hypothesis {
+                true => None,
+                false => Some(self.hypothesis_node(o.kind, &o.body(&self.thm.path))?),
+            };
+            if let (Intro::Let, Some(node)) = (o.kind, &said) {
+                let name = subject_of(node).text.clone();
                 let var = self.fixed_var(&name, &block.scope.clone())?;
                 self.names.insert(name.clone(), format!("{var} cv"));
                 block.variable = Some(var);
@@ -618,14 +646,17 @@ impl<'a> Elaborator<'a> {
             // two are one formula with one choice of bound letters.
             // What the line says is kept as the page's tree, which a citation
             // of it is matched against (`citing`); its term is the frozen one.
-            let (node, added) = if o.is_hypothesis {
-                let claim = self.claim_node(&block.owner.claim)?;
-                let frozen = self.freeze(&claim.children[2])?;
-                let added = self.term(&frozen)?;
-                (claim.children[2].clone(), added)
-            } else {
-                let added = self.term(&said)?;
-                (said, added)
+            let (node, added) = match said {
+                None => {
+                    let claim = self.claim_node(&block.owner.claim)?;
+                    let frozen = self.freeze(&claim.children[2])?;
+                    let added = self.term(&frozen)?;
+                    (claim.children[2].clone(), added)
+                }
+                Some(said) => {
+                    let added = self.term(&said)?;
+                    (said, added)
+                }
             };
             let origin = assumption(block, &o.label);
             let (inner, lifted) = self.widen(
@@ -2106,18 +2137,25 @@ impl<'a> Elaborator<'a> {
                     }
                 }
                 DefineParts::One(one) => {
-                    // The rule is bracketed, since a map binds tighter than a
-                    // rule by cases.
-                    let body = match one.params.as_slice() {
-                        [] => one.body.clone(),
-                        [p] => format!(
-                            "the map sending {} ∈ {} to ({})",
-                            p.name, p.domain, one.body
-                        ),
-                        [p, q] => format!(
-                            "the map sending {} ∈ {}, {} ∈ {} to ({})",
-                            p.name, p.domain, q.name, q.domain, one.body
-                        ),
+                    // A function is the map sending its parameters, each in
+                    // its domain, to its rule, read with what the domains
+                    // say the parameters are (`define_sorts`).
+                    let local = crate::sorts::define_sorts(one, &self.sorts_now);
+                    let read = |text: &str, sorts: &Sorts| {
+                        d.formula(text)
+                            .sentence()
+                            .and_then(|s| s.read(self.g, sorts))
+                    };
+                    let rule = read(&one.body, &local)?;
+                    let mut held = Vec::new();
+                    for p in &one.params {
+                        held.push(read(&p.name, &local)?);
+                        held.push(read(&p.domain, &self.sorts_now)?);
+                    }
+                    let pattern = match one.params.len() {
+                        0 => None,
+                        1 => Some("the map sending _ ∈ _ to _"),
+                        2 => Some("the map sending _ ∈ _, _ ∈ _ to _"),
                         _ => {
                             return Err(self.defect(
                                 d.line,
@@ -2128,7 +2166,13 @@ impl<'a> Elaborator<'a> {
                             ))
                         }
                     };
-                    let node = self.read_here(&body)?;
+                    let node = match pattern {
+                        None => rule,
+                        Some(pattern) => {
+                            held.push(rule);
+                            made_as(self.g, pattern, held).expect("the map notations")
+                        }
+                    };
                     let term = self.term(&node)?;
                     // A define names a thing, a number, a set or a map, and a
                     // statement is none: there is nothing for the name to be

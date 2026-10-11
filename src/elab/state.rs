@@ -370,6 +370,11 @@ impl<'a> Elaborator<'a> {
                 }
             }
         }
+        // Every single letter the page shows anywhere, in a formula, a label
+        // or a word, keeps its kernel variable: a spare one never looks like
+        // a letter on the page. This reads no formula; it is wider than the
+        // names the formulas write (`sorts::names_written`), and narrowing it
+        // to those would rename the spare variables of elaborated proofs.
         let text = written_text(thm);
         for m in LETTER.find_iter(&text).flatten() {
             if let Some(label) = b.flabel.get(m.as_str()) {

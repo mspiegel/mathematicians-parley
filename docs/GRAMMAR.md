@@ -954,9 +954,10 @@ in which order, and whether a part opens with an assumption, are read from that
 method's record in `corpus/db/methods.records`, not hard-coded: induction declares `base,
 step`, and cases declares a repeating `case` whose parts open with `assume`.
 An induction's `step` part opens with `let k ∈ X` and `assume step N is true
-for k, the induction hypothesis (IH)`; the parser reads the second as step
-N's statement after "for all k ∈ X,", which is what the line assumes
-(`Opener::is_hypothesis`), and the words are not the opener's text.
+for k, the induction hypothesis (IH)`. The second writes no formula of its
+own: what it assumes is step N's statement after "for all k ∈ X,", taken
+from the tree of N's claim (`Opener::is_hypothesis`), and the k it names is
+the letter that claim binds.
 
 ## Calculation chains
 

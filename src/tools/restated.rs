@@ -394,14 +394,16 @@ fn let_names(r: &Record) -> Vec<String> {
 /// The library functions a record's statement applies, which a proof
 /// restating it imports.
 fn applied_functions(r: &Record, g: &Grammar) -> Vec<String> {
-    let mut texts: Vec<&str> = r.hypotheses.iter().map(|h| h.text.as_str()).collect();
-    texts.extend(r.conclusions.iter().map(|(t, _)| t.as_str()));
-    let text = texts.join(" ");
+    // Applied: the name written with a bracket after it, as the front end
+    // lexes the record's formulas.
+    let tokens = crate::sorts::written_tokens(&crate::sorts::record_formulas(r), g);
     g.functions
         .keys()
         .filter(|name| {
-            regex::Regex::new(&format!(r"(?:^|[^A-Za-zα-ω]){}\(", regex::escape(name)))
-                .is_ok_and(|applied| applied.is_match(&text))
+            tokens.iter().any(|line| {
+                line.windows(2)
+                    .any(|w| &w[0].text == *name && w[1].text == "(")
+            })
         })
         .cloned()
         .collect()
