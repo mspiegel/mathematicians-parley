@@ -2,6 +2,7 @@
 
 use std::borrow::Cow;
 use std::collections::BTreeSet;
+use std::sync::atomic::{AtomicUsize, Ordering};
 
 use indexmap::IndexSet;
 
@@ -76,38 +77,176 @@ pub fn search(
     library: &Library,
     sites: &Sites,
     reuse: bool,
-    mut ways: Option<&mut Ways>,
+    ways: Option<&mut Ways>,
 ) -> Option<Binding> {
-    // A bare membership of a letter still open, k ∈ ℕ, fits every fact
-    // putting a number in ℕ, so asked first it multiplies the search by those
-    // facts for each such letter, and a hypothesis nothing supplies is found
-    // out only after every arrangement of them: a step citing the wrong line
-    // for six letters ran for hours. Asked once the other hypotheses have
-    // fixed the letter, it is a closed fact, looked up.
-    let open_member = |p: &Node| {
-        p.notation == "membership"
-            && p.children.len() == 2
-            && p.children[0].is_name()
-            && variables.contains(&p.children[0].text)
-            && !binding.contains_key(&p.children[0].text)
-    };
-    if patterns.first().is_some_and(open_member) {
-        if let Some(at) = patterns.iter().position(|p| !open_member(p)) {
-            let mut turned = patterns.to_vec();
-            let next = turned.remove(at);
-            turned.insert(0, next);
-            return search(
-                &turned, facts, used, binding, variables, library, sites, reuse, ways,
-            );
-        }
-    }
-    let Some((first, rest)) = patterns.split_first() else {
+    let patterns: Vec<&Node> = patterns.iter().collect();
+    let mut asked = 0;
+    let out = searched(
+        &patterns, facts, used, binding, variables, library, sites, reuse, ways,
+        &mut asked,
+    );
+    LARGEST.fetch_max(asked, Ordering::Relaxed);
+    out
+}
+
+/// The most hypotheses one search has tried to supply, counting each time
+/// one is asked again under another binding, over every search this process
+/// has made.
+static LARGEST: AtomicUsize = AtomicUsize::new(0);
+
+/// The size of the largest search this process has made: how many times it
+/// asked a hypothesis of the facts.
+pub fn largest_search() -> usize {
+    LARGEST.load(Ordering::Relaxed)
+}
+
+/// `search` over the hypotheses still to supply, counting in `asked` each
+/// one it takes up.
+///
+/// It takes up the hypothesis the fewest facts fit, as the binding stands.
+/// A hypothesis asked while its letters are open fits every fact of its
+/// shape, `k ∈ ℕ` every fact putting a number in ℕ, and taken first it
+/// multiplies the search by those facts, while one that nothing fits is
+/// found out only after every arrangement of them: a step citing the wrong
+/// line for six letters ran for hours in written order. Taken last, the
+/// open hypothesis is a closed fact, looked up, and the one nothing fits
+/// ends the search at once.
+///
+/// That a hypothesis nothing fits ends the search holds where fixing more
+/// letters only narrows what fits it (`settled`). One that can be fitted
+/// more ways once letters are fixed is taken up only when no other is left,
+/// in written order.
+#[allow(clippy::too_many_arguments)]
+fn searched(
+    patterns: &[&Node],
+    facts: &[Node],
+    used: &mut Vec<bool>,
+    binding: &Binding,
+    variables: &BTreeSet<String>,
+    library: &Library,
+    sites: &Sites,
+    reuse: bool,
+    mut ways: Option<&mut Ways>,
+    asked: &mut usize,
+) -> Option<Binding> {
+    if patterns.is_empty() {
         if let Some(ways) = ways {
             (ways.found)(&ways.path, binding);
             return None;
         }
         return Some(binding.clone());
+    }
+    *asked += 1;
+    let fitting = |p: &Node, used: &[bool]| {
+        fits(p, facts, used, binding, variables, library, sites, reuse)
     };
+    let mut fewest: Option<(usize, Vec<Fit>)> = None;
+    for (at, p) in patterns.iter().enumerate() {
+        if !settled(p, binding, variables, library) {
+            continue;
+        }
+        let these = fitting(p, used);
+        if these.is_empty() {
+            return None;
+        }
+        if fewest.as_ref().is_none_or(|(_, f)| these.len() < f.len()) {
+            fewest = Some((at, these));
+        }
+    }
+    let (at, these) = match fewest {
+        Some(f) => f,
+        None => (0, fitting(patterns[0], used)),
+    };
+    let rest: Vec<&Node> = patterns
+        .iter()
+        .enumerate()
+        .filter(|(i, _)| *i != at)
+        .map(|(_, p)| *p)
+        .collect();
+    for fit in these {
+        if let (true, Some(i)) = (fit.takes, fit.fact) {
+            used[i] = true;
+        }
+        // A fact that supplies a hypothesis is one the way uses, taken for
+        // the hypotheses after it or not.
+        if let (Some(ways), Some(i)) = (ways.as_deref_mut(), fit.fact) {
+            ways.path.push(i);
+        }
+        let done = searched(
+            &rest,
+            facts,
+            used,
+            &fit.binding,
+            variables,
+            library,
+            sites,
+            reuse,
+            ways.as_deref_mut(),
+            asked,
+        );
+        if let (Some(ways), Some(_)) = (ways.as_deref_mut(), fit.fact) {
+            ways.path.pop();
+        }
+        if let (true, Some(i)) = (fit.takes, fit.fact) {
+            used[i] = false;
+        }
+        if done.is_some() {
+            return done;
+        }
+    }
+    None
+}
+
+/// Whether fixing more letters can only narrow what fits a hypothesis, so
+/// that one nothing fits now is one nothing will.
+///
+/// Three readings widen as letters are fixed. A property applied, `P(a)`,
+/// is the formula P stands for once another hypothesis has said what that
+/// is, and the formula may be a "there is" an instance gives. A "for all"
+/// is read over a smaller domain once its letters are fixed (`narrowed`).
+/// A "there is" whose body is an equation is met by no line once one side
+/// is closed (`self_evident`). A hypothesis with none of these, or with
+/// every letter fixed, is matched as it is written.
+fn settled(
+    pattern: &Node,
+    binding: &Binding,
+    variables: &BTreeSet<String>,
+    library: &Library,
+) -> bool {
+    if all_bound(pattern, variables, binding) {
+        return true;
+    }
+    let applied = library.ctx.props.contains_key(&pattern.notation)
+        && pattern.children.len() == 2
+        && pattern.children[0].is_name();
+    !(applied
+        || pattern.notation == "for-all"
+        || library.exists.contains(&pattern.notation))
+}
+
+/// One way a fact supplies a hypothesis: the binding it is supplied under,
+/// the fact by its index (none where the hypothesis needs no line), and
+/// whether the fact is taken from the hypotheses after it.
+struct Fit {
+    fact: Option<usize>,
+    binding: Binding,
+    takes: bool,
+}
+
+/// Every way the facts `used` does not mark supply one hypothesis under the
+/// binding, in the order they are tried.
+#[allow(clippy::too_many_arguments)]
+fn fits(
+    first: &Node,
+    facts: &[Node],
+    used: &[bool],
+    binding: &Binding,
+    variables: &BTreeSet<String>,
+    library: &Library,
+    sites: &Sites,
+    reuse: bool,
+) -> Vec<Fit> {
+    let mut out = Vec::new();
     let ctx = &library.ctx;
     let mut first = first.clone();
     // A property already bound stands for a formula, so what it asks of the
@@ -225,35 +364,11 @@ pub fn search(
                 // goes wrong above cannot: nothing is left for the line to bind.
                 let pinned = *pinned
                     .get_or_insert_with(|| all_bound(&first, variables, binding));
-                let takes = !(reuse || pinned);
-                if takes {
-                    used[i] = true;
-                }
-                // A fact that supplies a hypothesis is one the way uses, taken
-                // for the hypotheses after it or not.
-                if let Some(ways) = ways.as_deref_mut() {
-                    ways.path.push(i);
-                }
-                let done = search(
-                    rest,
-                    facts,
-                    used,
-                    &found,
-                    variables,
-                    library,
-                    sites,
-                    reuse,
-                    ways.as_deref_mut(),
-                );
-                if let Some(ways) = ways.as_deref_mut() {
-                    ways.path.pop();
-                }
-                if takes {
-                    used[i] = false;
-                }
-                if done.is_some() {
-                    return done;
-                }
+                out.push(Fit {
+                    fact: Some(i),
+                    binding: found,
+                    takes: !(reuse || pinned),
+                });
             }
         }
         // An equation the body asks whose one side names no open letter is
@@ -271,26 +386,17 @@ pub fn search(
                         .map(|(f, _)| f.clone())
                         .collect();
                     if witnessed_in(&first, &found, &remaining, seen, library, sites) {
-                        let done = search(
-                            rest,
-                            facts,
-                            used,
-                            &found,
-                            variables,
-                            library,
-                            sites,
-                            reuse,
-                            ways.as_deref_mut(),
-                        );
-                        if done.is_some() {
-                            return done;
-                        }
+                        out.push(Fit {
+                            fact: None,
+                            binding: found,
+                            takes: false,
+                        });
                     }
                 }
             }
         }
     }
-    None
+    out
 }
 
 /// The equation L = L, where `body` is an equation one side of which, L

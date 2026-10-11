@@ -23,4 +23,4 @@ pub use once::{introduction, said_once, Introduced};
 pub use parts::{
     bound_in, claimed_member, finished, function_values, implied_facts, Parts,
 };
-pub use supply::{names_of, search, supply, Sites, Ways};
+pub use supply::{largest_search, names_of, search, supply, Sites, Ways};

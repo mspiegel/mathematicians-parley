@@ -42,6 +42,7 @@ use std::path::Path;
 use std::sync::Arc;
 
 use parley::check::{check_cuts, Cut};
+use parley::citing::largest_search;
 use parley::corpus::corpus;
 use parley::corpus::proof::Theorem;
 use parley::elab::elaborate::Options;
@@ -63,6 +64,11 @@ const PANICKED: &str = "panicked: ";
 /// How many mutants one call of the checker is asked of, reading the corpus
 /// once for them.
 const SHARE: usize = 50;
+
+/// The most one citation search may ask of the mutants (`largest_search`).
+/// A step citing the wrong line searches further than a right one, so this
+/// is above what the corpus is held to (`tests/search_size.rs`).
+const SEARCHED: usize = 4_000;
 
 /// How long checking a share may run before the test names its mutants.
 const SLOW: std::time::Duration = std::time::Duration::from_secs(60);
@@ -679,6 +685,12 @@ fn a_wrong_proof_is_refused_and_never_verified() {
         done.store(true, std::sync::atomic::Ordering::Relaxed);
         out.into_iter().flatten().collect()
     });
+    let largest = largest_search();
+    println!("the largest citation search asked {largest} hypotheses");
+    assert!(
+        largest <= SEARCHED,
+        "a citation search asked {largest} hypotheses, more than {SEARCHED}"
+    );
 
     let read = library(root, None)
         .expect(

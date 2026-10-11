@@ -1748,7 +1748,10 @@ tools, and fail it; the rest of what passed is listed for reading. It found
 an `obtain` whose claim the elaborator set aside for the existence's body,
 so a line claiming `d > 2` was built as `d > 1`; an `obtain` from a line
 with no "there is" in it that panicked; the include above; and a checker
-search that ran for hours where a step cited the wrong line.
+search that ran for hours where a step cited the wrong line. The search
+takes up first the hypothesis the fewest facts fit (`src/citing/supply.rs`),
+and how far one search goes is counted: `tests/search_size.rs` holds the
+corpus under a limit, and this test holds the mutants under another.
 
 A route gives back `Route::Declined` when it does not apply, and a caller that
 used one as though it were what the route builds would have a proof that is
