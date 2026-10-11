@@ -9,6 +9,7 @@ pub mod grammar;
 pub mod library;
 pub mod node;
 pub mod notation;
+pub mod page;
 mod print;
 pub mod token;
 

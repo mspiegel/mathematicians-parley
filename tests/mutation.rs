@@ -199,7 +199,7 @@ struct Formula {
 /// The theorem's formulas, each with the line it is on: its hypotheses and
 /// conclusion, its steps' claims, the rows of its calculations and its
 /// requires lines' facts.
-fn formulas(thm: &Theorem) -> Vec<Formula> {
+fn formulas(thm: &Theorem, lines: &[&str]) -> Vec<Formula> {
     let mut out = Vec::new();
     for h in &thm.hypotheses {
         out.push(Formula {
@@ -212,11 +212,30 @@ fn formulas(thm: &Theorem) -> Vec<Formula> {
         text: thm.conclusion.clone(),
     });
     for step in &thm.steps {
-        for (i, claim) in step.claim.iter().enumerate() {
+        // A claim may run over several lines, up to its justification's; the
+        // first starts after the step's number. A claim on one line is the
+        // claim as read, without a closing `, which is impossible`.
+        let claimed = &lines[step.line - 1..step.just.line - 1];
+        if let [_] = claimed {
             out.push(Formula {
-                at: step.line - 1 + i,
-                text: claim.clone(),
+                at: step.line - 1,
+                text: step.claim_text(),
             });
+        } else {
+            for (at, written) in (step.line - 1..).zip(claimed) {
+                let written = str::trim(written);
+                let text = if at == step.line - 1 {
+                    written
+                        .split_once(char::is_whitespace)
+                        .map_or("", |(_, c)| c)
+                } else {
+                    written
+                };
+                out.push(Formula {
+                    at,
+                    text: str::trim(text).to_string(),
+                });
+            }
         }
         for (row, line) in &step.just.chain {
             out.push(Formula {
@@ -227,7 +246,7 @@ fn formulas(thm: &Theorem) -> Vec<Formula> {
         for r in &step.requires {
             out.push(Formula {
                 at: r.line - 1,
-                text: r.fact.clone(),
+                text: r.fact.text().to_string(),
             });
         }
     }
@@ -439,7 +458,7 @@ fn mutants(tree: &dyn Source) -> Vec<Mutant> {
             edited[at] = now.to_string();
             edited
         };
-        for f in formulas(thm) {
+        for f in formulas(thm, &lines) {
             let line = lines[f.at];
             let Some(start) = line.find(&f.text) else {
                 continue;

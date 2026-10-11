@@ -14,6 +14,7 @@ use crate::corpus::{
     RecordKind, Requires, Step, StepNo, Theorem, ITEM_PREFIX, LABEL, NUMBER, REF,
 };
 use crate::formula::library::Function;
+use crate::formula::page::Written;
 use crate::formula::{holds, parse_here, Sorts};
 use crate::matching::instantiation;
 use crate::outcome::{Built, Declined};
@@ -593,7 +594,7 @@ pub fn check_citations(
             step,
         };
         let req = Requires {
-            fact: String::new(),
+            fact: Written::new("", &thm.path, reason.line),
             how: reason.how.clone(),
             line: reason.line,
         };
@@ -761,7 +762,7 @@ pub fn check_run_together(
     words: &IndexSet<String>,
 ) {
     for s in &thm.steps {
-        for text in &s.claim {
+        for text in [s.claim.text()] {
             for pattern in [&*ADJACENT_BARS, &*ADJACENT_ANGLE] {
                 for c in pattern.captures_iter(text) {
                     let run = &c[1];

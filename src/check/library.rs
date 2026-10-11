@@ -172,7 +172,10 @@ impl<'a> Known<'a> {
             step.claim_text(),
             step.just.text.clone(),
             step.just.refs.clone(),
-            step.requires.iter().map(|r| r.fact.clone()).collect(),
+            step.requires
+                .iter()
+                .map(|r| r.fact.text().to_string())
+                .collect(),
         );
         if let Some(found) = self.parts.borrow().get(&key) {
             return found.clone();
@@ -248,7 +251,7 @@ fn citation_parts(step: &Step, library: &Library, known: &Known) -> Parts {
             supplied.extend(supplied_by(text));
         }
     }
-    supplied.extend(step.requires.iter().map(|r| r.fact.clone()));
+    supplied.extend(step.requires.iter().map(|r| r.fact.text().to_string()));
     let facts: Vec<Node> = supplied.iter().filter_map(|s| read(s)).collect();
     let claims: Vec<Node> = sentences(&step.claim_text())
         .iter()

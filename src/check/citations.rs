@@ -93,7 +93,7 @@ fn requires_parts(
     // A define is written out where the line cites it (`Known::citing`).
     let defined = known.citing(&refs);
     let read_one = |s: &str| known.read_citing(s, &defined);
-    let claims: Vec<Node> = sentences(&req.fact)
+    let claims: Vec<Node> = sentences(req.fact.text())
         .iter()
         .filter_map(|s| read_one(s))
         .collect();
@@ -109,7 +109,10 @@ fn requires_parts(
     // A requires line may not cite another, but the facts the lines above
     // it state are established for the same step and are what a dull fact
     // its own citation asks for is written as.
-    supplied.extend(step.requires_above(req.line).map(|o| o.fact.clone()));
+    supplied.extend(
+        step.requires_above(req.line)
+            .map(|o| o.fact.text().to_string()),
+    );
     let mut read: Vec<Node> = supplied.iter().filter_map(|s| read_one(s)).collect();
     // A step said of every member in one line: its requires lines speak
     // of the member, whose membership the claim gives (`SYNTAX.md`).
@@ -741,7 +744,7 @@ pub fn check_kinds(
 /// (`SYNTAX.md`: a requires line rests on the lines above it).
 fn built_on(req: &crate::corpus::Requires, step: &Step, known: &Known) -> bool {
     const ASKING: [&str; 3] = ["membership", "inequalities", "algebra"];
-    let Some(said) = known.read(step, &req.fact) else {
+    let Some(said) = known.read(step, req.fact.text()) else {
         return false;
     };
     // t ∈ X names t: a method asks it of its atoms. t ≠ 0, read as not
@@ -807,7 +810,7 @@ fn built_on(req: &crate::corpus::Requires, step: &Step, known: &Known) -> bool {
                 .iter()
                 .any(|m| how == *m || how.starts_with(&format!("{m},")))
         })
-        .filter_map(|r| known.read(step, &r.fact).map(|n| (r, n)))
+        .filter_map(|r| known.read(step, r.fact.text()).map(|n| (r, n)))
         .any(|(r, n)| {
             let held = if n.notation == "membership" && n.children.len() == 2 {
                 &n.children[0]
@@ -834,7 +837,7 @@ fn built_on(req: &crate::corpus::Requires, step: &Step, known: &Known) -> bool {
                 .iter()
                 .take_while(|o| o.line != r.line)
                 .filter(|o| o.line != req.line)
-                .filter_map(|o| known.read(step, &o.fact))
+                .filter_map(|o| known.read(step, o.fact.text()))
                 .any(|line| holds_atom(&line));
             written || cited || above
         })
@@ -1247,7 +1250,7 @@ pub fn check_define_domains(
                     req.line,
                     format!(
                         "the requires line {} of step {} cites {} at {}, so it needs {}, and nothing it cites or the requires lines above it say it",
-                        str::trim(&req.fact),
+                        str::trim(req.fact.text()),
                         step.number,
                         asked.label,
                         asked.arg,
@@ -1689,7 +1692,7 @@ pub fn check_repeated(
 ) {
     for step in &thm.steps {
         for (i, req) in step.requires.iter().enumerate() {
-            let Some(said) = known.read(step, &req.fact) else {
+            let Some(said) = known.read(step, req.fact.text()) else {
                 continue;
             };
             let mut lighter = step.clone();
@@ -1701,7 +1704,7 @@ pub fn check_repeated(
                     *j < i
                         || (*j > i
                             && str::trim(&o.how).starts_with("from ")
-                            && squash(&o.fact) != squash(&req.fact))
+                            && squash(o.fact.text()) != squash(req.fact.text()))
                 })
                 .map(|(_, o)| o.clone())
                 .collect();
@@ -1721,7 +1724,7 @@ pub fn check_repeated(
                     format!(
                         "the requires line of step {} says {}, which the step's other lines already say",
                         step.number,
-                        str::trim(&req.fact)
+                        str::trim(req.fact.text())
                     ),
                 );
             }
@@ -1795,7 +1798,7 @@ fn bound_below(step: &Step, i: usize, said: &Node, known: &Known) -> bool {
         return false;
     }
     step.requires[i + 1..].iter().any(|o| {
-        known.read(step, &o.fact).is_some_and(|f| {
+        known.read(step, o.fact.text()).is_some_and(|f| {
             matches!(f.notation.as_str(), "order" | "equality")
                 && f.walk().iter().any(|n| known.alike(n, term))
         })
@@ -1968,10 +1971,10 @@ pub fn check_surplus(
             let mut lighter = step.clone();
             lighter.requires.remove(i);
             let domain = known
-                .read_as_written(&req.fact)
+                .read_as_written(req.fact.text())
                 .is_some_and(|n| in_domain.contains(n.shape()));
             // What keeps a line without a search is asked before the search.
-            if !asks.asks(step, &req.fact, known)
+            if !asks.asks(step, req.fact.text(), known)
                 && !domain
                 && !built_on(req, step, known)
                 && !lost_without(&lighter)

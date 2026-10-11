@@ -243,7 +243,7 @@ pub fn printed_back(source: &dyn Source) -> Result<(usize, Vec<String>), Outcome
             for step in &thm.steps {
                 let texts = crate::sorts::sentences(&step.claim_text())
                     .into_iter()
-                    .chain(step.requires.iter().map(|r| r.fact.clone()));
+                    .chain(step.requires.iter().map(|r| r.fact.text().to_string()));
                 // Read as written, defined names and all, as a reader reads.
                 let read = |text: &str| {
                     crate::formula::parse_here(text, c.env.g, &k.sorts).ok()

@@ -1206,7 +1206,7 @@ pub fn read_theorem(
                 }
             }
             Event::Requires(step, r) => {
-                let fact = str::trim(&unlabel(&r.fact)).to_string();
+                let fact = str::trim(&unlabel(r.fact.text())).to_string();
                 claim_text(&mut reader, &fact, no, env, store);
                 if let Some(cite) = cite.as_mut() {
                     cite(&mut reader, store, step, Some(r));

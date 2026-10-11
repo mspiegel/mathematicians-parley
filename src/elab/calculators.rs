@@ -1286,8 +1286,7 @@ impl<'a> Elaborator<'a> {
         scope: &str,
         facts: &Facts,
     ) -> Checked<Route<Proof>> {
-        let what =
-            format!("step {} claims {}", fmt(&step.number), step.claim.join(" "));
+        let what = format!("step {} claims {}", fmt(&step.number), step.claim.text());
         self.closed_fact(term, scope, facts, &what, Some(step))
             .map(Built)
     }

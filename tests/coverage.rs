@@ -61,7 +61,7 @@ fn formulas(thm: &Theorem) -> Vec<String> {
     }
     for step in &thm.steps {
         out.push(step.claim_text());
-        out.extend(step.requires.iter().map(|r| r.fact.clone()));
+        out.extend(step.requires.iter().map(|r| r.fact.text().to_string()));
         out.extend(step.openers.iter().map(|o| said_by_line(o.kind, &o.text)));
     }
     out

@@ -2191,7 +2191,7 @@ impl<'a> Elaborator<'a> {
                 ),
             ));
         };
-        let node = self.read(&kinded.shown.fact)?;
+        let node = self.read(kinded.shown.fact.text())?;
         let shown = self.term(&node)?;
         let set = self.rpn(&self.to_term(&shown).children()[1]);
         let what = format!("the reason under let {}", kinded.label);

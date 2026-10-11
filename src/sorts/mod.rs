@@ -21,6 +21,7 @@ use crate::corpus::{
 };
 pub mod infer;
 
+use crate::formula::page::Written;
 use crate::formula::{holds, parse_here, Grammar, Sort, Sorts};
 use crate::matching::{expand, Defined, Definitions, Rule};
 use crate::outcome::Built;
@@ -282,40 +283,13 @@ pub fn supplied_by(text: &str) -> Vec<String> {
     out
 }
 
-/// The sentences of a line, each without its full stop.
-///
-/// A sentence ends at a full stop followed by any space, a line break
-/// included, so a claim written across two lines splits where it would
-/// written on one.
+/// The sentences of a line, each without its full stop, as the splitter
+/// cuts them (`formula::page`).
 pub fn sentences(text: &str) -> Vec<String> {
-    let text = str::trim(text);
-    let chars: Vec<(usize, char)> = text.char_indices().collect();
-    let mut pieces: Vec<&str> = Vec::new();
-    let mut start = 0;
-    let mut i = 0;
-    while i < chars.len() {
-        let (at, c) = chars[i];
-        if c.is_whitespace() && i > 0 && chars[i - 1].1 == '.' {
-            let mut j = i;
-            while j < chars.len() && chars[j].1.is_whitespace() {
-                j += 1;
-            }
-            pieces.push(&text[start..at]);
-            start = if j < chars.len() {
-                chars[j].0
-            } else {
-                text.len()
-            };
-            i = j;
-            continue;
-        }
-        i += 1;
-    }
-    pieces.push(&text[start..]);
-    pieces
-        .into_iter()
-        .map(|p| str::trim(str::trim(p).trim_end_matches('.')).to_string())
-        .filter(|p| !p.is_empty())
+    Written::here(text)
+        .sentences()
+        .iter()
+        .map(|s| s.text().to_string())
         .collect()
 }
 

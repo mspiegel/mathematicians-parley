@@ -183,7 +183,7 @@ pub fn check_formulas(report: &mut Report, thm: &Theorem, env: Env, known: &Know
             places.push((
                 r.line,
                 format!("the requires line of step {}", s.number),
-                r.fact.clone(),
+                r.fact.text().to_string(),
             ));
         }
     }
@@ -407,7 +407,7 @@ pub fn check_decided_words(
         }
         for r in &step.requires {
             if str::trim(&r.how) == "arithmetic" {
-                asked.push((r.line, r.fact.clone()));
+                asked.push((r.line, r.fact.text().to_string()));
             }
         }
         for (line, text) in asked {
@@ -465,7 +465,7 @@ pub fn check_letters_introduced(
             texts.push((
                 r.line,
                 format!("the requires line of step {}", s.number),
-                r.fact.clone(),
+                r.fact.text().to_string(),
                 true,
             ));
         }
@@ -1380,7 +1380,7 @@ pub fn check_closed_by_arithmetic(
             let Some(m) = BY_COMBINING.captures(&req.how) else {
                 continue;
             };
-            if closed(&req.fact) {
+            if closed(req.fact.text()) {
                 report.say(
                     &thm.path,
                     req.line,

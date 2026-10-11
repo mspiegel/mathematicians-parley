@@ -987,7 +987,11 @@ fn subjects_named(
     let mut cited: Vec<(usize, String)> = Vec::new();
     for step in &thm.steps {
         cited.push((step.just.line, step.claim_text()));
-        cited.extend(step.requires.iter().map(|r| (r.line, r.fact.clone())));
+        cited.extend(
+            step.requires
+                .iter()
+                .map(|r| (r.line, r.fact.text().to_string())),
+        );
     }
     for (no, claim) in cited {
         let Some(line) = no.checked_sub(1).and_then(|i| lines.get_mut(i)) else {
@@ -1127,7 +1131,7 @@ fn bound(ctx: &Context, thm: &Theorem) -> Vec<String> {
     texts.push(thm.conclusion.clone());
     for step in &thm.steps {
         texts.push(step.claim_text());
-        texts.extend(step.requires.iter().map(|r| r.fact.clone()));
+        texts.extend(step.requires.iter().map(|r| r.fact.text().to_string()));
         texts.extend(
             step.openers
                 .iter()
@@ -2310,13 +2314,20 @@ fn requires_raised_in(
         let [req] = step.requires.as_slice() else {
             continue;
         };
-        let claim = step.claim.first()?;
+        // The claim's first line, after the step's number.
+        let claim = str::trim(
+            lines[step.line - 1]
+                .trim()
+                .split_once(char::is_whitespace)?
+                .1,
+        )
+        .to_string();
         if !step.just.head.is_item()
             || step.just.target.is_some()
             || step.just.contradicting.is_some()
             || !step.just.chain.is_empty()
             || parley::corpus::proof::requires_item(&req.how).is_none()
-            || req.fact.contains(". ")
+            || req.fact.text().contains(". ")
             || !single(step.just.line)
             || !single(req.line)
             || !lines[step.line - 1].contains(claim.as_str())
@@ -2394,7 +2405,7 @@ fn requires_raised_in(
         // The heading as the step was written, before it was numbered again,
         // carries the number the new step takes.
         let new_step = vec![
-            format!("{prefix}{}", req.fact.trim()),
+            format!("{prefix}{}", req.fact.text().trim()),
             format!("{reason_indent}{}", req.how.trim()),
             String::new(),
         ];
@@ -2529,10 +2540,11 @@ fn dull_step_moved(
         thm.steps.iter().map(|s| s.number.to_string()).collect();
     for (n, step) in thm.steps.iter().enumerate() {
         let no = step.number.to_string();
-        let claim = match step.claim.as_slice() {
-            [one] => one,
-            _ => continue,
-        };
+        // A claim on one line, the one its number is on.
+        if step.just.line != step.line + 1 {
+            continue;
+        }
+        let claim = &step.claim_text();
         let head_ok = match &step.just.head {
             Head::Item { .. } => true,
             Head::Method(m) => REQUIRES_METHODS.contains(m),
@@ -2594,7 +2606,7 @@ fn dull_step_moved(
         let carried_facts: BTreeSet<&str> = step
             .requires
             .iter()
-            .map(|r| r.fact.as_str())
+            .map(|r| r.fact.text())
             .chain(std::iter::once(claim.as_str()))
             .collect();
         // Each citing line said again, or taken out where it only restated
@@ -2616,7 +2628,9 @@ fn dull_step_moved(
                 Some(how) => {
                     said.push((r.line - 1, Some(format!("{}{how}", &line[..at]))))
                 }
-                None if r.fact.trim() == claim.trim() => said.push((r.line - 1, None)),
+                None if r.fact.text().trim() == claim.trim() => {
+                    said.push((r.line - 1, None))
+                }
                 None => {
                     fits = false;
                     break;
@@ -2631,7 +2645,8 @@ fn dull_step_moved(
         let resting: BTreeSet<usize> = citers.iter().map(|(s, _)| *s).collect();
         for &s in &resting {
             let restated = thm.steps[s].requires.iter().any(|r| {
-                !gone.contains(&(r.line - 1)) && carried_facts.contains(r.fact.trim())
+                !gone.contains(&(r.line - 1))
+                    && carried_facts.contains(r.fact.text().trim())
             });
             fits &= !restated;
         }

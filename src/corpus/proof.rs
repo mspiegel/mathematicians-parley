@@ -9,6 +9,7 @@ use super::define::{define_parts, naming, DefineParts, Naming};
 use super::lines::{read_lines, Line};
 use super::records::{Record, RecordKind};
 use super::{cited_name, full, in_stdlib, module_of};
+use crate::formula::page::Written;
 use crate::outcome::{Built, Checked, Problem};
 use crate::regex;
 use crate::text::{prefix, repr};
@@ -177,7 +178,7 @@ impl DefineLine {
             name: one.name.clone(),
             set: set.clone(),
             shown: Requires {
-                fact: format!("{} ∈ {set}", one.body),
+                fact: Written::new(format!("{} ∈ {set}", one.body), path, reason.line),
                 how: reason.how.clone(),
                 line: reason.line,
             },
@@ -267,7 +268,7 @@ impl Names {
 /// A `requires` line: the fact, and how it is justified.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Requires {
-    pub fact: String,
+    pub fact: Written,
     pub how: String,
     pub line: usize,
 }
@@ -550,7 +551,7 @@ regex!(STARTING_AT, r"starting at ([^\s,]+)");
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Step {
     pub number: StepNo,
-    pub claim: Vec<String>,
+    pub claim: Written,
     pub just: Justification,
     pub requires: Vec<Requires>,
     /// The part markers of the block it owns, with their lines.
@@ -570,7 +571,7 @@ pub struct Step {
 
 impl Step {
     pub fn claim_text(&self) -> String {
-        self.claim.join(" ")
+        self.claim.text().to_string()
     }
 
     /// The requires lines written above the one on `line`, which it rests on
@@ -760,9 +761,9 @@ pub fn written_text(thm: &Theorem) -> String {
             .filter_map(|d| d.reason.as_ref().map(|r| r.how.as_str())),
     );
     for step in &thm.steps {
-        parts.extend(step.claim.iter().map(String::as_str));
+        parts.push(step.claim.text());
         parts.extend(step.openers.iter().map(|o| o.text.as_str()));
-        parts.extend(step.requires.iter().map(|r| r.fact.as_str()));
+        parts.extend(step.requires.iter().map(|r| r.fact.text()));
         parts.push(&step.just.text);
         parts.extend(step.just.chain.iter().map(|(t, _)| t.as_str()));
     }
@@ -1301,7 +1302,7 @@ pub fn requires_as_step(step: &Step, req: &Requires, path: &str) -> Checked<Step
     };
     let just = parse_justification(path, &line, &[], &step.just.names)?;
     Ok(Step {
-        claim: vec![req.fact.clone()],
+        claim: req.fact.clone(),
         just,
         requires: Vec::new(),
         parts: Vec::new(),
@@ -1320,11 +1321,9 @@ regex!(IMPOSSIBLE, r"^(.*?),\s*which is impossible\s*$");
 /// The step with `, which is impossible` taken off the end of its claim and
 /// said by `impossible` instead.
 fn impossible(mut step: Step) -> Step {
-    let Some(last) = step.claim.last_mut() else {
-        return step;
-    };
-    if let Some(m) = IMPOSSIBLE.captures(last) {
-        *last = str::trim(&m[1]).to_string();
+    let claim = &step.claim;
+    if let Some(m) = IMPOSSIBLE.captures(claim.text()) {
+        step.claim = Written::new(str::trim(&m[1]), claim.path(), claim.line());
         step.impossible = true;
     }
     step
@@ -1769,7 +1768,7 @@ pub fn parse_proof(
             draft.steps.push(DraftStep {
                 step: Step {
                     number: number.clone(),
-                    claim: vec![m[2].to_string()],
+                    claim: Written::new(&m[2], path, line.no),
                     just: placeholder_justification(),
                     requires: Vec::new(),
                     parts: Vec::new(),
@@ -1975,7 +1974,7 @@ pub fn parse_proof(
                 ));
             };
             draft.steps[at].step.requires.push(Requires {
-                fact: str::trim(fact).to_string(),
+                fact: Written::new(str::trim(fact), path, line.no),
                 how: str::trim(how).to_string(),
                 line: line.no,
             });
@@ -1999,7 +1998,7 @@ pub fn parse_proof(
                         parse_justification(path, &line, &defines, &draft.thm.names)?;
                     draft.steps[at].has_just = true;
                 } else {
-                    draft.steps[at].step.claim.push(t.clone());
+                    draft.steps[at].step.claim.continued(&t);
                 }
                 continue;
             }

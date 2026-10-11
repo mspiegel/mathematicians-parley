@@ -855,7 +855,7 @@ impl<'a> Elaborator<'a> {
         }
         if self.answers.is_some() {
             let mut facts = sentences.clone();
-            facts.extend(step.requires.iter().map(|r| r.fact.clone()));
+            facts.extend(step.requires.iter().map(|r| r.fact.text().to_string()));
             self.list_implied(step, &facts)?;
             self.list_asked(step)?;
         }
@@ -927,7 +927,7 @@ impl<'a> Elaborator<'a> {
         let lines = self.lines.copy();
         let labels = self.b.flabel.clone();
         for o in step.requires_above(req.line) {
-            let node = self.read(&o.fact)?;
+            let node = self.read(o.fact.text())?;
             let above = self.term(&node)?;
             let key = requirement(o.line);
             let sealed = self
@@ -947,7 +947,7 @@ impl<'a> Elaborator<'a> {
                 at.just.refs.push(key);
             }
         }
-        let node = self.read(&req.fact)?;
+        let node = self.read(req.fact.text())?;
         let term = self.term(&node)?;
         let Some(how) = self.method_for(&at, &term)? else {
             return Ok(Route::no(format!("no expansion for {}", repr(&req.how))));
@@ -1356,7 +1356,7 @@ impl<'a> Elaborator<'a> {
         };
         let mut facts = self.cited_sentences(&step.just.refs)?;
         for r in &step.requires {
-            facts.push(self.read(&r.fact)?);
+            facts.push(self.read(r.fact.text())?);
         }
         let cites = cites.unwrap_or(&step.just.text);
         let obtains = step.just.text.trim_start().starts_with("obtain");
@@ -1448,7 +1448,7 @@ impl<'a> Elaborator<'a> {
         let refs = references(&o.how).0;
         let mut facts = self.cited_sentences(&refs)?;
         for above in step.requires_above(o.line) {
-            facts.push(self.read(&above.fact)?);
+            facts.push(self.read(above.fact.text())?);
         }
         if step.openers.is_empty() {
             if let [claim] = self.said(step)?.as_slice() {
@@ -1460,7 +1460,7 @@ impl<'a> Elaborator<'a> {
             }
         }
         let claims = self
-            .sentences(&o.fact)
+            .sentences(o.fact.text())
             .iter()
             .map(|s| self.read(s))
             .collect::<Checked<Vec<Node>>>()?;
