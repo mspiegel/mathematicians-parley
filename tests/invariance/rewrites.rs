@@ -1092,10 +1092,90 @@ fn to_library(
     used: &BTreeSet<String>,
     held: &BTreeSet<String>,
 ) -> Option<BTreeMap<String, String>> {
+    renamed_to_library(ctx, thm, introduced(thm), used, held)
+}
+
+/// Every letter a binder in the theorem's formulas binds, `for all k`,
+/// `there is x`, `Σ(j = …)`, `{t ∈ … | …}`, renamed to a letter the library
+/// binds that the theorem does not write. The items a theorem cites come
+/// first in the pool, so a bound letter becomes the letter the cited
+/// lemma binds itself, where a value put under one is caught by the other.
+fn bound_to_library(
+    ctx: &Context,
+    thm: &Theorem,
+    used: &BTreeSet<String>,
+    held: &BTreeSet<String>,
+) -> Option<BTreeMap<String, String>> {
+    renamed_to_library(ctx, thm, bound(ctx, thm), used, held)
+}
+
+/// The letters the binders in a theorem's formulas bind, in the order the
+/// theorem writes them.
+fn bound(ctx: &Context, thm: &Theorem) -> Vec<String> {
+    let sorts = sorts_in_scope(
+        thm,
+        Env {
+            g: &ctx.g,
+            scopes: &ctx.corpus.scopes,
+        },
+    );
+    let mut texts: Vec<String> = thm
+        .hypotheses
+        .iter()
+        .map(|h| parley::sorts::said_by_line(h.kind, &h.text))
+        .collect();
+    texts.push(thm.conclusion.clone());
+    for step in &thm.steps {
+        texts.push(step.claim_text());
+        texts.extend(step.requires.iter().map(|r| r.fact.clone()));
+        texts.extend(
+            step.openers
+                .iter()
+                .filter(|o| !o.is_hypothesis)
+                .map(|o| parley::sorts::said_by_line(o.kind, &o.text)),
+        );
+    }
+    let binders = ctx.g.binders();
+    let mut out: Vec<String> = Vec::new();
+    for text in texts {
+        for sentence in sentences(&text) {
+            let Ok(tree) = parse_here(&sentence, &ctx.g, &sorts) else {
+                continue;
+            };
+            for node in tree.walk() {
+                let Some(binds) = binders.get(&node.notation) else {
+                    continue;
+                };
+                for &at in &binds.held {
+                    let Some(letter) = node.children.get(at) else {
+                        continue;
+                    };
+                    if letter.is_name()
+                        && is_one_letter(&letter.text)
+                        && !out.contains(&letter.text)
+                    {
+                        out.push(letter.text.clone());
+                    }
+                }
+            }
+        }
+    }
+    out
+}
+
+/// `letters` renamed each to a letter the library binds that the theorem
+/// does not write, in the same alphabet and case.
+fn renamed_to_library(
+    ctx: &Context,
+    thm: &Theorem,
+    letters: Vec<String>,
+    used: &BTreeSet<String>,
+    held: &BTreeSet<String>,
+) -> Option<BTreeMap<String, String>> {
     let pool = library_pool(ctx, thm);
     let mut map = BTreeMap::new();
     let mut taken: BTreeSet<String> = BTreeSet::new();
-    for letter in introduced(thm) {
+    for letter in letters {
         if held.contains(&letter) {
             continue;
         }
@@ -1138,6 +1218,10 @@ pub fn letters_swapped(ctx: &Context, path: &str, text: &str) -> Rewritten {
 
 pub fn letters_to_library(ctx: &Context, path: &str, text: &str) -> Rewritten {
     renaming(ctx, path, text, to_library)
+}
+
+pub fn bound_letters_to_library(ctx: &Context, path: &str, text: &str) -> Rewritten {
+    renaming(ctx, path, text, bound_to_library)
 }
 
 pub fn letter_to_i(ctx: &Context, path: &str, text: &str) -> Rewritten {

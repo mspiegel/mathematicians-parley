@@ -13,7 +13,7 @@ use crate::citing::Library;
 use crate::corpus::proof::requires_item;
 use crate::corpus::{
     cited_item, define_parts, outermost, DefineParts, FileScope, Intro, Item,
-    Justification, Method, Record, RecordKind, Recursion, Step, Theorem,
+    Justification, Method, Record, RecordKind, Recursion, Requires, Step, Theorem,
 };
 use crate::formula::{parse_here, walk, Node, Sort, Sorts};
 use crate::matching::{
@@ -54,8 +54,11 @@ pub fn read_with_citations(
     statements: &IndexMap<String, Reader>,
     store: &mut Store,
 ) -> Reader {
-    let mut cite = |reader: &mut Reader, store: &mut Store, step: &Step| {
-        cited_sorts(reader, store, step, env, statements);
+    let mut cite = |reader: &mut Reader,
+                    store: &mut Store,
+                    step: &Step,
+                    req: Option<&Requires>| {
+        cited_sorts(reader, store, step, req, env, statements);
     };
     infer::read_theorem(thm, env, store, Some(&mut cite))
 }
@@ -71,9 +74,9 @@ pub fn check_clashes(report: &mut Report, thm: &Theorem, clashes: &[infer::Clash
     }
 }
 
-/// Each written `v := t` of a step's citations, fitted to the cited
-/// statement. Each citation takes its own copy of what the statement says v
-/// is.
+/// Each written `v := t` of a citation, fitted to the cited statement: the
+/// step's own, or the requires line `req`'s, read once the line's fact is.
+/// Each citation takes its own copy of what the statement says v is.
 ///
 /// A citation checks what the proof's names are and does not say it. A name
 /// whose sort only fitting a citation settles is reported: the sort decides
@@ -85,16 +88,21 @@ fn cited_sorts(
     reader: &mut Reader,
     store: &mut Store,
     step: &Step,
+    req: Option<&Requires>,
     env: Env,
     statements: &IndexMap<String, Reader>,
 ) {
     let mut cites: Vec<(String, &str)> = Vec::new();
-    if let Some(item) = cited_item(&step.just) {
-        cites.push((step.just.item(&item), &step.just.text));
-    }
-    for req in &step.requires {
-        if let Some((cited, _)) = requires_item(&req.how) {
-            cites.push((step.just.item(&cited), &req.how));
+    match req {
+        None => {
+            if let Some(item) = cited_item(&step.just) {
+                cites.push((step.just.item(&item), &step.just.text));
+            }
+        }
+        Some(req) => {
+            if let Some((cited, _)) = requires_item(&req.how) {
+                cites.push((step.just.item(&cited), &req.how));
+            }
         }
     }
     for (name, text) in cites {

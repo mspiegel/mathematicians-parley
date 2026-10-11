@@ -654,12 +654,24 @@ fn fit(
     let before = binding.len();
     if !differs(pattern, ground) {
         let pattern = bound_as(pattern, ground, variables, ctx);
+        // The letters a binder binds are paired before what it binds them
+        // over, wherever the notation writes them: ∫(a to x) f(t) dt names
+        // its letter last, and f(t) read before t is paired would make f
+        // a function of a letter it does not mention.
+        let (held, _) = ctx.held_body(&pattern.notation);
+        let mut first: Vec<usize> = held.clone();
+        first.extend((0..pattern.children.len()).filter(|i| !held.contains(i)));
         for children in orders(&pattern, ground, ctx) {
-            let all = pattern
-                .children
-                .iter()
-                .zip(children.iter())
-                .all(|(a, b)| fit(a, b, binding, variables, sites, ctx));
+            let all = first.iter().all(|&i| {
+                fit(
+                    &pattern.children[i],
+                    &children[i],
+                    binding,
+                    variables,
+                    sites,
+                    ctx,
+                )
+            });
             if all {
                 return true;
             }

@@ -99,6 +99,10 @@ fn changes() -> Vec<Change> {
             rewrite: Rewrite::File(rewrites::letters_to_library),
         },
         Change {
+            name: "bound letters renamed to the library's letters",
+            rewrite: Rewrite::File(rewrites::bound_letters_to_library),
+        },
+        Change {
             name: "an introduced letter renamed i",
             rewrite: Rewrite::File(rewrites::letter_to_i),
         },

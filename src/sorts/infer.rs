@@ -25,7 +25,9 @@ use std::rc::Rc;
 
 use indexmap::{IndexMap, IndexSet};
 
-use crate::corpus::{define_parts, DefineParts, Intro, Method, Record, Step, Theorem};
+use crate::corpus::{
+    define_parts, DefineParts, Intro, Method, Record, Requires, Step, Theorem,
+};
 use crate::formula::{parse_here, Node, Sort, Sorts, Whole};
 use crate::matching::Defined;
 use crate::outcome::{At, Built, Decline, Declined, Route};
@@ -1035,16 +1037,19 @@ fn recursion_sorts(
     }
 }
 
-/// What a step's citations are fitted against, called after its claim is
-/// read.
-pub type Cite<'c> = &'c mut dyn FnMut(&mut Reader, &mut Store, &Step);
+/// What a step's citations are fitted against: its justification's, called
+/// after its claim is read, with no requires line; a requires line's,
+/// called after that line's fact is read, with the line.
+pub type Cite<'c> =
+    &'c mut dyn FnMut(&mut Reader, &mut Store, &Step, Option<&Requires>);
 
 /// A theorem's sorts, read in the order its lines are written.
 ///
 /// A `let` shadows an earlier name, since blocks reuse letters. What the
 /// statement or a block's opening lines declared of any sort is fixed where
 /// the proof under them begins. `cite` is called after each step's claim is
-/// read, for whoever fits its citations.
+/// read, and after each requires line's fact, for whoever fits their
+/// citations: a requires line's citation is read with what the line says.
 pub fn read_theorem(
     thm: &Theorem,
     env: Env,
@@ -1080,6 +1085,7 @@ pub fn read_theorem(
         Said(String),
         Define(&'t str),
         Claim(&'t Step),
+        Requires(&'t Step, &'t Requires),
     }
     // Each line, where it stands, and whether reading it first fixes what
     // was declared of any sort: a define, a claim and a requires line do,
@@ -1118,11 +1124,7 @@ pub fn read_theorem(
         }
         events.push((step.line.into(), true, Event::Claim(step)));
         for r in &step.requires {
-            events.push((
-                r.line.into(),
-                true,
-                Event::Said(str::trim(&unlabel(&r.fact)).to_string()),
-            ));
+            events.push((r.line.into(), true, Event::Requires(step, r)));
         }
     }
     events.sort_by_key(|e| e.0);
@@ -1200,7 +1202,14 @@ pub fn read_theorem(
                 }
                 claim_text(&mut reader, &step.claim_text(), no, env, store);
                 if let Some(cite) = cite.as_mut() {
-                    cite(&mut reader, store, step);
+                    cite(&mut reader, store, step, None);
+                }
+            }
+            Event::Requires(step, r) => {
+                let fact = str::trim(&unlabel(&r.fact)).to_string();
+                claim_text(&mut reader, &fact, no, env, store);
+                if let Some(cite) = cite.as_mut() {
+                    cite(&mut reader, store, step, Some(r));
                 }
             }
         }
