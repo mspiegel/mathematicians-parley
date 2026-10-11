@@ -353,7 +353,11 @@ pub fn fits(hole: &str, sort: &Sort) -> bool {
 /// group element, and `g·h` is the group's operation and not a product of
 /// numbers. So each `x ∈ S` the sentence writes gives an x of no sort what S
 /// holds, for this sentence only (`bound_sorts`).
-pub fn parse(
+///
+/// Only the front end calls it (`page`), with a sentence the splitter cut:
+/// nothing else in the crate can, so every tree read from text was read
+/// one way (`GOALS.md` decision 18).
+pub(super) fn parse(
     text: &str,
     g: &Grammar,
     sorts: &Sorts,
@@ -443,11 +447,6 @@ fn one_of(readings: &[String]) -> String {
         [one] => one.clone(),
         [rest @ .., last] => format!("{} or as {last}", rest.join(", as ")),
     }
-}
-
-/// Parse with nowhere to point: a sentence no file holds.
-pub fn parse_here(text: &str, g: &Grammar, sorts: &Sorts) -> Checked<Node> {
-    parse(text, g, sorts, "", 0)
 }
 
 /// Whether the letter is a constant whose notation is `shadowed`: `i`.

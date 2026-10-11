@@ -15,7 +15,8 @@ use super::state::Elaborator;
 use crate::corpus::proof::visible;
 use crate::corpus::{DefineLine, Item, Recursion, ScopeId, Step};
 use crate::formula::grammar::Sorts;
-use crate::formula::{fits, parse, Node, Sort};
+use crate::formula::page::Written;
+use crate::formula::{fits, Node, Sort};
 use crate::matching::{Defined, Definitions};
 use crate::outcome::Checked;
 use crate::regex;
@@ -195,13 +196,9 @@ impl<'a> Elaborator<'a> {
     /// elaborator has got to: a formula that does not parse is a defect and
     /// wants somewhere to point.
     pub fn read(&self, text: &str) -> Checked<Node> {
-        parse(
-            str::trim(&unlabel(text)),
-            self.g,
-            &self.sorts_now,
-            &self.thm.path,
-            self.at,
-        )
+        Written::new(unlabel(text), &self.thm.path, self.at)
+            .sentence()?
+            .read(self.g, &self.sorts_now)
     }
 
     /// A library function applied to its arguments, where the proof gives the

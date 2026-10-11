@@ -15,7 +15,8 @@
 
 use indexmap::IndexSet;
 
-use crate::formula::{parse, Node, Sort};
+use crate::formula::page::Written;
+use crate::formula::{Node, Sort};
 use crate::mm::kernel::Term;
 use crate::outcome::Checked;
 use crate::rules::NUMERALS;
@@ -225,7 +226,9 @@ impl Elaborator<'_> {
                         sorts.unsettled.insert(letter.clone());
                     }
                 }
-                parse(str::trim(&printed), self.g, &sorts, &self.thm.path, self.at)
+                Written::new(printed, &self.thm.path, self.at)
+                    .sentence()
+                    .and_then(|s| s.read(self.g, &sorts))
             };
             if back.is_ok_and(|b| b.shape() == node.shape()) {
                 return Some(node);

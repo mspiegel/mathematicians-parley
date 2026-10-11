@@ -6,7 +6,14 @@ use std::path::Path;
 use std::rc::Rc;
 
 use parley::corpus::parse_database;
-use parley::formula::{parse_here, Grammar, Sorts};
+use parley::formula::page::Written;
+use parley::formula::{Grammar, Node, Sorts};
+use parley::outcome::Checked;
+
+/// One sentence, read by the front end every tool reads by.
+fn read(text: &str, g: &Grammar, sorts: &Sorts) -> Checked<Node> {
+    Written::here(text).sentence()?.read(g, sorts)
+}
 
 fn grammar() -> Rc<Grammar> {
     let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("corpus/db/notation.records");
@@ -92,8 +99,8 @@ fn each_short_form_builds_its_long_form() {
         ),
     ];
     for (short, long) in pairs {
-        let a = parse_here(short, &g, &sorts).unwrap();
-        let b = parse_here(long, &g, &sorts).unwrap();
+        let a = read(short, &g, &sorts).unwrap();
+        let b = read(long, &g, &sorts).unwrap();
         assert_eq!(a.shape(), b.shape(), "{short:?} against {long:?}");
     }
 }
@@ -104,7 +111,7 @@ fn a_member_is_no_bound() {
     let g = grammar();
     let mut sorts = declared();
     sorts.ranges.insert("x".into(), "ℝ".into());
-    let tree = parse_here("there is x ∈ ℤ with x = x", &g, &sorts).unwrap();
+    let tree = read("there is x ∈ ℤ with x = x", &g, &sorts).unwrap();
     assert!(tree.shape().starts_with("there-is:"), "{}", tree.shape());
 }
 
@@ -112,7 +119,7 @@ fn a_member_is_no_bound() {
 fn an_undeclared_letter_has_no_reading() {
     let g = grammar();
     for text in ["for all η > 0, η = η", "η = η for all η > 0"] {
-        let problem = parse_here(text, &g, &declared()).unwrap_err();
+        let problem = read(text, &g, &declared()).unwrap_err();
         assert!(
             problem
                 .message
@@ -127,8 +134,7 @@ fn an_undeclared_letter_has_no_reading() {
 fn a_trailing_bound_over_an_and_has_no_reading() {
     // As for any trailing universal, what it says is one relation.
     let g = grammar();
-    let problem =
-        parse_here("ε = ε and ε < 2 for all ε > 0", &g, &declared()).unwrap_err();
+    let problem = read("ε = ε and ε < 2 for all ε > 0", &g, &declared()).unwrap_err();
     assert!(
         problem.message.contains("not ordered"),
         "{}",
@@ -141,7 +147,7 @@ fn a_trailing_condition_over_an_and_has_no_reading() {
     // The condition stands at the right edge and is one relation.
     let g = grammar();
     let text = "x = x for all x ∈ ℤ with x > 0 and x < 3";
-    let problem = parse_here(text, &g, &declared()).unwrap_err();
+    let problem = read(text, &g, &declared()).unwrap_err();
     assert!(
         problem.message.contains("not ordered"),
         "{}",

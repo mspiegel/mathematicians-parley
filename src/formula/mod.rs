@@ -13,7 +13,7 @@ pub mod page;
 mod print;
 pub mod token;
 
-pub use grammar::{fits, holds, parse, parse_here, Grammar, Sorts, TERM_SORTS};
+pub use grammar::{fits, holds, Grammar, Sorts, TERM_SORTS};
 pub use node::{walk, Node, NodeId, Sort, Whole};
 pub use notation::{
     binds_tighter, categories_of, patterns_of, Binds, Notation, Part, Tighter,

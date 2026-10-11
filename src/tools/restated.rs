@@ -23,7 +23,8 @@ use indexmap::{IndexMap, IndexSet};
 use crate::corpus::{
     corpus, link_functions, parse_proof, Corpus, Intro, ItemKind, Record,
 };
-use crate::formula::{parse_here, Grammar, Node, Sorts};
+use crate::formula::page::{Sentence, Written};
+use crate::formula::{Grammar, Node, Sorts};
 use crate::regex;
 use crate::said::Said;
 use crate::sorts::infer;
@@ -60,8 +61,8 @@ impl<'a> Shapes<'a> {
     }
 
     /// The sentence's tree, where it reads, and what its root builds.
-    fn root(&self, sentence: &str, sorts: &Sorts) -> Option<(Node, &str)> {
-        let tree = parse_here(sentence, self.g, sorts).ok()?;
+    fn root(&self, sentence: &Sentence, sorts: &Sorts) -> Option<(Node, &str)> {
+        let tree = sentence.read(self.g, sorts).ok()?;
         let head = self.builds.get(&tree.notation)?.as_str();
         Some((tree, head))
     }
@@ -69,7 +70,7 @@ impl<'a> Shapes<'a> {
     /// The two parts of a sentence whose root builds `head`, as written.
     fn parts(
         &self,
-        sentence: &str,
+        sentence: &Sentence,
         sorts: &Sorts,
         head: &str,
     ) -> Option<(String, String)> {
@@ -78,8 +79,8 @@ impl<'a> Shapes<'a> {
             return None;
         }
         Some((
-            tree.children[0].written(sentence)?,
-            tree.children[1].written(sentence)?,
+            tree.children[0].written(sentence.text())?,
+            tree.children[1].written(sentence.text())?,
         ))
     }
 
@@ -91,10 +92,12 @@ impl<'a> Shapes<'a> {
     /// says it, `f : X → Y`.
     fn witnesses(
         &self,
-        sentence: &str,
+        said: &Written,
         sorts: &Sorts,
     ) -> Option<(Vec<Witness>, String)> {
-        let (tree, built) = self.root(sentence, sorts)?;
+        let sentence = said.sentence().ok()?;
+        let (tree, built) = self.root(&sentence, sorts)?;
+        let sentence = sentence.text();
         if built != "wrex" {
             return None;
         }
@@ -245,7 +248,7 @@ pub fn restatements(
         let mut ways: Vec<(Option<String>, String)> = Vec::new();
         for (conclusion, _) in &r.conclusions {
             let claim = conclusion.split_whitespace().collect::<Vec<_>>().join(" ");
-            let said = crate::sorts::sentences(&claim);
+            let said = Written::new(&claim, &r.path, r.line).sentences();
             let sides = match said.as_slice() {
                 [one] => shapes.parts(one, &sorts, "wb"),
                 _ => None,
@@ -290,7 +293,7 @@ pub fn restatements(
                 text.push_str(&format!("  assume {side}    (R1)\n"));
                 // What a line says there is, a step names before it is used,
                 // as a proof reads a "there is" it was given.
-                match shapes.witnesses(side, &sorts) {
+                match shapes.witnesses(&Written::new(side, &r.path, r.line), &sorts) {
                     Some((names, said)) => {
                         steps.push(obtaining(
                             steps.len() + 1,
@@ -312,7 +315,7 @@ pub fn restatements(
             text.push_str(&format!("  then {claim}\n\n"));
             // A claim that there is something is obtained from the item,
             // named, and exhibited, as a proof citing it does.
-            match shapes.witnesses(claim, &sorts) {
+            match shapes.witnesses(&Written::new(claim, &r.path, r.line), &sorts) {
                 Some((names, said)) => {
                     let n = steps.len() + 1;
                     let how = format!(": {item}{from_text}\n");
@@ -408,19 +411,24 @@ fn applied_functions(r: &Record, g: &Grammar) -> Vec<String> {
 fn free_names(r: &Record, g: &Grammar) -> Vec<String> {
     let introduced: BTreeSet<String> = let_names(r).into_iter().collect();
     let sorts = crate::sorts::sorts_of_record(r, crate::sorts::Env { g, scopes: &[] });
-    let mut texts: Vec<String> = r
+    let mut texts: Vec<Written> = r
         .hypotheses
         .iter()
         .map(|h| {
             let body = crate::sorts::unlabel(&h.text);
-            crate::sorts::let_formula(str::trim(&body))
+            let said = crate::sorts::let_formula(str::trim(&body));
+            Written::new(said, &r.path, h.line)
         })
         .collect();
-    texts.extend(r.conclusions.iter().map(|(t, _)| t.clone()));
+    texts.extend(
+        r.conclusions
+            .iter()
+            .map(|(t, line)| Written::new(t, &r.path, *line)),
+    );
     let mut out: Vec<String> = Vec::new();
-    for text in texts {
-        for sentence in crate::sorts::sentences(&text) {
-            let Ok(tree) = parse_here(&sentence, g, &sorts) else {
+    for written in texts {
+        for sentence in written.sentences() {
+            let Ok(tree) = sentence.read(g, &sorts) else {
                 continue; // the checker says it does not read
             };
             let nodes = tree.walk();

@@ -16,8 +16,9 @@ use indexmap::IndexSet;
 use parley::check::statements_in_scope;
 use parley::corpus::proof::{chain_cited, references, Head, Intro, Method, Theorem};
 use parley::corpus::{define_parts, Corpus, DefineParts};
-use parley::formula::grammar::{parse_here, Grammar};
+use parley::formula::grammar::{Grammar, Sorts};
 use parley::formula::node::Node;
+use parley::formula::page::Written;
 use parley::formula::token::{is_letter, is_mark, tokenise, Token, TokenKind};
 use parley::matching::{free_names, instantiation, split_commas};
 use parley::outcome::Built;
@@ -56,6 +57,15 @@ pub struct Rewritten {
     /// The theorems it changed, where it reads theorem by theorem.
     pub theorems: Vec<String>,
     pub declined: Vec<Declined>,
+}
+
+/// One sentence, read by the front end every tool reads by.
+fn read_one(
+    sentence: &str,
+    g: &Grammar,
+    sorts: &Sorts,
+) -> parley::outcome::Checked<Node> {
+    Written::here(sentence).sentence()?.read(g, sorts)
 }
 
 /// The compiled `pattern`, compiled once: the rewrites ask for the same few
@@ -1143,7 +1153,7 @@ fn bound(ctx: &Context, thm: &Theorem) -> Vec<String> {
     let mut out: Vec<String> = Vec::new();
     for text in texts {
         for sentence in sentences(&text) {
-            let Ok(tree) = parse_here(&sentence, &ctx.g, &sorts) else {
+            let Ok(tree) = read_one(&sentence, &ctx.g, &sorts) else {
                 continue;
             };
             for node in tree.walk() {
@@ -1314,7 +1324,7 @@ fn claims(
             let read: Result<Vec<Node>, String> = sentences(&step.claim_text())
                 .iter()
                 .map(|s| {
-                    parse_here(s, &ctx.g, &sorts)
+                    read_one(s, &ctx.g, &sorts)
                         .map_err(|p| format!("step {} does not read: {p}", step.number))
                 })
                 .collect();
@@ -1335,7 +1345,7 @@ fn claims(
             // or conjunct by conjunct.
             let again: Result<Vec<Node>, _> = sentences(&new)
                 .iter()
-                .map(|s| parse_here(s, &ctx.g, &sorts))
+                .map(|s| read_one(s, &ctx.g, &sorts))
                 .collect();
             let fold = |nodes: &[Node]| -> Vec<String> {
                 let mut out = Vec::new();
@@ -1951,7 +1961,7 @@ fn parts_of(ctx: &Context, thm: &Theorem) -> Result<Vec<Part>, String> {
             continue;
         }
         for sentence in sentences(&step.claim_text()) {
-            let tree = parse_here(&sentence, &ctx.g, &sorts)
+            let tree = read_one(&sentence, &ctx.g, &sorts)
                 .map_err(|p| format!("step {} does not read: {p}", step.number))?;
             let nodes = tree.walk();
             // A part free in a letter some binder of the sentence holds may

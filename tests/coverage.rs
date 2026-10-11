@@ -19,10 +19,11 @@ use std::path::Path;
 
 use parley::corpus::proof::{Head, Theorem, METHODS};
 use parley::corpus::{corpus, define_parts, DefineParts};
-use parley::formula::grammar::{parse_here, Grammar};
+use parley::formula::grammar::Grammar;
 use parley::formula::node::walk;
+use parley::formula::page::Written;
 use parley::outcome::{Built, Declined};
-use parley::sorts::{said_by_line, sentences, sorts_in_scope, Env};
+use parley::sorts::{said_by_line, sorts_in_scope, Env};
 use parley::source::Disk;
 
 /// The methods and notations no proof writes yet, by the record a pattern
@@ -96,8 +97,8 @@ fn every_method_and_notation_is_written_by_a_proof() {
             },
         );
         for text in formulas(thm) {
-            for s in sentences(&text) {
-                let Ok(node) = parse_here(&s, &g, &sorts) else {
+            for s in Written::new(text, &thm.path, thm.line).sentences() {
+                let Ok(node) = s.read(&g, &sorts) else {
                     continue;
                 };
                 // A node is the pattern that read it: the record it stands
