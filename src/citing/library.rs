@@ -6,13 +6,14 @@ use std::rc::Rc;
 use indexmap::{IndexMap, IndexSet};
 
 use crate::corpus::{Intro, Record, RecordKind, Theorem};
-use crate::formula::{parse_here, Node, Sorts};
+use crate::formula::page::Written;
+use crate::formula::{Node, Sorts};
 use crate::matching::{expand, standard, Context};
 use crate::regex;
 use crate::sorts::{
     element_re, function_being_re, function_on_re, function_re, graph_re, group_re,
-    let_formula, part_re, polynomial_re, sentences, set_or_point_re,
-    sorts_of_statement, statement_definitions, unlabel, Env,
+    let_formula, part_re, polynomial_re, set_or_point_re, sorts_of_statement,
+    statement_definitions, Env,
 };
 
 /// One `then` group of an item.
@@ -151,31 +152,33 @@ impl<'a> Library<'a> {
     pub fn function_types(&self, name: &str) -> Vec<Node> {
         // A theorem's hypothesis is written with its `let`, as a proof file
         // has it, and a record's without.
-        let (said, sorts): (Vec<(Intro, String)>, &Sorts) =
+        let (said, sorts): (Vec<(Intro, Written)>, &Sorts) =
             if let Some(k) = self.proved.get(name) {
                 let said = k
                     .thm
                     .hypotheses
                     .iter()
-                    .map(|h| (h.kind, unlabel(&h.text[h.kind.as_str().len()..])))
+                    .map(|h| (h.kind, h.body(&k.thm.path)))
                     .collect();
                 (said, k.sorts)
             } else if let Some(&i) = self.items.get(name) {
-                let said = self.records[i]
+                let record = &self.records[i];
+                let said = record
                     .hypotheses
                     .iter()
-                    .map(|h| (h.kind, unlabel(&h.text)))
+                    .map(|h| (h.kind, h.body(&record.path)))
                     .collect();
                 (said, &self.record_sorts[&i])
             } else {
                 return Vec::new();
             };
-        let lines: Vec<String> = said
+        let lines: Vec<Written> = said
             .into_iter()
             .filter(|(kind, _)| *kind == Intro::Let)
-            .map(|(_, text)| str::trim(&text).to_string())
-            .filter(|text| {
-                function_re().is_match(text) && !function_being_re().is_match(text)
+            .map(|(_, body)| body)
+            .filter(|body| {
+                function_re().is_match(body.text())
+                    && !function_being_re().is_match(body.text())
             })
             .collect();
         self.trees(&lines, sorts)
@@ -185,13 +188,10 @@ impl<'a> Library<'a> {
     fn read(&self, name: &str) -> Option<Vec<Group>> {
         if let Some(k) = self.proved.get(name) {
             let thm = k.thm;
-            let lines: Vec<(Intro, String)> = thm
+            let lines: Vec<(Intro, Written)> = thm
                 .hypotheses
                 .iter()
-                .map(|h| {
-                    let rest = &h.text[h.kind.as_str().len()..];
-                    (h.kind, str::trim(&unlabel(rest)).to_string())
-                })
+                .map(|h| (h.kind, h.body(&thm.path)))
                 .collect();
             // A theorem's statement means what it meant in its own file: a
             // definition it names is written out there, so what cites it is
@@ -206,8 +206,10 @@ impl<'a> Library<'a> {
                 .into_iter()
                 .map(|(text, tree)| (text, expand(&tree, &own)))
                 .collect();
+            let conclusion =
+                Written::new(&thm.conclusion, &thm.path, thm.conclusion_line);
             let gives = self
-                .trees(&sentences(&thm.conclusion), k.sorts)
+                .trees(&[conclusion], k.sorts)
                 .iter()
                 .map(|t| expand(t, &own))
                 .collect();
@@ -221,15 +223,15 @@ impl<'a> Library<'a> {
         let sorts = &self.record_sorts[&i];
         let mut out = Vec::new();
         for (text, at) in &item.conclusions {
-            let lines: Vec<(Intro, String)> = item
+            let lines: Vec<(Intro, Written)> = item
                 .hypotheses
                 .iter()
                 .filter(|h| h.line < *at)
-                .map(|h| (h.kind, str::trim(&unlabel(&h.text)).to_string()))
+                .map(|h| (h.kind, h.body(&item.path)))
                 .collect();
             out.push(Group {
                 wants: self.facts(&lines, sorts),
-                gives: self.trees(&sentences(text), sorts),
+                gives: self.trees(&[Written::new(text, &item.path, *at)], sorts),
             });
         }
         if out.is_empty() {
@@ -241,41 +243,48 @@ impl<'a> Library<'a> {
         Some(out)
     }
 
-    /// Each text read, in the standard order a citation is compared in
-    /// (`matching::standard`).
-    fn trees(&self, texts: &[String], sorts: &Sorts) -> Vec<Node> {
-        texts
+    /// Each sentence of what is written, read, in the standard order a
+    /// citation is compared in (`matching::standard`). A sentence that does
+    /// not read is `check_statements`'s to report.
+    fn trees(&self, written: &[Written], sorts: &Sorts) -> Vec<Node> {
+        written
             .iter()
-            .filter_map(|t| parse_here(t, self.env.g, sorts).ok())
+            .flat_map(Written::sentences)
+            .filter_map(|s| s.read(self.env.g, sorts).ok())
             .map(|t| standard(&t, &self.ctx))
             .collect()
     }
 
-    fn facts(&self, lines: &[(Intro, String)], sorts: &Sorts) -> Vec<(String, Node)> {
+    /// What each hypothesis asks of a citation, by the sentence that says
+    /// it, read.
+    fn facts(&self, lines: &[(Intro, Written)], sorts: &Sorts) -> Vec<(String, Node)> {
         let mut out = Vec::new();
-        for (kind, text) in lines {
-            let mut text = text.clone();
+        for (kind, body) in lines {
+            let text = body.text();
+            let mut said = body.clone();
             // A function's type is declared, and what `be` says of the
             // function is a fact like any other, asked for as `let y ∈ Y`
             // is: `let g : Y → X be one-to-one` asks that g be one-to-one.
             if *kind == Intro::Let
-                && (function_being_re().is_match(&text)
-                    || function_on_re().is_match(&text)
-                    || polynomial_re().is_match(&text)
-                    || part_re().is_match(&text))
+                && (function_being_re().is_match(text)
+                    || function_on_re().is_match(text)
+                    || polynomial_re().is_match(text)
+                    || part_re().is_match(text))
             {
-                text = let_formula(&text);
+                said = Written::new(let_formula(text), body.path(), body.line());
             } else if *kind == Intro::Let
-                && (set_or_point_re().is_match(&text)
-                    || function_re().is_match(&text)
-                    || element_re().is_match(&text)
-                    || group_re().is_match(&text)
-                    || graph_re().is_match(&text))
+                && (set_or_point_re().is_match(text)
+                    || function_re().is_match(text)
+                    || element_re().is_match(text)
+                    || group_re().is_match(text)
+                    || graph_re().is_match(text))
             {
                 continue;
             }
-            if let Ok(tree) = parse_here(&text, self.env.g, sorts) {
-                out.push((text, standard(&tree, &self.ctx)));
+            for sentence in said.sentences() {
+                if let Ok(tree) = sentence.read(self.env.g, sorts) {
+                    out.push((sentence.text().to_string(), standard(&tree, &self.ctx)));
+                }
             }
         }
         out

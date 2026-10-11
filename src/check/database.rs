@@ -9,15 +9,14 @@ use super::library::Known;
 use super::Report;
 use crate::corpus::records::allowed_fields;
 use crate::corpus::{in_stdlib, Intro, Record, RecordKind, Theorem, PART_MARKERS};
-use crate::formula::{
-    categories_of, parse_here, patterns_of, Grammar, Node, Sorts, TERM_SORTS,
-};
+use crate::formula::page::Written;
+use crate::formula::{categories_of, patterns_of, Grammar, Node, Sorts, TERM_SORTS};
 use crate::regex;
 use crate::sorts::infer;
 use crate::sorts::{
     element_re, function_being_re, function_on_re, function_re, graph_listed_re,
     graph_re, group_re, let_formula, membership_re, not_in_re, part_re, polynomial_re,
-    property_re, sentences, set_or_point_re, settled, unlabel, Env,
+    property_re, set_or_point_re, settled, unlabel, Env,
 };
 use crate::text::{prefix, repr};
 
@@ -444,7 +443,7 @@ pub fn check_statements(
             if h.kind != Intro::Let {
                 continue;
             }
-            let body = str::trim(&unlabel(&h.text)).to_string();
+            let body = Written::new(str::trim(&unlabel(&h.text)), &r.path, h.line);
             if let Some(said) = introduction_problem(&body, env, sorts) {
                 report.say(
                     &r.path,
@@ -461,8 +460,8 @@ pub fn check_statements(
             .collect();
         places.extend(r.conclusions.iter().map(|(t, n)| (t.as_str(), *n)));
         for (text, no) in places {
-            for sentence in sentences(&unlabel(text)) {
-                if let Err(p) = parse_here(&sentence, env.g, sorts) {
+            for sentence in Written::new(unlabel(text), &r.path, no).sentences() {
+                if let Err(p) = sentence.read(env.g, sorts) {
                     report.say(
                         &r.path,
                         no,
@@ -595,8 +594,8 @@ pub fn check_unsorted(
         }
         let mut trees: Vec<(usize, Node)> = Vec::new();
         for (text, no) in places {
-            for sentence in sentences(&unlabel(text)) {
-                let Ok(tree) = parse_here(&sentence, env.g, &record_sorts[&i]) else {
+            for sentence in Written::new(unlabel(text), &r.path, no).sentences() {
+                let Ok(tree) = sentence.read(env.g, &record_sorts[&i]) else {
                     continue; // check_statements says so
                 };
                 trees.push((no, tree));
@@ -608,7 +607,7 @@ pub fn check_unsorted(
         let lets = infer::read_lets(r, env, &mut store);
         let mut members: BTreeSet<String> = BTreeSet::new();
         for (no, tree) in &trees {
-            let mut probe = infer::Reader::new(env);
+            let mut probe = infer::Reader::new(env, &r.path);
             probe.env = lets.env.clone();
             put_in_numbers(tree, &notations, &mut probe, &mut store, *no, &mut members);
         }
@@ -664,7 +663,14 @@ fn sort_name(word: &str) -> bool {
 
 /// What is wrong with a `let` body, or None. Used for a proof's lines and
 /// for an item's alike, since an item states its hypotheses the same way.
-pub fn introduction_problem(body: &str, env: Env, sorts: &Sorts) -> Option<String> {
+pub fn introduction_problem(
+    introduction: &Written,
+    env: Env,
+    sorts: &Sorts,
+) -> Option<String> {
+    let body = introduction.text();
+    let read =
+        |written: &Written| written.sentence().and_then(|s| s.read(env.g, sorts));
     let forms = introductions();
     if !forms.iter().any(|(_, p)| p.is_match(body)) {
         let names: Vec<&str> = forms.iter().map(|(n, _)| *n).collect();
@@ -680,7 +686,7 @@ pub fn introduction_problem(body: &str, env: Env, sorts: &Sorts) -> Option<Strin
     // set, which is a statement, and the property it states was never asked
     // for.
     if function_re().is_match(body) && !function_being_re().is_match(body) {
-        if let Ok(node) = parse_here(body, env.g, sorts) {
+        if let Ok(node) = read(introduction) {
             if node.notation != "function-type" {
                 return Some(format!(
                     "`let {}` says more than a function's type; a property of it follows `be`, as `let f : A → B be one-to-one`",
@@ -689,9 +695,9 @@ pub fn introduction_problem(body: &str, env: Env, sorts: &Sorts) -> Option<Strin
             }
         }
     }
-    if function_being_re().is_match(body)
-        && parse_here(&let_formula(body), env.g, sorts).is_err()
-    {
+    let asserted =
+        Written::new(let_formula(body), introduction.path(), introduction.line());
+    if function_being_re().is_match(body) && read(&asserted).is_err() {
         return Some(format!(
             "`let {}` says the function is something no notation says a function is",
             prefix(body, 40)
@@ -737,7 +743,7 @@ pub fn check_introductions(
             continue;
         }
         let body = LET_KEYWORD.replace(text, "");
-        let body = str::trim(&unlabel(&body)).to_string();
+        let body = Written::new(str::trim(&unlabel(&body)), &thm.path, no);
         if let Some(said) = introduction_problem(&body, env, &known.sorts) {
             report.say(&thm.path, no, said);
         }

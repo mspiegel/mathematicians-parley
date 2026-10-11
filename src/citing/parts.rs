@@ -1,6 +1,7 @@
 //! What a citation supplies and claims, as the search reads them.
 
-use crate::formula::{parse_here, Node, Sort, Sorts, Whole};
+use crate::formula::page;
+use crate::formula::{Node, Sort, Sorts, Whole};
 use crate::matching::{standard, substitute, Binding};
 use crate::rules;
 use crate::sorts::{element_sort, Env};
@@ -82,7 +83,7 @@ pub fn claimed_member(
 /// What a binder says of the letter it binds: `x ∈ S`, or `x ⊆ S` as
 /// `written` has it, at the letter and the domain.
 pub fn bound_in(
-    written: &str,
+    written: &'static str,
     held_as: Option<Sort>,
     letter: &Node,
     domain: &Node,
@@ -105,7 +106,7 @@ pub fn bound_in(
     let mut local = sorts.clone();
     local.insert("x".into(), held);
     local.insert("S".into(), domain.sort.clone());
-    let said = parse_here(written, library.env.g, &local).ok()?;
+    let said = page::template(written, library.env.g, &local).ok()?;
     let mut put = Binding::new();
     put.insert("x".into(), letter.clone());
     put.insert("S".into(), domain.clone());
@@ -137,8 +138,8 @@ fn fits_form(form: &Node, fact: &Node, put: &mut Binding) -> bool {
             .all(|(f, g)| fits_form(f, g, put))
 }
 
-fn template(said: &str, env: Env, sorts: &Sorts) -> Node {
-    parse_here(said, env.g, sorts).unwrap_or_else(|p| {
+fn template(said: &'static str, env: Env, sorts: &Sorts) -> Node {
+    page::template(said, env.g, sorts).unwrap_or_else(|p| {
         panic!("the notation database no longer reads {said:?}, which a membership implies: {p}")
     })
 }
@@ -177,7 +178,7 @@ pub fn function_values(facts: &[Node], env: Env, sorts: &Sorts) -> Vec<Node> {
             local.insert("f".into(), function.sort.clone());
             local.insert("x".into(), at);
             local.insert("S".into(), codomain.sort.clone());
-            let Ok(said) = parse_here("f(x) ∈ S", env.g, &local) else {
+            let Ok(said) = page::template("f(x) ∈ S", env.g, &local) else {
                 continue;
             };
             let mut put = Binding::new();
@@ -220,26 +221,33 @@ pub fn implied_facts(fact: &Node, env: Env, sorts: &Sorts) -> Vec<Node> {
     }
     let term = fact.children[0].clone();
     let system = rules::system_of(&fact.children[1].text);
-    let mut templates: Vec<String> = rules::SYSTEM_OF
+    let mut local = sorts.clone();
+    local.insert("x".into(), Sort::of("number"));
+    // Each says one thing of x, `x ∈ ℝ` or `x ≥ 0`, and binds nothing: a
+    // membership is `x ∈ S` with the number system at S.
+    let mut said: Vec<Node> = rules::SYSTEM_OF
         .iter()
         .filter(|(_, big)| {
             Some(*big) != system && rules::within_path(system, Some(big)).is_some()
         })
-        .map(|(sign, _)| format!("x ∈ {sign}"))
+        .map(|(sign, _)| {
+            // S is read as the number system that fills it, whatever the
+            // page's S is.
+            let set = template(sign, env, &local);
+            let mut systems = local.clone();
+            systems.insert("S".into(), set.sort.clone());
+            let put = Binding::from([
+                ("x".to_string(), term.clone()),
+                ("S".to_string(), set),
+            ]);
+            substitute(&template("x ∈ S", env, &systems), &put)
+        })
         .collect();
-    templates.extend(
+    let put = Binding::from([("x".to_string(), term)]);
+    said.extend(
         rules::implied(system)
             .iter()
-            .map(|(said, _)| said.to_string()),
+            .map(|(form, _)| substitute(&template(form, env, &local), &put)),
     );
-    let mut local = sorts.clone();
-    local.insert("x".into(), Sort::of("number"));
-    let mut put = Binding::new();
-    put.insert("x".into(), term);
-    // Each template says one thing of x, `x ∈ ℝ` or `x ≥ 0`, and binds
-    // nothing.
-    templates
-        .iter()
-        .map(|t| substitute(&template(t, env, &local), &put))
-        .collect()
+    said
 }

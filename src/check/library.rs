@@ -168,8 +168,8 @@ impl<'a> Known<'a> {
     }
 
     /// A value a citation names, `t` of `v := t`, read with what `defined`
-    /// writes out; None where it is not one formula that reads, which
-    /// `check_instantiations` reports.
+    /// writes out; None where it is not one formula that reads, which the
+    /// elaborator reports.
     pub fn read_value(&self, value: &Written, defined: &Definitions) -> Option<Node> {
         let sentence = value.sentence().ok()?;
         self.read_citing(&sentence, defined)

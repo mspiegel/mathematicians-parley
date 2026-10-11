@@ -16,14 +16,14 @@ use crate::corpus::{
     Justification, Method, Record, RecordKind, Recursion, Requires, Step, Theorem,
 };
 use crate::formula::page::{disjoined, made, numeral, Written};
-use crate::formula::{parse_here, walk, Node, Sort, Sorts};
+use crate::formula::{walk, Node, Sort, Sorts};
 use crate::matching::{
-    alike_top, free_names, instantiation, substitute_apart_by, Binding,
+    alike_top, free_names, namings, substitute_apart_by, Binding, Naming,
 };
 use crate::outcome::{Built, Checked, Declined};
 use crate::regex;
 use crate::sorts::infer::{self, Reader, Store};
-use crate::sorts::{define_sorts, sentences, unlabel, Env};
+use crate::sorts::{define_sorts, Env};
 use crate::targets::split_entries;
 
 /// The sorts an item's statement relates fit, as its reading found.
@@ -93,29 +93,33 @@ fn cited_sorts(
     env: Env,
     statements: &IndexMap<String, Reader>,
 ) {
-    let mut cites: Vec<(String, &str)> = Vec::new();
+    let mut cites: Vec<(String, &str, usize)> = Vec::new();
     match req {
         None => {
             if let Some(item) = cited_item(&step.just) {
-                cites.push((step.just.item(&item), &step.just.text));
+                cites.push((step.just.item(&item), &step.just.text, step.just.line));
             }
         }
         Some(req) => {
             if let Some((cited, _)) = requires_item(&req.how) {
-                cites.push((step.just.item(&cited), &req.how));
+                cites.push((step.just.item(&cited), &req.how, req.line));
             }
         }
     }
-    for (name, text) in cites {
+    for (name, text, line) in cites {
         let Some(stated) = statements.get(&name) else {
             continue;
         };
         let mut seen = IndexMap::new();
-        for (v, t) in instantiation(text) {
+        for Naming { name: v, value } in namings(text, step.claim.path(), line) {
             let Some(wanted) = stated.env.get(&v) else {
                 continue;
             };
-            let Ok(tree) = parse_here(&t, env.g, &reader.sorts(store)) else {
+            // A value that does not read is the elaborator's to report.
+            let read = value
+                .sentence()
+                .and_then(|s| s.read(env.g, &reader.sorts(store)));
+            let Ok(tree) = read else {
                 continue;
             };
             let got = reader.sort_of(&tree, step.line.into(), &IndexMap::new(), store);
@@ -136,7 +140,7 @@ fn cited_sorts(
             if let Declined(said) = store.unify(&got, &copied) {
                 reader.clashes.push(infer::Clash {
                     line: step.line.into(),
-                    what: format!("citing {name} with {v} := {t}"),
+                    what: format!("citing {name} with {v} := {value}"),
                     why: said.reason(),
                 });
                 continue;
@@ -148,7 +152,7 @@ fn cited_sorts(
                         now.map_or_else(|| "settled".to_string(), |s| s.describe());
                     reader.clashes.push(infer::Clash {
                         line: step.line.into(),
-                        what: format!("citing {name} with {v} := {t}"),
+                        what: format!("citing {name} with {v} := {value}"),
                         why: format!(
                             "only the citation says {n} is {is}; say so where {n} is introduced"
                         ),
@@ -174,50 +178,48 @@ fn cited_sorts(
 /// carry on: it has been reported here, once, with the line it is on.
 pub fn check_formulas(report: &mut Report, thm: &Theorem, env: Env, known: &Known) {
     let own = introduced(thm);
-    let mut places: Vec<(usize, String, String)> = thm
+    let mut places: Vec<(usize, String, Written)> = thm
         .steps
         .iter()
-        .map(|s| (s.line, format!("step {}", s.number), s.claim_text()))
+        .map(|s| (s.line, format!("step {}", s.number), s.claim.clone()))
         .collect();
     for s in &thm.steps {
         for r in &s.requires {
             places.push((
                 r.line,
                 format!("the requires line of step {}", s.number),
-                r.fact.text().to_string(),
+                r.fact.clone(),
             ));
         }
     }
-    let mut lines: Vec<(Intro, &str, usize)> = thm
-        .hypotheses
-        .iter()
-        .map(|h| (h.kind, h.text.as_str(), h.line))
-        .collect();
-    for s in &thm.steps {
-        lines.extend(s.openers.iter().map(|o| (o.kind, o.text.as_str(), o.line)));
+    let assumed = |kind| matches!(kind, Intro::Assume | Intro::Suppose);
+    for h in thm.hypotheses.iter().filter(|h| assumed(h.kind)) {
+        places.push((h.line, format!("the `{}` line", h.kind), h.body(&thm.path)));
     }
-    for (k, t, n) in lines {
-        if matches!(k, Intro::Assume | Intro::Suppose) {
-            places.push((
-                n,
-                format!("the `{k}` line"),
-                str::trim(&unlabel(&t[k.as_str().len()..])).to_string(),
-            ));
+    for s in &thm.steps {
+        for o in &s.openers {
+            if assumed(o.kind) {
+                places.push((
+                    o.line,
+                    format!("the `{}` line", o.kind),
+                    o.body(&thm.path),
+                ));
+            }
         }
     }
     places.push((
         thm.line,
         format!("the statement of {}", thm.name),
-        thm.conclusion.clone(),
+        Written::new(&thm.conclusion, &thm.path, thm.line),
     ));
-    for (line, what, text) in places {
-        for sentence in sentences(&text) {
-            if let Err(p) = parse_here(&sentence, env.g, &known.sorts) {
+    for (line, what, written) in places {
+        for sentence in written.sentences() {
+            if let Err(p) = sentence.read(env.g, &known.sorts) {
                 // A name the file defines only further down is why, and
                 // `check_defined_below` says so: above its define it names
                 // nothing, and `U(0)` then reads several ways because
                 // nothing says U is a function.
-                if defined_below(thm, &sentence, &own, env.scopes).is_empty() {
+                if defined_below(thm, sentence.text(), &own, env.scopes).is_empty() {
                     report.say(&thm.path, line, format!("{what}: {}", p.message));
                 }
             }
@@ -231,7 +233,8 @@ pub fn check_formulas(report: &mut Report, thm: &Theorem, env: Env, known: &Know
             continue;
         };
         let local = define_sorts(&said, &known.sorts);
-        if let Err(p) = parse_here(&said.body, env.g, &local) {
+        let body = Written::new(&said.body, &thm.path, d.line);
+        if let Err(p) = body.sentence().and_then(|s| s.read(env.g, &local)) {
             report.say(
                 &thm.path,
                 d.line,
@@ -286,10 +289,13 @@ pub fn defined_words(
                 );
             }
         }
-        let (Some((text, _)), Some(s)) = (r.conclusions.first(), sorts.get(&i)) else {
+        let (Some((text, line)), Some(record_sorts)) =
+            (r.conclusions.first(), sorts.get(&i))
+        else {
             continue;
         };
-        let Ok(node) = parse_here(text, env.g, s) else {
+        let stated = Written::new(text, &r.path, *line).sentence();
+        let Ok(node) = stated.and_then(|s| s.read(env.g, record_sorts)) else {
             continue;
         };
         if node.notation != "biconditional" || node.children.len() != 2 {
@@ -464,24 +470,24 @@ pub fn check_letters_introduced(
     let binders = env.g.binders();
     for s in &thm.steps {
         let claim = s.claim_text();
-        let mut texts: Vec<(usize, String, String, bool)> =
-            vec![(s.line, format!("step {}", s.number), claim.clone(), false)];
+        let mut texts: Vec<(usize, String, &Written, bool)> =
+            vec![(s.line, format!("step {}", s.number), &s.claim, false)];
         for r in &s.requires {
             texts.push((
                 r.line,
                 format!("the requires line of step {}", s.number),
-                r.fact.text().to_string(),
+                &r.fact,
                 true,
             ));
         }
         let mut in_scope: Option<BTreeSet<String>> = None;
-        for (line, what, text, under_claim) in texts {
+        for (line, what, written, under_claim) in texts {
             let mut earlier = String::new();
-            for sentence in sentences(&text) {
+            for sentence in written.sentences() {
                 let ended = bound_by_claim(&earlier);
-                earlier.push_str(&sentence);
+                earlier.push_str(sentence.text());
                 earlier.push(' ');
-                let Ok(node) = parse_here(&sentence, env.g, &known.sorts) else {
+                let Ok(node) = sentence.read(env.g, &known.sorts) else {
                     continue;
                 };
                 let scope = in_scope.get_or_insert_with(|| {
@@ -991,8 +997,10 @@ fn proof_owes(owner: &Step, claim: &Node, known: &Known) -> Option<Owed> {
                 let body = rest.children[2].clone();
                 match fixed {
                     Some(name) if name != rest.children[0].text => {
-                        let named =
-                            parse_here(&name, known.env.g, &known.sorts).ok()?;
+                        let named = Written::new(name, &known.thm.path, o.line)
+                            .sentence()
+                            .and_then(|s| s.read(known.env.g, &known.sorts))
+                            .ok()?;
                         put.insert(rest.children[0].text.clone(), named);
                         substitute_apart_by(&body, &put, &known.env.g.binders())
                     }
@@ -1420,8 +1428,8 @@ pub fn check_membership_claims(
         if !step.just.head.is(Method::Membership) {
             continue;
         }
-        for sentence in sentences(&step.claim_text()) {
-            let Ok(node) = parse_here(&sentence, env.g, &known.sorts) else {
+        for sentence in step.claim.sentences() {
+            let Ok(node) = sentence.read(env.g, &known.sorts) else {
                 continue; // `check_formulas` says it does not read
             };
             if !says_membership(&node) {
@@ -1511,12 +1519,13 @@ fn define_named(thm: &Theorem, label: &str, scopes: &[FileScope]) -> Option<Stri
         .map(|i| i.alias.clone())
 }
 
-/// The define by recursion this theorem writes under `label`, or None where
-/// the label is another kind of define or none.
-fn recursion_cited(thm: &Theorem, label: &str) -> Option<Recursion> {
+/// The define by recursion this theorem writes under `label`, with the line
+/// it is written on, or None where the label is another kind of define or
+/// none.
+fn recursion_cited(thm: &Theorem, label: &str) -> Option<(Recursion, usize)> {
     let d = thm.defines.iter().find(|d| d.label == label)?;
     match define_parts(&d.text) {
-        Built(DefineParts::Recursion(r)) => Some(r),
+        Built(DefineParts::Recursion(r)) => Some((r, d.line)),
         _ => None,
     }
 }
@@ -1528,6 +1537,7 @@ fn recursion_value(
     said: &Recursion,
     name: &str,
     at: &Node,
+    written: impl Fn(&str) -> Written,
     env: Env,
     sorts: &Sorts,
 ) -> Checked<Option<(Node, Option<Node>)>> {
@@ -1545,7 +1555,7 @@ fn recursion_value(
     };
     let mut local = sorts.clone();
     local.insert(said.index.clone(), Sort::of("number"));
-    let mut term = parse_here(rule, env.g, &local)?;
+    let mut term = written(rule).sentence()?.read(env.g, &local)?;
     if let Some(index) = &index {
         let mut put = Binding::new();
         put.insert(said.index.clone(), index.clone());
@@ -1606,7 +1616,7 @@ fn recursion_equation(
     claims: &[Node],
     facts: &[Node],
     said: &Recursion,
-    env: Env,
+    line: usize,
     known: &Known,
     wrappers: &IndexSet<String>,
     equals: &IndexSet<String>,
@@ -1634,7 +1644,9 @@ fn recursion_equation(
         }
         why = None;
         let name = &one.children[0].text;
-        let Ok(found) = recursion_value(said, name, &one.children[1], env, sorts)
+        let rule = |text: &str| Written::new(text, &known.thm.path, line);
+        let Ok(found) =
+            recursion_value(said, name, &one.children[1], rule, known.env, sorts)
         else {
             continue; // `check_formulas` says it does not read
         };
@@ -1703,7 +1715,8 @@ pub fn check_recursions(report: &mut Report, thm: &Theorem, env: Env, known: &Kn
                     None => format!("{name}(0)"),
                     Some(at) => format!("{name}({at} + 1)"),
                 };
-                let tree = match parse_here(rule, env.g, &local) {
+                let rule = Written::new(rule, &thm.path, d.line);
+                let tree = match rule.sentence().and_then(|s| s.read(env.g, &local)) {
                     Ok(tree) => tree,
                     Err(p) => {
                         report.say(
@@ -1795,13 +1808,13 @@ pub fn check_define_citation(
         }
         let label = just.defined.clone().unwrap_or_default();
         let say = format!("step {} cites {label}", step.number);
-        if let Some(recursion) = recursion_cited(thm, &label) {
+        if let Some((recursion, line)) = recursion_cited(thm, &label) {
             let parts = known.parts(step, library);
             if let Some(why) = recursion_equation(
                 &parts.claims,
                 &parts.facts,
                 &recursion,
-                env,
+                line,
                 known,
                 &wrappers,
                 &library.ctx.equations,
@@ -1819,9 +1832,11 @@ pub fn check_define_citation(
             continue;
         };
         let parts = known.parts(step, library);
-        let written: Result<Vec<Node>, _> = sentences(&step.claim_text())
+        let written: Result<Vec<Node>, _> = step
+            .claim
+            .sentences()
             .iter()
-            .map(|s| parse_here(s, env.g, &known.sorts))
+            .map(|s| s.read(env.g, &known.sorts))
             .collect();
         let Ok(written) = written else {
             continue;

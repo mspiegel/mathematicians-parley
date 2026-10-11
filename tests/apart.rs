@@ -44,13 +44,18 @@ const PLAIN: &[(&str, &str, &str)] = &[
     ),
     (
         "src/citing/parts.rs",
-        ".map(|t| substitute(&template(t, env, &local), &put))",
-        "each template says one thing of x and binds nothing",
+        "substitute(&template(\"x ∈ S\", env, &systems), &put)",
+        "`x ∈ S` at a number system says one thing of x and binds nothing",
+    ),
+    (
+        "src/citing/parts.rs",
+        ".map(|(form, _)| substitute(&template(form, env, &local), &put)),",
+        "each form a membership implies says one thing of x and binds nothing",
     ),
     (
         "src/citing/once.rs",
-        "Some(standard(&substitute(&made, &put), ctx))",
-        "`x ∈ ℝ` and `x ≠ 0` say one thing of x and bind nothing",
+        "standard(&substitute(&made, &put), ctx)",
+        "`x ∈ S` at a number system and `x ≠ 0` say one thing of x and bind nothing",
     ),
 ];
 

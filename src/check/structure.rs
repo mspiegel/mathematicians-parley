@@ -15,7 +15,7 @@ use crate::corpus::{
 };
 use crate::formula::library::Function;
 use crate::formula::page::Written;
-use crate::formula::{holds, parse_here, Sorts};
+use crate::formula::{holds, Sorts};
 use crate::matching::instantiation;
 use crate::outcome::{Built, Declined};
 use crate::sorts::infer::obtains;
@@ -860,7 +860,8 @@ pub fn check_ranges(
 ) {
     let mut said: IndexMap<&str, &Range> = IndexMap::new();
     for range in ranges {
-        match parse_here(&range.set, env.g, sorts) {
+        let set = Written::new(&range.set, path, range.line);
+        match set.sentence().and_then(|s| s.read(env.g, sorts)) {
             Err(p) => report.say(path, range.line, p.message),
             Ok(set) if holds(&set.sort).is_none() && !set.sort.is("set") => report.say(
                 path,

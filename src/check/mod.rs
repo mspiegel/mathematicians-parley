@@ -22,6 +22,7 @@ use crate::corpus::{
     proof_files, record_files, written_text, FileScope, Intro, Item, Record,
     RecordKind, Theorem,
 };
+use crate::formula::page::{Sentence, Written};
 use crate::formula::Grammar;
 use crate::formula::Sorts;
 use crate::matching::Context;
@@ -241,20 +242,23 @@ pub fn printed_back(source: &dyn Source) -> Result<(usize, Vec<String>), Outcome
         let mut read_count = 0;
         for (thm, k) in c.theorems.iter().zip(c.known) {
             for step in &thm.steps {
-                let texts = crate::sorts::sentences(&step.claim_text())
+                let sentences = step
+                    .claim
+                    .sentences()
                     .into_iter()
-                    .chain(step.requires.iter().map(|r| r.fact.text().to_string()));
+                    .chain(step.requires.iter().flat_map(|r| r.fact.sentences()));
                 // Read as written, defined names and all, as a reader reads.
-                let read = |text: &str| {
-                    crate::formula::parse_here(text, c.env.g, &k.sorts).ok()
-                };
-                for text in texts {
-                    let Some(node) = read(&text) else {
+                // What does not read is `check_formulas`'s to report.
+                let read = |sentence: &Sentence| sentence.read(c.env.g, &k.sorts).ok();
+                for sentence in sentences {
+                    let text = sentence.text();
+                    let Some(node) = read(&sentence) else {
                         continue;
                     };
                     read_count += 1;
                     let printed = c.env.g.print(&node);
-                    let again = read(&printed);
+                    let again = Written::here(&printed).sentence().ok();
+                    let again = again.as_ref().and_then(read);
                     if again.as_ref().map(|a| a.shape()) != Some(node.shape()) {
                         out.push(format!(
                             "{}:{}  {text}  printed as  {printed}",

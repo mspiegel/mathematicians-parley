@@ -28,13 +28,14 @@ use indexmap::{IndexMap, IndexSet};
 use crate::corpus::{
     define_parts, DefineParts, Intro, Method, Record, Requires, Step, Theorem,
 };
-use crate::formula::{parse_here, Node, Sort, Sorts, Whole};
+use crate::formula::page::Written;
+use crate::formula::{Node, Sort, Sorts, Whole};
 use crate::matching::Defined;
 use crate::outcome::{At, Built, Decline, Declined, Route};
 use crate::regex;
 use crate::sorts::{
     define_sorts, element_re, file_definitions, graph_line, group_re, let_formula,
-    property_re, sentences, set_or_point_re, unlabel, Env,
+    property_re, set_or_point_re, unlabel, Env,
 };
 use crate::text::repr;
 
@@ -610,6 +611,8 @@ pub struct Clash {
 /// block may use a letter an earlier one did. What does not fit is kept in
 /// `clashes`.
 pub struct Reader {
+    /// The file whose lines are read.
+    path: String,
     pub env: IndexMap<String, SortTerm>,
     pub clashes: Vec<Clash>,
     /// Names declared of any sort, not yet fixed.
@@ -708,8 +711,10 @@ impl NotationSorts {
 }
 
 impl Reader {
-    pub fn new(env: Env) -> Reader {
+    /// A reader of the lines of the file at `path`.
+    pub fn new(env: Env, path: &str) -> Reader {
         Reader {
+            path: path.to_string(),
             env: IndexMap::new(),
             clashes: Vec::new(),
             declared: Vec::new(),
@@ -925,8 +930,8 @@ pub fn claim_text(
     env: Env,
     store: &mut Store,
 ) {
-    for sentence in sentences(text) {
-        let Ok(node) = parse_here(&sentence, env.g, &reader.sorts(store)) else {
+    for sentence in Written::new(text, &reader.path, line.line).sentences() {
+        let Ok(node) = sentence.read(env.g, &reader.sorts(store)) else {
             continue;
         };
         reader.claim(&node, line, store);
@@ -938,7 +943,7 @@ pub fn claim_text(
 /// A record keeps the keyword of a hypothesis in the field name where a
 /// proof line keeps it in the text, and has no steps.
 pub fn read_record(record: &Record, env: Env, store: &mut Store) -> Reader {
-    let mut reader = Reader::new(env);
+    let mut reader = Reader::new(env, &record.path);
     reader.ranges = ranges_of(&record.ranges);
     reader.imported = every_function(env);
     for h in &record.hypotheses {
@@ -963,7 +968,7 @@ pub fn read_record(record: &Record, env: Env, store: &mut Store) -> Reader {
 /// copy of what it says (`Store::copy`), so the sorts a statement relates
 /// stay related and nothing one citation fixes reaches another.
 pub fn read_statement(thm: &Theorem, env: Env, store: &mut Store) -> Reader {
-    let mut reader = Reader::new(env);
+    let mut reader = Reader::new(env, &thm.path);
     reader.ranges = ranges_of(&thm.ranges);
     reader.imported = imported_in(thm, env);
     for h in &thm.hypotheses {
@@ -981,7 +986,7 @@ pub fn read_statement(thm: &Theorem, env: Env, store: &mut Store) -> Reader {
 /// An item's sorts as its `let` lines alone say them: what the item
 /// declares, before its assumptions and conclusions use anything.
 pub fn read_lets(record: &Record, env: Env, store: &mut Store) -> Reader {
-    let mut reader = Reader::new(env);
+    let mut reader = Reader::new(env, &record.path);
     reader.ranges = ranges_of(&record.ranges);
     reader.imported = every_function(env);
     for h in record.hypotheses.iter().filter(|h| h.kind == Intro::Let) {
@@ -1026,8 +1031,10 @@ fn recursion_sorts(
     at_step.insert(said.index.clone(), NUMBER);
     for (rules, local) in [(&said.start, IndexMap::new()), (&said.step, at_step)] {
         for (name, rule) in rules {
-            let Ok(tree) = parse_here(rule, env.g, &local_sorts) else {
-                continue; // `check_formulas` says it does not read
+            let rule = Written::new(rule, &reader.path, line.line);
+            let Ok(tree) = rule.sentence().and_then(|s| s.read(env.g, &local_sorts))
+            else {
+                continue; // `check_recursions` says it does not read
             };
             let got = reader.sort_of(&tree, line, &local, store);
             if let Declined(fits) = store.unify(&got, &gives[name]) {
@@ -1056,7 +1063,7 @@ pub fn read_theorem(
     store: &mut Store,
     mut cite: Option<Cite>,
 ) -> Reader {
-    let mut reader = Reader::new(env);
+    let mut reader = Reader::new(env, &thm.path);
     reader.ranges = ranges_of(&thm.ranges);
     reader.imported = imported_in(thm, env);
     // What the theorem sees from outside it has its sort before its first
@@ -1148,8 +1155,14 @@ pub fn read_theorem(
                     DefineParts::One(d) => d,
                 };
                 let sorts = reader.sorts(store);
+                // A part that does not read is `check_formulas`'s to report.
+                let path = reader.path.clone();
+                let part = |text: &str, sorts: &Sorts| {
+                    let written = Written::new(text, &path, no.line);
+                    written.sentence().and_then(|s| s.read(env.g, sorts))
+                };
                 if said.params.is_empty() {
-                    let Ok(tree) = parse_here(&said.body, env.g, &sorts) else {
+                    let Ok(tree) = part(&said.body, &sorts) else {
                         continue;
                     };
                     let k = reader.sort_of(&tree, no, &IndexMap::new(), store);
@@ -1164,8 +1177,7 @@ pub fn read_theorem(
                 let mut taken = Vec::new();
                 let mut read = true;
                 for p in &said.params {
-                    let Ok(over_tree) = parse_here(&p.domain, env.g, &local_sorts)
-                    else {
+                    let Ok(over_tree) = part(&p.domain, &local_sorts) else {
                         read = false;
                         break;
                     };
@@ -1182,7 +1194,7 @@ pub fn read_theorem(
                 if !read {
                     continue;
                 }
-                let Ok(body_tree) = parse_here(&said.body, env.g, &local_sorts) else {
+                let Ok(body_tree) = part(&said.body, &local_sorts) else {
                     continue;
                 };
                 let gives = reader.sort_of(&body_tree, no, &local, store);

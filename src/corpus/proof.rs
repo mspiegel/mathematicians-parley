@@ -77,8 +77,13 @@ impl Opener {
 }
 
 /// A `let`, `assume` or `suppose` line after its keyword, without its label.
+/// A record's hypothesis is kept without its keyword, and a proof file's
+/// with it.
 fn body_text(kind: Intro, text: &str) -> String {
-    let rest = text.strip_prefix(kind.as_str()).unwrap_or(text);
+    let rest = match text.strip_prefix(kind.as_str()) {
+        Some(rest) if rest.starts_with(char::is_whitespace) => rest,
+        _ => text,
+    };
     str::trim(&crate::sorts::unlabel(rest)).to_string()
 }
 
@@ -135,6 +140,8 @@ pub struct Opener {
 pub struct DefineLine {
     pub text: String,
     pub label: String,
+    /// The file the line is written in.
+    pub path: String,
     pub line: usize,
     /// For a let that says what kind of number its name is, the line under
     /// it giving the reason the term it names is one.
@@ -170,6 +177,12 @@ impl Kinded {
 }
 
 impl DefineLine {
+    /// A part of the line that is formula text, its rule or a domain, as
+    /// the skeleton reader cut it out (`define_parts`).
+    pub fn formula(&self, part: &str) -> Written {
+        Written::new(part, &self.path, self.line)
+    }
+
     /// The let read with its kind of number, where it says one; None where
     /// it says none. A kind no record names a member of is a defect.
     pub fn kinded(
@@ -1723,6 +1736,7 @@ pub fn parse_proof(
                 let d = DefineLine {
                     text: t.clone(),
                     label,
+                    path: path.to_string(),
                     line: line.no,
                     reason: None,
                 };
@@ -1837,6 +1851,7 @@ pub fn parse_proof(
             let d = DefineLine {
                 text: t.clone(),
                 label,
+                path: path.to_string(),
                 line: line.no,
                 reason: None,
             };

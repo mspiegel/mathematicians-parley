@@ -22,7 +22,7 @@ use crate::corpus::{
 pub mod infer;
 
 use crate::formula::page::Written;
-use crate::formula::{holds, parse_here, Grammar, Sort, Sorts};
+use crate::formula::{holds, Grammar, Sort, Sorts};
 use crate::matching::{expand, Defined, Definitions, Rule};
 use crate::outcome::Built;
 use crate::regex;
@@ -394,7 +394,9 @@ fn defines_into<'d>(
             continue;
         };
         let local = define_sorts(&said, sorts);
-        let Ok(body) = parse_here(&said.body, env.g, &local) else {
+        // A rule that does not read is `check_formulas`'s to report.
+        let read = d.formula(&said.body).sentence();
+        let Ok(body) = read.and_then(|s| s.read(env.g, &local)) else {
             continue;
         };
         let made = if said.params.is_empty() {
@@ -471,7 +473,8 @@ fn written_definition(
     let said = parts.one()?;
     let inner = written_definitions(src, d.line, env, seen);
     let local = define_sorts(said, &definition_sorts(&inner));
-    let body = parse_here(&said.body, env.g, &local).ok()?;
+    let read = d.formula(&said.body).sentence();
+    let body = read.and_then(|s| s.read(env.g, &local)).ok()?;
     let body = expand(&body, &inner);
     Some(if said.params.is_empty() {
         Defined::Term(body)

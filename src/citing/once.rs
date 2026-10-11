@@ -14,7 +14,8 @@ use num_bigint::BigInt;
 use num_rational::BigRational;
 use num_traits::{Signed, ToPrimitive, Zero};
 
-use crate::formula::{parse_here, Node, Sort, Sorts};
+use crate::formula::page::template;
+use crate::formula::{Node, Sort, Sorts};
 use crate::matching::{alike_top, standard, substitute, Binding};
 use crate::rules::{self, lookup};
 
@@ -66,10 +67,23 @@ pub fn said_once(
     let ctx = &library.ctx;
     let mut local = sorts.clone();
     local.insert("x".into(), Sort::of("number"));
-    let form = |said: &str, term: &Node| -> Option<Node> {
-        let mut put = Binding::new();
-        put.insert("x".into(), term.clone());
-        let made = parse_here(said, library.env.g, &local).ok()?;
+    // The code's own forms read, each filled with the term at x and the set
+    // at S. A notation database that does not declare what one writes says
+    // nothing here, and its own checks report what it lacks.
+    let form = |said: &'static str, term: &Node| -> Option<Node> {
+        let made = template(said, library.env.g, &local).ok()?;
+        let put = Binding::from([("x".to_string(), term.clone())]);
+        Some(standard(&substitute(&made, &put), ctx))
+    };
+    // S is read as the number system that fills it, whatever the page's S
+    // is.
+    let member = |sign: &'static str, term: &Node| -> Option<Node> {
+        let set = template(sign, library.env.g, &local).ok()?;
+        let mut sets = local.clone();
+        sets.insert("S".into(), set.sort.clone());
+        let made = template("x ∈ S", library.env.g, &sets).ok()?;
+        let put =
+            Binding::from([("x".to_string(), term.clone()), ("S".to_string(), set)]);
         Some(standard(&substitute(&made, &put), ctx))
     };
     // A divisor is not zero where a fact says so, as `≠ 0` or as a sign.
@@ -98,9 +112,7 @@ pub fn said_once(
         }
         for (sign, system) in rules::SYSTEM_OF {
             if within(&node, system, &letters, &nonzero) {
-                if let Some(fact) = form(&format!("x ∈ {sign}"), &node) {
-                    out.push(fact);
-                }
+                out.extend(member(sign, &node));
             }
         }
     }

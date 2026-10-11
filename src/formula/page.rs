@@ -150,6 +150,15 @@ pub fn made(g: &Grammar, name: &str, literal: &str, children: Vec<Node>) -> Node
     Node::new(n.key(), Sort::of(&n.yields), children, &n.literal)
 }
 
+/// A formula the code writes with letters to fill, `x ≠ 0`, read as the
+/// page's are, by the one parser; the letters are then filled with trees
+/// (`matching::substitute`). The text is the code's own, fixed when it is
+/// compiled, so no formula is put together as text and read: what fills it
+/// is a tree.
+pub fn template(text: &'static str, g: &Grammar, sorts: &Sorts) -> Checked<Node> {
+    Written::here(text).sentence()?.read(g, sorts)
+}
+
 /// A numeral, as the parser reads one.
 pub fn numeral(digits: &str) -> Node {
     Node::leaf("numeral", Sort::of("number"), digits)
