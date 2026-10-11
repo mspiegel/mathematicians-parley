@@ -852,6 +852,38 @@ fn cases() -> Vec<Case> {
             ],
             "step 1 is an induction whose claim does not say \"for all k ∈ X, …\"",
         ),
+        // Each part of a block ends on what it owes (`SYNTAX.md`): the base
+        // on the claim's statement at the start, the step on it at k + 1, a
+        // case on the block's claim, a proof block on its claim with what
+        // its openers took off it. Each of these stops one line short.
+        case(
+            "an induction's base that stops short of the claim's first instance",
+            vec![
+                edit("proofs/sum-formula.proof", Some("    1.2.  S(1) = 1(1 + 1)/2\n          calculation\n            S(1) = Σ(j = 1 to 1) j       D1\n                 = 1                     1.1\n                 = 1(1 + 1)/2            arithmetic".to_string()), "    1.2.  S(1) = 1\n          calculation\n            S(1) = Σ(j = 1 to 1) j       D1\n                 = 1                     1.1".to_string()),
+            ],
+            "step 1.2 ends the base part of step 1, which owes",
+        ),
+        case(
+            "an induction's step that stops short of the next instance",
+            vec![
+                edit("proofs/sum-formula.proof", Some("    1.7.  S(k + 1) = (k + 1)((k + 1) + 1)/2\n          calculation\n            S(k + 1) = S(k) + (k + 1)               1.4\n                     = k(k + 1)/2 + (k + 1)         1.5\n                     = (k + 1)((k + 1) + 1)/2       1.6".to_string()), "    1.7.  S(k + 1) = k(k + 1)/2 + (k + 1)\n          calculation\n            S(k + 1) = S(k) + (k + 1)               1.4\n                     = k(k + 1)/2 + (k + 1)         1.5".to_string()),
+            ],
+            "step 1.7 ends the step part of step 1, which owes",
+        ),
+        case(
+            "a case that stops short of the block's claim",
+            vec![
+                edit("proofs/triangle-inequality.proof", Some("    2.4.  x ≤ |x|. −x ≤ |x|.\n          join 2.2, 2.3\n\n    case\n    assume x < 0".to_string()), "    case\n    assume x < 0".to_string()),
+            ],
+            "step 2.3 ends case 1 of step 2, which owes",
+        ),
+        case(
+            "a proof block that stops short of its claim",
+            vec![
+                edit("proofs/reals-uncountable.proof", Some("    4.8.  L(k) ∈ ℝ. U(k) ∈ ℝ. L(k) ≤ U(k).\n          join 4.3, 4.4, 4.7".to_string()), "    4.8.  L(k) ∈ ℝ. U(k) ∈ ℝ.\n          join 4.3, 4.4".to_string()),
+            ],
+            "step 4.8 ends the proof block of step 4, which owes",
+        ),
         case(
             "a contradiction whose block does not suppose anything",
             vec![

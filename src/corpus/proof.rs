@@ -533,7 +533,18 @@ impl Justification {
     pub fn item(&self, cited: &str) -> String {
         self.names.full(cited)
     }
+
+    /// Where an induction starts, as `induction on k starting at m` writes
+    /// it.
+    pub fn starting_at(&self) -> Option<&str> {
+        STARTING_AT
+            .captures(&self.text)
+            .and_then(|m| m.get(1))
+            .map(|m| m.as_str())
+    }
 }
+
+regex!(STARTING_AT, r"starting at ([^\s,]+)");
 
 /// One numbered step of a proof.
 #[derive(Clone, Debug, PartialEq, Eq)]

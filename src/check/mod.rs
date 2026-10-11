@@ -519,6 +519,7 @@ fn check_theorem(
     formulas::check_decided_words(report, thm, k, c.defined, c.operations);
     formulas::check_chain_congruences(report, thm);
     formulas::check_both_directions(report, thm, k);
+    formulas::check_block_ends(report, thm, k);
     formulas::check_claimed_cases(report, thm, k);
     formulas::check_cases_cited(report, thm, k);
     formulas::check_closed_arithmetic(report, thm, env, k);

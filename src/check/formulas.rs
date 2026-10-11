@@ -835,6 +835,183 @@ pub fn check_both_directions(report: &mut Report, thm: &Theorem, known: &Known) 
     }
 }
 
+/// What one part of a block owes: the part, as its steps are numbered, the
+/// sentences its last step claims, and how a message names the part.
+struct Owed {
+    part: Option<usize>,
+    claim: Vec<Node>,
+    called: String,
+}
+
+/// Each part of an induction, a `cases` block and a `proof` block ends on
+/// what it owes (`SYNTAX.md`, the methods that open a block): an
+/// induction's base on the claim's statement at its start and its step on
+/// the statement at k + 1; each case on the block's claim; a `proof` block
+/// on its claim with what its `let` and `assume` lines took off it. A case
+/// and a `proof` block may end instead on a step contradicting a line,
+/// where what they assume cannot hold. `both directions` and
+/// `contradiction` are checked where their other shapes are.
+///
+/// The two are compared as one formula (`Known::alike`), each read with
+/// only the definitions from outside the theorem written out, so that a
+/// defined name is compared as it is written on both sides.
+pub fn check_block_ends(report: &mut Report, thm: &Theorem, known: &Known) {
+    let outside = known.citing(&[]);
+    let read = |text: &str| -> Option<Vec<Node>> {
+        sentences(text)
+            .iter()
+            .map(|s| known.read_citing(s, &outside))
+            .collect()
+    };
+    for owner in &thm.steps {
+        let Some(claim) = read(&owner.claim_text()) else {
+            continue; // `check_formulas` says it does not read
+        };
+        let owed = match (owner.just.head.method(), claim.as_slice()) {
+            (Some(Method::Induction), [one]) => induction_owes(owner, one, known),
+            (Some(Method::Cases), _) => (0..owner.parts.len())
+                .map(|part| Owed {
+                    part: Some(part),
+                    claim: claim.clone(),
+                    called: format!("case {} of step {}", part + 1, owner.number),
+                })
+                .collect(),
+            (Some(Method::Proof), [one]) => {
+                proof_owes(owner, one, known).into_iter().collect()
+            }
+            _ => continue,
+        };
+        let contradicts = !owner.just.head.is(Method::Induction);
+        for Owed {
+            part,
+            claim,
+            called,
+        } in owed
+        {
+            let depth = owner.number.len() + 1;
+            let Some(last) = thm.steps.iter().rev().find(|s| {
+                s.number.len() == depth
+                    && s.number.prefix(depth - 1) == owner.number
+                    && s.part == part
+            }) else {
+                continue; // a case that is the claim has no steps
+            };
+            if contradicts && (last.just.contradicting.is_some() || last.impossible) {
+                continue;
+            }
+            let Some(ends) = read(&last.claim_text()) else {
+                continue;
+            };
+            // "A and B" is claimed by a step that says "A. B.", and the
+            // other way round.
+            let ends: Vec<Node> = ends.iter().flat_map(conjuncts).collect();
+            let owes: Vec<Node> = claim.iter().flat_map(conjuncts).collect();
+            let reached = ends.len() == owes.len()
+                && ends.iter().zip(&owes).all(|(e, c)| known.alike(e, c));
+            if !reached {
+                let owes: Vec<String> = claim.iter().map(|c| known.print(c)).collect();
+                report.say(
+                    &thm.path,
+                    last.line,
+                    format!(
+                        "step {} ends {called}, which owes {}",
+                        last.number,
+                        owes.join(". ")
+                    ),
+                );
+            }
+        }
+    }
+}
+
+/// What an induction's parts owe: the base, the claim's statement at the
+/// start the justification writes; the step, the statement at k + 1. A
+/// claim not "for all k ∈ X, …" is `check_step_part`'s to report.
+fn induction_owes(owner: &Step, claim: &Node, known: &Known) -> Vec<Owed> {
+    if claim.notation != "for-all" || claim.children.len() != 3 {
+        return Vec::new();
+    }
+    let letter = &claim.children[0].text;
+    let at = |value: &str| -> Option<Node> {
+        let value = parse_here(value, known.env.g, &known.sorts).ok()?;
+        let mut put = Binding::new();
+        put.insert(letter.clone(), value);
+        Some(substitute_apart_by(
+            &claim.children[2],
+            &put,
+            &known.env.g.binders(),
+        ))
+    };
+    let mut owed = Vec::new();
+    for (part, (marker, _)) in owner.parts.iter().enumerate() {
+        let (value, which) = match marker.as_str() {
+            "base" => (owner.just.starting_at().map(String::from), "base"),
+            "step" => (Some(format!("{letter} + 1")), "step"),
+            _ => continue,
+        };
+        if let Some(claim) = value.as_deref().and_then(at) {
+            owed.push(Owed {
+                part: Some(part),
+                claim: vec![claim],
+                called: format!("the {which} part of step {}", owner.number),
+            });
+        }
+    }
+    owed
+}
+
+/// What a `proof` block owes: its claim with a "for all" taken off for each
+/// `let` line and an "if" for each `assume`, in the order they open the
+/// block. None where the claim does not have those layers, which the
+/// elaborator reports.
+fn proof_owes(owner: &Step, claim: &Node, known: &Known) -> Option<Owed> {
+    let mut rest = claim.clone();
+    for o in owner.openers.iter().filter(|o| o.part.is_none()) {
+        rest = match (o.kind, rest.notation.as_str()) {
+            (Intro::Let, "for-all") if rest.children.len() == 3 => {
+                let mut put = Binding::new();
+                let fixed =
+                    MEMBER_LET.captures(o.text.trim()).map(|m| m[1].to_string());
+                let body = rest.children[2].clone();
+                match fixed {
+                    Some(name) if name != rest.children[0].text => {
+                        let named =
+                            parse_here(&name, known.env.g, &known.sorts).ok()?;
+                        put.insert(rest.children[0].text.clone(), named);
+                        substitute_apart_by(&body, &put, &known.env.g.binders())
+                    }
+                    _ => body,
+                }
+            }
+            (Intro::Let, "for-all-sets") if rest.children.len() == 2 => {
+                rest.children[1].clone()
+            }
+            (Intro::Assume, "conditional" | "implication")
+                if rest.children.len() == 2 =>
+            {
+                rest.children[1].clone()
+            }
+            _ => return None,
+        };
+    }
+    Some(Owed {
+        part: None,
+        claim: vec![rest],
+        called: format!("the proof block of step {}", owner.number),
+    })
+}
+
+regex!(MEMBER_LET, r"^let\s+(\S+)\s*∈");
+
+/// The sentences a formula says, an "and" taken apart, in order.
+fn conjuncts(node: &Node) -> Vec<Node> {
+    if node.notation == "conjunction" && node.children.len() == 2 {
+        node.children.iter().flat_map(conjuncts).collect()
+    } else {
+        vec![node.clone()]
+    }
+}
+
 /// A `cases` block cites one line, and that line claims the cases'
 /// assumptions joined by "or", in the order the parts take them
 /// (`SYNTAX.md`). A line with that disjunction as one part of what it says

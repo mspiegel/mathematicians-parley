@@ -39,7 +39,6 @@ use crate::{pf, regex, t, take};
 regex!(OBTAINED, r"obtain\s+(.+?)(?::|\s+from\b)");
 regex!(OBTAIN_ITEM, format!(r"\b({ITEM_PREFIX}{CITED})"));
 regex!(INDUCTION_ON, r"induction on (\S+)");
-regex!(STARTING_AT, r"starting at ([^\s,]+)");
 regex!(MEMBER_OF, r"^(\S+)\s*∈\s*(.+)$");
 regex!(FUNCTION_OF, r"^(\S+)\s*:\s*(.+?)\s*→\s*(.+)$");
 
@@ -1303,9 +1302,9 @@ impl<'a> Elaborator<'a> {
                 format!("nothing here inducts over {}", self.render(&over)),
             ));
         };
-        let start = match STARTING_AT.captures(&step.just.text) {
+        let start = match step.just.starting_at() {
             Some(m) => {
-                let node = self.read(&m[1])?;
+                let node = self.read(m)?;
                 self.term(&node)?
             }
             None => begins.to_string(),

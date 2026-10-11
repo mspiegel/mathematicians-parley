@@ -784,12 +784,16 @@ pub fn alike(
 
 /// The operand an identity element leaves, where `node` is an operation
 /// with its identity in a hole the record allows it: x for x + 0. None
-/// otherwise.
+/// otherwise. The identity may itself be written with one left out, so
+/// a^(0 + 1) leaves a.
 fn identity_kept(node: &Node, ctx: &Context) -> Option<Node> {
     let law = identity_of(node, ctx)?;
     law.holes
         .iter()
-        .find(|&&hole| law.is(&node.children[hole]))
+        .find(|&&hole| {
+            let at = &node.children[hole];
+            law.is(at) || identity_kept(at, ctx).is_some_and(|k| law.is(&k))
+        })
         .map(|&hole| node.children[1 - hole].clone())
 }
 
