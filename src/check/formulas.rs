@@ -15,6 +15,7 @@ use crate::corpus::{
     cited_item, define_parts, outermost, DefineParts, FileScope, Intro, Item,
     Justification, Method, Record, RecordKind, Recursion, Requires, Step, Theorem,
 };
+use crate::formula::page::{disjoined, made, numeral, Written};
 use crate::formula::{parse_here, walk, Node, Sort, Sorts};
 use crate::matching::{
     alike_top, free_names, instantiation, substitute_apart_by, Binding,
@@ -377,10 +378,10 @@ pub fn check_decided_words(
                 .refs
                 .iter()
                 .filter_map(|r| scope.get(r))
-                .filter_map(|text| known.read(step, text))
+                .flat_map(|written| known.said(step, written))
                 .flat_map(|n| n.walk().into_iter().map(|m| key(&m)).collect::<Vec<_>>())
                 .collect();
-            if let Some(claim) = known.read(step, &step.claim_text()) {
+            if let Some(claim) = known.whole(step, &step.claim) {
                 for node in claim.walk() {
                     let Some(word) = words.get(&key(&node)) else {
                         continue;
@@ -401,17 +402,21 @@ pub fn check_decided_words(
                 }
             }
         }
-        let mut asked: Vec<(usize, String)> = Vec::new();
+        let mut asked: Vec<(usize, &Written)> = Vec::new();
         if step.just.head.is(Method::Arithmetic) || step.impossible {
-            asked.push((step.line, step.claim_text()));
+            asked.push((step.line, &step.claim));
         }
         for r in &step.requires {
             if str::trim(&r.how) == "arithmetic" {
-                asked.push((r.line, r.fact.text().to_string()));
+                asked.push((r.line, &r.fact));
             }
         }
-        for (line, text) in asked {
-            let Some(mut node) = known.read(step, &text) else {
+        let sentences = asked.into_iter().flat_map(|(line, written)| {
+            written.sentences().into_iter().map(move |s| (line, s))
+        });
+        for (line, sentence) in sentences {
+            let text = sentence.text();
+            let Some(mut node) = known.read(step, &sentence) else {
                 continue;
             };
             for part in node.walk() {
@@ -555,9 +560,8 @@ pub fn check_contradiction(
         else {
             continue; // already reported as a missing suppose
         };
-        let rest = &opener.text[opener.kind.as_str().len()..];
-        let supposed = known.read(step, str::trim(&unlabel(rest)));
-        let claimed = known.read(step, &step.claim_text());
+        let supposed = known.whole(step, &opener.body(&thm.path));
+        let claimed = known.whole(step, &step.claim);
         // What could not be read is reported where it is read; the block's
         // last step is checked all the same.
         let readable = supposed.is_some() && claimed.is_some();
@@ -641,7 +645,7 @@ pub fn check_impossible(report: &mut Report, thm: &Theorem, known: &Known) {
                 ),
             );
         }
-        if let Some(node) = known.read(step, &step.claim_text()) {
+        if let Some(node) = known.whole(step, &step.claim) {
             let named: Vec<String> = node
                 .walk()
                 .iter()
@@ -701,8 +705,9 @@ pub fn check_contradicting(
         };
         // The claim is the opposite of the line, or of one sentence of it:
         // a line may say several things and be contradicted in one.
-        let claimed = known.read(step, &step.claim_text());
-        let there: Vec<Option<Node>> = sentences(said)
+        let claimed = known.whole(step, &step.claim);
+        let there: Vec<Option<Node>> = said
+            .sentences()
             .iter()
             .map(|s| known.read(step, s))
             .collect();
@@ -738,9 +743,8 @@ pub fn check_contradicting(
 pub fn check_claimed_cases(report: &mut Report, thm: &Theorem, known: &Known) {
     for owner in &thm.steps {
         for o in owner.openers.iter().filter(|o| o.is_claim) {
-            let body = o.text.strip_prefix(o.kind.as_str()).unwrap_or(&o.text);
-            let assumed = known.read(owner, str::trim(&unlabel(body)));
-            let claim = known.read(owner, &owner.claim_text());
+            let assumed = known.whole(owner, &o.body(&thm.path));
+            let claim = known.whole(owner, &owner.claim);
             let differ = match (&assumed, &claim) {
                 (Some(a), Some(c)) => !known.alike(a, c),
                 _ => false,
@@ -787,7 +791,7 @@ pub fn check_both_directions(report: &mut Report, thm: &Theorem, known: &Known) 
                 format!("step {} proves both directions, and {why}", owner.number),
             );
         };
-        let Some(claim) = known.read(owner, &owner.claim_text()) else {
+        let Some(claim) = known.whole(owner, &owner.claim) else {
             continue; // `check_formulas` says it does not read
         };
         if claim.notation != "biconditional" || claim.children.len() != 2 {
@@ -810,11 +814,7 @@ pub fn check_both_directions(report: &mut Report, thm: &Theorem, known: &Known) 
         let depth = owner.number.len() + 1;
         for (n, opener) in assumed.iter().enumerate() {
             let (side, other) = (&claim.children[n], &claim.children[1 - n]);
-            let body = opener
-                .text
-                .strip_prefix(opener.kind.as_str())
-                .unwrap_or(&opener.text);
-            let read = known.read(owner, str::trim(&unlabel(body)));
+            let read = known.whole(owner, &opener.body(&thm.path));
             if read.as_ref().is_some_and(|r| !known.alike(r, side)) {
                 say(
                     report,
@@ -829,7 +829,7 @@ pub fn check_both_directions(report: &mut Report, thm: &Theorem, known: &Known) 
                     && s.number.prefix(depth - 1) == owner.number
                     && s.part == opener.part
             });
-            let ends = last.and_then(|s| known.read(s, &s.claim_text()));
+            let ends = last.and_then(|s| known.whole(s, &s.claim));
             if ends.as_ref().is_some_and(|e| !known.alike(e, other)) {
                 say(
                     report,
@@ -865,14 +865,15 @@ struct Owed {
 /// defined name is compared as it is written on both sides.
 pub fn check_block_ends(report: &mut Report, thm: &Theorem, known: &Known) {
     let outside = known.citing(&[]);
-    let read = |text: &str| -> Option<Vec<Node>> {
-        sentences(text)
+    let read = |written: &Written| -> Option<Vec<Node>> {
+        written
+            .sentences()
             .iter()
             .map(|s| known.read_citing(s, &outside))
             .collect()
     };
     for owner in &thm.steps {
-        let Some(claim) = read(&owner.claim_text()) else {
+        let Some(claim) = read(&owner.claim) else {
             continue; // `check_formulas` says it does not read
         };
         let owed = match (owner.just.head.method(), claim.as_slice()) {
@@ -907,7 +908,7 @@ pub fn check_block_ends(report: &mut Report, thm: &Theorem, known: &Known) {
             if contradicts && (last.just.contradicting.is_some() || last.impossible) {
                 continue;
             }
-            let Some(ends) = read(&last.claim_text()) else {
+            let Some(ends) = read(&last.claim) else {
                 continue;
             };
             // "A and B" is claimed by a step that says "A. B.", and the
@@ -939,25 +940,32 @@ fn induction_owes(owner: &Step, claim: &Node, known: &Known) -> Vec<Owed> {
     if claim.notation != "for-all" || claim.children.len() != 3 {
         return Vec::new();
     }
-    let letter = &claim.children[0].text;
-    let at = |value: &str| -> Option<Node> {
-        let value = parse_here(value, known.env.g, &known.sorts).ok()?;
+    let letter = &claim.children[0];
+    let at = |value: Node| -> Node {
         let mut put = Binding::new();
-        put.insert(letter.clone(), value);
-        Some(substitute_apart_by(
-            &claim.children[2],
-            &put,
-            &known.env.g.binders(),
-        ))
+        put.insert(letter.text.clone(), value);
+        substitute_apart_by(&claim.children[2], &put, &known.env.g.binders())
     };
+    // The start as the justification writes it, `starting at 0`; one that
+    // does not read is the elaborator's to report.
+    let start = owner.just.starting_at().and_then(|v| {
+        let written = Written::new(v, &known.thm.path, owner.just.line);
+        known.read_as_written(&written.sentence().ok()?)
+    });
+    let next = made(
+        known.env.g,
+        "additive",
+        "+",
+        vec![letter.clone(), numeral("1")],
+    );
     let mut owed = Vec::new();
     for (part, (marker, _)) in owner.parts.iter().enumerate() {
         let (value, which) = match marker.as_str() {
-            "base" => (owner.just.starting_at().map(String::from), "base"),
-            "step" => (Some(format!("{letter} + 1")), "step"),
+            "base" => (start.clone(), "base"),
+            "step" => (Some(next.clone()), "step"),
             _ => continue,
         };
-        if let Some(claim) = value.as_deref().and_then(at) {
+        if let Some(claim) = value.map(at) {
             owed.push(Owed {
                 part: Some(part),
                 claim: vec![claim],
@@ -1048,17 +1056,13 @@ pub fn check_cases_cited(report: &mut Report, thm: &Theorem, known: &Known) {
             continue;
         }
         parts.sort_by_key(|o| o.part);
-        let joined = parts
+        // Each assumption as one formula, and those joined by "or".
+        let assumed: Option<Vec<Node>> = parts
             .iter()
-            .map(|o| {
-                let body = o.text.strip_prefix(o.kind.as_str()).unwrap_or(&o.text);
-                format!("({})", str::trim(&unlabel(body)))
-            })
-            .collect::<Vec<_>>()
-            .join(" or ");
-        let (Some(want), Some(have)) =
-            (known.read_as_written(&joined), known.read_as_written(said))
-        else {
+            .map(|o| known.whole_as_written(&o.body(&thm.path)))
+            .collect();
+        let want = assumed.and_then(|a| disjoined(known.env.g, a));
+        let (Some(want), Some(have)) = (want, known.whole_as_written(said)) else {
             continue;
         };
         if !known.alike(&want, &have) {
@@ -1229,14 +1233,20 @@ pub fn chain_links(just: &Justification) -> Vec<Link> {
 /// `2/1 − 2/(n + 1)` and `2 − 2/(n + 1)` differ in `2/1` against `2`, and a
 /// chain link between them uses that fact and no other. The terms are walked
 /// in step; where they part, both pieces must be numerals alone.
-fn changed_closed(sides: &Option<(String, String)>, env: Env, sorts: &Sorts) -> bool {
+fn changed_closed(
+    sides: &Option<(String, String)>,
+    path: &str,
+    line: usize,
+    known: &Known,
+) -> bool {
     let Some((one, other)) = sides else {
         return false;
     };
-    let (Ok(one), Ok(other)) = (
-        parse_here(one, env.g, sorts),
-        parse_here(other, env.g, sorts),
-    ) else {
+    let read = |term: &str| {
+        let sentence = Written::new(term, path, line).sentence().ok()?;
+        known.read_as_written(&sentence)
+    };
+    let (Some(one), Some(other)) = (read(one), read(other)) else {
         return false;
     };
     fn alike(a: &Node, b: &Node) -> bool {
@@ -1273,23 +1283,20 @@ regex!(
 /// something to check, and is a numbered step of its own. A link whose terms
 /// have letters but change only where they have none uses a fact of numerals
 /// alone (`changed_closed`). `SYNTAX.md` has the rule.
-pub fn check_closed_arithmetic(
-    report: &mut Report,
-    thm: &Theorem,
-    env: Env,
-    known: &Known,
-) {
-    let closed = |text: &str| -> bool {
-        match parse_here(text, env.g, &known.sorts) {
-            Ok(n) => n.names().is_empty(),
-            Err(_) => true, // `check_formulas` says it does not read
-        }
+pub fn check_closed_arithmetic(report: &mut Report, thm: &Theorem, known: &Known) {
+    // A sentence that does not read is `check_formulas`'s to report.
+    let closed = |written: &Written| -> bool {
+        written.sentences().iter().all(|s| {
+            known
+                .read_as_written(s)
+                .is_none_or(|n| n.names().is_empty())
+        })
     };
     for step in &thm.steps {
         let just = &step.just;
         if just.head.is(Method::Substitute) {
             if let Some(m) = ARITHMETIC_SOURCE.captures(&just.text) {
-                if !closed(&m[1]) {
+                if !closed(&Written::new(&m[1], &thm.path, just.line)) {
                     report.say(
                         &thm.path,
                         just.line,
@@ -1310,8 +1317,8 @@ pub fn check_closed_arithmetic(
         } in chain_links(just)
         {
             if cite == "arithmetic"
-                && !closed(&claim)
-                && !changed_closed(&sides, env, &known.sorts)
+                && !closed(&Written::new(&claim, &thm.path, no))
+                && !changed_closed(&sides, &thm.path, no, known)
             {
                 report.say(
                     &thm.path,
@@ -1332,38 +1339,37 @@ regex!(BY_COMBINING, r"^\s*(algebra|inequalities)\b");
 /// `algebra` and `inequalities` combine what a step says of its letters, and
 /// a claim with none gives a reader nothing to check but working it out
 /// (`METHODS.md`, arithmetic). Asked of a step and of each requires line.
-pub fn check_closed_by_arithmetic(
-    report: &mut Report,
-    thm: &Theorem,
-    env: Env,
-    known: &Known,
-) {
+pub fn check_closed_by_arithmetic(report: &mut Report, thm: &Theorem, known: &Known) {
     // Numerals alone: every leaf a numeral, so that no name and no constant
     // such as i, which arithmetic cannot work out, stands in it; and no part
     // a set, since |{1, …, 23}| has numerals for leaves and arithmetic cannot
     // work out the size of a set.
-    let closed = |text: &str| -> bool {
-        match parse_here(text, env.g, &known.sorts) {
-            Ok(n) => {
-                let parts = n.walk();
-                parts
-                    .iter()
-                    .filter(|m| m.children.is_empty())
-                    .all(|m| m.notation == "numeral")
-                    && !parts.iter().any(|m| {
-                        matches!(
-                            m.sort.name(),
-                            Some("set" | "group-set" | "set-of-sets")
-                        )
-                    })
-            }
-            Err(_) => false, // `check_formulas` says it does not read
-        }
+    // A sentence that does not read is `check_formulas`'s to report.
+    let closed = |written: &Written| -> bool {
+        written
+            .sentences()
+            .iter()
+            .all(|s| match known.read_as_written(s) {
+                Some(n) => {
+                    let parts = n.walk();
+                    parts
+                        .iter()
+                        .filter(|m| m.children.is_empty())
+                        .all(|m| m.notation == "numeral")
+                        && !parts.iter().any(|m| {
+                            matches!(
+                                m.sort.name(),
+                                Some("set" | "group-set" | "set-of-sets")
+                            )
+                        })
+                }
+                None => false,
+            })
     };
     for step in &thm.steps {
         let just = &step.just;
         if (just.head.is(Method::Algebra) || just.head.is(Method::Inequalities))
-            && closed(&step.claim_text())
+            && closed(&step.claim)
         {
             report.say(
                 &thm.path,
@@ -1380,7 +1386,7 @@ pub fn check_closed_by_arithmetic(
             let Some(m) = BY_COMBINING.captures(&req.how) else {
                 continue;
             };
-            if closed(req.fact.text()) {
+            if closed(&req.fact) {
                 report.say(
                     &thm.path,
                     req.line,
@@ -1467,7 +1473,8 @@ pub fn check_chain_links(
             {
                 continue;
             }
-            let Some(said) = known.read(step, &claim) else {
+            let link = Written::new(&claim, &thm.path, no).sentence();
+            let Some(said) = link.ok().and_then(|s| known.read(step, &s)) else {
                 continue; // `check_formulas` says it does not read
             };
             let lines = known.lines_say(step, &[cite.as_str()], library);

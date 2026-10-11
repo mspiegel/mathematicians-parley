@@ -9,7 +9,7 @@
 //! every tool.
 
 use super::grammar::{parse, Grammar, Sorts};
-use super::node::Node;
+use super::node::{Node, Sort};
 use crate::outcome::{Checked, Problem};
 
 /// Formula text as the skeleton reader cut it out of a line, and where.
@@ -128,6 +128,53 @@ impl std::fmt::Display for Sentence {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(&self.text)
     }
+}
+
+/// A formula a tool makes from trees it has, by the notation the database
+/// declares under `name` with the symbol or words `literal` (`+` of the two
+/// `additive` patterns): the tree the parser builds for that notation over
+/// those holes, made without text to read.
+///
+/// The code names the notations it makes, as `rules` names those it reads,
+/// so one the database does not declare is a fault of the build, not of a
+/// page.
+pub fn made(g: &Grammar, name: &str, literal: &str, children: Vec<Node>) -> Node {
+    let Some(n) = g.notations.iter().find(|n| {
+        n.key() == name && n.literal == literal && n.holes.len() == children.len()
+    }) else {
+        panic!(
+            "the database declares no notation {name} written {literal} of {} holes",
+            children.len()
+        );
+    };
+    Node::new(n.key(), Sort::of(&n.yields), children, &n.literal)
+}
+
+/// A numeral, as the parser reads one.
+pub fn numeral(digits: &str) -> Node {
+    Node::leaf("numeral", Sort::of("number"), digits)
+}
+
+/// Several sentences as one claim: their conjunction, joined from the left
+/// as a claim of several sentences is (`SYNTAX.md`); the one sentence where
+/// there is one.
+pub fn conjoined(g: &Grammar, said: Vec<Node>) -> Option<Node> {
+    joined(g, "conjunction", "and", said)
+}
+
+/// Several formulas joined by "or", from the left, as `A or B or C` reads.
+pub fn disjoined(g: &Grammar, said: Vec<Node>) -> Option<Node> {
+    joined(g, "disjunction", "or", said)
+}
+
+fn joined(g: &Grammar, name: &str, literal: &str, mut said: Vec<Node>) -> Option<Node> {
+    if said.is_empty() {
+        return None;
+    }
+    let first = said.remove(0);
+    Some(said.into_iter().fold(first, |whole, next| {
+        made(g, name, literal, vec![whole, next])
+    }))
 }
 
 /// The sentences of a text, each without its full stop.

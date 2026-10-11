@@ -17,6 +17,7 @@ use std::rc::Rc;
 use indexmap::{IndexMap, IndexSet};
 
 use crate::corpus::{Record, RecordKind};
+use crate::formula::page::Written;
 use crate::formula::{Binds, Node, NodeId, Notation};
 use crate::regex;
 
@@ -60,6 +61,25 @@ pub fn instantiation(text: &str) -> Vec<(String, String)> {
         }
     }
     out
+}
+
+/// One `v := t` of a justification: the letter named, and the value, which
+/// is formula text.
+pub struct Naming {
+    pub name: String,
+    pub value: Written,
+}
+
+/// The `v := t` pairs of a justification written at `line` of `path`, in
+/// order (`instantiation`).
+pub fn namings(text: &str, path: &str, line: usize) -> Vec<Naming> {
+    instantiation(text)
+        .into_iter()
+        .map(|(name, value)| Naming {
+            name,
+            value: Written::new(value, path, line),
+        })
+        .collect()
 }
 
 /// Split on the commas outside brackets.

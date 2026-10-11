@@ -11,18 +11,18 @@ use crate::citing::{
     Parts,
 };
 use crate::corpus::{Intro, Kinded, Method, Step, StepNo, Theorem};
-use crate::formula::{parse_here, Node, Sorts};
+use crate::formula::page::{conjoined, Sentence, Written};
+use crate::formula::{Node, Sorts};
 use crate::matching::{
-    alike, expand, instantiation, standard, Binding, Context, Definitions,
+    alike, expand, namings, standard, Binding, Context, Definitions,
 };
-use crate::sorts::{
-    cited_defines, file_definitions, said_by_line, sentences, supplied_by, Env,
-};
+use crate::sorts::{cited_defines, file_definitions, said_by_line, Env};
 
 type PartsKey = (StepNo, String, String, Vec<String>, Vec<String>);
 
-/// Every line a step's citation may name, by the reference that names it.
-pub type Statements = IndexMap<String, String>;
+/// Every line a step's citation may name, by the reference that names it,
+/// with what the line says.
+pub type Statements = IndexMap<String, Written>;
 
 /// What a theorem's lines give every check of it, read once a run.
 ///
@@ -75,17 +75,52 @@ impl<'a> Known<'a> {
     /// each defined name the step's citation lets it write out written out
     /// (`citing`); None where it does not read, which `check_formulas`
     /// reports.
-    pub fn read(&self, step: &Step, text: &str) -> Option<Node> {
-        self.read_citing(text, &self.citing(&step.just.refs))
+    pub fn read(&self, step: &Step, sentence: &Sentence) -> Option<Node> {
+        self.read_citing(sentence, &self.citing(&step.just.refs))
     }
 
-    /// The text read with its defined names kept, as a message prints it.
-    /// A claim of one sentence may end on its full stop, which is no part of
-    /// the formula.
-    pub fn read_as_written(&self, text: &str) -> Option<Node> {
-        let text = text.trim_end();
-        let text = text.strip_suffix('.').unwrap_or(text);
-        parse_here(text, self.env.g, &self.sorts).ok()
+    /// Each sentence of a written part as the checks of `step` compare it
+    /// (`read`), in the order written; one that does not read is left out,
+    /// as `check_formulas` reports it.
+    pub fn said(&self, step: &Step, written: &Written) -> Vec<Node> {
+        written
+            .sentences()
+            .iter()
+            .filter_map(|s| self.read(step, s))
+            .collect()
+    }
+
+    /// A written part as one formula, as the checks of `step` compare it:
+    /// its sentence, or the conjunction of its sentences, as a claim of
+    /// several is one claim (`SYNTAX.md`); None where a sentence does not
+    /// read, which `check_formulas` reports.
+    pub fn whole(&self, step: &Step, written: &Written) -> Option<Node> {
+        let sentences = written.sentences();
+        let said: Vec<Node> = sentences
+            .iter()
+            .filter_map(|s| self.read(step, s))
+            .collect();
+        if said.len() != sentences.len() {
+            return None;
+        }
+        conjoined(self.env.g, said)
+    }
+
+    /// A written part as one formula with its defined names kept (`whole`,
+    /// `read_as_written`).
+    pub fn whole_as_written(&self, written: &Written) -> Option<Node> {
+        let read: Option<Vec<Node>> = written
+            .sentences()
+            .iter()
+            .map(|s| self.read_as_written(s))
+            .collect();
+        conjoined(self.env.g, read?)
+    }
+
+    /// The sentence read with its defined names kept, as a message prints
+    /// it; None where it does not read, which `check_formulas` reports.
+    pub fn read_as_written(&self, sentence: &Sentence) -> Option<Node> {
+        sentence.read(self.env.g, &self.sorts).ok()
     }
 
     /// Whether two readings are one formula: alike but for the letters they
@@ -123,9 +158,38 @@ impl<'a> Known<'a> {
     /// A sentence read with what `defined` writes out (`citing`), in the
     /// standard order two trees are compared in (`matching::standard`);
     /// None where it does not read.
-    pub fn read_citing(&self, text: &str, defined: &Definitions) -> Option<Node> {
-        self.read_as_written(text)
+    pub fn read_citing(
+        &self,
+        sentence: &Sentence,
+        defined: &Definitions,
+    ) -> Option<Node> {
+        self.read_as_written(sentence)
             .map(|n| standard(&expand(&n, defined), self.ctx))
+    }
+
+    /// A value a citation names, `t` of `v := t`, read with what `defined`
+    /// writes out; None where it is not one formula that reads, which
+    /// `check_instantiations` reports.
+    pub fn read_value(&self, value: &Written, defined: &Definitions) -> Option<Node> {
+        let sentence = value.sentence().ok()?;
+        self.read_citing(&sentence, defined)
+    }
+
+    /// What a cited line supplies (`SYNTAX.md`), each read with what
+    /// `defined` writes out: each of its sentences, and where it has
+    /// several, their conjunction, since "A. B" and "A and B" are one claim.
+    /// A sentence that does not read is left out, as `check_formulas`
+    /// reports it.
+    pub fn supplied(&self, written: &Written, defined: &Definitions) -> Vec<Node> {
+        let sentences = written.sentences();
+        let mut said: Vec<Node> = sentences
+            .iter()
+            .filter_map(|s| self.read_citing(s, defined))
+            .collect();
+        if sentences.len() > 1 && said.len() == sentences.len() {
+            said.extend(conjoined(self.env.g, said.clone()));
+        }
+        said
     }
 
     /// A tree as page text.
@@ -142,18 +206,18 @@ impl<'a> Known<'a> {
         library: &Library,
     ) -> Vec<Node> {
         let scope = self.scope(step);
+        let defined = self.citing(&step.just.refs);
         let said: Vec<Node> = refs
             .iter()
             .filter_map(|r| scope.get(*r))
-            .flat_map(|text| supplied_by(text))
-            .filter_map(|s| self.read(step, &s))
+            .flat_map(|written| self.supplied(written, &defined))
             .collect();
         with_parts(&said, library)
     }
 
     /// Every line a step's citation may name, by the reference that names
     /// it.
-    pub fn scope(&self, step: &Step) -> Rc<IndexMap<String, String>> {
+    pub fn scope(&self, step: &Step) -> Rc<Statements> {
         let key = (step.number.clone(), step.line);
         if let Some(found) = self.scopes.borrow().get(&key) {
             return found.clone();
@@ -191,27 +255,25 @@ impl<'a> Known<'a> {
 /// A block's label holds inside that block only, so two sibling blocks may
 /// each fix a k under the same label, and what the label says is what the
 /// block around the citing step says.
-pub fn statements_in_scope(
-    thm: &Theorem,
-    step: &Step,
-    env: Env,
-) -> IndexMap<String, String> {
-    let said = said_by_line;
-    let mut out: IndexMap<String, String> = thm
+pub fn statements_in_scope(thm: &Theorem, step: &Step, env: Env) -> Statements {
+    let said = |kind, text: &str, line| {
+        Written::new(said_by_line(kind, text), &thm.path, line)
+    };
+    let mut out: Statements = thm
         .steps
         .iter()
-        .map(|s| (s.number.to_string(), s.claim_text()))
+        .map(|s| (s.number.to_string(), s.claim.clone()))
         .collect();
     for h in &thm.hypotheses {
         if let Some(label) = &h.label {
-            out.insert(label.clone(), said(h.kind, &h.text));
+            out.insert(label.clone(), said(h.kind, &h.text, h.line));
         }
     }
     let visible = labels_in_scope(thm, step, env.scopes);
     for other in &thm.steps {
         for o in &other.openers {
             if visible.get(&o.label) == Some(&Declared::Block(o.line)) {
-                out.insert(o.label.clone(), said(o.kind, &o.text));
+                out.insert(o.label.clone(), said(o.kind, &o.text, o.line));
             }
         }
     }
@@ -219,7 +281,10 @@ pub fn statements_in_scope(
     // it, besides what it names; a kind no record names is reported where
     // the lets are checked (`check_kinds`).
     for k in kinded_above(thm, step, env) {
-        out.insert(k.label.clone(), k.membership());
+        out.insert(
+            k.label.clone(),
+            Written::new(k.membership(), &thm.path, k.shown.line),
+        );
     }
     out
 }
@@ -244,23 +309,21 @@ pub fn kinded_above(thm: &Theorem, step: &Step, env: Env) -> Vec<Kinded> {
 fn citation_parts(step: &Step, library: &Library, known: &Known) -> Parts {
     let scope = known.scope(step);
     let defined = known.citing(&step.just.refs);
-    let read = |s: &str| known.read_citing(s, &defined);
-    let mut supplied: Vec<String> = Vec::new();
+    let read = |s: &Sentence| known.read_citing(s, &defined);
+    let mut facts: Vec<Node> = Vec::new();
     for r in &step.just.refs {
-        if let Some(text) = scope.get(r) {
-            supplied.extend(supplied_by(text));
+        if let Some(written) = scope.get(r) {
+            facts.extend(known.supplied(written, &defined));
         }
     }
-    supplied.extend(step.requires.iter().map(|r| r.fact.text().to_string()));
-    let facts: Vec<Node> = supplied.iter().filter_map(|s| read(s)).collect();
-    let claims: Vec<Node> = sentences(&step.claim_text())
-        .iter()
-        .filter_map(|s| read(s))
-        .collect();
+    for r in &step.requires {
+        facts.extend(r.fact.sentences().iter().filter_map(read));
+    }
+    let claims: Vec<Node> = step.claim.sentences().iter().filter_map(read).collect();
     let mut seed = Binding::new();
-    for (name, value) in instantiation(&step.just.text) {
-        if let Some(got) = read(&value) {
-            seed.insert(name, got);
+    for n in namings(&step.just.text, &known.thm.path, step.just.line) {
+        if let Some(got) = known.read_value(&n.value, &defined) {
+            seed.insert(n.name, got);
         }
     }
     let mut parts = match at_a_member(step, &claims, library, &known.sorts) {
@@ -300,7 +363,15 @@ pub fn introduced(known: &Known, step: &Step) -> Introduced {
         }
         let around = step.number.0.starts_with(&other.number.parent().0);
         if other.just.head.is(Method::Obtain) && other.line < step.line && around {
-            said.push((other.line, sentences(&other.claim_text())));
+            said.push((
+                other.line,
+                other
+                    .claim
+                    .sentences()
+                    .iter()
+                    .map(|s| s.text().to_string())
+                    .collect(),
+            ));
         }
     }
     for k in kinded_above(known.thm, step, known.env) {

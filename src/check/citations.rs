@@ -19,15 +19,15 @@ use crate::corpus::{
     cited_item, define_parts, for_pieces, references, step_index, DefineParts,
     FileScope, Item, Method, Step, Theorem,
 };
+use crate::formula::page::Written;
 use crate::formula::{Node, Sort};
 use crate::matching::{
-    alike, binding_sites, instantiation, match_tree, substitute_apart, Binding,
-    Context, PROPERTY,
+    alike, binding_sites, match_tree, namings, substitute_apart, Binding, Context,
+    PROPERTY,
 };
 use crate::outcome::{Built, Declined};
 use crate::regex;
 use crate::rules;
-use crate::sorts::{sentences, supplied_by};
 use crate::text::squash;
 
 /// A requires line whose cited item does not give its fact.
@@ -92,45 +92,42 @@ fn requires_parts(
     let (refs, _bad) = references(&req.how);
     // A define is written out where the line cites it (`Known::citing`).
     let defined = known.citing(&refs);
-    let read_one = |s: &str| known.read_citing(s, &defined);
-    let claims: Vec<Node> = sentences(req.fact.text())
-        .iter()
-        .filter_map(|s| read_one(s))
-        .collect();
+    let read_all = |written: &Written| -> Vec<Node> {
+        written
+            .sentences()
+            .iter()
+            .filter_map(|s| known.read_citing(s, &defined))
+            .collect()
+    };
+    let claims = read_all(&req.fact);
     if claims.is_empty() {
         return None;
     }
-    let mut supplied: Vec<String> = Vec::new();
+    let mut read: Vec<Node> = Vec::new();
     for r in &refs {
-        if let Some(text) = scope.get(r) {
-            supplied.extend(supplied_by(text));
+        if let Some(written) = scope.get(r) {
+            read.extend(known.supplied(written, &defined));
         }
     }
     // A requires line may not cite another, but the facts the lines above
     // it state are established for the same step and are what a dull fact
     // its own citation asks for is written as.
-    supplied.extend(
-        step.requires_above(req.line)
-            .map(|o| o.fact.text().to_string()),
-    );
-    let mut read: Vec<Node> = supplied.iter().filter_map(|s| read_one(s)).collect();
+    for o in step.requires_above(req.line) {
+        read.extend(read_all(&o.fact));
+    }
     // A step said of every member in one line: its requires lines speak
     // of the member, whose membership the claim gives (`SYNTAX.md`).
     if step.openers.is_empty() {
-        let claimed: Vec<Node> = sentences(&step.claim_text())
-            .iter()
-            .filter_map(|s| read_one(s))
-            .collect();
-        if let [claim] = claimed.as_slice() {
+        if let [claim] = read_all(&step.claim).as_slice() {
             if let Some((member, _)) = claimed_member(claim, library, &known.sorts) {
                 read.push(member);
             }
         }
     }
     let mut seed = Binding::new();
-    for (name, value) in instantiation(&req.how) {
-        if let Some(got) = read_one(&value) {
-            seed.insert(name, got);
+    for n in namings(&req.how, &known.thm.path, req.line) {
+        if let Some(got) = known.read_value(&n.value, &defined) {
+            seed.insert(n.name, got);
         }
     }
     // The facts a step's own citation is given, so that an item cited
@@ -496,14 +493,14 @@ pub fn check_obtained_claims(
         let names: Vec<&str> = names[1].split(',').map(str::trim).collect();
         let existence = match cited_item(just) {
             None => {
-                let Some(text) = just
+                let Some(written) = just
                     .refs
                     .first()
                     .and_then(|r| known.scope(step).get(r).cloned())
                 else {
                     continue;
                 };
-                let said = sentences(&text);
+                let said = written.sentences();
                 let [one] = said.as_slice() else {
                     continue;
                 };
@@ -572,13 +569,20 @@ pub fn check_obtained_claims(
         let mut put = Binding::new();
         for ((letter, _), name) in order.iter().zip(&names) {
             if letter.text != *name {
-                let Some(named) = known.read_as_written(name) else {
+                let written = Written::new(*name, &thm.path, just.line);
+                let Some(named) = written
+                    .sentence()
+                    .ok()
+                    .and_then(|s| known.read_as_written(&s))
+                else {
                     continue;
                 };
                 put.insert(letter.text.clone(), named);
             }
         }
-        let Some(said) = sentences(&step.claim_text())
+        let Some(said) = step
+            .claim
+            .sentences()
             .iter()
             .map(|s| known.read(step, s))
             .collect::<Option<Vec<Node>>>()
@@ -744,7 +748,7 @@ pub fn check_kinds(
 /// (`SYNTAX.md`: a requires line rests on the lines above it).
 fn built_on(req: &crate::corpus::Requires, step: &Step, known: &Known) -> bool {
     const ASKING: [&str; 3] = ["membership", "inequalities", "algebra"];
-    let Some(said) = known.read(step, req.fact.text()) else {
+    let Some(said) = known.whole(step, &req.fact) else {
         return false;
     };
     // t ∈ X names t: a method asks it of its atoms. t ≠ 0, read as not
@@ -810,7 +814,7 @@ fn built_on(req: &crate::corpus::Requires, step: &Step, known: &Known) -> bool {
                 .iter()
                 .any(|m| how == *m || how.starts_with(&format!("{m},")))
         })
-        .filter_map(|r| known.read(step, r.fact.text()).map(|n| (r, n)))
+        .filter_map(|r| known.whole(step, &r.fact).map(|n| (r, n)))
         .any(|(r, n)| {
             let held = if n.notation == "membership" && n.children.len() == 2 {
                 &n.children[0]
@@ -825,19 +829,19 @@ fn built_on(req: &crate::corpus::Requires, step: &Step, known: &Known) -> bool {
             // carries the term to it: `deg(x) ∈ ℕ₀: membership, from 2` rests
             // on `|S| ∈ ℕ₀` above it where line 2 says deg(x) = |S|, and so
             // does `deg(x) ∈ ℤ: membership` under `requires deg(x) = |S|`.
+            let defined = known.citing(&step.just.refs);
             let cited = references(&r.how)
                 .0
                 .iter()
                 .filter_map(|c| scope.get(c))
-                .flat_map(|text| supplied_by(text))
-                .filter_map(|s| known.read(step, &s))
+                .flat_map(|written| known.supplied(written, &defined))
                 .any(|line| holds_atom(&line));
             let above = step
                 .requires
                 .iter()
                 .take_while(|o| o.line != r.line)
                 .filter(|o| o.line != req.line)
-                .filter_map(|o| known.read(step, o.fact.text()))
+                .flat_map(|o| known.said(step, &o.fact))
                 .any(|line| holds_atom(&line));
             written || cited || above
         })
@@ -953,8 +957,8 @@ fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
 impl FamilyAsks {
     /// Whether one requires line's fact is a membership the item's function
     /// hypotheses ask for, read as the checks of its step read it.
-    fn asks(&self, step: &Step, fact: &str, known: &Known) -> bool {
-        let Some(node) = known.read(step, fact) else {
+    fn asks(&self, step: &Step, fact: &Written, known: &Known) -> bool {
+        let Some(node) = known.whole(step, fact) else {
             return false;
         };
         if node.notation == "function-type" {
@@ -1074,7 +1078,7 @@ fn evaluated(
         && used
             .iter()
             .any(|f| step.just.defined.as_deref() == Some(f.label.as_str()));
-    let claim = known.read_as_written(&text);
+    let claim = known.whole_as_written(&step.claim);
     let sides = match &claim {
         Some(c)
             if direct
@@ -1219,8 +1223,10 @@ pub fn check_define_domains(
         return;
     }
     let needs = |asked: &Applied| {
-        known
-            .read_as_written(&asked.says[0])
+        Written::here(&asked.says[0])
+            .sentence()
+            .ok()
+            .and_then(|s| known.read_as_written(&s))
             .map(|n| known.print(&n))
             .unwrap_or_else(|| asked.says[0].clone())
     };
@@ -1342,15 +1348,19 @@ fn domains_unsaid(
     let mut seen: BTreeSet<String> = BTreeSet::new();
     let mut out = Vec::new();
     for asked in evaluated(step, &used, known, library) {
-        let holds_index = known
-            .read_as_written(&asked.arg)
+        let holds_index = Written::here(&asked.arg)
+            .sentence()
+            .ok()
+            .and_then(|s| known.read_as_written(&s))
             .is_some_and(|a| !a.names().is_disjoint(&indices));
         if holds_index {
             continue;
         }
         let said = asked.says.iter().any(|s| {
-            known
-                .read(step, s)
+            Written::here(s)
+                .sentence()
+                .ok()
+                .and_then(|s| known.read(step, &s))
                 .is_some_and(|n| shapes.contains(n.shape()))
         });
         if said || !seen.insert(asked.says[0].clone()) {
@@ -1380,7 +1390,9 @@ pub fn check_exhibited(
             continue;
         }
         let parts = known.parts(step, library);
-        let written: Vec<Node> = sentences(&step.claim_text())
+        let written: Vec<Node> = step
+            .claim
+            .sentences()
             .iter()
             .filter_map(|s| known.read_as_written(s))
             .collect();
@@ -1557,13 +1569,16 @@ pub fn check_instantiated(
         let Some(target) = instantiated_line(&step.just.text) else {
             continue;
         };
-        let Some(text) = known.scope(step).get(&target).cloned() else {
+        let Some(line) = known.scope(step).get(&target).cloned() else {
             continue;
         };
         let parts = known.parts(step, library);
-        let written: IndexMap<String, String> =
-            instantiation(&step.just.text).into_iter().collect();
-        for sentence in sentences(&text) {
+        let written: IndexMap<String, Written> =
+            namings(&step.just.text, &thm.path, step.just.line)
+                .into_iter()
+                .map(|n| (n.name, n.value))
+                .collect();
+        for sentence in line.sentences() {
             let (Some(read), Some(as_written)) = (
                 known.read(step, &sentence),
                 known.read_as_written(&sentence),
@@ -1600,7 +1615,7 @@ pub fn check_instantiated(
                 };
                 let value_written = written
                     .get(&b.letter.text)
-                    .and_then(|v| known.read_as_written(v))
+                    .and_then(|v| known.whole_as_written(v))
                     .unwrap_or_else(|| value.clone());
                 let domain_written =
                     substitute_apart(&w.domain, &outer_written, &library.ctx);
@@ -1692,7 +1707,7 @@ pub fn check_repeated(
 ) {
     for step in &thm.steps {
         for (i, req) in step.requires.iter().enumerate() {
-            let Some(said) = known.read(step, req.fact.text()) else {
+            let Some(said) = known.whole(step, &req.fact) else {
                 continue;
             };
             let mut lighter = step.clone();
@@ -1741,10 +1756,10 @@ pub fn check_repeated(
 /// membership said once instead.
 fn in_a_domain(step: &Step, r: &str, known: &Known) -> bool {
     let scope = known.scope(step);
-    let Some(text) = scope.get(r) else {
+    let Some(written) = scope.get(r) else {
         return false;
     };
-    sentences(text).iter().any(|s| {
+    written.sentences().iter().any(|s| {
         known.read_as_written(s).is_some_and(|n| {
             n.notation == "function-type"
                 || (n.notation == "membership"
@@ -1798,7 +1813,7 @@ fn bound_below(step: &Step, i: usize, said: &Node, known: &Known) -> bool {
         return false;
     }
     step.requires[i + 1..].iter().any(|o| {
-        known.read(step, o.fact.text()).is_some_and(|f| {
+        known.whole(step, &o.fact).is_some_and(|f| {
             matches!(f.notation.as_str(), "order" | "equality")
                 && f.walk().iter().any(|n| known.alike(n, term))
         })
@@ -1964,17 +1979,18 @@ pub fn check_surplus(
         // Compared as formulas, so that `x∈ℤ` is `x ∈ ℤ`.
         let in_domain: BTreeSet<String> = domains_asked(thm, step, scopes)
             .iter()
-            .filter_map(|s| known.read_as_written(s))
+            .filter_map(|s| Written::here(s).sentence().ok())
+            .filter_map(|s| known.read_as_written(&s))
             .map(|n| n.shape().to_string())
             .collect();
         for (i, req) in step.requires.iter().enumerate() {
             let mut lighter = step.clone();
             lighter.requires.remove(i);
             let domain = known
-                .read_as_written(req.fact.text())
+                .whole_as_written(&req.fact)
                 .is_some_and(|n| in_domain.contains(n.shape()));
             // What keeps a line without a search is asked before the search.
-            if !asks.asks(step, req.fact.text(), known)
+            if !asks.asks(step, &req.fact, known)
                 && !domain
                 && !built_on(req, step, known)
                 && !lost_without(&lighter)

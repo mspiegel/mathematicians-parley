@@ -2081,7 +2081,8 @@ fn naming_follows(
                 scopes: &ctx.corpus.scopes,
             },
         );
-        let says_part = |r: &str| scope.get(r).is_some_and(|t| t.contains(&part.text));
+        let says_part =
+            |r: &str| scope.get(r).is_some_and(|t| t.text().contains(&part.text));
         let cites_part = step.just.refs.iter().any(|r| says_part(r));
         let writes_part = claim.iter().any(writes)
             || citation.iter().any(writes)

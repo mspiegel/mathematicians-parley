@@ -59,6 +59,29 @@ pub struct Hypothesis {
     pub line: usize,
 }
 
+impl Hypothesis {
+    /// What the line says after its keyword, its label taken off: the
+    /// formula of an `assume`, the introduction of a `let`. `path` is the
+    /// file the line is in.
+    pub fn body(&self, path: &str) -> Written {
+        Written::new(body_text(self.kind, &self.text), path, self.line)
+    }
+}
+
+impl Opener {
+    /// What the line says after its keyword, its label taken off
+    /// (`Hypothesis::body`).
+    pub fn body(&self, path: &str) -> Written {
+        Written::new(body_text(self.kind, &self.text), path, self.line)
+    }
+}
+
+/// A `let`, `assume` or `suppose` line after its keyword, without its label.
+fn body_text(kind: Intro, text: &str) -> String {
+    let rest = text.strip_prefix(kind.as_str()).unwrap_or(text);
+    str::trim(&crate::sorts::unlabel(rest)).to_string()
+}
+
 /// A statement's `ε, δ range over ℝ`: the set each of those letters belongs
 /// to wherever a quantifier in the theorem writes a bound in place of the
 /// set, "for all ε > 0". It introduces nothing and is not a hypothesis.
