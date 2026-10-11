@@ -3217,7 +3217,7 @@ impl<'a> Elaborator<'a> {
             sources.push((cited.term, proof));
         }
         for r in &step.requires {
-            let said = self.claim_of(r.fact.text())?;
+            let said = self.claim_of(&r.fact)?;
             if let Some(proof) = self.held(facts, &said, scope)? {
                 sources.push((said, proof));
             }

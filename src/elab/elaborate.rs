@@ -40,8 +40,9 @@ use crate::corpus::{
     define_parts, fmt, item_prefix, outermost, references, Corpus, DefineParts, Intro,
     Item, Record, Step, Theorem,
 };
+use crate::formula::page::{conjoined, Written};
 use crate::formula::{Grammar, Node};
-use crate::matching::{expand, instantiation, Binding as NodeBinding, Defined};
+use crate::matching::{expand, namings, Binding as NodeBinding, Defined};
 use crate::mm::compress::{compressed, labels as compress_labels, shapes_of};
 use crate::mm::kernel::{Syntax, Term};
 use crate::mm::library::thousands;
@@ -51,7 +52,7 @@ use crate::outcome::{Built, Checked, Declined, Problem, Route};
 use crate::rules::{self, lookup};
 use crate::sorts::{
     cited_defines, graph_re, said_by_line, sorts_in_scope, statement_definitions,
-    supplied_by, unlabel,
+    unlabel,
 };
 use crate::targets;
 use crate::text::repr;
@@ -522,7 +523,7 @@ impl<'a> Elaborator<'a> {
                     .insert(name, Defined::Term(Node::literal(&made)));
             }
         }
-        let goal = self.claim_of(&self.thm.conclusion)?;
+        let goal = self.claim_of(&self.thm.stated())?;
         self.from_outside = IndexMap::new();
         // What the conclusion quantifies over is spoken for before anything
         // else takes a variable.
@@ -644,7 +645,7 @@ impl<'a> Elaborator<'a> {
                     // A case that cannot occur gives the block's claim from
                     // its line and the line it contradicts.
                     (Some(other), _) => {
-                        let claim = self.claim_of(&block.owner.claim_text())?;
+                        let claim = self.claim_of(&block.owner.claim)?;
                         let made = self.by_opposites(
                             &step, &held, other, &claim, &scope, &facts,
                         )?;
@@ -652,7 +653,7 @@ impl<'a> Elaborator<'a> {
                     }
                     // Or from its line and that line shown false.
                     (None, Some(not)) => {
-                        let claim = self.claim_of(&block.owner.claim_text())?;
+                        let claim = self.claim_of(&block.owner.claim)?;
                         let made = pf!(self.b; scope, held.term, claim, held.proof, not, "pm2.21dd");
                         (claim, made)
                     }
@@ -681,7 +682,7 @@ impl<'a> Elaborator<'a> {
             {
                 let last = self.last.clone().expect("a step's number");
                 let held = self.lines.get(&last).expect("the step's line");
-                let claim = self.claim_of(&owner.claim_text())?;
+                let claim = self.claim_of(&owner.claim)?;
                 let (_, body) = self.opener_layers(&owner, &claim)?;
                 let body = self.rpn(&body);
                 let made =
@@ -846,16 +847,18 @@ impl<'a> Elaborator<'a> {
             }
             return self.obtain(step, number, scope, facts, closers);
         }
-        let claim = step.claim_text();
-        let sentences = self.sentences(&claim);
-        let node = self.read(sentences.last().map(String::as_str).unwrap_or(""))?;
-        let term = self.claim_of(&claim)?;
+        let sentences = step.claim.sentences();
+        let Some(last) = sentences.last() else {
+            return Err(self.defect(step.line, format!("step {number} claims nothing")));
+        };
+        let node = self.read(last)?;
+        let term = self.claim_of(&step.claim)?;
         if self.said_back.is_some() {
             self.say_back(&sentences, step.line)?;
         }
         if self.answers.is_some() {
             let mut facts = sentences.clone();
-            facts.extend(step.requires.iter().map(|r| r.fact.text().to_string()));
+            facts.extend(step.requires.iter().flat_map(|r| r.fact.sentences()));
             self.list_implied(step, &facts)?;
             self.list_asked(step)?;
         }
@@ -927,7 +930,7 @@ impl<'a> Elaborator<'a> {
         let lines = self.lines.copy();
         let labels = self.b.flabel.clone();
         for o in step.requires_above(req.line) {
-            let node = self.read(o.fact.text())?;
+            let node = self.read_one(&o.fact)?;
             let above = self.term(&node)?;
             let key = requirement(o.line);
             let sealed = self
@@ -947,7 +950,7 @@ impl<'a> Elaborator<'a> {
                 at.just.refs.push(key);
             }
         }
-        let node = self.read(req.fact.text())?;
+        let node = self.read_one(&req.fact)?;
         let term = self.term(&node)?;
         let Some(how) = self.method_for(&at, &term)? else {
             return Ok(Route::no(format!("no expansion for {}", repr(&req.how))));
@@ -1321,11 +1324,11 @@ impl<'a> Elaborator<'a> {
         step: &Step,
         item: &'a Record,
         cites: Option<&str>,
-        text: &str,
+        said: &Written,
     ) -> Checked<Node> {
         let binding = self.matched_here(step, item, cites)?;
         let library = self.item_library();
-        let node = self.in_its_names(Item::Record(item), |me| me.read(text))?;
+        let node = self.in_its_names(Item::Record(item), |me| me.read_one(said))?;
         Ok(filled(&node, &binding, &library.ctx))
     }
 
@@ -1356,7 +1359,7 @@ impl<'a> Elaborator<'a> {
         };
         let mut facts = self.cited_sentences(&step.just.refs)?;
         for r in &step.requires {
-            facts.push(self.read(r.fact.text())?);
+            facts.push(self.read_one(&r.fact)?);
         }
         let cites = cites.unwrap_or(&step.just.text);
         let obtains = step.just.text.trim_start().starts_with("obtain");
@@ -1448,7 +1451,7 @@ impl<'a> Elaborator<'a> {
         let refs = references(&o.how).0;
         let mut facts = self.cited_sentences(&refs)?;
         for above in step.requires_above(o.line) {
-            facts.push(self.read(above.fact.text())?);
+            facts.push(self.read_one(&above.fact)?);
         }
         if step.openers.is_empty() {
             if let [claim] = self.said(step)?.as_slice() {
@@ -1459,8 +1462,9 @@ impl<'a> Elaborator<'a> {
                 }
             }
         }
-        let claims = self
-            .sentences(o.fact.text())
+        let claims = o
+            .fact
+            .sentences()
             .iter()
             .map(|s| self.read(s))
             .collect::<Checked<Vec<Node>>>()?;
@@ -1534,9 +1538,9 @@ impl<'a> Elaborator<'a> {
         &self,
         cites: &str,
     ) -> Checked<Vec<(String, Node)>> {
-        instantiation(cites)
+        namings(cites, &self.thm.path, self.at)
             .into_iter()
-            .map(|(name, value)| Ok((name, self.read(&value)?)))
+            .map(|n| Ok((n.name, self.read_one(&n.value)?)))
             .collect()
     }
 
@@ -1547,15 +1551,10 @@ impl<'a> Elaborator<'a> {
         for r in refs {
             if let Some(line) = self.lines.get(r) {
                 given.extend(line.sentences.iter().cloned());
-                // A line of several sentences is their conjunction too
-                // (`sorts::supplied_by`), read as the checker reads it.
+                // A line of several sentences is their conjunction too, as the
+                // checker reads it (`Known::supplied`).
                 if line.sentences.len() > 1 {
-                    let parts: Vec<String> = line
-                        .sentences
-                        .iter()
-                        .map(|s| format!("({})", self.g.print(s)))
-                        .collect();
-                    given.push(self.read(&parts.join(" and "))?);
+                    given.extend(conjoined(self.g, line.sentences.clone()));
                 }
             }
         }
@@ -1563,8 +1562,19 @@ impl<'a> Elaborator<'a> {
         // hypothesis says what it says to the checker (`said_by_line`).
         for h in &self.thm.hypotheses {
             if h.label.as_ref().is_some_and(|l| refs.contains(l)) {
-                for s in supplied_by(&unlabel(&said_by_line(h.kind, &h.text))) {
-                    given.push(self.read(&s)?);
+                let said = Written::new(
+                    unlabel(&said_by_line(h.kind, &h.text)),
+                    &self.thm.path,
+                    h.line,
+                );
+                let read = said
+                    .sentences()
+                    .iter()
+                    .map(|s| self.read(s))
+                    .collect::<Checked<Vec<Node>>>()?;
+                given.extend(read.iter().cloned());
+                if read.len() > 1 {
+                    given.extend(conjoined(self.g, read));
                 }
             }
         }
@@ -1839,7 +1849,8 @@ impl<'a> Elaborator<'a> {
         let Some(said) = SUBSTITUTE.captures(&text) else {
             return Err(self.defect(step.line, "a substitute that names no equation"));
         };
-        let equation = self.read(&said[1])?;
+        let equation =
+            self.read_one(&Written::new(&said[1], &self.thm.path, step.just.line))?;
         let (left, right) =
             (equation.children[0].clone(), equation.children[1].clone());
         let (old, new) = (self.term(&left)?, self.term(&right)?);
@@ -2650,7 +2661,7 @@ impl<'a> Elaborator<'a> {
         for (name, d, src) in self.visible_outside() {
             defines.insert(self.outside_label(&name, &d, src));
         }
-        let first = self.read(&links[0].0)?;
+        let first = self.read_here(&links[0].0)?;
         if first.text.is_empty() {
             return Err(self.defect(step.line, "a chain starts with no relation"));
         }
@@ -2711,7 +2722,7 @@ impl<'a> Elaborator<'a> {
                 None => (body.clone(), String::new()),
             };
             let written = format!("{rest} {mark} {added}");
-            let node = self.read(&written)?;
+            let node = self.read_here(&written)?;
             let joined_term = self.term(&node)?;
             let joined = self.to_term(&joined_term);
             let joined_label = joined.label().unwrap_or("").to_string();
@@ -4077,7 +4088,7 @@ impl<'a> Elaborator<'a> {
                     return Err(me.defect(me.at, format!("{head} has no target field")));
                 };
                 let node = me.in_its_names(Item::Record(item), |me| {
-                    me.read(&item.conclusions[0].0)
+                    me.read_one(&item.stated()[0])
                 })?;
                 let (left, right) =
                     (node.children[0].clone(), node.children[1].clone());
@@ -4331,7 +4342,9 @@ impl<'a> Elaborator<'a> {
         let library = self.item_library();
         let mut out = Binding::new();
         for (name, formula) in &fills {
-            let node = self.in_its_names(Item::Record(item), |me| me.read(formula))?;
+            let fill = Written::new(formula, &item.path, item.line);
+            let node =
+                self.in_its_names(Item::Record(item), |me| me.read_one(&fill))?;
             let node = filled(&node, &bound, &library.ctx);
             let term = self.term(&node)?;
             out.insert(name.clone(), self.to_term(&term));
@@ -4427,7 +4440,7 @@ impl<'a> Elaborator<'a> {
         }
         let mut spare: std::collections::VecDeque<&str> =
             CLASS_NAMES.iter().copied().collect();
-        let claim_text = step.claim_text();
+        let claimed = step.claim.sentences().len();
         let (binds, wanted, whole) = self.names_and_sets_kept(
             |me| -> Checked<(IndexMap<String, String>, Vec<String>, String)> {
                 let saved = me.names.clone();
@@ -4468,9 +4481,13 @@ impl<'a> Elaborator<'a> {
                     }
                     // Parsed with the theorem's own sorts, which say what its
                     // letters are; only its shape and name are used here.
-                    let said = me.hypothesis_formula(h.kind.as_str(), &h.text);
+                    let said = Written::new(
+                        me.hypothesis_formula(h.kind.as_str(), &h.text),
+                        &other.path,
+                        h.line,
+                    );
                     let node =
-                        me.in_its_names(Item::Theorem(other), |me| me.read(&said))?;
+                        me.in_its_names(Item::Theorem(other), |me| me.read_one(&said))?;
                     // `let X be a set` and `let A be a point` name a class as
                     // surely as `let n ∈ ℕ` does, and the name is in the same
                     // place.
@@ -4520,9 +4537,11 @@ impl<'a> Elaborator<'a> {
                                     continue;
                                 }
                             }
-                            let node = me.read(
-                                &me.hypothesis_formula(h.kind.as_str(), &h.text),
-                            )?;
+                            let node = me.read_one(&Written::new(
+                                me.hypothesis_formula(h.kind.as_str(), &h.text),
+                                &other.path,
+                                h.line,
+                            ))?;
                             out.push(me.term(&node)?);
                         }
                         Ok(out)
@@ -4531,15 +4550,13 @@ impl<'a> Elaborator<'a> {
                 // The step may claim one sentence of a conclusion that says
                 // several, or the conclusion in other words.
                 let stated = me.in_its_names(Item::Theorem(other), |me| {
-                    me.claim_of(&other.conclusion)
+                    me.claim_of(&other.stated())
                 })?;
                 // What the cited label proves is its statement over its own
                 // letters, which the claim may bind otherwise; the two are
                 // joined below, not taken to be one.
                 let mut whole = stated.clone();
-                if me.sentences(&other.conclusion).len()
-                    > me.sentences(&claim_text).len()
-                {
+                if other.stated().sentences().len() > claimed {
                     whole = stated;
                 }
                 Ok((binds, wanted, whole))

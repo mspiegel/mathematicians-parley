@@ -19,6 +19,7 @@ use std::collections::BTreeSet;
 use crate::citing::implied_facts;
 use crate::corpus::proof::requires_item;
 use crate::corpus::{Item, Step};
+use crate::formula::page::Sentence;
 use crate::outcome::{Built, Checked, Declined};
 use crate::sorts::Env;
 
@@ -86,7 +87,7 @@ impl Elaborator<'_> {
     /// (`implied_terms`) against the checker's (`implied_facts`). The step's
     /// claims and its requires lines are read with the member a claim said
     /// of every member names, as `does_work` reads them.
-    pub fn list_implied(&mut self, step: &Step, sentences: &[String]) -> Checked<()> {
+    pub fn list_implied(&mut self, step: &Step, sentences: &[Sentence]) -> Checked<()> {
         let path = self.thm.path.clone();
         let line = step.line;
         let letter = if step.requires.is_empty() {

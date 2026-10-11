@@ -5,6 +5,7 @@ use indexmap::IndexMap;
 use super::lines::read_lines;
 use super::proof::{Hypothesis, Intro, Range};
 use super::{full, module_of};
+use crate::formula::page::Written;
 use crate::outcome::{Checked, Problem};
 use crate::regex;
 use crate::text::repr;
@@ -154,6 +155,14 @@ pub struct Record {
 impl Record {
     pub fn module(&self) -> &str {
         module_of(&self.path)
+    }
+
+    /// Each `then` line's formula as written, with where.
+    pub fn stated(&self) -> Vec<Written> {
+        self.conclusions
+            .iter()
+            .map(|(text, line)| Written::new(text, &self.path, *line))
+            .collect()
     }
 
     /// Its full name: its file's module, then its own name.

@@ -27,6 +27,8 @@ use crate::corpus::{
     define_parts, fmt, item_prefix, DefineParts, Intro, Item, Kinded, Step, CITED,
     ITEM_PREFIX,
 };
+use crate::formula::page::Written;
+use crate::formula::Node;
 use crate::matching::standard;
 use crate::mm::kernel::Term;
 use crate::mm::spell::Proof;
@@ -39,8 +41,6 @@ use crate::{pf, regex, t, take};
 regex!(OBTAINED, r"obtain\s+(.+?)(?::|\s+from\b)");
 regex!(OBTAIN_ITEM, format!(r"\b({ITEM_PREFIX}{CITED})"));
 regex!(INDUCTION_ON, r"induction on (\S+)");
-regex!(MEMBER_OF, r"^(\S+)\s*∈\s*(.+)$");
-regex!(FUNCTION_OF, r"^(\S+)\s*:\s*(.+?)\s*→\s*(.+)$");
 
 /// One opener of a `proof` block, as its claim says it: a name fixed over a
 /// set, or over every set, or an assumption.
@@ -402,7 +402,7 @@ impl<'a> Elaborator<'a> {
             "contradiction" => {
                 let o = &step.openers[0];
                 let node =
-                    self.read(&self.hypothesis_formula(o.kind.as_str(), &o.text))?;
+                    self.read_here(&self.hypothesis_formula(o.kind.as_str(), &o.text))?;
                 let supposed = self.term(&node)?;
                 let origin = assumption(&block, &o.label);
                 let (inner, lifted) =
@@ -432,7 +432,7 @@ impl<'a> Elaborator<'a> {
                         // A fixed name is a variable of the kernel, not a
                         // class, and it must avoid whatever the notations
                         // bind.
-                        let node = self.read(&body)?;
+                        let node = self.read_here(&body)?;
                         let name = subject_of(&node).text.clone();
                         let var = self.fixed_var(&name, &block.scope.clone())?;
                         self.names.insert(name.clone(), format!("{var} cv"));
@@ -444,7 +444,7 @@ impl<'a> Elaborator<'a> {
                             self.sets.insert(name, set);
                         }
                     }
-                    let node = self.read(&body)?;
+                    let node = self.read_here(&body)?;
                     let added = self.term(&node)?;
                     block.opened.push(added.clone());
                     let origin = assumption(&block, &o.label);
@@ -479,7 +479,7 @@ impl<'a> Elaborator<'a> {
                 // direction of a `both directions` is such a part.
                 for o in &step.openers {
                     let body = self.hypothesis_formula(o.kind.as_str(), &o.text);
-                    let node = self.read(&body)?;
+                    let node = self.read_here(&body)?;
                     block
                         .assumed
                         .insert(o.part.unwrap_or(0), (node, o.label.clone()));
@@ -492,7 +492,7 @@ impl<'a> Elaborator<'a> {
                     .expect("an induction says what it is on");
                 // The claim says "for all k ∈ X, …" of the letter the
                 // induction is on.
-                let claim = self.claim_node(&step.claim_text())?;
+                let claim = self.claim_node(&step.claim)?;
                 let letter = (claim.notation == "for-all" && claim.children.len() == 3)
                     .then(|| claim.children[0].text.clone());
                 if letter.as_deref() != Some(over.as_str()) {
@@ -510,10 +510,10 @@ impl<'a> Elaborator<'a> {
                 // once now, the letters it binds are settled, and the block
                 // keeps them, so the three readings are one formula.
                 let general = format!("{base} cv");
-                let text = step.claim_text();
+                let claim = step.claim.clone();
                 self.names_kept(|me| -> Checked<()> {
                     me.names.insert(over.clone(), general);
-                    let node = me.claim_node(&text)?;
+                    let node = me.claim_node(&claim)?;
                     me.freeze(&node.children[2])?;
                     Ok(())
                 })?;
@@ -571,14 +571,9 @@ impl<'a> Elaborator<'a> {
         Ok((block.scope.clone(), block.facts.clone()))
     }
 
-    /// A claim of one sentence, read as a reader ends it: "For all k ∈ ℕ, P."
-    /// is read without its full stop.
-    fn claim_node(&mut self, text: &str) -> Checked<crate::formula::Node> {
-        let said = self.sentences(text);
-        match said.as_slice() {
-            [one] => self.read(one),
-            _ => self.read(text),
-        }
+    /// A claim of one sentence, read; a defect where it is several.
+    fn claim_node(&mut self, claim: &Written) -> Checked<crate::formula::Node> {
+        self.read_one(claim)
     }
 
     /// Open the scope one part of an induction runs under. The base part runs
@@ -611,7 +606,7 @@ impl<'a> Elaborator<'a> {
             .collect();
         for o in openers {
             let body = self.hypothesis_formula(o.kind.as_str(), &o.text);
-            let node = self.read(&body)?;
+            let node = self.read_here(&body)?;
             if o.kind == Intro::Let {
                 let name = subject_of(&node).text.clone();
                 let var = self.fixed_var(&name, &block.scope.clone())?;
@@ -626,12 +621,12 @@ impl<'a> Elaborator<'a> {
             // What the line says is kept as the page's tree, which a citation
             // of it is matched against (`citing`); its term is the frozen one.
             let (node, added) = if o.is_hypothesis {
-                let claim = self.claim_node(&block.owner.claim_text())?;
+                let claim = self.claim_node(&block.owner.claim)?;
                 let frozen = self.freeze(&claim.children[2])?;
                 let added = self.term(&frozen)?;
                 (claim.children[2].clone(), added)
             } else {
-                let node = self.read(&body)?;
+                let node = self.read_here(&body)?;
                 let added = self.term(&node)?;
                 (node, added)
             };
@@ -679,7 +674,7 @@ impl<'a> Elaborator<'a> {
             closers = self.end_case(block, closers)?;
             let (scope, facts) = self.enter_case(block, part)?;
             block.case_opened_at = Some(closers.len());
-            let claim = self.claim_of(&block.owner.claim_text())?;
+            let claim = self.claim_of(&block.owner.claim)?;
             let assumed = self.term(&block.assumed[&part].0)?;
             let mut proof = self
                 .held(&facts, &assumed, &scope)?
@@ -861,7 +856,7 @@ impl<'a> Elaborator<'a> {
                 "the last step and the line it contradicts are not a contradiction",
             ));
         };
-        let claim = self.claim_of(&step.claim_text())?;
+        let claim = self.claim_of(&step.claim)?;
         let one = self
             .held(&known, &first, deep)?
             .expect("a claim `opposing` found held");
@@ -1048,7 +1043,7 @@ impl<'a> Elaborator<'a> {
         let step = &block.owner;
         // Read with the variables the block had, not the ones given back.
         let kept = std::mem::replace(&mut self.bound_as, block.inner.clone());
-        let claim = self.claim_of(&step.claim_text());
+        let claim = self.claim_of(&step.claim);
         self.bound_as = kept;
         let claim = claim?;
         let (layers, rest) = self.opener_layers(step, &claim)?;
@@ -1156,7 +1151,7 @@ impl<'a> Elaborator<'a> {
                 self.defect(step.line, "a direction of the block proves nothing")
             );
         }
-        let claim = self.claim_of(&step.claim_text())?;
+        let claim = self.claim_of(&step.claim)?;
         let left = self.term(&block.assumed[&0].0)?;
         let right = self.term(&block.assumed[&1].0)?;
         let PartEnd {
@@ -1212,7 +1207,7 @@ impl<'a> Elaborator<'a> {
         if parts != assumed_parts {
             return Err(self.defect(step.line, "a case of the block proves nothing"));
         }
-        let claim = self.claim_of(&step.claim_text())?;
+        let claim = self.claim_of(&step.claim)?;
         let order: Vec<usize> = assumed_parts.into_iter().collect();
         let mut assumed = Vec::new();
         for p in &order {
@@ -1301,7 +1296,7 @@ impl<'a> Elaborator<'a> {
                 format!("the step part of the induction does not fix {name}"),
             ));
         };
-        let claim = self.claim_of(&step.claim_text())?;
+        let claim = self.claim_of(&step.claim)?;
         let over = self.rpn(&self.to_term(&claim).children()[2]);
         let Some((lemma, begins)) = lookup(rules::INDUCTION, &over) else {
             return Err(self.defect(
@@ -1311,7 +1306,8 @@ impl<'a> Elaborator<'a> {
         };
         let start = match step.just.starting_at() {
             Some(m) => {
-                let node = self.read(m)?;
+                let node =
+                    self.read_one(&Written::new(m, &self.thm.path, step.just.line))?;
                 self.term(&node)?
             }
             None => begins.to_string(),
@@ -1328,11 +1324,11 @@ impl<'a> Elaborator<'a> {
             ));
         }
         let next_one = t!(format!("{variable} cv"), "c1", "caddc", "co");
-        let claim_text = step.claim_text();
+        let written = step.claim.clone();
         // The statement after "for all k ∈ X,", with k the general name.
         let pattern = self.names_kept(|me| -> Checked<crate::formula::Node> {
             me.names.insert(name.clone(), general.clone());
-            let node = me.claim_node(&claim_text)?;
+            let node = me.claim_node(&written)?;
             me.freeze(&node.children[2])
         })?;
         // The lemma is applied at the claim's own letter, which `nn0indd`
@@ -1638,7 +1634,7 @@ impl<'a> Elaborator<'a> {
                         // Parsed with the theorem's own sorts, which say what
                         // its letters are, and made a term in the step's names.
                         Item::Theorem(_) => me.in_its_names(item, |me| {
-                            me.read(&Self::claimed_by(item))
+                            me.read_one(&Self::claimed_by(item))
                         })?,
                     };
                     // Listed in the standard order the checker lists its own
@@ -2135,7 +2131,7 @@ impl<'a> Elaborator<'a> {
                             ))
                         }
                     };
-                    let node = self.read(&body)?;
+                    let node = self.read_here(&body)?;
                     let term = self.term(&node)?;
                     // A define names a thing, a number, a set or a map, and a
                     // statement is none: there is nothing for the name to be
@@ -2191,7 +2187,7 @@ impl<'a> Elaborator<'a> {
                 ),
             ));
         };
-        let node = self.read(kinded.shown.fact.text())?;
+        let node = self.read_one(&kinded.shown.fact)?;
         let shown = self.term(&node)?;
         let set = self.rpn(&self.to_term(&shown).children()[1]);
         let what = format!("the reason under let {}", kinded.label);
@@ -2421,27 +2417,27 @@ impl<'a> Elaborator<'a> {
     /// membership as a sentence of its own, which is where the name runs;
     /// the other sentences are what is said of it, in the order written.
     fn existence_claimed(&mut self, step: &Step, got: &[String]) -> Checked<String> {
-        let mut domains: IndexMap<String, String> = IndexMap::new();
-        let mut rest = Vec::new();
-        for said in self.sentences(&step.claim_text()) {
-            // A function's membership is its type, `f : X → Y`, which says it
-            // is among the functions from X to Y, where "there is f : X → Y"
-            // runs.
-            if let Some(m) = FUNCTION_OF.captures(&said) {
-                if got.contains(&m[1].to_string()) && !domains.contains_key(&m[1]) {
-                    domains.insert(
-                        m[1].to_string(),
-                        format!("the functions from {} to {}", &m[2], &m[3]),
-                    );
-                    continue;
+        let mut domains: IndexMap<String, Node> = IndexMap::new();
+        let mut rest: Vec<Node> = Vec::new();
+        for sentence in step.claim.sentences() {
+            let said = self.read(&sentence)?;
+            let named = |n: &Node| {
+                n.is_name() && got.contains(&n.text) && !domains.contains_key(&n.text)
+            };
+            match (
+                said.notation.as_str(),
+                said.text.as_str(),
+                said.children.as_slice(),
+            ) {
+                // A function's membership is its type, `f : X → Y`, which
+                // says it is among the functions from X to Y, where "there
+                // is f : X → Y" runs.
+                ("function-type", _, [f, from, to]) if named(f) => {
+                    let functions = self.functions_from(from, to)?;
+                    domains.insert(f.text.clone(), functions);
                 }
-            }
-            match MEMBER_OF.captures(&said) {
-                Some(m)
-                    if got.contains(&m[1].to_string())
-                        && !domains.contains_key(&m[1]) =>
-                {
-                    domains.insert(m[1].to_string(), m[2].to_string());
+                ("membership", "∈", [x, set]) if named(x) => {
+                    domains.insert(x.text.clone(), set.clone());
                 }
                 _ => rest.push(said),
             }
@@ -2475,11 +2471,19 @@ impl<'a> Elaborator<'a> {
                 let var = me.binder_var(name)?;
                 me.names.insert(name.clone(), format!("{var} cv"));
             }
-            let mut body = me.claim_of(&rest.join(". "))?;
+            // What is said of them is one claim of several sentences, their
+            // conjunction in the order written (`claim_of`).
+            let mut said = Vec::new();
+            for node in &rest {
+                said.push(me.term(node)?);
+            }
+            let mut body = said[0].clone();
+            for extra in &said[1..] {
+                body = t!(body, extra, "wa");
+            }
             for name in got.iter().rev() {
                 let var = me.binder_var(name)?;
-                let node = me.read(&domains[name])?;
-                let over = me.term(&node)?;
+                let over = me.term(&domains[name])?;
                 body = t!(body, var, over, "wrex");
             }
             Ok(body)
@@ -2648,7 +2652,7 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
     ) -> Checked<Option<Proof>> {
         let lines = self.lines.clone();
-        let wanted = self.claim_of(&step.claim_text())?;
+        let wanted = self.claim_of(&step.claim)?;
         let held = Facts::new();
         // A line joined supplies each of its sentences, and each group of
         // them it nests together, so that the claim may group them otherwise:

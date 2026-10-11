@@ -760,6 +760,11 @@ impl Theorem {
         module_of(&self.path)
     }
 
+    /// The `then` line's formula as written, with where.
+    pub fn stated(&self) -> Written {
+        Written::new(&self.conclusion, &self.path, self.conclusion_line)
+    }
+
     pub fn qualified(&self) -> String {
         format!("{}/{}", self.module(), self.name)
     }

@@ -15,17 +15,17 @@ use super::state::Elaborator;
 use crate::corpus::proof::visible;
 use crate::corpus::{DefineLine, Item, Recursion, ScopeId, Step};
 use crate::formula::grammar::Sorts;
-use crate::formula::page::Written;
+use crate::formula::page::{template, Sentence, Written};
 use crate::formula::{fits, Node, Sort};
+use crate::matching::{substitute_apart_by, Binding};
 use crate::matching::{Defined, Definitions};
 use crate::outcome::Checked;
 use crate::regex;
 use crate::rules::NUMERALS;
 use crate::sorts::{
     definition_sorts, element_re, function_being_re, function_on_re, graph_line,
-    group_re, let_formula, not_in_re, part_re, polynomial_re, sentences,
-    sorts_of_record, sorts_of_statement, statement_definitions, unlabel, Env,
-    GraphLine,
+    group_re, let_formula, not_in_re, part_re, polynomial_re, sorts_of_record,
+    sorts_of_statement, statement_definitions, unlabel, Env, GraphLine,
 };
 use crate::t;
 use crate::targets;
@@ -117,7 +117,7 @@ impl<'a> Elaborator<'a> {
                 }
             }
         }
-        body
+        str::trim(&unlabel(&body)).to_string()
     }
 
     pub fn env(&self) -> Env<'a> {
@@ -193,12 +193,36 @@ impl<'a> Elaborator<'a> {
     }
 
     /// One sentence of the readable layer, as a tree, read where the
-    /// elaborator has got to: a formula that does not parse is a defect and
-    /// wants somewhere to point.
-    pub fn read(&self, text: &str) -> Checked<Node> {
-        Written::new(unlabel(text), &self.thm.path, self.at)
-            .sentence()?
-            .read(self.g, &self.sorts_now)
+    /// elaborator has got to: a formula that does not parse is a defect,
+    /// pointing where the sentence is written.
+    pub fn read(&self, sentence: &Sentence) -> Checked<Node> {
+        sentence.read(self.g, &self.sorts_now)
+    }
+
+    /// The set of the functions from one set to another, as the page writes
+    /// it, `the functions from X to Y`, at the two sets.
+    pub fn functions_from(&self, from: &Node, to: &Node) -> Checked<Node> {
+        let mut sorts = self.sorts_now.clone();
+        sorts.insert("X".into(), from.sort.clone());
+        sorts.insert("Y".into(), to.sort.clone());
+        let made = template("the functions from X to Y", self.g, &sorts)?;
+        let put = Binding::from([
+            ("X".to_string(), from.clone()),
+            ("Y".to_string(), to.clone()),
+        ]);
+        Ok(substitute_apart_by(&made, &put, &self.g.binders()))
+    }
+
+    /// A part of a line that is one formula, a requires line's fact or a
+    /// value, read (`read`); a defect where it is several sentences.
+    pub fn read_one(&self, written: &Written) -> Checked<Node> {
+        self.read(&written.sentence()?)
+    }
+
+    /// Formula text written on this theorem's page where the elaborator has
+    /// got to, read as one formula.
+    pub fn read_here(&self, text: &str) -> Checked<Node> {
+        self.read_one(&Written::new(unlabel(text), &self.thm.path, self.at))
     }
 
     /// A library function applied to its arguments, where the proof gives the
@@ -419,8 +443,8 @@ impl<'a> Elaborator<'a> {
         };
         // The definition's sentence is read in its own sorts, which say what
         // its letters are whatever the proof calls its own.
-        let node = self
-            .in_its_names(Item::Record(item), |me| me.read(&item.conclusions[0].0))?;
+        let node =
+            self.in_its_names(Item::Record(item), |me| me.read_one(&item.stated()[0]))?;
         let (left, right) = (node.children[0].clone(), node.children[1].clone());
         self.names
             .insert(subject_of(&left).text.clone(), subject.to_string());
@@ -452,7 +476,7 @@ impl<'a> Elaborator<'a> {
             panic!("{name} is a definition of the database");
         };
         let left = self
-            .in_its_names(Item::Record(item), |me| me.read(&item.conclusions[0].0))?
+            .in_its_names(Item::Record(item), |me| me.read_one(&item.stated()[0]))?
             .children[0]
             .clone();
         let letter = subject_of(&left).text.clone();
@@ -474,15 +498,11 @@ impl<'a> Elaborator<'a> {
         }
     }
 
-    pub fn sentences(&self, text: &str) -> Vec<String> {
-        sentences(&unlabel(text))
-    }
-
     /// A claim of several sentences is their conjunction, in the order the
     /// text writes them: the kernel has one conclusion.
-    pub fn claim_of(&mut self, text: &str) -> Checked<String> {
+    pub fn claim_of(&mut self, written: &Written) -> Checked<String> {
         let mut said = Vec::new();
-        for s in self.sentences(text) {
+        for s in written.sentences() {
             let node = self.read(&s)?;
             said.push(self.term(&node)?);
         }
@@ -520,7 +540,7 @@ impl<'a> Elaborator<'a> {
                     continue;
                 }
             }
-            let node = self.read(&self.hypothesis_formula(kind, &h.text))?;
+            let node = self.read_here(&self.hypothesis_formula(kind, &h.text))?;
             // `assume H is a subgroup of G` introduces H as a `let` would.
             let subgroup = kind == "assume" && SUBGROUP.is_match(&rest);
             if kind == "let" || subgroup {
@@ -609,7 +629,8 @@ impl<'a> Elaborator<'a> {
                 self.names.insert(name.clone(), spare.remove(0).to_string());
             }
             let mut parts = Vec::new();
-            for sentence in sentences(&let_formula(body)) {
+            let said = Written::new(let_formula(body), &self.thm.path, self.at);
+            for sentence in said.sentences() {
                 let node = self.read(&sentence)?;
                 parts.push(self.term(&node)?);
             }
@@ -691,7 +712,7 @@ impl<'a> Elaborator<'a> {
                 let body = me.term(&rule.body)?;
                 let mut overs = Vec::new();
                 for p in &rule.params {
-                    let domain = me.read(&p.domain)?;
+                    let domain = me.read_here(&p.domain)?;
                     overs.push(me.term(&domain)?);
                 }
                 Ok((body, overs))
@@ -754,7 +775,7 @@ impl<'a> Elaborator<'a> {
         }
         let mut starts = Vec::new();
         for name in &said.names {
-            let node = self.read(&said.start[name])?;
+            let node = self.read_here(&said.start[name])?;
             starts.push(self.term(&node)?);
         }
         // Read once with k standing for a mark no term holds: where the mark
@@ -845,7 +866,7 @@ impl<'a> Elaborator<'a> {
         let steps = (|| -> Checked<Vec<String>> {
             let mut steps = Vec::new();
             for name in &said.names {
-                let node = self.read(&said.step[name])?;
+                let node = self.read_here(&said.step[name])?;
                 steps.push(self.term(&node)?);
             }
             Ok(steps)
@@ -883,17 +904,18 @@ impl<'a> Elaborator<'a> {
 
     /// Every sentence of a step's claim, as trees.
     pub fn said(&self, step: &Step) -> Checked<Vec<Node>> {
-        self.sentences(&step.claim_text())
+        step.claim
+            .sentences()
             .iter()
             .map(|s| self.read(s))
             .collect()
     }
 
     /// What an item claims, from wherever its statement lives.
-    pub fn claimed_by(item: Item) -> String {
+    pub fn claimed_by(item: Item) -> Written {
         match item {
-            Item::Theorem(t) => t.conclusion.clone(),
-            Item::Record(r) => r.conclusions[0].0.clone(),
+            Item::Theorem(t) => Written::new(&t.conclusion, &t.path, t.conclusion_line),
+            Item::Record(r) => r.stated().remove(0),
         }
     }
 

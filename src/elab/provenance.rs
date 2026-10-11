@@ -249,7 +249,7 @@ impl<'a> Elaborator<'a> {
                         me.names.insert(page.clone(), kernel.clone());
                     }
                 }
-                let node = me.read(r.fact.text())?;
+                let node = me.read_one(&r.fact)?;
                 me.term(&node)
             })?;
             let claim = self.to_term(&term);
@@ -530,7 +530,7 @@ impl<'a> Elaborator<'a> {
     /// said of every member is proved at one, and its requires lines speak
     /// of that member by this letter.
     pub fn member_letter(&mut self, step: &Step) -> Checked<Option<(String, String)>> {
-        let said = self.sentences(&step.claim_text());
+        let said = step.claim.sentences();
         let [sentence] = said.as_slice() else {
             return Ok(None);
         };
@@ -627,7 +627,7 @@ impl<'a> Elaborator<'a> {
             return Ok(known);
         }
         for r in &step.requires {
-            let want = self.read(r.fact.text())?;
+            let want = self.read_one(&r.fact)?;
             let term = self.term(&want)?;
             // A claim the scope already holds is taken as it stands only
             // where this line's own reason made that proof.
@@ -991,7 +991,7 @@ impl<'a> Elaborator<'a> {
     ) -> Checked<Proof> {
         let mut written: BTreeSet<String> = BTreeSet::new();
         for r in &step.requires {
-            let node = self.read(r.fact.text())?;
+            let node = self.read_one(&r.fact)?;
             written.insert(self.term(&node)?);
         }
         // The scope's copy of a claim is taken only where no line of the step
@@ -1025,7 +1025,7 @@ impl<'a> Elaborator<'a> {
             }
         }
         for r in &step.requires {
-            let node = self.read(r.fact.text())?;
+            let node = self.read_one(&r.fact)?;
             if self.term(&node)? == goal {
                 // The line proved once already, by its own reason, where the
                 // step's requires lines were supplied: that proof is the line.

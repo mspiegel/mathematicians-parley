@@ -294,9 +294,9 @@ fn cases() -> Vec<Case> {
             "    algebra, from 5, 8\n    requires |PQ| ∈ ℝ: mun:distance-real P := P, Q := Q\n    requires |PR| ∈ ℝ: mun:distance-real P := P, Q := R\n    requires |P′Q′| ∈ ℝ: mun:distance-real P := P′, Q := Q′\n    requires |P′R′| ∈ ℝ: mun:distance-real P := P′, Q := R′\n    requires ∠PQR ∈ ℝ: mun:triangle-angle-real, from H7\n    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR\n    requires ∠QRP ∈ ℝ: mun:triangle-angle-real, from H7\n    requires sin(∠QRP) ∈ ℝ: mun:sin-real a := ∠QRP",
             "at most one equation multiplied by a term",
         ),
-        // A formula that does not lex is a defect with a position, and not a
-        // route declining: taken for one, the step would be assumed and the
-        // build would go green.
+        // A formula that does not lex is a defect with a position, the line
+        // it is written on, and not a route declining: taken for one, the
+        // step would be assumed and the build would go green.
         case(
             "a requires line that does not lex",
             "proofs/geometric-series/geometric-sum",
@@ -305,10 +305,7 @@ fn cases() -> Vec<Case> {
             "          requires 1 − a ¿ 0: algebra, from H2\n          requires a^(k + 1) ∈ ℝ",
             "",
         )
-        .at(
-            "proofs/geometric-series.proof",
-            "1.10. (1 − a^(k + 1))/(1 − a) + a^(k + 1)",
-        ),
+        .at("proofs/geometric-series.proof", "requires 1 − a ¿ 0"),
         // `substitute` walks its equation both ways and each sentence of the
         // line it names, trying the next where one declines. A name the proof
         // never introduced is not one of those: it is a defect.

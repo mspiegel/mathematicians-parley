@@ -1576,7 +1576,7 @@ impl<'a> Elaborator<'a> {
                 let said =
                     self.in_its_names(Item::Record(r), |me| -> Checked<String> {
                         me.names_kept(|me| {
-                            let node = me.read(&r.conclusions[0].0)?;
+                            let node = me.read_one(&r.stated()[0])?;
                             let left = node.children[0].clone();
                             for name in left.names() {
                                 me.names.insert(name, hole.clone());

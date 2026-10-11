@@ -62,7 +62,7 @@ const PLAIN: &[(&str, &str, &str)] = &[
 /// Where the elaborator reads a citation's values, which is one place.
 const READ: &[(&str, &str, &str)] = &[(
     "src/elab/elaborate.rs",
-    "instantiation(cites)",
+    "namings(cites,",
     "`instantiated_nodes`, which reads every value before any is given",
 )];
 
@@ -137,7 +137,7 @@ fn values_are_put_apart_from_what_a_tree_binds() {
 
 #[test]
 fn a_citations_values_are_read_in_one_place() {
-    let read = Regex::new(r"(^|[^_a-zA-Z.])instantiation\(").unwrap();
+    let read = Regex::new(r"(^|[^_a-zA-Z.])(instantiation|namings)\(").unwrap();
     let (new, gone) = unlisted("src/elab", &read, READ);
     assert!(
         new.is_empty() && gone.is_empty(),

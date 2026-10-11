@@ -15,7 +15,7 @@
 
 use indexmap::IndexSet;
 
-use crate::formula::page::Written;
+use crate::formula::page::{Sentence, Written};
 use crate::formula::{Node, Sort};
 use crate::mm::kernel::Term;
 use crate::outcome::Checked;
@@ -68,7 +68,7 @@ impl Elaborator<'_> {
     /// Each sentence read as the kernel term it is, said back, and read
     /// again; one that comes back as another term, or cannot be said, is
     /// kept in `said_back`.
-    pub fn say_back(&mut self, sentences: &[String], line: usize) -> Checked<()> {
+    pub fn say_back(&mut self, sentences: &[Sentence], line: usize) -> Checked<()> {
         self.aside(|me| me.said_back_each(sentences, line))
     }
 
@@ -87,13 +87,14 @@ impl Elaborator<'_> {
         out
     }
 
-    fn said_back_each(&mut self, sentences: &[String], line: usize) -> Checked<()> {
+    fn said_back_each(&mut self, sentences: &[Sentence], line: usize) -> Checked<()> {
         for sentence in sentences {
             let node = self.read(sentence)?;
             let kernel = self.term(&node)?;
             let again = match self.spoken(&kernel) {
                 Some(said) => {
-                    let back = self.read(&said).and_then(|n| self.term(&n)).ok();
+                    // What the page would write, read as the page is read.
+                    let back = self.read_here(&said).and_then(|n| self.term(&n)).ok();
                     (back.as_deref() != Some(kernel.as_str())).then_some(said)
                 }
                 None => Some("(no page reading)".to_string()),
@@ -218,7 +219,7 @@ impl Elaborator<'_> {
             // the page reads nothing, so |x − c| is the reading.
             let printed = self.g.print(&node);
             let back = if bound.is_empty() {
-                self.read(&printed)
+                self.read_here(&printed)
             } else {
                 let mut sorts = self.sorts_now.clone();
                 for letter in bound {
