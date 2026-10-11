@@ -35,12 +35,14 @@ use super::tables::Leaf;
 use super::{Facts, Line, Lines};
 use crate::binds;
 use crate::citing::{self, asked, claimed_member, filled, finished, obtained, Parts};
-use crate::corpus::proof::{requires_as_step, requires_item, Requires};
-use crate::corpus::{
-    define_parts, fmt, item_prefix, outermost, references, Corpus, DefineParts, Intro,
-    Item, Record, Step, Theorem,
+use crate::corpus::proof::{
+    chain, requires_as_step, requires_item, ChainLine, Requires,
 };
-use crate::formula::page::{conjoined, Written};
+use crate::corpus::{
+    define_parts, fmt, item_prefix, references, Corpus, DefineParts, Intro, Item,
+    Record, Step, Theorem,
+};
+use crate::formula::page::{conjoined, related, Written};
 use crate::formula::{Grammar, Node};
 use crate::matching::{expand, namings, Binding as NodeBinding, Defined};
 use crate::mm::compress::{compressed, labels as compress_labels, shapes_of};
@@ -2651,33 +2653,33 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         lines: &Lines,
     ) -> Checked<Route<Proof>> {
-        let mut links: Vec<(String, String)> = Vec::new();
-        for (text, _line) in &step.just.chain {
-            let stripped = text.trim_end();
-            let at = stripped.rfind(char::is_whitespace).unwrap_or(0);
-            let (body, cite) = (&stripped[..at], str::trim(&stripped[at..]));
-            links.push((str::trim(body).to_string(), cite.to_string()));
-        }
+        let Some(chain) = chain(&step.just, &self.thm.path) else {
+            return Err(self.defect(step.line, "a calculation writes no chain"));
+        };
+        let chain = chain?;
         let mut defines: BTreeSet<String> =
             self.thm.defines.iter().map(|d| d.label.clone()).collect();
         for (name, d, src) in self.visible_outside() {
             defines.insert(self.outside_label(&name, &d, src));
         }
-        let first = self.read_here(&links[0].0)?;
-        if first.text.is_empty() {
-            return Err(self.defect(step.line, "a chain starts with no relation"));
-        }
-        let words: Vec<&str> = links[0].0.split_whitespace().collect();
-        let Some(at) = outermost(&words, &first.text) else {
-            return Err(self.defect(
-                step.line,
-                format!(
-                    "a chain's first line puts its {} only inside brackets",
-                    first.text
-                ),
-            ));
-        };
-        let mut rest = without_modulus(&words[at + 1..].join(" "));
+        // What a line claims: the term before it, its relation, the term it
+        // reaches and the modulus it says, as one formula; and the term it
+        // reaches, which the next line goes on from.
+        let link =
+            |me: &Self, from: &Node, line: &ChainLine| -> Checked<(Node, Node)> {
+                let to = me.read_one(&line.term)?;
+                let modulus = match &line.modulus {
+                    Some(n) => Some(me.read_one(n)?),
+                    None => None,
+                };
+                let at = (line.term.path(), line.line);
+                let (g, sorts) = (me.g, &me.sorts_now);
+                let claim =
+                    related(g, sorts, &line.relation, from, &to, modulus.as_ref(), at)?;
+                Ok((claim, to))
+            };
+        let start = self.read_one(&chain.start)?;
+        let (first, mut rest) = link(self, &start, &chain.lines[0])?;
         let first_term = self.term(&first)?;
         let whole = self.to_term(&first_term);
         // A congruence joins the two terms whose difference its modulus
@@ -2706,25 +2708,18 @@ impl<'a> Elaborator<'a> {
         };
         let mut proof = self.link_held(
             step,
-            &links[0].1,
+            &chain.lines[0].cite,
             &whole,
-            &links[0].0,
+            &chain.lines[0].quoted(&chain.start),
             scope,
             facts,
             lines,
             &defines,
         )?;
-        for (body, cite) in &links[1..] {
-            // The relation, and what follows it. `body` was trimmed when
-            // it was read.
-            let (mark, added) = match body.split_once(char::is_whitespace) {
-                Some((mark, added)) => {
-                    (mark.to_string(), added.trim_start().to_string())
-                }
-                None => (body.clone(), String::new()),
-            };
-            let written = format!("{rest} {mark} {added}");
-            let node = self.read_here(&written)?;
+        for (before, line) in chain.lines.iter().zip(&chain.lines[1..]) {
+            let cite = &line.cite;
+            let (node, added) = link(self, &rest, line)?;
+            let written = line.quoted(&before.term);
             let joined_term = self.term(&node)?;
             let joined = self.to_term(&joined_term);
             let joined_label = joined.label().unwrap_or("").to_string();
@@ -2787,7 +2782,7 @@ impl<'a> Elaborator<'a> {
                 )?;
                 modulus = Some(m.clone());
                 right = to;
-                rest = without_modulus(&added);
+                rest = added;
                 reached = t!(m, t!(left, right, "cmin", "co"), "cdvds", "wbr");
                 continue;
             }
@@ -5175,17 +5170,6 @@ struct Joining<'s> {
     before_congruent: bool,
     /// ( scope -> middle ≡ right (mod modulus) ).
     after: Proof,
-}
-
-regex!(MODULUS_WRITTEN, r"^(.*?)\s*\(mod\s+.+\)\s*$");
-
-/// A chain line's term without the modulus a congruence writes after it:
-/// the next line continues from 1·10, not from `1·10 (mod 3)`.
-fn without_modulus(text: &str) -> String {
-    match MODULUS_WRITTEN.captures(text) {
-        Some(m) => m[1].to_string(),
-        None => text.to_string(),
-    }
 }
 
 /// The statement a written file proves, read off its `$p` line: what a

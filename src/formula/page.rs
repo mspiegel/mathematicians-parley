@@ -182,6 +182,44 @@ pub fn filled(
     ))
 }
 
+/// `a rel b`, and `a ≡ b (mod n)` for a congruence, as a chain's link
+/// claims it (`GRAMMAR.md`, calculation chains); a defect for a relation a
+/// chain does not join by, a `≡` with no modulus, or a modulus on any other
+/// relation.
+pub fn related(
+    g: &Grammar,
+    sorts: &Sorts,
+    relation: &str,
+    a: &Node,
+    b: &Node,
+    modulus: Option<&Node>,
+    at: (&str, usize),
+) -> Checked<Node> {
+    let terms = [("a", a), ("b", b)];
+    let form = match (relation, modulus) {
+        ("=", None) => "a = b",
+        ("≤", None) => "a ≤ b",
+        ("<", None) => "a < b",
+        ("≡", Some(n)) => {
+            return filled("a ≡ b (mod n)", g, sorts, &[("a", a), ("b", b), ("n", n)]);
+        }
+        ("≡", None) => {
+            return Err(Problem::new(at.0, at.1, "a ≡ line says its modulus"));
+        }
+        (_, Some(_)) => {
+            return Err(Problem::new(at.0, at.1, "only a ≡ line says a modulus"));
+        }
+        _ => {
+            return Err(Problem::new(
+                at.0,
+                at.1,
+                format!("a chain line joins by =, ≤, < or ≡, and not by {relation:?}"),
+            ));
+        }
+    };
+    filled(form, g, sorts, &terms)
+}
+
 /// The formula the notation written `pattern` builds over `children`, where
 /// the database declares one; the words of the pattern are the page's, as
 /// `be one-to-one` names the notation `_ : _ → _ is one-to-one`.

@@ -8,14 +8,14 @@ use indexmap::{IndexMap, IndexSet};
 
 use super::library::Known;
 use super::structure::{bound_by_claim, defined_below, introduced, letters_in_scope};
-use super::{Report, RELATIONS};
+use super::Report;
 use crate::citing::Library;
-use crate::corpus::proof::requires_item;
+use crate::corpus::proof::{chain, requires_item, ChainLine};
 use crate::corpus::{
-    cited_item, define_parts, outermost, DefineParts, FileScope, Intro, Item,
-    Justification, Method, Record, RecordKind, Recursion, Requires, Step, Theorem,
+    cited_item, define_parts, DefineParts, FileScope, Intro, Item, Justification,
+    Method, Record, RecordKind, Recursion, Requires, Step, Theorem,
 };
-use crate::formula::page::{disjoined, made, numeral, Written};
+use crate::formula::page::{disjoined, made, numeral, related, Written};
 use crate::formula::{walk, Node, Sort, Sorts};
 use crate::matching::{
     alike_top, free_names, namings, substitute_apart_by, Binding, Naming,
@@ -1082,23 +1082,39 @@ pub fn check_cases_cited(report: &mut Report, thm: &Theorem, known: &Known) {
     }
 }
 
-/// One link of a calculation.
+/// One link of a calculation: the line, with the term it continues from.
 pub struct Link {
-    /// What the link claims: `previous rel t`, with its modulus where the
-    /// relation is a congruence.
-    pub claim: String,
-    /// Its two terms, where the first line says where its relation stands.
-    pub sides: Option<(String, String)>,
-    /// The relation it joins by.
-    pub relation: String,
-    /// The modulus a congruence says, `(mod 3)` read as 3.
-    pub modulus: Option<String>,
-    /// What it cites.
-    pub cite: String,
-    pub line: usize,
+    /// The term the line before reaches, or the first line's first.
+    pub from: Written,
+    pub line: ChainLine,
 }
 
-regex!(MODULUS, r"^(.*?)\s*\(mod\s+(.+)\)$");
+impl Link {
+    /// What the link claims, `from rel to`, with its modulus where the
+    /// relation is a congruence, read as written; None where a part does
+    /// not read, or the line's relation and modulus do not make a link,
+    /// which the elaborator reports.
+    pub fn claim(&self, known: &Known) -> Option<Node> {
+        let read = |w: &Written| known.read_as_written(&w.sentence().ok()?);
+        let (from, to) = (read(&self.from)?, read(&self.line.term)?);
+        let modulus = match &self.line.modulus {
+            Some(n) => Some(read(n)?),
+            None => None,
+        };
+        let at = (self.line.term.path(), self.line.line);
+        let (g, sorts) = (known.env.g, &known.sorts);
+        related(
+            g,
+            sorts,
+            &self.line.relation,
+            &from,
+            &to,
+            modulus.as_ref(),
+            at,
+        )
+        .ok()
+    }
+}
 
 /// A chain with a congruence in it says its modulus on each `≡` line and on
 /// no other, says the same one on all of them, has no `≤` or `<`, since an
@@ -1106,9 +1122,9 @@ regex!(MODULUS, r"^(.*?)\s*\(mod\s+(.+)\)$");
 /// not go back to `=` (`GRAMMAR.md`, calculation chains).
 pub fn check_chain_congruences(report: &mut Report, thm: &Theorem) {
     for step in &thm.steps {
-        let links = chain_links(&step.just);
+        let links = chain_links(&step.just, &thm.path);
         let mut said: Option<&str> = None;
-        for link in &links {
+        for Link { line: link, .. } in &links {
             if said.is_some() && link.relation == "=" {
                 report.say(
                     &thm.path,
@@ -1119,7 +1135,8 @@ pub fn check_chain_congruences(report: &mut Report, thm: &Theorem) {
                     ),
                 );
             }
-            match (link.relation.as_str(), &link.modulus) {
+            let modulus = link.modulus.as_ref().map(Written::text);
+            match (link.relation.as_str(), modulus) {
                 ("≡", None) => report.say(
                     &thm.path,
                     link.line,
@@ -1150,7 +1167,9 @@ pub fn check_chain_congruences(report: &mut Report, thm: &Theorem) {
                 _ => {}
             }
         }
-        let ordered = links.iter().any(|l| l.relation == "≤" || l.relation == "<");
+        let ordered = links
+            .iter()
+            .any(|l| l.line.relation == "≤" || l.line.relation == "<");
         if said.is_some() && ordered {
             report.say(
                 &thm.path,
@@ -1164,70 +1183,20 @@ pub fn check_chain_congruences(report: &mut Report, thm: &Theorem) {
     }
 }
 
-/// A link's term and the modulus written after it, `1·10 (mod 3)` read as
-/// 1·10 and 3: the modulus says what the congruence is modulo, and is not
-/// part of the term the next line continues from.
-fn split_modulus(text: &str) -> (String, Option<String>) {
-    match MODULUS.captures(str::trim(text)) {
-        Some(m) => (m[1].to_string(), Some(str::trim(&m[2]).to_string())),
-        None => (str::trim(text).to_string(), None),
-    }
-}
-
-/// Each link of a calculation. The first line is written whole; each later
-/// one writes its relation and new term, and the previous term is the one
-/// before it.
-pub fn chain_links(just: &Justification) -> Vec<Link> {
+/// Each link of a calculation, as the skeleton cuts it (`corpus::chain`):
+/// the first line's from its first term, each later one's from the term
+/// the line before reaches. A chain whose first line names no relation is
+/// the elaborator's to report, and has no links here.
+pub fn chain_links(just: &Justification, path: &str) -> Vec<Link> {
+    let Some(Ok(chain)) = chain(just, path) else {
+        return Vec::new();
+    };
+    let mut from = chain.start;
     let mut out = Vec::new();
-    if !just.head.is(Method::Calculation) {
-        return out;
-    }
-    let mut previous: Option<String> = None;
-    for (text, no) in &just.chain {
-        let whole = str::trim(text);
-        let (body, cite) = match whole.rfind(' ') {
-            Some(at) => (&whole[..at], &whole[at + 1..]),
-            None => ("", whole),
-        };
-        let body = str::trim(body);
-        let (claim, sides, relation, modulus);
-        match &previous {
-            None => {
-                let words: Vec<&str> = body.split_whitespace().collect();
-                let at = RELATIONS
-                    .iter()
-                    .find_map(|r| outermost(&words, r).map(|at| (at, *r)));
-                claim = body.to_string();
-                let (before, said) = match at {
-                    Some((at, _)) => split_modulus(&words[at + 1..].join(" ")),
-                    None => (String::new(), None),
-                };
-                relation = at.map(|(_, r)| r.to_string()).unwrap_or_default();
-                modulus = said;
-                sides = at.map(|(at, _)| (words[..at].join(" "), before.clone()));
-                previous = Some(before);
-            }
-            Some(prev) => {
-                let (mark, added) = match body.find(' ') {
-                    Some(at) => (&body[..at], &body[at + 1..]),
-                    None => (body, ""),
-                };
-                let (added, said) = split_modulus(added);
-                claim = format!("{prev} {mark} {}", str::trim(&body[mark.len()..]));
-                relation = mark.to_string();
-                modulus = said;
-                sides = Some((prev.clone(), added.clone()));
-                previous = Some(added);
-            }
-        }
-        out.push(Link {
-            claim,
-            sides,
-            relation,
-            modulus,
-            cite: cite.to_string(),
-            line: *no,
-        });
+    for line in chain.lines {
+        let next = line.term.clone();
+        out.push(Link { from, line });
+        from = next;
     }
     out
 }
@@ -1237,20 +1206,9 @@ pub fn chain_links(just: &Justification) -> Vec<Link> {
 /// `2/1 − 2/(n + 1)` and `2 − 2/(n + 1)` differ in `2/1` against `2`, and a
 /// chain link between them uses that fact and no other. The terms are walked
 /// in step; where they part, both pieces must be numerals alone.
-fn changed_closed(
-    sides: &Option<(String, String)>,
-    path: &str,
-    line: usize,
-    known: &Known,
-) -> bool {
-    let Some((one, other)) = sides else {
-        return false;
-    };
-    let read = |term: &str| {
-        let sentence = Written::new(term, path, line).sentence().ok()?;
-        known.read_as_written(&sentence)
-    };
-    let (Some(one), Some(other)) = (read(one), read(other)) else {
+fn changed_closed(link: &Link, known: &Known) -> bool {
+    let read = |term: &Written| known.read_as_written(&term.sentence().ok()?);
+    let (Some(one), Some(other)) = (read(&link.from), read(&link.line.term)) else {
         return false;
     };
     fn alike(a: &Node, b: &Node) -> bool {
@@ -1312,24 +1270,22 @@ pub fn check_closed_arithmetic(report: &mut Report, thm: &Theorem, known: &Known
                 }
             }
         }
-        for Link {
-            claim,
-            sides,
-            cite,
-            line: no,
-            ..
-        } in chain_links(just)
-        {
-            if cite == "arithmetic"
-                && !closed(&Written::new(&claim, &thm.path, no))
-                && !changed_closed(&sides, &thm.path, no, known)
-            {
+        for link in chain_links(just, &thm.path) {
+            if link.line.cite != "arithmetic" {
+                continue;
+            }
+            // A link that does not read is the elaborator's to report.
+            let Some(claim) = link.claim(known) else {
+                continue;
+            };
+            if !claim.names().is_empty() && !changed_closed(&link, known) {
                 report.say(
                     &thm.path,
-                    no,
+                    link.line.line,
                     format!(
-                        "a link of step {} names arithmetic for {claim}, which changes something with a letter in it; a link may name arithmetic where only pieces of numerals alone change, and any other cites the numbered step that states it",
-                        step.number
+                        "a link of step {} names arithmetic for {}, which changes something with a letter in it; a link may name arithmetic where only pieces of numerals alone change, and any other cites the numbered step that states it",
+                        step.number,
+                        link.line.quoted(&link.from)
                     ),
                 );
             }
@@ -1464,31 +1420,29 @@ pub fn check_chain_links(
     defines.extend(scope.defines.iter().map(|d| d.label.as_str()));
     defines.extend(scope.imports.iter().filter_map(|i| i.label.as_deref()));
     for step in &thm.steps {
-        for Link {
-            claim,
-            cite,
-            line: no,
-            ..
-        } in chain_links(&step.just)
-        {
+        let defined = known.citing(&step.just.refs);
+        for link in chain_links(&step.just, &thm.path) {
+            let cite = &link.line.cite;
             if cite == "arithmetic"
                 || defines.contains(cite.as_str())
-                || !known.scope(step).contains_key(&cite)
+                || !known.scope(step).contains_key(cite)
             {
                 continue;
             }
-            let link = Written::new(&claim, &thm.path, no).sentence();
-            let Some(said) = link.ok().and_then(|s| known.read(step, &s)) else {
-                continue; // `check_formulas` says it does not read
+            // A link that does not read is the elaborator's to report.
+            let Some(claim) = link.claim(known) else {
+                continue;
             };
+            let said = known.as_cited(&claim, &defined);
             let lines = known.lines_say(step, &[cite.as_str()], library);
             if !lines.iter().any(|x| alike_top(&said, x, &library.ctx)) {
                 report.say(
                     &thm.path,
-                    no,
+                    link.line.line,
                     format!(
-                        "a link of step {} cites {cite}, which does not say {claim}; a link cites the line that states it, and a substitution is a step of its own",
-                        step.number
+                        "a link of step {} cites {cite}, which does not say {}; a link cites the line that states it, and a substitution is a step of its own",
+                        step.number,
+                        link.line.quoted(&link.from)
                     ),
                 );
             }

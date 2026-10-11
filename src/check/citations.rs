@@ -1306,10 +1306,10 @@ fn domains_unsaid(
     known: &Known,
     library: &Library,
 ) -> Vec<Applied> {
-    let links = chain_links(&step.just);
+    let links = chain_links(&step.just, &known.thm.path);
     let mut cited: BTreeSet<String> = step.just.refs.iter().cloned().collect();
     for link in &links {
-        cited.extend(references(&link.cite).0);
+        cited.extend(references(&link.line.cite).0);
     }
     let used: Vec<Defined> = functions
         .iter()
@@ -1321,8 +1321,10 @@ fn domains_unsaid(
     }
     let parts = known.parts(step, library);
     let mut facts = parts.facts.clone();
-    let from_links: Vec<String> =
-        links.iter().flat_map(|l| references(&l.cite).0).collect();
+    let from_links: Vec<String> = links
+        .iter()
+        .flat_map(|l| references(&l.line.cite).0)
+        .collect();
     let refs: Vec<&str> = from_links.iter().map(String::as_str).collect();
     facts.extend(known.lines_say(step, &refs, library));
     // A claim said of every member puts the member in its domain.

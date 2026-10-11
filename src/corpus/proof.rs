@@ -1269,6 +1269,101 @@ pub fn chain_cited(text: &str) -> Option<String> {
     (&m[1] != "arithmetic").then(|| m[1].to_string())
 }
 
+/// The relations a chain line joins by (`GRAMMAR.md`, calculation chains).
+pub const CHAIN_RELATIONS: [&str; 4] = ["=", "≤", "<", "≡"];
+
+regex!(CHAIN_MODULUS, r"^(.*?)\s*\(mod\s+(.+)\)$");
+
+/// One line of a calculation, cut as `GRAMMAR.md`'s chain productions cut
+/// it: the relation it joins by, the term it reaches, the modulus a `≡`
+/// line says, and what it cites.
+#[derive(Clone, Debug)]
+pub struct ChainLine {
+    pub relation: String,
+    pub term: Written,
+    pub modulus: Option<Written>,
+    /// The line, label or `arithmetic` it cites, the line's last word.
+    pub cite: String,
+    pub line: usize,
+}
+
+impl ChainLine {
+    /// The link as the page writes it, from the term `from` before it, for
+    /// a message to quote: `1 = 1(1 + 1)/3`. It is never read.
+    pub fn quoted(&self, from: &Written) -> String {
+        let modulus = match &self.modulus {
+            Some(n) => format!(" (mod {n})"),
+            None => String::new(),
+        };
+        format!("{from} {} {}{modulus}", self.relation, self.term)
+    }
+}
+
+/// A calculation: the term its first line starts from, and each line's
+/// link from the term before it.
+#[derive(Clone, Debug)]
+pub struct Chain {
+    pub start: Written,
+    pub lines: Vec<ChainLine>,
+}
+
+/// The chain a calculation writes, cut by the skeleton; None for a
+/// justification that is not a calculation. The first line's relation is
+/// the first of `CHAIN_RELATIONS` it writes outside brackets, and one with
+/// none is a defect.
+pub fn chain(just: &Justification, path: &str) -> Option<Checked<Chain>> {
+    if !just.head.is(Method::Calculation) || just.chain.is_empty() {
+        return None;
+    }
+    let mut start = None;
+    let mut lines = Vec::new();
+    for (i, (text, no)) in just.chain.iter().enumerate() {
+        let whole = str::trim(text);
+        let (body, cite) = match whole.rfind(char::is_whitespace) {
+            Some(at) => (str::trim(&whole[..at]), str::trim(&whole[at..])),
+            None => ("", whole),
+        };
+        let words: Vec<&str> = body.split_whitespace().collect();
+        let at = if i == 0 {
+            let found = (0..words.len()).find(|&at| {
+                CHAIN_RELATIONS.contains(&words[at])
+                    && outermost(&words, words[at]) == Some(at)
+            });
+            let Some(at) = found else {
+                return Some(Err(Problem::new(
+                    path,
+                    *no,
+                    "a chain's first line writes no =, ≤, < or ≡ outside brackets",
+                )));
+            };
+            start = Some(Written::new(words[..at].join(" "), path, *no));
+            at
+        } else {
+            0
+        };
+        let relation = words.get(at).copied().unwrap_or("").to_string();
+        let rest = words.get(at + 1..).unwrap_or(&[]).join(" ");
+        let (term, modulus) = match CHAIN_MODULUS.captures(&rest) {
+            Some(m) => (
+                m[1].to_string(),
+                Some(Written::new(str::trim(&m[2]), path, *no)),
+            ),
+            None => (rest, None),
+        };
+        lines.push(ChainLine {
+            relation,
+            term: Written::new(term, path, *no),
+            modulus,
+            cite: cite.to_string(),
+            line: *no,
+        });
+    }
+    Some(Ok(Chain {
+        start: start.expect("a first line"),
+        lines,
+    }))
+}
+
 /// A step being read, whose justification may not have arrived yet.
 struct DraftStep {
     step: Step,
