@@ -193,6 +193,12 @@ impl<'a> Known<'a> {
             .collect()
     }
 
+    /// A tree read as written, as the checks compare it once `defined` is
+    /// written out (`read_citing`).
+    pub fn as_cited(&self, node: &Node, defined: &Definitions) -> Node {
+        standard(&expand(node, defined), self.ctx)
+    }
+
     /// What a line says as one formula with its defined names kept: what it
     /// says, or the conjunction of the several things; None where a part
     /// does not read.

@@ -16,10 +16,10 @@ use crate::citing::{
 };
 use crate::corpus::proof::{requires_as_step, requires_item, Requires, METHODS};
 use crate::corpus::{
-    cited_item, define_parts, for_pieces, references, step_index, DefineParts,
-    FileScope, Item, Method, Step, Theorem,
+    cited_item, define_parts, references, DefineParts, FileScope, Item, Method, Step,
+    Theorem,
 };
-use crate::formula::page::Written;
+use crate::formula::page::{self, Written};
 use crate::formula::{Node, Sort};
 use crate::matching::{
     alike, binding_sites, match_tree, namings, substitute_apart, Binding, Context,
@@ -1000,12 +1000,21 @@ impl FamilyAsks {
 /// `X ∈ 𝒫A`, since M(X) is M's rule only there. The checker reads the name
 /// as its rule without asking, and the kernel does not (`SYNTAX.md`: a
 /// define may name a function).
-fn domains_asked(thm: &Theorem, step: &Step, scopes: &[FileScope]) -> BTreeSet<String> {
+fn domains_asked(
+    thm: &Theorem,
+    step: &Step,
+    scopes: &[FileScope],
+    known: &Known,
+) -> BTreeSet<String> {
     let functions =
         defined_functions(thm.defines.iter().chain(&scopes[thm.scope].defines));
-    applied(&functions, &step.claim_text())
+    let Some(claim) = known.whole_as_written(&step.claim) else {
+        return BTreeSet::new(); // `check_formulas` says it does not read
+    };
+    applied(&functions, &claim, false, known)
         .into_iter()
         .flat_map(|a| a.says)
+        .map(|s| s.shape().to_string())
         .collect()
 }
 
@@ -1014,7 +1023,8 @@ fn domains_asked(thm: &Theorem, step: &Step, scopes: &[FileScope]) -> BTreeSet<S
 struct Defined {
     name: String,
     label: String,
-    domains: Vec<String>,
+    /// Each argument's domain, as the define writes it.
+    domains: Vec<Written>,
     /// Defined by recursion, whose domain is its step clause's index: the
     /// clause at k + 1 holds for k in the domain, and the base clause for
     /// its one argument.
@@ -1033,7 +1043,7 @@ fn defined_functions<'d>(
                     functions.push(Defined {
                         name: name.clone(),
                         label: d.label.clone(),
-                        domains: vec![r.domain.clone()],
+                        domains: vec![d.formula(&r.domain)],
                         recursive: true,
                     });
                 }
@@ -1042,7 +1052,7 @@ fn defined_functions<'d>(
                 functions.push(Defined {
                     name: one.name.clone(),
                     label: d.label.clone(),
-                    domains: one.params.iter().map(|p| p.domain.clone()).collect(),
+                    domains: one.params.iter().map(|p| d.formula(&p.domain)).collect(),
                     recursive: false,
                 });
             }
@@ -1052,14 +1062,12 @@ fn defined_functions<'d>(
     functions
 }
 
-/// One argument a defined function is applied to in a text, and the
-/// facts any one of which says it is in the function's domain.
+/// One argument a defined function is applied to in a claim, and the
+/// facts any one of which says it is in the function's domain, as written.
 struct Applied {
     label: String,
-    arg: String,
-    says: Vec<String>,
-    /// Where in the text the application begins, in characters.
-    start: usize,
+    arg: Node,
+    says: Vec<Node>,
 }
 
 /// The applications whose domains a step citing a define asks. A step whose
@@ -1074,46 +1082,49 @@ fn evaluated(
     known: &Known,
     library: &Library,
 ) -> Vec<Applied> {
-    let text = step.claim_text();
     let direct = step.just.head == crate::corpus::Head::Define
         && used
             .iter()
             .any(|f| step.just.defined.as_deref() == Some(f.label.as_str()));
-    let claim = known.whole_as_written(&step.claim);
-    let sides = match &claim {
-        Some(c)
-            if direct
-                && c.children.len() == 2
-                && library.ctx.equations.contains(&c.notation) =>
-        {
-            &c.children
-        }
-        _ => return applied(used, &text),
+    let Some(claim) = known.whole_as_written(&step.claim) else {
+        return Vec::new(); // `check_formulas` says it does not read
     };
-    sides
+    if !(direct
+        && claim.children.len() == 2
+        && library.ctx.equations.contains(&claim.notation))
+    {
+        return applied(used, &claim, false, known);
+    }
+    claim
+        .children
         .iter()
-        .flat_map(|side| {
-            let said = known.print(side);
-            applied(used, &said)
-                .into_iter()
-                .filter(|a| a.start == 0)
-                .collect::<Vec<_>>()
-        })
+        .flat_map(|side| applied(used, side, true, known))
         .collect()
 }
 
-/// Every application of the functions in `text`, each argument with what
-/// says it is in its domain.
-fn applied(functions: &[Defined], text: &str) -> Vec<Applied> {
-    let claim: Vec<char> = text.chars().collect();
-    let mut out = Vec::new();
-    let find = |needle: &[char], from: usize| -> Option<usize> {
-        if needle.len() > claim.len() {
-            return None;
+/// Every application of the functions in `claim`, a tree as written, each
+/// argument with what says it is in its domain; where `leading`, only an
+/// application the claim begins with, as `s(s(a))` begins with the outer s
+/// and `f(x) + 1` with f(x).
+fn applied(
+    functions: &[Defined],
+    claim: &Node,
+    leading: bool,
+    known: &Known,
+) -> Vec<Applied> {
+    let nodes: Vec<Node> = if leading {
+        let mut spine = vec![claim.clone()];
+        while let Some(first) = spine.last().and_then(|n| n.children.first().cloned()) {
+            spine.push(first);
         }
-        (from..=claim.len() - needle.len())
-            .find(|&i| claim[i..i + needle.len()] == *needle)
+        spine
+    } else {
+        claim.walk()
     };
+    // A domain that does not read is `check_formulas`'s to report.
+    let read = |w: &Written| known.read_as_written(&w.sentence().ok()?);
+    let (g, sorts) = (known.env.g, &known.sorts);
+    let mut out = Vec::new();
     for Defined {
         name,
         label,
@@ -1121,67 +1132,59 @@ fn applied(functions: &[Defined], text: &str) -> Vec<Applied> {
         recursive,
     } in functions
     {
-        let needle: Vec<char> = format!("{name}(").chars().collect();
-        let name_len = name.chars().count();
-        let mut at = 0;
-        while let Some(found) = find(&needle, at) {
-            at = found;
-            if at > 0
-                && (claim[at - 1].is_alphanumeric() || "_′".contains(claim[at - 1]))
+        for node in &nodes {
+            let [function, args @ ..] = node.children.as_slice() else {
+                continue;
+            };
+            if !matches!(node.notation.as_str(), "application" | "application-to-two")
+                || !function.is_name()
+                || &function.text != name
+                || args.len() != domains.len()
             {
-                at += 1;
                 continue;
             }
-            let start = at + name_len;
-            let mut depth: i64 = 0;
-            for end in start..claim.len() {
-                depth += match claim[end] {
-                    '(' => 1,
-                    ')' => -1,
-                    _ => 0,
-                };
-                if depth == 0 {
-                    let args: String = claim[start + 1..end].iter().collect();
-                    let args = for_pieces(&args);
-                    if args.len() != domains.len() {
-                        break;
-                    }
-                    for (arg, domain) in args.iter().zip(domains) {
-                        // A recursion's step at m asks m; any other argument
-                        // is its value at 0, which asks nothing.
-                        let member = if *recursive {
-                            match step_index(arg) {
-                                Some(index) => index,
-                                None => continue,
-                            }
-                        } else {
-                            arg.to_string()
-                        };
-                        let mut says = vec![squash(&format!("{member} ∈ {domain}"))];
-                        // A power set's member is a part, which the page may
-                        // say with ⊆: `for X ⊆ A` asks C ⊆ A of M(C).
-                        if let Some(inner) = domain.strip_prefix('𝒫') {
-                            let inner = if inner.starts_with('(')
-                                && inner.ends_with(')')
-                                && inner.len() >= 2
-                            {
-                                &inner[1..inner.len() - 1]
-                            } else {
-                                inner
-                            };
-                            says.push(squash(&format!("{member} ⊆ {inner}")));
+            for (arg, domain) in args.iter().zip(domains) {
+                // A recursion's step at m asks m; any other argument is its
+                // value at 0, which asks nothing.
+                let member = if *recursive {
+                    match (
+                        arg.notation.as_str(),
+                        arg.text.as_str(),
+                        arg.children.as_slice(),
+                    ) {
+                        ("additive", "+", [index, one])
+                            if one.notation == "numeral" && one.text == "1" =>
+                        {
+                            index.clone()
                         }
-                        out.push(Applied {
-                            label: label.clone(),
-                            arg: str::trim(arg).to_string(),
-                            says,
-                            start: at,
-                        });
+                        _ => continue,
                     }
-                    break;
+                } else {
+                    arg.clone()
+                };
+                let Some(set) = read(domain) else {
+                    continue;
+                };
+                let within = |form: &'static str, set: &Node| {
+                    page::filled(form, g, sorts, &[("x", &member), ("S", set)]).ok()
+                };
+                let mut says: Vec<Node> = within("x ∈ S", &set).into_iter().collect();
+                // A power set's member is a part, which the page may say with
+                // ⊆: `for X ⊆ A` asks C ⊆ A of M(C).
+                if let ("powerset", [inner]) =
+                    (set.notation.as_str(), set.children.as_slice())
+                {
+                    says.extend(within("x ⊆ S", inner));
                 }
+                if says.is_empty() {
+                    continue;
+                }
+                out.push(Applied {
+                    label: label.clone(),
+                    arg: arg.clone(),
+                    says,
+                });
             }
-            at += 1;
         }
     }
     out
@@ -1223,14 +1226,7 @@ pub fn check_define_domains(
     if functions.is_empty() {
         return;
     }
-    let needs = |asked: &Applied| {
-        Written::here(&asked.says[0])
-            .sentence()
-            .ok()
-            .and_then(|s| known.read_as_written(&s))
-            .map(|n| known.print(&n))
-            .unwrap_or_else(|| asked.says[0].clone())
-    };
+    let needs = |asked: &Applied| known.print(&asked.says[0]);
     for step in &thm.steps {
         for asked in domains_unsaid(step, &functions, known, library) {
             report.say(
@@ -1240,7 +1236,7 @@ pub fn check_define_domains(
                     "step {} cites {} at {}, so it needs {}, and nothing it cites or requires says it",
                     step.number,
                     asked.label,
-                    asked.arg,
+                    known.print(&asked.arg),
                     needs(&asked)
                 ),
             );
@@ -1260,7 +1256,7 @@ pub fn check_define_domains(
                         str::trim(req.fact.text()),
                         step.number,
                         asked.label,
-                        asked.arg,
+                        known.print(&asked.arg),
                         needs(&asked)
                     ),
                 );
@@ -1346,25 +1342,19 @@ fn domains_unsaid(
         sum_indices(claim, &library.ctx, &mut indices);
     }
     let shapes: BTreeSet<&str> = facts.iter().map(|f| f.shape()).collect();
+    let defined = known.citing(&step.just.refs);
     let mut seen: BTreeSet<String> = BTreeSet::new();
     let mut out = Vec::new();
     for asked in evaluated(step, &used, known, library) {
-        let holds_index = Written::here(&asked.arg)
-            .sentence()
-            .ok()
-            .and_then(|s| known.read_as_written(&s))
-            .is_some_and(|a| !a.names().is_disjoint(&indices));
-        if holds_index {
+        if !asked.arg.names().is_disjoint(&indices) {
             continue;
         }
-        let said = asked.says.iter().any(|s| {
-            Written::here(s)
-                .sentence()
-                .ok()
-                .and_then(|s| known.read(step, &s))
-                .is_some_and(|n| shapes.contains(n.shape()))
-        });
-        if said || !seen.insert(asked.says[0].clone()) {
+        // Compared with the facts as they are read, defines written out.
+        let said = asked
+            .says
+            .iter()
+            .any(|s| shapes.contains(known.as_cited(s, &defined).shape()));
+        if said || !seen.insert(asked.says[0].shape().to_string()) {
             continue;
         }
         out.push(asked);
@@ -1982,12 +1972,7 @@ pub fn check_surplus(
         }
         let asks = family_asks(step, known, library);
         // Compared as formulas, so that `x∈ℤ` is `x ∈ ℤ`.
-        let in_domain: BTreeSet<String> = domains_asked(thm, step, scopes)
-            .iter()
-            .filter_map(|s| Written::here(s).sentence().ok())
-            .filter_map(|s| known.read_as_written(&s))
-            .map(|n| n.shape().to_string())
-            .collect();
+        let in_domain = domains_asked(thm, step, scopes, known);
         for (i, req) in step.requires.iter().enumerate() {
             let mut lighter = step.clone();
             lighter.requires.remove(i);
