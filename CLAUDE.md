@@ -49,6 +49,21 @@ returned and destructured once beside its definition. A `type` alias over a
 tuple names the tuple and fixes none of this, so it is not a substitute for
 the struct.
 
+## Reading
+
+**Formula text becomes a tree only through `src/formula/page.rs`**
+(`GOALS.md` decision 18, `GRAMMAR.md` "One front end"). The skeleton reader
+cuts a line into parts, the splitter cuts a formula part into sentences, and
+the parser reads one sentence. Nothing else calls the parser, and the
+compiler holds that: the parser is private to the module.
+
+- A check asks the tree what a claim says. No regex, `split`, `contains` or
+  `strip_suffix` over formula text.
+- A formula a tool makes for itself is a tree it builds. No `format!` of
+  formula text to parse.
+- A reading that fails is a `Problem`. No `.ok()` on a reading, which turns a
+  sentence that did not read into a check that never ran.
+
 ## The design documents
 
 Read the one that governs a change before making it.

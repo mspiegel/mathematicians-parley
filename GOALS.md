@@ -220,6 +220,21 @@ three below say how it may grow.
     and what would build it. A list in an elaborated file's header does not
     count as recording it.
 
+The last decision is about how every tool reads the page.
+
+18. **One reader from page to formula.** Every formula a tool takes from
+    text reaches a tree through one front end: a step's claim, a requires
+    line, a hypothesis, a define's value, a chain's term, a record's
+    statement. The skeleton reader of `GRAMMAR.md` cuts a line into its
+    parts, one splitter cuts a formula part into sentences, and one parser
+    reads each sentence. Nothing after that reads formula text again: a check
+    that wants to know what a claim says asks the tree, and text a tool makes
+    for itself is a tree it builds, not a string it parses. A reading that
+    fails is a defect, reported once. Decision 6 depends on this: two tools
+    that read the page two ways disagree about what it says before they
+    disagree about anything else, and a sentence one reader drops is a check
+    that silently never ran.
+
 ## First version
 
 Three pieces, with the LLM outside all of them:

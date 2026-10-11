@@ -114,7 +114,9 @@ the order it is written, with no gaps: a reader meeting 3 after 1 looks for
 the 2 that is not there, and the checker reports it. A step is:
 
 1. Its number and its **claim**: one or more sentences, each a formula.
-   Several sentences mean their conjunction.
+   Several sentences mean their conjunction. A claim may end on a full stop
+   or not, alike. The sentences are cut once, by the rule in `GRAMMAR.md`
+   ("One front end"), and every tool reads the same ones.
 2. Its **justification**, on the next line: a method or a cited item, its
    instantiation, and the lines, hypotheses and suppositions it uses. The
    forms are listed below.

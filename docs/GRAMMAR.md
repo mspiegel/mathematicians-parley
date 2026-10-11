@@ -13,6 +13,33 @@ notations declared in `corpus/db/notation.records`, and the section on formulas 
 those declarations become a parse rather than listing them again. Adding a
 notation is a database entry and never a change to this document.
 
+### One front end
+
+Text becomes a formula one way (`GOALS.md` decision 18), in three stages,
+each done once:
+
+1. The **skeleton reader** cuts a line into its parts by the productions
+   below: a step number, a claim, a justification, a label, a requires
+   line's fact and its reason, the namings `x := t` of a citation, a `let`
+   line's introduction, a chain line's relation, term and citation. A part
+   that is formula text is kept as written, with its place in the file.
+2. The **splitter** cuts a formula part into sentences at its full stops
+   (the lexical rule below), and drops them. Nothing else removes a full
+   stop.
+3. The **parser** reads each sentence into a tree, by the declared
+   notations and the sorts in scope.
+
+All three are in `src/formula/page.rs`, and no other code reaches the
+parser. What the skeleton reads by pattern is the skeleton: step numbers,
+labels, justifications, the `fact: how` of a requires line, the `:=` of a
+naming, the ten introduction forms of a `let` line, and a chain line's
+relation and citation. Everything inside a formula part is read by the
+parser alone. A check that asks what a claim says asks its tree, never its
+text, and a formula a tool makes for itself, such as the membership a `let`
+line introduces, is a tree it builds, not a string it parses. A part that
+does not read is a defect reported where it is written; a check never passes
+over it.
+
 Every production below is checked against the corpus. All 246 justifications
 match a declared production, all 22 labels match their pattern, the only part
 markers are the three declared, and no step is numbered under a parent that
@@ -309,7 +336,9 @@ completely. Inside a claim a period is always a sentence boundary, because it is
 always followed by whitespace: no claim in the corpus contains digit-period-
 digit, and with no decimals none can. Outside a claim, in a `from` list or a
 chain line, digits separated by periods are always a step number. So the two
-readings never meet.
+readings never meet. A claim may end on a full stop or not, and means the same
+either way: the splitter drops every full stop it cuts at, the last included,
+and is the only stage that sees one.
 
 A step number's own terminating period needs no rule of its own either. In
 `1.2.3.4.  n is even` the number stops at the last digit, since the period after
@@ -501,7 +530,8 @@ relation needs none, since nobody reads `not p = 1` as negating the p.
 The sort of every name, which comes from the lines described above and is never
 inferred. The declared notations, which it reads from the database. And nothing
 else: there is no table of operators in this document, and none should be added
-here, because a notation is data.
+here, because a notation is data. What it is handed is one sentence, as the
+splitter cut it (the front end above), never a line or a claim of several.
 
 ## Substitution
 
