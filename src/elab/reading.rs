@@ -13,26 +13,22 @@ use indexmap::IndexMap;
 
 use super::state::Elaborator;
 use crate::corpus::proof::visible;
-use crate::corpus::{DefineLine, Item, Recursion, ScopeId, Step};
+use crate::corpus::{DefineLine, Intro, Item, Recursion, ScopeId, Step};
 use crate::formula::grammar::Sorts;
-use crate::formula::page::{template, Sentence, Written};
+use crate::formula::page::{filled, made, template, Sentence, Written};
 use crate::formula::{fits, Node, Sort};
 use crate::matching::{substitute_apart_by, Binding};
 use crate::matching::{Defined, Definitions};
 use crate::outcome::Checked;
-use crate::regex;
 use crate::rules::NUMERALS;
+use crate::sorts::introduction::{Form, Introduction};
 use crate::sorts::{
-    definition_sorts, element_re, function_being_re, function_on_re, graph_line,
-    group_re, let_formula, not_in_re, part_re, polynomial_re, sorts_of_record,
-    sorts_of_statement, statement_definitions, unlabel, Env, GraphLine,
+    definition_sorts, sorts_of_record, sorts_of_statement, statement_definitions,
+    unlabel, Env, GraphLine,
 };
 use crate::t;
 use crate::targets;
 use crate::text::repr;
-
-regex!(BE_A, r"\s+be\s+a\s+(set|point)\b");
-regex!(SUBGROUP, r"^(\S+)\s+is\s+a\s+subgroup\s+of\s+(\S+)$");
 
 /// The class variables a theorem's `let` lines are given, in order.
 pub const CLASS_NAMES: [&str; 26] = [
@@ -41,45 +37,8 @@ pub const CLASS_NAMES: [&str; 26] = [
 ];
 
 /// Whether a hypothesis says a group has a subgroup: `H is a subgroup of G`.
-pub fn is_subgroup(text: &str) -> bool {
-    SUBGROUP.is_match(text)
-}
-
-/// What a hypothesis line claims, with its introduction read as one.
-///
-/// `let A be a set` and `let P be a point` introduce a name and state what
-/// the sort means, and the notation that states it is what the database
-/// declares. `let a ∉ X` and `let x be an element` claim no sort on the
-/// page, and the kernel still wants the thing to be a set, not a proper
-/// class; that sethood is apparatus (`READERS.md`, hidden entirely), so it is
-/// added here and never written.
-pub fn hypothesis_body(kind: &str, text: &str) -> String {
-    let body = text.strip_prefix(kind).unwrap_or(text);
-    if kind == "let" {
-        let said = str::trim(&unlabel(body)).to_string();
-        if let Some(m) = element_re().captures(&said) {
-            return format!("{} is a set", &m[1]);
-        }
-        if let Some(m) = not_in_re().captures(&said) {
-            return format!("{} is a set and {said}", &m[1]);
-        }
-        // The line gives the function's type and says what it is, and both
-        // hold: an image under f asks the type (`fex`), a one-to-one lemma
-        // the property.
-        if let Some(m) = function_being_re().captures(&said) {
-            return format!("{} and {}", &m[1], let_formula(&said));
-        }
-        if part_re().is_match(&said)
-            || function_on_re().is_match(&said)
-            || polynomial_re().is_match(&said)
-        {
-            return let_formula(&said);
-        }
-        return BE_A
-            .replace_all(body, |m: &regex::Captures| format!(" is a {}", &m[1]))
-            .into_owned();
-    }
-    body.to_string()
+pub fn is_subgroup(said: &Node) -> bool {
+    said.notation == "subgroup"
 }
 
 /// A term already in kernel form, standing in a tree.
@@ -97,27 +56,56 @@ pub fn subject_of(node: &Node) -> Node {
 }
 
 impl<'a> Elaborator<'a> {
-    /// What a hypothesis line says, as `hypothesis_body` gives it, read where
-    /// the elaborator has got to.
+    /// What a hypothesis line claims, its introduction read as one, as a
+    /// tree read where the elaborator has got to.
     ///
-    /// `let x be an element` says x is a set because the kernel's element of
-    /// a set is one, and that is apparatus the page never writes. A name the
-    /// text uses as a number, a point or a group element is not something
-    /// `_ is a set` takes, and the line then says nothing of it: `x = x`,
-    /// which introduces x as a hypothesis line does and claims nothing.
-    pub fn hypothesis_formula(&self, kind: &str, text: &str) -> String {
-        let body = hypothesis_body(kind, text);
-        if kind == "let" {
-            let said = str::trim(&unlabel(text.strip_prefix(kind).unwrap_or(text)))
-                .to_string();
-            if let Some(m) = element_re().captures(&said) {
-                let name = &m[1];
-                if self.sorts_now.get(name).is_some_and(|s| !fits("set", s)) {
-                    return format!("{name} = {name}");
+    /// `let A be a set` and `let P be a point` introduce a name and state what
+    /// the sort means, and the notation that states it is what the database
+    /// declares. `let a ∉ X` and `let x be an element` claim no sort on the
+    /// page, and the kernel still wants the thing to be a set, not a proper
+    /// class; that sethood is apparatus (`READERS.md`, hidden entirely), so it
+    /// is added here and never written. A name the text uses as a number, a
+    /// point or a group element is not something `_ is a set` takes, and
+    /// `let x be an element` then says nothing of it: `x = x`, which
+    /// introduces x as a hypothesis line does and claims nothing. A function
+    /// with a property has both its type and the property: an image under f
+    /// asks the type (`fex`), a one-to-one lemma the property. A part, a
+    /// function on a set and a polynomial say what they assert
+    /// (`Introduction::asserted`).
+    pub fn hypothesis_node(&self, kind: Intro, body: &Written) -> Checked<Node> {
+        if kind != Intro::Let {
+            return self.read_one(body);
+        }
+        let (g, sorts) = (self.g, &self.sorts_now);
+        let introduced = Introduction::read(body.clone());
+        let named = |name: &str| introduced.read_part(name, g, sorts);
+        let is_a = |form: &'static str, x: &Node| filled(form, g, sorts, &[("x", x)]);
+        let both = |a: Node, b: Node| made(g, "conjunction", "and", vec![a, b]);
+        match &introduced.form {
+            Form::Element(name) => {
+                let x = named(name)?;
+                if sorts.get(name).is_some_and(|s| !fits("set", s)) {
+                    is_a("x = x", &x)
+                } else {
+                    is_a("x is a set", &x)
                 }
             }
+            Form::NotIn(name) => {
+                let x = named(name)?;
+                Ok(both(is_a("x is a set", &x)?, self.read_one(body)?))
+            }
+            Form::FunctionBeing { typed, .. } => {
+                let typed = introduced.read_part(typed, g, sorts)?;
+                let mut being = introduced.asserted(g, sorts)?;
+                Ok(both(typed, being.remove(0)))
+            }
+            Form::Part { .. } | Form::FunctionOn { .. } | Form::Polynomial(_) => {
+                Ok(introduced.asserted(g, sorts)?.remove(0))
+            }
+            Form::Set(name) => is_a("x is a set", &named(name)?),
+            Form::Point(name) => is_a("x is a point", &named(name)?),
+            _ => self.read_one(body),
         }
-        str::trim(&unlabel(&body)).to_string()
     }
 
     pub fn env(&self) -> Env<'a> {
@@ -523,27 +511,33 @@ impl<'a> Elaborator<'a> {
         let mut nodes = Vec::new();
         let mut spare: Vec<&str> = CLASS_NAMES.to_vec();
         for h in &self.thm.hypotheses {
-            let kind = h.kind.as_str();
-            let rest =
-                str::trim(&unlabel(h.text.strip_prefix(kind).unwrap_or(&h.text)))
-                    .to_string();
-            if kind == "let" {
-                if let Some(group) = group_re().captures(&rest) {
-                    let structure = spare.remove(0);
-                    nodes.push(self.group(&group, structure));
-                    continue;
-                }
-                if let Some(graph) = graph_line(&rest) {
-                    let structure = spare.remove(0);
-                    let node = self.graph(&graph, structure, &rest, &mut spare)?;
-                    nodes.push(node);
-                    continue;
+            let body = h.body(&self.thm.path);
+            if h.kind == Intro::Let {
+                let introduced = Introduction::read(body.clone());
+                match &introduced.form {
+                    Form::Group {
+                        group,
+                        finite,
+                        identity,
+                    } => {
+                        let structure = spare.remove(0);
+                        nodes.push(self.group(group, *finite, identity, structure));
+                        continue;
+                    }
+                    Form::Graph(line) | Form::GraphListed(line) => {
+                        let structure = spare.remove(0);
+                        let node =
+                            self.graph(line, structure, &introduced, &mut spare)?;
+                        nodes.push(node);
+                        continue;
+                    }
+                    _ => {}
                 }
             }
-            let node = self.read_here(&self.hypothesis_formula(kind, &h.text))?;
+            let node = self.hypothesis_node(h.kind, &body)?;
             // `assume H is a subgroup of G` introduces H as a `let` would.
-            let subgroup = kind == "assume" && SUBGROUP.is_match(&rest);
-            if kind == "let" || subgroup {
+            let subgroup = h.kind == Intro::Assume && is_subgroup(&node);
+            if h.kind == Intro::Let || subgroup {
                 let introduced = subject_of(&node);
                 if !introduced.text.is_empty()
                     && !self.names.contains_key(&introduced.text)
@@ -566,10 +560,16 @@ impl<'a> Elaborator<'a> {
     /// set.mm's group is a structure: a class W whose `Base` is the set,
     /// whose `+g` is the operation and whose `0g` is the identity, and the
     /// hypothesis is that W is a group. The page never writes W.
-    fn group(&mut self, said: &regex::Captures, structure: &str) -> Node {
+    fn group(
+        &mut self,
+        group: &str,
+        finite: bool,
+        identity: &str,
+        structure: &str,
+    ) -> Node {
         let part = |label: &str| t!(structure, label, "cfv");
-        self.names.insert(said["group"].to_string(), part("cbs"));
-        self.names.insert(said["identity"].to_string(), part("c0g"));
+        self.names.insert(group.to_string(), part("cbs"));
+        self.names.insert(identity.to_string(), part("c0g"));
         for (name, label) in [
             ("@op", "cplusg"),
             ("@inv", "cminusg"),
@@ -579,8 +579,8 @@ impl<'a> Elaborator<'a> {
             self.names.insert(name.to_string(), part(label));
         }
         let mut claim = t!(structure, "cgrp", "wcel");
-        if said.name("finite").is_some() {
-            let base = self.names[&said["group"]].clone();
+        if finite {
+            let base = self.names[group].clone();
             claim = t!(claim, t!(base, "cfn", "wcel"), "wa");
         }
         literal(&claim)
@@ -593,13 +593,14 @@ impl<'a> Elaborator<'a> {
     /// multigraph.
     ///
     /// A graph given in full says more: each listed vertex and edge is a
-    /// class of its own, and what the line says of them (`let_formula`) is
-    /// joined to the graph's being a multigraph, as one hypothesis.
+    /// class of its own, and what the line says of them
+    /// (`Introduction::asserted`) is joined to the graph's being a
+    /// multigraph, as one hypothesis.
     fn graph(
         &mut self,
         said: &GraphLine,
         structure: &str,
-        body: &str,
+        introduced: &Introduction,
         spare: &mut Vec<&str>,
     ) -> Checked<Node> {
         let part = |label: &str| t!(structure, label, "cfv");
@@ -629,9 +630,7 @@ impl<'a> Elaborator<'a> {
                 self.names.insert(name.clone(), spare.remove(0).to_string());
             }
             let mut parts = Vec::new();
-            let said = Written::new(let_formula(body), &self.thm.path, self.at);
-            for sentence in said.sentences() {
-                let node = self.read(&sentence)?;
+            for node in introduced.asserted(self.g, &self.sorts_now)? {
                 parts.push(self.term(&node)?);
             }
             // Each listed thing is a set, in the kernel's sense, which the

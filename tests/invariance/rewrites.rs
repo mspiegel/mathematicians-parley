@@ -22,6 +22,7 @@ use parley::formula::page::Written;
 use parley::formula::token::{is_letter, is_mark, tokenise, Token, TokenKind};
 use parley::matching::{free_names, instantiation, split_commas};
 use parley::outcome::Built;
+use parley::sorts::introduction::Introduction;
 use parley::sorts::{sentences, sorts_in_scope, Env};
 use regex::Regex;
 
@@ -857,7 +858,7 @@ fn held(ctx: &Context, thm: &Theorem) -> BTreeSet<String> {
     let mut out = held_own(ctx, thm);
     if ctx.cited.contains(&thm.qualified()) {
         for h in &thm.hypotheses {
-            out.extend(ctx.letters_of(&parley::sorts::said_by_line(h.kind, &h.text)));
+            out.extend(ctx.letters_of(h.body(&thm.path).text()));
         }
         out.extend(ctx.letters_of(&thm.conclusion));
     }
@@ -1133,29 +1134,39 @@ fn bound(ctx: &Context, thm: &Theorem) -> Vec<String> {
             scopes: &ctx.corpus.scopes,
         },
     );
-    let mut texts: Vec<String> = thm
-        .hypotheses
-        .iter()
-        .map(|h| parley::sorts::said_by_line(h.kind, &h.text))
-        .collect();
-    texts.push(thm.conclusion.clone());
-    for step in &thm.steps {
-        texts.push(step.claim_text());
-        texts.extend(step.requires.iter().map(|r| r.fact.text().to_string()));
-        texts.extend(
-            step.openers
+    // What each line says, read: a `let` line what its introduction
+    // asserts, any other its sentences; what does not read the checker
+    // reports.
+    let said = |kind: Intro, body: Written| -> Vec<Node> {
+        match kind {
+            Intro::Let => Introduction::read(body)
+                .asserted(&ctx.g, &sorts)
+                .unwrap_or_default(),
+            _ => body
+                .sentences()
                 .iter()
-                .filter(|o| !o.is_hypothesis)
-                .map(|o| parley::sorts::said_by_line(o.kind, &o.text)),
-        );
+                .filter_map(|s| s.read(&ctx.g, &sorts).ok())
+                .collect(),
+        }
+    };
+    let mut trees: Vec<Node> = Vec::new();
+    for h in &thm.hypotheses {
+        trees.extend(said(h.kind, h.body(&thm.path)));
+    }
+    trees.extend(said(Intro::Assume, thm.stated()));
+    for step in &thm.steps {
+        trees.extend(said(Intro::Assume, step.claim.clone()));
+        for r in &step.requires {
+            trees.extend(said(Intro::Assume, r.fact.clone()));
+        }
+        for o in step.openers.iter().filter(|o| !o.is_hypothesis) {
+            trees.extend(said(o.kind, o.body(&thm.path)));
+        }
     }
     let binders = ctx.g.binders();
     let mut out: Vec<String> = Vec::new();
-    for text in texts {
-        for sentence in sentences(&text) {
-            let Ok(tree) = read_one(&sentence, &ctx.g, &sorts) else {
-                continue;
-            };
+    for tree in trees {
+        {
             for node in tree.walk() {
                 let Some(binds) = binders.get(&node.notation) else {
                     continue;

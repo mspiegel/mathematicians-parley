@@ -28,15 +28,18 @@ pub type Introduced = IndexMap<String, &'static str>;
 
 /// The letter and number system a sentence `x ∈ ℝ` introduces; None for any
 /// other sentence, a term in place of the letter included.
-pub fn introduction(sentence: &str) -> Option<(String, &'static str)> {
-    let (name, sign) = str::trim(sentence).split_once(" ∈ ")?;
-    let name = str::trim(name);
-    let letter =
-        !name.is_empty() && name.chars().all(|c| c.is_alphanumeric() || c == '′');
-    if !letter {
+pub fn introduction(said: &Node) -> Option<(String, &'static str)> {
+    let [letter, set] = said.children.as_slice() else {
+        return None;
+    };
+    if said.notation != "membership"
+        || said.text != "∈"
+        || !letter.is_name()
+        || set.notation != "number-systems"
+    {
         return None;
     }
-    Some((name.to_string(), rules::system_of(str::trim(sign))?))
+    Some((letter.text.clone(), rules::system_of(&set.text)?))
 }
 
 /// The memberships the page says once of the terms `parts` names, in every

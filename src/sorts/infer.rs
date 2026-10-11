@@ -33,10 +33,8 @@ use crate::formula::{Node, Sort, Sorts, Whole};
 use crate::matching::Defined;
 use crate::outcome::{At, Built, Decline, Declined, Route};
 use crate::regex;
-use crate::sorts::{
-    define_sorts, element_re, file_definitions, graph_line, group_re, let_formula,
-    property_re, set_or_point_re, unlabel, Env,
-};
+use crate::sorts::introduction::{Form, Introduction};
+use crate::sorts::{define_sorts, file_definitions, unlabel, Env};
 use crate::text::repr;
 
 regex!(OBTAINS_RE, r"^obtain\s+([^:]+?)(?::|\s+from)");
@@ -830,12 +828,6 @@ impl Reader {
     }
 }
 
-// The name a `let` line introduces, a name before its own line is read:
-// `let n ∈ ℕ`, `let f : A → B`, and `let p be a polynomial`, which reads
-// "p is a polynomial". A letter that is also a constant, `i`, is the name
-// throughout the line that introduces it.
-regex!(INTRODUCED_NAME, r"^([^\s∈∉:]+)(?:\s*(?:∈|∉|:)|\s+is\s)");
-
 /// What a `let` line says a name is, into the reader's sorts.
 ///
 /// `be a set` and `be an element` declare a thing of any sort. The lines
@@ -851,12 +843,16 @@ pub fn introduce(
     env: Env,
     store: &mut Store,
 ) {
-    let body = str::trim(&unlabel(body)).to_string();
+    let introduced = Introduction::read(Written::new(
+        str::trim(&unlabel(body)),
+        &reader.path,
+        line.line,
+    ));
     // A graph, its vertices and its edges: three sets, of things of no sort
     // the line says. Vertices and edges are whatever names the theorem gives
     // them; a graph given in full names each of them, of the sort its set
     // holds.
-    if let Some(line) = graph_line(&body) {
+    if let Form::Graph(line) | Form::GraphListed(line) = &introduced.form {
         let graph = store.var_said(false, &line.graph);
         reader.env.insert(line.graph.clone(), SortTerm::set(graph));
         reader.declared.push(line.graph.clone());
@@ -874,49 +870,58 @@ pub fn introduce(
         }
         return;
     }
-    // A group is a set of group elements, and its identity is one of them.
-    if let Some(m) = group_re().captures(&body) {
-        reader
-            .env
-            .insert(m["group"].to_string(), SortTerm::set(GROUP_ELEMENT));
-        reader.env.insert(m["identity"].to_string(), GROUP_ELEMENT);
-        return;
-    }
-    if let Some(m) = set_or_point_re().captures(&body) {
-        let name = m[1].to_string();
-        if &m[2] == "set" {
-            let v = store.var_said(false, &name);
+    match &introduced.form {
+        // A group is a set of group elements, and its identity is one of
+        // them.
+        Form::Group {
+            group, identity, ..
+        } => {
+            reader
+                .env
+                .insert(group.clone(), SortTerm::set(GROUP_ELEMENT));
+            reader.env.insert(identity.clone(), GROUP_ELEMENT);
+            return;
+        }
+        Form::Set(name) => {
+            let v = store.var_said(false, name);
             reader.env.insert(name.clone(), SortTerm::set(v));
-            reader.declared.push(name);
-        } else {
-            reader.env.insert(name, POINT);
+            reader.declared.push(name.clone());
+            return;
         }
-        return;
-    }
-    if let Some(m) = element_re().captures(&body) {
-        let name = m[1].to_string();
-        let v = store.var_said(false, &name);
-        reader.env.insert(name.clone(), v);
-        reader.declared.push(name);
-        return;
-    }
-    if let Some(m) = property_re().captures(&body) {
-        let of = store.var();
-        reader
-            .env
-            .insert(m[1].to_string(), SortTerm::Property(Box::new(of.clone())));
-        let domain = reader.of_name(&m[2], store);
-        if let Declined(said) = store.unify(&domain, &SortTerm::set(of)) {
-            reader.clash(line, &m[2], &said);
+        Form::Point(name) => {
+            reader.env.insert(name.clone(), POINT);
+            return;
         }
-        return;
+        Form::Element(name) => {
+            let v = store.var_said(false, name);
+            reader.env.insert(name.clone(), v);
+            reader.declared.push(name.clone());
+            return;
+        }
+        Form::Property { name, domain } => {
+            let of = store.var();
+            reader
+                .env
+                .insert(name.clone(), SortTerm::Property(Box::new(of.clone())));
+            let domain_sort = reader.of_name(domain, store);
+            if let Declined(said) = store.unify(&domain_sort, &SortTerm::set(of)) {
+                reader.clash(line, domain, &said);
+            }
+            return;
+        }
+        _ => {}
     }
-    let body = let_formula(&body);
-    if let Some(m) = INTRODUCED_NAME.captures(&body) {
+    if let Some(name) = introduced.name() {
         let v = store.var();
-        reader.env.insert(m[1].to_string(), v);
+        reader.env.insert(name.to_string(), v);
     }
-    claim_text(reader, &body, line, env, store);
+    // What the line asserts is read as a claim; a part that does not read
+    // is the elaborator's to report.
+    if let Ok(said) = introduced.asserted(env.g, &reader.sorts(store)) {
+        for node in said {
+            reader.claim(&node, line, store);
+        }
+    }
 }
 
 /// Every sentence of a line, read as a claim.

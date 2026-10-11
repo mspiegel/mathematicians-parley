@@ -1310,7 +1310,7 @@ reads it off the constructor at the term's head — `pwexg` for a power set,
 asks the same of the parts, down to a kernel variable (`vex`) or a class the
 statement introduced. Each `let` line's class is a set by a fact `run` seals
 as a sort (`sethood@H2`): `let a ∈ X` by `elex`, `let a ∉ X` and `let x be an
-element` by the conjunct `hypothesis_body` adds. A step rests on it without
+element` by the conjunct `hypothesis_node` adds. A step rests on it without
 naming it, as on `let X be a set`, since `READERS.md` makes it apparatus.
 
 A number's membership of a number system is worked out, not searched for,
@@ -2052,7 +2052,7 @@ set by `elex`, and a name a step introduces is a set by `vex`, where a reader
 told `let a ∈ X` with X a set of numbers does not think a is one. `READERS.md`
 decides it — the kernel's sethood of an element is hidden apparatus — and
 `let a ∉ X` and `let x be an element` are how a statement introduces such a
-thing: `hypothesis_body` reads each as the thing being a set as well, which
+thing: `hypothesis_node` reads each as the thing being a set as well, which
 the page never writes. The elaborator proves a term a set from its structure
 and from those facts, and never asks the page for it; the checker's reading
 of sorts reports a page that claims an element of a set of numbers is a set. See *What a

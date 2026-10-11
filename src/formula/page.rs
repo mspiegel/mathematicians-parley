@@ -159,6 +159,45 @@ pub fn template(text: &'static str, g: &Grammar, sorts: &Sorts) -> Checked<Node>
     Written::here(text).sentence()?.read(g, sorts)
 }
 
+/// A template filled: each letter it writes read with the sort of the tree
+/// that fills it, whatever the page calls that letter, and then that tree
+/// put in its place. A template binds no letter of what fills it.
+pub fn filled(
+    text: &'static str,
+    g: &Grammar,
+    sorts: &Sorts,
+    fills: &[(&str, &Node)],
+) -> Checked<Node> {
+    let mut local = sorts.clone();
+    let mut put = crate::matching::Binding::new();
+    for (letter, node) in fills {
+        local.insert(letter.to_string(), node.sort.clone());
+        put.insert(letter.to_string(), (*node).clone());
+    }
+    let made = template(text, g, &local)?;
+    Ok(crate::matching::substitute_apart_by(
+        &made,
+        &put,
+        &g.binders(),
+    ))
+}
+
+/// The formula the notation written `pattern` builds over `children`, where
+/// the database declares one; the words of the pattern are the page's, as
+/// `be one-to-one` names the notation `_ : _ → _ is one-to-one`.
+pub fn made_as(g: &Grammar, pattern: &str, children: Vec<Node>) -> Option<Node> {
+    let n = g
+        .notations
+        .iter()
+        .find(|n| n.pattern == pattern && n.holes.len() == children.len())?;
+    Some(Node::new(
+        n.key(),
+        Sort::of(&n.yields),
+        children,
+        &n.literal,
+    ))
+}
+
 /// A numeral, as the parser reads one.
 pub fn numeral(digits: &str) -> Node {
     Node::leaf("numeral", Sort::of("number"), digits)

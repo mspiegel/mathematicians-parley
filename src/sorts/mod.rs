@@ -17,9 +17,10 @@ use std::collections::BTreeSet;
 
 use crate::corpus::proof::visible;
 use crate::corpus::{
-    define_parts, DefineLine, DefineParts, FileScope, Intro, Record, ScopeId, Theorem,
+    define_parts, DefineLine, DefineParts, FileScope, Record, ScopeId, Theorem,
 };
 pub mod infer;
+pub mod introduction;
 
 use crate::formula::page::Written;
 use crate::formula::{holds, Grammar, Sort, Sorts};
@@ -84,12 +85,13 @@ regex!(
 // whose every edge is said to join two of the vertices.
 regex!(
     GRAPH_LISTED,
-    r"^(?P<graph>\S+)\s+be\s+the\s+undirected\s+multigraph\s+with\s+distinct\s+vertices\s+(?P<vertices>\S+)\s*=\s*\{(?P<vlist>[^}]*)\}\s+and\s+distinct\s+edges\s+(?P<edges>\S+)\s*=\s*\{(?P<elist>[^}]*)\},\s+where\s+(?P<joins>.+)$"
+    r"^(?P<graph>\S+)\s+be\s+the\s+undirected\s+multigraph\s+with\s+distinct\s+vertices\s+(?P<vset>(?P<vertices>\S+)\s*=\s*\{(?P<vlist>[^}]*)\})\s+and\s+distinct\s+edges\s+(?P<eset>(?P<edges>\S+)\s*=\s*\{(?P<elist>[^}]*)\}),\s+where\s+(?P<joins>.+)$"
 );
 regex!(JOINED, r"^(\S+)\s+joins\s+(\S+)\s+and\s+(\S+)$");
 
 /// A graph's `let` line: the graph and the names of its two sets, and where
 /// the line gives the graph in full, its listing.
+#[derive(Clone)]
 pub struct GraphLine {
     pub graph: String,
     pub vertices: String,
@@ -99,17 +101,25 @@ pub struct GraphLine {
 
 /// What a graph given in full lists: its vertices and its edges, each list
 /// said to be distinct, and the two ends of every edge.
+#[derive(Clone)]
 pub struct GraphListing {
     pub vertices: Vec<String>,
     pub edges: Vec<String>,
     pub joins: Vec<Joined>,
+    /// `V = {A, B, C, D}` as the line writes it, a formula of its own.
+    pub vertex_set: String,
+    /// `E = {a, …, g}` as the line writes it.
+    pub edge_set: String,
 }
 
 /// One clause "a joins A and B" of a graph given in full.
+#[derive(Clone)]
 pub struct Joined {
     pub edge: String,
     pub first: String,
     pub second: String,
+    /// The clause as the line writes it, a formula of its own.
+    pub said: String,
 }
 
 /// The graph a `let` body states, in either form; None for any other body,
@@ -129,11 +139,13 @@ pub fn graph_line(body: &str) -> Option<GraphLine> {
     };
     let mut joins = Vec::new();
     for clause in m["joins"].split(',') {
-        let j = JOINED.captures(str::trim(clause))?;
+        let said = str::trim(clause);
+        let j = JOINED.captures(said)?;
         joins.push(Joined {
             edge: j[1].to_string(),
             first: j[2].to_string(),
             second: j[3].to_string(),
+            said: said.to_string(),
         });
     }
     Some(GraphLine {
@@ -144,6 +156,8 @@ pub fn graph_line(body: &str) -> Option<GraphLine> {
             vertices: names(&m["vlist"]),
             edges: names(&m["elist"]),
             joins,
+            vertex_set: m["vset"].to_string(),
+            edge_set: m["eset"].to_string(),
         }),
     })
 }
@@ -194,93 +208,6 @@ pub fn graph_listed_re() -> &'static regex::Regex {
 /// A line without its trailing label, as `LABEL.sub('', text)` leaves it.
 pub fn unlabel(text: &str) -> String {
     LABEL.replace(text, "").into_owned()
-}
-
-/// A `let` body as the formula it asserts.
-///
-/// `let f : A → B be one-to-one` introduces f and says it is one-to-one, and
-/// the formula is `f : A → B is one-to-one`: "be" is how English says "is"
-/// after "let". `let X ⊆ A` introduces a part of A, which is a member of its
-/// power set, and the formula is `X ∈ 𝒫A`, the one `for all X ⊆ A`
-/// quantifies over. `let E be a function on X` says E is a function on X, a
-/// fact a proof citing the line supplies. `let G be a finite group …` says G
-/// is finite; the rest of it names things and asserts nothing a proof cites.
-/// Every other body is read as it is written.
-pub fn let_formula(body: &str) -> String {
-    // A graph given in full says what its two sets are, that the names in
-    // each list differ, and which vertices each edge joins.
-    if let Some(GraphLine {
-        vertices,
-        edges,
-        listed: Some(listing),
-        ..
-    }) = graph_line(body)
-    {
-        let mut said = vec![
-            format!("{vertices} = {{{}}}", listing.vertices.join(", ")),
-            format!("{edges} = {{{}}}", listing.edges.join(", ")),
-        ];
-        for list in [&listing.vertices, &listing.edges] {
-            for (i, one) in list.iter().enumerate() {
-                for other in &list[i + 1..] {
-                    said.push(format!("{one} ≠ {other}"));
-                }
-            }
-        }
-        for j in &listing.joins {
-            said.push(format!("{} joins {} and {}", j.edge, j.first, j.second));
-        }
-        return said.join(". ");
-    }
-    if let Some(m) = GROUP.captures(body) {
-        if m.name("finite").is_some() {
-            return format!("{} is finite", &m["group"]);
-        }
-    }
-    if let Some(m) = FUNCTION_ON.captures(body) {
-        return format!("{} is a function on {}", &m[1], str::trim(&m[2]));
-    }
-    if let Some(m) = POLYNOMIAL.captures(body) {
-        return format!("{} is a polynomial", &m[1]);
-    }
-    if let Some(m) = FUNCTION_BEING.captures(body) {
-        return format!("{} is {}", &m[1], &m[2]);
-    }
-    if let Some(m) = PART.captures(body) {
-        let whole = str::trim(&m[2]);
-        let whole = if whole.contains(' ') {
-            format!("({whole})")
-        } else {
-            whole.to_string()
-        };
-        return format!("{} ∈ 𝒫{whole}", &m[1]);
-    }
-    body.to_string()
-}
-
-/// What a hypothesis or a block's opening line says to a citation of it:
-/// the text after its first word, its label taken off, and for a `let` line
-/// the formula `let_formula` gives. Both tools read a cited line this way.
-pub fn said_by_line(kind: Intro, text: &str) -> String {
-    let body = str::trim(&unlabel(&text[kind.as_str().len()..])).to_string();
-    if kind == Intro::Let {
-        let_formula(&body)
-    } else {
-        body
-    }
-}
-
-/// What a cited line supplies (`SYNTAX.md`): each of its sentences, and,
-/// where it has several, their conjunction, since "A. B" and "A and B" are
-/// one claim. The conjunction is joined from the left, as a claim of several
-/// sentences is, and each sentence is bracketed so that it stays one part.
-pub fn supplied_by(text: &str) -> Vec<String> {
-    let mut out = sentences(text);
-    if out.len() > 1 {
-        let joined: Vec<String> = out.iter().map(|s| format!("({s})")).collect();
-        out.push(joined.join(" and "));
-    }
-    out
 }
 
 /// The sentences of a line, each without its full stop, as the splitter

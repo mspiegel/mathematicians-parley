@@ -493,18 +493,19 @@ pub fn check_obtained_claims(
         let names: Vec<&str> = names[1].split(',').map(str::trim).collect();
         let existence = match cited_item(just) {
             None => {
-                let Some(written) = just
+                let Some(stated) = just
                     .refs
                     .first()
                     .and_then(|r| known.scope(step).get(r).cloned())
                 else {
                     continue;
                 };
-                let said = written.sentences();
+                let defined = known.citing(&step.just.refs);
+                let said = known.said_parts(&stated, Some(&defined));
                 let [one] = said.as_slice() else {
                     continue;
                 };
-                known.read(step, one)
+                one.clone()
             }
             Some(item) => {
                 let name = just.item(&item);
@@ -1578,11 +1579,13 @@ pub fn check_instantiated(
                 .into_iter()
                 .map(|n| (n.name, n.value))
                 .collect();
-        for sentence in line.sentences() {
-            let (Some(read), Some(as_written)) = (
-                known.read(step, &sentence),
-                known.read_as_written(&sentence),
-            ) else {
+        let defined = known.citing(&step.just.refs);
+        let said = known
+            .said_parts(&line, Some(&defined))
+            .into_iter()
+            .zip(known.said_parts(&line, None));
+        for (read, as_written) in said {
+            let (Some(read), Some(as_written)) = (read, as_written) else {
                 continue;
             };
             let binders = binders_of(&read);
@@ -1756,17 +1759,19 @@ pub fn check_repeated(
 /// membership said once instead.
 fn in_a_domain(step: &Step, r: &str, known: &Known) -> bool {
     let scope = known.scope(step);
-    let Some(written) = scope.get(r) else {
+    let Some(stated) = scope.get(r) else {
         return false;
     };
-    written.sentences().iter().any(|s| {
-        known.read_as_written(s).is_some_and(|n| {
+    known
+        .said_parts(stated, None)
+        .into_iter()
+        .flatten()
+        .any(|n| {
             n.notation == "function-type"
                 || (n.notation == "membership"
                     && n.children.len() == 2
                     && n.children[1].notation != "number-systems")
         })
-    })
 }
 
 /// Whether `lighter`, `step` with a line taken away, is no longer supplied.

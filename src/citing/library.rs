@@ -10,11 +10,8 @@ use crate::formula::page::Written;
 use crate::formula::{Node, Sorts};
 use crate::matching::{expand, standard, Context};
 use crate::regex;
-use crate::sorts::{
-    element_re, function_being_re, function_on_re, function_re, graph_re, group_re,
-    let_formula, part_re, polynomial_re, set_or_point_re, sorts_of_statement,
-    statement_definitions, Env,
-};
+use crate::sorts::introduction::{Form, Introduction};
+use crate::sorts::{sorts_of_statement, statement_definitions, Env};
 
 /// One `then` group of an item.
 pub struct Group {
@@ -177,8 +174,7 @@ impl<'a> Library<'a> {
             .filter(|(kind, _)| *kind == Intro::Let)
             .map(|(_, body)| body)
             .filter(|body| {
-                function_re().is_match(body.text())
-                    && !function_being_re().is_match(body.text())
+                matches!(Introduction::read(body.clone()).form, Form::Function)
             })
             .collect();
         self.trees(&lines, sorts)
@@ -259,31 +255,49 @@ impl<'a> Library<'a> {
     /// it, read.
     fn facts(&self, lines: &[(Intro, Written)], sorts: &Sorts) -> Vec<(String, Node)> {
         let mut out = Vec::new();
+        let mut keep =
+            |text: String, tree: &Node| out.push((text, standard(tree, &self.ctx)));
         for (kind, body) in lines {
-            let text = body.text();
-            let mut said = body.clone();
-            // A function's type is declared, and what `be` says of the
-            // function is a fact like any other, asked for as `let y ∈ Y`
-            // is: `let g : Y → X be one-to-one` asks that g be one-to-one.
-            if *kind == Intro::Let
-                && (function_being_re().is_match(text)
-                    || function_on_re().is_match(text)
-                    || polynomial_re().is_match(text)
-                    || part_re().is_match(text))
-            {
-                said = Written::new(let_formula(text), body.path(), body.line());
-            } else if *kind == Intro::Let
-                && (set_or_point_re().is_match(text)
-                    || function_re().is_match(text)
-                    || element_re().is_match(text)
-                    || group_re().is_match(text)
-                    || graph_re().is_match(text))
-            {
+            if *kind != Intro::Let {
+                for sentence in body.sentences() {
+                    if let Ok(tree) = sentence.read(self.env.g, sorts) {
+                        keep(sentence.text().to_string(), &tree);
+                    }
+                }
                 continue;
             }
-            for sentence in said.sentences() {
-                if let Ok(tree) = sentence.read(self.env.g, sorts) {
-                    out.push((sentence.text().to_string(), standard(&tree, &self.ctx)));
+            let introduced = Introduction::read(body.clone());
+            match &introduced.form {
+                // A thing named of a sort, and a function's type, are
+                // declared and asked for by nothing.
+                Form::Set(_)
+                | Form::Point(_)
+                | Form::Function
+                | Form::Element(_)
+                | Form::Group { .. }
+                | Form::Graph(_) => {}
+                // What `be` says of a function is a fact like any other,
+                // asked for as `let y ∈ Y` is: `let g : Y → X be one-to-one`
+                // asks that g be one-to-one. A part, a function on a set and
+                // a polynomial say what they are the same way.
+                Form::FunctionBeing { .. }
+                | Form::FunctionOn { .. }
+                | Form::Polynomial(_)
+                | Form::Part { .. } => {
+                    // A part that does not read is `check_statements`'s to
+                    // report.
+                    for tree in
+                        introduced.asserted(self.env.g, sorts).unwrap_or_default()
+                    {
+                        keep(self.env.g.print(&tree), &tree);
+                    }
+                }
+                _ => {
+                    for sentence in body.sentences() {
+                        if let Ok(tree) = sentence.read(self.env.g, sorts) {
+                            keep(sentence.text().to_string(), &tree);
+                        }
+                    }
                 }
             }
         }

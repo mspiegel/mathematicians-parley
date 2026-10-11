@@ -17,13 +17,14 @@
 use std::collections::BTreeSet;
 use std::path::Path;
 
-use parley::corpus::proof::{Head, Theorem, METHODS};
+use parley::corpus::proof::{Head, Intro, Theorem, METHODS};
 use parley::corpus::{corpus, define_parts, DefineParts};
-use parley::formula::grammar::Grammar;
-use parley::formula::node::walk;
+use parley::formula::grammar::{Grammar, Sorts};
+use parley::formula::node::{walk, Node};
 use parley::formula::page::Written;
 use parley::outcome::{Built, Declined};
-use parley::sorts::{said_by_line, sorts_in_scope, Env};
+use parley::sorts::introduction::Introduction;
+use parley::sorts::{sorts_in_scope, Env};
 use parley::source::Disk;
 
 /// The methods and notations no proof writes yet, by the record a pattern
@@ -39,31 +40,53 @@ const UNWRITTEN: &[&str] = &[
     "notation supremum sup",
 ];
 
-/// Everything a theorem writes as a formula: its statement, and each step's
-/// claim and requires lines.
-fn formulas(thm: &Theorem) -> Vec<String> {
-    let mut out: Vec<String> = thm
-        .hypotheses
-        .iter()
-        .map(|h| said_by_line(h.kind, &h.text))
-        .collect();
-    out.push(thm.conclusion.clone());
+/// Everything a theorem writes as a formula, read: its statement, its
+/// defines' rules, and each step's claim, requires lines and opening lines.
+/// A `let` line writes what its introduction asserts. What does not read
+/// the checker reports.
+fn formulas(thm: &Theorem, g: &Grammar, sorts: &Sorts) -> Vec<Node> {
+    let read = |written: Written| -> Vec<Node> {
+        written
+            .sentences()
+            .iter()
+            .filter_map(|s| s.read(g, sorts).ok())
+            .collect()
+    };
+    let said = |kind: Intro, body: Written| -> Vec<Node> {
+        match kind {
+            Intro::Let => Introduction::read(body)
+                .asserted(g, sorts)
+                .unwrap_or_default(),
+            _ => read(body),
+        }
+    };
+    let mut out: Vec<Node> = Vec::new();
+    for h in &thm.hypotheses {
+        out.extend(said(h.kind, h.body(&thm.path)));
+    }
+    out.extend(read(thm.stated()));
     // A define's rule, as `define_parts` reads it: the body, or each value
     // a recursion gives at the start and at a step.
     for d in &thm.defines {
-        match define_parts(d.text.trim()) {
-            Built(DefineParts::One(one)) => out.push(one.body),
+        let rules = match define_parts(d.text.trim()) {
+            Built(DefineParts::One(one)) => vec![one.body],
             Built(DefineParts::Recursion(r)) => {
-                out.extend(r.start.into_values());
-                out.extend(r.step.into_values());
+                r.start.into_values().chain(r.step.into_values()).collect()
             }
-            Declined(_) => {}
+            Declined(_) => Vec::new(),
+        };
+        for rule in rules {
+            out.extend(read(d.formula(&rule)));
         }
     }
     for step in &thm.steps {
-        out.push(step.claim_text());
-        out.extend(step.requires.iter().map(|r| r.fact.text().to_string()));
-        out.extend(step.openers.iter().map(|o| said_by_line(o.kind, &o.text)));
+        out.extend(read(step.claim.clone()));
+        for r in &step.requires {
+            out.extend(read(r.fact.clone()));
+        }
+        for o in &step.openers {
+            out.extend(said(o.kind, o.body(&thm.path)));
+        }
     }
     out
 }
@@ -96,18 +119,11 @@ fn every_method_and_notation_is_written_by_a_proof() {
                 scopes: &found.scopes,
             },
         );
-        for text in formulas(thm) {
-            for s in Written::new(text, &thm.path, thm.line).sentences() {
-                let Ok(node) = s.read(&g, &sorts) else {
-                    continue;
-                };
-                // A node is the pattern that read it: the record it stands
-                // under and the literal that pattern writes, as
-                // `matching::turned` tells two patterns of one record apart.
-                for n in walk(&[node]) {
-                    written.insert(format!("notation {} {}", n.notation, n.text));
-                }
-            }
+        // A node is the pattern that read it: the record it stands under and
+        // the literal that pattern writes, as `matching::turned` tells two
+        // patterns of one record apart.
+        for n in walk(&formulas(thm, &g, &sorts)) {
+            written.insert(format!("notation {} {}", n.notation, n.text));
         }
     }
     let mut every: BTreeSet<String> = METHODS

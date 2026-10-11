@@ -384,7 +384,7 @@ pub fn check_decided_words(
                 .refs
                 .iter()
                 .filter_map(|r| scope.get(r))
-                .flat_map(|written| known.said(step, written))
+                .flat_map(|stated| known.stated_at(step, stated))
                 .flat_map(|n| n.walk().into_iter().map(|m| key(&m)).collect::<Vec<_>>())
                 .collect();
             if let Some(claim) = known.whole(step, &step.claim) {
@@ -712,11 +712,7 @@ pub fn check_contradicting(
         // The claim is the opposite of the line, or of one sentence of it:
         // a line may say several things and be contradicted in one.
         let claimed = known.whole(step, &step.claim);
-        let there: Vec<Option<Node>> = said
-            .sentences()
-            .iter()
-            .map(|s| known.read(step, s))
-            .collect();
+        let there = known.said_parts(said, Some(&known.citing(&step.just.refs)));
         let opposed = there.iter().any(|t| {
             negates(claimed.as_ref(), t.as_ref(), &wrappers, known)
                 || negates(t.as_ref(), claimed.as_ref(), &wrappers, known)
@@ -1070,7 +1066,7 @@ pub fn check_cases_cited(report: &mut Report, thm: &Theorem, known: &Known) {
             .map(|o| known.whole_as_written(&o.body(&thm.path)))
             .collect();
         let want = assumed.and_then(|a| disjoined(known.env.g, a));
-        let (Some(want), Some(have)) = (want, known.whole_as_written(said)) else {
+        let (Some(want), Some(have)) = (want, known.stated_as_written(said)) else {
             continue;
         };
         if !known.alike(&want, &have) {

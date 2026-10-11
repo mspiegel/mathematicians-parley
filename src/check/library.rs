@@ -11,18 +11,46 @@ use crate::citing::{
     Parts,
 };
 use crate::corpus::{Intro, Kinded, Method, Step, StepNo, Theorem};
-use crate::formula::page::{conjoined, Sentence, Written};
+use crate::formula::page::{conjoined, filled, Sentence, Written};
 use crate::formula::{Node, Sorts};
 use crate::matching::{
     alike, expand, namings, standard, Binding, Context, Definitions,
 };
-use crate::sorts::{cited_defines, file_definitions, said_by_line, Env};
+use crate::sorts::introduction::Introduction;
+use crate::sorts::{cited_defines, file_definitions, Env};
 
 type PartsKey = (StepNo, String, String, Vec<String>, Vec<String>);
 
 /// Every line a step's citation may name, by the reference that names it,
 /// with what the line says.
-pub type Statements = IndexMap<String, Written>;
+pub type Statements = IndexMap<String, Stated>;
+
+/// What a line a citation may name says: formula text, a step's claim or
+/// an assumption; or a `let` line's introduction, which asserts what its
+/// form does (`Introduction::asserted`).
+#[derive(Clone)]
+pub enum Stated {
+    Written(Written),
+    Introduced(Introduction),
+    /// A naming `let` that says what kind of number its name is, `let m =
+    /// gcd(s, w), a natural number`: the name, and the number system the
+    /// kind's record names, which the line says the name is in.
+    Kind {
+        name: Written,
+        set: Written,
+    },
+}
+
+impl Stated {
+    /// The line's text as written, for a message.
+    pub fn text(&self) -> &str {
+        match self {
+            Stated::Written(w) => w.text(),
+            Stated::Introduced(i) => i.body.text(),
+            Stated::Kind { name, .. } => name.text(),
+        }
+    }
+}
 
 /// What a theorem's lines give every check of it, read once a run.
 ///
@@ -117,6 +145,63 @@ impl<'a> Known<'a> {
         conjoined(self.env.g, read?)
     }
 
+    /// Each thing a line says, read: a sentence of what is written, or a
+    /// formula its introduction asserts; with defined names kept, or with
+    /// what `defined` writes out and in the standard order (`read_citing`).
+    /// One that does not read is None, which `check_formulas` reports of a
+    /// sentence and the elaborator of an introduction.
+    pub fn said_parts(
+        &self,
+        stated: &Stated,
+        defined: Option<&Definitions>,
+    ) -> Vec<Option<Node>> {
+        let cited = |n: Node| match defined {
+            Some(d) => standard(&expand(&n, d), self.ctx),
+            None => n,
+        };
+        match stated {
+            Stated::Written(w) => w
+                .sentences()
+                .iter()
+                .map(|s| self.read_as_written(s).map(cited))
+                .collect(),
+            Stated::Introduced(i) => match i.asserted(self.env.g, &self.sorts) {
+                Ok(said) => said.into_iter().map(|n| Some(cited(n))).collect(),
+                Err(_) => vec![None],
+            },
+            Stated::Kind { name, set } => {
+                let read = |w: &Written| self.read_as_written(&w.sentence().ok()?);
+                let member = match (read(name), read(set)) {
+                    (Some(x), Some(s)) => {
+                        let fills = [("x", &x), ("S", &s)];
+                        filled("x ∈ S", self.env.g, &self.sorts, &fills).ok()
+                    }
+                    _ => None,
+                };
+                vec![member.map(cited)]
+            }
+        }
+    }
+
+    /// What a line says, each thing read as the checks of `step` compare it
+    /// (`read`); one that does not read is left out.
+    pub fn stated_at(&self, step: &Step, stated: &Stated) -> Vec<Node> {
+        let defined = self.citing(&step.just.refs);
+        self.said_parts(stated, Some(&defined))
+            .into_iter()
+            .flatten()
+            .collect()
+    }
+
+    /// What a line says as one formula with its defined names kept: what it
+    /// says, or the conjunction of the several things; None where a part
+    /// does not read.
+    pub fn stated_as_written(&self, stated: &Stated) -> Option<Node> {
+        let read: Option<Vec<Node>> =
+            self.said_parts(stated, None).into_iter().collect();
+        conjoined(self.env.g, read?)
+    }
+
     /// The sentence read with its defined names kept, as a message prints
     /// it; None where it does not read, which `check_formulas` reports.
     pub fn read_as_written(&self, sentence: &Sentence) -> Option<Node> {
@@ -180,13 +265,11 @@ impl<'a> Known<'a> {
     /// several, their conjunction, since "A. B" and "A and B" are one claim.
     /// A sentence that does not read is left out, as `check_formulas`
     /// reports it.
-    pub fn supplied(&self, written: &Written, defined: &Definitions) -> Vec<Node> {
-        let sentences = written.sentences();
-        let mut said: Vec<Node> = sentences
-            .iter()
-            .filter_map(|s| self.read_citing(s, defined))
-            .collect();
-        if sentences.len() > 1 && said.len() == sentences.len() {
+    pub fn supplied(&self, stated: &Stated, defined: &Definitions) -> Vec<Node> {
+        let parts = self.said_parts(stated, Some(defined));
+        let all = parts.len();
+        let mut said: Vec<Node> = parts.into_iter().flatten().collect();
+        if all > 1 && said.len() == all {
             said.extend(conjoined(self.env.g, said.clone()));
         }
         said
@@ -256,24 +339,27 @@ impl<'a> Known<'a> {
 /// each fix a k under the same label, and what the label says is what the
 /// block around the citing step says.
 pub fn statements_in_scope(thm: &Theorem, step: &Step, env: Env) -> Statements {
-    let said = |kind, text: &str, line| {
-        Written::new(said_by_line(kind, text), &thm.path, line)
+    // A `let` line says what its introduction asserts, and an `assume` or
+    // `suppose` line its formula.
+    let said = |kind, body: Written| match kind {
+        Intro::Let => Stated::Introduced(Introduction::read(body)),
+        _ => Stated::Written(body),
     };
     let mut out: Statements = thm
         .steps
         .iter()
-        .map(|s| (s.number.to_string(), s.claim.clone()))
+        .map(|s| (s.number.to_string(), Stated::Written(s.claim.clone())))
         .collect();
     for h in &thm.hypotheses {
         if let Some(label) = &h.label {
-            out.insert(label.clone(), said(h.kind, &h.text, h.line));
+            out.insert(label.clone(), said(h.kind, h.body(&thm.path)));
         }
     }
     let visible = labels_in_scope(thm, step, env.scopes);
     for other in &thm.steps {
         for o in &other.openers {
             if visible.get(&o.label) == Some(&Declared::Block(o.line)) {
-                out.insert(o.label.clone(), said(o.kind, &o.text, o.line));
+                out.insert(o.label.clone(), said(o.kind, o.body(&thm.path)));
             }
         }
     }
@@ -283,7 +369,10 @@ pub fn statements_in_scope(thm: &Theorem, step: &Step, env: Env) -> Statements {
     for k in kinded_above(thm, step, env) {
         out.insert(
             k.label.clone(),
-            Written::new(k.membership(), &thm.path, k.shown.line),
+            Stated::Kind {
+                name: Written::new(&k.name, &thm.path, k.shown.line),
+                set: Written::new(&k.set, &thm.path, k.shown.line),
+            },
         );
     }
     out
@@ -344,13 +433,14 @@ fn citation_parts(step: &Step, library: &Library, known: &Known) -> Parts {
 /// each name's membership (`SYNTAX.md`). A later introduction of a letter
 /// stands over an earlier one.
 pub fn introduced(known: &Known, step: &Step) -> Introduced {
+    let path = &known.thm.path;
     // What each introducing line says, by the line it is on.
-    let mut said: Vec<(usize, Vec<String>)> = known
+    let mut said: Vec<(usize, Stated)> = known
         .thm
         .hypotheses
         .iter()
         .filter(|h| h.kind == Intro::Let)
-        .map(|h| (h.line, vec![said_by_line(h.kind, &h.text)]))
+        .map(|h| (h.line, Stated::Introduced(Introduction::read(h.body(path)))))
         .collect();
     let visible = labels_in_scope(known.thm, step, known.env.scopes);
     for other in &known.thm.steps {
@@ -358,30 +448,29 @@ pub fn introduced(known: &Known, step: &Step) -> Introduced {
             if o.kind == Intro::Let
                 && visible.get(&o.label) == Some(&Declared::Block(o.line))
             {
-                said.push((o.line, vec![said_by_line(o.kind, &o.text)]));
+                let introduced = Introduction::read(o.body(path));
+                said.push((o.line, Stated::Introduced(introduced)));
             }
         }
         let around = step.number.0.starts_with(&other.number.parent().0);
         if other.just.head.is(Method::Obtain) && other.line < step.line && around {
-            said.push((
-                other.line,
-                other
-                    .claim
-                    .sentences()
-                    .iter()
-                    .map(|s| s.text().to_string())
-                    .collect(),
-            ));
+            said.push((other.line, Stated::Written(other.claim.clone())));
         }
     }
     for k in kinded_above(known.thm, step, known.env) {
-        said.push((k.shown.line, vec![k.membership()]));
+        let kind = Stated::Kind {
+            name: Written::new(&k.name, path, k.shown.line),
+            set: Written::new(&k.set, path, k.shown.line),
+        };
+        said.push((k.shown.line, kind));
     }
     said.sort_by_key(|(line, _)| *line);
     let mut out = Introduced::new();
-    for sentence in said.iter().flat_map(|(_, s)| s) {
-        if let Some((letter, system)) = introduction(sentence) {
-            out.insert(letter, system);
+    for (_, stated) in &said {
+        for node in known.said_parts(stated, None).into_iter().flatten() {
+            if let Some((letter, system)) = introduction(&node) {
+                out.insert(letter, system);
+            }
         }
     }
     out

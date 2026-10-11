@@ -27,7 +27,7 @@ use super::field::{self, Verdict};
 use super::linear;
 use super::matcher::ChainLink;
 use super::provenance::{item_clauses, requirement};
-use super::reading::{hypothesis_body, is_subgroup, subject_of, CLASS_NAMES};
+use super::reading::{is_subgroup, subject_of, CLASS_NAMES};
 use super::state::{
     fit, names_of, number_of, Binding, Block, Closer, Elaborator, PartEnd, Vars,
 };
@@ -50,10 +50,8 @@ use crate::mm::spell::Proof;
 use crate::mm::{Kind, Layered, Lookup, Signature, Signatures};
 use crate::outcome::{Built, Checked, Declined, Problem, Route};
 use crate::rules::{self, lookup};
-use crate::sorts::{
-    cited_defines, graph_re, said_by_line, sorts_in_scope, statement_definitions,
-    unlabel,
-};
+use crate::sorts::introduction::{Form, Introduction};
+use crate::sorts::{cited_defines, sorts_in_scope, statement_definitions};
 use crate::targets;
 use crate::text::repr;
 use crate::{pf, regex, t, take};
@@ -412,39 +410,40 @@ impl<'a> Elaborator<'a> {
         // it without naming it. A define is not one: a step that uses what it
         // says cites it, as it cites any line it uses.
         let mut sorts: BTreeSet<String> = BTreeSet::new();
-        let mut lets: Vec<(Intro, String, String)> = self
+        let path = &self.thm.path;
+        let mut lets: Vec<(Intro, Written, String)> = self
             .thm
             .hypotheses
             .iter()
-            .map(|h| (h.kind, h.text.clone(), h.label.clone().unwrap_or_default()))
+            .map(|h| (h.kind, h.body(path), h.label.clone().unwrap_or_default()))
             .collect();
         for s in &self.thm.steps {
             for o in &s.openers {
-                lets.push((o.kind, o.text.clone(), o.label.clone()));
+                lets.push((o.kind, o.body(path), o.label.clone()));
             }
         }
-        for (kind, text, label) in &lets {
-            if *kind == Intro::Let
-                && !label.is_empty()
-                && (text.contains(" be a set")
-                    || text.contains(" be a point")
-                    || text.contains(" be a polynomial")
-                    || text.contains('→')
-                    || text.contains(" group with operation ")
-                    || text.contains(" be an undirected multigraph with ")
-                    || text.contains(" be the undirected multigraph with "))
-            {
-                sorts.insert(label.clone());
+        // A sort is what a set, a point, a polynomial, a function, a group or
+        // a graph is introduced as; and a subgroup an `assume` says there is.
+        for (kind, body, label) in &lets {
+            if label.is_empty() {
+                continue;
             }
-        }
-        for (kind, text, label) in &lets {
-            if *kind == Intro::Assume
-                && !label.is_empty()
-                && is_subgroup(str::trim(&unlabel(&hypothesis_body(
-                    kind.as_str(),
-                    text,
-                ))))
-            {
+            let sort = match kind {
+                Intro::Let => matches!(
+                    Introduction::read(body.clone()).form,
+                    Form::Set(_)
+                        | Form::Point(_)
+                        | Form::Polynomial(_)
+                        | Form::Function
+                        | Form::FunctionBeing { .. }
+                        | Form::Group { .. }
+                        | Form::Graph(_)
+                        | Form::GraphListed(_)
+                ),
+                // A line that does not read is reported where it is opened.
+                _ => self.read_one(body).is_ok_and(|n| is_subgroup(&n)),
+            };
+            if sort {
                 sorts.insert(label.clone());
             }
         }
@@ -1559,19 +1558,22 @@ impl<'a> Elaborator<'a> {
             }
         }
         // Only what the step cites: a sort line fixes nothing. A cited
-        // hypothesis says what it says to the checker (`said_by_line`).
+        // hypothesis says what it says to the checker (`Known::supplied`): a
+        // `let` line what its introduction asserts, an `assume` line its
+        // sentences.
         for h in &self.thm.hypotheses {
             if h.label.as_ref().is_some_and(|l| refs.contains(l)) {
-                let said = Written::new(
-                    unlabel(&said_by_line(h.kind, &h.text)),
-                    &self.thm.path,
-                    h.line,
-                );
-                let read = said
-                    .sentences()
-                    .iter()
-                    .map(|s| self.read(s))
-                    .collect::<Checked<Vec<Node>>>()?;
+                let body = h.body(&self.thm.path);
+                let read = match h.kind {
+                    Intro::Let => {
+                        Introduction::read(body).asserted(self.g, &self.sorts_now)?
+                    }
+                    _ => body
+                        .sentences()
+                        .iter()
+                        .map(|s| self.read(s))
+                        .collect::<Checked<Vec<Node>>>()?,
+                };
                 given.extend(read.iter().cloned());
                 if read.len() > 1 {
                     given.extend(conjoined(self.g, read));
@@ -4457,16 +4459,10 @@ impl<'a> Elaborator<'a> {
                     // A graph's line introduces one class, the graph, whose
                     // parts its vertices, edges and the notations' `@ends`
                     // and `@deg` are; it asserts no formula to read.
-                    let body =
-                        str::trim(&unlabel(&hypothesis_body(h.kind.as_str(), &h.text)))
-                            .to_string();
-                    if let Some(graph) = h
-                        .kind
-                        .eq(&Intro::Let)
-                        .then(|| graph_re().captures(&body))
-                        .flatten()
-                    {
-                        let name = graph["graph"].to_string();
+                    let introduced = (h.kind == Intro::Let)
+                        .then(|| Introduction::read(h.body(&other.path)));
+                    if let Some(Form::Graph(graph)) = introduced.map(|i| i.form) {
+                        let name = graph.graph.clone();
                         let theirs = spare
                             .pop_front()
                             .expect("a class for each let")
@@ -4481,13 +4477,10 @@ impl<'a> Elaborator<'a> {
                     }
                     // Parsed with the theorem's own sorts, which say what its
                     // letters are; only its shape and name are used here.
-                    let said = Written::new(
-                        me.hypothesis_formula(h.kind.as_str(), &h.text),
-                        &other.path,
-                        h.line,
-                    );
-                    let node =
-                        me.in_its_names(Item::Theorem(other), |me| me.read_one(&said))?;
+                    let said = h.body(&other.path);
+                    let node = me.in_its_names(Item::Theorem(other), |me| {
+                        me.hypothesis_node(h.kind, &said)
+                    })?;
                     // `let X be a set` and `let A be a point` name a class as
                     // surely as `let n ∈ ℕ` does, and the name is in the same
                     // place.
@@ -4525,23 +4518,16 @@ impl<'a> Elaborator<'a> {
                             // A graph's line asks that the graph be an
                             // undirected multigraph, as it says in its own
                             // theorem (`Elaborator::graph`).
-                            let body = str::trim(&unlabel(&hypothesis_body(
-                                h.kind.as_str(),
-                                &h.text,
-                            )))
-                            .to_string();
+                            let body = h.body(&other.path);
                             if h.kind == Intro::Let {
-                                if let Some(graph) = graph_re().captures(&body) {
-                                    let class = me.names[&graph["graph"]].clone();
+                                let introduced = Introduction::read(body.clone());
+                                if let Form::Graph(graph) = &introduced.form {
+                                    let class = me.names[&graph.graph].clone();
                                     out.push(t!(class, "cumgr", "wcel"));
                                     continue;
                                 }
                             }
-                            let node = me.read_one(&Written::new(
-                                me.hypothesis_formula(h.kind.as_str(), &h.text),
-                                &other.path,
-                                h.line,
-                            ))?;
+                            let node = me.hypothesis_node(h.kind, &body)?;
                             out.push(me.term(&node)?);
                         }
                         Ok(out)

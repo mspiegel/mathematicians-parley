@@ -28,6 +28,7 @@ use crate::formula::{Grammar, Node, Sorts};
 use crate::regex;
 use crate::said::Said;
 use crate::sorts::infer;
+use crate::sorts::introduction::Introduction;
 use crate::source::{Overlay, Source};
 
 // The name a `let` line introduces: what stands before its `∈`, `∉`, `:`,
@@ -411,26 +412,32 @@ fn applied_functions(r: &Record, g: &Grammar) -> Vec<String> {
 fn free_names(r: &Record, g: &Grammar) -> Vec<String> {
     let introduced: BTreeSet<String> = let_names(r).into_iter().collect();
     let sorts = crate::sorts::sorts_of_record(r, crate::sorts::Env { g, scopes: &[] });
-    let mut texts: Vec<Written> = r
-        .hypotheses
-        .iter()
-        .map(|h| {
-            let body = crate::sorts::unlabel(&h.text);
-            let said = crate::sorts::let_formula(str::trim(&body));
-            Written::new(said, &r.path, h.line)
-        })
-        .collect();
-    texts.extend(
-        r.conclusions
+    // What each line says, read; what does not read the checker reports.
+    let read = |written: &Written| -> Vec<Node> {
+        written
+            .sentences()
             .iter()
-            .map(|(t, line)| Written::new(t, &r.path, *line)),
-    );
+            .filter_map(|s| s.read(g, &sorts).ok())
+            .collect()
+    };
+    let mut trees: Vec<Node> = Vec::new();
+    for h in &r.hypotheses {
+        let body = h.body(&r.path);
+        match h.kind {
+            Intro::Let => trees.extend(
+                Introduction::read(body)
+                    .asserted(g, &sorts)
+                    .unwrap_or_default(),
+            ),
+            _ => trees.extend(read(&body)),
+        }
+    }
+    for said in r.stated() {
+        trees.extend(read(&said));
+    }
     let mut out: Vec<String> = Vec::new();
-    for written in texts {
-        for sentence in written.sentences() {
-            let Ok(tree) = sentence.read(g, &sorts) else {
-                continue; // the checker says it does not read
-            };
+    for tree in trees {
+        {
             let nodes = tree.walk();
             let bound: BTreeSet<&str> = nodes
                 .iter()

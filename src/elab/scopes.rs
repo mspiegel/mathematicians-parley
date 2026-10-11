@@ -401,8 +401,7 @@ impl<'a> Elaborator<'a> {
         match head.as_str() {
             "contradiction" => {
                 let o = &step.openers[0];
-                let node =
-                    self.read_here(&self.hypothesis_formula(o.kind.as_str(), &o.text))?;
+                let node = self.hypothesis_node(o.kind, &o.body(&self.thm.path))?;
                 let supposed = self.term(&node)?;
                 let origin = assumption(&block, &o.label);
                 let (inner, lifted) =
@@ -427,12 +426,12 @@ impl<'a> Elaborator<'a> {
             }
             "proof" => {
                 for o in &step.openers {
-                    let body = self.hypothesis_formula(o.kind.as_str(), &o.text);
+                    let said = self.hypothesis_node(o.kind, &o.body(&self.thm.path))?;
                     if o.kind == Intro::Let {
                         // A fixed name is a variable of the kernel, not a
                         // class, and it must avoid whatever the notations
                         // bind.
-                        let node = self.read_here(&body)?;
+                        let node = said.clone();
                         let name = subject_of(&node).text.clone();
                         let var = self.fixed_var(&name, &block.scope.clone())?;
                         self.names.insert(name.clone(), format!("{var} cv"));
@@ -444,7 +443,7 @@ impl<'a> Elaborator<'a> {
                             self.sets.insert(name, set);
                         }
                     }
-                    let node = self.read_here(&body)?;
+                    let node = said;
                     let added = self.term(&node)?;
                     block.opened.push(added.clone());
                     let origin = assumption(&block, &o.label);
@@ -478,8 +477,7 @@ impl<'a> Elaborator<'a> {
                 // the part is entered when its first child arrives; each
                 // direction of a `both directions` is such a part.
                 for o in &step.openers {
-                    let body = self.hypothesis_formula(o.kind.as_str(), &o.text);
-                    let node = self.read_here(&body)?;
+                    let node = self.hypothesis_node(o.kind, &o.body(&self.thm.path))?;
                     block
                         .assumed
                         .insert(o.part.unwrap_or(0), (node, o.label.clone()));
@@ -605,8 +603,8 @@ impl<'a> Elaborator<'a> {
             .cloned()
             .collect();
         for o in openers {
-            let body = self.hypothesis_formula(o.kind.as_str(), &o.text);
-            let node = self.read_here(&body)?;
+            let said = self.hypothesis_node(o.kind, &o.body(&self.thm.path))?;
+            let node = said.clone();
             if o.kind == Intro::Let {
                 let name = subject_of(&node).text.clone();
                 let var = self.fixed_var(&name, &block.scope.clone())?;
@@ -626,9 +624,8 @@ impl<'a> Elaborator<'a> {
                 let added = self.term(&frozen)?;
                 (claim.children[2].clone(), added)
             } else {
-                let node = self.read_here(&body)?;
-                let added = self.term(&node)?;
-                (node, added)
+                let added = self.term(&said)?;
+                (said, added)
             };
             let origin = assumption(block, &o.label);
             let (inner, lifted) = self.widen(

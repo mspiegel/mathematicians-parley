@@ -13,10 +13,11 @@ use crate::formula::page::Written;
 use crate::formula::{categories_of, patterns_of, Grammar, Node, Sorts, TERM_SORTS};
 use crate::regex;
 use crate::sorts::infer;
+use crate::sorts::introduction::{Form, Introduction};
 use crate::sorts::{
     element_re, function_being_re, function_on_re, function_re, graph_listed_re,
-    graph_re, group_re, let_formula, membership_re, not_in_re, part_re, polynomial_re,
-    property_re, set_or_point_re, settled, unlabel, Env,
+    graph_re, group_re, membership_re, not_in_re, part_re, polynomial_re, property_re,
+    set_or_point_re, settled, unlabel, Env,
 };
 use crate::text::{prefix, repr};
 
@@ -685,7 +686,8 @@ pub fn introduction_problem(
     // : Y → X is one-to-one` fits the shape with "X is one-to-one" for the
     // set, which is a statement, and the property it states was never asked
     // for.
-    if function_re().is_match(body) && !function_being_re().is_match(body) {
+    let introduced = Introduction::read(introduction.clone());
+    if let Form::Function = introduced.form {
         if let Ok(node) = read(introduction) {
             if node.notation != "function-type" {
                 return Some(format!(
@@ -695,13 +697,13 @@ pub fn introduction_problem(
             }
         }
     }
-    let asserted =
-        Written::new(let_formula(body), introduction.path(), introduction.line());
-    if function_being_re().is_match(body) && read(&asserted).is_err() {
-        return Some(format!(
-            "`let {}` says the function is something no notation says a function is",
-            prefix(body, 40)
-        ));
+    if let Form::FunctionBeing { .. } = introduced.form {
+        if introduced.asserted(env.g, sorts).is_err() {
+            return Some(format!(
+                "`let {}` says the function is something no notation says a function is",
+                prefix(body, 40)
+            ));
+        }
     }
     // A function's codomain is a set. A sort is a label for what kind of
     // thing a name is, and there is no set of formulas to map into: writing
