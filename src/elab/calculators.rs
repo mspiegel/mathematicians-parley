@@ -974,6 +974,16 @@ impl<'a> Elaborator<'a> {
         else {
             return Ok(Route::no("no sum of the cited equations is the claim"));
         };
+        // Weights with a denominator are all multiplied by the least common
+        // one, which the sum then shows the claim's sides each multiplied
+        // by, and which is cancelled at the end: s = t is half of
+        // 2·s + 1 = 2·t + 1, and the proof doubles s = t instead.
+        let common = how
+            .iter()
+            .fold(BigInt::one(), |d, taken| d.lcm(taken.scale.denom()));
+        let Some(common) = common.to_i64() else {
+            return Ok(Route::no("a common denominator past what a numeral writes"));
+        };
         let mut combined = vec![t!(left, right, "wceq")];
         combined.extend(how.iter().map(|taken| self.rpn(&where_[taken.which].1)));
         self.combining(&combined);
@@ -982,7 +992,8 @@ impl<'a> Elaborator<'a> {
             let (r, node) = where_[taken.which].clone();
             let (a, b) = (self.rpn(&node.children()[0]), self.rpn(&node.children()[1]));
             let gap = t!(a, b, "cmin", "co");
-            let Some(times) = multiplier(&taken.shape, &taken.scale) else {
+            let scale = &taken.scale * Q::from_integer(BigInt::from(common));
+            let Some(times) = multiplier(&taken.shape, &scale) else {
                 return Ok(Route::no("a multiplier with no spelling"));
             };
             // A sum the decision read as linear is written over a placeholder
@@ -1055,10 +1066,20 @@ impl<'a> Elaborator<'a> {
             );
             total = joined;
         }
-        let whole = t!(left, right, "cmin", "co");
+        let sides: Vec<String> = if common == 1 {
+            vec![left.to_string(), right.to_string()]
+        } else {
+            let numeral = numerals::spell(common.unsigned_abs());
+            [left, right]
+                .iter()
+                .map(|one| t!(numeral, one, "cmul", "co"))
+                .collect()
+        };
+        let (l, r) = (sides[0].as_str(), sides[1].as_str());
+        let whole = t!(l, r, "cmin", "co");
         let alike = self.same_polynomial(w, &total, &whole)?;
-        let left_cc = self.in_cc(left, scope, facts)?;
-        let right_cc = self.in_cc(right, scope, facts)?;
+        let left_cc = self.in_cc(l, scope, facts)?;
+        let right_cc = self.in_cc(r, scope, facts)?;
         let (alike, left_cc, right_cc) =
             (take!(alike), take!(left_cc), take!(right_cc));
         let reached = self.b.ap(
@@ -1068,14 +1089,19 @@ impl<'a> Elaborator<'a> {
         );
         let turn = self.b.ap(
             "subeq0ad",
-            &binds! {"ph" => scope, "A" => left, "B" => right},
+            &binds! {"ph" => scope, "A" => l, "B" => r},
             &[&left_cc, &right_cc],
         );
-        Ok(Built(self.b.ap(
+        let equal = self.b.ap(
             "mpbid",
-            &binds! {"ph" => scope, "ps" => t!(whole, "cc0", "wceq"), "ch" => t!(left, right, "wceq")},
+            &binds! {"ph" => scope, "ps" => t!(whole, "cc0", "wceq"), "ch" => t!(l, r, "wceq")},
             &[&reached, &turn],
-        )))
+        );
+        if common == 1 {
+            return Ok(Built(equal));
+        }
+        self.cancelled(w, common, left, right, &sides, equal, scope, facts)
+            .map(Built)
     }
 
     /// ( scope -> said e. CC ), for a term of the step's own depth: built by
@@ -1168,14 +1194,31 @@ impl<'a> Elaborator<'a> {
         scope: &str,
         facts: &Facts,
     ) -> Checked<Proof> {
-        let numeral = numerals::spell(times.unsigned_abs());
-        let numeral = numeral.as_str();
         let matched = self.b.ap(
             "3eqtr3d",
             &binds! {"ph" => scope, "A" => self.rpn(&cited.children()[0]), "B" => self.rpn(&cited.children()[1]),
             "C" => &scaled[0], "D" => &scaled[1]},
             &[&given, &sides[0], &sides[1]],
         );
+        self.cancelled(w, times, left, right, scaled, matched, scope, facts)
+    }
+
+    /// ( scope -> left = right ) from `matched`, which proves the two sides
+    /// `scaled`, each the numeral `times` times its own side.
+    #[allow(clippy::too_many_arguments)]
+    fn cancelled(
+        &mut self,
+        w: &mut Work,
+        times: i64,
+        left: &str,
+        right: &str,
+        scaled: &[String],
+        matched: Proof,
+        scope: &str,
+        facts: &Facts,
+    ) -> Checked<Proof> {
+        let numeral = numerals::spell(times.unsigned_abs());
+        let numeral = numeral.as_str();
         let ml = self.membership(left, "cc", scope, facts)?;
         let mr = self.membership(right, "cc", scope, facts)?;
         let num = w.e.number(&self.ask(&w.spec), &BigInt::from(times));

@@ -21,7 +21,12 @@
 #   `mun:stdlib/functions/bijection-onto`;
 # - a map sends its domain into a set exactly when each value lies there:
 #   `fmpt` says it of a name for the map, and `eqid` names the map itself,
-#   for `mun:stdlib/functions/function-into`.
+#   for `mun:stdlib/functions/function-into`;
+# - two names for one function are one-to-one together: `f1eq1` with its
+#   antecedent given, which set.mm states as an implication only, where it
+#   has `feq1i` and `fneq1i` for the other two function predicates. It is
+#   what carries a renaming of a map's bound letter up through
+#   "is one-to-one".
 
 $( Functions: images, inverses, a bijection from one-to-one and onto,
    and an onto function from a bijection. $)
@@ -40,6 +45,13 @@ lemma gfvelima
   4 eqcom |- ( ( F ` x ) = D <-> D = ( F ` x ) )
   5 rexbii 4 |- ( E. x e. S ( F ` x ) = D <-> E. x e. S D = ( F ` x ) )
   6 bitrdi 3 5 |- ( ( F : A --> B /\ S C_ A ) -> ( D e. ( F " S ) <-> E. x e. S D = ( F ` x ) ) )
+
+# ( F : A -1-1-> B <-> G : A -1-1-> B ), from F = G
+lemma gf1eq1i
+  hypothesis gf1eq1i.1 |- F = G
+  |- ( F : A -1-1-> B <-> G : A -1-1-> B )
+  1 f1eq1 |- ( F = G -> ( F : A -1-1-> B <-> G : A -1-1-> B ) )
+  2 ax-mp gf1eq1i.1 1 |- ( F : A -1-1-> B <-> G : A -1-1-> B )
 
 # ( ( F : A -1-1-> B /\ C e. A ) -> ( `' F ` ( F ` C ) ) = C )
 lemma gf1cnvfv1

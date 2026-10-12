@@ -240,6 +240,13 @@ mundane theorem singleton-subset
   metamath    snssi
   target      snssi
 
+mundane theorem pair-subset
+  let a ∈ X                                                           (H1)
+  let b ∈ X                                                           (H2)
+  then        {a, b} ⊆ X
+  metamath    prssi
+  target      prssi
+
 mundane theorem powerset-monotone
   assume Y ⊆ X                                                        (H1)
   then        𝒫Y ⊆ 𝒫X

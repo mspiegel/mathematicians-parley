@@ -251,6 +251,9 @@ pub const PREDICATE_LIFT: &[(&str, usize, &str)] = &[
     ("wss", 1, "sseq2i"),
     ("wbr", 0, "breq1i"),
     ("wbr", 1, "breq2i"),
+    ("wfn", 0, "fneq1i"),
+    ("wf", 2, "feq1i"),
+    ("wf1", 2, "gf1eq1i"),
 ];
 
 // Carrying an equality of two classes up through one place of a term,

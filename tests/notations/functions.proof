@@ -1,0 +1,131 @@
+import mundane definition stdlib/functions/one-to-one
+import mundane theorem    stdlib/functions/function-into
+import mundane theorem    stdlib/functions/value-in-image
+import mundane theorem    stdlib/functions/inverse-value
+import mundane theorem    stdlib/sets/pair-subset
+
+theorem a-value-of-a-line
+  note        f(3) is f applied to 3, read off the rule that defines f: it is
+              not f times 3.
+  let f(x) = 2·x + 1, for x ∈ ℝ                                       (D1)
+         reads double and add one
+  then f(3) = 7
+
+1.  f(3) = 2·3 + 1
+    D1
+
+2.  f(3) = 7
+    calculation
+    f(3) = 2·3 + 1     1
+         = 7           arithmetic
+
+theorem a-line-is-one-to-one
+  note        2s + 1 = 2t + 1 only where s = t, so no two numbers go to one
+              place.
+  let f(x) = 2·x + 1, for x ∈ ℝ                                       (D1)
+         reads double and add one
+  then f : ℝ → ℝ is one-to-one
+
+1.  f : ℝ → ℝ
+    mun:function-into
+    requires f is a function on ℝ: from D1
+    requires for all x ∈ ℝ, f(x) ∈ ℝ: membership, from D1
+
+2.  For all s, t ∈ ℝ, if f(s) = f(t) then s = t.
+    proof
+    let s ∈ ℝ                                                         (K1)
+    let t ∈ ℝ                                                         (K2)
+    assume f(s) = f(t)                                                (A1)
+
+    2.1.  f(s) = 2·s + 1
+          D1
+
+    2.2.  f(t) = 2·t + 1
+          D1
+
+    2.3.  2·s + 1 = 2·t + 1
+          calculation
+          2·s + 1 = f(s)          2.1
+                  = f(t)          A1
+                  = 2·t + 1       2.2
+
+    2.4.  s = t
+          algebra, from 2.3
+
+3.  f : ℝ → ℝ is one-to-one
+    mun:one-to-one, from 1, 2
+
+theorem a-value-in-an-image
+  note        f[{1, 2}] is the set f sends {1, 2} to, and f(1) = 3 is in it.
+  let f : ℝ → ℝ                                                       (H1)
+  assume for all x ∈ ℝ, f(x) = 2·x + 1                                (H2)
+  then 3 ∈ f[{1, 2}]
+
+1.  1 ∈ {1, 2}
+    inspection
+
+2.  {1, 2} ⊆ ℝ
+    mun:pair-subset a := 1, b := 2, X := ℝ
+
+3.  f(1) ∈ f[{1, 2}]
+    mun:value-in-image, from 2, 1
+
+4.  f(1) = 2·1 + 1
+    instantiate x := 1 in H2
+
+5.  f(1) = 3
+    calculation
+    f(1) = 2·1 + 1     4
+         = 3           arithmetic
+
+6.  3 ∈ f[{1, 2}]
+    substitute f(1) = 3 (line 5) into line 3
+
+theorem an-inverse-value
+  note        f⁻¹ takes each value of f back to where it came from: 7 came
+              from 3.
+  let f : ℝ → ℝ be one-to-one                                         (H1)
+  assume for all x ∈ ℝ, f(x) = 2·x + 1                                (H2)
+  then f⁻¹(7) = 3
+
+1.  f⁻¹(f(3)) = 3
+    mun:inverse-value, from H1
+
+2.  f(3) = 2·3 + 1
+    instantiate x := 3 in H2
+
+3.  f(3) = 7
+    calculation
+    f(3) = 2·3 + 1     2
+         = 7           arithmetic
+
+4.  f⁻¹(7) = 3
+    substitute f(3) = 7 (line 3) into line 1
+
+theorem a-square-is-not-one-to-one
+  note        −1 and 1 have one square, so x² sends two numbers to one place.
+  let f(x) = x², for x ∈ ℝ                                            (D1)
+         reads the square
+  then not (f : ℝ → ℝ is one-to-one)
+
+1.  f(−1) = (−1)²
+    D1
+
+2.  f(1) = 1²
+    D1
+
+3.  f(−1) = f(1)
+    calculation
+    f(−1) = (−1)²     1
+          = 1²        arithmetic
+          = f(1)      2
+
+4.  not (f : ℝ → ℝ is one-to-one)
+    contradiction
+    suppose f : ℝ → ℝ is one-to-one                                   (S)
+
+    4.1.  For all s, t ∈ ℝ, if f(s) = f(t) then s = t.
+          mun:one-to-one, from S
+
+    4.2.  −1 = 1, which is impossible
+          instantiate s := −1, t := 1 in line 4.1, from 3
