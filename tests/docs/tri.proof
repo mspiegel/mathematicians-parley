@@ -1,0 +1,13 @@
+define B := {1, 2}                                       (D2)
+       reads the first two natural numbers
+
+define T(k) := k(k + 1)/2, for k ∈ ℕ                     (D1)
+       reads the k-th triangular number
+
+theorem tri-one
+  then T(1) = 1
+
+1.  T(1) = 1
+    calculation
+      T(1) = 1(1 + 1)/2        D1
+           = 1                 arithmetic

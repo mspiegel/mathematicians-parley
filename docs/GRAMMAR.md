@@ -5,7 +5,10 @@
 text is read: the line kinds, the justification forms, what a formula is, and
 the rules a parser applies. It is written from the proofs in `proofs/`, the
 standard library in `corpus/stdlib/` and the notation and methods in `corpus/db/`, and every
-rule below holds on all of them.
+rule below holds on all of them. Its examples are kept true as `SYNTAX.md`'s
+are: each block's fence says whether it is a `proof`, `records` or `grammar`
+block, and `tests/doc_examples.rs` finds every `proof` and `records` block in a
+file the build checks.
 
 It has two halves. The **skeleton** is the text around a formula, and its
 productions are written out here. A **formula** is not: it is parsed from the
@@ -374,7 +377,7 @@ become a parse.
 
 ### Tokens
 
-```
+```grammar
 <token>   ::= <word> | <name> | <numeral> | <symbol> | `(` | `)`
 <word>    ::= a maximal run of letters that is a declared literal, longest match
 <name>    ::= a letter, then any subscripts and primes
@@ -427,7 +430,7 @@ would let the name `s` match the declared word `S`.
 
 ### Applying a notation
 
-```
+```grammar
 <term>    ::= <name> | <numeral> | `(` <term> `)` | <applied>
 <formula> ::= `(` <formula> `)` | <applied>
 <applied> ::= the tokens of some declared pattern, in order, each hole filled by
@@ -559,7 +562,7 @@ substitution in the corpus comes close.
 
 ## Files
 
-```
+```grammar
 <proof file>  ::= { <import> } { <theorem> | <define> }
 <import>      ::= `import` [ `mundane` ] <kind> <module> `/` <name>
                   [ `as` <name> ] [ `(` <label> `)` ]
@@ -716,7 +719,7 @@ wherever under the root that file is kept.
 its name.** A proof file imports each item it uses from another file, one to a
 line, by its full name, its paths in one column:
 
-```
+```proof
 import axiom              stdlib/calculus/completeness
 import theorem            stdlib/divisibility/prime-factor
 import mundane axiom      stdlib/numbers/trichotomy
@@ -724,8 +727,8 @@ import mundane theorem    stdlib/numbers/int-closure
 import mundane definition stdlib/divisibility/gcd
 import definition         stdlib/counting/C
 import theorem            proofs/triangle-inequality/abs-bounds as abs-sum
-import definition         proofs/tri/T as U (D1)
-import definition         proofs/cantor/B
+import definition         tests/docs/tri/T as U (D1)
+import definition         tests/docs/tri/B
 ```
 
 The words are what the item is where it lives. For the library they are the
@@ -770,7 +773,7 @@ the defines of a cited theorem are imported by nothing.
 is what a line cites when it writes the define out, as a calculation link
 does:
 
-```
+```proof
 U(3) = 3(3 + 1)/2        D1
      = 6                 arithmetic
 ```
@@ -836,7 +839,7 @@ its own.
 
 ## Steps
 
-```
+```grammar
 <step>  ::= <number> `.` <claim> <justification> [ <note> ] { <requires> } [ <block> ]
 <claim> ::= <formula> { <formula> }
 <note>  ::= `note` <words>
@@ -859,7 +862,7 @@ with a capital, as `C ⊆ A` does.
 
 A step numbered `p.n` belongs to the block of the step numbered `p`.
 
-```
+```grammar
 <requires> ::= `requires` <formula> `:` <justification>
 ```
 
@@ -881,7 +884,7 @@ A justification is a head and a set of optional slots. The slots are:
 
 The seventeen heads and the slots each admits:
 
-```
+```grammar
 <justification> ::=
     <prefix> <cited> [ <instantiation> ] [ `,` <from> ]
   | `obtain` <names> <prefix> <cited> [ <instantiation> ] [ `,` <from> ]
@@ -943,7 +946,7 @@ those shapes occur once each. Nine of the fifteen heads never vary at all.
 a block. The block is the sub-steps numbered under the step, together with an
 opening line or part markers as the method requires.
 
-```
+```grammar
 <block> ::= [ <opener> ] { <part> | <step> }
 <opener>::= `suppose` <formula> `(` <label> `)`          -- contradiction
           | <hypothesis> { <hypothesis> }                -- proof
@@ -963,7 +966,7 @@ the letter that claim binds.
 
 ## Calculation chains
 
-```
+```grammar
 <chain>      ::= <first line> { <chain line> }
 <first line> ::= <term> <rel> <term> [ <modulus> ] <citation>
 <chain line> ::= <rel> <term> [ <modulus> ] <citation>
@@ -1025,7 +1028,7 @@ a parsed justification, never by pattern.
 
 ## Database records
 
-```
+```grammar
 <record> ::= [ `mundane` ] <kind> <name> { <field> }
 <kind>   ::= `notation` | `method` | `axiom` | `theorem` | `definition`
            | `precedence`
@@ -1072,7 +1075,7 @@ a library item but a `define` in that proof.
 A function the library offers is declared by a definition with a `sort` line,
 by name and not by notation:
 
-```
+```records
 mundane definition gcd
   sort        number, number → number
   builds      _1 _2 cgcd co
@@ -1096,7 +1099,7 @@ in items of their own. A proof file that applies a function imports it as it
 imports any item, after its record's header, from the library file that
 declares it, with no label and no `as`:
 
-```
+```proof
 import mundane definition stdlib/divisibility/gcd
 ```
 

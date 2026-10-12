@@ -106,6 +106,7 @@ fn every_method_and_notation_is_written_by_a_proof() {
                 "tests/elaborator/",
                 "tests/stdlib/",
                 "tests/notations/",
+                "tests/docs/",
             ]
             .iter()
             .any(|dir| t.path.starts_with(dir))

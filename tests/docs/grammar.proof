@@ -1,0 +1,90 @@
+import axiom              stdlib/calculus/completeness
+import theorem            stdlib/divisibility/prime-factor
+import mundane axiom      stdlib/numbers/trichotomy
+import mundane theorem    stdlib/numbers/int-closure
+import mundane definition stdlib/divisibility/gcd
+import definition         stdlib/counting/C
+import theorem            proofs/triangle-inequality/abs-bounds as abs-sum
+import definition         tests/docs/tri/T as U (D1)
+import definition         tests/docs/tri/B
+import mundane definition stdlib/calculus/upper-bound
+import mundane theorem    stdlib/sets/in-union-left
+
+theorem a-set-with-a-bound
+  note        GRAMMAR.md's imports, each used: completeness.
+  let S ⊆ ℝ                                                           (H1)
+  assume 0 ∈ S                                                        (H2)
+  assume for all s ∈ S, s ≤ 1                                         (H3)
+  then there is c ∈ ℝ with c is a least upper bound of S
+
+1.  There is s ∈ S.
+    exhibit, from H2
+
+2.  1 is an upper bound of S
+    mun:upper-bound u := 1, from H3
+
+3.  There is u ∈ ℝ with u is an upper bound of S.
+    exhibit, from 2
+
+4.  There is c ∈ ℝ with c is a least upper bound of S.
+    axi:completeness, from H1, 1, 3
+
+theorem four-has-a-prime-factor
+  then there is p ∈ ℕ with p is prime and p divides 4
+
+1.  There is p ∈ ℕ with p is prime and p divides 4.
+    thm:prime-factor m := 4
+    requires 4 > 1: arithmetic
+
+theorem a-real-has-a-sign
+  let x ∈ ℝ                                                           (H1)
+  then x < 0 or x = 0 or 0 < x
+
+1.  x < 0 or x = 0 or 0 < x
+    mun:trichotomy
+
+theorem a-power-plus-one
+  let a ∈ ℤ                                                           (H1)
+  let k ∈ ℕ₀                                                          (H2)
+  then a^k + 1 ∈ ℤ
+
+1.  a^k ∈ ℤ
+    membership
+
+2.  a^k + 1 ∈ ℤ
+    mun:int-closure a := a^k, b := 1, from 1
+
+theorem a-gcd-divides
+  then gcd(4, 6) divides 4
+
+1.  gcd(4, 6) divides 4
+    mun:gcd a := 4, b := 6
+
+theorem a-choice-out-of-range
+  then C(3, 5) = 0
+
+1.  C(3, 5) = 0
+    def:C n := 3, k := 5
+    requires 3 < 5: arithmetic
+
+theorem bounded-by-its-size
+  let x ∈ ℝ                                                           (H1)
+  then x ≤ |x|. −x ≤ |x|.
+
+1.  x ≤ |x|. −x ≤ |x|.
+    thm:abs-sum
+
+theorem the-third-triangular-number
+  then U(3) = 6
+
+1.  U(3) = 6
+    calculation
+    U(3) = 3(3 + 1)/2        D1
+         = 6                 arithmetic
+
+theorem in-a-larger-set
+  let x ∈ B                                                           (H1)
+  then x ∈ B ∪ {7}
+
+1.  x ∈ B ∪ {7}
+    mun:in-union-left, from H1

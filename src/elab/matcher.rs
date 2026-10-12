@@ -457,6 +457,10 @@ impl<'a> Elaborator<'a> {
         }
         let label = wanted.label().unwrap_or("");
         let kids = wanted.children();
+        // Truth, the body of a "there is" that says nothing of what it names.
+        if label == "wtru" {
+            return Ok(Built(pf!(self.b; rpn, scope, self.step("tru"), "a1i")));
+        }
         // A term equals itself, which no line need write.
         if label == "wceq"
             && kids.len() == 2

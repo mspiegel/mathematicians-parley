@@ -39,8 +39,8 @@ use crate::corpus::proof::{
     chain, requires_as_step, requires_item, ChainLine, Requires,
 };
 use crate::corpus::{
-    define_parts, fmt, item_prefix, references, Corpus, DefineParts, Intro, Item,
-    Record, Step, Theorem,
+    define_parts, fmt, item_prefix, references, Corpus, DefineParts, Hypothesis, Intro,
+    Item, Record, Step, Theorem,
 };
 use crate::formula::page::{conjoined, related, Written};
 use crate::formula::{Grammar, Node};
@@ -545,6 +545,7 @@ impl<'a> Elaborator<'a> {
         self.lines = lines;
         let mut closers: Vec<Closer> = Vec::new();
         let mut blocks: Vec<Block> = Vec::new();
+        let mut named_hypotheses = false;
         for step in self.thm.steps.clone() {
             // A block's children are the steps numbered below it, so the
             // block closes at the first step that is not one of them.
@@ -587,6 +588,10 @@ impl<'a> Elaborator<'a> {
             // hand: a define written inside a case is the case's.
             (scope, facts, closers) =
                 self.define(step.line, &scope, &facts, closers)?;
+            if !named_hypotheses {
+                named_hypotheses = true;
+                self.hypotheses_named(&hypotheses, &nodes, &scope, &facts)?;
+            }
             if !step.openers.is_empty() || !step.parts.is_empty() {
                 let mut block = self.open_block(&step, &scope, &facts)?;
                 block.opened_at = closers.len();
@@ -2651,6 +2656,58 @@ impl<'a> Elaborator<'a> {
         }
     }
 
+    /// Each hypothesis line read again once the names its statement wrote
+    /// out are in scope. The statement says `x ∈ {1, 2}` where the page
+    /// writes `let x ∈ B` for a define B, and the steps say it with the name,
+    /// so a step citing the line is given it as the steps read it: the two
+    /// readings are joined by `same`, as the last line and the conclusion
+    /// are. A line the two read alike is left as it is.
+    fn hypotheses_named(
+        &mut self,
+        hypotheses: &[Hypothesis],
+        nodes: &[Node],
+        scope: &str,
+        facts: &Facts,
+    ) -> Checked<()> {
+        for (h, node) in hypotheses.iter().zip(nodes) {
+            let Some(label) = h.label.clone().filter(|l| !l.is_empty()) else {
+                continue;
+            };
+            let Some(line) = self.lines.get(&label) else {
+                continue;
+            };
+            let named = self.term(node)?;
+            if named == line.term {
+                continue;
+            }
+            let Some(held) = self.held(facts, &line.term, scope)? else {
+                continue;
+            };
+            let alike = self.same(
+                &self.to_term(&line.term),
+                &self.to_term(&named),
+                scope,
+                facts,
+                None,
+            )?;
+            let Built(alike) = alike else {
+                continue;
+            };
+            let proof = pf!(self.b; scope, line.term, named, held, alike, "mpbid");
+            let proof = self.seal(proof, &label);
+            self.know(facts, named.clone(), proof.clone());
+            self.lines.set(
+                label,
+                Line {
+                    term: named,
+                    proof,
+                    sentences: line.sentences.clone(),
+                },
+            );
+        }
+        Ok(())
+    }
+
     /// The label this theorem is written under.
     pub fn own_label(&self) -> Checked<String> {
         label_of(
@@ -3896,13 +3953,15 @@ impl<'a> Elaborator<'a> {
             ));
             apart = Some(spare);
         }
-        let shape = self.names_kept(|me| -> Checked<Node> {
-            me.names.insert(said.clone(), stands.clone());
-            me.freeze(&node.children[2])
-        })?;
         let at = t!(stands, witness, "wceq");
-        let identity = pf!(self.b; at, "id");
-        let (here, instance) =
+        // `there is s ∈ S` says nothing of s: its body is true, and true of
+        // any witness.
+        let (here, instance) = if let [_, _, said_of] = node.children.as_slice() {
+            let shape = self.names_kept(|me| -> Checked<Node> {
+                me.names.insert(said.clone(), stands.clone());
+                me.freeze(said_of)
+            })?;
+            let identity = pf!(self.b; at, "id");
             match self.rewrite(&shape, &stands, &witness, &at, &identity)? {
                 Built(made) => made,
                 Declined(d) => {
@@ -3914,7 +3973,14 @@ impl<'a> Elaborator<'a> {
                         ),
                     ));
                 }
-            };
+            }
+        } else {
+            let truth = self.rpn(&body);
+            let same = self
+                .b
+                .ap("biidd", &binds! {"ph" => &at, "ps" => &truth}, &[]);
+            (truth, same)
+        };
         let known = self.supplied(Some(step), scope, facts)?;
         let member = t!(witness, self.rpn(&domain), "wcel");
         // What is left is that the witness lies in the domain and that the
@@ -4172,7 +4238,11 @@ impl<'a> Elaborator<'a> {
 
     /// `by_clause`, with an equation one claim either way round, as the
     /// checker reads an item's conclusion (`citing::either_way`): `b = a` is
-    /// what an item concluding `a = b` gives, turned.
+    /// what an item concluding `a = b` gives, turned. A "there is" the
+    /// clauses give together at the witness the `with` target names is
+    /// assembled as `cite_item` assembles it for an obtain: completeness's
+    /// "there is c ∈ ℝ with c is a least upper bound of S" from suprcl,
+    /// suprub and suprleub at sup S.
     fn by_clause_either_way(
         &mut self,
         labels: &[String],
@@ -4185,6 +4255,9 @@ impl<'a> Elaborator<'a> {
         let found = self.by_clause(labels, term, scope, facts, step, seed)?;
         if !found.is_declined() {
             return Ok(found);
+        }
+        if let Built(p) = self.from_lemmas(labels, term, scope, facts, step, seed)? {
+            return Ok(Built(p));
         }
         let Some((turned, flip)) = self.turned_claim(term) else {
             return Ok(found);

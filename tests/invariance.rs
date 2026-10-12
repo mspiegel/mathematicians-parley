@@ -262,14 +262,16 @@ fn changed(clean: &Memory, root: &Path, context: &Context, change: &Change) -> C
     let mut declined = Vec::new();
     // The corpus's proofs, the elaborator's test proofs, which are where a
     // method or notation no theorem uses yet is written first, the
-    // library's, which prove what each item says at one instance, and each
-    // notation's textbook examples.
+    // library's, which prove what each item says at one instance, each
+    // notation's textbook examples, and the proofs the syntax documents'
+    // examples stand in.
     let mut paths: Vec<String> = Vec::new();
     for dir in [
         "proofs",
         "tests/elaborator",
         "tests/stdlib",
         "tests/notations",
+        "tests/docs",
     ] {
         paths.extend(
             std::fs::read_dir(root.join(dir))

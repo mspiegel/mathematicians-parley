@@ -1,0 +1,131 @@
+import theorem            proofs/sqrt2-irrational/odd-square
+import theorem            proofs/triangle-inequality/abs-bounds
+import mundane definition stdlib/numbers/abs
+import mundane theorem    stdlib/numbers/abs-real
+import mundane theorem    stdlib/numbers/nonneg-or-neg
+import mundane theorem    stdlib/functions/function-value
+import mundane theorem    stdlib/divisibility/even-or-odd
+import mundane theorem    stdlib/divisibility/not-both
+import mundane theorem    stdlib/reasoning/disjunctive-syllogism
+
+theorem even-square
+  let n ∈ ℤ                   (H1)
+  assume n² is even            (H2)
+  then n is even
+
+1.  n is not odd
+    contradiction
+    suppose n is odd                                  (S)
+
+    1.1.  n² is odd
+          thm:odd-square, from S
+
+    1.2.  n² is not odd
+          mun:not-both n := n², from H2, contradicting 1.1
+
+2.  n is even or n is odd
+    mun:even-or-odd
+
+3.  n is even
+    mun:disjunctive-syllogism P := n is even, Q := n is odd, from 2, 1
+
+theorem sum-nonneg-bounded
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a + b ≥ 0                                                    (H3)
+  then |a + b| ≤ |a| + |b|
+
+1.  a ≤ |a|. −a ≤ |a|.
+    thm:abs-bounds x := a
+
+2.  b ≤ |b|. −b ≤ |b|.
+    thm:abs-bounds x := b
+
+3.  |a + b| = a + b
+    mun:abs x := a + b, from H3
+
+4.  a + b ≤ |a| + |b|
+    inequalities, from 1, 2
+    requires |a| ∈ ℝ: mun:abs-real x := a
+    requires |b| ∈ ℝ: mun:abs-real x := b
+
+5.  |a + b| ≤ |a| + |b|
+    calculation
+      |a + b| = a + b                 3
+              ≤ |a| + |b|             4
+
+theorem sum-neg-bounded
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a + b < 0                                                    (H3)
+  then |a + b| ≤ |a| + |b|
+
+1.  a ≤ |a|. −a ≤ |a|.
+    thm:abs-bounds x := a
+
+2.  b ≤ |b|. −b ≤ |b|.
+    thm:abs-bounds x := b
+
+3.  |a + b| = −(a + b)
+    mun:abs x := a + b, from H3
+
+4.  −(a + b) ≤ |a| + |b|
+    inequalities, from 1, 2
+    requires |a| ∈ ℝ: mun:abs-real x := a
+    requires |b| ∈ ℝ: mun:abs-real x := b
+
+5.  |a + b| ≤ |a| + |b|
+    calculation
+      |a + b| = −(a + b)              3
+              ≤ |a| + |b|             4
+
+theorem triangle-by-cases
+  note        SYNTAX.md's cases block, each case ending on one step.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  then |a + b| ≤ |a| + |b|
+
+1.  a + b ≥ 0 or a + b < 0
+    mun:nonneg-or-neg x := a + b
+
+2.  a ≤ |a|. −a ≤ |a|.
+    thm:abs-bounds x := a
+
+3.  b ≤ |b|. −b ≤ |b|.
+    thm:abs-bounds x := b
+
+4.  |a + b| ≤ |a| + |b|
+    cases, from 1
+
+    case
+    assume a + b ≥ 0                                  (C1)
+    4.1.  |a + b| ≤ |a| + |b|
+          thm:sum-nonneg-bounded, from C1
+    case
+    assume a + b < 0                                  (C2)
+    4.2.  |a + b| ≤ |a| + |b|
+          thm:sum-neg-bounded, from C2
+
+theorem nothing-to-show
+  note        SYNTAX.md's proof block whose assumption cannot hold.
+  let n ∈ ℕ₀                                                          (H1)
+  let V be a set                                                      (H2)
+  let v : ℕ₀ → V                                                      (H3)
+  then for all x ∈ V, if 0 ≤ n and x = v(0) and x ≠ v(0) then x = v(n)
+
+1.  For all x ∈ V, if 0 ≤ n and x = v(0) and x ≠ v(0) then x = v(n).
+    proof
+    let x ∈ V                                                         (K1)
+
+    1.1.  v(n) ∈ V
+          mun:function-value f := v, x := n
+
+    1.2.  If 0 ≤ n and x = v(0) and x ≠ v(0) then x = v(n).
+          proof
+          assume 0 ≤ n and x = v(0) and x ≠ v(0)                      (C2)
+
+          1.2.1.  x = v(0)
+                  join C2
+
+          1.2.2.  x ≠ v(0)
+                  join C2, contradicting 1.2.1

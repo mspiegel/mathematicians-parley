@@ -6,6 +6,15 @@ rule is added here when a pilot has needed it and the decision has been
 taken, and changed when a later pilot shows it to be wrong. Anything not
 here is still provisional and lives in the pilot that needs it.
 
+Every example set apart in a block is one the tools accept. Its fence says
+what it is: `proof` for text of a proof file, which is found line for line
+in a proof the build checks and verifies, the theorem it is quoted from or
+one of `tests/docs/` written for it; `records` for text of a records file;
+`grammar` for productions. A line `...` stands for lines left out.
+`tests/doc_examples.rs` fails on an example no proof says, and on a block
+whose fence says none of the three, so an example is changed with the proof
+that says it.
+
 ## The skeleton is the text
 
 The stored text is the **skeleton**: every line of it is a field that the
@@ -32,7 +41,7 @@ skeleton, because a copy would drift from the item.
 
 A theorem is a name, its hypotheses, and its conclusion:
 
-```
+```proof
 theorem even-square
   let n ∈ ℤ                    (H1)
   assume n² is even            (H2)
@@ -151,14 +160,16 @@ under the step. The claim always precedes the block. There is no closing
 step: the block ends with the sub-step that the method requires it to end
 with.
 
-```
+```proof
 1.  n is not odd
     contradiction
     suppose n is odd                                  (S)
 
-    1.1.  ...
-    1.3.  n² is odd. n² is not odd.
-          join 1.1, 1.2
+    1.1.  n² is odd
+          thm:odd-square, from S
+
+    1.2.  n² is not odd
+          mun:not-both n := n², from H2, contradicting 1.1
 ```
 
 A supposition carries a label, like a hypothesis, and is cited by it.
@@ -171,7 +182,7 @@ cited rule the sub-step under it discharges, so that the block reads the
 way a textbook proof does. The parts a method has, and their order, are
 fixed by the method's definition. Induction has `base` and `step`:
 
-```
+```proof
 1.  For all k ∈ ℕ, S(k) = k(k + 1)/2.
     induction on k starting at 1
 
@@ -189,7 +200,7 @@ fixed by the method's definition. Induction has `base` and `step`:
           ...
 
 2.  S(n) = n(n + 1)/2
-    instantiate k := n in line 1, from H1
+    instantiate k := n in line 1
 ```
 
 **An induction proves a statement of every k, and its step part opens as a
@@ -219,7 +230,7 @@ A part may carry an assumption. An induction's `step` part opens with its
 with an `assume` line, labelled like a hypothesis, stating the disjunct
 that the part handles:
 
-```
+```proof
 4.  |a + b| ≤ |a| + |b|
     cases, from 1
 
@@ -236,11 +247,11 @@ that the part handles:
 The disjunction being split is a cited line, here line 1, and the reader
 checks that the case assumptions are its disjuncts in order. A case that
 cannot occur ends on the step that reaches the opposite of an earlier line,
-and says so after its reasons, as a textbook says "contradicting 6.1":
+and says so after its reasons, as a textbook says "contradicting 10.1":
 
-```
-    6.3.  not b(N) + N ≤ N
-          inequalities, from 6.2, contradicting 6.1
+```proof
+    10.3. not b(N) + N ≤ N
+          inequalities, from 10.2, contradicting 10.1
 ```
 
 The step's claim is the line negated, or the line, or one sentence of it,
@@ -255,7 +266,7 @@ A `proof` block whose assumption cannot hold ends the same way. "For all x ∈ V
 if 0 ≤ n and x = v(0) and x ≠ v(0), then …" says nothing of any x, and a
 textbook says so without supposing the opposite of what it claims:
 
-```
+```proof
           assume 0 ≤ n and x = v(0) and x ≠ v(0)                      (C2)
 
           1.2.1.  x = v(0)
@@ -274,14 +285,14 @@ A case whose assumption already is the block's claim has nothing to show,
 and says so on its assumption line, as a textbook says "if b(N) = 0 there is
 nothing to prove":
 
-```
+```proof
     case
-    assume b(N) = 0, which is the claim                               (C3)
+    assume b(N) = 0, which is the claim                               (C7)
 
     case
-    assume b(N) ≠ 0                                                   (C4)
+    assume b(N) ≠ 0                                                   (C8)
 
-    6.1.  b(N) + N ≤ N
+    10.1. b(N) + N ≤ N
           ...
 ```
 
@@ -516,7 +527,7 @@ A naming line gives an object a name. In a theorem it opens with `let` and
 `=`, is labelled rather than numbered, and stands where the name is first
 needed:
 
-```
+```proof
 let m = gcd(s, w), a positive integer                               (D1)
     mun:gcd a := s, b := w, from 28, 2
     reads the number whose square is s
@@ -624,9 +635,9 @@ G, and the reader meets G before the fact. A define over the theorem's own
 **A function may be defined by cases**, one case to a line, as a textbook
 prints it inside a brace:
 
-```
+```proof
 let h(x) = f(x)      if x ∈ C
-           g⁻¹(x)    otherwise,  for x ∈ A                    (D4)
+           g⁻¹(x)    otherwise,  for x ∈ A                    (D2)
 ```
 
 Every line but the last gives a value and the condition it is taken under;
@@ -637,7 +648,7 @@ continues until the line carrying its label. The lines are one term,
 and three or more cases nest from the right: `a if P, b if Q, c otherwise`
 on three lines is `a if P, (b if Q, c otherwise) otherwise`. A step that
 needs a value writes it and cites the define, from the line saying which
-case it is in: `h(t) = g⁻¹(t)`, justified `D4, from` a line saying t ∉ C.
+case it is in: `h(t) = g⁻¹(t)`, justified `D2, from` a line saying t ∉ C.
 The line gives a case's condition or its negation, and the value claimed
 is the one that case gives. That t is in h's domain, A, comes from a line
 the step cites or from a `requires` line, as for any defined function.
@@ -646,12 +657,12 @@ the step cites or from a `requires` line, as for any defined function.
 for the value at k + 1, and several together, as a textbook writes an
 algorithm that keeps several numbers:
 
-```
+```proof
 let a(0) = M,  b(0) = N,
-    a(k + 1) = b(k)             if b(k) ≠ 0
-               a(k)             otherwise,
-    b(k + 1) = a(k) mod b(k)    if b(k) ≠ 0
-               0                otherwise,   for k ∈ ℕ₀               (D1)
+    a(k + 1) = a(k)             if b(k) = 0
+               b(k)             otherwise,
+    b(k + 1) = 0                if b(k) = 0
+               a(k) mod b(k)    otherwise,   for k ∈ ℕ₀                   (D1)
 ```
 
 Each name has one value at 0 and one rule at k + 1, and a rule may be by
@@ -689,7 +700,7 @@ proves it, as the mean value theorem's steps 10 to 15 do.
 it may be used in that theorem's statement, as a textbook writes "let
 Tₖ = k(k + 1)/2" once and then states results about Tₖ:
 
-```
+```proof
 define T(k) := k(k + 1)/2, for k ∈ ℕ                     (D1)
        reads the k-th triangular number
 
@@ -773,7 +784,7 @@ compared where they differ, and every differing piece must have no letter in
 it; each is worked out as a closed fact is. A change touching a letter,
 `k(k + 1)/2 + (k + 1)` to `(k + 1)((k + 1) + 1)/2`, is still `algebra`'s.
 
-```
+```proof
 4.4.  |a + b| = −(a + b)
       mun:abs x := a + b, from C2
 
@@ -782,8 +793,8 @@ it; each is worked out as a closed fact is. A change touching a letter,
 
 4.6.  −a + −b ≤ |a| + |b|
       inequalities, from 2, 3
-      requires |a| ∈ ℝ: mun:abs-real x := a, from H1
-      requires |b| ∈ ℝ: mun:abs-real x := b, from H2
+      requires |a| ∈ ℝ: mun:abs-real x := a
+      requires |b| ∈ ℝ: mun:abs-real x := b
 
 4.7.  |a + b| ≤ |a| + |b|
       calculation
