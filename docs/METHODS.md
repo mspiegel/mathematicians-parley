@@ -668,7 +668,10 @@ Königsberg graph is its first use, and nothing in it knows about graphs.
 
 ### Facts in
 
-The lines the step cites, read for four kinds of sentence and nothing else:
+A set the claim itself writes in full, `|{1, 2}| = 2` or `4 ∉ {1, 2, 3}`,
+is listed where the reader sees it, and the step cites nothing for it. Two
+numerals differ by their values, which no line need say. Otherwise, the
+lines the step cites, read for four kinds of sentence and nothing else:
 
 - **a set listed in full:** an equation `S = {s₁, …, sₙ}`, or a `let` line
   that names a set by listing it, as "the multigraph with distinct vertices
@@ -733,7 +736,8 @@ working out the sum that counts one against the other.
   value the lines give: an element whose case needs a lemma, a calculation or
   a reason of its own is a case to write, and `cases` writes it.
 - **Two names not said to differ**, where the answer depends on it.
-- **A search.** Only the cited lines are read, never the scope.
+- **A search.** Only the claim and the cited lines are read, never the
+  scope.
 
 ### Hypotheses
 

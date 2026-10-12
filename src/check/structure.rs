@@ -120,7 +120,7 @@ fn productions() -> Vec<regex::Regex> {
         r"^arithmetic$".to_string(),
         format!(r"^inequalities(?:,\s*{from})?$"),
         format!(r"^membership(?:,\s*{from})?$"),
-        format!(r"^inspection,\s*{from}$"),
+        format!(r"^inspection(?:,\s*{from})?$"),
         format!(r"^join\s+{REF}(?:\s*,\s*{REF})*$"),
         r"^contradiction$".to_string(),
         r"^proof$".to_string(),

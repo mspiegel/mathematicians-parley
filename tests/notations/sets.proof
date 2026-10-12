@@ -45,6 +45,18 @@ theorem a-repeat-counts-once
 4.  |{1, 2, 2}| = 2
     substitute {1, 2} = {1, 2, 2} (line 1) into line 3
 
+theorem a-pair-counted
+  then |{1, 2}| = 2
+
+1.  |{1, 2}| = 2
+    inspection
+
+theorem four-not-in-a-written-set
+  then 4 ∉ {1, 2, 3}
+
+1.  4 ∉ {1, 2, 3}
+    inspection
+
 theorem in-a-union
   then 3 ∈ {1, 2} ∪ {3}
 

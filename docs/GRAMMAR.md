@@ -891,7 +891,7 @@ The seventeen heads and the slots each admits:
   | `arithmetic`
   | `inequalities` [ `,` <from> ]
   | `membership` [ `,` <from> ]
-  | `inspection` `,` <from>
+  | `inspection` [ `,` <from> ]
   | `join` <ref> { `,` <ref> }
   | `contradiction`
   | `proof`
