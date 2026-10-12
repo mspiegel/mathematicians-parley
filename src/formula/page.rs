@@ -222,7 +222,7 @@ pub fn tokens(written: &Written, g: &Grammar) -> Checked<Vec<Token>> {
 
 /// A formula the code writes with letters to fill, `x ≠ 0`, read as the
 /// page's are, by the one parser; the letters are then filled with trees
-/// (`matching::substitute`). The text is the code's own, fixed when it is
+/// (`matching::substitute_apart`). The text is the code's own, fixed when it is
 /// compiled, so no formula is put together as text and read: what fills it
 /// is a tree.
 pub fn template(text: &'static str, g: &Grammar, sorts: &Sorts) -> Checked<Node> {

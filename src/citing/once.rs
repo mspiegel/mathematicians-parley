@@ -16,7 +16,7 @@ use num_traits::{Signed, ToPrimitive, Zero};
 
 use crate::formula::page::template;
 use crate::formula::{Node, Sort, Sorts};
-use crate::matching::{alike_top, standard, substitute, Binding};
+use crate::matching::{alike_top, standard, substitute_apart, Binding};
 use crate::rules::{self, lookup};
 
 use super::library::Library;
@@ -76,7 +76,7 @@ pub fn said_once(
     let form = |said: &'static str, term: &Node| -> Option<Node> {
         let made = template(said, library.env.g, &local).ok()?;
         let put = Binding::from([("x".to_string(), term.clone())]);
-        Some(standard(&substitute(&made, &put), ctx))
+        Some(standard(&substitute_apart(&made, &put, ctx), ctx))
     };
     // S is read as the number system that fills it, whatever the page's S
     // is.
@@ -87,7 +87,7 @@ pub fn said_once(
         let made = template("x ∈ S", library.env.g, &sets).ok()?;
         let put =
             Binding::from([("x".to_string(), term.clone()), ("S".to_string(), set)]);
-        Some(standard(&substitute(&made, &put), ctx))
+        Some(standard(&substitute_apart(&made, &put, ctx), ctx))
     };
     // A divisor is not zero where a fact says so, as `≠ 0` or as a sign.
     let nonzero = |d: &Node| -> bool {

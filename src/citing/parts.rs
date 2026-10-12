@@ -2,7 +2,7 @@
 
 use crate::formula::page;
 use crate::formula::{Node, Sort, Sorts, Whole};
-use crate::matching::{standard, substitute, Binding};
+use crate::matching::{standard, substitute_apart, substitute_apart_by, Binding};
 use crate::rules;
 use crate::sorts::{element_sort, Env};
 
@@ -110,9 +110,7 @@ pub fn bound_in(
     let mut put = Binding::new();
     put.insert("x".into(), letter.clone());
     put.insert("S".into(), domain.clone());
-    // A bound is a relation of x and S that binds no letter of its own, so
-    // nothing in the values can be caught.
-    Some(substitute(&said, &put))
+    Some(substitute_apart(&said, &put, &library.ctx))
 }
 
 /// Whether `fact` has the form `form` writes, with its letters `x` and `S`
@@ -185,8 +183,7 @@ pub fn function_values(facts: &[Node], env: Env, sorts: &Sorts) -> Vec<Node> {
             put.insert("f".into(), function.clone());
             put.insert("x".into(), point.clone());
             put.insert("S".into(), codomain.clone());
-            // `f(x) ∈ S` binds nothing.
-            out.push(substitute(&said, &put));
+            out.push(substitute_apart_by(&said, &put, &env.g.binders()));
         }
     }
     out
@@ -208,8 +205,11 @@ pub fn implied_facts(fact: &Node, env: Env, sorts: &Sorts) -> Vec<Node> {
     for (premise, conclusion, _) in rules::PARTS {
         let mut put = Binding::new();
         if fits_form(&template(premise, env, &sets), fact, &mut put) {
-            // The forms of `rules::PARTS` relate x and S and bind nothing.
-            return vec![substitute(&template(conclusion, env, &sets), &put)];
+            return vec![substitute_apart_by(
+                &template(conclusion, env, &sets),
+                &put,
+                &env.g.binders(),
+            )];
         }
     }
     let both = fact.children.len() == 2;
@@ -223,8 +223,9 @@ pub fn implied_facts(fact: &Node, env: Env, sorts: &Sorts) -> Vec<Node> {
     let system = rules::system_of(&fact.children[1].text);
     let mut local = sorts.clone();
     local.insert("x".into(), Sort::of("number"));
-    // Each says one thing of x, `x ∈ ℝ` or `x ≥ 0`, and binds nothing: a
-    // membership is `x ∈ S` with the number system at S.
+    let binders = env.g.binders();
+    // Each says one thing of x, `x ∈ ℝ` or `x ≥ 0`: a membership is `x ∈ S`
+    // with the number system at S.
     let mut said: Vec<Node> = rules::SYSTEM_OF
         .iter()
         .filter(|(_, big)| {
@@ -240,14 +241,12 @@ pub fn implied_facts(fact: &Node, env: Env, sorts: &Sorts) -> Vec<Node> {
                 ("x".to_string(), term.clone()),
                 ("S".to_string(), set),
             ]);
-            substitute(&template("x ∈ S", env, &systems), &put)
+            substitute_apart_by(&template("x ∈ S", env, &systems), &put, &binders)
         })
         .collect();
     let put = Binding::from([("x".to_string(), term)]);
-    said.extend(
-        rules::implied(system)
-            .iter()
-            .map(|(form, _)| substitute(&template(form, env, &local), &put)),
-    );
+    said.extend(rules::implied(system).iter().map(|(form, _)| {
+        substitute_apart_by(&template(form, env, &local), &put, &binders)
+    }));
     said
 }

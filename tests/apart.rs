@@ -1,63 +1,21 @@
-//! A value is put into a tree apart from the tree's own letters, and a
-//! citation's values are read together.
+//! A citation's values are read together.
 //!
-//! Two faults came back again and again while the corpus was rewritten
-//! (`tests/invariance.rs`). A value put under a binder that uses one of its
-//! letters was caught by it: prime-factor's `there is p` at m := p! + 1. And
-//! a citation's values were read one after another, so that `a := b/k,
-//! b := a/k` read the second in the first's new name. Each was fixed where it
-//! was found, and each lived on in another place that did the same thing its
-//! own way.
+//! A fault came back again and again while the corpus was rewritten
+//! (`tests/invariance.rs`): a citation's values were read one after
+//! another, so that `a := b/k, b := a/k` read the second in the first's new
+//! name. It was fixed where it was found, and lived on in another place that
+//! did the same thing its own way. So the elaborator reads a citation's
+//! values only through `instantiated_nodes`, which reads them all before
+//! any is given.
 //!
-//! So a value is put into a tree by `substitute_apart` or
-//! `substitute_apart_by`, which keep a binder's letter apart from it, and a
-//! plain `substitute` stands only where it is listed here with why nothing
-//! can be caught. And the elaborator reads a citation's values only through
-//! `instantiated_nodes`, which reads them all before any is given.
+//! The other fault of that kind, a value put under a binder that uses one
+//! of its letters and caught by it, the compiler now rules out: the only
+//! way to put a value into a tree is `substitute_apart`, which keeps it
+//! apart from a binder's letter.
 
 use std::path::{Path, PathBuf};
 
 use regex::Regex;
-
-/// Each plain `substitute` the tools make: the file, a piece of the line,
-/// and why no binder can catch a value there.
-const PLAIN: &[(&str, &str, &str)] = &[
-    (
-        "src/matching.rs",
-        ".map(|c| substitute(c, binding))",
-        "`substitute` itself, going down a tree",
-    ),
-    (
-        "src/citing/parts.rs",
-        "Some(substitute(&said, &put))",
-        "a bound relates x and S and binds no letter of its own",
-    ),
-    (
-        "src/citing/parts.rs",
-        "out.push(substitute(&said, &put));",
-        "`f(x) ∈ S` binds nothing",
-    ),
-    (
-        "src/citing/parts.rs",
-        "return vec![substitute(&template(conclusion, env, &sets), &put)];",
-        "the forms of `rules::PARTS` bind nothing",
-    ),
-    (
-        "src/citing/parts.rs",
-        "substitute(&template(\"x ∈ S\", env, &systems), &put)",
-        "`x ∈ S` at a number system says one thing of x and binds nothing",
-    ),
-    (
-        "src/citing/parts.rs",
-        ".map(|(form, _)| substitute(&template(form, env, &local), &put)),",
-        "each form a membership implies says one thing of x and binds nothing",
-    ),
-    (
-        "src/citing/once.rs",
-        "standard(&substitute(&made, &put), ctx)",
-        "`x ∈ S` at a number system and `x ≠ 0` say one thing of x and bind nothing",
-    ),
-];
 
 /// Where the elaborator reads a citation's values, which is one place.
 const READ: &[(&str, &str, &str)] = &[(
@@ -120,19 +78,6 @@ fn unlisted(
         .map(|((path, piece, _), _)| format!("{path}  {piece}"))
         .collect();
     (new, gone)
-}
-
-#[test]
-fn values_are_put_apart_from_what_a_tree_binds() {
-    let plain = Regex::new(r"(^|[^_a-zA-Z.])substitute\(").unwrap();
-    let (new, gone) = unlisted("src", &plain, PLAIN);
-    assert!(
-        new.is_empty() && gone.is_empty(),
-        "a plain substitute, not listed: use substitute_apart, or list it with why no \
-         binder can catch a value there:\n{}\n\nlisted, and no longer found:\n{}",
-        new.join("\n"),
-        gone.join("\n")
-    );
 }
 
 #[test]

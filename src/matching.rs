@@ -1098,25 +1098,6 @@ fn expand_to(node: &Node, definitions: &Definitions, depth: i32) -> Node {
     )
 }
 
-/// The tree with each bound name replaced by what it stands for.
-pub fn substitute(node: &Node, binding: &Binding) -> Node {
-    if node.notation == "name" || node.notation == "numeral" {
-        return binding
-            .get(&node.text)
-            .cloned()
-            .unwrap_or_else(|| node.clone());
-    }
-    Node::new(
-        &node.notation,
-        node.sort.clone(),
-        node.children
-            .iter()
-            .map(|c| substitute(c, binding))
-            .collect(),
-        &node.text,
-    )
-}
-
 /// Letters a binder is renamed to, where a value put under it would be
 /// caught.
 pub fn fresh_letters() -> Vec<String> {
@@ -1125,8 +1106,10 @@ pub fn fresh_letters() -> Vec<String> {
     out
 }
 
-/// `substitute`, keeping what a binder binds apart from what is put under
-/// it: K's `there is g ∈ G with X = gH` at X := gH is `there is a ∈ G with
+/// The tree with each bound name replaced by what it stands for, keeping
+/// what a binder binds apart from what is put under it, which is the one
+/// way a value is put into a tree: K's `there is g ∈ G with X = gH` at
+/// X := gH is `there is a ∈ G with
 /// gH = aH`, and never `there is g ∈ G with gH = gH`, which catches the g of
 /// gH and says something else. A binder whose letter a value mentions is
 /// spelt with a letter nothing there uses; one naming a letter the binding
