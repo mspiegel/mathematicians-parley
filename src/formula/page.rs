@@ -11,7 +11,7 @@
 use super::grammar::{parse, Grammar, Sorts};
 use super::node::{Node, Sort};
 use super::token::Token;
-use crate::outcome::{Checked, Problem};
+use crate::outcome::{Built, Checked, Declined, Problem, Route};
 
 /// Formula text as the skeleton reader cut it out of a line, and where.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -149,12 +149,31 @@ impl Sentence {
     }
 
     /// The tree the sentence reads as, with the sorts in scope.
+    /// A reading that waits on a letter's sort is a defect here, where the
+    /// sorts are what the lines say.
     pub fn read(&self, g: &Grammar, sorts: &Sorts) -> Checked<Node> {
+        match self.read_so_far(g, sorts)? {
+            Built(node) => Ok(node),
+            Declined(why) => Err(why.into_problem(&self.path, self.line)),
+        }
+    }
+
+    /// The tree the sentence reads as with the sorts found so far, while
+    /// they are still being found (`sorts::infer`): it declines where the
+    /// reading waits on the sort of a letter nothing has given one yet,
+    /// `s(t)` before anything says whether s is a function or a number.
+    pub fn read_so_far(&self, g: &Grammar, sorts: &Sorts) -> Checked<Route<Node>> {
         match &self.member {
             Some(m) => {
-                let term = m.term.sentence()?.read(g, sorts)?;
-                let set = m.set.sentence()?.read(g, sorts)?;
-                filled("x ∈ S", g, sorts, &[("x", &term), ("S", &set)])
+                let term = match m.term.sentence()?.read_so_far(g, sorts)? {
+                    Built(term) => term,
+                    waits => return Ok(waits),
+                };
+                let set = match m.set.sentence()?.read_so_far(g, sorts)? {
+                    Built(set) => set,
+                    waits => return Ok(waits),
+                };
+                filled("x ∈ S", g, sorts, &[("x", &term), ("S", &set)]).map(Built)
             }
             None => parse(&self.text, g, sorts, &self.path, self.line),
         }

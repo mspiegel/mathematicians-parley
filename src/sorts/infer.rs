@@ -926,8 +926,9 @@ pub fn introduce(
 
 /// Every sentence of a line, read as a claim.
 ///
-/// One that does not parse is `check_formulas`'s to report, and is passed
-/// over here.
+/// One whose reading waits on a letter's sort says nothing yet, while the
+/// sorts are still being found. One that does not parse is
+/// `check_formulas`'s to report, and is passed over here.
 pub fn claim_text(
     reader: &mut Reader,
     text: &str,
@@ -936,8 +937,10 @@ pub fn claim_text(
     store: &mut Store,
 ) {
     for sentence in Written::new(text, &reader.path, line.line).sentences() {
-        let Ok(node) = sentence.read(env.g, &reader.sorts(store)) else {
-            continue;
+        let node = match sentence.read_so_far(env.g, &reader.sorts(store)) {
+            Ok(Built(node)) => node,
+            Ok(Declined(_)) => continue,
+            Err(_) => continue,
         };
         reader.claim(&node, line, store);
     }

@@ -15,7 +15,7 @@ use super::notation::{
 };
 use super::token::{tokenise, Token, TokenKind};
 use crate::corpus::Record;
-use crate::outcome::{Checked, Problem};
+use crate::outcome::{Built, Checked, Decline, Declined, Problem, Route};
 use crate::sorts::infer::{function_sort, NotationSorts};
 use crate::sorts::NUMBER_SYSTEMS;
 use crate::text::repr;
@@ -362,21 +362,28 @@ pub fn fits(hole: &str, sort: &Sort) -> bool {
 /// Only the front end calls it (`page`), with a sentence the splitter cut:
 /// nothing else in the crate can, so every tree read from text was read
 /// one way (`GOALS.md` decision 18).
+///
+/// It declines where the reading waits on the sort of a letter nothing has
+/// given one (`Stop::Waits`).
 pub(super) fn parse(
     text: &str,
     g: &Grammar,
     sorts: &Sorts,
     path: &str,
     line: usize,
-) -> Checked<Node> {
+) -> Checked<Route<Node>> {
     let tokens = g.tokens(text, path, line)?;
     let key = reading(text, &tokens, sorts);
     if let Some(found) = g.readings.borrow().get(&key) {
-        return Ok(found.clone());
+        return Ok(Built(found.clone()));
     }
-    let node = read(text, &tokens, g, sorts, path, line)?;
+    let node = match read(text, &tokens, g, sorts, path, line) {
+        Ok(node) => node,
+        Err(Stop::Waits(why)) => return Ok(Declined(why)),
+        Err(Stop::Defect(problem)) => return Err(problem),
+    };
     g.readings.borrow_mut().insert(key, node.clone());
-    Ok(node)
+    Ok(Built(node))
 }
 
 /// Read the sentence's tokens into one node, or say why there is none.
@@ -387,7 +394,7 @@ fn read(
     sorts: &Sorts,
     path: &str,
     line: usize,
-) -> Checked<Node> {
+) -> Result<Node, Stop> {
     let mut local = sorts.clone();
     // A letter the sentence's own binder names is a name the text
     // introduces, throughout the sentence: `for all s, i ∈ A, … f(i) …`.
@@ -419,7 +426,7 @@ fn read(
         refused_order: false,
     };
     let Some(node) = p.expression(None, &[])? else {
-        return Err(Problem::new(path, line, p.why()));
+        return Err(Problem::new(path, line, p.why()).into());
     };
     if p.i != tokens.len() {
         // A reading that went further than the one that stopped here, and
@@ -427,10 +434,12 @@ fn read(
         // with s a number, `s` reads and `_ is a set` does not take it.
         if let Some((at, why)) = &p.refused {
             if *at > p.i {
-                return Err(Problem::new(path, line, format!("{}: {why}", repr(text))));
+                return Err(
+                    Problem::new(path, line, format!("{}: {why}", repr(text))).into()
+                );
             }
         }
-        return Err(Problem::new(
+        return Err(Stop::Defect(Problem::new(
             path,
             line,
             format!(
@@ -439,7 +448,7 @@ fn read(
                 tokens.len() - p.i,
                 repr(&tokens[p.i].text)
             ),
-        ));
+        )));
     }
     Ok(node)
 }
@@ -567,17 +576,21 @@ fn bound_sorts(tokens: &[Token], g: &Grammar, sorts: &Sorts) -> Vec<(String, Sor
         {
             continue;
         }
+        // A letter of the set may be bound earlier in the same sentence, as a
+        // is in `for all a ∈ G, for all x ∈ aH`, and has the sort found there.
+        let of_set =
+            |name: &str| out.get(name).cloned().unwrap_or_else(|| sort_of(name));
         let mut held = if numbers {
             Some(Sort::of("number"))
         } else {
-            holds(&sort_of(&s.text))
+            holds(&of_set(&s.text))
         };
         if held.is_none()
             && i + 3 < tokens.len()
             && tokens[i + 3].kind == TokenKind::Name
-            && sort_of(&s.text).is("group-element")
+            && of_set(&s.text).is("group-element")
         {
-            held = holds(&sort_of(&tokens[i + 3].text));
+            held = holds(&of_set(&tokens[i + 3].text));
         }
         if let Some(held) = held {
             // Each name of a list before the `∈` is in the set too:
@@ -673,8 +686,25 @@ struct Parser<'a> {
     refused_order: bool,
 }
 
-/// A reading, no reading, or two readings.
-type Reading = Checked<Option<Node>>;
+/// A reading, no reading, or why there is none to give.
+type Reading = Result<Option<Node>, Stop>;
+
+/// Why a reading stops short of a tree.
+enum Stop {
+    /// The text is wrong whatever its letters are: a defect.
+    Defect(Problem),
+    /// The text reads several ways, and what would tell them apart is the
+    /// sort of a letter nothing has given one yet. Where the sorts are
+    /// still being found (`sorts::infer`) that is the ordinary course of a
+    /// run; where they are settled, it is a defect (`Sentence::read`).
+    Waits(Decline),
+}
+
+impl From<Problem> for Stop {
+    fn from(p: Problem) -> Stop {
+        Stop::Defect(p)
+    }
+}
 
 impl Parser<'_> {
     fn peek(&self) -> Option<&Token> {
@@ -853,7 +883,7 @@ impl Parser<'_> {
                     .is_some_and(|t| t.kind == TokenKind::Open);
                 if let Some(f) = self.g.functions.get(&tok.text) {
                     if applied && !own && !self.sorts.imported.contains(&tok.text) {
-                        return Err(Problem::new(
+                        return Err(Stop::Defect(Problem::new(
                             self.path,
                             self.line,
                             format!(
@@ -862,7 +892,7 @@ impl Parser<'_> {
                                 f.cited(),
                                 f.import()
                             ),
-                        ));
+                        )));
                     }
                 }
                 let sort = self
@@ -1164,15 +1194,16 @@ impl Parser<'_> {
                     format!("nothing says what {} and {last} are", rest.join(", "))
                 }
             };
-            return Err(Problem::new(
-                self.path,
-                self.line,
-                format!(
-                    "{} reads as {}, and {undecided}",
-                    repr(self.src),
-                    one_of(&readings)
-                ),
-            ));
+            let why = format!(
+                "{} reads as {}, and {undecided}",
+                repr(self.src),
+                one_of(&readings)
+            );
+            return Err(if open.is_empty() {
+                Stop::Defect(Problem::new(self.path, self.line, why))
+            } else {
+                Stop::Waits(Decline::new(why))
+            });
         }
         self.i = winners[0].1;
         Ok(Some(winners[0].0.clone()))
@@ -1289,8 +1320,10 @@ impl Parser<'_> {
                 self.refuse(self.i, why.clone());
                 return self.no(why);
             };
-            let set =
-                parse(&set, self.g, self.sorts, self.path, self.line)?.unwritten();
+            let set = match parse(&set, self.g, self.sorts, self.path, self.line)? {
+                Built(set) => set.unwritten(),
+                Declined(why) => return Err(Stop::Waits(why)),
+            };
             let (Some(Some((from, _))), Some(Some((_, to)))) =
                 (took.get(b.name - 1).copied(), took.get(b.to - 1).copied())
             else {

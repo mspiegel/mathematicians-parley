@@ -7,7 +7,8 @@ use std::rc::Rc;
 
 use parley::corpus::parse_database;
 use parley::formula::page::{conjoined, Written};
-use parley::formula::{Grammar, Node, Sorts};
+use parley::formula::{Grammar, Node, Sort, Sorts, Whole};
+use parley::outcome::Declined;
 
 fn grammar() -> Rc<Grammar> {
     let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("corpus/db/notation.records");
@@ -73,4 +74,39 @@ fn a_membership_made_from_its_parts_is_the_one_written() {
     .unwrap();
     let [written] = read("(x + 1) ∈ ℝ", &g).try_into().unwrap();
     assert_eq!(made.shape(), written.shape());
+}
+
+/// `s(t)` is s applied to t or s times t, and nothing has said which while
+/// the sorts are still being found: the reading waits, a value, and is a
+/// defect only where the sorts are settled.
+#[test]
+fn a_reading_that_waits_on_a_sort_declines() {
+    let g = grammar();
+    let sentence = Written::new("s(t) ≠ t", "front-end", 0).sentence().unwrap();
+    let Declined(why) = sentence.read_so_far(&g, &Sorts::new()).unwrap() else {
+        panic!("s(t) read with nothing saying what s is");
+    };
+    let problem = sentence.read(&g, &Sorts::new()).unwrap_err();
+    assert_eq!(problem.message, why.reason());
+}
+
+/// A letter bound earlier in a sentence gives its sort to a set written
+/// later in it: in `for all x ∈ aH`, aH is a coset because a ∈ G.
+#[test]
+fn a_set_reads_with_the_sort_of_a_letter_bound_before_it() {
+    let g = grammar();
+    let group_set = Whole::read("set of group-element")
+        .and_then(Sort::whole)
+        .unwrap();
+    let sorts: Sorts = [
+        ("G".to_string(), group_set.clone()),
+        ("H".to_string(), group_set),
+    ]
+    .into_iter()
+    .collect();
+    Written::new("For all a ∈ G, for all x ∈ aH, xH ⊆ aH", "front-end", 0)
+        .sentence()
+        .unwrap()
+        .read(&g, &sorts)
+        .unwrap();
 }
