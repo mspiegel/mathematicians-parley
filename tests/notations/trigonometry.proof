@@ -1,0 +1,56 @@
+import mundane definition stdlib/trigonometry/cos
+import mundane definition stdlib/trigonometry/sin
+import mundane theorem    stdlib/trigonometry/cos-zero
+import mundane theorem    stdlib/trigonometry/sin-zero
+import theorem            stdlib/trigonometry/cos-add
+
+theorem cosine-of-zero
+  then cos(0) = 1
+
+1.  cos(0) = 1
+    mun:cos-zero
+
+theorem sine-of-zero
+  then sin(0) = 0
+
+1.  sin(0) = 0
+    mun:sin-zero
+
+theorem cosine-of-zero-not-zero
+  then cos(0) ≠ 0
+
+1.  cos(0) = 1
+    mun:cos-zero
+
+2.  cos(0) ≠ 0
+    contradiction
+    suppose cos(0) = 0                                                (S)
+
+    2.1.  1 = 0, which is impossible
+          calculation
+          1 = cos(0)     1
+            = 0          S
+
+theorem cosine-of-a-sum-at-zero
+  note        cos(0 + 0) = cos(0)² − sin(0)², which is 1.
+  then cos(0 + 0) = 1
+
+1.  cos(0 + 0) = cos(0)·cos(0) − sin(0)·sin(0)
+    thm:cos-add a := 0, b := 0
+
+2.  cos(0) = 1
+    mun:cos-zero
+
+3.  sin(0) = 0
+    mun:sin-zero
+
+4.  cos(0 + 0) = 1·1 − sin(0)·sin(0)
+    substitute cos(0) = 1 (line 2) into line 1
+
+5.  cos(0 + 0) = 1·1 − 0·0
+    substitute sin(0) = 0 (line 3) into line 4
+
+6.  cos(0 + 0) = 1
+    calculation
+    cos(0 + 0) = 1·1 − 0·0     5
+               = 1             arithmetic

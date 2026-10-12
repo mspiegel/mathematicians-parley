@@ -820,6 +820,15 @@ fn cases() -> Vec<Case> {
             ],
             "matches no production",
         ),
+        // One substitution takes one equation from one source: a second
+        // would be read as part of the first equation.
+        case(
+            "two substitutions in one step",
+            vec![
+                edit("proofs/angle-sum.proof", Some("    substitute ∠DBA = ∠BAC (line 2)\n".to_string()), "    substitute ∠DBA = ∠BAC (line 2), ∠EBC = ∠BCA (line 3)\n".to_string()),
+            ],
+            "matches no production",
+        ),
         case(
             "import an item that is not in the database",
             vec![

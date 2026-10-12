@@ -138,13 +138,19 @@ fn productions() -> Vec<regex::Regex> {
 static PRODUCTIONS: std::sync::LazyLock<Vec<regex::Regex>> =
     std::sync::LazyLock::new(productions);
 
+regex!(SUBSTITUTE_SOURCE, r"\((?:line\s+[0-9]|arithmetic\))");
+
 /// The productions of `GRAMMAR.md`, one per justification form.
 pub fn check_justification_form(
     report: &mut Report,
     path: &str,
     just: &Justification,
 ) -> bool {
-    if !PRODUCTIONS.iter().any(|p| p.is_match(&just.text)) {
+    // A substitute takes one equation from one source: a second `(line N)`
+    // would be read as part of the equation, which no formula writes.
+    let sources = SUBSTITUTE_SOURCE.find_iter(&just.text).count();
+    let two_sources = just.head.is(Method::Substitute) && sources > 1;
+    if two_sources || !PRODUCTIONS.iter().any(|p| p.is_match(&just.text)) {
         report.say(
             path,
             just.line,
