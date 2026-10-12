@@ -6,7 +6,7 @@ use std::collections::BTreeSet;
 use indexmap::{IndexMap, IndexSet};
 
 use super::formulas::chain_links;
-use super::library::{introduced, Known};
+use super::library::{introduced, typed_seed, Known};
 use super::structure::instantiated_line;
 use super::Report;
 use crate::citing::{
@@ -135,6 +135,9 @@ fn requires_parts(
     // memberships the page says once among them.
     let mut parts = finished(read, claims, seed, library, &known.sorts);
     said_once(&mut parts, &introduced(known, step), library, &known.sorts);
+    if let Some((named, _)) = requires_item(&req.how) {
+        typed_seed(&mut parts, &step.just.item(&named), step, known, library);
+    }
     Some(parts)
 }
 

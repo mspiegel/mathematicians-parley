@@ -8,15 +8,17 @@ use indexmap::IndexMap;
 
 use super::structure::{labels_in_scope, Declared};
 use crate::citing::{
-    claimed_member, finished, introduction, said_once, with_parts, Introduced, Library,
-    Parts,
+    claimed_member, finished, introduction, said_once, taken, with_parts, Introduced,
+    Library, Parts,
 };
+use crate::corpus::proof::cited_item;
 use crate::corpus::{Intro, Kinded, Method, Step, StepNo, Theorem};
 use crate::formula::page::{conjoined, filled, Sentence, Written};
 use crate::formula::{Node, Sorts};
 use crate::matching::{
     alike, expand, namings, standard, Binding, Context, Definitions,
 };
+use crate::outcome::Built;
 use crate::sorts::introduction::Introduction;
 use crate::sorts::{cited_defines, file_definitions, Env};
 
@@ -471,6 +473,9 @@ fn citation_parts(step: &Step, library: &Library, known: &Known) -> Parts {
         None => finished(facts, claims, seed, library, &known.sorts),
     };
     said_once(&mut parts, &introduced(known, step), library, &known.sorts);
+    if let Some(item) = cited_item(&step.just) {
+        typed_seed(&mut parts, &step.just.item(&item), step, known, library);
+    }
     parts
 }
 
@@ -480,6 +485,83 @@ fn citation_parts(step: &Step, library: &Library, known: &Known) -> Parts {
 /// each name's membership (`SYNTAX.md`). A later introduction of a letter
 /// stands over an earlier one.
 pub fn introduced(known: &Known, step: &Step) -> Introduced {
+    let mut out = Introduced::new();
+    for stated in &introducing(known, step) {
+        for node in known.said_parts(stated, None).into_iter().flatten() {
+            if let Some((letter, system)) = introduction(&node) {
+                out.insert(letter, system);
+            }
+        }
+    }
+    out
+}
+
+/// The function types the lines in scope at `step` say, `v : {0, …, n} →
+/// V`, read off the same introducing lines as `introduced`.
+fn typed_in_scope(known: &Known, step: &Step) -> Vec<Node> {
+    introducing(known, step)
+        .iter()
+        .flat_map(|stated| known.said_parts(stated, None).into_iter().flatten())
+        .filter(|n| matches!(n.notation.as_str(), "function-type" | "one-to-one"))
+        .filter(|n| n.children.len() == 3 && n.children[0].is_name())
+        .collect()
+}
+
+/// The citation's seed with what the citing proof says a function of the
+/// item maps between. The item's `let f : D → E` asks for nothing a line
+/// writes, but where f stands for a function a line in scope types, D and E
+/// are that type's sets: without them, `x ∈ D` would be met by any
+/// membership of x, 5 ∈ ℕ among them, for a function on {0, …, 1}. What f
+/// stands for is what the citation names it, or else what the citation
+/// takes it to be.
+pub fn typed_seed(
+    parts: &mut Parts,
+    name: &str,
+    step: &Step,
+    known: &Known,
+    library: &Library,
+) {
+    let typed = library.function_types(name);
+    if typed.is_empty() {
+        return;
+    }
+    let ours = typed_in_scope(known, step);
+    if ours.is_empty() {
+        return;
+    }
+    let mut stands = parts.seed.clone();
+    if let Some(groups) = library.groups(name) {
+        let taken = taken(&groups, &parts.claims, &parts.facts, &parts.seed, library);
+        if let Built(t) = taken {
+            for (letter, value) in t.binding {
+                stands.entry(letter).or_insert(value);
+            }
+        }
+    }
+    for t in &typed {
+        let [f, d, e] = t.children.as_slice() else {
+            continue;
+        };
+        let Some(v) = stands.get(&f.text).filter(|v| v.is_name()) else {
+            continue;
+        };
+        let Some(said) = ours.iter().find(|s| s.children[0].text == v.text) else {
+            continue;
+        };
+        for (letter, set) in [(d, &said.children[1]), (e, &said.children[2])] {
+            if letter.is_name() && !parts.seed.contains_key(&letter.text) {
+                parts
+                    .seed
+                    .insert(letter.text.clone(), standard(set, &library.ctx));
+            }
+        }
+    }
+}
+
+/// The lines introducing what is in scope at `step`, in the order they are
+/// written: a `let` of the theorem or of a block around the step, an
+/// `obtain` above it in a block around it, and a naming `let` of a kind.
+fn introducing(known: &Known, step: &Step) -> Vec<Stated> {
     let path = &known.thm.path;
     // What each introducing line says, by the line it is on.
     let mut said: Vec<(usize, Stated)> = known
@@ -512,15 +594,7 @@ pub fn introduced(known: &Known, step: &Step) -> Introduced {
         said.push((k.shown.line, kind));
     }
     said.sort_by_key(|(line, _)| *line);
-    let mut out = Introduced::new();
-    for (_, stated) in &said {
-        for node in known.said_parts(stated, None).into_iter().flatten() {
-            if let Some((letter, system)) = introduction(&node) {
-                out.insert(letter, system);
-            }
-        }
-    }
-    out
+    said.into_iter().map(|(_, stated)| stated).collect()
 }
 
 /// A claim "for all k ∈ X, P" read at a member: the membership k ∈ X, which

@@ -2609,6 +2609,30 @@ fn cases() -> Vec<Case> {
             vec![edit("proofs/empty.proof", None, "theorem empty\n  then 1 = 1\n".to_string())],
             "theorem empty has no steps",
         ),
+        // A last step that proves one sentence of a conclusion of two is
+        // correct as far as it goes, and every other check passes it.
+        case(
+            "a last step claiming less than the conclusion",
+            vec![edit(
+                "proofs/short.proof",
+                None,
+                "theorem short\n  then 1 + 1 = 2. 2 + 2 = 4.\n\n1.  1 + 1 = 2\n    arithmetic\n"
+                    .to_string(),
+            )],
+            "step 1 is the last, and does not claim what short states",
+        ),
+        // The item's `let f : D → E` asks for nothing a line writes, and D
+        // is the set the citing proof gives v; 5 ∈ ℕ is no reason 5 is in it.
+        case(
+            "a function applied outside its domain",
+            vec![edit(
+                "proofs/outside.proof",
+                None,
+                "import mundane theorem    stdlib/functions/function-value\n\ntheorem outside\n  let v : {0, …, 1} → ℝ                                               (H1)\n  then v(5) ∈ ℝ\n\n1.  v(5) ∈ ℝ\n    mun:function-value f := v, x := 5\n"
+                    .to_string(),
+            )],
+            "step 1 cites mun:function-value, which asks for x ∈ D",
+        ),
         // A label outside a file's theorems is one label for every theorem
         // below it, and a define says what its name means.
         case(

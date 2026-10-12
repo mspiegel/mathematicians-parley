@@ -545,7 +545,7 @@ fn check_theorem(
     citations::check_instantiated(report, thm, library, k);
     citations::check_define_domains(report, thm, library, k, scopes);
     formulas::check_chain_links(report, thm, library, k, scopes);
-    structure::check_last_step(report, thm);
+    structure::check_last_step(report, thm, k);
     structure::check_readings(report, thm);
     database::check_introductions(report, thm, env, k);
     formulas::check_recursions(report, thm, env, k);

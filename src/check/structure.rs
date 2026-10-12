@@ -16,7 +16,7 @@ use crate::corpus::{
 use crate::formula::library::Function;
 use crate::formula::page::Written;
 use crate::formula::token::{Token, TokenKind};
-use crate::formula::{holds, Sorts};
+use crate::formula::{holds, Node, Sorts};
 use crate::matching::namings;
 use crate::outcome::{Built, Declined};
 use crate::regex;
@@ -1058,12 +1058,52 @@ pub fn check_readings(report: &mut Report, thm: &Theorem) {
     }
 }
 
-pub fn check_last_step(report: &mut Report, thm: &Theorem) {
-    if thm.steps.is_empty() {
+/// The last step of a proof is the theorem's conclusion (`SYNTAX.md`): its
+/// sentences, in order, each one formula with the statement's, as
+/// `Known::alike` compares two. A sentence that does not read is reported by
+/// `check_formulas`, and not compared here.
+pub fn check_last_step(report: &mut Report, thm: &Theorem, known: &Known) {
+    let Some(last) = thm.steps.iter().rev().find(|s| s.number.0.len() == 1) else {
         report.say(
             &thm.path,
             thm.line,
             format!("theorem {} has no steps", thm.name),
+        );
+        return;
+    };
+    // A claim of several sentences is their conjunction, and so is one
+    // sentence joining them with "and" (`SYNTAX.md`), so each side is
+    // compared as the conjuncts it says, in order.
+    fn conjuncts(node: Node, out: &mut Vec<Node>) {
+        if node.notation == "conjunction" && node.children.len() == 2 {
+            for part in node.children.iter() {
+                conjuncts(part.clone(), out);
+            }
+        } else {
+            out.push(node);
+        }
+    }
+    let read = |w: &Written| -> Option<Vec<Node>> {
+        let mut out = Vec::new();
+        for s in w.sentences() {
+            conjuncts(known.read_as_written(&s)?, &mut out);
+        }
+        Some(out)
+    };
+    let stated = Written::new(&thm.conclusion, &thm.path, thm.line);
+    let (Some(claimed), Some(stated)) = (read(&last.claim), read(&stated)) else {
+        return;
+    };
+    let same = claimed.len() == stated.len()
+        && claimed.iter().zip(&stated).all(|(a, b)| known.alike(a, b));
+    if !same {
+        report.say(
+            &thm.path,
+            last.line,
+            format!(
+                "step {} is the last, and does not claim what {} states",
+                last.number, thm.name
+            ),
         );
     }
 }

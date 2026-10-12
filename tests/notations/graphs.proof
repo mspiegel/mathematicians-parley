@@ -1,0 +1,108 @@
+import mundane definition stdlib/graphs/degree
+import mundane theorem    stdlib/graphs/walk-distinct
+import mundane theorem    stdlib/graphs/walk-step
+import mundane theorem    stdlib/graphs/joined-incident
+import mundane theorem    stdlib/functions/function-value
+import mundane definition stdlib/sums/range
+import mundane definition stdlib/sums/range0
+
+theorem a-triangle-has-even-degrees
+  note        Each corner of a triangle meets two of its three edges, so no
+              vertex has odd degree.
+  let G be the undirected multigraph with distinct vertices V = {A, B, C} and distinct edges E = {a, b, c},
+      where a joins A and B, b joins B and C, c joins A and C          (H1)
+  then deg(A) = 2. |{x ∈ V : deg(x) is odd}| = 0.
+
+1.  For all x ∈ V, deg(x) = |{s ∈ E : x is incident with s}|.
+    mun:degree
+
+2.  deg(A) = 2
+    inspection, from H1, 1
+
+3.  deg(B) = 2
+    inspection, from H1, 1
+
+4.  deg(C) = 2
+    inspection, from H1, 1
+
+5.  |{x ∈ V : deg(x) is odd}| = 0
+    inspection, from H1, 2, 3, 4
+
+6.  deg(A) = 2. |{x ∈ V : deg(x) is odd}| = 0.
+    join 2, 5
+
+theorem a-path-has-two-odd-ends
+  note        A path of two edges meets its middle vertex twice and each end
+              once: deg counts edges at a vertex, and the two ends are odd.
+  let G be the undirected multigraph with distinct vertices V = {A, B, C} and distinct edges E = {a, b},
+      where a joins A and B, b joins B and C                           (H1)
+  then deg(A) = 1. deg(B) = 2. |{x ∈ V : deg(x) is odd}| = 2.
+
+1.  For all x ∈ V, deg(x) = |{s ∈ E : x is incident with s}|.
+    mun:degree
+
+2.  deg(A) = 1
+    inspection, from H1, 1
+
+3.  deg(B) = 2
+    inspection, from H1, 1
+
+4.  deg(C) = 1
+    inspection, from H1, 1
+
+5.  |{x ∈ V : deg(x) is odd}| = 2
+    inspection, from H1, 2, 3, 4
+
+6.  deg(A) = 1. deg(B) = 2. |{x ∈ V : deg(x) is odd}| = 2.
+    join 2, 3, 5
+
+theorem a-walk-of-one-edge
+  note        A walk of one edge goes from v(0) to v(1) along e(1): the edge
+              joins the two, both meet it, and they are not one vertex.
+  let G be an undirected multigraph with vertices V and edges E      (H1)
+  let e : {1, …, 1} → E                                               (H2)
+  let v : {0, …, 1} → V                                               (H3)
+  assume v and e form a walk of 1 edges                               (H4)
+  then e(1) joins v(0) and v(1). v(0) is incident with e(1). v(0) ≠ v(1).
+
+1.  1 ∈ {1, …, 1}
+    mun:range n := 1, k := 1
+    requires 1 ≤ 1: arithmetic
+
+2.  e(1) joins v(1 − 1) and v(1)
+    mun:walk-step n := 1, i := 1, from H4, 1
+
+3.  v(1 − 1) ≠ v(1)
+    mun:walk-distinct n := 1, i := 1, from H4, 1
+
+4.  1 − 1 = 0
+    arithmetic
+
+5.  e(1) joins v(0) and v(1)
+    substitute 1 − 1 = 0 (line 4) into line 2
+
+6.  v(0) ≠ v(1)
+    substitute 1 − 1 = 0 (line 4) into line 3
+
+7.  e(1) ∈ E
+    mun:function-value f := e, x := 1, from 1
+
+8.  0 ∈ {0, …, 1}
+    mun:range0 n := 1, k := 0
+    requires 0 ≤ 1: arithmetic
+
+9.  1 ∈ {0, …, 1}
+    mun:range0 n := 1, k := 1
+    requires 1 ≤ 1: arithmetic
+
+10. v(0) ∈ V
+    mun:function-value f := v, x := 0, from 8
+
+11. v(1) ∈ V
+    mun:function-value f := v, x := 1, from 9
+
+12. v(0) is incident with e(1). v(1) is incident with e(1).
+    mun:joined-incident a := e(1), u := v(0), w := v(1), from 7, 10, 11, 5
+
+13. e(1) joins v(0) and v(1). v(0) is incident with e(1). v(0) ≠ v(1).
+    join 5, 12, 6

@@ -673,7 +673,9 @@ X ⊆ A or X ∈ 𝒫A answers for the other. What it asserts
 is only what `be` says of a function it names: `let g : Y → X be one-to-one`
 asserts `g : Y → X is one-to-one`, and an item stating it asks a citation for
 that line as it asks for a membership. The function's type is a declaration
-and is not asked for. The plain function form takes a set after its arrow and
+and is not asked for. Its sets are those the citing proof gives the function
+it stands for, so `let x ∈ D` beside `let f : D → E` asks, of a citation
+naming a function on {0, …, 1}, that x be in {0, …, 1}. The plain function form takes a set after its arrow and
 nothing else, so `let g : Y → X is one-to-one`, which fits it with "X is
 one-to-one" for the set, is refused.
 `∉` introduces a thing of the sort a set holds that is not in it, and `be an
