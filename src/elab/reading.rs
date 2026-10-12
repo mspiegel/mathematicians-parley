@@ -15,7 +15,7 @@ use super::state::Elaborator;
 use crate::corpus::proof::visible;
 use crate::corpus::{DefineLine, Intro, Item, Recursion, ScopeId, Step};
 use crate::formula::grammar::Sorts;
-use crate::formula::page::{filled, made, template, Sentence, Written};
+use crate::formula::page::{filled, made, made_as, template, Sentence, Written};
 use crate::formula::{fits, Node, Sort};
 use crate::matching::{substitute_apart_by, Binding};
 use crate::matching::{Defined, Definitions};
@@ -276,6 +276,32 @@ impl<'a> Elaborator<'a> {
             if let Some(Defined::Term(t)) = self.from_outside.get(&node.text) {
                 let t = t.clone();
                 return self.term(&t);
+            }
+            // A function written alone, "f is continuous on [0, 1]", is the
+            // map its define says, each argument over its domain.
+            if let Some(Defined::Rule(rule)) = self.from_outside.get(&node.text) {
+                let rule = rule.clone();
+                let pattern = match rule.params.len() {
+                    1 => "the map sending _ ∈ _ to _",
+                    2 => "the map sending _ ∈ _, _ ∈ _ to _",
+                    _ => {
+                        return Err(self.defect(
+                            self.at,
+                            format!(
+                                "{} takes more arguments than two",
+                                repr(&node.text)
+                            ),
+                        ))
+                    }
+                };
+                let mut held = Vec::new();
+                for p in &rule.params {
+                    held.push(self.read_here(&p.name)?);
+                    held.push(self.read_here(&p.domain)?);
+                }
+                held.push(rule.body.clone());
+                let map = made_as(self.g, pattern, held).expect("the map notations");
+                return self.term(&map);
             }
             return match self.names.get(&node.text) {
                 Some(t) => Ok(t.clone()),

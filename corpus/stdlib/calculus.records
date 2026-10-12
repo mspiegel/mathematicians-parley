@@ -247,6 +247,22 @@ theorem derivative-linear
   note        U is open because a line on [a, b] has no derivative at a or b:
               the derivative is taken where a neighbourhood lies in the domain.
 
+theorem derivative-square
+  let D ⊆ ℝ                                                           (H1)
+  let U ⊆ D                                                           (H2)
+  assume U is open                                                    (H3)
+  let g : D → ℝ                                                       (H4)
+  assume for all x ∈ D, g(x) = x²                                     (H5)
+  then        g is differentiable on U.
+              For all x ∈ U, g′(x) = 2x.
+  metamath    gdvsq, gdvsqv, which this corpus proves in
+              elaboration/stdlib/proved.mm from dvmptmul and dvres, x² being
+              x·x
+  target      gdvsq, gdvsqv with D := D
+  note        set.mm's dvexp is the power rule over ℂ; the page asks it of a
+              function on a set of reals, named apart from its values, as
+              derivative-linear does.
+
 theorem area-function
   let a ∈ ℝ                                                           (H1)
   let b ∈ ℝ                                                           (H2)

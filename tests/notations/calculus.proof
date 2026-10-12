@@ -1,5 +1,8 @@
 import theorem            stdlib/calculus/continuous-linear
 import theorem            stdlib/calculus/derivative-linear
+import theorem            stdlib/calculus/derivative-square
+import mundane theorem    stdlib/sets/subset-self
+import mundane theorem    stdlib/sets/subset-transitive
 import mundane definition stdlib/calculus/interval
 import mundane theorem    stdlib/calculus/interval-real
 import mundane theorem    stdlib/calculus/open-within-closed
@@ -42,6 +45,36 @@ theorem the-slope-of-a-line
     thm:derivative-linear D := [0, 1], U := (0, 1), m := 2, from H2
     requires [0, 1] ⊆ ℝ: mun:interval-real a := 0, b := 1
     requires (0, 1) ⊆ [0, 1]: mun:open-within-closed a := 0, b := 1
+    requires (0, 1) is open: mun:open-interval-open a := 0, b := 1
+
+theorem a-square-is-differentiable
+  note        x² on the whole line is differentiable on (0, 1), though its
+              derivative is defined beyond (0, 1) too: "differentiable on"
+              says the derivative exists at every point of the set, not that
+              the set is where it exists.
+  let g : ℝ → ℝ                                                       (H1)
+  assume for all x ∈ ℝ, g(x) = x²                                     (H2)
+  then g is differentiable on (0, 1)
+
+1.  g is differentiable on (0, 1)
+    thm:derivative-square D := ℝ, U := (0, 1), from H2
+    requires ℝ ⊆ ℝ: mun:subset-self
+    requires (0, 1) ⊆ [0, 1]: mun:open-within-closed a := 0, b := 1
+    requires [0, 1] ⊆ ℝ: mun:interval-real a := 0, b := 1
+    requires (0, 1) ⊆ ℝ: mun:subset-transitive
+    requires (0, 1) is open: mun:open-interval-open a := 0, b := 1
+
+theorem the-slope-of-a-square
+  let g : ℝ → ℝ                                                       (H1)
+  assume for all x ∈ ℝ, g(x) = x²                                     (H2)
+  then for all x ∈ (0, 1), g′(x) = 2x
+
+1.  For all x ∈ (0, 1), g′(x) = 2x.
+    thm:derivative-square D := ℝ, U := (0, 1), from H2
+    requires ℝ ⊆ ℝ: mun:subset-self
+    requires (0, 1) ⊆ [0, 1]: mun:open-within-closed a := 0, b := 1
+    requires [0, 1] ⊆ ℝ: mun:interval-real a := 0, b := 1
+    requires (0, 1) ⊆ ℝ: mun:subset-transitive
     requires (0, 1) is open: mun:open-interval-open a := 0, b := 1
 
 theorem one-bounds-the-unit-interval

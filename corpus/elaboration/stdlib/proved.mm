@@ -817,6 +817,46 @@ $d t F $.
   $}
 
   ${
+    gdvsqres.1 $e |- ( ph -> D C_ RR ) $.
+    gdvsqres.2 $e |- ( ph -> U C_ D ) $.
+    gdvsqres.3 $e |- ( ph -> U e. ( topGen ` ran (,) ) ) $.
+    gdvsqres.4 $e |- ( ph -> G : D --> RR ) $.
+    gdvsqres.5 $e |- ( ph -> A. x e. D ( G ` x ) = ( x ^ 2 ) ) $.
+  gdvsqres $p |- ( ph -> ( ( RR _D G ) |` U ) = ( x e. U |-> ( 2 x. x ) ) ) $=
+    ( cr cdv co cres c1 cv cmul caddc cmpt c2 cexp cioo crn ctg cfv cnt cc
+    wss wf wa wceq ax-resscn a1i fssd jca sstrd ccnfld ctopn eqid tgioo2
+    dvres syl ctop wcel retop isopn3i syl2anc reseq2d eqtrd eqcomd wfn ffnd
+    dffn5 sylib r19.21bi mpteq2dva reseq1d resmpt oveq2d adantr simpr sseldd
+    recnd sqvald cpr reelprrecn ax-1cn dvmptid dvmptres dvmptmul mullidd
+    oveq12d 2timesd eqtr4d )
+    AKELMZDNZBDOBPZQMZWRRMZSZBDTWQQMZSAWPKBDWQWQQMZSZLMZWTAWPKBDWQTUAMZSZLMZXDAWPKEDNZLMZXGAXIWPAXIWODUBUCZUDUEZUFUEZUEZNZWPAKUGUHZCUGEUIZUJZCKUHZDKUHZUJZUJXIXNUKAXQXTAXOXPXOAULUMZACKUGEIYAUNUOAXRXSFADCKGFUPZUOUOCDKXKEUQURUEZYCUSZYCYDUTZVAVBAXMDWOAXKVCVDZDXKVDXMDUKYFAVEUMHDXKVFVGVHVIVJAXHXFKLAXHBCXESZDNZXFAEYGDAEBCWQEUEZSZYGAECVKEYJUKACKEIVLBCEVMVNABCYIXEAYIXEUKBCJVOVPVIVQADCUHYHXFUKGBCDXEVRVBVIVSVIAXFXCKLABDXEXBAWQDVDZUJZWQYLWQYLDKWQAXSYKYBVTZAYKWAZWBZWCZWDVPVSVIABWQOWQOKUGUGDKKUGWEZVDZAWFUMZYPOUGVDZYLWGUMZABWQOKXKYCUGKDYSAWQKVDZUJZWQAUUBWAZWCZYTUUCWGUMZABKYSWHZYBYEYDHWIZYPUUAUUHWJVIABDWSXAYLWSWQWQRMXAYLWRWQWRWQRYLWQYPWKZUUIWLYLWQYPWMWNVPVI $.
+  $}
+
+  ${
+    gdvsq.1 $e |- ( ph -> D C_ RR ) $.
+    gdvsq.2 $e |- ( ph -> U C_ D ) $.
+    gdvsq.3 $e |- ( ph -> U e. ( topGen ` ran (,) ) ) $.
+    gdvsq.4 $e |- ( ph -> G : D --> RR ) $.
+    gdvsq.5 $e |- ( ph -> A. x e. D ( G ` x ) = ( x ^ 2 ) ) $.
+  gdvsq $p |- ( ph -> U C_ dom ( RR _D G ) ) $=
+    ( cr cdv co cres cdm c2 cv cmul cvv gdvsqres wcel wa ovex a1i gdvdm cin
+    wceq dmres wss inss2 eqsstrd sstrd )
+    ADKELMZDNZOZUMOZABUNPBQZRMZDSABCDEFGHIJTURSUAAUQDUAUBPUQRUCUDUEAUODUPUFZUPUOUSUGAUMDUHUDUSUPUIADUPUJUDUKUL $.
+  $}
+
+  ${
+    gdvsqv.1 $e |- ( ph -> D C_ RR ) $.
+    gdvsqv.2 $e |- ( ph -> U C_ D ) $.
+    gdvsqv.3 $e |- ( ph -> U e. ( topGen ` ran (,) ) ) $.
+    gdvsqv.4 $e |- ( ph -> G : D --> RR ) $.
+    gdvsqv.5 $e |- ( ph -> A. x e. D ( G ` x ) = ( x ^ 2 ) ) $.
+  gdvsqv $p |- ( ph -> A. x e. U ( ( RR _D G ) ` x ) = ( 2 x. x ) ) $=
+    ( cv cr cdv co cfv c2 cmul wceq wcel wa cres simpr fvres syl cvv gdvsqres
+    ovex a1i gdvval r19.21bi eqtr3d ralrimiva )
+    ABKZLEMNZOZPUMQNZRBDAUMDSZTZUMUNDUAZOZUOUPURUQUTUORAUQUBUMDUNUCUDAUTUPRBDABUSUPDUEABCDEFGHIJUFUPUESURPUMQUGUHUIUJUKUL $.
+  $}
+
+  ${
     gcncflin.1 $e |- ( ph -> D C_ RR ) $.
     gcncflin.2 $e |- ( ph -> M e. RR ) $.
     gcncflin.3 $e |- ( ph -> G : D --> RR ) $.

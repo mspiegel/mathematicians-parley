@@ -1,0 +1,99 @@
+import definition         stdlib/calculus/continuous-on
+import mundane definition stdlib/calculus/interval
+import mundane theorem    stdlib/calculus/interval-real
+import mundane definition stdlib/numbers/abs
+import mundane theorem    stdlib/numbers/abs-difference-lt
+import mundane definition stdlib/numbers/min
+import mundane theorem    stdlib/numbers/min-real
+import mundane theorem    stdlib/numbers/min-le
+import mundane theorem    stdlib/numbers/lt-min
+
+theorem a-step-is-not-continuous
+  note        Near 1/2 from the left f is 0, and at 1/2 it is 1, so no δ keeps
+              f within 1/2 of f(1/2): "continuous on" is the ε–δ condition at
+              every point, and not something every function on the set has.
+  ε, δ range over ℝ
+  let f(x) = 0    if x < 1/2
+             1    otherwise,  for x ∈ [0, 1]                          (D1)
+         reads a step up at 1/2
+  then not (f is continuous on [0, 1])
+
+1.  1/2 ∈ [0, 1]
+    mun:interval a := 0, b := 1, x := 1/2
+    requires 0 ≤ 1/2: arithmetic
+    requires 1/2 ≤ 1: arithmetic
+
+2.  not (1/2 < 1/2)
+    arithmetic
+
+3.  f(1/2) = 1
+    D1, from 2, 1
+
+4.  not (f is continuous on [0, 1])
+    contradiction
+    suppose f is continuous on [0, 1]                                 (S)
+
+    4.1.  For all c ∈ [0, 1], for all ε > 0, there exists δ > 0 such that
+          |f(x) − f(c)| < ε for all x ∈ [0, 1] with |x − c| < δ.
+          def:continuous-on D := [0, 1], from S
+          requires [0, 1] ⊆ ℝ: mun:interval-real a := 0, b := 1
+
+    4.2.  There exists δ > 0 such that |f(x) − f(1/2)| < 1/2 for all
+          x ∈ [0, 1] with |x − 1/2| < δ.
+          instantiate c := 1/2, ε := 1/2 in line 4.1, from 1
+          requires 0 < 1/2: arithmetic
+
+    4.3.  δ ∈ ℝ. δ > 0.
+          For all x ∈ [0, 1], if |x − 1/2| < δ then |f(x) − f(1/2)| < 1/2.
+          obtain δ from line 4.2
+
+    let m = min(δ, 1/2), a real number                                (D2)
+           mun:min-real x := δ, y := 1/2, from 4.3
+           reads the smaller of δ and 1/2
+
+    let x₁ = 1/2 − m/2, a real number                                 (D3)
+           membership, from D2
+           reads a point left of 1/2, within δ of it, and not below 0
+
+    4.4.  0 < min(δ, 1/2)
+          mun:lt-min z := 0, x := δ, y := 1/2, from 4.3
+          requires 0 < 1/2: arithmetic
+
+    4.5.  min(δ, 1/2) ≤ δ. min(δ, 1/2) ≤ 1/2.
+          mun:min-le x := δ, y := 1/2
+
+    4.6.  x₁ < 1/2
+          inequalities, from D3, D2, 4.4
+
+    4.7.  x₁ ∈ [0, 1]
+          mun:interval a := 0, b := 1, x := x₁, from D3
+          requires 0 ≤ x₁: inequalities, from D3, D2, 4.5
+          requires x₁ ≤ 1: inequalities, from 4.6
+
+    4.8.  |x₁ − 1/2| < δ
+          mun:abs-difference-lt x := x₁, c := 1/2, from D3
+          requires 1/2 − δ < x₁: inequalities, from D3, D2, 4.4, 4.5
+          requires x₁ < 1/2 + δ: inequalities, from 4.6, 4.3
+
+    4.9.  |f(x₁) − f(1/2)| < 1/2
+          instantiate x := x₁ in line 4.3, from 4.7, 4.8
+
+    4.10. f(x₁) = 0
+          D1, from 4.6, 4.7
+
+    4.11. |0 − f(1/2)| < 1/2
+          substitute f(x₁) = 0 (line 4.10) into line 4.9
+
+    4.12. |0 − 1| < 1/2
+          substitute f(1/2) = 1 (line 3) into line 4.11
+
+    4.13. 0 − 1 < 0
+          arithmetic
+
+    4.14. |0 − 1| = −(0 − 1)
+          mun:abs x := 0 − 1, from 4.13
+
+    4.15. −(0 − 1) < 1/2, which is impossible
+          calculation
+          −(0 − 1) = |0 − 1|     4.14
+                   < 1/2         4.12
