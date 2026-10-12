@@ -195,6 +195,15 @@ theorem continuous-linear
               elaboration/stdlib/proved.mm from mulcncf
   target      gcncflin with M := m
 
+theorem continuous-square
+  let D ⊆ ℝ                                                           (H1)
+  let g : D → ℝ                                                       (H2)
+  assume for all x ∈ D, g(x) = x²                                     (H3)
+  then        g is continuous on D
+  metamath    gcncfsq, which this corpus proves in
+              elaboration/stdlib/proved.mm from mulcncf, x² being x·x
+  target      gcncfsq
+
 theorem derivative-sum
   let D ⊆ ℝ                                                           (H1)
   let U ⊆ D                                                           (H2)

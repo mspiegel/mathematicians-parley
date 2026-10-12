@@ -529,6 +529,40 @@ lemma gcncflin
   22 mpbird 8 21 |- ( ph -> ( x e. D |-> ( M x. x ) ) e. ( D -cn-> RR ) )
   23 eqeltrd 6 22 |- ( ph -> G e. ( D -cn-> RR ) )
 
+lemma gcncfsq
+  hypothesis gcncfsq.1 |- ( ph -> D C_ RR )
+  hypothesis gcncfsq.2 |- ( ph -> G : D --> RR )
+  hypothesis gcncfsq.3 |- ( ph -> A. x e. D ( G ` x ) = ( x ^ 2 ) )
+  |- ( ph -> G e. ( D -cn-> RR ) )
+  1 ffnd gcncfsq.2 |- ( ph -> G Fn D )
+  2 dffn5 |- ( G Fn D <-> G = ( x e. D |-> ( G ` x ) ) )
+  3 sylib 1 2 |- ( ph -> G = ( x e. D |-> ( G ` x ) ) )
+  4 r19.21bi gcncfsq.3 |- ( ( ph /\ x e. D ) -> ( G ` x ) = ( x ^ 2 ) )
+  5 mpteq2dva 4 |- ( ph -> ( x e. D |-> ( G ` x ) ) = ( x e. D |-> ( x ^ 2 ) ) )
+  6 eqtrd 3 5 |- ( ph -> G = ( x e. D |-> ( x ^ 2 ) ) )
+  7 feq1d 6 |- ( ph -> ( G : D --> RR <-> ( x e. D |-> ( x ^ 2 ) ) : D --> RR ) )
+  8 mpbid gcncfsq.2 7 |- ( ph -> ( x e. D |-> ( x ^ 2 ) ) : D --> RR )
+  9 ax-resscn |- RR C_ CC
+  10 a1i 9 |- ( ph -> RR C_ CC )
+  11 sstrd gcncfsq.1 10 |- ( ph -> D C_ CC )
+  12 ssid |- CC C_ CC
+  13 a1i 12 |- ( ph -> CC C_ CC )
+  14 cncfmptid |- ( ( D C_ CC /\ CC C_ CC ) -> ( x e. D |-> x ) e. ( D -cn-> CC ) )
+  15 syl2anc 11 13 14 |- ( ph -> ( x e. D |-> x ) e. ( D -cn-> CC ) )
+  16 mulcncf 15 15 |- ( ph -> ( x e. D |-> ( x x. x ) ) e. ( D -cn-> CC ) )
+  17 adantr 11 |- ( ( ph /\ x e. D ) -> D C_ CC )
+  18 simpr |- ( ( ph /\ x e. D ) -> x e. D )
+  19 sseldd 17 18 |- ( ( ph /\ x e. D ) -> x e. CC )
+  20 sqvald 19 |- ( ( ph /\ x e. D ) -> ( x ^ 2 ) = ( x x. x ) )
+  21 mpteq2dva 20 |- ( ph -> ( x e. D |-> ( x ^ 2 ) ) = ( x e. D |-> ( x x. x ) ) )
+  22 eqeltrd 21 16 |- ( ph -> ( x e. D |-> ( x ^ 2 ) ) e. ( D -cn-> CC ) )
+  23 cncfcdm |- ( ( RR C_ CC /\ ( x e. D |-> ( x ^ 2 ) ) e. ( D -cn-> CC ) ) -> ( ( x e. D |-> ( x ^
+      2 ) ) e. ( D -cn-> RR ) <-> ( x e. D |-> ( x ^ 2 ) ) : D --> RR ) )
+  24 syl2anc 10 22 23 |- ( ph -> ( ( x e. D |-> ( x ^ 2 ) ) e. ( D -cn-> RR ) <-> ( x e. D |-> ( x ^
+      2 ) ) : D --> RR ) )
+  25 mpbird 8 24 |- ( ph -> ( x e. D |-> ( x ^ 2 ) ) e. ( D -cn-> RR ) )
+  26 eqeltrd 6 25 |- ( ph -> G e. ( D -cn-> RR ) )
+
 lemma gcncfadd
   hypothesis gcncfadd.1 |- ( ph -> D C_ RR )
   hypothesis gcncfadd.2 |- ( ph -> H : D --> RR )

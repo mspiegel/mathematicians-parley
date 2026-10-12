@@ -869,6 +869,18 @@ $d t F $.
   $}
 
   ${
+    gcncfsq.1 $e |- ( ph -> D C_ RR ) $.
+    gcncfsq.2 $e |- ( ph -> G : D --> RR ) $.
+    gcncfsq.3 $e |- ( ph -> A. x e. D ( G ` x ) = ( x ^ 2 ) ) $.
+  gcncfsq $p |- ( ph -> G e. ( D -cn-> RR ) ) $=
+    ( cv c2 cexp co cmpt cr ccncf cfv wfn wceq ffnd dffn5 sylib r19.21bi
+    mpteq2dva eqtrd wcel wf feq1d mpbid cc wss wb ax-resscn a1i cmul wa sstrd
+    adantr simpr sseldd sqvald ssid cncfmptid syl2anc mulcncf eqeltrd cncfcdm
+    mpbird )
+    ADBCBHZIJKZLZCMNKZADBCVGDOZLZVIADCPZDVLQZACMDFRZBCDSZTZABCVKVHAVKVHQZBCGUAZUBZUCZAVIVJUDZCMVIUEZACMDUEWCFACMDVIWAUFUGAMUHUIZVICUHNKZUDWBWCUJWDAUKULZAVIBCVGVGUMKZLWEABCVHWGAVGCUDZUNZVGWICUHVGACUHUIZWHACMUHEWFUOZUPAWHUQURUSUBABVGVGCAWJUHUHUIZBCVGLZWEUDZWKWLAUHUTZULZBCUHVAZVBZWRVCVDCUHMVIVEVBVFVD $.
+  $}
+
+  ${
     gcncfadd.1 $e |- ( ph -> D C_ RR ) $.
     gcncfadd.2 $e |- ( ph -> H : D --> RR ) $.
     gcncfadd.3 $e |- ( ph -> F : D --> RR ) $.

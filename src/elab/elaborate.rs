@@ -4378,7 +4378,7 @@ impl<'a> Elaborator<'a> {
 
     /// The variables the file this corpus wrote for a theorem declares, read
     /// off the statement as this proof has it: a class for each `let`, and
-    /// whatever each binder takes.
+    /// whatever each binder takes, the integral's `_d t` among them.
     fn cited_floats(
         &self,
         said: &[String],
@@ -4391,8 +4391,8 @@ impl<'a> Elaborator<'a> {
             if matches!(label, "wral" | "wrex" | "wreu" | "crab") {
                 bound.insert(self.rpn(&node.children()[1]));
             }
-            if label == "cmpt" || label == "wal" {
-                let at = if label == "cmpt" { 0 } else { 1 };
+            if label == "cmpt" || label == "wal" || label == "cdit" {
+                let at = if label == "wal" { 1 } else { 0 };
                 bound.insert(self.rpn(&node.children()[at]));
             }
             if label == "csu" {
