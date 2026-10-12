@@ -1,0 +1,106 @@
+import mundane definition stdlib/divisibility/prime
+import mundane theorem    stdlib/divisibility/two-prime
+import mundane theorem    stdlib/numbers/floor-between
+import mundane theorem    stdlib/reasoning/modus-ponens
+import mundane theorem    stdlib/reasoning/disjunctive-syllogism
+
+theorem two-is-prime
+  then 2 is prime
+
+1.  2 is prime
+    mun:two-prime
+
+theorem one-is-not-prime
+  note        A prime is above 1, so 1 is not one.
+  then not (1 is prime)
+
+1.  not (1 > 1)
+    arithmetic
+
+2.  not (1 is prime)
+    contradiction
+    suppose 1 is prime                                                (S)
+
+    2.1.  1 > 1
+          mun:prime p := 1, from S, contradicting 1
+
+theorem ninety-one-is-not-prime
+  note        91 = 7·13.
+  then not (91 is prime)
+
+1.  7 divides 91
+    arithmetic
+
+2.  7 ≠ 1
+    arithmetic
+
+3.  7 ≠ 91
+    arithmetic
+
+4.  not (91 is prime)
+    contradiction
+    suppose 91 is prime                                               (S)
+
+    4.1.  For all d ∈ ℕ, if d divides 91 then d = 1 or d = 91.
+          mun:prime p := 91, from S
+
+    4.2.  If 7 divides 91 then 7 = 1 or 7 = 91.
+          instantiate d := 7 in line 4.1
+
+    4.3.  7 = 1 or 7 = 91
+          mun:modus-ponens, from 4.2, 1
+
+    4.4.  7 = 1
+          mun:disjunctive-syllogism, from 4.3, 3, contradicting 2
+
+theorem past-four-billion
+  note        Numbers past 2^32 are worked out exactly: Euler's factor of
+              2^32 + 1.
+  then 641 divides 2^32 + 1
+
+1.  641 divides 2^32 + 1
+    arithmetic
+
+theorem past-four-billion-exactly
+  then 2^32 + 1 = 641·6700417
+
+1.  2^32 + 1 = 641·6700417
+    arithmetic
+
+theorem past-four-billion-not-one-more
+  then 2^32 + 1 ≠ 641·6700417 + 1
+
+1.  2^32 + 1 ≠ 641·6700417 + 1
+    arithmetic
+
+theorem floor-of-minus-half
+  note        The floor rounds down, so below 0 it goes away from 0.
+  then ⌊−1/2⌋ = −1
+
+1.  ⌊−1/2⌋ = −1
+    mun:floor-between x := −1/2, k := −1
+    requires −1 ≤ −1/2: arithmetic
+    requires −1/2 < −1 + 1: arithmetic
+
+theorem floor-of-minus-half-not-zero
+  then ⌊−1/2⌋ ≠ 0
+
+1.  ⌊−1/2⌋ = −1
+    thm:floor-of-minus-half
+
+2.  ⌊−1/2⌋ ≠ 0
+    contradiction
+    suppose ⌊−1/2⌋ = 0                                                (S)
+
+    2.1.  −1 = 0, which is impossible
+          calculation
+          −1 = ⌊−1/2⌋     1
+             = 0          S
+
+theorem floor-of-seven-halves
+  then ⌊7/2⌋ = 3
+
+1.  ⌊7/2⌋ = 3
+    mun:floor-between x := 7/2, k := 3
+    requires 3 ≤ 7/2: arithmetic
+    requires 7/2 < 3 + 1: arithmetic

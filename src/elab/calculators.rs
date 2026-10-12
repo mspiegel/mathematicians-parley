@@ -1466,6 +1466,12 @@ impl<'a> Elaborator<'a> {
                     }
                 }
             }
+            // A disequation with a side below 0 is the lower below the
+            // higher (`order_by_difference`), and so apart (`ltne`).
+            let below_zero = |side: &Term| matches!(field::closed_value(side), Built(Value::Exact(v)) if v.is_negative());
+            if how == "=" && negated && (below_zero(&first) || below_zero(&second)) {
+                return self.closed_apart(&first, &second, scope, facts);
+            }
             // A disequation of whole numbers each side works out to is the
             // two values apart, carried to the sides as written (`eqeq12i`).
             if how == "=" && negated {
@@ -2087,6 +2093,61 @@ impl<'a> Elaborator<'a> {
             "sylibr",
             &binds! {"ph" => scope, "ps" => &valued, "ch" => &said},
             &[&held, &turn],
+        )))
+    }
+
+    /// ( scope -> -. first = second ) for closed terms of different values:
+    /// the lower is below the higher (`order_by_difference`), so the two
+    /// differ (`ltne`), turned to the order written (`necomd`, `neneqd`).
+    fn closed_apart(
+        &mut self,
+        first: &Term,
+        second: &Term,
+        scope: &str,
+        facts: &Facts,
+    ) -> Checked<Route<Proof>> {
+        let (Built(Value::Exact(x)), Built(Value::Exact(y))) =
+            (field::closed_value(first), field::closed_value(second))
+        else {
+            return Ok(Route::no("a side has no exact value"));
+        };
+        if x == y {
+            return Ok(Route::no("the two sides are equal"));
+        }
+        let first_lower = x < y;
+        let (low, high) = if first_lower {
+            (first, second)
+        } else {
+            (second, first)
+        };
+        let (sl, sh) = (self.rpn(low), self.rpn(high));
+        let below =
+            take!(self.order_by_difference(low, high, "<", false, scope, facts)?);
+        let real = take!(self.prove_numeral(&t!(&sl, "cr", "wcel"), scope, facts)?);
+        let both = self.b.ap(
+            "jca",
+            &binds! {"ph" => scope, "ps" => t!(&sl, "cr", "wcel"), "ch" => t!(&sl, &sh, "clt", "wbr")},
+            &[&real, &below],
+        );
+        let law = self.b.ap("ltne", &binds! {"A" => &sl, "B" => &sh}, &[]);
+        let mut apart = self.b.ap(
+            "syl",
+            &binds! {"ph" => scope, "ps" => t!(t!(&sl, "cr", "wcel"), t!(&sl, &sh, "clt", "wbr"), "wa"),
+            "ch" => t!(&sh, &sl, "wne")},
+            &[&both, &law],
+        );
+        let (sf, ss) = (self.rpn(first), self.rpn(second));
+        if first_lower {
+            apart = self.b.ap(
+                "necomd",
+                &binds! {"ph" => scope, "A" => &sh, "B" => &sl},
+                &[&apart],
+            );
+        }
+        Ok(Built(self.b.ap(
+            "neneqd",
+            &binds! {"ph" => scope, "A" => &sf, "B" => &ss},
+            &[&apart],
         )))
     }
 

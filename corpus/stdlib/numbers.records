@@ -197,6 +197,13 @@ mundane theorem floor-above
   then        x < ⌊x⌋ + 1
   metamath    flltp1
   target      flltp1
+
+mundane theorem floor-between
+  let x ∈ ℝ                                                           (H1)
+  let k ∈ ℤ                                                           (H2)
+  then        ⌊x⌋ = k ↔ k ≤ x and x < k + 1
+  metamath    flbi
+  target      flbi
   note        With floor-below, ⌊x⌋ is the whole number with x in [⌊x⌋,
               ⌊x⌋ + 1): x is at most one more than it, and never that much.
 
