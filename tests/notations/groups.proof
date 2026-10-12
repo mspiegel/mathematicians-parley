@@ -1,0 +1,125 @@
+import theorem            stdlib/groups/group-cancel
+import mundane axiom      stdlib/groups/group-associative
+import mundane axiom      stdlib/groups/group-closed
+import mundane axiom      stdlib/groups/group-identity
+import mundane axiom      stdlib/groups/group-identity-closed
+import mundane axiom      stdlib/groups/group-inverse
+import mundane axiom      stdlib/groups/group-inverse-closed
+import mundane theorem    stdlib/groups/subgroup-closed
+import mundane theorem    stdlib/groups/subgroup-inverse
+
+theorem the-identity-is-its-own-inverse
+  note        e⁻¹ is the inverse in the group, not 1/e: e·e⁻¹ and e·e are both
+              e, and cancelling e leaves e⁻¹ = e.
+  let G be a group with operation · and identity e                    (H1)
+  then e⁻¹ = e
+
+1.  e ∈ G
+    mun:group-identity-closed
+
+2.  e⁻¹ ∈ G
+    mun:group-inverse-closed a := e, from 1
+
+3.  e·e⁻¹ = e
+    mun:group-inverse a := e, from 1
+
+4.  e·e = e
+    mun:group-identity a := e, from 1
+
+5.  e·e⁻¹ = e·e
+    calculation
+    e·e⁻¹ = e       3
+          = e·e     4
+
+6.  e⁻¹ = e
+    thm:group-cancel a := e⁻¹, b := e, g := e, from 2, 1, 1, 5
+
+theorem the-inverse-of-a-product
+  note        Undoing a·b undoes b first: (a·b)·(b⁻¹·a⁻¹) = e, and an inverse
+              is the one thing that does that. The group's operation is not
+              taken to commute.
+  let G be a group with operation · and identity e                    (H1)
+  let a ∈ G                                                           (H2)
+  let b ∈ G                                                           (H3)
+  then (a·b)⁻¹ = b⁻¹·a⁻¹
+
+1.  a·b ∈ G
+    mun:group-closed, from H2, H3
+
+2.  a⁻¹ ∈ G
+    mun:group-inverse-closed, from H2
+
+3.  b⁻¹ ∈ G
+    mun:group-inverse-closed a := b, from H3
+
+4.  b⁻¹·a⁻¹ ∈ G
+    mun:group-closed a := b⁻¹, b := a⁻¹, from 3, 2
+
+5.  (a·b)⁻¹ ∈ G
+    mun:group-inverse-closed a := a·b, from 1
+
+6.  e ∈ G
+    mun:group-identity-closed
+
+7.  (a·b)·(b⁻¹·a⁻¹) = a·(b·(b⁻¹·a⁻¹))
+    mun:group-associative c := b⁻¹·a⁻¹, from H2, H3, 4
+
+8.  b·(b⁻¹·a⁻¹) = (b·b⁻¹)·a⁻¹
+    mun:group-associative a := b, b := b⁻¹, c := a⁻¹, from H3, 3, 2
+
+9.  b·b⁻¹ = e
+    mun:group-inverse a := b, from H3
+
+10. a⁻¹·(e·a⁻¹) = (a⁻¹·e)·a⁻¹
+    mun:group-associative a := a⁻¹, b := e, c := a⁻¹, from 2, 6, 2
+
+11. a⁻¹·e = a⁻¹
+    mun:group-identity a := a⁻¹, from 2
+
+12. a⁻¹·(e·a⁻¹) = a⁻¹·a⁻¹
+    substitute a⁻¹·e = a⁻¹ (line 11) into line 10
+
+13. e·a⁻¹ ∈ G
+    mun:group-closed a := e, b := a⁻¹, from 6, 2
+
+14. e·a⁻¹ = a⁻¹
+    thm:group-cancel a := e·a⁻¹, b := a⁻¹, g := a⁻¹, from 13, 2, 2, 12
+
+15. b·(b⁻¹·a⁻¹) = e·a⁻¹
+    substitute b·b⁻¹ = e (line 9) into line 8
+
+16. b·(b⁻¹·a⁻¹) = a⁻¹
+    substitute e·a⁻¹ = a⁻¹ (line 14) into line 15
+
+17. (a·b)·(b⁻¹·a⁻¹) = a·a⁻¹
+    substitute b·(b⁻¹·a⁻¹) = a⁻¹ (line 16) into line 7
+
+18. a·a⁻¹ = e
+    mun:group-inverse, from H2
+
+19. (a·b)·(a·b)⁻¹ = e
+    mun:group-inverse a := a·b, from 1
+
+20. (a·b)·(a·b)⁻¹ = (a·b)·(b⁻¹·a⁻¹)
+    calculation
+    (a·b)·(a·b)⁻¹ = e                  19
+                  = a·a⁻¹              18
+                  = (a·b)·(b⁻¹·a⁻¹)    17
+
+21. (a·b)⁻¹ = b⁻¹·a⁻¹
+    thm:group-cancel a := (a·b)⁻¹, b := b⁻¹·a⁻¹, g := a·b, from 5, 4, 1, 20
+
+theorem a-subgroup-test
+  note        A subgroup holds a·b⁻¹ for any two of its members: the inverse
+              and the operation are both the group's.
+  let G be a group with operation · and identity e                    (H1)
+  assume H is a subgroup of G                                         (H2)
+  let a ∈ H                                                           (H3)
+  let b ∈ H                                                           (H4)
+  then a·b⁻¹ ∈ H
+
+1.  b⁻¹ ∈ H
+    mun:subgroup-inverse a := b, from H2, H4
+
+2.  a·b⁻¹ ∈ H
+    mun:subgroup-closed b := b⁻¹, from H2, H3, 1

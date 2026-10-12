@@ -44,6 +44,12 @@ mundane axiom group-identity
   metamath    grprid
   target      grprid
 
+mundane axiom group-identity-closed
+  let G be a group with operation · and identity e                    (H1)
+  then        e ∈ G
+  metamath    grpidcl
+  target      grpidcl
+
 mundane axiom group-inverse
   let G be a group with operation · and identity e                    (H1)
   let a ∈ G                                                           (H2)
