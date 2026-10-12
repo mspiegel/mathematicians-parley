@@ -173,13 +173,6 @@ pub struct Kinded {
     pub shown: Requires,
 }
 
-impl Kinded {
-    /// What the let says of its name, once its reason is shown: `m ∈ ℕ`.
-    pub fn membership(&self) -> String {
-        format!("{} ∈ {}", self.name, self.set)
-    }
-}
-
 impl DefineLine {
     /// A part of the line that is formula text, its rule or a domain, as
     /// the skeleton reader cut it out (`define_parts`).
@@ -218,7 +211,12 @@ impl DefineLine {
             name: one.name.clone(),
             set: set.clone(),
             shown: Requires {
-                fact: Written::new(format!("{} ∈ {set}", one.body), path, reason.line),
+                fact: Written::member(
+                    Written::new(&one.body, path, self.line),
+                    Written::new(set, path, self.line),
+                    path,
+                    reason.line,
+                ),
                 how: reason.how.clone(),
                 line: reason.line,
             },

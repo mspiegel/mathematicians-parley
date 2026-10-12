@@ -54,3 +54,23 @@ fn a_claim_of_several_sentences_is_their_conjunction_from_the_left() {
         .unwrap();
     assert_eq!(made.shape(), written.shape());
 }
+
+/// A membership a `let` says in words, `let A = x + 1, a real number`, is
+/// made from its term and its set, and is the tree of the membership
+/// written out.
+#[test]
+fn a_membership_made_from_its_parts_is_the_one_written() {
+    let g = grammar();
+    let made = Written::member(
+        Written::new("x + 1", "front-end", 0),
+        Written::new("ℝ", "front-end", 0),
+        "front-end",
+        0,
+    )
+    .sentence()
+    .unwrap()
+    .read(&g, &Sorts::new())
+    .unwrap();
+    let [written] = read("(x + 1) ∈ ℝ", &g).try_into().unwrap();
+    assert_eq!(made.shape(), written.shape());
+}

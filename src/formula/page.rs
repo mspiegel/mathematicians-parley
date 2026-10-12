@@ -19,6 +19,17 @@ pub struct Written {
     text: String,
     path: String,
     line: usize,
+    /// Where the formula is a membership the page says in words, `let A =
+    /// …, a real number`, its two parts, from which its tree is made.
+    member: Option<Box<Member>>,
+}
+
+/// A membership a line says without writing it, made from two parts the
+/// page does write: the term, and the set a kind of number names.
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+struct Member {
+    term: Written,
+    set: Written,
 }
 
 /// One sentence of a `Written`, without its full stop, and where it was
@@ -28,6 +39,7 @@ pub struct Sentence {
     text: String,
     path: String,
     line: usize,
+    member: Option<Box<Member>>,
 }
 
 impl Written {
@@ -36,6 +48,19 @@ impl Written {
             text: text.into(),
             path: path.to_string(),
             line,
+            member: None,
+        }
+    }
+
+    /// `term ∈ set`, a membership no line writes, with the place of the
+    /// line that says it. It reads as the tree of `x ∈ S` filled with the
+    /// two parts' trees; its text is for a message and is never read.
+    pub fn member(term: Written, set: Written, path: &str, line: usize) -> Written {
+        Written {
+            text: format!("{term} ∈ {set}"),
+            path: path.to_string(),
+            line,
+            member: Some(Box::new(Member { term, set })),
         }
     }
 
@@ -65,12 +90,21 @@ impl Written {
     /// included, so a claim written across two lines splits where it would
     /// written on one. The full stop is dropped, the last one included.
     pub fn sentences(&self) -> Vec<Sentence> {
+        if self.member.is_some() {
+            return vec![Sentence {
+                text: self.text.clone(),
+                path: self.path.clone(),
+                line: self.line,
+                member: self.member.clone(),
+            }];
+        }
         split(&self.text)
             .into_iter()
             .map(|text| Sentence {
                 text,
                 path: self.path.clone(),
                 line: self.line,
+                member: None,
             })
             .collect()
     }
@@ -116,7 +150,14 @@ impl Sentence {
 
     /// The tree the sentence reads as, with the sorts in scope.
     pub fn read(&self, g: &Grammar, sorts: &Sorts) -> Checked<Node> {
-        parse(&self.text, g, sorts, &self.path, self.line)
+        match &self.member {
+            Some(m) => {
+                let term = m.term.sentence()?.read(g, sorts)?;
+                let set = m.set.sentence()?.read(g, sorts)?;
+                filled("x ∈ S", g, sorts, &[("x", &term), ("S", &set)])
+            }
+            None => parse(&self.text, g, sorts, &self.path, self.line),
+        }
     }
 }
 
