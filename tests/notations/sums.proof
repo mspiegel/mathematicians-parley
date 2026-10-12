@@ -1,6 +1,7 @@
 import mundane theorem    stdlib/sums/sum-constant
 import mundane theorem    stdlib/sums/sum-single
 import mundane theorem    stdlib/sums/sum-extended
+import theorem            stdlib/sums/product-factor
 
 theorem a-constant-summed
   then Σ(k = 1 to 3) 5 = 15
@@ -70,3 +71,23 @@ theorem one-to-three-not-five
           calculation
           6 = Σ(k = 1 to 3) k     1
             = 5                   S
+
+theorem a-product-scaled
+  note        Each of the |X| terms carries a factor 3, and the factors come
+              out together as 3^|X|.
+  let X ⊆ ℤ                                                           (H1)
+  assume X is finite                                                  (H2)
+  then ∏(x ∈ X) x·3 = 3^|X|·∏(x ∈ X) x
+
+1.  ∏(x ∈ X) x·3 = 3^|X|·∏(x ∈ X) x
+    thm:product-factor c := 3, from H1, H2
+
+theorem a-product-scaled-cited
+  note        The theorem above, cited over another set and another index
+              letter.
+  let Y ⊆ ℤ                                                           (H1)
+  assume Y is finite                                                  (H2)
+  then ∏(k ∈ Y) k·3 = 3^|Y|·∏(k ∈ Y) k
+
+1.  ∏(k ∈ Y) k·3 = 3^|Y|·∏(k ∈ Y) k
+    thm:a-product-scaled X := Y, from H1, H2

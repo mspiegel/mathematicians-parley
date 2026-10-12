@@ -4376,50 +4376,26 @@ impl<'a> Elaborator<'a> {
         Ok(out)
     }
 
-    /// The variables the file this corpus wrote for a theorem declares, read
-    /// off the statement as this proof has it: a class for each `let`, and
-    /// whatever each binder takes, the integral's `_d t` among them.
-    fn cited_floats(
-        &self,
-        said: &[String],
-        classes: &IndexMap<String, String>,
-    ) -> Vec<String> {
-        let mut bound: BTreeSet<String> = BTreeSet::new();
-        let mut rest: Vec<Term> = said.iter().map(|s| self.to_term(s)).collect();
-        while let Some(node) = rest.pop() {
-            let label = node.label().unwrap_or("");
-            if matches!(label, "wral" | "wrex" | "wreu" | "crab") {
-                bound.insert(self.rpn(&node.children()[1]));
-            }
-            if label == "cmpt" || label == "wal" || label == "cdit" {
-                let at = if label == "wal" { 1 } else { 0 };
-                bound.insert(self.rpn(&node.children()[at]));
-            }
-            if label == "csu" {
-                bound.insert(self.rpn(&node.children()[2]));
-            }
-            rest.extend(node.children().iter().cloned());
-        }
-        bound.extend(classes.keys().cloned());
-        let mut out: Vec<String> = bound.into_iter().collect();
-        out.sort_by_key(|label| {
-            self.b.forder.get(label).copied().unwrap_or(usize::MAX)
-        });
-        out
-    }
-
     /// What a citation pushes, in the order the cited theorem's own statement
-    /// declares: what it binds decides both the order and how many. None
-    /// where that statement is not known.
+    /// declares. Each of its variables is what it stands at in `applied`, the
+    /// statement as this proof applies it: a variable is told by where it
+    /// stands, so a bound letter of any binder is found as a class is.
     fn cited_pushes(
         &self,
+        step: &Step,
         name: &str,
-        binds: &IndexMap<String, String>,
-        mine: &[String],
-    ) -> Option<Vec<String>> {
-        let said = (self.statements)(name)?;
+        applied: &str,
+    ) -> Checked<Vec<String>> {
+        let said = (self.statements)(name).ok_or_else(|| {
+            self.defect(
+                step.line,
+                format!("no file states {name}, which this step cites"),
+            )
+        })?;
+        let words: Vec<&str> = said.split_whitespace().skip(1).collect();
+        let pattern = self.b.syntax().parse(&words, "wff")?;
         let mut theirs: Vec<String> = Vec::new();
-        for token in said.split_whitespace() {
+        for token in words.iter().copied() {
             if let Some(label) = self.b.flabel.get(token) {
                 if !theirs.contains(label) {
                     theirs.push(label.clone());
@@ -4429,21 +4405,25 @@ impl<'a> Elaborator<'a> {
         theirs.sort_by_key(|label| {
             self.b.forder.get(label).copied().unwrap_or(usize::MAX)
         });
-        let mut spare: std::collections::VecDeque<&String> = mine
+        let variables: BTreeSet<String> = theirs
             .iter()
-            .filter(|v| !binds.contains_key(*v) && self.typecode(v) == "setvar")
+            .map(|l| self.sig(l).statement[1].clone())
             .collect();
-        let mut out = Vec::new();
-        for label in &theirs {
-            if let Some(b) = binds.get(label) {
-                out.push(b.clone());
-            } else if self.typecode(label) == "setvar" && !spare.is_empty() {
-                out.push(spare.pop_front().unwrap().clone());
-            } else {
-                return None;
-            }
-        }
-        Some(out)
+        let Some(binding) = fit(
+            &pattern,
+            &self.to_term(applied),
+            &Binding::new(),
+            &variables,
+        ) else {
+            return Err(self.defect(
+                step.line,
+                format!("{name} states {said}, which is not what this step applies"),
+            ));
+        };
+        Ok(theirs
+            .iter()
+            .map(|l| self.rpn(&binding[self.sig(l).statement[1].as_str()]))
+            .collect())
     }
 
     /// Apply a theorem this corpus proves, as this elaborator states it: its
@@ -4465,8 +4445,8 @@ impl<'a> Elaborator<'a> {
         let mut spare: std::collections::VecDeque<&str> =
             CLASS_NAMES.iter().copied().collect();
         let claimed = step.claim.sentences().len();
-        let (binds, wanted, whole) = self.names_and_sets_kept(
-            |me| -> Checked<(IndexMap<String, String>, Vec<String>, String)> {
+        let (wanted, whole) =
+            self.names_and_sets_kept(|me| -> Checked<(Vec<String>, String)> {
                 let saved = me.names.clone();
                 // Every value is read in the step's own names before any
                 // letter of the theorem is given one: `a := b/k, b := a/k`
@@ -4476,7 +4456,6 @@ impl<'a> Elaborator<'a> {
                     .instantiated(cites.unwrap_or(&step.just.text))?
                     .into_iter()
                     .collect();
-                let mut binds: IndexMap<String, String> = IndexMap::new();
                 for h in &other.hypotheses {
                     // A graph's line introduces one class, the graph, whose
                     // parts its vertices, edges and the notations' `@ends`
@@ -4494,7 +4473,6 @@ impl<'a> Elaborator<'a> {
                         } else if !saved.contains_key(&name) {
                             me.names.insert(name.clone(), theirs.clone());
                         }
-                        binds.insert(theirs, me.names[&name].clone());
                         continue;
                     }
                     // Parsed with the theorem's own sorts, which say what its
@@ -4526,9 +4504,8 @@ impl<'a> Elaborator<'a> {
                         if let Some(term) = values.get(&name) {
                             me.names.insert(name.clone(), term.clone());
                         } else if !saved.contains_key(&name) {
-                            me.names.insert(name.clone(), theirs.clone());
+                            me.names.insert(name.clone(), theirs);
                         }
-                        binds.insert(theirs, me.names[&name].clone());
                     }
                 }
                 // Read in its own file's definitions, as its conclusion is below.
@@ -4567,9 +4544,8 @@ impl<'a> Elaborator<'a> {
                 if other.stated().sentences().len() > claimed {
                     whole = stated;
                 }
-                Ok((binds, wanted, whole))
-            },
-        )?;
+                Ok((wanted, whole))
+            })?;
         // A cited theorem asks for what it asks for, and a hypothesis a
         // reader would not think to write as a line is written as a
         // `requires` instead, or settled as a side condition. What the step
@@ -4618,19 +4594,11 @@ impl<'a> Elaborator<'a> {
             proof = Some(pf!(self.b; scope, p, extra, proof.unwrap(), held, "jca"));
             pair = Some(t!(p, extra, "wa"));
         }
-        // A variable the file declares and this proof says nothing about is
-        // one the statement binds, and it stands for itself.
-        let mut said = wanted.clone();
-        said.push(whole.clone());
-        let mine = self.cited_floats(&said, &binds);
-        let pushed = self
-            .cited_pushes(&full, &binds, &mine)
-            .filter(|p| !p.is_empty())
-            .unwrap_or_else(|| {
-                mine.iter()
-                    .map(|l| binds.get(l).cloned().unwrap_or(l.clone()))
-                    .collect()
-            });
+        let applied = match &pair {
+            Some(pair) => t!(pair, whole, "wi"),
+            None => whole.clone(),
+        };
+        let pushed = self.cited_pushes(step, &full, &applied)?;
         let cited = label_of(
             &full,
             &self.b.sigs,
