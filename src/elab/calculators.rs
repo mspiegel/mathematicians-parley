@@ -22,7 +22,7 @@ use num_integer::Integer;
 use num_traits::{One, Signed, ToPrimitive, Zero};
 
 use super::elaborate::Sides;
-use super::field::{self, numeral as n, q, Poly, Verdict, Q};
+use super::field::{self, numeral as n, q, Poly, Value, Verdict, DIV, Q, SUB};
 use super::linear::{self, Certificate, How};
 use super::normal::{Emitter, Oracle, Quotiented, Run};
 use super::numerals;
@@ -1400,6 +1400,43 @@ impl<'a> Elaborator<'a> {
             }
             return Ok(self.numeral_divides(&goal, negated, scope));
         }
+        // Not in ℕ₀ for a value below 0, whose members are at least 0
+        // (`nn0ge0`); not in ℕ for one at most 0, whose members are above it
+        // (`nngt0`).
+        if negated
+            && goal.variable().is_none()
+            && goal.label() == Some("wcel")
+            && goal.children().len() == 2
+        {
+            let (member, system) = (&goal.children()[0], goal.children()[1].label());
+            let (how, law) = match system {
+                Some("cn0") => ("<=", "nn0ge0"),
+                Some("cn") => ("<", "nngt0"),
+                _ => {
+                    return Ok(Route::no(
+                        "a non-membership of a system other than ℕ or ℕ₀",
+                    ))
+                }
+            };
+            let zero = Term::apply("cc0", Vec::new());
+            let below = take!(
+                self.order_by_difference(&zero, member, how, true, scope, facts)?
+            );
+            let m = self.rpn(member);
+            let relation = if how == "<" { "clt" } else { "cle" };
+            let held = t!("cc0", &m, relation, "wbr");
+            let law = self.b.ap(law, &binds! {"N" => &m, "A" => &m}, &[]);
+            let law = self.b.ap(
+                "a1i",
+                &binds! {"ph" => t!(self.rpn(&goal), &held, "wi"), "ps" => scope},
+                &[&law],
+            );
+            return Ok(Built(self.b.ap(
+                "mtod",
+                &binds! {"ph" => scope, "ps" => self.rpn(&goal), "ch" => &held},
+                &[&below, &law],
+            )));
+        }
         let Some((first, second, how)) = order_sides(&goal) else {
             return Ok(Route::no("the claim states no relation"));
         };
@@ -1425,6 +1462,38 @@ impl<'a> Elaborator<'a> {
                             "a1i",
                             &binds! {"ph" => t!(sf, ss, "wceq"), "ps" => scope},
                             &[&joined],
+                        )));
+                    }
+                }
+            }
+            // A disequation of whole numbers each side works out to is the
+            // two values apart, carried to the sides as written (`eqeq12i`).
+            if how == "=" && negated {
+                let labels = self.b.flabel.clone();
+                if let (Some((a, a_is)), Some((b, b_is))) = (
+                    numerals::worked(&self.b, &first, &labels),
+                    numerals::worked(&self.b, &second, &labels),
+                ) {
+                    if a != b {
+                        let apart = self.numerals_differ(scope, &a, &b);
+                        let (sf, ss) = (self.rpn(&first), self.rpn(&second));
+                        let (na, nb) = (numerals::spell(a), numerals::spell(b));
+                        let same = self.b.ap(
+                            "eqeq12i",
+                            &binds! {"A" => &sf, "B" => &na, "C" => &ss, "D" => &nb},
+                            &[&a_is, &b_is],
+                        );
+                        let (said, valued) =
+                            (t!(&sf, &ss, "wceq"), t!(&na, &nb, "wceq"));
+                        let turned = self.b.ap(
+                            "notbii",
+                            &binds! {"ph" => &said, "ps" => &valued},
+                            &[&same],
+                        );
+                        return Ok(Built(self.b.ap(
+                            "sylibr",
+                            &binds! {"ph" => scope, "ps" => t!(valued, "wn"), "ch" => t!(said, "wn")},
+                            &[&apart, &turned],
                         )));
                     }
                 }
@@ -1967,10 +2036,16 @@ impl<'a> Elaborator<'a> {
                 && side.children().len() == 3
                 && side.children()[2].label() == Some("cdiv")
         };
+        // Below 0, or a denial between fractions: the routes after this work
+        // with whole numbers of at least 0 and fractions of them, in order.
+        let below_zero = |side: &Term| matches!(field::closed_value(side), Built(Value::Exact(v)) if v.is_negative());
+        if below_zero(first)
+            || below_zero(second)
+            || (negated && (divides(first) || divides(second)))
+        {
+            return self.order_by_difference(first, second, how, negated, scope, facts);
+        }
         if divides(first) || divides(second) {
-            if negated {
-                return Ok(Route::no("a denial between fractions"));
-            }
             return Ok(match self.fractions_ordered(goal, first, second, how) {
                 Some(closed) => Built(self.b.ap(
                     "a1i",
@@ -2012,6 +2087,130 @@ impl<'a> Elaborator<'a> {
             "sylibr",
             &binds! {"ph" => scope, "ps" => &valued, "ch" => &said},
             &[&held, &turn],
+        )))
+    }
+
+    /// An order between closed terms that are not whole numbers of at least
+    /// 0, `−3 < 0` or `−1/2 ≤ 1/3`: the second less the first is worked out
+    /// to its value, which is a numeral or a fraction of two, and its sign
+    /// says the order (`posdif`, `subge0`). A denial is the order the other
+    /// way, turned (`lenlt`, `ltnle`).
+    #[allow(clippy::too_many_arguments)]
+    fn order_by_difference(
+        &mut self,
+        first: &Term,
+        second: &Term,
+        how: &str,
+        negated: bool,
+        scope: &str,
+        facts: &Facts,
+    ) -> Checked<Route<Proof>> {
+        let (Built(Value::Exact(x)), Built(Value::Exact(y))) =
+            (field::closed_value(first), field::closed_value(second))
+        else {
+            return Ok(Route::no("a side has no exact value"));
+        };
+        let (sf, ss) = (self.rpn(first), self.rpn(second));
+        let real = |s: &str| t!(s, "cr", "wcel");
+        let first_real = take!(self.prove_numeral(&real(&sf), scope, facts)?);
+        let second_real = take!(self.prove_numeral(&real(&ss), scope, facts)?);
+        if negated {
+            // not x < y is y ≤ x, and not x ≤ y is y < x.
+            let (turned, law, relation) = if how == "<" {
+                ("<=", "lenlt", "clt")
+            } else {
+                ("<", "ltnle", "cle")
+            };
+            let other = if turned == "<" { "clt" } else { "cle" };
+            let held =
+                take!(self
+                    .order_by_difference(second, first, turned, false, scope, facts)?);
+            let both = self.b.ap(
+                "jca",
+                &binds! {"ph" => scope, "ps" => real(&ss), "ch" => real(&sf)},
+                &[&second_real, &first_real],
+            );
+            let said = t!(&sf, &ss, relation, "wbr");
+            let valued = t!(&ss, &sf, other, "wbr");
+            let iff = t!(&valued, t!(&said, "wn"), "wb");
+            let law = self.b.ap(law, &binds! {"A" => &ss, "B" => &sf}, &[]);
+            let iff = self.b.ap(
+                "syl",
+                &binds! {"ph" => scope, "ps" => t!(real(&ss), real(&sf), "wa"), "ch" => &iff},
+                &[&both, &law],
+            );
+            return Ok(Built(self.b.ap(
+                "mpbid",
+                &binds! {"ph" => scope, "ps" => &valued, "ch" => t!(&said, "wn")},
+                &[&held, &iff],
+            )));
+        }
+        let gap = &y - &x;
+        if gap.is_negative() || (how == "<" && gap.is_zero()) {
+            return Ok(Route::no(format!(
+                "{x} {how} {y} is not what the numbers do"
+            )));
+        }
+        let whole = |v: &BigInt| numerals::spell(v.to_biguint().unwrap_or_default());
+        let value = if gap.is_integer() {
+            whole(&gap.to_integer())
+        } else {
+            t!(whole(gap.numer()), whole(gap.denom()), DIV, "co")
+        };
+        let relation = if how == "<" { "clt" } else { "cle" };
+        let difference = t!(&ss, &sf, SUB, "co");
+        let equal = take!(self.prove_field(
+            None,
+            &t!(&difference, &value, "wceq"),
+            scope,
+            facts,
+            &Lines::new()
+        )?);
+        let signed = take!(self.prove_numeral(
+            &t!("cc0", &value, relation, "wbr"),
+            scope,
+            facts
+        )?);
+        let sign = self.b.ap(
+            "breqtrrd",
+            &binds! {"ph" => scope, "A" => "cc0", "R" => relation, "B" => &value, "C" => &difference},
+            &[&signed, &equal],
+        );
+        let said = t!(&sf, &ss, relation, "wbr");
+        let by_sign = t!("cc0", &difference, relation, "wbr");
+        if how == "<" {
+            let both = self.b.ap(
+                "jca",
+                &binds! {"ph" => scope, "ps" => real(&sf), "ch" => real(&ss)},
+                &[&first_real, &second_real],
+            );
+            let law = self.b.ap("posdif", &binds! {"A" => &sf, "B" => &ss}, &[]);
+            let iff = self.b.ap(
+                "syl",
+                &binds! {"ph" => scope, "ps" => t!(real(&sf), real(&ss), "wa"), "ch" => t!(&said, &by_sign, "wb")},
+                &[&both, &law],
+            );
+            return Ok(Built(self.b.ap(
+                "mpbird",
+                &binds! {"ph" => scope, "ps" => &said, "ch" => &by_sign},
+                &[&sign, &iff],
+            )));
+        }
+        let both = self.b.ap(
+            "jca",
+            &binds! {"ph" => scope, "ps" => real(&ss), "ch" => real(&sf)},
+            &[&second_real, &first_real],
+        );
+        let law = self.b.ap("subge0", &binds! {"A" => &ss, "B" => &sf}, &[]);
+        let iff = self.b.ap(
+            "syl",
+            &binds! {"ph" => scope, "ps" => t!(real(&ss), real(&sf), "wa"), "ch" => t!(&by_sign, &said, "wb")},
+            &[&both, &law],
+        );
+        Ok(Built(self.b.ap(
+            "mpbid",
+            &binds! {"ph" => scope, "ps" => &by_sign, "ch" => &said},
+            &[&sign, &iff],
         )))
     }
 
