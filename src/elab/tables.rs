@@ -711,6 +711,12 @@ impl<'a> Elaborator<'a> {
         if let Some(found) = self.numbers.get(&key) {
             return Ok(found.clone());
         }
+        // A membership asked again while it is being worked out, as the
+        // search for 1/2 ∈ ℤ asked 1/2 ∈ ℤ of a lemma's hypothesis, would
+        // start the search again at full depth, and never stop.
+        if self.numbering.contains(&want) {
+            return Ok(Route::no("asked again while it is being worked out"));
+        }
         self.numbering.insert(want.clone());
         let found = (|| -> Checked<Route<Proof>> {
             let found = self.settle(goal, scope, &Facts::new(), 4, None, None)?;

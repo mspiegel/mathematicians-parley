@@ -1056,8 +1056,16 @@ impl<'a> Elaborator<'a> {
                 .contains(&name.as_str()),
             _ => false,
         };
+        // The claim says "for all" on the page, and not in its kernel form
+        // only: "1 is an upper bound of [0, 1]" is a "for all" in set.mm's
+        // words and none in the page's, and is cited whole.
         let whole = self.to_term(term);
-        if at_a_member && whole.variable().is_none() && whole.label() == Some("wral") {
+        let says_for_all = node.notation.starts_with("for-all");
+        if at_a_member
+            && says_for_all
+            && whole.variable().is_none()
+            && whole.label() == Some("wral")
+        {
             let letter = self.member_letter(step)?;
             let kids = whole.children();
             let (body, variable, over) =
@@ -1812,7 +1820,20 @@ impl<'a> Elaborator<'a> {
                 self.rpn(&reads.children()[1]),
             );
             // An `instantiate` is the head of a step, so what the universal
-            // asks at this term is the text's to supply.
+            // asks at this term is the text's to supply: a requires line of
+            // the step, as `0 < 1/2` for "for all ε > 0" at 1/2, or a line
+            // it cites.
+            let written = self
+                .written
+                .entries()
+                .into_iter()
+                .find(|(said, _)| *said == asks)
+                .and_then(|(said, w)| self.lifted_to(&said, &w.proof, &w.at, scope));
+            if let Some(supplied) = written {
+                proof = pf!(self.b; scope, asks, rest, supplied, proof, "mpd");
+                reached = rest;
+                continue;
+            }
             let supplied = match self.settle(
                 &self.to_term(&asks),
                 scope,

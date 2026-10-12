@@ -1,0 +1,198 @@
+import theorem            stdlib/calculus/continuous-linear
+import theorem            stdlib/calculus/derivative-linear
+import mundane definition stdlib/calculus/interval
+import mundane theorem    stdlib/calculus/interval-real
+import mundane theorem    stdlib/calculus/open-within-closed
+import mundane theorem    stdlib/calculus/open-interval-open
+import mundane definition stdlib/calculus/upper-bound
+import mundane definition stdlib/calculus/least-upper-bound
+import definition         stdlib/calculus/tends-to
+import theorem            stdlib/numbers/archimedean
+import mundane theorem    stdlib/numbers/abs-difference-lt
+import mundane theorem    stdlib/numbers/reciprocal-order
+import mundane theorem    stdlib/numbers/reciprocal-positive
+
+theorem a-line-is-continuous
+  let g : [0, 1] → ℝ                                                  (H1)
+  assume for all x ∈ [0, 1], g(x) = 2·x                               (H2)
+  then g is continuous on [0, 1]
+
+1.  g is continuous on [0, 1]
+    thm:continuous-linear D := [0, 1], m := 2, from H2
+    requires [0, 1] ⊆ ℝ: mun:interval-real a := 0, b := 1
+
+theorem a-line-is-differentiable
+  let g : [0, 1] → ℝ                                                  (H1)
+  assume for all x ∈ [0, 1], g(x) = 2·x                               (H2)
+  then g is differentiable on (0, 1)
+
+1.  g is differentiable on (0, 1)
+    thm:derivative-linear D := [0, 1], U := (0, 1), m := 2, from H2
+    requires [0, 1] ⊆ ℝ: mun:interval-real a := 0, b := 1
+    requires (0, 1) ⊆ [0, 1]: mun:open-within-closed a := 0, b := 1
+    requires (0, 1) is open: mun:open-interval-open a := 0, b := 1
+
+theorem the-slope-of-a-line
+  note        The derivative of 2x is 2 at every point.
+  let g : [0, 1] → ℝ                                                  (H1)
+  assume for all x ∈ [0, 1], g(x) = 2·x                               (H2)
+  then for all x ∈ (0, 1), g′(x) = 2
+
+1.  For all x ∈ (0, 1), g′(x) = 2.
+    thm:derivative-linear D := [0, 1], U := (0, 1), m := 2, from H2
+    requires [0, 1] ⊆ ℝ: mun:interval-real a := 0, b := 1
+    requires (0, 1) ⊆ [0, 1]: mun:open-within-closed a := 0, b := 1
+    requires (0, 1) is open: mun:open-interval-open a := 0, b := 1
+
+theorem one-bounds-the-unit-interval
+  then 1 is an upper bound of [0, 1]
+
+1.  For all s ∈ [0, 1], s ≤ 1.
+    proof
+    let s ∈ [0, 1]                                                    (K1)
+
+    1.1.  s ≤ 1
+          mun:interval a := 0, b := 1, x := s, from K1
+
+2.  1 is an upper bound of [0, 1]
+    mun:upper-bound u := 1, S := [0, 1], from 1
+
+theorem one-is-in-the-unit-interval
+  then 1 ∈ [0, 1]
+
+1.  1 ∈ [0, 1]
+    mun:interval a := 0, b := 1, x := 1
+    requires 0 ≤ 1: arithmetic
+    requires 1 ≤ 1: arithmetic
+
+theorem a-half-does-not-bound-the-unit-interval
+  then not (1/2 is an upper bound of [0, 1])
+
+1.  1 ∈ [0, 1]
+    thm:one-is-in-the-unit-interval
+
+2.  not (1/2 is an upper bound of [0, 1])
+    contradiction
+    suppose 1/2 is an upper bound of [0, 1]                           (S)
+
+    2.1.  For all s ∈ [0, 1], s ≤ 1/2.
+          mun:upper-bound u := 1/2, S := [0, 1], from S
+
+    2.2.  1 ≤ 1/2, which is impossible
+          instantiate s := 1 in line 2.1, from 1
+
+theorem an-upper-bound-cited
+  note        "Is an upper bound of" says "for all" only in set.mm's words, so
+              a step claiming it cites a theorem that states it whole.
+  then 1 is an upper bound of [0, 1]
+
+1.  1 is an upper bound of [0, 1]
+    thm:one-bounds-the-unit-interval
+
+theorem one-is-the-least-bound-of-the-unit-interval
+  then 1 is a least upper bound of [0, 1]
+
+1.  1 is an upper bound of [0, 1]
+    thm:one-bounds-the-unit-interval
+
+2.  1 ∈ [0, 1]
+    thm:one-is-in-the-unit-interval
+
+3.  For all u ∈ ℝ, if u is an upper bound of [0, 1] then 1 ≤ u.
+    proof
+    let u ∈ ℝ                                                         (K1)
+    assume u is an upper bound of [0, 1]                              (A1)
+
+    3.1.  For all s ∈ [0, 1], s ≤ u.
+          mun:upper-bound S := [0, 1], from A1
+
+    3.2.  1 ≤ u
+          instantiate s := 1 in line 3.1, from 2
+
+4.  1 is an upper bound of [0, 1], and for all u ∈ ℝ, if u is an upper
+    bound of [0, 1] then 1 ≤ u.
+    join 1, 3
+
+5.  1 is a least upper bound of [0, 1]
+    mun:least-upper-bound c := 1, S := [0, 1], from 4
+
+theorem one-over-n-tends-to-zero
+  ε ranges over ℝ
+  n ranges over ℕ
+  then 1/n → 0 as n → ∞
+
+1.  For all ε > 0, there exists N ∈ ℕ such that |1/n − 0| < ε for all n ≥ N.
+    proof
+    let ε ∈ ℝ                                                         (K1)
+    assume ε > 0                                                      (A1)
+
+    1.1.  N ∈ ℕ. 1/N < ε.
+          obtain N: thm:archimedean x := ε, from A1
+
+    1.2.  For all n ≥ N, |1/n − 0| < ε.
+          proof
+          let n ∈ ℕ                                                   (K2)
+          assume n ≥ N                                                (A2)
+
+          1.2.1.  1/n ≤ 1/N
+                  mun:reciprocal-order x := N, y := n, from A2
+                  requires N > 0: inequalities, from 1.1
+                  requires n > 0: inequalities, from K2
+
+          1.2.2.  1/n > 0
+                  mun:reciprocal-positive x := n
+                  requires n > 0: inequalities, from K2
+
+          1.2.3.  0 − ε < 1/n
+                  inequalities, from 1.2.2, A1, K2
+
+          1.2.4.  1/n < 0 + ε
+                  inequalities, from 1.2.1, 1.1, K2
+
+          1.2.5.  |1/n − 0| < ε
+                  mun:abs-difference-lt x := 1/n, c := 0, δ := ε, from 1.2.3, 1.2.4, K2
+
+    1.3.  There exists N ∈ ℕ such that |1/n − 0| < ε for all n ≥ N.
+          exhibit, from 1.2
+
+2.  1/n → 0 as n → ∞
+    def:tends-to L := 0, from 1
+
+theorem one-over-n-does-not-tend-to-one
+  ε ranges over ℝ
+  n ranges over ℕ
+  then not (1/n → 1 as n → ∞)
+
+1.  not (1/n → 1 as n → ∞)
+    contradiction
+    suppose 1/n → 1 as n → ∞                                          (S)
+
+    1.1.  For all ε > 0, there exists N ∈ ℕ such that |1/n − 1| < ε for all n ≥ N.
+          def:tends-to L := 1, from S
+
+    1.2.  There exists N ∈ ℕ such that |1/n − 1| < 1/2 for all n ≥ N.
+          instantiate ε := 1/2 in line 1.1
+          requires 0 < 1/2: arithmetic
+
+    1.3.  N ∈ ℕ. |1/n − 1| < 1/2 for all n ≥ N.
+          obtain N from line 1.2
+
+    1.4.  |1/(N + 1) − 1| < 1/2
+          instantiate n := N + 1 in line 1.3
+          requires N + 1 ≥ N: inequalities
+
+    1.5.  1 − 1/2 < 1/(N + 1) and 1/(N + 1) < 1 + 1/2
+          mun:abs-difference-lt x := 1/(N + 1), c := 1, δ := 1/2, from 1.4
+          requires N + 1 ≠ 0: inequalities, from 1.3
+
+    1.6.  2 ≤ N + 1
+          inequalities, from 1.3
+
+    1.7.  1/(N + 1) ≤ 1/2
+          mun:reciprocal-order x := 2, y := N + 1, from 1.6
+          requires 2 > 0: arithmetic
+          requires N + 1 > 0: inequalities, from 1.3
+
+    1.8.  not (1/(N + 1) ≤ 1/2)
+          inequalities, from 1.5, contradicting 1.7
+          requires N + 1 ≠ 0: inequalities, from 1.3
