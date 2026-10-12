@@ -14,13 +14,15 @@ use std::rc::Rc;
 
 use indexmap::IndexSet;
 use parley::check::statements_in_scope;
-use parley::corpus::proof::{chain_cited, references, Head, Intro, Method, Theorem};
+use parley::corpus::proof::{
+    chain, chain_cited, references, substituted, Head, Intro, Method, Theorem,
+};
 use parley::corpus::{define_parts, Corpus, DefineParts};
 use parley::formula::grammar::{Grammar, Sorts};
 use parley::formula::node::Node;
-use parley::formula::page::Written;
+use parley::formula::page::{conjoined, Written};
 use parley::formula::token::{is_letter, is_mark, tokenise, Token, TokenKind};
-use parley::matching::{free_names, instantiation, split_commas};
+use parley::matching::{free_names, instantiation, namings, split_commas};
 use parley::outcome::Built;
 use parley::sorts::introduction::Introduction;
 use parley::sorts::{sorts_in_scope, Env};
@@ -2861,6 +2863,8 @@ struct Lemma {
 struct Assumed {
     text: String,
     label: String,
+    /// The names it writes, read.
+    names: BTreeSet<String>,
 }
 
 fn lifted(
@@ -2881,11 +2885,18 @@ fn lifted(
     if blocks.is_empty() {
         return Ok(None);
     }
-    let named = names_given(lines, thm.line - 1, end);
+    let named = names_given(thm);
+    let sorts = sorts_in_scope(
+        thm,
+        Env {
+            g: &ctx.g,
+            scopes: &ctx.corpus.scopes,
+        },
+    );
     let mut why = Vec::new();
     let mut lemmas = Vec::new();
     for step in blocks {
-        match lemma_of(ctx, thm, lines, end, step, &tops, &named) {
+        match lemma_of(ctx, thm, lines, end, step, &tops, &named, &sorts) {
             Ok(lemma) => lemmas.push(lemma),
             Err(e) => why.push(format!("step {}: {e}", step.number)),
         }
@@ -2916,71 +2927,151 @@ fn lifted(
     Ok(Some(Lifted { region, changed }))
 }
 
-/// The names a theorem's `let … =` lines give: its defines, recursions and
-/// named numbers, which a lemma could not write without giving them again.
-fn names_given(lines: &[String], from: usize, to: usize) -> BTreeSet<String> {
-    let naming = re(r"^\s*let\s+(.+?)\s*=");
-    let mut out = BTreeSet::new();
-    for line in &lines[from..to] {
-        if let Some(m) = naming.captures(line) {
-            for part in m[1].split(',') {
-                let name: String = part
-                    .trim()
-                    .chars()
-                    .take_while(|c| *c != '(' && !c.is_whitespace())
-                    .collect();
-                if !name.is_empty() {
-                    out.insert(name);
-                }
-            }
-        }
-    }
-    out
+/// The names a theorem's defines give, as the define reader reads them:
+/// its defines, recursions and named numbers, which a lemma could not
+/// write without giving them again.
+fn names_given(thm: &Theorem) -> BTreeSet<String> {
+    thm.defines
+        .iter()
+        .filter_map(|d| match define_parts(&d.text) {
+            Built(parts) => Some(parts.names()),
+            parley::outcome::Declined(_) => None,
+        })
+        .flatten()
+        .collect()
 }
 
-/// The single letters a line writes: its tokens where it reads as formula
-/// text, and its loose letters where it does not. A letter with primes,
-/// `f′`, writes the letter too, since it is made of it.
-fn letters_in(ctx: &Context, line: &str) -> BTreeSet<String> {
-    let mut out = loose_letters(line);
-    if let Some(tokens) = ctx.tokens(line.trim()) {
-        out.extend(
-            tokens
-                .into_iter()
-                .filter(|t| t.kind == TokenKind::Name && is_one_letter(&t.text))
-                .map(|t| t.text),
-        );
-    }
-    let bases: Vec<String> = out
+/// Formula text read by the front end, each sentence a tree; a sentence
+/// that does not read leaves the block where it is.
+fn read_all(
+    ctx: &Context,
+    sorts: &Sorts,
+    written: &Written,
+) -> Result<Vec<Node>, String> {
+    written
+        .sentences()
         .iter()
-        .filter_map(|l| l.chars().next())
-        .map(String::from)
-        .collect();
-    out.extend(bases);
-    out
+        .map(|s| {
+            s.read(&ctx.g, sorts)
+                .map_err(|p| format!("`{}` does not read: {}", s.text(), p.message))
+        })
+        .collect()
+}
+
+/// Every formula a step writes, as the skeleton reader cuts it: its claim,
+/// its requires lines, the values its citations name, a substitution's
+/// equation, a chain's terms, and what its opening lines say. An induction
+/// hypothesis writes no formula of its own.
+fn formulas_written(
+    thm: &Theorem,
+    step: &parley::corpus::Step,
+) -> Result<Vec<Written>, String> {
+    let path = &thm.path;
+    let mut written: Vec<Written> = vec![step.claim.clone()];
+    for r in &step.requires {
+        written.push(r.fact.clone());
+        written.extend(namings(&r.how, path, r.line).into_iter().map(|n| n.value));
+    }
+    written.extend(
+        namings(&step.just.text, path, step.just.line)
+            .into_iter()
+            .map(|n| n.value),
+    );
+    written.extend(substituted(&step.just, path));
+    if let Some(read) = chain(&step.just, path) {
+        let read =
+            read.map_err(|p| format!("step {}'s chain: {}", step.number, p.message))?;
+        written.push(read.start);
+        for link in read.lines {
+            written.push(link.term);
+            written.extend(link.modulus);
+        }
+    }
+    for o in step.openers.iter().filter(|o| !o.is_hypothesis) {
+        let body = o.body(path);
+        match o.kind {
+            Intro::Let => written.extend(Introduction::read(body).parts()),
+            _ => written.push(body),
+        }
+    }
+    Ok(written)
+}
+
+/// Whether formula text writes a quantifier that leaves `name`'s set to a
+/// range line: `for all ε > 0`, `there is δ > 0`. Read as the checker reads
+/// it (`check_ranges`), by its tokens, since its tree is the long form's.
+fn leaves_set_out(ctx: &Context, written: &Written, name: &str) -> bool {
+    const ORDERS: [&str; 5] = [">", "≥", "<", "≤", "≠"];
+    written.sentences().iter().any(|s| {
+        ctx.tokens(s.text()).is_some_and(|tokens| {
+            tokens.windows(4).any(|w| {
+                matches!(
+                    (w[0].text.as_str(), w[1].text.as_str()),
+                    ("for", "all") | ("there", "is") | ("there", "exists")
+                ) && w[2].kind == TokenKind::Name
+                    && w[2].text == name
+                    && ORDERS.contains(&w[3].text.as_str())
+            })
+        })
+    })
+}
+
+/// What a hypothesis of the theorem writes, read: a `let` line's parts, as
+/// its introduction cuts them, and any other line's sentences.
+fn hypothesis_read(
+    ctx: &Context,
+    sorts: &Sorts,
+    thm: &Theorem,
+    h: &parley::corpus::Hypothesis,
+) -> Result<Vec<Node>, String> {
+    let body = h.body(&thm.path);
+    let parts = match h.kind {
+        Intro::Let => Introduction::read(body).parts(),
+        _ => vec![body],
+    };
+    let mut out = Vec::new();
+    for w in &parts {
+        out.extend(read_all(ctx, sorts, w)?);
+    }
+    Ok(out)
+}
+
+/// Every name the trees write.
+fn names_in(trees: &[Node]) -> BTreeSet<String> {
+    trees.iter().flat_map(|t| t.names()).collect()
 }
 
 /// Whether a citation of a lemma is asked to supply what its `let` says, as
 /// `citing::library` reads a hypothesis: a sort, a set, a point, a function's
 /// type and a membership in a number system it is not.
-fn let_asked(path: &str, body: &str) -> bool {
+fn let_asked(
+    ctx: &Context,
+    sorts: &Sorts,
+    path: &str,
+    body: &str,
+) -> Result<bool, String> {
     use parley::sorts::introduction::Form;
-    let introduced = Introduction::read(Written::new(body, path, 0));
-    match introduced.form {
+    let written = Written::new(body, path, 0);
+    let introduced = Introduction::read(written.clone());
+    Ok(match introduced.form {
         Form::Set(_)
         | Form::Point(_)
         | Form::Function
         | Form::Element(_)
         | Form::Group { .. }
         | Form::Graph(_) => false,
-        Form::Member => {
-            let set = body.split_once('∈').map_or("", |(_, s)| s.trim());
-            !["ℕ", "ℕ₀", "ℤ", "ℚ", "ℝ", "ℂ"].contains(&set)
-        }
+        // A membership is said once where its set is a number system.
+        Form::Member => !read_all(ctx, sorts, &written)?.iter().all(|m| {
+            m.notation == "membership"
+                && m.children
+                    .get(1)
+                    .is_some_and(|set| set.notation == "number-systems")
+        }),
         _ => true,
-    }
+    })
 }
 
+#[allow(clippy::too_many_arguments)]
 fn lemma_of(
     ctx: &Context,
     thm: &Theorem,
@@ -2989,6 +3080,7 @@ fn lemma_of(
     step: &parley::corpus::Step,
     tops: &[&parley::corpus::Step],
     named: &BTreeSet<String>,
+    sorts: &Sorts,
 ) -> Result<Lemma, String> {
     let top = step.number.0[0];
     let inner: Vec<&parley::corpus::Step> =
@@ -3011,10 +3103,16 @@ fn lemma_of(
     while stop > start && lines[stop - 1].trim().is_empty() {
         stop -= 1;
     }
-    let mut used: BTreeSet<String> = BTreeSet::new();
-    for line in &lines[start..stop] {
-        used.extend(letters_in(ctx, line));
+    // What the block writes, read.
+    let mut block_written: Vec<Written> = Vec::new();
+    for s in &inner {
+        block_written.extend(formulas_written(thm, s)?);
     }
+    let mut block_trees: Vec<Node> = Vec::new();
+    for w in &block_written {
+        block_trees.extend(read_all(ctx, sorts, w)?);
+    }
+    let mut used = names_in(&block_trees);
     if let Some(name) = used.iter().find(|u| named.contains(*u)) {
         return Err(format!("it writes {name}, which the theorem defines"));
     }
@@ -3055,9 +3153,6 @@ fn lemma_of(
         .map(|n| format!("H{n}"))
         .filter(move |l| !taken.contains(l));
     let obtained = re(r"^obtain\s+(.+?)(?::|\s+from\b)");
-    let member = re(r"^(\S+)\s*∈\s*(.+)$");
-    let typed = re(r"^(\S+)\s*:\s*[^:]+→[^:]+$");
-    let sorted = re(r"^(\S+) is a (?:polynomial|set|point)$");
     let mut map: BTreeMap<String, Vec<String>> = BTreeMap::new();
     let mut above: Vec<Assumed> = Vec::new();
     let mut cite: Vec<String> = Vec::new();
@@ -3079,33 +3174,49 @@ fn lemma_of(
         // has the bounds a membership gives, as it had from the step.
         let mut labels = Vec::new();
         let mut asks = false;
-        let mut said_all: Vec<String> = Vec::new();
+        let mut said_all: Vec<Node> = Vec::new();
         for sentence in t.claim.sentences() {
-            let said = sentence.text().trim().trim_end_matches('.').to_string();
+            let said = sentence.read(&ctx.g, sorts).map_err(|p| {
+                format!("step {} does not read: {}", t.number, p.message)
+            })?;
             said_all.push(said.clone());
-            let of_name = |r: &Regex| {
-                r.captures(&said)
-                    .is_some_and(|m| names.contains(&m[1].to_string()))
-            };
-            let introduced = if of_name(&member) || of_name(&typed) {
-                said.clone()
-            } else if of_name(&sorted) {
-                said.replacen(" is a ", " be a ", 1)
-            } else {
+            // A sentence introducing an obtained name: its membership or
+            // its function's type, which a `let` writes as the step does,
+            // or its sort, which a `let` writes with `be`.
+            let Some(name) = said
+                .children
+                .first()
+                .filter(|c| c.is_name() && names.contains(&c.text))
+            else {
                 continue;
             };
-            asks |= let_asked(&thm.path, &introduced);
+            let polynomial = said.notation == "is-a-polynomial"
+                || said
+                    .children
+                    .get(1)
+                    .is_some_and(|set| set.notation == "polynomials");
+            let introduced = match said.notation.as_str() {
+                _ if polynomial => format!("{} be a polynomial", name.text),
+                "membership" | "function-type" => ctx.g.print(&said),
+                _ => continue,
+            };
+            asks |= let_asked(ctx, sorts, &thm.path, &introduced)?;
             above.push(Assumed {
                 text: format!("let {introduced}"),
                 label: fresh.next().expect("labels without end"),
+                names: said.names(),
             });
         }
         if is_cited {
             let label = fresh.next().expect("labels without end");
             labels.push(label.clone());
+            let names = names_in(&said_all);
+            let whole = conjoined(&ctx.g, said_all)
+                .ok_or_else(|| format!("step {} says nothing", t.number))?;
             above.push(Assumed {
-                text: format!("assume {}", conjoined_text(&said_all)),
+                text: format!("assume {}", ctx.g.print(&whole)),
                 label,
+                names,
             });
         }
         if is_cited || asks {
@@ -3125,20 +3236,39 @@ fn lemma_of(
         }
     }
     for a in &above {
-        used.extend(letters_in(ctx, &a.text));
+        used.extend(a.names.iter().cloned());
     }
-    // The theorem's `let` lines the lemma needs, and the letters those write.
+    // The theorem's `let` lines the lemma needs, and the names those write.
+    let mut read_hypotheses: Vec<BTreeSet<String>> = Vec::new();
+    for h in &thm.hypotheses {
+        read_hypotheses.push(names_in(&hypothesis_read(ctx, sorts, thm, h)?));
+    }
+    // An `assume` is needed where the block cites it, and where it is what
+    // gives a name the lemma writes its sort, as `assume H is a subgroup of
+    // G` gives H, which no `let` writes.
+    let by_let: BTreeSet<String> = thm
+        .hypotheses
+        .iter()
+        .zip(&read_hypotheses)
+        .filter(|(h, _)| h.kind == Intro::Let)
+        .flat_map(|(_, writes)| writes.iter().cloned())
+        .collect();
     let mut kept: BTreeSet<usize> = BTreeSet::new();
     loop {
         let before = kept.len();
         for (i, h) in thm.hypotheses.iter().enumerate() {
-            let body = parley::sorts::body_of(&hypothesis_text(h), h.kind.as_str());
+            let writes = &read_hypotheses[i];
             let needed = match h.kind {
-                Intro::Let => letters_in(ctx, &body).iter().any(|l| used.contains(l)),
-                _ => h.label.as_ref().is_some_and(|l| outside.contains(l)),
+                Intro::Let => writes.iter().any(|l| used.contains(l)),
+                _ => {
+                    h.label.as_ref().is_some_and(|l| outside.contains(l))
+                        || writes
+                            .iter()
+                            .any(|l| used.contains(l) && !by_let.contains(l))
+                }
             };
             if needed && kept.insert(i) {
-                used.extend(letters_in(ctx, &body));
+                used.extend(writes.iter().cloned());
             }
         }
         if kept.len() == before {
@@ -3160,12 +3290,12 @@ fn lemma_of(
     // the step's claim may not do though its block does.
     let mut out = vec![format!("theorem {name}")];
     for r in &thm.ranges {
-        if r.names.iter().any(|n| leaves_set_out(&claim, n)) {
+        if r.names.iter().any(|n| leaves_set_out(ctx, &step.claim, n)) {
             out.push(format!("  {}", r.text.trim()));
         } else if r
             .names
             .iter()
-            .any(|n| lines[start..stop].iter().any(|l| leaves_set_out(l, n)))
+            .any(|n| block_written.iter().any(|w| leaves_set_out(ctx, w, n)))
         {
             return Err(format!(
                 "its block leans on `{}`, which its claim does not",
@@ -3178,15 +3308,18 @@ fn lemma_of(
         if !kept.contains(&i) {
             continue;
         }
-        let text = hypothesis_text(h);
+        // The line as the parser cut it: its keyword and its body, with its
+        // label apart.
+        let body = h.body(&thm.path);
+        let text = format!("{} {}", h.kind.as_str(), body.text());
         match &h.label {
             Some(l) => {
                 out.push(hyp_line(&text, l));
-                // A `let` is cited where a citation asks what it says, and an
-                // `assume` where the block cites it.
+                // A `let` is cited where a citation asks what it says, and
+                // every `assume` the lemma keeps.
                 let asked = match h.kind {
-                    Intro::Let => let_asked(&thm.path, text["let".len()..].trim()),
-                    _ => outside.contains(l),
+                    Intro::Let => let_asked(ctx, sorts, &thm.path, body.text())?,
+                    _ => true,
                 };
                 if asked {
                     cite.insert(0, l.clone());
@@ -3261,68 +3394,6 @@ fn lemma_of(
         to: next,
         citing,
     })
-}
-
-/// Sentences said as one formula, joined by "and": a sentence that is
-/// itself joined or quantified is bracketed, and loses the capital a
-/// sentence opens with.
-fn conjoined_text(sentences: &[String]) -> String {
-    let joined = re(r"\b(and|or|if|then|with|such that|for all|there)\b|,");
-    let lowered: Vec<String> = sentences
-        .iter()
-        .map(|s| {
-            let mut chars = s.chars();
-            let first = chars.next().map(|c| c.to_lowercase().collect::<String>());
-            let opens = ["For ", "There ", "If ", "Not "]
-                .iter()
-                .any(|w| s.starts_with(w));
-            if opens {
-                format!("{}{}", first.unwrap_or_default(), chars.as_str())
-            } else {
-                s.clone()
-            }
-        })
-        .collect();
-    if let [one] = lowered.as_slice() {
-        return one.clone();
-    }
-    lowered
-        .into_iter()
-        .map(|s| {
-            if joined.is_match(&s) {
-                format!("({s})")
-            } else {
-                s
-            }
-        })
-        .collect::<Vec<_>>()
-        .join(" and ")
-}
-
-/// Whether a quantifier in `text` leaves out the set its letter `name` runs
-/// over, `for all ε > 0` or `for all n ≥ N`, which a range line says.
-fn leaves_set_out(text: &str, name: &str) -> bool {
-    let quantified = re(
-        r"(?:[Ff]or all|[Tt]here (?:exists?|is|are))\s+([^,]*?)(?:,|\s+such that|\s+with|\.|$)",
-    );
-    let found = quantified.captures_iter(text).any(|c| {
-        let bound = &c[1];
-        loose_letters(bound).contains(name) && !bound.contains('∈')
-    });
-    found
-}
-
-/// A hypothesis as its line writes it, without its label: `let n ∈ ℕ`.
-fn hypothesis_text(h: &parley::corpus::Hypothesis) -> String {
-    let text = h.text.trim();
-    match &h.label {
-        Some(l) => text
-            .strip_suffix(&format!("({l})"))
-            .unwrap_or(text)
-            .trim_end()
-            .to_string(),
-        None => text.to_string(),
-    }
 }
 
 /// A step's heading with its number said as `map` says it, the claim kept

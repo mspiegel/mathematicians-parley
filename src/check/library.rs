@@ -437,6 +437,30 @@ pub fn kinded_above(thm: &Theorem, step: &Step, env: Env) -> Vec<Kinded> {
         .collect()
 }
 
+/// A citation's seed with each name a graph given in full in the cited
+/// theorem gives standing for what the citing proof calls by that name
+/// (`Library::listed_names`), read in the citing proof's scope. A name the
+/// citing proof does not read, or one the citation already names, is left
+/// as it is.
+pub fn listed_seed(
+    seed: &mut Binding,
+    item: &str,
+    line: usize,
+    known: &Known,
+    library: &Library,
+    defined: &Definitions,
+) {
+    for name in library.listed_names(item) {
+        if seed.contains_key(&name) {
+            continue;
+        }
+        let said = Written::new(&name, &known.thm.path, line);
+        if let Some(got) = known.read_value(&said, defined) {
+            seed.insert(name, got);
+        }
+    }
+}
+
 /// What a citation supplies, what it claims, and what it says its variables
 /// stand for.
 ///
@@ -463,6 +487,16 @@ fn citation_parts(step: &Step, library: &Library, known: &Known) -> Parts {
         if let Some(got) = known.read_value(&n.value, &defined) {
             seed.insert(n.name, got);
         }
+    }
+    if let Some(item) = cited_item(&step.just) {
+        listed_seed(
+            &mut seed,
+            &step.just.item(&item),
+            step.just.line,
+            known,
+            library,
+            &defined,
+        );
     }
     let mut parts = match at_a_member(step, &claims, library, &known.sorts) {
         Some((member, body)) => {

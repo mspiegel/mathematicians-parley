@@ -100,6 +100,14 @@ pub fn largest_search() -> usize {
     LARGEST.load(Ordering::Relaxed)
 }
 
+/// A candidate the search has tried for one hypothesis: the fact it takes,
+/// by its shape, and the binding it leaves, each value by its shape.
+#[derive(PartialEq)]
+struct Tried {
+    fact: Option<String>,
+    binding: Vec<String>,
+}
+
 /// `search` over the hypotheses still to supply, counting in `asked` each
 /// one it takes up.
 ///
@@ -163,7 +171,25 @@ fn searched(
         .filter(|(i, _)| *i != at)
         .map(|(_, p)| *p)
         .collect();
+    // A fact stated twice among the facts, by a line and by the parts of
+    // another, fits as two candidates that bind alike; the search below
+    // each is the same, and a way is told by the facts it takes, so only
+    // the first is tried. Thirty hypotheses with two copies each are 2^30
+    // ways otherwise, which a graph given in full asks.
+    let mut tried: Vec<Tried> = Vec::new();
     for fit in these {
+        let key = Tried {
+            fact: fit.fact.map(|i| facts[i].shape().to_string()),
+            binding: fit
+                .binding
+                .iter()
+                .map(|(k, v)| format!("{k} := {}", v.shape()))
+                .collect(),
+        };
+        if tried.contains(&key) {
+            continue;
+        }
+        tried.push(key);
         if let (true, Some(i)) = (fit.takes, fit.fact) {
             used[i] = true;
         }

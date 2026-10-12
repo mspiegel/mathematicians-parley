@@ -586,7 +586,7 @@ impl<'a> Elaborator<'a> {
     /// set.mm's group is a structure: a class W whose `Base` is the set,
     /// whose `+g` is the operation and whose `0g` is the identity, and the
     /// hypothesis is that W is a group. The page never writes W.
-    fn group(
+    pub fn group(
         &mut self,
         group: &str,
         finite: bool,
@@ -636,6 +636,31 @@ impl<'a> Elaborator<'a> {
             .insert(said.edges.clone(), t!(part("ciedg"), "cdm"));
         self.names.insert("@ends".to_string(), part("ciedg"));
         self.names.insert("@deg".to_string(), part("cvtxdg"));
+        if let Some(listing) = &said.listed {
+            for name in listing.vertices.iter().chain(&listing.edges) {
+                if spare.is_empty() {
+                    return Err(self.defect(
+                        self.at,
+                        "a graph given in full names more things than there are classes to name them",
+                    ));
+                }
+                self.names.insert(name.clone(), spare.remove(0).to_string());
+            }
+        }
+        Ok(literal(&self.graph_said(said, structure, introduced)?))
+    }
+
+    /// What a graph's `let` line says, in the names it is read in now: the
+    /// structure is an undirected multigraph, and where the graph is given
+    /// in full, what the line says of its vertices and edges as well. A
+    /// theorem's own line says it of its own names (`graph`); a citation
+    /// of a theorem asks it of the citing proof's.
+    pub fn graph_said(
+        &mut self,
+        said: &GraphLine,
+        structure: &str,
+        introduced: &Introduction,
+    ) -> Checked<String> {
         let graph = t!(structure, "cumgr", "wcel");
         let mut hypothesis = graph.clone();
         if let Some(listing) = &said.listed {
@@ -646,15 +671,6 @@ impl<'a> Elaborator<'a> {
                     None => part,
                 });
             };
-            for name in listing.vertices.iter().chain(&listing.edges) {
-                if spare.is_empty() {
-                    return Err(self.defect(
-                        self.at,
-                        "a graph given in full names more things than there are classes to name them",
-                    ));
-                }
-                self.names.insert(name.clone(), spare.remove(0).to_string());
-            }
             let mut parts = Vec::new();
             for node in introduced.asserted(self.g, &self.sorts_now)? {
                 parts.push(self.term(&node)?);
@@ -674,7 +690,7 @@ impl<'a> Elaborator<'a> {
                 hypothesis = t!(listed, graph, "wa");
             }
         }
-        Ok(literal(&hypothesis))
+        Ok(hypothesis)
     }
 
     /// (name, define, scope) for each definition the theorem sees from

@@ -4535,18 +4535,54 @@ impl<'a> Elaborator<'a> {
                     // and `@deg` are; it asserts no formula to read.
                     let introduced = (h.kind == Intro::Let)
                         .then(|| Introduction::read(h.body(&other.path)));
-                    if let Some(Form::Graph(graph)) = introduced.map(|i| i.form) {
-                        let name = graph.graph.clone();
-                        let theirs = spare
-                            .pop_front()
-                            .expect("a class for each let")
-                            .to_string();
-                        if let Some(term) = values.get(&name) {
-                            me.names.insert(name.clone(), term.clone());
-                        } else if !saved.contains_key(&name) {
-                            me.names.insert(name.clone(), theirs.clone());
+                    match introduced.map(|i| i.form) {
+                        Some(Form::Graph(graph)) | Some(Form::GraphListed(graph)) => {
+                            let name = graph.graph.clone();
+                            let theirs = spare
+                                .pop_front()
+                                .expect("a class for each let")
+                                .to_string();
+                            if let Some(term) = values.get(&name) {
+                                me.names.insert(name.clone(), term.clone());
+                            } else if !saved.contains_key(&name) {
+                                me.names.insert(name.clone(), theirs.clone());
+                            }
+                            // A graph given in full names its vertices and
+                            // edges too, each what the citing proof calls by
+                            // the same name.
+                            for listed in graph
+                                .listed
+                                .iter()
+                                .flat_map(|l| l.vertices.iter().chain(&l.edges))
+                            {
+                                if !saved.contains_key(listed) {
+                                    let theirs = spare
+                                        .pop_front()
+                                        .expect("a class for each thing listed");
+                                    me.names.insert(listed.clone(), theirs.to_string());
+                                }
+                            }
+                            continue;
                         }
-                        continue;
+                        // A group's line names the group's set and its
+                        // identity, which are the citing proof's group's
+                        // where it lets one by the same names, and a class
+                        // of their own where it does not.
+                        Some(Form::Group {
+                            group,
+                            finite,
+                            identity,
+                        }) => {
+                            let theirs = spare
+                                .pop_front()
+                                .expect("a class for each let")
+                                .to_string();
+                            if !saved.contains_key(&group) {
+                                me.group(&group, finite, &identity, &theirs);
+                            }
+                            continue;
+                        }
+                        _ => {}
                     }
                     // Parsed with the theorem's own sorts, which say what its
                     // letters are; only its shape and name are used here.
@@ -4593,10 +4629,44 @@ impl<'a> Elaborator<'a> {
                             let body = h.body(&other.path);
                             if h.kind == Intro::Let {
                                 let introduced = Introduction::read(body.clone());
-                                if let Form::Graph(graph) = &introduced.form {
-                                    let class = me.names[&graph.graph].clone();
-                                    out.push(t!(class, "cumgr", "wcel"));
-                                    continue;
+                                match &introduced.form {
+                                    Form::Graph(graph) | Form::GraphListed(graph) => {
+                                        let class = me.names[&graph.graph].clone();
+                                        out.push(me.graph_said(
+                                            graph,
+                                            &class,
+                                            &introduced,
+                                        )?);
+                                        continue;
+                                    }
+                                    // A group's line asks that the structure
+                                    // its set is the base of be a group, and
+                                    // its set finite where it says so
+                                    // (`Elaborator::group`).
+                                    Form::Group { group, finite, .. } => {
+                                        let base = me.names[group].clone();
+                                        let Some(structure) =
+                                            base.strip_suffix(" cbs cfv")
+                                        else {
+                                            return Err(me.defect(
+                                                step.line,
+                                                format!(
+                                                    "{group} is no group's set here"
+                                                ),
+                                            ));
+                                        };
+                                        let mut asked = t!(structure, "cgrp", "wcel");
+                                        if *finite {
+                                            asked = t!(
+                                                asked,
+                                                t!(base, "cfn", "wcel"),
+                                                "wa"
+                                            );
+                                        }
+                                        out.push(asked);
+                                        continue;
+                                    }
+                                    _ => {}
                                 }
                             }
                             let node = me.hypothesis_node(h.kind, &body)?;

@@ -6,7 +6,7 @@ use std::collections::BTreeSet;
 use indexmap::{IndexMap, IndexSet};
 
 use super::formulas::chain_links;
-use super::library::{introduced, typed_seed, Known};
+use super::library::{introduced, listed_seed, typed_seed, Known};
 use super::structure::instantiated_line;
 use super::Report;
 use crate::citing::{
@@ -129,6 +129,16 @@ fn requires_parts(
         if let Some(got) = known.read_value(&n.value, &defined) {
             seed.insert(n.name, got);
         }
+    }
+    if let Some((named, _)) = requires_item(&req.how) {
+        listed_seed(
+            &mut seed,
+            &step.just.item(&named),
+            req.line,
+            known,
+            library,
+            &defined,
+        );
     }
     // The facts a step's own citation is given, so that an item cited
     // on a requires line reaches what it reaches cited by a step, the

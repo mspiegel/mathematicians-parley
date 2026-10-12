@@ -142,6 +142,36 @@ impl<'a> Library<'a> {
         found
     }
 
+    /// The names a graph given in full in a `let` line of the theorem of
+    /// that full name gives: the graph, its vertices and edges, and each
+    /// vertex and edge it lists. They are no letters a citation chooses: the
+    /// line lists those things, and a step citing the theorem means by each
+    /// name what it means by it itself, as the elaborator reads it
+    /// (`cite_corpus`). Left free, the listed names are matched every way
+    /// the graph's symmetries allow, and Königsberg's seven bridges allow
+    /// more than a search can try.
+    pub fn listed_names(&self, name: &str) -> Vec<String> {
+        let Some(k) = self.proved.get(name) else {
+            return Vec::new();
+        };
+        let mut out = Vec::new();
+        for h in k.thm.hypotheses.iter().filter(|h| h.kind == Intro::Let) {
+            let introduced = Introduction::read(h.body(&k.thm.path));
+            if let Form::GraphListed(line) = introduced.form {
+                out.extend([
+                    line.graph.clone(),
+                    line.vertices.clone(),
+                    line.edges.clone(),
+                ]);
+                if let Some(listing) = &line.listed {
+                    out.extend(listing.vertices.iter().cloned());
+                    out.extend(listing.edges.iter().cloned());
+                }
+            }
+        }
+        out
+    }
+
     /// What the `let` lines of the item of that full name say its functions
     /// map between, `g : D → ℝ`, as trees in the item's own letters. The
     /// groups leave these out, since a function the theorem has asks
@@ -278,11 +308,14 @@ impl<'a> Library<'a> {
                 | Form::Graph(_) => {}
                 // What `be` says of a function is a fact like any other,
                 // asked for as `let y ∈ Y` is: `let g : Y → X be one-to-one`
-                // asks that g be one-to-one. A part, a function on a set and
-                // a polynomial say what they are the same way.
+                // asks that g be one-to-one. A part, a function on a set, a
+                // polynomial and a graph given in full say what they are the
+                // same way; a graph's listed names are the citing proof's
+                // (`listed_names`).
                 Form::FunctionBeing { .. }
                 | Form::FunctionOn { .. }
                 | Form::Polynomial(_)
+                | Form::GraphListed(_)
                 | Form::Part { .. } => {
                     // A part that does not read is `check_statements`'s to
                     // report.
