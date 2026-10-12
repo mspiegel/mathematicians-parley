@@ -1,0 +1,159 @@
+import mundane definition stdlib/counting/factorial
+import mundane theorem    stdlib/counting/factorial-zero
+import definition         stdlib/counting/C
+import mundane theorem    stdlib/counting/binomial-outside
+import mundane theorem    stdlib/counting/card-empty
+import mundane theorem    stdlib/counting/range-size
+import mundane definition stdlib/sums/range
+import mundane theorem    stdlib/sums/range-empty
+import mundane theorem    stdlib/sums/range-bounds
+import mundane definition stdlib/sums/range-between
+
+theorem factorial-of-zero
+  then 0! = 1
+
+1.  0! = 1
+    mun:factorial-zero
+
+theorem factorial-of-two
+  then 2! = 2
+
+1.  1! = 1
+    mun:factorial
+
+2.  (1 + 1)! = 1!·(1 + 1)
+    mun:factorial n := 1
+
+3.  (1 + 1)! = 1·(1 + 1)
+    substitute 1! = 1 (line 1) into line 2
+
+4.  1 + 1 = 2
+    arithmetic
+
+5.  2! = 1·2
+    substitute 1 + 1 = 2 (line 4) into line 3
+
+6.  2! = 2
+    calculation
+    2! = 1·2      5
+       = 2        arithmetic
+
+theorem factorial-of-four
+  then 4! = 24
+
+1.  2! = 2
+    thm:factorial-of-two
+
+2.  (2 + 1)! = 2!·(2 + 1)
+    mun:factorial n := 2
+
+3.  (2 + 1)! = 2·(2 + 1)
+    substitute 2! = 2 (line 1) into line 2
+
+4.  2 + 1 = 3
+    arithmetic
+
+5.  3! = 2·3
+    substitute 2 + 1 = 3 (line 4) into line 3
+
+6.  3! = 6
+    calculation
+    3! = 2·3      5
+       = 6        arithmetic
+
+7.  (3 + 1)! = 3!·(3 + 1)
+    mun:factorial n := 3
+
+8.  (3 + 1)! = 6·(3 + 1)
+    substitute 3! = 6 (line 6) into line 7
+
+9.  3 + 1 = 4
+    arithmetic
+
+10. 4! = 6·4
+    substitute 3 + 1 = 4 (line 9) into line 8
+
+11. 4! = 24
+    calculation
+    4! = 6·4      10
+       = 24       arithmetic
+
+theorem choose-four-two
+  then C(4, 2) = 6
+
+1.  4! = 24
+    thm:factorial-of-four
+
+2.  2! = 2
+    thm:factorial-of-two
+
+3.  C(4, 2) = 4!/((4 − 2)!·2!)
+    def:C n := 4, k := 2
+    requires 0 ≤ 2: arithmetic
+    requires 2 ≤ 4: arithmetic
+    requires 2 ∈ {0, …, 4}: mun:range-between k := 2, a := 0, b := 4
+
+4.  4 − 2 = 2
+    arithmetic
+
+5.  C(4, 2) = 4!/(2!·2!)
+    substitute 4 − 2 = 2 (line 4) into line 3
+
+6.  C(4, 2) = 24/(2!·2!)
+    substitute 4! = 24 (line 1) into line 5
+
+7.  C(4, 2) = 24/(2·2)
+    substitute 2! = 2 (line 2) into line 6
+
+8.  C(4, 2) = 6
+    calculation
+    C(4, 2) = 24/(2·2)     7
+            = 6            arithmetic
+
+theorem choose-two-three
+  note        Choosing more than there are is no way at all, not an error.
+  then C(2, 3) = 0
+
+1.  3 ∉ {0, …, 2}
+    contradiction
+    suppose 3 ∈ {0, …, 2}                                             (S)
+
+    1.1.  3 ≤ 2
+          mun:range-bounds a := 0, b := 2, k := 3, from S
+
+    1.2.  not (3 ≤ 2)
+          arithmetic, contradicting 1.1
+
+2.  C(2, 3) = 0
+    mun:binomial-outside n := 2, k := 3, from 1
+
+theorem size-of-empty
+  then |∅| = 0
+
+1.  |∅| = 0
+    mun:card-empty
+
+theorem size-of-one-to-three
+  then |{1, …, 3}| = 3
+
+1.  |{1, …, 3}| = 3
+    mun:range-size n := 3
+
+theorem one-to-zero-is-empty
+  then {1, …, 0} = ∅
+
+1.  {1, …, 0} = ∅
+    mun:range-empty
+
+theorem zero-not-in-one-to-three
+  then 0 ∉ {1, …, 3}
+
+1.  0 ∉ ℕ
+    arithmetic
+
+2.  0 ∉ {1, …, 3}
+    contradiction
+    suppose 0 ∈ {1, …, 3}                                             (S)
+
+    2.1.  0 ∈ ℕ
+          mun:range n := 3, k := 0, from S, contradicting 1

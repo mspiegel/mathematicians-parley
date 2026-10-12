@@ -134,6 +134,14 @@ mundane theorem binomial-zero-index
   metamath    bcn0
   target      bcn0
 
+mundane theorem binomial-outside
+  let n ∈ ℕ₀                                                          (H1)
+  let k ∈ ℤ                                                           (H2)
+  assume k ∉ {0, …, n}                                                (H3)
+  then        C(n, k) = 0
+  metamath    bcval3
+  target      bcval3
+
 mundane theorem binomial-nat0
   let n ∈ ℕ₀                                                          (H1)
   let k ∈ ℤ                                                           (H2)
