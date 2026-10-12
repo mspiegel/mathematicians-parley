@@ -22,8 +22,7 @@ use crate::corpus::{
 use crate::formula::page::{self, Written};
 use crate::formula::{Node, Sort};
 use crate::matching::{
-    alike, binding_sites, match_tree, namings, substitute_apart, Binding, Context,
-    PROPERTY,
+    alike, binding_sites, match_tree, substitute_apart, Binding, Context, PROPERTY,
 };
 use crate::outcome::{Built, Declined};
 use crate::regex;
@@ -124,12 +123,7 @@ fn requires_parts(
             }
         }
     }
-    let mut seed = Binding::new();
-    for n in namings(&req.how, &known.thm.path, req.line) {
-        if let Some(got) = known.read_value(&n.value, &defined) {
-            seed.insert(n.name, got);
-        }
-    }
+    let mut seed = known.seed(&req.values, &defined);
     if let Some((named, _)) = requires_item(&req.how) {
         listed_seed(
             &mut seed,
@@ -1579,11 +1573,15 @@ pub fn check_instantiated(
             continue;
         };
         let parts = known.parts(step, library);
-        let written: IndexMap<String, Written> =
-            namings(&step.just.text, &thm.path, step.just.line)
-                .into_iter()
-                .map(|n| (n.name, n.value))
-                .collect();
+        // A value that does not read is the elaborator's to report.
+        let written: IndexMap<String, Node> = step
+            .just
+            .values
+            .read(known.env.g, &known.sorts)
+            .unwrap_or_default()
+            .into_iter()
+            .map(|v| (v.name, v.value))
+            .collect();
         let defined = known.citing(&step.just.refs);
         let said = known
             .said_parts(&line, Some(&defined))
@@ -1623,7 +1621,7 @@ pub fn check_instantiated(
                 };
                 let value_written = written
                     .get(&b.letter.text)
-                    .and_then(|v| known.whole_as_written(v))
+                    .cloned()
                     .unwrap_or_else(|| value.clone());
                 let domain_written =
                     substitute_apart(&w.domain, &outer_written, &library.ctx);

@@ -25,7 +25,7 @@ pub mod introduction;
 use crate::formula::page::{tokens, Written};
 use crate::formula::token::{Token, TokenKind};
 use crate::formula::{holds, Grammar, Sort, Sorts};
-use crate::matching::{expand, namings, Defined, Definitions, Rule};
+use crate::matching::{expand, Defined, Definitions, Rule};
 use crate::outcome::{Built, Declined};
 use crate::regex;
 use introduction::Introduction;
@@ -212,13 +212,31 @@ pub fn unlabel(text: &str) -> String {
     LABEL.replace(text, "").into_owned()
 }
 
+/// The tokens of every part of a theorem that is formula text: those of
+/// `written_formulas`, and of the values its citations name, which are read
+/// only together (`Values`). A question about how the theorem is written,
+/// which names it writes, asks these, and never its words.
+pub fn theorem_tokens(thm: &Theorem, g: &Grammar) -> Vec<Vec<Token>> {
+    let mut out = written_tokens(&written_formulas(thm), g);
+    for d in &thm.defines {
+        if let Some(reason) = &d.reason {
+            out.extend(reason.values.tokens(g));
+        }
+    }
+    for step in &thm.steps {
+        for r in &step.requires {
+            out.extend(r.values.tokens(g));
+        }
+        out.extend(step.just.values.tokens(g));
+    }
+    out
+}
+
 /// Every part of a theorem that is formula text, as the skeleton cuts it
-/// out: its hypotheses, a `let` line's parts (`Introduction::parts`), its
-/// statement, its defines' rules and domains, and each step's claim,
-/// opening lines, requires lines, the values its citations name, the
-/// equation a substitution writes and the terms of a calculation. A
-/// question about how the theorem is written, which names it writes, asks
-/// the tokens of these (`page::tokens`), and never its words.
+/// out, but for the values its citations name: its hypotheses, a `let`
+/// line's parts (`Introduction::parts`), its statement, its defines' rules
+/// and domains, and each step's claim, opening lines, requires lines, the
+/// equation a substitution writes and the terms of a calculation.
 pub fn written_formulas(thm: &Theorem) -> Vec<Written> {
     let path = &thm.path;
     let lines = |kind: Intro, body: Written| match kind {
@@ -232,13 +250,6 @@ pub fn written_formulas(thm: &Theorem) -> Vec<Written> {
     out.push(thm.stated());
     for d in &thm.defines {
         out.extend(define_formulas(d));
-        if let Some(reason) = &d.reason {
-            out.extend(
-                namings(&reason.how, path, reason.line)
-                    .into_iter()
-                    .map(|n| n.value),
-            );
-        }
     }
     for step in &thm.steps {
         out.push(step.claim.clone());
@@ -247,13 +258,7 @@ pub fn written_formulas(thm: &Theorem) -> Vec<Written> {
         }
         for r in &step.requires {
             out.push(r.fact.clone());
-            out.extend(namings(&r.how, path, r.line).into_iter().map(|n| n.value));
         }
-        out.extend(
-            namings(&step.just.text, path, step.just.line)
-                .into_iter()
-                .map(|n| n.value),
-        );
         out.extend(substituted(&step.just, path));
         if let Some(Ok(chain)) = chain(&step.just, path) {
             out.push(chain.start);

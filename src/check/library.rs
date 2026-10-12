@@ -12,12 +12,10 @@ use crate::citing::{
     Library, Parts,
 };
 use crate::corpus::proof::cited_item;
-use crate::corpus::{Intro, Kinded, Method, Step, StepNo, Theorem};
+use crate::corpus::{Intro, Kinded, Method, Step, StepNo, Theorem, Values};
 use crate::formula::page::{conjoined, filled, Sentence, Written};
 use crate::formula::{Node, Sorts};
-use crate::matching::{
-    alike, expand, namings, standard, Binding, Context, Definitions,
-};
+use crate::matching::{alike, expand, standard, Binding, Context, Definitions};
 use crate::outcome::Built;
 use crate::sorts::introduction::Introduction;
 use crate::sorts::{cited_defines, file_definitions, Env};
@@ -295,12 +293,24 @@ impl<'a> Known<'a> {
             .map(|n| standard(&expand(&n, defined), self.ctx))
     }
 
-    /// A value a citation names, `t` of `v := t`, read with what `defined`
-    /// writes out; None where it is not one formula that reads, which the
-    /// elaborator reports.
+    /// A part that is one formula, read with what `defined` writes out;
+    /// None where it is not one formula that reads, which the elaborator
+    /// reports.
     pub fn read_value(&self, value: &Written, defined: &Definitions) -> Option<Node> {
         let sentence = value.sentence().ok()?;
         self.read_citing(&sentence, defined)
+    }
+
+    /// What a citation's values `v := t` say each letter stands for, all
+    /// read together and with what `defined` writes out; nothing where one
+    /// is not a formula that reads, which the elaborator reports.
+    pub fn seed(&self, values: &Values, defined: &Definitions) -> Binding {
+        let Ok(read) = values.read(self.env.g, &self.sorts) else {
+            return Binding::new();
+        };
+        read.into_iter()
+            .map(|v| (v.name, standard(&expand(&v.value, defined), self.ctx)))
+            .collect()
     }
 
     /// What a cited line supplies (`SYNTAX.md`), each read with what
@@ -482,12 +492,7 @@ fn citation_parts(step: &Step, library: &Library, known: &Known) -> Parts {
         facts.extend(r.fact.sentences().iter().filter_map(read));
     }
     let claims: Vec<Node> = step.claim.sentences().iter().filter_map(read).collect();
-    let mut seed = Binding::new();
-    for n in namings(&step.just.text, &known.thm.path, step.just.line) {
-        if let Some(got) = known.read_value(&n.value, &defined) {
-            seed.insert(n.name, got);
-        }
-    }
+    let mut seed = known.seed(&step.just.values, &defined);
     if let Some(item) = cited_item(&step.just) {
         listed_seed(
             &mut seed,

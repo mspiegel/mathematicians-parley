@@ -17,12 +17,12 @@ use parley::check::statements_in_scope;
 use parley::corpus::proof::{
     chain, chain_cited, references, substituted, Head, Intro, Method, Theorem,
 };
-use parley::corpus::{define_parts, Corpus, DefineParts};
+use parley::corpus::{define_parts, Corpus, DefineParts, Values};
 use parley::formula::grammar::{Grammar, Sorts};
 use parley::formula::node::Node;
 use parley::formula::page::{conjoined, Written};
 use parley::formula::token::{is_letter, is_mark, tokenise, Token, TokenKind};
-use parley::matching::{free_names, instantiation, namings, split_commas};
+use parley::matching::{free_names, split_commas};
 use parley::outcome::Built;
 use parley::sorts::introduction::Introduction;
 use parley::sorts::{sorts_in_scope, Env};
@@ -122,19 +122,32 @@ fn class(letter: &str) -> u8 {
     }
 }
 
+/// A reason a theorem writes, and the values it gives what it cites.
+struct Reasoned<'t> {
+    text: &'t str,
+    values: &'t Values,
+}
+
 /// Every reason a theorem writes: each step's justification, each requires
 /// line's, and each let's under it.
-fn reasons(thm: &Theorem) -> Vec<String> {
+fn reasons(thm: &Theorem) -> Vec<Reasoned<'_>> {
     let mut out = Vec::new();
     for step in &thm.steps {
-        out.push(step.just.text.clone());
-        out.extend(step.requires.iter().map(|r| r.how.clone()));
+        out.push(Reasoned {
+            text: &step.just.text,
+            values: &step.just.values,
+        });
+        out.extend(step.requires.iter().map(|r| Reasoned {
+            text: &r.how,
+            values: &r.values,
+        }));
     }
-    out.extend(
-        thm.defines
-            .iter()
-            .filter_map(|d| d.reason.as_ref().map(|r| r.how.clone())),
-    );
+    out.extend(thm.defines.iter().filter_map(|d| {
+        d.reason.as_ref().map(|r| Reasoned {
+            text: &r.how,
+            values: &r.values,
+        })
+    }));
     out
 }
 
@@ -166,8 +179,8 @@ impl Context {
         let theorems: BTreeSet<String> =
             corpus.theorems.iter().map(|t| t.qualified()).collect();
         for thm in &corpus.theorems {
-            for text in reasons(thm) {
-                for full in cites(thm, &text) {
+            for reason in reasons(thm) {
+                for full in cites(thm, reason.text) {
                     if theorems.contains(&full) && full != thm.qualified() {
                         cited.insert(full);
                     }
@@ -382,8 +395,7 @@ fn justification(line: &[char], start: usize) -> Vec<(usize, usize)> {
 }
 
 /// Where the values of a citation end, after `from`: at its `, from`, or at
-/// an `instantiate`'s `in line L` or `in H3`, as `matching::instantiation`
-/// reads them.
+/// an `instantiate`'s `in line L` or `in H3`, as `corpus::Values` cuts them.
 fn values_end(text: &str, from: usize) -> Option<usize> {
     re(r",\s*from\b|\s+in\s+(?:line\b|[A-Z][A-Za-z]*[0-9]*′?\b)")
         .find_at(text, from)
@@ -884,10 +896,9 @@ fn held(ctx: &Context, thm: &Theorem) -> BTreeSet<String> {
 /// stand for the cited theorem's letter of the same name.
 fn held_own(ctx: &Context, thm: &Theorem) -> BTreeSet<String> {
     let mut out = ctx.constants.clone();
-    for text in reasons(thm) {
-        let named: BTreeSet<String> =
-            instantiation(&text).into_iter().map(|(n, _)| n).collect();
-        for full in cites(thm, &text) {
+    for reason in reasons(thm) {
+        let named: BTreeSet<String> = reason.values.names().map(String::from).collect();
+        for full in cites(thm, reason.text) {
             if let Some(other) =
                 ctx.corpus.theorems.iter().find(|t| t.qualified() == full)
             {
@@ -1089,8 +1100,8 @@ fn swap(
 /// library's, most used first.
 fn library_pool(ctx: &Context, thm: &Theorem) -> Vec<String> {
     let mut pool: Vec<String> = Vec::new();
-    for text in reasons(thm) {
-        for full in cites(thm, &text) {
+    for reason in reasons(thm) {
+        for full in cites(thm, reason.text) {
             if let Some(r) = ctx.corpus.records.iter().find(|r| r.qualified() == full) {
                 let mut texts: Vec<&str> =
                     r.hypotheses.iter().map(|h| h.text.as_str()).collect();
@@ -1581,9 +1592,9 @@ pub fn relations_turned(ctx: &Context, path: &str, text: &str) -> Rewritten {
 /// the lines it goes on to, or a requires line and the lines it goes on to.
 struct Citation {
     lines: Vec<usize>,
-    /// What it says, as the proof parser joined it: the justification, or a
-    /// requires line's reason.
-    said: String,
+    /// The values it gives what it cites, as the proof parser cut them from
+    /// the justification or a requires line's reason.
+    values: Values,
 }
 
 fn citations_of(thm: &Theorem, lines: &[String], end: usize) -> Vec<Citation> {
@@ -1594,7 +1605,7 @@ fn citations_of(thm: &Theorem, lines: &[String], end: usize) -> Vec<Citation> {
         at.extend(continued(lines, j, end));
         out.push(Citation {
             lines: at,
-            said: step.just.text.clone(),
+            values: step.just.values.clone(),
         });
         for r in &step.requires {
             let l = r.line - 1;
@@ -1602,7 +1613,7 @@ fn citations_of(thm: &Theorem, lines: &[String], end: usize) -> Vec<Citation> {
             at.extend(continued(lines, l, end));
             out.push(Citation {
                 lines: at,
-                said: r.how.clone(),
+                values: r.values.clone(),
             });
         }
     }
@@ -1699,10 +1710,8 @@ pub fn statements_renamed(
                 let Some(map) = renamings.get(&thm.names.full(&m[1])) else {
                     continue;
                 };
-                let named: BTreeSet<String> = instantiation(&citation.said)
-                    .into_iter()
-                    .map(|(n, _)| n)
-                    .collect();
+                let named: BTreeSet<String> =
+                    citation.values.names().map(String::from).collect();
                 for &l in &citation.lines {
                     let mut c = chars(&lines[l]);
                     let mut spans = assigned_names(&c);
@@ -2594,7 +2603,7 @@ fn dull_step_moved(
             .any(|other| other.starts_with(&format!("{no}.")));
         if !head_ok
             || step.just.target.is_some()
-            || !step.just.instantiations.is_empty()
+            || !step.just.values.is_empty()
             || !step.just.chain.is_empty()
             || step.just.contradicting.is_some()
             || step.just.bad_ref.is_some()
@@ -2958,10 +2967,11 @@ fn read_all(
         .collect()
 }
 
-/// Every formula a step writes, as the skeleton reader cuts it: its claim,
-/// its requires lines, the values its citations name, a substitution's
-/// equation, a chain's terms, and what its opening lines say. An induction
-/// hypothesis writes no formula of its own.
+/// Every formula a step writes, as the skeleton reader cuts it, but for the
+/// values its citations name, which are read only together (`Values`): its
+/// claim, its requires lines, a substitution's equation, a chain's terms,
+/// and what its opening lines say. An induction hypothesis writes no
+/// formula of its own.
 fn formulas_written(
     thm: &Theorem,
     step: &parley::corpus::Step,
@@ -2970,13 +2980,7 @@ fn formulas_written(
     let mut written: Vec<Written> = vec![step.claim.clone()];
     for r in &step.requires {
         written.push(r.fact.clone());
-        written.extend(namings(&r.how, path, r.line).into_iter().map(|n| n.value));
     }
-    written.extend(
-        namings(&step.just.text, path, step.just.line)
-            .into_iter()
-            .map(|n| n.value),
-    );
     written.extend(substituted(&step.just, path));
     if let Some(read) = chain(&step.just, path) {
         let read =
@@ -3111,6 +3115,16 @@ fn lemma_of(
     let mut block_trees: Vec<Node> = Vec::new();
     for w in &block_written {
         block_trees.extend(read_all(ctx, sorts, w)?);
+    }
+    for s in &inner {
+        let values =
+            std::iter::once(&s.just.values).chain(s.requires.iter().map(|r| &r.values));
+        for v in values {
+            let read = v.read(&ctx.g, sorts).map_err(|p| {
+                format!("step {}'s values do not read: {}", s.number, p.message)
+            })?;
+            block_trees.extend(read.into_iter().map(|v| v.value));
+        }
     }
     let mut used = names_in(&block_trees);
     if let Some(name) = used.iter().find(|u| named.contains(*u)) {

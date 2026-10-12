@@ -40,11 +40,11 @@ use crate::corpus::proof::{
 };
 use crate::corpus::{
     define_parts, fmt, item_prefix, references, Corpus, DefineParts, Hypothesis, Intro,
-    Item, Record, Step, Theorem,
+    Item, Record, Step, Theorem, Value, Values,
 };
 use crate::formula::page::{conjoined, related, Written};
 use crate::formula::{Grammar, Node};
-use crate::matching::{expand, namings, Binding as NodeBinding, Defined};
+use crate::matching::{expand, Binding as NodeBinding, Defined};
 use crate::mm::compress::{compressed, labels as compress_labels, shapes_of};
 use crate::mm::kernel::{Syntax, Term};
 use crate::mm::library::thousands;
@@ -1256,20 +1256,17 @@ impl<'a> Elaborator<'a> {
         scope: &str,
         facts: &Facts,
         item: Item<'a>,
-        cites: Option<&str>,
     ) -> Checked<Route<Proof>> {
         // An item this corpus proves is applied the way a cited one is,
         // however the step reaches it.
         if let Item::Theorem(t) = item {
-            return self
-                .cite_corpus(step, goal, scope, facts, t, cites)
-                .map(Built);
+            return self.cite_corpus(step, goal, scope, facts, t).map(Built);
         }
         let Item::Record(record) = item else {
             unreachable!()
         };
         let labels = targets::clauses(record);
-        let seed = self.filling(step, record, cites)?;
+        let seed = self.filling(step, record)?;
         for label in &labels {
             let found = self.apply_lemma(
                 label,
@@ -1332,25 +1329,24 @@ impl<'a> Elaborator<'a> {
     /// Σ(k = 1 to n) 1/k ≤ B.
     ///
     /// The citation is read as the checker reads it: the lines the step
-    /// names, its requires lines, and the instantiation written in `cites`.
+    /// names, its requires lines, and the values its justification gives.
     /// An item that gives no "there is" from them is a defect, which the
     /// checker reports of the same step.
     pub(crate) fn item_sentence_here(
         &mut self,
         step: &Step,
         item: &'a Record,
-        cites: Option<&str>,
         said: &Written,
     ) -> Checked<Node> {
-        let binding = self.matched_here(step, item, cites)?;
+        let binding = self.matched_here(step, item)?;
         let library = self.item_library();
         let node = self.in_its_names(Item::Record(item), |me| me.read_one(said))?;
         Ok(filled(&node, &binding, &library.ctx))
     }
 
     /// What each letter of a record a step cites stands for at that step,
-    /// as the checker reads the citation (`citing`): the instantiation
-    /// written in `cites`, and what the step's lines, its requires lines and,
+    /// as the checker reads the citation (`citing`): the values its
+    /// justification gives, and what the step's lines, its requires lines and,
     /// where it does not obtain, its claim fix. A letter is the record's own
     /// whatever the proof calls its letters, so a record's `k` is what the
     /// citation makes it and never the proof's `k`.
@@ -1364,7 +1360,6 @@ impl<'a> Elaborator<'a> {
         &mut self,
         step: &Step,
         item: &'a Record,
-        cites: Option<&str>,
     ) -> Checked<NodeBinding> {
         let library = self.item_library();
         let Some(groups) = library.groups(&item.qualified()) else {
@@ -1377,15 +1372,19 @@ impl<'a> Elaborator<'a> {
         for r in &step.requires {
             facts.push(self.read_one(&r.fact)?);
         }
-        let cites = cites.unwrap_or(&step.just.text);
         let obtains = step.just.text.trim_start().starts_with("obtain");
         let claims = if obtains {
             Vec::new()
         } else {
             self.said(step)?
         };
-        let parts =
-            self.citation_parts(facts, claims, cites, &step.just.refs, &library)?;
+        let parts = self.citation_parts(
+            facts,
+            claims,
+            &step.just.values,
+            &step.just.refs,
+            &library,
+        )?;
         if !obtains {
             return match citing::taken(
                 &groups,
@@ -1484,7 +1483,7 @@ impl<'a> Elaborator<'a> {
             .iter()
             .map(|s| self.read(s))
             .collect::<Checked<Vec<Node>>>()?;
-        let parts = self.citation_parts(facts, claims, &o.how, &refs, &library)?;
+        let parts = self.citation_parts(facts, claims, &o.values, &refs, &library)?;
         Ok(
             asked(&item.qualified(), &parts, &library).map(|asks| AskedHere {
                 item,
@@ -1494,7 +1493,7 @@ impl<'a> Elaborator<'a> {
     }
 
     /// What a citation supplies and claims (`citing::finished`), with the
-    /// instantiation written in `cites` as its seed.
+    /// values it gives as its seed.
     ///
     /// A defined name is written out where the citation names its define
     /// among `refs`, and kept as the page writes it where it does not
@@ -1505,17 +1504,18 @@ impl<'a> Elaborator<'a> {
         &self,
         facts: Vec<Node>,
         claims: Vec<Node>,
-        cites: &str,
+        values: &Values,
         refs: &[String],
         library: &citing::Library,
     ) -> Checked<Parts> {
         let defined = cited_defines(self.thm, self.env(), &self.sorts_now, refs);
         let facts = facts.iter().map(|n| expand(n, &defined)).collect();
         let claims = claims.iter().map(|n| expand(n, &defined)).collect();
-        let mut seed = NodeBinding::new();
-        for (name, value) in self.instantiated_nodes(cites)? {
-            seed.insert(name, expand(&value, &defined));
-        }
+        let seed: NodeBinding = self
+            .instantiated_nodes(values)?
+            .into_iter()
+            .map(|v| (v.name, expand(&v.value, &defined)))
+            .collect();
         let mut parts = finished(facts, claims, seed, library, &self.sorts_now);
         // The memberships the page says once, as the checker reads them.
         let introduced: citing::Introduced = self
@@ -1532,32 +1532,25 @@ impl<'a> Elaborator<'a> {
         Ok(parts)
     }
 
-    /// The values a citation gives its item's letters, `name := value`, each
-    /// read in the names as they stand before any is given: values are
-    /// simultaneous, so `a := b/k, b := a/k` swaps the two. Every reading of
-    /// a citation's values is this one or `instantiated_nodes`, so that no
-    /// route reads one value after giving another.
+    /// The values a citation gives its item's letters, `name := value`, as
+    /// kernel terms, each read in the names as they stand before any is
+    /// given (`instantiated_nodes`).
     pub(crate) fn instantiated(
         &mut self,
-        cites: &str,
+        values: &Values,
     ) -> Checked<Vec<(String, String)>> {
         let mut out = Vec::new();
-        for (name, node) in self.instantiated_nodes(cites)? {
-            out.push((name, self.term(&node)?));
+        for v in self.instantiated_nodes(values)? {
+            out.push((v.name, self.term(&v.value)?));
         }
         Ok(out)
     }
 
     /// The values a citation gives, as trees in the page's notation, read
-    /// together as `instantiated` reads them.
-    pub(crate) fn instantiated_nodes(
-        &self,
-        cites: &str,
-    ) -> Checked<Vec<(String, Node)>> {
-        namings(cites, &self.thm.path, self.at)
-            .into_iter()
-            .map(|n| Ok((n.name, self.read_one(&n.value)?)))
-            .collect()
+    /// together where the elaborator has got to: values are simultaneous,
+    /// so `a := b/k, b := a/k` swaps the two (`Values`).
+    pub(crate) fn instantiated_nodes(&self, values: &Values) -> Checked<Vec<Value>> {
+        values.read(self.g, &self.sorts_now)
     }
 
     /// What the lines and labelled hypotheses `refs` name say, each sentence
@@ -1670,14 +1663,14 @@ impl<'a> Elaborator<'a> {
             .filter(|p| matches!(self.to_term(p).label(), Some("wral") | Some("wal")))
             .collect();
         // The universal is the one binding the name the step instantiates.
-        let pairs = self.instantiated_nodes(&step.just.text)?;
+        let pairs = self.instantiated_nodes(&step.just.values)?;
         let bound: BTreeSet<Option<String>> = pairs
             .iter()
-            .map(|(n, _)| {
+            .map(|v| {
                 self.bound_as
-                    .get(n)
+                    .get(&v.name)
                     .cloned()
-                    .or_else(|| self.b.flabel.get(n).cloned())
+                    .or_else(|| self.b.flabel.get(&v.name).cloned())
             })
             .collect();
         let binding: Vec<&String> = universals
@@ -1693,8 +1686,8 @@ impl<'a> Elaborator<'a> {
         // hypothesis of two halves is, gives the claim from the one whose
         // instance concludes it.
         let mut values: IndexMap<String, String> = IndexMap::new();
-        for (name, value) in &pairs {
-            values.insert(name.clone(), self.term(value)?);
+        for v in &pairs {
+            values.insert(v.name.clone(), self.term(&v.value)?);
         }
         let said = candidates
             .iter()
@@ -1713,7 +1706,10 @@ impl<'a> Elaborator<'a> {
         let mut whole = self.to_term(&said);
         // Each value is the one written for the name the line quantifies at
         // that level, whatever its place in the list.
-        let by_name: IndexMap<String, Node> = pairs.iter().cloned().collect();
+        let by_name: IndexMap<String, Node> = pairs
+            .iter()
+            .map(|v| (v.name.clone(), v.value.clone()))
+            .collect();
         for _ in 0..pairs.len() {
             let label = whole.label().unwrap_or("");
             let found = rules::INSTANCES.iter().find(|(k, _)| *k == label);
@@ -2635,7 +2631,7 @@ impl<'a> Elaborator<'a> {
             .into_iter()
             .map(String::from)
             .collect();
-        let seed = self.filling(step, item, None)?;
+        let seed = self.filling(step, item)?;
         match self.by_clause_either_way(
             &labels,
             term,
@@ -4145,7 +4141,7 @@ impl<'a> Elaborator<'a> {
         // The values are read in the proof's names, before any letter of
         // the definition is given one: `n := d, d := a` gives n the proof's
         // d, not the definition's.
-        let values = self.instantiated(&step.just.text)?;
+        let values = self.instantiated(&step.just.values)?;
         let subject = self.subject_given(&head, &values, step.line)?;
         let Item::Record(cited) = self.item_cited(&head) else {
             panic!("{head} is a definition of the database");
@@ -4154,7 +4150,7 @@ impl<'a> Elaborator<'a> {
         // `matched_here`: the g of `u ∈ gH` is the element the step's claim
         // writes there, whatever the proof calls it.
         let mut matched = Vec::new();
-        for (name, node) in self.matched_here(step, cited, None)? {
+        for (name, node) in self.matched_here(step, cited)? {
             if node.notation != crate::matching::PROPERTY {
                 matched.push((name, self.term(&node)?));
             }
@@ -4315,9 +4311,9 @@ impl<'a> Elaborator<'a> {
     ) -> Checked<Route<Proof>> {
         let _ = lines;
         match self.item_cited(&step.just.head.to_string()) {
-            Item::Theorem(t) => self
-                .cite_corpus(step, term, scope, facts, t, None)
-                .map(Built),
+            Item::Theorem(t) => {
+                self.cite_corpus(step, term, scope, facts, t).map(Built)
+            }
             Item::Record(r) => self.cite_library(step, term, scope, facts, r),
         }
     }
@@ -4337,7 +4333,7 @@ impl<'a> Elaborator<'a> {
         if labels.is_empty() {
             return Err(self.untargeted(step, item));
         }
-        let seed = self.filling(step, item, None)?;
+        let seed = self.filling(step, item)?;
         match self.by_clause_either_way(
             &labels,
             term,
@@ -4412,12 +4408,7 @@ impl<'a> Elaborator<'a> {
 
     /// What a `with` target says the lemma's variables stand for, read under
     /// the citation's instantiation.
-    fn filling(
-        &mut self,
-        step: &Step,
-        item: &'a Record,
-        cites: Option<&str>,
-    ) -> Checked<Binding> {
+    fn filling(&mut self, step: &Step, item: &'a Record) -> Checked<Binding> {
         let (_label, fills) = targets::lemma(item);
         if fills.is_empty() {
             return Ok(Binding::new());
@@ -4427,14 +4418,14 @@ impl<'a> Elaborator<'a> {
         // that value as the step writes it, and any other is what the
         // citation makes it (`matched_here`), never what the proof calls by
         // the same letter.
-        let given = self.instantiated_nodes(cites.unwrap_or(&step.just.text))?;
+        let given = self.instantiated_nodes(&step.just.values)?;
         let mut bound: NodeBinding = self
-            .matched_here(step, item, cites)?
+            .matched_here(step, item)?
             .into_iter()
-            .filter(|(name, _)| !given.iter().any(|(g, _)| g == name))
+            .filter(|(name, _)| !given.iter().any(|v| &v.name == name))
             .collect();
-        for (name, value) in given {
-            bound.insert(name, value);
+        for v in given {
+            bound.insert(v.name, v.value);
         }
         let library = self.item_library();
         let mut out = Binding::new();
@@ -4509,7 +4500,6 @@ impl<'a> Elaborator<'a> {
         scope: &str,
         facts: &Facts,
         other: &'a Theorem,
-        cites: Option<&str>,
     ) -> Checked<Proof> {
         let full = other.qualified();
         if !self.cited.contains(&full) {
@@ -4525,10 +4515,8 @@ impl<'a> Elaborator<'a> {
                 // letter of the theorem is given one: `a := b/k, b := a/k`
                 // swaps the two, and reading the second after the first is
                 // given would read a/k as (b/k)/k.
-                let values: IndexMap<String, String> = me
-                    .instantiated(cites.unwrap_or(&step.just.text))?
-                    .into_iter()
-                    .collect();
+                let values: IndexMap<String, String> =
+                    me.instantiated(&step.just.values)?.into_iter().collect();
                 for h in &other.hypotheses {
                     // A graph's line introduces one class, the graph, whose
                     // parts its vertices, edges and the notations' `@ends`

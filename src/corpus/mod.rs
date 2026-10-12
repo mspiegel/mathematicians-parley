@@ -9,6 +9,7 @@ pub mod lines;
 pub mod load;
 pub mod proof;
 pub mod records;
+pub mod values;
 
 pub use define::{
     define_parts, for_pieces, step_index, Define, DefineParts, Param, Recursion,
@@ -25,6 +26,7 @@ pub use proof::{
     Requires, ScopeId, Step, StepNo, Theorem,
 };
 pub use records::{parse_database, Record, RecordKind, FIELDS};
+pub use values::{Value, Values};
 
 /// Build a regular expression once, the first time it is used.
 #[macro_export]

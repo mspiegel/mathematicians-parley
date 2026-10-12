@@ -17,70 +17,8 @@ use std::rc::Rc;
 use indexmap::{IndexMap, IndexSet};
 
 use crate::corpus::{Record, RecordKind};
-use crate::formula::page::Written;
 use crate::formula::{Binds, Node, NodeId, Notation};
 use crate::regex;
-
-// An instantiation value may itself contain a comma, as `e := gcd(a, b)`
-// does, so the list is split at the commas that sit outside brackets rather
-// than by a pattern that stops at the first one.
-regex!(ASSIGN, r"^([^\s,]+)\s*:=\s*(.+)");
-regex!(
-    INSTANTIATION_END,
-    format!(
-        r",\s*from\b|\s+in\s+(?:line\b|{}|[A-Z]+[0-9]*\b)",
-        crate::corpus::ITEM_PREFIX
-    )
-);
-// What comes before the pairs: the item cited, after the names an `obtain`
-// takes, `obtain q, r: thm:division-algorithm`, or `instantiate`.
-regex!(
-    INSTANTIATION_HEAD,
-    format!(
-        r"^(?:obtain\s[^:]*:\s*)?(?:{}[^\s]+\s*|instantiate\s+)",
-        crate::corpus::ITEM_PREFIX
-    )
-);
-
-/// The `v := t` pairs of a justification, in order.
-pub fn instantiation(text: &str) -> Vec<(String, String)> {
-    // An `instantiate` says where it lands, and that is a line, an item or a
-    // bare label — the three the reader takes for the target. A value stops
-    // at whichever of them follows it, and `IH` is a label.
-    let mut body = match INSTANTIATION_END.find(text) {
-        Some(m) => &text[..m.start()],
-        None => text,
-    };
-    if let Some(head) = INSTANTIATION_HEAD.find(body) {
-        body = &body[head.end()..];
-    }
-    let mut out = Vec::new();
-    for piece in split_commas(body) {
-        if let Some(m) = ASSIGN.captures(str::trim(piece)) {
-            out.push((str::trim(&m[1]).to_string(), str::trim(&m[2]).to_string()));
-        }
-    }
-    out
-}
-
-/// One `v := t` of a justification: the letter named, and the value, which
-/// is formula text.
-pub struct Naming {
-    pub name: String,
-    pub value: Written,
-}
-
-/// The `v := t` pairs of a justification written at `line` of `path`, in
-/// order (`instantiation`).
-pub fn namings(text: &str, path: &str, line: usize) -> Vec<Naming> {
-    instantiation(text)
-        .into_iter()
-        .map(|(name, value)| Naming {
-            name,
-            value: Written::new(value, path, line),
-        })
-        .collect()
-}
 
 /// Split on the commas outside brackets.
 pub fn split_commas(text: &str) -> Vec<&str> {

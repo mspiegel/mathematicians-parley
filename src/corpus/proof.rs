@@ -8,6 +8,7 @@ use indexmap::{IndexMap, IndexSet};
 use super::define::{define_parts, naming, DefineParts, Naming};
 use super::lines::{read_lines, Line};
 use super::records::{Record, RecordKind};
+use super::values::Values;
 use super::{cited_name, full, in_stdlib, module_of};
 use crate::formula::page::Written;
 use crate::outcome::{Built, Checked, Problem};
@@ -158,6 +159,8 @@ pub struct DefineLine {
 pub struct Reason {
     pub how: String,
     pub line: usize,
+    /// The values `how` gives what it cites.
+    pub values: Values,
 }
 
 /// A let that says what kind of number its name is, read with the sets the
@@ -219,6 +222,7 @@ impl DefineLine {
                 ),
                 how: reason.how.clone(),
                 line: reason.line,
+                values: reason.values.clone(),
             },
         }))
     }
@@ -309,6 +313,8 @@ pub struct Requires {
     pub fact: Written,
     pub how: String,
     pub line: usize,
+    /// The values `how` gives what it cites.
+    pub values: Values,
 }
 
 /// A step's number, as the text writes it: 3.1.2.
@@ -553,7 +559,8 @@ pub struct Justification {
     pub refs: Vec<String>,
     /// An instantiate's `in …`.
     pub target: Option<String>,
-    pub instantiations: Vec<String>,
+    /// The values the justification gives what it cites.
+    pub values: Values,
     /// Each line of a calculation's chain, with the line it is on.
     pub chain: Vec<(String, usize)>,
     /// A `from` entry that is neither a line nor a label.
@@ -900,7 +907,6 @@ regex!(
         super::LABEL
     )
 );
-regex!(INSTANTIATED, r"([^\s,]+)\s*:=");
 
 fn parse_justification(
     path: &str,
@@ -931,7 +937,7 @@ fn parse_justification(
             line: line.no,
             refs,
             target: None,
-            instantiations: Vec::new(),
+            values: Values::cut(text, path, line.no),
             chain: Vec::new(),
             bad_ref,
             names: names.clone(),
@@ -1008,17 +1014,13 @@ fn parse_justification(
             }
         }
     }
-    let instantiations = INSTANTIATED
-        .captures_iter(text)
-        .map(|c| c[1].to_string())
-        .collect();
     Ok(Justification {
         head,
         text: text.clone(),
         line: line.no,
         refs,
         target,
-        instantiations,
+        values: Values::cut(text, path, line.no),
         chain: Vec::new(),
         bad_ref,
         names: names.clone(),
@@ -1452,7 +1454,7 @@ fn placeholder_justification() -> Justification {
         line: 0,
         refs: Vec::new(),
         target: None,
-        instantiations: Vec::new(),
+        values: Values::default(),
         chain: Vec::new(),
         bad_ref: None,
         names: Arc::default(),
@@ -1696,6 +1698,7 @@ pub fn parse_proof(
             let reason = Reason {
                 how: t.clone(),
                 line: line.no,
+                values: Values::cut(&t, path, line.no),
             };
             if let Some(draft) = thm.as_mut() {
                 for written in draft.thm.defines.iter_mut().filter(|x| x.line == d.line)
@@ -2074,6 +2077,7 @@ pub fn parse_proof(
                 fact: Written::new(str::trim(fact), path, line.no),
                 how: str::trim(how).to_string(),
                 line: line.no,
+                values: Values::cut(str::trim(how), path, line.no),
             });
             continue;
         }

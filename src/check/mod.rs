@@ -567,7 +567,7 @@ fn check_theorem(
         &thm.path,
         &thm.ranges,
         &lets,
-        &crate::sorts::written_tokens(&crate::sorts::written_formulas(thm), env.g),
+        &crate::sorts::theorem_tokens(thm, env.g),
         env,
         &k.sorts,
     );

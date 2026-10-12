@@ -17,14 +17,13 @@ use crate::formula::library::Function;
 use crate::formula::page::Written;
 use crate::formula::token::{Token, TokenKind};
 use crate::formula::{holds, Node, Sorts};
-use crate::matching::namings;
 use crate::outcome::{Built, Declined};
 use crate::regex;
 use crate::sorts::infer::obtains;
 use crate::sorts::introduction::{Form, Introduction};
 use crate::sorts::{
-    bound_written, define_formulas, named_by_hypotheses, names_written,
-    written_formulas, written_tokens,
+    bound_written, define_formulas, named_by_hypotheses, names_written, theorem_tokens,
+    written_tokens,
 };
 use crate::text::{prefix, repr};
 
@@ -608,6 +607,7 @@ pub fn check_citations(
             fact: Written::new("", &thm.path, reason.line),
             how: reason.how.clone(),
             line: reason.line,
+            values: reason.values.clone(),
         };
         at.check_reason(report, &req, &format!("the reason under let {}", d.label));
         // It is the let's, and rests on nothing written below the let.
@@ -834,22 +834,18 @@ pub fn check_capture(report: &mut Report, thm: &Theorem, known: &Known) {
         }
         // A letter given a value is the one the instantiation takes its
         // binder off, so the value lands where it is no longer bound.
-        let named = namings(&s.just.text, &thm.path, s.just.line);
-        for n in &named {
-            bound.remove(&n.name);
+        for name in s.just.values.names() {
+            bound.remove(name);
         }
         if bound.is_empty() {
             continue;
         }
-        for n in named {
-            let Some(value) = n
-                .value
-                .sentence()
-                .ok()
-                .and_then(|v| known.read_as_written(&v))
-            else {
-                continue; // the elaborator says it does not read
-            };
+        // A value that does not read is the elaborator's to report.
+        let Ok(values) = s.just.values.read(known.env.g, &known.sorts) else {
+            continue;
+        };
+        for n in values {
+            let value = n.value;
             // Substituting a variable for itself changes nothing and cannot
             // capture. A term that merely mentions the bound name does: that
             // mention refers to an outer binding and would be swallowed.
@@ -1172,20 +1168,22 @@ pub fn check_function_imports(
 }
 
 /// The tokens of every formula a file writes: its theorems' and its own
-/// defines' (`written_formulas`, `define_formulas`).
+/// defines' (`theorem_tokens`, `define_formulas`).
 fn file_tokens(
     theorems: &[Theorem],
     scope_id: usize,
     scope: &FileScope,
     g: &crate::formula::Grammar,
 ) -> Vec<Vec<Token>> {
-    let mut parts: Vec<Written> = theorems
+    let mut out: Vec<Vec<Token>> = theorems
         .iter()
         .filter(|t| t.scope == scope_id)
-        .flat_map(written_formulas)
+        .flat_map(|t| theorem_tokens(t, g))
         .collect();
-    parts.extend(scope.defines.iter().flat_map(define_formulas));
-    written_tokens(&parts, g)
+    let defines: Vec<Written> =
+        scope.defines.iter().flat_map(define_formulas).collect();
+    out.extend(written_tokens(&defines, g));
+    out
 }
 
 /// A proof's own function does not take the name of a library function its
@@ -1738,7 +1736,7 @@ pub fn check_defined_below(
     scopes: &[FileScope],
     g: &crate::formula::Grammar,
 ) {
-    let tokens = written_tokens(&written_formulas(thm), g);
+    let tokens = theorem_tokens(thm, g);
     for (name, at) in defined_below(thm, &tokens, &introduced(thm), scopes) {
         report.say(
             &thm.path,

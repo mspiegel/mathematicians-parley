@@ -1647,10 +1647,6 @@ impl<'a> Elaborator<'a> {
                 };
             }
             Some(item_name) => {
-                let cites = str::trim(
-                    step.just.text.split_once(':').map(|(_, r)| r).unwrap_or(""),
-                )
-                .to_string();
                 let item = self.item_cited(item_name);
                 let claimed = self.names_kept(|me| -> Checked<String> {
                     // A record's sentence comes back with each of its letters
@@ -1659,7 +1655,7 @@ impl<'a> Elaborator<'a> {
                     // letters, which the values name, read in the proof's
                     // names as they stand, before anything is obtained.
                     let values = match item {
-                        Item::Theorem(_) => me.instantiated(&cites)?,
+                        Item::Theorem(_) => me.instantiated(&step.just.values)?,
                         Item::Record(_) => Vec::new(),
                     };
                     // A name is a variable of the kernel whatever it is
@@ -1679,12 +1675,9 @@ impl<'a> Elaborator<'a> {
                     // A library item says its existential in its own names,
                     // and the step's lines say what those stand for.
                     let node = match item {
-                        Item::Record(r) => me.item_sentence_here(
-                            step,
-                            r,
-                            Some(&cites),
-                            &Self::claimed_by(item),
-                        )?,
+                        Item::Record(r) => {
+                            me.item_sentence_here(step, r, &Self::claimed_by(item))?
+                        }
                         // Parsed with the theorem's own sorts, which say what
                         // its letters are, and made a term in the step's names.
                         Item::Theorem(_) => me.in_its_names(item, |me| {
@@ -1714,14 +1707,7 @@ impl<'a> Elaborator<'a> {
                 // binder takes the variable its name is spelled with, so the
                 // one obtained is renamed to a variable nothing else holds.
                 ex = self.renamed(&claimed, got.len())?;
-                p_ex = match self.cite_item(
-                    step,
-                    &ex,
-                    scope,
-                    facts,
-                    item,
-                    Some(&cites),
-                )? {
+                p_ex = match self.cite_item(step, &ex, scope, facts, item)? {
                     Built(p) => p,
                     Declined(d) => {
                         panic!("an item cited for an obtain declined: {}", self.say(&d))

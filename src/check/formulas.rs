@@ -13,13 +13,11 @@ use crate::citing::Library;
 use crate::corpus::proof::{chain, requires_item, ChainLine};
 use crate::corpus::{
     cited_item, define_parts, DefineParts, FileScope, Intro, Item, Justification,
-    Method, Record, RecordKind, Recursion, Requires, Step, Theorem,
+    Method, Record, RecordKind, Recursion, Requires, Step, Theorem, Value, Values,
 };
 use crate::formula::page::{disjoined, made, numeral, related, Written};
 use crate::formula::{walk, Node, Sort, Sorts};
-use crate::matching::{
-    alike_top, free_names, namings, substitute_apart_by, Binding, Naming,
-};
+use crate::matching::{alike_top, free_names, substitute_apart_by, Binding};
 use crate::outcome::{Built, Checked, Declined};
 use crate::regex;
 use crate::sorts::infer::{self, Reader, Store};
@@ -93,33 +91,37 @@ fn cited_sorts(
     env: Env,
     statements: &IndexMap<String, Reader>,
 ) {
-    let mut cites: Vec<(String, &str, usize)> = Vec::new();
+    let mut cites: Vec<(String, &Values)> = Vec::new();
     match req {
         None => {
             if let Some(item) = cited_item(&step.just) {
-                cites.push((step.just.item(&item), &step.just.text, step.just.line));
+                cites.push((step.just.item(&item), &step.just.values));
             }
         }
         Some(req) => {
             if let Some((cited, _)) = requires_item(&req.how) {
-                cites.push((step.just.item(&cited), &req.how, req.line));
+                cites.push((step.just.item(&cited), &req.values));
             }
         }
     }
-    for (name, text, line) in cites {
+    for (name, values) in cites {
         let Some(stated) = statements.get(&name) else {
             continue;
         };
+        // Every value is read with the sorts as they stand before fitting
+        // any of them settles one. A value that does not read is the
+        // elaborator's to report.
+        let Ok(values) = values.read(env.g, &reader.sorts(store)) else {
+            continue;
+        };
         let mut seen = IndexMap::new();
-        for Naming { name: v, value } in namings(text, step.claim.path(), line) {
+        for Value {
+            name: v,
+            value: tree,
+            shown: value,
+        } in values
+        {
             let Some(wanted) = stated.env.get(&v) else {
-                continue;
-            };
-            // A value that does not read is the elaborator's to report.
-            let read = value
-                .sentence()
-                .and_then(|s| s.read(env.g, &reader.sorts(store)));
-            let Ok(tree) = read else {
                 continue;
             };
             let got = reader.sort_of(&tree, step.line.into(), &IndexMap::new(), store);
