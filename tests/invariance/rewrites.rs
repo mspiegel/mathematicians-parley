@@ -2797,3 +2797,634 @@ fn dull_step_moved(
     }
     None
 }
+
+/// Each step a theorem numbers at the top that has a block, lifted out as a
+/// theorem of the same file and cited where it was: a block made a lemma.
+/// The lemma states the step's claim and proves it by the block, numbered
+/// again under step 1. Its hypotheses are the theorem's `let` lines whose
+/// letters it writes, and what the block cites from outside it: a
+/// hypothesis keeps its label, and a step above is assumed, a sentence to a
+/// line, under a label of its own, its names introduced by `let` where it
+/// obtained them. The step then cites the lemma, from each line it assumes
+/// and each `let` a citation asks for (`citing::library`, `facts`): a
+/// membership not in a number system, a part, a function being something.
+///
+/// Every statement the corpus proves in a block becomes one a citation must
+/// reach, written with every binder, define and introduction the corpus
+/// has. A block is left where it is where lifting it cannot be read off the
+/// text: it writes a name the theorem defines, a define sits beside it, or
+/// it cites a line above in a place only one label can stand.
+pub fn blocks_lifted(ctx: &Context, path: &str, text: &str) -> Rewritten {
+    let mut lines: Vec<String> = text.lines().map(str::to_string).collect();
+    let mut count = 0;
+    let mut theorems = Vec::new();
+    let mut declined = Vec::new();
+    for (thm, end) in theorems_of(ctx, path, lines.len()) {
+        match lifted(ctx, thm, &lines, end) {
+            Ok(Some(lift)) => {
+                count += lift.changed;
+                theorems.push(thm.qualified());
+                lines.splice(thm.line - 1..end, lift.region);
+            }
+            Ok(None) => {}
+            Err(why) => declined.push(Declined {
+                theorem: thm.qualified(),
+                why,
+            }),
+        }
+    }
+    Rewritten {
+        text: joined(lines, text),
+        lines: count,
+        theorems,
+        declined,
+    }
+}
+
+/// A theorem's lines with its blocks lifted: the lemmas, then the theorem.
+struct Lifted {
+    region: Vec<String>,
+    changed: usize,
+}
+
+/// One block made a lemma: the lemma's lines, the lines of the theorem the
+/// step's block took up, and what the step is written as instead.
+struct Lemma {
+    lines: Vec<String>,
+    from: usize,
+    to: usize,
+    citing: Vec<String>,
+}
+
+/// One hypothesis of a lemma: its line's text after the keyword's place,
+/// `let n ∈ ℕ` or `assume n² is even`, and its label.
+struct Assumed {
+    text: String,
+    label: String,
+}
+
+fn lifted(
+    ctx: &Context,
+    thm: &Theorem,
+    lines: &[String],
+    end: usize,
+) -> Result<Option<Lifted>, String> {
+    let tops: Vec<&parley::corpus::Step> =
+        thm.steps.iter().filter(|s| s.number.0.len() == 1).collect();
+    let has_block = |s: &parley::corpus::Step| {
+        thm.steps
+            .iter()
+            .any(|o| o.number.0.len() > 1 && o.number.0[0] == s.number.0[0])
+    };
+    let blocks: Vec<&parley::corpus::Step> =
+        tops.iter().copied().filter(|s| has_block(s)).collect();
+    if blocks.is_empty() {
+        return Ok(None);
+    }
+    let named = names_given(lines, thm.line - 1, end);
+    let mut why = Vec::new();
+    let mut lemmas = Vec::new();
+    for step in blocks {
+        match lemma_of(ctx, thm, lines, end, step, &tops, &named) {
+            Ok(lemma) => lemmas.push(lemma),
+            Err(e) => why.push(format!("step {}: {e}", step.number)),
+        }
+    }
+    if lemmas.is_empty() {
+        return Err(why.join("; "));
+    }
+    let mut region = Vec::new();
+    let mut changed = 0;
+    for lemma in &lemmas {
+        changed += lemma.lines.len() + lemma.citing.len();
+        region.extend(lemma.lines.iter().cloned());
+        region.push(String::new());
+    }
+    let mut i = thm.line - 1;
+    while i < end {
+        match lemmas.iter().find(|l| l.from == i) {
+            Some(lemma) => {
+                region.extend(lemma.citing.iter().cloned());
+                i = lemma.to;
+            }
+            None => {
+                region.push(lines[i].clone());
+                i += 1;
+            }
+        }
+    }
+    Ok(Some(Lifted { region, changed }))
+}
+
+/// The names a theorem's `let … =` lines give: its defines, recursions and
+/// named numbers, which a lemma could not write without giving them again.
+fn names_given(lines: &[String], from: usize, to: usize) -> BTreeSet<String> {
+    let naming = re(r"^\s*let\s+(.+?)\s*=");
+    let mut out = BTreeSet::new();
+    for line in &lines[from..to] {
+        if let Some(m) = naming.captures(line) {
+            for part in m[1].split(',') {
+                let name: String = part
+                    .trim()
+                    .chars()
+                    .take_while(|c| *c != '(' && !c.is_whitespace())
+                    .collect();
+                if !name.is_empty() {
+                    out.insert(name);
+                }
+            }
+        }
+    }
+    out
+}
+
+/// The single letters a line writes: its tokens where it reads as formula
+/// text, and its loose letters where it does not. A letter with primes,
+/// `f′`, writes the letter too, since it is made of it.
+fn letters_in(ctx: &Context, line: &str) -> BTreeSet<String> {
+    let mut out = loose_letters(line);
+    if let Some(tokens) = ctx.tokens(line.trim()) {
+        out.extend(
+            tokens
+                .into_iter()
+                .filter(|t| t.kind == TokenKind::Name && is_one_letter(&t.text))
+                .map(|t| t.text),
+        );
+    }
+    let bases: Vec<String> = out
+        .iter()
+        .filter_map(|l| l.chars().next())
+        .map(String::from)
+        .collect();
+    out.extend(bases);
+    out
+}
+
+/// Whether a citation of a lemma is asked to supply what its `let` says, as
+/// `citing::library` reads a hypothesis: a sort, a set, a point, a function's
+/// type and a membership in a number system it is not.
+fn let_asked(path: &str, body: &str) -> bool {
+    use parley::sorts::introduction::Form;
+    let introduced = Introduction::read(Written::new(body, path, 0));
+    match introduced.form {
+        Form::Set(_)
+        | Form::Point(_)
+        | Form::Function
+        | Form::Element(_)
+        | Form::Group { .. }
+        | Form::Graph(_) => false,
+        Form::Member => {
+            let set = body.split_once('∈').map_or("", |(_, s)| s.trim());
+            !["ℕ", "ℕ₀", "ℤ", "ℚ", "ℝ", "ℂ"].contains(&set)
+        }
+        _ => true,
+    }
+}
+
+fn lemma_of(
+    ctx: &Context,
+    thm: &Theorem,
+    lines: &[String],
+    end: usize,
+    step: &parley::corpus::Step,
+    tops: &[&parley::corpus::Step],
+    named: &BTreeSet<String>,
+) -> Result<Lemma, String> {
+    let top = step.number.0[0];
+    let inner: Vec<&parley::corpus::Step> =
+        thm.steps.iter().filter(|o| o.number.0[0] == top).collect();
+    let start = step.line - 1;
+    let next = tops
+        .iter()
+        .map(|t| t.line - 1)
+        .filter(|&l| l > start)
+        .min()
+        .unwrap_or(end);
+    if thm
+        .defines
+        .iter()
+        .any(|d| d.line - 1 > start && d.line - 1 < next)
+    {
+        return Err("a define sits in or after the block".into());
+    }
+    let mut stop = next;
+    while stop > start && lines[stop - 1].trim().is_empty() {
+        stop -= 1;
+    }
+    let mut used: BTreeSet<String> = BTreeSet::new();
+    for line in &lines[start..stop] {
+        used.extend(letters_in(ctx, line));
+    }
+    if let Some(name) = used.iter().find(|u| named.contains(*u)) {
+        return Err(format!("it writes {name}, which the theorem defines"));
+    }
+    // What the block cites, and which of it is outside the block.
+    let mut internal: BTreeSet<String> = BTreeSet::new();
+    for s in &inner {
+        internal.insert(s.number.to_string());
+        for o in &s.openers {
+            internal.insert(o.label.clone());
+        }
+    }
+    let mut outside: Vec<String> = Vec::new();
+    for s in &inner {
+        let mut refs = s.just.refs.clone();
+        refs.extend(s.just.contradicting.clone());
+        for r in &s.requires {
+            refs.extend(references(&r.how).0);
+        }
+        for r in refs {
+            if r != "arithmetic" && !internal.contains(&r) && !outside.contains(&r) {
+                outside.push(r);
+            }
+        }
+    }
+    let hypothesis = |label: &str| {
+        thm.hypotheses
+            .iter()
+            .find(|h| h.label.as_deref() == Some(label))
+    };
+    // A label for each line a step above gives, past every H the theorem uses.
+    let taken: BTreeSet<String> = thm
+        .hypotheses
+        .iter()
+        .filter_map(|h| h.label.clone())
+        .chain(internal.iter().cloned())
+        .collect();
+    let mut fresh = (1..)
+        .map(|n| format!("H{n}"))
+        .filter(move |l| !taken.contains(l));
+    let obtained = re(r"^obtain\s+(.+?)(?::|\s+from\b)");
+    let member = re(r"^(\S+)\s*∈\s*(.+)$");
+    let typed = re(r"^(\S+)\s*:\s*[^:]+→[^:]+$");
+    let sorted = re(r"^(\S+) is a (?:polynomial|set|point)$");
+    let mut map: BTreeMap<String, Vec<String>> = BTreeMap::new();
+    let mut above: Vec<Assumed> = Vec::new();
+    let mut cite: Vec<String> = Vec::new();
+    for t in tops.iter().filter(|t| t.line - 1 < start) {
+        let number = t.number.to_string();
+        let names: Vec<String> = obtained
+            .captures(&t.just.text)
+            .map(|m| m[1].split(',').map(|n| n.trim().to_string()).collect())
+            .unwrap_or_default();
+        let is_cited = outside.contains(&number);
+        let names_used = names.iter().any(|n| used.contains(n));
+        if !is_cited && !names_used {
+            continue;
+        }
+        // A name the step obtains is introduced by `let`, as its membership,
+        // its function's type or its sort. What the step says is assumed in
+        // one line, as the step says it in one, memberships and all: a
+        // citation of the step stands for that line, and a method citing it
+        // has the bounds a membership gives, as it had from the step.
+        let mut labels = Vec::new();
+        let mut asks = false;
+        let mut said_all: Vec<String> = Vec::new();
+        for sentence in t.claim.sentences() {
+            let said = sentence.text().trim().trim_end_matches('.').to_string();
+            said_all.push(said.clone());
+            let of_name = |r: &Regex| {
+                r.captures(&said)
+                    .is_some_and(|m| names.contains(&m[1].to_string()))
+            };
+            let introduced = if of_name(&member) || of_name(&typed) {
+                said.clone()
+            } else if of_name(&sorted) {
+                said.replacen(" is a ", " be a ", 1)
+            } else {
+                continue;
+            };
+            asks |= let_asked(&thm.path, &introduced);
+            above.push(Assumed {
+                text: format!("let {introduced}"),
+                label: fresh.next().expect("labels without end"),
+            });
+        }
+        if is_cited {
+            let label = fresh.next().expect("labels without end");
+            labels.push(label.clone());
+            above.push(Assumed {
+                text: format!("assume {}", conjoined_text(&said_all)),
+                label,
+            });
+        }
+        if is_cited || asks {
+            cite.push(number.clone());
+        }
+        if is_cited {
+            map.insert(number, labels);
+        }
+    }
+    // Each line cited from outside is a hypothesis of the theorem or a step
+    // above, now assumed.
+    for r in &outside {
+        if hypothesis(r).is_none() && !map.contains_key(r) {
+            return Err(format!(
+                "it cites {r}, which is no hypothesis nor a step above"
+            ));
+        }
+    }
+    for a in &above {
+        used.extend(letters_in(ctx, &a.text));
+    }
+    // The theorem's `let` lines the lemma needs, and the letters those write.
+    let mut kept: BTreeSet<usize> = BTreeSet::new();
+    loop {
+        let before = kept.len();
+        for (i, h) in thm.hypotheses.iter().enumerate() {
+            let body = parley::sorts::body_of(&hypothesis_text(h), h.kind.as_str());
+            let needed = match h.kind {
+                Intro::Let => letters_in(ctx, &body).iter().any(|l| used.contains(l)),
+                _ => h.label.as_ref().is_some_and(|l| outside.contains(l)),
+            };
+            if needed && kept.insert(i) {
+                used.extend(letters_in(ctx, &body));
+            }
+        }
+        if kept.len() == before {
+            break;
+        }
+    }
+    let name = format!("{}-{}", thm.name, step.number);
+    if ctx
+        .corpus
+        .theorems
+        .iter()
+        .any(|t| t.path == thm.path && t.name == name)
+    {
+        return Err(format!("the file already has a theorem {name}"));
+    }
+    // The lemma's lines.
+    let claim = step.claim.text().trim().to_string();
+    // A range line belongs to a statement that leaves the set out, which
+    // the step's claim may not do though its block does.
+    let mut out = vec![format!("theorem {name}")];
+    for r in &thm.ranges {
+        if r.names.iter().any(|n| leaves_set_out(&claim, n)) {
+            out.push(format!("  {}", r.text.trim()));
+        } else if r
+            .names
+            .iter()
+            .any(|n| lines[start..stop].iter().any(|l| leaves_set_out(l, n)))
+        {
+            return Err(format!(
+                "its block leans on `{}`, which its claim does not",
+                r.text.trim()
+            ));
+        }
+    }
+    let hyp_line = |text: &str, label: &str| format!("  {:<66}  ({label})", text);
+    for (i, h) in thm.hypotheses.iter().enumerate() {
+        if !kept.contains(&i) {
+            continue;
+        }
+        let text = hypothesis_text(h);
+        match &h.label {
+            Some(l) => {
+                out.push(hyp_line(&text, l));
+                // A `let` is cited where a citation asks what it says, and an
+                // `assume` where the block cites it.
+                let asked = match h.kind {
+                    Intro::Let => let_asked(&thm.path, text["let".len()..].trim()),
+                    _ => outside.contains(l),
+                };
+                if asked {
+                    cite.insert(0, l.clone());
+                }
+            }
+            None => out.push(format!("  {text}")),
+        }
+    }
+    for a in &above {
+        out.push(hyp_line(&a.text, &a.label));
+    }
+    out.push(format!("  then {claim}"));
+    out.push(String::new());
+    // The block, numbered again under step 1, its citations of lines above
+    // said by the labels they now have.
+    for s in &inner {
+        let mut v = s.number.0.clone();
+        v[0] = 1;
+        map.insert(
+            s.number.to_string(),
+            vec![parley::corpus::proof::StepNo(v).to_string()],
+        );
+    }
+    let mut reasons: BTreeSet<usize> = BTreeSet::new();
+    let mut links: BTreeSet<usize> = BTreeSet::new();
+    let mut headings: BTreeSet<usize> = BTreeSet::new();
+    for s in &inner {
+        headings.insert(s.line - 1);
+        reasons.insert(s.just.line - 1);
+        reasons.extend(continued(lines, s.just.line - 1, end));
+        for r in &s.requires {
+            reasons.insert(r.line - 1);
+            reasons.extend(continued(lines, r.line - 1, end));
+        }
+        for o in &s.openers {
+            reasons.insert(o.line - 1);
+        }
+        for (_, at) in &s.just.chain {
+            links.insert(at - 1);
+        }
+    }
+    for (i, line) in lines[start..stop].iter().enumerate() {
+        let at = start + i;
+        let new = if headings.contains(&at) {
+            renumbered_heading(line, &map)
+        } else if links.contains(&at) {
+            relabelled_link(line, &map)?
+        } else if reasons.contains(&at) {
+            relabelled_refs(line, &map)?
+        } else {
+            line.clone()
+        };
+        out.push(new);
+    }
+    // The step as it is cited instead.
+    let indent: String = lines[step.just.line - 1]
+        .chars()
+        .take_while(|c| c.is_whitespace())
+        .collect();
+    let mut citing: Vec<String> = lines[start..step.just.line - 1].to_vec();
+    let mut seen = BTreeSet::new();
+    cite.retain(|c| seen.insert(c.clone()));
+    citing.push(if cite.is_empty() {
+        format!("{indent}thm:{name}")
+    } else {
+        format!("{indent}thm:{name}, from {}", cite.join(", "))
+    });
+    citing.extend(lines[stop..next].iter().cloned());
+    Ok(Lemma {
+        lines: out,
+        from: start,
+        to: next,
+        citing,
+    })
+}
+
+/// Sentences said as one formula, joined by "and": a sentence that is
+/// itself joined or quantified is bracketed, and loses the capital a
+/// sentence opens with.
+fn conjoined_text(sentences: &[String]) -> String {
+    let joined = re(r"\b(and|or|if|then|with|such that|for all|there)\b|,");
+    let lowered: Vec<String> = sentences
+        .iter()
+        .map(|s| {
+            let mut chars = s.chars();
+            let first = chars.next().map(|c| c.to_lowercase().collect::<String>());
+            let opens = ["For ", "There ", "If ", "Not "]
+                .iter()
+                .any(|w| s.starts_with(w));
+            if opens {
+                format!("{}{}", first.unwrap_or_default(), chars.as_str())
+            } else {
+                s.clone()
+            }
+        })
+        .collect();
+    if let [one] = lowered.as_slice() {
+        return one.clone();
+    }
+    lowered
+        .into_iter()
+        .map(|s| {
+            if joined.is_match(&s) {
+                format!("({s})")
+            } else {
+                s
+            }
+        })
+        .collect::<Vec<_>>()
+        .join(" and ")
+}
+
+/// Whether a quantifier in `text` leaves out the set its letter `name` runs
+/// over, `for all ε > 0` or `for all n ≥ N`, which a range line says.
+fn leaves_set_out(text: &str, name: &str) -> bool {
+    let quantified = re(
+        r"(?:[Ff]or all|[Tt]here (?:exists?|is|are))\s+([^,]*?)(?:,|\s+such that|\s+with|\.|$)",
+    );
+    let found = quantified.captures_iter(text).any(|c| {
+        let bound = &c[1];
+        loose_letters(bound).contains(name) && !bound.contains('∈')
+    });
+    found
+}
+
+/// A hypothesis as its line writes it, without its label: `let n ∈ ℕ`.
+fn hypothesis_text(h: &parley::corpus::Hypothesis) -> String {
+    let text = h.text.trim();
+    match &h.label {
+        Some(l) => text
+            .strip_suffix(&format!("({l})"))
+            .unwrap_or(text)
+            .trim_end()
+            .to_string(),
+        None => text.to_string(),
+    }
+}
+
+/// A step's heading with its number said as `map` says it, the claim kept
+/// in its column.
+fn renumbered_heading(line: &str, map: &BTreeMap<String, Vec<String>>) -> String {
+    let lead = line.len() - line.trim_start().len();
+    let rest = &line[lead..];
+    let Some(dot) = rest.find(char::is_whitespace) else {
+        return line.to_string();
+    };
+    let number = rest[..dot].trim_end_matches('.');
+    match map.get(number).and_then(|v| v.first()) {
+        Some(new) => {
+            let said = format!("{new}.");
+            let width = dot.max(said.len());
+            format!("{}{:<width$}{}", &line[..lead], said, &rest[dot..])
+        }
+        None => line.to_string(),
+    }
+}
+
+/// The one label `map` gives a reference standing where one line goes.
+fn one_label(
+    map: &BTreeMap<String, Vec<String>>,
+    r: &str,
+) -> Result<Option<String>, String> {
+    match map.get(r).map(Vec::as_slice) {
+        None => Ok(None),
+        Some([one]) => Ok(Some(one.clone())),
+        Some(_) => Err(format!(
+            "{r} is cited where one line stands, and says several"
+        )),
+    }
+}
+
+/// A justification, requires or opening line with each line it cites said
+/// as `map` says it: in a `from` or `join` list, a reference may become
+/// several; after `line`, `contradicting`, and in `step N is true`, it must
+/// stay one. A step number given a label loses its `line`.
+fn relabelled_refs(
+    text: &str,
+    map: &BTreeMap<String, Vec<String>>,
+) -> Result<String, String> {
+    let lists = re(r"\b(from|join)(\s+)([A-Za-z0-9.′]+(?:\s*,\s*[A-Za-z0-9.′]+)*)");
+    let text = lists
+        .replace_all(text, |c: &regex::Captures| {
+            let items: Vec<String> = c[3]
+                .split(',')
+                .map(|item| {
+                    let lead = &item[..item.len() - item.trim_start().len()];
+                    match map.get(item.trim()) {
+                        Some(new) => format!("{lead}{}", new.join(", ")),
+                        None => item.to_string(),
+                    }
+                })
+                .collect();
+            format!("{}{}{}", &c[1], &c[2], items.join(","))
+        })
+        .into_owned();
+    let mut fault = None;
+    let numbered = |s: &str| s.chars().all(|c| c.is_ascii_digit() || c == '.');
+    let line = re(r"\bline(\s+)([0-9]+(?:\.[0-9]+)*)\b");
+    let text = line
+        .replace_all(&text, |c: &regex::Captures| match one_label(map, &c[2]) {
+            Ok(Some(new)) if numbered(&new) => format!("line{}{new}", &c[1]),
+            Ok(Some(new)) => new,
+            Ok(None) => c[0].to_string(),
+            Err(e) => {
+                fault = Some(e);
+                c[0].to_string()
+            }
+        })
+        .into_owned();
+    let single = re(r"\b(contradicting|step)(\s+)([A-Za-z0-9.′]+?)(\.?)(\s|$)");
+    let text = single
+        .replace_all(&text, |c: &regex::Captures| {
+            match one_label(map, c[3].trim_end_matches('.')) {
+                Ok(Some(new)) => format!("{}{}{new}{}{}", &c[1], &c[2], &c[4], &c[5]),
+                Ok(None) => c[0].to_string(),
+                Err(e) => {
+                    fault = Some(e);
+                    c[0].to_string()
+                }
+            }
+        })
+        .into_owned();
+    match fault {
+        Some(e) => Err(e),
+        None => Ok(text),
+    }
+}
+
+/// A chain line with the line it cites at its right end said as `map` says
+/// it, which must be one.
+fn relabelled_link(
+    line: &str,
+    map: &BTreeMap<String, Vec<String>>,
+) -> Result<String, String> {
+    let end = line.trim_end().len();
+    let start = line[..end].rfind(char::is_whitespace).map_or(0, |i| i + 1);
+    Ok(match one_label(map, &line[start..end])? {
+        Some(new) => format!("{}{new}{}", &line[..start], &line[end..]),
+        None => line.to_string(),
+    })
+}

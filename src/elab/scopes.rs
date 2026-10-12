@@ -324,6 +324,32 @@ impl<'a> Elaborator<'a> {
         self.know(facts, turned, made);
     }
 
+    /// How deep `term` is a conjunction: 0 for anything else, and one more
+    /// than its deepest part for a conjunction. A fact taken apart this deep
+    /// says each thing its "and"s join, however many there are.
+    pub fn conjunction_depth(&self, term: &str) -> usize {
+        fn depth(node: &Term) -> usize {
+            match node.label().and_then(|l| lookup(rules::SPLIT, l)) {
+                Some(_) => 1 + node.children().iter().map(depth).max().unwrap_or(0),
+                None => 0,
+            }
+        }
+        depth(&self.to_term(term))
+    }
+
+    /// Each conjunct of a fact recorded as a fact of its own, through every
+    /// "and" the fact is joined by.
+    pub fn unpack_all(
+        &mut self,
+        term: &str,
+        proof: &Proof,
+        scope: &str,
+        facts: &Facts,
+    ) {
+        let depth = self.conjunction_depth(term) + 1;
+        self.unpack(term, proof, scope, facts, depth);
+    }
+
     /// Record each conjunct of a fact as a fact of its own.
     pub fn unpack(
         &mut self,
@@ -921,7 +947,7 @@ impl<'a> Elaborator<'a> {
         let known = facts.copy();
         for line in lines {
             if let Some(p) = self.held(&known, line, scope)? {
-                self.unpack(line, &p, scope, &known, 4);
+                self.unpack_all(line, &p, scope, &known);
             }
         }
         let parts: Vec<String> = lines.iter().flat_map(|l| self.parts(l)).collect();
@@ -2671,7 +2697,7 @@ impl<'a> Elaborator<'a> {
             let parts = Facts::new();
             let whole = self.carried(r, known, &lines);
             self.know(&parts, line.term.clone(), whole.clone());
-            self.unpack(&line.term, &whole, scope, &parts, 4);
+            self.unpack_all(&line.term, &whole, scope, &parts);
             for (k, v) in parts.entries() {
                 self.know(&cited, k, v);
             }

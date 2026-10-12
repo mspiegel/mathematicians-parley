@@ -27,6 +27,7 @@ use std::path::Path;
 use std::sync::Arc;
 
 use parley::corpus::corpus;
+use parley::corpus::proof::cited_items;
 use parley::elab::elaborate::Options;
 use parley::elab::Library;
 use parley::mm::where_set_mm;
@@ -133,6 +134,10 @@ fn changes() -> Vec<Change> {
         Change {
             name: "a define in a proof raised to the start of its run of steps",
             rewrite: Rewrite::File(rewrites::defines_raised),
+        },
+        Change {
+            name: "a block made a lemma",
+            rewrite: Rewrite::File(rewrites::blocks_lifted),
         },
     ]
 }
@@ -339,7 +344,13 @@ fn a_proof_means_what_it_says_however_it_spells_it() {
         "the corpus is not clean, so a change proves nothing:\n{}",
         base.printed
     );
-    let changes = changes();
+    // INVARIANCE_ONLY keeps the changes whose name holds it, to work on one
+    // change; the known breaks are then those of the changes kept.
+    let only = std::env::var("INVARIANCE_ONLY").ok();
+    let changes: Vec<Change> = changes()
+        .into_iter()
+        .filter(|c| only.as_ref().is_none_or(|o| c.name.contains(o.as_str())))
+        .collect();
     let context = Context::new(corpus(&clean).expect("the corpus reads"));
     let trees: Vec<Changed> = changes
         .iter()
@@ -372,14 +383,27 @@ fn a_proof_means_what_it_says_however_it_spells_it() {
     // Every theorem of a changed file, elaborated against set.mm read once.
     // A thread has a library of its own on what was read, and reads each
     // changed corpus it is asked a theorem of once.
-    let mut work: Vec<(usize, String)> = Vec::new();
+    // Each with the theorems of the same change it cites, which are built
+    // first, as the build builds what a theorem cites before it: a theorem a
+    // change wrote, a lemma lifted out of a block, has no file until then.
+    let mut work: Vec<(usize, String, Vec<String>)> = Vec::new();
     for (i, done) in trees.iter().enumerate() {
-        for thm in corpus(&done.tree)
+        let thms = corpus(&done.tree)
             .expect("the changed corpus reads")
-            .theorems
-        {
+            .theorems;
+        let changed: BTreeSet<String> = thms
+            .iter()
+            .filter(|t| done.files.contains(&t.path))
+            .map(|t| t.qualified())
+            .collect();
+        for thm in &thms {
             if done.files.contains(&thm.path) {
-                work.push((i, thm.qualified()));
+                let cites: Vec<String> = cited_items(thm)
+                    .into_iter()
+                    .map(|(c, _)| c)
+                    .filter(|c| changed.contains(c) && *c != thm.qualified())
+                    .collect();
+                work.push((i, thm.qualified(), cites));
             }
         }
     }
@@ -388,36 +412,74 @@ fn a_proof_means_what_it_says_however_it_spells_it() {
             "set.mm is found: say where it is with SET_MM, or leave a copy at the root",
         )
         .shared();
-    let built = in_order(
-        &work,
-        || (Library::new(Arc::clone(&read)), BTreeMap::new()),
-        |(lib, loaded): &mut (Library, BTreeMap<usize, Loaded>), (i, name)| {
-            let tree = loaded.entry(*i).or_insert_with(|| {
-                Loaded::new(&trees[*i].tree).expect("the changed corpus reads")
-            });
-            tree.elaborate(name, lib, Options::default())
-                .map(|e| e.text)
-                .map_err(|p| format!("{} | elaborate | {p}", changes[*i].name))
-        },
-    );
     // What each change built, verified as the gate verifies the tree: every
     // file the tree holds, each built one in place of the one committed.
     // Only a change that built some file otherwise than it is committed is
     // verified, since the committed files are the gate's to verify.
     let mut made: Vec<BTreeMap<String, String>> =
         trees.iter().map(|_| BTreeMap::new()).collect();
-    for ((i, name), result) in work.iter().zip(built) {
-        match result {
-            Ok(text) => {
-                let path = path_of(name);
-                if trees[*i].tree.read_text(&path).ok().as_deref()
-                    != Some(text.as_str())
-                {
-                    made[*i].insert(path, text);
+    let mut finished: Vec<BTreeSet<String>> =
+        trees.iter().map(|_| BTreeSet::new()).collect();
+    let mut pending: Vec<&(usize, String, Vec<String>)> = work.iter().collect();
+    while !pending.is_empty() {
+        let mut ready: Vec<&(usize, String, Vec<String>)> = pending
+            .iter()
+            .copied()
+            .filter(|(i, _, cites)| cites.iter().all(|c| finished[*i].contains(c)))
+            .collect();
+        // Theorems citing each other round about are built as they stand.
+        if ready.is_empty() {
+            ready = pending.clone();
+        }
+        pending.retain(|w| !ready.contains(w));
+        // Each change's tree with what it has built so far, where this round
+        // builds any of it.
+        let overlays: Vec<Option<Memory>> = trees
+            .iter()
+            .zip(&made)
+            .enumerate()
+            .map(|(i, (t, m))| {
+                if !ready.iter().any(|(j, _, _)| *j == i) {
+                    return None;
                 }
-            }
-            Err(broke) => {
-                found.insert(broke);
+                let mut o = Overlay::new(&t.tree);
+                for (path, text) in m {
+                    o.write(path, text.clone().into_bytes());
+                }
+                Some(Memory::copy(&o, &["corpus", "proofs", "tests"]).unwrap())
+            })
+            .collect();
+        let jobs: Vec<(usize, String)> =
+            ready.iter().map(|(i, n, _)| (*i, n.clone())).collect();
+        let built = in_order(
+            &jobs,
+            || (Library::new(Arc::clone(&read)), BTreeMap::new()),
+            |(lib, loaded): &mut (Library, BTreeMap<usize, Loaded>), (i, name)| {
+                let tree = loaded.entry(*i).or_insert_with(|| {
+                    Loaded::new(
+                        overlays[*i].as_ref().expect("a tree this round builds"),
+                    )
+                    .expect("the changed corpus reads")
+                });
+                tree.elaborate(name, lib, Options::default())
+                    .map(|e| e.text)
+                    .map_err(|p| format!("{} | elaborate | {p}", changes[*i].name))
+            },
+        );
+        for ((i, name), result) in jobs.iter().zip(built) {
+            finished[*i].insert(name.clone());
+            match result {
+                Ok(text) => {
+                    let path = path_of(name);
+                    if trees[*i].tree.read_text(&path).ok().as_deref()
+                        != Some(text.as_str())
+                    {
+                        made[*i].insert(path, text);
+                    }
+                }
+                Err(broke) => {
+                    found.insert(broke);
+                }
             }
         }
     }
@@ -457,7 +519,15 @@ fn a_proof_means_what_it_says_however_it_spells_it() {
             ));
         }
     }
-    let known: BTreeSet<String> = KNOWN.iter().map(|s| s.to_string()).collect();
+    let known: BTreeSet<String> = KNOWN
+        .iter()
+        .filter(|k| {
+            changes
+                .iter()
+                .any(|c| k.starts_with(&format!("{} |", c.name)))
+        })
+        .map(|s| s.to_string())
+        .collect();
     let new: Vec<&String> = found.difference(&known).collect();
     let gone: Vec<&String> = known.difference(&found).collect();
     println!("{} theorems elaborated, {} breaks", work.len(), found.len());

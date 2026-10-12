@@ -750,7 +750,7 @@ impl<'a> Elaborator<'a> {
             };
             let parts = Facts::new();
             self.know(&parts, instance.clone(), p.clone());
-            self.unpack(&instance, &p, scope, &parts, 4);
+            self.unpack_all(&instance, &p, scope, &parts);
             if let Some(found) = self.held(&parts, term, scope)? {
                 return Ok(Some(found));
             }
@@ -780,7 +780,7 @@ impl<'a> Elaborator<'a> {
                 }
                 let held = Facts::new();
                 self.know(&held, said.clone(), proof.clone());
-                self.unpack(&said, &proof, scope, &held, 4);
+                self.unpack_all(&said, &proof, scope, &held);
                 if let Some(p) = self.held(&held, term, scope)? {
                     return Ok(Built(p));
                 }
@@ -806,7 +806,7 @@ impl<'a> Elaborator<'a> {
             let lines = self.lines.clone();
             let whole = self.carried(r, facts, &lines);
             self.know(&held, line.term.clone(), whole.clone());
-            self.unpack(&line.term, &whole, scope, &held, 4);
+            self.unpack_all(&line.term, &whole, scope, &held);
             if let Some(p) = self.held(&held, term, scope)? {
                 return Ok(Built(p));
             }

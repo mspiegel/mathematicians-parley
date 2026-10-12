@@ -1,0 +1,11 @@
+theorem divided-by-a-cited-natural
+  note        H3 says k ∈ ℕ as one part of an "and", which is where the step
+              takes k ≠ 0 from: it cites H3, and not the `let` that says k ∈ ℕ
+              once.
+  let a ∈ ℕ                                                           (H1)
+  let k ∈ ℕ                                                           (H2)
+  assume k ∈ ℕ and a/k ∈ ℕ and a > 1                                  (H3)
+  then (a/k)² = a²/k²
+
+1.  (a/k)² = a²/k²
+    algebra, from H3

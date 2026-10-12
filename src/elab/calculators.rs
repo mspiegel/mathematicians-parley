@@ -419,9 +419,14 @@ impl<'a> Elaborator<'a> {
         }
         self.combining(&[term.to_string()]);
         // A `requires` line is where a step says its denominator is not
-        // zero, so what the normalizer is asked is asked of those as well.
+        // zero, so what the normalizer is asked is asked of those as well;
+        // and what the step cites is laid over the scope's copies, so that
+        // a fact one of its lines says is taken from that line.
         let facts = match step {
-            Some(step) => self.supplied(Some(step), scope, facts)?,
+            Some(step) => {
+                let supplied = self.supplied(Some(step), scope, facts)?;
+                self.with_cited(Some(step), scope, &supplied, None)
+            }
             None => facts.clone(),
         };
         let mut w = Work::new(Spec {
@@ -4343,7 +4348,7 @@ impl<'a> Elaborator<'a> {
             return Ok(Built(held));
         }
         let known = facts.copy();
-        self.unpack(&term, &held, scope, &known, 4);
+        self.unpack_all(&term, &held, scope, &known);
         if let Some(p) = self.held(&known, &want, scope)? {
             return Ok(Built(p));
         }

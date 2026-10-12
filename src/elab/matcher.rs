@@ -3799,7 +3799,7 @@ impl<'a> Elaborator<'a> {
             None => facts.copy(),
         };
         for (line, held) in known.entries() {
-            self.unpack(&line, &held, scope, &known, 4);
+            self.unpack_all(&line, &held, scope, &known);
         }
         let facts = &known;
         let said_bare = self.rpn(&self.without_identities(&self.to_term(said)));
@@ -4348,7 +4348,7 @@ impl<'a> Elaborator<'a> {
                 Some(seed)
             )?);
             self.know(&known, said.clone(), proof.clone());
-            self.unpack(&said, &proof, scope, &known, 4);
+            self.unpack_all(&said, &proof, scope, &known);
         }
         self.introduced(&want, scope, &known)
     }
@@ -4403,7 +4403,7 @@ impl<'a> Elaborator<'a> {
             let made = take!(made);
             let key = self.rpn(&part);
             self.know(&known, key.clone(), made.clone());
-            self.unpack(&key, &made, scope, &known, 4);
+            self.unpack_all(&key, &made, scope, &known);
         }
         self.introduced(want, scope, &known)
     }

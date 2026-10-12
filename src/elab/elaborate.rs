@@ -489,7 +489,7 @@ impl<'a> Elaborator<'a> {
         // fact the proof may lean on without a step to take it apart.
         for extra in &terms {
             if let Some(held) = self.held(&facts, extra, &scope)? {
-                self.unpack(extra, &held, &scope, &facts, 4);
+                self.unpack_all(extra, &held, &scope, &facts);
             }
         }
         let more = self.sethoods(&nodes, &terms, &scope, &facts)?;
@@ -1663,7 +1663,7 @@ impl<'a> Elaborator<'a> {
         let known = Facts::new();
         let whole_proof = self.carried(&where_, facts, lines);
         self.know(&known, held.term.clone(), whole_proof.clone());
-        self.unpack(&held.term, &whole_proof, scope, &known, 4);
+        self.unpack_all(&held.term, &whole_proof, scope, &known);
         let universals: Vec<String> = self
             .parts(&held.term)
             .into_iter()
@@ -1968,7 +1968,7 @@ impl<'a> Elaborator<'a> {
         let held = self.carried(&where_, facts, lines);
         let known = Facts::new();
         self.know(&known, into.term.clone(), held.clone());
-        self.unpack(&into.term, &held, scope, &known, 4);
+        self.unpack_all(&into.term, &held, scope, &known);
         // A sentence joined by `and` is its parts as surely as a line of two
         // sentences is, so each is offered.
         let mut offered = Vec::new();
@@ -2350,7 +2350,7 @@ impl<'a> Elaborator<'a> {
                     self.know_default(&held, said, p);
                 }
             }
-            self.unpack(&cited.term, &whole_proof, scope, &held, 4);
+            self.unpack_all(&cited.term, &whole_proof, scope, &held);
             if let Built(found) = self.unfolds_from(
                 &reads.children()[0],
                 &held,
@@ -2454,7 +2454,7 @@ impl<'a> Elaborator<'a> {
         let proof = pf!(self.b; scope, left, right, given, made, "mpbid");
         let known = Facts::new();
         self.know(&known, right.clone(), proof.clone());
-        self.unpack(&right, &proof, scope, &known, 4);
+        self.unpack_all(&right, &proof, scope, &known);
         if let Some(p) = self.held(&known, term, scope)? {
             return Ok(Built(p));
         }
@@ -2587,7 +2587,7 @@ impl<'a> Elaborator<'a> {
             let parts = Facts::new();
             let whole = self.carried(r, facts, lines);
             self.know(&parts, cited.term.clone(), whole.clone());
-            self.unpack(&cited.term, &whole, scope, &parts, 8);
+            self.unpack_all(&cited.term, &whole, scope, &parts);
             for (said, proof) in parts.entries() {
                 // A part that is the claim leaves `same` nothing to carry.
                 if said == term {
@@ -3097,7 +3097,7 @@ impl<'a> Elaborator<'a> {
         // A line may say several things, and the link be one of them.
         let known = Facts::new();
         self.know(&known, line.term.clone(), proof.clone());
-        self.unpack(&line.term, &proof, scope, &known, 4);
+        self.unpack_all(&line.term, &proof, scope, &known);
         for (said_as, held) in known.entries() {
             if said_as == wanted {
                 return Ok(held);
@@ -4762,7 +4762,7 @@ impl<'a> Elaborator<'a> {
         }
         let taken = Facts::new();
         self.know(&taken, whole.clone(), proof.clone());
-        self.unpack(&whole, &proof, scope, &taken, 4);
+        self.unpack_all(&whole, &proof, scope, &taken);
         if let Some(p) = self.held(&taken, term, scope)? {
             return Ok(p);
         }
