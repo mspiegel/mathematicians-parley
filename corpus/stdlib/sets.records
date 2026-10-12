@@ -154,6 +154,12 @@ mundane theorem in-union-singleton
   metamath    elun2, over the singleton snidg puts a in
   target      elun2
 
+mundane theorem listed-repeat
+  then        {a, b, b} = {a, b}
+  metamath    tpidm23
+  target      tpidm23
+  note        A list names each element once however often it is written.
+
 mundane theorem disjoint-empty
   assume for all s ∈ Z, s ∉ Y                                         (H1)
   then        Y ∩ Z = ∅

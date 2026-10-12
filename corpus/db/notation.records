@@ -548,6 +548,14 @@ notation listed-two
               its patterns; a size is declared when a proof writes it. The
               listing says no order: {u, w} and {w, u} are one set.
 
+notation listed-three
+  pattern     {_, _, _}
+  sort        α, α, α → set of α
+  reads       the set whose elements are, and
+  metamath    ctp
+  target      _1 _2 _3 ctp
+  note        set.mm's unordered triple. See `listed-two`.
+
 notation listed-four
   pattern     {_, _, _, _}
   sort        α, α, α, α → set of α

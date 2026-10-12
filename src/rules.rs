@@ -586,6 +586,7 @@ pub const SETHOOD: &[(&str, &str)] = &[
     ("cun", "unexg"),
     ("csn", "snex"),
     ("cpr", "prex"),
+    ("ctp", "tpex"),
     ("crn", "rnexg"),
     ("cdm", "dmexg"),
     ("cmpt", "mptexg"),

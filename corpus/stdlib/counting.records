@@ -317,6 +317,13 @@ mundane theorem card-subset
   metamath    hashss
   target      hashss
 
+mundane theorem card-pair-distinct
+  let u be an element                                                 (H1)
+  let w be an element                                                 (H2)
+  then        u ≠ w ↔ |{u, w}| = 2
+  metamath    hashprg
+  target      hashprg
+
 mundane theorem range-size
   let n ∈ ℕ₀                                                          (H1)
   then        |{1, …, n}| = n

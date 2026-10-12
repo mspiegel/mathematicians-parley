@@ -4299,9 +4299,13 @@ impl<'a> Elaborator<'a> {
             return Ok(Route::no(why.join("; ")));
         }
         let halves: Vec<String> = node.children().iter().map(|c| self.rpn(c)).collect();
+        // Each sentence is reached as a whole claim is, an equation either
+        // way round.
         let mut made = Vec::new();
         for one in &halves {
-            made.push(self.by_clause(labels, one, scope, facts, step, seed)?);
+            made.push(
+                self.by_clause_either_way(labels, one, scope, facts, step, seed)?,
+            );
         }
         let mut proofs = Vec::new();
         for one in made {

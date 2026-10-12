@@ -1,13 +1,14 @@
 //! Every method and every notation is written by a proof the rewrites read.
 //!
 //! The rewrites of `tests/invariance.rs` turn equations round, rename
-//! letters and split claims in the proofs of `proofs/`, `tests/elaborator/`
-//! and `tests/stdlib/`, and so they test a method or a notation only where a
-//! proof there writes it. One no proof writes is tested by nothing until a
-//! theorem needs it, which is where its faults were found one at a time. So
-//! a method or notation is added with a proof that writes it, a theorem, a
-//! test proof of `tests/elaborator/` or a library item's own test, and this
-//! test fails on one that has none.
+//! letters and split claims in the proofs of `proofs/`, `tests/elaborator/`,
+//! `tests/stdlib/` and `tests/notations/`, and so they test a method or a
+//! notation only where a proof there writes it. One no proof writes is
+//! tested by nothing until a theorem needs it, which is where its faults were
+//! found one at a time. So a method or notation is added with a proof that
+//! writes it, a theorem, a test proof of `tests/elaborator/`, a library
+//! item's own test or a notation's textbook examples, and this test fails on
+//! one that has none.
 //!
 //! What no proof wrote when the test was written is listed in `UNWRITTEN`,
 //! each to be given a proof. The test fails on one missing from the list,
@@ -100,9 +101,14 @@ fn every_method_and_notation_is_written_by_a_proof() {
         .theorems
         .iter()
         .filter(|t| {
-            ["proofs/", "tests/elaborator/", "tests/stdlib/"]
-                .iter()
-                .any(|dir| t.path.starts_with(dir))
+            [
+                "proofs/",
+                "tests/elaborator/",
+                "tests/stdlib/",
+                "tests/notations/",
+            ]
+            .iter()
+            .any(|dir| t.path.starts_with(dir))
         })
         .collect();
     let mut written: BTreeSet<String> = BTreeSet::new();
@@ -146,7 +152,7 @@ fn every_method_and_notation_is_written_by_a_proof() {
     );
     assert!(
         new.is_empty() && gone.is_empty(),
-        "written by no proof, and not listed: give each a proof in proofs/, tests/elaborator/ or tests/stdlib/\n{}\n\n\
+        "written by no proof, and not listed: give each a proof in proofs/, tests/elaborator/, tests/stdlib/ or tests/notations/\n{}\n\n\
          listed, and now written by a proof:\n{}",
         new.iter().map(|s| format!("    \"{s}\",")).collect::<Vec<_>>().join("\n"),
         gone.iter().map(|s| s.as_str()).collect::<Vec<_>>().join("\n")

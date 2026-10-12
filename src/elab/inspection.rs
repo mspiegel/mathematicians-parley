@@ -738,8 +738,9 @@ impl Elaborator<'_> {
         )))
     }
 
-    /// ( scope -> t ≠ c ), from a cited line saying the two differ, either
-    /// way round.
+    /// ( scope -> t ≠ c ): two numerals by their values, as `arithmetic`
+    /// decides it, since a numeral is a value and not a name; anything else
+    /// from a cited line saying the two differ, either way round.
     fn differs(
         &mut self,
         one: &Term,
@@ -748,6 +749,22 @@ impl Elaborator<'_> {
         known: &Facts,
     ) -> Checked<Route<Proof>> {
         let (a, b) = (self.rpn(one), self.rpn(other));
+        let valued =
+            |t: &Term| matches!(field::closed_value(t), Built(field::Value::Exact(_)));
+        if valued(one) && valued(other) {
+            let apart = take!(self.prove_numeral(
+                &t!(t!(&a, &b, "wceq"), "wn"),
+                scope,
+                known
+            )?);
+            let law = self.b.ap("df-ne", &binds! {"A" => &a, "B" => &b}, &[]);
+            return Ok(Built(self.b.ap(
+                "sylibr",
+                &binds! {"ph" => scope, "ps" => &t!(t!(&a, &b, "wceq"), "wn"),
+                "ch" => &t!(&a, &b, "wne")},
+                &[&apart, &law],
+            )));
+        }
         for (x, y) in [(&a, &b), (&b, &a)] {
             let said = if let Some(p) = self.held(known, &t!(x, y, "wne"), scope)? {
                 Some(p)
