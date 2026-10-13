@@ -656,10 +656,10 @@ The term is walked by the operation at its head, as `algebra` walks it:
 - a sum, difference, product or power is in S when its parts are
   (`readdcld`, `remulcld` and the rest of the closure table);
 - a negation is in S when what it negates is, for S that holds negatives;
-- a quotient is in ℝ or ℂ when its parts are and its divisor is not zero,
+- a quotient is in ℚ, ℝ or ℂ when its parts are and its divisor is not zero,
   which a cited line says by saying it, or by saying the divisor is above
   zero or below it (`gt0ne0d`, `lt0ne0d`): −B/A ∈ ℝ from A > 0;
-- a remainder a mod b is in ℕ₀, and so in ℤ, ℝ and ℂ, when a is in ℤ and
+- a remainder a mod b is in ℕ₀, and so in ℤ, ℚ, ℝ and ℂ, when a is in ℤ and
   b in ℕ (`zmodcl`): (t + 1) mod 10 ∈ ℤ from t ∈ ℤ, the divisor a numeral
   asking nothing, as a binomial coefficient C(n, k) is in ℕ₀ when n is in ℕ₀
   and k in ℤ (`bccl`);
@@ -693,7 +693,9 @@ are the lines the method reads, not conditions it asks of the step.
 
 ### Expansion
 
-The closure lemmas the table names, `divcld` and `redivcld` for quotients,
+The closure lemmas the table names, `divcld`, `redivcld` and `qdivcl` for
+quotients (set.mm states ℚ's in closed form, `qaddcl` and the rest, and
+`syl2anc` discharges them),
 `mulne0d` and `divne0d` for a divisor's disequality, and where the claim
 names a define, the claim read as its rule and carried back by the equation
 the define gives (`mpbid`).

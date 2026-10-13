@@ -403,6 +403,8 @@ pub const SYSTEMS: &[(&str, &str)] = &[
 // from its parts being there, by operator and system; a power's exponent is
 // in ℕ₀ whatever the system. A compound's membership is built from its
 // atoms' this way, so an atom's is the step's own line where it wrote one.
+// set.mm states ℚ's in closed form, `( ( A e. QQ /\ B e. QQ ) -> ... )`,
+// and the others in deduction form; the elaborator applies either.
 pub const CLOSED: &[((&str, &str), &str)] = &[
     (("caddc", "cc"), "addcld"),
     (("cmin", "cc"), "subcld"),
@@ -422,6 +424,10 @@ pub const CLOSED: &[((&str, &str), &str)] = &[
     (("caddc", "cn0"), "nn0addcld"),
     (("cmul", "cn0"), "nn0mulcld"),
     (("cexp", "cn0"), "nn0expcld"),
+    (("caddc", "cq"), "qaddcl"),
+    (("cmin", "cq"), "qsubcl"),
+    (("cmul", "cq"), "qmulcl"),
+    (("cexp", "cq"), "qexpcl"),
 ];
 
 pub fn closed(op: &str, system: &str) -> Option<&'static str> {
@@ -431,11 +437,16 @@ pub fn closed(op: &str, system: &str) -> Option<&'static str> {
         .map(|(_, lemma)| *lemma)
 }
 
-pub const NEGATED: &[(&str, &str)] =
-    &[("cc", "negcld"), ("cr", "renegcld"), ("cz", "znegcld")];
+pub const NEGATED: &[(&str, &str)] = &[
+    ("cc", "negcld"),
+    ("cr", "renegcld"),
+    ("cz", "znegcld"),
+    ("cq", "qnegcl"),
+];
 // A quotient asks a third thing of its parts, that the divisor is not zero,
 // so it is closed only where the caller says how that is shown.
-pub const DIVIDED: &[(&str, &str)] = &[("cc", "divcld"), ("cr", "redivcld")];
+pub const DIVIDED: &[(&str, &str)] =
+    &[("cc", "divcld"), ("cr", "redivcld"), ("cq", "qdivcl")];
 
 /// An operation whose value is a whole number when its parts are in the
 /// systems named, whatever system its parts are asked in: the lemma says
@@ -758,12 +769,14 @@ pub const MEMBERSHIP: &[&str] = &[
     // is known in first, ℕ ⊂ ℕ₀ ⊂ ℤ ⊂ ℚ ⊂ ℝ ⊂ ℂ: the most precise fact is
     // the one a membership rests on.
     "nnz",
+    "nnq",
     "nnre",
     "nncn",
     "nnnn0",
     "nn0z",
     "nn0re",
     "nn0cn",
+    "zq",
     "zre",
     "zcn",
     "qre",

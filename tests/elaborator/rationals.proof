@@ -1,0 +1,27 @@
+theorem a-value-in-the-rationals
+  note        f(a) ∈ ℤ by f's type, carried to ℚ by one lemma.
+  let a ∈ ℕ    (H1)
+  let f : ℕ → ℤ    (H2)
+  then f(a) ∈ ℚ
+
+1.  f(a) ∈ ℚ
+    membership, from H2
+
+theorem a-quotient-in-the-rationals
+  note        A quotient is in ℚ when its parts are.
+  let a ∈ ℕ    (H1)
+  let f : ℕ → ℤ    (H2)
+  then (f(a) − 1)/2 ∈ ℚ
+
+1.  (f(a) − 1)/2 ∈ ℚ
+    membership, from H2
+
+theorem a-power-in-the-rationals
+  note        2^b with b ∈ ℕ₀, and a remainder, which is whole.
+  let a ∈ ℕ    (H1)
+  let b ∈ ℕ₀    (H2)
+  let c ∈ ℤ    (H3)
+  then 2^b + c mod a ∈ ℚ
+
+1.  2^b + c mod a ∈ ℚ
+    membership

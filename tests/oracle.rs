@@ -53,6 +53,9 @@ mod algebra;
 #[path = "oracle/order.rs"]
 mod order;
 
+#[path = "oracle/member.rs"]
+mod member;
+
 use gen::Drawn;
 use judge::Verdict;
 use shared::{included, Random};
@@ -117,6 +120,12 @@ import mundane definition stdlib/divisibility/congruent-mod
             draw: order::claim,
             imports: "",
             false_said: "does not follow from what step 1 cites",
+        },
+        Method {
+            name: "membership",
+            draw: member::claim,
+            imports: "",
+            false_said: "is not built from what step 1 cites",
         },
     ]
 }

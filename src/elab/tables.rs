@@ -1339,6 +1339,44 @@ impl<'a> Elaborator<'a> {
         self.apply_lemma(lemma, wanted, scope, facts, None, false, None)
     }
 
+    /// A closure lemma at `vars`, from the proofs of what it asks of the
+    /// parts, `asked`, each with its claim: one in deduction form takes
+    /// them as its hypotheses, and one in closed form, as set.mm states
+    /// ℚ's, has them as its antecedent, which `syl`, `syl2anc` or
+    /// `syl3anc` discharges. `gives` is what it concludes.
+    fn closure(
+        &mut self,
+        lemma: &str,
+        vars: &[(&str, &str)],
+        asked: &[(String, Proof)],
+        gives: &str,
+        scope: &str,
+    ) -> Proof {
+        let proofs: Vec<&Proof> = asked.iter().map(|(_, p)| p).collect();
+        let mut binds = crate::mm::spell::Binds::new();
+        for (var, term) in vars {
+            binds.insert(var.to_string(), term.to_string());
+        }
+        if !self.sig(lemma).essentials.is_empty() {
+            binds.insert("ph".to_string(), scope.to_string());
+            return self.b.ap(lemma, &binds, &proofs);
+        }
+        let law = self.b.ap(lemma, &binds, &[]);
+        let (discharge, names) = match asked.len() {
+            1 => ("syl", ["ps", "ch", "", ""]),
+            2 => ("syl2anc", ["ps", "ch", "th", ""]),
+            _ => ("syl3anc", ["ps", "ch", "th", "ta"]),
+        };
+        let mut around = binds! {"ph" => scope};
+        for (name, (claim, _)) in names.iter().zip(asked) {
+            around.insert(name.to_string(), claim.clone());
+        }
+        around.insert(names[asked.len()].to_string(), gives.to_string());
+        let mut hyps = proofs;
+        hyps.push(&law);
+        self.b.ap(discharge, &around, &hyps)
+    }
+
     /// `said ∈ system` for a compound, from its parts; else a decline.
     ///
     /// What each part is proved by is the caller's: `parts(term, system)`. A
@@ -1367,10 +1405,16 @@ impl<'a> Elaborator<'a> {
                 let pa = take!(parts(self, &left, system)?);
                 let pb = take!(parts(self, &right, system)?);
                 let pn = take!(nonzero(self, &right)?);
-                return Ok(Built(self.b.ap(
+                return Ok(Built(self.closure(
                     lemma,
-                    &binds! {"ph" => scope, "A" => &left, "B" => &right},
-                    &[&pa, &pb, &pn],
+                    &[("A", &left), ("B", &right)],
+                    &[
+                        (t!(left, system, "wcel"), pa),
+                        (t!(right, system, "wcel"), pb),
+                        (t!(right, "cc0", "wne"), pn),
+                    ],
+                    &t!(said, system, "wcel"),
+                    scope,
                 )));
             }
             // A binomial coefficient or a remainder is a whole number when
@@ -1393,23 +1437,7 @@ impl<'a> Elaborator<'a> {
                     "ch" => t!(right, right_system, "wcel"), "th" => &whole},
                     &[&pl, &pr, &law],
                 );
-                if system == "cn0" {
-                    return Ok(Built(made));
-                }
-                let Some(label) = self
-                    .bridge_labels()
-                    .get(&("cn0".to_string(), system.to_string()))
-                    .cloned()
-                else {
-                    return Ok(Route::no(format!("no way from ℕ₀ to {system}")));
-                };
-                let push = self.sig(&label).push()[0].to_string();
-                let carry = self.b.ap(&label, &binds! {push => said}, &[]);
-                return Ok(Built(self.b.ap(
-                    "syl",
-                    &binds! {"ph" => scope, "ps" => &whole, "ch" => t!(said, system, "wcel")},
-                    &[&made, &carry],
-                )));
+                return self.carried_within(said, "cn0", system, made, scope);
             }
             let Some(lemma) = rules::closed(&op, system) else {
                 return Ok(Route::no(format!("no closure lemma for {op} in {system}")));
@@ -1418,10 +1446,15 @@ impl<'a> Elaborator<'a> {
             let into = if op == "cexp" { "cn0" } else { system };
             let pb = take!(parts(self, &right, into)?);
             let key = if op == "cexp" { "N" } else { "B" };
-            return Ok(Built(self.b.ap(
+            return Ok(Built(self.closure(
                 lemma,
-                &binds! {"ph" => scope, "A" => &left, key => &right},
-                &[&pa, &pb],
+                &[("A", &left), (key, &right)],
+                &[
+                    (t!(left, system, "wcel"), pa),
+                    (t!(right, into, "wcel"), pb),
+                ],
+                &t!(said, system, "wcel"),
+                scope,
             )));
         }
         if node.variable().is_none()
@@ -1435,10 +1468,12 @@ impl<'a> Elaborator<'a> {
             };
             let a = self.rpn(&node.children()[0]);
             let pa = take!(parts(self, &a, system)?);
-            return Ok(Built(self.b.ap(
+            return Ok(Built(self.closure(
                 lemma,
-                &binds! {"ph" => scope, "A" => &a},
-                &[&pa],
+                &[("A", &a)],
+                &[(t!(a, system, "wcel"), pa)],
+                &t!(said, system, "wcel"),
+                scope,
             )));
         }
         // A value by cases is in a system where the value of each case is.
@@ -1787,7 +1822,20 @@ impl<'a> Elaborator<'a> {
         let Some(held) = held else {
             return Ok(Route::no("the introducing line is not in scope"));
         };
-        let mut proof = self.seal(held, &format!("{MEMBERSHIP}{letter}"));
+        let proof = self.seal(held, &format!("{MEMBERSHIP}{letter}"));
+        self.carried_within(said, set, system, proof, scope)
+    }
+
+    /// ( scope -> said e. system ) from ( scope -> said e. set ), along the
+    /// sets `rules::WITHIN` says lie one inside the next, a lemma for each.
+    pub(crate) fn carried_within(
+        &mut self,
+        said: &str,
+        set: &str,
+        system: &str,
+        mut proof: Proof,
+        scope: &str,
+    ) -> Checked<Route<Proof>> {
         let mut at = set.to_string();
         while at != system {
             let row = lookup(rules::WITHIN, &at).unwrap_or(&[]);
