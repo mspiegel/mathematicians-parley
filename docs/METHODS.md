@@ -337,6 +337,18 @@ equation: Bezout's lemma, step 2, which takes three cited equations with
 coefficients −1, 1 and −q, and Pythagoras, step 19, which multiplies
 |AD| + |DB| = |AB| by |AB|.
 
+**Dividing both sides by a term is not a second thing.** An equation
+that divides is read with its denominators multiplied across, and a
+divisor it writes may then be divided out again where it divides what the
+equation says. A claim follows when one way of dividing out its divisors
+leaves a combination of the cited equations, read with their own divisors
+divided out where they divide: from y = 1 and z = 2, (x·y + z)/(x + 3) =
+(x + 2)/(x + 3) is x times the first and the second, over x + 3, one step;
+and from y² = 9, (x·y² − 2·y² − z)/(y − 3) = (9·x − z − 18)/(y − 3) is
+(x − 2)(y − 3) times it with y − 3 kept, since dividing it out would take
+it from the cited equation as well. Only the divisors the claim writes are
+tried, and only where they divide it exactly.
+
 For a disequality `e ≠ 0`, the claim holds when `e` is a nonzero rational
 multiple of some cited `d ≠ 0` after normalisation. The geometric series'
 `requires 1 − a ≠ 0: algebra, from H2` is the only use: `1 − a` is `−1` times `a − 1`, and the cited fact is

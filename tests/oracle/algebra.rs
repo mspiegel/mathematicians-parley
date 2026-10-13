@@ -315,22 +315,35 @@ pub fn derived(r: &mut Random, g: &Grammar) -> Drawn {
 /// (`METHODS.md`, algebra: every denominator is nonzero, and a step that
 /// divides writes the condition).
 ///
-/// As in [`derived`], the claim is a polynomial with one cited equation
-/// times a polynomial added, or with none, and its value at p; made false,
-/// it is one more. Its two sides are then each divided by the term, or
-/// each divided with a polynomial added, or the right side is multiplied by
-/// the term and divided by it again. The term is not 0 at p, so a claim
-/// made false fails there.
+/// As in [`derived`], the claim is a polynomial with up to two cited
+/// equations added, one times a polynomial and the other times a numeral,
+/// and their values at p; made false, it is one more. Its two sides are
+/// then each divided by the term, or each divided with a polynomial added,
+/// or the right side is multiplied by the term and divided by it again: a
+/// division of both sides is not a second thing the step does, and two
+/// equations stay one step. The term is not 0 at p, so a claim made false
+/// fails there.
 pub fn divided(r: &mut Random, g: &Grammar) -> Drawn {
     let point: BTreeMap<&'static str, BigInt> = LETTERS
         .iter()
         .map(|x| (*x, BigInt::from(r.below(7)) - 3))
         .collect();
-    let equation = (r.below(2) == 0).then(|| {
-        let (e, p) = not_constant(r, 2, Some(&["x", "y"]));
+    // As in `derived`: the first in x and y, the second in z, each
+    // multiplier in its own equation's letters where two are cited.
+    let cited = r.below(3) as usize;
+    let own = |i: usize| -> &'static [&'static str] {
+        if i == 0 {
+            &["x", "y"]
+        } else {
+            &["z"]
+        }
+    };
+    let mut equations: Vec<(Expr, Poly, BigRational)> = Vec::new();
+    for i in 0..cited {
+        let (e, p) = not_constant(r, 2, Some(own(i)));
         let value = at(&p, &point);
-        (e, p, value)
-    });
+        equations.push((e, p, value));
+    }
     let (divisor, _) = loop {
         let (e, p) = not_constant(r, 1, None);
         if !at(&p, &point).is_zero() {
@@ -340,8 +353,13 @@ pub fn divided(r: &mut Random, g: &Grammar) -> Drawn {
     let base = expanded(&drawn(r, 2));
     let mut left = base.clone();
     let mut right = base;
-    if let Some((_, p, value)) = &equation {
-        let factor = not_constant(r, 1, None).1;
+    let multiplied = r.below(cited.max(1) as u64) as usize;
+    for (i, (_, p, value)) in equations.iter().enumerate() {
+        let factor = if i == multiplied {
+            not_constant(r, 1, (cited == 2).then(|| own(i))).1
+        } else {
+            constant(BigRational::from_integer(small(r, true)))
+        };
         left = sum(&left, &times(&factor, p), 1);
         right = sum(&right, &times(&factor, &constant(value.clone())), 1);
     }
@@ -368,19 +386,24 @@ pub fn divided(r: &mut Random, g: &Grammar) -> Drawn {
     let mut letters = Vec::new();
     letters_in(&left, &mut letters);
     letters_in(&right, &mut letters);
-    if let Some((e, _, _)) = &equation {
+    for (e, _, _) in &equations {
         letters_in(e, &mut letters);
     }
     letters.sort_by_key(|x| LETTERS.iter().position(|l| l == x));
     let mut header: Vec<String> =
         letters.iter().map(|x| format!("let {x} ∈ ℝ")).collect();
-    let mut cites = String::new();
-    if let Some((e, _, value)) = &equation {
+    let mut labels = Vec::new();
+    for (e, _, value) in &equations {
         let value = written_out(&constant(value.clone()));
         let node = made(g, "_ = _", vec![term(g, e), term(g, &value)]);
         header.push(format!("assume {}", g.print(&node)));
-        cites = format!(", from H{}", header.len());
+        labels.push(format!("H{}", header.len()));
     }
+    let cites = if labels.is_empty() {
+        String::new()
+    } else {
+        format!(", from {}", labels.join(", "))
+    };
     let apart = g.print(&made(
         g,
         "_ ≠ _",
@@ -398,7 +421,10 @@ pub fn divided(r: &mut Random, g: &Grammar) -> Drawn {
         verdict: Verdict::Holds(holds),
         shown: format!(
             "{left:?} = {right:?}, from {:?} at {point:?}",
-            equation.as_ref().map(|(e, _, v)| format!("{e:?} = {v}"))
+            equations
+                .iter()
+                .map(|(e, _, v)| format!("{e:?} = {v}"))
+                .collect::<Vec<_>>()
         ),
     }
 }

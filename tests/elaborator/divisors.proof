@@ -54,3 +54,32 @@ theorem a-multiplier-over-the-divisor
 1.  (x·y)/(x + 3) + 1 = x/(x + 3) + y
     algebra, from H3
     requires x + 3 ≠ 0: from H4
+
+theorem two-equations-then-divided
+  note        x times the first and the second, both sides then over x + 3:
+              one step, the division not a second multiplier.
+  let x ∈ ℝ    (H1)
+  let y ∈ ℝ    (H2)
+  let z ∈ ℝ    (H3)
+  assume y = 1    (H4)
+  assume z = 2    (H5)
+  assume x + 3 ≠ 0    (H6)
+  then (x·y + z)/(x + 3) = (x + 2)/(x + 3)
+
+1.  (x·y + z)/(x + 3) = (x + 2)/(x + 3)
+    algebra, from H4, H5
+    requires x + 3 ≠ 0: from H6
+
+theorem a-divisor-sharing-a-factor
+  note        y − 3 divides the claim and the cited y² − 9 alike: read with
+              the divisor kept, it is (x − 2)(y − 3) times the equation.
+  let x ∈ ℝ    (H1)
+  let y ∈ ℝ    (H2)
+  let z ∈ ℝ    (H3)
+  assume y^2 = 9    (H4)
+  assume y − 3 ≠ 0    (H5)
+  then (x·y^2 − 2·y^2 − z)/(y − 3) = (9·x − z − 18)/(y − 3)
+
+1.  (x·y^2 − 2·y^2 − z)/(y − 3) = (9·x − z − 18)/(y − 3)
+    algebra, from H4
+    requires y − 3 ≠ 0: from H5
