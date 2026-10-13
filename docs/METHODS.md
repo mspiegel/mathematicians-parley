@@ -263,6 +263,19 @@ they establish is the lemma order for those shapes. None of them needs the
 elimination procedure above, so the method's hard half is still unwritten;
 `intermediate-value` is where its heaviest steps are.
 
+### Held to an oracle
+
+`tests/oracle.rs` draws claims around a point. The letters are given whole
+values, and each cited fact is a linear fact true there: at most, below,
+equal, or at most and not equal. A claim made true is a positive sum of
+the cited facts, an equation by a number of either sign, less a number 0
+or more, which is Farkas's certificate itself. A claim made false fails at
+the point, where every cited fact holds, so nothing it cites gives it. Each
+cited fact has a letter of its own that the claim holds, so a true claim
+uses every line it cites, and a cited disequality is drawn only where it
+is what makes the claim strict. The method must prove each true claim and
+refuse each false one as not following.
+
 ---
 
 ## algebra
@@ -427,6 +440,18 @@ than by how hard the identity is. The Bezout step has ten atoms and is three
 times the size of the others once written compressed; in normal format it
 looks twenty times larger, because that ten-conjunct antecedent is rewritten
 into every line.
+
+### Held to an oracle
+
+`tests/oracle.rs` draws three kinds of claim and expands each with a
+polynomial arithmetic of its own. Identities of letters and numerals by
+sums, products, powers and division by a numeral, and those one
+coefficient away. Claims made of one or two cited equations, one times a
+polynomial of any degree and the other times a number, each equation's
+value at a point taken off, and one more on a side to make the claim
+false. And claims divided by a term in the letters, which a line says is
+not 0, from up to two cited equations. Two equations each multiplied by a
+term, in letters they do not share, are drawn as the refusal above.
 
 ---
 
@@ -628,6 +653,14 @@ between a whole number and the next is in no system of whole numbers
 numerals is shown not zero the same way, without a line saying it, as a
 closed numeral fact is taken anywhere.
 
+### Held to an oracle
+
+`tests/oracle.rs` draws relations, memberships, divisibilities, parities
+and congruences of numeral terms up to three deep, of every operation, and
+works each out in exact rationals of its own. Each refusal above is drawn
+and expected in its own words; a claim with several parts refused may be
+refused for any of them.
+
 ---
 
 ## membership
@@ -715,6 +748,15 @@ quotients (set.mm states ℚ's in closed form, `qaddcl` and the rest, and
 `mulne0d` and `divne0d` for a divisor's disequality, and where the claim
 names a define, the claim read as its rule and carried back by the equation
 the define gives (`mpbid`).
+
+### Held to an oracle
+
+`tests/oracle.rs` draws terms of function values, powers to a letter,
+remainders, letters and numerals, built by the operations of the table.
+It works out the least of ℕ, ℕ₀, ℤ, ℚ, ℝ and ℂ the table puts each in, a
+term of numerals alone at its value, and claims the term in one of the
+six. The method proves a claim of that system or a larger one, and refuses
+one smaller.
 
 ## inspection
 
@@ -820,6 +862,14 @@ its distinctness, and one written already leaving the union as it was
 (`ssequn2`); the empty set's is `hash0`. A "for all" line is read
 at its element by `rspcdva`. The two sides are joined by `eqtrd` and
 `eqtr4d`, two listings in different orders by `eqssd`.
+
+### Held to an oracle
+
+`tests/oracle.rs` draws sets of numerals a claim writes, with a
+membership, a size, two listings compared, and the members "is even" or
+"is odd" holds of and how many; and a multigraph a `let` line lists, with
+the edges at a vertex, how many, and memberships. It works out each set
+itself, and the method proves what holds and refuses the rest.
 
 ## join
 

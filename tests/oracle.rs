@@ -1,12 +1,14 @@
 //! A decision method answers as its oracle does.
 //!
-//! `arithmetic` and `algebra` decide a claim from its form, and every proof
-//! leans on them (`METHODS.md`). Coverage says whether their code ran; this
-//! asks whether their answers are right. Claims are drawn at random from
-//! the forms the document says each takes, each is worked out by an oracle
-//! of the test's own that shares none of the method's code
-//! (`oracle/judge.rs`, `oracle/algebra.rs`), and each is written as a
-//! theorem of one step and asked of the tools:
+//! `arithmetic`, `algebra`, `inequalities`, `membership` and `inspection`
+//! decide a claim from its form, and every proof leans on them
+//! (`METHODS.md`). Coverage says whether their code ran; this asks whether
+//! their answers are right. Claims are drawn at random from the forms the
+//! document says each takes, each is worked out by an oracle of the test's
+//! own that shares none of the method's code (`oracle/judge.rs` for
+//! `arithmetic`, `algebra.rs`, `order.rs`, `member.rs` and `inspect.rs` for
+//! the others), and each is written as a theorem of one step and asked of
+//! the tools:
 //!
 //! - a claim the oracle says holds is accepted by the checker, built with
 //!   nothing assumed, and verified;
@@ -15,7 +17,9 @@
 //!
 //! Any other answer is a fault, printed with the seed that draws it again,
 //! and each class found is pinned as a theorem the build elaborates
-//! (`tests/elaborator/closed-values.proof`). The test draws `ORACLE_COUNT`
+//! (in `tests/elaborator/`: `closed-values`, `combinations`, `powers`,
+//! `divisors`, `orders`, `rationals`, `listed-numerals` and
+//! `signed-divisibility`). The test draws `ORACLE_COUNT`
 //! claims of each method (1500 where it is not set) from `ORACLE_SEED`, of
 //! the methods whose names hold `ORACLE_ONLY` where it is set, and reads
 //! set.mm, so it is not run with the others:
