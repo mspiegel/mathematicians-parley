@@ -42,13 +42,7 @@ mod rewrites;
 use rewrites::{Context, Declined, Rewritten};
 
 /// The breaks there are, each a gap a later change closes.
-const KNOWN: &[&str] = &[
-    // The checker reads a define from outside the theorem as written out
-    // in every step, and so finds a step citing it cites a line that says
-    // nothing; the elaborator reads one only where a step cites it.
-    "a define in a theorem's header raised above the theorem | check | proofs/birthday.proof:33  step 5 cites D1, and thm:count-functions asks for nothing it says",
-    "a define in a theorem's header raised above the theorem | check | proofs/birthday.proof:47  step 9 cites D1, and thm:count-one-to-one asks for nothing it says",
-];
+const KNOWN: &[&str] = &[];
 
 /// How many changes' files are verified at once.
 const VERIFYING: usize = 3;

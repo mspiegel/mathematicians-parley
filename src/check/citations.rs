@@ -90,7 +90,8 @@ fn requires_parts(
     let scope = known.scope(step);
     let (refs, _bad) = references(&req.how);
     // A define is written out where the line cites it (`Known::citing`).
-    let defined = known.citing(&refs);
+    let item = requires_item(&req.how).map(|(named, _)| step.just.item(&named));
+    let defined = known.citing_item(&refs, item.as_deref());
     let read_all = |written: &Written| -> Vec<Node> {
         written
             .sentences()
@@ -530,7 +531,7 @@ pub fn check_obtained_claims(
                 else {
                     continue;
                 };
-                let defined = known.citing(&step.just.refs);
+                let defined = known.citing_step(step);
                 let said = known.said_parts(&stated, Some(&defined));
                 let [one] = said.as_slice() else {
                     continue;
@@ -856,7 +857,7 @@ fn built_on(req: &crate::corpus::Requires, step: &Step, known: &Known) -> bool {
             // carries the term to it: `deg(x) ∈ ℕ₀: membership, from 2` rests
             // on `|S| ∈ ℕ₀` above it where line 2 says deg(x) = |S|, and so
             // does `deg(x) ∈ ℤ: membership` under `requires deg(x) = |S|`.
-            let defined = known.citing(&step.just.refs);
+            let defined = known.citing_step(step);
             let cited = references(&r.how)
                 .0
                 .iter()
@@ -1370,7 +1371,7 @@ fn domains_unsaid(
         sum_indices(claim, &library.ctx, &mut indices);
     }
     let shapes: BTreeSet<&str> = facts.iter().map(|f| f.shape()).collect();
-    let defined = known.citing(&step.just.refs);
+    let defined = known.citing_step(step);
     let mut seen: BTreeSet<String> = BTreeSet::new();
     let mut out = Vec::new();
     for asked in evaluated(step, &used, known, library) {
@@ -1597,7 +1598,7 @@ pub fn check_instantiated(
             .into_iter()
             .map(|v| (v.name, v.value))
             .collect();
-        let defined = known.citing(&step.just.refs);
+        let defined = known.citing_step(step);
         let said = known
             .said_parts(&line, Some(&defined))
             .into_iter()

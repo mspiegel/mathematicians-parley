@@ -724,7 +724,7 @@ pub fn check_contradicting(
         // The claim is the opposite of the line, or of one sentence of it:
         // a line may say several things and be contradicted in one.
         let claimed = known.whole(step, &step.claim);
-        let there = known.said_parts(said, Some(&known.citing(&step.just.refs)));
+        let there = known.said_parts(said, Some(&known.citing_step(step)));
         let opposed = there.iter().any(|t| {
             negates(claimed.as_ref(), t.as_ref(), &wrappers, known)
                 || negates(t.as_ref(), claimed.as_ref(), &wrappers, known)
@@ -874,9 +874,9 @@ struct Owed {
 /// where what they assume cannot hold. `both directions` and
 /// `contradiction` are checked where their other shapes are.
 ///
-/// The two are compared as one formula (`Known::alike`), each read with
-/// only the definitions from outside the theorem written out, so that a
-/// defined name is compared as it is written on both sides.
+/// The two are compared as one formula (`Known::alike`), each read with no
+/// define written out, so that a defined name is compared as it is written
+/// on both sides.
 pub fn check_block_ends(report: &mut Report, thm: &Theorem, known: &Known) {
     let outside = known.citing(&[]);
     let read = |written: &Written| -> Option<Vec<Node>> {
@@ -1432,7 +1432,7 @@ pub fn check_chain_links(
     defines.extend(scope.defines.iter().map(|d| d.label.as_str()));
     defines.extend(scope.imports.iter().filter_map(|i| i.label.as_deref()));
     for step in &thm.steps {
-        let defined = known.citing(&step.just.refs);
+        let defined = known.citing_step(step);
         for link in chain_links(&step.just, &thm.path) {
             let cite = &link.line.cite;
             if cite == "arithmetic"

@@ -11,7 +11,7 @@ use crate::citing::{
     claimed_member, finished, introduction, said_once, taken, with_parts, Introduced,
     Library, Parts,
 };
-use crate::corpus::proof::cited_item;
+use crate::corpus::proof::{cited_item, visible};
 use crate::corpus::{Intro, Kinded, Method, Step, StepNo, Theorem, Values};
 use crate::formula::page::{conjoined, filled, Sentence, Written};
 use crate::formula::{Node, Sorts};
@@ -77,8 +77,14 @@ pub struct Known<'a> {
     /// relation is another turned around (`matching::standard`).
     ctx: &'a Context,
     /// What each definition from outside the theorem stands for, written
-    /// out wherever it is used.
+    /// out where a citation names it.
     outside: Definitions,
+    /// The label a citation names each definition from outside the theorem
+    /// by: its own where its file is this theorem's, and the label on its
+    /// import otherwise.
+    outside_labels: IndexMap<String, String>,
+    /// The labels of the defines this theorem's file writes above it.
+    file_labels: Vec<String>,
     cited: RefCell<IndexMap<Vec<String>, Rc<Definitions>>>,
     scopes: RefCell<IndexMap<(StepNo, usize), Rc<Statements>>>,
     parts: RefCell<IndexMap<PartsKey, Rc<Parts>>>,
@@ -92,12 +98,27 @@ impl<'a> Known<'a> {
         sorts: Sorts,
         ctx: &'a Context,
     ) -> Known<'a> {
+        let mut outside_labels = IndexMap::new();
+        let mut file_labels = Vec::new();
+        for (name, d, src) in visible(env.scopes, thm.scope, thm.line) {
+            let label = if src == thm.scope {
+                file_labels.push(d.label.clone());
+                Some(d.label)
+            } else {
+                env.scopes[thm.scope].import_label(&name).map(String::from)
+            };
+            if let Some(label) = label {
+                outside_labels.insert(name, label);
+            }
+        }
         Known {
             thm,
             env,
             sorts,
             ctx,
             outside: file_definitions(thm, env),
+            outside_labels,
+            file_labels,
             cited: RefCell::new(IndexMap::new()),
             scopes: RefCell::new(IndexMap::new()),
             parts: RefCell::new(IndexMap::new()),
@@ -109,7 +130,7 @@ impl<'a> Known<'a> {
     /// (`citing`); None where it does not read, which `check_formulas`
     /// reports.
     pub fn read(&self, step: &Step, sentence: &Sentence) -> Option<Node> {
-        self.read_citing(sentence, &self.citing(&step.just.refs))
+        self.read_citing(sentence, &self.citing_step(step))
     }
 
     /// Each sentence of a written part as the checks of `step` compare it
@@ -202,7 +223,7 @@ impl<'a> Known<'a> {
     /// What a line says, each thing read as the checks of `step` compare it
     /// (`read`); one that does not read is left out.
     pub fn stated_at(&self, step: &Step, stated: &Stated) -> Vec<Node> {
-        let defined = self.citing(&step.just.refs);
+        let defined = self.citing_step(step);
         self.said_parts(stated, Some(&defined))
             .into_iter()
             .flatten()
@@ -265,20 +286,56 @@ impl<'a> Known<'a> {
         )
     }
 
-    /// What a defined name stands for in a citation naming `refs`: a
-    /// definition from outside the theorem everywhere, and one of the
-    /// theorem's `define` lines only where the citation names it. A defined
-    /// name and the term it names are one formula in a step that cites the
-    /// define (`SYNTAX.md`), and the elaborator reads a citation the same way.
+    /// What a defined name stands for in a citation naming `refs`: each
+    /// define the citation names, the theorem's own or one from outside it,
+    /// which is named by its label in this file or the label its import
+    /// gives. A defined name and the term it names are one formula in a step
+    /// that cites the define (`SYNTAX.md`), and the elaborator reads a
+    /// citation the same way.
     pub fn citing(&self, refs: &[String]) -> Rc<Definitions> {
         if let Some(found) = self.cited.borrow().get(refs) {
             return found.clone();
         }
-        let mut made = self.outside.clone();
+        let mut made: Definitions = self
+            .outside
+            .iter()
+            .filter(|(name, _)| {
+                self.outside_labels
+                    .get(*name)
+                    .is_some_and(|label| refs.contains(label))
+            })
+            .map(|(name, d)| (name.clone(), d.clone()))
+            .collect();
         made.extend(cited_defines(self.thm, self.env, &self.sorts, refs));
         let made = Rc::new(made);
         self.cited.borrow_mut().insert(refs.to_vec(), made.clone());
         made
+    }
+
+    /// What a defined name stands for in `step`'s citation (`citing`). A
+    /// step citing a theorem of its own file speaks of the file's defines by
+    /// name as that theorem's statement does, and reads them without citing
+    /// them (`SYNTAX.md`, the one exception; the elaborator's
+    /// `stated_over`).
+    pub fn citing_step(&self, step: &Step) -> Rc<Definitions> {
+        let item = cited_item(&step.just).map(|c| step.just.item(&c));
+        self.citing_item(&step.just.refs, item.as_deref())
+    }
+
+    /// `citing` for a citation naming `refs` and citing `item`, by its full
+    /// name, where it cites one: a theorem of this file brings the file's
+    /// defines with it (`citing_step`).
+    pub fn citing_item(&self, refs: &[String], item: Option<&str>) -> Rc<Definitions> {
+        let own_file = item.is_some_and(|full| {
+            full.rsplit_once('/')
+                .is_some_and(|(module, _)| module == self.thm.module())
+        });
+        if !own_file {
+            return self.citing(refs);
+        }
+        let mut all = refs.to_vec();
+        all.extend(self.file_labels.iter().cloned());
+        self.citing(&all)
     }
 
     /// A sentence read with what `defined` writes out (`citing`), in the
@@ -342,7 +399,7 @@ impl<'a> Known<'a> {
         library: &Library,
     ) -> Vec<Node> {
         let scope = self.scope(step);
-        let defined = self.citing(&step.just.refs);
+        let defined = self.citing_step(step);
         let said: Vec<Node> = refs
             .iter()
             .filter_map(|r| scope.get(*r))
@@ -480,7 +537,7 @@ pub fn listed_seed(
 /// alike.
 fn citation_parts(step: &Step, library: &Library, known: &Known) -> Parts {
     let scope = known.scope(step);
-    let defined = known.citing(&step.just.refs);
+    let defined = known.citing_step(step);
     let read = |s: &Sentence| known.read_citing(s, &defined);
     let mut facts: Vec<Node> = Vec::new();
     for r in &step.just.refs {

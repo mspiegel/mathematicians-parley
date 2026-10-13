@@ -237,7 +237,7 @@ fn a_file_that_does_not_import_a_library_function_may_use_its_name() {
             edit(
                 "proofs/tri-use.proof",
                 None,
-                "import theorem proofs/tri/tri-one\nimport definition proofs/tri/T as C\n\ntheorem use-one\n  then C(1) = 1\n\n1.  C(1) = 1\n    thm:tri-one\n".to_string(),
+                "import theorem proofs/tri/tri-one\nimport definition proofs/tri/T as C (D1)\n\ntheorem use-one\n  then C(1) = 1\n\n1.  C(1) = 1\n    thm:tri-one, from D1\n".to_string(),
             ),
         ],
         "",
@@ -1962,6 +1962,21 @@ fn cases() -> Vec<Case> {
                 edit("proofs/konigsberg.proof", Some("requires S ⊆ {1, …, n}: mun:set-builder-subset, from D1\n".to_string()), "requires S ⊆ {1, …, n}: mun:set-builder-subset\n".to_string()),
             ],
             "the requires line of step 8 needs something that mun:set-builder-subset does not conclude",
+        ),
+        // So is a define from outside the theorem, here one imported: C(1)
+        // is C applied, and tri-one concludes it of T's rule only where the
+        // step cites C's define.
+        case(
+            "lean on an imported define the step does not cite",
+            vec![
+                edit("proofs/tri.proof", None, TRI.to_string()),
+                edit(
+                    "proofs/tri-use.proof",
+                    None,
+                    "import theorem proofs/tri/tri-one\nimport definition proofs/tri/T as C (D1)\n\ntheorem use-one\n  then C(1) = 1\n\n1.  C(1) = 1\n    thm:tri-one\n".to_string(),
+                ),
+            ],
+            "step 1 claims something that thm:tri-one does not conclude",
         ),
         // A `let` names a function's type and nothing more, unless `be` says a
         // property of it; a property slipped in as the codomain went unasked.
