@@ -3803,3 +3803,391 @@ fn obtain_claimed(
     lines.extend(after);
     Ok(changed)
 }
+
+/// A define of one name, on one line with its `reads` line under it, and
+/// the names its term writes free beside its own arguments, read by the
+/// front end with the theorem's sorts. A recursion, a define over several
+/// lines and one saying a kind of number, which a reason under it proves,
+/// are declined.
+struct Movable {
+    name: String,
+    /// The line, from 0, the define is written on; its `reads` line is the
+    /// next.
+    at: usize,
+    label: String,
+    uses: BTreeSet<String>,
+}
+
+fn movable(
+    ctx: &Context,
+    sorts: &Sorts,
+    thm: &Theorem,
+    d: &parley::corpus::proof::DefineLine,
+    lines: &[String],
+) -> Result<Movable, String> {
+    let parts = parley::corpus::define::define_parts(&d.text);
+    let Built(DefineParts::One(one)) = parts else {
+        return Err(format!("{} is a recursion", d.label));
+    };
+    if one.kind.is_some() || d.reason.is_some() {
+        return Err(format!("{} says a kind of number", d.label));
+    }
+    let at = d.line - 1;
+    if !lines[at].trim_start().starts_with("let ")
+        || !lines
+            .get(at + 1)
+            .is_some_and(|l| l.trim_start().starts_with("reads "))
+    {
+        return Err(format!("{} is written over several lines", d.label));
+    }
+    let binders = ctx.g.binders();
+    let mut uses: BTreeSet<String> =
+        read_all(ctx, sorts, &Written::new(&one.body, &thm.path, d.line))?
+            .iter()
+            .flat_map(|t| free_names(t, &binders))
+            .collect();
+    for p in &one.params {
+        uses.remove(&p.name);
+    }
+    Ok(Movable {
+        name: one.name,
+        at,
+        label: d.label.clone(),
+        uses,
+    })
+}
+
+/// The names a theorem's header gives or writes: what its hypotheses say,
+/// read, and the names its header defines give.
+fn header_names(
+    ctx: &Context,
+    sorts: &Sorts,
+    thm: &Theorem,
+) -> Result<BTreeSet<String>, String> {
+    let mut out = BTreeSet::new();
+    for h in &thm.hypotheses {
+        out.extend(names_in(&hypothesis_read(ctx, sorts, thm, h)?));
+    }
+    for d in thm.defines.iter().filter(|d| d.line < thm.conclusion_line) {
+        if let Built(parts) = define_parts(&d.text) {
+            out.extend(parts.names());
+        }
+    }
+    for r in &thm.ranges {
+        out.extend(ctx.letters_of(&r.text));
+    }
+    Ok(out)
+}
+
+/// The names the defines above a file's first theorem give.
+fn file_names(ctx: &Context, thm: &Theorem) -> BTreeSet<String> {
+    ctx.corpus.scopes[thm.scope]
+        .defines
+        .iter()
+        .filter_map(|d| match define_parts(&d.text) {
+            Built(parts) => Some(parts.names()),
+            parley::outcome::Declined(_) => None,
+        })
+        .flatten()
+        .collect()
+}
+
+/// Whether `name` is written on any of `lines`.
+fn writes(lines: &[String], name: &str) -> bool {
+    lines.iter().any(|l| {
+        if name.chars().count() == 1 {
+            loose_letters(l).contains(name)
+        } else {
+            re(&format!(r"\b{}\b", regex::escape(name))).is_match(l)
+        }
+    })
+}
+
+/// Each define in a theorem's header over nothing the theorem names raised
+/// above the file's first theorem, where it is the file's (`SYNTAX.md`): a
+/// naming `let` written as a `define`, `:=` for `=`. The statement and the
+/// steps then speak of a define from outside the theorem, which the
+/// statement means written out, as it meant the header's. A define whose
+/// name another theorem of the file writes stays, and one whose label the
+/// file gives elsewhere takes a label the file does not give.
+pub fn header_defines_raised(ctx: &Context, path: &str, text: &str) -> Rewritten {
+    let mut lines: Vec<String> = text.lines().map(str::to_string).collect();
+    let mut count = 0;
+    let mut theorems = Vec::new();
+    let mut declined = Vec::new();
+    let mut raised: Vec<String> = Vec::new();
+    let thms = theorems_of(ctx, path, lines.len());
+    let Some(first) = thms.iter().map(|(t, _)| t.line).min() else {
+        return Rewritten {
+            text: text.to_string(),
+            lines: 0,
+            theorems,
+            declined,
+        };
+    };
+    // Every label the file gives, so a raised define takes a new one where
+    // its own is given elsewhere.
+    let label_re = re(r"\(([A-Z])(\d+)\)\s*$");
+    let mut given: BTreeMap<String, usize> = BTreeMap::new();
+    for l in &lines {
+        if let Some(c) = label_re.captures(l) {
+            *given.entry(format!("{}{}", &c[1], &c[2])).or_default() += 1;
+        }
+    }
+    let mut next_label = given
+        .keys()
+        .filter_map(|l| l.strip_prefix('D').and_then(|n| n.parse::<usize>().ok()))
+        .max()
+        .unwrap_or(0)
+        + 1;
+    for (thm, end) in &thms {
+        let sorts = sorts_in_scope(
+            thm,
+            Env {
+                g: &ctx.g,
+                scopes: &ctx.corpus.scopes,
+            },
+        );
+        let header: Vec<&parley::corpus::proof::DefineLine> = thm
+            .defines
+            .iter()
+            .filter(|d| d.line < thm.conclusion_line)
+            .collect();
+        if header.is_empty() {
+            continue;
+        }
+        let own = match header_names(ctx, &sorts, thm) {
+            Ok(n) => n,
+            Err(why) => {
+                declined.push(Declined {
+                    theorem: thm.qualified(),
+                    why,
+                });
+                continue;
+            }
+        };
+        let files = file_names(ctx, thm);
+        let elsewhere: Vec<String> = lines[..thm.line - 1]
+            .iter()
+            .chain(lines[*end..].iter())
+            .cloned()
+            .collect();
+        let mut moved: Vec<(Movable, String)> = Vec::new();
+        let mut why = Vec::new();
+        for d in header {
+            let m = match movable(ctx, &sorts, thm, d, &lines) {
+                Ok(m) => m,
+                Err(e) => {
+                    why.push(e);
+                    continue;
+                }
+            };
+            let named: Vec<&String> = m
+                .uses
+                .iter()
+                .filter(|n| own.contains(*n) && !files.contains(*n))
+                .collect();
+            if !named.is_empty() {
+                why.push(format!(
+                    "{} names {}, which the theorem gives",
+                    m.label,
+                    named
+                        .iter()
+                        .map(|n| n.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                ));
+                continue;
+            }
+            if writes(&elsewhere, &m.name) {
+                why.push(format!("another theorem of the file writes {}", m.name));
+                continue;
+            }
+            let label = if given.get(&m.label).copied().unwrap_or(0) > 1 {
+                let fresh = format!("D{next_label}");
+                next_label += 1;
+                fresh
+            } else {
+                m.label.clone()
+            };
+            moved.push((m, label));
+        }
+        if !why.is_empty() {
+            declined.push(Declined {
+                theorem: thm.qualified(),
+                why: why.join("; "),
+            });
+        }
+        if moved.is_empty() {
+            continue;
+        }
+        // The theorem's lines without the raised defines, each cited by the
+        // label it now has.
+        let mut region: Vec<String> = Vec::new();
+        for (i, was) in lines.iter().enumerate().take(*end).skip(thm.line - 1) {
+            if moved.iter().any(|(m, _)| i == m.at || i == m.at + 1) {
+                continue;
+            }
+            let mut line = was.clone();
+            for (m, label) in &moved {
+                if *label != m.label && i >= thm.conclusion_line {
+                    line = re(&format!(r"\b{}\b", regex::escape(&m.label)))
+                        .replace_all(&line, label.as_str())
+                        .into_owned();
+                }
+            }
+            if line != *was {
+                count += 1;
+            }
+            region.push(line);
+        }
+        for (m, label) in &moved {
+            let written = lines[m.at].trim_start();
+            let rest = written.strip_prefix("let ").unwrap_or(written);
+            let defined = rest.replacen(" = ", " := ", 1);
+            let defined = label_re
+                .replace(&defined, format!("({label})").as_str())
+                .into_owned();
+            raised.push(format!("define {defined}"));
+            raised.push(format!("       {}", lines[m.at + 1].trim_start()));
+            raised.push(String::new());
+            count += 2;
+        }
+        lines.splice(thm.line - 1..*end, region);
+        theorems.push(thm.qualified());
+    }
+    // Above the file's first theorem, which no theorem's lines moved.
+    lines.splice(first - 1..first - 1, raised);
+    Rewritten {
+        text: joined(lines, text),
+        lines: count,
+        theorems,
+        declined,
+    }
+}
+
+/// Each define in a proof over nothing but what the theorem's header gives
+/// lowered into the header, above `then` (`SYNTAX.md`: a define may stand
+/// where the proof first needs it, or in the header). A define whose name
+/// the proof gives twice, as two cases might, stays.
+pub fn defines_lowered(ctx: &Context, path: &str, text: &str) -> Rewritten {
+    let mut lines: Vec<String> = text.lines().map(str::to_string).collect();
+    let mut count = 0;
+    let mut theorems = Vec::new();
+    let mut declined = Vec::new();
+    for (thm, end) in theorems_of(ctx, path, lines.len()) {
+        let sorts = sorts_in_scope(
+            thm,
+            Env {
+                g: &ctx.g,
+                scopes: &ctx.corpus.scopes,
+            },
+        );
+        let proof: Vec<&parley::corpus::proof::DefineLine> = thm
+            .defines
+            .iter()
+            .filter(|d| d.line > thm.conclusion_line)
+            .collect();
+        if proof.is_empty() {
+            continue;
+        }
+        let own = match header_names(ctx, &sorts, thm) {
+            Ok(n) => n,
+            Err(why) => {
+                declined.push(Declined {
+                    theorem: thm.qualified(),
+                    why,
+                });
+                continue;
+            }
+        };
+        let files = file_names(ctx, thm);
+        let given: Vec<String> = proof
+            .iter()
+            .filter_map(|d| match define_parts(&d.text) {
+                Built(parts) => Some(parts.names()),
+                parley::outcome::Declined(_) => None,
+            })
+            .flatten()
+            .collect();
+        let mut written_above: Vec<String> = vec![thm.conclusion.clone()];
+        written_above.extend(thm.hypotheses.iter().map(|h| h.text.clone()));
+        let mut moved: Vec<Movable> = Vec::new();
+        let mut why = Vec::new();
+        for d in proof {
+            let m = match movable(ctx, &sorts, thm, d, &lines) {
+                Ok(m) => m,
+                Err(e) => {
+                    why.push(e);
+                    continue;
+                }
+            };
+            let outside: Vec<&String> = m
+                .uses
+                .iter()
+                .filter(|n| !own.contains(*n) && !files.contains(*n))
+                .collect();
+            if !outside.is_empty() {
+                why.push(format!(
+                    "{} names {}, which the header does not give",
+                    m.label,
+                    outside
+                        .iter()
+                        .map(|n| n.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                ));
+                continue;
+            }
+            if given.iter().filter(|n| **n == m.name).count() > 1 {
+                why.push(format!("the proof gives {} twice", m.name));
+                continue;
+            }
+            // The statement is in the header's scope, and a letter it binds
+            // would be the define's name there.
+            if writes(&written_above, &m.name) {
+                why.push(format!("the header writes {}", m.name));
+                continue;
+            }
+            moved.push(m);
+        }
+        if !why.is_empty() {
+            declined.push(Declined {
+                theorem: thm.qualified(),
+                why: why.join("; "),
+            });
+        }
+        if moved.is_empty() {
+            continue;
+        }
+        let mut region: Vec<String> = Vec::new();
+        let mut i = thm.line - 1;
+        while i < end {
+            if i == thm.conclusion_line - 1 {
+                for m in &moved {
+                    region.push(format!("  {}", lines[m.at].trim_start()));
+                    region.push(format!("         {}", lines[m.at + 1].trim_start()));
+                    count += 2;
+                }
+            }
+            if let Some(m) = moved.iter().find(|m| m.at == i) {
+                // The define, its reads line, and a blank line after them.
+                i = m.at + 2;
+                if lines.get(i).is_some_and(|l| l.trim().is_empty()) {
+                    i += 1;
+                }
+                continue;
+            }
+            region.push(lines[i].clone());
+            i += 1;
+        }
+        lines.splice(thm.line - 1..end, region);
+        theorems.push(thm.qualified());
+    }
+    Rewritten {
+        text: joined(lines, text),
+        lines: count,
+        theorems,
+        declined,
+    }
+}
