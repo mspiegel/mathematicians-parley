@@ -2250,6 +2250,32 @@ impl<'a> Elaborator<'a> {
         self.rewrite_rules.as_ref().unwrap()[conditional as usize].clone()
     }
 
+    /// A term with each part an unconditional rule of `rules::STANDARD`
+    /// rewrites rewritten, and nothing else changed: set.mm's a =/= b is the
+    /// page's not (a = b), and a sum's order, an equation's direction and an
+    /// identity element stay as they are, which `written_form` would not.
+    pub fn standard_spelling(&self, term: &Term) -> Term {
+        let [plain, _] = self.standard_rules();
+        fn walk(term: &Term, rules: &[Rewrite]) -> Term {
+            if term.variable().is_some() || term.children().is_empty() {
+                return term.clone();
+            }
+            let kids = term.children().iter().map(|c| walk(c, rules)).collect();
+            let parts = Term::apply(term.label().unwrap_or(""), kids);
+            for rule in rules {
+                if let Some(bound) =
+                    fit(&rule.given, &parts, &Binding::new(), &rule.names)
+                {
+                    if rule.gives.names().iter().all(|n| bound.contains_key(&**n)) {
+                        return walk(&rule.gives.substitute(&bound), rules);
+                    }
+                }
+            }
+            parts
+        }
+        walk(term, &plain)
+    }
+
     /// The rules of `rules::STANDARD` set.mm has, those that ask nothing
     /// first and those that do (`rewrites`).
     pub fn standard_rules(&self) -> [Vec<Rewrite>; 2] {

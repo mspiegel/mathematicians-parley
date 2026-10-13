@@ -189,6 +189,29 @@ pub fn function_values(facts: &[Node], env: Env, sorts: &Sorts) -> Vec<Node> {
     out
 }
 
+/// What a fact the page writes as a part of a set, `C ⊆ A`, or as a member
+/// of a power set, `C ∈ 𝒫A`, says in the other form (`rules::PARTS`); None
+/// for a fact written otherwise, though its term be the same, as "g is
+/// differentiable on (a, b)" is (a, b) ⊆ dom g′ in the kernel. The
+/// elaborator asks this of its page reading of a fact, so both tools apply
+/// the rule to the same lines.
+pub fn part_said_otherwise(fact: &Node, env: Env, sorts: &Sorts) -> Option<Node> {
+    let mut sets = sorts.clone();
+    sets.insert("x".into(), Sort::of("set"));
+    sets.insert("S".into(), Sort::of("set"));
+    for (premise, conclusion, _) in rules::PARTS {
+        let mut put = Binding::new();
+        if fits_form(&template(premise, env, &sets), fact, &mut put) {
+            return Some(substitute_apart_by(
+                &template(conclusion, env, &sets),
+                &put,
+                &env.g.binders(),
+            ));
+        }
+    }
+    None
+}
+
 /// What a membership fact also says, by the tables in `rules`, which the
 /// elaborator reads as well.
 ///
@@ -199,18 +222,8 @@ pub fn function_values(facts: &[Node], env: Env, sorts: &Sorts) -> Vec<Node> {
 /// else says only itself: a range is no number system, and a member of one
 /// is whole by `mun:range-integer`.
 pub fn implied_facts(fact: &Node, env: Env, sorts: &Sorts) -> Vec<Node> {
-    let mut sets = sorts.clone();
-    sets.insert("x".into(), Sort::of("set"));
-    sets.insert("S".into(), Sort::of("set"));
-    for (premise, conclusion, _) in rules::PARTS {
-        let mut put = Binding::new();
-        if fits_form(&template(premise, env, &sets), fact, &mut put) {
-            return vec![substitute_apart_by(
-                &template(conclusion, env, &sets),
-                &put,
-                &env.g.binders(),
-            )];
-        }
+    if let Some(other) = part_said_otherwise(fact, env, sorts) {
+        return vec![other];
     }
     let both = fact.children.len() == 2;
     if fact.notation != "membership"

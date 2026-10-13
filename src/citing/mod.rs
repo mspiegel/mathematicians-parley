@@ -21,6 +21,7 @@ pub use conclude::{concludes, derives, obtained, obtains, taken, taken_ways, Tak
 pub use library::{conjuncts, readings, with_parts, Group, Library, Proved};
 pub use once::{introduction, said_once, Introduced};
 pub use parts::{
-    bound_in, claimed_member, finished, function_values, implied_facts, Parts,
+    bound_in, claimed_member, finished, function_values, implied_facts,
+    part_said_otherwise, Parts,
 };
 pub use supply::{largest_search, names_of, search, supply, Sites, Ways};

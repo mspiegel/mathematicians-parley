@@ -20,6 +20,7 @@ use super::provenance::{from_requires, may_rest_on, rests_on_only, MEMBERSHIP};
 use super::state::{fit, names_of, Binding, Elaborator};
 use super::{Facts, Lines, Written};
 use crate::binds;
+use crate::citing::part_said_otherwise;
 use crate::corpus::Step;
 use crate::formula::Node;
 use crate::mm::kernel::Term;
@@ -1041,10 +1042,22 @@ impl<'a> Elaborator<'a> {
     fn implied_chains(&self, said: &str) -> Vec<(String, Vec<Link>)> {
         let node = self.to_term(said);
         // A part of a set and a member of its power set say each other
-        // (`rules::PARTS`, which the checker reads as well).
-        for (_, _, lemma) in rules::PARTS {
-            if let Some(made) = self.lemma_step(lemma, &node) {
-                return vec![(self.rpn(&made.reached), vec![made])];
+        // (`rules::PARTS`), where the page writes the fact in one of the two
+        // forms: the checker's question, asked of the page's reading, so
+        // that "g is differentiable on (a, b)", whose term is a part of a
+        // set, says only itself in both tools.
+        let env = crate::sorts::Env {
+            g: self.g,
+            scopes: self.scopes,
+        };
+        let written_as_part = self.page_node(&node).is_some_and(|page| {
+            part_said_otherwise(&page, env, &self.sorts_now).is_some()
+        });
+        if written_as_part {
+            for (_, _, lemma) in rules::PARTS {
+                if let Some(made) = self.lemma_step(lemma, &node) {
+                    return vec![(self.rpn(&made.reached), vec![made])];
+                }
             }
         }
         if node.variable().is_some()

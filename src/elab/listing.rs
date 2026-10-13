@@ -109,18 +109,23 @@ impl Elaborator<'_> {
             for sentence in sentences {
                 let node = me.read(sentence)?;
                 let kernel = me.term(&node)?;
-                // What the page writes as it stands: `nnne0` concludes
-                // set.mm's =/=, which the page writes as a denied equation,
-                // and that is listed too.
+                // Each answer spelt as the page spells it, and nothing else
+                // forgiven: `nnne0` concludes set.mm's =/=, the elaborator
+                // holds the page's denied equation as well, and the two are
+                // one answer (`standard_spelling`).
+                let spelt = |me: &Elaborator, t: &str| {
+                    let term = me.standard_spelling(&me.to_term(t));
+                    me.rpn(&term)
+                };
                 let mine: BTreeSet<String> = me
                     .implied_terms(&kernel)
                     .into_iter()
-                    .map(|(implied, _)| implied)
-                    .filter(|implied| me.written_directly(implied))
+                    .map(|(implied, _)| spelt(me, &implied))
                     .collect();
                 let mut theirs: BTreeSet<String> = BTreeSet::new();
                 for implied in implied_facts(&node, env, &me.sorts_now) {
-                    theirs.insert(me.term(&implied)?);
+                    let term = me.term(&implied)?;
+                    theirs.insert(spelt(me, &term));
                 }
                 let fact = me.render(&kernel);
                 for (who, only) in [
