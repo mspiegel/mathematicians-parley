@@ -61,8 +61,15 @@ impl Elaborator<'_> {
     /// The term as page text, or None where some part of it has no page
     /// reading.
     pub fn spoken(&self, rpn: &str) -> Option<String> {
-        let node = self.page_node(&self.to_term(rpn))?;
+        let node = self.page_node(&self.to_term(rpn), true)?;
         Some(self.g.print(&node))
+    }
+
+    /// Whether the page writes the term as it stands, with no part said
+    /// back through the standard form: set.mm's a =/= b is said as a ≠ b,
+    /// and the page writes that as not (a = b), another term.
+    pub fn written_directly(&self, rpn: &str) -> bool {
+        self.page_node(&self.to_term(rpn), false).is_some()
     }
 
     /// Each sentence read as the kernel term it is, said back, and read
@@ -111,15 +118,22 @@ impl Elaborator<'_> {
         Ok(())
     }
 
-    fn page_node(&self, term: &Term) -> Option<Node> {
-        self.page_node_under(term, &IndexSet::new())
+    /// The term as a page tree; where `standard`, a part no notation reads
+    /// is read as the standard form puts it.
+    fn page_node(&self, term: &Term, standard: bool) -> Option<Node> {
+        self.page_node_under(term, &IndexSet::new(), standard)
     }
 
     /// `page_node` of a part of a term, inside binders that introduce the
     /// letters `bound`: a part is read back with them as names, as the page
     /// reads it inside its binder, so the i of {i ∈ X : P(i)} is a letter and
     /// not the imaginary unit.
-    fn page_node_under(&self, term: &Term, bound: &IndexSet<String>) -> Option<Node> {
+    fn page_node_under(
+        &self,
+        term: &Term,
+        bound: &IndexSet<String>,
+        standard: bool,
+    ) -> Option<Node> {
         let rpn = self.rpn(term);
         // A name the proof gave this term; a part of a structure is held
         // under a name no page writes (`@op`), and is read by its notation.
@@ -144,7 +158,7 @@ impl Elaborator<'_> {
         let kids = term.children();
         // A letter a binder introduced, used as a class.
         if label == "cv" && kids.len() == 1 {
-            return self.page_node_under(&kids[0], bound);
+            return self.page_node_under(&kids[0], bound, standard);
         }
         if let Some(digits) = numeral(term) {
             return Some(Node::leaf("numeral", Sort::of("number"), &digits));
@@ -195,8 +209,9 @@ impl Elaborator<'_> {
             // The letters this reading binds are names in its parts.
             let mut inner = bound.clone();
             for at in self.binders.get(&r.notation).into_iter().flatten() {
-                if let Some(letter) =
-                    holes.get(*at).and_then(|h| self.page_node_under(h, bound))
+                if let Some(letter) = holes
+                    .get(*at)
+                    .and_then(|h| self.page_node_under(h, bound, standard))
                 {
                     if letter.is_name() {
                         inner.insert(letter.text.clone());
@@ -205,7 +220,7 @@ impl Elaborator<'_> {
             }
             let Some(mut children) = holes
                 .iter()
-                .map(|h| self.page_node_under(h, &inner))
+                .map(|h| self.page_node_under(h, &inner, standard))
                 .collect::<Option<Vec<Node>>>()
             else {
                 continue;
@@ -238,11 +253,18 @@ impl Elaborator<'_> {
         // A term no notation reads, said as the standard form puts it
         // (`rules::STANDARD`): set.mm's a =/= b is the page's not (a = b),
         // which the page says as a ≠ b.
+        if !standard {
+            return None;
+        }
         let [plain, _] = self.standard_rules();
         for rule in plain {
             if let Some(found) = fit(&rule.given, term, &Binding::new(), &rule.names) {
                 if rule.gives.names().iter().all(|n| found.contains_key(&**n)) {
-                    return self.page_node_under(&rule.gives.substitute(&found), bound);
+                    return self.page_node_under(
+                        &rule.gives.substitute(&found),
+                        bound,
+                        standard,
+                    );
                 }
             }
         }
