@@ -494,8 +494,9 @@ non-negative, and in ℚ and ℝ always.
 The four words are one relation to set.mm: "n is even" is 2 ∥ n, "n is
 odd" is its denial, and a ≡ b (mod n) is n ∥ (a − b), as their notation
 records' targets say. So d divides n is
-decided by evaluating both, each a whole number with d ≥ 1 and n ≥ 0, and
-dividing: it holds when the remainder is 0, and fails otherwise.
+decided by evaluating both, each an integer and d not 0, and dividing: it
+holds when the remainder is 0, and fails otherwise. −6 is even, and −3
+divides 9.
 
 ### Refusals
 
@@ -522,9 +523,9 @@ dividing: it holds when the remainder is 0, and fails otherwise.
   decides it and the method can.
 - **A remainder outside the whole numbers,** `(−7) mod 3` or `7 mod 0`:
   set.mm gives each a value, and nothing in the corpus asks one.
-- **A divisibility outside the whole numbers,** a divisor below 1 or a
-  number below 0: `−2 divides 4` is not worked out. Nothing in the corpus
-  asks one, and set.mm's lemma for the denial is stated for those.
+- **A divisibility outside the integers, or by 0:** `1/2 divides 4` and
+  `0 divides 0` are not worked out. set.mm gives 0 divides 0 a value, and
+  no reader asks it.
 - **Anything false.** The claim is worked out before a proof is attempted,
   so a false one is reported as false.
 
@@ -601,7 +602,10 @@ the terms as written by `breq12d`. That d divides n, with n = d·q, is
 `dvdsmul1` at d and q, the product worked out (`breqtri`). That it does not,
 with n = d·q + r and 0 < r < d, is `ndvdsi` from the quotient, the remainder
 and the sum and order the numeral lemmas prove: 5 is odd because 2·2 + 1 = 5
-and 1 < 2.
+and 1 < 2. A divisibility with a side below 0 is proved at the sizes of its
+values, and each sign turned by `dvdsnegb` or `negdvdsb`, which say a
+divisibility holds exactly where it does with a side negated: 2 divides −8
+because 2 divides 8.
 
 Any other claim of closed numeral expressions is said of its sides' values:
 a value below 0, a fraction inside a sum, a power of a negative base, a
@@ -754,7 +758,8 @@ is something the facts let the reader work out. What a term works out to:
 - a set the facts list, or a set-builder `{x ∈ S : P(x)}` over one, is the
   list of its elements: those of S of which P holds, and ∅ lists none;
 - the size `|S|` of such a set, once the facts say its names are distinct,
-  is the numeral that counts them;
+  is the numeral that counts them, a name written twice counted once:
+  `|{2, 3, 2}| = 2`;
 - a term spelt with numerals alone is itself;
 - a term a cited "for all" equation gives at a listed element is what the
   other side works out to there.
@@ -777,7 +782,8 @@ value as `arithmetic` decides it and carried back by the line's equation:
 "deg(A) is odd" from "deg(A) = 5". So Königsberg counts its odd vertices from
 the four degrees, and no line says that 5 or 3 is odd. The
 set S is replaced by its listing and P is settled at each element in turn.
-A size is the length of the list once the facts say its names are distinct.
+A size is the length of the list once the facts say its names are distinct,
+a name written again counting nothing.
 A term a "for all" line gives is read at the listed element it names, and
 what the line's other side says there is worked out the same way. Two sets
 are compared as sets, so their order is never asked, and two numbers by
@@ -810,7 +816,8 @@ element is the cited equation carried in (`eleq2d` and the congruences of
 `substitute`). The set-builder over a listed set is `rabun2` and `rabsnif`
 one element at a time, each element's case decided as above. A size is
 `hashprg`, `hashtpg` or `hashunsng` repeated, each new element absent by
-its distinctness, and the empty set's is `hash0`. A "for all" line is read
+its distinctness, and one written already leaving the union as it was
+(`ssequn2`); the empty set's is `hash0`. A "for all" line is read
 at its element by `rspcdva`. The two sides are joined by `eqtrd` and
 `eqtr4d`, two listings in different orders by `eqssd`.
 

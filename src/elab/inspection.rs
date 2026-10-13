@@ -907,7 +907,7 @@ impl Elaborator<'_> {
             return Ok(None);
         };
         let Built(shown) =
-            self.numeral_divides(&self.to_term(&at_values), !holds, scope)
+            self.divides_proved(&self.to_term(&at_values), !holds, scope, known)?
         else {
             return Ok(None);
         };
@@ -1153,8 +1153,9 @@ impl Elaborator<'_> {
     }
 
     /// ( scope -> |the union of `elements`' singletons| = 1 + 1 + … ), and
-    /// that sum: one for the first element, and one more for each element
-    /// the lines say differs from those before it.
+    /// that sum: one for the first element, one more for each element the
+    /// lines say differs from those before it, and none for one written
+    /// before it.
     fn counted(
         &mut self,
         elements: &[Term],
@@ -1182,6 +1183,43 @@ impl Elaborator<'_> {
         let (before, sum_before) = take!(self.counted(init, scope, known)?);
         let front = self.union_of(init);
         let c = self.rpn(&last[0]);
+        let whole = t!(front, t!(c, "csn"), "cun");
+        let size_whole = t!(whole, "chash", "cfv");
+        let size_front = t!(front, "chash", "cfv");
+        // A thing listed already adds nothing: its singleton is inside what
+        // is listed before it, so the union is that (`ssequn2`), and so is
+        // its size. {2, 2, 3} is two things.
+        if let Some(at) = self.position(&last[0], init) {
+            let inside = take!(self.in_union(&last[0], init, at, scope, known)?);
+            let single = t!(c, "csn");
+            let within = self.b.ap(
+                "snssd",
+                &binds! {"ph" => scope, "A" => &c, "B" => &front},
+                &[&inside],
+            );
+            let law =
+                self.b
+                    .ap("ssequn2", &binds! {"A" => &single, "B" => &front}, &[]);
+            let same = self.b.ap(
+                "sylib",
+                &binds! {"ph" => scope, "ps" => t!(single, front, "wss"),
+                "ch" => t!(whole, front, "wceq")},
+                &[&within, &law],
+            );
+            let sized = self.b.ap(
+                "fveq2d",
+                &binds! {"ph" => scope, "A" => &whole, "B" => &front, "F" => "chash"},
+                &[&same],
+            );
+            return Ok(Built((
+                self.b.ap(
+                    "eqtrd",
+                    &binds! {"ph" => scope, "A" => &size_whole, "B" => &size_front, "C" => &sum_before},
+                    &[&sized, &before],
+                ),
+                sum_before,
+            )));
+        }
         let finite = self.finite(init);
         let absent = take!(self.not_in_union(&last[0], init, scope, known)?);
         let in_fin = t!(front, "cfn", "wcel");
@@ -1195,9 +1233,6 @@ impl Elaborator<'_> {
             &[&finite, &absent],
         );
         let is_set = take!(self.a_set(&last[0], scope, known)?);
-        let whole = t!(front, t!(c, "csn"), "cun");
-        let size_whole = t!(whole, "chash", "cfv");
-        let size_front = t!(front, "chash", "cfv");
         let one_more = t!(size_front, "c1", "caddc", "co");
         let law = self.b.ap(
             "hashunsng",

@@ -1,0 +1,41 @@
+theorem a-negative-number
+  note        Divisibility of integers: worked at the sizes, the sign turned by
+              `dvdsnegb`.
+  then 2 divides −8
+
+1.  2 divides −8
+    arithmetic
+
+theorem a-negative-divisor
+  note        The divisor's sign turned by `negdvdsb`.
+  then −3 divides 9
+
+1.  −3 divides 9
+    arithmetic
+
+theorem both-negative-and-denied
+  note        Both signs turned, and the denial carried through them.
+  then not (−3 divides −7)
+
+1.  not (−3 divides −7)
+    arithmetic
+
+theorem a-side-worked-below-zero
+  note        A side that works out below zero, 3 − 11 = −8.
+  then 4 divides 3 − 11
+
+1.  4 divides 3 − 11
+    arithmetic
+
+theorem a-negative-even
+  then −6 is even
+
+1.  −6 is even
+    arithmetic
+
+theorem the-odd-ones-of-a-signed-list
+  note        `inspection` decides a word at a negative as `arithmetic` does.
+  then {x ∈ {−3, −2, 0, 5} : x is odd} = {−3, 5}
+
+1.  {x ∈ {−3, −2, 0, 5} : x is odd} = {−3, 5}
+    inspection

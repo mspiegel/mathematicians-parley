@@ -8,9 +8,8 @@
 //! vertices: which edges a vertex is incident with, how many, and
 //! memberships. The oracle is the set itself, worked out by the test.
 //!
-//! A size is the length of a list whose names the facts say differ
-//! (`METHODS.md`): numerals differ by their values, and a list of numerals
-//! with a value twice is not one the method counts, which it refuses.
+//! A size counts what a list names, a thing written twice once: numerals
+//! differ by their values, and a list may write one value twice.
 
 use parley::formula::grammar::Grammar;
 use parley::formula::node::Node;
@@ -140,17 +139,12 @@ fn numerals(r: &mut Random, g: &Grammar) -> (Node, Verdict) {
                 verdict(inside == said_in),
             )
         }
-        // |S| = n, refused where a value is listed twice.
+        // |S| = n, a value listed twice counted once.
         1 => {
-            let n = (distinct(&vs).len() as i64 + [0, 0, 1, -1][r.below(4) as usize])
-                .max(0);
+            let things = distinct(&vs).len() as i64;
+            let n = (things + [0, 0, 1, -1][r.below(4) as usize]).max(0);
             let claim = equal(g, size(g, set(g, &vs)), number(g, n));
-            let verdict = if twice {
-                Verdict::Refused(vec![NOT_SEEN, FALSE])
-            } else {
-                verdict(n == vs.len() as i64)
-            };
-            (claim, verdict)
+            (claim, verdict(n == things))
         }
         // Two listings, the second the first's values in another order, or
         // with one changed.
@@ -184,18 +178,10 @@ fn numerals(r: &mut Random, g: &Grammar) -> (Node, Verdict) {
                 "{_ ∈ _ : _}",
                 vec![x(), set(g, &vs), made(g, word, vec![x()])],
             );
-            // A word is decided at a numeral as `arithmetic` decides it,
-            // which is of whole numbers alone (`METHODS.md`).
-            let negative = vs.iter().any(|v| *v < 0);
             if r.below(2) == 0 {
                 let n = (kept.len() as i64 + [0, 0, 1, -1][r.below(4) as usize]).max(0);
                 let claim = equal(g, size(g, builder), number(g, n));
-                let verdict = if negative {
-                    Verdict::Refused(vec![NOT_SEEN])
-                } else {
-                    verdict(n == kept.len() as i64)
-                };
-                (claim, verdict)
+                (claim, verdict(n == kept.len() as i64))
             } else {
                 let mut said = shuffled(r, &kept);
                 if r.below(2) == 0 {
@@ -214,12 +200,7 @@ fn numerals(r: &mut Random, g: &Grammar) -> (Node, Verdict) {
                     b.sort();
                     a == b
                 };
-                let verdict = if negative {
-                    Verdict::Refused(vec![NOT_SEEN])
-                } else {
-                    verdict(holds)
-                };
-                (equal(g, builder, set(g, &said)), verdict)
+                (equal(g, builder, set(g, &said)), verdict(holds))
             }
         }
     }

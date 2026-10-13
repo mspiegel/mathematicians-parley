@@ -2088,7 +2088,7 @@ impl<'a> Elaborator<'a> {
                     "no record of a word says arithmetic decides this divisibility",
                 ));
             }
-            return Ok(self.numeral_divides(&goal, negated, scope));
+            return self.divides_proved(&goal, negated, scope, facts);
         }
         // Not in ℕ₀ for a value below 0, whose members are at least 0
         // (`nn0ge0`); not in ℕ for one at most 0, whose members are above it
@@ -2486,6 +2486,147 @@ impl<'a> Elaborator<'a> {
             self.b
                 .ap("a1i", &binds! {"ph" => &written, "ps" => scope}, &[&closed]),
         )
+    }
+
+    /// ( scope -> d ∥ n ), or its denial where `negated`, for closed d and n
+    /// that work out to integers, d not 0. Where both work out to whole
+    /// numbers it is `numeral_divides`. Otherwise it is that at their sizes,
+    /// the signs turned by `dvdsnegb` and `negdvdsb`, each of which says a
+    /// divisibility holds exactly where it does with a side negated, and
+    /// carried back to the terms as written by `breq12d`.
+    pub fn divides_proved(
+        &mut self,
+        core: &Term,
+        negated: bool,
+        scope: &str,
+        facts: &Facts,
+    ) -> Checked<Route<Proof>> {
+        let labels = self.b.flabel.clone();
+        let kids = core.children().to_vec();
+        let whole = kids[..2]
+            .iter()
+            .all(|side| numerals::worked(&self.b, side, &labels).is_some());
+        if whole {
+            return Ok(self.numeral_divides(core, negated, scope));
+        }
+        let (d, vd, d_is) = take!(self.closed_valued(&kids[0], scope, facts)?);
+        let (n, vn, n_is) = take!(self.closed_valued(&kids[1], scope, facts)?);
+        if !d.is_integer() || !n.is_integer() || d.is_zero() {
+            return Ok(Route::no("a side of the divisibility is not an integer"));
+        }
+        let (a, b) = (
+            d.to_integer().magnitude().clone(),
+            n.to_integer().magnitude().clone(),
+        );
+        let (sa, sb) = (numerals::spell(a.clone()), numerals::spell(b.clone()));
+        let sizes = t!(sa, sb, "cdvds", "wbr");
+        let at_sizes =
+            take!(self.numeral_divides(&self.to_term(&sizes), negated, scope));
+        // |- ( a ∥ b <-> vd ∥ vn ), a sign turned at a time.
+        let za = self.b.ap(
+            "nnzi",
+            &binds! {"N" => &sa},
+            &[&numerals::nn(&self.b, a.clone())],
+        );
+        let zb = self.b.ap(
+            "nn0zi",
+            &binds! {"N" => &sb},
+            &[&numerals::nn0(&self.b, b.clone())],
+        );
+        let mut number = sb.clone();
+        let mut number_z = zb;
+        // Where the turns have reached, and |- ( a ∥ b <-> that ), each turn
+        // chained onto the last by `bitri`.
+        let mut turned: Option<(String, Proof)> = None;
+        let chain =
+            |me: &Self, turned: Option<(String, Proof)>, to: String, iff: Proof| {
+                Some(match turned {
+                    None => (to, iff),
+                    Some((was, before)) => {
+                        let chained = me.b.ap(
+                            "bitri",
+                            &binds! {"ph" => &sizes, "ps" => &was, "ch" => &to},
+                            &[&before, &iff],
+                        );
+                        (to, chained)
+                    }
+                })
+            };
+        if n.is_negative() {
+            let to = t!(sa, t!(sb, "cneg"), "cdvds", "wbr");
+            let law = self.b.ap("dvdsnegb", &binds! {"M" => &sa, "N" => &sb}, &[]);
+            let iff = self.b.ap(
+                "mp2an",
+                &binds! {"ph" => t!(sa, "cz", "wcel"), "ps" => t!(sb, "cz", "wcel"),
+                "ch" => t!(&sizes, &to, "wb")},
+                &[&za, &number_z, &law],
+            );
+            turned = chain(self, turned, to, iff);
+            let negz = self.b.ap("znegcl", &binds! {"N" => &sb}, &[]);
+            number_z = self.b.ap(
+                "ax-mp",
+                &binds! {"ph" => t!(sb, "cz", "wcel"), "ps" => t!(t!(sb, "cneg"), "cz", "wcel")},
+                &[&number_z, &negz],
+            );
+            number = t!(sb, "cneg");
+        }
+        if d.is_negative() {
+            let from = t!(sa, &number, "cdvds", "wbr");
+            let to = t!(t!(sa, "cneg"), &number, "cdvds", "wbr");
+            let law = self
+                .b
+                .ap("negdvdsb", &binds! {"M" => &sa, "N" => &number}, &[]);
+            let iff = self.b.ap(
+                "mp2an",
+                &binds! {"ph" => t!(sa, "cz", "wcel"), "ps" => t!(&number, "cz", "wcel"),
+                "ch" => t!(&from, &to, "wb")},
+                &[&za, &number_z, &law],
+            );
+            turned = chain(self, turned, to, iff);
+        }
+        let Some((at_values, mut iff)) = turned else {
+            return Ok(Route::no(
+                "a divisibility of whole numbers is `numeral_divides`",
+            ));
+        };
+        if at_values != t!(vd, vn, "cdvds", "wbr") {
+            return Ok(Route::no("the values are not spelt as their sizes turned"));
+        }
+        let (mut before, mut after) = (sizes.clone(), at_values.clone());
+        if negated {
+            iff =
+                self.b
+                    .ap("notbii", &binds! {"ph" => &before, "ps" => &after}, &[&iff]);
+            before = t!(before, "wn");
+            after = t!(after, "wn");
+        }
+        let at_signs = self.b.ap(
+            "sylib",
+            &binds! {"ph" => scope, "ps" => &before, "ch" => &after},
+            &[&at_sizes, &iff],
+        );
+        let written = self.rpn(core);
+        let mut same = self.b.ap(
+            "breq12d",
+            &binds! {"ph" => scope, "A" => self.rpn(&kids[0]), "B" => &vd,
+            "C" => self.rpn(&kids[1]), "D" => &vn, "R" => "cdvds"},
+            &[&d_is, &n_is],
+        );
+        let claim = if negated {
+            same = self.b.ap(
+                "notbid",
+                &binds! {"ph" => scope, "ps" => &written, "ch" => &at_values},
+                &[&same],
+            );
+            t!(written, "wn")
+        } else {
+            written
+        };
+        Ok(Built(self.b.ap(
+            "mpbird",
+            &binds! {"ph" => scope, "ps" => &claim, "ch" => &after},
+            &[&at_signs, &same],
+        )))
     }
 
     /// A side as a fraction of two numerals, the second not zero, with

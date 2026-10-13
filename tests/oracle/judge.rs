@@ -29,7 +29,7 @@ pub const DIVIDES_BY_ZERO: &str = "divides by zero";
 pub const REMAINDER: &str =
     "is a remainder arithmetic works out only of a whole number";
 pub const DIVISIBILITY: &str =
-    "is a divisibility arithmetic decides only of whole numbers";
+    "is a divisibility arithmetic decides only of integers, by a divisor not 0";
 
 /// A term's value, or the refusal that stops it.
 fn value(e: &Expr) -> Result<BigRational, &'static str> {
@@ -90,12 +90,12 @@ fn whole(v: &BigRational) -> Option<BigInt> {
     (v.is_integer() && !v.is_negative()).then(|| v.to_integer())
 }
 
-/// Whether d divides n, each a whole number and d at least 1.
+/// Whether d divides n, each an integer and d not 0.
 fn divides(d: &BigRational, n: &BigRational) -> Result<bool, &'static str> {
-    match (whole(d), whole(n)) {
-        (Some(d), Some(n)) if d >= BigInt::one() => Ok((n % d).is_zero()),
-        _ => Err(DIVISIBILITY),
+    if !d.is_integer() || !n.is_integer() || d.is_zero() {
+        return Err(DIVISIBILITY);
     }
+    Ok((n.to_integer() % d.to_integer()).is_zero())
 }
 
 /// What `arithmetic` should make of the claim (`METHODS.md`, arithmetic).

@@ -12,6 +12,13 @@ theorem a-size-holding-a-negative
 1.  |{−2, 0, 3}| = 3
     inspection
 
+theorem a-value-written-twice
+  note        A thing listed already adds nothing to the size.
+  then |{2, 3, 2}| = 2
+
+1.  |{2, 3, 2}| = 2
+    inspection
+
 theorem the-odd-ones-counted
   note        The members a word holds of, counted, one of them 7.
   then |{x ∈ {2, 3, 7, 8} : x is odd}| = 2

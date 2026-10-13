@@ -1059,10 +1059,11 @@ fn system_test(system: &str) -> Option<fn(&Q) -> bool> {
     })
 }
 
-/// The two sides of a divisibility worked out, a divisor of at least 1 and a
-/// number of at least 0: the whole numbers `arithmetic` decides one of, and
-/// what set.mm's `ndvdsi` is stated for (`METHODS.md`, arithmetic).
-pub fn whole_division(
+/// The two sides of a divisibility worked out, each an integer and the
+/// divisor not 0: what `arithmetic` decides one of (`METHODS.md`,
+/// arithmetic). A sign is turned by `negdvdsb` and `dvdsnegb`, so the
+/// proof works at the sizes, which `ndvdsi` is stated for.
+pub fn integer_division(
     divisor: &Term,
     number: &Term,
 ) -> Route<Result<(BigInt, BigInt), &'static str>> {
@@ -1075,9 +1076,9 @@ pub fn whole_division(
         }
     }
     let (d, n) = (&values[0], &values[1]);
-    if !d.is_integer() || !n.is_integer() || *d < q(1) || n.is_negative() {
+    if !d.is_integer() || !n.is_integer() || d.is_zero() {
         return Built(Err(
-            "is a divisibility arithmetic decides only of whole numbers, by a divisor of at least 1",
+            "is a divisibility arithmetic decides only of integers, by a divisor not 0",
         ));
     }
     Built(Ok((d.to_integer(), n.to_integer())))
@@ -1088,7 +1089,7 @@ pub fn whole_division(
 /// `METHODS.md`'s procedure for `arithmetic`: evaluate each side to a
 /// rational and decide the relation, or for a membership test the value.
 /// `=`, `≠`, `<` and `≤` — a reader's `>` and `≥` arrive as these with the
-/// sides turned — divisibility of whole numbers, which is what "is even" and
+/// sides turned — divisibility of integers, which is what "is even" and
 /// "is odd" are too, denials of any of them, and membership of ℕ, ℕ₀, ℤ, ℚ,
 /// ℝ and ℂ. A decline where the claim is none of these or holds a letter.
 pub fn decide_closed(claim: &Term) -> Route<Verdict> {
@@ -1099,7 +1100,7 @@ pub fn decide_closed(claim: &Term) -> Route<Verdict> {
         && kids.len() == 3
         && kids[2].label() == Some("cdvds")
     {
-        return match whole_division(&kids[0], &kids[1]) {
+        return match integer_division(&kids[0], &kids[1]) {
             Declined(d) => Declined(d),
             Built(Err(why)) => Built(Verdict::Unworked(why)),
             Built(Ok((d, n))) => Built(Verdict::Holds((n % d).is_zero() != negated)),
