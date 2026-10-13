@@ -390,8 +390,12 @@ remainder of a sum is the sum of the remainders, so the numbers the other
 equations are taken by solve a linear system, and the polynomial is the
 quotient of what is left. A cited equation that divides is read with its
 denominators multiplied across, and its multiplier in the proof carries
-them. Each cited equation is written into the proof once, times its whole
-multiplier, in the order the step cites them.
+them. So does the claim: a divisor it writes that every multiplier carries
+is divided out of them, and the claim's two sides are multiplied by each
+other divisor and the product taken off at the end, that it is not 0 being
+what the page says of the divisors as written. Each cited equation is
+written into the proof once, times its whole multiplier, in the order the
+step cites them.
 
 Six steps are written out in `corpus/elaboration/`, and `ELABORATION.md` measures
 them. Five come from the three elaborated proofs; the sixth is step 2 of

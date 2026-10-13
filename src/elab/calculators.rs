@@ -30,7 +30,7 @@ use super::state::{Elaborator, Vars};
 use super::{Facts, Line, Lines};
 use crate::binds;
 use crate::corpus::{fmt, Item, RecordKind, Step};
-use crate::mm::kernel::Term;
+use crate::mm::kernel::{FloatLabels, Term};
 use crate::mm::spell::{Builder, Proof};
 use crate::outcome::{Built, Checked, Declined, Problem, Route};
 use crate::rules::{self, lookup};
@@ -268,6 +268,71 @@ pub fn rescales(cited: Option<&Poly>, claim: Option<&Poly>) -> Option<Q> {
         return None;
     }
     Some(times)
+}
+
+/// Each divisor a term writes, leftmost first and once for each time it
+/// divides: what `field::read` reads the term's denominator as the product
+/// of. It goes through what `read` multiplies out, sums, differences,
+/// negations, products, quotients and powers it expands, and a divisor under
+/// a power divides once for each the power multiplies; inside an atom is
+/// not a denominator.
+fn divisors_of(term: &Term, labels: &FloatLabels) -> Vec<Term> {
+    fn walk(term: &Term, labels: &FloatLabels, out: &mut Vec<Term>) {
+        if term.variable().is_some() {
+            return;
+        }
+        let kids = term.children();
+        if term.label() == Some(field::NEG) && kids.len() == 1 {
+            walk(&kids[0], labels, out);
+            return;
+        }
+        if term.label() != Some("co") || kids.len() != 3 {
+            return;
+        }
+        let how = kids[2].rpn(labels);
+        if [field::ADD, SUB, field::MUL].contains(&&*how) {
+            walk(&kids[0], labels, out);
+            walk(&kids[1], labels, out);
+        } else if &*how == DIV {
+            walk(&kids[0], labels, out);
+            out.push(kids[1].clone());
+        } else if &*how == field::EXP {
+            if let field::Power::Expanded { by, .. } =
+                field::power_of(&kids[0], &kids[1], labels)
+            {
+                let mut under = Vec::new();
+                walk(&kids[0], labels, &mut under);
+                for _ in 0..by {
+                    out.extend(under.iter().cloned());
+                }
+            }
+        }
+    }
+    let mut out = Vec::new();
+    walk(term, labels, &mut out);
+    out
+}
+
+/// What a claim's sides are multiplied by for one divisor it writes, which
+/// is what `field::read` takes the divisor as: the divisor itself, or, where
+/// it is a quotient c/e, its numerator c.
+enum Factor {
+    Divisor(Term),
+    Numerator {
+        /// The divisor as written, c/e, which the page says is not 0.
+        divisor: Term,
+        top: Term,
+        below: Term,
+    },
+}
+
+impl Factor {
+    fn term(&self) -> &Term {
+        match self {
+            Factor::Divisor(t) => t,
+            Factor::Numerator { top, .. } => top,
+        }
+    }
 }
 
 /// One fact a combination uses, and its weight.
@@ -1005,7 +1070,9 @@ impl<'a> Elaborator<'a> {
         // The decision reads an equation p/q = r/s as p·s − r·q, its
         // denominators multiplied across, and the proof takes each equation
         // as written: so each multiplier carries its equation's
-        // denominators, and is divided by the claim's.
+        // denominators, and is divided by the claim's, the divisors it
+        // writes, where it can be; the claim's sides are each multiplied by
+        // the divisors it cannot, which are taken off at the end.
         let across = |node: &Term| {
             let sides: Vec<field::Quotient> = node
                 .children()
@@ -1014,17 +1081,61 @@ impl<'a> Elaborator<'a> {
                 .collect();
             sides[0].under.times(&sides[1].under)
         };
-        let below = across(&self.to_term(&t!(left, right, "wceq")));
-        let mut multipliers: Vec<Poly> = Vec::new();
-        for taken in &how {
-            let carried = taken.multiplier().times(&across(&where_[taken.which].1));
-            let Some(by) = field::exactly(&carried, &below) else {
-                return Ok(Route::no(
-                    "a multiplier the claim's denominators do not divide",
-                ));
-            };
-            multipliers.push(by);
+        let claimed = self.to_term(&t!(left, right, "wceq"));
+        let divisors: Vec<Term> = claimed
+            .children()
+            .iter()
+            .flat_map(|side| divisors_of(side, &labels))
+            .collect();
+        let whole = |t: &Term| field::read(t, &labels).under == field::one();
+        let mut factors: Vec<Factor> = Vec::new();
+        for d in divisors {
+            if whole(&d) {
+                factors.push(Factor::Divisor(d));
+                continue;
+            }
+            let kids = d.children();
+            let quotient = d.variable().is_none()
+                && d.label() == Some("co")
+                && kids.len() == 3
+                && &*kids[2].rpn(&labels) == DIV;
+            if !quotient || !whole(&kids[0]) || !whole(&kids[1]) {
+                return Ok(Route::no("a divisor that divides more than once"));
+            }
+            let (top, below) = (kids[0].clone(), kids[1].clone());
+            factors.push(Factor::Numerator {
+                divisor: d,
+                top,
+                below,
+            });
         }
+        let mut written = field::one();
+        for f in &factors {
+            written = written.times(&field::read(f.term(), &labels).over);
+        }
+        if written != across(&claimed) {
+            return Ok(Route::no(
+                "the divisors written are not the claim's denominators",
+            ));
+        }
+        // A divisor every multiplier carries is divided out of them, and only
+        // the rest multiply the claim's sides: (f(b) − f(a))/(b − a) from an
+        // equation over b − a needs nothing multiplied.
+        let mut multipliers: Vec<Poly> = how
+            .iter()
+            .map(|taken| taken.multiplier().times(&across(&where_[taken.which].1)))
+            .collect();
+        let mut multiplying: Vec<Factor> = Vec::new();
+        for f in factors {
+            let by = field::read(f.term(), &labels).over;
+            let carried: Option<Vec<Poly>> =
+                multipliers.iter().map(|p| field::exactly(p, &by)).collect();
+            match carried {
+                Some(divided) => multipliers = divided,
+                None => multiplying.push(f),
+            }
+        }
+        let factors = multiplying;
         // Weights with a denominator are all multiplied by the least common
         // one, which the sum then shows the claim's sides each multiplied
         // by, and which is cancelled at the end: s = t is half of
@@ -1119,14 +1230,23 @@ impl<'a> Elaborator<'a> {
             );
             total = joined;
         }
-        let sides: Vec<String> = if common == 1 {
-            vec![left.to_string(), right.to_string()]
-        } else {
-            let numeral = numerals::spell(common.unsigned_abs());
-            [left, right]
+        // What the claim's sides are multiplied by: the common denominator of
+        // the weights, then each divisor the claim writes.
+        let mut spelt: Vec<String> =
+            factors.iter().map(|f| self.rpn(f.term())).collect();
+        if common != 1 {
+            spelt.insert(0, numerals::spell(common.unsigned_abs()));
+        }
+        let factor: Option<String> = spelt
+            .iter()
+            .cloned()
+            .reduce(|acc, one| t!(acc, one, "cmul", "co"));
+        let sides: Vec<String> = match &factor {
+            None => vec![left.to_string(), right.to_string()],
+            Some(factor) => [left, right]
                 .iter()
-                .map(|one| t!(numeral, one, "cmul", "co"))
-                .collect()
+                .map(|one| t!(factor, one, "cmul", "co"))
+                .collect(),
         };
         let (l, r) = (sides[0].as_str(), sides[1].as_str());
         let whole = t!(l, r, "cmin", "co");
@@ -1150,11 +1270,82 @@ impl<'a> Elaborator<'a> {
             &binds! {"ph" => scope, "ps" => t!(whole, "cc0", "wceq"), "ch" => t!(l, r, "wceq")},
             &[&reached, &turn],
         );
-        if common == 1 {
+        let Some(factor) = factor else {
             return Ok(Built(equal));
-        }
-        self.cancelled(w, common, left, right, &sides, equal, scope, facts)
+        };
+        let Built(apart) = self.factors_apart(w, common, &factors, scope, facts)?
+        else {
+            return Ok(Route::no("a divisor not known to be a number"));
+        };
+        self.cancelled_by(&factor, apart, left, right, &sides, equal, scope, facts)
             .map(Built)
+    }
+
+    /// ( scope -> ( F e. CC /\ F =/= 0 ) ) for F the numeral `common`, where
+    /// it is not 1, times each of `factors` in turn: the numeral is not 0 as
+    /// a numeral, and a divisor by what the page says of it, which a step
+    /// that divides writes. The numerator c of a divisor c/e is not 0 by
+    /// what the page says of c/e, carried to c by `divne0bd`.
+    fn factors_apart(
+        &mut self,
+        w: &mut Work,
+        common: i64,
+        factors: &[Factor],
+        scope: &str,
+        facts: &Facts,
+    ) -> Checked<Route<Proof>> {
+        let mut each: Vec<(String, Proof, Proof)> = Vec::new();
+        if common != 1 {
+            let numeral = numerals::spell(common.unsigned_abs());
+            let held = w.e.number(&self.ask(&w.spec), &BigInt::from(common));
+            let apart = self.b.ap(
+                "a1i",
+                &binds! {"ph" => t!(numeral, "cc0", "wne"), "ps" => scope},
+                &[&numerals::ne0(&self.b, common.unsigned_abs())],
+            );
+            each.push((numeral, held, apart));
+        }
+        for f in factors {
+            let said = self.rpn(f.term());
+            let held = take!(self.in_cc(&said, scope, facts)?);
+            let apart = match f {
+                Factor::Divisor(_) => self.not_zero(scope, facts, &said)?,
+                Factor::Numerator { divisor, below, .. } => {
+                    let (whole, under) = (self.rpn(divisor), self.rpn(below));
+                    let whole_apart = self.not_zero(scope, facts, &whole)?;
+                    let under_apart = self.not_zero(scope, facts, &under)?;
+                    let under_cc = take!(self.in_cc(&under, scope, facts)?);
+                    let iff = self.b.ap(
+                        "divne0bd",
+                        &binds! {"ph" => scope, "A" => &said, "B" => &under},
+                        &[&held, &under_cc, &under_apart],
+                    );
+                    self.b.ap(
+                        "mpbird",
+                        &binds! {"ph" => scope, "ps" => t!(said, "cc0", "wne"),
+                        "ch" => t!(whole, "cc0", "wne")},
+                        &[&whole_apart, &iff],
+                    )
+                }
+            };
+            each.push((said, held, apart));
+        }
+        let mut parts = each.into_iter();
+        let (mut so_far, mut held, mut apart) =
+            parts.next().expect("a factor at least");
+        for (one, one_held, one_apart) in parts {
+            let binds = binds! {"ph" => scope, "A" => &so_far, "B" => &one};
+            apart =
+                self.b
+                    .ap("mulne0d", &binds, &[&held, &one_held, &apart, &one_apart]);
+            held = self.b.ap("mulcld", &binds, &[&held, &one_held]);
+            so_far = t!(so_far, one, "cmul", "co");
+        }
+        Ok(Built(self.b.ap(
+            "jca",
+            &binds! {"ph" => scope, "ps" => t!(so_far, "cc", "wcel"), "ch" => t!(so_far, "cc0", "wne")},
+            &[&held, &apart],
+        )))
     }
 
     /// ( scope -> said e. CC ), for a term of the step's own depth: built by
@@ -1253,16 +1444,21 @@ impl<'a> Elaborator<'a> {
             "C" => &scaled[0], "D" => &scaled[1]},
             &[&given, &sides[0], &sides[1]],
         );
-        self.cancelled(w, times, left, right, scaled, matched, scope, facts)
+        let Built(both) = self.factors_apart(w, times, &[], scope, facts)? else {
+            unreachable!("a numeral is a number and not 0");
+        };
+        let numeral = numerals::spell(times.unsigned_abs());
+        self.cancelled_by(&numeral, both, left, right, scaled, matched, scope, facts)
     }
 
     /// ( scope -> left = right ) from `matched`, which proves the two sides
-    /// `scaled`, each the numeral `times` times its own side.
+    /// `scaled`, each `factor` times its own side, and `both`, which says
+    /// `factor` is a number and not 0: `mulcan` takes it off.
     #[allow(clippy::too_many_arguments)]
-    fn cancelled(
+    fn cancelled_by(
         &mut self,
-        w: &mut Work,
-        times: i64,
+        factor: &str,
+        both: Proof,
         left: &str,
         right: &str,
         scaled: &[String],
@@ -1270,30 +1466,17 @@ impl<'a> Elaborator<'a> {
         scope: &str,
         facts: &Facts,
     ) -> Checked<Proof> {
-        let numeral = numerals::spell(times.unsigned_abs());
-        let numeral = numeral.as_str();
         let ml = self.membership(left, "cc", scope, facts)?;
         let mr = self.membership(right, "cc", scope, facts)?;
-        let num = w.e.number(&self.ask(&w.spec), &BigInt::from(times));
-        let apart = self.b.ap(
-            "a1i",
-            &binds! {"ph" => t!(numeral, "cc0", "wne"), "ps" => scope},
-            &[&numerals::ne0(&self.b, times.unsigned_abs())],
-        );
-        let both = self.b.ap(
-            "jca",
-            &binds! {"ph" => scope, "ps" => t!(numeral, "cc", "wcel"), "ch" => t!(numeral, "cc0", "wne")},
-            &[&num, &apart],
-        );
         let law = self.b.ap(
             "mulcan",
-            &binds! {"A" => left, "B" => right, "C" => numeral},
+            &binds! {"A" => left, "B" => right, "C" => factor},
             &[],
         );
         let turn = self.b.ap(
             "syl3anc",
             &binds! {"ph" => scope, "ps" => t!(left, "cc", "wcel"), "ch" => t!(right, "cc", "wcel"),
-            "th" => t!(t!(numeral, "cc", "wcel"), t!(numeral, "cc0", "wne"), "wa"),
+            "th" => t!(t!(factor, "cc", "wcel"), t!(factor, "cc0", "wne"), "wa"),
             "ta" => t!(t!(scaled[0], scaled[1], "wceq"), t!(left, right, "wceq"), "wb")},
             &[&ml, &mr, &both, &law],
         );

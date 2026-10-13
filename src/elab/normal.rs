@@ -2260,16 +2260,19 @@ impl Emitter {
         under: &[(Monomial, Q)],
     ) -> Checked<Route<(Proof, Proof)>> {
         let said = Self::spell_run(under);
-        if under.len() == 1 {
-            let (monomial, weight) = &under[0];
-            if weight.is_integer() && !weight.is_zero() {
+        // A numeral is not zero as a numeral. Otherwise what the page wrote
+        // comes first, then what was kept while the denominator was made
+        // (`keep_nonzero`), then a denominator of one term from its atoms,
+        // then the oracle's search. A page saying x·y ≠ 0 says nothing of x
+        // alone, nor x² ≠ 0, which makes 10·x² a denominator not zero where
+        // it is made.
+        if let [(monomial, weight)] = under {
+            if monomial.is_empty() && weight.is_integer() && !weight.is_zero() {
                 let apart = take!(self.term_apart(o, monomial, weight)?);
                 let rc = self.run_cc(o, under)?;
                 return Ok(Built((rc, apart)));
             }
         }
-        // What the page wrote comes first, then what was kept while the
-        // denominator was made (`keep_nonzero`), then the oracle's search.
         let page = if self.written {
             o.written(&said)?
         } else {
@@ -2282,6 +2285,14 @@ impl Emitter {
         if let Some(kept) = self.nonzero.get(&said).cloned() {
             let rc = self.run_cc(o, under)?;
             return Ok(Built((rc, kept)));
+        }
+        if under.len() == 1 {
+            let (monomial, weight) = &under[0];
+            if weight.is_integer() && !weight.is_zero() {
+                let apart = take!(self.term_apart(o, monomial, weight)?);
+                let rc = self.run_cc(o, under)?;
+                return Ok(Built((rc, apart)));
+            }
         }
         if !self.apart {
             return Ok(Route::no("nothing can say a denominator is not zero"));
@@ -2307,7 +2318,7 @@ impl Emitter {
         equal: &Proof,
     ) {
         let said = Self::spell_run(run);
-        if self.nonzero.contains_key(&said) || run.len() == 1 {
+        if self.nonzero.contains_key(&said) {
             return;
         }
         let b = o.b();
@@ -2740,14 +2751,44 @@ impl Emitter {
             c.rpn(labels).to_string(),
             d.rpn(labels).to_string(),
         );
-        let p1 = self.written_pair(o, c, labels)?;
-        let p2 = self.written_pair(o, d, labels)?;
-        let (p1, p2) = (take!(p1), take!(p2));
+        // c is not 0 by what the page says of the divisor as it is written,
+        // c/d ≠ 0, carried to c by `divne0bd`; or by what it says of c.
+        let whole = right.rpn(labels).to_string();
+        let page = if self.written {
+            o.written(&whole)?
+        } else {
+            None
+        };
+        let c_apart = match page {
+            Some(whole_apart) => {
+                let d_apart = take!(self.written_apart(o, d, labels)?);
+                let (c_cc, d_cc) = (o.atom(&c_s)?, o.atom(&d_s)?);
+                let b = o.b();
+                let iff = b.ap(
+                    "divne0bd",
+                    &binds! {"ph" => &self.under, "A" => &c_s, "B" => &d_s},
+                    &[&c_cc, &d_cc, &d_apart],
+                );
+                b.ap(
+                    "mpbird",
+                    &binds! {"ph" => &self.under, "ps" => t!(c_s, "cc0", "wne"),
+                    "ch" => t!(whole, "cc0", "wne")},
+                    &[&whole_apart, &iff],
+                )
+            }
+            None => take!(self.written_apart(o, c, labels)?),
+        };
+        let c_cc = o.atom(&c_s)?;
+        let p1 = o.b().ap(
+            "jca",
+            &binds! {"ph" => &self.under, "ps" => t!(c_s, "cc", "wcel"), "ch" => t!(c_s, "cc0", "wne")},
+            &[&c_cc, &c_apart],
+        );
+        let p2 = take!(self.written_pair(o, d, labels)?);
         // c is the new denominator, and its canonical form is asked later.
         let spread = self.normalize(o, c, labels)?;
-        let apart = self.written_apart(o, c, labels)?;
-        if let (Built((items, equal)), Built(apart)) = (&spread, &apart) {
-            self.keep_nonzero(o, &c_s, items, apart, equal);
+        if let Built((items, equal)) = &spread {
+            self.keep_nonzero(o, &c_s, items, &c_apart, equal);
         }
         let flipped = op(&op(&a_s, &d_s, MUL), &c_s, DIV);
         let atom = o.atom(&a_s)?;

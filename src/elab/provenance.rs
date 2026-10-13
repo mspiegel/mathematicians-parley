@@ -686,6 +686,9 @@ impl<'a> Elaborator<'a> {
                     self.say(&d)
                 ),
             };
+            // Turned as well: a line of the scope saying it held it both
+            // ways round, and the step takes this line's proof either way.
+            self.know_turned(&known, &term, &made, scope);
             self.know(&known, term, made);
         }
         Ok(known)

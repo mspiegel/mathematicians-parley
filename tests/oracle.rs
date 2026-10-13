@@ -105,6 +105,14 @@ import mundane definition stdlib/divisibility/congruent-mod
             false_said: "nor does it follow from what step 1 cites",
         },
         Method {
+            name: "algebra-divided",
+            draw: algebra::divided,
+            imports: "",
+            // Said of a claim with nothing cited, and of one that does not
+            // follow from what it cites as well.
+            false_said: "is not an identity",
+        },
+        Method {
             name: "inequalities",
             draw: order::claim,
             imports: "",

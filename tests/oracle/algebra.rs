@@ -310,6 +310,99 @@ pub fn derived(r: &mut Random, g: &Grammar) -> Drawn {
     }
 }
 
+/// A claim of `algebra`'s that divides by a term in the letters, which a
+/// line assumes is not 0 and the step's `requires` line cites
+/// (`METHODS.md`, algebra: every denominator is nonzero, and a step that
+/// divides writes the condition).
+///
+/// As in [`derived`], the claim is a polynomial with one cited equation
+/// times a polynomial added, or with none, and its value at p; made false,
+/// it is one more. Its two sides are then each divided by the term, or
+/// each divided with a polynomial added, or the right side is multiplied by
+/// the term and divided by it again. The term is not 0 at p, so a claim
+/// made false fails there.
+pub fn divided(r: &mut Random, g: &Grammar) -> Drawn {
+    let point: BTreeMap<&'static str, BigInt> = LETTERS
+        .iter()
+        .map(|x| (*x, BigInt::from(r.below(7)) - 3))
+        .collect();
+    let equation = (r.below(2) == 0).then(|| {
+        let (e, p) = not_constant(r, 2, Some(&["x", "y"]));
+        let value = at(&p, &point);
+        (e, p, value)
+    });
+    let (divisor, _) = loop {
+        let (e, p) = not_constant(r, 1, None);
+        if !at(&p, &point).is_zero() {
+            break (e, p);
+        }
+    };
+    let base = expanded(&drawn(r, 2));
+    let mut left = base.clone();
+    let mut right = base;
+    if let Some((_, p, value)) = &equation {
+        let factor = not_constant(r, 1, None).1;
+        left = sum(&left, &times(&factor, p), 1);
+        right = sum(&right, &times(&factor, &constant(value.clone())), 1);
+    }
+    let holds = r.below(2) == 0;
+    if !holds {
+        right = sum(&right, &constant(BigRational::one()), 1);
+    }
+    let (left, right) = (written_out(&left), written_out(&right));
+    let over = |e: Expr| Expr::Div(Box::new(e), Box::new(divisor.clone()));
+    let (left, right) = match r.below(3) {
+        0 => (over(left), over(right)),
+        1 => {
+            let beside = written_out(&expanded(&drawn(r, 1)));
+            (
+                Expr::Add(Box::new(over(left)), Box::new(beside.clone())),
+                Expr::Add(Box::new(over(right)), Box::new(beside)),
+            )
+        }
+        _ => (
+            left,
+            over(Expr::Mul(Box::new(right), Box::new(divisor.clone()))),
+        ),
+    };
+    let mut letters = Vec::new();
+    letters_in(&left, &mut letters);
+    letters_in(&right, &mut letters);
+    if let Some((e, _, _)) = &equation {
+        letters_in(e, &mut letters);
+    }
+    letters.sort_by_key(|x| LETTERS.iter().position(|l| l == x));
+    let mut header: Vec<String> =
+        letters.iter().map(|x| format!("let {x} ∈ ℝ")).collect();
+    let mut cites = String::new();
+    if let Some((e, _, value)) = &equation {
+        let value = written_out(&constant(value.clone()));
+        let node = made(g, "_ = _", vec![term(g, e), term(g, &value)]);
+        header.push(format!("assume {}", g.print(&node)));
+        cites = format!(", from H{}", header.len());
+    }
+    let apart = g.print(&made(
+        g,
+        "_ ≠ _",
+        vec![term(g, &divisor), term(g, &Expr::Num(BigInt::zero()))],
+    ));
+    header.push(format!("assume {apart}"));
+    let node = made(g, "_ = _", vec![term(g, &left), term(g, &right)]);
+    Drawn {
+        header: header.clone(),
+        written: g.print(&node),
+        justification: format!(
+            "algebra{cites}\n    requires {apart}: from H{}",
+            header.len()
+        ),
+        verdict: Verdict::Holds(holds),
+        shown: format!(
+            "{left:?} = {right:?}, from {:?} at {point:?}",
+            equation.as_ref().map(|(e, _, v)| format!("{e:?} = {v}"))
+        ),
+    }
+}
+
 /// An identity of `algebra`'s, or one coefficient away from one.
 pub fn claim(r: &mut Random, g: &Grammar) -> Drawn {
     let left = loop {
