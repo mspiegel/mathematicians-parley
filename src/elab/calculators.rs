@@ -3099,12 +3099,18 @@ impl<'a> Elaborator<'a> {
         if !spare.constant_only() {
             return Ok(Route::no("what is left over is not a constant"));
         }
-        // One equation, scaled, that is the claim with nothing left over.
-        if used.len() == 1 && given[used[0]].how == How::Eq && spare.constant.is_zero()
-        {
-            let times = &found[&used[0]] / &weight;
+        // One equation, scaled by a whole number, that is the claim with
+        // nothing left over. A fraction is `combination`'s, which clears its
+        // denominator.
+        let one_equation = match used.as_slice() {
+            [only] if given[*only].how == How::Eq && spare.constant.is_zero() => {
+                Some((*only, &found[only] / &weight)).filter(|(_, t)| t.is_integer())
+            }
+            _ => None,
+        };
+        if let Some((only, times)) = one_equation {
             return self.one_equation_scaled(
-                &where_[used[0]],
+                &where_[only],
                 &times,
                 &left,
                 &right,
@@ -4234,26 +4240,80 @@ impl<'a> Elaborator<'a> {
         ) else {
             return Ok(None);
         };
+        self.joined_bounds(&a, &b, pu, pd, goal, scope, facts)
+            .map(Some)
+    }
+
+    /// An equation claim that is a split of its own: the claim denied is
+    /// two terms differing, so it is shown as the two bounds it is made of,
+    /// each held or proved by the method from what the step cites, and
+    /// joined by `letri3`.
+    #[allow(clippy::too_many_arguments)]
+    fn both_bounds(
+        &mut self,
+        refs: &[String],
+        term: &str,
+        scope: &str,
+        facts: &Facts,
+        lines: &Lines,
+        skip: &[String],
+    ) -> Checked<Route<Proof>> {
+        let goal = self.to_term(term);
+        let Some((a, b, how)) = order_sides(&goal) else {
+            return Ok(Route::no("the claim states no relation"));
+        };
+        if how != "=" {
+            return Ok(Route::no("what splits is the claim, and it is no equation"));
+        }
+        let (a, b) = (self.rpn(&a), self.rpn(&b));
+        let mut halves = Vec::new();
+        for half in [t!(a, b, "cle", "wbr"), t!(b, a, "cle", "wbr")] {
+            halves.push(match self.held(facts, &half, scope)? {
+                Some(p) => p,
+                None => {
+                    take!(self.prove_order(refs, &half, scope, facts, lines, skip)?)
+                }
+            });
+        }
+        let pd = halves.pop().expect("two halves");
+        let pu = halves.pop().expect("two halves");
+        self.joined_bounds(&a, &b, pu, pd, &goal, scope, facts)
+            .map(Built)
+    }
+
+    /// ( scope -> a = b ) from ( scope -> a <_ b ) and ( scope -> b <_ a ).
+    #[allow(clippy::too_many_arguments)]
+    fn joined_bounds(
+        &mut self,
+        a: &str,
+        b: &str,
+        pu: Proof,
+        pd: Proof,
+        goal: &Term,
+        scope: &str,
+        facts: &Facts,
+    ) -> Checked<Proof> {
+        let (up, down) = (t!(a, b, "cle", "wbr"), t!(b, a, "cle", "wbr"));
         let both = t!(up, down, "wa");
         let paired = self.b.ap(
             "jca",
             &binds! {"ph" => scope, "ps" => &up, "ch" => &down},
             &[&pu, &pd],
         );
-        let ra = self.membership(&a, "cr", scope, facts)?;
-        let rb = self.membership(&b, "cr", scope, facts)?;
-        let law = self.b.ap("letri3", &binds! {"A" => &a, "B" => &b}, &[]);
+        let ra = self.membership(a, "cr", scope, facts)?;
+        let rb = self.membership(b, "cr", scope, facts)?;
+        let law = self.b.ap("letri3", &binds! {"A" => a, "B" => b}, &[]);
         let g = self.rpn(goal);
         let turn = self.b.ap(
             "syl2anc",
             &binds! {"ph" => scope, "ps" => t!(a, "cr", "wcel"), "ch" => t!(b, "cr", "wcel"), "th" => t!(g, both, "wb")},
             &[&ra, &rb, &law],
         );
-        Ok(Some(self.b.ap(
+        Ok(self.b.ap(
             "mpbird",
             &binds! {"ph" => scope, "ps" => &g, "ch" => &both},
             &[&paired, &turn],
-        )))
+        ))
     }
 
     /// A claim denying a relation, as the relation that holds instead,
@@ -4320,7 +4380,7 @@ impl<'a> Elaborator<'a> {
             unreachable!("a certificate that splits");
         };
         if *which >= given.len() {
-            return Ok(Route::no("what splits is the claim, not a citation"));
+            return self.both_bounds(refs, term, scope, facts, lines, skip);
         }
         let (r, said) = where_[*which].clone();
         if said.variable().is_some()
@@ -4409,27 +4469,36 @@ impl<'a> Elaborator<'a> {
         if !found.is_declined() {
             return Ok(found);
         }
-        self.impossible(bound, term, scope, facts)
+        self.impossible(bound, term, scope, facts, lines, refs, skip)
     }
 
     /// The claim, because the bound this scope opened cannot hold: `lenlt`
-    /// says a ≤ b and b < a deny each other.
+    /// says a ≤ b and b < a deny each other, and what denies the bound is
+    /// held already or follows from what the step cites.
+    #[allow(clippy::too_many_arguments)]
     fn impossible(
         &mut self,
         bound: &str,
         term: &str,
         scope: &str,
         facts: &Facts,
+        lines: &Lines,
+        refs: &[String],
+        skip: &[String],
     ) -> Checked<Route<Proof>> {
         let node = self.to_term(bound);
-        let Some((low, high, how)) = order_sides(&node).filter(|s| s.2 == "<") else {
+        let Some((low, high, _)) = order_sides(&node).filter(|s| s.2 == "<") else {
             return Ok(Route::no("the bound states no strict order"));
         };
-        let _ = how;
         let (low, high) = (self.rpn(&low), self.rpn(&high));
         let denies = t!(high, low, "cle", "wbr");
-        let Some(held) = self.held(facts, &denies, scope)? else {
-            return Ok(Route::no("nothing in scope denies the bound"));
+        let held = match self.held(facts, &denies, scope)? {
+            Some(p) => p,
+            None => {
+                let cited: Vec<String> =
+                    refs.iter().filter(|r| *r != bound).cloned().collect();
+                take!(self.prove_order(&cited, &denies, scope, facts, lines, skip)?)
+            }
         };
         let rh = self.membership(&high, "cr", scope, facts)?;
         let rl = self.membership(&low, "cr", scope, facts)?;

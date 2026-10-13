@@ -17,15 +17,15 @@ use crate::judge::Verdict;
 use crate::shared::Random;
 
 /// The letters a claim is written in, each said real by a `let` line.
-const LETTERS: [&str; 3] = ["x", "y", "z"];
+pub const LETTERS: [&str; 3] = ["x", "y", "z"];
 
 /// A product of letters, each with its power, in the order of `LETTERS`.
-type Monomial = Vec<(&'static str, u32)>;
+pub type Monomial = Vec<(&'static str, u32)>;
 
 /// A polynomial: each monomial with its coefficient, none of them 0.
-type Poly = BTreeMap<Monomial, BigRational>;
+pub type Poly = BTreeMap<Monomial, BigRational>;
 
-fn constant(c: BigRational) -> Poly {
+pub fn constant(c: BigRational) -> Poly {
     let mut p = Poly::new();
     if !c.is_zero() {
         p.insert(Vec::new(), c);
@@ -33,7 +33,7 @@ fn constant(c: BigRational) -> Poly {
     p
 }
 
-fn sum(a: &Poly, b: &Poly, sign: i32) -> Poly {
+pub fn sum(a: &Poly, b: &Poly, sign: i32) -> Poly {
     let mut out = a.clone();
     for (m, c) in b {
         let c = if sign < 0 { -c.clone() } else { c.clone() };
@@ -47,7 +47,7 @@ fn sum(a: &Poly, b: &Poly, sign: i32) -> Poly {
     out
 }
 
-fn times(a: &Poly, b: &Poly) -> Poly {
+pub fn times(a: &Poly, b: &Poly) -> Poly {
     let mut out = Poly::new();
     for (ma, ca) in a {
         for (mb, cb) in b {
@@ -92,7 +92,7 @@ fn expanded(e: &Expr) -> Poly {
 }
 
 /// A small numeral, 1 to 5, or of either sign where `signed`.
-fn small(r: &mut Random, signed: bool) -> BigInt {
+pub fn small(r: &mut Random, signed: bool) -> BigInt {
     let n = BigInt::from(1 + r.below(5));
     if signed && r.below(3) == 0 {
         -n
@@ -120,7 +120,7 @@ fn drawn(r: &mut Random, depth: u32) -> Expr {
     }
 }
 
-fn letters_in(e: &Expr, out: &mut Vec<&'static str>) {
+pub fn letters_in(e: &Expr, out: &mut Vec<&'static str>) {
     match e {
         Expr::Letter(x) => {
             if !out.contains(x) {
@@ -143,7 +143,7 @@ fn letters_in(e: &Expr, out: &mut Vec<&'static str>) {
 /// A polynomial written out: its terms by degree, highest first, each a
 /// coefficient and its letters; a coefficient of 1 is not written, nor a
 /// power of 1.
-fn written_out(p: &Poly) -> Expr {
+pub fn written_out(p: &Poly) -> Expr {
     let mut terms: Vec<(&Monomial, &BigRational)> = p.iter().collect();
     terms
         .sort_by_key(|(m, _)| std::cmp::Reverse(m.iter().map(|(_, k)| k).sum::<u32>()));
@@ -186,7 +186,7 @@ fn written_out(p: &Poly) -> Expr {
 }
 
 /// The value of a polynomial at a point, each letter a whole number.
-fn at(p: &Poly, point: &BTreeMap<&'static str, BigInt>) -> BigRational {
+pub fn at(p: &Poly, point: &BTreeMap<&'static str, BigInt>) -> BigRational {
     p.iter()
         .map(|(m, c)| {
             m.iter().fold(c.clone(), |acc, (x, k)| {

@@ -50,6 +50,9 @@ mod judge;
 #[path = "oracle/algebra.rs"]
 mod algebra;
 
+#[path = "oracle/order.rs"]
+mod order;
+
 use gen::Drawn;
 use judge::Verdict;
 use shared::{included, Random};
@@ -100,6 +103,12 @@ import mundane definition stdlib/divisibility/congruent-mod
             draw: algebra::derived,
             imports: "",
             false_said: "nor does it follow from what step 1 cites",
+        },
+        Method {
+            name: "inequalities",
+            draw: order::claim,
+            imports: "",
+            false_said: "does not follow from what step 1 cites",
         },
     ]
 }
