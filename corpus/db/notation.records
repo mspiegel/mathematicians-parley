@@ -1215,9 +1215,12 @@ notation there-are
   target      _5 _3 _4 wrex _1 _2 wrex
   note        The two-variable form, for two names over two sets, as
               mun:stdlib/numbers/rational has p ∈ ℤ and q ∈ ℕ. Writing it as
-              two nested `there is` phrases reads far worse. Two names over
-              one set are written "there are p, q ∈ ℤ with …", which builds
-              this node.
+              two nested `there is` phrases reads far worse, but it says the
+              same, and builds exactly that: `nests` makes one `there-is`
+              node for each name, the first outermost, so either spelling
+              meets the other.
+  nests       1 2, 3 4
+  spells      there-is thereis∈with
 
 notation there-are-two
   pattern     there are _, _ ∈ _ with _
@@ -1229,11 +1232,10 @@ notation there-are-two
   target      _4 _2 _3 wrex _1 _3 wrex
   note        "There are x, y ∈ ℤ with …", two names over one set: the set is
               each name's. It is "there are x ∈ ℤ and y ∈ ℤ with …"
-              abbreviated, and builds exactly that node, the set filling both
-              of its set holes by `places`, so either spelling meets the
-              other.
-  places      1 3 2 3 4
-  spells      there-are thereare∈and∈with
+              abbreviated, and builds what that builds, one `there-is` node
+              for each name.
+  nests       1 3, 2 3
+  spells      there-is thereis∈with
 
 notation there-exist-two
   pattern     there exist _, _ ∈ _ such that _
@@ -1245,10 +1247,9 @@ notation there-exist-two
   target      _4 _2 _3 wrex _1 _3 wrex
   note        "There exist x, y ∈ ℤ such that …", the words a textbook states
               a theorem in, as "there exists … such that" is for one name.
-              It builds `there-are`'s node as "there are x, y ∈ ℤ with …"
-              does.
-  places      1 3 2 3 4
-  spells      there-are thereare∈and∈with
+              It builds what "there are x, y ∈ ℤ with …" builds.
+  nests       1 3, 2 3
+  spells      there-is thereis∈with
 
 notation there-are-three
   pattern     there are _, _, _ ∈ _ with _

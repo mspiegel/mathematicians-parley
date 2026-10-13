@@ -317,17 +317,14 @@ fn fits(
     for first in either_way(&first, library) {
         let mut body_form: Option<(Node, BTreeSet<String>)> = None;
         if library.exists.contains(&first.notation) && first.children.len() > 2 {
-            // A "there is" pattern holds its body last and names its variables
-            // before it, one name and one domain at a time, so the two-variable
-            // form is read the same way as the one-variable form.
-            let body = first.children[first.children.len() - 1].clone();
+            let (pairs, body) = existential_levels(&first, library);
             let mut seen = open_names.as_ref().clone();
-            for c in &first.children[..first.children.len() - 1] {
-                if c.is_name() {
-                    seen.insert(c.text.clone());
+            for (name, _) in pairs {
+                if name.is_name() {
+                    seen.insert(name.text.clone());
                 }
             }
-            body_form = Some((body, seen));
+            body_form = Some((body.clone(), seen));
         }
         let forms = std::iter::once((&first, open_names.as_ref()))
             .chain(body_form.iter().map(|(n, s)| (n, s)));
@@ -545,11 +542,26 @@ fn narrowed(
     ))
 }
 
+/// The names a "there is" binds, each with its domain, outermost first, and
+/// the body they are said of. A "there is" holds its body last and names its
+/// variable and domain before it; one whose body is a "there is" again, as
+/// "there are m, n ∈ ℤ with …" builds, binds each in turn, so a "there is"
+/// of several names is read the same way as one of one.
+fn existential_levels<'n>(
+    exists: &'n Node,
+    library: &Library,
+) -> (Vec<(&'n Node, &'n Node)>, &'n Node) {
+    let mut pairs = Vec::new();
+    let mut body = exists;
+    while library.exists.contains(&body.notation) && body.children.len() == 3 {
+        pairs.push((&body.children[0], &body.children[1]));
+        body = &body.children[2];
+    }
+    (pairs, body)
+}
+
 /// Whether one of the facts puts each value a "there is" was given in the
 /// domain it ranges over.
-///
-/// The pattern names its variables before its body, one name and one domain
-/// at a time.
 fn witnessed_in(
     exists: &Node,
     binding: &Binding,
@@ -558,9 +570,8 @@ fn witnessed_in(
     library: &Library,
     sites: &Sites,
 ) -> bool {
-    let pairs = &exists.children[..exists.children.len() - 1];
-    for pair in pairs.chunks(2) {
-        let [name, domain] = pair else { continue };
+    let (pairs, _) = existential_levels(exists, library);
+    for (name, domain) in pairs {
         if !name.is_name() {
             continue;
         }

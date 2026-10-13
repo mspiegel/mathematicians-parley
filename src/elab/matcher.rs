@@ -2529,10 +2529,7 @@ impl<'a> Elaborator<'a> {
             return spelt[0] == theirs[0] && spelt[2] == theirs[2];
         }
         let mut places = spelt.len();
-        if rules::WRAPS.contains(&label) {
-            if spelt[spelt.len() - 1] != theirs[theirs.len() - 1] {
-                return false;
-            }
+        if rules::WRAPS.contains(&label) && spelt[places - 1] == theirs[places - 1] {
             places -= 1;
         }
         let slots: Vec<usize> =
@@ -3364,12 +3361,17 @@ impl<'a> Elaborator<'a> {
             let (body, var, over) = layers[i].clone();
             let mark = format!("{var} cv");
             let mut held = body;
+            let mut over = self.to_term(&over);
             // The quantifiers further out are still open here, and the ones
-            // already closed have their witnesses in place.
+            // already closed have their witnesses in place: in the body, and
+            // in the domain, which may run over one of them, as a walk's
+            // vertices run over {0, …, n}.
             for (_, v, _) in &layers[..i] {
                 let m = format!("{v} cv");
                 held = self.restated(&held, &m, &found[&m]);
+                over = self.restated(&over, &m, &found[&m]);
             }
+            let over = self.rpn(&over);
             let witness = found[&mark].clone();
             let here = self.restated(&held, &mark, &witness);
             let (ph, ps) = (self.rpn(&held), self.rpn(&here));

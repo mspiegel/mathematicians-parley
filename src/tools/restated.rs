@@ -97,38 +97,47 @@ impl<'a> Shapes<'a> {
         sorts: &Sorts,
     ) -> Option<(Vec<Witness>, String)> {
         let sentence = said.sentence().ok()?;
-        let (tree, built) = self.root(&sentence, sorts)?;
+        let (mut tree, built) = self.root(&sentence, sorts)?;
         let sentence = sentence.text();
         if built != "wrex" {
             return None;
         }
-        let n = self.g.notations.iter().find(|n| {
-            n.key() == tree.notation
-                && n.holes.len() == tree.children.len()
-                && n.binds.is_some()
-        })?;
-        let binds = n.binds.as_ref()?;
-        let crate::outcome::Built(sig) = infer::signature(n.sort.as_deref()?) else {
-            return None;
-        };
-        let members = sig.members();
+        // A "there is" whose body is a "there is" again, as "there are m, n
+        // ∈ ℤ with …" builds, names each of its levels' names in turn.
         let mut names = Vec::new();
-        for &held in &binds.held {
-            let (_, set) = members.iter().find(|(element, _)| *element == held)?;
-            let name = tree.children.get(held)?.written(sentence)?;
-            let set_node = tree.children.get(*set)?;
-            let written = set_node.written(sentence)?;
-            let membership = if set_node.notation == "functions-from" {
-                format!("{name} : {written}")
-            } else {
-                format!("{name} ∈ {written}")
+        loop {
+            let n = self.g.notations.iter().find(|n| {
+                n.key() == tree.notation
+                    && n.holes.len() == tree.children.len()
+                    && n.binds.is_some()
+            })?;
+            let binds = n.binds.as_ref()?;
+            let crate::outcome::Built(sig) = infer::signature(n.sort.as_deref()?)
+            else {
+                return None;
             };
-            names.push(Witness { name, membership });
+            let members = sig.members();
+            for &held in &binds.held {
+                let (_, set) = members.iter().find(|(element, _)| *element == held)?;
+                let name = tree.children.get(held)?.written(sentence)?;
+                let set_node = tree.children.get(*set)?;
+                let written = set_node.written(sentence)?;
+                let membership = if set_node.notation == "functions-from" {
+                    format!("{name} : {written}")
+                } else {
+                    format!("{name} ∈ {written}")
+                };
+                names.push(Witness { name, membership });
+            }
+            let [body] = binds.body.as_slice() else {
+                return None;
+            };
+            let body = tree.children.get(*body)?.clone();
+            if self.builds.get(&body.notation).map(String::as_str) != Some("wrex") {
+                return Some((names, body.written(sentence)?));
+            }
+            tree = body;
         }
-        let [body] = binds.body.as_slice() else {
-            return None;
-        };
-        Some((names, tree.children.get(*body)?.written(sentence)?))
     }
 }
 

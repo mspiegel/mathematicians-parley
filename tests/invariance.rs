@@ -139,6 +139,10 @@ fn changes() -> Vec<Change> {
             name: "a block made a lemma",
             rewrite: Rewrite::File(rewrites::blocks_lifted),
         },
+        Change {
+            name: "an obtain from an item written as a step claiming its \"there is\"",
+            rewrite: Rewrite::File(rewrites::obtains_claimed),
+        },
     ]
 }
 
@@ -351,7 +355,10 @@ fn a_proof_means_what_it_says_however_it_spells_it() {
         .into_iter()
         .filter(|c| only.as_ref().is_none_or(|o| c.name.contains(o.as_str())))
         .collect();
-    let context = Context::new(corpus(&clean).expect("the corpus reads"));
+    let context = Context::new(
+        corpus(&clean).expect("the corpus reads"),
+        parley::check::obtained_there(&clean).expect("the corpus reads"),
+    );
     let trees: Vec<Changed> = changes
         .iter()
         .map(|c| changed(&clean, root, &context, c))

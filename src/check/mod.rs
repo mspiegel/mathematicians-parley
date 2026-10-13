@@ -25,7 +25,7 @@ use crate::formula::page::{Sentence, Written};
 use crate::formula::Grammar;
 use crate::formula::Sorts;
 use crate::matching::Context;
-use crate::outcome::{At, Problem};
+use crate::outcome::{At, Problem, Route};
 use crate::sorts::infer;
 use crate::sorts::{settled, Env};
 use crate::source::Source;
@@ -227,6 +227,37 @@ pub fn answers(source: &dyn Source) -> Result<Vec<String>, Outcome> {
             .zip(c.known)
             .flat_map(|(thm, k)| citations::answers(thm, c.library, k))
             .collect()
+    })
+    .map(|(_, _, said)| said)
+}
+
+/// What the item each obtain cites says there is, at the step
+/// (`citations::obtained_there`).
+pub struct ObtainedThere {
+    pub path: String,
+    /// The line of the obtain's step.
+    pub line: usize,
+    /// The item's statements, in the page's notation.
+    pub said: Route<Vec<String>>,
+}
+
+/// What the item each obtain of every theorem cites says there is, where
+/// it is an item and not a definition that unfolds.
+pub fn obtained_there(source: &dyn Source) -> Result<Vec<ObtainedThere>, Outcome> {
+    prepared(source, |_, c| {
+        let mut out = Vec::new();
+        for (thm, k) in c.theorems.iter().zip(c.known) {
+            for step in &thm.steps {
+                if let Some(said) = citations::obtained_there(step, c.library, k) {
+                    out.push(ObtainedThere {
+                        path: thm.path.clone(),
+                        line: step.line,
+                        said: said.map(|s| s.iter().map(|n| k.print(n)).collect()),
+                    });
+                }
+            }
+        }
+        out
     })
     .map(|(_, _, said)| said)
 }

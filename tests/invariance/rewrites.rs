@@ -13,17 +13,18 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::rc::Rc;
 
 use indexmap::IndexSet;
-use parley::check::statements_in_scope;
+use parley::check::{statements_in_scope, ObtainedThere};
 use parley::corpus::proof::{
-    chain, chain_cited, references, substituted, Head, Intro, Method, Theorem,
+    chain, chain_cited, parse_proof, references, substituted, Head, Intro, Method,
+    Theorem,
 };
 use parley::corpus::{define_parts, Corpus, DefineParts, Values};
 use parley::formula::grammar::{Grammar, Sorts};
 use parley::formula::node::Node;
-use parley::formula::page::{conjoined, Written};
+use parley::formula::page::{conjoined, made_as, Written};
 use parley::formula::token::{is_letter, is_mark, tokenise, Token, TokenKind};
 use parley::matching::{free_names, split_commas};
-use parley::outcome::Built;
+use parley::outcome::{Built, Route};
 use parley::sorts::introduction::Introduction;
 use parley::sorts::{sorts_in_scope, Env};
 use regex::Regex;
@@ -44,6 +45,9 @@ pub struct Context {
     constants: BTreeSet<String>,
     /// The letters the library's items bind, most used first.
     library_letters: Vec<String>,
+    /// What the item each obtain cites says there is, as the checker reads
+    /// it at the step, by the step's file and line.
+    obtained: BTreeMap<(String, usize), Route<Vec<String>>>,
 }
 
 /// A theorem a rewrite left alone, and why.
@@ -167,7 +171,7 @@ fn let_letter(body: &str) -> Option<String> {
 }
 
 impl Context {
-    pub fn new(corpus: Corpus) -> Context {
+    pub fn new(corpus: Corpus, obtained: Vec<ObtainedThere>) -> Context {
         let g = Grammar::load(&corpus.records).expect("the grammar loads");
         let long_names: IndexSet<String> = g
             .functions
@@ -206,6 +210,10 @@ impl Context {
             cited,
             constants,
             library_letters: Vec::new(),
+            obtained: obtained
+                .into_iter()
+                .map(|o| ((o.path, o.line), o.said))
+                .collect(),
         };
         for record in &context.corpus.records {
             let mut texts: Vec<&str> =
@@ -2379,24 +2387,6 @@ fn requires_raised_in(
         {
             continue;
         }
-        // The new step takes the step's number; it and the rest of its run
-        // move down one.
-        let depth = step.number.len();
-        let mut map: BTreeMap<String, String> = BTreeMap::new();
-        for other in &thm.steps {
-            let v = &other.number.0;
-            if v.len() >= depth
-                && v[..depth - 1] == step.number.0[..depth - 1]
-                && v[depth - 1] >= step.number.0[depth - 1]
-            {
-                let mut w = v.clone();
-                w[depth - 1] += 1;
-                map.insert(
-                    other.number.to_string(),
-                    parley::corpus::proof::StepNo(w).to_string(),
-                );
-            }
-        }
         let raised = step.number.to_string();
         let heading = step.line - 1;
         let prefix: String = {
@@ -2407,37 +2397,8 @@ fn requires_raised_in(
             .chars()
             .take_while(|c| c.is_whitespace())
             .collect();
-        let mut changed = 0;
-        for other in &thm.steps {
-            let at = other.line - 1;
-            if let Some(new) = map.get(&other.number.to_string()) {
-                let old = format!("{}.", other.number);
-                if let Some(i) = lines[at].find(&old) {
-                    lines[at].replace_range(i..i + old.len(), &format!("{new}."));
-                    changed += 1;
-                }
-            }
-            let mut cited: Vec<usize> = vec![other.just.line - 1];
-            cited.extend(continued(lines, other.just.line - 1, end));
-            for r in &other.requires {
-                cited.push(r.line - 1);
-                cited.extend(continued(lines, r.line - 1, end));
-            }
-            for l in cited {
-                let new = renumbered_refs(&lines[l], &map);
-                if new != lines[l] {
-                    lines[l] = new;
-                    changed += 1;
-                }
-            }
-            for (_, at) in &other.just.chain {
-                let new = renumbered_link(&lines[at - 1], &map);
-                if new != lines[at - 1] {
-                    lines[at - 1] = new;
-                    changed += 1;
-                }
-            }
-        }
+        // The new step takes the step's number.
+        let changed = moved_down(thm, lines, end, step);
         // The step cites the new one, and its requires line goes.
         let reason = step.just.line - 1;
         let cites = if references(&step.just.text).0.is_empty() {
@@ -2460,6 +2421,78 @@ fn requires_raised_in(
         return Some(changed + 4);
     }
     None
+}
+
+/// `step` and the rest of its run moved down one number, with every line
+/// citing them; the number of lines changed. The heading of `step` itself
+/// carries its new number too, so a step written in its place is written
+/// whole.
+fn moved_down(
+    thm: &Theorem,
+    lines: &mut [String],
+    end: usize,
+    step: &parley::corpus::Step,
+) -> usize {
+    let depth = step.number.len();
+    let mut map: BTreeMap<String, String> = BTreeMap::new();
+    for other in &thm.steps {
+        let v = &other.number.0;
+        if v.len() >= depth
+            && v[..depth - 1] == step.number.0[..depth - 1]
+            && v[depth - 1] >= step.number.0[depth - 1]
+        {
+            let mut w = v.clone();
+            w[depth - 1] += 1;
+            map.insert(
+                other.number.to_string(),
+                parley::corpus::proof::StepNo(w).to_string(),
+            );
+        }
+    }
+    let mut changed = 0;
+    for other in &thm.steps {
+        let at = other.line - 1;
+        if let Some(new) = map.get(&other.number.to_string()) {
+            let old = format!("{}.", other.number);
+            if let Some(i) = lines[at].find(&old) {
+                lines[at].replace_range(i..i + old.len(), &format!("{new}."));
+                changed += 1;
+            }
+        }
+        let mut cited: Vec<usize> = vec![other.just.line - 1];
+        cited.extend(continued(lines, other.just.line - 1, end));
+        for r in &other.requires {
+            cited.push(r.line - 1);
+            cited.extend(continued(lines, r.line - 1, end));
+        }
+        for l in cited {
+            let new = renumbered_refs(&lines[l], &map);
+            if new != lines[l] {
+                lines[l] = new;
+                changed += 1;
+            }
+        }
+        for (_, at) in &other.just.chain {
+            let new = renumbered_link(&lines[at - 1], &map);
+            if new != lines[at - 1] {
+                lines[at - 1] = new;
+                changed += 1;
+            }
+        }
+    }
+    // A define's reason cites lines as a step's does.
+    for reason in thm.defines.iter().filter_map(|d| d.reason.as_ref()) {
+        let mut cited = vec![reason.line - 1];
+        cited.extend(continued(lines, reason.line - 1, end));
+        for l in cited {
+            let new = renumbered_refs(&lines[l], &map);
+            if new != lines[l] {
+                lines[l] = new;
+                changed += 1;
+            }
+        }
+    }
+    changed
 }
 
 /// Every define in a proof raised to the start of its run of steps: above
@@ -3512,4 +3545,261 @@ fn relabelled_link(
         Some(new) => format!("{}{new}{}", &line[..start], &line[end..]),
         None => line.to_string(),
     })
+}
+
+/// Each step obtaining from an item written as two: a step claiming the
+/// item's "there is", cited as a step citing it is, and an obtain from that
+/// line (`SYNTAX.md`, `obtain`). The "there is" is what the item says, each
+/// letter as the checker reads it at the step (`check::obtained_there`).
+/// From a definition that unfolds it is the one the obtain's claim states
+/// (`ELABORATION.md`): each name runs over the set its membership sentence
+/// gives, in the order the obtain names them, and the other sentences are
+/// what is said of them, in the order written. The
+/// corpus obtains from items far more often than it claims their "there
+/// is", so this puts each such fact on the route a proof meets least.
+pub fn obtains_claimed(ctx: &Context, path: &str, text: &str) -> Rewritten {
+    let mut text = text.to_string();
+    let mut count = 0;
+    let mut theorems = Vec::new();
+    let mut declined = Vec::new();
+    let Some(scope) = ctx
+        .corpus
+        .theorems
+        .iter()
+        .find(|t| t.path == path)
+        .map(|t| t.scope)
+    else {
+        return Rewritten {
+            text,
+            lines: 0,
+            theorems,
+            declined,
+        };
+    };
+    // The file read again after each obtain is rewritten. The last is
+    // rewritten first, so every one above it is on the line the checker
+    // read it on, and is as many obtains from the top as it was.
+    let mut at = None;
+    loop {
+        let (_, mut thms) = parse_proof(path, &text, scope).expect("the file reads");
+        thms.sort_by_key(|t| t.line);
+        let lines: Vec<String> = text.lines().map(str::to_string).collect();
+        let mut obtains = Vec::new();
+        for (i, thm) in thms.iter().enumerate() {
+            let end = thms.get(i + 1).map_or(lines.len(), |n| n.line - 1);
+            for step in &thm.steps {
+                if step.just.head.is(Method::Obtain)
+                    && parley::corpus::proof::cited_item(&step.just).is_some()
+                {
+                    obtains.push((thm, end, step));
+                }
+            }
+        }
+        let next = match at {
+            None => obtains.len(),
+            Some(i) => i,
+        };
+        if next == 0 {
+            break;
+        }
+        at = Some(next - 1);
+        let (thm, end, step) = obtains[next - 1];
+        let mut lines = lines;
+        match obtain_claimed(ctx, path, thm, &mut lines, end, step) {
+            Ok(changed) => {
+                count += changed;
+                if !theorems.contains(&thm.qualified()) {
+                    theorems.push(thm.qualified());
+                }
+                text = joined(lines, &text);
+            }
+            Err(why) => declined.push(Declined {
+                theorem: thm.qualified(),
+                why: format!("step {}: {why}", step.number),
+            }),
+        }
+    }
+    Rewritten {
+        text,
+        lines: count,
+        theorems,
+        declined,
+    }
+}
+
+/// The names an obtain introduces, as its justification lists them before
+/// the item: `obtain p, q: thm:x` names p and q.
+fn obtained_names(how: &str) -> Option<Vec<String>> {
+    let names = re(r"^obtain\s+([^:]+):").captures(how.trim())?;
+    Some(names[1].split(',').map(|n| n.trim().to_string()).collect())
+}
+
+/// The "there is" an obtain's claim states, as a tree: each name over the
+/// set its membership sentence gives, or the functions its type gives, and
+/// what the other sentences say of them.
+fn existence_of(
+    ctx: &Context,
+    sorts: &Sorts,
+    claim: &Written,
+    names: &[String],
+) -> Result<Node, String> {
+    let read = read_all(ctx, sorts, claim)?;
+    let made = |pattern: &str, children: Vec<Node>| {
+        made_as(&ctx.g, pattern, children)
+            .ok_or_else(|| format!("no notation is written {pattern}"))
+    };
+    let mut over: BTreeMap<String, (Node, Node)> = BTreeMap::new();
+    let mut said = Vec::new();
+    for node in read {
+        let named = |n: &Node| {
+            n.is_name() && names.contains(&n.text) && !over.contains_key(&n.text)
+        };
+        match (
+            node.notation.as_str(),
+            node.text.as_str(),
+            node.children.as_slice(),
+        ) {
+            // "There is f : X → Y" runs over the functions from X to Y.
+            ("function-type", _, [f, from, to]) if named(f) => {
+                let functions =
+                    made("the functions from _ to _", vec![from.clone(), to.clone()])?;
+                over.insert(f.text.clone(), (f.clone(), functions));
+            }
+            ("membership", "∈", [x, set]) if named(x) => {
+                over.insert(x.text.clone(), (x.clone(), set.clone()));
+            }
+            _ => said.push(node),
+        }
+    }
+    let mut body =
+        conjoined(&ctx.g, said).ok_or("the claim says nothing of what it obtains")?;
+    for name in names.iter().rev() {
+        let (x, set) = over
+            .get(name)
+            .ok_or_else(|| format!("the claim states no membership of {name}"))?;
+        body = made("there is _ ∈ _ with _", vec![x.clone(), set.clone(), body])?;
+    }
+    Ok(body)
+}
+
+/// One obtain written as a step claiming its "there is" and an obtain from
+/// that step's line; the number of lines changed.
+fn obtain_claimed(
+    ctx: &Context,
+    path: &str,
+    thm: &Theorem,
+    lines: &mut Vec<String>,
+    end: usize,
+    step: &parley::corpus::Step,
+) -> Result<usize, String> {
+    let names = obtained_names(&step.just.text).ok_or("the obtain names nothing")?;
+    let original = ctx
+        .corpus
+        .theorems
+        .iter()
+        .find(|t| t.qualified() == thm.qualified())
+        .ok_or("the theorem is not in the corpus")?;
+    let sorts = sorts_in_scope(
+        original,
+        Env {
+            g: &ctx.g,
+            scopes: &ctx.corpus.scopes,
+        },
+    );
+    // What the item says there is, where the obtain asks it of the item; a
+    // definition that unfolds gives the existence the claim states.
+    let there_is = match ctx.obtained.get(&(path.to_string(), step.line)) {
+        Some(Built(said)) => match said.as_slice() {
+            [one] => one.clone(),
+            _ => return Err("the item says more than its \"there is\"".into()),
+        },
+        Some(Route::Declined(why)) => return Err(why.reason()),
+        None => ctx
+            .g
+            .print(&existence_of(ctx, &sorts, &step.claim, &names)?),
+    };
+    // A step reading a defined name as what it names cites the define
+    // (`SYNTAX.md`), and an obtain from a line cites nothing else.
+    let binders = ctx.g.binders();
+    let free = |trees: Vec<Node>| -> BTreeSet<String> {
+        trees.iter().flat_map(|t| free_names(t, &binders)).collect()
+    };
+    let claimed = free(read_all(ctx, &sorts, &step.claim)?);
+    let stated = free(read_all(
+        ctx,
+        &sorts,
+        &Written::new(there_is.clone(), path, step.line),
+    )?);
+    let defined: Vec<&String> = claimed
+        .iter()
+        .filter(|n| !stated.contains(*n) && !names.contains(n))
+        .collect();
+    if !defined.is_empty() {
+        return Err(format!(
+            "the claim writes {}, which the \"there is\" writes out, and an obtain from a line cites no define",
+            defined.iter().map(|n| n.as_str()).collect::<Vec<_>>().join(", ")
+        ));
+    }
+    let heading = step.line - 1;
+    let reason = step.just.line - 1;
+    let number = format!("{}.", step.number);
+    let at = lines[heading]
+        .find(&number)
+        .ok_or("the step's number is not where it is read")?;
+    let claim_at = at
+        + number.len()
+        + lines[heading][at + number.len()..]
+            .chars()
+            .take_while(|c| c.is_whitespace())
+            .map(char::len_utf8)
+            .sum::<usize>();
+    let prefix = lines[heading][..claim_at].to_string();
+    let claim_lines: Vec<String> = lines[heading..reason].to_vec();
+    let mut last = continued(lines, reason, end)
+        .last()
+        .copied()
+        .unwrap_or(reason);
+    for r in &step.requires {
+        let l = r.line - 1;
+        last = last.max(continued(lines, l, end).last().copied().unwrap_or(l));
+    }
+    let reason_indent: String = lines[reason]
+        .chars()
+        .take_while(|c| c.is_whitespace())
+        .collect();
+    let from = lines[reason]
+        .find("obtain ")
+        .ok_or("the obtain is not where it is read")?;
+    let item_at = from
+        + lines[reason][from..]
+            .find(':')
+            .ok_or("the obtain names no item")?
+        + 1;
+    let cited = lines[reason][item_at..].trim_start().to_string();
+    let mut changed = moved_down(thm, lines, end, step);
+    // The obtain, under the number the run moved it to, from the new line.
+    let mut obtain: Vec<String> = vec![String::new()];
+    obtain.extend(claim_lines);
+    obtain[1] = lines[heading].clone();
+    obtain.push(format!(
+        "{reason_indent}obtain {} from line {}",
+        names.join(", "),
+        step.number
+    ));
+    // The step claiming the "there is", under the obtain's own number.
+    let claimed = vec![
+        format!("{prefix}{there_is}"),
+        format!("{}{cited}", &lines[reason][..from]),
+    ];
+    changed += obtain.len() + claimed.len();
+    // The reason's continued lines and the requires lines stay with the
+    // step that cites the item.
+    let after: Vec<String> = lines.drain(last + 1..).collect();
+    let kept: Vec<String> = lines.drain(reason + 1..).collect();
+    lines.truncate(heading);
+    lines.extend(claimed);
+    lines.extend(kept);
+    lines.extend(obtain);
+    lines.extend(after);
+    Ok(changed)
 }

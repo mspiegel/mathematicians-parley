@@ -296,10 +296,17 @@ impl<'a> Elaborator<'a> {
             Some(f) => self.frames_facts(f, facts),
             None => facts.clone(),
         };
-        // A definition that introduces a name says which variable it takes;
-        // one that does not leaves the lemma's own, which the match fixed.
+        // A definition that introduces a name says which variable it takes:
+        // the one its right side binds at its head, as the step's "there is"
+        // does. One that does not leaves the lemma's own, which the match
+        // fixed.
         let mut binds = self.spelt(&binding);
-        let mut held = sig.bound().map(String::from);
+        let right = &reads.children()[1];
+        let mut held = right
+            .label()
+            .filter(|l| lookup(rules::BOUND, l).is_some())
+            .and_then(|_| right.children().get(1))
+            .and_then(|v| v.variable().map(String::from));
         if let Some(h) = &held {
             if reads.children()[0].names().iter().any(|n| **n == **h) {
                 held = None;

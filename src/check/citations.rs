@@ -24,7 +24,7 @@ use crate::formula::{Node, Sort};
 use crate::matching::{
     alike, binding_sites, match_tree, substitute_apart, Binding, Context, PROPERTY,
 };
-use crate::outcome::{Built, Declined};
+use crate::outcome::{Built, Declined, Route};
 use crate::regex;
 use crate::rules;
 use crate::text::squash;
@@ -181,16 +181,10 @@ pub fn answers(thm: &Theorem, library: &Library, known: &Known) -> Vec<String> {
         let Some(item) = cited_item(&step.just) else {
             continue;
         };
-        let name = step.just.item(&item);
-        // A definition that unfolds gives the existence the step claims, which
-        // the elaborator reaches from the claim and never asks the item for.
-        let Some(Item::Record(record)) = library.item(&name) else {
+        let Some(Item::Record(record)) = library.item(&step.just.item(&item)) else {
             continue;
         };
-        if Item::Record(record).unfolds() {
-            continue;
-        }
-        let Some(groups) = library.groups(&name) else {
+        let Some(there) = obtained_there(step, library, known) else {
             continue;
         };
         let at = format!(
@@ -199,18 +193,47 @@ pub fn answers(thm: &Theorem, library: &Library, known: &Known) -> Vec<String> {
             step.line,
             record.qualified()
         );
-        let parts = known.parts(step, library);
-        match obtained(&groups, &parts.facts, &parts.seed, library) {
-            Built(taken) => {
-                for said in &groups[taken.group].gives {
-                    let said = filled(said, &taken.binding, &library.ctx);
-                    out.push(format!("{at} | {}", known.print(&said)));
+        match there {
+            Built(said) => {
+                for said in &said {
+                    out.push(format!("{at} | {}", known.print(said)));
                 }
             }
             Declined(_) => out.push(format!("{at} | declines")),
         }
     }
     out
+}
+
+/// What the item an obtain cites says there is, at the step: the item's
+/// statements, each letter as the step's lines fix it (`obtained`). None
+/// where the step obtains from no item, or from a definition that unfolds,
+/// which gives the existence the step claims, reached from the claim and
+/// never asked of the item; declined where no group of the item gives a
+/// "there is" from what the step names.
+pub fn obtained_there(
+    step: &Step,
+    library: &Library,
+    known: &Known,
+) -> Option<Route<Vec<Node>>> {
+    if !step.just.head.is(Method::Obtain) {
+        return None;
+    }
+    let name = step.just.item(&cited_item(&step.just)?);
+    if library.item(&name)?.unfolds() {
+        return None;
+    }
+    let groups = library.groups(&name)?;
+    let parts = known.parts(step, library);
+    Some(
+        obtained(&groups, &parts.facts, &parts.seed, library).map(|taken| {
+            groups[taken.group]
+                .gives
+                .iter()
+                .map(|said| filled(said, &taken.binding, &library.ctx))
+                .collect()
+        }),
+    )
 }
 
 /// The hypotheses of the item a step cites that nothing it names supplies,
@@ -549,10 +572,6 @@ pub fn check_obtained_claims(
             let kids = &body.children;
             match body.notation.as_str() {
                 "there-is" if kids.len() == 3 => order.push((&kids[0], &kids[1])),
-                "there-are" if kids.len() == 5 => {
-                    order.push((&kids[0], &kids[1]));
-                    order.push((&kids[2], &kids[3]));
-                }
                 _ => break,
             }
             body = last;
@@ -1527,10 +1546,6 @@ fn exhibited(claim: &Node, library: &Library, known: &Known) -> Option<Exhibited
         match body.notation.as_str() {
             "there-is" if body.children.len() == 3 => {
                 bound.push((&body.children[0], &body.children[1]));
-            }
-            "there-are" if body.children.len() == 5 => {
-                bound.push((&body.children[0], &body.children[1]));
-                bound.push((&body.children[2], &body.children[3]));
             }
             _ => break,
         }

@@ -426,7 +426,12 @@ impl<'a> Elaborator<'a> {
                 &[&moved],
             )));
         }
-        let wrapped = rules::WRAPS.contains(&label.as_str());
+        // The operation or relation a term wraps stays as it is; a function
+        // applied changes where a lemma says it may, as q(x) is r(x) when q
+        // is r (`fveq1d`).
+        let wrapped = rules::WRAPS.contains(&label.as_str())
+            && (g[g.len() - 1] == w[w.len() - 1]
+                || rules::congruence(&label, &[g.len() - 1]).is_none());
         let n = if wrapped { g.len() - 1 } else { g.len() };
         let kids: Vec<Term> = given.children()[..n].to_vec();
         let wants: Vec<Term> = want.children()[..n].to_vec();
