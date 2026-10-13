@@ -65,8 +65,9 @@ pub trait Oracle {
     fn b(&self) -> &Builder;
     /// ( under -> said e. CC ), for a term the recursion bottoms out at.
     fn atom(&mut self, said: &str) -> Checked<Proof>;
-    /// ( under -> said =/= 0 ), asked only of an emitter given a way to.
-    fn apart(&mut self, said: &str) -> Checked<Proof>;
+    /// ( under -> said =/= 0 ), asked only of an emitter given a way to;
+    /// `named` is the term as the page wrote it, which a message names.
+    fn apart(&mut self, said: &str, named: &str) -> Checked<Proof>;
     /// What the page says makes `said` not zero, asked only of an emitter
     /// given a way to.
     fn written(&mut self, said: &str) -> Checked<Option<Proof>>;
@@ -192,6 +193,10 @@ pub struct Emitter {
     held: IndexMap<String, Proof>,
     made: IndexMap<Made, Proof>,
     nonzero: IndexMap<String, Proof>,
+    /// Each denominator made from a divisor the page wrote, by its
+    /// canonical form, and the divisor as written: what a message names
+    /// where nothing says it is not zero.
+    divisors: IndexMap<String, String>,
 }
 
 impl Emitter {
@@ -203,6 +208,7 @@ impl Emitter {
             held: IndexMap::new(),
             made: IndexMap::new(),
             nonzero: IndexMap::new(),
+            divisors: IndexMap::new(),
         }
     }
 
@@ -2298,7 +2304,12 @@ impl Emitter {
             return Ok(Route::no("nothing can say a denominator is not zero"));
         }
         let rc = self.run_cc(o, under)?;
-        let apart = o.apart(&said)?;
+        let named = self
+            .divisors
+            .get(&said)
+            .cloned()
+            .unwrap_or_else(|| said.clone());
+        let apart = o.apart(&said, &named)?;
         Ok(Built((rc, apart)))
     }
 
@@ -2654,6 +2665,9 @@ impl Emitter {
         if beneath.is_some() {
             return self.divided_by_quotient(o, left, right, labels, said);
         }
+        self.divisors
+            .entry(Self::spell_run(&below))
+            .or_insert_with(|| right.rpn(labels).to_string());
         let joined = o.b().ap(
             "oveq12d",
             &binds! {"ph" => &self.under, "A" => &*left.rpn(labels),
@@ -2897,7 +2911,7 @@ impl Emitter {
     /// oracle gives only that, or a decline.
     fn atom_apart(&mut self, o: &mut dyn Oracle, said: &str) -> Checked<Route<Proof>> {
         if self.apart {
-            return o.apart(said).map(Built);
+            return o.apart(said, said).map(Built);
         }
         let found = if self.written { o.written(said)? } else { None };
         Ok(match found {

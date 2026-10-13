@@ -109,17 +109,21 @@ impl Elaborator<'_> {
             for sentence in sentences {
                 let node = me.read(sentence)?;
                 let kernel = me.term(&node)?;
-                // What the page can say: `nnne0` concludes set.mm's =/=, which
-                // the page writes as a denied equation, and that is listed too.
-                let mine: BTreeSet<String> = me
+                // What the page can say, each in its standard form, so that
+                // one fact spelt two ways is one answer: `nnne0` concludes
+                // set.mm's =/=, which is the page's denied equation.
+                let implied: Vec<String> = me
                     .implied_terms(&kernel)
                     .into_iter()
                     .map(|(implied, _)| implied)
                     .filter(|implied| me.spoken(implied).is_some())
                     .collect();
+                let mine: BTreeSet<String> =
+                    implied.iter().map(|t| me.fact_key(t)).collect();
                 let mut theirs: BTreeSet<String> = BTreeSet::new();
                 for implied in implied_facts(&node, env, &me.sorts_now) {
-                    theirs.insert(me.term(&implied)?);
+                    let term = me.term(&implied)?;
+                    theirs.insert(me.fact_key(&term));
                 }
                 let fact = me.render(&kernel);
                 for (who, only) in [

@@ -120,8 +120,9 @@ impl Oracle for Ask<'_, '_> {
         Ok(p)
     }
 
-    fn apart(&mut self, said: &str) -> Checked<Proof> {
-        self.el.not_zero(&self.spec.scope, &self.spec.facts, said)
+    fn apart(&mut self, said: &str, named: &str) -> Checked<Proof> {
+        self.el
+            .not_zero_named(&self.spec.scope, &self.spec.facts, said, named)
     }
 
     fn written(&mut self, said: &str) -> Checked<Option<Proof>> {
@@ -897,6 +898,18 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         said: &str,
     ) -> Checked<Proof> {
+        self.not_zero_named(scope, facts, said, said)
+    }
+
+    /// `not_zero`, where what is asked is a form the normaliser made of a
+    /// divisor the page wrote as `named`, which a defect names.
+    pub fn not_zero_named(
+        &mut self,
+        scope: &str,
+        facts: &Facts,
+        said: &str,
+        named: &str,
+    ) -> Checked<Proof> {
         if let Some(found) = self.written_nonzero(scope, facts, said)? {
             return Ok(found);
         }
@@ -930,7 +943,7 @@ impl<'a> Elaborator<'a> {
                 self.at,
                 format!(
                     "nothing says {}, which this step needs to divide by it",
-                    self.render(&want)
+                    self.render(&t!(named, "cc0", "wne"))
                 ),
             )),
         }

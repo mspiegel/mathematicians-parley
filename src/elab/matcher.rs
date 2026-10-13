@@ -2245,33 +2245,39 @@ impl<'a> Elaborator<'a> {
     /// difference the walk has found.
     pub fn rewrites(&mut self, conditional: bool) -> Vec<Rewrite> {
         if self.rewrite_rules.is_none() {
-            let mut plain = Vec::new();
-            let mut asking = Vec::new();
-            for (label, side) in rules::STANDARD {
-                if !self.b.sigs.contains_key(label) {
-                    continue;
-                }
-                let says = self.statement(label);
-                let mut body = says.clone();
-                while body.label() == Some("wi") {
-                    body = body.children()[1].clone();
-                }
-                let s = *side as usize;
-                let rule = Rewrite {
-                    label: label.to_string(),
-                    given: body.children()[1 - s].clone(),
-                    gives: body.children()[s].clone(),
-                    names: names_of(&says),
-                };
-                if says.label() == Some("wi") {
-                    asking.push(rule);
-                } else {
-                    plain.push(rule);
-                }
-            }
-            self.rewrite_rules = Some([plain, asking]);
+            self.rewrite_rules = Some(self.standard_rules());
         }
         self.rewrite_rules.as_ref().unwrap()[conditional as usize].clone()
+    }
+
+    /// The rules of `rules::STANDARD` set.mm has, those that ask nothing
+    /// first and those that do (`rewrites`).
+    pub fn standard_rules(&self) -> [Vec<Rewrite>; 2] {
+        let mut plain = Vec::new();
+        let mut asking = Vec::new();
+        for (label, side) in rules::STANDARD {
+            if !self.b.sigs.contains_key(label) {
+                continue;
+            }
+            let says = self.statement(label);
+            let mut body = says.clone();
+            while body.label() == Some("wi") {
+                body = body.children()[1].clone();
+            }
+            let s = *side as usize;
+            let rule = Rewrite {
+                label: label.to_string(),
+                given: body.children()[1 - s].clone(),
+                gives: body.children()[s].clone(),
+                names: names_of(&says),
+            };
+            if says.label() == Some("wi") {
+                asking.push(rule);
+            } else {
+                plain.push(rule);
+            }
+        }
+        [plain, asking]
     }
 
     /// ( where -> cur <-> nxt ), or `=`, for one rewrite at the head.

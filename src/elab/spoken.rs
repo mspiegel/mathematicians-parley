@@ -22,7 +22,7 @@ use crate::outcome::Checked;
 use crate::rules::NUMERALS;
 use crate::targets::{is_context, is_hole};
 
-use super::state::Elaborator;
+use super::state::{fit, Binding, Elaborator};
 
 /// A `target` read as a tree: a hole, numbered from 1, a label applied to
 /// what it takes, or a part of a structure a `let` line introduced, which
@@ -233,6 +233,17 @@ impl Elaborator<'_> {
             };
             if back.is_ok_and(|b| b.shape() == node.shape()) {
                 return Some(node);
+            }
+        }
+        // A term no notation reads, said as the standard form puts it
+        // (`rules::STANDARD`): set.mm's a =/= b is the page's not (a = b),
+        // which the page says as a ≠ b.
+        let [plain, _] = self.standard_rules();
+        for rule in plain {
+            if let Some(found) = fit(&rule.given, term, &Binding::new(), &rule.names) {
+                if rule.gives.names().iter().all(|n| found.contains_key(&**n)) {
+                    return self.page_node_under(&rule.gives.substitute(&found), bound);
+                }
             }
         }
         None

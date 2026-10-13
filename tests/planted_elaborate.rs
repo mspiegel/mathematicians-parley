@@ -530,6 +530,16 @@ fn cases() -> Vec<Case> {
             "    1.10. (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a) + 1",
             "is not an identity",
         ),
+        // A divisor nothing says is not zero is named as the page writes
+        // it: set.mm's =/= is said back as the page's ≠.
+        case(
+            "divide by a term no line says is not zero",
+            "proofs/mean-value/mean-value",
+            "proofs/mean-value.proof",
+            "    algebra, from 28\n    requires b − a ≠ 0: inequalities, from H1, H2, H3\n",
+            "    algebra, from 28\n",
+            "nothing says b − a ≠ 0, which this step needs to divide by it",
+        ),
         // A power past what `algebra` may multiply out is refused as one,
         // not read as an atom and the step called no identity.
         case(
@@ -1072,7 +1082,7 @@ fn cases() -> Vec<Case> {
             "proofs/triangular-reciprocals.proof",
             "          requires k ≠ 0: from K1\n          requires k + 1 ≠ 0: inequalities, from K1\n",
             "          requires k ≠ 0: from K1\n",
-            "=/= 0, which this step needs to divide by it",
+            "nothing says k + 1 ≠ 0, which this step needs to divide by it",
         ),
         // What an obtain claims is the "there is" it obtains from: d > 2 is
         // not what the supposition gives, and the line is the page's claim,
