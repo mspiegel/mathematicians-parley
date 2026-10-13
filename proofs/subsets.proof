@@ -56,10 +56,10 @@ theorem add-element-bijection
           mun:powerset S := T, from K2
 
     1.3.  a ∉ S
-          mun:not-in-subset Y := S, Z := X, from 1.1, H2
+          mun:not-in-subset Y := S, Z := X, from H2, 1.1
 
     1.4.  a ∉ T
-          mun:not-in-subset Y := T, Z := X, from 1.2, H2
+          mun:not-in-subset Y := T, Z := X, from H2, 1.2
 
     1.5.  (S ∪ {a}) ∖ {a} = S ∖ {a}
           mun:difference-of-union
@@ -170,7 +170,7 @@ theorem powerset-split
           assume a ∉ V                                                (C2)
 
           1.3.7.  V ⊆ X ∖ {a}
-                  mun:subset-into-difference, from 1.1, C2
+                  mun:subset-into-difference, from C2, 1.1
 
           1.3.8.  V ∈ 𝒫(X ∖ {a})
                   mun:powerset S := V, from 1.3.7
@@ -195,7 +195,7 @@ theorem powerset-split
           mun:powerset, from K2
 
     5.2.  S ⊆ X
-          mun:subset-transitive, from 5.1, 3
+          mun:subset-transitive, from 3, 5.1
 
     5.3.  {a} ⊆ X
           mun:singleton-subset, from H2
@@ -274,7 +274,7 @@ theorem subsets-count
                   obtain a: mun:card-nonempty, from C2
 
           1.2.2.  |X ∖ {a}| = k
-                  mun:card-remove, from 1.2.1, C2
+                  mun:card-remove, from C2, 1.2.1
 
           let U = 𝒫(X ∖ {a})                                             (D1)
                  reads the subsets of X that do not contain a

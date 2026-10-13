@@ -283,7 +283,7 @@ fn a_line_the_step_cites_may_be_restated_for_a_line_below() {
                 .to_string(),
             ),
             "\
-    inequalities, from 3, 4, 1
+    inequalities, from 1, 3, 4
     requires {1, …, 23} is finite: from 1
     requires |{1, …, 23}| ∈ ℕ₀: mun:card-nat0, from 1
 "
@@ -395,6 +395,25 @@ fn cases() -> Vec<Case> {
                     .to_string(),
             )],
             "cites H1 more than once",
+        ),
+        // Labels come first and then lines, each in order.
+        case(
+            "cite a list out of order",
+            vec![edit(
+                "proofs/sqrt2-irrational.proof",
+                Some("Q := n is odd, from 1, 2\n".to_string()),
+                "Q := n is odd, from 2, 1\n".to_string(),
+            )],
+            "cites 2, 1 out of order",
+        ),
+        case(
+            "cite a line before a label",
+            vec![edit(
+                "proofs/bezout.proof",
+                Some("algebra, from H9, H10, 1\n".to_string()),
+                "algebra, from 1, H9, H10\n".to_string(),
+            )],
+            "from H9, H10, 1",
         ),
         // A chain's congruence says what it is modulo, on its own line, and
         // every congruence of the chain says the same (`GRAMMAR.md`).
@@ -512,8 +531,8 @@ fn cases() -> Vec<Case> {
             "cite a function's type for a value without the point's domain",
             vec![edit(
                 "proofs/cauchy-schwarz.proof",
-                Some("mun:square-zero x := a(k), from 5.3.1, H2, K4".to_string()),
-                "mun:square-zero x := a(k), from 5.3.1, H2".to_string(),
+                Some("mun:square-zero x := a(k), from H2, K4, 5.3.1".to_string()),
+                "mun:square-zero x := a(k), from H2, 5.3.1".to_string(),
             )],
             "asks for x ∈ ℝ",
         ),
@@ -737,21 +756,21 @@ fn cases() -> Vec<Case> {
         case(
             "say what kind of number a let's name is with no reason under it",
             vec![
-                edit("proofs/pythagorean-triples.proof", Some("    mun:gcd a := s, b := w, from 28, 2\n    reads the number whose square is s".to_string()), "    reads the number whose square is s".to_string()),
+                edit("proofs/pythagorean-triples.proof", Some("    mun:gcd a := s, b := w, from 2, 28\n    reads the number whose square is s".to_string()), "    reads the number whose square is s".to_string()),
             ],
             "the line under it gives no reason",
         ),
         case(
             "give a let a reason that shows another term in the set",
             vec![
-                edit("proofs/pythagorean-triples.proof", Some("    mun:gcd a := t, b := w, from 27, 2".to_string()), "    mun:gcd a := s, b := w, from 28, 2".to_string()),
+                edit("proofs/pythagorean-triples.proof", Some("    mun:gcd a := t, b := w, from 2, 27".to_string()), "    mun:gcd a := s, b := w, from 2, 28".to_string()),
             ],
             "the reason under let D2 needs gcd(t, w) ∈ ℕ",
         ),
         case(
             "cite in a let's reason a step below the let",
             vec![
-                edit("proofs/pythagorean-triples.proof", Some("    mun:gcd a := t, b := w, from 27, 2".to_string()), "    mun:gcd a := t, b := w, from 27, 49".to_string()),
+                edit("proofs/pythagorean-triples.proof", Some("    mun:gcd a := t, b := w, from 2, 27".to_string()), "    mun:gcd a := t, b := w, from 27, 49".to_string()),
             ],
             "the reason under let D2 cites 49, which is not above the let",
         ),
@@ -1344,7 +1363,7 @@ fn cases() -> Vec<Case> {
         case(
             "substitute a term that captures a bound variable",
             vec![
-                edit("proofs/intermediate-value.proof", Some("           instantiate c′ := c, ε := −f(c) in line 15, from 13, H4, 16.3".to_string()), "           instantiate c′ := c, ε := −f(δ) in line 15, from 13, H4, 16.3".to_string()),
+                edit("proofs/intermediate-value.proof", Some("           instantiate c′ := c, ε := −f(c) in line 15, from H4, 13, 16.3".to_string()), "           instantiate c′ := c, ε := −f(δ) in line 15, from H4, 13, 16.3".to_string()),
             ],
             "may not capture",
         ),
@@ -1352,7 +1371,7 @@ fn cases() -> Vec<Case> {
         case(
             "substitute a term with a comma that captures a bound variable",
             vec![
-                edit("proofs/intermediate-value.proof", Some("           instantiate c′ := c, ε := −f(c) in line 15, from 13, H4, 16.3".to_string()), "           instantiate c′ := c, ε := −f(c)·|[δ, c]| in line 15, from 13, H4, 16.3".to_string()),
+                edit("proofs/intermediate-value.proof", Some("           instantiate c′ := c, ε := −f(c) in line 15, from H4, 13, 16.3".to_string()), "           instantiate c′ := c, ε := −f(c)·|[δ, c]| in line 15, from H4, 13, 16.3".to_string()),
             ],
             "may not capture",
         ),
@@ -1729,7 +1748,7 @@ fn cases() -> Vec<Case> {
         case(
             "exhibit a witness whose membership is not said, with a numeral in the body",
             vec![
-                edit("proofs/harmonic.proof", Some("    exhibit, from 5, 4\n".to_string()), "    exhibit, from 4\n".to_string()),
+                edit("proofs/harmonic.proof", Some("    exhibit, from 4, 5\n".to_string()), "    exhibit, from 4\n".to_string()),
             ],
             "step 6 exhibits n := 2^N, so it needs 2^N ∈ ℕ",
         ),
@@ -1760,7 +1779,7 @@ fn cases() -> Vec<Case> {
         case(
             "cite a line a count step asks nothing of",
             vec![
-                edit("tests/elaborator/induction-under-a-condition.proof", Some("mun:count-step-holds k := j, from 1.2.12.7, D1\n".to_string()), "mun:count-step-holds k := j, from 1.2.12.7, 1.2.12.3, D1\n".to_string()),
+                edit("tests/elaborator/induction-under-a-condition.proof", Some("mun:count-step-holds k := j, from D1, 1.2.12.7\n".to_string()), "mun:count-step-holds k := j, from D1, 1.2.12.3, 1.2.12.7\n".to_string()),
             ],
             "step 1.2.12.8 cites 1.2.12.3, and mun:count-step-holds asks for nothing it says",
         ),
@@ -1780,14 +1799,14 @@ fn cases() -> Vec<Case> {
         case(
             "obtain from an item without what it asks for",
             vec![
-                edit("proofs/intermediate-value.proof", Some("    obtain c: axi:completeness, from 5, 2, 7".to_string()), "    obtain c: axi:completeness, from 5, 7".to_string()),
+                edit("proofs/intermediate-value.proof", Some("    obtain c: axi:completeness, from 2, 5, 7".to_string()), "    obtain c: axi:completeness, from 5, 7".to_string()),
             ],
             "step 8 cites axi:completeness, which asks for",
         ),
         case(
             "obtain from an item and cite a line it does not ask for",
             vec![
-                edit("proofs/intermediate-value.proof", Some("    obtain c: axi:completeness, from 5, 2, 7".to_string()), "    obtain c: axi:completeness, from 5, 2, 7, H3".to_string()),
+                edit("proofs/intermediate-value.proof", Some("    obtain c: axi:completeness, from 2, 5, 7".to_string()), "    obtain c: axi:completeness, from H3, 2, 5, 7".to_string()),
             ],
             "step 8 cites H3, and axi:completeness asks for nothing it says",
         ),
@@ -1949,7 +1968,7 @@ fn cases() -> Vec<Case> {
         case(
             "answer an equation with one that says it neither way round",
             vec![
-                edit("proofs/isosceles.proof", Some("      from 3, 4, H4, H5\n".to_string()), "      from 3, 4, H4, 2\n".to_string()),
+                edit("proofs/isosceles.proof", Some("      from H4, H5, 3, 4\n".to_string()), "      from H4, 2, 3, 4\n".to_string()),
             ],
             "step 5 cites axi:side-angle-side, which asks for",
         ),
@@ -2041,7 +2060,7 @@ fn cases() -> Vec<Case> {
         case(
             "keep a point out of a disjoint set without saying it is in the other",
             vec![
-                edit("proofs/schroeder-bernstein.proof", Some("                  mun:disjoint-member, from 7.2.2, K7, contradicting 7.2.1\n".to_string()), "                  mun:disjoint-member, from 7.2.2, contradicting 7.2.1\n".to_string()),
+                edit("proofs/schroeder-bernstein.proof", Some("                  mun:disjoint-member, from K7, 7.2.2, contradicting 7.2.1\n".to_string()), "                  mun:disjoint-member, from 7.2.2, contradicting 7.2.1\n".to_string()),
             ],
             "step 7.2.3 cites mun:disjoint-member, which asks for",
         ),
@@ -2317,7 +2336,7 @@ fn cases() -> Vec<Case> {
         case(
             "reorder a product by a map not shown to be one-to-one",
             vec![
-                edit("proofs/euler.proof", Some("thm:product-reorder, from 5, 4, 9".to_string()), "thm:product-reorder, from 5, 4, 8".to_string()),
+                edit("proofs/euler.proof", Some("thm:product-reorder, from 4, 5, 9".to_string()), "thm:product-reorder, from 4, 5, 8".to_string()),
             ],
             "step 10 cites thm:product-reorder, which asks for",
         ),
@@ -2335,7 +2354,7 @@ fn cases() -> Vec<Case> {
         case(
             "write r ≠ 0 above an inequalities line instead of citing it",
             vec![
-                edit("proofs/bezout.proof", Some("          requires 0 < r: inequalities, from 1, S\n".to_string()), "          requires r ≠ 0: from S\n          requires 0 < r: inequalities, from 1\n".to_string()),
+                edit("proofs/bezout.proof", Some("          requires 0 < r: inequalities, from S, 1\n".to_string()), "          requires r ≠ 0: from S\n          requires 0 < r: inequalities, from 1\n".to_string()),
             ],
             "the requires line of step 3.1 says r ≠ 0, and neither mun:pos-int-nat nor the step's other lines ask for it",
         ),

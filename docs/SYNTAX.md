@@ -451,11 +451,19 @@ never carry the word.
 
 **A line is cited once.** A cited line fills every hypothesis of the cited
 item that it says, so a list names each line one time however many it fills:
-`mun:coprime-product x := a, y := a, n := gcd(b, c), from 11, 1`, where
+`mun:coprime-product x := a, y := a, n := gcd(b, c), from 1, 11`, where
 line 11 says gcd(a, gcd(b, c)) = 1 and fills both hypotheses that x and y
 are prime to n. The checker reports a line named twice in one list. The
 links of a calculation are each cited on their own, and two links may cite
 one line.
+
+**A list is in order.** Labels come first, sorted by their letters and
+then their number, and then lines, sorted by step number:
+`from A1, C2, D1, H1, H2, H10, K1, S, 2, 3.1, 3.2, 10`. A label with no
+number comes before the same letters with one, and `3.2` comes before
+`10`. The order says nothing about which hypothesis a line fills, so a
+reader looking for a line knows where in the list to find it. The checker
+reports a list out of order and gives it in order.
 
 **A line said of every member of a set says it of every member of a set
 inside that one.** A hypothesis asking "for all k ∈ {1, …, n}, P(k)" is
@@ -537,7 +545,7 @@ needed:
 
 ```proof
 let m = gcd(s, w), a positive integer                               (D1)
-    mun:gcd a := s, b := w, from 28, 2
+    mun:gcd a := s, b := w, from 2, 28
     reads the number whose square is s
 
 48. s = m²

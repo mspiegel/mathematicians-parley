@@ -2,7 +2,7 @@
 //!
 //! A rule that reads the spelling of a line rather than what it says accepts
 //! one proof and refuses the same proof written another way: `k ≥ 0` and
-//! `0 ≤ k` are one fact, and so are `from 3, 4` and `from 4, 3`. Each change
+//! `0 ≤ k` are one fact, and so are `a = b` and `b = a`. Each change
 //! here rewrites every line of the corpus's proofs it applies to, in a way
 //! that keeps what each line says, and the corpus must still check with no
 //! problem and every theorem in a changed file still elaborate.
@@ -71,10 +71,6 @@ struct Change {
 
 fn changes() -> Vec<Change> {
     vec![
-        Change {
-            name: "cited lines in the other order",
-            rewrite: Rewrite::Line(reversed_from),
-        },
         Change {
             name: "no spaces around operators in a requires line",
             rewrite: Rewrite::Line(unspaced),
@@ -162,21 +158,34 @@ fn changes() -> Vec<Change> {
     ]
 }
 
-/// `from A, B, C` as `from C, B, A`: a citation names lines, in no order.
-fn reversed_from(line: &str) -> Option<String> {
-    let at = line.rfind("from ")?;
-    let (head, refs) = line.split_at(at + "from ".len());
-    let refs: Vec<&str> = refs.trim_end().split(", ").collect();
-    let names = refs.iter().all(|r| {
-        !r.is_empty()
-            && r.chars()
-                .all(|c| c.is_alphanumeric() || c == '.' || c == '′')
-    });
-    if refs.len() < 2 || !names {
-        return None;
-    }
-    let reversed: Vec<&str> = refs.into_iter().rev().collect();
-    Some(format!("{head}{}", reversed.join(", ")))
+/// `line` with the lines and labels of its `from` list in the order the
+/// checker asks for; a list ends where a word that cites nothing starts, as
+/// `contradicting 2` does.
+fn cited_in_written_order(line: &str) -> String {
+    let Some(at) = line.rfind("from ") else {
+        return line.to_string();
+    };
+    let (head, rest) = line.split_at(at + "from ".len());
+    let parts: Vec<&str> = rest.split(", ").collect();
+    let cited = parts
+        .iter()
+        .take_while(|r| {
+            !r.is_empty()
+                && r.chars()
+                    .all(|c| c.is_alphanumeric() || c == '.' || c == '′')
+        })
+        .count();
+    let ordered = parley::check::cited_in_order(&parts[..cited]);
+    let tail = &parts[cited..];
+    format!(
+        "{head}{}",
+        ordered
+            .iter()
+            .chain(tail)
+            .copied()
+            .collect::<Vec<_>>()
+            .join(", ")
+    )
 }
 
 /// A requires line taken apart: what comes before its fact, the fact, and
@@ -326,7 +335,15 @@ fn changed(clean: &Memory, root: &Path, context: &Context, change: &Change) -> C
             .collect(),
         Rewrite::Corpus(all) => all(context, &texts),
     };
-    for ((path, done), (_, text)) in rewritten.into_iter().zip(&texts) {
+    for ((path, mut done), (_, text)) in rewritten.into_iter().zip(&texts) {
+        // A rewrite that renames or adds a cited line or label writes its
+        // list as the language orders it, as a writer would.
+        done.text = done
+            .text
+            .split('\n')
+            .map(cited_in_written_order)
+            .collect::<Vec<_>>()
+            .join("\n");
         declined.extend(done.declined);
         theorems.extend(done.theorems);
         if done.lines > 0 && done.text != *text {

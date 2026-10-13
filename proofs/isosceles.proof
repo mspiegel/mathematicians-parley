@@ -32,7 +32,7 @@ theorem isosceles
 
 5.  triangle ACB ≅ triangle BCA
     axi:side-angle-side P := A, Q := C, R := B, P′ := B, Q′ := C, R′ := A,
-      from 3, 4, H4, H5
+      from H4, H5, 3, 4
 
 6.  ∠BAC = ∠ABC
     def:congruent, from 5

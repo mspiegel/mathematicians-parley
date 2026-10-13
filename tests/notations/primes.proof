@@ -48,10 +48,10 @@ theorem ninety-one-is-not-prime
           instantiate d := 7 in line 4.1
 
     4.3.  7 = 1 or 7 = 91
-          mun:modus-ponens, from 4.2, 1
+          mun:modus-ponens, from 1, 4.2
 
     4.4.  7 = 1
-          mun:disjunctive-syllogism, from 4.3, 3, contradicting 2
+          mun:disjunctive-syllogism, from 3, 4.3, contradicting 2
 
 theorem past-four-billion
   note        Numbers past 2^32 are worked out exactly: Euler's factor of

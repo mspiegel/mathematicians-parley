@@ -99,7 +99,7 @@ theorem even-leg
           mun:even-or-odd n := b
 
     2.4.  b is even
-          mun:disjunctive-syllogism P := b is even, Q := b is odd, from 2.3, 2.2
+          mun:disjunctive-syllogism P := b is even, Q := b is odd, from 2.2, 2.3
 
     2.5.  a is even or b is even
           mun:or-right, from 2.4
@@ -132,7 +132,7 @@ theorem leg-hypotenuse-coprime
     mun:gcd a := gcd(b, c), b := a, from 1
 
 6.  gcd(gcd(b, c), a) divides b
-    mun:divides-transitive d := gcd(gcd(b, c), a), e := gcd(b, c), n := b, from 5, 1
+    mun:divides-transitive d := gcd(gcd(b, c), a), e := gcd(b, c), n := b, from 1, 5
 
 7.  gcd(gcd(b, c), a) divides gcd(a, b)
     thm:divides-gcd d := gcd(gcd(b, c), a), from 5, 6
@@ -153,7 +153,7 @@ theorem leg-hypotenuse-coprime
                         = 1                    9
 
 12. gcd(a·a, gcd(b, c)) = 1
-    mun:coprime-product x := a, y := a, n := gcd(b, c), from 11, 1
+    mun:coprime-product x := a, y := a, n := gcd(b, c), from 1, 11
 
 13. gcd(b, c) divides gcd(b, c)
     mun:divides-self n := gcd(b, c)
@@ -188,7 +188,7 @@ theorem primitive-triple
 
 2.  w ∈ ℕ
     mun:pos-int-nat m := w
-    requires 0 < w: inequalities, from 1, H1
+    requires 0 < w: inequalities, from H1, 1
 
 3.  2 divides a
     mun:divides d := 2, n := a, from 1
@@ -201,7 +201,7 @@ theorem primitive-triple
           mun:even-or-odd n := b
 
     4.2.  b is even
-          mun:disjunctive-syllogism P := b is even, Q := b is odd, from 4.1, S1
+          mun:disjunctive-syllogism P := b is even, Q := b is odd, from S1, 4.1
 
     4.3.  v ∈ ℤ. b = 2v.
           obtain v: mun:even n := b, from 4.2
@@ -232,7 +232,7 @@ theorem primitive-triple
           mun:even-or-odd n := c
 
     8.2.  c is even
-          mun:disjunctive-syllogism P := c is even, Q := c is odd, from 8.1, S2
+          mun:disjunctive-syllogism P := c is even, Q := c is odd, from S2, 8.1
 
     8.3.  r ∈ ℤ. c = 2r.
           obtain r: mun:even n := c, from 8.2
@@ -250,7 +250,7 @@ theorem primitive-triple
     obtain r: mun:odd n := c, from 8
 
 10. c + b = 2(r + q + 1)
-    algebra, from 9, 5
+    algebra, from 5, 9
 
 11. c + b is even
     mun:even n := c + b, from 10
@@ -259,7 +259,7 @@ theorem primitive-triple
     obtain s: mun:even n := c + b, from 11
 
 13. c − b = 2(r − q)
-    algebra, from 9, 5
+    algebra, from 5, 9
 
 14. c − b is even
     mun:even n := c − b, from 13
@@ -308,11 +308,11 @@ theorem primitive-triple
 
 27. t ∈ ℕ
     mun:pos-int-nat m := t
-    requires 0 < t: inequalities, from 15, 26, H2, H3
+    requires 0 < t: inequalities, from H2, H3, 15, 26
 
 28. s ∈ ℕ
     mun:pos-int-nat m := s
-    requires 0 < s: inequalities, from 12, H2, H3
+    requires 0 < s: inequalities, from H2, H3, 12
 
 29. a² = (2w)²
     substitute a = 2w (line 1)
@@ -351,7 +351,7 @@ theorem primitive-triple
     thm:leg-hypotenuse-coprime, from H4, H5
 
 39. gcd(s, t) ∈ ℕ. gcd(s, t) divides s. gcd(s, t) divides t.
-    mun:gcd a := s, b := t, from 28, 27
+    mun:gcd a := s, b := t, from 27, 28
 
 40. gcd(s, t) divides s + t
     mun:divides-sum d := gcd(s, t), a := s, b := t, from 39
@@ -366,7 +366,7 @@ theorem primitive-triple
     substitute b = s − t (line 23) into line 42
 
 44. gcd(s, t) divides gcd(b, c)
-    thm:divides-gcd d := gcd(s, t), a := b, b := c, from 43, 41
+    thm:divides-gcd d := gcd(s, t), a := b, b := c, from 41, 43
     requires gcd(s, t) ∈ ℤ: membership, from 39
 
 45. gcd(s, t) divides 1
@@ -376,10 +376,10 @@ theorem primitive-triple
     mun:divides-one d := gcd(s, t), from 39, 45
 
 47. s = gcd(s, w)². t = gcd(t, w)².
-    thm:coprime-square, from 28, 27, 2, 46, 37
+    thm:coprime-square, from 2, 27, 28, 37, 46
 
 let m = gcd(s, w), a positive integer                               (D1)
-    mun:gcd a := s, b := w, from 28, 2
+    mun:gcd a := s, b := w, from 2, 28
     reads the number whose square is s
 
 48. s = m²
@@ -388,7 +388,7 @@ let m = gcd(s, w), a positive integer                               (D1)
         = m²            D1
 
 let n = gcd(t, w), a positive integer                               (D2)
-    mun:gcd a := t, b := w, from 27, 2
+    mun:gcd a := t, b := w, from 2, 27
     reads the number whose square is t
 
 49. t = n²
@@ -429,7 +429,7 @@ let n = gcd(t, w), a positive integer                               (D2)
     substitute t = n² (line 49) into line 58
 
 60. n² < m²
-    inequalities, from 57, H2
+    inequalities, from H2, 57
 
 61. n < m
     mun:square-less x := n, y := m, from 60
@@ -475,7 +475,7 @@ let n = gcd(t, w), a positive integer                               (D2)
           mun:even-or-odd n := m + n
 
     72.2. m + n is even
-          mun:disjunctive-syllogism P := m + n is even, Q := m + n is odd, from 72.1, S3
+          mun:disjunctive-syllogism P := m + n is even, Q := m + n is odd, from S3, 72.1
 
     72.3. u ∈ ℤ. m + n = 2u.
           obtain u: mun:even n := m + n, from 72.2
@@ -503,8 +503,8 @@ let n = gcd(t, w), a positive integer                               (D2)
 
 73. There are m, n ∈ ℕ with n < m, gcd(m, n) = 1, m + n is odd,
     a = 2mn, b = m² − n², and c = m² + n².
-    exhibit, from 61, 71, 72, 57, 59
-    requires a = 2mn: algebra, from 55, H1
+    exhibit, from 57, 59, 61, 71, 72
+    requires a = 2mn: algebra, from H1, 55
 
 theorem triple-scaled
   note        Divide the triple by k = gcd(a, b). k divides c too, since k²
@@ -660,7 +660,7 @@ theorem triple-parameters
 
     3.1.  m ∈ ℕ. n ∈ ℕ. n < m. gcd(m, n) = 1. m + n is odd.
           a/k = 2mn. b/k = m² − n². c/k = m² + n².
-          obtain m, n: thm:primitive-triple a := a/k, b := b/k, c := c/k, from 1, C1
+          obtain m, n: thm:primitive-triple a := a/k, b := b/k, c := c/k, from C1, 1
 
     3.2.  a = 2kmn
           algebra, from 3.1
@@ -706,7 +706,7 @@ theorem triple-parameters
 
     3.12. m ∈ ℕ. n ∈ ℕ. n < m. gcd(m, n) = 1. m + n is odd.
           b/k = 2mn. a/k = m² − n². c/k = m² + n².
-          obtain m, n: thm:primitive-triple a := b/k, b := a/k, c := c/k, from 1, 3.10, 3.11, C2
+          obtain m, n: thm:primitive-triple a := b/k, b := a/k, c := c/k, from C2, 1, 3.10, 3.11
 
     3.13. a = k(m² − n²)
           algebra, from 3.12

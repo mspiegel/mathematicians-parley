@@ -14,4 +14,4 @@ theorem distances-out-of-order
     mun:distance-real P := R, Q := S
 
 3.  |RS|·|PQ| ∈ ℝ
-    membership, from 2, 1
+    membership, from 1, 2

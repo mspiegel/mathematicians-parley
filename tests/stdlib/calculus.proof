@@ -24,13 +24,13 @@ theorem derivative-on-the-line
     mun:reals-open
 
 3.  g is differentiable on ℝ
-    thm:derivative-linear D := ℝ, U := ℝ, m := 3, from 1, 2, H4
+    thm:derivative-linear D := ℝ, U := ℝ, m := 3, from H4, 1, 2
 
 4.  For all x ∈ ℝ, g′(x) = 3.
-    thm:derivative-linear D := ℝ, U := ℝ, m := 3, from 1, 2, H4
+    thm:derivative-linear D := ℝ, U := ℝ, m := 3, from H4, 1, 2
 
 5.  For all x ∈ ℝ, F′(x) = f′(x) + g′(x).
-    thm:derivative-sum D := ℝ, U := ℝ, from 1, H6, H2, 3
+    thm:derivative-sum D := ℝ, U := ℝ, from H2, H6, 1, 3
 
 6.  For all x ∈ ℝ, F′(x) = f′(x) + 3.
     proof
@@ -61,13 +61,13 @@ theorem derivative-of-a-difference
     mun:reals-open
 
 3.  g is differentiable on ℝ
-    thm:derivative-linear D := ℝ, U := ℝ, m := 3, from 1, 2, H4
+    thm:derivative-linear D := ℝ, U := ℝ, m := 3, from H4, 1, 2
 
 4.  For all x ∈ ℝ, g′(x) = 3.
-    thm:derivative-linear D := ℝ, U := ℝ, m := 3, from 1, 2, H4
+    thm:derivative-linear D := ℝ, U := ℝ, m := 3, from H4, 1, 2
 
 5.  For all x ∈ ℝ, F′(x) = f′(x) − g′(x).
-    thm:derivative-difference D := ℝ, U := ℝ, from 1, H6, H2, 3
+    thm:derivative-difference D := ℝ, U := ℝ, from H2, H6, 1, 3
 
 6.  For all x ∈ ℝ, F′(x) = f′(x) − 3.
     proof
@@ -136,7 +136,7 @@ theorem continuous-of-a-difference
     mun:subset-self X := ℝ
 
 2.  F is continuous on ℝ
-    thm:continuous-difference D := ℝ, from 1, H6, H2, H4
+    thm:continuous-difference D := ℝ, from H2, H4, H6, 1
 
 theorem integral-over-a-point
   let c ∈ ℝ                                                           (H1)

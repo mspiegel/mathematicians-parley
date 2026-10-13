@@ -156,7 +156,7 @@ theorem walk-parity-by-induction
                              requires c(j, y) ∈ ℕ₀: mun:count-nat0 k := j, from D1, 1.2.1
 
                   1.2.12.5.  c(j, y) is even
-                             mun:disjunctive-syllogism, from 1.2.12.4, 1.2.12.3
+                             mun:disjunctive-syllogism, from 1.2.12.3, 1.2.12.4
 
                   1.2.12.6.  v(j + 1) is incident with e(j + 1)
                              mun:joined-incident a := e(j + 1), u := v(j), w := v(j + 1),
@@ -169,7 +169,7 @@ theorem walk-parity-by-induction
                              substitute y = v(j + 1) (C3) into line 1.2.12.6
 
                   1.2.12.8.  c(j + 1, y) = c(j, y) + 1
-                             mun:count-step-holds k := j, from 1.2.12.7, D1
+                             mun:count-step-holds k := j, from D1, 1.2.12.7
                              requires y ∈ V: from 1.2.1
 
                   1.2.12.9.  m ∈ ℤ. c(j, y) = 2m.
@@ -184,7 +184,7 @@ theorem walk-parity-by-induction
                              requires c(j + 1, y) ∈ ℕ₀: mun:count-nat0 k := j + 1, from D1, 1.2.1
 
                   1.2.12.12. c(j + 1, y) is odd ↔ y = v(j + 1)
-                             mun:iff-both-true, from 1.2.12.11, C3
+                             mun:iff-both-true, from C3, 1.2.12.11
 
                   case
                   assume y ≠ v(j + 1)                                 (C4)
@@ -209,11 +209,11 @@ theorem walk-parity-by-induction
                                            substitute y = v(j) (C5) into line 1.2.12.14.1
 
                              1.2.12.14.3.  c(j + 1, y) = c(j, y) + 1
-                                           mun:count-step-holds k := j, from 1.2.12.14.2, D1
+                                           mun:count-step-holds k := j, from D1, 1.2.12.14.2
                                            requires y ∈ V: from 1.2.1
 
                              1.2.12.14.4.  c(j, y) is odd
-                                           mun:iff-from-right, from 1.2.10, C5
+                                           mun:iff-from-right, from C5, 1.2.10
 
                              1.2.12.14.5.  m ∈ ℤ. c(j, y) = 2m + 1.
                                            obtain m: mun:odd n := c(j, y), from 1.2.12.14.4
@@ -239,25 +239,25 @@ theorem walk-parity-by-induction
 
                              1.2.12.14.10. y is not incident with e(j + 1)
                                            mun:not-incident a := e(j + 1), u := v(j), w := v(j + 1),
-                                             from 1.2.8, C6, C4
+                                             from C4, C6, 1.2.8
                                            requires e(j + 1) ∈ E: mun:function-value, from 1.2.2
                                            requires v(j) ∈ V: mun:function-value, from 1.2.4
                                            requires v(j + 1) ∈ V: mun:function-value, from 1.2.5
                                            requires y ∈ V: from 1.2.1
 
                              1.2.12.14.11. c(j + 1, y) = c(j, y)
-                                           mun:count-step-fails k := j, from 1.2.12.14.10, D1
+                                           mun:count-step-fails k := j, from D1, 1.2.12.14.10
                                            requires y ∈ V: from 1.2.1
 
                              1.2.12.14.12. c(j, y) is not odd
-                                           mun:iff-not-from-right, from 1.2.10, C6
+                                           mun:iff-not-from-right, from C6, 1.2.10
 
                              1.2.12.14.13. c(j, y) is even or c(j, y) is odd
                                            mun:even-or-odd n := c(j, y)
                                            requires c(j, y) ∈ ℕ₀: mun:count-nat0 k := j, from D1, 1.2.1
 
                              1.2.12.14.14. c(j, y) is even
-                                           mun:disjunctive-syllogism, from 1.2.12.14.13, 1.2.12.14.12
+                                           mun:disjunctive-syllogism, from 1.2.12.14.12, 1.2.12.14.13
 
                              1.2.12.14.15. c(j + 1, y) is even
                                            substitute c(j + 1, y) = c(j, y) (line 1.2.12.14.11) into line 1.2.12.14.14
@@ -267,7 +267,7 @@ theorem walk-parity-by-induction
                              requires c(j + 1, y) ∈ ℕ₀: mun:count-nat0 k := j + 1, from D1, 1.2.1
 
                   1.2.12.16. c(j + 1, y) is odd ↔ y = v(j + 1)
-                             mun:iff-both-false, from 1.2.12.15, C4
+                             mun:iff-both-false, from C4, 1.2.12.15
 
 2.  k ∈ ℕ₀. k ≤ n.
     mun:range0, from H6

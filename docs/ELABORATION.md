@@ -1994,7 +1994,7 @@ proved (`discharged_by`).
     denial, is searched either way round (`either_way`), since which way a
     pattern is read is decided by what is matched after it.
     `tests/invariance.rs` rewrites the proofs in ways that keep what they
-    say — cited lines in another order, operators unspaced, an order or an
+    say — operators unspaced, an order or an
     equation turned round — and asks that both tools still accept them.
 
 What a line is *used for* is known too, though nothing reports it: a numbered

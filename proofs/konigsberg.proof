@@ -57,13 +57,13 @@ let g(i) = e(i), for i ∈ S                                            (D3)
     let i ∈ S                                                         (K1)
 
     1.1.  i ∈ {1, …, n}. x is incident with e(i).
-          mun:set-builder u := i, from K1, D1
+          mun:set-builder u := i, from D1, K1
 
     1.2.  e(i) ∈ E
           mun:function-value, from 1.1
 
     1.3.  e(i) ∈ T
-          mun:set-builder u := e(i), from 1.2, 1.1, D2
+          mun:set-builder u := e(i), from D2, 1.1, 1.2
 
     1.4.  g(i) = e(i)
           D3, from K1
@@ -85,10 +85,10 @@ let g(i) = e(i), for i ∈ S                                            (D3)
     assume g(s) = g(t)                                                (K4)
 
     4.1.  s ∈ {1, …, n}. x is incident with e(s).
-          mun:set-builder u := s, from K2, D1
+          mun:set-builder u := s, from D1, K2
 
     4.2.  t ∈ {1, …, n}. x is incident with e(t).
-          mun:set-builder u := t, from K3, D1
+          mun:set-builder u := t, from D1, K3
 
     4.3.  g(s) = e(s)
           D3, from K2
@@ -113,7 +113,7 @@ let g(i) = e(i), for i ∈ S                                            (D3)
     let a ∈ T                                                         (K5)
 
     6.1.  a ∈ E. x is incident with a.
-          mun:set-builder u := a, from K5, D2
+          mun:set-builder u := a, from D2, K5
 
     6.2.  x is incident with a
           join 6.1
@@ -128,7 +128,7 @@ let g(i) = e(i), for i ∈ S                                            (D3)
           substitute a = e(i) (line 6.4) into line 6.2
 
     6.6.  i ∈ S
-          mun:set-builder u := i, from 6.4, 6.5, D1
+          mun:set-builder u := i, from D1, 6.4, 6.5
 
     6.7.  g(i) = e(i)
           D3, from 6.6
@@ -142,7 +142,7 @@ let g(i) = e(i), for i ∈ S                                            (D3)
           exhibit, from 6.6, 6.8
 
 7.  There is a bijection from S to T.
-    mun:bijection, from 5, 6, D1
+    mun:bijection, from D1, 5, 6
 
 8.  |S| = |T|
     mun:card-equal, from 7
@@ -151,7 +151,7 @@ let g(i) = e(i), for i ∈ S                                            (D3)
     requires S is finite: mun:finite-part
 
 9.  deg(x) = |T|
-    mun:degree, from H6, D2
+    mun:degree, from D2, H6
 
 10. deg(x) = |{i ∈ {1, …, n} : x is incident with e(i)}|
     calculation
@@ -182,14 +182,14 @@ theorem walk-parity
     def:euler-path, from H5
 
 2.  deg(x) = |{i ∈ {1, …, n} : x is incident with e(i)}|
-    thm:degree-by-walk, from 1, H6
+    thm:degree-by-walk, from H6, 1
 
 3.  For all i ∈ {1, …, n}, x is incident with e(i) ↔ x = v(i − 1) or x = v(i).
     proof
     let i ∈ {1, …, n}                                                 (K1)
 
     3.1.  e(i) joins v(i − 1) and v(i)
-          mun:walk-step, from 1, K1
+          mun:walk-step, from K1, 1
 
     3.2.  x is incident with e(i) ↔ x = v(i − 1) or x = v(i)
           mun:incident-of-joined a := e(i), u := v(i − 1), w := v(i), from H6, 3.1
@@ -199,7 +199,7 @@ theorem walk-parity
     let i ∈ {1, …, n}                                                 (K2)
 
     4.1.  v(i − 1) ≠ v(i)
-          mun:walk-distinct, from 1, K2
+          mun:walk-distinct, from K2, 1
 
     4.2.  not (x = v(i − 1) and x = v(i))
           contradiction
@@ -229,7 +229,7 @@ let r = |{i ∈ {1, …, n} : x = v(i)}|                                  (D2)
        reads how many of the walk's edges arrive at x
 
 6.  |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}| = d + r
-    mun:count-either, from 4, D1, D2
+    mun:count-either, from D1, D2, 4
 
 7.  d = |{i ∈ {0, …, n − 1} : x = v(i)}|
     mun:count-shift, from D1
@@ -238,7 +238,7 @@ let r = |{i ∈ {1, …, n} : x = v(i)}|                                  (D2)
     mun:count-first-fails, from H7
 
 9.  r = |{i ∈ {1, …, n − 1} : x = v(i)}|
-    mun:count-last-fails, from H8, D2
+    mun:count-last-fails, from D2, H8
 
 let m = |{i ∈ {1, …, n − 1} : x = v(i)}|, a nonnegative integer       (D3)
     mun:count-nat0 k := n − 1
@@ -319,7 +319,7 @@ theorem odd-vertices
                   suppose u ≠ v(n)                                    (S1)
 
                   3.3.2.1.  deg(u) is even
-                            thm:walk-parity x := u, from 1, 3.1, C2, S1
+                            thm:walk-parity x := u, from C2, S1, 1, 3.1
 
                   3.3.2.2.  deg(u) is not odd
                             mun:not-both, from 3.3.2.1, contradicting 3.1

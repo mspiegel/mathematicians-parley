@@ -79,12 +79,12 @@ theorem triangular-reciprocals
                   requires n + 1 > 0: inequalities, from K4
 
           3.2.5.  2 − ε < Σ(k = 1 to n) 1/T(k)
-                  inequalities, from D1, 3.2.1, 3.2.3, 3.1
+                  inequalities, from D1, 3.1, 3.2.1, 3.2.3
                   requires Σ(k = 1 to n) 1/T(k) ∈ ℝ: membership, from D1
                   requires n + 1 ≠ 0: inequalities, from K4
 
           3.2.6.  Σ(k = 1 to n) 1/T(k) < 2 + ε
-                  inequalities, from D1, 3.2.1, 3.2.4, A1
+                  inequalities, from A1, D1, 3.2.1, 3.2.4
                   requires Σ(k = 1 to n) 1/T(k) ∈ ℝ: membership, from D1
                   requires n + 1 ≠ 0: inequalities, from K4
 

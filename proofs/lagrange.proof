@@ -92,7 +92,7 @@ let K = {X ⊆ G : there is g ∈ G with X = gH}                        (D1)
           instantiate g := a in line 3, from K4
 
     5.3.  x ∈ G
-          mun:in-subset, from 5.2, K5
+          mun:in-subset, from K5, 5.2
 
     5.4.  h ∈ G
           mun:in-subset, from 1, 5.1
@@ -102,7 +102,7 @@ let K = {X ⊆ G : there is g ∈ G with X = gH}                        (D1)
           let u ∈ xH                                                  (K6)
 
           5.5.1.  c ∈ H. u = x·c.
-                  obtain c: mun:coset g := x, from H2, 5.3, K6
+                  obtain c: mun:coset g := x, from H2, K6, 5.3
 
           5.5.2.  c ∈ G
                   mun:in-subset, from 1, 5.5.1
@@ -171,10 +171,10 @@ let K = {X ⊆ G : there is g ∈ G with X = gH}                        (D1)
           instantiate g := a in line 3, from K7
 
     6.12. x ∈ G
-          mun:in-subset, from 6.11, K8
+          mun:in-subset, from K8, 6.11
 
     6.13. a ∈ xH
-          mun:coset u := a, g := x, from H2, 6.12, 6.3, 6.10
+          mun:coset u := a, g := x, from H2, 6.3, 6.10, 6.12
 
 7.  For all b ∈ G, for all y ∈ bH, yH = bH.
     proof
@@ -189,7 +189,7 @@ let K = {X ⊆ G : there is g ∈ G with X = gH}                        (D1)
           instantiate g := b in line 3, from K9
 
     7.3.  y ∈ G
-          mun:in-subset, from 7.2, K10
+          mun:in-subset, from K10, 7.2
 
     7.4.  b ∈ yH
           instantiate a := b, x := y in line 6, from K9, K10
@@ -241,13 +241,13 @@ let K = {X ⊆ G : there is g ∈ G with X = gH}                        (D1)
                         = g·r            8.3.2
 
           8.3.4.  s ∈ G
-                  mun:in-subset, from 1, K13
+                  mun:in-subset, from K13, 1
 
           8.3.5.  r ∈ G
-                  mun:in-subset, from 1, K14
+                  mun:in-subset, from K14, 1
 
           8.3.6.  s = r
-                  thm:group-cancel a := s, b := r, from 8.3.4, 8.3.5, K11, 8.3.3
+                  thm:group-cancel a := s, b := r, from K11, 8.3.3, 8.3.4, 8.3.5
 
     8.4.  t : H → gH is one-to-one
           mun:one-to-one, from 8.2, 8.3

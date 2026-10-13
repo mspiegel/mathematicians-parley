@@ -89,7 +89,7 @@ theorem not-in-an-intersection
           mun:pair x := 3, u := 1, w := 2, from S
 
     3.2.  3 = 1
-          mun:disjunctive-syllogism, from 3.1, 2, contradicting 1
+          mun:disjunctive-syllogism, from 2, 3.1, contradicting 1
 
 4.  3 ∉ {1, 2} ∩ {3}
     contradiction

@@ -52,7 +52,7 @@ let F(x) = f(x) + g(x), for x ∈ [a, b]                                (D2)
 6.  For all x ∈ [a, b], g(x) ∈ ℝ.
     membership, from D1
     requires b − a ≠ 0: inequalities, from H1, H2, H3
-    requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H4, 1, 2, H1, H2
+    requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H1, H2, H4, 1, 2
     requires x ∈ ℝ: mun:interval, from H1, H2
 
 7.  g : [a, b] → ℝ
@@ -63,7 +63,7 @@ let F(x) = f(x) + g(x), for x ∈ [a, b]                                (D2)
     membership, from D1, D2
     requires f(x) ∈ ℝ: from H4
     requires b − a ≠ 0: inequalities, from H1, H2, H3
-    requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H4, 1, 2, H1, H2
+    requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H1, H2, H4, 1, 2
     requires x ∈ ℝ: mun:interval, from H1, H2
 
 9.  F : [a, b] → ℝ
@@ -73,18 +73,18 @@ let F(x) = f(x) + g(x), for x ∈ [a, b]                                (D2)
 10. g is continuous on [a, b]
     thm:continuous-linear D := [a, b], m := (f(a) − f(b))/(b − a), from 3, 4
     requires b − a ≠ 0: inequalities, from H1, H2, H3
-    requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H4, 1, 2, H1, H2
+    requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H1, H2, H4, 1, 2
     requires g : [a, b] → ℝ: from 7
 
 11. F is continuous on [a, b]
-    thm:continuous-sum D := [a, b], from 3, 5, H5, 10
+    thm:continuous-sum D := [a, b], from H5, 3, 5, 10
     requires F : [a, b] → ℝ: from 9
     requires g : [a, b] → ℝ: from 7
 
 12. g is differentiable on (a, b)
     thm:derivative-linear D := [a, b], U := (a, b), m := (f(a) − f(b))/(b − a), from 3, 4
     requires b − a ≠ 0: inequalities, from H1, H2, H3
-    requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H4, 1, 2, H1, H2
+    requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H1, H2, H4, 1, 2
     requires (a, b) ⊆ [a, b]: mun:open-within-closed
     requires (a, b) is open: mun:open-interval-open
     requires g : [a, b] → ℝ: from 7
@@ -92,19 +92,19 @@ let F(x) = f(x) + g(x), for x ∈ [a, b]                                (D2)
 13. For all x ∈ (a, b), g′(x) = (f(a) − f(b))/(b − a).
     thm:derivative-linear D := [a, b], U := (a, b), m := (f(a) − f(b))/(b − a), from 3, 4
     requires b − a ≠ 0: inequalities, from H1, H2, H3
-    requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H4, 1, 2, H1, H2
+    requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H1, H2, H4, 1, 2
     requires (a, b) ⊆ [a, b]: mun:open-within-closed
     requires (a, b) is open: mun:open-interval-open
     requires g : [a, b] → ℝ: from 7
 
 14. F is differentiable on (a, b)
-    thm:derivative-sum D := [a, b], U := (a, b), from 3, 5, H6, 12
+    thm:derivative-sum D := [a, b], U := (a, b), from H6, 3, 5, 12
     requires (a, b) ⊆ [a, b]: mun:open-within-closed
     requires F : [a, b] → ℝ: from 9
     requires g : [a, b] → ℝ: from 7
 
 15. For all x ∈ (a, b), F′(x) = f′(x) + g′(x).
-    thm:derivative-sum D := [a, b], U := (a, b), from 3, 5, H6, 12
+    thm:derivative-sum D := [a, b], U := (a, b), from H6, 3, 5, 12
     requires (a, b) ⊆ [a, b]: mun:open-within-closed
     requires F : [a, b] → ℝ: from 9
     requires g : [a, b] → ℝ: from 7

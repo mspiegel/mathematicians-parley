@@ -64,7 +64,7 @@ theorem even-square
     mun:even-or-odd
 
 3.  n is even
-    mun:disjunctive-syllogism P := n is even, Q := n is odd, from 2, 1
+    mun:disjunctive-syllogism P := n is even, Q := n is odd, from 1, 2
 
 
 theorem lowest-terms

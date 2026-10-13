@@ -60,7 +60,7 @@ theorem cauchy-schwarz
     assume Σ(k = 1 to n) a(k)² = 0                                    (C2)
 
     5.2.  For all k ∈ {1, …, n}, a(k)² = 0.
-          mun:sum-zero-terms a := 1, b := n, from 2, C2
+          mun:sum-zero-terms a := 1, b := n, from C2, 2
 
     5.3.  For all k ∈ {1, …, n}, a(k)·b(k) = 0.
           proof
@@ -70,7 +70,7 @@ theorem cauchy-schwarz
                   instantiate k := k in line 5.2, from K4
 
           5.3.2.  a(k) = 0
-                  mun:square-zero x := a(k), from 5.3.1, H2, K4
+                  mun:square-zero x := a(k), from H2, K4, 5.3.1
 
           5.3.3.  a(k)·b(k) = 0
                   algebra, from 5.3.2
@@ -126,25 +126,25 @@ theorem cauchy-schwarz
 
     5.11. (−B/A)²·A + 2(−B/A)·B + C ≥ 0
           instantiate t := −B/A in line 1, from D1, D2, D3
-          requires A > 0: inequalities, from D1, C3
+          requires A > 0: inequalities, from C3, D1
           requires −B/A ∈ ℝ: membership, from D1, D2
 
     5.12. (−B/A)²·A + 2(−B/A)·B + C = C − B²/A
           algebra
-          requires A ≠ 0: inequalities, from D1, C3
+          requires A ≠ 0: inequalities, from C3, D1
 
     5.13. B²/A ≤ C
           inequalities, from 5.11, 5.12
-          requires A > 0: inequalities, from D1, C3
+          requires A > 0: inequalities, from C3, D1
           requires A ≠ 0: inequalities
 
     5.14. A·(B²/A) ≤ A·C
           mun:multiply-le, from 5.13
-          requires A > 0: inequalities, from D1, C3
+          requires A > 0: inequalities, from C3, D1
 
     5.15. A·(B²/A) = B²
           algebra
-          requires A ≠ 0: inequalities, from D1, C3
+          requires A ≠ 0: inequalities, from C3, D1
 
     5.16. B² ≤ A·C
           substitute A·(B²/A) = B² (line 5.15) into line 5.14

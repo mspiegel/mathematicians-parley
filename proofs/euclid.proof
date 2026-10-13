@@ -87,7 +87,7 @@ theorem euclid
                   D1, from C2
 
           3.5.8.  b(k) ∈ ℕ
-                  mun:nat0-nonzero, from IH1, C2
+                  mun:nat0-nonzero, from C2, IH1
 
           3.5.9.  a(k) mod b(k) ∈ ℕ₀
                   mun:mod-natural, from 3.5.8
@@ -166,7 +166,7 @@ theorem euclid
                   D1, from C4
 
           4.6.9.  b(k) ∈ ℕ
-                  mun:nat0-nonzero, from 4.4, C4
+                  mun:nat0-nonzero, from C4, 4.4
 
           4.6.10. a(k) ∈ ℤ
                   mun:nat0-int, from 4.4
@@ -237,7 +237,7 @@ theorem euclid
                   D1, from C6
 
           5.6.4.  b(k) ∈ ℕ
-                  mun:nat0-nonzero, from 5.4, C6
+                  mun:nat0-nonzero, from C6, 5.4
 
           5.6.5.  a(k) ∈ ℤ
                   mun:nat0-int, from 5.4
@@ -260,7 +260,7 @@ theorem euclid
                   requires b(k) ∈ ℤ: mun:nat0-int, from 5.4
 
           5.6.11. b(k) + k ≤ N
-                  mun:disjunctive-syllogism, from IH3, C6
+                  mun:disjunctive-syllogism, from C6, IH3
 
           5.6.12. b(k + 1) + (k + 1) ≤ N
                   inequalities, from 5.6.10, 5.6.11
@@ -292,10 +292,10 @@ theorem euclid
     assume b(N) ≠ 0                                                   (C8)
 
     10.1. b(N) + N ≤ N
-          mun:disjunctive-syllogism, from 8, C8
+          mun:disjunctive-syllogism, from C8, 8
 
     10.2. b(N) ∈ ℕ
-          mun:nat0-nonzero, from 6, C8
+          mun:nat0-nonzero, from C8, 6
 
     10.3. not b(N) + N ≤ N
           inequalities, from 10.2, contradicting 10.1

@@ -177,13 +177,13 @@ theorem one-over-n-tends-to-zero
                   requires n > 0: inequalities, from K2
 
           1.2.3.  0 − ε < 1/n
-                  inequalities, from 1.2.2, A1, K2
+                  inequalities, from A1, K2, 1.2.2
 
           1.2.4.  1/n < 0 + ε
-                  inequalities, from 1.2.1, 1.1, K2
+                  inequalities, from K2, 1.1, 1.2.1
 
           1.2.5.  |1/n − 0| < ε
-                  mun:abs-difference-lt x := 1/n, c := 0, δ := ε, from 1.2.3, 1.2.4, K2
+                  mun:abs-difference-lt x := 1/n, c := 0, δ := ε, from K2, 1.2.3, 1.2.4
 
     1.3.  There exists N ∈ ℕ such that |1/n − 0| < ε for all n ≥ N.
           exhibit, from 1.2

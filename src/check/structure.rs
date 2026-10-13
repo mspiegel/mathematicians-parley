@@ -462,6 +462,41 @@ fn cited_twice(what: &str, cited: &str) -> String {
     )
 }
 
+/// Where a line or label stands in a `from` list: labels first, by their
+/// letters and then their number, none before 1, and then lines by their
+/// step numbers, 2 before 2.1 before 10 (`SYNTAX.md`).
+fn citation_order(cited: &str) -> (bool, String, Vec<u64>) {
+    if full(&LABEL_RE, cited) {
+        let letters: String = cited
+            .chars()
+            .take_while(|c| c.is_ascii_uppercase())
+            .collect();
+        let number = cited[letters.len()..].parse::<u64>().ok();
+        return (false, letters, number.into_iter().collect());
+    }
+    let parts = cited.split('.').map(|p| p.parse().unwrap_or(0)).collect();
+    (true, String::new(), parts)
+}
+
+/// The lines and labels of a `from` list in the order it is written in.
+pub fn cited_in_order<S: AsRef<str> + Clone>(refs: &[S]) -> Vec<S> {
+    let mut sorted = refs.to_vec();
+    sorted.sort_by_key(|r| citation_order(r.as_ref()));
+    sorted
+}
+
+/// What to say of a `from` list out of order, or None where it is in order.
+fn out_of_order(what: &str, refs: &[String]) -> Option<String> {
+    let sorted = cited_in_order(refs);
+    (sorted != refs).then(|| {
+        format!(
+            "{what} cites {} out of order; labels come first, by letter and then number, and then lines by number: from {}",
+            refs.join(", "),
+            sorted.join(", ")
+        )
+    })
+}
+
 /// What to say of a label cited and not in scope: where it is the name of a
 /// define the file imports with no label, that the import is to give one,
 /// since a define is cited by its label and not by its name.
@@ -515,12 +550,13 @@ pub fn check_citations(
         }
         // The step's own `from` list: a calculation gathers its links'
         // citations, and two links may cite one line.
-        for r in named_twice(&references(&just.text).0) {
-            report.say(
-                &thm.path,
-                just.line,
-                cited_twice(&format!("step {}", step.number), r),
-            );
+        let own = references(&just.text).0;
+        let what = format!("step {}", step.number);
+        for r in named_twice(&own) {
+            report.say(&thm.path, just.line, cited_twice(&what, r));
+        }
+        if let Some(said) = out_of_order(&what, &own) {
+            report.say(&thm.path, just.line, said);
         }
         for r in &just.refs {
             if full(&LABEL_RE, r) {
@@ -716,6 +752,9 @@ impl Cited<'_> {
         }
         for r in named_twice(&refs) {
             report.say(&thm.path, no, cited_twice(what, r));
+        }
+        if let Some(said) = out_of_order(what, &refs) {
+            report.say(&thm.path, no, said);
         }
         for r in refs {
             if full(&LABEL_RE, &r) {

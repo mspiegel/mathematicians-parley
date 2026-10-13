@@ -42,7 +42,7 @@ theorem similar-triangles
                          = ∠Q′P′R′ + ∠P′Q′R′ + ∠Q′R′P′         2
 
 4.  ∠QRP = ∠Q′R′P′
-    algebra, from 3, H9, H10
+    algebra, from H9, H10, 3
     requires ∠QPR ∈ ℝ: mun:triangle-angle-real, from H7
     requires ∠PQR ∈ ℝ: mun:triangle-angle-real, from H7
     requires ∠QRP ∈ ℝ: mun:triangle-angle-real, from H7
@@ -183,7 +183,7 @@ theorem pythagoras
     substitute |BA| = |AB| (line 16) into line 17
 
 19. |AB|² = |AC|² + |BC|²
-    algebra, from 6, 18, 14
+    algebra, from 6, 14, 18
     requires |AB| ∈ ℝ: mun:distance-real P := A, Q := B
     requires |AC| ∈ ℝ: mun:distance-real P := A, Q := C
     requires |BC| ∈ ℝ: mun:distance-real P := B, Q := C

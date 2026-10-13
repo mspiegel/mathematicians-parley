@@ -101,7 +101,7 @@ let H(x) = G(x) − F(x), for x ∈ [a, b]                                (D2)
     let x ∈ [a, b]                                                    (K1)
 
     7.1.  G(x) ∈ ℝ
-          mun:integral-real, from H3, H5, K1, D1
+          mun:integral-real, from D1, H3, H5, K1
 
 8.  G : [a, b] → ℝ
     mun:function-into, from 7
@@ -129,18 +129,18 @@ let H(x) = G(x) − F(x), for x ∈ [a, b]                                (D2)
     requires G : [a, b] → ℝ: from 8
 
 14. H is continuous on [a, b]
-    thm:continuous-difference D := [a, b], F := H, f := G, g := F, from 3, 6, 11, H7
+    thm:continuous-difference D := [a, b], F := H, f := G, g := F, from H7, 3, 6, 11
     requires H : [a, b] → ℝ: from 10
     requires G : [a, b] → ℝ: from 8
 
 15. H is differentiable on (a, b)
-    thm:derivative-difference D := [a, b], U := (a, b), F := H, f := G, g := F, from 3, 6, 12, H8
+    thm:derivative-difference D := [a, b], U := (a, b), F := H, f := G, g := F, from H8, 3, 6, 12
     requires (a, b) ⊆ [a, b]: from 4
     requires H : [a, b] → ℝ: from 10
     requires G : [a, b] → ℝ: from 8
 
 16. For all x ∈ (a, b), H′(x) = G′(x) − F′(x).
-    thm:derivative-difference D := [a, b], U := (a, b), F := H, f := G, g := F, from 3, 6, 12, H8
+    thm:derivative-difference D := [a, b], U := (a, b), F := H, f := G, g := F, from H8, 3, 6, 12
     requires (a, b) ⊆ [a, b]: from 4
     requires H : [a, b] → ℝ: from 10
     requires G : [a, b] → ℝ: from 8
@@ -165,12 +165,12 @@ let H(x) = G(x) − F(x), for x ∈ [a, b]                                (D2)
           substitute F′(x) = f(x) (line 17.3) into line 17.4
 
     17.6. x ∈ [a, b]
-          mun:in-subset, from 4, K1
+          mun:in-subset, from K1, 4
 
     17.7. H′(x) = 0
           algebra, from 17.5
           requires f(x) ∈ ℝ: from H4, 17.6
-          requires H′(x) ∈ ℝ: mun:derivative-real f := H, from 10, 15, K1
+          requires H′(x) ∈ ℝ: mun:derivative-real f := H, from K1, 10, 15
 
 18. H(b) = H(a)
     thm:zero-derivative-ends, from H3, 14, 15, 17
@@ -207,7 +207,7 @@ let H(x) = G(x) − F(x), for x ∈ [a, b]                                (D2)
 
 27. G(b) = F(b) − F(a)
     algebra, from 26
-    requires G(b) ∈ ℝ: from 8, 2
+    requires G(b) ∈ ℝ: from 2, 8
     requires F(b) ∈ ℝ: from H6, 2
     requires F(a) ∈ ℝ: from H6, 1
 

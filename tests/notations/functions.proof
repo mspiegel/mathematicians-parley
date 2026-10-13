@@ -68,7 +68,7 @@ theorem a-value-in-an-image
     mun:pair-subset a := 1, b := 2, X := ℝ
 
 3.  f(1) ∈ f[{1, 2}]
-    mun:value-in-image, from 2, 1
+    mun:value-in-image, from 1, 2
 
 4.  f(1) = 2·1 + 1
     instantiate x := 1 in H2

@@ -171,7 +171,7 @@ let g(x) = 2^|numer(x)|·3^denom(x)·5^s(x), for x ∈ ℚ        (D3)
 
     7.8.  |numer(x)| = |numer(y)|. denom(x) = denom(y).
           s(x) = s(y).
-          thm:prime-powers-unique a := |numer(x)|, b := denom(x), c := s(x), a′ := |numer(y)|, b′ := denom(y), c′ := s(y), from 7.7, 7.3, 7.4
+          thm:prime-powers-unique a := |numer(x)|, b := denom(x), c := s(x), a′ := |numer(y)|, b′ := denom(y), c′ := s(y), from 7.3, 7.4, 7.7
           requires |numer(x)| ∈ ℕ₀: mun:abs-integer z := numer(x), from 7.1
           requires |numer(y)| ∈ ℕ₀: mun:abs-integer z := numer(y), from 7.2
           requires denom(x) ∈ ℕ₀: membership, from 7.1

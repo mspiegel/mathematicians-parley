@@ -34,7 +34,7 @@ let B = {x ∈ A : x ∉ f(x)}                                            (D1)
                   assume x ∈ B                                        (C1)
 
                   2.1.2.1.  x ∉ f(x)
-                            mun:set-builder, from D1, C1
+                            mun:set-builder, from C1, D1
 
                   2.1.2.2.  x ∉ B
                             substitute f(x) = B (S) into line 2.1.2.1

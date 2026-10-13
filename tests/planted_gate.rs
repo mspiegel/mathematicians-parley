@@ -228,8 +228,8 @@ fn cases() -> Vec<Case> {
             name: "a pair naming a variable for itself that matching finds",
             stage: needed_case,
             file: "proofs/euler.proof",
-            old: "    thm:product-congruent X := S, from 5, 4, 11",
-            new: "    thm:product-congruent X := S, f := f, from 5, 4, 11",
+            old: "    thm:product-congruent X := S, from 4, 5, 11",
+            new: "    thm:product-congruent X := S, f := f, from 4, 5, 11",
             expect: "cites with the pair f := f, and the step is checked and built without it",
         },
     ]

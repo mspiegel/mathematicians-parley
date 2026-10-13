@@ -42,7 +42,7 @@ let S = {x ∈ [a, b] : f(x) < 0}                                       (D1)
     requires a ≤ b: inequalities, from H3
 
 2.  a ∈ S
-    mun:set-builder u := a, from D1, 1, H6
+    mun:set-builder u := a, from D1, H6, 1
 
 3.  S ⊆ [a, b]
     mun:set-builder-subset, from D1
@@ -67,7 +67,7 @@ let S = {x ∈ [a, b] : f(x) < 0}                                       (D1)
     mun:upper-bound, from 6
 
 8.  c ∈ ℝ. c is a least upper bound of S.
-    obtain c: axi:completeness, from 5, 2, 7
+    obtain c: axi:completeness, from 2, 5, 7
 
 9.  c is an upper bound of S.
     For all u ∈ ℝ, if u is an upper bound of S then c ≤ u.
@@ -125,7 +125,7 @@ let S = {x ∈ [a, b] : f(x) < 0}                                       (D1)
 
     16.4.  There exists δ > 0 such that
            |f(x) − f(c)| < −f(c) for all x ∈ [a, b] with |x − c| < δ.
-           instantiate c′ := c, ε := −f(c) in line 15, from 13, H4, 16.3
+           instantiate c′ := c, ε := −f(c) in line 15, from H4, 13, 16.3
            requires −f(c) ∈ ℝ: membership, from H4, 13
 
     16.5.  δ ∈ ℝ. δ > 0.
@@ -149,16 +149,16 @@ let S = {x ∈ [a, b] : f(x) < 0}                                       (D1)
            mun:min-le x := b, y := c + δ/2, from D2
 
     16.10. x₁ − c < δ
-           inequalities, from 16.9, 16.6
+           inequalities, from 16.6, 16.9
 
     16.11. a ≤ x₁
            inequalities, from 11, 16.8
 
     16.12. x₁ ∈ [a, b]
-           mun:interval x := x₁, from 16.11, 16.9
+           mun:interval x := x₁, from 16.9, 16.11
 
     16.13. c − δ < x₁
-           inequalities, from 16.8, 16.5
+           inequalities, from 16.5, 16.8
 
     16.14. x₁ < c + δ
            inequalities, from 16.10
@@ -171,13 +171,13 @@ let S = {x ∈ [a, b] : f(x) < 0}                                       (D1)
 
     16.17. f(x₁) − f(c) ≤ |f(x₁) − f(c)|
            thm:abs-bounds x := f(x₁) − f(c)
-           requires f(x₁) − f(c) ∈ ℝ: mun:real-closure, from H4, 16.12, 13
+           requires f(x₁) − f(c) ∈ ℝ: mun:real-closure, from H4, 13, 16.12
 
     16.18. f(x₁) < 0
-           inequalities, from 16.17, 16.16
+           inequalities, from 16.16, 16.17
            requires f(x₁) ∈ ℝ: from H4, 16.12
            requires f(c) ∈ ℝ: from H4, 13
-           requires f(x₁) − f(c) ∈ ℝ: mun:real-closure, from H4, 16.12, 13
+           requires f(x₁) − f(c) ∈ ℝ: mun:real-closure, from H4, 13, 16.12
            requires |f(x₁) − f(c)| ∈ ℝ: mun:abs-real x := f(x₁) − f(c)
 
     16.19. x₁ ∈ S
@@ -198,7 +198,7 @@ let S = {x ∈ [a, b] : f(x) < 0}                                       (D1)
 
     16.22. There exists δ > 0 such that
            |f(x) − f(c)| < f(c) for all x ∈ [a, b] with |x − c| < δ.
-           instantiate c′ := c, ε := f(c) in line 15, from 13, H4, C3
+           instantiate c′ := c, ε := f(c) in line 15, from C3, H4, 13
 
     16.23. δ ∈ ℝ. δ > 0.
            For all x ∈ [a, b], if |x − c| < δ then |f(x) − f(c)| < f(c).
@@ -226,7 +226,7 @@ let S = {x ∈ [a, b] : f(x) < 0}                                       (D1)
                                  requires s ∈ ℝ: mun:interval, from 16.24.1
 
                      16.24.4.2.  s < c + δ
-                                 inequalities, from 16.24.3, 16.23
+                                 inequalities, from 16.23, 16.24.3
                                  requires s ∈ ℝ: mun:interval, from 16.24.1
 
                      16.24.4.3.  |s − c| < δ
@@ -239,13 +239,13 @@ let S = {x ∈ [a, b] : f(x) < 0}                                       (D1)
 
                      16.24.4.5.  −(f(s) − f(c)) ≤ |f(s) − f(c)|
                                  thm:abs-bounds x := f(s) − f(c)
-                                 requires f(s) − f(c) ∈ ℝ: mun:real-closure, from H4, 16.24.1, 13
+                                 requires f(s) − f(c) ∈ ℝ: mun:real-closure, from H4, 13, 16.24.1
 
                      16.24.4.6.  0 < f(s)
-                                 inequalities, from 16.24.4.5, 16.24.4.4
+                                 inequalities, from 16.24.4.4, 16.24.4.5
                                  requires f(s) ∈ ℝ: from H4, 16.24.1
                                  requires f(c) ∈ ℝ: from H4, 13
-                                 requires f(s) − f(c) ∈ ℝ: mun:real-closure, from H4, 16.24.1, 13
+                                 requires f(s) − f(c) ∈ ℝ: mun:real-closure, from H4, 13, 16.24.1
                                  requires |f(s) − f(c)| ∈ ℝ: mun:abs-real x := f(s) − f(c)
 
                      16.24.4.7.  not f(s) < 0

@@ -38,7 +38,7 @@ theorem an-integral-of-a-line
     let x ∈ (0, 1)                                                    (K1)
 
     5.1.  x ∈ [0, 1]
-          mun:in-subset, from 3, K1
+          mun:in-subset, from K1, 3
 
     5.2.  f(x) = 2·x
           instantiate x := x in H2, from 5.1
