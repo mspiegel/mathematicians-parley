@@ -219,7 +219,8 @@ checksum = "cf8baf1c55e62ffcace7a9f06f4bd9cd3f0c4beb022d3b367256b91b87513d98"
 [[package]]
 name = "metamath-rs"
 version = "0.3.9"
-source = "git+https://github.com/metamath/metamath-knife?tag=v0.3.9#5268bcfccbbea251e9b24568938c184ee17fb604"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e54038421894e3444d59360800289a058733093867f922738d2bf0819967742c"
 dependencies = [
  "annotate-snippets",
  "filetime",
