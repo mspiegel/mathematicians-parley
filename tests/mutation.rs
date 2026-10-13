@@ -51,7 +51,12 @@ use parley::mm::where_set_mm;
 use parley::source::{Disk, Memory, Overlay, Source};
 use parley::threads::{in_order, in_order_on};
 use parley::tools::build::{library, Libraries, Loaded};
-use parley::tools::{path_of, verify, ELABORATION};
+use parley::tools::{path_of, verify};
+
+#[path = "shared/mod.rs"]
+mod shared;
+
+use shared::{included, Random};
 
 /// The seed the order of the mutants is shuffled by where `MUTATION_SEED`
 /// does not say another.
@@ -580,40 +585,14 @@ fn mutants(tree: &dyn Source) -> Vec<Mutant> {
     out
 }
 
-/// The mutants in an order shuffled by `seed`, by xorshift.
+/// The mutants in an order shuffled by `seed`.
 fn shuffled(mut all: Vec<Mutant>, seed: u64) -> Vec<Mutant> {
-    let mut state = seed.max(1);
-    let mut next = || {
-        state ^= state << 13;
-        state ^= state >> 7;
-        state ^= state << 17;
-        state
-    };
+    let mut random = Random::new(seed);
     for i in (1..all.len()).rev() {
-        let j = (next() % (i as u64 + 1)) as usize;
+        let j = random.below(i as u64 + 1) as usize;
         all.swap(i, j);
     }
     all
-}
-
-/// The files `path` includes, and the files they include, by their paths in
-/// the tree: what a verifier is handed to check it.
-fn included(tree: &dyn Source, path: &str, text: &str) -> Vec<String> {
-    let mut seen: BTreeSet<String> = BTreeSet::new();
-    let mut todo: Vec<String> = vec![text.to_string()];
-    seen.insert(path.to_string());
-    while let Some(text) = todo.pop() {
-        for part in text.split("$[").skip(1) {
-            let Some(name) = part.split("$]").next().map(str::trim) else {
-                continue;
-            };
-            let at = format!("{ELABORATION}/{name}");
-            if tree.exists(&at) && seen.insert(at.clone()) {
-                todo.push(tree.read_text(&at).expect("an included file reads"));
-            }
-        }
-    }
-    seen.into_iter().collect()
 }
 
 #[test]

@@ -642,17 +642,6 @@ fn cases() -> Vec<Case> {
             "          requires 10^m ∈ ℤ: mun:power-integer a := 10\n          requires 9 = 3·4: arithmetic\n",
             "claims 9 = 3·4, which is false",
         ),
-        // True, and past what the method shows, a fraction outside ℤ: a
-        // theorem stating it is what the page cites, and saying so is the
-        // report, and the fact is not stated.
-        case(
-            "ask arithmetic for a true fact it cannot show",
-            "proofs/divisibility-by-three/ten-power-congruent",
-            "proofs/divisibility-by-three.proof",
-            "          requires 10^m ∈ ℤ: mun:power-integer a := 10\n",
-            "          requires 10^m ∈ ℤ: mun:power-integer a := 10\n          requires 1/2 ∉ ℤ: arithmetic\n",
-            "claims 1/2 ∉ ℤ, which is true, and arithmetic cannot show it yet",
-        ),
         // What has no exact value is refused before anything is computed or
         // stated: a division by zero, a number too large to work out, which
         // would run for as long as memory lasts, and a power that is not a

@@ -682,6 +682,12 @@ impl<'a> Elaborator<'a> {
         if !named.is_declined() {
             return Ok(named);
         }
+        if goal.children()[1].label() == Some("cq") {
+            let rational = self.rational_within(&goal.children()[0], scope, facts)?;
+            if !rational.is_declined() {
+                return Ok(rational);
+            }
+        }
         let said = self.rpn(&goal.children()[0]);
         if said.split_whitespace().any(|t| !rules::numeric(t)) {
             // A closed term that binds a letter of its own, a product over
@@ -725,10 +731,14 @@ impl<'a> Elaborator<'a> {
         self.numbering.insert(want.clone());
         let found = (|| -> Checked<Route<Proof>> {
             let found = self.settle(goal, scope, &Facts::new(), 4, None, None)?;
-            if found.is_declined() {
-                return self.by_value(goal, scope);
+            if !found.is_declined() {
+                return Ok(found);
             }
-            Ok(found)
+            let found = self.by_value(goal, scope)?;
+            if !found.is_declined() {
+                return Ok(found);
+            }
+            self.within_by_value(goal, scope, facts)
         })();
         self.numbering.shift_remove(&want);
         let found = found?;
@@ -740,6 +750,91 @@ impl<'a> Elaborator<'a> {
             self.numbers.insert(key, found.clone());
         }
         Ok(found)
+    }
+
+    /// ( scope -> x e. S ) for a closed x, through its value: a value
+    /// written plainly, a negation or a fraction, is in ℝ and ℂ by way of ℚ
+    /// (`qre`, `qcn`); any other closed term is in S as its value is
+    /// (`closed_valued`), carried back by `eleq1d`.
+    fn within_by_value(
+        &mut self,
+        goal: &Term,
+        scope: &str,
+        facts: &Facts,
+    ) -> Checked<Route<Proof>> {
+        let x = &goal.children()[0];
+        let (sx, system) = (self.rpn(x), self.rpn(&goal.children()[1]));
+        let (_, canon, is) = take!(self.closed_valued(x, scope, facts)?);
+        if canon != sx {
+            let at = self.to_term(&t!(&canon, &system, "wcel"));
+            let held = take!(self.numeral_within(&at, scope, facts)?);
+            let iff = self.b.ap(
+                "eleq1d",
+                &binds! {"ph" => scope, "A" => &sx, "B" => &canon, "C" => &system},
+                &[&is],
+            );
+            return Ok(Built(self.b.ap(
+                "mpbird",
+                &binds! {"ph" => scope, "ps" => t!(&sx, &system, "wcel"), "ch" => t!(&canon, &system, "wcel")},
+                &[&held, &iff],
+            )));
+        }
+        let law = match goal.children()[1].label() {
+            Some("cr") => "qre",
+            Some("cc") => "qcn",
+            _ => return Ok(Route::no("a system other than ℝ and ℂ")),
+        };
+        let rational = take!(self.rational_within(x, scope, facts)?);
+        let law = self.b.ap(law, &binds! {"A" => &sx}, &[]);
+        Ok(Built(
+            pf!(self.b; scope, t!(&sx, "cq", "wcel"), t!(&sx, &system, "wcel"), rational, law, "syl"),
+        ))
+    }
+
+    /// ( scope -> x e. QQ ) for a value written plainly: a whole number by
+    /// way of ℤ (`zq`), a fraction of a whole number by one of ℕ (`znq`), and
+    /// a negation as what it negates (`qnegcl`).
+    fn rational_within(
+        &mut self,
+        x: &Term,
+        scope: &str,
+        facts: &Facts,
+    ) -> Checked<Route<Proof>> {
+        let within = |me: &mut Self, t: &Term, system: &str| {
+            let goal = me.to_term(&t!(me.rpn(t), system, "wcel"));
+            me.numeral_within(&goal, scope, facts)
+        };
+        let sx = self.rpn(x);
+        let kids = x.children().to_vec();
+        Ok(match (x.label(), kids.as_slice()) {
+            (Some("cneg"), [y]) => {
+                let held = take!(within(self, y, "cq")?);
+                let sy = self.rpn(y);
+                let law = self.b.ap("qnegcl", &binds! {"A" => &sy}, &[]);
+                Built(
+                    pf!(self.b; scope, t!(&sy, "cq", "wcel"), t!(&sx, "cq", "wcel"), held, law, "syl"),
+                )
+            }
+            (Some("co"), [n, m, op]) if op.label() == Some("cdiv") => {
+                let whole = take!(within(self, n, "cz")?);
+                let natural = take!(within(self, m, "cn")?);
+                let (sn, sm) = (self.rpn(n), self.rpn(m));
+                let law = self.b.ap("znq", &binds! {"A" => &sn, "B" => &sm}, &[]);
+                Built(self.b.ap(
+                    "syl2anc",
+                    &binds! {"ph" => scope, "ps" => t!(&sn, "cz", "wcel"), "ch" => t!(&sm, "cn", "wcel"),
+                    "th" => t!(&sx, "cq", "wcel")},
+                    &[&whole, &natural, &law],
+                ))
+            }
+            _ => {
+                let whole = take!(within(self, x, "cz")?);
+                let law = self.b.ap("zq", &binds! {"A" => &sx}, &[]);
+                Built(
+                    pf!(self.b; scope, t!(&sx, "cz", "wcel"), t!(&sx, "cq", "wcel"), whole, law, "syl"),
+                )
+            }
+        })
     }
 
     /// ( scope -> t e. S ) for a closed t, through the digit it comes to: the

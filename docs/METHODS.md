@@ -498,9 +498,12 @@ dividing: it holds when the remainder is 0, and fails otherwise.
   so a false one is reported as false.
 
 `arithmetic` never takes a step as stated. What it cannot prove is reported:
-as false, as one of the refusals above, or, where it is true and past what
-the expansion below can show, with the instruction to cite a theorem that
-states it.
+as false, as one of the refusals above, or, should the expansion below not
+reach a claim it has worked out as true, with the instruction to cite a
+theorem that states it. `tests/oracle.rs` draws claims of every form above,
+works each out with an oracle of its own, and requires each true one to be
+proved and verified; on thousands of claims it finds none the expansion
+does not reach.
 
 ### Hypotheses
 
@@ -568,6 +571,27 @@ the terms as written by `breq12d`. That d divides n, with n = d·q, is
 with n = d·q + r and 0 < r < d, is `ndvdsi` from the quotient, the remainder
 and the sum and order the numeral lemmas prove: 5 is odd because 2·2 + 1 = 5
 and 1 < 2.
+
+Any other claim of closed numeral expressions is said of its sides' values:
+a value below 0, a fraction inside a sum, a power of a negative base, a
+remainder inside an order, a membership of ℚ. Each side is worked to its
+value written plainly, a numeral, its negation, a fraction of two numerals
+or the negation of one. The normaliser works a side whole where it reaches
+it. Otherwise the side is worked part by part from the inside out: a
+remainder or a product over a range by the steps above, the rest by the
+normaliser, each part's equation carried up through the operation above it
+(`oveq12d`, `negeqd`), and a division by a value below 0 as the negation of
+one by its opposite (`divneg2d`). The claim is proved of the values and
+carried back to the sides as written (`breq12d`, `eqeq12d`, `eleq1d`).
+
+Between values, two that differ are apart because the lower is below the
+higher (`ltne`). A whole number is rational by way of ℤ (`zq`), a fraction
+of whole numbers by `znq`, and a negation as what it negates (`qnegcl`); a
+value is real or complex by way of ℚ (`qre`, `qcn`). A value strictly
+between a whole number and the next is in no system of whole numbers
+(`btwnnz`, with `nnz` and `nn0z` for ℕ and ℕ₀). A denominator of closed
+numerals is shown not zero the same way, without a line saying it, as a
+closed numeral fact is taken anywhere.
 
 ---
 

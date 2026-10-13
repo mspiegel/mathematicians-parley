@@ -298,12 +298,15 @@ pub fn made_as(g: &Grammar, pattern: &str, children: Vec<Node>) -> Option<Node> 
         .notations
         .iter()
         .find(|n| n.pattern == pattern && n.holes.len() == children.len())?;
-    Some(Node::new(
-        n.key(),
-        Sort::of(&n.yields),
-        children,
-        &n.literal,
-    ))
+    let node = Node::new(n.key(), Sort::of(&n.yields), children, &n.literal);
+    // A pattern declared as the negation of another builds the other and
+    // wraps it, as the parser builds it: `a ≠ b` is not (a = b).
+    Some(match &n.folds {
+        Some(folds) => {
+            Node::new(folds, Sort::of("formula"), vec![node], &n.fold_literal)
+        }
+        None => node,
+    })
 }
 
 /// A numeral, as the parser reads one.

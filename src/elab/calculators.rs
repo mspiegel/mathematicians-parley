@@ -714,6 +714,24 @@ impl<'a> Elaborator<'a> {
             return Ok(found);
         }
         let want = t!(said, "cc0", "wne");
+        // A closed denominator not zero is a fact about numerals, worked
+        // out as `arithmetic` works one out and taken uncited, as a closed
+        // numeral fact is (`METHODS.md`).
+        if matches!(field::closed_value(&self.to_term(said)), Built(Value::Exact(v)) if !v.is_zero())
+        {
+            let denial = t!(t!(said, "cc0", "wceq"), "wn");
+            let worked = match self.prove_numeral(&denial, scope, facts)? {
+                Built(p) => Built(p),
+                Declined(_) => self.by_values(&denial, scope, facts)?,
+            };
+            if let Built(p) = worked {
+                return Ok(self.b.ap(
+                    "neqned",
+                    &binds! {"ph" => scope, "A" => said, "B" => "cc0"},
+                    &[&p],
+                ));
+            }
+        }
         // A divisor not being zero is the page's to say, so no membership
         // said once leads to it (`READERS.md`).
         self.beyond_once += 1;
@@ -1366,10 +1384,295 @@ impl<'a> Elaborator<'a> {
         if let Built(p) = self.prove_numeral(term, scope, facts)? {
             return Ok(p);
         }
-        if let Built(p) = self.prove_field(step, term, scope, facts, &Lines::new())? {
+        // A remainder or a product over a range is no atom of the normaliser's:
+        // a claim holding one is said of its sides' values.
+        if !self.normaliser_opaque(&said) {
+            if let Built(p) =
+                self.prove_field(step, term, scope, facts, &Lines::new())?
+            {
+                return Ok(p);
+            }
+        }
+        if let Built(p) = self.by_values(term, scope, facts)? {
             return Ok(p);
         }
         Err(self.unshown(term, what))
+    }
+
+    /// Whether a term holds what the normaliser holds as an atom where
+    /// `arithmetic` works it out: a remainder, or a product over a range.
+    fn normaliser_opaque(&self, t: &Term) -> bool {
+        self.rpn(t)
+            .split_whitespace()
+            .any(|token| token == "cmo" || token == "cprod")
+    }
+
+    /// ( scope -> claim ) for a closed claim, said of its sides' values: each
+    /// side is worked to its value written plainly (`closed_valued`), the
+    /// claim is proved of the values by the routes above, and the law that
+    /// carries an equation through the relation brings it back to the sides
+    /// as written (`breq12d`, `eqeq12d`, `eleq1d`). A claim whose sides are
+    /// values already is one those routes did not prove.
+    fn by_values(
+        &mut self,
+        term: &str,
+        scope: &str,
+        facts: &Facts,
+    ) -> Checked<Route<Proof>> {
+        let mut goal = self.to_term(term);
+        let negated = goal.label() == Some("wn") && goal.children().len() == 1;
+        if negated {
+            goal = goal.children()[0].clone();
+        }
+        let kids = goal.children().to_vec();
+        let side = |me: &mut Self, t: &Term| me.closed_valued(t, scope, facts);
+        let (valued, iff) = match (goal.label(), kids.as_slice()) {
+            (Some("wcel"), [x, set]) => {
+                let (_, cx, px) = take!(side(self, x)?);
+                let (sx, ss) = (self.rpn(x), self.rpn(set));
+                let iff = self.b.ap(
+                    "eleq1d",
+                    &binds! {"ph" => scope, "A" => &sx, "B" => &cx, "C" => &ss},
+                    &[&px],
+                );
+                (t!(&cx, &ss, "wcel"), iff)
+            }
+            (Some("wceq"), [a, b]) => {
+                let (_, ca, pa) = take!(side(self, a)?);
+                let (_, cb, pb) = take!(side(self, b)?);
+                let iff = self.b.ap(
+                    "eqeq12d",
+                    &binds! {"ph" => scope, "A" => self.rpn(a), "B" => &ca, "C" => self.rpn(b), "D" => &cb},
+                    &[&pa, &pb],
+                );
+                (t!(&ca, &cb, "wceq"), iff)
+            }
+            (Some("wbr"), [a, b, relation]) => {
+                let (_, ca, pa) = take!(side(self, a)?);
+                let (_, cb, pb) = take!(side(self, b)?);
+                let r = self.rpn(relation);
+                let iff = self.b.ap(
+                    "breq12d",
+                    &binds! {"ph" => scope, "A" => self.rpn(a), "B" => &ca, "C" => self.rpn(b), "D" => &cb, "R" => &r},
+                    &[&pa, &pb],
+                );
+                (t!(&ca, &cb, &r, "wbr"), iff)
+            }
+            _ => return Ok(Route::no("not a relation of closed terms")),
+        };
+        let said = self.rpn(&goal);
+        if valued == said {
+            return Ok(Route::no("its sides are their values already"));
+        }
+        let (said, valued, iff) = if negated {
+            let turned = self.b.ap(
+                "notbid",
+                &binds! {"ph" => scope, "ps" => &said, "ch" => &valued},
+                &[&iff],
+            );
+            (t!(&said, "wn"), t!(&valued, "wn"), turned)
+        } else {
+            (said, valued, iff)
+        };
+        let held = match self.prove_numeral(&valued, scope, facts)? {
+            Built(p) => p,
+            Declined(_) => {
+                take!(self.prove_field(None, &valued, scope, facts, &Lines::new())?)
+            }
+        };
+        Ok(Built(self.b.ap(
+            "mpbird",
+            &binds! {"ph" => scope, "ps" => &said, "ch" => &valued},
+            &[&held, &iff],
+        )))
+    }
+
+    /// ( scope -> -. x e. S ) for a closed x whose value v is no whole
+    /// number, and S one of ℤ, ℕ and ℕ₀: v lies strictly between the whole
+    /// number below it and the next (`btwnnz`), so x is not in ℤ, and ℕ and
+    /// ℕ₀ lie in ℤ (`nnz`, `nn0z`).
+    fn not_whole(
+        &mut self,
+        member: &Term,
+        v: &Q,
+        system: Option<&str>,
+        scope: &str,
+        facts: &Facts,
+    ) -> Checked<Route<Proof>> {
+        let lift = match system {
+            Some("cz") => None,
+            Some("cn") => Some("nnz"),
+            Some("cn0") => Some("nn0z"),
+            _ => return Ok(Route::no("a non-membership of a system a fraction is in")),
+        };
+        let floor = v.floor().to_integer();
+        let low = numerals::spell(floor.magnitude().clone());
+        let low = if floor.is_negative() {
+            t!(low, "cneg")
+        } else {
+            low
+        };
+        let sm = self.rpn(member);
+        let next = t!(&low, "c1", "caddc", "co");
+        let closed = |me: &mut Self, claim: String| -> Checked<Route<Proof>> {
+            Ok(match me.prove_numeral(&claim, scope, facts)? {
+                Built(p) => Built(p),
+                Declined(_) => me.by_values(&claim, scope, facts)?,
+            })
+        };
+        let whole = take!(closed(self, t!(&low, "cz", "wcel"))?);
+        let above = take!(closed(self, t!(&low, &sm, "clt", "wbr"))?);
+        let below = take!(closed(self, t!(&sm, &next, "clt", "wbr"))?);
+        let law = self.b.ap("btwnnz", &binds! {"A" => &low, "B" => &sm}, &[]);
+        let not_integer = self.b.ap(
+            "syl3anc",
+            &binds! {"ph" => scope, "ps" => t!(&low, "cz", "wcel"), "ch" => t!(&low, &sm, "clt", "wbr"),
+            "th" => t!(&sm, &next, "clt", "wbr"), "ta" => t!(t!(&sm, "cz", "wcel"), "wn")},
+            &[&whole, &above, &below, &law],
+        );
+        let Some(lift) = lift else {
+            return Ok(Built(not_integer));
+        };
+        let set = system.unwrap_or_default();
+        let lift = self.b.ap(lift, &binds! {"N" => &sm}, &[]);
+        let lift = pf!(self.b; t!(t!(&sm, set, "wcel"), t!(&sm, "cz", "wcel"), "wi"), scope, lift, "a1i");
+        Ok(Built(self.b.ap(
+            "mtod",
+            &binds! {"ph" => scope, "ps" => t!(&sm, set, "wcel"), "ch" => t!(&sm, "cz", "wcel")},
+            &[&not_integer, &lift],
+        )))
+    }
+
+    /// ( scope -> t = v ) for a closed term t, with its value and v: the
+    /// value written plainly, a numeral, its negation, a fraction of two
+    /// numerals or the negation of one. The normaliser works out sums,
+    /// differences, products, quotients and whole powers (`prove_field`); a
+    /// remainder and a product over a range it holds as an atom, so each is
+    /// worked first (`numerals::worked`), from the inside out, and carried up
+    /// through the operations above it (`oveq12d`, `negeqd`).
+    pub(super) fn closed_valued(
+        &mut self,
+        t: &Term,
+        scope: &str,
+        facts: &Facts,
+    ) -> Checked<Route<(Q, String, Proof)>> {
+        let Built(Value::Exact(v)) = field::closed_value(t) else {
+            return Ok(Route::no("it has no exact value"));
+        };
+        let plain = |n: &BigInt| numerals::spell(n.magnitude().clone());
+        let body = if v.is_integer() {
+            plain(v.numer())
+        } else {
+            t!(plain(v.numer()), plain(v.denom()), DIV, "co")
+        };
+        let canon = if v.is_negative() {
+            t!(body, "cneg")
+        } else {
+            body
+        };
+        let said = self.rpn(t);
+        if said == canon {
+            let same = self
+                .b
+                .ap("eqidd", &binds! {"ph" => scope, "A" => &said}, &[]);
+            return Ok(Built((v, canon, same)));
+        }
+        let labels = self.b.flabel.clone();
+        let lifted = |me: &Self, is: Proof, from: &str| pf!(me.b; t!(from, &canon, "wceq"), scope, is, "a1i");
+        // The term whole, where the normaliser reaches it; else part by part.
+        if !self.normaliser_opaque(t) {
+            if let Built(equal) = self.prove_field(
+                None,
+                &t!(&said, &canon, "wceq"),
+                scope,
+                facts,
+                &Lines::new(),
+            )? {
+                return Ok(Built((v, canon, equal)));
+            }
+        }
+        if let Some((_, is)) = numerals::worked(&self.b, t, &labels) {
+            return Ok(Built((v, canon.clone(), lifted(self, is, &said))));
+        }
+        let kids = t.children().to_vec();
+        let (moved, middle) = match (t.label(), kids.as_slice()) {
+            (Some("co"), [x, y, op]) => {
+                let (_, cx, px) = take!(self.closed_valued(x, scope, facts)?);
+                let (_, cy, py) = take!(self.closed_valued(y, scope, facts)?);
+                let op = self.rpn(op);
+                let moved = self.b.ap(
+                    "oveq12d",
+                    &binds! {"ph" => scope, "A" => self.rpn(x), "B" => &cx, "C" => self.rpn(y), "D" => &cy, "F" => &op},
+                    &[&px, &py],
+                );
+                (moved, t!(&cx, &cy, &op, "co"))
+            }
+            (Some("cneg"), [x]) => {
+                let (_, cx, px) = take!(self.closed_valued(x, scope, facts)?);
+                let moved = self.b.ap(
+                    "negeqd",
+                    &binds! {"ph" => scope, "A" => self.rpn(x), "B" => &cx},
+                    &[&px],
+                );
+                (moved, t!(&cx, "cneg"))
+            }
+            _ => return Ok(Route::no("an operation its value is not carried through")),
+        };
+        // What is left is an operation on values: a remainder of two whole
+        // numbers is worked, a division by a value below 0 is the negation
+        // of one by its opposite (`divneg2d`), and anything else is the
+        // normaliser's.
+        let field = |me: &mut Self, from: &str| {
+            me.prove_field(None, &t!(from, &canon, "wceq"), scope, facts, &Lines::new())
+        };
+        let middle_term = self.to_term(&middle);
+        let by_negative = match (middle_term.label(), middle_term.children()) {
+            (Some("co"), [x, y, op])
+                if op.label() == Some(DIV) && y.label() == Some("cneg") =>
+            {
+                Some((self.rpn(x), self.rpn(&y.children()[0])))
+            }
+            _ => None,
+        };
+        let rest = match (
+            numerals::worked(&self.b, &middle_term, &labels),
+            by_negative,
+        ) {
+            (Some((_, is)), _) => lifted(self, is, &middle),
+            (None, Some((top, bottom))) => {
+                let within = |me: &mut Self, s: &str| {
+                    let goal = me.to_term(&t!(s, "cc", "wcel"));
+                    me.numeral_within(&goal, scope, facts)
+                };
+                let top_cc = take!(within(self, &top)?);
+                let bottom_cc = take!(within(self, &bottom)?);
+                let apart = self.not_zero(scope, facts, &bottom)?;
+                let moved_in = self.b.ap(
+                    "divneg2d",
+                    &binds! {"ph" => scope, "A" => &top, "B" => &bottom},
+                    &[&top_cc, &bottom_cc, &apart],
+                );
+                let negated = t!(t!(&top, &bottom, DIV, "co"), "cneg");
+                let turned = self.b.ap(
+                    "eqcomd",
+                    &binds! {"ph" => scope, "A" => &negated, "B" => &middle},
+                    &[&moved_in],
+                );
+                let valued = take!(field(self, &negated)?);
+                self.b.ap(
+                    "eqtrd",
+                    &binds! {"ph" => scope, "A" => &middle, "B" => &negated, "C" => &canon},
+                    &[&turned, &valued],
+                )
+            }
+            (None, None) => take!(field(self, &middle)?),
+        };
+        let joined = self.b.ap(
+            "eqtrd",
+            &binds! {"ph" => scope, "A" => &said, "B" => &middle, "C" => &canon},
+            &[&moved, &rest],
+        );
+        Ok(Built((v, canon, joined)))
     }
 
     /// A claim `arithmetic` is asked for, refused where it is false or has
@@ -1457,6 +1760,11 @@ impl<'a> Elaborator<'a> {
             && goal.children().len() == 2
         {
             let (member, system) = (&goal.children()[0], goal.children()[1].label());
+            if let Built(Value::Exact(v)) = field::closed_value(member) {
+                if !v.is_integer() {
+                    return self.not_whole(member, &v, system, scope, facts);
+                }
+            }
             let (how, law) = match system {
                 Some("cn0") => ("<=", "nn0ge0"),
                 Some("cn") => ("<", "nngt0"),
@@ -1551,6 +1859,11 @@ impl<'a> Elaborator<'a> {
                         )));
                     }
                 }
+            }
+            // A disequation of sides that are not both whole numbers, a
+            // fraction among them, is the lower below the higher too.
+            if how == "=" && negated {
+                return self.closed_apart(&first, &second, scope, facts);
             }
             // An equation is the normaliser's, which works fractions too.
             if how == "=" {
@@ -2162,6 +2475,11 @@ impl<'a> Elaborator<'a> {
         if x == y {
             return Ok(Route::no("the two sides are equal"));
         }
+        if self.normaliser_opaque(first) || self.normaliser_opaque(second) {
+            return Ok(Route::no(
+                "a side holds what the normaliser does not work out, and is said by its value",
+            ));
+        }
         let first_lower = x < y;
         let (low, high) = if first_lower {
             (first, second)
@@ -2219,6 +2537,11 @@ impl<'a> Elaborator<'a> {
         else {
             return Ok(Route::no("a side has no exact value"));
         };
+        if self.normaliser_opaque(first) || self.normaliser_opaque(second) {
+            return Ok(Route::no(
+                "a side holds what the normaliser does not work out, and is said by its value",
+            ));
+        }
         let (sf, ss) = (self.rpn(first), self.rpn(second));
         let real = |s: &str| t!(s, "cr", "wcel");
         let first_real = take!(self.prove_numeral(&real(&sf), scope, facts)?);

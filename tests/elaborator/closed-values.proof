@@ -1,0 +1,63 @@
+theorem negated-zero-below
+  note        A side that is a negation works out to its value, here 0.
+  then −0 ≤ 64
+
+1.  −0 ≤ 64
+    arithmetic
+
+theorem whole-in-the-rationals
+  note        A whole number is rational by way of the integers.
+  then 67 ∈ ℚ
+
+1.  67 ∈ ℚ
+    arithmetic
+
+theorem power-of-a-negative-base
+  note        A power of a number below 0, on both sides of an order.
+  then (−2)^2 < (−2)^2 + 19
+
+1.  (−2)^2 < (−2)^2 + 19
+    arithmetic
+
+theorem a-quotient-in-a-difference
+  note        A side that divides only in part is worked to its value.
+  then (7 + 8)/1 − 2 < 19
+
+1.  (7 + 8)/1 − 2 < 19
+    arithmetic
+
+theorem a-remainder-in-a-quotient
+  note        A remainder inside a quotient is worked first, then the rest.
+  then −6 ≠ 536·(2 mod 216)/1
+
+1.  −6 ≠ 536·(2 mod 216)/1
+    arithmetic
+
+theorem a-fraction-not-natural
+  note        A value strictly between two whole numbers is no integer.
+  then 1/76 ∉ ℕ
+
+1.  1/76 ∉ ℕ
+    arithmetic
+
+theorem fractions-apart
+  note        Two sides of different values, a fraction among them, differ.
+  then 17/(3·2)/65 ≠ 2
+
+1.  17/(3·2)/65 ≠ 2
+    arithmetic
+
+theorem divided-by-a-negative-fraction
+  note        Dividing by a value below 0 is the negation of dividing by its
+              opposite.
+  then 8/(−(2/3)) = −12
+
+1.  8/(−(2/3)) = −12
+    arithmetic
+
+theorem divided-by-a-sum-of-a-quotient
+  note        A divisor that divides only once worked out is its value.
+  then 1/(9 − 0/7) = 1/9
+
+1.  1/(9 − 0/7) = 1/9
+    arithmetic
