@@ -1,0 +1,20 @@
+theorem a-size-holding-five
+  note        5 is a set because it is a complex number, as 4 to 9 are.
+  then |{1, 5, 9}| = 3
+
+1.  |{1, 5, 9}| = 3
+    inspection
+
+theorem a-size-holding-a-negative
+  note        A negation is a set (`negex`).
+  then |{−2, 0, 3}| = 3
+
+1.  |{−2, 0, 3}| = 3
+    inspection
+
+theorem the-odd-ones-counted
+  note        The members a word holds of, counted, one of them 7.
+  then |{x ∈ {2, 3, 7, 8} : x is odd}| = 2
+
+1.  |{x ∈ {2, 3, 7, 8} : x is odd}| = 2
+    inspection

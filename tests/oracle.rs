@@ -56,6 +56,9 @@ mod order;
 #[path = "oracle/member.rs"]
 mod member;
 
+#[path = "oracle/inspect.rs"]
+mod inspect;
+
 use gen::Drawn;
 use judge::Verdict;
 use shared::{included, Random};
@@ -126,6 +129,14 @@ import mundane definition stdlib/divisibility/congruent-mod
             draw: member::claim,
             imports: "",
             false_said: "is not built from what step 1 cites",
+        },
+        Method {
+            name: "inspection",
+            draw: inspect::claim,
+            imports: "",
+            // Its false claims are drawn as refusals in either of its words
+            // (`inspect.rs`).
+            false_said: "is not seen by inspection of what it cites",
         },
     ]
 }

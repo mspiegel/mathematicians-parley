@@ -626,8 +626,10 @@ pub const SETHOOD: &[(&str, &str)] = &[
     ("cima", "imaexg"),
     ("cop", "opex"),
     ("cdc", "decex"),
+    ("cneg", "negex"),
     // The numerals set.mm says are sets in one lemma; 4 to 9 it does not
-    // state so, and a term holding one is not settled here.
+    // state so, and each is one because it is a complex number
+    // (`made_a_set`).
     ("cc0", "c0ex"),
     ("c1", "1ex"),
     ("c2", "2ex"),

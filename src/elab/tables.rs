@@ -1330,6 +1330,23 @@ impl<'a> Elaborator<'a> {
         } else {
             None
         };
+        // A digit set.mm does not say is a set in one lemma is one because
+        // it is a complex number, `4cn` to `9cn`.
+        let digit = head
+            .label()
+            .filter(|_| head.variable().is_none() && head.children().is_empty())
+            .and_then(|l| rules::digit_of(l).map(|d| (l, d)));
+        if let (None, Some((label, d))) = (lemma, digit) {
+            let complex = self.step(&format!("{d}cn"));
+            let set =
+                self.b
+                    .ap("elexi", &binds! {"A" => label, "B" => "cc"}, &[&complex]);
+            return Ok(Built(self.b.ap(
+                "a1i",
+                &binds! {"ph" => t!(label, "cvv", "wcel"), "ps" => scope},
+                &[&set],
+            )));
+        }
         let Some(lemma) = lemma else {
             return Ok(Route::no(format!(
                 "no lemma makes a {} a set",
