@@ -15,25 +15,24 @@ use indexmap::IndexMap;
 use crate::formula::Node;
 use crate::mm::spell::{Part, Proof};
 
-pub mod calculators;
-pub mod definitions;
+pub(crate) mod calculators;
+pub(crate) mod definitions;
 pub mod elaborate;
-pub mod field;
+pub(crate) mod field;
 mod inspection;
-pub mod linear;
+pub(crate) mod linear;
 mod listing;
-pub mod matcher;
-pub mod normal;
+pub(crate) mod matcher;
+pub(crate) mod normal;
 pub mod numerals;
-pub mod provenance;
-pub mod reading;
-pub mod scopes;
+pub(crate) mod provenance;
+pub(crate) mod reading;
+pub(crate) mod scopes;
 mod spoken;
-pub mod state;
-pub mod tables;
+pub(crate) mod state;
+pub(crate) mod tables;
 
 pub use elaborate::{elaborate, statement_of, Elaborated, Library, ReadLibrary};
-pub use state::Elaborator;
 
 /// A table by claim that more than one holder may share and change, as the
 /// frames of scopes and the step loop share what is known at a scope.

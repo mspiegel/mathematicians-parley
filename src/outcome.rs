@@ -193,14 +193,6 @@ impl<T> Route<T> {
             Route::Declined(_) => next(),
         }
     }
-
-    /// What was built, or the defect the decline is at this place.
-    pub fn or_problem(self, path: impl Into<String>, line: usize) -> Checked<T> {
-        match self {
-            Route::Built(t) => Ok(t),
-            Route::Declined(d) => Err(d.into_problem(path, line)),
-        }
-    }
 }
 
 #[cfg(test)]

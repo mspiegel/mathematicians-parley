@@ -18,11 +18,11 @@ use crate::citing;
 use crate::corpus::{written_text, FileScope, Item, Record, Step, Theorem};
 use crate::fancy;
 use crate::formula::{Grammar, Node, Sorts};
-use crate::matching::{binding_context, equations, Defined};
+use crate::matching::{binding_context, Defined};
 use crate::mm::kernel::{match_term, term_of, FloatLabels, Term, VarSet};
 use crate::mm::library::{render, Layered, Signature};
 use crate::mm::spell::{Binds, Builder, Proof};
-use crate::outcome::{Checked, Decline, Problem, Route};
+use crate::outcome::{Decline, Problem, Route};
 use crate::sorts::{sorts_of_record, Env};
 use crate::targets::{self, Commuting, Identity};
 
@@ -209,7 +209,6 @@ pub struct Elaborator<'a> {
     pub sorts_now: Sorts,
     pub b: Builder,
     pub terms: IndexMap<String, Vec<Option<String>>>,
-    pub equations: IndexSet<String>,
     /// Letters the notations' own targets bind and the proof writes.
     pub taken: IndexSet<String>,
     pub spare: Vec<String>,
@@ -415,7 +414,6 @@ impl<'a> Elaborator<'a> {
             scopes,
             sorts_now,
             b,
-            equations: equations(records),
             taken,
             spare,
             commutes: targets::commuting(records),
@@ -691,17 +689,4 @@ pub fn number_of(step: &Step) -> String {
         .map(|p| p.to_string())
         .collect::<Vec<_>>()
         .join(".")
-}
-
-/// What was built, or a defect at `line` in the file being elaborated.
-pub fn built_or<T>(
-    route: Route<T>,
-    el: &Elaborator,
-    line: usize,
-    message: impl FnOnce(&Decline) -> String,
-) -> Checked<T> {
-    match route {
-        Route::Built(t) => Ok(t),
-        Route::Declined(d) => Err(el.defect(line, message(&d))),
-    }
 }

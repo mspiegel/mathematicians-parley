@@ -292,9 +292,8 @@ pub enum Certificate {
     /// A disequality, the one fact with two readings, taken both ways: the
     /// set fails only when both do, and there is no single combination.
     Either {
+        /// Which fact is the disequality taken both ways.
         at: usize,
-        below: Box<Certificate>,
-        above: Box<Certificate>,
     },
 }
 
@@ -340,17 +339,15 @@ pub fn certificate(facts: &[Fact], line_of: &[Option<usize>]) -> Option<Certific
             let mut lines: Vec<Option<usize>> = line_of[..i].to_vec();
             lines.extend(line_of[i + 1..].iter().copied());
             lines.push(line_of[i]);
+            // Both readings must fail, each by a certificate of its own;
+            // the proof finds each again where it writes that side.
             let mut first = rest.clone();
             first.push(Fact::new(one.side.clone(), How::Lt));
-            let below = certificate(&first, &lines)?;
+            certificate(&first, &lines)?;
             let mut second = rest;
             second.push(Fact::new(one.side.scaled(&q(-1)), How::Lt));
-            let above = certificate(&second, &lines)?;
-            return Some(Certificate::Either {
-                at: i,
-                below: Box::new(below),
-                above: Box::new(above),
-            });
+            certificate(&second, &lines)?;
+            return Some(Certificate::Either { at: i });
         }
     }
     let mut open: Vec<Fact> = Vec::new();

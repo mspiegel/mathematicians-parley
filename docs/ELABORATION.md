@@ -151,7 +151,7 @@ through the proof rules (`check_step`). Every table is in `src/rules.rs`.
 The matcher compares through one standard form (above). What it keeps as
 named operations, because none is a rewrite of one statement into another,
 is ∃-introduction and elimination (`witnessed`, `introduced`,
-`through_existential`, `from_lemmas`), a lemma's implicit substitution
+`through_existential`, `by_lemmas`), a lemma's implicit substitution
 (`instanced`, `substituted_slot`, `as_class`), taking one half of a
 conjunction (`as_conjunct`), a lemma said of every such name
 (`as_generalised`), a lemma at its own value (`at_its_own_value`), and

@@ -3,8 +3,8 @@
 //! written in.
 
 pub mod compress;
-pub mod kernel;
-pub mod library;
+pub(crate) mod kernel;
+pub(crate) mod library;
 pub mod spell;
 
 pub use kernel::{FloatLabels, Syntax, Term};

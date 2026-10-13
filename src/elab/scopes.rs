@@ -18,8 +18,8 @@ use indexmap::IndexMap;
 use super::elaborate::Sides;
 use super::reading::subject_of;
 use super::state::{
-    fit, number_of, Binding, Block, Closer, DefineCloser, Elaborator, Frame,
-    ObtainCloser, PartEnd, Vars,
+    number_of, Binding, Block, Closer, DefineCloser, Elaborator, Frame, ObtainCloser,
+    PartEnd,
 };
 use super::{Facts, Line, Lines};
 use crate::binds;
@@ -2416,24 +2416,6 @@ impl<'a> Elaborator<'a> {
         Ok((outer, held, closers))
     }
 
-    /// A term with each name an earlier `define` introduced replaced by what
-    /// it names (`named_body`), and nothing else changed.
-    pub fn written_out(&self, term: &Term) -> Term {
-        if let Some(body) = self.named_body(term, &Vars::new()) {
-            return self.written_out(&body);
-        }
-        if term.variable().is_some() || term.children().is_empty() {
-            return term.clone();
-        }
-        Term::apply(
-            term.label().unwrap_or(""),
-            term.children()
-                .iter()
-                .map(|c| self.written_out(c))
-                .collect(),
-        )
-    }
-
     /// Whether two statements differ only in the letters they bind: a set
     /// variable is bound where it stands directly under a constructor other
     /// than `cv`, and every other letter must be the same on both sides. A
@@ -2850,23 +2832,4 @@ pub fn assumption(block: &Block, label: &str) -> String {
         return label.to_string();
     }
     format!("{} assumes", number_of(&block.owner))
-}
-
-/// The variables a binding's terms mention, for `fit`.
-pub fn vars_of(terms: &[&Term]) -> Vars {
-    let mut out = Vars::new();
-    for t in terms {
-        out.extend(t.names().iter().cloned());
-    }
-    out
-}
-
-/// Whether a fact fits a pattern under a binding.
-pub fn fits(
-    pattern: &Term,
-    fact: &Term,
-    binding: &Binding,
-    variables: &Vars,
-) -> Option<Binding> {
-    fit(pattern, fact, binding, variables)
 }

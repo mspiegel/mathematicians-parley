@@ -3395,13 +3395,3 @@ pub fn divides(term: &Term, labels: &FloatLabels) -> bool {
 fn spell_factor(factor: &(Rc<str>, u32)) -> String {
     op(&factor.0, n(factor.1), EXP)
 }
-
-/// A polynomial as its terms in canonical order.
-pub fn terms_of(poly: &field::Poly) -> Run {
-    let mut monomials: Vec<&Monomial> = poly.terms.keys().collect();
-    monomials.sort_by_key(|m| order(m));
-    monomials
-        .into_iter()
-        .map(|m| (m.clone(), poly.terms[m].clone()))
-        .collect()
-}

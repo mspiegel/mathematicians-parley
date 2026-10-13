@@ -25,7 +25,6 @@ use super::field::{self, numeral as n, q, Poly, Value, Verdict, DIV, Q, SUB};
 use super::linear::{self, Certificate, How};
 use super::normal::{Emitter, Oracle, Quotiented, Run};
 use super::numerals;
-use super::provenance::requirement;
 use super::state::{Elaborator, Vars};
 use super::{Facts, Line, Lines};
 use crate::binds;
@@ -5464,35 +5463,5 @@ impl<'a> Elaborator<'a> {
             ));
         }
         Ok(())
-    }
-
-    /// The variables a statement mentions, in the order the database
-    /// declares their floats.
-    pub fn free_floats(&self, text: &str) -> Vec<String> {
-        let mut free: Vec<String> = text
-            .split_whitespace()
-            .filter(|t| self.b.flabel.contains(t))
-            .map(String::from)
-            .collect::<BTreeSet<String>>()
-            .into_iter()
-            .collect();
-        free.sort_by_key(|v| {
-            self.b
-                .forder
-                .get(&self.float_of(v))
-                .copied()
-                .unwrap_or(usize::MAX)
-        });
-        free
-    }
-
-    /// Whether a `requires` line of the step has been proved from its reason.
-    pub fn proved_requirement(&self, line: usize) -> bool {
-        self.rests_on.contains_key(&requirement(line))
-    }
-
-    /// Two terms in one set of rational weights, as the calculators keep them.
-    pub fn weights_of(found: &IndexMap<usize, Q>) -> Vec<(usize, Q)> {
-        found.iter().map(|(k, v)| (*k, v.clone())).collect()
     }
 }

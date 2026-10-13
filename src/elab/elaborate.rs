@@ -1301,7 +1301,7 @@ impl<'a> Elaborator<'a> {
             }
         }
         let assembled =
-            self.from_lemmas(&labels, goal, scope, facts, step, Some(&seed))?;
+            self.by_lemmas(&labels, goal, scope, facts, step, Some(&seed))?;
         if !assembled.is_declined() {
             return Ok(assembled);
         }
@@ -4271,7 +4271,7 @@ impl<'a> Elaborator<'a> {
         if !found.is_declined() {
             return Ok(found);
         }
-        if let Built(p) = self.from_lemmas(labels, term, scope, facts, step, seed)? {
+        if let Built(p) = self.by_lemmas(labels, term, scope, facts, step, seed)? {
             return Ok(Built(p));
         }
         let Some((turned, flip)) = self.turned_claim(term) else {

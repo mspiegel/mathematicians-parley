@@ -5,11 +5,11 @@
 //! inside a formula; `formula` does that.
 
 pub mod define;
-pub mod lines;
-pub mod load;
+pub(crate) mod lines;
+pub(crate) mod load;
 pub mod proof;
-pub mod records;
-pub mod values;
+pub(crate) mod records;
+pub(crate) mod values;
 
 pub use define::{
     define_parts, for_pieces, step_index, Define, DefineParts, Param, Recursion,

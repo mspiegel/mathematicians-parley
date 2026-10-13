@@ -6,9 +6,9 @@
 //! notation is a database entry and never a change to this module.
 
 pub mod grammar;
-pub mod library;
+pub(crate) mod library;
 pub mod node;
-pub mod notation;
+pub(crate) mod notation;
 pub mod page;
 mod print;
 pub mod token;

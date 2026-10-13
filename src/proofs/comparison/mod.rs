@@ -8,11 +8,11 @@
 //! constructors in `mm::spell`, and each file is written to
 //! `corpus/elaboration/<name>.mm`.
 
-pub mod abs_bounds;
-pub mod algebra;
-pub mod parity;
-pub mod sqrt2;
-pub mod sum_formula;
+pub(crate) mod abs_bounds;
+pub(crate) mod algebra;
+pub(crate) mod parity;
+pub(crate) mod sqrt2;
+pub(crate) mod sum_formula;
 
 /// One comparison file: the name it is written under, and its text.
 pub struct Comparison {

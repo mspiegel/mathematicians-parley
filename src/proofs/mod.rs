@@ -13,8 +13,8 @@
 //! hand.
 
 pub mod comparison;
-pub mod stdlib;
-pub mod worksheet;
+pub(crate) mod stdlib;
+pub(crate) mod worksheet;
 
 use crate::mm::Proof;
 
@@ -35,13 +35,5 @@ impl Lemma {
             proof,
             hyps: Vec::new(),
         }
-    }
-
-    pub fn with_hyps(mut self, hyps: &[(&str, &str)]) -> Lemma {
-        self.hyps = hyps
-            .iter()
-            .map(|(l, s)| (l.to_string(), s.to_string()))
-            .collect();
-        self
     }
 }

@@ -19,7 +19,7 @@ use crate::corpus::proof::{chain, substituted, visible};
 use crate::corpus::{
     define_parts, DefineLine, DefineParts, FileScope, Intro, Record, ScopeId, Theorem,
 };
-pub mod infer;
+pub(crate) mod infer;
 pub mod introduction;
 
 use crate::formula::page::{tokens, Written};
@@ -416,22 +416,6 @@ fn introduced(body: &str, known: &Sorts) -> Vec<(String, &'static str)> {
 
 fn set_default(out: &mut Sorts, name: String, sort: Sort) {
     out.entry(name).or_insert(sort);
-}
-
-/// What each `define` line names, as a tree, read with the theorem's sorts.
-///
-/// A define asserts nothing; it abbreviates. So the name and the term are one
-/// formula wherever two formulas are compared, and this is the table that
-/// says which term each name stands for. A define may name something in terms
-/// of an earlier one, so the terms are read in the order they are written.
-///
-/// A sequence defined by recursion has no term to stand for: its rule names
-/// the sequence itself, so it is never expanded, and a step that needs a
-/// value cites the define.
-pub fn definitions_in_scope(thm: &Theorem, env: Env, sorts: &Sorts) -> Definitions {
-    let mut out = file_definitions(thm, env);
-    defines_into(&mut out, thm.defines.iter(), env, sorts);
-    out
 }
 
 /// What the `define` lines a citation names by label stand for, and only

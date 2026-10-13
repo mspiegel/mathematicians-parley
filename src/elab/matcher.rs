@@ -23,7 +23,7 @@ use std::rc::Rc;
 use indexmap::{IndexMap, IndexSet};
 
 use super::elaborate::Sides;
-use super::provenance::{from_requires, item_clauses, may_rest_on};
+use super::provenance::{from_requires, may_rest_on};
 use super::state::{
     fit, fit_respelt, names_of, Binding, Elaborator, Frame, HeadKey, Role, Shape, Vars,
 };
@@ -32,7 +32,7 @@ use super::{Facts, Lines, WrittenFact};
 use crate::binds;
 use crate::corpus::Step;
 use crate::formula::Node;
-use crate::mm::kernel::{same, Term};
+use crate::mm::kernel::Term;
 use crate::mm::spell::Proof;
 use crate::mm::Signature;
 use crate::outcome::{Built, Checked, Decline, Declined, Route};
@@ -4294,7 +4294,7 @@ impl<'a> Elaborator<'a> {
     /// An existence claim its item's lemmas together give: each is proved at
     /// what the `with` target says it is about, and the claim introduced at
     /// the terms they turn out to be about.
-    pub fn from_lemmas(
+    pub fn by_lemmas(
         &mut self,
         labels: &[String],
         goal: &str,
@@ -6148,14 +6148,4 @@ fn class_lift(label: &str, place: usize) -> Option<&'static str> {
         .iter()
         .find(|(l, p, _)| *l == label && *p == place)
         .map(|(_, _, lemma)| *lemma)
-}
-
-/// Whether two terms are one term.
-pub fn alike(a: &Term, b: &Term) -> bool {
-    same(a, b)
-}
-
-/// The labels an item's target names, for `trying` and `by_clause`.
-pub fn clauses_of(item: crate::corpus::Item) -> Vec<String> {
-    item_clauses(item)
 }

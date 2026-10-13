@@ -419,62 +419,6 @@ impl<'a> Elaborator<'a> {
             .unwrap_or_else(|| panic!("no item {name}"))
     }
 
-    /// The same equality with its sides the other way round.
-    pub fn flip(node: &Node) -> Node {
-        let mut kids = node.children.clone();
-        kids.reverse();
-        Node::new(&node.notation, node.sort.clone(), kids, &node.text)
-    }
-
-    /// A definition's right side, as nodes, with its names bound.
-    ///
-    /// Returns the unfolding lemma, the bound variable, the node the
-    /// existential quantifies (facing the way the lemma writes it), the same
-    /// as the text faces it, what it quantifies over, and the left side.
-    pub fn definition(
-        &mut self,
-        name: &str,
-        subject: &str,
-        var: Option<String>,
-    ) -> Checked<(String, String, Node, Node, String, String)> {
-        let Item::Record(item) = self.item_cited(name) else {
-            panic!("{name} is a definition of the database");
-        };
-        let (lemma, flipped) = targets::unfolding(item);
-        let Some(lemma) = lemma else {
-            return Err(self.defect(self.at, format!("{name} has no target field")));
-        };
-        let var = match var {
-            Some(v) => v,
-            None => {
-                let bound = self
-                    .sig(&lemma)
-                    .bound()
-                    .expect("a lemma that binds")
-                    .to_string();
-                self.float_of(&bound)
-            }
-        };
-        // The definition's sentence is read in its own sorts, which say what
-        // its letters are whatever the proof calls its own.
-        let node =
-            self.in_its_names(Item::Record(item), |me| me.read_one(&item.stated()[0]))?;
-        let (left, right) = (node.children[0].clone(), node.children[1].clone());
-        self.names
-            .insert(subject_of(&left).text.clone(), subject.to_string());
-        self.names
-            .insert(right.children[0].text.clone(), format!("{var} cv"));
-        let body = right.children[2].clone();
-        let faces = if flipped {
-            Self::flip(&body)
-        } else {
-            body.clone()
-        };
-        let over = self.term(&right.children[1])?;
-        let said = self.term(&left)?;
-        Ok((lemma, var, faces, body, over, said))
-    }
-
     /// What the step gives the letter a definition is about, found by that
     /// letter's name among its values as `instantiated` reads them
     /// (`SYNTAX.md`: a substitution names its variable). With no pair for
@@ -1073,31 +1017,5 @@ impl<'a> Elaborator<'a> {
                 &node.text,
             ))
         })
-    }
-
-    /// The node with one name replaced, for reading off the instance.
-    pub fn substituted(&mut self, node: &Node, old: &str, new: &str) -> Checked<Node> {
-        if self.term(node)? == old {
-            return Ok(literal(new));
-        }
-        if node.children.is_empty() {
-            return Ok(node.clone());
-        }
-        // A library function's name stands for no term, and nothing replaces it.
-        let named = self.library_application(node).is_some();
-        let mut kids = Vec::new();
-        for (i, c) in node.children.iter().enumerate() {
-            kids.push(if named && i == 0 {
-                c.clone()
-            } else {
-                self.substituted(c, old, new)?
-            });
-        }
-        Ok(Node::new(
-            &node.notation,
-            node.sort.clone(),
-            kids,
-            &node.text,
-        ))
     }
 }

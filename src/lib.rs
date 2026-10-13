@@ -17,12 +17,12 @@ pub mod matching;
 pub mod mm;
 pub mod outcome;
 pub mod proofs;
-pub mod rules;
+pub(crate) mod rules;
 pub mod said;
 pub mod sorts;
 pub mod source;
-pub mod targets;
-pub mod text;
+pub(crate) mod targets;
+pub(crate) mod text;
 pub mod threads;
 pub mod tools;
 

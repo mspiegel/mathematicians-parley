@@ -137,14 +137,6 @@ impl Poly {
         Poly::new(out)
     }
 
-    pub fn power(&self, by: u32) -> Poly {
-        let mut out = one();
-        for _ in 0..by {
-            out = out.times(self);
-        }
-        out
-    }
-
     /// The largest monomial, in the order the keys sort in.
     pub fn lead(&self) -> Option<&Monomial> {
         self.terms.keys().max()
@@ -219,34 +211,6 @@ pub fn spell_coefficient(weight: &Q) -> Option<String> {
     })
 }
 
-/// A polynomial as one term in reverse Polish: the canonical form.
-///
-/// Both sides of an `algebra` step are driven to this, and the step is then
-/// the two of them being the same term. Sums associate to the left and run
-/// down in degree, and every term is `( c x. M )` with no case left out: a
-/// coefficient of one is written, so is an exponent of one, and the constant
-/// term is `( c x. 1 )`. What it buys is that every step of the arithmetic
-/// over these forms has one shape to handle rather than four.
-///
-/// None where a coefficient is past what `spell_coefficient` writes.
-pub fn spell(poly: &Poly) -> Option<String> {
-    if poly.terms.is_empty() {
-        return Some(numeral(0).to_string());
-    }
-    let mut monomials: Vec<&Monomial> = poly.terms.keys().collect();
-    monomials.sort_by_key(|m| order(m));
-    let mut said = Vec::new();
-    for monomial in monomials {
-        let digit = spell_coefficient(&poly.terms[monomial])?;
-        said.push(format!("{digit} {} cmul co", spell_monomial(monomial)));
-    }
-    let mut out = said[0].clone();
-    for one in &said[1..] {
-        out = format!("{out} {one} caddc co");
-    }
-    Some(out)
-}
-
 /// A polynomial over a polynomial, which is what a term reads as.
 #[derive(Clone, Debug)]
 pub struct Quotient {
@@ -287,13 +251,6 @@ impl Quotient {
         Quotient {
             over: self.over.times(&other.under),
             under: self.under.times(&other.over),
-        }
-    }
-
-    pub fn power(&self, by: u32) -> Quotient {
-        Quotient {
-            over: self.over.power(by),
-            under: self.under.power(by),
         }
     }
 }
@@ -1153,18 +1110,13 @@ mod tests {
     }
 
     #[test]
-    fn a_square_expands_and_writes_down_in_degree() {
+    fn a_square_expands() {
         let k = atom("vk");
         let two_k_plus_one = k.scaled(&q(2)).plus(&one());
-        let square = two_k_plus_one.power(2);
+        let square = two_k_plus_one.times(&two_k_plus_one);
         assert_eq!(square.terms[&m(&[("vk", 2)])], q(4));
         assert_eq!(square.terms[&m(&[("vk", 1)])], q(4));
         assert_eq!(square.terms[&m(&[])], q(1));
-        assert_eq!(
-            spell(&square).unwrap(),
-            "c4 vk c2 cexp co cmul co c4 vk c1 cexp co cmul co caddc co \
-             c1 c1 cmul co caddc co"
-        );
     }
 
     #[test]
@@ -1216,7 +1168,7 @@ mod tests {
         // as it was, the first term as written its scale.
         let (given, [a, b, c, d, x, y]) = two_equations();
         let times = x
-            .power(2)
+            .times(&x)
             .times(&y)
             .scaled(&(q(1) / q(5)))
             .minus(&x.scaled(&q(3)))
