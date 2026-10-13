@@ -11,16 +11,16 @@
 //!
 //! Which files there are comes from the build, which is what knows every
 //! generated file, the hand-written comparisons among them; a file left in
-//! the directory that the build does not make is not one of them. Each file
-//! is handed to the verifier under the name the others
-//! include it by, its path under `corpus/elaboration/`, and set.mm under its own,
-//! so an inclusion never reaches past what is handed over.
+//! the directory that the build does not make is not one of them. The files
+//! are handed to the verifier as one, after set.mm, each once and after what
+//! it includes (`joined`), and a problem is reported at the file and line it
+//! is in. That each file reaches what it uses through its own inclusions is
+//! checked here, before the verifier runs (`unreached`).
 //!
 //! Which of them to include is read off the inclusions rather than listed: a
-//! proof that nothing else includes is a root, and one file including every
-//! root reaches everything and reads set.mm once. A new proof is covered the
-//! day it is written, where a list of roots would leave the gate green and
-//! the new proof unread.
+//! proof that nothing else includes is a root, and from the roots every file
+//! is reached. A new proof is covered the day it is written, where a list of
+//! roots would leave the gate green and the new proof unread.
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::sync::LazyLock;
@@ -207,19 +207,15 @@ pub fn run(
         top.join(", ")
     );
 
-    let joined: String = top.iter().map(|name| format!("$[ {name} $]\n")).collect();
-    let mut files: Vec<(String, Vec<u8>)> = vec![
+    let Joined { text, starts } = joined(&texts, &top);
+    let files: Vec<(String, Vec<u8>)> = vec![
         ("set.mm".to_string(), setmm),
-        (JOINED.to_string(), joined.into_bytes()),
+        (JOINED.to_string(), text.into_bytes()),
     ];
-    files.extend(
-        texts
-            .into_iter()
-            .map(|(path, text)| (included_as(&path).to_string(), text.into_bytes())),
-    );
 
     let began = Instant::now();
-    let problems = verified(files);
+    let problems: Vec<String> =
+        verified(files).iter().map(|p| placed(p, &starts)).collect();
     let spent = began.elapsed().as_secs_f64();
     if !problems.is_empty() {
         for p in &problems {
@@ -234,6 +230,105 @@ pub fn run(
     }
     said.printed += &format!("\nall {proved} verify, in {spent:.0}s\n");
     said
+}
+
+/// The built files as one, and where each starts in it.
+struct Joined {
+    /// set.mm included, then every file once, after what it includes, its
+    /// own inclusions blanked and their lines kept.
+    text: String,
+    /// Each file by the line of the joined text its first line is, in the
+    /// order they stand.
+    starts: Vec<(usize, String)>,
+}
+
+/// The files reached from `roots`, joined in the order their inclusions
+/// put them.
+///
+/// metamath-rs scope-checks one segment at a time, an included file being
+/// one, and copies its whole table of names for each (`scope_check` in its
+/// `scopeck.rs`): set.mm's table copied once for every file of the corpus
+/// cost 4.6s where set.mm alone is 0.8s. Joined, the files are one segment
+/// and the table is copied once. What a file may use is still only what its
+/// own inclusions reach, which `unreached` holds before the verifier runs.
+fn joined(texts: &[(String, String)], roots: &[String]) -> Joined {
+    let by_name: BTreeMap<&str, &str> = texts
+        .iter()
+        .map(|(p, t)| (included_as(p), t.as_str()))
+        .collect();
+    fn visit<'t>(
+        name: &'t str,
+        by_name: &BTreeMap<&'t str, &'t str>,
+        seen: &mut BTreeSet<&'t str>,
+        order: &mut Vec<&'t str>,
+    ) {
+        let Some(text) = by_name.get(name) else {
+            return;
+        };
+        if !seen.insert(name) {
+            return;
+        }
+        for c in INCLUDE.captures_iter(text) {
+            if let Some(m) = c.get(1) {
+                visit(m.as_str(), by_name, seen, order);
+            }
+        }
+        order.push(name);
+    }
+    let mut order = Vec::new();
+    let mut seen = BTreeSet::new();
+    for root in roots {
+        visit(root, &by_name, &mut seen, &mut order);
+    }
+    let mut text = String::from("$[ set.mm $]\n");
+    let mut line = 2;
+    let mut starts = Vec::new();
+    for name in order {
+        starts.push((line, name.to_string()));
+        let body = INCLUDE.replace_all(by_name[name], "");
+        line += body.lines().count();
+        text += &body;
+        if !body.ends_with('\n') {
+            text.push('\n');
+        }
+    }
+    Joined { text, starts }
+}
+
+/// A problem the verifier reports at a line of the joined file, said at
+/// the file and line it is in: the place it names, and the line numbers in
+/// the margin of the text it quotes.
+fn placed(problem: &str, starts: &[(usize, String)]) -> String {
+    static AT: LazyLock<Regex> = LazyLock::new(|| {
+        Regex::new(&format!(r"{}:(\d+)", regex::escape(JOINED)))
+            .expect("a valid pattern")
+    });
+    static MARGIN: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"(?m)^(\s*)(\d+)( \|)").expect("a valid pattern"));
+    let file_of = |at: usize| starts.iter().rev().find(|(start, _)| *start <= at);
+    let Some(at) = AT
+        .captures(problem)
+        .and_then(|c| c[1].parse::<usize>().ok())
+    else {
+        return problem.to_string();
+    };
+    let Some((start, _)) = file_of(at) else {
+        return problem.to_string();
+    };
+    let named = AT.replace_all(problem, |c: &regex::Captures| {
+        let at: usize = c[1].parse().unwrap_or(0);
+        match file_of(at) {
+            Some((start, name)) => format!("{name}:{}", at - start + 1),
+            None => c[0].to_string(),
+        }
+    });
+    MARGIN
+        .replace_all(&named, |c: &regex::Captures| {
+            let n: usize = c[2].parse().unwrap_or(0);
+            let shown = n.checked_sub(start - 1).unwrap_or(n).to_string();
+            format!("{}{:>width$}{}", &c[1], shown, &c[3], width = c[2].len())
+        })
+        .into_owned()
 }
 
 /// Every problem the verifier finds in the files, starting from the joined
