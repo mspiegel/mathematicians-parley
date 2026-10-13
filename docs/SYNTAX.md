@@ -449,6 +449,14 @@ in `into line 2.3` and `in line 4`, it carries the word "line"; in a
 `from` list, after `join`, and on a calculation line it is bare. Labels
 never carry the word.
 
+**A line is cited once.** A cited line fills every hypothesis of the cited
+item that it says, so a list names each line one time however many it fills:
+`mun:coprime-product x := a, y := a, n := gcd(b, c), from 11, 1`, where
+line 11 says gcd(a, gcd(b, c)) = 1 and fills both hypotheses that x and y
+are prime to n. The checker reports a line named twice in one list. The
+links of a calculation are each cited on their own, and two links may cite
+one line.
+
 **A line said of every member of a set says it of every member of a set
 inside that one.** A hypothesis asking "for all k ∈ {1, …, n}, P(k)" is
 answered by a cited line "for all k ∈ ℕ, P(k)", since every k from 1 to n

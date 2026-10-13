@@ -32,7 +32,7 @@ theorem the-identity-is-its-own-inverse
           = e·e     4
 
 6.  e⁻¹ = e
-    thm:group-cancel a := e⁻¹, b := e, g := e, from 2, 1, 1, 5
+    thm:group-cancel a := e⁻¹, b := e, g := e, from 2, 1, 5
 
 theorem the-inverse-of-a-product
   note        Undoing a·b undoes b first: (a·b)·(b⁻¹·a⁻¹) = e, and an inverse
@@ -71,7 +71,7 @@ theorem the-inverse-of-a-product
     mun:group-inverse a := b, from H3
 
 10. a⁻¹·(e·a⁻¹) = (a⁻¹·e)·a⁻¹
-    mun:group-associative a := a⁻¹, b := e, c := a⁻¹, from 2, 6, 2
+    mun:group-associative a := a⁻¹, b := e, c := a⁻¹, from 2, 6
 
 11. a⁻¹·e = a⁻¹
     mun:group-identity a := a⁻¹, from 2
@@ -83,7 +83,7 @@ theorem the-inverse-of-a-product
     mun:group-closed a := e, b := a⁻¹, from 6, 2
 
 14. e·a⁻¹ = a⁻¹
-    thm:group-cancel a := e·a⁻¹, b := a⁻¹, g := a⁻¹, from 13, 2, 2, 12
+    thm:group-cancel a := e·a⁻¹, b := a⁻¹, g := a⁻¹, from 13, 2, 12
 
 15. b·(b⁻¹·a⁻¹) = e·a⁻¹
     substitute b·b⁻¹ = e (line 9) into line 8

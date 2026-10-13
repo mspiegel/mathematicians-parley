@@ -153,7 +153,7 @@ theorem leg-hypotenuse-coprime
                         = 1                    9
 
 12. gcd(a·a, gcd(b, c)) = 1
-    mun:coprime-product x := a, y := a, n := gcd(b, c), from 11, 11, 1
+    mun:coprime-product x := a, y := a, n := gcd(b, c), from 11, 1
 
 13. gcd(b, c) divides gcd(b, c)
     mun:divides-self n := gcd(b, c)

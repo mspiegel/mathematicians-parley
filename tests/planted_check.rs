@@ -373,6 +373,29 @@ fn cases() -> Vec<Case> {
             )],
             "step 6 asks inspection to decide a word odd defines",
         ),
+        // A line fills every hypothesis it says, so it is cited once.
+        case(
+            "cite one line twice in a step's list",
+            vec![edit(
+                "proofs/sqrt2-irrational.proof",
+                Some("thm:divides-gcd a := p, b := q, from 3.1\n".to_string()),
+                "thm:divides-gcd a := p, b := q, from 3.1, 3.1\n".to_string(),
+            )],
+            "step 3.2 cites 3.1 more than once",
+        ),
+        case(
+            "cite one line twice in a requires line's list",
+            vec![edit(
+                "proofs/mean-value.proof",
+                Some(
+                    "    algebra, from 28\n    requires b − a ≠ 0: inequalities, from H1, H2, H3\n"
+                        .to_string(),
+                ),
+                "    algebra, from 28\n    requires b − a ≠ 0: inequalities, from H1, H2, H1, H3\n"
+                    .to_string(),
+            )],
+            "cites H1 more than once",
+        ),
         // A chain's congruence says what it is modulo, on its own line, and
         // every congruence of the chain says the same (`GRAMMAR.md`).
         case(

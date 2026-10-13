@@ -441,6 +441,27 @@ pub fn check_chain(report: &mut Report, thm: &Theorem, step: &Step) {
     }
 }
 
+/// The lines and labels a `from` list names more than once, each once: a
+/// line cited fills every hypothesis it says, so it is named once
+/// (`SYNTAX.md`).
+fn named_twice(refs: &[String]) -> Vec<&String> {
+    let mut seen: IndexSet<&String> = IndexSet::new();
+    let mut twice: IndexSet<&String> = IndexSet::new();
+    for r in refs {
+        if !seen.insert(r) {
+            twice.insert(r);
+        }
+    }
+    twice.into_iter().collect()
+}
+
+/// What to say of a line or label `what` names twice in its `from` list.
+fn cited_twice(what: &str, cited: &str) -> String {
+    format!(
+        "{what} cites {cited} more than once; a line is cited once, and fills every hypothesis it says"
+    )
+}
+
 /// What to say of a label cited and not in scope: where it is the name of a
 /// define the file imports with no label, that the import is to give one,
 /// since a define is cited by its label and not by its name.
@@ -490,6 +511,15 @@ pub fn check_citations(
                     "`from` names {}, which is neither a line nor a label",
                     repr(bad)
                 ),
+            );
+        }
+        // The step's own `from` list: a calculation gathers its links'
+        // citations, and two links may cite one line.
+        for r in named_twice(&references(&just.text).0) {
+            report.say(
+                &thm.path,
+                just.line,
+                cited_twice(&format!("step {}", step.number), r),
             );
         }
         for r in &just.refs {
@@ -683,6 +713,9 @@ impl Cited<'_> {
                     repr(&bad)
                 ),
             );
+        }
+        for r in named_twice(&refs) {
+            report.say(&thm.path, no, cited_twice(what, r));
         }
         for r in refs {
             if full(&LABEL_RE, &r) {
