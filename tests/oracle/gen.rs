@@ -11,13 +11,27 @@ use num_bigint::BigInt;
 use parley::formula::grammar::Grammar;
 use parley::formula::node::Node;
 use parley::formula::page::{made_as, numeral};
+use parley::formula::Sort;
 
 use crate::shared::Random;
 
-/// A term of numerals: what `arithmetic` works out.
+/// One theorem drawn for a method: the lines of its header, its claim as
+/// the page writes it, the justification of its one step, the oracle's
+/// verdict, and the tree drawn, to print beside a fault.
+pub struct Drawn {
+    pub header: Vec<String>,
+    pub written: String,
+    pub justification: String,
+    pub verdict: crate::judge::Verdict,
+    pub shown: String,
+}
+
+/// A term of numerals, and for `algebra` of letters: what a method works
+/// out.
 #[derive(Clone, Debug)]
 pub enum Expr {
     Num(BigInt),
+    Letter(&'static str),
     Neg(Box<Expr>),
     Add(Box<Expr>, Box<Expr>),
     Sub(Box<Expr>, Box<Expr>),
@@ -171,10 +185,22 @@ pub fn claim(r: &mut Random) -> Claim {
     }
 }
 
+/// A claim for `arithmetic`, drawn and judged.
+pub fn arithmetic(r: &mut Random, g: &Grammar) -> Drawn {
+    let c = claim(r);
+    Drawn {
+        header: Vec::new(),
+        written: written(g, &c),
+        justification: "arithmetic".to_string(),
+        verdict: crate::judge::arithmetic(&c),
+        shown: format!("{c:?}"),
+    }
+}
+
 /// The node the notation written `pattern` builds over `children`; the
 /// notations named here are the database's own, so one missing is a fault
 /// of the test.
-fn made(g: &Grammar, pattern: &str, children: Vec<Node>) -> Node {
+pub fn made(g: &Grammar, pattern: &str, children: Vec<Node>) -> Node {
     made_as(g, pattern, children).unwrap_or_else(|| {
         panic!("the database declares no notation written {pattern}")
     })
@@ -188,6 +214,7 @@ pub fn term(g: &Grammar, e: &Expr) -> Node {
             made(g, "−_", vec![numeral(&(-n).to_string())])
         }
         Expr::Num(n) => numeral(&n.to_string()),
+        Expr::Letter(x) => Node::leaf("name", Sort::of("number"), x),
         Expr::Neg(a) => made(g, "−_", vec![term(g, a)]),
         Expr::Add(a, b) => two(a, b, "_ + _"),
         Expr::Sub(a, b) => two(a, b, "_ − _"),

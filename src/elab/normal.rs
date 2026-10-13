@@ -1968,28 +1968,28 @@ impl Emitter {
             if how == field::EXP {
                 // The exponent rule, as `field` states it where the same
                 // claim is decided: a numeral exponent is expanded, and any
-                // other leaves the whole power an atom.
-                if let Some(times) = field::whole_number(right) {
-                    if (0..=field::CAP).contains(&times) {
-                        let times = times as u32;
-                        let (inner, proof) = take!(self.normalize(o, left, labels)?);
-                        let (out, raised) = take!(self.power(o, &inner, times)?);
-                        let moved = o.b().ap(
-                            "oveq1d",
-                            &binds! {"ph" => &self.under, "A" => &*left.rpn(labels),
-                            "B" => Self::spell_run(&inner), "C" => n(times), "F" => EXP},
-                            &[&proof],
-                        );
-                        let p = self.chain(
-                            o,
-                            &moved,
-                            &raised,
-                            &said,
-                            &op(&Self::spell_run(&inner), n(times), EXP),
-                            &Self::spell_run(&out),
-                        );
-                        return Ok(Built((out, p)));
-                    }
+                // other, or a power past what may be multiplied out, leaves
+                // the whole power an atom.
+                if let field::Power::Expanded { by: times, .. } =
+                    field::power_of(left, right, labels)
+                {
+                    let (inner, proof) = take!(self.normalize(o, left, labels)?);
+                    let (out, raised) = take!(self.power(o, &inner, times)?);
+                    let moved = o.b().ap(
+                        "oveq1d",
+                        &binds! {"ph" => &self.under, "A" => &*left.rpn(labels),
+                        "B" => Self::spell_run(&inner), "C" => n(times), "F" => EXP},
+                        &[&proof],
+                    );
+                    let p = self.chain(
+                        o,
+                        &moved,
+                        &raised,
+                        &said,
+                        &op(&Self::spell_run(&inner), n(times), EXP),
+                        &Self::spell_run(&out),
+                    );
+                    return Ok(Built((out, p)));
                 }
                 return self.as_atom(o, &said).map(Built);
             }
@@ -3231,9 +3231,10 @@ impl Emitter {
         labels: &FloatLabels,
         said: &str,
     ) -> Checked<Route<Quotiented>> {
-        let times = match field::whole_number(right) {
-            Some(t) if (0..=field::CAP).contains(&t) => t as u32,
-            _ => return Ok(Route::no(format!("{said} has no numeral exponent"))),
+        let field::Power::Expanded { by: times, .. } =
+            field::power_of(left, right, labels)
+        else {
+            return Ok(Route::no(format!("{said} is not a power multiplied out")));
         };
         let Quotiented {
             over: o1,

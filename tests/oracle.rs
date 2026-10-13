@@ -1,11 +1,12 @@
 //! A decision method answers as its oracle does.
 //!
-//! `arithmetic` decides a claim from its form, and every proof leans on it
-//! (`METHODS.md`). Coverage says whether its code ran; this asks whether its
-//! answers are right. Claims are drawn at random from the forms the document
-//! says it takes (`oracle/gen.rs`), each is worked out by an oracle of the
-//! test's own that shares none of the method's code (`oracle/judge.rs`), and
-//! each is written as a theorem of one step and asked of the tools:
+//! `arithmetic` and `algebra` decide a claim from its form, and every proof
+//! leans on them (`METHODS.md`). Coverage says whether their code ran; this
+//! asks whether their answers are right. Claims are drawn at random from
+//! the forms the document says each takes, each is worked out by an oracle
+//! of the test's own that shares none of the method's code
+//! (`oracle/judge.rs`, `oracle/algebra.rs`), and each is written as a
+//! theorem of one step and asked of the tools:
 //!
 //! - a claim the oracle says holds is accepted by the checker, built with
 //!   nothing assumed, and verified;
@@ -15,8 +16,9 @@
 //! Any other answer is a fault, printed with the seed that draws it again,
 //! and each class found is pinned as a theorem the build elaborates
 //! (`tests/elaborator/closed-values.proof`). The test draws `ORACLE_COUNT`
-//! claims (1500 where it is not set) from `ORACLE_SEED`, and reads set.mm,
-//! so it is not run with the others:
+//! claims of each method (1500 where it is not set) from `ORACLE_SEED`, of
+//! the methods whose names hold `ORACLE_ONLY` where it is set, and reads
+//! set.mm, so it is not run with the others:
 //!
 //! ```text
 //! cargo test --release --test oracle -- --ignored --nocapture
@@ -32,7 +34,7 @@ use parley::elab::Library;
 use parley::formula::grammar::Grammar;
 use parley::mm::where_set_mm;
 use parley::source::{Disk, Memory, Overlay, Source};
-use parley::threads::in_order;
+use parley::threads::{in_order, in_order_on};
 use parley::tools::build::{library, Libraries, Loaded};
 use parley::tools::{path_of, verify};
 
@@ -45,35 +47,77 @@ mod gen;
 #[path = "oracle/judge.rs"]
 mod judge;
 
+#[path = "oracle/algebra.rs"]
+mod algebra;
+
+use gen::Drawn;
 use judge::Verdict;
 use shared::{included, Random};
 
 /// The seed claims are drawn from where `ORACLE_SEED` does not say another.
 const SEED: u64 = 20_261_012;
 
-/// How many claims are drawn where `ORACLE_COUNT` does not say.
+/// How many claims of each method are drawn where `ORACLE_COUNT` does not
+/// say.
 const COUNT: usize = 1500;
 
-/// Where the claims are written, as a proof file of the tree.
-const FILE: &str = "tests/oracle/arithmetic.proof";
+/// How many built files are verified at once where they are verified one
+/// by one.
+const VERIFYING: usize = 4;
 
-/// The words `arithmetic` decides, imported as a proof saying them would.
-const IMPORTS: &str = "\
+/// A method held to its oracle: how its claims are drawn, what a proof
+/// asking it imports, and the words it refuses a false claim in.
+struct Method {
+    name: &'static str,
+    draw: fn(&mut Random, &Grammar) -> Drawn,
+    imports: &'static str,
+    false_said: &'static str,
+}
+
+fn methods() -> Vec<Method> {
+    vec![
+        Method {
+            name: "arithmetic",
+            draw: gen::arithmetic,
+            // The words `arithmetic` decides, imported as a proof saying
+            // them would.
+            imports: "\
 import mundane definition stdlib/divisibility/divides
 import mundane definition stdlib/divisibility/even
 import mundane definition stdlib/divisibility/odd
 import mundane definition stdlib/divisibility/congruent-mod
+",
+            false_said: "which is false",
+        },
+        Method {
+            name: "algebra",
+            draw: algebra::claim,
+            imports: "",
+            false_said: "is not an identity",
+        },
+        Method {
+            name: "algebra-from",
+            draw: algebra::derived,
+            imports: "",
+            false_said: "nor does it follow from what step 1 cites",
+        },
+    ]
+}
 
-";
-
-/// One claim drawn: what it says, and what the oracle makes of it.
+/// One claim drawn, where it is written, and what the oracle makes of it.
 struct Asked {
+    method: usize,
+    file: String,
     theorem: String,
-    claim: gen::Claim,
-    written: String,
-    verdict: Verdict,
+    drawn: Drawn,
     /// The line its theorem starts on, and the line after its last.
     lines: (usize, usize),
+}
+
+impl Asked {
+    fn qualified(&self) -> String {
+        format!("{}/{}", self.file.trim_end_matches(".proof"), self.theorem)
+    }
 }
 
 /// What the tools made of a claim.
@@ -95,8 +139,21 @@ fn env_number<T: std::str::FromStr>(name: &str) -> Option<T> {
     })
 }
 
+/// A theorem of one step: its header, its claim, and the step claiming it.
+fn theorem(name: &str, d: &Drawn) -> String {
+    let mut out = format!("theorem {name}\n");
+    for (i, line) in d.header.iter().enumerate() {
+        out.push_str(&format!("  {line}    (H{})\n", i + 1));
+    }
+    out.push_str(&format!(
+        "  then {}\n\n1.  {}\n    {}\n\n",
+        d.written, d.written, d.justification
+    ));
+    out
+}
+
 #[test]
-#[ignore = "elaborates and verifies hundreds of claims; run on its own"]
+#[ignore = "elaborates and verifies thousands of claims; run on its own"]
 fn a_decision_method_answers_as_its_oracle() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
     let clean = Memory::copy(&Disk::new(root), &["corpus", "proofs", "tests"]).unwrap();
@@ -104,29 +161,35 @@ fn a_decision_method_answers_as_its_oracle() {
         .expect("the grammar loads");
     let seed = env_number("ORACLE_SEED").unwrap_or(SEED);
     let count = env_number("ORACLE_COUNT").unwrap_or(COUNT);
+    let only = std::env::var("ORACLE_ONLY").ok();
+    let methods: Vec<Method> = methods()
+        .into_iter()
+        .filter(|m| only.as_ref().is_none_or(|o| m.name.contains(o.as_str())))
+        .collect();
 
-    // Each claim a theorem of its own, so that one refused stops no other.
+    // Each claim a theorem of its own, so that one refused stops no other,
+    // in a file for each method.
     let mut random = Random::new(seed);
-    let mut text = IMPORTS.to_string();
     let mut asked = Vec::new();
-    for i in 0..count {
-        let claim = gen::claim(&mut random);
-        let written = gen::written(&g, &claim);
-        let theorem = format!("arithmetic-{i}");
-        let start = text.lines().count() + 1;
-        text.push_str(&format!(
-            "theorem {theorem}\n  then {written}\n\n1.  {written}\n    arithmetic\n\n"
-        ));
-        asked.push(Asked {
-            theorem,
-            verdict: judge::arithmetic(&claim),
-            claim,
-            written,
-            lines: (start, text.lines().count() + 1),
-        });
-    }
     let mut tree = Overlay::new(&clean);
-    tree.write(FILE, text.into_bytes());
+    for (m, method) in methods.iter().enumerate() {
+        let file = format!("tests/oracle/{}.proof", method.name);
+        let mut text = format!("{}\n", method.imports);
+        for i in 0..count {
+            let drawn = (method.draw)(&mut random, &g);
+            let name = format!("{}-{i}", method.name);
+            let start = text.lines().count() + 1;
+            text.push_str(&theorem(&name, &drawn));
+            asked.push(Asked {
+                method: m,
+                file: file.clone(),
+                theorem: name,
+                drawn,
+                lines: (start, text.lines().count() + 1),
+            });
+        }
+        tree.write(&file, text.into_bytes());
+    }
     let tree = Memory::copy(&tree, &["corpus", "proofs", "tests"]).unwrap();
 
     // What the checker says of each, by the lines of its theorem.
@@ -135,7 +198,7 @@ fn a_decision_method_answers_as_its_oracle() {
         checked
             .lines()
             .filter_map(|l| {
-                let at = l.strip_prefix(FILE)?.strip_prefix(':')?;
+                let at = l.strip_prefix(a.file.as_str())?.strip_prefix(':')?;
                 let n: usize = at.split_whitespace().next()?.parse().ok()?;
                 (a.lines.0..a.lines.1).contains(&n).then(|| l.to_string())
             })
@@ -143,7 +206,6 @@ fn a_decision_method_answers_as_its_oracle() {
     };
 
     // Each built, against set.mm read once.
-    let module = FILE.trim_end_matches(".proof");
     let read = library(root, None)
         .expect(
             "set.mm is found: say where it is with SET_MM, or leave a copy at the root",
@@ -153,13 +215,12 @@ fn a_decision_method_answers_as_its_oracle() {
         &asked,
         || (Library::new(Arc::clone(&read)), None::<Loaded>),
         |(lib, loaded): &mut (Library, Option<Loaded>), a| {
-            let qualified = format!("{module}/{}", a.theorem);
             let run = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
                 let loaded = loaded.get_or_insert_with(|| {
                     Loaded::new(&tree).expect("the tree with the claims reads")
                 });
                 loaded
-                    .elaborate(&qualified, lib, Options::default())
+                    .elaborate(&a.qualified(), lib, Options::default())
                     .map(|e| e.text)
                     .map_err(|p| p.to_string())
             }));
@@ -176,12 +237,13 @@ fn a_decision_method_answers_as_its_oracle() {
         },
     );
 
-    // What was built, verified together as the gate verifies a tree. An
-    // answer not yet given is a file built and waiting for the verifier.
+    // What was built, verified together as the gate verifies a tree, and
+    // one by one where that is not green, to say which. An answer not yet
+    // given is a file built and waiting for the verifier.
     let mut answers: Vec<Option<Answer>> = Vec::new();
     let mut verifying = Overlay::new(&tree);
-    let mut files: BTreeSet<String> = BTreeSet::new();
-    for (a, result) in asked.iter().zip(&built) {
+    let mut files: Vec<(usize, String)> = Vec::new();
+    for (i, (a, result)) in asked.iter().zip(&built).enumerate() {
         let checker = reported(a);
         let answer = match result {
             _ if !checker.is_empty() => Some(Answer::Checker(checker.join(" | "))),
@@ -192,9 +254,9 @@ fn a_decision_method_answers_as_its_oracle() {
                     .filter(|l| l.split_whitespace().nth(1) == Some("$a"))
                     .collect();
                 if assumed.is_empty() {
-                    let path = path_of(&format!("{module}/{}", a.theorem));
+                    let path = path_of(&a.qualified());
                     verifying.write(&path, text.clone().into_bytes());
-                    files.insert(path);
+                    files.push((i, path));
                     None
                 } else {
                     Some(Answer::Assumed(assumed.join(" | ")))
@@ -203,44 +265,56 @@ fn a_decision_method_answers_as_its_oracle() {
         };
         answers.push(answer);
     }
+    let verifying = Memory::copy(&verifying, &["corpus", "proofs", "tests"]).unwrap();
     let libraries = Libraries::read(
         &where_set_mm(None, root)
             .expect("set.mm is found: say where it is with SET_MM"),
     )
     .expect("set.mm reads");
-    let mut every: BTreeSet<String> = BTreeSet::new();
-    for path in &files {
+    let closure = |path: &str| -> Vec<String> {
         let text = verifying.read_text(path).expect("a built file reads");
-        every.extend(included(&verifying, path, &text));
+        included(&verifying, path, &text)
+    };
+    let mut every: BTreeSet<String> = BTreeSet::new();
+    for (_, path) in &files {
+        every.extend(closure(path));
     }
     let every: Vec<String> = every.into_iter().collect();
-    let said = verify::run(&verifying, &every, Some(&libraries));
-    let printed = said.printed.trim().replace('\n', " | ");
-    for answer in answers.iter_mut() {
-        if answer.is_none() {
-            *answer = Some(Answer::Built {
-                verified: said.green(),
-                said: printed.clone(),
-            });
-        }
+    let together = verify::run(&verifying, &every, Some(&libraries));
+    let verdicts: Vec<(bool, String)> = if together.green() {
+        files.iter().map(|_| (true, String::new())).collect()
+    } else {
+        in_order_on(
+            VERIFYING,
+            &files,
+            || (),
+            |_, (_, path)| {
+                let said = verify::run(&verifying, &closure(path), Some(&libraries));
+                (said.green(), said.printed.trim().replace('\n', " | "))
+            },
+        )
+    };
+    for ((i, _), (verified, said)) in files.iter().zip(verdicts) {
+        answers[*i] = Some(Answer::Built { verified, said });
     }
 
     // Each answer against its verdict.
     let mut faults = Vec::new();
-    let mut tally = [0usize; 3];
+    let mut tally = vec![[0usize; 3]; methods.len()];
     for (a, answer) in asked.iter().zip(answers) {
         let answer = answer.expect("every claim answered");
-        let right = match (&a.verdict, &answer) {
+        let method = &methods[a.method];
+        let right = match (&a.drawn.verdict, &answer) {
             (Verdict::Holds(true), Answer::Built { verified, .. }) => *verified,
             (Verdict::Holds(false), Answer::Refused(said)) => {
-                said.contains("which is false")
+                said.contains(method.false_said)
             }
             (Verdict::Refused(any), Answer::Refused(said)) => {
                 any.iter().any(|why| said.contains(why))
             }
             _ => false,
         };
-        tally[match a.verdict {
+        tally[a.method][match a.drawn.verdict {
             Verdict::Holds(true) => 0,
             Verdict::Holds(false) => 1,
             Verdict::Refused(_) => 2,
@@ -258,17 +332,17 @@ fn a_decision_method_answers_as_its_oracle() {
                 }
             };
             faults.push(format!(
-                "{} ({}): {}\n    drawn:  {:?}\n    oracle: {:?}\n    tools:  {got}",
-                a.theorem, seed, a.written, a.claim, a.verdict
+                "{} ({seed}): {}\n    drawn:  {}\n    oracle: {:?}\n    tools:  {got}",
+                a.theorem, a.drawn.written, a.drawn.shown, a.drawn.verdict
             ));
         }
     }
-    println!(
-        "{count} claims from seed {seed}: {} true, {} false, {} refused by the document; {} faults",
-        tally[0],
-        tally[1],
-        tally[2],
-        faults.len()
-    );
+    for (method, [t, f, r]) in methods.iter().zip(&tally) {
+        println!(
+            "{}: {count} claims from seed {seed}: {t} true, {f} false, {r} refused by the document",
+            method.name
+        );
+    }
+    println!("{} faults", faults.len());
     assert!(faults.is_empty(), "{}", faults.join("\n"));
 }

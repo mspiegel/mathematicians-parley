@@ -1,0 +1,42 @@
+theorem a-term-with-a-fraction
+  note        One cited equation times z/5, the claim's sides with fractions.
+  let x ∈ ℝ    (H1)
+  let y ∈ ℝ    (H2)
+  let z ∈ ℝ    (H3)
+  assume 3 + x = 0    (H4)
+  then 1/5·(x·z) + y + 3/5·z = y
+
+1.  1/5·(x·z) + y + 3/5·z = y
+    algebra, from H4
+
+theorem a-multiplier-of-two-terms
+  note        The cited equation times x^2 − x, written as one multiplier.
+  let x ∈ ℝ    (H1)
+  let y ∈ ℝ    (H2)
+  assume y = 1    (H3)
+  then x^2·y − x·y + 2 = x^2 − x + 2
+
+1.  x^2·y − x·y + 2 = x^2 − x + 2
+    algebra, from H3
+
+theorem a-cited-equation-that-divides
+  note        A cited equation over 2, multiplied by y.
+  let x ∈ ℝ    (H1)
+  let y ∈ ℝ    (H2)
+  assume (x + y)/2 = 2    (H3)
+  then 1/2·(x·y) + 1/2·y^2 + y = 3·y
+
+1.  1/2·(x·y) + 1/2·y^2 + y = 3·y
+    algebra, from H3
+
+theorem one-multiplied-one-added
+  note        The first equation times x, the second taken once.
+  let x ∈ ℝ    (H1)
+  let y ∈ ℝ    (H2)
+  let z ∈ ℝ    (H3)
+  assume y = 1    (H4)
+  assume z = 2    (H5)
+  then x·y + z = x + 2
+
+1.  x·y + z = x + 2
+    algebra, from H4, H5

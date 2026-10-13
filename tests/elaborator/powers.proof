@@ -1,0 +1,7 @@
+theorem a-power-of-powers
+  note        A whole exponent of any size is multiplied out, x^27 as well.
+  let x ∈ ℝ    (H1)
+  then ((x^3)^3)^3 = x^27
+
+1.  ((x^3)^3)^3 = x^27
+    algebra

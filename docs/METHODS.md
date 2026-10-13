@@ -353,6 +353,15 @@ fact about the field rather than an identity.
 - **Order relations.** Those are `inequalities`.
 - **A disequality that is not a multiple of a cited one.**
 - **Two cited equations each multiplied by a term.** That is two steps.
+- **A power that costs more than 300 000 to multiply out.** The proof
+  raises a power one step of the exponent at a time, and each step puts the
+  terms it makes in order one by one, every move rewriting the polynomial so
+  far. So a step whose result has T terms, from a base of b terms, costs
+  T³·b, and no step less than 50. Measured, a million of these is 3 to 5 GB
+  of memory, and the limit keeps a power under the 2 GB a build allows:
+  (x + y)^24 costs some 210 000 and (x + y + z)^7 some 250 000, while
+  (x + y)^30 and (x + y + z)^8 are refused, and x^27 costs a few hundred. A
+  step reading such a power, in its claim or a line it cites, is refused.
 
 ### Hypotheses
 
@@ -374,9 +383,15 @@ requires of it. The families are `addcom`, `addass`, `mulcom`, `mulass`,
 disequality case.
 
 Ideal membership over a fixed set of atoms is decidable, so the expansion is
-total. A Gröbner basis is the general method; the corpus never needs it, since
-every step is either a normalisation with no cited equation or a combination
-with coefficients of degree at most one.
+total. With at most one `pᵢ` a polynomial, no Gröbner basis is needed: each
+cited equation in turn is the one a term may multiply, and dividing by one
+polynomial leaves a remainder that is nought exactly for its multiples. The
+remainder of a sum is the sum of the remainders, so the numbers the other
+equations are taken by solve a linear system, and the polynomial is the
+quotient of what is left. A cited equation that divides is read with its
+denominators multiplied across, and its multiplier in the proof carries
+them. Each cited equation is written into the proof once, times its whole
+multiplier, in the order the step cites them.
 
 Six steps are written out in `corpus/elaboration/`, and `ELABORATION.md` measures
 them. Five come from the three elaborated proofs; the sixth is step 2 of

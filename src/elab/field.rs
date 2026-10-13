@@ -38,8 +38,20 @@ pub const EXP: &str = "cexp";
 pub const MOD: &str = "cmo";
 pub const NEG: &str = "cneg";
 
-/// An exponent past anything the corpus writes.
-pub const CAP: i64 = 24;
+/// What a power may cost to multiply out. The proof raises a power one step
+/// of the exponent at a time, and each step puts the terms it makes in
+/// order one by one, every move rewriting the polynomial so far: a step
+/// whose result has T terms, from a base of b, costs T³·b, and no step less
+/// than [`STEP`]. Measured, a million of these is 3 to 5 GB of memory, and
+/// this is what keeps a power under the build's 2 GB: (x + y)^24 costs some
+/// 210 000 and (x + y + z)^7 some 250 000, (x + y)^30 some 490 000 and
+/// (x + y + z)^8 some 520 000, and x^27 a few hundred. A power past it is
+/// refused rather than worked.
+pub const WORK: usize = 300_000;
+
+/// The least a step of a power costs: each restates the power, however few
+/// its terms, and x^3000 takes 0.3 GB.
+pub const STEP: usize = 50;
 
 /// An exact rational.
 pub type Q = BigRational;
@@ -302,6 +314,100 @@ pub fn whole_number(term: &Term) -> Option<i64> {
     None
 }
 
+/// What the exponent rule makes of a power.
+pub enum Power {
+    /// A whole exponent, nought or more: the power multiplied out.
+    Expanded { by: u32, raised: Quotient },
+    /// Any other exponent: the whole power is an atom.
+    Atom,
+    /// A whole exponent whose power costs more than [`WORK`] to multiply
+    /// out, which `algebra` refuses.
+    Past,
+}
+
+/// `base ^ exponent` under the exponent rule. The numerator and the
+/// denominator are raised each, and what both cost is counted together.
+pub fn power_of(base: &Term, exponent: &Term, labels: &FloatLabels) -> Power {
+    let Some(by) = whole_number(exponent).filter(|by| *by >= 0) else {
+        return Power::Atom;
+    };
+    let Some(by) = u32::try_from(by)
+        .ok()
+        .filter(|by| (*by as usize).saturating_mul(STEP) <= WORK + STEP)
+    else {
+        return Power::Past;
+    };
+    let base = read(base, labels);
+    let mut left = WORK;
+    let Built(over) = raised(&base.over, by, &mut left) else {
+        return Power::Past;
+    };
+    let under = if base.under == one() {
+        one()
+    } else {
+        match raised(&base.under, by, &mut left) {
+            Built(under) => under,
+            Declined(_) => return Power::Past,
+        }
+    };
+    Power::Expanded {
+        by,
+        raised: Quotient { over, under },
+    }
+}
+
+/// `base ^ by` multiplied out as the proof multiplies it, by the base once
+/// for each step past the first, each step costing what [`WORK`] says; or a
+/// decline where that is more than `left`, which is what is left of it
+/// after.
+fn raised(base: &Poly, by: u32, left: &mut usize) -> Route<Poly> {
+    if by == 0 {
+        return Built(one());
+    }
+    let mut out = base.clone();
+    for _ in 1..by {
+        // Multiplying is a product for each pair of terms, which a step
+        // whose terms cancel may cost more than its result says.
+        if out.terms.len().saturating_mul(base.terms.len()) > *left {
+            return Route::no("a power past what it may cost");
+        }
+        out = out.times(base);
+        let made = out.terms.len();
+        let cost = made
+            .saturating_mul(made)
+            .saturating_mul(made)
+            .saturating_mul(base.terms.len())
+            .max(STEP);
+        if cost > *left {
+            return Route::no("a power past what it may cost");
+        }
+        *left -= cost;
+    }
+    Built(out)
+}
+
+/// The first power in `term`, innermost first, that the exponent rule
+/// multiplies out and that costs more than [`WORK`] to.
+pub fn past_expanding(term: &Term, labels: &FloatLabels) -> Option<Term> {
+    if term.variable().is_some() {
+        return None;
+    }
+    if let Some(inner) = term
+        .children()
+        .iter()
+        .find_map(|child| past_expanding(child, labels))
+    {
+        return Some(inner);
+    }
+    match operation(term, labels) {
+        Some((how, base, exponent)) if &*how == EXP => {
+            matches!(power_of(base, exponent, labels), Power::Past)
+                .then(|| term.clone())
+        }
+        _ => None,
+    }
+}
+
 /// The operation a `co` term applies, spelt, or None where it is no `co`.
 fn operation<'t>(
     term: &'t Term,
@@ -471,11 +577,11 @@ pub fn read(term: &Term, labels: &FloatLabels) -> Quotient {
             }
             EXP => {
                 // The exponent rule: a numeral exponent is expanded, and any
-                // other leaves the whole power an atom.
-                if let Some(by) = whole_number(right) {
-                    if (0..=CAP).contains(&by) {
-                        return read(left, labels).power(by as u32);
-                    }
+                // other leaves the whole power an atom. A power past what
+                // may be multiplied out is an atom here too, and `algebra`
+                // refuses a step that reads one (`past_expanding`).
+                if let Power::Expanded { raised, .. } = power_of(left, right, labels) {
+                    return raised;
                 }
             }
             _ => {}
@@ -518,7 +624,9 @@ pub fn denied(term: &Term, labels: &FloatLabels) -> Option<Poly> {
     equation(&term.children()[0], labels)
 }
 
-/// One equation taken off a claim: which, by what multiplier, how often.
+/// One cited equation a claim is made of, and what it is multiplied by:
+/// `scale` times `shape`, the first term of `shape` as it is written having
+/// a coefficient of 1, so that a multiplier of −q is −1 times q.
 #[derive(Clone, Debug)]
 pub struct Taken {
     pub which: usize,
@@ -526,103 +634,223 @@ pub struct Taken {
     pub scale: Q,
 }
 
+impl Taken {
+    /// The multiplier whole: `scale` times `shape`.
+    pub fn multiplier(&self) -> Poly {
+        self.shape.scaled(&self.scale)
+    }
+}
+
 /// How the claim is a combination of the given equations, or None.
 ///
 /// With nothing cited the claim must vanish outright, and the combination is
-/// empty. With equations cited it must be a combination of them — ideal
-/// membership — and the multipliers looked for are a rational times a
-/// monomial of degree at most one, which is every such step the corpus has.
-/// Nothing is searched for past that.
-///
-/// At most one cited equation is multiplied by a monomial with a letter in
-/// it; the others are added, subtracted and scaled by numbers. A step does
+/// empty. With equations cited the claim must be `Σ pᵢ · gᵢ`, at most one
+/// `pᵢ` a polynomial with a letter in it and the others numbers: a step does
 /// one thing, and multiplying a second equation by a term is a second thing,
 /// a step of its own (`METHODS.md`, "algebra").
 ///
-/// What is returned is the combination itself: the claim is the sum of what
-/// each [`Taken`] takes off. A proof of the step is built from it.
-pub fn follows(given: &[Poly], claim: &Poly, atoms: &[Rc<str>]) -> Option<Vec<Taken>> {
-    if claim.zero() {
-        return Some(Vec::new());
-    }
-    if given.is_empty() {
-        return None;
-    }
-    let mut sorted: Vec<&Rc<str>> = atoms.iter().collect();
-    sorted.sort();
-    sorted.dedup();
-    let mut shapes = vec![one()];
-    shapes.extend(sorted.into_iter().map(|a| atom(a)));
-    reduces(claim, given, &shapes, 3, None)
-}
-
-/// Take one cited equation off the claim, by some allowed multiplier.
+/// Each equation in turn is the one a term may multiply. Dividing by one
+/// polynomial leaves a remainder that is nought exactly for its multiples,
+/// and the remainder of a sum is the sum of the remainders. So the numbers
+/// the other equations are taken by are what solves the remainders' linear
+/// equations, and the multiplier of the one is the quotient of what is left.
 ///
-/// `shapes[0]` is 1, and every other shape is an atom. `multiplied` is the
-/// one equation an atom has multiplied so far, which only that equation may
-/// be again.
-fn reduces(
-    claim: &Poly,
-    given: &[Poly],
-    shapes: &[Poly],
-    depth: u32,
-    multiplied: Option<usize>,
-) -> Option<Vec<Taken>> {
+/// What is returned is the combination itself, each equation at most once
+/// and in the order cited: the claim is the sum of each [`Taken`]'s equation
+/// times its multiplier. A proof of the step is built from it.
+pub fn follows(given: &[Poly], claim: &Poly) -> Option<Vec<Taken>> {
     if claim.zero() {
         return Some(Vec::new());
     }
-    if depth == 0 {
-        return None;
-    }
-    for (which, held) in given.iter().enumerate() {
+    let atoms = atoms_of(given.iter().chain(std::iter::once(claim)));
+    for (k, held) in given.iter().enumerate() {
         if held.zero() {
             continue;
         }
-        for (k, shape) in shapes.iter().enumerate() {
-            let by_atom = k > 0;
-            if by_atom && multiplied.is_some_and(|m| m != which) {
-                continue;
-            }
-            let part = held.times(shape);
-            let Some(scale) = cancels(claim, &part) else {
-                continue;
-            };
-            let next = if by_atom { Some(which) } else { multiplied };
-            let rest = reduces(
-                &claim.minus(&part.scaled(&scale)),
-                given,
-                shapes,
-                depth - 1,
-                next,
-            );
-            if let Some(rest) = rest {
-                let mut out = vec![Taken {
-                    which,
-                    shape: shape.clone(),
-                    scale,
-                }];
-                out.extend(rest);
-                return Some(out);
-            }
+        let rest: Vec<usize> = (0..given.len())
+            .filter(|&j| j != k && !given[j].zero())
+            .collect();
+        let columns: Vec<Poly> = rest
+            .iter()
+            .map(|&j| divided(&given[j], held, &atoms).remainder)
+            .collect();
+        let wanted = divided(claim, held, &atoms).remainder;
+        let Some(numbers) = solved(&columns, &wanted) else {
+            continue;
+        };
+        let mut left = claim.clone();
+        for (&j, c) in rest.iter().zip(&numbers) {
+            left = left.minus(&given[j].scaled(c));
         }
+        let Divided {
+            quotient,
+            remainder,
+        } = divided(&left, held, &atoms);
+        debug_assert!(remainder.zero(), "the numbers solve the remainders");
+        let mut multipliers: Vec<(usize, Poly)> = rest
+            .into_iter()
+            .zip(numbers)
+            .map(|(j, c)| (j, constant(c)))
+            .collect();
+        multipliers.push((k, quotient));
+        multipliers.sort_by_key(|(j, _)| *j);
+        return Some(
+            multipliers
+                .into_iter()
+                .filter(|(_, p)| !p.zero())
+                .map(|(which, p)| {
+                    let first = p.terms.keys().min_by_key(|m| order(m)).cloned();
+                    let scale =
+                        p.terms[&first.expect("a multiplier not nought")].clone();
+                    Taken {
+                        which,
+                        shape: p.scaled(&(q(1) / &scale)),
+                        scale,
+                    }
+                })
+                .collect(),
+        );
     }
     None
 }
 
-/// The rational that makes this part cancel the claim's leading term.
-///
-/// The leading term is the largest monomial the claim has, in the order the
-/// keys sort in, so taking it off strictly shrinks what is left.
-fn cancels(claim: &Poly, part: &Poly) -> Option<Q> {
-    if part.zero() {
+/// `p` divided by `by`, where `by` divides it; None where a remainder is
+/// left. `by` is not nought.
+pub fn exactly(p: &Poly, by: &Poly) -> Option<Poly> {
+    let Divided {
+        quotient,
+        remainder,
+    } = divided(p, by, &atoms_of([p, by]));
+    remainder.zero().then_some(quotient)
+}
+
+/// Every atom the polynomials hold, once each and sorted.
+fn atoms_of<'p>(polys: impl IntoIterator<Item = &'p Poly>) -> Vec<Rc<str>> {
+    let mut atoms: Vec<Rc<str>> = polys
+        .into_iter()
+        .flat_map(|p| p.terms.keys().flatten().map(|(a, _)| a.clone()))
+        .collect();
+    atoms.sort();
+    atoms.dedup();
+    atoms
+}
+
+/// A polynomial divided by another: `quotient · by + remainder`.
+struct Divided {
+    quotient: Poly,
+    /// No term of it is a multiple of the leading term of what divided.
+    remainder: Poly,
+}
+
+/// A monomial's place in the order division takes terms in: by degree, then
+/// by the power of each atom in turn. Multiplying keeps it, which is what
+/// makes a remainder nought exactly for a multiple.
+fn rank(monomial: &Monomial, atoms: &[Rc<str>]) -> (u32, Vec<u32>) {
+    let power = |atom: &Rc<str>| {
+        monomial
+            .iter()
+            .find(|(a, _)| a == atom)
+            .map_or(0, |(_, p)| *p)
+    };
+    (
+        monomial.iter().map(|(_, p)| p).sum(),
+        atoms.iter().map(power).collect(),
+    )
+}
+
+fn leading<'p>(p: &'p Poly, atoms: &[Rc<str>]) -> Option<&'p Monomial> {
+    p.terms.keys().max_by_key(|m| rank(m, atoms))
+}
+
+/// `over / under`, where `under` divides it.
+fn monomial_over(over: &Monomial, under: &Monomial) -> Option<Monomial> {
+    let mut out = over.clone();
+    for (atom, power) in under {
+        let held = out.iter_mut().find(|(a, _)| a == atom)?;
+        held.1 = held.1.checked_sub(*power)?;
+    }
+    out.retain(|(_, p)| *p != 0);
+    Some(out)
+}
+
+/// `p` divided by `by`, which is not nought, term by leading term.
+fn divided(p: &Poly, by: &Poly, atoms: &[Rc<str>]) -> Divided {
+    let lead = leading(by, atoms).expect("a divisor not nought").clone();
+    let weight = by.terms[&lead].clone();
+    let mut left = p.clone();
+    let mut quotient = Poly::default();
+    let mut remainder = Poly::default();
+    while let Some(top) = leading(&left, atoms).cloned() {
+        let mut term = IndexMap::new();
+        term.insert(top.clone(), left.terms[&top].clone());
+        let term = Poly::new(term);
+        match monomial_over(&top, &lead) {
+            Some(times) => {
+                let mut part = IndexMap::new();
+                part.insert(times, &term.terms[&top] / &weight);
+                let part = Poly::new(part);
+                left = left.minus(&part.times(by));
+                quotient = quotient.plus(&part);
+            }
+            None => {
+                left = left.minus(&term);
+                remainder = remainder.plus(&term);
+            }
+        }
+    }
+    Divided {
+        quotient,
+        remainder,
+    }
+}
+
+/// Numbers `cⱼ` with `Σ cⱼ · columns[j] = wanted`, monomial by monomial, or
+/// None where there are none. Where several do, a number free to be anything
+/// is nought.
+fn solved(columns: &[Poly], wanted: &Poly) -> Option<Vec<Q>> {
+    let every: Vec<&Poly> = columns.iter().chain(std::iter::once(wanted)).collect();
+    let mut monomials: Vec<&Monomial> =
+        every.iter().flat_map(|p| p.terms.keys()).collect();
+    monomials.sort();
+    monomials.dedup();
+    let width = columns.len();
+    let mut rows: Vec<Vec<Q>> = monomials
+        .iter()
+        .map(|m| {
+            every
+                .iter()
+                .map(|p| p.terms.get(*m).cloned().unwrap_or_else(Q::zero))
+                .collect()
+        })
+        .collect();
+    let mut pivots: Vec<usize> = Vec::new();
+    for column in 0..width {
+        let at = pivots.len();
+        let Some(found) = (at..rows.len()).find(|&i| !rows[i][column].is_zero()) else {
+            continue;
+        };
+        rows.swap(at, found);
+        let lead = rows[at][column].clone();
+        let pivot: Vec<Q> = rows[at].iter().map(|x| x / &lead).collect();
+        for row in rows.iter_mut() {
+            let factor = row[column].clone();
+            if !factor.is_zero() {
+                for (x, p) in row.iter_mut().zip(&pivot) {
+                    *x -= p * &factor;
+                }
+            }
+        }
+        rows[at] = pivot;
+        pivots.push(column);
+    }
+    if rows[pivots.len()..].iter().any(|row| !row[width].is_zero()) {
         return None;
     }
-    let lead = claim.lead()?;
-    let theirs = part.terms.get(lead)?;
-    if part.lead() != Some(lead) {
-        return None;
+    let mut out = vec![Q::zero(); width];
+    for (row, column) in pivots.iter().enumerate() {
+        out[*column] = rows[row][width].clone();
     }
-    Some(&claim.terms[lead] / theirs)
+    Some(out)
 }
 
 // --- closed numeral claims, which `arithmetic` decides ----------------------
@@ -941,8 +1169,8 @@ mod tests {
     #[test]
     fn a_claim_that_vanishes_follows_from_nothing() {
         let x = atom("vx");
-        assert_eq!(follows(&[], &x.minus(&x), &[]).unwrap().len(), 0);
-        assert!(follows(&[], &x, &[]).is_none());
+        assert_eq!(follows(&[], &x.minus(&x)).unwrap().len(), 0);
+        assert!(follows(&[], &x).is_none());
     }
 
     #[test]
@@ -951,35 +1179,60 @@ mod tests {
         let y = atom("vy");
         let given = x.minus(&y);
         let claim = given.scaled(&q(3));
-        let taken = follows(&[given], &claim, &[]).unwrap();
+        let taken = follows(&[given], &claim).unwrap();
         assert_eq!(taken.len(), 1);
         assert_eq!(taken[0].scale, q(3));
     }
 
-    /// The atoms of the two tests below, and the two equations they cite:
-    /// a = b and c = d.
-    fn two_equations() -> (Vec<Poly>, [Poly; 6], Vec<Rc<str>>) {
-        let names = ["va", "vb", "vc", "vd", "vx", "vy"];
-        let [a, b, c, d, x, y] = names.map(atom);
+    /// The atoms of the tests below, and the two equations they cite: a = b
+    /// and c = d.
+    fn two_equations() -> (Vec<Poly>, [Poly; 6]) {
+        let [a, b, c, d, x, y] = ["va", "vb", "vc", "vd", "vx", "vy"].map(atom);
         let given = vec![a.minus(&b), c.minus(&d)];
-        let atoms = names.iter().map(|n| Rc::from(*n)).collect();
-        (given, [a, b, c, d, x, y], atoms)
+        (given, [a, b, c, d, x, y])
     }
 
     #[test]
     fn two_equations_each_multiplied_by_a_term_are_two_steps() {
         // x·(a − b) + y·(c − d): a combination of the two, and one that
         // multiplies both by a term, which `algebra` does not do in one step.
-        let (given, [a, b, c, d, x, y], atoms) = two_equations();
+        let (given, [a, b, c, d, x, y]) = two_equations();
         let claim = a.minus(&b).times(&x).plus(&c.minus(&d).times(&y));
-        assert!(follows(&given, &claim, &atoms).is_none());
+        assert!(follows(&given, &claim).is_none());
     }
 
     #[test]
     fn one_equation_multiplied_and_another_added_is_one_step() {
         // x·(a − b) + (c − d): one equation multiplied, the other added.
-        let (given, [a, b, c, d, x, _], atoms) = two_equations();
+        let (given, [a, b, c, d, x, _]) = two_equations();
         let claim = a.minus(&b).times(&x).plus(&c.minus(&d));
-        assert!(follows(&given, &claim, &atoms).is_some());
+        assert!(follows(&given, &claim).is_some());
+    }
+
+    #[test]
+    fn a_multiplier_of_any_degree_is_found_whole() {
+        // (x²·y/5 − 3·x + 2)·(a − b) − 4·(c − d): the multiplier comes back
+        // as it was, the first term as written its scale.
+        let (given, [a, b, c, d, x, y]) = two_equations();
+        let times = x
+            .power(2)
+            .times(&y)
+            .scaled(&(q(1) / q(5)))
+            .minus(&x.scaled(&q(3)))
+            .plus(&constant(q(2)));
+        let claim = a.minus(&b).times(&times).minus(&c.minus(&d).scaled(&q(4)));
+        let taken = follows(&given, &claim).unwrap();
+        assert_eq!(taken.len(), 2);
+        assert_eq!((taken[0].which, taken[1].which), (0, 1));
+        assert_eq!(taken[0].multiplier(), times);
+        assert_eq!(taken[0].scale, q(1) / q(5));
+        assert_eq!(taken[1].multiplier(), constant(q(-4)));
+    }
+
+    #[test]
+    fn a_claim_one_coefficient_away_does_not_follow() {
+        let (given, [a, b, c, d, x, _]) = two_equations();
+        let claim = a.minus(&b).times(&x).plus(&c.minus(&d)).plus(&one());
+        assert!(follows(&given, &claim).is_none());
     }
 }

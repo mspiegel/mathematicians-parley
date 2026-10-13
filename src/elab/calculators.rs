@@ -14,7 +14,6 @@
 
 use std::cell::RefCell;
 use std::collections::BTreeSet;
-use std::rc::Rc;
 
 use indexmap::IndexMap;
 use num_bigint::{BigInt, BigUint};
@@ -213,32 +212,46 @@ pub fn whole_multiple(cited: Option<&Poly>, claim: Option<&Poly>) -> Option<i64>
     Some(whole)
 }
 
-/// The term a combination multiplies one cited equation by, or None: a
-/// multiplier is written the short way, `-u q` rather than the canonical
-/// `( -u 1 x. ( q ^ 1 ) )`.
-pub fn multiplier(shape: &Poly, scale: &Q) -> Option<String> {
-    if shape.terms.len() != 1 {
-        return None;
+/// The term a combination multiplies one cited equation by, or None where a
+/// coefficient is not whole: a multiplier is written the short way, `-u q`
+/// rather than the canonical `( -u 1 x. ( q ^ 1 ) )`, its terms in the
+/// order a polynomial is written and each after the first added or taken
+/// away.
+pub fn multiplier(times: &Poly) -> Option<String> {
+    let mut terms: Vec<(&field::Monomial, &Q)> = times.terms.iter().collect();
+    terms.sort_by_key(|(m, _)| field::order(m));
+    let mut out: Option<String> = None;
+    for (monomial, weight) in terms {
+        let size = weight.abs();
+        let factors: Vec<String> = monomial
+            .iter()
+            .map(|(atom, power)| match power {
+                1 => atom.to_string(),
+                _ => t!(atom, field::numeral(*power), "cexp", "co"),
+            })
+            .collect();
+        let product = factors
+            .into_iter()
+            .reduce(|acc, factor| t!(acc, factor, "cmul", "co"));
+        // The first term carries its own sign, and each after it its size,
+        // added or taken away.
+        let first = out.is_none();
+        let shown = if first { weight.clone() } else { size };
+        let term = match product {
+            None => field::spell_coefficient(&shown)?,
+            Some(product) if shown.is_one() => product,
+            Some(product) if shown == q(-1) => t!(product, "cneg"),
+            Some(product) => {
+                t!(field::spell_coefficient(&shown)?, product, "cmul", "co")
+            }
+        };
+        out = Some(match out {
+            None => term,
+            Some(sum) if weight.is_negative() => t!(sum, term, "cmin", "co"),
+            Some(sum) => t!(sum, term, "caddc", "co"),
+        });
     }
-    let (monomial, weight) = shape.terms.iter().next()?;
-    if !weight.is_one() {
-        return None;
-    }
-    if monomial.is_empty() {
-        return field::spell_coefficient(scale);
-    }
-    if monomial.len() != 1 || monomial[0].1 != 1 {
-        return None;
-    }
-    let name = monomial[0].0.to_string();
-    if scale.is_one() {
-        return Some(name);
-    }
-    if *scale == q(-1) {
-        return Some(t!(name, "cneg"));
-    }
-    let digit = field::spell_coefficient(scale)?;
-    Some(t!(digit, name, "cmul", "co"))
+    out
 }
 
 /// What the cited polynomial is multiplied by to become the claim's: two
@@ -986,24 +999,40 @@ impl<'a> Elaborator<'a> {
         let Some(want) = want.filter(|_| !given.is_empty()) else {
             return Ok(Route::no("the step cites no equation"));
         };
-        let mut atoms: BTreeSet<Rc<str>> = BTreeSet::new();
-        for p in given.iter().chain(std::iter::once(&want)) {
-            for m in p.terms.keys() {
-                atoms.extend(m.iter().map(|(a, _)| a.clone()));
-            }
-        }
-        let atoms: Vec<Rc<str>> = atoms.into_iter().collect();
-        let Some(how) = field::follows(&given, &want, &atoms).filter(|h| !h.is_empty())
-        else {
+        let Some(how) = field::follows(&given, &want).filter(|h| !h.is_empty()) else {
             return Ok(Route::no("no sum of the cited equations is the claim"));
         };
+        // The decision reads an equation p/q = r/s as p·s − r·q, its
+        // denominators multiplied across, and the proof takes each equation
+        // as written: so each multiplier carries its equation's
+        // denominators, and is divided by the claim's.
+        let across = |node: &Term| {
+            let sides: Vec<field::Quotient> = node
+                .children()
+                .iter()
+                .map(|side| field::read(side, &labels))
+                .collect();
+            sides[0].under.times(&sides[1].under)
+        };
+        let below = across(&self.to_term(&t!(left, right, "wceq")));
+        let mut multipliers: Vec<Poly> = Vec::new();
+        for taken in &how {
+            let carried = taken.multiplier().times(&across(&where_[taken.which].1));
+            let Some(by) = field::exactly(&carried, &below) else {
+                return Ok(Route::no(
+                    "a multiplier the claim's denominators do not divide",
+                ));
+            };
+            multipliers.push(by);
+        }
         // Weights with a denominator are all multiplied by the least common
         // one, which the sum then shows the claim's sides each multiplied
         // by, and which is cancelled at the end: s = t is half of
         // 2·s + 1 = 2·t + 1, and the proof doubles s = t instead.
-        let common = how
+        let common = multipliers
             .iter()
-            .fold(BigInt::one(), |d, taken| d.lcm(taken.scale.denom()));
+            .flat_map(|p| p.terms.values())
+            .fold(BigInt::one(), |d, weight| d.lcm(weight.denom()));
         let Some(common) = common.to_i64() else {
             return Ok(Route::no("a common denominator past what a numeral writes"));
         };
@@ -1011,12 +1040,13 @@ impl<'a> Elaborator<'a> {
         combined.extend(how.iter().map(|taken| self.rpn(&where_[taken.which].1)));
         self.combining(&combined);
         let mut pieces: Vec<(String, Proof)> = Vec::new();
-        for taken in &how {
+        for (taken, by) in how.iter().zip(&multipliers) {
             let (r, node) = where_[taken.which].clone();
             let (a, b) = (self.rpn(&node.children()[0]), self.rpn(&node.children()[1]));
             let gap = t!(a, b, "cmin", "co");
-            let scale = &taken.scale * Q::from_integer(BigInt::from(common));
-            let Some(times) = multiplier(&taken.shape, &scale) else {
+            let Some(times) =
+                multiplier(&by.scaled(&Q::from_integer(BigInt::from(common))))
+            else {
                 return Ok(Route::no("a multiplier with no spelling"));
             };
             // A sum the decision read as linear is written over a placeholder
@@ -1279,6 +1309,28 @@ impl<'a> Elaborator<'a> {
     /// combination of them.
     fn decide_field(&mut self, step: &Step, term: &str, lines: &Lines) -> Checked<()> {
         let labels = self.b.flabel.clone();
+        // Every power with a whole exponent is multiplied out, so one that
+        // may not be is refused wherever the step reads it.
+        let mut read = vec![term.to_string()];
+        for r in &step.just.refs {
+            if let Some(held) = lines.get(r) {
+                read.extend(self.parts(&held.term));
+            }
+        }
+        for said in &read {
+            if let Some(power) = field::past_expanding(&self.to_term(said), &labels) {
+                return Err(self.defect(
+                    step.line,
+                    format!(
+                        "{} is a power algebra does not multiply out: writing it \
+                         out costs more than {}, each step the cube of its terms \
+                         times the base's",
+                        self.render(&power.rpn(&labels)),
+                        field::WORK
+                    ),
+                ));
+            }
+        }
         let Some(claim) = field::equation(&self.to_term(term), &labels) else {
             return self.decide_apart(step, term, lines);
         };
@@ -1293,14 +1345,7 @@ impl<'a> Elaborator<'a> {
                 }
             }
         }
-        let mut atoms: BTreeSet<Rc<str>> = BTreeSet::new();
-        for p in given.iter().chain(std::iter::once(&claim)) {
-            for m in p.terms.keys() {
-                atoms.extend(m.iter().map(|(a, _)| a.clone()));
-            }
-        }
-        let atoms: Vec<Rc<str>> = atoms.into_iter().collect();
-        if field::follows(&given, &claim, &atoms).is_none() {
+        if field::follows(&given, &claim).is_none() {
             return Err(self.defect(
                 step.line,
                 format!(

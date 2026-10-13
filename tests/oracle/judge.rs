@@ -39,6 +39,9 @@ fn value(e: &Expr) -> Result<BigRational, &'static str> {
         };
     Ok(match e {
         Expr::Num(n) => BigRational::from_integer(n.clone()),
+        Expr::Letter(x) => {
+            unreachable!("a claim of numerals holds no letter, and this holds {x}")
+        }
         Expr::Neg(a) => -value(a)?,
         Expr::Add(a, b) => {
             let (a, b) = two(a, b)?;
@@ -161,7 +164,7 @@ fn refusals(e: &Expr, out: &mut Vec<&'static str>) {
         }
     }
     match e {
-        Expr::Num(_) => {}
+        Expr::Num(_) | Expr::Letter(_) => {}
         Expr::Neg(a) | Expr::Pow(a, _) => refusals(a, out),
         Expr::Add(a, b)
         | Expr::Sub(a, b)

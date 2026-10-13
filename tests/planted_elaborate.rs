@@ -530,6 +530,16 @@ fn cases() -> Vec<Case> {
             "    1.10. (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a) + 1",
             "is not an identity",
         ),
+        // A power past what `algebra` may multiply out is refused as one,
+        // not read as an atom and the step called no identity.
+        case(
+            "ask algebra to multiply out a power past its cost",
+            "proofs/geometric-series/geometric-sum",
+            "proofs/geometric-series.proof",
+            "    1.10. (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a)",
+            "    1.10. (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a) + (a + 1)^30 − (a + 1)^30",
+            "is a power algebra does not multiply out",
+        ),
         // A side condition is searched for among what the step names, not among
         // everything in scope. Without 1.2.5 the step still needs T finite,
         // and the scope holds |T| = 2^k: offered it, which route the search took
