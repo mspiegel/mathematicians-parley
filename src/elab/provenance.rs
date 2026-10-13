@@ -439,6 +439,29 @@ impl<'a> Elaborator<'a> {
         out
     }
 
+    /// What the lines `refs` name say, held as those lines proved it where
+    /// the proof held rests on something outside `resting`: a step or a
+    /// requires line rests only on what it names (`rests_on_named`), so a
+    /// claim another line said too is found as the line named gave it. A
+    /// proof it may rest on, a sort's among them, stays.
+    pub fn named_first(
+        &mut self,
+        refs: &[String],
+        resting: &BTreeSet<String>,
+        facts: &Facts,
+    ) {
+        for r in refs {
+            for (claim, proof) in facts.of_line(r) {
+                let usable = facts.proof(&claim).is_some_and(|held| {
+                    held.origin.iter().all(|o| may_rest_on(resting, o))
+                });
+                if !usable {
+                    self.know(facts, claim, proof);
+                }
+            }
+        }
+    }
+
     /// A requires line's proof, checked against its reason and sealed: it
     /// rests only on the lines its reason cites, the step's requires lines
     /// above it, and the sorts in scope.
@@ -647,6 +670,8 @@ impl<'a> Elaborator<'a> {
             let not_above = not_above(step, r);
             let unbelow = |v: &Proof| !v.origin.iter().any(|o| not_above.contains(o));
             let given = given.filtered(|_, v| unbelow(v));
+            let resting = self.reason_allows(step, &r.how, r.line);
+            self.named_first(&citations(&r.how), &resting, &given);
             let written = self.written.clone();
             self.written = self.written.filtered(unbelow);
             self.supplying.insert(term.clone());
@@ -1036,7 +1061,10 @@ impl<'a> Elaborator<'a> {
                 }
                 // `side` is where a line is discharged by what it names, so
                 // it is given `how` as well as the claim.
-                return match self.side(&node, r, scope, facts, Some(step))? {
+                let named = facts.copy();
+                let resting = self.reason_allows(step, &r.how, r.line);
+                self.named_first(&citations(&r.how), &resting, &named);
+                return match self.side(&node, r, scope, &named, Some(step))? {
                     Built(made) => self.discharged_by(made, step, &r.how, r.line),
                     Declined(d) => Err(self.defect(
                         self.at,

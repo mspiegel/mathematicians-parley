@@ -2433,22 +2433,45 @@ fn moved_down(
     end: usize,
     step: &parley::corpus::Step,
 ) -> usize {
+    let map = run_shifted(thm, step, |n| n >= step.number.0[step.number.len() - 1], 1);
+    renumbered(thm, lines, end, &map)
+}
+
+/// The numbers of `step`'s run, and of the steps inside them, that `moves`
+/// picks by their place in the run, each moved by `by`.
+fn run_shifted(
+    thm: &Theorem,
+    step: &parley::corpus::Step,
+    moves: impl Fn(u32) -> bool,
+    by: i32,
+) -> BTreeMap<String, String> {
     let depth = step.number.len();
     let mut map: BTreeMap<String, String> = BTreeMap::new();
     for other in &thm.steps {
         let v = &other.number.0;
         if v.len() >= depth
             && v[..depth - 1] == step.number.0[..depth - 1]
-            && v[depth - 1] >= step.number.0[depth - 1]
+            && moves(v[depth - 1])
         {
             let mut w = v.clone();
-            w[depth - 1] += 1;
+            w[depth - 1] = w[depth - 1].saturating_add_signed(by);
             map.insert(
                 other.number.to_string(),
                 parley::corpus::proof::StepNo(w).to_string(),
             );
         }
     }
+    map
+}
+
+/// Every step of `thm` numbered as `map` says, with every line citing one;
+/// the number of lines changed.
+fn renumbered(
+    thm: &Theorem,
+    lines: &mut [String],
+    end: usize,
+    map: &BTreeMap<String, String>,
+) -> usize {
     let mut changed = 0;
     for other in &thm.steps {
         let at = other.line - 1;
@@ -2466,14 +2489,14 @@ fn moved_down(
             cited.extend(continued(lines, r.line - 1, end));
         }
         for l in cited {
-            let new = renumbered_refs(&lines[l], &map);
+            let new = renumbered_refs(&lines[l], map);
             if new != lines[l] {
                 lines[l] = new;
                 changed += 1;
             }
         }
         for (_, at) in &other.just.chain {
-            let new = renumbered_link(&lines[at - 1], &map);
+            let new = renumbered_link(&lines[at - 1], map);
             if new != lines[at - 1] {
                 lines[at - 1] = new;
                 changed += 1;
@@ -2485,7 +2508,7 @@ fn moved_down(
         let mut cited = vec![reason.line - 1];
         cited.extend(continued(lines, reason.line - 1, end));
         for l in cited {
-            let new = renumbered_refs(&lines[l], &map);
+            let new = renumbered_refs(&lines[l], map);
             if new != lines[l] {
                 lines[l] = new;
                 changed += 1;
@@ -4063,6 +4086,320 @@ pub fn header_defines_raised(ctx: &Context, path: &str, text: &str) -> Rewritten
         lines: count,
         theorems,
         declined,
+    }
+}
+
+/// How many times each line of `thm` is cited: by a step's reason, its
+/// requires lines, its chain, or a define's reason.
+fn citations_counted(thm: &Theorem) -> BTreeMap<String, usize> {
+    let mut out: BTreeMap<String, usize> = BTreeMap::new();
+    let mut add = |r: &str| *out.entry(r.to_string()).or_default() += 1;
+    for step in &thm.steps {
+        step.just.refs.iter().for_each(|r| add(r));
+        for r in &step.requires {
+            references(&r.how).0.iter().for_each(|r| add(r));
+        }
+        for (text, _) in &step.just.chain {
+            if let Some(r) = chain_cited(text) {
+                add(&r);
+            }
+        }
+    }
+    for reason in thm.defines.iter().filter_map(|d| d.reason.as_ref()) {
+        references(&reason.how).0.iter().for_each(|r| add(r));
+    }
+    out
+}
+
+/// Whether `r` is one of the lines a `from` list ending `line` names, a
+/// list of lines and labels and nothing after it.
+fn in_from_list(line: &str, r: &str) -> bool {
+    line.rfind("from ").is_some_and(|at| {
+        let items: Vec<&str> = line[at + "from ".len()..]
+            .split(',')
+            .map(str::trim)
+            .collect();
+        items.iter().all(|i| {
+            !i.is_empty()
+                && i.chars()
+                    .all(|c| c.is_alphanumeric() || c == '.' || c == '′')
+        }) && items.contains(&r)
+    })
+}
+
+/// A file read again, as `parse_proof` reads it, with each theorem's end.
+fn reread<'t>(
+    path: &str,
+    text: &str,
+    scope: parley::corpus::ScopeId,
+    thms: &'t mut Vec<Theorem>,
+) -> Vec<(&'t Theorem, usize)> {
+    let (_, read) = parse_proof(path, text, scope).expect("the file reads");
+    *thms = read;
+    thms.sort_by_key(|t| t.line);
+    let count = text.lines().count();
+    let mut out = Vec::new();
+    for (i, t) in thms.iter().enumerate() {
+        let end = thms.get(i + 1).map_or(count, |n| n.line - 1);
+        out.push((t, end));
+    }
+    out
+}
+
+/// The step of `thms` whose heading is on `line`, with its theorem's end.
+fn step_on<'t>(
+    thms: &[(&'t Theorem, usize)],
+    line: usize,
+) -> Option<(&'t Theorem, usize, &'t parley::corpus::Step)> {
+    thms.iter().find_map(|(t, end)| {
+        t.steps
+            .iter()
+            .find(|s| s.line == line)
+            .map(|s| (*t, *end, s))
+    })
+}
+
+/// Each line cited once, by a step's `from` list, first restated by a step
+/// of its own that `join`s it, written just above the citing step, which
+/// cites the new step instead (`SYNTAX.md`: with one cited line, `join`'s
+/// claim is that line). A step citing several such lines restates the last.
+pub fn cited_lines_restated(ctx: &Context, path: &str, text: &str) -> Rewritten {
+    let mut text = text.to_string();
+    let mut count = 0;
+    let mut theorems = Vec::new();
+    let Some(scope) = ctx
+        .corpus
+        .theorems
+        .iter()
+        .find(|t| t.path == path)
+        .map(|t| t.scope)
+    else {
+        return Rewritten {
+            text,
+            lines: 0,
+            theorems,
+            declined: Vec::new(),
+        };
+    };
+    // Each citing step's line and the line it restates, from the file as
+    // it was. Done from the bottom, so each is where it was read.
+    let mut pending: Vec<(usize, String)> = Vec::new();
+    let mut thms = Vec::new();
+    for (thm, _) in reread(path, &text, scope, &mut thms) {
+        let counted = citations_counted(thm);
+        let numbers: BTreeSet<String> =
+            thm.steps.iter().map(|s| s.number.to_string()).collect();
+        for step in &thm.steps {
+            if !step.just.chain.is_empty() {
+                continue;
+            }
+            let restated = step.just.refs.iter().rev().find(|r| {
+                numbers.contains(*r)
+                    && counted.get(*r) == Some(&1)
+                    && in_from_list(&step.just.text, r)
+                    && thm
+                        .steps
+                        .iter()
+                        .find(|s| s.number.to_string() == **r)
+                        // An obtain's memberships are said there once, and no
+                        // later step writes them (`SYNTAX.md`).
+                        .is_some_and(|s| {
+                            !s.impossible && !s.just.head.is(Method::Obtain)
+                        })
+            });
+            if let Some(r) = restated {
+                pending.push((step.line, r.clone()));
+            }
+        }
+    }
+    pending.sort_by_key(|(line, _)| std::cmp::Reverse(*line));
+    for (line, restated) in pending {
+        let mut thms = Vec::new();
+        let read = reread(path, &text, scope, &mut thms);
+        let Some((thm, end, step)) = step_on(&read, line) else {
+            continue;
+        };
+        let Some(cited) = thm.steps.iter().find(|s| s.number.to_string() == restated)
+        else {
+            continue;
+        };
+        let mut lines: Vec<String> = text.lines().map(str::to_string).collect();
+        let number = step.number.to_string();
+        let heading = step.line - 1;
+        let prefix: String = lines[heading]
+            .chars()
+            .take_while(|c| c.is_whitespace())
+            .collect();
+        let indent: String = lines[step.just.line - 1]
+            .chars()
+            .take_while(|c| c.is_whitespace())
+            .collect();
+        count += moved_down(thm, &mut lines, end, step);
+        let map = BTreeMap::from([(restated.clone(), number.clone())]);
+        let mut reason = vec![step.just.line - 1];
+        reason.extend(continued(&lines, step.just.line - 1, end));
+        for l in reason {
+            lines[l] = renumbered_refs(&lines[l], &map);
+        }
+        let claim = cited
+            .claim
+            .text()
+            .split_whitespace()
+            .collect::<Vec<_>>()
+            .join(" ");
+        let new_step = vec![
+            format!("{prefix}{number}.  {claim}"),
+            format!("{indent}join {restated}"),
+            String::new(),
+        ];
+        count += new_step.len() + 1;
+        lines.splice(heading..heading, new_step);
+        if !theorems.contains(&thm.qualified()) {
+            theorems.push(thm.qualified());
+        }
+        text = joined(lines, &text);
+    }
+    Rewritten {
+        text,
+        lines: count,
+        theorems,
+        declined: Vec::new(),
+    }
+}
+
+/// Each step citing an item, cited once and by a later step of its run,
+/// written as a requires line of that step: its claim the line's fact and
+/// its reason the line's (`SYNTAX.md`: a requires line is justified as a
+/// step is). The reverse of `requires_raised`. A step of one line saying
+/// one sentence is moved, under a step whose reason is one line and that
+/// opens no block.
+pub fn steps_as_requires(ctx: &Context, path: &str, text: &str) -> Rewritten {
+    let mut text = text.to_string();
+    let mut count = 0;
+    let mut theorems = Vec::new();
+    let Some(scope) = ctx
+        .corpus
+        .theorems
+        .iter()
+        .find(|t| t.path == path)
+        .map(|t| t.scope)
+    else {
+        return Rewritten {
+            text,
+            lines: 0,
+            theorems,
+            declined: Vec::new(),
+        };
+    };
+    let lone = |lines: &[String], l: usize| !lines[l].trim_end().ends_with(',');
+    // An item whose hypotheses its requires lines state: not a definition,
+    // which unfolds the line a step cites rather than asking it.
+    let asks = |just: &parley::corpus::proof::Justification| {
+        parley::corpus::proof::cited_item(just).is_some_and(|cited| {
+            let full = just.item(&cited);
+            !ctx.corpus
+                .records
+                .iter()
+                .any(|r| r.qualified() == full && r.kind.unfolds())
+        })
+    };
+    let movable = |thm: &Theorem, x: &parley::corpus::Step, lines: &[String]| {
+        let opens = thm.steps.iter().any(|o| {
+            o.number.len() > x.number.len()
+                && o.number.0[..x.number.len()] == x.number.0[..]
+        });
+        x.just.head.is_item()
+            && asks(&x.just)
+            && x.just.target.is_none()
+            && x.just.contradicting.is_none()
+            && x.just.chain.is_empty()
+            && x.requires.is_empty()
+            && x.openers.is_empty()
+            && !opens
+            && x.claim.sentences().len() == 1
+            && x.just.line == x.line + 1
+            && lone(lines, x.just.line - 1)
+    };
+    // The citer of `x`: the one step citing it, later in its run.
+    let citer = |thm: &'_ Theorem, x: &parley::corpus::Step, lines: &[String]| {
+        let r = x.number.to_string();
+        if citations_counted(thm).get(&r) != Some(&1) {
+            return None;
+        }
+        thm.steps
+            .iter()
+            .find(|s| s.just.refs.contains(&r))
+            .filter(|s| {
+                s.number.parent() == x.number.parent()
+                    && s.part == x.part
+                    && s.line > x.line
+                    && in_from_list(&lines[s.just.line - 1], &r)
+                    && s.just.contradicting.is_none()
+                    && asks(&s.just)
+                    && s.just.chain.is_empty()
+                    && s.openers.is_empty()
+                    && !s.just.head.takes_block()
+                    && lone(lines, s.just.line - 1)
+            })
+            .cloned()
+    };
+    let mut pending: Vec<usize> = Vec::new();
+    let mut thms = Vec::new();
+    let lines: Vec<String> = text.lines().map(str::to_string).collect();
+    for (thm, _) in reread(path, &text, scope, &mut thms) {
+        for x in &thm.steps {
+            if movable(thm, x, &lines) && citer(thm, x, &lines).is_some() {
+                pending.push(x.line);
+            }
+        }
+    }
+    pending.sort_by_key(|line| std::cmp::Reverse(*line));
+    for line in pending {
+        let mut thms = Vec::new();
+        let read = reread(path, &text, scope, &mut thms);
+        let Some((thm, end, x)) = step_on(&read, line) else {
+            continue;
+        };
+        let mut lines: Vec<String> = text.lines().map(str::to_string).collect();
+        let Some(s) = citer(thm, x, &lines) else {
+            continue;
+        };
+        // The citer no longer cites the step, and then the steps after it
+        // move up one.
+        let at = s.just.line - 1;
+        let indent: String = lines[at]
+            .chars()
+            .take_while(|c| c.is_whitespace())
+            .collect();
+        let Some(rest) = without_ref(&lines[at], &x.number.to_string()) else {
+            continue;
+        };
+        lines[at] = format!("{indent}{rest}");
+        let n = x.number.0[x.number.len() - 1];
+        let map = run_shifted(thm, x, |m| m > n, -1);
+        count += renumbered(thm, &mut lines, end, &map);
+        let fact = x.claim.text().trim().trim_end_matches('.').to_string();
+        lines.insert(
+            at + 1,
+            format!("{indent}requires {fact}: {}", x.just.text.trim()),
+        );
+        // The step's heading and reason, and a blank line after them.
+        let mut gone = 2;
+        if lines.get(x.line + 1).is_some_and(|l| l.trim().is_empty()) {
+            gone += 1;
+        }
+        lines.drain(x.line - 1..x.line - 1 + gone);
+        count += 2 + gone;
+        if !theorems.contains(&thm.qualified()) {
+            theorems.push(thm.qualified());
+        }
+        text = joined(lines, &text);
+    }
+    Rewritten {
+        text,
+        lines: count,
+        theorems,
+        declined: Vec::new(),
     }
 }
 

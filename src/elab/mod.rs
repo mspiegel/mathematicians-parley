@@ -150,6 +150,29 @@ pub struct Facts {
     /// Each standard form, and the claims held under it in the order they
     /// were proved.
     standard: Table<Vec<String>>,
+    /// Each claim as each line proved it, by `line_key`: two lines may say
+    /// one thing, and a step naming one rests on that one, where `proofs`
+    /// holds the claim as it was proved last.
+    by_line: Table<Proof>,
+}
+
+/// Where a line's proof of a claim is kept in `Facts::by_line`.
+fn line_key(line: &str, claim: &str) -> String {
+    format!("{line}\u{0}{claim}")
+}
+
+/// The claim a `line_key` is kept under.
+fn claim_of_key(key: &str) -> &str {
+    key.split_once('\u{0}').map_or(key, |(_, claim)| claim)
+}
+
+/// The line a proof is that line's own proof of, where it rests on one
+/// line alone, as a sealed step's proof and what is carried from it do.
+fn sole_line(proof: &Proof) -> Option<&str> {
+    match proof.origin.iter().collect::<Vec<_>>().as_slice() {
+        [one] => Some(one.as_str()),
+        _ => None,
+    }
 }
 
 impl Facts {
@@ -162,6 +185,7 @@ impl Facts {
         Facts {
             proofs: self.proofs.copy(),
             standard: self.standard.copy(),
+            by_line: self.by_line.copy(),
         }
     }
 
@@ -198,11 +222,15 @@ impl Facts {
         Facts {
             proofs: self.proofs.with(&over.proofs),
             standard,
+            by_line: self.by_line.with(&over.by_line),
         }
     }
 
     /// The facts that pass `keep`, as a table of their own.
     pub fn filtered(&self, keep: impl Fn(&str, &Proof) -> bool) -> Self {
+        let by_line = self
+            .by_line
+            .filtered(|key, proof| keep(claim_of_key(key), proof));
         let proofs = self.proofs.filtered(keep);
         let standard = Table::new();
         for (key, claims) in self.standard.entries() {
@@ -212,7 +240,11 @@ impl Facts {
                 standard.set(key, kept);
             }
         }
-        Facts { proofs, standard }
+        Facts {
+            proofs,
+            standard,
+            by_line,
+        }
     }
 
     pub fn same(&self, other: &Facts) -> bool {
@@ -228,14 +260,50 @@ impl Facts {
             let made = carry(&claim, proof);
             proofs.set(claim, made);
         }
+        let by_line = Table::new();
+        for (key, proof) in self.by_line.entries() {
+            let made = carry(claim_of_key(&key), proof);
+            by_line.set(key, made);
+        }
         Facts {
             proofs,
             standard: self.standard.copy(),
+            by_line,
+        }
+    }
+
+    /// The proof of `claim` that `line` gave, carried to this scope, where
+    /// the table holds one.
+    pub(crate) fn line_proof(&self, line: &str, claim: &str) -> Option<Proof> {
+        self.by_line.get(&line_key(line, claim))
+    }
+
+    /// Every claim `line` gave, with the proof it gave, in order.
+    pub(crate) fn of_line(&self, line: &str) -> Vec<(String, Proof)> {
+        let prefix = line_key(line, "");
+        self.by_line
+            .entries()
+            .into_iter()
+            .filter_map(|(key, proof)| {
+                key.strip_prefix(&prefix)
+                    .map(|claim| (claim.to_string(), proof))
+            })
+            .collect()
+    }
+
+    /// The line `proof` rests on as having given `claim`, leaving the claim
+    /// as it was proved last: a part of a line that an earlier line said too.
+    pub(crate) fn store_for_line(&self, claim: &str, proof: Proof) {
+        if let Some(line) = sole_line(&proof) {
+            self.by_line.set(line_key(line, claim), proof.clone());
         }
     }
 
     /// `claim` proved by `proof`, held under `standard`, its standard form.
     pub(crate) fn store(&self, claim: String, standard: String, proof: Proof) {
+        if let Some(line) = sole_line(&proof) {
+            self.by_line.set(line_key(line, &claim), proof.clone());
+        }
         self.proofs.set(claim.clone(), proof);
         // The claims under a standard form stand in the order they were
         // last proved, so the latest is last.

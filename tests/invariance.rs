@@ -157,6 +157,14 @@ fn changes() -> Vec<Change> {
             name: "a define in a proof lowered into its theorem's header",
             rewrite: Rewrite::File(rewrites::defines_lowered),
         },
+        Change {
+            name: "a line cited once restated by a step that joins it",
+            rewrite: Rewrite::File(rewrites::cited_lines_restated),
+        },
+        Change {
+            name: "a step citing an item written as a requires line of its citer",
+            rewrite: Rewrite::File(rewrites::steps_as_requires),
+        },
     ]
 }
 

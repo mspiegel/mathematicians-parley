@@ -359,10 +359,26 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         depth: usize,
     ) {
+        self.unpack_as(term, proof, scope, facts, depth, true);
+    }
+
+    /// `unpack`, each conjunct recorded as the fact proved last where
+    /// `latest`, and otherwise only as what the line the proof rests on gave.
+    fn unpack_as(
+        &mut self,
+        term: &str,
+        proof: &Proof,
+        scope: &str,
+        facts: &Facts,
+        depth: usize,
+        latest: bool,
+    ) {
         if depth == 0 {
             return;
         }
-        self.know_turned(facts, term, proof, scope);
+        if latest {
+            self.know_turned(facts, term, proof, scope);
+        }
         let node = self.to_term(term);
         let Some(picks) = node.label().and_then(|l| lookup(rules::SPLIT, l)) else {
             return;
@@ -372,9 +388,9 @@ impl<'a> Elaborator<'a> {
         }
         let kids: Vec<String> = node.children().iter().map(|c| self.rpn(c)).collect();
         for (part, pick) in kids.iter().zip(picks.iter()) {
-            if self.holds(facts, part) {
-                continue;
-            }
+            // A part an earlier line said too stays as that line proved it,
+            // and is kept as this line gives it for a step naming this one.
+            let latest = latest && !self.holds(facts, part);
             let mut all: Vec<crate::mm::spell::Part> = vec![
                 crate::elab::part(scope),
                 crate::elab::part(term),
@@ -385,8 +401,12 @@ impl<'a> Elaborator<'a> {
             all.push(crate::elab::part(*pick));
             all.push(crate::elab::part("syl"));
             let made = self.b.proof(&all);
-            self.know(facts, part.clone(), made.clone());
-            self.unpack(part, &made, scope, facts, depth - 1);
+            if latest {
+                self.know(facts, part.clone(), made.clone());
+            } else {
+                facts.store_for_line(part, made.clone());
+            }
+            self.unpack_as(part, &made, scope, facts, depth - 1, latest);
         }
     }
 
@@ -900,11 +920,15 @@ impl<'a> Elaborator<'a> {
             );
         };
         let held = self.last.as_ref().and_then(|l| self.lines.get(l));
-        let mut offered = vec![other];
+        // The line named is known by its own proof.
+        let facts = facts.copy();
+        self.know(&facts, other.claim.clone(), other.proof);
+        let mut offered = vec![other.claim];
         if let Some(h) = &held {
             offered.push(h.term.clone());
         }
-        let Some((first, second, known)) = self.opposing(&offered, facts, deep)? else {
+        let Some((first, second, known)) = self.opposing(&offered, &facts, deep)?
+        else {
             return Err(self.defect(
                 step.line,
                 "the last step and the line it contradicts are not a contradiction",
@@ -2570,13 +2594,9 @@ impl<'a> Elaborator<'a> {
         let held = lines
             .get(cite)
             .unwrap_or_else(|| panic!("no line {cite} to carry"));
-        let key = self.fact_key(&held.term);
-        if facts.under(&key).contains(&held.term) {
-            if let Some(copy) = facts.proof(&held.term) {
-                return copy;
-            }
-        }
-        held.proof
+        // The scope's copy of this line's own proof: another line saying the
+        // same is another line, which a step naming this one does not rest on.
+        facts.line_proof(cite, &held.term).unwrap_or(held.proof)
     }
 
     /// The variables an existential's own binders introduce, outermost first.

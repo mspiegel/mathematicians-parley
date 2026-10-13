@@ -29,7 +29,8 @@ use super::matcher::ChainLink;
 use super::provenance::{item_clauses, requirement};
 use super::reading::{is_subgroup, subject_of, CLASS_NAMES};
 use super::state::{
-    fit, names_of, number_of, Binding, Block, Closer, Elaborator, PartEnd, Vars,
+    fit, names_of, number_of, Binding, Block, Closer, Contradicted, Elaborator,
+    PartEnd, Vars,
 };
 use super::tables::Leaf;
 use super::{Facts, Line, Lines};
@@ -617,8 +618,14 @@ impl<'a> Elaborator<'a> {
             if let (Some(other), true) =
                 (&step.just.contradicting, self.in_contradiction)
             {
-                let said = self.lines.get(other).map(|l| l.term).unwrap_or_default();
-                self.contradicted = Some(said);
+                let lines = self.lines.clone();
+                if let Some(line) = lines.get(other) {
+                    let proof = self.carried(other, &facts, &lines);
+                    self.contradicted = Some(Contradicted {
+                        claim: line.term,
+                        proof,
+                    });
+                }
             }
             // A step that says its claim is impossible is its own opposite:
             // `arithmetic` works the claim out, refuses one it does not find
@@ -647,7 +654,10 @@ impl<'a> Elaborator<'a> {
                 let proof = self.closed_fact(&negated, &scope, &facts, &what, None)?;
                 self.know(&facts, negated.clone(), proof.clone());
                 if self.in_contradiction {
-                    self.contradicted = Some(negated.clone());
+                    self.contradicted = Some(Contradicted {
+                        claim: negated.clone(),
+                        proof: proof.clone(),
+                    });
                 }
                 Some(proof)
             } else {
@@ -855,6 +865,8 @@ impl<'a> Elaborator<'a> {
         let head = step.just.head.to_string();
         self.last = Some(number.to_string());
         self.at = step.line;
+        let resting = self.named(step, number, false);
+        self.named_first(&step.just.refs, &resting, facts);
         if head == "obtain" {
             // An obtain's requires lines cite items as any step's do.
             if self.answers.is_some() {

@@ -152,6 +152,15 @@ pub struct PartEnd {
     pub facts: Facts,
 }
 
+/// What a contradiction block's last step contradicts: the claim, and the
+/// proof of it the block closes on, the named line's own even where another
+/// line says the same.
+#[derive(Clone)]
+pub struct Contradicted {
+    pub claim: String,
+    pub proof: Proof,
+}
+
 /// How a define by recursion is built in set.mm (`recursion_terms`).
 #[derive(Clone, Debug)]
 pub struct Recurrence {
@@ -216,7 +225,7 @@ pub struct Elaborator<'a> {
     pub cited: Vec<String>,
     /// What the last step of the contradiction block being elaborated
     /// contradicts, which the block closes on with that step's own line.
-    pub contradicted: Option<String>,
+    pub contradicted: Option<Contradicted>,
     /// Whether the step being elaborated sits directly inside a
     /// contradiction.
     pub in_contradiction: bool,
