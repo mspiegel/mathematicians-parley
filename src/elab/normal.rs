@@ -1997,6 +1997,38 @@ impl Emitter {
                     );
                     return Ok(Built((out, p)));
                 }
+                // An exponent that is one atom alone is that atom, as
+                // `field` reads it: 2^(d·1) is 2^d.
+                if let Some(name) = field::exponent_atom(right, labels) {
+                    let exponent = right.rpn(labels).to_string();
+                    let (run, to_run) = take!(self.normalize(o, right, labels)?);
+                    let (_, from_name) = self.as_atom(o, &name)?;
+                    let spelt = Self::spell_run(&run);
+                    let b = o.b();
+                    let is_name = b.ap(
+                        "eqtr4d",
+                        &binds! {"ph" => &self.under, "A" => &exponent, "B" => &spelt, "C" => &*name},
+                        &[&to_run, &from_name],
+                    );
+                    let base = left.rpn(labels).to_string();
+                    let over = op(&base, &name, EXP);
+                    let moved = b.ap(
+                        "oveq2d",
+                        &binds! {"ph" => &self.under, "A" => &exponent, "B" => &*name,
+                        "C" => &base, "F" => EXP},
+                        &[&is_name],
+                    );
+                    let (out, atom) = self.as_atom(o, &over)?;
+                    let p = self.chain(
+                        o,
+                        &moved,
+                        &atom,
+                        &said,
+                        &over,
+                        &Self::spell_run(&out),
+                    );
+                    return Ok(Built((out, p)));
+                }
                 return self.as_atom(o, &said).map(Built);
             }
             if how == field::DIV {

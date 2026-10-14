@@ -1766,13 +1766,62 @@ impl<'a> Elaborator<'a> {
                 // An item states its existential in its own names, and a
                 // binder takes the variable its name is spelled with, so the
                 // one obtained is renamed to a variable nothing else holds.
-                ex = self.renamed(&claimed, got.len())?;
-                p_ex = match self.cite_item(step, &ex, scope, facts, item)? {
-                    Built(p) => p,
-                    Declined(d) => {
-                        panic!("an item cited for an obtain declined: {}", self.say(&d))
-                    }
-                };
+                // An item saying "A ↔ there is …" gives one where a line the
+                // step cites says A, as `mod-remainder` does from a mod m = r.
+                let whole = self.to_term(&claimed);
+                let sides = (whole.label() == Some("wb"))
+                    .then(|| (whole.children()[0].clone(), whole.children()[1].clone()))
+                    .filter(|(a, there)| {
+                        there.label() == Some("wrex") && a.label() != Some("wrex")
+                    });
+                if let Some((given, there)) = sides {
+                    let given = self.rpn(&given);
+                    ex = self.renamed(&self.rpn(&there), got.len())?;
+                    let iff = t!(given, ex, "wb");
+                    let p_iff = match self.cite_item(step, &iff, scope, facts, item)? {
+                        Built(p) => p,
+                        Declined(d) => {
+                            panic!(
+                                "an item cited for an obtain declined: {}",
+                                self.say(&d)
+                            )
+                        }
+                    };
+                    let supplied = self.supplied(Some(step), scope, facts)?;
+                    let known = self.with_cited(Some(step), scope, &supplied, None);
+                    let p_given = match self.settle(
+                        &self.to_term(&given),
+                        scope,
+                        &known,
+                        3,
+                        None,
+                        None,
+                    )? {
+                        Built(p) => p,
+                        Declined(_) => {
+                            return Err(self.defect(
+                                step.line,
+                                format!(
+                                    "step {number} obtains from {}, and nothing it cites says {}",
+                                    step.just.head,
+                                    self.render(&given)
+                                ),
+                            ));
+                        }
+                    };
+                    p_ex = pf!(self.b; scope, given, ex, p_given, p_iff, "mpbid");
+                } else {
+                    ex = self.renamed(&claimed, got.len())?;
+                    p_ex = match self.cite_item(step, &ex, scope, facts, item)? {
+                        Built(p) => p,
+                        Declined(d) => {
+                            panic!(
+                                "an item cited for an obtain declined: {}",
+                                self.say(&d)
+                            )
+                        }
+                    };
+                }
             }
         }
         // What the line is obtained from is what it rests on; what it

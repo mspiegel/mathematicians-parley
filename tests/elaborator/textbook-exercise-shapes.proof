@@ -1,0 +1,137 @@
+import mundane theorem    stdlib/counting/factorial-nat
+import mundane theorem    stdlib/counting/factorial-nonzero
+import mundane theorem    stdlib/numbers/power-real
+import mundane theorem    stdlib/numbers/multiply-cancel
+import mundane theorem    stdlib/divisibility/mod-remainder
+import mundane theorem    stdlib/divisibility/mod-natural
+import mundane theorem    stdlib/divisibility/mod-less
+
+theorem product-nonzero
+  note        Cited below beside an uncited line saying one of its hypotheses.
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume x ≠ 0                                                        (H3)
+  assume y ≠ 0                                                        (H4)
+  then x·y ≠ 0
+
+1.  x·y ≠ 0
+    contradiction
+    suppose x·y = 0                                                   (S)
+
+    1.1.  0·y = 0
+          algebra
+
+    1.2.  x·y = 0·y
+          calculation
+            x·y = 0       S
+                = 0·y     1.1
+
+    1.3.  x = 0
+          mun:multiply-cancel a := x, b := 0, c := y, from H4, 1.2, contradicting H3
+
+theorem a-hypothesis-from-the-line-cited
+  note        k! ≠ 0 is taken from line 2, which the step cites, and not from line 1.
+  let k ∈ ℕ                                                           (H1)
+  then k!·k ≠ 0
+
+1.  k! ≠ 0
+    mun:factorial-nonzero n := k
+
+2.  k! ∈ ℕ
+    mun:factorial-nat n := k
+
+3.  k!·k ≠ 0
+    thm:product-nonzero x := k!, y := k, from H1, 2
+
+theorem an-obtain-through-an-iff
+  note        mod-remainder says a mod m = r ↔ there is q; the cited H4 is its left side.
+  let a ∈ ℤ                                                           (H1)
+  let r ∈ ℕ₀                                                          (H2)
+  assume r < 3                                                        (H3)
+  assume a mod 3 = r                                                  (H4)
+  then there is q ∈ ℤ with q·3 + r = a
+
+1.  q ∈ ℤ. q·3 + r = a.
+    obtain q: mun:mod-remainder m := 3, from H3, H4
+
+2.  There is q ∈ ℤ with q·3 + r = a.
+    exhibit, from 1
+
+theorem an-obtain-through-an-iff-said-of-itself
+  note        With r := a mod 3 the left side is a mod 3 = a mod 3, which needs no line.
+  let a ∈ ℤ                                                           (H1)
+  then there is q ∈ ℤ with q·3 + a mod 3 = a
+
+1.  a mod 3 ∈ ℕ₀
+    mun:mod-natural b := 3
+
+2.  a mod 3 < 3
+    mun:mod-less b := 3
+
+3.  q ∈ ℤ. q·3 + a mod 3 = a.
+    obtain q: mun:mod-remainder m := 3, r := a mod 3, from 1, 2
+
+4.  There is q ∈ ℤ with q·3 + a mod 3 = a.
+    exhibit, from 3
+
+theorem a-join-turned-without-its-one
+  note        x·1 = y joined as y = x: turned round, and the one dropped.
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume x·1 = y                                                      (H3)
+  then y = x
+
+1.  y = x
+    join H3
+
+theorem an-exponent-without-its-one
+  note        2^(d·1) and 2^d are one power.
+  let d ∈ ℕ                                                           (H1)
+  then 2^(d·1) = 2^d
+
+1.  2^(d·1) = 2^d
+    algebra
+    requires 2^d ∈ ℝ: mun:power-real a := 2, m := d
+
+theorem a-substitution-back-through-a-name
+  note        K = a/2 put in where H6 writes a/2.
+  let a ∈ ℝ                                                           (H1)
+  let s ∈ ℝ                                                           (H2)
+  let e ∈ ℝ                                                           (H3)
+  assume |s − a/2| < e                                                (H4)
+  then |s − a/2| < e
+
+let K = a/2, a real number                                            (D1)
+    membership
+    reads half of a
+
+1.  |s − K| < e
+    substitute K = a/2 (D1) into H4
+
+2.  |s − a/2| < e
+    join H4
+
+theorem a-define-joined-under-a-limit
+  note        The statement's define is read into H3, and the join rests on it there.
+  let t : ℕ → ℝ                                                       (H1)
+  let K ∈ ℝ                                                           (H2)
+  let S(n) = Σ(k = 1 to n) t(k), for n ∈ ℕ                            (D2)
+         reads the n-th partial sum
+  assume S(n) → K as n → ∞                                            (H3)
+  then Σ(k = 1 to n) t(k) → K as n → ∞
+
+1.  Σ(k = 1 to n) t(k) → K as n → ∞
+    join D2, H3
+
+theorem a-defined-function-under-a-sum
+  note        t(k) under the sum is read as its rule, k + 1.
+  let n ∈ ℕ                                                           (H1)
+  let t(j) = j + 1, for j ∈ ℕ                                         (D1)
+         reads one more
+  then Σ(k = 1 to n) t(k) = Σ(k = 1 to n) (k + 1)
+
+1.  Σ(k = 1 to n) (k + 1) ∈ ℝ
+    membership
+
+2.  Σ(k = 1 to n) t(k) = Σ(k = 1 to n) (k + 1)
+    algebra, from D1, 1

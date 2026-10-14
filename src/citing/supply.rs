@@ -449,6 +449,19 @@ fn fits(
             }
         }
     }
+    // An equation the item asks outright is met the same way, after every
+    // fact: `a mod m = r` at m := 3 and r := x mod 3 is x mod 3 = x mod 3
+    // with a := x, which needs no line.
+    if let Some(same) = self_evident(&first, binding, &open_names, ctx) {
+        if let Some(found) = match_tree(&first, &same, binding, &open_names, sites, ctx)
+        {
+            out.push(Fit {
+                fact: None,
+                binding: found,
+                takes: false,
+            });
+        }
+    }
     out
 }
 

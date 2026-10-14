@@ -2392,8 +2392,12 @@ impl<'a> Elaborator<'a> {
         // for the other at some of the places it stands, every place or
         // fewer: where the two differ, the equation says they are equal, and
         // nothing else is asked (`congruence` over the equation alone).
+        // Either side may be put for the other: `substitute K = a/2 (D3)
+        // into H6` puts K where H6 writes a/2.
         let equation = Facts::new();
+        let back = pf!(self.b; scope, old, new, facing, "eqcomd");
         self.know(&equation, t!(old, new, "wceq"), facing);
+        self.know(&equation, t!(new, old, "wceq"), back);
         let leaf = Leaf::Rows(vec![super::tables::Row::Held]);
         let into = said.get(3).map(|m| m.as_str().to_string());
         let Some(into_text) = into else {
@@ -5543,7 +5547,10 @@ impl<'a> Elaborator<'a> {
                 self.know(&known, one.clone(), p);
                 continue;
             }
-            if self.holds(&known, one) {
+            // Held where the step may rest on it: a line in scope the step
+            // does not name may say the same, and the step would then rest
+            // on it (`restable`). `settle` reads the facts the same way.
+            if self.holds(&self.restable(&known), one) {
                 continue;
             }
             match self.settle(&self.to_term(one), scope, &known, 3, None, None)? {

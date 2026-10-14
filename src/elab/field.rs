@@ -313,6 +313,23 @@ pub fn power_of(base: &Term, exponent: &Term, labels: &FloatLabels) -> Power {
     }
 }
 
+/// The atom a power's exponent comes to where it is one atom alone, of
+/// weight one, and is not written as that atom: d·1 and d + 0 come to d. A
+/// power over such an exponent is the atom over the atom, so 2^(d·1) and
+/// 2^d are one atom, an identity element going without saying. None for
+/// any other exponent, which leaves the power the atom it is written as.
+pub fn exponent_atom(exponent: &Term, labels: &FloatLabels) -> Option<Rc<str>> {
+    let read = read(exponent, labels);
+    if read.under != one() || read.over.terms.len() != 1 {
+        return None;
+    }
+    let (monomial, weight) = read.over.terms.iter().next()?;
+    let [(name, 1)] = monomial.as_slice() else {
+        return None;
+    };
+    (*weight == q(1) && **name != *exponent.rpn(labels)).then(|| name.clone())
+}
+
 /// `base ^ by` multiplied out as the proof multiplies it, by the base once
 /// for each step past the first, each step costing what [`WORK`] says; or a
 /// decline where that is more than `left`, which is what is left of it
@@ -539,6 +556,10 @@ pub fn read(term: &Term, labels: &FloatLabels) -> Quotient {
                 // refuses a step that reads one (`past_expanding`).
                 if let Power::Expanded { raised, .. } = power_of(left, right, labels) {
                     return raised;
+                }
+                if let Some(name) = exponent_atom(right, labels) {
+                    let over = format!("{} {name} {EXP} co", left.rpn(labels));
+                    return Quotient::whole(atom(&over));
                 }
             }
             _ => {}

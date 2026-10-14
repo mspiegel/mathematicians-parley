@@ -1,0 +1,11 @@
+$( tests/elaborator/textbook-exercise-shapes/a-hypothesis-from-the-line-cited, elaborated from tests/elaborator/textbook-exercise-shapes.proof by parley build.
+   Nothing here is assumed.
+   Checked against a set.mm of 51,256 assertions, sha256
+   0d7fb3e59afff60f4cec2287cbb616bf651bbfbf2356a611a43a5c98b5e0462d. $)
+
+$[ tests/elaborator/textbook-exercise-shapes/product-nonzero.mm $]
+
+${
+  tests.elaborator.textbook-exercise-shapes.a-hypothesis-from-the-line-cited $p |- ( A e. NN -> -. ( ( ! ` A ) x. A ) = 0 ) $=
+    ( cn wcel cfa cfv cr wa cc0 wceq wn cmul co cn0 id nnnn0 syl faccl nnre jca wne nnne0 df-ne sylib tests.elaborator.textbook-exercise-shapes.product-nonzero ) ABCZADEZFCZAFCZGZUFHIZJZGZAHIZJZGUFAKLHIJUEULUNUEUIUKUEUGUHUEUFBCZUGUEAMCZUOUEUEUPUENZAOZPZAQZPZUFRPUEUEUHUQARPSUEUFHTZUKUEUOVBVAUFUAPUFHUBUCSUEAHTZUNUEUEVCUQAUAPAHUBUCSUFAUDP $.
+$}

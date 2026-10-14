@@ -208,8 +208,24 @@ impl<'a> Elaborator<'a> {
             )),
             // The two may differ by an identity element, which is filed
             // under the same form and asks the scope that what is left is a
-            // number.
-            Declined(_) => self.tidied(&proof, stored, wanted, scope, facts),
+            // number. The standard form files an equation whichever way
+            // round it is written, so the one held may also be the wanted
+            // turned round: `x·1 = y` is `y = x` with the element dropped
+            // and the sides turned.
+            Declined(_) => {
+                if let Some(p) = self.tidied(&proof, stored, wanted, scope, facts)? {
+                    return Ok(Some(p));
+                }
+                let Some((turned, flip)) = self.turned_claim(wanted) else {
+                    return Ok(None);
+                };
+                let Some(p) = self.tidied(&proof, stored, &turned, scope, facts)?
+                else {
+                    return Ok(None);
+                };
+                let Sides { left, right } = self.equation_sides(&turned);
+                Ok(Some(pf!(self.b; scope, left, right, p, flip)))
+            }
         }
     }
 

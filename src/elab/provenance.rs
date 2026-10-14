@@ -136,6 +136,18 @@ impl<'a> Elaborator<'a> {
                     walk(me, &node.children()[0], linear, atoms, terms);
                     return;
                 }
+                // A power whose exponent is one atom alone is the power over
+                // that atom, as `field` reads it: 2^(d·1) is 2^d.
+                if op == "cexp" {
+                    let exponent = &node.children()[1];
+                    if let Some(name) =
+                        super::field::exponent_atom(exponent, me.flabel())
+                    {
+                        let base = me.rpn(&node.children()[0]);
+                        atoms.insert(t!(base, name, "cexp", "co"));
+                        return;
+                    }
+                }
             }
             if node.variable().is_none() && label == "cneg" {
                 walk(me, &node.children()[0], linear, atoms, terms);
@@ -162,13 +174,20 @@ impl<'a> Elaborator<'a> {
 
     /// Whether a term a line says is a number is an atom a method combined:
     /// the same term, over other bound letters or with its defined names
-    /// written out, as `inequalities` reads it.
-    fn one_atom(&self, held: &str, atom: &str) -> bool {
+    /// written out, and a defined function applied read as its rule there,
+    /// as `inequalities` and `algebra` read it (`names_written_out`).
+    fn one_atom(&mut self, held: &str, atom: &str) -> bool {
         if held == atom || self.rebound(held, atom) {
             return true;
         }
-        let out = self.rpn(&self.defined_names_out(&self.to_term(held)));
-        out == atom || self.rebound(&out, atom)
+        let term = self.to_term(held);
+        let out = self.rpn(&self.defined_names_out(&term));
+        if out == atom || self.rebound(&out, atom) {
+            return true;
+        }
+        let read = self.read_out(&term);
+        let read = self.rpn(&read);
+        read == atom || self.rebound(&read, atom)
     }
 
     /// Everything a step names does work, or a defect names what does not.
@@ -209,12 +228,41 @@ impl<'a> Elaborator<'a> {
                 }
             }
         }
+        // A define the theorem's statement is read over is written out in
+        // the statement's own lines, which the kernel states closed, so a
+        // step citing one of them that names the define rests on it there:
+        // `join D2, H3` with H3 saying S(n) → K.
+        let header: Vec<(String, BTreeSet<String>)> = self
+            .thm
+            .defines
+            .iter()
+            .filter(|d| d.line < self.thm.conclusion_line)
+            .filter_map(|d| match crate::corpus::define_parts(&d.text) {
+                Built(said) => {
+                    Some((d.label.clone(), said.names().into_iter().collect()))
+                }
+                Declined(_) => None,
+            })
+            .collect();
+        let named_in_cited = |me: &Self, label: &str| {
+            let Some((_, names)) = header.iter().find(|(l, _)| l == label) else {
+                return false;
+            };
+            step.just.refs.iter().filter(|o| *o != label).any(|o| {
+                me.lines.get(o).is_some_and(|line| {
+                    line.sentences
+                        .iter()
+                        .any(|s| s.names().iter().any(|n| names.contains(n.as_str())))
+                })
+            })
+        };
         let mut seen: BTreeSet<&str> = BTreeSet::new();
         for r in &step.just.refs {
             if !seen.insert(r) {
                 continue;
             }
-            if !used.contains(r) && !self.sorts.contains(r) {
+            if !used.contains(r) && !self.sorts.contains(r) && !named_in_cited(self, r)
+            {
                 return Err(self.defect(
                     step.line,
                     format!("step {number} cites {r} and uses nothing it says"),

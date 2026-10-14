@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.notations.sets.power-set-of-empty-has-one-member $p |- ( # ` ~P (/) ) = 1 $=
-    ( c0 cpw chash cfv c1 wceq wtru csn cvv wcel 0ex a1i hashsng syl pw0 wb eqcom bicomd mpbid fveq2d eqeq1d mptru ) ABZCDZEFZGAHZCDZEFZUEGAIJZUHUIGKLAIMNGUGUDEGUFUCCGUCUFFZUFUCFZUJGOLGUKUJUKUJPGUFUCQLRSTUASUB $.
+    ( c0 cpw chash cfv c1 wceq wtru csn cvv wcel 0ex a1i hashsng syl pw0 eqcomd fveq2d eqeq1d mpbid mptru ) ABZCDZEFZGAHZCDZEFZUCGAIJZUFUGGKLAIMNGUEUBEGUDUACGUAUDUAUDFGOLPQRST $.
 $}

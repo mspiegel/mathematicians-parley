@@ -549,12 +549,10 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         lines: &Lines,
     ) -> Checked<Route<Proof>> {
-        let linear = self.sums_linear(term, Some(step), lines);
-        field::reading_sums(linear, || self.decide_field(step, term, lines))?;
         // A defined name is read as what it names, as `inequalities` reads
         // it: the claim and each cited line are taken with their defined
-        // names written out, and the proof is carried back to the claim as
-        // the page writes it.
+        // names written out, decided so, and the proof is carried back to
+        // the claim as the page writes it.
         let out = take!(self.names_written_out(
             Some(step),
             &step.just.refs,
@@ -563,6 +561,10 @@ impl<'a> Elaborator<'a> {
             facts,
             lines
         )?);
+        let linear = self.sums_linear(&out.term, Some(step), &out.lines);
+        field::reading_sums(linear, || {
+            self.decide_field(step, &out.term, term, &out.lines)
+        })?;
         let found =
             self.algebra_written_out(step, &out.term, scope, &out.facts, &out.lines)?;
         if out.term == term {
@@ -1688,7 +1690,15 @@ impl<'a> Elaborator<'a> {
     /// Refuse an `algebra` step that is not an identity: with nothing cited
     /// the claim must vanish outright; with equations cited it must be a
     /// combination of them.
-    fn decide_field(&mut self, step: &Step, term: &str, lines: &Lines) -> Checked<()> {
+    /// `term` is decided, with the lines it cites as `lines` holds them;
+    /// `shown` is the claim as the page writes it, which a refusal names.
+    fn decide_field(
+        &mut self,
+        step: &Step,
+        term: &str,
+        shown: &str,
+        lines: &Lines,
+    ) -> Checked<()> {
         let labels = self.b.flabel.clone();
         // Every power with a whole exponent is multiplied out, so one that
         // may not be is refused wherever the step reads it.
@@ -1714,7 +1724,7 @@ impl<'a> Elaborator<'a> {
         }
         let claimed = self.to_term(term);
         let Some(want) = field::equation(&claimed, &labels) else {
-            return self.decide_apart(step, term, lines);
+            return self.decide_apart(step, term, shown, lines);
         };
         let claims = readings(&claimed, want, &labels);
         let claim_under = denominators(&claimed, &labels);
@@ -1744,7 +1754,7 @@ impl<'a> Elaborator<'a> {
                 format!(
                     "{} is not an identity, nor does it follow from what step {} cites, \
                      added and subtracted with at most one equation multiplied by a term",
-                    self.render(term),
+                    self.render(shown),
                     fmt(&step.number)
                 ),
             ));
@@ -1754,7 +1764,13 @@ impl<'a> Elaborator<'a> {
 
     /// Refuse a disequality `algebra` step that is not a cited one rescaled:
     /// the method is allowed one disequality and no more.
-    fn decide_apart(&mut self, step: &Step, term: &str, lines: &Lines) -> Checked<()> {
+    fn decide_apart(
+        &mut self,
+        step: &Step,
+        term: &str,
+        shown: &str,
+        lines: &Lines,
+    ) -> Checked<()> {
         let labels = self.b.flabel.clone();
         let Some(claim) = field::denied(&self.to_term(term), &labels) else {
             return Ok(());
@@ -1774,7 +1790,7 @@ impl<'a> Elaborator<'a> {
             step.line,
             format!(
                 "{} is not a rescaling of any disequality step {} cites",
-                self.render(term),
+                self.render(shown),
                 fmt(&step.number)
             ),
         ))
@@ -3474,15 +3490,26 @@ impl<'a> Elaborator<'a> {
                     named.insert(self.rpn(&self.sums_over(&out, &letter)));
                 }
             }
+            // A defined function applied names its rule at the argument:
+            // t(k) with t(j) = j + 1 names k + 1.
+            if node.label() == Some("cfv") && kids.len() == 2 {
+                let out = self.read_out(&node);
+                if self.rpn(&out) != self.rpn(&node) {
+                    named.insert(self.rpn(&self.sums_over(&out, &letter)));
+                }
+            }
             written.insert(self.rpn(&node));
             rest.extend(kids.iter().cloned());
         }
         if !named.iter().any(|body| written.contains(body)) {
             return Ok(Built(as_written));
         }
-        let written_out =
-            |me: &Self, t: &Term| me.sums_over(&me.defined_names_out(t), &letter);
-        let term_out = self.rpn(&written_out(self, &claim));
+        let written_out = |me: &mut Self, t: &Term| {
+            let out = me.read_out(t);
+            me.sums_over(&out, &letter)
+        };
+        let out = written_out(self, &claim);
+        let term_out = self.rpn(&out);
         let (facts_out, lines_out) = (facts.copy(), lines.copy());
         for (r, line) in &cited {
             let said = self.to_term(&line.term);
