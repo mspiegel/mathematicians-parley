@@ -475,7 +475,7 @@ each by the set.mm lemma that says so of a member. The table is in
 
 **A line saying a term is in a number system says what that implies.**
 `let k ∈ ℕ (K1)` also says k ∈ ℕ₀, k ∈ ℤ, k ∈ ℚ and k ∈ ℝ, by the table
-above, and k ≥ 1 and k ≠ 0; a line saying k ∈ ℕ₀ also says k ≥ 0. Whatever
+above, and k ≥ 1, k > 0 and k ≠ 0; a line saying k ∈ ℕ₀ also says k ≥ 0. Whatever
 reads a cited line reads these as well: a method (`inequalities, from K1`
 has k ≥ 1), a requires line (`requires k ≠ 0: from K1`), and an item's
 hypothesis (an item asking x ≥ 1, answered by K1). Each is one set.mm lemma

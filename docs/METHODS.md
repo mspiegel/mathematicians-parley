@@ -105,7 +105,7 @@ sentence that has this shape and is ignored for the rest, so citing a line that
 also states a membership or a quantified sentence is not an error.
 
 A membership supplies the bounds it implies (`SYNTAX.md`): a line saying
-k ∈ ℕ supplies k ≥ 1 and k ≠ 0, and one saying k ∈ ℕ₀ supplies k ≥ 0. So
+k ∈ ℕ supplies k ≥ 1, k > 0 and k ≠ 0, and one saying k ∈ ℕ₀ supplies k ≥ 0. So
 `requires k ≠ 0: inequalities, from K1` needs nothing but `let k ∈ ℕ (K1)`.
 That k is real the step neither cites nor writes: it is said once, where k
 is introduced (`SYNTAX.md`, a membership is said once). A membership that

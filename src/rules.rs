@@ -566,7 +566,10 @@ pub const WITHIN: &[(&str, &[(&str, &str)])] = &[
 // the term, and the lemma that says it (`SYNTAX.md`, what a membership line
 // says).
 pub const IMPLIED: &[(&str, &[(&str, &str)])] = &[
-    ("cn", &[("x ≥ 1", "nnge1"), ("x ≠ 0", "nnne0")]),
+    (
+        "cn",
+        &[("x ≥ 1", "nnge1"), ("x > 0", "nngt0"), ("x ≠ 0", "nnne0")],
+    ),
     ("cn0", &[("x ≥ 0", "nn0ge0")]),
 ];
 

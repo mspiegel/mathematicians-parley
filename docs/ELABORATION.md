@@ -1057,7 +1057,7 @@ is proved by the reason that line gives, or the elaborator says it cannot.
 
 A line the page cites says what it states and what a membership among its
 sentences implies (`SYNTAX.md`): `let k ∈ ℕ` gives `k ∈ ℝ` by `nnre`,
-`k ≥ 1` by `nnge1` and `k ≠ 0` by `nnne0`, from the table in `rules.rs`
+`k ≥ 1` by `nnge1`, `k > 0` by `nngt0` and `k ≠ 0` by `nnne0`, from the table in `rules.rs`
 (`implied`). An `obtain`'s names count as their line's: the scope holds
 `N ∈ ℕ` with line 3.1 as its origin, and `requires N ≠ 0: from 3.1` reads it
 there (`stated_by`). `inequalities` is offered the bounds, with the facts as
