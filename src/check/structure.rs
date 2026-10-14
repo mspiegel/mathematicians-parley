@@ -7,11 +7,11 @@ use indexmap::{IndexMap, IndexSet};
 
 use super::library::Known;
 use super::{Report, CLOSURE, RELATIONS};
-use crate::corpus::proof::{requires_item, starts_with_head, visible};
+use crate::corpus::proof::{requires_item, starts_with_head, unproduced, visible};
 use crate::corpus::{
     cited_item, cited_items, define_parts, fmt, full, item_prefix, references,
     FileScope, Head, Intro, Item, Justification, Method, Range, Record, RecordKind,
-    Requires, Step, StepNo, Theorem, ITEM_PREFIX, LABEL, NUMBER, REF,
+    Requires, Step, StepNo, Theorem, ITEM_PREFIX, LABEL, REF,
 };
 use crate::formula::library::Function;
 use crate::formula::page::Written;
@@ -90,14 +90,12 @@ pub fn labels_in_scope(
             out.insert(d.label.clone(), Declared::Define(d.line));
         }
     }
-    let by_number: IndexMap<&StepNo, &Step> =
-        thm.steps.iter().map(|s| (&s.number, s)).collect();
     for other in &thm.steps {
         let k = other.number.len();
         if other.number != step.number.prefix(k) || other.number == step.number {
             continue;
         }
-        let child = by_number.get(&step.number.prefix(k + 1));
+        let child = on_the_way(thm, step, &step.number.prefix(k + 1));
         for o in &other.openers {
             if o.part.is_none() || child.is_some_and(|c| c.part == o.part) {
                 out.insert(o.label.clone(), Declared::Block(o.line));
@@ -107,70 +105,29 @@ pub fn labels_in_scope(
     out
 }
 
-fn inst() -> String {
-    r"(?:[^\s,]+\s*:=\s*.+?)(?:,\s*[^\s,]+\s*:=\s*.+?)*".to_string()
+/// The step numbered `number` that `step` stands under or is: the nearest
+/// written at or above it. A number written twice is `check_numbering`'s to
+/// report, and each of its steps keeps the blocks it is written in.
+fn on_the_way<'t>(thm: &'t Theorem, step: &Step, number: &StepNo) -> Option<&'t Step> {
+    thm.steps
+        .iter()
+        .rfind(|s| &s.number == number && s.line <= step.line)
 }
 
-fn from() -> String {
-    format!(r"from\s+{REF}(?:\s*,\s*{REF})*")
-}
-
-fn productions() -> Vec<regex::Regex> {
-    let cited = crate::corpus::CITED;
-    let (inst, from) = (inst(), from());
-    [
-        format!(r"^{ITEM_PREFIX}{cited}(?:\s+{inst})?(?:,\s*{from})?$"),
-        format!(r"^obtain\s+\S+(?:\s*,\s*\S+)*:\s*{ITEM_PREFIX}{cited}(?:\s+{inst})?(?:,\s*{from})?$"),
-        format!(r"^obtain\s+\S+(?:\s*,\s*\S+)*\s+from\s+(?:line\s+{NUMBER}|{LABEL})$"),
-        format!(r"^exhibit,\s*{from}$"),
-        format!(r"^substitute\s+.+?\s*\((?:line\s+{NUMBER}|{LABEL}|arithmetic)\)(?:\s+into\s+(?:line\s+{NUMBER}|{LABEL}))?$"),
-        format!(r"^instantiate\s+{inst}\s+in\s+(?:line\s+{NUMBER}|{LABEL})(?:,\s*{from})?$"),
-        format!(r"^algebra(?:,\s*{from})?$"),
-        r"^arithmetic$".to_string(),
-        format!(r"^inequalities(?:,\s*{from})?$"),
-        format!(r"^membership(?:,\s*{from})?$"),
-        format!(r"^inspection(?:,\s*{from})?$"),
-        format!(r"^join\s+{REF}(?:\s*,\s*{REF})*$"),
-        r"^contradiction$".to_string(),
-        r"^proof$".to_string(),
-        r"^induction\s+on\s+\S+\s+starting\s+at\s+\S+$".to_string(),
-        format!(r"^cases,\s*{from}$"),
-        r"^both directions$".to_string(),
-        r"^calculation$".to_string(),
-        format!(r"^{LABEL}(?:,\s*{from})?$"),
-    ]
-    .iter()
-    .map(|p| regex::Regex::new(p).unwrap())
-    .collect()
-}
-
-static PRODUCTIONS: std::sync::LazyLock<Vec<regex::Regex>> =
-    std::sync::LazyLock::new(productions);
-
-regex!(SUBSTITUTE_SOURCE, r"\((?:line\s+[0-9]|arithmetic\))");
-
-/// The productions of `GRAMMAR.md`, one per justification form.
+/// The productions of `GRAMMAR.md`, one per justification form, as
+/// `corpus::proof::unproduced` reads them for both tools.
 pub fn check_justification_form(
     report: &mut Report,
     path: &str,
     just: &Justification,
 ) -> bool {
-    // A substitute takes one equation from one source: a second `(line N)`
-    // would be read as part of the equation, which no formula writes.
-    let sources = SUBSTITUTE_SOURCE.find_iter(&just.text).count();
-    let two_sources = just.head.is(Method::Substitute) && sources > 1;
-    if two_sources || !PRODUCTIONS.iter().any(|p| p.is_match(&just.text)) {
-        report.say(
-            path,
-            just.line,
-            format!(
-                "justification matches no production in GRAMMAR.md: {}",
-                repr(prefix(&just.text, 64))
-            ),
-        );
-        return false;
+    match unproduced(just) {
+        Some(why) => {
+            report.say(path, just.line, why);
+            false
+        }
+        None => true,
     }
-    true
 }
 
 /// Every number once, under a step that exists, and each run of siblings
@@ -1754,14 +1711,12 @@ pub fn letters_in_scope(
             }
         }
     }
-    let by_number: IndexMap<&StepNo, &Step> =
-        thm.steps.iter().map(|s| (&s.number, s)).collect();
     for other in &thm.steps {
         let k = other.number.len();
         let encloses =
             other.number == step.number.prefix(k) && other.number != step.number;
         if encloses {
-            let child = by_number.get(&step.number.prefix(k + 1));
+            let child = on_the_way(thm, step, &step.number.prefix(k + 1));
             for o in &other.openers {
                 let own_part =
                     o.part.is_none() || child.is_some_and(|c| c.part == o.part);

@@ -1,0 +1,26 @@
+import mundane theorem    stdlib/reasoning/modus-ponens
+import mundane theorem    stdlib/reasoning/iff-from-left
+
+theorem an-if-by-modus-ponens
+  note        What modus ponens concludes may itself be an "if".
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let c ∈ ℝ                                                           (H3)
+  assume if a = 0 then (if b = 0 then c = 0)                          (H4)
+  assume a = 0                                                        (H5)
+  then if b = 0 then c = 0
+
+1.  If b = 0 then c = 0.
+    mun:modus-ponens, from H4, H5
+
+theorem an-if-by-a-biconditional
+  note        So may what a biconditional gives from its left side.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let c ∈ ℝ                                                           (H3)
+  assume a = 0 ↔ (if b = 0 then c = 0)                                (H4)
+  assume a = 0                                                        (H5)
+  then if b = 0 then c = 0
+
+1.  If b = 0 then c = 0.
+    mun:iff-from-left, from H4, H5

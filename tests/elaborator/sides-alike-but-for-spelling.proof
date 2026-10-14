@@ -1,0 +1,17 @@
+theorem sides-alike-but-for-spelling
+  note        inequalities decides a claim whose two sides are one polynomial spelt two ways, combining nothing.
+  let A ∈ ℝ                                                           (H1)
+  let B ∈ ℝ                                                           (H2)
+  then not (A < B + (A − B))
+
+1.  not (A < B + (A − B))
+    inequalities
+
+theorem at-most-itself-spelt-otherwise
+  note        As at most.
+  let A ∈ ℝ                                                           (H1)
+  let B ∈ ℝ                                                           (H2)
+  then B + (A − B) ≤ A
+
+1.  B + (A − B) ≤ A
+    inequalities

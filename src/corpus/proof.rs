@@ -1312,6 +1312,87 @@ pub fn substituted(just: &Justification, path: &str) -> Option<Written> {
     Some(Written::new(str::trim(&m[1]), path, just.line))
 }
 
+fn inst() -> String {
+    r"(?:[^\s,]+\s*:=\s*.+?)(?:,\s*[^\s,]+\s*:=\s*.+?)*".to_string()
+}
+
+fn from() -> String {
+    format!(r"from\s+{}(?:\s*,\s*{})*", super::REF, super::REF)
+}
+
+fn productions() -> Vec<regex::Regex> {
+    use super::{CITED as cited, ITEM_PREFIX, LABEL, NUMBER, REF};
+    let (inst, from) = (inst(), from());
+    [
+        format!(r"^{ITEM_PREFIX}{cited}(?:\s+{inst})?(?:,\s*{from})?$"),
+        format!(r"^obtain\s+\S+(?:\s*,\s*\S+)*:\s*{ITEM_PREFIX}{cited}(?:\s+{inst})?(?:,\s*{from})?$"),
+        format!(r"^obtain\s+\S+(?:\s*,\s*\S+)*\s+from\s+(?:line\s+{NUMBER}|{LABEL})$"),
+        format!(r"^exhibit,\s*{from}$"),
+        format!(r"^substitute\s+.+?\s*\((?:line\s+{NUMBER}|{LABEL}|arithmetic)\)(?:\s+into\s+(?:line\s+{NUMBER}|{LABEL}))?$"),
+        format!(r"^instantiate\s+{inst}\s+in\s+(?:line\s+{NUMBER}|{LABEL})(?:,\s*{from})?$"),
+        format!(r"^algebra(?:,\s*{from})?$"),
+        r"^arithmetic$".to_string(),
+        format!(r"^inequalities(?:,\s*{from})?$"),
+        format!(r"^membership(?:,\s*{from})?$"),
+        format!(r"^inspection(?:,\s*{from})?$"),
+        format!(r"^join\s+{REF}(?:\s*,\s*{REF})*$"),
+        r"^contradiction$".to_string(),
+        r"^proof$".to_string(),
+        r"^induction\s+on\s+\S+\s+starting\s+at\s+\S+$".to_string(),
+        format!(r"^cases,\s*{from}$"),
+        r"^both directions$".to_string(),
+        r"^calculation$".to_string(),
+        format!(r"^{LABEL}(?:,\s*{from})?$"),
+    ]
+    .iter()
+    .map(|p| regex::Regex::new(p).unwrap())
+    .collect()
+}
+
+static PRODUCTIONS: std::sync::LazyLock<Vec<regex::Regex>> =
+    std::sync::LazyLock::new(productions);
+
+regex!(SOURCE_IN_BRACKETS, r"\((?:line\s+[0-9]|arithmetic\))");
+regex!(
+    BARE_NUMBER_TARGET,
+    format!(r"\b(in|into)\s+({})\s*(?:,|$)", super::NUMBER)
+);
+regex!(
+    LINE_BEFORE_LABEL,
+    format!(r"\b(in|into)\s+line\s+({})\s*(?:,|$)", super::LABEL)
+);
+
+/// Why a justification matches none of `GRAMMAR.md`'s productions, or None
+/// where it matches one. Both tools read a justification only once it
+/// matches, so each refuses the same text in the same words.
+pub fn unproduced(just: &Justification) -> Option<String> {
+    // A substitute takes one equation from one source: a second `(line N)`
+    // would be read as part of the equation, which no formula writes.
+    let sources = SOURCE_IN_BRACKETS.find_iter(&just.text).count();
+    let two_sources = just.head.is(Method::Substitute) && sources > 1;
+    if !two_sources && PRODUCTIONS.iter().any(|p| p.is_match(&just.text)) {
+        return None;
+    }
+    let text = repr(prefix(&just.text, 64));
+    // The word "line" is the slip most often made, either way round
+    // (SYNTAX.md: a number after a verb carries it, a label never does).
+    if let Some(m) = BARE_NUMBER_TARGET.captures(&just.text) {
+        return Some(format!(
+            "justification matches no production in GRAMMAR.md: {text}; a line number after `{}` carries the word \"line\": `{} line {}`",
+            &m[1], &m[1], &m[2]
+        ));
+    }
+    if let Some(m) = LINE_BEFORE_LABEL.captures(&just.text) {
+        return Some(format!(
+            "justification matches no production in GRAMMAR.md: {text}; a label never carries the word \"line\": `{} {}`",
+            &m[1], &m[2]
+        ));
+    }
+    Some(format!(
+        "justification matches no production in GRAMMAR.md: {text}"
+    ))
+}
+
 regex!(SUBSTITUTED_INTO, r"\)\s+into\s+(\S.*?)\s*$");
 
 /// The line a `substitute` puts its equation into, the last word of its

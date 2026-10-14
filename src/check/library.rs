@@ -434,11 +434,15 @@ pub fn statements_in_scope(thm: &Theorem, step: &Step, env: Env) -> Statements {
         true => Stated::Hypothesis(owner.claim.clone()),
         false => said(o.kind, o.body(&thm.path)),
     };
-    let mut out: Statements = thm
-        .steps
-        .iter()
-        .map(|s| (s.number.to_string(), Stated::Written(s.claim.clone())))
-        .collect();
+    // A number written twice is `check_numbering`'s to report; a citation
+    // of it reads the one written nearest above the citing step.
+    let mut out: Statements = Statements::new();
+    for s in &thm.steps {
+        let key = s.number.to_string();
+        if s.line <= step.line || !out.contains_key(&key) {
+            out.insert(key, Stated::Written(s.claim.clone()));
+        }
+    }
     for h in &thm.hypotheses {
         if let Some(label) = &h.label {
             out.insert(label.clone(), said(h.kind, h.body(&thm.path)));

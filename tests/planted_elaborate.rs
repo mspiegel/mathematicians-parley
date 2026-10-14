@@ -1174,6 +1174,26 @@ fn cases() -> Vec<Case> {
             "",
             "nothing says 2^n is not zero",
         ),
+        // A quotient is a number once its divisor is not zero, and that is
+        // what is named where it is missing.
+        case(
+            "leave out that a quotient's divisor is not zero",
+            "tests/elaborator/a-quotient-divisor-said-not-zero/a-quotient-divisor-said-not-zero",
+            "tests/elaborator/a-quotient-divisor-said-not-zero.proof",
+            "    requires 2·d ≠ 0: inequalities, from H6\n",
+            "",
+            "nothing says 2 · d ≠ 0, which this step needs for ε / (2 · d)",
+        ),
+        // The build reads a justification only in a form the grammar gives
+        // it, and refuses one in none in the checker's words.
+        case(
+            "a line number after into without the word line",
+            "tests/elaborator/induction-under-a-condition/walk-parity-by-induction",
+            "tests/elaborator/induction-under-a-condition.proof",
+            "(line 1.2.7) into line 1.2.6",
+            "(line 1.2.7) into 1.2.6",
+            "a line number after `into` carries the word \"line\": `into line 1.2.6`",
+        ),
         // A requires line's item is one the checker takes, as a step's is:
         // k ∈ {0, …, N} cited for the k ∈ ℤ an item asks is a range, and no
         // number system, so it says nothing past itself.

@@ -1931,7 +1931,7 @@ impl<'a> Elaborator<'a> {
             .map(|v| (v.name.clone(), v.value.clone()))
             .collect();
         for _ in 0..pairs.len() {
-            let label = whole.label().unwrap_or("");
+            let label = whole.label().unwrap_or("").to_string();
             let found = rules::INSTANCES.iter().find(|(k, _)| *k == label);
             let Some(instance) = found.map(|(_, i)| (i.lemma, i.domain_var, i.domain))
             else {
@@ -1959,6 +1959,42 @@ impl<'a> Elaborator<'a> {
             };
             let mark = format!("{letter} cv");
             let at = self.term(&value)?;
+            // A value that spells the bound letter inside it, ε/2 for "for
+            // all ε" read in the block letting ε, is put in once the line is
+            // read over a letter nothing holds: `rspcv` keeps the letter
+            // apart from what is put in.
+            let mut variable = variable;
+            let mut letter = letter;
+            let mut mark = mark;
+            let mut body = body;
+            let spelt_in = variable
+                .variable()
+                .is_some_and(|v| at != mark && self.to_term(&at).names().contains(v));
+            if spelt_in {
+                let Some(fresh) = self.unheld(&[&whole, &self.to_term(&at)]) else {
+                    return Err(self.defect(
+                        step.line,
+                        format!("no letter is left to read {where_} over apart from the value"),
+                    ));
+                };
+                let mut moved = Binding::new();
+                moved.insert(variable.variable().unwrap().to_string(), fresh);
+                let respelt = whole.substitute(&moved);
+                let Some(renamed) = self.renaming(&whole, &respelt)? else {
+                    return Err(self.defect(
+                        step.line,
+                        format!("{where_} cannot be read over a letter apart from the value"),
+                    ));
+                };
+                let w = self.rpn(&whole);
+                let r = self.rpn(&respelt);
+                proof = pf!(self.b; scope, w, r, proof, renamed, "sylib");
+                whole = respelt;
+                (body, variable) =
+                    (whole.children()[0].clone(), whole.children()[1].clone());
+                letter = self.rpn(&variable);
+                mark = format!("{letter} cv");
+            }
             let w = self.rpn(&whole);
             if at == mark {
                 // The value is the bound letter itself, as where a block
@@ -5823,6 +5859,13 @@ pub fn elaborate(
         g,
         scopes: &corpus.scopes,
     };
+    // A justification is read only in a form the grammar gives it, as the
+    // checker reads it: `into 1` is no `into line 1`.
+    for step in &thm.steps {
+        if let Some(why) = crate::corpus::proof::unproduced(&step.just) {
+            return Err(Problem::new(&thm.path, step.just.line, why));
+        }
+    }
     let sorts_now = sorts_in_scope(thm, env);
     let mut sigs = Layered::new(Arc::clone(&library.sigs));
     declare_constants(&mut sigs, &corpus.records)?;

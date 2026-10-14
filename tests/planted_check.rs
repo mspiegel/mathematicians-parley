@@ -294,6 +294,62 @@ fn a_hypothesis_not_supplied_is_named_alone() {
     assert!(out.contains("\n1 problem(s)\n"), "{out}");
 }
 
+/// A step number written twice, once in each direction of a biconditional,
+/// is reported once as numbered twice. Each step keeps the block it is
+/// written in, and a citation of the number reads the one written above it:
+/// the first 1.2 cites D1, which is in scope there, and the calculation's
+/// link cites that 1.2, which says what the link does.
+#[test]
+fn a_number_written_twice_is_reported_alone() {
+    let clean = clean();
+    let case = case(
+        "write one step number in each direction",
+        vec![edit(
+            "proofs/twice.proof",
+            None,
+            "\
+theorem twice
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  then a + 1 = b + 1 ↔ a = b
+
+1.  a + 1 = b + 1 ↔ a = b
+    both directions
+
+    direction
+    assume a + 1 = b + 1                                              (D1)
+
+    1.1.  a = (a + 1) − 1
+          algebra
+
+    1.2.  a = (b + 1) − 1
+          substitute a + 1 = b + 1 (D1) into line 1.1
+
+    1.3.  (b + 1) − 1 = b
+          algebra
+
+    1.4.  a = b
+          calculation
+          a = (b + 1) − 1       1.2
+            = b                 1.3
+
+    direction
+    assume a = b                                                      (D2)
+
+    1.2.  a + 1 = b + 1
+          substitute a = b (D2)
+"
+            .to_string(),
+        )],
+        "",
+    );
+    let tree = plant(&case, &clean).unwrap();
+    let out =
+        parley::check::run_edited(&tree, &["proofs/twice.proof".to_string()]).printed;
+    assert!(out.contains("step 1.2 is numbered twice"), "{out}");
+    assert!(out.contains("\n1 problem(s)\n"), "{out}");
+}
+
 /// A requires line whose fact the step's own citation gives is not repeated
 /// where a line below needs it: the line below sees only its reason and the
 /// lines above it (R2). Here the birthday problem's step 8 cites line 1,
@@ -2809,6 +2865,20 @@ fn cases() -> Vec<Case> {
                 edit("proofs/sum-formula.proof", Some("                 = 1                     1.1".to_string()), "                 = 1                     D1, 1.1".to_string()),
             ],
             "a calculation line cites one line or label, and this one cites D1, 1.1",
+        ),
+        case(
+            "a line number after into without the word line",
+            vec![
+                edit("proofs/bezout.proof", Some("(line 2) into line 3.1".to_string()), "(line 2) into 3.1".to_string()),
+            ],
+            "a line number after `into` carries the word \"line\": `into line 3.1`",
+        ),
+        case(
+            "the word line before a label",
+            vec![
+                edit("proofs/fundamental-calculus.proof", Some("instantiate x := c in H7, from 3".to_string()), "instantiate x := c in line H7, from 3".to_string()),
+            ],
+            "a label never carries the word \"line\": `in H7`",
         ),
         case(
             "a method no record declares",

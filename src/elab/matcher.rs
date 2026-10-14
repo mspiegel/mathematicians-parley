@@ -5319,6 +5319,23 @@ impl<'a> Elaborator<'a> {
         None
     }
 
+    /// Whether a lemma is in deduction form: it states ( ph -> … ) with ph a
+    /// letter, and asks at least one hypothesis, every one of them
+    /// ( ph -> … ) under the same ph.
+    fn in_deduction_form(&self, sig: &Signature, whole: &Term) -> bool {
+        if whole.label() != Some("wi") || sig.essentials.is_empty() {
+            return false;
+        }
+        let Some(context) = whole.children()[0].variable() else {
+            return false;
+        };
+        sig.essentials.iter().all(|e| {
+            let asked = self.essential(e);
+            asked.label() == Some("wi")
+                && asked.children()[0].variable() == Some(context)
+        })
+    }
+
     /// Apply one set.mm lemma to reach a claim, side conditions and all.
     ///
     /// What a lemma states before the claim it reaches may be an implication
@@ -5343,9 +5360,16 @@ impl<'a> Elaborator<'a> {
         let mut antecedents: Vec<Term> = Vec::new();
         let mut joins: Vec<Join> = Vec::new();
         let mut reads = whole.clone();
+        // A lemma in deduction form, `mpd`'s ( ph -> ch ) with every
+        // hypothesis under ph, assumes ph as the scope it is used in. Its
+        // statement is not the claim even where the claim is an "if": ph is
+        // the scope, and what the claim says is ch.
+        let mut under_context = self.in_deduction_form(&sig, &whole);
         let mut binding = loop {
-            if let Some(b) = fit(&reads, goal, &start, &variables) {
-                break b;
+            if !std::mem::take(&mut under_context) {
+                if let Some(b) = fit(&reads, goal, &start, &variables) {
+                    break b;
+                }
             }
             if !matches!(reads.label(), Some("wi") | Some("wb")) {
                 if crossing {

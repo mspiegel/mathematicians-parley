@@ -4286,6 +4286,27 @@ impl<'a> Elaborator<'a> {
             let one = take!(self.number_below(scope, &-left_over));
             terms.push(one);
         }
+        // Sides that differ only in how they are spelt combine nothing: the
+        // claim's difference is zero as a polynomial, and zero is at most
+        // zero.
+        if terms.is_empty() && how == "<=" {
+            let below = self.b.ap(
+                "a1i",
+                &binds! {"ph" => t!("cc0", "cc0", "cle", "wbr"), "ps" => scope},
+                &[&self.step("0le0")],
+            );
+            let real = self.b.ap(
+                "a1i",
+                &binds! {"ph" => t!("cc0", "cr", "wcel"), "ps" => scope},
+                &[&self.step("0re")],
+            );
+            terms.push(Against {
+                term: "cc0".to_string(),
+                strict: false,
+                below,
+                real,
+            });
+        }
         if terms.is_empty() {
             return Ok(Route::no("nothing is combined"));
         }

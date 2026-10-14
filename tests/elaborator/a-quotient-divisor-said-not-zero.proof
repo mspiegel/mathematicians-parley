@@ -1,0 +1,14 @@
+theorem a-quotient-divisor-said-not-zero
+  note        A quotient is a number once its divisor is not zero, which the step writes.
+  let ε ∈ ℝ                                                           (H1)
+  let d ∈ ℝ                                                           (H2)
+  let n ∈ ℕ                                                           (H3)
+  assume ε/(2·d) > 0                                                  (H4)
+  assume 1/n > 0                                                      (H5)
+  assume d > 0                                                        (H6)
+  then 0 − ε/(2·d) < 1/n
+
+1.  0 − ε/(2·d) < 1/n
+    inequalities, from H4, H5
+    requires 2·d ≠ 0: inequalities, from H6
+    requires n ≠ 0: inequalities, from H3

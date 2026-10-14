@@ -1022,10 +1022,37 @@ impl<'a> Elaborator<'a> {
         let offered = facts.with(&written);
         match self.settle(&self.to_term(&want), scope, &offered, 3, None, None)? {
             Built(p) => Ok(p),
-            Declined(_) => Err(self.defect(
-                self.at,
-                format!("nothing says {}, which this step needs", self.render(&want)),
-            )),
+            Declined(_) => {
+                // A quotient is a number once its divisor is not zero, and
+                // that is the line a reader is owed where it is missing,
+                // whatever says the quotient is a number elsewhere.
+                let divisor = (whole.label() == Some("co")
+                    && whole.children()[2].label() == Some("cdiv"))
+                .then(|| self.rpn(&whole.children()[1]));
+                if let Some(divisor) = divisor {
+                    let apart = self.to_term(&t!(&divisor, "cc0", "wne"));
+                    if self
+                        .settle(&apart, scope, &offered, 3, None, None)?
+                        .is_declined()
+                    {
+                        return Err(self.defect(
+                            self.at,
+                            format!(
+                                "nothing says {}, which this step needs for {}",
+                                self.render(&self.rpn(&apart)),
+                                self.render(said)
+                            ),
+                        ));
+                    }
+                }
+                Err(self.defect(
+                    self.at,
+                    format!(
+                        "nothing says {}, which this step needs",
+                        self.render(&want)
+                    ),
+                ))
+            }
         }
     }
 
