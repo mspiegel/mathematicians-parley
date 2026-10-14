@@ -1,0 +1,14 @@
+import mundane theorem    stdlib/sets/in-union-right
+
+theorem a-for-all-relating-two-sets
+  note        "for all u ∈ A" binds u and not A, so a statement saying so relates the A and the B it names, as A ⊆ B ∪ A would.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  then for all u ∈ A, u ∈ B ∪ A
+
+1.  For all u ∈ A, u ∈ B ∪ A.
+    proof
+    let u ∈ A                                                         (K1)
+
+    1.1.  u ∈ B ∪ A
+          mun:in-union-right, from K1

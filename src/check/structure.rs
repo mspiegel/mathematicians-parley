@@ -270,6 +270,9 @@ pub fn check_blocks(
                 ),
             );
         }
+        if step.just.head.is(Method::Proof) {
+            check_proof_letters(report, thm, step, known);
+        }
         if step.just.head.is(Method::Induction) {
             check_step_part(report, thm, step, known);
         }
@@ -292,6 +295,67 @@ pub fn check_blocks(
                 }
             }
         }
+    }
+}
+
+/// A `proof` block of a claim about every member of a set opens with the
+/// claim's own `let` lines (`SYNTAX.md`, the `proof` row): "for all u ∈ A, …"
+/// is proved by a block letting u, and a block letting v proves it of no u.
+fn check_proof_letters(report: &mut Report, thm: &Theorem, step: &Step, known: &Known) {
+    let Some(first) = step.claim.sentences().into_iter().next() else {
+        return;
+    };
+    let Some(claim) = known.read(step, &first) else {
+        return;
+    };
+    let bound = letters_bound(&claim, known);
+    if bound.is_empty() {
+        return;
+    }
+    for o in step.openers.iter().filter(|o| o.kind == Intro::Let) {
+        let introduced = Introduction::read(o.body(&thm.path));
+        let Some(name) = introduced.name() else {
+            continue;
+        };
+        if !bound.iter().any(|b| b == name) {
+            report.say(
+                &thm.path,
+                o.line,
+                format!(
+                    "the block of step {} lets {name}, and the claim it proves is about every {}; the block opens with the claim's own letter",
+                    step.number,
+                    bound.join(", ")
+                ),
+            );
+        }
+    }
+}
+
+/// The letters a claim's leading binders bind, outermost first: "for all
+/// x, y ∈ S, …" binds x and y.
+fn letters_bound(claim: &Node, known: &Known) -> Vec<String> {
+    let mut out = Vec::new();
+    let mut node = claim;
+    loop {
+        let binds = known
+            .env
+            .g
+            .notations
+            .iter()
+            .find(|n| n.key() == node.notation && n.literal == node.text)
+            .and_then(|n| n.node_binds());
+        let Some(binds) = binds else {
+            return out;
+        };
+        for &h in &binds.held {
+            if let Some(name) = node.children.get(h).filter(|c| c.is_name()) {
+                out.push(name.text.clone());
+            }
+        }
+        let Some(body) = binds.body.last().and_then(|&b| node.children.get(b)) else {
+            return out;
+        };
+        node = body;
     }
 }
 

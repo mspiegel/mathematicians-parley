@@ -13,7 +13,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::rc::Rc;
 
 use indexmap::IndexSet;
-use parley::check::{statements_in_scope, ObtainedThere};
+use parley::check::{statements_in_scope, BoundThere, ObtainedThere};
 use parley::corpus::proof::{
     chain, chain_cited, parse_proof, references, substituted, Head, Intro, Method,
     Theorem,
@@ -48,6 +48,9 @@ pub struct Context {
     /// What the item each obtain cites says there is, as the checker reads
     /// it at the step, by the step's file and line.
     obtained: BTreeMap<(String, usize), Route<Vec<String>>>,
+    /// What each step citing a corpus theorem makes its letters, as the
+    /// checker reads it at the step, by the step's file and line.
+    bound: BTreeMap<(String, usize), BTreeMap<String, String>>,
 }
 
 /// A theorem a rewrite left alone, and why.
@@ -171,7 +174,11 @@ fn let_letter(body: &str) -> Option<String> {
 }
 
 impl Context {
-    pub fn new(corpus: Corpus, obtained: Vec<ObtainedThere>) -> Context {
+    pub fn new(
+        corpus: Corpus,
+        obtained: Vec<ObtainedThere>,
+        bound: Vec<BoundThere>,
+    ) -> Context {
         let g = Grammar::load(&corpus.records).expect("the grammar loads");
         let long_names: IndexSet<String> = g
             .functions
@@ -213,6 +220,10 @@ impl Context {
             obtained: obtained
                 .into_iter()
                 .map(|o| ((o.path, o.line), o.said))
+                .collect(),
+            bound: bound
+                .into_iter()
+                .map(|b| ((b.path, b.line), b.letters.into_iter().collect()))
                 .collect(),
         };
         for record in &context.corpus.records {
@@ -1603,6 +1614,9 @@ struct Citation {
     /// The values it gives what it cites, as the proof parser cut them from
     /// the justification or a requires line's reason.
     values: Values,
+    /// The line of the step whose justification it is; None for a requires
+    /// line's reason.
+    step: Option<usize>,
 }
 
 fn citations_of(thm: &Theorem, lines: &[String], end: usize) -> Vec<Citation> {
@@ -1614,6 +1628,7 @@ fn citations_of(thm: &Theorem, lines: &[String], end: usize) -> Vec<Citation> {
         out.push(Citation {
             lines: at,
             values: step.just.values.clone(),
+            step: Some(step.line),
         });
         for r in &step.requires {
             let l = r.line - 1;
@@ -1622,6 +1637,7 @@ fn citations_of(thm: &Theorem, lines: &[String], end: usize) -> Vec<Citation> {
             out.push(Citation {
                 lines: at,
                 values: r.values.clone(),
+                step: None,
             });
         }
     }
@@ -1736,10 +1752,19 @@ pub fn statements_renamed(
                         changed.entry(path.clone()).or_default().insert(l);
                     }
                 }
+                // A letter the citation leaves to the matcher is given what
+                // the matcher makes it there, under its new name; one the
+                // matcher does not fix meant the citer's letter of its name.
+                let bound = citation
+                    .step
+                    .and_then(|l| ctx.bound.get(&(path.clone(), l)));
                 let left: Vec<String> = map
                     .iter()
                     .filter(|(old, _)| !named.contains(*old))
-                    .map(|(old, new)| format!("{new} := {old}"))
+                    .map(|(old, new)| {
+                        let value = bound.and_then(|b| b.get(old)).unwrap_or(old);
+                        format!("{new} := {value}")
+                    })
                     .collect();
                 if left.is_empty() {
                     continue;

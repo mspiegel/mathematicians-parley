@@ -391,6 +391,7 @@ fn a_proof_means_what_it_says_however_it_spells_it() {
     let context = Context::new(
         corpus(&clean).expect("the corpus reads"),
         parley::check::obtained_there(&clean).expect("the corpus reads"),
+        parley::check::bound_there(&clean).expect("the corpus reads"),
     );
     let trees: Vec<Changed> = changes
         .iter()

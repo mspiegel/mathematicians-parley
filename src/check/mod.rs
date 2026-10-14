@@ -263,6 +263,41 @@ pub fn obtained_there(source: &dyn Source) -> Result<Vec<ObtainedThere>, Outcome
     .map(|(_, _, said)| said)
 }
 
+/// What a step citing a corpus theorem makes each of its letters
+/// (`citations::bound_there`).
+pub struct BoundThere {
+    pub path: String,
+    /// The line of the citing step.
+    pub line: usize,
+    /// Each letter of the cited theorem, and what it stands for there, in
+    /// the page's notation.
+    pub letters: Vec<(String, String)>,
+}
+
+/// What each citation of a corpus theorem, in every theorem, makes the cited
+/// theorem's letters.
+pub fn bound_there(source: &dyn Source) -> Result<Vec<BoundThere>, Outcome> {
+    prepared(source, |_, c| {
+        let mut out = Vec::new();
+        for (thm, k) in c.theorems.iter().zip(c.known) {
+            for step in &thm.steps {
+                if let Some(bound) = citations::bound_there(step, c.library, k) {
+                    out.push(BoundThere {
+                        path: thm.path.clone(),
+                        line: step.line,
+                        letters: bound
+                            .iter()
+                            .map(|(name, node)| (name.clone(), k.print(node)))
+                            .collect(),
+                    });
+                }
+            }
+        }
+        out
+    })
+    .map(|(_, _, said)| said)
+}
+
 /// Every sentence a step claims or requires, printed from its tree and read
 /// again, where the two trees differ: `Grammar::print` is right exactly when
 /// this is empty. Each entry is the sentence, what it printed as, and where;

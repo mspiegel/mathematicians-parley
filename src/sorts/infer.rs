@@ -680,12 +680,14 @@ impl NotationSorts {
                 .entry(key.clone())
                 .or_insert_with(|| made.clone());
             signatures.entry(n.name.clone()).or_insert(made);
+            // Counted in the holes of the node the pattern builds, which a
+            // spelling of another notation may lay out otherwise: "for all
+            // a, b ∈ X" binds its second hole, which in the `for-all` node it
+            // nests is the set.
             if !n.holes.is_empty() {
                 let entry = bound.entry(key).or_default();
-                for (i, h) in n.holes.iter().enumerate() {
-                    if h == "variable" {
-                        entry.insert(i);
-                    }
+                if let Some(binds) = n.node_binds() {
+                    entry.extend(binds.held.iter().copied());
                 }
             }
         }

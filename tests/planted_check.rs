@@ -2939,6 +2939,14 @@ fn cases() -> Vec<Case> {
             "a line number after `into` carries the word \"line\": `into line 3.1`",
         ),
         case(
+            "a proof block letting a letter other than the claim's",
+            vec![
+                edit("tests/elaborator/a-for-all-relating-two-sets.proof", Some("    let u ∈ A ".to_string()), "    let v ∈ A ".to_string()),
+                edit("tests/elaborator/a-for-all-relating-two-sets.proof", Some("    1.1.  u ∈ B ∪ A".to_string()), "    1.1.  v ∈ B ∪ A".to_string()),
+            ],
+            "the block of step 1 lets v, and the claim it proves is about every u; the block opens with the claim's own letter",
+        ),
+        case(
             "an obtain naming no item, its line number without the word line",
             vec![
                 edit("proofs/konigsberg.proof", Some("obtain i from line 6.3".to_string()), "obtain i from 6.3".to_string()),

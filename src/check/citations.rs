@@ -255,6 +255,32 @@ pub fn obtained_there(
     )
 }
 
+/// What a step citing a corpus theorem, other than to obtain, makes each of
+/// its letters, as the matcher reads the citation (`taken`): the values it
+/// writes and what its claim and lines fix. None where the step cites no
+/// theorem, or no group of it concludes the claim.
+pub fn bound_there(
+    step: &Step,
+    library: &Library,
+    known: &Known,
+) -> Option<IndexMap<String, Node>> {
+    if step.just.head.is(Method::Obtain) {
+        return None;
+    }
+    let name = step.just.item(&cited_item(&step.just)?);
+    if !matches!(library.item(&name)?, Item::Theorem(_)) {
+        return None;
+    }
+    let groups = library.groups(&name)?;
+    let parts = known.parts(step, library);
+    let Built(taken) =
+        taken(&groups, &parts.claims, &parts.facts, &parts.seed, library)
+    else {
+        return None;
+    };
+    Some(taken.binding.into_iter().collect())
+}
+
 /// The hypotheses of the item a step cites that nothing it names supplies,
 /// or None where they are supplied or the step cites no item.
 fn unsupplied(step: &Step, known: &Known, library: &Library) -> Option<Vec<String>> {
