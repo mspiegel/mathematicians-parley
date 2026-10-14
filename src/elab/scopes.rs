@@ -488,6 +488,7 @@ impl<'a> Elaborator<'a> {
                             let set = self.term(&node.children[1])?;
                             self.sets.insert(name, set);
                         }
+                        self.record_type(&node);
                     }
                     let node = said;
                     let added = self.term(&node)?;
@@ -1894,8 +1895,9 @@ impl<'a> Elaborator<'a> {
                     }
                     None if said == body => (body.clone(), proof),
                     // Written another way, `1 < d` for `d > 1`, the claim is
-                    // the body by one standard form; anything else is a claim
-                    // the existence does not give.
+                    // the body by one standard form, or by one once the
+                    // identity elements of both are dropped (`reached`);
+                    // anything else is a claim the existence does not give.
                     None => {
                         let alike = self.same(
                             &self.to_term(&body),
@@ -1904,18 +1906,26 @@ impl<'a> Elaborator<'a> {
                             &lifted,
                             Some(step),
                         )?;
-                        let Built(alike) = alike else {
-                            return Err(self.defect(
-                                step.line,
-                                format!(
-                                    "step {number} claims {}, and what it obtains says {}",
-                                    self.render(&said),
-                                    self.render(&body)
-                                ),
-                            ));
+                        let proof = match alike {
+                            Built(alike) => {
+                                pf!(self.b; &inner, body, said, proof, alike, "mpbid")
+                            }
+                            Declined(_) => {
+                                match self.reached(&proof, &body, &said, &inner, &lifted)? {
+                                    Some(p) => p,
+                                    None => {
+                                        return Err(self.defect(
+                                            step.line,
+                                            format!(
+                                                "step {number} claims {}, and what it obtains says {}",
+                                                self.render(&said),
+                                                self.render(&body)
+                                            ),
+                                        ))
+                                    }
+                                }
+                            }
                         };
-                        let proof =
-                            pf!(self.b; &inner, body, said, proof, alike, "mpbid");
                         self.know(&lifted, &said, proof.clone());
                         (said, proof)
                     }
@@ -2494,6 +2504,7 @@ impl<'a> Elaborator<'a> {
                 ("function-type", _, [f, from, to]) if named(f) => {
                     let functions = self.functions_from(from, to)?;
                     domains.insert(f.text.clone(), functions);
+                    self.record_type(&said);
                 }
                 ("membership", "∈", [x, set]) if named(x) => {
                     domains.insert(x.text.clone(), set.clone());

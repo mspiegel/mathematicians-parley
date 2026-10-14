@@ -43,6 +43,11 @@ const ALLOWED: &[(&str, &str, &str)] = &[
         "a membership said of the very term a letter is bound to",
     ),
     (
+        "src/citing/supply.rs",
+        "|| f.shape() != value.shape()",
+        "a function's type said of the very term a letter is bound to",
+    ),
+    (
         "src/citing/library.rs",
         "part.shape() != x.shape()",
         "a part already listed is not listed twice",

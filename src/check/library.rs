@@ -8,17 +8,16 @@ use indexmap::IndexMap;
 
 use super::structure::{labels_in_scope, Declared};
 use crate::citing::{
-    claimed_member, finished, introduction, said_once, taken, with_parts, Introduced,
+    self, at_a_member, finished, introduction, said_once, with_parts, Introduced,
     Library, Parts,
 };
-use crate::corpus::proof::{cited_item, visible};
+use crate::corpus::proof::cited_item;
 use crate::corpus::{Intro, Kinded, Method, Step, StepNo, Theorem, Values};
 use crate::formula::page::{conjoined, filled, Sentence, Written};
 use crate::formula::{Node, Sorts};
 use crate::matching::{alike, expand, standard, Binding, Context, Definitions};
-use crate::outcome::Built;
 use crate::sorts::introduction::Introduction;
-use crate::sorts::{cited_defines, file_definitions, Env};
+use crate::sorts::{Env, OutsideDefines};
 
 type PartsKey = (StepNo, String, String, Vec<String>, Vec<String>);
 
@@ -76,15 +75,8 @@ pub struct Known<'a> {
     /// What the notations are, read once for the corpus: which spelling of a
     /// relation is another turned around (`matching::standard`).
     ctx: &'a Context,
-    /// What each definition from outside the theorem stands for, written
-    /// out where a citation names it.
-    outside: Definitions,
-    /// The label a citation names each definition from outside the theorem
-    /// by: its own where its file is this theorem's, and the label on its
-    /// import otherwise.
-    outside_labels: IndexMap<String, String>,
-    /// The labels of the defines this theorem's file writes above it.
-    file_labels: Vec<String>,
+    /// The definitions from outside the theorem a citation may write out.
+    outside: OutsideDefines,
     cited: RefCell<IndexMap<Vec<String>, Rc<Definitions>>>,
     scopes: RefCell<IndexMap<(StepNo, usize), Rc<Statements>>>,
     parts: RefCell<IndexMap<PartsKey, Rc<Parts>>>,
@@ -98,27 +90,12 @@ impl<'a> Known<'a> {
         sorts: Sorts,
         ctx: &'a Context,
     ) -> Known<'a> {
-        let mut outside_labels = IndexMap::new();
-        let mut file_labels = Vec::new();
-        for (name, d, src) in visible(env.scopes, thm.scope, thm.line) {
-            let label = if src == thm.scope {
-                file_labels.push(d.label.clone());
-                Some(d.label)
-            } else {
-                env.scopes[thm.scope].import_label(&name).map(String::from)
-            };
-            if let Some(label) = label {
-                outside_labels.insert(name, label);
-            }
-        }
         Known {
             thm,
             env,
             sorts,
             ctx,
-            outside: file_definitions(thm, env),
-            outside_labels,
-            file_labels,
+            outside: OutsideDefines::of(thm, env),
             cited: RefCell::new(IndexMap::new()),
             scopes: RefCell::new(IndexMap::new()),
             parts: RefCell::new(IndexMap::new()),
@@ -296,18 +273,7 @@ impl<'a> Known<'a> {
         if let Some(found) = self.cited.borrow().get(refs) {
             return found.clone();
         }
-        let mut made: Definitions = self
-            .outside
-            .iter()
-            .filter(|(name, _)| {
-                self.outside_labels
-                    .get(*name)
-                    .is_some_and(|label| refs.contains(label))
-            })
-            .map(|(name, d)| (name.clone(), d.clone()))
-            .collect();
-        made.extend(cited_defines(self.thm, self.env, &self.sorts, refs));
-        let made = Rc::new(made);
+        let made = Rc::new(self.outside.citing(self.thm, self.env, &self.sorts, refs));
         self.cited.borrow_mut().insert(refs.to_vec(), made.clone());
         made
     }
@@ -326,16 +292,7 @@ impl<'a> Known<'a> {
     /// name, where it cites one: a theorem of this file brings the file's
     /// defines with it (`citing_step`).
     pub fn citing_item(&self, refs: &[String], item: Option<&str>) -> Rc<Definitions> {
-        let own_file = item.is_some_and(|full| {
-            full.rsplit_once('/')
-                .is_some_and(|(module, _)| module == self.thm.module())
-        });
-        if !own_file {
-            return self.citing(refs);
-        }
-        let mut all = refs.to_vec();
-        all.extend(self.file_labels.iter().cloned());
-        self.citing(&all)
+        self.citing(&self.outside.citing_labels(self.thm, refs, item))
     }
 
     /// A sentence read with what `defined` writes out (`citing`), in the
@@ -604,12 +561,8 @@ fn typed_in_scope(known: &Known, step: &Step) -> Vec<Node> {
 }
 
 /// The citation's seed with what the citing proof says a function of the
-/// item maps between. The item's `let f : D → E` asks for nothing a line
-/// writes, but where f stands for a function a line in scope types, D and E
-/// are that type's sets: without them, `x ∈ D` would be met by any
-/// membership of x, 5 ∈ ℕ among them, for a function on {0, …, 1}. What f
-/// stands for is what the citation names it, or else what the citation
-/// takes it to be.
+/// item maps between (`citing::typed_seed`), from the function types the
+/// lines in scope at `step` say.
 pub fn typed_seed(
     parts: &mut Parts,
     name: &str,
@@ -617,41 +570,7 @@ pub fn typed_seed(
     known: &Known,
     library: &Library,
 ) {
-    let typed = library.function_types(name);
-    if typed.is_empty() {
-        return;
-    }
-    let ours = typed_in_scope(known, step);
-    if ours.is_empty() {
-        return;
-    }
-    let mut stands = parts.seed.clone();
-    if let Some(groups) = library.groups(name) {
-        let taken = taken(&groups, &parts.claims, &parts.facts, &parts.seed, library);
-        if let Built(t) = taken {
-            for (letter, value) in t.binding {
-                stands.entry(letter).or_insert(value);
-            }
-        }
-    }
-    for t in &typed {
-        let [f, d, e] = t.children.as_slice() else {
-            continue;
-        };
-        let Some(v) = stands.get(&f.text).filter(|v| v.is_name()) else {
-            continue;
-        };
-        let Some(said) = ours.iter().find(|s| s.children[0].text == v.text) else {
-            continue;
-        };
-        for (letter, set) in [(d, &said.children[1]), (e, &said.children[2])] {
-            if letter.is_name() && !parts.seed.contains_key(&letter.text) {
-                parts
-                    .seed
-                    .insert(letter.text.clone(), standard(set, &library.ctx));
-            }
-        }
-    }
+    citing::typed_seed(parts, name, &typed_in_scope(known, step), library);
 }
 
 /// The lines introducing what is in scope at `step`, in the order they are
@@ -691,35 +610,4 @@ fn introducing(known: &Known, step: &Step) -> Vec<Stated> {
     }
     said.sort_by_key(|(line, _)| *line);
     said.into_iter().map(|(_, stated)| stated).collect()
-}
-
-/// A claim "for all k ∈ X, P" read at a member: the membership k ∈ X, which
-/// the step then has as a fact, and P, which it then claims (`SYNTAX.md`, a
-/// step said of every member). Which reading a citation takes is read off the
-/// item, not tried: an item whose conclusions say no "for all" anywhere is
-/// applied at a member, and one whose conclusions say one, as `upper-bound`
-/// unfolds to one, is read as written. A define says one equation, and is
-/// read at a member.
-fn at_a_member(
-    step: &Step,
-    claims: &[Node],
-    library: &Library,
-    sorts: &Sorts,
-) -> Option<(Node, Node)> {
-    let [claim] = claims else {
-        return None;
-    };
-    let just = &step.just;
-    // A define says what its name is equal to, never a "for all", so a
-    // step citing one for a "for all" is read at a member.
-    if just.head != crate::corpus::Head::Define {
-        if !just.head.is_item() {
-            return None;
-        }
-        let item = library.item(&just.item(&just.head.to_string()))?;
-        if item.says_for_all() {
-            return None;
-        }
-    }
-    claimed_member(claim, library, sorts)
 }

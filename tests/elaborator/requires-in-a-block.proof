@@ -1,0 +1,52 @@
+import mundane theorem stdlib/numbers/square-less
+
+theorem a-method-requires-line-in-a-direction
+  note        A requires line proved by a method inside a direction is proved under the direction's assumption.
+  let A ∈ ℝ    (H1)
+  let B ∈ ℝ    (H2)
+  assume 0 ≤ A    (H3)
+  assume 0 ≤ B    (H4)
+  then A < B ↔ A² < B²
+
+1.  A < B ↔ A² < B²
+    both directions
+
+    direction
+    assume A < B    (D1)
+
+    1.1.  A² < B²
+          mun:square-less x := A, y := B, from D1
+          requires A ≥ 0: inequalities, from H3
+          requires B ≥ 0: from H4
+
+    direction
+    assume A² < B²    (D2)
+
+    1.2.  A < B
+          mun:square-less x := A, y := B, from D2
+          requires A ≥ 0: from H3
+          requires B ≥ 0: from H4
+
+theorem a-method-requires-line-in-a-contradiction
+  note        A requires line proved by a method inside a contradiction is proved under the supposition.
+  let A ∈ ℝ    (H1)
+  let B ∈ ℝ    (H2)
+  assume 0 ≤ A    (H3)
+  assume 0 ≤ B    (H4)
+  assume A < B    (H5)
+  then A² < B²
+
+1.  A² < B²
+    contradiction
+    suppose not A² < B²    (S1)
+
+    1.1.  B² ≤ A²
+          inequalities, from S1
+
+    1.2.  A² < B²
+          mun:square-less x := A, y := B, from H5
+          requires A ≥ 0: inequalities, from H3
+          requires B ≥ 0: from H4
+
+    1.3.  not A² < B²
+          inequalities, from 1.1, contradicting 1.2

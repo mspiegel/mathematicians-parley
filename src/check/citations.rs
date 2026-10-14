@@ -12,7 +12,7 @@ use super::Report;
 use crate::citing::{
     asked, bound_in, claimed_member, concludes, conjuncts, derives, filled, finished,
     names_of, obtained, obtains, readings, said_once, search, supply, taken,
-    taken_ways, with_parts, Group, Library, Parts, Sites, Ways,
+    taken_ways, with_parts, Group, Library, Parts, Sites, Taken, Ways,
 };
 use crate::corpus::proof::{requires_as_step, requires_item, Requires, METHODS};
 use crate::corpus::{
@@ -266,6 +266,23 @@ fn missing_hypotheses(
     {
         return None;
     }
+    // Where the claim is what a group concludes, the hypotheses missing are
+    // those of that group nothing supplies under what the claim fixes, and
+    // not every hypothesis it has: floor-between's x ∈ ℝ at x := A + N is
+    // said once, and only k ∈ ℤ at k := ⌊A⌋ + N is not supplied.
+    if let Some(Built(alone)) =
+        (!parts.claims.is_empty()).then(|| concluded_alone(groups, parts, library))
+    {
+        let unmet: Vec<String> = groups[alone.group]
+            .wants
+            .iter()
+            .filter(|(_, tree)| !supplied_alone(tree, parts, &alone.binding, library))
+            .map(|(text, _)| text.clone())
+            .collect();
+        if !unmet.is_empty() {
+            return Some(unmet);
+        }
+    }
     let mut missing = None;
     for Group { wants: want, .. } in groups.iter() {
         if want.is_empty() {
@@ -295,6 +312,50 @@ fn missing_hypotheses(
         missing = Some(want.iter().map(|(t, _)| t.clone()).collect());
     }
     missing
+}
+
+/// The group whose conclusion the claim is, read from the claim and the
+/// values the citation gives, with what that fixes; its hypotheses are not
+/// asked. Declined where no conclusion of the item is the claim.
+fn concluded_alone(groups: &[Group], parts: &Parts, library: &Library) -> Route<Taken> {
+    let gives_only: Vec<Group> = groups
+        .iter()
+        .map(|g| Group {
+            wants: Vec::new(),
+            gives: g.gives.clone(),
+        })
+        .collect();
+    taken(
+        &gives_only,
+        &parts.claims,
+        &parts.facts,
+        &parts.seed,
+        library,
+    )
+}
+
+/// Whether the citation's facts supply one hypothesis on its own, under the
+/// binding the claim fixed.
+fn supplied_alone(
+    want: &Node,
+    parts: &Parts,
+    binding: &Binding,
+    library: &Library,
+) -> bool {
+    let trees = [want.clone()];
+    let variables = names_of(&trees);
+    let mut sites = Sites::new();
+    binding_sites(want, &library.ctx, &[], &mut sites);
+    supply(
+        &trees,
+        &parts.facts,
+        binding,
+        &variables,
+        library,
+        &sites,
+        false,
+    )
+    .is_some()
 }
 
 /// Every way the step's facts supply the hypotheses of the item it cites, as
@@ -447,7 +508,16 @@ pub fn check_conclusion(
         if parts.claims.is_empty() {
             continue;
         }
-        if !concludes(&groups, &parts.claims, &parts.facts, &parts.seed, library) {
+        // A claim that is what the item concludes, where only a hypothesis
+        // is not supplied, is said once, by `check_hypotheses`, which names
+        // the hypothesis.
+        let hypotheses_said = || {
+            !concluded_alone(&groups, &parts, library).is_declined()
+                && unsupplied(step, known, library).is_some()
+        };
+        if !concludes(&groups, &parts.claims, &parts.facts, &parts.seed, library)
+            && !hypotheses_said()
+        {
             report.say(
                 &thm.path,
                 just.line,

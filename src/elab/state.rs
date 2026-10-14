@@ -235,6 +235,10 @@ pub struct Elaborator<'a> {
     pub names: IndexMap<String, String>,
     /// Readable name -> the set it was let into.
     pub sets: IndexMap<String, String>,
+    /// Readable name of a function -> the type the line introducing it
+    /// says, `a : {1, …, n} → ℝ`, as a tree in the page's notation: what a
+    /// citation of an item over a function reads (`citing::typed_seed`).
+    pub typed: IndexMap<String, Node>,
     /// Readable name -> its membership as each line introducing it says it:
     /// the claim, its proof, and the scope that proof is under, carried to
     /// any scope inside that one (`introduced_membership`). Two cases may
@@ -354,6 +358,9 @@ pub struct Elaborator<'a> {
     /// What each record asks a citation and concludes, read as the checker
     /// reads it (`citing`), the first time a citation asks.
     pub item_library: OnceCell<Rc<citing::Library<'a>>>,
+    /// The definitions from outside the theorem a citation may write out,
+    /// read as the checker reads them, the first time a citation asks.
+    pub outside_defines: OnceCell<Rc<crate::sorts::OutsideDefines>>,
 }
 
 impl<'a> Elaborator<'a> {
@@ -426,6 +433,7 @@ impl<'a> Elaborator<'a> {
             at: thm.line,
             names: IndexMap::new(),
             sets: IndexMap::new(),
+            typed: IndexMap::new(),
             introduced: IndexMap::new(),
             reserved: IndexSet::new(),
             rules_read: IndexMap::new(),
@@ -476,6 +484,7 @@ impl<'a> Elaborator<'a> {
             statements,
             whole_scope: false,
             item_library: OnceCell::new(),
+            outside_defines: OnceCell::new(),
         }
     }
 

@@ -263,8 +263,8 @@ pub struct Builder {
     /// Where each label stands in the library, which is the order floats
     /// are pushed in.
     pub forder: IndexMap<String, usize>,
-    /// What a theorem of this corpus that a proof cites takes, where the
-    /// library does not have it.
+    /// What a theorem of this corpus that a proof cites takes and states,
+    /// where the library does not have it.
     pub arities: IndexMap<String, Signature>,
     arity_of: RefCell<IndexMap<String, Taking>>,
     term_steps: RefCell<IndexMap<String, Vec<StepRef>>>,
@@ -398,8 +398,8 @@ impl Builder {
     /// it is handed for each essential hypothesis proves that hypothesis,
     /// and no two variables it keeps apart (`$d`) are given terms sharing a
     /// variable. A step that is not is a fault (`fault`). None where the
-    /// step rests on a label whose statement the builder does not have: a
-    /// theorem of the corpus cited from another file.
+    /// step rests on a label whose statement the builder does not have
+    /// (`stated`).
     ///
     /// Steps are shared, so each is worked out once; and worked out without
     /// recursion, since a proof runs deeper than a stack.
@@ -445,7 +445,7 @@ impl Builder {
     /// What `step` says after its typecode, from what its kids say, and
     /// each fault in the application recorded.
     fn applied(&self, step: &Step, kids: &[Print]) -> Option<Print> {
-        let sig = self.sigs.get(&step.label)?;
+        let sig = self.stated(&step.label)?;
         if kids.len() != sig.floats.len() + sig.essentials.len() {
             return None;
         }
@@ -536,10 +536,17 @@ impl Builder {
         out
     }
 
+    /// The signature a label is applied by: the library's, or for a theorem
+    /// of the corpus cited from another file, the one its citation records
+    /// (`arities`). None where the builder has neither.
+    fn stated(&self, label: &str) -> Option<&Signature> {
+        self.sigs.get(label).or_else(|| self.arities.get(label))
+    }
+
     /// What a step says, as text, its typecode first: for a message. None
     /// where it rests on a label whose statement the builder does not have.
     fn spelt_statement(&self, step: &Step) -> Option<Vec<String>> {
-        let sig = self.sigs.get(&step.label)?;
+        let sig = self.stated(&step.label)?;
         let floats = step.kids.get(..sig.floats.len())?;
         Some(self.filled_text(sig, floats, &sig.statement))
     }

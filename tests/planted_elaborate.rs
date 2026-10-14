@@ -228,6 +228,22 @@ fn the_elaborator_reports_every_planted_defect() {
 
 fn cases() -> Vec<Case> {
     vec![
+        // abs asks that x be real, at x := ⌊A + 1/2⌋ − A, and line 1 says
+        // only that the floor is an integer: the difference's membership is
+        // a closure no line the step names states, where the checker refuses
+        // the citation too.
+        case(
+            "a hypothesis supplied only by a closure of what the step names",
+            "tests/elaborator/floor-in-a-bound/a-rounding-error-at-most-a-half",
+            "tests/elaborator/floor-in-a-bound.proof",
+            "    mun:abs x := ⌊A + 1/2⌋ − A, from H2, 2\n",
+            "    mun:abs x := ⌊A + 1/2⌋ − A, from H2, 1\n",
+            "step 3 cites mun:stdlib/numbers/abs, and no clause of it concludes the claim from what the step names",
+        )
+        .at(
+            "tests/elaborator/floor-in-a-bound.proof",
+            "3.  |⌊A + 1/2⌋ − A| = ⌊A + 1/2⌋ − A",
+        ),
         // A let's reason shows the term it names is the kind of number the
         // let says; the checker takes `membership` on trust, and a sum of
         // squares of reals is not shown to be a natural number.
@@ -791,7 +807,8 @@ fn cases() -> Vec<Case> {
         // same table and never down: with n let into ℝ, nothing gives the
         // n ∈ ℤ that sum-telescopes asks of its range's end. Its bound line
         // goes too, as n ∈ ℝ gives no n + 1 ≥ 1 either, and would be reported
-        // first.
+        // first. sum-termwise asks the same of its b := n, so step 2.1 is
+        // where the citation is first refused.
         case(
             "a membership read for a bound it does not give",
             "proofs/triangular-reciprocals/triangular-reciprocals",
@@ -806,7 +823,7 @@ fn cases() -> Vec<Case> {
             "proofs/triangular-reciprocals.proof",
             "    let n ∈ ℕ                                                         (K2)\n\n    2.1.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))\n          mun:sum-termwise a := 1, b := n, from 1\n\n    2.2.  Σ(k = 1 to n) (2/k − 2/(k + 1)) = 2 − 2/(n + 1)\n          thm:sum-telescopes a := 1, b := n\n          requires n + 1 ≥ 1: inequalities, from K2\n",
             "    let n ∈ ℝ                                                         (K2)\n\n    2.1.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))\n          mun:sum-termwise a := 1, b := n, from 1\n\n    2.2.  Σ(k = 1 to n) (2/k − 2/(k + 1)) = 2 − 2/(n + 1)\n          thm:sum-telescopes a := 1, b := n\n",
-            "no clause of thm:sum-telescopes reaches what step 2.2 claims: cannot settle n ∈ ℤ",
+            "step 2.1 cites mun:stdlib/sums/sum-termwise, and no clause of it concludes the claim from what the step names",
         ),
         // A link whose terms have a letter may name `arithmetic` where only a
         // piece of numerals alone changes, and that piece is worked out like

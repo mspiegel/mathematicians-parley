@@ -1,0 +1,59 @@
+import mundane theorem stdlib/divisibility/mod-remainder
+
+theorem an-item-instance-without-its-zero
+  note        The item's instance at r := 0 is q·N + 0 = A, and the claim leaves the 0 out.
+  let A ∈ ℤ    (H1)
+  let N ∈ ℕ    (H2)
+  assume A mod N = 0    (H3)
+  then there is q ∈ ℤ with q·N = A
+
+1.  There is q ∈ ℤ with q·N = A.
+    mun:mod-remainder a := A, m := N, r := 0, from H3
+    requires 0 < N: inequalities, from H2
+
+theorem an-obtain-without-its-zero
+  note        What is obtained says q·N + 0 = A, and the claim leaves the 0 out.
+  let A ∈ ℤ    (H1)
+  let N ∈ ℕ    (H2)
+  assume there is q ∈ ℤ with q·N + 0 = A    (H3)
+  then there is k ∈ ℤ with k·N = A
+
+1.  q ∈ ℤ. q·N = A.
+    obtain q from H3
+
+2.  There is k ∈ ℤ with k·N = A.
+    exhibit, from 1
+
+theorem an-exhibit-without-its-zero
+  note        The witness's line leaves out the 0 the claim's body has.
+  let A ∈ ℤ    (H1)
+  let N ∈ ℕ    (H2)
+  let k ∈ ℤ    (H3)
+  assume k·N = A    (H4)
+  then there is q ∈ ℤ with q·N + 0 = A
+
+1.  There is q ∈ ℤ with q·N + 0 = A.
+    exhibit, from H4
+
+theorem a-cited-existential-without-its-zero
+  note        The item asks for there is z ∈ ℤ with z·N + 0 = A, and the line cited leaves the 0 out.
+  let A ∈ ℤ    (H1)
+  let N ∈ ℕ    (H2)
+  assume there is q ∈ ℤ with q·N = A    (H3)
+  then A mod N = 0
+
+1.  A mod N = 0
+    mun:mod-remainder a := A, m := N, r := 0, from H3
+    requires 0 < N: inequalities, from H2
+
+theorem two-witnesses-without-a-zero
+  note        The line naming both witnesses leaves out the 0 the claim's body has.
+  let A ∈ ℤ    (H1)
+  let N ∈ ℤ    (H2)
+  let k ∈ ℤ    (H3)
+  let m ∈ ℤ    (H4)
+  assume k·N = A + m    (H5)
+  then there are p, q ∈ ℤ with p·N + 0 = A + q
+
+1.  There are p, q ∈ ℤ with p·N + 0 = A + q.
+    exhibit, from H5

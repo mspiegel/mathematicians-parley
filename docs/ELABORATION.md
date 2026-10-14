@@ -530,7 +530,10 @@ change together, as `for all x ∈ aH, xH ⊆ aH` does at a := b, and
 **`calculation`** folds a chain of n relations into n−1 transitivity steps.
 The lemma is chosen by the pair of relations either side of each join rather
 than fixed for the chain, since a chain may fold equalities into a `≤`. In
-deduction form each is the `d`-suffixed variant.
+deduction form each is the `d`-suffixed variant. Two order links in a row
+fold by `letrd`, `lttrd`, `ltletrd` or `lelttrd` (`rules::ORDER_FOLDING`),
+which ask that the three terms be real, settled as any membership a step
+needs.
 
 **`join`** is `jca`, and it pairs its cited lines by what they claim rather
 than by the order the line lists them, because the readable order is the order
@@ -1069,6 +1072,17 @@ naming the line:
 proofs/isosceles.proof:47  mun:triangle does not reach -. C = A,
                           which this line claims it supplies
 ```
+
+A step citing a record is held to the same reading after its proof is built:
+the citation's parts are read as the checker reads them, a claim "for all k ∈
+X, P" at a member, a function's type from the line introducing it, and a
+define from outside the theorem the citation names among them
+(`citing::at_a_member`, `citing::typed_seed`, `sorts::OutsideDefines`), and
+where no clause of the
+record concludes the claim from them (`citing::taken`) the step is refused,
+whatever settled the hypothesis. `mun:abs-real x := ⌊A⌋ − A, from 1`, where
+line 1 says ⌊A⌋ ∈ ℤ, is refused by both tools: the difference's membership is
+a closure no line the step names states.
 
 The item branch is guarded on the `target` because citing an item without one
 runs `assume_item`, which would turn proved facts into assumed ones. The name
@@ -1644,11 +1658,19 @@ The orders follow five rules, and each search below is one of them applied.
      system (`bridged`); a compound's membership from its parts; the claim
      over other bound letters; and, with depth left, its conjuncts, a
      witness, a universal generalised, the declared lemmas, a fact in other
-     words (`said_otherwise`), and last a rewrite by an equation in hand.
+     words (`said_otherwise`), and last a rewrite by an equation in hand. A
+     fact is read in other words only where no other is being read so: the
+     reading asks `settle` afresh, whose depth starts over, and each fact it
+     asks may be a larger term than the last, so a reading inside a reading
+     need not end.
    - `apply_lemma`, where the conclusion does not fit as written: through an
      existential, at the seed the target gives, through a conjunct, a
      universal generalised, in other words, and last with an identity
-     element left out (`as_tidied`).
+     element left out (`as_tidied`). A cited item that reaches no claim this
+     way reaches the instance the checker compared the claim with, which is
+     then carried to the claim with its identity elements dropped
+     (`by_clause_or_instance`): mod-remainder at r := 0 gives q·N + 0 = A,
+     and the claim says q·N = A.
    - `prove_field`: the two sides as one polynomial, then a cited line
      scaled, crossed, or summed.
    - a `requires` line (`by_its_reason`): read from the lines it cites before

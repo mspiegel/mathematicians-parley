@@ -661,10 +661,12 @@ impl<'a> Elaborator<'a> {
                 }
                 if !self.rests_on_lines(&r.how) {
                     // The claim however it is spelt: each fact with its
-                    // standard form is the claim.
+                    // standard form is the claim. A line the reason cites
+                    // that says it is still that line, as the scope carries
+                    // it (`filtered_claims`).
                     let key = self.fact_key(&term);
                     let same = known.under(&key);
-                    given = known.filtered(|k, _| !same.iter().any(|s| s == k));
+                    given = known.filtered_claims(|k, _| !same.iter().any(|s| s == k));
                 }
             }
             let not_above = not_above(step, r);

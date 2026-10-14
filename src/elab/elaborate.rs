@@ -54,7 +54,7 @@ use crate::mm::{Kind, Layered, Lookup, Signature, Signatures};
 use crate::outcome::{Built, Checked, Declined, Problem, Route};
 use crate::rules::{self, lookup};
 use crate::sorts::introduction::{Form, Introduction};
-use crate::sorts::{cited_defines, sorts_in_scope, statement_definitions};
+use crate::sorts::{sorts_in_scope, statement_definitions, OutsideDefines};
 use crate::targets;
 use crate::text::repr;
 use crate::{pf, regex, t, take};
@@ -68,6 +68,16 @@ pub(crate) struct Sides {
     pub left: String,
     /// The side after it.
     pub right: String,
+}
+
+/// A citation of a theorem proved in another file (`Elaborator::cited_pushes`).
+struct Pushed {
+    /// What the citation pushes for each of the theorem's variables, in order.
+    values: Vec<String>,
+    /// The theorem's statement, typecode first, over its own variables.
+    statement: Vec<String>,
+    /// Each of those variables with its typecode, in the order pushed.
+    floats: Vec<(String, String)>,
 }
 
 /// What a requires line's record asks of it (`Elaborator::asked_here`).
@@ -917,6 +927,13 @@ impl<'a> Elaborator<'a> {
         };
         let said = self.said(step)?;
         let proof = self.check_step(proof, step, number, false)?;
+        // A step citing a record is built only where the citation is one
+        // the checker takes: what the routes above built may rest on a
+        // hypothesis settled some other way than from what the step names.
+        let cited = self.thm.names.full(&head);
+        if let Some(Item::Record(item)) = self.items.get(&cited).copied() {
+            self.citation_taken(step, item)?;
+        }
         self.lines.set(
             number,
             Line {
@@ -1380,30 +1397,8 @@ impl<'a> Elaborator<'a> {
         step: &Step,
         item: &'a Record,
     ) -> Checked<NodeBinding> {
-        let library = self.item_library();
-        let Some(groups) = library.groups(&item.qualified()) else {
-            return Err(self.defect(
-                step.line,
-                format!("{} is not an item a step may cite", item.qualified()),
-            ));
-        };
-        let mut facts = self.cited_sentences(&step.just.refs)?;
-        for r in &step.requires {
-            facts.push(self.read_one(&r.fact)?);
-        }
         let obtains = step.just.text.trim_start().starts_with("obtain");
-        let claims = if obtains {
-            Vec::new()
-        } else {
-            self.said(step)?
-        };
-        let parts = self.citation_parts(
-            facts,
-            claims,
-            &step.just.values,
-            &step.just.refs,
-            &library,
-        )?;
+        let (library, groups, parts) = self.citation_here(step, item, obtains)?;
         if !obtains {
             return match citing::taken(
                 &groups,
@@ -1439,6 +1434,103 @@ impl<'a> Elaborator<'a> {
             }
         };
         Ok(taken.binding)
+    }
+
+    /// The item's groups and the parts of a citation of it, read as the
+    /// checker reads them: the lines the step names, its requires lines, the
+    /// values its justification gives, and, where it does not obtain, its
+    /// claim.
+    fn citation_here(
+        &mut self,
+        step: &Step,
+        item: &'a Record,
+        obtains: bool,
+    ) -> Checked<(Rc<citing::Library<'a>>, Rc<Vec<citing::Group>>, Parts)> {
+        let library = self.item_library();
+        let Some(groups) = library.groups(&item.qualified()) else {
+            return Err(self.defect(
+                step.line,
+                format!("{} is not an item a step may cite", item.qualified()),
+            ));
+        };
+        let mut facts = self.cited_sentences(&step.just.refs)?;
+        for r in &step.requires {
+            facts.push(self.read_one(&r.fact)?);
+        }
+        let claims = if obtains {
+            Vec::new()
+        } else {
+            self.said(step)?
+        };
+        let parts = self.citation_parts(
+            facts,
+            claims,
+            &step.just.values,
+            &step.just.refs,
+            &library,
+            &item.qualified(),
+            Some(step),
+        )?;
+        Ok((library, groups, parts))
+    }
+
+    /// A defect where no clause of the record concludes the step's claim
+    /// from what the step names, which is where the checker refuses the
+    /// citation: both read it with one matcher (`citing::taken`) over parts
+    /// each reads the same way (`citation_parts`). A hypothesis no line the
+    /// step names supplies is not settled some other way (`ELABORATION.md`,
+    /// "Nothing generic stands after those"). An obtain claims no conclusion
+    /// of the record, and is read by `obtained` instead.
+    fn citation_taken(&mut self, step: &Step, item: &'a Record) -> Checked<()> {
+        if step.just.head.is(crate::corpus::Method::Obtain) {
+            return Ok(());
+        }
+        let (library, groups, parts) = self.citation_here(step, item, false)?;
+        if parts.claims.is_empty()
+            || !citing::taken(
+                &groups,
+                &parts.claims,
+                &parts.facts,
+                &parts.seed,
+                &library,
+            )
+            .is_declined()
+        {
+            return Ok(());
+        }
+        Err(self.defect(
+            step.line,
+            format!(
+                "step {} cites {}:{}, and no clause of it concludes the claim from what the step names",
+                fmt(&step.number),
+                item_kind(Item::Record(item)),
+                item.qualified()
+            ),
+        ))
+    }
+
+    /// What the clause a step's citation takes concludes there, each
+    /// sentence a term with every letter the citation fixes put in: the
+    /// instance the checker compared the claim with. Empty where no clause
+    /// concludes the claim.
+    fn concluded_here(
+        &mut self,
+        step: &Step,
+        item: &'a Record,
+    ) -> Checked<Vec<String>> {
+        let (library, groups, parts) = self.citation_here(step, item, false)?;
+        let Built(taken) =
+            citing::taken(&groups, &parts.claims, &parts.facts, &parts.seed, &library)
+        else {
+            return Ok(Vec::new());
+        };
+        let gives = groups[taken.group].gives.clone();
+        let mut out = Vec::new();
+        for node in &gives {
+            let instance = filled(node, &taken.binding, &library.ctx);
+            out.push(self.in_its_names(Item::Record(item), |me| me.term(&instance))?);
+        }
+        Ok(out)
     }
 
     /// What a requires line citing an item asks for, as terms
@@ -1502,7 +1594,15 @@ impl<'a> Elaborator<'a> {
             .iter()
             .map(|s| self.read(s))
             .collect::<Checked<Vec<Node>>>()?;
-        let parts = self.citation_parts(facts, claims, &o.values, &refs, &library)?;
+        let parts = self.citation_parts(
+            facts,
+            claims,
+            &o.values,
+            &refs,
+            &library,
+            &item.qualified(),
+            None,
+        )?;
         Ok(
             asked(&item.qualified(), &parts, &library).map(|asks| AskedHere {
                 item,
@@ -1515,10 +1615,17 @@ impl<'a> Elaborator<'a> {
     /// values it gives as its seed.
     ///
     /// A defined name is written out where the citation names its define
-    /// among `refs`, and kept as the page writes it where it does not
-    /// (`SYNTAX.md`, `cited_defines`): `x₁ ∈ ℝ` cited with D2 is
-    /// `min(b, c + δ/2) ∈ ℝ`, and an obtain citing `S := S` without the
-    /// define of S claims something of S.
+    /// among `refs`, a define from outside the theorem among them, and kept
+    /// as the page writes it where it does not (`SYNTAX.md`,
+    /// `OutsideDefines::citing`, which the checker reads with too): `x₁ ∈ ℝ`
+    /// cited with D2 is `min(b, c + δ/2) ∈ ℝ`, and an obtain citing `S := S`
+    /// without the define of S claims something of S.
+    ///
+    /// `cited` is the item the citation names. A step's own citation, `at`,
+    /// is read at a member where it claims "for all k ∈ X, P" of an item
+    /// that says no "for all" (`citing::at_a_member`), as the checker reads
+    /// it; a requires line's is read as written.
+    #[allow(clippy::too_many_arguments)]
     fn citation_parts(
         &self,
         facts: Vec<Node>,
@@ -1526,15 +1633,31 @@ impl<'a> Elaborator<'a> {
         values: &Values,
         refs: &[String],
         library: &citing::Library,
+        cited: &str,
+        at: Option<&Step>,
     ) -> Checked<Parts> {
-        let defined = cited_defines(self.thm, self.env(), &self.sorts_now, refs);
-        let facts = facts.iter().map(|n| expand(n, &defined)).collect();
-        let claims = claims.iter().map(|n| expand(n, &defined)).collect();
+        let outside = self
+            .outside_defines
+            .get_or_init(|| Rc::new(OutsideDefines::of(self.thm, self.env())))
+            .clone();
+        let labels = outside.citing_labels(self.thm, refs, Some(cited));
+        let defined = outside.citing(self.thm, self.env(), &self.sorts_now, &labels);
+        let mut facts: Vec<Node> = facts.iter().map(|n| expand(n, &defined)).collect();
+        let mut claims: Vec<Node> =
+            claims.iter().map(|n| expand(n, &defined)).collect();
         let seed: NodeBinding = self
             .instantiated_nodes(values)?
             .into_iter()
             .map(|v| (v.name, expand(&v.value, &defined)))
             .collect();
+        if let Some(step) = at {
+            if let Some((member, body)) =
+                citing::at_a_member(step, &claims, library, &self.sorts_now)
+            {
+                facts.push(member);
+                claims = vec![body];
+            }
+        }
         let mut parts = finished(facts, claims, seed, library, &self.sorts_now);
         // The memberships the page says once, as the checker reads them.
         let introduced: citing::Introduced = self
@@ -1548,6 +1671,8 @@ impl<'a> Elaborator<'a> {
             })
             .collect();
         citing::said_once(&mut parts, &introduced, library, &self.sorts_now);
+        let typed: Vec<Node> = self.typed.values().cloned().collect();
+        citing::typed_seed(&mut parts, cited, &typed, library);
         Ok(parts)
     }
 
@@ -2396,6 +2521,44 @@ impl<'a> Elaborator<'a> {
                 }
             }
         }
+        // A letter's membership in the set its `let` names is said once and
+        // never cited (`SYNTAX.md`, "A membership in a number system is said
+        // once"), and a definition unfolds it as it would a cited line saying
+        // it: `let A ∈ ℚ` unfolds by the definition of a rational. The letter
+        // is one the claim speaks of.
+        if chosen.is_none() {
+            let claimed = format!(" {} ", self.rpn(&self.to_term(term)));
+            let introduced: Vec<(String, String)> = self
+                .sets
+                .iter()
+                .filter_map(|(letter, set)| {
+                    let said = self.names.get(letter)?;
+                    claimed
+                        .contains(&format!(" {said} "))
+                        .then(|| (said.clone(), set.clone()))
+                })
+                .collect();
+            for (said, set) in introduced {
+                let member = t!(said, set, "wcel");
+                let Built(p) =
+                    self.said_once_proof(&self.to_term(&member), scope, facts)?
+                else {
+                    continue;
+                };
+                let held = Facts::new();
+                self.know(&held, member, p);
+                if let Built(found) = self.unfolds_from(
+                    &reads.children()[0],
+                    &held,
+                    &variables,
+                    scope,
+                    facts,
+                )? {
+                    chosen = Some(found);
+                    break;
+                }
+            }
+        }
         let Some((mut binding, given)) = chosen else {
             return Ok(Route::no(format!("no cited line is what {lemma} unfolds")));
         };
@@ -2651,14 +2814,9 @@ impl<'a> Elaborator<'a> {
             .map(String::from)
             .collect();
         let seed = self.filling(step, item)?;
-        match self.by_clause_either_way(
-            &labels,
-            term,
-            scope,
-            facts,
-            step,
-            Some(&seed),
-        )? {
+        match self
+            .by_clause_or_instance(item, &labels, term, scope, facts, step, &seed)?
+        {
             Built(p) => Ok(Built(p)),
             Declined(d) => Err(self.defect(
                 step.line,
@@ -2879,6 +3037,49 @@ impl<'a> Elaborator<'a> {
                 right = to;
                 rest = added;
                 reached = t!(m, t!(left, right, "cmin", "co"), "cdvds", "wbr");
+                continue;
+            }
+            if said == "wbr" && joined_label == "wbr" {
+                let next_relation = self.rpn(&joined.children()[2]);
+                let Some(fold) = rules::order_folding(&relation, &next_relation) else {
+                    return Err(self.defect(
+                        step.line,
+                        format!(
+                            "no transitivity folds {relation} into {next_relation}"
+                        ),
+                    ));
+                };
+                if self.rpn(&joined.children()[0]) != right {
+                    return Err(self.defect(
+                        step.line,
+                        "a link that reads the other way round from the one above it",
+                    ));
+                }
+                let nxt = self.rpn(&joined.children()[1]);
+                let held = self.link_held(
+                    step, cite, &joined, &written, scope, facts, lines, &defines,
+                )?;
+                // Each of the three terms is real, which the page says once
+                // or not at all (`READERS.md`), and is settled as any other
+                // membership a step needs.
+                let mut real = Vec::new();
+                for t in [&left, &right, &nxt] {
+                    let wanted = self.to_term(&t!(t, "cr", "wcel"));
+                    real.push(take!(self.settle(
+                        &wanted,
+                        scope,
+                        facts,
+                        3,
+                        Some(step),
+                        Some(lines)
+                    )?));
+                }
+                proof = pf!(self.b; scope, left, right, nxt,
+                    real[0], real[1], real[2], proof, held, fold.lemma);
+                right = nxt;
+                rest = added;
+                relation = fold.folded.to_string();
+                reached = t!(left, right, relation, "wbr");
                 continue;
             }
             let Some(fold) = rules::folding(&said, &joined_label) else {
@@ -3880,6 +4081,44 @@ impl<'a> Elaborator<'a> {
         Built(self.b.ap(label, &binds, &asked.iter().collect::<Vec<_>>()))
     }
 
+    /// The witness a line the step cites names for `asked`, where `stands`
+    /// is the claim's bound variable; with `bare`, each with its identity
+    /// elements dropped. Each sentence of a cited line is read on its own,
+    /// as `witnessed` reads them: a line saying two things names a witness
+    /// in either. An equation names its witness whichever way round it is
+    /// written, `(f(b) − f(a))/(b − a) = f′(c)` as well as `f′(c) = …`.
+    fn witness_cited(
+        &mut self,
+        step: &Step,
+        lines: &Lines,
+        asked: &Term,
+        stands: &str,
+        bare: bool,
+    ) -> Option<String> {
+        let asked = if bare {
+            self.without_identities(asked)
+        } else {
+            asked.clone()
+        };
+        for r in &step.just.refs {
+            let line = lines.get(r).unwrap_or_else(|| panic!("no line {r} cited"));
+            for part in self.parts(&line.term) {
+                let mut ways = vec![part.clone()];
+                ways.extend(self.turned_claim(&part).map(|(t, _)| t));
+                for way in ways {
+                    let mut actual = self.applications_read(&self.to_term(&way));
+                    if bare {
+                        actual = self.without_identities(&actual);
+                    }
+                    if let Some(w) = self.witness_in(&asked, &actual, stands) {
+                        return Some(w);
+                    }
+                }
+            }
+        }
+        None
+    }
+
     /// An existence claim shown by naming something that answers it: the
     /// witness is read off a line the step cites, by walking that line
     /// against the shape the claim quantifies.
@@ -3921,25 +4160,14 @@ impl<'a> Elaborator<'a> {
             "wa"
         ));
         let asked = self.applications_read(&asked_shape);
-        // Each sentence of a cited line is read on its own, as `witnessed`
-        // reads them: a line saying two things names a witness in either.
-        let mut witness = None;
-        // An equation names its witness whichever way round it is written,
-        // `(f(b) − f(a))/(b − a) = f′(c)` as well as `f′(c) = …`.
-        'lines: for r in &step.just.refs {
-            let line = lines.get(r).unwrap_or_else(|| panic!("no line {r} cited"));
-            for part in self.parts(&line.term) {
-                let mut ways = vec![part.clone()];
-                ways.extend(self.turned_claim(&part).map(|(t, _)| t));
-                for way in ways {
-                    let actual = self.applications_read(&self.to_term(&way));
-                    witness = self.witness_in(&asked, &actual, &stands);
-                    if witness.is_some() {
-                        break 'lines;
-                    }
-                }
-            }
-        }
+        // A line that leaves out an identity element the body has, or has
+        // one the body leaves out, names the same witness (`SYNTAX.md`, "An
+        // identity element goes without saying"): k·N = A names k for
+        // q·N + 0 = A. Each is read as written first.
+        let witness = match self.witness_cited(step, lines, &asked, &stands, false) {
+            Some(w) => Some(w),
+            None => self.witness_cited(step, lines, &asked, &stands, true),
+        };
         let Some(witness) = witness else {
             return Err(self.defect(step.line, "no cited line names a witness"));
         };
@@ -4002,7 +4230,9 @@ impl<'a> Elaborator<'a> {
         // body holds of it, and both are the text's to supply.
         let mut shown = Vec::new();
         for want in [&member, &here] {
-            match self.settle(&self.to_term(want), scope, &known, 3, None, None)? {
+            // The body at the witness may hold an identity element the line
+            // naming the witness leaves out, and is that line carried to it.
+            match self.settle_or_bare(&self.to_term(want), scope, &known, None, None)? {
                 Built(p) => shown.push(p),
                 Declined(d) => {
                     return Err(self.defect(
@@ -4286,6 +4516,67 @@ impl<'a> Elaborator<'a> {
         }
     }
 
+    /// `by_clause_either_way`, and where no clause reaches the claim, the
+    /// instance of the item the checker compared it with: a claim that
+    /// leaves out an identity element the instance has is that instance
+    /// (`SYNTAX.md`, "An identity element goes without saying"), so the
+    /// instance is reached and carried to the claim with its identity
+    /// elements dropped (`tidied`). `q·N = A` from mod-remainder at r := 0,
+    /// whose instance is q·N + 0 = A.
+    #[allow(clippy::too_many_arguments)]
+    fn by_clause_or_instance(
+        &mut self,
+        item: &'a Record,
+        labels: &[String],
+        term: &str,
+        scope: &str,
+        facts: &Facts,
+        step: &Step,
+        seed: &Binding,
+    ) -> Checked<Route<Proof>> {
+        let found =
+            self.by_clause_either_way(labels, term, scope, facts, step, Some(seed))?;
+        if !found.is_declined() {
+            return Ok(found);
+        }
+        let bare =
+            |me: &Self, rpn: &str| me.rpn(&me.without_identities(&me.to_term(rpn)));
+        let goal = bare(self, term);
+        // A biconditional is reached a side at a time, as a step citing it
+        // claims one side from the other.
+        let mut instances = Vec::new();
+        for said in self.concluded_here(step, item)? {
+            let whole = self.to_term(&said);
+            if whole.label() == Some("wb") {
+                instances.extend(whole.children().iter().map(|side| self.rpn(side)));
+            }
+            instances.push(said);
+        }
+        for instance in instances {
+            let bare_instance = bare(self, &instance);
+            if instance == term
+                || (bare_instance != goal && !self.rebound(&bare_instance, &goal))
+            {
+                continue;
+            }
+            let Built(reached) = self.by_clause_either_way(
+                labels,
+                &instance,
+                scope,
+                facts,
+                step,
+                Some(seed),
+            )?
+            else {
+                continue;
+            };
+            if let Some(p) = self.reached(&reached, &instance, term, scope, facts)? {
+                return Ok(Built(p));
+            }
+        }
+        Ok(found)
+    }
+
     /// An equation or disequation with its sides the other way round, and
     /// the lemma that turns a proof of it back: `B = A` and `eqcomd`, `B ≠ A`
     /// and `necomd`, or `¬ B = A`, as the page's ≠ is read, and `neqcomd`.
@@ -4353,14 +4644,9 @@ impl<'a> Elaborator<'a> {
             return Err(self.untargeted(step, item));
         }
         let seed = self.filling(step, item)?;
-        match self.by_clause_either_way(
-            &labels,
-            term,
-            scope,
-            facts,
-            step,
-            Some(&seed),
-        )? {
+        match self
+            .by_clause_or_instance(item, &labels, term, scope, facts, step, &seed)?
+        {
             Built(p) => Ok(Built(p)),
             Declined(d) => Err(self.defect(
                 step.line,
@@ -4460,15 +4746,11 @@ impl<'a> Elaborator<'a> {
     }
 
     /// What a citation pushes, in the order the cited theorem's own statement
-    /// declares. Each of its variables is what it stands at in `applied`, the
+    /// declares, and that statement over its own variables in that order.
+    /// Each of its variables is what it stands at in `applied`, the
     /// statement as this proof applies it: a variable is told by where it
     /// stands, so a bound letter of any binder is found as a class is.
-    fn cited_pushes(
-        &self,
-        step: &Step,
-        name: &str,
-        applied: &str,
-    ) -> Checked<Vec<String>> {
+    fn cited_pushes(&self, step: &Step, name: &str, applied: &str) -> Checked<Pushed> {
         let said = (self.statements)(name).ok_or_else(|| {
             self.defect(
                 step.line,
@@ -4503,10 +4785,22 @@ impl<'a> Elaborator<'a> {
                 format!("{name} states {said}, which is not what this step applies"),
             ));
         };
-        Ok(theirs
+        let values = theirs
             .iter()
             .map(|l| self.rpn(&binding[self.sig(l).statement[1].as_str()]))
-            .collect())
+            .collect();
+        let floats = theirs
+            .iter()
+            .map(|l| {
+                let float = &self.sig(l).statement;
+                (float[0].clone(), float[1].clone())
+            })
+            .collect();
+        Ok(Pushed {
+            values,
+            statement: said.split_whitespace().map(String::from).collect(),
+            floats,
+        })
     }
 
     /// Apply a theorem this corpus proves, as this elaborator states it: its
@@ -4757,23 +5051,24 @@ impl<'a> Elaborator<'a> {
             self.thm.line,
         )?;
         // The cited theorem is proved in another file, so the library does
-        // not hold it; what it takes is what is being pushed. Kept apart from
-        // the signatures, which `label_of` reads.
+        // not hold it; what it takes is what is being pushed, and what it
+        // states is its file's statement, which the build's own check of
+        // each application reads (`Builder::fault`). Kept apart from the
+        // signatures, which `label_of` reads.
         if !self.b.arities.contains_key(&cited) {
             self.b.arities.insert(
                 cited.clone(),
                 Signature {
                     label: cited.clone(),
                     kind: Kind::Theorem,
-                    statement: vec!["|-".to_string()],
-                    floats: (0..pushed.len())
-                        .map(|n| ("class".to_string(), format!("{cited}.{n}")))
-                        .collect(),
+                    statement: pushed.statement.clone(),
+                    floats: pushed.floats.clone(),
                     essentials: Vec::new(),
                     disjoint: BTreeSet::new(),
                 },
             );
         }
+        let pushed = pushed.values;
         // A theorem that assumes nothing states its conclusion outright.
         let mut parts: Vec<crate::mm::spell::Part> = Vec::new();
         let proof = match (&pair, &proof) {

@@ -1,0 +1,13 @@
+import definition stdlib/graphs/traversable
+
+theorem traversable-folded-from-its-witnesses
+  note        A definition folds a "there is f : X → Y" from the line obtaining f, which says f's type.
+  let G be an undirected multigraph with vertices V and edges E      (H1)
+  assume there is n ∈ ℕ₀ with there is e : {1, …, n} → E with there is v : {0, …, n} → V with v and e form an Euler path of n edges    (R1)
+  then G is traversable
+
+1.  n ∈ ℕ₀. e : {1, …, n} → E. v : {0, …, n} → V. v and e form an Euler path of n edges.
+    obtain n, e, v from R1
+
+2.  G is traversable
+    def:traversable, from 1

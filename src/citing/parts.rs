@@ -1,12 +1,88 @@
 //! What a citation supplies and claims, as the search reads them.
 
+use crate::corpus::{Head, Step};
 use crate::formula::page;
 use crate::formula::{Node, Sort, Sorts, Whole};
 use crate::matching::{standard, substitute_apart, substitute_apart_by, Binding};
+use crate::outcome::Built;
 use crate::rules;
 use crate::sorts::{element_sort, Env};
 
+use super::conclude::taken;
 use super::library::{with_parts, Library};
+
+/// A claim "for all k ∈ X, P" read at a member: the membership k ∈ X, which
+/// the step then has as a fact, and P, which it then claims (`SYNTAX.md`, a
+/// step said of every member). Which reading a citation takes is read off the
+/// item, not tried: an item whose conclusions say no "for all" anywhere is
+/// applied at a member, and one whose conclusions say one, as `upper-bound`
+/// unfolds to one, is read as written. A define says one equation, and is
+/// read at a member.
+pub fn at_a_member(
+    step: &Step,
+    claims: &[Node],
+    library: &Library,
+    sorts: &Sorts,
+) -> Option<(Node, Node)> {
+    let [claim] = claims else {
+        return None;
+    };
+    let just = &step.just;
+    // A define says what its name is equal to, never a "for all", so a
+    // step citing one for a "for all" is read at a member.
+    if just.head != Head::Define {
+        if !just.head.is_item() {
+            return None;
+        }
+        let item = library.item(&just.item(&just.head.to_string()))?;
+        if item.says_for_all() {
+            return None;
+        }
+    }
+    claimed_member(claim, library, sorts)
+}
+
+/// The citation's seed with what the citing proof says a function of the
+/// item maps between. The item's `let f : D → E` asks for nothing a line
+/// writes, but where f stands for a function a line in scope types, D and E
+/// are that type's sets: without them, `x ∈ D` would be met by any
+/// membership of x, 5 ∈ ℕ among them, for a function on {0, …, 1}. What f
+/// stands for is what the citation names it, or else what the citation
+/// takes it to be. `ours` is the function types the lines in scope at the
+/// citing step say, `v : {0, …, n} → V`, as the citing tool reads them.
+pub fn typed_seed(parts: &mut Parts, name: &str, ours: &[Node], library: &Library) {
+    let typed = library.function_types(name);
+    if typed.is_empty() || ours.is_empty() {
+        return;
+    }
+    let mut stands = parts.seed.clone();
+    if let Some(groups) = library.groups(name) {
+        let taken = taken(&groups, &parts.claims, &parts.facts, &parts.seed, library);
+        if let Built(t) = taken {
+            for (letter, value) in t.binding {
+                stands.entry(letter).or_insert(value);
+            }
+        }
+    }
+    for t in &typed {
+        let [f, d, e] = t.children.as_slice() else {
+            continue;
+        };
+        let Some(v) = stands.get(&f.text).filter(|v| v.is_name()) else {
+            continue;
+        };
+        let Some(said) = ours.iter().find(|s| s.children[0].text == v.text) else {
+            continue;
+        };
+        for (letter, set) in [(d, &said.children[1]), (e, &said.children[2])] {
+            if letter.is_name() && !parts.seed.contains_key(&letter.text) {
+                parts
+                    .seed
+                    .insert(letter.text.clone(), standard(set, &library.ctx));
+            }
+        }
+    }
+}
 
 /// What a citation supplies, what it claims, and what it says its variables
 /// stand for.

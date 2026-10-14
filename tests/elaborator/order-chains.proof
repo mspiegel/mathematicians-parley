@@ -1,0 +1,52 @@
+theorem two-bounds-in-a-row
+  note        A calculation of two ≤ links is a ≤.
+  let a ∈ ℝ    (H1)
+  let b ∈ ℝ    (H2)
+  let c ∈ ℝ    (H3)
+  assume a ≤ b    (H4)
+  assume b ≤ c    (H5)
+  then a ≤ c
+
+1.  a ≤ c
+    calculation
+      a ≤ b      H4
+        ≤ c      H5
+
+theorem a-strict-link-then-a-bound
+  note        A < link and a ≤ link fold into <, in either order.
+  let a ∈ ℝ    (H1)
+  let b ∈ ℝ    (H2)
+  let c ∈ ℝ    (H3)
+  let d ∈ ℝ    (H4)
+  assume a < b    (H5)
+  assume b ≤ c    (H6)
+  assume c < d    (H7)
+  then a < d
+
+1.  a < d
+    calculation
+      a < b      H5
+        ≤ c      H6
+        < d      H7
+
+theorem an-equation-between-two-bounds
+  note        An equation inside a run of order links, over terms built from letters.
+  let x ∈ ℝ    (H1)
+  let y ∈ ℝ    (H2)
+  assume 0 ≤ y    (H3)
+  then x < 1 + x + y
+
+1.  x < x + 1
+    inequalities
+
+2.  x + 1 = 1 + x
+    algebra
+
+3.  1 + x ≤ 1 + x + y
+    inequalities, from H3
+
+4.  x < 1 + x + y
+    calculation
+      x < x + 1           1
+        = 1 + x           2
+        ≤ 1 + x + y       3

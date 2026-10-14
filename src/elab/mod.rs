@@ -246,6 +246,15 @@ impl Facts {
         }
     }
 
+    /// `filtered`, keeping what each line gave as it stands: a claim left
+    /// out of the scope is still the claim of the line that gave it, which a
+    /// step naming that line reads (`named_first`, `carried`).
+    pub fn filtered_claims(&self, keep: impl Fn(&str, &Proof) -> bool) -> Self {
+        let mut out = self.filtered(keep);
+        out.by_line = self.by_line.filtered(|_, _| true);
+        out
+    }
+
     pub fn same(&self, other: &Facts) -> bool {
         self.proofs.same(&other.proofs)
     }

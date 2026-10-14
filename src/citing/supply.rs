@@ -560,6 +560,36 @@ fn existential_levels<'n>(
     (pairs, body)
 }
 
+/// Whether `fact` says `value : X → Y`, where `domain` is the functions from
+/// X to Y: what "there is f : X → Y with …" runs over is that set, and the
+/// line naming its witness, as an obtain from it does, says the function's
+/// type (`there-is-function`).
+fn typed_into(
+    fact: &Node,
+    value: &Node,
+    domain: &Node,
+    binding: &Binding,
+    variables: &BTreeSet<String>,
+    library: &Library,
+    sites: &Sites,
+) -> bool {
+    let ([from, to], [f, x, y]) =
+        (domain.children.as_slice(), fact.children.as_slice())
+    else {
+        return false;
+    };
+    if domain.notation != "functions-from"
+        || fact.notation != "function-type"
+        || f.shape() != value.shape()
+    {
+        return false;
+    }
+    let ctx = &library.ctx;
+    match_tree(from, x, binding, variables, sites, ctx)
+        .and_then(|at| match_tree(to, y, &at, variables, sites, ctx))
+        .is_some()
+}
+
 /// Whether one of the facts puts each value a "there is" was given in the
 /// domain it ranges over.
 fn witnessed_in(
@@ -579,7 +609,7 @@ fn witnessed_in(
             return false;
         };
         let witnessed = facts.iter().any(|f| {
-            library.members.contains(&f.notation)
+            let member = library.members.contains(&f.notation)
                 && f.children.len() == 2
                 && f.children[0].shape() == value.shape()
                 && match_tree(
@@ -590,7 +620,8 @@ fn witnessed_in(
                     sites,
                     &library.ctx,
                 )
-                .is_some()
+                .is_some();
+            member || typed_into(f, value, domain, binding, variables, library, sites)
         });
         if !witnessed {
             return false;

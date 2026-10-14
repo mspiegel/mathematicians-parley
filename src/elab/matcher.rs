@@ -409,6 +409,36 @@ impl<'a> Elaborator<'a> {
         self.said_otherwise(wanted, scope, facts, depth)
     }
 
+    /// `settle`, and where that declines, the claim with its identity
+    /// elements dropped settled and carried back to it (`tidied`): k·N + 0 = A
+    /// from a line saying k·N = A (`SYNTAX.md`, "An identity element goes
+    /// without saying").
+    pub fn settle_or_bare(
+        &mut self,
+        wanted: &Term,
+        scope: &str,
+        facts: &Facts,
+        step: Option<&Step>,
+        lines: Option<&Lines>,
+    ) -> Checked<Route<Proof>> {
+        let settled = self.settle(wanted, scope, facts, 3, step, lines)?;
+        if !settled.is_declined() {
+            return Ok(settled);
+        }
+        let (want, bare) = (self.rpn(wanted), self.without_identities(wanted));
+        let bare_rpn = self.rpn(&bare);
+        if bare_rpn == want {
+            return Ok(settled);
+        }
+        let Built(p) = self.settle(&bare, scope, facts, 3, step, lines)? else {
+            return Ok(settled);
+        };
+        Ok(match self.tidied(&p, &bare_rpn, &want, scope, facts)? {
+            Some(p) => Built(p),
+            None => settled,
+        })
+    }
+
     /// A proof of something a step needs and the text does not write.
     ///
     /// `depth` bounds how many declared lemmas a chain applies one on top of
@@ -904,9 +934,12 @@ impl<'a> Elaborator<'a> {
     /// declared equation is asked whether the fact in hand is the fact wanted
     /// said differently, and the congruence carries it across.
     ///
-    /// A term already being asked about is not asked about again: what this
-    /// reaches through eventually asks `settle` afresh, which starts its
-    /// depth over, so the two together have nothing that must decrease.
+    /// A fact is read in other words only where no other is being read so:
+    /// what this reaches through asks `settle` afresh, which starts its depth
+    /// over, and each fact it asks may be a larger term than the last
+    /// (|⌊A⌋| ∈ ℕ₀, then ||⌊A⌋|| ∈ ℕ₀), so a reading inside a reading has
+    /// nothing that must decrease and need not end. No proof of the corpus
+    /// reads a fact in other words inside such a reading.
     fn said_otherwise(
         &mut self,
         wanted: &Term,
@@ -916,7 +949,7 @@ impl<'a> Elaborator<'a> {
     ) -> Checked<Option<Proof>> {
         let _ = depth;
         let want = self.rpn(wanted);
-        if self.saying.contains(&want) {
+        if !self.saying.is_empty() {
             return Ok(None);
         }
         self.saying.insert(want.clone());
@@ -3255,6 +3288,19 @@ impl<'a> Elaborator<'a> {
                 sources.push((said, proof));
             }
         }
+        // A cited line that is the claim once identity elements are dropped
+        // and bound letters renamed names no witness: it is the claim
+        // (`reached`), as "there is q ∈ ℤ with q·N = A" is "there is z ∈ ℤ
+        // with z·N + 0 = A".
+        let want = self.rpn(wanted);
+        for (said, proof) in &sources {
+            if self.to_term(said).label() != Some("wrex") {
+                continue;
+            }
+            if let Some(p) = self.reached(proof, said, &want, scope, facts)? {
+                return Ok(Built(p));
+            }
+        }
         // An equation the body asks whose one side names no witness is the
         // same on both sides once the witnesses are read off the other, and
         // needs no line (`SYNTAX.md`, the literal-instance rule): a·x + b·y =
@@ -3273,27 +3319,54 @@ impl<'a> Elaborator<'a> {
         let quantified = layers;
         let mut layers = Vec::new();
         let mut chosen = None;
-        'depths: for depth in (1..=quantified.len()).rev() {
-            let here = quantified[..depth].to_vec();
-            let rest = here[depth - 1].0.clone();
-            let marks: BTreeSet<String> =
-                here.iter().map(|(_, v, _)| format!("{v} cv")).collect();
-            let shapes: Vec<Term> = std::iter::once(rest.clone())
-                .chain(turned_equation(&rest))
-                .collect();
-            // A body saying nothing of its one variable takes any member of
-            // the domain a line names; one that says something takes what it
-            // says.
-            let silent = here.len() == 1
-                && !self.rpn(&rest).split_whitespace().any(|t| t == here[0].1);
-            for (said, proof) in &sources {
-                for part in self.parts(said) {
-                    let held = self.to_term(&part);
-                    for shape in &shapes {
-                        let found = self.witnesses_in(shape, &held, &marks);
-                        if let Some(found) = found.filter(|f| !f.is_empty()) {
+        // A line that leaves out an identity element the body has, or has
+        // one the body leaves out, names the same witnesses (`SYNTAX.md`, "An
+        // identity element goes without saying"); each line is read as
+        // written first.
+        for bare in [false, true] {
+            if chosen.is_some() {
+                break;
+            }
+            'depths: for depth in (1..=quantified.len()).rev() {
+                let here = quantified[..depth].to_vec();
+                let mut rest = here[depth - 1].0.clone();
+                if bare {
+                    rest = self.without_identities(&rest);
+                }
+                let marks: BTreeSet<String> =
+                    here.iter().map(|(_, v, _)| format!("{v} cv")).collect();
+                let shapes: Vec<Term> = std::iter::once(rest.clone())
+                    .chain(turned_equation(&rest))
+                    .collect();
+                // A body saying nothing of its one variable takes any member of
+                // the domain a line names; one that says something takes what it
+                // says.
+                let silent = here.len() == 1
+                    && !self.rpn(&rest).split_whitespace().any(|t| t == here[0].1);
+                for (said, proof) in &sources {
+                    for part in self.parts(said) {
+                        let mut held = self.to_term(&part);
+                        if bare {
+                            held = self.without_identities(&held);
+                        }
+                        for shape in &shapes {
+                            let found = self.witnesses_in(shape, &held, &marks);
+                            if let Some(found) = found.filter(|f| !f.is_empty()) {
+                                chosen = Some((
+                                    part.clone(),
+                                    said.clone(),
+                                    proof.clone(),
+                                    found,
+                                ));
+                                layers = here;
+                                break 'depths;
+                            }
+                        }
+                    }
+                    if silent {
+                        if let Some(found) = self.member_named(said, &here[0]) {
                             chosen = Some((
-                                part.clone(),
+                                said.clone(),
                                 said.clone(),
                                 proof.clone(),
                                 found,
@@ -3301,14 +3374,6 @@ impl<'a> Elaborator<'a> {
                             layers = here;
                             break 'depths;
                         }
-                    }
-                }
-                if silent {
-                    if let Some(found) = self.member_named(said, &here[0]) {
-                        chosen =
-                            Some((said.clone(), said.clone(), proof.clone(), found));
-                        layers = here;
-                        break 'depths;
                     }
                 }
             }
@@ -3380,11 +3445,10 @@ impl<'a> Elaborator<'a> {
             );
             proof = pf!(self.b; scope, b, a, proof, "eqcomd");
         } else if inner_rpn != said {
-            proof = take!(self.settle(
+            proof = take!(self.settle_or_bare(
                 &innermost,
                 scope,
                 facts,
-                3,
                 Some(step),
                 Some(lines)
             )?);

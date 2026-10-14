@@ -351,8 +351,8 @@ pub const INSTANCES: &[(&str, Instance)] = &[
 ];
 
 // Which transitivity folds one link of a calculation into the run above it,
-// by what each of the two claims is. Two relations in a row would want the
-// transitivity of that relation and no chain writes one.
+// by what each of the two claims is. Two relations in a row are folded by
+// `ORDER_FOLDING`, which asks for the relations themselves.
 pub const FOLDING: &[((&str, &str), &str)] = &[
     (("wceq", "wceq"), "eqtrd"),
     (("wceq", "wbr"), "eqbrtrd"),
@@ -364,6 +364,55 @@ pub fn folding(first: &str, second: &str) -> Option<&'static str> {
         .iter()
         .find(|((a, b), _)| *a == first && *b == second)
         .map(|(_, lemma)| *lemma)
+}
+
+/// How two order links in a row fold into one.
+pub struct OrderFold {
+    /// The relation of the run above.
+    pub above: &'static str,
+    /// The relation of the link.
+    pub link: &'static str,
+    /// The transitivity that folds them, which asks that the three terms be
+    /// real, before the two links.
+    pub lemma: &'static str,
+    /// The relation they fold into.
+    pub folded: &'static str,
+}
+
+// ≤ then ≤ is ≤, and a < anywhere makes it <.
+pub const ORDER_FOLDING: &[OrderFold] = &[
+    OrderFold {
+        above: "cle",
+        link: "cle",
+        lemma: "letrd",
+        folded: "cle",
+    },
+    OrderFold {
+        above: "clt",
+        link: "clt",
+        lemma: "lttrd",
+        folded: "clt",
+    },
+    OrderFold {
+        above: "clt",
+        link: "cle",
+        lemma: "ltletrd",
+        folded: "clt",
+    },
+    OrderFold {
+        above: "cle",
+        link: "clt",
+        lemma: "lelttrd",
+        folded: "clt",
+    },
+];
+
+/// How a run whose relation is `above` folds a link whose relation is
+/// `link`; None where no transitivity does.
+pub fn order_folding(above: &str, link: &str) -> Option<&'static OrderFold> {
+    ORDER_FOLDING
+        .iter()
+        .find(|fold| fold.above == above && fold.link == link)
 }
 
 // A fact that conjoins several things says each of them, and the steps below
@@ -962,6 +1011,12 @@ pub fn every_label() -> Vec<(&'static str, &'static str)> {
     }
     for ((a, b), v) in FOLDING {
         put("FOLDING", &[a, b, v]);
+    }
+    for fold in ORDER_FOLDING {
+        put(
+            "ORDER_FOLDING",
+            &[fold.above, fold.link, fold.lemma, fold.folded],
+        );
     }
     for (k, v) in FROM_NN0 {
         put("FROM_NN0", &[k]);

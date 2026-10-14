@@ -263,6 +263,37 @@ fn a_line_saying_a_divisor_is_not_zero_does_work() {
     assert!(out.contains("\n0 problem(s)\n"), "{out}");
 }
 
+/// A citation whose claim is what the item concludes, with one hypothesis
+/// not supplied, is reported once, naming that hypothesis: here
+/// divides-difference without line 5.2, which says p divides n!. The other
+/// hypotheses are supplied, and the claim is the item's conclusion.
+#[test]
+fn a_hypothesis_not_supplied_is_named_alone() {
+    let clean = clean();
+    let case = case(
+        "drop the line that supplies one hypothesis",
+        vec![edit(
+            "proofs/infinitely-many-primes.proof",
+            Some(
+                "mun:divides-difference d := p, a := n! + 1, b := n!, from 3, 5.2"
+                    .to_string(),
+            ),
+            "mun:divides-difference d := p, a := n! + 1, b := n!, from 3".to_string(),
+        )],
+        "",
+    );
+    let tree = plant(&case, &clean).unwrap();
+    let out = parley::check::run(&tree).printed;
+    assert!(
+        out.contains(
+            "which asks for d divides b, and what it cites does not supply them"
+        ),
+        "{out}"
+    );
+    assert!(!out.contains("does not conclude"), "{out}");
+    assert!(out.contains("\n1 problem(s)\n"), "{out}");
+}
+
 /// A requires line whose fact the step's own citation gives is not repeated
 /// where a line below needs it: the line below sees only its reason and the
 /// lines above it (R2). Here the birthday problem's step 8 cites line 1,
@@ -1469,7 +1500,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/sqrt2-irrational.proof", Some("    mun:irrational x := √2, from 2\n    requires 2 ≥ 0: arithmetic\n".to_string()), "    mun:irrational x := √2, from 2\n".to_string()),
             ],
-            "the requires line of step 3 cites mun:sqrt, which asks for x ∈ ℝ; x ≥ 0, and what it cites does not supply them",
+            "the requires line of step 3 cites mun:sqrt, which asks for x ≥ 0, and what it cites does not supply them",
         ),
         case(
             "claim something the cited item does not conclude",
@@ -2331,7 +2362,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/euler.proof", Some("8.  f : S → S\n".to_string()), "8.  f : S → ℕ\n".to_string()),
             ],
-            "step 8 claims something that mun:function-into does not conclude",
+            "step 8 cites mun:function-into, which asks for for all x ∈ X, E(x) ∈ Y, and what it cites does not supply them",
         ),
         case(
             "reorder a product by a map not shown to be one-to-one",

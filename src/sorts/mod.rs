@@ -477,6 +477,85 @@ pub fn file_definitions(thm: &Theorem, env: Env) -> Definitions {
     written_definitions(thm.scope, thm.line, env, &BTreeSet::new())
 }
 
+/// The definitions from outside a theorem a citation in it may write out,
+/// each with the label a citation names it by: its own where its file is the
+/// theorem's, and the label on its import otherwise.
+pub struct OutsideDefines {
+    /// What each definition from outside the theorem stands for, written
+    /// out (`file_definitions`).
+    pub outside: Definitions,
+    /// The label a citation names each by.
+    pub labels: indexmap::IndexMap<String, String>,
+    /// The labels of the defines the theorem's file writes above it.
+    pub file_labels: Vec<String>,
+}
+
+impl OutsideDefines {
+    pub fn of(thm: &Theorem, env: Env) -> OutsideDefines {
+        let mut labels = indexmap::IndexMap::new();
+        let mut file_labels = Vec::new();
+        for (name, d, src) in visible(env.scopes, thm.scope, thm.line) {
+            let label = if src == thm.scope {
+                file_labels.push(d.label.clone());
+                Some(d.label)
+            } else {
+                env.scopes[thm.scope].import_label(&name).map(String::from)
+            };
+            if let Some(label) = label {
+                labels.insert(name, label);
+            }
+        }
+        OutsideDefines {
+            outside: file_definitions(thm, env),
+            labels,
+            file_labels,
+        }
+    }
+
+    /// What a citation naming `refs` writes out: each define from outside
+    /// the theorem whose label it names, and each of the theorem's own it
+    /// names (`cited_defines`).
+    pub fn citing(
+        &self,
+        thm: &Theorem,
+        env: Env,
+        sorts: &Sorts,
+        refs: &[String],
+    ) -> Definitions {
+        let mut made: Definitions = self
+            .outside
+            .iter()
+            .filter(|(name, _)| {
+                self.labels.get(*name).is_some_and(|l| refs.contains(l))
+            })
+            .map(|(name, d)| (name.clone(), d.clone()))
+            .collect();
+        made.extend(cited_defines(thm, env, sorts, refs));
+        made
+    }
+
+    /// The labels a citation of `item`, by its full name, is read with
+    /// besides `refs`: a theorem of the theorem's own file speaks of the
+    /// file's defines by name as its statement does, and is read with them
+    /// without citing them (`SYNTAX.md`, the one exception).
+    pub fn citing_labels(
+        &self,
+        thm: &Theorem,
+        refs: &[String],
+        item: Option<&str>,
+    ) -> Vec<String> {
+        let own_file = item.is_some_and(|full| {
+            full.rsplit_once('/')
+                .is_some_and(|(module, _)| module == thm.module())
+        });
+        let mut all = refs.to_vec();
+        if own_file {
+            all.extend(self.file_labels.iter().cloned());
+        }
+        all
+    }
+}
+
 /// What the theorem's statement is read with: the definitions above it
 /// (`file_definitions`), and the defines in its header, between its `let`
 /// lines and `then`, which name something of the theorem's own and are read
