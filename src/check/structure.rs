@@ -39,6 +39,16 @@ pub fn in_scope(cited: &StepNo, here: &StepNo) -> bool {
     c[..k - 1] == h[..k - 1] && c[k - 1] < h[k - 1]
 }
 
+/// Why a line that exists is not in scope where `here` cites it: it comes
+/// later, or it is inside a block that closed before `here`.
+fn why_out_of_scope(cited: &StepNo, here: &StepNo) -> &'static str {
+    if cited.0 > here.0 && !cited.0.starts_with(&here.0) {
+        "which comes after it"
+    } else {
+        "which is inside a block that has closed"
+    }
+}
+
 /// Where a label is declared: a hypothesis, a define, or a block's opener.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Declared {
@@ -591,8 +601,9 @@ pub fn check_citations(
                     &thm.path,
                     just.line,
                     format!(
-                        "step {} cites line {r}, which is inside a block that has closed",
-                        step.number
+                        "step {} cites line {r}, {}",
+                        step.number,
+                        why_out_of_scope(&cited, &step.number)
                     ),
                 );
             }
@@ -782,7 +793,10 @@ impl Cited<'_> {
                 report.say(
                     &thm.path,
                     no,
-                    format!("{what} cites line {r}, which is inside a block that has closed"),
+                    format!(
+                        "{what} cites line {r}, {}",
+                        why_out_of_scope(&cited, &self.step.number)
+                    ),
                 );
             }
         }

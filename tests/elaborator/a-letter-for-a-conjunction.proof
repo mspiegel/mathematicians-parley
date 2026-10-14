@@ -1,0 +1,22 @@
+import mundane theorem stdlib/reasoning/iff-from-left
+import mundane theorem stdlib/reasoning/iff-from-right
+
+theorem a-conjunction-concluded-as-a-letter
+  note        iff-from-left concludes Q, and Q stands for the claim whole, two sentences and all.
+  let x ∈ ℝ    (H1)
+  assume x = 0 ↔ 0 ≤ x and x < 1    (H2)
+  assume x = 0    (H3)
+  then 0 ≤ x and x < 1
+
+1.  0 ≤ x and x < 1
+    mun:iff-from-left P := x = 0, Q := 0 ≤ x and x < 1, from H2, H3
+
+theorem a-conjunction-concluded-as-the-other-letter
+  note        iff-from-right concludes P, which stands for a conjunction here.
+  let x ∈ ℝ    (H1)
+  assume 0 ≤ x and x < 1 ↔ x = 0    (H2)
+  assume x = 0    (H3)
+  then 0 ≤ x and x < 1
+
+1.  0 ≤ x and x < 1
+    mun:iff-from-right P := 0 ≤ x and x < 1, Q := x = 0, from H2, H3

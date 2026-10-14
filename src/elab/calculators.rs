@@ -3255,7 +3255,11 @@ impl<'a> Elaborator<'a> {
         let (term_out, lines_out) = (&out.term, &out.lines);
         // A cited line says each of its parts, a membership among them, as
         // the checker and R3 read it (`READERS.md`, what a membership says).
-        let facts_out = &self.with_cited(Some(step), scope, &out.facts, None);
+        // Only what the step may rest on is offered, so that a bound the
+        // cited lines give is proved from them and not taken from a line in
+        // scope that says the same, which the step does not name.
+        let cited = self.with_cited(Some(step), scope, &out.facts, None);
+        let facts_out = &self.restable(&cited);
         self.decide_order(step, term_out, facts_out, lines_out)?;
         // The method wants every atom in ℝ, and a `requires` line is where
         // the step writes that; offered to the membership lookup and to

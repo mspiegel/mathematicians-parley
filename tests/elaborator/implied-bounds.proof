@@ -1,0 +1,11 @@
+import mundane theorem stdlib/numbers/multiply-le
+
+theorem a-natural-at-least-one-for-an-item
+  note        A cited n ∈ ℕ says 1 ≤ n, which answers an item's hypothesis x ≤ y at x := 1.
+  let n ∈ ℕ    (H1)
+  let c ∈ ℝ    (H2)
+  assume c > 0    (H3)
+  then c·1 ≤ c·n
+
+1.  c·1 ≤ c·n
+    mun:multiply-le x := 1, y := n, from H1, H3

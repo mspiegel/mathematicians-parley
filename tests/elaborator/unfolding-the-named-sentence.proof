@@ -1,0 +1,12 @@
+import mundane definition stdlib/sets/subset
+
+theorem the-second-sentence-unfolded
+  note        A line says A ⊆ B and A ⊆ C, and the citation's Y := C names the second to unfold.
+  let A be a set    (H1)
+  let B be a set    (H2)
+  let C be a set    (H3)
+  assume A ⊆ B and A ⊆ C    (H4)
+  then for all t ∈ A, t ∈ C
+
+1.  For all t ∈ A, t ∈ C.
+    mun:subset X := A, Y := C, from H4

@@ -696,6 +696,18 @@ impl<'a> Elaborator<'a> {
         Ok(known)
     }
 
+    /// The facts the proof being built may rest on (`resting_on`): those
+    /// whose every origin is a line it names, a requires line, or a
+    /// membership said once. All of them where nothing restricts it.
+    pub fn restable(&self, facts: &Facts) -> Facts {
+        match &self.resting {
+            Some(resting) => {
+                facts.filtered(|_, v| v.origin.iter().all(|o| may_rest_on(resting, o)))
+            }
+            None => facts.clone(),
+        }
+    }
+
     /// Whether a `requires` line's reason is the lines it cites: `from H1`
     /// is, and so is a definition the database gives no target for, which the
     /// notation folds into the line it is unfolded at.

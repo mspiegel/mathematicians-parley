@@ -459,13 +459,7 @@ impl<'a> Elaborator<'a> {
         lines: Option<&Lines>,
     ) -> Checked<Route<Proof>> {
         let unfiltered = facts;
-        let facts = match &self.resting {
-            Some(resting) => {
-                let resting = resting.clone();
-                facts.filtered(|_, v| v.origin.iter().all(|o| may_rest_on(&resting, o)))
-            }
-            None => facts.clone(),
-        };
+        let facts = self.restable(facts);
         // A membership the page says once. It comes before what is held,
         // since the scope holds a copy of the line introducing a letter that
         // the step does not name. A numeral's is worked out below, and
@@ -5583,6 +5577,7 @@ impl<'a> Elaborator<'a> {
         let at_frame = self.frames_facts(frame, facts);
         let supplied = self.supplied(step, &where_, &at_frame)?;
         let known = self.with_cited(step, &where_, &supplied, None);
+        self.with_implied(step, &where_, &known)?;
         // A bare `Z e. B` with Z open is answered by any line putting
         // anything in B, so every such conjunct is matched after the rest.
         let loose: Vec<Term> = antecedents
@@ -5780,6 +5775,7 @@ impl<'a> Elaborator<'a> {
                 where_ = self.frames[frame].scope.clone();
                 let supplied = self.supplied(step, &where_, facts)?;
                 known = self.with_cited(step, &where_, &supplied, None);
+                self.with_implied(step, &where_, &known)?;
                 carried = true;
                 first = false;
                 (x, y) = if joins[i] == Join::Turned {
@@ -5966,13 +5962,7 @@ impl<'a> Elaborator<'a> {
         let index = member.children()[0].clone();
         let want = self.rpn(right);
         // Only what the step names, as `settle` is offered only that.
-        let facts = match &self.resting {
-            Some(resting) => {
-                let resting = resting.clone();
-                facts.filtered(|_, v| v.origin.iter().all(|o| may_rest_on(&resting, o)))
-            }
-            None => facts.clone(),
-        };
+        let facts = self.restable(facts);
         for (said, proof) in facts.entries() {
             let line = self.to_term(&said);
             if line.label() != Some("wral") || line.children()[1].variable().is_none() {

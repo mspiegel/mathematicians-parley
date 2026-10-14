@@ -2,6 +2,7 @@
 
 use std::collections::BTreeSet;
 
+use crate::formula::page::conjoined;
 use crate::formula::{walk, Node};
 use indexmap::IndexMap;
 
@@ -190,13 +191,11 @@ pub fn taken(
     seed: &Binding,
     library: &Library,
 ) -> Route<Taken> {
-    // A conclusion is offered conjunct by conjunct, so a claim is asked for
-    // the same way: `u ∈ Y and u ∈ Z` is the two facts a reading gives.
-    let claims: Vec<Node> = claims.iter().flat_map(|c| conjuncts(c, library)).collect();
+    let (whole, split) = (whole_claim(claims, library), split_claims(claims, library));
     for (group, of) in groups.iter().enumerate() {
         let offer = Offer::of(of, library);
         if let Some(binding) = take(
-            &claims,
+            offer.claims_read(&whole, &split),
             &offer.candidates,
             seed,
             &[],
@@ -227,7 +226,7 @@ pub fn taken_ways(
     library: &Library,
     found: &mut dyn FnMut(&[usize]),
 ) {
-    let claims: Vec<Node> = claims.iter().flat_map(|c| conjuncts(c, library)).collect();
+    let (whole, split) = (whole_claim(claims, library), split_claims(claims, library));
     let mut record = |path: &[usize], _: &Binding| found(path);
     for of in groups {
         let offer = Offer::of(of, library);
@@ -236,7 +235,7 @@ pub fn taken_ways(
             found: &mut record,
         };
         let _ = take(
-            &claims,
+            offer.claims_read(&whole, &split),
             &offer.candidates,
             seed,
             &[],
@@ -250,9 +249,42 @@ pub fn taken_ways(
     }
 }
 
+/// A claim conjunct by conjunct, as a conclusion is offered: `u ∈ Y and
+/// u ∈ Z` is the two facts a reading gives.
+fn split_claims(claims: &[Node], library: &Library) -> Vec<Node> {
+    claims.iter().flat_map(|c| conjuncts(c, library)).collect()
+}
+
+/// A claim of several sentences as the one formula they make, their
+/// conjunction (`SYNTAX.md`): what a statement letter stands for.
+fn whole_claim(claims: &[Node], library: &Library) -> Vec<Node> {
+    match claims {
+        [_, _, ..] => conjoined(library.env.g, claims.to_vec())
+            .into_iter()
+            .collect(),
+        _ => claims.to_vec(),
+    }
+}
+
+impl Offer {
+    /// The claims as this group reads them: conjunct by conjunct, as its
+    /// conclusion is offered, except where the group concludes one statement
+    /// letter, which stands for the claim whole however many conjuncts it
+    /// has: iff-from-left's Q at Q := 0 ≤ x and x < 1.
+    fn claims_read<'c>(&self, whole: &'c [Node], split: &'c [Node]) -> &'c [Node] {
+        if self.letter {
+            whole
+        } else {
+            split
+        }
+    }
+}
+
 /// What one group of an item offers a claim, read once for every way of
 /// taking it.
 struct Offer {
+    /// Whether the group concludes one statement letter and nothing else.
+    letter: bool,
     /// Each conjunct of each reading of a conclusion, either way round, with
     /// what that reading asks first.
     candidates: Vec<(Node, Vec<Node>)>,
@@ -291,7 +323,12 @@ impl Offer {
         let mut trees = gives.clone();
         trees.extend(want.iter().map(|(_, t)| t.clone()));
         let variables = names_of(&trees);
+        // A conclusion is a sentence, so one that is a bare letter of the
+        // item's is a statement letter.
+        let letter = matches!(gives.as_slice(), [one]
+            if one.is_name() && variables.contains(&one.text));
         Offer {
+            letter,
             candidates,
             need,
             variables,

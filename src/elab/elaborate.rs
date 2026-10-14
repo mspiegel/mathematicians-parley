@@ -2452,6 +2452,25 @@ impl<'a> Elaborator<'a> {
 
     /// A definition unfolded to reach one part of what it says: read left to
     /// right, and what it gives taken apart.
+    /// Each side of each biconditional the record a step cites concludes
+    /// there, with what the citation fixes put in (`concluded_here`): what a
+    /// definition unfolds from and to at this step. Empty where the step
+    /// cites no record, or no clause of it concludes the claim.
+    fn sides_here(&mut self, step: &Step) -> Checked<Vec<String>> {
+        let name = self.thm.names.full(&step.just.head.to_string());
+        let Some(Item::Record(item)) = self.items.get(&name).copied() else {
+            return Ok(Vec::new());
+        };
+        let mut out = Vec::new();
+        for said in self.concluded_here(step, item)? {
+            let whole = self.to_term(&said);
+            if whole.label() == Some("wb") {
+                out.extend(whole.children().iter().map(|side| self.rpn(side)));
+            }
+        }
+        Ok(out)
+    }
+
     #[allow(clippy::too_many_arguments)]
     pub fn one_unfolded(
         &mut self,
@@ -2475,7 +2494,10 @@ impl<'a> Elaborator<'a> {
             return Ok(Route::no(format!("{lemma} states no biconditional")));
         }
         // A line may say several things at once, and what the definition
-        // unfolds is any one of them.
+        // unfolds is any one of them: the one the citation's values make the
+        // definition's side, where the step's citation reads as one the
+        // checker takes (`concluded_here`), and else the first that fits.
+        let sides = self.sides_here(step)?;
         let mut chosen = None;
         for r in refs {
             let Some(cited) = lines.get(r) else {
@@ -2491,6 +2513,24 @@ impl<'a> Elaborator<'a> {
                 }
             }
             self.unpack_all(&cited.term, &whole_proof, scope, &held);
+            let named = Facts::new();
+            for (said, shown) in held.entries() {
+                if sides.contains(&said) {
+                    self.know(&named, said, shown);
+                }
+            }
+            if !named.entries().is_empty() {
+                if let Built(found) = self.unfolds_from(
+                    &reads.children()[0],
+                    &named,
+                    &variables,
+                    scope,
+                    facts,
+                )? {
+                    chosen = Some(found);
+                    break;
+                }
+            }
             if let Built(found) = self.unfolds_from(
                 &reads.children()[0],
                 &held,

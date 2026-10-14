@@ -873,6 +873,13 @@ fn cases() -> Vec<Case> {
             "inside a block that has closed",
         ),
         case(
+            "cite a line that comes after the step",
+            vec![
+                edit("proofs/intermediate-value.proof", Some("    16.2.  c < b\n           inequalities, from 12, 16.1".to_string()), "    16.2.  c < b\n           inequalities, from 12, 16.3".to_string()),
+            ],
+            "step 16.2 cites line 16.3, which comes after it",
+        ),
+        case(
             "cite a line that does not exist",
             vec![
                 edit("proofs/sqrt2-irrational.proof", Some("    2.5.  p is even\n          thm:even-square n := p, from 2.4".to_string()), "    2.5.  p is even\n          thm:even-square n := p, from 2.99".to_string()),

@@ -16,7 +16,7 @@ use num_traits::{ToPrimitive, Zero};
 use super::field::{self, Value};
 use super::linear;
 use super::matcher::ChainLink;
-use super::provenance::{from_requires, may_rest_on, rests_on_only, MEMBERSHIP};
+use super::provenance::{from_requires, rests_on_only, MEMBERSHIP};
 use super::state::{fit, names_of, Binding, Elaborator};
 use super::{Facts, Lines, Written};
 use crate::binds;
@@ -1234,6 +1234,70 @@ impl<'a> Elaborator<'a> {
         Ok(out)
     }
 
+    /// What the lines a step names, and its requires lines, say by what a
+    /// membership among them implies (`rules::IMPLIED`), each proved from
+    /// its line: a cited `let k ∈ ℕ` says k ≥ 1 and k ≠ 0 (`ELABORATION.md`,
+    /// "A line the page cites says what it states and what a membership
+    /// among its sentences implies"), which a lemma's antecedent asks as
+    /// surely as what the line states.
+    pub fn implied_by_named(
+        &mut self,
+        step: Option<&Step>,
+        scope: &str,
+        facts: &Facts,
+    ) -> Checked<Facts> {
+        let out = Facts::new();
+        let Some(step) = step else {
+            return Ok(out);
+        };
+        let lines = self.lines.clone();
+        let mut said_here: Vec<(String, Proof)> = Vec::new();
+        for r in &step.just.refs {
+            let Some(line) = lines.get(r) else {
+                continue;
+            };
+            let carried = self.carried(r, facts, &lines);
+            for (said, proof) in self.stated_by(r, scope, facts, &lines)? {
+                let proof = match proof {
+                    Some(p) => p,
+                    None if said == line.term => carried.clone(),
+                    None => continue,
+                };
+                said_here.push((said, proof));
+            }
+        }
+        for req in &step.requires {
+            let said = self.claim_of(&req.fact)?;
+            if let Some(proof) = self.held(facts, &said, scope)? {
+                said_here.push((said, proof));
+            }
+        }
+        for (said, proof) in said_here {
+            let more = self.implied(&said, &proof, scope, facts)?;
+            for (k, v) in more.entries() {
+                self.know(&out, k, v);
+            }
+        }
+        Ok(out)
+    }
+
+    /// `known` with what the lines the step names imply laid in where it
+    /// does not hold the claim already (`implied_by_named`).
+    pub fn with_implied(
+        &mut self,
+        step: Option<&Step>,
+        scope: &str,
+        known: &Facts,
+    ) -> Checked<()> {
+        let implied = self.implied_by_named(step, scope, known)?;
+        for (k, v) in implied.entries() {
+            if !self.holds(known, &k) {
+                self.know(known, k, v);
+            }
+        }
+        Ok(())
+    }
+
     /// `said ∈ system`, carried in one lemma from a membership written: only
     /// the lemmas `rules::MEMBERSHIP` declares that take a thing in one
     /// number system to another, and only one of them.
@@ -1710,13 +1774,7 @@ impl<'a> Elaborator<'a> {
             ));
         }
         // A divisor's `≠ 0` is the page's, from what the step names.
-        let named = match &self.resting {
-            Some(resting) => {
-                let resting = resting.clone();
-                facts.filtered(|_, v| v.origin.iter().all(|o| may_rest_on(&resting, o)))
-            }
-            None => facts.clone(),
-        };
+        let named = self.restable(facts);
         self.built(
             said,
             system,
