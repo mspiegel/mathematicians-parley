@@ -1,12 +1,30 @@
 #!/usr/bin/env bash
-# Everything that must pass before a commit, with what can run at once run
-# at once.
+# What must pass before a commit, with what can run at once run at once.
+#
+# Two levels:
+#
+#   scripts/precommit.sh            everything: what must pass before main
+#                                   receives a merge.
+#   scripts/precommit.sh --branch   what must pass before a commit to a
+#                                   branch: the same with the gate and the
+#                                   four slowest test binaries left out.
 #
 # Three lanes run side by side:
 #
 #   debug:    cargo clippy                           (target/debug)
 #   release:  cargo build --release, then parley build, then parley gate
+#             (parley check in its place with --branch)
 #   test:     cargo nextest run --release            (target/release)
+#
+# With --branch the gate gives way to `parley check`, and the test lane
+# leaves out invariance, planted_elaborate, planted_gate and coverage.
+# What the branch level still holds is formatting, lints, every artifact
+# built and kernel-checked as it is built (and committed, below), the
+# checker over the corpus, and the remaining tests, the planted checks among
+# them. What it does not hold is the gate's fresh rebuild compared with the
+# tree, its label, testing and requires-line stages, the respellings of
+# every proof, and the planted defects of the elaborator and the gate. The
+# full level runs all of them, so a branch is run at it before it is merged.
 #
 # The tests elaborate proofs and load set.mm, and run several times faster
 # built with optimisations. nextest runs the test binaries side by side,
@@ -33,11 +51,24 @@
 # reported as a failure: rebuilt artifacts are to be committed, and the
 # script run again.
 #
-# Usage:  scripts/precommit.sh     (from anywhere in the working tree)
+# Usage:  scripts/precommit.sh [--branch]   (from anywhere in the working tree)
 # Exits non-zero when anything fails.
 
 set -u
 cd "$(git rev-parse --show-toplevel)" || exit 2
+
+branch=""
+case "${1:-}" in
+    "") ;;
+    --branch) branch=yes ;;
+    *)
+        echo "usage: scripts/precommit.sh [--branch]" >&2
+        exit 2
+        ;;
+esac
+
+# The test binaries the branch level leaves out, the four slowest.
+slow='binary(invariance) | binary(planted_elaborate) | binary(planted_gate) | binary(coverage)'
 
 logs=$(mktemp -d)
 trap 'rm -rf "$logs"' EXIT
@@ -84,11 +115,20 @@ debug_lane() {
 release_lane() {
     step release "cargo build --release" cargo build --release || return 1
     step release "parley build" parley_build || return 1
-    step release "parley gate" ./target/release/parley gate || return 1
+    if [ -n "$branch" ]; then
+        step release "parley check" ./target/release/parley check || return 1
+    else
+        step release "parley gate" ./target/release/parley gate || return 1
+    fi
 }
 
 test_lane() {
-    step test "cargo nextest run --release" cargo nextest run --release || return 1
+    if [ -n "$branch" ]; then
+        step test "cargo nextest run --release (all but the four slowest)" \
+            cargo nextest run --release -E "not ($slow)" || return 1
+    else
+        step test "cargo nextest run --release" cargo nextest run --release || return 1
+    fi
 }
 
 debug_lane >"$logs/debug.log" 2>&1 &
@@ -119,4 +159,8 @@ if [ -n "$failed" ]; then
     echo "NOT READY:$failed"
     exit 1
 fi
-echo "ready to commit"
+if [ -n "$branch" ]; then
+    echo "ready to commit to a branch; run scripts/precommit.sh before merging to main"
+else
+    echo "ready to commit"
+fi

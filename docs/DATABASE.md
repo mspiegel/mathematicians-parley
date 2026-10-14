@@ -341,6 +341,13 @@ repaired.
   is found by `SET_MM` or by a copy or link at the root, and without it the
   gate fails and says how to supply it, because a gate that skipped a stage
   would be saying green about something it had not looked at.
+- **`scripts/precommit.sh --branch` is what must be green before a commit to
+  a branch.** It runs the same with `parley check` in place of the gate and
+  without the four slowest test binaries (invariance, planted_elaborate,
+  planted_gate, coverage): about a minute against four. Every artifact is
+  still built, kernel-checked as it is built, and committed. What it leaves
+  out the full run holds, so a branch is run without `--branch` before it is
+  merged to main.
 - **The hypotheses of `algebra` and `inequalities` are written.** Each method
   record carries a `hypotheses` field — `algebra`'s reads "every atom is a real
   number, and every denominator is nonzero" — and `SYNTAX.md` has moved the
