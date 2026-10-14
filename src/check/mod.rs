@@ -32,7 +32,7 @@ use crate::source::Source;
 use crate::text::check_encoding;
 
 pub use library::{statements_in_scope, Known};
-pub use structure::cited_in_order;
+pub use structure::{cited_in_order, unresolved};
 
 /// Methods whose steps this checker accepts without examining them.
 pub const CLOSURE: [&str; 5] = [
@@ -568,6 +568,8 @@ fn check_theorem(
     citations::check_conclusion(report, thm, library, k);
     citations::check_subjects(report, thm, library, k);
     citations::check_joins(report, thm, library, k);
+    citations::check_substitutes(report, thm, library, k);
+    citations::check_function_types(report, thm, library, k);
     formulas::check_define_citation(report, thm, library, k, scopes);
     citations::check_obtained(report, thm, library, k);
     citations::check_obtained_claims(report, thm, library, k);

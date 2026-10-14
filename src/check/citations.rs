@@ -6,15 +6,18 @@ use std::collections::BTreeSet;
 use indexmap::{IndexMap, IndexSet};
 
 use super::formulas::chain_links;
-use super::library::{introduced, listed_seed, typed_seed, Known};
+use super::library::{introduced, listed_seed, typed_in_scope, typed_seed, Known};
 use super::structure::instantiated_line;
 use super::Report;
 use crate::citing::{
     asked, bound_in, claimed_member, concludes, conjuncts, derives, filled, finished,
     identities_unsaid, names_of, obtained, obtains, readings, said_once, search,
-    supply, taken, taken_ways, with_parts, Group, Library, Parts, Sites, Taken, Ways,
+    substitution_unsaid, supply, taken, taken_ways, with_parts, Group, Library, Parts,
+    Sites, Taken, Ways,
 };
-use crate::corpus::proof::{requires_as_step, requires_item, Requires, METHODS};
+use crate::corpus::proof::{
+    requires_as_step, requires_item, substituted, substituted_into, Requires, METHODS,
+};
 use crate::corpus::{
     cited_item, define_parts, references, DefineParts, FileScope, Item, Method, Step,
     Theorem,
@@ -99,11 +102,26 @@ fn requires_parts(
             .filter_map(|s| known.read_citing(s, &defined))
             .collect()
     };
-    let claims = read_all(&req.fact);
+    let mut claims = read_all(&req.fact);
     if claims.is_empty() {
         return None;
     }
     let mut read: Vec<Node> = Vec::new();
+    // A requires line said of every member, "for all n ∈ ℕ, P", is read at
+    // the member as a step is, where the item it cites says no "for all"
+    // (`citing::at_a_member`): the membership is a fact, P the claim.
+    let at_member = item
+        .as_deref()
+        .and_then(|name| library.item(name))
+        .is_some_and(|i| !i.says_for_all());
+    if at_member {
+        if let [claim] = claims.as_slice() {
+            if let Some((member, body)) = claimed_member(claim, library, &known.sorts) {
+                read.push(member);
+                claims = vec![body];
+            }
+        }
+    }
     for r in &refs {
         if let Some(written) = scope.get(r) {
             read.extend(known.supplied(written, &defined));
@@ -273,11 +291,19 @@ fn missing_hypotheses(
     if let Some(Built(alone)) =
         (!parts.claims.is_empty()).then(|| concluded_alone(groups, parts, library))
     {
+        // Each is said at what the claim fixes, in the page's notation, so
+        // that `P or Q` with P := 2 = P reads `2 = P or Q` and does not
+        // seem to name the proof's own P.
         let unmet: Vec<String> = groups[alone.group]
             .wants
             .iter()
             .filter(|(_, tree)| !supplied_alone(tree, parts, &alone.binding, library))
-            .map(|(text, _)| text.clone())
+            .map(|(_, tree)| {
+                library
+                    .env
+                    .g
+                    .print(&filled(tree, &alone.binding, &library.ctx))
+            })
             .collect();
         if !unmet.is_empty() {
             return Some(unmet);
@@ -681,6 +707,147 @@ pub fn check_joins(
                     ),
                 );
             }
+        }
+    }
+}
+
+/// An item's `let f : D → E` filled by a function no `let` types, `let F be
+/// a function on A`, asks that type of the citation as a hypothesis, which
+/// a line the step names or a requires line says (`SYNTAX.md`, a cited item
+/// whose let a citation fills with a function that declares no type). A
+/// function the proof defines is `check_surplus`'s and the define's to
+/// read.
+pub fn check_function_types(
+    report: &mut Report,
+    thm: &Theorem,
+    library: &Library,
+    known: &Known,
+) {
+    let defines: BTreeSet<String> = defined_functions(thm.defines.iter())
+        .into_iter()
+        .map(|f| f.name)
+        .collect();
+    for step in &thm.steps {
+        let Some(item) = cited_item(&step.just) else {
+            continue;
+        };
+        if library.groups(&step.just.item(&item)).is_none() {
+            continue;
+        }
+        let asks = family_asks(step, known, library);
+        let parts = known.parts(step, library);
+        for t in &asks.types {
+            let function = &t.asked.children[0];
+            if !function.is_name() || defines.contains(&function.text) {
+                continue;
+            }
+            // A function the citation leaves the item's own letter is not
+            // one of the page's.
+            if !t.filled {
+                continue;
+            }
+            if parts.facts.iter().any(|f| t.stated_by(f, known)) {
+                continue;
+            }
+            report.say(
+                &thm.path,
+                step.just.line,
+                format!(
+                    "step {} cites {item}, which asks {}, and no line the step names gives {} a type; cite the line stating it, or say it in a requires line",
+                    step.number,
+                    known.print(&t.asked),
+                    known.print(function)
+                ),
+            );
+        }
+    }
+}
+
+/// A `substitute` claims the line it puts its equation into with one side
+/// put for the other at some of the places it stands, or with no line to
+/// put it into, `t = t′` where t′ is t so rewritten (`SYNTAX.md`). A line
+/// of several sentences offers the whole and each of its parts, as the
+/// elaborator offers them.
+pub fn check_substitutes(
+    report: &mut Report,
+    thm: &Theorem,
+    library: &Library,
+    known: &Known,
+) {
+    for step in &thm.steps {
+        if !step.just.head.is(Method::Substitute) {
+            continue;
+        }
+        let equation =
+            substituted(&step.just, &thm.path).and_then(|e| known.whole_as_written(&e));
+        let (Some(equation), Some(claim)) =
+            (equation, known.whole_as_written(&step.claim))
+        else {
+            continue;
+        };
+        let [left, right] = equation.children.as_slice() else {
+            continue;
+        };
+        // What the equation is put into, and what that must make: the line
+        // named, or one side of the claim, which is t = t′ either way round.
+        let ways: Vec<(Vec<Node>, Node)> = match substituted_into(&step.just) {
+            Some(into) => {
+                // A reference to nothing is `check_references`'s to report.
+                let scope = known.scope(step);
+                let Some(said) =
+                    scope.get(&into).and_then(|s| known.stated_as_written(s))
+                else {
+                    continue;
+                };
+                let mut starts = vec![said.clone()];
+                starts.extend(conjuncts(&said, library));
+                vec![(starts, claim.clone())]
+            }
+            None => match claim.children.as_slice() {
+                [t, rewritten] if known.ctx.equations.contains(&claim.notation) => {
+                    vec![
+                        (vec![t.clone()], rewritten.clone()),
+                        (vec![rewritten.clone()], t.clone()),
+                    ]
+                }
+                _ => Vec::new(),
+            },
+        };
+        let found = ways.iter().find(|(starts, aim)| {
+            starts
+                .iter()
+                .any(|start| known.substituted(start, aim, left, right))
+        });
+        let made = found.is_some();
+        if let Some((starts, aim)) = found {
+            // An identity element the putting makes and the claim leaves out
+            // is dropped from a number, which a line says where the page
+            // does not say it once.
+            let facts = known.parts(step, library).facts.clone();
+            let unsaid = substitution_unsaid(starts, aim, left, right, &facts, library);
+            if let Some(left) = unsaid.first() {
+                report.say(
+                    &thm.path,
+                    step.just.line,
+                    format!(
+                        "step {} drops an identity element from what the substitution makes, and nothing says {} is a number; a requires line says it",
+                        step.number,
+                        known.print(left)
+                    ),
+                );
+            }
+        }
+        if !made {
+            report.say(
+                &thm.path,
+                step.just.line,
+                format!(
+                    "step {} claims {}, which putting one side of {} for the other does not make",
+                    step.number,
+                    known.print(&claim),
+                    known.print(&equation)
+                ),
+            );
         }
     }
 }
@@ -1117,10 +1284,35 @@ fn built_on(req: &crate::corpus::Requires, step: &Step, known: &Known) -> bool {
 struct FamilyAsks {
     held: BTreeSet<String>,
     values: Vec<Node>,
-    types: Vec<Node>,
+    types: Vec<AskedType>,
     /// Which notations bind, so that a value is compared up to the letters
     /// it binds.
     ctx: Context,
+}
+
+/// A function type an item asks of a citation, under what the citation
+/// writes for its letters.
+struct AskedType {
+    /// `F : D → E` for the item's `let f : D → E` at `f := F`.
+    asked: Node,
+    /// The item's letters among its sets that the citation leaves unfilled,
+    /// which the line stating the type fills: D and E above.
+    open: BTreeSet<String>,
+    /// Whether the citation says what the item's function stands for, so
+    /// that the type is asked of one of the page's functions.
+    filled: bool,
+}
+
+impl AskedType {
+    /// Whether `node` states this type, an open letter standing for any set.
+    fn stated_by(&self, node: &Node, known: &Known) -> bool {
+        let (asked, said) = (&self.asked, node);
+        asked.notation == said.notation
+            && asked.children.len() == said.children.len()
+            && asked.children.iter().zip(&said.children).all(|(a, s)| {
+                (a.is_name() && self.open.contains(&a.text)) || known.alike(a, s)
+            })
+    }
 }
 
 fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
@@ -1132,23 +1324,33 @@ fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
     let mut held = BTreeSet::new();
     let mut values = Vec::new();
     // The item's function types under what the citation writes for its
-    // letters, `f := F`, where that makes the function one the proof
-    // defines: its rule, where the step cites the define and the rule is
-    // written out, or its name, where it does not. What the step claims is
-    // no guide to the letters: an `obtain` claims the witness, not the
-    // item's conclusion.
-    let defines: BTreeSet<String> = defined_functions(known.thm.defines.iter())
-        .into_iter()
-        .map(|f| f.name)
+    // letters, `f := F`, where that makes the function one no `let` types:
+    // one the proof defines, its rule, where the step cites the define and
+    // the rule is written out, or its name, where it does not; or one a let
+    // says only is a function on a set. A type a let declares is not asked
+    // for (`GRAMMAR.md`, the function's type is a declaration). What the
+    // step claims is no guide to the letters: an `obtain` claims the
+    // witness, not the item's conclusion.
+    let declared: BTreeSet<String> = typed_in_scope(known, step)
+        .iter()
+        .map(|t| t.children[0].text.clone())
         .collect();
     let types = library
         .function_types(&just.item(&cited_item(just).expect("a cited item")))
         .iter()
-        .map(|t| substitute_apart(t, &parts.seed, &library.ctx))
+        .map(|t| AskedType {
+            asked: substitute_apart(t, &parts.seed, &library.ctx),
+            open: t.children[1..]
+                .iter()
+                .filter(|s| s.is_name() && !parts.seed.contains_key(&s.text))
+                .map(|s| s.text.clone())
+                .collect(),
+            filled: parts.seed.contains_key(&t.children[0].text),
+        })
         .filter(|t| {
-            let function = &t.children[0];
+            let function = &t.asked.children[0];
             function.notation == PROPERTY
-                || (function.is_name() && defines.contains(&function.text))
+                || (function.is_name() && !declared.contains(&function.text))
         })
         .collect();
     for Group { wants: want, gives } in groups.iter() {
@@ -1215,7 +1417,7 @@ impl FamilyAsks {
             return false;
         };
         if node.notation == "function-type" {
-            return self.types.iter().any(|t| known.alike(t, &node));
+            return self.types.iter().any(|t| t.stated_by(&node, known));
         }
         // Or the hypothesis said whole, of every value the function takes:
         // `x : ℕ → ℝ` where x(n) is a partial sum of the reciprocals of T
@@ -2207,8 +2409,18 @@ pub fn check_surplus(
         let lost_without = |lighter: &Step| {
             fails_without(step, lighter, &ways, &facts, known, library)
         };
+        let asks = family_asks(step, known, library);
+        let scope = known.scope(step);
         for r in refs {
             if defines.contains(r.as_str()) {
+                continue;
+            }
+            // A line stating a function type the item asks for does work.
+            let says_type = scope
+                .get(r)
+                .and_then(|s| known.stated_as_written(s))
+                .is_some_and(|n| asks.types.iter().any(|t| t.stated_by(&n, known)));
+            if says_type {
                 continue;
             }
             let mut lighter = step.clone();
@@ -2224,7 +2436,6 @@ pub fn check_surplus(
                 );
             }
         }
-        let asks = family_asks(step, known, library);
         // Compared as formulas, so that `x∈ℤ` is `x ∈ ℤ`.
         let in_domain = domains_asked(thm, step, scopes, known);
         for (i, req) in step.requires.iter().enumerate() {

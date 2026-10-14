@@ -286,7 +286,7 @@ fn a_hypothesis_not_supplied_is_named_alone() {
     let out = parley::check::run(&tree).printed;
     assert!(
         out.contains(
-            "which asks for d divides b, and what it cites does not supply them"
+            "which asks for p divides n!, and what it cites does not supply them"
         ),
         "{out}"
     );
@@ -554,7 +554,7 @@ fn cases() -> Vec<Case> {
                 Some("    mun:square-nonneg x := a(k), from H2\n".to_string()),
                 "    mun:square-nonneg x := a(k)\n".to_string(),
             )],
-            "asks for x ∈ ℝ",
+            "asks for a(k) ∈ ℝ",
         ),
         // A function's type says its value is in the codomain only at a point
         // of its domain, so the line putting k in {1, …, n} is cited with it.
@@ -565,7 +565,7 @@ fn cases() -> Vec<Case> {
                 Some("mun:square-zero x := a(k), from H2, K4, 5.3.1".to_string()),
                 "mun:square-zero x := a(k), from H2, 5.3.1".to_string(),
             )],
-            "asks for x ∈ ℝ",
+            "asks for a(k) ∈ ℝ",
         ),
         case(
             "import a definition the file does not define",
@@ -912,6 +912,83 @@ fn cases() -> Vec<Case> {
                 "    3.3.  a(0) ∈ ℕ₀ and b(0) ∈ ℕ₀\n          join 1, 3.1, 3.2".to_string(),
             )],
             "step 3.3 joins 1, and claims nothing it says",
+        ),
+        case(
+            "a requires line citing a range member for its integrality",
+            vec![edit(
+                "tests/elaborator/a-range-member-is-cited.proof",
+                Some("    requires k ∈ ℤ: mun:range-integer a := 0, b := N, from H2\n    requires C(N, k) ∈ ℕ₀: mun:binomial-nat0\n".to_string()),
+                "    requires C(N, k) ∈ ℕ₀: mun:binomial-nat0, from H2\n".to_string(),
+            )],
+            "the requires line of step 1 cites mun:binomial-nat0, which asks for k ∈ ℤ, and what it cites does not supply them",
+        ),
+        case(
+            "drop an identity element a substitution makes from what no line says is a number",
+            vec![edit(
+                "tests/elaborator/an-identity-a-substitution-makes.proof",
+                Some("    substitute 1^k = 1 (H3)\n    requires C(N, k) ∈ ℕ₀: mun:binomial-nat0\n".to_string()),
+                "    substitute 1^k = 1 (H3)\n".to_string(),
+            )],
+            "step 1 drops an identity element from what the substitution makes, and nothing says C(N, k) is a number; a requires line says it",
+        ),
+        case(
+            "a link dropping an identity element from what no line says is a number",
+            vec![edit(
+                "tests/elaborator/an-identity-a-link-drops.proof",
+                Some("    requires C(N, k) ∈ ℕ₀: mun:binomial-nat0\n".to_string()),
+                String::new(),
+            )],
+            "a link of step 1 drops an identity element from C(N, k), which nothing the step names says is a number; a requires line of the step says it",
+        ),
+        case(
+            "cite an item for a function whose let gives it no type, naming no line that does",
+            vec![edit(
+                "tests/elaborator/a-type-a-line-states.proof",
+                Some("    mun:function-value f := F, from H4, H5\n".to_string()),
+                "    mun:function-value f := F, from H5\n".to_string(),
+            )],
+            "step 1 cites mun:function-value, which asks F : D → E, and no line the step names gives F a type; cite the line stating it, or say it in a requires line",
+        ),
+        // A hypothesis not supplied is said at what the claim fixes, so the
+        // instance shows the disjuncts the wrong way round.
+        case(
+            "cite disjunctive syllogism with its disjuncts the wrong way round",
+            vec![edit(
+                "proofs/sqrt2-irrational.proof",
+                Some("2.  n is even or n is odd\n    mun:even-or-odd\n\n3.  n is even\n    mun:disjunctive-syllogism P := n is even, Q := n is odd, from 1, 2".to_string()),
+                "2.  n is odd or n is even\n    mun:even-or-odd\n\n3.  n is even\n    mun:disjunctive-syllogism, from 1, 2".to_string(),
+            )],
+            "step 3 cites mun:disjunctive-syllogism, which asks for n is even or Q",
+        ),
+        // A case with no steps says it is the claim; one that does not is
+        // reported where it is, not where the step after it lands.
+        case(
+            "a last case with no steps that does not say it is the claim",
+            vec![edit(
+                "proofs/cantor.proof",
+                Some("assume x ∉ B, which is the claim                    (C2)".to_string()),
+                "assume x ∉ B                    (C2)".to_string(),
+            )],
+            "this case of step 2.1.2 has no steps, and its assumption does not say it is the claim; write its steps, or end the line `, which is the claim`",
+        ),
+        // A substitution puts one side for the other and reorders nothing.
+        case(
+            "substitute into a line, claiming its product the other way round",
+            vec![edit(
+                "proofs/bezout.proof",
+                Some("4.  c = q·d\n    substitute r = 0 (line 3) into line 1".to_string()),
+                "4.  c = d·q\n    substitute r = 0 (line 3) into line 1".to_string(),
+            )],
+            "step 4 claims c = d · q, which putting one side of r = 0 for the other does not make",
+        ),
+        case(
+            "substitute with no line, claiming more than the equation puts in",
+            vec![edit(
+                "proofs/binomial.proof",
+                Some("    1.3.  C(0, 0)·x^0·y^0 = x^0·y^0\n".to_string()),
+                "    1.3.  C(0, 0)·x^0·y^0 = x^0·y^1\n".to_string(),
+            )],
+            "step 1.3 claims C(0, 0) · x^0 · y^0 = x^0 · y^1, which putting one side of C(0, 0) = 1 for the other does not make",
         ),
         case(
             "cite a line that comes after the step",
@@ -1548,7 +1625,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/sqrt2-irrational.proof", Some("    mun:irrational x := √2, from 2\n    requires 2 ≥ 0: arithmetic\n".to_string()), "    mun:irrational x := √2, from 2\n".to_string()),
             ],
-            "the requires line of step 3 cites mun:sqrt, which asks for x ≥ 0, and what it cites does not supply them",
+            "the requires line of step 3 cites mun:sqrt, which asks for 0 ≤ 2, and what it cites does not supply them",
         ),
         case(
             "claim something the cited item does not conclude",
@@ -1839,7 +1916,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/rationals-countable.proof", Some("    requires numer(x) ∈ ℤ: mun:lowest-terms-parts\n    requires denom(x) ∈ ℕ: mun:lowest-terms-parts\n    requires |numer(x)| ∈ ℕ₀: mun:abs-integer z := numer(x)\n".to_string()), "    requires |numer(x)| ∈ ℕ₀: mun:abs-integer z := numer(x)\n    requires numer(x) ∈ ℤ: mun:lowest-terms-parts\n    requires denom(x) ∈ ℕ: mun:lowest-terms-parts\n".to_string()),
             ],
-            "the requires line of step 5 cites mun:abs-integer, which asks for z ∈ ℤ, and what it cites does not supply them",
+            "the requires line of step 5 cites mun:abs-integer, which asks for numer(x) ∈ ℤ, and what it cites does not supply them",
         ),
         // A sort is stated once, like a declared type, and a step does not cite
         // it to rely on it (`READERS.md`): citing one names a line that does no
@@ -2410,7 +2487,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/euler.proof", Some("8.  f : S → S\n".to_string()), "8.  f : S → ℕ\n".to_string()),
             ],
-            "step 8 cites mun:function-into, which asks for for all x ∈ X, E(x) ∈ Y, and what it cites does not supply them",
+            "step 8 cites mun:function-into, which asks for for all x ∈ S, f(x) ∈ ℕ, and what it cites does not supply them",
         ),
         case(
             "reorder a product by a map not shown to be one-to-one",
@@ -2445,7 +2522,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/euler.proof", Some("          requires r ∈ ℤ: mun:range-integer, from 6.1\n".to_string()), String::new()),
             ],
-            "step 6.2 cites mun:coprime-product, which asks for x ∈ ℤ",
+            "step 6.2 cites mun:coprime-product, which asks for r ∈ ℤ",
         ),
         // An exhibit's lines say each part of its body at the value, a
         // numeral's facts among them, and what is missing is named.
@@ -2491,7 +2568,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/quotient.proof", None, QUOTIENT.replacen("x := x/y, from H3", "x := x/y", 1)),
             ],
-            "step 1 cites mun:square-nonneg, which asks for x ∈ ℝ",
+            "step 1 cites mun:square-nonneg, which asks for x / y ∈ ℝ",
         ),
         // A define's name is not a letter introduced in a number system:
         // that x₁ is real rests on min-real, and abs-difference-lt asks it.
@@ -2725,6 +2802,13 @@ fn cases() -> Vec<Case> {
                 edit("proofs/sum-formula.proof", Some("                 = 1                     1.1".to_string()), "                 1                       1.1".to_string()),
             ],
             "chain line carries no relation",
+        ),
+        case(
+            "a chain line citing two lines",
+            vec![
+                edit("proofs/sum-formula.proof", Some("                 = 1                     1.1".to_string()), "                 = 1                     D1, 1.1".to_string()),
+            ],
+            "a calculation line cites one line or label, and this one cites D1, 1.1",
         ),
         case(
             "a method no record declares",

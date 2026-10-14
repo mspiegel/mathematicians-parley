@@ -71,6 +71,16 @@ pub fn typed_seed(parts: &mut Parts, name: &str, ours: &[Node], library: &Librar
         let Some(v) = stands.get(&f.text).filter(|v| v.is_name()) else {
             continue;
         };
+        // A line the step cites that types the function says its sets, and
+        // matching the item against it fixes them: F : A → C cited fixes
+        // the codomain C whatever F's let says.
+        let cited = parts.facts.iter().any(|fact| {
+            matches!(fact.notation.as_str(), "function-type" | "one-to-one")
+                && fact.children.first().is_some_and(|g| g.text == v.text)
+        });
+        if cited {
+            continue;
+        }
         let Some(said) = ours.iter().find(|s| s.children[0].text == v.text) else {
             continue;
         };

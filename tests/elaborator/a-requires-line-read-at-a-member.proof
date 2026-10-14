@@ -1,0 +1,24 @@
+import mundane theorem    stdlib/numbers/power-real
+import mundane theorem    stdlib/numbers/reciprocal-positive
+
+theorem a-requires-line-instantiating
+  note        A requires line's instantiate names the line it reads in, and rests on it.
+  let n ∈ ℕ    (H1)
+  assume for all m ∈ ℕ, 2^m > 0    (H2)
+  then 1/2^n > 0
+
+1.  1/2^n > 0
+    mun:reciprocal-positive x := 2^n
+    requires 2^n ∈ ℝ: mun:power-real a := 2, m := n
+    requires 2^n > 0: instantiate m := n in H2
+
+theorem a-requires-line-from-a-for-all
+  note        A requires line citing a "for all" line is read at the member, whose membership n's let says once.
+  let n ∈ ℕ    (H1)
+  assume for all m ∈ ℕ, 2^m > 0    (H2)
+  then 1/2^n > 0
+
+1.  1/2^n > 0
+    mun:reciprocal-positive x := 2^n
+    requires 2^n ∈ ℝ: mun:power-real a := 2, m := n
+    requires 2^n > 0: from H2

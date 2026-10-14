@@ -1146,6 +1146,55 @@ fn cases() -> Vec<Case> {
             "          obtain k, m, n from H1",
             "step 1.2 obtains k, m, n from",
         ),
+        // Dropping the 1 a substitution makes asks that what is left be a
+        // number, and b(0) is one only by the line saying so.
+        case(
+            "drop an identity element a substitution makes from a value no line says is a number",
+            "tests/elaborator/an-identity-a-substitution-makes/an-identity-a-substitution-makes-at-a-value",
+            "tests/elaborator/an-identity-a-substitution-makes.proof",
+            "    substitute 1^k = 1 (H3)\n    requires b(0) ∈ ℝ: from H1\n",
+            "    substitute 1^k = 1 (H3)\n",
+            "step 1 drops an identity element from what the substitution makes, and nothing says b(0) is a number; a requires line says it",
+        ),
+        case(
+            "a link dropping an identity element from what no line says is a number",
+            "tests/elaborator/an-identity-a-link-drops/an-identity-a-link-drops",
+            "tests/elaborator/an-identity-a-link-drops.proof",
+            "    requires C(N, k) ∈ ℕ₀: mun:binomial-nat0\n",
+            "",
+            "a link of step 1 drops an identity element from C(N, k), which nothing the step names says is a number; a requires line of the step says it",
+        ),
+        // A divisor that nothing says is not zero is named as the page
+        // writes it.
+        case(
+            "leave out that a power to a letter is not zero",
+            "tests/elaborator/a-power-said-not-zero/a-power-said-not-zero",
+            "tests/elaborator/a-power-said-not-zero.proof",
+            "    requires 2^n ≠ 0: inequalities, from H3\n",
+            "",
+            "nothing says 2^n is not zero",
+        ),
+        // A requires line's item is one the checker takes, as a step's is:
+        // k ∈ {0, …, N} cited for the k ∈ ℤ an item asks is a range, and no
+        // number system, so it says nothing past itself.
+        case(
+            "a requires line citing a range member for its integrality",
+            "tests/elaborator/a-range-member-is-cited/a-range-member-is-cited",
+            "tests/elaborator/a-range-member-is-cited.proof",
+            "    requires k ∈ ℤ: mun:range-integer a := 0, b := N, from H2\n    requires C(N, k) ∈ ℕ₀: mun:binomial-nat0\n",
+            "    requires C(N, k) ∈ ℕ₀: mun:binomial-nat0, from H2\n",
+            "no clause of mun:stdlib/counting/binomial-nat0 concludes the line from what the line names",
+        ),
+        // The build reads a file the checker may have refused, so an item
+        // the file does not import is reported where it is cited.
+        case(
+            "cite an item the file does not import",
+            "proofs/harmonic/harmonic-block",
+            "proofs/harmonic.proof",
+            "import mundane theorem    stdlib/sums/sum-real\n",
+            "",
+            "mun:sum-real is neither imported nor a theorem of this file",
+        ),
     ]
 }
 
@@ -1165,8 +1214,9 @@ fn nets() -> Vec<Case> {
             "step 1.2.8 rests on 1.2.5, which it does not name",
         ),
         // The requires line's reason cites line 2, and `mun:int-real` asks
-        // n! an integer, which line 1 says. With R2 taken away the step would
-        // elaborate.
+        // n! an integer, which line 1 says. Once the line is built, its
+        // record is read as the checker reads it, from what the line names,
+        // and no clause concludes it from line 2.
         case_importing(
             "give a requires line a reason that is not where its proof comes from, with nothing to stop the search",
             "proofs/infinitely-many-primes/prime-above",
@@ -1174,7 +1224,7 @@ fn nets() -> Vec<Case> {
             "import mundane theorem stdlib/numbers/int-real",
             "          algebra\n          requires n! ∈ ℝ: from 1\n",
             "          algebra\n          requires n! ∈ ℝ: mun:int-real, from 2\n",
-            "the requires line rests on 1, which it does not name",
+            "the requires line n! ∈ ℝ of step 5.4, read as a step citing what it cites: no clause of mun:stdlib/numbers/int-real concludes the line from what the line names",
         )
         .at(
             "proofs/infinitely-many-primes.proof",

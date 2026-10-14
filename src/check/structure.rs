@@ -434,6 +434,14 @@ pub fn check_chain(report: &mut Report, thm: &Theorem, step: &Step) {
             format!("step {} is a calculation with no chain", step.number),
         );
     }
+    // A chain the skeleton cannot cut is refused as the build refuses it.
+    let uncut = match crate::corpus::proof::chain(&step.just, &thm.path) {
+        Some(Err(problem)) => Some(problem),
+        _ => None,
+    };
+    if let Some(problem) = &uncut {
+        report.say(&problem.path, problem.line, problem.message.clone());
+    }
     for (text, no) in &step.just.chain {
         if CHAIN_ITEM.is_match(text) || text.contains(":=") {
             report.say(
@@ -445,7 +453,7 @@ pub fn check_chain(report: &mut Report, thm: &Theorem, step: &Step) {
         let related = RELATIONS.iter().any(|r| {
             text.trim_start().starts_with(r) || text.contains(&format!(" {r} "))
         });
-        if !related {
+        if !related && uncut.is_none() {
             report.say(&thm.path, *no, "chain line carries no relation");
         }
     }
@@ -525,7 +533,7 @@ fn out_of_scope(scope: &FileScope, cited: &str, said: String) -> String {
 }
 
 /// What to say of a citation that names nothing.
-fn unresolved(cited: &str) -> String {
+pub fn unresolved(cited: &str) -> String {
     if cited.contains('/') {
         return format!(
             "{cited} is cited by its path; an item is imported, and cited by the name its import gives it"

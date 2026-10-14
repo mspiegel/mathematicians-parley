@@ -908,6 +908,56 @@ regex!(
     )
 );
 
+/// What a justification's text cites, apart from a `join`'s list.
+pub struct Cited {
+    /// The lines and labels it names, in the order written.
+    pub refs: Vec<String>,
+    /// A `from` entry that is neither a line nor a label.
+    pub bad_ref: Option<String>,
+    /// An instantiate's `in …`, a line or an item.
+    pub target: Option<String>,
+}
+
+/// The lines and labels a justification names: its `from` list, a
+/// substitute's source and the line it puts into, and the line an
+/// instantiate reads `in`. A step's and a requires line's reason are read
+/// alike.
+pub fn cited_in(text: &str) -> Cited {
+    let (mut refs, bad_ref) = references(text);
+    // A substitute names its equation's source in brackets after it. Only
+    // there: M(C) on any other line is a function applied to C, not a
+    // citation of a label C.
+    if let Some(src) = SUBSTITUTE_SOURCE.captures(text) {
+        let got = src.get(1).or(src.get(2)).map(|m| m.as_str().to_string());
+        if let Some(got) = got {
+            refs.push(got);
+        }
+    }
+    for dest in INTO.captures_iter(text) {
+        let got = dest.get(1).or(dest.get(2)).unwrap();
+        refs.push(got.as_str().to_string());
+    }
+    let mut target = None;
+    if let Some(m) = IN_TARGET.captures(text) {
+        let got = m
+            .get(1)
+            .or(m.get(2))
+            .or(m.get(3))
+            .map(|g| g.as_str().to_string());
+        if let Some(t) = &got {
+            if item_prefix(t).is_none() {
+                refs.push(t.clone());
+            }
+        }
+        target = got;
+    }
+    Cited {
+        refs,
+        bad_ref,
+        target,
+    }
+}
+
 fn parse_justification(
     path: &str,
     line: &Line,
@@ -978,34 +1028,11 @@ fn parse_justification(
     };
     // A malformed justification is reported by the checker, not raised here:
     // one bad line must not cost the reader every later line in the file.
-    let (mut refs, bad_ref) = references(text);
-    // A substitute names its equation's source in brackets after it. Only
-    // there: M(C) on any other line is a function applied to C, not a
-    // citation of a label C.
-    if let Some(src) = SUBSTITUTE_SOURCE.captures(text) {
-        let got = src.get(1).or(src.get(2)).map(|m| m.as_str().to_string());
-        if let Some(got) = got {
-            refs.push(got);
-        }
-    }
-    for dest in INTO.captures_iter(text) {
-        let got = dest.get(1).or(dest.get(2)).unwrap();
-        refs.push(got.as_str().to_string());
-    }
-    let mut target = None;
-    if let Some(m) = IN_TARGET.captures(text) {
-        let got = m
-            .get(1)
-            .or(m.get(2))
-            .or(m.get(3))
-            .map(|g| g.as_str().to_string());
-        if let Some(t) = &got {
-            if item_prefix(t).is_none() {
-                refs.push(t.clone());
-            }
-        }
-        target = got;
-    }
+    let Cited {
+        mut refs,
+        bad_ref,
+        target,
+    } = cited_in(text);
     if head.is(Method::Join) {
         for tok in text["join".len()..].split(',') {
             let tok = str::trim(tok);
@@ -1285,6 +1312,16 @@ pub fn substituted(just: &Justification, path: &str) -> Option<Written> {
     Some(Written::new(str::trim(&m[1]), path, just.line))
 }
 
+regex!(SUBSTITUTED_INTO, r"\)\s+into\s+(\S.*?)\s*$");
+
+/// The line a `substitute` puts its equation into, the last word of its
+/// `into …`: `substitute x = 2 (line 3) into line 4` names 4. None where
+/// the claim is the equation's own `t = t′`.
+pub fn substituted_into(just: &Justification) -> Option<String> {
+    let m = SUBSTITUTED_INTO.captures(str::trim(&just.text))?;
+    m[1].split_whitespace().last().map(String::from)
+}
+
 /// The relations a chain line joins by (`GRAMMAR.md`, calculation chains).
 pub const CHAIN_RELATIONS: [&str; 4] = ["=", "≤", "<", "≡"];
 
@@ -1340,6 +1377,26 @@ pub fn chain(just: &Justification, path: &str) -> Option<Checked<Chain>> {
             None => ("", whole),
         };
         let words: Vec<&str> = body.split_whitespace().collect();
+        // A link cites one line (`SYNTAX.md`), so one written `1, 2` has its
+        // first citation end the term with a comma.
+        if words.last().is_some_and(|w| w.ends_with(',')) {
+            let named = words
+                .iter()
+                .rev()
+                .take_while(|w| w.ends_with(','))
+                .map(|w| w.trim_end_matches(','))
+                .collect::<Vec<_>>();
+            let mut named: Vec<&str> = named.into_iter().rev().collect();
+            named.push(cite);
+            return Some(Err(Problem::new(
+                path,
+                *no,
+                format!(
+                    "a calculation line cites one line or label, and this one cites {}; a step with several cites them, and its line cites that step",
+                    named.join(", ")
+                ),
+            )));
+        }
         let at = if i == 0 {
             let found = (0..words.len()).find(|&at| {
                 CHAIN_RELATIONS.contains(&words[at])
@@ -1854,6 +1911,34 @@ pub fn parse_proof(
             // that this step sits in, and say which part it sits in.
             let parent = number.parent();
             let owner = by_number.get(&parent).copied();
+            // A `case` held for a step whose block takes no cases is the last
+            // case of the `cases` block open above, which has no steps: one
+            // with none says it is the claim (`SYNTAX.md`).
+            let cases_owner =
+                |i: usize| draft.steps[i].step.just.head.is(Method::Cases);
+            if let Some((_, at, _)) =
+                pending_markers.iter().find(|(m, _, _)| m == "case")
+            {
+                if !owner.is_some_and(cases_owner) {
+                    let last = draft.steps.last().map(|s| s.step.number.clone());
+                    let open = last.and_then(|n| {
+                        (1..=n.len())
+                            .rev()
+                            .map(|k| n.prefix(k))
+                            .find(|p| by_number.get(p).is_some_and(|&i| cases_owner(i)))
+                    });
+                    if let Some(open) = open {
+                        return Err(Problem::new(
+                            path,
+                            *at,
+                            format!(
+                                "this case of step {} has no steps, and its assumption does not say it is the claim; write its steps, or end the line `, which is the claim`",
+                                fmt(&open)
+                            ),
+                        ));
+                    }
+                }
+            }
             let current = attach(
                 path,
                 draft,

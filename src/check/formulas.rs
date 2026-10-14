@@ -9,7 +9,7 @@ use indexmap::{IndexMap, IndexSet};
 use super::library::Known;
 use super::structure::{defined_below, introduced, letters_in_scope};
 use super::Report;
-use crate::citing::Library;
+use crate::citing::{link_unsaid, said_once, Library, Parts};
 use crate::corpus::proof::{chain, requires_item, ChainLine};
 use crate::corpus::{
     cited_item, define_parts, DefineParts, FileScope, Intro, Item, Justification,
@@ -21,7 +21,7 @@ use crate::matching::{alike_top, free_names, substitute_apart_by, Binding};
 use crate::outcome::{Built, Checked, Declined};
 use crate::regex;
 use crate::sorts::infer::{self, Reader, Store};
-use crate::sorts::{define_sorts, written_tokens, Env};
+use crate::sorts::{define_sorts, unlabel, written_tokens, Env};
 use crate::targets::split_entries;
 
 /// The sorts an item's statement relates fit, as its reading found.
@@ -104,6 +104,15 @@ fn cited_sorts(
             }
         }
     }
+    // A claim "for all m ∈ X, P" may be cited as P would be, at a member m
+    // of X (`SYNTAX.md`, a step said of every member), and what m is then is
+    // what X holds: the claim's own "for all" says so.
+    let claimed = match req {
+        None => step.claim_text(),
+        Some(req) => str::trim(&unlabel(req.fact.text())).to_string(),
+    };
+    let line = req.map_or(step.line, |r| r.line);
+    let member = reader.member_sorts(&claimed, line, env, store);
     for (name, values) in cites {
         let Some(stated) = statements.get(&name) else {
             continue;
@@ -124,11 +133,12 @@ fn cited_sorts(
             let Some(wanted) = stated.env.get(&v) else {
                 continue;
             };
-            let got = reader.sort_of(&tree, step.line.into(), &IndexMap::new(), store);
+            let got = reader.sort_of(&tree, step.line.into(), &member, store);
             let mut names: Vec<String> = Vec::new();
             for n in tree.walk() {
                 if n.is_name()
                     && reader.env.contains_key(&n.text)
+                    && !member.contains_key(&n.text)
                     && !names.contains(&n.text)
                 {
                     names.push(n.text.clone());
@@ -1457,6 +1467,30 @@ pub fn check_chain_links(
                         link.line.quoted(&link.from)
                     ),
                 );
+                continue;
+            }
+            // What the link drops an identity element from is a number by
+            // what the step names or the page says once, the link's own
+            // letters among them.
+            let mut parts = Parts {
+                facts: known.parts(step, library).facts.clone(),
+                claims: vec![said.clone()],
+                seed: Binding::new(),
+            };
+            let introduced = super::library::introduced(known, step);
+            said_once(&mut parts, &introduced, library, &known.sorts);
+            if let Some(left) =
+                link_unsaid(&said, &lines, &parts.facts, library).first()
+            {
+                report.say(
+                    &thm.path,
+                    link.line.line,
+                    format!(
+                        "a link of step {} drops an identity element from {}, which nothing the step names says is a number; a requires line of the step says it",
+                        step.number,
+                        known.print(left)
+                    ),
+                );
             }
         }
     }
@@ -1809,8 +1843,10 @@ pub fn check_define_citation(
             && written.len() == 1
             && library.ctx.functions_on.contains(&parts.claims[0].notation)
         {
-            let subject = &parts.claims[0].children[0];
-            if !(subject.is_name() && subject.text == name) {
+            // The subject as written: the claim's parts have the defined
+            // name written out, and h is then the function it names.
+            let subject = written[0].children.first();
+            if !subject.is_some_and(|s| s.is_name() && s.text == name) {
                 report.say(
                     &thm.path,
                     just.line,

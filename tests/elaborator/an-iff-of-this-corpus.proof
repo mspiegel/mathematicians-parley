@@ -1,0 +1,27 @@
+import mundane theorem stdlib/divisibility/zero-divides
+
+theorem zero-divides-restated
+  note        A theorem of this corpus concluding A ↔ B, for the two below to cite.
+  let n ∈ ℤ    (H1)
+  then 0 divides n ↔ n = 0
+
+1.  0 divides n ↔ n = 0
+    mun:zero-divides
+
+theorem an-iff-of-this-corpus-left-to-right
+  note        The ↔ convention holds at a theorem of this corpus as at an item: A in from gives B.
+  let a ∈ ℤ    (H1)
+  assume 0 divides a    (H2)
+  then a = 0
+
+1.  a = 0
+    thm:zero-divides-restated n := a, from H2
+
+theorem an-iff-of-this-corpus-right-to-left
+  note        And B in from gives A.
+  let a ∈ ℤ    (H1)
+  assume a = 0    (H2)
+  then 0 divides a
+
+1.  0 divides a
+    thm:zero-divides-restated n := a, from H2

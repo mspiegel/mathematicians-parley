@@ -1,0 +1,45 @@
+import mundane theorem stdlib/functions/function-value
+
+theorem a-type-a-line-states-cited
+  note        A function whose let gives it no type has the type an item asks of it from a line that states it, cited.
+  let A be a set    (H1)
+  let B be a set    (H2)
+  let F be a function on A    (H3)
+  assume F : A → B    (H4)
+  let t ∈ A    (H5)
+  then F(t) ∈ B
+
+1.  F(t) ∈ B
+    mun:function-value f := F, from H4, H5
+
+theorem a-type-a-line-states-required
+  note        Or from a requires line citing that line.
+  let A be a set    (H1)
+  let B be a set    (H2)
+  let F be a function on A    (H3)
+  assume F : A → B    (H4)
+  let t ∈ A    (H5)
+  then F(t) ∈ B
+
+1.  F(t) ∈ B
+    mun:function-value f := F, from H5
+    requires F : A → B: from H4
+
+theorem into-the-empty-set
+  note        A theorem of this corpus whose let types its function, for the one below to cite.
+  let A be a set    (H1)
+  let F : A → ∅    (H2)
+  then for all t ∈ A, F(t) ∈ ∅
+
+1.  For all t ∈ A, F(t) ∈ ∅.
+    mun:function-value f := F
+
+theorem a-type-a-line-states-for-a-theorem
+  note        The theorem's type is filled by a line that states it, cited.
+  let A be a set    (H1)
+  let F be a function on A    (H2)
+  assume F : A → ∅    (H3)
+  then for all t ∈ A, F(t) ∈ ∅
+
+1.  For all t ∈ A, F(t) ∈ ∅.
+    thm:into-the-empty-set, from H3

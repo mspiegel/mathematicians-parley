@@ -7,8 +7,8 @@ use crate::formula::{walk, Node};
 use indexmap::IndexMap;
 
 use crate::matching::{
-    alike, binding_sites, free_names, identities_dropped, match_tree, substitute_apart,
-    Binding, PROPERTY,
+    alike, binding_sites, free_names, identities_dropped, match_tree, put_at_some,
+    put_everywhere, substitute_apart, Binding, PROPERTY,
 };
 use crate::outcome::{Built, Route};
 
@@ -159,6 +159,65 @@ fn unnumbered(
                 })
         })
         .collect()
+}
+
+/// What a `substitute` leaves unsaid to be a number: where `aim` is reached
+/// from one of `starts` only by putting the equation `left = right` in at
+/// every place and dropping an identity element that makes (`matching::
+/// substituted_in`), what each dropped element leaves and `facts` do not
+/// say is a number (`SYNTAX.md`, "An identity element goes without saying":
+/// a substitute and the line it makes). Empty where the claim is reached
+/// with nothing dropped, or not reached at all, which the step's own check
+/// reports.
+pub fn substitution_unsaid(
+    starts: &[Node],
+    aim: &Node,
+    left: &Node,
+    right: &Node,
+    facts: &[Node],
+    library: &Library,
+) -> Vec<Node> {
+    let ctx = &library.ctx;
+    if starts.iter().any(|s| put_at_some(s, aim, left, right, ctx)) {
+        return Vec::new();
+    }
+    for start in starts {
+        for (was, now) in [(left, right), (right, left)] {
+            let made = put_everywhere(start, was, now, ctx);
+            if alike(&made, aim, ctx, &IndexMap::new(), &IndexMap::new()) {
+                return unnumbered(&made, aim, &Binding::new(), facts, library);
+            }
+        }
+    }
+    Vec::new()
+}
+
+/// What a calculation link leaves unsaid to be a number, where it is what
+/// one of `says`, the sentences of the line it cites, says only once an
+/// identity element is dropped: each dropped element's leftover that
+/// `facts` do not say is a number. A link has no requires line, so a drop
+/// from what the page does not say once is a step of its own (`SYNTAX.md`,
+/// "An identity element goes without saying"). Empty where a sentence is
+/// the link as written, or none is the link at all.
+pub fn link_unsaid(
+    link: &Node,
+    says: &[Node],
+    facts: &[Node],
+    library: &Library,
+) -> Vec<Node> {
+    let ctx = &library.ctx;
+    let none = IndexMap::new();
+    if says.iter().any(|s| {
+        identities_dropped(s, link, ctx).is_empty() && alike(s, link, ctx, &none, &none)
+    }) {
+        return Vec::new();
+    }
+    for said in says {
+        if alike(said, link, ctx, &none, &none) {
+            return unnumbered(said, link, &Binding::new(), facts, library);
+        }
+    }
+    Vec::new()
 }
 
 /// What a claim the item concludes once its identity elements are dropped

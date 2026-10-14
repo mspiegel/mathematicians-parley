@@ -2914,9 +2914,14 @@ impl Emitter {
             return o.apart(said, said).map(Built);
         }
         let found = if self.written { o.written(said)? } else { None };
+        // The term is a hole of the reason, so a message writes it in the
+        // page's notation (`Elaborator::say`).
         Ok(match found {
             Some(p) => Built(p),
-            None => Route::no(format!("nothing says {said} is not zero")),
+            None => Route::Declined(crate::outcome::Decline::shaped(
+                "nothing says {} is not zero",
+                vec![said.to_string()],
+            )),
         })
     }
 

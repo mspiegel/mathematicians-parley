@@ -1,0 +1,9 @@
+import mundane theorem    stdlib/sums/sum-real
+
+theorem an-item-at-a-member-as-a-step
+  note        A claim for all m ∈ ℕ is proved as its body would be, the item read at the member m, whose sort the claim's own "for all" gives.
+  let B : ℤ → ℝ    (H1)
+  then for all m ∈ ℕ, Σ(k = 1 to m) B(k) ∈ ℝ
+
+1.  For all m ∈ ℕ, Σ(k = 1 to m) B(k) ∈ ℝ.
+    mun:sum-real a := 1, b := m

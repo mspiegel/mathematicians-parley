@@ -1,0 +1,14 @@
+import mundane theorem stdlib/numbers/power-real
+
+theorem a-power-said-not-zero
+  note        A quotient's divisor not being zero is the step's to write, a power to a letter among them.
+  let n ∈ ℕ    (H1)
+  let ε ∈ ℝ    (H2)
+  assume 2^n > 0    (H3)
+  assume 1/2^n < ε    (H4)
+  then 1 − ε < 1 − 1/2^n
+
+1.  1 − ε < 1 − 1/2^n
+    inequalities, from H3, H4
+    requires 2^n ∈ ℝ: mun:power-real a := 2, m := n
+    requires 2^n ≠ 0: inequalities, from H3

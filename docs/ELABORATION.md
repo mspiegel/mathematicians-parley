@@ -1082,7 +1082,19 @@ where no clause of the
 record concludes the claim from them (`citing::taken`) the step is refused,
 whatever settled the hypothesis. `mun:abs-real x := ⌊A⌋ − A, from 1`, where
 line 1 says ⌊A⌋ ∈ ℤ, is refused by both tools: the difference's membership is
-a closure no line the step names states.
+a closure no line the step names states. A requires line citing a record is
+held to it as well, over what the checker reads such a line with: what its
+reason names, the requires lines above it, and the member its step's claim
+is said of, the record applied once or as often as it takes (`citing::taken`,
+`citing::derives`). `requires C(N, k) ∈ ℕ₀: mun:binomial-nat0, from H2`, where
+H2 says k ∈ {0, …, N}, is refused by both: a range is no number system, and
+k ∈ ℤ is `mun:range-integer`'s to say.
+
+An item's hypothesis that is an equation whose two sides are one under the
+citation, |X| = m at m := |A|, needs no line (`SYNTAX.md`, "An identity element
+goes without saying"), and is put among the facts proved by `eqidd`, so that
+a hypothesis of the lemma that reads a size off such an equation is settled
+from it as from a line.
 
 The item branch is guarded on the `target` because citing an item without one
 runs `assume_item`, which would turn proved facts into assumed ones. The name

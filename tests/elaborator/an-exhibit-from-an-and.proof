@@ -1,0 +1,27 @@
+import mundane theorem stdlib/sets/remove-member
+
+theorem two-witnesses-from-an-and
+  note        A line written "A and B" supplies each part, as "A. B." does, to an exhibit of two names.
+  let V be a set    (H1)
+  let b ∈ V    (H2)
+  let a ∈ V ∖ {b}    (H3)
+  then there are x, y ∈ V with x ≠ y
+
+1.  a ∈ V and a ≠ b
+    mun:remove-member u := a, Y := V, a := b, from H3
+
+2.  There are x, y ∈ V with x ≠ y.
+    exhibit, from H2, 1
+
+theorem one-witness-from-an-and
+  note        And to an exhibit of one.
+  let V be a set    (H1)
+  let b ∈ V    (H2)
+  let a ∈ V ∖ {b}    (H3)
+  then there is x ∈ V with x ≠ b
+
+1.  a ∈ V and a ≠ b
+    mun:remove-member u := a, Y := V, a := b, from H3
+
+2.  There is x ∈ V with x ≠ b.
+    exhibit, from 1

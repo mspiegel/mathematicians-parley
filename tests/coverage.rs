@@ -33,7 +33,6 @@ use parley::source::Disk;
 const UNWRITTEN: &[&str] = &[
     "notation collinear ,,arecollinear",
     "notation holds-of ()",
-    "notation implication →",
     "notation map themapsending∈to",
     "notation map-of-two themapsending∈,∈to",
     "notation pi π",

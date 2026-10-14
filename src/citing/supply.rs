@@ -4,10 +4,12 @@ use std::borrow::Cow;
 use std::collections::BTreeSet;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use indexmap::IndexSet;
+use indexmap::{IndexMap, IndexSet};
 
 use crate::formula::{Node, NodeId};
-use crate::matching::{match_tree, substitute_apart, Binding, Context, PROPERTY};
+use crate::matching::{
+    alike, match_tree, substitute_apart, Binding, Context, PROPERTY,
+};
 use crate::rules;
 
 use super::library::{either_way, Library};
@@ -309,6 +311,34 @@ fn fits(
                     .collect();
                 open_names = Cow::Owned(unbound);
             }
+        }
+    }
+    // An equation whose two sides are one once the binding is put in needs
+    // no line (`SYNTAX.md`, "An identity element goes without saying"):
+    // |X| = m at X := A and m := |A|.
+    if ctx.equations.contains(&first.notation)
+        && first.children.len() == 2
+        && all_bound(&first, variables, binding)
+    {
+        let terms: Binding = binding
+            .iter()
+            .filter(|(_, t)| t.notation != PROPERTY)
+            .map(|(v, t)| (v.clone(), t.clone()))
+            .collect();
+        let put = |side: &Node| substitute_apart(side, &terms, ctx);
+        let none = IndexMap::new();
+        if alike(
+            &put(&first.children[0]),
+            &put(&first.children[1]),
+            ctx,
+            &none,
+            &none,
+        ) {
+            out.push(Fit {
+                fact: None,
+                binding: binding.clone(),
+                takes: false,
+            });
         }
     }
     // An equation, or the denial of one, is searched for each way round

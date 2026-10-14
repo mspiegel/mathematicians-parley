@@ -898,6 +898,72 @@ pub fn alike_top(a: &Node, b: &Node, ctx: &Context) -> bool {
     alike(a, b, ctx, &IndexMap::new(), &IndexMap::new())
 }
 
+/// Whether `aim` is `start` with one side of the equation `left = right`
+/// put for the other at some of the places it stands, every place or fewer,
+/// as a `substitute` makes it (`SYNTAX.md`). Either side may be the one
+/// `start` holds, and an identity element the putting makes may be left
+/// out, as anywhere (`alike`): put in at every place, p(a) = 0 makes
+/// p(x) = (x − a)·q(x) + p(a) into p(x) = (x − a)·q(x).
+pub fn substituted_in(
+    start: &Node,
+    aim: &Node,
+    left: &Node,
+    right: &Node,
+    ctx: &Context,
+) -> bool {
+    put_at_some(start, aim, left, right, ctx)
+        || [(left, right), (right, left)].iter().any(|(was, now)| {
+            alike_top(&put_everywhere(start, was, now, ctx), aim, ctx)
+        })
+}
+
+/// `start` with `now` put at every place `was` stands.
+pub fn put_everywhere(start: &Node, was: &Node, now: &Node, ctx: &Context) -> Node {
+    if alike_top(start, was, ctx) {
+        return now.clone();
+    }
+    let kids = start
+        .children
+        .iter()
+        .map(|c| put_everywhere(c, was, now, ctx))
+        .collect();
+    Node::new(&start.notation, start.sort.clone(), kids, &start.text)
+}
+
+/// `substituted_in` put at some of the places, each part compared with its
+/// own.
+pub fn put_at_some(
+    start: &Node,
+    aim: &Node,
+    left: &Node,
+    right: &Node,
+    ctx: &Context,
+) -> bool {
+    if alike_top(start, aim, ctx)
+        || alike_top(start, left, ctx) && alike_top(aim, right, ctx)
+        || alike_top(start, right, ctx) && alike_top(aim, left, ctx)
+    {
+        return true;
+    }
+    if start.notation == aim.notation
+        && start.text == aim.text
+        && !start.children.is_empty()
+        && start.children.len() == aim.children.len()
+        && orders(start, aim, ctx).iter().any(|kids| {
+            start
+                .children
+                .iter()
+                .zip(kids.iter())
+                .all(|(a, b)| substituted_in(a, b, left, right, ctx))
+        })
+    {
+        return true;
+    }
+    identity_kept(start, ctx).is_some_and(|k| substituted_in(&k, aim, left, right, ctx))
+        || identity_kept(aim, ctx)
+            .is_some_and(|k| substituted_in(start, &k, left, right, ctx))
+}
+
 /// P applied to something, where P is one of the pattern's variables.
 fn property(
     pattern: &Node,

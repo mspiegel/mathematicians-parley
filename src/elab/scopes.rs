@@ -1533,6 +1533,17 @@ impl<'a> Elaborator<'a> {
             })
     }
 
+    /// How many "there is" layers open `term`, each over a set.
+    fn there_is_depth(&self, term: &str) -> usize {
+        let mut depth = 0;
+        let mut rest = self.to_term(term);
+        while rest.label() == Some("wrex") && rest.children().len() == 3 {
+            depth += 1;
+            rest = rest.children()[0].clone();
+        }
+        depth
+    }
+
     /// Names introduced from an existence claim, which opens a scope.
     ///
     /// This is the step that changes the shape of every step after it: the
@@ -1554,6 +1565,10 @@ impl<'a> Elaborator<'a> {
         let named = OBTAIN_ITEM
             .captures(&step.just.text)
             .map(|m| m[1].to_string());
+        let cited = match named.as_deref().filter(|n| item_prefix(n).is_some()) {
+            Some(n) => Some(self.item_cited(n)?),
+            None => None,
+        };
         let (mut ex, mut p_ex);
         match &named {
             None => {
@@ -1569,6 +1584,29 @@ impl<'a> Elaborator<'a> {
                 };
                 ex = held.term.clone();
                 p_ex = self.carried(&where_, facts, &self.lines.clone());
+                // A line of several sentences supplies each of them apart
+                // (`SYNTAX.md`), so the "there is" is the one of them that
+                // binds as many names as the step obtains.
+                if self.there_is_depth(&ex) < got.len() {
+                    let sentences = held.sentences.clone();
+                    let mut chosen = None;
+                    for one in &sentences {
+                        let term = self.term(one)?;
+                        if self.there_is_depth(&term) >= got.len() {
+                            chosen = Some(term);
+                            break;
+                        }
+                    }
+                    if let Some(one) = chosen {
+                        let parts = Facts::new();
+                        self.know(&parts, ex.clone(), p_ex.clone());
+                        self.unpack_all(&ex, &p_ex, scope, &parts);
+                        if let Some(p) = self.held(&parts, &one, scope)? {
+                            ex = one;
+                            p_ex = p;
+                        }
+                    }
+                }
                 // Eliminating an existential puts the name it binds into the
                 // scope, and the lemma that does it forbids that name in what
                 // the scope already says. So the claim is respelt first, over
@@ -1607,14 +1645,11 @@ impl<'a> Elaborator<'a> {
                     ex = fresh;
                 }
             }
-            Some(item_name)
-                if item_prefix(item_name).is_some()
-                    && self.item_cited(item_name).unfolds() =>
-            {
+            Some(_) if cited.is_some_and(|item| item.unfolds()) => {
                 // The existence is the one the step's claim states, over
                 // names nothing else holds, reached as a step claiming it
                 // would reach it.
-                let item = self.item_cited(item_name);
+                let item = cited.expect("the guard found it");
                 let claimed = self.existence_claimed(step, &got)?;
                 ex = self.renamed(&claimed, got.len())?;
                 let lines = self.lines.clone();
@@ -1672,7 +1707,7 @@ impl<'a> Elaborator<'a> {
                 };
             }
             Some(item_name) => {
-                let item = self.item_cited(item_name);
+                let item = self.item_cited(item_name)?;
                 let claimed = self.names_kept(|me| -> Checked<String> {
                     // A record's sentence comes back with each of its letters
                     // already what it stands for (`item_sentence_here`), in

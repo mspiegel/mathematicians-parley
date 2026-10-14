@@ -1,0 +1,10 @@
+theorem a-define-cited-as-a-step
+  note        A define with a parameter states what its function is on, cited as a step as well as from a requires line.
+  let A be a set    (H1)
+  let F : A → A    (H2)
+  let h(x) = F(x), for x ∈ A    (D1)
+         reads F again
+  then h is a function on A
+
+1.  h is a function on A
+    D1

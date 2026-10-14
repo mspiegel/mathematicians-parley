@@ -68,9 +68,11 @@ pub fn rests_on_only(proof: &Proof, item: &str) -> bool {
         && proof.origin.iter().next().map(String::as_str) == Some(item)
 }
 
-/// The references a justification names, for a reader outside its file.
+/// The references a justification names, for a reader outside its file:
+/// its `from` list, and an instantiate's `in` line and a substitute's
+/// lines, as a step's are read (`corpus::proof::cited_in`).
 pub fn citations(text: &str) -> Vec<String> {
-    references(text).0
+    crate::corpus::proof::cited_in(text).refs
 }
 
 /// The lemmas an item's `target` names, one per `then` group; none for a
@@ -691,6 +693,14 @@ impl<'a> Elaborator<'a> {
             // Turned as well: a line of the scope saying it held it both
             // ways round, and the step takes this line's proof either way.
             self.know_turned(&known, &term, &made, scope);
+            // What the line's membership implies is the line's too, proved
+            // last, so that the step takes it over a line of the scope that
+            // says the same: |A| ∈ ℂ from `requires |A| ∈ ℝ`, not from a
+            // line saying |A| ∈ ℕ that the step does not name.
+            let implied = self.implied(&term, &made, scope, &known)?;
+            for (said, proof) in implied.entries() {
+                self.know(&known, said, proof);
+            }
             self.know(&known, term, made);
         }
         Ok(known)
@@ -783,6 +793,12 @@ impl<'a> Elaborator<'a> {
                 continue;
             }
             let at = self.rpn(&m.children()[0]);
+            // A membership the page says once is taken from where it says
+            // it, so the line rests on no let it does not name.
+            let inside = match self.said_once_proof(&m, scope, facts)? {
+                Built(p) => p,
+                Declined(_) => inside,
+            };
             let instance = self.rpn(&self.restated(&body, &mark, &at));
             let held = Facts::new();
             self.know(&held, said, whole.clone());

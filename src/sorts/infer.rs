@@ -756,6 +756,48 @@ impl Reader {
         });
     }
 
+    /// The letter a claim "for all m ∈ X, P" binds, with what X holds, or
+    /// the letter "for all Y ⊆ X" binds, with X's sort; empty where the
+    /// claim is neither. A claim that does not read is `check_formulas`'s
+    /// to report.
+    pub fn member_sorts(
+        &mut self,
+        claimed: &str,
+        line: usize,
+        env: Env,
+        store: &mut Store,
+    ) -> IndexMap<String, SortTerm> {
+        let mut out = IndexMap::new();
+        let written = Written::new(claimed, &self.path, line);
+        let sorts = self.sorts(store);
+        let Ok(tree) = written.sentence().and_then(|s| s.read(env.g, &sorts)) else {
+            return out;
+        };
+        let [letter, domain, _] = tree.children.as_slice() else {
+            return out;
+        };
+        if !letter.is_name() {
+            return out;
+        }
+        let over = self.sort_of(domain, line.into(), &IndexMap::new(), store);
+        match tree.notation.as_str() {
+            "for-all" => {
+                let one = store.var();
+                if !store
+                    .unify(&over, &SortTerm::set(one.clone()))
+                    .is_declined()
+                {
+                    out.insert(letter.text.clone(), one);
+                }
+            }
+            "for-all-part" => {
+                out.insert(letter.text.clone(), over);
+            }
+            _ => {}
+        }
+        out
+    }
+
     /// The sort of a parse tree, noting every clash inside it.
     pub fn sort_of(
         &mut self,

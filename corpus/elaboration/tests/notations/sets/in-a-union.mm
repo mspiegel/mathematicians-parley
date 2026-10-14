@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.notations.sets.in-a-union $p |- 3 e. ( { 1 , 2 } u. { 3 } ) $=
-    ( c3 c1 c2 cpr csn cun wcel wtru wo wceq eqid a1i eqcomd cvv wb 3ex elsng syl mpbird olc elun mptru ) ABCDZAEZFZGZHUFAUCGZAUDGZIZHUHUIHUHAAJZHAAHAAUJHAKLMMHANGZUHUJOUKHPLAANQRSUHUGTRUFUIOHAUCUDUALSUB $.
+    ( c3 c1 c2 cpr csn cun wcel wtru wo wceq eqidd cvv wb 3ex a1i elsng syl mpbird olc elun mptru ) ABCDZAEZFZGZHUEAUBGZAUCGZIZHUGUHHUGAAJZHAKHALGZUGUIMUJHNOAALPQRUGUFSQUEUHMHAUBUCTORUA $.
 $}

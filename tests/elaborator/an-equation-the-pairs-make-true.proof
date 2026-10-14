@@ -1,0 +1,20 @@
+import mundane theorem stdlib/counting/card-disjoint-union
+import mundane theorem stdlib/counting/card-nat0
+
+theorem an-equation-the-pairs-make-true
+  note        The item asks |X| = m, which m := |A| makes |A| = |A|: an equation whose two sides are the same needs no line.
+  let A be a set    (H1)
+  let B be a set    (H2)
+  assume A is finite    (H3)
+  assume B is finite    (H4)
+  assume A ∩ B = ∅    (H5)
+  then |A ∪ B| = |A| + |B|
+
+1.  |A| ∈ ℕ₀
+    mun:card-nat0 X := A, from H3
+
+2.  |B| ∈ ℕ₀
+    mun:card-nat0 X := B, from H4
+
+3.  |A ∪ B| = |A| + |B|
+    mun:card-disjoint-union X := A, Y := B, m := |A|, n := |B|, from H5, 1, 2

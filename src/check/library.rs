@@ -15,7 +15,9 @@ use crate::corpus::proof::cited_item;
 use crate::corpus::{Intro, Kinded, Method, Step, StepNo, Theorem, Values};
 use crate::formula::page::{conjoined, filled, Sentence, Written};
 use crate::formula::{Node, Sorts};
-use crate::matching::{alike, expand, standard, Binding, Context, Definitions};
+use crate::matching::{
+    alike, expand, standard, substituted_in, Binding, Context, Definitions,
+};
 use crate::sorts::introduction::Introduction;
 use crate::sorts::{Env, OutsideDefines};
 
@@ -74,7 +76,7 @@ pub struct Known<'a> {
     pub sorts: Sorts,
     /// What the notations are, read once for the corpus: which spelling of a
     /// relation is another turned around (`matching::standard`).
-    ctx: &'a Context,
+    pub ctx: &'a Context,
     /// The definitions from outside the theorem a citation may write out.
     outside: OutsideDefines,
     cited: RefCell<IndexMap<Vec<String>, Rc<Definitions>>>,
@@ -261,6 +263,20 @@ impl<'a> Known<'a> {
             &none,
             &none,
         )
+    }
+
+    /// Whether `aim` is `start` with one side of `left = right` put for the
+    /// other (`matching::substituted_in`), each read in the standard order
+    /// as `alike` reads it.
+    pub fn substituted(
+        &self,
+        start: &Node,
+        aim: &Node,
+        left: &Node,
+        right: &Node,
+    ) -> bool {
+        let s = |n: &Node| standard(n, self.ctx);
+        substituted_in(&s(start), &s(aim), &s(left), &s(right), self.ctx)
     }
 
     /// What a defined name stands for in a citation naming `refs`: each
@@ -551,7 +567,7 @@ pub fn introduced(known: &Known, step: &Step) -> Introduced {
 
 /// The function types the lines in scope at `step` say, `v : {0, …, n} →
 /// V`, read off the same introducing lines as `introduced`.
-fn typed_in_scope(known: &Known, step: &Step) -> Vec<Node> {
+pub fn typed_in_scope(known: &Known, step: &Step) -> Vec<Node> {
     introducing(known, step)
         .iter()
         .flat_map(|stated| known.said_parts(stated, None).into_iter().flatten())

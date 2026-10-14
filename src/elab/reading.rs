@@ -425,13 +425,15 @@ impl<'a> Elaborator<'a> {
     }
 
     /// The item a citation in this theorem's file names, `thm:x`: one the
-    /// file imports under that name, or a theorem of this file.
-    pub fn item_cited(&self, cited: &str) -> Item<'a> {
+    /// file imports under that name, or a theorem of this file. A citation
+    /// naming neither is a defect of the page, reported at the step being
+    /// built, since the build reads a file the checker may have refused.
+    pub fn item_cited(&self, cited: &str) -> Checked<Item<'a>> {
         let name = self.thm.names.full(cited);
-        *self
-            .items
-            .get(&name)
-            .unwrap_or_else(|| panic!("no item {name}"))
+        match self.items.get(&name) {
+            Some(item) => Ok(*item),
+            None => Err(self.defect(self.at, crate::check::unresolved(cited))),
+        }
     }
 
     /// What the step gives the letter a definition is about, found by that
@@ -445,7 +447,7 @@ impl<'a> Elaborator<'a> {
         values: &[(String, String)],
         line: usize,
     ) -> Checked<String> {
-        let Item::Record(item) = self.item_cited(name) else {
+        let Item::Record(item) = self.item_cited(name)? else {
             panic!("{name} is a definition of the database");
         };
         let left = self
