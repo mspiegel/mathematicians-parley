@@ -628,6 +628,13 @@ impl<'a> Elaborator<'a> {
         if let Some(found) = self.instance_of_universal(&rpn, scope, &facts)? {
             return Ok(Built(found));
         }
+        if depth > 0 {
+            if let Some(found) =
+                self.instance_at_a_term(wanted, scope, &facts, depth)?
+            {
+                return Ok(Built(found));
+            }
+        }
         Ok(self.no("cannot settle {}", &[&rpn]))
     }
 
@@ -700,6 +707,115 @@ impl<'a> Elaborator<'a> {
                 return Ok(Some(
                     pf!(self.b; scope, instance, wanted, proof, turned, "mpbid"),
                 ));
+            }
+        }
+        Ok(None)
+    }
+
+    /// `instance_of_universal` at a term no fact puts in the set: the wanted
+    /// is read as the "for all"'s body at some term, the term shown a member
+    /// of the set by the search, and the line taken there. A requires line
+    /// "for all i ∈ {1, …, 1}, i/(i + 1)! ∈ ℝ" is read at the numeral 1,
+    /// which no line puts in {1, …, 1}. A membership asked in a wider number
+    /// system than the body says is the body's carried there (`bridged`).
+    fn instance_at_a_term(
+        &mut self,
+        wanted: &Term,
+        scope: &str,
+        facts: &Facts,
+        depth: i32,
+    ) -> Checked<Option<Proof>> {
+        for (said, _) in facts.entries() {
+            let whole = self.to_term(&said);
+            if whole.variable().is_some() || whole.label() != Some("wral") {
+                continue;
+            }
+            let (body, letter, domain) = (
+                whole.children()[0].clone(),
+                self.rpn(&whole.children()[1]),
+                self.rpn(&whole.children()[2]),
+            );
+            // The body with its letter a pattern variable no part of it names.
+            let text = self.rpn(&body);
+            let Some(hole) = ["A", "B", "C", "D", "E", "F"]
+                .into_iter()
+                .find(|v| !text.split_whitespace().any(|t| t == *v))
+            else {
+                continue;
+            };
+            fn holed(t: &Term, letter: &str, hole: &Term) -> Term {
+                if t.label() == Some("cv") && t.children()[0].variable() == Some(letter)
+                {
+                    return hole.clone();
+                }
+                if t.variable().is_some() {
+                    return t.clone();
+                }
+                let kids = t
+                    .children()
+                    .iter()
+                    .map(|c| holed(c, letter, hole))
+                    .collect();
+                Term::apply(t.label().unwrap_or(""), kids)
+            }
+            let name = whole.children()[1].variable().unwrap_or("").to_string();
+            let pattern = holed(&body, &name, &Term::var(hole));
+            let vars: Vars = [Rc::from(hole)].into_iter().collect();
+            let membership = |t: &Term| {
+                t.label() == Some("wcel")
+                    && t.children().len() == 2
+                    && t.children()[1]
+                        .label()
+                        .is_some_and(|l| lookup(rules::SYSTEMS, l).is_some())
+            };
+            let binding = fit(&pattern, wanted, &Binding::new(), &vars).or_else(|| {
+                (membership(&pattern) && membership(wanted))
+                    .then(|| {
+                        fit(
+                            &pattern.children()[0],
+                            &wanted.children()[0],
+                            &Binding::new(),
+                            &vars,
+                        )
+                    })
+                    .flatten()
+            });
+            let Some(at) = binding.and_then(|b| b.get(hole).cloned()) else {
+                continue;
+            };
+            let at = self.rpn(&at);
+            if at.split_whitespace().any(|t| t == letter) {
+                continue;
+            }
+            let member = self.to_term(&t!(at, domain, "wcel"));
+            let Built(inside) =
+                self.settle(&member, scope, facts, depth - 1, None, None)?
+            else {
+                continue;
+            };
+            let there = facts.copy();
+            self.know(&there, self.rpn(&member), inside);
+            let instance =
+                self.rpn(&self.restated(&body, &format!("{letter} cv"), &at));
+            let Some(p) = self.instance_of_universal(&instance, scope, &there)? else {
+                continue;
+            };
+            let rpn = self.rpn(wanted);
+            if instance == rpn {
+                return Ok(Some(p));
+            }
+            self.know(&there, instance.clone(), p);
+            if let Some(found) = self.held(&there, &rpn, scope)? {
+                return Ok(Some(found));
+            }
+            if membership(wanted) {
+                let (s, sys) = (
+                    self.rpn(&wanted.children()[0]),
+                    self.rpn(&wanted.children()[1]),
+                );
+                if let Some(found) = self.bridged(&s, &sys, scope, &there)? {
+                    return Ok(Some(found));
+                }
             }
         }
         Ok(None)

@@ -1457,6 +1457,28 @@ impl FamilyAsks {
             {
                 return false;
             }
+            // A function the proof defines, whose type the item asks over a
+            // set the define may not name: the type said of every point,
+            // `for all i ∈ {1, …, k + 1}, t(i) ∈ ℝ`, which holds where
+            // `t : {1, …, k + 1} → ℝ` does not, t's domain being the
+            // define's.
+            let (set, value) = (&node.children[1], &body.children[0]);
+            let pointwise = value.notation == "application"
+                && value.children.len() == 2
+                && known.alike(&value.children[1], bound)
+                && self.types.iter().any(|t| {
+                    let [f, d, e] = t.asked.children.as_slice() else {
+                        return false;
+                    };
+                    f.is_name()
+                        && known.alike(f, &value.children[0])
+                        && ((d.is_name() && t.open.contains(&d.text))
+                            || known.alike(d, set))
+                        && known.alike(e, &body.children[1])
+                });
+            if pointwise {
+                return true;
+            }
             // The line's letter is put into the value apart from what the
             // value binds, and the two compared up to their bound letters:
             // `Σ(n = 1 to k) 1/T(n)` at k is `Σ(a = 1 to k) 1/T(a)`.

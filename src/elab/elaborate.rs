@@ -5324,11 +5324,16 @@ impl<'a> Elaborator<'a> {
         if !self.cited.contains(&full) {
             self.cited.push(full.clone());
         }
-        let mut spare: std::collections::VecDeque<&str> =
-            CLASS_NAMES.iter().copied().collect();
         let claimed = step.claim.sentences().len();
-        let (wanted, whole) =
-            self.names_and_sets_kept(|me| -> Checked<(Vec<String>, String)> {
+        // The theorem read under what the citation gives its letters. A
+        // letter named in `apart` is read as a class of its own, and what it
+        // stands for is given back beside the reading, to be put in once the
+        // theorem's bound letters are moved off its letters.
+        let read = |me: &mut Self, apart: &BTreeSet<String>| -> Checked<Reading> {
+            let mut spare: std::collections::VecDeque<&str> =
+                CLASS_NAMES.iter().copied().collect();
+            let mut given: Vec<Given> = Vec::new();
+            {
                 let saved = me.names.clone();
                 // Every value is read in the step's own names before any
                 // letter of the theorem is given one: `a := b/k, b := a/k`
@@ -5427,7 +5432,16 @@ impl<'a> Elaborator<'a> {
                         if let Some(term) =
                             values.get(&name).or_else(|| matched.get(&name))
                         {
-                            me.names.insert(name.clone(), term.clone());
+                            if apart.contains(&name) {
+                                me.names.insert(name.clone(), theirs.clone());
+                            } else {
+                                me.names.insert(name.clone(), term.clone());
+                            }
+                            given.push(Given {
+                                name: name.clone(),
+                                class: theirs,
+                                term: term.clone(),
+                            });
                         } else if !saved.contains_key(&name) {
                             me.names.insert(name.clone(), theirs);
                         }
@@ -5503,8 +5517,17 @@ impl<'a> Elaborator<'a> {
                 if other.stated().sentences().len() > claimed {
                     whole = stated;
                 }
-                Ok((wanted, whole))
-            })?;
+                Ok(Reading {
+                    wanted,
+                    whole,
+                    given,
+                })
+            }
+        };
+        let first = self.names_and_sets_kept(|me| read(me, &BTreeSet::new()))?;
+        let (wanted, whole) = self.apart_from_values(first, |me, apart| {
+            me.names_and_sets_kept(|me| read(me, apart))
+        })?;
         // A cited theorem asks for what it asks for, and a hypothesis a
         // reader would not think to write as a line is written as a
         // `requires` instead, or settled as a side condition. What the step
@@ -5621,6 +5644,85 @@ impl<'a> Elaborator<'a> {
         let concluded = self.concluded(step, term, &whole, proof, scope, &offered);
         self.resting = kept;
         concluded
+    }
+
+    /// The cited theorem's hypotheses and statement with what its letters
+    /// stand for put in, where a value holds a letter the theorem binds:
+    /// `f := t`, with t held as k, into `for all k ∈ ℕ, f(k) = k + 1` would
+    /// read t's k as the theorem's. A theorem is applied at whatever letters
+    /// the build gives its bound ones, so the theorem's k is moved to one
+    /// nothing holds, and the value put in after: the theorem is read again
+    /// with those letters as classes of their own (`again`), and the classes
+    /// and letters substituted together. A reading where no value holds a
+    /// letter the theorem binds is kept as it is.
+    fn apart_from_values(
+        &mut self,
+        first: Reading,
+        again: impl FnOnce(&mut Self, &BTreeSet<String>) -> Checked<Reading>,
+    ) -> Checked<(Vec<String>, String)> {
+        let bound_in = |me: &Self, reading: &Reading| -> BTreeSet<String> {
+            reading
+                .wanted
+                .iter()
+                .chain(std::iter::once(&reading.whole))
+                .flat_map(|t| me.letters_bound(&me.to_term(t)))
+                .map(|v| v.to_string())
+                .collect()
+        };
+        // The letters a value holds and does not bind itself.
+        let free_in = |me: &Self, term: &str| -> BTreeSet<String> {
+            let bound = me.letters_bound(&me.to_term(term));
+            term.split_whitespace()
+                .filter(|t| me.is_setvar(t))
+                .filter_map(|t| me.var_of(t).variable().map(String::from))
+                .filter(|v| !bound.contains(v.as_str()))
+                .collect()
+        };
+        let bound = bound_in(self, &first);
+        let apart: BTreeSet<String> = first
+            .given
+            .iter()
+            .filter(|g| !free_in(self, &g.term).is_disjoint(&bound))
+            .map(|g| g.name.clone())
+            .collect();
+        if apart.is_empty() {
+            return Ok((first.wanted, first.whole));
+        }
+        let second = again(self, &apart)?;
+        let held: BTreeSet<String> = second
+            .given
+            .iter()
+            .filter(|g| apart.contains(&g.name))
+            .flat_map(|g| free_in(self, &g.term))
+            .collect();
+        let moving: Vec<String> = bound_in(self, &second)
+            .intersection(&held)
+            .cloned()
+            .collect();
+        let terms: Vec<Term> = second
+            .wanted
+            .iter()
+            .chain(std::iter::once(&second.whole))
+            .chain(second.given.iter().map(|g| &g.term))
+            .map(|t| self.to_term(t))
+            .collect();
+        let refs: Vec<&Term> = terms.iter().collect();
+        let Some(mut binding) = self.unheld_for(moving, &refs) else {
+            return Err(self.defect(
+                self.at,
+                "no letter is left to move the cited theorem's bound letters apart from what the citation gives it",
+            ));
+        };
+        for g in second.given.iter().filter(|g| apart.contains(&g.name)) {
+            if let Some(class) = self.to_term(&g.class).variable() {
+                binding.insert(class.to_string(), self.to_term(&g.term));
+            }
+        }
+        let put = |me: &Self, t: &str| me.rpn(&me.to_term(t).substitute(&binding));
+        Ok((
+            second.wanted.iter().map(|t| put(self, t)).collect(),
+            put(self, &second.whole),
+        ))
     }
 
     /// ( scope -> term ) from the cited theorem's statement `whole`, proved
@@ -6169,6 +6271,26 @@ struct Joining<'s> {
     before_congruent: bool,
     /// ( scope -> middle ≡ right (mod modulus) ).
     after: Proof,
+}
+
+/// A cited theorem read under what a citation gives its letters
+/// (`cite_corpus`).
+struct Reading {
+    /// Its hypotheses, in order.
+    wanted: Vec<String>,
+    /// Its statement.
+    whole: String,
+    /// Each letter the citation or the match gave a value.
+    given: Vec<Given>,
+}
+
+/// One letter of a cited theorem and what the citation puts for it.
+struct Given {
+    name: String,
+    /// The class of its own the letter is read as where it is kept apart.
+    class: String,
+    /// What it stands for, in the citing proof's kernel spelling.
+    term: String,
 }
 
 /// The statement a written file proves, read off its `$p` line: what a

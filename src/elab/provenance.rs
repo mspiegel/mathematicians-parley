@@ -23,7 +23,7 @@ use crate::mm::spell::Proof;
 use crate::outcome::{Built, Checked, Declined, Route};
 use crate::rules::{self, lookup};
 use crate::targets;
-use crate::{pf, t};
+use crate::{pf, t, take};
 
 pub const REQUIRES: &str = "requires@";
 
@@ -816,6 +816,70 @@ impl<'a> Elaborator<'a> {
         Ok(None)
     }
 
+    /// A "for all" over a set inside the one a line's "for all" is over: a
+    /// line said of every member of a set says it of every member of a set
+    /// inside that one (`SYNTAX.md`). Each member of the claim's set is
+    /// fixed, shown a member of the line's (`within`, by the table the
+    /// checker reads), and the line taken at it (`part_at_a_member`).
+    fn narrowed(
+        &mut self,
+        said: &str,
+        whole: &Proof,
+        term: &str,
+        scope: &str,
+        facts: &Facts,
+    ) -> Checked<Route<Proof>> {
+        let want = self.to_term(term);
+        if want.label() != Some("wral") {
+            return Ok(Route::no("the claim is not \"for all\""));
+        }
+        let domain = self.rpn(&self.to_term(said).children()[2]);
+        let over = want.children()[2].clone();
+        if self.rpn(&over) == domain {
+            return Ok(Route::no("the claim is over the line's own set"));
+        }
+        let held = facts.copy();
+        self.know(&held, said.to_string(), whole.clone());
+        let (body, variable) = (want.children()[0].clone(), want.children()[1].clone());
+        let over_rpn = self.rpn(&over);
+        self.for_every(
+            scope,
+            &held,
+            &body,
+            &variable,
+            &over,
+            &mut |me, claim, inner, lifted| {
+                // The member `for_every` fixed, under whatever letter it chose.
+                let fixed = lifted.entries().into_iter().find_map(|(k, _)| {
+                    let m = me.to_term(&k);
+                    (m.label() == Some("wcel")
+                        && m.children()[0].label() == Some("cv")
+                        && me.rpn(&m.children()[1]) == over_rpn)
+                        .then(|| me.rpn(&m.children()[0]))
+                });
+                let Some(at) = fixed else {
+                    return Ok(Route::no("no member of the claim's set is fixed"));
+                };
+                let inside = take!(me.within(&at, &domain, inner, lifted, 3)?);
+                let Some(line) = me.held(lifted, said, inner)? else {
+                    return Ok(Route::no(
+                        "the line does not hold where the member is fixed",
+                    ));
+                };
+                let there = lifted.copy();
+                me.know(&there, t!(at, domain, "wcel"), inside);
+                let claim = me.rpn(claim);
+                match me.part_at_a_member(said, &line, &claim, inner, &there)? {
+                    Some(p) => Ok(Built(p)),
+                    None => {
+                        Ok(Route::no("the line taken at the member is not the claim"))
+                    }
+                }
+            },
+            false,
+        )
+    }
+
     /// What a line a `requires` line names says, taken apart: a definition
     /// the database gives no target for is one the notation folds away, so
     /// the unfolding is the line itself, and a `from H1` reason asks the same
@@ -901,6 +965,11 @@ impl<'a> Elaborator<'a> {
             if label == "wral" {
                 if let Some(p) =
                     self.part_at_a_member(&line.term, &whole, term, scope, facts)?
+                {
+                    return Ok(Built(p));
+                }
+                if let Built(p) =
+                    self.narrowed(&line.term, &whole, term, scope, facts)?
                 {
                     return Ok(Built(p));
                 }
