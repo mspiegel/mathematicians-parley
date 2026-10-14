@@ -743,6 +743,18 @@ notation application
               what separates them, not spacing, which the corpus does not use.
               `holds-of` is the third reading of this pattern.
 
+notation composition
+  pattern     _ ∘ _
+  sort        function from β to γ, function from α to β → function from α to γ
+  level       multiplicative
+  assoc       left
+  reads       composed with
+  metamath    ccom
+  target      _1 _2 ccom
+  note        g ∘ f is f first and then g, as a textbook writes it and as
+              set.mm's `( G o. F )` is. It binds as a product does, so
+              (g ∘ f)(x) brackets the composite before applying it.
+
 notation application-to-two
   pattern     _(_, _)
   sort        function from α to function from β to γ, α, β → γ
@@ -1506,6 +1518,20 @@ notation continuous
               names only the domain because `def:stdlib/calculus/continuous-on` takes
               `f : D → ℝ` as its hypothesis, so the codomain is ℝ wherever
               this pattern may be written.
+
+notation function-limit
+  pattern     _ tends to _ at _
+  sort        function from number to number, number, number → formula
+  level       predicate
+  reads       tends to, at
+  metamath    climc, as membership of the set of limits
+  target      _2 _1 _3 climc co wcel
+  note        The limit of a function at a point, said of a function with a
+              name, as continuity is: "f tends to L at c". set.mm's limCC
+              gives the set of limits of F at c, which is empty or holds one,
+              so the limit is a member of it. An expression is given a name
+              by a define first. def:stdlib/calculus/limit-at says what it
+              means in ε and δ.
 
 notation differentiable
   pattern     _ is differentiable on _

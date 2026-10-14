@@ -162,6 +162,31 @@ mundane theorem inverse-function
   note        A one-to-one function that reaches all of Y has an inverse
               that takes Y back to X.
 
+mundane theorem composition-function
+  let f : X → Y                                                       (H1)
+  let g : Y → W                                                       (H2)
+  then        g ∘ f : X → W
+  metamath    fco
+  target      fco
+  note        f takes X into Y, where g takes over.
+
+mundane theorem composition-value
+  let f : X → Y                                                       (H1)
+  let g : Y → W                                                       (H2)
+  let x ∈ X                                                           (H3)
+  then        (g ∘ f)(x) = g(f(x))
+  metamath    fvco3
+  target      fvco3
+
+mundane theorem composition-one-to-one
+  let f : X → Y be one-to-one                                         (H1)
+  let g : Y → W be one-to-one                                         (H2)
+  then        g ∘ f : X → W is one-to-one
+  metamath    f1co
+  target      f1co
+  note        Two different points stay apart under f, and their images
+              stay apart under g.
+
 mundane definition bijection
   let X be a set                                                      (H1)
   let f : X → Y be one-to-one                                         (H2)

@@ -10,6 +10,32 @@ import mundane theorem    stdlib/divisibility/mod-below as divisibility-mod-belo
 import mundane theorem    stdlib/divisibility/zero-divides as divisibility-zero-divides
 import definition         stdlib/divisibility/σ
 import mundane theorem    stdlib/divisibility/mod-real as divisibility-mod-real
+import mundane definition stdlib/divisibility/lcm
+import mundane theorem    stdlib/divisibility/lcm-times-gcd as divisibility-lcm-times-gcd
+
+theorem lcm-a-multiple
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  then a divides lcm(a, b)
+
+1.  a divides lcm(a, b)
+    mun:lcm
+
+theorem lcm-least
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  then for all k ∈ ℤ, if a divides k and b divides k then lcm(a, b) divides k
+
+1.  For all k ∈ ℤ, if a divides k and b divides k then lcm(a, b) divides k.
+    mun:lcm
+
+theorem lcm-times-gcd
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  then lcm(a, b)·gcd(a, b) = |a·b|
+
+1.  lcm(a, b)·gcd(a, b) = |a·b|
+    mun:divisibility-lcm-times-gcd
 
 theorem mod-real
   let a ∈ ℝ                                                           (H1)

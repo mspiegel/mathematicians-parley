@@ -26,6 +26,10 @@
 # Continuity in set.mm is into a set named by the space, `D -cn-> CC` for
 # the rules and `D -cn-> RR` for the page; `cncfss` widens one to the other
 # and `cncfcdm` narrows a continuous function into ℝ when its values are.
+#
+# A function's limit at a point is set.mm's `limCC`, said of a function into
+# ℂ on a part of ℂ; `glimcre` says it of the page's real function on a part
+# of ℝ, for `def:stdlib/calculus/limit-at`.
 
 $( Calculus: continuity and derivatives of a sum and of a line, as the
    page says them of functions named apart from their values. $)
@@ -61,6 +65,12 @@ $d t A $.
 $d t B $.
 $d t C $.
 $d t F $.
+$( The bound letters of a limit, x, y and z, apart from the function, the
+   set, the point it is taken at, the limit and the scope. $)
+$d z A $.
+$d z B $.
+$d z C $.
+$d z F $.
 
 lemma gdvdm
   hypothesis gdvdm.1 |- ( ph -> D = ( x e. I |-> E ) )
@@ -1075,4 +1085,31 @@ lemma gftc1v
   20 eqeq12d 18 19 |- ( y = x -> ( ( ( RR _D G ) ` y ) = ( F ` y ) <-> ( ( RR _D G ) ` x ) = ( F ` x ) ) )
   21 cbvralvw 20 |- ( A. y e. ( A (,) B ) ( ( RR _D G ) ` y ) = ( F ` y ) <-> A. x e. ( A (,) B ) ( ( RR _D G ) ` x ) = ( F ` x ) )
   22 sylib 17 21 |- ( ph -> A. x e. ( A (,) B ) ( ( RR _D G ) ` x ) = ( F ` x ) )
+
+# `glimcre`: a real L is the limit of a real function F on A ⊆ ℝ at a real
+# B exactly when the ε–δ condition holds, said over ℝ with ε > 0 and δ > 0
+# as the page says it. `ellimc3` says it of a function into ℂ on a part of
+# ℂ, which `fssd` and `sstrd` widen the page's ℝ to, and adds L ∈ ℂ on its
+# right, which `recnd` gives and `biantrurd` drops; `ralrp` and `rexrp`
+# read its ℝ⁺ as the reals above 0.
+lemma glimcre
+  hypothesis glimcre.1 |- ( ph -> A C_ RR )
+  hypothesis glimcre.2 |- ( ph -> F : A --> RR )
+  hypothesis glimcre.3 |- ( ph -> B e. RR )
+  hypothesis glimcre.4 |- ( ph -> C e. RR )
+  |- ( ph -> ( C e. ( F limCC B ) <-> A. x e. RR ( 0 < x -> E. y e. RR ( 0 < y /\ A. z e. A ( ( z =/= B /\ ( abs ` ( z - B ) ) < y ) -> ( abs ` ( ( F ` z ) - C ) ) < x ) ) ) ) )
+  1 ax-resscn |- RR C_ CC
+  2 a1i 1 |- ( ph -> RR C_ CC )
+  3 fssd glimcre.2 2 |- ( ph -> F : A --> CC )
+  4 sstrd glimcre.1 2 |- ( ph -> A C_ CC )
+  5 recnd glimcre.3 |- ( ph -> B e. CC )
+  6 ellimc3 3 4 5 |- ( ph -> ( C e. ( F limCC B ) <-> ( C e. CC /\ A. x e. RR+ E. y e. RR+ A. z e. A ( ( z =/= B /\ ( abs ` ( z - B ) ) < y ) -> ( abs ` ( ( F ` z ) - C ) ) < x ) ) ) )
+  7 recnd glimcre.4 |- ( ph -> C e. CC )
+  8 biantrurd 7 |- ( ph -> ( A. x e. RR+ E. y e. RR+ A. z e. A ( ( z =/= B /\ ( abs ` ( z - B ) ) < y ) -> ( abs ` ( ( F ` z ) - C ) ) < x ) <-> ( C e. CC /\ A. x e. RR+ E. y e. RR+ A. z e. A ( ( z =/= B /\ ( abs ` ( z - B ) ) < y ) -> ( abs ` ( ( F ` z ) - C ) ) < x ) ) ) )
+  9 bitr4d 6 8 |- ( ph -> ( C e. ( F limCC B ) <-> A. x e. RR+ E. y e. RR+ A. z e. A ( ( z =/= B /\ ( abs ` ( z - B ) ) < y ) -> ( abs ` ( ( F ` z ) - C ) ) < x ) ) )
+  10 rexrp |- ( E. y e. RR+ A. z e. A ( ( z =/= B /\ ( abs ` ( z - B ) ) < y ) -> ( abs ` ( ( F ` z ) - C ) ) < x ) <-> E. y e. RR ( 0 < y /\ A. z e. A ( ( z =/= B /\ ( abs ` ( z - B ) ) < y ) -> ( abs ` ( ( F ` z ) - C ) ) < x ) ) )
+  11 ralbii 10 |- ( A. x e. RR+ E. y e. RR+ A. z e. A ( ( z =/= B /\ ( abs ` ( z - B ) ) < y ) -> ( abs ` ( ( F ` z ) - C ) ) < x ) <-> A. x e. RR+ E. y e. RR ( 0 < y /\ A. z e. A ( ( z =/= B /\ ( abs ` ( z - B ) ) < y ) -> ( abs ` ( ( F ` z ) - C ) ) < x ) ) )
+  12 ralrp |- ( A. x e. RR+ E. y e. RR ( 0 < y /\ A. z e. A ( ( z =/= B /\ ( abs ` ( z - B ) ) < y ) -> ( abs ` ( ( F ` z ) - C ) ) < x ) ) <-> A. x e. RR ( 0 < x -> E. y e. RR ( 0 < y /\ A. z e. A ( ( z =/= B /\ ( abs ` ( z - B ) ) < y ) -> ( abs ` ( ( F ` z ) - C ) ) < x ) ) ) )
+  13 bitri 11 12 |- ( A. x e. RR+ E. y e. RR+ A. z e. A ( ( z =/= B /\ ( abs ` ( z - B ) ) < y ) -> ( abs ` ( ( F ` z ) - C ) ) < x ) <-> A. x e. RR ( 0 < x -> E. y e. RR ( 0 < y /\ A. z e. A ( ( z =/= B /\ ( abs ` ( z - B ) ) < y ) -> ( abs ` ( ( F ` z ) - C ) ) < x ) ) ) )
+  14 bitrdi 9 13 |- ( ph -> ( C e. ( F limCC B ) <-> A. x e. RR ( 0 < x -> E. y e. RR ( 0 < y /\ A. z e. A ( ( z =/= B /\ ( abs ` ( z - B ) ) < y ) -> ( abs ` ( ( F ` z ) - C ) ) < x ) ) ) ) )
 

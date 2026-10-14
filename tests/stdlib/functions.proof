@@ -1,6 +1,43 @@
 import mundane definition stdlib/functions/set-image as functions-set-image
 import mundane definition stdlib/functions/preimage as functions-preimage
 import mundane theorem    stdlib/functions/inverse-function as functions-inverse-function
+import mundane theorem    stdlib/functions/composition-function as functions-composition-function
+import mundane theorem    stdlib/functions/composition-value as functions-composition-value
+import mundane theorem    stdlib/functions/composition-one-to-one as functions-composition-one-to-one
+
+theorem composition-function
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  let C be a set                                                      (H3)
+  let f : A → B                                                       (H4)
+  let g : B → C                                                       (H5)
+  then g ∘ f : A → C
+
+1.  g ∘ f : A → C
+    mun:functions-composition-function
+
+theorem composition-value
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  let C be a set                                                      (H3)
+  let f : A → B                                                       (H4)
+  let g : B → C                                                       (H5)
+  let a ∈ A                                                           (H6)
+  then (g ∘ f)(a) = g(f(a))
+
+1.  (g ∘ f)(a) = g(f(a))
+    mun:functions-composition-value x := a, from H6
+
+theorem composition-one-to-one
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  let C be a set                                                      (H3)
+  let f : A → B be one-to-one                                         (H4)
+  let g : B → C be one-to-one                                         (H5)
+  then g ∘ f : A → C is one-to-one
+
+1.  g ∘ f : A → C is one-to-one
+    mun:functions-composition-one-to-one, from H4, H5
 
 theorem preimage
   let A be a set                                                      (H1)

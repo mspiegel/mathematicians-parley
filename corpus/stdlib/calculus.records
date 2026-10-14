@@ -66,6 +66,21 @@ definition continuous-on
               also says f : D → ℝ on its right side, where the page puts it
               in the hypothesis, and that conjunct is set aside.
 
+definition limit-at
+  let D ⊆ ℝ                                                           (H1)
+  let f : D → ℝ                                                       (H2)
+  let c ∈ ℝ                                                           (H3)
+  let L ∈ ℝ                                                           (H4)
+  ε, δ range over ℝ
+  then        f tends to L at c ↔ for all ε > 0, there exists δ > 0 such
+              that |f(x) − L| < ε for all x ∈ D with (x ≠ c and |x − c| < δ)
+  metamath    ellimc3, said of a real function on a part of ℝ, which this
+              corpus proves in elaboration/stdlib/proved.mm
+  target      glimcre
+  note        f(x) is within ε of L wherever x is within δ of c, c itself
+              left out: the value at c, if f has one, says nothing of the
+              limit.
+
 definition tends-to
   let x : ℕ → ℝ                                                       (H1)
   let L ∈ ℝ                                                           (H2)

@@ -67,12 +67,20 @@ pub fn read(path: &str, text: &str, b: &mut Builder) -> Checked<Group> {
     let defect = |line: usize, why: String| Problem::new(path, line, why);
     let mut head = String::new();
     let mut lines = text.lines().enumerate().peekable();
-    while let Some((_, line)) = lines.peek() {
+    while let Some((n, line)) = lines.peek() {
         if line.starts_with("lemma ") {
             break;
         }
         // Blank lines before the head begins part it from the notes.
         if !line.starts_with('#') && !(head.is_empty() && line.trim().is_empty()) {
+            // The head goes into `proved.mm` as written, and metamath-rs
+            // panics on a character outside ASCII rather than naming it.
+            if let Some(c) = line.chars().find(|c| !c.is_ascii()) {
+                return Err(defect(
+                    n + 1,
+                    format!("{c:?} goes into proved.mm, which is ASCII; a `#` note may write it"),
+                ));
+            }
             head.push_str(line);
             head.push('\n');
         }

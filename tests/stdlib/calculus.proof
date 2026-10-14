@@ -7,6 +7,19 @@ import mundane theorem    stdlib/calculus/integral-real
 import theorem            stdlib/calculus/continuous-difference
 import mundane theorem    stdlib/calculus/reals-open
 import mundane theorem    stdlib/sets/subset-self
+import definition         stdlib/calculus/limit-at
+
+theorem limit-unfolded
+  ε, δ range over ℝ
+  let D ⊆ ℝ                                                           (H1)
+  let f : D → ℝ                                                       (H2)
+  let c ∈ ℝ                                                           (H3)
+  let L ∈ ℝ                                                           (H4)
+  assume f tends to L at c                                            (H5)
+  then for all ε > 0, there exists δ > 0 such that |f(x) − L| < ε for all x ∈ D with (x ≠ c and |x − c| < δ)
+
+1.  For all ε > 0, there exists δ > 0 such that |f(x) − L| < ε for all x ∈ D with (x ≠ c and |x − c| < δ).
+    def:limit-at, from H1, H5
 
 theorem derivative-on-the-line
   let f : ℝ → ℝ                                                       (H1)

@@ -681,6 +681,12 @@ $d t A $.
 $d t B $.
 $d t C $.
 $d t F $.
+$( The bound letters of a limit, x, y and z, apart from the function, the
+   set, the point it is taken at, the limit and the scope. $)
+$d z A $.
+$d z B $.
+$d z C $.
+$d z F $.
 
   ${
     gdvdm.1 $e |- ( ph -> D = ( x e. I |-> E ) ) $.
@@ -1093,6 +1099,18 @@ $d t F $.
     ax-mp a1i adantr clt cicc ccncf cdit simpr gftc1br funbrfv imp syl2anc
     ralrimiva fveq2 eqeq12d cbvralvw sylib )
     AOPZQGRSZTZVJFTZUAZODEUBSZUCBPZVKTZVPFTZUAZBVOUCAVNOVOAVJVOUDZUEZVKUFZVJVMVKUGZVNWBWAVKUHZUIVKUJWBGUKWDUIVKULUMUNWABCDEVJFGADQUDVTHUOAEQUDVTIUOADEUPUGVTJUOADEUQSZQFUJVTKUOAFWEQURSUDVTLUOAWEQGUJVTMUOAVPGTCDVPCPFTUSUABWEUCVTNUOAVTUTVAWBWCVNVJVMVKVBVCVDVEVNVSOBVOVJVPUAVLVQVMVRVJVPVKVFVJVPFVFVGVHVI $.
+  $}
+
+  ${
+    glimcre.1 $e |- ( ph -> A C_ RR ) $.
+    glimcre.2 $e |- ( ph -> F : A --> RR ) $.
+    glimcre.3 $e |- ( ph -> B e. RR ) $.
+    glimcre.4 $e |- ( ph -> C e. RR ) $.
+  glimcre $p |- ( ph -> ( C e. ( F limCC B ) <-> A. x e. RR ( 0 < x -> E. y e. RR ( 0 < y /\ A. z e. A ( ( z =/= B /\ ( abs ` ( z - B ) ) < y ) -> ( abs ` ( ( F ` z ) - C ) ) < x ) ) ) ) ) $=
+    ( climc co wcel cv wne cmin cabs cfv clt wbr wa wi wral crp wrex cc0 cr
+    cc wss ax-resscn a1i fssd sstrd recnd ellimc3 biantrurd bitr4d rexrp
+    ralbii ralrp bitri bitrdi )
+    AGHFMNZOZDPZFQZVGFRNZSTZCPZUAUBZUCZVGHTZGRNZSTZBPZUAUBZUDZDEUEZCUFUGZBUFUEZUHVQUAUBZUHVKUAUBZVTUCZCUIUGZUDZBUIUEZAVFGUJOZWBUCWBABCDEFGHAEUIUJHJUIUJUKZAULUMZUNAEUIUJIWKUOAFKUPUQAWIWBAGLUPURUSWBWFBUFUEWHWAWFBUFVTCUTVAWFBVBVCVD $.
   $}
 
 $}

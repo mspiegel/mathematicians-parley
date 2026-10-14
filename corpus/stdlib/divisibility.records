@@ -126,6 +126,29 @@ mundane definition gcd
               dvdslegcd is the fourth said of one divisor where this says it
               of every e ∈ ℕ.
 
+mundane definition lcm
+  sort        number, number → number
+  builds      _1 _2 clcm co
+  reads       the least common multiple of
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  then        lcm(a, b) ∈ ℕ₀. a divides lcm(a, b). b divides lcm(a, b).
+              For all k ∈ ℤ, if a divides k and b divides k then
+              lcm(a, b) divides k.
+  metamath    lcmcl, dvdslcm, lcmdvds
+  target      lcmcl, dvdslcm, lcmdvds
+  note        As gcd: four sentences from three lemmas, dvdslcm saying the
+              second and third in one conjunction and lcmdvds the fourth of
+              one multiple. "Least" is in the divisibility order, as set.mm
+              has it, so lcm(a, 0) = 0.
+
+mundane theorem lcm-times-gcd
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  then        lcm(a, b)·gcd(a, b) = |a·b|
+  metamath    lcmgcd
+  target      lcmgcd
+
 theorem prime-factor
   let m ∈ ℕ                                                           (H1)
   assume m > 1                                                        (H2)

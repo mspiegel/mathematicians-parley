@@ -180,6 +180,16 @@ fn cases() -> Vec<Case> {
             new: "  8 1gcd |- ( C e. ZZ -> ( 1 gcd C ) = 2 )\n",
             expect: "1gcd does not prove what the step says",
         },
+        // metamath-rs panics on a character outside ASCII, so one in a
+        // comment bound for proved.mm is refused where it is written.
+        Case {
+            name: "a worksheet comment proved.mm would carry outside ASCII",
+            stage: as_built_case,
+            file: "corpus/proved/calculus.proved",
+            old: "$( The bound letters of a limit, x, y and z,",
+            new: "$( The bound letters of a limit, ε, δ and x,",
+            expect: "'ε' goes into proved.mm, which is ASCII",
+        },
         Case {
             name: "a proof whose statement it does not prove",
             stage: verify_case,

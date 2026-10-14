@@ -150,8 +150,19 @@ impl Grammar {
     /// one, ending in a hole or declaring a level, unless that pattern binds
     /// tighter or is the same level nesting to the right.
     fn brackets(&self, outer: &Notation, child: &Node, edge: Edge) -> bool {
-        if child.children.is_empty() || outer.level.is_empty() {
+        if child.children.is_empty() {
             return false;
+        }
+        // A pattern of no level that a term opens, as f(x) is, reads its
+        // operand as the last name before its token, so a child ending in a
+        // hole is bracketed to be the operand: (g ∘ f)(x), not g ∘ (f(x)).
+        if outer.level.is_empty() {
+            let ends_open = self
+                .notations
+                .iter()
+                .find(|n| n.name == child.notation && n.literal == child.text)
+                .is_some_and(|n| n.parts.last().is_some_and(|p| p.is_hole()));
+            return matches!(edge, Edge::Left) && ends_open;
         }
         let Some(inner) = self.plain(child).or_else(|| {
             self.notations

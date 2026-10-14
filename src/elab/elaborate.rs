@@ -220,14 +220,58 @@ impl<'a> Elaborator<'a> {
         }
         // A lemma's left side need not fix everything it mentions, so what
         // the caller can say of the right side fixes the rest.
+        // The fit is made as written and then as the standard form reads the
+        // two, as `apply_lemma` fits an antecedent: the page's x ≠ c is
+        // "not (x = c)" where a lemma writes `=/=`.
         if let Some(offered) = hint.or(ex) {
-            if let Some(filled) = fit(
-                &reads.children()[1],
-                &self.to_term(offered),
-                &binding,
-                &variables,
-            ) {
+            let offered = self.to_term(offered);
+            let filled = fit(&reads.children()[1], &offered, &binding, &variables)
+                .or_else(|| {
+                    self.fits_as(
+                        &reads.children()[1],
+                        &offered,
+                        &variables,
+                        Some(&binding),
+                    )
+                });
+            if let Some(filled) = filled {
                 binding = filled;
+            }
+        }
+        // A letter the lemma binds, which neither side fixed and which it
+        // keeps apart from its context, takes a letter nothing holds: left
+        // as the lemma's own, it may be the scope's, as a hypothesis saying
+        // "for all x" makes it.
+        if let Some(v) = &deduced {
+            let setvars: BTreeSet<&str> = sig
+                .floats
+                .iter()
+                .filter(|(kind, _)| kind == "setvar")
+                .map(|(_, name)| name.as_str())
+                .collect();
+            let open: Vec<String> = sig
+                .disjoint
+                .iter()
+                .flat_map(|(a, b)| [(a, b), (b, a)])
+                .filter(|(one, other)| {
+                    *other == v
+                        && setvars.contains(one.as_str())
+                        && !binding.contains_key(one.as_str())
+                })
+                .map(|(one, _)| one.clone())
+                .collect::<BTreeSet<_>>()
+                .into_iter()
+                .collect();
+            if !open.is_empty() {
+                let avoid: Vec<Term> = [self.to_term(scope), whole.clone()]
+                    .into_iter()
+                    .chain(binding.values().cloned())
+                    .collect();
+                if let Some(fresh) =
+                    self.unheld_for(open, &avoid.iter().collect::<Vec<_>>())
+                {
+                    binding.extend(fresh);
+                }
             }
         }
         // A slot neither side fixes is set.mm asking where to look for the
@@ -2654,6 +2698,11 @@ impl<'a> Elaborator<'a> {
         for extra in said.iter().skip(1) {
             hint = Some(t!(hint.unwrap(), extra, "wa"));
         }
+        // The right side is what the step supplies, and not whatever the
+        // scope would give; and what the lemma asks is asked of the same,
+        // its requires lines included, as where a definition unfolds.
+        let supplied = self.supplied(Some(step), scope, facts)?;
+        let known = self.with_cited(Some(step), scope, &supplied, cites);
         let (says, right) = take!(self.unfolding(
             step,
             lemma,
@@ -2662,13 +2711,9 @@ impl<'a> Elaborator<'a> {
             None,
             None,
             scope,
-            facts,
+            &known,
             hint.as_deref()
         )?);
-        // The right side is what the step supplies, and not whatever the
-        // scope would give.
-        let supplied = self.supplied(Some(step), scope, facts)?;
-        let known = self.with_cited(Some(step), scope, &supplied, cites);
         let under = take!(self.settle(
             &self.to_term(&right),
             scope,
