@@ -283,6 +283,17 @@ mundane theorem mod-multiple
   note        A whole number of m's added changes no remainder: the last
               digit of q·10 + r is the last digit of r.
 
+mundane theorem mod-real
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume b > 0                                                        (H3)
+  then        a mod b ∈ ℝ
+  metamath    modcl, said of a positive real, which this corpus reaches
+              from a real greater than 0 in elaboration/stdlib/proved.mm
+  target      gmodcl
+  note        A remainder is a number: mod-natural says so of whole numbers,
+              this of reals.
+
 mundane theorem mod-value
   let a ∈ ℝ                                                           (H1)
   let b ∈ ℝ                                                           (H2)

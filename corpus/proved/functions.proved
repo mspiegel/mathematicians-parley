@@ -26,7 +26,12 @@
 #   antecedent given, which set.mm states as an implication only, where it
 #   has `feq1i` and `fneq1i` for the other two function predicates. It is
 #   what carries a renaming of a map's bound letter up through
-#   "is one-to-one".
+#   "is one-to-one";
+# - what is in a preimage: `elpreima` says it of a function on A, which
+#   `ffn` reads off f : A → B, for `mun:stdlib/functions/preimage`;
+# - a one-to-one function onto B has an inverse from B to A: `f1f1orn`
+#   and `f1ocnv` turn it round onto its range, `fnima` makes the range
+#   f[A], which is B, for `mun:stdlib/functions/inverse-function`.
 
 $( Functions: images, inverses, a bijection from one-to-one and onto,
    and an onto function from a bijection. $)
@@ -59,6 +64,35 @@ lemma gf1cnvfv1
   1 f1f1orn |- ( F : A -1-1-> B -> F : A -1-1-onto-> ran F )
   2 f1ocnvfv1 |- ( ( F : A -1-1-onto-> ran F /\ C e. A ) -> ( `' F ` ( F ` C ) ) = C )
   3 sylan 1 2 |- ( ( F : A -1-1-> B /\ C e. A ) -> ( `' F ` ( F ` C ) ) = C )
+
+# ( F : A --> B -> ( C e. ( `' F " D ) <-> ( C e. A /\ ( F ` C ) e. D ) ) ):
+# what is in a preimage, `elpreima` said of a function the page types.
+lemma gelpreima
+  |- ( F : A --> B -> ( C e. ( `' F " D ) <-> ( C e. A /\ ( F ` C ) e. D ) ) )
+  1 ffn |- ( F : A --> B -> F Fn A )
+  2 elpreima |- ( F Fn A -> ( C e. ( `' F " D ) <-> ( C e. A /\ ( F ` C ) e. D ) ) )
+  3 syl 1 2 |- ( F : A --> B -> ( C e. ( `' F " D ) <-> ( C e. A /\ ( F ` C ) e. D ) ) )
+
+# ( ( F : A -1-1-> B /\ ( F " A ) = B ) -> `' F : B --> A ): a one-to-one
+# function onto B has an inverse from B back to A. `f1f1orn` makes F onto
+# its range, `f1ocnv` turns it round, and its range is F[A], which is B.
+lemma gf1cnvf
+  |- ( ( F : A -1-1-> B /\ ( F " A ) = B ) -> `' F : B --> A )
+  1 simpl |- ( ( F : A -1-1-> B /\ ( F " A ) = B ) -> F : A -1-1-> B )
+  2 f1f1orn |- ( F : A -1-1-> B -> F : A -1-1-onto-> ran F )
+  3 syl 1 2 |- ( ( F : A -1-1-> B /\ ( F " A ) = B ) -> F : A -1-1-onto-> ran F )
+  4 f1ocnv |- ( F : A -1-1-onto-> ran F -> `' F : ran F -1-1-onto-> A )
+  5 syl 3 4 |- ( ( F : A -1-1-> B /\ ( F " A ) = B ) -> `' F : ran F -1-1-onto-> A )
+  6 f1of |- ( `' F : ran F -1-1-onto-> A -> `' F : ran F --> A )
+  7 syl 5 6 |- ( ( F : A -1-1-> B /\ ( F " A ) = B ) -> `' F : ran F --> A )
+  8 f1fn |- ( F : A -1-1-> B -> F Fn A )
+  9 syl 1 8 |- ( ( F : A -1-1-> B /\ ( F " A ) = B ) -> F Fn A )
+  10 fnima |- ( F Fn A -> ( F " A ) = ran F )
+  11 syl 9 10 |- ( ( F : A -1-1-> B /\ ( F " A ) = B ) -> ( F " A ) = ran F )
+  12 simpr |- ( ( F : A -1-1-> B /\ ( F " A ) = B ) -> ( F " A ) = B )
+  13 eqtr3d 11 12 |- ( ( F : A -1-1-> B /\ ( F " A ) = B ) -> ran F = B )
+  14 feq2d 13 |- ( ( F : A -1-1-> B /\ ( F " A ) = B ) -> ( `' F : ran F --> A <-> `' F : B --> A ) )
+  15 mpbid 7 14 |- ( ( F : A -1-1-> B /\ ( F " A ) = B ) -> `' F : B --> A )
 
 # ( ( A e. V /\ F : A -1-1-> B /\ A. y e. B E. x e. A y = ( F ` x ) ) -> A ~~ B )
 lemma gf1foen

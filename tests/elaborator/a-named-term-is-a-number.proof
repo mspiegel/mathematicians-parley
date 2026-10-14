@@ -1,0 +1,19 @@
+theorem a-named-term-is-a-number
+  note        M names 2N + 1, which is a number as letters and numerals joined by + and · are, so nothing says M is one.
+  let N ∈ ℤ                                                           (H1)
+  let M = 2N + 1                                                      (D1)
+         reads the odd number with half-index N
+  then M − 1 = 2N
+
+1.  M − 1 = 2N
+    algebra, from D1
+
+theorem an-odd-square-over-eight
+  note        As above, in the quotient of an odd square less one by eight.
+  let N ∈ ℤ                                                           (H1)
+  let M = 2N + 1                                                      (D1)
+         reads the odd number with half-index N
+  then (M² − 1)/8 = N·(N + 1)/2
+
+1.  (M² − 1)/8 = N·(N + 1)/2
+    algebra, from D1

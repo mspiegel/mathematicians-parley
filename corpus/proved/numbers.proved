@@ -8,7 +8,8 @@
 # `mun:stdlib/divisibility/mod-multiple`). And what set.mm says of a
 # positive real divisor, said of a real one greater than 0 and reached by
 # `elrpd`: the remainder's value (`modval`, for
-# `mun:stdlib/divisibility/mod-value`), and a real below the divisor its own
+# `mun:stdlib/divisibility/mod-value`), that it is real (`modcl`, for
+# `mun:stdlib/divisibility/mod-real`), and a real below the divisor its own
 # remainder (`modid`, for `mun:stdlib/divisibility/mod-below`).
 
 $( Numbers: a remainder is less than its divisor, a multiple of the
@@ -45,6 +46,17 @@ lemma gmodval
   5 modval |- ( ( A e. RR /\ B e. RR+ ) -> ( A mod B ) = ( A - ( B x. ( |_ ` ( A / B ) ) ) ) )
   6 syl2anc 1 4 5 |- ( ( A e. RR /\ B e. RR /\ 0 < B ) -> ( A mod B ) = ( A - ( B x. ( |_ ` ( A /
       B ) ) ) ) )
+
+# ( ( A e. RR /\ B e. RR /\ 0 < B ) -> ( A mod B ) e. RR ), `modcl` said of a
+# real greater than 0, as `gmodval` is.
+lemma gmodcl
+  |- ( ( A e. RR /\ B e. RR /\ 0 < B ) -> ( A mod B ) e. RR )
+  1 simp1 |- ( ( A e. RR /\ B e. RR /\ 0 < B ) -> A e. RR )
+  2 simp2 |- ( ( A e. RR /\ B e. RR /\ 0 < B ) -> B e. RR )
+  3 simp3 |- ( ( A e. RR /\ B e. RR /\ 0 < B ) -> 0 < B )
+  4 elrpd 2 3 |- ( ( A e. RR /\ B e. RR /\ 0 < B ) -> B e. RR+ )
+  5 modcl |- ( ( A e. RR /\ B e. RR+ ) -> ( A mod B ) e. RR )
+  6 syl2anc 1 4 5 |- ( ( A e. RR /\ B e. RR /\ 0 < B ) -> ( A mod B ) e. RR )
 
 # ( ( ( A e. RR /\ B e. RR ) /\ ( 0 <_ A /\ A < B ) ) -> ( A mod B ) = A )
 lemma gmodid

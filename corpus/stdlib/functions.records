@@ -143,6 +143,25 @@ mundane theorem inverse-value
               elaboration/stdlib/proved.mm
   target      gf1cnvfv1
 
+mundane definition preimage
+  let f : X → W                                                       (H1)
+  then        u ∈ f⁻¹[Z] ↔ u ∈ X and f(u) ∈ Z
+  metamath    elpreima, with ffn, which this corpus proves together in
+              elaboration/stdlib/proved.mm
+  target      gelpreima
+  note        f⁻¹[Z] is everything in X that f sends into Z, whether or not
+              f has an inverse.
+
+mundane theorem inverse-function
+  let f : X → Y be one-to-one                                         (H1)
+  assume f[X] = Y                                                     (H2)
+  then        f⁻¹ : Y → X
+  metamath    f1f1orn, f1ocnv, f1of and fnima, which this corpus proves
+              together in elaboration/stdlib/proved.mm
+  target      gf1cnvf
+  note        A one-to-one function that reaches all of Y has an inverse
+              that takes Y back to X.
+
 mundane definition bijection
   let X be a set                                                      (H1)
   let f : X → Y be one-to-one                                         (H2)

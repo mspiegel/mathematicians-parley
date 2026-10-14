@@ -514,7 +514,7 @@ fn prepared<T>(
         .map(|k| {
             let at = Proved {
                 thm: k.thm,
-                sorts: &k.sorts,
+                sorts: std::borrow::Cow::Borrowed(&k.sorts),
             };
             (k.thm.qualified(), at)
         })

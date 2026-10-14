@@ -22,11 +22,13 @@ pub struct Group {
 }
 
 /// A theorem this corpus proves, as a citation of it reads it: the theorem,
-/// and the sort of each name its statement settles.
-#[derive(Clone, Copy)]
+/// and the sort of each name its statement settles. The checker lends the
+/// sorts it read the whole theorem with; the build reads them off the
+/// statement, which is all a citation reads, and owns them.
+#[derive(Clone)]
 pub struct Proved<'a> {
     pub thm: &'a Theorem,
-    pub sorts: &'a Sorts,
+    pub sorts: std::borrow::Cow<'a, Sorts>,
 }
 
 /// What each item asks a citation to supply.
@@ -187,7 +189,7 @@ impl<'a> Library<'a> {
                     .iter()
                     .map(|h| (h.kind, h.body(&k.thm.path)))
                     .collect();
-                (said, k.sorts)
+                (said, &*k.sorts)
             } else if let Some(&i) = self.items.get(name) {
                 let record = &self.records[i];
                 let said = record
@@ -228,14 +230,14 @@ impl<'a> Library<'a> {
                 &sorts_of_statement(thm, self.env),
             );
             let facts = self
-                .facts(&lines, k.sorts)
+                .facts(&lines, &k.sorts)
                 .into_iter()
                 .map(|(text, tree)| (text, expand(&tree, &own)))
                 .collect();
             let conclusion =
                 Written::new(&thm.conclusion, &thm.path, thm.conclusion_line);
             let gives = self
-                .trees(&[conclusion], k.sorts)
+                .trees(&[conclusion], &k.sorts)
                 .iter()
                 .map(|t| expand(t, &own))
                 .collect();

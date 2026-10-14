@@ -1,4 +1,28 @@
 import mundane definition stdlib/functions/set-image as functions-set-image
+import mundane definition stdlib/functions/preimage as functions-preimage
+import mundane theorem    stdlib/functions/inverse-function as functions-inverse-function
+
+theorem preimage
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  let C be a set                                                      (H3)
+  let f : A → B                                                       (H4)
+  let x ∈ A                                                           (H5)
+  assume f(x) ∈ C                                                     (H6)
+  then x ∈ f⁻¹[C]
+
+1.  x ∈ f⁻¹[C]
+    mun:functions-preimage u := x, from H5, H6
+
+theorem inverse-function
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  let f : A → B be one-to-one                                         (H3)
+  assume f[A] = B                                                     (H4)
+  then f⁻¹ : B → A
+
+1.  f⁻¹ : B → A
+    mun:functions-inverse-function, from H3, H4
 
 theorem set-image
   let Y be a set                                                      (H1)

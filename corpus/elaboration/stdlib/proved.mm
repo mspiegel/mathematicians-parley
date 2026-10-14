@@ -387,6 +387,15 @@ $d x S $.
     ( wf1 crn wf1o wcel cfv ccnv wceq f1f1orn f1ocnvfv1 sylan )
     ABDEADFZDGCAHCDIDJICKABDLAOCDMN $.
 
+  gelpreima $p |- ( F : A --> B -> ( C e. ( `' F " D ) <-> ( C e. A /\ ( F ` C ) e. D ) ) ) $=
+    ( wf wfn ccnv cima wcel cfv wa wb ffn elpreima syl )
+    ABEFEAGCEHDIJCAJCEKDJLMABENACDEOP $.
+
+  gf1cnvf $p |- ( ( F : A -1-1-> B /\ ( F " A ) = B ) -> `' F : B --> A ) $=
+    ( wf1 cima wceq wa crn ccnv wf wf1o simpl f1f1orn syl f1ocnv f1of wfn
+    f1fn fnima simpr eqtr3d feq2d mpbid )
+    ABCDZCAEZBFZGZCHZACIZJZBAUIJUGUHAUIKZUJUGAUHCKZUKUGUDULUDUFLZABCMNAUHCONUHAUIPNUGUHBAUIUGUEUHBUGCAQZUEUHFUGUDUNUMABCRNACSNUDUFTUAUBUC $.
+
   gf1foen $p |- ( ( A e. V /\ F : A -1-1-> B /\ A. y e. B E. x e. A y = ( F ` x ) ) -> A ~~ B ) $=
     ( wcel wf1 cv cfv wceq wrex wral w3a wf1o cen wbr simp1 wfo simp2 wf f1f
     syl simp3 wa wb dffo3 a1i mpbir2and df-f1o f1oeng syl2anc )
@@ -493,6 +502,10 @@ $( Numbers: a remainder is less than its divisor, a multiple of the
     ( cr wcel cc0 clt wbr w3a crp cmo co cdiv cfl cfv cmul cmin wceq simp1
     simp2 simp3 elrpd modval syl2anc )
     ACDZBCDZEBFGZHZUDBIDABJKABABLKMNOKPKQUDUEUFRUGBUDUEUFSUDUEUFTUAABUBUC $.
+
+  gmodcl $p |- ( ( A e. RR /\ B e. RR /\ 0 < B ) -> ( A mod B ) e. RR ) $=
+    ( cr wcel cc0 clt wbr w3a crp cmo co simp1 simp2 simp3 elrpd modcl
+    syl2anc ) ACDZBCDZEBFGZHZRBIDABJKCDRSTLUABRSTMRSTNOABPQ $.
 
   gmodid $p |- ( ( ( A e. RR /\ B e. RR ) /\ ( 0 <_ A /\ A < B ) ) -> ( A mod B ) = A ) $=
     ( cr wcel wa cc0 cle wbr clt crp cmo co wceq simpll simplr 0red simprl

@@ -9,6 +9,16 @@ import mundane theorem    stdlib/divisibility/mod-value as divisibility-mod-valu
 import mundane theorem    stdlib/divisibility/mod-below as divisibility-mod-below
 import mundane theorem    stdlib/divisibility/zero-divides as divisibility-zero-divides
 import definition         stdlib/divisibility/σ
+import mundane theorem    stdlib/divisibility/mod-real as divisibility-mod-real
+
+theorem mod-real
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume b > 0                                                        (H3)
+  then a mod b ∈ ℝ
+
+1.  a mod b ∈ ℝ
+    mun:divisibility-mod-real, from H3
 
 theorem sigma
   let n ∈ ℕ                                                           (H1)

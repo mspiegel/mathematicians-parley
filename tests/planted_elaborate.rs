@@ -473,14 +473,14 @@ fn cases() -> Vec<Case> {
         // holds n! ∈ ℕ from line 1, which step 5.4 does not cite. A factorial
         // is not a membership said once, so only a line can give it. Offered
         // that line, the step would elaborate and verify; it is not offered,
-        // so nothing says n! ∈ ℂ.
+        // so nothing says n! is a number.
         case(
             "lean on a line the step does not name",
             "proofs/infinitely-many-primes/prime-above",
             "proofs/infinitely-many-primes.proof",
             "          algebra\n          requires n! ∈ ℝ: from 1\n",
             "          algebra\n",
-            "nothing says n! ∈ ℂ, which this step needs",
+            "nothing says n! ∈ ℝ or ∈ ℂ, which this step needs",
         )
         .at("proofs/infinitely-many-primes.proof", "5.4.  (n! + 1) − n! = 1"),
         // A requires line rests only on its reason. Line 2 does not say n! is
@@ -1173,6 +1173,16 @@ fn cases() -> Vec<Case> {
             "    requires 2^n ≠ 0: inequalities, from H3\n",
             "",
             "nothing says 2^n is not zero",
+        ),
+        // A number the step needs is named in ℝ or ℂ, either of which says
+        // it: a root's record gives √A ∈ ℝ and never √A ∈ ℂ.
+        case(
+            "leave out that a root an order cites through an equation is real",
+            "tests/elaborator/a-root-said-real/a-root-said-real",
+            "tests/elaborator/a-root-said-real.proof",
+            "    requires √A ∈ ℝ: mun:sqrt x := A, from H2\n",
+            "",
+            "nothing says √A ∈ ℝ or ∈ ℂ, which this step needs",
         ),
         // A target naming a lemma the library as built does not hold, as
         // one added to corpus/proved/ before a whole build has written it,

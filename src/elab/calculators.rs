@@ -551,6 +551,42 @@ impl<'a> Elaborator<'a> {
     ) -> Checked<Route<Proof>> {
         let linear = self.sums_linear(term, Some(step), lines);
         field::reading_sums(linear, || self.decide_field(step, term, lines))?;
+        // A defined name is read as what it names, as `inequalities` reads
+        // it: the claim and each cited line are taken with their defined
+        // names written out, and the proof is carried back to the claim as
+        // the page writes it.
+        let out = take!(self.names_written_out(
+            Some(step),
+            &step.just.refs,
+            term,
+            scope,
+            facts,
+            lines
+        )?);
+        let found =
+            self.algebra_written_out(step, &out.term, scope, &out.facts, &out.lines)?;
+        if out.term == term {
+            return Ok(found);
+        }
+        let proof = take!(found);
+        let (said, want) = (self.to_term(&out.term), self.to_term(term));
+        let Built(back) = self.same(&said, &want, scope, facts, Some(step))? else {
+            return Ok(Route::no("the claim written out is not carried back"));
+        };
+        Ok(Built(
+            pf!(self.b; scope, out.term, term, proof, back, "mpbid"),
+        ))
+    }
+
+    /// `algebra` over a claim and lines whose defined names are written out.
+    fn algebra_written_out(
+        &mut self,
+        step: &Step,
+        term: &str,
+        scope: &str,
+        facts: &Facts,
+        lines: &Lines,
+    ) -> Checked<Route<Proof>> {
         let mut found = self.prove_field(Some(step), term, scope, facts, lines)?;
         // An equation is one claim either way round, and a route that reaches
         // `b = a` reaches the claim `a = b` turned (`turned_claim`).

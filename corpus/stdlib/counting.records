@@ -166,6 +166,13 @@ mundane theorem finite-part
   metamath    ssfi
   target      ssfi
 
+mundane theorem factorial-nonzero
+  let n ∈ ℕ₀                                                          (H1)
+  then        n! ≠ 0
+  metamath    facne0
+  target      facne0
+  note        A factorial is a product of numbers above 0, and 0! is 1.
+
 mundane theorem union-finite
   assume X is finite                                                  (H1)
   assume Y is finite                                                  (H2)

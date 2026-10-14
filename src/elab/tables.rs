@@ -1045,6 +1045,18 @@ impl<'a> Elaborator<'a> {
                         ));
                     }
                 }
+                // A line saying the term is real says it is complex too, and
+                // a real term is what most items give: √A ∈ ℝ, never √A ∈ ℂ.
+                // So an ask in ℂ names both.
+                if system == "cc" {
+                    return Err(self.defect(
+                        self.at,
+                        format!(
+                            "nothing says {} ∈ ℝ or ∈ ℂ, which this step needs",
+                            self.render(said)
+                        ),
+                    ));
+                }
                 Err(self.defect(
                     self.at,
                     format!(

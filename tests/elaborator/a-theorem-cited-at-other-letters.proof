@@ -1,0 +1,44 @@
+import mundane definition stdlib/sets/subset
+import mundane theorem    stdlib/sets/in-union-right
+
+theorem in-a-union-on-the-right
+  note        Whatever is in A is in B or in A.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  then A ⊆ B ∪ A
+
+1.  For all u ∈ A, u ∈ B ∪ A.
+    proof
+    let u ∈ A                                                         (K1)
+
+    1.1.  u ∈ B ∪ A
+          mun:in-union-right, from K1
+
+2.  A ⊆ B ∪ A
+    mun:subset, from 1
+
+theorem cited-with-its-letters-swapped
+  note        The theorem's A and B are found by matching: B for its A, A for its B.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  then B ⊆ A ∪ B
+
+1.  B ⊆ A ∪ B
+    thm:in-a-union-on-the-right
+
+theorem a-double-less-one
+  note        The theorem's C is what the claim makes it, whatever the citing proof calls C.
+  let C ∈ ℝ                                                           (H1)
+  then (C + C) − C = C
+
+1.  (C + C) − C = C
+    algebra
+
+theorem cited-beside-a-letter-of-the-same-name
+  note        The proof has a C of its own; the theorem's C is D here.
+  let C ∈ ℝ                                                           (H1)
+  let D ∈ ℝ                                                           (H2)
+  then (D + D) − D = D
+
+1.  (D + D) − D = D
+    thm:a-double-less-one

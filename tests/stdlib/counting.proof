@@ -6,6 +6,14 @@ import mundane theorem    stdlib/counting/range-size
 import theorem            stdlib/counting/count-functions
 import theorem            stdlib/counting/count-one-to-one
 import mundane theorem    stdlib/counting/union-finite as counting-union-finite
+import mundane theorem    stdlib/counting/factorial-nonzero as counting-factorial-nonzero
+
+theorem factorial-nonzero
+  let n ∈ ℕ₀                                                          (H1)
+  then n! ≠ 0
+
+1.  n! ≠ 0
+    mun:counting-factorial-nonzero
 
 theorem union-finite
   let X be a set                                                      (H1)

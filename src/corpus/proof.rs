@@ -1357,6 +1357,15 @@ regex!(
     BARE_NUMBER_TARGET,
     format!(r"\b(in|into)\s+({})\s*(?:,|$)", super::NUMBER)
 );
+// An obtain that names no item takes one line, `from line N` (GRAMMAR.md);
+// a bare number after `from` is right only in a citation's list.
+regex!(
+    OBTAIN_BARE_NUMBER,
+    format!(
+        r"^obtain\s+\S+(?:\s*,\s*\S+)*\s+from\s+({})\s*$",
+        super::NUMBER
+    )
+);
 regex!(
     LINE_BEFORE_LABEL,
     format!(r"\b(in|into)\s+line\s+({})\s*(?:,|$)", super::LABEL)
@@ -1380,6 +1389,12 @@ pub fn unproduced(just: &Justification) -> Option<String> {
         return Some(format!(
             "justification matches no production in GRAMMAR.md: {text}; a line number after `{}` carries the word \"line\": `{} line {}`",
             &m[1], &m[1], &m[2]
+        ));
+    }
+    if let Some(m) = OBTAIN_BARE_NUMBER.captures(just.text.trim()) {
+        return Some(format!(
+            "justification matches no production in GRAMMAR.md: {text}; an obtain naming no item takes its line with the word \"line\": `from line {}`",
+            &m[1]
         ));
     }
     if let Some(m) = LINE_BEFORE_LABEL.captures(&just.text) {

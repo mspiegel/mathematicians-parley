@@ -317,6 +317,12 @@ linear, what the step combines is each part's free factor, whose membership
 it writes, and what holds the letter is a number at each index by what the
 summand is built from, as a sum's membership is.
 
+**A defined name is read as `inequalities` reads it.** Where the step cites
+its define, the claim and the cited lines are taken with the name written
+out, and the proof is carried back to the claim as written: with `let M =
+2N + 1 (D1)`, `M − 1 = 2N` by `algebra, from D1` is 2N + 1 − 1 = 2N, and M
+is a number as 2N + 1 is, said once.
+
 ### Facts in
 
 Each line named in `from` supplies its claim as an equation or a disequality

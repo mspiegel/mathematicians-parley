@@ -2411,6 +2411,10 @@ pub fn check_surplus(
         };
         let asks = family_asks(step, known, library);
         let scope = known.scope(step);
+        // Each line the step does without, taken away alone: a cited line,
+        // and a requires line by its index.
+        let mut spare_refs: Vec<&String> = Vec::new();
+        let mut spare_requires: Vec<usize> = Vec::new();
         for r in refs {
             if defines.contains(r.as_str()) {
                 continue;
@@ -2426,14 +2430,7 @@ pub fn check_surplus(
             let mut lighter = step.clone();
             lighter.just.refs = just.refs.iter().filter(|x| *x != r).cloned().collect();
             if !lost_without(&lighter) && holds(&lighter) {
-                report.say(
-                    &thm.path,
-                    just.line,
-                    format!(
-                        "step {} cites {r}, and {item} asks for nothing it says",
-                        step.number
-                    ),
-                );
+                spare_refs.push(r);
             }
         }
         // Compared as formulas, so that `x∈ℤ` is `x ∈ ℤ`.
@@ -2451,15 +2448,63 @@ pub fn check_surplus(
                 && !lost_without(&lighter)
                 && holds(&lighter)
             {
-                report.say(
-                    &thm.path,
-                    req.line,
-                    format!(
-                        "the requires line of step {} says {}, and neither {item} nor the step's other lines ask for it",
-                        step.number, req.fact
-                    ),
-                );
+                spare_requires.push(i);
             }
+        }
+        // Lines that are each spare alone, and that the step cannot do
+        // without all at once, say one hypothesis twice: the item asks for
+        // what they say, and one of them is enough.
+        let mut without_all = step.clone();
+        without_all.just.refs.retain(|x| !spare_refs.contains(&x));
+        without_all.requires = step
+            .requires
+            .iter()
+            .enumerate()
+            .filter(|(i, _)| !spare_requires.contains(i))
+            .map(|(_, o)| o.clone())
+            .collect();
+        let twice = spare_refs.len() + spare_requires.len() > 1
+            && (lost_without(&without_all) || !holds(&without_all));
+        if twice {
+            let mut named: Vec<String> =
+                spare_refs.iter().map(|r| r.to_string()).collect();
+            named.extend(spare_requires.iter().map(|&i| {
+                format!(
+                    "the requires line {}",
+                    str::trim(step.requires[i].fact.text())
+                )
+            }));
+            report.say(
+                &thm.path,
+                just.line,
+                format!(
+                    "step {} supplies one hypothesis of {item} twice, by {}; one of them is enough",
+                    step.number,
+                    named.join(" and ")
+                ),
+            );
+            continue;
+        }
+        for r in spare_refs {
+            report.say(
+                &thm.path,
+                just.line,
+                format!(
+                    "step {} cites {r}, and {item} asks for nothing it says",
+                    step.number
+                ),
+            );
+        }
+        for i in spare_requires {
+            let req = &step.requires[i];
+            report.say(
+                &thm.path,
+                req.line,
+                format!(
+                    "the requires line of step {} says {}, and neither {item} nor the step's other lines ask for it",
+                    step.number, req.fact
+                ),
+            );
         }
     }
 }

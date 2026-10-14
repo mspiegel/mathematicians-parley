@@ -1,0 +1,14 @@
+import mundane definition stdlib/numbers/sqrt
+
+theorem a-root-said-real
+  note        An order citing an equation whose atom is √A asks that √A be a number, and √A ∈ ℝ, which the root's record gives, says it.
+  let A ∈ ℝ                                                           (H1)
+  assume A ≥ 0                                                        (H2)
+  then (√A)² ≤ A + 1
+
+1.  (√A)² = A
+    mun:sqrt x := A, from H2
+
+2.  (√A)² ≤ A + 1
+    inequalities, from 1
+    requires √A ∈ ℝ: mun:sqrt x := A, from H2

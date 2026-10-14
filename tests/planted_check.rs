@@ -350,6 +350,71 @@ theorem twice
     assert!(out.contains("\n1 problem(s)\n"), "{out}");
 }
 
+/// A hypothesis two lines supply, a cited H2 and a requires line saying the
+/// same, is reported as said twice, and neither line as asked for nothing:
+/// the item does ask for it, and one of the two is enough.
+#[test]
+fn a_hypothesis_supplied_twice_is_said_once() {
+    let clean = clean();
+    let case = case(
+        "supply one hypothesis by a cited line and a requires line",
+        vec![edit(
+            "proofs/twice.proof",
+            None,
+            "\
+import mundane theorem    stdlib/numbers/quotient-positive
+
+theorem twice
+  let M ∈ ℝ                                                           (H1)
+  assume M > 0                                                        (H2)
+  then 1/M > 0
+
+1.  1/M > 0
+    mun:quotient-positive x := 1, y := M, from H2
+    requires 0 < 1: arithmetic
+    requires 0 < M: inequalities, from H2
+"
+            .to_string(),
+        )],
+        "",
+    );
+    let tree = plant(&case, &clean).unwrap();
+    let out =
+        parley::check::run_edited(&tree, &["proofs/twice.proof".to_string()]).printed;
+    assert!(
+        out.contains(
+            "step 1 supplies one hypothesis of mun:quotient-positive twice, by H2 and the requires line 0 < M; one of them is enough"
+        ),
+        "{out}"
+    );
+    assert!(!out.contains("asks for nothing it says"), "{out}");
+    assert!(
+        !out.contains("nor the step's other lines ask for it"),
+        "{out}"
+    );
+}
+
+/// An operation `arithmetic` does not work out is named once for the
+/// sentence, however often the sentence writes it.
+#[test]
+fn an_operation_arithmetic_does_not_work_out_is_named_once() {
+    let clean = clean();
+    let case = case(
+        "write a factorial twice in an arithmetic step",
+        vec![edit(
+            "proofs/twice.proof",
+            None,
+            "theorem twice\n  then 1! = 1!\n\n1.  1! = 1!\n    arithmetic\n"
+                .to_string(),
+        )],
+        "",
+    );
+    let tree = plant(&case, &clean).unwrap();
+    let out =
+        parley::check::run_edited(&tree, &["proofs/twice.proof".to_string()]).printed;
+    assert_eq!(out.matches("works out factorial").count(), 1, "{out}");
+}
+
 /// A requires line whose fact the step's own citation gives is not repeated
 /// where a line below needs it: the line below sees only its reason and the
 /// lines above it (R2). Here the birthday problem's step 8 cites line 1,
@@ -2872,6 +2937,13 @@ fn cases() -> Vec<Case> {
                 edit("proofs/bezout.proof", Some("(line 2) into line 3.1".to_string()), "(line 2) into 3.1".to_string()),
             ],
             "a line number after `into` carries the word \"line\": `into line 3.1`",
+        ),
+        case(
+            "an obtain naming no item, its line number without the word line",
+            vec![
+                edit("proofs/konigsberg.proof", Some("obtain i from line 6.3".to_string()), "obtain i from 6.3".to_string()),
+            ],
+            "an obtain naming no item takes its line with the word \"line\": `from line 6.3`",
         ),
         case(
             "the word line before a label",

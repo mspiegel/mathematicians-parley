@@ -23,7 +23,7 @@ use crate::mm::kernel::{match_term, term_of, FloatLabels, Term, VarSet};
 use crate::mm::library::{render, Layered, Signature};
 use crate::mm::spell::{Binds, Builder, Proof};
 use crate::outcome::{Decline, Problem, Route};
-use crate::sorts::{sorts_of_record, Env};
+use crate::sorts::{sorts_of_record, sorts_of_statement, Env};
 use crate::targets::{self, Commuting, Identity};
 
 /// Variables for a name the proof does not spell: what a `define` renames
@@ -503,12 +503,19 @@ impl<'a> Elaborator<'a> {
                 .filter(|(_, r)| r.kind.is_item())
                 .map(|(i, r)| (i, sorts_of_record(r, env)))
                 .collect();
-            Rc::new(citing::Library::new(
-                self.records,
-                sorts,
-                IndexMap::new(),
-                env,
-            ))
+            // The corpus theorems this theorem cites, which a citation
+            // matches as it matches a record: each with the sorts its
+            // statement settles, all a citation reads of it.
+            let mut proved = IndexMap::new();
+            for (name, _) in crate::corpus::proof::cited_items(self.thm) {
+                if let Some(Item::Theorem(t)) = self.items.get(&name) {
+                    proved.entry(name).or_insert_with(|| citing::Proved {
+                        thm: t,
+                        sorts: std::borrow::Cow::Owned(sorts_of_statement(t, env)),
+                    });
+                }
+            }
+            Rc::new(citing::Library::new(self.records, sorts, proved, env))
         });
         library.clone()
     }

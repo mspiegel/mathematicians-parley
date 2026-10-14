@@ -440,8 +440,13 @@ pub fn check_decided_words(
             let Some(mut node) = known.read(step, &sentence) else {
                 continue;
             };
+            // Each operation is named once for the sentence, however often
+            // the sentence writes it.
+            let mut named: BTreeSet<String> = BTreeSet::new();
             for part in node.walk() {
-                if operations.get(&part.notation) == Some(&false) {
+                if operations.get(&part.notation) == Some(&false)
+                    && named.insert(part.notation.clone())
+                {
                     report.say(
                         &thm.path,
                         line,

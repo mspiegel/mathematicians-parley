@@ -1431,7 +1431,8 @@ impl<'a> Elaborator<'a> {
         item: &'a Record,
     ) -> Checked<NodeBinding> {
         let obtains = step.just.text.trim_start().starts_with("obtain");
-        let (library, groups, parts) = self.citation_here(step, item, obtains)?;
+        let (library, groups, parts) =
+            self.citation_here(step, &item.qualified(), obtains)?;
         if !obtains {
             return match citing::taken(
                 &groups,
@@ -1476,14 +1477,14 @@ impl<'a> Elaborator<'a> {
     fn citation_here(
         &mut self,
         step: &Step,
-        item: &'a Record,
+        qualified: &str,
         obtains: bool,
     ) -> Checked<(Rc<citing::Library<'a>>, Rc<Vec<citing::Group>>, Parts)> {
         let library = self.item_library();
-        let Some(groups) = library.groups(&item.qualified()) else {
+        let Some(groups) = library.groups(qualified) else {
             return Err(self.defect(
                 step.line,
-                format!("{} is not an item a step may cite", item.qualified()),
+                format!("{qualified} is not an item a step may cite"),
             ));
         };
         let mut facts = self.cited_sentences(&step.just.refs)?;
@@ -1501,7 +1502,7 @@ impl<'a> Elaborator<'a> {
             &step.just.values,
             &step.just.refs,
             &library,
-            &item.qualified(),
+            qualified,
             Some(step),
         )?;
         Ok((library, groups, parts))
@@ -1518,7 +1519,8 @@ impl<'a> Elaborator<'a> {
         if step.just.head.is(crate::corpus::Method::Obtain) {
             return Ok(());
         }
-        let (library, groups, parts) = self.citation_here(step, item, false)?;
+        let (library, groups, parts) =
+            self.citation_here(step, &item.qualified(), false)?;
         if parts.claims.is_empty()
             || !citing::taken(
                 &groups,
@@ -1613,7 +1615,8 @@ impl<'a> Elaborator<'a> {
         step: &Step,
         item: &'a Record,
     ) -> Checked<Vec<String>> {
-        let (library, groups, parts) = self.citation_here(step, item, false)?;
+        let (library, groups, parts) =
+            self.citation_here(step, &item.qualified(), false)?;
         let Built(taken) =
             citing::taken(&groups, &parts.claims, &parts.facts, &parts.seed, &library)
         else {
@@ -5046,7 +5049,8 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
     ) -> Checked<Facts> {
         let out = facts.copy();
-        let (library, groups, parts) = self.citation_here(step, item, false)?;
+        let (library, groups, parts) =
+            self.citation_here(step, &item.qualified(), false)?;
         let none = IndexMap::new();
         for group in groups.iter() {
             for (_, tree) in &group.wants {
@@ -5219,6 +5223,45 @@ impl<'a> Elaborator<'a> {
         })
     }
 
+    /// What each letter of a cited corpus theorem stands for where the
+    /// citation's match fixes it, as a term in the step's own names: the
+    /// binding `citing::taken` finds from the step's claim, the lines it names
+    /// and the values it writes. Empty for an obtain, which claims no
+    /// conclusion, and where no clause concludes the claim, which fails
+    /// further on where it can say why.
+    fn corpus_matched(
+        &mut self,
+        step: &Step,
+        other: &Theorem,
+    ) -> Checked<IndexMap<String, String>> {
+        let mut out = IndexMap::new();
+        if step.just.head.is(crate::corpus::Method::Obtain) {
+            return Ok(out);
+        }
+        let (library, groups, parts) =
+            self.citation_here(step, &other.qualified(), false)?;
+        let Built(taken) =
+            citing::taken(&groups, &parts.claims, &parts.facts, &parts.seed, &library)
+        else {
+            return Ok(out);
+        };
+        // A name the citation writes a value for takes that value, and a
+        // name the match gives itself, as a library function's C in C(m, k)
+        // is, stands as it already does.
+        let written: BTreeSet<String> = self
+            .instantiated_nodes(&step.just.values)?
+            .into_iter()
+            .map(|v| v.name)
+            .collect();
+        for (name, node) in &taken.binding {
+            if written.contains(name) || (node.is_name() && node.text == *name) {
+                continue;
+            }
+            out.insert(name.clone(), self.term(node)?);
+        }
+        Ok(out)
+    }
+
     /// Apply a theorem this corpus proves, as this elaborator states it: its
     /// hypotheses became the antecedent of one implication, so citing it is
     /// conjoining the facts the step supplies and applying one label.
@@ -5246,6 +5289,12 @@ impl<'a> Elaborator<'a> {
                 // given would read a/k as (b/k)/k.
                 let values: IndexMap<String, String> =
                     me.instantiated(&step.just.values)?.into_iter().collect();
+                // What the citation does not write is found by matching the
+                // theorem against what the step claims and cites, as the
+                // checker finds it (`citing::taken`, SYNTAX.md "No pair says
+                // what goes without saying"): `A ⊆ B ∪ A` cited for
+                // `B ⊆ A ∪ B` puts B for A and A for B.
+                let matched = me.corpus_matched(step, other)?;
                 for h in &other.hypotheses {
                     // A graph's line introduces one class, the graph, whose
                     // parts its vertices, edges and the notations' `@ends`
@@ -5325,9 +5374,12 @@ impl<'a> Elaborator<'a> {
                             .pop_front()
                             .expect("a class for each let")
                             .to_string();
-                        // A hypothesis the citation does not name stands for what
-                        // the citing proof calls by the same word.
-                        if let Some(term) = values.get(&name) {
+                        // A letter neither the citation nor the match fixes
+                        // stands for what the citing proof calls by the same
+                        // word, or for a class of its own.
+                        if let Some(term) =
+                            values.get(&name).or_else(|| matched.get(&name))
+                        {
                             me.names.insert(name.clone(), term.clone());
                         } else if !saved.contains_key(&name) {
                             me.names.insert(name.clone(), theirs);
