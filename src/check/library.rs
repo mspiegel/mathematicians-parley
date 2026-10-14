@@ -19,7 +19,7 @@ use crate::matching::{
     alike, expand, standard, substituted_in, Binding, Context, Definitions,
 };
 use crate::sorts::introduction::Introduction;
-use crate::sorts::{Env, OutsideDefines};
+use crate::sorts::{Env, OutsideDefines, TYPING};
 
 type PartsKey = (StepNo, String, String, Vec<String>, Vec<String>);
 
@@ -575,7 +575,7 @@ pub fn typed_in_scope(known: &Known, step: &Step) -> Vec<Node> {
     introducing(known, step)
         .iter()
         .flat_map(|stated| known.said_parts(stated, None).into_iter().flatten())
-        .filter(|n| matches!(n.notation.as_str(), "function-type" | "one-to-one"))
+        .filter(|n| TYPING.contains(&n.notation.as_str()))
         .filter(|n| n.children.len() == 3 && n.children[0].is_name())
         .collect()
 }

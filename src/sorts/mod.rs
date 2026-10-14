@@ -32,6 +32,11 @@ use introduction::Introduction;
 
 pub const NUMBER_SYSTEMS: [&str; 5] = ["ℕ", "ℕ₀", "ℤ", "ℚ", "ℝ"];
 
+/// The notations whose sentence says a function's type, with the function
+/// first and its domain and codomain after: `f : X → Y`, and `f : X → Y is
+/// one-to-one` and `f : X → Y is onto`, which say the type and a property.
+pub const TYPING: [&str; 3] = ["function-type", "one-to-one", "onto"];
+
 /// What the tools read a text against: the grammar, and every proof file's
 /// scope, which is where a definition a theorem sees from outside it is
 /// written.

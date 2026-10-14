@@ -24,7 +24,7 @@ use crate::rules::NUMERALS;
 use crate::sorts::introduction::{Form, Introduction};
 use crate::sorts::{
     definition_sorts, sorts_of_record, sorts_of_statement, statement_definitions,
-    unlabel, Env, GraphLine,
+    unlabel, Env, GraphLine, TYPING,
 };
 use crate::t;
 use crate::targets;
@@ -142,10 +142,10 @@ impl<'a> Elaborator<'a> {
     }
 
     /// A sentence introducing a function, `f : X → Y` or `f : X → Y is
-    /// one-to-one`, recorded as the type of f (`typed`); any other sentence
-    /// records nothing.
+    /// one-to-one` (`TYPING`), recorded as the type of f (`typed`); any
+    /// other sentence records nothing.
     pub fn record_type(&mut self, said: &Node) {
-        if matches!(said.notation.as_str(), "function-type" | "one-to-one")
+        if TYPING.contains(&said.notation.as_str())
             && said.children.len() == 3
             && said.children[0].is_name()
         {

@@ -54,8 +54,8 @@ theorem even-square
   decides, `let A be a set` for an arbitrary set, `let
   A be a point` for a point of the plane, `let f be a function on A` for a
   function known by its domain alone, `let f : A → B` for a
-  function with its domain and codomain, `let f : A → B be one-to-one` for
-  such a function with a property, `let p be a polynomial` for a
+  function with its domain and codomain, `let f : A → B be one-to-one` or
+  `be onto` for such a function with a property, `let p be a polynomial` for a
   polynomial with complex coefficients, and `let G be a group with
   operation · and identity e` for a group. A library item may also write `let P be a
   property of the elements of X`, for a property a statement can be

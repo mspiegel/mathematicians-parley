@@ -383,6 +383,12 @@ $d x S $.
     ( wceq wf1 wb f1eq1 ax-mp ) CDFABCGABDGHEABCDIJ $.
   $}
 
+  ${
+    gfoeq1i.1 $e |- F = G $.
+  gfoeq1i $p |- ( F : A -onto-> B <-> G : A -onto-> B ) $=
+    ( wceq wfo wb foeq1 ax-mp ) CDFABCGABDGHEABCDIJ $.
+  $}
+
   gf1cnvfv1 $p |- ( ( F : A -1-1-> B /\ C e. A ) -> ( `' F ` ( F ` C ) ) = C ) $=
     ( wf1 crn wf1o wcel cfv ccnv wceq f1f1orn f1ocnvfv1 sylan )
     ABDEADFZDGCAHCDIDJICKABDLAOCDMN $.

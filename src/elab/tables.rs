@@ -469,11 +469,12 @@ impl<'a> Elaborator<'a> {
             )));
         }
         // A function spelt as its define's name against the map it names:
-        // `feq1d`, and for one-to-one `f1eq1` after the equation by `syl`.
-        // A function's type whose domain or codomain changes, the function
-        // too or not: `feq123d` and `f1eq123d` take the three equations, a
-        // part that stays the same carried by `eqidd`.
-        if (label == "wf" || label == "wf1") && slots != [2] {
+        // `feq1d`, and for one-to-one and onto `f1eq1` and `foeq1` after the
+        // equation by `syl`. A function's type whose domain or codomain
+        // changes, the function too or not: `feq123d` and `f1eq123d` take
+        // the three equations, a part that stays the same carried by
+        // `eqidd`.
+        if matches!(label.as_str(), "wf" | "wf1") && slots != [2] {
             let mut equal = Vec::new();
             for i in [2, 0, 1] {
                 let one = if slots.contains(&i) {
@@ -494,7 +495,7 @@ impl<'a> Elaborator<'a> {
                 &[&equal[0], &equal[1], &equal[2]],
             )));
         }
-        if (label == "wf" || label == "wf1") && slots == [2] {
+        if matches!(label.as_str(), "wf" | "wf1" | "wfo") && slots == [2] {
             let moved =
                 take!(self.congruence(&kids[2], &wants[2], scope, facts, step, leaf)?);
             let parts = binds! {"A" => &spelt[0], "B" => &spelt[1], "F" => &spelt[2], "G" => &other[2]};
@@ -503,7 +504,8 @@ impl<'a> Elaborator<'a> {
                 all.insert("ph".to_string(), scope.to_string());
                 return Ok(Built(self.b.ap("feq1d", &all, &[&moved])));
             }
-            let law = self.b.ap("f1eq1", &parts, &[]);
+            let closed = if label == "wf1" { "f1eq1" } else { "foeq1" };
+            let law = self.b.ap(closed, &parts, &[]);
             return Ok(Built(self.b.ap(
                 "syl",
                 &binds! {"ph" => scope, "ps" => t!(spelt[2], other[2], "wceq"),

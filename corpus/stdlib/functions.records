@@ -135,6 +135,13 @@ mundane definition one-to-one
   metamath    dff13
   target      dff13
 
+mundane definition onto
+  let f : X → Y                                                       (H1)
+  then        f : X → Y is onto ↔ f : X → Y and for all y ∈ Y, there is
+              x ∈ X with y = f(x)
+  metamath    dffo3
+  target      dffo3
+
 mundane theorem inverse-value
   let g : Y → X be one-to-one                                         (H1)
   let y ∈ Y                                                           (H2)
@@ -197,8 +204,9 @@ mundane definition bijection
   target      gf1foen
   note        A function that never sends two things to one place and
               reaches every point pairs its domain off against its
-              codomain. set.mm calls the reaching onto and the pairing a
-              one-to-one correspondence, and the page says neither word.
+              codomain. The reaching is what `onto` unfolds to, said here
+              in full; set.mm calls the pairing a one-to-one
+              correspondence, which the page does not say.
 
 mundane theorem bijection-onto
   assume there is a bijection from X to Y                             (H1)

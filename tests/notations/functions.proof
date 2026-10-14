@@ -1,5 +1,8 @@
 import mundane definition stdlib/functions/one-to-one
+import mundane definition stdlib/functions/onto
 import mundane theorem    stdlib/functions/function-into
+import mundane theorem    stdlib/functions/function-value
+import mundane theorem    stdlib/numbers/square-nonneg
 import mundane theorem    stdlib/functions/value-in-image
 import mundane theorem    stdlib/functions/inverse-value
 import mundane theorem    stdlib/sets/pair-subset
@@ -54,6 +57,62 @@ theorem a-line-is-one-to-one
 
 3.  f : ℝ → ℝ is one-to-one
     mun:one-to-one, from 1, 2
+
+theorem a-line-is-onto
+  note        Every real y is 2x + 1 at x = (y − 1)/2, so the line reaches
+              every point.
+  let f(x) = 2·x + 1, for x ∈ ℝ                                       (D1)
+         reads double and add one
+  then f : ℝ → ℝ is onto
+
+1.  f : ℝ → ℝ
+    mun:function-into
+    requires f is a function on ℝ: from D1
+    requires for all x ∈ ℝ, f(x) ∈ ℝ: membership, from D1
+
+2.  For all y ∈ ℝ, there is x ∈ ℝ with y = f(x).
+    proof
+    let y ∈ ℝ                                                         (K1)
+
+    2.1.  f((y − 1)/2) = 2·((y − 1)/2) + 1
+          D1
+
+    2.2.  y = f((y − 1)/2)
+          algebra, from 2.1
+          requires f((y − 1)/2) ∈ ℝ: from 1
+
+    2.3.  There is x ∈ ℝ with y = f(x).
+          exhibit, from 2.2
+
+3.  f : ℝ → ℝ is onto
+    mun:onto, from 1, 2
+
+theorem an-onto-function-reaches-a-point
+  note        A function onto B sends something to each point of B: the
+              definition read from the let that says it.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  let f : A → B be onto                                               (H3)
+  let y ∈ B                                                           (H4)
+  then there is x ∈ A with y = f(x)
+
+1.  For all y ∈ B, there is x ∈ A with y = f(x).
+    mun:onto, from H3
+
+2.  There is x ∈ A with y = f(x).
+    instantiate y := y in line 1, from H4
+
+theorem an-onto-function-has-its-values
+  note        A function onto B is a function into B, so its values lie in
+              B.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  let f : A → B be onto                                               (H3)
+  let x ∈ A                                                           (H4)
+  then f(x) ∈ B
+
+1.  f(x) ∈ B
+    mun:function-value, from H4
 
 theorem a-value-in-an-image
   note        f[{1, 2}] is the set f sends {1, 2} to, and f(1) = 3 is in it.
@@ -129,3 +188,36 @@ theorem a-square-is-not-one-to-one
 
     4.2.  −1 = 1, which is impossible
           instantiate s := −1, t := 1 in line 4.1, from 3
+
+theorem a-square-is-not-onto
+  note        No square is −1, so x² does not reach every real.
+  let f(x) = x², for x ∈ ℝ                                            (D1)
+         reads the square
+  then not (f : ℝ → ℝ is onto)
+
+1.  not (f : ℝ → ℝ is onto)
+    contradiction
+    suppose f : ℝ → ℝ is onto                                         (S)
+
+    1.1.  For all y ∈ ℝ, there is x ∈ ℝ with y = f(x).
+          mun:onto, from S
+
+    1.2.  There is x ∈ ℝ with −1 = f(x).
+          instantiate y := −1 in line 1.1
+
+    1.3.  x ∈ ℝ. −1 = f(x).
+          obtain x from line 1.2
+
+    1.4.  f(x) = x²
+          D1
+
+    1.5.  x² ≥ 0
+          mun:square-nonneg
+
+    1.6.  −1 = x²
+          calculation
+          −1 = f(x)     1.3
+             = x²       1.4
+
+    1.7.  −1 ≥ 0, which is impossible
+          substitute −1 = x² (line 1.6) into line 1.5

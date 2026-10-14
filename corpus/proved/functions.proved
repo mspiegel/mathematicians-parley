@@ -58,6 +58,13 @@ lemma gf1eq1i
   1 f1eq1 |- ( F = G -> ( F : A -1-1-> B <-> G : A -1-1-> B ) )
   2 ax-mp gf1eq1i.1 1 |- ( F : A -1-1-> B <-> G : A -1-1-> B )
 
+# ( F : A -onto-> B <-> G : A -onto-> B ), from F = G
+lemma gfoeq1i
+  hypothesis gfoeq1i.1 |- F = G
+  |- ( F : A -onto-> B <-> G : A -onto-> B )
+  1 foeq1 |- ( F = G -> ( F : A -onto-> B <-> G : A -onto-> B ) )
+  2 ax-mp gfoeq1i.1 1 |- ( F : A -onto-> B <-> G : A -onto-> B )
+
 # ( ( F : A -1-1-> B /\ C e. A ) -> ( `' F ` ( F ` C ) ) = C )
 lemma gf1cnvfv1
   |- ( ( F : A -1-1-> B /\ C e. A ) -> ( `' F ` ( F ` C ) ) = C )

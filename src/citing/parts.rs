@@ -6,7 +6,7 @@ use crate::formula::{Node, Sort, Sorts, Whole};
 use crate::matching::{standard, substitute_apart, substitute_apart_by, Binding};
 use crate::outcome::Built;
 use crate::rules;
-use crate::sorts::{element_sort, Env};
+use crate::sorts::{element_sort, Env, TYPING};
 
 use super::conclude::taken;
 use super::library::{with_parts, Library};
@@ -66,7 +66,7 @@ pub fn typed_seed(parts: &mut Parts, name: &str, ours: &[Node], library: &Librar
         }
     }
     let typing = |node: &Node, f: &str| {
-        matches!(node.notation.as_str(), "function-type" | "one-to-one")
+        TYPING.contains(&node.notation.as_str())
             && node.children.first().is_some_and(|g| g.text == f)
     };
     for t in &typed {

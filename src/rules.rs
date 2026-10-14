@@ -148,6 +148,7 @@ pub const CONGRUENCE: &[(&str, &[usize], &str)] = &[
     // any of its three parts; given by name too.
     ("wf", &[2], "feq1d"),
     ("wf1", &[2], "f1eq1"),
+    ("wfo", &[2], "foeq1"),
     // An image, in its function, its set, or both.
     ("cima", &[0], "imaeq1d"),
     ("cima", &[1], "imaeq2d"),
@@ -255,6 +256,7 @@ pub const PREDICATE_LIFT: &[(&str, usize, &str)] = &[
     ("wfn", 0, "fneq1i"),
     ("wf", 2, "feq1i"),
     ("wf1", 2, "gf1eq1i"),
+    ("wfo", 2, "gfoeq1i"),
 ];
 
 // Carrying an equality of two classes up through one place of a term,

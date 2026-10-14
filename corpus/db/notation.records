@@ -732,6 +732,16 @@ notation one-to-one
               keeps the arrow every function is written with and says the
               property after it, as a textbook does.
 
+notation onto
+  pattern     _ : _ → _ is onto
+  sort        function from α to β, set of α, set of β → formula
+  level       relational
+  reads       is a function from, onto
+  metamath    wfo
+  target      _2 _3 _1 wfo
+  note        A function that reaches every point of its codomain, said as
+              one-to-one is: the arrow, and the property after it.
+
 notation application
   pattern     _(_)
   sort        function from α to β, α → β
