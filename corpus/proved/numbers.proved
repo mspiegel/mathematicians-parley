@@ -5,10 +5,16 @@
 # integer by a natural number is less than the divisor (`modlt`, for
 # `mun:stdlib/divisibility/mod-less`), and adding a multiple of the divisor
 # leaves the remainder as it was (`muladdmod`, for
-# `mun:stdlib/divisibility/mod-multiple`).
+# `mun:stdlib/divisibility/mod-multiple`). And what set.mm says of a
+# positive real divisor, said of a real one greater than 0 and reached by
+# `elrpd`: the remainder's value (`modval`, for
+# `mun:stdlib/divisibility/mod-value`), and a real below the divisor its own
+# remainder (`modid`, for `mun:stdlib/divisibility/mod-below`).
 
-$( Numbers: a remainder is less than its divisor, and a multiple of
-   the divisor added leaves it as it was. $)
+$( Numbers: a remainder is less than its divisor, a multiple of the
+   divisor added leaves it as it was, a real's remainder on dividing by a
+   positive real is what is left after its whole multiples, and a real
+   below the divisor is its own remainder. $)
 
 # ( ( A e. ZZ /\ B e. NN ) -> ( A mod B ) < B )
 lemma gzmodlt
@@ -28,4 +34,29 @@ lemma gmuladdmod
       )
   5 syl3an 1 2 3 4 |- ( ( A e. ZZ /\ M e. NN /\ N e. ZZ ) -> ( ( ( N x. M ) + A ) mod M ) = ( A mod
       M ) )
+
+# ( ( A e. RR /\ B e. RR /\ 0 < B ) -> ( A mod B ) = ( A - ( B x. ( |_ ` ( A / B ) ) ) ) )
+lemma gmodval
+  |- ( ( A e. RR /\ B e. RR /\ 0 < B ) -> ( A mod B ) = ( A - ( B x. ( |_ ` ( A / B ) ) ) ) )
+  1 simp1 |- ( ( A e. RR /\ B e. RR /\ 0 < B ) -> A e. RR )
+  2 simp2 |- ( ( A e. RR /\ B e. RR /\ 0 < B ) -> B e. RR )
+  3 simp3 |- ( ( A e. RR /\ B e. RR /\ 0 < B ) -> 0 < B )
+  4 elrpd 2 3 |- ( ( A e. RR /\ B e. RR /\ 0 < B ) -> B e. RR+ )
+  5 modval |- ( ( A e. RR /\ B e. RR+ ) -> ( A mod B ) = ( A - ( B x. ( |_ ` ( A / B ) ) ) ) )
+  6 syl2anc 1 4 5 |- ( ( A e. RR /\ B e. RR /\ 0 < B ) -> ( A mod B ) = ( A - ( B x. ( |_ ` ( A /
+      B ) ) ) ) )
+
+# ( ( ( A e. RR /\ B e. RR ) /\ ( 0 <_ A /\ A < B ) ) -> ( A mod B ) = A )
+lemma gmodid
+  |- ( ( ( A e. RR /\ B e. RR ) /\ ( 0 <_ A /\ A < B ) ) -> ( A mod B ) = A )
+  1 simpll |- ( ( ( A e. RR /\ B e. RR ) /\ ( 0 <_ A /\ A < B ) ) -> A e. RR )
+  2 simplr |- ( ( ( A e. RR /\ B e. RR ) /\ ( 0 <_ A /\ A < B ) ) -> B e. RR )
+  3 simprl |- ( ( ( A e. RR /\ B e. RR ) /\ ( 0 <_ A /\ A < B ) ) -> 0 <_ A )
+  4 simprr |- ( ( ( A e. RR /\ B e. RR ) /\ ( 0 <_ A /\ A < B ) ) -> A < B )
+  5 0red |- ( ( ( A e. RR /\ B e. RR ) /\ ( 0 <_ A /\ A < B ) ) -> 0 e. RR )
+  6 lelttrd 5 1 2 3 4 |- ( ( ( A e. RR /\ B e. RR ) /\ ( 0 <_ A /\ A < B ) ) -> 0 < B )
+  7 elrpd 2 6 |- ( ( ( A e. RR /\ B e. RR ) /\ ( 0 <_ A /\ A < B ) ) -> B e. RR+ )
+  8 simpr |- ( ( ( A e. RR /\ B e. RR ) /\ ( 0 <_ A /\ A < B ) ) -> ( 0 <_ A /\ A < B ) )
+  9 modid |- ( ( ( A e. RR /\ B e. RR+ ) /\ ( 0 <_ A /\ A < B ) ) -> ( A mod B ) = A )
+  10 syl21anc 1 7 8 9 |- ( ( ( A e. RR /\ B e. RR ) /\ ( 0 <_ A /\ A < B ) ) -> ( A mod B ) = A )
 

@@ -1,0 +1,11 @@
+import mundane theorem stdlib/divisibility/mod-below
+
+theorem one-mod-a-real
+  note        A real above 1 leaves 1 as the remainder of 1.
+  let N ∈ ℝ    (H1)
+  assume 1 < N    (H2)
+  then 1 mod N = 1
+
+1.  1 mod N = 1
+    mun:mod-below a := 1, b := N, from H2
+    requires 0 ≤ 1: arithmetic

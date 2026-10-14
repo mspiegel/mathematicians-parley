@@ -5,6 +5,8 @@ import mundane theorem    stdlib/divisibility/gcd-one as divisibility-gcd-one
 import mundane theorem    stdlib/divisibility/gcd-zero as divisibility-gcd-zero
 import mundane theorem    stdlib/divisibility/mod-less as divisibility-mod-less
 import mundane theorem    stdlib/divisibility/mod-natural as divisibility-mod-natural
+import mundane theorem    stdlib/divisibility/mod-value as divisibility-mod-value
+import mundane theorem    stdlib/divisibility/mod-below as divisibility-mod-below
 import mundane theorem    stdlib/divisibility/zero-divides as divisibility-zero-divides
 import definition         stdlib/divisibility/σ
 
@@ -60,6 +62,25 @@ theorem mod-less
 
 1.  a mod b < b
     mun:divisibility-mod-less
+
+theorem mod-value
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume b > 0                                                        (H3)
+  then a mod b = a − b·⌊a/b⌋
+
+1.  a mod b = a − b·⌊a/b⌋
+    mun:divisibility-mod-value, from H3
+
+theorem mod-below
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume 0 ≤ a                                                        (H3)
+  assume a < b                                                        (H4)
+  then a mod b = a
+
+1.  a mod b = a
+    mun:divisibility-mod-below, from H3, H4
 
 theorem zero-divides
   let n ∈ ℤ                                                           (H1)

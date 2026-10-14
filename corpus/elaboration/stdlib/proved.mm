@@ -476,8 +476,10 @@ $d y z G $.
 $}
 
 ${
-$( Numbers: a remainder is less than its divisor, and a multiple of
-   the divisor added leaves it as it was. $)
+$( Numbers: a remainder is less than its divisor, a multiple of the
+   divisor added leaves it as it was, a real's remainder on dividing by a
+   positive real is what is left after its whole multiples, and a real
+   below the divisor is its own remainder. $)
 
   gzmodlt $p |- ( ( A e. ZZ /\ B e. NN ) -> ( A mod B ) < B ) $=
     ( cz wcel cr crp cmo co clt wbr cn zre nnrp modlt syl2an )
@@ -486,6 +488,16 @@ $( Numbers: a remainder is less than its divisor, and a multiple of
   gmuladdmod $p |- ( ( A e. ZZ /\ M e. NN /\ N e. ZZ ) -> ( ( ( N x. M ) + A ) mod M ) = ( A mod M ) ) $=
     ( cz wcel cr cn crp cmul co caddc cmo wceq zre nnrp id muladdmod syl3an )
     ADEAFEBGEBHECDEZSCBIJAKJBLJABLJMANBOSPABCQR $.
+
+  gmodval $p |- ( ( A e. RR /\ B e. RR /\ 0 < B ) -> ( A mod B ) = ( A - ( B x. ( |_ ` ( A / B ) ) ) ) ) $=
+    ( cr wcel cc0 clt wbr w3a crp cmo co cdiv cfl cfv cmul cmin wceq simp1
+    simp2 simp3 elrpd modval syl2anc )
+    ACDZBCDZEBFGZHZUDBIDABJKABABLKMNOKPKQUDUEUFRUGBUDUEUFSUDUEUFTUAABUBUC $.
+
+  gmodid $p |- ( ( ( A e. RR /\ B e. RR ) /\ ( 0 <_ A /\ A < B ) ) -> ( A mod B ) = A ) $=
+    ( cr wcel wa cc0 cle wbr clt crp cmo co wceq simpll simplr 0red simprl
+    simprr lelttrd elrpd simpr modid syl21anc )
+    ACDZBCDZEZFAGHZABIHZEZEZUDBJDUIABKLAMUDUEUINZUJBUDUEUIOZUJFABUJPUKULUFUGUHQUFUGUHRSTUFUIUAABUBUC $.
 
 $}
 
