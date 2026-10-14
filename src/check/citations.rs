@@ -11,8 +11,8 @@ use super::structure::instantiated_line;
 use super::Report;
 use crate::citing::{
     asked, bound_in, claimed_member, concludes, conjuncts, derives, filled, finished,
-    names_of, obtained, obtains, readings, said_once, search, supply, taken,
-    taken_ways, with_parts, Group, Library, Parts, Sites, Taken, Ways,
+    identities_unsaid, names_of, obtained, obtains, readings, said_once, search,
+    supply, taken, taken_ways, with_parts, Group, Library, Parts, Sites, Taken, Ways,
 };
 use crate::corpus::proof::{requires_as_step, requires_item, Requires, METHODS};
 use crate::corpus::{
@@ -518,14 +518,169 @@ pub fn check_conclusion(
         if !concludes(&groups, &parts.claims, &parts.facts, &parts.seed, library)
             && !hypotheses_said()
         {
+            // A claim that is the conclusion with an identity element dropped
+            // from something not said to be a number is told that, and not
+            // that it is something else.
+            let unsaid = identities_unsaid(
+                &groups,
+                &parts.claims,
+                &parts.facts,
+                &parts.seed,
+                library,
+            );
+            let said = match unsaid.first() {
+                Some(left) => format!(
+                    "step {} drops an identity element from what {head} concludes, and nothing says {} is a number; a requires line says it",
+                    step.number,
+                    known.print(left)
+                ),
+                None => format!(
+                    "step {} claims something that {head} does not conclude",
+                    step.number
+                ),
+            };
+            report.say(&thm.path, just.line, said);
+        }
+    }
+}
+
+/// A definition folded from what its "there is" says of a witness is about
+/// one letter, its subject, and with no pair for it the subject is the
+/// proof's letter of the same name (`SYNTAX.md`, "No pair says what goes
+/// without saying"): `mun:odd, from H3`, where odd is about n and the proof
+/// has an N and no n, writes `n := N`. A definition is folded so where its
+/// right side is a "there is", the claim is not one, and no line the step
+/// names is one, as the elaborator reads it too (`Elaborator::reading`,
+/// `subject_given`).
+pub fn check_subjects(
+    report: &mut Report,
+    thm: &Theorem,
+    library: &Library,
+    known: &Known,
+) {
+    for step in &thm.steps {
+        let just = &step.just;
+        if !just.head.is_item() || just.head.is(Method::Obtain) {
+            continue;
+        }
+        let name = just.item(&just.head.to_string());
+        let Some(Item::Record(record)) = library.item(&name) else {
+            continue;
+        };
+        if !record.kind.unfolds() {
+            continue;
+        }
+        let Some(whole) = library
+            .groups(&name)
+            .and_then(|groups| groups.first().and_then(|g| g.gives.first().cloned()))
+        else {
+            continue;
+        };
+        let [left, right] = whole.children.as_slice() else {
+            continue;
+        };
+        if !library.bicond.contains(&whole.notation)
+            || !library.exists.contains(&right.notation)
+        {
+            continue;
+        }
+        let parts = known.parts(step, library);
+        let refs: Vec<&str> = just.refs.iter().map(String::as_str).collect();
+        let cites_one = known
+            .lines_say(step, &refs, library)
+            .iter()
+            .any(|n| library.exists.contains(&n.notation));
+        let claims_one = parts
+            .claims
+            .iter()
+            .any(|n| library.exists.contains(&n.notation));
+        if cites_one || claims_one || parts.claims.is_empty() {
+            continue;
+        }
+        let mut subject = left.clone();
+        while let Some(first) = subject.children.first().cloned() {
+            subject = first;
+        }
+        let letter = subject.text.clone();
+        if !subject.is_name() || just.values.names().any(|n| n == letter) {
+            continue;
+        }
+        if !known.sorts.introduces(&letter) {
             report.say(
                 &thm.path,
                 just.line,
                 format!(
-                    "step {} claims something that {head} does not conclude",
-                    step.number
+                    "{} is about {letter}, and the step gives {letter} no value and the proof has no {letter}; write it, as {letter} := t",
+                    just.head
                 ),
             );
+        }
+    }
+}
+
+/// A `join` claims the sentences of the lines it cites put together and
+/// infers nothing (`SYNTAX.md`): each sentence of its claim is one a cited
+/// line says, and each cited line says one of them. They are compared as
+/// formulas (`Known::alike`), and the claim may group them otherwise.
+pub fn check_joins(
+    report: &mut Report,
+    thm: &Theorem,
+    library: &Library,
+    known: &Known,
+) {
+    for step in &thm.steps {
+        if !step.just.head.is(Method::Join) {
+            continue;
+        }
+        let Some(claim) = known.whole_as_written(&step.claim) else {
+            continue;
+        };
+        let claimed = conjuncts(&claim, library);
+        // A reference to nothing is `check_references`'s to report.
+        let scope = known.scope(step);
+        let mut cited: Vec<(&String, Vec<Node>)> = Vec::new();
+        for r in &step.just.refs {
+            let Some(said) = scope.get(r).and_then(|s| known.stated_as_written(s))
+            else {
+                continue;
+            };
+            cited.push((r, conjuncts(&said, library)));
+        }
+        if cited.len() != step.just.refs.len() {
+            continue;
+        }
+        let said = |n: &Node| {
+            cited
+                .iter()
+                .any(|(_, parts)| parts.iter().any(|p| known.alike(p, n)))
+        };
+        if let Some(extra) = claimed.iter().find(|n| !said(n)) {
+            report.say(
+                &thm.path,
+                step.just.line,
+                format!(
+                    "step {} joins {} and claims {}, which no line it joins says",
+                    step.number,
+                    step.just.refs.join(", "),
+                    known.print(extra)
+                ),
+            );
+            continue;
+        }
+        for (r, parts) in &cited {
+            if !parts
+                .iter()
+                .any(|p| claimed.iter().any(|n| known.alike(p, n)))
+            {
+                report.say(
+                    &thm.path,
+                    step.just.line,
+                    format!(
+                        "step {} joins {r}, and claims nothing it says",
+                        step.number
+                    ),
+                );
+            }
         }
     }
 }

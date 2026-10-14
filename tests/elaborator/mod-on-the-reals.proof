@@ -1,4 +1,6 @@
 import mundane theorem stdlib/divisibility/mod-below
+import mundane theorem stdlib/divisibility/mod-value
+import mundane theorem stdlib/numbers/floor-integer
 
 theorem one-mod-a-real
   note        A real above 1 leaves 1 as the remainder of 1.
@@ -9,3 +11,13 @@ theorem one-mod-a-real
 1.  1 mod N = 1
     mun:mod-below a := 1, b := N, from H2
     requires 0 ≤ 1: arithmetic
+
+theorem the-fractional-part
+  note        A real's remainder on dividing by 1 is its fractional part: the instance A − 1·⌊A/1⌋ with its identity elements dropped, ⌊A⌋ written a number for the 1· to go.
+  let A ∈ ℝ    (H1)
+  then A mod 1 = A − ⌊A⌋
+
+1.  A mod 1 = A − ⌊A⌋
+    mun:mod-value a := A, b := 1
+    requires 1 > 0: arithmetic
+    requires ⌊A⌋ ∈ ℤ: mun:floor-integer x := A

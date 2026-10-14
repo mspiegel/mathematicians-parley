@@ -3277,9 +3277,14 @@ impl<'a> Elaborator<'a> {
         lines: &Lines,
         defines: &BTreeSet<String>,
     ) -> Checked<Proof> {
-        // A link of numerals alone may name `arithmetic` rather than a line.
+        // A link of numerals alone may name `arithmetic` rather than a line,
+        // and is worked out whole where arithmetic works out everything in
+        // it. One holding an operation it does not work out, 2! = (1 + 1)!,
+        // is read as a link with letters is, a piece at a time.
         let what = format!("a link of step {} claims {written}", fmt(&step.number));
-        if cite == "arithmetic" && claim.names().is_empty() {
+        let pieces =
+            claim.label() == Some("wceq") && field::decide_closed(claim).is_declined();
+        if cite == "arithmetic" && claim.names().is_empty() && !pieces {
             return self.closed_fact(&self.rpn(claim), scope, facts, &what, Some(step));
         }
         // One whose terms have letters in them may too, where only pieces of

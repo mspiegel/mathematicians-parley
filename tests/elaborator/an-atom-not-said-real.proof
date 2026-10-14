@@ -1,0 +1,21 @@
+import mundane definition stdlib/numbers/sqrt
+
+theorem an-order-of-two-roots
+  note        An order of two roots, each said real by the line that says what it is.
+  let A ∈ ℝ    (H1)
+  let B ∈ ℝ    (H2)
+  assume 0 ≤ A    (H3)
+  assume 0 ≤ B    (H4)
+  assume not √A ≤ √B    (H5)
+  then √B < √A
+
+1.  √A ∈ ℝ. √A ≥ 0. (√A)² = A.
+    mun:sqrt x := A, from H3
+
+2.  √B ∈ ℝ. √B ≥ 0. (√B)² = B.
+    mun:sqrt x := B, from H4
+
+3.  √B < √A
+    inequalities, from H5
+    requires √A ∈ ℝ: from 1
+    requires √B ∈ ℝ: from 2

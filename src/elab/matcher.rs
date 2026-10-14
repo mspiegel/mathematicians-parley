@@ -1550,7 +1550,12 @@ impl<'a> Elaborator<'a> {
                 if !one.names().is_empty() || !other.names().is_empty() {
                     return Ok(None);
                 }
+                // A pair arithmetic does not work out whole, 2! and (1 + 1)!,
+                // is carried a level in, where the pieces that change are.
                 let claim = t!(self.rpn(one), self.rpn(other), "wceq");
+                if super::field::decide_closed(&self.to_term(&claim)).is_declined() {
+                    return Ok(None);
+                }
                 self.closed_fact(&claim, where_, held, what, Some(step))
                     .map(|p| Some(Built(p)))
             }

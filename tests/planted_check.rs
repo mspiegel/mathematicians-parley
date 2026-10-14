@@ -872,6 +872,47 @@ fn cases() -> Vec<Case> {
             ],
             "inside a block that has closed",
         ),
+        // odd is about n, the proof has N and no n, and the fold from N = 2j + 1
+        // gives n no value.
+        case(
+            "fold a definition about a letter the proof does not have",
+            vec![edit(
+                "proofs/odd-letter.proof",
+                None,
+                "import mundane definition stdlib/divisibility/odd\n\ntheorem odd-letter\n  let N ∈ ℤ            (H1)\n  let j ∈ ℤ            (H2)\n  assume N = 2j + 1    (H3)\n  then N is odd\n\n1.  N is odd\n    mun:odd, from H3\n".to_string(),
+            )],
+            "mun:odd is about n, and the step gives n no value and the proof has no n; write it, as n := t",
+        ),
+        // A mod 1 = A − 1·⌊A/1⌋ with its identity elements dropped is the
+        // claim, and dropping 1· asks that ⌊A⌋ be a number, which only the
+        // requires line says.
+        case(
+            "drop an identity element from what no line says is a number",
+            vec![edit(
+                "tests/elaborator/mod-on-the-reals.proof",
+                Some("    requires 1 > 0: arithmetic\n    requires ⌊A⌋ ∈ ℤ: mun:floor-integer x := A\n".to_string()),
+                "    requires 1 > 0: arithmetic\n".to_string(),
+            )],
+            "step 1 drops an identity element from what mun:mod-value concludes, and nothing says ⌊A⌋ is a number; a requires line says it",
+        ),
+        case(
+            "join a sentence no joined line says",
+            vec![edit(
+                "proofs/euclid.proof",
+                Some("    3.3.  a(0) ∈ ℕ₀ and b(0) ∈ ℕ₀\n          join 3.1, 3.2".to_string()),
+                "    3.3.  a(0) ∈ ℕ₀ and b(0) ∈ ℕ₀\n          join 3.1".to_string(),
+            )],
+            "which no line it joins says",
+        ),
+        case(
+            "join a line the claim says nothing of",
+            vec![edit(
+                "proofs/euclid.proof",
+                Some("    3.3.  a(0) ∈ ℕ₀ and b(0) ∈ ℕ₀\n          join 3.1, 3.2".to_string()),
+                "    3.3.  a(0) ∈ ℕ₀ and b(0) ∈ ℕ₀\n          join 1, 3.1, 3.2".to_string(),
+            )],
+            "step 3.3 joins 1, and claims nothing it says",
+        ),
         case(
             "cite a line that comes after the step",
             vec![

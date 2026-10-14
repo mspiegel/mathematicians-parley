@@ -1,0 +1,7 @@
+theorem a-factorial-link-of-numerals
+  note        The link changes only 1 + 1 to 2, inside a factorial arithmetic does not work out whole.
+  then 2! = (1 + 1)!
+
+1.  2! = (1 + 1)!
+    calculation
+      2! = (1 + 1)!         arithmetic

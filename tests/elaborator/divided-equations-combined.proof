@@ -1,0 +1,14 @@
+theorem two-divided-equations-subtracted
+  note        A − (p/q − r/s) is (A + B − p/q) − (B − r/s): the two cited equations taken by 1 and −1, each read with its own divisor.
+  let A ∈ ℝ    (H1)
+  let B ∈ ℝ    (H2)
+  let p ∈ ℤ    (H3)
+  let q ∈ ℕ    (H4)
+  let r ∈ ℤ    (H5)
+  let s ∈ ℕ    (H6)
+  assume A + B = p/q    (H7)
+  assume B = r/s    (H8)
+  then A = p/q − r/s
+
+1.  A = p/q − r/s
+    algebra, from H4, H6, H7, H8

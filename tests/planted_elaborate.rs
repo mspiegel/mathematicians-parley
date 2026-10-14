@@ -244,6 +244,16 @@ fn cases() -> Vec<Case> {
             "tests/elaborator/floor-in-a-bound.proof",
             "3.  |⌊A + 1/2⌋ − A| = ⌊A + 1/2⌋ − A",
         ),
+        // An order of two roots asks each root be real, and the message names
+        // that membership, not the one in ℂ an equation would ask.
+        case(
+            "an order whose atoms no line says are real",
+            "tests/elaborator/an-atom-not-said-real/an-order-of-two-roots",
+            "tests/elaborator/an-atom-not-said-real.proof",
+            "    requires √A ∈ ℝ: from 1\n    requires √B ∈ ℝ: from 2\n",
+            "",
+            "nothing says √B ∈ ℝ, which this step needs",
+        ),
         // A let's reason shows the term it names is the kind of number the
         // let says; the checker takes `membership` on trust, and a sum of
         // squares of reals is not shown to be a natural number.

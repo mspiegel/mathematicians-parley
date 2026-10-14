@@ -436,6 +436,52 @@ fn readings(claimed: &Term, want: Poly, labels: &FloatLabels) -> Vec<ClaimSays> 
     out
 }
 
+/// The product of an equation's denominators, both sides': what its sides
+/// are multiplied by to read it as a polynomial (`field::equation`).
+fn denominators(node: &Term, labels: &FloatLabels) -> Poly {
+    let sides: Vec<field::Quotient> = node
+        .children()
+        .iter()
+        .map(|side| field::read(side, labels))
+        .collect();
+    sides[0].under.times(&sides[1].under)
+}
+
+/// How one reading of the claim is a combination of the cited equations
+/// (`field::follows`), each cited equation read as `claim_says` reads it and
+/// holding the denominators `unders` it was not divided by, None where what
+/// was divided out does not divide them; `claim_under` is the claim's own
+/// denominators. Dividing both sides by a term is not a
+/// second thing a step does (`METHODS.md`, algebra), so the combination is
+/// also asked with each equation read with its own divisors divided out
+/// against the claim with its own: each is multiplied by the claim's
+/// divisors left over its own, and the multipliers found are carried back.
+/// A − (p/q − r/s) is (A + B − p/q) − (B − r/s), which as polynomials is s
+/// times one and q times the other.
+fn combination(
+    given: &[Poly],
+    unders: &[Option<Poly>],
+    says: &ClaimSays,
+    claim_under: &Poly,
+) -> Option<Vec<field::Taken>> {
+    if let Some(how) = field::follows(given, &says.says) {
+        return Some(how);
+    }
+    let left = field::exactly(claim_under, &says.taken)?;
+    let scales: Vec<Poly> = unders
+        .iter()
+        .map(|own| own.as_ref().and_then(|own| field::exactly(&left, own)))
+        .collect::<Option<_>>()?;
+    let scaled: Vec<Poly> =
+        given.iter().zip(&scales).map(|(g, s)| g.times(s)).collect();
+    let how = field::follows(&scaled, &says.says)?;
+    Some(
+        how.into_iter()
+            .map(|t| field::Taken::of(t.which, t.multiplier().times(&scales[t.which])))
+            .collect(),
+    )
+}
+
 /// The reading of a cited equation: the most divided out (`readings`).
 fn claim_says(claimed: &Term, want: Poly, labels: &FloatLabels) -> ClaimSays {
     readings(claimed, want, labels)
@@ -1170,6 +1216,7 @@ impl<'a> Elaborator<'a> {
         let claimed = self.to_term(&t!(left, right, "wceq"));
         let want = field::equation(&claimed, &labels);
         let mut given = Vec::new();
+        let mut unders = Vec::new();
         let mut where_: Vec<(String, Term)> = Vec::new();
         // What each cited equation had divided out of it.
         let mut taken_out: Vec<Poly> = Vec::new();
@@ -1182,6 +1229,10 @@ impl<'a> Elaborator<'a> {
                 if let Some(one) = field::equation(&node, &labels) {
                     let read = claim_says(&node, one, &labels);
                     given.push(read.says);
+                    unders.push(field::exactly(
+                        &denominators(&node, &labels),
+                        &read.taken,
+                    ));
                     taken_out.push(read.taken);
                     where_.push((r.clone(), node));
                 }
@@ -1191,11 +1242,12 @@ impl<'a> Elaborator<'a> {
             return Ok(Route::no("the step cites no equation"));
         };
         // The first reading of the claim the cited equations make, as the
-        // decision found it (`readings`).
+        // decision found it (`readings`, `combination`).
+        let claim_under = denominators(&claimed, &labels);
         let found = readings(&claimed, want, &labels)
             .into_iter()
             .find_map(|says| {
-                field::follows(&given, &says.says)
+                combination(&given, &unders, &says, &claim_under)
                     .filter(|h| !h.is_empty())
                     .map(|how| (says, how))
             });
@@ -1207,14 +1259,7 @@ impl<'a> Elaborator<'a> {
         // carries its equation's denominators, and is divided by a divisor
         // of the claim's that every one carries; the claim's sides are each
         // multiplied by the divisors left, which are taken off at the end.
-        let across = |node: &Term| {
-            let sides: Vec<field::Quotient> = node
-                .children()
-                .iter()
-                .map(|side| field::read(side, &labels))
-                .collect();
-            sides[0].under.times(&sides[1].under)
-        };
+        let across = |node: &Term| denominators(node, &labels);
         let mut factors: Vec<Factor> = Vec::new();
         let mut written = says.taken.clone();
         for f in says.kept {
@@ -1635,11 +1680,10 @@ impl<'a> Elaborator<'a> {
         let Some(want) = field::equation(&claimed, &labels) else {
             return self.decide_apart(step, term, lines);
         };
-        let claims: Vec<Poly> = readings(&claimed, want, &labels)
-            .into_iter()
-            .map(|r| r.says)
-            .collect();
+        let claims = readings(&claimed, want, &labels);
+        let claim_under = denominators(&claimed, &labels);
         let mut given = Vec::new();
+        let mut unders = Vec::new();
         for r in &step.just.refs {
             let Some(held) = lines.get(r) else {
                 continue;
@@ -1647,11 +1691,18 @@ impl<'a> Elaborator<'a> {
             for said in self.parts(&held.term) {
                 let node = self.to_term(&said);
                 if let Some(one) = field::equation(&node, &labels) {
-                    given.push(claim_says(&node, one, &labels).says);
+                    let read = claim_says(&node, one, &labels);
+                    let under =
+                        field::exactly(&denominators(&node, &labels), &read.taken);
+                    given.push(read.says);
+                    unders.push(under);
                 }
             }
         }
-        if !claims.iter().any(|c| field::follows(&given, c).is_some()) {
+        if !claims
+            .iter()
+            .any(|c| combination(&given, &unders, c, &claim_under).is_some())
+        {
             return Err(self.defect(
                 step.line,
                 format!(

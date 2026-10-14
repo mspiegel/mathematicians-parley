@@ -48,6 +48,11 @@ const ALLOWED: &[(&str, &str, &str)] = &[
         "a function's type said of the very term a letter is bound to",
     ),
     (
+        "src/matching.rs",
+        "if instance.shape() == ground.shape() {",
+        "a pair spelt the same has no identity element dropped between them",
+    ),
+    (
         "src/citing/library.rs",
         "part.shape() != x.shape()",
         "a part already listed is not listed twice",

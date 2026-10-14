@@ -7,12 +7,16 @@ use crate::formula::{walk, Node};
 use indexmap::IndexMap;
 
 use crate::matching::{
-    alike, binding_sites, free_names, match_tree, substitute_apart, Binding, PROPERTY,
+    alike, binding_sites, free_names, identities_dropped, match_tree, substitute_apart,
+    Binding, PROPERTY,
 };
 use crate::outcome::{Built, Route};
 
+use super::asked::filled;
 use super::library::{conjuncts, either_way, readings, Group, Library};
+use super::once::{a_number_said_once, Introduced};
 use super::supply::{names_of, search, supply, Sites, Ways};
+use crate::rules;
 
 /// Every sentence of the claim takes a reading of the conclusion, and what
 /// those readings ask for is then supplied by the facts: the binding they
@@ -64,6 +68,9 @@ fn take(
             else {
                 continue;
             };
+            if !identities_on_numbers(cand, claim, &found, given, library) {
+                continue;
+            }
             let seen: BTreeSet<&str> = used.iter().map(|u| u.shape()).collect();
             let mut more = used.to_vec();
             more.extend(first.iter().filter(|f| !seen.contains(f.shape())).cloned());
@@ -92,6 +99,103 @@ fn take(
         }
     }
     None
+}
+
+/// Whether every identity element the match of `cand` against `claim`
+/// dropped leaves a number by what the facts say, a membership the page
+/// says once among them (`said_once`): an identity law holds of a number,
+/// and that is a `requires` line where the page does not say it once
+/// (`SYNTAX.md`, "An identity element goes without saying").
+fn identities_on_numbers(
+    cand: &Node,
+    claim: &Node,
+    binding: &Binding,
+    given: &[Node],
+    library: &Library,
+) -> bool {
+    unnumbered(cand, claim, binding, given, library).is_empty()
+}
+
+/// What an identity element the match of `cand` against `claim` dropped
+/// leaves, where the facts do not say it is a number.
+fn unnumbered(
+    cand: &Node,
+    claim: &Node,
+    binding: &Binding,
+    given: &[Node],
+    library: &Library,
+) -> Vec<Node> {
+    let ctx = &library.ctx;
+    let instance = filled(cand, binding, ctx);
+    let dropped = identities_dropped(&instance, claim, ctx);
+    if dropped.is_empty() {
+        return dropped;
+    }
+    // A letter the claim or the instance binds over a number system is said
+    // to be in it by its binder, as a `let` says it; what is left is spelt
+    // in the instance's letters where the two bind different ones.
+    let mut bound = Introduced::new();
+    for node in claim.walk().into_iter().chain(instance.walk()) {
+        if let [name, set, _] = node.children.as_slice() {
+            if library.exists.contains(&node.notation)
+                && name.is_name()
+                && set.notation == "number-systems"
+            {
+                if let Some(system) = rules::system_of(&set.text) {
+                    bound.insert(name.text.clone(), system);
+                }
+            }
+        }
+    }
+    dropped
+        .into_iter()
+        .filter(|left| {
+            !a_number_said_once(left, given, &bound)
+                && !given.iter().any(|f| {
+                    library.members.contains(&f.notation)
+                        && matches!(f.children.as_slice(), [term, set]
+                            if set.notation == "number-systems"
+                                && alike(term, left, ctx, &IndexMap::new(), &IndexMap::new()))
+                })
+        })
+        .collect()
+}
+
+/// What a claim the item concludes once its identity elements are dropped
+/// leaves unsaid to be a number, where that is why no group takes it: each
+/// claim matched against each conclusion the groups offer under the seed,
+/// and what the first match that drops an element leaves and the facts do
+/// not say is a number. Empty where no match drops one.
+pub fn identities_unsaid(
+    groups: &[Group],
+    claims: &[Node],
+    facts: &[Node],
+    seed: &Binding,
+    library: &Library,
+) -> Vec<Node> {
+    let (whole, split) = (whole_claim(claims, library), split_claims(claims, library));
+    for of in groups {
+        let offer = Offer::of(of, library);
+        for claim in offer.claims_read(&whole, &split) {
+            for (cand, _) in &offer.candidates {
+                let Some(found) = match_tree(
+                    cand,
+                    claim,
+                    seed,
+                    &offer.variables,
+                    &offer.sites,
+                    &library.ctx,
+                ) else {
+                    continue;
+                };
+                let left = unnumbered(cand, claim, &found, facts, library);
+                if !left.is_empty() {
+                    return left;
+                }
+            }
+        }
+    }
+    Vec::new()
 }
 
 /// A binding to match a claim under: one way of supplying what a reading

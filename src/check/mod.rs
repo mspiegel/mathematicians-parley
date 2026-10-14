@@ -566,6 +566,8 @@ fn check_theorem(
     formulas::check_membership_claims(report, thm, env, k);
     citations::check_hypotheses(report, thm, library, k);
     citations::check_conclusion(report, thm, library, k);
+    citations::check_subjects(report, thm, library, k);
+    citations::check_joins(report, thm, library, k);
     formulas::check_define_citation(report, thm, library, k, scopes);
     citations::check_obtained(report, thm, library, k);
     citations::check_obtained_claims(report, thm, library, k);

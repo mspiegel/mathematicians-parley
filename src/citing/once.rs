@@ -122,6 +122,29 @@ pub fn said_once(
     parts.facts.extend(out);
 }
 
+/// Whether `term` is a number by what the page says once of the letters in
+/// it: each letter one a fact puts in a number system or one `bound` binds
+/// over one, as a "there is q ∈ ℤ" does its q; a divisor not zero only
+/// where it is a numeral.
+pub fn a_number_said_once(term: &Node, facts: &[Node], bound: &Introduced) -> bool {
+    let mut letters = bound.clone();
+    for f in facts {
+        let [name, set] = f.children.as_slice() else {
+            continue;
+        };
+        if f.notation == "membership"
+            && name.is_name()
+            && set.notation == "number-systems"
+        {
+            if let Some(system) = rules::system_of(&set.text) {
+                letters.entry(name.text.clone()).or_insert(system);
+            }
+        }
+    }
+    let nonzero = |d: &Node| value(d).is_some_and(|v| !v.is_zero());
+    within(term, "cc", &letters, &nonzero)
+}
+
 /// Whether `term` is in `system` by what the page says once.
 fn within(
     term: &Node,

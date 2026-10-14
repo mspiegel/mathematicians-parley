@@ -596,6 +596,17 @@ impl Taken {
     pub fn multiplier(&self) -> Poly {
         self.shape.scaled(&self.scale)
     }
+
+    /// Equation `which` taken by the multiplier `p`, which is not nought.
+    pub fn of(which: usize, p: Poly) -> Taken {
+        let first = p.terms.keys().min_by_key(|m| order(m)).cloned();
+        let scale = p.terms[&first.expect("a multiplier not nought")].clone();
+        Taken {
+            which,
+            shape: p.scaled(&(q(1) / &scale)),
+            scale,
+        }
+    }
 }
 
 /// How the claim is a combination of the given equations, or None.
@@ -655,16 +666,7 @@ pub fn follows(given: &[Poly], claim: &Poly) -> Option<Vec<Taken>> {
             multipliers
                 .into_iter()
                 .filter(|(_, p)| !p.zero())
-                .map(|(which, p)| {
-                    let first = p.terms.keys().min_by_key(|m| order(m)).cloned();
-                    let scale =
-                        p.terms[&first.expect("a multiplier not nought")].clone();
-                    Taken {
-                        which,
-                        shape: p.scaled(&(q(1) / &scale)),
-                        scale,
-                    }
-                })
+                .map(|(which, p)| Taken::of(which, p))
                 .collect(),
         );
     }

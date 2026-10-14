@@ -767,6 +767,71 @@ fn identity_kept(node: &Node, ctx: &Context) -> Option<Node> {
         .map(|&hole| node.children[1 - hole].clone())
 }
 
+/// What each identity element dropped between `instance` and `ground`
+/// leaves, where the two are one once the elements are dropped (`fit`), each
+/// with its own elements dropped first: comparing A − 1·⌊A/1⌋ with A − ⌊A⌋
+/// drops 1· from ⌊A/1⌋ and /1 from A, and gives ⌊A⌋ and A. An identity law
+/// holds of a number, so each is one a citation must say is a number
+/// (`SYNTAX.md`, "An identity element goes without saying").
+pub fn identities_dropped(instance: &Node, ground: &Node, ctx: &Context) -> Vec<Node> {
+    let mut out = Vec::new();
+    dropped_into(instance, ground, ctx, &mut out);
+    out
+}
+
+fn dropped_into(instance: &Node, ground: &Node, ctx: &Context, out: &mut Vec<Node>) {
+    if instance.shape() == ground.shape() {
+        return;
+    }
+    if !differs(instance, ground) {
+        // The parts are paired as the match paired them: an equation's
+        // sides either way round, whichever way they are one once their
+        // identity elements are dropped.
+        let none = IndexMap::new();
+        let one =
+            |a: &Node, b: &Node| alike(&bare(a, ctx), &bare(b, ctx), ctx, &none, &none);
+        let kids = &instance.children;
+        let swapped = ctx.equations.contains(&instance.notation)
+            && kids.len() == 2
+            && !(one(&kids[0], &ground.children[0])
+                && one(&kids[1], &ground.children[1]))
+            && one(&kids[1], &ground.children[0])
+            && one(&kids[0], &ground.children[1]);
+        let mut pairs: Vec<(&Node, &Node)> =
+            kids.iter().zip(&ground.children).collect();
+        if swapped {
+            pairs = vec![
+                (&kids[1], &ground.children[0]),
+                (&kids[0], &ground.children[1]),
+            ];
+        }
+        for (a, b) in pairs {
+            dropped_into(a, b, ctx, out);
+        }
+        return;
+    }
+    if let Some(kept) = identity_kept(instance, ctx) {
+        out.push(bare(&kept, ctx));
+        dropped_into(&kept, ground, ctx, out);
+    } else if let Some(kept) = identity_kept(ground, ctx) {
+        out.push(bare(&kept, ctx));
+        dropped_into(instance, &kept, ctx, out);
+    }
+}
+
+/// A term with every identity element dropped, its parts first.
+fn bare(node: &Node, ctx: &Context) -> Node {
+    if node.children.is_empty() {
+        return node.clone();
+    }
+    let kids: Vec<Node> = node.children.iter().map(|c| bare(c, ctx)).collect();
+    let mut out = Node::new(&node.notation, node.sort.clone(), kids, &node.text);
+    while let Some(kept) = identity_kept(&out, ctx) {
+        out = kept;
+    }
+    out
+}
+
 /// `alike`, the two read as written at the head.
 fn alike_as_written(
     a: &Node,

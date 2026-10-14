@@ -17,7 +17,9 @@ mod parts;
 mod supply;
 
 pub use asked::{asked, filled, Asked};
-pub use conclude::{concludes, derives, obtained, obtains, taken, taken_ways, Taken};
+pub use conclude::{
+    concludes, derives, identities_unsaid, obtained, obtains, taken, taken_ways, Taken,
+};
 pub use library::{conjuncts, readings, with_parts, Group, Library, Proved};
 pub use once::{introduction, said_once, Introduced};
 pub use parts::{
