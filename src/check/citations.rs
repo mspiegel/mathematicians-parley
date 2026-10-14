@@ -2396,38 +2396,23 @@ pub fn check_from_lines(
     }
 }
 
-/// Whether the line `r` says where a function or a point lies: a function's
-/// type, `H : [a, b] → ℝ`, or a term in the domain of a function a line in
-/// scope types, `j + 1 ∈ {1, …, n}` beside `a : {1, …, n} → ℝ`. A citation
-/// of a function's value or of an item about a function names these beside
-/// the function (`READERS.md`, a function's type cited for its values), and
-/// an item's `let f : D → E` is a sort the search does not match; taking
-/// such a line away would let D be read off a membership said once instead.
-/// A term in a range no function is typed over is cited for what the range
-/// says of it, and is asked about as any other line is: k ∈ {0, …, N} cited
-/// for k ∈ ℤ, which is said once.
+/// Whether the line `r` says a function's type, `H : [a, b] → ℝ`. A
+/// citation of a function's value or of an item about a function names it
+/// beside the function (`READERS.md`, a function's type cited for its
+/// values). A point in a function's domain, `k ∈ {1, …, n}`, is asked about
+/// as any other line is: the item's sets are the function's
+/// (`citing::typed_seed`), so the search needs the line, and one cited for
+/// what a range says once, k ∈ ℤ, is cited for nothing.
 fn in_a_domain(step: &Step, r: &str, known: &Known) -> bool {
     let scope = known.scope(step);
     let Some(stated) = scope.get(r) else {
         return false;
     };
-    let domains: Vec<Node> = scope
-        .values()
-        .flat_map(|s| known.said_parts(s, None))
-        .flatten()
-        .filter(|n| n.notation == "function-type" && n.children.len() == 3)
-        .map(|n| n.children[1].clone())
-        .collect();
     known
         .said_parts(stated, None)
         .into_iter()
         .flatten()
-        .any(|n| {
-            n.notation == "function-type"
-                || (n.notation == "membership"
-                    && n.children.len() == 2
-                    && domains.iter().any(|d| known.alike(d, &n.children[1])))
-        })
+        .any(|n| n.notation == "function-type")
 }
 
 /// Whether `lighter`, `step` with a line taken away, is no longer supplied.

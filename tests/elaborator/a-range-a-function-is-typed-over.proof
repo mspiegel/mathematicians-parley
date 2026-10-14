@@ -1,0 +1,22 @@
+import mundane theorem stdlib/functions/function-value
+
+theorem a-range-a-function-is-typed-over
+  note        A letter in a range a function is typed over is in its domain by the range let, which a value of the function is cited from: k ∈ ℤ, said once, is not k ∈ {1, …, n}.
+  let n ∈ ℕ    (H1)
+  let a : {1, …, n} → ℝ    (H2)
+  let k ∈ {1, …, n}    (H3)
+  then a(k) ∈ ℝ
+
+1.  a(k) ∈ ℝ
+    mun:function-value f := a, from H3
+
+theorem a-range-a-function-is-typed-over-required
+  note        The same on a requires line citing the item.
+  let n ∈ ℕ    (H1)
+  let a : {1, …, n} → ℝ    (H2)
+  let k ∈ {1, …, n}    (H3)
+  then a(k) + 0 = a(k)
+
+1.  a(k) + 0 = a(k)
+    algebra
+    requires a(k) ∈ ℝ: mun:function-value f := a, from H3

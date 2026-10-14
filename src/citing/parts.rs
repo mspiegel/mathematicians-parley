@@ -56,14 +56,19 @@ pub fn typed_seed(parts: &mut Parts, name: &str, ours: &[Node], library: &Librar
         return;
     }
     let mut stands = parts.seed.clone();
-    if let Some(groups) = library.groups(name) {
-        let taken = taken(&groups, &parts.claims, &parts.facts, &parts.seed, library);
+    let groups = library.groups(name);
+    if let Some(groups) = &groups {
+        let taken = taken(groups, &parts.claims, &parts.facts, &parts.seed, library);
         if let Built(t) = taken {
             for (letter, value) in t.binding {
                 stands.entry(letter).or_insert(value);
             }
         }
     }
+    let typing = |node: &Node, f: &str| {
+        matches!(node.notation.as_str(), "function-type" | "one-to-one")
+            && node.children.first().is_some_and(|g| g.text == f)
+    };
     for t in &typed {
         let [f, d, e] = t.children.as_slice() else {
             continue;
@@ -71,14 +76,22 @@ pub fn typed_seed(parts: &mut Parts, name: &str, ours: &[Node], library: &Librar
         let Some(v) = stands.get(&f.text).filter(|v| v.is_name()) else {
             continue;
         };
-        // A line the step cites that types the function says its sets, and
-        // matching the item against it fixes them: F : A → C cited fixes
-        // the codomain C whatever F's let says.
-        let cited = parts.facts.iter().any(|fact| {
-            matches!(fact.notation.as_str(), "function-type" | "one-to-one")
-                && fact.children.first().is_some_and(|g| g.text == v.text)
+        // A line the step cites that types the function says its sets where
+        // the item's statement says f's type, and matching the item against
+        // it fixes them: F : A → C cited fixes the codomain C whatever F's
+        // let says, for `f : X → Y is one-to-one ↔ …`. An item whose
+        // statement names no type of f, as `f(x) ∈ E` does not, matches the
+        // cited line against nothing, and its sets are the let's: else `x ∈
+        // D` would be met by k ∈ ℤ, said once, for a function on {1, …, n}.
+        let named = groups.iter().flat_map(|g| g.iter()).any(|g| {
+            g.wants
+                .iter()
+                .map(|(_, n)| n)
+                .chain(&g.gives)
+                .any(|n| n.walk().iter().any(|m| typing(m, &f.text)))
         });
-        if cited {
+        let cited = parts.facts.iter().any(|fact| typing(fact, &v.text));
+        if named && cited {
             continue;
         }
         let Some(said) = ours.iter().find(|s| s.children[0].text == v.text) else {

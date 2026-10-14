@@ -1056,6 +1056,17 @@ fn cases() -> Vec<Case> {
             )],
             "the requires line of step 1 cites H2, and mun:binomial-nat0 asks for nothing it says",
         ),
+        // The item's domain is a's, {1, …, n}, though the step cites a's type:
+        // k ∈ ℤ, said once, does not put k in it.
+        case(
+            "a function's value cited from its type without the point's line",
+            vec![edit(
+                "tests/elaborator/a-range-a-function-is-typed-over.proof",
+                Some("    mun:function-value f := a, from H3\n".to_string()),
+                "    mun:function-value f := a, from H2\n".to_string(),
+            )],
+            "step 1 cites mun:function-value, which asks for x ∈ {1, …, n}, and what it cites does not supply it",
+        ),
         // A letter's membership is said once, so a line naming the let that
         // introduces it, for nothing more, names a line it uses nothing of.
         case(
