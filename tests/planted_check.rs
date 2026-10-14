@@ -1045,6 +1045,26 @@ fn cases() -> Vec<Case> {
             )],
             "the requires line of step 1 says k ∈ ℤ, which the step's other lines already say",
         ),
+        // A letter's membership is said once, so a line naming the let that
+        // introduces it, for nothing more, names a line it uses nothing of.
+        case(
+            "a requires line from a function's type naming the let of its point",
+            vec![edit(
+                "proofs/reals-uncountable.proof",
+                Some("          membership, from 16.4, 16.5\n          requires d(n) ∈ ℤ: from H1\n".to_string()),
+                "          membership, from 16.4, 16.5\n          requires d(n) ∈ ℤ: from H1, K6\n".to_string(),
+            )],
+            "the requires line of step 16.7 cites K6, and d(n) ∈ ℤ needs nothing it says",
+        ),
+        case(
+            "an instantiation naming the let of the letter it puts in",
+            vec![edit(
+                "tests/notations/calculus.proof",
+                Some("                  instantiate x := x in H2\n".to_string()),
+                "                  instantiate x := x in H2, from K2\n".to_string(),
+            )],
+            "step 1.2.1 cites K2, and no value it puts in line H2 needs what it says",
+        ),
         case(
             "drop an identity element a substitution makes from what no line says is a number",
             vec![edit(

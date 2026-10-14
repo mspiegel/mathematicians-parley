@@ -11,9 +11,9 @@ use super::structure::instantiated_line;
 use super::Report;
 use crate::citing::{
     asked, bound_in, claimed_member, concludes, conjuncts, derives, filled, finished,
-    identities_unsaid, names_of, obtained, obtains, readings, said_once, search,
-    substitution_unsaid, supply, taken, taken_ways, with_parts, Group, Library, Parts,
-    Sites, Taken, Ways,
+    function_values, identities_unsaid, names_of, obtained, obtains, readings,
+    said_once, search, substitution_unsaid, supply, taken, taken_ways, with_parts,
+    Group, Library, Parts, Sites, Taken, Ways,
 };
 use crate::corpus::proof::{
     requires_as_step, requires_item, substituted, substituted_into, Requires, METHODS,
@@ -54,7 +54,7 @@ fn unconcluded(step: &Step, known: &Known, library: &Library) -> Vec<Unconcluded
         let Some(groups) = library.groups(&step.just.item(&named)) else {
             continue;
         };
-        let Some(parts) = requires_parts(step, req, known, library) else {
+        let Some(parts) = requires_parts(step, req, &[], known, library) else {
             continue;
         };
         // One use of the item, read as `concludes` reads it, or the item
@@ -82,16 +82,18 @@ fn unconcluded(step: &Step, known: &Known, library: &Library) -> Vec<Unconcluded
 /// What a requires line's citation supplies and claims: the line's fact is
 /// its claim, and its facts are the lines its reason names, the requires
 /// lines above it, and the member a claim said of every member names, each
-/// read with the defines the line cites. None where the fact does not read,
-/// which `check_formulas` reports.
+/// read with the defines the line cites, all but those `without` names.
+/// None where the fact does not read, which `check_formulas` reports.
 fn requires_parts(
     step: &Step,
     req: &Requires,
+    without: &[&str],
     known: &Known,
     library: &Library,
 ) -> Option<Parts> {
     let scope = known.scope(step);
-    let (refs, _bad) = references(&req.how);
+    let (mut refs, _bad) = references(&req.how);
+    refs.retain(|r| !without.contains(&r.as_str()));
     // A define is written out where the line cites it (`Known::citing`).
     let item = requires_item(&req.how).map(|(named, _)| step.just.item(&named));
     let defined = known.citing_item(&refs, item.as_deref());
@@ -181,7 +183,7 @@ pub fn answers(thm: &Theorem, library: &Library, known: &Known) -> Vec<String> {
             if !matches!(library.item(&name), Some(Item::Record(_))) {
                 continue;
             }
-            let Some(parts) = requires_parts(step, req, known, library) else {
+            let Some(parts) = requires_parts(step, req, &[], known, library) else {
                 continue;
             };
             let at = format!("{}:{} | asked | {named}", thm.path, req.line);
@@ -2117,10 +2119,25 @@ pub fn check_instantiated(
             .said_parts(&line, Some(&defined))
             .into_iter()
             .zip(known.said_parts(&line, None));
+        // What the values put in the domains need, each found among the
+        // step's facts; unjudged where a domain is one `bound_in` does not
+        // read, or a membership is missing and reported.
+        let mut wants: Vec<Node> = Vec::new();
+        let mut judged = true;
         for (read, as_written) in said {
             let (Some(read), Some(as_written)) = (read, as_written) else {
+                judged = false;
                 continue;
             };
+            // A cited line may meet a condition of the line as well, "if ε
+            // > 0 then" in "for all ε > 0", which the elaborator judges.
+            if read
+                .walk()
+                .iter()
+                .any(|n| ["implication", "conditional"].contains(&n.notation.as_str()))
+            {
+                judged = false;
+            }
             let binders = binders_of(&read);
             if !binders
                 .iter()
@@ -2147,6 +2164,7 @@ pub fn check_instantiated(
                     library,
                     &known.sorts,
                 ) else {
+                    judged = false;
                     continue;
                 };
                 let value_written = written
@@ -2157,8 +2175,10 @@ pub fn check_instantiated(
                     substitute_apart(&w.domain, &outer_written, &library.ctx);
                 outer_written.insert(w.letter.text.clone(), value_written.clone());
                 if parts.facts.iter().any(|f| known.alike(f, &want)) {
+                    wants.push(want);
                     continue;
                 }
+                judged = false;
                 let needed = bound_in(
                     b.how,
                     b.held.clone(),
@@ -2177,6 +2197,38 @@ pub fn check_instantiated(
                         known.print(&value_written),
                         b.letter.text,
                         known.print(&needed)
+                    ),
+                );
+            }
+        }
+        // A line the step cites supplies a value's membership of its domain
+        // (`SYNTAX.md`, instantiate), so one whose absence leaves every
+        // membership supplied supplies none: `instantiate x := x in H2, from
+        // K2` where K2 lets x ∈ ℝ, which is said once.
+        if !judged || wants.is_empty() {
+            continue;
+        }
+        let defines: BTreeSet<&str> =
+            thm.defines.iter().map(|d| d.label.as_str()).collect();
+        for r in step
+            .just
+            .refs
+            .iter()
+            .filter(|r| **r != target && !defines.contains(r.as_str()))
+        {
+            let mut lighter = step.clone();
+            lighter.just.refs.retain(|x| x != r);
+            let left = known.parts(&lighter, library);
+            if wants
+                .iter()
+                .all(|w| left.facts.iter().any(|f| known.alike(f, w)))
+            {
+                report.say(
+                    &thm.path,
+                    step.just.line,
+                    format!(
+                        "step {} cites {r}, and no value it puts in line {target} needs what it says",
+                        step.number
                     ),
                 );
             }
@@ -2283,6 +2335,67 @@ pub fn check_repeated(
     }
 }
 
+/// A requires line whose reason is only `from` uses each line it names.
+///
+/// Such a line reads its fact off the lines it names and the requires lines
+/// above it (`ELABORATION.md`, R2), so a named line whose absence leaves the
+/// fact read off is one it uses nothing of: `requires d(n) ∈ ℤ: from H1, K6`
+/// where H1 says d : ℕ → ℤ and K6 lets n ∈ ℕ, which is said once. A fact is
+/// read off where the facts say it, or say a function's type and a point of
+/// its domain, a membership said once among them. The elaborator judges the
+/// same by what the line's proof rests on (`Elaborator::does_work`).
+pub fn check_from_lines(
+    report: &mut Report,
+    thm: &Theorem,
+    library: &Library,
+    known: &Known,
+) {
+    for step in &thm.steps {
+        for req in &step.requires {
+            if !str::trim(&req.how).starts_with("from ") {
+                continue;
+            }
+            let read_off = |without: &[&str]| -> bool {
+                let Some(parts) = requires_parts(step, req, without, known, library)
+                else {
+                    return false;
+                };
+                let mut facts = parts.facts.clone();
+                facts.extend(function_values(&parts.facts, library.env, &known.sorts));
+                parts
+                    .claims
+                    .iter()
+                    .all(|c| facts.iter().any(|f| known.alike(f, c)))
+            };
+            if !read_off(&[]) {
+                continue;
+            }
+            let (refs, _bad) = references(&req.how);
+            let spare: Vec<&str> = refs
+                .iter()
+                .map(String::as_str)
+                .filter(|r| read_off(&[r]))
+                .collect();
+            // Lines each spare alone that the fact needs one of say it twice,
+            // which `check_repeated` and the elaborator judge.
+            if spare.len() > 1 && !read_off(&spare) {
+                continue;
+            }
+            for r in spare {
+                report.say(
+                    &thm.path,
+                    req.line,
+                    format!(
+                        "the requires line of step {} cites {r}, and {} needs nothing it says",
+                        step.number,
+                        str::trim(req.fact.text())
+                    ),
+                );
+            }
+        }
+    }
+}
+
 /// Whether the line `r` says where a function or a point lies: a function's
 /// type, `H : [a, b] → ℝ`, or a term in a set other than a number system,
 /// `j + 1 ∈ {1, …, n}`. A citation of a function's value or of an item about
@@ -2376,7 +2489,7 @@ fn needed_below(
         let Some((named, _)) = requires_item(&o.how) else {
             return false;
         };
-        let Some(parts) = requires_parts(step, o, known, library) else {
+        let Some(parts) = requires_parts(step, o, &[], known, library) else {
             return false;
         };
         match asked(&step.just.item(&named), &parts, library) {

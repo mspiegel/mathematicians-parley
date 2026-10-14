@@ -618,6 +618,7 @@ fn check_theorem(
     citations::check_kinds(report, thm, library, k);
     citations::check_surplus(report, thm, library, k, scopes);
     citations::check_repeated(report, thm, library, k);
+    citations::check_from_lines(report, thm, library, k);
     citations::check_exhibited(report, thm, library, k);
     citations::check_instantiated(report, thm, library, k);
     citations::check_define_domains(report, thm, library, k, scopes);

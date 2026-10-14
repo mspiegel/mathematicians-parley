@@ -102,7 +102,7 @@ theorem divisibility-by-three
 
     1.4.  (10^k − 1)·d(k) = d(k)·10^k − d(k)
           algebra
-          requires d(k) ∈ ℝ: from H2, K
+          requires d(k) ∈ ℝ: from H2
           requires 10^k ∈ ℝ: mun:power-real a := 10, m := k
 
     1.5.  3 divides d(k)·10^k − d(k)

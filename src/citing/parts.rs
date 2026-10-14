@@ -305,8 +305,8 @@ pub fn part_said_otherwise(fact: &Node, env: Env, sorts: &Sorts) -> Option<Node>
 /// (`SYNTAX.md`, what a membership line says). A part of a set is a member
 /// of its power set and the other way round, so `C ⊆ A` also says C ∈ 𝒫A,
 /// which is what `for all X ⊆ A` ranges over (`rules::PARTS`). Anything
-/// else says only itself: a range is no number system, and a member of one
-/// is whole by `mun:range-integer`.
+/// else says only itself: a range is no number system, and the letter a
+/// range let introduces is whole as a membership said once (`once`).
 pub fn implied_facts(fact: &Node, env: Env, sorts: &Sorts) -> Vec<Node> {
     if let Some(other) = part_said_otherwise(fact, env, sorts) {
         return vec![other];

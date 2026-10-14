@@ -1089,6 +1089,16 @@ fn cases() -> Vec<Case> {
             "    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2\n          algebra, from K\n",
             "step 1.6 cites K and uses nothing it says",
         ),
+        // A requires line's `from` names the lines it rests on, as a step's
+        // does: d(k) ∈ ℝ rests on H2, d's type, with k's membership said once.
+        case(
+            "a requires line from a function's type naming the let of its point",
+            "proofs/divisibility-by-three/divisibility-by-three",
+            "proofs/divisibility-by-three.proof",
+            "          algebra\n          requires d(k) ∈ ℝ: from H2\n",
+            "          algebra\n          requires d(k) ∈ ℝ: from H2, K\n",
+            "from H2, K cites K and uses nothing it says, for d(k) ∈ ℝ",
+        ),
         // A power to a letter is no membership said once, though 10 and k
         // are: the step writes 10^k ∈ ℝ where it combines it, and an atom
         // whose membership is neither said once nor on the page is reported.
@@ -1096,8 +1106,8 @@ fn cases() -> Vec<Case> {
             "leave out the membership of a power to a letter the method combines",
             "proofs/divisibility-by-three/divisibility-by-three",
             "proofs/divisibility-by-three.proof",
-            "          requires d(k) ∈ ℝ: from H2, K\n          requires 10^k ∈ ℝ: mun:power-real a := 10, m := k\n",
-            "          requires d(k) ∈ ℝ: from H2, K\n",
+            "          requires d(k) ∈ ℝ: from H2\n          requires 10^k ∈ ℝ: mun:power-real a := 10, m := k\n",
+            "          requires d(k) ∈ ℝ: from H2\n",
             "step 1.4 combines 10^k, and nothing it writes or cites says it is a number",
         ),
         // k + 1 is a membership said once, and its being no zero is not: a

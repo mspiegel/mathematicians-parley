@@ -516,7 +516,7 @@ let U(k) = (N(k) + 1)/10^k, for k ∈ ℕ₀                                 (D6
 
     16.7. N(n) ∈ ℤ
           membership, from 16.4, 16.5
-          requires d(n) ∈ ℤ: from H1, K6
+          requires d(n) ∈ ℤ: from H1
 
     16.8. 10^n ∈ ℕ
           mun:power-nat a := 10, m := n
@@ -575,7 +575,7 @@ let U(k) = (N(k) + 1)/10^k, for k ∈ ℕ₀                                 (D6
 
     16.21. d(n) ∈ ℕ₀
            mun:nat0-as-int
-           requires d(n) ∈ ℤ: from H1, K6
+           requires d(n) ∈ ℤ: from H1
            requires 0 ≤ d(n): from 16.6
 
     16.22. d(n) + 1 ∈ ℤ
@@ -653,7 +653,7 @@ let U(k) = (N(k) + 1)/10^k, for k ∈ ℕ₀                                 (D6
 
            16.24.13. s(d(n)) = (d(n) + 1) mod 10
                      D2
-                     requires d(n) ∈ ℤ: from H1, K6
+                     requires d(n) ∈ ℤ: from H1
 
            16.24.14. D(c, n) = s(d(n))
                      calculation
@@ -687,14 +687,14 @@ let e(n) = s(D(f(n), n)), for n ∈ ℕ                                  (D7)
 
     1.1.  D(f(n), n) = ⌊10^n·f(n)⌋ mod 10
           D1
-          requires f(n) ∈ ℝ: from H1, K1
+          requires f(n) ∈ ℝ: from H1
 
     1.2.  10^n ∈ ℕ
           mun:power-nat a := 10, m := n
 
     1.3.  ⌊10^n·f(n)⌋ ∈ ℤ
           mun:floor-integer x := 10^n·f(n)
-          requires f(n) ∈ ℝ: from H1, K1
+          requires f(n) ∈ ℝ: from H1
           requires 10^n·f(n) ∈ ℝ: membership, from 1.2
 
     1.4.  ⌊10^n·f(n)⌋ mod 10 ∈ ℕ₀

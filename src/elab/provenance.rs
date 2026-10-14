@@ -1121,7 +1121,25 @@ impl<'a> Elaborator<'a> {
             // `from` names its lines, and is read from those.
             let above = !str::trim(how).starts_with("from ");
             return match self.unfolded_at(&term, scope, facts, &refs, above)? {
-                Built(p) => Ok(Built(p)),
+                // A line a `from` reason names is one it rests on, as a
+                // step's are (`does_work`): `d(n) ∈ ℤ: from H1, K6` where
+                // n's membership is said once rests on H1 alone.
+                Built(p) => {
+                    let unused = refs
+                        .iter()
+                        .find(|r| !p.origin.contains(*r) && !self.sorts.contains(*r));
+                    match unused {
+                        Some(r) if !above => Err(self.defect(
+                            self.at,
+                            format!(
+                                "{} cites {r} and uses nothing it says, for {}",
+                                str::trim(how),
+                                self.render(&term)
+                            ),
+                        )),
+                        _ => Ok(Built(p)),
+                    }
+                }
                 Declined(_) => Err(self.defect(
                     self.at,
                     format!(
