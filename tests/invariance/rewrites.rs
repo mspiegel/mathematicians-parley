@@ -2274,6 +2274,33 @@ fn renumbered_refs(text: &str, map: &BTreeMap<String, String>) -> String {
         .into_owned()
 }
 
+/// A step's induction hypothesis said as `map` says it: the hypothesis
+/// names the step it is the hypothesis of, `assume step 2 is true for m`.
+/// The lines changed.
+fn renumbered_hypothesis(
+    step: &parley::corpus::Step,
+    lines: &mut [String],
+    map: &BTreeMap<String, String>,
+) -> usize {
+    let hypothesis = re(r"\b(assume\s+step\s+)([0-9]+(?:\.[0-9]+)*)(\s+is\s+true\b)");
+    let mut changed = 0;
+    for o in &step.openers {
+        let l = o.line - 1;
+        let new = hypothesis
+            .replace(&lines[l], |c: &regex::Captures| {
+                let number =
+                    map.get(&c[2]).cloned().unwrap_or_else(|| c[2].to_string());
+                format!("{}{number}{}", &c[1], &c[3])
+            })
+            .into_owned();
+        if new != lines[l] {
+            lines[l] = new;
+            changed += 1;
+        }
+    }
+    changed
+}
+
 /// A chain line with the line it cites at its right end (`chain_cited`)
 /// said as `map` says it.
 fn renumbered_link(line: &str, map: &BTreeMap<String, String>) -> String {
@@ -2527,6 +2554,7 @@ fn renumbered(
                 changed += 1;
             }
         }
+        changed += renumbered_hypothesis(other, lines, map);
     }
     // A define's reason cites lines as a step's does.
     for reason in thm.defines.iter().filter_map(|d| d.reason.as_ref()) {
@@ -2835,6 +2863,7 @@ fn dull_step_moved(
                     changed += 1;
                 }
             }
+            changed += renumbered_hypothesis(other, lines, &map);
         }
         // The carried lines go above the first line of each step that cited
         // the step, and the step's own lines go.
