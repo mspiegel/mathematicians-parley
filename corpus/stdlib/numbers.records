@@ -455,6 +455,47 @@ mundane theorem square-less
   metamath    lt2sq
   target      lt2sq
 
+mundane theorem square-le
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume x ≥ 0                                                        (H3)
+  assume y ≥ 0                                                        (H4)
+  then        x ≤ y ↔ x² ≤ y²
+  metamath    le2sq
+  target      le2sq
+  note        square-less with ≤ for <: of two numbers at least 0, the
+              larger has the larger square.
+
+mundane theorem product-nonneg
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume x ≥ 0                                                        (H3)
+  assume y ≥ 0                                                        (H4)
+  then        x·y ≥ 0
+  metamath    mulge0
+  target      mulge0
+  note        `inequalities` combines bounds and multiplies one only by a
+              number, so a product of two terms each at least 0 cites this.
+
+mundane theorem quotient-nonneg
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume x ≥ 0                                                        (H3)
+  assume y > 0                                                        (H4)
+  then        x/y ≥ 0
+  metamath    divge0
+  target      divge0
+  note        As product-nonneg, for a quotient by a term above 0.
+
+mundane theorem le-cases
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  then        x ≤ y ↔ x < y or x = y
+  metamath    leloe
+  target      leloe
+  note        A bound is a strict one or an equation: what a proof by cases
+              on x ≤ y takes its two cases from.
+
 mundane theorem le-antisymmetric
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)

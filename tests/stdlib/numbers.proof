@@ -24,6 +24,48 @@ import mundane theorem    stdlib/numbers/nat0-nonzero as numbers-nat0-nonzero
 import mundane theorem    stdlib/numbers/nat0-real as numbers-nat0-real
 import mundane theorem    stdlib/numbers/quotient-real as numbers-quotient-real
 import mundane definition stdlib/numbers/rational as numbers-rational
+import mundane theorem    stdlib/numbers/square-le as numbers-square-le
+import mundane theorem    stdlib/numbers/product-nonneg as numbers-product-nonneg
+import mundane theorem    stdlib/numbers/quotient-nonneg as numbers-quotient-nonneg
+import mundane theorem    stdlib/numbers/le-cases as numbers-le-cases
+
+theorem square-le
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume x ≥ 0                                                        (H3)
+  assume y ≥ 0                                                        (H4)
+  then x ≤ y ↔ x² ≤ y²
+
+1.  x ≤ y ↔ x² ≤ y²
+    mun:numbers-square-le, from H3, H4
+
+theorem product-nonneg
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume x ≥ 0                                                        (H3)
+  assume y ≥ 0                                                        (H4)
+  then x·y ≥ 0
+
+1.  x·y ≥ 0
+    mun:numbers-product-nonneg, from H3, H4
+
+theorem quotient-nonneg
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume x ≥ 0                                                        (H3)
+  assume y > 0                                                        (H4)
+  then x/y ≥ 0
+
+1.  x/y ≥ 0
+    mun:numbers-quotient-nonneg, from H3, H4
+
+theorem le-cases
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  then x ≤ y ↔ x < y or x = y
+
+1.  x ≤ y ↔ x < y or x = y
+    mun:numbers-le-cases
 
 theorem rational
   let x ∈ ℝ                                                           (H1)
