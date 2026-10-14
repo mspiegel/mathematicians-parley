@@ -11,7 +11,9 @@
 # with no token at all, as in 2k and |CA|. A binder is a mixfix pattern with a
 # hole marked as binding, which is what Agda, Coq, Isabelle and Lean all do.
 #
-#   pattern     the pattern, with _ for each hole. A record may carry several
+#   pattern     the pattern, with _ for each hole a term fills and ⁿ for a
+#               numeral written raised, a run of the digits ⁰ to ⁹ that is
+#               one token and a hole of its own. A record may carry several
 #               patterns when they differ only in symbol and set.mm target;
 #               the metamath list then matches the pattern list in order.
 #   sort        the sort each hole takes, in order, and the sort the pattern
@@ -123,8 +125,8 @@
 #               Three things this says that `metamath` cannot. A hole may be
 #               used out of order, which is how `_ > _` targets `_2 _1 clt wbr`
 #               and shares its constructor with `_ < _`. A term may carry an
-#               operand the pattern has no hole for, which is how `_²` targets
-#               `_1 c2 cexp co`. And the entry is `folded` for a pattern that
+#               operand the pattern has no hole for, which is how `_ is even`
+#               targets `c2 _1 cdvds wbr`. And the entry is `folded` for a pattern that
 #               the `negates` or `spells` line turns into another notation's
 #               tree, since such a pattern builds no node of its own.
 #
@@ -298,15 +300,19 @@ notation power
               An exponent that is not a numeral makes the whole power an atom
               to `algebra`; see METHODS.md.
 
-notation square
-  pattern     _²
-  sort        number → number
+notation superscript
+  pattern     _ⁿ
+  sort        number, number → number
   level       power
-  reads       squared
-  metamath    cexp with the numeral 2
-  target      _1 c2 cexp co
-  note        A numeral exponent, so `algebra` expands it rather than treating
-              the power as an atom.
+  reads       to the power
+  metamath    cexp, the exponent being the numeral written raised
+  target      _1 _2 cexp co
+  note        x², N³, 2¹⁰: a power whose exponent is a numeral, written raised
+              as a textbook writes it. `ⁿ` in the pattern stands for any run
+              of raised digits, which is one numeral (`GRAMMAR.md`). A numeral
+              exponent, so `algebra` expands it rather than treating the
+              power as an atom. An exponent with a letter in it is written
+              with `^`.
 
 notation square-root
   pattern     √_

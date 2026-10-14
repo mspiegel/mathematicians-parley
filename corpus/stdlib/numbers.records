@@ -487,6 +487,44 @@ mundane theorem quotient-nonneg
   target      divge0
   note        As product-nonneg, for a quotient by a term above 0.
 
+mundane theorem quotient-positive
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume x > 0                                                        (H3)
+  assume y > 0                                                        (H4)
+  then        x/y > 0
+  metamath    divgt0
+  target      divgt0
+  note        As quotient-nonneg, strictly: ε/2 > 0 and ε/(2·d) > 0 are what
+              a limit proof takes them from.
+
+mundane theorem less-scaled
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  let c ∈ ℝ                                                           (H3)
+  assume c > 0                                                        (H4)
+  then        x < y ↔ c·x < c·y
+  metamath    ltmul2
+  target      ltmul2
+  note        `inequalities` multiplies a bound only by a number; scaling by
+              a term above 0 keeps a strict bound, and that is cited.
+
+mundane theorem abs-nonneg
+  let x ∈ ℂ                                                           (H1)
+  then        |x| ≥ 0
+  metamath    absge0
+  target      absge0
+  note        `inequalities` treats |x| as an atom it knows nothing about, so
+              that it is at least 0 is cited, as that it is real is.
+
+mundane theorem one-power
+  let m ∈ ℤ                                                           (H1)
+  then        1^m = 1
+  metamath    1exp
+  target      1exp
+  note        An exponent that is a letter makes the power an atom to
+              `algebra`, so 1^m = 1 is cited.
+
 mundane theorem le-cases
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)

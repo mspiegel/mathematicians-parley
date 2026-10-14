@@ -13,7 +13,7 @@ use super::notation::{
     binds_tighter, compile_notations, compile_precedence, Binds, Notation, Part,
     Tighter, Wrap,
 };
-use super::token::{tokenise, Token, TokenKind};
+use super::token::{lowered, tokenise, Token, TokenKind};
 use crate::corpus::Record;
 use crate::outcome::{Built, Checked, Decline, Declined, Problem, Route};
 use crate::sorts::infer::{function_sort, NotationSorts};
@@ -1029,6 +1029,11 @@ impl Parser<'_> {
                         continue;
                     }
                 }
+                Part::Raised => {
+                    if tok.kind != TokenKind::Raised {
+                        continue;
+                    }
+                }
                 Part::Lit(lit) => {
                     if *lit != tok.text {
                         continue;
@@ -1246,6 +1251,23 @@ impl Parser<'_> {
                         kids.push(kid);
                         took.push(Some((from, self.i)));
                     }
+                }
+                // A raised numeral is the numeral it writes, `2` for `²`.
+                Part::Raised => {
+                    let Some(tok) = self.peek().filter(|t| t.kind == TokenKind::Raised)
+                    else {
+                        return self.no(format!(
+                            "{} wants a raised numeral in {}",
+                            n.name,
+                            repr(self.src)
+                        ));
+                    };
+                    let leaf =
+                        Node::leaf("numeral", Sort::of("number"), &lowered(&tok.text));
+                    leaf.set_span(tok.at, tok.at + tok.text.chars().count());
+                    kids.push(leaf);
+                    took.push(Some((self.i, self.i + 1)));
+                    self.i += 1;
                 }
                 Part::Lit(lit) => {
                     let message = match self.peek() {

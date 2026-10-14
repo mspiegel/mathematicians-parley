@@ -28,6 +28,44 @@ import mundane theorem    stdlib/numbers/square-le as numbers-square-le
 import mundane theorem    stdlib/numbers/product-nonneg as numbers-product-nonneg
 import mundane theorem    stdlib/numbers/quotient-nonneg as numbers-quotient-nonneg
 import mundane theorem    stdlib/numbers/le-cases as numbers-le-cases
+import mundane theorem    stdlib/numbers/quotient-positive as numbers-quotient-positive
+import mundane theorem    stdlib/numbers/less-scaled as numbers-less-scaled
+import mundane theorem    stdlib/numbers/abs-nonneg as numbers-abs-nonneg
+import mundane theorem    stdlib/numbers/one-power as numbers-one-power
+
+theorem quotient-positive
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume x > 0                                                        (H3)
+  assume y > 0                                                        (H4)
+  then x/y > 0
+
+1.  x/y > 0
+    mun:numbers-quotient-positive, from H3, H4
+
+theorem less-scaled
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  let c ∈ ℝ                                                           (H3)
+  assume c > 0                                                        (H4)
+  then x < y ↔ c·x < c·y
+
+1.  x < y ↔ c·x < c·y
+    mun:numbers-less-scaled, from H4
+
+theorem abs-nonneg
+  let x ∈ ℝ                                                           (H1)
+  then |x| ≥ 0
+
+1.  |x| ≥ 0
+    mun:numbers-abs-nonneg
+
+theorem one-power
+  let m ∈ ℤ                                                           (H1)
+  then 1^m = 1
+
+1.  1^m = 1
+    mun:numbers-one-power
 
 theorem square-le
   let x ∈ ℝ                                                           (H1)

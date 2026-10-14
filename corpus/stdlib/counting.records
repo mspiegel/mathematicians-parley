@@ -166,6 +166,13 @@ mundane theorem finite-part
   metamath    ssfi
   target      ssfi
 
+mundane theorem union-finite
+  assume X is finite                                                  (H1)
+  assume Y is finite                                                  (H2)
+  then        X ∪ Y is finite
+  metamath    unfi
+  target      unfi
+
 mundane theorem card-nat0
   assume X is finite                                                  (H1)
   then        |X| ∈ ℕ₀

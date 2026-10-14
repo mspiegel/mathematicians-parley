@@ -70,3 +70,44 @@ mundane theorem sin-real
   then        sin(a) ∈ ℝ
   metamath    resincl
   target      resincl
+
+mundane theorem cos-complex
+  let a ∈ ℂ                                                           (H1)
+  then        cos(a) ∈ ℂ
+  metamath    coscl
+  target      coscl
+  note        As cos-real, for a complex argument: cos-add and sin-add are
+              stated over ℂ, and algebra on what they give asks each value
+              to be a number.
+
+mundane theorem sin-complex
+  let a ∈ ℂ                                                           (H1)
+  then        sin(a) ∈ ℂ
+  metamath    sincl
+  target      sincl
+  note        As cos-complex.
+
+mundane theorem cos-negative
+  let a ∈ ℂ                                                           (H1)
+  then        cos(−a) = cos(a)
+  metamath    cosneg
+  target      cosneg
+  note        The cosine is even. With cos-add it gives the cosine of a
+              difference.
+
+mundane theorem sin-negative
+  let a ∈ ℂ                                                           (H1)
+  then        sin(−a) = −sin(a)
+  metamath    sinneg
+  target      sinneg
+  note        The sine is odd. With sin-add it gives the sine of a
+              difference.
+
+mundane theorem sin-cos-squares
+  let a ∈ ℂ                                                           (H1)
+  then        sin(a)² + cos(a)² = 1
+  metamath    sincossq
+  target      sincossq
+  note        A school reader takes it from the unit circle. From cos-add
+              alone it is cos(a + (−a)) = cos(0), which asks the two items
+              above.

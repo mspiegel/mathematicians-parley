@@ -346,7 +346,7 @@ const NATIVE_OPERATIONS: [&str; 7] = [
     "multiplicative",
     "unary-minus",
     "power",
-    "square",
+    "superscript",
     "juxtaposition",
     "product-over",
 ];

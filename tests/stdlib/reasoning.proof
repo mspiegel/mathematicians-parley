@@ -7,6 +7,16 @@ import mundane theorem    stdlib/reasoning/iff-both-false as reasoning-iff-both-
 import mundane theorem    stdlib/reasoning/iff-from-left as reasoning-iff-from-left
 import mundane theorem    stdlib/reasoning/iff-from-right as reasoning-iff-from-right
 import mundane theorem    stdlib/reasoning/iff-not-from-right as reasoning-iff-not-from-right
+import mundane theorem    stdlib/reasoning/disjunctive-syllogism-left as reasoning-disjunctive-syllogism-left
+
+theorem disjunctive-syllogism-left
+  let x ∈ ℝ                                                           (H1)
+  assume x < 0 or x > 0                                               (H2)
+  assume not (x < 0)                                                  (H3)
+  then x > 0
+
+1.  x > 0
+    mun:reasoning-disjunctive-syllogism-left, from H2, H3
 
 theorem modus-ponens
   let x ∈ ℝ                                                           (H1)

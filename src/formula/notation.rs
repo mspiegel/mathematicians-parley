@@ -7,10 +7,18 @@ use crate::corpus::{Record, RecordKind};
 use crate::outcome::{Built, Checked, Problem};
 use crate::regex;
 
-/// One piece of a pattern: a hole a term fills, or a literal token.
+/// What a pattern writes for a numeral written raised, as `_ⁿ` writes a
+/// power: the n of xⁿ, standing for whatever raised digits follow.
+pub const RAISED_HOLE: char = 'ⁿ';
+
+/// One piece of a pattern: a hole a term fills, a numeral written raised,
+/// or a literal token.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Part {
     Hole,
+    /// A hole a raised numeral fills, which is one token and no term: `²`
+    /// in `x²`.
+    Raised,
     Lit(String),
 }
 
@@ -19,12 +27,27 @@ impl Part {
         matches!(self, Part::Hole)
     }
 
+    /// Whether the node the pattern builds has a child here: a hole, or a
+    /// raised numeral.
+    pub fn fills(&self) -> bool {
+        matches!(self, Part::Hole | Part::Raised)
+    }
+
     pub fn literal(&self) -> Option<&str> {
         match self {
             Part::Lit(s) => Some(s),
-            Part::Hole => None,
+            Part::Hole | Part::Raised => None,
         }
     }
+}
+
+/// How many children a pattern's node has: one for each `_` and each raised
+/// numeral it writes.
+pub fn holes_in(pattern: &str) -> usize {
+    pattern
+        .chars()
+        .filter(|c| *c == '_' || *c == RAISED_HOLE)
+        .count()
 }
 
 /// A notation's `wraps` line: the hole whose term the node puts inside
@@ -301,9 +324,7 @@ fn categories(r: &Record, raw: &str, binds: Option<&Binds>) -> (Vec<String>, Str
             )
         }
         _ => {
-            let count = patterns_of(raw)
-                .first()
-                .map_or(0, |p| p.matches('_').count());
+            let count = patterns_of(raw).first().map_or(0, |p| holes_in(p));
             (vec!["any".to_string(); count], "any".to_string())
         }
     };
@@ -442,6 +463,10 @@ pub fn compile_notations(
                 // of it falls back to single letters.
                 for bit in BIT.find_iter(piece) {
                     let bit = bit.as_str();
+                    if bit.chars().eq([RAISED_HOLE]) {
+                        parts.push(Part::Raised);
+                        continue;
+                    }
                     parts.push(Part::Lit(bit.to_string()));
                     if bit.chars().all(is_letter) {
                         words.insert(bit.to_string());
@@ -460,8 +485,16 @@ pub fn compile_notations(
         // `2r` and `2·r` come out the same, and a pattern declared as the
         // negation of another carries that one's literal, so that the wrapping
         // in `not` is the only difference between the two spellings.
+        // A raised numeral is written into the literal as the pattern
+        // writes it, so `xⁿ` is a node of its own beside `x^n`.
         let literal_of = |parts: &[Part]| -> String {
-            parts.iter().filter_map(Part::literal).collect()
+            parts
+                .iter()
+                .filter_map(|p| match p {
+                    Part::Raised => Some(RAISED_HOLE.to_string()),
+                    other => other.literal().map(String::from),
+                })
+                .collect()
         };
         for (n, parts) in shapes.iter().enumerate() {
             let mut stands = literal_of(parts);

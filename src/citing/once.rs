@@ -190,13 +190,9 @@ fn within(
         ("multiplicative", "/", [a, b]) => {
             lookup(rules::DIVIDED, system).is_some() && both(a, b) && nonzero(b)
         }
-        ("power", _, [a, e]) => {
+        ("power", _, [a, e]) | ("superscript", _, [a, e]) => {
             value(e).is_some_and(|v| v.is_integer() && !v.is_negative())
                 && rules::closed("cexp", system).is_some()
-                && within(a, system, letters, nonzero)
-        }
-        ("square", _, [a]) => {
-            rules::closed("cexp", system).is_some()
                 && within(a, system, letters, nonzero)
         }
         _ => false,
@@ -219,17 +215,13 @@ fn value(term: &Node) -> Option<BigRational> {
             let d = value(b)?;
             (!d.is_zero()).then(|| value(a)).flatten().map(|n| n / d)
         }
-        ("power", _, [a, e]) => {
+        ("power", _, [a, e]) | ("superscript", _, [a, e]) => {
             let e = value(e)?;
             let k = e.is_integer().then(|| e.to_integer().to_u32()).flatten()?;
             // Past a few hundred the number is not one a page writes, and
             // working it out is not the point.
             let base = value(a)?;
             (k <= 512).then(|| num_traits::pow(base, k as usize))
-        }
-        ("square", _, [a]) => {
-            let v = value(a)?;
-            Some(v.clone() * v)
         }
         _ => None,
     }

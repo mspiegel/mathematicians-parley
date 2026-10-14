@@ -12,6 +12,24 @@ import mundane definition stdlib/sets/union as sets-union
 import mundane theorem    stdlib/sets/union-commutes as sets-union-commutes
 import mundane theorem    stdlib/sets/union-empty as sets-union-empty
 import mundane theorem    stdlib/sets/union-self as sets-union-self
+import mundane theorem    stdlib/sets/union-difference as sets-union-difference
+import mundane theorem    stdlib/sets/nonempty-member as sets-nonempty-member
+
+theorem union-difference
+  let Y be a set                                                      (H1)
+  let Z be a set                                                      (H2)
+  then Y ∪ (Z ∖ Y) = Y ∪ Z
+
+1.  Y ∪ (Z ∖ Y) = Y ∪ Z
+    mun:sets-union-difference
+
+theorem nonempty-member
+  let Y be a set                                                      (H1)
+  assume Y ≠ ∅                                                        (H2)
+  then there is a ∈ Y
+
+1.  There is a ∈ Y.
+    mun:sets-nonempty-member, from H2
 
 theorem difference-set
   let X be a set                                                      (H1)

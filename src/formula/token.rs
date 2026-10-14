@@ -11,6 +11,9 @@ pub enum TokenKind {
     Word,
     Name,
     Numeral,
+    /// A numeral written raised, the exponent of `x²` or `2¹⁰`. Its text
+    /// is the digits as written raised.
+    Raised,
     Symbol,
     Open,
     Close,
@@ -32,6 +35,28 @@ pub fn is_letter(c: char) -> bool {
 /// What may follow a name's letter: a subscript digit, or a prime.
 pub fn is_mark(c: char) -> bool {
     ('₀'..='₉').contains(&c) || c == '′'
+}
+
+/// The raised digits ⁰ to ⁹, in order of their value.
+pub const RAISED: [char; 10] = ['⁰', '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹'];
+
+/// The value a raised digit writes, or None for any other character.
+pub fn raised_digit(c: char) -> Option<char> {
+    let at = RAISED.iter().position(|r| *r == c)?;
+    char::from_digit(at as u32, 10)
+}
+
+/// A numeral written in raised digits, `¹⁰` for 10.
+pub fn raised(numeral: &str) -> String {
+    numeral
+        .chars()
+        .map(|c| c.to_digit(10).map_or(c, |d| RAISED[d as usize]))
+        .collect()
+}
+
+/// The numeral a run of raised digits writes, `10` for `¹⁰`.
+pub fn lowered(run: &str) -> String {
+    run.chars().map(|c| raised_digit(c).unwrap_or(c)).collect()
 }
 
 /// A decimal digit, as `\d` reads one: any character that is a digit in
@@ -101,6 +126,20 @@ pub fn tokenise(
             i = take(
                 &mut out,
                 TokenKind::Numeral,
+                chars[i..end].iter().collect(),
+                i,
+            );
+            continue;
+        }
+        // A run of raised digits is one numeral, written raised: the
+        // exponent of a power the page writes as `x²`.
+        if raised_digit(c).is_some() {
+            let end = (i..chars.len())
+                .find(|&j| raised_digit(chars[j]).is_none())
+                .unwrap_or(chars.len());
+            i = take(
+                &mut out,
+                TokenKind::Raised,
                 chars[i..end].iter().collect(),
                 i,
             );

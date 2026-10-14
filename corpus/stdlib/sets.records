@@ -281,6 +281,19 @@ mundane theorem union-commutes
   metamath    uncom
   target      uncom
 
+mundane theorem union-difference
+  then        Y ∪ (Z ∖ Y) = Y ∪ Z
+  metamath    undif2
+  target      undif2
+  note        Adding what Z has beyond Y adds all of Z.
+
+mundane theorem nonempty-member
+  assume Y ≠ ∅                                                        (H1)
+  then        there is a ∈ Y
+  metamath    n0
+  target      n0
+  note        A set that is not empty has an element, which an obtain names.
+
 mundane theorem intersection-self
   then        Y ∩ Y = Y
   metamath    inidm

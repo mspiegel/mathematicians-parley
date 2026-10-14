@@ -365,6 +365,12 @@ fn prepared<T>(
         for value in r.fields.values() {
             allowed.extend(value.chars());
         }
+        // A pattern writing a raised numeral takes every raised digit.
+        if r.field("pattern")
+            .is_some_and(|p| p.contains(crate::formula::RAISED_HOLE))
+        {
+            allowed.extend(crate::formula::token::RAISED);
+        }
     }
     allowed.extend(IDENTIFIER_CHARACTERS.chars());
 

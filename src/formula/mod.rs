@@ -16,5 +16,6 @@ pub mod token;
 pub use grammar::{fits, holds, Grammar, Sorts, TERM_SORTS};
 pub use node::{walk, Node, NodeId, Sort, Whole};
 pub use notation::{
-    binds_tighter, categories_of, patterns_of, Binds, Notation, Part, Tighter,
+    binds_tighter, categories_of, holes_in, patterns_of, Binds, Notation, Part,
+    Tighter, RAISED_HOLE,
 };

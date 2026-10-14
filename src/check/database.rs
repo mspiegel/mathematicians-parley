@@ -10,7 +10,9 @@ use super::Report;
 use crate::corpus::records::allowed_fields;
 use crate::corpus::{in_stdlib, Intro, Record, RecordKind, Theorem, PART_MARKERS};
 use crate::formula::page::Written;
-use crate::formula::{categories_of, patterns_of, Grammar, Node, Sorts, TERM_SORTS};
+use crate::formula::{
+    categories_of, holes_in, patterns_of, Grammar, Node, Sorts, TERM_SORTS,
+};
 use crate::regex;
 use crate::sorts::infer;
 use crate::sorts::introduction::{Form, Introduction};
@@ -176,13 +178,12 @@ pub fn check_notation(report: &mut Report, records: &[Record]) {
             }
         };
         let patterns = patterns_of(str::trim(raw));
-        let counts: BTreeSet<usize> =
-            patterns.iter().map(|p| p.matches('_').count()).collect();
+        let counts: BTreeSet<usize> = patterns.iter().map(|p| holes_in(p)).collect();
 
         // `sort` is the one place a notation says what its holes take and
         // what it yields, so every notation says it, one sort per hole. The
         // parser's categories are read off it (`Signature::categories`).
-        let mut want = patterns.first().map_or(0, |p| p.matches('_').count());
+        let mut want = patterns.first().map_or(0, |p| holes_in(p));
         match r.field("sort").map(str::trim).filter(|s| !s.is_empty()) {
             None => report.say(
                 &r.path,

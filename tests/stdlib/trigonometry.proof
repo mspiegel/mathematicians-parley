@@ -1,0 +1,42 @@
+import mundane definition stdlib/trigonometry/cos
+import mundane definition stdlib/trigonometry/sin
+import mundane theorem    stdlib/trigonometry/cos-complex as trigonometry-cos-complex
+import mundane theorem    stdlib/trigonometry/sin-complex as trigonometry-sin-complex
+import mundane theorem    stdlib/trigonometry/cos-negative as trigonometry-cos-negative
+import mundane theorem    stdlib/trigonometry/sin-negative as trigonometry-sin-negative
+import mundane theorem    stdlib/trigonometry/sin-cos-squares as trigonometry-sin-cos-squares
+
+theorem cos-complex
+  let a ∈ ℂ                                                           (H1)
+  then cos(a) ∈ ℂ
+
+1.  cos(a) ∈ ℂ
+    mun:trigonometry-cos-complex
+
+theorem sin-complex
+  let a ∈ ℂ                                                           (H1)
+  then sin(a) ∈ ℂ
+
+1.  sin(a) ∈ ℂ
+    mun:trigonometry-sin-complex
+
+theorem cos-negative
+  let a ∈ ℂ                                                           (H1)
+  then cos(−a) = cos(a)
+
+1.  cos(−a) = cos(a)
+    mun:trigonometry-cos-negative
+
+theorem sin-negative
+  let a ∈ ℂ                                                           (H1)
+  then sin(−a) = −sin(a)
+
+1.  sin(−a) = −sin(a)
+    mun:trigonometry-sin-negative
+
+theorem sin-cos-squares
+  let a ∈ ℂ                                                           (H1)
+  then sin(a)² + cos(a)² = 1
+
+1.  sin(a)² + cos(a)² = 1
+    mun:trigonometry-sin-cos-squares

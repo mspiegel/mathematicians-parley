@@ -49,6 +49,14 @@ mundane theorem disjunctive-syllogism
               paper, and called it the acceptance test. Citing it puts the
               question where a reader can see it rather than inside a method.
 
+mundane theorem disjunctive-syllogism-left
+  assume P or Q                                                       (H1)
+  assume not P                                                        (H2)
+  then        Q
+  metamath    orel1
+  target      orel1
+  note        disjunctive-syllogism with the other side failing.
+
 mundane theorem or-left
   assume P                                                            (H1)
   then        P or Q

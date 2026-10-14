@@ -5,6 +5,32 @@ import mundane definition stdlib/numbers/irrational
 import mundane theorem    stdlib/numbers/square-equal
 import mundane theorem    stdlib/divisibility/mod-remainder
 
+theorem two-cubed
+  then 2³ = 8
+
+1.  2³ = 8
+    arithmetic
+
+theorem two-to-the-tenth
+  then 2¹⁰ = 1024
+
+1.  2¹⁰ = 1024
+    arithmetic
+
+theorem a-fourth-power-of-a-square
+  let x ∈ ℝ                                                           (H1)
+  then x⁴ = (x²)²
+
+1.  x⁴ = (x²)²
+    algebra
+
+theorem a-cube-multiplied-out
+  let x ∈ ℝ                                                           (H1)
+  then (x + 1)³ = x³ + 3·x² + 3·x + 1
+
+1.  (x + 1)³ = x³ + 3·x² + 3·x + 1
+    algebra
+
 theorem seven-mod-three
   then 7 mod 3 = 1
 

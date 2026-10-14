@@ -378,12 +378,20 @@ become a parse.
 ### Tokens
 
 ```grammar
-<token>   ::= <word> | <name> | <numeral> | <symbol> | `(` | `)`
+<token>   ::= <word> | <name> | <numeral> | <raised> | <symbol> | `(` | `)`
 <word>    ::= a maximal run of letters that is a declared literal, longest match
 <name>    ::= a letter, then any subscripts and primes
 <numeral> ::= a maximal run of digits
+<raised>  ::= a maximal run of the raised digits ⁰ ¹ ² ³ ⁴ ⁵ ⁶ ⁷ ⁸ ⁹
 <symbol>  ::= a declared token that is neither letters nor digits
 ```
+
+A `<raised>` token is a numeral written raised, and stands where a notation's
+pattern writes `ⁿ`: the superscript record's `_ⁿ` reads x², N³ and 2¹⁰ as
+powers whose exponent is the numeral 2, 3 or 10. One record serves every such
+exponent, as one `<numeral>` serves every number. An exponent with a letter in
+it is written with `^`, as in 2^n: raised letters are not a complete alphabet,
+and a power would then have two spellings.
 
 A run of letters is a `<word>` if one is declared and a `<name>` otherwise, which
 is decidable because juxtaposition never joins two bare names. Round brackets

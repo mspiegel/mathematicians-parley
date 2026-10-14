@@ -11,7 +11,8 @@
 
 use super::grammar::Grammar;
 use super::node::Node;
-use super::notation::{binds_tighter, Notation, Part, Tighter};
+use super::notation::{binds_tighter, Notation, Part, Tighter, RAISED_HOLE};
+use super::token::raised;
 
 impl Grammar {
     /// The node as page text.
@@ -107,6 +108,10 @@ impl Grammar {
         for (i, part) in n.parts.iter().enumerate() {
             match part {
                 Part::Lit(_) => {}
+                Part::Raised => {
+                    written.push(raised(&children[at].text));
+                    at += 1;
+                }
                 Part::Hole => {
                     let child = &children[at];
                     let text = self.print(child);
@@ -126,7 +131,7 @@ impl Grammar {
         let mut out = String::new();
         let mut holes = written.into_iter();
         for c in n.pattern.chars() {
-            if c == '_' {
+            if c == '_' || c == RAISED_HOLE {
                 out.push_str(&holes.next().unwrap_or_default());
             } else {
                 out.push(c);
@@ -193,5 +198,5 @@ enum Edge {
 }
 
 fn holes(n: &Notation) -> usize {
-    n.parts.iter().filter(|p| p.is_hole()).count()
+    n.parts.iter().filter(|p| p.fills()).count()
 }
