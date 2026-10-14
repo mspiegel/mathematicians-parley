@@ -264,6 +264,26 @@ mundane theorem sum-constant
   target      gfsumconst
   note        The same term b − a + 1 times.
 
+mundane theorem sum-empty-range
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  assume b < a                                                        (H3)
+  let t : {a, …, b} → ℝ                                               (H4)
+  then        Σ(k = a to b) t(k) = 0
+  metamath    fzn, sumeq1d and sum0, which this corpus proves together in
+              elaboration/stdlib/proved.mm
+  target      gfsum0
+  note        A range that ends before it starts has no terms, and their sum
+              is 0: Σ(k = 1 to 0) (2k − 1) = 0 is the base case of an
+              induction from 0 over a sum from 1.
+
+mundane theorem sum-empty-set
+  let t : ℤ → ℝ                                                       (H1)
+  then        Σ(k ∈ ∅) t(k) = 0
+  metamath    sum0
+  target      sum0
+  note        A sum over a set with no members is 0.
+
 mundane theorem sum-nonneg
   let a ∈ ℤ                                                           (H1)
   let b ∈ ℤ                                                           (H2)

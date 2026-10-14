@@ -1,4 +1,5 @@
-# Sums over a range split in two and of a constant, for `proved.mm`.
+# Sums over a range split in two, of a constant, and over an empty range,
+# for `proved.mm`.
 #
 # The page splits Σ(k = a to c) after b and counts a constant term
 # b − a + 1 times. set.mm says both of finite sets: `fsumsplit` of a set
@@ -59,4 +60,18 @@ lemma gfsumconst
   9 syl 7 8 |- ( ph -> ( # ` ( M ... N ) ) = ( ( N - M ) + 1 ) )
   10 oveq1d 9 |- ( ph -> ( ( # ` ( M ... N ) ) x. B ) = ( ( ( N - M ) + 1 ) x. B ) )
   11 eqtrd 4 10 |- ( ph -> sum_ k e. ( M ... N ) B = ( ( ( N - M ) + 1 ) x. B ) )
+
+# `gfsum0`: Σ(k = M to N) A = 0 where N < M: `fzn` makes the range empty,
+# and `sum0` is a sum over the empty set.
+lemma gfsum0
+  hypothesis gfsum0.1 |- ( ph -> M e. ZZ )
+  hypothesis gfsum0.2 |- ( ph -> N e. ZZ )
+  hypothesis gfsum0.3 |- ( ph -> N < M )
+  |- ( ph -> sum_ k e. ( M ... N ) A = 0 )
+  1 fzn |- ( ( M e. ZZ /\ N e. ZZ ) -> ( N < M <-> ( M ... N ) = (/) ) )
+  2 syl2anc gfsum0.1 gfsum0.2 1 |- ( ph -> ( N < M <-> ( M ... N ) = (/) ) )
+  3 mpbid gfsum0.3 2 |- ( ph -> ( M ... N ) = (/) )
+  4 sumeq1d 3 |- ( ph -> sum_ k e. ( M ... N ) A = sum_ k e. (/) A )
+  5 sum0 |- sum_ k e. (/) A = 0
+  6 eqtrdi 4 5 |- ( ph -> sum_ k e. ( M ... N ) A = 0 )
 

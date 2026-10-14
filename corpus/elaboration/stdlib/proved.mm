@@ -1228,6 +1228,16 @@ $d k K $.  $d k M $.  $d k N $.  $d k B $.  $d k ph $.
     ADEJKZBCLZUSMNZBOKZEDPKZQRKZBOKAUSSTBUATUTVBUBADEUCABIUDUSBCUEUFAVAVDBOAEDUGNZTZVAVDUBADUHTZEUHTZDEUIUJZUKVFAVGVHVIFGHULDEUMUNDEUOUPUQUR $.
   $}
 
+  ${
+    gfsum0.1 $e |- ( ph -> M e. ZZ ) $.
+    gfsum0.2 $e |- ( ph -> N e. ZZ ) $.
+    gfsum0.3 $e |- ( ph -> N < M ) $.
+  gfsum0 $p |- ( ph -> sum_ k e. ( M ... N ) A = 0 ) $=
+    ( cfz co csu c0 cc0 clt wbr wceq cz wcel wb fzn syl2anc mpbid sumeq1d
+    sum0 eqtrdi )
+    ADEIJZBCKLBCKMAUFLBCAEDNOZUFLPZHADQREQRUGUHSFGDETUAUBUCBCUDUE $.
+  $}
+
 $}
 
 ${

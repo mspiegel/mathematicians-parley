@@ -1315,7 +1315,7 @@ impl<'a> Elaborator<'a> {
         let Item::Record(record) = item else {
             unreachable!()
         };
-        let labels = targets::clauses(record);
+        let labels = self.target_labels(step, record)?;
         let seed = self.filling(step, record)?;
         for label in &labels {
             let found = self.apply_lemma(
@@ -1359,6 +1359,25 @@ impl<'a> Elaborator<'a> {
 
     /// An item the database gives no target for: nothing builds what it
     /// says, and the build takes nothing as stated, so citing it stops here.
+    /// The lemmas an item's target names, each one the library this build
+    /// read holds. A building of one theorem reads `proved.mm` as it was
+    /// last written, so a lemma added to `corpus/proved/` since is not there
+    /// until a whole build writes it.
+    fn target_labels(&self, step: &Step, item: &Record) -> Checked<Vec<String>> {
+        let labels = targets::clauses(item);
+        if let Some(missing) = labels.iter().find(|l| !self.b.sigs.contains_key(l)) {
+            return Err(self.defect(
+                step.line,
+                format!(
+                    "{}:{} targets {missing}, which neither set.mm nor proved.mm as built holds: a lemma of corpus/proved/ reaches proved.mm when everything is built with `parley build`",
+                    item_kind(Item::Record(item)),
+                    item.qualified()
+                ),
+            ));
+        }
+        Ok(labels)
+    }
+
     fn untargeted(&self, step: &Step, item: &Record) -> Problem {
         self.defect(
             step.line,
@@ -3021,7 +3040,7 @@ impl<'a> Elaborator<'a> {
         cites: Option<&[String]>,
     ) -> Checked<Way> {
         let refs = cites.unwrap_or(&step.just.refs);
-        for lemma in targets::clauses(item) {
+        for lemma in self.target_labels(step, item)? {
             let mut whole = self.statement(&lemma);
             while whole.label() == Some("wi") {
                 whole = whole.children()[1].clone();
@@ -4992,7 +5011,7 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         item: &'a Record,
     ) -> Checked<Route<Proof>> {
-        let labels = targets::clauses(item);
+        let labels = self.target_labels(step, item)?;
         if labels.is_empty() {
             return Err(self.untargeted(step, item));
         }
@@ -5149,7 +5168,9 @@ impl<'a> Elaborator<'a> {
         let said = (self.statements)(name).ok_or_else(|| {
             self.defect(
                 step.line,
-                format!("no file states {name}, which this step cites"),
+                format!(
+                    "{name}, which this step cites, has no built file under corpus/elaboration/: build it first, or build everything with `parley build`"
+                ),
             )
         })?;
         let words: Vec<&str> = said.split_whitespace().skip(1).collect();

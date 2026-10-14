@@ -5,6 +5,21 @@ import mundane theorem    stdlib/sums/range-nat as sums-range-nat
 import mundane theorem    stdlib/sums/range-single as sums-range-single
 import mundane theorem    stdlib/sums/range-split as sums-range-split
 import mundane definition stdlib/sums/range0 as sums-range0
+import mundane theorem    stdlib/sums/sum-empty-range as sums-sum-empty-range
+import mundane theorem    stdlib/sums/sum-empty-set as sums-sum-empty-set
+
+theorem sum-empty-range
+  then Σ(k = 1 to 0) (2k − 1) = 0
+
+1.  Σ(k = 1 to 0) (2k − 1) = 0
+    mun:sums-sum-empty-range a := 1, b := 0
+    requires 0 < 1: arithmetic
+
+theorem sum-empty-set
+  then Σ(k ∈ ∅) k² = 0
+
+1.  Σ(k ∈ ∅) k² = 0
+    mun:sums-sum-empty-set
 
 theorem range-nat
   let n ∈ ℤ                                                           (H1)

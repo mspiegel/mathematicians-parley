@@ -1174,6 +1174,17 @@ fn cases() -> Vec<Case> {
             "",
             "nothing says 2^n is not zero",
         ),
+        // A target naming a lemma the library as built does not hold, as
+        // one added to corpus/proved/ before a whole build has written it,
+        // is said where the item is cited, and the build goes on.
+        case(
+            "a target naming a lemma the library does not hold",
+            "tests/stdlib/sums/sum-empty-range",
+            "corpus/stdlib/sums.records",
+            "  target      gfsum0\n",
+            "  target      gfsumnone\n",
+            "mun:stdlib/sums/sum-empty-range targets gfsumnone, which neither set.mm nor proved.mm as built holds",
+        ),
         // A quotient is a number once its divisor is not zero, and that is
         // what is named where it is missing.
         case(
