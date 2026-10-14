@@ -1045,6 +1045,17 @@ fn cases() -> Vec<Case> {
             )],
             "the requires line of step 1 says k ∈ ℤ, which the step's other lines already say",
         ),
+        // No function is typed over {0, …, N}, so H2 is cited for k ∈ ℤ, which
+        // the range says once, and binomial-nat0 asks nothing more of it.
+        case(
+            "an item's requires line naming a range let only for its integrality",
+            vec![edit(
+                "tests/elaborator/a-range-member-is-cited.proof",
+                Some("    requires C(N, k) ∈ ℕ₀: mun:binomial-nat0\n".to_string()),
+                "    requires C(N, k) ∈ ℕ₀: mun:binomial-nat0, from H2\n".to_string(),
+            )],
+            "the requires line of step 1 cites H2, and mun:binomial-nat0 asks for nothing it says",
+        ),
         // A letter's membership is said once, so a line naming the let that
         // introduces it, for nothing more, names a line it uses nothing of.
         case(
