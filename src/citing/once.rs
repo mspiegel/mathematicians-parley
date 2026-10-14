@@ -32,14 +32,35 @@ pub fn introduction(said: &Node) -> Option<(String, &'static str)> {
     let [letter, set] = said.children.as_slice() else {
         return None;
     };
-    if said.notation != "membership"
-        || said.text != "∈"
-        || !letter.is_name()
-        || set.notation != "number-systems"
-    {
+    if said.notation != "membership" || said.text != "∈" || !letter.is_name() {
         return None;
     }
-    Some((letter.text.clone(), rules::system_of(&set.text)?))
+    let system = match set.notation.as_str() {
+        "number-systems" => rules::system_of(&set.text)?,
+        "integer-range" => range_system(set)?,
+        _ => return None,
+    };
+    Some((letter.text.clone(), system))
+}
+
+/// The least number system the declared table puts a range {a, …, b} in:
+/// ℕ from 1, ℕ₀ from 0, and ℤ from anywhere (`rules::RANGE_WITHIN`, which
+/// the elaborator reads as well).
+fn range_system(range: &Node) -> Option<&'static str> {
+    let start = range.children.first()?;
+    let begins = (start.notation == "numeral")
+        .then(|| {
+            start
+                .text
+                .parse::<u32>()
+                .ok()
+                .and_then(rules::numeral_label)
+        })
+        .flatten();
+    rules::RANGE_WITHIN
+        .iter()
+        .find(|(_, first, _)| first.is_none() || *first == begins)
+        .map(|(system, _, _)| *system)
 }
 
 /// The memberships the page says once of the terms `parts` names, in every

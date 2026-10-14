@@ -491,6 +491,10 @@ of
   containing that one: a `let` of the theorem or of a block around the
   step, an induction's `let k ∈ X`, or an `obtain`'s sentence `p ∈ ℤ`, which
   every obtain states of each name it introduces;
+- a letter introduced in a range, `let k ∈ {a, …, b}`: k ∈ ℤ, and k ∈ ℕ
+  where a is 1 and k ∈ ℕ₀ where a is 0, as a sum's index is, with every
+  number system containing that one. What else the range says, k ≥ a and
+  k ≤ b, is cited as before;
 - a term built from those by +, −, ·, unary −, a power to a numeral, and /,
   in each number system closed under what builds it (the table of closure
   lemmas in `src/rules.rs`): a·x + b·y ∈ ℤ where a, b, x and y are integers.

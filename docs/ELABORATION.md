@@ -1086,9 +1086,9 @@ a closure no line the step names states. A requires line citing a record is
 held to it as well, over what the checker reads such a line with: what its
 reason names, the requires lines above it, and the member its step's claim
 is said of, the record applied once or as often as it takes (`citing::taken`,
-`citing::derives`). `requires C(N, k) ∈ ℕ₀: mun:binomial-nat0, from H2`, where
-H2 says k ∈ {0, …, N}, is refused by both: a range is no number system, and
-k ∈ ℤ is `mun:range-integer`'s to say.
+`citing::derives`). `requires C(N, k) ∈ ℕ₀: mun:binomial-nat0`, where H2
+lets k ∈ {0, …, N}, is taken by both with nothing cited: a letter introduced
+in a range is an integer said once (`SYNTAX.md`), as one introduced in ℤ is.
 
 An item's hypothesis that is an equation whose two sides are one under the
 citation, |X| = m at m := |A|, needs no line (`SYNTAX.md`, "An identity element
@@ -1910,9 +1910,9 @@ proved (`discharged_by`).
     not rest on is at work only where the method demands it — the membership
     of an atom of what the certificate combined, or a term of it not zero —
     or where a requires line below it cites an item whose hypotheses, under
-    the binding that line gives, include what it says: `requires 2^(j + 1) ∈
-    ℤ` above `requires k ∈ ℤ: mun:range-integer a := 2^j + 1, b := 2^(j +
-    1)`, whose record asks b ∈ ℤ though its lemma proves k ∈ ℤ without it
+    the binding that line gives, include what it says, though the record's
+    lemma proves its fact without it: `mun:range-integer` asks a ∈ ℤ and
+    b ∈ ℤ, and its lemma proves k ∈ ℤ from k ∈ {a, …, b} alone
     (`asked_by_requires`). What a record asks there is the checker's answer,
     from the one search both tools use (`citing::asked`): the line's fact is
     the claim, and the lines its reason cites, the requires lines above it
@@ -2007,9 +2007,12 @@ proved (`discharged_by`).
     elaborator its lemma, `gsspw` with the set proved a set (`made_a_set`).
     A line saying a term is in a range says nothing past itself, since a
     range is no number system (`SYNTAX.md`): `mun:range-integer` is how a
-    page says its member is whole. A sum's index is the exception, a whole
-    number as the sum runs over its range (`RANGE_WITHIN`), as a family's
-    values are read (`in_family`).
+    page says such a term is whole. A letter introduced in a range is the
+    exception, an integer said once, in ℕ from 1 and ℕ₀ from 0
+    (`RANGE_WITHIN`, read by the checker's `introduction` and the
+    elaborator's `range_system`); and so is a sum's index, a whole number
+    as the sum runs over its range, as a family's values are read
+    (`in_family`).
   - both, where both ask one search: what a record a requires line cites
     asks of it, and what a record an obtain cites says there is. Both ask
     `src/citing/` (`asked`, `obtained`), and both have the page's trees from

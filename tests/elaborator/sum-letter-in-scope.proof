@@ -1,6 +1,4 @@
 import mundane theorem    stdlib/numbers/nat-int
-import mundane theorem    stdlib/numbers/int-real
-import mundane theorem    stdlib/sums/range-integer
 import mundane theorem    stdlib/sums/sum-termwise
 
 theorem sum-under-a-hypothesis-over-its-letter
@@ -30,15 +28,8 @@ theorem termwise-under-a-hypothesis-over-its-letter
     proof
     let k ∈ {1, …, n}                                                 (J)
 
-    2.1.  k ∈ ℤ
-          mun:range-integer a := 1, b := n, from J
-
-    2.2.  k ∈ ℝ
-          mun:int-real, from 2.1
-
-    2.3.  k + 0 = k
+    2.1.  k + 0 = k
           algebra
-          requires k ∈ ℝ: from 2.2
 
 3.  Σ(k = 1 to n) (k + 0) = Σ(k = 1 to n) k
     mun:sum-termwise a := 1, b := n, from 2

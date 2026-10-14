@@ -6,7 +6,6 @@ import mundane theorem    stdlib/sums/sum-constant
 import mundane theorem    stdlib/sums/sum-single
 import mundane theorem    stdlib/sums/sum-real
 import mundane theorem    stdlib/sums/range-bounds
-import mundane theorem    stdlib/sums/range-integer
 import mundane theorem    stdlib/numbers/exponent-step
 import mundane theorem    stdlib/numbers/exponent-zero
 import mundane theorem    stdlib/numbers/power-nat
@@ -46,9 +45,7 @@ theorem harmonic-block
 
     5.2.  1/2^(j + 1) ≤ 1/k
           mun:reciprocal-order x := k, y := 2^(j + 1), from 5.1
-          requires 2^j + 1 ∈ ℤ: membership, from H1
           requires 2^(j + 1) ∈ ℤ: membership, from H1
-          requires k ∈ ℤ: mun:range-integer a := 2^j + 1, b := 2^(j + 1), from K1
           requires k > 0: inequalities, from 2, 5.1
           requires 2^(j + 1) > 0: inequalities, from 1, 2
 
@@ -63,9 +60,6 @@ theorem harmonic-block
 
     6.2.  1/k ∈ ℝ
           membership
-          requires 2^j + 1 ∈ ℤ: membership, from H1
-          requires 2^(j + 1) ∈ ℤ: membership, from H1
-          requires k ∈ ℤ: mun:range-integer a := 2^j + 1, b := 2^(j + 1), from K2
           requires k ≠ 0: inequalities, from 2, 6.1
 
 7.  Σ(k = 2^j + 1 to 2^(j + 1)) 1/2^(j + 1) ≤ Σ(k = 2^j + 1 to 2^(j + 1)) 1/k

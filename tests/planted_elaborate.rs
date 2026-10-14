@@ -1215,17 +1215,6 @@ fn cases() -> Vec<Case> {
             "(line 1.2.7) into 1.2.6",
             "a line number after `into` carries the word \"line\": `into line 1.2.6`",
         ),
-        // A requires line's item is one the checker takes, as a step's is:
-        // k ∈ {0, …, N} cited for the k ∈ ℤ an item asks is a range, and no
-        // number system, so it says nothing past itself.
-        case(
-            "a requires line citing a range member for its integrality",
-            "tests/elaborator/a-range-member-is-cited/a-range-member-is-cited",
-            "tests/elaborator/a-range-member-is-cited.proof",
-            "    requires k ∈ ℤ: mun:range-integer a := 0, b := N, from H2\n    requires C(N, k) ∈ ℕ₀: mun:binomial-nat0\n",
-            "    requires C(N, k) ∈ ℕ₀: mun:binomial-nat0, from H2\n",
-            "no clause of mun:stdlib/counting/binomial-nat0 concludes the line from what the line names",
-        ),
         // The build reads a file the checker may have refused, so an item
         // the file does not import is reported where it is cited.
         case(

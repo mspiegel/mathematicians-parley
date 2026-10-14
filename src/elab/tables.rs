@@ -1828,7 +1828,9 @@ impl<'a> Elaborator<'a> {
     /// what `introduced_membership` carries to any scope inside it.
     pub fn note_introduced(&mut self, scope: &str, facts: &Facts) -> Checked<()> {
         for (letter, set) in self.sets.clone() {
-            if lookup(rules::SYSTEMS, &set).is_none() {
+            if lookup(rules::SYSTEMS, &set).is_none()
+                && self.range_system(&set).is_none()
+            {
                 continue;
             }
             let Some(kernel) = self.names.get(&letter).cloned() else {
@@ -1916,9 +1918,33 @@ impl<'a> Elaborator<'a> {
     fn introduced_in(&self, said: &str) -> Option<(String, String)> {
         self.sets.iter().find_map(|(letter, set)| {
             let ours = self.names.get(letter).is_some_and(|k| k == said);
-            (ours && lookup(rules::SYSTEMS, set).is_some())
-                .then(|| (letter.clone(), set.clone()))
+            let counted = lookup(rules::SYSTEMS, set).is_some()
+                || self.range_system(set).is_some();
+            (ours && counted).then(|| (letter.clone(), set.clone()))
         })
+    }
+
+    /// The number system a range {a, …, b} puts its members in, and the
+    /// lemma saying so (`rules::RANGE_WITHIN`, which the checker reads as
+    /// well): ℕ from 1, ℕ₀ from 0, ℤ from anywhere. None for a set that is
+    /// no range.
+    pub(crate) fn range_system(
+        &self,
+        set: &str,
+    ) -> Option<(&'static str, &'static str)> {
+        let range = self.to_term(set);
+        if range.variable().is_some()
+            || range.label() != Some("co")
+            || range.children().len() != 3
+            || self.rpn(&range.children()[2]) != "cfz"
+        {
+            return None;
+        }
+        let start = self.rpn(&range.children()[0]);
+        rules::RANGE_WITHIN
+            .iter()
+            .find(|(_, first, _)| first.is_none() || *first == Some(start.as_str()))
+            .map(|(system, _, lemma)| (*system, *lemma))
     }
 
     /// `said ∈ system` for a letter introduced in `set`, from the scope's
@@ -1933,7 +1959,10 @@ impl<'a> Elaborator<'a> {
         scope: &str,
         facts: &Facts,
     ) -> Checked<Route<Proof>> {
-        if rules::within_path(Some(set), Some(system)).is_none() {
+        // A range's member is in the system the range lies in first.
+        let range = self.range_system(set);
+        let base = range.map_or(set, |(system, _)| system);
+        if rules::within_path(Some(base), Some(system)).is_none() {
             return Ok(Route::no(format!("{set} is not inside {system}")));
         }
         let claim = t!(said, set, "wcel");
@@ -1949,8 +1978,25 @@ impl<'a> Elaborator<'a> {
         let Some(held) = held else {
             return Ok(Route::no("the introducing line is not in scope"));
         };
-        let proof = self.seal(held, &format!("{MEMBERSHIP}{letter}"));
-        self.carried_within(said, set, system, proof, scope)
+        let mut proof = self.seal(held, &format!("{MEMBERSHIP}{letter}"));
+        if let Some((inside, lemma)) = range {
+            let says = self.statement(lemma);
+            let Some(binding) = fit(
+                &says.children()[0],
+                &self.to_term(&claim),
+                &Binding::new(),
+                &names_of(&says),
+            ) else {
+                return Ok(Route::no(format!("{lemma} does not take {claim}")));
+            };
+            let law = self.b.ap(lemma, &self.spelt(&binding), &[]);
+            proof = self.b.ap(
+                "syl",
+                &binds! {"ph" => scope, "ps" => &claim, "ch" => t!(said, inside, "wcel")},
+                &[&proof, &law],
+            );
+        }
+        self.carried_within(said, base, system, proof, scope)
     }
 
     /// ( scope -> said e. system ) from ( scope -> said e. set ), along the

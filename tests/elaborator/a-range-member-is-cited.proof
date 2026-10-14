@@ -1,14 +1,12 @@
 import definition         stdlib/counting/C
 import mundane theorem    stdlib/counting/binomial-nat0
-import mundane theorem    stdlib/sums/range-integer
 
 theorem a-range-member-is-cited
-  note        A range is no number system, so k ∈ {0, …, N} says k ∈ ℤ only by the item that says so, cited where a requires line needs it.
+  note        A letter introduced in a range is an integer as a letter introduced in ℤ is: k ∈ {0, …, N} says k ∈ ℤ once, and no line writes it.
   let N ∈ ℕ₀    (H1)
   let k ∈ {0, …, N}    (H2)
   then C(N, k)·1 = C(N, k)
 
 1.  C(N, k)·1 = C(N, k)
     algebra
-    requires k ∈ ℤ: mun:range-integer a := 0, b := N, from H2
     requires C(N, k) ∈ ℕ₀: mun:binomial-nat0

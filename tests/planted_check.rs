@@ -1034,14 +1034,16 @@ fn cases() -> Vec<Case> {
             )],
             "step 3.3 joins 1, and claims nothing it says",
         ),
+        // A letter introduced in a range is an integer said once, and a line
+        // writing it says what the step's other lines already do.
         case(
-            "a requires line citing a range member for its integrality",
+            "a requires line writing a range member's integrality",
             vec![edit(
                 "tests/elaborator/a-range-member-is-cited.proof",
-                Some("    requires k ∈ ℤ: mun:range-integer a := 0, b := N, from H2\n    requires C(N, k) ∈ ℕ₀: mun:binomial-nat0\n".to_string()),
-                "    requires C(N, k) ∈ ℕ₀: mun:binomial-nat0, from H2\n".to_string(),
+                Some("    requires C(N, k) ∈ ℕ₀: mun:binomial-nat0\n".to_string()),
+                "    requires k ∈ ℤ: membership\n    requires C(N, k) ∈ ℕ₀: mun:binomial-nat0\n".to_string(),
             )],
-            "the requires line of step 1 cites mun:binomial-nat0, which asks for k ∈ ℤ, and what it cites does not supply it",
+            "the requires line of step 1 says k ∈ ℤ, which the step's other lines already say",
         ),
         case(
             "drop an identity element a substitution makes from what no line says is a number",
@@ -2182,9 +2184,9 @@ fn cases() -> Vec<Case> {
         case(
             "a label read as a sibling block's",
             vec![
-                edit("proofs/binomial.proof", Some("           requires k ∈ ℤ: mun:range-integer a := 1, b := m + 1, from J\n".to_string()), "           requires k ∈ ℤ: mun:range-integer a := 0, b := m + 1, from J\n".to_string()),
+                edit("proofs/binomial.proof", Some("    30.1.  m − (k − 1) = (m + 1) − k\n           algebra\n".to_string()), "    30.1.  m − (k − 1) = (m + 1) − k\n           algebra\n           requires (m + 1) − k ∈ ℕ₀: mun:range-difference a := 0, n := m + 1, from J\n".to_string()),
             ],
-            "the requires line of step 30.1 cites mun:range-integer, which asks for 0 ∈ ℤ; m + 1 ∈ ℤ; k ∈ {0, …, m + 1}, and what it cites does not supply them",
+            "the requires line of step 30.1 cites mun:range-difference",
         ),
         // `arithmetic` may stand where a closed-numeral fact is used, and only
         // there: an equation with a letter in it gives a reader something to
@@ -2399,14 +2401,14 @@ fn cases() -> Vec<Case> {
             ],
             "step 14.1 obtains from mun:part-builder, which says there is one only from something the step does not cite",
         ),
-        // A requires line says what the step's other lines do not: k ∈ ℤ
-        // above already says k is real.
+        // A requires line says what the step's other lines do not: m − k ∈ ℕ₀
+        // above already says m − k is real.
         case(
             "repeat a fact a line above already says",
             vec![
-                edit("proofs/binomial.proof", Some("          requires k ∈ ℤ: mun:range-integer a := 0, b := m, from J\n\n".to_string()), "          requires k ∈ ℤ: mun:range-integer a := 0, b := m, from J\n          requires k ∈ ℝ: membership\n\n".to_string()),
+                edit("proofs/binomial.proof", Some("          requires m − k ∈ ℕ₀: mun:range-difference a := 0, n := m, from J\n          requires x^(m − k) ∈ ℝ: mun:power-real, from H1\n".to_string()), "          requires m − k ∈ ℕ₀: mun:range-difference a := 0, n := m, from J\n          requires m − k ∈ ℝ: membership\n          requires x^(m − k) ∈ ℝ: mun:power-real, from H1\n".to_string()),
             ],
-            "the requires line of step 10.3 says k ∈ ℝ, which the step's other lines already say",
+            "the requires line of step 10.6 says m − k ∈ ℝ, which the step's other lines already say",
         ),
         // A line saying a term is not zero is asked for by a line below that
         // divides by it, and only by such a line: nothing in step 11 divides

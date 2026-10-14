@@ -1806,10 +1806,14 @@ impl<'a> Elaborator<'a> {
             .sets
             .iter()
             .filter_map(|(letter, set)| {
-                rules::SYSTEM_OF
+                // A letter introduced in a range is in the system the range
+                // lies in (`range_system`).
+                let system = rules::SYSTEM_OF
                     .iter()
                     .find(|(_, label)| label == set)
-                    .map(|(_, label)| (letter.clone(), *label))
+                    .map(|(_, label)| *label)
+                    .or_else(|| self.range_system(set).map(|(system, _)| system))?;
+                Some((letter.clone(), system))
             })
             .collect();
         citing::said_once(&mut parts, &introduced, library, &self.sorts_now);
