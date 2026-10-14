@@ -48,8 +48,8 @@ pub const CLOSURE: [&str; 5] = [
 const IDENTIFIER_CHARACTERS: &str =
     "αβγδεζηθικλμνξοπρστυφχψωΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ₀₁₂₃₄₅₆₇₈₉′";
 
-/// The relations a calculation's lines join by.
-const RELATIONS: [&str; 4] = ["=", "≤", "<", "≡"];
+/// The relations a calculation's lines join by, as the skeleton cuts them.
+const RELATIONS: [&str; 6] = crate::corpus::proof::CHAIN_RELATIONS;
 
 /// What a run found: every defect, and every step accepted without being
 /// examined because it rests on a closure method.

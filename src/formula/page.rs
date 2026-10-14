@@ -270,6 +270,8 @@ pub fn related(
         ("=", None) => "a = b",
         ("≤", None) => "a ≤ b",
         ("<", None) => "a < b",
+        ("≥", None) => "a ≥ b",
+        (">", None) => "a > b",
         ("≡", Some(n)) => {
             return filled("a ≡ b (mod n)", g, sorts, &[("a", a), ("b", b), ("n", n)]);
         }
@@ -283,7 +285,9 @@ pub fn related(
             return Err(Problem::new(
                 at.0,
                 at.1,
-                format!("a chain line joins by =, ≤, < or ≡, and not by {relation:?}"),
+                format!(
+                    "a chain line joins by =, ≤, <, ≥, > or ≡, and not by {relation:?}"
+                ),
             ));
         }
     };

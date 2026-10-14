@@ -2939,6 +2939,13 @@ fn cases() -> Vec<Case> {
             "a line number after `into` carries the word \"line\": `into line 3.1`",
         ),
         case(
+            "a chain that turns round",
+            vec![
+                edit("tests/elaborator/a-chain-going-down.proof", Some("        > c       H5".to_string()), "        < c       H5".to_string()),
+            ],
+            "a chain goes one way, and this line says < after one saying ≥",
+        ),
+        case(
             "a proof block letting a letter other than the claim's",
             vec![
                 edit("tests/elaborator/a-for-all-relating-two-sets.proof", Some("    let u ∈ A ".to_string()), "    let v ∈ A ".to_string()),

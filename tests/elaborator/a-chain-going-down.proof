@@ -1,0 +1,29 @@
+theorem a-chain-going-down
+  note        A chain may go down, as a textbook's estimate does: ≥ then > concludes >.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let c ∈ ℝ                                                           (H3)
+  assume a ≥ b                                                        (H4)
+  assume b > c                                                        (H5)
+  assume c = 2                                                        (H6)
+  then a > 2
+
+1.  a > 2
+    calculation
+      a ≥ b       H4
+        > c       H5
+        = 2       H6
+
+theorem a-chain-going-down-from-an-equation
+  note        = then ≥ concludes ≥.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let c ∈ ℝ                                                           (H3)
+  assume a = b                                                        (H4)
+  assume b ≥ c                                                        (H5)
+  then a ≥ c
+
+1.  a ≥ c
+    calculation
+      a = b       H4
+        ≥ c       H5

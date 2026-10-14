@@ -1419,7 +1419,11 @@ pub fn substituted_into(just: &Justification) -> Option<String> {
 }
 
 /// The relations a chain line joins by (`GRAMMAR.md`, calculation chains).
-pub const CHAIN_RELATIONS: [&str; 4] = ["=", "≤", "<", "≡"];
+pub const CHAIN_RELATIONS: [&str; 6] = ["=", "≤", "<", "≥", ">", "≡"];
+
+/// Each order a chain going down joins by, with the one it is read as going
+/// up: `a ≥ b` is `b ≤ a`.
+const DOWNWARD: [(&str, &str); 2] = [("≥", "≤"), (">", "<")];
 
 regex!(CHAIN_MODULUS, r"^(.*?)\s*\(mod\s+(.+)\)$");
 
@@ -1454,6 +1458,39 @@ impl ChainLine {
 pub struct Chain {
     pub start: Written,
     pub lines: Vec<ChainLine>,
+}
+
+impl Chain {
+    /// The chain read going up: one whose orders go down, t₀ ≥ t₁ > t₂,
+    /// is the same links read from its last term, t₂ < t₁ ≤ t₀, and
+    /// concludes the same, since t₀ > t₂ is t₂ < t₀. A chain going up is
+    /// itself.
+    pub fn upward(&self) -> Chain {
+        let down = |r: &str| DOWNWARD.iter().find(|(d, _)| *d == r).map(|(_, u)| *u);
+        if !self.lines.iter().any(|l| down(&l.relation).is_some()) {
+            return self.clone();
+        }
+        let terms: Vec<&Written> = std::iter::once(&self.start)
+            .chain(self.lines.iter().map(|l| &l.term))
+            .collect();
+        let lines = (0..self.lines.len())
+            .rev()
+            .map(|i| {
+                let l = &self.lines[i];
+                ChainLine {
+                    relation: down(&l.relation).unwrap_or(&l.relation).to_string(),
+                    term: terms[i].clone(),
+                    modulus: None,
+                    cite: l.cite.clone(),
+                    line: l.line,
+                }
+            })
+            .collect();
+        Chain {
+            start: terms[terms.len() - 1].clone(),
+            lines,
+        }
+    }
 }
 
 /// The chain a calculation writes, cut by the skeleton; None for a
@@ -1502,7 +1539,7 @@ pub fn chain(just: &Justification, path: &str) -> Option<Checked<Chain>> {
                 return Some(Err(Problem::new(
                     path,
                     *no,
-                    "a chain's first line writes no =, ≤, < or ≡ outside brackets",
+                    "a chain's first line writes no =, ≤, <, ≥, > or ≡ outside brackets",
                 )));
             };
             start = Some(Written::new(words[..at].join(" "), path, *no));
@@ -1526,6 +1563,25 @@ pub fn chain(just: &Justification, path: &str) -> Option<Checked<Chain>> {
             cite: cite.to_string(),
             line: *no,
         });
+    }
+    // A chain goes one way: a ≤ b ≥ c says nothing of a against c.
+    let up = lines
+        .iter()
+        .find(|l| l.relation == "≤" || l.relation == "<");
+    let down = lines
+        .iter()
+        .find(|l| l.relation == "≥" || l.relation == ">");
+    if let (Some(up), Some(down)) = (up, down) {
+        let later = if up.line > down.line { up } else { down };
+        let earlier = if up.line > down.line { down } else { up };
+        return Some(Err(Problem::new(
+            path,
+            later.line,
+            format!(
+                "a chain goes one way, and this line says {} after one saying {}; {} after {} says nothing of the first term against the last",
+                later.relation, earlier.relation, later.relation, earlier.relation
+            ),
+        )));
     }
     Some(Ok(Chain {
         start: start.expect("a first line"),

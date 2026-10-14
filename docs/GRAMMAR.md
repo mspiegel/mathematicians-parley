@@ -978,7 +978,7 @@ the letter that claim binds.
 <chain>      ::= <first line> { <chain line> }
 <first line> ::= <term> <rel> <term> [ <modulus> ] <citation>
 <chain line> ::= <rel> <term> [ <modulus> ] <citation>
-<rel>        ::= `=` | `≤` | `<` | `≡`
+<rel>        ::= `=` | `≤` | `<` | `≥` | `>` | `≡`
 <modulus>    ::= `(mod` <term> `)`
 <citation>   ::= <ref> | `arithmetic`
 ```
@@ -986,7 +986,7 @@ the letter that claim binds.
 A line whose relation is `≡` says its modulus, `≡ 1·10 (mod 3)`, and no other
 line does; the modulus is not part of the term the next line continues from,
 so after `≡ 1·10 (mod 3)` the chain goes on from 1·10. Every `≡` line of a
-chain says the same modulus, a chain with a `≡` has no `≤` or `<`, and once a
+chain says the same modulus, a chain with a `≡` has no order, and once a
 line says `≡` every line after it does: a chain that has become a
 congruence does not go back to `=`, so that no `=` after one reads as though
 the chain had become an equation again.
@@ -999,10 +999,16 @@ which. `arithmetic` stands in
 for a reference only on a line whose relation is between numerals alone, and
 cites nothing: the fact is worked out where it stands (`SYNTAX.md`).
 
-The claim's relation is `=` if every line is `=`, `≤` if every line is `=` or
-`≤`, `<` if any line is `<`, and `≡` with the lines' modulus if any line is
-`≡`: 10^(m + 1) = 10^m·10 ≡ 1·10 ≡ 10 ≡ 1 (mod 3) concludes a congruence,
-never an equation. A `≡` line cites a line stating
+A chain goes one way. Its orders are all `≤` and `<`, going up, or all `≥`
+and `>`, going down, with `=` anywhere among either: a ≤ b ≥ c says nothing
+of a against c, and is refused. A chain going down is a textbook's estimate,
+2^(de) − 1 = (2^d)^e − 1 ≥ 2^d − 1 > 1, and is the same links read from its
+last term going up, since a ≥ b is b ≤ a.
+
+The claim's relation is `=` if every line is `=`; going up, `≤` if every
+line is `=` or `≤`, and `<` if any line is `<`; going down, `≥` and `>` the
+same way; and `≡` with the lines' modulus if any line is `≡`: 10^(m + 1) =
+10^m·10 ≡ 1·10 ≡ 10 ≡ 1 (mod 3) concludes a congruence, never an equation. A `≡` line cites a line stating
 exactly that congruence, as any line does, so a term is never replaced by a
 congruent one inside an exponent, where congruence does not carry.
 

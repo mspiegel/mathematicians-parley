@@ -1196,7 +1196,7 @@ pub fn check_chain_congruences(report: &mut Report, thm: &Theorem) {
         }
         let ordered = links
             .iter()
-            .any(|l| l.line.relation == "≤" || l.line.relation == "<");
+            .any(|l| ["≤", "<", "≥", ">"].contains(&l.line.relation.as_str()));
         if said.is_some() && ordered {
             report.say(
                 &thm.path,

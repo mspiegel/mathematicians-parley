@@ -3290,7 +3290,9 @@ impl<'a> Elaborator<'a> {
         let Some(chain) = chain(&step.just, &self.thm.path) else {
             return Err(self.defect(step.line, "a calculation writes no chain"));
         };
-        let chain = chain?;
+        // A chain going down is composed as the same links going up, which
+        // concludes the same formula: t₀ ≥ t₂ is t₂ ≤ t₀ (`Chain::upward`).
+        let chain = chain?.upward();
         let mut defines: BTreeSet<String> =
             self.thm.defines.iter().map(|d| d.label.clone()).collect();
         for (name, d, src) in self.visible_outside() {
