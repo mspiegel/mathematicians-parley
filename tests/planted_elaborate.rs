@@ -420,7 +420,7 @@ fn cases() -> Vec<Case> {
             "proofs/factor.proof",
             "          substitute p(a) = 0 (H3) into line 2.1\n          requires q(x) ∈ ℂ: mun:polynomial-value p := q, from 1\n",
             "          substitute p(a) = 0 (H3) into line 2.1\n",
-            "the substitution misses the claim",
+            "drops an identity element from what the substitution makes, and nothing says (x − a) · q(x) is a number",
         ),
         // 0 is an identity on the right of a difference and not on its left:
         // C(m, 0 − 1) is not C(m, −1) by any identity law.

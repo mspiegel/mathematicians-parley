@@ -610,7 +610,7 @@ fn check_theorem(
     citations::check_subjects(report, thm, library, k);
     citations::check_joins(report, thm, library, k);
     citations::check_substitutes(report, thm, library, k);
-    citations::check_function_types(report, thm, library, k);
+    citations::check_function_types(report, thm, library, k, scopes);
     formulas::check_define_citation(report, thm, library, k, scopes);
     citations::check_obtained(report, thm, library, k);
     citations::check_obtained_claims(report, thm, library, k);

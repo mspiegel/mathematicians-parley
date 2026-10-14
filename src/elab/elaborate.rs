@@ -2860,7 +2860,9 @@ impl<'a> Elaborator<'a> {
             self.unpack_all(&cited.term, &whole_proof, scope, &held);
             let named = Facts::new();
             for (said, shown) in held.entries() {
-                if sides.contains(&said) {
+                // The side over the definition's own letters, {3s : s ∈ ℤ},
+                // is the line's {3n : n ∈ ℤ}.
+                if sides.iter().any(|s| *s == said || self.rebound(s, &said)) {
                     self.know(&named, said, shown);
                 }
             }

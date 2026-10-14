@@ -1,0 +1,189 @@
+import definition         stdlib/calculus/continuous-on
+import mundane definition stdlib/numbers/abs
+import mundane theorem    stdlib/numbers/abs-nonneg
+import mundane theorem    stdlib/numbers/abs-product
+import mundane theorem    stdlib/numbers/abs-real
+import mundane theorem    stdlib/numbers/less-scaled
+import mundane theorem    stdlib/numbers/product-nonneg
+import mundane definition stdlib/numbers/sqrt
+import mundane definition stdlib/sets/set-builder
+import mundane theorem    stdlib/sets/set-builder-subset
+import mundane theorem    stdlib/functions/function-into
+
+theorem a-map-over-a-set-binding-its-letter
+  note        D binds x, as g's rule does; g is renamed apart from D's letter.
+              |x − c| = |√x − √c|·(√x + √c), and √x + √c is at least √c, so
+              |√x − √c| is at most |x − c|/√c. Taking δ = ε·√c keeps it
+              below ε.
+  ε, δ range over ℝ
+  let D = {x ∈ ℝ : x > 0}                                             (D1)
+         reads the positive real numbers
+  let g(x) = √x, for x ∈ D                                            (D2)
+         reads the square root, taken on the positive numbers
+  then g is continuous on D
+
+1.  D ⊆ ℝ
+    mun:set-builder-subset, from D1
+
+2.  For all x ∈ D, g(x) ∈ ℝ.
+    proof
+    let x ∈ D                                                         (K1)
+
+    2.1.  x ∈ ℝ. x > 0.
+          mun:set-builder, from D1, K1
+
+    2.2.  x ≥ 0
+          inequalities, from 2.1
+
+    2.3.  √x ∈ ℝ. √x ≥ 0. (√x)² = x.
+          mun:sqrt, from 2.1, 2.2
+
+    2.4.  g(x) = √x
+          D2, from K1
+
+    2.5.  g(x) ∈ ℝ
+          substitute g(x) = √x (line 2.4) into line 2.3
+
+3.  g : D → ℝ
+    mun:function-into, from 2
+    requires g is a function on D: from D2
+
+4.  For all c ∈ D, for all ε > 0, there exists δ > 0 such that
+    |g(x) − g(c)| < ε for all x ∈ D with |x − c| < δ.
+    proof
+    let c ∈ D                                                         (K2)
+    let ε ∈ ℝ                                                         (K3)
+    assume ε > 0                                                      (A1)
+
+    4.1.  c ∈ ℝ. c > 0.
+          mun:set-builder, from D1, K2
+
+    4.2.  c ≥ 0
+          inequalities, from 4.1
+
+    4.3.  √c ∈ ℝ. √c ≥ 0. (√c)² = c.
+          mun:sqrt x := c, from 4.1, 4.2
+
+    4.4.  √c > 0
+          contradiction
+          suppose not √c > 0                                          (S1)
+
+          4.4.1.  √c = 0
+                  inequalities, from S1, 4.3
+
+          4.4.2.  (√c)² = 0²
+                  substitute √c = 0 (line 4.4.1)
+
+          4.4.3.  0² = 0
+                  arithmetic
+
+          4.4.4.  c = 0
+                  calculation
+                    c = (√c)²     4.3
+                      = 0²        4.4.2
+                      = 0         4.4.3
+
+          4.4.5.  not c > 0
+                  inequalities, from 4.4.4, contradicting 4.1
+                  requires c ∈ ℝ: from 4.1
+
+    4.5.  ε·0 < ε·√c
+          mun:less-scaled x := 0, y := √c, c := ε, from A1, 4.3, 4.4
+
+    4.6.  ε·√c ∈ ℝ
+          membership, from 4.3
+
+    4.7.  ε·√c > 0
+          inequalities, from 4.3, 4.5
+
+    4.8.  For all x ∈ D, if |x − c| < ε·√c then |g(x) − g(c)| < ε.
+          proof
+          let x ∈ D                                                   (K4)
+          assume |x − c| < ε·√c                                       (A2)
+
+          4.8.1.  x ∈ ℝ. x > 0.
+                  mun:set-builder, from D1, K4
+
+          4.8.2.  x ≥ 0
+                  inequalities, from 4.8.1
+
+          4.8.3.  √x ∈ ℝ. √x ≥ 0. (√x)² = x.
+                  mun:sqrt, from 4.8.1, 4.8.2
+
+          4.8.4.  x − c ∈ ℝ
+                  membership, from 4.1, 4.8.1
+
+          4.8.5.  |x − c| ∈ ℝ
+                  mun:abs-real x := x − c, from 4.8.4
+
+          4.8.6.  √x − √c ∈ ℝ
+                  membership, from 4.3, 4.8.3
+
+          4.8.7.  |√x − √c| ∈ ℝ
+                  mun:abs-real x := √x − √c, from 4.8.6
+
+          4.8.8.  g(x) = √x
+                  D2, from K4
+
+          4.8.9.  g(c) = √c
+                  D2, from K2
+
+          4.8.10. (√x − √c)·(√x + √c) = x − c
+                  algebra, from 4.1, 4.3, 4.8.1, 4.8.3
+
+          4.8.11. √x + √c ≥ 0
+                  inequalities, from 4.3, 4.8.3
+
+          4.8.12. |√x − √c| ≥ 0
+                  mun:abs-nonneg x := √x − √c, from 4.8.6
+
+          4.8.13. |√x + √c| = √x + √c
+                  mun:abs x := √x + √c, from 4.8.11
+                  requires √x + √c ∈ ℝ: membership, from 4.3, 4.8.3
+
+          4.8.14. |x − c| = |(√x − √c)·(√x + √c)|
+                  substitute (√x − √c)·(√x + √c) = x − c (line 4.8.10)
+
+          4.8.15. |(√x − √c)·(√x + √c)| = |√x − √c|·|√x + √c|
+                  mun:abs-product x := √x − √c, y := √x + √c, from 4.8.6
+                  requires √x + √c ∈ ℝ: membership, from 4.3, 4.8.3
+
+          4.8.16. |√x − √c|·|√x + √c| = |√x − √c|·(√x + √c)
+                  substitute |√x + √c| = √x + √c (line 4.8.13)
+
+          4.8.17. |x − c| = |√x − √c|·(√x + √c)
+                  calculation
+                    |x − c| = |(√x − √c)·(√x + √c)|        4.8.14
+                            = |√x − √c|·|√x + √c|          4.8.15
+                            = |√x − √c|·(√x + √c)          4.8.16
+
+          4.8.18. |√x − √c|·√x ≥ 0
+                  mun:product-nonneg x := |√x − √c|, y := √x, from 4.8.3, 4.8.7, 4.8.12
+
+          4.8.19. |√x − √c|·(√x + √c) = |√x − √c|·√x + √c·|√x − √c|
+                  algebra, from 4.3, 4.8.3, 4.8.7
+
+          4.8.20. √c·|√x − √c| ≤ |x − c|
+                  inequalities, from 4.3, 4.8.3, 4.8.5, 4.8.7, 4.8.17, 4.8.18, 4.8.19
+
+          4.8.21. ε·√c = √c·ε
+                  algebra, from 4.3
+
+          4.8.22. √c·|√x − √c| < √c·ε
+                  inequalities, from A2, 4.3, 4.8.5, 4.8.7, 4.8.20, 4.8.21
+
+          4.8.23. |√x − √c| < ε
+                  mun:less-scaled x := |√x − √c|, y := ε, c := √c, from 4.3, 4.4, 4.8.7, 4.8.22
+
+          4.8.24. |g(x) − √c| < ε
+                  substitute g(x) = √x (line 4.8.8) into line 4.8.23
+
+          4.8.25. |g(x) − g(c)| < ε
+                  substitute g(c) = √c (line 4.8.9) into line 4.8.24
+
+    4.9.  There exists δ > 0 such that |g(x) − g(c)| < ε for all x ∈ D with |x − c| < δ.
+          exhibit, from 4.6, 4.7, 4.8
+
+5.  g is continuous on D
+    def:continuous-on f := g, from 1, 4
+    requires g : D → ℝ: from 3

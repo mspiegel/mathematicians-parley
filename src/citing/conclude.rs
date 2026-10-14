@@ -7,8 +7,8 @@ use crate::formula::{walk, Node};
 use indexmap::IndexMap;
 
 use crate::matching::{
-    alike, binding_sites, free_names, identities_dropped, match_tree, put_at_some,
-    put_everywhere, substitute_apart, Binding, PROPERTY,
+    alike, binding_sites, free_names, identities_dropped, match_tree, put_everywhere,
+    substitute_apart, Binding, PROPERTY,
 };
 use crate::outcome::{Built, Route};
 
@@ -55,7 +55,7 @@ fn take(
         // requirement holding them is matched before the claim that uses it.
         let starts: Vec<Start> = if walk(first).iter().any(|x| sites.contains(&x.id()))
         {
-            supplied_first(first, given, binding, variables, library, sites, &ways)
+            supplied_first(first, given, binding, variables, library, sites)
         } else {
             vec![Start {
                 path: Vec::new(),
@@ -150,7 +150,7 @@ fn unnumbered(
     dropped
         .into_iter()
         .filter(|left| {
-            !a_number_said_once(left, given, &bound)
+            !a_number_said_once(left, given, &bound, ctx)
                 && !given.iter().any(|f| {
                     library.members.contains(&f.notation)
                         && matches!(f.children.as_slice(), [term, set]
@@ -178,14 +178,17 @@ pub fn substitution_unsaid(
     library: &Library,
 ) -> Vec<Node> {
     let ctx = &library.ctx;
-    if starts.iter().any(|s| put_at_some(s, aim, left, right, ctx)) {
-        return Vec::new();
-    }
+    // What dropping an element leaves is asked first, wherever in the term
+    // the element stands: C(m, k)·1·1^k is C(m, k)·1^k only where C(m, k)
+    // is a number, and a fit at some places would pass over that.
     for start in starts {
         for (was, now) in [(left, right), (right, left)] {
             let made = put_everywhere(start, was, now, ctx);
             if alike(&made, aim, ctx, &IndexMap::new(), &IndexMap::new()) {
-                return unnumbered(&made, aim, &Binding::new(), facts, library);
+                let left_over = unnumbered(&made, aim, &Binding::new(), facts, library);
+                if !left_over.is_empty() {
+                    return left_over;
+                }
             }
         }
     }
@@ -264,9 +267,7 @@ struct Start {
     binding: Binding,
 }
 
-/// The ways the facts supply what a reading asks first: the first way
-/// alone, or, where `ways` asks for every way, each of them.
-#[allow(clippy::too_many_arguments)]
+/// Every way the facts supply what a reading asks first.
 fn supplied_first(
     first: &[Node],
     given: &[Node],
@@ -274,17 +275,10 @@ fn supplied_first(
     variables: &BTreeSet<String>,
     library: &Library,
     sites: &Sites,
-    ways: &Option<&mut Ways>,
 ) -> Vec<Start> {
-    if ways.is_none() {
-        return supply(first, given, binding, variables, library, sites, false)
-            .map(|binding| Start {
-                path: Vec::new(),
-                binding,
-            })
-            .into_iter()
-            .collect();
-    }
+    // Every way, not the first: a line of two sentences supplies the
+    // braces from either, and the claim decides which (`set-image` from
+    // t ∈ {2n : n ∈ ℤ}. t ∈ {3n : n ∈ ℤ}. claiming t = 3n).
     let mut starts: Vec<Start> = Vec::new();
     let mut record = |path: &[usize], binding: &Binding| {
         starts.push(Start {

@@ -1748,8 +1748,15 @@ impl<'a> Elaborator<'a> {
                     // answer in, since the two are compared (`check::answers`).
                     if me.answers.is_some() {
                         if let Item::Record(r) = item {
-                            let ctx = &me.item_library().ctx;
-                            let said = me.g.print(&standard(&node, ctx));
+                            let library = me.item_library();
+                            // An item saying "A ↔ there is …" gives the
+                            // "there is", as the obtain below reads it.
+                            let there_is = crate::citing::readings(&node, &library)
+                                .into_iter()
+                                .map(|(target, _)| target)
+                                .find(|t| library.exists.contains(&t.notation))
+                                .unwrap_or_else(|| node.clone());
+                            let said = me.g.print(&standard(&there_is, &library.ctx));
                             let line = format!(
                                 "{}:{} | obtained | {} | {said}",
                                 me.thm.path,

@@ -77,6 +77,10 @@ pub trait Oracle {
         let _ = said;
         Ok(Route::no("a sum is one atom here"))
     }
+    /// A term as the page would write it, for a message to name.
+    fn shown(&self, said: &str) -> String {
+        said.to_string()
+    }
 }
 
 /// `( left what right )`, which reverse Polish writes the other way.
@@ -2332,15 +2336,18 @@ impl Emitter {
                 return Ok(Built((rc, apart)));
             }
         }
-        if !self.apart {
-            return Ok(Route::no("nothing can say a denominator is not zero"));
-        }
-        let rc = self.run_cc(o, under)?;
         let named = self
             .divisors
             .get(&said)
             .cloned()
             .unwrap_or_else(|| said.clone());
+        if !self.apart {
+            return Ok(Route::no(format!(
+                "nothing says {} ≠ 0, which this step needs to divide by it",
+                o.shown(&named)
+            )));
+        }
+        let rc = self.run_cc(o, under)?;
         let apart = o.apart(&said, &named)?;
         Ok(Built((rc, apart)))
     }

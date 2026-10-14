@@ -1086,9 +1086,17 @@ impl<'a> Elaborator<'a> {
         // A define gives its function on the domain it names, which is proved
         // as it is for a step citing the define.
         let whole = self.to_term(&term);
+        // The theorem's own defines, and those above it in its file or
+        // imported, by the label each is held under (`outside_label`).
+        let outside: Vec<String> = self
+            .visible_outside()
+            .into_iter()
+            .map(|(name, d, src)| self.outside_label(&name, &d, src))
+            .collect();
         let defines = || {
-            refs.iter()
-                .all(|r| self.thm.defines.iter().any(|d| &d.label == r))
+            refs.iter().all(|r| {
+                self.thm.defines.iter().any(|d| &d.label == r) || outside.contains(r)
+            })
         };
         if whole.label() == Some("wfn") && refs.len() == 1 && defines() {
             return match self.define_on(&whole, scope, facts)? {

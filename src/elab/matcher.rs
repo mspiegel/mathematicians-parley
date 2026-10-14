@@ -2995,6 +2995,83 @@ impl<'a> Elaborator<'a> {
         said == want || (!self.is_wff(one) && self.rebound(&said, &want))
     }
 
+    /// Two maps differing in their letter, over a domain that binds one of
+    /// the two letters itself: `cbvmptv` holds both apart from the domain,
+    /// so the domain's own letter is moved to one neither map holds first
+    /// (`mpteq1i`), the maps' letter renamed over the domain so spelt, and
+    /// the other map carried back. g(x) = √x over D = {x ∈ ℝ : x > 0} is
+    /// such a map. None where the domain binds neither letter.
+    fn renamed_over_a_domain_apart(
+        &mut self,
+        one: &Term,
+        other: &Term,
+    ) -> Checked<Option<Proof>> {
+        let letters: Vars = [&one.children()[0], &other.children()[0]]
+            .iter()
+            .filter_map(|v| v.variable().map(Rc::from))
+            .collect();
+        let (domain, there) = (&one.children()[1], &other.children()[1]);
+        let clashing: Vec<String> = self
+            .letters_bound(domain)
+            .union(&self.letters_bound(there))
+            .filter(|v| letters.contains(*v))
+            .map(|v| v.to_string())
+            .collect();
+        if clashing.is_empty() {
+            return Ok(None);
+        }
+        let Some(moved) = self.unheld_for(clashing, &[one, other]) else {
+            return Ok(None);
+        };
+        let apart = domain.substitute(&moved);
+        let to_apart = |me: &mut Self, d: &Term| -> Checked<Option<Proof>> {
+            if me.rpn(d) == me.rpn(&apart) {
+                let d = me.rpn(d);
+                return Ok(Some(me.b.ap("eqid", &binds! {"A" => &d}, &[])));
+            }
+            me.class_alpha(d, &apart)
+        };
+        let (Some(from_one), Some(from_other)) =
+            (to_apart(self, domain)?, to_apart(self, there)?)
+        else {
+            return Ok(None);
+        };
+        let over = |map: &Term| {
+            let kids = vec![
+                map.children()[0].clone(),
+                apart.clone(),
+                map.children()[2].clone(),
+            ];
+            Term::apply("cmpt", kids)
+        };
+        let (one_there, other_there) = (over(one), over(other));
+        let (Some(first), Some(last)) = (
+            self.by_lemma("mpteq1i", one, &one_there, &[&from_one]),
+            self.by_lemma("mpteq1i", other, &other_there, &[&from_other]),
+        ) else {
+            return Ok(None);
+        };
+        let Some(middle) = self.class_renamed(&one_there, &other_there)? else {
+            return Ok(None);
+        };
+        let (a, b, c, d) = (
+            self.rpn(one),
+            self.rpn(&one_there),
+            self.rpn(&other_there),
+            self.rpn(other),
+        );
+        let to_there = self.b.ap(
+            "eqtri",
+            &binds! {"A" => &a, "B" => &b, "C" => &c},
+            &[&first, &middle],
+        );
+        Ok(Some(self.b.ap(
+            "eqtr4i",
+            &binds! {"A" => &a, "B" => &c, "C" => &d},
+            &[&to_there, &last],
+        )))
+    }
+
     /// A closed proof that two classes differing in the letter they bind are
     /// one (`one = other`), by the lemma `rules::CLASS_BOUND` names for the
     /// binder; else None.
@@ -3057,6 +3134,11 @@ impl<'a> Elaborator<'a> {
             // asked only where the letters differ.
             let letters = label != "cmpt"
                 || self.rpn(&one.children()[0]) != self.rpn(&other.children()[0]);
+            if letters && label == "cmpt" {
+                if let Some(p) = self.renamed_over_a_domain_apart(one, other)? {
+                    return Ok(Some(p));
+                }
+            }
             let renamed = if letters {
                 self.class_renamed(one, other)?
             } else {

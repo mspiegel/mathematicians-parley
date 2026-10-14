@@ -1370,6 +1370,11 @@ regex!(
     LINE_BEFORE_LABEL,
     format!(r"\b(in|into)\s+line\s+({})\s*(?:,|$)", super::LABEL)
 );
+// The same slip in a substitute's source, `(line C4)` for `(C4)`.
+regex!(
+    LINE_BEFORE_SOURCE_LABEL,
+    format!(r"\(line\s+({})\)", super::LABEL)
+);
 
 /// Why a justification matches none of `GRAMMAR.md`'s productions, or None
 /// where it matches one. Both tools read a justification only once it
@@ -1401,6 +1406,12 @@ pub fn unproduced(just: &Justification) -> Option<String> {
         return Some(format!(
             "justification matches no production in GRAMMAR.md: {text}; a label never carries the word \"line\": `{} {}`",
             &m[1], &m[2]
+        ));
+    }
+    if let Some(m) = LINE_BEFORE_SOURCE_LABEL.captures(&just.text) {
+        return Some(format!(
+            "justification matches no production in GRAMMAR.md: {text}; a label never carries the word \"line\": `({})`",
+            &m[1]
         ));
     }
     Some(format!(
@@ -2287,6 +2298,25 @@ pub fn parse_proof(
             continue;
         }
         if head == "requires" {
+            // A let written between the step and this line stands between
+            // them: the line would be read as the step's, which it is not
+            // written under. Before any step, it is the let's or nothing's.
+            let since = step.map_or(0, |at| draft.steps[at].step.line);
+            if let Some(d) = draft
+                .thm
+                .defines
+                .iter()
+                .rfind(|d| d.line > since && d.line < line.no)
+            {
+                return Err(Problem::new(
+                    path,
+                    line.no,
+                    format!(
+                        "requires line under let {}, which carries none; the reason under a let is one line, and a step below it can say what the reason needs",
+                        d.label
+                    ),
+                ));
+            }
             let Some(at) = step else {
                 return Err(Problem::new(
                     path,

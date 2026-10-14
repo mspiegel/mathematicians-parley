@@ -5,6 +5,36 @@ import mundane theorem    stdlib/numbers/multiply-cancel
 import mundane theorem    stdlib/divisibility/mod-remainder
 import mundane theorem    stdlib/divisibility/mod-natural
 import mundane theorem    stdlib/divisibility/mod-less
+import mundane definition stdlib/functions/set-image
+import mundane definition stdlib/sets/intersection
+import definition         stdlib/counting/C
+import mundane theorem    stdlib/counting/binomial-nat0
+import mundane theorem    stdlib/numbers/one-power
+
+theorem a-one-dropped-from-the-middle
+  note        C(m, k)·1·1^k is C(m, k)·1^k where C(m, k) is a number, which the requires line says.
+  let m ∈ ℕ₀                                                          (H1)
+  let k ∈ ℤ                                                           (H2)
+  let j ∈ ℕ₀                                                          (H3)
+  then C(m, k)·1^j·1^k = C(m, k)·1^k
+
+1.  1^j = 1
+    mun:one-power m := j
+
+2.  C(m, k)·1^j·1^k = C(m, k)·1^k
+    substitute 1^j = 1 (line 1)
+    requires C(m, k) ∈ ℕ₀: mun:binomial-nat0 n := m
+
+theorem a-definition-unfolding-the-second-sentence
+  note        Line 1 says two things; the claim's 3n picks the second.
+  let t ∈ {2n : n ∈ ℤ} ∩ {3n : n ∈ ℤ}                                 (H1)
+  then there is n ∈ ℤ with t = 3n
+
+1.  t ∈ {2n : n ∈ ℤ}. t ∈ {3n : n ∈ ℤ}.
+    mun:intersection u := t, from H1
+
+2.  There is n ∈ ℤ with t = 3n.
+    mun:set-image u := t, from 1
 
 theorem product-nonzero
   note        Cited below beside an uncited line saying one of its hypotheses.

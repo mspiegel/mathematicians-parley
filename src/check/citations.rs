@@ -246,10 +246,19 @@ pub fn obtained_there(
     let parts = known.parts(step, library);
     Some(
         obtained(&groups, &parts.facts, &parts.seed, library).map(|taken| {
+            // An item saying "A ↔ there is …" gives the "there is", the
+            // reading whose target it is, as the build obtains from it.
             groups[taken.group]
                 .gives
                 .iter()
-                .map(|said| filled(said, &taken.binding, &library.ctx))
+                .map(|said| {
+                    let there_is = readings(said, library)
+                        .into_iter()
+                        .map(|(target, _)| target)
+                        .find(|t| library.exists.contains(&t.notation))
+                        .unwrap_or_else(|| said.clone());
+                    filled(&there_is, &taken.binding, &library.ctx)
+                })
                 .collect()
         }),
     )
@@ -319,17 +328,17 @@ fn missing_hypotheses(
     {
         // Each is said at what the claim fixes, in the page's notation, so
         // that `P or Q` with P := 2 = P reads `2 = P or Q` and does not
-        // seem to name the proof's own P.
+        // seem to name the proof's own P; and at what the citation writes,
+        // which fixes a letter the conclusion does not hold: c := m.
+        let mut fixed = parts.seed.clone();
+        for (name, value) in &alone.binding {
+            fixed.insert(name.clone(), value.clone());
+        }
         let unmet: Vec<String> = groups[alone.group]
             .wants
             .iter()
             .filter(|(_, tree)| !supplied_alone(tree, parts, &alone.binding, library))
-            .map(|(_, tree)| {
-                library
-                    .env
-                    .g
-                    .print(&filled(tree, &alone.binding, &library.ctx))
-            })
+            .map(|(_, tree)| library.env.g.print(&filled(tree, &fixed, &library.ctx)))
             .collect();
         if !unmet.is_empty() {
             return Some(unmet);
@@ -361,7 +370,18 @@ fn missing_hypotheses(
         {
             return None;
         }
-        missing = Some(want.iter().map(|(t, _)| t.clone()).collect());
+        // Each under what the citation writes for its letters: `c := m`
+        // shows gcd(m, 3), not the item's gcd(c, 3).
+        missing = Some(
+            want.iter()
+                .map(|(_, tree)| {
+                    library
+                        .env
+                        .g
+                        .print(&filled(tree, &parts.seed, &library.ctx))
+                })
+                .collect(),
+        );
     }
     missing
 }
@@ -525,11 +545,12 @@ pub fn check_hypotheses(
 ) {
     for step in &thm.steps {
         if let Some(missing) = unsupplied(step, known, library) {
+            let them = if missing.len() == 1 { "it" } else { "them" };
             report.say(
                 &thm.path,
                 step.just.line,
                 format!(
-                    "step {} cites {}, which asks for {}, and what it cites does not supply them",
+                    "step {} cites {}, which asks for {}, and what it cites does not supply {them}",
                     step.number,
                     cited_item(&step.just).unwrap_or_default(),
                     missing.join("; ")
@@ -748,11 +769,13 @@ pub fn check_function_types(
     thm: &Theorem,
     library: &Library,
     known: &Known,
+    scopes: &[FileScope],
 ) {
-    let defines: BTreeSet<String> = defined_functions(thm.defines.iter())
-        .into_iter()
-        .map(|f| f.name)
-        .collect();
+    let defines: BTreeSet<String> =
+        defined_functions(thm.defines.iter().chain(&scopes[thm.scope].defines))
+            .into_iter()
+            .map(|f| f.name)
+            .collect();
     for step in &thm.steps {
         let Some(item) = cited_item(&step.just) else {
             continue;
@@ -1109,10 +1132,11 @@ pub fn check_requires(
         for found in unconcluded(step, known, library) {
             let said = match &found.missing {
                 Some(missing) => format!(
-                    "the requires line of step {} cites {}, which asks for {}, and what it cites does not supply them",
+                    "the requires line of step {} cites {}, which asks for {}, and what it cites does not supply {}",
                     step.number,
                     found.item,
-                    missing.join("; ")
+                    missing.join("; "),
+                    if missing.len() == 1 { "it" } else { "them" }
                 ),
                 None => format!(
                     "the requires line of step {} needs something that {} does not conclude",
@@ -1163,10 +1187,11 @@ pub fn check_kinds(
         for found in unconcluded(&under, known, library) {
             let said = match &found.missing {
                 Some(missing) => format!(
-                    "the reason under let {} cites {}, which asks for {}, and what it cites does not supply them",
+                    "the reason under let {} cites {}, which asks for {}, and what it cites does not supply {}",
                     d.label,
                     found.item,
-                    missing.join("; ")
+                    missing.join("; "),
+                    if missing.len() == 1 { "it" } else { "them" }
                 ),
                 None => format!(
                     "the reason under let {} needs {}, which {} does not conclude",
@@ -1361,17 +1386,31 @@ fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
         .iter()
         .map(|t| t.children[0].text.clone())
         .collect();
+    // What the citation writes, and what the match of the item against the
+    // claim and the cited lines fixes beside it: `g is continuous on D`
+    // claimed by `def:continuous-on` makes the item's f the page's g
+    // whether or not the step writes f := g.
+    let mut fixed = parts.seed.clone();
+    if let Built(taken) =
+        taken(&groups, &parts.claims, &parts.facts, &parts.seed, library)
+    {
+        for (name, value) in taken.binding {
+            if value.notation != PROPERTY && !fixed.contains_key(&name) {
+                fixed.insert(name, value);
+            }
+        }
+    }
     let types = library
         .function_types(&just.item(&cited_item(just).expect("a cited item")))
         .iter()
         .map(|t| AskedType {
-            asked: substitute_apart(t, &parts.seed, &library.ctx),
+            asked: substitute_apart(t, &fixed, &library.ctx),
             open: t.children[1..]
                 .iter()
-                .filter(|s| s.is_name() && !parts.seed.contains_key(&s.text))
+                .filter(|s| s.is_name() && !fixed.contains_key(&s.text))
                 .map(|s| s.text.clone())
                 .collect(),
-            filled: parts.seed.contains_key(&t.children[0].text),
+            filled: fixed.contains_key(&t.children[0].text),
         })
         .filter(|t| {
             let function = &t.asked.children[0];

@@ -136,6 +136,10 @@ impl Oracle for Ask<'_, '_> {
         let (scope, facts) = (self.spec.scope.clone(), self.spec.facts.clone());
         self.el.linear_sum(said, &letter, &scope, &facts)
     }
+
+    fn shown(&self, said: &str) -> String {
+        self.el.render(said)
+    }
 }
 
 /// Whether a claim is a divisibility or its denial, which is the kernel form
@@ -3717,6 +3721,17 @@ impl<'a> Elaborator<'a> {
         scope: &str,
         facts: &Facts,
     ) -> Checked<Route<Proof>> {
+        // One line, one step, as the checker says it.
+        let sentences = step.claim.sentences().len();
+        if sentences > 1 {
+            return Err(self.defect(
+                step.line,
+                format!(
+                    "step {} claims {sentences} sentences by membership, which says one term is in a number system; each is a step of its own",
+                    fmt(&step.number)
+                ),
+            ));
+        }
         let claim = self.to_term(term);
         // What is said of every member is read at one, down to the
         // membership (`member_of`).

@@ -114,7 +114,7 @@ pub fn said_once(
             continue;
         }
         for (sign, system) in rules::SYSTEM_OF {
-            if within(&node, system, &letters, &nonzero) {
+            if within(&node, system, &letters, &nonzero, &|_, _| false) {
                 out.extend(member(sign, &node));
             }
         }
@@ -126,32 +126,55 @@ pub fn said_once(
 /// it: each letter one a fact puts in a number system or one `bound` binds
 /// over one, as a "there is q ∈ ℤ" does its q; a divisor not zero only
 /// where it is a numeral.
-pub fn a_number_said_once(term: &Node, facts: &[Node], bound: &Introduced) -> bool {
+pub fn a_number_said_once(
+    term: &Node,
+    facts: &[Node],
+    bound: &Introduced,
+    ctx: &crate::matching::Context,
+) -> bool {
     let mut letters = bound.clone();
+    // A term a fact puts in a number system is a number there as a letter
+    // is, and what +, − and · build from it is too: (x − a)·q(x) where a
+    // line says q(x) ∈ ℂ.
+    let mut atoms: Vec<(&Node, &'static str)> = Vec::new();
     for f in facts {
         let [name, set] = f.children.as_slice() else {
             continue;
         };
-        if f.notation == "membership"
-            && name.is_name()
-            && set.notation == "number-systems"
-        {
-            if let Some(system) = rules::system_of(&set.text) {
-                letters.entry(name.text.clone()).or_insert(system);
-            }
+        if f.notation != "membership" || set.notation != "number-systems" {
+            continue;
+        }
+        let Some(system) = rules::system_of(&set.text) else {
+            continue;
+        };
+        if name.is_name() {
+            letters.entry(name.text.clone()).or_insert(system);
+        } else {
+            atoms.push((name, system));
         }
     }
     let nonzero = |d: &Node| value(d).is_some_and(|v| !v.is_zero());
-    within(term, "cc", &letters, &nonzero)
+    let said = |t: &Node, system: &str| {
+        atoms.iter().any(|(a, s)| {
+            crate::matching::alike(a, t, ctx, &IndexMap::new(), &IndexMap::new())
+                && rules::within_path(Some(s), Some(system)).is_some()
+        })
+    };
+    within(term, "cc", &letters, &nonzero, &said)
 }
 
-/// Whether `term` is in `system` by what the page says once.
+/// Whether `term` is in `system` by what the page says once, or by `said`,
+/// which puts a term in a system as a line stating it does.
 fn within(
     term: &Node,
     system: &str,
     letters: &Introduced,
     nonzero: &dyn Fn(&Node) -> bool,
+    said: &dyn Fn(&Node, &str) -> bool,
 ) -> bool {
+    if said(term, system) {
+        return true;
+    }
     if let Some(v) = value(term) {
         let whole = v.is_integer();
         return match system {
@@ -167,7 +190,8 @@ fn within(
             .is_some_and(|set| rules::within_path(Some(set), Some(system)).is_some());
     }
     let both = |a: &Node, b: &Node| {
-        within(a, system, letters, nonzero) && within(b, system, letters, nonzero)
+        within(a, system, letters, nonzero, said)
+            && within(b, system, letters, nonzero, said)
     };
     match (
         term.notation.as_str(),
@@ -176,7 +200,7 @@ fn within(
     ) {
         ("unary-minus", _, [a]) => {
             lookup(rules::NEGATED, system).is_some()
-                && within(a, system, letters, nonzero)
+                && within(a, system, letters, nonzero, said)
         }
         ("additive", "+", [a, b]) => {
             rules::closed("caddc", system).is_some() && both(a, b)
@@ -193,7 +217,7 @@ fn within(
         ("power", _, [a, e]) | ("superscript", _, [a, e]) => {
             value(e).is_some_and(|v| v.is_integer() && !v.is_negative())
                 && rules::closed("cexp", system).is_some()
-                && within(a, system, letters, nonzero)
+                && within(a, system, letters, nonzero, said)
         }
         _ => false,
     }

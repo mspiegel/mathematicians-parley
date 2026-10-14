@@ -286,7 +286,7 @@ fn a_hypothesis_not_supplied_is_named_alone() {
     let out = parley::check::run(&tree).printed;
     assert!(
         out.contains(
-            "which asks for p divides n!, and what it cites does not supply them"
+            "which asks for p divides n!, and what it cites does not supply it"
         ),
         "{out}"
     );
@@ -1041,7 +1041,7 @@ fn cases() -> Vec<Case> {
                 Some("    requires k ∈ ℤ: mun:range-integer a := 0, b := N, from H2\n    requires C(N, k) ∈ ℕ₀: mun:binomial-nat0\n".to_string()),
                 "    requires C(N, k) ∈ ℕ₀: mun:binomial-nat0, from H2\n".to_string(),
             )],
-            "the requires line of step 1 cites mun:binomial-nat0, which asks for k ∈ ℤ, and what it cites does not supply them",
+            "the requires line of step 1 cites mun:binomial-nat0, which asks for k ∈ ℤ, and what it cites does not supply it",
         ),
         case(
             "drop an identity element a substitution makes from what no line says is a number",
@@ -1068,7 +1068,7 @@ fn cases() -> Vec<Case> {
                 Some("    mun:function-value f := F, from H4, H5\n".to_string()),
                 "    mun:function-value f := F, from H5\n".to_string(),
             )],
-            "step 1 cites mun:function-value, which asks F : D → E, and no line the step names gives F a type; cite the line stating it, or say it in a requires line",
+            "step 1 cites mun:function-value, which asks F : A → B, and no line the step names gives F a type; cite the line stating it, or say it in a requires line",
         ),
         // A hypothesis not supplied is said at what the claim fixes, so the
         // instance shows the disjuncts the wrong way round.
@@ -1679,7 +1679,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/infinitely-many-primes.proof", Some("mun:divides-difference d := p, a := n! + 1, b := n!, from 3, 5.2".to_string()), "mun:divides-difference d := p, a := n! + 1, b := n!, from 3".to_string()),
             ],
-            "does not supply them",
+            "does not supply",
         ),
         // `mod-natural` asks b ∈ ℕ, and IH1 says b(k) ∈ ℕ₀: a function's
         // value is in what a line says it is in, and ℕ₀ holds 0.
@@ -1688,14 +1688,14 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/euclid.proof", Some("mun:mod-natural, from 3.5.8\n".to_string()), "mun:mod-natural, from IH1\n".to_string()),
             ],
-            "does not supply them",
+            "does not supply",
         ),
         case(
             "stop declaring which pattern is a negation of which",
             vec![
                 edit("corpus/db/notation.records", Some("  level       predicate\n  negates     pattern 3 is logical-not of pattern 2".to_string()), "  level       predicate".to_string()),
             ],
-            "does not supply them",
+            "does not supply",
         ),
         case(
             "drop a hole from the term a notation builds",
@@ -1746,7 +1746,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/sqrt2-irrational.proof", Some("    mun:irrational x := √2, from 2\n    requires 2 ≥ 0: arithmetic\n".to_string()), "    mun:irrational x := √2, from 2\n".to_string()),
             ],
-            "the requires line of step 3 cites mun:sqrt, which asks for 0 ≤ 2, and what it cites does not supply them",
+            "the requires line of step 3 cites mun:sqrt, which asks for 0 ≤ 2, and what it cites does not supply it",
         ),
         case(
             "claim something the cited item does not conclude",
@@ -2037,7 +2037,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/rationals-countable.proof", Some("    requires numer(x) ∈ ℤ: mun:lowest-terms-parts\n    requires denom(x) ∈ ℕ: mun:lowest-terms-parts\n    requires |numer(x)| ∈ ℕ₀: mun:abs-integer z := numer(x)\n".to_string()), "    requires |numer(x)| ∈ ℕ₀: mun:abs-integer z := numer(x)\n    requires numer(x) ∈ ℤ: mun:lowest-terms-parts\n    requires denom(x) ∈ ℕ: mun:lowest-terms-parts\n".to_string()),
             ],
-            "the requires line of step 5 cites mun:abs-integer, which asks for numer(x) ∈ ℤ, and what it cites does not supply them",
+            "the requires line of step 5 cites mun:abs-integer, which asks for numer(x) ∈ ℤ, and what it cites does not supply it",
         ),
         // A sort is stated once, like a declared type, and a step does not cite
         // it to rely on it (`READERS.md`): citing one names a line that does no
@@ -2184,7 +2184,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/binomial.proof", Some("           requires k ∈ ℤ: mun:range-integer a := 1, b := m + 1, from J\n".to_string()), "           requires k ∈ ℤ: mun:range-integer a := 0, b := m + 1, from J\n".to_string()),
             ],
-            "the requires line of step 30.1 cites mun:range-integer, which asks for a ∈ ℤ; b ∈ ℤ; k ∈ {a, …, b}, and what it cites does not supply them",
+            "the requires line of step 30.1 cites mun:range-integer, which asks for 0 ∈ ℤ; m + 1 ∈ ℤ; k ∈ {0, …, m + 1}, and what it cites does not supply them",
         ),
         // `arithmetic` may stand where a closed-numeral fact is used, and only
         // there: an equation with a letter in it gives a reader something to
@@ -2608,7 +2608,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/euler.proof", Some("8.  f : S → S\n".to_string()), "8.  f : S → ℕ\n".to_string()),
             ],
-            "step 8 cites mun:function-into, which asks for for all x ∈ S, f(x) ∈ ℕ, and what it cites does not supply them",
+            "step 8 cites mun:function-into, which asks for for all x ∈ S, f(x) ∈ ℕ, and what it cites does not supply it",
         ),
         case(
             "reorder a product by a map not shown to be one-to-one",
@@ -2946,6 +2946,34 @@ fn cases() -> Vec<Case> {
             "a chain goes one way, and this line says < after one saying ≥",
         ),
         case(
+            "an identity element dropped from the middle with nothing saying what is left is a number",
+            vec![
+                edit("tests/elaborator/textbook-exercise-shapes.proof", Some("    requires C(m, k) ∈ ℕ₀: mun:binomial-nat0 n := m\n".to_string()), String::new()),
+            ],
+            "step 2 drops an identity element from what the substitution makes, and nothing says C(m, k) is a number",
+        ),
+        case(
+            "two memberships claimed by one membership step",
+            vec![
+                edit("tests/elaborator/textbook-exercise-shapes.proof", Some("1.  Σ(k = 1 to n) (k + 1) ∈ ℝ\n".to_string()), "1.  Σ(k = 1 to n) (k + 1) ∈ ℝ. n + 1 ∈ ℝ.\n".to_string()),
+            ],
+            "step 1 claims 2 sentences by membership, which says one term is in a number system; each is a step of its own",
+        ),
+        case(
+            "a substitute's source label written with the word line",
+            vec![
+                edit("tests/elaborator/textbook-exercise-shapes.proof", Some("substitute K = a/2 (D1) into H4".to_string()), "substitute K = a/2 (line D1) into H4".to_string()),
+            ],
+            "a label never carries the word \"line\": `(D1)`",
+        ),
+        case(
+            "a requires line under a naming let",
+            vec![
+                edit("tests/elaborator/textbook-exercise-shapes.proof", Some("    reads half of a\n".to_string()), "    reads half of a\n    requires a ∈ ℝ: from H1\n".to_string()),
+            ],
+            "requires line under let D1, which carries none",
+        ),
+        case(
             "a proof block letting a letter other than the claim's",
             vec![
                 edit("tests/elaborator/a-for-all-relating-two-sets.proof", Some("    let u ∈ A ".to_string()), "    let v ∈ A ".to_string()),
@@ -3008,7 +3036,7 @@ fn cases() -> Vec<Case> {
                 "import mundane theorem    stdlib/functions/function-value\n\ntheorem outside\n  let v : {0, …, 1} → ℝ                                               (H1)\n  then v(5) ∈ ℝ\n\n1.  v(5) ∈ ℝ\n    mun:function-value f := v, x := 5\n"
                     .to_string(),
             )],
-            "step 1 cites mun:function-value, which asks for x ∈ D",
+            "step 1 cites mun:function-value, which asks for 5 ∈ {0, …, 1}",
         ),
         // A label outside a file's theorems is one label for every theorem
         // below it, and a define says what its name means.

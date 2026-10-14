@@ -702,7 +702,8 @@ the page shows.
 `t ∈ S`, with S a number system; or "for all k ∈ X, t ∈ S", which is
 proved as a `proof` block would prove it: k is taken in X, what that
 membership says is laid beside the other facts in, and t ∈ S is proved of
-it.
+it. One fact, as a step says one thing: `x(n) + 1 ∈ ℝ. x(n) − 1 ∈ ℝ.` is
+two steps, and both tools refuse it as one.
 
 ### The procedure
 

@@ -1407,7 +1407,22 @@ pub fn check_membership_claims(
         if !step.just.head.is(Method::Membership) {
             continue;
         }
-        for sentence in step.claim.sentences() {
+        // One line, one step: a membership step says one term is in a
+        // number system, and two are two steps.
+        let sentences = step.claim.sentences();
+        if sentences.len() > 1 {
+            report.say(
+                &thm.path,
+                step.just.line,
+                format!(
+                    "step {} claims {} sentences by membership, which says one term is in a number system; each is a step of its own",
+                    step.number,
+                    sentences.len()
+                ),
+            );
+            continue;
+        }
+        for sentence in sentences {
             let Ok(node) = sentence.read(env.g, &known.sorts) else {
                 continue; // `check_formulas` says it does not read
             };
