@@ -7,7 +7,7 @@ use indexmap::{IndexMap, IndexSet};
 
 use super::formulas::chain_links;
 use super::library::{introduced, listed_seed, typed_in_scope, typed_seed, Known};
-use super::structure::instantiated_line;
+use super::structure::{instantiated_line, letters_in_scope};
 use super::Report;
 use crate::citing::{
     asked, bound_in, claimed_member, concludes, conjuncts, derives, filled, finished,
@@ -673,15 +673,15 @@ pub fn check_subjects(
         if cites_one || claims_one || parts.claims.is_empty() {
             continue;
         }
-        let mut subject = left.clone();
-        while let Some(first) = subject.children.first().cloned() {
-            subject = first;
-        }
+        let subject = left.leftmost();
         let letter = subject.text.clone();
         if !subject.is_name() || just.values.names().any(|n| n == letter) {
             continue;
         }
-        if !known.sorts.introduces(&letter) {
+        // The proof's letter of the same name is one in scope at the step,
+        // which is the letter the build gives the subject.
+        let in_scope = letters_in_scope(thm, step, known.env.scopes, &known.sorts);
+        if !in_scope.contains(&letter) {
             report.say(
                 &thm.path,
                 just.line,

@@ -365,6 +365,16 @@ impl Node {
         self.notation == "name"
     }
 
+    /// The leftmost leaf of the tree: the name a `let` line introduces, and
+    /// the letter a definition is about.
+    pub fn leftmost(&self) -> &Node {
+        let mut node = self;
+        while let Some(first) = node.children.first() {
+            node = first;
+        }
+        node
+    }
+
     /// A parenthesis-free rendering, which is what two instances are
     /// compared by. Layout plays no part once the tree is built.
     ///

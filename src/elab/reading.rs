@@ -46,15 +46,6 @@ pub fn literal(rpn: &str) -> Node {
     Node::literal(rpn)
 }
 
-/// The leftmost leaf of a tree: the name a `let` line introduces.
-pub fn subject_of(node: &Node) -> Node {
-    let mut node = node.clone();
-    while !node.children.is_empty() {
-        node = node.children[0].clone();
-    }
-    node
-}
-
 impl<'a> Elaborator<'a> {
     /// What a hypothesis line claims, its introduction read as one, as a
     /// tree read where the elaborator has got to.
@@ -435,8 +426,8 @@ impl<'a> Elaborator<'a> {
     /// What the step gives the letter a definition is about, found by that
     /// letter's name among its values as `instantiated` reads them
     /// (`SYNTAX.md`: a substitution names its variable). With no pair for
-    /// it, the subject is the proof's letter of the same name, and a step
-    /// whose proof has no such letter is refused.
+    /// it, the subject is the proof's letter of the same name, which the
+    /// checker has found in scope at the step (`check_subjects`).
     pub fn subject_given(
         &mut self,
         name: &str,
@@ -450,7 +441,7 @@ impl<'a> Elaborator<'a> {
             .in_its_names(Item::Record(item), |me| me.read_one(&item.stated()[0]))?
             .children[0]
             .clone();
-        let letter = subject_of(&left).text.clone();
+        let letter = left.leftmost().text.clone();
         let given: IndexMap<&str, &str> = values
             .iter()
             .map(|(a, b)| (a.as_str(), b.as_str()))
@@ -463,7 +454,7 @@ impl<'a> Elaborator<'a> {
             None => Err(self.defect(
                 line,
                 format!(
-                    "{name} is about {letter}, and the step gives {letter} no value and the proof has no {letter}; write it, as {letter} := t"
+                    "{name} is about {letter}, which the checker finds in scope here, and the build has no name for {letter}"
                 ),
             )),
         }
@@ -521,7 +512,7 @@ impl<'a> Elaborator<'a> {
             // `assume H is a subgroup of G` introduces H as a `let` would.
             let subgroup = h.kind == Intro::Assume && is_subgroup(&node);
             if h.kind == Intro::Let || subgroup {
-                let introduced = subject_of(&node);
+                let introduced = node.leftmost().clone();
                 if !introduced.text.is_empty()
                     && !self.names.contains_key(&introduced.text)
                 {

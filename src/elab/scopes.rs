@@ -16,7 +16,6 @@ use std::rc::Rc;
 use indexmap::IndexMap;
 
 use super::elaborate::Sides;
-use super::reading::subject_of;
 use super::state::{
     number_of, Binding, Block, Closer, Contradicted, DefineCloser, Elaborator, Frame,
     ObtainCloser, PartEnd,
@@ -479,7 +478,7 @@ impl<'a> Elaborator<'a> {
                         // class, and it must avoid whatever the notations
                         // bind.
                         let node = said.clone();
-                        let name = subject_of(&node).text.clone();
+                        let name = node.leftmost().text.clone();
                         let var = self.fixed_var(&name, &block.scope.clone())?;
                         self.names.insert(name.clone(), format!("{var} cv"));
                         block.variable = Some(var);
@@ -681,7 +680,7 @@ impl<'a> Elaborator<'a> {
                 false => Some(self.hypothesis_node(o.kind, &o.body(&self.thm.path))?),
             };
             if let (Intro::Let, Some(node)) = (o.kind, &said) {
-                let name = subject_of(node).text.clone();
+                let name = node.leftmost().text.clone();
                 let var = self.fixed_var(&name, &block.scope.clone())?;
                 self.names.insert(name.clone(), format!("{var} cv"));
                 block.variable = Some(var);

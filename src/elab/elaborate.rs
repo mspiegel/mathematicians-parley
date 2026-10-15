@@ -27,7 +27,7 @@ use super::field::{self, Verdict};
 use super::linear;
 use super::matcher::ChainLink;
 use super::provenance::{item_clauses, requirement};
-use super::reading::{is_subgroup, subject_of, CLASS_NAMES};
+use super::reading::{is_subgroup, CLASS_NAMES};
 use super::state::{
     fit, names_of, number_of, Binding, Block, Closer, Contradicted, Elaborator,
     PartEnd, Vars,
@@ -4895,7 +4895,7 @@ impl<'a> Elaborator<'a> {
                 let (left, right) =
                     (node.children[0].clone(), node.children[1].clone());
                 me.names
-                    .insert(subject_of(&left).text.clone(), subject.clone());
+                    .insert(left.leftmost().text.clone(), subject.clone());
                 // Each name the right side binds is a letter nothing in the
                 // proof holds and the subject does not spell (`unheld_for`, as
                 // the renaming rule gives one), given for this reading only.
@@ -5470,7 +5470,7 @@ impl<'a> Elaborator<'a> {
                                 | "function-type"
                         )
                     {
-                        let name = subject_of(&node).text.clone();
+                        let name = node.leftmost().text.clone();
                         let theirs = spare
                             .pop_front()
                             .expect("a class for each let")

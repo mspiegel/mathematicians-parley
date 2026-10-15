@@ -1442,7 +1442,7 @@ impl<'a> Elaborator<'a> {
             if h.kind != crate::corpus::Intro::Let || h.text.contains(" be a set") {
                 continue;
             }
-            let subject = super::reading::subject_of(node).text.clone();
+            let subject = node.leftmost().text.clone();
             let Some(kernel) = self.names.get(&subject).cloned() else {
                 continue;
             };

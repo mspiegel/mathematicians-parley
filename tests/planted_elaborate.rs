@@ -426,17 +426,6 @@ fn cases() -> Vec<Case> {
             "    mun:odd, from 5",
             "with 2 · j + 1 = n",
         ),
-        // Where the proof has no letter of the subject's name, the pair is
-        // the only thing that says what the definition is about: even-leg
-        // has no d.
-        case(
-            "leave out a definition's subject where the proof has no such letter",
-            "proofs/pythagorean-triples/even-leg",
-            "proofs/pythagorean-triples.proof",
-            "mun:divides d := 4, n := 2, from 2.2.11",
-            "mun:divides n := 2, from 2.2.11",
-            "mun:divides is about d, and the step gives d no value and the proof has no d",
-        ),
         // A part of A is asked of M's argument, and the line named must say it:
         // A1 says X ⊆ Y, which is not that Y is a part of A.
         case(

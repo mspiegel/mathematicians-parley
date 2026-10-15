@@ -512,6 +512,18 @@ const UNPLANTED: &[(&str, &str)] = &[
 
 fn cases() -> Vec<Case> {
     vec![
+        // Where the proof has no letter of the subject's name in scope, the
+        // pair is the only thing that says what the definition is about:
+        // even-leg has no d, and its step claims an impossible fold.
+        case(
+            "leave out a definition's subject where the proof has no such letter",
+            vec![edit(
+                "proofs/pythagorean-triples.proof",
+                Some("mun:divides d := 4, n := 2, from 2.2.11".to_string()),
+                "mun:divides n := 2, from 2.2.11".to_string(),
+            )],
+            "mun:divides is about d, and the step gives d no value and the proof has no d; write it, as d := t",
+        ),
         // A step citing a theorem of its own file reads the defines that
         // theorem is stated over, those above it, and no other: D2 is
         // written below `above`, so `below` claims R(k) = k + 1 of a theorem
