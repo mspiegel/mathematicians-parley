@@ -9,7 +9,11 @@
 //! equation is read through it. Every proof here is in deduction form under
 //! the step's scope.
 
+use num_bigint::BigUint;
+use num_traits::ToPrimitive;
+
 use super::field::{self, Verdict};
+use super::numerals;
 use super::state::Elaborator;
 use super::Facts;
 use crate::binds;
@@ -26,6 +30,23 @@ struct Listing {
     elements: Vec<Term>,
     /// ( scope -> set = the union of the elements' singletons ).
     proof: Proof,
+}
+
+/// The least factor of n above 1, n itself where n is prime; n at least 2.
+fn least_factor(n: &BigUint) -> BigUint {
+    let mut d = BigUint::from(2u32);
+    while &d * &d <= *n {
+        if (n % &d) == BigUint::ZERO {
+            return d;
+        }
+        d += 1u32;
+    }
+    n.clone()
+}
+
+/// Whether n is prime.
+fn is_prime(n: &BigUint) -> bool {
+    *n >= BigUint::from(2u32) && least_factor(n) == *n
 }
 
 /// What the cited lines settle of a property at one element.
@@ -100,6 +121,23 @@ impl Elaborator<'_> {
         known: &Facts,
     ) -> Checked<Route<Proof>> {
         let kids = claim.children().to_vec();
+        // "n is prime", a word whose record names inspection in `decided`.
+        let of_primes = |t: &Term| {
+            t.variable().is_none()
+                && t.label() == Some("wcel")
+                && t.children().get(1).and_then(Term::label) == Some("cprime")
+        };
+        if of_primes(claim) || (claim.label() == Some("wn") && of_primes(&kids[0])) {
+            let negated = !of_primes(claim);
+            let element = if negated {
+                kids[0].children()[0].clone()
+            } else {
+                kids[0].clone()
+            };
+            if self.decided_by("inspection", claim)? {
+                return self.prime_decided(&element, negated, scope, known);
+            }
+        }
         match claim.label() {
             Some("wcel") if claim.variable().is_none() => {
                 let (element, set) = (&kids[0], &kids[1]);
@@ -943,6 +981,175 @@ impl Elaborator<'_> {
                 &[&proved],
             )),
         }))
+    }
+
+    /// ( scope -> t is prime ), or its denial where `negated`, for a term
+    /// that is a number spelt in numerals or that a cited line gives such a
+    /// value (`METHODS.md`, inspection): a prime below 841 by trial division
+    /// by the primes up to 23 (`prmlem1`, `prmlem2`), and a number that is
+    /// not by its least factor (`nprmi`), each at the value and carried back
+    /// to the term as written (`eleq1i`, `eleq1d`). A decline where what is
+    /// asked is not what the number is, or the number is 841 or more, past
+    /// what trial division by 23 settles.
+    fn prime_decided(
+        &mut self,
+        element: &Term,
+        negated: bool,
+        scope: &str,
+        known: &Facts,
+    ) -> Checked<Route<Proof>> {
+        let labels = self.b.flabel.clone();
+        let written = self.rpn(element);
+        // The value, and the equation from the term to it: closed where the
+        // term is numerals, under the scope where a cited line gives it.
+        let (value, closed_equal, cited_equal) =
+            match numerals::worked(&self.b, element, &labels) {
+                Some((value, is)) => (value, Some(is), None),
+                None => {
+                    let Some((said, is)) = self.cited_value(&written, scope, known)?
+                    else {
+                        return Ok(Route::no(format!(
+                            "{} is not a number the cited lines give a value",
+                            self.render(&written)
+                        )));
+                    };
+                    let Some(value) = numerals::value(&self.to_term(&said)) else {
+                        return Ok(Route::no(format!(
+                            "{} is not a whole number",
+                            self.render(&said)
+                        )));
+                    };
+                    (value, None, Some(is))
+                }
+            };
+        let prime = is_prime(&value);
+        if prime == negated {
+            return Ok(Route::no(format!(
+                "{value} is {}prime",
+                if prime { "" } else { "not " }
+            )));
+        }
+        let Some(shown) = self.primality(&value) else {
+            return Ok(Route::no(format!(
+                "inspection settles whether a number below 841 is prime, by trial division by the primes up to 23, and {value} is not below 841"
+            )));
+        };
+        let spelt = numerals::spell(value.clone());
+        let said = |t: String| if negated { t!(t, "wn") } else { t };
+        let (claim, at_value) = (
+            said(t!(&written, "cprime", "wcel")),
+            said(t!(&spelt, "cprime", "wcel")),
+        );
+        if let Some(is) = closed_equal {
+            let closed = if claim == at_value {
+                shown
+            } else {
+                let mut same = self.b.ap(
+                    "eleq1i",
+                    &binds! {"A" => &written, "B" => &spelt, "C" => "cprime"},
+                    &[&is],
+                );
+                if negated {
+                    same = self.b.ap(
+                        "notbii",
+                        &binds! {"ph" => t!(&written, "cprime", "wcel"),
+                        "ps" => t!(&spelt, "cprime", "wcel")},
+                        &[&same],
+                    );
+                }
+                self.b.ap(
+                    "mpbir",
+                    &binds! {"ph" => &claim, "ps" => &at_value},
+                    &[&shown, &same],
+                )
+            };
+            return Ok(Built(self.b.ap(
+                "a1i",
+                &binds! {"ph" => &claim, "ps" => scope},
+                &[&closed],
+            )));
+        }
+        let is = cited_equal.expect("the value a cited line gives");
+        let mut same = self.b.ap(
+            "eleq1d",
+            &binds! {"ph" => scope, "A" => &written, "B" => &spelt, "C" => "cprime"},
+            &[&is],
+        );
+        if negated {
+            same = self.b.ap(
+                "notbid",
+                &binds! {"ph" => scope, "ps" => t!(&written, "cprime", "wcel"),
+                "ch" => t!(&spelt, "cprime", "wcel")},
+                &[&same],
+            );
+        }
+        let held =
+            self.b
+                .ap("a1i", &binds! {"ph" => &at_value, "ps" => scope}, &[&shown]);
+        Ok(Built(self.b.ap(
+            "mpbird",
+            &binds! {"ph" => scope, "ps" => &claim, "ch" => &at_value},
+            &[&held, &same],
+        )))
+    }
+
+    /// |- n e. Prime for a prime below 841, and |- -. n e. Prime for a
+    /// number that is not prime: 2 and 3 by name, a prime below 25 by its
+    /// not being even or a multiple of 3 (`prmlem1`), one below 841 by its
+    /// being no multiple of a prime up to 23 (`prmlem2`); 0 and 1 by name,
+    /// and any other by its least factor and what is left (`nprmi`). None
+    /// for a prime of 841 or more.
+    fn primality(&self, n: &BigUint) -> Option<Proof> {
+        let b = &self.b;
+        let sn = numerals::spell(n.clone());
+        let small = n.to_u32();
+        match small {
+            Some(0) => return Some(b.step("0nprm")),
+            Some(1) => return Some(b.step("1nprm")),
+            Some(2) => return Some(b.step("2prm")),
+            Some(3) => return Some(b.step("3prm")),
+            _ => {}
+        }
+        if !is_prime(n) {
+            let factor = least_factor(n);
+            let rest = n / &factor;
+            let (sa, sb) = (
+                numerals::spell(factor.clone()),
+                numerals::spell(rest.clone()),
+            );
+            return Some(b.ap(
+                "nprmi",
+                &binds! {"A" => &sa, "B" => &sb, "N" => &sn},
+                &[
+                    &numerals::nn(b, factor.clone()),
+                    &numerals::nn(b, rest.clone()),
+                    &numerals::below(b, 1u32, factor.clone()),
+                    &numerals::below(b, 1u32, rest.clone()),
+                    &numerals::product(b, factor, rest),
+                ],
+            ));
+        }
+        let whole = numerals::nn(b, n.clone());
+        let above_one = numerals::below(b, 1u32, n.clone());
+        let not_by = |p: u32| self.divides_at_values(&BigUint::from(p), n);
+        // Each lemma's hypotheses in the order it states them: prmlem1 its
+        // bound last, prmlem2 its bound second.
+        let (lemma, hyps) = if *n < BigUint::from(25u32) {
+            let below = numerals::below(b, n.clone(), 25u32);
+            (
+                "prmlem1",
+                vec![whole, above_one, not_by(2), not_by(3), below],
+            )
+        } else if *n < BigUint::from(841u32) {
+            let below = numerals::below(b, n.clone(), 841u32);
+            let mut hyps = vec![whole, below, above_one];
+            hyps.extend([2, 3, 5, 7, 11, 13, 17, 19, 23].map(not_by));
+            ("prmlem2", hyps)
+        } else {
+            return None;
+        };
+        let refs: Vec<&Proof> = hyps.iter().collect();
+        Some(b.ap(lemma, &binds! {"N" => &sn}, &refs))
     }
 
     /// The value of numerals alone a cited equation gives `side`, and

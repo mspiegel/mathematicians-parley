@@ -2516,10 +2516,48 @@ impl<'a> Elaborator<'a> {
         if d.is_zero() {
             return Route::no("a divisor of 0");
         }
-        let (quotient, rest) = (&num / &d, &num % &d);
-        if rest.is_zero() == negated {
+        if (&num % &d).is_zero() == negated {
             return Route::no("a divisibility that is not what the numbers do");
         }
+        let (sd, sn) = (numerals::spell(d.clone()), numerals::spell(num.clone()));
+        let at_values = t!(sd, sn, "cdvds", "wbr");
+        let shown = self.divides_at_values(&d, &num);
+        let said = |t: String| if negated { t!(t, "wn") } else { t };
+        let (written, at) = (said(self.rpn(core)), said(at_values.clone()));
+        let closed = if written == at {
+            shown
+        } else {
+            let (rd, rn) = (self.rpn(&kids[0]), self.rpn(&kids[1]));
+            let mut same = self.b.ap(
+                "breq12i",
+                &binds! {"A" => &rd, "B" => &sd, "C" => &rn, "D" => &sn, "R" => "cdvds"},
+                &[&d_is, &n_is],
+            );
+            if negated {
+                same = self.b.ap(
+                    "notbii",
+                    &binds! {"ph" => self.rpn(core), "ps" => &at_values},
+                    &[&same],
+                );
+            }
+            self.b.ap(
+                "mpbir",
+                &binds! {"ph" => &written, "ps" => &at},
+                &[&shown, &same],
+            )
+        };
+        Built(
+            self.b
+                .ap("a1i", &binds! {"ph" => &written, "ps" => scope}, &[&closed]),
+        )
+    }
+
+    /// |- d ∥ n where d divides n, and |- -. d ∥ n where it does not, d at
+    /// least 1, each spelt as `numerals::spell` spells them: by `dvdsmul1`
+    /// at the quotient, or by `ndvdsi` from the quotient and the remainder.
+    pub fn divides_at_values(&self, d: &BigUint, num: &BigUint) -> Proof {
+        let (quotient, rest) = (num / d, num % d);
+        let negated = !rest.is_zero();
         let (sd, sn, sq) = (
             numerals::spell(d.clone()),
             numerals::spell(num.clone()),
@@ -2527,11 +2565,10 @@ impl<'a> Elaborator<'a> {
         );
         let times = t!(sd, sq, "cmul", "co");
         let product = numerals::product(&self.b, d.clone(), quotient.clone());
-        let at_values = t!(sd, sn, "cdvds", "wbr");
-        let shown = if negated {
+        if negated {
             // n = d·q + r with 0 < r < d.
             let sr = numerals::spell(rest.clone());
-            let sp = numerals::spell(&d * &quotient);
+            let sp = numerals::spell(d * &quotient);
             let moved = self.b.ap(
                 "oveq1i",
                 &binds! {"A" => &times, "B" => &sp, "C" => &sr, "F" => "caddc"},
@@ -2540,7 +2577,7 @@ impl<'a> Elaborator<'a> {
             let total = self.b.ap(
                 "eqtri",
                 &binds! {"A" => t!(times, sr, "caddc", "co"), "B" => t!(sp, sr, "caddc", "co"), "C" => &sn},
-                &[&moved, &numerals::sum(&self.b, &d * &quotient, rest.clone())],
+                &[&moved, &numerals::sum(&self.b, d * &quotient, rest.clone())],
             );
             self.b.ap(
                 "ndvdsi",
@@ -2576,35 +2613,7 @@ impl<'a> Elaborator<'a> {
                 &binds! {"A" => &sd, "R" => "cdvds", "B" => &times, "C" => &sn},
                 &[&held, &product],
             )
-        };
-        let said = |t: String| if negated { t!(t, "wn") } else { t };
-        let (written, at) = (said(self.rpn(core)), said(at_values.clone()));
-        let closed = if written == at {
-            shown
-        } else {
-            let (rd, rn) = (self.rpn(&kids[0]), self.rpn(&kids[1]));
-            let mut same = self.b.ap(
-                "breq12i",
-                &binds! {"A" => &rd, "B" => &sd, "C" => &rn, "D" => &sn, "R" => "cdvds"},
-                &[&d_is, &n_is],
-            );
-            if negated {
-                same = self.b.ap(
-                    "notbii",
-                    &binds! {"ph" => self.rpn(core), "ps" => &at_values},
-                    &[&same],
-                );
-            }
-            self.b.ap(
-                "mpbir",
-                &binds! {"ph" => &written, "ps" => &at},
-                &[&shown, &same],
-            )
-        };
-        Built(
-            self.b
-                .ap("a1i", &binds! {"ph" => &written, "ps" => scope}, &[&closed]),
-        )
+        }
     }
 
     /// ( scope -> d ∥ n ), or its denial where `negated`, for closed d and n

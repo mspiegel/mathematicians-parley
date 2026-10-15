@@ -10,6 +10,36 @@ theorem two-is-prime
 1.  2 is prime
     mun:two-prime
 
+theorem ninety-seven-is-prime
+  note        No prime up to 23 divides 97, and 23² is past it.
+  then 97 is prime
+
+1.  97 is prime
+    inspection
+
+theorem nineteen-is-prime
+  note        Neither 2 nor 3 divides 19, and 5² is past it.
+  then 19 is prime
+
+1.  19 is prime
+    inspection
+
+theorem ninety-one-is-not-prime-by-inspection
+  note        7 times 13 is 91.
+  then not (91 is prime)
+
+1.  not (91 is prime)
+    inspection
+
+theorem a-degree-that-is-prime
+  note        A term a cited line gives the value 97 is prime as 97 is.
+  let m ∈ ℕ                                                           (H1)
+  assume m = 97                                                       (H2)
+  then m is prime
+
+1.  m is prime
+    inspection, from H2
+
 theorem one-is-not-prime
   note        A prime is above 1, so 1 is not one.
   then not (1 is prime)

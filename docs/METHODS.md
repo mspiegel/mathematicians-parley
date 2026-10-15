@@ -817,6 +817,12 @@ So `{x ∈ E : A is incident with x} = {b₁, b₂, b₃, b₄, b₅}`, `|{b₁,
 and `deg(B) = 3` are one method, which works out both sides and compares
 them.
 
+Or `t is prime`, or its denial, where t is a number spelt in numerals or
+one a cited line gives such a value: `97 is prime`, `not (91 is prime)`.
+The reader tries the primes up to 23 and finds none divides 97, which is
+below 23²; and finds 7 divides 91. The record of `prime` names
+`inspection` in its `decided` field.
+
 ### The procedure
 
 A membership `t ∈ {s₁, …, sₙ}` holds where t is one of the sᵢ and fails
@@ -848,6 +854,9 @@ working out the sum that counts one against the other.
   value the lines give: an element whose case needs a lemma, a calculation or
   a reason of its own is a case to write, and `cases` writes it.
 - **Two names not said to differ**, where the answer depends on it.
+- **A prime of 841 or more**, which trial division by the primes up to 23
+  does not settle. That a larger number is not prime is still seen, by its
+  least factor.
 - **A search.** Only the claim and the cited lines are read, never the
   scope.
 
@@ -866,7 +875,11 @@ element is the cited equation carried in (`eleq2d` and the congruences of
 one element at a time, each element's case decided as above. A size is
 `hashprg`, `hashtpg` or `hashunsng` repeated, each new element absent by
 its distinctness, and one written already leaving the union as it was
-(`ssequn2`); the empty set's is `hash0`. A "for all" line is read
+(`ssequn2`); the empty set's is `hash0`. A prime is `2prm`, `3prm`,
+`prmlem1` below 25 or `prmlem2` below 841, each non-division by `ndvdsi`
+at the quotient and remainder; a number that is not prime is `0nprm`,
+`1nprm`, or `nprmi` at its least factor; and the number is carried back to
+the term as written by `eleq1i`, or `eleq1d` where a cited line gives it. A "for all" line is read
 at its element by `rspcdva`. The two sides are joined by `eqtrd` and
 `eqtr4d`, two listings in different orders by `eqssd`.
 

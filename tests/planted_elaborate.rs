@@ -1089,6 +1089,25 @@ fn cases() -> Vec<Case> {
             "    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2\n          algebra, from K\n",
             "step 1.6 cites K and uses nothing it says",
         ),
+        // Inspection decides "is prime" by the number, so a composite said to
+        // be prime is refused with what the number is.
+        case(
+            "claim by inspection that a composite number is prime",
+            "tests/notations/primes/ninety-seven-is-prime",
+            "tests/notations/primes.proof",
+            "  then 97 is prime\n\n1.  97 is prime\n",
+            "  then 91 is prime\n\n1.  91 is prime\n",
+            "91 is not prime",
+        ),
+        // Past 841 trial division by the primes up to 23 settles nothing.
+        case(
+            "claim by inspection that a prime past 841 is prime",
+            "tests/notations/primes/ninety-seven-is-prime",
+            "tests/notations/primes.proof",
+            "  then 97 is prime\n\n1.  97 is prime\n",
+            "  then 853 is prime\n\n1.  853 is prime\n",
+            "and 853 is not below 841",
+        ),
         // A requires line's `from` names the lines it rests on, as a step's
         // does: d(k) ∈ ℝ rests on H2, d's type, with k's membership said once.
         case(

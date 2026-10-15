@@ -102,7 +102,10 @@ mundane definition prime
               d = 1 or d = p
   metamath    isprm2, whose first conjunct is membership of ℤ≥2
   target      isprm2
-  note        isprm2 writes p > 1 as p ∈ ℤ≥2, which is not the formula this
+  decided     inspection
+  note        Whether a number below 841 is prime is seen by inspection, by
+              trial division by the primes up to 23 (`METHODS.md`).
+              isprm2 writes p > 1 as p ∈ ℤ≥2, which is not the formula this
               line writes, so unfolding the definition does not land on the
               words of the right side. What carries one to the other is
               eluz2gt1, declared with the rest of what an elaborator may
