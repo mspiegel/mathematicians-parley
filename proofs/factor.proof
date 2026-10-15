@@ -11,7 +11,7 @@ theorem factor
   then there is a polynomial q with p(x) = (x − a)·q(x) for all x ∈ ℂ
 
 1.  q is a polynomial. p(x) = (x − a)·q(x) + p(a) for all x ∈ ℂ.
-    obtain q: thm:remainder a := a, from H1
+    obtain q: thm:remainder, from H1
 
 2.  For all x ∈ ℂ, p(x) = (x − a)·q(x).
     proof

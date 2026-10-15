@@ -29,6 +29,9 @@ use crate::rules;
 /// supplying what a reading asks first is followed, as well as the first,
 /// and each complete way is handed to `ways.found` with the facts it took,
 /// those taken first included; it gives back None having tried everything.
+///
+/// `chosen` holds, sentence by sentence, the candidate each sentence of the
+/// claim took, for the way it gives back.
 #[allow(clippy::too_many_arguments)]
 fn take(
     claims: &[Node],
@@ -41,6 +44,7 @@ fn take(
     library: &Library,
     sites: &Sites,
     mut ways: Option<&mut Ways>,
+    chosen: &mut Vec<usize>,
 ) -> Option<Binding> {
     let Some((claim, later)) = claims.split_first() else {
         let mut all = need.to_vec();
@@ -50,7 +54,7 @@ fn take(
             &all, given, &mut marks, binding, variables, library, sites, true, ways,
         );
     };
-    for (cand, first) in candidates {
+    for (taking, (cand, first)) in candidates.iter().enumerate() {
         // What a property stands for is decided inside the braces, so a
         // requirement holding them is matched before the claim that uses it.
         let starts: Vec<Start> = if walk(first).iter().any(|x| sites.contains(&x.id()))
@@ -78,6 +82,7 @@ fn take(
             if let Some(w) = ways.as_deref_mut() {
                 w.path.extend(&start.path);
             }
+            chosen.push(taking);
             let done = take(
                 later,
                 candidates,
@@ -89,6 +94,7 @@ fn take(
                 library,
                 sites,
                 ways.as_deref_mut(),
+                chosen,
             );
             if let Some(w) = ways.as_deref_mut() {
                 w.path.truncate(at);
@@ -96,6 +102,7 @@ fn take(
             if done.is_some() {
                 return done;
             }
+            chosen.pop();
         }
     }
     None
@@ -314,16 +321,30 @@ pub struct Taken {
     /// value that gave it, and that letter stands for nothing at the
     /// citation: the s of `there is s ∈ S` is still the conclusion's own s.
     pub binding: Binding,
+    /// The conclusion of the group, by its place among the group's
+    /// sentences, each sentence of the claim takes, in the claim's order;
+    /// none for an obtain, which takes the group's "there is" whole.
+    pub concluded: Vec<usize>,
 }
 
 impl Taken {
-    fn of(group: usize, mut binding: Binding, of: &Group, library: &Library) -> Taken {
+    fn of(
+        group: usize,
+        mut binding: Binding,
+        concluded: Vec<usize>,
+        of: &Group,
+        library: &Library,
+    ) -> Taken {
         let mut free = BTreeSet::new();
         for t in of.gives.iter().chain(of.wants.iter().map(|(_, t)| t)) {
             free.extend(free_names(t, &library.ctx.binders));
         }
         binding.retain(|name, _| free.contains(name));
-        Taken { group, binding }
+        Taken {
+            group,
+            binding,
+            concluded,
+        }
     }
 }
 
@@ -351,6 +372,7 @@ pub fn taken(
     let (whole, split) = (whole_claim(claims, library), split_claims(claims, library));
     for (group, of) in groups.iter().enumerate() {
         let offer = Offer::of(of, library);
+        let mut chosen = Vec::new();
         if let Some(binding) = take(
             offer.claims_read(&whole, &split),
             &offer.candidates,
@@ -362,8 +384,16 @@ pub fn taken(
             library,
             &offer.sites,
             None,
+            &mut chosen,
         ) {
-            return Built(Taken::of(group, binding, &groups[group], library));
+            let concluded = chosen.iter().map(|&c| offer.from[c]).collect();
+            return Built(Taken::of(
+                group,
+                binding,
+                concluded,
+                &groups[group],
+                library,
+            ));
         }
     }
     Route::no("no group of the item concludes the claim from the facts named")
@@ -402,6 +432,7 @@ pub fn taken_ways(
             library,
             &offer.sites,
             Some(&mut ways),
+            &mut Vec::new(),
         );
     }
 }
@@ -445,6 +476,9 @@ struct Offer {
     /// Each conjunct of each reading of a conclusion, either way round, with
     /// what that reading asks first.
     candidates: Vec<(Node, Vec<Node>)>,
+    /// The conclusion each candidate is read from, by its place among the
+    /// group's sentences.
+    from: Vec<usize>,
     /// The group's hypotheses, conjunct by conjunct.
     need: Vec<Node>,
     /// The item's letters, which the claim and the facts bind.
@@ -457,8 +491,9 @@ impl Offer {
     fn of(group: &Group, library: &Library) -> Offer {
         let Group { wants: want, gives } = group;
         let mut candidates: Vec<(Node, Vec<Node>)> = Vec::new();
+        let mut from = Vec::new();
         let mut sites = Sites::new();
-        for concl in gives {
+        for (sentence, concl) in gives.iter().enumerate() {
             binding_sites(concl, &library.ctx, &[], &mut sites);
             for (target, extra) in readings(concl, library) {
                 let first: Vec<Node> =
@@ -466,6 +501,7 @@ impl Offer {
                 for c in conjuncts(&target, library) {
                     for way in either_way(&c, library) {
                         candidates.push((way, first.clone()));
+                        from.push(sentence);
                     }
                 }
             }
@@ -487,6 +523,7 @@ impl Offer {
         Offer {
             letter,
             candidates,
+            from,
             need,
             variables,
             sites,
@@ -547,7 +584,13 @@ pub fn obtained(
                         .iter()
                         .any(|part| existential(part, &binding, library))
                     {
-                        let taken = Taken::of(group, binding, &groups[group], library);
+                        let taken = Taken::of(
+                            group,
+                            binding,
+                            Vec::new(),
+                            &groups[group],
+                            library,
+                        );
                         return Built(taken);
                     }
                 }

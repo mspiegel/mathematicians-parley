@@ -3341,7 +3341,7 @@ fn cases() -> Vec<Case> {
         case(
             "divide by x − a without saying p is a polynomial",
             vec![
-                edit("proofs/factor.proof", Some("thm:remainder a := a, from H1".to_string()), "thm:remainder a := a".to_string()),
+                edit("proofs/factor.proof", Some("thm:remainder, from H1".to_string()), "thm:remainder".to_string()),
             ],
             "step 1 cites thm:remainder, which asks for p is a polynomial",
         ),

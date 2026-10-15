@@ -35,8 +35,8 @@ use super::state::{
 use super::tables::Leaf;
 use super::{Facts, Line, Lines};
 use crate::binds;
-use crate::checker::record::CheckedTheorem;
-use crate::citing::{self, asked, claimed_member, filled, finished, obtained, Parts};
+use crate::checker::record::{CheckedTheorem, Cited};
+use crate::citing::{self, asked, claimed_member, filled, finished, Parts};
 use crate::corpus::proof::{chain, requires_as_step, ChainLine, Requires};
 use crate::corpus::{
     define_parts, fmt, Corpus, DefineParts, Hypothesis, Intro, Item, Record, Step,
@@ -963,13 +963,6 @@ impl<'a> Elaborator<'a> {
         };
         let said = self.said(step)?;
         let proof = self.check_step(proof, step, number, false)?;
-        // A step citing a record is built only where the citation is one
-        // the checker takes: what the routes above built may rest on a
-        // hypothesis settled some other way than from what the step names.
-        let cited = self.thm.names.full(&head);
-        if let Some(Item::Record(item)) = self.items.get(&cited).copied() {
-            self.citation_taken(step, item)?;
-        }
         self.lines.set(
             number,
             Line {
@@ -1038,19 +1031,8 @@ impl<'a> Elaborator<'a> {
         let kept = std::mem::replace(&mut self.lines, lines.clone());
         let citing =
             std::mem::replace(&mut self.citing, at.just.refs.iter().cloned().collect());
-        let mut made =
+        let made =
             self.by_method_written(&how, &at, &node, &term, scope, facts, &lines);
-        // An item cited is one the checker takes, as a step's is
-        // (`citation_taken`): the route may have settled a hypothesis some
-        // other way than from what the line names.
-        if matches!(made, Ok(Built(Some(_)))) {
-            let cited = self.thm.names.full(&at.just.head.to_string());
-            if let Some(Item::Record(item)) = self.items.get(&cited).copied() {
-                if let Err(p) = self.requires_taken(step, req, item) {
-                    made = Err(p);
-                }
-            }
-        }
         self.citing = citing;
         self.lines = kept;
         // What the step route says of the line it was given is said of the
@@ -1466,44 +1448,26 @@ impl<'a> Elaborator<'a> {
         step: &Step,
         item: &'a Record,
     ) -> Checked<NodeBinding> {
-        let obtains = step.just.text.trim_start().starts_with("obtain");
-        let (library, groups, parts) =
-            self.citation_here(step, &item.qualified(), obtains)?;
-        if !obtains {
-            return match citing::taken(
-                &groups,
-                &parts.claims,
-                &parts.facts,
-                &parts.seed,
-                &library,
-            ) {
-                Built(t) => Ok(t.binding),
-                // The citation fixes only what it writes, and the step fails
-                // where what it cites does not reach its claim, which says
-                // why more exactly than that no clause matched.
-                Declined(_) => Ok(parts.seed),
-            };
-        }
-        let taken = match obtained(&groups, &parts.facts, &parts.seed, &library) {
-            Built(t) => t,
-            Declined(d) => {
-                let missing = unsupplied_alone(&groups, &parts, &library);
-                if missing.is_empty() {
-                    return Err(d.into_problem(&self.thm.path, step.line));
-                }
-                return Err(self.defect(
-                    step.line,
-                    format!(
-                        "step {} cites {}:{}, which asks for {}, and what it cites does not supply it",
-                        fmt(&step.number),
-                        item_kind(Item::Record(item)),
-                        item.qualified(),
-                        missing.join("; ")
-                    ),
-                ));
-            }
+        let cited = self.cited_here(step, &item.qualified())?;
+        Ok(cited.binding.into_iter().collect())
+    }
+
+    /// The checker's reading of the citation of `item`, by its full name,
+    /// that `step` makes (`CheckedTheorem::cited`): a step's own, or a
+    /// requires line's read as the step it would be. The build refuses what
+    /// the checker refuses, so a citation it builds is one the checker read.
+    fn cited_here(&self, step: &Step, item: &str) -> Checked<Cited> {
+        let read = match self.thm.steps.iter().position(|s| s.line == step.line) {
+            Some(i) => self.checked.cited[i].as_ref(),
+            None => self.checked.cited_requires.get(&step.line),
         };
-        Ok(taken.binding)
+        match read {
+            Some(cited) if cited.item == item => Ok(cited.clone()),
+            _ => Err(self.defect(
+                step.line,
+                format!("the checker reads no citation of {item} on this line"),
+            )),
+        }
     }
 
     /// The item's groups and the parts of a citation of it, read as the
@@ -1542,104 +1506,6 @@ impl<'a> Elaborator<'a> {
             Some(step),
         )?;
         Ok((library, groups, parts))
-    }
-
-    /// A defect where no clause of the record concludes the step's claim
-    /// from what the step names, which is where the checker refuses the
-    /// citation: both read it with one matcher (`citing::taken`) over parts
-    /// each reads the same way (`citation_parts`). A hypothesis no line the
-    /// step names supplies is not settled some other way (`ELABORATION.md`,
-    /// "Nothing generic stands after those"). An obtain claims no conclusion
-    /// of the record, and is read by `obtained` instead.
-    fn citation_taken(&mut self, step: &Step, item: &'a Record) -> Checked<()> {
-        if step.just.head.is(crate::corpus::Method::Obtain) {
-            return Ok(());
-        }
-        let (library, groups, parts) =
-            self.citation_here(step, &item.qualified(), false)?;
-        if parts.claims.is_empty()
-            || !citing::taken(
-                &groups,
-                &parts.claims,
-                &parts.facts,
-                &parts.seed,
-                &library,
-            )
-            .is_declined()
-        {
-            return Ok(());
-        }
-        Err(self.defect(
-            step.line,
-            format!(
-                "step {} cites {}:{}, and no clause of it concludes the claim from what the step names",
-                fmt(&step.number),
-                item_kind(Item::Record(item)),
-                item.qualified()
-            ),
-        ))
-    }
-
-    /// `citation_taken` for a requires line citing `item`, over the parts
-    /// the checker reads such a line with: what its reason names, the
-    /// requires lines above it, and the member its step's claim is said of
-    /// where the step is said of every member in one line; and its fact
-    /// read at a member where it is said of every one.
-    fn requires_taken(
-        &mut self,
-        step: &Step,
-        req: &Requires,
-        item: &'a Record,
-    ) -> Checked<()> {
-        let library = self.item_library();
-        let Some(groups) = library.groups(&item.qualified()) else {
-            return Ok(());
-        };
-        let refs = req.refs().to_vec();
-        let mut facts = self.cited_sentences(&refs)?;
-        for o in step.requires_above(req.line) {
-            facts.push(self.read_one(&o.fact)?);
-        }
-        if step.openers.is_empty() {
-            if let [claim] = self.said(step)?.as_slice() {
-                if let Some((member, _)) =
-                    citing::claimed_member(claim, &library, &self.sorts_now)
-                {
-                    facts.push(member);
-                }
-            }
-        }
-        let as_step = requires_as_step(step, req)?;
-        let claims = vec![self.read_one(&req.fact)?];
-        let parts = self.citation_parts(
-            facts,
-            claims,
-            req.values(),
-            &refs,
-            &library,
-            &item.qualified(),
-            Some(&as_step),
-        )?;
-        // One use of the item, or the item applied as often as it takes, as
-        // the checker reads a requires line (`check_requires`).
-        let taken =
-            !citing::taken(&groups, &parts.claims, &parts.facts, &parts.seed, &library)
-                .is_declined();
-        let derived = parts
-            .claims
-            .iter()
-            .all(|c| citing::derives(c, &groups, &parts.facts, &library, 5));
-        if taken || derived {
-            return Ok(());
-        }
-        Err(self.defect(
-            req.line,
-            format!(
-                "no clause of {}:{} concludes the line from what the line names",
-                item_kind(Item::Record(item)),
-                item.qualified()
-            ),
-        ))
     }
 
     /// What the clause a step's citation takes concludes there, each
@@ -5304,10 +5170,8 @@ impl<'a> Elaborator<'a> {
 
     /// What each letter of a cited corpus theorem stands for where the
     /// citation's match fixes it, as a term in the step's own names: the
-    /// binding `citing::taken` finds from the step's claim, the lines it names
-    /// and the values it writes. Empty for an obtain, which claims no
-    /// conclusion, and where no clause concludes the claim, which fails
-    /// further on where it can say why.
+    /// binding the checker reads the citation with (`cited_here`). Empty for
+    /// an obtain, which claims no conclusion.
     fn corpus_matched(
         &mut self,
         step: &Step,
@@ -5317,13 +5181,7 @@ impl<'a> Elaborator<'a> {
         if step.just.head.is(crate::corpus::Method::Obtain) {
             return Ok(out);
         }
-        let (library, groups, parts) =
-            self.citation_here(step, &other.qualified(), false)?;
-        let Built(taken) =
-            citing::taken(&groups, &parts.claims, &parts.facts, &parts.seed, &library)
-        else {
-            return Ok(out);
-        };
+        let taken = self.cited_here(step, &other.qualified())?;
         // A name the citation writes a value for takes that value, and a
         // name the match gives itself, as a library function's C in C(m, k)
         // is, stands as it already does.
@@ -6244,38 +6102,6 @@ pub fn elaborate(
         said_back: work.said_back.take().unwrap_or_default(),
         answers: work.answers.take().unwrap_or_default(),
     })
-}
-
-/// The hypotheses of an item, as the item writes them, that no one fact of
-/// the citation supplies on its own: what a message names when the item
-/// gives the citation nothing.
-fn unsupplied_alone(
-    groups: &[citing::Group],
-    parts: &Parts,
-    library: &citing::Library,
-) -> Vec<String> {
-    let mut out = Vec::new();
-    for group in groups {
-        for (text, tree) in &group.wants {
-            let one = std::slice::from_ref(tree);
-            let mut sites = citing::Sites::new();
-            crate::matching::binding_sites(tree, &library.ctx, &[], &mut sites);
-            let variables = citing::names_of(one);
-            let found = citing::supply(
-                one,
-                &parts.facts,
-                &parts.seed,
-                &variables,
-                library,
-                &sites,
-                false,
-            );
-            if found.is_none() && !out.contains(text) {
-                out.push(text.clone());
-            }
-        }
-    }
-    out
 }
 
 /// A congruence a ≡ b (mod n), as set.mm writes it, n ∥ (a − b).

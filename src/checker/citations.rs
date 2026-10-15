@@ -7,6 +7,7 @@ use indexmap::{IndexMap, IndexSet};
 
 use super::formulas::chain_links;
 use super::library::{introduced, listed_seed, typed_in_scope, typed_seed, Known};
+use super::record::Cited;
 use super::structure::letters_in_scope;
 use super::Report;
 use crate::citing::{
@@ -260,6 +261,32 @@ pub fn obtained_there(
                 .collect()
         }),
     )
+}
+
+/// How a step's citation of an item is read: the group it takes and the
+/// binding, by `taken` for a step that concludes what it claims and by
+/// `obtained` for an obtain, over the parts the checks read; None where the
+/// step cites no item or no group reads the citation, which the checks
+/// report.
+pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
+    let item = step.just.item(&step.just.cited_item()?);
+    let groups = library.groups(&item)?;
+    let parts = known.parts(step, library);
+    let read = if step.just.head.is(Method::Obtain) {
+        obtained(&groups, &parts.facts, &parts.seed, library)
+    } else {
+        taken(&groups, &parts.claims, &parts.facts, &parts.seed, library)
+    };
+    let Built(taken) = read else {
+        return None;
+    };
+    let before: usize = groups[..taken.group].iter().map(|g| g.gives.len()).sum();
+    Some(Cited {
+        item,
+        group: taken.group,
+        binding: taken.binding.into_iter().collect(),
+        sentences: taken.concluded.iter().map(|s| before + s).collect(),
+    })
 }
 
 /// What a step citing a corpus theorem, other than to obtain, makes each of
@@ -1848,7 +1875,7 @@ pub fn check_define_domains(
 /// own, since it rests on them (`ELABORATION.md`, R2); None for a reason
 /// that is only `from`, which is read from the lines it names, and for one
 /// the skeleton reader could not cut, which `check_reason` reports.
-fn requires_read_as_step(step: &Step, req: &Requires) -> Option<Step> {
+pub(super) fn requires_read_as_step(step: &Step, req: &Requires) -> Option<Step> {
     let Ok(by) = &req.by else {
         return None;
     };

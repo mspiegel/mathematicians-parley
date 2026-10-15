@@ -76,7 +76,7 @@ theorem lowest-terms
        and there is no d ∈ ℤ with d > 1, d divides p, and d divides q
 
 1.  p ∈ ℤ. q ∈ ℕ. x = p/q. gcd(p, q) = 1.
-    obtain p, q: mun:rational-coprime x := x
+    obtain p, q: mun:rational-coprime
 
 2.  q > 0
     inequalities, from 1

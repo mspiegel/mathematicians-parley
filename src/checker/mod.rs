@@ -106,6 +106,24 @@ pub fn checked(
                 .iter()
                 .map(|step| library::typed_in_scope(&c.known[i], step))
                 .collect();
+            record.cited = thm
+                .steps
+                .iter()
+                .map(|step| citations::cited(step, c.library, &c.known[i]))
+                .collect();
+            for step in &thm.steps {
+                for req in &step.requires {
+                    let Some(as_step) = citations::requires_read_as_step(step, req)
+                    else {
+                        continue;
+                    };
+                    if let Some(read) =
+                        citations::cited(&as_step, c.library, &c.known[i])
+                    {
+                        record.cited_requires.insert(req.line, read);
+                    }
+                }
+            }
             out.insert(thm.qualified(), record);
         }
         out

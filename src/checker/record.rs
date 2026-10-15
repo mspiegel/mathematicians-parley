@@ -6,6 +6,8 @@
 //! The build is handed this rather than working it out again as it walks
 //! the proof, so the two cannot read one proof two ways.
 
+use indexmap::IndexMap;
+
 use crate::corpus::{Step, StepNo, Theorem};
 use crate::formula::{Node, Sorts};
 use crate::outcome::Problem;
@@ -60,6 +62,30 @@ pub struct CheckedTheorem {
     /// n} → V`, by the step's index (`typed_in_scope`): what a citation of
     /// an item over a function is read with (`citing::typed_seed`).
     pub typed: Vec<Vec<Node>>,
+    /// Each step's citation of an item, by the step's index; None for a step
+    /// that cites none, or whose citation no group of the item reads, which
+    /// the checker reports.
+    pub cited: Vec<Option<Cited>>,
+    /// Each requires line's citation of an item, by the line it is on, read
+    /// as the step the line would be (`requires_as_step`).
+    pub cited_requires: IndexMap<usize, Cited>,
+}
+
+/// A step's citation of an item as the checker reads it (`citing::taken`,
+/// or `citing::obtained` for an obtain): the group of the item's
+/// conclusions it takes, and what each of the item's letters stands for.
+#[derive(Clone, Debug)]
+pub struct Cited {
+    /// The item, by its full name.
+    pub item: String,
+    pub group: usize,
+    pub binding: IndexMap<String, Node>,
+    /// The sentences of the item's conclusions the claim takes, each by its
+    /// place among them all, counted across the groups in order: the place
+    /// of the lemma that proves it in the item's target, which names one
+    /// lemma to a sentence (`targets::clauses`). None for an obtain, which
+    /// takes its group's "there is" whole.
+    pub sentences: Vec<usize>,
 }
 
 /// Whether `step` owns a block: it opens one with a line above its steps,
