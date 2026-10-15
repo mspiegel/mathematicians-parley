@@ -38,7 +38,6 @@ use crate::mm::kernel::Term;
 use crate::mm::spell::{Builder, Proof};
 use crate::outcome::{Built, Checked, Declined, Problem, Route};
 use crate::rules::{self, lookup};
-use crate::targets;
 use crate::{pf, t, take};
 
 /// What an emitter asks of the elaborator: the scope, the facts a
@@ -2239,10 +2238,7 @@ impl<'a> Elaborator<'a> {
             let records = self.records;
             let mut words = Vec::new();
             for r in records {
-                let names = r.field("decided").map(targets::split_entries);
-                if r.kind != RecordKind::Definition
-                    || !names.is_some_and(|n| n.iter().any(|m| m.trim() == method))
-                {
+                if r.kind != RecordKind::Definition || !field::decides(r, method) {
                     continue;
                 }
                 // Each letter the word is said of stands for a set variable's

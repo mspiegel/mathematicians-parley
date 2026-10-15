@@ -57,12 +57,18 @@ pub const NATIVE_OPERATIONS: [&str; 8] = [
 /// target applies: one of its own nature, or one its record names in a
 /// `decided` field.
 pub fn worked_out(record: &crate::corpus::Record) -> bool {
-    NATIVE_OPERATIONS.contains(&record.name.as_str())
-        || record.field("decided").is_some_and(|v| {
-            crate::targets::split_entries(v)
-                .iter()
-                .any(|m| m.trim() == "arithmetic")
-        })
+    NATIVE_OPERATIONS.contains(&record.name.as_str()) || decides(record, "arithmetic")
+}
+
+/// Whether a record names `method` in its `decided` field (`DATABASE.md`):
+/// a word or an operation the method works out where it is said of
+/// numerals.
+pub fn decides(record: &crate::corpus::Record, method: &str) -> bool {
+    record.field("decided").is_some_and(|v| {
+        crate::targets::split_entries(v)
+            .iter()
+            .any(|m| m.trim() == method)
+    })
 }
 
 /// The kernel labels of every operation `arithmetic` works out, read off
