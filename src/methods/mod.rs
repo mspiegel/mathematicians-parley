@@ -5,6 +5,7 @@
 //! The deciders read kernel terms and nothing of set.mm but the labels'
 //! shapes, so the checker can run them without loading the library.
 
+pub mod algebra;
 pub mod field;
 pub mod linear;
 pub mod numerals;

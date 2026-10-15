@@ -747,9 +747,9 @@ fn cases() -> Vec<Case> {
             )],
             "step 2.4 gives inequalities for 1 ≤ 10, which has no letter in it; a claim of numerals alone is arithmetic's",
         ),
-        // A claim of `algebra` that is not an identity. The checker does not
-        // decide algebra; it reports the link below that cites the changed
-        // line for what it no longer says.
+        // A claim of `algebra` that is not an identity, and one asking a
+        // power past what algebra may multiply out: the checker decides
+        // algebra (`check_algebra_holds`).
         case(
             "claim an algebra step the cited lines do not give",
             vec![edit(
@@ -757,11 +757,8 @@ fn cases() -> Vec<Case> {
                 Some("    1.10. (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a)".to_string()),
                 "    1.10. (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a) + 1".to_string(),
             )],
-            "a link of step 1.12 cites 1.10, which does not say (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a); a link cites the line that states it, and a substitution is a step of its own",
+            "(1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a) + 1 is not an identity, nor does it follow from what step 1.10 cites",
         ),
-        // A power past what `algebra` may multiply out. The checker does not
-        // decide algebra; it reports the link below that cites the changed
-        // line for what it no longer says.
         case(
             "ask algebra to multiply out a power past its cost",
             vec![edit(
@@ -769,7 +766,7 @@ fn cases() -> Vec<Case> {
                 Some("    1.10. (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a)".to_string()),
                 "    1.10. (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a) + (a + 1)^30 − (a + 1)^30".to_string(),
             )],
-            "a link of step 1.12 cites 1.10, which does not say (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a); a link cites the line that states it, and a substitution is a step of its own",
+            "(a + 1)^30 is a power algebra does not multiply out",
         ),
         // A side condition is supplied by what the step names, not by
         // everything in scope: the scope holds |T| = 2^k, and with 1.2.5 no

@@ -19,8 +19,10 @@ use crate::corpus::{
 use crate::formula::page::{disjoined, made, numeral, related, Written};
 use crate::formula::{walk, Node, Sort, Sorts};
 use crate::matching::{alike_top, free_names, substitute_apart_by, Binding};
+use crate::methods::algebra;
 use crate::methods::field::{decide_closed, Verdict};
 use crate::methods::terms::{term_of_node, Targets};
+use crate::mm::kernel::{FloatLabels, Term};
 use crate::outcome::{Built, Checked, Declined};
 use crate::sorts::infer::{self, Reader, Store};
 use crate::sorts::introduction::{Form, Introduction};
@@ -1296,6 +1298,79 @@ pub fn check_arithmetic_holds(
             }
         }
     }
+}
+
+/// What `algebra` claims holds (`METHODS.md`, algebra): a step's claim of
+/// one sentence is an identity of the field, or follows from the equations
+/// the lines it cites say, added and subtracted with at most one multiplied
+/// by a term, or is a disequality it cites rescaled
+/// (`methods::algebra::decide`). Each is read with the defines the step
+/// cites written out, as kernel terms (`term_of_node`). A step that reads a
+/// finite sum or product over a range is left to the build, which reads a
+/// sum as linear where it says something linear, and the terms here hold
+/// one as an atom.
+pub fn check_algebra_holds(
+    report: &mut Report,
+    thm: &Theorem,
+    known: &Known,
+    targets: &Targets,
+) {
+    let labels = FloatLabels::new(IndexMap::new());
+    for step in &thm.steps {
+        if !step.just.head.is(Method::Algebra) {
+            continue;
+        }
+        let sentences = step.claim.sentences();
+        let [claim] = sentences.as_slice() else {
+            continue;
+        };
+        let defined = known.citing_step(step);
+        let Some(claimed) = known.read_citing(claim, &defined) else {
+            continue;
+        };
+        let scope = known.scope(step);
+        let lines: Vec<Node> = step
+            .just
+            .refs
+            .iter()
+            .filter_map(|r| scope.get(r))
+            .flat_map(|written| known.supplied(written, &defined))
+            .collect();
+        let ranged = std::iter::once(&claimed)
+            .chain(&lines)
+            .any(|n| ["csu", "cprod"].iter().any(|l| targets.uses(n, l)));
+        if ranged {
+            continue;
+        }
+        let cited: Vec<Term> = lines.iter().map(|n| term_of_node(n, targets)).collect();
+        let verdict =
+            algebra::decide(&term_of_node(&claimed, targets), &cited, &labels);
+        let read: Vec<&Node> = std::iter::once(&claimed).chain(&lines).collect();
+        let render = |t: &Term| printed(t, &read, known, targets, &labels);
+        let number = step.number.to_string();
+        if let Some(said) =
+            algebra::refusal(&verdict, &step.claim_text(), &number, &render)
+        {
+            report.say(&thm.path, step.just.line, said);
+        }
+    }
+}
+
+/// A term a decider names, in the page's words: the part of what it read
+/// that makes that term (`term_of_node`), printed.
+fn printed(
+    term: &Term,
+    read: &[&Node],
+    known: &Known,
+    targets: &Targets,
+    labels: &FloatLabels,
+) -> String {
+    let want = term.rpn(labels).to_string();
+    read.iter()
+        .flat_map(|n| n.walk())
+        .find(|part| *term_of_node(part, targets).rpn(labels) == *want)
+        .map(|part| known.print(&part))
+        .unwrap_or(want)
 }
 
 /// What is wrong with a fact `arithmetic` works out, where it is numerals

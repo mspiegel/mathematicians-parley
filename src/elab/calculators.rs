@@ -29,7 +29,11 @@ use super::state::{Elaborator, Vars};
 use super::{Facts, Line, Lines};
 use crate::binds;
 use crate::corpus::{fmt, Item, RecordKind, Step};
-use crate::mm::kernel::{FloatLabels, Term};
+pub use crate::methods::algebra::rescales;
+use crate::methods::algebra::{
+    self, claim_says, combination, denominators, readings, Factor,
+};
+use crate::mm::kernel::Term;
 use crate::mm::spell::{Builder, Proof};
 use crate::outcome::{Built, Checked, Declined, Problem, Route};
 use crate::rules::{self, lookup};
@@ -256,242 +260,6 @@ pub fn multiplier(times: &Poly) -> Option<String> {
         });
     }
     out
-}
-
-/// What the cited polynomial is multiplied by to become the claim's: two
-/// disequalities say one thing when one polynomial is the other scaled.
-pub fn rescales(cited: Option<&Poly>, claim: Option<&Poly>) -> Option<Q> {
-    let (cited, claim) = (cited?, claim?);
-    if cited.terms.is_empty() || claim.terms.is_empty() {
-        return None;
-    }
-    let lead = claim.lead()?;
-    let theirs = cited.terms.get(lead)?;
-    let times = &claim.terms[lead] / theirs;
-    if times.is_zero() || *claim != cited.scaled(&times) {
-        return None;
-    }
-    Some(times)
-}
-
-/// Each divisor a term writes, leftmost first and once for each time it
-/// divides: what `field::read` reads the term's denominator as the product
-/// of. It goes through what `read` multiplies out, sums, differences,
-/// negations, products, quotients and powers it expands, and a divisor under
-/// a power divides once for each the power multiplies; inside an atom is
-/// not a denominator.
-fn divisors_of(term: &Term, labels: &FloatLabels) -> Vec<Term> {
-    fn walk(term: &Term, labels: &FloatLabels, out: &mut Vec<Term>) {
-        if term.variable().is_some() {
-            return;
-        }
-        let kids = term.children();
-        if term.label() == Some(field::NEG) && kids.len() == 1 {
-            walk(&kids[0], labels, out);
-            return;
-        }
-        if term.label() != Some("co") || kids.len() != 3 {
-            return;
-        }
-        let how = kids[2].rpn(labels);
-        if [field::ADD, SUB, field::MUL].contains(&&*how) {
-            walk(&kids[0], labels, out);
-            walk(&kids[1], labels, out);
-        } else if &*how == DIV {
-            walk(&kids[0], labels, out);
-            out.push(kids[1].clone());
-        } else if &*how == field::EXP {
-            if let field::Power::Expanded { by, .. } =
-                field::power_of(&kids[0], &kids[1], labels)
-            {
-                let mut under = Vec::new();
-                walk(&kids[0], labels, &mut under);
-                for _ in 0..by {
-                    out.extend(under.iter().cloned());
-                }
-            }
-        }
-    }
-    let mut out = Vec::new();
-    walk(term, labels, &mut out);
-    out
-}
-
-/// What a claim's sides are multiplied by for one divisor it writes, which
-/// is what `field::read` takes the divisor as: the divisor itself, or, where
-/// it is a quotient c/e, its numerator c.
-#[derive(Clone)]
-enum Factor {
-    Divisor(Term),
-    Numerator {
-        /// The divisor as written, c/e, which the page says is not 0.
-        divisor: Term,
-        top: Term,
-        below: Term,
-    },
-}
-
-impl Factor {
-    fn term(&self) -> &Term {
-        match self {
-            Factor::Divisor(t) => t,
-            Factor::Numerator { top, .. } => top,
-        }
-    }
-}
-
-/// What a divisor of a claim's is read as: itself, where nothing in it
-/// divides, or its numerator c where it is c/e; None for a divisor that
-/// divides deeper than that.
-fn factor_of(d: Term, labels: &FloatLabels) -> Option<Factor> {
-    let whole = |t: &Term| field::read(t, labels).under == field::one();
-    if whole(&d) {
-        return Some(Factor::Divisor(d));
-    }
-    let kids = d.children();
-    let quotient = d.variable().is_none()
-        && d.label() == Some("co")
-        && kids.len() == 3
-        && &*kids[2].rpn(labels) == DIV;
-    if !quotient || !whole(&kids[0]) || !whole(&kids[1]) {
-        return None;
-    }
-    let (top, below) = (kids[0].clone(), kids[1].clone());
-    Some(Factor::Numerator {
-        divisor: d,
-        top,
-        below,
-    })
-}
-
-/// One reading of an equation for `algebra`, as the decision and the proof
-/// both read it.
-struct ClaimSays {
-    /// The polynomial that must vanish: the equation's sides with their
-    /// denominators multiplied across, some of the divisors it writes
-    /// divided out of it.
-    says: Poly,
-    /// The divisors not divided out, which the proof multiplies a claim's
-    /// sides by; None for one that divides deeper than a quotient
-    /// (`factor_of`).
-    kept: Vec<Option<Factor>>,
-    /// What was divided out, the product of the divisors taken.
-    taken: Poly,
-}
-
-/// Each reading of `want`, the equation as `field::equation` reads it,
-/// with a product of the divisors it writes divided out where that divides
-/// it exactly: the most divided out first, and the reading with none last.
-/// Dividing both sides by a term is not a thing a step does besides what
-/// it combines, so a claim follows when one reading of it is a combination
-/// (`METHODS.md`, algebra); which one is read off the claim, and a cited
-/// equation is read the first way, which says the least.
-fn readings(claimed: &Term, want: Poly, labels: &FloatLabels) -> Vec<ClaimSays> {
-    // The divisors, those alike in one group, each with how often it is
-    // written.
-    let mut groups: Vec<(Poly, Vec<Option<Factor>>)> = Vec::new();
-    for d in claimed
-        .children()
-        .iter()
-        .flat_map(|side| divisors_of(side, labels))
-    {
-        let factor = factor_of(d.clone(), labels);
-        let by = match &factor {
-            Some(f) => field::read(f.term(), labels).over,
-            None => field::read(&d, labels).over,
-        };
-        match groups.iter_mut().find(|(p, _)| *p == by) {
-            Some((_, all)) => all.push(factor),
-            None => groups.push((by, vec![factor])),
-        }
-    }
-    // Every choice of how many of each group to divide out, the most first.
-    let mut choices: Vec<Vec<usize>> = vec![Vec::new()];
-    for (_, all) in &groups {
-        choices = choices
-            .into_iter()
-            .flat_map(|c| {
-                (0..=all.len()).rev().map(move |n| {
-                    let mut more = c.clone();
-                    more.push(n);
-                    more
-                })
-            })
-            .collect();
-    }
-    choices.sort_by_key(|c| std::cmp::Reverse(c.iter().sum::<usize>()));
-    let mut out = Vec::new();
-    for choice in choices {
-        let mut taken = field::one();
-        let mut kept = Vec::new();
-        for ((by, all), n) in groups.iter().zip(&choice) {
-            for _ in 0..*n {
-                taken = taken.times(by);
-            }
-            kept.extend(all[*n..].iter().cloned());
-        }
-        if taken.zero() {
-            continue;
-        }
-        if let Some(says) = field::exactly(&want, &taken) {
-            out.push(ClaimSays { says, kept, taken });
-        }
-    }
-    out
-}
-
-/// The product of an equation's denominators, both sides': what its sides
-/// are multiplied by to read it as a polynomial (`field::equation`).
-fn denominators(node: &Term, labels: &FloatLabels) -> Poly {
-    let sides: Vec<field::Quotient> = node
-        .children()
-        .iter()
-        .map(|side| field::read(side, labels))
-        .collect();
-    sides[0].under.times(&sides[1].under)
-}
-
-/// How one reading of the claim is a combination of the cited equations
-/// (`field::follows`), each cited equation read as `claim_says` reads it and
-/// holding the denominators `unders` it was not divided by, None where what
-/// was divided out does not divide them; `claim_under` is the claim's own
-/// denominators. Dividing both sides by a term is not a
-/// second thing a step does (`METHODS.md`, algebra), so the combination is
-/// also asked with each equation read with its own divisors divided out
-/// against the claim with its own: each is multiplied by the claim's
-/// divisors left over its own, and the multipliers found are carried back.
-/// A − (p/q − r/s) is (A + B − p/q) − (B − r/s), which as polynomials is s
-/// times one and q times the other.
-fn combination(
-    given: &[Poly],
-    unders: &[Option<Poly>],
-    says: &ClaimSays,
-    claim_under: &Poly,
-) -> Option<Vec<field::Taken>> {
-    if let Some(how) = field::follows(given, &says.says) {
-        return Some(how);
-    }
-    let left = field::exactly(claim_under, &says.taken)?;
-    let scales: Vec<Poly> = unders
-        .iter()
-        .map(|own| own.as_ref().and_then(|own| field::exactly(&left, own)))
-        .collect::<Option<_>>()?;
-    let scaled: Vec<Poly> =
-        given.iter().zip(&scales).map(|(g, s)| g.times(s)).collect();
-    let how = field::follows(&scaled, &says.says)?;
-    Some(
-        how.into_iter()
-            .map(|t| field::Taken::of(t.which, t.multiplier().times(&scales[t.which])))
-            .collect(),
-    )
-}
-
-/// The reading of a cited equation: the most divided out (`readings`).
-fn claim_says(claimed: &Term, want: Poly, labels: &FloatLabels) -> ClaimSays {
-    readings(claimed, want, labels)
-        .into_iter()
-        .next()
-        .expect("the reading with nothing divided out")
 }
 
 /// One fact a combination uses, and its weight.
@@ -1704,100 +1472,25 @@ impl<'a> Elaborator<'a> {
         lines: &Lines,
     ) -> Checked<()> {
         let labels = self.b.flabel.clone();
-        // Every power with a whole exponent is multiplied out, so one that
-        // may not be is refused wherever the step reads it.
-        let mut read = vec![term.to_string()];
-        for r in &step.just.refs {
-            if let Some(held) = lines.get(r) {
-                read.extend(self.parts(&held.term));
-            }
-        }
-        for said in &read {
-            if let Some(power) = field::past_expanding(&self.to_term(said), &labels) {
-                return Err(self.defect(
-                    step.line,
-                    format!(
-                        "{} is a power algebra does not multiply out: writing it \
-                         out costs more than {}, each step the cube of its terms \
-                         times the base's",
-                        self.render(&power.rpn(&labels)),
-                        field::WORK
-                    ),
-                ));
-            }
-        }
-        let claimed = self.to_term(term);
-        let Some(want) = field::equation(&claimed, &labels) else {
-            return self.decide_apart(step, term, shown, lines);
-        };
-        let claims = readings(&claimed, want, &labels);
-        let claim_under = denominators(&claimed, &labels);
-        let mut given = Vec::new();
-        let mut unders = Vec::new();
-        for r in &step.just.refs {
-            let Some(held) = lines.get(r) else {
-                continue;
-            };
-            for said in self.parts(&held.term) {
-                let node = self.to_term(&said);
-                if let Some(one) = field::equation(&node, &labels) {
-                    let read = claim_says(&node, one, &labels);
-                    let under =
-                        field::exactly(&denominators(&node, &labels), &read.taken);
-                    given.push(read.says);
-                    unders.push(under);
-                }
-            }
-        }
-        if !claims
+        let cited: Vec<Term> = step
+            .just
+            .refs
             .iter()
-            .any(|c| combination(&given, &unders, c, &claim_under).is_some())
-        {
-            return Err(self.defect(
-                step.line,
-                format!(
-                    "{} is not an identity, nor does it follow from what step {} cites, \
-                     added and subtracted with at most one equation multiplied by a term",
-                    self.render(shown),
-                    fmt(&step.number)
-                ),
-            ));
+            .filter_map(|r| lines.get(r))
+            .map(|held| self.to_term(&held.term))
+            .collect();
+        let verdict = algebra::decide(&self.to_term(term), &cited, &labels);
+        let render = |t: &Term| self.render(&t.rpn(&labels));
+        let said = algebra::refusal(
+            &verdict,
+            &self.render(shown),
+            &fmt(&step.number),
+            &render,
+        );
+        match said {
+            Some(said) => Err(self.defect(step.line, said)),
+            None => Ok(()),
         }
-        Ok(())
-    }
-
-    /// Refuse a disequality `algebra` step that is not a cited one rescaled:
-    /// the method is allowed one disequality and no more.
-    fn decide_apart(
-        &mut self,
-        step: &Step,
-        term: &str,
-        shown: &str,
-        lines: &Lines,
-    ) -> Checked<()> {
-        let labels = self.b.flabel.clone();
-        let Some(claim) = field::denied(&self.to_term(term), &labels) else {
-            return Ok(());
-        };
-        for r in &step.just.refs {
-            let Some(held) = lines.get(r) else {
-                continue;
-            };
-            for said in self.parts(&held.term) {
-                let one = field::denied(&self.to_term(&said), &labels);
-                if one.is_some() && rescales(one.as_ref(), Some(&claim)).is_some() {
-                    return Ok(());
-                }
-            }
-        }
-        Err(self.defect(
-            step.line,
-            format!(
-                "{} is not a rescaling of any disequality step {} cites",
-                self.render(shown),
-                fmt(&step.number)
-            ),
-        ))
     }
 
     /// Closed numerals, worked out and then said. Nothing is taken as

@@ -29,6 +29,8 @@ pub const VOCABULARY: &[(&str, usize)] = &[
     ("wceq", 2),
     ("wne", 2),
     ("wn", 1),
+    ("wa", 2),
+    ("w3a", 3),
     ("wbr", 3),
     ("clt", 0),
     ("cle", 0),
@@ -77,6 +79,16 @@ impl Targets {
             terms: targets::terms(records),
             literals,
         }
+    }
+
+    /// Whether any part of `node` is built by a target that uses `label`:
+    /// a part the deciders read, by labels `VOCABULARY` does not hold, as
+    /// more than an atom (a finite sum, `csu`, read as linear).
+    pub fn uses(&self, node: &Node, label: &str) -> bool {
+        node.walk().iter().any(|part| {
+            self.pattern(part)
+                .is_some_and(|p| p.split_whitespace().any(|t| t == label))
+        })
     }
 
     /// The target of the pattern `node` was built from; None for a
