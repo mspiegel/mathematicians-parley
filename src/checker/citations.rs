@@ -14,7 +14,8 @@ use crate::citing::{
     asked, bound_in, claimed_member, concludes, conjuncts, derives, filled, finished,
     function_values, identities_unsaid, names_of, obtained, obtains, readings,
     said_once, search, substitution_unsaid, supply, taken, taken_ways,
-    type_said_otherwise, with_parts, Group, Library, Parts, Sites, Taken, Ways,
+    type_said_otherwise, with_parts, Concluded, Group, Library, Parts, Sites, Taken,
+    Ways,
 };
 use crate::corpus::proof::{reason_as_step, Requires};
 use crate::corpus::{
@@ -253,7 +254,7 @@ pub fn obtained_there(
                 .map(|said| {
                     let there_is = readings(said, library)
                         .into_iter()
-                        .map(|(target, _)| target)
+                        .map(|r| r.claimed)
                         .find(|t| library.exists.contains(&t.notation))
                         .unwrap_or_else(|| said.clone());
                     filled(&there_is, &taken.binding, &library.ctx)
@@ -284,8 +285,8 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
     Some(Cited {
         item,
         group: taken.group,
+        concluded: across_groups(&taken, before),
         binding: taken.binding.into_iter().collect(),
-        sentences: taken.concluded.iter().map(|s| before + s).collect(),
         written: parts
             .seed
             .iter()
@@ -355,10 +356,23 @@ pub fn cited_requires(
     Some(Cited {
         item,
         group: taken.group,
+        concluded: across_groups(&taken, before),
         binding: taken.binding.into_iter().collect(),
-        sentences: taken.concluded.iter().map(|s| before + s).collect(),
         written: parts.seed.into_iter().collect(),
     })
+}
+
+/// What `taken` concludes, each sentence counted across the item's groups,
+/// `before` being the sentences of the groups ahead of the one it takes.
+fn across_groups(taken: &Taken, before: usize) -> Vec<Concluded> {
+    taken
+        .concluded
+        .iter()
+        .map(|c| Concluded {
+            sentence: before + c.sentence,
+            way: c.way,
+        })
+        .collect()
 }
 
 /// What a step citing a corpus theorem, other than to obtain, makes each of
@@ -1568,8 +1582,8 @@ fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
         // the witness and says nothing of the function.
         let mut pairs: Vec<(Node, &Node)> = Vec::new();
         for concl in gives {
-            for (target, _extra) in readings(concl, library) {
-                for cand in conjuncts(&target, library) {
+            for reading in readings(concl, library) {
+                for cand in conjuncts(&reading.claimed, library) {
                     for claim in &parts.claims {
                         pairs.push((cand.clone(), claim));
                     }

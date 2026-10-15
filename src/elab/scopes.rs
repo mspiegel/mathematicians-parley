@@ -1776,7 +1776,7 @@ impl<'a> Elaborator<'a> {
                             // "there is", as the obtain below reads it.
                             let there_is = crate::citing::readings(&node, &library)
                                 .into_iter()
-                                .map(|(target, _)| target)
+                                .map(|r| r.claimed)
                                 .find(|t| library.exists.contains(&t.notation))
                                 .unwrap_or_else(|| node.clone());
                             let said = me.g.print(&standard(&there_is, &library.ctx));

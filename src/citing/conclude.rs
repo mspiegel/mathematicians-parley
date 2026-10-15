@@ -13,7 +13,7 @@ use crate::matching::{
 use crate::outcome::{Built, Route};
 
 use super::asked::filled;
-use super::library::{conjuncts, either_way, readings, Group, Library};
+use super::library::{conjuncts, either_way, readings, Group, Library, Way};
 use super::once::{a_number_said_once, Introduced};
 use super::supply::{names_of, search, supply, Sites, Ways};
 use crate::rules;
@@ -321,17 +321,26 @@ pub struct Taken {
     /// value that gave it, and that letter stands for nothing at the
     /// citation: the s of `there is s ∈ S` is still the conclusion's own s.
     pub binding: Binding,
-    /// The conclusion of the group, by its place among the group's
-    /// sentences, each sentence of the claim takes, in the claim's order;
-    /// none for an obtain, which takes the group's "there is" whole.
-    pub concluded: Vec<usize>,
+    /// The conclusion of the group each sentence of the claim takes, in the
+    /// claim's order; none for an obtain, which takes the group's "there
+    /// is" whole.
+    pub concluded: Vec<Concluded>,
+}
+
+/// One conclusion of an item a sentence of a claim takes.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Concluded {
+    /// The conclusion, by its place among its group's sentences.
+    pub sentence: usize,
+    /// Which way it is read (`readings`).
+    pub way: Way,
 }
 
 impl Taken {
     fn of(
         group: usize,
         mut binding: Binding,
-        concluded: Vec<usize>,
+        concluded: Vec<Concluded>,
         of: &Group,
         library: &Library,
     ) -> Taken {
@@ -386,7 +395,13 @@ pub fn taken(
             None,
             &mut chosen,
         ) {
-            let concluded = chosen.iter().map(|&c| offer.from[c]).collect();
+            let concluded = chosen
+                .iter()
+                .map(|&c| Concluded {
+                    sentence: offer.from[c],
+                    way: offer.ways[c],
+                })
+                .collect();
             return Built(Taken::of(
                 group,
                 binding,
@@ -479,6 +494,8 @@ struct Offer {
     /// The conclusion each candidate is read from, by its place among the
     /// group's sentences.
     from: Vec<usize>,
+    /// Which way that conclusion is read for each candidate.
+    ways: Vec<Way>,
     /// The group's hypotheses, conjunct by conjunct.
     need: Vec<Node>,
     /// The item's letters, which the claim and the facts bind.
@@ -492,16 +509,21 @@ impl Offer {
         let Group { wants: want, gives } = group;
         let mut candidates: Vec<(Node, Vec<Node>)> = Vec::new();
         let mut from = Vec::new();
+        let mut ways = Vec::new();
         let mut sites = Sites::new();
         for (sentence, concl) in gives.iter().enumerate() {
             binding_sites(concl, &library.ctx, &[], &mut sites);
-            for (target, extra) in readings(concl, library) {
-                let first: Vec<Node> =
-                    extra.iter().flat_map(|e| conjuncts(e, library)).collect();
-                for c in conjuncts(&target, library) {
-                    for way in either_way(&c, library) {
-                        candidates.push((way, first.clone()));
+            for reading in readings(concl, library) {
+                let first: Vec<Node> = reading
+                    .first
+                    .iter()
+                    .flat_map(|e| conjuncts(e, library))
+                    .collect();
+                for c in conjuncts(&reading.claimed, library) {
+                    for turned in either_way(&c, library) {
+                        candidates.push((turned, first.clone()));
                         from.push(sentence);
+                        ways.push(reading.way);
                     }
                 }
             }
@@ -524,6 +546,7 @@ impl Offer {
             letter,
             candidates,
             from,
+            ways,
             need,
             variables,
             sites,
@@ -569,12 +592,16 @@ pub fn obtained(
             for t in &asked {
                 binding_sites(t, &library.ctx, &[], &mut sites);
             }
-            for (target, extra) in readings(concl, library) {
+            for reading in readings(concl, library) {
+                let target = reading.claimed;
                 // The "there is" is the reading's target or a part of it, and
                 // may be a property the definition applies, which the line
                 // the step cites decides.
-                let mut need: Vec<Node> =
-                    extra.iter().flat_map(|e| conjuncts(e, library)).collect();
+                let mut need: Vec<Node> = reading
+                    .first
+                    .iter()
+                    .flat_map(|e| conjuncts(e, library))
+                    .collect();
                 need.extend(asked.iter().cloned());
                 let variables = names_of(&need);
                 let found =

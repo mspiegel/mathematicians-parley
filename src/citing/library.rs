@@ -399,22 +399,55 @@ pub fn either_way(node: &Node, library: &Library) -> Vec<Node> {
     }
 }
 
-/// (what a step may claim, what a fact must state first), for one sentence
-/// of an item's conclusion.
+/// Which way a sentence of an item's conclusion is read (`readings`).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub enum Way {
+    /// The sentence claimed as it stands.
+    AsWritten,
+    /// "A ↔ B" or "if A then B", with A stated first and B claimed.
+    Forward,
+    /// "A ↔ B", with B stated first and A claimed.
+    Backward,
+}
+
+/// One reading of a sentence of an item's conclusion.
+pub struct Reading {
+    /// What a step may claim.
+    pub claimed: Node,
+    /// What a fact must state first.
+    pub first: Vec<Node>,
+    pub way: Way,
+}
+
+/// Each reading of one sentence of an item's conclusion.
 ///
 /// `SYNTAX.md` gives the moves: a sentence may be claimed as it stands;
 /// where it is "A ↔ B" and a fact states A the step may claim B, and the
 /// other way round; where it is "if A then B" and a fact states A the step
 /// may claim B.
-pub fn readings(node: &Node, library: &Library) -> Vec<(Node, Vec<Node>)> {
-    let mut out = vec![(node.clone(), Vec::new())];
+pub fn readings(node: &Node, library: &Library) -> Vec<Reading> {
+    let mut out = vec![Reading {
+        claimed: node.clone(),
+        first: Vec::new(),
+        way: Way::AsWritten,
+    }];
     if node.children.len() == 2 {
         let (left, right) = (&node.children[0], &node.children[1]);
+        if library.bicond.contains(&node.notation)
+            || library.implies.contains(&node.notation)
+        {
+            out.push(Reading {
+                claimed: right.clone(),
+                first: vec![left.clone()],
+                way: Way::Forward,
+            });
+        }
         if library.bicond.contains(&node.notation) {
-            out.push((right.clone(), vec![left.clone()]));
-            out.push((left.clone(), vec![right.clone()]));
-        } else if library.implies.contains(&node.notation) {
-            out.push((right.clone(), vec![left.clone()]));
+            out.push(Reading {
+                claimed: left.clone(),
+                first: vec![right.clone()],
+                way: Way::Backward,
+            });
         }
     }
     out

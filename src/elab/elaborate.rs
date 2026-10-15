@@ -935,7 +935,7 @@ impl<'a> Elaborator<'a> {
             self.list_implied(step, &facts)?;
             self.list_asked(step)?;
         }
-        let Some(how) = self.method_for(step, &term)? else {
+        let Some(how) = self.method_for(step)? else {
             return Err(
                 self.defect(step.line, format!("no expansion for {}", repr(&head)))
             );
@@ -1025,7 +1025,7 @@ impl<'a> Elaborator<'a> {
         }
         let node = self.read_one(&req.fact)?;
         let term = self.term(&node)?;
-        let Some(how) = self.method_for(&at, &term)? else {
+        let Some(how) = self.method_for(&at)? else {
             return Ok(Route::no(format!("no expansion for {}", repr(&req.how))));
         };
         let kept = std::mem::replace(&mut self.lines, lines.clone());
@@ -1056,7 +1056,7 @@ impl<'a> Elaborator<'a> {
     /// The method a step's justification names: one of the methods, or what
     /// citing its item comes to, by the item's kind and what it states. A
     /// requires line made a step (`requires_as_step`) is read the same way.
-    fn method_for(&mut self, step: &Step, term: &str) -> Checked<Option<Method>> {
+    fn method_for(&mut self, step: &Step) -> Checked<Option<Method>> {
         let head = step.just.head.to_string();
         let known_methods = [
             "algebra",
@@ -1091,7 +1091,7 @@ impl<'a> Elaborator<'a> {
             how = Some(if !item.fields.contains_key("target") {
                 Method::TakeDefinition
             } else if item.conclusions.iter().any(|(text, _)| text.contains('↔')) {
-                Method::Reading(self.reading(item, term, step, None)?)
+                Method::Reading(self.reading(item, step)?)
             } else {
                 Method::UnfoldEquation
             });
@@ -1414,12 +1414,12 @@ impl<'a> Elaborator<'a> {
             return Ok(labels);
         }
         let cited = self.cited_here(step, &item.qualified())?;
-        let taken: Vec<usize> = if cited.sentences.is_empty() {
+        let taken: Vec<usize> = if cited.concluded.is_empty() {
             let before: usize =
                 groups[..cited.group].iter().map(|g| g.gives.len()).sum();
             (before..before + groups[cited.group].gives.len()).collect()
         } else {
-            cited.sentences
+            cited.concluded.iter().map(|c| c.sentence).collect()
         };
         Ok(taken.into_iter().map(|s| labels[s].clone()).collect())
     }
@@ -2663,47 +2663,54 @@ impl<'a> Elaborator<'a> {
     }
 
     /// Which of three ways a biconditional definition reaches a claim: the
-    /// claim decides, and what the lemma states decides with it.
-    pub fn reading(
-        &mut self,
-        item: &'a Record,
-        term: &str,
-        step: &Step,
-        cites: Option<&[String]>,
-    ) -> Checked<Way> {
-        let refs = cites.unwrap_or(&step.just.refs);
-        for lemma in self.target_labels(step, item)? {
-            let mut whole = self.statement(&lemma);
-            while whole.label() == Some("wi") {
-                whole = whole.children()[1].clone();
+    /// way the checker read the citation (`Concluded::way`), with its right
+    /// side stated first unfolded from it and its left side stated first
+    /// read back to it. A lemma that is no biconditional is applied as it
+    /// stands, and a left side whose right side is a "there is" no line the
+    /// step cites says is shown from a witness.
+    pub fn reading(&mut self, item: &'a Record, step: &Step) -> Checked<Way> {
+        let Some(lemma) = self.cited_labels(step, item)?.into_iter().next() else {
+            return Ok(Way::Conclude);
+        };
+        let mut whole = self.statement(&lemma);
+        while whole.label() == Some("wi") {
+            whole = whole.children()[1].clone();
+        }
+        if whole.label() != Some("wb") {
+            return Ok(Way::Conclude);
+        }
+        let cited = self.cited_here(step, &item.qualified())?;
+        let ways: BTreeSet<citing::Way> =
+            cited.concluded.iter().map(|c| c.way).collect();
+        let way = match ways.into_iter().collect::<Vec<_>>().as_slice() {
+            [one] => *one,
+            _ => {
+                return Err(self.defect(
+                    step.line,
+                    format!(
+                        "the checker reads the sentences {} concludes here more than one way, and one lemma is applied one way",
+                        item.qualified()
+                    ),
+                ))
             }
-            if whole.label() != Some("wb") {
-                return Ok(Way::Conclude);
-            }
-            if whole.children()[1].label() == Some("wrex") {
-                // The existence claim itself is the definition unfolded from a
-                // line saying its left side; a left side is shown by a witness.
-                if self.to_term(term).label() == Some("wrex") {
-                    return Ok(Way::Unfolded);
-                }
-                if refs.iter().any(|r| {
+        };
+        Ok(match way {
+            citing::Way::AsWritten => Way::Conclude,
+            citing::Way::Forward => Way::Unfolded,
+            citing::Way::Backward => {
+                let there_is = whole.children()[1].label() == Some("wrex");
+                let said = step.just.refs.iter().any(|r| {
                     self.lines
                         .get(r)
                         .is_some_and(|l| self.to_term(&l.term).label() == Some("wrex"))
-                }) {
-                    return Ok(Way::Equivalent);
+                });
+                if there_is && !said {
+                    Way::Conclude
+                } else {
+                    Way::Equivalent
                 }
-                return Ok(Way::Conclude);
             }
-            let variables = names_of(&whole);
-            if self
-                .fits_as(&whole.children()[0], &self.to_term(term), &variables, None)
-                .is_some()
-            {
-                return Ok(Way::Equivalent);
-            }
-        }
-        Ok(Way::Unfolded)
+        })
     }
 
     /// A definition with no target, read off a line the step cites that

@@ -8,6 +8,7 @@
 
 use indexmap::IndexMap;
 
+use crate::citing::Concluded;
 use crate::corpus::{Step, StepNo, Theorem};
 use crate::formula::{Node, Sorts};
 use crate::outcome::Problem;
@@ -80,12 +81,13 @@ pub struct Cited {
     pub item: String,
     pub group: usize,
     pub binding: IndexMap<String, Node>,
-    /// The sentences of the item's conclusions the claim takes, each by its
-    /// place among them all, counted across the groups in order: the place
-    /// of the lemma that proves it in the item's target, which names one
-    /// lemma to a sentence (`targets::clauses`). None for an obtain, which
-    /// takes its group's "there is" whole.
-    pub sentences: Vec<usize>,
+    /// The sentences of the item's conclusions the claim takes, and which
+    /// way each is read, each sentence by its place among them all, counted
+    /// across the groups in order: the place of the lemma that proves it in
+    /// the item's target, which names one lemma to a sentence
+    /// (`targets::clauses`). None for an obtain, which takes its group's
+    /// "there is" whole.
+    pub concluded: Vec<Concluded>,
     /// What the citation's own pairs make the item's letters, `n := b`, as
     /// the checker reads them (`Parts::seed`): what an obtain unfolds a
     /// definition at, where it claims no conclusion of the item.
