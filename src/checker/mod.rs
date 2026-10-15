@@ -687,6 +687,7 @@ fn check_theorem(
     citations::check_from_lines(report, thm, library, k, scopes);
     citations::check_exhibited(report, thm, library, k);
     citations::check_instantiated(report, thm, library, k);
+    citations::check_instance_claimed(report, thm, library, k);
     citations::check_define_domains(report, thm, library, k, scopes);
     formulas::check_chain_links(report, thm, library, k, scopes);
     structure::check_last_step(report, thm, k);

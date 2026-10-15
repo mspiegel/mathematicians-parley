@@ -2805,6 +2805,106 @@ struct Binder {
     held: Option<Sort>,
 }
 
+/// An instantiation claims what its line says at the values it writes
+/// (`SYNTAX.md`, instantiate): the "for all" of the line binding the names
+/// it gives values, read at those values, and where what that says is an
+/// implication, what it concludes, its conditions being the lines the step
+/// cites. Compared as one formula (`Known::alike`), a claim of several
+/// sentences as their conjunction.
+pub fn check_instance_claimed(
+    report: &mut Report,
+    thm: &Theorem,
+    library: &Library,
+    known: &Known,
+) {
+    for step in &thm.steps {
+        if !step.just.head.is(Method::Instantiate) {
+            continue;
+        }
+        let Some(target) = step.just.target.clone() else {
+            continue;
+        };
+        // A line or claim that does not read is another check's to report.
+        let (Some(line), Some(claim)) = (
+            known.scope(step).get(&target).cloned(),
+            known.whole(step, &step.claim),
+        ) else {
+            continue;
+        };
+        let seed = &known.parts(step, library).seed;
+        let defined = known.citing_step(step);
+        let parts: Vec<Node> = known
+            .said_parts(&line, Some(&defined))
+            .into_iter()
+            .flatten()
+            .flat_map(|said| {
+                let mut all = vec![said.clone()];
+                all.extend(conjuncts(&said, library));
+                all
+            })
+            .collect();
+        let instances: Vec<Node> = parts
+            .iter()
+            .filter_map(|said| instance_at(said, seed, library))
+            .collect();
+        if instances.is_empty() {
+            continue; // no "for all" binds the names; the build reports it
+        }
+        if instances.iter().any(|i| concludes_claim(i, &claim, known)) {
+            continue;
+        }
+        // Said as the page writes the claim, not as it is compared.
+        let written = known
+            .whole_as_written(&step.claim)
+            .map_or_else(|| step.claim_text(), |w| known.print(&w));
+        report.say(
+            &thm.path,
+            step.just.line,
+            format!(
+                "{target} at those terms says {}, and the step claims {written}",
+                known.print(&instances[0]),
+            ),
+        );
+    }
+}
+
+/// What `said` says at the values `seed` gives the letters it binds, where
+/// it is a "for all" binding at least one of them; None otherwise.
+fn instance_at(said: &Node, seed: &Binding, library: &Library) -> Option<Node> {
+    let mut body = said.clone();
+    let mut put = Binding::new();
+    loop {
+        // "for all x ∈ S, B" and "for all X ⊆ A, B" bind x over a set;
+        // "for all sets X, B" binds X over every set.
+        let (letter, inner) = match (body.notation.as_str(), body.children.as_slice()) {
+            ("for-all" | "for-all-part", [letter, _, inner]) => (letter, inner),
+            ("for-all-sets", [letter, inner]) => (letter, inner),
+            _ => break,
+        };
+        let Some(value) = seed.get(&letter.text) else {
+            break;
+        };
+        put.insert(letter.text.clone(), value.clone());
+        body = inner.clone();
+    }
+    (!put.is_empty()).then(|| substitute_apart(&body, &put, &library.ctx))
+}
+
+/// Whether an instance is the claim, or concludes it once each condition
+/// of an implication is met.
+fn concludes_claim(instance: &Node, claim: &Node, known: &Known) -> bool {
+    let mut at = instance.clone();
+    loop {
+        if known.alike(&at, claim) {
+            return true;
+        }
+        match (at.notation.as_str(), at.children.as_slice()) {
+            ("implication" | "conditional", [_, then]) => at = then.clone(),
+            _ => return false,
+        }
+    }
+}
+
 /// The binders a sentence opens with, outermost first.
 fn binders_of(node: &Node) -> Vec<Binder> {
     let mut out = Vec::new();

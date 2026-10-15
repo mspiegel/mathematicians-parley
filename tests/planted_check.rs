@@ -634,6 +634,17 @@ fn cases() -> Vec<Case> {
             )],
             "4 divides 2 is a word divides defines, and arithmetic decides a word only where its record says so in a `decided` field",
         ),
+        // An instantiation claims what its line says at the values: H2 says
+        // 0 ≤ d(n) for every n, and not 0 ≥ d(n).
+        case(
+            "instantiate a line for what it does not say there",
+            vec![edit(
+                "proofs/reals-uncountable.proof",
+                Some("    16.6. 0 ≤ d(n) and d(n) ≤ 9\n          instantiate n := n in H2\n".to_string()),
+                "    16.6. 0 ≥ d(n) and d(n) ≤ 9\n          instantiate n := n in H2\n".to_string(),
+            )],
+            "H2 at those terms says 0 ≤ d(n) and d(n) ≤ 9, and the step claims 0 ≥ d(n) and d(n) ≤ 9",
+        ),
         // A requires line of `from` alone rests on the lines it names: f(b)
         // is real by f's type H4 and b's place in its domain, and with H4
         // left out nothing it names types f, the type in scope being no
