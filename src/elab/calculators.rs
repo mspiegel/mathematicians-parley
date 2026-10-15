@@ -4009,10 +4009,15 @@ impl<'a> Elaborator<'a> {
             &[],
         );
         let system_term = self.to_term(system);
+        let pointwise = self.divides_by_index(&summand, &letter);
         let each = self.frames_kept(|me| {
             let (inner, lifted) = me.fixed(scope, known, &index, &limits)?;
             let claim = Term::apply("wcel", vec![summand.clone(), system_term.clone()]);
-            me.member_of(&claim, &inner, &lifted, step)
+            if pointwise {
+                me.said_at_every_index(&claim, &inner, &lifted)
+            } else {
+                me.member_of(&claim, &inner, &lifted, step)
+            }
         })?;
         let each = take!(each);
         Ok(Built(self.b.ap(
@@ -4020,6 +4025,44 @@ impl<'a> Elaborator<'a> {
             &binds! {"ph" => scope, "A" => self.rpn(&limits), "B" => self.rpn(&summand), "k" => self.rpn(&index)},
             &[&finite, &each],
         )))
+    }
+
+    /// Whether a sum's term divides by something other than a numeral that
+    /// holds its index, `letter` as a proof spells it: a divisor no line
+    /// outside the sum can say is not zero (`SYNTAX.md`).
+    fn divides_by_index(&self, summand: &Term, letter: &str) -> bool {
+        if summand.variable().is_some() {
+            return false;
+        }
+        let kids = summand.children();
+        let here = summand.label() == Some("co")
+            && kids.len() == 3
+            && self.rpn(&kids[2]) == "cdiv"
+            && numerals::value(&kids[1]).is_none()
+            && self.rpn(&kids[1]).split_whitespace().any(|t| t == letter);
+        here || kids.iter().any(|k| self.divides_by_index(k, letter))
+    }
+
+    /// A sum's term at its index taken from a line the step cites saying it
+    /// at every point of a set holding the range (`instance_of_universal`,
+    /// `instance_at_a_term`), and from nothing else: its divisor holds the
+    /// index, which nothing outside the sum can say is not zero.
+    fn said_at_every_index(
+        &mut self,
+        claim: &Term,
+        scope: &str,
+        facts: &Facts,
+    ) -> Checked<Route<Proof>> {
+        // Only what the proof may rest on, as `settle` offers it.
+        let facts = &self.restable(facts);
+        let wanted = self.rpn(claim);
+        if let Some(p) = self.instance_of_universal(&wanted, scope, facts)? {
+            return Ok(Built(p));
+        }
+        if let Some(p) = self.instance_at_a_term(claim, scope, facts, 3)? {
+            return Ok(Built(p));
+        }
+        Ok(self.no("no line the step cites says {} at every index", &[&wanted]))
     }
 
     /// A claim of two sentences joined by "and", each proved in turn.

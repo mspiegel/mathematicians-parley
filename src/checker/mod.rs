@@ -78,7 +78,13 @@ impl Report {
 
 /// The closure methods whose steps a check of their own decides, which
 /// counts a step it leaves to the build itself (`Report::trust`).
-pub const DECIDED: [&str; 4] = ["algebra", "arithmetic", "inequalities", "join"];
+pub const DECIDED: [&str; 5] = [
+    "algebra",
+    "arithmetic",
+    "inequalities",
+    "join",
+    "membership",
+];
 
 /// What the check printed, and the status it exits with.
 pub use crate::said::Said as Outcome;
@@ -661,6 +667,7 @@ fn check_theorem(
     formulas::check_arithmetic_holds(report, thm, k, c.targets);
     formulas::check_algebra_holds(report, thm, k, c.targets);
     formulas::check_inequalities_holds(report, thm, k, c.targets);
+    formulas::check_membership_holds(report, thm, k, c.targets);
     formulas::check_membership_claims(report, thm, env, k);
     citations::check_hypotheses(report, thm, library, k);
     citations::check_conclusion(report, thm, library, k);

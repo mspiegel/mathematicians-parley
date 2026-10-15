@@ -20,6 +20,7 @@ use crate::formula::page::{disjoined, made, numeral, related, Written};
 use crate::formula::{walk, Node, Sort, Sorts};
 use crate::matching::{alike_top, free_names, substitute_apart_by, Binding};
 use crate::methods::field::{decide_closed, Verdict};
+use crate::methods::membership as methods_membership;
 use crate::methods::terms::{term_of_node, Targets};
 use crate::methods::{algebra, inequalities, linear};
 use crate::mm::kernel::{FloatLabels, Term};
@@ -1350,7 +1351,7 @@ fn algebra_holds(
     known: &Known,
     targets: &Targets,
 ) -> bool {
-    let Some(read) = at.read(known, targets) else {
+    let Some(read) = at.read(known, targets, false) else {
         return false;
     };
     let ranged = std::iter::once(&read.claimed)
@@ -1411,7 +1412,7 @@ fn inequalities_hold(
     known: &Known,
     targets: &Targets,
 ) -> bool {
-    let Some(read) = at.read(known, targets) else {
+    let Some(read) = at.read(known, targets, false) else {
         return false;
     };
     let labels = FloatLabels::new(IndexMap::new());
@@ -1438,6 +1439,175 @@ fn inequalities_hold(
         }
         None => false,
     }
+}
+
+/// What `membership` claims holds (`METHODS.md`, membership): a step's claim
+/// `t ∈ S`, or `for all k ∈ X, t ∈ S` at a member of X, and a requires
+/// line's whose reason is `membership`, each decided by
+/// `methods::membership::holds` from what the lines it cites say, the
+/// requires lines above it, what a membership among them implies, and the
+/// memberships the page says once.
+pub fn check_membership_holds(
+    report: &mut Report,
+    thm: &Theorem,
+    known: &Known,
+    targets: &Targets,
+) {
+    let binomials: IndexSet<String> = known
+        .env
+        .g
+        .functions
+        .iter()
+        .filter(|(_, f)| f.builds.split_whitespace().any(|t| t == "cbc"))
+        .map(|(name, _)| name.clone())
+        .collect();
+    for step in &thm.steps {
+        if step.just.head.is(Method::Membership) {
+            let at = ClosureClaim::step(step);
+            if !membership_holds(report, thm, &at, known, targets, &binomials) {
+                report.trust("membership", step);
+            }
+        }
+        for req in step.requires.iter().filter(|r| r.is(Method::Membership)) {
+            let at = ClosureClaim::requires(step, req);
+            membership_holds(report, thm, &at, known, targets, &binomials);
+        }
+    }
+}
+
+/// `check_membership_holds` of one claim; whether it was decided.
+fn membership_holds(
+    report: &mut Report,
+    thm: &Theorem,
+    at: &ClosureClaim,
+    known: &Known,
+    targets: &Targets,
+    binomials: &IndexSet<String>,
+) -> bool {
+    let Some(read) = at.read(known, targets, true) else {
+        return false;
+    };
+    let mut letters = super::library::introduced(known, at.step);
+    // A step's requires lines are among its facts in (`METHODS.md`), a
+    // requires line's are the lines above it, which `read` holds.
+    let mut lines = read.lines.clone();
+    if at.requires.is_none() {
+        let defined = known.citing_step(at.step);
+        for r in &at.step.requires {
+            lines.extend(
+                r.fact
+                    .sentences()
+                    .iter()
+                    .filter_map(|s| known.read_citing(s, &defined)),
+            );
+        }
+    }
+    // A claim said of every member is decided at a member; and a requires
+    // line of a step said of every member in one line speaks of the member
+    // (`SYNTAX.md`), which the step's claim puts in its set.
+    let mut ranged = IndexMap::new();
+    if at.requires.is_some() && at.step.openers.is_empty() {
+        let defined = known.citing_step(at.step);
+        if let [sentence] = at.step.claim.sentences().as_slice() {
+            if let Some(whole) = known.read_citing(sentence, &defined) {
+                if let ("for-all", [bound, set, _]) =
+                    (whole.notation.as_str(), whole.children.as_slice())
+                {
+                    member_of(bound, set, &mut letters, &mut ranged);
+                }
+            }
+        }
+    }
+    let mut claimed = read.claimed.clone();
+    if let ("for-all", [bound, set, body]) =
+        (claimed.notation.as_str(), claimed.children.as_slice())
+    {
+        if !member_of(bound, set, &mut letters, &mut ranged) {
+            return false;
+        }
+        claimed = body.clone();
+    }
+    let ("membership", [term, set]) =
+        (claimed.notation.as_str(), claimed.children.as_slice())
+    else {
+        return false;
+    };
+    let Some(system) = (set.notation == "number-systems")
+        .then(|| crate::rules::system_of(&set.text))
+        .flatten()
+    else {
+        return false;
+    };
+    let mut facts: Vec<Node> = lines.iter().flat_map(conjuncts).collect();
+    let implied: Vec<Node> = facts
+        .iter()
+        .flat_map(|f| implied_facts(f, known.env, &known.sorts))
+        .collect();
+    facts.extend(implied);
+    for f in &facts {
+        if let ("membership", [name, set]) =
+            (f.notation.as_str(), f.children.as_slice())
+        {
+            if let (true, Some(system)) =
+                (name.is_name(), crate::rules::system_of(&set.text))
+            {
+                letters.entry(name.text.clone()).or_insert(system);
+            }
+        }
+    }
+    let typed = super::library::typed_in_scope(known, at.step);
+    let mut typed_too: Vec<Node> = facts
+        .iter()
+        .filter(|f| f.notation == "function-type")
+        .cloned()
+        .collect();
+    typed_too.extend(typed);
+    let given = methods_membership::Facts {
+        facts: &facts,
+        letters,
+        ranged,
+        typed: &typed_too,
+        binomials,
+        ctx: known.ctx,
+    };
+    if !methods_membership::holds(term, system, &given) {
+        let number = at.step.number.to_string();
+        let said = format!("{} is not built from what step {number} cites", at.claim);
+        report.say(&thm.path, at.line, at.said(said));
+    }
+    true
+}
+
+/// The letter a "for all" binds, put in the number system its set lies in,
+/// and where the set is a range, as running over it; false where the set is
+/// neither a number system nor a range.
+fn member_of(
+    bound: &Node,
+    set: &Node,
+    letters: &mut crate::citing::Introduced,
+    ranged: &mut IndexMap<String, methods_membership::Range>,
+) -> bool {
+    let system = match set.notation.as_str() {
+        "number-systems" => crate::rules::system_of(&set.text),
+        "integer-range" => crate::citing::range_system(set),
+        _ => None,
+    };
+    let (Some(system), true) = (system, bound.is_name()) else {
+        return false;
+    };
+    letters.insert(bound.text.clone(), system);
+    if let ("integer-range", [start, end]) =
+        (set.notation.as_str(), set.children.as_slice())
+    {
+        ranged.insert(
+            bound.text.clone(),
+            methods_membership::Range {
+                start: start.clone(),
+                end: end.clone(),
+            },
+        );
+    }
+    true
 }
 
 /// A claim a closure method is asked of: a step's own, or a requires line's
@@ -1491,10 +1661,16 @@ impl<'s> ClosureClaim<'s> {
     /// The claim and what it cites, read with the defines it cites written
     /// out; None for a claim of more than one sentence, or one that does
     /// not read, which `check_formulas` reports. Of the requires lines
-    /// above, a disequality is left out: two terms differing is taken only
-    /// from a line the claim cites (`METHODS.md`), as the build reads it
-    /// (`as_a_step`).
-    fn read(&self, known: &Known, targets: &Targets) -> Option<ClosureRead> {
+    /// above, a disequality is left out where `differing` does not keep it:
+    /// two terms differing is taken only from a line the claim cites
+    /// (`METHODS.md`), as the build reads it (`as_a_step`), and `membership`
+    /// reads a divisor's `≠ 0` above it.
+    fn read(
+        &self,
+        known: &Known,
+        targets: &Targets,
+        differing: bool,
+    ) -> Option<ClosureRead> {
         let sentences = self.claim.sentences();
         let [claim] = sentences.as_slice() else {
             return None;
@@ -1517,9 +1693,9 @@ impl<'s> ClosureClaim<'s> {
                 let Some(said) = known.read_citing(&s, &defined) else {
                     continue;
                 };
-                let differing = linear::fact(&term_of_node(&said, targets), &labels)
+                let apart = linear::fact(&term_of_node(&said, targets), &labels)
                     .is_some_and(|f| f.how == linear::How::Ne);
-                if !differing {
+                if differing || !apart {
                     lines.push(said);
                 }
             }

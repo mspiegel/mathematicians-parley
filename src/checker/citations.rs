@@ -1039,17 +1039,29 @@ fn terms_unsaid(
         let Some((letter, term)) = t.pointwise() else {
             continue;
         };
-        if !t.needs_saying()
-            || parts
-                .facts
-                .iter()
-                .any(|f| t.said_pointwise(f, known, &asks.ctx))
-        {
-            continue;
-        }
         let [_, domain, codomain] = t.asked.children.as_slice() else {
             continue;
         };
+        // A term dividing by the type's letter is said at every point by a
+        // line; one holding a sum whose term divides by that sum's index is
+        // a number where `membership` would build it, the sum's term said
+        // at every point by a line the citation names.
+        let inner = !t.inner_sums().is_empty();
+        if !t.needs_saying() && !inner {
+            continue;
+        }
+        if parts
+            .facts
+            .iter()
+            .any(|f| t.said_pointwise(f, known, &asks.ctx))
+        {
+            continue;
+        }
+        if !t.needs_saying()
+            && term_built(letter, term, domain, codomain, step, &parts.facts, known)
+        {
+            continue;
+        }
         report.say(
             &thm.path,
             line,
@@ -1063,6 +1075,72 @@ fn terms_unsaid(
             ),
         );
     }
+}
+
+/// Whether a term a function hypothesis asks at every point of `domain` is
+/// in `codomain` as `membership` builds it (`methods::membership::holds`),
+/// from the facts a citation is given, the letter at a point of the domain.
+fn term_built(
+    letter: &str,
+    term: &Node,
+    domain: &Node,
+    codomain: &Node,
+    step: &Step,
+    facts: &[Node],
+    known: &Known,
+) -> bool {
+    let Some(system) = (codomain.notation == "number-systems")
+        .then(|| rules::system_of(&codomain.text))
+        .flatten()
+    else {
+        return false;
+    };
+    let mut letters = super::library::introduced(known, step);
+    let mut ranged = IndexMap::new();
+    match (domain.notation.as_str(), domain.children.as_slice()) {
+        ("number-systems", _) => {
+            if let Some(s) = rules::system_of(&domain.text) {
+                letters.insert(letter.to_string(), s);
+            }
+        }
+        ("integer-range", [start, end]) => {
+            if let Some(s) = range_system(domain) {
+                letters.insert(letter.to_string(), s);
+            }
+            ranged.insert(
+                letter.to_string(),
+                crate::methods::membership::Range {
+                    start: start.clone(),
+                    end: end.clone(),
+                },
+            );
+        }
+        _ => return false,
+    }
+    let mut typed = typed_in_scope(known, step);
+    typed.extend(
+        facts
+            .iter()
+            .filter(|f| f.notation == "function-type")
+            .cloned(),
+    );
+    let binomials: IndexSet<String> = known
+        .env
+        .g
+        .functions
+        .iter()
+        .filter(|(_, f)| f.builds.split_whitespace().any(|t| t == "cbc"))
+        .map(|(name, _)| name.clone())
+        .collect();
+    let given = crate::methods::membership::Facts {
+        facts,
+        letters,
+        ranged,
+        typed: &typed,
+        binomials: &binomials,
+        ctx: known.ctx,
+    };
+    crate::methods::membership::holds(term, system, &given)
 }
 
 /// A `substitute` claims the line it puts its equation into with one side
@@ -1691,6 +1769,39 @@ impl AskedType {
         })
     }
 
+    /// The sums inside the term the type asks at every point whose own
+    /// term divides by their index: Σ(k = 1 to n) 1/k inside `x : ℕ → ℝ`
+    /// at x := n ↦ Σ(k = 1 to n) 1/k.
+    fn inner_sums(&self) -> Vec<Node> {
+        let Some((_, term)) = self.pointwise() else {
+            return Vec::new();
+        };
+        term.walk()
+            .into_iter()
+            .filter(|part| {
+                crate::methods::membership::Summed::of(part).is_some_and(|s| {
+                    crate::methods::membership::divides_by(s.body, s.index)
+                })
+            })
+            .collect()
+    }
+
+    /// Whether `node` says an inner sum's term at every point of its range
+    /// (`inner_sums`), in the type's codomain.
+    fn says_inner_term(&self, node: &Node, ctx: &Context) -> bool {
+        let Some(codomain) = self.asked.children.get(2) else {
+            return false;
+        };
+        let Some(system) = rules::system_of(&codomain.text) else {
+            return false;
+        };
+        self.inner_sums().iter().any(|sum| {
+            crate::methods::membership::Summed::of(sum).is_some_and(|s| {
+                crate::methods::membership::said_pointwise(node, &s, system, ctx)
+            })
+        })
+    }
+
     /// Whether `node` says, at every point of a set holding the type's
     /// domain, that the term is in the type's codomain: `for all k ∈ ℕ,
     /// 1/T(k) ∈ ℝ` for `t : {1, …, n} → ℝ`, ℕ holding every member of a
@@ -1768,9 +1879,13 @@ fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
     // What the match makes a function the item applies, a rule: a sum's
     // summand, which a type asks of every point (`AskedType::pointwise`).
     let mut rules = Binding::new();
-    if let Built(taken) =
+    // An obtain claims the witness, and is read for what it obtains through.
+    let read = if just.head.is(Method::Obtain) {
+        obtained(&groups, &parts.facts, &parts.seed, library)
+    } else {
         taken(&groups, &parts.claims, &parts.facts, &parts.seed, library)
-    {
+    };
+    if let Built(taken) = read {
         for (name, value) in taken.binding {
             if value.notation == PROPERTY {
                 rules.insert(name, value);
@@ -1859,7 +1974,9 @@ impl FamilyAsks {
     /// hypothesis asks: its type, or a sum's term at every point.
     fn states(&self, node: &Node, known: &Known) -> bool {
         self.types.iter().any(|t| {
-            t.stated_by(node, known) || t.said_pointwise(node, known, &self.ctx)
+            t.stated_by(node, known)
+                || t.said_pointwise(node, known, &self.ctx)
+                || t.says_inner_term(node, &self.ctx)
         })
     }
 

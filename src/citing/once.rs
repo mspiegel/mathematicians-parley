@@ -186,7 +186,7 @@ pub fn a_number_said_once(
 
 /// Whether `term` is in `system` by what the page says once, or by `said`,
 /// which puts a term in a system as a line stating it does.
-fn within(
+pub fn within(
     term: &Node,
     system: &str,
     letters: &Introduced,
@@ -247,7 +247,7 @@ fn within(
 /// Whether a divisor is a numeral other than zero, the one divisor whose
 /// `≠ 0` a step need not write (`SYNTAX.md`): 10^0 is worked out to 1, and
 /// is no numeral.
-fn numeral_nonzero(divisor: &Node) -> bool {
+pub fn numeral_nonzero(divisor: &Node) -> bool {
     divisor.notation == "numeral" && value(divisor).is_some_and(|v| !v.is_zero())
 }
 

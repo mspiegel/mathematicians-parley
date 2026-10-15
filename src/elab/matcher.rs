@@ -700,19 +700,36 @@ impl<'a> Elaborator<'a> {
                     continue;
                 };
                 let ph = self.rpn(&body);
-                let tie = self.to_term(&t!(
-                    t!(mark, at, "wceq"),
-                    t!(ph, instance, "wb"),
-                    "wi"
-                ));
-                let Built(asked) = self.prove_essential(&tie, scope, facts)? else {
-                    continue;
+                // At the letter it binds the instance is the body itself, and
+                // `rsp` takes it: `rspcv` keeps its term apart from the letter.
+                let applied = if at == mark {
+                    // `rsp` takes the "for all" first and the membership
+                    // second, the other way round from `rspcv`.
+                    let taken = self.b.ap(
+                        "rsp",
+                        &binds! {"ph" => &ph, "x" => &letter, "A" => &domain},
+                        &[],
+                    );
+                    self.b.ap(
+                        "com12",
+                        &binds! {"ph" => &said, "ps" => &member, "ch" => &ph},
+                        &[&taken],
+                    )
+                } else {
+                    let tie = self.to_term(&t!(
+                        t!(mark, at, "wceq"),
+                        t!(ph, instance, "wb"),
+                        "wi"
+                    ));
+                    let Built(asked) = self.prove_essential(&tie, scope, facts)? else {
+                        continue;
+                    };
+                    self.b.ap(
+                        "rspcv",
+                        &binds! {"ph" => &ph, "ps" => &instance, "x" => &letter, "A" => &at, "B" => &domain},
+                        &[&asked],
+                    )
                 };
-                let applied = self.b.ap(
-                    "rspcv",
-                    &binds! {"ph" => &ph, "ps" => &instance, "x" => &letter, "A" => &at, "B" => &domain},
-                    &[&asked],
-                );
                 let carried = pf!(self.b; scope, member, t!(said, instance, "wi"), inside, applied, "syl");
                 let proof = pf!(self.b; scope, said, instance, held, carried, "mpd");
                 let Some(across) = across else {
@@ -734,7 +751,7 @@ impl<'a> Elaborator<'a> {
     /// "for all i ∈ {1, …, 1}, i/(i + 1)! ∈ ℝ" is read at the numeral 1,
     /// which no line puts in {1, …, 1}. A membership asked in a wider number
     /// system than the body says is the body's carried there (`bridged`).
-    fn instance_at_a_term(
+    pub(crate) fn instance_at_a_term(
         &mut self,
         wanted: &Term,
         scope: &str,

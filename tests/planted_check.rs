@@ -2130,9 +2130,9 @@ fn cases() -> Vec<Case> {
         case(
             "an obtain whose membership is not the one its there is gives",
             vec![
-                edit("proofs/harmonic.proof", Some("    1.2.  B ∈ ℝ. For all m ∈ ℕ, Σ(k = 1 to m) 1/k ≤ B.".to_string()), "    1.2.  B ∈ ℚ. For all m ∈ ℕ, Σ(k = 1 to m) 1/k ≤ B.".to_string()),
+                edit("proofs/harmonic.proof", Some("    2.2.  B ∈ ℝ. For all m ∈ ℕ, Σ(k = 1 to m) 1/k ≤ B.".to_string()), "    2.2.  B ∈ ℚ. For all m ∈ ℕ, Σ(k = 1 to m) 1/k ≤ B.".to_string()),
             ],
-            "step 1.2 claims B ∈ ℚ, and what it obtains says B ∈ ℝ",
+            "step 2.2 claims B ∈ ℚ, and what it obtains says B ∈ ℝ",
         ),
         case(
             "an obtain from a line that says no there is",
@@ -2760,9 +2760,9 @@ fn cases() -> Vec<Case> {
         case(
             "exhibit a witness whose membership is not said, with a numeral in the body",
             vec![
-                edit("proofs/harmonic.proof", Some("    exhibit, from 4, 5\n".to_string()), "    exhibit, from 4\n".to_string()),
+                edit("proofs/harmonic.proof", Some("    exhibit, from 5, 6\n".to_string()), "    exhibit, from 5\n".to_string()),
             ],
-            "step 6 exhibits n := 2^N, so it needs 2^N ∈ ℕ",
+            "step 7 exhibits n := 2^N, so it needs 2^N ∈ ℕ",
         ),
         // A requires line rests on the lines above it, read top to bottom
         // (`SYNTAX.md`). Written first, |numer(x)| ∈ ℕ₀ asks for numer(x) ∈ ℤ,

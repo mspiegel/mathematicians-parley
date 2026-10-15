@@ -9,8 +9,16 @@ theorem sum-under-a-hypothesis-over-its-letter
   assume Σ(k = 1 to n) 1/k ≥ 0                                        (H2)
   then Σ(k = 1 to n + 1) 1/k ∈ ℝ
 
-1.  Σ(k = 1 to n + 1) 1/k ∈ ℝ
-    membership
+1.  For all k ∈ ℕ, 1/k ∈ ℝ.
+    proof
+    let k ∈ ℕ                                                         (K1)
+
+    1.1.  1/k ∈ ℝ
+          membership
+          requires k ≠ 0: from K1
+
+2.  Σ(k = 1 to n + 1) 1/k ∈ ℝ
+    membership, from 1
 
 theorem termwise-under-a-hypothesis-over-its-letter
   note        The hypothesis sums over k, and the lemma that rewrites a sum

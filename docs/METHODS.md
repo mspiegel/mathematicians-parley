@@ -671,7 +671,7 @@ refused for any of them.
 
 ## membership
 
-`requires for all k ∈ ℕ, 1/T(k) ∈ ℝ: membership` — a term is in a number
+`2.3.  1/T(k) ∈ ℝ: membership, from D1, 2.2` — a term is in a number
 system because its parts are. The method states as a step's claim what `algebra` and
 `inequalities` already work out for every atom they touch, and it exists so
 that a dull fact of this kind is one line rather than a climb up the term one
@@ -683,10 +683,12 @@ value, a sum, a remainder or a binomial coefficient in it.
 ### Facts in
 
 The step's requires lines and the lines it cites, read for what they say
-(`SYNTAX.md`: `let k ∈ ℕ` also says k ∈ ℝ and k ≠ 0). A defined name is read
-as its rule, T(k) as k(k + 1)/2, where the step cites its define, as it is
-wherever a formula is compared: `requires Σ(k = 1 to n) 1/T(k) ∈ ℝ:
-membership, from D1`.
+(`SYNTAX.md`: `let k ∈ ℕ` also says k ∈ ℝ and k ≠ 0); a requires line's are
+the lines its reason names and the requires lines above it. A defined name
+is read as its rule, T(k) as k(k + 1)/2, where the step cites its define, as
+it is wherever a formula is compared: `1/T(k) ∈ ℝ: membership, from D1, 2.2`,
+where 2.2 says k(k + 1)/2 ≠ 0. A type in scope, `a : {1, …, n} → ℝ`, says
+a(k) ∈ ℝ where k is in {1, …, n}.
 
 A cited equation with the term on one side says the term is in whatever the
 other side is in, as a reader takes a(0) = 0 to say a(0) is a number:
@@ -710,7 +712,8 @@ two steps, and both tools refuse it as one.
 The term is walked by the operation at its head, as `algebra` walks it:
 
 - a sum, difference, product or power is in S when its parts are
-  (`readdcld`, `remulcld` and the rest of the closure table);
+  (`readdcld`, `remulcld` and the rest of the closure table), a power's
+  exponent in ℕ₀: 2^j ∈ ℤ where j ∈ ℕ₀;
 - a negation is in S when what it negates is, for S that holds negatives;
 - a quotient is in ℚ, ℝ or ℂ when its parts are and its divisor is not zero,
   which a cited line says by saying it, or by saying the divisor is above
@@ -721,17 +724,22 @@ The term is walked by the operation at its head, as `algebra` walks it:
   and k in ℤ (`bccl`);
 - a sum over a range {a, …, b} is in ℝ or ℂ when its term is, for each index
   in the range (`fsumrecl`, `fsumcl`); the index is in ℕ where the range
-  starts at 1, by the table of `SYNTAX.md`, so Σ(k = 1 to n) 1/T(k) ∈ ℝ asks
-  the page for nothing;
+  starts at 1, by the table of `SYNTAX.md`. A term dividing by something
+  that holds the index has a divisor no line outside the sum can say is not
+  zero, so the step cites a line saying the term at every point of a set
+  holding the range: `Σ(k = 1 to n) 1/k ∈ ℝ: membership, from 4`, where 4
+  says for all k ∈ ℕ, 1/k ∈ ℝ;
+- a term by cases, what a define by cases writes out to, is in S when each
+  of its values is: s(x) ∈ ℕ₀ where s is 0 or 1;
 - anything else is an atom, and its membership is a line the step cites or
   writes, or for a letter the line introducing it, carried to S by at most one
   lemma (`nnre`, `zcn` and the rest), or
   a cited equation with the atom on one side, the other side's membership
   read the same way and carried across by `eqeltrd`.
 
-A divisor is not zero when a line says so, when it is a numeral other than
-zero, when it is built in ℕ (`nnne0`: k + 1 where k ∈ ℕ), or when it is a
-product or quotient of parts that are not zero (`mulne0d`, `divne0d`).
+A divisor is not zero when a line says so, as `d ≠ 0` or as a sign, or when
+it is a numeral other than zero (`SYNTAX.md`); one built in ℕ, k + 1, or a
+product of parts that are not zero, says so in a line of its own.
 
 ### Refusals
 
@@ -751,8 +759,9 @@ are the lines the method reads, not conditions it asks of the step.
 
 The closure lemmas the table names, `divcld`, `redivcld` and `qdivcl` for
 quotients (set.mm states ℚ's in closed form, `qaddcl` and the rest, and
-`syl2anc` discharges them),
-`mulne0d` and `divne0d` for a divisor's disequality, and where the claim
+`syl2anc` discharges them), `gt0ne0d` and `lt0ne0d` for a divisor's
+disequality said as a sign, `rspcv` for a sum's term read off the line saying
+it at every point, and where the claim
 names a define, the claim read as its rule and carried back by the equation
 the define gives (`mpbid`).
 

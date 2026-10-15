@@ -361,7 +361,7 @@ fn cases() -> Vec<Case> {
             "proofs/mean-value.proof",
             "    membership, from D1, D2\n    requires f(x) ∈ ℝ: from H4\n    requires b − a ≠ 0: inequalities, from H1, H2, H3\n    requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H1, H2, H4, 1, 2\n",
             "    membership, from D1, D2\n    requires f(x) ∈ ℝ: from H4\n    requires b − a ≠ 0: inequalities, from H1, H2, H3\n    requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H1, H2, H3, H4, 2\n",
-            "the requires line (f(a) − f(b))/(b − a) ∈ ℝ of step 8, read as a step citing what it cites: (f(a) − f(b)) / (b − a) ∈ ℝ is not built",
+            "the requires line (f(a) − f(b))/(b − a) ∈ ℝ of step 8, read as a step citing what it cites: (f(a) − f(b))/(b − a) ∈ ℝ is not built",
         ),
         // g(x) is real because of what g is, and a step that uses what a
         // define says cites it (`SYNTAX.md`). Without the define g stays a
@@ -563,9 +563,9 @@ fn cases() -> Vec<Case> {
             "an obtain whose membership is not the one its there is gives",
             "proofs/harmonic/harmonic",
             "proofs/harmonic.proof",
-            "    1.2.  B ∈ ℝ. For all m ∈ ℕ, Σ(k = 1 to m) 1/k ≤ B.",
-            "    1.2.  B ∈ ℚ. For all m ∈ ℕ, Σ(k = 1 to m) 1/k ≤ B.",
-            "step 1.2 claims B ∈ ℚ",
+            "    2.2.  B ∈ ℝ. For all m ∈ ℕ, Σ(k = 1 to m) 1/k ≤ B.",
+            "    2.2.  B ∈ ℚ. For all m ∈ ℕ, Σ(k = 1 to m) 1/k ≤ B.",
+            "step 2.2 claims B ∈ ℚ",
         ),
         case(
             "an obtain from a line that says no there is",
