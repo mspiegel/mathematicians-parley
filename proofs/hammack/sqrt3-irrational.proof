@@ -1,0 +1,195 @@
+import theorem            proofs/wiedijk/sqrt2-irrational/lowest-terms
+import mundane definition stdlib/divisibility/divides
+import mundane definition stdlib/divisibility/even
+import mundane definition stdlib/divisibility/odd
+import mundane theorem    stdlib/divisibility/not-both
+import mundane theorem    stdlib/divisibility/divides-le
+import mundane definition stdlib/divisibility/prime
+import mundane theorem    stdlib/divisibility/prime-coprime
+import theorem            stdlib/divisibility/coprime-divides
+import mundane definition stdlib/divisibility/gcd
+import mundane theorem    stdlib/divisibility/gcd-commutes
+import mundane theorem    stdlib/numbers/le-cases
+import mundane theorem    stdlib/numbers/le-antisymmetric
+import mundane theorem    stdlib/numbers/integer-step
+import mundane definition stdlib/numbers/irrational
+import mundane definition stdlib/numbers/sqrt
+import mundane theorem    stdlib/reasoning/or-left
+import mundane theorem    stdlib/reasoning/or-right
+
+theorem three-prime
+  note        A divisor of 3 is at most 3. It is not 2, since 3 is odd and
+              2 divides only even numbers; so it is 1 or 3.
+  then 3 is prime
+
+1.  3 > 1
+    arithmetic
+
+2.  For all d ∈ ℕ, if d divides 3 then d = 1 or d = 3.
+    proof
+    let d ∈ ℕ                                                         (K)
+    assume d divides 3                                                (H)
+
+    2.1.  d ≤ 3
+          mun:divides-le e := d, m := 3, from H
+
+    2.2.  1 ≤ d
+          inequalities, from K
+
+    2.3.  1 < d or 1 = d
+          mun:le-cases x := 1, y := d, from 2.2
+
+    2.4.  d = 1 or d = 3
+          cases, from 2.3
+
+          case
+          assume 1 < d                                                (C1)
+
+          2.4.1.  1 + 1 ≤ d
+                  mun:integer-step m := 1, n := d, from C1
+
+          2.4.2.  2 ≤ d
+                  inequalities, from 2.4.1
+
+          2.4.3.  2 < d or 2 = d
+                  mun:le-cases x := 2, y := d, from 2.4.2
+
+          2.4.4.  d = 1 or d = 3
+                  cases, from 2.4.3
+
+                  case
+                  assume 2 < d                                        (C3)
+
+                  2.4.4.1.  2 + 1 ≤ d
+                            mun:integer-step m := 2, n := d, from C3
+
+                  2.4.4.2.  d ≤ 3 and 3 ≤ d
+                            inequalities, from 2.1, 2.4.4.1
+
+                  2.4.4.3.  d = 3
+                            mun:le-antisymmetric x := d, y := 3, from 2.4.4.2
+
+                  2.4.4.4.  d = 1 or d = 3
+                            mun:or-right, from 2.4.4.3
+
+                  case
+                  assume 2 = d                                        (C4)
+
+                  2.4.4.5.  2 divides 3
+                            substitute d = 2 (C4) into H
+
+                  2.4.4.6.  k ∈ ℤ. 3 = 2k.
+                            obtain k: mun:divides d := 2, n := 3, from 2.4.4.5
+
+                  2.4.4.7.  3 is even
+                            mun:even n := 3, from 2.4.4.6
+
+                  2.4.4.8.  3 = 2·1 + 1
+                            arithmetic
+
+                  2.4.4.9.  3 is odd
+                            mun:odd n := 3, from 2.4.4.8
+
+                  2.4.4.10. 3 is not odd
+                            mun:not-both n := 3, from 2.4.4.7, contradicting 2.4.4.9
+
+          case
+          assume 1 = d                                                (C2)
+
+          2.4.5.  d = 1 or d = 3
+                  mun:or-left, from C2
+
+3.  3 is prime
+    mun:prime p := 3, from 1, 2
+
+
+theorem three-divides-square
+  note        If 3 did not divide n it would have no factor in common with n,
+              since 3 is prime; and a number sharing no factor with n and
+              dividing n·n divides n.
+  let n ∈ ℤ                                                           (H1)
+  assume 3 divides n²                                                 (H2)
+  then 3 divides n
+
+1.  3 divides n
+    contradiction
+    suppose not (3 divides n)                                         (S)
+
+    1.1.  3 is prime
+          thm:three-prime
+
+    1.2.  gcd(3, n) = 1
+          mun:prime-coprime p := 3, a := n, from S, 1.1
+
+    1.3.  gcd(n, 3) = gcd(3, n)
+          mun:gcd-commutes a := n, b := 3
+
+    1.4.  gcd(n, 3) = 1
+          calculation
+            gcd(n, 3) = gcd(3, n)    1.3
+                      = 1            1.2
+
+    1.5.  n² = n·n
+          algebra
+
+    1.6.  3 divides n·n
+          substitute n² = n·n (line 1.5) into H2
+
+    1.7.  3 divides n
+          thm:coprime-divides x := n, c := n, n := 3, from 1.4, 1.6, contradicting S
+
+
+theorem sqrt3-irrational
+  note        Suppose √3 = p/q in lowest terms. Then p² = 3q², so 3 divides
+              p; writing p = 3r gives q² = 3r², so 3 divides q too, which
+              lowest terms rules out.
+  then √3 is irrational
+
+1.  (√3)² = 3
+    mun:sqrt x := 3
+    requires 3 ≥ 0: arithmetic
+
+2.  √3 ∉ ℚ
+    contradiction
+    suppose √3 ∈ ℚ                                                    (S)
+
+    2.1.  p ∈ ℤ. q ∈ ℤ. q > 0. √3 = p/q.
+          There is no d ∈ ℤ with d > 1, d divides p, and d divides q.
+          obtain p, q: thm:lowest-terms x := √3, from S
+
+    2.2.  (p/q)² = 3
+          substitute √3 = p/q (line 2.1) into line 1
+
+    2.3.  p² = 3q²
+          algebra, from 2.2
+          requires q ≠ 0: inequalities, from 2.1
+
+    2.4.  3 divides p²
+          mun:divides d := 3, n := p², from 2.3
+
+    2.5.  3 divides p
+          thm:three-divides-square n := p, from 2.4
+
+    2.6.  r ∈ ℤ. p = 3r.
+          obtain r: mun:divides d := 3, n := p, from 2.5
+
+    2.7.  (3r)² = 3q²
+          substitute p = 3r (line 2.6) into line 2.3
+
+    2.8.  q² = 3r²
+          algebra, from 2.7
+
+    2.9.  3 divides q²
+          mun:divides d := 3, n := q², from 2.8
+
+    2.10. 3 divides q
+          thm:three-divides-square n := q, from 2.9
+
+    2.11. There is d ∈ ℤ with d > 1, d divides p, and d divides q.
+          exhibit, from 2.5, 2.10, contradicting 2.1
+          requires 3 > 1: arithmetic
+
+3.  √3 is irrational
+    mun:irrational x := √3, from 2
+    requires 3 ≥ 0: arithmetic
+    requires √3 ∈ ℝ: mun:sqrt x := 3

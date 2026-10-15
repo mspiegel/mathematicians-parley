@@ -1,0 +1,50 @@
+import theorem            proofs/hammack/gcd-integer-natural/gcd-integer-natural
+import mundane definition stdlib/divisibility/gcd
+import mundane theorem    stdlib/divisibility/divides-combination
+import mundane theorem    stdlib/divisibility/divides-difference
+import mundane theorem    stdlib/divisibility/divides-multiple
+import mundane theorem    stdlib/divisibility/divides-one
+import mundane theorem    stdlib/numbers/pos-int-nat
+import mundane theorem    stdlib/numbers/square-nonneg
+
+theorem odd-and-quartic-coprime
+  note        A common divisor g of 2n + 1 and 4n² + 1 divides 4n² + 1 less
+              (2n + 1)(2n − 1), which is 2, and so divides (2n + 1) − n·2,
+              which is 1.
+  let n ∈ ℤ                                                           (H1)
+  then gcd(2n + 1, 4n² + 1) = 1
+
+1.  n² ≥ 0
+    mun:square-nonneg x := n
+
+2.  4n² + 1 ∈ ℕ
+    mun:pos-int-nat m := 4n² + 1
+    requires 0 < 4n² + 1: inequalities, from 1
+
+3.  gcd(2n + 1, 4n² + 1) ∈ ℕ. gcd(2n + 1, 4n² + 1) divides 2n + 1.
+    gcd(2n + 1, 4n² + 1) divides 4n² + 1.
+    thm:gcd-integer-natural a := 2n + 1, b := 4n² + 1, from 2
+
+4.  gcd(2n + 1, 4n² + 1) divides (2n + 1)·(2n − 1)
+    mun:divides-multiple e := gcd(2n + 1, 4n² + 1), a := 2n + 1, x := 2n − 1, from 3
+
+5.  gcd(2n + 1, 4n² + 1) divides 4n² + 1 − (2n + 1)·(2n − 1)
+    mun:divides-difference d := gcd(2n + 1, 4n² + 1), a := 4n² + 1, b := (2n + 1)·(2n − 1), from 3, 4
+
+6.  4n² + 1 − (2n + 1)·(2n − 1) = 2
+    algebra
+
+7.  gcd(2n + 1, 4n² + 1) divides 2
+    substitute 4n² + 1 − (2n + 1)·(2n − 1) = 2 (line 6) into line 5
+
+8.  gcd(2n + 1, 4n² + 1) divides (2n + 1)·1 + 2·(−n)
+    mun:divides-combination e := gcd(2n + 1, 4n² + 1), a := 2n + 1, b := 2, x := 1, y := −n, from 3, 7
+
+9.  (2n + 1)·1 + 2·(−n) = 1
+    algebra
+
+10. gcd(2n + 1, 4n² + 1) divides 1
+    substitute (2n + 1)·1 + 2·(−n) = 1 (line 9) into line 8
+
+11. gcd(2n + 1, 4n² + 1) = 1
+    mun:divides-one d := gcd(2n + 1, 4n² + 1), from 3, 10

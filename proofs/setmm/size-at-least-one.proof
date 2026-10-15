@@ -1,0 +1,60 @@
+import mundane theorem    stdlib/counting/card-singleton
+import mundane theorem    stdlib/counting/card-subset
+import mundane theorem    stdlib/sets/disjoint-empty
+import mundane theorem    stdlib/sets/intersection-self
+import mundane theorem    stdlib/sets/singleton-subset
+
+theorem size-at-least-one
+  metamath    hashge1
+  note        A set with an element a holds the one-element set {a}, which has
+              1 element, so it has at least 1.
+  let A be a set                                                      (H1)
+  assume A ≠ ∅                                                        (H2)
+  then 1 ≤ |A|
+
+1.  there is a ∈ A
+    contradiction
+    suppose not (there is a ∈ A)                                      (S)
+
+    1.1.  For all s ∈ A, s ∉ A.
+          proof
+          let s ∈ A                                                   (K)
+
+          1.1.1.  s ∉ A
+                  contradiction
+                  suppose s ∈ A                                       (S2)
+
+                  1.1.1.1.  there is a ∈ A
+                            exhibit, from S2
+
+                  1.1.1.2.  not (there is a ∈ A)
+                            join S, contradicting 1.1.1.1
+
+    1.2.  A ∩ A = ∅
+          mun:disjoint-empty Y := A, Z := A, from 1.1
+
+    1.3.  A ∩ A = A
+          mun:intersection-self Y := A
+
+    1.4.  A = ∅
+          calculation
+            A = A ∩ A     1.3
+              = ∅         1.2
+
+    1.5.  not (A = ∅)
+          join H2, contradicting 1.4
+
+2.  a ∈ A
+    obtain a from line 1
+
+3.  {a} ⊆ A
+    mun:singleton-subset, from 2
+
+4.  |{a}| ≤ |A|
+    mun:card-subset A := {a}, B := A, from 3
+
+5.  |{a}| = 1
+    mun:card-singleton x := a
+
+6.  1 ≤ |A|
+    substitute |{a}| = 1 (line 5) into line 4

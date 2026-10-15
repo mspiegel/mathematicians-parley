@@ -1,0 +1,85 @@
+import mundane theorem stdlib/divisibility/mod-value
+import mundane theorem stdlib/numbers/floor-above
+import mundane theorem stdlib/numbers/floor-below
+import mundane theorem stdlib/numbers/floor-integer
+import mundane theorem stdlib/numbers/less-scaled
+import mundane theorem stdlib/numbers/multiply-le
+
+theorem remainder-nonnegative
+  note        The remainder is A less B times the whole number q below A/B. That q is at most A/B, so B·q is at most A, and the remainder is not below 0.
+  let A ∈ ℝ                                                           (H1)
+  let B ∈ ℝ                                                           (H2)
+  assume B > 0                                                        (H3)
+  then 0 ≤ A mod B
+
+1.  B ≠ 0
+    inequalities, from H3
+
+let q = ⌊A/B⌋, an integer                                             (D1)
+    mun:floor-integer x := A/B, from 1
+    reads the whole number of B's that fit below A
+
+2.  A mod B = A − B·q
+    mun:mod-value a := A, b := B, from D1, H3
+
+3.  q ≤ A/B
+    mun:floor-below x := A/B, from D1, 1
+
+4.  B·q ≤ B·(A/B)
+    mun:multiply-le x := q, y := A/B, c := B, from H3, 3
+
+5.  B·(A/B) = A
+    algebra, from 1
+
+6.  B·q ≤ A
+    calculation
+      B·q ≤ B·(A/B)     4
+          = A           5
+
+7.  0 ≤ A − B·q
+    inequalities, from 6
+
+8.  0 ≤ A mod B
+    substitute A mod B = A − B·q (line 2) into line 7
+
+
+theorem remainder-below-divisor
+  note        The whole number q below A/B has A/B less than q + 1, so A is less than B·(q + 1), which is B·q + B, and the remainder A − B·q is less than B.
+  let A ∈ ℝ                                                           (H1)
+  let B ∈ ℝ                                                           (H2)
+  assume B > 0                                                        (H3)
+  then A mod B < B
+
+1.  B ≠ 0
+    inequalities, from H3
+
+let q = ⌊A/B⌋, an integer                                             (D1)
+    mun:floor-integer x := A/B, from 1
+    reads the whole number of B's that fit below A
+
+2.  A mod B = A − B·q
+    mun:mod-value a := A, b := B, from D1, H3
+
+3.  A/B < q + 1
+    mun:floor-above x := A/B, from D1, 1
+
+4.  B·(A/B) < B·(q + 1)
+    mun:less-scaled x := A/B, y := q + 1, c := B, from H3, 3
+
+5.  B·(A/B) = A
+    algebra, from 1
+
+6.  B·(q + 1) = B·q + B
+    algebra
+
+7.  A < B·q + B
+    calculation
+      A = B·(A/B)       5
+        < B·(q + 1)     4
+        = B·q + B       6
+
+8.  A − B·q < B
+    inequalities, from 7
+
+9.  A mod B < B
+    substitute A mod B = A − B·q (line 2) into line 8

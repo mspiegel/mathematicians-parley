@@ -1,0 +1,109 @@
+import mundane definition stdlib/sets/difference
+import mundane definition stdlib/sets/intersection
+import mundane definition stdlib/sets/subset
+import mundane definition stdlib/sets/union
+import mundane theorem    stdlib/sets/in-union-left
+import mundane theorem    stdlib/sets/in-union-right
+import mundane theorem    stdlib/sets/subset-antisymmetric
+import mundane axiom      stdlib/reasoning/excluded-middle
+
+theorem difference-of-intersection
+  note        An element of A outside B ∩ C is outside B or outside C, and
+              the converse is as short.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  let C be a set                                                      (H3)
+  then A ∖ (B ∩ C) = (A ∖ B) ∪ (A ∖ C)
+
+1.  For all t ∈ A ∖ (B ∩ C), t ∈ (A ∖ B) ∪ (A ∖ C).
+    proof
+    let t ∈ A ∖ (B ∩ C)                                               (K1)
+
+    1.1.  t ∈ A. t ∉ B ∩ C.
+          mun:difference u := t, Y := A, Z := B ∩ C, from K1
+
+    1.2.  t ∈ B or t ∉ B
+          mun:excluded-middle P := t ∈ B
+
+    1.3.  t ∈ (A ∖ B) ∪ (A ∖ C)
+          cases, from 1.2
+
+          case
+          note t is in B, so it cannot be in C
+          assume t ∈ B                                                (C1)
+
+          1.3.1.  t ∉ C
+                  contradiction
+                  suppose t ∈ C                                       (S1)
+
+                  1.3.1.1.  t ∈ B ∩ C
+                            mun:intersection u := t, Y := B, Z := C, from C1, S1, contradicting 1.1
+
+          1.3.2.  t ∈ A ∖ C
+                  mun:difference u := t, Y := A, Z := C, from 1.1, 1.3.1
+
+          1.3.3.  t ∈ (A ∖ B) ∪ (A ∖ C)
+                  mun:in-union-right u := t, Y := A ∖ B, Z := A ∖ C, from 1.3.2
+
+          case
+          note t is not in B, so it is in A ∖ B
+          assume t ∉ B                                                (C2)
+
+          1.3.4.  t ∈ A ∖ B
+                  mun:difference u := t, Y := A, Z := B, from C2, 1.1
+
+          1.3.5.  t ∈ (A ∖ B) ∪ (A ∖ C)
+                  mun:in-union-left u := t, Y := A ∖ B, Z := A ∖ C, from 1.3.4
+
+2.  A ∖ (B ∩ C) ⊆ (A ∖ B) ∪ (A ∖ C)
+    mun:subset, from 1
+
+3.  For all t ∈ (A ∖ B) ∪ (A ∖ C), t ∈ A ∖ (B ∩ C).
+    proof
+    let t ∈ (A ∖ B) ∪ (A ∖ C)                                         (K2)
+
+    3.1.  t ∈ A ∖ B or t ∈ A ∖ C
+          mun:union u := t, Y := A ∖ B, Z := A ∖ C, from K2
+
+    3.2.  t ∈ A ∖ (B ∩ C)
+          cases, from 3.1
+
+          case
+          note t is outside B, so outside B ∩ C
+          assume t ∈ A ∖ B                                            (C3)
+
+          3.2.1.  t ∈ A. t ∉ B.
+                  mun:difference u := t, Y := A, Z := B, from C3
+
+          3.2.2.  t ∉ B ∩ C
+                  contradiction
+                  suppose t ∈ B ∩ C                                   (S2)
+
+                  3.2.2.1.  t ∈ B
+                            mun:intersection u := t, Y := B, Z := C, from S2, contradicting 3.2.1
+
+          3.2.3.  t ∈ A ∖ (B ∩ C)
+                  mun:difference u := t, Y := A, Z := B ∩ C, from 3.2.1, 3.2.2
+
+          case
+          note t is outside C, so outside B ∩ C
+          assume t ∈ A ∖ C                                            (C4)
+
+          3.2.4.  t ∈ A. t ∉ C.
+                  mun:difference u := t, Y := A, Z := C, from C4
+
+          3.2.5.  t ∉ B ∩ C
+                  contradiction
+                  suppose t ∈ B ∩ C                                   (S3)
+
+                  3.2.5.1.  t ∈ C
+                            mun:intersection u := t, Y := B, Z := C, from S3, contradicting 3.2.4
+
+          3.2.6.  t ∈ A ∖ (B ∩ C)
+                  mun:difference u := t, Y := A, Z := B ∩ C, from 3.2.4, 3.2.5
+
+4.  (A ∖ B) ∪ (A ∖ C) ⊆ A ∖ (B ∩ C)
+    mun:subset, from 3
+
+5.  A ∖ (B ∩ C) = (A ∖ B) ∪ (A ∖ C)
+    mun:subset-antisymmetric, from 2, 4

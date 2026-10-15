@@ -1,0 +1,22 @@
+import mundane definition stdlib/divisibility/gcd
+import mundane theorem    stdlib/divisibility/divides-le
+import theorem            stdlib/divisibility/divides-gcd
+
+theorem common-divisor-at-most-gcd
+  note        A common divisor divides the greatest common divisor, and a
+              divisor of a natural number is at most that number.
+  let K ∈ ℕ                                                           (H1)
+  let M ∈ ℕ                                                           (H2)
+  let N ∈ ℕ                                                           (H3)
+  assume K divides M                                                  (H4)
+  assume K divides N                                                  (H5)
+  then K ≤ gcd(M, N)
+
+1.  K divides gcd(M, N)
+    thm:divides-gcd d := K, a := M, b := N, from H4, H5
+
+2.  gcd(M, N) ∈ ℕ
+    mun:gcd a := M, b := N
+
+3.  K ≤ gcd(M, N)
+    mun:divides-le e := K, m := gcd(M, N), from 1, 2

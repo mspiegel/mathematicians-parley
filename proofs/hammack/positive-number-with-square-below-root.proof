@@ -1,0 +1,31 @@
+import mundane definition stdlib/numbers/sqrt
+import mundane theorem    stdlib/numbers/square-less
+
+theorem positive-number-with-square-below-root
+  note        x = 1/4 has x² = 1/16 and √x = 1/2; 1/16 < √(1/4) because
+              squaring, which keeps the order of nonnegative numbers, makes
+              them 1/256 and 1/4.
+  then there exists x ∈ ℝ such that x > 0 and x² < √x
+
+1.  √(1/4) ∈ ℝ. √(1/4) ≥ 0. (√(1/4))² = 1/4.
+    mun:sqrt x := 1/4
+    requires 1/4 ≥ 0: arithmetic
+
+2.  (1/16)² < 1/4
+    arithmetic
+
+3.  (1/16)² < (√(1/4))²
+    substitute (√(1/4))² = 1/4 (line 1) into line 2
+
+4.  1/16 < √(1/4)
+    mun:square-less x := 1/16, y := √(1/4), from 1, 3
+    requires 1/16 ≥ 0: arithmetic
+
+5.  (1/4)² < √(1/4)
+    substitute 1/16 = (1/4)² (arithmetic) into line 4
+
+6.  1/4 > 0
+    arithmetic
+
+7.  There exists x ∈ ℝ such that x > 0 and x² < √x.
+    exhibit, from 5, 6

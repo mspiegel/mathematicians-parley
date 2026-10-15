@@ -1,0 +1,61 @@
+import mundane definition stdlib/divisibility/congruent-mod
+import mundane definition stdlib/divisibility/divides
+import mundane theorem    stdlib/divisibility/mod-equal-congruent
+import mundane theorem    stdlib/divisibility/mod-multiple
+import mundane theorem    stdlib/divisibility/mod-remainder
+
+theorem difference-remainder-zero
+  note        A − B leaves remainder 0 when it is a whole number of N's,
+              q·N, and then A is q·N + B, which has B's remainder. Read
+              backwards, equal remainders make A − B a whole number of N's.
+  let A ∈ ℤ                                                           (H1)
+  let B ∈ ℤ                                                           (H2)
+  let N ∈ ℕ                                                           (H3)
+  then (A − B) mod N = 0 ↔ A mod N = B mod N
+
+1.  (A − B) mod N = 0 ↔ A mod N = B mod N
+    both directions
+
+    direction
+    assume (A − B) mod N = 0                                          (C1)
+
+    1.1.  There is q ∈ ℤ with q·N + 0 = A − B.
+          mun:mod-remainder a := A − B, m := N, r := 0, from C1
+          requires 0 < N: inequalities, from H3
+
+    1.2.  q ∈ ℤ. q·N + 0 = A − B.
+          obtain q from line 1.1
+
+    1.3.  A = q·N + B
+          algebra, from 1.2
+
+    1.4.  (q·N + B) mod N = B mod N
+          mun:mod-multiple r := B, m := N
+
+    1.5.  A mod N = B mod N
+          substitute A = q·N + B (line 1.3) into line 1.4
+
+    direction
+    assume A mod N = B mod N                                          (C2)
+
+    1.6.  A ≡ B (mod N)
+          mun:mod-equal-congruent, from C2
+
+    1.7.  N divides A − B
+          mun:congruent-mod, from 1.6
+
+    1.8.  There is k ∈ ℤ with A − B = N·k.
+          mun:divides d := N, n := A − B, from 1.7
+
+    1.9.  k ∈ ℤ. A − B = N·k.
+          obtain k from line 1.8
+
+    1.10. k·N + 0 = A − B
+          algebra, from 1.9
+
+    1.11. There is q ∈ ℤ with q·N + 0 = A − B.
+          exhibit, from 1.10
+
+    1.12. (A − B) mod N = 0
+          mun:mod-remainder a := A − B, m := N, r := 0, from 1.11
+          requires 0 < N: inequalities, from H3

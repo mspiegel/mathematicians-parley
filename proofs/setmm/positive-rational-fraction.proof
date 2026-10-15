@@ -1,0 +1,45 @@
+import mundane theorem    stdlib/numbers/divide-le
+import mundane theorem    stdlib/numbers/pos-int-nat
+import mundane definition stdlib/numbers/rational
+
+theorem positive-rational-fraction
+  note        A rational is p/q with p an integer and q a natural number.
+              When it is positive, p cannot be 0 or below, since then p/q
+              would be at most 0/q, which is 0. So p is a natural number too.
+  let A ∈ ℝ                                                           (H1)
+  assume A ∈ ℚ                                                        (H2)
+  assume 0 < A                                                        (H3)
+  then there are x, y ∈ ℕ with A = x/y
+
+1.  p ∈ ℤ. q ∈ ℕ. A = p/q.
+    obtain p, q: mun:rational x := A, from H2
+
+2.  0 < p
+    contradiction
+    suppose not (0 < p)                                               (S)
+
+    2.1.  p ≤ 0
+          inequalities, from S
+
+    2.2.  p/q ≤ 0/q
+          mun:divide-le x := p, y := 0, c := q, from 2.1
+          requires q > 0: inequalities, from 1
+
+    2.3.  0/q = 0
+          algebra
+          requires q ≠ 0: inequalities, from 1
+
+    2.4.  A ≤ 0
+          calculation
+            A = p/q        1
+              ≤ 0/q        2.2
+              = 0          2.3
+
+    2.5.  not A ≤ 0
+          inequalities, from H3, contradicting 2.4
+
+3.  p ∈ ℕ
+    mun:pos-int-nat m := p, from 2
+
+4.  There are x, y ∈ ℕ with A = x/y.
+    exhibit, from 1, 3

@@ -1,0 +1,27 @@
+theorem adding-strict-bounds
+  note        Adding the two bounds: A + B < C + B, and C + B < C + D.
+  let A ∈ ℝ                                                           (H1)
+  let B ∈ ℝ                                                           (H2)
+  let C ∈ ℝ                                                           (H3)
+  let D ∈ ℝ                                                           (H4)
+  assume A < C                                                        (H5)
+  assume B < D                                                        (H6)
+  then A + B < C + D
+
+1.  A + B < C + D
+    inequalities, from H5, H6
+
+
+theorem adding-bounds
+  note        As adding-strict-bounds, with each bound allowed to be an
+              equality.
+  let A ∈ ℝ                                                           (H1)
+  let B ∈ ℝ                                                           (H2)
+  let C ∈ ℝ                                                           (H3)
+  let D ∈ ℝ                                                           (H4)
+  assume A ≤ C                                                        (H5)
+  assume B ≤ D                                                        (H6)
+  then A + B ≤ C + D
+
+1.  A + B ≤ C + D
+    inequalities, from H5, H6

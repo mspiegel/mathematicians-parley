@@ -1,0 +1,116 @@
+import mundane definition stdlib/functions/image
+import mundane theorem    stdlib/functions/value-in-image
+import mundane definition stdlib/sets/subset
+import mundane definition stdlib/sets/union
+import mundane theorem    stdlib/sets/union-subset
+import mundane theorem    stdlib/sets/subset-antisymmetric
+import mundane theorem    stdlib/sets/in-union-left
+import mundane theorem    stdlib/sets/in-union-right
+
+theorem image-of-union
+  note        F sends B ∪ C to what it sends B together with what it sends C:
+              a value F(s) for s in B ∪ C has s in B or in C.
+  let A be a set                                                      (H1)
+  let Y be a set                                                      (H2)
+  let F : A → Y                                                       (H3)
+  let B ⊆ A                                                           (H4)
+  let C ⊆ A                                                           (H5)
+  then F[B ∪ C] = F[B] ∪ F[C]
+
+1.  B ∪ C ⊆ A
+    mun:union-subset, from H4, H5
+
+2.  For all u ∈ F[B ∪ C], u ∈ F[B] ∪ F[C].
+    proof
+    let u ∈ F[B ∪ C]                                                  (K1)
+
+    2.1.  there is s ∈ B ∪ C with u = F(s)
+          mun:image X := A, Y := B ∪ C, from K1, 1
+
+    2.2.  s ∈ B ∪ C. u = F(s).
+          obtain s from line 2.1
+
+    2.3.  s ∈ B or s ∈ C
+          mun:union, from 2.2
+
+    2.4.  u ∈ F[B] ∪ F[C]
+          cases, from 2.3
+
+          case
+          assume s ∈ B                                                (C1)
+
+          2.4.1.  F(s) ∈ F[B]
+                  mun:value-in-image, from C1, H4
+
+          2.4.2.  u ∈ F[B]
+                  substitute u = F(s) (line 2.2) into line 2.4.1
+
+          2.4.3.  u ∈ F[B] ∪ F[C]
+                  mun:in-union-left, from 2.4.2
+
+          case
+          assume s ∈ C                                                (C2)
+
+          2.4.4.  F(s) ∈ F[C]
+                  mun:value-in-image, from C2, H5
+
+          2.4.5.  u ∈ F[C]
+                  substitute u = F(s) (line 2.2) into line 2.4.4
+
+          2.4.6.  u ∈ F[B] ∪ F[C]
+                  mun:in-union-right, from 2.4.5
+
+3.  F[B ∪ C] ⊆ F[B] ∪ F[C]
+    mun:subset, from 2
+
+4.  For all u ∈ F[B] ∪ F[C], u ∈ F[B ∪ C].
+    proof
+    let u ∈ F[B] ∪ F[C]                                               (K2)
+
+    4.1.  u ∈ F[B] or u ∈ F[C]
+          mun:union, from K2
+
+    4.2.  u ∈ F[B ∪ C]
+          cases, from 4.1
+
+          case
+          assume u ∈ F[B]                                             (C3)
+
+          4.2.1.  there is s ∈ B with u = F(s)
+                  mun:image X := A, Y := B, from C3, H4
+
+          4.2.2.  s ∈ B. u = F(s).
+                  obtain s from line 4.2.1
+
+          4.2.3.  s ∈ B ∪ C
+                  mun:in-union-left, from 4.2.2
+
+          4.2.4.  F(s) ∈ F[B ∪ C]
+                  mun:value-in-image, from 1, 4.2.3
+
+          4.2.5.  u ∈ F[B ∪ C]
+                  substitute u = F(s) (line 4.2.2) into line 4.2.4
+
+          case
+          assume u ∈ F[C]                                             (C4)
+
+          4.2.6.  there is s ∈ C with u = F(s)
+                  mun:image X := A, Y := C, from C4, H5
+
+          4.2.7.  s ∈ C. u = F(s).
+                  obtain s from line 4.2.6
+
+          4.2.8.  s ∈ B ∪ C
+                  mun:in-union-right, from 4.2.7
+
+          4.2.9.  F(s) ∈ F[B ∪ C]
+                  mun:value-in-image, from 1, 4.2.8
+
+          4.2.10. u ∈ F[B ∪ C]
+                  substitute u = F(s) (line 4.2.7) into line 4.2.9
+
+5.  F[B] ∪ F[C] ⊆ F[B ∪ C]
+    mun:subset, from 4
+
+6.  F[B ∪ C] = F[B] ∪ F[C]
+    mun:subset-antisymmetric, from 3, 5

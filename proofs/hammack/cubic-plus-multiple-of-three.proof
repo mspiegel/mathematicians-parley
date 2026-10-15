@@ -1,0 +1,38 @@
+import mundane theorem    stdlib/divisibility/divides-multiple
+import mundane theorem    stdlib/divisibility/divides-self
+import mundane theorem    stdlib/divisibility/divides-sum
+
+theorem cubic-plus-multiple-of-three
+  note        By induction on n: (n + 1)³ + 5(n + 1) + 6 is n³ + 5n + 6
+              plus 3(n² + n + 2), and 3 divides both parts.
+  let n ∈ ℕ₀                                                          (H1)
+  then 3 divides n³ + 5n + 6
+
+1.  For all k ∈ ℕ₀, 3 divides k³ + 5k + 6.
+    induction on k starting at 0
+
+    base
+    1.1.  3 divides 0³ + 5·0 + 6
+          arithmetic
+
+    step
+    let k ∈ ℕ₀                                                        (K)
+    assume step 1 is true for k, the induction hypothesis             (IH)
+
+    1.2.  3 divides 3
+          mun:divides-self n := 3
+
+    1.3.  3 divides 3·(k² + k + 2)
+          mun:divides-multiple e := 3, a := 3, x := k² + k + 2, from 1.2
+
+    1.4.  3 divides (k³ + 5k + 6) + 3·(k² + k + 2)
+          mun:divides-sum d := 3, a := k³ + 5k + 6, b := 3·(k² + k + 2), from IH, 1.3
+
+    1.5.  (k³ + 5k + 6) + 3·(k² + k + 2) = (k + 1)³ + 5(k + 1) + 6
+          algebra
+
+    1.6.  3 divides (k + 1)³ + 5(k + 1) + 6
+          substitute (k³ + 5k + 6) + 3·(k² + k + 2) = (k + 1)³ + 5(k + 1) + 6 (line 1.5) into line 1.4
+
+2.  3 divides n³ + 5n + 6
+    instantiate k := n in line 1

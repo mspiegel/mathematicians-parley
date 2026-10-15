@@ -1,0 +1,38 @@
+import mundane definition stdlib/divisibility/gcd
+import mundane theorem    stdlib/divisibility/mod-multiple
+import theorem            stdlib/divisibility/gcd-mod
+
+theorem gcd-minus-second-natural
+  note        The exercise for b a natural number. Taking a away a whole
+              number of b's changes no remainder on division by b, and the
+              gcd is the gcd of the remainder and b.
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℕ                                                           (H2)
+  then gcd(a, b) = gcd(a − b, b)
+
+1.  gcd(a mod b, b) = gcd(a, b)
+    thm:gcd-mod
+
+2.  a − b ∈ ℤ
+    membership
+
+3.  gcd((a − b) mod b, b) = gcd(a − b, b)
+    thm:gcd-mod a := a − b
+
+4.  ((−1)·b + a) mod b = a mod b
+    mun:mod-multiple r := a, m := b, q := −1
+
+5.  (−1)·b + a = a − b
+    algebra
+
+6.  (a − b) mod b = a mod b
+    substitute (−1)·b + a = a − b (line 5) into line 4
+
+7.  gcd((a − b) mod b, b) = gcd(a mod b, b)
+    substitute (a − b) mod b = a mod b (line 6)
+
+8.  gcd(a, b) = gcd(a − b, b)
+    calculation
+      gcd(a, b) = gcd(a mod b, b)           1
+                = gcd((a − b) mod b, b)     7
+                = gcd(a − b, b)             3

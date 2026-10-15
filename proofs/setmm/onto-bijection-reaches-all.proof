@@ -1,0 +1,16 @@
+import theorem            proofs/setmm/value-of-onto/value-of-onto
+
+theorem onto-bijection-reaches-all
+  note        Every point of B is in the image of A, so F reaches it.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  let F : A → B be one-to-one                                         (H3)
+  assume F[A] = B                                                     (H4)
+  then for all y ∈ B, there is x ∈ A with y = F(x)
+
+1.  For all y ∈ B, there is x ∈ A with y = F(x).
+    proof
+    let y ∈ B                                                         (K1)
+
+    1.1.  there is x ∈ A with y = F(x)
+          thm:value-of-onto, from H4, K1

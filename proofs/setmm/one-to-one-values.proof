@@ -1,0 +1,22 @@
+import mundane definition stdlib/functions/one-to-one
+import mundane theorem    stdlib/reasoning/modus-ponens
+
+theorem one-to-one-values
+  note        A one-to-one function sends no two points to one value, so two
+              points with the same value are the same point.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  let F : A → B be one-to-one                                         (H3)
+  let C ∈ A                                                           (H4)
+  let D ∈ A                                                           (H5)
+  assume F(C) = F(D)                                                  (H6)
+  then C = D
+
+1.  For all s, t ∈ A, if F(s) = F(t) then s = t.
+    mun:one-to-one, from H3
+
+2.  if F(C) = F(D) then C = D
+    instantiate s := C, t := D in line 1, from H4, H5
+
+3.  C = D
+    mun:modus-ponens, from H6, 2

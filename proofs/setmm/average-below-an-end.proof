@@ -1,0 +1,22 @@
+theorem average-below-an-end
+  metamath    avglt2
+  note        The average of A and B lies below B by half of B − A, so it is
+              below B exactly when A is.
+  let A ∈ ℝ                                                           (H1)
+  let B ∈ ℝ                                                           (H2)
+  then A < B ↔ (A + B)/2 < B
+
+1.  A < B ↔ (A + B)/2 < B
+    both directions
+
+    direction
+    assume A < B                                                      (D1)
+
+    1.1.  (A + B)/2 < B
+          inequalities, from D1
+
+    direction
+    assume (A + B)/2 < B                                              (D2)
+
+    1.2.  A < B
+          inequalities, from D2

@@ -1,0 +1,99 @@
+import mundane definition stdlib/divisibility/divides
+import mundane theorem    stdlib/divisibility/divides-one
+import mundane axiom      stdlib/reasoning/excluded-middle
+import mundane theorem    stdlib/numbers/multiply-cancel
+import mundane theorem    stdlib/numbers/nonneg-or-neg
+import mundane theorem    stdlib/numbers/pos-int-nat
+
+theorem square-divides-itself
+  note        Write a = a²·k. If a is 0 there is nothing to show. Otherwise
+              a cancels once, leaving a·k = 1, so a divides 1. A positive a
+              dividing 1 is 1; a negative a has −a positive dividing 1, so
+              −a = 1.
+  let a ∈ ℤ                                                           (H1)
+  assume a² divides a                                                 (H2)
+  then a ∈ {−1, 0, 1}
+
+1.  k ∈ ℤ. a = a²·k.
+    obtain k: mun:divides d := a², n := a, from H2
+
+2.  a = 0 or not (a = 0)
+    mun:excluded-middle P := a = 0
+
+3.  a ∈ {−1, 0, 1}
+    cases, from 2
+
+    case
+    assume a = 0                                                      (C1)
+
+    3.1.  0 ∈ {−1, 0, 1}
+          inspection
+
+    3.2.  a ∈ {−1, 0, 1}
+          substitute a = 0 (C1) into line 3.1
+
+    case
+    assume not (a = 0)                                                (C2)
+
+    3.3.  (a·k)·a = 1·a
+          algebra, from 1
+
+    3.4.  a·k = 1
+          mun:multiply-cancel a := a·k, b := 1, c := a, from C2, 3.3
+
+    3.5.  a ≥ 0 or a < 0
+          mun:nonneg-or-neg x := a
+
+    3.6.  a ∈ {−1, 0, 1}
+          cases, from 3.5
+
+          case
+          assume a ≥ 0                                                (C3)
+
+          3.6.1.  a > 0
+                  inequalities, from C2, C3
+
+          3.6.2.  a ∈ ℕ
+                  mun:pos-int-nat m := a, from 3.6.1
+
+          3.6.3.  1 = a·k
+                  algebra, from 3.4
+
+          3.6.4.  a divides 1
+                  mun:divides d := a, n := 1, from 3.6.3
+
+          3.6.5.  a = 1
+                  mun:divides-one d := a, from 3.6.2, 3.6.4
+
+          3.6.6.  1 ∈ {−1, 0, 1}
+                  inspection
+
+          3.6.7.  a ∈ {−1, 0, 1}
+                  substitute a = 1 (line 3.6.5) into line 3.6.6
+
+          case
+          assume a < 0                                                (C4)
+
+          3.6.8.  −a > 0
+                  inequalities, from C4
+
+          3.6.9.  −a ∈ ℕ
+                  mun:pos-int-nat m := −a, from 3.6.8
+
+          3.6.10. 1 = (−a)·(−k)
+                  algebra, from 3.4
+
+          3.6.11. −a divides 1
+                  mun:divides d := −a, n := 1, from 3.6.10
+
+          3.6.12. −a = 1
+                  mun:divides-one d := −a, from 3.6.9, 3.6.11
+
+          3.6.13. a = −1
+                  algebra, from 3.6.12
+
+          3.6.14. −1 ∈ {−1, 0, 1}
+                  inspection
+
+          3.6.15. a ∈ {−1, 0, 1}
+                  substitute a = −1 (line 3.6.13) into line 3.6.14

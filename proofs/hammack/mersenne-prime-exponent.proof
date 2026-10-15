@@ -1,0 +1,386 @@
+import mundane definition stdlib/divisibility/divides
+import mundane definition stdlib/divisibility/prime
+import mundane theorem    stdlib/divisibility/prime-nat
+import mundane theorem    stdlib/numbers/exponent-step
+import mundane theorem    stdlib/numbers/exponent-zero
+import mundane theorem    stdlib/numbers/integer-step
+import mundane theorem    stdlib/numbers/multiply-le
+import mundane theorem    stdlib/numbers/pos-int-nat
+import mundane theorem    stdlib/numbers/power-integer
+import mundane theorem    stdlib/numbers/power-real
+import mundane axiom      stdlib/reasoning/excluded-middle
+import mundane theorem    stdlib/reasoning/modus-ponens
+import mundane theorem    stdlib/reasoning/or-left
+import mundane theorem    stdlib/reasoning/or-right
+
+theorem two-power-add
+  note        2^(a + k) = 2^a·2^k for every k, by induction on k: raising the
+              exponent by 1 doubles both sides.
+  let a ∈ ℕ₀                                                          (H1)
+  let b ∈ ℕ₀                                                          (H2)
+  then 2^(a + b) = 2^a·2^b
+
+1.  For all k ∈ ℕ₀, 2^(a + k) = 2^a·2^k.
+    induction on k starting at 0
+
+    base
+    1.1.  2^0 = 1
+          mun:exponent-zero a := 2
+
+    1.2.  2^(a + 0) = 2^a·2^0
+          substitute 2^0 = 1 (line 1.1)
+          requires 2^a ∈ ℝ: mun:power-real a := 2, m := a
+
+    step
+    let k ∈ ℕ₀                                                        (K)
+    assume step 1 is true for k, the induction hypothesis             (IH)
+
+    1.3.  a + (k + 1) = (a + k) + 1
+          algebra
+
+    1.4.  2^(a + (k + 1)) = 2^((a + k) + 1)
+          substitute a + (k + 1) = (a + k) + 1 (line 1.3)
+
+    1.5.  2^((a + k) + 1) = 2^(a + k)·2
+          mun:exponent-step a := 2, m := a + k
+
+    1.6.  2^(a + k)·2 = 2^a·2^k·2
+          substitute 2^(a + k) = 2^a·2^k (IH)
+
+    1.7.  2^(k + 1) = 2^k·2
+          mun:exponent-step a := 2, m := k
+
+    1.8.  2^a·2^(k + 1) = 2^a·(2^k·2)
+          substitute 2^(k + 1) = 2^k·2 (line 1.7)
+
+    1.9.  2^a·(2^k·2) = 2^a·2^k·2
+          algebra
+          requires 2^a ∈ ℝ: mun:power-real a := 2, m := a
+          requires 2^k ∈ ℝ: mun:power-real a := 2, m := k
+
+    1.10. 2^(a + (k + 1)) = 2^a·2^(k + 1)
+          calculation
+            2^(a + (k + 1)) = 2^((a + k) + 1)     1.4
+                            = 2^(a + k)·2         1.5
+                            = 2^a·2^k·2           1.6
+                            = 2^a·(2^k·2)         1.9
+                            = 2^a·2^(k + 1)       1.8
+
+2.  2^(a + b) = 2^a·2^b
+    instantiate k := b in line 1
+
+
+theorem two-power-bound
+  note        2^d is at least d + 1: true for d = 1, and doubling 2^m ≥ m + 1
+              gives 2^(m + 1) ≥ 2m + 2 ≥ m + 2.
+  let d ∈ ℕ                                                           (H1)
+  then 2^d ≥ d + 1
+
+1.  For all m ∈ ℕ, 2^m ≥ m + 1.
+    induction on m starting at 1
+
+    base
+    1.1.  2^1 ≥ 1 + 1
+          arithmetic
+
+    step
+    let m ∈ ℕ                                                         (K)
+    assume step 1 is true for m, the induction hypothesis             (IH)
+
+    1.2.  2^(m + 1) = 2^m·2
+          mun:exponent-step a := 2
+
+    1.3.  2^m·2 ≥ (m + 1)·2
+          inequalities, from IH
+          requires 2^m ∈ ℝ: mun:power-real a := 2
+
+    1.4.  (m + 1)·2 ≥ (m + 1) + 1
+          inequalities, from K
+
+    1.5.  2^(m + 1) ≥ (m + 1) + 1
+          inequalities, from 1.2, 1.3, 1.4
+          requires 2^(m + 1) ∈ ℝ: mun:power-real a := 2, m := m + 1
+          requires 2^m ∈ ℝ: mun:power-real a := 2
+
+2.  2^d ≥ d + 1
+    instantiate m := d in line 1
+
+
+theorem power-multiple-quotient
+  note        2^(d·m) − 1 is (2^d − 1)·q with q at least m: for m = 1 take
+              q = 1, and 2^(d·(m + 1)) − 1 = 2^d·(2^(d·m) − 1) + (2^d − 1)
+              is (2^d − 1)·(2^d·q + 1).
+  let d ∈ ℕ                                                           (H1)
+  let m ∈ ℕ                                                           (H2)
+  then there is q ∈ ℕ with 2^(d·m) − 1 = (2^d − 1)·q and q ≥ m
+
+1.  For all j ∈ ℕ, there is q ∈ ℕ with 2^(d·j) − 1 = (2^d − 1)·q and q ≥ j.
+    induction on j starting at 1
+
+    base
+    1.1.  2^d − 1 = (2^d − 1)·1
+          algebra
+          requires 2^d ∈ ℝ: mun:power-real a := 2, m := d
+
+    1.2.  1 ≥ 1
+          arithmetic
+
+    1.3.  There is q ∈ ℕ with 2^(d·1) − 1 = (2^d − 1)·q and q ≥ 1.
+          exhibit, from 1.1, 1.2
+
+    step
+    let j ∈ ℕ                                                         (K)
+    assume step 1 is true for j, the induction hypothesis             (IH)
+
+    1.4.  q ∈ ℕ. 2^(d·j) − 1 = (2^d − 1)·q. q ≥ j.
+          obtain q from IH
+
+    1.5.  d·(j + 1) = d·j + d
+          algebra
+
+    1.6.  2^(d·(j + 1)) = 2^(d·j + d)
+          substitute d·(j + 1) = d·j + d (line 1.5)
+
+    1.7.  2^(d·j + d) = 2^(d·j)·2^d
+          thm:two-power-add a := d·j, b := d
+
+    1.8.  2^(d·(j + 1)) = 2^(d·j)·2^d
+          calculation
+            2^(d·(j + 1)) = 2^(d·j + d)       1.6
+                          = 2^(d·j)·2^d       1.7
+
+    1.9.  2^(d·(j + 1)) − 1 = 2^(d·j)·2^d − 1
+          substitute 2^(d·(j + 1)) = 2^(d·j)·2^d (line 1.8)
+
+    1.10. 2^(d·j)·2^d − 1 = 2^d·(2^(d·j) − 1) + (2^d − 1)
+          algebra
+          requires 2^(d·j) ∈ ℝ: mun:power-real a := 2, m := d·j
+          requires 2^d ∈ ℝ: mun:power-real a := 2, m := d
+
+    1.11. 2^d·(2^(d·j) − 1) + (2^d − 1) = 2^d·((2^d − 1)·q) + (2^d − 1)
+          substitute 2^(d·j) − 1 = (2^d − 1)·q (line 1.4)
+
+    1.12. 2^d·((2^d − 1)·q) + (2^d − 1) = (2^d − 1)·(2^d·q + 1)
+          algebra
+          requires 2^d ∈ ℝ: mun:power-real a := 2, m := d
+
+    1.13. 2^(d·(j + 1)) − 1 = (2^d − 1)·(2^d·q + 1)
+          calculation
+            2^(d·(j + 1)) − 1 = 2^(d·j)·2^d − 1                        1.9
+                              = 2^d·(2^(d·j) − 1) + (2^d − 1)          1.10
+                              = 2^d·((2^d − 1)·q) + (2^d − 1)          1.11
+                              = (2^d − 1)·(2^d·q + 1)                  1.12
+
+    1.14. 2^d·q + 1 ∈ ℕ
+          membership
+
+    1.15. 2^d ≥ d + 1
+          thm:two-power-bound
+
+    1.16. 2^d ≥ 1
+          inequalities, from H1, 1.15
+          requires 2^d ∈ ℝ: mun:power-real a := 2, m := d
+
+    1.17. q·1 ≤ q·2^d
+          mun:multiply-le x := 1, y := 2^d, c := q, from 1.16
+          requires 2^d ∈ ℝ: mun:power-real a := 2, m := d
+          requires q > 0: inequalities, from K, 1.4
+
+    1.18. q·2^d = 2^d·q
+          algebra
+          requires 2^d ∈ ℝ: mun:power-real a := 2, m := d
+
+    1.19. 2^d·q + 1 ≥ (j + 1)
+          inequalities, from 1.4, 1.17, 1.18
+          requires 2^d ∈ ℝ: mun:power-real a := 2, m := d
+
+    1.20. There is q ∈ ℕ with 2^(d·(j + 1)) − 1 = (2^d − 1)·q and q ≥ j + 1.
+          exhibit, from 1.13, 1.14, 1.19
+
+2.  There is q ∈ ℕ with 2^(d·m) − 1 = (2^d − 1)·q and q ≥ m.
+    instantiate j := m in line 1
+
+
+theorem prime-exponent
+  note        Suppose 2^n − 1 is prime. Then n > 1, since 2^1 − 1 = 1. If a
+              divisor d of n is neither 1 nor n, write n = d·e with e ≥ 2: then
+              2^d − 1 divides 2^n − 1, is at least 2, and is not 2^n − 1 itself,
+              against the primality of 2^n − 1.
+  let n ∈ ℕ                                                           (H1)
+  assume 2^n − 1 is prime                                             (H2)
+  then n is prime
+
+1.  2^n ∈ ℤ
+    mun:power-integer a := 2, m := n
+
+2.  2^n − 1 ∈ ℕ
+    mun:prime-nat p := 2^n − 1, from H2
+    requires 2^n − 1 ∈ ℤ: membership, from 1
+
+3.  2^n − 1 > 1. For all c ∈ ℕ, if c divides 2^n − 1 then c = 1 or c = 2^n − 1.
+    mun:prime p := 2^n − 1, from H2, 2
+
+4.  n > 1
+    contradiction
+    suppose not n > 1                                                 (S1)
+
+    4.1.  n ≤ 1
+          inequalities, from S1
+
+    4.2.  n = 1
+          inequalities, from H1, 4.1
+
+    4.3.  2^1 − 1 > 1
+          substitute n = 1 (line 4.2) into line 3
+
+    4.4.  not 2^1 − 1 > 1
+          arithmetic, contradicting 4.3
+
+5.  For all d ∈ ℕ, if d divides n then d = 1 or d = n.
+    proof
+    let d ∈ ℕ                                                         (K1)
+    assume d divides n                                                (K2)
+
+    5.1.  d = 1 or d ≠ 1
+          mun:excluded-middle P := d = 1
+
+    5.2.  d = 1 or d = n
+          cases, from 5.1
+
+          case
+          assume d = 1                                                (C1)
+
+          5.2.1.  d = 1 or d = n
+                  mun:or-left, from C1
+
+          case
+          assume d ≠ 1                                                (C2)
+
+          5.2.2.  d = n or d ≠ n
+                  mun:excluded-middle P := d = n
+
+          5.2.3.  d = 1 or d = n
+                  cases, from 5.2.2
+
+                  case
+                  assume d = n                                        (C3)
+
+                  5.2.3.1.  d = 1 or d = n
+                            mun:or-right, from C3
+
+                  case
+                  assume d ≠ n                                        (C4)
+
+                  5.2.3.2.  e ∈ ℤ. n = d·e.
+                            obtain e: mun:divides, from K2
+
+                  5.2.3.3.  0 < e
+                            contradiction
+                            suppose not 0 < e                         (S2)
+
+                            5.2.3.3.1.  e ≤ 0
+                                        inequalities, from S2
+
+                            5.2.3.3.2.  d·e ≤ d·0
+                                        mun:multiply-le x := e, y := 0, c := d, from 5.2.3.3.1
+                                        requires d > 0: inequalities, from K1
+
+                            5.2.3.3.3.  n ≤ d·0
+                                        substitute n = d·e (line 5.2.3.2) into line 5.2.3.3.2
+
+                            5.2.3.3.4.  d·0 = 0
+                                        algebra
+
+                            5.2.3.3.5.  n ≤ 0
+                                        substitute d·0 = 0 (line 5.2.3.3.4) into line 5.2.3.3.3
+
+                            5.2.3.3.6.  not n ≤ 0
+                                        inequalities, from H1, contradicting 5.2.3.3.5
+
+                  5.2.3.4.  e ∈ ℕ
+                            mun:pos-int-nat m := e, from 5.2.3.3
+
+                  5.2.3.5.  e ≠ 1
+                            contradiction
+                            suppose e = 1                             (S3)
+
+                            5.2.3.5.1.  n = d·1
+                                        substitute e = 1 (S3) into line 5.2.3.2
+
+                            5.2.3.5.2.  d = n
+                                        algebra, from 5.2.3.5.1, contradicting C4
+
+                  5.2.3.6.  1 + 1 ≤ e
+                            mun:integer-step m := 1, n := e
+                            requires 1 < e: inequalities, from 5.2.3.4, 5.2.3.5
+
+                  5.2.3.7.  1 + 1 ≤ d
+                            mun:integer-step m := 1, n := d
+                            requires 1 < d: inequalities, from C2, K1
+
+                  5.2.3.8.  q ∈ ℕ. 2^(d·e) − 1 = (2^d − 1)·q. q ≥ e.
+                            obtain q: thm:power-multiple-quotient d := d, m := e, from 5.2.3.4
+
+                  5.2.3.9.  2^n − 1 = 2^(d·e) − 1
+                            substitute n = d·e (line 5.2.3.2)
+
+                  5.2.3.10. 2^n − 1 = (2^d − 1)·q
+                            calculation
+                              2^n − 1 = 2^(d·e) − 1         5.2.3.9
+                                      = (2^d − 1)·q         5.2.3.8
+
+                  5.2.3.11. 2^d − 1 divides 2^n − 1
+                            mun:divides d := 2^d − 1, n := 2^n − 1, from 5.2.3.10
+                            requires 2^d − 1 ∈ ℤ: membership
+                            requires 2^n − 1 ∈ ℤ: membership
+
+                  5.2.3.12. 2^d ≥ d + 1
+                            thm:two-power-bound
+
+                  5.2.3.13. 2^d − 1 ≥ 2
+                            inequalities, from 5.2.3.7, 5.2.3.12
+                            requires 2^d ∈ ℝ: mun:power-real a := 2, m := d
+
+                  5.2.3.14. 2^d − 1 ∈ ℕ
+                            mun:pos-int-nat m := 2^d − 1
+                            requires 2^d − 1 ∈ ℤ: membership
+                            requires 0 < 2^d − 1: inequalities, from 5.2.3.13
+
+                  5.2.3.15. if 2^d − 1 divides 2^n − 1 then 2^d − 1 = 1 or 2^d − 1 = 2^n − 1
+                            instantiate c := 2^d − 1 in line 3, from 5.2.3.14
+
+                  5.2.3.16. 2^d − 1 = 1 or 2^d − 1 = 2^n − 1
+                            mun:modus-ponens, from 5.2.3.11, 5.2.3.15
+
+                  5.2.3.17. d = 1 or d = n
+                            cases, from 5.2.3.16
+
+                            case
+                            assume 2^d − 1 = 1                        (C5)
+
+                            5.2.3.17.1.  not 2^d − 1 = 1
+                                         inequalities, from 5.2.3.13, contradicting C5
+                                         requires 2^d ∈ ℝ: mun:power-real a := 2, m := d
+
+                            case
+                            assume 2^d − 1 = 2^n − 1                  (C6)
+
+                            5.2.3.17.2.  2 ≤ q
+                                         inequalities, from 5.2.3.6, 5.2.3.8
+
+                            5.2.3.17.3.  (2^d − 1)·2 ≤ (2^d − 1)·q
+                                         mun:multiply-le x := 2, y := q, c := 2^d − 1, from 5.2.3.17.2
+                                         requires 2^d − 1 ∈ ℝ: from 5.2.3.14
+                                         requires 2^d − 1 > 0: inequalities, from 5.2.3.13
+
+                            5.2.3.17.4.  2^d − 1 = (2^d − 1)·q
+                                         calculation
+                                           2^d − 1 = 2^n − 1          C6
+                                                   = (2^d − 1)·q      5.2.3.10
+
+                            5.2.3.17.5.  not 2^d − 1 = (2^d − 1)·q
+                                         inequalities, from 5.2.3.13, 5.2.3.17.3, contradicting 5.2.3.17.4
+                                         requires 2^d ∈ ℝ: mun:power-real a := 2, m := d
+
+6.  n is prime
+    mun:prime p := n, from 4, 5

@@ -1,0 +1,53 @@
+import mundane theorem stdlib/numbers/square-nonneg
+import mundane theorem stdlib/numbers/square-zero
+
+theorem sum-of-squares-zero
+  metamath    sumsqeq0
+  note        If both numbers are 0 the sum of squares is 0. Conversely the
+              two squares are not negative and add to 0, so each is 0, and a
+              number whose square is 0 is 0.
+  let A ∈ ℝ                                                           (H1)
+  let B ∈ ℝ                                                           (H2)
+  then (A = 0 and B = 0) ↔ A² + B² = 0
+
+1.  (A = 0 and B = 0) ↔ A² + B² = 0
+    both directions
+
+    direction
+    assume A = 0 and B = 0                                            (D1)
+
+    1.1.  A² + B² = 0² + B²
+          substitute A = 0 (D1)
+
+    1.2.  0² + B² = 0² + 0²
+          substitute B = 0 (D1)
+
+    1.3.  A² + B² = 0
+          calculation
+            A² + B² = 0² + B²     1.1
+                    = 0² + 0²     1.2
+                    = 0           arithmetic
+
+    direction
+    assume A² + B² = 0                                                (D2)
+
+    1.4.  A² ≥ 0
+          mun:square-nonneg x := A
+
+    1.5.  B² ≥ 0
+          mun:square-nonneg x := B
+
+    1.6.  A² = 0
+          inequalities, from D2, 1.4, 1.5
+
+    1.7.  B² = 0
+          inequalities, from D2, 1.4, 1.5
+
+    1.8.  A = 0
+          mun:square-zero x := A, from 1.6
+
+    1.9.  B = 0
+          mun:square-zero x := B, from 1.7
+
+    1.10. A = 0 and B = 0
+          join 1.8, 1.9

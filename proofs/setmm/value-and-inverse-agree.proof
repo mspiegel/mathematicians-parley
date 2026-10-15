@@ -1,0 +1,33 @@
+import theorem            proofs/setmm/inverse-of-value/inverse-of-value
+import theorem            proofs/setmm/value-of-inverse/value-of-inverse
+
+theorem value-and-inverse-agree
+  note        F takes C to D exactly when the inverse takes D back to C.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  let F : A → B be one-to-one                                         (H3)
+  assume F[A] = B                                                     (H4)
+  let C ∈ A                                                           (H5)
+  let D ∈ B                                                           (H6)
+  then F(C) = D ↔ F⁻¹(D) = C
+
+1.  F(C) = D ↔ F⁻¹(D) = C
+    both directions
+
+    direction
+    assume F(C) = D                                                   (D1)
+
+    1.1.  F⁻¹(F(C)) = C
+          thm:inverse-of-value, from H3, H4, H5
+
+    1.2.  F⁻¹(D) = C
+          substitute F(C) = D (D1) into line 1.1
+
+    direction
+    assume F⁻¹(D) = C                                                 (D2)
+
+    1.3.  F(F⁻¹(D)) = D
+          thm:value-of-inverse C := D, from H3, H4, H6
+
+    1.4.  F(C) = D
+          substitute F⁻¹(D) = C (D2) into line 1.3

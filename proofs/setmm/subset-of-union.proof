@@ -1,0 +1,18 @@
+import mundane definition stdlib/sets/subset
+import mundane theorem    stdlib/sets/in-union-left
+
+theorem subset-of-union
+  note        Whatever is in A is in A or in B.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  then A ⊆ A ∪ B
+
+1.  For all u ∈ A, u ∈ A ∪ B.
+    proof
+    let u ∈ A                                                         (K1)
+
+    1.1.  u ∈ A ∪ B
+          mun:in-union-left, from K1
+
+2.  A ⊆ A ∪ B
+    mun:subset, from 1

@@ -1,0 +1,34 @@
+import mundane theorem    stdlib/numbers/floor-above
+import mundane theorem    stdlib/numbers/floor-below
+import mundane theorem    stdlib/numbers/floor-between
+import mundane theorem    stdlib/numbers/int-closure
+import mundane theorem    stdlib/numbers/floor-integer
+
+theorem floor-add-integer
+  note        Adding a whole number to A moves the whole number just below
+              it by the same amount: ⌊A⌋ + N is at most A + N, and A + N is
+              less than ⌊A⌋ + N + 1.
+  let A ∈ ℝ                                                           (H1)
+  let N ∈ ℤ                                                           (H2)
+  then ⌊A + N⌋ = ⌊A⌋ + N
+
+1.  ⌊A⌋ ∈ ℤ
+    mun:floor-integer x := A
+
+2.  ⌊A⌋ ≤ A
+    mun:floor-below x := A
+
+3.  A < ⌊A⌋ + 1
+    mun:floor-above x := A
+
+4.  ⌊A⌋ + N ≤ A + N
+    inequalities, from 2
+    requires ⌊A⌋ ∈ ℝ: from 1
+
+5.  A + N < ⌊A⌋ + N + 1
+    inequalities, from 3
+    requires ⌊A⌋ ∈ ℝ: from 1
+
+6.  ⌊A + N⌋ = ⌊A⌋ + N
+    mun:floor-between x := A + N, k := ⌊A⌋ + N, from 4, 5
+    requires ⌊A⌋ + N ∈ ℤ: mun:int-closure a := ⌊A⌋, b := N, from 1

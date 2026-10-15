@@ -1,0 +1,13 @@
+import mundane theorem    stdlib/functions/inverse-value
+
+theorem inverse-of-value
+  note        The inverse takes the value of a point back to the point.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  let F : A → B be one-to-one                                         (H3)
+  assume F[A] = B                                                     (H4)
+  let C ∈ A                                                           (H5)
+  then F⁻¹(F(C)) = C
+
+1.  F⁻¹(F(C)) = C
+    mun:inverse-value g := F, y := C, from H3, H5

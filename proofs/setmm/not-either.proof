@@ -1,0 +1,56 @@
+import mundane theorem    stdlib/reasoning/disjunctive-syllogism
+import mundane theorem    stdlib/reasoning/or-left
+import mundane theorem    stdlib/reasoning/or-right
+
+theorem not-either
+  metamath    ioran
+  note        Neither holds exactly when each fails: if a = 0 or b = 0 could
+              hold, one of them would, and if b = 0 fails, a = 0 must hold.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  then not (a = 0 or b = 0) ↔ (a ≠ 0 and b ≠ 0)
+
+1.  not (a = 0 or b = 0) ↔ (a ≠ 0 and b ≠ 0)
+    both directions
+
+    direction
+    assume not (a = 0 or b = 0)                                       (D1)
+
+    1.1.  a ≠ 0
+          contradiction
+          suppose a = 0                                               (S1)
+
+          1.1.1.  a = 0 or b = 0
+                  mun:or-left, from S1
+
+          1.1.2.  not (a = 0 or b = 0)
+                  join D1, contradicting 1.1.1
+
+    1.2.  b ≠ 0
+          contradiction
+          suppose b = 0                                               (S2)
+
+          1.2.1.  a = 0 or b = 0
+                  mun:or-right, from S2
+
+          1.2.2.  not (a = 0 or b = 0)
+                  join D1, contradicting 1.2.1
+
+    1.3.  a ≠ 0 and b ≠ 0
+          join 1.1, 1.2
+
+    direction
+    assume a ≠ 0 and b ≠ 0                                            (D2)
+
+    1.4.  not (a = 0 or b = 0)
+          contradiction
+          suppose a = 0 or b = 0                                      (S3)
+
+          1.4.1.  b ≠ 0
+                  join D2
+
+          1.4.2.  a = 0
+                  mun:disjunctive-syllogism, from S3, 1.4.1
+
+          1.4.3.  a ≠ 0
+                  join D2, contradicting 1.4.2

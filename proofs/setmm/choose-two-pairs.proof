@@ -1,0 +1,76 @@
+import theorem            stdlib/counting/pascal
+import mundane theorem    stdlib/counting/binomial-nat0
+import mundane theorem    stdlib/counting/binomial-zero-index
+import definition         stdlib/counting/C
+
+theorem choose-one
+  note        Choosing 1 from n leaves n choices. Nothing is chosen from
+              none; and by Pascal's rule C(k + 1, 1) is C(k, 1) plus C(k, 0),
+              which is k plus 1.
+  let n ∈ ℕ₀                                                          (H1)
+  then C(n, 1) = n
+
+1.  For all k ∈ ℕ₀, C(k, 1) = k.
+    induction on k starting at 0
+
+    base
+    1.1.  0 < 1
+          arithmetic
+
+    1.2.  C(0, 1) = 0
+          def:C n := 0, k := 1, from 1.1
+
+    step
+    let k ∈ ℕ₀                                                        (K)
+    assume step 1 is true for k, the induction hypothesis             (IH)
+
+    1.3.  C(k, 1) + C(k, 1 − 1) = C(k + 1, 1)
+          thm:pascal n := k, k := 1
+
+    1.4.  C(k, 1) + C(k, 0) = C(k + 1, 1)
+          substitute 1 − 1 = 0 (arithmetic) into line 1.3
+
+    1.5.  C(k, 0) = 1
+          mun:binomial-zero-index n := k
+
+    1.6.  C(k, 1) + 1 = C(k + 1, 1)
+          substitute C(k, 0) = 1 (line 1.5) into line 1.4
+
+    1.7.  C(k, 1) + 1 = k + 1
+          substitute C(k, 1) = k (IH)
+
+    1.8.  C(k + 1, 1) = k + 1
+          calculation
+            C(k + 1, 1) = C(k, 1) + 1       1.6
+                        = k + 1             1.7
+
+2.  C(n, 1) = n
+    instantiate k := n in line 1
+
+theorem choose-two-pairs
+  note        Of n + 1 things, choose 2: either the new one is left out, which
+              is C(n, 2) ways, or it is chosen along with one of the other n.
+              Pascal's rule says this, and C(n, 1) is n.
+  let n ∈ ℕ₀                                                          (H1)
+  then n + C(n, 2) = C(n + 1, 2)
+
+1.  C(n, 2) + C(n, 2 − 1) = C(n + 1, 2)
+    thm:pascal k := 2
+
+2.  C(n, 2) + C(n, 1) = C(n + 1, 2)
+    substitute 2 − 1 = 1 (arithmetic) into line 1
+
+3.  C(n, 1) = n
+    thm:choose-one
+
+4.  C(n, 2) + n = C(n + 1, 2)
+    substitute C(n, 1) = n (line 3) into line 2
+
+5.  n + C(n, 2) = C(n, 2) + n
+    algebra
+    requires C(n, 2) ∈ ℕ₀: mun:binomial-nat0
+
+6.  n + C(n, 2) = C(n + 1, 2)
+    calculation
+      n + C(n, 2) = C(n, 2) + n       5
+                  = C(n + 1, 2)       4

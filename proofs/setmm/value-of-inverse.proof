@@ -1,0 +1,28 @@
+import mundane theorem    stdlib/functions/inverse-value
+import theorem            proofs/setmm/value-of-onto/value-of-onto
+
+theorem value-of-inverse
+  note        Each point C of B is F(x) for some x, and the inverse takes it back to x, which F takes to C.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  let F : A → B be one-to-one                                         (H3)
+  assume F[A] = B                                                     (H4)
+  let C ∈ B                                                           (H5)
+  then F(F⁻¹(C)) = C
+
+1.  x ∈ A. C = F(x).
+    obtain x: thm:value-of-onto y := C, from H4, H5
+
+2.  F⁻¹(F(x)) = x
+    mun:inverse-value g := F, y := x, from H3, 1
+
+3.  F⁻¹(C) = x
+    substitute C = F(x) (line 1) into line 2
+
+4.  F(F⁻¹(C)) = F(x)
+    substitute F⁻¹(C) = x (line 3)
+
+5.  F(F⁻¹(C)) = C
+    calculation
+      F(F⁻¹(C)) = F(x)    4
+                = C       1

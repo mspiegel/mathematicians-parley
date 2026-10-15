@@ -1,0 +1,76 @@
+import theorem            proofs/wiedijk/sqrt2-irrational/even-square
+import theorem            proofs/wiedijk/sqrt2-irrational/lowest-terms
+import mundane definition stdlib/divisibility/divides
+import mundane definition stdlib/divisibility/even
+import mundane definition stdlib/numbers/irrational
+import mundane definition stdlib/numbers/sqrt
+
+theorem sqrt6-irrational
+  note        Suppose √6 = p/q in lowest terms. Then p² = 6q², so p is even;
+              writing p = 2r gives 2r² = 3q², so q² = 2(r² − q²) and q is even
+              too, and 2 divides both, which lowest terms rules out.
+  then √6 is irrational
+
+1.  (√6)² = 6
+    mun:sqrt x := 6
+    requires 6 ≥ 0: arithmetic
+
+2.  √6 ∉ ℚ
+    contradiction
+    suppose √6 ∈ ℚ                                                    (S)
+
+    2.1.  p ∈ ℤ. q ∈ ℤ. q > 0. √6 = p/q.
+          There is no d ∈ ℤ with d > 1, d divides p, and d divides q.
+          obtain p, q: thm:lowest-terms x := √6, from S
+
+    2.2.  (p/q)² = 6
+          substitute √6 = p/q (line 2.1) into line 1
+
+    2.3.  p² = 6q²
+          algebra, from 2.2
+          requires q ≠ 0: inequalities, from 2.1
+
+    2.4.  p² = 2(3q²)
+          algebra, from 2.3
+
+    2.5.  p² is even
+          mun:even n := p², from 2.4
+
+    2.6.  p is even
+          thm:even-square n := p, from 2.5
+
+    2.7.  r ∈ ℤ. p = 2r.
+          obtain r: mun:even n := p, from 2.6
+
+    2.8.  (2r)² = 6q²
+          substitute p = 2r (line 2.7) into line 2.3
+
+    2.9.  2r² = 3q²
+          algebra, from 2.8
+
+    2.10. q² = 2(r² − q²)
+          algebra, from 2.9
+
+    2.11. q² is even
+          mun:even n := q², from 2.10
+
+    2.12. q is even
+          thm:even-square n := q, from 2.11
+
+    2.13. s ∈ ℤ. q = 2s.
+          obtain s: mun:even n := q, from 2.12
+
+    2.14. 2 divides p
+          mun:divides d := 2, n := p, from 2.7
+
+    2.15. 2 divides q
+          mun:divides d := 2, n := q, from 2.13
+
+    2.16. There is d ∈ ℤ with d > 1, d divides p, and d divides q.
+          exhibit, from 2.14, 2.15, contradicting 2.1
+          requires 2 > 1: arithmetic
+
+3.  √6 is irrational
+    mun:irrational x := √6, from 2
+    requires 6 ≥ 0: arithmetic
+    requires √6 ∈ ℝ: mun:sqrt x := 6

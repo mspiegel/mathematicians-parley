@@ -1,0 +1,54 @@
+import mundane definition stdlib/divisibility/gcd
+import mundane theorem    stdlib/divisibility/divides-difference
+import mundane theorem    stdlib/divisibility/divides-one
+import mundane theorem    stdlib/divisibility/gcd-one
+import mundane theorem    stdlib/numbers/nat0-nonzero
+import mundane axiom      stdlib/reasoning/excluded-middle
+
+theorem consecutive-coprime
+  note        A common divisor of n and n + 1 divides their difference 1, so
+              the greatest common divisor is 1. For n = 0 it is gcd(0, 1).
+  let n ∈ ℕ₀                                                          (H1)
+  then gcd(n, n + 1) = 1
+
+1.  n = 0 or n ≠ 0
+    mun:excluded-middle P := n = 0
+
+2.  gcd(n, n + 1) = 1
+    cases, from 1
+
+    case
+    assume n = 0                                                      (C1)
+
+    2.1.  gcd(0, 1) = 1
+          mun:gcd-one a := 0
+
+    2.2.  gcd(n, n + 1) = gcd(0, 1)
+          substitute n = 0 (C1)
+
+    2.3.  gcd(n, n + 1) = 1
+          calculation
+            gcd(n, n + 1) = gcd(0, 1)       2.2
+                          = 1               2.1
+
+    case
+    assume n ≠ 0                                                      (C2)
+
+    2.4.  n ∈ ℕ
+          mun:nat0-nonzero m := n, from C2
+
+    2.5.  gcd(n, n + 1) ∈ ℕ. gcd(n, n + 1) divides n. gcd(n, n + 1) divides n + 1.
+          mun:gcd a := n, b := n + 1, from 2.4
+          requires n + 1 ∈ ℕ: membership, from 2.4
+
+    2.6.  gcd(n, n + 1) divides (n + 1) − n
+          mun:divides-difference d := gcd(n, n + 1), a := n + 1, b := n, from 2.5
+
+    2.7.  (n + 1) − n = 1
+          algebra
+
+    2.8.  gcd(n, n + 1) divides 1
+          substitute (n + 1) − n = 1 (line 2.7) into line 2.6
+
+    2.9.  gcd(n, n + 1) = 1
+          mun:divides-one d := gcd(n, n + 1), from 2.5, 2.8

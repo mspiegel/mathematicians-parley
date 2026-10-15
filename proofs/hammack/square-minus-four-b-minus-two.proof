@@ -1,0 +1,53 @@
+import theorem            proofs/wiedijk/sqrt2-irrational/even-square
+import mundane definition stdlib/divisibility/even
+import mundane theorem    stdlib/divisibility/not-both
+
+theorem square-minus-four-b-minus-two
+  note        If a² = 4b + 2 then a² is even, so a is even, a = 2k, and
+              4k² = 4b + 2 makes 1 = 2(k² − b) even, which it is not.
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  then a² − 4b − 2 ≠ 0
+
+1.  a² − 4b − 2 ≠ 0
+    contradiction
+    suppose a² − 4b − 2 = 0                                           (S)
+
+    1.1.  a² = 4b + 2
+          algebra, from S
+
+    1.2.  a² = 2(2b + 1)
+          algebra, from 1.1
+
+    1.3.  a² is even
+          mun:even n := a², from 1.2
+
+    1.4.  a is even
+          thm:even-square n := a, from 1.3
+
+    1.5.  k ∈ ℤ. a = 2k.
+          obtain k: mun:even n := a, from 1.4
+
+    1.6.  a² = (2k)²
+          substitute a = 2k (line 1.5)
+
+    1.7.  (2k)² = 4k²
+          algebra
+
+    1.8.  4k² = 4b + 2
+          calculation
+            4k² = (2k)²     1.7
+                = a²        1.6
+                = 4b + 2    1.1
+
+    1.9.  1 = 2(k² − b)
+          algebra, from 1.8
+
+    1.10. 1 is even
+          mun:even n := 1, from 1.9
+
+    1.11. 1 is not odd
+          mun:not-both n := 1, from 1.10
+
+    1.12. 1 is odd
+          arithmetic, contradicting 1.11

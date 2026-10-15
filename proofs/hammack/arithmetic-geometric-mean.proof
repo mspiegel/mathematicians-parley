@@ -1,0 +1,58 @@
+import mundane definition stdlib/numbers/sqrt
+import mundane theorem    stdlib/numbers/product-nonneg
+import mundane theorem    stdlib/numbers/square-less
+import mundane theorem    stdlib/numbers/square-nonneg
+
+theorem arithmetic-geometric-mean
+  note        If a + b were below 2√(ab), squaring both sides, which are
+              nonnegative, would give (a + b)² < 4ab, so (a − b)² < 0, and a
+              square is not negative.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a > 0                                                        (H3)
+  assume b > 0                                                        (H4)
+  then a + b ≥ 2·√(a·b)
+
+1.  a ≥ 0
+    inequalities, from H3
+
+2.  b ≥ 0
+    inequalities, from H4
+
+3.  a·b ≥ 0
+    mun:product-nonneg x := a, y := b, from 1, 2
+
+4.  √(a·b) ∈ ℝ. √(a·b) ≥ 0. (√(a·b))² = a·b.
+    mun:sqrt x := a·b, from 3
+
+5.  a + b ≥ 2·√(a·b)
+    contradiction
+    suppose not (a + b ≥ 2·√(a·b))                                    (S)
+
+    5.1.  a + b < 2·√(a·b)
+          inequalities, from S, 4
+
+    5.2.  2·√(a·b) ≥ 0
+          inequalities, from 4
+
+    5.3.  a + b ≥ 0
+          inequalities, from H3, H4
+
+    5.4.  (a + b)² < (2·√(a·b))²
+          mun:square-less x := a + b, y := 2·√(a·b), from 5.1, 5.2, 5.3
+          requires 2·√(a·b) ∈ ℝ: membership, from 4
+
+    5.5.  (2·√(a·b))² = 4·(a·b)
+          algebra, from 4
+
+    5.6.  (a + b)² < 4·(a·b)
+          substitute (2·√(a·b))² = 4·(a·b) (line 5.5) into line 5.4
+
+    5.7.  (a − b)² = (a + b)² − 4·(a·b)
+          algebra
+
+    5.8.  (a − b)² ≥ 0
+          mun:square-nonneg x := a − b
+
+    5.9.  not ((a − b)² ≥ 0)
+          inequalities, from 5.6, 5.7, contradicting 5.8

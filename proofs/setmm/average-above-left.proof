@@ -1,0 +1,21 @@
+theorem average-above-left
+  note        The average (A + B)/2 lies above A exactly when B does: the
+              average minus A is half of B − A.
+  let A ∈ ℝ                                                           (H1)
+  let B ∈ ℝ                                                           (H2)
+  then A < B ↔ A < (A + B)/2
+
+1.  A < B ↔ A < (A + B)/2
+    both directions
+
+    direction
+    assume A < B                                                      (D1)
+
+    1.1.  A < (A + B)/2
+          inequalities, from D1
+
+    direction
+    assume A < (A + B)/2                                              (D2)
+
+    1.2.  A < B
+          inequalities, from D2

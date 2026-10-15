@@ -1,0 +1,99 @@
+import mundane theorem    stdlib/numbers/exponent-step
+import mundane theorem    stdlib/numbers/exponent-zero
+import mundane theorem    stdlib/numbers/multiply-le
+import mundane theorem    stdlib/numbers/power-real
+import mundane theorem    stdlib/numbers/square-nonneg
+import mundane axiom      stdlib/numbers/trichotomy
+
+theorem nonnegative-product
+  note        A product of two numbers that are not below 0 is not below 0:
+              if the first is 0 the product is 0, and if it is above 0,
+              multiplying 0 ≤ y by it keeps the order.
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume 0 ≤ x                                                        (H3)
+  assume 0 ≤ y                                                        (H4)
+  then 0 ≤ x·y
+
+1.  x < 0 or x = 0 or 0 < x
+    mun:trichotomy
+
+2.  0 ≤ x·y
+    cases, from 1
+
+    case
+    assume x < 0                                                      (C1)
+
+    2.1.  not 0 ≤ x
+          inequalities, from C1, contradicting H3
+
+    case
+    assume x = 0                                                      (C2)
+
+    2.2.  x·y = 0
+          algebra, from C2
+
+    2.3.  0 ≤ x·y
+          inequalities, from 2.2
+
+    case
+    assume 0 < x                                                      (C3)
+
+    2.4.  x·0 ≤ x·y
+          mun:multiply-le x := 0, c := x, from C3, H4
+
+    2.5.  0 ≤ x·y
+          inequalities, from 2.4
+
+theorem bernoulli-inequality
+  note        Going from k to k + 1 multiplies A^k by A. Write A^k as the
+              bound (A − 1)·k + 1 plus a gap X that is not below 0. Then
+              A^(k + 1) is the bound for k + 1 plus A·X plus (A − 1)²·k,
+              and both of those are not below 0.
+  let A ∈ ℝ                                                           (H1)
+  assume 0 ≤ A                                                        (H2)
+  let n ∈ ℕ₀                                                          (H3)
+  then (A − 1)·n + 1 ≤ A^n
+
+1.  For all k ∈ ℕ₀, (A − 1)·k + 1 ≤ A^k.
+    induction on k starting at 0
+
+    base
+    1.1.  A^0 = 1
+          mun:exponent-zero a := A
+
+    1.2.  (A − 1)·0 + 1 ≤ A^0
+          inequalities, from 1.1
+
+    step
+    let k ∈ ℕ₀                                                        (K)
+    assume step 1 is true for k, the induction hypothesis             (IH)
+
+    1.3.  A^(k + 1) = A^k·A
+          mun:exponent-step a := A, m := k
+
+    1.4.  0 ≤ A^k − ((A − 1)·k + 1)
+          inequalities, from IH
+          requires A^k ∈ ℝ: mun:power-real a := A, m := k
+
+    1.5.  0 ≤ A·(A^k − ((A − 1)·k + 1))
+          thm:nonnegative-product x := A, y := A^k − ((A − 1)·k + 1), from H2, 1.4
+          requires A^k − ((A − 1)·k + 1) ∈ ℝ: membership
+
+    1.6.  0 ≤ (A − 1)²
+          mun:square-nonneg x := A − 1
+
+    1.7.  0 ≤ (A − 1)²·k
+          thm:nonnegative-product x := (A − 1)², y := k, from K, 1.6
+
+    1.8.  A^k·A − ((A − 1)·(k + 1) + 1) = A·(A^k − ((A − 1)·k + 1)) + (A − 1)²·k
+          algebra
+          requires A^k ∈ ℝ: mun:power-real a := A, m := k
+
+    1.9.  (A − 1)·(k + 1) + 1 ≤ A^(k + 1)
+          inequalities, from 1.3, 1.5, 1.7, 1.8
+          requires A^k ∈ ℝ: mun:power-real a := A, m := k
+          requires A^(k + 1) ∈ ℝ: mun:power-real a := A, m := k + 1
+
+2.  (A − 1)·n + 1 ≤ A^n
+    instantiate k := n in line 1

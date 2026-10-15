@@ -1,0 +1,91 @@
+import mundane definition stdlib/sets/difference
+import mundane definition stdlib/sets/subset
+import mundane definition stdlib/sets/union
+import mundane theorem    stdlib/sets/in-union-left
+import mundane theorem    stdlib/sets/in-union-right
+import mundane theorem    stdlib/sets/subset-antisymmetric
+
+theorem union-then-difference
+  note        Taking C away from A ∪ B takes it away from each part.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  let C be a set                                                      (H3)
+  then (A ∪ B) ∖ C = (A ∖ C) ∪ (B ∖ C)
+
+1.  For all t ∈ (A ∪ B) ∖ C, t ∈ (A ∖ C) ∪ (B ∖ C).
+    proof
+    let t ∈ (A ∪ B) ∖ C                                               (K1)
+
+    1.1.  t ∈ A ∪ B. t ∉ C.
+          mun:difference u := t, Y := A ∪ B, Z := C, from K1
+
+    1.2.  t ∈ A or t ∈ B
+          mun:union u := t, Y := A, Z := B, from 1.1
+
+    1.3.  t ∈ (A ∖ C) ∪ (B ∖ C)
+          cases, from 1.2
+
+          case
+          note t is in A and not in C
+          assume t ∈ A                                                (C1)
+
+          1.3.1.  t ∈ A ∖ C
+                  mun:difference u := t, Y := A, Z := C, from C1, 1.1
+
+          1.3.2.  t ∈ (A ∖ C) ∪ (B ∖ C)
+                  mun:in-union-left u := t, Y := A ∖ C, Z := B ∖ C, from 1.3.1
+
+          case
+          note t is in B and not in C
+          assume t ∈ B                                                (C2)
+
+          1.3.3.  t ∈ B ∖ C
+                  mun:difference u := t, Y := B, Z := C, from C2, 1.1
+
+          1.3.4.  t ∈ (A ∖ C) ∪ (B ∖ C)
+                  mun:in-union-right u := t, Y := A ∖ C, Z := B ∖ C, from 1.3.3
+
+2.  (A ∪ B) ∖ C ⊆ (A ∖ C) ∪ (B ∖ C)
+    mun:subset, from 1
+
+3.  For all t ∈ (A ∖ C) ∪ (B ∖ C), t ∈ (A ∪ B) ∖ C.
+    proof
+    let t ∈ (A ∖ C) ∪ (B ∖ C)                                         (K2)
+
+    3.1.  t ∈ A ∖ C or t ∈ B ∖ C
+          mun:union u := t, Y := A ∖ C, Z := B ∖ C, from K2
+
+    3.2.  t ∈ (A ∪ B) ∖ C
+          cases, from 3.1
+
+          case
+          note t is in A, so in A ∪ B
+          assume t ∈ A ∖ C                                            (C3)
+
+          3.2.1.  t ∈ A. t ∉ C.
+                  mun:difference u := t, Y := A, Z := C, from C3
+
+          3.2.2.  t ∈ A ∪ B
+                  mun:in-union-left u := t, Y := A, Z := B, from 3.2.1
+
+          3.2.3.  t ∈ (A ∪ B) ∖ C
+                  mun:difference u := t, Y := A ∪ B, Z := C, from 3.2.1, 3.2.2
+
+          case
+          note t is in B, so in A ∪ B
+          assume t ∈ B ∖ C                                            (C4)
+
+          3.2.4.  t ∈ B. t ∉ C.
+                  mun:difference u := t, Y := B, Z := C, from C4
+
+          3.2.5.  t ∈ A ∪ B
+                  mun:in-union-right u := t, Y := A, Z := B, from 3.2.4
+
+          3.2.6.  t ∈ (A ∪ B) ∖ C
+                  mun:difference u := t, Y := A ∪ B, Z := C, from 3.2.4, 3.2.5
+
+4.  (A ∖ C) ∪ (B ∖ C) ⊆ (A ∪ B) ∖ C
+    mun:subset, from 3
+
+5.  (A ∪ B) ∖ C = (A ∖ C) ∪ (B ∖ C)
+    mun:subset-antisymmetric, from 2, 4

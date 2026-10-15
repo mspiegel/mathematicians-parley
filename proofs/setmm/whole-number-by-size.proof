@@ -1,0 +1,59 @@
+import mundane definition stdlib/numbers/abs
+import mundane theorem stdlib/numbers/abs-integer
+import mundane theorem stdlib/numbers/nat0-int
+import mundane theorem stdlib/numbers/nonneg-or-neg
+
+theorem whole-number-by-size
+  note        The size of a whole number is a whole number. Conversely, A is
+              its own size or the opposite of it, and the opposite of a whole
+              number is one.
+  let A ∈ ℝ                                                           (H1)
+  then A ∈ ℤ ↔ |A| ∈ ℤ
+
+1.  A ∈ ℤ ↔ |A| ∈ ℤ
+    both directions
+
+    direction
+    assume A ∈ ℤ                                                      (D1)
+
+    1.1.  |A| ∈ ℕ₀
+          mun:abs-integer z := A, from D1
+
+    1.2.  |A| ∈ ℤ
+          mun:nat0-int m := |A|, from 1.1
+
+    direction
+    assume |A| ∈ ℤ                                                    (D2)
+
+    1.3.  A ≥ 0 or A < 0
+          mun:nonneg-or-neg x := A
+
+    1.4.  A ∈ ℤ
+          cases, from 1.3
+
+          case
+          assume A ≥ 0                                                (C1)
+
+          1.4.1.  |A| = A
+                  mun:abs x := A, from C1
+
+          1.4.2.  A ∈ ℤ
+                  substitute |A| = A (line 1.4.1) into D2
+
+          case
+          assume A < 0                                                (C2)
+
+          1.4.3.  |A| = −A
+                  mun:abs x := A, from C2
+
+          1.4.4.  −A ∈ ℤ
+                  substitute |A| = −A (line 1.4.3) into D2
+
+          1.4.5.  0 − (−A) ∈ ℤ
+                  membership, from 1.4.4
+
+          1.4.6.  0 − (−A) = A
+                  algebra
+
+          1.4.7.  A ∈ ℤ
+                  substitute 0 − (−A) = A (line 1.4.6) into line 1.4.5

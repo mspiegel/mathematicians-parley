@@ -1,0 +1,35 @@
+import mundane theorem    stdlib/numbers/square-nonneg
+import mundane theorem    stdlib/numbers/multiply-le
+
+theorem cubic-above-minus-one
+  note        x³ − x factors as (x² − x)(x + 1). If x were at most −1, the
+              first factor would be positive and the second at most 0, so the
+              product would not be positive.
+  let x ∈ ℝ                                                           (H1)
+  assume x³ − x > 0                                                   (H2)
+  then x > −1
+
+1.  x > −1
+    contradiction
+    suppose not x > −1                                                (S)
+
+    1.1.  x ≤ −1
+          inequalities, from S
+
+    1.2.  x² ≥ 0
+          mun:square-nonneg
+
+    1.3.  x² − x > 0
+          inequalities, from 1.1, 1.2
+
+    1.4.  x + 1 ≤ 0
+          inequalities, from 1.1
+
+    1.5.  (x² − x)·(x + 1) ≤ (x² − x)·0
+          mun:multiply-le x := x + 1, y := 0, c := x² − x, from 1.3, 1.4
+
+    1.6.  (x² − x)·(x + 1) = x³ − x
+          algebra
+
+    1.7.  not x³ − x > 0
+          inequalities, from 1.5, 1.6, contradicting H2

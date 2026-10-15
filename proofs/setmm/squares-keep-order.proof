@@ -1,0 +1,50 @@
+import mundane theorem    stdlib/numbers/square-less
+import mundane axiom      stdlib/numbers/trichotomy
+
+theorem squares-keep-order
+  note        Between nonnegative numbers, a ≤ b is a = b or a < b. Equal
+              numbers have equal squares, and a < b gives a² < b².
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume 0 ≤ a                                                        (H3)
+  assume a ≤ b                                                        (H4)
+  then a² ≤ b²
+
+1.  b − a < 0 or b − a = 0 or 0 < b − a
+    mun:trichotomy x := b − a
+
+2.  a² ≤ b²
+    cases, from 1
+
+    case
+    assume b − a < 0                                                  (C1)
+
+    2.1.  not a ≤ b
+          inequalities, from C1, contradicting H4
+
+    case
+    assume b − a = 0                                                  (C2)
+
+    2.2.  a = b
+          inequalities, from C2, H4
+
+    2.3.  a² = b²
+          substitute a = b (line 2.2)
+
+    2.4.  a² ≤ b²
+          inequalities, from 2.3
+
+    case
+    assume 0 < b − a                                                  (C3)
+
+    2.5.  a < b
+          inequalities, from C3
+
+    2.6.  b ≥ 0
+          inequalities, from H3, H4
+
+    2.7.  a² < b²
+          mun:square-less x := a, y := b, from H3, 2.5, 2.6
+
+    2.8.  a² ≤ b²
+          inequalities, from 2.7

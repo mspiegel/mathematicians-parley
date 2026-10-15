@@ -1,0 +1,67 @@
+import theorem            proofs/wiedijk/sum-formula/sum-formula
+import mundane theorem    stdlib/sums/sum-extended
+import mundane theorem    stdlib/sums/sum-single
+
+theorem square-of-sum-equals-sum-of-cubes
+  note        The sum of the first n numbers is n(n + 1)/2. By induction on n,
+              the sum of the first n cubes is the square of that: adding
+              (k + 1)³ to (k(k + 1)/2)² gives ((k + 1)(k + 2)/2)².
+  let n ∈ ℕ                                                           (H1)
+  then (Σ(k = 1 to n) k)² = Σ(k = 1 to n) k³
+
+let C(m) = Σ(j = 1 to m) j³, for m ∈ ℕ                                (D1)
+       reads the sum of the first m cubes
+
+1.  For all k ∈ ℕ, C(k) = (k(k + 1)/2)².
+    induction on k starting at 1
+
+    base
+    1.1.  Σ(j = 1 to 1) j³ = 1³
+          mun:sum-single a := 1
+
+    1.2.  C(1) = (1(1 + 1)/2)²
+          calculation
+            C(1) = Σ(j = 1 to 1) j³     D1
+                 = 1³                   1.1
+                 = (1(1 + 1)/2)²        arithmetic
+
+    step
+    let k ∈ ℕ                                                         (K)
+    assume step 1 is true for k, the induction hypothesis             (IH)
+
+    1.3.  Σ(j = 1 to k + 1) j³ = Σ(j = 1 to k) j³ + (k + 1)³
+          mun:sum-extended a := 1, n := k
+          requires k ≥ 1: from K
+
+    1.4.  C(k + 1) = C(k) + (k + 1)³
+          calculation
+            C(k + 1) = Σ(j = 1 to k + 1) j³          D1
+                     = Σ(j = 1 to k) j³ + (k + 1)³   1.3
+                     = C(k) + (k + 1)³               D1
+
+    1.5.  C(k) + (k + 1)³ = (k(k + 1)/2)² + (k + 1)³
+          substitute C(k) = (k(k + 1)/2)² (IH)
+
+    1.6.  (k(k + 1)/2)² + (k + 1)³ = ((k + 1)((k + 1) + 1)/2)²
+          algebra
+
+    1.7.  C(k + 1) = ((k + 1)((k + 1) + 1)/2)²
+          calculation
+            C(k + 1) = C(k) + (k + 1)³                     1.4
+                     = (k(k + 1)/2)² + (k + 1)³            1.5
+                     = ((k + 1)((k + 1) + 1)/2)²           1.6
+
+2.  C(n) = (n(n + 1)/2)²
+    instantiate k := n in line 1
+
+3.  Σ(k = 1 to n) k = n(n + 1)/2
+    thm:sum-formula
+
+4.  (Σ(k = 1 to n) k)² = (n(n + 1)/2)²
+    substitute Σ(k = 1 to n) k = n(n + 1)/2 (line 3)
+
+5.  (Σ(k = 1 to n) k)² = Σ(k = 1 to n) k³
+    calculation
+      (Σ(k = 1 to n) k)² = (n(n + 1)/2)²      4
+                         = C(n)               2
+                         = Σ(k = 1 to n) k³   D1

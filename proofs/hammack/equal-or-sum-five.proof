@@ -1,0 +1,43 @@
+import mundane axiom      stdlib/reasoning/excluded-middle
+import mundane theorem    stdlib/numbers/multiply-cancel
+import mundane theorem    stdlib/reasoning/or-left
+import mundane theorem    stdlib/reasoning/or-right
+
+theorem equal-or-sum-five
+  note        The equation says (x − y)(x + y − 5) = 0. If x + y = 5 there is
+              nothing more to show. Otherwise x + y − 5 is not 0, and dividing
+              it out leaves x − y = 0.
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume x² + 5y = y² + 5x                                            (H3)
+  then x = y or x + y = 5
+
+1.  x + y = 5 or not (x + y = 5)
+    mun:excluded-middle P := x + y = 5
+
+2.  x = y or x + y = 5
+    cases, from 1
+
+    case
+    assume x + y = 5                                                  (C1)
+
+    2.1.  x = y or x + y = 5
+          mun:or-right P := x = y, Q := x + y = 5, from C1
+
+    case
+    assume not (x + y = 5)                                            (C2)
+
+    2.2.  x + y − 5 ≠ 0
+          inequalities, from C2
+
+    2.3.  (x − y)·(x + y − 5) = 0·(x + y − 5)
+          algebra, from H3
+
+    2.4.  x − y = 0
+          mun:multiply-cancel a := x − y, b := 0, c := x + y − 5, from 2.2, 2.3
+
+    2.5.  x = y
+          algebra, from 2.4
+
+    2.6.  x = y or x + y = 5
+          mun:or-left P := x = y, Q := x + y = 5, from 2.5

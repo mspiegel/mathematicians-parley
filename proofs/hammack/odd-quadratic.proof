@@ -1,0 +1,25 @@
+import mundane definition stdlib/divisibility/odd
+
+theorem odd-quadratic
+  note        With a = 2k + 1, a² + 3a + 5 is 4k² + 10k + 9, which is twice
+              2k² + 5k + 4, plus 1.
+  let a ∈ ℤ                                                           (H1)
+  assume a is odd                                                     (H2)
+  then a² + 3a + 5 is odd
+
+1.  k ∈ ℤ. a = 2k + 1.
+    obtain k: mun:odd, from H2
+
+2.  a² + 3a + 5 = (2k + 1)² + 3(2k + 1) + 5
+    substitute a = 2k + 1 (line 1)
+
+3.  (2k + 1)² + 3(2k + 1) + 5 = 2(2k² + 5k + 4) + 1
+    algebra
+
+4.  a² + 3a + 5 = 2(2k² + 5k + 4) + 1
+    calculation
+      a² + 3a + 5 = (2k + 1)² + 3(2k + 1) + 5     2
+                  = 2(2k² + 5k + 4) + 1           3
+
+5.  a² + 3a + 5 is odd
+    mun:odd n := a² + 3a + 5, from 4

@@ -1,0 +1,21 @@
+import mundane definition stdlib/functions/image
+import mundane theorem    stdlib/sets/subset-self
+
+theorem value-of-onto
+  note        When the image of A is all of B, each point of B is in the image, so some point of A goes to it.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  let F : A → B                                                       (H3)
+  assume F[A] = B                                                     (H4)
+  let y ∈ B                                                           (H5)
+  then there is x ∈ A with y = F(x)
+
+1.  y ∈ F[A]
+    substitute F[A] = B (H4) into H5
+
+2.  x ∈ A. y = F(x).
+    obtain x: mun:image u := y, Y := A, from 1
+    requires A ⊆ A: mun:subset-self
+
+3.  there is x ∈ A with y = F(x)
+    exhibit, from 2

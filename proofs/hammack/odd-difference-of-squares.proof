@@ -1,0 +1,21 @@
+import mundane definition stdlib/divisibility/odd
+
+theorem odd-difference-of-squares
+  note        An odd number is 2k + 1, and (k + 1)² − k² = 2k + 1.
+  let n ∈ ℤ                                                           (H1)
+  assume n is odd                                                     (H2)
+  then there exist a, b ∈ ℤ such that n = a² − b²
+
+1.  k ∈ ℤ. n = 2k + 1.
+    obtain k: mun:odd, from H2
+
+2.  (k + 1)² − k² = 2k + 1
+    algebra
+
+3.  n = (k + 1)² − k²
+    calculation
+      n = 2k + 1               1
+        = (k + 1)² − k²        2
+
+4.  There exist a, b ∈ ℤ such that n = a² − b².
+    exhibit, from 3

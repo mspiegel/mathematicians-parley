@@ -1,0 +1,104 @@
+import theorem            proofs/wiedijk/triangle-inequality/abs-bounds
+import mundane definition stdlib/numbers/abs
+import mundane theorem    stdlib/numbers/abs-real
+import mundane theorem    stdlib/numbers/abs-square
+import mundane theorem    stdlib/numbers/nonneg-or-neg
+import mundane theorem    stdlib/numbers/square-less
+
+theorem bounded-by-square
+  note        A number and its negative are both at most B exactly when its
+              absolute value is, and for nonnegative numbers the order of
+              the squares is the order of the numbers.
+  let A ∈ ℝ                                                           (H1)
+  let B ∈ ℝ                                                           (H2)
+  assume 0 ≤ B                                                        (H3)
+  then (A ≤ B and −A ≤ B) ↔ A² ≤ B²
+
+1.  A ≤ |A|. −A ≤ |A|.
+    thm:abs-bounds x := A
+
+2.  |A|² = A²
+    mun:abs-square x := A
+
+3.  0 ≤ |A|
+    inequalities, from 1
+    requires |A| ∈ ℝ: mun:abs-real x := A
+
+4.  A ≥ 0 or A < 0
+    mun:nonneg-or-neg x := A
+
+5.  (A ≤ B and −A ≤ B) ↔ A² ≤ B²
+    both directions
+
+    direction
+    assume A ≤ B and −A ≤ B                                           (D1)
+
+    5.1.  |A| ≤ B
+          cases, from 4
+
+          case
+          assume A ≥ 0                                                (C1)
+
+          5.1.1.  |A| = A
+                  mun:abs x := A, from C1
+
+          5.1.2.  |A| ≤ B
+                  inequalities, from D1, 5.1.1
+                  requires |A| ∈ ℝ: mun:abs-real x := A
+
+          case
+          assume A < 0                                                (C2)
+
+          5.1.3.  |A| = −A
+                  mun:abs x := A, from C2
+
+          5.1.4.  |A| ≤ B
+                  inequalities, from D1, 5.1.3
+                  requires |A| ∈ ℝ: mun:abs-real x := A
+
+    5.2.  A² ≤ B²
+          contradiction
+          suppose not A² ≤ B²                                         (S1)
+
+          5.2.1.  B² < A²
+                  inequalities, from S1
+
+          5.2.2.  B² < |A|²
+                  substitute |A|² = A² (line 2) into line 5.2.1
+
+          5.2.3.  B < |A|
+                  mun:square-less x := B, y := |A|, from 5.2.2
+                  requires |A| ∈ ℝ: mun:abs-real x := A
+                  requires |A| ≥ 0: from 3
+                  requires B ≥ 0: from H3
+
+          5.2.4.  not |A| ≤ B
+                  inequalities, from 5.2.3, contradicting 5.1
+                  requires |A| ∈ ℝ: mun:abs-real x := A
+
+    direction
+    assume A² ≤ B²                                                    (D2)
+
+    5.3.  |A| ≤ B
+          contradiction
+          suppose not |A| ≤ B                                         (S2)
+
+          5.3.1.  B < |A|
+                  inequalities, from S2
+                  requires |A| ∈ ℝ: mun:abs-real x := A
+
+          5.3.2.  B² < |A|²
+                  mun:square-less x := B, y := |A|, from 5.3.1
+                  requires |A| ∈ ℝ: mun:abs-real x := A
+                  requires |A| ≥ 0: from 3
+                  requires B ≥ 0: from H3
+
+          5.3.3.  B² < A²
+                  substitute |A|² = A² (line 2) into line 5.3.2
+
+          5.3.4.  not A² ≤ B²
+                  inequalities, from 5.3.3, contradicting D2
+
+    5.4.  A ≤ B and −A ≤ B
+          inequalities, from 1, 5.3
+          requires |A| ∈ ℝ: mun:abs-real x := A

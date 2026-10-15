@@ -1,0 +1,58 @@
+import definition         stdlib/calculus/continuous-on
+
+theorem identity-function-continuous
+  note        f(x) − f(a) is x − a, so a point within ε of a has its value
+              within ε of f(a). Take δ = ε.
+  ε, δ range over ℝ
+  let D ⊆ ℝ                                                           (H1)
+  let f : D → ℝ                                                       (H2)
+  assume for all x ∈ D, f(x) = x                                      (H3)
+  then f is continuous on D
+
+1.  For all a ∈ D, for all ε > 0, there exists δ > 0 such that
+    |f(x) − f(a)| < ε for all x ∈ D with |x − a| < δ.
+    proof
+    let a ∈ D                                                         (K1)
+
+    1.1.  For all ε > 0, there exists δ > 0 such that
+          |f(x) − f(a)| < ε for all x ∈ D with |x − a| < δ.
+          proof
+          let ε ∈ ℝ                                                   (K2)
+          assume ε > 0                                                (A1)
+
+          1.1.1.  For all x ∈ D with |x − a| < ε, |f(x) − f(a)| < ε.
+                  proof
+                  let x ∈ D                                           (K3)
+                  assume |x − a| < ε                                  (A2)
+
+                  1.1.1.1.  f(x) = x
+                            instantiate x := x in H3, from K3
+
+                  1.1.1.2.  f(a) = a
+                            instantiate x := a in H3, from K1
+
+                  1.1.1.3.  f(x) − f(a) = x − f(a)
+                            substitute f(x) = x (line 1.1.1.1)
+
+                  1.1.1.4.  x − f(a) = x − a
+                            substitute f(a) = a (line 1.1.1.2)
+
+                  1.1.1.5.  f(x) − f(a) = x − a
+                            calculation
+                              f(x) − f(a) = x − f(a)    1.1.1.3
+                                          = x − a       1.1.1.4
+
+                  1.1.1.6.  |f(x) − f(a)| = |x − a|
+                            substitute f(x) − f(a) = x − a (line 1.1.1.5)
+
+                  1.1.1.7.  |f(x) − f(a)| < ε
+                            calculation
+                              |f(x) − f(a)| = |x − a|    1.1.1.6
+                                            < ε          A2
+
+          1.1.2.  There exists δ > 0 such that
+                  |f(x) − f(a)| < ε for all x ∈ D with |x − a| < δ.
+                  exhibit, from A1, 1.1.1
+
+2.  f is continuous on D
+    def:continuous-on, from H1, 1

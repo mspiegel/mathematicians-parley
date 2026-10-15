@@ -1,0 +1,34 @@
+import mundane theorem    stdlib/divisibility/divides-difference
+import mundane theorem    stdlib/divisibility/divides-one
+import mundane definition stdlib/divisibility/prime
+
+theorem prime-divides-predecessor
+  note        If P divided both A − 1 and A it would divide their
+              difference, 1, and a prime is not 1.
+  let P ∈ ℕ                                                           (H1)
+  assume P is prime                                                   (H2)
+  let A ∈ ℤ                                                           (H3)
+  assume P divides A − 1                                              (H4)
+  then not (P divides A)
+
+1.  P > 1
+    mun:prime p := P, from H2
+
+2.  not (P divides A)
+    contradiction
+    suppose P divides A                                               (S)
+
+    2.1.  P divides A − (A − 1)
+          mun:divides-difference d := P, a := A, b := A − 1, from H4, S
+
+    2.2.  A − (A − 1) = 1
+          algebra
+
+    2.3.  P divides 1
+          substitute A − (A − 1) = 1 (line 2.2) into line 2.1
+
+    2.4.  P = 1
+          mun:divides-one d := P, from 2.3
+
+    2.5.  P ≠ 1
+          inequalities, from 1, contradicting 2.4

@@ -1,0 +1,27 @@
+import mundane theorem    stdlib/reasoning/modus-ponens
+
+theorem contrapositive
+  metamath    con3
+  note        If a = 0 forces b = 0 and b = 0 fails, then a = 0 cannot hold,
+              for it would bring b = 0 with it.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  then if (if a = 0 then b = 0) then if b ≠ 0 then a ≠ 0
+
+1.  If (if a = 0 then b = 0) then if b ≠ 0 then a ≠ 0.
+    proof
+    assume if a = 0 then b = 0                                        (K1)
+
+    1.1.  If b ≠ 0 then a ≠ 0.
+          proof
+          assume b ≠ 0                                                (K2)
+
+          1.1.1.  a ≠ 0
+                  contradiction
+                  suppose a = 0                                       (S)
+
+                  1.1.1.1.  b = 0
+                            mun:modus-ponens, from K1, S
+
+                  1.1.1.2.  b ≠ 0
+                            join K2, contradicting 1.1.1.1

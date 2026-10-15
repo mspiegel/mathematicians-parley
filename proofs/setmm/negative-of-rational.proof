@@ -1,0 +1,27 @@
+import mundane definition stdlib/numbers/rational
+
+theorem negative-of-rational
+  note        If A is p/q then −A is (−p)/q, and −p is an integer.
+  let A ∈ ℚ                                                           (H1)
+  then −A ∈ ℚ
+
+1.  p ∈ ℤ. q ∈ ℕ. A = p/q.
+    obtain p, q: mun:rational x := A
+
+2.  q ≠ 0
+    inequalities, from 1
+
+3.  −A = −p/q
+    substitute A = p/q (line 1)
+
+4.  −p/q = (−p)/q
+    algebra
+    requires q ≠ 0: from 2
+
+5.  −A = (−p)/q
+    calculation
+      −A = −p/q       3
+         = (−p)/q     4
+
+6.  −A ∈ ℚ
+    mun:rational x := −A, from 5

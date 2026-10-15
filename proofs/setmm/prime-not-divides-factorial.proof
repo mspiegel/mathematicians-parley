@@ -1,0 +1,142 @@
+import theorem            proofs/setmm/prime-divides-product/prime-divides-product
+import mundane definition stdlib/counting/factorial
+import mundane theorem    stdlib/counting/factorial-nat
+import mundane theorem    stdlib/counting/factorial-zero
+import mundane theorem    stdlib/divisibility/divides-le
+import mundane theorem    stdlib/divisibility/divides-one
+import mundane definition stdlib/divisibility/prime
+import mundane theorem    stdlib/numbers/nat-int
+import mundane theorem    stdlib/numbers/nat0-nonzero
+import mundane axiom      stdlib/reasoning/excluded-middle
+import mundane theorem    stdlib/reasoning/iff-from-left
+import mundane theorem    stdlib/reasoning/modus-ponens
+
+theorem prime-not-divides-factorial
+  note        k! is a product of numbers below P, and a prime dividing a
+              product divides one of its factors, none of which it can
+              divide. Stated of each k below P by induction: (k + 1)! is
+              k!·(k + 1), and P divides neither k! nor k + 1.
+  let P ∈ ℕ                                                           (H1)
+  assume P is prime                                                   (H2)
+  let N ∈ ℕ₀                                                          (H3)
+  assume N < P                                                        (H4)
+  then not (P divides N!)
+
+1.  P > 1
+    mun:prime p := P, from H2
+
+2.  For all k ∈ ℕ, if k < P then not (P divides k!).
+    induction on k starting at 1
+
+    base
+    2.1.  If 1 < P then not (P divides 1!).
+          proof
+          assume 1 < P                                                (B)
+
+          2.1.1.  not (P divides 1!)
+                  contradiction
+                  suppose P divides 1!                                (S1)
+
+                  2.1.1.1.  1! = 1
+                            mun:factorial
+
+                  2.1.1.2.  P divides 1
+                            substitute 1! = 1 (line 2.1.1.1) into S1
+
+                  2.1.1.3.  P = 1
+                            mun:divides-one d := P, from 2.1.1.2
+
+                  2.1.1.4.  P ≠ 1
+                            inequalities, from 1, contradicting 2.1.1.3
+
+    step
+    let k ∈ ℕ                                                         (K)
+    assume step 2 is true for k, the induction hypothesis             (IH)
+
+    2.2.  If k + 1 < P then not (P divides (k + 1)!).
+          proof
+          assume k + 1 < P                                            (A)
+
+          2.2.1.  not (P divides (k + 1)!)
+                  contradiction
+                  suppose P divides (k + 1)!                          (S2)
+
+                  2.2.1.1.  (k + 1)! = k!·(k + 1)
+                            mun:factorial n := k
+
+                  2.2.1.2.  P divides k!·(k + 1)
+                            substitute (k + 1)! = k!·(k + 1) (line 2.2.1.1) into S2
+
+                  2.2.1.3.  k! ∈ ℕ
+                            mun:factorial-nat n := k
+
+                  2.2.1.4.  P divides k!·(k + 1) ↔ P divides k! or P divides k + 1
+                            thm:prime-divides-product M := k!, N := k + 1, from H2
+                            requires k! ∈ ℤ: mun:nat-int m := k!, from 2.2.1.3
+
+                  2.2.1.5.  P divides k! or P divides k + 1
+                            mun:iff-from-left, from 2.2.1.2, 2.2.1.4
+
+                  2.2.1.6.  k < P
+                            inequalities, from A
+
+                  2.2.1.7.  not (P divides k!)
+                            mun:modus-ponens, from IH, 2.2.1.6
+
+                  2.2.1.8.  P ≤ k + 1
+                            cases, from 2.2.1.5
+
+                            case
+                            assume P divides k!                       (C1)
+
+                            2.2.1.8.1.  not (P divides k!)
+                                        join 2.2.1.7, contradicting C1
+
+                            case
+                            assume P divides k + 1                    (C2)
+
+                            2.2.1.8.2.  P ≤ k + 1
+                                        mun:divides-le e := P, m := k + 1, from C2
+
+                  2.2.1.9.  not (k + 1 < P)
+                            inequalities, from 2.2.1.8, contradicting A
+
+3.  N = 0 or N ≠ 0
+    mun:excluded-middle P := N = 0
+
+4.  not (P divides N!)
+    cases, from 3
+
+    case
+    assume N = 0                                                      (C3)
+
+    4.1.  0! = 1
+          mun:factorial-zero
+
+    4.2.  N! = 1
+          substitute N = 0 (C3) into line 4.1
+
+    4.3.  not (P divides N!)
+          contradiction
+          suppose P divides N!                                        (S3)
+
+          4.3.1.  P divides 1
+                  substitute N! = 1 (line 4.2) into S3
+
+          4.3.2.  P = 1
+                  mun:divides-one d := P, from 4.3.1
+
+          4.3.3.  P ≠ 1
+                  inequalities, from 1, contradicting 4.3.2
+
+    case
+    assume N ≠ 0                                                      (C4)
+
+    4.4.  N ∈ ℕ
+          mun:nat0-nonzero m := N, from C4
+
+    4.5.  If N < P then not (P divides N!).
+          instantiate k := N in line 2, from 4.4
+
+    4.6.  not (P divides N!)
+          mun:modus-ponens, from H4, 4.5

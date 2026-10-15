@@ -1,0 +1,292 @@
+import mundane definition stdlib/sets/subset
+import mundane definition stdlib/sets/union
+import mundane definition stdlib/sets/intersection
+import mundane theorem    stdlib/sets/subset-antisymmetric
+import mundane theorem    stdlib/sets/subset-transitive
+import mundane theorem    stdlib/sets/in-subset
+import mundane theorem    stdlib/sets/in-union-left
+import mundane theorem    stdlib/sets/in-union-right
+import mundane theorem    stdlib/sets/union-subset
+import mundane theorem    stdlib/sets/union-difference
+import mundane theorem    stdlib/sets/union-empty
+import mundane theorem    stdlib/sets/union-self
+import mundane theorem    stdlib/sets/intersection-self
+import mundane theorem    stdlib/sets/difference-shrinks
+import mundane theorem    stdlib/sets/difference-self
+import mundane theorem    stdlib/sets/subset-empty
+import mundane theorem    stdlib/reasoning/disjunctive-syllogism-left
+import mundane axiom      stdlib/reasoning/excluded-middle
+import theorem            proofs/setmm/subset-of-union/subset-of-union
+import theorem            proofs/setmm/subset-of-union-right/subset-of-union-right
+import theorem            proofs/setmm/intersection-subsets/intersection-subset-left
+import theorem            proofs/setmm/intersection-subsets/intersection-subset-right
+
+theorem subset-iff-difference-empty
+  note        A lies inside B exactly when taking B away from A leaves
+              nothing.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  then A ⊆ B ↔ A ∖ B = ∅
+
+1.  A ⊆ B ↔ A ∖ B = ∅
+    both directions
+
+    direction
+    assume A ⊆ B                                                      (D1)
+
+    1.1.  A ∖ B ⊆ B ∖ B
+          mun:difference-shrinks Y := A, X := B, Z := B, from D1
+
+    1.2.  B ∖ B = ∅
+          mun:difference-self Y := B
+
+    1.3.  A ∖ B ⊆ ∅
+          substitute B ∖ B = ∅ (line 1.2) into line 1.1
+
+    1.4.  A ∖ B = ∅
+          mun:subset-empty Y := A ∖ B, from 1.3
+
+    direction
+    assume A ∖ B = ∅                                                  (D2)
+
+    1.5.  B ∪ (A ∖ B) = B ∪ A
+          mun:union-difference Y := B, Z := A
+
+    1.6.  B ∪ ∅ = B ∪ A
+          substitute A ∖ B = ∅ (D2) into line 1.5
+
+    1.7.  B ∪ ∅ = B
+          mun:union-empty Y := B
+
+    1.8.  B = B ∪ A
+          calculation
+            B = B ∪ ∅      1.7
+              = B ∪ A      1.6
+
+    1.9.  A ⊆ B ∪ A
+          thm:subset-of-union-right
+
+    1.10. A ⊆ B
+          substitute B = B ∪ A (line 1.8) into line 1.9
+
+
+theorem union-equals-intersection
+  note        If A ∪ B is A ∩ B then each of A and B lies inside both, so
+              they are the same set.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  then A ∪ B = A ∩ B ↔ A = B
+
+1.  A ∪ B = A ∩ B ↔ A = B
+    both directions
+
+    direction
+    assume A ∪ B = A ∩ B                                              (D1)
+
+    1.1.  A ⊆ A ∪ B
+          thm:subset-of-union
+
+    1.2.  A ⊆ A ∩ B
+          substitute A ∪ B = A ∩ B (D1) into line 1.1
+
+    1.3.  A ∩ B ⊆ B
+          thm:intersection-subset-right
+
+    1.4.  A ⊆ B
+          mun:subset-transitive X := A, Y := A ∩ B, Z := B, from 1.2, 1.3
+
+    1.5.  B ⊆ A ∪ B
+          thm:subset-of-union-right A := B, B := A
+
+    1.6.  B ⊆ A ∩ B
+          substitute A ∪ B = A ∩ B (D1) into line 1.5
+
+    1.7.  A ∩ B ⊆ A
+          thm:intersection-subset-left
+
+    1.8.  B ⊆ A
+          mun:subset-transitive X := B, Y := A ∩ B, Z := A, from 1.6, 1.7
+
+    1.9.  A = B
+          mun:subset-antisymmetric, from 1.4, 1.8
+
+    direction
+    assume A = B                                                      (D2)
+
+    1.10. A ∪ A = A
+          mun:union-self Y := A
+
+    1.11. A ∩ A = A
+          mun:intersection-self Y := A
+
+    1.12. A ∪ B = A ∪ A
+          substitute A = B (D2)
+
+    1.13. A ∩ B = A ∩ A
+          substitute A = B (D2)
+
+    1.14. A ∪ B = A ∩ B
+          calculation
+            A ∪ B = A ∪ A      1.12
+                  = A          1.10
+                  = A ∩ A      1.11
+                  = A ∩ B      1.13
+
+
+theorem union-over-intersection
+  note        An element is in A or in both B and C exactly when it is in
+              A or B and in A or C.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  let C be a set                                                      (H3)
+  then A ∪ (B ∩ C) = (A ∪ B) ∩ (A ∪ C)
+
+1.  For all u ∈ A ∪ (B ∩ C), u ∈ (A ∪ B) ∩ (A ∪ C).
+    proof
+    let u ∈ A ∪ (B ∩ C)                                               (K1)
+
+    1.1.  u ∈ A or u ∈ B ∩ C
+          mun:union, from K1
+
+    1.2.  u ∈ (A ∪ B) ∩ (A ∪ C)
+          cases, from 1.1
+
+          case
+          assume u ∈ A                                                (C1)
+
+          1.2.1.  u ∈ A ∪ B
+                  mun:in-union-left, from C1
+
+          1.2.2.  u ∈ A ∪ C
+                  mun:in-union-left, from C1
+
+          1.2.3.  u ∈ A ∪ B and u ∈ A ∪ C
+                  join 1.2.1, 1.2.2
+
+          1.2.4.  u ∈ (A ∪ B) ∩ (A ∪ C)
+                  mun:intersection, from 1.2.3
+
+          case
+          assume u ∈ B ∩ C                                            (C2)
+
+          1.2.5.  u ∈ B and u ∈ C
+                  mun:intersection, from C2
+
+          1.2.6.  u ∈ A ∪ B
+                  mun:in-union-right, from 1.2.5
+
+          1.2.7.  u ∈ A ∪ C
+                  mun:in-union-right, from 1.2.5
+
+          1.2.8.  u ∈ A ∪ B and u ∈ A ∪ C
+                  join 1.2.6, 1.2.7
+
+          1.2.9.  u ∈ (A ∪ B) ∩ (A ∪ C)
+                  mun:intersection, from 1.2.8
+
+2.  A ∪ (B ∩ C) ⊆ (A ∪ B) ∩ (A ∪ C)
+    mun:subset, from 1
+
+3.  For all u ∈ (A ∪ B) ∩ (A ∪ C), u ∈ A ∪ (B ∩ C).
+    proof
+    let u ∈ (A ∪ B) ∩ (A ∪ C)                                         (K2)
+
+    3.1.  u ∈ A ∪ B and u ∈ A ∪ C
+          mun:intersection, from K2
+
+    3.2.  u ∈ A or u ∈ B
+          mun:union, from 3.1
+
+    3.3.  u ∈ A or u ∈ C
+          mun:union, from 3.1
+
+    3.4.  u ∈ A or u ∉ A
+          mun:excluded-middle P := u ∈ A
+
+    3.5.  u ∈ A ∪ (B ∩ C)
+          cases, from 3.4
+
+          case
+          assume u ∈ A                                                (C3)
+
+          3.5.1.  u ∈ A ∪ (B ∩ C)
+                  mun:in-union-left, from C3
+
+          case
+          assume u ∉ A                                                (C4)
+
+          3.5.2.  u ∈ B
+                  mun:disjunctive-syllogism-left, from C4, 3.2
+
+          3.5.3.  u ∈ C
+                  mun:disjunctive-syllogism-left, from C4, 3.3
+
+          3.5.4.  u ∈ B and u ∈ C
+                  join 3.5.2, 3.5.3
+
+          3.5.5.  u ∈ B ∩ C
+                  mun:intersection, from 3.5.4
+
+          3.5.6.  u ∈ A ∪ (B ∩ C)
+                  mun:in-union-right, from 3.5.5
+
+4.  (A ∪ B) ∩ (A ∪ C) ⊆ A ∪ (B ∩ C)
+    mun:subset, from 3
+
+5.  A ∪ (B ∩ C) = (A ∪ B) ∩ (A ∪ C)
+    mun:subset-antisymmetric, from 2, 4
+
+
+theorem union-keeps-order
+  note        Each member of A ∪ C is in A, hence in B, or in C.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  let C be a set                                                      (H3)
+  assume A ⊆ B                                                        (H4)
+  then A ∪ C ⊆ B ∪ C
+
+1.  B ⊆ B ∪ C
+    thm:subset-of-union A := B, B := C
+
+2.  A ⊆ B ∪ C
+    mun:subset-transitive X := A, Y := B, Z := B ∪ C, from H4, 1
+
+3.  C ⊆ B ∪ C
+    thm:subset-of-union-right A := C
+
+4.  A ∪ C ⊆ B ∪ C
+    mun:union-subset X := A, Y := C, Z := B ∪ C, from 2, 3
+
+
+theorem intersection-keeps-order
+  note        A member of A ∩ C is in A, hence in B, and is in C.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  let C be a set                                                      (H3)
+  assume A ⊆ B                                                        (H4)
+  then A ∩ C ⊆ B ∩ C
+
+1.  For all u ∈ A ∩ C, u ∈ B ∩ C.
+    proof
+    let u ∈ A ∩ C                                                     (K1)
+
+    1.1.  u ∈ A and u ∈ C
+          mun:intersection, from K1
+
+    1.2.  u ∈ A
+          join 1.1
+
+    1.3.  u ∈ C
+          join 1.1
+
+    1.4.  u ∈ B
+          mun:in-subset X := A, Y := B, from H4, 1.2
+
+    1.5.  u ∈ B and u ∈ C
+          join 1.3, 1.4
+
+    1.6.  u ∈ B ∩ C
+          mun:intersection, from 1.5
+
+2.  A ∩ C ⊆ B ∩ C
+    mun:subset, from 1

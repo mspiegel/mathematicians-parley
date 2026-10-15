@@ -1,0 +1,61 @@
+import mundane definition stdlib/functions/preimage
+import mundane definition stdlib/sets/intersection
+import mundane definition stdlib/sets/subset
+import mundane theorem    stdlib/sets/subset-antisymmetric
+
+theorem preimage-of-intersection
+  note        A point goes into Y ∩ Z exactly when it goes into Y and goes
+              into Z.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  let f : A → B                                                       (H3)
+  let Y ⊆ B                                                           (H4)
+  let Z ⊆ B                                                           (H5)
+  then f⁻¹[Y ∩ Z] = f⁻¹[Y] ∩ f⁻¹[Z]
+
+1.  For all u ∈ f⁻¹[Y ∩ Z], u ∈ f⁻¹[Y] ∩ f⁻¹[Z].
+    proof
+    let u ∈ f⁻¹[Y ∩ Z]                                                (K1)
+
+    1.1.  u ∈ A. f(u) ∈ Y ∩ Z.
+          mun:preimage Z := Y ∩ Z, from K1
+
+    1.2.  f(u) ∈ Y. f(u) ∈ Z.
+          mun:intersection u := f(u), from 1.1
+
+    1.3.  u ∈ f⁻¹[Y]
+          mun:preimage Z := Y, from 1.1, 1.2
+
+    1.4.  u ∈ f⁻¹[Z]
+          mun:preimage, from 1.1, 1.2
+
+    1.5.  u ∈ f⁻¹[Y] ∩ f⁻¹[Z]
+          mun:intersection Y := f⁻¹[Y], Z := f⁻¹[Z], from 1.3, 1.4
+
+2.  f⁻¹[Y ∩ Z] ⊆ f⁻¹[Y] ∩ f⁻¹[Z]
+    mun:subset, from 1
+
+3.  For all u ∈ f⁻¹[Y] ∩ f⁻¹[Z], u ∈ f⁻¹[Y ∩ Z].
+    proof
+    let u ∈ f⁻¹[Y] ∩ f⁻¹[Z]                                           (K2)
+
+    3.1.  u ∈ f⁻¹[Y]. u ∈ f⁻¹[Z].
+          mun:intersection Y := f⁻¹[Y], Z := f⁻¹[Z], from K2
+
+    3.2.  u ∈ A. f(u) ∈ Y.
+          mun:preimage Z := Y, from 3.1
+
+    3.3.  f(u) ∈ Z
+          mun:preimage, from 3.1
+
+    3.4.  f(u) ∈ Y ∩ Z
+          mun:intersection u := f(u), from 3.2, 3.3
+
+    3.5.  u ∈ f⁻¹[Y ∩ Z]
+          mun:preimage Z := Y ∩ Z, from 3.2, 3.4
+
+4.  f⁻¹[Y] ∩ f⁻¹[Z] ⊆ f⁻¹[Y ∩ Z]
+    mun:subset, from 3
+
+5.  f⁻¹[Y ∩ Z] = f⁻¹[Y] ∩ f⁻¹[Z]
+    mun:subset-antisymmetric, from 2, 4

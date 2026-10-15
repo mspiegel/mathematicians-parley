@@ -1,0 +1,36 @@
+import mundane theorem stdlib/divisibility/divides-difference
+import mundane theorem stdlib/divisibility/divides-self
+
+theorem divides-difference-with-divisor
+  note        M divides M, so if it divides N it divides M less N. Conversely,
+              if it divides M − N it divides M less that, which is N.
+  let M ∈ ℤ                                                           (H1)
+  let N ∈ ℤ                                                           (H2)
+  then M divides N ↔ M divides M − N
+
+1.  M divides N ↔ M divides M − N
+    both directions
+
+    direction
+    assume M divides N                                                (D1)
+
+    1.1.  M divides M
+          mun:divides-self n := M
+
+    1.2.  M divides M − N
+          mun:divides-difference d := M, a := M, b := N, from D1, 1.1
+
+    direction
+    assume M divides M − N                                            (D2)
+
+    1.3.  M divides M
+          mun:divides-self n := M
+
+    1.4.  M divides M − (M − N)
+          mun:divides-difference d := M, a := M, b := M − N, from D2, 1.3
+
+    1.5.  M − (M − N) = N
+          algebra
+
+    1.6.  M divides N
+          substitute M − (M − N) = N (line 1.5) into line 1.4

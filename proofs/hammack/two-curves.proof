@@ -1,0 +1,70 @@
+import mundane axiom      stdlib/reasoning/excluded-middle
+import mundane theorem    stdlib/numbers/multiply-cancel
+import mundane theorem    stdlib/reasoning/or-left
+import mundane theorem    stdlib/reasoning/or-right
+
+theorem two-curves
+  note        Moving everything to one side, the equation is (y − x²)(y + x)
+              = 0. A product is 0 only if a factor is: if y + x is not 0 it
+              cancels, leaving y = x². Conversely, either factor being 0
+              makes the product 0.
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  then x³ + x²·y = y² + x·y ↔ y = x² or y = −x
+
+1.  x³ + x²·y = y² + x·y ↔ y = x² or y = −x
+    both directions
+
+    direction
+    assume x³ + x²·y = y² + x·y                                       (D1)
+
+    1.1.  (y − x²)·(y + x) = 0
+          algebra, from D1
+
+    1.2.  y + x = 0 or not y + x = 0
+          mun:excluded-middle P := y + x = 0
+
+    1.3.  y = x² or y = −x
+          cases, from 1.2
+
+          case
+          assume y + x = 0                                            (C1)
+
+          1.3.1.  y = −x
+                  algebra, from C1
+
+          1.3.2.  y = x² or y = −x
+                  mun:or-right, from 1.3.1
+
+          case
+          assume not y + x = 0                                        (C2)
+
+          1.3.3.  (y − x²)·(y + x) = 0·(y + x)
+                  algebra, from 1.1
+
+          1.3.4.  y − x² = 0
+                  mun:multiply-cancel a := y − x², b := 0, c := y + x, from C2, 1.3.3
+
+          1.3.5.  y = x²
+                  algebra, from 1.3.4
+
+          1.3.6.  y = x² or y = −x
+                  mun:or-left, from 1.3.5
+
+    direction
+    assume y = x² or y = −x                                           (D2)
+
+    1.4.  x³ + x²·y = y² + x·y
+          cases, from D2
+
+          case
+          assume y = x²                                               (C3)
+
+          1.4.1.  x³ + x²·y = y² + x·y
+                  algebra, from C3
+
+          case
+          assume y = −x                                               (C4)
+
+          1.4.2.  x³ + x²·y = y² + x·y
+                  algebra, from C4

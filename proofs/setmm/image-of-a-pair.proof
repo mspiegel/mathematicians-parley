@@ -1,0 +1,104 @@
+import mundane definition stdlib/functions/image
+import mundane theorem    stdlib/functions/value-in-image
+import mundane definition stdlib/sets/subset
+import mundane definition stdlib/sets/pair
+import mundane theorem    stdlib/sets/pair-subset
+import mundane theorem    stdlib/sets/subset-antisymmetric
+import mundane theorem    stdlib/reasoning/or-left
+import mundane theorem    stdlib/reasoning/or-right
+
+theorem image-of-a-pair
+  note        F sends the two points B and C to the two values F(B) and
+              F(C), and nothing else is in the image.
+  let A be a set                                                      (H1)
+  let Y be a set                                                      (H2)
+  let F : A → Y                                                       (H3)
+  let B ∈ A                                                           (H4)
+  let C ∈ A                                                           (H5)
+  then F[{B, C}] = {F(B), F(C)}
+
+1.  {B, C} ⊆ A
+    mun:pair-subset a := B, b := C, X := A, from H4, H5
+
+2.  For all u ∈ F[{B, C}], u ∈ {F(B), F(C)}.
+    proof
+    let u ∈ F[{B, C}]                                                 (K1)
+
+    2.1.  there is s ∈ {B, C} with u = F(s)
+          mun:image X := A, Y := {B, C}, from K1, 1
+
+    2.2.  s ∈ {B, C}. u = F(s).
+          obtain s from line 2.1
+
+    2.3.  s = B or s = C
+          mun:pair x := s, u := B, w := C, from 2.2
+
+    2.4.  u ∈ {F(B), F(C)}
+          cases, from 2.3
+
+          case
+          assume s = B                                                (C1)
+
+          2.4.1.  u = F(B)
+                  substitute s = B (C1) into line 2.2
+
+          2.4.2.  u = F(B) or u = F(C)
+                  mun:or-left, from 2.4.1
+
+          2.4.3.  u ∈ {F(B), F(C)}
+                  mun:pair x := u, u := F(B), w := F(C), from 2.4.2
+
+          case
+          assume s = C                                                (C2)
+
+          2.4.4.  u = F(C)
+                  substitute s = C (C2) into line 2.2
+
+          2.4.5.  u = F(B) or u = F(C)
+                  mun:or-right, from 2.4.4
+
+          2.4.6.  u ∈ {F(B), F(C)}
+                  mun:pair x := u, u := F(B), w := F(C), from 2.4.5
+
+3.  F[{B, C}] ⊆ {F(B), F(C)}
+    mun:subset, from 2
+
+4.  For all u ∈ {F(B), F(C)}, u ∈ F[{B, C}].
+    proof
+    let u ∈ {F(B), F(C)}                                              (K2)
+
+    4.1.  u = F(B) or u = F(C)
+          mun:pair x := u, u := F(B), w := F(C), from K2
+
+    4.2.  u ∈ F[{B, C}]
+          cases, from 4.1
+
+          case
+          assume u = F(B)                                             (C3)
+
+          4.2.1.  B ∈ {B, C}
+                  inspection
+
+          4.2.2.  F(B) ∈ F[{B, C}]
+                  mun:value-in-image, from 1, 4.2.1
+
+          4.2.3.  u ∈ F[{B, C}]
+                  substitute u = F(B) (C3) into line 4.2.2
+
+          case
+          assume u = F(C)                                             (C4)
+
+          4.2.4.  C ∈ {B, C}
+                  inspection
+
+          4.2.5.  F(C) ∈ F[{B, C}]
+                  mun:value-in-image, from 1, 4.2.4
+
+          4.2.6.  u ∈ F[{B, C}]
+                  substitute u = F(C) (C4) into line 4.2.5
+
+5.  {F(B), F(C)} ⊆ F[{B, C}]
+    mun:subset, from 4
+
+6.  F[{B, C}] = {F(B), F(C)}
+    mun:subset-antisymmetric, from 3, 5

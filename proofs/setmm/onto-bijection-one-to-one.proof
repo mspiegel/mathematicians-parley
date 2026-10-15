@@ -1,0 +1,10 @@
+theorem onto-bijection-one-to-one
+  note        A one-to-one function stays one-to-one when its image is all of B.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  let F : A → B be one-to-one                                         (H3)
+  assume F[A] = B                                                     (H4)
+  then F : A → B is one-to-one
+
+1.  F : A → B is one-to-one
+    join H3

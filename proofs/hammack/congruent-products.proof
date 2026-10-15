@@ -1,0 +1,32 @@
+import mundane definition stdlib/divisibility/congruent-mod
+import mundane theorem    stdlib/divisibility/divides-combination
+
+theorem congruent-products
+  note        a·c − b·d is (a − b)·c + (c − d)·b, and n divides both a − b
+              and c − d.
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  let c ∈ ℤ                                                           (H3)
+  let d ∈ ℤ                                                           (H4)
+  let n ∈ ℕ                                                           (H5)
+  assume a ≡ b (mod n)                                                (H6)
+  assume c ≡ d (mod n)                                                (H7)
+  then a·c ≡ b·d (mod n)
+
+1.  n divides a − b
+    mun:congruent-mod, from H6
+
+2.  n divides c − d
+    mun:congruent-mod, from H7
+
+3.  n divides (a − b)·c + (c − d)·b
+    mun:divides-combination e := n, a := a − b, b := c − d, x := c, y := b, from 1, 2
+
+4.  (a − b)·c + (c − d)·b = a·c − b·d
+    algebra
+
+5.  n divides a·c − b·d
+    substitute (a − b)·c + (c − d)·b = a·c − b·d (line 4) into line 3
+
+6.  a·c ≡ b·d (mod n)
+    mun:congruent-mod, from 5

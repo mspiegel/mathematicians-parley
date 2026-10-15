@@ -1,0 +1,75 @@
+import mundane definition stdlib/numbers/rational
+
+theorem shift-by-rational
+  note        With B = r/s, a number A is rational exactly when A + B is:
+              A + B = p/q gives A = (ps − rq)/(qs), and A = p/q gives
+              A + B = (ps + rq)/(qs).
+  let A be an element                                                 (H1)
+  let B ∈ ℚ                                                           (H2)
+  then (A ∈ ℂ and A + B ∈ ℚ) ↔ A ∈ ℚ
+
+1.  r ∈ ℤ. s ∈ ℕ. B = r/s.
+    obtain r, s: mun:rational x := B
+
+2.  (A ∈ ℂ and A + B ∈ ℚ) ↔ A ∈ ℚ
+    both directions
+
+    direction
+    assume A ∈ ℂ and A + B ∈ ℚ                                        (D1)
+
+    2.1.  A ∈ ℂ
+          join D1
+
+    2.2.  A + B ∈ ℚ
+          join D1
+
+    2.3.  p ∈ ℤ. q ∈ ℕ. A + B = p/q.
+          obtain p, q: mun:rational x := A + B, from 2.2
+
+    2.4.  A = p/q − B
+          algebra, from 2.1, 2.3
+
+    2.5.  p/q − B = p/q − r/s
+          substitute B = r/s (line 1)
+
+    2.6.  p/q − r/s = (p·s − r·q)/(q·s)
+          algebra, from 1, 2.3
+
+    2.7.  A = (p·s − r·q)/(q·s)
+          calculation
+            A = p/q − B                2.4
+              = p/q − r/s              2.5
+              = (p·s − r·q)/(q·s)      2.6
+
+    2.8.  A ∈ ℚ
+          mun:rational x := A, from 2.7
+
+    direction
+    assume A ∈ ℚ                                                      (D2)
+
+    2.9.  p ∈ ℤ. q ∈ ℕ. A = p/q.
+          obtain p, q: mun:rational x := A, from D2
+
+    2.10. A ∈ ℂ
+          membership, from D2
+
+    2.11. A + B = p/q + B
+          substitute A = p/q (line 2.9)
+
+    2.12. p/q + B = p/q + r/s
+          substitute B = r/s (line 1)
+
+    2.13. p/q + r/s = (p·s + r·q)/(q·s)
+          algebra, from 1, 2.9
+
+    2.14. A + B = (p·s + r·q)/(q·s)
+          calculation
+            A + B = p/q + B            2.11
+                  = p/q + r/s          2.12
+                  = (p·s + r·q)/(q·s)  2.13
+
+    2.15. A + B ∈ ℚ
+          mun:rational x := A + B, from 2.14
+
+    2.16. A ∈ ℂ and A + B ∈ ℚ
+          join 2.10, 2.15

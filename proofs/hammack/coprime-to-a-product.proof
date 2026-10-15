@@ -1,0 +1,51 @@
+import theorem            proofs/wiedijk/bezout/bezout
+import mundane definition stdlib/divisibility/gcd
+import mundane theorem    stdlib/divisibility/divides-combination
+import mundane theorem    stdlib/divisibility/divides-one
+
+theorem coprime-to-a-product
+  note        Bezout gives a·x + c·y = 1 and b·u + c·v = 1. Multiplying them,
+              1 is a·b times x·u plus c times a whole number, so a common
+              divisor of a·b and c divides 1.
+  let a ∈ ℕ                                                           (H1)
+  let b ∈ ℕ                                                           (H2)
+  let c ∈ ℕ                                                           (H3)
+  assume gcd(a, c) = 1                                                (H4)
+  assume gcd(b, c) = 1                                                (H5)
+  then gcd(a·b, c) = 1
+
+1.  x ∈ ℤ. y ∈ ℤ. a·x + c·y = gcd(a, c).
+    obtain x, y: thm:bezout b := c
+
+2.  a·x + c·y = 1
+    substitute gcd(a, c) = 1 (H4) into line 1
+
+3.  u ∈ ℤ. v ∈ ℤ. b·u + c·v = gcd(b, c).
+    obtain u, v: thm:bezout a := b, b := c
+
+4.  b·u + c·v = 1
+    substitute gcd(b, c) = 1 (H5) into line 3
+
+5.  (a·x + c·y)·(b·u + c·v) = 1·(b·u + c·v)
+    substitute a·x + c·y = 1 (line 2)
+
+6.  (a·x + c·y)·(b·u + c·v) = a·b·(x·u) + c·(a·x·v + y·b·u + c·y·v)
+    algebra
+
+7.  a·b·(x·u) + c·(a·x·v + y·b·u + c·y·v) = 1
+    calculation
+      a·b·(x·u) + c·(a·x·v + y·b·u + c·y·v) = (a·x + c·y)·(b·u + c·v)     6
+                                             = 1·(b·u + c·v)               5
+                                             = 1                           4
+
+8.  gcd(a·b, c) ∈ ℕ. gcd(a·b, c) divides a·b. gcd(a·b, c) divides c.
+    mun:gcd a := a·b, b := c
+
+9.  gcd(a·b, c) divides a·b·(x·u) + c·(a·x·v + y·b·u + c·y·v)
+    mun:divides-combination e := gcd(a·b, c), a := a·b, b := c, x := x·u, y := a·x·v + y·b·u + c·y·v, from 8
+
+10. gcd(a·b, c) divides 1
+    substitute a·b·(x·u) + c·(a·x·v + y·b·u + c·y·v) = 1 (line 7) into line 9
+
+11. gcd(a·b, c) = 1
+    mun:divides-one d := gcd(a·b, c), from 8, 10

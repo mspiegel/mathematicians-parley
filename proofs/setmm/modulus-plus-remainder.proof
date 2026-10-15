@@ -1,0 +1,18 @@
+import mundane theorem stdlib/divisibility/mod-remainder
+
+theorem modulus-plus-remainder
+  note        M + A is 1·M + A, and A is a remainder, being at least 0 and
+              less than M.
+  let A ∈ ℕ₀                                                          (H1)
+  let M ∈ ℕ                                                           (H2)
+  assume A < M                                                        (H3)
+  then (M + A) mod M = A
+
+1.  1·M + A = M + A
+    algebra
+
+2.  There is q ∈ ℤ with q·M + A = M + A.
+    exhibit, from 1
+
+3.  (M + A) mod M = A
+    mun:mod-remainder a := M + A, m := M, r := A, from H3, 2

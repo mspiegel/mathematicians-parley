@@ -1,0 +1,25 @@
+import mundane theorem    stdlib/divisibility/mod-value
+import mundane theorem    stdlib/numbers/floor-integer
+
+theorem remainder-is-real
+  note        The remainder is A less B times a whole number q, and a difference of real numbers is real.
+  let A ∈ ℝ                                                           (H1)
+  let B ∈ ℝ                                                           (H2)
+  assume B > 0                                                        (H3)
+  then A mod B ∈ ℝ
+
+1.  B ≠ 0
+    inequalities, from H3
+
+let q = ⌊A/B⌋, an integer                                             (D1)
+    mun:floor-integer x := A/B, from 1
+    reads the whole number of B's that fit below A
+
+2.  A mod B = A − B·q
+    mun:mod-value a := A, b := B, from D1, H3
+
+3.  A − B·q ∈ ℝ
+    membership
+
+4.  A mod B ∈ ℝ
+    substitute A mod B = A − B·q (line 2) into line 3

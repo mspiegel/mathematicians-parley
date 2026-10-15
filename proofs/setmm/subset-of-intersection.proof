@@ -1,0 +1,79 @@
+import mundane definition stdlib/sets/intersection
+import mundane definition stdlib/sets/subset
+
+theorem subset-of-intersection
+  note        A set lies inside B and inside C exactly when each of its
+              members is in both, that is, in B ∩ C.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  let C be a set                                                      (H3)
+  then (A ⊆ B and A ⊆ C) ↔ A ⊆ B ∩ C
+
+1.  (A ⊆ B and A ⊆ C) ↔ A ⊆ B ∩ C
+    both directions
+
+    direction
+    assume A ⊆ B and A ⊆ C                                            (D1)
+
+    1.1.  A ⊆ B
+          join D1
+
+    1.2.  A ⊆ C
+          join D1
+
+    1.3.  For all t ∈ A, t ∈ B.
+          mun:subset X := A, Y := B, from 1.1
+
+    1.4.  For all t ∈ A, t ∈ C.
+          mun:subset X := A, Y := C, from 1.2
+
+    1.5.  For all t ∈ A, t ∈ B ∩ C.
+          proof
+          let t ∈ A                                                   (K)
+
+          1.5.1.  t ∈ B
+                  instantiate t := t in line 1.3, from K
+
+          1.5.2.  t ∈ C
+                  instantiate t := t in line 1.4, from K
+
+          1.5.3.  t ∈ B ∩ C
+                  mun:intersection u := t, from 1.5.1, 1.5.2
+
+    1.6.  A ⊆ B ∩ C
+          mun:subset X := A, Y := B ∩ C, from 1.5
+
+    direction
+    assume A ⊆ B ∩ C                                                  (D2)
+
+    1.7.  For all t ∈ A, t ∈ B ∩ C.
+          mun:subset X := A, Y := B ∩ C, from D2
+
+    1.8.  For all t ∈ A, t ∈ B.
+          proof
+          let t ∈ A                                                   (K)
+
+          1.8.1.  t ∈ B ∩ C
+                  instantiate t := t in line 1.7, from K
+
+          1.8.2.  t ∈ B
+                  mun:intersection u := t, from 1.8.1
+
+    1.9.  For all t ∈ A, t ∈ C.
+          proof
+          let t ∈ A                                                   (K)
+
+          1.9.1.  t ∈ B ∩ C
+                  instantiate t := t in line 1.7, from K
+
+          1.9.2.  t ∈ C
+                  mun:intersection u := t, from 1.9.1
+
+    1.10. A ⊆ B
+          mun:subset X := A, Y := B, from 1.8
+
+    1.11. A ⊆ C
+          mun:subset X := A, Y := C, from 1.9
+
+    1.12. A ⊆ B and A ⊆ C
+          join 1.10, 1.11

@@ -1,0 +1,26 @@
+import mundane definition stdlib/numbers/sqrt
+
+theorem square-root-positive
+  note        √a is not negative, and it is not 0, since then a would be its
+              square, 0.
+  let a ∈ ℝ                                                           (H1)
+  assume 0 < a                                                        (H2)
+  then 0 < √a
+
+1.  √a ∈ ℝ. √a ≥ 0. (√a)² = a.
+    mun:sqrt x := a
+    requires a ≥ 0: inequalities, from H2
+
+2.  0 < √a
+    contradiction
+    suppose not 0 < √a                                                (S)
+
+    2.1.  √a = 0
+          inequalities, from S, 1
+
+    2.2.  (√a)² = 0
+          algebra, from 2.1
+          requires √a ∈ ℝ: from 1
+
+    2.3.  not 0 < a
+          inequalities, from 1, 2.2, contradicting H2

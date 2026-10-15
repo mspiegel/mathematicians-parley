@@ -1,0 +1,52 @@
+import mundane theorem    stdlib/numbers/exponent-step
+import mundane theorem    stdlib/numbers/exponent-zero
+import mundane theorem    stdlib/numbers/multiply-le
+import mundane theorem    stdlib/numbers/power-real
+
+theorem power-at-least-one
+  note        A power of a number that is at least 1 is at least 1: a^0 is
+              1, and a^(m + 1) is a^m·a, where multiplying 1 ≤ a^m by a
+              gives a ≤ a·a^m, and 1 ≤ a.
+  let a ∈ ℝ                                                           (H1)
+  let n ∈ ℕ₀                                                          (H2)
+  assume 1 ≤ a                                                        (H3)
+  then 1 ≤ a^n
+
+1.  a > 0
+    inequalities, from H3
+
+2.  For all m ∈ ℕ₀, 1 ≤ a^m.
+    induction on m starting at 0
+
+    base
+    2.1.  a^0 = 1
+          mun:exponent-zero
+
+    2.2.  1 ≤ a^0
+          inequalities, from 2.1
+
+    step
+    let m ∈ ℕ₀                                                        (K)
+    assume step 2 is true for m, the induction hypothesis             (IH)
+
+    2.3.  a^(m + 1) = a^m·a
+          mun:exponent-step
+
+    2.4.  a^m ∈ ℝ
+          mun:power-real
+
+    2.5.  a^(m + 1) ∈ ℝ
+          mun:power-real m := m + 1
+
+    2.6.  a·1 ≤ a·a^m
+          mun:multiply-le x := 1, y := a^m, c := a, from IH, 1, 2.4
+
+    2.7.  a^m·a = a·a^m
+          algebra
+          requires a^m ∈ ℝ: from 2.4
+
+    2.8.  1 ≤ a^(m + 1)
+          inequalities, from H3, 2.3, 2.4, 2.5, 2.6, 2.7
+
+3.  1 ≤ a^n
+    instantiate m := n in line 2

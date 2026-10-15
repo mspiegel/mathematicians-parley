@@ -1,0 +1,44 @@
+import mundane definition stdlib/numbers/sqrt
+
+theorem square-roots-equal
+  note        If √a = √b then squaring gives a = (√a)² = (√b)² = b. If a = b
+              the two roots are the root of one number.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume 0 ≤ a                                                        (H3)
+  assume 0 ≤ b                                                        (H4)
+  then √a = √b ↔ a = b
+
+1.  (√a)² = a
+    mun:sqrt x := a
+    requires a ≥ 0: from H3
+
+2.  (√b)² = b
+    mun:sqrt x := b
+    requires b ≥ 0: from H4
+
+3.  √a = √b ↔ a = b
+    both directions
+
+    direction
+    assume √a = √b                                                    (D1)
+
+    3.1.  √a = √b
+          join D1
+
+    3.2.  (√b)² = a
+          substitute √a = √b (line 3.1) into line 1
+
+    3.3.  a = b
+          calculation
+            a = (√b)²     3.2
+              = b         2
+
+    direction
+    assume a = b                                                      (D2)
+
+    3.4.  a = b
+          join D2
+
+    3.5.  √a = √b
+          substitute a = b (line 3.4)

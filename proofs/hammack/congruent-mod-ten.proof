@@ -1,0 +1,73 @@
+import mundane definition stdlib/divisibility/congruent-mod
+import mundane definition stdlib/divisibility/divides
+
+theorem congruent-mod-ten
+  note        If 10 divides a − b then so do 2 and 5. Conversely, if
+              a − b = 2s and a − b = 5t, then a − b = 5(a − b) − 4(a − b)
+              = 10s − 20t = 10(s − 2t).
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  then a ≡ b (mod 10) ↔ a ≡ b (mod 2) and a ≡ b (mod 5)
+
+1.  a ≡ b (mod 10) ↔ a ≡ b (mod 2) and a ≡ b (mod 5)
+    both directions
+
+    direction
+    assume a ≡ b (mod 10)                                             (D1)
+
+    1.1.  10 divides a − b
+          mun:congruent-mod, from D1
+
+    1.2.  k ∈ ℤ. a − b = 10·k.
+          obtain k: mun:divides, from 1.1
+
+    1.3.  a − b = 2·(5·k)
+          algebra, from 1.2
+
+    1.4.  2 divides a − b
+          mun:divides d := 2, n := a − b, from 1.3
+
+    1.5.  a ≡ b (mod 2)
+          mun:congruent-mod, from 1.4
+
+    1.6.  a − b = 5·(2·k)
+          algebra, from 1.2
+
+    1.7.  5 divides a − b
+          mun:divides d := 5, n := a − b, from 1.6
+
+    1.8.  a ≡ b (mod 5)
+          mun:congruent-mod, from 1.7
+
+    1.9.  a ≡ b (mod 2) and a ≡ b (mod 5)
+          join 1.5, 1.8
+
+    direction
+    assume a ≡ b (mod 2) and a ≡ b (mod 5)                            (D2)
+
+    1.10. 2 divides a − b
+          mun:congruent-mod, from D2
+
+    1.11. 5 divides a − b
+          mun:congruent-mod, from D2
+
+    1.12. s ∈ ℤ. a − b = 2·s.
+          obtain s: mun:divides, from 1.10
+
+    1.13. t ∈ ℤ. a − b = 5·t.
+          obtain t: mun:divides, from 1.11
+
+    1.14. 5·(a − b) = 10·s
+          algebra, from 1.12
+
+    1.15. 4·(a − b) = 20·t
+          algebra, from 1.13
+
+    1.16. a − b = 10·(s − 2·t)
+          algebra, from 1.14, 1.15
+
+    1.17. 10 divides a − b
+          mun:divides d := 10, n := a − b, from 1.16
+
+    1.18. a ≡ b (mod 10)
+          mun:congruent-mod, from 1.17

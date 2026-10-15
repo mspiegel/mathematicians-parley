@@ -1,0 +1,63 @@
+import mundane definition stdlib/divisibility/divides
+import mundane definition stdlib/divisibility/even
+import mundane theorem    stdlib/divisibility/even-or-odd
+import mundane definition stdlib/divisibility/prime
+import mundane theorem    stdlib/reasoning/modus-ponens
+import mundane theorem    stdlib/reasoning/or-left
+import mundane theorem    stdlib/reasoning/or-right
+
+theorem prime-two-or-odd
+  note        An even prime is divisible by 2, and a prime has no divisor
+              but 1 and itself, so it is 2. Any other prime is not even,
+              so it is odd.
+  let P ∈ ℕ                                                           (H1)
+  assume P is prime                                                   (H2)
+  then P = 2 or P is odd
+
+1.  P is even or P is odd
+    mun:even-or-odd n := P
+
+2.  P = 2 or P is odd
+    cases, from 1
+
+    case
+    assume P is even                                                  (C1)
+
+    2.1.  k ∈ ℤ. P = 2k.
+          obtain k: mun:even n := P, from C1
+
+    2.2.  2 divides P
+          mun:divides d := 2, n := P, from 2.1
+
+    2.3.  For all d ∈ ℕ, if d divides P then d = 1 or d = P.
+          mun:prime p := P, from H2
+
+    2.4.  If 2 divides P then 2 = 1 or 2 = P.
+          instantiate d := 2 in line 2.3
+
+    2.5.  2 = 1 or 2 = P
+          mun:modus-ponens, from 2.2, 2.4
+
+    2.6.  2 = P
+          cases, from 2.5
+
+          case
+          assume 2 = 1                                                (C3)
+
+          2.6.1.  2 ≠ 1
+                  arithmetic, contradicting C3
+
+          case
+          assume 2 = P, which is the claim                            (C4)
+
+    2.7.  P = 2
+          algebra, from 2.6
+
+    2.8.  P = 2 or P is odd
+          mun:or-left P := P = 2, Q := P is odd, from 2.7
+
+    case
+    assume P is odd                                                   (C2)
+
+    2.9.  P = 2 or P is odd
+          mun:or-right P := P = 2, Q := P is odd, from C2

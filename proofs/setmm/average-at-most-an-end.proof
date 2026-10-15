@@ -1,0 +1,35 @@
+import mundane theorem stdlib/numbers/nonneg-or-neg
+import mundane theorem stdlib/reasoning/or-left
+import mundane theorem stdlib/reasoning/or-right
+
+theorem average-at-most-an-end
+  metamath    avgle
+  note        The average of two numbers is at most the larger one: if B is
+              not below A it is at most B, and otherwise at most A.
+  let A ∈ ℝ                                                           (H1)
+  let B ∈ ℝ                                                           (H2)
+  then (A + B)/2 ≤ A or (A + B)/2 ≤ B
+
+1.  B − A ≥ 0 or B − A < 0
+    mun:nonneg-or-neg x := B − A
+
+2.  (A + B)/2 ≤ A or (A + B)/2 ≤ B
+    cases, from 1
+
+    case
+    assume B − A ≥ 0                                                  (C1)
+
+    2.1.  (A + B)/2 ≤ B
+          inequalities, from C1
+
+    2.2.  (A + B)/2 ≤ A or (A + B)/2 ≤ B
+          mun:or-right, from 2.1
+
+    case
+    assume B − A < 0                                                  (C2)
+
+    2.3.  (A + B)/2 ≤ A
+          inequalities, from C2
+
+    2.4.  (A + B)/2 ≤ A or (A + B)/2 ≤ B
+          mun:or-left, from 2.3

@@ -1,0 +1,92 @@
+import theorem        proofs/wiedijk/triangle-inequality/triangle-inequality
+import mundane definition stdlib/numbers/abs
+import mundane theorem    stdlib/numbers/abs-negative
+import mundane theorem    stdlib/numbers/abs-real
+import mundane theorem    stdlib/numbers/nonneg-or-neg
+
+theorem difference-of-magnitudes
+  metamath    abs2difabs, over ℝ
+  note        |A| is at most |A − B| + |B| and |B| is at most |B − A| + |A|,
+              by the triangle inequality, and |B − A| is |A − B|. So |A| − |B|
+              and its negative are both at most |A − B|, and the absolute
+              value of |A| − |B| is one of the two.
+  let A ∈ ℝ                                                           (H1)
+  let B ∈ ℝ                                                           (H2)
+  then ||A| − |B|| ≤ |A − B|
+
+1.  (A − B) + B = A
+    algebra
+
+2.  |(A − B) + B| ≤ |A − B| + |B|
+    thm:triangle-inequality a := A − B, b := B
+
+3.  |A| ≤ |A − B| + |B|
+    substitute (A − B) + B = A (line 1) into line 2
+
+4.  (B − A) + A = B
+    algebra
+
+5.  |(B − A) + A| ≤ |B − A| + |A|
+    thm:triangle-inequality a := B − A, b := A
+
+6.  |B| ≤ |B − A| + |A|
+    substitute (B − A) + A = B (line 4) into line 5
+
+7.  B − A = −(A − B)
+    algebra
+
+8.  |−(A − B)| = |A − B|
+    mun:abs-negative x := A − B
+
+9.  |B − A| = |A − B|
+    substitute B − A = −(A − B) (line 7) into line 8
+
+10. |A| ∈ ℝ
+    mun:abs-real x := A
+
+11. |B| ∈ ℝ
+    mun:abs-real x := B
+
+12. |A| − |B| ≥ 0 or |A| − |B| < 0
+    mun:nonneg-or-neg x := |A| − |B|
+    requires |A| − |B| ∈ ℝ: membership, from 10, 11
+
+13. ||A| − |B|| ≤ |A − B|
+    cases, from 12
+
+    case
+    assume |A| − |B| ≥ 0                                              (C1)
+
+    13.1. ||A| − |B|| = |A| − |B|
+          mun:abs x := |A| − |B|, from C1
+          requires |A| − |B| ∈ ℝ: membership, from 10, 11
+
+    13.2. |A| − |B| ≤ |A − B|
+          inequalities, from 3
+          requires |A| ∈ ℝ: from 10
+          requires |B| ∈ ℝ: from 11
+          requires |A − B| ∈ ℝ: mun:abs-real x := A − B
+
+    13.3. ||A| − |B|| ≤ |A − B|
+          calculation
+            ||A| − |B|| = |A| − |B|        13.1
+                        ≤ |A − B|          13.2
+
+    case
+    assume |A| − |B| < 0                                               (C2)
+
+    13.4. ||A| − |B|| = −(|A| − |B|)
+          mun:abs x := |A| − |B|, from C2
+          requires |A| − |B| ∈ ℝ: membership, from 10, 11
+
+    13.5. −(|A| − |B|) ≤ |A − B|
+          inequalities, from 6, 9
+          requires |A| ∈ ℝ: from 10
+          requires |B| ∈ ℝ: from 11
+          requires |A − B| ∈ ℝ: mun:abs-real x := A − B
+          requires |B − A| ∈ ℝ: mun:abs-real x := B − A
+
+    13.6. ||A| − |B|| ≤ |A − B|
+          calculation
+            ||A| − |B|| = −(|A| − |B|)     13.4
+                        ≤ |A − B|          13.5

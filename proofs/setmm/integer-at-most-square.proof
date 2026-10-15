@@ -1,0 +1,50 @@
+import mundane theorem    stdlib/numbers/integer-step
+import mundane theorem    stdlib/numbers/multiply-le
+import mundane theorem    stdlib/numbers/square-nonneg
+import mundane axiom      stdlib/numbers/trichotomy
+
+theorem integer-at-most-square
+  note        An integer n is negative, 0, or at least 1. A negative number is
+              below the square, which is not negative; 0 is its own square; and
+              multiplying 1 ≤ n by n gives n ≤ n·n.
+  let n ∈ ℤ                                                           (H1)
+  then n ≤ n²
+
+1.  n < 0 or n = 0 or 0 < n
+    mun:trichotomy x := n
+
+2.  n² ≥ 0
+    mun:square-nonneg x := n
+
+3.  n² = n·n
+    algebra
+
+4.  n ≤ n²
+    cases, from 1
+
+    case
+    assume n < 0                                                      (C1)
+
+    4.1.  n ≤ n²
+          inequalities, from C1, 2
+
+    case
+    assume n = 0                                                      (C2)
+
+    4.2.  n·n = 0
+          algebra, from C2
+
+    4.3.  n ≤ n²
+          inequalities, from C2, 3, 4.2
+
+    case
+    assume 0 < n                                                      (C3)
+
+    4.4.  0 + 1 ≤ n
+          mun:integer-step m := 0, from C3
+
+    4.5.  n·1 ≤ n·n
+          mun:multiply-le x := 1, y := n, c := n, from C3, 4.4
+
+    4.6.  n ≤ n²
+          inequalities, from 3, 4.5

@@ -1,0 +1,78 @@
+import theorem            proofs/wiedijk/sqrt2-irrational/even-square
+import mundane definition stdlib/divisibility/divides
+import mundane definition stdlib/divisibility/even
+import mundane theorem    stdlib/divisibility/even-or-odd
+import mundane definition stdlib/divisibility/odd
+import mundane theorem    stdlib/reasoning/disjunctive-syllogism
+import mundane theorem    stdlib/reasoning/or-left
+import mundane theorem    stdlib/reasoning/or-right
+
+theorem even-leg-integers
+  note        If a and b were both odd, c² would be twice an odd number: then
+              c is even, c² is a multiple of 4, and 4 would divide 2.
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  let c ∈ ℤ                                                           (H3)
+  assume a² + b² = c²                                                 (H4)
+  then a is even or b is even
+
+1.  a is even or a is odd
+    mun:even-or-odd n := a
+
+2.  a is even or b is even
+    cases, from 1
+
+    case
+    assume a is even                                                  (C1)
+
+    2.1.  a is even or b is even
+          mun:or-left, from C1
+
+    case
+    assume a is odd                                                   (C2)
+
+    2.2.  b is not odd
+          contradiction
+          suppose b is odd                                            (S)
+
+          2.2.1.  p ∈ ℤ. a = 2p + 1.
+                  obtain p: mun:odd n := a, from C2
+
+          2.2.2.  q ∈ ℤ. b = 2q + 1.
+                  obtain q: mun:odd n := b, from S
+
+          2.2.3.  (2p + 1)² + b² = c²
+                  substitute a = 2p + 1 (line 2.2.1) into H4
+
+          2.2.4.  (2p + 1)² + (2q + 1)² = c²
+                  substitute b = 2q + 1 (line 2.2.2) into line 2.2.3
+
+          2.2.5.  c² = 2(2p² + 2p + 2q² + 2q + 1)
+                  algebra, from 2.2.4
+
+          2.2.6.  c² is even
+                  mun:even n := c², from 2.2.5
+
+          2.2.7.  c is even
+                  thm:even-square n := c, from 2.2.6
+
+          2.2.8.  r ∈ ℤ. c = 2r.
+                  obtain r: mun:even n := c, from 2.2.7
+
+          2.2.9.  (2p + 1)² + (2q + 1)² = (2r)²
+                  substitute c = 2r (line 2.2.8) into line 2.2.4
+
+          2.2.10. 2 = 4(r² − p² − p − q² − q)
+                  algebra, from 2.2.9
+
+          2.2.11. 4 divides 2, which is impossible
+                  mun:divides d := 4, n := 2, from 2.2.10
+
+    2.3.  b is even or b is odd
+          mun:even-or-odd n := b
+
+    2.4.  b is even
+          mun:disjunctive-syllogism P := b is even, Q := b is odd, from 2.2, 2.3
+
+    2.5.  a is even or b is even
+          mun:or-right, from 2.4

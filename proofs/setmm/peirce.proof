@@ -1,0 +1,40 @@
+import mundane axiom      stdlib/reasoning/excluded-middle
+import mundane theorem    stdlib/reasoning/modus-ponens
+
+theorem peirce
+  metamath    peirce
+  note        If a = 0 holds there is nothing to show. If it fails, then
+              "if a = 0 then b = 0" holds because its condition cannot, and
+              the hypothesis turns that into a = 0.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  then if (if (if a = 0 then b = 0) then a = 0) then a = 0
+
+1.  If (if (if a = 0 then b = 0) then a = 0) then a = 0.
+    proof
+    assume if (if a = 0 then b = 0) then a = 0                        (K1)
+
+    1.1.  a = 0 or a ≠ 0
+          mun:excluded-middle P := a = 0
+
+    1.2.  a = 0
+          cases, from 1.1
+
+          case
+          assume a = 0, which is the claim                            (C1)
+
+          case
+          assume a ≠ 0                                                (C2)
+
+          1.2.1.  If a = 0 then b = 0.
+                  proof
+                  assume a = 0                                        (K2)
+
+                  1.2.1.1.  a = 0
+                            join K2
+
+                  1.2.1.2.  a ≠ 0
+                            join C2, contradicting 1.2.1.1
+
+          1.2.2.  a = 0
+                  mun:modus-ponens, from K1, 1.2.1

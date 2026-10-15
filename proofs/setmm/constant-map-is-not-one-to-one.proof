@@ -1,0 +1,46 @@
+import mundane definition stdlib/functions/one-to-one
+import mundane definition stdlib/sets/singleton
+import mundane theorem    stdlib/functions/function-value
+
+theorem constant-map-is-not-one-to-one
+  note        A map into a one-element set sends the two different points X
+              and Y to that one element, so it sends two points to one
+              place.
+  let A be a set                                                      (H1)
+  let C be a set                                                      (H2)
+  let B be an element                                                 (H3)
+  let F : A → {B}                                                     (H4)
+  let X ∈ A                                                           (H5)
+  let Y ∈ A                                                           (H6)
+  assume X ≠ Y                                                        (H7)
+  then not (F : A → C is one-to-one)
+
+1.  F(X) ∈ {B}
+    mun:function-value f := F, x := X, from H5
+
+2.  F(Y) ∈ {B}
+    mun:function-value f := F, x := Y, from H6
+
+3.  F(X) = B
+    mun:singleton x := F(X), a := B, from 1
+
+4.  F(Y) = B
+    mun:singleton x := F(Y), a := B, from 2
+
+5.  F(X) = F(Y)
+    calculation
+      F(X) = B       3
+           = F(Y)    4
+
+6.  not (F : A → C is one-to-one)
+    contradiction
+    suppose F : A → C is one-to-one                                   (S)
+
+    6.1.  F : A → C. For all s, t ∈ A, if F(s) = F(t) then s = t.
+          mun:one-to-one f := F, X := A, Y := C, from S
+
+    6.2.  X = Y
+          instantiate s := X, t := Y in line 6.1, from H5, H6, 5
+
+    6.3.  X ≠ Y
+          join H7, contradicting 6.2

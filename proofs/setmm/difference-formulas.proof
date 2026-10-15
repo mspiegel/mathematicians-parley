@@ -1,0 +1,119 @@
+import theorem            stdlib/trigonometry/cos-add
+import theorem            stdlib/trigonometry/sin-add
+import mundane theorem    stdlib/trigonometry/cos-negative
+import mundane theorem    stdlib/trigonometry/sin-negative
+import mundane theorem    stdlib/trigonometry/cos-complex
+import mundane theorem    stdlib/trigonometry/sin-complex
+import mundane definition stdlib/trigonometry/cos
+import mundane definition stdlib/trigonometry/sin
+
+theorem sine-of-difference
+  metamath    sinsub
+  note        A − B = A + (−B); the addition formula with the cosine even and
+              the sine odd.
+  let A ∈ ℂ                                                           (H1)
+  let B ∈ ℂ                                                           (H2)
+  then sin(A − B) = sin(A)·cos(B) − cos(A)·sin(B)
+
+1.  sin(A + (−B)) = sin(A)·cos(−B) + cos(A)·sin(−B)
+    thm:sin-add a := A, b := −B
+
+2.  cos(−B) = cos(B)
+    mun:cos-negative a := B
+
+3.  sin(−B) = −sin(B)
+    mun:sin-negative a := B
+
+4.  A − B = A + (−B)
+    algebra
+
+5.  sin(A − B) = sin(A + (−B))
+    substitute A − B = A + (−B) (line 4)
+
+6.  sin(A)·cos(−B) + cos(A)·sin(−B) = sin(A)·cos(B) + cos(A)·sin(−B)
+    substitute cos(−B) = cos(B) (line 2)
+
+7.  sin(A)·cos(B) + cos(A)·sin(−B) = sin(A)·cos(B) + cos(A)·(−sin(B))
+    substitute sin(−B) = −sin(B) (line 3)
+
+8.  sin(A)·cos(B) + cos(A)·(−sin(B)) = sin(A)·cos(B) − cos(A)·sin(B)
+    algebra
+    requires sin(A) ∈ ℂ: mun:sin-complex a := A
+    requires cos(A) ∈ ℂ: mun:cos-complex a := A
+    requires sin(B) ∈ ℂ: mun:sin-complex a := B
+    requires cos(B) ∈ ℂ: mun:cos-complex a := B
+
+9.  sin(A − B) = sin(A)·cos(B) − cos(A)·sin(B)
+    calculation
+      sin(A − B) = sin(A + (−B))                                     5
+                 = sin(A)·cos(−B) + cos(A)·sin(−B)                   1
+                 = sin(A)·cos(B) + cos(A)·sin(−B)                    6
+                 = sin(A)·cos(B) + cos(A)·(−sin(B))                  7
+                 = sin(A)·cos(B) − cos(A)·sin(B)                     8
+
+theorem cosine-of-difference
+  metamath    cossub
+  note        A − B = A + (−B); the addition formula with the cosine even and
+              the sine odd.
+  let A ∈ ℂ                                                           (H1)
+  let B ∈ ℂ                                                           (H2)
+  then cos(A − B) = cos(A)·cos(B) + sin(A)·sin(B)
+
+1.  cos(A + (−B)) = cos(A)·cos(−B) − sin(A)·sin(−B)
+    thm:cos-add a := A, b := −B
+
+2.  cos(−B) = cos(B)
+    mun:cos-negative a := B
+
+3.  sin(−B) = −sin(B)
+    mun:sin-negative a := B
+
+4.  A − B = A + (−B)
+    algebra
+
+5.  cos(A − B) = cos(A + (−B))
+    substitute A − B = A + (−B) (line 4)
+
+6.  cos(A)·cos(−B) − sin(A)·sin(−B) = cos(A)·cos(B) − sin(A)·sin(−B)
+    substitute cos(−B) = cos(B) (line 2)
+
+7.  cos(A)·cos(B) − sin(A)·sin(−B) = cos(A)·cos(B) − sin(A)·(−sin(B))
+    substitute sin(−B) = −sin(B) (line 3)
+
+8.  cos(A)·cos(B) − sin(A)·(−sin(B)) = cos(A)·cos(B) + sin(A)·sin(B)
+    algebra
+    requires sin(A) ∈ ℂ: mun:sin-complex a := A
+    requires cos(A) ∈ ℂ: mun:cos-complex a := A
+    requires sin(B) ∈ ℂ: mun:sin-complex a := B
+    requires cos(B) ∈ ℂ: mun:cos-complex a := B
+
+9.  cos(A − B) = cos(A)·cos(B) + sin(A)·sin(B)
+    calculation
+      cos(A − B) = cos(A + (−B))                                     5
+                 = cos(A)·cos(−B) − sin(A)·sin(−B)                   1
+                 = cos(A)·cos(B) − sin(A)·sin(−B)                    6
+                 = cos(A)·cos(B) − sin(A)·(−sin(B))                  7
+                 = cos(A)·cos(B) + sin(A)·sin(B)                     8
+
+theorem product-of-sines
+  metamath    sinmul
+  note        Subtracting the addition formula for cos(A + B) from the
+              difference formula for cos(A − B) leaves 2·sin(A)·sin(B).
+  let A ∈ ℂ                                                           (H1)
+  let B ∈ ℂ                                                           (H2)
+  then sin(A)·sin(B) = (cos(A − B) − cos(A + B))/2
+
+1.  cos(A − B) = cos(A)·cos(B) + sin(A)·sin(B)
+    thm:cosine-of-difference
+
+2.  cos(A + B) = cos(A)·cos(B) − sin(A)·sin(B)
+    thm:cos-add a := A, b := B
+
+3.  sin(A)·sin(B) = (cos(A − B) − cos(A + B))/2
+    algebra, from 1, 2
+    requires sin(A) ∈ ℂ: mun:sin-complex a := A
+    requires sin(B) ∈ ℂ: mun:sin-complex a := B
+    requires cos(A) ∈ ℂ: mun:cos-complex a := A
+    requires cos(B) ∈ ℂ: mun:cos-complex a := B
+    requires cos(A − B) ∈ ℂ: mun:cos-complex a := A − B
+    requires cos(A + B) ∈ ℂ: mun:cos-complex a := A + B

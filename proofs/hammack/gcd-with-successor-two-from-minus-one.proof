@@ -1,0 +1,67 @@
+import theorem            proofs/hammack/gcd-integer-natural/gcd-integer-natural
+import mundane definition stdlib/divisibility/gcd
+import mundane theorem    stdlib/divisibility/divides-difference
+import mundane theorem    stdlib/divisibility/divides-le
+import mundane theorem    stdlib/numbers/pos-int-nat
+import mundane theorem    stdlib/numbers/integer-step
+import mundane theorem    stdlib/numbers/le-cases
+import mundane theorem    stdlib/numbers/le-antisymmetric
+import mundane theorem    stdlib/reasoning/or-left
+import mundane theorem    stdlib/reasoning/or-right
+import mundane definition stdlib/sets/pair
+
+theorem gcd-with-successor-two-from-minus-one
+  note        The exercise for n ≥ −1, where n + 2 is a natural number. A common divisor of n and n + 2 divides their difference 2, so
+              the gcd is at most 2, and is a natural number: 1 or 2.
+  let n ∈ ℤ                                                           (H1)
+  assume n ≥ −1                                                       (H2)
+  then gcd(n, n + 2) ∈ {1, 2}
+
+1.  n + 2 ∈ ℕ
+    mun:pos-int-nat m := n + 2
+    requires 0 < n + 2: inequalities, from H2
+
+2.  gcd(n, n + 2) ∈ ℕ. gcd(n, n + 2) divides n. gcd(n, n + 2) divides n + 2.
+    thm:gcd-integer-natural a := n, b := n + 2, from 1
+
+3.  gcd(n, n + 2) divides n + 2 − n
+    mun:divides-difference d := gcd(n, n + 2), a := n + 2, b := n, from 2
+
+4.  n + 2 − n = 2
+    algebra
+
+5.  gcd(n, n + 2) divides 2
+    substitute n + 2 − n = 2 (line 4) into line 3
+
+6.  gcd(n, n + 2) ≤ 2
+    mun:divides-le e := gcd(n, n + 2), m := 2, from 2, 5
+
+7.  gcd(n, n + 2) < 2 or gcd(n, n + 2) = 2
+    mun:le-cases x := gcd(n, n + 2), y := 2, from 2, 6
+
+8.  gcd(n, n + 2) = 1 or gcd(n, n + 2) = 2
+    cases, from 7
+
+    case
+    assume gcd(n, n + 2) < 2                                          (C1)
+
+    8.1.  gcd(n, n + 2) + 1 ≤ 2
+          mun:integer-step m := gcd(n, n + 2), n := 2, from C1, 2
+
+    8.2.  gcd(n, n + 2) ≤ 1
+          inequalities, from 2, 8.1
+
+    8.3.  gcd(n, n + 2) = 1
+          mun:le-antisymmetric x := gcd(n, n + 2), y := 1, from 2, 8.2
+
+    8.4.  gcd(n, n + 2) = 1 or gcd(n, n + 2) = 2
+          mun:or-left, from 8.3
+
+    case
+    assume gcd(n, n + 2) = 2                                          (C2)
+
+    8.5.  gcd(n, n + 2) = 1 or gcd(n, n + 2) = 2
+          mun:or-right, from C2
+
+9.  gcd(n, n + 2) ∈ {1, 2}
+    mun:pair x := gcd(n, n + 2), u := 1, w := 2, from 8

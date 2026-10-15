@@ -1,0 +1,80 @@
+import mundane definition stdlib/divisibility/divides
+import mundane definition stdlib/divisibility/even
+import mundane theorem    stdlib/divisibility/even-or-odd
+import mundane theorem    stdlib/divisibility/mod-remainder
+import mundane theorem    stdlib/divisibility/not-both
+import mundane definition stdlib/divisibility/odd
+import mundane theorem    stdlib/reasoning/disjunctive-syllogism-left
+
+theorem remainder-by-two
+  note        On dividing by 2 the remainder is 1 when N is a whole number of 2's and 1, which is to say odd, and 2 divides N when N is even; an integer is one or the other, never both.
+  let N ∈ ℤ                                                           (H1)
+  then N mod 2 = 1 ↔ not (2 divides N)
+
+1.  N mod 2 = 1 ↔ there is q ∈ ℤ with q·2 + 1 = N
+    mun:mod-remainder a := N, m := 2, r := 1
+    requires 1 < 2: arithmetic
+
+2.  N mod 2 = 1 ↔ not (2 divides N)
+    both directions
+
+    direction
+    assume N mod 2 = 1                                                (D1)
+
+    2.1.  There is q ∈ ℤ with q·2 + 1 = N.
+          mun:mod-remainder a := N, m := 2, r := 1, from D1
+          requires 1 < 2: arithmetic
+
+    2.2.  q ∈ ℤ. q·2 + 1 = N.
+          obtain q from line 2.1
+
+    2.3.  N = 2q + 1
+          algebra, from 2.2
+
+    2.4.  N is odd
+          mun:odd n := N, from 2.3
+
+    2.5.  not (2 divides N)
+          contradiction
+          suppose 2 divides N                                         (S1)
+
+          2.5.1.  k ∈ ℤ. N = 2·k.
+                  obtain k: mun:divides d := 2, n := N, from S1
+
+          2.5.2.  N is even
+                  mun:even n := N, from 2.5.1
+
+          2.5.3.  N is not odd
+                  mun:not-both n := N, from 2.5.2, contradicting 2.4
+
+    direction
+    assume not (2 divides N)                                          (D2)
+
+    2.6.  not (N is even)
+          contradiction
+          suppose N is even                                           (S2)
+
+          2.6.1.  k ∈ ℤ. N = 2k.
+                  obtain k: mun:even n := N, from S2
+
+          2.6.2.  2 divides N
+                  mun:divides d := 2, n := N, from 2.6.1, contradicting D2
+
+    2.7.  N is even or N is odd
+          mun:even-or-odd
+
+    2.8.  N is odd
+          mun:disjunctive-syllogism-left P := N is even, Q := N is odd, from 2.6, 2.7
+
+    2.9.  k ∈ ℤ. N = 2k + 1.
+          obtain k: mun:odd, from 2.8
+
+    2.10. k·2 + 1 = N
+          algebra, from 2.9
+
+    2.11. There is q ∈ ℤ with q·2 + 1 = N.
+          exhibit, from 2.10
+
+    2.12. N mod 2 = 1
+          mun:mod-remainder a := N, m := 2, r := 1, from 2.11
+          requires 1 < 2: arithmetic

@@ -1,0 +1,279 @@
+import mundane definition stdlib/divisibility/divides
+import mundane theorem    stdlib/divisibility/divides-quotient
+import mundane definition stdlib/divisibility/prime
+import mundane theorem    stdlib/numbers/integer-step
+import mundane theorem    stdlib/numbers/multiply-le
+import mundane theorem    stdlib/numbers/nonneg-or-neg
+import mundane theorem    stdlib/reasoning/or-left
+import mundane theorem    stdlib/reasoning/or-right
+
+theorem small-divisor-of-ninety-seven
+  note        A natural number e above 1 that divides 97 is 2, 3, ..., or at
+              most 9; none of these divides 97, and the proof passes them
+              one at a time: e is not 2, so e ≥ 3; e is not 3, so e ≥ 4; and
+              so on up to e ≥ 10, against e ≤ 9.
+  let e ∈ ℕ                                                           (H1)
+  assume e ≤ 9                                                        (H2)
+  assume e divides 97                                                 (H3)
+  then e = 1
+
+1.  e = 1
+    contradiction
+    suppose e ≠ 1                                                     (S)
+
+    1.1.  1 < e
+          inequalities, from H1, S
+
+    1.2.  1 + 1 ≤ e
+          mun:integer-step m := 1, n := e, from 1.1
+
+    1.3.  e ≠ 2
+          contradiction
+          suppose e = 2                                               (S2)
+
+          1.3.1.  2 divides 97
+                  substitute e = 2 (S2) into H3
+
+          1.3.2.  not (2 divides 97)
+                  arithmetic, contradicting 1.3.1
+
+    1.4.  2 < e
+          inequalities, from 1.2, 1.3
+
+    1.5.  2 + 1 ≤ e
+          mun:integer-step m := 2, n := e, from 1.4
+
+    1.6.  e ≠ 3
+          contradiction
+          suppose e = 3                                               (S3)
+
+          1.6.1.  3 divides 97
+                  substitute e = 3 (S3) into H3
+
+          1.6.2.  not (3 divides 97)
+                  arithmetic, contradicting 1.6.1
+
+    1.7.  3 < e
+          inequalities, from 1.5, 1.6
+
+    1.8.  3 + 1 ≤ e
+          mun:integer-step m := 3, n := e, from 1.7
+
+    1.9.  e ≠ 4
+          contradiction
+          suppose e = 4                                               (S4)
+
+          1.9.1.  4 divides 97
+                  substitute e = 4 (S4) into H3
+
+          1.9.2.  not (4 divides 97)
+                  arithmetic, contradicting 1.9.1
+
+    1.10. 4 < e
+          inequalities, from 1.8, 1.9
+
+    1.11. 4 + 1 ≤ e
+          mun:integer-step m := 4, n := e, from 1.10
+
+    1.12. e ≠ 5
+          contradiction
+          suppose e = 5                                               (S5)
+
+          1.12.1.  5 divides 97
+                   substitute e = 5 (S5) into H3
+
+          1.12.2.  not (5 divides 97)
+                   arithmetic, contradicting 1.12.1
+
+    1.13. 5 < e
+          inequalities, from 1.11, 1.12
+
+    1.14. 5 + 1 ≤ e
+          mun:integer-step m := 5, n := e, from 1.13
+
+    1.15. e ≠ 6
+          contradiction
+          suppose e = 6                                               (S6)
+
+          1.15.1.  6 divides 97
+                   substitute e = 6 (S6) into H3
+
+          1.15.2.  not (6 divides 97)
+                   arithmetic, contradicting 1.15.1
+
+    1.16. 6 < e
+          inequalities, from 1.14, 1.15
+
+    1.17. 6 + 1 ≤ e
+          mun:integer-step m := 6, n := e, from 1.16
+
+    1.18. e ≠ 7
+          contradiction
+          suppose e = 7                                               (S7)
+
+          1.18.1.  7 divides 97
+                   substitute e = 7 (S7) into H3
+
+          1.18.2.  not (7 divides 97)
+                   arithmetic, contradicting 1.18.1
+
+    1.19. 7 < e
+          inequalities, from 1.17, 1.18
+
+    1.20. 7 + 1 ≤ e
+          mun:integer-step m := 7, n := e, from 1.19
+
+    1.21. e ≠ 8
+          contradiction
+          suppose e = 8                                               (S8)
+
+          1.21.1.  8 divides 97
+                   substitute e = 8 (S8) into H3
+
+          1.21.2.  not (8 divides 97)
+                   arithmetic, contradicting 1.21.1
+
+    1.22. 8 < e
+          inequalities, from 1.20, 1.21
+
+    1.23. 8 + 1 ≤ e
+          mun:integer-step m := 8, n := e, from 1.22
+
+    1.24. e ≠ 9
+          contradiction
+          suppose e = 9                                               (S9)
+
+          1.24.1.  9 divides 97
+                   substitute e = 9 (S9) into H3
+
+          1.24.2.  not (9 divides 97)
+                   arithmetic, contradicting 1.24.1
+
+    1.25. 9 < e
+          inequalities, from 1.23, 1.24
+
+    1.26. not (e ≤ 9)
+          inequalities, from 1.25, contradicting H2
+
+
+theorem ninety-seven-is-prime
+  note        A divisor d of 97 has a partner k with d·k = 97. They cannot
+              both be 10 or more, since 10·10 > 97, so one is at most 9, and
+              by the lemma that one is 1; the other is then 97.
+  then 97 is prime
+
+1.  97 > 1
+    arithmetic
+
+2.  For all d ∈ ℕ, if d divides 97 then d = 1 or d = 97.
+    proof
+    let d ∈ ℕ                                                         (K)
+    assume d divides 97                                               (A)
+
+    2.1.  97/d ∈ ℕ
+          mun:divides-quotient n := 97, from A
+
+    2.2.  d·(97/d) = 97
+          algebra
+          requires d ≠ 0: from K
+
+    2.3.  There is k ∈ ℕ with d·k = 97.
+          exhibit, from 2.1, 2.2
+
+    2.4.  k ∈ ℕ. d·k = 97.
+          obtain k from line 2.3
+
+    2.5.  d − 10 ≥ 0 or d − 10 < 0
+          mun:nonneg-or-neg x := d − 10
+
+    2.6.  d = 1 or d = 97
+          cases, from 2.5
+
+          case
+          assume d − 10 ≥ 0                                           (C1)
+
+          2.6.1.  k − 10 ≥ 0 or k − 10 < 0
+                  mun:nonneg-or-neg x := k − 10
+
+          2.6.2.  d = 1 or d = 97
+                  cases, from 2.6.1
+
+                  case
+                  assume k − 10 ≥ 0                                   (C3)
+
+                  2.6.2.1.  10 ≤ d
+                            inequalities, from C1
+
+                  2.6.2.2.  k·10 ≤ k·d
+                            mun:multiply-le x := 10, y := d, c := k, from 2.4, 2.6.2.1
+
+                  2.6.2.3.  k·d = 97
+                            algebra, from 2.4
+
+                  2.6.2.4.  not (k·10 ≤ k·d)
+                            inequalities, from C3, 2.6.2.3, contradicting 2.6.2.2
+
+                  case
+                  assume k − 10 < 0                                   (C4)
+
+                  2.6.2.5.  k < 10
+                            inequalities, from C4
+
+                  2.6.2.6.  k + 1 ≤ 10
+                            mun:integer-step m := k, n := 10, from 2.6.2.5
+
+                  2.6.2.7.  k ≤ 9
+                            inequalities, from 2.6.2.6
+
+                  2.6.2.8.  97 = k·d
+                            algebra, from 2.4
+
+                  2.6.2.9.  k divides 97
+                            mun:divides d := k, n := 97, from 2.6.2.8
+
+                  2.6.2.10. k = 1
+                            thm:small-divisor-of-ninety-seven e := k, from 2.6.2.7, 2.6.2.9
+
+                  2.6.2.11. d·1 = 97
+                            substitute k = 1 (line 2.6.2.10) into line 2.4
+
+                  2.6.2.12. d = 1 or d = 97
+                            mun:or-right P := d = 1, from 2.6.2.11
+
+          case
+          assume d − 10 < 0                                           (C2)
+
+          2.6.3.  d < 10
+                  inequalities, from C2
+
+          2.6.4.  d + 1 ≤ 10
+                  mun:integer-step m := d, n := 10, from 2.6.3
+
+          2.6.5.  d ≤ 9
+                  inequalities, from 2.6.4
+
+          2.6.6.  d = 1
+                  thm:small-divisor-of-ninety-seven e := d, from A, 2.6.5
+
+          2.6.7.  d = 1 or d = 97
+                  mun:or-left Q := d = 97, from 2.6.6
+
+3.  97 is prime
+    mun:prime p := 97, from 1, 2
+
+
+theorem prime-between-ninety-and-a-hundred
+  note        97 is prime, and 90 < 97 < 100.
+  then there exists p ∈ ℕ such that p is prime and 90 < p and p < 100
+
+1.  97 is prime
+    thm:ninety-seven-is-prime
+
+2.  90 < 97
+    arithmetic
+
+3.  97 < 100
+    arithmetic
+
+4.  There exists p ∈ ℕ such that p is prime and 90 < p and p < 100.
+    exhibit, from 1, 2, 3

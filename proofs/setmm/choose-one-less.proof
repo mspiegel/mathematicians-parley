@@ -1,0 +1,89 @@
+import definition         stdlib/counting/C
+import mundane definition stdlib/counting/factorial
+import mundane theorem    stdlib/counting/binomial-zero-index
+import mundane theorem    stdlib/counting/factorial-nat
+import mundane definition stdlib/numbers/nat0
+import mundane definition stdlib/sums/range-between
+
+theorem choose-one-less
+  note        Choosing N from N + 1 leaves one out, so there are N + 1 ways.
+              By the formula, C(N + 1, N) is (N + 1)! over 1!·N!, and
+              (N + 1)! is N!·(N + 1). For N = 0 it is C(1, 0), which is 1.
+  let N ∈ ℕ₀                                                          (H1)
+  then C(N + 1, N) = N + 1
+
+1.  N ∈ ℕ or N = 0
+    mun:nat0 n := N
+
+2.  C(N + 1, N) = N + 1
+    cases, from 1
+
+    case
+    assume N ∈ ℕ                                                      (C1)
+
+    2.1.  0 ≤ N. N ≤ N + 1.
+          inequalities, from H1
+
+    2.2.  N ∈ {0, …, N + 1}
+          mun:range-between k := N, a := 0, b := N + 1, from 2.1
+
+    2.3.  C(N + 1, N) = (N + 1)!/(((N + 1) − N)!·N!)
+          def:C n := N + 1, k := N, from 2.2
+
+    2.4.  (N + 1) − N = 1
+          algebra
+
+    2.5.  ((N + 1) − N)! = 1!
+          substitute (N + 1) − N = 1 (line 2.4)
+
+    2.6.  1! = 1
+          mun:factorial
+
+    2.7.  ((N + 1) − N)! = 1
+          calculation
+            ((N + 1) − N)! = 1!      2.5
+                           = 1       2.6
+
+    2.8.  (N + 1)!/(((N + 1) − N)!·N!) = (N + 1)!/(1·N!)
+          substitute ((N + 1) − N)! = 1 (line 2.7)
+
+    2.9.  (N + 1)! = N!·(N + 1)
+          mun:factorial n := N, from C1
+
+    2.10. (N + 1)!/(1·N!) = N!·(N + 1)/(1·N!)
+          substitute (N + 1)! = N!·(N + 1) (line 2.9)
+
+    2.11. N! ∈ ℕ
+          mun:factorial-nat n := N, from C1
+
+    2.12. N!·(N + 1)/(1·N!) = N + 1
+          algebra, from 2.11
+
+    2.13. C(N + 1, N) = N + 1
+          calculation
+            C(N + 1, N) = (N + 1)!/(((N + 1) − N)!·N!)     2.3
+                        = (N + 1)!/(1·N!)                  2.8
+                        = N!·(N + 1)/(1·N!)                2.10
+                        = N + 1                            2.12
+
+    case
+    assume N = 0                                                      (C2)
+
+    2.14. C(1, 0) = 1
+          mun:binomial-zero-index n := 1
+
+    2.15. N + 1 = 1
+          algebra, from C2
+
+    2.16. C(N + 1, N) = C(1, N)
+          substitute N + 1 = 1 (line 2.15)
+
+    2.17. C(1, N) = C(1, 0)
+          substitute N = 0 (C2)
+
+    2.18. C(N + 1, N) = N + 1
+          calculation
+            C(N + 1, N) = C(1, N)     2.16
+                        = C(1, 0)     2.17
+                        = 1           2.14
+                        = N + 1       2.15

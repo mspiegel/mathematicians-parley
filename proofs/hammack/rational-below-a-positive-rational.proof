@@ -1,0 +1,14 @@
+theorem rational-below-a-positive-rational
+  note        Half of a positive rational is a positive rational below it.
+  let x ∈ ℚ                                                           (H1)
+  assume x > 0                                                        (H2)
+  then there exists y ∈ ℚ such that y > 0 and y < x
+
+1.  x/2 > 0
+    inequalities, from H2
+
+2.  x/2 < x
+    inequalities, from H2
+
+3.  There exists y ∈ ℚ such that y > 0 and y < x.
+    exhibit, from 1, 2

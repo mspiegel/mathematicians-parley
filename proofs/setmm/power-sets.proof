@@ -1,0 +1,45 @@
+import mundane definition stdlib/sets/powerset
+import mundane theorem    stdlib/sets/subset-self
+import mundane theorem    stdlib/sets/in-subset
+import mundane theorem    stdlib/sets/powerset-monotone
+
+theorem set-is-a-part-of-itself
+  note        Every set is a part of itself, so it is a member of its power
+              set.
+  let A be a set                                                      (H1)
+  then A ∈ 𝒫A
+
+1.  A ⊆ A
+    mun:subset-self
+
+2.  A ∈ 𝒫A
+    mun:powerset S := A, from 1
+
+
+theorem power-sets-keep-order
+  note        A is inside B exactly when every part of A is a part of B. For
+              the converse, A itself is a part of A.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  then A ⊆ B ↔ 𝒫A ⊆ 𝒫B
+
+1.  A ⊆ B ↔ 𝒫A ⊆ 𝒫B
+    both directions
+
+    direction
+    assume A ⊆ B                                                      (D1)
+
+    1.1.  𝒫A ⊆ 𝒫B
+          mun:powerset-monotone X := B, Y := A, from D1
+
+    direction
+    assume 𝒫A ⊆ 𝒫B                                                    (D2)
+
+    1.2.  A ∈ 𝒫A
+          thm:set-is-a-part-of-itself
+
+    1.3.  A ∈ 𝒫B
+          mun:in-subset X := 𝒫A, Y := 𝒫B, u := A, from D2, 1.2
+
+    1.4.  A ⊆ B
+          mun:powerset S := A, A := B, from 1.3

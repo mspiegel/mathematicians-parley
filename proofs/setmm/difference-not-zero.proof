@@ -1,0 +1,18 @@
+import theorem     proofs/wiedijk/triangle-inequality/abs-bounds
+import mundane theorem stdlib/numbers/abs-real
+
+theorem difference-not-zero
+  metamath    abssubne0, over ℝ
+  note        A is at most |A|, which is below B, so A is below B and the
+              difference B − A is not 0.
+  let A ∈ ℝ                                                           (H1)
+  let B ∈ ℝ                                                           (H2)
+  assume |A| < B                                                      (H3)
+  then B − A ≠ 0
+
+1.  A ≤ |A|. −A ≤ |A|.
+    thm:abs-bounds x := A
+
+2.  B − A ≠ 0
+    inequalities, from H3, 1
+    requires |A| ∈ ℝ: mun:abs-real x := A

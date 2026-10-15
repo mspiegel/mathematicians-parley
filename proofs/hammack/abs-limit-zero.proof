@@ -1,0 +1,57 @@
+import definition         stdlib/calculus/tends-to
+import mundane definition stdlib/numbers/abs
+import mundane theorem    stdlib/numbers/abs-nonneg
+import mundane theorem    stdlib/numbers/abs-real
+
+theorem abs-limit-zero
+  note        The distance of a(n) from 0 is |a(n)|, which is also the
+              distance of |a(n)| from 0, so the same N serves.
+  ε ranges over ℝ
+  n ranges over ℕ
+  let a : ℕ → ℝ                                                       (H1)
+  assume |a(n)| → 0 as n → ∞                                          (H2)
+  then a(n) → 0 as n → ∞
+
+1.  For all ε > 0, there exists N ∈ ℕ such that |a(n) − 0| < ε for all n ≥ N.
+    proof
+    let ε ∈ ℝ                                                         (K1)
+    assume ε > 0                                                      (A1)
+
+    1.1.  For all ε > 0, there exists N ∈ ℕ such that ||a(n)| − 0| < ε for all n ≥ N.
+          def:tends-to L := 0, from H2
+
+    1.2.  There exists N ∈ ℕ such that ||a(n)| − 0| < ε for all n ≥ N.
+          instantiate ε := ε in line 1.1, from A1
+
+    1.3.  N ∈ ℕ. ||a(n)| − 0| < ε for all n ≥ N.
+          obtain N from line 1.2
+
+    1.4.  For all n ≥ N, |a(n) − 0| < ε.
+          proof
+          let n ∈ ℕ                                                   (K2)
+          assume n ≥ N                                                (A2)
+
+          1.4.1.  ||a(n)| − 0| < ε
+                  instantiate n := n in line 1.3, from A2
+
+          1.4.2.  a(n) ∈ ℝ
+                  membership, from H1
+
+          1.4.3.  |a(n)| ≥ 0
+                  mun:abs-nonneg x := a(n), from 1.4.2
+
+          1.4.4.  |a(n)| ∈ ℝ
+                  mun:abs-real x := a(n), from 1.4.2
+
+          1.4.5.  ||a(n)|| = |a(n)|
+                  mun:abs x := |a(n)|, from 1.4.3, 1.4.4
+
+          1.4.6.  |a(n) − 0| < ε
+                  substitute ||a(n)|| = |a(n)| (line 1.4.5) into line 1.4.1
+                  requires a(n) ∈ ℝ: from 1.4.2
+
+    1.5.  There exists N ∈ ℕ such that |a(n) − 0| < ε for all n ≥ N.
+          exhibit, from 1.4
+
+2.  a(n) → 0 as n → ∞
+    def:tends-to L := 0, from 1

@@ -1,0 +1,60 @@
+import mundane theorem    stdlib/counting/factorial-divisible
+import mundane theorem    stdlib/counting/factorial-nat
+import mundane definition stdlib/divisibility/divides
+import mundane theorem    stdlib/divisibility/divides-difference
+import mundane theorem    stdlib/divisibility/divides-one
+import mundane theorem    stdlib/numbers/pos-int-nat
+
+theorem factorial-plus-one
+  note        N divides M! because N is at most M. If N also divided M! + 1,
+              it would divide their difference, which is 1, and so N would
+              be 1, but N is above 1.
+  let M ∈ ℕ₀                                                          (H1)
+  let N ∈ ℕ                                                           (H2)
+  assume 1 < N                                                        (H3)
+  assume N ≤ M                                                        (H4)
+  then (M! + 1)/N ∉ ℤ
+
+1.  (M! + 1)/N ∉ ℤ
+    contradiction
+    suppose (M! + 1)/N ∈ ℤ                                            (S)
+
+    1.1.  0 < M
+          inequalities, from H3, H4
+
+    1.2.  M ∈ ℕ
+          mun:pos-int-nat m := M, from 1.1
+
+    1.3.  N divides M!
+          mun:factorial-divisible n := M, m := N, from H4, 1.2
+
+    1.4.  M! + 1 = N·((M! + 1)/N)
+          algebra
+          requires N ≠ 0: inequalities, from H2
+          requires M! ∈ ℕ: mun:factorial-nat n := M, from 1.2
+
+    1.5.  There is k ∈ ℤ with M! + 1 = N·k.
+          exhibit, from S, 1.4
+
+    1.6.  N divides M! + 1
+          mun:divides d := N, n := M! + 1, from 1.5
+          requires M! ∈ ℕ: mun:factorial-nat n := M, from 1.2
+          requires M! + 1 ∈ ℤ: membership
+
+    1.7.  N divides (M! + 1) − M!
+          mun:divides-difference d := N, a := M! + 1, b := M!, from 1.3, 1.6
+          requires M! ∈ ℕ: mun:factorial-nat n := M, from 1.2
+          requires M! + 1 ∈ ℤ: membership
+
+    1.8.  (M! + 1) − M! = 1
+          algebra
+          requires M! ∈ ℕ: mun:factorial-nat n := M, from 1.2
+
+    1.9.  N divides 1
+          substitute (M! + 1) − M! = 1 (line 1.8) into line 1.7
+
+    1.10. N = 1
+          mun:divides-one d := N, from 1.9
+
+    1.11. N ≠ 1
+          inequalities, from H3, contradicting 1.10

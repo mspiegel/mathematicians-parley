@@ -1,0 +1,26 @@
+import mundane theorem      stdlib/sums/sum-first
+import mundane theorem      stdlib/sums/sum-real
+import mundane theorem      stdlib/sums/sum-single
+
+theorem empty-sum
+  metamath    sum0
+  note        The range from 1 to 0 has no members. Its sum is what is left
+              of the one-term sum Σ(k = 0 to 0) B(k) when its first term is
+              taken away.
+  let B : ℤ → ℝ                                                       (H1)
+  then Σ(k = 1 to 0) B(k) = 0
+
+1.  Σ(k = 0 to 0) B(k) = B(0)
+    mun:sum-single a := 0
+
+2.  Σ(k = 0 to 0) B(k) = B(0) + Σ(k = 0 + 1 to 0) B(k)
+    mun:sum-first n := 0
+
+3.  Σ(k = 0 + 1 to 0) B(k) = 0
+    algebra, from 1, 2
+    requires B(0) ∈ ℝ: from H1
+    requires Σ(k = 0 to 0) B(k) ∈ ℝ: mun:sum-real a := 0, b := 0
+    requires Σ(k = 0 + 1 to 0) B(k) ∈ ℝ: mun:sum-real a := 0 + 1, b := 0
+
+4.  Σ(k = 1 to 0) B(k) = 0
+    join 3

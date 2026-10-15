@@ -1,0 +1,11 @@
+theorem two-halves-below
+  note        Adding A < C/2 and B < C/2 gives A + B < C/2 + C/2, which is C.
+  let A ∈ ℝ                                                           (H1)
+  let B ∈ ℝ                                                           (H2)
+  let C ∈ ℝ                                                           (H3)
+  assume A < C/2                                                      (H4)
+  assume B < C/2                                                      (H5)
+  then A + B < C
+
+1.  A + B < C
+    inequalities, from H4, H5

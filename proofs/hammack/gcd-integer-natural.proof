@@ -1,0 +1,108 @@
+import mundane axiom      stdlib/reasoning/excluded-middle
+import mundane definition stdlib/divisibility/divides
+import mundane definition stdlib/divisibility/gcd
+import mundane theorem    stdlib/divisibility/divides-multiple
+import mundane theorem    stdlib/divisibility/divides-self
+import mundane theorem    stdlib/divisibility/divides-sum
+import mundane theorem    stdlib/divisibility/gcd-commutes
+import mundane theorem    stdlib/divisibility/gcd-zero
+import mundane theorem    stdlib/divisibility/mod-less
+import mundane theorem    stdlib/divisibility/mod-natural
+import mundane theorem    stdlib/divisibility/mod-remainder
+import theorem            stdlib/divisibility/gcd-mod
+import mundane theorem    stdlib/numbers/nat0-int
+import mundane theorem    stdlib/numbers/nat0-nonzero
+import mundane theorem    stdlib/numbers/nat0-real
+
+theorem gcd-integer-natural
+  note        The gcd of an integer and a natural number is the gcd of the
+              remainder and the number. The remainder is 0 or a natural
+              number. If it is 0 the gcd is b itself, which divides a. If
+              not, the gcd of the remainder and b is a natural number
+              dividing both, so it divides a, which is a whole number of b's
+              more than the remainder.
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℕ                                                           (H2)
+  then gcd(a, b) ∈ ℕ. gcd(a, b) divides a. gcd(a, b) divides b.
+
+1.  gcd(a mod b, b) = gcd(a, b)
+    thm:gcd-mod
+
+2.  a mod b ∈ ℕ₀
+    mun:mod-natural
+
+3.  a mod b < b
+    mun:mod-less
+
+4.  q ∈ ℤ. q·b + a mod b = a.
+    obtain q: mun:mod-remainder m := b, r := a mod b, from 2, 3
+
+5.  a mod b = 0 or not a mod b = 0
+    mun:excluded-middle P := a mod b = 0
+
+6.  gcd(a, b) ∈ ℕ. gcd(a, b) divides a. gcd(a, b) divides b.
+    cases, from 5
+
+    case
+    assume a mod b = 0                                                (C1)
+
+    6.1.  gcd(a mod b, b) = gcd(0, b)
+          substitute a mod b = 0 (C1)
+
+    6.2.  gcd(0, b) = gcd(b, 0)
+          mun:gcd-commutes a := 0
+
+    6.3.  gcd(b, 0) = b
+          mun:gcd-zero n := b
+
+    6.4.  gcd(a, b) = b
+          calculation
+            gcd(a, b) = gcd(a mod b, b)     1
+                      = gcd(0, b)           6.1
+                      = gcd(b, 0)           6.2
+                      = b                   6.3
+
+    6.5.  b divides b
+          mun:divides-self n := b
+
+    6.6.  a = b·q
+          algebra, from C1, 4
+          requires a mod b ∈ ℝ: mun:nat0-real m := a mod b, from 2
+
+    6.7.  b divides a
+          mun:divides d := b, n := a, from 6.6
+
+    6.8.  b ∈ ℕ. b divides a. b divides b.
+          join H2, 6.5, 6.7
+
+    6.9.  gcd(a, b) ∈ ℕ. gcd(a, b) divides a. gcd(a, b) divides b.
+          substitute gcd(a, b) = b (line 6.4) into line 6.8
+
+    case
+    assume not a mod b = 0                                            (C2)
+
+    6.10. a mod b ∈ ℕ
+          mun:nat0-nonzero m := a mod b, from C2, 2
+
+    6.11. gcd(a mod b, b) ∈ ℕ. gcd(a mod b, b) divides a mod b. gcd(a mod b, b) divides b.
+          mun:gcd a := a mod b, from 6.10
+
+    6.12. gcd(a, b) ∈ ℕ. gcd(a, b) divides a mod b. gcd(a, b) divides b.
+          substitute gcd(a mod b, b) = gcd(a, b) (line 1) into line 6.11
+
+    6.13. gcd(a, b) divides b·q
+          mun:divides-multiple e := gcd(a, b), a := b, x := q, from 6.12
+
+    6.14. gcd(a, b) divides b·q + a mod b
+          mun:divides-sum d := gcd(a, b), a := b·q, b := a mod b, from 6.12, 6.13
+          requires a mod b ∈ ℤ: mun:nat0-int m := a mod b, from 2
+
+    6.15. a = b·q + a mod b
+          algebra, from 4
+          requires a mod b ∈ ℝ: mun:nat0-real m := a mod b, from 2
+
+    6.16. gcd(a, b) divides a
+          substitute a = b·q + a mod b (line 6.15) into line 6.14
+
+    6.17. gcd(a, b) ∈ ℕ. gcd(a, b) divides a. gcd(a, b) divides b.
+          join 6.12, 6.16

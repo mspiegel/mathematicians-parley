@@ -1,0 +1,97 @@
+import mundane definition stdlib/divisibility/divides
+import mundane definition stdlib/divisibility/even
+import mundane theorem    stdlib/divisibility/even-or-odd
+import mundane definition stdlib/divisibility/odd
+import mundane theorem    stdlib/numbers/integer-step
+import mundane theorem    stdlib/numbers/nonneg-or-neg
+
+theorem four-times-between
+  note        A multiple of 4 is at most 0 or at least 4, so it is not r for
+              any r strictly between.
+  let j ∈ ℤ                                                           (H1)
+  let r ∈ ℤ                                                           (H2)
+  assume r > 0                                                        (H3)
+  assume r < 4                                                        (H4)
+  then 4j ≠ r
+
+1.  j − 1 ≥ 0 or j − 1 < 0
+    mun:nonneg-or-neg x := j − 1
+
+2.  4j ≠ r
+    cases, from 1
+
+    case
+    assume j − 1 ≥ 0                                                  (C1)
+
+    2.1.  4j ≠ r
+          inequalities, from C1, H4
+
+    case
+    assume j − 1 < 0                                                  (C2)
+
+    2.2.  j < 1
+          inequalities, from C2
+
+    2.3.  j + 1 ≤ 1
+          mun:integer-step m := j, n := 1, from 2.2
+
+    2.4.  4j ≠ r
+          inequalities, from H3, 2.3
+
+
+theorem square-minus-three
+  note        If 4 divides n² − 3, then n² − 3 = 4m. For n = 2k this gives
+              4(m − k² + 1) = 1, and for n = 2k + 1 it gives
+              4(k² + k − m) = 2. No multiple of 4 is 1 or 2.
+  let n ∈ ℤ                                                           (H1)
+  then not (4 divides n² − 3)
+
+1.  not (4 divides n² − 3)
+    contradiction
+    suppose 4 divides n² − 3                                          (S)
+
+    1.1.  m ∈ ℤ. n² − 3 = 4m.
+          obtain m: mun:divides d := 4, n := n² − 3, from S
+
+    1.2.  n is even or n is odd
+          mun:even-or-odd
+
+    1.3.  n² − 3 ≠ 4m
+          cases, from 1.2
+
+          case
+          assume n is even                                            (C1)
+
+          1.3.1.  k ∈ ℤ. n = 2k.
+                  obtain k: mun:even, from C1
+
+          1.3.2.  (2k)² − 3 = 4m
+                  substitute n = 2k (line 1.3.1) into line 1.1
+
+          1.3.3.  4(m − k² + 1) = 1
+                  algebra, from 1.3.2
+
+          1.3.4.  4(m − k² + 1) ≠ 1
+                  thm:four-times-between j := m − k² + 1, r := 1, contradicting 1.3.3
+                  requires 1 > 0: arithmetic
+                  requires 1 < 4: arithmetic
+
+          case
+          assume n is odd                                             (C2)
+
+          1.3.5.  k ∈ ℤ. n = 2k + 1.
+                  obtain k: mun:odd, from C2
+
+          1.3.6.  (2k + 1)² − 3 = 4m
+                  substitute n = 2k + 1 (line 1.3.5) into line 1.1
+
+          1.3.7.  4(k² + k − m) = 2
+                  algebra, from 1.3.6
+
+          1.3.8.  4(k² + k − m) ≠ 2
+                  thm:four-times-between j := k² + k − m, r := 2, contradicting 1.3.7
+                  requires 2 > 0: arithmetic
+                  requires 2 < 4: arithmetic
+
+    1.4.  n² − 3 ≠ 4m
+          join 1.3, contradicting 1.1

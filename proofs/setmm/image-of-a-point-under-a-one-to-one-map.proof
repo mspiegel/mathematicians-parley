@@ -1,0 +1,44 @@
+import mundane definition stdlib/functions/image
+import mundane definition stdlib/functions/one-to-one
+import mundane theorem    stdlib/functions/value-in-image
+import mundane theorem    stdlib/sets/in-subset
+
+theorem image-of-a-point-under-a-one-to-one-map
+  note        If F(X) is the value at some point of Y, that point is X
+              itself, because F sends no two points to one place.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  let F : A → B be one-to-one                                         (H3)
+  let X ∈ A                                                           (H4)
+  let Y ⊆ A                                                           (H5)
+  then F(X) ∈ F[Y] ↔ X ∈ Y
+
+1.  F : A → B. For all s, t ∈ A, if F(s) = F(t) then s = t.
+    mun:one-to-one, from H3
+
+2.  F(X) ∈ F[Y] ↔ X ∈ Y
+    both directions
+
+    direction
+    assume F(X) ∈ F[Y]                                                (D1)
+
+    2.1.  There is s ∈ Y with F(X) = F(s).
+          mun:image u := F(X), from D1, H5
+
+    2.2.  s ∈ Y. F(X) = F(s).
+          obtain s from line 2.1
+
+    2.3.  s ∈ A
+          mun:in-subset X := Y, Y := A, u := s, from H5, 2.2
+
+    2.4.  X = s
+          instantiate s := X, t := s in line 1, from H4, 2.2, 2.3
+
+    2.5.  X ∈ Y
+          substitute X = s (line 2.4) into line 2.2
+
+    direction
+    assume X ∈ Y                                                      (D2)
+
+    2.6.  F(X) ∈ F[Y]
+          mun:value-in-image s := X, from D2, H5

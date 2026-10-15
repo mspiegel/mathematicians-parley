@@ -1,0 +1,21 @@
+import theorem proofs/wiedijk/triangle-inequality/triangle-inequality
+
+theorem distance-triangle
+  metamath    abs3dif, over ℝ
+  note        The distance from A to B is at most the distance from A to C
+              plus the distance from C to B: A − B is the sum of A − C and
+              C − B, and the absolute value of a sum is at most the sum of
+              the absolute values.
+  let A ∈ ℝ                                                           (H1)
+  let B ∈ ℝ                                                           (H2)
+  let C ∈ ℝ                                                           (H3)
+  then |A − B| ≤ |A − C| + |C − B|
+
+1.  (A − C) + (C − B) = A − B
+    algebra
+
+2.  |(A − C) + (C − B)| ≤ |A − C| + |C − B|
+    thm:triangle-inequality a := A − C, b := C − B
+
+3.  |A − B| ≤ |A − C| + |C − B|
+    substitute (A − C) + (C − B) = A − B (line 1) into line 2

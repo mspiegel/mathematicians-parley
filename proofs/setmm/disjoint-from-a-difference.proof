@@ -1,0 +1,37 @@
+import mundane definition stdlib/sets/difference
+import mundane definition stdlib/sets/subset
+import mundane theorem    stdlib/sets/disjoint-member
+import mundane theorem    stdlib/sets/in-subset
+
+theorem disjoint-from-a-difference
+  note        A point of C lies in A, since C is inside A. If it were not in
+              B it would be in A ∖ B, which C does not meet.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  let C be a set                                                      (H3)
+  assume (A ∖ B) ∩ C = ∅                                              (H4)
+  then C ⊆ A → C ⊆ B
+
+1.  C ⊆ A → C ⊆ B
+    proof
+    assume C ⊆ A                                                      (K1)
+
+    1.1.  For all t ∈ C, t ∈ B.
+          proof
+          let t ∈ C                                                   (K2)
+
+          1.1.1.  t ∈ A
+                  mun:in-subset X := C, Y := A, u := t, from K1, K2
+
+          1.1.2.  t ∈ B
+                  contradiction
+                  suppose t ∉ B                                       (S)
+
+                  1.1.2.1.  t ∈ A ∖ B
+                            mun:difference u := t, Y := A, Z := B, from S, 1.1.1
+
+                  1.1.2.2.  t ∉ C
+                            mun:disjoint-member Y := A ∖ B, Z := C, from H4, 1.1.2.1, contradicting K2
+
+    1.2.  C ⊆ B
+          mun:subset, from 1.1

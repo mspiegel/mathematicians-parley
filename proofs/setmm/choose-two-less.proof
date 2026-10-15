@@ -1,0 +1,149 @@
+import theorem            proofs/setmm/factorial-by-predecessor/factorial-by-predecessor
+import definition         stdlib/counting/C
+import mundane definition stdlib/counting/factorial
+import mundane theorem    stdlib/counting/factorial-nat
+import mundane theorem    stdlib/counting/binomial-zero-index
+import mundane definition stdlib/numbers/nat0
+import mundane theorem    stdlib/numbers/nat-minus-one
+import mundane definition stdlib/sums/range-between
+
+theorem choose-two-less
+  note        C(N + 1, N − 1) is (N + 1)! over 2!·(N − 1)!, and (N + 1)! is
+              (N − 1)!·N·(N + 1), so the (N − 1)! cancels and what is left is
+              (N + 1)·N over 2. For N = 0 the lower index is −1 and both
+              sides are 0; for N = 1 it is C(2, 0) = 1.
+  let N ∈ ℕ₀                                                          (H1)
+  then C(N + 1, N − 1) = (N + 1)·N/2
+
+1.  N ∈ ℕ or N = 0
+    mun:nat0 n := N
+
+2.  C(N + 1, N − 1) = (N + 1)·N/2
+    cases, from 1
+
+    case
+    assume N ∈ ℕ                                                      (C1)
+
+    2.1.  N − 1 ∈ ℕ₀
+          mun:nat-minus-one n := N, from C1
+
+    2.2.  N − 1 ∈ ℕ or N − 1 = 0
+          mun:nat0 n := N − 1, from 2.1
+
+    2.3.  C(N + 1, N − 1) = (N + 1)·N/2
+          cases, from 2.2
+
+          case
+          assume N − 1 ∈ ℕ                                            (C3)
+
+          2.3.1.  (N − 1)! ∈ ℕ
+                  mun:factorial-nat n := N − 1, from C3
+
+          2.3.2.  0 ≤ N − 1. N − 1 ≤ N + 1.
+                  inequalities, from C1
+
+          2.3.3.  N − 1 ∈ {0, …, N + 1}
+                  mun:range-between k := N − 1, a := 0, b := N + 1, from 2.3.2
+
+          2.3.4.  C(N + 1, N − 1) = (N + 1)!/(((N + 1) − (N − 1))!·(N − 1)!)
+                  def:C n := N + 1, k := N − 1, from 2.3.3
+
+          2.3.5.  (N + 1) − (N − 1) = 2
+                  algebra
+
+          2.3.6.  1! = 1
+                  mun:factorial
+
+          2.3.7.  (1 + 1)! = 1!·(1 + 1)
+                  mun:factorial n := 1
+
+          2.3.8.  2! = 1!·2
+                  substitute 1 + 1 = 2 (arithmetic) into line 2.3.7
+
+          2.3.9.  2! = 1·2
+                  substitute 1! = 1 (line 2.3.6) into line 2.3.8
+
+          2.3.10. ((N + 1) − (N − 1))! = 2!
+                  substitute (N + 1) − (N − 1) = 2 (line 2.3.5)
+
+          2.3.11. ((N + 1) − (N − 1))! = 2
+                  calculation
+                    ((N + 1) − (N − 1))! = 2!      2.3.10
+                                         = 1·2     2.3.9
+                                         = 2       arithmetic
+
+          2.3.12. (N + 1)!/(((N + 1) − (N − 1))!·(N − 1)!) = (N + 1)!/(2·(N − 1)!)
+                  substitute ((N + 1) − (N − 1))! = 2 (line 2.3.11)
+
+          2.3.13. (N + 1)! = N!·(N + 1)
+                  mun:factorial n := N, from C1
+
+          2.3.14. N! = (N − 1)!·N
+                  thm:factorial-by-predecessor, from C1
+
+          2.3.15. N!·(N + 1) = (N − 1)!·N·(N + 1)
+                  substitute N! = (N − 1)!·N (line 2.3.14)
+
+          2.3.16. (N + 1)! = (N − 1)!·N·(N + 1)
+                  calculation
+                    (N + 1)! = N!·(N + 1)                2.3.13
+                             = (N − 1)!·N·(N + 1)        2.3.15
+
+          2.3.17. (N + 1)!/(2·(N − 1)!) = (N − 1)!·N·(N + 1)/(2·(N − 1)!)
+                  substitute (N + 1)! = (N − 1)!·N·(N + 1) (line 2.3.16)
+
+          2.3.18. (N − 1)!·N·(N + 1)/(2·(N − 1)!) = (N + 1)·N/2
+                  algebra, from 2.3.1
+
+          2.3.19. C(N + 1, N − 1) = (N + 1)·N/2
+                  calculation
+                    C(N + 1, N − 1) = (N + 1)!/(((N + 1) − (N − 1))!·(N − 1)!)   2.3.4
+                                    = (N + 1)!/(2·(N − 1)!)                      2.3.12
+                                    = (N − 1)!·N·(N + 1)/(2·(N − 1)!)            2.3.17
+                                    = (N + 1)·N/2                                2.3.18
+
+          case
+          assume N − 1 = 0                                            (C4)
+
+          2.3.20. C(N + 1, N − 1) = C(N + 1, 0)
+                  substitute N − 1 = 0 (C4)
+
+          2.3.21. C(N + 1, 0) = 1
+                  mun:binomial-zero-index n := N + 1
+
+          2.3.22. (N + 1)·N/2 = 1
+                  algebra, from C4
+
+          2.3.23. C(N + 1, N − 1) = (N + 1)·N/2
+                  calculation
+                    C(N + 1, N − 1) = C(N + 1, 0)    2.3.20
+                                    = 1              2.3.21
+                                    = (N + 1)·N/2    2.3.22
+
+    case
+    assume N = 0                                                      (C2)
+
+    2.4.  N + 1 = 1
+          algebra, from C2
+
+    2.5.  N − 1 = −1
+          algebra, from C2
+
+    2.6.  C(N + 1, N − 1) = C(1, N − 1)
+          substitute N + 1 = 1 (line 2.4)
+
+    2.7.  C(1, N − 1) = C(1, −1)
+          substitute N − 1 = −1 (line 2.5)
+
+    2.8.  C(1, −1) = 0
+          def:C n := 1
+
+    2.9.  (N + 1)·N/2 = 0
+          algebra, from C2
+
+    2.10. C(N + 1, N − 1) = (N + 1)·N/2
+          calculation
+            C(N + 1, N − 1) = C(1, N − 1)    2.6
+                            = C(1, −1)       2.7
+                            = 0              2.8
+                            = (N + 1)·N/2    2.9

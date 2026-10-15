@@ -1,0 +1,83 @@
+import theorem            stdlib/divisibility/coprime-divides
+import mundane theorem    stdlib/divisibility/divides-multiple
+import mundane definition stdlib/divisibility/gcd
+import mundane theorem    stdlib/divisibility/gcd-commutes
+import mundane theorem    stdlib/divisibility/prime-coprime
+import mundane axiom      stdlib/reasoning/excluded-middle
+import mundane theorem    stdlib/reasoning/or-left
+import mundane theorem    stdlib/reasoning/or-right
+
+theorem prime-divides-product
+  note        If a prime divides a product and does not divide the first
+              factor, it shares no factor with it, so it divides the other.
+              Conversely it divides any multiple of what it divides.
+  let P ∈ ℕ                                                           (H1)
+  assume P is prime                                                   (H2)
+  let M ∈ ℤ                                                           (H3)
+  let N ∈ ℤ                                                           (H4)
+  then P divides M·N ↔ P divides M or P divides N
+
+1.  M·N = N·M
+    algebra
+
+2.  P divides M·N ↔ P divides M or P divides N
+    both directions
+
+    direction
+    assume P divides M·N                                              (D1)
+
+    2.1.  P divides M or not (P divides M)
+          mun:excluded-middle P := P divides M
+
+    2.2.  P divides M or P divides N
+          cases, from 2.1
+
+          case
+          assume P divides M                                          (C1)
+
+          2.2.1.  P divides M or P divides N
+                  mun:or-left P := P divides M, Q := P divides N, from C1
+
+          case
+          assume not (P divides M)                                    (C2)
+
+          2.2.2.  gcd(P, M) = 1
+                  mun:prime-coprime p := P, a := M, from C2, H2
+
+          2.2.3.  gcd(M, P) = gcd(P, M)
+                  mun:gcd-commutes a := M, b := P
+
+          2.2.4.  gcd(M, P) = 1
+                  calculation
+                    gcd(M, P) = gcd(P, M)     2.2.3
+                              = 1             2.2.2
+
+          2.2.5.  P divides N·M
+                  substitute M·N = N·M (line 1) into D1
+
+          2.2.6.  P divides N
+                  thm:coprime-divides x := N, c := M, n := P, from 2.2.4, 2.2.5
+
+          2.2.7.  P divides M or P divides N
+                  mun:or-right P := P divides M, Q := P divides N, from 2.2.6
+
+    direction
+    assume P divides M or P divides N                                 (D2)
+
+    2.3.  P divides M·N
+          cases, from D2
+
+          case
+          assume P divides M                                          (C3)
+
+          2.3.1.  P divides M·N
+                  mun:divides-multiple e := P, a := M, x := N, from C3
+
+          case
+          assume P divides N                                          (C4)
+
+          2.3.2.  P divides N·M
+                  mun:divides-multiple e := P, a := N, x := M, from C4
+
+          2.3.3.  P divides M·N
+                  substitute N·M = M·N (line 1) into line 2.3.2

@@ -1,0 +1,25 @@
+import theorem            proofs/wiedijk/triangle-inequality/triangle-inequality
+import mundane theorem    stdlib/numbers/abs-real
+
+theorem difference-of-sizes
+  note        A is (A − B) + B, so |A| is at most |A − B| + |B| by the
+              triangle inequality; move |B| across. Real numbers only: the
+              library has the triangle inequality for them alone.
+  let A ∈ ℝ                                                           (H1)
+  let B ∈ ℝ                                                           (H2)
+  then |A| − |B| ≤ |A − B|
+
+1.  |(A − B) + B| ≤ |A − B| + |B|
+    thm:triangle-inequality a := A − B, b := B
+
+2.  (A − B) + B = A
+    algebra
+
+3.  |A| ≤ |A − B| + |B|
+    substitute (A − B) + B = A (line 2) into line 1
+
+4.  |A| − |B| ≤ |A − B|
+    inequalities, from 3
+    requires |A| ∈ ℝ: mun:abs-real x := A
+    requires |B| ∈ ℝ: mun:abs-real x := B
+    requires |A − B| ∈ ℝ: mun:abs-real x := A − B

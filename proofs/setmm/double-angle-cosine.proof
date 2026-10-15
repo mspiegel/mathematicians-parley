@@ -1,0 +1,114 @@
+import theorem            stdlib/trigonometry/cos-add
+import mundane theorem    stdlib/trigonometry/cos-zero
+import mundane theorem    stdlib/trigonometry/cos-negative
+import mundane theorem    stdlib/trigonometry/sin-negative
+import mundane theorem    stdlib/trigonometry/cos-complex
+import mundane theorem    stdlib/trigonometry/sin-complex
+import mundane definition stdlib/trigonometry/cos
+import mundane definition stdlib/trigonometry/sin
+
+theorem sine-squared-plus-cosine-squared
+  metamath    sincossq
+  note        cos(A + (−A)) = cos(0) = 1, and the addition formula with the
+              cosine even and the sine odd turns the left side into
+              cos(A)² + sin(A)².
+  let A ∈ ℂ                                                           (H1)
+  then sin(A)² + cos(A)² = 1
+
+1.  cos(A + (−A)) = cos(A)·cos(−A) − sin(A)·sin(−A)
+    thm:cos-add a := A, b := −A
+
+2.  cos(−A) = cos(A)
+    mun:cos-negative a := A
+
+3.  sin(−A) = −sin(A)
+    mun:sin-negative a := A
+
+4.  A + (−A) = 0
+    algebra
+
+5.  cos(A + (−A)) = cos(0)
+    substitute A + (−A) = 0 (line 4)
+
+6.  cos(0) = 1
+    mun:cos-zero
+
+7.  cos(A)·cos(−A) − sin(A)·sin(−A) = cos(A)·cos(A) − sin(A)·sin(−A)
+    substitute cos(−A) = cos(A) (line 2)
+
+8.  cos(A)·cos(A) − sin(A)·sin(−A) = cos(A)·cos(A) − sin(A)·(−sin(A))
+    substitute sin(−A) = −sin(A) (line 3)
+
+9.  cos(A)·cos(A) − sin(A)·(−sin(A)) = sin(A)² + cos(A)²
+    algebra
+    requires sin(A) ∈ ℂ: mun:sin-complex a := A
+    requires cos(A) ∈ ℂ: mun:cos-complex a := A
+
+10. sin(A)² + cos(A)² = 1
+    calculation
+      sin(A)² + cos(A)² = cos(A)·cos(A) − sin(A)·(−sin(A))      9
+                        = cos(A)·cos(A) − sin(A)·sin(−A)        8
+                        = cos(A)·cos(−A) − sin(A)·sin(−A)       7
+                        = cos(A + (−A))                         1
+                        = cos(0)                                5
+                        = 1                                     6
+
+theorem cosine-of-double
+  metamath    cos2t
+  note        Put B = A in the addition formula, and replace sin(A)² by
+              1 − cos(A)².
+  let A ∈ ℂ                                                           (H1)
+  then cos(2·A) = 2·cos(A)² − 1
+
+1.  cos(A + A) = cos(A)·cos(A) − sin(A)·sin(A)
+    thm:cos-add a := A, b := A
+
+2.  sin(A)² + cos(A)² = 1
+    thm:sine-squared-plus-cosine-squared
+
+3.  2·A = A + A
+    algebra
+
+4.  cos(2·A) = cos(A + A)
+    substitute 2·A = A + A (line 3)
+
+5.  cos(A)·cos(A) − sin(A)·sin(A) = 2·cos(A)² − 1
+    algebra, from 2
+    requires sin(A) ∈ ℂ: mun:sin-complex a := A
+    requires cos(A) ∈ ℂ: mun:cos-complex a := A
+
+6.  cos(2·A) = 2·cos(A)² − 1
+    calculation
+      cos(2·A) = cos(A + A)                          4
+               = cos(A)·cos(A) − sin(A)·sin(A)       1
+               = 2·cos(A)² − 1                       5
+
+theorem cosine-of-double-by-sine
+  metamath    cos2tsin
+  note        As for the cosine of a double, with cos(A)² replaced by
+              1 − sin(A)².
+  let A ∈ ℂ                                                           (H1)
+  then cos(2·A) = 1 − 2·sin(A)²
+
+1.  cos(A + A) = cos(A)·cos(A) − sin(A)·sin(A)
+    thm:cos-add a := A, b := A
+
+2.  sin(A)² + cos(A)² = 1
+    thm:sine-squared-plus-cosine-squared
+
+3.  2·A = A + A
+    algebra
+
+4.  cos(2·A) = cos(A + A)
+    substitute 2·A = A + A (line 3)
+
+5.  cos(A)·cos(A) − sin(A)·sin(A) = 1 − 2·sin(A)²
+    algebra, from 2
+    requires sin(A) ∈ ℂ: mun:sin-complex a := A
+    requires cos(A) ∈ ℂ: mun:cos-complex a := A
+
+6.  cos(2·A) = 1 − 2·sin(A)²
+    calculation
+      cos(2·A) = cos(A + A)                          4
+               = cos(A)·cos(A) − sin(A)·sin(A)       1
+               = 1 − 2·sin(A)²                       5
