@@ -111,6 +111,11 @@ impl CheckedTheorem {
             })
     }
 
+    /// The block the step at `owner` opens, where it opens one.
+    pub fn block_of(&self, owner: usize) -> Option<&Block> {
+        self.blocks.iter().find(|b| b.owner == owner)
+    }
+
     /// Every place the step at `at` stands in, innermost first: its own
     /// place, the place its block's owner stands in, and so out.
     pub fn around(&self, at: usize) -> Vec<Place> {

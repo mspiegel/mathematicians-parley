@@ -23,9 +23,10 @@ use super::state::{
 };
 use super::{Facts, Line, Lines};
 use crate::binds;
+use crate::checker::record::CheckedTheorem;
 use crate::corpus::{
-    define_parts, fmt, item_prefix, DefineParts, Intro, Item, Kinded, Step, CITED,
-    ITEM_PREFIX,
+    define_parts, fmt, item_prefix, DefineParts, Intro, Item, Kinded, Method, Step,
+    CITED, ITEM_PREFIX,
 };
 use crate::formula::page::{made_as, Written};
 use crate::formula::{Node, Sorts};
@@ -832,22 +833,27 @@ impl<'a> Elaborator<'a> {
         }
     }
 
-    /// A step owning a block that names the line it contradicts closes the
-    /// contradiction block around it as a step taken alone does: `1.1. x >
-    /// 0, cases, from H2, contradicting S`, its claim shown by its cases.
-    pub fn closed_contradicting(
-        &mut self,
-        done: &Block,
-        blocks: &[Block],
-        facts: &Facts,
-    ) {
-        let in_contradiction = blocks
-            .last()
-            .is_some_and(|b| b.owner.just.head.to_string() == "contradiction");
-        let Some(other) = &done.owner.just.contradicting else {
+    /// The line a contradiction block closes on, where `step` is the block's
+    /// last step as the checker's record has it (`record::Block::last`) and
+    /// names a line it contradicts: a step taken alone, or one owning a
+    /// block, `1.1. x > 0, cases, from H2, contradicting S`, its claim shown
+    /// by its cases. Any other step's `contradicting` closes nothing here.
+    pub fn contradicted_at(&mut self, step: &Step, facts: &Facts) {
+        let Some(other) = &step.just.contradicting else {
             return;
         };
-        if !in_contradiction {
+        let Some(at) = CheckedTheorem::index_of(self.thm, step) else {
+            return;
+        };
+        let ends = self.shape.places[at].is_some_and(|p| {
+            let block = &self.shape.blocks[p.block];
+            block.last() == Some(at)
+                && self.thm.steps[block.owner]
+                    .just
+                    .head
+                    .is(Method::Contradiction)
+        });
+        if !ends {
             return;
         }
         let lines = self.lines.clone();

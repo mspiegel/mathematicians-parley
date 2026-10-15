@@ -35,6 +35,7 @@ use super::state::{
 use super::tables::Leaf;
 use super::{Facts, Line, Lines};
 use crate::binds;
+use crate::checker::record::CheckedTheorem;
 use crate::citing::{self, asked, claimed_member, filled, finished, obtained, Parts};
 use crate::corpus::proof::{
     chain, requires_as_step, requires_item, ChainLine, Requires,
@@ -608,19 +609,25 @@ impl<'a> Elaborator<'a> {
         let mut closers: Vec<Closer> = Vec::new();
         let mut blocks: Vec<Block> = Vec::new();
         let mut named_hypotheses = false;
-        for step in self.thm.steps.clone() {
-            // A block's children are the steps numbered below it, so the
-            // block closes at the first step that is not one of them.
-            while blocks
-                .last()
-                .is_some_and(|b| step.number.len() <= b.owner.number.len())
-            {
+        for (at, step) in self.thm.steps.clone().into_iter().enumerate() {
+            // A block closes at the first step the checker's record does not
+            // stand inside it (`CheckedTheorem::around`).
+            let owners: Vec<usize> = self
+                .shape
+                .around(at)
+                .iter()
+                .map(|p| self.shape.blocks[p.block].owner)
+                .collect();
+            while blocks.last().is_some_and(|b| {
+                CheckedTheorem::index_of(self.thm, &b.owner)
+                    .is_none_or(|i| !owners.contains(&i))
+            }) {
                 let mut done = blocks.pop().unwrap();
                 closers = self.settle_claimed(&mut done, closers, None)?;
                 (scope, facts, closers) =
                     self.close_block(&mut done, &facts, closers, &scope)?;
                 self.line_built_as_stated(done.owner.line)?;
-                self.closed_contradicting(&done, &blocks, &facts);
+                self.contradicted_at(&done.owner, &facts);
                 Self::hand_up(&done, &mut blocks);
             }
             // A step in a case sits under the case's assumption, and one in
@@ -670,18 +677,7 @@ impl<'a> Elaborator<'a> {
             self.line_built_as_stated(step.line)?;
             // A step contradicting a line closes a contradiction block on the
             // two of them, as its last pair.
-            if let (Some(other), true) =
-                (&step.just.contradicting, self.in_contradiction)
-            {
-                let lines = self.lines.clone();
-                if let Some(line) = lines.get(other) {
-                    let proof = self.carried(other, &facts, &lines);
-                    self.contradicted = Some(Contradicted {
-                        claim: line.term,
-                        proof,
-                    });
-                }
-            }
+            self.contradicted_at(&step, &facts);
             // A step that says its claim is impossible is its own opposite:
             // `arithmetic` works the claim out, refuses one it does not find
             // false, and proves its denial, which stands as the line it
@@ -782,7 +778,7 @@ impl<'a> Elaborator<'a> {
             (scope, facts, closers) =
                 self.close_block(&mut done, &facts, closers, &scope)?;
             self.line_built_as_stated(done.owner.line)?;
-            self.closed_contradicting(&done, &blocks, &facts);
+            self.contradicted_at(&done.owner, &facts);
             Self::hand_up(&done, &mut blocks);
         }
 

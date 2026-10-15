@@ -7,6 +7,7 @@ use std::collections::BTreeSet;
 use indexmap::{IndexMap, IndexSet};
 
 use super::library::Known;
+use super::record::CheckedTheorem;
 use super::structure::{defined_below, introduced, letters_in_scope};
 use super::Report;
 use crate::citing::{link_unsaid, said_once, Library, Parts};
@@ -585,7 +586,8 @@ pub fn check_contradiction(
     known: &Known,
 ) {
     let wrappers = wrappers(env);
-    for step in &thm.steps {
+    let shape = CheckedTheorem::of(thm);
+    for (at, step) in thm.steps.iter().enumerate() {
         if !step.just.head.is(Method::Contradiction) {
             continue;
         }
@@ -612,19 +614,13 @@ pub fn check_contradiction(
             );
         }
         // The block's last step is the last of its own, not the last of a
-        // block inside it: a `cases` step ending the block names the line
-        // its cases together contradict (`SYNTAX.md`, contradiction).
-        let inside: Vec<&Step> = thm
-            .steps
-            .iter()
-            .filter(|s| {
-                s.number.len() == step.number.len() + 1
-                    && s.number.prefix(step.number.len()) == step.number
-            })
-            .collect();
-        let Some(last_step) = inside.last() else {
+        // block inside it (`record::Block::last`): a `cases` step ending the
+        // block names the line its cases together contradict (`SYNTAX.md`,
+        // contradiction).
+        let Some(last) = shape.block_of(at).and_then(|b| b.last()) else {
             continue;
         };
+        let last_step = &thm.steps[last];
         if last_step.just.contradicting.is_none() && !last_step.impossible {
             report.say(
                 &thm.path,
