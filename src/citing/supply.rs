@@ -537,7 +537,7 @@ fn all_bound(tree: &Node, variables: &BTreeSet<String>, binding: &Binding) -> bo
 /// Both are parsed sets: a number system, or a range {a, …, b}.
 /// `rules::WITHIN` and `rules::RANGE_WITHIN` are the table, which the
 /// elaborator reads as well.
-fn set_within(inner: &Node, outer: &Node) -> bool {
+pub fn set_within(inner: &Node, outer: &Node) -> bool {
     if outer.notation != "number-systems" {
         return false;
     }

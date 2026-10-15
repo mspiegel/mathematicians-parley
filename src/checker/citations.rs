@@ -2908,7 +2908,15 @@ pub fn check_from_lines(
     thm: &Theorem,
     library: &Library,
     known: &Known,
+    scopes: &[FileScope],
 ) {
+    // The defines a line may name: the theorem's own and its file's.
+    let defines: BTreeSet<&str> = thm
+        .defines
+        .iter()
+        .chain(&scopes[thm.scope].defines)
+        .map(|d| d.label.as_str())
+        .collect();
     for step in &thm.steps {
         for req in &step.requires {
             if !str::trim(&req.how).starts_with("from ") {
@@ -2926,7 +2934,35 @@ pub fn check_from_lines(
                     .iter()
                     .all(|c| facts.iter().any(|f| known.alike(f, c)))
             };
+            // A fact the lines do not give is the line's defect: it claims
+            // its lines supply what they do not. They give it where they say
+            // it, or as the build proves the line from them alone
+            // (`from_lines_give`, `ELABORATION.md`, R2): never from a type
+            // in scope the line does not name. A define giving its function
+            // is read apart, by `check_function_types`.
+            let names_a_define =
+                req.lines().iter().any(|r| defines.contains(r.as_str()));
             if !read_off(&[]) {
+                if names_a_define {
+                    continue;
+                }
+                let supplied =
+                    requires_parts(step, req, &[], known, library).map(|parts| {
+                        parts.claims.iter().all(|c| {
+                            from_lines_give(c, &parts.facts, step, known, library)
+                        })
+                    });
+                if supplied == Some(false) {
+                    report.say(
+                        &thm.path,
+                        req.line,
+                        format!(
+                            "{} does not reach {}, which this line claims it supplies",
+                            str::trim(&req.how),
+                            str::trim(req.fact.text())
+                        ),
+                    );
+                }
                 continue;
             }
             let refs = req.lines();
@@ -2953,6 +2989,122 @@ pub fn check_from_lines(
             }
         }
     }
+}
+
+/// Whether the facts a bare `from` line reads give `claim` as the build
+/// proves it from them (`ELABORATION.md`, R2), beside what they state and
+/// supply: a membership the membership decider builds from them, a typed
+/// function's value at a point of its domain among them; or an instance of
+/// a "for all" among them, at a member the page says once is in its set, or
+/// over a set inside its set (`SYNTAX.md`, a line said of every member).
+/// Only the facts' own function types are offered, as the line rests on
+/// its reason alone.
+fn from_lines_give(
+    claim: &Node,
+    facts: &[Node],
+    step: &Step,
+    known: &Known,
+    library: &Library,
+) -> bool {
+    let letters = super::library::introduced(known, step);
+    if let ("membership", [term, set]) =
+        (claim.notation.as_str(), claim.children.as_slice())
+    {
+        if let Some(system) = (set.notation == "number-systems")
+            .then(|| System::of_sign(&set.text))
+            .flatten()
+        {
+            let typed: Vec<Node> = facts
+                .iter()
+                .filter(|f| f.notation == "function-type")
+                .cloned()
+                .collect();
+            let given = crate::methods::membership::Facts {
+                facts,
+                letters: letters.clone(),
+                ranged: IndexMap::new(),
+                typed: &typed,
+                targets: &library.targets,
+                ctx: known.ctx,
+            };
+            if crate::methods::membership::holds(term, system, &given) {
+                return true;
+            }
+        }
+    }
+    facts.iter().any(|f| {
+        let ("for-all", [bound, over, body]) =
+            (f.notation.as_str(), f.children.as_slice())
+        else {
+            return false;
+        };
+        if let ("for-all", [letter, inner, said]) =
+            (claim.notation.as_str(), claim.children.as_slice())
+        {
+            let put = Binding::from([(bound.text.clone(), letter.clone())]);
+            return (known.alike(inner, over)
+                || crate::citing::set_within(inner, over))
+                && known.alike(&substitute_apart(body, &put, known.ctx), said);
+        }
+        // At a member: the claim is the body, or one part of it, there.
+        let variables = BTreeSet::from([bound.text.clone()]);
+        conjuncts(body, library).iter().any(|part| {
+            let Some(fit) = match_tree(
+                part,
+                claim,
+                &Binding::new(),
+                &variables,
+                &IndexSet::new(),
+                known.ctx,
+            ) else {
+                return false;
+            };
+            fit.get(&bound.text)
+                .is_some_and(|member| member_in(member, over, &letters, step, known))
+        })
+    })
+}
+
+/// Whether `member` is in `set` as the page says it: by the membership it
+/// says once, in a number system; or as the member of a step said of every
+/// member of a set inside `set`, which its requires lines speak of
+/// (`SYNTAX.md`, a step said of every member).
+fn member_in(
+    member: &Node,
+    set: &Node,
+    letters: &crate::citing::Introduced,
+    step: &Step,
+    known: &Known,
+) -> bool {
+    let said_once = set.notation == "number-systems"
+        && System::of_sign(&set.text).is_some_and(|system| {
+            crate::citing::within(
+                member,
+                system,
+                letters,
+                &crate::citing::numeral_nonzero,
+                &|_, _| false,
+            )
+        });
+    if said_once {
+        return true;
+    }
+    let defined = known.citing_step(step);
+    let sentences = step.claim.sentences();
+    let [sentence] = sentences.as_slice() else {
+        return false;
+    };
+    let Some(whole) = known.read_citing(sentence, &defined) else {
+        return false;
+    };
+    matches!(
+        (whole.notation.as_str(), whole.children.as_slice()),
+        ("for-all", [bound, over, _])
+            if bound.is_name()
+                && member.is_name()
+                && bound.text == member.text
+                && (known.alike(over, set) || crate::citing::set_within(over, set))
+    )
 }
 
 /// Whether the line `r` says a function's type, `H : [a, b] → ℝ`. A

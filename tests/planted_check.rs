@@ -634,6 +634,19 @@ fn cases() -> Vec<Case> {
             )],
             "4 divides 2 is a word divides defines, and arithmetic decides a word only where its record says so in a `decided` field",
         ),
+        // A requires line of `from` alone rests on the lines it names: f(b)
+        // is real by f's type H4 and b's place in its domain, and with H4
+        // left out nothing it names types f, the type in scope being no
+        // line it names.
+        case(
+            "a from line that leaves out the type its value needs",
+            vec![edit(
+                "proofs/mean-value.proof",
+                Some("    requires f′(c) ∈ ℝ: mun:derivative-real x := c, from H6, 24\n    requires f(a) ∈ ℝ: from H4, 1\n    requires f(b) ∈ ℝ: from H4, 2\n".to_string()),
+                "    requires f′(c) ∈ ℝ: mun:derivative-real x := c, from H6, 24\n    requires f(a) ∈ ℝ: from H4, 1\n    requires f(b) ∈ ℝ: from 2\n".to_string(),
+            )],
+            "from 2 does not reach f(b) ∈ ℝ, which this line claims it supplies",
+        ),
         // A claim the method named does not decide, a membership said by
         // `inequalities`: no closure step is taken without examining it.
         case(
