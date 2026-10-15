@@ -135,6 +135,20 @@ pub fn checked_where(
                 .collect();
             record.cited_requires =
                 citations::requires_cited(thm, c.library, &c.known[i]);
+            // A block whose goals are a defect owes nothing here: the defect
+            // is among the record's problems (`check_block_ends`), and the
+            // build builds no theorem with one.
+            for block in &mut record.blocks {
+                let owed = formulas::block_owes(&thm.steps[block.owner], &c.known[i]);
+                block.owes = owed
+                    .unwrap_or_default()
+                    .into_iter()
+                    .map(|o| record::Owed {
+                        part: o.part,
+                        claim: o.claim,
+                    })
+                    .collect();
+            }
             out.insert(thm.qualified(), record);
         }
         out

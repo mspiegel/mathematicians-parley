@@ -24,7 +24,7 @@ use crate::methods::membership as methods_membership;
 use crate::methods::terms::{term_of_node, Targets};
 use crate::methods::{algebra, inequalities, linear};
 use crate::mm::kernel::{FloatLabels, Term};
-use crate::outcome::{Built, Checked, Declined};
+use crate::outcome::{Built, Checked, Declined, Problem};
 use crate::rules::System;
 use crate::sorts::infer::{self, Reader, Store};
 use crate::sorts::introduction::{Form, Introduction};
@@ -859,10 +859,40 @@ pub fn check_both_directions(report: &mut Report, thm: &Theorem, known: &Known) 
 
 /// What one part of a block owes: the part, as its steps are numbered, the
 /// sentences its last step claims, and how a message names the part.
-struct Owed {
-    part: Option<usize>,
-    claim: Vec<Node>,
+pub(super) struct Owed {
+    pub(super) part: Option<usize>,
+    pub(super) claim: Vec<Node>,
     called: String,
+}
+
+/// What each part of the block `owner` opens owes (`check_block_ends`):
+/// none for a step opening no induction, `cases` or `proof` block, or one
+/// whose claim does not read, which `check_formulas` reports. Each claim
+/// is read with no define written out. A `proof` block whose claim has no
+/// layer for an opener is the page's defect.
+pub(super) fn block_owes(owner: &Step, known: &Known) -> Checked<Vec<Owed>> {
+    let outside = known.citing(&[]);
+    let Some(claim) = owner
+        .claim
+        .sentences()
+        .iter()
+        .map(|s| known.read_citing(s, &outside))
+        .collect::<Option<Vec<Node>>>()
+    else {
+        return Ok(Vec::new());
+    };
+    Ok(match (owner.just.head.method(), claim.as_slice()) {
+        (Some(Method::Induction), [one]) => induction_owes(owner, one, known),
+        (Some(Method::Cases), _) => (0..owner.parts.len())
+            .map(|part| Owed {
+                part: Some(part),
+                claim: claim.clone(),
+                called: format!("case {} of step {}", part + 1, owner.number),
+            })
+            .collect(),
+        (Some(Method::Proof), [one]) => vec![proof_owes(owner, one, known)?],
+        _ => Vec::new(),
+    })
 }
 
 /// Each part of an induction, a `cases` block and a `proof` block ends on
@@ -887,22 +917,12 @@ pub fn check_block_ends(report: &mut Report, thm: &Theorem, known: &Known) {
             .collect()
     };
     for owner in &thm.steps {
-        let Some(claim) = read(&owner.claim) else {
-            continue; // `check_formulas` says it does not read
-        };
-        let owed = match (owner.just.head.method(), claim.as_slice()) {
-            (Some(Method::Induction), [one]) => induction_owes(owner, one, known),
-            (Some(Method::Cases), _) => (0..owner.parts.len())
-                .map(|part| Owed {
-                    part: Some(part),
-                    claim: claim.clone(),
-                    called: format!("case {} of step {}", part + 1, owner.number),
-                })
-                .collect(),
-            (Some(Method::Proof), [one]) => {
-                proof_owes(owner, one, known).into_iter().collect()
+        let owed = match block_owes(owner, known) {
+            Ok(owed) => owed,
+            Err(defect) => {
+                report.problems.push(defect);
+                continue;
             }
-            _ => continue,
         };
         let contradicts = !owner.just.head.is(Method::Induction);
         for Owed {
@@ -992,15 +1012,16 @@ fn induction_owes(owner: &Step, claim: &Node, known: &Known) -> Vec<Owed> {
 
 /// What a `proof` block owes: its claim with a "for all" taken off for each
 /// `let` line and an "if" for each `assume`, in the order they open the
-/// block. None where the claim does not have those layers, which the
-/// elaborator reports.
-fn proof_owes(owner: &Step, claim: &Node, known: &Known) -> Option<Owed> {
+/// block (`SYNTAX.md`, proof). A claim without the layer an opener takes off
+/// is the page's defect, and so is a name that does not read.
+fn proof_owes(owner: &Step, claim: &Node, known: &Known) -> Checked<Owed> {
+    let path = &known.thm.path;
     let mut rest = claim.clone();
     for o in owner.openers.iter().filter(|o| o.part.is_none()) {
         rest = match (o.kind, rest.notation.as_str()) {
             (Intro::Let, "for-all") if rest.children.len() == 3 => {
                 let mut put = Binding::new();
-                let opened = Introduction::read(o.body(&known.thm.path));
+                let opened = Introduction::read(o.body(path));
                 let fixed = match opened.form {
                     Form::Member => opened.name().map(String::from),
                     _ => None,
@@ -1008,10 +1029,9 @@ fn proof_owes(owner: &Step, claim: &Node, known: &Known) -> Option<Owed> {
                 let body = rest.children[2].clone();
                 match fixed {
                     Some(name) if name != rest.children[0].text => {
-                        let named = Written::new(name, &known.thm.path, o.line)
-                            .sentence()
-                            .and_then(|s| s.read(known.env.g, &known.sorts))
-                            .ok()?;
+                        let named = Written::new(name, path, o.line)
+                            .sentence()?
+                            .read(known.env.g, &known.sorts)?;
                         put.insert(rest.children[0].text.clone(), named);
                         substitute_apart_by(&body, &put, &known.env.g.binders())
                     }
@@ -1026,10 +1046,29 @@ fn proof_owes(owner: &Step, claim: &Node, known: &Known) -> Option<Owed> {
             {
                 rest.children[1].clone()
             }
-            _ => return None,
+            (Intro::Let, _) => {
+                return Err(Problem::new(
+                    path,
+                    o.line,
+                    format!(
+                        "step {} opens a proof block with a let line, and its claim says nothing of every such name",
+                        owner.number
+                    ),
+                ))
+            }
+            _ => {
+                return Err(Problem::new(
+                    path,
+                    o.line,
+                    format!(
+                        "step {} opens a proof block with an assume line, and its claim supposes nothing there",
+                        owner.number
+                    ),
+                ))
+            }
         };
     }
-    Some(Owed {
+    Ok(Owed {
         part: None,
         claim: vec![rest],
         called: format!("the proof block of step {}", owner.number),

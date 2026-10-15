@@ -32,6 +32,19 @@ pub struct Block {
     pub within: Option<Place>,
     /// The steps standing directly in the block, in the order written.
     pub children: Vec<usize>,
+    /// What each part of an induction, a `cases` block or a `proof` block
+    /// owes, which its last step is to claim (`SYNTAX.md`, the methods that
+    /// open a block); none for another block.
+    pub owes: Vec<Owed>,
+}
+
+/// What one part of a block owes: the sentences its last step is to claim,
+/// read with no define written out.
+#[derive(Clone, Debug)]
+pub struct Owed {
+    /// The part, counted from 0; None for a `proof` block, which has none.
+    pub part: Option<usize>,
+    pub claim: Vec<Node>,
 }
 
 impl Block {
@@ -152,6 +165,7 @@ impl CheckedTheorem {
                     owner: i,
                     within: place,
                     children: Vec::new(),
+                    owes: Vec::new(),
                 });
                 open.push(out.blocks.len() - 1);
             }

@@ -752,9 +752,7 @@ impl<'a> Elaborator<'a> {
             {
                 let last = self.last.clone().expect("a step's number");
                 let held = self.lines.get(&last).expect("the step's line");
-                let claim = self.claim_of(&owner.claim)?;
-                let (_, body) = self.opener_layers(&owner, &claim)?;
-                let body = self.rpn(&body);
+                let body = self.owed_goal(&owner)?;
                 let made =
                     self.by_opposites(&step, &held, other, &body, &scope, &facts)?;
                 self.lines.set(

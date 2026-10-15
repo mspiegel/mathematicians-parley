@@ -653,6 +653,26 @@ fn cases() -> Vec<Case> {
             )],
             "d(n) ∈ ℝ is not built from what step 16.24.2 cites",
         ),
+        // A proof block's let line takes a "for all" off its claim, and an
+        // assume line an "if": step 2's claim has neither once it is cut down.
+        case(
+            "a proof block fixing a name its claim says nothing of every such",
+            vec![edit(
+                "proofs/wiedijk/rationals-countable.proof",
+                Some("2.  For all m, n ∈ ℕ, if f(m) = f(n) then m = n.".to_string()),
+                "2.  If f(m) = f(n) then m = n.".to_string(),
+            )],
+            "step 2 opens a proof block with a let line, and its claim says nothing of every such name",
+        ),
+        case(
+            "a proof block assuming where its claim supposes nothing",
+            vec![edit(
+                "proofs/wiedijk/rationals-countable.proof",
+                Some("2.  For all m, n ∈ ℕ, if f(m) = f(n) then m = n.".to_string()),
+                "2.  For all m, n ∈ ℕ, m = n.".to_string(),
+            )],
+            "step 2 opens a proof block with an assume line, and its claim supposes nothing there",
+        ),
         // A requires line of a closure step says a membership of a term the
         // step combines: step 13 sums to 2^(j + 1), and to 3^(j + 1) nowhere.
         case(

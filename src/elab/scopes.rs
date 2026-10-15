@@ -875,6 +875,13 @@ impl<'a> Elaborator<'a> {
         let step = block.owner.clone();
         let inside: Vec<Closer> =
             closers[block.opened_at.min(closers.len())..].to_vec();
+        // What a `proof` block owes names what the block fixed, so it is
+        // read before the block gives its names back.
+        let owed = if step.just.head.is(Method::Proof) {
+            Some(self.owed_goal(&step)?)
+        } else {
+            None
+        };
         // A block gives back its scope and its names together.
         block.inner = self.bound_as.clone();
         self.frames.truncate(block.frame + 1);
@@ -890,7 +897,8 @@ impl<'a> Elaborator<'a> {
             Some(Method::Proof) => {
                 let last = self.last.clone().expect("a block's last step");
                 let held = self.lines.get(&last).expect("the block's last line");
-                let made = self.close_proof_block(block, &held, &inside)?;
+                let owed = owed.expect("a proof block's goal");
+                let made = self.close_proof_block(block, &held, &inside, &owed)?;
                 closers.truncate(block.opened_at);
                 made
             }
@@ -1087,14 +1095,33 @@ impl<'a> Elaborator<'a> {
     /// was proved under a fixed name, `ex` for what the block assumed, read
     /// off the claim the block states, in the order the openers widened the
     /// scope, and put back innermost first.
+    /// What the `proof` block `owner` opens owes, as the checker's record has
+    /// it (`record::Block::owes`): its claim with what its openers take off
+    /// it taken off. It is read with the names in force where it is asked,
+    /// which are the block's own while the block is open.
+    pub(crate) fn owed_goal(&mut self, owner: &Step) -> Checked<String> {
+        let owed = CheckedTheorem::index_of(self.thm, owner)
+            .and_then(|i| self.checked.block_of(i))
+            .and_then(|b| b.owes.first())
+            .and_then(|o| o.claim.first())
+            .cloned();
+        let Some(node) = owed else {
+            return Err(self.defect(
+                owner.line,
+                "the checker's record says nothing this proof block owes",
+            ));
+        };
+        self.term(&node)
+    }
+
     /// What a `proof` block's claim says under each of its openers, outermost
-    /// first, and what is left once each is taken off: the body the block's
-    /// last line reaches.
+    /// first: what the block gives back as it closes. What is left once each
+    /// is taken off is what the block owes (`owed_goal`).
     pub(crate) fn opener_layers(
         &mut self,
         step: &Step,
         claim: &str,
-    ) -> Checked<(Vec<OpenerLayer>, Term)> {
+    ) -> Checked<Vec<OpenerLayer>> {
         let mut layers: Vec<OpenerLayer> = Vec::new();
         let mut rest = self.to_term(claim);
         for o in &step.openers {
@@ -1137,14 +1164,17 @@ impl<'a> Elaborator<'a> {
                 ));
             }
         }
-        Ok((layers, rest))
+        Ok(layers)
     }
 
+    /// `owed` is what the block owes (`owed_goal`), which its last line is
+    /// carried to before what each opener took off is given back.
     fn close_proof_block(
         &mut self,
         block: &Block,
         held: &Line,
         inside: &[Closer],
+        owed: &str,
     ) -> Checked<(String, Proof)> {
         let step = &block.owner;
         // Read with the variables the block had, not the ones given back.
@@ -1152,7 +1182,7 @@ impl<'a> Elaborator<'a> {
         let claim = self.claim_of(&step.claim);
         self.bound_as = kept;
         let claim = claim?;
-        let (layers, rest) = self.opener_layers(step, &claim)?;
+        let layers = self.opener_layers(step, &claim)?;
         // The scope each layer was taken at, which is what it is given back
         // to. An assumption widened the scope as the block writes it, which
         // may be the claim's supposition said another way, `g(t) = g(s)`
@@ -1184,7 +1214,7 @@ impl<'a> Elaborator<'a> {
         }
         // The last line and the claim are written in different places, so a
         // name bound in both may be spelt two ways.
-        let want = self.rpn(&rest);
+        let want = owed.to_string();
         let Some(mut proof) = self.respelt(&proof, &said, &want, &scope)? else {
             return Err(self.defect(
                 step.line,
