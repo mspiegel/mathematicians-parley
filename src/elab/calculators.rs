@@ -263,6 +263,22 @@ pub fn multiplier(times: &Poly) -> Option<String> {
     out
 }
 
+/// A rational number as a term: a whole number as a numeral, negated where
+/// it is negative, and any other as the quotient of two, `1 / 2`.
+fn spelt_rational(value: &Q) -> String {
+    if let Some(whole) = field::spell_coefficient(value) {
+        return whole;
+    }
+    let top = numerals::spell(value.numer().magnitude().clone());
+    let below = numerals::spell(value.denom().magnitude().clone());
+    let quotient = t!(top, below, "cdiv", "co");
+    if value.is_negative() {
+        t!(quotient, "cneg")
+    } else {
+        quotient
+    }
+}
+
 /// One fact a combination uses, and its weight.
 struct Part {
     /// The line the fact is cited from.
@@ -515,8 +531,8 @@ impl<'a> Elaborator<'a> {
 
     /// A disequality that is a cited one rescaled: the cited fact becomes a
     /// difference that is not zero, the two differences are shown to be one
-    /// polynomial, and the claim's difference is not zero either. The scalar
-    /// is 1 or −1.
+    /// polynomial, and the claim's difference is not zero either, the cited
+    /// difference multiplied by any rational other than 0 (`METHODS.md`).
     fn apart_from_cited(
         &mut self,
         step: Option<&Step>,
@@ -544,14 +560,28 @@ impl<'a> Elaborator<'a> {
             for said in self.parts(&held.term) {
                 let node = self.to_term(&said);
                 let cited = field::denied(&node, &labels);
-                let scale = rescales(cited.as_ref(), claim.as_ref());
-                let Some(scale) = scale.filter(|s| *s == q(1) || *s == q(-1)) else {
+                let Some(numerators) = rescales(cited.as_ref(), claim.as_ref()) else {
                     continue;
                 };
                 let pair = node.children()[0].clone();
                 let (p, qq) =
                     (self.rpn(&pair.children()[0]), self.rpn(&pair.children()[1]));
                 let mut gap = t!(p, qq, "cmin", "co");
+                // A disequality is read by its numerator, so the two
+                // differences are one a multiple of the other by the scale
+                // of their numerators times the ratio of their denominators,
+                // where both are numbers: k(k + 1)/2 − 0 is 1/2 of k(k + 1) − 0.
+                let below = |t: &str| {
+                    field::read(&self.to_term(t), &labels)
+                        .under
+                        .constant_value()
+                };
+                let scale = match (below(&gap), below(&whole)) {
+                    (Some(theirs), Some(ours)) if !ours.is_zero() => {
+                        numerators * theirs / ours
+                    }
+                    _ => numerators,
+                };
                 let given = take!(self.cited_fact(r, &node, scope, facts, lines)?);
                 let pp = self.membership(&p, "cc", scope, &w.spec.facts)?;
                 let pq = self.membership(&qq, "cc", scope, &w.spec.facts)?;
@@ -573,6 +603,32 @@ impl<'a> Elaborator<'a> {
                         &[&pg, &apart],
                     );
                     gap = t!(gap, "cneg");
+                } else if scale != q(1) {
+                    // Any other rational multiple (`METHODS.md`): the scale is
+                    // a closed number other than 0, k(k + 1)/2 ≠ 0 from
+                    // k(k + 1) ≠ 0 at 1/2.
+                    let times = spelt_rational(&scale);
+                    let what = format!(
+                        "the scale {} of step {}",
+                        self.render(&times),
+                        fmt(&step.number)
+                    );
+                    let apart_from_zero = t!(times, "cc0", "wne");
+                    let nonzero = self.closed_fact(
+                        &apart_from_zero,
+                        scope,
+                        facts,
+                        &what,
+                        Some(step),
+                    )?;
+                    let ps = self.membership(&times, "cc", scope, &w.spec.facts)?;
+                    let pg = self.membership(&gap, "cc", scope, &w.spec.facts)?;
+                    apart = self.b.ap(
+                        "mulne0d",
+                        &binds! {"ph" => scope, "A" => &times, "B" => &gap},
+                        &[&ps, &pg, &nonzero, &apart],
+                    );
+                    gap = t!(times, gap, "cmul", "co");
                 }
                 let alike = take!(self.same_polynomial(w, &gap, &whole)?);
                 let pl = self.membership(&lhs, "cc", scope, &w.spec.facts)?;
@@ -1867,6 +1923,21 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
     ) -> Checked<Route<Proof>> {
         let mut goal = self.to_term(term);
+        // set.mm's other spelling of a disequation, A =/= B, is the page's
+        // ¬ (A = B) proved and turned (`neqned`).
+        if goal.variable().is_none()
+            && goal.label() == Some("wne")
+            && goal.children().len() == 2
+        {
+            let (a, b) = (self.rpn(&goal.children()[0]), self.rpn(&goal.children()[1]));
+            let denied = t!(t!(&a, &b, "wceq"), "wn");
+            let proof = take!(self.prove_numeral(&denied, scope, facts)?);
+            return Ok(Built(self.b.ap(
+                "neqned",
+                &binds! {"ph" => scope, "A" => &a, "B" => &b},
+                &[&proof],
+            )));
+        }
         let mut negated = false;
         if goal.variable().is_none()
             && goal.label() == Some("wn")

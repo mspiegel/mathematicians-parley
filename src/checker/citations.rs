@@ -12,8 +12,8 @@ use super::structure::letters_in_scope;
 use super::Report;
 use crate::citing::{
     asked, bound_in, claimed_member, concludes, conjuncts, derives, filled, finished,
-    function_values, identities_unsaid, names_of, obtained, obtains, readings,
-    said_once, search, substitution_unsaid, supply, taken, taken_ways,
+    function_values, identities_unsaid, names_of, obtained, obtains, range_system,
+    readings, said_once, search, substitution_unsaid, supply, taken, taken_ways,
     type_said_otherwise, with_parts, Concluded, Group, Library, Parts, Sites, Taken,
     Ways,
 };
@@ -999,6 +999,69 @@ pub fn check_function_types(
                 ),
             );
         }
+        let what = format!("step {}", step.number);
+        terms_unsaid(report, thm, step, step.just.line, &what, library, known);
+        for req in &step.requires {
+            let Some(as_step) = requires_read_as_step(step, req) else {
+                continue;
+            };
+            let named = as_step.just.cited_item().map(|c| as_step.just.item(&c));
+            if !named.is_some_and(|n| library.groups(&n).is_some()) {
+                continue;
+            }
+            let what =
+                format!("the requires line {} of step {}", req.fact, step.number);
+            terms_unsaid(report, thm, &as_step, req.line, &what, library, known);
+        }
+    }
+}
+
+/// A sum item's function hypothesis, `t : {a, …, b} → ℝ`, where the
+/// citation makes t a term that is no number by what the page says once
+/// (`AskedType::needs_saying`), asks a line the citation names to say it at
+/// every point: a divisor's `≠ 0` is written, a sum's term's too
+/// (`SYNTAX.md`).
+fn terms_unsaid(
+    report: &mut Report,
+    thm: &Theorem,
+    step: &Step,
+    line: usize,
+    what: &str,
+    library: &Library,
+    known: &Known,
+) {
+    let Some(item) = step.just.cited_item() else {
+        return;
+    };
+    let asks = family_asks(step, known, library);
+    let parts = known.parts(step, library);
+    for t in &asks.types {
+        let Some((letter, term)) = t.pointwise() else {
+            continue;
+        };
+        if !t.needs_saying()
+            || parts
+                .facts
+                .iter()
+                .any(|f| t.said_pointwise(f, known, &asks.ctx))
+        {
+            continue;
+        }
+        let [_, domain, codomain] = t.asked.children.as_slice() else {
+            continue;
+        };
+        report.say(
+            &thm.path,
+            line,
+            format!(
+                "{what} cites {item}, which asks that every term {} is in {}, and it is no number by what the page says once; cite a line saying for all {letter} ∈ {}, {} ∈ {}",
+                known.print(term),
+                known.print(codomain),
+                known.print(domain),
+                known.print(term),
+                known.print(codomain),
+            ),
+        );
     }
 }
 
@@ -1524,6 +1587,16 @@ fn built_on(req: &crate::corpus::Requires, step: &Step, known: &Known) -> bool {
                 (whole || held.shape() != *atom)
                     && held.walk().iter().any(|part| part.shape() == *atom)
             });
+            // Or it holds the term once the defines it cites are written
+            // out: `U(0) ∈ ℝ: membership, from D6` divides by 10^0, which
+            // D6's U(k) = (N(k) + 1)/10^k makes of U(0).
+            let lower = known.citing_item(r.lines(), None);
+            let defined_out = r
+                .fact
+                .sentences()
+                .iter()
+                .filter_map(|s| known.read_citing(s, &lower))
+                .any(|line| holds_atom(&line));
             // A line the lower one cites, or another requires line above it,
             // carries the term to it: `deg(x) ∈ ℕ₀: membership, from 2` rests
             // on `|S| ∈ ℕ₀` above it where line 2 says deg(x) = |S|, and so
@@ -1542,7 +1615,7 @@ fn built_on(req: &crate::corpus::Requires, step: &Step, known: &Known) -> bool {
                 .filter(|o| o.line != req.line)
                 .flat_map(|o| known.said(step, &o.fact))
                 .any(|line| holds_atom(&line));
-            written || cited || above
+            written || defined_out || cited || above
         })
 }
 
@@ -1580,9 +1653,81 @@ struct AskedType {
     /// Whether the citation says what the item's function stands for, so
     /// that the type is asked of one of the page's functions.
     filled: bool,
+    /// What the match of the citation makes the function where it is a
+    /// rule, a sum's summand `k ↦ 1/T(k)` for the item's t.
+    rule: Option<Node>,
 }
 
 impl AskedType {
+    /// The term a sum's function hypothesis asks at every point and the
+    /// letter it is asked at: `1/T(k)` and k, of `t : {1, …, n} → ℝ` where
+    /// the citation makes t the summand. None for a type the citation
+    /// fills with a named function.
+    fn pointwise(&self) -> Option<(&str, &Node)> {
+        let f = self.asked.children.first()?;
+        let f = if f.notation == PROPERTY {
+            f
+        } else {
+            self.rule.as_ref()?
+        };
+        Some((f.text.as_str(), f.children.first()?))
+    }
+
+    /// Whether the term the type asks at every point must be said there: it
+    /// divides by something other than a numeral that holds the sum's own
+    /// letter, as 1/T(k) and 1/(k(k + 1)/2) do. A divisor's `≠ 0` is written
+    /// (`SYNTAX.md`), and no line outside the sum can speak of its letter,
+    /// so the term is said at every point by a line the citation names.
+    fn needs_saying(&self) -> bool {
+        let Some((letter, term)) = self.pointwise() else {
+            return false;
+        };
+        term.walk().iter().any(|part| {
+            part.notation == "multiplicative"
+                && part.text == "/"
+                && part.children.get(1).is_some_and(|divisor| {
+                    divisor.notation != "numeral" && divisor.names().contains(letter)
+                })
+        })
+    }
+
+    /// Whether `node` says, at every point of a set holding the type's
+    /// domain, that the term is in the type's codomain: `for all k ∈ ℕ,
+    /// 1/T(k) ∈ ℝ` for `t : {1, …, n} → ℝ`, ℕ holding every member of a
+    /// range from 1.
+    fn said_pointwise(&self, node: &Node, known: &Known, ctx: &Context) -> bool {
+        let (Some((letter, term)), [_, domain, codomain]) =
+            (self.pointwise(), self.asked.children.as_slice())
+        else {
+            return false;
+        };
+        let [bound, set, body] = node.children.as_slice() else {
+            return false;
+        };
+        if node.notation != "for-all" || body.notation != "membership" {
+            return false;
+        }
+        let [value, into] = body.children.as_slice() else {
+            return false;
+        };
+        let at = Binding::from([(letter.to_string(), bound.clone())]);
+        let holds = known.alike(set, domain)
+            || (set.notation == "number-systems"
+                && range_system(domain).is_some_and(|inside| {
+                    rules::within_path(Some(inside), rules::system_of(&set.text))
+                        .is_some()
+                }));
+        let lands = known.alike(into, codomain)
+            || (into.notation == "number-systems"
+                && codomain.notation == "number-systems"
+                && rules::within_path(
+                    rules::system_of(&into.text),
+                    rules::system_of(&codomain.text),
+                )
+                .is_some());
+        holds && lands && known.alike(&substitute_apart(term, &at, ctx), value)
+    }
+
     /// Whether `node` states this type, an open letter standing for any set.
     fn stated_by(&self, node: &Node, known: &Known) -> bool {
         let (asked, said) = (&self.asked, node);
@@ -1620,11 +1765,16 @@ fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
     // claimed by `def:continuous-on` makes the item's f the page's g
     // whether or not the step writes f := g.
     let mut fixed = parts.seed.clone();
+    // What the match makes a function the item applies, a rule: a sum's
+    // summand, which a type asks of every point (`AskedType::pointwise`).
+    let mut rules = Binding::new();
     if let Built(taken) =
         taken(&groups, &parts.claims, &parts.facts, &parts.seed, library)
     {
         for (name, value) in taken.binding {
-            if value.notation != PROPERTY && !fixed.contains_key(&name) {
+            if value.notation == PROPERTY {
+                rules.insert(name, value);
+            } else if !fixed.contains_key(&name) {
                 fixed.insert(name, value);
             }
         }
@@ -1640,6 +1790,7 @@ fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
                 .map(|s| s.text.clone())
                 .collect(),
             filled: fixed.contains_key(&t.children[0].text),
+            rule: rules.get(&t.children[0].text).cloned(),
         })
         .filter(|t| {
             let function = &t.asked.children[0];
@@ -1704,6 +1855,14 @@ fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
 }
 
 impl FamilyAsks {
+    /// Whether `node`, a line the citation names, states what a function
+    /// hypothesis asks: its type, or a sum's term at every point.
+    fn states(&self, node: &Node, known: &Known) -> bool {
+        self.types.iter().any(|t| {
+            t.stated_by(node, known) || t.said_pointwise(node, known, &self.ctx)
+        })
+    }
+
     /// Whether one requires line's fact is a membership the item's function
     /// hypotheses ask for, read as the checks of its step read it.
     fn asks(&self, step: &Step, fact: &Written, known: &Known) -> bool {
@@ -1712,6 +1871,13 @@ impl FamilyAsks {
         };
         if node.notation == "function-type" {
             return self.types.iter().any(|t| t.stated_by(&node, known));
+        }
+        if self
+            .types
+            .iter()
+            .any(|t| t.said_pointwise(&node, known, &self.ctx))
+        {
+            return true;
         }
         // Or the hypothesis said whole, of every value the function takes:
         // `x : ℕ → ℝ` where x(n) is a partial sum of the reciprocals of T
@@ -2782,8 +2948,19 @@ pub fn check_surplus(
             let facts = known.parts(&as_step, library);
             let mut named_refs: IndexSet<&String> = IndexSet::new();
             named_refs.extend(as_step.just.refs.iter());
+            let asks = family_asks(&as_step, known, library);
+            let scope = known.scope(step);
             for r in named_refs {
                 if defines.contains(r.as_str()) || in_a_domain(step, r, known) {
+                    continue;
+                }
+                // A line saying a sum's term at every point, or a type, the
+                // item's function hypothesis asks, does work.
+                let states = scope
+                    .get(r)
+                    .and_then(|s| known.stated_as_written(s))
+                    .is_some_and(|n| asks.states(&n, known));
+                if states {
                     continue;
                 }
                 let mut lighter = as_step.clone();
@@ -2834,11 +3011,12 @@ pub fn check_surplus(
             if defines.contains(r.as_str()) {
                 continue;
             }
-            // A line stating a function type the item asks for does work.
+            // A line stating a function type the item asks for does work,
+            // and so does one saying a sum's term at every point.
             let says_type = scope
                 .get(r)
                 .and_then(|s| known.stated_as_written(s))
-                .is_some_and(|n| asks.types.iter().any(|t| t.stated_by(&n, known)));
+                .is_some_and(|n| asks.states(&n, known));
             if says_type {
                 continue;
             }

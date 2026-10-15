@@ -500,7 +500,12 @@ of
   in each number system closed under what builds it (the table of closure
   lemmas in `src/rules.rs`): a·x + b·y ∈ ℤ where a, b, x and y are integers.
   A quotient's divisor not being zero is the step's to write or cite, unless
-  the divisor is a numeral.
+  the divisor is a numeral: `10^0` is no numeral, and `requires 10^0 ≠ 0:
+  arithmetic` says it. A sum's term that divides by something holding the
+  sum's own letter, `1/k` or `1/T(k)` in `Σ(k = 1 to n)`, has a divisor no
+  line outside the sum can speak of, so the citation names a line saying the
+  term at every point of a set holding the range, `for all k ∈ ℕ, 1/k ∈ ℝ`,
+  proved as a step of its own.
 
 `let k ∈ ℕ` is still cited for k ≥ 1 and k ≠ 0, which the line says beyond
 the membership. A citation made only for one of these memberships is a line

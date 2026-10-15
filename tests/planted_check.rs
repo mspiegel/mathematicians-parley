@@ -946,10 +946,10 @@ fn cases() -> Vec<Case> {
             "membership said of every integer where a divisor may be zero",
             vec![edit(
                 "proofs/triangular-reciprocals.proof",
-                Some("requires for all k ∈ ℕ, 1/T(k) ∈ ℝ: membership".to_string()),
-                "requires for all k ∈ ℤ, 1/T(k) ∈ ℝ: membership".to_string(),
+                Some("requires for all k ∈ ℕ, 1/T(k) ∈ ℝ: from 2".to_string()),
+                "requires for all k ∈ ℤ, 1/T(k) ∈ ℝ: membership, from D1".to_string(),
             )],
-            "the requires line for all k ∈ ℤ, 1/T(k) ∈ ℝ of step 5 cites D1 at k, so it needs k ∈ ℕ, and nothing it cites or the requires lines above it say it",
+            "the requires line for all k ∈ ℤ, 1/T(k) ∈ ℝ of step 8 cites D1 at k, so it needs k ∈ ℕ, and nothing it cites or the requires lines above it say it",
         ),
         // A membership line says what the table in `rules` says it does and
         // nothing more: k ∈ ℤ gives no k ≠ 0, and n ∈ ℝ gives no n ∈ ℤ, since
@@ -972,8 +972,8 @@ fn cases() -> Vec<Case> {
             "a membership read into a smaller number system",
             vec![edit(
                 "proofs/triangular-reciprocals.proof",
-                Some("    let n ∈ ℕ                                                         (K2)\n\n    2.1.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))\n          mun:sum-termwise a := 1, b := n, from 1\n\n    2.2.  Σ(k = 1 to n) (2/k − 2/(k + 1)) = 2 − 2/(n + 1)\n          thm:sum-telescopes a := 1, b := n\n          requires n + 1 ≥ 1: inequalities, from K2\n".to_string()),
-                "    let n ∈ ℝ                                                         (K2)\n\n    2.1.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))\n          mun:sum-termwise a := 1, b := n, from 1\n\n    2.2.  Σ(k = 1 to n) (2/k − 2/(k + 1)) = 2 − 2/(n + 1)\n          thm:sum-telescopes a := 1, b := n\n".to_string(),
+                Some("    let n ∈ ℕ                                                         (K5)\n\n    5.1.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))\n          mun:sum-termwise a := 1, b := n, from 1, 2, 4\n\n    5.2.  Σ(k = 1 to n) (2/k − 2/(k + 1)) = 2 − 2/(n + 1)\n          thm:sum-telescopes a := 1, b := n, from 3\n          requires n + 1 ≥ 1: inequalities, from K5\n".to_string()),
+                "    let n ∈ ℝ                                                         (K5)\n\n    5.1.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))\n          mun:sum-termwise a := 1, b := n, from 1, 2, 4\n\n    5.2.  Σ(k = 1 to n) (2/k − 2/(k + 1)) = 2 − 2/(n + 1)\n          thm:sum-telescopes a := 1, b := n, from 3\n".to_string(),
             )],
             "the statement says n ranges over ℕ, and this line puts it in ℝ",
         ),
@@ -985,10 +985,10 @@ fn cases() -> Vec<Case> {
             "a chain link whose closed piece is false",
             vec![edit(
                 "proofs/triangular-reciprocals.proof",
-                Some("    2.3.  Σ(k = 1 to n) 1/T(k) = 2 − 2/(n + 1)\n          calculation\n            Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))    2.1\n                                 = 2 − 2/(n + 1)                      2.2\n".to_string()),
-                "    2.3.  Σ(k = 1 to n) 1/T(k) = 3 − 2/(n + 1)\n          calculation\n            Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))    2.1\n                                 = 2/1 − 2/(n + 1)                    2.2\n                                 = 3 − 2/(n + 1)                      arithmetic\n".to_string(),
+                Some("    5.3.  Σ(k = 1 to n) 1/T(k) = 2 − 2/(n + 1)\n          calculation\n            Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))    5.1\n                                 = 2 − 2/(n + 1)                      5.2\n".to_string()),
+                "    5.3.  Σ(k = 1 to n) 1/T(k) = 3 − 2/(n + 1)\n          calculation\n            Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))    5.1\n                                 = 2/1 − 2/(n + 1)                    5.2\n                                 = 3 − 2/(n + 1)                      arithmetic\n".to_string(),
             )],
-            "step 2.3 ends the proof block of step 2, which owes Σ(k = 1 to n) 1 / T(k) = 2 − 2 / (n + 1)",
+            "step 5.3 ends the proof block of step 5, which owes Σ(k = 1 to n) 1 / T(k) = 2 − 2 / (n + 1)",
         ),
         // sum-divisible asks that 3 divide each term, and line 1 says it for
         // all k ∈ ℕ₀. Without line 1 cited nothing says it.
@@ -2951,7 +2951,7 @@ fn cases() -> Vec<Case> {
         case(
             "membership named for a claim that is no membership",
             vec![
-                edit("proofs/triangular-reciprocals.proof", Some("    2.1.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))\n          mun:sum-termwise a := 1, b := n, from 1\n".to_string()), "    2.1.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))\n          membership, from 1\n".to_string()),
+                edit("proofs/triangular-reciprocals.proof", Some("    5.1.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))\n          mun:sum-termwise a := 1, b := n, from 1, 2, 4\n".to_string()), "    5.1.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))\n          membership, from 1\n".to_string()),
             ],
             "names membership for",
         ),
@@ -2961,9 +2961,9 @@ fn cases() -> Vec<Case> {
         case(
             "a for-every line over a set that does not hold the range",
             vec![
-                edit("proofs/triangular-reciprocals.proof", Some("    2.1.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))\n          mun:sum-termwise a := 1, b := n, from 1\n".to_string()), "    2.1.  Σ(k = 0 to n) 1/T(k) = Σ(k = 0 to n) (2/k − 2/(k + 1))\n          mun:sum-termwise a := 0, b := n, from 1\n".to_string()),
+                edit("proofs/triangular-reciprocals.proof", Some("    5.1.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))\n          mun:sum-termwise a := 1, b := n, from 1, 2, 4\n".to_string()), "    5.1.  Σ(k = 0 to n) 1/T(k) = Σ(k = 0 to n) (2/k − 2/(k + 1))\n          mun:sum-termwise a := 0, b := n, from 1, 2, 4\n".to_string()),
             ],
-            "step 2.1 cites mun:sum-termwise, which asks for",
+            "step 5.1 cites mun:sum-termwise, which asks",
         ),
         // What a summand's function hypothesis asks is the membership of the
         // names the summand is built from, and asks nothing of 1 > 0.

@@ -1776,46 +1776,6 @@ impl<'a> Elaborator<'a> {
                 }
             }
         }
-        // A divisor built in ℕ is not zero (`nnne0`).
-        if let Built(natural) = self.part(divisor, "cn", scope, facts)? {
-            let law = self.b.ap("nnne0", &binds! {"A" => divisor}, &[]);
-            return Ok(Built(
-                pf!(self.b; scope, t!(divisor, "cn", "wcel"), apart, natural, law, "syl"),
-            ));
-        }
-        // A product or quotient is not zero when its parts are not.
-        let node = self.to_term(divisor);
-        if node.variable().is_none()
-            && node.label() == Some("co")
-            && node.children().len() == 3
-        {
-            let how = self.rpn(&node.children()[2]);
-            let lemma = match how.as_str() {
-                "cmul" => Some("mulne0d"),
-                "cdiv" => Some("divne0d"),
-                _ => None,
-            };
-            if let Some(lemma) = lemma {
-                let (a, b) =
-                    (self.rpn(&node.children()[0]), self.rpn(&node.children()[1]));
-                let mut parts = Vec::new();
-                for one in [&a, &b] {
-                    parts.push(self.part(one, "cc", scope, facts)?);
-                }
-                for one in [&a, &b] {
-                    parts.push(self.divisor_written(one, scope, facts)?);
-                }
-                let mut proofs = Vec::new();
-                for one in parts {
-                    proofs.push(take!(one));
-                }
-                return Ok(Built(self.b.ap(
-                    lemma,
-                    &binds! {"ph" => scope, "A" => &a, "B" => &b},
-                    &proofs.iter().collect::<Vec<_>>(),
-                )));
-            }
-        }
         Ok(Route::no(format!(
             "nothing the step wrote says {}",
             self.render(&apart)

@@ -154,6 +154,18 @@ fn join(left: &Monomial, right: &Monomial) -> Monomial {
     out
 }
 
+impl Poly {
+    /// The number the polynomial is, where it has no atom; None where it
+    /// has one.
+    pub fn constant_value(&self) -> Option<Q> {
+        match self.terms.iter().collect::<Vec<_>>().as_slice() {
+            [] => Some(Q::zero()),
+            [(monomial, value)] if monomial.is_empty() => Some((*value).clone()),
+            _ => None,
+        }
+    }
+}
+
 pub fn constant(value: Q) -> Poly {
     let mut terms = IndexMap::new();
     terms.insert(Vec::new(), value);

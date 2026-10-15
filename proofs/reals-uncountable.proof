@@ -459,6 +459,7 @@ let U(k) = (N(k) + 1)/10^k, for k ∈ ℕ₀                                 (D6
 
 12. c ∈ ℝ. c is a least upper bound of S.
     obtain c: axi:completeness, from 7, 9, 11
+    requires 10^0 ≠ 0: arithmetic
     requires U(0) ∈ ℝ: membership, from D6, 1
 
 13. c is an upper bound of S.

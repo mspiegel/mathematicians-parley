@@ -385,15 +385,16 @@ fn cases() -> Vec<Case> {
             "requires s(x) ∈ ℕ₀: from 2",
             "does not reach",
         ),
-        // A sum's terms are built for each index in its range, and from 0 the
-        // first of them divides by T(0), which nothing says is not zero.
+        // A sum's terms are said real at every point by step 2, of k ∈ ℕ, and
+        // from 0 the first of them divides by T(0), which step 2 does not
+        // speak of.
         case(
             "membership of a sum whose first term divides by zero",
             "proofs/triangular-reciprocals/triangular-reciprocals",
             "proofs/triangular-reciprocals.proof",
-            "          3.2.5.  2 − ε < Σ(k = 1 to n) 1/T(k)\n                  inequalities, from D1, 3.1, 3.2.1, 3.2.3\n                  requires Σ(k = 1 to n) 1/T(k) ∈ ℝ: membership, from D1\n",
-            "          3.2.5.  2 − ε < Σ(k = 1 to n) 1/T(k)\n                  inequalities, from D1, 3.1, 3.2.1, 3.2.3\n                  requires Σ(k = 0 to n) 1/T(k) ∈ ℝ: membership, from D1\n",
-            "the requires line Σ(k = 0 to n) 1/T(k) ∈ ℝ of step 3.2.5, read as a step citing what it cites:",
+            "                  requires Σ(k = 1 to n) 1/T(k) ∈ ℝ: mun:sum-real a := 1, b := n, from 2\n                  requires n + 1 ≠ 0: inequalities, from K7\n\n          6.2.6.",
+            "                  requires Σ(k = 0 to n) 1/T(k) ∈ ℝ: mun:sum-real a := 0, b := n, from 2\n                  requires n + 1 ≠ 0: inequalities, from K7\n\n          6.2.6.",
+            "the requires line of step 6.2.5 cites 2, and mun:sum-real asks for nothing it says",
         ),
         // A target is where the claim lands, and a variable bound to the wrong
         // name makes it land somewhere else. That is reported, not assumed.

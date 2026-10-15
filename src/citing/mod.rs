@@ -22,7 +22,7 @@ pub use conclude::{
     substitution_unsaid, taken, taken_ways, Concluded, Taken,
 };
 pub use library::{conjuncts, readings, with_parts, Group, Library, Proved, Way};
-pub use once::{introduction, said_once, Introduced};
+pub use once::{a_number_said_once, introduction, range_system, said_once, Introduced};
 pub use parts::{
     at_a_member, bound_in, claimed_member, finished, function_values, implied_facts,
     part_said_otherwise, type_said_otherwise, typed_seed, Parts,

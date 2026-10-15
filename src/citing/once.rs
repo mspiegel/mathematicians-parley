@@ -46,7 +46,7 @@ pub fn introduction(said: &Node) -> Option<(String, &'static str)> {
 /// The least number system the declared table puts a range {a, …, b} in:
 /// ℕ from 1, ℕ₀ from 0, and ℤ from anywhere (`rules::RANGE_WITHIN`, which
 /// the elaborator reads as well).
-fn range_system(range: &Node) -> Option<&'static str> {
+pub fn range_system(range: &Node) -> Option<&'static str> {
     let start = range.children.first()?;
     let begins = (start.notation == "numeral")
         .then(|| {
@@ -112,8 +112,8 @@ pub fn said_once(
     };
     // A divisor is not zero where a fact says so, as `≠ 0` or as a sign.
     let nonzero = |d: &Node| -> bool {
-        if let Some(v) = value(d) {
-            return !v.is_zero();
+        if numeral_nonzero(d) {
+            return true;
         }
         ["x ≠ 0", "x > 0", "x < 0"].iter().any(|said| {
             form(said, d).is_some_and(|want| {
@@ -174,7 +174,7 @@ pub fn a_number_said_once(
             atoms.push((name, system));
         }
     }
-    let nonzero = |d: &Node| value(d).is_some_and(|v| !v.is_zero());
+    let nonzero = numeral_nonzero;
     let said = |t: &Node, system: &str| {
         atoms.iter().any(|(a, s)| {
             crate::matching::alike(a, t, ctx, &IndexMap::new(), &IndexMap::new())
@@ -242,6 +242,13 @@ fn within(
         }
         _ => false,
     }
+}
+
+/// Whether a divisor is a numeral other than zero, the one divisor whose
+/// `≠ 0` a step need not write (`SYNTAX.md`): 10^0 is worked out to 1, and
+/// is no numeral.
+fn numeral_nonzero(divisor: &Node) -> bool {
+    divisor.notation == "numeral" && value(divisor).is_some_and(|v| !v.is_zero())
 }
 
 /// The value of a term built from numerals alone, worked out exactly; None
