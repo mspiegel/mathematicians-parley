@@ -4783,9 +4783,7 @@ impl<'a> Elaborator<'a> {
                 }
             }
         }
-        theirs.sort_by_key(|label| {
-            self.b.forder.get(label).copied().unwrap_or(usize::MAX)
-        });
+        theirs.sort_by_key(|label| self.b.float_order(label).unwrap_or(usize::MAX));
         let variables: BTreeSet<String> = theirs
             .iter()
             .map(|l| self.sig(l).statement[1].clone())
@@ -5751,7 +5749,7 @@ pub fn elaborate(
         .collect::<BTreeSet<String>>()
         .into_iter()
         .collect();
-    mandatory.sort_by_key(|one| work.b.forder.get(one).copied().unwrap_or(usize::MAX));
+    mandatory.sort_by_key(|one| work.b.float_order(one).unwrap_or(usize::MAX));
     out.push_str(&format!("  {label} $p |- {says} $=\n"));
     out.push_str(&format!(
         "    {} $.\n",

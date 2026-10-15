@@ -144,6 +144,14 @@ impl Layered {
         self.get(label).is_some()
     }
 
+    /// Where a label stands among every label, library first, as `iter`
+    /// walks them.
+    pub fn index_of(&self, label: &str) -> Option<usize> {
+        self.base
+            .get_index_of(label)
+            .or_else(|| self.added.get_index_of(label).map(|i| self.base.len() + i))
+    }
+
     pub fn len(&self) -> usize {
         self.base.len() + self.added.len()
     }

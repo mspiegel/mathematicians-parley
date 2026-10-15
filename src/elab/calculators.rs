@@ -537,11 +537,12 @@ impl<'a> Elaborator<'a> {
         }
         let left = self.rpn(&goal.children()[0]);
         let right = self.rpn(&goal.children()[1]);
+        // Each route's decline, written out only if every route declines.
         let mut declines = Vec::new();
         let found = self.same_polynomial(&mut w, &left, &right)?;
         match found {
             Built(p) => return Ok(Built(p)),
-            Declined(d) => declines.push(self.say(&d)),
+            Declined(d) => declines.push(d),
         }
         if let Some(step) = step {
             for route in 0..3 {
@@ -558,11 +559,12 @@ impl<'a> Elaborator<'a> {
                 };
                 match found {
                     Built(p) => return Ok(Built(p)),
-                    Declined(d) => declines.push(self.say(&d)),
+                    Declined(d) => declines.push(d),
                 }
             }
         }
-        Ok(Route::no(declines.join("; ")))
+        let said: Vec<String> = declines.iter().map(|d| self.say(d)).collect();
+        Ok(Route::no(said.join("; ")))
     }
 
     /// A disequality that is a cited one rescaled: the cited fact becomes a

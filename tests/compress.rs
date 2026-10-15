@@ -122,7 +122,7 @@ fn every_compressed_proof_survives_a_round_trip() {
             let floats: BTreeSet<&String> =
                 words.iter().filter_map(|t| spell.flabel.get(t)).collect();
             let mut mandatory: Vec<String> = floats.into_iter().cloned().collect();
-            mandatory.sort_by_key(|one| spell.forder[one]);
+            mandatory.sort_by_key(|one| spell.float_order(one).unwrap_or(usize::MAX));
             mandatory.extend(hyps.iter().map(|(h, _)| h.clone()));
             // Read back as the steps it was written from, which is how the
             // elaborator writes it, and written again from those.

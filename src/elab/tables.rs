@@ -978,10 +978,7 @@ impl<'a> Elaborator<'a> {
             ));
         }
         if !self.b.sigs.contains_key(&label) {
-            return Ok(Route::no(format!(
-                "set.mm does not state {}",
-                self.render(&self.rpn(goal))
-            )));
+            return Ok(self.no("set.mm does not state {}", &[&self.rpn(goal)]));
         }
         let held = self.step(&label);
         Ok(Built(self.b.ap(
@@ -1836,10 +1833,7 @@ impl<'a> Elaborator<'a> {
                 _ => {}
             }
         }
-        Ok(Route::no(format!(
-            "nothing the step wrote says {}",
-            self.render(&apart)
-        )))
+        Ok(self.no("nothing the step wrote says {}", &[&apart]))
     }
 
     /// `said ∈ system` as the page says it once (`READERS.md`, membership said
@@ -2165,10 +2159,7 @@ impl<'a> Elaborator<'a> {
         if let Some(p) = self.equated_part(said, system, scope, facts)? {
             return Ok(Built(p));
         }
-        Ok(Route::no(format!(
-            "nothing written says {}",
-            self.render(&want)
-        )))
+        Ok(self.no("nothing written says {}", &[&want]))
     }
 
     /// `said ∈ system` from an equation in hand with `said` on one side: the

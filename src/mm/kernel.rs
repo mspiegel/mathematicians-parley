@@ -281,29 +281,37 @@ pub fn match_term<V: VarSet + ?Sized>(
     binding: &IndexMap<String, Term>,
     variables: &V,
 ) -> Option<IndexMap<String, Term>> {
+    let mut out = binding.clone();
+    bound_into(pattern, ground, &mut out, variables).then_some(out)
+}
+
+/// `match_term` into one binding, filled in place: what a match that fails
+/// part way has bound is thrown away with the binding by its caller.
+fn bound_into<V: VarSet + ?Sized>(
+    pattern: &Term,
+    ground: &Term,
+    binding: &mut IndexMap<String, Term>,
+    variables: &V,
+) -> bool {
     if let Some(v) = pattern.variable() {
         if variables.has(v) {
             if let Some(seen) = binding.get(v) {
-                return same(seen, ground).then(|| binding.clone());
+                return same(seen, ground);
             }
-            let mut out = binding.clone();
-            out.insert(v.to_string(), ground.clone());
-            return Some(out);
+            binding.insert(v.to_string(), ground.clone());
+            return true;
         }
     }
     if pattern.variable().is_some() || ground.variable().is_some() {
-        return (pattern.variable() == ground.variable()).then(|| binding.clone());
+        return pattern.variable() == ground.variable();
     }
-    if pattern.label() != ground.label()
-        || pattern.children().len() != ground.children().len()
-    {
-        return None;
-    }
-    let mut binding = binding.clone();
-    for (a, b) in pattern.children().iter().zip(ground.children()) {
-        binding = match_term(a, b, &binding, variables)?;
-    }
-    Some(binding)
+    pattern.label() == ground.label()
+        && pattern.children().len() == ground.children().len()
+        && pattern
+            .children()
+            .iter()
+            .zip(ground.children())
+            .all(|(a, b)| bound_into(a, b, binding, variables))
 }
 
 #[derive(Clone)]

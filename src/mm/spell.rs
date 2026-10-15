@@ -260,9 +260,10 @@ pub struct Builder {
     /// Each variable's float, shared so that a caller may hold it while it
     /// builds.
     pub flabel: Rc<FloatLabels>,
-    /// Where each label stands in the library, which is the order floats
-    /// are pushed in.
-    pub forder: IndexMap<String, usize>,
+    /// How many labels there were when the builder was made: a label's
+    /// place among those is the order floats are pushed in
+    /// (`float_order`).
+    ordered: usize,
     /// What a theorem of this corpus that a proof cites takes and states,
     /// where the library does not have it.
     pub arities: IndexMap<String, Signature>,
@@ -358,22 +359,24 @@ impl Builder {
                 flabel.insert(s.statement[1].clone(), label.clone());
             }
         }
-        let forder = sigs
-            .keys()
-            .enumerate()
-            .map(|(i, l)| (l.clone(), i))
-            .collect();
+        let ordered = sigs.len();
         Builder {
             sigs,
             syntax: OnceCell::new(),
             flabel: Rc::new(FloatLabels::new(flabel)),
-            forder,
+            ordered,
             arities: IndexMap::new(),
             arity_of: RefCell::new(IndexMap::new()),
             term_steps: RefCell::new(IndexMap::new()),
             said: RefCell::new(IndexMap::new()),
             faults: RefCell::new(Vec::new()),
         }
+    }
+
+    /// Where a label stands among those the builder was made with, the
+    /// order floats are pushed in; None for a label added since, or none.
+    pub fn float_order(&self, label: &str) -> Option<usize> {
+        self.sigs.index_of(label).filter(|at| *at < self.ordered)
     }
 
     /// The first step of `proof` that the kernel would refuse, said; None
@@ -587,7 +590,10 @@ impl Builder {
             .collect::<BTreeSet<_>>()
             .into_iter()
             .collect();
-        free.sort_by_key(|v| self.forder[self.flabel.get(v).unwrap()]);
+        free.sort_by_key(|v| {
+            self.float_order(self.flabel.get(v).unwrap())
+                .unwrap_or(usize::MAX)
+        });
         let floats = free
             .iter()
             .map(|v| {

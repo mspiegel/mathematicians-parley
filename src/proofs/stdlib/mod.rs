@@ -100,7 +100,7 @@ fn written(lemma: &Lemma, b: &Builder) -> String {
         .collect::<std::collections::BTreeSet<_>>()
         .into_iter()
         .collect();
-    floats.sort_by_key(|one| b.forder[one]);
+    floats.sort_by_key(|one| b.float_order(one).unwrap_or(usize::MAX));
     let mut mandatory = floats;
     mandatory.extend(hyps.iter().map(|(said, _)| said.clone()));
     let (root, kinds) = shapes_of(&lemma.proof.items)

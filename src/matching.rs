@@ -416,6 +416,18 @@ pub fn standard(node: &Node, ctx: &Context) -> Node {
     turned_to_standard(node, ctx).unwrap_or_else(|| node.clone())
 }
 
+/// A node's notation and literal, borrowed, looked up in `Context::turned`
+/// as its `(notation, literal)` key without copying either: it hashes as
+/// that pair does, one string after the other.
+#[derive(Hash)]
+struct Spelling<'a>(&'a str, &'a str);
+
+impl indexmap::Equivalent<(String, String)> for Spelling<'_> {
+    fn equivalent(&self, key: &(String, String)) -> bool {
+        self.0 == key.0 && self.1 == key.1
+    }
+}
+
 /// `standard` of a tree that has a spelling to turn somewhere in it; None
 /// for one that has none, which is kept as it is, with what it was read from.
 fn turned_to_standard(node: &Node, ctx: &Context) -> Option<Node> {
@@ -426,7 +438,7 @@ fn turned_to_standard(node: &Node, ctx: &Context) -> Option<Node> {
         .collect();
     let here = ctx
         .turned
-        .get(&(node.notation.clone(), node.text.clone()))
+        .get(&Spelling(&node.notation, &node.text))
         .filter(|t| t.places.len() == node.children.len());
     if here.is_none() && turned.iter().all(Option::is_none) {
         return None;

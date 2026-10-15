@@ -2412,11 +2412,7 @@ impl<'a> Elaborator<'a> {
             .filter(|v| **v != *own)
             .collect();
         letters.sort_by_key(|v| {
-            self.b
-                .forder
-                .get(&self.float_of(v))
-                .copied()
-                .unwrap_or(usize::MAX)
+            self.b.float_order(&self.float_of(v)).unwrap_or(usize::MAX)
         });
         for letter in letters {
             let label = self.float_of(&letter);
@@ -5483,10 +5479,12 @@ impl<'a> Elaborator<'a> {
             take!(self.apply_lemma(label, &literal, scope, facts, step, true, seed)?);
         Ok(match self.tidied(&made, &said, &want, scope, facts)? {
             Some(p) => Built(p),
-            None => Route::no(format!(
-                "{label} concludes {} and nothing drops its identity elements",
-                self.render(&said)
-            )),
+            None => self.no(
+                format!(
+                    "{label} concludes {{}} and nothing drops its identity elements"
+                ),
+                &[&said],
+            ),
         })
     }
 

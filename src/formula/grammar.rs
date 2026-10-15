@@ -706,12 +706,17 @@ impl From<Problem> for Stop {
     }
 }
 
-impl Parser<'_> {
+impl<'a> Parser<'a> {
     fn peek(&self) -> Option<&Token> {
         self.t.get(self.i)
     }
 
-    /// No reading here, and why.
+    /// `peek` for as long as the tokens live, so that what a message says
+    /// of the token may be said after the parser is borrowed again.
+    fn here(&self) -> Option<&'a Token> {
+        self.t.get(self.i)
+    }
+
     /// The sentence's text from token `from` up to token `to`, as written.
     fn written(&self, from: usize, to: usize) -> String {
         let (Some(first), Some(last)) = (
@@ -752,13 +757,16 @@ impl Parser<'_> {
         }
     }
 
-    fn no(&mut self, message: String) -> Reading {
+    /// No reading here, and why: `message` is written only where this
+    /// reading got further than any before it, the one `why` would say, and
+    /// a parse tries and drops many readings on its way to the one it takes.
+    fn no(&mut self, message: impl FnOnce() -> String) -> Reading {
         let further = match &self.stopped {
             None => true,
             Some((at, _)) => self.i > *at,
         };
         if further {
-            self.stopped = Some((self.i, message));
+            self.stopped = Some((self.i, message()));
         }
         Ok(None)
     }
@@ -803,7 +811,8 @@ impl Parser<'_> {
 
     fn primary(&mut self) -> Reading {
         let Some(tok) = self.peek().cloned() else {
-            return self.no(format!("{} ends early", repr(self.src)));
+            let src = self.src;
+            return self.no(|| format!("{} ends early", repr(src)));
         };
         if tok.kind == TokenKind::Open {
             // A notation may open with a bracket, as the open interval (a, b)
@@ -831,7 +840,8 @@ impl Parser<'_> {
             let Some(close) =
                 self.peek().filter(|t| t.kind == TokenKind::Close).cloned()
             else {
-                return self.no(format!("unclosed bracket in {}", repr(self.src)));
+                let src = self.src;
+                return self.no(|| format!("unclosed bracket in {}", repr(src)));
             };
             self.i += 1;
             // The brackets are part of what was written, and what extends
@@ -1147,12 +1157,11 @@ impl Parser<'_> {
     /// reading; two do and the text is ambiguous, which is a defect.
     fn apply(&mut self, cands: &[&Notation], left: Option<&Node>) -> Reading {
         if cands.is_empty() {
-            let tok = self.peek().map(|t| t.text.clone()).unwrap_or_default();
-            return self.no(format!(
-                "no notation starts at {} in {}",
-                repr(&tok),
-                repr(self.src)
-            ));
+            let (tok, src) = (self.here(), self.src);
+            return self.no(|| {
+                let tok = tok.map(|t| t.text.as_str()).unwrap_or_default();
+                format!("no notation starts at {} in {}", repr(tok), repr(src))
+            });
         }
         let start = self.i;
         let mut results: Vec<(Node, usize)> = Vec::new();
@@ -1164,12 +1173,11 @@ impl Parser<'_> {
         }
         if results.is_empty() {
             self.i = start;
-            let tok = self.peek().map(|t| t.text.clone()).unwrap_or_default();
-            return self.no(format!(
-                "no notation fits at {} in {}",
-                repr(&tok),
-                repr(self.src)
-            ));
+            let (tok, src) = (self.here(), self.src);
+            return self.no(|| {
+                let tok = tok.map(|t| t.text.as_str()).unwrap_or_default();
+                format!("no notation fits at {} in {}", repr(tok), repr(src))
+            });
         }
         let best = results.iter().map(|r| r.1).max().unwrap();
         let winners: Vec<&(Node, usize)> =
@@ -1277,11 +1285,14 @@ impl Parser<'_> {
                 Part::Raised => {
                     let Some(tok) = self.peek().filter(|t| t.kind == TokenKind::Raised)
                     else {
-                        return self.no(format!(
-                            "{} wants a raised numeral in {}",
-                            n.name,
-                            repr(self.src)
-                        ));
+                        let src = self.src;
+                        return self.no(|| {
+                            format!(
+                                "{} wants a raised numeral in {}",
+                                n.name,
+                                repr(src)
+                            )
+                        });
                     };
                     let leaf =
                         Node::leaf("numeral", Sort::of("number"), &lowered(&tok.text));
@@ -1291,18 +1302,17 @@ impl Parser<'_> {
                     self.i += 1;
                 }
                 Part::Lit(lit) => {
-                    let message = match self.peek() {
-                        Some(tok) if tok.text == *lit => None,
-                        Some(tok) => Some(format!(
-                            "{} does not fit at {} in {}",
-                            n.name,
-                            repr(&tok.text),
-                            repr(self.src)
-                        )),
-                        None => Some(format!("{} ends early", repr(self.src))),
-                    };
-                    if let Some(message) = message {
-                        return self.no(message);
+                    let (tok, src) = (self.here(), self.src);
+                    if !tok.is_some_and(|t| t.text == *lit) {
+                        return self.no(|| match tok {
+                            Some(tok) => format!(
+                                "{} does not fit at {} in {}",
+                                n.name,
+                                repr(&tok.text),
+                                repr(src)
+                            ),
+                            None => format!("{} ends early", repr(src)),
+                        });
                     }
                     self.i += 1;
                 }
@@ -1329,7 +1339,7 @@ impl Parser<'_> {
                     describe_category(want)
                 );
                 self.refuse(self.i, why.clone());
-                return self.no(why);
+                return self.no(|| why);
             }
         }
         // What it yields, where its record leaves that to what fills it:
@@ -1366,7 +1376,7 @@ impl Parser<'_> {
                     "nothing says what set {name} belongs to: write `{name} ∈` a set before the bound, or say what {name} ranges over in the theorem's statement"
                 );
                 self.refuse(self.i, why.clone());
-                return self.no(why);
+                return self.no(|| why);
             };
             let set = match parse(&set, self.g, self.sorts, self.path, self.line)? {
                 Built(set) => set.unwritten(),
@@ -1375,7 +1385,7 @@ impl Parser<'_> {
             let (Some(Some((from, _))), Some(Some((_, to)))) =
                 (took.get(b.name - 1).copied(), took.get(b.to - 1).copied())
             else {
-                return self.no(format!("`{}` has no condition to read", n.pattern));
+                return self.no(|| format!("`{}` has no condition to read", n.pattern));
             };
             let mut sub = Parser {
                 t: &self.t[..to],
@@ -1392,10 +1402,8 @@ impl Parser<'_> {
             let condition = match sub.expression(None, &[])? {
                 Some(c) if sub.i == to => c,
                 _ => {
-                    return self.no(format!(
-                        "{} does not read as a condition",
-                        repr(&self.written(from, to))
-                    ))
+                    let what = repr(&self.written(from, to));
+                    return self.no(|| format!("{what} does not read as a condition"));
                 }
             };
             // The holes outside the condition, in the order written: the body
@@ -1584,10 +1592,10 @@ impl Parser<'_> {
     fn hole(&mut self, want: &str, barrier: Option<&str>, stop: &[&str]) -> Reading {
         if want == "variable" {
             let Some(tok) = self.peek().cloned() else {
-                return self.no("a binder wants a name".into());
+                return self.no(|| "a binder wants a name".into());
             };
             if tok.kind != TokenKind::Name {
-                return self.no("a binder wants a name".into());
+                return self.no(|| "a binder wants a name".into());
             }
             self.i += 1;
             let leaf = Node::leaf("name", Sort::of("variable"), &tok.text);
