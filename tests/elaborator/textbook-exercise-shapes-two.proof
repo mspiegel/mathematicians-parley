@@ -29,6 +29,34 @@ theorem a-contradiction-ending-in-cases
           1.1.2.  x > 0
                   inequalities, from C2
 
+theorem a-define-inside-a-case
+  note        A define written in one case is that case's own.
+  let x ∈ ℝ                                                           (H1)
+  assume x = 1 or x = 2                                               (H2)
+  then x > 0
+
+1.  x > 0
+    cases, from H2
+
+    case
+    assume x = 1                                                      (C1)
+
+    let y = x + 1, a real number                                      (D1)
+        membership
+        reads one more than x
+
+    1.1.  y = x + 1
+          D1
+
+    1.2.  x > 0
+          inequalities, from C1
+
+    case
+    assume x = 2                                                      (C2)
+
+    1.3.  x > 0
+          inequalities, from C2
+
 theorem an-obtain-through-the-second-sentence
   note        The pair names b, so it is b is odd that is unfolded, though
               the line says a is odd first.

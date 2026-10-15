@@ -14,6 +14,7 @@ use std::rc::Rc;
 use indexmap::{IndexMap, IndexSet};
 
 use super::{Facts, Lines, Written};
+use crate::checker::record::CheckedTheorem;
 use crate::citing;
 use crate::corpus::{written_text, FileScope, Item, Record, Step, Theorem};
 use crate::fancy;
@@ -201,6 +202,9 @@ pub enum HeadKey {
 
 pub struct Elaborator<'a> {
     pub thm: &'a Theorem,
+    /// The proof's shape as the checker reads it: the block each step stands
+    /// in, and where each define is in scope.
+    pub shape: CheckedTheorem,
     pub g: &'a Grammar,
     pub items: &'a IndexMap<String, Item<'a>>,
     pub records: &'a [Record],
@@ -415,6 +419,7 @@ impl<'a> Elaborator<'a> {
             .collect();
         Elaborator {
             thm,
+            shape: CheckedTheorem::of(thm),
             g,
             items,
             records,

@@ -10,6 +10,7 @@ mod citations;
 mod database;
 mod formulas;
 mod library;
+pub mod record;
 mod structure;
 
 use std::collections::BTreeSet;

@@ -928,7 +928,9 @@ impl<'a> Elaborator<'a> {
             if !self.thm.steps.iter().any(|s| s.number == cited) {
                 continue;
             }
-            if let Some(why) = crate::checker::out_of_reach(self.thm, &cited, step) {
+            if let Some(why) =
+                crate::checker::out_of_reach(self.thm, &self.shape, &cited, step)
+            {
                 return Err(self.defect(
                     step.line,
                     format!("step {} cites line {r}, {why}", fmt(&step.number)),

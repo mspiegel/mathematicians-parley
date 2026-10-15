@@ -6,6 +6,7 @@ use std::rc::Rc;
 
 use indexmap::IndexMap;
 
+use super::record::CheckedTheorem;
 use super::structure::{labels_in_scope, Declared};
 use crate::citing::{
     self, at_a_member, finished, introduction, said_once, with_parts, Introduced,
@@ -474,10 +475,12 @@ pub fn statements_in_scope(thm: &Theorem, step: &Step, env: Env) -> Statements {
 /// The lets above `step` that say what kind of number their names are, each
 /// read; one whose kind no record names is left out.
 pub fn kinded_above(thm: &Theorem, step: &Step, env: Env) -> Vec<Kinded> {
+    let shape = CheckedTheorem::of(thm);
     thm.defines
         .iter()
-        .filter(|d| d.line < step.line)
-        .filter_map(|d| d.kinded(&thm.path, &env.g.members).ok().flatten())
+        .enumerate()
+        .filter(|(i, _)| shape.define_in_scope(thm, *i, step))
+        .filter_map(|(_, d)| d.kinded(&thm.path, &env.g.members).ok().flatten())
         .collect()
 }
 

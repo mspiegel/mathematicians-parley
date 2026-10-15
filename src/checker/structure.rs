@@ -6,6 +6,7 @@ use std::collections::BTreeSet;
 use indexmap::{IndexMap, IndexSet};
 
 use super::library::Known;
+use super::record::CheckedTheorem;
 use super::{Report, CLOSURE, RELATIONS};
 use crate::corpus::proof::{requires_item, starts_with_head, unproduced, visible};
 use crate::corpus::{
@@ -56,23 +57,17 @@ fn why_out_of_scope(cited: &StepNo, here: &StepNo) -> &'static str {
 /// not (`labels_in_scope`).
 pub fn out_of_reach(
     thm: &Theorem,
+    shape: &CheckedTheorem,
     cited: &StepNo,
     here: &Step,
 ) -> Option<&'static str> {
     if !in_scope(cited, &here.number) {
         return Some(why_out_of_scope(cited, &here.number));
     }
-    let written = thm
-        .steps
-        .iter()
-        .rfind(|s| &s.number == cited && s.line < here.line)?;
-    let beside = on_the_way(thm, here, &here.number.prefix(cited.len()))?;
-    match (written.part, beside.part) {
-        (Some(one), Some(other)) if one != other => {
-            Some("which is in another part of the block")
-        }
-        _ => None,
-    }
+    let written = CheckedTheorem::written(thm, cited, here)?;
+    let at = CheckedTheorem::index_of(thm, here)?;
+    (!shape.encloses(shape.places[written], at))
+        .then_some("which is in another part of the block")
 }
 
 /// Where a label is declared: a hypothesis, a define, or a block's opener.
@@ -111,8 +106,11 @@ pub fn labels_in_scope(
             out.entry(label.clone()).or_insert(Declared::Define(i.line));
         }
     }
-    for d in &thm.defines {
-        if d.line < step.line {
+    // A define written inside a block is the block's, and the part's it is
+    // written in (`record::CheckedTheorem::define_in_scope`).
+    let shape = CheckedTheorem::of(thm);
+    for (i, d) in thm.defines.iter().enumerate() {
+        if shape.define_in_scope(thm, i, step) {
             out.insert(d.label.clone(), Declared::Define(d.line));
         }
     }
@@ -600,6 +598,7 @@ pub fn check_citations(
     scopes: &[FileScope],
 ) {
     let numbers: IndexSet<&StepNo> = thm.steps.iter().map(|s| &s.number).collect();
+    let shape = CheckedTheorem::of(thm);
     for step in &thm.steps {
         let just = &step.just;
         let scope = labels_in_scope(thm, step, scopes);
@@ -651,7 +650,7 @@ pub fn check_citations(
                         step.number
                     ),
                 );
-            } else if let Some(why) = out_of_reach(thm, &cited, step) {
+            } else if let Some(why) = out_of_reach(thm, &shape, &cited, step) {
                 report.say(
                     &thm.path,
                     just.line,
@@ -703,6 +702,7 @@ pub fn check_citations(
             scopes,
             numbers: &numbers,
             scope: &scope,
+            shape: &shape,
             step,
         };
         for req in &step.requires {
@@ -729,6 +729,7 @@ pub fn check_citations(
             scopes,
             numbers: &numbers,
             scope: &scope,
+            shape: &shape,
             step,
         };
         let req = Requires {
@@ -767,6 +768,7 @@ struct Cited<'a> {
     scopes: &'a [FileScope],
     numbers: &'a IndexSet<&'a StepNo>,
     scope: &'a IndexMap<String, Declared>,
+    shape: &'a CheckedTheorem,
     step: &'a Step,
 }
 
@@ -840,7 +842,7 @@ impl Cited<'_> {
                     no,
                     format!("{what} cites line {r}, which does not exist"),
                 );
-            } else if let Some(why) = out_of_reach(thm, &cited, self.step) {
+            } else if let Some(why) = out_of_reach(thm, self.shape, &cited, self.step) {
                 report.say(&thm.path, no, format!("{what} cites line {r}, {why}"));
             }
         }
@@ -1783,8 +1785,9 @@ pub fn letters_in_scope(
             .map(|(n, _, _)| n),
     );
     out.extend(sorts.imported.iter().cloned());
-    for d in &thm.defines {
-        if d.line < step.line {
+    let shape = CheckedTheorem::of(thm);
+    for (i, d) in thm.defines.iter().enumerate() {
+        if shape.define_in_scope(thm, i, step) {
             if let Built(said) = define_parts(&d.text) {
                 out.extend(said.names());
             }
@@ -1807,7 +1810,7 @@ pub fn letters_in_scope(
             }
         }
         let visible_here = other.number == step.number
-            || out_of_reach(thm, &other.number, step).is_none();
+            || out_of_reach(thm, &shape, &other.number, step).is_none();
         if visible_here && other.just.head.is(Method::Obtain) {
             if let Some(names) = obtains(&other.just.text) {
                 out.extend(names_listed(&names));

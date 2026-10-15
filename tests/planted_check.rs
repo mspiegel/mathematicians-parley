@@ -1077,6 +1077,16 @@ fn cases() -> Vec<Case> {
             )],
             "step 11 takes F(1) = 1² from 10, which does not say it",
         ),
+        // A define written in one case is no define of the next.
+        case(
+            "cite a define written in an earlier case",
+            vec![edit(
+                "tests/elaborator/textbook-exercise-shapes-two.proof",
+                Some("    assume x = 2                                                      (C2)\n\n    1.3.  x > 0\n          inequalities, from C2\n".to_string()),
+                "    assume x = 2                                                      (C2)\n\n    1.3.  y = x + 1\n          D1\n\n    1.4.  x > 0\n          inequalities, from C2\n".to_string(),
+            )],
+            "step 1.3 cites D1, which is not in scope here",
+        ),
         // What one case shows is no line of the next.
         case(
             "cite a step of an earlier case",
