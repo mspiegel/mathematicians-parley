@@ -83,6 +83,26 @@ pub fn run(source: &dyn Source) -> Outcome {
     }
 }
 
+/// The first problem the checker reports in each theorem it refuses, by the
+/// theorem's qualified name: what the build refuses before it builds
+/// anything, so that it refuses exactly what the checker refuses and says
+/// it as the checker does. What the checker reports of the corpus as a
+/// whole, outside every theorem, is `run`'s to say.
+pub fn refused(source: &dyn Source) -> Result<IndexMap<String, Problem>, Outcome> {
+    let checked = prepared(source, |_, c| {
+        let mut out = IndexMap::new();
+        for (i, thm) in c.theorems.iter().enumerate() {
+            let mut own = Report::default();
+            check_theorem(&mut own, c, thm, &c.known[i], &c.clashes[i]);
+            if let Some(first) = own.problems.into_iter().next() {
+                out.insert(thm.qualified(), first);
+            }
+        }
+        out
+    });
+    checked.map(|(_, _, out)| out)
+}
+
 /// Check the corpus under the source's root, after the files `edited` were
 /// changed, with only the theorems an edit to them can reach checked
 /// (`Checking::reached_from`). What is checked of the corpus as a whole is

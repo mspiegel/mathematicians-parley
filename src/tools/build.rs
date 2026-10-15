@@ -264,6 +264,9 @@ pub struct Maker<'a> {
     libraries: &'a Libraries,
     library: Option<Library>,
     made: IndexMap<String, String>,
+    /// The theorems the checker refuses, each with its first problem, which
+    /// the build reports in place of building them (`checker::refused`).
+    refused: IndexMap<String, Problem>,
 }
 
 impl<'a> Maker<'a> {
@@ -282,7 +285,14 @@ impl<'a> Maker<'a> {
             libraries,
             library: None,
             made: IndexMap::new(),
+            refused: IndexMap::new(),
         })
+    }
+
+    /// Refuse each theorem the checker refuses, with the checker's own first
+    /// problem, so that the build refuses exactly what `parley check` does.
+    pub fn refusing(&mut self, refused: IndexMap<String, Problem>) {
+        self.refused = refused;
     }
 
     /// An artifact's text: what this run made, and otherwise its file.
@@ -335,6 +345,9 @@ impl<'a> Maker<'a> {
         else {
             return Err(Problem::new(name, 0, format!("no theorem {name}")));
         };
+        if let Some(problem) = self.refused.get(name) {
+            return Err(problem.clone());
+        }
         let statements =
             |cited: &str| -> Option<String> { statement_of(&self.text_of(cited)?) };
         let library = self.library.as_ref().expect("read above");
@@ -424,6 +437,17 @@ pub fn run(root: &Path, wanted: Option<&str>, setmm: Option<&str>) -> Said {
             return said;
         }
     };
+    // The checker reads the page first, and the build builds only what it
+    // accepts.
+    match crate::checker::refused(&source) {
+        Ok(refused) => maker.refusing(refused),
+        Err(out) => {
+            said.printed = out.printed;
+            said.complained = out.complained;
+            said.status = out.status;
+            return said;
+        }
+    }
 
     let mut changed = 0;
     let mut marks: IndexMap<String, char> = IndexMap::new();

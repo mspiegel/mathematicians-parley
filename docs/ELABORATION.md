@@ -9,7 +9,13 @@ parley build [<name>] [<set.mm>]
 ```
 
 run from the working tree, writes every generated file, or the one named,
-and says which changed. A
+and says which changed. It reads the page through the checker first: a
+theorem the checker refuses is not built, and the build reports the
+checker's own first problem in it (`checker::refused`), so the two tools
+refuse the same text and say it the same way. What the checker decides of a
+proof's shape, the block each step stands in and where each define is in
+scope, the build is handed rather than working out again
+(`checker::record::CheckedTheorem`). A
 theorem is named in full, by its proof file and its own name:
 `proofs/sqrt2-irrational/odd-square`. `parley gate` checks what was built, and
 its second stage builds everything afresh in memory and compares it with the
