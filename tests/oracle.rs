@@ -307,7 +307,7 @@ fn a_decision_method_answers_as_its_oracle() {
         answers.push(answer);
     }
     let verifying = Memory::copy(&verifying, &["corpus", "proofs", "tests"]).unwrap();
-    let libraries = Libraries::read(
+    let libraries = Libraries::read_verifying_often(
         &where_set_mm(None, root)
             .expect("set.mm is found: say where it is with SET_MM"),
     )

@@ -180,12 +180,20 @@ pub fn run(
             }
         }
     }
-    let verifier = libraries.verifier();
+    let shared = libraries.shared_verifier();
+    let afresh: BTreeSet<String>;
+    let labels = match shared {
+        Some(verifier) => &verifier.labels,
+        None => {
+            afresh = labels_of(&libraries.setmm);
+            &afresh
+        }
+    };
 
     // Verified together, every file sees every other's labels; each must
     // reach the ones it uses through its own inclusions, as a reader
     // verifying that one file does.
-    let unreached = unreached(&texts, &verifier.labels);
+    let unreached = unreached(&texts, labels);
     if !unreached.is_empty() {
         for u in &unreached {
             said.printed += &format!("{u}\n");
@@ -209,11 +217,11 @@ pub fn run(
     let Joined { text, starts } = joined(&texts, &top);
 
     let began = Instant::now();
-    let problems: Vec<String> = verifier
-        .verified(&libraries.setmm, &text)
-        .iter()
-        .map(|p| placed(p, &starts))
-        .collect();
+    let found = match shared {
+        Some(verifier) => verifier.verified(&libraries.setmm, &text),
+        None => verified_afresh(&libraries.setmm, &text),
+    };
+    let problems: Vec<String> = found.iter().map(|p| placed(p, &starts)).collect();
     let spent = began.elapsed().as_secs_f64();
     if !problems.is_empty() {
         for p in &problems {
@@ -329,9 +337,15 @@ fn placed(problem: &str, starts: &[(usize, String)]) -> String {
         .into_owned()
 }
 
-/// set.mm as the verifier has it, read and verified once for a process:
-/// every run verifies the corpus against the same set.mm, and verified it
-/// all again each time.
+/// set.mm as the verifier has it, read and verified once, for a process
+/// that verifies many trees against the same set.mm (`Libraries::
+/// read_verifying_often`): the invariance test verifies one a rewrite,
+/// about twenty, and spent a quarter of its time verifying set.mm again.
+/// It costs memory that one or two runs do not win back: metamath-rs
+/// records what each segment uses, and copies its tables of every label
+/// when a run's file changes them, so `parley gate`, verifying twice at
+/// once, held about 450 MB more and took no less time; a process that
+/// verifies once or twice verifies afresh (`verified_afresh`).
 pub struct Verifier {
     /// set.mm parsed and verified, with a joined file that includes it and
     /// nothing else. metamath-rs keeps what it worked out of each segment,
@@ -359,9 +373,14 @@ impl Verifier {
         base.verify_pass();
         Verifier {
             base,
-            labels: declared(setmm).into_iter().map(str::to_string).collect(),
+            labels: labels_of(setmm),
         }
     }
+}
+
+/// Every label set.mm declares.
+fn labels_of(setmm: &str) -> BTreeSet<String> {
+    declared(setmm).into_iter().map(str::to_string).collect()
 }
 
 /// What the verifier reads: set.mm, and the joined file that includes it.
@@ -382,6 +401,23 @@ impl Verifier {
         db.verify_pass();
         problems_of(&mut db)
     }
+}
+
+/// Every problem the verifier finds in `joined` over `setmm`, read and
+/// verified for this run alone.
+fn verified_afresh(setmm: &str, joined: &str) -> Vec<String> {
+    // metamath-rs works segment by segment, and set.mm read whole is one
+    // segment on one thread: split at its chapters, it is checked on every
+    // core at once.
+    let options = DbOptions {
+        autosplit: true,
+        jobs: std::thread::available_parallelism().map_or(1, |n| n.get()),
+        ..DbOptions::default()
+    };
+    let mut db = Database::new(options);
+    db.parse(JOINED.to_string(), files(setmm, joined));
+    db.verify_pass();
+    problems_of(&mut db)
 }
 
 /// What the verifier found, each problem written out plain.

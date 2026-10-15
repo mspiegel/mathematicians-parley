@@ -542,7 +542,7 @@ fn a_proof_means_what_it_says_however_it_spells_it() {
             }
         }
     }
-    let libraries = Libraries::read(
+    let libraries = Libraries::read_verifying_often(
         &where_set_mm(None, root)
             .expect("set.mm is found: say where it is with SET_MM"),
     )

@@ -217,8 +217,10 @@ pub struct Libraries {
     /// set.mm's text.
     pub setmm: String,
     read: Mutex<IndexMap<Option<String>, Arc<ReadLibrary>>>,
-    /// set.mm as the verifier has it, made the first time a run verifies.
-    verifier: OnceLock<super::verify::Verifier>,
+    /// set.mm as the verifier has it, made the first time a run verifies,
+    /// for a process that verifies often (`read_verifying_often`); None for
+    /// one that verifies afresh each time.
+    verifier: Option<OnceLock<super::verify::Verifier>>,
 }
 
 impl Libraries {
@@ -234,15 +236,25 @@ impl Libraries {
         Ok(Libraries {
             setmm,
             read: Mutex::new(IndexMap::new()),
-            verifier: OnceLock::new(),
+            verifier: None,
         })
     }
 
-    /// set.mm parsed and verified, once for every run that verifies against
-    /// it (`verify::Verifier`).
-    pub fn verifier(&self) -> &super::verify::Verifier {
-        self.verifier
-            .get_or_init(|| super::verify::Verifier::of(&self.setmm))
+    /// `read`, for a process that verifies many trees against set.mm, which
+    /// is then parsed and verified once for all of them
+    /// (`verify::Verifier`).
+    pub fn read_verifying_often(path: &Path) -> Checked<Libraries> {
+        Ok(Libraries {
+            verifier: Some(OnceLock::new()),
+            ..Libraries::read(path)?
+        })
+    }
+
+    /// set.mm parsed and verified once, where these libraries were read for
+    /// verifying often; None where each run verifies afresh.
+    pub fn shared_verifier(&self) -> Option<&super::verify::Verifier> {
+        let kept = self.verifier.as_ref()?;
+        Some(kept.get_or_init(|| super::verify::Verifier::of(&self.setmm)))
     }
 
     /// What set.mm and `proved` read as, read the first time it is asked

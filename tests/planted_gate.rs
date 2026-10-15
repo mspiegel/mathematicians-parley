@@ -256,7 +256,7 @@ fn set_mm() -> SetMm {
     let path = where_set_mm(None, root).expect(
         "set.mm not found; say where it is with SET_MM, or leave a copy or a link at the root of the working tree",
     );
-    let libraries = Libraries::read(&path).expect("set.mm reads");
+    let libraries = Libraries::read_verifying_often(&path).expect("set.mm reads");
     SetMm { path, libraries }
 }
 
