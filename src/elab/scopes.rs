@@ -24,8 +24,7 @@ use super::{Facts, Line, Lines};
 use crate::binds;
 use crate::checker::record::CheckedTheorem;
 use crate::corpus::{
-    define_parts, fmt, item_prefix, DefineParts, Intro, Item, Kinded, Method, Step,
-    CITED, ITEM_PREFIX,
+    define_parts, fmt, DefineParts, Intro, Item, Kinded, Method, Step,
 };
 use crate::formula::page::{made_as, Written};
 use crate::formula::{Node, Sorts};
@@ -36,11 +35,7 @@ use crate::mm::Signature;
 use crate::outcome::{Built, Checked, Declined, Route};
 use crate::rules::{self, lookup};
 use crate::sorts::file_definitions;
-use crate::{pf, regex, t, take};
-
-regex!(OBTAINED, r"obtain\s+(.+?)(?::|\s+from\b)");
-regex!(OBTAIN_ITEM, format!(r"\b({ITEM_PREFIX}{CITED})"));
-regex!(INDUCTION_ON, r"induction on (\S+)");
+use crate::{pf, t, take};
 
 /// One opener of a `proof` block, as its claim says it: a name fixed over a
 /// set, or over every set, or an assumption.
@@ -530,9 +525,10 @@ impl<'a> Elaborator<'a> {
                 }
             }
             "induction" => {
-                let over = INDUCTION_ON
-                    .captures(&step.just.text)
-                    .map(|m| m[1].to_string())
+                let over = step
+                    .just
+                    .on
+                    .clone()
                     .expect("an induction says what it is on");
                 // The claim says "for all k ∈ X, …" of the letter the
                 // induction is on.
@@ -1415,7 +1411,7 @@ impl<'a> Elaborator<'a> {
                 format!("nothing here inducts over {}", self.render(&over)),
             ));
         };
-        let start = match step.just.starting_at() {
+        let start = match step.just.start.as_deref() {
             Some(m) => {
                 let node =
                     self.read_one(&Written::new(m, &self.thm.path, step.just.line))?;
@@ -1590,14 +1586,9 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         closers: Vec<Closer>,
     ) -> Checked<(String, Facts, Vec<Closer>)> {
-        let got: Vec<String> = OBTAINED
-            .captures(&step.just.text)
-            .map(|m| m[1].split(',').map(|n| str::trim(n).to_string()).collect())
-            .expect("an obtain names what it obtains");
-        let named = OBTAIN_ITEM
-            .captures(&step.just.text)
-            .map(|m| m[1].to_string());
-        let cited = match named.as_deref().filter(|n| item_prefix(n).is_some()) {
+        let got: Vec<String> = step.just.obtained.clone();
+        let named = step.just.obtained_from.clone();
+        let cited = match named.as_deref() {
             Some(n) => Some(self.item_cited(n)?),
             None => None,
         };

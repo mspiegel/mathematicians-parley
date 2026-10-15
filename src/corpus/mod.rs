@@ -9,6 +9,7 @@ pub(crate) mod lines;
 pub(crate) mod load;
 pub mod proof;
 pub(crate) mod records;
+pub mod skeleton;
 pub(crate) mod values;
 
 pub use define::{
@@ -20,12 +21,14 @@ pub use load::{
     Item,
 };
 pub use proof::{
-    cited_item, cited_items, cites_define, fmt, item_prefix, outermost, parse_proof,
-    references, written_text, DefineLine, FileScope, Head, Hypothesis, Import, Intro,
-    ItemImport, ItemKind, Justification, Kinded, Method, Names, Opener, Range, Reason,
-    Requires, ScopeId, Step, StepNo, Theorem,
+    cited_items, fmt, outermost, parse_proof, written_text, DefineLine, FileScope,
+    Head, Hypothesis, Import, Intro, ItemImport, ItemKind, Justification, Kinded,
+    Method, Names, Opener, Range, Reason, Requires, ScopeId, Step, StepNo, Theorem,
 };
 pub use records::{parse_database, Record, RecordKind, FIELDS};
+pub use skeleton::{
+    is_label, is_number, is_ref, item_kind, starts_with_head, Place, Source,
+};
 pub use values::{Value, Values};
 
 /// Build a regular expression once, the first time it is used.

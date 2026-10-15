@@ -8,6 +8,9 @@ use indexmap::{IndexMap, IndexSet};
 use super::define::{define_parts, naming, DefineParts, Naming};
 use super::lines::{read_lines, Line};
 use super::records::{Record, RecordKind};
+use super::skeleton::{
+    self, cut_reason, is_justification, item_kind, Place, Slots, Source,
+};
 use super::values::Values;
 use super::{cited_name, full, in_stdlib, module_of};
 use crate::formula::page::Written;
@@ -157,10 +160,53 @@ pub struct DefineLine {
 /// as a requires line's reason is written, and the line it is on.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Reason {
+    /// The reason as written, for a message.
     pub how: String,
     pub line: usize,
-    /// The values `how` gives what it cites.
-    pub values: Values,
+    /// The reason as the skeleton reader cut it, as a requires line's is
+    /// (`Requires::by`).
+    pub by: Checked<Justification>,
+}
+
+impl Reason {
+    /// The item the reason heads with, as a requires line's
+    /// (`Requires::cited_item`).
+    pub fn cited_item(&self) -> Option<(String, ItemKind)> {
+        match &self.by {
+            Ok(by) => by.head_item(),
+            Err(_) => None,
+        }
+    }
+
+    /// The lines and labels its `from` slot names, as a requires line's
+    /// (`Requires::lines`).
+    pub fn lines(&self) -> &[String] {
+        match &self.by {
+            Ok(by) => &by.from,
+            Err(_) => &[],
+        }
+    }
+
+    /// The values it gives what it cites, as a requires line's
+    /// (`Requires::values`).
+    pub fn values(&self) -> &Values {
+        static NONE: Values = Values::NONE;
+        match &self.by {
+            Ok(by) => &by.values,
+            Err(_) => &NONE,
+        }
+    }
+
+    /// The reason as a requires line's, with no fact of its own written:
+    /// what `fact` says it shows.
+    pub fn shown(&self, fact: Written) -> Requires {
+        Requires {
+            fact,
+            how: self.how.clone(),
+            line: self.line,
+            by: self.by.clone(),
+        }
+    }
 }
 
 /// A let that says what kind of number its name is, read with the sets the
@@ -213,17 +259,12 @@ impl DefineLine {
             label: self.label.clone(),
             name: one.name.clone(),
             set: set.clone(),
-            shown: Requires {
-                fact: Written::member(
-                    Written::new(&one.body, path, self.line),
-                    Written::new(set, path, self.line),
-                    path,
-                    reason.line,
-                ),
-                how: reason.how.clone(),
-                line: reason.line,
-                values: reason.values.clone(),
-            },
+            shown: reason.shown(Written::member(
+                Written::new(&one.body, path, self.line),
+                Written::new(set, path, self.line),
+                path,
+                reason.line,
+            )),
         }))
     }
 }
@@ -311,10 +352,68 @@ impl Names {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Requires {
     pub fact: Written,
+    /// The reason as written, for a message.
     pub how: String,
     pub line: usize,
-    /// The values `how` gives what it cites.
-    pub values: Values,
+    /// The reason as the skeleton reader cut it (`skeleton::cut_reason`):
+    /// a justification as a step's, or the lines it rests on; a defect
+    /// where it is neither, which the checker reports (`check_reason`).
+    pub by: Checked<Justification>,
+}
+
+impl Requires {
+    /// The item the reason heads with, `mun:x`, and the kind its prefix
+    /// says; None for a reason that is a method or its lines, and for one
+    /// the reader could not cut, which the checker reports.
+    pub fn cited_item(&self) -> Option<(String, ItemKind)> {
+        match &self.by {
+            Ok(by) => by.head_item(),
+            Err(_) => None,
+        }
+    }
+
+    /// The reason, or the defect it is.
+    pub fn by(&self) -> Checked<&Justification> {
+        self.by.as_ref().map_err(Clone::clone)
+    }
+
+    /// The lines and labels the reason's `from` slot names, in order; none
+    /// for a reason the reader could not cut, which the checker reports.
+    pub fn lines(&self) -> &[String] {
+        match &self.by {
+            Ok(by) => &by.from,
+            Err(_) => &[],
+        }
+    }
+
+    /// Everything the reason cites (`Justification::refs`); none for a
+    /// reason the reader could not cut.
+    pub fn refs(&self) -> &[String] {
+        match &self.by {
+            Ok(by) => &by.refs,
+            Err(_) => &[],
+        }
+    }
+
+    /// Whether the reason is the method `method`.
+    pub fn is(&self, method: Method) -> bool {
+        self.by.as_ref().is_ok_and(|by| by.head.is(method))
+    }
+
+    /// Whether the reason names lines and nothing else, `from 8`.
+    pub fn is_lines(&self) -> bool {
+        self.by.as_ref().is_ok_and(|by| by.head == Head::Lines)
+    }
+
+    /// The values the reason gives what it cites; none for a reason the
+    /// reader could not cut.
+    pub fn values(&self) -> &Values {
+        static NONE: Values = Values::NONE;
+        match &self.by {
+            Ok(by) => &by.values,
+            Err(_) => &NONE,
+        }
+    }
 }
 
 /// A step's number, as the text writes it: 3.1.2.
@@ -492,18 +591,6 @@ impl Method {
     }
 }
 
-/// The kind of item a text cites, where it opens with an item's prefix.
-pub fn item_prefix(text: &str) -> Option<ItemKind> {
-    let (prefix, _) = text.split_once(':')?;
-    ItemKind::from_prefix(prefix)
-}
-
-/// Whether a line opens a justification: one of the heads `GRAMMAR.md`
-/// lists, an item's prefix or a method, by the text it starts with.
-pub fn starts_with_head(text: &str) -> bool {
-    item_prefix(text).is_some() || METHODS.iter().any(|m| text.starts_with(m.as_str()))
-}
-
 /// What a justification opens with.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Head {
@@ -515,6 +602,9 @@ pub enum Head {
     Method(Method),
     /// A define, cited by its label.
     Define,
+    /// A requires line's reason that names lines and nothing else, `from 8`:
+    /// the fact is one of them, or what they say together.
+    Lines,
 }
 
 impl Head {
@@ -545,17 +635,21 @@ impl fmt::Display for Head {
             Head::Item { kind, cited } => write!(f, "{}:{cited}", kind.prefix()),
             Head::Method(m) => f.write_str(m.as_str()),
             Head::Define => f.write_str("define"),
+            Head::Lines => f.write_str("from"),
         }
     }
 }
 
-/// A step's justification.
+/// A step's justification, or a requires line's reason, as the skeleton
+/// reader cut it (`skeleton::cut`): its head and the slots it fills.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Justification {
     pub head: Head,
+    /// The text cut, for a message.
     pub text: String,
     pub line: usize,
-    /// Everything cited, in order.
+    /// Everything cited, in order (`Slots::refs`), and each line a
+    /// calculation's chain cites.
     pub refs: Vec<String>,
     /// An instantiate's `in …`.
     pub target: Option<String>,
@@ -572,25 +666,81 @@ pub struct Justification {
     /// The line this step's claim is the opposite of, `contradicting 3.6`,
     /// which closes a contradiction block or ends a case that cannot occur.
     pub contradicting: Option<String>,
+    /// What an `obtain` names, in order.
+    pub obtained: Vec<String>,
+    /// The item an `obtain` takes its objects from, `thm:x`.
+    pub obtained_from: Option<String>,
+    /// The `from` slot's lines and labels, in order.
+    pub from: Vec<String>,
+    /// A substitute's equation, as written.
+    pub equation: Option<Written>,
+    /// Where a substitute takes its equation from.
+    pub source: Option<Source>,
+    /// The line or label a substitute puts its equation into.
+    pub into: Option<Place>,
+    /// The letter an induction is on.
+    pub on: Option<String>,
+    /// Where an induction starts, `starting at m`.
+    pub start: Option<String>,
+    /// Why the justification matches no production of `GRAMMAR.md`; None
+    /// where it matches one. Both tools read a justification only once it
+    /// matches, so each refuses the same text in the same words.
+    pub unproduced: Option<String>,
 }
 
 impl Justification {
+    /// A justification as the skeleton reader cut it, read in a file whose
+    /// citations mean what `names` says.
+    pub fn of(slots: Slots, line: usize, names: &Arc<Names>) -> Justification {
+        Justification {
+            refs: slots.refs(),
+            values: Values::of(&slots.values),
+            head: slots.head,
+            text: slots.text,
+            line,
+            target: slots.target,
+            chain: Vec::new(),
+            bad_ref: slots.bad_ref,
+            names: names.clone(),
+            defined: slots.defined,
+            contradicting: slots.contradicting,
+            obtained: slots.obtained,
+            obtained_from: slots.obtained_from,
+            from: slots.from,
+            equation: slots.equation,
+            source: slots.source,
+            into: slots.into,
+            on: slots.on,
+            start: slots.start,
+            unproduced: slots.unproduced,
+        }
+    }
+
     /// The full name a citation written in this justification's file means.
     pub fn item(&self, cited: &str) -> String {
         self.names.full(cited)
     }
 
-    /// Where an induction starts, as `induction on k starting at m` writes
-    /// it.
-    pub fn starting_at(&self) -> Option<&str> {
-        STARTING_AT
-            .captures(&self.text)
-            .and_then(|m| m.get(1))
-            .map(|m| m.as_str())
+    /// The item the justification cites, as `thm:x` or another prefix:
+    /// either the head is the item, or the step obtains from one. `obtain
+    /// c: axi:completeness S := S, from 5, 2, 7` owes the item's hypotheses
+    /// as surely as a step headed by it does.
+    pub fn cited_item(&self) -> Option<String> {
+        match &self.head {
+            Head::Item { .. } => Some(self.head.to_string()),
+            _ => self.obtained_from.clone(),
+        }
+    }
+
+    /// The item a reason heads with, `mun:x`, and the kind its prefix says;
+    /// None for a reason that is a method or its lines.
+    pub fn head_item(&self) -> Option<(String, ItemKind)> {
+        match &self.head {
+            Head::Item { kind, .. } => Some((self.head.to_string(), *kind)),
+            _ => None,
+        }
     }
 }
-
-regex!(STARTING_AT, r"starting at ([^\s,]+)");
 
 /// One numbered step of a proof.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -843,291 +993,42 @@ pub fn outermost(words: &[&str], relation: &str) -> Option<usize> {
     None
 }
 
-// A justification that cites a define: its label, and what says which case.
-regex!(DEFINE_CITED, r"^([A-Z]+[0-9]*)(?:\s*,\s*from\s+\S.*)?$");
-regex!(FROM_LINE, format!(r"\bfrom\s+line\s+({})\b", super::NUMBER));
-regex!(FROM_ANY, r"\bfrom\s+(.*)$");
-regex!(REF_RE, super::REF);
-
-/// References named by a justification, read from their syntactic position
-/// and never by scanning for digits, and the first `from` entry that is no
-/// reference. A step's justification and a requires line's are the same
-/// production, and both are read here.
-pub fn references(text: &str) -> (Vec<String>, Option<String>) {
-    let mut out = Vec::new();
-    if let Some(m) = FROM_LINE.captures(text) {
-        out.push(m[1].to_string());
-    } else if let Some(m) = FROM_ANY.captures(text) {
-        for tok in m[1].split(',') {
-            let tok = str::trim(tok);
-            if full(&REF_RE, tok) {
-                out.push(tok.to_string());
-            } else if !tok.is_empty() {
-                return (out, Some(tok.to_string()));
-            }
-        }
-    }
-    (out, None)
-}
-
-/// The define label a justification line cites as its head.
-///
-/// A define is cited by its label, alone or with `from`: `D2, from 4.1`.
-/// Only a whole line of that shape, and only a label a define in scope
-/// carries, since a claim may begin with a capital as a label does.
-pub fn cites_define(text: &str, defines: &[String]) -> Option<String> {
-    let m = DEFINE_CITED.captures(text)?;
-    let label = &m[1];
-    defines
-        .iter()
-        .any(|d| d == label)
-        .then(|| label.to_string())
-}
-
-regex!(ITEM_HEAD, format!(r"^(thm|axi|mun|def):({})", super::CITED));
-regex!(
-    SUBSTITUTE_SOURCE,
-    format!(
-        r"^substitute\s.*\((?:line\s+({})|({}))\)(?:\s+into\s+\S.*?)?\s*$",
-        super::NUMBER,
-        super::LABEL
-    )
-);
-// `into` and `in` are words of the justification, standing after a space:
-// a word boundary would also find them inside an item's name, as in
-// `mun:function-into X := X`, and read the binding's X as a cited line.
-regex!(
-    INTO,
-    format!(
-        r"(?:^|\s)into\s+(?:line\s+({})|({}))\b",
-        super::NUMBER,
-        super::LABEL
-    )
-);
-regex!(
-    IN_TARGET,
-    format!(
-        r"(?:^|\s)in\s+(?:line\s+({})|({}{})|({}))\b",
-        super::NUMBER,
-        super::ITEM_PREFIX,
-        super::CITED,
-        super::LABEL
-    )
-);
-
-/// What a justification's text cites, apart from a `join`'s list.
-pub struct Cited {
-    /// The lines and labels it names, in the order written.
-    pub refs: Vec<String>,
-    /// A `from` entry that is neither a line nor a label.
-    pub bad_ref: Option<String>,
-    /// An instantiate's `in …`, a line or an item.
-    pub target: Option<String>,
-}
-
-/// The lines and labels a justification names: its `from` list, a
-/// substitute's source and the line it puts into, and the line an
-/// instantiate reads `in`. A step's and a requires line's reason are read
-/// alike.
-pub fn cited_in(text: &str) -> Cited {
-    let (mut refs, bad_ref) = references(text);
-    // A substitute names its equation's source in brackets after it. Only
-    // there: M(C) on any other line is a function applied to C, not a
-    // citation of a label C.
-    if let Some(src) = SUBSTITUTE_SOURCE.captures(text) {
-        let got = src.get(1).or(src.get(2)).map(|m| m.as_str().to_string());
-        if let Some(got) = got {
-            refs.push(got);
-        }
-    }
-    for dest in INTO.captures_iter(text) {
-        let got = dest.get(1).or(dest.get(2)).unwrap();
-        refs.push(got.as_str().to_string());
-    }
-    let mut target = None;
-    if let Some(m) = IN_TARGET.captures(text) {
-        let got = m
-            .get(1)
-            .or(m.get(2))
-            .or(m.get(3))
-            .map(|g| g.as_str().to_string());
-        if let Some(t) = &got {
-            if item_prefix(t).is_none() {
-                refs.push(t.clone());
-            }
-        }
-        target = got;
-    }
-    Cited {
-        refs,
-        bad_ref,
-        target,
-    }
-}
-
 fn parse_justification(
     path: &str,
     line: &Line,
     defines: &[String],
     names: &Arc<Names>,
 ) -> Checked<Justification> {
-    // A step reaching the opposite of an earlier line says so after its
-    // reasons, `inequalities, from 3.1, contradicting 3.6`; the rest of the
-    // line is read as any other.
-    let (said, contradicting) = match CONTRADICTING.captures(&line.text) {
-        Some(m) => (str::trim(&m[1]).to_string(), Some(m[2].to_string())),
-        None => (line.text.clone(), None),
-    };
-    let text = &said;
-    let has_head = starts_with_head(text);
-    let label = if has_head {
-        None
-    } else {
-        cites_define(text, defines)
-    };
-    if let Some(label) = label {
-        let (mut refs, bad_ref) = references(text);
-        refs.insert(0, label.clone());
-        return Ok(Justification {
-            head: Head::Define,
-            text: text.clone(),
-            line: line.no,
-            refs,
-            target: None,
-            values: Values::cut(text, path, line.no),
-            chain: Vec::new(),
-            bad_ref,
-            names: names.clone(),
-            defined: Some(label),
-            contradicting,
-        });
-    }
-    if !has_head {
-        return Err(Problem::new(
-            path,
-            line.no,
-            format!("no justification head in {}", repr(prefix(text, 40))),
-        ));
-    }
-    let head = if item_prefix(text).is_some() {
-        match ITEM_HEAD.captures(text) {
-            Some(m) => Head::Item {
-                kind: ItemKind::from_prefix(&m[1]).expect("a prefix ITEM_HEAD reads"),
-                cited: m[2].to_string(),
-            },
-            // `thm:` with no name after it cites nothing, which is a defect
-            // in the line.
-            None => {
-                return Err(Problem::new(
-                    path,
-                    line.no,
-                    format!("no justification head in {}", repr(prefix(text, 40))),
-                ))
-            }
-        }
-    } else {
-        let method = METHODS
-            .iter()
-            .find(|m| text.starts_with(m.as_str()))
-            .copied()
-            .unwrap();
-        Head::Method(method)
-    };
-    // A malformed justification is reported by the checker, not raised here:
-    // one bad line must not cost the reader every later line in the file.
-    let Cited {
-        mut refs,
-        bad_ref,
-        target,
-    } = cited_in(text);
-    if head.is(Method::Join) {
-        for tok in text["join".len()..].split(',') {
-            let tok = str::trim(tok);
-            if full(&REF_RE, tok) {
-                refs.push(tok.to_string());
-            }
-        }
-    }
-    Ok(Justification {
-        head,
-        text: text.clone(),
-        line: line.no,
-        refs,
-        target,
-        values: Values::cut(text, path, line.no),
-        chain: Vec::new(),
-        bad_ref,
-        names: names.clone(),
-        defined: None,
-        contradicting,
-    })
+    // A malformed justification is reported by the checker, not raised here
+    // (`Justification::unproduced`): one bad line must not cost the reader
+    // every later line in the file.
+    let slots = skeleton::cut(&line.text, path, line.no, defines)?;
+    Ok(Justification::of(slots, line.no, names))
 }
 
-regex!(
-    CONTRADICTING,
-    format!(r"^(.*?),\s*contradicting\s+({})\s*$", super::REF)
-);
 regex!(STEP_RE, format!(r"^({})\.\s+(.*)$", super::NUMBER));
-// The item an obtain takes its object from.
-regex!(
-    OBTAINED_FROM,
-    format!(
-        r"^obtain\s+[^:]+:\s*({}{})",
-        super::ITEM_PREFIX,
-        super::CITED
-    )
-);
-// A requires line's justification, where it cites an item.
-regex!(
-    REQUIRES_ITEM_RE,
-    format!(r"^(thm|axi|mun|def):({})", super::CITED)
-);
-
-/// A requires line's citation of an item: the whole `mun:x`, and the kind
-/// its prefix says.
-pub fn requires_item(how: &str) -> Option<(String, ItemKind)> {
-    let m = REQUIRES_ITEM_RE.captures(how)?;
-    let kind = ItemKind::from_prefix(&m[1])?;
-    Some((m[0].to_string(), kind))
-}
-
-/// The item a step's justification cites, as `thm:x` or another prefix.
-///
-/// Either the head is the item, or the step obtains from one: `obtain c:
-/// axi:completeness S := S, from 5, 2, 7` owes the item's hypotheses as
-/// surely as a step headed by it does.
-pub fn cited_item(just: &Justification) -> Option<String> {
-    if just.head.is_item() {
-        return Some(just.head.to_string());
-    }
-    if just.head.is(Method::Obtain) {
-        return OBTAINED_FROM.captures(&just.text).map(|m| m[1].to_string());
-    }
-    None
-}
-
 /// Every item a theorem's steps cite, by full name, with its line.
 pub fn cited_items(thm: &Theorem) -> Vec<(String, usize)> {
     let mut out = Vec::new();
     for step in &thm.steps {
         let just = &step.just;
-        if let Some(item) = cited_item(just) {
+        if let Some(item) = just.cited_item() {
             out.push((just.item(&item), just.line));
         }
         if let Some(target) = &just.target {
-            if item_prefix(target).is_some() {
+            if item_kind(target).is_some() {
                 out.push((just.item(target), just.line));
             }
         }
         for req in &step.requires {
-            if let Some((cited, _)) = requires_item(&req.how) {
+            if let Some((cited, _)) = req.cited_item() {
                 out.push((just.item(&cited), req.line));
             }
         }
     }
     // A let's reason is written as a requires line's is.
     for reason in thm.defines.iter().filter_map(|d| d.reason.as_ref()) {
-        if let Some((cited, _)) = requires_item(&reason.how) {
+        if let Some((cited, _)) = reason.cited_item() {
             out.push((thm.names.full(&cited), reason.line));
         }
     }
@@ -1307,142 +1208,6 @@ pub fn chain_cited(text: &str) -> Option<String> {
     (&m[1] != "arithmetic").then(|| m[1].to_string())
 }
 
-regex!(
-    SUBSTITUTED,
-    r"^substitute\s+(.*?)\s*\(([^()]*)\)(?:\s+into\s+\S.*?)?\s*$"
-);
-
-/// The equation a `substitute` justification writes before the line it
-/// takes it from: `substitute x = 2 (line 3)` writes `x = 2`.
-pub fn substituted(just: &Justification, path: &str) -> Option<Written> {
-    let m = SUBSTITUTED.captures(str::trim(&just.text))?;
-    Some(Written::new(str::trim(&m[1]), path, just.line))
-}
-
-/// The line or label a `substitute` justification takes its equation from:
-/// `substitute x = 2 (line 3)` takes it from 3, and `(H4)` from H4.
-pub fn substitution_source(just: &Justification) -> Option<String> {
-    let m = SUBSTITUTED.captures(str::trim(&just.text))?;
-    m[2].split_whitespace().last().map(String::from)
-}
-
-fn inst() -> String {
-    r"(?:[^\s,]+\s*:=\s*.+?)(?:,\s*[^\s,]+\s*:=\s*.+?)*".to_string()
-}
-
-fn from() -> String {
-    format!(r"from\s+{}(?:\s*,\s*{})*", super::REF, super::REF)
-}
-
-fn productions() -> Vec<regex::Regex> {
-    use super::{CITED as cited, ITEM_PREFIX, LABEL, NUMBER, REF};
-    let (inst, from) = (inst(), from());
-    [
-        format!(r"^{ITEM_PREFIX}{cited}(?:\s+{inst})?(?:,\s*{from})?$"),
-        format!(r"^obtain\s+\S+(?:\s*,\s*\S+)*:\s*{ITEM_PREFIX}{cited}(?:\s+{inst})?(?:,\s*{from})?$"),
-        format!(r"^obtain\s+\S+(?:\s*,\s*\S+)*\s+from\s+(?:line\s+{NUMBER}|{LABEL})$"),
-        format!(r"^exhibit,\s*{from}$"),
-        format!(r"^substitute\s+.+?\s*\((?:line\s+{NUMBER}|{LABEL}|arithmetic)\)(?:\s+into\s+(?:line\s+{NUMBER}|{LABEL}))?$"),
-        format!(r"^instantiate\s+{inst}\s+in\s+(?:line\s+{NUMBER}|{LABEL})(?:,\s*{from})?$"),
-        format!(r"^algebra(?:,\s*{from})?$"),
-        r"^arithmetic$".to_string(),
-        format!(r"^inequalities(?:,\s*{from})?$"),
-        format!(r"^membership(?:,\s*{from})?$"),
-        format!(r"^inspection(?:,\s*{from})?$"),
-        format!(r"^join\s+{REF}(?:\s*,\s*{REF})*$"),
-        r"^contradiction$".to_string(),
-        r"^proof$".to_string(),
-        r"^induction\s+on\s+\S+\s+starting\s+at\s+\S+$".to_string(),
-        format!(r"^cases,\s*{from}$"),
-        r"^both directions$".to_string(),
-        r"^calculation$".to_string(),
-        format!(r"^{LABEL}(?:,\s*{from})?$"),
-    ]
-    .iter()
-    .map(|p| regex::Regex::new(p).unwrap())
-    .collect()
-}
-
-static PRODUCTIONS: std::sync::LazyLock<Vec<regex::Regex>> =
-    std::sync::LazyLock::new(productions);
-
-regex!(SOURCE_IN_BRACKETS, r"\((?:line\s+[0-9]|arithmetic\))");
-regex!(
-    BARE_NUMBER_TARGET,
-    format!(r"\b(in|into)\s+({})\s*(?:,|$)", super::NUMBER)
-);
-// An obtain that names no item takes one line, `from line N` (GRAMMAR.md);
-// a bare number after `from` is right only in a citation's list.
-regex!(
-    OBTAIN_BARE_NUMBER,
-    format!(
-        r"^obtain\s+\S+(?:\s*,\s*\S+)*\s+from\s+({})\s*$",
-        super::NUMBER
-    )
-);
-regex!(
-    LINE_BEFORE_LABEL,
-    format!(r"\b(in|into)\s+line\s+({})\s*(?:,|$)", super::LABEL)
-);
-// The same slip in a substitute's source, `(line C4)` for `(C4)`.
-regex!(
-    LINE_BEFORE_SOURCE_LABEL,
-    format!(r"\(line\s+({})\)", super::LABEL)
-);
-
-/// Why a justification matches none of `GRAMMAR.md`'s productions, or None
-/// where it matches one. Both tools read a justification only once it
-/// matches, so each refuses the same text in the same words.
-pub fn unproduced(just: &Justification) -> Option<String> {
-    // A substitute takes one equation from one source: a second `(line N)`
-    // would be read as part of the equation, which no formula writes.
-    let sources = SOURCE_IN_BRACKETS.find_iter(&just.text).count();
-    let two_sources = just.head.is(Method::Substitute) && sources > 1;
-    if !two_sources && PRODUCTIONS.iter().any(|p| p.is_match(&just.text)) {
-        return None;
-    }
-    let text = repr(prefix(&just.text, 64));
-    // The word "line" is the slip most often made, either way round
-    // (SYNTAX.md: a number after a verb carries it, a label never does).
-    if let Some(m) = BARE_NUMBER_TARGET.captures(&just.text) {
-        return Some(format!(
-            "justification matches no production in GRAMMAR.md: {text}; a line number after `{}` carries the word \"line\": `{} line {}`",
-            &m[1], &m[1], &m[2]
-        ));
-    }
-    if let Some(m) = OBTAIN_BARE_NUMBER.captures(just.text.trim()) {
-        return Some(format!(
-            "justification matches no production in GRAMMAR.md: {text}; an obtain naming no item takes its line with the word \"line\": `from line {}`",
-            &m[1]
-        ));
-    }
-    if let Some(m) = LINE_BEFORE_LABEL.captures(&just.text) {
-        return Some(format!(
-            "justification matches no production in GRAMMAR.md: {text}; a label never carries the word \"line\": `{} {}`",
-            &m[1], &m[2]
-        ));
-    }
-    if let Some(m) = LINE_BEFORE_SOURCE_LABEL.captures(&just.text) {
-        return Some(format!(
-            "justification matches no production in GRAMMAR.md: {text}; a label never carries the word \"line\": `({})`",
-            &m[1]
-        ));
-    }
-    Some(format!(
-        "justification matches no production in GRAMMAR.md: {text}"
-    ))
-}
-
-regex!(SUBSTITUTED_INTO, r"\)\s+into\s+(\S.*?)\s*$");
-
-/// The line a `substitute` puts its equation into, the last word of its
-/// `into …`: `substitute x = 2 (line 3) into line 4` names 4. None where
-/// the claim is the equation's own `t = t′`.
-pub fn substituted_into(just: &Justification) -> Option<String> {
-    let m = SUBSTITUTED_INTO.captures(str::trim(&just.text))?;
-    m[1].split_whitespace().last().map(String::from)
-}
-
 /// The relations a chain line joins by (`GRAMMAR.md`, calculation chains).
 pub const CHAIN_RELATIONS: [&str; 6] = ["=", "≤", "<", "≥", ">", "≡"];
 
@@ -1466,6 +1231,12 @@ pub struct ChainLine {
 }
 
 impl ChainLine {
+    /// The line or label the link cites; None where it names `arithmetic`
+    /// and cites nothing.
+    pub fn cited(&self) -> Option<&str> {
+        skeleton::is_ref(&self.cite).then_some(self.cite.as_str())
+    }
+
     /// The link as the page writes it, from the term `from` before it, for
     /// a message to quote: `1 = 1(1 + 1)/3`. It is never read.
     pub fn quoted(&self, from: &Written) -> String {
@@ -1646,16 +1417,15 @@ fn label_at_end(text: &str) -> Option<String> {
 /// with no requires lines of its own. A reason that is a method or an item
 /// is proved this way, so a requires line and a step are one thing to the
 /// elaborator (`ELABORATION.md`, R2).
-pub fn requires_as_step(step: &Step, req: &Requires, path: &str) -> Checked<Step> {
-    let line = Line {
-        no: req.line,
-        text: req.how.clone(),
-        indent: 0,
-    };
-    let just = parse_justification(path, &line, &[], &step.just.names)?;
-    Ok(Step {
+pub fn requires_as_step(step: &Step, req: &Requires) -> Checked<Step> {
+    Ok(reason_as_step(step, req, req.by()?))
+}
+
+/// `requires_as_step`, with the reason `by` the line was cut into.
+pub fn reason_as_step(step: &Step, req: &Requires, by: &Justification) -> Step {
+    Step {
         claim: req.fact.clone(),
-        just,
+        just: by.clone(),
         requires: Vec::new(),
         parts: Vec::new(),
         openers: Vec::new(),
@@ -1664,7 +1434,7 @@ pub fn requires_as_step(step: &Step, req: &Requires, path: &str) -> Checked<Step
         part_notes: IndexMap::new(),
         impossible: false,
         ..step.clone()
-    })
+    }
 }
 
 // `2 ≤ 1, which is impossible`: the claim, and the mark after it.
@@ -1694,20 +1464,9 @@ fn misnumbered(text: &str) -> Option<String> {
     ))
 }
 
+/// What a step holds until its justification line is read.
 fn placeholder_justification() -> Justification {
-    Justification {
-        head: Head::Define,
-        text: String::new(),
-        line: 0,
-        refs: Vec::new(),
-        target: None,
-        values: Values::default(),
-        chain: Vec::new(),
-        bad_ref: None,
-        names: Arc::default(),
-        defined: None,
-        contradicting: None,
-    }
+    Justification::of(Slots::new(Head::Define, ""), 0, &Arc::default())
 }
 
 /// The theorems of a proof file, and what the file holds outside them.
@@ -1945,10 +1704,15 @@ pub fn parse_proof(
                     ),
                 ));
             }
+            let names = thm
+                .as_ref()
+                .map(|d| d.thm.names.clone())
+                .unwrap_or_default();
             let reason = Reason {
-                how: t.clone(),
+                how: str::trim(&t).to_string(),
                 line: line.no,
-                values: Values::cut(&t, path, line.no),
+                by: cut_reason(&t, path, line.no)
+                    .map(|slots| Justification::of(slots, line.no, &names)),
             };
             if let Some(draft) = thm.as_mut() {
                 for written in draft.thm.defines.iter_mut().filter(|x| x.line == d.line)
@@ -2370,11 +2134,13 @@ pub fn parse_proof(
                     "requires line has no justification",
                 ));
             };
+            let by = cut_reason(how, path, line.no)
+                .map(|slots| Justification::of(slots, line.no, &draft.thm.names));
             draft.steps[at].step.requires.push(Requires {
                 fact: Written::new(str::trim(fact), path, line.no),
                 how: str::trim(how).to_string(),
                 line: line.no,
-                values: Values::cut(str::trim(how), path, line.no),
+                by,
             });
             continue;
         }
@@ -2391,7 +2157,7 @@ pub fn parse_proof(
                         defines.push(label.clone());
                     }
                 }
-                if starts_with_head(&t) || cites_define(&t, &defines).is_some() {
+                if is_justification(&t, &defines) {
                     draft.steps[at].step.just =
                         parse_justification(path, &line, &defines, &draft.thm.names)?;
                     draft.steps[at].has_just = true;

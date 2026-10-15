@@ -16,8 +16,8 @@ use std::collections::BTreeSet;
 use super::linear;
 use super::state::{number_of, Elaborator};
 use super::Facts;
-use crate::corpus::proof::{cited_item, references, requires_item, Requires};
-use crate::corpus::{item_prefix, Item, Step};
+use crate::corpus::proof::Requires;
+use crate::corpus::{Head, Item, Step};
 use crate::formula::Node;
 use crate::mm::spell::Proof;
 use crate::outcome::{Built, Checked, Declined, Route};
@@ -66,13 +66,6 @@ fn not_above(step: &Step, req: &Requires) -> BTreeSet<String> {
 pub fn rests_on_only(proof: &Proof, item: &str) -> bool {
     proof.origin.len() == 1
         && proof.origin.iter().next().map(String::as_str) == Some(item)
-}
-
-/// The references a justification names, for a reader outside its file:
-/// its `from` list, and an instantiate's `in` line and a substitute's
-/// lines, as a step's are read (`corpus::proof::cited_in`).
-pub fn citations(text: &str) -> Vec<String> {
-    crate::corpus::proof::cited_in(text).refs
 }
 
 /// The lemmas an item's `target` names, one per `then` group; none for a
@@ -204,7 +197,7 @@ impl<'a> Elaborator<'a> {
         number: &str,
         proof: &Proof,
     ) -> Checked<()> {
-        if cited_item(&step.just).is_some() {
+        if step.just.cited_item().is_some() {
             return Ok(());
         }
         let mut used: BTreeSet<String> = proof.origin.clone();
@@ -313,7 +306,7 @@ impl<'a> Elaborator<'a> {
             // citing it.
             let mut asked = false;
             for o in step.requires.iter().filter(|o| o.line > r.line) {
-                if requires_item(&o.how).is_none() {
+                if o.cited_item().is_none() {
                     continue;
                 }
                 let asks = self.names_kept(|me| me.asked_by_requires(step, o))?;
@@ -352,7 +345,7 @@ impl<'a> Elaborator<'a> {
         // requires line's method combines, its own reason may say is a
         // number.
         let mut cited: BTreeSet<String> = BTreeSet::new();
-        let from_requires = step.requires.iter().flat_map(|r| references(&r.how).0);
+        let from_requires = step.requires.iter().flat_map(|r| r.lines().to_vec());
         for r in step.just.refs.iter().cloned().chain(from_requires) {
             if let Some(line) = self.lines.get(&r) {
                 cited.extend(self.parts(&line.term));
@@ -369,7 +362,7 @@ impl<'a> Elaborator<'a> {
         // whether or not the step cites it.
         let kept = self.resting.clone();
         if let Some(allowed) = &mut self.resting {
-            allowed.extend(step.requires.iter().flat_map(|r| references(&r.how).0));
+            allowed.extend(step.requires.iter().flat_map(|r| r.lines().to_vec()));
         }
         let unsaid = atoms.iter().find(|atom| {
             if self.said_once(atom) {
@@ -431,7 +424,7 @@ impl<'a> Elaborator<'a> {
         out.extend(step.requires.iter().map(|r| requirement(r.line)));
         // A theorem of this file stated over the file's defines is read with
         // them, and the step rests on them through it (`sorts::stated_over`).
-        if let Some(cited) = cited_item(&step.just) {
+        if let Some(cited) = step.just.cited_item() {
             let full = self.thm.names.full(&cited);
             out.extend(crate::sorts::stated_over(self.thm, self.scopes, &full));
         }
@@ -516,27 +509,21 @@ impl<'a> Elaborator<'a> {
         &mut self,
         made: Proof,
         step: &Step,
-        how: &str,
-        line: usize,
+        req: &Requires,
     ) -> Checked<Proof> {
-        let allowed = self.reason_allows(step, how, line);
-        self.rests_on_named(&made, &allowed, line, "the requires line")?;
-        Ok(self.seal(made, &requirement(line)))
+        let allowed = self.reason_allows(step, req);
+        self.rests_on_named(&made, &allowed, req.line, "the requires line")?;
+        Ok(self.seal(made, &requirement(req.line)))
     }
 
-    /// What the requires line on `line`, with this reason, may rest on (R2):
-    /// what it cites, the sorts, and the requires lines above it; and itself,
-    /// as a line already proved and found again is sealed with its own name.
-    pub fn reason_allows(
-        &self,
-        step: &Step,
-        how: &str,
-        line: usize,
-    ) -> BTreeSet<String> {
-        let mut out: BTreeSet<String> = citations(how).into_iter().collect();
+    /// What the requires line `req` may rest on (R2): what its reason
+    /// cites, the sorts, and the requires lines above it; and itself, as a
+    /// line already proved and found again is sealed with its own name.
+    pub fn reason_allows(&self, step: &Step, req: &Requires) -> BTreeSet<String> {
+        let mut out: BTreeSet<String> = req.refs().iter().cloned().collect();
         out.extend(self.sorts.iter().cloned());
-        out.extend(step.requires_above(line).map(|r| requirement(r.line)));
-        out.insert(requirement(line));
+        out.extend(step.requires_above(req.line).map(|r| requirement(r.line)));
+        out.insert(requirement(req.line));
         out
     }
 
@@ -706,7 +693,7 @@ impl<'a> Elaborator<'a> {
                 if held.origin.contains(&requirement(r.line)) {
                     continue;
                 }
-                if !self.rests_on_lines(&r.how) {
+                if !self.rests_on_lines(r) {
                     // The claim however it is spelt: each fact with its
                     // standard form is the claim. A line the reason cites
                     // that says it is still that line, as the scope carries
@@ -719,8 +706,8 @@ impl<'a> Elaborator<'a> {
             let not_above = not_above(step, r);
             let unbelow = |v: &Proof| !v.origin.iter().any(|o| not_above.contains(o));
             let given = given.filtered(|_, v| unbelow(v));
-            let resting = self.reason_allows(step, &r.how, r.line);
-            self.named_first(&citations(&r.how), &resting, &given);
+            let resting = self.reason_allows(step, r);
+            self.named_first(r.refs(), &resting, &given);
             let written = self.written.clone();
             self.written = self.written.filtered(unbelow);
             self.supplying.insert(term.clone());
@@ -728,7 +715,7 @@ impl<'a> Elaborator<'a> {
             self.supplying.shift_remove(&term);
             self.written = written;
             let made = match made? {
-                Built(p) => self.discharged_by(p, step, &r.how, r.line)?,
+                Built(p) => self.discharged_by(p, step, r)?,
                 Declined(d) => panic!(
                     "the requires line at {} declined where it is proved: {}",
                     r.line,
@@ -766,20 +753,14 @@ impl<'a> Elaborator<'a> {
     /// Whether a `requires` line's reason is the lines it cites: `from H1`
     /// is, and so is a definition the database gives no target for, which the
     /// notation folds into the line it is unfolded at.
-    pub fn rests_on_lines(&self, how: &str) -> bool {
-        let reason = str::trim(how.split(',').next().unwrap_or("")).to_string();
-        if reason.starts_with("from ") {
+    pub fn rests_on_lines(&self, req: &Requires) -> bool {
+        if req.is_lines() {
             return true;
         }
-        let name = match reason.split_once(':') {
-            Some((_, n)) => n,
-            None => "",
-        };
-        if item_prefix(&reason).is_none() || str::trim(name).is_empty() {
+        let Ok(Head::Item { cited, .. }) = req.by().map(|by| &by.head) else {
             return false;
-        }
-        let first = name.split_whitespace().next().unwrap_or("");
-        let full = self.thm.names.full(first);
+        };
+        let full = self.thm.names.full(cited);
         // A definition with no lemma, or whose lemma is `biid`, says one
         // formula two ways: its notations' targets make the sides the same,
         // so it is unfolded where a line says it.
@@ -1057,10 +1038,9 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         step: Option<&Step>,
     ) -> Checked<Route<Proof>> {
-        let how = req.how.as_str();
         let citing =
-            std::mem::replace(&mut self.citing, citations(how).into_iter().collect());
-        let allowed = step.map(|s| self.reason_allows(s, how, req.line));
+            std::mem::replace(&mut self.citing, req.refs().iter().cloned().collect());
+        let allowed = step.map(|s| self.reason_allows(s, req));
         let out = self.resting_on(allowed, |me| {
             me.by_its_reason(want, Some(req), scope, facts, step)
         });
@@ -1079,7 +1059,7 @@ impl<'a> Elaborator<'a> {
     ) -> Checked<Route<Proof>> {
         let how = req.map_or("", |r| r.how.as_str());
         let term = self.term(want)?;
-        let refs = citations(how);
+        let refs: Vec<String> = req.map_or(Vec::new(), |r| r.refs().to_vec());
         // A define gives its function on the domain it names, which is proved
         // as it is for a step citing the define.
         let whole = self.to_term(&term);
@@ -1111,12 +1091,12 @@ impl<'a> Elaborator<'a> {
         }
         // Read from the lines it cites before the scope is asked, since the
         // scope may hold the same claim for another reason.
-        if self.rests_on_lines(how) {
+        if req.is_some_and(|r| self.rests_on_lines(r)) {
             // A definition folded into the line it is unfolded at may be
             // unfolded at a requires line above this one, which the line
             // rests on as it rests on a cited one (R2). A reason that is only
             // `from` names its lines, and is read from those.
-            let above = !str::trim(how).starts_with("from ");
+            let above = !req.is_some_and(Requires::is_lines);
             return match self.unfolded_at(&term, scope, facts, &refs, above)? {
                 // A line a `from` reason names is one it rests on, as a
                 // step's are (`does_work`): `d(n) ∈ ℤ: from H1, K6` where
@@ -1235,10 +1215,10 @@ impl<'a> Elaborator<'a> {
                 // `side` is where a line is discharged by what it names, so
                 // it is given `how` as well as the claim.
                 let named = facts.copy();
-                let resting = self.reason_allows(step, &r.how, r.line);
-                self.named_first(&citations(&r.how), &resting, &named);
+                let resting = self.reason_allows(step, r);
+                self.named_first(r.refs(), &resting, &named);
                 return match self.side(&node, r, scope, &named, Some(step))? {
-                    Built(made) => self.discharged_by(made, step, &r.how, r.line),
+                    Built(made) => self.discharged_by(made, step, r),
                     Declined(d) => Err(self.defect(
                         self.at,
                         format!(

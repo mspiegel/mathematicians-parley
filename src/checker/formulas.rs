@@ -11,10 +11,10 @@ use super::record::CheckedTheorem;
 use super::structure::{defined_below, introduced, letters_in_scope};
 use super::Report;
 use crate::citing::{link_unsaid, said_once, Library, Parts};
-use crate::corpus::proof::{chain, requires_item, ChainLine};
+use crate::corpus::proof::{chain, ChainLine};
 use crate::corpus::{
-    cited_item, define_parts, DefineParts, FileScope, Intro, Item, Justification,
-    Method, Record, RecordKind, Recursion, Requires, Step, Theorem, Value, Values,
+    define_parts, DefineParts, FileScope, Intro, Item, Justification, Method, Record,
+    RecordKind, Recursion, Requires, Step, Theorem, Value, Values,
 };
 use crate::formula::page::{disjoined, made, numeral, related, Written};
 use crate::formula::{walk, Node, Sort, Sorts};
@@ -95,13 +95,13 @@ fn cited_sorts(
     let mut cites: Vec<(String, &Values)> = Vec::new();
     match req {
         None => {
-            if let Some(item) = cited_item(&step.just) {
+            if let Some(item) = step.just.cited_item() {
                 cites.push((step.just.item(&item), &step.just.values));
             }
         }
         Some(req) => {
-            if let Some((cited, _)) = requires_item(&req.how) {
-                cites.push((step.just.item(&cited), &req.values));
+            if let Some((cited, _)) = req.cited_item() {
+                cites.push((step.just.item(&cited), req.values()));
             }
         }
     }
@@ -429,7 +429,7 @@ pub fn check_decided_words(
             asked.push((step.line, &step.claim));
         }
         for r in &step.requires {
-            if str::trim(&r.how) == "arithmetic" {
+            if r.is(Method::Arithmetic) {
                 asked.push((r.line, &r.fact));
             }
         }
@@ -976,7 +976,7 @@ fn induction_owes(owner: &Step, claim: &Node, known: &Known) -> Vec<Owed> {
     };
     // The start as the justification writes it, `starting at 0`; one that
     // does not read is the elaborator's to report.
-    let start = owner.just.starting_at().and_then(|v| {
+    let start = owner.just.start.as_deref().and_then(|v| {
         let written = Written::new(v, &known.thm.path, owner.just.line);
         known.read_as_written(&written.sentence().ok()?)
     });
@@ -1319,8 +1319,6 @@ pub fn check_closed_arithmetic(report: &mut Report, thm: &Theorem, known: &Known
     }
 }
 
-regex!(BY_COMBINING, r"^\s*(algebra|inequalities)\b");
-
 /// A claim of numerals alone is `arithmetic`'s, whatever relation it states:
 /// `algebra` and `inequalities` combine what a step says of its letters, and
 /// a claim with none gives a reader nothing to check but working it out
@@ -1369,7 +1367,10 @@ pub fn check_closed_by_arithmetic(report: &mut Report, thm: &Theorem, known: &Kn
             );
         }
         for req in &step.requires {
-            let Some(m) = BY_COMBINING.captures(&req.how) else {
+            let Some(method) = [Method::Algebra, Method::Inequalities]
+                .into_iter()
+                .find(|m| req.is(*m))
+            else {
                 continue;
             };
             if closed(&req.fact) {
@@ -1378,7 +1379,9 @@ pub fn check_closed_by_arithmetic(report: &mut Report, thm: &Theorem, known: &Kn
                     req.line,
                     format!(
                         "the requires line of step {} gives {} for {}, which has no letter in it; a fact of numerals alone is arithmetic's",
-                        step.number, &m[1], req.fact
+                        step.number,
+                        method.as_str(),
+                        req.fact
                     ),
                 );
             }

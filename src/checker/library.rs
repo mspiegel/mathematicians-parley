@@ -12,7 +12,6 @@ use crate::citing::{
     self, at_a_member, finished, introduction, said_once, with_parts, Introduced,
     Library, Parts,
 };
-use crate::corpus::proof::cited_item;
 use crate::corpus::{Intro, Kinded, Method, Step, StepNo, Theorem, Values};
 use crate::formula::page::{conjoined, filled, Sentence, Written};
 use crate::formula::{Node, Sorts};
@@ -300,7 +299,7 @@ impl<'a> Known<'a> {
     /// by name as that theorem's statement does, and reads them without
     /// citing them (`sorts::stated_over`).
     pub fn citing_step(&self, step: &Step) -> Rc<Definitions> {
-        let item = cited_item(&step.just).map(|c| step.just.item(&c));
+        let item = step.just.cited_item().map(|c| step.just.item(&c));
         self.citing_item(&step.just.refs, item.as_deref())
     }
 
@@ -529,7 +528,7 @@ fn citation_parts(step: &Step, library: &Library, known: &Known) -> Parts {
     }
     let claims: Vec<Node> = step.claim.sentences().iter().filter_map(read).collect();
     let mut seed = known.seed(&step.just.values, &defined);
-    if let Some(item) = cited_item(&step.just) {
+    if let Some(item) = step.just.cited_item() {
         listed_seed(
             &mut seed,
             &step.just.item(&item),
@@ -548,7 +547,7 @@ fn citation_parts(step: &Step, library: &Library, known: &Known) -> Parts {
         None => finished(facts, claims, seed, library, &known.sorts),
     };
     said_once(&mut parts, &introduced(known, step), library, &known.sorts);
-    if let Some(item) = cited_item(&step.just) {
+    if let Some(item) = step.just.cited_item() {
         typed_seed(&mut parts, &step.just.item(&item), step, known, library);
     }
     parts

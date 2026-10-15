@@ -7,7 +7,7 @@ use indexmap::{IndexMap, IndexSet};
 
 use super::formulas::chain_links;
 use super::library::{introduced, listed_seed, typed_in_scope, typed_seed, Known};
-use super::structure::{instantiated_line, letters_in_scope};
+use super::structure::letters_in_scope;
 use super::Report;
 use crate::citing::{
     asked, bound_in, claimed_member, concludes, conjuncts, derives, filled, finished,
@@ -15,13 +15,9 @@ use crate::citing::{
     said_once, search, substitution_unsaid, supply, taken, taken_ways,
     type_said_otherwise, with_parts, Group, Library, Parts, Sites, Taken, Ways,
 };
-use crate::corpus::proof::{
-    requires_as_step, requires_item, substituted, substituted_into,
-    substitution_source, Requires, METHODS,
-};
+use crate::corpus::proof::{reason_as_step, Requires};
 use crate::corpus::{
-    cited_item, define_parts, references, DefineParts, FileScope, Item, Method, Step,
-    Theorem,
+    define_parts, DefineParts, FileScope, Head, Item, Method, Step, Theorem,
 };
 use crate::formula::page::{self, Written};
 use crate::formula::{Node, Sort};
@@ -49,7 +45,7 @@ struct Unconcluded {
 fn unconcluded(step: &Step, known: &Known, library: &Library) -> Vec<Unconcluded> {
     let mut out = Vec::new();
     for req in &step.requires {
-        let Some((named, _)) = requires_item(&req.how) else {
+        let Some((named, _)) = req.cited_item() else {
             continue;
         };
         let Some(groups) = library.groups(&step.just.item(&named)) else {
@@ -93,10 +89,10 @@ fn requires_parts(
     library: &Library,
 ) -> Option<Parts> {
     let scope = known.scope(step);
-    let (mut refs, _bad) = references(&req.how);
+    let mut refs = req.lines().to_vec();
     refs.retain(|r| !without.contains(&r.as_str()));
     // A define is written out where the line cites it (`Known::citing`).
-    let item = requires_item(&req.how).map(|(named, _)| step.just.item(&named));
+    let item = req.cited_item().map(|(named, _)| step.just.item(&named));
     let defined = known.citing_item(&refs, item.as_deref());
     let read_all = |written: &Written| -> Vec<Node> {
         written
@@ -145,8 +141,8 @@ fn requires_parts(
             }
         }
     }
-    let mut seed = known.seed(&req.values, &defined);
-    if let Some((named, _)) = requires_item(&req.how) {
+    let mut seed = known.seed(req.values(), &defined);
+    if let Some((named, _)) = req.cited_item() {
         listed_seed(
             &mut seed,
             &step.just.item(&named),
@@ -161,7 +157,7 @@ fn requires_parts(
     // memberships the page says once among them.
     let mut parts = finished(read, claims, seed, library, &known.sorts);
     said_once(&mut parts, &introduced(known, step), library, &known.sorts);
-    if let Some((named, _)) = requires_item(&req.how) {
+    if let Some((named, _)) = req.cited_item() {
         typed_seed(&mut parts, &step.just.item(&named), step, known, library);
     }
     Some(parts)
@@ -177,7 +173,7 @@ pub fn answers(thm: &Theorem, library: &Library, known: &Known) -> Vec<String> {
     let mut out = Vec::new();
     for step in &thm.steps {
         for req in &step.requires {
-            let Some((named, _)) = requires_item(&req.how) else {
+            let Some((named, _)) = req.cited_item() else {
                 continue;
             };
             let name = step.just.item(&named);
@@ -200,7 +196,7 @@ pub fn answers(thm: &Theorem, library: &Library, known: &Known) -> Vec<String> {
         if !step.just.head.is(Method::Obtain) {
             continue;
         }
-        let Some(item) = cited_item(&step.just) else {
+        let Some(item) = step.just.cited_item() else {
             continue;
         };
         let Some(Item::Record(record)) = library.item(&step.just.item(&item)) else {
@@ -241,7 +237,7 @@ pub fn obtained_there(
     if !step.just.head.is(Method::Obtain) {
         return None;
     }
-    let name = step.just.item(&cited_item(&step.just)?);
+    let name = step.just.item(&step.just.cited_item()?);
     if library.item(&name)?.unfolds() {
         return None;
     }
@@ -279,7 +275,7 @@ pub fn bound_there(
     if step.just.head.is(Method::Obtain) {
         return None;
     }
-    let name = step.just.item(&cited_item(&step.just)?);
+    let name = step.just.item(&step.just.cited_item()?);
     if !matches!(library.item(&name)?, Item::Theorem(_)) {
         return None;
     }
@@ -296,7 +292,7 @@ pub fn bound_there(
 /// The hypotheses of the item a step cites that nothing it names supplies,
 /// or None where they are supplied or the step cites no item.
 fn unsupplied(step: &Step, known: &Known, library: &Library) -> Option<Vec<String>> {
-    let item = cited_item(&step.just)?;
+    let item = step.just.cited_item()?;
     // A pointer that resolves to nothing is `check_citations`'s.
     let groups = library.groups(&step.just.item(&item))?;
     let parts = known.parts(step, library);
@@ -446,7 +442,7 @@ fn ways_supplied(
     known: &Known,
     library: &Library,
 ) -> Option<Vec<Vec<Node>>> {
-    let item = cited_item(&step.just)?;
+    let item = step.just.cited_item()?;
     let groups = library.groups(&step.just.item(&item))?;
     let parts = known.parts(step, library);
     let mut out: Vec<Vec<Node>> = Vec::new();
@@ -555,7 +551,7 @@ pub fn check_hypotheses(
                 format!(
                     "step {} cites {}, which asks for {}, and what it cites does not supply {them}",
                     step.number,
-                    cited_item(&step.just).unwrap_or_default(),
+                    step.just.cited_item().unwrap_or_default(),
                     missing.join("; ")
                 ),
             );
@@ -780,7 +776,7 @@ pub fn check_function_types(
             .map(|f| f.name)
             .collect();
     for step in &thm.steps {
-        let Some(item) = cited_item(&step.just) else {
+        let Some(item) = step.just.cited_item() else {
             continue;
         };
         if library.groups(&step.just.item(&item)).is_none() {
@@ -830,8 +826,11 @@ pub fn check_substitutes(
         if !step.just.head.is(Method::Substitute) {
             continue;
         }
-        let equation =
-            substituted(&step.just, &thm.path).and_then(|e| known.whole_as_written(&e));
+        let equation = step
+            .just
+            .equation
+            .as_ref()
+            .and_then(|e| known.whole_as_written(e));
         let (Some(equation), Some(claim)) =
             (equation, known.whole_as_written(&step.claim))
         else {
@@ -846,7 +845,8 @@ pub fn check_substitutes(
         // equation is the name and what it names and no sentence a line
         // states, the elaborator's.
         let defined = |r: &str| thm.defines.iter().any(|d| d.label == r);
-        if let Some(source) = substitution_source(&step.just).filter(|s| !defined(s)) {
+        let source = step.just.source.as_ref().map(|s| s.named().to_string());
+        if let Some(source) = source.filter(|s| !defined(s)) {
             let scope = known.scope(step);
             if let Some(said) =
                 scope.get(&source).and_then(|s| known.stated_as_written(s))
@@ -878,7 +878,8 @@ pub fn check_substitutes(
         }
         // What the equation is put into, and what that must make: the line
         // named, or one side of the claim, which is t = t′ either way round.
-        let ways: Vec<(Vec<Node>, Node)> = match substituted_into(&step.just) {
+        let into = step.just.into.as_ref().map(|p| p.named().to_string());
+        let ways: Vec<(Vec<Node>, Node)> = match into {
             Some(into) => {
                 // A reference to nothing is `check_references`'s to report.
                 let scope = known.scope(step);
@@ -954,7 +955,7 @@ pub fn check_obtained(
 ) {
     for step in &thm.steps {
         let just = &step.just;
-        let Some(item) = cited_item(just) else {
+        let Some(item) = just.cited_item() else {
             continue;
         };
         if !just.head.is(Method::Obtain) {
@@ -1002,7 +1003,7 @@ pub fn check_obtained_claims(
             continue;
         };
         let names: Vec<&str> = names[1].split(',').map(str::trim).collect();
-        let existence = match cited_item(just) {
+        let existence = match just.cited_item() {
             None => {
                 let Some(stated) = just
                     .refs
@@ -1061,7 +1062,7 @@ pub fn check_obtained_claims(
             // A line that says no "there is" at all where one is left to
             // take has nothing to obtain; another spelling of one, a part
             // or a function, is the elaborator's to read.
-            if cited_item(just).is_none() && !body.notation.starts_with("there") {
+            if just.cited_item().is_none() && !body.notation.starts_with("there") {
                 report.say(
                     &thm.path,
                     just.line,
@@ -1222,7 +1223,6 @@ pub fn check_kinds(
             requires: vec![kinded.shown.clone()],
             ..after.clone()
         };
-        let _ = requires_read_as_step(report, thm, &under, &kinded.shown);
         for found in unconcluded(&under, known, library) {
             let said = match &found.missing {
                 Some(missing) => format!(
@@ -1340,8 +1340,8 @@ fn built_on(req: &crate::corpus::Requires, step: &Step, known: &Known) -> bool {
             // on `|S| ∈ ℕ₀` above it where line 2 says deg(x) = |S|, and so
             // does `deg(x) ∈ ℤ: membership` under `requires deg(x) = |S|`.
             let defined = known.citing_step(step);
-            let cited = references(&r.how)
-                .0
+            let cited = r
+                .lines()
                 .iter()
                 .filter_map(|c| scope.get(c))
                 .flat_map(|written| known.supplied(written, &defined))
@@ -1407,7 +1407,8 @@ impl AskedType {
 
 fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
     let just = &step.just;
-    let groups = cited_item(just)
+    let groups = just
+        .cited_item()
         .and_then(|item| library.groups(&just.item(&item)))
         .expect("a step whose item was just read");
     let parts = known.parts(step, library);
@@ -1440,7 +1441,7 @@ fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
         }
     }
     let types = library
-        .function_types(&just.item(&cited_item(just).expect("a cited item")))
+        .function_types(&just.item(&just.cited_item().expect("a cited item")))
         .iter()
         .map(|t| AskedType {
             asked: substitute_apart(t, &fixed, &library.ctx),
@@ -1824,7 +1825,7 @@ pub fn check_define_domains(
         // A requires line whose reason is a method or an item is the step it
         // would be, and cites a define as a step does.
         for req in &step.requires {
-            let Some(as_step) = requires_read_as_step(report, thm, step, req) else {
+            let Some(as_step) = requires_read_as_step(step, req) else {
                 continue;
             };
             for asked in domains_unsaid(&as_step, &functions, known, library) {
@@ -1848,33 +1849,18 @@ pub fn check_define_domains(
 /// A requires line whose reason is a method or an item, read as the step it
 /// would be (`requires_as_step`), with the requires lines above it as its
 /// own, since it rests on them (`ELABORATION.md`, R2); None for a reason
-/// that is only `from`, which is read from the lines it names. A reason that
-/// does not read is reported.
-fn requires_read_as_step(
-    report: &mut Report,
-    thm: &Theorem,
-    step: &Step,
-    req: &Requires,
-) -> Option<Step> {
-    let how = str::trim(&req.how);
-    let method = METHODS.iter().any(|m| {
-        how == m.as_str()
-            || how.starts_with(&format!("{} ", m.as_str()))
-            || how.starts_with(&format!("{},", m.as_str()))
-    });
-    if requires_item(how).is_none() && !method {
+/// that is only `from`, which is read from the lines it names, and for one
+/// the skeleton reader could not cut, which `check_reason` reports.
+fn requires_read_as_step(step: &Step, req: &Requires) -> Option<Step> {
+    let Ok(by) = &req.by else {
+        return None;
+    };
+    if !matches!(by.head, Head::Method(_) | Head::Item { .. }) {
         return None;
     }
-    match requires_as_step(step, req, &thm.path) {
-        Ok(mut as_step) => {
-            as_step.requires = step.requires_above(req.line).cloned().collect();
-            Some(as_step)
-        }
-        Err(problem) => {
-            report.problems.push(problem);
-            None
-        }
-    }
+    let mut as_step = reason_as_step(step, req, by);
+    as_step.requires = step.requires_above(req.line).cloned().collect();
+    Some(as_step)
 }
 
 /// What a step citing a define, itself or on a calculation line, needs of
@@ -1888,9 +1874,12 @@ fn domains_unsaid(
 ) -> Vec<Applied> {
     let links = chain_links(&step.just, &known.thm.path);
     let mut cited: BTreeSet<String> = step.just.refs.iter().cloned().collect();
-    for link in &links {
-        cited.extend(references(&link.line.cite).0);
-    }
+    cited.extend(
+        links
+            .iter()
+            .filter_map(|l| l.line.cited())
+            .map(String::from),
+    );
     let used: Vec<Defined> = functions
         .iter()
         .filter(|f| cited.contains(&f.label))
@@ -1903,7 +1892,8 @@ fn domains_unsaid(
     let mut facts = parts.facts.clone();
     let from_links: Vec<String> = links
         .iter()
-        .flat_map(|l| references(&l.line.cite).0)
+        .filter_map(|l| l.line.cited())
+        .map(String::from)
         .collect();
     let refs: Vec<&str> = from_links.iter().map(String::as_str).collect();
     facts.extend(known.lines_say(step, &refs, library));
@@ -2140,7 +2130,7 @@ pub fn check_instantiated(
         if !step.just.head.is(Method::Instantiate) {
             continue;
         }
-        let Some(target) = instantiated_line(&step.just.text) else {
+        let Some(target) = step.just.target.clone() else {
             continue;
         };
         let Some(line) = known.scope(step).get(&target).cloned() else {
@@ -2412,7 +2402,7 @@ pub fn check_from_lines(
             if !read_off(&[]) {
                 continue;
             }
-            let (refs, _bad) = references(&req.how);
+            let refs = req.lines();
             let spare: Vec<&str> = refs
                 .iter()
                 .map(String::as_str)
@@ -2523,7 +2513,7 @@ fn needed_below(
         return true;
     }
     step.requires[i + 1..].iter().any(|o| {
-        let Some((named, _)) = requires_item(&o.how) else {
+        let Some((named, _)) = o.cited_item() else {
             return false;
         };
         let Some(parts) = requires_parts(step, o, &[], known, library) else {
@@ -2572,7 +2562,7 @@ pub fn check_surplus(
         // the step names: a definition read either way takes the other side
         // from a cited line, which asks for it as surely as a hypothesis
         // does.
-        let item = cited_item(&step.just).unwrap_or_default();
+        let item = step.just.cited_item().unwrap_or_default();
         let Some(groups) = library.groups(&step.just.item(&item)) else {
             return false;
         };
@@ -2590,12 +2580,11 @@ pub fn check_surplus(
         // step's citation does: a line cited only for a membership said once
         // is cited for nothing there too.
         for req in &step.requires {
-            let Some((named, _)) = requires_item(&req.how) else {
+            // A reason citing an item is one the reader cut.
+            let (Some((named, _)), Ok(by)) = (req.cited_item(), &req.by) else {
                 continue;
             };
-            let Ok(as_step) = requires_as_step(step, req, &thm.path) else {
-                continue;
-            };
+            let as_step = reason_as_step(step, req, by);
             if library.groups(&as_step.just.item(&named)).is_none() || !holds(&as_step)
             {
                 continue;
@@ -2631,7 +2620,7 @@ pub fn check_surplus(
             }
         }
         let just = &step.just;
-        let Some(item) = cited_item(just) else {
+        let Some(item) = just.cited_item() else {
             continue;
         };
         if library.groups(&just.item(&item)).is_none() || !holds(step) {

@@ -15,8 +15,7 @@ use std::rc::Rc;
 use indexmap::IndexSet;
 use parley::checker::{statements_in_scope, BoundThere, ObtainedThere};
 use parley::corpus::proof::{
-    chain, chain_cited, parse_proof, references, substituted, Head, Intro, Method,
-    Theorem,
+    chain, chain_cited, parse_proof, Head, Intro, Method, Theorem,
 };
 use parley::corpus::{define_parts, Corpus, DefineParts, Values};
 use parley::formula::grammar::{Grammar, Sorts};
@@ -146,13 +145,13 @@ fn reasons(thm: &Theorem) -> Vec<Reasoned<'_>> {
         });
         out.extend(step.requires.iter().map(|r| Reasoned {
             text: &r.how,
-            values: &r.values,
+            values: r.values(),
         }));
     }
     out.extend(thm.defines.iter().filter_map(|d| {
         d.reason.as_ref().map(|r| Reasoned {
             text: &r.how,
-            values: &r.values,
+            values: r.values(),
         })
     }));
     out
@@ -1636,7 +1635,7 @@ fn citations_of(thm: &Theorem, lines: &[String], end: usize) -> Vec<Citation> {
             at.extend(continued(lines, l, end));
             out.push(Citation {
                 lines: at,
-                values: r.values.clone(),
+                values: r.values().clone(),
                 step: None,
             });
         }
@@ -2172,7 +2171,7 @@ fn naming_follows(
         if step
             .requires
             .iter()
-            .any(|r| references(&r.how).0.iter().any(|c| says_part(c)))
+            .any(|r| r.lines().iter().any(|c| says_part(c)))
         {
             return None;
         }
@@ -2185,10 +2184,10 @@ fn naming_follows(
                     return None;
                 }
                 let last = *citation.last().unwrap();
-                let from = re(r"\bfrom\b").is_match(&step.just.text);
+                let from = !step.just.from.is_empty();
                 cite.push((last, from));
             }
-            Head::Define => return None,
+            Head::Define | Head::Lines => return None,
             Head::Method(m) => match m {
                 Method::Proof
                 | Method::Contradiction
@@ -2431,7 +2430,7 @@ fn requires_raised_in(
             || step.just.target.is_some()
             || step.just.contradicting.is_some()
             || !step.just.chain.is_empty()
-            || parley::corpus::proof::requires_item(&req.how).is_none()
+            || req.cited_item().is_none()
             || req.fact.text().contains(". ")
             || !single(step.just.line)
             || !single(req.line)
@@ -2453,7 +2452,7 @@ fn requires_raised_in(
         let changed = moved_down(thm, lines, end, step);
         // The step cites the new one, and its requires line goes.
         let reason = step.just.line - 1;
-        let cites = if references(&step.just.text).0.is_empty() {
+        let cites = if step.just.from.is_empty() {
             format!("{}, from {raised}", lines[reason].trim_end())
         } else {
             format!("{}, {raised}", lines[reason].trim_end())
@@ -2702,7 +2701,7 @@ fn dull_step_moved(
         let head_ok = match &step.just.head {
             Head::Item { .. } => true,
             Head::Method(m) => REQUIRES_METHODS.contains(m),
-            Head::Define => false,
+            Head::Define | Head::Lines => false,
         };
         let mut next = step.number.0.clone();
         *next.last_mut()? += 1;
@@ -2740,7 +2739,7 @@ fn dull_step_moved(
             otherwise |= other.just.refs.contains(&no)
                 || other.just.contradicting.as_deref() == Some(no.as_str());
             for (k, r) in other.requires.iter().enumerate() {
-                if references(&r.how).0.contains(&no) {
+                if r.lines().contains(&no) {
                     citers.push((s, k));
                 }
             }
@@ -3091,7 +3090,7 @@ fn formulas_written(
     for r in &step.requires {
         written.push(r.fact.clone());
     }
-    written.extend(substituted(&step.just, path));
+    written.extend(step.just.equation.clone());
     if let Some(read) = chain(&step.just, path) {
         let read =
             read.map_err(|p| format!("step {}'s chain: {}", step.number, p.message))?;
@@ -3227,8 +3226,8 @@ fn lemma_of(
         block_trees.extend(read_all(ctx, sorts, w)?);
     }
     for s in &inner {
-        let values =
-            std::iter::once(&s.just.values).chain(s.requires.iter().map(|r| &r.values));
+        let values = std::iter::once(&s.just.values)
+            .chain(s.requires.iter().map(|r| r.values()));
         for v in values {
             let read = v.read(&ctx.g, sorts).map_err(|p| {
                 format!("step {}'s values do not read: {}", s.number, p.message)
@@ -3253,7 +3252,7 @@ fn lemma_of(
         let mut refs = s.just.refs.clone();
         refs.extend(s.just.contradicting.clone());
         for r in &s.requires {
-            refs.extend(references(&r.how).0);
+            refs.extend(r.lines().iter().cloned());
         }
         for r in refs {
             if r != "arithmetic" && !internal.contains(&r) && !outside.contains(&r) {
@@ -3665,8 +3664,7 @@ pub fn obtains_claimed(ctx: &Context, path: &str, text: &str) -> Rewritten {
         for (i, thm) in thms.iter().enumerate() {
             let end = thms.get(i + 1).map_or(lines.len(), |n| n.line - 1);
             for step in &thm.steps {
-                if step.just.head.is(Method::Obtain)
-                    && parley::corpus::proof::cited_item(&step.just).is_some()
+                if step.just.head.is(Method::Obtain) && step.just.cited_item().is_some()
                 {
                     obtains.push((thm, end, step));
                 }
@@ -4151,7 +4149,7 @@ fn citations_counted(thm: &Theorem) -> BTreeMap<String, usize> {
     for step in &thm.steps {
         step.just.refs.iter().for_each(|r| add(r));
         for r in &step.requires {
-            references(&r.how).0.iter().for_each(|r| add(r));
+            r.lines().iter().for_each(|r| add(r));
         }
         for (text, _) in &step.just.chain {
             if let Some(r) = chain_cited(text) {
@@ -4160,7 +4158,7 @@ fn citations_counted(thm: &Theorem) -> BTreeMap<String, usize> {
         }
     }
     for reason in thm.defines.iter().filter_map(|d| d.reason.as_ref()) {
-        references(&reason.how).0.iter().for_each(|r| add(r));
+        reason.lines().iter().for_each(|r| add(r));
     }
     out
 }
@@ -4349,7 +4347,7 @@ pub fn steps_as_requires(ctx: &Context, path: &str, text: &str) -> Rewritten {
     // An item whose hypotheses its requires lines state: not a definition,
     // which unfolds the line a step cites rather than asking it.
     let asks = |just: &parley::corpus::proof::Justification| {
-        parley::corpus::proof::cited_item(just).is_some_and(|cited| {
+        just.cited_item().is_some_and(|cited| {
             let full = just.item(&cited);
             !ctx.corpus
                 .records

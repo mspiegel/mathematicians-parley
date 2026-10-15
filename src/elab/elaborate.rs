@@ -37,12 +37,10 @@ use super::{Facts, Line, Lines};
 use crate::binds;
 use crate::checker::record::CheckedTheorem;
 use crate::citing::{self, asked, claimed_member, filled, finished, obtained, Parts};
-use crate::corpus::proof::{
-    chain, requires_as_step, requires_item, ChainLine, Requires,
-};
+use crate::corpus::proof::{chain, requires_as_step, ChainLine, Requires};
 use crate::corpus::{
-    cited_item, define_parts, fmt, item_prefix, references, Corpus, DefineParts,
-    Hypothesis, Intro, Item, Record, Step, Theorem, Value, Values,
+    define_parts, fmt, Corpus, DefineParts, Hypothesis, Intro, Item, Record, Step,
+    Theorem, Value, Values,
 };
 use crate::formula::page::{conjoined, related, Written};
 use crate::formula::{Grammar, Node};
@@ -1013,7 +1011,7 @@ impl<'a> Elaborator<'a> {
         scope: &str,
         facts: &Facts,
     ) -> Checked<Route<Proof>> {
-        let mut at = requires_as_step(step, req, &self.thm.path)?;
+        let mut at = requires_as_step(step, req)?;
         let lines = self.lines.copy();
         let labels = self.b.flabel.clone();
         for o in step.requires_above(req.line) {
@@ -1101,7 +1099,7 @@ impl<'a> Elaborator<'a> {
             .then(|| Method::Named(head.clone()));
         // Whether a step unfolds what it cites is read from the record: a
         // mundane definition is cited `mun:` and is unfolded all the same.
-        let cited = match item_prefix(&head) {
+        let cited = match crate::corpus::item_kind(&head) {
             Some(_) => Some(self.item_cited(&head)?),
             None => None,
         };
@@ -1602,7 +1600,7 @@ impl<'a> Elaborator<'a> {
         let Some(groups) = library.groups(&item.qualified()) else {
             return Ok(());
         };
-        let refs = super::provenance::citations(&req.how);
+        let refs = req.refs().to_vec();
         let mut facts = self.cited_sentences(&refs)?;
         for o in step.requires_above(req.line) {
             facts.push(self.read_one(&o.fact)?);
@@ -1616,12 +1614,12 @@ impl<'a> Elaborator<'a> {
                 }
             }
         }
-        let as_step = requires_as_step(step, req, &self.thm.path)?;
+        let as_step = requires_as_step(step, req)?;
         let claims = vec![self.read_one(&req.fact)?];
         let parts = self.citation_parts(
             facts,
             claims,
-            &req.values,
+            req.values(),
             &refs,
             &library,
             &item.qualified(),
@@ -1706,7 +1704,7 @@ impl<'a> Elaborator<'a> {
         step: &Step,
         o: &Requires,
     ) -> Checked<Route<AskedHere<'a>>> {
-        let Some((cited, _)) = requires_item(&o.how) else {
+        let Some((cited, _)) = o.cited_item() else {
             return Ok(Route::no("the line cites no item"));
         };
         let name = cited.split_once(':').map_or(cited.as_str(), |(_, n)| n);
@@ -1715,7 +1713,7 @@ impl<'a> Elaborator<'a> {
             return Ok(Route::no("the line cites no record"));
         };
         let library = self.item_library();
-        let refs = references(&o.how).0;
+        let refs = o.lines().to_vec();
         let mut facts = self.cited_sentences(&refs)?;
         for above in step.requires_above(o.line) {
             facts.push(self.read_one(&above.fact)?);
@@ -1738,7 +1736,7 @@ impl<'a> Elaborator<'a> {
         let parts = self.citation_parts(
             facts,
             claims,
-            &o.values,
+            o.values(),
             &refs,
             &library,
             &item.qualified(),
@@ -2212,9 +2210,9 @@ impl<'a> Elaborator<'a> {
         // The line named, or one side of the claim, which is t = t′ either
         // way round, as the checker reads it.
         let ways: Vec<(Vec<Node>, Node)> =
-            match crate::corpus::proof::substituted_into(&step.just) {
+            match step.just.into.as_ref().map(|p| p.named()) {
                 Some(into) => {
-                    let Some(line) = lines.get(&into) else {
+                    let Some(line) = lines.get(into) else {
                         return Ok(());
                     };
                     let Some(whole) = conjoined(self.g, line.sentences.clone()) else {
@@ -2812,7 +2810,7 @@ impl<'a> Elaborator<'a> {
     /// cites no record, or no clause of it concludes the claim.
     fn sides_here(&mut self, step: &Step) -> Checked<Vec<String>> {
         // The item a step cites, or the one an obtain obtains through.
-        let Some(cited) = cited_item(&step.just) else {
+        let Some(cited) = step.just.cited_item() else {
             return Ok(Vec::new());
         };
         let name = self.thm.names.full(&cited);

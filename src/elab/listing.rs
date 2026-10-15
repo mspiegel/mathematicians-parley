@@ -17,7 +17,6 @@
 use std::collections::BTreeSet;
 
 use crate::citing::implied_facts;
-use crate::corpus::proof::requires_item;
 use crate::corpus::{Item, Step};
 use crate::formula::page::Sentence;
 use crate::outcome::{Built, Checked, Declined};
@@ -43,7 +42,7 @@ impl Elaborator<'_> {
         };
         let mut out = Vec::new();
         for o in &step.requires {
-            let Some((named, _)) = requires_item(&o.how) else {
+            let Some((named, _)) = o.cited_item() else {
                 continue;
             };
             let name = named.split_once(':').map_or(named.as_str(), |(_, n)| n);

@@ -15,7 +15,7 @@
 
 use std::collections::BTreeSet;
 
-use crate::corpus::proof::{chain, substituted, visible};
+use crate::corpus::proof::{chain, visible};
 use crate::corpus::{
     define_parts, DefineLine, DefineParts, FileScope, Intro, Record, ScopeId, Theorem,
 };
@@ -225,14 +225,18 @@ pub fn unlabel(text: &str) -> String {
 /// which names it writes, asks these, and never its words.
 pub fn theorem_tokens(thm: &Theorem, g: &Grammar) -> Vec<Vec<Token>> {
     let mut out = written_tokens(&written_formulas(thm), g);
+    // A reason the skeleton reader could not cut gives no values; the
+    // checker reports it (`check_reason`).
     for d in &thm.defines {
-        if let Some(reason) = &d.reason {
-            out.extend(reason.values.tokens(g));
+        if let Some(Ok(by)) = d.reason.as_ref().map(|r| &r.by) {
+            out.extend(by.values.tokens(g));
         }
     }
     for step in &thm.steps {
         for r in &step.requires {
-            out.extend(r.values.tokens(g));
+            if let Ok(by) = &r.by {
+                out.extend(by.values.tokens(g));
+            }
         }
         out.extend(step.just.values.tokens(g));
     }
@@ -266,7 +270,7 @@ pub fn written_formulas(thm: &Theorem) -> Vec<Written> {
         for r in &step.requires {
             out.push(r.fact.clone());
         }
-        out.extend(substituted(&step.just, path));
+        out.extend(step.just.equation.clone());
         if let Some(Ok(chain)) = chain(&step.just, path) {
             out.push(chain.start);
             for line in chain.lines {

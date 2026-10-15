@@ -8,11 +8,11 @@ use indexmap::{IndexMap, IndexSet};
 use super::library::Known;
 use super::record::CheckedTheorem;
 use super::{Report, CLOSURE, RELATIONS};
-use crate::corpus::proof::{requires_item, starts_with_head, unproduced, visible};
+use crate::corpus::proof::visible;
 use crate::corpus::{
-    cited_item, cited_items, define_parts, fmt, full, item_prefix, references,
-    FileScope, Head, Intro, Item, Justification, Method, Range, Record, RecordKind,
-    Requires, Step, StepNo, Theorem, ITEM_PREFIX, LABEL, REF,
+    cited_items, define_parts, fmt, is_label, item_kind, FileScope, Head, Intro, Item,
+    Justification, Method, Range, Record, RecordKind, Requires, Step, StepNo, Theorem,
+    ITEM_PREFIX,
 };
 use crate::formula::library::Function;
 use crate::formula::page::Written;
@@ -138,17 +138,17 @@ fn on_the_way<'t>(thm: &'t Theorem, step: &Step, number: &StepNo) -> Option<&'t 
         .rfind(|s| &s.number == number && s.line <= step.line)
 }
 
-/// The productions of `GRAMMAR.md`, one per justification form, as
-/// `corpus::proof::unproduced` reads them; the build refuses what this
-/// reports with the rest of the checker's problems.
+/// The productions of `GRAMMAR.md`, one per justification form, as the
+/// skeleton reader cut the line by them (`Justification::unproduced`); the
+/// build refuses what this reports with the rest of the checker's problems.
 pub fn check_justification_form(
     report: &mut Report,
     path: &str,
     just: &Justification,
 ) -> bool {
-    match unproduced(just) {
+    match &just.unproduced {
         Some(why) => {
-            report.say(path, just.line, why);
+            report.say(path, just.line, why.clone());
             false
         }
         None => true,
@@ -530,7 +530,7 @@ fn cited_twice(what: &str, cited: &str) -> String {
 /// letters and then their number, none before 1, and then lines by their
 /// step numbers, 2 before 2.1 before 10 (`SYNTAX.md`).
 fn citation_order(cited: &str) -> (bool, String, Vec<u64>) {
-    if full(&LABEL_RE, cited) {
+    if is_label(cited) {
         let letters: String = cited
             .chars()
             .take_while(|c| c.is_ascii_uppercase())
@@ -588,9 +588,6 @@ pub fn unresolved(cited: &str) -> String {
     format!("{cited} is neither imported nor a theorem of this file")
 }
 
-regex!(LABEL_RE, LABEL);
-regex!(FROM_REF, format!(r"^from\s+{REF}(\s*,\s*{REF})*$"));
-
 pub fn check_citations(
     report: &mut Report,
     thm: &Theorem,
@@ -615,16 +612,16 @@ pub fn check_citations(
         }
         // The step's own `from` list: a calculation gathers its links'
         // citations, and two links may cite one line.
-        let own = references(&just.text).0;
+        let own = &just.from;
         let what = format!("step {}", step.number);
-        for r in named_twice(&own) {
+        for r in named_twice(own) {
             report.say(&thm.path, just.line, cited_twice(&what, r));
         }
-        if let Some(said) = out_of_order(&what, &own) {
+        if let Some(said) = out_of_order(&what, own) {
             report.say(&thm.path, just.line, said);
         }
         for r in &just.refs {
-            if full(&LABEL_RE, r) {
+            if is_label(r) {
                 if !scope.contains_key(r) {
                     report.say(
                         &thm.path,
@@ -660,7 +657,7 @@ pub fn check_citations(
             }
         }
         if let Some(target) = &just.target {
-            if item_prefix(target).is_some() {
+            if item_kind(target).is_some() {
                 report.say(
                     &thm.path,
                     just.line,
@@ -685,8 +682,8 @@ pub fn check_citations(
         }
         // The item a step cites, as its head or as what it obtains from,
         // resolves, and its prefix is its kind.
-        if let Some(cited) = cited_item(just) {
-            let kind = item_prefix(&cited).expect("a citation opens with a prefix");
+        if let Some(cited) = just.cited_item() {
+            let kind = item_kind(&cited).expect("a citation opens with a prefix");
             match items.get(&just.item(&cited)) {
                 None => report.say(&thm.path, just.line, unresolved(&cited)),
                 Some(item) if item.cited_as() != kind => report.say(
@@ -733,21 +730,16 @@ pub fn check_citations(
             shape: &shape,
             step,
         };
-        let req = Requires {
-            fact: Written::new("", &thm.path, reason.line),
-            how: reason.how.clone(),
-            line: reason.line,
-            values: reason.values.clone(),
-        };
+        let req = reason.shown(Written::new("", &thm.path, reason.line));
         at.check_reason(report, &req, &format!("the reason under let {}", d.label));
         // It is the let's, and rests on nothing written below the let.
-        for r in references(&reason.how).0 {
+        for r in req.lines() {
             let below = thm
                 .steps
                 .iter()
-                .find(|s| fmt(&s.number) == r)
+                .find(|s| fmt(&s.number) == *r)
                 .is_some_and(|s| s.line > d.line);
-            if below || r == d.label {
+            if below || *r == d.label {
                 report.say(
                     &thm.path,
                     reason.line,
@@ -781,7 +773,11 @@ impl Cited<'_> {
         let (thm, scopes) = (self.thm, self.scopes);
         let text = &req.how;
         let no = req.line;
-        if !starts_with_head(text) && !FROM_REF.is_match(text) {
+        let unread = match &req.by {
+            Err(_) => true,
+            Ok(by) => by.head == Head::Lines && by.unproduced.is_some(),
+        };
+        if unread {
             report.say(
                 &thm.path,
                 no,
@@ -793,7 +789,7 @@ impl Cited<'_> {
         }
         // A requires line cites an item like any other citation, so its
         // pointer resolves and its prefix matches the item's kind.
-        if let Some((cited, kind)) = requires_item(text) {
+        if let Some((cited, kind)) = req.cited_item() {
             match self.items.get(&self.step.just.item(&cited)) {
                 None => report.say(&thm.path, no, unresolved(&cited)),
                 Some(item) if item.cited_as() != kind => report.say(
@@ -804,39 +800,39 @@ impl Cited<'_> {
                 Some(_) => {}
             }
         }
-        let (refs, bad) = references(text);
-        if let Some(bad) = bad {
+        if let Some(bad) = req.by.as_ref().map_or(&None, |by| &by.bad_ref) {
             report.say(
                 &thm.path,
                 no,
                 format!(
                     "`from` names {}, which is neither a line nor a label",
-                    repr(&bad)
+                    repr(bad)
                 ),
             );
         }
-        for r in named_twice(&refs) {
+        let refs = req.lines();
+        for r in named_twice(refs) {
             report.say(&thm.path, no, cited_twice(what, r));
         }
-        if let Some(said) = out_of_order(what, &refs) {
+        if let Some(said) = out_of_order(what, refs) {
             report.say(&thm.path, no, said);
         }
         for r in refs {
-            if full(&LABEL_RE, &r) {
-                if !self.scope.contains_key(&r) {
+            if is_label(r) {
+                if !self.scope.contains_key(r) {
                     report.say(
                         &thm.path,
                         no,
                         out_of_scope(
                             &scopes[thm.scope],
-                            &r,
+                            r,
                             format!("{what} cites {r}, which is not in scope here"),
                         ),
                     );
                 }
                 continue;
             }
-            let cited = StepNo::parse(&r);
+            let cited = StepNo::parse(r);
             if !self.numbers.contains(&cited) {
                 report.say(
                     &thm.path,
@@ -848,14 +844,6 @@ impl Cited<'_> {
             }
         }
     }
-}
-
-regex!(CAPTURE_TARGET, r"\bin\s+(?:line\s+)?([\w.]+)");
-
-/// The line an `instantiate` justification instantiates, by its number or
-/// label.
-pub fn instantiated_line(just: &str) -> Option<String> {
-    CAPTURE_TARGET.captures(just).map(|m| m[1].to_string())
 }
 
 regex!(DECLARED_WORD, r"[A-Za-z]{2,}");
@@ -940,7 +928,7 @@ pub fn check_capture(report: &mut Report, thm: &Theorem, known: &Known) {
         if !s.just.head.is(Method::Instantiate) {
             continue;
         }
-        let Some(target) = instantiated_line(&s.just.text) else {
+        let Some(target) = s.just.target.clone() else {
             continue;
         };
         // The letters a binder in the target line binds: what the grammar
@@ -1488,13 +1476,13 @@ pub fn check_definitions(
                     .iter()
                     .cloned()
                     .chain(just.defined.clone())
-                    .chain(s.requires.iter().flat_map(|r| references(&r.how).0))
+                    .chain(s.requires.iter().flat_map(|r| r.lines().to_vec()))
             })
             .chain(
                 thms.iter()
                     .flat_map(|t| &t.defines)
                     .filter_map(|d| d.reason.as_ref())
-                    .flat_map(|r| references(&r.how).0),
+                    .flat_map(|r| r.lines().to_vec()),
             )
             .collect();
         for i in &scope.imports {
