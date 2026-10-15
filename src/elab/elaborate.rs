@@ -44,7 +44,7 @@ use crate::corpus::{
 };
 use crate::formula::page::{conjoined, related, Written};
 use crate::formula::{Grammar, Node};
-use crate::matching::{expand, standard, Binding as NodeBinding, Defined};
+use crate::matching::{expand, Binding as NodeBinding, Defined};
 use crate::mm::compress::{compressed, labels as compress_labels, shapes_of};
 use crate::mm::kernel::{Syntax, Term};
 use crate::mm::library::thousands;
@@ -2053,160 +2053,6 @@ impl<'a> Elaborator<'a> {
         Ok(Built(proof))
     }
 
-    /// A defect where the substitution drops an identity element it makes
-    /// from what nothing says is a number (`citing::substitution_unsaid`),
-    /// read over the parts the checker reads the step with: the line put
-    /// into, whole and in its parts, or the claim's own two sides, and the
-    /// lines the step names with the memberships the page says once.
-    fn substitution_numbers(
-        &mut self,
-        step: &Step,
-        claim: &Node,
-        equation: &Node,
-        lines: &Lines,
-    ) -> Checked<()> {
-        let [left, right] = equation.children.as_slice() else {
-            return Ok(());
-        };
-        let library = self.item_library();
-        // The line named, or one side of the claim, which is t = t′ either
-        // way round, as the checker reads it.
-        let ways: Vec<(Vec<Node>, Node)> =
-            match step.just.into.as_ref().map(|p| p.named()) {
-                Some(into) => {
-                    let Some(line) = lines.get(into) else {
-                        return Ok(());
-                    };
-                    let Some(whole) = conjoined(self.g, line.sentences.clone()) else {
-                        return Ok(());
-                    };
-                    let mut starts = vec![whole.clone()];
-                    starts.extend(citing::conjuncts(&whole, &library));
-                    vec![(starts, claim.clone())]
-                }
-                None => match claim.children.as_slice() {
-                    [t, rewritten]
-                        if library.ctx.equations.contains(&claim.notation) =>
-                    {
-                        vec![
-                            (vec![t.clone()], rewritten.clone()),
-                            (vec![rewritten.clone()], t.clone()),
-                        ]
-                    }
-                    _ => return Ok(()),
-                },
-            };
-        let mut facts = self.cited_sentences(&step.just.refs)?;
-        for r in &step.requires {
-            facts.push(self.read_one(&r.fact)?);
-        }
-        let claims = self.said(step)?;
-        let parts = self.citation_parts(
-            facts,
-            claims,
-            &step.just.values,
-            &step.just.refs,
-            &library,
-            "",
-            None,
-        )?;
-        let ctx = &library.ctx;
-        let s = |n: &Node| standard(n, ctx);
-        let (left, right) = (s(left), s(right));
-        let found = ways.iter().find_map(|(starts, aim)| {
-            let starts: Vec<Node> = starts.iter().map(s).collect();
-            let aim = s(aim);
-            starts
-                .iter()
-                .any(|start| {
-                    crate::matching::substituted_in(start, &aim, &left, &right, ctx)
-                })
-                .then_some((starts, aim))
-        });
-        let Some((starts, aim)) = found else {
-            return Ok(());
-        };
-        let unsaid = citing::substitution_unsaid(
-            &starts,
-            &aim,
-            &left,
-            &right,
-            &parts.facts,
-            &library,
-        );
-        match unsaid.first() {
-            Some(left) => Err(self.defect(
-                step.just.line,
-                format!(
-                    "step {} drops an identity element from what the substitution makes, and nothing says {} is a number; a requires line says it",
-                    fmt(&step.number),
-                    self.g.print(left)
-                ),
-            )),
-            None => Ok(()),
-        }
-    }
-
-    /// A defect where a link citing the line `cite` is what the line says
-    /// only once an identity element is dropped from what nothing the step
-    /// names says is a number (`citing::link_unsaid`): the line's sentences
-    /// and the step's facts read as the checker reads them, the link's own
-    /// letters among what the page says once.
-    fn link_numbers(
-        &mut self,
-        step: &Step,
-        cite: &str,
-        claim: &Node,
-        at: usize,
-        lines: &Lines,
-    ) -> Checked<()> {
-        let Some(line) = lines.get(cite) else {
-            return Ok(());
-        };
-        let library = self.item_library();
-        let one = [cite.to_string()];
-        let said = self.citation_parts(
-            line.sentences.clone(),
-            vec![claim.clone()],
-            &step.just.values,
-            &one,
-            &library,
-            "",
-            None,
-        )?;
-        let mut facts = self.cited_sentences(&step.just.refs)?;
-        for r in &step.requires {
-            facts.push(self.read_one(&r.fact)?);
-        }
-        let parts = self.citation_parts(
-            facts,
-            vec![claim.clone()],
-            &step.just.values,
-            &step.just.refs,
-            &library,
-            "",
-            None,
-        )?;
-        let Some(link) = said.claims.first() else {
-            return Ok(());
-        };
-        let mut says = said.facts.clone();
-        for f in &said.facts {
-            says.extend(citing::conjuncts(f, &library));
-        }
-        match citing::link_unsaid(link, &says, &parts.facts, &library).first() {
-            Some(left) => Err(self.defect(
-                at,
-                format!(
-                    "a link of step {} drops an identity element from {}, which nothing the step names says is a number; a requires line of the step says it",
-                    fmt(&step.number),
-                    self.g.print(left)
-                ),
-            )),
-            None => Ok(()),
-        }
-    }
-
     /// One equation put into one claim, at the place the tree names: the
     /// step's own claim, or a line `into` names.
     fn substitute(
@@ -2223,7 +2069,6 @@ impl<'a> Elaborator<'a> {
             return Err(self.defect(step.line, "a substitute that names no equation"));
         };
         let equation = self.read_one(written)?;
-        self.substitution_numbers(step, node, &equation, lines)?;
         let (left, right) =
             (equation.children[0].clone(), equation.children[1].clone());
         let (old, new) = (self.term(&left)?, self.term(&right)?);
@@ -3214,16 +3059,6 @@ impl<'a> Elaborator<'a> {
                 Ok((claim, to))
             };
         let start = self.read_one(&chain.start)?;
-        // Each link that drops an identity element drops it from a number,
-        // read as the checker reads it (`citing::link_unsaid`).
-        let mut from = start.clone();
-        for line in &chain.lines {
-            let (claim, to) = link(self, &from, line)?;
-            if line.cite != "arithmetic" && !defines.contains(&line.cite) {
-                self.link_numbers(step, &line.cite, &claim, line.line, lines)?;
-            }
-            from = to;
-        }
         let (first, mut rest) = link(self, &start, &chain.lines[0])?;
         let first_term = self.term(&first)?;
         let whole = self.to_term(&first_term);
