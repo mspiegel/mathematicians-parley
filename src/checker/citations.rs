@@ -21,6 +21,7 @@ use crate::citing::{
     Ways,
 };
 use crate::corpus::proof::{reason_as_step, Requires};
+use crate::corpus::skeleton::Source;
 use crate::corpus::{
     define_parts, DefineParts, FileScope, Head, Item, Method, Step, Theorem,
 };
@@ -1217,6 +1218,26 @@ pub fn check_substitutes(
         // equation is the name and what it names and no sentence a line
         // states, the elaborator's.
         let defined = |r: &str| thm.defines.iter().any(|d| d.label == r);
+        // An equation worked out where it stands, `(arithmetic)`, is a fact
+        // of numerals `arithmetic` decides (`METHODS.md`, arithmetic).
+        if let (Some(Source::Arithmetic), Some(written)) =
+            (&step.just.source, &step.just.equation)
+        {
+            let worked =
+                super::formulas::arithmetic_worked(written, known, &library.targets);
+            if let super::formulas::Worked::Fails(why) = worked {
+                report.say(
+                    &thm.path,
+                    step.just.line,
+                    format!(
+                        "step {} takes {} from arithmetic, which {why}",
+                        step.number,
+                        known.print(&equation)
+                    ),
+                );
+                continue;
+            }
+        }
         let source = step.just.source.as_ref().map(|s| s.named().to_string());
         if let Some(source) = source.filter(|s| !defined(s)) {
             let scope = known.scope(step);

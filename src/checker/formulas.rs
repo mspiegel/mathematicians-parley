@@ -1305,6 +1305,89 @@ pub fn check_arithmetic_holds(
                 );
             }
         }
+        // A link naming `arithmetic` changes pieces of numerals alone
+        // (`check_closed_arithmetic`), each one equal to what it becomes.
+        for link in chain_links(&step.just, &thm.path) {
+            if link.line.cite != "arithmetic" {
+                continue;
+            }
+            if let Some(why) = link_pieces_unworked(&link, known, targets) {
+                report.say(
+                    &thm.path,
+                    link.line.line,
+                    format!(
+                        "a link of step {} names arithmetic for {}, which {why}",
+                        step.number,
+                        link.line.quoted(&link.from)
+                    ),
+                );
+            }
+        }
+    }
+}
+
+/// Why a link naming `arithmetic` does not hold where it is worked out: a
+/// link of numerals alone is false or has no value; an equation's each
+/// piece of numerals alone it changes, said equal to what it becomes, is.
+/// A link of another relation with a letter in it is not worked out here:
+/// its pieces need not be equal, `x + 2 < x + 3`, nor a congruence's. None
+/// where it holds, or a side does not read, which the elaborator reports.
+fn link_pieces_unworked(
+    link: &Link,
+    known: &Known,
+    targets: &Targets,
+) -> Option<String> {
+    let claim = link.claim(known)?;
+    let unworked = |fact: &Node| -> Option<String> {
+        match decide_closed(&term_of_node(&written_out(fact, known), targets)) {
+            Built(Verdict::Holds(false)) => {
+                Some(format!("is false: {}", known.print(fact)))
+            }
+            Built(Verdict::Unworked(why)) => Some(why.to_string()),
+            _ => None,
+        }
+    };
+    if claim.names().is_empty() {
+        return unworked(&claim);
+    }
+    let ("equality", [one, other]) =
+        (claim.notation.as_str(), claim.children.as_slice())
+    else {
+        return None;
+    };
+    let mut pieces = Vec::new();
+    closed_pieces(one, other, known, &mut pieces);
+    pieces.into_iter().find_map(|Piece { was, now }| {
+        unworked(&made(known.env.g, "equality", "=", vec![was, now]))
+    })
+}
+
+/// A piece of numerals alone a link changes, and what it becomes.
+struct Piece {
+    was: Node,
+    now: Node,
+}
+
+/// The pieces of numerals alone where `one` and `other` differ, walking
+/// both where they are built alike.
+fn closed_pieces(one: &Node, other: &Node, known: &Known, out: &mut Vec<Piece>) {
+    if known.alike(one, other) {
+        return;
+    }
+    if one.names().is_empty() && other.names().is_empty() {
+        out.push(Piece {
+            was: one.clone(),
+            now: other.clone(),
+        });
+        return;
+    }
+    if one.notation == other.notation
+        && one.text == other.text
+        && one.children.len() == other.children.len()
+    {
+        for (a, b) in one.children.iter().zip(&other.children) {
+            closed_pieces(a, b, known, out);
+        }
     }
 }
 
@@ -1313,10 +1396,9 @@ pub fn check_arithmetic_holds(
 /// the lines it cites say, added and subtracted with at most one multiplied
 /// by a term, or is a disequality it cites rescaled
 /// (`methods::algebra::decide`). Each is read with the defines the step
-/// cites written out, as kernel terms (`term_of_node`). A step that reads a
-/// finite sum or product over a range is left to the build, which reads a
-/// sum as linear where it says something linear, and the terms here hold
-/// one as an atom.
+/// cites written out, as kernel terms (`term_of_node`), and a finite sum
+/// read as linear where some term of the step is linear in something, as
+/// the build reads it, and as one atom where none is.
 pub fn check_algebra_holds(
     report: &mut Report,
     thm: &Theorem,
@@ -1355,13 +1437,6 @@ fn algebra_holds(
     let Some(read) = at.read(known, targets, false) else {
         return false;
     };
-    // A finite sum or product is one atom here, and the build may read a sum
-    // as linear (`METHODS.md`): a step that holds with each sum an atom
-    // holds as the build reads it, and one that does not is left to the
-    // build, never refused.
-    let ranged = std::iter::once(&read.claimed)
-        .chain(&read.lines)
-        .any(|n| ["csu", "cprod"].iter().any(|l| targets.uses(n, l)));
     let labels = FloatLabels::new(IndexMap::new());
     let cited: Vec<Term> = read
         .lines
@@ -1377,9 +1452,6 @@ fn algebra_holds(
     let verdict = crate::methods::field::reading_sums(linear, || {
         algebra::decide(&claimed, &cited, &labels)
     });
-    if ranged && !matches!(verdict, algebra::Verdict::Holds { .. }) {
-        return false;
-    }
     let shown: Vec<&Node> = std::iter::once(&read.claimed).chain(&read.lines).collect();
     let render = |t: &Term| printed(t, &shown, known, targets, &labels);
     let number = at.step.number.to_string();
@@ -1851,7 +1923,7 @@ fn printed(
 }
 
 /// What working out a fact `arithmetic` claims finds.
-enum Worked {
+pub(super) enum Worked {
     Holds,
     /// It is false, or cannot be worked out, and why.
     Fails(String),
@@ -1863,7 +1935,11 @@ enum Worked {
 /// A fact `arithmetic` claims, each sentence worked out
 /// (`methods::field::decide_closed`). A sentence that does not read is
 /// `check_formulas`'s to report.
-fn arithmetic_worked(written: &Written, known: &Known, targets: &Targets) -> Worked {
+pub(super) fn arithmetic_worked(
+    written: &Written,
+    known: &Known,
+    targets: &Targets,
+) -> Worked {
     let mut out = Worked::Holds;
     for sentence in written.sentences() {
         let Some(node) = known.read_as_written(&sentence) else {

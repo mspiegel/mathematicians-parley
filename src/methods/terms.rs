@@ -131,16 +131,6 @@ impl Targets {
         })
     }
 
-    /// Whether any part of `node` is built by a target that uses `label`:
-    /// a part the deciders read, by labels `VOCABULARY` does not hold, as
-    /// more than an atom (a finite sum, `csu`, read as linear).
-    pub fn uses(&self, node: &Node, label: &str) -> bool {
-        node.walk().iter().any(|part| {
-            self.pattern(part)
-                .is_some_and(|p| p.split_whitespace().any(|t| t == label))
-        })
-    }
-
     /// The target of the pattern `node` was built from; None for a
     /// notation with none.
     fn pattern(&self, node: &Node) -> Option<&str> {

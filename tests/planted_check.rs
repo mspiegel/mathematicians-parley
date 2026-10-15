@@ -611,9 +611,8 @@ fn cases() -> Vec<Case> {
             )],
             "the requires line of step 5.11 says A > 0, which the step's other lines already say",
         ),
-        // A false divisibility of numerals, on a requires line the step does
-        // not ask for: the checker reports the line as surplus, and does not
-        // work out whether `arithmetic` makes it true.
+        // A false divisibility of numerals, on a requires line: the checker
+        // works it out as `arithmetic` does (`check_arithmetic_holds`).
         case(
             "a divisibility of numerals that does not hold",
             vec![edit(
@@ -621,7 +620,7 @@ fn cases() -> Vec<Case> {
                 Some("          requires 10^m ∈ ℤ: mun:power-integer a := 10\n".to_string()),
                 "          requires 10^m ∈ ℤ: mun:power-integer a := 10\n          requires 3 divides 10 − 2: arithmetic\n".to_string(),
             )],
-            "the requires line of step 1.3 says 3 divides 10 − 2, and neither thm:congruent-times nor the step's other lines ask for it",
+            "the requires line 3 divides 10 − 2 of step 1.3 is arithmetic, which is false",
         ),
         // A method decides a word only where the word's record names it
         // (`DATABASE.md`, `decided`). With `arithmetic` struck from
@@ -954,9 +953,8 @@ fn cases() -> Vec<Case> {
             )],
             "step 1 claims 2³ = 9, which is false",
         ),
-        // A substitution by a false fact of numerals, 0 − 1 = 1. The checker
-        // does not work the fact out; it reports that putting one side for
-        // the other does not make the claim.
+        // A substitution by a false fact of numerals, 0 − 1 = 1, which the
+        // checker works out as `arithmetic` does.
         case(
             "substitute by a false fact of numerals",
             vec![edit(
@@ -964,7 +962,7 @@ fn cases() -> Vec<Case> {
                 Some("substitute 0 − 1 = −1 (arithmetic)".to_string()),
                 "substitute 0 − 1 = 1 (arithmetic)".to_string(),
             )],
-            "step 33 claims C(m, 0 − 1) = C(m, −1), which putting one side of 0 − 1 = 1 for the other does not make",
+            "step 33 takes 0 − 1 = 1 from arithmetic, which is false",
         ),
         // g(a) is the rule at a only where a is in g's domain [a, b]. That
         // is no number system, so no introducing line says it once, and
@@ -1028,9 +1026,8 @@ fn cases() -> Vec<Case> {
             "the statement says n ranges over ℕ, and this line puts it in ℝ",
         ),
         // A link naming `arithmetic` for a piece of numerals that is false,
-        // 2/1 is not 3, with the claim changed to match. The checker does not
-        // work the piece out; it reports that the step no longer gives what
-        // its block owes.
+        // 2/1 is not 3, with the claim changed to match: the checker works
+        // the piece out as `arithmetic` does.
         case(
             "a chain link whose closed piece is false",
             vec![edit(
@@ -1038,7 +1035,7 @@ fn cases() -> Vec<Case> {
                 Some("    5.3.  Σ(k = 1 to n) 1/T(k) = 2 − 2/(n + 1)\n          calculation\n            Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))    5.1\n                                 = 2 − 2/(n + 1)                      5.2\n".to_string()),
                 "    5.3.  Σ(k = 1 to n) 1/T(k) = 3 − 2/(n + 1)\n          calculation\n            Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))    5.1\n                                 = 2/1 − 2/(n + 1)                    5.2\n                                 = 3 − 2/(n + 1)                      arithmetic\n".to_string(),
             )],
-            "step 5.3 ends the proof block of step 5, which owes Σ(k = 1 to n) 1 / T(k) = 2 − 2 / (n + 1)",
+            "names arithmetic for 2/1 − 2/(n + 1) = 3 − 2/(n + 1), which is false",
         ),
         // sum-divisible asks that 3 divide each term, and line 1 says it for
         // all k ∈ ℕ₀. Without line 1 cited nothing says it.
@@ -1099,9 +1096,8 @@ fn cases() -> Vec<Case> {
             "step 1.3.3 cites mun:added-element-in-image, which asks for V ∖ {a} ∈ 𝒫(X ∖ {a}), and what it cites does not supply it",
         ),
         // Σ(a(k)t + b(k))² is t²Σa(k)² + 2tΣa(k)b(k) + Σb(k)², and with 3t
-        // in place of 2t the `algebra` claim is no identity. The checker does
-        // not decide algebra; it reports the step below that takes the
-        // changed line for what it no longer says.
+        // in place of 2t the `algebra` claim is no identity, which the
+        // checker finds reading the sums as linear, as the build does.
         case(
             "expand a sum linearly with a wrong coefficient",
             vec![edit(
@@ -1109,7 +1105,7 @@ fn cases() -> Vec<Case> {
                 Some("    1.3.  Σ(k = 1 to n) (a(k)·t + b(k))² = t²·(Σ(k = 1 to n) a(k)²) + 2t·".to_string()),
                 "    1.3.  Σ(k = 1 to n) (a(k)·t + b(k))² = t²·(Σ(k = 1 to n) a(k)²) + 3t·".to_string(),
             )],
-            "step 1.4 takes Σ(k = 1 to n) (a(k) · t + b(k))² = t² · (Σ(k = 1 to n) a(k)²) + 2 · t · (Σ(k = 1 to n) a(k) · b(k)) + Σ(k = 1 to n) b(k)² from 1.3, which does not say it",
+            "is not an identity, nor does it follow from what step 1.3 cites",
         ),
         // A closed exponent that comes to −1, which is not in ℕ₀. The checker
         // does not work the exponent out; it reports the link below that
