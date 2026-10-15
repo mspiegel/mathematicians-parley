@@ -1089,6 +1089,16 @@ fn cases() -> Vec<Case> {
             "    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2\n          algebra, from K\n",
             "step 1.6 cites K and uses nothing it says",
         ),
+        // What one case shows is no line of the next, which the build says
+        // before the kernel would refuse what it makes.
+        case(
+            "cite a step of an earlier case",
+            "tests/elaborator/textbook-exercise-shapes-two/a-contradiction-ending-in-cases",
+            "tests/elaborator/textbook-exercise-shapes-two.proof",
+            "                  inequalities, from C2\n",
+            "                  inequalities, from 1.1.1\n",
+            "step 1.1.2 cites line 1.1.1, which is in another part of the block",
+        ),
         // 2·√a is a number once √a is, so it is √a whose membership is owed.
         case(
             "leave out the line saying a root is real from a bound on its multiple",

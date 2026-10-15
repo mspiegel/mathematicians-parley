@@ -32,7 +32,7 @@ use crate::source::Source;
 use crate::text::check_encoding;
 
 pub use library::{statements_in_scope, Known};
-pub use structure::{cited_in_order, unresolved};
+pub use structure::{cited_in_order, out_of_reach, unresolved};
 
 /// Methods whose steps this checker accepts without examining them.
 pub const CLOSURE: [&str; 5] = [

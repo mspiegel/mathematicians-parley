@@ -49,6 +49,32 @@ fn why_out_of_scope(cited: &StepNo, here: &StepNo) -> &'static str {
     }
 }
 
+/// Why the step numbered `cited` is not in scope where `here` cites it, or
+/// None where it is: it comes later, it is inside a block that has closed,
+/// or it is in another part of a block with parts. What one case shows
+/// under its assumption is not known in the next, as one case's labels are
+/// not (`labels_in_scope`).
+pub fn out_of_reach(
+    thm: &Theorem,
+    cited: &StepNo,
+    here: &Step,
+) -> Option<&'static str> {
+    if !in_scope(cited, &here.number) {
+        return Some(why_out_of_scope(cited, &here.number));
+    }
+    let written = thm
+        .steps
+        .iter()
+        .rfind(|s| &s.number == cited && s.line < here.line)?;
+    let beside = on_the_way(thm, here, &here.number.prefix(cited.len()))?;
+    match (written.part, beside.part) {
+        (Some(one), Some(other)) if one != other => {
+            Some("which is in another part of the block")
+        }
+        _ => None,
+    }
+}
+
 /// Where a label is declared: a hypothesis, a define, or a block's opener.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Declared {
@@ -625,15 +651,11 @@ pub fn check_citations(
                         step.number
                     ),
                 );
-            } else if !in_scope(&cited, &step.number) {
+            } else if let Some(why) = out_of_reach(thm, &cited, step) {
                 report.say(
                     &thm.path,
                     just.line,
-                    format!(
-                        "step {} cites line {r}, {}",
-                        step.number,
-                        why_out_of_scope(&cited, &step.number)
-                    ),
+                    format!("step {} cites line {r}, {why}", step.number),
                 );
             }
         }
@@ -818,15 +840,8 @@ impl Cited<'_> {
                     no,
                     format!("{what} cites line {r}, which does not exist"),
                 );
-            } else if !in_scope(&cited, &self.step.number) {
-                report.say(
-                    &thm.path,
-                    no,
-                    format!(
-                        "{what} cites line {r}, {}",
-                        why_out_of_scope(&cited, &self.step.number)
-                    ),
-                );
+            } else if let Some(why) = out_of_reach(thm, &cited, self.step) {
+                report.say(&thm.path, no, format!("{what} cites line {r}, {why}"));
             }
         }
     }
@@ -1791,8 +1806,8 @@ pub fn letters_in_scope(
                 }
             }
         }
-        let visible_here =
-            other.number == step.number || in_scope(&other.number, &step.number);
+        let visible_here = other.number == step.number
+            || out_of_reach(thm, &other.number, step).is_none();
         if visible_here && other.just.head.is(Method::Obtain) {
             if let Some(names) = obtains(&other.just.text) {
                 out.extend(names_listed(&names));

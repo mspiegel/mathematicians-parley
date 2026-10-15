@@ -1077,6 +1077,16 @@ fn cases() -> Vec<Case> {
             )],
             "step 11 takes F(1) = 1² from 10, which does not say it",
         ),
+        // What one case shows is no line of the next.
+        case(
+            "cite a step of an earlier case",
+            vec![edit(
+                "tests/elaborator/textbook-exercise-shapes-two.proof",
+                Some("                  inequalities, from C2\n".to_string()),
+                "                  inequalities, from 1.1.1\n".to_string(),
+            )],
+            "step 1.1.2 cites line 1.1.1, which is in another part of the block",
+        ),
         // Step numbers are whole numbers joined by dots.
         case(
             "number a step with a letter",

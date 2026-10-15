@@ -1021,6 +1021,15 @@ over the dotted components: `b` is in scope for `a` when `len(b) ≤ len(a)`,
 has closed are not visible outside it, so `17.2` cannot cite `17.1.1` but can
 cite `17.1`.
 
+The parts of a block share its numbering, and a step in one part is not in
+scope in another: in a `cases` block whose first case holds `1.1` and second
+holds `1.2`, step `1.2` cannot cite `1.1`, which was shown under the first
+case's assumption. Written over the parts: `b` is in scope for `a` as above,
+and where `b` and the step above `a` at `b`'s depth are each in a part of
+their block, it is the same part. A label declared by one part is likewise in
+scope in that part alone (below), and so is a letter an `obtain` in it
+introduces.
+
 A label is in scope inside the block that declares it and nowhere else. A
 theorem's hypothesis labels are in scope throughout its proof. So two sibling
 blocks may use one label, as each of `binomial-step`'s `proof` blocks fixes k
