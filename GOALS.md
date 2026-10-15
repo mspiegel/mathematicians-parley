@@ -220,7 +220,7 @@ three below say how it may grow.
     and what would build it. A list in an elaborated file's header does not
     count as recording it.
 
-The last decision is about how every tool reads the page.
+The last two decisions are about how the tools read the page.
 
 18. **One reader from page to formula.** Every formula a tool takes from
     text reaches a tree through one front end: a step's claim, a requires
@@ -234,6 +234,21 @@ The last decision is about how every tool reads the page.
     that read the page two ways disagree about what it says before they
     disagree about anything else, and a sentence one reader drops is a check
     that silently never ran.
+
+19. **One reading of the page, and a gap is the build's.** The checker
+    decides what the page says and whether it is right, once, and hands
+    what it decided to the build: the shape of the proof and the place of
+    each step and define, the sort of each name, the reading of each
+    citation, what each block owes, and the verdict on each closure step.
+    The build proves what the checker accepted, and decides nothing about
+    the page of its own. So there are two ways a theorem fails to build. A
+    page the checker refuses has a defect, and the build refuses it in the
+    checker's words. A page the checker accepts and the build cannot prove
+    is a gap in the build, said as one ("the build cannot yet prove this,
+    which the checker accepts") and the build's to close; the page is not
+    changed to suit it. Decision 6 depends on this as it does on decision
+    18: the checker and the build read one page one way. Decision 17 still
+    holds of a gap: the gate is red, or `ELABORATION.md` records it.
 
 ## First version
 
