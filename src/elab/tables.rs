@@ -469,9 +469,10 @@ impl<'a> Elaborator<'a> {
             )));
         }
         // A function spelt as its define's name against the map it names:
-        // `feq1d`, and for one-to-one, onto and both the closed `f1eq1`,
-        // `foeq1` and `f1oeq1` (`rules::CONGRUENCE`) after the equation by
-        // `syl`. A function's type whose domain or codomain
+        // `feq1d`, and `f1oeq1d` for one-to-one and onto, both deduction
+        // forms (`rules::CONGRUENCE`), and for one-to-one or onto alone the
+        // closed `f1eq1` or `foeq1` after the equation by `syl`
+        // (`rules::FUNCTION_LAWS`). A function's type whose domain or codomain
         // changes, the function too or not: `feq123d` and `f1eq123d` take
         // the three equations, a part that stays the same carried by
         // `eqidd`.
@@ -496,18 +497,19 @@ impl<'a> Elaborator<'a> {
                 &[&equal[0], &equal[1], &equal[2]],
             )));
         }
-        let closed = rules::congruence(&label, &slots)
-            .filter(|_| matches!(label.as_str(), "wf" | "wf1" | "wfo" | "wf1o"));
-        if let Some(closed) = closed {
+        let typed = matches!(label.as_str(), "wf" | "wf1" | "wfo" | "wf1o");
+        let deduced = rules::congruence(&label, &slots).filter(|_| typed);
+        let closed = rules::function_law(&label, &slots);
+        if deduced.is_some() || closed.is_some() {
             let moved =
                 take!(self.congruence(&kids[2], &wants[2], scope, facts, step, leaf)?);
             let parts = binds! {"A" => &spelt[0], "B" => &spelt[1], "F" => &spelt[2], "G" => &other[2]};
-            if label == "wf" {
+            if let Some(lemma) = deduced {
                 let mut all = parts.clone();
                 all.insert("ph".to_string(), scope.to_string());
-                return Ok(Built(self.b.ap(closed, &all, &[&moved])));
+                return Ok(Built(self.b.ap(lemma, &all, &[&moved])));
             }
-            let law = self.b.ap(closed, &parts, &[]);
+            let law = self.b.ap(closed.expect("one of the two"), &parts, &[]);
             return Ok(Built(self.b.ap(
                 "syl",
                 &binds! {"ph" => scope, "ps" => t!(spelt[2], other[2], "wceq"),

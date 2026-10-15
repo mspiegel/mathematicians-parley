@@ -147,9 +147,7 @@ pub const CONGRUENCE: &[(&str, &[usize], &str)] = &[
     // A function against the map its define names, and a rule by cases in
     // any of its three parts; given by name too.
     ("wf", &[2], "feq1d"),
-    ("wf1", &[2], "f1eq1"),
-    ("wfo", &[2], "foeq1"),
-    ("wf1o", &[2], "f1oeq1"),
+    ("wf1o", &[2], "f1oeq1d"),
     // An image, in its function, its set, or both.
     ("cima", &[0], "imaeq1d"),
     ("cima", &[1], "imaeq2d"),
@@ -171,6 +169,21 @@ pub fn congruence(label: &str, slots: &[usize]) -> Option<&'static str> {
         .iter()
         .find(|(l, s, _)| *l == label && *s == slots)
         .map(|(_, _, lemma)| *lemma)
+}
+
+// An equation of functions carried into the statement that one is
+// one-to-one, or onto: set.mm states these two closed, with no deduction
+// form for `CONGRUENCE`, so the elaborator puts the equation's scope in
+// front of the law by `syl`.
+pub const FUNCTION_LAWS: &[(&str, &str)] = &[("wf1", "f1eq1"), ("wfo", "foeq1")];
+
+/// The closed law carrying a change of the function, its third place, into
+/// `label`'s statement, where `FUNCTION_LAWS` has one.
+pub fn function_law(label: &str, slots: &[usize]) -> Option<&'static str> {
+    FUNCTION_LAWS
+        .iter()
+        .find(|(l, _)| *l == label && slots == [2])
+        .map(|(_, law)| *law)
 }
 
 /// The constructors that take a function, operation or relation as an
@@ -988,6 +1001,9 @@ pub fn every_label() -> Vec<(&'static str, &'static str)> {
     }
     for (k, v) in CLOSED_SETHOOD {
         put("CLOSED_SETHOOD", &[k, v]);
+    }
+    for (k, v) in FUNCTION_LAWS {
+        put("FUNCTION_LAWS", &[k, v]);
     }
     for (k, _, v) in CONGRUENCE {
         put("CONGRUENCE", &[k, v]);

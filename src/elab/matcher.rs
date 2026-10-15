@@ -1577,6 +1577,20 @@ impl<'a> Elaborator<'a> {
                 ),
             ));
         }
+        // A function changing in a statement that it is one-to-one, or onto:
+        // the closed law after the equation by `syl`.
+        if let Some(law) = rules::function_law(&head, &slots) {
+            let parts =
+                binds! {"A" => &was[0], "B" => &was[1], "F" => &was[2], "G" => &now[2]};
+            let old = crate::mm::spell::seq(&[&was[0], &was[1], &was[2], &head]);
+            let carried = self.b.ap(
+                "syl",
+                &binds! {"ph" => scope, "ps" => t!(was[2], now[2], "wceq"),
+                "ch" => t!(old, spelt_now, "wb")},
+                &[&deeper[0], &self.b.ap(law, &parts, &[])],
+            );
+            return Built((spelt_now, carried));
+        }
         let lemma = rules::congruence(&head, &slots)
             .unwrap_or_else(|| panic!("no congruence for {head} at {slots:?}"));
         let mut all: Vec<crate::mm::spell::Part> = vec![crate::elab::part(scope)];
@@ -2730,7 +2744,9 @@ impl<'a> Elaborator<'a> {
         }
         let slots: Vec<usize> =
             (0..places).filter(|&i| spelt[i] != theirs[i]).collect();
-        slots.is_empty() || rules::congruence(label, &slots).is_some()
+        slots.is_empty()
+            || rules::congruence(label, &slots).is_some()
+            || rules::function_law(label, &slots).is_some()
     }
 
     /// `one` carried to `other`, its standard form: where only the parts
