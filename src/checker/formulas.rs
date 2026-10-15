@@ -1708,6 +1708,8 @@ struct MembershipIn {
     letters: crate::citing::Introduced,
     ranged: IndexMap<String, methods_membership::Range>,
     typed: Vec<Node>,
+    /// The function types in scope, which a sum's terms may use.
+    in_sums: Vec<Node>,
 }
 
 impl MembershipIn {
@@ -1759,17 +1761,19 @@ impl MembershipIn {
                 }
             }
         }
-        let mut typed: Vec<Node> = facts
+        // A function's type is cited for its values (`READERS.md`): the
+        // types among what the claim rests on, and none merely in scope.
+        let typed: Vec<Node> = facts
             .iter()
             .filter(|f| f.notation == "function-type")
             .cloned()
             .collect();
-        typed.extend(super::library::typed_in_scope(known, at.step));
         MembershipIn {
             facts,
             letters,
             ranged,
             typed,
+            in_sums: super::library::typed_in_scope(known, at.step),
         }
     }
 
@@ -1784,6 +1788,7 @@ impl MembershipIn {
             letters: self.letters.clone(),
             ranged: self.ranged.clone(),
             typed: &self.typed,
+            in_sums: &self.in_sums,
             targets,
             ctx: known.ctx,
         }

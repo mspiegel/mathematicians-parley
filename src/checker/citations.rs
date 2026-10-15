@@ -1178,6 +1178,7 @@ fn term_built(
         letters,
         ranged,
         typed: &typed,
+        in_sums: &typed,
         targets: &library.targets,
         ctx: known.ctx,
     };
@@ -3124,6 +3125,7 @@ fn from_lines_give(
                 letters: letters.clone(),
                 ranged: IndexMap::new(),
                 typed: &typed,
+                in_sums: &[],
                 targets: &library.targets,
                 ctx: known.ctx,
             };

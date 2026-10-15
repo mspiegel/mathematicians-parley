@@ -706,8 +706,10 @@ The step's requires lines and the lines it cites, read for what they say
 the lines its reason names and the requires lines above it. A defined name
 is read as its rule, T(k) as k(k + 1)/2, where the step cites its define, as
 it is wherever a formula is compared: `1/T(k) ∈ ℝ: membership, from D1, 2.2`,
-where 2.2 says k(k + 1)/2 ≠ 0. A type in scope, `a : {1, …, n} → ℝ`, says
-a(k) ∈ ℝ where k is in {1, …, n}.
+where 2.2 says k(k + 1)/2 ≠ 0. A type the step cites, `a : {1, …, n} → ℝ`,
+says a(k) ∈ ℝ where k is in {1, …, n}: a function's type is cited for its
+values (`READERS.md`). Inside a sum's terms a type in scope says it too,
+since a term at each index is no value the page writes.
 
 A cited equation with the term on one side says the term is in whatever the
 other side is in, as a reader takes a(0) = 0 to say a(0) is a number:

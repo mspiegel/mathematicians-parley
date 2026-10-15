@@ -27,9 +27,14 @@ pub struct Facts<'a> {
     /// The letters that run over a range {a, …, b}, a sum's index among
     /// them, with the range they run over.
     pub ranged: IndexMap<String, Range>,
-    /// The function types in scope, `f : D → E`, which say a value of f is
-    /// in E at a point of D.
+    /// The function types the claim rests on, `f : D → E`, which say a
+    /// value of f is in E at a point of D: a type is cited for its values
+    /// (`READERS.md`).
     pub typed: &'a [Node],
+    /// The function types in scope, which a sum's terms may use as well:
+    /// what a type says of a sum's term at each index is no value the page
+    /// writes, and the build reads it from the scope there (`in_family`).
+    pub in_sums: &'a [Node],
     /// The notations' and library functions' targets, which say what
     /// operation a term applies (`Targets::operation`).
     pub targets: &'a Targets,
@@ -278,11 +283,13 @@ fn summed(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
             end: end.clone(),
         },
     );
+    let typed: Vec<Node> = facts.typed.iter().chain(facts.in_sums).cloned().collect();
     let at = Facts {
         facts: facts.facts,
         letters,
         ranged,
-        typed: facts.typed,
+        typed: &typed,
+        in_sums: facts.in_sums,
         targets: facts.targets,
         ctx: facts.ctx,
     };

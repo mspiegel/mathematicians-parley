@@ -634,6 +634,18 @@ fn cases() -> Vec<Case> {
             )],
             "4 divides 2 is a word divides defines, and arithmetic decides a word only where its record says so in a `decided` field",
         ),
+        // A membership step builds a typed value from the type it cites,
+        // never one merely in scope: H1 types d, and with 16.21 left out the
+        // line names nothing saying d(n) is a number.
+        case(
+            "a membership of a typed value citing nothing",
+            vec![edit(
+                "proofs/reals-uncountable.proof",
+                Some("                    requires d(n) ∈ ℝ: membership, from 16.21\n                    requires N(n) ∈ ℝ: membership, from 16.7\n                    requires ⌊10^n·c⌋ ∈ ℝ: membership, from 16.15\n".to_string()),
+                "                    requires d(n) ∈ ℝ: membership\n                    requires N(n) ∈ ℝ: membership, from 16.7\n                    requires ⌊10^n·c⌋ ∈ ℝ: membership, from 16.15\n".to_string(),
+            )],
+            "d(n) ∈ ℝ is not built from what step 16.24.2 cites",
+        ),
         // An instantiation claims what its line says at the values: H2 says
         // 0 ≤ d(n) for every n, and not 0 ≥ d(n).
         case(
