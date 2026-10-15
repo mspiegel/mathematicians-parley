@@ -12,7 +12,7 @@ use super::skeleton::{
     self, cut_reason, is_justification, item_kind, Place, Slots, Source,
 };
 use super::values::Values;
-use super::{cited_name, full, in_stdlib, module_of};
+use super::{cited_name, in_stdlib, module_of};
 use crate::formula::page::Written;
 use crate::outcome::{Built, Checked, Problem};
 use crate::regex;
@@ -1006,7 +1006,6 @@ fn parse_justification(
     Ok(Justification::of(slots, line.no, names))
 }
 
-regex!(STEP_RE, format!(r"^({})\.\s+(.*)$", super::NUMBER));
 /// Every item a theorem's steps cite, by full name, with its line.
 pub fn cited_items(thm: &Theorem) -> Vec<(String, usize)> {
     let mut out = Vec::new();
@@ -1050,7 +1049,6 @@ regex!(
         l = super::LABEL
     )
 );
-regex!(ITEM_NAME, super::NAME);
 
 enum Imported {
     Item(ItemImport),
@@ -1162,7 +1160,7 @@ fn importing(path: &str, no: usize, text: &str) -> Checked<Imported> {
         ));
     }
     for said in [name, alias] {
-        if !full(&ITEM_NAME, said) {
+        if !skeleton::is_name(said) {
             return Err(Problem::new(
                 path,
                 no,
@@ -1183,15 +1181,13 @@ fn importing(path: &str, no: usize, text: &str) -> Checked<Imported> {
     }))
 }
 
-regex!(CHAIN_TAIL, format!(r"(\barithmetic|{})$", super::REF));
-
 /// A chain line's citation, read from the right end of the line rather than
-/// from the whitespace that happens to separate it.
+/// from the whitespace that happens to separate it (`skeleton::chain_cite`).
 ///
 /// A link relating numerals alone may name `arithmetic` in place of a line,
 /// and then it cites nothing: the fact is worked out where it stands.
 fn chain_citation(path: &str, line: &Line) -> Checked<Vec<String>> {
-    if !CHAIN_TAIL.is_match(&line.text) {
+    if skeleton::chain_cite(&line.text).is_none() {
         return Err(Problem::new(
             path,
             line.no,
@@ -1204,8 +1200,9 @@ fn chain_citation(path: &str, line: &Line) -> Checked<Vec<String>> {
 /// The line or label a chain line cites, read from its right end; None for
 /// a link of numerals that names `arithmetic`, or a line that names nothing.
 pub fn chain_cited(text: &str) -> Option<String> {
-    let m = CHAIN_TAIL.captures(text)?;
-    (&m[1] != "arithmetic").then(|| m[1].to_string())
+    skeleton::chain_cite(text)
+        .filter(|cite| *cite != "arithmetic")
+        .map(String::from)
 }
 
 /// The relations a chain line joins by (`GRAMMAR.md`, calculation chains).
@@ -1214,8 +1211,6 @@ pub const CHAIN_RELATIONS: [&str; 6] = ["=", "≤", "<", "≥", ">", "≡"];
 /// Each order a chain going down joins by, with the one it is read as going
 /// up: `a ≥ b` is `b ≤ a`.
 const DOWNWARD: [(&str, &str); 2] = [("≥", "≤"), (">", "<")];
-
-regex!(CHAIN_MODULUS, r"^(.*?)\s*\(mod\s+(.+)\)$");
 
 /// One line of a calculation, cut as `GRAMMAR.md`'s chain productions cut
 /// it: the relation it joins by, the term it reaches, the modulus a `≡`
@@ -1345,13 +1340,8 @@ pub fn chain(just: &Justification, path: &str) -> Option<Checked<Chain>> {
         };
         let relation = words.get(at).copied().unwrap_or("").to_string();
         let rest = words.get(at + 1..).unwrap_or(&[]).join(" ");
-        let (term, modulus) = match CHAIN_MODULUS.captures(&rest) {
-            Some(m) => (
-                m[1].to_string(),
-                Some(Written::new(str::trim(&m[2]), path, *no)),
-            ),
-            None => (rest, None),
-        };
+        let (term, modulus) = skeleton::chain_modulus(&rest);
+        let modulus = modulus.map(|m| Written::new(str::trim(m), path, *no));
         lines.push(ChainLine {
             relation,
             term: Written::new(term, path, *no),
@@ -1398,18 +1388,8 @@ struct DraftTheorem {
 
 const THEOREM_FIELDS: [&str; 2] = ["metamath", "note"];
 
-regex!(THEOREM_NAME, super::NAME);
-regex!(LABEL_END, r"\(([A-Z]+[0-9]*)\)$");
-regex!(
-    IS_CLAIM,
-    r"^(.*?),\s*which is the claim\s+(\([A-Z]+[0-9]*\))$"
-);
-regex!(
-    INDUCTION_HYPOTHESIS,
-    r"^assume\s+step\s+(\S+)\s+is\s+true\s+for\s+(\S+),\s*the\s+induction\s+hypothesis\s+(\([A-Z]+[0-9]*\))$"
-);
 fn label_at_end(text: &str) -> Option<String> {
-    LABEL_END.captures(text).map(|c| c[1].to_string())
+    skeleton::label_at_end(text).map(String::from)
 }
 
 /// A requires line read as the step it would be: its fact claimed, its
@@ -1437,30 +1417,23 @@ pub fn reason_as_step(step: &Step, req: &Requires, by: &Justification) -> Step {
     }
 }
 
-// `2 ≤ 1, which is impossible`: the claim, and the mark after it.
-regex!(IMPOSSIBLE, r"^(.*?),\s*which is impossible\s*$");
-
 /// The step with `, which is impossible` taken off the end of its claim and
 /// said by `impossible` instead.
 fn impossible(mut step: Step) -> Step {
     let claim = &step.claim;
-    if let Some(m) = IMPOSSIBLE.captures(claim.text()) {
-        step.claim = Written::new(str::trim(&m[1]), claim.path(), claim.line());
+    if let Some(said) = skeleton::which_is_impossible(claim.text()) {
+        step.claim = Written::new(said, claim.path(), claim.line());
         step.impossible = true;
     }
     step
 }
 
-// `1.6a.`: a step number with letters in it, which no step has.
-regex!(MISNUMBERED, r"^(\d+(?:\.\d+)*\.?[A-Za-z]+[\w.]*?)\.\s");
-
 /// What to say of a line that opens as a step does with a number that is
 /// not one: None for any other line.
 fn misnumbered(text: &str) -> Option<String> {
-    let m = MISNUMBERED.captures(str::trim_start(text))?;
+    let number = skeleton::misnumbered(text)?;
     Some(format!(
-        "`{}.` is no step number: a step is numbered by whole numbers joined by dots, as 1.6 or 1.6.2",
-        &m[1]
+        "`{number}.` is no step number: a step is numbered by whole numbers joined by dots, as 1.6 or 1.6.2"
     ))
 }
 
@@ -1559,11 +1532,11 @@ pub fn parse_proof(
                     format!("{kind} line outside any block"),
                 ));
             };
-            let hypothesis_for = match INDUCTION_HYPOTHESIS.captures(&text) {
-                Some(m) => Some(induction_hypothesis(
+            let hypothesis_for = match skeleton::induction_hypothesis(&text) {
+                Some(said) => Some(induction_hypothesis(
                     path,
                     &draft.steps[owner].step,
-                    &m,
+                    &said,
                     no,
                 )?),
                 None => None,
@@ -1589,7 +1562,7 @@ pub fn parse_proof(
     fn induction_hypothesis(
         path: &str,
         owner: &Step,
-        m: &regex::Captures,
+        said: &skeleton::InductionHypothesis,
         no: usize,
     ) -> Checked<String> {
         if !owner.just.head.is(Method::Induction) {
@@ -1599,18 +1572,18 @@ pub fn parse_proof(
                 "an induction hypothesis outside the step part of an induction",
             ));
         }
-        if m[1] != fmt(&owner.number) {
+        if said.step != fmt(&owner.number) {
             return Err(Problem::new(
                 path,
                 no,
                 format!(
                     "the induction hypothesis names step {}, and the induction is step {}",
-                    &m[1],
+                    said.step,
                     fmt(&owner.number)
                 ),
             ));
         }
-        Ok(m[2].to_string())
+        Ok(said.letter.to_string())
     }
 
     /// A define after a theorem's last step is the file's, for the theorems
@@ -1692,7 +1665,7 @@ pub fn parse_proof(
             let head = t.split_whitespace().next().unwrap_or_default();
             if line.indent == 0
                 || head == "reads"
-                || STEP_RE.is_match(&t)
+                || skeleton::step_line(&t).is_some()
                 || naming(&t).is_some()
             {
                 return Err(Problem::new(
@@ -1730,7 +1703,7 @@ pub fn parse_proof(
             close_step(path, &thm, &mut step)?;
             settle(path, thm.take(), &mut scope, &mut theorems)?;
             let name = str::trim(&t["theorem ".len()..]).to_string();
-            if !full(&THEOREM_NAME, &name) {
+            if !skeleton::is_name(&name) {
                 return Err(Problem::new(
                     path,
                     line.no,
@@ -1860,10 +1833,10 @@ pub fn parse_proof(
         }
         header = false;
 
-        if let Some(m) = STEP_RE.captures(&t) {
+        if let Some(said) = skeleton::step_line(&t) {
             close_step(path, &thm, &mut step)?;
             let draft = thm.as_mut().unwrap();
-            let number = StepNo::parse(&m[1]);
+            let number = StepNo::parse(said.number);
             // Resolve held markers and openers against the owner of the block
             // that this step sits in, and say which part it sits in.
             let parent = number.parent();
@@ -1908,7 +1881,7 @@ pub fn parse_proof(
             draft.steps.push(DraftStep {
                 step: Step {
                     number: number.clone(),
-                    claim: Written::new(&m[2], path, line.no),
+                    claim: Written::new(said.claim, path, line.no),
                     just: placeholder_justification(),
                     requires: Vec::new(),
                     parts: Vec::new(),
@@ -2047,7 +2020,7 @@ pub fn parse_proof(
                     format!("{head} line carries no label"),
                 ));
             };
-            let Some(m) = IS_CLAIM.captures(&t) else {
+            let Some(said) = skeleton::which_is_the_claim(&t) else {
                 pending_openers.push((kind, t.clone(), label, line.no));
                 continue;
             };
@@ -2081,7 +2054,7 @@ pub fn parse_proof(
             )?;
             draft.steps[at].step.openers.push(Opener {
                 kind,
-                text: format!("{} {}", &m[1], &m[2]),
+                text: format!("{said} ({label})"),
                 label,
                 line: line.no,
                 part: current,

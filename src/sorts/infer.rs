@@ -37,14 +37,6 @@ use crate::sorts::introduction::{Form, Introduction};
 use crate::sorts::{define_sorts, file_definitions, unlabel, Env};
 use crate::text::repr;
 
-regex!(OBTAINS_RE, r"^obtain\s+([^:]+?)(?::|\s+from)");
-
-/// The names an `obtain` justification obtains, as written before its colon
-/// or its `from`.
-pub fn obtains(text: &str) -> Option<String> {
-    OBTAINS_RE.captures(text).map(|m| m[1].to_string())
-}
-
 /// A sort that is not a set, property or function of something.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Atom {
@@ -1294,15 +1286,10 @@ pub fn read_theorem(
                 reader.env.insert(said.name.clone(), curried(taken, gives));
             }
             Event::Claim(step) => {
-                let obtained = if step.just.head.is(Method::Obtain) {
-                    obtains(&step.just.text)
-                } else {
-                    None
-                };
-                if let Some(names) = obtained {
-                    for name in split_names(str::trim(&names)) {
+                if step.just.head.is(Method::Obtain) {
+                    for name in &step.just.obtained {
                         let v = store.var();
-                        reader.env.insert(name.to_string(), v);
+                        reader.env.insert(name.clone(), v);
                     }
                 }
                 claim_text(&mut reader, &step.claim_text(), no, env, store);
@@ -1320,11 +1307,4 @@ pub fn read_theorem(
         }
     }
     reader
-}
-
-regex!(NAME_COMMA, r"\s*,\s*");
-
-/// `re.split(r'\s*,\s*', text)`.
-fn split_names(text: &str) -> Vec<&str> {
-    NAME_COMMA.split(text).collect()
 }

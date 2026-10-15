@@ -10,9 +10,9 @@ use super::record::CheckedTheorem;
 use super::{Report, CLOSURE, RELATIONS};
 use crate::corpus::proof::visible;
 use crate::corpus::{
-    cited_items, define_parts, fmt, is_label, item_kind, FileScope, Head, Intro, Item,
-    Justification, Method, Range, Record, RecordKind, Requires, Step, StepNo, Theorem,
-    ITEM_PREFIX,
+    cited_items, define_parts, fmt, is_label, item_kind, names_an_item, FileScope,
+    Head, Intro, Item, Justification, Method, Range, Record, RecordKind, Requires,
+    Step, StepNo, Theorem,
 };
 use crate::formula::library::Function;
 use crate::formula::page::Written;
@@ -20,7 +20,6 @@ use crate::formula::token::{Token, TokenKind};
 use crate::formula::{holds, Node, Sorts};
 use crate::outcome::{Built, Declined};
 use crate::regex;
-use crate::sorts::infer::obtains;
 use crate::sorts::introduction::{Form, Introduction};
 use crate::sorts::{
     bound_written, define_formulas, named_by_hypotheses, names_written, theorem_tokens,
@@ -464,8 +463,6 @@ fn check_step_part(report: &mut Report, thm: &Theorem, step: &Step, known: &Know
     }
 }
 
-regex!(CHAIN_ITEM, format!(r"\b{ITEM_PREFIX}"));
-
 /// A calculation only joins. Every line cites a numbered step or a label and
 /// carries no reasoning of its own, so a line that names an item or
 /// instantiates one is carrying a justification that belongs in a step.
@@ -489,7 +486,7 @@ pub fn check_chain(report: &mut Report, thm: &Theorem, step: &Step) {
         report.say(&problem.path, problem.line, problem.message.clone());
     }
     for (text, no) in &step.just.chain {
-        if CHAIN_ITEM.is_match(text) || text.contains(":=") {
+        if names_an_item(text) || text.contains(":=") {
             report.say(
                 &thm.path,
                 *no,
@@ -1108,22 +1105,16 @@ pub fn check_sorts(report: &mut Report, thm: &Theorem, known: &Known) {
         if !s.just.head.is(Method::Obtain) {
             continue;
         }
-        let Some(names) = obtains(&s.just.text) else {
-            continue;
-        };
         let Some(claim) = known.whole_as_written(&s.claim) else {
             continue; // `check_formulas` says it does not read
         };
         let said = claim.walk();
-        for v in names.split(',').map(str::trim) {
-            if v.is_empty() {
-                continue;
-            }
+        for v in &s.just.obtained {
             let stated = said.iter().any(|n| {
                 SAYING.contains(&n.notation.as_str())
                     && n.children
                         .first()
-                        .is_some_and(|x| x.is_name() && x.text == v)
+                        .is_some_and(|x| x.is_name() && x.text == *v)
             });
             if !stated {
                 report.say(
@@ -1737,9 +1728,7 @@ pub fn introduced(thm: &Theorem) -> BTreeSet<String> {
             }
         }
         if s.just.head.is(Method::Obtain) {
-            if let Some(names) = obtains(&s.just.text) {
-                out.extend(names.split(',').map(|n| str::trim(n).to_string()));
-            }
+            out.extend(s.just.obtained.iter().cloned());
         }
     }
     out
@@ -1801,9 +1790,7 @@ pub fn letters_in_scope(
         let visible_here = other.number == step.number
             || out_of_reach(thm, &shape, &other.number, step).is_none();
         if visible_here && other.just.head.is(Method::Obtain) {
-            if let Some(names) = obtains(&other.just.text) {
-                out.extend(names_listed(&names));
-            }
+            out.extend(other.just.obtained.iter().cloned());
         }
     }
     out

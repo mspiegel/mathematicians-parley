@@ -300,7 +300,6 @@ fn recursion_parts(said: &str) -> Route<DefineParts> {
     }))
 }
 
-regex!(TRAILING_LABEL, r"\s*\([A-Z]+[0-9]*\)\s*$");
 // What a define may be called: one name as the lexer reads one, a letter
 // with perhaps a subscript or a prime. A longer name is read as several.
 regex!(ONE_NAME, format!(r"^{SEQUENCE_NAME}$"));
@@ -319,8 +318,7 @@ regex!(
 /// saying what is wrong with it. A define whose first rule is said at 0 is
 /// a recursion; any other is one name.
 pub fn define_parts(text: &str) -> Route<DefineParts> {
-    let unlabelled = TRAILING_LABEL.replace(text, "");
-    let said = str::trim(&unlabelled);
+    let said = str::trim(super::skeleton::without_label(text));
     // A define gives its name with `:=` and a let with `=`, as a textbook's
     // "let x₁ = …" does.
     match naming(said) {

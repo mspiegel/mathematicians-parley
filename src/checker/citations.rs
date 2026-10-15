@@ -25,7 +25,6 @@ use crate::matching::{
     alike, binding_sites, match_tree, substitute_apart, Binding, Context, PROPERTY,
 };
 use crate::outcome::{Built, Declined, Route};
-use crate::regex;
 use crate::rules;
 use crate::text::squash;
 
@@ -999,10 +998,10 @@ pub fn check_obtained_claims(
         if !just.head.is(Method::Obtain) {
             continue;
         }
-        let Some(names) = OBTAINED_NAMES.captures(&just.text) else {
+        if just.obtained.is_empty() {
             continue;
-        };
-        let names: Vec<&str> = names[1].split(',').map(str::trim).collect();
+        }
+        let names: Vec<&str> = just.obtained.iter().map(String::as_str).collect();
         let existence = match just.cited_item() {
             None => {
                 let Some(stated) = just
@@ -1154,8 +1153,6 @@ pub fn check_obtained_claims(
         }
     }
 }
-
-regex!(OBTAINED_NAMES, r"^obtain\s+(.+?)(?::\s|\s+from\s)");
 
 /// A requires line needs what the item it cites concludes.
 ///

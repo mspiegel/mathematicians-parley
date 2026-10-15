@@ -3,11 +3,11 @@
 use indexmap::IndexMap;
 
 use super::lines::read_lines;
+use super::module_of;
 use super::proof::{Hypothesis, Intro, Range};
-use super::{full, module_of};
+use super::skeleton::{is_name, label_at_end};
 use crate::formula::page::Written;
 use crate::outcome::{Checked, Problem};
-use crate::regex;
 use crate::text::repr;
 
 /// What a record is.
@@ -197,9 +197,6 @@ impl Record {
     }
 }
 
-regex!(RECORD_NAME, super::NAME);
-regex!(LABEL_AT_END, r"\(([A-Z]+[0-9]*)\)$");
-
 enum Last {
     Field(String),
     Hypothesis,
@@ -256,7 +253,7 @@ pub fn parse_database(path: &str, text: &str) -> Checked<Vec<Record>> {
                     ),
                 ));
             }
-            if !full(&RECORD_NAME, name) {
+            if !is_name(name) {
                 return Err(Problem::new(
                     path,
                     line.no,
@@ -306,8 +303,8 @@ pub fn parse_database(path: &str, text: &str) -> Checked<Vec<Record>> {
                         h.text = str::trim(&joined).to_string();
                         // A wrapped hypothesis carries its label at the end
                         // of its last line.
-                        if let Some(c) = LABEL_AT_END.captures(&line.text) {
-                            h.label = Some(c[1].to_string());
+                        if let Some(label) = label_at_end(&line.text) {
+                            h.label = Some(label.to_string());
                         }
                     }
                     Some(Last::Conclusion) => {
@@ -326,7 +323,7 @@ pub fn parse_database(path: &str, text: &str) -> Checked<Vec<Record>> {
             cur.ranges.push(range);
         } else if key == "let" || key == "assume" {
             last = Some(Last::Hypothesis);
-            let label = LABEL_AT_END.captures(&line.text).map(|c| c[1].to_string());
+            let label = label_at_end(&line.text).map(String::from);
             cur.hypotheses.push(Hypothesis {
                 kind: if key == "let" {
                     Intro::Let

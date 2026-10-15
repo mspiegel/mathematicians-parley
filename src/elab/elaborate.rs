@@ -56,7 +56,7 @@ use crate::sorts::introduction::{Form, Introduction};
 use crate::sorts::{statement_definitions, OutsideDefines};
 use crate::targets;
 use crate::text::repr;
-use crate::{pf, regex, t, take};
+use crate::{pf, t, take};
 
 /// Why a side of a step citing a define is not what the define names.
 const NAMES_NO_DEFINE: &str = "this side names no define";
@@ -86,11 +86,6 @@ pub(crate) struct AskedHere<'a> {
     /// Its hypotheses, each letter the citation fixes put in.
     pub hypotheses: Vec<Node>,
 }
-
-regex!(
-    SUBSTITUTE,
-    r"^substitute\s+(.*)\s*\(([^()]*)\)(?:\s+into\s+(\S.*?))?\s*$"
-);
 
 /// Where a class that binds a name keeps it among its parts: a map and an
 /// indexed union first, a set built from a property second, a sum third.
@@ -2356,12 +2351,11 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         lines: &Lines,
     ) -> Checked<Route<Proof>> {
-        let text = str::trim(&step.just.text).to_string();
-        let Some(said) = SUBSTITUTE.captures(&text) else {
+        let (Some(written), Some(source)) = (&step.just.equation, &step.just.source)
+        else {
             return Err(self.defect(step.line, "a substitute that names no equation"));
         };
-        let equation =
-            self.read_one(&Written::new(&said[1], &self.thm.path, step.just.line))?;
+        let equation = self.read_one(written)?;
         self.substitution_numbers(step, node, &equation, lines)?;
         let (left, right) =
             (equation.children[0].clone(), equation.children[1].clone());
@@ -2369,12 +2363,8 @@ impl<'a> Elaborator<'a> {
         // Which way the equation faces in the kernel is the lemma's choice,
         // not the text's, so either is accepted and turned if it has to be.
         let mut facing = self.held(facts, &t!(old, new, "wceq"), scope)?;
-        if str::trim(&said[2]) == "arithmetic" {
-            let what = format!(
-                "step {} substitutes {}",
-                fmt(&step.number),
-                str::trim(&said[1])
-            );
+        if *source == crate::corpus::Source::Arithmetic {
+            let what = format!("step {} substitutes {written}", fmt(&step.number));
             facing = Some(self.closed_fact(
                 &t!(old, new, "wceq"),
                 scope,
@@ -2406,8 +2396,8 @@ impl<'a> Elaborator<'a> {
         self.know(&equation, t!(old, new, "wceq"), facing);
         self.know(&equation, t!(new, old, "wceq"), back);
         let leaf = Leaf::Rows(vec![super::tables::Row::Held]);
-        let into = said.get(3).map(|m| m.as_str().to_string());
-        let Some(into_text) = into else {
+        let into = step.just.into.as_ref().map(|p| p.named().to_string());
+        let Some(where_) = into else {
             let (start, other) =
                 (self.term(&node.children[0])?, self.term(&node.children[1])?);
             let alike = self.congruence(
@@ -2439,17 +2429,12 @@ impl<'a> Elaborator<'a> {
                 }
             };
         };
-        let where_ = into_text
-            .split_whitespace()
-            .last()
-            .unwrap_or("")
-            .to_string();
         let into = lines
             .get(&where_)
             .unwrap_or_else(|| panic!("no line {where_} to substitute into"));
         if into.sentences.is_empty() {
             return Err(
-                self.defect(step.line, format!("{into_text} is not a line to rewrite"))
+                self.defect(step.line, format!("{where_} is not a line to rewrite"))
             );
         }
         // A line may say several things and the substitution land in one of

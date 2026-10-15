@@ -1,7 +1,5 @@
 //! Physical lines joined into logical ones.
 
-use crate::regex;
-
 /// One logical line: a physical line plus any continuations of it.
 #[derive(Clone, Debug)]
 pub struct Line {
@@ -10,11 +8,9 @@ pub struct Line {
     pub indent: usize,
 }
 
-regex!(UNLABELLED, r"\([A-Z]+[0-9]*\)$");
-
 /// Whether a line ends without the label a define closes on.
 pub fn unlabelled(text: &str) -> bool {
-    !UNLABELLED.is_match(text)
+    super::skeleton::label_at_end(text).is_none()
 }
 
 /// Physical lines, comments and blanks dropped, joined by the continuation

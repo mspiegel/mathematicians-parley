@@ -14,7 +14,7 @@ use crate::citing::{link_unsaid, said_once, Library, Parts};
 use crate::corpus::proof::{chain, ChainLine};
 use crate::corpus::{
     define_parts, DefineParts, FileScope, Intro, Item, Justification, Method, Record,
-    RecordKind, Recursion, Requires, Step, Theorem, Value, Values,
+    RecordKind, Recursion, Requires, Source, Step, Theorem, Value, Values,
 };
 use crate::formula::page::{disjoined, made, numeral, related, Written};
 use crate::formula::{walk, Node, Sort, Sorts};
@@ -1258,11 +1258,6 @@ fn changed_closed(link: &Link, known: &Known) -> bool {
     alike(&one, &other)
 }
 
-regex!(
-    ARITHMETIC_SOURCE,
-    r"^substitute\s+(.*?)\s*\(\s*arithmetic\s*\)"
-);
-
 /// `arithmetic` stands in for a line only where the fact is numerals alone.
 ///
 /// A `substitute` may take its equation from `arithmetic`, and a chain link
@@ -1282,18 +1277,18 @@ pub fn check_closed_arithmetic(report: &mut Report, thm: &Theorem, known: &Known
     };
     for step in &thm.steps {
         let just = &step.just;
-        if just.head.is(Method::Substitute) {
-            if let Some(m) = ARITHMETIC_SOURCE.captures(&just.text) {
-                if !closed(&Written::new(&m[1], &thm.path, just.line)) {
-                    report.say(
-                        &thm.path,
-                        just.line,
-                        format!(
-                            "step {} takes {} from arithmetic, and it has a letter in it; a fact with a letter is a numbered step of its own",
-                            step.number, &m[1]
-                        ),
-                    );
-                }
+        if let (Some(Source::Arithmetic), Some(equation)) =
+            (&just.source, &just.equation)
+        {
+            if !closed(equation) {
+                report.say(
+                    &thm.path,
+                    just.line,
+                    format!(
+                        "step {} takes {equation} from arithmetic, and it has a letter in it; a fact with a letter is a numbered step of its own",
+                        step.number
+                    ),
+                );
             }
         }
         for link in chain_links(just, &thm.path) {

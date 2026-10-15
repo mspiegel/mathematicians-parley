@@ -188,8 +188,9 @@ pub fn is_ref(word: &str) -> bool {
 }
 
 /// Whether a word is an item's or a theorem's name: a letter, then letters,
-/// digits and hyphens.
-fn is_name(word: &str) -> bool {
+/// digits and hyphens. It may open with a Greek letter, since a library
+/// function is named by its record and a formula writes it, as σ.
+pub fn is_name(word: &str) -> bool {
     let mut chars = word.chars();
     match chars.next() {
         Some(first) if first.is_ascii_alphabetic() || ('α'..='ω').contains(&first) => {
@@ -230,6 +231,148 @@ pub fn starts_with_head(text: &str) -> bool {
     };
     let first = first.trim_end_matches(',');
     item_kind(first).is_some() || method_of(first, words.next()).is_some()
+}
+
+/// An induction's hypothesis as its line writes it, `assume step N is true
+/// for k, the induction hypothesis (IH)`: the induction's step, and the
+/// letter it is for.
+pub struct InductionHypothesis<'t> {
+    pub step: &'t str,
+    pub letter: &'t str,
+}
+
+/// The line read as an induction's hypothesis; None for any other line.
+pub fn induction_hypothesis(text: &str) -> Option<InductionHypothesis<'_>> {
+    let (said, rest) = text.split_once(',')?;
+    let ["assume", "step", step, "is", "true", "for", letter] =
+        said.split_whitespace().collect::<Vec<_>>()[..]
+    else {
+        return None;
+    };
+    let ["the", "induction", "hypothesis", label] =
+        rest.split_whitespace().collect::<Vec<_>>()[..]
+    else {
+        return None;
+    };
+    label_at_end(label)?;
+    Some(InductionHypothesis { step, letter })
+}
+
+/// What a case's line says before `, which is the claim (C1)`: a case that
+/// is the claim of the block it opens; None for any other line.
+pub fn which_is_the_claim(text: &str) -> Option<&str> {
+    let pieces = split_commas(text);
+    let [.., last] = pieces.as_slice() else {
+        return None;
+    };
+    if pieces.len() < 2 {
+        return None;
+    }
+    let ["which", "is", "the", "claim", label] =
+        last.split_whitespace().collect::<Vec<_>>()[..]
+    else {
+        return None;
+    };
+    label_at_end(label)?;
+    let before = text[..offset(text, last)].trim_end();
+    Some(str::trim(before.strip_suffix(',').unwrap_or(before)))
+}
+
+/// A step's first line, `3.1.  x = 2`: its number, and its claim as far as
+/// the line writes it.
+pub struct StepLine<'t> {
+    pub number: &'t str,
+    pub claim: &'t str,
+}
+
+/// The line read as a step's first line; None for any other line.
+pub fn step_line(text: &str) -> Option<StepLine<'_>> {
+    let first = text.split_whitespace().next()?;
+    let rest = text.strip_prefix(first)?;
+    let number = first.strip_suffix('.')?;
+    (is_number(number) && rest.starts_with(char::is_whitespace)).then(|| StepLine {
+        number,
+        claim: rest.trim_start(),
+    })
+}
+
+/// A claim without `, which is impossible` after it: a closed fact
+/// `arithmetic` shows false, which ends a contradiction block on the step;
+/// None for a claim that says no such thing.
+pub fn which_is_impossible(text: &str) -> Option<&str> {
+    let pieces = split_commas(text);
+    let [.., last] = pieces.as_slice() else {
+        return None;
+    };
+    if pieces.len() < 2 || last.split_whitespace().ne(["which", "is", "impossible"]) {
+        return None;
+    }
+    let before = text[..offset(text, last)].trim_end();
+    Some(str::trim(before.strip_suffix(',').unwrap_or(before)))
+}
+
+/// The number a line opens with where it opens as a step does, a word
+/// ending in a full stop, and the number has letters in it, `1.6a.`, which
+/// no step has; None for any other line.
+pub fn misnumbered(text: &str) -> Option<&str> {
+    let first = text.split_whitespace().next()?;
+    let number = first.strip_suffix('.')?;
+    let digits = number
+        .find(|c: char| !c.is_ascii_digit() && c != '.')
+        .unwrap_or(number.len());
+    let opens = number.starts_with(|c: char| c.is_ascii_digit());
+    let lettered = number[digits..].starts_with(|c: char| c.is_ascii_alphabetic());
+    (opens && lettered).then_some(number)
+}
+
+/// The label a line closes on, `(H2)`: its last word, which stands apart
+/// from what it labels, so `M(X)` ending a line is M applied to X and not
+/// a line labelled X.
+pub fn label_at_end(text: &str) -> Option<&str> {
+    let last = text.split_whitespace().last()?;
+    let label = last.strip_prefix('(')?.strip_suffix(')')?;
+    is_label(label).then_some(label)
+}
+
+/// The line without the label it closes on, and without the space before
+/// it; the line as it is where it closes on none.
+pub fn without_label(text: &str) -> &str {
+    if label_at_end(text).is_none() {
+        return text;
+    }
+    let body = text.trim_end();
+    let last = body.split_whitespace().last().unwrap_or_default();
+    body[..body.len() - last.len()].trim_end()
+}
+
+/// What a calculation's line cites, its last word (`GRAMMAR.md`,
+/// calculation chains): a line or a label, or `arithmetic` for a link of
+/// numerals alone; None where the last word is neither.
+pub fn chain_cite(text: &str) -> Option<&str> {
+    let last = text.split_whitespace().last()?;
+    (is_ref(last) || last == "arithmetic").then_some(last)
+}
+
+/// A chain line's term and the modulus a `≡` line says after it, `1·10
+/// (mod 3)`: the term before the first `(mod`, and what the line closes
+/// the bracket on.
+pub fn chain_modulus(rest: &str) -> (&str, Option<&str>) {
+    let Some(inner) = rest.strip_suffix(')') else {
+        return (rest, None);
+    };
+    let Some(at) = inner.find("(mod") else {
+        return (rest, None);
+    };
+    match after_word(&inner[at + 1..], "mod") {
+        Some(modulus) if !modulus.is_empty() => (inner[..at].trim_end(), Some(modulus)),
+        _ => (rest, None),
+    }
+}
+
+/// Whether some word of a line opens with an item's prefix, `thm:x`: a
+/// citation of an item, which a calculation's line never carries.
+pub fn names_an_item(text: &str) -> bool {
+    text.split_whitespace().any(|w| item_kind(w).is_some())
 }
 
 /// Whether a line is a justification: it opens with a head, or it is a

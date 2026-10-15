@@ -48,9 +48,6 @@ pub struct Env<'a> {
     pub scopes: &'a [FileScope],
 }
 
-// A label stands apart from what it labels, so `M(X)` ending a line is M
-// applied to X and not a line labelled X.
-regex!(LABEL, r"\s+\([A-Z]+[0-9]*\)\s*$");
 // `let x ∈ A` and `let a ∉ X`: a thing, and a set it is in or is not in.
 regex!(MEMBERSHIP, r"^(\S+)\s*∈\s*\S");
 regex!(NOT_IN, r"^(\S+)\s*∉\s*\S");
@@ -171,9 +168,6 @@ pub fn graph_line(body: &str) -> Option<GraphLine> {
     })
 }
 
-pub fn label_re() -> &'static regex::Regex {
-    &LABEL
-}
 pub fn membership_re() -> &'static regex::Regex {
     &MEMBERSHIP
 }
@@ -214,9 +208,9 @@ pub fn graph_listed_re() -> &'static regex::Regex {
     &GRAPH_LISTED
 }
 
-/// A line without its trailing label, as `LABEL.sub('', text)` leaves it.
+/// A line without the label it closes on (`skeleton::without_label`).
 pub fn unlabel(text: &str) -> String {
-    LABEL.replace(text, "").into_owned()
+    crate::corpus::skeleton::without_label(text).to_string()
 }
 
 /// The tokens of every part of a theorem that is formula text: those of
