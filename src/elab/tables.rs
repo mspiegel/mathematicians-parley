@@ -1132,9 +1132,18 @@ impl<'a> Elaborator<'a> {
             g: self.g,
             scopes: self.scopes,
         };
-        let written_as_part = self.page_node(&node).is_some_and(|page| {
-            part_said_otherwise(&page, env, &self.sorts_now).is_some()
-        });
+        // The page reads `x ⊆ S` only from `wss` and `x ∈ 𝒫S` only from a
+        // `wcel` whose set is a `cpw`, their notations' targets, so no other
+        // term is read back to the page to ask.
+        let part_shaped = match (node.label(), node.children()) {
+            (Some("wss"), [_, _]) => true,
+            (Some("wcel"), [_, set]) => set.label() == Some("cpw"),
+            _ => false,
+        };
+        let written_as_part = part_shaped
+            && self.page_node(&node).is_some_and(|page| {
+                part_said_otherwise(&page, env, &self.sorts_now).is_some()
+            });
         if written_as_part {
             for (_, _, lemma) in rules::PARTS {
                 if let Some(made) = self.lemma_step(lemma, &node) {

@@ -12,7 +12,7 @@
 //! What a method decides but cannot write is a defect at its line: nothing is
 //! taken as stated in its place.
 
-use std::cell::RefCell;
+use std::cell::{OnceCell, RefCell};
 use std::collections::BTreeSet;
 
 use indexmap::IndexMap;
@@ -54,6 +54,19 @@ pub struct Spec {
     /// the same question: four asks in five during a comparison of two
     /// polynomials were one already answered.
     pub atoms: RefCell<IndexMap<String, Proof>>,
+    /// What each of `facts` and of `written` also says (`implied`), in their
+    /// order, worked out the first time a denominator asks: every
+    /// denominator asked it of every fact again.
+    pub implied: Implied,
+}
+
+/// What each fact of a table also says (`Elaborator::implied`), by the
+/// table: the facts a membership is answered from, and those the page
+/// writes.
+#[derive(Default)]
+pub struct Implied {
+    facts: OnceCell<Vec<Facts>>,
+    written: OnceCell<Vec<Facts>>,
 }
 
 /// An emitter and what it asks, which live as long as one calculation.
@@ -78,6 +91,7 @@ impl Work {
             apart: false,
             written: None,
             atoms: RefCell::default(),
+            implied: Implied::default(),
         })
     }
 }
@@ -107,6 +121,24 @@ impl Ask<'_, '_> {
     }
 }
 
+/// What each of `facts` also says, from `kept` where it was worked out
+/// already for this spec, and worked out and kept there where not.
+fn take_implied<'k>(
+    kept: &'k OnceCell<Vec<Facts>>,
+    el: &mut Elaborator,
+    scope: &str,
+    facts: &Facts,
+) -> Checked<&'k [Facts]> {
+    if let Some(each) = kept.get() {
+        return Ok(each);
+    }
+    let mut each = Vec::new();
+    for (fact, proof) in facts.entries() {
+        each.push(el.implied(&fact, &proof, scope, facts)?);
+    }
+    Ok(kept.get_or_init(|| each))
+}
+
 impl Oracle for Ask<'_, '_> {
     fn b(&self) -> &Builder {
         &self.el.b
@@ -125,13 +157,16 @@ impl Oracle for Ask<'_, '_> {
     }
 
     fn apart(&mut self, said: &str, named: &str) -> Checked<Proof> {
-        self.el
-            .not_zero_named(&self.spec.scope, &self.spec.facts, said, named)
+        let (scope, facts) = (&self.spec.scope, &self.spec.facts);
+        let implied = &self.spec.implied.facts;
+        self.el.not_zero_named(scope, facts, implied, said, named)
     }
 
     fn written(&mut self, said: &str) -> Checked<Option<Proof>> {
         let facts = self.spec.written.clone().unwrap_or_default();
-        self.el.written_nonzero(&self.spec.scope, &facts, said)
+        let implied = &self.spec.implied.written;
+        self.el
+            .written_nonzero(&self.spec.scope, &facts, implied, said)
     }
 
     fn linear_sum(&mut self, said: &str) -> Checked<Route<(Term, Proof)>> {
@@ -495,6 +530,7 @@ impl<'a> Elaborator<'a> {
             apart: true,
             written: Some(facts.clone()),
             atoms: RefCell::default(),
+            implied: Implied::default(),
         });
         if apart {
             return self.apart_from_cited(step, &goal, scope, &facts, lines, &mut w);
@@ -810,7 +846,8 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         said: &str,
     ) -> Checked<Proof> {
-        self.not_zero_named(scope, facts, said, said)
+        let kept = OnceCell::new();
+        self.not_zero_named(scope, facts, &kept, said, said)
     }
 
     /// `not_zero`, where what is asked is a form the normaliser made of a
@@ -819,10 +856,11 @@ impl<'a> Elaborator<'a> {
         &mut self,
         scope: &str,
         facts: &Facts,
+        implied: &OnceCell<Vec<Facts>>,
         said: &str,
         named: &str,
     ) -> Checked<Proof> {
-        if let Some(found) = self.written_nonzero(scope, facts, said)? {
+        if let Some(found) = self.written_nonzero(scope, facts, implied, said)? {
             return Ok(found);
         }
         let want = t!(said, "cc0", "wne");
@@ -867,6 +905,7 @@ impl<'a> Elaborator<'a> {
         &mut self,
         scope: &str,
         facts: &Facts,
+        implied: &OnceCell<Vec<Facts>>,
         said: &str,
     ) -> Checked<Option<Proof>> {
         // Written either way round, and as ¬ said = 0 as well (`held`).
@@ -874,10 +913,11 @@ impl<'a> Elaborator<'a> {
         if let Some(p) = self.held(facts, &want, scope)? {
             return Ok(Some(p));
         }
-        // Or a membership written that says it: N ∈ ℕ says N ≠ 0.
-        for (fact, proof) in facts.entries() {
-            let more = self.implied(&fact, &proof, scope, facts)?;
-            if let Some(p) = self.held(&more, &want, scope)? {
+        // Or a membership written that says it: N ∈ ℕ says N ≠ 0. What each
+        // of `facts` also says is worked out once for all the denominators
+        // that ask (`take_implied`).
+        for more in take_implied(implied, self, scope, facts)? {
+            if let Some(p) = self.held(more, &want, scope)? {
                 return Ok(Some(p));
             }
         }
@@ -4181,6 +4221,7 @@ impl<'a> Elaborator<'a> {
             apart: false,
             written: Some(known),
             atoms: RefCell::default(),
+            implied: Implied::default(),
         });
         let mut terms: Vec<Against> = Vec::new();
         for Part {
