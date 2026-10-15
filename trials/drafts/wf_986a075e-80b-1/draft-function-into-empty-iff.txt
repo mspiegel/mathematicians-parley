@@ -1,0 +1,64 @@
+import mundane theorem    stdlib/functions/function-into
+import mundane theorem    stdlib/functions/function-value
+import mundane definition stdlib/sets/subset
+import mundane theorem    stdlib/sets/subset-empty
+
+theorem empty-domain
+  note        Nothing can be sent into the empty set, so a function into it
+              has no points to act on.
+  let A be a set                                                      (H1)
+  let F : A → ∅                                                       (H2)
+  then A = ∅
+
+1.  For all t ∈ A, t ∈ ∅.
+    proof
+    let t ∈ A                                                         (K1)
+
+    1.1.  F(t) ∈ ∅
+          mun:function-value f := F, from K1
+
+    1.2.  F(t) ∉ ∅
+          inspection, contradicting 1.1
+
+2.  A ⊆ ∅
+    mun:subset, from 1
+
+3.  A = ∅
+    mun:subset-empty, from 2
+
+
+theorem function-into-empty
+  note        A function with no points to act on sends all of them into any
+              set at all, the empty set included.
+  let A be a set                                                      (H1)
+  let F be a function on A                                            (H2)
+  then F : A → ∅ ↔ A = ∅
+
+1.  F : A → ∅ ↔ A = ∅
+    both directions
+
+    direction
+    assume F : A → ∅                                                  (D1)
+
+    1.1.  F : A → ∅
+          join D1
+
+    1.2.  A = ∅
+          thm:empty-domain, from 1.1
+
+    direction
+    assume A = ∅                                                      (D2)
+
+    1.3.  For all x ∈ A, F(x) ∈ ∅.
+          proof
+          let x ∈ A                                                   (K2)
+
+          1.3.1.  x ∈ ∅
+                  substitute A = ∅ (D2) into K2
+
+          1.3.2.  x ∉ ∅
+                  inspection, contradicting 1.3.1
+
+    1.4.  F : A → ∅
+          mun:function-into, from 1.3
+          requires F is a function on A: from H2

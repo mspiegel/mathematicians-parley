@@ -1,0 +1,24 @@
+import mundane theorem    stdlib/sets/subset-empty
+
+theorem function-empty-domain
+  note        A function with no points to act on is the empty function, and
+              the empty function has no points to act on.
+  let X be a set                                                      (H1)
+  let Y be a set                                                      (H2)
+  let F : X → Y                                                       (H3)
+  then X = ∅ ↔ F = ∅
+
+1.  X = ∅ ↔ F = ∅
+    both directions
+
+    direction
+    assume X = ∅                                                      (D1)
+
+    1.1.  F = ∅
+          substitute X = ∅ (D1)
+
+    direction
+    assume F = ∅                                                      (D2)
+
+    1.2.  X = ∅
+          substitute F = ∅ (D2)

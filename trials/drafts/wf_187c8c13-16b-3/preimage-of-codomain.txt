@@ -1,0 +1,23 @@
+theorem preimage-membership
+  note        A point of A is in the preimage of C exactly when F sends it into C.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  let F : A → B                                                       (H3)
+  let x ∈ A                                                           (H4)
+  let C ⊆ B                                                           (H5)
+  then F(x) ∈ C ↔ x ∈ F⁻¹[C]
+
+1.  F(x) ∈ C ↔ x ∈ F⁻¹[C]
+    both directions
+
+    direction
+    assume F(x) ∈ C                                                   (D1)
+
+    1.1.  x ∈ F⁻¹[C]
+          inspection
+
+    direction
+    assume x ∈ F⁻¹[C]                                                 (D2)
+
+    1.2.  F(x) ∈ C
+          inspection

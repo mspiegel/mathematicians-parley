@@ -1,0 +1,4 @@
+theorem t
+  let A be a set                                                      (H1)
+  let F be a function on A                                            (H2)
+  then F : A → ∅ ↔ (F = ∅ and A = ∅)

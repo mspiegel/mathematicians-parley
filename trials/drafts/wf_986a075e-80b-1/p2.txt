@@ -1,0 +1,12 @@
+theorem t
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  let C be a set                                                      (H3)
+  let D be a set                                                      (H4)
+  let F : A → C                                                       (H5)
+  let G : B → D                                                       (H6)
+  assume A ∩ B = ∅                                                    (H7)
+  then F ∪ G : A ∪ B → C ∪ D
+
+1.  F ∪ G : A ∪ B → C ∪ D
+    join H5

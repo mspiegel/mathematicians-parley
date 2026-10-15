@@ -1,0 +1,43 @@
+import mundane theorem    stdlib/functions/function-into
+import mundane definition stdlib/functions/one-to-one
+import theorem            proofs/inverse-lands-in-domain/inverse-lands-in-domain
+import theorem            proofs/value-of-inverse/value-of-inverse
+
+theorem inverse-is-one-to-one
+  note        The inverse is a function from B to A, and two points of B with one inverse value are equal because F takes that value back to each.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  let F : A → B be one-to-one                                         (H3)
+  assume F[A] = B                                                     (H4)
+  then F⁻¹ : B → A is one-to-one
+
+1.  For all y ∈ B, F⁻¹(y) ∈ A.
+    thm:inverse-lands-in-domain C := y, from H3, H4
+
+2.  F⁻¹ : B → A
+    mun:function-into, from 1
+    requires F⁻¹ is a function on B: from H3
+
+3.  For all s, t ∈ B, if F⁻¹(s) = F⁻¹(t) then s = t.
+    proof
+    let s ∈ B                                                         (K1)
+    let t ∈ B                                                         (K2)
+    assume F⁻¹(s) = F⁻¹(t)                                            (K3)
+
+    3.1.  F(F⁻¹(s)) = s
+          thm:value-of-inverse C := s, from H3, H4, K1
+
+    3.2.  F(F⁻¹(t)) = t
+          thm:value-of-inverse C := t, from H3, H4, K2
+
+    3.3.  F(F⁻¹(s)) = F(F⁻¹(t))
+          substitute F⁻¹(s) = F⁻¹(t) (K3)
+
+    3.4.  s = t
+          calculation
+            s = F(F⁻¹(s))        3.1
+              = F(F⁻¹(t))        3.3
+              = t                3.2
+
+4.  F⁻¹ : B → A is one-to-one
+    mun:one-to-one, from 2, 3

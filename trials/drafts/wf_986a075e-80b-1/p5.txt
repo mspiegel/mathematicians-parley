@@ -1,0 +1,4 @@
+theorem t
+  let A be a set                                                      (H1)
+  let F : A → ∅                                                       (H2)
+  then A = ∅
