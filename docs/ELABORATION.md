@@ -2096,7 +2096,7 @@ of sorts reports a page that claims an element of a set of numbers is a set. See
 file states rather than proves* for the proof this let back into `proofs/`.
 
 **Library items no proof restates.** The last stage restates each library
-item with a target as a theorem of its own, and twenty-four it cannot, because a
+item with a target as a theorem of its own, and twenty-five it cannot, because a
 letter in each stands for something a proof cannot introduce. Each is cited
 by a proof or tested, at a formula of that proof's own, so what it says is
 used and verified there; only the restatement is missing.
@@ -2106,7 +2106,7 @@ used and verified there; only the restatement is missing.
   `stdlib/reasoning/disjunctive-syllogism`,
   `stdlib/reasoning/disjunctive-syllogism-left`, `stdlib/reasoning/or-left`,
   `stdlib/reasoning/or-right`, `stdlib/reasoning/modus-ponens`,
-  `stdlib/reasoning/iff-both-true`, `stdlib/reasoning/iff-both-false`,
+  `stdlib/reasoning/not-either`, `stdlib/reasoning/iff-both-true`, `stdlib/reasoning/iff-both-false`,
   `stdlib/reasoning/iff-from-left`, `stdlib/reasoning/iff-from-right` and
   `stdlib/reasoning/iff-not-from-right`. A proof introduces things and never
   a statement, and has no `let` for one.

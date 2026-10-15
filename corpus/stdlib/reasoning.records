@@ -73,6 +73,13 @@ mundane theorem or-right
   target      olc
   note        The same, from a line saying the second holds.
 
+mundane theorem not-either
+  then        not (P or Q) ↔ not P and not Q
+  metamath    ioran
+  target      ioran
+  note        De Morgan's law for "or": neither of two things holds just when
+              each fails. Cited either way, as a biconditional is.
+
 mundane theorem modus-ponens
   assume if P then Q                                                  (H1)
   assume P                                                            (H2)

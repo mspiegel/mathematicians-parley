@@ -32,6 +32,9 @@ import mundane theorem    stdlib/numbers/quotient-positive as numbers-quotient-p
 import mundane theorem    stdlib/numbers/less-scaled as numbers-less-scaled
 import mundane theorem    stdlib/numbers/abs-nonneg as numbers-abs-nonneg
 import mundane theorem    stdlib/numbers/one-power as numbers-one-power
+import mundane theorem    stdlib/numbers/abs-positive as numbers-abs-positive
+import mundane theorem    stdlib/numbers/exponent-sum as numbers-exponent-sum
+import mundane theorem    stdlib/numbers/product-nonzero as numbers-product-nonzero
 
 theorem quotient-positive
   let x ∈ ℝ                                                           (H1)
@@ -292,6 +295,33 @@ theorem nat0-nonzero
 
 1.  m ∈ ℕ
     mun:numbers-nat0-nonzero, from H2
+
+theorem abs-positive
+  let x ∈ ℝ                                                           (H1)
+  assume x ≠ 0                                                        (H2)
+  then |x| > 0
+
+1.  |x| > 0
+    mun:numbers-abs-positive, from H2
+
+theorem exponent-sum
+  let a ∈ ℝ                                                           (H1)
+  let m ∈ ℕ₀                                                          (H2)
+  let n ∈ ℕ₀                                                          (H3)
+  then a^(m + n) = a^m·a^n
+
+1.  a^(m + n) = a^m·a^n
+    mun:numbers-exponent-sum
+
+theorem product-nonzero
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume x ≠ 0                                                        (H3)
+  assume y ≠ 0                                                        (H4)
+  then x·y ≠ 0
+
+1.  x·y ≠ 0
+    mun:numbers-product-nonzero, from H3, H4
 
 theorem integer-step
   let m ∈ ℤ                                                           (H1)

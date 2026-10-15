@@ -239,6 +239,23 @@ mundane theorem congruent-divides
   target      dvdssub2
   note        Two numbers congruent modulo m are divisible by m together.
 
+mundane theorem gcd-integer
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  then        gcd(a, b) ∈ ℕ₀. gcd(a, b) divides a. gcd(a, b) divides b.
+  metamath    gcdcl, gcddvds
+  target      gcdcl, gcddvds
+  note        The gcd over the integers, where the definition says it over
+              ℕ: it is at least 0, being 0 only for gcd(0, 0), and divides
+              both arguments.
+
+mundane theorem gcd-negative
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  then        gcd(−a, b) = gcd(a, b)
+  metamath    neggcd
+  target      neggcd
+
 mundane theorem gcd-commutes
   let a ∈ ℤ                                                           (H1)
   let b ∈ ℤ                                                           (H2)

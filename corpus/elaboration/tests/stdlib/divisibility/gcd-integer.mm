@@ -1,0 +1,11 @@
+$( tests/stdlib/divisibility/gcd-integer, elaborated from tests/stdlib/divisibility.proof by parley build.
+   Nothing here is assumed.
+   Checked against a set.mm of 51,256 assertions, sha256
+   0d7fb3e59afff60f4cec2287cbb616bf651bbfbf2356a611a43a5c98b5e0462d. $)
+
+$[ stdlib/definitions.mm $]
+
+${
+  tests.stdlib.divisibility.gcd-integer $p |- ( ( A e. ZZ /\ B e. ZZ ) -> ( A gcd B ) || B ) $=
+    ( cz wcel wa cgcd co cdvds wbr simpl id syl simpr jca gcddvds simprd ) ACDZBCDZEZABFGZAHIZTBHIZSSUAUBESQRSQQQRJQKLQRMNABOLP $.
+$}

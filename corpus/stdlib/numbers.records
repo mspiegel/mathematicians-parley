@@ -214,6 +214,23 @@ mundane theorem exponent-step
   metamath    expp1
   target      expp1
 
+mundane theorem exponent-sum
+  let a ∈ ℂ                                                           (H1)
+  let m ∈ ℕ₀                                                          (H2)
+  let n ∈ ℕ₀                                                          (H3)
+  then        a^(m + n) = a^m·a^n
+  metamath    expadd
+  target      expadd
+
+mundane theorem product-nonzero
+  let x ∈ ℂ                                                           (H1)
+  let y ∈ ℂ                                                           (H2)
+  assume x ≠ 0                                                        (H3)
+  assume y ≠ 0                                                        (H4)
+  then        x·y ≠ 0
+  metamath    mulne0
+  target      mulne0
+
 mundane theorem power-integer
   let a ∈ ℤ                                                           (H1)
   let m ∈ ℕ₀                                                          (H2)
@@ -508,6 +525,12 @@ mundane theorem less-scaled
   target      ltmul2
   note        `inequalities` multiplies a bound only by a number; scaling by
               a term above 0 keeps a strict bound, and that is cited.
+
+mundane theorem abs-positive
+  let x ∈ ℂ                                                           (H1)
+  then        x ≠ 0 ↔ |x| > 0
+  metamath    absgt0
+  target      absgt0
 
 mundane theorem abs-nonneg
   let x ∈ ℂ                                                           (H1)

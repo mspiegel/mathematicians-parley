@@ -2,6 +2,7 @@ import mundane theorem    stdlib/reasoning/double-negation as reasoning-double-n
 import mundane theorem    stdlib/reasoning/or-left as reasoning-or-left
 import mundane theorem    stdlib/reasoning/or-right as reasoning-or-right
 import mundane theorem    stdlib/reasoning/modus-ponens as reasoning-modus-ponens
+import mundane theorem    stdlib/reasoning/not-either as reasoning-not-either
 import mundane theorem    stdlib/reasoning/iff-both-true as reasoning-iff-both-true
 import mundane theorem    stdlib/reasoning/iff-both-false as reasoning-iff-both-false
 import mundane theorem    stdlib/reasoning/iff-from-left as reasoning-iff-from-left
@@ -96,6 +97,14 @@ theorem or-left
 
 1.  x = 0 or x = 1
     mun:reasoning-or-left, from H2
+
+theorem not-either
+  let x ∈ ℝ                                                           (H1)
+  assume not (x = 0 or x = 1)                                         (H2)
+  then x ≠ 0 and x ≠ 1
+
+1.  x ≠ 0 and x ≠ 1
+    mun:reasoning-not-either, from H2
 
 theorem or-right
   let x ∈ ℝ                                                           (H1)
