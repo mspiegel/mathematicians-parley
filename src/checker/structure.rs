@@ -408,6 +408,18 @@ fn check_step_part(report: &mut Report, thm: &Theorem, step: &Step, known: &Know
         }
     };
     check_induction_runs(report, thm, step, set, known);
+    // The letter an induction runs over is its own: one the page has
+    // introduced where the induction stands would be two things at once.
+    if letters_introduced(thm, step).contains(&letter.text) {
+        report.say(
+            &thm.path,
+            step.line,
+            format!(
+                "step {number} is an induction on {k}, and {k} is a letter already introduced here; an induction runs over a letter of its own",
+                k = letter.text
+            ),
+        );
+    }
     for (index, (marker, no)) in step.parts.iter().enumerate() {
         let opens: Vec<_> = step
             .openers
@@ -1797,19 +1809,7 @@ pub fn letters_in_scope(
     scopes: &[FileScope],
     sorts: &Sorts,
 ) -> BTreeSet<String> {
-    let mut out: BTreeSet<String> = named_by_hypotheses(thm);
-    for h in &thm.hypotheses {
-        if let Some(names) = let_names(&h.text) {
-            out.extend(names_listed(names));
-        }
-        // A `let … be` line may name things in the sets it lists, as a
-        // graph's vertices and edges are named.
-        if h.kind == Intro::Let {
-            for list in listed(&h.text) {
-                out.extend(names_listed(list));
-            }
-        }
-    }
+    let mut out = letters_introduced(thm, step);
     out.extend(
         visible(scopes, thm.scope, thm.line)
             .into_iter()
@@ -1824,6 +1824,28 @@ pub fn letters_in_scope(
             }
         }
     }
+    out
+}
+
+/// The letters the page introduces that are in scope at `step`: the
+/// theorem's hypotheses, the `let` lines of the blocks around it (of its own
+/// part only), and what the steps it may cite obtained, its own included.
+/// What a define or the library names is not among them.
+pub fn letters_introduced(thm: &Theorem, step: &Step) -> BTreeSet<String> {
+    let mut out: BTreeSet<String> = named_by_hypotheses(thm);
+    for h in &thm.hypotheses {
+        if let Some(names) = let_names(&h.text) {
+            out.extend(names_listed(names));
+        }
+        // A `let … be` line may name things in the sets it lists, as a
+        // graph's vertices and edges are named.
+        if h.kind == Intro::Let {
+            for list in listed(&h.text) {
+                out.extend(names_listed(list));
+            }
+        }
+    }
+    let shape = CheckedTheorem::of(thm);
     for other in &thm.steps {
         let k = other.number.len();
         let encloses =

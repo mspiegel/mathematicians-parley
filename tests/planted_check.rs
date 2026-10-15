@@ -674,6 +674,15 @@ fn cases() -> Vec<Case> {
             "step 1 is an induction over ℤ, and an induction runs over ℕ from 1 or ℕ₀ from 0",
         ),
         case(
+            "an induction on a letter the theorem already introduces",
+            vec![edit(
+                "proofs/wiedijk/sum-formula.proof",
+                Some("(H1)\n  then ".to_string()),
+                "(H1)\n  let k ∈ ℕ (H2)\n  then ".to_string(),
+            )],
+            "step 1 is an induction on k, and k is a letter already introduced here; an induction runs over a letter of its own",
+        ),
+        case(
             "an induction with no base part",
             vec![edit(
                 "proofs/wiedijk/sum-formula.proof",
