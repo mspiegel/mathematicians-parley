@@ -14,6 +14,9 @@ use super::field::{self, Poly, DIV, Q, SUB};
 /// What `decide` finds of an `algebra` step.
 pub enum Verdict {
     Holds,
+    /// The claim is neither an equation nor a disequality, which algebra
+    /// decides.
+    Undecided,
     /// A power the step reads is one algebra does not multiply out.
     PastExpanding(Term),
     /// The claim, an equation, is no identity and no combination of the
@@ -33,7 +36,7 @@ pub fn refusal(
     render: &dyn Fn(&Term) -> String,
 ) -> Option<String> {
     match verdict {
-        Verdict::Holds => None,
+        Verdict::Holds | Verdict::Undecided => None,
         Verdict::PastExpanding(power) => Some(format!(
             "{} is a power algebra does not multiply out: writing it out costs more \
              than {}, each step the cube of its terms times the base's",
@@ -94,7 +97,7 @@ pub fn decide(claimed: &Term, cited: &[Term], labels: &FloatLabels) -> Verdict {
 /// disequality either is not decided here.
 fn decide_apart(claimed: &Term, cited: &[Term], labels: &FloatLabels) -> Verdict {
     let Some(claim) = field::denied(claimed, labels) else {
-        return Verdict::Holds;
+        return Verdict::Undecided;
     };
     for held in cited {
         for said in parts(held) {

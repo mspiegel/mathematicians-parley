@@ -7,7 +7,7 @@ use indexmap::{IndexMap, IndexSet};
 
 use super::library::Known;
 use super::record::CheckedTheorem;
-use super::{Report, CLOSURE, RELATIONS};
+use super::{Report, CLOSURE, DECIDED, RELATIONS};
 use crate::corpus::proof::visible;
 use crate::corpus::skeleton::{let_name, let_names, letter_in, listed};
 use crate::corpus::{
@@ -705,7 +705,7 @@ pub fn check_citations(
             at.check_reason(report, req, "requires line");
         }
         if let Some(m) = just.head.method() {
-            if CLOSURE.contains(&m.as_str()) {
+            if CLOSURE.contains(&m.as_str()) && !DECIDED.contains(&m.as_str()) {
                 report
                     .trusted
                     .push((m.as_str().to_string(), fmt(&step.number)));

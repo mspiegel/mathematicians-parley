@@ -67,7 +67,18 @@ impl Report {
     pub fn say(&mut self, path: &str, line: impl Into<At>, message: impl Into<String>) {
         self.problems.push(Problem::new(path, line, message));
     }
+
+    /// Count `step` among the steps accepted without being examined, resting
+    /// on `method`.
+    pub fn trust(&mut self, method: &str, step: &crate::corpus::Step) {
+        self.trusted
+            .push((method.to_string(), crate::corpus::fmt(&step.number)));
+    }
 }
+
+/// The closure methods whose steps a check of their own decides, which
+/// counts a step it leaves to the build itself (`Report::trust`).
+pub const DECIDED: [&str; 4] = ["algebra", "arithmetic", "inequalities", "join"];
 
 /// What the check printed, and the status it exits with.
 pub use crate::said::Said as Outcome;

@@ -1278,15 +1278,21 @@ pub fn check_arithmetic_holds(
     for step in &thm.steps {
         if step.just.head.is(Method::Arithmetic) {
             let what = format!("step {} claims {}", step.number, step.claim_text());
-            if let Some(why) = arithmetic_fails(&step.claim, known, targets) {
-                report.say(&thm.path, step.just.line, format!("{what}, which {why}"));
+            match arithmetic_worked(&step.claim, known, targets) {
+                Worked::Holds => {}
+                Worked::Fails(why) => report.say(
+                    &thm.path,
+                    step.just.line,
+                    format!("{what}, which {why}"),
+                ),
+                Worked::Undecided => report.trust("arithmetic", step),
             }
         }
         for req in &step.requires {
             if !req.is(Method::Arithmetic) {
                 continue;
             }
-            if let Some(why) = arithmetic_fails(&req.fact, known, targets) {
+            if let Worked::Fails(why) = arithmetic_worked(&req.fact, known, targets) {
                 report.say(
                     &thm.path,
                     req.line,
@@ -1322,10 +1328,12 @@ pub fn check_algebra_holds(
         }
         let sentences = step.claim.sentences();
         let [claim] = sentences.as_slice() else {
+            report.trust("algebra", step);
             continue;
         };
         let defined = known.citing_step(step);
         let Some(claimed) = known.read_citing(claim, &defined) else {
+            report.trust("algebra", step);
             continue;
         };
         let scope = known.scope(step);
@@ -1340,11 +1348,15 @@ pub fn check_algebra_holds(
             .chain(&lines)
             .any(|n| ["csu", "cprod"].iter().any(|l| targets.uses(n, l)));
         if ranged {
+            report.trust("algebra", step);
             continue;
         }
         let cited: Vec<Term> = lines.iter().map(|n| term_of_node(n, targets)).collect();
         let verdict =
             algebra::decide(&term_of_node(&claimed, targets), &cited, &labels);
+        if matches!(verdict, algebra::Verdict::Undecided) {
+            report.trust("algebra", step);
+        }
         let read: Vec<&Node> = std::iter::once(&claimed).chain(&lines).collect();
         let render = |t: &Term| printed(t, &read, known, targets, &labels);
         let number = step.number.to_string();
@@ -1374,10 +1386,12 @@ pub fn check_inequalities_holds(
         }
         let sentences = step.claim.sentences();
         let [claim] = sentences.as_slice() else {
+            report.trust("inequalities", step);
             continue;
         };
         let defined = known.citing_step(step);
         let Some(claimed) = known.read_citing(claim, &defined) else {
+            report.trust("inequalities", step);
             continue;
         };
         let scope = known.scope(step);
@@ -1396,10 +1410,14 @@ pub fn check_inequalities_holds(
             .collect();
         let cited: Vec<Term> = lines.iter().map(|n| term_of_node(n, targets)).collect();
         let claimed = term_of_node(&claimed, targets);
-        if inequalities::decide(&claimed, &cited, &implied, &labels) == Some(false) {
-            let number = step.number.to_string();
-            let said = inequalities::refusal(&step.claim_text(), &number);
-            report.say(&thm.path, step.just.line, said);
+        match inequalities::decide(&claimed, &cited, &implied, &labels) {
+            Some(true) => {}
+            Some(false) => {
+                let number = step.number.to_string();
+                let said = inequalities::refusal(&step.claim_text(), &number);
+                report.say(&thm.path, step.just.line, said);
+            }
+            None => report.trust("inequalities", step),
         }
     }
 }
@@ -1421,26 +1439,35 @@ fn printed(
         .unwrap_or(want)
 }
 
-/// What is wrong with a fact `arithmetic` works out, where it is numerals
-/// alone and does not hold or cannot be worked out; None where it holds, or
-/// is no fact of numerals alone. A sentence that does not read is
+/// What working out a fact `arithmetic` claims finds.
+enum Worked {
+    Holds,
+    /// It is false, or cannot be worked out, and why.
+    Fails(String),
+    /// A sentence of it is no fact the decider works out, which the build
+    /// is left to.
+    Undecided,
+}
+
+/// A fact `arithmetic` claims, each sentence worked out
+/// (`methods::field::decide_closed`). A sentence that does not read is
 /// `check_formulas`'s to report.
-fn arithmetic_fails(
-    written: &Written,
-    known: &Known,
-    targets: &Targets,
-) -> Option<String> {
+fn arithmetic_worked(written: &Written, known: &Known, targets: &Targets) -> Worked {
+    let mut out = Worked::Holds;
     for sentence in written.sentences() {
         let Some(node) = known.read_as_written(&sentence) else {
             continue;
         };
         match decide_closed(&term_of_node(&node, targets)) {
-            Built(Verdict::Holds(false)) => return Some("is false".to_string()),
-            Built(Verdict::Unworked(why)) => return Some(why.to_string()),
-            Built(Verdict::Holds(true)) | Declined(_) => {}
+            Built(Verdict::Holds(false)) => {
+                return Worked::Fails("is false".to_string())
+            }
+            Built(Verdict::Unworked(why)) => return Worked::Fails(why.to_string()),
+            Built(Verdict::Holds(true)) => {}
+            Declined(_) => out = Worked::Undecided,
         }
     }
-    None
+    out
 }
 
 /// `arithmetic` stands in for a line only where the fact is numerals alone.
