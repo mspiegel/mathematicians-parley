@@ -26,7 +26,7 @@ use indexmap::IndexMap;
 use super::field::{self, Verdict};
 use super::linear;
 use super::matcher::ChainLink;
-use super::provenance::{item_clauses, requirement};
+use super::provenance::requirement;
 use super::reading::{is_subgroup, CLASS_NAMES};
 use super::state::{
     fit, names_of, number_of, Binding, Block, Closer, Contradicted, Elaborator,
@@ -1301,7 +1301,7 @@ impl<'a> Elaborator<'a> {
             }
             Method::Reading(way) => {
                 let item = self.item_cited(&step.just.head.to_string())?;
-                self.trying(item, step, *way, term, scope, facts, lines, None)?
+                self.trying(item, step, *way, term, scope, facts, lines)?
             }
             Method::UnfoldEquation => self.unfold_equation(step, term, scope, facts)?,
             Method::Cite => self.cite(step, term, scope, facts, lines)?,
@@ -2194,9 +2194,8 @@ impl<'a> Elaborator<'a> {
         scope: &str,
         facts: &Facts,
         lines: &Lines,
-        cites: Option<&[String]>,
     ) -> Checked<Route<Proof>> {
-        let refs = cites.unwrap_or(&step.just.refs);
+        let refs = &step.just.refs;
         // A claim the lemma's left side fits only as the standard form reads
         // it is reached at the lemma's own instance and carried by `same`.
         let mut whole = self.statement(lemma);
@@ -2214,10 +2213,11 @@ impl<'a> Elaborator<'a> {
             None => term.to_string(),
         };
         if instance != term {
-            let made = take!(self
-                .one_equivalent(lemma, step, &instance, scope, facts, lines, cites)?);
+            let made = take!(
+                self.one_equivalent(lemma, step, &instance, scope, facts, lines)?
+            );
             let supplied = self.supplied(Some(step), scope, facts)?;
-            let held = self.with_cited(Some(step), scope, &supplied, cites);
+            let held = self.with_cited(Some(step), scope, &supplied, None);
             let alike = take!(self.same(
                 &self.to_term(&instance),
                 &self.to_term(term),
@@ -2243,7 +2243,7 @@ impl<'a> Elaborator<'a> {
         // scope would give; and what the lemma asks is asked of the same,
         // its requires lines included, as where a definition unfolds.
         let supplied = self.supplied(Some(step), scope, facts)?;
-        let known = self.with_cited(Some(step), scope, &supplied, cites);
+        let known = self.with_cited(Some(step), scope, &supplied, None);
         let (says, right) = take!(self.unfolding(
             step,
             lemma,
@@ -2400,9 +2400,8 @@ impl<'a> Elaborator<'a> {
         scope: &str,
         facts: &Facts,
         lines: &Lines,
-        cites: Option<&[String]>,
     ) -> Checked<Route<Proof>> {
-        let refs = cites.unwrap_or(&step.just.refs);
+        let refs = &step.just.refs;
         let sig = self.sig(lemma).clone();
         let whole = self.statement(lemma);
         let variables = names_of(&whole);
@@ -2582,7 +2581,7 @@ impl<'a> Elaborator<'a> {
         // What carries the unfolding to the claim asks from what the step
         // names, requires lines included.
         let supplied = self.supplied(Some(step), scope, facts)?;
-        let facts = self.with_cited(Some(step), scope, &supplied, cites);
+        let facts = self.with_cited(Some(step), scope, &supplied, None);
         let (made, _) = take!(self.unfolding(
             step,
             lemma,
@@ -2623,12 +2622,9 @@ impl<'a> Elaborator<'a> {
         }
     }
 
-    /// Use whichever lemma the target names reaches the claim; a defect the
-    /// way found on its own account is not one of the lemmas declining, and
-    /// goes past.
-    ///
-    /// `cites` is the lines the citation names: None for a step's own, and a
-    /// requires line's where the line cites the item (`by_its_reason`).
+    /// Use the lemma of the sentence the checker read the citation as
+    /// taking (`cited_labels`), the way `way` says; a defect the way found
+    /// on its own account is not the lemma declining, and goes past.
     #[allow(clippy::too_many_arguments)]
     pub fn trying(
         &mut self,
@@ -2639,17 +2635,18 @@ impl<'a> Elaborator<'a> {
         scope: &str,
         facts: &Facts,
         lines: &Lines,
-        cites: Option<&[String]>,
     ) -> Checked<Route<Proof>> {
         let mut declines = Vec::new();
-        for lemma in item_clauses(item) {
+        let lemmas = match item {
+            Item::Record(r) => self.cited_labels(step, r)?,
+            Item::Theorem(_) => Vec::new(),
+        };
+        for lemma in lemmas {
             let found = match way {
                 Way::Equivalent => {
-                    self.one_equivalent(&lemma, step, term, scope, facts, lines, cites)?
+                    self.one_equivalent(&lemma, step, term, scope, facts, lines)?
                 }
-                _ => {
-                    self.one_unfolded(&lemma, step, term, scope, facts, lines, cites)?
-                }
+                _ => self.one_unfolded(&lemma, step, term, scope, facts, lines)?,
             };
             match found {
                 Built(p) => return Ok(Built(p)),

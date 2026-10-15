@@ -1684,7 +1684,6 @@ impl<'a> Elaborator<'a> {
                     scope,
                     facts,
                     &lines,
-                    None,
                 )?;
                 // What is obtained may be an equation written the other way
                 // round from the one the item gives, `a·x + b·y = d` for
@@ -1699,7 +1698,6 @@ impl<'a> Elaborator<'a> {
                             scope,
                             facts,
                             &lines,
-                            None,
                         )? {
                             let alike = self.same(
                                 &self.to_term(&turned),

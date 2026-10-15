@@ -68,15 +68,6 @@ pub fn rests_on_only(proof: &Proof, item: &str) -> bool {
         && proof.origin.iter().next().map(String::as_str) == Some(item)
 }
 
-/// The lemmas an item's `target` names, one per `then` group; none for a
-/// theorem of the corpus.
-pub fn item_clauses(item: Item) -> Vec<String> {
-    match item {
-        Item::Record(r) => targets::clauses(r),
-        Item::Theorem(_) => Vec::new(),
-    }
-}
-
 impl<'a> Elaborator<'a> {
     /// The atoms of a claim a method combined, and every term in it.
     ///
