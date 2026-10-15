@@ -8,6 +8,7 @@
 pub mod algebra;
 pub mod field;
 pub mod inequalities;
+pub mod inspection;
 pub mod linear;
 pub mod membership;
 pub mod numerals;

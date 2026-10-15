@@ -634,9 +634,39 @@ fn cases() -> Vec<Case> {
             )],
             "4 divides 2 is a word divides defines, and arithmetic decides a word only where its record says so in a `decided` field",
         ),
-        // A count of the odd vertices that leaves A out, 5 being odd. The
-        // checker does not count by `inspection`; it reports the step below
-        // that takes the count of 4 from the line now saying 3.
+        // A link of numerals alone naming arithmetic, worked out whole.
+        case(
+            "a chain link of numerals that is false",
+            vec![edit(
+                "proofs/sum-formula.proof",
+                Some("= 1(1 + 1)/2            arithmetic".to_string()),
+                "= 1(1 + 1)/3            arithmetic".to_string(),
+            )],
+            "a link of step 1.2 names arithmetic for 1 = 1(1 + 1)/3, which is false",
+        ),
+        // Inspection decides "is prime" by the number: a composite at any
+        // size by its least factor, and a prime only below 29², past which
+        // trial division by the primes up to 23 settles nothing.
+        case(
+            "claim by inspection that a composite number is prime",
+            vec![edit(
+                "tests/notations/primes.proof",
+                Some("  then 97 is prime\n\n1.  97 is prime\n".to_string()),
+                "  then 91 is prime\n\n1.  91 is prime\n".to_string(),
+            )],
+            "step 1 claims 91 is prime, which inspection of what it cites shows false",
+        ),
+        case(
+            "claim by inspection that a prime past 841 is prime",
+            vec![edit(
+                "tests/notations/primes.proof",
+                Some("  then 97 is prime\n\n1.  97 is prime\n".to_string()),
+                "  then 853 is prime\n\n1.  853 is prime\n".to_string(),
+            )],
+            "and 853 is not below 841",
+        ),
+        // A count of the odd vertices that leaves A out, 5 being odd, which
+        // the checker counts by inspection as the reader does.
         case(
             "a parity inspection settles that a count leaves out",
             vec![edit(
@@ -644,7 +674,7 @@ fn cases() -> Vec<Case> {
                 Some("6.  |{x ∈ V : deg(x) is odd}| = 4".to_string()),
                 "6.  |{x ∈ V : deg(x) is odd}| = 3".to_string(),
             )],
-            "step 7.2 takes |{x ∈ V : deg(x) is odd}| = 4 from 6, which does not say it",
+            "step 6 claims |{x ∈ V : deg(x) is odd}| = 3, which inspection of what it cites shows false",
         ),
         // `substitute` walks its equation both ways and each sentence of the
         // line it names, trying the next where one declines. A name the proof

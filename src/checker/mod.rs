@@ -38,10 +38,11 @@ pub use record::CheckedTheorem;
 pub use structure::{cited_in_order, out_of_reach, unresolved};
 
 /// Methods whose steps this checker accepts without examining them.
-pub const CLOSURE: [Method; 5] = [
+pub const CLOSURE: [Method; 6] = [
     Method::Algebra,
     Method::Arithmetic,
     Method::Inequalities,
+    Method::Inspection,
     Method::Join,
     Method::Membership,
 ];
@@ -78,10 +79,11 @@ impl Report {
 
 /// The closure methods whose steps a check of their own decides, which
 /// counts a step it leaves to the build itself (`Report::trust`).
-pub const DECIDED: [Method; 5] = [
+pub const DECIDED: [Method; 6] = [
     Method::Algebra,
     Method::Arithmetic,
     Method::Inequalities,
+    Method::Inspection,
     Method::Join,
     Method::Membership,
 ];
@@ -678,6 +680,7 @@ fn check_theorem(
     formulas::check_algebra_holds(report, thm, k, targets);
     formulas::check_inequalities_holds(report, thm, k, targets);
     formulas::check_membership_holds(report, thm, k, targets);
+    formulas::check_inspection_holds(report, thm, k, targets);
     formulas::check_membership_claims(report, thm, env, k);
     citations::check_hypotheses(report, thm, library, k);
     citations::check_conclusion(report, thm, library, k);

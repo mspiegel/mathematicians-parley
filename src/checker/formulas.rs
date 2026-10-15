@@ -1601,6 +1601,51 @@ fn inequalities_hold(
     }
 }
 
+/// What `inspection` claims holds (`METHODS.md`, inspection): a claim about
+/// sets listed in full, checked element by element against what the lines
+/// the step cites say (`methods::inspection`), each sentence a kernel term.
+/// One the facts show false is refused; one they settle neither way is left
+/// to the build, and counted.
+pub fn check_inspection_holds(
+    report: &mut Report,
+    thm: &Theorem,
+    known: &Known,
+    targets: &Targets,
+) {
+    for step in &thm.steps {
+        if !step.just.head.is(Method::Inspection) {
+            continue;
+        }
+        // A claim that does not read is `check_formulas`'s to report.
+        let Some(claim) = known.whole(step, &step.claim) else {
+            continue;
+        };
+        let scope = known.scope(step);
+        let cited: Vec<Term> = step
+            .just
+            .refs
+            .iter()
+            .filter_map(|r| scope.get(r))
+            .flat_map(|stated| known.stated_at(step, stated))
+            .map(|n| term_of_node(&n, targets))
+            .collect();
+        use crate::methods::inspection::{Facts, Inspected};
+        let what = format!("step {} claims {}", step.number, known.print(&claim));
+        match Facts::of(&cited).decide(&term_of_node(&claim, targets)) {
+            Inspected::Holds => {}
+            Inspected::Fails => report.say(
+                &thm.path,
+                step.just.line,
+                format!("{what}, which inspection of what it cites shows false"),
+            ),
+            Inspected::Unsettled(why) => {
+                report.say(&thm.path, step.just.line, format!("{what}, and {why}"))
+            }
+            Inspected::Undecided => report.trust(Method::Inspection, step),
+        }
+    }
+}
+
 /// What `membership` claims holds (`METHODS.md`, membership): a step's claim
 /// `t ∈ S`, or `for all k ∈ X, t ∈ S` at a member of X, and a requires
 /// line's whose reason is `membership`, each decided by

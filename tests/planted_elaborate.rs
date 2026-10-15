@@ -326,14 +326,6 @@ fn cases() -> Vec<Case> {
             "  target      suprcl, suprub with c := sup S",
             "axi:stdlib/calculus/completeness targets suprcl, suprub, and none of them reaches what step 8 obtains",
         ),
-        case(
-            "a chain link of numerals that is false",
-            "proofs/sum-formula/sum-formula",
-            "proofs/sum-formula.proof",
-            "= 1(1 + 1)/2            arithmetic",
-            "= 1(1 + 1)/3            arithmetic",
-            "a link of step 1.2 claims 1 = 1(1 + 1)/3, which is false",
-        ),
         // `membership` builds from what the line cites and the lines above it:
         // f(a) is real because a is in f's domain [a, b], which line 1 says
         // and no introducing line says once. H3 says a < b, nothing of where
@@ -461,25 +453,6 @@ fn cases() -> Vec<Case> {
             "    inequalities, from H3, 1\n",
             "    inequalities, from H3\n",
             "nothing says √a ∈ ℝ, which this step needs",
-        ),
-        // Inspection decides "is prime" by the number, so a composite said to
-        // be prime is refused with what the number is.
-        case(
-            "claim by inspection that a composite number is prime",
-            "tests/notations/primes/ninety-seven-is-prime",
-            "tests/notations/primes.proof",
-            "  then 97 is prime\n\n1.  97 is prime\n",
-            "  then 91 is prime\n\n1.  91 is prime\n",
-            "91 is not prime",
-        ),
-        // Past 841 trial division by the primes up to 23 settles nothing.
-        case(
-            "claim by inspection that a prime past 841 is prime",
-            "tests/notations/primes/ninety-seven-is-prime",
-            "tests/notations/primes.proof",
-            "  then 97 is prime\n\n1.  97 is prime\n",
-            "  then 853 is prime\n\n1.  853 is prime\n",
-            "and 853 is not below 841",
         ),
         // A requires line's `from` names the lines it rests on, as a step's
         // does: d(k) ∈ ℝ rests on H2, d's type, with k's membership said once.

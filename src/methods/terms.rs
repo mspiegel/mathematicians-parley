@@ -45,6 +45,16 @@ pub const VOCABULARY: &[(&str, usize)] = &[
     ("cmo", 0),
     ("csu", 3),
     ("cfz", 0),
+    ("cpr", 2),
+    ("ctp", 3),
+    ("csn", 1),
+    ("cun", 2),
+    ("c0", 0),
+    ("crab", 3),
+    ("wral", 3),
+    ("cfv", 2),
+    ("chash", 0),
+    ("cprime", 0),
     ("cc0", 0),
     ("c1", 0),
     ("c2", 0),
@@ -68,6 +78,18 @@ pub struct Targets {
     literals: IndexMap<String, Vec<String>>,
     /// What each library function builds, by its name (`builds`).
     builds: IndexMap<String, String>,
+    /// For a pattern a hole of which repeats, by its notation and literal:
+    /// how many holes the pattern writes, and what each further one adds,
+    /// `_ csn cun` for a list of four elements or more (`Repeat`).
+    repeats: IndexMap<(String, String), Repeats>,
+}
+
+/// How a node holds more children than its pattern's holes: the holes the
+/// pattern writes, and what each further child adds to the term the ones
+/// before it built, `_` standing for that child.
+struct Repeats {
+    holes: usize,
+    building: String,
 }
 
 /// An operation a term applies, read off its target: the label, `cmo`, and
@@ -91,10 +113,25 @@ impl Targets {
             .iter()
             .map(|(name, f)| (name.clone(), f.builds.clone()))
             .collect();
+        let repeats = g
+            .notations
+            .iter()
+            .filter_map(|n| {
+                let r = n.repeat.as_ref()?;
+                Some((
+                    (n.key().to_string(), n.literal.clone()),
+                    Repeats {
+                        holes: n.holes.len(),
+                        building: r.building.clone(),
+                    },
+                ))
+            })
+            .collect();
         Targets {
             terms: targets::terms(records),
             literals,
             builds,
+            repeats,
         }
     }
 
@@ -180,7 +217,46 @@ fn term_under(node: &Node, targets: &Targets, indices: &[&Node]) -> Term {
         .iter()
         .map(|c| term_under(c, targets, &inside))
         .collect();
-    built(pattern, &holes).unwrap_or_else(|| atom(node, indices))
+    // A list longer than its pattern: the pattern's holes built, and each
+    // further child added as the record's `repeats` says.
+    let repeats = targets
+        .repeats
+        .get(&(node.notation.clone(), node.text.clone()))
+        .filter(|r| holes.len() > r.holes);
+    let made = match repeats {
+        Some(r) => {
+            let (written, further) = holes.split_at(r.holes);
+            built(pattern, written).and_then(|start| {
+                further
+                    .iter()
+                    .try_fold(start, |acc, child| built_onto(&r.building, &acc, child))
+            })
+        }
+        None => built(pattern, &holes),
+    };
+    made.unwrap_or_else(|| atom(node, indices))
+}
+
+/// What a repeated hole's `building` makes of the term built so far and
+/// one further child: `_ csn cun` joins `so_far` with the child's singleton.
+fn built_onto(building: &str, so_far: &Term, child: &Term) -> Option<Term> {
+    let mut stack = vec![so_far.clone()];
+    for token in building.split_whitespace() {
+        if token == "_" {
+            stack.push(child.clone());
+            continue;
+        }
+        let (_, arity) = VOCABULARY.iter().find(|(label, _)| *label == token)?;
+        if stack.len() < *arity {
+            return None;
+        }
+        let args = stack.split_off(stack.len() - arity);
+        stack.push(Term::apply(token, args));
+    }
+    match stack.as_slice() {
+        [one] => Some(one.clone()),
+        _ => None,
+    }
 }
 
 /// The atom a part of the page the deciders do not look inside stands as,
@@ -206,6 +282,12 @@ fn built(pattern: &str, holes: &[Term]) -> Option<Term> {
         if let Some(n) = token.strip_prefix('_') {
             let at: usize = n.parse().ok()?;
             stack.push(holes.get(at.checked_sub(1)?)?.clone());
+            continue;
+        }
+        // A part of the structure a theorem is about, `@ends` the ends of its
+        // graph's edges, is one term throughout the theorem, and an atom.
+        if token.starts_with('@') {
+            stack.push(Term::apply(token, Vec::new()));
             continue;
         }
         let (_, arity) = VOCABULARY.iter().find(|(label, _)| *label == token)?;
