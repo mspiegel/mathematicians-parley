@@ -654,6 +654,9 @@ pub struct FileScope {
     /// The library functions it imports, which are in scope in it and in no
     /// file that does not import them.
     pub functions: Vec<FunctionImport>,
+    /// The line each of its theorems is written on, by the theorem's name:
+    /// what a theorem of the file is stated over (`sorts::stated_over`).
+    pub theorems: IndexMap<String, usize>,
 }
 
 impl FileScope {
@@ -666,6 +669,7 @@ impl FileScope {
             items: Vec::new(),
             linked: IndexMap::new(),
             functions: Vec::new(),
+            theorems: IndexMap::new(),
         }
     }
 
@@ -1913,6 +1917,9 @@ pub fn parse_proof(
             .into_iter()
             .map(|s| impossible(s.step))
             .collect();
+        scope
+            .theorems
+            .insert(draft.thm.name.clone(), draft.thm.line);
         theorems.push(draft.thm);
         Ok(())
     }

@@ -1781,7 +1781,8 @@ impl<'a> Elaborator<'a> {
             .outside_defines
             .get_or_init(|| Rc::new(OutsideDefines::of(self.thm, self.env())))
             .clone();
-        let labels = outside.citing_labels(self.thm, refs, Some(cited));
+        let labels =
+            crate::sorts::citing_labels(self.thm, self.scopes, refs, Some(cited));
         let defined = outside.citing(self.thm, self.env(), &self.sorts_now, &labels);
         let mut facts: Vec<Node> = facts.iter().map(|n| expand(n, &defined)).collect();
         let mut claims: Vec<Node> =
@@ -5684,7 +5685,7 @@ impl<'a> Elaborator<'a> {
         // them by name, as the citing step does, so the step reads them as
         // the statement does without citing them, as the checker reads it.
         let kept = self.resting.clone();
-        let over = self.stated_over(other);
+        let over = crate::sorts::stated_over(self.thm, self.scopes, &other.qualified());
         if let Some(allowed) = &mut self.resting {
             allowed.extend(over);
         }

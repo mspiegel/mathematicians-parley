@@ -512,6 +512,19 @@ const UNPLANTED: &[(&str, &str)] = &[
 
 fn cases() -> Vec<Case> {
     vec![
+        // A step citing a theorem of its own file reads the defines that
+        // theorem is stated over, those above it, and no other: D2 is
+        // written below `above`, so `below` claims R(k) = k + 1 of a theorem
+        // that says nothing of R, and does not cite D2.
+        case(
+            "read a define written below the theorem of the file a step cites",
+            vec![edit(
+                "proofs/stated-over.proof",
+                None,
+                "define S(k) := k + 1, for k ∈ ℕ                                      (D1)\n       reads one more than k\n\ntheorem above\n  let k ∈ ℕ                                                           (H1)\n  then S(k) = k + 1\n\n1.  S(k) = k + 1\n    D1\n\ndefine R(k) := k + 1, for k ∈ ℕ                                      (D2)\n       reads also one more than k\n\ntheorem below\n  let k ∈ ℕ                                                           (H1)\n  then R(k) = k + 1\n\n1.  R(k) = k + 1\n    thm:above\n".to_string(),
+            )],
+            "proofs/stated-over.proof:19  step 1 claims something that thm:above does not conclude",
+        ),
         // abs asks that x be real, at x := ⌊A + 1/2⌋ − A, and line 1 says
         // only that the floor is an integer: the difference's membership is
         // a closure no line the step names states.

@@ -493,17 +493,13 @@ pub struct OutsideDefines {
     pub outside: Definitions,
     /// The label a citation names each by.
     pub labels: indexmap::IndexMap<String, String>,
-    /// The labels of the defines the theorem's file writes above it.
-    pub file_labels: Vec<String>,
 }
 
 impl OutsideDefines {
     pub fn of(thm: &Theorem, env: Env) -> OutsideDefines {
         let mut labels = indexmap::IndexMap::new();
-        let mut file_labels = Vec::new();
         for (name, d, src) in visible(env.scopes, thm.scope, thm.line) {
             let label = if src == thm.scope {
-                file_labels.push(d.label.clone());
                 Some(d.label)
             } else {
                 env.scopes[thm.scope].import_label(&name).map(String::from)
@@ -515,7 +511,6 @@ impl OutsideDefines {
         OutsideDefines {
             outside: file_definitions(thm, env),
             labels,
-            file_labels,
         }
     }
 
@@ -540,27 +535,43 @@ impl OutsideDefines {
         made.extend(cited_defines(thm, env, sorts, refs));
         made
     }
+}
 
-    /// The labels a citation of `item`, by its full name, is read with
-    /// besides `refs`: a theorem of the theorem's own file speaks of the
-    /// file's defines by name as its statement does, and is read with them
-    /// without citing them (`SYNTAX.md`, the one exception).
-    pub fn citing_labels(
-        &self,
-        thm: &Theorem,
-        refs: &[String],
-        item: Option<&str>,
-    ) -> Vec<String> {
-        let own_file = item.is_some_and(|full| {
-            full.rsplit_once('/')
-                .is_some_and(|(module, _)| module == thm.module())
-        });
-        let mut all = refs.to_vec();
-        if own_file {
-            all.extend(self.file_labels.iter().cloned());
-        }
-        all
+/// The labels a citation in `thm` of `item`, by its full name, is read with
+/// besides `refs` (`stated_over`).
+pub fn citing_labels(
+    thm: &Theorem,
+    scopes: &[FileScope],
+    refs: &[String],
+    item: Option<&str>,
+) -> Vec<String> {
+    let mut all = refs.to_vec();
+    if let Some(item) = item {
+        all.extend(stated_over(thm, scopes, item));
     }
+    all
+}
+
+/// The labels of the defines `item`, a theorem of `thm`'s own file by its
+/// full name, is stated over: those the file writes above it. A step citing
+/// it speaks of them by name as its statement does, and reads them without
+/// citing them (`SYNTAX.md`, the one exception). None for an item of another
+/// file, whose defines a step knows only through an import.
+pub fn stated_over(thm: &Theorem, scopes: &[FileScope], item: &str) -> Vec<String> {
+    let Some((module, name)) = item.rsplit_once('/') else {
+        return Vec::new();
+    };
+    if module != thm.module() {
+        return Vec::new();
+    }
+    let Some(&line) = scopes[thm.scope].theorems.get(name) else {
+        return Vec::new();
+    };
+    visible(scopes, thm.scope, line)
+        .into_iter()
+        .filter(|(_, _, src)| *src == thm.scope)
+        .map(|(_, d, _)| d.label)
+        .collect()
 }
 
 /// What the theorem's statement is read with: the definitions above it

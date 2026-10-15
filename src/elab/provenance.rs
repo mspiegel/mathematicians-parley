@@ -430,13 +430,10 @@ impl<'a> Elaborator<'a> {
         out.extend(self.sorts.iter().cloned());
         out.extend(step.requires.iter().map(|r| requirement(r.line)));
         // A theorem of this file stated over the file's defines is read with
-        // them, and the step rests on them through it (`stated_over`).
+        // them, and the step rests on them through it (`sorts::stated_over`).
         if let Some(cited) = cited_item(&step.just) {
-            if let Some(Item::Theorem(other)) =
-                self.items.get(&self.thm.names.full(&cited))
-            {
-                out.extend(self.stated_over(other));
-            }
+            let full = self.thm.names.full(&cited);
+            out.extend(crate::sorts::stated_over(self.thm, self.scopes, &full));
         }
         if block {
             let prefix = format!("{number}.");

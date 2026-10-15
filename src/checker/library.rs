@@ -20,7 +20,7 @@ use crate::matching::{
     alike, expand, standard, substituted_in, Binding, Context, Definitions,
 };
 use crate::sorts::introduction::Introduction;
-use crate::sorts::{Env, OutsideDefines, TYPING};
+use crate::sorts::{citing_labels, Env, OutsideDefines, TYPING};
 
 type PartsKey = (StepNo, String, String, Vec<String>, Vec<String>);
 
@@ -296,20 +296,19 @@ impl<'a> Known<'a> {
     }
 
     /// What a defined name stands for in `step`'s citation (`citing`). A
-    /// step citing a theorem of its own file speaks of the file's defines by
-    /// name as that theorem's statement does, and reads them without citing
-    /// them (`SYNTAX.md`, the one exception; the elaborator's
-    /// `stated_over`).
+    /// step citing a theorem of its own file speaks of the defines above it
+    /// by name as that theorem's statement does, and reads them without
+    /// citing them (`sorts::stated_over`).
     pub fn citing_step(&self, step: &Step) -> Rc<Definitions> {
         let item = cited_item(&step.just).map(|c| step.just.item(&c));
         self.citing_item(&step.just.refs, item.as_deref())
     }
 
     /// `citing` for a citation naming `refs` and citing `item`, by its full
-    /// name, where it cites one: a theorem of this file brings the file's
-    /// defines with it (`citing_step`).
+    /// name, where it cites one: a theorem of this file brings the defines
+    /// it is stated over with it (`citing_step`).
     pub fn citing_item(&self, refs: &[String], item: Option<&str>) -> Rc<Definitions> {
-        self.citing(&self.outside.citing_labels(self.thm, refs, item))
+        self.citing(&citing_labels(self.thm, self.env.scopes, refs, item))
     }
 
     /// A sentence read with what `defined` writes out (`citing`), in the
