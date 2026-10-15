@@ -21,7 +21,7 @@ use crate::formula::{walk, Node, Sort, Sorts};
 use crate::matching::{alike_top, free_names, substitute_apart_by, Binding};
 use crate::methods::field::{decide_closed, Verdict};
 use crate::methods::terms::{term_of_node, Targets};
-use crate::methods::{algebra, inequalities};
+use crate::methods::{algebra, inequalities, linear};
 use crate::mm::kernel::{FloatLabels, Term};
 use crate::outcome::{Built, Checked, Declined};
 use crate::sorts::infer::{self, Reader, Store};
@@ -1321,103 +1321,221 @@ pub fn check_algebra_holds(
     known: &Known,
     targets: &Targets,
 ) {
-    let labels = FloatLabels::new(IndexMap::new());
     for step in &thm.steps {
-        if !step.just.head.is(Method::Algebra) {
-            continue;
+        if step.just.head.is(Method::Algebra) {
+            let decided =
+                algebra_holds(report, thm, &ClosureClaim::step(step), known, targets);
+            if !decided {
+                report.trust("algebra", step);
+            }
         }
-        let sentences = step.claim.sentences();
-        let [claim] = sentences.as_slice() else {
-            report.trust("algebra", step);
-            continue;
-        };
-        let defined = known.citing_step(step);
-        let Some(claimed) = known.read_citing(claim, &defined) else {
-            report.trust("algebra", step);
-            continue;
-        };
-        let scope = known.scope(step);
-        let lines: Vec<Node> = step
-            .just
-            .refs
-            .iter()
-            .filter_map(|r| scope.get(r))
-            .flat_map(|written| known.supplied(written, &defined))
-            .collect();
-        let ranged = std::iter::once(&claimed)
-            .chain(&lines)
-            .any(|n| ["csu", "cprod"].iter().any(|l| targets.uses(n, l)));
-        if ranged {
-            report.trust("algebra", step);
-            continue;
-        }
-        let cited: Vec<Term> = lines.iter().map(|n| term_of_node(n, targets)).collect();
-        let verdict =
-            algebra::decide(&term_of_node(&claimed, targets), &cited, &labels);
-        if matches!(verdict, algebra::Verdict::Undecided) {
-            report.trust("algebra", step);
-        }
-        let read: Vec<&Node> = std::iter::once(&claimed).chain(&lines).collect();
-        let render = |t: &Term| printed(t, &read, known, targets, &labels);
-        let number = step.number.to_string();
-        if let Some(said) =
-            algebra::refusal(&verdict, &step.claim_text(), &number, &render)
-        {
-            report.say(&thm.path, step.just.line, said);
+        for req in step.requires.iter().filter(|r| r.is(Method::Algebra)) {
+            algebra_holds(
+                report,
+                thm,
+                &ClosureClaim::requires(step, req),
+                known,
+                targets,
+            );
         }
     }
+}
+
+/// `check_algebra_holds` of one claim; whether it was decided, the build
+/// left to decide one that was not.
+fn algebra_holds(
+    report: &mut Report,
+    thm: &Theorem,
+    at: &ClosureClaim,
+    known: &Known,
+    targets: &Targets,
+) -> bool {
+    let Some(read) = at.read(known, targets) else {
+        return false;
+    };
+    let ranged = std::iter::once(&read.claimed)
+        .chain(&read.lines)
+        .any(|n| ["csu", "cprod"].iter().any(|l| targets.uses(n, l)));
+    if ranged {
+        return false;
+    }
+    let labels = FloatLabels::new(IndexMap::new());
+    let cited: Vec<Term> = read
+        .lines
+        .iter()
+        .map(|n| term_of_node(n, targets))
+        .collect();
+    let verdict =
+        algebra::decide(&term_of_node(&read.claimed, targets), &cited, &labels);
+    let shown: Vec<&Node> = std::iter::once(&read.claimed).chain(&read.lines).collect();
+    let render = |t: &Term| printed(t, &shown, known, targets, &labels);
+    let number = at.step.number.to_string();
+    if let Some(said) =
+        algebra::refusal(&verdict, &at.claim.to_string(), &number, &render)
+    {
+        report.say(&thm.path, at.line, at.said(said));
+    }
+    !matches!(verdict, algebra::Verdict::Undecided)
 }
 
 /// What `inequalities` claims holds (`METHODS.md`, inequalities): a step's
 /// claim of one sentence follows by linear arithmetic from what the lines it
 /// cites say and the bounds a membership among them implies
 /// (`methods::inequalities::decide`), each read as `check_algebra_holds`
-/// reads it.
+/// reads it; and a requires line's whose reason is `inequalities`.
 pub fn check_inequalities_holds(
     report: &mut Report,
     thm: &Theorem,
     known: &Known,
     targets: &Targets,
 ) {
-    let labels = FloatLabels::new(IndexMap::new());
     for step in &thm.steps {
-        if !step.just.head.is(Method::Inequalities) {
-            continue;
+        if step.just.head.is(Method::Inequalities) {
+            let at = ClosureClaim::step(step);
+            if !inequalities_hold(report, thm, &at, known, targets) {
+                report.trust("inequalities", step);
+            }
         }
-        let sentences = step.claim.sentences();
+        for req in step.requires.iter().filter(|r| r.is(Method::Inequalities)) {
+            let at = ClosureClaim::requires(step, req);
+            inequalities_hold(report, thm, &at, known, targets);
+        }
+    }
+}
+
+/// `check_inequalities_holds` of one claim; whether it was decided.
+fn inequalities_hold(
+    report: &mut Report,
+    thm: &Theorem,
+    at: &ClosureClaim,
+    known: &Known,
+    targets: &Targets,
+) -> bool {
+    let Some(read) = at.read(known, targets) else {
+        return false;
+    };
+    let labels = FloatLabels::new(IndexMap::new());
+    let implied: Vec<Term> = read
+        .lines
+        .iter()
+        .flat_map(conjuncts)
+        .flat_map(|part| implied_facts(&part, known.env, &known.sorts))
+        .map(|n| term_of_node(&n, targets))
+        .collect();
+    let cited: Vec<Term> = read
+        .lines
+        .iter()
+        .map(|n| term_of_node(n, targets))
+        .collect();
+    let claimed = term_of_node(&read.claimed, targets);
+    match inequalities::decide(&claimed, &cited, &implied, &labels) {
+        Some(true) => true,
+        Some(false) => {
+            let number = at.step.number.to_string();
+            let said = inequalities::refusal(&at.claim.to_string(), &number);
+            report.say(&thm.path, at.line, at.said(said));
+            true
+        }
+        None => false,
+    }
+}
+
+/// A claim a closure method is asked of: a step's own, or a requires line's
+/// read as the step it would be, with the requires lines above it among what
+/// it cites (`ELABORATION.md`, R2).
+struct ClosureClaim<'s> {
+    /// The step the claim is made at.
+    step: &'s Step,
+    claim: &'s Written,
+    refs: &'s [String],
+    /// The requires lines above a requires line, whose facts it rests on.
+    above: Vec<&'s crate::corpus::proof::Requires>,
+    /// Where a refusal is said.
+    line: usize,
+    /// The requires line, where the claim is one.
+    requires: Option<&'s crate::corpus::proof::Requires>,
+}
+
+/// A closure claim and what it cites, read.
+struct ClosureRead {
+    claimed: Node,
+    lines: Vec<Node>,
+}
+
+impl<'s> ClosureClaim<'s> {
+    fn step(step: &'s Step) -> ClosureClaim<'s> {
+        ClosureClaim {
+            step,
+            claim: &step.claim,
+            refs: &step.just.refs,
+            above: Vec::new(),
+            line: step.just.line,
+            requires: None,
+        }
+    }
+
+    fn requires(
+        step: &'s Step,
+        req: &'s crate::corpus::proof::Requires,
+    ) -> ClosureClaim<'s> {
+        ClosureClaim {
+            step,
+            claim: &req.fact,
+            refs: req.lines(),
+            above: step.requires_above(req.line).collect(),
+            line: req.line,
+            requires: Some(req),
+        }
+    }
+
+    /// The claim and what it cites, read with the defines it cites written
+    /// out; None for a claim of more than one sentence, or one that does
+    /// not read, which `check_formulas` reports. Of the requires lines
+    /// above, a disequality is left out: two terms differing is taken only
+    /// from a line the claim cites (`METHODS.md`), as the build reads it
+    /// (`as_a_step`).
+    fn read(&self, known: &Known, targets: &Targets) -> Option<ClosureRead> {
+        let sentences = self.claim.sentences();
         let [claim] = sentences.as_slice() else {
-            report.trust("inequalities", step);
-            continue;
+            return None;
         };
-        let defined = known.citing_step(step);
-        let Some(claimed) = known.read_citing(claim, &defined) else {
-            report.trust("inequalities", step);
-            continue;
+        let defined = match self.requires {
+            Some(_) => known.citing_item(self.refs, None),
+            None => known.citing_step(self.step),
         };
-        let scope = known.scope(step);
-        let lines: Vec<Node> = step
-            .just
+        let claimed = known.read_citing(claim, &defined)?;
+        let scope = known.scope(self.step);
+        let mut lines: Vec<Node> = self
             .refs
             .iter()
             .filter_map(|r| scope.get(r))
             .flat_map(|written| known.supplied(written, &defined))
             .collect();
-        let implied: Vec<Term> = lines
-            .iter()
-            .flat_map(conjuncts)
-            .flat_map(|part| implied_facts(&part, known.env, &known.sorts))
-            .map(|n| term_of_node(&n, targets))
-            .collect();
-        let cited: Vec<Term> = lines.iter().map(|n| term_of_node(n, targets)).collect();
-        let claimed = term_of_node(&claimed, targets);
-        match inequalities::decide(&claimed, &cited, &implied, &labels) {
-            Some(true) => {}
-            Some(false) => {
-                let number = step.number.to_string();
-                let said = inequalities::refusal(&step.claim_text(), &number);
-                report.say(&thm.path, step.just.line, said);
+        let labels = FloatLabels::new(IndexMap::new());
+        for o in &self.above {
+            for s in o.fact.sentences() {
+                let Some(said) = known.read_citing(&s, &defined) else {
+                    continue;
+                };
+                let differing = linear::fact(&term_of_node(&said, targets), &labels)
+                    .is_some_and(|f| f.how == linear::How::Ne);
+                if !differing {
+                    lines.push(said);
+                }
             }
-            None => report.trust("inequalities", step),
+        }
+        Some(ClosureRead { claimed, lines })
+    }
+
+    /// A refusal as it is said here: of the requires line, where the claim
+    /// is one.
+    fn said(&self, refusal: String) -> String {
+        match self.requires {
+            Some(req) => format!(
+                "the requires line {} of step {}, read as a step citing what it cites: {refusal}",
+                req.fact, self.step.number
+            ),
+            None => refusal,
         }
     }
 }
