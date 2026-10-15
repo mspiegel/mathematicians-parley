@@ -373,6 +373,9 @@ pub struct Elaborator<'a> {
     /// What each record asks a citation and concludes, read as the checker
     /// reads it (`citing`), the first time a citation asks.
     pub item_library: OnceCell<Rc<citing::Library<'a>>>,
+    /// Every reading the grammar has, in the order a term is read back to
+    /// the page by (`reading_table`), made the first time one is.
+    pub(super) readings: OnceCell<Vec<super::spoken::Ranked>>,
 }
 
 impl<'a> Elaborator<'a> {
@@ -497,6 +500,7 @@ impl<'a> Elaborator<'a> {
             statements,
             whole_scope: false,
             item_library: OnceCell::new(),
+            readings: OnceCell::new(),
         }
     }
 

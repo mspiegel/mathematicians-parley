@@ -50,11 +50,57 @@ fn numeral(term: &Term) -> Option<String> {
 
 /// One way to read a term: the target a pattern builds, the notation and
 /// literal its node has, and for a library function the name it applies.
+#[derive(Clone)]
 struct Reading {
     target: String,
     notation: String,
     literal: String,
     applies: Option<String>,
+}
+
+/// A reading of the grammar's, with where it stands among them, the order
+/// that settles readings of one length.
+pub(super) struct Ranked {
+    reading: Reading,
+    place: usize,
+    /// For a list's pattern, what reads it at more elements than it writes.
+    list: Option<ListReading>,
+}
+
+/// What reads a list's pattern at more elements: the holes it writes, the
+/// target each further element adds, and that target's last label, which a
+/// term holds once for each element it adds.
+struct ListReading {
+    holes: usize,
+    building: String,
+    last: String,
+}
+
+/// A list's pattern read at `count` elements, standing where its pattern
+/// does.
+struct ListAt {
+    place: usize,
+    count: usize,
+    reading: Reading,
+}
+
+/// The order readings are tried in: the one saying most of the term first,
+/// then by where its pattern stands, a list's at fewer elements first.
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+struct ReadingOrder {
+    longer: std::cmp::Reverse<usize>,
+    place: usize,
+    count: usize,
+}
+
+impl ReadingOrder {
+    fn of(reading: &Reading, place: usize, count: usize) -> ReadingOrder {
+        ReadingOrder {
+            longer: std::cmp::Reverse(reading.target.split_whitespace().count()),
+            place,
+            count,
+        }
+    }
 }
 
 impl Elaborator<'_> {
@@ -111,6 +157,67 @@ impl Elaborator<'_> {
         Ok(())
     }
 
+    /// Every reading the grammar has, library functions first and then
+    /// each notation's patterns, in the order they are tried
+    /// (`ReadingOrder`), made once for an elaborator, since its grammar and
+    /// targets do not change.
+    pub(super) fn reading_table(&self) -> Vec<Ranked> {
+        let mut table: Vec<Ranked> = Vec::new();
+        for f in self.g.functions.values() {
+            let notation = if f.arity == 1 {
+                "application"
+            } else {
+                "application-to-two"
+            };
+            let Some(literal) = self.literals.get(notation).and_then(|l| l.first())
+            else {
+                continue;
+            };
+            table.push(Ranked {
+                reading: Reading {
+                    target: f.builds.clone(),
+                    notation: notation.to_string(),
+                    literal: literal.clone(),
+                    applies: Some(f.name.clone()),
+                },
+                place: table.len(),
+                list: None,
+            });
+        }
+        for (notation, entries) in &self.terms {
+            for (at, entry) in entries.iter().enumerate() {
+                let Some(target) = entry else { continue };
+                let Some(literal) = self.literals.get(notation).and_then(|l| l.get(at))
+                else {
+                    continue;
+                };
+                let Some(written) = self.g.written_by(notation, literal) else {
+                    continue;
+                };
+                let list = written.repeat.as_ref().and_then(|r| {
+                    let last = r.building.split_whitespace().last()?;
+                    Some(ListReading {
+                        holes: written.holes.len(),
+                        building: r.building.clone(),
+                        last: last.to_string(),
+                    })
+                });
+                table.push(Ranked {
+                    reading: Reading {
+                        target: target.clone(),
+                        notation: notation.clone(),
+                        literal: literal.clone(),
+                        applies: None,
+                    },
+                    place: table.len(),
+                    list,
+                });
+            }
+        }
+        table.sort_by_key(|r| ReadingOrder::of(&r.reading, r.place, 0));
+        table
+    }
+
     pub(super) fn page_node(&self, term: &Term) -> Option<Node> {
         self.page_node_under(term, &IndexSet::new())
     }
@@ -151,63 +258,44 @@ impl Elaborator<'_> {
         }
         // Every pattern that builds a term of this shape, the one saying most
         // of it first: ∠PQR is an absolute value too, and reads as an angle.
-        let mut readings: Vec<Reading> = Vec::new();
-        for f in self.g.functions.values() {
-            let notation = if f.arity == 1 {
-                "application"
-            } else {
-                "application-to-two"
-            };
-            let Some(literal) = self.literals.get(notation).and_then(|l| l.first())
-            else {
-                continue;
-            };
-            readings.push(Reading {
-                target: f.builds.clone(),
-                notation: notation.to_string(),
-                literal: literal.clone(),
-                applies: Some(f.name.clone()),
-            });
-        }
-        for (notation, entries) in &self.terms {
-            for (at, entry) in entries.iter().enumerate() {
-                let Some(target) = entry else { continue };
-                let Some(literal) = self.literals.get(notation).and_then(|l| l.get(at))
-                else {
-                    continue;
-                };
-                let Some(written) = self.g.written_by(notation, literal) else {
-                    continue;
-                };
-                readings.push(Reading {
-                    target: target.clone(),
-                    notation: notation.clone(),
-                    literal: literal.clone(),
-                    applies: None,
+        // A list is read at each length the term could hold: no more
+        // elements past the pattern's than the term has of what each one
+        // adds last, `cun` for {a, b, c, d, e}.
+        let table = self.readings.get_or_init(|| self.reading_table());
+        let mut lists: Vec<ListAt> = Vec::new();
+        for ranked in table {
+            let Some(list) = &ranked.list else { continue };
+            let most = rpn.split_whitespace().filter(|t| *t == list.last).count();
+            for count in list.holes + 1..=list.holes + most {
+                lists.push(ListAt {
+                    place: ranked.place,
+                    count,
+                    reading: Reading {
+                        target: repeated(
+                            &ranked.reading.target,
+                            &list.building,
+                            list.holes,
+                            count,
+                        ),
+                        ..ranked.reading.clone()
+                    },
                 });
-                // A list read at each length the term could hold: no more
-                // elements past the pattern's than the term has of what each
-                // one adds last, `cun` for {a, b, c, d, e}.
-                let Some(r) = &written.repeat else { continue };
-                let Some(last) = r.building.split_whitespace().last() else {
-                    continue;
-                };
-                let rpn = self.rpn(term);
-                let most = rpn.split_whitespace().filter(|t| *t == last).count();
-                let holes = written.holes.len();
-                for count in holes + 1..=holes + most {
-                    readings.push(Reading {
-                        target: repeated(target, &r.building, holes, count),
-                        notation: notation.clone(),
-                        literal: literal.clone(),
-                        applies: None,
-                    });
-                }
             }
         }
-        readings
-            .sort_by_key(|r| std::cmp::Reverse(r.target.split_whitespace().count()));
-        for r in &readings {
+        let readings: Vec<&Reading> = if lists.is_empty() {
+            table.iter().map(|r| &r.reading).collect()
+        } else {
+            let mut all: Vec<(ReadingOrder, &Reading)> = table
+                .iter()
+                .map(|r| (ReadingOrder::of(&r.reading, r.place, 0), &r.reading))
+                .chain(lists.iter().map(|l| {
+                    (ReadingOrder::of(&l.reading, l.place, l.count), &l.reading)
+                }))
+                .collect();
+            all.sort_by_key(|(order, _)| *order);
+            all.into_iter().map(|(_, r)| r).collect()
+        };
+        for r in readings {
             let Some(holes) = self.matched(&r.target, term) else {
                 continue;
             };
