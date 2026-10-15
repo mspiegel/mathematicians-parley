@@ -23,7 +23,7 @@
 use std::collections::BTreeSet;
 use std::path::Path;
 use std::rc::Rc;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, OnceLock};
 
 use indexmap::IndexMap;
 
@@ -217,6 +217,8 @@ pub struct Libraries {
     /// set.mm's text.
     pub setmm: String,
     read: Mutex<IndexMap<Option<String>, Arc<ReadLibrary>>>,
+    /// set.mm as the verifier has it, made the first time a run verifies.
+    verifier: OnceLock<super::verify::Verifier>,
 }
 
 impl Libraries {
@@ -232,7 +234,15 @@ impl Libraries {
         Ok(Libraries {
             setmm,
             read: Mutex::new(IndexMap::new()),
+            verifier: OnceLock::new(),
         })
+    }
+
+    /// set.mm parsed and verified, once for every run that verifies against
+    /// it (`verify::Verifier`).
+    pub fn verifier(&self) -> &super::verify::Verifier {
+        self.verifier
+            .get_or_init(|| super::verify::Verifier::of(&self.setmm))
     }
 
     /// What set.mm and `proved` read as, read the first time it is asked

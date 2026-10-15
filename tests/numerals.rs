@@ -16,7 +16,7 @@ use std::sync::Arc;
 use parley::elab::numerals;
 use parley::mm::spell::Proof;
 use parley::mm::{read, where_set_mm, Builder, Layered};
-use parley::tools::verify::verified;
+use parley::tools::verify::Verifier;
 
 /// A whole number in set.mm's notation: `; ; 1 2 3` for 123.
 fn written(n: u64) -> String {
@@ -87,11 +87,8 @@ fn numerals_of_any_length_are_computed_with() {
     for (at, (says, proof)) in facts.iter().enumerate() {
         text += &format!("numeral-fact-{at} $p |- {says} $= {} $.\n", proof.text());
     }
-    let setmm_bytes = std::fs::read(&setmm).unwrap();
-    let problems = verified(vec![
-        ("set.mm".to_string(), setmm_bytes),
-        ("everything.mm".to_string(), text.into_bytes()),
-    ]);
+    let setmm_text = std::fs::read_to_string(&setmm).unwrap();
+    let problems = Verifier::of(&setmm_text).verified(&setmm_text, &text);
     assert!(
         problems.is_empty(),
         "{} of {} numeral facts are refused:\n{}",

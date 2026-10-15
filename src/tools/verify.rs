@@ -107,12 +107,11 @@ fn used(text: &str) -> Vec<(&str, Vec<&str>)> {
 
 /// Each proof using a label that neither set.mm nor any file its own file
 /// reaches through its inclusions declares.
-fn unreached(texts: &[(String, String)], setmm: &str) -> Vec<String> {
+fn unreached(texts: &[(String, String)], base: &BTreeSet<String>) -> Vec<String> {
     let by_name: BTreeMap<&str, &str> = texts
         .iter()
         .map(|(p, t)| (included_as(p), t.as_str()))
         .collect();
-    let base = declared(setmm);
     let mut out = Vec::new();
     for (path, text) in texts {
         let mut reached: BTreeSet<&str> = BTreeSet::new();
@@ -132,7 +131,7 @@ fn unreached(texts: &[(String, String)], setmm: &str) -> Vec<String> {
         for (proves, labels) in used(text) {
             let missing: Vec<&str> = labels
                 .into_iter()
-                .filter(|l| !base.contains(l) && !reached.contains(l))
+                .filter(|l| !base.contains(*l) && !reached.contains(l))
                 .collect();
             if !missing.is_empty() {
                 out.push(format!(
@@ -181,12 +180,12 @@ pub fn run(
             }
         }
     }
-    let setmm = libraries.setmm.as_bytes().to_vec();
+    let verifier = libraries.verifier();
 
     // Verified together, every file sees every other's labels; each must
     // reach the ones it uses through its own inclusions, as a reader
     // verifying that one file does.
-    let unreached = unreached(&texts, &libraries.setmm);
+    let unreached = unreached(&texts, &verifier.labels);
     if !unreached.is_empty() {
         for u in &unreached {
             said.printed += &format!("{u}\n");
@@ -208,14 +207,13 @@ pub fn run(
     );
 
     let Joined { text, starts } = joined(&texts, &top);
-    let files: Vec<(String, Vec<u8>)> = vec![
-        ("set.mm".to_string(), setmm),
-        (JOINED.to_string(), text.into_bytes()),
-    ];
 
     let began = Instant::now();
-    let problems: Vec<String> =
-        verified(files).iter().map(|p| placed(p, &starts)).collect();
+    let problems: Vec<String> = verifier
+        .verified(&libraries.setmm, &text)
+        .iter()
+        .map(|p| placed(p, &starts))
+        .collect();
     let spent = began.elapsed().as_secs_f64();
     if !problems.is_empty() {
         for p in &problems {
@@ -331,20 +329,63 @@ fn placed(problem: &str, starts: &[(usize, String)]) -> String {
         .into_owned()
 }
 
-/// Every problem the verifier finds in the files, starting from the joined
-/// one, each written out with the statement it is in.
-pub fn verified(files: Vec<(String, Vec<u8>)>) -> Vec<String> {
-    // metamath-rs works segment by segment, and set.mm read whole is one
-    // segment on one thread: split at its chapters, it is checked on every
-    // core at once.
-    let options = DbOptions {
-        autosplit: true,
-        jobs: std::thread::available_parallelism().map_or(1, |n| n.get()),
-        ..DbOptions::default()
-    };
-    let mut db = Database::new(options);
-    db.parse(JOINED.to_string(), files);
-    db.verify_pass();
+/// set.mm as the verifier has it, read and verified once for a process:
+/// every run verifies the corpus against the same set.mm, and verified it
+/// all again each time.
+pub struct Verifier {
+    /// set.mm parsed and verified, with a joined file that includes it and
+    /// nothing else. metamath-rs keeps what it worked out of each segment,
+    /// so a run parsing its own joined file over a copy recomputes that
+    /// file's segment and what reads it, and set.mm's chapters, unchanged,
+    /// keep what they were found to be.
+    base: Database,
+    /// Every label set.mm declares (`unreached`).
+    labels: BTreeSet<String>,
+}
+
+impl Verifier {
+    pub fn of(setmm: &str) -> Verifier {
+        // metamath-rs works segment by segment, and set.mm read whole is one
+        // segment on one thread: split at its chapters, it is checked on
+        // every core at once.
+        let options = DbOptions {
+            autosplit: true,
+            incremental: true,
+            jobs: std::thread::available_parallelism().map_or(1, |n| n.get()),
+            ..DbOptions::default()
+        };
+        let mut base = Database::new(options);
+        base.parse(JOINED.to_string(), files(setmm, "$[ set.mm $]\n"));
+        base.verify_pass();
+        Verifier {
+            base,
+            labels: declared(setmm).into_iter().map(str::to_string).collect(),
+        }
+    }
+}
+
+/// What the verifier reads: set.mm, and the joined file that includes it.
+fn files(setmm: &str, joined: &str) -> Vec<(String, Vec<u8>)> {
+    vec![
+        ("set.mm".to_string(), setmm.as_bytes().to_vec()),
+        (JOINED.to_string(), joined.as_bytes().to_vec()),
+    ]
+}
+
+impl Verifier {
+    /// Every problem the verifier finds in `joined`, a file that includes
+    /// set.mm, `setmm` being the text this verifier was made of, each
+    /// written out with the statement it is in.
+    pub fn verified(&self, setmm: &str, joined: &str) -> Vec<String> {
+        let mut db = self.base.clone();
+        db.parse(JOINED.to_string(), files(setmm, joined));
+        db.verify_pass();
+        problems_of(&mut db)
+    }
+}
+
+/// What the verifier found, each problem written out plain.
+fn problems_of(db: &mut Database) -> Vec<String> {
     let diags = db.diag_notations();
     // Plain, without colour: the gate's report is read as text.
     db.render_diags(diags, |message| {
