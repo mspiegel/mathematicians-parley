@@ -2832,7 +2832,8 @@ pub fn check_instance_claimed(
         ) else {
             continue;
         };
-        let seed = &known.parts(step, library).seed;
+        let named = known.parts(step, library);
+        let seed = &named.seed;
         let defined = known.citing_step(step);
         let parts: Vec<Node> = known
             .said_parts(&line, Some(&defined))
@@ -2851,7 +2852,30 @@ pub fn check_instance_claimed(
         if instances.is_empty() {
             continue; // no "for all" binds the names; the build reports it
         }
-        if instances.iter().any(|i| concludes_claim(i, &claim, known)) {
+        // The instance reaching the claim, and each condition met on the way
+        // among what the step names; one it does not supply is said.
+        let reached: Vec<Vec<Node>> = instances
+            .iter()
+            .filter_map(|i| concludes_claim(i, &claim, known))
+            .collect();
+        if let Some(conditions) = reached.iter().min_by_key(|c| c.len()) {
+            // A condition of several parts is met where each part is.
+            let unmet = conditions.iter().find(|c| {
+                !conjuncts(c, library)
+                    .iter()
+                    .all(|part| named.facts.iter().any(|f| known.alike(f, part)))
+            });
+            if let Some(unmet) = unmet {
+                report.say(
+                    &thm.path,
+                    step.just.line,
+                    format!(
+                        "instantiating at that term wants {}, which step {} does not supply",
+                        known.print(unmet),
+                        step.number
+                    ),
+                );
+            }
             continue;
         }
         // Said as the page writes the claim, not as it is compared.
@@ -2891,17 +2915,22 @@ fn instance_at(said: &Node, seed: &Binding, library: &Library) -> Option<Node> {
     (!put.is_empty()).then(|| substitute_apart(&body, &put, &library.ctx))
 }
 
-/// Whether an instance is the claim, or concludes it once each condition
-/// of an implication is met.
-fn concludes_claim(instance: &Node, claim: &Node, known: &Known) -> bool {
+/// The conditions an instance asks on its way to the claim: none where it
+/// is the claim, and each implication's condition taken off until what is
+/// left is; None where it never is.
+fn concludes_claim(instance: &Node, claim: &Node, known: &Known) -> Option<Vec<Node>> {
     let mut at = instance.clone();
+    let mut asked = Vec::new();
     loop {
         if known.alike(&at, claim) {
-            return true;
+            return Some(asked);
         }
         match (at.notation.as_str(), at.children.as_slice()) {
-            ("implication" | "conditional", [_, then]) => at = then.clone(),
-            _ => return false,
+            ("implication" | "conditional", [condition, then]) => {
+                asked.push(condition.clone());
+                at = then.clone();
+            }
+            _ => return None,
         }
     }
 }

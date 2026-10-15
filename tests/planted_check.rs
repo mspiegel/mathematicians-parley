@@ -646,6 +646,18 @@ fn cases() -> Vec<Case> {
             )],
             "d(n) ∈ ℝ is not built from what step 16.24.2 cites",
         ),
+        // What a line says at the values may be an implication, whose
+        // condition a line the step cites meets: line 13 asks that U(k) be
+        // an upper bound of S, which 15.4 says and 15.3 does not.
+        case(
+            "instantiate an implication whose condition no cited line meets",
+            vec![edit(
+                "proofs/reals-uncountable.proof",
+                Some("instantiate u := U(k) in line 13, from 15.4".to_string()),
+                "instantiate u := U(k) in line 13, from 15.3".to_string(),
+            )],
+            "instantiating at that term wants U(k) is an upper bound of S, which step 15.5 does not supply",
+        ),
         // An instantiation claims what its line says at the values: H2 says
         // 0 ≤ d(n) for every n, and not 0 ≥ d(n).
         case(
