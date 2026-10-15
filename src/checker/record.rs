@@ -88,10 +88,30 @@ pub struct Cited {
     /// (`targets::clauses`). None for an obtain, which takes its group's
     /// "there is" whole.
     pub concluded: Vec<Concluded>,
+    /// Where the facts the citation's readings are taken from stand
+    /// (`Taken::firsts`): the cited line, or the sentence of it, a
+    /// definition is unfolded from. A fact no line the citation names says,
+    /// a membership said once among them, has none.
+    pub firsts: Vec<FirstAt>,
     /// What the citation's own pairs make the item's letters, `n := b`, as
     /// the checker reads them (`Parts::seed`): what an obtain unfolds a
     /// definition at, where it claims no conclusion of the item.
     pub written: IndexMap<String, Node>,
+}
+
+/// A line a citation names that states a fact its reading is taken from.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct FirstAt {
+    /// The line, by the reference that names it.
+    pub line: String,
+    /// The sentence of the line that states the fact, or a part of which
+    /// does, counted from 0; None where the fact is the line's sentences
+    /// together.
+    pub sentence: Option<usize>,
+    /// Where the fact is one part of the sentence's conjunction, which part,
+    /// counted from 0 left to right with every conjunction taken apart
+    /// (`citing::conjuncts`).
+    pub part: Option<usize>,
 }
 
 /// Whether `step` owns a block: it opens one with a line above its steps,

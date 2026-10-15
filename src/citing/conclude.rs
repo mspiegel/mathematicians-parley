@@ -15,7 +15,7 @@ use crate::outcome::{Built, Route};
 use super::asked::filled;
 use super::library::{conjuncts, either_way, readings, Group, Library, Way};
 use super::once::{a_number_said_once, Introduced};
-use super::supply::{names_of, search, supply, Sites, Ways};
+use super::supply::{names_of, search, supplier, supply, Sites, Ways};
 use crate::rules;
 
 /// Every sentence of the claim takes a reading of the conclusion, and what
@@ -325,6 +325,9 @@ pub struct Taken {
     /// claim's order; none for an obtain, which takes the group's "there
     /// is" whole.
     pub concluded: Vec<Concluded>,
+    /// The facts that state what the readings taken ask first: the side a
+    /// definition is unfolded from, as the facts read it (`supplier`).
+    pub firsts: Vec<Node>,
 }
 
 /// One conclusion of an item a sentence of a claim takes.
@@ -353,8 +356,34 @@ impl Taken {
             group,
             binding,
             concluded,
+            firsts: Vec::new(),
         }
     }
+}
+
+/// The fact that states each of `firsts` under the binding the search
+/// found, where one does (`supplier`).
+fn first_facts(
+    firsts: &[Node],
+    facts: &[Node],
+    binding: &Binding,
+    variables: &BTreeSet<String>,
+    library: &Library,
+    sites: &Sites,
+) -> Vec<Node> {
+    let none = IndexMap::new();
+    let mut out: Vec<Node> = Vec::new();
+    for first in firsts {
+        if let Some(fact) = supplier(first, facts, binding, variables, library, sites) {
+            if !out
+                .iter()
+                .any(|f| alike(f, fact, &library.ctx, &none, &none))
+            {
+                out.push(fact.clone());
+            }
+        }
+    }
+    out
 }
 
 /// Whether one group of an item's conclusions covers what is claimed.
@@ -402,13 +431,22 @@ pub fn taken(
                     way: offer.ways[c],
                 })
                 .collect();
-            return Built(Taken::of(
-                group,
-                binding,
-                concluded,
-                &groups[group],
+            let asked: Vec<Node> = chosen
+                .iter()
+                .flat_map(|&c| offer.candidates[c].1.iter().cloned())
+                .collect();
+            let firsts = first_facts(
+                &asked,
+                facts,
+                &binding,
+                &offer.variables,
                 library,
-            ));
+                &offer.sites,
+            );
+            let mut taken =
+                Taken::of(group, binding, concluded, &groups[group], library);
+            taken.firsts = firsts;
+            return Built(taken);
         }
     }
     Route::no("no group of the item concludes the claim from the facts named")
@@ -597,11 +635,12 @@ pub fn obtained(
                 // The "there is" is the reading's target or a part of it, and
                 // may be a property the definition applies, which the line
                 // the step cites decides.
-                let mut need: Vec<Node> = reading
+                let first: Vec<Node> = reading
                     .first
                     .iter()
                     .flat_map(|e| conjuncts(e, library))
                     .collect();
+                let mut need = first.clone();
                 need.extend(asked.iter().cloned());
                 let variables = names_of(&need);
                 let found =
@@ -611,13 +650,17 @@ pub fn obtained(
                         .iter()
                         .any(|part| existential(part, &binding, library))
                     {
-                        let taken = Taken::of(
+                        let firsts = first_facts(
+                            &first, facts, &binding, &variables, library, &sites,
+                        );
+                        let mut taken = Taken::of(
                             group,
                             binding,
                             Vec::new(),
                             &groups[group],
                             library,
                         );
+                        taken.firsts = firsts;
                         return Built(taken);
                     }
                 }

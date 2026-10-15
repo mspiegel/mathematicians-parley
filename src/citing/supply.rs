@@ -50,6 +50,26 @@ pub fn supply(
     )
 }
 
+/// The fact that states `pattern` under `binding`, the first one that does
+/// in the facts' order, as the search takes it; None where none does, or
+/// where the pattern needs no line.
+pub fn supplier<'f>(
+    pattern: &Node,
+    facts: &'f [Node],
+    binding: &Binding,
+    variables: &BTreeSet<String>,
+    library: &Library,
+    sites: &Sites,
+) -> Option<&'f Node> {
+    let used = vec![false; facts.len()];
+    fits(
+        pattern, facts, &used, binding, variables, library, sites, true,
+    )
+    .into_iter()
+    .find_map(|fit| fit.fact)
+    .map(|i| &facts[i])
+}
+
 /// A search asked for every way the facts supply the hypotheses, rather
 /// than the first: the facts the attempt in hand has taken, by index, and
 /// what to do with each way once it is complete, given the facts it took

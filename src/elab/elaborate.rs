@@ -35,7 +35,7 @@ use super::state::{
 use super::tables::Leaf;
 use super::{Facts, Line, Lines};
 use crate::binds;
-use crate::checker::record::{CheckedTheorem, Cited};
+use crate::checker::record::{CheckedTheorem, Cited, FirstAt};
 use crate::citing::{self, filled};
 use crate::corpus::proof::{chain, requires_as_step, ChainLine, Requires};
 use crate::corpus::{
@@ -2332,14 +2332,10 @@ impl<'a> Elaborator<'a> {
         Ok(Route::no("nothing the line says is what the lemma unfolds"))
     }
 
-    /// A definition unfolded to reach one part of what it says: read left to
-    /// right, and what it gives taken apart.
-    /// Each side of each biconditional the record a step cites concludes
-    /// there, with what the citation fixes put in (`concluded_here`): what a
-    /// definition unfolds from and to at this step. Empty where the step
-    /// cites no record, or no clause of it concludes the claim.
-    fn sides_here(&mut self, step: &Step) -> Checked<Vec<String>> {
-        // The item a step cites, or the one an obtain obtains through.
+    /// Where the checker read the step's citation of a record as taken from
+    /// (`Cited::firsts`): the line, or the sentence of one, a definition is
+    /// unfolded from.
+    fn firsts_here(&self, step: &Step) -> Checked<Vec<FirstAt>> {
         let Some(cited) = step.just.cited_item() else {
             return Ok(Vec::new());
         };
@@ -2347,50 +2343,54 @@ impl<'a> Elaborator<'a> {
         let Some(Item::Record(item)) = self.items.get(&name).copied() else {
             return Ok(Vec::new());
         };
-        let mut said = self.concluded_here(step, item)?;
-        // A step that does not claim what the definition concludes, as an
-        // obtain claims the witness, has the sides its pairs make: `obtain j:
-        // mun:odd n := b` unfolds "b is odd" of a line saying a and b are
-        // odd, and never "a is odd".
-        if said.is_empty() {
-            let written: NodeBinding = self
-                .cited_here(step, &item.qualified())?
-                .written
-                .into_iter()
-                .collect();
-            let library = self.item_library();
-            let Some(groups) = library.groups(&item.qualified()) else {
-                return Ok(Vec::new());
-            };
-            let binders = self.g.binders();
-            for g in groups.iter() {
-                for node in &g.gives {
-                    // Only where the pairs fill every letter the sentence
-                    // leaves free: a letter of the item's own, open, is no
-                    // side a line could say.
-                    let open = crate::matching::free_names(node, &binders)
-                        .into_iter()
-                        .any(|n| !written.contains_key(&n));
-                    if open {
-                        continue;
-                    }
-                    let instance = filled(node, &written, &library.ctx);
-                    said.push(
-                        self.in_its_names(Item::Record(item), |me| me.term(&instance))?,
-                    );
-                }
-            }
-        }
-        let mut out = Vec::new();
-        for one in said {
-            let whole = self.to_term(&one);
-            if whole.label() == Some("wb") {
-                out.extend(whole.children().iter().map(|side| self.rpn(side)));
-            }
-        }
-        Ok(out)
+        Ok(self.cited_here(step, &item.qualified())?.firsts)
     }
 
+    /// What the line `at` names says there, with its proof and the parts of
+    /// it: the sentence `at` names, or the whole line.
+    fn stated_at(
+        &mut self,
+        at: &FirstAt,
+        scope: &str,
+        facts: &Facts,
+        lines: &Lines,
+    ) -> Checked<Facts> {
+        let held = Facts::new();
+        let Some(cited) = lines.get(&at.line) else {
+            return Ok(held);
+        };
+        let (said, proof) = match at.sentence {
+            Some(i) => {
+                let Some(one) = cited.sentences.get(i) else {
+                    return Ok(held);
+                };
+                let said = self.term(one)?;
+                let Some(proof) = self.held(facts, &said, scope)? else {
+                    return Ok(held);
+                };
+                (said, proof)
+            }
+            None => (cited.term.clone(), self.carried(&at.line, facts, lines)),
+        };
+        self.know(&held, said.clone(), proof.clone());
+        self.unpack_all(&said, &proof, scope, &held);
+        let Some(j) = at.part else {
+            return Ok(held);
+        };
+        let parts = conjunction_parts(&self.to_term(&said));
+        let Some(part) = parts.get(j).map(|p| self.rpn(p)) else {
+            return Ok(Facts::new());
+        };
+        let one = Facts::new();
+        if let Some(proof) = self.held(&held, &part, scope)? {
+            self.know(&one, part, proof);
+        }
+        Ok(one)
+    }
+
+    /// A definition unfolded to reach one part of what it says: read left to
+    /// right, from what the checker read it as taken from, and what it gives
+    /// taken apart.
     #[allow(clippy::too_many_arguments)]
     pub fn one_unfolded(
         &mut self,
@@ -2401,7 +2401,6 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         lines: &Lines,
     ) -> Checked<Route<Proof>> {
-        let refs = &step.just.refs;
         let sig = self.sig(lemma).clone();
         let whole = self.statement(lemma);
         let variables = names_of(&whole);
@@ -2413,45 +2412,10 @@ impl<'a> Elaborator<'a> {
             return Ok(Route::no(format!("{lemma} states no biconditional")));
         }
         // A line may say several things at once, and what the definition
-        // unfolds is any one of them: the one the citation's values make the
-        // definition's side, where the step's citation reads as one the
-        // checker takes (`concluded_here`), and else the first that fits.
-        let sides = self.sides_here(step)?;
+        // unfolds is the one the checker took the reading from (`firsts_here`).
         let mut chosen = None;
-        for r in refs {
-            let Some(cited) = lines.get(r) else {
-                continue;
-            };
-            let held = Facts::new();
-            let whole_proof = self.carried(r, facts, lines);
-            self.know(&held, cited.term.clone(), whole_proof.clone());
-            for one in &cited.sentences {
-                let said = self.term(one)?;
-                if let Some(p) = self.held(facts, &said, scope)? {
-                    self.know_default(&held, said, p);
-                }
-            }
-            self.unpack_all(&cited.term, &whole_proof, scope, &held);
-            let named = Facts::new();
-            for (said, shown) in held.entries() {
-                // The side over the definition's own letters, {3s : s ∈ ℤ},
-                // is the line's {3n : n ∈ ℤ}.
-                if sides.iter().any(|s| *s == said || self.rebound(s, &said)) {
-                    self.know(&named, said, shown);
-                }
-            }
-            if !named.entries().is_empty() {
-                if let Built(found) = self.unfolds_from(
-                    &reads.children()[0],
-                    &named,
-                    &variables,
-                    scope,
-                    facts,
-                )? {
-                    chosen = Some(found);
-                    break;
-                }
-            }
+        for at in self.firsts_here(step)? {
+            let held = self.stated_at(&at, scope, facts, lines)?;
             if let Built(found) = self.unfolds_from(
                 &reads.children()[0],
                 &held,
@@ -5397,6 +5361,15 @@ enum Method {
     Reading(Way),
     UnfoldEquation,
     Cite,
+}
+
+/// A conjunction taken apart, left to right, with every conjunction in it
+/// taken apart too, as the checker counts its parts (`citing::conjuncts`).
+fn conjunction_parts(term: &Term) -> Vec<Term> {
+    if matches!(term.label(), Some("wa") | Some("w3a")) {
+        return term.children().iter().flat_map(conjunction_parts).collect();
+    }
+    vec![term.clone()]
 }
 
 /// Whether `piece` says what a function the binding fixes maps between.

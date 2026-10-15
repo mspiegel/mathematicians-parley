@@ -7,7 +7,7 @@ use indexmap::{IndexMap, IndexSet};
 
 use super::formulas::chain_links;
 use super::library::{introduced, listed_seed, typed_in_scope, typed_seed, Known};
-use super::record::Cited;
+use super::record::{Cited, FirstAt};
 use super::structure::letters_in_scope;
 use super::Report;
 use crate::citing::{
@@ -21,10 +21,11 @@ use crate::corpus::proof::{reason_as_step, Requires};
 use crate::corpus::{
     define_parts, DefineParts, FileScope, Head, Item, Method, Step, Theorem,
 };
-use crate::formula::page::{self, Written};
+use crate::formula::page::{self, conjoined, Written};
 use crate::formula::{Node, Sort};
 use crate::matching::{
-    alike, binding_sites, match_tree, substitute_apart, Binding, Context, PROPERTY,
+    alike, binding_sites, match_tree, standard, substitute_apart, Binding, Context,
+    PROPERTY,
 };
 use crate::outcome::{Built, Declined, Route};
 use crate::rules;
@@ -282,10 +283,12 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
         return None;
     };
     let before: usize = groups[..taken.group].iter().map(|g| g.gives.len()).sum();
+    let firsts = firsts_at(step, &step.just.refs, &item, &taken.firsts, known, library);
     Some(Cited {
         item,
         group: taken.group,
         concluded: across_groups(&taken, before),
+        firsts,
         binding: taken.binding.into_iter().collect(),
         written: parts
             .seed
@@ -353,12 +356,86 @@ pub fn cited_requires(
         return None;
     };
     let before: usize = groups[..taken.group].iter().map(|g| g.gives.len()).sum();
+    let firsts = firsts_at(step, req.lines(), &item, &taken.firsts, known, library);
     Some(Cited {
         item,
         group: taken.group,
         concluded: across_groups(&taken, before),
+        firsts,
         binding: taken.binding.into_iter().collect(),
         written: parts.seed.into_iter().collect(),
+    })
+}
+
+/// Where each of `firsts` stands among the lines `refs` names at `step`: the
+/// sentence of a line it is, or is a part of, or the line where it is the
+/// line's sentences together, each read as the citation of `item` reads
+/// them (`Known::supplied`). A fact no line names says has no place.
+fn firsts_at(
+    step: &Step,
+    refs: &[String],
+    item: &str,
+    firsts: &[Node],
+    known: &Known,
+    library: &Library,
+) -> Vec<FirstAt> {
+    let scope = known.scope(step);
+    let defined = known.citing_item(refs, Some(item));
+    let mut out = Vec::new();
+    for first in firsts {
+        let found = refs.iter().find_map(|r| {
+            let written = scope.get(r)?;
+            line_states(
+                first,
+                r,
+                &known.said_parts(written, Some(&defined)),
+                library,
+            )
+        });
+        if let Some(at) = found.filter(|at| !out.contains(at)) {
+            out.push(at);
+        }
+    }
+    out
+}
+
+/// Where `fact` stands in the line `line`, whose sentences read as `parts`
+/// (`firsts_at`).
+fn line_states(
+    fact: &Node,
+    line: &str,
+    parts: &[Option<Node>],
+    library: &Library,
+) -> Option<FirstAt> {
+    let ctx = &library.ctx;
+    let none = IndexMap::new();
+    // Each read in the standard order the fact is in.
+    let states = |n: &Node| alike(&standard(n, ctx), fact, ctx, &none, &none);
+    for (i, part) in parts.iter().enumerate() {
+        let Some(sentence) = part else {
+            continue;
+        };
+        if states(sentence) {
+            return Some(FirstAt {
+                line: line.to_string(),
+                sentence: Some(i),
+                part: None,
+            });
+        }
+        // Counted as written.
+        if let Some(j) = conjuncts(sentence, library).iter().position(states) {
+            return Some(FirstAt {
+                line: line.to_string(),
+                sentence: Some(i),
+                part: Some(j),
+            });
+        }
+    }
+    let whole = conjoined(library.env.g, parts.iter().flatten().cloned().collect())?;
+    states(&whole).then(|| FirstAt {
+        line: line.to_string(),
+        sentence: None,
+        part: None,
     })
 }
 

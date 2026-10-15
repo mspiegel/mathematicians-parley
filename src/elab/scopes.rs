@@ -2544,58 +2544,22 @@ impl<'a> Elaborator<'a> {
 
     /// Whether two statements differ only in the letters they bind: a set
     /// variable is bound where it stands directly under a constructor other
-    /// than `cv`, and every other letter must be the same on both sides. A
-    /// class variable stands directly under a constructor as an operand, as
-    /// P does in P − Q, and is bound by nothing: read as bound, it would make
-    /// |PQ| and |RS| one term renamed (`letters_bound` draws the same line).
+    /// than `cv`, within that constructor, and every other letter must be the
+    /// same on both sides. A bound letter may be one the statement also uses
+    /// free, as the page's `x ∈ {x ∈ A : x ∉ f(x)}` does, and is paired with
+    /// its partner only inside what binds it. A class variable stands
+    /// directly under a constructor as an operand, as P does in P − Q, and
+    /// is bound by nothing: read as bound, it would make |PQ| and |RS| one
+    /// term renamed (`letters_bound` draws the same line).
     pub fn rebound(&self, stated: &str, claimed: &str) -> bool {
-        let mut pairs: IndexMap<String, String> = IndexMap::new();
-        let mut binders: std::collections::BTreeSet<String> =
-            std::collections::BTreeSet::new();
-        fn alike(
-            one: &Term,
-            two: &Term,
-            pairs: &mut IndexMap<String, String>,
-            binders: &mut std::collections::BTreeSet<String>,
-        ) -> bool {
-            if one.variable().is_some() || two.variable().is_some() {
-                let (Some(a), Some(b)) = (one.variable(), two.variable()) else {
-                    return false;
-                };
-                return pairs.entry(a.to_string()).or_insert_with(|| b.to_string())
-                    == b;
-            }
-            if one.label() != two.label()
-                || one.children().len() != two.children().len()
-            {
-                return false;
-            }
-            if one.label() != Some("cv") {
-                binders.extend(
-                    one.children()
-                        .iter()
-                        .filter_map(|c| c.variable().map(String::from)),
-                );
-            }
-            one.children()
-                .iter()
-                .zip(two.children())
-                .all(|(a, b)| alike(a, b, pairs, binders))
-        }
-        if !alike(
+        let setvar = |v: &str| self.is_setvar(&self.float_of(v));
+        let mut bound: Vec<BoundPair> = Vec::new();
+        alike_rebound(
             &self.to_term(stated),
             &self.to_term(claimed),
-            &mut pairs,
-            &mut binders,
-        ) {
-            return false;
-        }
-        let values: std::collections::BTreeSet<&String> = pairs.values().collect();
-        values.len() == pairs.len()
-            && pairs.iter().all(|(mine, theirs)| {
-                mine == theirs
-                    || (binders.contains(mine) && self.is_setvar(&self.float_of(mine)))
-            })
+            &mut bound,
+            &setvar,
+        )
     }
 
     /// The "there is" an obtain's claim states: the claim states each name's
@@ -2948,6 +2912,57 @@ impl<'a> Elaborator<'a> {
             }
         }
     }
+}
+
+/// A letter one statement binds and the letter the other binds in its
+/// place, within the constructor that binds them (`rebound`).
+struct BoundPair {
+    stated: String,
+    claimed: String,
+}
+
+/// `rebound` over two terms, with the pairs of letters the constructors
+/// around them bind, innermost last.
+fn alike_rebound(
+    one: &Term,
+    two: &Term,
+    bound: &mut Vec<BoundPair>,
+    setvar: &dyn Fn(&str) -> bool,
+) -> bool {
+    if one.variable().is_some() || two.variable().is_some() {
+        let (Some(a), Some(b)) = (one.variable(), two.variable()) else {
+            return false;
+        };
+        // The innermost binder of either letter decides: bound, they must be
+        // its pair; free on both sides, they must be the one letter.
+        return match bound.iter().rev().find(|p| p.stated == a || p.claimed == b) {
+            Some(p) => p.stated == a && p.claimed == b,
+            None => a == b,
+        };
+    }
+    if one.label() != two.label() || one.children().len() != two.children().len() {
+        return false;
+    }
+    let at = bound.len();
+    if one.label() != Some("cv") {
+        for (a, b) in one.children().iter().zip(two.children()) {
+            if let (Some(a), Some(b)) = (a.variable(), b.variable()) {
+                if setvar(a) && setvar(b) {
+                    bound.push(BoundPair {
+                        stated: a.to_string(),
+                        claimed: b.to_string(),
+                    });
+                }
+            }
+        }
+    }
+    let same = one
+        .children()
+        .iter()
+        .zip(two.children())
+        .all(|(a, b)| alike_rebound(a, b, bound, setvar));
+    bound.truncate(at);
+    same
 }
 
 /// What on the page a block's assumption is: its label where the text gives
