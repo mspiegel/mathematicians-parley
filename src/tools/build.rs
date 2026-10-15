@@ -552,15 +552,21 @@ pub struct Loaded<'s> {
 impl<'s> Loaded<'s> {
     /// The corpus `source` holds, read, and read by the checker.
     pub fn new(source: &'s dyn Source) -> Checked<Loaded<'s>> {
+        Loaded::with_checked(source, checked_in(source, |_| true)?)
+    }
+
+    /// The corpus `source` holds, read, with `checked` the checker's records
+    /// of the theorems to be elaborated (`checked_in`): what `checked`
+    /// leaves out cannot be elaborated. A caller elaborating a few theorems
+    /// of many trees, or one tree again as files are built into it, checks
+    /// those theorems once, since the checker reads proofs and records and
+    /// no built file.
+    pub fn with_checked(
+        source: &'s dyn Source,
+        checked: IndexMap<String, CheckedTheorem>,
+    ) -> Checked<Loaded<'s>> {
         let found = corpus(source)?;
         let g = Grammar::load(&found.records)?;
-        let checked = crate::checker::checked(source).map_err(|out| {
-            Problem::new(
-                source.root().display().to_string(),
-                0,
-                str::trim(&format!("{}{}", out.printed, out.complained)).to_string(),
-            )
-        })?;
         Ok(Loaded {
             source,
             found,
@@ -608,13 +614,30 @@ impl<'s> Loaded<'s> {
     }
 }
 
+/// The checker's records of the theorems of `source` whose full name
+/// `wanted` holds (`checker::checked_where`), a corpus that does not read
+/// being a problem.
+pub fn checked_in(
+    source: &dyn Source,
+    wanted: impl Fn(&str) -> bool,
+) -> Checked<IndexMap<String, CheckedTheorem>> {
+    crate::checker::checked_where(source, wanted).map_err(|out| {
+        Problem::new(
+            source.root().display().to_string(),
+            0,
+            str::trim(&format!("{}{}", out.printed, out.complained)).to_string(),
+        )
+    })
+}
+
 /// Elaborate the theorem `name` of the corpus `source` holds, reading the
-/// corpus for it alone.
+/// corpus for it alone and checking it alone.
 pub fn elaborate_one(
     source: &dyn Source,
     name: &str,
     library: &Library,
     options: Options,
 ) -> Checked<Elaborated> {
-    Loaded::new(source)?.elaborate(name, library, options)
+    let checked = checked_in(source, |n| n == name)?;
+    Loaded::with_checked(source, checked)?.elaborate(name, library, options)
 }

@@ -110,9 +110,22 @@ pub fn run(source: &dyn Source) -> Outcome {
 pub fn checked(
     source: &dyn Source,
 ) -> Result<IndexMap<String, CheckedTheorem>, Outcome> {
+    checked_where(source, |_| true)
+}
+
+/// `checked` of the theorems whose full name `wanted` holds, and of no
+/// other: a theorem's record depends on the corpus as read and on nothing
+/// another theorem's check did, so each is what `checked` makes of it.
+pub fn checked_where(
+    source: &dyn Source,
+    wanted: impl Fn(&str) -> bool,
+) -> Result<IndexMap<String, CheckedTheorem>, Outcome> {
     let checked = prepared(source, |_, c| {
         let mut out = IndexMap::new();
         for (i, thm) in c.theorems.iter().enumerate() {
+            if !wanted(&thm.qualified()) {
+                continue;
+            }
             let mut own = Report::default();
             check_theorem(&mut own, c, thm, &c.known[i], &c.clashes[i]);
             let mut record = CheckedTheorem::of(thm);
