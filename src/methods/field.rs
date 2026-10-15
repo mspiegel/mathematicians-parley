@@ -38,6 +38,56 @@ pub const EXP: &str = "cexp";
 pub const MOD: &str = "cmo";
 pub const NEG: &str = "cneg";
 
+/// The notations of the operations `arithmetic` works out of its own
+/// nature, which carry no `decided` field (`DATABASE.md`); and the range a
+/// product over a range runs over, `{0, …, 22}`, which it reads with the
+/// product.
+pub const NATIVE_OPERATIONS: [&str; 8] = [
+    "additive",
+    "multiplicative",
+    "unary-minus",
+    "power",
+    "superscript",
+    "juxtaposition",
+    "product-over",
+    "integer-range",
+];
+
+/// Whether `arithmetic` works out the operations a notation record's
+/// target applies: one of its own nature, or one its record names in a
+/// `decided` field.
+pub fn worked_out(record: &crate::corpus::Record) -> bool {
+    NATIVE_OPERATIONS.contains(&record.name.as_str())
+        || record.field("decided").is_some_and(|v| {
+            crate::targets::split_entries(v)
+                .iter()
+                .any(|m| m.trim() == "arithmetic")
+        })
+}
+
+/// The kernel labels of every operation `arithmetic` works out, read off
+/// the targets of the notations it works out (`worked_out`): each `op co`
+/// in a target applies the operation op, so `product-over` gives the
+/// range's `cfz` with the product.
+pub fn worked_operations(
+    records: &[crate::corpus::Record],
+) -> std::collections::BTreeSet<String> {
+    records
+        .iter()
+        .filter(|r| r.kind == crate::corpus::RecordKind::Notation && worked_out(r))
+        .flat_map(|r| crate::targets::split_entries(r.field_or_empty("target")))
+        .flat_map(|entry| {
+            let tokens: Vec<String> =
+                entry.split_whitespace().map(String::from).collect();
+            tokens
+                .windows(2)
+                .filter(|pair| pair[1] == "co")
+                .map(|pair| pair[0].clone())
+                .collect::<Vec<_>>()
+        })
+        .collect()
+}
+
 /// An operation of the field a term `( A op B )` applies, by the label set.mm
 /// gives it.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]

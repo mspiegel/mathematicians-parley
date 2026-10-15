@@ -2207,36 +2207,10 @@ impl<'a> Elaborator<'a> {
     /// An operation `term` holds that `arithmetic` does not work out: one
     /// beyond those of its own nature whose notation's record does not name
     /// it in a `decided` field (`DATABASE.md`). The operation is its kernel
-    /// label, read off the records' targets.
+    /// label, read off the records' targets as the checker reads them
+    /// (`field::worked_operations`).
     fn undecided_operation(&self, term: &Term) -> Option<String> {
-        // The range a product over a range runs over is written `cfz co`,
-        // and is part of that product.
-        let native = [
-            field::ADD,
-            field::SUB,
-            field::MUL,
-            field::DIV,
-            field::EXP,
-            "cfz",
-        ];
-        let decided: BTreeSet<String> = self
-            .records
-            .iter()
-            .filter(|r| r.kind == RecordKind::Notation)
-            .filter(|r| {
-                r.field("decided").is_some_and(|v| {
-                    targets::split_entries(v)
-                        .iter()
-                        .any(|m| m.trim() == "arithmetic")
-                })
-            })
-            .flat_map(|r| targets::split_entries(r.field_or_empty("target")))
-            .filter_map(|entry| {
-                let tokens: Vec<&str> = entry.split_whitespace().collect();
-                (tokens.len() >= 2 && tokens[tokens.len() - 1] == "co")
-                    .then(|| tokens[tokens.len() - 2].to_string())
-            })
-            .collect();
+        let worked = field::worked_operations(self.records);
         let mut rest = vec![term.clone()];
         while let Some(node) = rest.pop() {
             if node.variable().is_some() {
@@ -2245,7 +2219,7 @@ impl<'a> Elaborator<'a> {
             let kids = node.children();
             if node.label() == Some("co") && kids.len() == 3 {
                 if let Some(op) = kids[2].label() {
-                    if !native.contains(&op) && !decided.contains(op) {
+                    if !worked.contains(op) {
                         return Some(op.to_string());
                     }
                 }

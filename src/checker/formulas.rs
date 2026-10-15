@@ -346,18 +346,6 @@ const DECIDING: [&str; 2] = ["arithmetic", "inspection"];
 /// which a definition may unfold without making them words.
 const NATIVE: [&str; 3] = ["membership", "equality", "order"];
 
-/// The notations of the operations `arithmetic` works out of its own
-/// nature, which carry no `decided` field (`DATABASE.md`).
-const NATIVE_OPERATIONS: [&str; 7] = [
-    "additive",
-    "multiplicative",
-    "unary-minus",
-    "power",
-    "superscript",
-    "juxtaposition",
-    "product-over",
-];
-
 /// Every operation a notation declares, one building a number from numbers,
 /// by its notation's name, and whether `arithmetic` works it out: one of
 /// its own nature, or one whose record names it in a `decided` field.
@@ -369,15 +357,7 @@ pub fn operations(records: &[Record]) -> IndexMap<String, bool> {
             r.field_or_empty("sort").trim_end().ends_with("→ number")
                 && r.field_or_empty("pattern").contains('_')
         })
-        .map(|r| {
-            let decided = r.field("decided").is_some_and(|v| {
-                split_entries(v)
-                    .iter()
-                    .any(|m| str::trim(m) == "arithmetic")
-            });
-            let native = NATIVE_OPERATIONS.contains(&r.name.as_str());
-            (r.name.clone(), decided || native)
-        })
+        .map(|r| (r.name.clone(), crate::methods::field::worked_out(r)))
         .collect()
 }
 
