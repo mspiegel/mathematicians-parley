@@ -16,7 +16,7 @@ use num_traits::{ToPrimitive, Zero};
 use super::field::{self, Value};
 use super::linear;
 use super::matcher::ChainLink;
-use super::provenance::{from_requires, rests_on_only, MEMBERSHIP};
+use super::provenance::{from_requires, may_rest_on, rests_on_only, MEMBERSHIP};
 use super::state::{fit, names_of, Binding, Elaborator};
 use super::{Facts, Lines, Written};
 use crate::binds;
@@ -1370,7 +1370,9 @@ impl<'a> Elaborator<'a> {
     }
 
     /// `known` with what the lines the step names imply laid in where it
-    /// does not hold the claim already (`implied_by_named`).
+    /// does not hold the claim already (`implied_by_named`), or holds it only
+    /// from a line the step may not rest on: 1.3.2 above says V ∖ {a} ∈
+    /// 𝒫(X ∖ {a}), and a step naming 1.3.1, V ∖ {a} ⊆ X ∖ {a}, rests on that.
     pub fn with_implied(
         &mut self,
         step: Option<&Step>,
@@ -1378,8 +1380,14 @@ impl<'a> Elaborator<'a> {
         known: &Facts,
     ) -> Checked<()> {
         let implied = self.implied_by_named(step, scope, known)?;
+        let restable = match &self.resting {
+            Some(resting) => {
+                known.filtered(|_, p| p.origin.iter().all(|o| may_rest_on(resting, o)))
+            }
+            None => known.copy(),
+        };
         for (k, v) in implied.entries() {
-            if !self.holds(known, &k) {
+            if !self.holds(&restable, &k) {
                 self.know(known, k, v);
             }
         }
