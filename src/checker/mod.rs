@@ -113,13 +113,9 @@ pub fn checked(
                 .collect();
             for step in &thm.steps {
                 for req in &step.requires {
-                    let Some(as_step) = citations::requires_read_as_step(step, req)
-                    else {
-                        continue;
-                    };
-                    if let Some(read) =
-                        citations::cited(&as_step, c.library, &c.known[i])
-                    {
+                    let read =
+                        citations::cited_requires(step, req, c.library, &c.known[i]);
+                    if let Some(read) = read {
                         record.cited_requires.insert(req.line, read);
                     }
                 }

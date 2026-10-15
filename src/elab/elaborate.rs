@@ -1510,24 +1510,25 @@ impl<'a> Elaborator<'a> {
 
     /// What the clause a step's citation takes concludes there, each
     /// sentence a term with every letter the citation fixes put in: the
-    /// instance the checker compared the claim with. Empty where no clause
-    /// concludes the claim.
+    /// instance the checker compared the claim with (`cited_here`). Empty
+    /// for an obtain, which claims the witness and no conclusion of the item.
     fn concluded_here(
         &mut self,
         step: &Step,
         item: &'a Record,
     ) -> Checked<Vec<String>> {
-        let (library, groups, parts) =
-            self.citation_here(step, &item.qualified(), false)?;
-        let Built(taken) =
-            citing::taken(&groups, &parts.claims, &parts.facts, &parts.seed, &library)
-        else {
+        if step.just.head.is(crate::corpus::Method::Obtain) {
+            return Ok(Vec::new());
+        }
+        let taken = self.cited_here(step, &item.qualified())?;
+        let library = self.item_library();
+        let Some(groups) = library.groups(&item.qualified()) else {
             return Ok(Vec::new());
         };
-        let gives = groups[taken.group].gives.clone();
+        let binding: NodeBinding = taken.binding.into_iter().collect();
         let mut out = Vec::new();
-        for node in &gives {
-            let instance = filled(node, &taken.binding, &library.ctx);
+        for node in &groups[taken.group].gives {
+            let instance = filled(node, &binding, &library.ctx);
             out.push(self.in_its_names(Item::Record(item), |me| me.term(&instance))?);
         }
         Ok(out)

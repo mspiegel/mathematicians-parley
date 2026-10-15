@@ -289,6 +289,35 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
     })
 }
 
+/// How a requires line's citation of an item is read, over the parts the
+/// line's check reads (`requires_parts`): what its reason names, the lines
+/// above it, and the member its step's claim is said of. None where the
+/// line cites no item or no group concludes its fact, the item then applied
+/// as often as it takes (`check_requires`).
+pub fn cited_requires(
+    step: &Step,
+    req: &Requires,
+    library: &Library,
+    known: &Known,
+) -> Option<Cited> {
+    let (named, _) = req.cited_item()?;
+    let item = step.just.item(&named);
+    let groups = library.groups(&item)?;
+    let parts = requires_parts(step, req, &[], known, library)?;
+    let Built(taken) =
+        taken(&groups, &parts.claims, &parts.facts, &parts.seed, library)
+    else {
+        return None;
+    };
+    let before: usize = groups[..taken.group].iter().map(|g| g.gives.len()).sum();
+    Some(Cited {
+        item,
+        group: taken.group,
+        binding: taken.binding.into_iter().collect(),
+        sentences: taken.concluded.iter().map(|s| before + s).collect(),
+    })
+}
+
 /// What a step citing a corpus theorem, other than to obtain, makes each of
 /// its letters, as the matcher reads the citation (`taken`): the values it
 /// writes and what its claim and lines fix. None where the step cites no
@@ -1875,7 +1904,7 @@ pub fn check_define_domains(
 /// own, since it rests on them (`ELABORATION.md`, R2); None for a reason
 /// that is only `from`, which is read from the lines it names, and for one
 /// the skeleton reader could not cut, which `check_reason` reports.
-pub(super) fn requires_read_as_step(step: &Step, req: &Requires) -> Option<Step> {
+fn requires_read_as_step(step: &Step, req: &Requires) -> Option<Step> {
     let Ok(by) = &req.by else {
         return None;
     };
