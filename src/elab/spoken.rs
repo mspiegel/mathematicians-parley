@@ -20,7 +20,7 @@ use crate::formula::{Node, Sort};
 use crate::mm::kernel::Term;
 use crate::outcome::Checked;
 use crate::rules::NUMERALS;
-use crate::targets::{is_context, is_hole};
+use crate::targets::{is_context, is_hole, repeated};
 
 use super::state::{fit, Binding, Elaborator};
 
@@ -176,9 +176,28 @@ impl Elaborator<'_> {
                 else {
                     continue;
                 };
-                if self.g.written_by(notation, literal).is_some() {
+                let Some(written) = self.g.written_by(notation, literal) else {
+                    continue;
+                };
+                readings.push(Reading {
+                    target: target.clone(),
+                    notation: notation.clone(),
+                    literal: literal.clone(),
+                    applies: None,
+                });
+                // A list read at each length the term could hold: no more
+                // elements past the pattern's than the term has of what each
+                // one adds last, `cun` for {a, b, c, d, e}.
+                let Some(r) = &written.repeat else { continue };
+                let Some(last) = r.building.split_whitespace().last() else {
+                    continue;
+                };
+                let rpn = self.rpn(term);
+                let most = rpn.split_whitespace().filter(|t| *t == last).count();
+                let holes = written.holes.len();
+                for count in holes + 1..=holes + most {
                     readings.push(Reading {
-                        target: target.clone(),
+                        target: repeated(target, &r.building, holes, count),
                         notation: notation.clone(),
                         literal: literal.clone(),
                         applies: None,

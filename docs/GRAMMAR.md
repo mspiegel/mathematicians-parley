@@ -1056,7 +1056,7 @@ and a field outside them is refused:
 
 | kind | fields |
 |---|---|
-| `notation` | `pattern`, `sort`, `level`, `assoc`, `commutes`, `negates`, `spells`, `places`, `nests`, `bounds`, `joins`, `wraps`, `fills`, `shadowed`, `binds`, `reads`, `target`, `metamath`, `note` |
+| `notation` | `pattern`, `sort`, `level`, `assoc`, `commutes`, `identity`, `negates`, `spells`, `places`, `nests`, `bounds`, `joins`, `wraps`, `fills`, `repeats`, `shadowed`, `binds`, `reads`, `member`, `target`, `metamath`, `decided`, `note` |
 | `method` | `form`, `block`, `parts`, `parts-repeat`, `part-opens`, `checks`, `decides`, `hypotheses`, `specified-in`, `metamath`, `note` |
 | `axiom`, `theorem` | `metamath`, `target`, `open`, `note` |
 | `definition` | `sort`, `builds`, `reads`, `metamath`, `target`, `open`, `symbol`, `defines`, `note` |

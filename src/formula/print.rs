@@ -82,8 +82,8 @@ impl Grammar {
     }
 
     /// The pattern a node is written by: its own notation's, with its
-    /// literal, as many holes as it has children, and none of the rules a
-    /// second spelling adds.
+    /// literal, as many holes as it has children or fewer where its last
+    /// one repeats, and none of the rules a second spelling adds.
     fn plain(&self, node: &Node) -> Option<&Notation> {
         self.notations.iter().find(|n| {
             n.name == node.notation
@@ -95,7 +95,8 @@ impl Grammar {
                 && n.joins.is_none()
                 && n.wrap.is_none()
                 && n.fill.is_none()
-                && holes(n) == node.children.len()
+                && (holes(n) == node.children.len()
+                    || (n.repeat.is_some() && holes(n) < node.children.len()))
         })
     }
 
@@ -111,6 +112,15 @@ impl Grammar {
                 Part::Raised => {
                     written.push(raised(&children[at].text));
                     at += 1;
+                }
+                // The hole that repeats takes every child from here on, each
+                // after the separator, as the page lists them.
+                Part::Hole if n.repeat.as_ref().is_some_and(|r| r.hole == at + 1) => {
+                    let sep = n.repeat.as_ref().map_or(",", |r| r.after.as_str());
+                    let each: Vec<String> =
+                        children[at..].iter().map(|c| self.print(c)).collect();
+                    written.push(each.join(&format!("{sep} ")));
+                    at = children.len();
                 }
                 Part::Hole => {
                     let child = &children[at];

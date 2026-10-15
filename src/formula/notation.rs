@@ -134,6 +134,8 @@ pub struct Notation {
     /// set the page names in words: "there is a polynomial q with …" is
     /// "there is q ∈ (the polynomials) with …" (`fills`).
     pub fill: Option<Wrap>,
+    /// A hole that may be followed by more of its kind (`repeats`).
+    pub repeat: Option<Repeat>,
     /// Whether a name the text introduces with the same letter is read as
     /// that name instead (`shadowed`): i is the imaginary unit until a line
     /// introduces an i of its own.
@@ -238,6 +240,50 @@ regex!(WRAPS, r"^\s*hole\s+(\d+)\s+in\s+(\S+)\s*$");
 // `fills hole 2 with polynomials`: the node built has, as that hole of the
 // notation spelt, the named notation of no holes, which the page never writes.
 regex!(FILLS, r"^\s*hole\s+(\d+)\s+with\s+(\S+)\s*$");
+// `repeats hole 4 after , building _ csn cun`: the hole may be followed by
+// more of its kind, each after the separator, and each adds that term,
+// with `_` its own, to what the node stands for.
+regex!(
+    REPEATS,
+    r"^\s*hole\s+(\d+)\s+after\s+(\S+)\s+building\s+(\S.*?)\s*$"
+);
+
+/// A notation's `repeats` line: a hole that may be followed by any number
+/// more of its kind, as a listed set holds as many elements as it lists.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Repeat {
+    /// The hole that repeats, counted from 1; each further one takes its
+    /// category.
+    pub hole: usize,
+    /// The token written before each further one.
+    pub after: String,
+    /// What each further one adds to the term the node stands for, `_` being
+    /// that one's term, applied to what the holes before it built.
+    pub building: String,
+}
+
+/// A notation record's `repeats` line, read; None for a record with none.
+pub fn repeat_of(r: &Record) -> Checked<Option<Repeat>> {
+    let Some(said) = r.field("repeats") else {
+        return Ok(None);
+    };
+    let Some(m) = REPEATS.captures(said) else {
+        return Err(Problem::new(
+            &r.path,
+            r.lines.get("repeats").copied().unwrap_or(r.line),
+            format!(
+                "notation {}: `repeats {}` is not `hole N after <token> building <term>`",
+                r.name,
+                str::trim(said)
+            ),
+        ));
+    };
+    Ok(Some(Repeat {
+        hole: m[1].parse().unwrap(),
+        after: m[2].to_string(),
+        building: m[3].to_string(),
+    }))
+}
 // `joins hole 3 to hole 4 by conditional`: the node holds the two holes as
 // one, that notation's node with them in its holes.
 regex!(
@@ -448,7 +494,24 @@ pub fn compile_notations(
             }
         };
         let binds = binding(r)?;
+        let repeat = repeat_of(r)?;
         let (holes, yields) = categories(r, raw, binds.as_ref());
+        // Only the last hole repeats, so every hole before it is the one its
+        // place says.
+        if let Some(rep) = &repeat {
+            if rep.hole != holes.len() {
+                return Err(Problem::new(
+                    &r.path,
+                    r.lines.get("repeats").copied().unwrap_or(r.line),
+                    format!(
+                        "notation {}: `repeats` names hole {}, and only the last, hole {}, may repeat",
+                        r.name,
+                        rep.hole,
+                        holes.len()
+                    ),
+                ));
+            }
+        }
         let mut shapes: Vec<Vec<Part>> = Vec::new();
         for pat in patterns_of(raw) {
             let mut parts = Vec::new();
@@ -557,6 +620,7 @@ pub fn compile_notations(
                     literal: String::new(),
                     yields: String::new(),
                 }),
+                repeat: repeat.clone(),
                 shadowed: r.field("shadowed").is_some(),
             });
         }

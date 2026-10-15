@@ -280,6 +280,25 @@ pub fn fill(pattern: &str, holes: &[String]) -> String {
     .into_owned()
 }
 
+/// A repeating notation's target for a node of `count` children: its own
+/// target, which takes the holes the pattern writes, and then, for each
+/// child after those, `building` with that child's hole in place of `_`:
+/// `_1 _2 _3 ctp _4 csn cun` and `_5 csn cun` for {a, b, c, d, e}.
+pub fn repeated(target: &str, building: &str, written: usize, count: usize) -> String {
+    let mut out = target.to_string();
+    for k in written + 1..=count {
+        for token in building.split_whitespace() {
+            out.push(' ');
+            if token == "_" {
+                out.push_str(&format!("_{k}"));
+            } else {
+                out.push_str(token);
+            }
+        }
+    }
+    out
+}
+
 /// Which operand position each hole occupies, by hole number from 0.
 pub fn slots(pattern: &str) -> IndexMap<usize, usize> {
     let mut places = IndexMap::new();

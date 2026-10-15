@@ -21,6 +21,23 @@ theorem two-in-a-listed-set
 1.  2 ∈ S
     inspection, from D1
 
+theorem seven-in-a-long-listed-set
+  note        A listed set holds as many elements as it lists, here eight.
+  let S = {2, 3, 4, 5, 6, 7, 8, 9}                                    (D1)
+      reads the numbers from 2 to 9
+  then 7 ∈ S
+
+1.  7 ∈ S
+    inspection, from D1
+
+theorem one-not-in-a-long-listed-set
+  note        The same set written in the claim, five elements and more
+              being one notation.
+  then not (1 ∈ {2, 3, 4, 5, 6, 7, 8, 9})
+
+1.  not (1 ∈ {2, 3, 4, 5, 6, 7, 8, 9})
+    inspection
+
 theorem four-not-in-a-listed-set
   let S = {1, 2, 3}                                                   (D1)
       reads the numbers from 1 to 3

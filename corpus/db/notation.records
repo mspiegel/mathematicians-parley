@@ -108,6 +108,12 @@
 #               polynomials) with …". The holes written stand one place
 #               further along from it, and a name the spelling binds right
 #               after its words has the sort the filled set holds.
+#   repeats     that the pattern's last hole may be followed by any number
+#               more of its kind, each after a token, and what each adds to
+#               the term: `repeats hole 4 after , building _ csn cun` makes
+#               {_, _, _, _} take {a, b, c, d, e} and beyond, every element
+#               of the hole's sort, the fifth adding `_5 csn cun` to the
+#               target and so on. Only the last hole repeats.
 #   shadowed    that a name the text introduces with the same letter is read
 #               as that name and not as this notation, in the scope of the
 #               line introducing it. Marked case by case: only the imaginary
@@ -549,10 +555,10 @@ notation listed-two
   reads       the set whose elements are, and
   metamath    cpr
   target      _1 _2 cpr
-  note        A set given by listing what is in it. Each size listed is a
-              record of its own, since a record's holes are one list for all
-              its patterns; a size is declared when a proof writes it. The
-              listing says no order: {u, w} and {w, u} are one set.
+  note        A set given by listing what is in it. One, two and three
+              elements are records of their own, since set.mm has a
+              constructor for each, and `listed-four` takes four or more.
+              The listing says no order: {u, w} and {w, u} are one set.
 
 notation listed-three
   pattern     {_, _, _}
@@ -565,21 +571,14 @@ notation listed-three
 notation listed-four
   pattern     {_, _, _, _}
   sort        α, α, α, α → set of α
+  repeats     hole 4 after , building _ csn cun
   reads       the set whose elements are, and
-  metamath    ctp and csn joined by cun: the first three with the last
+  metamath    ctp and csn joined by cun: the first three with the rest
   target      _1 _2 _3 ctp _4 csn cun
-  note        From four on, the list is the first ones joined with the
-              singleton of the last, which is how set.mm builds its pair and
-              triple from singletons. See `listed-two`.
-
-notation listed-seven
-  pattern     {_, _, _, _, _, _, _}
-  sort        α, α, α, α, α, α, α → set of α
-  reads       the set whose elements are, and
-  metamath    the first six joined with the singleton of the last
-  target      _1 _2 _3 ctp _4 csn cun _5 csn cun _6 csn cun _7 csn cun
-  note        See `listed-four`. The sizes between have no records: a size
-              is declared when a proof writes it.
+  note        Four elements or more, as many as the page lists: each from
+              the fourth on is the set before it joined with its singleton,
+              which is how set.mm builds its pair and triple from
+              singletons. See `listed-two`.
 
 notation set-operations
   pattern     _ ∪ _        _ ∖ _        _ ∩ _

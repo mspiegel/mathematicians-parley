@@ -368,7 +368,18 @@ impl<'a> Elaborator<'a> {
             }
             Ok(holes)
         })?;
-        let pattern = self.pattern(node)?;
+        let mut pattern = self.pattern(node)?;
+        // A list longer than the pattern writes builds each further element
+        // on what the ones before it built (`repeats`).
+        let repeat = self
+            .g
+            .notations
+            .iter()
+            .find(|n| n.name == node.notation && n.literal == node.text)
+            .and_then(|n| n.repeat.as_ref().map(|r| (r, n.holes.len())));
+        if let Some((r, written)) = repeat {
+            pattern = targets::repeated(&pattern, &r.building, written, holes.len());
+        }
         Ok(targets::fill(&pattern, &holes))
     }
 

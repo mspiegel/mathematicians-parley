@@ -1237,19 +1237,40 @@ impl Parser<'_> {
                         took.push(None);
                     } else {
                         let at_edge = k == n.parts.len() - 1;
-                        let after: Vec<&str> =
+                        let mut after: Vec<&str> =
                             n.parts[k + 1..].iter().map_while(Part::literal).collect();
                         let barrier = if at_edge {
                             Some(n.level.as_str())
                         } else {
                             None
                         };
-                        let from = self.i;
-                        let Some(kid) = self.hole(want, barrier, &after)? else {
-                            return Ok(None);
-                        };
-                        kids.push(kid);
-                        took.push(Some((from, self.i)));
+                        // A hole that repeats ends at its separator, and is
+                        // read again after each one: {a, b, c, d, e}. What
+                        // follows the hole in the pattern closes the last
+                        // one, as a bracket ends any expression.
+                        let repeat =
+                            n.repeat.as_ref().filter(|r| r.hole == kids.len() + 1);
+                        if let Some(r) = repeat {
+                            after = vec![r.after.as_str()];
+                        }
+                        loop {
+                            let from = self.i;
+                            let Some(kid) = self.hole(want, barrier, &after)? else {
+                                return Ok(None);
+                            };
+                            kids.push(kid);
+                            took.push(Some((from, self.i)));
+                            match repeat {
+                                Some(r)
+                                    if self
+                                        .peek()
+                                        .is_some_and(|t| t.text == r.after) =>
+                                {
+                                    self.i += 1;
+                                }
+                                _ => break,
+                            }
+                        }
                     }
                 }
                 // A raised numeral is the numeral it writes, `2` for `²`.
@@ -1288,8 +1309,13 @@ impl Parser<'_> {
             }
         }
         // A pattern may name fewer hole sorts than it has holes, which the
-        // record check reports; here the extra holes simply go unchecked.
-        for ((kid, want), span) in kids.iter().zip(n.holes.iter()).zip(&took) {
+        // record check reports; here the extra holes simply go unchecked. A
+        // hole read again takes the category of the hole that repeats.
+        let repeated = n.repeat.as_ref().and_then(|r| n.holes.get(r.hole - 1));
+        for (i, (kid, span)) in kids.iter().zip(&took).enumerate() {
+            let Some(want) = n.holes.get(i).or(repeated) else {
+                continue;
+            };
             if !fits(want, &kid.sort) {
                 let what = match span {
                     _ if kid.is_name() => kid.text.clone(),

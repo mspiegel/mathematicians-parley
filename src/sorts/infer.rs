@@ -392,12 +392,37 @@ impl Signature {
         out
     }
 
+    /// Fresh hole sorts for a node of `count` children and its result sort,
+    /// with fresh variables: the signature's own holes, and where its last
+    /// hole repeats (`repeats`), as many more of that one as the node has,
+    /// sharing its variables, so every element of {a, b, c, d, e} is of one
+    /// sort. None for a count the signature does not take.
+    pub fn fresh_for(
+        &self,
+        store: &mut Store,
+        count: usize,
+        repeats: bool,
+    ) -> Option<(Vec<SortTerm>, SortTerm)> {
+        let extra = count.checked_sub(self.parts.len())?;
+        if extra > 0 && (!repeats || self.parts.is_empty()) {
+            return None;
+        }
+        Some(self.instances(store, extra))
+    }
+
     /// Fresh hole sorts and result sort, with fresh variables.
     pub fn fresh(&self, store: &mut Store) -> (Vec<SortTerm>, SortTerm) {
+        self.instances(store, 0)
+    }
+
+    /// The holes and the result instantiated together, with `extra` more of
+    /// the last hole after the signature's own.
+    fn instances(&self, store: &mut Store, extra: usize) -> (Vec<SortTerm>, SortTerm) {
         let mut names: IndexMap<String, SortTerm> = IndexMap::new();
         let holes = self
             .parts
             .iter()
+            .chain(self.parts.last().into_iter().cycle().take(extra))
             .map(|t| instance(t, &mut names, store))
             .collect();
         let result = instance(&self.result, &mut names, store);
@@ -658,6 +683,8 @@ pub fn ranges_of(ranges: &[crate::corpus::Range]) -> IndexMap<String, String> {
 pub struct NotationSorts {
     signatures: IndexMap<String, Rc<Signature>>,
     bound: IndexMap<String, IndexSet<usize>>,
+    /// The notations whose last hole repeats (`repeats`).
+    repeats: IndexSet<String>,
     /// The sort of each function the library declares, by its name.
     functions: IndexMap<String, Rc<Signature>>,
 }
@@ -666,8 +693,12 @@ impl NotationSorts {
     pub fn read(g: &crate::formula::Grammar) -> NotationSorts {
         let mut signatures: IndexMap<String, Rc<Signature>> = IndexMap::new();
         let mut bound: IndexMap<String, IndexSet<usize>> = IndexMap::new();
+        let mut repeats: IndexSet<String> = IndexSet::new();
         for n in &g.notations {
             let key = n.key().to_string();
+            if n.repeat.is_some() {
+                repeats.insert(key.clone());
+            }
             let Some(said) = &n.sort else { continue };
             if said.is_empty() {
                 continue;
@@ -700,6 +731,7 @@ impl NotationSorts {
         NotationSorts {
             signatures,
             bound,
+            repeats,
             functions,
         }
     }
@@ -818,11 +850,16 @@ impl Reader {
             return NUMBER;
         }
         let notations = Rc::clone(&self.notations);
-        let (holes, out) = match notations.signatures.get(&node.notation) {
-            Some(make) if make.holes() == node.children.len() => make.fresh(store),
+        let repeats = notations.repeats.contains(&node.notation);
+        let made = notations
+            .signatures
+            .get(&node.notation)
+            .and_then(|make| make.fresh_for(store, node.children.len(), repeats));
+        let (holes, out) = match made {
+            Some(made) => made,
             // A notation whose `sort` is missing or does not read, which
             // `check_notation` reports: nothing is known of its holes.
-            _ => {
+            None => {
                 let holes = node.children.iter().map(|_| store.var()).collect();
                 (holes, store.var())
             }
