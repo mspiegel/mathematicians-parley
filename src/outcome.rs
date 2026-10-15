@@ -199,6 +199,15 @@ impl<T> Route<T> {
         }
     }
 
+    /// This route borrowed: what was built by reference, or the decline
+    /// copied.
+    pub fn borrowed(&self) -> Route<&T> {
+        match self {
+            Route::Built(t) => Route::Built(t),
+            Route::Declined(d) => Route::Declined(d.clone()),
+        }
+    }
+
     /// This route, or the next where this one declined.
     pub fn or_try(self, next: impl FnOnce() -> Route<T>) -> Route<T> {
         match self {

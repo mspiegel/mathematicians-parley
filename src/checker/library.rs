@@ -10,7 +10,7 @@ use super::record::CheckedTheorem;
 use super::structure::{labels_in_scope, Declared};
 use crate::citing::{
     self, at_a_member, finished, introduction, said_once, with_parts, Introduced,
-    Library, Parts,
+    Library, Parts, Taken,
 };
 use crate::corpus::{Intro, Kinded, Method, Step, StepNo, Theorem, Values};
 use crate::formula::page::{conjoined, filled, Sentence, Written};
@@ -18,10 +18,29 @@ use crate::formula::{Node, Sorts};
 use crate::matching::{
     alike, expand, standard, substituted_in, Binding, Context, Definitions,
 };
+use crate::outcome::Route;
 use crate::sorts::introduction::Introduction;
 use crate::sorts::{citing_labels, Env, OutsideDefines, TYPING};
 
 type PartsKey = (StepNo, String, String, Vec<String>, Vec<String>);
+
+/// Which search of an item's groups a check asks of a step's parts
+/// (`citations::searched`).
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+pub enum Search {
+    /// The group whose conclusions cover the claim (`citing::taken`).
+    Takes,
+    /// The group whose "there is" the step obtains through
+    /// (`citing::obtained`).
+    Obtains,
+    /// The group whose conclusions alone cover the claim, its hypotheses
+    /// not asked (`citations::concluded_alone`).
+    Alone,
+}
+
+/// A search's place in `Known::searches`: the step's parts and the item's
+/// groups, each by the address of the one shared copy the run keeps of it.
+type SearchKey = (usize, usize, Search);
 
 /// Every line a step's citation may name, by the reference that names it,
 /// with what the line says.
@@ -82,6 +101,10 @@ pub struct Known<'a> {
     cited: RefCell<IndexMap<Vec<String>, Rc<Definitions>>>,
     scopes: RefCell<IndexMap<(StepNo, usize), Rc<Statements>>>,
     parts: RefCell<IndexMap<PartsKey, Rc<Parts>>>,
+    /// Each search a check has asked of a step's citation, which several
+    /// checks ask alike: the parts and the groups are kept for the run
+    /// (`parts`, `Library::groups`), so their addresses name them.
+    pub(super) searches: RefCell<IndexMap<SearchKey, Rc<Route<Taken>>>>,
 }
 
 impl<'a> Known<'a> {
@@ -101,6 +124,7 @@ impl<'a> Known<'a> {
             cited: RefCell::new(IndexMap::new()),
             scopes: RefCell::new(IndexMap::new()),
             parts: RefCell::new(IndexMap::new()),
+            searches: RefCell::new(IndexMap::new()),
         }
     }
 

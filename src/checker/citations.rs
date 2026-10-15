@@ -2,11 +2,14 @@
 
 use std::cell::OnceCell;
 use std::collections::BTreeSet;
+use std::rc::Rc;
 
 use indexmap::{IndexMap, IndexSet};
 
 use super::formulas::chain_links;
-use super::library::{introduced, listed_seed, typed_in_scope, typed_seed, Known};
+use super::library::{
+    introduced, listed_seed, typed_in_scope, typed_seed, Known, Search,
+};
 use super::record::{Cited, FirstAt};
 use super::structure::letters_in_scope;
 use super::Report;
@@ -69,10 +72,11 @@ fn unconcluded(step: &Step, known: &Known, library: &Library) -> Vec<Unconcluded
         {
             continue;
         }
+        let alone = || Some(Rc::new(concluded_alone(&groups, &parts, library)));
         out.push(Unconcluded {
             line: req.line,
             item: named,
-            missing: missing_hypotheses(&groups, &parts, library),
+            missing: missing_hypotheses(&groups, &parts, false, &alone, library),
         });
     }
     out
@@ -244,25 +248,23 @@ pub fn obtained_there(
         return None;
     }
     let groups = library.groups(&name)?;
-    let parts = known.parts(step, library);
-    Some(
-        obtained(&groups, &parts.facts, &parts.seed, library).map(|taken| {
-            // An item saying "A ↔ there is …" gives the "there is", the
-            // reading whose target it is, as the build obtains from it.
-            groups[taken.group]
-                .gives
-                .iter()
-                .map(|said| {
-                    let there_is = readings(said, library)
-                        .into_iter()
-                        .map(|r| r.claimed)
-                        .find(|t| library.exists.contains(&t.notation))
-                        .unwrap_or_else(|| said.clone());
-                    filled(&there_is, &taken.binding, &library.ctx)
-                })
-                .collect()
-        }),
-    )
+    let route = searched(step, Search::Obtains, known, library)?;
+    Some(route.borrowed().map(|taken| {
+        // An item saying "A ↔ there is …" gives the "there is", the
+        // reading whose target it is, as the build obtains from it.
+        groups[taken.group]
+            .gives
+            .iter()
+            .map(|said| {
+                let there_is = readings(said, library)
+                    .into_iter()
+                    .map(|r| r.claimed)
+                    .find(|t| library.exists.contains(&t.notation))
+                    .unwrap_or_else(|| said.clone());
+                filled(&there_is, &taken.binding, &library.ctx)
+            })
+            .collect()
+    }))
 }
 
 /// How a step's citation of an item is read: the group it takes and the
@@ -274,12 +276,8 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
     let item = step.just.item(&step.just.cited_item()?);
     let groups = library.groups(&item)?;
     let parts = known.parts(step, library);
-    let read = if step.just.head.is(Method::Obtain) {
-        obtained(&groups, &parts.facts, &parts.seed, library)
-    } else {
-        taken(&groups, &parts.claims, &parts.facts, &parts.seed, library)
-    };
-    let Built(taken) = read else {
+    let read = searched(step, search_of(step), known, library)?;
+    let Built(taken) = &*read else {
         return None;
     };
     let before: usize = groups[..taken.group].iter().map(|g| g.gives.len()).sum();
@@ -288,9 +286,13 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
     Some(Cited {
         item,
         group: taken.group,
-        concluded: across_groups(&taken, before),
+        concluded: across_groups(taken, before),
         firsts,
-        binding: taken.binding.into_iter().collect(),
+        binding: taken
+            .binding
+            .iter()
+            .map(|(k, v)| (k.clone(), v.clone()))
+            .collect(),
         written: parts
             .seed
             .iter()
@@ -470,14 +472,17 @@ pub fn bound_there(
     if !matches!(library.item(&name)?, Item::Theorem(_)) {
         return None;
     }
-    let groups = library.groups(&name)?;
-    let parts = known.parts(step, library);
-    let Built(taken) =
-        taken(&groups, &parts.claims, &parts.facts, &parts.seed, library)
-    else {
+    let read = searched(step, Search::Takes, known, library)?;
+    let Built(taken) = &*read else {
         return None;
     };
-    Some(taken.binding.into_iter().collect())
+    Some(
+        taken
+            .binding
+            .iter()
+            .map(|(k, v)| (k.clone(), v.clone()))
+            .collect(),
+    )
 }
 
 /// The hypotheses of the item a step cites that nothing it names supplies,
@@ -487,35 +492,37 @@ fn unsupplied(step: &Step, known: &Known, library: &Library) -> Option<Vec<Strin
     // A pointer that resolves to nothing is `check_citations`'s.
     let groups = library.groups(&step.just.item(&item))?;
     let parts = known.parts(step, library);
-    missing_hypotheses(&groups, &parts, library)
+    let takes = !searched(step, Search::Takes, known, library)?.is_declined();
+    let alone = || searched(step, Search::Alone, known, library);
+    missing_hypotheses(&groups, &parts, takes, &alone, library)
 }
 
 /// The hypotheses of an item that a citation's facts do not supply, as the
 /// item writes them; None where every one is supplied, or where a group of
 /// the item asks for nothing. A step's citation and a requires line's are
-/// asked the same way.
+/// asked the same way. `takes` is whether a group covers the claim
+/// (`Search::Takes`), and `alone` the group whose conclusions alone do
+/// (`Search::Alone`), asked only where it is wanted.
 fn missing_hypotheses(
     groups: &[Group],
     parts: &Parts,
+    takes: bool,
+    alone: &dyn Fn() -> Option<Rc<Route<Taken>>>,
     library: &Library,
 ) -> Option<Vec<String>> {
     // The hypotheses are supplied under the binding the claim fixes as well,
     // where a property is fixed only by what it is said of in the claim:
     // count-step's P(k + 1) is `a(k + 1) = 0` because the claim counts the i
     // with a(i) = 0. A group the citation takes has them supplied.
-    if !parts.claims.is_empty()
-        && !taken(groups, &parts.claims, &parts.facts, &parts.seed, library)
-            .is_declined()
-    {
+    if !parts.claims.is_empty() && takes {
         return None;
     }
     // Where the claim is what a group concludes, the hypotheses missing are
     // those of that group nothing supplies under what the claim fixes, and
     // not every hypothesis it has: floor-between's x ∈ ℝ at x := A + N is
     // said once, and only k ∈ ℤ at k := ⌊A⌋ + N is not supplied.
-    if let Some(Built(alone)) =
-        (!parts.claims.is_empty()).then(|| concluded_alone(groups, parts, library))
-    {
+    let alone = (!parts.claims.is_empty()).then(alone).flatten();
+    if let Some(Built(alone)) = alone.as_deref() {
         // Each is said at what the claim fixes, in the page's notation, so
         // that `P or Q` with P := 2 = P reads `2 = P or Q` and does not
         // seem to name the proof's own P; and at what the citation writes,
@@ -574,6 +581,48 @@ fn missing_hypotheses(
         );
     }
     missing
+}
+
+/// The search `how` of the item a step cites, over the step's parts, made
+/// once however many checks ask it (`Known::searches`). None where the step
+/// cites no item or the item has no groups, which `check_citations`
+/// reports.
+pub fn searched(
+    step: &Step,
+    how: Search,
+    known: &Known,
+    library: &Library,
+) -> Option<Rc<Route<Taken>>> {
+    let item = step.just.item(&step.just.cited_item()?);
+    let groups = library.groups(&item)?;
+    let parts = known.parts(step, library);
+    let key = (
+        Rc::as_ptr(&parts) as usize,
+        Rc::as_ptr(&groups) as usize,
+        how,
+    );
+    if let Some(found) = known.searches.borrow().get(&key) {
+        return Some(found.clone());
+    }
+    let made = Rc::new(match how {
+        Search::Takes => {
+            taken(&groups, &parts.claims, &parts.facts, &parts.seed, library)
+        }
+        Search::Obtains => obtained(&groups, &parts.facts, &parts.seed, library),
+        Search::Alone => concluded_alone(&groups, &parts, library),
+    });
+    known.searches.borrow_mut().insert(key, made.clone());
+    Some(made)
+}
+
+/// `searched` for what the step's method reads: an obtain obtains, and
+/// every other citation takes.
+fn search_of(step: &Step) -> Search {
+    if step.just.head.is(Method::Obtain) {
+        Search::Obtains
+    } else {
+        Search::Takes
+    }
 }
 
 /// The group whose conclusion the claim is, read from the claim and the
@@ -774,13 +823,11 @@ pub fn check_conclusion(
         // A claim that is what the item concludes, where only a hypothesis
         // is not supplied, is said once, by `check_hypotheses`, which names
         // the hypothesis.
-        let hypotheses_said = || {
-            !concluded_alone(&groups, &parts, library).is_declined()
-                && unsupplied(step, known, library).is_some()
-        };
-        if !concludes(&groups, &parts.claims, &parts.facts, &parts.seed, library)
-            && !hypotheses_said()
-        {
+        let found =
+            |how| searched(step, how, known, library).is_some_and(|r| !r.is_declined());
+        let hypotheses_said =
+            || found(Search::Alone) && unsupplied(step, known, library).is_some();
+        if !found(Search::Takes) && !hypotheses_said() {
             // A claim that is the conclusion with an identity element dropped
             // from something not said to be a number is told that, and not
             // that it is something else.
@@ -1352,10 +1399,10 @@ pub fn check_obtained_claims(
                 let Some(groups) = library.groups(&name) else {
                     continue;
                 };
-                let parts = known.parts(step, library);
-                let Built(taken) =
-                    obtained(&groups, &parts.facts, &parts.seed, library)
-                else {
+                let Some(read) = searched(step, Search::Obtains, known, library) else {
+                    continue;
+                };
+                let Built(taken) = &*read else {
                     continue; // `check_obtained` reports it
                 };
                 groups[taken.group]
@@ -1873,17 +1920,13 @@ fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
     // summand, which a type asks of every point (`AskedType::pointwise`).
     let mut rules = Binding::new();
     // An obtain claims the witness, and is read for what it obtains through.
-    let read = if just.head.is(Method::Obtain) {
-        obtained(&groups, &parts.facts, &parts.seed, library)
-    } else {
-        taken(&groups, &parts.claims, &parts.facts, &parts.seed, library)
-    };
-    if let Built(taken) = read {
-        for (name, value) in taken.binding {
+    let read = searched(step, search_of(step), known, library);
+    if let Some(Built(taken)) = read.as_deref() {
+        for (name, value) in &taken.binding {
             if value.notation == PROPERTY {
-                rules.insert(name, value);
-            } else if !fixed.contains_key(&name) {
-                fixed.insert(name, value);
+                rules.insert(name.clone(), value.clone());
+            } else if !fixed.contains_key(name) {
+                fixed.insert(name.clone(), value.clone());
             }
         }
     }
@@ -3016,9 +3059,13 @@ pub fn check_surplus(
     // A step holds where its item is supplied and concluded, and every
     // define it cites has its arguments in their domains: a line saying one
     // is in its domain does work as surely as one supplying a hypothesis.
-    let holds = |step: &Step| -> bool {
+    // `requires_concluded` says its requires lines' items are known to
+    // conclude them: a requires line's parts are read from its own lines
+    // and none the step cites, so a step that holds holds that still with a
+    // cited line taken away.
+    let holds_given = |step: &Step, requires_concluded: bool| -> bool {
         if unsupplied(step, known, library).is_some()
-            || !unconcluded(step, known, library).is_empty()
+            || (!requires_concluded && !unconcluded(step, known, library).is_empty())
             || !domains_unsaid(step, &functions, known, library).is_empty()
         {
             return false;
@@ -3027,17 +3074,16 @@ pub fn check_surplus(
         // the step names: a definition read either way takes the other side
         // from a cited line, which asks for it as surely as a hypothesis
         // does.
-        let item = step.just.cited_item().unwrap_or_default();
-        let Some(groups) = library.groups(&step.just.item(&item)) else {
+        let found = |how| searched(step, how, known, library).map(|r| !r.is_declined());
+        if step.just.head.is(Method::Obtain) {
+            return found(Search::Obtains).unwrap_or(false);
+        }
+        let Some(takes) = found(Search::Takes) else {
             return false;
         };
-        let parts = known.parts(step, library);
-        if step.just.head.is(Method::Obtain) {
-            return obtains(&groups, &parts.facts, &parts.seed, library);
-        }
-        parts.claims.is_empty()
-            || concludes(&groups, &parts.claims, &parts.facts, &parts.seed, library)
+        known.parts(step, library).claims.is_empty() || takes
     };
+    let holds = |step: &Step| holds_given(step, false);
 
     for step in &thm.steps {
         // A requires line citing an item is the step it would be, whatever
@@ -3082,7 +3128,7 @@ pub fn check_surplus(
                     .cloned()
                     .collect();
                 if !fails_without(&as_step, &lighter, &ways, &facts, known, library)
-                    && holds(&lighter)
+                    && holds_given(&lighter, true)
                 {
                     report.say(
                         &thm.path,
@@ -3132,7 +3178,7 @@ pub fn check_surplus(
             }
             let mut lighter = step.clone();
             lighter.just.refs = just.refs.iter().filter(|x| *x != r).cloned().collect();
-            if !lost_without(&lighter) && holds(&lighter) {
+            if !lost_without(&lighter) && holds_given(&lighter, true) {
                 spare_refs.push(r);
             }
         }
