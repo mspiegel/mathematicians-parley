@@ -653,6 +653,35 @@ fn cases() -> Vec<Case> {
             )],
             "d(n) ∈ ℝ is not built from what step 16.24.2 cites",
         ),
+        // An induction over ℕ starts at 1 and writes it, runs over ℕ or ℕ₀,
+        // and has a base part and a step part.
+        case(
+            "an induction starting where its set does not",
+            vec![edit(
+                "proofs/wiedijk/sum-formula.proof",
+                Some("    induction on k starting at 1\n".to_string()),
+                "    induction on k starting at 2\n".to_string(),
+            )],
+            "an induction over ℕ starts at 1, and the text says 2",
+        ),
+        case(
+            "an induction over a set no induction runs over",
+            vec![edit(
+                "proofs/wiedijk/sum-formula.proof",
+                Some("1.  For all k ∈ ℕ, S(k) = k(k + 1)/2.\n".to_string()),
+                "1.  For all k ∈ ℤ, S(k) = k(k + 1)/2.\n".to_string(),
+            )],
+            "step 1 is an induction over ℤ, and an induction runs over ℕ from 1 or ℕ₀ from 0",
+        ),
+        case(
+            "an induction with no base part",
+            vec![edit(
+                "proofs/wiedijk/sum-formula.proof",
+                Some("    induction on k starting at 1\n\n    base\n".to_string()),
+                "    induction on k starting at 1\n\n    step\n".to_string(),
+            )],
+            "step 1 is an induction with no base part",
+        ),
         // A proof block's let line takes a "for all" off its claim, and an
         // assume line an "if": step 2's claim has neither once it is cut down.
         case(

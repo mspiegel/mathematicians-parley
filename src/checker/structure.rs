@@ -21,6 +21,7 @@ use crate::formula::token::{Token, TokenKind};
 use crate::formula::{holds, Node, Sorts};
 use crate::outcome::{Built, Declined};
 use crate::regex;
+use crate::rules;
 use crate::sorts::introduction::{Form, Introduction};
 use crate::sorts::{
     bound_written, define_formulas, named_by_hypotheses, names_written, theorem_tokens,
@@ -406,6 +407,7 @@ fn check_step_part(report: &mut Report, thm: &Theorem, step: &Step, known: &Know
             return;
         }
     };
+    check_induction_runs(report, thm, step, set, known);
     for (index, (marker, no)) in step.parts.iter().enumerate() {
         let opens: Vec<_> = step
             .openers
@@ -462,6 +464,77 @@ fn check_step_part(report: &mut Report, thm: &Theorem, step: &Step, known: &Know
             );
         }
     }
+}
+
+/// An induction has a `base` part and a `step` part, runs over ℕ or ℕ₀, and
+/// starts at the set's first element, which it writes (`SYNTAX.md`, the
+/// `induction` row). The sets and where each starts are the induction
+/// lemmas' (`rules::INDUCTION`), which the build closes with.
+fn check_induction_runs(
+    report: &mut Report,
+    thm: &Theorem,
+    step: &Step,
+    set: &Node,
+    known: &Known,
+) {
+    let number = fmt(&step.number);
+    for wanted in ["base", "step"] {
+        if !step.parts.iter().any(|(marker, _)| marker == wanted) {
+            report.say(
+                &thm.path,
+                step.line,
+                format!("step {number} is an induction with no {wanted} part"),
+            );
+        }
+    }
+    let first_of = |label: &str| rules::digit_of(label).map(|d| d.to_string());
+    let begins = (set.notation == "number-systems")
+        .then(|| rules::System::of_sign(&set.text))
+        .flatten()
+        .and_then(|s| rules::lookup(rules::INDUCTION, s.label()))
+        .and_then(|(_, start)| first_of(start));
+    let Some(begins) = begins else {
+        let runs: Vec<String> = rules::INDUCTION
+            .iter()
+            .filter_map(|(set, (_, start))| {
+                Some(format!("{} from {}", sign_of(set), first_of(start)?))
+            })
+            .collect();
+        report.say(
+            &thm.path,
+            step.line,
+            format!(
+                "step {number} is an induction over {}, and an induction runs over {}",
+                known.print(set),
+                runs.join(" or ")
+            ),
+        );
+        return;
+    };
+    let written = step.just.start.as_deref().map(str::trim);
+    if written != Some(begins.as_str()) {
+        let said = match written {
+            Some(w) => format!("the text says {w}"),
+            None => "the text says no start".to_string(),
+        };
+        report.say(
+            &thm.path,
+            step.just.line,
+            format!(
+                "an induction over {} starts at {begins}, and {said}",
+                known.print(set)
+            ),
+        );
+    }
+}
+
+/// How the page writes the number system set.mm's `label` names, `ℕ` for
+/// `cn`; the label itself where it names none.
+fn sign_of(label: &str) -> &str {
+    rules::SYSTEM_OF
+        .iter()
+        .find(|(_, l)| *l == label)
+        .map_or(label, |(sign, _)| sign)
 }
 
 /// A calculation only joins. Every line cites a numbered step or a label and
