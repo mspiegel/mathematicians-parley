@@ -1286,7 +1286,7 @@ pub fn check_arithmetic_holds(
                     step.just.line,
                     format!("{what}, which {why}"),
                 ),
-                Worked::Undecided => report.trust("arithmetic", step),
+                Worked::Undecided => report.trust(Method::Arithmetic, step),
             }
         }
         for req in &step.requires {
@@ -1327,7 +1327,7 @@ pub fn check_algebra_holds(
             let decided =
                 algebra_holds(report, thm, &ClosureClaim::step(step), known, targets);
             if !decided {
-                report.trust("algebra", step);
+                report.trust(Method::Algebra, step);
             }
         }
         for req in step.requires.iter().filter(|r| r.is(Method::Algebra)) {
@@ -1470,7 +1470,7 @@ pub fn check_inequalities_holds(
         if step.just.head.is(Method::Inequalities) {
             let at = ClosureClaim::step(step);
             if !inequalities_hold(report, thm, &at, known, targets) {
-                report.trust("inequalities", step);
+                report.trust(Method::Inequalities, step);
             }
         }
         for req in step.requires.iter().filter(|r| r.is(Method::Inequalities)) {
@@ -1533,7 +1533,7 @@ pub fn check_membership_holds(
         if step.just.head.is(Method::Membership) {
             let at = ClosureClaim::step(step);
             if !membership_holds(report, thm, &at, known, targets) {
-                report.trust("membership", step);
+                report.trust(Method::Membership, step);
             }
         }
         for req in step.requires.iter().filter(|r| r.is(Method::Membership)) {

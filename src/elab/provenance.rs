@@ -17,7 +17,7 @@ use super::linear;
 use super::state::{number_of, Elaborator};
 use super::Facts;
 use crate::corpus::proof::Requires;
-use crate::corpus::{Head, Item, Step};
+use crate::corpus::{Head, Item, Method, Step};
 use crate::formula::Node;
 use crate::mm::spell::Proof;
 use crate::outcome::{Built, Checked, Declined, Route};
@@ -279,7 +279,7 @@ impl<'a> Elaborator<'a> {
         // An `algebra` step reads its sums as linear where one of them is
         // linear in something, and then what it combines is inside them.
         let lines = self.lines.clone();
-        let linear = step.just.head.to_string() == "algebra"
+        let linear = step.just.head.is(Method::Algebra)
             && combined
                 .iter()
                 .any(|c| self.sums_linear(c, Some(step), &lines));
@@ -479,7 +479,7 @@ impl<'a> Elaborator<'a> {
                 if !name.starts_with(&prefix) || name.matches('.').count() != depth {
                     continue;
                 }
-                if inner.just.head.to_string() == "join" {
+                if inner.just.head.is(Method::Join) {
                     out.extend(inner.just.refs.iter().cloned());
                 }
                 // A block closed on a contradiction rests on the line its

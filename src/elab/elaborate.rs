@@ -37,7 +37,8 @@ use super::{Facts, Line, Lines};
 use crate::binds;
 use crate::checker::record::{CheckedTheorem, Cited, FirstAt};
 use crate::citing::{self, filled};
-use crate::corpus::proof::{chain, requires_as_step, ChainLine, Requires};
+use crate::corpus::proof::{chain, requires_as_step, ChainLine, Head, Requires};
+use crate::corpus::Method;
 use crate::corpus::{
     define_parts, fmt, Corpus, DefineParts, Hypothesis, Intro, Item, Record, Step,
     Theorem, Value, Values,
@@ -626,7 +627,7 @@ impl<'a> Elaborator<'a> {
             // A step in a case sits under the case's assumption, and one in
             // an induction's step part under what that part opens with, where
             // the part is new.
-            let inducts = |b: &Block| b.owner.just.head.to_string() == "induction";
+            let inducts = |b: &Block| b.owner.just.head.is(Method::Induction);
             let entering = match (blocks.last(), step.part) {
                 (Some(b), Some(part)) => {
                     (!b.assumed.is_empty() || inducts(b)) && b.entered != Some(part)
@@ -665,7 +666,7 @@ impl<'a> Elaborator<'a> {
             }
             self.in_contradiction = blocks
                 .last()
-                .is_some_and(|b| b.owner.just.head.to_string() == "contradiction");
+                .is_some_and(|b| b.owner.just.head.is(Method::Contradiction));
             (scope, facts, closers) = self.take_step(&step, &scope, &facts, closers)?;
             self.line_built_as_stated(step.line)?;
             // A step contradicting a line closes a contradiction block on the
@@ -744,7 +745,7 @@ impl<'a> Elaborator<'a> {
             // reached from the two, and stands as the block's last line.
             let fixing = blocks
                 .last()
-                .filter(|b| b.owner.just.head.to_string() == "proof")
+                .filter(|b| b.owner.just.head.is(Method::Proof))
                 .map(|b| b.owner.clone());
             if let (Some(other), Some(owner), None) =
                 (&step.just.contradicting, fixing, step.part)
@@ -913,7 +914,7 @@ impl<'a> Elaborator<'a> {
         self.step_now = CheckedTheorem::index_of(self.thm, step);
         let resting = self.named(step, number, false);
         self.named_first(&step.just.refs, &resting, facts);
-        if head == "obtain" {
+        if step.just.head.is(Method::Obtain) {
             // An obtain's requires lines cite items as any step's do.
             if self.answers.is_some() {
                 self.list_asked(step)?;
@@ -1056,24 +1057,13 @@ impl<'a> Elaborator<'a> {
     /// The method a step's justification names: one of the methods, or what
     /// citing its item comes to, by the item's kind and what it states. A
     /// requires line made a step (`requires_as_step`) is read the same way.
-    fn method_for(&mut self, step: &Step) -> Checked<Option<Method>> {
+    fn method_for(&mut self, step: &Step) -> Checked<Option<How>> {
         let head = step.just.head.to_string();
-        let known_methods = [
-            "algebra",
-            "arithmetic",
-            "inequalities",
-            "membership",
-            "inspection",
-            "substitute",
-            "instantiate",
-            "calculation",
-            "join",
-            "exhibit",
-            "define",
-        ];
-        let mut how: Option<Method> = known_methods
-            .contains(&head.as_str())
-            .then(|| Method::Named(head.clone()));
+        let mut how: Option<How> = match &step.just.head {
+            Head::Method(m) if EXPANDED.contains(m) => Some(How::Named(*m)),
+            Head::Define => Some(How::Define),
+            _ => None,
+        };
         // Whether a step unfolds what it cites is read from the record: a
         // mundane definition is cited `mun:` and is unfolded all the same.
         let cited = match crate::corpus::item_kind(&head) {
@@ -1089,15 +1079,15 @@ impl<'a> Elaborator<'a> {
             // proves it. With no target it is read off the lines the step
             // cites, or is a defect (`take_definition`).
             how = Some(if !item.fields.contains_key("target") {
-                Method::TakeDefinition
+                How::TakeDefinition
             } else if item.conclusions.iter().any(|(text, _)| text.contains('↔')) {
-                Method::Reading(self.reading(item, step)?)
+                How::Reading(self.reading(item, step)?)
             } else {
-                Method::UnfoldEquation
+                How::UnfoldEquation
             });
         }
         if how.is_none() && cited.is_some() {
-            how = Some(Method::Cite);
+            how = Some(How::Cite);
         }
         Ok(how)
     }
@@ -1108,7 +1098,7 @@ impl<'a> Elaborator<'a> {
     #[allow(clippy::too_many_arguments)]
     fn by_method_written(
         &mut self,
-        how: &Method,
+        how: &How,
         step: &Step,
         node: &Node,
         term: &str,
@@ -1122,11 +1112,16 @@ impl<'a> Elaborator<'a> {
         // way (`SYNTAX.md`, a step said of every member). The requires lines
         // are then about that member, and are proved where it is in scope.
         let at_a_member = match how {
-            Method::Cite | Method::Reading(_) => {
+            How::Cite | How::Reading(_) => {
                 !self.item_cited(&step.just.head.to_string())?.says_for_all()
             }
-            Method::Named(name) => ["define", "membership", "algebra", "inequalities"]
-                .contains(&name.as_str()),
+            How::Define => true,
+            How::Named(m) => {
+                matches!(
+                    m,
+                    Method::Membership | Method::Algebra | Method::Inequalities
+                )
+            }
             _ => false,
         };
         // The claim says "for all" on the page, and not in its kernel form
@@ -1230,7 +1225,7 @@ impl<'a> Elaborator<'a> {
     #[allow(clippy::too_many_arguments)]
     fn with_requires(
         &mut self,
-        how: &Method,
+        how: &How,
         step: &Step,
         node: &Node,
         term: &str,
@@ -1268,7 +1263,7 @@ impl<'a> Elaborator<'a> {
     #[allow(clippy::too_many_arguments)]
     fn by_method(
         &mut self,
-        how: &Method,
+        how: &How,
         step: &Step,
         node: &Node,
         term: &str,
@@ -1277,34 +1272,42 @@ impl<'a> Elaborator<'a> {
         lines: &Lines,
     ) -> Checked<Route<Option<Proof>>> {
         let made = match how {
-            Method::Named(name) => match name.as_str() {
-                "algebra" => self.algebra(step, term, scope, facts, lines)?,
-                "arithmetic" => self.arithmetic(step, term, scope, facts)?,
-                "inequalities" => self.inequalities(step, term, scope, facts, lines)?,
-                "membership" => self.by_membership(step, term, scope, facts)?,
-                "inspection" => self.inspection(step, term, scope, facts)?,
-                "substitute" => {
+            How::Named(m) => match m {
+                Method::Algebra => self.algebra(step, term, scope, facts, lines)?,
+                Method::Arithmetic => self.arithmetic(step, term, scope, facts)?,
+                Method::Inequalities => {
+                    self.inequalities(step, term, scope, facts, lines)?
+                }
+                Method::Membership => self.by_membership(step, term, scope, facts)?,
+                Method::Inspection => self.inspection(step, term, scope, facts)?,
+                Method::Substitute => {
                     self.substitute(step, node, term, scope, facts, lines)?
                 }
-                "instantiate" => self.instantiate(step, term, scope, facts, lines)?,
-                "calculation" => self.calculation(step, term, scope, facts, lines)?,
-                "join" => return self.join(step, scope, facts).map(Built),
-                "exhibit" => self.exhibit(step, node, term, scope, facts, lines)?,
-                "define" => self.by_define(step, term, scope, facts)?,
-                _ => unreachable!("a method this names"),
+                Method::Instantiate => {
+                    self.instantiate(step, term, scope, facts, lines)?
+                }
+                Method::Calculation => {
+                    self.calculation(step, term, scope, facts, lines)?
+                }
+                Method::Join => return self.join(step, scope, facts).map(Built),
+                Method::Exhibit => {
+                    self.exhibit(step, node, term, scope, facts, lines)?
+                }
+                _ => unreachable!("a method EXPANDED holds"),
             },
-            Method::TakeDefinition => {
+            How::Define => self.by_define(step, term, scope, facts)?,
+            How::TakeDefinition => {
                 self.take_definition(step, term, scope, facts, lines)?
             }
-            Method::Reading(Way::Conclude) => {
+            How::Reading(Way::Conclude) => {
                 self.conclude(step, term, scope, facts, lines)?
             }
-            Method::Reading(way) => {
+            How::Reading(way) => {
                 let item = self.item_cited(&step.just.head.to_string())?;
                 self.trying(item, step, *way, term, scope, facts, lines)?
             }
-            Method::UnfoldEquation => self.unfold_equation(step, term, scope, facts)?,
-            Method::Cite => self.cite(step, term, scope, facts, lines)?,
+            How::UnfoldEquation => self.unfold_equation(step, term, scope, facts)?,
+            How::Cite => self.cite(step, term, scope, facts, lines)?,
         };
         Ok(made.map(Some))
     }
@@ -5352,9 +5355,27 @@ impl<'a> Elaborator<'a> {
     }
 }
 
+/// The methods the build expands itself; the others open a block or take
+/// apart what a citation gives, and are expanded where those are.
+const EXPANDED: [Method; 10] = [
+    Method::Algebra,
+    Method::Arithmetic,
+    Method::Inequalities,
+    Method::Membership,
+    Method::Inspection,
+    Method::Substitute,
+    Method::Instantiate,
+    Method::Calculation,
+    Method::Join,
+    Method::Exhibit,
+];
+
 /// How a step is expanded, by what its justification opens with.
-enum Method {
-    Named(String),
+enum How {
+    /// One of the methods the build expands itself (`EXPANDED`).
+    Named(Method),
+    /// A define, cited by its label.
+    Define,
     TakeDefinition,
     Reading(Way),
     UnfoldEquation,

@@ -20,7 +20,8 @@ use indexmap::{IndexMap, IndexSet};
 use crate::citing::{Library, Proved};
 use crate::corpus::{
     index, link_definitions, link_functions, module_of, parse_database, parse_proof,
-    proof_files, record_files, FileScope, Intro, Item, Record, RecordKind, Theorem,
+    proof_files, record_files, FileScope, Intro, Item, Method, Record, RecordKind,
+    Theorem,
 };
 use crate::formula::page::{Sentence, Written};
 use crate::formula::Grammar;
@@ -37,12 +38,12 @@ pub use record::CheckedTheorem;
 pub use structure::{cited_in_order, out_of_reach, unresolved};
 
 /// Methods whose steps this checker accepts without examining them.
-pub const CLOSURE: [&str; 5] = [
-    "algebra",
-    "arithmetic",
-    "inequalities",
-    "join",
-    "membership",
+pub const CLOSURE: [Method; 5] = [
+    Method::Algebra,
+    Method::Arithmetic,
+    Method::Inequalities,
+    Method::Join,
+    Method::Membership,
 ];
 
 /// A variable may be a Greek letter and may carry a subscript or a prime.
@@ -59,7 +60,7 @@ const RELATIONS: [&str; 6] = crate::corpus::proof::CHAIN_RELATIONS;
 pub struct Report {
     pub problems: Vec<Problem>,
     /// (method, step number) of each step resting on a closure method.
-    pub trusted: Vec<(String, String)>,
+    pub trusted: Vec<(Method, String)>,
 }
 
 impl Report {
@@ -69,20 +70,20 @@ impl Report {
 
     /// Count `step` among the steps accepted without being examined, resting
     /// on `method`.
-    pub fn trust(&mut self, method: &str, step: &crate::corpus::Step) {
+    pub fn trust(&mut self, method: Method, step: &crate::corpus::Step) {
         self.trusted
-            .push((method.to_string(), crate::corpus::fmt(&step.number)));
+            .push((method, crate::corpus::fmt(&step.number)));
     }
 }
 
 /// The closure methods whose steps a check of their own decides, which
 /// counts a step it leaves to the build itself (`Report::trust`).
-pub const DECIDED: [&str; 5] = [
-    "algebra",
-    "arithmetic",
-    "inequalities",
-    "join",
-    "membership",
+pub const DECIDED: [Method; 5] = [
+    Method::Algebra,
+    Method::Arithmetic,
+    Method::Inequalities,
+    Method::Join,
+    Method::Membership,
 ];
 
 /// What the check printed, and the status it exits with.
@@ -747,17 +748,17 @@ fn summary(report: Report, counts: (usize, usize, usize, usize)) -> Outcome {
         "{theorems} theorems, {steps} steps, {items} items, {methods} methods\n"
     ));
     out.push_str(&format!("{} problem(s)\n", problems.len()));
-    let mut by_method: IndexMap<&str, usize> = IndexMap::new();
+    let mut by_method: IndexMap<Method, usize> = IndexMap::new();
     for (method, _) in &report.trusted {
-        *by_method.entry(method.as_str()).or_insert(0) += 1;
+        *by_method.entry(*method).or_insert(0) += 1;
     }
     let total: usize = by_method.values().sum();
     out.push_str(&format!(
         "{total} step(s) accepted without checking, resting on a closure method:\n"
     ));
     for method in CLOSURE {
-        if let Some(n) = by_method.get(method) {
-            out.push_str(&format!("    {n:4}  {method}\n"));
+        if let Some(n) = by_method.get(&method) {
+            out.push_str(&format!("    {n:4}  {}\n", method.as_str()));
         }
     }
     Outcome {

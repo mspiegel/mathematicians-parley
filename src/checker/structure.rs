@@ -705,10 +705,8 @@ pub fn check_citations(
             at.check_reason(report, req, "requires line");
         }
         if let Some(m) = just.head.method() {
-            if CLOSURE.contains(&m.as_str()) && !DECIDED.contains(&m.as_str()) {
-                report
-                    .trusted
-                    .push((m.as_str().to_string(), fmt(&step.number)));
+            if CLOSURE.contains(&m) && !DECIDED.contains(&m) {
+                report.trusted.push((m, fmt(&step.number)));
             }
         }
     }

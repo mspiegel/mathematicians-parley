@@ -413,7 +413,6 @@ impl<'a> Elaborator<'a> {
         scope: &str,
         facts: &Facts,
     ) -> Checked<Block> {
-        let head = step.just.head.to_string();
         let mut block = Block {
             owner: step.clone(),
             outer: scope.to_string(),
@@ -439,8 +438,8 @@ impl<'a> Elaborator<'a> {
             proof: None,
             parts: IndexMap::new(),
         };
-        match head.as_str() {
-            "contradiction" => {
+        match step.just.head.method() {
+            Some(Method::Contradiction) => {
                 let o = &step.openers[0];
                 let node = self.hypothesis_node(o.kind, &o.body(&self.thm.path))?;
                 let supposed = self.term(&node)?;
@@ -465,7 +464,7 @@ impl<'a> Elaborator<'a> {
                 block.facts = lifted;
                 self.contradicted = None;
             }
-            "proof" => {
+            Some(Method::Proof) => {
                 for o in &step.openers {
                     let said = self.hypothesis_node(o.kind, &o.body(&self.thm.path))?;
                     if o.kind == Intro::Let {
@@ -512,7 +511,7 @@ impl<'a> Elaborator<'a> {
                 }
                 self.note_introduced(&block.scope.clone(), &block.facts.clone())?;
             }
-            "cases" | "both directions" => {
+            Some(Method::Cases | Method::BothDirections) => {
                 // Every other block opens one scope for all its children. A
                 // `cases` opens one per part, so nothing is widened here and
                 // the part is entered when its first child arrives; each
@@ -524,7 +523,7 @@ impl<'a> Elaborator<'a> {
                         .insert(o.part.unwrap_or(0), (node, o.label.clone()));
                 }
             }
-            "induction" => {
+            Some(Method::Induction) => {
                 let over = step
                     .just
                     .on
@@ -562,6 +561,7 @@ impl<'a> Elaborator<'a> {
                 block.base = Some(base);
             }
             _ => {
+                let head = &step.just.head;
                 return Err(
                     self.defect(step.line, format!("no expansion for a {head} block"))
                 );
@@ -873,7 +873,6 @@ impl<'a> Elaborator<'a> {
         deep: &str,
     ) -> Checked<(String, Facts, Vec<Closer>)> {
         let step = block.owner.clone();
-        let head = step.just.head.to_string();
         let inside: Vec<Closer> =
             closers[block.opened_at.min(closers.len())..].to_vec();
         // A block gives back its scope and its names together.
@@ -882,24 +881,24 @@ impl<'a> Elaborator<'a> {
         self.names = block.named.clone();
         self.bound_as = block.bound.clone();
         let mut closers = closers;
-        let (claim, proof) = match head.as_str() {
-            "contradiction" => {
+        let (claim, proof) = match step.just.head.method() {
+            Some(Method::Contradiction) => {
                 let made = self.close_contradiction(block, facts, &inside, deep)?;
                 closers.truncate(block.opened_at);
                 made
             }
-            "proof" => {
+            Some(Method::Proof) => {
                 let last = self.last.clone().expect("a block's last step");
                 let held = self.lines.get(&last).expect("the block's last line");
                 let made = self.close_proof_block(block, &held, &inside)?;
                 closers.truncate(block.opened_at);
                 made
             }
-            "cases" => {
+            Some(Method::Cases) => {
                 closers = self.end_case(block, closers)?;
                 self.close_cases(block)?
             }
-            "both directions" => {
+            Some(Method::BothDirections) => {
                 closers = self.end_case(block, closers)?;
                 self.close_both(block)?
             }
