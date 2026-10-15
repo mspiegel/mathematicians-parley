@@ -87,6 +87,11 @@ fn walk(root: &Path, dir: &Path, out: &mut Vec<String>) {
         let Ok(kind) = entry.file_type() else {
             continue;
         };
+        // Cargo's build directory holds no corpus file, and listing it cost
+        // the checker most of a second where it had grown to 10 GB.
+        if kind.is_dir() && dir == root && name == "target" {
+            continue;
+        }
         if kind.is_dir() {
             walk(root, &path, out);
         } else if let Ok(rel) = path.strip_prefix(root) {
