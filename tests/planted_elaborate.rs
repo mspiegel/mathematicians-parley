@@ -1089,6 +1089,15 @@ fn cases() -> Vec<Case> {
             "    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2\n          algebra, from K\n",
             "step 1.6 cites K and uses nothing it says",
         ),
+        // 2·√a is a number once √a is, so it is √a whose membership is owed.
+        case(
+            "leave out the line saying a root is real from a bound on its multiple",
+            "tests/elaborator/textbook-exercise-shapes-two/a-root-in-a-bound",
+            "tests/elaborator/textbook-exercise-shapes-two.proof",
+            "    inequalities, from H3, 1\n",
+            "    inequalities, from H3\n",
+            "nothing says √a ∈ ℝ, which this step needs",
+        ),
         // Inspection decides "is prime" by the number, so a composite said to
         // be prime is refused with what the number is.
         case(

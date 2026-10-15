@@ -16,7 +16,8 @@ use crate::citing::{
     Group, Library, Parts, Sites, Taken, Ways,
 };
 use crate::corpus::proof::{
-    requires_as_step, requires_item, substituted, substituted_into, Requires, METHODS,
+    requires_as_step, requires_item, substituted, substituted_into,
+    substitution_source, Requires, METHODS,
 };
 use crate::corpus::{
     cited_item, define_parts, references, DefineParts, FileScope, Item, Method, Step,
@@ -839,6 +840,42 @@ pub fn check_substitutes(
         let [left, right] = equation.children.as_slice() else {
             continue;
         };
+        // The equation is part of the line it is taken from (`SYNTAX.md`,
+        // substitute), as that line writes it or turned. A reference to
+        // nothing is `check_references`'s to report, and a define, whose
+        // equation is the name and what it names and no sentence a line
+        // states, the elaborator's.
+        let defined = |r: &str| thm.defines.iter().any(|d| d.label == r);
+        if let Some(source) = substitution_source(&step.just).filter(|s| !defined(s)) {
+            let scope = known.scope(step);
+            if let Some(said) =
+                scope.get(&source).and_then(|s| known.stated_as_written(s))
+            {
+                let turned = Node::new(
+                    &equation.notation,
+                    equation.sort.clone(),
+                    vec![right.clone(), left.clone()],
+                    &equation.text,
+                );
+                let mut parts = vec![said.clone()];
+                parts.extend(conjuncts(&said, library));
+                let there = parts
+                    .iter()
+                    .any(|p| known.alike(p, &equation) || known.alike(p, &turned));
+                if !there {
+                    report.say(
+                        &thm.path,
+                        step.just.line,
+                        format!(
+                            "step {} takes {} from {source}, which does not say it",
+                            step.number,
+                            known.print(&equation)
+                        ),
+                    );
+                    continue;
+                }
+            }
+        }
         // What the equation is put into, and what that must make: the line
         // named, or one side of the claim, which is t = t′ either way round.
         let ways: Vec<(Vec<Node>, Node)> = match substituted_into(&step.just) {

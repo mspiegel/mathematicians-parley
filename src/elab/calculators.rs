@@ -3613,6 +3613,7 @@ impl<'a> Elaborator<'a> {
         if let Some(closed) = self.by_antisymmetry(&goal, scope, facts)? {
             return Ok(Built(closed));
         }
+        let written = given.len();
         given.extend(implied_given);
         where_.extend(implied_where);
         let mut all = given.clone();
@@ -3636,8 +3637,37 @@ impl<'a> Elaborator<'a> {
         };
         if !found.contains_key(&given.len()) {
             // The denied claim went unused, so the cited facts refute each
-            // other; that is not this method's to emit.
-            return Ok(Route::no("the cited facts refute each other"));
+            // other, and any claim follows (`METHODS.md`, inequalities: the
+            // set with the claim denied has no solution). One written fact
+            // the refutation uses is denied from the rest, by this route
+            // with that fact left out, and the two give the claim
+            // (`pm2.21dd`).
+            let Some(j) = found
+                .iter()
+                .filter(|(i, k)| !k.is_zero() && **i < written)
+                .map(|(i, _)| *i)
+                .next()
+            else {
+                return Ok(Route::no(
+                    "the cited facts refute each other only through what their memberships imply",
+                ));
+            };
+            let (r, said) = where_[j].clone();
+            let fact = self.rpn(&said);
+            let mut leave = skip.to_vec();
+            leave.push(fact.clone());
+            let denied = take!(self.prove_order(
+                refs,
+                &t!(&fact, "wn"),
+                scope,
+                facts,
+                lines,
+                &leave
+            )?);
+            let held = take!(self.cited_fact(&r, &said, scope, facts, lines)?);
+            return Ok(Built(
+                pf!(self.b; scope, fact, term, held, denied, "pm2.21dd"),
+            ));
         }
         let used: Vec<usize> = found
             .iter()

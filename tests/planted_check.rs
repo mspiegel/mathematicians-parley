@@ -1056,6 +1056,37 @@ fn cases() -> Vec<Case> {
             )],
             "the requires line of step 1 cites H2, and mun:binomial-nat0 asks for nothing it says",
         ),
+        // The block's last step is the cases step, not the last step of its
+        // last case, and it must name what it contradicts.
+        case(
+            "a contradiction ending in a cases step that names no line",
+            vec![edit(
+                "tests/elaborator/textbook-exercise-shapes-two.proof",
+                Some("          cases, from H2, contradicting S\n".to_string()),
+                "          cases, from H2\n".to_string(),
+            )],
+            "step 1.1 ends a contradiction block and does not say which line it contradicts",
+        ),
+        // A substitution's equation is part of the line it names.
+        case(
+            "substitute an equation from a line that does not say it",
+            vec![edit(
+                "tests/notations/integrals.proof",
+                Some("    substitute F(1) = 1² (line 9) into line 6\n".to_string()),
+                "    substitute F(1) = 1² (line 10) into line 6\n".to_string(),
+            )],
+            "step 11 takes F(1) = 1² from 10, which does not say it",
+        ),
+        // Step numbers are whole numbers joined by dots.
+        case(
+            "number a step with a letter",
+            vec![edit(
+                "tests/elaborator/textbook-exercise-shapes-two.proof",
+                Some("1.  b ≤ a\n    inequalities, from H4, H5\n".to_string()),
+                "1a. b ≤ a\n    inequalities, from H4, H5\n".to_string(),
+            )],
+            "`1a.` is no step number",
+        ),
         // The item's domain is a's, {1, …, n}, though the step cites a's type:
         // k ∈ ℤ, said once, does not put k in it.
         case(

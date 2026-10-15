@@ -1312,6 +1312,13 @@ pub fn substituted(just: &Justification, path: &str) -> Option<Written> {
     Some(Written::new(str::trim(&m[1]), path, just.line))
 }
 
+/// The line or label a `substitute` justification takes its equation from:
+/// `substitute x = 2 (line 3)` takes it from 3, and `(H4)` from H4.
+pub fn substitution_source(just: &Justification) -> Option<String> {
+    let m = SUBSTITUTED.captures(str::trim(&just.text))?;
+    m[2].split_whitespace().last().map(String::from)
+}
+
 fn inst() -> String {
     r"(?:[^\s,]+\s*:=\s*.+?)(?:,\s*[^\s,]+\s*:=\s*.+?)*".to_string()
 }
@@ -1665,6 +1672,19 @@ fn impossible(mut step: Step) -> Step {
         step.impossible = true;
     }
     step
+}
+
+// `1.6a.`: a step number with letters in it, which no step has.
+regex!(MISNUMBERED, r"^(\d+(?:\.\d+)*\.?[A-Za-z]+[\w.]*?)\.\s");
+
+/// What to say of a line that opens as a step does with a number that is
+/// not one: None for any other line.
+fn misnumbered(text: &str) -> Option<String> {
+    let m = MISNUMBERED.captures(str::trim_start(text))?;
+    Some(format!(
+        "`{}.` is no step number: a step is numbered by whole numbers joined by dots, as 1.6 or 1.6.2",
+        &m[1]
+    ))
 }
 
 fn placeholder_justification() -> Justification {
@@ -2377,6 +2397,9 @@ pub fn parse_proof(
                 just.chain.push((line.text.clone(), line.no));
                 continue;
             }
+            if let Some(said) = misnumbered(&t) {
+                return Err(Problem::new(path, line.no, said));
+            }
             return Err(Problem::new(
                 path,
                 line.no,
@@ -2385,6 +2408,9 @@ pub fn parse_proof(
                     repr(prefix(&t, 48))
                 ),
             ));
+        }
+        if let Some(said) = misnumbered(&t) {
+            return Err(Problem::new(path, line.no, said));
         }
         return Err(Problem::new(
             path,

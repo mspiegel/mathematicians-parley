@@ -40,8 +40,8 @@ use crate::corpus::proof::{
     chain, requires_as_step, requires_item, ChainLine, Requires,
 };
 use crate::corpus::{
-    define_parts, fmt, item_prefix, references, Corpus, DefineParts, Hypothesis, Intro,
-    Item, Record, Step, Theorem, Value, Values,
+    cited_item, define_parts, fmt, item_prefix, references, Corpus, DefineParts,
+    Hypothesis, Intro, Item, Record, Step, Theorem, Value, Values,
 };
 use crate::formula::page::{conjoined, related, Written};
 use crate::formula::{Grammar, Node};
@@ -620,6 +620,7 @@ impl<'a> Elaborator<'a> {
                 (scope, facts, closers) =
                     self.close_block(&mut done, &facts, closers, &scope)?;
                 self.line_built_as_stated(done.owner.line)?;
+                self.closed_contradicting(&done, &blocks, &facts);
                 Self::hand_up(&done, &mut blocks);
             }
             // A step in a case sits under the case's assumption, and one in
@@ -781,6 +782,7 @@ impl<'a> Elaborator<'a> {
             (scope, facts, closers) =
                 self.close_block(&mut done, &facts, closers, &scope)?;
             self.line_built_as_stated(done.owner.line)?;
+            self.closed_contradicting(&done, &blocks, &facts);
             Self::hand_up(&done, &mut blocks);
         }
 
@@ -2806,13 +2808,44 @@ impl<'a> Elaborator<'a> {
     /// definition unfolds from and to at this step. Empty where the step
     /// cites no record, or no clause of it concludes the claim.
     fn sides_here(&mut self, step: &Step) -> Checked<Vec<String>> {
-        let name = self.thm.names.full(&step.just.head.to_string());
+        // The item a step cites, or the one an obtain obtains through.
+        let Some(cited) = cited_item(&step.just) else {
+            return Ok(Vec::new());
+        };
+        let name = self.thm.names.full(&cited);
         let Some(Item::Record(item)) = self.items.get(&name).copied() else {
             return Ok(Vec::new());
         };
+        let mut said = self.concluded_here(step, item)?;
+        // A step that does not claim what the definition concludes, as an
+        // obtain claims the witness, has the sides its pairs make: `obtain j:
+        // mun:odd n := b` unfolds "b is odd" of a line saying a and b are
+        // odd, and never "a is odd".
+        if said.is_empty() {
+            let (library, groups, parts) =
+                self.citation_here(step, &item.qualified(), false)?;
+            let binders = self.g.binders();
+            for g in groups.iter() {
+                for node in &g.gives {
+                    // Only where the pairs fill every letter the sentence
+                    // leaves free: a letter of the item's own, open, is no
+                    // side a line could say.
+                    let open = crate::matching::free_names(node, &binders)
+                        .into_iter()
+                        .any(|n| !parts.seed.contains_key(&n));
+                    if open {
+                        continue;
+                    }
+                    let instance = filled(node, &parts.seed, &library.ctx);
+                    said.push(
+                        self.in_its_names(Item::Record(item), |me| me.term(&instance))?,
+                    );
+                }
+            }
+        }
         let mut out = Vec::new();
-        for said in self.concluded_here(step, item)? {
-            let whole = self.to_term(&said);
+        for one in said {
+            let whole = self.to_term(&one);
             if whole.label() == Some("wb") {
                 out.extend(whole.children().iter().map(|side| self.rpn(side)));
             }
@@ -2954,12 +2987,15 @@ impl<'a> Elaborator<'a> {
             return Ok(Route::no(format!("no cited line is what {lemma} unfolds")));
         };
         // What the left side fixes need not be everything the right side
-        // holds.
+        // holds: the rest is what the claim says there, fitted as written and
+        // then as the standard form reads the two, as `unfolding` fits its
+        // hint (the page's ε > 0 is set.mm's ε ∈ ℝ⁺).
         let target = self.to_term(term);
         for part in self.parts(&self.rpn(&reads.children()[1])) {
-            if let Some(filled) =
-                fit(&self.to_term(&part), &target, &binding, &variables)
-            {
+            let part = self.to_term(&part);
+            let filled = fit(&part, &target, &binding, &variables)
+                .or_else(|| self.fits_as(&part, &target, &variables, Some(&binding)));
+            if let Some(filled) = filled {
                 binding = filled;
                 break;
             }

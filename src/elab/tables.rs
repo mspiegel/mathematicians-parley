@@ -991,6 +991,39 @@ impl<'a> Elaborator<'a> {
         )))
     }
 
+    /// The innermost part of `whole` whose membership of `system` nothing
+    /// offered settles, through +, −, · and /, which make a number of
+    /// numbers; `whole` itself where both its parts settle or it is built
+    /// otherwise.
+    fn unsaid_part(
+        &mut self,
+        whole: &Term,
+        system: &str,
+        scope: &str,
+        offered: &Facts,
+    ) -> Checked<Term> {
+        let kids = whole.children();
+        let arithmetic = whole.variable().is_none()
+            && whole.label() == Some("co")
+            && kids.len() == 3
+            && kids[2]
+                .label()
+                .is_some_and(|op| rules::ARITHMETIC.contains(&op));
+        if !arithmetic {
+            return Ok(whole.clone());
+        }
+        for part in &kids[..2] {
+            let want = self.to_term(&t!(self.rpn(part), system, "wcel"));
+            if self
+                .settle(&want, scope, offered, 3, None, None)?
+                .is_declined()
+            {
+                return self.unsaid_part(part, system, scope, offered);
+            }
+        }
+        Ok(whole.clone())
+    }
+
     /// That a term belongs to a number system, which the text writes.
     ///
     /// Membership is a dull fact the page states rather than a step's to
@@ -1051,6 +1084,10 @@ impl<'a> Elaborator<'a> {
                         ));
                     }
                 }
+                // What is named is the part nothing says is a number: 2·√a is
+                // one once √a is, so it is √a the line owes.
+                let missing = self.unsaid_part(&whole, system, scope, &offered)?;
+                let named = self.rpn(&missing);
                 // A line saying the term is real says it is complex too, and
                 // a real term is what most items give: √A ∈ ℝ, never √A ∈ ℂ.
                 // So an ask in ℂ names both.
@@ -1059,7 +1096,7 @@ impl<'a> Elaborator<'a> {
                         self.at,
                         format!(
                             "nothing says {} ∈ ℝ or ∈ ℂ, which this step needs",
-                            self.render(said)
+                            self.render(&named)
                         ),
                     ));
                 }
@@ -1067,7 +1104,7 @@ impl<'a> Elaborator<'a> {
                     self.at,
                     format!(
                         "nothing says {}, which this step needs",
-                        self.render(&want)
+                        self.render(&t!(&named, system, "wcel"))
                     ),
                 ))
             }

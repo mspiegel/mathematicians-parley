@@ -18,8 +18,8 @@ use indexmap::IndexMap;
 use super::elaborate::Sides;
 use super::reading::subject_of;
 use super::state::{
-    number_of, Binding, Block, Closer, DefineCloser, Elaborator, Frame, ObtainCloser,
-    PartEnd,
+    number_of, Binding, Block, Closer, Contradicted, DefineCloser, Elaborator, Frame,
+    ObtainCloser, PartEnd,
 };
 use super::{Facts, Line, Lines};
 use crate::binds;
@@ -829,6 +829,34 @@ impl<'a> Elaborator<'a> {
                     facts: done.outside.clone(),
                 },
             );
+        }
+    }
+
+    /// A step owning a block that names the line it contradicts closes the
+    /// contradiction block around it as a step taken alone does: `1.1. x >
+    /// 0, cases, from H2, contradicting S`, its claim shown by its cases.
+    pub fn closed_contradicting(
+        &mut self,
+        done: &Block,
+        blocks: &[Block],
+        facts: &Facts,
+    ) {
+        let in_contradiction = blocks
+            .last()
+            .is_some_and(|b| b.owner.just.head.to_string() == "contradiction");
+        let Some(other) = &done.owner.just.contradicting else {
+            return;
+        };
+        if !in_contradiction {
+            return;
+        }
+        let lines = self.lines.clone();
+        if let Some(line) = lines.get(other) {
+            let proof = self.carried(other, facts, &lines);
+            self.contradicted = Some(Contradicted {
+                claim: line.term,
+                proof,
+            });
         }
     }
 

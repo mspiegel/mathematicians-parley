@@ -611,11 +611,14 @@ pub fn check_contradiction(
                 ),
             );
         }
+        // The block's last step is the last of its own, not the last of a
+        // block inside it: a `cases` step ending the block names the line
+        // its cases together contradict (`SYNTAX.md`, contradiction).
         let inside: Vec<&Step> = thm
             .steps
             .iter()
             .filter(|s| {
-                s.number.len() > step.number.len()
+                s.number.len() == step.number.len() + 1
                     && s.number.prefix(step.number.len()) == step.number
             })
             .collect();
