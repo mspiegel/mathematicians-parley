@@ -36,7 +36,7 @@ use super::tables::Leaf;
 use super::{Facts, Line, Lines};
 use crate::binds;
 use crate::checker::record::{CheckedTheorem, Cited};
-use crate::citing::{self, asked, claimed_member, filled, finished, Parts};
+use crate::citing::{self, filled, finished, Parts};
 use crate::corpus::proof::{chain, requires_as_step, ChainLine, Requires};
 use crate::corpus::{
     define_parts, fmt, Corpus, DefineParts, Hypothesis, Intro, Item, Record, Step,
@@ -1537,12 +1537,8 @@ impl<'a> Elaborator<'a> {
     /// What a requires line citing an item asks for, as terms
     /// (`asked_here`). Empty where the line cites no record, and where no
     /// group of the item concludes the line's fact: then it asks nothing.
-    pub fn asked_by_requires(
-        &mut self,
-        step: &Step,
-        o: &Requires,
-    ) -> Checked<Vec<String>> {
-        let AskedHere { item, hypotheses } = match self.asked_here(step, o)? {
+    pub fn asked_by_requires(&mut self, o: &Requires) -> Checked<Vec<String>> {
+        let AskedHere { item, hypotheses } = match self.asked_here(o) {
             Built(here) => here,
             Declined(_) => return Ok(Vec::new()),
         };
@@ -1555,61 +1551,23 @@ impl<'a> Elaborator<'a> {
     }
 
     /// What a requires line citing a record asks for: the record's
-    /// hypotheses under the binding the line's citation fixes
-    /// (`citing::asked`), as trees. The citation is read as the checker
-    /// reads it: the line's fact is its claim, and its facts are the lines
-    /// its reason names, the requires lines above it, and the member a claim
-    /// said of every member names. Declined where the line cites no record,
-    /// and where no group of the record concludes the line's fact from them.
-    pub(crate) fn asked_here(
-        &mut self,
-        step: &Step,
-        o: &Requires,
-    ) -> Checked<Route<AskedHere<'a>>> {
-        let Some((cited, _)) = o.cited_item() else {
-            return Ok(Route::no("the line cites no item"));
+    /// hypotheses under the checker's reading of the line's citation
+    /// (`CheckedTheorem::cited_requires`, `citing::asks_of`), as trees.
+    /// Declined where the line cites no record, and where no group of the
+    /// record concludes the line's fact.
+    pub(crate) fn asked_here(&self, o: &Requires) -> Route<AskedHere<'a>> {
+        let Some(cited) = self.checked.cited_requires.get(&o.line) else {
+            return Route::no("the checker reads no citation of an item on the line");
         };
-        let name = cited.split_once(':').map_or(cited.as_str(), |(_, n)| n);
-        let full = self.thm.names.full(name);
-        let Some(Item::Record(item)) = self.items.get(&full).copied() else {
-            return Ok(Route::no("the line cites no record"));
+        let Some(Item::Record(item)) = self.items.get(&cited.item).copied() else {
+            return Route::no("the line cites no record");
         };
         let library = self.item_library();
-        let refs = o.lines().to_vec();
-        let mut facts = self.cited_sentences(&refs)?;
-        for above in step.requires_above(o.line) {
-            facts.push(self.read_one(&above.fact)?);
-        }
-        if step.openers.is_empty() {
-            if let [claim] = self.said(step)?.as_slice() {
-                if let Some((member, _)) =
-                    claimed_member(claim, &library, &self.sorts_now)
-                {
-                    facts.push(member);
-                }
-            }
-        }
-        let claims = o
-            .fact
-            .sentences()
-            .iter()
-            .map(|s| self.read(s))
-            .collect::<Checked<Vec<Node>>>()?;
-        let parts = self.citation_parts(
-            facts,
-            claims,
-            o.values(),
-            &refs,
-            &library,
-            &item.qualified(),
-            None,
-        )?;
-        Ok(
-            asked(&item.qualified(), &parts, &library).map(|asks| AskedHere {
-                item,
-                hypotheses: asks.hypotheses,
-            }),
-        )
+        let binding: NodeBinding = cited.binding.clone().into_iter().collect();
+        Built(AskedHere {
+            item,
+            hypotheses: citing::asks_of(&cited.item, cited.group, &binding, &library),
+        })
     }
 
     /// What a citation supplies and claims (`citing::finished`), with the

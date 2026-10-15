@@ -309,7 +309,7 @@ impl<'a> Elaborator<'a> {
                 if o.cited_item().is_none() {
                     continue;
                 }
-                let asks = self.names_kept(|me| me.asked_by_requires(step, o))?;
+                let asks = self.names_kept(|me| me.asked_by_requires(o))?;
                 if asks.contains(&term) {
                     asked = true;
                     break;

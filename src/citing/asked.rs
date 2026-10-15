@@ -35,19 +35,38 @@ pub fn asked(name: &str, parts: &Parts, library: &Library) -> Route<Asked> {
         Built(t) => t,
         Declined(d) => return Declined(d),
     };
-    let wants = groups[taken.group].wants.iter().map(|(_, t)| t.clone());
+    let hypotheses = asks_of(name, taken.group, &taken.binding, library);
+    Built(Asked { taken, hypotheses })
+}
+
+/// What the item of that full name asks of a citation taking its group
+/// `group` under `binding` (`Asked::hypotheses`). Empty where no item has
+/// the name or the group is not one of its.
+pub fn asks_of(
+    name: &str,
+    group: usize,
+    binding: &Binding,
+    library: &Library,
+) -> Vec<Node> {
+    let Some(groups) = library.groups(name) else {
+        return Vec::new();
+    };
+    let Some(taken) = groups.get(group) else {
+        return Vec::new();
+    };
+    let wants = taken.wants.iter().map(|(_, t)| t.clone());
     let typed = library.function_types(name);
     let mut hypotheses = Vec::new();
     for asks in wants.chain(typed) {
         let unfixed = asks.names().iter().any(|n| {
-            let fixed = taken.binding.get(n).is_some_and(|b| b.notation != PROPERTY);
+            let fixed = binding.get(n).is_some_and(|b| b.notation != PROPERTY);
             !fixed && !library.env.g.functions.contains_key(n)
         });
         if !unfixed {
-            hypotheses.push(filled(&asks, &taken.binding, &library.ctx));
+            hypotheses.push(filled(&asks, binding, &library.ctx));
         }
     }
-    Built(Asked { taken, hypotheses })
+    hypotheses
 }
 
 /// `node` with each name `bound` fixes replaced by what it stands for, and a

@@ -30,16 +30,9 @@ impl Elaborator<'_> {
     /// `path:line | asked | item | fact` in the page's notation, or one
     /// saying the shared matcher declines. The checker lists its own answer
     /// the same way (`checker::answers`), and `tests/agree.rs` compares the
-    /// two. The member a claim said of every member names is named first, as
-    /// `does_work` names it. Where the elaborator cannot answer, what stops
-    /// it is listed as its answer, since that is what a comparison is of.
+    /// two.
     pub fn list_asked(&mut self, step: &Step) -> Checked<()> {
         let path = self.thm.path.clone();
-        let letter = if step.requires.is_empty() {
-            None
-        } else {
-            self.member_letter(step)?
-        };
         let mut out = Vec::new();
         for o in &step.requires {
             let Some((named, _)) = o.cited_item() else {
@@ -51,16 +44,8 @@ impl Elaborator<'_> {
                 continue;
             }
             let at = format!("{path}:{} | asked | {named}", o.line);
-            let asks = self.aside(|me| {
-                if let Some((page, kernel)) = &letter {
-                    if !me.names.contains_key(page) {
-                        me.names.insert(page.clone(), kernel.clone());
-                    }
-                }
-                me.asked_here(step, o)
-            });
-            match asks {
-                Ok(Built(here)) => {
+            match self.asked_here(o) {
+                Built(here) => {
                     // With the file's defines written out, as the checker
                     // reads the page (`Known::read_citing`), so that one fact
                     // is printed one way: s(t) + 1 ∈ ℤ is (t + 1) mod 10 + 1 ∈ ℤ.
@@ -70,10 +55,7 @@ impl Elaborator<'_> {
                         out.push(format!("{at} | {}", self.g.print(&read)));
                     }
                 }
-                Ok(Declined(_)) => out.push(format!("{at} | declines")),
-                Err(problem) => {
-                    out.push(format!("{at} | cannot answer: {}", problem.message))
-                }
+                Declined(_) => out.push(format!("{at} | declines")),
             }
         }
         if let Some(list) = &mut self.answers {

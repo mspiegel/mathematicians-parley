@@ -16,7 +16,7 @@ mod once;
 mod parts;
 mod supply;
 
-pub use asked::{asked, filled, Asked};
+pub use asked::{asked, asks_of, filled, Asked};
 pub use conclude::{
     concludes, derives, identities_unsaid, link_unsaid, obtained, obtains,
     substitution_unsaid, taken, taken_ways, Taken,
