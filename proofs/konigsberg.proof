@@ -17,6 +17,8 @@ import definition         stdlib/graphs/traversable
 import mundane definition stdlib/graphs/degree
 import mundane theorem    stdlib/functions/function-into
 import mundane definition stdlib/functions/one-to-one
+import mundane definition stdlib/functions/one-to-one-onto
+import mundane definition stdlib/functions/onto
 import mundane definition stdlib/functions/bijection
 import mundane theorem    stdlib/counting/card-equal
 import mundane theorem    stdlib/sets/set-builder-subset
@@ -142,7 +144,9 @@ let g(i) = e(i), for i ∈ S                                            (D3)
           exhibit, from 6.6, 6.8
 
 7.  There is a bijection from S to T.
-    mun:bijection, from D1, 5, 6
+    mun:bijection, from D1
+    requires g : S → T is onto: mun:onto, from 2, 6
+    requires g : S → T is one-to-one and onto: mun:one-to-one-onto, from 5
 
 8.  |S| = |T|
     mun:card-equal, from 7

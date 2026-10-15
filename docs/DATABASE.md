@@ -641,14 +641,13 @@ a mundane one. `def:` is rare: seven steps cite a named definition.
    met by the pointer and not by the line for a mundane definition: the line
    writes `mun:difference`, and it is the record that says `definition`.
 3. **`bijection` and `series-sum` state one direction of their meaning.**
-   `bijection` says a map that is one-to-one and reaches every point gives a
-   bijection, and `notation bijection` reads "there is a bijection from X to
-   Y" as set.mm's equinumerosity. Both say the reaching in full, "for all y ∈
-   Y, there is x ∈ X with y = f(x)", which is what `onto` unfolds to. The way
-   back is the theorem `bijection-onto`, which says only what a proof has
-   needed of it: there is f : X → Y reaching every point of Y. A definition
-   saying there is a bijection from X to Y exactly when some f : X → Y is
-   one-to-one and onto could be written, since the formula language says
-   "there is f : X → Y with …" and `f : X → Y is onto`, and would replace
-   both. `series-sum`
+   `bijection` says a map that is one-to-one and onto gives a bijection, and
+   `notation bijection` reads "there is a bijection from X to Y" as set.mm's
+   equinumerosity. The way back is the theorem `bijection-onto`, which says
+   only what a proof has needed of it: there is f : X → Y reaching every
+   point of Y, in full, "for all y ∈ Y, there is x ∈ X with y = f(x)". A
+   definition saying there is a bijection from X to Y exactly when some f :
+   X → Y is one-to-one and onto could be written, since the formula language
+   says "there is f : X → Y with …" and `f : X → Y is one-to-one and onto`,
+   and would replace both. `series-sum`
    likewise says the partial sums' limit is the sum, and not the other way.

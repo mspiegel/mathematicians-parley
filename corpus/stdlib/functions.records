@@ -203,17 +203,14 @@ mundane theorem composition-one-to-one
 
 mundane definition bijection
   let X be a set                                                      (H1)
-  let f : X → Y be one-to-one                                         (H2)
-  assume for all y ∈ Y, there is x ∈ X with y = f(x)                  (H3)
+  let f : X → Y be one-to-one and onto                                (H2)
   then        there is a bijection from X to Y
-  metamath    f1f, dffo3, df-f1o and f1oeng, which this corpus proves
-              together in elaboration/stdlib/proved.mm
-  target      gf1foen
+  metamath    f1oeng
+  target      f1oeng
   note        A function that never sends two things to one place and
               reaches every point pairs its domain off against its
-              codomain. The reaching is what `onto` unfolds to, said here
-              in full; set.mm calls the pairing a one-to-one
-              correspondence, which the page does not say.
+              codomain: one such function is what there being a bijection
+              between two sets means.
 
 mundane theorem bijection-onto
   assume there is a bijection from X to Y                             (H1)

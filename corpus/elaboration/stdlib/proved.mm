@@ -402,11 +402,6 @@ $d x S $.
     f1fn fnima simpr eqtr3d feq2d mpbid )
     ABCDZCAEZBFZGZCHZACIZJZBAUIJUGUHAUIKZUJUGAUHCKZUKUGUDULUDUFLZABCMNAUHCONUHAUIPNUGUHBAUIUGUEUHBUGCAQZUEUHFUGUDUNUMABCRNACSNUDUFTUAUBUC $.
 
-  gf1foen $p |- ( ( A e. V /\ F : A -1-1-> B /\ A. y e. B E. x e. A y = ( F ` x ) ) -> A ~~ B ) $=
-    ( wcel wf1 cv cfv wceq wrex wral w3a wf1o cen wbr simp1 wfo simp2 wf f1f
-    syl simp3 wa wb dffo3 a1i mpbir2and df-f1o f1oeng syl2anc )
-    CFGZCDEHZBIZAIZEJZKZACLZBDMZNZUMCDEOZCDPQUMUNUTRVAVBUNCDESZUMUNUTTZVAVCCDEUAZUTVAUNVEVDCDEUBUCUMUNUTUDVCVEUTUEUFVAABCDEUGUHUIVBUNVCUEUFVACDEUJUHUICDFEUKUL $.
-
   gbijonto $p |- ( A ~~ B -> E. f e. ( B ^m A ) A. y e. B E. x e. A y = ( f ` x ) ) $=
     ( cen wbr cv cmap co wcel cfv wceq wrex wral wa wex wf1o bren biimpi wf
     simpr f1of syl wb cvv encv pm3.22 elmapg adantr mpbird wfo f1ofo foelrn

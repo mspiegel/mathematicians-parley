@@ -6,6 +6,8 @@ import mundane theorem    stdlib/functions/image-monotone
 import mundane theorem    stdlib/functions/image-within
 import mundane theorem    stdlib/functions/inverse-value
 import mundane definition stdlib/functions/one-to-one
+import mundane definition stdlib/functions/one-to-one-onto
+import mundane definition stdlib/functions/onto
 import mundane theorem    stdlib/functions/value-in-image
 import mundane axiom      stdlib/reasoning/excluded-middle
 import mundane theorem    stdlib/sets/complement-swap
@@ -447,4 +449,6 @@ theorem schroeder-bernstein
     mun:one-to-one, from 6, 7
 
 10. There is a bijection from A to B.
-    mun:bijection, from 8, 9
+    mun:bijection
+    requires h : A → B is onto: mun:onto, from 6, 8
+    requires h : A → B is one-to-one and onto: mun:one-to-one-onto, from 9

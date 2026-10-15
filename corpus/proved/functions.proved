@@ -101,29 +101,6 @@ lemma gf1cnvf
   14 feq2d 13 |- ( ( F : A -1-1-> B /\ ( F " A ) = B ) -> ( `' F : ran F --> A <-> `' F : B --> A ) )
   15 mpbid 7 14 |- ( ( F : A -1-1-> B /\ ( F " A ) = B ) -> `' F : B --> A )
 
-# ( ( A e. V /\ F : A -1-1-> B /\ A. y e. B E. x e. A y = ( F ` x ) ) -> A ~~ B )
-lemma gf1foen
-  |- ( ( A e. V /\ F : A -1-1-> B /\ A. y e. B E. x e. A y = ( F ` x ) ) -> A ~~ B )
-  1 simp1 |- ( ( A e. V /\ F : A -1-1-> B /\ A. y e. B E. x e. A y = ( F ` x ) ) -> A e. V )
-  2 simp2 |- ( ( A e. V /\ F : A -1-1-> B /\ A. y e. B E. x e. A y = ( F ` x ) ) -> F : A -1-1-> B )
-  3 f1f |- ( F : A -1-1-> B -> F : A --> B )
-  4 syl 2 3 |- ( ( A e. V /\ F : A -1-1-> B /\ A. y e. B E. x e. A y = ( F ` x ) ) -> F : A --> B )
-  5 simp3 |- ( ( A e. V /\ F : A -1-1-> B /\ A. y e. B E. x e. A y = ( F ` x ) ) -> A. y e. B E. x
-      e. A y = ( F ` x ) )
-  6 dffo3 |- ( F : A -onto-> B <-> ( F : A --> B /\ A. y e. B E. x e. A y = ( F ` x ) ) )
-  7 a1i 6 |- ( ( A e. V /\ F : A -1-1-> B /\ A. y e. B E. x e. A y = ( F ` x ) ) -> ( F : A -onto->
-      B <-> ( F : A --> B /\ A. y e. B E. x e. A y = ( F ` x ) ) ) )
-  8 mpbir2and 4 5 7 |- ( ( A e. V /\ F : A -1-1-> B /\ A. y e. B E. x e. A y = ( F ` x ) ) -> F : A
-      -onto-> B )
-  9 df-f1o |- ( F : A -1-1-onto-> B <-> ( F : A -1-1-> B /\ F : A -onto-> B ) )
-  10 a1i 9 |- ( ( A e. V /\ F : A -1-1-> B /\ A. y e. B E. x e. A y = ( F ` x ) ) -> ( F : A
-      -1-1-onto-> B <-> ( F : A -1-1-> B /\ F : A -onto-> B ) ) )
-  11 mpbir2and 2 8 10 |- ( ( A e. V /\ F : A -1-1-> B /\ A. y e. B E. x e. A y = ( F ` x ) ) -> F :
-      A -1-1-onto-> B )
-  12 f1oeng |- ( ( A e. V /\ F : A -1-1-onto-> B ) -> A ~~ B )
-  13 syl2anc 1 11 12 |- ( ( A e. V /\ F : A -1-1-> B /\ A. y e. B E. x e. A y = ( F ` x ) ) -> A ~~
-      B )
-
 # ( A ~~ B -> E. f e. ( B ^m A ) A. y e. B E. x e. A y = ( f ` x ) )
 lemma gbijonto
   |- ( A ~~ B -> E. f e. ( B ^m A ) A. y e. B E. x e. A y = ( f ` x ) )

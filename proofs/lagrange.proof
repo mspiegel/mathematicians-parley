@@ -8,6 +8,8 @@ import mundane definition stdlib/divisibility/divides
 import mundane definition stdlib/functions/bijection
 import mundane theorem    stdlib/functions/function-into
 import mundane definition stdlib/functions/one-to-one
+import mundane definition stdlib/functions/one-to-one-onto
+import mundane definition stdlib/functions/onto
 import mundane definition stdlib/groups/coset
 import mundane axiom      stdlib/groups/group-associative
 import mundane axiom      stdlib/groups/group-closed
@@ -271,7 +273,9 @@ let K = {X ⊆ G : there is g ∈ G with X = gH}                        (D1)
                   exhibit, from 8.5.1, 8.5.3
 
     8.6.  There is a bijection from H to gH.
-          mun:bijection, from 8.4, 8.5
+          mun:bijection
+          requires t : H → gH is onto: mun:onto, from 8.2, 8.5
+          requires t : H → gH is one-to-one and onto: mun:one-to-one-onto, from 8.4
 
     8.7.  |H| = |gH|
           mun:card-equal X := H, Y := gH, from 2, 8.6
