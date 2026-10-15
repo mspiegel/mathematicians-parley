@@ -646,6 +646,17 @@ fn cases() -> Vec<Case> {
             )],
             "d(n) ∈ ℝ is not built from what step 16.24.2 cites",
         ),
+        // A requires line of a closure step says a membership of a term the
+        // step combines: step 13 sums to 2^(j + 1), and to 3^(j + 1) nowhere.
+        case(
+            "a requires line of an inequalities step about a term it never combines",
+            vec![edit(
+                "proofs/harmonic.proof",
+                Some("to 2^(j + 1)) 1/k ∈ ℝ: membership, from 4".to_string()),
+                "to 3^(j + 1)) 1/k ∈ ℝ: membership, from 4".to_string(),
+            )],
+            "to 3^(j + 1)) 1/k ∈ ℝ, and the step neither uses nor asks for it",
+        ),
         // A library function an item applies is no letter of the item's:
         // lowest-terms-parts says denom(x) ∈ ℕ, which is not numer(x) ∈ ℕ.
         case(

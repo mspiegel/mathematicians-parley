@@ -683,6 +683,9 @@ fn check_theorem(
     citations::check_requires(report, thm, library, k);
     citations::check_kinds(report, thm, library, k);
     citations::check_surplus(report, thm, library, k, scopes);
+    // After the surplus of what a requires line cites, which says more of
+    // the line than that its term is not the step's.
+    formulas::check_requires_combined(report, thm, k, targets);
     citations::check_repeated(report, thm, library, k);
     citations::check_from_lines(report, thm, library, k, scopes);
     citations::check_exhibited(report, thm, library, k);

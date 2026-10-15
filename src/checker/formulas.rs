@@ -1546,6 +1546,77 @@ pub fn check_inequalities_holds(
     }
 }
 
+/// A requires line of an algebra, arithmetic or inequalities step saying a
+/// membership says it of a term the step combines (`SYNTAX.md`, requires):
+/// one in its claim, in a line it cites, or in another of its requires
+/// lines, which may ask it. A membership of a term found in none of them is
+/// a line the step neither uses nor asks for.
+pub fn check_requires_combined(
+    report: &mut Report,
+    thm: &Theorem,
+    known: &Known,
+    targets: &Targets,
+) {
+    for step in &thm.steps {
+        let head = &step.just.head;
+        if !(head.is(Method::Algebra)
+            || head.is(Method::Arithmetic)
+            || head.is(Method::Inequalities))
+        {
+            continue;
+        }
+        let Some(read) = ClosureClaim::step(step).read(known, targets, true) else {
+            continue;
+        };
+        let mut combined: Vec<Node> = vec![read.claimed];
+        combined.extend(read.lines);
+        combined.extend(known.whole(step, &step.claim));
+        let scope = known.scope(step);
+        combined.extend(
+            step.just
+                .refs
+                .iter()
+                .filter_map(|r| scope.get(r))
+                .filter_map(|s| known.stated_as_written(s)),
+        );
+        let said: Vec<Option<Node>> = step
+            .requires
+            .iter()
+            .map(|r| known.whole(step, &r.fact))
+            .collect();
+        for (i, req) in step.requires.iter().enumerate() {
+            let Some(fact) = &said[i] else {
+                continue;
+            };
+            let ("membership", [term, _]) =
+                (fact.notation.as_str(), fact.children.as_slice())
+            else {
+                continue;
+            };
+            let others = said
+                .iter()
+                .enumerate()
+                .filter(|(j, _)| *j != i)
+                .filter_map(|(_, o)| o.as_ref());
+            let found = combined
+                .iter()
+                .chain(others)
+                .any(|tree| tree.walk().iter().any(|n| known.alike(n, term)));
+            if !found {
+                report.say(
+                    &thm.path,
+                    req.line,
+                    format!(
+                        "the requires line of step {} says {}, and the step neither uses nor asks for it",
+                        step.number,
+                        str::trim(req.fact.text())
+                    ),
+                );
+            }
+        }
+    }
+}
+
 /// `check_inequalities_holds` of one claim; whether it was decided.
 fn inequalities_hold(
     report: &mut Report,
