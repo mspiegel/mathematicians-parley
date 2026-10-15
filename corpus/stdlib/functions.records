@@ -142,6 +142,13 @@ mundane definition onto
   metamath    dffo3
   target      dffo3
 
+mundane definition one-to-one-onto
+  let f : X → Y                                                       (H1)
+  then        f : X → Y is one-to-one and onto ↔ f : X → Y is one-to-one
+              and f : X → Y is onto
+  metamath    df-f1o
+  target      df-f1o
+
 mundane theorem inverse-value
   let g : Y → X be one-to-one                                         (H1)
   let y ∈ Y                                                           (H2)

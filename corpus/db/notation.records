@@ -741,6 +741,18 @@ notation onto
   note        A function that reaches every point of its codomain, said as
               one-to-one is: the arrow, and the property after it.
 
+notation one-to-one-onto
+  pattern     _ : _ → _ is one-to-one and onto
+  sort        function from α to β, set of α, set of β → formula
+  level       relational
+  reads       is a one-to-one function from, onto
+  metamath    wf1o
+  target      _2 _3 _1 wf1o
+  note        A function pairing its domain off against its codomain, the
+              textbook's bijection: both properties said after one arrow.
+              "there is a bijection from X to Y" says two sets are paired
+              by some function; this says which one.
+
 notation application
   pattern     _(_)
   sort        function from α to β, α → β

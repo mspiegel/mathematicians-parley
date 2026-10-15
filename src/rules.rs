@@ -149,6 +149,7 @@ pub const CONGRUENCE: &[(&str, &[usize], &str)] = &[
     ("wf", &[2], "feq1d"),
     ("wf1", &[2], "f1eq1"),
     ("wfo", &[2], "foeq1"),
+    ("wf1o", &[2], "f1oeq1"),
     // An image, in its function, its set, or both.
     ("cima", &[0], "imaeq1d"),
     ("cima", &[1], "imaeq2d"),

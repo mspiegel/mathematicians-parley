@@ -1,5 +1,6 @@
 import mundane definition stdlib/functions/one-to-one
 import mundane definition stdlib/functions/onto
+import mundane definition stdlib/functions/one-to-one-onto
 import mundane theorem    stdlib/functions/function-into
 import mundane theorem    stdlib/functions/function-value
 import mundane theorem    stdlib/numbers/square-nonneg
@@ -86,6 +87,67 @@ theorem a-line-is-onto
 
 3.  f : ℝ → ℝ is onto
     mun:onto, from 1, 2
+
+theorem a-line-is-one-to-one-and-onto
+  note        2x + 1 sends no two numbers to one place and reaches every
+              real, so it pairs ℝ off against itself.
+  let f(x) = 2·x + 1, for x ∈ ℝ                                       (D1)
+         reads double and add one
+  then f : ℝ → ℝ is one-to-one and onto
+
+1.  f : ℝ → ℝ
+    mun:function-into
+    requires f is a function on ℝ: from D1
+    requires for all x ∈ ℝ, f(x) ∈ ℝ: membership, from D1
+
+2.  For all s, t ∈ ℝ, if f(s) = f(t) then s = t.
+    proof
+    let s ∈ ℝ                                                         (K1)
+    let t ∈ ℝ                                                         (K2)
+    assume f(s) = f(t)                                                (A1)
+
+    2.1.  2·s + 1 = 2·t + 1
+          calculation
+          2·s + 1 = f(s)          D1
+                  = f(t)          A1
+                  = 2·t + 1       D1
+
+    2.2.  s = t
+          algebra, from 2.1
+
+3.  For all y ∈ ℝ, there is x ∈ ℝ with y = f(x).
+    proof
+    let y ∈ ℝ                                                         (K3)
+
+    3.1.  f((y − 1)/2) = 2·((y − 1)/2) + 1
+          D1
+
+    3.2.  y = f((y − 1)/2)
+          algebra, from 3.1
+          requires f((y − 1)/2) ∈ ℝ: from 1
+
+    3.3.  There is x ∈ ℝ with y = f(x).
+          exhibit, from 3.2
+
+4.  f : ℝ → ℝ is one-to-one
+    mun:one-to-one, from 1, 2
+
+5.  f : ℝ → ℝ is onto
+    mun:onto, from 1, 3
+
+6.  f : ℝ → ℝ is one-to-one and onto
+    mun:one-to-one-onto, from 4, 5
+
+theorem a-bijection-is-onto
+  note        A function one-to-one and onto is onto: the definition read
+              from the let that says it.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  let f : A → B be one-to-one and onto                                (H3)
+  then f : A → B is onto
+
+1.  f : A → B is onto
+    mun:one-to-one-onto, from H3
 
 theorem an-onto-function-reaches-a-point
   note        A function onto B sends something to each point of B: the

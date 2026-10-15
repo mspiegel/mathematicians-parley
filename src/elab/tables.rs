@@ -469,8 +469,9 @@ impl<'a> Elaborator<'a> {
             )));
         }
         // A function spelt as its define's name against the map it names:
-        // `feq1d`, and for one-to-one and onto `f1eq1` and `foeq1` after the
-        // equation by `syl`. A function's type whose domain or codomain
+        // `feq1d`, and for one-to-one, onto and both the closed `f1eq1`,
+        // `foeq1` and `f1oeq1` (`rules::CONGRUENCE`) after the equation by
+        // `syl`. A function's type whose domain or codomain
         // changes, the function too or not: `feq123d` and `f1eq123d` take
         // the three equations, a part that stays the same carried by
         // `eqidd`.
@@ -495,16 +496,17 @@ impl<'a> Elaborator<'a> {
                 &[&equal[0], &equal[1], &equal[2]],
             )));
         }
-        if matches!(label.as_str(), "wf" | "wf1" | "wfo") && slots == [2] {
+        let closed = rules::congruence(&label, &slots)
+            .filter(|_| matches!(label.as_str(), "wf" | "wf1" | "wfo" | "wf1o"));
+        if let Some(closed) = closed {
             let moved =
                 take!(self.congruence(&kids[2], &wants[2], scope, facts, step, leaf)?);
             let parts = binds! {"A" => &spelt[0], "B" => &spelt[1], "F" => &spelt[2], "G" => &other[2]};
             if label == "wf" {
                 let mut all = parts.clone();
                 all.insert("ph".to_string(), scope.to_string());
-                return Ok(Built(self.b.ap("feq1d", &all, &[&moved])));
+                return Ok(Built(self.b.ap(closed, &all, &[&moved])));
             }
-            let closed = if label == "wf1" { "f1eq1" } else { "foeq1" };
             let law = self.b.ap(closed, &parts, &[]);
             return Ok(Built(self.b.ap(
                 "syl",
