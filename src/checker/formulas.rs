@@ -1453,24 +1453,16 @@ pub fn check_membership_holds(
     known: &Known,
     targets: &Targets,
 ) {
-    let binomials: IndexSet<String> = known
-        .env
-        .g
-        .functions
-        .iter()
-        .filter(|(_, f)| f.builds.split_whitespace().any(|t| t == "cbc"))
-        .map(|(name, _)| name.clone())
-        .collect();
     for step in &thm.steps {
         if step.just.head.is(Method::Membership) {
             let at = ClosureClaim::step(step);
-            if !membership_holds(report, thm, &at, known, targets, &binomials) {
+            if !membership_holds(report, thm, &at, known, targets) {
                 report.trust("membership", step);
             }
         }
         for req in step.requires.iter().filter(|r| r.is(Method::Membership)) {
             let at = ClosureClaim::requires(step, req);
-            membership_holds(report, thm, &at, known, targets, &binomials);
+            membership_holds(report, thm, &at, known, targets);
         }
     }
 }
@@ -1482,47 +1474,17 @@ fn membership_holds(
     at: &ClosureClaim,
     known: &Known,
     targets: &Targets,
-    binomials: &IndexSet<String>,
 ) -> bool {
     let Some(read) = at.read(known, targets, true) else {
         return false;
     };
-    let mut letters = super::library::introduced(known, at.step);
-    // A step's requires lines are among its facts in (`METHODS.md`), a
-    // requires line's are the lines above it, which `read` holds.
-    let mut lines = read.lines.clone();
-    if at.requires.is_none() {
-        let defined = known.citing_step(at.step);
-        for r in &at.step.requires {
-            lines.extend(
-                r.fact
-                    .sentences()
-                    .iter()
-                    .filter_map(|s| known.read_citing(s, &defined)),
-            );
-        }
-    }
-    // A claim said of every member is decided at a member; and a requires
-    // line of a step said of every member in one line speaks of the member
-    // (`SYNTAX.md`), which the step's claim puts in its set.
-    let mut ranged = IndexMap::new();
-    if at.requires.is_some() && at.step.openers.is_empty() {
-        let defined = known.citing_step(at.step);
-        if let [sentence] = at.step.claim.sentences().as_slice() {
-            if let Some(whole) = known.read_citing(sentence, &defined) {
-                if let ("for-all", [bound, set, _]) =
-                    (whole.notation.as_str(), whole.children.as_slice())
-                {
-                    member_of(bound, set, &mut letters, &mut ranged);
-                }
-            }
-        }
-    }
+    let mut held = MembershipIn::of(at, &read, known);
+    // A claim said of every member is decided at a member.
     let mut claimed = read.claimed.clone();
     if let ("for-all", [bound, set, body]) =
         (claimed.notation.as_str(), claimed.children.as_slice())
     {
-        if !member_of(bound, set, &mut letters, &mut ranged) {
+        if !member_of(bound, set, &mut held.letters, &mut held.ranged) {
             return false;
         }
         claimed = body.clone();
@@ -1538,44 +1500,108 @@ fn membership_holds(
     else {
         return false;
     };
-    let mut facts: Vec<Node> = lines.iter().flat_map(conjuncts).collect();
-    let implied: Vec<Node> = facts
-        .iter()
-        .flat_map(|f| implied_facts(f, known.env, &known.sorts))
-        .collect();
-    facts.extend(implied);
-    for f in &facts {
-        if let ("membership", [name, set]) =
-            (f.notation.as_str(), f.children.as_slice())
-        {
-            if let (true, Some(system)) =
-                (name.is_name(), crate::rules::system_of(&set.text))
-            {
-                letters.entry(name.text.clone()).or_insert(system);
-            }
-        }
-    }
-    let typed = super::library::typed_in_scope(known, at.step);
-    let mut typed_too: Vec<Node> = facts
-        .iter()
-        .filter(|f| f.notation == "function-type")
-        .cloned()
-        .collect();
-    typed_too.extend(typed);
-    let given = methods_membership::Facts {
-        facts: &facts,
-        letters,
-        ranged,
-        typed: &typed_too,
-        binomials,
-        ctx: known.ctx,
-    };
+    let given = held.given(targets, known, true);
     if !methods_membership::holds(term, system, &given) {
         let number = at.step.number.to_string();
         let said = format!("{} is not built from what step {number} cites", at.claim);
         report.say(&thm.path, at.line, at.said(said));
     }
     true
+}
+
+/// What a closure claim's terms are numbers by (`methods::membership`): the
+/// lines it cites, the requires lines it rests on, each part of them and
+/// what a membership among them implies; the letters the page puts in a
+/// number system once, the member a step said of every member speaks of,
+/// and the function types in scope.
+struct MembershipIn {
+    facts: Vec<Node>,
+    letters: crate::citing::Introduced,
+    ranged: IndexMap<String, methods_membership::Range>,
+    typed: Vec<Node>,
+}
+
+impl MembershipIn {
+    fn of(at: &ClosureClaim, read: &ClosureRead, known: &Known) -> MembershipIn {
+        let mut letters = super::library::introduced(known, at.step);
+        // A step's requires lines are among its facts in (`METHODS.md`), a
+        // requires line's are the lines above it, which `read` holds.
+        let mut lines = read.lines.clone();
+        if at.requires.is_none() {
+            let defined = known.citing_step(at.step);
+            for r in &at.step.requires {
+                lines.extend(
+                    r.fact
+                        .sentences()
+                        .iter()
+                        .filter_map(|s| known.read_citing(s, &defined)),
+                );
+            }
+        }
+        // A requires line of a step said of every member in one line speaks
+        // of the member (`SYNTAX.md`), which the step's claim puts in its set.
+        let mut ranged = IndexMap::new();
+        if at.requires.is_some() && at.step.openers.is_empty() {
+            let defined = known.citing_step(at.step);
+            if let [sentence] = at.step.claim.sentences().as_slice() {
+                if let Some(whole) = known.read_citing(sentence, &defined) {
+                    if let ("for-all", [bound, set, _]) =
+                        (whole.notation.as_str(), whole.children.as_slice())
+                    {
+                        member_of(bound, set, &mut letters, &mut ranged);
+                    }
+                }
+            }
+        }
+        let mut facts: Vec<Node> = lines.iter().flat_map(conjuncts).collect();
+        let implied: Vec<Node> = facts
+            .iter()
+            .flat_map(|f| implied_facts(f, known.env, &known.sorts))
+            .collect();
+        facts.extend(implied);
+        for f in &facts {
+            if let ("membership", [name, set]) =
+                (f.notation.as_str(), f.children.as_slice())
+            {
+                if let (true, Some(system)) =
+                    (name.is_name(), crate::rules::system_of(&set.text))
+                {
+                    letters.entry(name.text.clone()).or_insert(system);
+                }
+            }
+        }
+        let mut typed: Vec<Node> = facts
+            .iter()
+            .filter(|f| f.notation == "function-type")
+            .cloned()
+            .collect();
+        typed.extend(super::library::typed_in_scope(known, at.step));
+        MembershipIn {
+            facts,
+            letters,
+            ranged,
+            typed,
+        }
+    }
+
+    /// What the decider reads, `carries` saying whether a cited equation
+    /// carries a term's membership across (`membership` alone).
+    fn given<'a>(
+        &'a self,
+        targets: &'a Targets,
+        known: &'a Known,
+        carries: bool,
+    ) -> methods_membership::Facts<'a> {
+        methods_membership::Facts {
+            facts: &self.facts,
+            letters: self.letters.clone(),
+            ranged: self.ranged.clone(),
+            typed: &self.typed,
+            targets,
+            ctx: known.ctx,
+            carries,
+        }
+    }
 }
 
 /// The letter a "for all" binds, put in the number system its set lies in,

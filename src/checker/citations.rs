@@ -1057,9 +1057,7 @@ fn terms_unsaid(
         {
             continue;
         }
-        if !t.needs_saying()
-            && term_built(letter, term, domain, codomain, step, &parts.facts, known)
-        {
+        if !t.needs_saying() && term_built(t, step, &parts.facts, known, library) {
             continue;
         }
         report.say(
@@ -1077,18 +1075,21 @@ fn terms_unsaid(
     }
 }
 
-/// Whether a term a function hypothesis asks at every point of `domain` is
-/// in `codomain` as `membership` builds it (`methods::membership::holds`),
-/// from the facts a citation is given, the letter at a point of the domain.
+/// Whether the term a function hypothesis `t : D → E` asks at every point
+/// of D is in E as `membership` builds it (`methods::membership::holds`),
+/// from the facts a citation is given, its letter at a point of D.
 fn term_built(
-    letter: &str,
-    term: &Node,
-    domain: &Node,
-    codomain: &Node,
+    asked: &AskedType,
     step: &Step,
     facts: &[Node],
     known: &Known,
+    library: &Library,
 ) -> bool {
+    let (Some((letter, term)), [_, domain, codomain]) =
+        (asked.pointwise(), asked.asked.children.as_slice())
+    else {
+        return false;
+    };
     let Some(system) = (codomain.notation == "number-systems")
         .then(|| rules::system_of(&codomain.text))
         .flatten()
@@ -1124,21 +1125,14 @@ fn term_built(
             .filter(|f| f.notation == "function-type")
             .cloned(),
     );
-    let binomials: IndexSet<String> = known
-        .env
-        .g
-        .functions
-        .iter()
-        .filter(|(_, f)| f.builds.split_whitespace().any(|t| t == "cbc"))
-        .map(|(name, _)| name.clone())
-        .collect();
     let given = crate::methods::membership::Facts {
         facts,
         letters,
         ranged,
         typed: &typed,
-        binomials: &binomials,
+        targets: &library.targets,
         ctx: known.ctx,
+        carries: true,
     };
     crate::methods::membership::holds(term, system, &given)
 }

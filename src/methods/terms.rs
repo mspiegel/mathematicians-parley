@@ -64,6 +64,15 @@ const ATOM: &str = "§";
 pub struct Targets {
     terms: IndexMap<String, Vec<Option<String>>>,
     literals: IndexMap<String, Vec<String>>,
+    /// What each library function builds, by its name (`builds`).
+    builds: IndexMap<String, String>,
+}
+
+/// An operation a term applies, read off its target: the label, `cmo`, and
+/// the parts in the order its holes take them.
+pub struct Operation<'n> {
+    pub label: String,
+    pub parts: Vec<&'n Node>,
 }
 
 impl Targets {
@@ -75,10 +84,49 @@ impl Targets {
                 .or_default()
                 .push(n.literal.clone());
         }
+        let builds = g
+            .functions
+            .iter()
+            .map(|(name, f)| (name.clone(), f.builds.clone()))
+            .collect();
         Targets {
             terms: targets::terms(records),
             literals,
+            builds,
         }
+    }
+
+    /// The operation `node` applies where its target, a notation's or a
+    /// library function's, is set.mm's form of one, `_1 _2 OP co`: a mod b
+    /// is `cmo` of a and b. None for any other term.
+    pub fn operation<'n>(&self, node: &'n Node) -> Option<Operation<'n>> {
+        // A library function's value is what its `builds` line makes; any
+        // other term is what its notation's target makes.
+        let applied =
+            matches!(node.notation.as_str(), "application" | "application-to-two");
+        let library = match node.children.as_slice() {
+            [head, args @ ..] if applied && head.is_name() => {
+                self.builds.get(&head.text).map(|b| (b.as_str(), args))
+            }
+            _ => None,
+        };
+        let (pattern, holes): (&str, &'n [Node]) = match library {
+            Some(found) => found,
+            None => (self.pattern(node)?, &node.children),
+        };
+        let [first, second, label, "co"] =
+            pattern.split_whitespace().collect::<Vec<_>>().as_slice()[..]
+        else {
+            return None;
+        };
+        let hole = |t: &str| -> Option<&'n Node> {
+            let at: usize = t.strip_prefix('_')?.parse().ok()?;
+            holes.get(at.checked_sub(1)?)
+        };
+        Some(Operation {
+            label: label.to_string(),
+            parts: vec![hole(first)?, hole(second)?],
+        })
     }
 
     /// Whether any part of `node` is built by a target that uses `label`:

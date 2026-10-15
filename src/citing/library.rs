@@ -9,6 +9,7 @@ use crate::corpus::{Intro, Record, RecordKind, Theorem};
 use crate::formula::page::Written;
 use crate::formula::{Node, Sorts};
 use crate::matching::{expand, standard, Context};
+use crate::methods::terms::Targets;
 use crate::regex;
 use crate::sorts::introduction::{Form, Introduction};
 use crate::sorts::{sorts_of_statement, statement_definitions, Env};
@@ -61,6 +62,9 @@ pub struct Library<'a> {
     pub implies: IndexSet<String>,
     pub negations: IndexSet<String>,
     pub ctx: Context,
+    /// The notations' and library functions' targets, which the deciders
+    /// read a term by (`methods::terms`).
+    pub targets: Targets,
 }
 
 regex!(FIRST_WORD, r"^[a-z0-9-]+");
@@ -82,6 +86,7 @@ impl<'a> Library<'a> {
             }
         }
         let ctx = Context::new(&env.g.notations, records);
+        let targets = Targets::of(env.g, records);
         let mut lib = Library {
             env,
             records,
@@ -96,6 +101,7 @@ impl<'a> Library<'a> {
             implies: IndexSet::new(),
             negations: IndexSet::new(),
             ctx,
+            targets,
         };
         // A metamath field may say more after the target, as "wrex, and wrex
         // under wn" does, so the target is its first word.

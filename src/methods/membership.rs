@@ -5,11 +5,12 @@
 //! a quotient's divisor not zero by a line saying so or by being a numeral.
 //! What that walk does not take apart is in a system where a fact says so,
 //! where a cited equation puts it beside a term that is, or by the closure
-//! table: a remainder and a binomial coefficient by `rules::WHOLE`, a sum
-//! over a range by its term at every index.
+//! table: an operation `rules::WHOLE` names by its target, and a sum over a
+//! range by its term at every index.
 
-use indexmap::{IndexMap, IndexSet};
+use indexmap::IndexMap;
 
+use super::terms::Targets;
 use crate::citing::{numeral_nonzero, within, Introduced};
 use crate::formula::Node;
 use crate::matching::{alike, substitute_apart, Binding, Context};
@@ -18,7 +19,8 @@ use crate::rules;
 /// What a membership is decided from: the facts the step cites and its
 /// requires lines above it say, each part of them and what each membership
 /// among them implies; the letters the page puts in a number system once;
-/// and the names of the library functions that build a binomial coefficient.
+/// the function types in scope; and the targets that say what operation a
+/// term applies.
 pub struct Facts<'a> {
     pub facts: &'a [Node],
     pub letters: Introduced,
@@ -28,8 +30,14 @@ pub struct Facts<'a> {
     /// The function types in scope, `f : D → E`, which say a value of f is
     /// in E at a point of D.
     pub typed: &'a [Node],
-    pub binomials: &'a IndexSet<String>,
+    /// The notations' and library functions' targets, which say what
+    /// operation a term applies (`Targets::operation`).
+    pub targets: &'a Targets,
     pub ctx: &'a Context,
+    /// Whether a cited equation carries a term to the other side's
+    /// system: only `membership` reads an equation so (`METHODS.md`), and
+    /// every other method takes an atom's membership from a line saying it.
+    pub carries: bool,
 }
 
 /// The ends of a range {a, …, b} a letter runs over.
@@ -87,8 +95,8 @@ fn nonzero(divisor: &Node, facts: &Facts) -> bool {
 
 /// Whether a part the walk does not take apart is in `system`: a fact
 /// says so, of a system inside it; a cited equation puts it beside a term
-/// that is; or the closure table puts a remainder, a binomial coefficient or
-/// a sum there.
+/// that is; or the closure table puts it there, by its operation, as a sum
+/// over a range, a power, a function's value or a term by cases.
 fn said_otherwise(term: &Node, system: &str, facts: &Facts, depth: usize) -> bool {
     let stated = facts.facts.iter().any(|f| {
         f.notation == "membership"
@@ -100,7 +108,7 @@ fn said_otherwise(term: &Node, system: &str, facts: &Facts, depth: usize) -> boo
     if stated {
         return true;
     }
-    if depth > 0 {
+    if facts.carries && depth > 0 {
         let carried = facts.facts.iter().any(|f| {
             f.notation == "equality"
                 && matches!(f.children.as_slice(), [a, b]
@@ -183,28 +191,23 @@ fn in_domain(x: &Node, domain: &Node, facts: &Facts, depth: usize) -> bool {
         })
 }
 
-/// A remainder a mod b, or a binomial coefficient C(n, k), in a system
-/// holding the whole numbers the closure table puts it in, its parts in
-/// what the table asks (`rules::WHOLE`).
+/// A term whose operation the closure table says gives a whole number
+/// (`rules::WHOLE`), in a system holding ℕ₀, its parts in what the table
+/// asks. The operation is read off the term's target, a notation's or a
+/// library function's (`Targets::operation`).
 fn whole(term: &Node, system: &str, facts: &Facts, depth: usize) -> bool {
-    let (op, parts): (&str, &[Node]) =
-        match (term.notation.as_str(), term.children.as_slice()) {
-            ("mod", parts @ [_, _]) => ("cmo", parts),
-            ("application-to-two", [f, rest @ ..])
-                if f.is_name()
-                    && facts.binomials.contains(&f.text)
-                    && rest.len() == 2 =>
-            {
-                ("cbc", rest)
-            }
-            _ => return false,
-        };
-    let Some(w) = rules::WHOLE.iter().find(|w| w.op == op) else {
+    let Some(op) = facts.targets.operation(term) else {
+        return false;
+    };
+    let Some(w) = rules::WHOLE.iter().find(|w| w.op == op.label) else {
+        return false;
+    };
+    let [left, right] = op.parts.as_slice() else {
         return false;
     };
     rules::within_path(Some("cn0"), Some(system)).is_some()
-        && member(&parts[0], w.left.1, facts, depth)
-        && member(&parts[1], w.right.1, facts, depth)
+        && member(left, w.left.1, facts, depth)
+        && member(right, w.right.1, facts, depth)
 }
 
 /// A sum over a range in ℝ or ℂ, its term in that system at every index:
@@ -250,8 +253,9 @@ fn summed(term: &Node, system: &str, facts: &Facts, depth: usize) -> bool {
         letters,
         ranged,
         typed: facts.typed,
-        binomials: facts.binomials,
+        targets: facts.targets,
         ctx: facts.ctx,
+        carries: facts.carries,
     };
     member(body, system, &at, depth)
 }
