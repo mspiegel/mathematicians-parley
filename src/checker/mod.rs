@@ -111,15 +111,8 @@ pub fn checked(
                 .iter()
                 .map(|step| citations::cited(step, c.library, &c.known[i]))
                 .collect();
-            for step in &thm.steps {
-                for req in &step.requires {
-                    let read =
-                        citations::cited_requires(step, req, c.library, &c.known[i]);
-                    if let Some(read) = read {
-                        record.cited_requires.insert(req.line, read);
-                    }
-                }
-            }
+            record.cited_requires =
+                citations::requires_cited(thm, c.library, &c.known[i]);
             out.insert(thm.qualified(), record);
         }
         out

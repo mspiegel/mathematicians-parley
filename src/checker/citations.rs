@@ -286,7 +286,49 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
         group: taken.group,
         binding: taken.binding.into_iter().collect(),
         sentences: taken.concluded.iter().map(|s| before + s).collect(),
+        written: parts
+            .seed
+            .iter()
+            .map(|(k, v)| (k.clone(), v.clone()))
+            .collect(),
     })
+}
+
+/// Each requires line's citation of an item, by the line it is on
+/// (`cited_requires`), and the citation of the reason under a let saying a
+/// kind of number, read as a requires line of the step below the let, as
+/// `check_requires` reads it.
+pub fn requires_cited(
+    thm: &Theorem,
+    library: &Library,
+    known: &Known,
+) -> IndexMap<usize, Cited> {
+    let mut out = IndexMap::new();
+    for step in &thm.steps {
+        for req in &step.requires {
+            if let Some(read) = cited_requires(step, req, library, known) {
+                out.insert(req.line, read);
+            }
+        }
+    }
+    for d in &thm.defines {
+        // A let whose kind does not read is reported where the checker
+        // judges the let, and the build builds nothing with a problem.
+        let Ok(Some(kinded)) = d.kinded(&thm.path, &known.env.g.members) else {
+            continue;
+        };
+        let Some(after) = thm.step_after(d.line) else {
+            continue;
+        };
+        let under = Step {
+            requires: vec![kinded.shown.clone()],
+            ..after.clone()
+        };
+        if let Some(read) = cited_requires(&under, &kinded.shown, library, known) {
+            out.insert(kinded.shown.line, read);
+        }
+    }
+    out
 }
 
 /// How a requires line's citation of an item is read, over the parts the
@@ -315,6 +357,7 @@ pub fn cited_requires(
         group: taken.group,
         binding: taken.binding.into_iter().collect(),
         sentences: taken.concluded.iter().map(|s| before + s).collect(),
+        written: parts.seed.into_iter().collect(),
     })
 }
 

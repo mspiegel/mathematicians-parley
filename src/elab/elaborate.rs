@@ -36,15 +36,15 @@ use super::tables::Leaf;
 use super::{Facts, Line, Lines};
 use crate::binds;
 use crate::checker::record::{CheckedTheorem, Cited};
-use crate::citing::{self, filled, finished, Parts};
+use crate::citing::{self, filled};
 use crate::corpus::proof::{chain, requires_as_step, ChainLine, Requires};
 use crate::corpus::{
     define_parts, fmt, Corpus, DefineParts, Hypothesis, Intro, Item, Record, Step,
     Theorem, Value, Values,
 };
-use crate::formula::page::{conjoined, related, Written};
+use crate::formula::page::{related, Written};
 use crate::formula::{Grammar, Node};
-use crate::matching::{expand, Binding as NodeBinding, Defined};
+use crate::matching::{Binding as NodeBinding, Defined};
 use crate::mm::compress::{compressed, labels as compress_labels, shapes_of};
 use crate::mm::kernel::{Syntax, Term};
 use crate::mm::library::thousands;
@@ -53,7 +53,7 @@ use crate::mm::{Kind, Layered, Lookup, Signature, Signatures};
 use crate::outcome::{Built, Checked, Declined, Problem, Route};
 use crate::rules::{self, lookup};
 use crate::sorts::introduction::{Form, Introduction};
-use crate::sorts::{statement_definitions, OutsideDefines};
+use crate::sorts::statement_definitions;
 use crate::targets;
 use crate::text::repr;
 use crate::{pf, t, take};
@@ -1470,44 +1470,6 @@ impl<'a> Elaborator<'a> {
         }
     }
 
-    /// The item's groups and the parts of a citation of it, read as the
-    /// checker reads them: the lines the step names, its requires lines, the
-    /// values its justification gives, and, where it does not obtain, its
-    /// claim.
-    fn citation_here(
-        &mut self,
-        step: &Step,
-        qualified: &str,
-        obtains: bool,
-    ) -> Checked<(Rc<citing::Library<'a>>, Rc<Vec<citing::Group>>, Parts)> {
-        let library = self.item_library();
-        let Some(groups) = library.groups(qualified) else {
-            return Err(self.defect(
-                step.line,
-                format!("{qualified} is not an item a step may cite"),
-            ));
-        };
-        let mut facts = self.cited_sentences(&step.just.refs)?;
-        for r in &step.requires {
-            facts.push(self.read_one(&r.fact)?);
-        }
-        let claims = if obtains {
-            Vec::new()
-        } else {
-            self.said(step)?
-        };
-        let parts = self.citation_parts(
-            facts,
-            claims,
-            &step.just.values,
-            &step.just.refs,
-            &library,
-            qualified,
-            Some(step),
-        )?;
-        Ok((library, groups, parts))
-    }
-
     /// What the clause a step's citation takes concludes there, each
     /// sentence a term with every letter the citation fixes put in: the
     /// instance the checker compared the claim with (`cited_here`). Empty
@@ -1570,81 +1532,6 @@ impl<'a> Elaborator<'a> {
         })
     }
 
-    /// What a citation supplies and claims (`citing::finished`), with the
-    /// values it gives as its seed.
-    ///
-    /// A defined name is written out where the citation names its define
-    /// among `refs`, a define from outside the theorem among them, and kept
-    /// as the page writes it where it does not (`SYNTAX.md`,
-    /// `OutsideDefines::citing`, which the checker reads with too): `x₁ ∈ ℝ`
-    /// cited with D2 is `min(b, c + δ/2) ∈ ℝ`, and an obtain citing `S := S`
-    /// without the define of S claims something of S.
-    ///
-    /// `cited` is the item the citation names. A step's own citation, `at`,
-    /// is read at a member where it claims "for all k ∈ X, P" of an item
-    /// that says no "for all" (`citing::at_a_member`), as the checker reads
-    /// it; a requires line's is read as written.
-    #[allow(clippy::too_many_arguments)]
-    fn citation_parts(
-        &self,
-        facts: Vec<Node>,
-        claims: Vec<Node>,
-        values: &Values,
-        refs: &[String],
-        library: &citing::Library,
-        cited: &str,
-        at: Option<&Step>,
-    ) -> Checked<Parts> {
-        let outside = self
-            .outside_defines
-            .get_or_init(|| Rc::new(OutsideDefines::of(self.thm, self.env())))
-            .clone();
-        let labels =
-            crate::sorts::citing_labels(self.thm, self.scopes, refs, Some(cited));
-        let defined = outside.citing(self.thm, self.env(), &self.sorts_now, &labels);
-        let mut facts: Vec<Node> = facts.iter().map(|n| expand(n, &defined)).collect();
-        let mut claims: Vec<Node> =
-            claims.iter().map(|n| expand(n, &defined)).collect();
-        let seed: NodeBinding = self
-            .instantiated_nodes(values)?
-            .into_iter()
-            .map(|v| (v.name, expand(&v.value, &defined)))
-            .collect();
-        if let Some(step) = at {
-            if let Some((member, body)) =
-                citing::at_a_member(step, &claims, library, &self.sorts_now)
-            {
-                facts.push(member);
-                claims = vec![body];
-            }
-        }
-        let mut parts = finished(facts, claims, seed, library, &self.sorts_now);
-        // The memberships the page says once, as the checker reads them.
-        let introduced: citing::Introduced = self
-            .sets
-            .iter()
-            .filter_map(|(letter, set)| {
-                // A letter introduced in a range is in the system the range
-                // lies in (`range_system`).
-                let system = rules::SYSTEM_OF
-                    .iter()
-                    .find(|(_, label)| label == set)
-                    .map(|(_, label)| *label)
-                    .or_else(|| self.range_system(set).map(|(system, _)| system))?;
-                Some((letter.clone(), system))
-            })
-            .collect();
-        citing::said_once(&mut parts, &introduced, library, &self.sorts_now);
-        let Some(typed) = self.step_now.and_then(|i| self.checked.typed.get(i)) else {
-            return Err(self.defect(
-                self.at,
-                format!("{cited} is cited where the checker has read no step"),
-            ));
-        };
-        citing::typed_seed(&mut parts, cited, typed, library);
-        Ok(parts)
-    }
-
     /// The values a citation gives its item's letters, `name := value`, as
     /// kernel terms, each read in the names as they stand before any is
     /// given (`instantiated_nodes`).
@@ -1664,46 +1551,6 @@ impl<'a> Elaborator<'a> {
     /// so `a := b/k, b := a/k` swaps the two (`Values`).
     pub(crate) fn instantiated_nodes(&self, values: &Values) -> Checked<Vec<Value>> {
         values.read(self.g, &self.sorts_now)
-    }
-
-    /// What the lines and labelled hypotheses `refs` name say, each sentence
-    /// read.
-    pub(crate) fn cited_sentences(&self, refs: &[String]) -> Checked<Vec<Node>> {
-        let mut given: Vec<Node> = Vec::new();
-        for r in refs {
-            if let Some(line) = self.lines.get(r) {
-                given.extend(line.sentences.iter().cloned());
-                // A line of several sentences is their conjunction too, as the
-                // checker reads it (`Known::supplied`).
-                if line.sentences.len() > 1 {
-                    given.extend(conjoined(self.g, line.sentences.clone()));
-                }
-            }
-        }
-        // Only what the step cites: a sort line fixes nothing. A cited
-        // hypothesis says what it says to the checker (`Known::supplied`): a
-        // `let` line what its introduction asserts, an `assume` line its
-        // sentences.
-        for h in &self.thm.hypotheses {
-            if h.label.as_ref().is_some_and(|l| refs.contains(l)) {
-                let body = h.body(&self.thm.path);
-                let read = match h.kind {
-                    Intro::Let => {
-                        Introduction::read(body).asserted(self.g, &self.sorts_now)?
-                    }
-                    _ => body
-                        .sentences()
-                        .iter()
-                        .map(|s| self.read(s))
-                        .collect::<Checked<Vec<Node>>>()?,
-                };
-                given.extend(read.iter().cloned());
-                if read.len() > 1 {
-                    given.extend(conjoined(self.g, read));
-                }
-            }
-        }
-        Ok(given)
     }
 
     /// Whether the universal `said`, at the values written for the names it
@@ -2478,8 +2325,15 @@ impl<'a> Elaborator<'a> {
         // mun:odd n := b` unfolds "b is odd" of a line saying a and b are
         // odd, and never "a is odd".
         if said.is_empty() {
-            let (library, groups, parts) =
-                self.citation_here(step, &item.qualified(), false)?;
+            let written: NodeBinding = self
+                .cited_here(step, &item.qualified())?
+                .written
+                .into_iter()
+                .collect();
+            let library = self.item_library();
+            let Some(groups) = library.groups(&item.qualified()) else {
+                return Ok(Vec::new());
+            };
             let binders = self.g.binders();
             for g in groups.iter() {
                 for node in &g.gives {
@@ -2488,11 +2342,11 @@ impl<'a> Elaborator<'a> {
                     // side a line could say.
                     let open = crate::matching::free_names(node, &binders)
                         .into_iter()
-                        .any(|n| !parts.seed.contains_key(&n));
+                        .any(|n| !written.contains_key(&n));
                     if open {
                         continue;
                     }
-                    let instance = filled(node, &parts.seed, &library.ctx);
+                    let instance = filled(node, &written, &library.ctx);
                     said.push(
                         self.in_its_names(Item::Record(item), |me| me.term(&instance))?,
                     );
@@ -4788,12 +4642,19 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
     ) -> Checked<Facts> {
         let out = facts.copy();
-        let (library, groups, parts) =
-            self.citation_here(step, &item.qualified(), false)?;
+        let written: NodeBinding = self
+            .cited_here(step, &item.qualified())?
+            .written
+            .into_iter()
+            .collect();
+        let library = self.item_library();
+        let Some(groups) = library.groups(&item.qualified()) else {
+            return Ok(out);
+        };
         let none = IndexMap::new();
         for group in groups.iter() {
             for (_, tree) in &group.wants {
-                let said = filled(tree, &parts.seed, &library.ctx);
+                let said = filled(tree, &written, &library.ctx);
                 let [left, right] = said.children.as_slice() else {
                     continue;
                 };

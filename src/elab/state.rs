@@ -376,9 +376,6 @@ pub struct Elaborator<'a> {
     /// What each record asks a citation and concludes, read as the checker
     /// reads it (`citing`), the first time a citation asks.
     pub item_library: OnceCell<Rc<citing::Library<'a>>>,
-    /// The definitions from outside the theorem a citation may write out,
-    /// read as the checker reads them, the first time a citation asks.
-    pub outside_defines: OnceCell<Rc<crate::sorts::OutsideDefines>>,
 }
 
 impl<'a> Elaborator<'a> {
@@ -504,7 +501,6 @@ impl<'a> Elaborator<'a> {
             statements,
             whole_scope: false,
             item_library: OnceCell::new(),
-            outside_defines: OnceCell::new(),
         }
     }
 

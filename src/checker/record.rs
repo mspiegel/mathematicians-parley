@@ -86,6 +86,10 @@ pub struct Cited {
     /// lemma to a sentence (`targets::clauses`). None for an obtain, which
     /// takes its group's "there is" whole.
     pub sentences: Vec<usize>,
+    /// What the citation's own pairs make the item's letters, `n := b`, as
+    /// the checker reads them (`Parts::seed`): what an obtain unfolds a
+    /// definition at, where it claims no conclusion of the item.
+    pub written: IndexMap<String, Node>,
 }
 
 /// Whether `step` owns a block: it opens one with a line above its steps,
