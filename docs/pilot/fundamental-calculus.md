@@ -14,9 +14,9 @@ theorem; and G(a) = 0.
 
 ## Theorems
 
-The proof is `proofs/fundamental-calculus.proof`, two theorems of 34
+The proof is `proofs/wiedijk/fundamental-calculus.proof`, two theorems of 34
 numbered steps, 42 with those inside blocks. Both elaborate to
-`corpus/elaboration/proofs/fundamental-calculus/`, assume nothing, and
+`corpus/elaboration/proofs/wiedijk/fundamental-calculus/`, assume nothing, and
 verify.
 
 - `zero-derivative-ends`: a function continuous on [a, b] whose derivative

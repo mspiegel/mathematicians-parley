@@ -12,7 +12,9 @@ corpus/db/methods.records    the justification vocabulary
 corpus/stdlib/*.records      the standard library: axioms, theorems and
                              definitions, some marked mundane
 corpus/elaboration/          what parley build writes from all of it
-proofs/*.proof               the proof skeletons, one file per pilot
+proofs/wiedijk/*.proof       the pilots, theorems of Wiedijk's list of 100
+proofs/setmm/*.proof         theorems set.mm proves, written in proof trials
+proofs/hammack/*.proof       exercises of Hammack's Book of Proof, likewise
 tests/stdlib/*.proof         a test for each library item no proof cites
 docs/*.md                    the design documents, this one among them
 docs/pilot/*.md              the design commentary for each pilot
@@ -26,7 +28,7 @@ inside `corpus/`, so that directory's name is in none: the records of
 
 An item is named by the file that holds it and then its own name:
 `stdlib/divisibility/odd`, `stdlib/numbers/int-real`,
-`proofs/triangle-inequality/abs-bounds`. The file is its path without the
+`proofs/wiedijk/triangle-inequality/abs-bounds`. The file is its path without the
 extension, so the full name says where to look. A proof file imports each item
 it cites from another file by that full name, one to a line, after the words
 its record's header says before its name, `import mundane theorem
@@ -262,7 +264,7 @@ already have. Neither proof changes.
 
 **Five statements were cross-references.** `mun:stdlib/sets/set-builder` and
 `mun:stdlib/sets/set-builder-subset` read "as in the Bezout pilot" and are now written out
-once. `thm:proofs/triangle-inequality/abs-bounds` read "from the triangle inequality pilot" and is now
+once. `thm:proofs/wiedijk/triangle-inequality/abs-bounds` read "from the triangle inequality pilot" and is now
 proved in that file.
 
 **Theorems are stored in dependency order.** A pointer must resolve to something
@@ -270,7 +272,7 @@ earlier, as `READERS.md` requires. Only the √2 file needed reordering: it now
 runs odd-square, even-square, sqrt2-irrational, where the pilot put the main
 theorem first. Nothing else moved.
 
-**Six items had no row anywhere.** `thm:proofs/sqrt2-irrational/sqrt2-irrational` was the only pilot's
+**Six items had no row anywhere.** `thm:proofs/wiedijk/sqrt2-irrational/sqrt2-irrational` was the only pilot's
 main theorem missing from its own table. `mun:stdlib/functions/set-image` is named in `SYNTAX.md`
 and was in no table. `mun:stdlib/geometry/angle` appears only in the isosceles findings, though
 the ∠ notation needs it. Notation for ℕ₀, for the general power `^` and for
@@ -395,7 +397,7 @@ conjunct of one from a line that says it, as it does of a definition with
 no target (`ELABORATION.md`). The counting lemmas the subsets pilot
 leaned on are theorems of its proof file, and
 `mun:stdlib/functions/function`, which no proof cited, is not an item. Six
-more were open and are not. `thm:proofs/intermediate-value/point-right`
+more were open and are not. `thm:proofs/wiedijk/intermediate-value/point-right`
 existed only because the language had no `min`; with the `min` notation the
 proof defines x₁ := min(b, c + δ/2) as a textbook does, and the lemma is gone. `mun:stdlib/geometry/angle-symmetric` and `axi:stdlib/geometry/side-angle-side` are proved in
 `corpus/elaboration/stdlib/proved.mm`, which is a third way to supply an item: neither a

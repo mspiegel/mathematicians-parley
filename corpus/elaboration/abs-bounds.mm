@@ -1,5 +1,5 @@
-$( thm:proofs/triangle-inequality/abs-bounds, from
-   proofs/triangle-inequality.proof, as a Metamath proof.
+$( thm:proofs/wiedijk/triangle-inequality/abs-bounds, from
+   proofs/wiedijk/triangle-inequality.proof, as a Metamath proof.
 
    Verify with any Metamath verifier, with set.mm in the same directory:
 

@@ -15,9 +15,9 @@ through `konigsberglem1`–`5` and its theorem on Euler paths.
 
 ## Theorems
 
-The proof is `proofs/konigsberg.proof`, four theorems of 48 numbered steps,
+The proof is `proofs/wiedijk/konigsberg.proof`, four theorems of 48 numbered steps,
 87 with those inside blocks. All four elaborate to
-`corpus/elaboration/proofs/konigsberg/`, assume nothing, and verify. Each is
+`corpus/elaboration/proofs/wiedijk/konigsberg/`, assume nothing, and verify. Each is
 proved before a theorem citing it.
 
 - `degree-by-walk`: if e : {1, …, n} → E lists every edge exactly once, the

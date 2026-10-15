@@ -21,7 +21,7 @@ statement's variables.
 
 All thirty-one are written and elaborate from set.mm with nothing assumed;
 none is chosen and not yet started. Each of the thirty-one has its proof in
-`proofs/` and its design record in `docs/pilot/`, under the same name:
+`proofs/wiedijk/` and its design record in `docs/pilot/`, under the same name:
 
 | # | proof | # | proof |
 |---|---|---|---|
@@ -184,7 +184,7 @@ another theorem for the same feature. The question now is which features are
 still untested, and a reindexed sum, a congruence and an injection-built
 bijection are among them.
 
-1. **Divisibility by 3.** Written: `proofs/divisibility-by-three.proof`, with
+1. **Divisibility by 3.** Written: `proofs/wiedijk/divisibility-by-three.proof`, with
    its design record in `docs/pilot/divisibility-by-three.md`, and both of its
    theorems elaborate with nothing assumed. The first congruence in the
    corpus: 10ᵏ leaves
@@ -193,12 +193,12 @@ bijection are among them.
    and the readable statement is about the digits of a number, so the
    statement itself is the first thing to settle. Its 122 steps are what
    the up direction would hide; the readable proof is a few lines.
-2. **Binomial theorem.** Written: `proofs/binomial.proof`, with its design
+2. **Binomial theorem.** Written: `proofs/wiedijk/binomial.proof`, with its design
    record in `docs/pilot/binomial.md`, and both of its theorems elaborate with
    nothing assumed. Induction again, but the step shifts a sum's index,
    extends two sums by a zero term and applies Pascal's rule, where the
    geometric series only adds a term at the end (`fsump1`).
-3. **Triangular reciprocals.** Written: `proofs/triangular-reciprocals.proof`,
+3. **Triangular reciprocals.** Written: `proofs/wiedijk/triangular-reciprocals.proof`,
    with its design record in `docs/pilot/triangular-reciprocals.md`, and it
    elaborates with nothing assumed. No class variables and nothing to hide in
    the statement. The first limit of a sequence and the first sum over all
@@ -209,7 +209,7 @@ bijection are among them.
    readable proof follows the chain of repeated images and defines the
    bijection by cases on it, so it needs a set defined by recursion and a
    function defined piecewise, neither of which the corpus has. Written:
-   `proofs/schroeder-bernstein.proof`, with its design record in
+   `proofs/wiedijk/schroeder-bernstein.proof`, with its design record in
    `docs/pilot/schroeder-bernstein.md`, and both of its theorems elaborate
    with nothing assumed. The proof is the fixed-point one, not the chain
    argument, because the chain needs a set defined by recursion: the largest
@@ -221,7 +221,7 @@ bijection are among them.
    never sees that encoding, which makes this the algebraic counterpart of
    the geometry theorem. The argument reuses the corpus's counting: the
    cosets partition the group and each has the size of the subgroup.
-   Written: `proofs/lagrange.proof`, with its design record in
+   Written: `proofs/wiedijk/lagrange.proof`, with its design record in
    `docs/pilot/lagrange.md`, and it elaborates with nothing assumed.
 
 Order: 11 and 12 first, since each extends machinery the corpus already
@@ -275,7 +275,7 @@ three facts (the remainder is below the divisor, gcd(a, b) = gcd(b, r),
 gcd(r, 0) = r), and the same termination by falling remainders.
 
 Theorem 16 is written and elaborates with nothing assumed:
-`proofs/euclid.proof`, with `docs/pilot/euclid.md`.
+`proofs/wiedijk/euclid.proof`, with `docs/pilot/euclid.md`.
 
 Considered and not chosen: the derangements formula (#88), where set.mm
 defines a derangement by counting permutations and the recurrence
@@ -338,24 +338,24 @@ then 20, once its injection is settled. Before each pilot, its informal
 source is checked and the entry marked "verify" confirmed or replaced.
 
 Theorem 17 is written, as Euclid's half (`perfect1`), and elaborates with
-nothing assumed: `proofs/perfect-numbers.proof`, with
+nothing assumed: `proofs/wiedijk/perfect-numbers.proof`, with
 `docs/pilot/perfect-numbers.md`. ProofWiki's proof matched set.mm's step
 for step.
 
 Theorem 18 is written and elaborates with nothing assumed:
-`proofs/de-moivre.proof`, with `docs/pilot/de-moivre.md`. ProofWiki proves a
+`proofs/wiedijk/de-moivre.proof`, with `docs/pilot/de-moivre.md`. ProofWiki proves a
 form with a modulus r, from n = 1, through the product of complex numbers in
 polar form; the corpus proves the textbook form planned above, for
 n ∈ ℕ₀ by induction with the angle-addition formulas.
 
 Theorem 19 is written and elaborates with nothing assumed:
-`proofs/mean-value.proof`, with `docs/pilot/mean-value.md`. It follows
+`proofs/wiedijk/mean-value.proof`, with `docs/pilot/mean-value.md`. It follows
 ProofWiki's proof 1, adding a line h·x to f rather than subtracting the
 chord through (a, f(a)); Rolle's theorem and the sum rules are named
 library items.
 
 Theorem 20 is written and elaborates with nothing assumed:
-`proofs/rationals-countable.proof`, with `docs/pilot/rationals-countable.md`.
+`proofs/wiedijk/rationals-countable.proof`, with `docs/pilot/rationals-countable.md`.
 ℚ injects into ℕ by x ↦ 2^|p|·3^q·5^s for x = p/q in lowest terms, s
 recording the sign, and Schröder–Bernstein, which the corpus proves, gives
 the bijection. Unique factorisation is the one new named item.
@@ -380,7 +380,7 @@ it. Set aside twice before because set.mm's signed angles make the sum π or
 |---|---|---|---|---|---|---|---|---|---|
 | 21 | angles of a triangle add to 180° | adding angles; a parallel drawn and alternate angles read off; degrees | ang180 | 88 (+968 in ang180lem1–5) | no | A, B, C, F | none | 7 | Wiedijk #27; the school proof, not checked against a page |
 
-Written: `proofs/angle-sum.proof`, with its design record in
+Written: `proofs/wiedijk/angle-sum.proof`, with its design record in
 `docs/pilot/angle-sum.md`, and it elaborates with nothing assumed. The proof
 is the school one, through a parallel to AC at B, and not set.mm's, which
 multiplies three quotients to −1. The library gained the three items it
@@ -419,7 +419,7 @@ textbook's.
 22. **Pythagorean theorem.** The test of whether what the isosceles proof
     built to hide set.mm's plane carries over to a third theorem. set.mm
     proves it from the law of cosines, which has the same angle encoding
-    and is twice the size. Written: `proofs/pythagoras.proof`, with
+    and is twice the size. Written: `proofs/wiedijk/pythagoras.proof`, with
     `docs/pilot/pythagoras.md`, and both of its theorems elaborate with
     nothing assumed. The proof is by similar triangles, through the altitude
     from the right angle, not by the law of cosines, which a school reader
@@ -428,7 +428,7 @@ textbook's.
 23. **Euler's theorem.** The first multiplicative argument modulo n:
     multiplying every residue coprime to n by a gives the same residues in
     another order, so the two products agree and a^φ(n) cancels against 1.
-    Written: `proofs/euler.proof`, with `docs/pilot/euler.md`, and it
+    Written: `proofs/wiedijk/euler.proof`, with `docs/pilot/euler.md`, and it
     elaborates with nothing assumed. ProofWiki gives only the proof by
     Lagrange's theorem in the group of units, so the informal source is the
     rearrangement argument set.mm's `eulerth` follows; it needs φ and
@@ -437,7 +437,7 @@ textbook's.
     set.mm states it as the partial sums not being in the domain of `~~>`;
     the readable statement says the sum grows without bound, and the proof
     groups the terms in blocks each worth at least 1/2. The series of 13 is
-    the corpus's other infinite sum. Written: `proofs/harmonic.proof`, with
+    the corpus's other infinite sum. Written: `proofs/wiedijk/harmonic.proof`, with
     `docs/pilot/harmonic.md`, and all three of its theorems elaborate with
     nothing assumed. The reader chose both statements: the partial sums
     pass every bound (`harmonic-unbounded`), and so they tend to no limit
@@ -446,20 +446,20 @@ textbook's.
     functions picked out by coefficient sequences, and its division
     `quot` is defined through them; a reader sees p(x) = (x − a)q(x). It is
     the polynomial counterpart of the group and the plane: an encoding to
-    hide whole. Written: `proofs/factor.proof`, with `docs/pilot/factor.md`,
+    hide whole. Written: `proofs/wiedijk/factor.proof`, with `docs/pilot/factor.md`,
     and it elaborates with nothing assumed. The reader chose to say
     "polynomial" in words, the proof by the remainder theorem, and q a
     polynomial in the statement; the page never writes a coefficient.
 26. **Cauchy–Schwarz.** An inequality between finite sums, proved by the
     quadratic Σ(aₖt + bₖ)² in a variable t the proof introduces, never
     negative, so its discriminant is not positive. Deduction form.
-    Written: `proofs/cauchy-schwarz.proof`, with
+    Written: `proofs/wiedijk/cauchy-schwarz.proof`, with
     `docs/pilot/cauchy-schwarz.md`, and it elaborates with nothing
     assumed. The reader chose sums from 1 to n, the case Σaₖ² = 0
     as a case on the page, and the discriminant step on the page as well:
     the quadratic at t = −B/A, then multiplied by A > 0.
 27. **ℝ is uncountable.** set.mm states it as ℕ ≺ ℝ and proves it by
-    nesting closed intervals. Written: `proofs/reals-uncountable.proof`,
+    nesting closed intervals. Written: `proofs/wiedijk/reals-uncountable.proof`,
     with `docs/pilot/reals-uncountable.md`, and all seven of its theorems
     elaborate with nothing assumed. The proof is Cantor's diagonal argument
     in decimals instead: the n-th digit of x is the n-th digit of f(n) plus
@@ -476,7 +476,7 @@ textbook's.
     k(m² + n²). It rests on the corpus's gcd and divisibility, and on
     coprime numbers whose product is a square being squares themselves.
     The largest of the ten by its lemmas. Written:
-    `proofs/pythagorean-triples.proof`, with
+    `proofs/wiedijk/pythagorean-triples.proof`, with
     `docs/pilot/pythagorean-triples.md`, and all seven of its theorems
     elaborate with nothing assumed. The proof is ProofWiki's: a primitive
     triple is 2mn, m² − n², m² + n², every triple is a multiple of one, and
@@ -487,7 +487,7 @@ textbook's.
     read with `Vtx` and `iEdg`, hidden as groups are, and this one is a
     particular graph given by listing its seven edges. The argument is
     that a walk crossing every edge once leaves at most two vertices of odd
-    degree, and Königsberg has four. Written: `proofs/konigsberg.proof`,
+    degree, and Königsberg has four. Written: `proofs/wiedijk/konigsberg.proof`,
     with `docs/pilot/konigsberg.md`, and all four of its theorems
     elaborate with nothing assumed. The reader chose "is incident with" for
     a vertex at an end of an edge, an Euler path counting its edges from 1
@@ -507,7 +507,7 @@ textbook's.
     set.mm's, and the notation ∫(a to b) f(t) dt for set.mm's directed
     integral (`cdit`), whose theorem in that form is `ftc2ditg`. The
     notation is tested first, in `tests/elaborator/integral.proof`.
-    Written: `proofs/fundamental-calculus.proof`, with
+    Written: `proofs/wiedijk/fundamental-calculus.proof`, with
     `docs/pilot/fundamental-calculus.md`, and both of its theorems
     elaborate with nothing assumed. "Zero derivative means constant" is
     proved on the page from the mean value theorem, in the endpoint form
@@ -525,7 +525,7 @@ textbook's.
     chose ProofWiki's argument with its arithmetic done: set.mm's counts
     (`hashf1`, `hashmap`) and the 23 factors multiplied out, which
     `tests/elaborator/large-arithmetic.proof` tests first. Written:
-    `proofs/birthday.proof`, with `docs/pilot/birthday.md`, and its
+    `proofs/wiedijk/birthday.proof`, with `docs/pilot/birthday.md`, and its
     theorem elaborates with nothing assumed. The reader chose the count of
     one-to-one functions as ∏(k ∈ {0, …, |X| − 1}) (|Y| − k), the product
     written with ∏, and 2·∏ < 365^23 as a line of its own before the ratio.

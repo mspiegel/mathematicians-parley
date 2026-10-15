@@ -15,8 +15,8 @@ to n by a, and reducing, gives the same remainders in another order.
 
 ## Theorem euler
 
-The proof is `proofs/euler.proof`, one theorem of 29 numbered steps, 60 with
-those inside blocks. It elaborates to `corpus/elaboration/proofs/euler/`,
+The proof is `proofs/wiedijk/euler.proof`, one theorem of 29 numbered steps, 60 with
+those inside blocks. It elaborates to `corpus/elaboration/proofs/wiedijk/euler/`,
 assumes nothing, and verifies.
 
 ---

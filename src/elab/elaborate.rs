@@ -112,7 +112,7 @@ pub enum Way {
 
 /// What this elaborator calls a theorem it has written out: its full name,
 /// file and theorem, with a dot where the name has a slash, which Metamath
-/// does not allow in a label: `proofs.sqrt2-irrational.even-square`.
+/// does not allow in a label: `proofs.wiedijk.sqrt2-irrational.even-square`.
 ///
 /// The label depends on nothing but the theorem's own name, so adding or
 /// renaming another theorem never moves it. Two theorems of one file have

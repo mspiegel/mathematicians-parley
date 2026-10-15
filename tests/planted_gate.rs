@@ -58,7 +58,7 @@ fn restated_stage(tree: &dyn Source, setmm: &SetMm) -> Said {
 }
 
 /// The proof file the clean run of the needed stage asks.
-const NEEDED_FILE: &str = "proofs/sum-formula.proof";
+const NEEDED_FILE: &str = "proofs/wiedijk/sum-formula.proof";
 
 /// Whether every requires line and every pair naming a variable for itself
 /// is needed, asked of one file: a case asks it of the file it edits, and
@@ -125,7 +125,7 @@ struct Case {
 }
 
 /// The built file the cases that change a proof change.
-const CANTOR: &str = "corpus/elaboration/proofs/cantor/cantor.mm";
+const CANTOR: &str = "corpus/elaboration/proofs/wiedijk/cantor/cantor.mm";
 /// Its statement, and the statement with its negation taken away.
 const CANTOR_SAYS: &str = "E. m e. ~P A A. x e. A -. ( B ` x ) = m ) $=";
 const CANTOR_WRONG: &str = "E. m e. ~P A A. x e. A ( B ` x ) = m ) $=";
@@ -161,8 +161,8 @@ fn cases() -> Vec<Case> {
             stage: assumed_case,
             file: "docs/ELABORATION.md",
             old: "None: every step of every proof and every library test is built.\n",
-            new: "- `corpus/elaboration/proofs/cantor/cantor.mm` `ghost`: planted.\n",
-            expect: "records ghost in corpus/elaboration/proofs/cantor/cantor.mm, which that file no longer takes as stated",
+            new: "- `corpus/elaboration/proofs/wiedijk/cantor/cantor.mm` `ghost`: planted.\n",
+            expect: "records ghost in corpus/elaboration/proofs/wiedijk/cantor/cantor.mm, which that file no longer takes as stated",
         },
         Case {
             name: "a built file that is not what the build makes",
@@ -170,7 +170,7 @@ fn cases() -> Vec<Case> {
             file: CANTOR,
             old: CANTOR_SAYS,
             new: CANTOR_WRONG,
-            expect: "proofs/cantor/cantor.mm  differs from what the build makes",
+            expect: "proofs/wiedijk/cantor/cantor.mm  differs from what the build makes",
         },
         Case {
             name: "a library proof step that does not follow",
@@ -203,7 +203,7 @@ fn cases() -> Vec<Case> {
         Case {
             name: "a proof using a label its file does not include",
             stage: verify_case,
-            file: "corpus/elaboration/proofs/intermediate-value/intermediate-value.mm",
+            file: "corpus/elaboration/proofs/wiedijk/intermediate-value/intermediate-value.mm",
             old: "$[ stdlib/proved.mm $]\n",
             new: "",
             expect: "uses gdivcanx, which nothing the file includes declares",
@@ -237,7 +237,7 @@ fn cases() -> Vec<Case> {
         Case {
             name: "a pair naming a variable for itself that matching finds",
             stage: needed_case,
-            file: "proofs/euler.proof",
+            file: "proofs/wiedijk/euler.proof",
             old: "    thm:product-congruent X := S, from 4, 5, 11",
             new: "    thm:product-congruent X := S, f := f, from 4, 5, 11",
             expect: "cites with the pair f := f, and the step is checked and built without it",

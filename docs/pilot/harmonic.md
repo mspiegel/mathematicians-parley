@@ -14,11 +14,11 @@ bounded. ProofWiki gives the same argument.
 
 ## Theorems harmonic-block, harmonic-unbounded and harmonic
 
-The proof is `proofs/harmonic.proof`, three theorems. `harmonic-block` is one
+The proof is `proofs/wiedijk/harmonic.proof`, three theorems. `harmonic-block` is one
 block: Σ(k = 1 to 2^(j + 1)) 1/k ≥ Σ(k = 1 to 2^j) 1/k + 1/2. `harmonic-unbounded`
 adds the blocks up by induction and passes any bound M. `harmonic` is set.mm's
 statement, by contradiction. All three elaborate to
-`corpus/elaboration/proofs/harmonic/`, assume nothing, and verify.
+`corpus/elaboration/proofs/wiedijk/harmonic/`, assume nothing, and verify.
 
 Numbers: `harmonic-block` is 15 numbered steps, 23 with those inside blocks;
 `harmonic-unbounded` 6 and 15; `harmonic` 2 and 8.

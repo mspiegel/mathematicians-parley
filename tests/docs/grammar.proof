@@ -4,7 +4,7 @@ import mundane axiom      stdlib/numbers/trichotomy
 import mundane theorem    stdlib/numbers/int-closure
 import mundane definition stdlib/divisibility/gcd
 import definition         stdlib/counting/C
-import theorem            proofs/triangle-inequality/abs-bounds as abs-sum
+import theorem            proofs/wiedijk/triangle-inequality/abs-bounds as abs-sum
 import definition         tests/docs/tri/T as U (D1)
 import definition         tests/docs/tri/B
 import mundane definition stdlib/calculus/upper-bound

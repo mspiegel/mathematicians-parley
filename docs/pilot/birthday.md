@@ -16,8 +16,8 @@ chose the count.
 
 ## Theorem
 
-The proof is `proofs/birthday.proof`, one theorem of 17 steps. It elaborates
-to `corpus/elaboration/proofs/birthday/`, assumes nothing, and verifies. Its
+The proof is `proofs/wiedijk/birthday.proof`, one theorem of 17 steps. It elaborates
+to `corpus/elaboration/proofs/wiedijk/birthday/`, assumes nothing, and verifies. Its
 statement is set.mm's: S, the functions from {1, …, 23} to {1, …, 365}, and
 T, those of them that are one-to-one, are defines in its header, and the
 theorem is |T|/|S| < 1/2.

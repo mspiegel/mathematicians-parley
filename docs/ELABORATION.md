@@ -17,7 +17,7 @@ proof's shape, the block each step stands in and where each define is in
 scope, the build is handed rather than working out again
 (`checker::record::CheckedTheorem`). A
 theorem is named in full, by its proof file and its own name:
-`proofs/sqrt2-irrational/odd-square`. `parley gate` checks what was built, and
+`proofs/wiedijk/sqrt2-irrational/odd-square`. `parley gate` checks what was built, and
 its second stage builds everything afresh in memory and compares it with the
 files in the tree, so an elaborator broken while the built files are left
 alone fails the gate.
@@ -26,8 +26,8 @@ Every theorem in `proofs/` elaborates, and `parley build` writes one artifact
 for each, one for the definitions, one for the library's own proofs, and one
 for each proof worked out by hand: 99 in all. Nothing lists them: the build
 reads the theorems off the proof files, and a file's path under
-`corpus/elaboration/` is its name. `corpus/elaboration/proofs/bezout/bezout.mm` is the
-theorem `proofs/bezout/bezout`, and a file citing it includes it by that path.
+`corpus/elaboration/` is its name. `corpus/elaboration/proofs/wiedijk/bezout/bezout.mm` is the
+theorem `proofs/wiedijk/bezout/bezout`, and a file citing it includes it by that path.
 `corpus/elaboration/stdlib/` holds the library's side: `definitions.mm`, which the
 elaborator writes, and `proved.mm`, written from `corpus/proved/`, one text
 file per group of proofs (`geometry.proved`), and the only statement of what
@@ -228,7 +228,7 @@ rather than searching the declared equivalences for it. The largest grew by
 
 ## The statement a theorem becomes
 
-Hypotheses are conjoined into an antecedent. `thm:proofs/sqrt2-irrational/odd-square` —
+Hypotheses are conjoined into an antecedent. `thm:proofs/wiedijk/sqrt2-irrational/odd-square` —
 
 ```
 theorem odd-square
@@ -256,7 +256,7 @@ itself cannot know. Every theorem gets the same one.
 A step citing a theorem this corpus proves conjoins what the step supplies for
 its hypotheses and applies it with `syl` to its whole conclusion. A step may
 claim one sentence of a conclusion that says several — `intermediate-value`
-cites `thm:proofs/triangle-inequality/abs-bounds` for `x ≤ |x|` alone — and that sentence is taken out of
+cites `thm:proofs/wiedijk/triangle-inequality/abs-bounds` for `x ≤ |x|` alone — and that sentence is taken out of
 the whole. The conclusion is read in the sorts the cited theorem's own
 hypotheses state, since `|x|` is absolute value only where x is a number.
 What the cited label proves is its conclusion over its own bound letters,
@@ -454,7 +454,7 @@ that may itself say "for all Y ∈ K", binding the same letter. So:
   (`under_member`).
 
 `tests/elaborator/bound-names.proof` holds a proof of each shape but the
-last three, which `proofs/schroeder-bernstein.proof` is the proof of.
+last three, which `proofs/wiedijk/schroeder-bernstein.proof` is the proof of.
 
 This is the only rule anywhere in the expansion that is about *where* a step
 may be emitted rather than about which lemma it emits.
@@ -1075,7 +1075,7 @@ either a method stated at the head of the file as unexpanded, or an error
 naming the line:
 
 ```
-proofs/isosceles.proof:47  mun:triangle does not reach -. C = A,
+proofs/wiedijk/isosceles.proof:47  mun:triangle does not reach -. C = A,
                           which this line claims it supplies
 ```
 
@@ -1583,8 +1583,8 @@ is read this way, and only a term built from others is replaced, never a
 name, whose value a `substitute` line puts in its place where a reader can
 see it.
 
-`thm:proofs/subsets/powerset-split` has no set.mm label, and is proved in
-`proofs/subsets.proof` the way a reader proves two sets equal: each inside
+`thm:proofs/wiedijk/subsets/powerset-split` has no set.mm label, and is proved in
+`proofs/wiedijk/subsets.proof` the way a reader proves two sets equal: each inside
 the other. A subset of X either leaves a out, and is a subset of X ∖ {a},
 or holds a, and is a subset of X ∖ {a} with a put back; each subset of
 X ∖ {a}, with or without a, is a subset of X. Every step cites an item one
@@ -1593,7 +1593,7 @@ set.mm lemma states. Putting a subset with a put back into the image is
 hypotheses, so the map is read back out of the naming, and where it is read
 comes from the line the step cites.
 
-`thm:proofs/subsets/powerset-split-disjoint` is proved in `proofs/subsets.proof`. Its step
+`thm:proofs/wiedijk/subsets/powerset-split-disjoint` is proved in `proofs/wiedijk/subsets.proof`. Its step
 `a ∈ S ∪ {a}` rests, in the kernel, on a being a set, and a is a set there only
 because it is an element of X: in set.mm everything is a set, numbers and
 points included, so `elex` gives it from `a ∈ X`. A reader told `let a ∈ X`,
@@ -1615,11 +1615,11 @@ and every library test under `corpus/elaboration/tests/`, and is red for any
 statement one takes as stated that this list does not name, and for any this
 list names that no file states any longer. A record is one entry:
 
-    - `corpus/elaboration/proofs/<theorem>/<file>.mm` `<label>`: why it is not built,
+    - `corpus/elaboration/proofs/<collection>/<theorem>/<file>.mm` `<label>`: why it is not built,
       and what would build it.
 
 A theorem's label is its full name with a dot for each slash,
-`proofs.sqrt2-irrational.even-square`, and no set.mm label begins `proofs.`
+`proofs.wiedijk.sqrt2-irrational.even-square`, and no set.mm label begins `proofs.`
 or `tests.`.
 
 Definitions are not steps, and the constants and definitions
@@ -1715,7 +1715,7 @@ tokens, written perhaps two hundred times. So size is driven by copying the
 context and grows with steps times scope depth, and the compressed format
 disposes of it. The 27 elaborated proofs under `corpus/elaboration/proofs/` come to
 371 KB and the largest,
-`thm:proofs/triangular-reciprocals/triangular-reciprocals`, is 89 KB; in normal format each is larger by
+`thm:proofs/wiedijk/triangular-reciprocals/triangular-reciprocals`, is 89 KB; in normal format each is larger by
 orders of magnitude, since nothing about the proof changes and only the
 repetition is written down differently.
 

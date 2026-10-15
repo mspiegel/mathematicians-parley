@@ -17,9 +17,9 @@ which is `even-leg` here. set.mm follows the Isabelle proof.
 
 ## Theorems
 
-The proof is `proofs/pythagorean-triples.proof`, seven theorems of 115
+The proof is `proofs/wiedijk/pythagorean-triples.proof`, seven theorems of 115
 numbered steps, 185 with those inside blocks. All seven elaborate to
-`corpus/elaboration/proofs/pythagorean-triples/`, assume nothing, and verify.
+`corpus/elaboration/proofs/wiedijk/pythagorean-triples/`, assume nothing, and verify.
 
 - `even-leg`: in a triple, a or b is even.
 - `leg-hypotenuse-coprime`: where gcd(a, b) = 1, gcd(b, c) = 1.

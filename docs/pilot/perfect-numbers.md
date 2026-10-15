@@ -14,8 +14,8 @@ power of 2 is a geometric series. It follows `perfect1` step for step.
 
 ## Theorem euclid-perfect
 
-The proof is `proofs/perfect-numbers.proof`, one theorem. It elaborates to
-`corpus/elaboration/proofs/perfect-numbers/euclid-perfect.mm`, assumes
+The proof is `proofs/wiedijk/perfect-numbers.proof`, one theorem. It elaborates to
+`corpus/elaboration/proofs/wiedijk/perfect-numbers/euclid-perfect.mm`, assumes
 nothing, and verifies.
 
 Numbers: 35 numbered steps, 25 of them at the top. Steps 1 to 7 are
@@ -63,7 +63,7 @@ and 2^(p − 1)·q is perfect, by definition. ∎
    last step cites it, as ProofWiki's last line does.
 4. **σ of a power of 2 is the corpus's own geometric series.** Steps 12 to
    16 read σ(2^(p − 1)) as Σ(j = 0 to p − 1) 2^j and cite
-   `thm:proofs/geometric-series/geometric-sum`, where set.mm has
+   `thm:proofs/wiedijk/geometric-series/geometric-sum`, where set.mm has
    `1sgm2ppw` in one label.
 5. **p ∈ ℕ,** as ProofWiki writes it, where `perfect1` allows any integer:
    2^p − 1 is prime only for p ≥ 2.

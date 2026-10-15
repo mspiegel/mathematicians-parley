@@ -14,8 +14,8 @@ is 0.
 
 ## Theorem factor
 
-The proof is `proofs/factor.proof`, one theorem of 3 numbered steps, 8 with
-those inside the block. It elaborates to `corpus/elaboration/proofs/factor/`,
+The proof is `proofs/wiedijk/factor.proof`, one theorem of 3 numbered steps, 8 with
+those inside the block. It elaborates to `corpus/elaboration/proofs/wiedijk/factor/`,
 assumes nothing, and verifies.
 
 ---

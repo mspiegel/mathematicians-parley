@@ -13,9 +13,9 @@ inequality.
 
 ## Theorem cauchy-schwarz
 
-The proof is `proofs/cauchy-schwarz.proof`, one theorem of 5 numbered steps,
+The proof is `proofs/wiedijk/cauchy-schwarz.proof`, one theorem of 5 numbered steps,
 30 with those inside its blocks. It elaborates to
-`corpus/elaboration/proofs/cauchy-schwarz/`, assumes nothing, and verifies.
+`corpus/elaboration/proofs/wiedijk/cauchy-schwarz/`, assumes nothing, and verifies.
 
 ---
 

@@ -16,14 +16,14 @@ every subset, written as the existence of a subset it misses.
 
 ## Theorem cantor
 
-The skeleton is `proofs/cantor.proof`. The items it cites are in `corpus/db/`.
+The skeleton is `proofs/wiedijk/cantor.proof`. The items it cites are in `corpus/db/`.
 
 ---
 
 ## Database items
 
 This pilot introduced `def:stdlib/sets/powerset`, `def:stdlib/functions/function`, `thm:stdlib/reasoning/excluded-middle`
-and `thm:proofs/cantor/cantor` in the database, and the power set and function rows in
+and `thm:proofs/wiedijk/cantor/cantor` in the database, and the power set and function rows in
 `corpus/db/notation.records`. The table that used to stand here was merged into those
 files; `DATABASE.md` records what the merge decided.
 

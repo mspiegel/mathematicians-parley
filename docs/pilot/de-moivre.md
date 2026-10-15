@@ -15,8 +15,8 @@ statement covers this one, and the elaborated proof is the corpus's own.
 
 ## Theorem de-moivre
 
-The proof is `proofs/de-moivre.proof`, one theorem. It elaborates to
-`corpus/elaboration/proofs/de-moivre/de-moivre.mm`, assumes nothing, and
+The proof is `proofs/wiedijk/de-moivre.proof`, one theorem. It elaborates to
+`corpus/elaboration/proofs/wiedijk/de-moivre/de-moivre.mm`, assumes nothing, and
 verifies.
 
 Numbers: 30 numbered steps, 6 of them at the top. Steps 1 to 5 say what is

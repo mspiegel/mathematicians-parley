@@ -206,8 +206,8 @@ fn cases() -> Vec<Case> {
         // fact: 10 is not 2 more than a multiple of 3.
         case(
             "a congruence link of numerals that does not hold",
-            "proofs/divisibility-by-three/ten-power-congruent",
-            "proofs/divisibility-by-three.proof",
+            "proofs/wiedijk/divisibility-by-three/ten-power-congruent",
+            "proofs/wiedijk/divisibility-by-three.proof",
             "                       ≡ 1 (mod 3)        arithmetic",
             "                       ≡ 2 (mod 3)        arithmetic",
             "which is false",
@@ -217,8 +217,8 @@ fn cases() -> Vec<Case> {
         // a calculation, and one `algebra` step citing both is refused.
         case(
             "one algebra step multiplying two cited equations",
-            "proofs/pythagoras/similar-triangles",
-            "proofs/pythagoras.proof",
+            "proofs/wiedijk/pythagoras/similar-triangles",
+            "proofs/wiedijk/pythagoras.proof",
             "    calculation\n      |PQ|·|P′R′|·sin(∠PQR) = |PR|·|P′R′|·sin(∠QRP)       9\n                            = |P′Q′|·|PR|·sin(∠PQR)       10",
             "    algebra, from 5, 8\n    requires |PQ| ∈ ℝ: mun:distance-real P := P, Q := Q\n    requires |PR| ∈ ℝ: mun:distance-real P := P, Q := R\n    requires |P′Q′| ∈ ℝ: mun:distance-real P := P′, Q := Q′\n    requires |P′R′| ∈ ℝ: mun:distance-real P := P′, Q := R′\n    requires ∠PQR ∈ ℝ: mun:triangle-angle-real, from H7\n    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR\n    requires ∠QRP ∈ ℝ: mun:triangle-angle-real, from H7\n    requires sin(∠QRP) ∈ ℝ: mun:sin-real a := ∠QRP",
             "at most one equation multiplied by a term",
@@ -228,18 +228,18 @@ fn cases() -> Vec<Case> {
         // step would be assumed and the build would go green.
         case(
             "a requires line that does not lex",
-            "proofs/geometric-series/geometric-sum",
-            "proofs/geometric-series.proof",
+            "proofs/wiedijk/geometric-series/geometric-sum",
+            "proofs/wiedijk/geometric-series.proof",
             "          requires 1 − a ≠ 0: algebra, from H2\n          requires a^(k + 1) ∈ ℝ",
             "          requires 1 − a ¿ 0: algebra, from H2\n          requires a^(k + 1) ∈ ℝ",
             "",
         )
-        .at("proofs/geometric-series.proof", "requires 1 − a ¿ 0"),
+        .at("proofs/wiedijk/geometric-series.proof", "requires 1 − a ¿ 0"),
         // A gap in the database rather than in the text, reported at the line
         // that wrote the notation.
         case(
             "take away a target the corpus writes",
-            "proofs/cantor/cantor",
+            "proofs/wiedijk/cantor/cantor",
             "corpus/db/notation.records",
             "  target      _1 cpw",
             "  metamath    cpw-without-a-target",
@@ -251,20 +251,20 @@ fn cases() -> Vec<Case> {
         // reads no set.mm, so the page it accepts is a gap in the build.
         case(
             "name the wrong clause in a definition target",
-            "proofs/triangle-inequality/abs-bounds",
+            "proofs/wiedijk/triangle-inequality/abs-bounds",
             "corpus/stdlib/numbers.records",
             "  target      absid, absnid\n",
             "  target      absid, absid\n",
             "the build cannot yet prove this, which the checker accepts: no clause of mun:abs gives what step 2.5 claims",
         )
-        .at("proofs/triangle-inequality.proof", "2.5.  |x| = −x"),
+        .at("proofs/wiedijk/triangle-inequality.proof", "2.5.  |x| = −x"),
         // Dropping the + 0 asks that what is left be a number, and q(x) ∈ ℂ is
         // a function's value, which the step says in a requires line: without
         // it nothing does.
         case(
             "drop a 0 from a term no line says is a number",
-            "proofs/factor/factor",
-            "proofs/factor.proof",
+            "proofs/wiedijk/factor/factor",
+            "proofs/wiedijk/factor.proof",
             "          substitute p(a) = 0 (H3) into line 2.1\n          requires q(x) ∈ ℂ: mun:polynomial-value p := q, from 1\n",
             "          substitute p(a) = 0 (H3) into line 2.1\n",
             "drops an identity element from what the substitution makes, and nothing says (x − a) · q(x) is a number",
@@ -274,8 +274,8 @@ fn cases() -> Vec<Case> {
         // for nothing.
         case(
             "cite a line a method step does not combine",
-            "proofs/triangle-inequality/triangle-inequality",
-            "proofs/triangle-inequality.proof",
+            "proofs/wiedijk/triangle-inequality/triangle-inequality",
+            "proofs/wiedijk/triangle-inequality.proof",
             "    4.2.  a + b ≤ |a| + |b|\n          inequalities, from 2, 3\n",
             "    4.2.  a + b ≤ |a| + |b|\n          inequalities, from 1, 2, 3\n",
             "step 4.2 cites 1 and uses nothing it says",
@@ -288,8 +288,8 @@ fn cases() -> Vec<Case> {
         // see the line gone: only what the method asks for does.
         case(
             "leave out the membership of an atom the method combines",
-            "proofs/perfect-numbers/euclid-perfect",
-            "proofs/perfect-numbers.proof",
+            "proofs/wiedijk/perfect-numbers/euclid-perfect",
+            "proofs/wiedijk/perfect-numbers.proof",
             "          inequalities, from 4.8, contradicting 4.7\n          requires 2^p ∈ ℝ: membership, from H1\n",
             "          inequalities, from 4.8, contradicting 4.7\n",
             "step 4.9 combines 2^p, and nothing it writes or cites says it is a number",
@@ -298,8 +298,8 @@ fn cases() -> Vec<Case> {
         // it: set.mm's =/= is said back as the page's ≠.
         case(
             "divide by a term no line says is not zero",
-            "proofs/mean-value/mean-value",
-            "proofs/mean-value.proof",
+            "proofs/wiedijk/mean-value/mean-value",
+            "proofs/wiedijk/mean-value.proof",
             "    algebra, from 28\n    requires b − a ≠ 0: inequalities, from H1, H2, H3\n",
             "    algebra, from 28\n",
             "nothing says b − a ≠ 0, which this step needs to divide by it",
@@ -309,8 +309,8 @@ fn cases() -> Vec<Case> {
         // `inequalities` an order to show sin(∠PQR) ≠ 0 from.
         case(
             "a requires line its method cannot prove",
-            "proofs/pythagoras/similar-triangles",
-            "proofs/pythagoras.proof",
+            "proofs/wiedijk/pythagoras/similar-triangles",
+            "proofs/wiedijk/pythagoras.proof",
             "    requires sin(∠PQR) > 0: mun:sine-positive, from H7\n",
             "",
             "the requires line sin(∠PQR) ≠ 0 of step 12, read as a step citing what it cites:",
@@ -320,7 +320,7 @@ fn cases() -> Vec<Case> {
         // failing, not something to take as stated.
         case(
             "leave out the lemma saying the supremum is least",
-            "proofs/intermediate-value/intermediate-value",
+            "proofs/wiedijk/intermediate-value/intermediate-value",
             "corpus/stdlib/calculus.records",
             "  target      suprcl, suprub, suprleub with c := sup S",
             "  target      suprcl, suprub with c := sup S",
@@ -333,8 +333,8 @@ fn cases() -> Vec<Case> {
         // unnamed, so the quotient is not built.
         case(
             "membership from a line that says nothing of the atom",
-            "proofs/mean-value/mean-value",
-            "proofs/mean-value.proof",
+            "proofs/wiedijk/mean-value/mean-value",
+            "proofs/wiedijk/mean-value.proof",
             "    membership, from D1, D2\n    requires f(x) ∈ ℝ: from H4\n    requires b − a ≠ 0: inequalities, from H1, H2, H3\n    requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H1, H2, H4, 1, 2\n",
             "    membership, from D1, D2\n    requires f(x) ∈ ℝ: from H4\n    requires b − a ≠ 0: inequalities, from H1, H2, H3\n    requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H1, H2, H3, H4, 2\n",
             "the requires line (f(a) − f(b))/(b − a) ∈ ℝ of step 8, read as a step citing what it cites: (f(a) − f(b))/(b − a) ∈ ℝ is not built",
@@ -344,8 +344,8 @@ fn cases() -> Vec<Case> {
         // name, and nothing the step cites says g(x) is real.
         case(
             "membership of a defined function's value without citing its define",
-            "proofs/mean-value/mean-value",
-            "proofs/mean-value.proof",
+            "proofs/wiedijk/mean-value/mean-value",
+            "proofs/wiedijk/mean-value.proof",
             "    membership, from D1\n",
             "    membership\n",
             "is not built from what step 6 cites",
@@ -355,8 +355,8 @@ fn cases() -> Vec<Case> {
         // nothing read at a member of anything gives s(x) ∈ ℕ₀.
         case(
             "a requires line citing a line said of every member that does not say the fact",
-            "proofs/rationals-countable/rationals-countable",
-            "proofs/rationals-countable.proof",
+            "proofs/wiedijk/rationals-countable/rationals-countable",
+            "proofs/wiedijk/rationals-countable.proof",
             "requires s(x) ∈ ℕ₀: from 4",
             "requires s(x) ∈ ℕ₀: from 2",
             "does not reach",
@@ -366,8 +366,8 @@ fn cases() -> Vec<Case> {
         // speak of.
         case(
             "membership of a sum whose first term divides by zero",
-            "proofs/triangular-reciprocals/triangular-reciprocals",
-            "proofs/triangular-reciprocals.proof",
+            "proofs/wiedijk/triangular-reciprocals/triangular-reciprocals",
+            "proofs/wiedijk/triangular-reciprocals.proof",
             "                  requires Σ(k = 1 to n) 1/T(k) ∈ ℝ: mun:sum-real a := 1, b := n, from 2\n                  requires n + 1 ≠ 0: inequalities, from K7\n\n          6.2.6.",
             "                  requires Σ(k = 0 to n) 1/T(k) ∈ ℝ: mun:sum-real a := 0, b := n, from 2\n                  requires n + 1 ≠ 0: inequalities, from K7\n\n          6.2.6.",
             "the requires line of step 6.2.5 cites 2, and mun:sum-real asks for nothing it says",
@@ -376,7 +376,7 @@ fn cases() -> Vec<Case> {
         // name makes it land somewhere else. That is reported, not assumed.
         case(
             "bind a target variable to the wrong name",
-            "proofs/subsets/subsets-count",
+            "proofs/wiedijk/subsets/subsets-count",
             "corpus/stdlib/counting.records",
             "  target      hashdifsnp1 with V := X, N := a, Y := k",
             "  target      hashdifsnp1 with V := X, N := a, Y := X",
@@ -387,8 +387,8 @@ fn cases() -> Vec<Case> {
         // type alone is reported.
         case(
             "cite a function's type for a value without the point's domain",
-            "proofs/cauchy-schwarz/cauchy-schwarz",
-            "proofs/cauchy-schwarz.proof",
+            "proofs/wiedijk/cauchy-schwarz/cauchy-schwarz",
+            "proofs/wiedijk/cauchy-schwarz.proof",
             "requires a(k) ∈ ℝ: from H2, K4",
             "requires a(k) ∈ ℝ: from H2",
             "from H2 does not reach",
@@ -399,8 +399,8 @@ fn cases() -> Vec<Case> {
         // the claim is that n² is odd.
         case(
             "leave out the value a definition is concluded of",
-            "proofs/sqrt2-irrational/odd-square",
-            "proofs/sqrt2-irrational.proof",
+            "proofs/wiedijk/sqrt2-irrational/odd-square",
+            "proofs/wiedijk/sqrt2-irrational.proof",
             "    mun:odd n := n², from 5",
             "    mun:odd, from 5",
             "with 2 · j + 1 = n",
@@ -409,8 +409,8 @@ fn cases() -> Vec<Case> {
         // A1 says X ⊆ Y, which is not that Y is a part of A.
         case(
             "a requires line for a part naming a line that does not say it",
-            "proofs/schroeder-bernstein/fixed-part",
-            "proofs/schroeder-bernstein.proof",
+            "proofs/wiedijk/schroeder-bernstein/fixed-part",
+            "proofs/wiedijk/schroeder-bernstein.proof",
             "          requires Y ⊆ A: from K4\n",
             "          requires Y ⊆ A: from A1\n",
             "from A1 does not reach",
@@ -419,8 +419,8 @@ fn cases() -> Vec<Case> {
         // function's type is cited for its values, outside a sum's terms.
         case(
             "a function's value from a type the step does not name",
-            "proofs/mean-value/mean-value",
-            "proofs/mean-value.proof",
+            "proofs/wiedijk/mean-value/mean-value",
+            "proofs/wiedijk/mean-value.proof",
             "    requires f(x) ∈ ℝ: from H4\n",
             "",
             "is not built from what step 8 cites",
@@ -429,8 +429,8 @@ fn cases() -> Vec<Case> {
         // naming K. A step citing K for it cites a line it uses nothing of.
         case(
             "cite a let line only for the membership it says once",
-            "proofs/sum-formula/sum-formula",
-            "proofs/sum-formula.proof",
+            "proofs/wiedijk/sum-formula/sum-formula",
+            "proofs/wiedijk/sum-formula.proof",
             "    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2\n          algebra\n",
             "    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2\n          algebra, from K\n",
             "step 1.6 cites K and uses nothing it says",
@@ -458,8 +458,8 @@ fn cases() -> Vec<Case> {
         // does: d(k) ∈ ℝ rests on H2, d's type, with k's membership said once.
         case(
             "a requires line from a function's type naming the let of its point",
-            "proofs/divisibility-by-three/divisibility-by-three",
-            "proofs/divisibility-by-three.proof",
+            "proofs/wiedijk/divisibility-by-three/divisibility-by-three",
+            "proofs/wiedijk/divisibility-by-three.proof",
             "          algebra\n          requires d(k) ∈ ℝ: from H2\n",
             "          algebra\n          requires d(k) ∈ ℝ: from H2, K\n",
             "from H2, K cites K and uses nothing it says, for d(k) ∈ ℝ",
@@ -469,8 +469,8 @@ fn cases() -> Vec<Case> {
         // whose membership is neither said once nor on the page is reported.
         case(
             "leave out the membership of a power to a letter the method combines",
-            "proofs/divisibility-by-three/divisibility-by-three",
-            "proofs/divisibility-by-three.proof",
+            "proofs/wiedijk/divisibility-by-three/divisibility-by-three",
+            "proofs/wiedijk/divisibility-by-three.proof",
             "          requires d(k) ∈ ℝ: from H2\n          requires 10^k ∈ ℝ: mun:power-real a := 10, m := k\n",
             "          requires d(k) ∈ ℝ: from H2\n",
             "step 1.4 combines 10^k, and nothing it writes or cites says it is a number",
@@ -480,32 +480,32 @@ fn cases() -> Vec<Case> {
         // never the existence's body in its place.
         case(
             "an obtain claiming more than the line it obtains from",
-            "proofs/sqrt2-irrational/lowest-terms",
-            "proofs/sqrt2-irrational.proof",
+            "proofs/wiedijk/sqrt2-irrational/lowest-terms",
+            "proofs/wiedijk/sqrt2-irrational.proof",
             "    3.1.  d ∈ ℤ. d > 1. d divides p. d divides q.",
             "    3.1.  d ∈ ℤ. d > 2. d divides p. d divides q.",
             "step 3.1 claims",
         ),
         case(
             "an obtain claiming more than the item it obtains from",
-            "proofs/bezout/bezout",
-            "proofs/bezout.proof",
+            "proofs/wiedijk/bezout/bezout",
+            "proofs/wiedijk/bezout.proof",
             "4.  d ∈ S. For all s ∈ S, d ≤ s.",
             "4.  d ∈ S. For all s ∈ S, d < s.",
             "step 4 claims",
         ),
         case(
             "an obtain whose membership is not the one its there is gives",
-            "proofs/harmonic/harmonic",
-            "proofs/harmonic.proof",
+            "proofs/wiedijk/harmonic/harmonic",
+            "proofs/wiedijk/harmonic.proof",
             "    2.2.  B ∈ ℝ. For all m ∈ ℕ, Σ(k = 1 to m) 1/k ≤ B.",
             "    2.2.  B ∈ ℚ. For all m ∈ ℕ, Σ(k = 1 to m) 1/k ≤ B.",
             "step 2.2 claims B ∈ ℚ",
         ),
         case(
             "an obtain from a line that says no there is",
-            "proofs/pythagorean-triples/pythagorean-triples",
-            "proofs/pythagorean-triples.proof",
+            "proofs/wiedijk/pythagorean-triples/pythagorean-triples",
+            "proofs/wiedijk/pythagorean-triples.proof",
             "          obtain k, m, n from D2",
             "          obtain k, m, n from H1",
             "step 1.2 obtains k, m, n from",
@@ -583,8 +583,8 @@ fn cases() -> Vec<Case> {
         // the file does not import is reported where it is cited.
         case(
             "cite an item the file does not import",
-            "proofs/harmonic/harmonic-block",
-            "proofs/harmonic.proof",
+            "proofs/wiedijk/harmonic/harmonic-block",
+            "proofs/wiedijk/harmonic.proof",
             "import mundane theorem    stdlib/sums/sum-real\n",
             "",
             "mun:sum-real is neither imported nor a theorem of this file",

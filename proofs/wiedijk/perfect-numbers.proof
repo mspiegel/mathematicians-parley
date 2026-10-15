@@ -1,0 +1,174 @@
+import theorem            stdlib/divisibility/sigma-multiplicative
+import theorem            stdlib/divisibility/sigma-prime
+import theorem            stdlib/divisibility/sigma-prime-power
+import theorem            proofs/wiedijk/geometric-series/geometric-sum
+import mundane theorem    stdlib/divisibility/divides-difference
+import mundane theorem    stdlib/divisibility/divides-multiple
+import mundane theorem    stdlib/divisibility/divides-one
+import mundane theorem    stdlib/divisibility/divides-self
+import mundane definition stdlib/divisibility/gcd
+import mundane theorem    stdlib/divisibility/gcd-commutes
+import mundane definition stdlib/divisibility/prime
+import mundane theorem    stdlib/divisibility/prime-coprime
+import mundane theorem    stdlib/divisibility/prime-nat
+import mundane theorem    stdlib/divisibility/two-prime
+import mundane theorem    stdlib/numbers/exponent-step
+import mundane theorem    stdlib/numbers/nat-closure
+import mundane theorem    stdlib/numbers/nat-minus-one
+import mundane theorem    stdlib/numbers/power-nat
+import definition         stdlib/divisibility/perfect
+import definition         stdlib/divisibility/σ
+
+theorem euclid-perfect
+  metamath    perfect1
+  note        σ multiplies over numbers that share no factor, as 2^(p − 1) and
+              2^p − 1 do. σ(2^(p − 1)) = 2^p − 1 by the geometric sum, and
+              σ(2^p − 1) = 2^p since it is prime. Their product is twice the
+              number, which is what perfect means.
+  let p ∈ ℕ                                                           (H1)
+  assume 2^p − 1 is prime                                             (H2)
+  then 2^(p − 1)·(2^p − 1) is perfect
+
+1.  (p − 1) + 1 = p
+    algebra
+
+2.  2^((p − 1) + 1) = 2^(p − 1)·2
+    mun:exponent-step a := 2, m := p − 1
+    requires p − 1 ∈ ℕ₀: mun:nat-minus-one n := p
+
+3.  2^p = 2^(p − 1)·2
+    substitute (p − 1) + 1 = p (line 1) into line 2
+
+4.  not (2^p − 1 divides 2^(p − 1))
+    contradiction
+    suppose 2^p − 1 divides 2^(p − 1)                                 (S)
+
+    4.1.  2^p − 1 divides 2^(p − 1)·2
+          mun:divides-multiple e := 2^p − 1, a := 2^(p − 1), x := 2, from S
+          requires 2^p − 1 ∈ ℤ: membership, from H1
+          requires p − 1 ∈ ℕ₀: mun:nat-minus-one n := p
+          requires 2^(p − 1) ∈ ℕ: mun:power-nat a := 2, m := p − 1
+
+    4.2.  2^p − 1 divides 2^p
+          substitute 2^p = 2^(p − 1)·2 (line 3) into line 4.1
+
+    4.3.  2^p − 1 divides 2^p − 1
+          mun:divides-self n := 2^p − 1
+          requires 2^p − 1 ∈ ℤ: membership, from H1
+
+    4.4.  2^p − 1 divides 2^p − (2^p − 1)
+          mun:divides-difference d := 2^p − 1, a := 2^p, b := 2^p − 1, from 4.2, 4.3
+          requires 2^p − 1 ∈ ℤ: membership, from H1
+          requires 2^p ∈ ℕ: mun:power-nat a := 2, m := p
+
+    4.5.  2^p − (2^p − 1) = 1
+          algebra
+          requires 2^p ∈ ℝ: membership, from H1
+
+    4.6.  2^p − 1 divides 1
+          substitute 2^p − (2^p − 1) = 1 (line 4.5) into line 4.4
+
+    4.7.  2^p − 1 = 1
+          mun:divides-one d := 2^p − 1, from 4.6
+          requires 2^p − 1 ∈ ℤ: membership, from H1
+          requires 2^p − 1 ∈ ℕ: mun:prime-nat p := 2^p − 1, from H2
+
+    4.8.  2^p − 1 > 1
+          mun:prime p := 2^p − 1, from H2
+          requires 2^p − 1 ∈ ℤ: membership, from H1
+          requires 2^p − 1 ∈ ℕ: mun:prime-nat p := 2^p − 1, from H2
+
+    4.9.  2^p − 1 ≠ 1
+          inequalities, from 4.8, contradicting 4.7
+          requires 2^p ∈ ℝ: membership, from H1
+
+5.  gcd(2^p − 1, 2^(p − 1)) = 1
+    mun:prime-coprime p := 2^p − 1, a := 2^(p − 1), from H2, 4
+    requires 2^p − 1 ∈ ℤ: membership, from H1
+    requires 2^p − 1 ∈ ℕ: mun:prime-nat p := 2^p − 1, from H2
+    requires p − 1 ∈ ℕ₀: mun:nat-minus-one n := p
+    requires 2^(p − 1) ∈ ℕ: mun:power-nat a := 2, m := p − 1
+
+6.  gcd(2^(p − 1), 2^p − 1) = gcd(2^p − 1, 2^(p − 1))
+    mun:gcd-commutes a := 2^(p − 1), b := 2^p − 1
+    requires p − 1 ∈ ℕ₀: mun:nat-minus-one n := p
+    requires 2^(p − 1) ∈ ℕ: mun:power-nat a := 2, m := p − 1
+    requires 2^p − 1 ∈ ℤ: membership, from H1
+
+7.  gcd(2^(p − 1), 2^p − 1) = 1
+    calculation
+      gcd(2^(p − 1), 2^p − 1) = gcd(2^p − 1, 2^(p − 1))     6
+                             = 1                            5
+
+8.  σ(2^(p − 1)·(2^p − 1)) = σ(2^(p − 1))·σ(2^p − 1)
+    thm:sigma-multiplicative m := 2^(p − 1), n := 2^p − 1, from 7
+    requires p − 1 ∈ ℕ₀: mun:nat-minus-one n := p
+    requires 2^(p − 1) ∈ ℕ: mun:power-nat a := 2, m := p − 1
+    requires 2^p − 1 ∈ ℤ: membership, from H1
+    requires 2^p − 1 ∈ ℕ: mun:prime-nat p := 2^p − 1, from H2
+
+9.  σ(2^p − 1) = (2^p − 1) + 1
+    thm:sigma-prime p := 2^p − 1, from H2
+    requires 2^p − 1 ∈ ℤ: membership, from H1
+    requires 2^p − 1 ∈ ℕ: mun:prime-nat p := 2^p − 1, from H2
+
+10. (2^p − 1) + 1 = 2^p
+    algebra
+    requires 2^p ∈ ℝ: membership, from H1
+
+11. σ(2^p − 1) = 2^p
+    calculation
+      σ(2^p − 1) = (2^p − 1) + 1      9
+                 = 2^p                10
+
+12. σ(2^(p − 1)) = Σ(j = 0 to p − 1) 2^j
+    thm:sigma-prime-power p := 2, k := p − 1
+    requires p − 1 ∈ ℕ₀: mun:nat-minus-one n := p
+    requires 2 is prime: mun:two-prime
+
+13. Σ(j = 0 to p − 1) 2^j = (1 − 2^((p − 1) + 1))/(1 − 2)
+    thm:geometric-sum a := 2, n := p − 1
+    requires p − 1 ∈ ℕ₀: mun:nat-minus-one n := p
+    requires 2 ≠ 1: arithmetic
+
+14. (1 − 2^((p − 1) + 1))/(1 − 2) = (1 − 2^p)/(1 − 2)
+    substitute (p − 1) + 1 = p (line 1)
+
+15. (1 − 2^p)/(1 − 2) = 2^p − 1
+    algebra
+    requires 2^p ∈ ℝ: membership, from H1
+    requires 1 − 2 ≠ 0: arithmetic
+
+16. σ(2^(p − 1)) = 2^p − 1
+    calculation
+      σ(2^(p − 1)) = Σ(j = 0 to p − 1) 2^j            12
+                   = (1 − 2^((p − 1) + 1))/(1 − 2)    13
+                   = (1 − 2^p)/(1 − 2)                14
+                   = 2^p − 1                          15
+
+17. σ(2^(p − 1))·σ(2^p − 1) = (2^p − 1)·σ(2^p − 1)
+    substitute σ(2^(p − 1)) = 2^p − 1 (line 16)
+
+18. (2^p − 1)·σ(2^p − 1) = (2^p − 1)·2^p
+    substitute σ(2^p − 1) = 2^p (line 11)
+
+19. (2^p − 1)·2^p = 2·(2^(p − 1)·(2^p − 1))
+    algebra, from 3
+    requires 2^p ∈ ℝ: membership, from H1
+    requires p − 1 ∈ ℕ₀: mun:nat-minus-one n := p
+    requires 2^(p − 1) ∈ ℝ: membership
+
+20. σ(2^(p − 1)·(2^p − 1)) = 2·(2^(p − 1)·(2^p − 1))
+    calculation
+      σ(2^(p − 1)·(2^p − 1)) = σ(2^(p − 1))·σ(2^p − 1)      8
+                             = (2^p − 1)·σ(2^p − 1)          17
+                             = (2^p − 1)·2^p                 18
+                             = 2·(2^(p − 1)·(2^p − 1))       19
+
+21. 2^(p − 1)·(2^p − 1) is perfect
+    def:perfect n := 2^(p − 1)·(2^p − 1), from 20
+    requires p − 1 ∈ ℕ₀: mun:nat-minus-one n := p
+    requires 2^(p − 1) ∈ ℕ: mun:power-nat a := 2, m := p − 1
+    requires 2^p − 1 ∈ ℤ: membership, from H1
+    requires 2^p − 1 ∈ ℕ: mun:prime-nat p := 2^p − 1, from H2
+    requires 2^(p − 1)·(2^p − 1) ∈ ℕ: mun:nat-closure

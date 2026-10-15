@@ -1,5 +1,5 @@
-$( thm:proofs/sqrt2-irrational/odd-square and
-   thm:proofs/sqrt2-irrational/even-square, from proofs/sqrt2-irrational.proof,
+$( thm:proofs/wiedijk/sqrt2-irrational/odd-square and
+   thm:proofs/wiedijk/sqrt2-irrational/even-square, from proofs/wiedijk/sqrt2-irrational.proof,
    as Metamath proofs.
 
    Verify with any Metamath verifier, with set.mm in the same directory:

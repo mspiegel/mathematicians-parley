@@ -15,10 +15,10 @@ was fetched for it; the source is the proof as it is commonly taught.
 
 ## Theorems similar-triangles and pythagoras
 
-The proof is `proofs/pythagoras.proof`, two theorems. `similar-triangles` is
+The proof is `proofs/wiedijk/pythagoras.proof`, two theorems. `similar-triangles` is
 the angle-angle criterion, proved in the readable layer from the angle sum
 (Theorem 21) and the law of sines; `pythagoras` drops the altitude from C and
-cites it twice. Both elaborate to `corpus/elaboration/proofs/pythagoras/`,
+cites it twice. Both elaborate to `corpus/elaboration/proofs/wiedijk/pythagoras/`,
 assume nothing, and verify.
 
 Numbers: `similar-triangles` is 30 steps, most of them saying that an angle

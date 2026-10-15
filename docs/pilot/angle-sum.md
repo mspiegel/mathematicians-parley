@@ -15,8 +15,8 @@ so the source is the proof as it is commonly taught, not a checked page.
 
 ## Theorem angle-sum
 
-The proof is `proofs/angle-sum.proof`. It elaborates to
-`corpus/elaboration/proofs/angle-sum/angle-sum.mm`, assumes nothing, and
+The proof is `proofs/wiedijk/angle-sum.proof`. It elaborates to
+`corpus/elaboration/proofs/wiedijk/angle-sum/angle-sum.mm`, assumes nothing, and
 verifies. set.mm's `ang180` states the sum of the signed angles as π or −π;
 this statement is the unsigned one, 180°.
 

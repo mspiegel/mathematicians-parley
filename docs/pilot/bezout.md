@@ -25,13 +25,13 @@ a lemma applied twice.
 
 ## Theorem least-combination-divides
 
-In `proofs/bezout.proof`, first of the two.
+In `proofs/wiedijk/bezout.proof`, first of the two.
 
 ---
 
 ## Theorem bezout
 
-In `proofs/bezout.proof`, second of the two.
+In `proofs/wiedijk/bezout.proof`, second of the two.
 
 ---
 
@@ -40,7 +40,7 @@ In `proofs/bezout.proof`, second of the two.
 This pilot introduced `def:stdlib/sets/set-builder`, `def:stdlib/sets/subset`,
 `thm:stdlib/sets/set-builder-subset`, `def:stdlib/divisibility/gcd`, `thm:stdlib/numbers/well-ordering`,
 `thm:stdlib/divisibility/division-algorithm`, `thm:stdlib/numbers/pos-int-nat`, `thm:stdlib/divisibility/divides-combination`,
-`thm:stdlib/divisibility/divides-le`, `thm:proofs/bezout/least-combination-divides` and `thm:proofs/bezout/bezout` in
+`thm:stdlib/divisibility/divides-le`, `thm:proofs/wiedijk/bezout/least-combination-divides` and `thm:proofs/wiedijk/bezout/bezout` in
 the database, the set-builder, subset and gcd rows in `corpus/db/notation.records`, and
 the `instantiate` method in `corpus/db/methods.records`. The table that used to stand
 here was merged into those files; `DATABASE.md` records what the merge

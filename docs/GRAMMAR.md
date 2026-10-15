@@ -77,7 +77,7 @@ listed in the checker instead.
   capital is there for the name a naming line gives a function, `S` in
   `let S(m) = …`.
 - `<module>` is `<name> { / <name> }`, a file's path from the root of the
-  corpus without its extension: `stdlib/numbers`, `proofs/bezout`.
+  corpus without its extension: `stdlib/numbers`, `proofs/wiedijk/bezout`.
 - `<cited>` is a `<name>`, what follows an item's prefix, `thm:` or another:
   the name the file imports the item under, or a theorem of the citing file.
   "Names" below says how one is resolved.
@@ -699,7 +699,7 @@ it holds of, because that name comes from the notation that binds it: in
 `{t ∈ X : P(t)}` the braces introduce `t`, and it does not exist above them.
 Three of those, `be an element`, `be a set` and `be a point`, are not notations
 and never appear inside a formula. `assume` does take a formula, because it
-does assert. `thm:proofs/subsets/add-element-bijection` introduces its `a` by `∉`, and
+does assert. `thm:proofs/wiedijk/subsets/add-element-bijection` introduces its `a` by `∉`, and
 `mun:stdlib/counting/card-singleton` and eight other items introduce theirs by `be an
 element`. The kernel reads either as the thing being a set as well, since
 `{a}` of a proper class is empty; that sethood is apparatus the page never
@@ -717,8 +717,8 @@ An item is named by the file that holds it and its own name: its full name is
 the file's path from the root without the extension, `/`, and the name on its
 `theorem` or record line; a record's path is read from inside `corpus/`.
 `corpus/stdlib/numbers.records` holds `stdlib/numbers/int-real`;
-`proofs/triangle-inequality.proof` holds
-`proofs/triangle-inequality/abs-bounds`. A name need only be unique within its
+`proofs/wiedijk/triangle-inequality.proof` holds
+`proofs/wiedijk/triangle-inequality/abs-bounds`. A name need only be unique within its
 file.
 
 `stdlib` is the one directory the rules name, because its modules are the
@@ -737,7 +737,7 @@ import mundane axiom      stdlib/numbers/trichotomy
 import mundane theorem    stdlib/numbers/int-closure
 import mundane definition stdlib/divisibility/gcd
 import definition         stdlib/counting/C
-import theorem            proofs/triangle-inequality/abs-bounds as abs-sum
+import theorem            proofs/wiedijk/triangle-inequality/abs-bounds as abs-sum
 import definition         tests/docs/tri/T as U (D1)
 import definition         tests/docs/tri/B
 ```

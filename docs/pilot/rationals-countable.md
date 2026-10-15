@@ -17,9 +17,9 @@ powers of primes.
 
 ## Theorem rationals-countable
 
-The proof is `proofs/rationals-countable.proof`, one theorem with three
+The proof is `proofs/wiedijk/rationals-countable.proof`, one theorem with three
 defines. It elaborates to
-`corpus/elaboration/proofs/rationals-countable/rationals-countable.mm`,
+`corpus/elaboration/proofs/wiedijk/rationals-countable/rationals-countable.mm`,
 assumes nothing, and verifies. Its statement in set.mm is `NN ~~ QQ`.
 
 Numbers: 10 numbered steps at the top and 39 inside blocks. Steps 1 to 4

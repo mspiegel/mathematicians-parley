@@ -1,7 +1,7 @@
 # Which geometry this project should stand on
 
-`proofs/isosceles.proof`, `proofs/angle-sum.proof` and
-`proofs/pythagoras.proof` are the corpus's geometry proofs. What they stand on is a question about foundations rather
+`proofs/wiedijk/isosceles.proof`, `proofs/wiedijk/angle-sum.proof` and
+`proofs/wiedijk/pythagoras.proof` are the corpus's geometry proofs. What they stand on is a question about foundations rather
 than about tools, and seven answers have been looked at: the complex plane, Tarski, `EE^n`, Hilbert, Birkhoff,
 SMSG, and Euclid's own axioms as Beeson, Narboux and Wiedijk formalised them.
 

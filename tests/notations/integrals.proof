@@ -1,4 +1,4 @@
-import theorem            proofs/fundamental-calculus/fundamental-calculus
+import theorem            proofs/wiedijk/fundamental-calculus/fundamental-calculus
 import theorem            stdlib/calculus/continuous-linear
 import theorem            stdlib/calculus/continuous-square
 import theorem            stdlib/calculus/derivative-square

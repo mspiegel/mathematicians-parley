@@ -1,0 +1,210 @@
+import theorem            proofs/wiedijk/schroeder-bernstein/schroeder-bernstein
+import theorem            stdlib/divisibility/prime-powers-unique
+import mundane definition stdlib/functions/one-to-one
+import mundane theorem    stdlib/functions/function-into
+import mundane definition stdlib/numbers/abs
+import mundane theorem    stdlib/numbers/abs-integer
+import mundane definition stdlib/numbers/denom
+import mundane theorem    stdlib/numbers/lowest-terms-parts
+import mundane definition stdlib/numbers/numer
+import mundane axiom      stdlib/reasoning/excluded-middle
+
+theorem rationals-countable
+  metamath    qnnen, which says it of ℚ and ℕ the other way round
+  note        ℕ goes one to one into ℚ as itself, and ℚ goes one to one into
+              ℕ by a code: p/q in lowest terms, with sign s, goes to
+              2^|p|·3^q·5^s, and a number has only one factoring into primes.
+              Schröder–Bernstein then gives a bijection.
+  then there is a bijection from ℕ to ℚ
+
+let f(n) = n, for n ∈ ℕ                                               (D1)
+       reads each natural number, as a rational
+
+let s(x) = 0    if numer(x) ≥ 0
+           1    otherwise,  for x ∈ ℚ                                 (D2)
+       reads whether x is negative
+
+let g(x) = 2^|numer(x)|·3^denom(x)·5^s(x), for x ∈ ℚ        (D3)
+       reads a code for x: the size and sign of its numerator, and its denominator
+
+1.  f : ℕ → ℚ
+    mun:function-into
+    requires f is a function on ℕ: from D1
+    requires for all n ∈ ℕ, f(n) ∈ ℚ: membership, from D1
+
+2.  For all m, n ∈ ℕ, if f(m) = f(n) then m = n.
+    proof
+    let m ∈ ℕ                                                         (K2)
+    let n ∈ ℕ                                                         (K3)
+    assume f(m) = f(n)                                                (A1)
+
+    2.1.  f(m) = m
+          D1
+
+    2.2.  f(n) = n
+          D1
+
+    2.3.  m = n
+          calculation
+            m = f(m)        2.1
+              = f(n)        A1
+              = n           2.2
+
+3.  f : ℕ → ℚ is one-to-one
+    mun:one-to-one, from 1, 2
+
+4.  For all x ∈ ℚ, s(x) ∈ ℕ₀ and numer(x) = (1 − 2·s(x))·|numer(x)|.
+    proof
+    note 1 − 2·s(x) is 1 or −1, the sign, so size and sign give the numerator back
+    let x ∈ ℚ                                                         (K4)
+
+    4.1.  s(x) ∈ ℕ₀
+          membership, from D2
+
+    4.2.  numer(x) ≥ 0 or not numer(x) ≥ 0
+          mun:excluded-middle P := numer(x) ≥ 0
+
+    4.3.  numer(x) = (1 − 2·s(x))·|numer(x)|
+          cases, from 4.2
+
+          case
+          assume numer(x) ≥ 0                                     (C1)
+
+          4.3.1.  s(x) = 0
+                  D2, from C1
+
+          4.3.2.  |numer(x)| = numer(x)
+                  mun:abs x := numer(x), from C1
+                  requires numer(x) ∈ ℤ: mun:lowest-terms-parts
+
+          4.3.3.  (1 − 2·s(x))·|numer(x)| = (1 − 2·0)·|numer(x)|
+                  substitute s(x) = 0 (line 4.3.1)
+
+          4.3.4.  (1 − 2·0)·|numer(x)| = (1 − 2·0)·numer(x)
+                  substitute |numer(x)| = numer(x) (line 4.3.2)
+
+          4.3.5.  (1 − 2·0)·numer(x) = numer(x)
+                  algebra
+                  requires numer(x) ∈ ℤ: mun:lowest-terms-parts
+
+          4.3.6.  numer(x) = (1 − 2·s(x))·|numer(x)|
+                  calculation
+                    numer(x) = (1 − 2·0)·numer(x)          4.3.5
+                             = (1 − 2·0)·|numer(x)|        4.3.4
+                             = (1 − 2·s(x))·|numer(x)|     4.3.3
+
+          case
+          assume not numer(x) ≥ 0                                 (C2)
+
+          4.3.7.  s(x) = 1
+                  D2, from C2
+
+          4.3.8.  numer(x) < 0
+                  inequalities, from C2
+                  requires numer(x) ∈ ℤ: mun:lowest-terms-parts
+
+          4.3.9.  |numer(x)| = −numer(x)
+                  mun:abs x := numer(x), from 4.3.8
+                  requires numer(x) ∈ ℤ: mun:lowest-terms-parts
+
+          4.3.10. (1 − 2·s(x))·|numer(x)| = (1 − 2)·|numer(x)|
+                  substitute s(x) = 1 (line 4.3.7)
+
+          4.3.11. (1 − 2)·|numer(x)| = (1 − 2)·(−numer(x))
+                  substitute |numer(x)| = −numer(x) (line 4.3.9)
+
+          4.3.12. (1 − 2)·(−numer(x)) = numer(x)
+                  algebra
+                  requires numer(x) ∈ ℤ: mun:lowest-terms-parts
+
+          4.3.13. numer(x) = (1 − 2·s(x))·|numer(x)|
+                  calculation
+                    numer(x) = (1 − 2)·(−numer(x))         4.3.12
+                             = (1 − 2)·|numer(x)|          4.3.11
+                             = (1 − 2·s(x))·|numer(x)|     4.3.10
+
+    4.4.  s(x) ∈ ℕ₀ and numer(x) = (1 − 2·s(x))·|numer(x)|
+          join 4.1, 4.3
+
+5.  For all x ∈ ℚ, g(x) ∈ ℕ.
+    membership, from D3
+    requires numer(x) ∈ ℤ: mun:lowest-terms-parts
+    requires denom(x) ∈ ℕ: mun:lowest-terms-parts
+    requires |numer(x)| ∈ ℕ₀: mun:abs-integer z := numer(x)
+    requires s(x) ∈ ℕ₀: from 4
+
+6.  g : ℚ → ℕ
+    mun:function-into, from 5
+    requires g is a function on ℚ: from D3
+
+7.  For all x, y ∈ ℚ, if g(x) = g(y) then x = y.
+    proof
+    let x ∈ ℚ                                                         (K6)
+    let y ∈ ℚ                                                         (K7)
+    assume g(x) = g(y)                                                (A2)
+
+    7.1.  numer(x) ∈ ℤ. denom(x) ∈ ℕ.
+          x = numer(x)/denom(x).
+          mun:lowest-terms-parts
+
+    7.2.  numer(y) ∈ ℤ. denom(y) ∈ ℕ.
+          y = numer(y)/denom(y).
+          mun:lowest-terms-parts x := y
+
+    7.3.  s(x) ∈ ℕ₀ and numer(x) = (1 − 2·s(x))·|numer(x)|
+          instantiate x := x in line 4
+
+    7.4.  s(y) ∈ ℕ₀ and numer(y) = (1 − 2·s(y))·|numer(y)|
+          instantiate x := y in line 4
+
+    7.5.  g(x) = 2^|numer(x)|·3^denom(x)·5^s(x)
+          D3
+
+    7.6.  g(y) = 2^|numer(y)|·3^denom(y)·5^s(y)
+          D3
+
+    7.7.  2^|numer(x)|·3^denom(x)·5^s(x) = 2^|numer(y)|·3^denom(y)·5^s(y)
+          calculation
+            2^|numer(x)|·3^denom(x)·5^s(x) = g(x)          7.5
+                                                    = g(y)          A2
+                                                    = 2^|numer(y)|·3^denom(y)·5^s(y)    7.6
+
+    7.8.  |numer(x)| = |numer(y)|. denom(x) = denom(y).
+          s(x) = s(y).
+          thm:prime-powers-unique a := |numer(x)|, b := denom(x), c := s(x), a′ := |numer(y)|, b′ := denom(y), c′ := s(y), from 7.3, 7.4, 7.7
+          requires |numer(x)| ∈ ℕ₀: mun:abs-integer z := numer(x), from 7.1
+          requires |numer(y)| ∈ ℕ₀: mun:abs-integer z := numer(y), from 7.2
+          requires denom(x) ∈ ℕ₀: membership, from 7.1
+          requires denom(y) ∈ ℕ₀: membership, from 7.2
+
+    7.9.  (1 − 2·s(x))·|numer(x)| = (1 − 2·s(y))·|numer(x)|
+          substitute s(x) = s(y) (line 7.8)
+
+    7.10. (1 − 2·s(y))·|numer(x)| = (1 − 2·s(y))·|numer(y)|
+          substitute |numer(x)| = |numer(y)| (line 7.8)
+
+    7.11. numer(x) = numer(y)
+          calculation
+            numer(x) = (1 − 2·s(x))·|numer(x)|     7.3
+                         = (1 − 2·s(y))·|numer(x)|     7.9
+                         = (1 − 2·s(y))·|numer(y)|     7.10
+                         = numer(y)                    7.4
+
+    7.12. numer(x)/denom(x) = numer(y)/denom(x)
+          substitute numer(x) = numer(y) (line 7.11)
+
+    7.13. numer(y)/denom(x) = numer(y)/denom(y)
+          substitute denom(x) = denom(y) (line 7.8)
+
+    7.14. x = y
+          calculation
+            x = numer(x)/denom(x)     7.1
+              = numer(y)/denom(x)     7.12
+              = numer(y)/denom(y)     7.13
+              = y                               7.2
+
+8.  g : ℚ → ℕ is one-to-one
+    mun:one-to-one, from 6, 7
+
+9.  There is a bijection from ℕ to ℚ.
+    thm:schroeder-bernstein A := ℕ, B := ℚ, from 3, 8

@@ -14,8 +14,8 @@ where the input approaches no point and δ becomes a threshold N.
 
 ## Theorem triangular-reciprocals
 
-The proof is `proofs/triangular-reciprocals.proof`. It elaborates to
-`corpus/elaboration/proofs/triangular-reciprocals/triangular-reciprocals.mm`, which
+The proof is `proofs/wiedijk/triangular-reciprocals.proof`. It elaborates to
+`corpus/elaboration/proofs/wiedijk/triangular-reciprocals/triangular-reciprocals.mm`, which
 assumes nothing and verifies.
 
 ---

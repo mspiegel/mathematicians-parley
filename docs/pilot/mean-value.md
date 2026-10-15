@@ -15,8 +15,8 @@ proves it otherwise, as the case g(x) = x of Cauchy's mean value theorem
 
 ## Theorem mean-value
 
-The proof is `proofs/mean-value.proof`, one theorem with two defines. It
-elaborates to `corpus/elaboration/proofs/mean-value/mean-value.mm`, assumes
+The proof is `proofs/wiedijk/mean-value.proof`, one theorem with two defines. It
+elaborates to `corpus/elaboration/proofs/wiedijk/mean-value/mean-value.mm`, assumes
 nothing, and verifies.
 
 Numbers: 33 numbered steps at the top and 6 inside blocks. Steps 1 to 5 say

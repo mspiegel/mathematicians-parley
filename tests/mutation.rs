@@ -32,7 +32,7 @@
 //! MUTANTS=500 cargo test --release --test mutation -- --ignored --nocapture
 //! ```
 //!
-//! `MUTATION_AT=proofs/bezout.proof:87` asks again of the mutants at the
+//! `MUTATION_AT=proofs/wiedijk/bezout.proof:87` asks again of the mutants at the
 //! lines it lists.
 //!
 //! This reads set.mm, and fails if set.mm cannot be found.

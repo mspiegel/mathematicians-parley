@@ -85,7 +85,7 @@ So in `f(x₁) − f(c) ≤ |f(x₁) − f(c)|` the atoms are `f(x₁)`, `f(c)` 
 inside contains the first two. The method never looks inside an atom and knows
 nothing about what it means. That `|y|` is at least `y` is not available to it;
 that fact reaches a step as a cited line, which is what
-`thm:proofs/triangle-inequality/abs-bounds` is for.
+`thm:proofs/wiedijk/triangle-inequality/abs-bounds` is for.
 
 A defined name is an atom, unless the step writes what the name names as
 well: then each defined name in its claim and its cited lines whose define
@@ -449,7 +449,7 @@ step cites them.
 
 Six steps are written out in `corpus/elaboration/`, and `ELABORATION.md` measures
 them. Five come from the three elaborated proofs; the sixth is step 2 of
-`thm:proofs/bezout/least-combination-divides`, the only step in the corpus whose
+`thm:proofs/wiedijk/bezout/least-combination-divides`, the only step in the corpus whose
 coefficients are not constants, and it is in `corpus/elaboration/algebra.mm`.
 
 Each follows one order — carry the atoms into ℂ, apply the structural lemma

@@ -1,5 +1,5 @@
-import theorem            proofs/sqrt2-irrational/odd-square
-import theorem            proofs/triangle-inequality/abs-bounds
+import theorem            proofs/wiedijk/sqrt2-irrational/odd-square
+import theorem            proofs/wiedijk/triangle-inequality/abs-bounds
 import mundane definition stdlib/numbers/abs
 import mundane theorem    stdlib/numbers/abs-real
 import mundane theorem    stdlib/numbers/nonneg-or-neg

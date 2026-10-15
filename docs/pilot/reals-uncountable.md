@@ -20,9 +20,9 @@ argument goes through without leaving anything out.
 
 ## Theorems
 
-The proof is `proofs/reals-uncountable.proof`, seven theorems of 42
+The proof is `proofs/wiedijk/reals-uncountable.proof`, seven theorems of 42
 numbered steps, 194 with those inside blocks, and four defines. All seven
-elaborate to `corpus/elaboration/proofs/reals-uncountable/`, assume nothing,
+elaborate to `corpus/elaboration/proofs/wiedijk/reals-uncountable/`, assume nothing,
 and verify.
 
 - `digit-range`: 0 ≤ s(t) ≤ 9 for t ∈ ℤ, where s(t) = (t + 1) mod 10.

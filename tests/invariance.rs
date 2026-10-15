@@ -306,7 +306,7 @@ fn round_checked(
     checked_in(tree, |n| wanted.contains(n)).expect("the changed corpus reads")
 }
 
-fn changed(clean: &Memory, root: &Path, context: &Context, change: &Change) -> Changed {
+fn changed(clean: &Memory, context: &Context, change: &Change) -> Changed {
     let mut tree = Overlay::new(clean);
     let mut files = Vec::new();
     let mut lines = 0;
@@ -316,24 +316,20 @@ fn changed(clean: &Memory, root: &Path, context: &Context, change: &Change) -> C
     // method or notation no theorem uses yet is written first, the
     // library's, which prove what each item says at one instance, each
     // notation's textbook examples, and the proofs the syntax documents'
-    // examples stand in.
-    let mut paths: Vec<String> = Vec::new();
-    for dir in [
-        "proofs",
-        "tests/elaborator",
-        "tests/stdlib",
-        "tests/notations",
-        "tests/docs",
-    ] {
-        paths.extend(
-            std::fs::read_dir(root.join(dir))
-                .expect("a proof directory reads")
-                .filter_map(|e| e.ok())
-                .map(|e| e.file_name().to_string_lossy().to_string())
-                .filter(|n| n.ends_with(".proof"))
-                .map(|n| format!("{dir}/{n}")),
-        );
-    }
+    // examples stand in. The corpus's proofs are in a directory for each
+    // collection under `proofs/`.
+    const DIRS: [&str; 5] = [
+        "proofs/",
+        "tests/elaborator/",
+        "tests/stdlib/",
+        "tests/notations/",
+        "tests/docs/",
+    ];
+    let mut paths: Vec<String> = clean
+        .found(".proof")
+        .into_iter()
+        .filter(|p| DIRS.iter().any(|d| p.starts_with(d)))
+        .collect();
     paths.sort();
     let texts: Vec<(String, String)> = paths
         .into_iter()
@@ -413,7 +409,7 @@ fn a_proof_means_what_it_says_however_it_spells_it() {
     );
     let trees: Vec<Changed> = changes
         .iter()
-        .map(|c| changed(&clean, root, &context, c))
+        .map(|c| changed(&clean, &context, c))
         .collect();
     let mut found: BTreeSet<String> = BTreeSet::new();
     // What the checker says of each changed corpus.
