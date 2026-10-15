@@ -32,12 +32,15 @@ each done once:
 3. The **parser** reads each sentence into a tree, by the declared
    notations and the sorts in scope.
 
-All three are in `src/formula/page.rs`, and no other code reaches the
-parser. What the skeleton reads by pattern is the skeleton: step numbers,
-labels, justifications, the `fact: how` of a requires line, the `:=` of a
-naming, the ten introduction forms of a `let` line, and a chain line's
-relation and citation. Everything inside a formula part is read by the
-parser alone. A check that asks what a claim says asks its tree, never its
+The splitter and the parser are in `src/formula/page.rs`, and no other code
+reaches the parser. The skeleton reader reads its productions word by word,
+never by pattern: `src/corpus/skeleton.rs` cuts a justification into its
+head and slots, a requires line's reason, a step's first line, a chain
+line's citation and modulus, a label, an import and a range line;
+`src/corpus/define.rs` cuts a naming line; and `src/sorts/introduction.rs`
+reads which of its forms a `let` line takes. A word is a whole word, so
+`into` is never the end of `mun:function-into` and `from` never the middle
+of a formula. Everything inside a formula part is read by the parser alone. A check that asks what a claim says asks its tree, never its
 text, and a formula a tool makes for itself, such as the membership a `let`
 line introduces, is a tree it builds, not a string it parses. A part that
 does not read is a defect reported where it is written; a check never passes
