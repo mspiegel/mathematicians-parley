@@ -278,6 +278,187 @@ pub fn which_is_the_claim(text: &str) -> Option<&str> {
     Some(str::trim(before.strip_suffix(',').unwrap_or(before)))
 }
 
+/// What a `let` line names before it says what they are: the text between
+/// `let` and the first ∈, ∉, ⊆, colon or word `be`, `x, y` of `let x, y ∈
+/// ℝ`; None for any other line.
+pub fn let_names(text: &str) -> Option<&str> {
+    let rest = after_word(text.trim_start(), "let")?;
+    let sign = rest.find(['∈', '∉', '⊆', ':']);
+    let be = rest
+        .split_whitespace()
+        .skip(1)
+        .find(|w| *w == "be")
+        .map(|w| offset(rest, w));
+    let end = [sign, be].into_iter().flatten().min()?;
+    let names = rest[..end].trim_end();
+    (!names.is_empty()).then_some(names)
+}
+
+/// The one name a `let` line opens with: what stands after `let` up to a
+/// space, ∈, ∉ or colon; None for any other line.
+pub fn let_name(text: &str) -> Option<&str> {
+    let rest = after_word(text.trim_start(), "let")?;
+    let end = rest
+        .find(|c: char| c.is_whitespace() || matches!(c, '∈' | '∉' | ':'))
+        .unwrap_or(rest.len());
+    (end > 0).then_some(&rest[..end])
+}
+
+/// What each pair of braces in a line lists that is a list of names: no
+/// brace inside it, no colon and no `…`, as `{A, B, C, D}` lists a graph's
+/// vertices and `{x ∈ ℕ : x > 1}` lists none.
+pub fn listed(text: &str) -> Vec<&str> {
+    let mut out = Vec::new();
+    let mut rest = text;
+    while let Some(open) = rest.find('{') {
+        let inside = &rest[open + 1..];
+        let Some(close) = inside.find(['{', '}']) else {
+            break;
+        };
+        let list = &inside[..close];
+        if inside[close..].starts_with('}') && !list.contains([':', '…']) {
+            out.push(list);
+        }
+        rest = &inside[close..];
+    }
+    out
+}
+
+/// Whether a word is one letter, Latin or Greek, with any subscript or
+/// prime: what a range line ranges and a `let` may put in a set.
+pub fn is_letter_name(word: &str) -> bool {
+    let mut chars = word.chars();
+    let Some(first) = chars.next() else {
+        return false;
+    };
+    let a_letter = first.is_ascii_alphabetic() || ('α'..='ω').contains(&first);
+    a_letter && chars.all(|c| ('₀'..='₉').contains(&c) || c == '′')
+}
+
+/// A range line, `ε, δ range over ℝ`: the letters it ranges, and the set.
+pub struct RangeLine<'t> {
+    pub letters: Vec<&'t str>,
+    pub set: &'t str,
+}
+
+/// The line read as a range; None for any other line.
+pub fn range_line(text: &str) -> Option<RangeLine<'_>> {
+    let text = text.trim();
+    let mut words = text.split_whitespace().peekable();
+    while let Some(word) = words.next() {
+        if !matches!(word, "range" | "ranges") || words.peek() != Some(&"over") {
+            continue;
+        }
+        let at = offset(text, word);
+        let letters: Vec<&str> = text[..at].split(',').map(str::trim).collect();
+        let set = after_words(&text[at..], 2);
+        let named = at > 0 && letters.iter().all(|l| is_letter_name(l));
+        return (named && !set.is_empty()).then_some(RangeLine { letters, set });
+    }
+    None
+}
+
+/// What `text` writes after its first `n` words, from the next word on.
+fn after_words(text: &str, n: usize) -> &str {
+    let mut rest = text.trim_start();
+    for _ in 0..n {
+        let end = rest.find(char::is_whitespace).unwrap_or(rest.len());
+        rest = rest[end..].trim_start();
+    }
+    rest
+}
+
+/// An `import` line: `import [mundane] <kind> <module>/<name> [as <alias>]
+/// [(<label>)]`.
+pub struct ImportLine<'t> {
+    pub mundane: bool,
+    /// The header word of what it names, as the line writes it.
+    pub kind: &'t str,
+    /// The module and the name, `stdlib/divisibility/prime-factor`.
+    pub full: &'t str,
+    pub alias: Option<&'t str>,
+    pub label: Option<&'t str>,
+}
+
+/// The line read as an import; None where it takes no import's shape. The
+/// words after `import` are read with `mundane` as the mark first, and as
+/// the kind where the line reads no other way.
+pub fn import_line(text: &str) -> Option<ImportLine<'_>> {
+    let words: Vec<&str> = text.split_whitespace().collect();
+    let ["import", rest @ ..] = words.as_slice() else {
+        return None;
+    };
+    if let ["mundane", after @ ..] = rest {
+        if let Some(import) = import_rest(after, true) {
+            return Some(import);
+        }
+    }
+    import_rest(rest, false)
+}
+
+/// The words after `import` and its mark: the kind, the path, and an alias
+/// and a label where the line gives them.
+fn import_rest<'t>(words: &[&'t str], mundane: bool) -> Option<ImportLine<'t>> {
+    let [kind, full, rest @ ..] = words else {
+        return None;
+    };
+    let (alias, rest) = match rest {
+        ["as", alias, rest @ ..] if !alias.contains(['(', ')']) => (Some(*alias), rest),
+        _ => (None, rest),
+    };
+    let label = match rest {
+        [] => None,
+        [label] => Some(label_at_end(label)?),
+        _ => return None,
+    };
+    imported_path(full).then_some(ImportLine {
+        mundane,
+        kind,
+        full,
+        alias,
+        label,
+    })
+}
+
+/// Whether a path names what an import brings in: modules by item names,
+/// and last the name, which for a define is the one letter a formula writes
+/// and may be Greek, with digits, subscripts, primes and hyphens after it.
+fn imported_path(full: &str) -> bool {
+    let (modules, last) = match full.rsplit_once('/') {
+        Some((modules, last)) => (Some(modules), last),
+        None => (None, full),
+    };
+    let mut chars = last.chars();
+    let opens = chars
+        .next()
+        .is_some_and(|c| c.is_ascii_alphabetic() || ('α'..='ω').contains(&c));
+    let rest = chars.all(|c| {
+        c.is_ascii_alphanumeric()
+            || ('α'..='ω').contains(&c)
+            || ('₀'..='₉').contains(&c)
+            || c == '′'
+            || c == '-'
+    });
+    opens && rest && modules.is_none_or(|m| m.split('/').all(is_name))
+}
+
+/// A `let` putting one letter in a set, `let ε ∈ ℚ`.
+pub struct LetterIn<'t> {
+    /// The letter, with any subscript or prime.
+    pub letter: &'t str,
+    pub set: &'t str,
+}
+
+/// The line read as a letter put in a set; None for any other line. The
+/// `let` may be left off.
+pub fn letter_in(text: &str) -> Option<LetterIn<'_>> {
+    let text = text.trim();
+    let text = after_word(text, "let").unwrap_or(text);
+    let (letter, set) = text.split_once('∈')?;
+    let (letter, set) = (letter.trim(), set.trim());
+    (is_letter_name(letter) && !set.is_empty()).then_some(LetterIn { letter, set })
+}
+
 /// A step's first line, `3.1.  x = 2`: its number, and its claim as far as
 /// the line writes it.
 pub struct StepLine<'t> {

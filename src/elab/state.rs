@@ -17,7 +17,6 @@ use super::{Facts, Lines, Written};
 use crate::checker::record::CheckedTheorem;
 use crate::citing;
 use crate::corpus::{written_text, FileScope, Item, Record, Step, Theorem};
-use crate::fancy;
 use crate::formula::{Grammar, Node, Sorts};
 use crate::matching::{binding_context, Defined};
 use crate::mm::kernel::{match_term, term_of, FloatLabels, Term, VarSet};
@@ -45,9 +44,24 @@ pub const SPARE_VARS: [&str; 72] = [
     "bnjvun", "bnjvwn", "bnjvxn", "bnjvyn", "bnjvzn",
 ];
 
-// A letter standing alone as a name, as `k` does in `Σ(k = 0 to m)`, and not
-// inside a word such as `calculation`.
-fancy!(LETTER, r"(?<![A-Za-z])[A-Za-z](?![A-Za-z])");
+/// Every letter standing alone as a name in `text`, as `k` does in `Σ(k =
+/// 0 to m)`, and not inside a word such as `calculation`.
+fn lone_letters(text: &str) -> Vec<String> {
+    let chars: Vec<char> = text.chars().collect();
+    (0..chars.len())
+        .filter(|&i| {
+            letter_at(&chars, i)
+                && !(i > 0 && letter_at(&chars, i - 1))
+                && !letter_at(&chars, i + 1)
+        })
+        .map(|i| chars[i].to_string())
+        .collect()
+}
+
+/// Whether the character at `i` is a Latin letter.
+fn letter_at(chars: &[char], i: usize) -> bool {
+    chars.get(i).is_some_and(char::is_ascii_alphabetic)
+}
 
 /// A kernel term's variables and what each stands for.
 pub type Binding = IndexMap<String, Term>;
@@ -396,8 +410,8 @@ impl<'a> Elaborator<'a> {
         // names the formulas write (`sorts::names_written`), and narrowing it
         // to those would rename the spare variables of elaborated proofs.
         let text = written_text(thm);
-        for m in LETTER.find_iter(&text).flatten() {
-            if let Some(label) = b.flabel.get(m.as_str()) {
+        for letter in lone_letters(&text) {
+            if let Some(label) = b.flabel.get(&letter) {
                 taken.insert(label.clone());
             }
         }

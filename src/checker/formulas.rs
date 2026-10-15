@@ -20,8 +20,8 @@ use crate::formula::page::{disjoined, made, numeral, related, Written};
 use crate::formula::{walk, Node, Sort, Sorts};
 use crate::matching::{alike_top, free_names, substitute_apart_by, Binding};
 use crate::outcome::{Built, Checked, Declined};
-use crate::regex;
 use crate::sorts::infer::{self, Reader, Store};
+use crate::sorts::introduction::{Form, Introduction};
 use crate::sorts::{define_sorts, unlabel, written_tokens, Env};
 use crate::targets::split_entries;
 
@@ -1014,8 +1014,11 @@ fn proof_owes(owner: &Step, claim: &Node, known: &Known) -> Option<Owed> {
         rest = match (o.kind, rest.notation.as_str()) {
             (Intro::Let, "for-all") if rest.children.len() == 3 => {
                 let mut put = Binding::new();
-                let fixed =
-                    MEMBER_LET.captures(o.text.trim()).map(|m| m[1].to_string());
+                let opened = Introduction::read(o.body(&known.thm.path));
+                let fixed = match opened.form {
+                    Form::Member => opened.name().map(String::from),
+                    _ => None,
+                };
                 let body = rest.children[2].clone();
                 match fixed {
                     Some(name) if name != rest.children[0].text => {
@@ -1046,8 +1049,6 @@ fn proof_owes(owner: &Step, claim: &Node, known: &Known) -> Option<Owed> {
         called: format!("the proof block of step {}", owner.number),
     })
 }
-
-regex!(MEMBER_LET, r"^let\s+(\S+)\s*∈");
 
 /// The sentences a formula says, an "and" taken apart, in order.
 fn conjuncts(node: &Node) -> Vec<Node> {

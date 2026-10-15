@@ -3,7 +3,6 @@
 use indexmap::IndexMap;
 
 use crate::outcome::{Built, Declined, Route};
-use crate::regex;
 use crate::text::{repr, squash};
 
 /// What a `define` line says: a name, and the term it stands for.
@@ -89,10 +88,248 @@ impl DefineParts {
     }
 }
 
-regex!(
-    DEFINED,
-    r"(?s)^(?:define|let)\s+(?P<name>[^\s(]+)(?:\((?P<params>[^()]+)\))?\s*(?P<gives>:=|=)\s*(?P<body>.+?)(?:,\s*for\s+(?P<fors>.+))?$"
-);
+/// A naming line cut into its parts: `define T(k) := k(k + 1)/2, for k ∈ ℕ`
+/// names T, takes k, and says its rule and its domain.
+struct NamingLine<'t> {
+    name: &'t str,
+    /// What the brackets after the name hold, where it takes arguments.
+    params: Option<&'t str>,
+    /// The rule, up to the first `, for`.
+    body: &'t str,
+    /// What follows `, for`, where the line says a domain.
+    fors: Option<&'t str>,
+}
+
+/// The line read as a naming line, `define` or `let` and a name, perhaps
+/// applied, then `:=` or `=` and a rule; None for any other line. Which
+/// sign it gives with is `define_parts`'s to ask of the whole line.
+fn naming_line(text: &str) -> Option<NamingLine<'_>> {
+    let rest = ["define", "let"].iter().find_map(|word| {
+        text.strip_prefix(word)
+            .filter(|r| r.starts_with(char::is_whitespace))
+    })?;
+    let rest = rest.trim_start();
+    let name_end = rest
+        .find(|c: char| c.is_whitespace() || c == '(')
+        .unwrap_or(rest.len());
+    let (name, mut rest) = rest.split_at(name_end);
+    let mut params = None;
+    if let Some(inside) = rest.strip_prefix('(') {
+        let close = inside.find([')', '('])?;
+        if !inside[close..].starts_with(')') || close == 0 {
+            return None;
+        }
+        params = Some(&inside[..close]);
+        rest = &inside[close + 1..];
+    }
+    let rest = rest.trim_start();
+    let gives = if rest.starts_with(":=") { ":=" } else { "=" };
+    let rest = rest.strip_prefix(gives)?.trim_start();
+    if name.is_empty() || rest.is_empty() {
+        return None;
+    }
+    let (body, fors) = match for_clause(rest) {
+        Some((body, fors)) => (body, Some(fors)),
+        None => (rest, None),
+    };
+    Some(NamingLine {
+        name,
+        params,
+        body,
+        fors,
+    })
+}
+
+/// Where a rule's `, for` clause begins: a comma, then the word `for` and
+/// what follows it; the rule before it and the clause after `for`.
+fn for_clause(text: &str) -> Option<(&str, &str)> {
+    text.match_indices(',').find_map(|(at, _)| {
+        let after = text[at + 1..].trim_start().strip_prefix("for")?;
+        let fors = after.strip_prefix(char::is_whitespace)?.trim_start();
+        (at > 0 && !fors.is_empty()).then_some((&text[..at], fors))
+    })
+}
+
+/// One argument's domain in a define's `for` clause, `m ∈ ℕ₀` or `X ⊆ A`.
+struct ForOne<'t> {
+    over: &'t str,
+    /// `∈` or `⊆`.
+    how: char,
+    domain: &'t str,
+}
+
+/// A `for` piece read as one argument's domain; None for any other piece.
+fn for_one(piece: &str) -> Option<ForOne<'_>> {
+    let at = piece.find(['∈', '⊆'])?;
+    let how = piece[at..].chars().next()?;
+    let over = piece[..at].trim();
+    let domain = piece[at + how.len_utf8()..].trim();
+    let one_word = !over.is_empty() && !over.contains(char::is_whitespace);
+    (one_word && !domain.is_empty()).then_some(ForOne { over, how, domain })
+}
+
+/// A case of a define by cases, `value if condition`.
+struct Case<'t> {
+    value: &'t str,
+    condition: &'t str,
+}
+
+/// A line read as a case, at its first word `if`; None for any other line.
+fn case_of(line: &str) -> Option<Case<'_>> {
+    let word = line.split_whitespace().skip(1).find(|w| *w == "if")?;
+    let at = word.as_ptr() as usize - line.as_ptr() as usize;
+    let value = line[..at].trim_end();
+    let condition = line[at + 2..].trim_start();
+    (!value.is_empty() && !condition.is_empty()).then_some(Case { value, condition })
+}
+
+/// The value of a define's last case, the one taken `otherwise`; None for
+/// a line that does not end so.
+fn otherwise_of(line: &str) -> Option<&str> {
+    let value = line.strip_suffix("otherwise")?;
+    let value = value.strip_suffix(char::is_whitespace)?.trim_end();
+    (!value.is_empty()).then_some(value)
+}
+
+/// The head of one rule of a recursion, `a(k + 1) :=`: where it starts, at
+/// the start of the rules or at the comma before it, where its rule starts,
+/// the sequence's name, and the index it is said at.
+struct RuleHead<'t> {
+    start: usize,
+    end: usize,
+    name: &'t str,
+    at: &'t str,
+}
+
+/// Every rule head a recursion's rules write, in order; a rule runs from
+/// its head to the next.
+fn rule_heads(body: &str) -> Vec<RuleHead<'_>> {
+    let mut out: Vec<RuleHead> = Vec::new();
+    let starts = std::iter::once(0).chain(body.match_indices(',').map(|(i, _)| i));
+    for start in starts {
+        if out.last().is_some_and(|h| start < h.end) {
+            continue;
+        }
+        let from = if start == 0 && !body.starts_with(',') {
+            0
+        } else {
+            start + 1
+        };
+        if let Some(head) = rule_head(body, start, from) {
+            out.push(head);
+        }
+    }
+    out
+}
+
+/// The rule head written at `from` in `body`, its match starting at
+/// `start`; None where none is written there.
+fn rule_head(body: &str, start: usize, from: usize) -> Option<RuleHead<'_>> {
+    let text = &body[from..];
+    let lead = text.len() - text.trim_start().len();
+    let text = text.trim_start();
+    let open = text.find('(')?;
+    let name = &text[..open];
+    if !super::skeleton::is_letter_name(name) {
+        return None;
+    }
+    let inside = &text[open + 1..];
+    let close = inside.find([')', '('])?;
+    if !inside[close..].starts_with(')') {
+        return None;
+    }
+    let after = &inside[close + 1..];
+    let gap = after.len() - after.trim_start().len();
+    let gives = after.trim_start();
+    let gives_len = if gives.starts_with(":=") {
+        2
+    } else if gives.starts_with('=') {
+        1
+    } else {
+        return None;
+    };
+    let end = from + lead + open + 1 + close + 1 + gap + gives_len;
+    Some(RuleHead {
+        start,
+        end,
+        name,
+        at: &inside[..close],
+    })
+}
+
+/// A recursion's closing `, for k ∈ ℕ₀`: where it starts, the index and the
+/// domain.
+struct RecursionFor<'t> {
+    start: usize,
+    index: &'t str,
+    domain: &'t str,
+}
+
+/// The closing `for` of a recursion's text; None where it ends otherwise.
+fn recursion_for(said: &str) -> Option<RecursionFor<'_>> {
+    said.match_indices(',').find_map(|(start, _)| {
+        let after = said[start + 1..].trim_start().strip_prefix("for")?;
+        let after = after.strip_prefix(char::is_whitespace)?;
+        let (index, domain) = after.split_once('∈')?;
+        let (index, domain) = (index.trim(), domain.trim());
+        (one_word(index) && one_word(domain)).then_some(RecursionFor {
+            start,
+            index,
+            domain,
+        })
+    })
+}
+
+/// Whether `text` is one word.
+fn one_word(text: &str) -> bool {
+    !text.is_empty() && !text.contains(char::is_whitespace)
+}
+
+/// Whether a `let` line names: a name, perhaps applied, and `=`, or the
+/// `:=` a let does not take, which `define_parts` then reports. Any other
+/// `let` takes a member of a set, or a letter of a sort.
+fn let_names_a_term(text: &str) -> bool {
+    let Some(rest) = text
+        .strip_prefix("let")
+        .filter(|r| r.starts_with(char::is_whitespace))
+    else {
+        return false;
+    };
+    let rest = rest.trim_start();
+    let name_end = rest
+        .find(|c: char| c.is_whitespace() || "(=∈∉⊆:".contains(c))
+        .unwrap_or(rest.len());
+    if name_end == 0 {
+        return false;
+    }
+    let mut rest = &rest[name_end..];
+    if let Some(inside) = rest.strip_prefix('(') {
+        let Some(close) = inside.find([')', '(']) else {
+            return false;
+        };
+        if !inside[close..].starts_with(')') {
+            return false;
+        }
+        rest = &inside[close + 1..];
+    }
+    let rest = rest.trim_start();
+    let rest = rest.strip_prefix(':').unwrap_or(rest);
+    rest.strip_prefix('=')
+        .and_then(|after| after.chars().next())
+        .is_some_and(|c| c != '=')
+}
+
+/// Whether a define opens a recursion: its first rule is said at 0,
+/// `define a(0) := …`.
+fn opens_recursion(said: &str) -> bool {
+    let Some(rest) = ["define", "let"].iter().find_map(|word| {
+        said.strip_prefix(word)
+            .filter(|r| r.starts_with(char::is_whitespace))
+    }) else {
+        return false;
+    };
+    rule_head(rest, 0, 0).is_some_and(|head| head.at == "0")
+}
 
 /// Which word a naming line opens with (`SYNTAX.md`): `define`, for a name
 /// the file gives and another may import, written outside every theorem; or
@@ -121,24 +358,14 @@ impl Naming {
     }
 }
 
-// A `let` that names: a name, perhaps applied, and `=`, or the `:=` a let
-// does not take, which `define_parts` then reports. Any other `let` takes a
-// member of a set, or a letter of a sort, and is no naming line.
-regex!(LET_NAMING, r"^let\s+[^\s(=∈∉⊆:]+(?:\([^()]*\))?\s*:?=[^=]");
-
 /// The word a naming line opens with, or None for a line that names
 /// nothing: `let x ∈ ℝ` takes any member and is no naming line.
 pub fn naming(text: &str) -> Option<Naming> {
     if text.starts_with("define ") {
         return Some(Naming::Define);
     }
-    LET_NAMING.is_match(text).then_some(Naming::Let)
+    let_names_a_term(text).then_some(Naming::Let)
 }
-// One argument's domain in a define's `for` clause: `m ∈ ℕ₀`, or `X ⊆ A`.
-regex!(
-    FOR_ONE,
-    r"(?s)^(?P<over>\S+)\s*(?P<how>[∈⊆])\s*(?P<domain>.+)$"
-);
 
 /// A define's `for` clause split at the commas that separate its arguments,
 /// and not at those inside a domain: `a ∈ ℝ, x ∈ [a, b]` is two pieces. An
@@ -163,60 +390,37 @@ pub fn for_pieces(text: &str) -> Vec<String> {
     out.push(str::trim(&piece).to_string());
     out
 }
-// One line of a define by cases: a value and the condition it is taken
-// under, or the last value, taken `otherwise`.
-regex!(CASE, r"(?s)^(?P<value>.+?)\s+if\s+(?P<condition>.+)$");
-regex!(OTHERWISE, r"(?s)^(?P<value>.+?)\s+otherwise$");
-
 /// The lines of a define by cases as one term: each value and its
 /// condition, nested from the right into `_ if _, _ otherwise`; or a decline
 /// saying which line is not a case.
 fn by_cases(lines: &[&str]) -> Route<String> {
-    let Some(last) = OTHERWISE.captures(lines[lines.len() - 1]) else {
+    let Some(last) = otherwise_of(lines[lines.len() - 1]) else {
         return Route::no(
             "the last line of a define by cases is its value `otherwise`",
         );
     };
-    let mut term = str::trim(&last["value"]).to_string();
+    let mut term = last.to_string();
     let mut nested = false;
     for line in lines[..lines.len() - 1].iter().rev() {
-        let Some(case) = CASE.captures(line) else {
+        let Some(case) = case_of(line) else {
             return Route::no(format!(
                 "{} is not a case: write the value, then `if` and the condition it is taken under",
                 repr(line)
             ));
         };
         let rest = if nested { format!("({term})") } else { term };
-        term = format!(
-            "{} if {}, {rest} otherwise",
-            str::trim(&case["value"]),
-            str::trim(&case["condition"])
-        );
+        term = format!("{} if {}, {rest} otherwise", case.value, case.condition);
         nested = true;
     }
     Built(term)
 }
-
-// A sequence is named as a variable is: a letter, perhaps with a subscript
-// or a prime.
-pub const SEQUENCE_NAME: &str = r"[A-Za-zα-ω][₀-₉′]*";
-// The head of one rule of a recursion: a name, the index it is said at, and
-// `:=`. A rule runs to the next head or to the closing `for`.
-regex!(
-    RECURSIVE_HEAD,
-    format!(r"(?s)(?:^|,)\s*(?P<name>{SEQUENCE_NAME})\((?P<at>[^()]*)\)\s*(?::=|=)")
-);
-regex!(
-    RECURSIVE_FOR,
-    r"(?s),\s*for\s+(?P<index>\S+)\s*∈\s*(?P<domain>\S+)\s*$"
-);
 
 /// One rule's text as a term: its lines joined, or folded by cases where its
 /// last line is taken `otherwise`.
 fn rule_term(text: &str) -> Route<String> {
     let trimmed = str::trim(text).trim_end_matches(',');
     let pieces: Vec<&str> = trimmed.split('\n').map(str::trim).collect();
-    if pieces.len() > 1 && OTHERWISE.is_match(pieces[pieces.len() - 1]) {
+    if pieces.len() > 1 && otherwise_of(pieces[pieces.len() - 1]).is_some() {
         return by_cases(&pieces);
     }
     Built(pieces.join(" "))
@@ -235,29 +439,29 @@ pub fn step_index(arg: &str) -> Option<String> {
 /// A define of sequences by recursion, without its label, read into its
 /// parts; or a decline saying what is wrong with it.
 fn recursion_parts(said: &str) -> Route<DefineParts> {
-    let Some(closing) = RECURSIVE_FOR.captures(said) else {
+    let Some(closing) = recursion_for(said) else {
         return Route::no(
             "a define by recursion ends `, for k ∈ ℕ₀`, naming the index its rules are written in",
         );
     };
-    let index = closing["index"].to_string();
-    let domain = closing["domain"].to_string();
+    let index = closing.index.to_string();
+    let domain = closing.domain.to_string();
     if domain != "ℕ₀" {
         return Route::no(format!(
             "a define by recursion starts at 0, so its index runs over ℕ₀, not {domain}"
         ));
     }
     let word = naming(said).map_or("define", Naming::word);
-    let body = &said[word.len()..closing.get(0).unwrap().start()];
-    let heads: Vec<_> = RECURSIVE_HEAD.captures_iter(body).collect();
+    let body = &said[word.len()..closing.start];
+    let heads = rule_heads(body);
     let mut names: Vec<String> = Vec::new();
     let mut start: IndexMap<String, String> = IndexMap::new();
     let mut step: IndexMap<String, String> = IndexMap::new();
     for (i, head) in heads.iter().enumerate() {
-        let name = head["name"].to_string();
-        let at = squash(&head["at"]);
-        let end = heads.get(i + 1).map(|after| after.get(0).unwrap().start());
-        let from = head.get(0).unwrap().end();
+        let name = head.name.to_string();
+        let at = squash(head.at);
+        let end = heads.get(i + 1).map(|after| after.start);
+        let from = head.end;
         let text = match end {
             Some(end) => &body[from..end],
             None => &body[from..],
@@ -302,17 +506,11 @@ fn recursion_parts(said: &str) -> Route<DefineParts> {
 
 // What a define may be called: one name as the lexer reads one, a letter
 // with perhaps a subscript or a prime. A longer name is read as several.
-regex!(ONE_NAME, format!(r"^{SEQUENCE_NAME}$"));
-
 /// Whether a define, or a definition imported under another name, may be
-/// called this.
+/// called this (`skeleton::is_letter_name`).
 pub fn is_one_name(name: &str) -> bool {
-    ONE_NAME.is_match(name)
+    super::skeleton::is_letter_name(name)
 }
-regex!(
-    RECURSION_START,
-    format!(r"^(?:define|let)\s+{SEQUENCE_NAME}\(0\)\s*(?::=|=)")
-);
 
 /// A `define` line, without its label, read into its parts; or a decline
 /// saying what is wrong with it. A define whose first rule is said at 0 is
@@ -330,18 +528,18 @@ pub fn define_parts(text: &str) -> Route<DefineParts> {
         }
         _ => {}
     }
-    if RECURSION_START.is_match(said) {
+    if opens_recursion(said) {
         return recursion_parts(said);
     }
-    let m = match DEFINED.captures(said) {
-        Some(m) if !str::trim(&m["body"]).is_empty() => m,
+    let m = match naming_line(said) {
+        Some(m) if !str::trim(m.body).is_empty() => m,
         _ => {
             return Route::no(
                 "a naming line says `let <name> = <term>`, or `define <name> := <term>` outside the theorems",
             )
         }
     };
-    let name = m["name"].to_string();
+    let name = m.name.to_string();
     // Every name on the page is a letter, so `avg(x)` is three names and never
     // the function a define called `avg` would give.
     if !is_one_name(&name) {
@@ -351,21 +549,13 @@ pub fn define_parts(text: &str) -> Route<DefineParts> {
         ));
     }
     let names: Vec<String> = m
-        .name("params")
-        .map(|p| {
-            p.as_str()
-                .split(',')
-                .map(|n| str::trim(n).to_string())
-                .collect()
-        })
+        .params
+        .map(|p| p.split(',').map(|n| str::trim(n).to_string()).collect())
         .unwrap_or_default();
-    let fors: Vec<String> = m
-        .name("fors")
-        .map(|f| for_pieces(f.as_str()))
-        .unwrap_or_default();
-    let (body, kind) = match kind_said(str::trim(&m["body"])) {
+    let fors: Vec<String> = m.fors.map(for_pieces).unwrap_or_default();
+    let (body, kind) = match kind_said(str::trim(m.body)) {
         Some((body, kind)) => (body, Some(kind)),
-        None => (str::trim(&m["body"]), None),
+        None => (str::trim(m.body), None),
     };
     if kind.is_some() && naming(said) == Some(Naming::Define) {
         return Route::no(
@@ -381,7 +571,7 @@ pub fn define_parts(text: &str) -> Route<DefineParts> {
     // A define over several lines is either one term wrapped by the comma
     // rule, or a function by cases, one case to a line.
     let pieces: Vec<&str> = body.split('\n').map(str::trim).collect();
-    let body = if pieces.len() > 1 && OTHERWISE.is_match(pieces[pieces.len() - 1]) {
+    let body = if pieces.len() > 1 && otherwise_of(pieces[pieces.len() - 1]).is_some() {
         match by_cases(&pieces) {
             Built(term) => term,
             Declined(d) => return Declined(d),
@@ -409,20 +599,20 @@ pub fn define_parts(text: &str) -> Route<DefineParts> {
     }
     let mut params = Vec::new();
     for (at, piece) in fors.iter().enumerate() {
-        let Some(f) = FOR_ONE.captures(piece) else {
+        let Some(f) = for_one(piece) else {
             return Route::no(format!(
                 "define {name}({said}) says `for {piece}`, which is not `x ∈ D`"
             ));
         };
-        if names.get(at) != Some(&f["over"].to_string()) {
+        if names.get(at).map(String::as_str) != Some(f.over) {
             return Route::no(format!(
                 "define {name}({said}) gives the domain of {}",
-                &f["over"]
+                f.over
             ));
         }
         // `for X ⊆ A` is `for X ∈ 𝒫A`: X runs over the parts of A.
-        let domain = squash(&f["domain"]);
-        let domain = if &f["how"] == "⊆" {
+        let domain = squash(f.domain);
+        let domain = if f.how == '⊆' {
             if domain.contains(' ') {
                 format!("𝒫({domain})")
             } else {
@@ -432,7 +622,7 @@ pub fn define_parts(text: &str) -> Route<DefineParts> {
             domain
         };
         params.push(Param {
-            name: f["over"].to_string(),
+            name: f.over.to_string(),
             domain,
         });
     }

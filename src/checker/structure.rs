@@ -9,6 +9,7 @@ use super::library::Known;
 use super::record::CheckedTheorem;
 use super::{Report, CLOSURE, RELATIONS};
 use crate::corpus::proof::visible;
+use crate::corpus::skeleton::{let_name, let_names, letter_in, listed};
 use crate::corpus::{
     cited_items, define_parts, fmt, is_label, item_kind, names_an_item, FileScope,
     Head, Intro, Item, Justification, Method, Range, Record, RecordKind, Requires,
@@ -988,12 +989,6 @@ pub fn check_capture(report: &mut Report, thm: &Theorem, known: &Known) {
     }
 }
 
-// A `let` putting one name in a set: `let ε ∈ ℚ`.
-regex!(
-    LET_IN,
-    r"^(?:let\s+)?([A-Za-zα-ω][₀-₉′]*)\s*∈\s*(\S.*?)\s*$"
-);
-
 /// A statement's range lines say what a short form leans on and nothing
 /// more: each letter once, over a set, never against a `let` putting the
 /// letter in another set, and only where some quantifier in the theorem
@@ -1063,19 +1058,19 @@ pub fn check_ranges(
     }
     for (line, no) in lets {
         let body = crate::sorts::unlabel(line);
-        let Some(m) = LET_IN.captures(str::trim(&body)) else {
+        let Some(put) = letter_in(&body) else {
             continue;
         };
-        let Some(range) = said.get(&m[1]) else {
+        let Some(range) = said.get(put.letter) else {
             continue;
         };
-        if m[2].split_whitespace().ne(range.set.split_whitespace()) {
+        if put.set.split_whitespace().ne(range.set.split_whitespace()) {
             report.say(
                 path,
                 *no,
                 format!(
                     "the statement says {} ranges over {}, and this line puts it in {}",
-                    &m[1], range.set, &m[2]
+                    put.letter, range.set, put.set
                 ),
             );
         }
@@ -1704,7 +1699,6 @@ pub fn check_imports(
 fn names_listed(list: &str) -> Vec<String> {
     list.split(',').map(|n| str::trim(n).to_string()).collect()
 }
-regex!(LET_NAME, r"^let\s+([^\s∈∉:]+)");
 
 /// The names a theorem introduces itself: its `let` lines, a block's, and
 /// what its `obtain` steps obtain. Not every name it gives a sort: `c = 5`
@@ -1712,16 +1706,12 @@ regex!(LET_NAME, r"^let\s+([^\s∈∉:]+)");
 pub fn introduced(thm: &Theorem) -> BTreeSet<String> {
     let mut out: BTreeSet<String> = named_by_hypotheses(thm);
     for h in &thm.hypotheses {
-        if let Some(m) = LET_NAME.captures(&h.text) {
-            out.insert(m[1].to_string());
-        }
+        out.extend(let_name(&h.text).map(String::from));
     }
     for s in &thm.steps {
         for o in &s.openers {
             if o.kind == Intro::Let {
-                if let Some(m) = LET_NAME.captures(&o.text) {
-                    out.insert(m[1].to_string());
-                }
+                out.extend(let_name(&o.text).map(String::from));
             }
         }
         if s.just.head.is(Method::Obtain) {
@@ -1743,14 +1733,14 @@ pub fn letters_in_scope(
 ) -> BTreeSet<String> {
     let mut out: BTreeSet<String> = named_by_hypotheses(thm);
     for h in &thm.hypotheses {
-        if let Some(m) = LET_LIST.captures(&h.text) {
-            out.extend(names_listed(&m[1]));
+        if let Some(names) = let_names(&h.text) {
+            out.extend(names_listed(names));
         }
         // A `let … be` line may name things in the sets it lists, as a
         // graph's vertices and edges are named.
         if h.kind == Intro::Let {
-            for list in LISTED.captures_iter(&h.text) {
-                out.extend(names_listed(&list[1]));
+            for list in listed(&h.text) {
+                out.extend(names_listed(list));
             }
         }
     }
@@ -1778,8 +1768,8 @@ pub fn letters_in_scope(
                 let own_part =
                     o.part.is_none() || child.is_some_and(|c| c.part == o.part);
                 if o.kind == Intro::Let && own_part {
-                    if let Some(m) = LET_LIST.captures(&o.text) {
-                        out.extend(names_listed(&m[1]));
+                    if let Some(names) = let_names(&o.text) {
+                        out.extend(names_listed(names));
                     }
                 }
             }
@@ -1792,8 +1782,6 @@ pub fn letters_in_scope(
     }
     out
 }
-regex!(LET_LIST, r"^let\s+(.+?)\s*(?:∈|∉|⊆|:|\sbe\s)");
-regex!(LISTED, r"\{([^{}:…]*)\}");
 
 /// (name, line) for each name the tokens write that the theorem's file
 /// defines outside its theorems only below it, and that the theorem does not

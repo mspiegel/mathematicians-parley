@@ -15,7 +15,6 @@ use super::values::Values;
 use super::{cited_name, in_stdlib, module_of};
 use crate::formula::page::Written;
 use crate::outcome::{Built, Checked, Problem};
-use crate::regex;
 use crate::text::{prefix, repr};
 
 /// How a line introduces what it introduces.
@@ -103,18 +102,14 @@ pub struct Range {
     pub line: usize,
 }
 
-regex!(
-    RANGE_LINE,
-    r"^([A-Za-zα-ω][₀-₉′]*(?:\s*,\s*[A-Za-zα-ω][₀-₉′]*)*)\s+ranges?\s+over\s+(\S.*?)\s*$"
-);
-
 impl Range {
-    /// The line read as a range, or None where it is some other line.
+    /// The line read as a range (`skeleton::range_line`), or None where it
+    /// is some other line.
     pub fn read(text: &str, line: usize) -> Option<Range> {
-        let m = RANGE_LINE.captures(text)?;
+        let said = skeleton::range_line(text)?;
         Some(Range {
-            names: m[1].split(',').map(|n| str::trim(n).to_string()).collect(),
-            set: m[2].to_string(),
+            names: said.letters.iter().map(|l| l.to_string()).collect(),
+            set: said.set.to_string(),
             text: text.to_string(),
             line,
         })
@@ -1034,22 +1029,6 @@ pub fn cited_items(thm: &Theorem) -> Vec<(String, usize)> {
     out
 }
 
-// A define is imported by the name a formula writes, which is not an item's
-// name: a proof's define is one letter, perhaps with a subscript or a prime,
-// and may be a Greek letter, as σ. So the last part of the path takes those,
-// where a module's parts are item names.
-const DEFINED_NAME: &str = r"[A-Za-zα-ω][A-Za-zα-ω0-9₀-₉′-]*";
-
-regex!(
-    IMPORTED,
-    format!(
-        r"^import\s+(?:(?P<mark>mundane)\s+)?(?P<kind>\S+)\s+(?P<full>(?:{n}/)*{d})(?:\s+as\s+(?P<alias>[^\s()]+))?(?:\s+\((?P<label>{l})\))?\s*$",
-        n = super::NAME,
-        d = DEFINED_NAME,
-        l = super::LABEL
-    )
-);
-
 enum Imported {
     Item(ItemImport),
     Define(Import),
@@ -1069,15 +1048,15 @@ enum Imported {
 /// words are the header of what the line names is the checker's to ask,
 /// since it wants the item.
 fn importing(path: &str, no: usize, text: &str) -> Checked<Imported> {
-    let Some(m) = IMPORTED.captures(str::trim(text)) else {
+    let Some(m) = skeleton::import_line(text) else {
         return Err(Problem::new(
             path,
             no,
             "an import says `import <kind> <file>/<name>`, as `import theorem stdlib/divisibility/prime-factor` does",
         ));
     };
-    let mundane = m.name("mark").is_some();
-    let word = &m["kind"];
+    let mundane = m.mundane;
+    let word = m.kind;
     let Some(record_kind) = RecordKind::parse(word).filter(|k| k.is_item()) else {
         return Err(Problem::new(
             path,
@@ -1101,7 +1080,7 @@ fn importing(path: &str, no: usize, text: &str) -> Checked<Imported> {
     } else {
         word.to_string()
     };
-    let whole = &m["full"];
+    let whole = m.full;
     let (module, name) = match whole.rfind('/') {
         Some(at) => (&whole[..at], &whole[at + 1..]),
         None => ("", whole),
@@ -1113,8 +1092,8 @@ fn importing(path: &str, no: usize, text: &str) -> Checked<Imported> {
             format!("import {keyword} {whole} names no file"),
         ));
     }
-    let alias = m.name("alias").map_or(name, |a| a.as_str());
-    let label = m.name("label").map(|l| l.as_str().to_string());
+    let alias = m.alias.unwrap_or(name);
+    let label = m.label.map(String::from);
     let from_library = in_stdlib(whole);
     // A define of a proof file is written in formulas, and cited by the
     // label its import gives it, as one the file defines is: a calculation

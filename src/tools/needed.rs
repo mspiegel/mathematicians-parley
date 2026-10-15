@@ -24,17 +24,24 @@
 use std::sync::Arc;
 
 use crate::checker::{check_cuts, Cut};
-use crate::corpus::proof_files;
+use crate::corpus::skeleton::step_line;
+use crate::corpus::{item_kind, proof_files};
 use crate::elab::elaborate::Options;
 use crate::elab::Library;
-use crate::regex;
 use crate::said::Said;
 use crate::source::{Memory, Overlay, Source};
 use crate::tools::build::{elaborate_one, Libraries, PROVED};
 use crate::tools::path_of;
 
-regex!(STEP_HEAD, r"^\s*(\d+(?:\.\d+)*)\.\s");
-regex!(CITED_ITEM, r"\b(?:mun|thm|def|axi):[^\s,]+");
+/// Where the item a line cites ends, the first word that opens with an
+/// item's prefix, `mun:abs`; None for a line that cites none.
+fn item_end(line: &str) -> Option<usize> {
+    line.split_whitespace().find_map(|word| {
+        let item = word.split(',').next().unwrap_or(word);
+        let at = word.as_ptr() as usize - line.as_ptr() as usize;
+        item_kind(item).map(|_| at + item.len())
+    })
+}
 
 /// What is taken away: a requires line, by the file lines it spans, or a
 /// pair naming a variable for itself, by its file line and its variable.
@@ -81,10 +88,10 @@ fn without(text: &str, removals: &[&Removal]) -> String {
 /// The pairs naming a variable for itself in the citation a line writes:
 /// each `v := v` after the item, by its variable.
 fn identity_pairs(line: &str) -> Vec<String> {
-    let Some(item) = CITED_ITEM.find(line) else {
+    let Some(end) = item_end(line) else {
         return Vec::new();
     };
-    let rest = &line[item.end()..];
+    let rest = &line[end..];
     let mut out = Vec::new();
     for (at, _) in rest.match_indices(" := ") {
         let name = rest[..at].rsplit([' ', ',']).next().unwrap_or("");
@@ -99,15 +106,15 @@ fn identity_pairs(line: &str) -> Vec<String> {
 /// The line with the pair `name := name` taken out of its citation, and the
 /// comma that joined it to the next pair, or to `from`, with it.
 fn pair_taken_out(line: &str, name: &str) -> Option<String> {
-    let item = CITED_ITEM.find(line)?;
+    let item = item_end(line)?;
     let pair = format!("{name} := {name}");
-    let rest = &line[item.end()..];
+    let rest = &line[item..];
     let at = rest.match_indices(&pair).map(|(i, _)| i).find(|&i| {
         let after = &rest[i + pair.len()..];
         (rest[..i].ends_with(' ') || rest[..i].ends_with(','))
             && (after.is_empty() || after.starts_with(','))
     })?;
-    let (start, end) = (item.end() + at, item.end() + at + pair.len());
+    let (start, end) = (item + at, item + at + pair.len());
     let (before, after) = (&line[..start], &line[end..]);
     if let Some(kept) = before.strip_suffix(", ") {
         return Some(format!("{kept}{after}"));
@@ -136,8 +143,8 @@ fn every_line(source: &dyn Source, files: &[String]) -> Result<Vec<Taken>, Strin
                 theorem = Some(str::trim(name).to_string());
                 continue;
             }
-            if let Some(m) = STEP_HEAD.captures(line) {
-                step = m[1].to_string();
+            if let Some(said) = step_line(line.trim_start()) {
+                step = said.number.to_string();
             }
             let Some(theorem) = &theorem else { continue };
             for name in identity_pairs(line) {

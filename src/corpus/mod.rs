@@ -50,15 +50,6 @@ macro_rules! fancy {
     };
 }
 
-/// An item's name, or a theorem's. It may open with a Greek letter, since a
-/// library function is named by its record and a formula writes it, as σ.
-pub const NAME: &str = r"[A-Za-zα-ω][A-Za-z0-9-]*";
-/// What follows an item's prefix: the name its import gives it, or a theorem
-/// of the file citing it. A path is read here too, so that a citation
-/// written by its path is said to be one rather than left unread.
-pub const CITED: &str = r"(?:[A-Za-zα-ω][A-Za-z0-9-]*/)*[A-Za-zα-ω][A-Za-z0-9-]*";
-/// The prefix of a citation of any item, `thm:` and the rest.
-pub const ITEM_PREFIX: &str = r"(?:thm|axi|mun|def):";
 /// The standard library, the one module root that is not a proof file: its
 /// files are records.
 pub const STDLIB: &str = "stdlib";
@@ -67,9 +58,6 @@ pub const STDLIB: &str = "stdlib";
 /// own name is in no name: `corpus/stdlib/numbers.records` is the module
 /// `stdlib/numbers`.
 pub const CORPUS: &str = "corpus";
-pub const LABEL: &str = r"[A-Z]+[0-9]*";
-pub const NUMBER: &str = r"\d+(?:\.\d+)*";
-pub const REF: &str = r"(?:\d+(?:\.\d+)*|[A-Z]+[0-9]*)";
 
 pub const PART_MARKERS: [&str; 4] = ["base", "step", "case", "direction"];
 
@@ -96,10 +84,4 @@ pub fn cited_name(head: &str) -> &str {
 
 pub fn in_stdlib(name: &str) -> bool {
     name.starts_with("stdlib/")
-}
-
-/// Whether `text` is wholly one match of `re`, as Python's `fullmatch`.
-pub fn full(re: &regex::Regex, text: &str) -> bool {
-    re.find(text)
-        .is_some_and(|m| m.start() == 0 && m.end() == text.len())
 }
