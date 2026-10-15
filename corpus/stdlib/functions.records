@@ -214,12 +214,11 @@ mundane definition bijection
 
 mundane theorem bijection-onto
   assume there is a bijection from X to Y                             (H1)
-  then        there is f : X → Y with for all y ∈ Y, there is x ∈ X with y = f(x)
-  metamath    bren, f1ofo and foelrn, with encv and elmapg placing f among
-              the functions from X to Y, which this corpus proves together
-              in elaboration/stdlib/proved.mm
+  then        there is f : X → Y with f : X → Y is onto
+  metamath    bren and f1ofo, with encv and elmapg placing f among the
+              functions from X to Y, which this corpus proves together in
+              elaboration/stdlib/proved.mm
   target      gbijonto
   note        The way back from `bijection`, as far as a proof needs it: a
-              pairing of X with Y is a function from X that reaches every
-              point of Y. That it is one-to-one as well is not said, since
-              no proof asks it.
+              pairing of X with Y is a function from X onto Y. That it is
+              one-to-one as well is not said, since no proof asks it.

@@ -25,6 +25,7 @@ import mundane definition stdlib/divisibility/congruent-mod
 import mundane theorem    stdlib/divisibility/divides-sum
 import mundane theorem    stdlib/functions/function-into
 import mundane theorem    stdlib/functions/bijection-onto
+import mundane definition stdlib/functions/onto
 import mundane definition stdlib/sets/set-builder
 import mundane theorem    stdlib/sets/set-builder-subset
 
@@ -816,17 +817,20 @@ theorem reals-uncountable
     contradiction
     suppose there is a bijection from ℕ to ℝ                          (S)
 
-    1.1.  f : ℕ → ℝ. For all y ∈ ℝ, there is n ∈ ℕ with y = f(n).
+    1.1.  f : ℕ → ℝ. f : ℕ → ℝ is onto.
           obtain f: mun:bijection-onto X := ℕ, Y := ℝ, from S
 
-    1.2.  x ∈ ℝ. For all n ∈ ℕ, f(n) ≠ x.
+    1.2.  For all y ∈ ℝ, there is n ∈ ℕ with y = f(n).
+          mun:onto, from 1.1
+
+    1.3.  x ∈ ℝ. For all n ∈ ℕ, f(n) ≠ x.
           obtain x: thm:sequence-misses-real
 
-    1.3.  There is n ∈ ℕ with x = f(n).
-          instantiate y := x in line 1.1
+    1.4.  There is n ∈ ℕ with x = f(n).
+          instantiate y := x in line 1.2
 
-    1.4.  m ∈ ℕ. x = f(m).
-          obtain m from line 1.3
+    1.5.  m ∈ ℕ. x = f(m).
+          obtain m from line 1.4
 
-    1.5.  x ≠ f(m)
-          instantiate n := m in line 1.2, contradicting 1.4
+    1.6.  x ≠ f(m)
+          instantiate n := m in line 1.3, contradicting 1.5

@@ -402,11 +402,11 @@ $d x S $.
     f1fn fnima simpr eqtr3d feq2d mpbid )
     ABCDZCAEZBFZGZCHZACIZJZBAUIJUGUHAUIKZUJUGAUHCKZUKUGUDULUDUFLZABCMNAUHCONUHAUIPNUGUHBAUIUGUEUHBUGCAQZUEUHFUGUDUNUMABCRNACSNUDUFTUAUBUC $.
 
-  gbijonto $p |- ( A ~~ B -> E. f e. ( B ^m A ) A. y e. B E. x e. A y = ( f ` x ) ) $=
-    ( cen wbr cv cmap co wcel cfv wceq wrex wral wa wex wf1o bren biimpi wf
-    simpr f1of syl wb cvv encv pm3.22 elmapg adantr mpbird wfo f1ofo foelrn
-    sylan ralrimiva jca ex eximdv mpd df-rex sylibr )
-    CDFGZEHZDCIJZKZBHZAHZVDLZMZACNZBDOZPZEQZVLEVENVCCDVDRZEQZVNVCVPCDESTVCVOVMEVCVOVMVCVOPZVFVLVQVFCDVDUAZVQVOVRVCVOUBZCDVDUCUDVCVFVRUEZVOVCDUFKZCUFKZPZVTVCWBWAPWCCDUGWBWAUHUDDCVDUFUFUIUDUJUKVQVKBDVQCDVDULZVGDKVKVQVOWDVSCDVDUMUDACDVGVDUNUOUPUQURUSUTVLEVEVAVB $.
+  gbijonto $p |- ( A ~~ B -> E. f e. ( B ^m A ) f : A -onto-> B ) $=
+    ( cen wbr cv cmap co wcel wfo wa wex wrex wf1o bren biimpi wf simpr f1of
+    syl wb cvv encv pm3.22 elmapg adantr mpbird f1ofo jca ex eximdv mpd
+    df-rex sylibr )
+    ABDEZCFZBAGHZIZABUPJZKZCLZUSCUQMUOABUPNZCLZVAUOVCABCOPUOVBUTCUOVBUTUOVBKZURUSVDURABUPQZVDVBVEUOVBRZABUPSTUOURVEUAZVBUOBUBIZAUBIZKZVGUOVIVHKVJABUCVIVHUDTBAUPUBUBUETUFUGVDVBUSVFABUPUHTUIUJUKULUSCUQUMUN $.
 
   gfmpt $p |- ( A. x e. A C e. B <-> ( x e. A |-> C ) : A --> B ) $=
     ( cmpt eqid fmpt ) ABCDABDEZHFG $.

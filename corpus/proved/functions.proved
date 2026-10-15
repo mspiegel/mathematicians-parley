@@ -101,9 +101,9 @@ lemma gf1cnvf
   14 feq2d 13 |- ( ( F : A -1-1-> B /\ ( F " A ) = B ) -> ( `' F : ran F --> A <-> `' F : B --> A ) )
   15 mpbid 7 14 |- ( ( F : A -1-1-> B /\ ( F " A ) = B ) -> `' F : B --> A )
 
-# ( A ~~ B -> E. f e. ( B ^m A ) A. y e. B E. x e. A y = ( f ` x ) )
+# ( A ~~ B -> E. f e. ( B ^m A ) f : A -onto-> B )
 lemma gbijonto
-  |- ( A ~~ B -> E. f e. ( B ^m A ) A. y e. B E. x e. A y = ( f ` x ) )
+  |- ( A ~~ B -> E. f e. ( B ^m A ) f : A -onto-> B )
   1 bren |- ( A ~~ B <-> E. f f : A -1-1-onto-> B )
   2 biimpi 1 |- ( A ~~ B -> E. f f : A -1-1-onto-> B )
   3 simpr |- ( ( A ~~ B /\ f : A -1-1-onto-> B ) -> f : A -1-1-onto-> B )
@@ -118,19 +118,13 @@ lemma gbijonto
   12 mpbird 5 11 |- ( ( A ~~ B /\ f : A -1-1-onto-> B ) -> f e. ( B ^m A ) )
   13 f1ofo |- ( f : A -1-1-onto-> B -> f : A -onto-> B )
   14 syl 3 13 |- ( ( A ~~ B /\ f : A -1-1-onto-> B ) -> f : A -onto-> B )
-  15 foelrn |- ( ( f : A -onto-> B /\ y e. B ) -> E. x e. A y = ( f ` x ) )
-  16 sylan 14 15 |- ( ( ( A ~~ B /\ f : A -1-1-onto-> B ) /\ y e. B ) -> E. x e. A y = ( f ` x ) )
-  17 ralrimiva 16 |- ( ( A ~~ B /\ f : A -1-1-onto-> B ) -> A. y e. B E. x e. A y = ( f ` x ) )
-  18 jca 12 17 |- ( ( A ~~ B /\ f : A -1-1-onto-> B ) -> ( f e. ( B ^m A ) /\ A. y e. B E. x e. A y
-      = ( f ` x ) ) )
-  19 ex 18 |- ( A ~~ B -> ( f : A -1-1-onto-> B -> ( f e. ( B ^m A ) /\ A. y e. B E. x e. A y = ( f
-      ` x ) ) ) )
-  20 eximdv 19 |- ( A ~~ B -> ( E. f f : A -1-1-onto-> B -> E. f ( f e. ( B ^m A ) /\ A. y e. B E. x
-      e. A y = ( f ` x ) ) ) )
-  21 mpd 2 20 |- ( A ~~ B -> E. f ( f e. ( B ^m A ) /\ A. y e. B E. x e. A y = ( f ` x ) ) )
-  22 df-rex |- ( E. f e. ( B ^m A ) A. y e. B E. x e. A y = ( f ` x ) <-> E. f ( f e. ( B ^m A ) /\
-      A. y e. B E. x e. A y = ( f ` x ) ) )
-  23 sylibr 21 22 |- ( A ~~ B -> E. f e. ( B ^m A ) A. y e. B E. x e. A y = ( f ` x ) )
+  15 jca 12 14 |- ( ( A ~~ B /\ f : A -1-1-onto-> B ) -> ( f e. ( B ^m A ) /\ f : A -onto-> B ) )
+  16 ex 15 |- ( A ~~ B -> ( f : A -1-1-onto-> B -> ( f e. ( B ^m A ) /\ f : A -onto-> B ) ) )
+  17 eximdv 16 |- ( A ~~ B -> ( E. f f : A -1-1-onto-> B -> E. f ( f e. ( B ^m A ) /\ f : A -onto-> B
+      ) ) )
+  18 mpd 2 17 |- ( A ~~ B -> E. f ( f e. ( B ^m A ) /\ f : A -onto-> B ) )
+  19 df-rex |- ( E. f e. ( B ^m A ) f : A -onto-> B <-> E. f ( f e. ( B ^m A ) /\ f : A -onto-> B ) )
+  20 sylibr 18 19 |- ( A ~~ B -> E. f e. ( B ^m A ) f : A -onto-> B )
 
 # ( A. x e. A C e. B <-> ( x e. A |-> C ) : A --> B )
 lemma gfmpt

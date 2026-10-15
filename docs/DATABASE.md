@@ -644,8 +644,7 @@ a mundane one. `def:` is rare: seven steps cite a named definition.
    `bijection` says a map that is one-to-one and onto gives a bijection, and
    `notation bijection` reads "there is a bijection from X to Y" as set.mm's
    equinumerosity. The way back is the theorem `bijection-onto`, which says
-   only what a proof has needed of it: there is f : X → Y reaching every
-   point of Y, in full, "for all y ∈ Y, there is x ∈ X with y = f(x)". A
+   only what a proof has needed of it: there is f : X → Y onto Y. A
    definition saying there is a bijection from X to Y exactly when some f :
    X → Y is one-to-one and onto could be written, since the formula language
    says "there is f : X → Y with …" and `f : X → Y is one-to-one and onto`,
