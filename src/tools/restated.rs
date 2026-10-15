@@ -31,9 +31,13 @@ use crate::sorts::infer;
 use crate::sorts::introduction::{Form, Introduction};
 use crate::source::{Memory, Overlay, Source};
 
-// The name a `let` line introduces: what stands before its `∈`, `∉`, `:`,
-// `⊆` or `be`.
-regex!(INTRODUCES, r"^([^\s∈∉:⊆]+)");
+/// The name a `let` line introduces: what stands before its `∈`, `∉`, `:`,
+/// `⊆` or `be`.
+fn introduced_name(body: &str) -> Option<&str> {
+    body.split(|c: char| c.is_whitespace() || "∈∉:⊆".contains(c))
+        .next()
+        .filter(|name| !name.is_empty())
+}
 
 /// The shapes a restatement asks about, read off a sentence's tree by what
 /// the notation at its root builds in the kernel — `wb`, `wi`, `wrex` —
@@ -389,15 +393,12 @@ fn let_names(r: &Record) -> Vec<String> {
     for h in r.hypotheses.iter().filter(|h| h.kind == Intro::Let) {
         let body = crate::sorts::unlabel(&h.text);
         let body = str::trim(&body);
-        if let Some(m) = crate::sorts::group_re().captures(body) {
-            out.push(m["group"].to_string());
-            out.push(m["identity"].to_string());
-        } else if let Some(m) = crate::sorts::graph_re().captures(body) {
-            out.push(m["graph"].to_string());
-            out.push(m["vertices"].to_string());
-            out.push(m["edges"].to_string());
-        } else if let Some(m) = INTRODUCES.captures(body) {
-            out.push(m[1].to_string());
+        match Introduction::read(Written::new(body, &r.path, h.line)).form {
+            Form::Group {
+                group, identity, ..
+            } => out.extend([group, identity]),
+            Form::Graph(line) => out.extend([line.graph, line.vertices, line.edges]),
+            _ => out.extend(introduced_name(body).map(String::from)),
         }
     }
     out
@@ -502,18 +503,20 @@ fn unasked(r: &Record, h: &Hypothesis, g: &Grammar, sorts: &Sorts) -> bool {
             .is_some_and(|set| set.notation == "number-systems")
 }
 
+/// Whether a record's line claims something: any but a thing named of a
+/// sort, a set, a point, an element, a group, a graph or a property.
 fn is_claim(text: &str) -> bool {
     let body = crate::sorts::unlabel(text);
-    let body = str::trim(&body);
-    ![
-        crate::sorts::set_or_point_re(),
-        crate::sorts::element_re(),
-        crate::sorts::group_re(),
-        crate::sorts::graph_re(),
-        crate::sorts::property_re(),
-    ]
-    .iter()
-    .any(|re| re.is_match(body))
+    let named = Introduction::read(Written::new(str::trim(&body), "", 0)).form;
+    !matches!(
+        named,
+        Form::Set(_)
+            | Form::Point(_)
+            | Form::Element(_)
+            | Form::Group { .. }
+            | Form::Graph(_)
+            | Form::Property { .. }
+    )
 }
 
 /// Build every restatement and verify what was built.

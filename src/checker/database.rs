@@ -16,11 +16,7 @@ use crate::formula::{
 use crate::regex;
 use crate::sorts::infer;
 use crate::sorts::introduction::{Form, Introduction};
-use crate::sorts::{
-    element_re, function_being_re, function_on_re, function_re, graph_listed_re,
-    graph_re, group_re, membership_re, not_in_re, part_re, polynomial_re, property_re,
-    set_or_point_re, settled, unlabel, Env,
-};
+use crate::sorts::{settled, unlabel, Env};
 use crate::text::{prefix, repr};
 
 pub fn check_characters(
@@ -637,26 +633,36 @@ pub fn check_unsorted(
     }
 }
 
-/// Every form a `let` line takes, with what each is called.
-fn introductions() -> [(&'static str, &'static regex::Regex); 13] {
-    [
-        ("a membership", membership_re()),
-        ("a thing not in a set", not_in_re()),
-        ("an arbitrary element", element_re()),
-        ("an arbitrary set or point", set_or_point_re()),
-        ("a function on a set", function_on_re()),
-        ("a polynomial", polynomial_re()),
-        ("a function", function_re()),
-        ("a function with a property", function_being_re()),
-        ("a part of a set", part_re()),
-        ("a group", group_re()),
-        ("a graph", graph_re()),
-        ("a graph given in full", graph_listed_re()),
-        ("a property", property_re()),
-    ]
+/// What each form a `let` line takes is called (`introduction::Form`).
+const INTRODUCTIONS: [&str; 13] = [
+    "a membership",
+    "a thing not in a set",
+    "an arbitrary element",
+    "an arbitrary set or point",
+    "a function on a set",
+    "a polynomial",
+    "a function",
+    "a function with a property",
+    "a part of a set",
+    "a group",
+    "a graph",
+    "a graph given in full",
+    "a property",
+];
+
+/// The codomain a function's type ends on where it is one word, `f : A → B`
+/// gives B; None for any other line.
+fn codomain_word(body: &str) -> Option<&str> {
+    let (name, typed) = body.split_once(':')?;
+    let (_, codomain) = typed.rsplit_once('→')?;
+    let codomain = codomain.trim();
+    (one_word(name.trim()) && one_word(codomain)).then_some(codomain)
 }
 
-regex!(ARROW, r"^\S+\s*:\s*.+→\s*(\S+)$");
+/// Whether `text` is one word.
+fn one_word(text: &str) -> bool {
+    !text.is_empty() && !text.contains(char::is_whitespace)
+}
 
 fn sort_name(word: &str) -> bool {
     TERM_SORTS.contains(&word)
@@ -673,21 +679,19 @@ pub fn introduction_problem(
     let body = introduction.text();
     let read =
         |written: &Written| written.sentence().and_then(|s| s.read(env.g, sorts));
-    let forms = introductions();
-    if !forms.iter().any(|(_, p)| p.is_match(body)) {
-        let names: Vec<&str> = forms.iter().map(|(n, _)| *n).collect();
+    let introduced = Introduction::read(introduction.clone());
+    if let Form::Other = introduced.form {
         return Some(format!(
             "`let {}` is none of the {} introductions: {}",
             prefix(body, 40),
-            forms.len(),
-            names.join(", ")
+            INTRODUCTIONS.len(),
+            INTRODUCTIONS.join(", ")
         ));
     }
     // A function's type is a function into a set, and nothing else: `let g
     // : Y → X is one-to-one` fits the shape with "X is one-to-one" for the
     // set, which is a statement, and the property it states was never asked
     // for.
-    let introduced = Introduction::read(introduction.clone());
     if let Form::Function = introduced.form {
         if let Ok(node) = read(introduction) {
             if node.notation != "function-type" {
@@ -709,19 +713,17 @@ pub fn introduction_problem(
     // A function's codomain is a set. A sort is a label for what kind of
     // thing a name is, and there is no set of formulas to map into: writing
     // one there says a property is a function, which it is not.
-    if let Some(arrow) = ARROW.captures(body) {
-        if sort_name(&arrow[1]) {
+    if let Some(codomain) = codomain_word(body) {
+        if sort_name(codomain) {
             return Some(format!(
                 "`let {}` sends a function into {}, which is a sort and not a set; a property is introduced with `be a property of the elements of`",
                 prefix(body, 40),
-                repr(&arrow[1])
+                repr(codomain)
             ));
         }
     }
     None
 }
-
-regex!(LET_KEYWORD, r"^\s*let\s+");
 
 /// A `let` line carries an introduction, not a formula. It names something
 /// and says what it is, and `introductions` is every form one takes; what it
@@ -745,8 +747,12 @@ pub fn check_introductions(
         if kind != Intro::Let {
             continue;
         }
-        let body = LET_KEYWORD.replace(text, "");
-        let body = Written::new(str::trim(&unlabel(&body)), &thm.path, no);
+        let body = text.trim_start();
+        let body = body
+            .strip_prefix("let")
+            .filter(|r| r.starts_with(char::is_whitespace))
+            .unwrap_or(body);
+        let body = Written::new(str::trim(&unlabel(body)), &thm.path, no);
         if let Some(said) = introduction_problem(&body, env, &known.sorts) {
             report.say(&thm.path, no, said);
         }

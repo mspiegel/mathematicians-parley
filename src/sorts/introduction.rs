@@ -2,20 +2,168 @@
 //! is not a formula).
 //!
 //! A `let` line names something and says what it is, in one of the forms
-//! `GRAMMAR.md` lists. Which form is the skeleton's to read, by pattern, and
-//! the parts of a form that are formulas, a set or a function's type, are
-//! formula text, read by the front end. What the line asserts is made from
-//! those parts as trees (`asserted`), never written out as text and parsed.
+//! `GRAMMAR.md` lists. Which form is the skeleton's to read, word by word,
+//! and the parts of a form that are formulas, a set or a function's type,
+//! are formula text, read by the front end. What the line asserts is made
+//! from those parts as trees (`asserted`), never written out as text and
+//! parsed.
 
 use crate::formula::page::{filled, made_as, Written};
 use crate::formula::{Grammar, Node, Sorts};
 use crate::outcome::Checked;
 
-use super::{
-    element_re, function_being_re, function_on_re, function_re, graph_line, group_re,
-    membership_re, not_in_re, part_re, polynomial_re, property_re, set_or_point_re,
-    GraphLine,
-};
+use super::{GraphLine, GraphListing, Joined};
+
+/// What `text` writes after its first `n` words, from the next word on.
+fn after_words(text: &str, n: usize) -> &str {
+    let mut rest = text.trim_start();
+    for _ in 0..n {
+        let end = rest.find(char::is_whitespace).unwrap_or(rest.len());
+        rest = rest[end..].trim_start();
+    }
+    rest
+}
+
+/// A line with a sign, `x ∈ A`: the one word before the sign, perhaps
+/// written against it, and what follows it.
+struct Signed<'t> {
+    name: &'t str,
+    after: &'t str,
+}
+
+/// The line read about its first `sign`; None for a line with no such
+/// sign, more than one word before it, or nothing after it.
+fn signed(text: &str, sign: char) -> Option<Signed<'_>> {
+    let (name, after) = text.split_once(sign)?;
+    let (name, after) = (name.trim(), after.trim());
+    let one_word = !name.is_empty() && !name.contains(char::is_whitespace);
+    (one_word && !after.is_empty()).then_some(Signed { name, after })
+}
+
+/// The name a function's type gives, `f : A → B`: one word before the
+/// colon, and after it an arrow with something on either side; None for any
+/// other line.
+fn typed_name(text: &str) -> Option<&str> {
+    let typed = signed(text, ':')?;
+    let arrow = typed.after.rfind('→')?;
+    let after = &typed.after[arrow + '→'.len_utf8()..];
+    (arrow > 0 && !after.is_empty()).then_some(typed.name)
+}
+
+/// A function's type and what `be` says of it, `f : A → B be one-to-one`:
+/// the type up to the first word `be` that follows a word after its arrow,
+/// and the words after that `be`; None where the line has no such `be`.
+fn typed_being(text: &str) -> Option<(&str, &str)> {
+    typed_name(text)?;
+    let colon = text.find(':')?;
+    for (arrow, _) in text.rmatch_indices('→').filter(|&(at, _)| at > colon) {
+        let rest = &text[arrow + '→'.len_utf8()..];
+        for word in rest.split_whitespace().skip(1) {
+            if word != "be" {
+                continue;
+            }
+            let at = word.as_ptr() as usize - text.as_ptr() as usize;
+            let being = text[at + word.len()..].trim_start();
+            if !being.is_empty() {
+                return Some((text[..at].trim_end(), being));
+            }
+        }
+    }
+    None
+}
+
+/// The graph a `let` body states, in either form; None for any other body,
+/// or a listing one of whose clauses says no join.
+pub fn graph_line(text: &str) -> Option<GraphLine> {
+    let words: Vec<&str> = text.split_whitespace().collect();
+    if let [graph, "be", "an", "undirected", "multigraph", "with", "vertices", vertices, "and", "edges", edges] =
+        words[..]
+    {
+        return Some(GraphLine {
+            graph: graph.to_string(),
+            vertices: vertices.to_string(),
+            edges: edges.to_string(),
+            listed: None,
+        });
+    }
+    let [graph, "be", "the", "undirected", "multigraph", "with", "distinct", "vertices", ..] =
+        words[..]
+    else {
+        return None;
+    };
+    let vertices = listed_set(after_words(text, 8))?;
+    let ["and", "distinct", "edges", ..] =
+        vertices.after.split_whitespace().collect::<Vec<_>>()[..]
+    else {
+        return None;
+    };
+    let edges = listed_set(after_words(vertices.after, 3))?;
+    let joins = edges.after.strip_prefix(',')?;
+    let joins = after_words(joins, 0).strip_prefix("where")?;
+    if !joins.starts_with(char::is_whitespace) || joins.trim().is_empty() {
+        return None;
+    }
+    let mut joined = Vec::new();
+    for clause in joins.trim().split(',') {
+        let said = str::trim(clause);
+        let [edge, "joins", first, "and", second] =
+            said.split_whitespace().collect::<Vec<_>>()[..]
+        else {
+            return None;
+        };
+        joined.push(Joined {
+            edge: edge.to_string(),
+            first: first.to_string(),
+            second: second.to_string(),
+            said: said.to_string(),
+        });
+    }
+    Some(GraphLine {
+        graph: graph.to_string(),
+        vertices: vertices.name.to_string(),
+        edges: edges.name.to_string(),
+        listed: Some(GraphListing {
+            vertices: listed_names(vertices.list),
+            edges: listed_names(edges.list),
+            joins: joined,
+            vertex_set: vertices.whole.to_string(),
+            edge_set: edges.whole.to_string(),
+        }),
+    })
+}
+
+/// A set listed where a graph is given in full, `V = {A, B, C, D}`.
+struct Listed<'t> {
+    /// The set as the line writes it, a formula of its own.
+    whole: &'t str,
+    name: &'t str,
+    /// What the braces hold.
+    list: &'t str,
+    /// What the line writes after the closing brace.
+    after: &'t str,
+}
+
+/// The set listed at the start of `text`; None where it opens with none.
+fn listed_set(text: &str) -> Option<Listed<'_>> {
+    let close = text.find('}')?;
+    let (name, list) = text[..close].split_once('=')?;
+    let name = name.trim();
+    let list = list.trim_start().strip_prefix('{')?;
+    if name.is_empty() || name.contains(char::is_whitespace) {
+        return None;
+    }
+    Some(Listed {
+        whole: &text[..=close],
+        name,
+        list,
+        after: &text[close + 1..],
+    })
+}
+
+/// The names a listing writes, `A, B, C`.
+fn listed_names(list: &str) -> Vec<String> {
+    list.split(',').map(|n| str::trim(n).to_string()).collect()
+}
 
 /// A `let` line's introduction: what it says after `let`, its label taken
 /// off, and which form it takes.
@@ -69,70 +217,83 @@ impl Introduction {
     /// The introduction `body` says, the text after `let` with its label
     /// taken off.
     pub fn read(body: Written) -> Introduction {
-        let text = body.text();
-        let name = |m: &regex::Captures| m[1].to_string();
-        let form = if let Some(line) = graph_line(text) {
-            if line.listed.is_some() {
+        let form = Self::form_of(body.text());
+        Introduction { body, form }
+    }
+
+    /// The form `text` takes, read word by word in the order the forms are
+    /// tried: a graph or a group, which name several things; the forms
+    /// with `be`; a function's type, with or without `be`; and the forms
+    /// with a sign, ⊆, ∉ or ∈, whose name is all that stands before the
+    /// sign.
+    fn form_of(text: &str) -> Form {
+        let words: Vec<&str> = text.split_whitespace().collect();
+        if let Some(line) = graph_line(text) {
+            return if line.listed.is_some() {
                 Form::GraphListed(line)
             } else {
                 Form::Graph(line)
-            }
-        } else if let Some(m) = group_re().captures(text) {
-            Form::Group {
-                group: m["group"].to_string(),
-                finite: m.name("finite").is_some(),
-                identity: m["identity"].to_string(),
-            }
-        } else if let Some(m) = set_or_point_re().captures(text) {
-            if &m[2] == "set" {
-                Form::Set(name(&m))
-            } else {
-                Form::Point(name(&m))
-            }
-        } else if let Some(m) = element_re().captures(text) {
-            Form::Element(name(&m))
-        } else if let Some(m) = property_re().captures(text) {
-            Form::Property {
-                name: name(&m),
-                domain: m[2].to_string(),
-            }
-        } else if let Some(m) = function_on_re().captures(text) {
-            Form::FunctionOn {
-                name: name(&m),
-                set: str::trim(&m[2]).to_string(),
-            }
-        } else if let Some(m) = polynomial_re().captures(text) {
-            Form::Polynomial(name(&m))
-        } else if let Some(m) = function_being_re().captures(text) {
-            Form::FunctionBeing {
-                typed: m[1].to_string(),
-                being: m[2].to_string(),
-            }
-        } else if function_re().is_match(text) {
-            Form::Function
-        } else if let Some(m) = part_re().captures(text) {
-            Form::Part {
-                name: name(&m),
-                whole: str::trim(&m[2]).to_string(),
-            }
-        } else if let Some(m) = not_in_re().captures(text) {
-            Form::NotIn(name(&m))
-        } else if membership_re().is_match(text) {
-            Form::Member
-        } else {
-            Form::Other
+            };
+        }
+        let [name, rest @ ..] = words.as_slice() else {
+            return Form::Other;
         };
-        Introduction { body, form }
+        let name = name.to_string();
+        match rest {
+            ["be", "a", "finite", "group", "with", "operation", _, "and", "identity", identity]
+            | ["be", "a", "group", "with", "operation", _, "and", "identity", identity] => {
+                return Form::Group {
+                    group: name,
+                    finite: rest[2] == "finite",
+                    identity: identity.to_string(),
+                }
+            }
+            ["be", "a", "set"] => return Form::Set(name),
+            ["be", "a", "point"] => return Form::Point(name),
+            ["be", "an", "element"] => return Form::Element(name),
+            ["be", "a", "property", "of", "the", "elements", "of", domain] => {
+                return Form::Property {
+                    name,
+                    domain: domain.to_string(),
+                }
+            }
+            ["be", "a", "function", "on", _, ..] => {
+                return Form::FunctionOn {
+                    name,
+                    set: after_words(text, 5).to_string(),
+                }
+            }
+            ["be", "a", "polynomial"] => return Form::Polynomial(name),
+            _ => {}
+        }
+        if let Some((typed, being)) = typed_being(text) {
+            return Form::FunctionBeing {
+                typed: typed.to_string(),
+                being: being.to_string(),
+            };
+        }
+        if typed_name(text).is_some() {
+            return Form::Function;
+        }
+        if let Some(part) = signed(text, '⊆') {
+            return Form::Part {
+                name: part.name.to_string(),
+                whole: part.after.to_string(),
+            };
+        }
+        if let Some(not_in) = signed(text, '∉') {
+            return Form::NotIn(not_in.name.to_string());
+        }
+        if signed(text, '∈').is_some() {
+            return Form::Member;
+        }
+        Form::Other
     }
 
     /// The name the line introduces, which every form writes first; None
     /// where the line takes none of the forms.
     pub fn name(&self) -> Option<&str> {
-        let first = |re: &regex::Regex| {
-            re.captures(self.body.text())
-                .and_then(|m| m.get(1))
-                .map(|m| m.as_str())
-        };
+        let text = self.body.text();
         match &self.form {
             Form::GraphListed(line) | Form::Graph(line) => Some(&line.graph),
             Form::Group { group, .. } => Some(group),
@@ -144,8 +305,8 @@ impl Introduction {
             | Form::Property { name, .. }
             | Form::FunctionOn { name, .. }
             | Form::Part { name, .. } => Some(name),
-            Form::FunctionBeing { .. } | Form::Function => first(function_re()),
-            Form::Member => first(membership_re()),
+            Form::FunctionBeing { .. } | Form::Function => typed_name(text),
+            Form::Member => signed(text, '∈').map(|member| member.name),
             Form::Other => None,
         }
     }

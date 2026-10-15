@@ -1365,15 +1365,12 @@ pub fn check_function_names(
         for (text, no) in lets {
             let body = crate::sorts::unlabel(text);
             let body = str::trim(body.trim_start_matches("let"));
-            let named = [
-                crate::sorts::function_re(),
-                crate::sorts::function_being_re(),
-                crate::sorts::function_on_re(),
-            ]
-            .iter()
-            .find_map(|re| re.captures(body).map(|m| m[1].to_string()));
-            if let Some(name) = named {
-                let name = name.split(':').next().map(str::trim).unwrap_or("");
+            let said = Introduction::read(Written::new(body, &thm.path, no));
+            let function = matches!(
+                said.form,
+                Form::Function | Form::FunctionBeing { .. } | Form::FunctionOn { .. }
+            );
+            if let (true, Some(name)) = (function, said.name()) {
                 say(&thm.path, no, name, &imported);
             }
         }

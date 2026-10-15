@@ -27,8 +27,8 @@ use crate::formula::token::{Token, TokenKind};
 use crate::formula::{holds, Grammar, Sort, Sorts};
 use crate::matching::{expand, Defined, Definitions, Rule};
 use crate::outcome::{Built, Declined};
-use crate::regex;
-use introduction::Introduction;
+pub use introduction::graph_line;
+use introduction::{Form, Introduction};
 
 pub const NUMBER_SYSTEMS: [&str; 5] = ["ℕ", "ℕ₀", "ℤ", "ℚ", "ℝ"];
 
@@ -48,55 +48,11 @@ pub struct Env<'a> {
     pub scopes: &'a [FileScope],
 }
 
-// `let x ∈ A` and `let a ∉ X`: a thing, and a set it is in or is not in.
-regex!(MEMBERSHIP, r"^(\S+)\s*∈\s*\S");
-regex!(NOT_IN, r"^(\S+)\s*∉\s*\S");
-// `n ∈ ℕ`: a membership whose set is one name, which may say the sort.
-regex!(NAMED_MEMBER, r"^(\S+)\s*∈\s*(\S+)$");
-regex!(SET_OR_POINT, r"^(\S+)\s+be a (set|point)$");
-// `let x be an element`: an element of nothing yet named.
-regex!(ELEMENT, r"^(\S+)\s+be\s+an\s+element$");
-// `let P be a property of the elements of A`: the property, and its domain.
-regex!(
-    PROPERTY,
-    r"^(\S+)\s+be a property of the elements of\s+(\S+)$"
-);
-regex!(FUNCTION, r"^(\S+)\s*:\s*.+→.+$");
-// `let f : A → B be one-to-one`: a function's type, and a property of it.
-regex!(FUNCTION_BEING, r"^(\S+\s*:\s*.+→.+?)\s+be\s+(\S.*)$");
-// `let X ⊆ A`: a part of a set.
-regex!(PART, r"^(\S+)\s*⊆\s*(\S.*)$");
-// `let E be a function on X`: a function, and the set it is on.
-regex!(FUNCTION_ON, r"^(\S+)\s+be\s+a\s+function\s+on\s+(\S.*)$");
-// `let p be a polynomial`: a function, and that it is a polynomial.
-regex!(POLYNOMIAL, r"^(\S+)\s+be\s+a\s+polynomial$");
-// `let G be a finite group with operation · and identity e`: a set whose
-// members are group elements, its operation, and its identity, which is one
-// of them.
-regex!(
-    GROUP,
-    r"^(?P<group>\S+)\s+be\s+a\s+(?P<finite>finite\s+)?group\s+with\s+operation\s+(?P<operation>\S+)\s+and\s+identity\s+(?P<identity>\S+)$"
-);
-// `H is a subgroup of G`: a set of the group's elements.
-regex!(SUBGROUP, r"^(\S+)\s+is\s+a\s+subgroup\s+of\s+(\S+)$");
-// `let G be an undirected multigraph with vertices V and edges E`: the graph,
-// the set of its vertices, and the set of the names of its edges.
-regex!(
-    GRAPH,
-    r"^(?P<graph>\S+)\s+be\s+an\s+undirected\s+multigraph\s+with\s+vertices\s+(?P<vertices>\S+)\s+and\s+edges\s+(?P<edges>\S+)$"
-);
-// `let G be the undirected multigraph with distinct vertices V = {A, B, C, D}
-// and distinct edges E = {a, …, g}, where a joins A and B, …`: a graph given
-// in full, whose vertices and edges are listed, said to be distinct, and
-// whose every edge is said to join two of the vertices.
-regex!(
-    GRAPH_LISTED,
-    r"^(?P<graph>\S+)\s+be\s+the\s+undirected\s+multigraph\s+with\s+distinct\s+vertices\s+(?P<vset>(?P<vertices>\S+)\s*=\s*\{(?P<vlist>[^}]*)\})\s+and\s+distinct\s+edges\s+(?P<eset>(?P<edges>\S+)\s*=\s*\{(?P<elist>[^}]*)\}),\s+where\s+(?P<joins>.+)$"
-);
-regex!(JOINED, r"^(\S+)\s+joins\s+(\S+)\s+and\s+(\S+)$");
-
-/// A graph's `let` line: the graph and the names of its two sets, and where
-/// the line gives the graph in full, its listing.
+/// A graph's `let` line, `G be an undirected multigraph with vertices V and
+/// edges E` (`introduction::graph_line`): the graph and the names of its
+/// two sets, and where the line gives the graph in full, `G be the
+/// undirected multigraph with distinct vertices V = {A, B, C, D} and
+/// distinct edges E = {a, …, g}, where a joins A and B, …`, its listing.
 #[derive(Clone)]
 pub struct GraphLine {
     pub graph: String,
@@ -126,86 +82,6 @@ pub struct Joined {
     pub second: String,
     /// The clause as the line writes it, a formula of its own.
     pub said: String,
-}
-
-/// The graph a `let` body states, in either form; None for any other body,
-/// or a listing one of whose clauses says no join.
-pub fn graph_line(body: &str) -> Option<GraphLine> {
-    if let Some(m) = GRAPH.captures(body) {
-        return Some(GraphLine {
-            graph: m["graph"].to_string(),
-            vertices: m["vertices"].to_string(),
-            edges: m["edges"].to_string(),
-            listed: None,
-        });
-    }
-    let m = GRAPH_LISTED.captures(body)?;
-    let names = |list: &str| -> Vec<String> {
-        list.split(',').map(|n| str::trim(n).to_string()).collect()
-    };
-    let mut joins = Vec::new();
-    for clause in m["joins"].split(',') {
-        let said = str::trim(clause);
-        let j = JOINED.captures(said)?;
-        joins.push(Joined {
-            edge: j[1].to_string(),
-            first: j[2].to_string(),
-            second: j[3].to_string(),
-            said: said.to_string(),
-        });
-    }
-    Some(GraphLine {
-        graph: m["graph"].to_string(),
-        vertices: m["vertices"].to_string(),
-        edges: m["edges"].to_string(),
-        listed: Some(GraphListing {
-            vertices: names(&m["vlist"]),
-            edges: names(&m["elist"]),
-            joins,
-            vertex_set: m["vset"].to_string(),
-            edge_set: m["eset"].to_string(),
-        }),
-    })
-}
-
-pub fn membership_re() -> &'static regex::Regex {
-    &MEMBERSHIP
-}
-pub fn not_in_re() -> &'static regex::Regex {
-    &NOT_IN
-}
-pub fn set_or_point_re() -> &'static regex::Regex {
-    &SET_OR_POINT
-}
-pub fn element_re() -> &'static regex::Regex {
-    &ELEMENT
-}
-pub fn property_re() -> &'static regex::Regex {
-    &PROPERTY
-}
-pub fn function_re() -> &'static regex::Regex {
-    &FUNCTION
-}
-pub fn function_being_re() -> &'static regex::Regex {
-    &FUNCTION_BEING
-}
-pub fn function_on_re() -> &'static regex::Regex {
-    &FUNCTION_ON
-}
-pub fn polynomial_re() -> &'static regex::Regex {
-    &POLYNOMIAL
-}
-pub fn part_re() -> &'static regex::Regex {
-    &PART
-}
-pub fn group_re() -> &'static regex::Regex {
-    &GROUP
-}
-pub fn graph_re() -> &'static regex::Regex {
-    &GRAPH
-}
-pub fn graph_listed_re() -> &'static regex::Regex {
-    &GRAPH_LISTED
 }
 
 /// A line without the label it closes on (`skeleton::without_label`).
@@ -377,46 +253,58 @@ pub fn body_of(text: &str, head: &str) -> String {
 /// for a group, the group and its identity. `known` is the sorts found so
 /// far, since a member of a group's set is a group element.
 fn introduced(body: &str, known: &Sorts) -> Vec<(String, &'static str)> {
-    if let Some(m) = GROUP.captures(body) {
-        return vec![
-            (m["group"].to_string(), "group-set"),
-            (m["identity"].to_string(), "group-element"),
-        ];
-    }
-    if let Some(m) = SUBGROUP.captures(body) {
-        return vec![(m[1].to_string(), "group-set")];
-    }
-    if let Some(line) = graph_line(body) {
-        return vec![
-            (line.graph, "set"),
-            (line.vertices, "set"),
-            (line.edges, "set"),
-        ];
-    }
-    if let Some(m) = SET_OR_POINT.captures(body) {
-        let sort = if &m[2] == "set" { "set" } else { "point" };
-        return vec![(m[1].to_string(), sort)];
-    }
-    if let Some(m) = PROPERTY.captures(body) {
-        return vec![(m[1].to_string(), "property")];
-    }
-    if let Some(m) = FUNCTION
-        .captures(body)
-        .or_else(|| FUNCTION_ON.captures(body))
-        .or_else(|| POLYNOMIAL.captures(body))
-    {
-        return vec![(m[1].to_string(), "function")];
-    }
-    if let Some(m) = NAMED_MEMBER.captures(body) {
-        let set = m[2].trim_end_matches('.');
-        if NUMBER_SYSTEMS.contains(&set) {
-            return vec![(m[1].to_string(), "number")];
+    let said = Introduction::read(Written::new(body, "", 0));
+    let name = said.name().map(String::from);
+    match (&said.form, name) {
+        (
+            Form::Group {
+                group, identity, ..
+            },
+            _,
+        ) => vec![
+            (group.clone(), "group-set"),
+            (identity.clone(), "group-element"),
+        ],
+        (Form::Graph(line) | Form::GraphListed(line), _) => vec![
+            (line.graph.clone(), "set"),
+            (line.vertices.clone(), "set"),
+            (line.edges.clone(), "set"),
+        ],
+        (Form::Set(name), _) => vec![(name.clone(), "set")],
+        (Form::Point(name), _) => vec![(name.clone(), "point")],
+        (Form::Property { name, .. }, _) => vec![(name.clone(), "property")],
+        (
+            Form::Function
+            | Form::FunctionBeing { .. }
+            | Form::FunctionOn { .. }
+            | Form::Polynomial(_),
+            Some(name),
+        ) => vec![(name, "function")],
+        // `n ∈ ℕ`: a membership whose set is one name, which may say the
+        // sort.
+        (Form::Member, Some(name)) => {
+            let set = body.split_once('∈').map_or("", |(_, set)| set.trim());
+            let set = set.trim_end_matches('.');
+            if set.contains(char::is_whitespace) {
+                Vec::new()
+            } else if NUMBER_SYSTEMS.contains(&set) {
+                vec![(name, "number")]
+            } else if known.get(set).is_some_and(|s| s.is("group-set")) {
+                vec![(name, "group-element")]
+            } else {
+                Vec::new()
+            }
         }
-        if known.get(set).is_some_and(|s| s.is("group-set")) {
-            return vec![(m[1].to_string(), "group-element")];
-        }
+        // `H is a subgroup of G`, which a sentence says: a set of the
+        // group's elements.
+        (Form::Other, _) => match body.split_whitespace().collect::<Vec<_>>()[..] {
+            [subgroup, "is", "a", "subgroup", "of", _] => {
+                vec![(subgroup.to_string(), "group-set")]
+            }
+            _ => Vec::new(),
+        },
+        _ => Vec::new(),
     }
-    Vec::new()
 }
 
 fn set_default(out: &mut Sorts, name: String, sort: Sort) {
