@@ -1355,20 +1355,31 @@ fn algebra_holds(
     let Some(read) = at.read(known, targets, false) else {
         return false;
     };
+    // A finite sum or product is one atom here, and the build may read a sum
+    // as linear (`METHODS.md`): a step that holds with each sum an atom
+    // holds as the build reads it, and one that does not is left to the
+    // build, never refused.
     let ranged = std::iter::once(&read.claimed)
         .chain(&read.lines)
         .any(|n| ["csu", "cprod"].iter().any(|l| targets.uses(n, l)));
-    if ranged {
-        return false;
-    }
     let labels = FloatLabels::new(IndexMap::new());
     let cited: Vec<Term> = read
         .lines
         .iter()
         .map(|n| term_of_node(n, targets))
         .collect();
-    let verdict =
-        algebra::decide(&term_of_node(&read.claimed, targets), &cited, &labels);
+    let claimed = term_of_node(&read.claimed, targets);
+    // Sums are read as linear where some term of the step is linear in
+    // something, as the build reads them (`field::says_something_linear`).
+    let linear = std::iter::once(&claimed)
+        .chain(&cited)
+        .any(|t| crate::methods::field::says_something_linear(t, &labels));
+    let verdict = crate::methods::field::reading_sums(linear, || {
+        algebra::decide(&claimed, &cited, &labels)
+    });
+    if ranged && !matches!(verdict, algebra::Verdict::Holds { .. }) {
+        return false;
+    }
     let shown: Vec<&Node> = std::iter::once(&read.claimed).chain(&read.lines).collect();
     let render = |t: &Term| printed(t, &shown, known, targets, &labels);
     let number = at.step.number.to_string();
@@ -1679,20 +1690,26 @@ impl MembershipIn {
 }
 
 /// The letter a "for all" binds, put in the number system its set lies in,
-/// and where the set is a range, as running over it; false where the set is
-/// neither a number system nor a range.
+/// and where the set is a range, as running over it. A set that is neither,
+/// an interval [a, b], puts the letter in no system: what the member is is
+/// said by the step's requires lines, `requires x ∈ ℝ: mun:interval`
+/// (`SYNTAX.md`, a step said of every member). False where the letter is
+/// no name.
 fn member_of(
     bound: &Node,
     set: &Node,
     letters: &mut crate::citing::Introduced,
     ranged: &mut IndexMap<String, methods_membership::Range>,
 ) -> bool {
+    if !bound.is_name() {
+        return false;
+    }
     let system = match set.notation.as_str() {
         "number-systems" => System::of_sign(&set.text),
         "integer-range" => crate::citing::range_system(set),
-        _ => None,
+        _ => return true,
     };
-    let (Some(system), true) = (system, bound.is_name()) else {
+    let Some(system) = system else {
         return false;
     };
     letters.insert(bound.text.clone(), system);
@@ -1852,6 +1869,7 @@ fn arithmetic_worked(written: &Written, known: &Known, targets: &Targets) -> Wor
         let Some(node) = known.read_as_written(&sentence) else {
             continue;
         };
+        let node = written_out(&node, known);
         match decide_closed(&term_of_node(&node, targets)) {
             Built(Verdict::Holds(false)) => {
                 return Worked::Fails("is false".to_string())
@@ -1862,6 +1880,55 @@ fn arithmetic_worked(written: &Written, known: &Known, targets: &Targets) -> Wor
         }
     }
     out
+}
+
+/// The most terms a sum or product over a range of numerals is written out
+/// to; one over more is left as it is, and `arithmetic` does not decide it.
+const WRITTEN_OUT: u64 = 1000;
+
+/// `node` with each product and sum over a range of numerals written out as
+/// its terms, `∏(k ∈ {0, …, 2}) (5 − k)` as `(5 − 0)·(5 − 1)·(5 − 2)`,
+/// which `arithmetic` works out as it works any product (`METHODS.md`,
+/// arithmetic).
+fn written_out(node: &Node, known: &Known) -> Node {
+    let children: Vec<Node> = node
+        .children
+        .iter()
+        .map(|c| written_out(c, known))
+        .collect();
+    let here = Node::new(&node.notation, node.sort.clone(), children, &node.text);
+    let (index, start, end, body, joined) =
+        match (here.notation.as_str(), here.children.as_slice()) {
+            ("product-over", [index, range, body]) => match range.children.as_slice() {
+                [start, end] if range.notation == "integer-range" => {
+                    (index, start, end, body, ("multiplicative", "·"))
+                }
+                _ => return here,
+            },
+            ("sum", [index, start, end, body]) => {
+                (index, start, end, body, ("additive", "+"))
+            }
+            _ => return here,
+        };
+    let bound = |n: &Node| {
+        (n.notation == "numeral")
+            .then(|| n.text.parse::<u64>().ok())
+            .flatten()
+    };
+    let (Some(from), Some(to)) = (bound(start), bound(end)) else {
+        return here;
+    };
+    if !index.is_name() || from > to || to - from >= WRITTEN_OUT {
+        return here;
+    }
+    let g = known.env.g;
+    let at = |k: u64| {
+        let put = Binding::from([(index.text.clone(), numeral(&k.to_string()))]);
+        crate::matching::substitute_apart(body, &put, known.ctx)
+    };
+    (from + 1..=to).fold(at(from), |acc, k| {
+        made(g, joined.0, joined.1, vec![acc, at(k)])
+    })
 }
 
 /// `arithmetic` stands in for a line only where the fact is numerals alone.

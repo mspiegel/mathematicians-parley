@@ -43,6 +43,8 @@ pub const VOCABULARY: &[(&str, usize)] = &[
     ("cr", 0),
     ("cc", 0),
     ("cmo", 0),
+    ("csu", 3),
+    ("cfz", 0),
     ("cc0", 0),
     ("c1", 0),
     ("c2", 0),
@@ -156,28 +158,54 @@ impl Targets {
 /// built out, and every other part, a letter included, one atom named by
 /// how the page writes it.
 pub fn term_of_node(node: &Node, targets: &Targets) -> Term {
+    term_under(node, targets, &[])
+}
+
+/// `term_of_node` inside the finite sums that bind `indices`: an atom
+/// holding one of them says so, its name followed by the index's own atom,
+/// as set.mm's term holds the index's variable. So the summand a(k)·t of
+/// Σ(k = 1 to n) is read as a part that holds k times one that does not,
+/// which reading a sum as linear asks (`field::linear_sum`).
+fn term_under(node: &Node, targets: &Targets, indices: &[&Node]) -> Term {
     if node.notation == "numeral" {
         if let Ok(value) = node.text.parse::<BigUint>() {
             return numeral_term(&value);
         }
     }
     if node.is_name() || node.literal.is_some() {
-        return atom(node);
+        return atom(node, indices);
     }
     let Some(pattern) = targets.pattern(node) else {
-        return atom(node);
+        return atom(node, indices);
     };
+    // A sum's first hole is its index, which the rest are read inside.
+    let mut inside: Vec<&Node> = indices.to_vec();
+    if pattern.split_whitespace().any(|t| t == "csu") {
+        if let Some(index) = node.children.first().filter(|i| i.is_name()) {
+            inside.push(index);
+        }
+    }
     let holes: Vec<Term> = node
         .children
         .iter()
-        .map(|c| term_of_node(c, targets))
+        .map(|c| term_under(c, targets, &inside))
         .collect();
-    built(pattern, &holes).unwrap_or_else(|| atom(node))
+    built(pattern, &holes).unwrap_or_else(|| atom(node, indices))
 }
 
-/// The atom a part of the page the deciders do not look inside stands as.
-fn atom(node: &Node) -> Term {
-    Term::apply(&format!("{ATOM}{}", node.shape()), Vec::new())
+/// The atom a part of the page the deciders do not look inside stands as,
+/// followed by the atom of each index in `indices` it holds and is not.
+fn atom(node: &Node, indices: &[&Node]) -> Term {
+    let mut name = format!("{ATOM}{}", node.shape());
+    let names = node.names();
+    for index in indices {
+        let itself = node.is_name() && node.text == index.text;
+        if !itself && names.contains(&index.text) {
+            name.push(' ');
+            name.push_str(&format!("{ATOM}{}", index.shape()));
+        }
+    }
+    Term::apply(&name, Vec::new())
 }
 
 /// The term `pattern` builds with `holes` in it, where every label it uses

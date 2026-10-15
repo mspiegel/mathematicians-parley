@@ -19,7 +19,13 @@ pub fn decide(
     implied: &[Term],
     labels: &FloatLabels,
 ) -> Option<bool> {
-    let claim = linear::fact(claimed, labels)?;
+    // A claim of two facts or more, `0 ≤ e and e ≤ 9`, holds where each
+    // does, as the build proves each and joins them.
+    let claims: Vec<_> = parts(claimed)
+        .iter()
+        .filter(|part| !conjoined(part))
+        .map(|part| linear::fact(part, labels))
+        .collect::<Option<_>>()?;
     let mut given = Vec::new();
     for held in cited {
         given.extend(
@@ -34,7 +40,14 @@ pub fn decide(
             .filter_map(|said| linear::fact(said, labels))
             .filter(|one| one.how != How::Ne),
     );
-    Some(linear::follows(&given, &claim))
+    Some(claims.iter().all(|claim| linear::follows(&given, claim)))
+}
+
+/// Whether a term is a conjunction, which `algebra::parts` takes apart
+/// (`rules::SPLIT`).
+fn conjoined(term: &Term) -> bool {
+    term.label()
+        .is_some_and(|l| crate::rules::lookup(crate::rules::SPLIT, l).is_some())
 }
 
 /// What a step whose claim `shown` does not follow is told, the step by its
