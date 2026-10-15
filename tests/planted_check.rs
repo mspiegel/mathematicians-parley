@@ -646,6 +646,17 @@ fn cases() -> Vec<Case> {
             )],
             "d(n) ∈ ℝ is not built from what step 16.24.2 cites",
         ),
+        // A calculation's row citing a define is what the define makes its
+        // name: D1 makes G(a, 0) the sum to 0, and G(a, 1) the sum to 1.
+        case(
+            "a calculation row citing a define for what it does not make",
+            vec![edit(
+                "proofs/geometric-series.proof",
+                Some("            G(a, 0) = ".to_string()),
+                "            G(a, 1) = ".to_string(),
+            )],
+            "a^j is not what D1 makes it",
+        ),
         // What a line says at the values may be an implication, whose
         // condition a line the step cites meets: line 13 asks that U(k) be
         // an upper bound of S, which 15.4 says and 15.3 does not.

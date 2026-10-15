@@ -2249,10 +2249,31 @@ pub fn check_chain_links(
         let defined = known.citing_step(step);
         for link in chain_links(&step.just, &thm.path) {
             let cite = &link.line.cite;
-            if cite == "arithmetic"
-                || defines.contains(cite.as_str())
-                || !known.scope(step).contains_key(cite)
-            {
+            // A link citing a define is what the define makes its name: with
+            // the define written out, an equation's two sides are one.
+            if defines.contains(cite.as_str()) {
+                let Some(claim) = link.claim(known) else {
+                    continue;
+                };
+                let written =
+                    known.as_cited(&claim, &known.citing(std::slice::from_ref(cite)));
+                if let ("equality", [one, other]) =
+                    (written.notation.as_str(), written.children.as_slice())
+                {
+                    if !known.alike(one, other) {
+                        report.say(
+                            &thm.path,
+                            link.line.line,
+                            format!(
+                                "{} is not what {cite} makes it",
+                                link.line.quoted(&link.from)
+                            ),
+                        );
+                    }
+                }
+                continue;
+            }
+            if cite == "arithmetic" || !known.scope(step).contains_key(cite) {
                 continue;
             }
             // A link that does not read is the elaborator's to report.
