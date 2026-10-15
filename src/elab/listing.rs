@@ -12,7 +12,7 @@
 //! What a cited record asks, and what an obtain says there is, both tools
 //! answer with `citing` from their own reading of the page, and each lists
 //! its answers as trees printed in the page's notation; the test compares
-//! the two lists (`list_asked`, `check::answers`).
+//! the two lists (`list_asked`, `checker::answers`).
 
 use std::collections::BTreeSet;
 
@@ -30,7 +30,7 @@ impl Elaborator<'_> {
     /// elaborator answers it (`asked_here`): one line per hypothesis,
     /// `path:line | asked | item | fact` in the page's notation, or one
     /// saying the shared matcher declines. The checker lists its own answer
-    /// the same way (`check::answers`), and `tests/agree.rs` compares the
+    /// the same way (`checker::answers`), and `tests/agree.rs` compares the
     /// two. The member a claim said of every member names is named first, as
     /// `does_work` names it. Where the elaborator cannot answer, what stops
     /// it is listed as its answer, since that is what a comparison is of.

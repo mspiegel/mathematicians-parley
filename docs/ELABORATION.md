@@ -2019,7 +2019,7 @@ proved (`discharged_by`).
     one front end (`GRAMMAR.md`, "One front end"), so what can differ is
     what each hands it: which lines a citation names, and which defines are
     written out, only those the citation cites (`SYNTAX.md`). `tests/agree.rs` has each tool list its
-    answers in the page's notation (`check::answers`, `list_asked`) and
+    answers in the page's notation (`checker::answers`, `list_asked`) and
     compares the two lists; they are alike, and a difference fails the test.
     A definition that unfolds is not asked: the elaborator reaches the
     existence an obtain of one claims from the claim itself. Page trees are

@@ -13,7 +13,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::rc::Rc;
 
 use indexmap::IndexSet;
-use parley::check::{statements_in_scope, BoundThere, ObtainedThere};
+use parley::checker::{statements_in_scope, BoundThere, ObtainedThere};
 use parley::corpus::proof::{
     chain, chain_cited, parse_proof, references, substituted, Head, Intro, Method,
     Theorem,
@@ -3627,7 +3627,7 @@ fn relabelled_link(
 /// Each step obtaining from an item written as two: a step claiming the
 /// item's "there is", cited as a step citing it is, and an obtain from that
 /// line (`SYNTAX.md`, `obtain`). The "there is" is what the item says, each
-/// letter as the checker reads it at the step (`check::obtained_there`).
+/// letter as the checker reads it at the step (`checker::obtained_there`).
 /// From a definition that unfolds it is the one the obtain's claim states
 /// (`ELABORATION.md`): each name runs over the set its membership sentence
 /// gives, in the order the obtain names them, and the other sentences are

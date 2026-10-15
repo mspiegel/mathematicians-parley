@@ -911,7 +911,7 @@ impl<'a> Elaborator<'a> {
     }
 
     /// Every step a step names is one it may cite (`GRAMMAR.md`, scope of a
-    /// citation), by the rule the checker reads (`check::out_of_reach`):
+    /// citation), by the rule the checker reads (`checker::out_of_reach`):
     /// what one case shows is no line of the next, and a step citing it is
     /// refused here, before the kernel would refuse what it makes.
     fn in_reach(&self, step: &Step) -> Checked<()> {
@@ -928,7 +928,7 @@ impl<'a> Elaborator<'a> {
             if !self.thm.steps.iter().any(|s| s.number == cited) {
                 continue;
             }
-            if let Some(why) = crate::check::out_of_reach(self.thm, &cited, step) {
+            if let Some(why) = crate::checker::out_of_reach(self.thm, &cited, step) {
                 return Err(self.defect(
                     step.line,
                     format!("step {} cites line {r}, {why}", fmt(&step.number)),

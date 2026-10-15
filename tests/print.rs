@@ -6,7 +6,7 @@
 
 use std::path::Path;
 
-use parley::check::printed_back;
+use parley::checker::printed_back;
 use parley::source::Disk;
 
 #[test]

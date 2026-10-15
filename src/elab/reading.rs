@@ -443,7 +443,7 @@ impl<'a> Elaborator<'a> {
         let name = self.thm.names.full(cited);
         match self.items.get(&name) {
             Some(item) => Ok(*item),
-            None => Err(self.defect(self.at, crate::check::unresolved(cited))),
+            None => Err(self.defect(self.at, crate::checker::unresolved(cited))),
         }
     }
 

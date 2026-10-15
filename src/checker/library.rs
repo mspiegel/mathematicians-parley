@@ -85,7 +85,7 @@ pub struct Known<'a> {
 }
 
 impl<'a> Known<'a> {
-    /// `sorts` is what the theorem's one reading settled (`check::run`).
+    /// `sorts` is what the theorem's one reading settled (`checker::run`).
     pub fn new(
         thm: &'a Theorem,
         env: Env<'a>,

@@ -173,7 +173,7 @@ pub fn run(root: &Path) -> Said {
 
     type Stage<'s> = Box<dyn Fn() -> Said + Send + Sync + 's>;
     let stages: Vec<(&str, Stage)> = vec![
-        ("checker", Box::new(|| crate::check::run(&source))),
+        ("checker", Box::new(|| crate::checker::run(&source))),
         (
             "every artifact is what a fresh build makes",
             Box::new(|| as_built(&source, libraries)),

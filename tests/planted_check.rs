@@ -7,7 +7,7 @@
 //! The corpus is read once into memory and each case edits it through an
 //! overlay of its own, so no case copies a directory and none can see
 //! another's edit. The clean corpus is checked whole; a case checks the
-//! theorems its edits can reach (`check::run_edited`). The cases run side by
+//! theorems its edits can reach (`checker::run_edited`). The cases run side by
 //! side (`threads::in_order`), and are reported in the order they are
 //! written.
 //!
@@ -96,7 +96,7 @@ fn outcome(case: &Case, clean: &Memory) -> (String, bool, String) {
     // problem is reported, and a theorem left unchecked can only leave a
     // problem out.
     let edited: Vec<String> = case.edits.iter().map(|e| e.file.to_string()).collect();
-    let out = parley::check::run_edited(&tree, &edited).printed;
+    let out = parley::checker::run_edited(&tree, &edited).printed;
     if out.contains(case.expect) {
         return (format!("  caught        {}", case.name), false, out);
     }
@@ -178,14 +178,14 @@ fn first_literal(text: &str) -> Option<String> {
 }
 
 /// Every message the checker writes out where it reports it: each `.say(`
-/// under `src/check/` whose message is a string written there. The words
+/// under `src/checker/` whose message is a string written there. The words
 /// are the pieces of the string between its `{…}`, each with a word of
 /// three letters in it, so that a piece of punctuation between two values
 /// matches anything.
 fn messages() -> Vec<Message> {
-    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("src/check");
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("src/checker");
     let mut files: Vec<_> = std::fs::read_dir(&root)
-        .expect("src/check reads")
+        .expect("src/checker reads")
         .filter_map(|e| e.ok())
         .map(|e| e.path())
         .filter(|p| p.extension().is_some_and(|x| x == "rs"))
@@ -243,7 +243,7 @@ fn a_file_that_does_not_import_a_library_function_may_use_its_name() {
         "",
     );
     let tree = plant(&case, &clean).unwrap();
-    let out = parley::check::run(&tree).printed;
+    let out = parley::checker::run(&tree).printed;
     assert!(out.contains("\n0 problem(s)\n"), "{out}");
 }
 
@@ -259,7 +259,7 @@ fn a_line_saying_a_divisor_is_not_zero_does_work() {
         "",
     );
     let tree = plant(&case, &clean).unwrap();
-    let out = parley::check::run(&tree).printed;
+    let out = parley::checker::run(&tree).printed;
     assert!(out.contains("\n0 problem(s)\n"), "{out}");
 }
 
@@ -283,7 +283,7 @@ fn a_hypothesis_not_supplied_is_named_alone() {
         "",
     );
     let tree = plant(&case, &clean).unwrap();
-    let out = parley::check::run(&tree).printed;
+    let out = parley::checker::run(&tree).printed;
     assert!(
         out.contains(
             "which asks for p divides n!, and what it cites does not supply it"
@@ -345,7 +345,7 @@ theorem twice
     );
     let tree = plant(&case, &clean).unwrap();
     let out =
-        parley::check::run_edited(&tree, &["proofs/twice.proof".to_string()]).printed;
+        parley::checker::run_edited(&tree, &["proofs/twice.proof".to_string()]).printed;
     assert!(out.contains("step 1.2 is numbered twice"), "{out}");
     assert!(out.contains("\n1 problem(s)\n"), "{out}");
 }
@@ -380,7 +380,7 @@ theorem twice
     );
     let tree = plant(&case, &clean).unwrap();
     let out =
-        parley::check::run_edited(&tree, &["proofs/twice.proof".to_string()]).printed;
+        parley::checker::run_edited(&tree, &["proofs/twice.proof".to_string()]).printed;
     assert!(
         out.contains(
             "step 1 supplies one hypothesis of mun:quotient-positive twice, by H2 and the requires line 0 < M; one of them is enough"
@@ -411,7 +411,7 @@ fn an_operation_arithmetic_does_not_work_out_is_named_once() {
     );
     let tree = plant(&case, &clean).unwrap();
     let out =
-        parley::check::run_edited(&tree, &["proofs/twice.proof".to_string()]).printed;
+        parley::checker::run_edited(&tree, &["proofs/twice.proof".to_string()]).printed;
     assert_eq!(out.matches("works out factorial").count(), 1, "{out}");
 }
 
@@ -444,14 +444,14 @@ fn a_line_the_step_cites_may_be_restated_for_a_line_below() {
         "",
     );
     let tree = plant(&case, &clean).unwrap();
-    let out = parley::check::run(&tree).printed;
+    let out = parley::checker::run(&tree).printed;
     assert!(out.contains("\n0 problem(s)\n"), "{out}");
 }
 
 #[test]
 fn the_checker_catches_every_planted_defect() {
     let clean = clean();
-    let base = parley::check::run(&clean);
+    let base = parley::checker::run(&clean);
     assert!(
         base.printed.contains("\n0 problem(s)\n"),
         "the corpus is not clean, so a planted defect proves nothing:\n{}",

@@ -47,7 +47,7 @@ fn main() -> ExitCode {
     // Everything is read from where the command is run.
     let root = Path::new(".");
     match sub.as_str() {
-        "check" => say(parley::check::run(&Disk::new(root.to_path_buf()))),
+        "check" => say(parley::checker::run(&Disk::new(root.to_path_buf()))),
         "build" => say(parley::tools::build::run(
             root,
             rest.first().map(String::as_str),

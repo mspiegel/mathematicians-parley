@@ -41,7 +41,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::path::Path;
 use std::sync::Arc;
 
-use parley::check::{check_cuts, Cut};
+use parley::checker::{check_cuts, Cut};
 use parley::citing::largest_search;
 use parley::corpus::corpus;
 use parley::corpus::proof::Theorem;

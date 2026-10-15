@@ -73,22 +73,22 @@ const ALLOWED: &[(&str, &str, &str)] = &[
         "a membership in the set a function's type writes as its domain",
     ),
     (
-        "src/check/citations.rs",
+        "src/checker/citations.rs",
         "held.shape() != *atom",
         "an atom found among a term's parts, part by part",
     ),
     (
-        "src/check/citations.rs",
+        "src/checker/citations.rs",
         "part.shape() == *atom",
         "an atom found among a term's parts, part by part",
     ),
     (
-        "src/check/citations.rs",
+        "src/checker/citations.rs",
         "one.iter().zip(other).all(|(a, b)| a.shape() == b.shape())",
         "the surplus check skips a search only where the claim and seed are the trees its ways were found under; trees alike but spelt otherwise only cost a search",
     ),
     (
-        "src/check/formulas.rs",
+        "src/checker/formulas.rs",
         "if a.shape() == b.shape() {",
         "two terms walked in step to find where they differ (`changed_closed`)",
     ),

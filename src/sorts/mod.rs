@@ -705,7 +705,7 @@ pub fn sorts_of_statement(thm: &Theorem, env: Env) -> Sorts {
 /// The sort of every name the theorem's lines settle, read without its
 /// citations: what the elaborator reads a theorem with. The checker reads
 /// each theorem once, citations and all, and settles the same way
-/// (`check::run`).
+/// (`checker::run`).
 pub fn sorts_in_scope(thm: &Theorem, env: Env) -> Sorts {
     let mut store = infer::Store::default();
     let reader = infer::read_theorem(thm, env, &mut store, None);

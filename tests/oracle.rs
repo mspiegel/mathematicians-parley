@@ -234,7 +234,7 @@ fn a_decision_method_answers_as_its_oracle() {
     let tree = Memory::copy(&tree, &["corpus", "proofs", "tests"]).unwrap();
 
     // What the checker says of each, by the lines of its theorem.
-    let checked = parley::check::run(&tree).printed;
+    let checked = parley::checker::run(&tree).printed;
     let reported = |a: &Asked| -> Vec<String> {
         checked
             .lines()

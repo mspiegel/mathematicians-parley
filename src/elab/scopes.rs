@@ -1773,7 +1773,7 @@ impl<'a> Elaborator<'a> {
                         })?,
                     };
                     // Listed in the standard order the checker lists its own
-                    // answer in, since the two are compared (`check::answers`).
+                    // answer in, since the two are compared (`checker::answers`).
                     if me.answers.is_some() {
                         if let Item::Record(r) = item {
                             let library = me.item_library();

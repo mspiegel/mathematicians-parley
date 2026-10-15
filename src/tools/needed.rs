@@ -23,7 +23,7 @@
 
 use std::sync::Arc;
 
-use crate::check::{check_cuts, Cut};
+use crate::checker::{check_cuts, Cut};
 use crate::corpus::proof_files;
 use crate::elab::elaborate::Options;
 use crate::elab::Library;

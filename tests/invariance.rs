@@ -175,7 +175,7 @@ fn cited_in_written_order(line: &str) -> String {
                     .all(|c| c.is_alphanumeric() || c == '.' || c == '′')
         })
         .count();
-    let ordered = parley::check::cited_in_order(&parts[..cited]);
+    let ordered = parley::checker::cited_in_order(&parts[..cited]);
     let tail = &parts[cited..];
     format!(
         "{head}{}",
@@ -375,7 +375,7 @@ fn changed(clean: &Memory, root: &Path, context: &Context, change: &Change) -> C
 fn a_proof_means_what_it_says_however_it_spells_it() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
     let clean = Memory::copy(&Disk::new(root), &["corpus", "proofs", "tests"]).unwrap();
-    let base = parley::check::run(&clean);
+    let base = parley::checker::run(&clean);
     assert!(
         base.printed.contains("\n0 problem(s)\n"),
         "the corpus is not clean, so a change proves nothing:\n{}",
@@ -390,8 +390,8 @@ fn a_proof_means_what_it_says_however_it_spells_it() {
         .collect();
     let context = Context::new(
         corpus(&clean).expect("the corpus reads"),
-        parley::check::obtained_there(&clean).expect("the corpus reads"),
-        parley::check::bound_there(&clean).expect("the corpus reads"),
+        parley::checker::obtained_there(&clean).expect("the corpus reads"),
+        parley::checker::bound_there(&clean).expect("the corpus reads"),
     );
     let trees: Vec<Changed> = changes
         .iter()
@@ -402,7 +402,7 @@ fn a_proof_means_what_it_says_however_it_spells_it() {
     let checked: Vec<String> = in_order(
         &trees,
         || (),
-        |_, done| parley::check::run(&done.tree).printed,
+        |_, done| parley::checker::run(&done.tree).printed,
     );
     for ((change, done), said) in changes.iter().zip(&trees).zip(&checked) {
         println!(

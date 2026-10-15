@@ -10,7 +10,7 @@
 //! there is, both tools answer with one matcher (`citing`), each from its
 //! own reading of the page: which lines a citation names, what they say,
 //! and which defines are written out. So each tool lists its answers in the
-//! page's notation (`check::answers`, `Elaborator::list_asked`), and the
+//! page's notation (`checker::answers`, `Elaborator::list_asked`), and the
 //! two lists are compared.
 //!
 //! Answers they give differently are listed in `KNOWN`, each a gap a later
@@ -77,7 +77,7 @@ fn the_tools_answer_alike() {
         |a: &String| a.contains(" | asked | ") || a.contains(" | obtained | ");
     let elaborator: BTreeSet<String> =
         all.iter().filter(|a| is_cited(a)).cloned().collect();
-    let checker: BTreeSet<String> = parley::check::answers(&tree)
+    let checker: BTreeSet<String> = parley::checker::answers(&tree)
         .unwrap_or_else(|_| panic!("the corpus checks"))
         .into_iter()
         .collect();
