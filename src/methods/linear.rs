@@ -2,7 +2,7 @@
 //!
 //! `inequalities` is the one closure method that needs a decision procedure
 //! rather than a table of named laws. Deciding it is done here; emitting the
-//! Metamath proof of what was decided is done in [`super::normal`], because
+//! Metamath proof of what was decided is done in `crate::elab::normal`, because
 //! the two are different jobs and only the second needs the kernel.
 //!
 //! Everything rests on reading a term as a linear combination of **atoms**.

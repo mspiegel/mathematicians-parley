@@ -14,6 +14,7 @@ pub mod corpus;
 pub mod elab;
 pub mod formula;
 pub mod matching;
+pub mod methods;
 pub mod mm;
 pub mod outcome;
 pub mod proofs;

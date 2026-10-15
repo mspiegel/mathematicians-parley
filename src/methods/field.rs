@@ -3,7 +3,7 @@
 //! `algebra` is the second method that decides rather than looks up, and it
 //! differs from `inequalities` in two ways: it is not restricted to linear
 //! expressions, and it knows nothing about order. Deciding it is done here;
-//! emitting the Metamath proof of what was decided is [`super::normal`].
+//! emitting the Metamath proof of what was decided is `crate::elab::normal`.
 //!
 //! An atom is a maximal subterm not built from numerals by `+`, `−`, unary
 //! minus, `·`, `/`, and powers **with a numeral exponent**. The exponent rule

@@ -1,4 +1,5 @@
-//! Whole numbers as set.mm writes them, and the closed facts about them.
+//! The closed facts about whole numbers as set.mm writes them, proved; the
+//! numbers themselves are read and spelt in `crate::methods::numerals`.
 //!
 //! A digit is its own constant, `c7`, and a longer number is set.mm's
 //! decimal `; A B`: A the number its digits before the last make, B the last
@@ -19,9 +20,12 @@ use num_bigint::BigUint;
 use num_traits::{One, ToPrimitive, Zero};
 
 use crate::binds;
+pub use crate::methods::numerals::{at_number, spell, value};
+use crate::methods::numerals::{
+    digit, is_letter, last_off, numeral_term, one_digit, put, spelt,
+};
 use crate::mm::kernel::{FloatLabels, Term};
 use crate::mm::spell::{Builder, Proof};
-use crate::rules::{digit_of, numeral_label};
 use crate::t;
 
 const ADD: &str = "caddc";
@@ -29,56 +33,6 @@ const SUB: &str = "cmin";
 const MUL: &str = "cmul";
 const EXP: &str = "cexp";
 const MOD: &str = "cmo";
-
-/// The digits before the last, and the last.
-fn last_off(n: &BigUint) -> (BigUint, u32) {
-    let last = (n % 10u32).to_u32().expect("a digit");
-    (n / 10u32, last)
-}
-
-/// The number itself where it is one digit.
-fn one_digit(n: &BigUint) -> Option<u32> {
-    (*n < BigUint::from(10u32)).then(|| n.to_u32().expect("a digit"))
-}
-
-/// A whole number as set.mm spells it, in reverse Polish.
-pub fn spell(value: impl Into<BigUint>) -> String {
-    spelt(&value.into())
-}
-
-fn spelt(value: &BigUint) -> String {
-    match one_digit(value) {
-        Some(d) => digit(d).to_string(),
-        None => {
-            let (upper, last) = last_off(value);
-            t!(spelt(&upper), digit(last), "cdc")
-        }
-    }
-}
-
-/// The number a term spells, where it is a digit or a decimal of digits
-/// spelt as `spell` spells it: `; 0 5` is not how five is written, and is
-/// read as no number.
-pub fn value(term: &Term) -> Option<BigUint> {
-    if term.variable().is_some() {
-        return None;
-    }
-    let label = term.label()?;
-    if let Some(d) = digit_of(label) {
-        return term.children().is_empty().then(|| BigUint::from(d));
-    }
-    if label != "cdc" || term.children().len() != 2 {
-        return None;
-    }
-    let upper = value(&term.children()[0])?;
-    let last = term.children()[1].label().and_then(digit_of)?;
-    (!upper.is_zero() && term.children()[1].children().is_empty())
-        .then(|| upper * 10u32 + last)
-}
-
-fn digit(value: u32) -> &'static str {
-    numeral_label(value).expect("a digit")
-}
 
 fn op(left: &str, right: &str, what: &str) -> String {
     t!(left, right, what, "co")
@@ -575,46 +529,6 @@ pub fn worked(
         &spelt(&result),
     );
     Some((result, whole))
-}
-
-/// The numeral `value` as a term.
-fn numeral_term(value: &BigUint) -> Term {
-    match one_digit(value) {
-        Some(d) => Term::apply(digit(d), Vec::new()),
-        None => {
-            let (upper, last) = last_off(value);
-            Term::apply(
-                "cdc",
-                vec![numeral_term(&upper), Term::apply(digit(last), Vec::new())],
-            )
-        }
-    }
-}
-
-/// The term with the numeral `value` written for the letter k.
-pub fn at_number(term: &Term, k: &str, value: &BigUint) -> Term {
-    put(term, k, &numeral_term(value))
-}
-
-/// Whether a term is the letter k used as a number, `cv k`.
-fn is_letter(term: &Term, k: &str) -> bool {
-    term.label() == Some("cv")
-        && term.children().len() == 1
-        && term.children()[0].variable() == Some(k)
-}
-
-/// The term with `at` written for the letter k.
-fn put(term: &Term, k: &str, at: &Term) -> Term {
-    if is_letter(term, k) {
-        return at.clone();
-    }
-    match term.label() {
-        Some(label) if term.variable().is_none() => Term::apply(
-            label,
-            term.children().iter().map(|c| put(c, k, at)).collect(),
-        ),
-        _ => term.clone(),
-    }
 }
 
 /// |- ( k = at -> body = body at at ), by `id` at the letter, `eqidd`
