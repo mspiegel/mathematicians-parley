@@ -5,7 +5,7 @@
 //! deciders only look inside numbers and the operations on them, so a fixed
 //! table gives the arity of those labels (`VOCABULARY`), and a target using
 //! any other label is one atom: the decider treats it as it treats a letter.
-//! The gate's labels stage holds the table to set.mm (`tools::labels`).
+//! `tests/vocabulary.rs` holds the table to set.mm.
 
 use indexmap::IndexMap;
 use num_bigint::BigUint;

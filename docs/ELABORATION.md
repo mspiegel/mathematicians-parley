@@ -1221,8 +1221,7 @@ makes (`Context::identities`): a pattern's operation may stand with its
 identity in a hole the binding already fixes as it, a ground's operation
 with its identity written in a hole stands for its other hole, and two
 terms are alike once an element is dropped from either; and a "there is"
-whose body is such an equation supplies itself (`self_evident`). Induction
-is a closure method the checker leaves to the elaborator. Reading every
+whose body is such an equation supplies itself (`self_evident`). Reading every
 comparison this way costs the checker about a third more time, most of it
 in Bezout, whose a·1 is now a wherever a line is compared.
 
@@ -2085,10 +2084,6 @@ condition's (three lemmas, "Facts the text never writes"), so a step that
 cannot be built says so at once rather than after minutes of looking.
 
 ### What they do not check
-
-**Method steps, in the checker.** It accepts 103 steps resting on a closure
-method without checking them; what a method decides, and what it demands, is
-the elaborator's.
 
 **That an element is a set.** set.mm has everything a set, so `a ∈ X` makes a a
 set by `elex`, and a name a step introduces is a set by `vex`, where a reader

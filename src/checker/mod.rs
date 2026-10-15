@@ -37,16 +37,6 @@ pub use library::{statements_in_scope, Known};
 pub use record::CheckedTheorem;
 pub use structure::{cited_in_order, out_of_reach, unresolved};
 
-/// Methods whose steps this checker accepts without examining them.
-pub const CLOSURE: [Method; 6] = [
-    Method::Algebra,
-    Method::Arithmetic,
-    Method::Inequalities,
-    Method::Inspection,
-    Method::Join,
-    Method::Membership,
-];
-
 /// A variable may be a Greek letter and may carry a subscript or a prime.
 /// These are not notation and have no record of their own; see `GRAMMAR.md`.
 const IDENTIFIER_CHARACTERS: &str =
@@ -55,13 +45,10 @@ const IDENTIFIER_CHARACTERS: &str =
 /// The relations a calculation's lines join by, as the skeleton cuts them.
 const RELATIONS: [&str; 6] = crate::corpus::proof::CHAIN_RELATIONS;
 
-/// What a run found: every defect, and every step accepted without being
-/// examined because it rests on a closure method.
+/// What a run found: every defect.
 #[derive(Default)]
 pub struct Report {
     pub problems: Vec<Problem>,
-    /// (method, step number) of each step resting on a closure method.
-    pub trusted: Vec<(Method, String)>,
 }
 
 impl Report {
@@ -69,24 +56,26 @@ impl Report {
         self.problems.push(Problem::new(path, line, message));
     }
 
-    /// Count `step` among the steps accepted without being examined, resting
-    /// on `method`.
-    pub fn trust(&mut self, method: Method, step: &crate::corpus::Step) {
-        self.trusted
-            .push((method, crate::corpus::fmt(&step.number)));
+    /// A step resting on `method` that its decider settles neither way: the
+    /// checker examines every closure step (`methods`), so a claim the
+    /// method cannot decide is one the step may not rest on it for.
+    pub fn undecided(
+        &mut self,
+        path: &str,
+        method: Method,
+        step: &crate::corpus::Step,
+    ) {
+        self.say(
+            path,
+            step.just.line,
+            format!(
+                "step {} names {}, which does not decide what it claims",
+                crate::corpus::fmt(&step.number),
+                method.as_str()
+            ),
+        );
     }
 }
-
-/// The closure methods whose steps a check of their own decides, which
-/// counts a step it leaves to the build itself (`Report::trust`).
-pub const DECIDED: [Method; 6] = [
-    Method::Algebra,
-    Method::Arithmetic,
-    Method::Inequalities,
-    Method::Inspection,
-    Method::Join,
-    Method::Membership,
-];
 
 /// What the check printed, and the status it exits with.
 pub use crate::said::Said as Outcome;
@@ -751,19 +740,6 @@ fn summary(report: Report, counts: (usize, usize, usize, usize)) -> Outcome {
         "{theorems} theorems, {steps} steps, {items} items, {methods} methods\n"
     ));
     out.push_str(&format!("{} problem(s)\n", problems.len()));
-    let mut by_method: IndexMap<Method, usize> = IndexMap::new();
-    for (method, _) in &report.trusted {
-        *by_method.entry(*method).or_insert(0) += 1;
-    }
-    let total: usize = by_method.values().sum();
-    out.push_str(&format!(
-        "{total} step(s) accepted without checking, resting on a closure method:\n"
-    ));
-    for method in CLOSURE {
-        if let Some(n) = by_method.get(&method) {
-            out.push_str(&format!("    {n:4}  {}\n", method.as_str()));
-        }
-    }
     Outcome {
         printed: out,
         complained: String::new(),

@@ -29,6 +29,13 @@ a decision procedure, so each should be shorter than the closure methods
 were. What each does is in `SYNTAX.md`, and what the elaborator builds for it
 in `ELABORATION.md`.
 
+Each method's procedure is in `src/methods`, and the checker runs it on
+every step that names the method, without set.mm: a step the procedure
+finds false is refused, and one it settles neither way is too ("step N names
+inequalities, which does not decide what it claims"). No step is taken
+without being examined. The build runs the same procedure before it writes
+the proof.
+
 ## Two rules every expansion obeys
 
 Decision 6 of `GOALS.md` wants independent elaborators to agree, ideally byte

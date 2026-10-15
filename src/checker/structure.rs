@@ -7,7 +7,7 @@ use indexmap::{IndexMap, IndexSet};
 
 use super::library::Known;
 use super::record::CheckedTheorem;
-use super::{Report, CLOSURE, DECIDED, RELATIONS};
+use super::{Report, RELATIONS};
 use crate::corpus::proof::visible;
 use crate::corpus::skeleton::{let_name, let_names, letter_in, listed};
 use crate::corpus::{
@@ -703,11 +703,6 @@ pub fn check_citations(
         };
         for req in &step.requires {
             at.check_reason(report, req, "requires line");
-        }
-        if let Some(m) = just.head.method() {
-            if CLOSURE.contains(&m) && !DECIDED.contains(&m) {
-                report.trusted.push((m, fmt(&step.number)));
-            }
         }
     }
     // A let's reason is written as a requires line's is, and is read under

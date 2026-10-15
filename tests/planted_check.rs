@@ -634,6 +634,17 @@ fn cases() -> Vec<Case> {
             )],
             "4 divides 2 is a word divides defines, and arithmetic decides a word only where its record says so in a `decided` field",
         ),
+        // A claim the method named does not decide, a membership said by
+        // `inequalities`: no closure step is taken without examining it.
+        case(
+            "rest a claim on a method that does not decide it",
+            vec![edit(
+                "proofs/sqrt2-irrational.proof",
+                Some("2.  q > 0\n    inequalities, from 1\n".to_string()),
+                "2.  q ∈ ℤ\n    inequalities, from 1\n".to_string(),
+            )],
+            "step 2 names inequalities, which does not decide what it claims",
+        ),
         // A link of numerals alone naming arithmetic, worked out whole.
         case(
             "a chain link of numerals that is false",

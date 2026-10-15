@@ -16,7 +16,7 @@ use crate::corpus::{
     define_parts, DefineParts, FileScope, Intro, Item, Justification, Method, Record,
     RecordKind, Recursion, Requires, Source, Step, Theorem, Value, Values,
 };
-use crate::formula::page::{disjoined, made, numeral, related, Written};
+use crate::formula::page::{conjoined, disjoined, made, numeral, related, Written};
 use crate::formula::{walk, Node, Sort, Sorts};
 use crate::matching::{alike_top, free_names, substitute_apart_by, Binding};
 use crate::methods::field::{decide_closed, Verdict};
@@ -1287,7 +1287,9 @@ pub fn check_arithmetic_holds(
                     step.just.line,
                     format!("{what}, which {why}"),
                 ),
-                Worked::Undecided => report.trust(Method::Arithmetic, step),
+                Worked::Undecided => {
+                    report.undecided(&thm.path, Method::Arithmetic, step)
+                }
             }
         }
         for req in &step.requires {
@@ -1410,7 +1412,7 @@ pub fn check_algebra_holds(
             let decided =
                 algebra_holds(report, thm, &ClosureClaim::step(step), known, targets);
             if !decided {
-                report.trust(Method::Algebra, step);
+                report.undecided(&thm.path, Method::Algebra, step);
             }
         }
         for req in step.requires.iter().filter(|r| r.is(Method::Algebra)) {
@@ -1554,7 +1556,7 @@ pub fn check_inequalities_holds(
         if step.just.head.is(Method::Inequalities) {
             let at = ClosureClaim::step(step);
             if !inequalities_hold(report, thm, &at, known, targets) {
-                report.trust(Method::Inequalities, step);
+                report.undecided(&thm.path, Method::Inequalities, step);
             }
         }
         for req in step.requires.iter().filter(|r| r.is(Method::Inequalities)) {
@@ -1641,7 +1643,9 @@ pub fn check_inspection_holds(
             Inspected::Unsettled(why) => {
                 report.say(&thm.path, step.just.line, format!("{what}, and {why}"))
             }
-            Inspected::Undecided => report.trust(Method::Inspection, step),
+            Inspected::Undecided => {
+                report.undecided(&thm.path, Method::Inspection, step)
+            }
         }
     }
 }
@@ -1662,7 +1666,7 @@ pub fn check_membership_holds(
         if step.just.head.is(Method::Membership) {
             let at = ClosureClaim::step(step);
             if !membership_holds(report, thm, &at, known, targets) {
-                report.trust(Method::Membership, step);
+                report.undecided(&thm.path, Method::Membership, step);
             }
         }
         for req in step.requires.iter().filter(|r| r.is(Method::Membership)) {
@@ -1905,15 +1909,19 @@ impl<'s> ClosureClaim<'s> {
         targets: &Targets,
         differing: bool,
     ) -> Option<ClosureRead> {
-        let sentences = self.claim.sentences();
-        let [claim] = sentences.as_slice() else {
-            return None;
-        };
         let defined = match self.requires {
             Some(_) => known.citing_item(self.refs, None),
             None => known.citing_step(self.step),
         };
-        let claimed = known.read_citing(claim, &defined)?;
+        // A claim of several sentences is their conjunction (`SYNTAX.md`),
+        // as `0 ≤ e. e ≤ 9.` is `0 ≤ e and e ≤ 9`.
+        let sentences: Vec<Node> = self
+            .claim
+            .sentences()
+            .iter()
+            .map(|s| known.read_citing(s, &defined))
+            .collect::<Option<_>>()?;
+        let claimed = conjoined(known.env.g, sentences)?;
         let scope = known.scope(self.step);
         let mut lines: Vec<Node> = self
             .refs

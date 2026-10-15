@@ -60,14 +60,22 @@ impl Facts {
         };
         for fact in cited {
             match (fact.label(), fact.children()) {
-                (Some("wceq"), [term, is]) if listing(is) => facts.listed.push(Said {
-                    term: term.clone(),
-                    is: is.clone(),
-                }),
-                (Some("wceq"), [term, is]) if closed(is) => facts.worth.push(Said {
-                    term: term.clone(),
-                    is: is.clone(),
-                }),
+                // An equation says its sides are one either way round:
+                // `m = 97` and `97 = m` give m the value 97.
+                (Some("wceq"), [a, b]) if listing(a) || listing(b) => {
+                    let (term, is) = if listing(b) { (a, b) } else { (b, a) };
+                    facts.listed.push(Said {
+                        term: term.clone(),
+                        is: is.clone(),
+                    });
+                }
+                (Some("wceq"), [a, b]) if closed(a) || closed(b) => {
+                    let (term, is) = if closed(b) { (a, b) } else { (b, a) };
+                    facts.worth.push(Said {
+                        term: term.clone(),
+                        is: is.clone(),
+                    });
+                }
                 (Some("wn"), [inner]) => {
                     if let (Some("wceq"), [a, b]) = (inner.label(), inner.children()) {
                         facts.distinct.push(Said {
