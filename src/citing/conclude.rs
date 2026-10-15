@@ -325,9 +325,9 @@ pub struct Taken {
     /// claim's order; none for an obtain, which takes the group's "there
     /// is" whole.
     pub concluded: Vec<Concluded>,
-    /// The facts that state what the readings taken ask first: the side a
-    /// definition is unfolded from, as the facts read it (`supplier`).
-    pub firsts: Vec<Node>,
+    /// What the readings taken ask a fact to state first, in the item's
+    /// letters (`readings`); the facts that state it are `first_facts`.
+    pub asks_first: Vec<Node>,
 }
 
 /// One conclusion of an item a sentence of a claim takes.
@@ -356,8 +356,38 @@ impl Taken {
             group,
             binding,
             concluded,
-            firsts: Vec::new(),
+            asks_first: Vec::new(),
         }
+    }
+
+    /// The facts that state what the readings taken ask first, as `facts`
+    /// read them (`supplier`): the side a definition is unfolded from.
+    /// Looked up only when asked, since a search takes far more readings
+    /// than a record keeps.
+    pub fn first_facts(
+        &self,
+        groups: &[Group],
+        facts: &[Node],
+        library: &Library,
+    ) -> Vec<Node> {
+        let Some(group) = groups.get(self.group) else {
+            return Vec::new();
+        };
+        let mut trees = group.gives.clone();
+        trees.extend(group.wants.iter().map(|(_, t)| t.clone()));
+        let variables = names_of(&trees);
+        let mut sites = Sites::new();
+        for t in &trees {
+            binding_sites(t, &library.ctx, &[], &mut sites);
+        }
+        first_facts(
+            &self.asks_first,
+            facts,
+            &self.binding,
+            &variables,
+            library,
+            &sites,
+        )
     }
 }
 
@@ -431,21 +461,12 @@ pub fn taken(
                     way: offer.ways[c],
                 })
                 .collect();
-            let asked: Vec<Node> = chosen
+            let mut taken =
+                Taken::of(group, binding, concluded, &groups[group], library);
+            taken.asks_first = chosen
                 .iter()
                 .flat_map(|&c| offer.candidates[c].1.iter().cloned())
                 .collect();
-            let firsts = first_facts(
-                &asked,
-                facts,
-                &binding,
-                &offer.variables,
-                library,
-                &offer.sites,
-            );
-            let mut taken =
-                Taken::of(group, binding, concluded, &groups[group], library);
-            taken.firsts = firsts;
             return Built(taken);
         }
     }
@@ -650,9 +671,6 @@ pub fn obtained(
                         .iter()
                         .any(|part| existential(part, &binding, library))
                     {
-                        let firsts = first_facts(
-                            &first, facts, &binding, &variables, library, &sites,
-                        );
                         let mut taken = Taken::of(
                             group,
                             binding,
@@ -660,7 +678,7 @@ pub fn obtained(
                             &groups[group],
                             library,
                         );
-                        taken.firsts = firsts;
+                        taken.asks_first = first;
                         return Built(taken);
                     }
                 }

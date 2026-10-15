@@ -19,6 +19,8 @@ use crate::corpus::{
 use crate::formula::page::{disjoined, made, numeral, related, Written};
 use crate::formula::{walk, Node, Sort, Sorts};
 use crate::matching::{alike_top, free_names, substitute_apart_by, Binding};
+use crate::methods::field::{decide_closed, Verdict};
+use crate::methods::terms::{term_of_node, Targets};
 use crate::outcome::{Built, Checked, Declined};
 use crate::sorts::infer::{self, Reader, Store};
 use crate::sorts::introduction::{Form, Introduction};
@@ -1257,6 +1259,65 @@ fn changed_closed(link: &Link, known: &Known) -> bool {
             .all(|(x, y)| alike(x, y))
     }
     alike(&one, &other)
+}
+
+/// What `arithmetic` claims holds when it is worked out (`METHODS.md`,
+/// arithmetic): a step's claim and a requires line's fact of numerals alone
+/// are decided (`methods::field::decide_closed`), and one that is false, or
+/// asks a value that is no number, is reported. A claim with a letter in it
+/// is not decided here, and `check_closed_arithmetic` says where it may not
+/// stand.
+pub fn check_arithmetic_holds(
+    report: &mut Report,
+    thm: &Theorem,
+    known: &Known,
+    targets: &Targets,
+) {
+    for step in &thm.steps {
+        if step.just.head.is(Method::Arithmetic) {
+            let what = format!("step {} claims {}", step.number, step.claim_text());
+            if let Some(why) = arithmetic_fails(&step.claim, known, targets) {
+                report.say(&thm.path, step.just.line, format!("{what}, which {why}"));
+            }
+        }
+        for req in &step.requires {
+            if !req.is(Method::Arithmetic) {
+                continue;
+            }
+            if let Some(why) = arithmetic_fails(&req.fact, known, targets) {
+                report.say(
+                    &thm.path,
+                    req.line,
+                    format!(
+                        "the requires line {} of step {} is arithmetic, which {why}",
+                        req.fact, step.number
+                    ),
+                );
+            }
+        }
+    }
+}
+
+/// What is wrong with a fact `arithmetic` works out, where it is numerals
+/// alone and does not hold or cannot be worked out; None where it holds, or
+/// is no fact of numerals alone. A sentence that does not read is
+/// `check_formulas`'s to report.
+fn arithmetic_fails(
+    written: &Written,
+    known: &Known,
+    targets: &Targets,
+) -> Option<String> {
+    for sentence in written.sentences() {
+        let Some(node) = known.read_as_written(&sentence) else {
+            continue;
+        };
+        match decide_closed(&term_of_node(&node, targets)) {
+            Built(Verdict::Holds(false)) => return Some("is false".to_string()),
+            Built(Verdict::Unworked(why)) => return Some(why.to_string()),
+            Built(Verdict::Holds(true)) | Declined(_) => {}
+        }
+    }
+    None
 }
 
 /// `arithmetic` stands in for a line only where the fact is numerals alone.

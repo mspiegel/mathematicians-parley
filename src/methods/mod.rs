@@ -8,3 +8,4 @@
 pub mod field;
 pub mod linear;
 pub mod numerals;
+pub mod terms;

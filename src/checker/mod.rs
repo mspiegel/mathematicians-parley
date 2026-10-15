@@ -26,6 +26,7 @@ use crate::formula::page::{Sentence, Written};
 use crate::formula::Grammar;
 use crate::formula::Sorts;
 use crate::matching::Context;
+use crate::methods::terms::Targets;
 use crate::outcome::{At, Problem, Route};
 use crate::sorts::infer;
 use crate::sorts::{settled, Env};
@@ -158,6 +159,8 @@ pub struct Checking<'a> {
     defined: &'a IndexMap<(String, String), formulas::DefinedWord>,
     /// Each operation a notation declares, and whether arithmetic works it out.
     operations: &'a IndexMap<String, bool>,
+    /// The notations' targets, which the deciders read terms by.
+    targets: &'a Targets,
     methods: &'a IndexMap<String, &'a Record>,
     items: &'a IndexMap<String, Item<'a>>,
     statements: &'a IndexMap<String, infer::Reader>,
@@ -569,6 +572,7 @@ fn prepared<T>(
     database::check_symbols(&mut report, &records);
     let defined = formulas::defined_words(&mut report, &records, env, &record_sorts);
     let operations = formulas::operations(&records);
+    let targets = Targets::of(env.g, &records);
 
     // Each theorem's lines, read once, after every statement it may cite.
     for thm in &theorems {
@@ -609,6 +613,7 @@ fn prepared<T>(
         words: &words,
         defined: &defined,
         operations: &operations,
+        targets: &targets,
         methods: &methods,
         items: &items,
         statements: &statements,
@@ -642,6 +647,7 @@ fn check_theorem(
     formulas::check_cases_cited(report, thm, k);
     formulas::check_closed_arithmetic(report, thm, k);
     formulas::check_closed_by_arithmetic(report, thm, k);
+    formulas::check_arithmetic_holds(report, thm, k, c.targets);
     formulas::check_membership_claims(report, thm, env, k);
     citations::check_hypotheses(report, thm, library, k);
     citations::check_conclusion(report, thm, library, k);

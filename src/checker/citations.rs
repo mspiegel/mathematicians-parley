@@ -283,7 +283,8 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
         return None;
     };
     let before: usize = groups[..taken.group].iter().map(|g| g.gives.len()).sum();
-    let firsts = firsts_at(step, &step.just.refs, &item, &taken.firsts, known, library);
+    let stated = taken.first_facts(&groups, &parts.facts, library);
+    let firsts = firsts_at(step, &step.just.refs, &item, &stated, known, library);
     Some(Cited {
         item,
         group: taken.group,
@@ -356,7 +357,8 @@ pub fn cited_requires(
         return None;
     };
     let before: usize = groups[..taken.group].iter().map(|g| g.gives.len()).sum();
-    let firsts = firsts_at(step, req.lines(), &item, &taken.firsts, known, library);
+    let stated = taken.first_facts(&groups, &parts.facts, library);
+    let firsts = firsts_at(step, req.lines(), &item, &stated, known, library);
     Some(Cited {
         item,
         group: taken.group,

@@ -840,9 +840,8 @@ fn cases() -> Vec<Case> {
             "step 8 cites axi:completeness, which asks for S ⊆ ℝ; there is s ∈ S; there is u ∈ ℝ with u is an upper bound of S, and what it cites does not supply them",
         ),
         // False closed claims, and below them claims with no exact value, on
-        // a requires line the step does not ask for: the checker reports the
-        // line as surplus, and does not work out what `arithmetic` makes of
-        // it.
+        // a requires line: the checker works out what `arithmetic` makes of
+        // each (`check_arithmetic_holds`).
         case(
             "claim a false numeral fact with a number past one digit",
             vec![edit(
@@ -850,7 +849,7 @@ fn cases() -> Vec<Case> {
                 Some("          requires 10^m ∈ ℤ: mun:power-integer a := 10\n".to_string()),
                 "          requires 10^m ∈ ℤ: mun:power-integer a := 10\n          requires 10 − 1 = 3·4: arithmetic\n".to_string(),
             )],
-            "the requires line of step 1.3 says 10 − 1 = 3·4, and neither thm:congruent-times nor the step's other lines ask for it",
+            "the requires line 10 − 1 = 3·4 of step 1.3 is arithmetic, which is false",
         ),
         case(
             "claim a false numeral fact of digits",
@@ -859,7 +858,7 @@ fn cases() -> Vec<Case> {
                 Some("          requires 10^m ∈ ℤ: mun:power-integer a := 10\n".to_string()),
                 "          requires 10^m ∈ ℤ: mun:power-integer a := 10\n          requires 9 = 3·4: arithmetic\n".to_string(),
             )],
-            "the requires line of step 1.3 says 9 = 3·4, and neither thm:congruent-times nor the step's other lines ask for it",
+            "the requires line 9 = 3·4 of step 1.3 is arithmetic, which is false",
         ),
         case(
             "divide by zero in a numeral fact",
@@ -868,7 +867,7 @@ fn cases() -> Vec<Case> {
                 Some("          requires 10^m ∈ ℤ: mun:power-integer a := 10\n".to_string()),
                 "          requires 10^m ∈ ℤ: mun:power-integer a := 10\n          requires 3/0 ∈ ℝ: arithmetic\n".to_string(),
             )],
-            "the requires line of step 1.3 says 3/0 ∈ ℝ, and neither thm:congruent-times nor the step's other lines ask for it",
+            "the requires line 3/0 ∈ ℝ of step 1.3 is arithmetic, which divides by zero",
         ),
         case(
             "state a numeral too large to work out",
@@ -877,7 +876,7 @@ fn cases() -> Vec<Case> {
                 Some("          requires 10^m ∈ ℤ: mun:power-integer a := 10\n".to_string()),
                 "          requires 10^m ∈ ℤ: mun:power-integer a := 10\n          requires 9^(9^9) ∈ ℕ: arithmetic\n".to_string(),
             )],
-            "the requires line of step 1.3 says 9^(9^9) ∈ ℕ, and neither thm:congruent-times nor the step's other lines ask for it",
+            "the requires line 9^(9^9) ∈ ℕ of step 1.3 is arithmetic, which is too large to work out",
         ),
         case(
             "raise a numeral to a power that is not whole",
@@ -886,7 +885,16 @@ fn cases() -> Vec<Case> {
                 Some("          requires 10^m ∈ ℤ: mun:power-integer a := 10\n".to_string()),
                 "          requires 10^m ∈ ℤ: mun:power-integer a := 10\n          requires 4^(1/2) ∈ ℕ: arithmetic\n".to_string(),
             )],
-            "the requires line of step 1.3 says 4^(1/2) ∈ ℕ, and neither thm:congruent-times nor the step's other lines ask for it",
+            "the requires line 4^(1/2) ∈ ℕ of step 1.3 is arithmetic, which is not a rational number: its exponent is not whole",
+        ),
+        case(
+            "prove a false numeral fact by arithmetic",
+            vec![edit(
+                "tests/notations/numbers.proof",
+                Some("  then 2³ = 8\n\n1.  2³ = 8\n".to_string()),
+                "  then 2³ = 9\n\n1.  2³ = 9\n".to_string(),
+            )],
+            "step 1 claims 2³ = 9, which is false",
         ),
         // A substitution by a false fact of numerals, 0 − 1 = 1. The checker
         // does not work the fact out; it reports that putting one side for
