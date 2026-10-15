@@ -18,8 +18,68 @@ use std::rc::Rc;
 /// message names a sort.
 #[derive(Clone, PartialEq, Eq, Hash, Debug, Default)]
 pub struct Sort {
-    category: Option<Rc<str>>,
+    category: Option<Category>,
     whole: Option<Rc<Whole>>,
+}
+
+/// A sort's category by name. The categories the code itself names are
+/// variants, so that a sort of one is made without allocating; any other
+/// name a record or a sort line writes, a sort variable `α` among them, is
+/// kept as written. `Category::of` makes a known name its variant always,
+/// so two categories are equal exactly where their names are.
+#[derive(Clone, PartialEq, Eq, Hash, Debug)]
+enum Category {
+    Number,
+    Point,
+    Formula,
+    GroupElement,
+    Set,
+    GroupSet,
+    SetOfSets,
+    Property,
+    Function,
+    Any,
+    Variable,
+    Unknown,
+    Named(Rc<str>),
+}
+
+impl Category {
+    fn of(name: &str) -> Category {
+        match name {
+            "number" => Category::Number,
+            "point" => Category::Point,
+            "formula" => Category::Formula,
+            "group-element" => Category::GroupElement,
+            "set" => Category::Set,
+            "group-set" => Category::GroupSet,
+            "set-of-sets" => Category::SetOfSets,
+            "property" => Category::Property,
+            "function" => Category::Function,
+            "any" => Category::Any,
+            "variable" => Category::Variable,
+            "unknown" => Category::Unknown,
+            other => Category::Named(Rc::from(other)),
+        }
+    }
+
+    fn name(&self) -> &str {
+        match self {
+            Category::Number => "number",
+            Category::Point => "point",
+            Category::Formula => "formula",
+            Category::GroupElement => "group-element",
+            Category::Set => "set",
+            Category::GroupSet => "group-set",
+            Category::SetOfSets => "set-of-sets",
+            Category::Property => "property",
+            Category::Function => "function",
+            Category::Any => "any",
+            Category::Variable => "variable",
+            Category::Unknown => "unknown",
+            Category::Named(name) => name,
+        }
+    }
 }
 
 /// A sort in full, as the reading of the lines settles it.
@@ -159,7 +219,7 @@ impl Sort {
     /// A sort known only by its category, as a notation says what it yields.
     pub fn of(name: &str) -> Sort {
         Sort {
-            category: Some(Rc::from(name)),
+            category: Some(Category::of(name)),
             whole: None,
         }
     }
@@ -168,7 +228,7 @@ impl Sort {
     pub fn whole(whole: Whole) -> Option<Sort> {
         let category = whole.category()?;
         Some(Sort {
-            category: Some(Rc::from(category)),
+            category: Some(Category::of(category)),
             whole: Some(Rc::new(whole)),
         })
     }
@@ -184,7 +244,7 @@ impl Sort {
 
     /// The sort's category, or None for no sort.
     pub fn name(&self) -> Option<&str> {
-        self.category.as_deref()
+        self.category.as_ref().map(Category::name)
     }
 
     /// The sort of what a set of this sort holds, where it says: a set of
@@ -193,7 +253,10 @@ impl Sort {
     pub fn held(&self) -> Option<Sort> {
         if let Some(whole) = &self.whole {
             return match &**whole {
-                Whole::Set(inner) => Sort::whole((**inner).clone()),
+                Whole::Set(inner) => inner.category().map(|category| Sort {
+                    category: Some(Category::of(category)),
+                    whole: Some(inner.clone()),
+                }),
                 _ => None,
             };
         }
