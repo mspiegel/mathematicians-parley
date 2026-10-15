@@ -76,6 +76,19 @@ impl Problem {
             message: message.into(),
         }
     }
+
+    /// This problem, found by the build in a theorem the checker accepts: a
+    /// gap in the build, whose to fix it is, and not a defect of the page
+    /// (`GOALS.md`, one reading of the page).
+    pub fn gap(self) -> Problem {
+        Problem {
+            message: format!(
+                "the build cannot yet prove this, which the checker accepts: {}",
+                self.message
+            ),
+            ..self
+        }
+    }
 }
 
 impl fmt::Display for Problem {

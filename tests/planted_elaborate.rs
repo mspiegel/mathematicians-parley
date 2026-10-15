@@ -247,14 +247,15 @@ fn cases() -> Vec<Case> {
         ),
         // A database defect rather than a text one, and on an item rather than
         // a notation: the target names a lemma that proves the other `then`
-        // group, so the step's own group has nothing behind it.
+        // group, so the step's own group has nothing behind it. The checker
+        // reads no set.mm, so the page it accepts is a gap in the build.
         case(
             "name the wrong clause in a definition target",
             "proofs/triangle-inequality/abs-bounds",
             "corpus/stdlib/numbers.records",
             "  target      absid, absnid\n",
             "  target      absid, absid\n",
-            "no clause of mun:abs gives what step 2.5 claims",
+            "the build cannot yet prove this, which the checker accepts: no clause of mun:abs gives what step 2.5 claims",
         )
         .at("proofs/triangle-inequality.proof", "2.5.  |x| = −x"),
         // Dropping the + 0 asks that what is left be a number, and q(x) ∈ ℂ is
@@ -273,14 +274,15 @@ fn cases() -> Vec<Case> {
         // holds n! ∈ ℕ from line 1, which step 5.4 does not cite. A factorial
         // is not a membership said once, so only a line can give it. Offered
         // that line, the step would elaborate and verify; it is not offered,
-        // so nothing says n! is a number.
+        // so nothing says n! is a number. The checker's algebra does not yet
+        // ask that each atom is a number, so it is the build that says so.
         case(
             "lean on a line the step does not name",
             "proofs/infinitely-many-primes/prime-above",
             "proofs/infinitely-many-primes.proof",
             "          algebra\n          requires n! ∈ ℝ: from 1\n",
             "          algebra\n",
-            "nothing says n! ∈ ℝ or ∈ ℂ, which this step needs",
+            "the build cannot yet prove this, which the checker accepts: nothing says n! ∈ ℝ or ∈ ℂ, which this step needs",
         )
         .at("proofs/infinitely-many-primes.proof", "5.4.  (n! + 1) − n! = 1"),
         // The certificate combines lines 2 and 3; line 1 says a + b is at

@@ -5654,7 +5654,9 @@ pub fn elaborate(
     work.whole_scope = options.whole_scope_offered;
     work.said_back = options.say_back.then(Vec::new);
     work.answers = options.list_answers.then(Vec::new);
-    let (goal, hypotheses, mut proof) = work.run()?;
+    // The checker accepted the theorem, so what stops its proof here is the
+    // build's to fix (`Problem::gap`).
+    let (goal, hypotheses, mut proof) = work.run().map_err(Problem::gap)?;
     let mut antecedent = hypotheses.first().cloned();
     for extra in hypotheses.iter().skip(1) {
         antecedent = Some(t!(antecedent.unwrap(), extra, "wa"));
