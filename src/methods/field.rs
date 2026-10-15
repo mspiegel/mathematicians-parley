@@ -28,7 +28,7 @@ use num_traits::{Signed, ToPrimitive, Zero};
 
 use crate::mm::kernel::{FloatLabels, Term};
 use crate::outcome::{Built, Declined, Route};
-use crate::rules::digit_of;
+use crate::rules::{digit_of, System};
 
 pub const ADD: &str = "caddc";
 pub const SUB: &str = "cmin";
@@ -37,6 +37,49 @@ pub const DIV: &str = "cdiv";
 pub const EXP: &str = "cexp";
 pub const MOD: &str = "cmo";
 pub const NEG: &str = "cneg";
+
+/// An operation of the field a term `( A op B )` applies, by the label set.mm
+/// gives it.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Op {
+    Add,
+    Sub,
+    Mul,
+    Div,
+    Exp,
+}
+
+impl Op {
+    /// The operation `term` applies, `( A op B )` being `A B op co`; None
+    /// for any other term, or an operation not of these.
+    pub fn applied(term: &Term) -> Option<Op> {
+        if term.variable().is_some() || term.label() != Some("co") {
+            return None;
+        }
+        let [_, _, how] = term.children() else {
+            return None;
+        };
+        match how.label()? {
+            ADD => Some(Op::Add),
+            SUB => Some(Op::Sub),
+            MUL => Some(Op::Mul),
+            DIV => Some(Op::Div),
+            EXP => Some(Op::Exp),
+            _ => None,
+        }
+    }
+
+    /// set.mm's label for it.
+    pub fn label(self) -> &'static str {
+        match self {
+            Op::Add => ADD,
+            Op::Sub => SUB,
+            Op::Mul => MUL,
+            Op::Div => DIV,
+            Op::Exp => EXP,
+        }
+    }
+}
 
 /// What a power may cost to multiply out. The proof raises a power one step
 /// of the exponent at a time, and each step puts the terms it makes in
@@ -1042,12 +1085,11 @@ fn stopped(parts: Vec<Route<Value>>) -> Stop {
 /// The number systems a closed number is tested for membership of, by
 /// `METHODS.md`'s tests on its value.
 fn system_test(system: &str) -> Option<fn(&Q) -> bool> {
-    Some(match system {
-        "cn" => |v: &Q| v.is_integer() && v.is_positive(),
-        "cn0" => |v: &Q| v.is_integer() && !v.is_negative(),
-        "cz" => |v: &Q| v.is_integer(),
-        "cq" | "cr" | "cc" => |_: &Q| true,
-        _ => return None,
+    Some(match System::of_label(system)? {
+        System::N => |v: &Q| v.is_integer() && v.is_positive(),
+        System::N0 => |v: &Q| v.is_integer() && !v.is_negative(),
+        System::Z => |v: &Q| v.is_integer(),
+        System::Q | System::R | System::C => |_: &Q| true,
     })
 }
 

@@ -541,9 +541,9 @@ fn set_within(inner: &Node, outer: &Node) -> bool {
     if outer.notation != "number-systems" {
         return false;
     }
-    let big = rules::system_of(&outer.text);
+    let big = rules::System::of_sign(&outer.text);
     if inner.notation == "number-systems" {
-        return rules::within_path(rules::system_of(&inner.text), big).is_some();
+        return rules::System::maybe_within(rules::System::of_sign(&inner.text), big);
     }
     if inner.notation == "integer-range" && inner.children.len() == 2 {
         let start = &inner.children[0];
@@ -558,7 +558,7 @@ fn set_within(inner: &Node, outer: &Node) -> bool {
         };
         return rules::RANGE_WITHIN.iter().any(|(system, first, _)| {
             (first.is_none() || *first == begins)
-                && rules::within_path(Some(system), big).is_some()
+                && rules::System::maybe_within(rules::System::of_label(system), big)
         });
     }
     false

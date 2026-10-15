@@ -9,7 +9,7 @@ use num_traits::Zero;
 use crate::mm::kernel::{FloatLabels, Term};
 use crate::rules::{self, lookup};
 
-use super::field::{self, Poly, DIV, Q, SUB};
+use super::field::{self, Op, Poly, DIV, Q};
 
 /// What `decide` finds of an `algebra` step.
 pub enum Verdict {
@@ -173,17 +173,16 @@ fn divisors_into(term: &Term, labels: &FloatLabels, out: &mut Vec<Term>) {
         divisors_into(&kids[0], labels, out);
         return;
     }
-    if term.label() != Some("co") || kids.len() != 3 {
+    let Some(how) = Op::applied(term) else {
         return;
-    }
-    let how = kids[2].rpn(labels);
-    if [field::ADD, SUB, field::MUL].contains(&&*how) {
+    };
+    if matches!(how, Op::Add | Op::Sub | Op::Mul) {
         divisors_into(&kids[0], labels, out);
         divisors_into(&kids[1], labels, out);
-    } else if &*how == DIV {
+    } else if how == Op::Div {
         divisors_into(&kids[0], labels, out);
         out.push(kids[1].clone());
-    } else if &*how == field::EXP {
+    } else if how == Op::Exp {
         if let field::Power::Expanded { by, .. } =
             field::power_of(&kids[0], &kids[1], labels)
         {

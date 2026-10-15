@@ -148,7 +148,7 @@ fn unnumbered(
                 && name.is_name()
                 && set.notation == "number-systems"
             {
-                if let Some(system) = rules::system_of(&set.text) {
+                if let Some(system) = rules::System::of_sign(&set.text) {
                     bound.insert(name.text.clone(), system);
                 }
             }

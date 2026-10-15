@@ -25,6 +25,7 @@ use crate::methods::terms::{term_of_node, Targets};
 use crate::methods::{algebra, inequalities, linear};
 use crate::mm::kernel::{FloatLabels, Term};
 use crate::outcome::{Built, Checked, Declined};
+use crate::rules::System;
 use crate::sorts::infer::{self, Reader, Store};
 use crate::sorts::introduction::{Form, Introduction};
 use crate::sorts::{define_sorts, unlabel, written_tokens, Env};
@@ -1414,7 +1415,7 @@ fn algebra_unsaid(
             if let Some(atom) = parts
                 .atoms
                 .iter()
-                .find(|a| !methods_membership::holds(a, "cc", &given))
+                .find(|a| !methods_membership::holds(a, System::C, &given))
             {
                 return Some(format!(
                     "nothing says {} ∈ ℝ or ∈ ℂ, which this step needs",
@@ -1571,7 +1572,7 @@ fn membership_holds(
         return false;
     };
     let Some(system) = (set.notation == "number-systems")
-        .then(|| crate::rules::system_of(&set.text))
+        .then(|| System::of_sign(&set.text))
         .flatten()
     else {
         return false;
@@ -1640,7 +1641,7 @@ impl MembershipIn {
                 (f.notation.as_str(), f.children.as_slice())
             {
                 if let (true, Some(system)) =
-                    (name.is_name(), crate::rules::system_of(&set.text))
+                    (name.is_name(), System::of_sign(&set.text))
                 {
                     letters.entry(name.text.clone()).or_insert(system);
                 }
@@ -1687,7 +1688,7 @@ fn member_of(
     ranged: &mut IndexMap<String, methods_membership::Range>,
 ) -> bool {
     let system = match set.notation.as_str() {
-        "number-systems" => crate::rules::system_of(&set.text),
+        "number-systems" => System::of_sign(&set.text),
         "integer-range" => crate::citing::range_system(set),
         _ => None,
     };

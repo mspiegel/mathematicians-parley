@@ -29,7 +29,7 @@ use num_integer::Integer;
 use num_traits::{One, Signed, Zero};
 
 use super::field::{
-    self, numeral as n, order, q, spell_coefficient, spell_monomial, Monomial, Q,
+    self, numeral as n, order, q, spell_coefficient, spell_monomial, Monomial, Op, Q,
 };
 use super::numerals;
 use crate::binds;
@@ -1966,16 +1966,12 @@ impl Emitter {
                 return Ok(Built((items, p)));
             }
         }
-        if term.variable().is_none()
-            && term.label() == Some("co")
-            && term.children().len() == 3
-        {
-            let how = term.children()[2].rpn(labels).to_string();
+        if let Some(how) = Op::applied(term) {
             let (left, right) = (&term.children()[0], &term.children()[1]);
-            if how == field::ADD || how == field::SUB || how == field::MUL {
-                return self.binary(o, &how, left, right, labels, &said);
+            if matches!(how, Op::Add | Op::Sub | Op::Mul) {
+                return self.binary(o, how, left, right, labels, &said);
             }
-            if how == field::EXP {
+            if how == Op::Exp {
                 // The exponent rule, as `field` states it where the same
                 // claim is decided: a numeral exponent is expanded, and any
                 // other, or a power past what may be multiplied out, leaves
@@ -2035,7 +2031,7 @@ impl Emitter {
                 }
                 return self.as_atom(o, &said).map(Built);
             }
-            if how == field::DIV {
+            if how == Op::Div {
                 return Ok(Route::no(format!(
                     "{said} divides, which is cross-multiplied"
                 )));
@@ -2232,7 +2228,7 @@ impl Emitter {
     fn binary(
         &mut self,
         o: &mut dyn Oracle,
-        how: &str,
+        how: Op,
         left: &Term,
         right: &Term,
         labels: &FloatLabels,
@@ -2240,7 +2236,7 @@ impl Emitter {
     ) -> Checked<Route<(Run, Proof)>> {
         let (first, one) = take!(self.normalize(o, left, labels)?);
         let (second, two) = take!(self.normalize(o, right, labels)?);
-        if how == field::SUB {
+        if how == Op::Sub {
             return self.subtracted(
                 o,
                 &left.rpn(labels),
@@ -2252,7 +2248,7 @@ impl Emitter {
                 said,
             );
         }
-        let what = if how == field::ADD { ADD } else { MUL };
+        let what = if how == Op::Add { ADD } else { MUL };
         let joined = o.b().ap(
             "oveq12d",
             &binds! {"ph" => &self.under, "A" => &*left.rpn(labels),
@@ -2260,7 +2256,7 @@ impl Emitter {
             "D" => Self::spell_run(&second), "F" => what},
             &[&one, &two],
         );
-        let made = if how == field::ADD {
+        let made = if how == Op::Add {
             self.add(o, &first, &second)?
         } else {
             self.multiply(o, &first, &second)?
@@ -2576,7 +2572,7 @@ impl Emitter {
         labels: &FloatLabels,
     ) -> Checked<Route<Quotiented>> {
         let said = term.rpn(labels).to_string();
-        if !divides(term, labels) {
+        if !divides(term) {
             let (items, proof) = take!(self.normalize(o, term, labels)?);
             return Ok(Built(Quotiented {
                 over: items,
@@ -2590,20 +2586,14 @@ impl Emitter {
         {
             return self.quotient_negated(o, &term.children()[0], labels, &said);
         }
-        if term.variable().is_none()
-            && term.label() == Some("co")
-            && term.children().len() == 3
-        {
-            let how = term.children()[2].rpn(labels).to_string();
+        if let Some(how) = Op::applied(term) {
             let (left, right) = (&term.children()[0], &term.children()[1]);
-            if how == field::DIV {
-                return self.quotient_of(o, left, right, labels, &said);
-            }
-            if how == field::ADD || how == field::SUB || how == field::MUL {
-                return self.quotient_joined(o, &how, left, right, labels, &said);
-            }
-            if how == field::EXP {
-                return self.quotient_raised(o, left, right, labels, &said);
+            match how {
+                Op::Div => return self.quotient_of(o, left, right, labels, &said),
+                Op::Add | Op::Sub | Op::Mul => {
+                    return self.quotient_joined(o, how, left, right, labels, &said)
+                }
+                Op::Exp => return self.quotient_raised(o, left, right, labels, &said),
             }
         }
         Ok(Route::no(format!(
@@ -3137,15 +3127,15 @@ impl Emitter {
     fn quotient_joined(
         &mut self,
         o: &mut dyn Oracle,
-        how: &str,
+        how: Op,
         left: &Term,
         right: &Term,
         labels: &FloatLabels,
         said: &str,
     ) -> Checked<Route<Quotiented>> {
-        let written_op = if how == field::ADD {
+        let written_op = if how == Op::Add {
             ADD
-        } else if how == field::SUB {
+        } else if how == Op::Sub {
             SUB
         } else {
             MUL
@@ -3181,7 +3171,7 @@ impl Emitter {
             (over, under, below, beneath);
         let (mut a, mut b, mut c, mut d) = (a, b, c, d);
         let mut joined = joined;
-        if how == field::MUL {
+        if how == Op::Mul {
             for second in [false, true] {
                 let now = Fractions {
                     over: over.clone(),
@@ -3205,7 +3195,7 @@ impl Emitter {
             }
         }
         let (label, top, made, numerator);
-        if how == field::SUB {
+        if how == Op::Sub {
             // The numerator a difference lands on is two products, the
             // second taken from the first, which `subtracted` does to runs.
             label = "divsubdiv";
@@ -3224,7 +3214,7 @@ impl Emitter {
             )?);
             made = m;
             numerator = p;
-        } else if how == field::ADD {
+        } else if how == Op::Add {
             // The numerator a sum lands on is two products added, so each is
             // multiplied out and then the two of them joined.
             label = "divadddiv";
@@ -3415,24 +3405,18 @@ pub fn show(value: &Q) -> String {
 /// Only the arithmetic the normaliser reads is looked through. A sum whose
 /// summand divides, Σ(k = 1 to n) 1/T(k), is an atom, and what is inside it
 /// is not a denominator of the term it stands in.
-pub fn divides(term: &Term, labels: &FloatLabels) -> bool {
+pub fn divides(term: &Term) -> bool {
     if term.variable().is_some() {
         return false;
     }
     if term.label() == Some("cneg") {
-        return term.children().iter().any(|one| divides(one, labels));
+        return term.children().iter().any(divides);
     }
-    if term.label() != Some("co") || term.children().len() != 3 {
-        return false;
+    match Op::applied(term) {
+        Some(Op::Div) => true,
+        Some(_) => term.children()[..2].iter().any(divides),
+        None => false,
     }
-    let how = term.children()[2].rpn(labels);
-    if &*how == field::DIV {
-        return true;
-    }
-    if ![field::ADD, field::SUB, field::MUL, field::EXP].contains(&&*how) {
-        return false;
-    }
-    term.children()[..2].iter().any(|one| divides(one, labels))
 }
 
 /// One factor of a monomial, always `( x ^ k )`.

@@ -360,7 +360,7 @@ pub fn implied_facts(fact: &Node, env: Env, sorts: &Sorts) -> Vec<Node> {
         return Vec::new();
     }
     let term = fact.children[0].clone();
-    let system = rules::system_of(&fact.children[1].text);
+    let system = rules::System::of_sign(&fact.children[1].text);
     let mut local = sorts.clone();
     local.insert("x".into(), Sort::of("number"));
     let binders = env.g.binders();
@@ -369,7 +369,8 @@ pub fn implied_facts(fact: &Node, env: Env, sorts: &Sorts) -> Vec<Node> {
     let mut said: Vec<Node> = rules::SYSTEM_OF
         .iter()
         .filter(|(_, big)| {
-            Some(*big) != system && rules::within_path(system, Some(big)).is_some()
+            let big = rules::System::of_label(big);
+            big.is_some() && big != system && rules::System::maybe_within(system, big)
         })
         .map(|(sign, _)| {
             // S is read as the number system that fills it, whatever the
@@ -385,8 +386,8 @@ pub fn implied_facts(fact: &Node, env: Env, sorts: &Sorts) -> Vec<Node> {
         })
         .collect();
     let put = Binding::from([("x".to_string(), term)]);
-    said.extend(rules::implied(system).iter().map(|(form, _)| {
-        substitute_apart_by(&template(form, env, &local), &put, &binders)
-    }));
+    said.extend(rules::implied(system.map(rules::System::label)).iter().map(
+        |(form, _)| substitute_apart_by(&template(form, env, &local), &put, &binders),
+    ));
     said
 }

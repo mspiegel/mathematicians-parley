@@ -31,7 +31,7 @@ use crate::matching::{
     PROPERTY,
 };
 use crate::outcome::{Built, Declined, Route};
-use crate::rules;
+use crate::rules::{self, System};
 use crate::text::squash;
 
 /// A requires line whose cited item does not give its fact.
@@ -1138,7 +1138,7 @@ fn term_built(
         return false;
     };
     let Some(system) = (codomain.notation == "number-systems")
-        .then(|| rules::system_of(&codomain.text))
+        .then(|| System::of_sign(&codomain.text))
         .flatten()
     else {
         return false;
@@ -1147,7 +1147,7 @@ fn term_built(
     let mut ranged = IndexMap::new();
     match (domain.notation.as_str(), domain.children.as_slice()) {
         ("number-systems", _) => {
-            if let Some(s) = rules::system_of(&domain.text) {
+            if let Some(s) = System::of_sign(&domain.text) {
                 letters.insert(letter.to_string(), s);
             }
         }
@@ -1832,7 +1832,7 @@ impl AskedType {
         let Some(codomain) = self.asked.children.get(2) else {
             return false;
         };
-        let Some(system) = rules::system_of(&codomain.text) else {
+        let Some(system) = System::of_sign(&codomain.text) else {
             return false;
         };
         self.inner_sums().iter().any(|sum| {
@@ -1865,17 +1865,15 @@ impl AskedType {
         let holds = known.alike(set, domain)
             || (set.notation == "number-systems"
                 && range_system(domain).is_some_and(|inside| {
-                    rules::within_path(Some(inside), rules::system_of(&set.text))
-                        .is_some()
+                    System::of_sign(&set.text).is_some_and(|s| inside.within(s))
                 }));
         let lands = known.alike(into, codomain)
             || (into.notation == "number-systems"
                 && codomain.notation == "number-systems"
-                && rules::within_path(
-                    rules::system_of(&into.text),
-                    rules::system_of(&codomain.text),
-                )
-                .is_some());
+                && System::maybe_within(
+                    System::of_sign(&into.text),
+                    System::of_sign(&codomain.text),
+                ));
         holds && lands && known.alike(&substitute_apart(term, &at, ctx), value)
     }
 

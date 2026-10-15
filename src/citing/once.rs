@@ -17,18 +17,18 @@ use num_traits::{Signed, ToPrimitive, Zero};
 use crate::formula::page::template;
 use crate::formula::{Node, Sort, Sorts};
 use crate::matching::{alike_top, standard, substitute_apart, Binding};
-use crate::rules::{self, lookup};
+use crate::rules::{self, lookup, System};
 
 use super::library::Library;
 use super::parts::Parts;
 
 /// The number system each letter is introduced in, by the letter as the
-/// page writes it, as `rules::SYSTEM_OF` labels it.
-pub type Introduced = IndexMap<String, &'static str>;
+/// page writes it.
+pub type Introduced = IndexMap<String, System>;
 
 /// The letter and number system a sentence `x ∈ ℝ` introduces; None for any
 /// other sentence, a term in place of the letter included.
-pub fn introduction(said: &Node) -> Option<(String, &'static str)> {
+pub fn introduction(said: &Node) -> Option<(String, System)> {
     let [letter, set] = said.children.as_slice() else {
         return None;
     };
@@ -36,7 +36,7 @@ pub fn introduction(said: &Node) -> Option<(String, &'static str)> {
         return None;
     }
     let system = match set.notation.as_str() {
-        "number-systems" => rules::system_of(&set.text)?,
+        "number-systems" => System::of_sign(&set.text)?,
         "integer-range" => range_system(set)?,
         _ => return None,
     };
@@ -46,7 +46,7 @@ pub fn introduction(said: &Node) -> Option<(String, &'static str)> {
 /// The least number system the declared table puts a range {a, …, b} in:
 /// ℕ from 1, ℕ₀ from 0, and ℤ from anywhere (`rules::RANGE_WITHIN`, which
 /// the elaborator reads as well).
-pub fn range_system(range: &Node) -> Option<&'static str> {
+pub fn range_system(range: &Node) -> Option<System> {
     let start = range.children.first()?;
     let begins = (start.notation == "numeral")
         .then(|| {
@@ -60,7 +60,7 @@ pub fn range_system(range: &Node) -> Option<&'static str> {
     rules::RANGE_WITHIN
         .iter()
         .find(|(_, first, _)| first.is_none() || *first == begins)
-        .map(|(system, _, _)| *system)
+        .and_then(|(system, _, _)| System::of_label(system))
 }
 
 /// The memberships the page says once of the terms `parts` names, in every
@@ -83,7 +83,7 @@ pub fn said_once(
             && term.is_name()
             && set.notation == "number-systems"
         {
-            if let Some(system) = rules::system_of(&set.text) {
+            if let Some(system) = System::of_sign(&set.text) {
                 letters.entry(term.text.clone()).or_insert(system);
             }
         }
@@ -134,7 +134,10 @@ pub fn said_once(
         if !node.sort.is("number") || !seen.insert(node.shape().to_string()) {
             continue;
         }
-        for (sign, system) in rules::SYSTEM_OF {
+        for (sign, label) in rules::SYSTEM_OF {
+            let Some(system) = System::of_label(label) else {
+                continue;
+            };
             if within(&node, system, &letters, &nonzero, &|_, _| false) {
                 out.extend(member(sign, &node));
             }
@@ -157,7 +160,7 @@ pub fn a_number_said_once(
     // A term a fact puts in a number system is a number there as a letter
     // is, and what +, − and · build from it is too: (x − a)·q(x) where a
     // line says q(x) ∈ ℂ.
-    let mut atoms: Vec<(&Node, &'static str)> = Vec::new();
+    let mut atoms: Vec<(&Node, System)> = Vec::new();
     for f in facts {
         let [name, set] = f.children.as_slice() else {
             continue;
@@ -165,7 +168,7 @@ pub fn a_number_said_once(
         if f.notation != "membership" || set.notation != "number-systems" {
             continue;
         }
-        let Some(system) = rules::system_of(&set.text) else {
+        let Some(system) = System::of_sign(&set.text) else {
             continue;
         };
         if name.is_name() {
@@ -175,23 +178,23 @@ pub fn a_number_said_once(
         }
     }
     let nonzero = numeral_nonzero;
-    let said = |t: &Node, system: &str| {
+    let said = |t: &Node, system: System| {
         atoms.iter().any(|(a, s)| {
             crate::matching::alike(a, t, ctx, &IndexMap::new(), &IndexMap::new())
-                && rules::within_path(Some(s), Some(system)).is_some()
+                && s.within(system)
         })
     };
-    within(term, "cc", &letters, &nonzero, &said)
+    within(term, System::C, &letters, &nonzero, &said)
 }
 
 /// Whether `term` is in `system` by what the page says once, or by `said`,
 /// which puts a term in a system as a line stating it does.
 pub fn within(
     term: &Node,
-    system: &str,
+    system: System,
     letters: &Introduced,
     nonzero: &dyn Fn(&Node) -> bool,
-    said: &dyn Fn(&Node, &str) -> bool,
+    said: &dyn Fn(&Node, System) -> bool,
 ) -> bool {
     if said(term, system) {
         return true;
@@ -199,17 +202,18 @@ pub fn within(
     if let Some(v) = value(term) {
         let whole = v.is_integer();
         return match system {
-            "cn" => whole && v.is_positive(),
-            "cn0" => whole && !v.is_negative(),
-            "cz" => whole,
+            System::N => whole && v.is_positive(),
+            System::N0 => whole && !v.is_negative(),
+            System::Z => whole,
             _ => true,
         };
     }
     if term.is_name() {
         return letters
             .get(&term.text)
-            .is_some_and(|set| rules::within_path(Some(set), Some(system)).is_some());
+            .is_some_and(|set| set.within(system));
     }
+    let label = system.label();
     let both = |a: &Node, b: &Node| {
         within(a, system, letters, nonzero, said)
             && within(b, system, letters, nonzero, said)
@@ -220,24 +224,24 @@ pub fn within(
         term.children.as_slice(),
     ) {
         ("unary-minus", _, [a]) => {
-            lookup(rules::NEGATED, system).is_some()
+            lookup(rules::NEGATED, label).is_some()
                 && within(a, system, letters, nonzero, said)
         }
         ("additive", "+", [a, b]) => {
-            rules::closed("caddc", system).is_some() && both(a, b)
+            rules::closed("caddc", label).is_some() && both(a, b)
         }
         ("additive", "−", [a, b]) => {
-            rules::closed("cmin", system).is_some() && both(a, b)
+            rules::closed("cmin", label).is_some() && both(a, b)
         }
         ("multiplicative", "·", [a, b]) | ("juxtaposition", _, [a, b]) => {
-            rules::closed("cmul", system).is_some() && both(a, b)
+            rules::closed("cmul", label).is_some() && both(a, b)
         }
         ("multiplicative", "/", [a, b]) => {
-            lookup(rules::DIVIDED, system).is_some() && both(a, b) && nonzero(b)
+            lookup(rules::DIVIDED, label).is_some() && both(a, b) && nonzero(b)
         }
         ("power", _, [a, e]) | ("superscript", _, [a, e]) => {
             value(e).is_some_and(|v| v.is_integer() && !v.is_negative())
-                && rules::closed("cexp", system).is_some()
+                && rules::closed("cexp", label).is_some()
                 && within(a, system, letters, nonzero, said)
         }
         _ => false,

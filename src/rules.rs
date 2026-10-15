@@ -561,6 +561,76 @@ pub fn system_of(sign: &str) -> Option<&'static str> {
     lookup(SYSTEM_OF, sign)
 }
 
+/// A number system, the six set.mm names and the page writes as ℕ, ℕ₀, ℤ,
+/// ℚ, ℝ and ℂ. The tables here are written in set.mm's labels, which the
+/// gate holds to set.mm (`labels`), and a system is read from and spelt as
+/// its label; code that asks what a system is, rather than spells a term
+/// with it, holds one of these.
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+pub enum System {
+    N,
+    N0,
+    Z,
+    Q,
+    R,
+    C,
+}
+
+impl System {
+    /// set.mm's label for it: `cn`, `cn0`, `cz`, `cq`, `cr`, `cc`.
+    pub fn label(self) -> &'static str {
+        match self {
+            System::N => "cn",
+            System::N0 => "cn0",
+            System::Z => "cz",
+            System::Q => "cq",
+            System::R => "cr",
+            System::C => "cc",
+        }
+    }
+
+    /// The system set.mm's label names; None for any other label.
+    pub fn of_label(label: &str) -> Option<System> {
+        match label {
+            "cn" => Some(System::N),
+            "cn0" => Some(System::N0),
+            "cz" => Some(System::Z),
+            "cq" => Some(System::Q),
+            "cr" => Some(System::R),
+            "cc" => Some(System::C),
+            _ => None,
+        }
+    }
+
+    /// The system the page's sign names, `ℝ`; None for any other text
+    /// (`SYSTEM_OF`).
+    pub fn of_sign(sign: &str) -> Option<System> {
+        system_of(sign).and_then(System::of_label)
+    }
+
+    /// `within` where either may be no number system, a set the page wrote
+    /// that is none of them: two such are one as far as the table is
+    /// concerned, as `within_path` has them.
+    pub fn maybe_within(small: Option<System>, big: Option<System>) -> bool {
+        match (small, big) {
+            (Some(small), Some(big)) => small.within(big),
+            (None, None) => true,
+            _ => false,
+        }
+    }
+
+    /// Whether every member of this system is one of `big` (`WITHIN`): a
+    /// system is within itself.
+    pub fn within(self, big: System) -> bool {
+        self == big
+            || lookup(WITHIN, self.label()).is_some_and(|row| {
+                row.iter().any(|(middle, _)| {
+                    System::of_label(middle).is_some_and(|m| m.within(big))
+                })
+            })
+    }
+}
+
 pub const WITHIN: &[(&str, &[(&str, &str)])] = &[
     (
         "cn",
@@ -1120,4 +1190,38 @@ pub fn every_label() -> Vec<(&'static str, &'static str)> {
     }
     put("WRAPS", &WRAPS);
     out
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const ALL: [System; 6] = [
+        System::N,
+        System::N0,
+        System::Z,
+        System::Q,
+        System::R,
+        System::C,
+    ];
+
+    #[test]
+    fn a_system_is_within_another_where_the_table_carries_it_there() {
+        for small in ALL {
+            for big in ALL {
+                let path = within_path(Some(small.label()), Some(big.label()));
+                assert_eq!(small.within(big), path.is_some(), "{small:?} in {big:?}");
+            }
+        }
+    }
+
+    #[test]
+    fn a_system_reads_back_from_its_label_and_its_sign() {
+        for system in ALL {
+            assert_eq!(System::of_label(system.label()), Some(system));
+        }
+        for (sign, label) in SYSTEM_OF {
+            assert_eq!(System::of_sign(sign).map(System::label), Some(*label));
+        }
+    }
 }

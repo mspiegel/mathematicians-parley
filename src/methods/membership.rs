@@ -14,7 +14,7 @@ use super::terms::Targets;
 use crate::citing::{numeral_nonzero, within, Introduced};
 use crate::formula::Node;
 use crate::matching::{alike, substitute_apart, Binding, Context};
-use crate::rules;
+use crate::rules::{self, System};
 
 /// What a membership is decided from: the facts the step cites and its
 /// requires lines above it say, each part of them and what each membership
@@ -48,13 +48,13 @@ pub struct Range {
 const CARRIED: usize = 3;
 
 /// Whether `term` is in `system` by what `facts` give.
-pub fn holds(term: &Node, system: &str, facts: &Facts) -> bool {
+pub fn holds(term: &Node, system: System, facts: &Facts) -> bool {
     member(term, system, facts, CARRIED)
 }
 
-fn member(term: &Node, system: &str, facts: &Facts, depth: usize) -> bool {
+fn member(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
     let nonzero = |d: &Node| nonzero(d, facts);
-    let said = |t: &Node, s: &str| said_otherwise(t, s, facts, depth);
+    let said = |t: &Node, s: System| said_otherwise(t, s, facts, depth);
     within(term, system, &facts.letters, &nonzero, &said)
 }
 
@@ -124,13 +124,13 @@ pub fn unsaid_part(divisor: &Node, facts: &Facts) -> Option<Node> {
 /// says so, of a system inside it; a cited equation puts it beside a term
 /// that is; or the closure table puts it there, by its operation, as a sum
 /// over a range, a power, a function's value or a term by cases.
-fn said_otherwise(term: &Node, system: &str, facts: &Facts, depth: usize) -> bool {
+fn said_otherwise(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
     let stated = facts.facts.iter().any(|f| {
         f.notation == "membership"
             && matches!(f.children.as_slice(), [t, set]
                 if set.notation == "number-systems"
                     && same(t, term, facts.ctx)
-                    && rules::within_path(rules::system_of(&set.text), Some(system)).is_some())
+                    && System::of_sign(&set.text).is_some_and(|s| s.within(system)))
     });
     if stated {
         return true;
@@ -155,7 +155,7 @@ fn said_otherwise(term: &Node, system: &str, facts: &Facts, depth: usize) -> boo
 
 /// A term by cases, what a define by cases writes out to, in a system
 /// where each of its values is: s(x) ∈ ℕ₀ where s is 0 or 1.
-fn cased(term: &Node, system: &str, facts: &Facts, depth: usize) -> bool {
+fn cased(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
     let ("by-cases", [value, _, otherwise]) =
         (term.notation.as_str(), term.children.as_slice())
     else {
@@ -166,21 +166,21 @@ fn cased(term: &Node, system: &str, facts: &Facts, depth: usize) -> bool {
 
 /// A power a^e in a system the closure table closes under powers, a in it
 /// and e in ℕ₀: 2^j ∈ ℤ where j ∈ ℕ₀. A power to a numeral is the walk's.
-fn powered(term: &Node, system: &str, facts: &Facts, depth: usize) -> bool {
+fn powered(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
     let ("power" | "superscript", [base, exponent]) =
         (term.notation.as_str(), term.children.as_slice())
     else {
         return false;
     };
-    rules::closed("cexp", system).is_some()
-        && member(exponent, "cn0", facts, depth)
+    rules::closed("cexp", system.label()).is_some()
+        && member(exponent, System::N0, facts, depth)
         && member(base, system, facts, depth)
 }
 
 /// A function's value f(x) in a system holding E, where a type in scope
 /// says `f : D → E` and x is in D: by a number system D holds, by a range
 /// D x runs over, or by a fact putting x in D.
-fn valued(term: &Node, system: &str, facts: &Facts, depth: usize) -> bool {
+fn valued(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
     let ("application", [f, at]) = (term.notation.as_str(), term.children.as_slice())
     else {
         return false;
@@ -191,8 +191,7 @@ fn valued(term: &Node, system: &str, facts: &Facts, depth: usize) -> bool {
         };
         same(g, f, facts.ctx)
             && codomain.notation == "number-systems"
-            && rules::within_path(rules::system_of(&codomain.text), Some(system))
-                .is_some()
+            && System::of_sign(&codomain.text).is_some_and(|s| s.within(system))
             && in_domain(at, domain, facts, depth)
     })
 }
@@ -200,7 +199,7 @@ fn valued(term: &Node, system: &str, facts: &Facts, depth: usize) -> bool {
 /// Whether `x` is in the set `domain` a function is typed over.
 fn in_domain(x: &Node, domain: &Node, facts: &Facts, depth: usize) -> bool {
     if domain.notation == "number-systems" {
-        return rules::system_of(&domain.text)
+        return System::of_sign(&domain.text)
             .is_some_and(|s| member(x, s, facts, depth));
     }
     let runs_over = x.is_name()
@@ -222,32 +221,36 @@ fn in_domain(x: &Node, domain: &Node, facts: &Facts, depth: usize) -> bool {
 /// (`rules::WHOLE`), in a system holding ℕ₀, its parts in what the table
 /// asks. The operation is read off the term's target, a notation's or a
 /// library function's (`Targets::operation`).
-fn whole(term: &Node, system: &str, facts: &Facts, depth: usize) -> bool {
+fn whole(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
     let Some(op) = facts.targets.operation(term) else {
         return false;
     };
     let Some(w) = rules::WHOLE.iter().find(|w| w.op == op.label) else {
         return false;
     };
-    let [left, right] = op.parts.as_slice() else {
+    let ([left, right], Some(left_in), Some(right_in)) = (
+        op.parts.as_slice(),
+        System::of_label(w.left.1),
+        System::of_label(w.right.1),
+    ) else {
         return false;
     };
-    rules::within_path(Some("cn0"), Some(system)).is_some()
-        && member(left, w.left.1, facts, depth)
-        && member(right, w.right.1, facts, depth)
+    System::N0.within(system)
+        && member(left, left_in, facts, depth)
+        && member(right, right_in, facts, depth)
 }
 
 /// A sum over a range in ℝ or ℂ, its term in that system at every index:
 /// the index is in the system its range lies in (`rules::RANGE_WITHIN`), and
 /// a term dividing by something that holds the index is one a fact says at
 /// every point of a set holding the range (`SYNTAX.md`).
-fn summed(term: &Node, system: &str, facts: &Facts, depth: usize) -> bool {
+fn summed(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
     let ("sum", [index, start, end, body]) =
         (term.notation.as_str(), term.children.as_slice())
     else {
         return false;
     };
-    if !matches!(system, "cr" | "cc") || !index.is_name() {
+    if !matches!(system, System::R | System::C) || !index.is_name() {
         return false;
     }
     let inside = index_system(start);
@@ -288,7 +291,7 @@ fn summed(term: &Node, system: &str, facts: &Facts, depth: usize) -> bool {
 
 /// The number system a range from `start` puts its members in: ℕ from 1,
 /// ℕ₀ from 0, ℤ from anywhere.
-fn index_system(start: &Node) -> Option<&'static str> {
+fn index_system(start: &Node) -> Option<System> {
     let begins = (start.notation == "numeral")
         .then(|| {
             start
@@ -301,7 +304,7 @@ fn index_system(start: &Node) -> Option<&'static str> {
     rules::RANGE_WITHIN
         .iter()
         .find(|(_, first, _)| first.is_none() || *first == begins)
-        .map(|(system, _, _)| *system)
+        .and_then(|(system, _, _)| System::of_label(system))
 }
 
 /// The atoms of a term and the divisors it writes, as `algebra` reads it
@@ -394,7 +397,12 @@ impl<'n> Summed<'n> {
 /// Whether `fact` says, at every point of a set holding the sum's range,
 /// that its term is in a system inside `system`: `for all k ∈ ℕ, 1/k ∈ ℝ`
 /// for Σ(k = 1 to n) 1/k.
-pub fn said_pointwise(fact: &Node, sum: &Summed, system: &str, ctx: &Context) -> bool {
+pub fn said_pointwise(
+    fact: &Node,
+    sum: &Summed,
+    system: System,
+    ctx: &Context,
+) -> bool {
     let ("for-all", [bound, set, body]) =
         (fact.notation.as_str(), fact.children.as_slice())
     else {
@@ -407,15 +415,14 @@ pub fn said_pointwise(fact: &Node, sum: &Summed, system: &str, ctx: &Context) ->
     };
     let holds_range = match set.notation.as_str() {
         "number-systems" => {
-            rules::within_path(index_system(sum.start), rules::system_of(&set.text))
-                .is_some()
+            System::maybe_within(index_system(sum.start), System::of_sign(&set.text))
         }
         "integer-range" => matches!(set.children.as_slice(), [a, b]
             if same(a, sum.start, ctx) && same(b, sum.end, ctx)),
         _ => false,
     };
     let lands = into.notation == "number-systems"
-        && rules::within_path(rules::system_of(&into.text), Some(system)).is_some();
+        && System::of_sign(&into.text).is_some_and(|s| s.within(system));
     let at = Binding::from([(sum.index.to_string(), bound.clone())]);
     holds_range && lands && same(&substitute_apart(sum.body, &at, ctx), value, ctx)
 }
