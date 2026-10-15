@@ -1,6 +1,7 @@
 //! What each item asks a citation to supply, read once into patterns.
 
 use std::cell::RefCell;
+use std::collections::BTreeSet;
 use std::rc::Rc;
 
 use indexmap::{IndexMap, IndexSet};
@@ -14,12 +15,63 @@ use crate::regex;
 use crate::sorts::introduction::{Form, Introduction};
 use crate::sorts::{sorts_of_statement, statement_definitions, Env};
 
+use super::supply::names_of;
+
 /// One `then` group of an item.
 pub struct Group {
     /// What it asks for, each fact with the text it was read from.
     pub wants: Vec<(String, Node)>,
     /// The sentences it concludes.
     pub gives: Vec<Node>,
+    /// The library's functions it applies, which are no letters of its: a
+    /// citation of `lowest-terms-parts` cannot make denom stand for numer.
+    pub functions: BTreeSet<String>,
+}
+
+impl Group {
+    /// The item's letters among the names in `trees`: each but the
+    /// library's functions it applies.
+    pub fn letters(&self, trees: &[Node]) -> BTreeSet<String> {
+        let mut out = names_of(trees);
+        out.retain(|n| !self.functions.contains(n));
+        out
+    }
+}
+
+/// The library's functions the trees apply: a name applied, `denom(x)`,
+/// that the library defines and the item has in scope, and that no `let`
+/// line of the item introduces as its own.
+fn applied_functions<'t>(
+    trees: impl IntoIterator<Item = &'t Node>,
+    lines: &[(Intro, Written)],
+    sorts: &Sorts,
+    env: Env,
+) -> BTreeSet<String> {
+    let own: BTreeSet<String> = lines
+        .iter()
+        .filter(|(kind, _)| *kind == Intro::Let)
+        .filter_map(|(_, body)| {
+            Introduction::read(body.clone()).name().map(str::to_string)
+        })
+        .collect();
+    let mut out = BTreeSet::new();
+    for tree in trees {
+        for node in tree.walk() {
+            let ("application" | "application-to-two", Some(head)) =
+                (node.notation.as_str(), node.children.first())
+            else {
+                continue;
+            };
+            if head.is_name()
+                && env.g.functions.contains_key(&head.text)
+                && sorts.imported.contains(&head.text)
+                && !own.contains(&head.text)
+            {
+                out.insert(head.text.clone());
+            }
+        }
+    }
+    out
 }
 
 /// A theorem this corpus proves, as a citation of it reads it: the theorem,
@@ -235,21 +287,28 @@ impl<'a> Library<'a> {
                 self.env,
                 &sorts_of_statement(thm, self.env),
             );
-            let facts = self
+            let facts: Vec<(String, Node)> = self
                 .facts(&lines, &k.sorts)
                 .into_iter()
                 .map(|(text, tree)| (text, expand(&tree, &own)))
                 .collect();
             let conclusion =
                 Written::new(&thm.conclusion, &thm.path, thm.conclusion_line);
-            let gives = self
+            let gives: Vec<Node> = self
                 .trees(&[conclusion], &k.sorts)
                 .iter()
                 .map(|t| expand(t, &own))
                 .collect();
+            let functions = applied_functions(
+                gives.iter().chain(facts.iter().map(|(_, t)| t)),
+                &lines,
+                &k.sorts,
+                self.env,
+            );
             return Some(vec![Group {
                 wants: facts,
                 gives,
+                functions,
             }]);
         }
         let &i = self.items.get(name)?;
@@ -263,15 +322,25 @@ impl<'a> Library<'a> {
                 .filter(|h| h.line < *at)
                 .map(|h| (h.kind, h.body(&item.path)))
                 .collect();
+            let wants = self.facts(&lines, sorts);
+            let gives = self.trees(&[Written::new(text, &item.path, *at)], sorts);
+            let functions = applied_functions(
+                gives.iter().chain(wants.iter().map(|(_, t)| t)),
+                &lines,
+                sorts,
+                self.env,
+            );
             out.push(Group {
-                wants: self.facts(&lines, sorts),
-                gives: self.trees(&[Written::new(text, &item.path, *at)], sorts),
+                wants,
+                gives,
+                functions,
             });
         }
         if out.is_empty() {
             out.push(Group {
                 wants: Vec::new(),
                 gives: Vec::new(),
+                functions: BTreeSet::new(),
             });
         }
         Some(out)

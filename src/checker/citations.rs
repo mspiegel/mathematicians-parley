@@ -15,8 +15,8 @@ use super::structure::letters_in_scope;
 use super::Report;
 use crate::citing::{
     asked, bound_in, claimed_member, concludes, conjuncts, derives, filled, finished,
-    function_values, identities_unsaid, names_of, obtained, obtains, range_system,
-    readings, said_once, search, substitution_unsaid, supply, taken, taken_ways,
+    function_values, identities_unsaid, obtained, obtains, range_system, readings,
+    said_once, search, substitution_unsaid, supply, taken, taken_ways,
     type_said_otherwise, with_parts, Concluded, Group, Library, Parts, Sites, Taken,
     Ways,
 };
@@ -532,10 +532,13 @@ fn missing_hypotheses(
         for (name, value) in &alone.binding {
             fixed.insert(name.clone(), value.clone());
         }
-        let unmet: Vec<String> = groups[alone.group]
+        let group = &groups[alone.group];
+        let unmet: Vec<String> = group
             .wants
             .iter()
-            .filter(|(_, tree)| !supplied_alone(tree, parts, &alone.binding, library))
+            .filter(|(_, tree)| {
+                !supplied_alone(tree, group, parts, &alone.binding, library)
+            })
             .map(|(_, tree)| library.env.g.print(&filled(tree, &fixed, &library.ctx)))
             .collect();
         if !unmet.is_empty() {
@@ -543,12 +546,13 @@ fn missing_hypotheses(
         }
     }
     let mut missing = None;
-    for Group { wants: want, .. } in groups.iter() {
+    for group in groups.iter() {
+        let want = &group.wants;
         if want.is_empty() {
             return None;
         }
         let trees: Vec<Node> = want.iter().map(|(_, t)| t.clone()).collect();
-        let variables = names_of(&trees);
+        let variables = group.letters(&trees);
         // Where a binder applies a function or a property to what it binds,
         // that is what decides it, here as in the conclusion.
         let mut sites = Sites::new();
@@ -635,6 +639,7 @@ fn concluded_alone(groups: &[Group], parts: &Parts, library: &Library) -> Route<
         .map(|g| Group {
             wants: Vec::new(),
             gives: g.gives.clone(),
+            functions: g.functions.clone(),
         })
         .collect();
     taken(
@@ -650,12 +655,13 @@ fn concluded_alone(groups: &[Group], parts: &Parts, library: &Library) -> Route<
 /// binding the claim fixed.
 fn supplied_alone(
     want: &Node,
+    group: &Group,
     parts: &Parts,
     binding: &Binding,
     library: &Library,
 ) -> bool {
     let trees = [want.clone()];
-    let variables = names_of(&trees);
+    let variables = group.letters(&trees);
     let mut sites = Sites::new();
     binding_sites(want, &library.ctx, &[], &mut sites);
     supply(
@@ -713,12 +719,13 @@ fn ways_supplied(
         );
         return Some(out);
     }
-    for Group { wants: want, .. } in groups.iter() {
+    for group in groups.iter() {
+        let want = &group.wants;
         if want.is_empty() {
             return None;
         }
         let trees: Vec<Node> = want.iter().map(|(_, t)| t.clone()).collect();
-        let variables = names_of(&trees);
+        let variables = group.letters(&trees);
         let mut sites = Sites::new();
         for t in &trees {
             binding_sites(t, &library.ctx, &[], &mut sites);
@@ -1969,14 +1976,15 @@ fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
                 || (function.is_name() && !declared.contains(&function.text))
         })
         .collect();
-    for Group { wants: want, gives } in groups.iter() {
+    for group in groups.iter() {
+        let (want, gives) = (&group.wants, &group.gives);
         let mut trees = gives.clone();
         trees.extend(want.iter().map(|(_, t)| t.clone()));
         let mut sites = Sites::new();
         for t in &trees {
             binding_sites(t, &library.ctx, &[], &mut sites);
         }
-        let variables = names_of(&trees);
+        let variables = group.letters(&trees);
         // What a function letter stands for is read where the item applies
         // it: its conclusions against what the step claims, and its
         // hypotheses against what the step cites, since an `obtain` claims

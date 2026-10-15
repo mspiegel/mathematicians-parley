@@ -15,7 +15,7 @@ use crate::outcome::{Built, Route};
 use super::asked::filled;
 use super::library::{conjuncts, either_way, readings, Group, Library, Way};
 use super::once::{a_number_said_once, Introduced};
-use super::supply::{names_of, search, supplier, supply, Sites, Ways};
+use super::supply::{search, supplier, supply, Sites, Ways};
 use crate::rules;
 
 /// Every sentence of the claim takes a reading of the conclusion, and what
@@ -375,7 +375,7 @@ impl Taken {
         };
         let mut trees = group.gives.clone();
         trees.extend(group.wants.iter().map(|(_, t)| t.clone()));
-        let variables = names_of(&trees);
+        let variables = group.letters(&trees);
         let mut sites = Sites::new();
         for t in &trees {
             binding_sites(t, &library.ctx, &[], &mut sites);
@@ -565,7 +565,7 @@ struct Offer {
 
 impl Offer {
     fn of(group: &Group, library: &Library) -> Offer {
-        let Group { wants: want, gives } = group;
+        let (want, gives) = (&group.wants, &group.gives);
         let mut candidates: Vec<(Node, Vec<Node>)> = Vec::new();
         let mut from = Vec::new();
         let mut ways = Vec::new();
@@ -596,7 +596,7 @@ impl Offer {
         }
         let mut trees = gives.clone();
         trees.extend(want.iter().map(|(_, t)| t.clone()));
-        let variables = names_of(&trees);
+        let variables = group.letters(&trees);
         // A conclusion is a sentence, so one that is a bare letter of the
         // item's is a statement letter.
         let letter = matches!(gives.as_slice(), [one]
@@ -640,7 +640,8 @@ pub fn obtained(
     seed: &Binding,
     library: &Library,
 ) -> Route<Taken> {
-    for (group, Group { wants, gives }) in groups.iter().enumerate() {
+    for (group, of) in groups.iter().enumerate() {
+        let (wants, gives) = (&of.wants, &of.gives);
         let asked: Vec<Node> = wants
             .iter()
             .flat_map(|(_, t)| conjuncts(t, library))
@@ -663,7 +664,7 @@ pub fn obtained(
                     .collect();
                 let mut need = first.clone();
                 need.extend(asked.iter().cloned());
-                let variables = names_of(&need);
+                let variables = of.letters(&need);
                 let found =
                     supply(&need, facts, seed, &variables, library, &sites, false);
                 if let Some(binding) = found {
@@ -741,10 +742,11 @@ pub fn derives(
     {
         return true;
     }
-    for Group { wants: want, gives } in groups {
+    for group in groups {
+        let (want, gives) = (&group.wants, &group.gives);
         let mut trees = gives.clone();
         trees.extend(want.iter().map(|(_, t)| t.clone()));
-        let variables = names_of(&trees);
+        let variables = group.letters(&trees);
         for concl in gives {
             let Some(binding) = match_tree(
                 concl,
