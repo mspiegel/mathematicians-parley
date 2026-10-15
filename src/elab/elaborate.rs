@@ -613,10 +613,10 @@ impl<'a> Elaborator<'a> {
             // A block closes at the first step the checker's record does not
             // stand inside it (`CheckedTheorem::around`).
             let owners: Vec<usize> = self
-                .shape
+                .checked
                 .around(at)
                 .iter()
-                .map(|p| self.shape.blocks[p.block].owner)
+                .map(|p| self.checked.blocks[p.block].owner)
                 .collect();
             while blocks.last().is_some_and(|b| {
                 CheckedTheorem::index_of(self.thm, &b.owner)
@@ -906,36 +906,6 @@ impl<'a> Elaborator<'a> {
         })
     }
 
-    /// Every step a step names is one it may cite (`GRAMMAR.md`, scope of a
-    /// citation), by the rule the checker reads (`checker::out_of_reach`):
-    /// what one case shows is no line of the next, and a step citing it is
-    /// refused here, before the kernel would refuse what it makes.
-    fn in_reach(&self, step: &Step) -> Checked<()> {
-        let mut named: Vec<String> = step.just.refs.clone();
-        named.extend(step.just.contradicting.iter().cloned());
-        for req in &step.requires {
-            named.extend(references(&req.how).0);
-        }
-        for r in named {
-            if !r.starts_with(|c: char| c.is_ascii_digit()) {
-                continue;
-            }
-            let cited = crate::corpus::StepNo::parse(&r);
-            if !self.thm.steps.iter().any(|s| s.number == cited) {
-                continue;
-            }
-            if let Some(why) =
-                crate::checker::out_of_reach(self.thm, &self.shape, &cited, step)
-            {
-                return Err(self.defect(
-                    step.line,
-                    format!("step {} cites line {r}, {why}", fmt(&step.number)),
-                ));
-            }
-        }
-        Ok(())
-    }
-
     fn one_step(
         &mut self,
         step: &Step,
@@ -947,7 +917,7 @@ impl<'a> Elaborator<'a> {
         let head = step.just.head.to_string();
         self.last = Some(number.to_string());
         self.at = step.line;
-        self.in_reach(step)?;
+        self.step_now = CheckedTheorem::index_of(self.thm, step);
         let resting = self.named(step, number, false);
         self.named_first(&step.just.refs, &resting, facts);
         if head == "obtain" {
@@ -1846,8 +1816,13 @@ impl<'a> Elaborator<'a> {
             })
             .collect();
         citing::said_once(&mut parts, &introduced, library, &self.sorts_now);
-        let typed: Vec<Node> = self.typed.values().cloned().collect();
-        citing::typed_seed(&mut parts, cited, &typed, library);
+        let Some(typed) = self.step_now.and_then(|i| self.checked.typed.get(i)) else {
+            return Err(self.defect(
+                self.at,
+                format!("{cited} is cited where the checker has read no step"),
+            ));
+        };
+        citing::typed_seed(&mut parts, cited, typed, library);
         Ok(parts)
     }
 
@@ -6171,7 +6146,6 @@ pub fn elaborate(
         sigs,
         &corpus.records,
         &corpus.scopes,
-        checked.sorts.clone(),
         statements,
     );
     work.b.share_syntax(syntax);

@@ -202,9 +202,13 @@ pub enum HeadKey {
 
 pub struct Elaborator<'a> {
     pub thm: &'a Theorem,
-    /// The proof's shape as the checker reads it: the block each step stands
-    /// in, and where each define is in scope.
-    pub shape: CheckedTheorem,
+    /// The theorem as the checker reads it (`checker::CheckedTheorem`): the
+    /// block each step stands in, where each define is in scope, the sorts,
+    /// and the functions typed at each step.
+    pub checked: CheckedTheorem,
+    /// The step being elaborated, by its index in the theorem's steps; None
+    /// before the first.
+    pub step_now: Option<usize>,
     pub g: &'a Grammar,
     pub items: &'a IndexMap<String, Item<'a>>,
     pub records: &'a [Record],
@@ -239,10 +243,6 @@ pub struct Elaborator<'a> {
     pub names: IndexMap<String, String>,
     /// Readable name -> the set it was let into.
     pub sets: IndexMap<String, String>,
-    /// Readable name of a function -> the type the line introducing it
-    /// says, `a : {1, …, n} → ℝ`, as a tree in the page's notation: what a
-    /// citation of an item over a function reads (`citing::typed_seed`).
-    pub typed: IndexMap<String, Node>,
     /// Readable name -> its membership as each line introducing it says it:
     /// the claim, its proof, and the scope that proof is under, carried to
     /// any scope inside that one (`introduced_membership`). Two cases may
@@ -369,18 +369,17 @@ pub struct Elaborator<'a> {
 
 impl<'a> Elaborator<'a> {
     #[allow(clippy::too_many_arguments)]
-    #[allow(clippy::too_many_arguments)]
     pub fn new(
         thm: &'a Theorem,
-        shape: CheckedTheorem,
+        checked: CheckedTheorem,
         g: &'a Grammar,
         items: &'a IndexMap<String, Item<'a>>,
         sigs: Layered,
         records: &'a [Record],
         scopes: &'a [FileScope],
-        sorts_now: Sorts,
         statements: &'a dyn Fn(&str) -> Option<String>,
     ) -> Elaborator<'a> {
+        let sorts_now = checked.sorts.clone();
         let b = Builder::new(sigs);
         let terms = targets::terms(records);
         let mut taken: IndexSet<String> = IndexSet::new();
@@ -421,7 +420,8 @@ impl<'a> Elaborator<'a> {
             .collect();
         Elaborator {
             thm,
-            shape,
+            checked,
+            step_now: None,
             g,
             items,
             records,
@@ -440,7 +440,6 @@ impl<'a> Elaborator<'a> {
             at: thm.line,
             names: IndexMap::new(),
             sets: IndexMap::new(),
-            typed: IndexMap::new(),
             introduced: IndexMap::new(),
             reserved: IndexSet::new(),
             rules_read: IndexMap::new(),

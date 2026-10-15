@@ -101,6 +101,11 @@ pub fn checked(
             let mut record = CheckedTheorem::of(thm);
             record.sorts = c.known[i].sorts.clone();
             record.problems = own.problems;
+            record.typed = thm
+                .steps
+                .iter()
+                .map(|step| library::typed_in_scope(&c.known[i], step))
+                .collect();
             out.insert(thm.qualified(), record);
         }
         out

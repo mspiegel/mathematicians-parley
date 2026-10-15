@@ -24,7 +24,7 @@ use crate::rules::NUMERALS;
 use crate::sorts::introduction::{Form, Introduction};
 use crate::sorts::{
     definition_sorts, sorts_of_record, sorts_of_statement, statement_definitions,
-    unlabel, Env, GraphLine, TYPING,
+    unlabel, Env, GraphLine,
 };
 use crate::t;
 use crate::targets;
@@ -131,27 +131,12 @@ impl<'a> Elaborator<'a> {
     pub fn names_and_sets_kept<T>(&mut self, f: impl FnOnce(&mut Self) -> T) -> T {
         let saved = self.names.clone();
         let kept = self.sets.clone();
-        let typed = self.typed.clone();
         let introduced = self.introduced.clone();
         let out = f(self);
         self.names = saved;
         self.sets = kept;
-        self.typed = typed;
         self.introduced = introduced;
         out
-    }
-
-    /// A sentence introducing a function, `f : X → Y` or `f : X → Y is
-    /// one-to-one` (`TYPING`), recorded as the type of f (`typed`); any
-    /// other sentence records nothing.
-    pub fn record_type(&mut self, said: &Node) {
-        if TYPING.contains(&said.notation.as_str())
-            && said.children.len() == 3
-            && said.children[0].is_name()
-        {
-            self.typed
-                .insert(said.children[0].text.clone(), said.clone());
-        }
     }
 
     /// Run `f` with the sorts an item's own lines state, and a theorem of the
@@ -547,7 +532,6 @@ impl<'a> Elaborator<'a> {
                     let set = self.term(&node.children[1])?;
                     self.sets.insert(introduced.text.clone(), set);
                 }
-                self.record_type(&node);
             }
             nodes.push(node);
         }

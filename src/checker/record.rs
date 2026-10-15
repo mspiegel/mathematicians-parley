@@ -1,13 +1,13 @@
 //! What the checker decides about a theorem, once, for itself and for the
 //! build: the block each step stands in and which part of it, each block's
 //! steps and its last, the place each define is written in, the sort of
-//! each name, and the problems it finds.
+//! each name, the functions typed at each step, and the problems it finds.
 //!
 //! The build is handed this rather than working it out again as it walks
 //! the proof, so the two cannot read one proof two ways.
 
 use crate::corpus::{Step, StepNo, Theorem};
-use crate::formula::Sorts;
+use crate::formula::{Node, Sorts};
 use crate::outcome::Problem;
 
 /// Where a step or a define stands: directly in a block, and in which part
@@ -56,6 +56,10 @@ pub struct CheckedTheorem {
     /// What the checker reports in the theorem, in the order it finds it;
     /// the build builds a theorem only where this is empty.
     pub problems: Vec<Problem>,
+    /// The function types the lines in scope at each step say, `v : {0, …,
+    /// n} → V`, by the step's index (`typed_in_scope`): what a citation of
+    /// an item over a function is read with (`citing::typed_seed`).
+    pub typed: Vec<Vec<Node>>,
 }
 
 /// Whether `step` owns a block: it opens one with a line above its steps,

@@ -489,7 +489,6 @@ impl<'a> Elaborator<'a> {
                             let set = self.term(&node.children[1])?;
                             self.sets.insert(name, set);
                         }
-                        self.record_type(&node);
                     }
                     let node = said;
                     let added = self.term(&node)?;
@@ -845,8 +844,8 @@ impl<'a> Elaborator<'a> {
         let Some(at) = CheckedTheorem::index_of(self.thm, step) else {
             return;
         };
-        let ends = self.shape.places[at].is_some_and(|p| {
-            let block = &self.shape.blocks[p.block];
+        let ends = self.checked.places[at].is_some_and(|p| {
+            let block = &self.checked.blocks[p.block];
             block.last() == Some(at)
                 && self.thm.steps[block.owner]
                     .just
@@ -2493,6 +2492,10 @@ impl<'a> Elaborator<'a> {
         closers: Vec<Closer>,
     ) -> Checked<(String, Facts, Vec<Closer>)> {
         self.at = line;
+        // A define stands where the first step after it does
+        // (`CheckedTheorem::defines`), and its reason reads what is in scope
+        // there.
+        self.step_now = self.thm.steps.iter().position(|s| s.line > line);
         let body = body.to_string();
         let var = self.spare_var()?;
         let said = t!(format!("{var} cv"), body, "wceq");
@@ -2629,7 +2632,6 @@ impl<'a> Elaborator<'a> {
                 ("function-type", _, [f, from, to]) if named(f) => {
                     let functions = self.functions_from(from, to)?;
                     domains.insert(f.text.clone(), functions);
-                    self.record_type(&said);
                 }
                 ("membership", "∈", [x, set]) if named(x) => {
                     domains.insert(x.text.clone(), set.clone());
