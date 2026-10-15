@@ -1333,7 +1333,7 @@ impl<'a> Elaborator<'a> {
         let Item::Record(record) = item else {
             unreachable!()
         };
-        let labels = self.target_labels(step, record)?;
+        let labels = self.cited_labels(step, record)?;
         let seed = self.filling(step, record)?;
         for label in &labels {
             let found = self.apply_lemma(
@@ -1394,6 +1394,34 @@ impl<'a> Elaborator<'a> {
             ));
         }
         Ok(labels)
+    }
+
+    /// The lemmas that prove what the step's citation of `item` takes: the
+    /// lemma of each sentence the checker read the claim as taking
+    /// (`Cited::sentences`), or of each sentence of the group an obtain
+    /// takes whole. An item whose target names fewer lemmas than it has
+    /// sentences proves several with one lemma (gcd: "four sentences from
+    /// three lemmas"), and which one is set.mm's to say: every lemma is
+    /// offered.
+    fn cited_labels(&self, step: &Step, item: &Record) -> Checked<Vec<String>> {
+        let labels = self.target_labels(step, item)?;
+        let library = self.item_library();
+        let Some(groups) = library.groups(&item.qualified()) else {
+            return Ok(labels);
+        };
+        let sentences: usize = groups.iter().map(|g| g.gives.len()).sum();
+        if labels.len() != sentences {
+            return Ok(labels);
+        }
+        let cited = self.cited_here(step, &item.qualified())?;
+        let taken: Vec<usize> = if cited.sentences.is_empty() {
+            let before: usize =
+                groups[..cited.group].iter().map(|g| g.gives.len()).sum();
+            (before..before + groups[cited.group].gives.len()).collect()
+        } else {
+            cited.sentences
+        };
+        Ok(taken.into_iter().map(|s| labels[s].clone()).collect())
     }
 
     fn untargeted(&self, step: &Step, item: &Record) -> Problem {
@@ -4607,10 +4635,10 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         item: &'a Record,
     ) -> Checked<Route<Proof>> {
-        let labels = self.target_labels(step, item)?;
-        if labels.is_empty() {
+        if self.target_labels(step, item)?.is_empty() {
             return Err(self.untargeted(step, item));
         }
+        let labels = self.cited_labels(step, item)?;
         let seed = self.filling(step, item)?;
         let facts = &self.with_reflexive(step, item, scope, facts)?;
         match self
