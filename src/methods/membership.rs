@@ -34,10 +34,6 @@ pub struct Facts<'a> {
     /// operation a term applies (`Targets::operation`).
     pub targets: &'a Targets,
     pub ctx: &'a Context,
-    /// Whether a cited equation carries a term to the other side's
-    /// system: only `membership` reads an equation so (`METHODS.md`), and
-    /// every other method takes an atom's membership from a line saying it.
-    pub carries: bool,
 }
 
 /// The ends of a range {a, …, b} a letter runs over.
@@ -139,7 +135,7 @@ fn said_otherwise(term: &Node, system: &str, facts: &Facts, depth: usize) -> boo
     if stated {
         return true;
     }
-    if facts.carries && depth > 0 {
+    if depth > 0 {
         let carried = facts.facts.iter().any(|f| {
             f.notation == "equality"
                 && matches!(f.children.as_slice(), [a, b]
@@ -286,7 +282,6 @@ fn summed(term: &Node, system: &str, facts: &Facts, depth: usize) -> bool {
         typed: facts.typed,
         targets: facts.targets,
         ctx: facts.ctx,
-        carries: facts.carries,
     };
     member(body, system, &at, depth)
 }

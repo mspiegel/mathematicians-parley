@@ -1399,7 +1399,7 @@ fn algebra_unsaid(
     targets: &Targets,
 ) -> Option<String> {
     let held = MembershipIn::of(at, read, known);
-    let given = held.given(targets, known, false);
+    let given = held.given(targets, known);
     let mut relations = vec![read.claimed.clone()];
     relations.extend(
         combined
@@ -1576,7 +1576,7 @@ fn membership_holds(
     else {
         return false;
     };
-    let given = held.given(targets, known, true);
+    let given = held.given(targets, known);
     if !methods_membership::holds(term, system, &given) {
         let number = at.step.number.to_string();
         let said = format!("{} is not built from what step {number} cites", at.claim);
@@ -1660,13 +1660,11 @@ impl MembershipIn {
         }
     }
 
-    /// What the decider reads, `carries` saying whether a cited equation
-    /// carries a term's membership across (`membership` alone).
+    /// What the decider reads.
     fn given<'a>(
         &'a self,
         targets: &'a Targets,
         known: &'a Known,
-        carries: bool,
     ) -> methods_membership::Facts<'a> {
         methods_membership::Facts {
             facts: &self.facts,
@@ -1675,7 +1673,6 @@ impl MembershipIn {
             typed: &self.typed,
             targets,
             ctx: known.ctx,
-            carries,
         }
     }
 }

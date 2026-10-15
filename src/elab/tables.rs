@@ -2153,10 +2153,8 @@ impl<'a> Elaborator<'a> {
                 return Ok(Built(p));
             }
         }
-        if self.reading_equations {
-            if let Some(p) = self.equated_part(said, system, scope, facts)? {
-                return Ok(Built(p));
-            }
+        if let Some(p) = self.equated_part(said, system, scope, facts)? {
+            return Ok(Built(p));
         }
         Ok(Route::no(format!(
             "nothing written says {}",
@@ -2166,11 +2164,10 @@ impl<'a> Elaborator<'a> {
 
     /// `said ∈ system` from an equation in hand with `said` on one side: the
     /// term is in what the other side is in (`eqeltrd`), as a reader takes
-    /// a(0) = 0 to say a(0) ∈ ℝ. Only a `membership` step reads equations so
-    /// (`METHODS.md`, membership); every other method takes an atom's
-    /// membership from a line saying it. The other side
-    /// may not hold `said`, and a term already being read this way is not
-    /// read again, so that two equations cannot send it round.
+    /// a(0) = 0 to say a(0) ∈ ℝ, whatever method the step names
+    /// (`METHODS.md`). The other side may not hold `said`, and a term
+    /// already being read this way is not read again, so that two equations
+    /// cannot send it round.
     fn equated_part(
         &mut self,
         said: &str,

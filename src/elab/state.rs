@@ -269,9 +269,6 @@ pub struct Elaborator<'a> {
     pub rules_read: IndexMap<String, Term>,
     /// `requires` terms being discharged now.
     pub supplying: IndexSet<String>,
-    /// Whether a `membership` step is being proved, the one method that
-    /// reads a cited equation as saying a membership (`METHODS.md`).
-    pub reading_equations: bool,
     /// Terms whose membership is being read from an equation now, so that
     /// `x = y` and `y = x` do not send `part` from one to the other.
     pub equating: IndexSet<String>,
@@ -455,7 +452,6 @@ impl<'a> Elaborator<'a> {
             reserved: IndexSet::new(),
             rules_read: IndexMap::new(),
             supplying: IndexSet::new(),
-            reading_equations: false,
             equating: IndexSet::new(),
             rests_on: IndexMap::new(),
             bridges: None,

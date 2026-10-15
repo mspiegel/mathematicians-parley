@@ -69,6 +69,22 @@ pub fn rests_on_only(proof: &Proof, item: &str) -> bool {
 }
 
 impl<'a> Elaborator<'a> {
+    /// The side of `A ≠ B` or `A = B` other than zero, as the page may write
+    /// a divisor's `≠ 0` either way round; None where neither side is zero.
+    fn apart_side(&self, relation: &crate::mm::Term) -> Option<String> {
+        let [a, b, ..] = relation.children() else {
+            return None;
+        };
+        let (a, b) = (self.rpn(a), self.rpn(b));
+        if b == "cc0" {
+            Some(a)
+        } else if a == "cc0" {
+            Some(b)
+        } else {
+            None
+        }
+    }
+
     /// The atoms of a claim a method combined, and every term in it.
     ///
     /// An atom is what the method treats as a number it knows nothing
@@ -316,10 +332,14 @@ impl<'a> Elaborator<'a> {
                     let held = self.rpn(&claim.children()[0]);
                     atoms.iter().any(|a| self.one_atom(&held, a))
                 }
-                Some("wne") => terms.contains(&self.rpn(&claim.children()[0])),
-                Some("wn") if claim.children()[0].label() == Some("wceq") => {
-                    terms.contains(&self.rpn(&claim.children()[0].children()[0]))
+                // A divisor said not zero either way round, `d ≠ 0` or
+                // `0 ≠ d`, in either spelling of ≠.
+                Some("wne") => {
+                    self.apart_side(&claim).is_some_and(|d| terms.contains(&d))
                 }
+                Some("wn") if claim.children()[0].label() == Some("wceq") => self
+                    .apart_side(&claim.children()[0])
+                    .is_some_and(|d| terms.contains(&d)),
                 _ => false,
             };
             if !demanded {

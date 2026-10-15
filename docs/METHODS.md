@@ -164,7 +164,9 @@ Every atom must be a real number. This is a hypothesis of the method exactly as
 or built from those by +, −, ·, a power to a numeral and /, the page says it
 once, where the letters are introduced (`READERS.md`), and the step writes
 nothing; any other atom, a function's value or a sum, is discharged by a
-cited line or written as a requires line.
+cited line or written as a requires line. A cited line is read as
+`membership` reads it, so an equation the step cites, `a(0) = 0`, says
+`a(0)` is real.
 
 A reciprocal atom brings its divisor's hypothesis with it: `1/(n + 1)` is a
 real number when `n + 1` is one and is not zero. That `n + 1` is real is said
@@ -407,10 +409,9 @@ test).
 
 Every atom of the claim and of the cited lines it combines is a real
 number, as for `inequalities`: said once where the atom is a numeral, a
-letter or built from them, and otherwise written. An equation is not read
-for it: where the step cites `a(0) = 0`, `a(0)` is still asked for a line
-saying `a(0) ∈ ℝ`, which only a `membership` step would take from the
-equation.
+letter or built from them, and otherwise written or given by a cited
+equation, as `membership` decides it: citing `a(0) = 0` says `a(0)` is a
+number.
 
 The checker asks both of each `algebra` step that holds
 (`checker::formulas::algebra_unsaid`).
@@ -706,8 +707,12 @@ other side is in, as a reader takes a(0) = 0 to say a(0) is a number:
 `a(0) ∈ ℝ: membership, from 1`, where line 1 says a(0) = 0, and
 `a(k + 1) ∈ ℝ: membership, from 4.1, IH`, where 4.1 gives a(k + 1) as a
 term in a(k) and b(k) and the induction hypothesis says those are real.
-Only this method reads an equation so. Every other method takes an atom's
-membership from a line saying it, so that a membership a step uses is one
+
+This test is the one every method's side conditions are asked by: an
+`algebra` or `inequalities` step whose atom is a(0), citing a(0) = 0, has
+a(0)'s membership as this method would, and needs no line saying it. The
+methods differ in what they conclude, not in how a side condition is met.
+The equation is one the step names, so the membership it gives is still one
 the page shows.
 
 ### Fact out

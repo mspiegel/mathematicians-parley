@@ -1132,7 +1132,6 @@ fn term_built(
         typed: &typed,
         targets: &library.targets,
         ctx: known.ctx,
-        carries: true,
     };
     crate::methods::membership::holds(term, system, &given)
 }

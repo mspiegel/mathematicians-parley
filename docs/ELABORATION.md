@@ -931,12 +931,12 @@ memberships could carry back. That is built from its parts by the
 closure table, each atom's membership from a line the step cites or writes,
 carried by one lemma (`bridged`), or from a cited equation with the atom on
 one side, whose other side is placed the same way and carried across by
-`eqeltrd` (`equated_part`, which only a `membership` step turns on, and which
-reads no term twice at once, so that x = y and y = x do not send it round);
-and `same` carries it back to the claim as written. A divisor is not zero by
-a line, by being a numeral other than zero, by a membership
-that says so (`let k ∈ ℕ`), by being built in ℕ (`nnne0`), or as a product or
-quotient of such (`mulne0d`, `divne0d`). A requires line may name it too, and
+`eqeltrd` (`equated_part`, which every method's side conditions read, and
+which reads no term twice at once, so that x = y and y = x do not send it
+round); and `same` carries it back to the claim as written. A divisor is not
+zero by a line, by being a numeral other than zero, by a membership that
+says so (`let k ∈ ℕ`), or as a product, a quotient or a power to a numeral
+of such (`mulne0d`, `divne0d`, `expne0d`). A requires line may name it too, and
 is proved the same way from the lines it cites (`member_of`). A claim said of
 every member is proved of one fixed by `widen`, with what its membership says
 laid beside it (`fixed`), and closed by `ralrimiva`; a sum over a range is

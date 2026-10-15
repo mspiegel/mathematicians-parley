@@ -3559,11 +3559,7 @@ impl<'a> Elaborator<'a> {
         let supplied = self.supplied(Some(step), scope, facts)?;
         let cited = self.with_cited(Some(step), scope, &supplied, None);
         let known = facts.with(&cited);
-        // The one method that reads a cited equation as saying a membership.
-        let kept = std::mem::replace(&mut self.reading_equations, true);
-        let made = self.member_of(&claim, scope, &known, Some(step));
-        self.reading_equations = kept;
-        match made? {
+        match self.member_of(&claim, scope, &known, Some(step))? {
             Built(p) => Ok(Built(p)),
             Declined(d) => Err(self.defect(
                 step.line,

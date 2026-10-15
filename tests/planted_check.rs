@@ -526,15 +526,17 @@ fn cases() -> Vec<Case> {
             "proofs/infinitely-many-primes.proof:45  nothing says n! ∈ ℝ or ∈ ℂ, which this step needs",
         ),
         // An angle is no letter, numeral or term built from them, so the
-        // `algebra` step combining it writes its membership.
+        // `algebra` step combining it writes its membership, unless a cited
+        // equation gives it: H9 does for ∠QPR, and nothing does for ∠QRP,
+        // which line 3 holds only inside a sum.
         case(
             "leave out the membership of an angle an algebra step combines",
             vec![edit(
                 "proofs/pythagoras.proof",
-                Some("    requires ∠QPR ∈ ℝ: mun:triangle-angle-real, from H7\n".to_string()),
+                Some("    requires ∠QRP ∈ ℝ: mun:triangle-angle-real, from H7\n".to_string()),
                 String::new(),
             )],
-            "nothing says ∠QPR ∈ ℝ or ∈ ℂ, which this step needs",
+            "nothing says ∠QRP ∈ ℝ or ∈ ℂ, which this step needs",
         ),
         // k + 1 is a membership said once, and its being no zero is not: a
         // divisor's `≠ 0` is written, and a product's is its factors'. The
