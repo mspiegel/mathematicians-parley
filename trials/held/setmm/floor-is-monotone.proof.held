@@ -1,0 +1,44 @@
+import mundane theorem stdlib/numbers/floor-above
+import mundane theorem stdlib/numbers/floor-below
+import mundane theorem stdlib/numbers/floor-integer
+import mundane theorem stdlib/numbers/integer-step
+
+theorem floor-is-monotone
+  note        If ⌊B⌋ were below ⌊A⌋ it would be at least one short of it, and
+              then B would reach ⌊B⌋ + 1 by passing through A, which it does
+              not.
+  let A ∈ ℝ                                                           (H1)
+  let B ∈ ℝ                                                           (H2)
+  assume A ≤ B                                                        (H3)
+  then ⌊A⌋ ≤ ⌊B⌋
+
+1.  ⌊A⌋ ≤ A
+    mun:floor-below x := A
+
+2.  B < ⌊B⌋ + 1
+    mun:floor-above x := B
+
+3.  ⌊A⌋ ∈ ℤ
+    mun:floor-integer x := A
+
+4.  ⌊B⌋ ∈ ℤ
+    mun:floor-integer x := B
+
+5.  ⌊A⌋ ∈ ℝ
+    membership, from 3
+
+6.  ⌊B⌋ ∈ ℝ
+    membership, from 4
+
+7.  ⌊A⌋ ≤ ⌊B⌋
+    contradiction
+    suppose not ⌊A⌋ ≤ ⌊B⌋                                             (S)
+
+    7.1.  ⌊B⌋ < ⌊A⌋
+          inequalities, from S, 5, 6
+
+    7.2.  ⌊B⌋ + 1 ≤ ⌊A⌋
+          mun:integer-step m := ⌊B⌋, n := ⌊A⌋, from 3, 4, 7.1
+
+    7.3.  not B < ⌊B⌋ + 1
+          inequalities, from H3, 1, 5, 6, 7.2, contradicting 2

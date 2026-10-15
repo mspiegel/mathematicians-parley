@@ -1,0 +1,52 @@
+import theorem            proofs/setmm/image-of-a-point-under-a-one-to-one-map/image-of-a-point-under-a-one-to-one-map
+import mundane definition stdlib/sets/subset
+import mundane theorem    stdlib/functions/image-monotone
+import mundane theorem    stdlib/functions/value-in-image
+import mundane theorem    stdlib/sets/in-subset
+import mundane theorem    stdlib/reasoning/iff-from-left
+
+theorem images-of-parts-under-a-one-to-one-map
+  note        If every value on C is a value on D, then each point of C is
+              a point of D, since a one-to-one map recovers the point from
+              its value. The other way is that a bigger part has a bigger
+              image.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  let F : A → B be one-to-one                                         (H3)
+  let C ⊆ A                                                           (H4)
+  let D ⊆ A                                                           (H5)
+  then F[C] ⊆ F[D] ↔ C ⊆ D
+
+1.  F[C] ⊆ F[D] ↔ C ⊆ D
+    both directions
+
+    direction
+    assume F[C] ⊆ F[D]                                                (D1)
+
+    1.1.  For all t ∈ C, t ∈ D.
+          proof
+          let t ∈ C                                                   (K1)
+
+          1.1.1.  t ∈ A
+                  mun:in-subset X := C, Y := A, u := t, from H4, K1
+
+          1.1.2.  F(t) ∈ F[C]
+                  mun:value-in-image s := t, Y := C, from H4, K1
+
+          1.1.3.  F(t) ∈ F[D]
+                  mun:in-subset X := F[C], Y := F[D], u := F(t), from D1, 1.1.2
+
+          1.1.4.  F(t) ∈ F[D] ↔ t ∈ D
+                  thm:image-of-a-point-under-a-one-to-one-map X := t, Y := D, from H3, H5, 1.1.1
+
+          1.1.5.  t ∈ D
+                  mun:iff-from-left P := F(t) ∈ F[D], Q := t ∈ D, from 1.1.3, 1.1.4
+
+    1.2.  C ⊆ D
+          mun:subset, from 1.1
+
+    direction
+    assume C ⊆ D                                                      (D2)
+
+    1.3.  F[C] ⊆ F[D]
+          mun:image-monotone Y := C, Z := D, from D2

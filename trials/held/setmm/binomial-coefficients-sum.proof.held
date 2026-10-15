@@ -1,0 +1,80 @@
+import theorem              proofs/wiedijk/binomial/binomial
+import definition           stdlib/counting/C
+import mundane theorem      stdlib/counting/binomial-nat0
+import mundane theorem      stdlib/numbers/exponent-step
+import mundane theorem      stdlib/numbers/exponent-zero
+import mundane theorem      stdlib/sums/range-difference
+import mundane theorem      stdlib/sums/range-integer
+import mundane theorem      stdlib/sums/range-nat0
+import mundane theorem      stdlib/sums/sum-termwise
+
+theorem binomial-coefficients-sum
+  metamath    binom11
+  note        The binomial theorem at x = 1 and y = 1: every power of 1 is
+              1, so the terms are the coefficients, and (1 + 1)^N is 2^N.
+  let N ∈ ℕ₀                                                          (H1)
+  then 2^N = Σ(k = 0 to N) C(N, k)
+
+1.  For all m ∈ ℕ₀, 1^m = 1.
+    induction on m starting at 0
+
+    base
+    1.1.  1^0 = 1
+          mun:exponent-zero a := 1
+
+    step
+    let m ∈ ℕ₀                                                        (K)
+    assume step 1 is true for m, the induction hypothesis             (IH)
+
+    1.2.  1^(m + 1) = 1^m·1
+          mun:exponent-step a := 1
+
+    1.3.  1^(m + 1) = 1
+          calculation
+            1^(m + 1) = 1^m·1     1.2
+                      = 1          IH
+
+2.  (1 + 1)^N = Σ(k = 0 to N) C(N, k)·1^(N − k)·1^k
+    thm:binomial x := 1, y := 1, n := N
+
+3.  For all k ∈ {0, …, N}, C(N, k)·1^(N − k)·1^k = C(N, k).
+    proof
+    let k ∈ {0, …, N}                                                 (J)
+
+    3.1.  N − k ∈ ℕ₀
+          mun:range-difference a := 0, n := N, from J
+
+    3.2.  k ∈ ℕ₀
+          mun:range-nat0 n := N, from J
+
+    3.3.  1^(N − k) = 1
+          instantiate m := N − k in line 1, from 3.1
+
+    3.4.  1^k = 1
+          instantiate m := k in line 1, from 3.2
+
+    3.5.  C(N, k)·1^(N − k)·1^k = C(N, k)·1·1^k
+          substitute 1^(N − k) = 1 (line 3.3)
+
+    3.6.  C(N, k)·1·1^k = C(N, k)·1·1
+          substitute 1^k = 1 (line 3.4)
+
+    3.7.  C(N, k)·1·1 = C(N, k)
+          algebra
+          requires k ∈ ℤ: mun:range-integer a := 0, b := N, from J
+          requires C(N, k) ∈ ℕ₀: mun:binomial-nat0, from H1
+
+    3.8.  C(N, k)·1^(N − k)·1^k = C(N, k)
+          calculation
+            C(N, k)·1^(N − k)·1^k = C(N, k)·1·1^k     3.5
+                                  = C(N, k)·1·1       3.6
+                                  = C(N, k)           3.7
+
+4.  Σ(k = 0 to N) C(N, k)·1^(N − k)·1^k = Σ(k = 0 to N) C(N, k)
+    mun:sum-termwise a := 0, b := N, from 3
+
+5.  2^N = Σ(k = 0 to N) C(N, k)
+    calculation
+      2^N = (1 + 1)^N                                       arithmetic
+          = Σ(k = 0 to N) C(N, k)·1^(N − k)·1^k             2
+          = Σ(k = 0 to N) C(N, k)                           4

@@ -1,0 +1,285 @@
+import theorem            stdlib/groups/group-cancel
+import mundane axiom      stdlib/groups/group-associative
+import mundane axiom      stdlib/groups/group-closed
+import mundane axiom      stdlib/groups/group-identity
+import mundane axiom      stdlib/groups/group-identity-closed
+import mundane axiom      stdlib/groups/group-inverse
+import mundane axiom      stdlib/groups/group-inverse-closed
+
+theorem group-left-inverse
+  note        Write b for a⁻¹ and c for b⁻¹. Then b·a = (b·a)·e = (b·a)·(b·c)
+              = b·(a·(b·c)) = b·((a·b)·c) = b·(e·c) = (b·e)·c = b·c = e.
+  let G be a group with operation · and identity e                    (H1)
+  let a ∈ G                                                           (H2)
+  then a⁻¹·a = e
+
+1.  e ∈ G
+    mun:group-identity-closed
+
+2.  a⁻¹ ∈ G
+    mun:group-inverse-closed, from H2
+
+3.  (a⁻¹)⁻¹ ∈ G
+    mun:group-inverse-closed a := a⁻¹, from 2
+
+4.  a⁻¹·a ∈ G
+    mun:group-closed a := a⁻¹, b := a, from H2, 2
+
+5.  (a⁻¹·a)·e = a⁻¹·a
+    mun:group-identity a := a⁻¹·a, from 4
+
+6.  a⁻¹·(a⁻¹)⁻¹ = e
+    mun:group-inverse a := a⁻¹, from 2
+
+7.  a·a⁻¹ = e
+    mun:group-inverse, from H2
+
+8.  a⁻¹·(a⁻¹)⁻¹ ∈ G
+    mun:group-closed a := a⁻¹, b := (a⁻¹)⁻¹, from 2, 3
+
+9.  (a⁻¹·a)·(a⁻¹·(a⁻¹)⁻¹) = a⁻¹·(a·(a⁻¹·(a⁻¹)⁻¹))
+    mun:group-associative a := a⁻¹, b := a, c := a⁻¹·(a⁻¹)⁻¹, from H2, 2, 8
+
+10. a·(a⁻¹·(a⁻¹)⁻¹) = (a·a⁻¹)·(a⁻¹)⁻¹
+    mun:group-associative b := a⁻¹, c := (a⁻¹)⁻¹, from H2, 2, 3
+
+11. a·(a⁻¹·(a⁻¹)⁻¹) = e·(a⁻¹)⁻¹
+    substitute a·a⁻¹ = e (line 7) into line 10
+
+12. a⁻¹·(e·(a⁻¹)⁻¹) = (a⁻¹·e)·(a⁻¹)⁻¹
+    mun:group-associative a := a⁻¹, b := e, c := (a⁻¹)⁻¹, from 1, 2, 3
+
+13. a⁻¹·e = a⁻¹
+    mun:group-identity a := a⁻¹, from 2
+
+14. a⁻¹·(e·(a⁻¹)⁻¹) = a⁻¹·(a⁻¹)⁻¹
+    substitute a⁻¹·e = a⁻¹ (line 13) into line 12
+
+15. (a⁻¹·a)·(a⁻¹·(a⁻¹)⁻¹) = a⁻¹·(e·(a⁻¹)⁻¹)
+    substitute a·(a⁻¹·(a⁻¹)⁻¹) = e·(a⁻¹)⁻¹ (line 11) into line 9
+
+16. (a⁻¹·a)·(a⁻¹·(a⁻¹)⁻¹) = a⁻¹·a
+    substitute a⁻¹·(a⁻¹)⁻¹ = e (line 6) into line 5
+
+17. a⁻¹·a = e
+    calculation
+    a⁻¹·a = (a⁻¹·a)·(a⁻¹·(a⁻¹)⁻¹)                 16
+          = a⁻¹·(e·(a⁻¹)⁻¹)                       15
+          = a⁻¹·(a⁻¹)⁻¹                           14
+          = e                                      6
+
+theorem group-left-identity
+  note        e·a is (a·a⁻¹)·a = a·(a⁻¹·a) = a·e = a.
+  let G be a group with operation · and identity e                    (H1)
+  let a ∈ G                                                           (H2)
+  then e·a = a
+
+1.  a⁻¹ ∈ G
+    mun:group-inverse-closed, from H2
+
+2.  a·a⁻¹ = e
+    mun:group-inverse, from H2
+
+3.  a⁻¹·a = e
+    thm:group-left-inverse, from H2
+
+4.  (a·a⁻¹)·a = a·(a⁻¹·a)
+    mun:group-associative b := a⁻¹, c := a, from H2, 1
+
+5.  e·a = a·(a⁻¹·a)
+    substitute a·a⁻¹ = e (line 2) into line 4
+
+6.  e·a = a·e
+    substitute a⁻¹·a = e (line 3) into line 5
+
+7.  a·e = a
+    mun:group-identity, from H2
+
+8.  e·a = a
+    calculation
+    e·a = a·e       6
+        = a         7
+
+theorem group-inverse-of-identity
+  note        e⁻¹ is e·e⁻¹ because e is a left identity, and e·e⁻¹ is e.
+  let G be a group with operation · and identity e                    (H1)
+  then e⁻¹ = e
+
+1.  e ∈ G
+    mun:group-identity-closed
+
+2.  e⁻¹ ∈ G
+    mun:group-inverse-closed a := e, from 1
+
+3.  e·e⁻¹ = e⁻¹
+    thm:group-left-identity a := e⁻¹, from 2
+
+4.  e·e⁻¹ = e
+    mun:group-inverse a := e, from 1
+
+5.  e⁻¹ = e
+    calculation
+    e⁻¹ = e·e⁻¹    3
+        = e        4
+
+theorem group-inverse-of-inverse
+  note        a⁻¹ has two right inverses, a and (a⁻¹)⁻¹: a⁻¹·a = e and
+              a⁻¹·(a⁻¹)⁻¹ = e, so cancelling a⁻¹ makes them equal.
+  let G be a group with operation · and identity e                    (H1)
+  let a ∈ G                                                           (H2)
+  then (a⁻¹)⁻¹ = a
+
+1.  a⁻¹ ∈ G
+    mun:group-inverse-closed, from H2
+
+2.  (a⁻¹)⁻¹ ∈ G
+    mun:group-inverse-closed a := a⁻¹, from 1
+
+3.  a⁻¹·(a⁻¹)⁻¹ = e
+    mun:group-inverse a := a⁻¹, from 1
+
+4.  a⁻¹·a = e
+    thm:group-left-inverse, from H2
+
+5.  a⁻¹·(a⁻¹)⁻¹ = a⁻¹·a
+    calculation
+    a⁻¹·(a⁻¹)⁻¹ = e         3
+                = a⁻¹·a     4
+
+6.  (a⁻¹)⁻¹ = a
+    thm:group-cancel a := (a⁻¹)⁻¹, b := a, g := a⁻¹, from H2, 1, 2, 5
+
+theorem group-idempotent
+  note        If a·a = a then cancelling a leaves a = e, since a·e = a too.
+              Conversely e·e = e.
+  let G be a group with operation · and identity e                    (H1)
+  let a ∈ G                                                           (H2)
+  then a·a = a ↔ a = e
+
+1.  e ∈ G
+    mun:group-identity-closed
+
+2.  a·a = a ↔ a = e
+    both directions
+
+    direction
+    assume a·a = a                                                    (D1)
+
+    2.1.  a·e = a
+          mun:group-identity, from H2
+
+    2.2.  a·a = a·e
+          calculation
+          a·a = a       D1
+              = a·e     2.1
+
+    2.3.  a = e
+          thm:group-cancel b := e, g := a, from H2, 1, 2.2
+
+    direction
+    assume a = e                                                      (D2)
+
+    2.4.  e·e = e
+          mun:group-identity a := e, from 1
+
+    2.5.  a·a = a
+          substitute a = e (D2) into line 2.4
+
+theorem group-inverse-by-right
+  note        a⁻¹ and b both multiply a to e on the right; cancelling a
+              makes them equal.
+  let G be a group with operation · and identity e                    (H1)
+  let a ∈ G                                                           (H2)
+  let b ∈ G                                                           (H3)
+  then a⁻¹ = b ↔ a·b = e
+
+1.  a⁻¹ ∈ G
+    mun:group-inverse-closed, from H2
+
+2.  a⁻¹ = b ↔ a·b = e
+    both directions
+
+    direction
+    assume a⁻¹ = b                                                    (D1)
+
+    2.1.  a·a⁻¹ = e
+          mun:group-inverse, from H2
+
+    2.2.  a·b = e
+          substitute a⁻¹ = b (D1) into line 2.1
+
+    direction
+    assume a·b = e                                                    (D2)
+
+    2.3.  a·a⁻¹ = e
+          mun:group-inverse, from H2
+
+    2.4.  a·a⁻¹ = a·b
+          calculation
+          a·a⁻¹ = e      2.3
+                = a·b    D2
+
+    2.5.  a⁻¹ = b
+          thm:group-cancel a := a⁻¹, g := a, from H2, H3, 1, 2.4
+
+theorem group-inverse-by-left
+  note        b·a = e says that a is the inverse of b, so b⁻¹ = a, and
+              then a⁻¹ = (b⁻¹)⁻¹ = b.
+  let G be a group with operation · and identity e                    (H1)
+  let a ∈ G                                                           (H2)
+  let b ∈ G                                                           (H3)
+  then a⁻¹ = b ↔ b·a = e
+
+1.  a⁻¹ ∈ G
+    mun:group-inverse-closed, from H2
+
+2.  a⁻¹ = b ↔ b·a = e
+    both directions
+
+    direction
+    assume a⁻¹ = b                                                    (D1)
+
+    2.1.  a⁻¹·a = e
+          thm:group-left-inverse, from H2
+
+    2.2.  b·a = e
+          substitute a⁻¹ = b (D1) into line 2.1
+
+    direction
+    assume b·a = e                                                    (D2)
+
+    2.3.  b⁻¹ = a
+          thm:group-inverse-by-right a := b, b := a, from D2, H2, H3
+
+    2.4.  (b⁻¹)⁻¹ = b
+          thm:group-inverse-of-inverse a := b, from H3
+
+    2.5.  a⁻¹ = b
+          substitute b⁻¹ = a (line 2.3) into line 2.4
+
+theorem group-cancel-inverse
+  note        a·(a⁻¹·b) = (a·a⁻¹)·b = e·b = b.
+  let G be a group with operation · and identity e                    (H1)
+  let a ∈ G                                                           (H2)
+  let b ∈ G                                                           (H3)
+  then a·(a⁻¹·b) = b
+
+1.  a⁻¹ ∈ G
+    mun:group-inverse-closed, from H2
+
+2.  (a·a⁻¹)·b = a·(a⁻¹·b)
+    mun:group-associative b := a⁻¹, c := b, from H2, H3, 1
+
+3.  a·a⁻¹ = e
+    mun:group-inverse, from H2
+
+4.  e·b = a·(a⁻¹·b)
+    substitute a·a⁻¹ = e (line 3) into line 2
+
+5.  e·b = b
+    thm:group-left-identity a := b, from H3
+
+6.  a·(a⁻¹·b) = b
+    calculation
+    a·(a⁻¹·b) = e·b     4
+              = b       5

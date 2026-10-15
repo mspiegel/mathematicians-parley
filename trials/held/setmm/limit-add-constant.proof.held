@@ -1,0 +1,52 @@
+import definition         stdlib/calculus/tends-to
+
+theorem limit-add-constant
+  note        The distance from x(n) + C to L + C is the distance from x(n)
+              to L, so the same N works for the same ε.
+  ε ranges over ℝ
+  n ranges over ℕ
+  let x : ℕ → ℝ                                                       (H1)
+  let L ∈ ℝ                                                           (H2)
+  let C ∈ ℝ                                                           (H3)
+  assume x(n) → L as n → ∞                                            (H4)
+  then x(n) + C → L + C as n → ∞
+
+1.  For all ε > 0, there exists N ∈ ℕ such that |x(n) − L| < ε for all n ≥ N.
+    def:tends-to, from H4
+
+2.  For all ε > 0, there exists N ∈ ℕ such that |x(n) + C − (L + C)| < ε for all n ≥ N.
+    proof
+    let ε ∈ ℝ                                                         (K1)
+    assume ε > 0                                                      (A1)
+
+    2.1.  There exists N ∈ ℕ such that |x(n) − L| < ε for all n ≥ N.
+          instantiate ε := ε in line 1, from A1
+
+    2.2.  N ∈ ℕ. |x(n) − L| < ε for all n ≥ N.
+          obtain N from line 2.1
+
+    2.3.  For all n ≥ N, |x(n) + C − (L + C)| < ε.
+          proof
+          let n ∈ ℕ                                                   (K2)
+          assume n ≥ N                                                (A2)
+
+          2.3.1.  |x(n) − L| < ε
+                  instantiate n := n in line 2.2, from A2
+
+          2.3.2.  x(n) + C − (L + C) = x(n) − L
+                  algebra
+                  requires x(n) ∈ ℝ: from H1, K2
+
+          2.3.3.  |x(n) + C − (L + C)| = |x(n) − L|
+                  substitute x(n) + C − (L + C) = x(n) − L (line 2.3.2)
+
+          2.3.4.  |x(n) + C − (L + C)| < ε
+                  calculation
+                    |x(n) + C − (L + C)| = |x(n) − L|    2.3.3
+                                         < ε             2.3.1
+
+    2.4.  There exists N ∈ ℕ such that |x(n) + C − (L + C)| < ε for all n ≥ N.
+          exhibit, from 2.3
+
+3.  x(n) + C → L + C as n → ∞
+    def:tends-to L := L + C, from 2

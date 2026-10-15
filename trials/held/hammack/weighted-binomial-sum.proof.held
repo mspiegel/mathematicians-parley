@@ -1,0 +1,328 @@
+import theorem            proofs/wiedijk/binomial/binomial
+import theorem            proofs/hammack/factorial-from-zero/factorial-natural
+import theorem            proofs/hammack/factorial-from-zero/factorial-successor
+import theorem            proofs/hammack/sum-of-factorial-quotients/product-nonzero
+import definition         stdlib/counting/C
+import mundane theorem    stdlib/counting/binomial-nat0
+import mundane theorem    stdlib/numbers/nat-minus-one
+import mundane theorem    stdlib/numbers/nat0-int
+import mundane theorem    stdlib/numbers/nat0-real
+import mundane theorem    stdlib/numbers/one-power
+import mundane definition stdlib/sums/range-between
+import mundane theorem    stdlib/sums/range-bounds
+import mundane theorem    stdlib/sums/range-difference
+import mundane theorem    stdlib/sums/range-integer
+import mundane theorem    stdlib/sums/range-nat
+import mundane theorem    stdlib/sums/sum-scaled
+import mundane theorem    stdlib/sums/sum-shift
+import mundane theorem    stdlib/sums/sum-termwise
+
+theorem weighted-term
+  note        k·C(m + 1, k) is (m + 1)·C(m, k − 1): in the factorial formulas,
+              (m + 1)! is m!·(m + 1) and k! is (k − 1)!·k, and the factors
+              k and m + 1 move across.
+  let m ∈ ℕ₀                                                          (H1)
+  let k ∈ {1, …, m + 1}                                               (H2)
+  then k·C(m + 1, k) = (m + 1)·C(m, k − 1)
+
+1.  k ∈ ℕ
+    mun:range-nat n := m + 1, from H2
+
+2.  k − 1 ∈ ℕ₀
+    mun:nat-minus-one n := k, from 1
+
+3.  1 ≤ k. k ≤ m + 1.
+    mun:range-bounds a := 1, b := m + 1, from H2
+
+4.  0 ≤ k
+    inequalities, from 1
+
+5.  0 ≤ k. k ≤ m + 1.
+    join 3, 4
+
+6.  k ∈ {0, …, m + 1}
+    mun:range-between a := 0, b := m + 1, from 1, 5
+
+7.  0 ≤ k − 1
+    inequalities, from 1
+
+8.  k − 1 ≤ m
+    inequalities, from 1, 3
+
+9.  0 ≤ k − 1. k − 1 ≤ m.
+    join 7, 8
+
+10. k − 1 ∈ {0, …, m}
+    mun:range-between a := 0, b := m, k := k − 1, from 2, 9
+
+11. C(m + 1, k) = (m + 1)!/(((m + 1) − k)!·k!)
+    def:C n := m + 1, from 1, 6
+
+12. C(m, k − 1) = m!/((m − (k − 1))!·(k − 1)!)
+    def:C n := m, k := k − 1, from 2, 10
+
+13. (m + 1)! = m!·(m + 1)
+    thm:factorial-successor n := m
+
+14. ((k − 1) + 1)! = (k − 1)!·((k − 1) + 1)
+    thm:factorial-successor n := k − 1, from 2
+
+15. (k − 1) + 1 = k
+    algebra, from 1
+
+16. k! = (k − 1)!·k
+    substitute (k − 1) + 1 = k (line 15) into line 14
+
+17. m − (k − 1) = (m + 1) − k
+    algebra, from 1
+
+18. (m + 1) − k ∈ ℕ₀
+    mun:range-difference a := 0, n := m + 1, from 6
+
+19. m! ∈ ℕ
+    thm:factorial-natural n := m
+
+20. ((m + 1) − k)! ∈ ℕ
+    thm:factorial-natural n := (m + 1) − k, from 18
+
+21. (k − 1)! ∈ ℕ
+    thm:factorial-natural n := k − 1, from 2
+
+22. (k − 1)!·k ≠ 0
+    thm:product-nonzero x := (k − 1)!, y := k, from 1, 21
+
+23. ((m + 1) − k)!·((k − 1)!·k) ≠ 0
+    thm:product-nonzero x := ((m + 1) − k)!, y := (k − 1)!·k, from 20, 22
+    requires (k − 1)!·k ∈ ℝ: membership, from 1, 21
+
+24. ((m + 1) − k)!·(k − 1)! ≠ 0
+    thm:product-nonzero x := ((m + 1) − k)!, y := (k − 1)!, from 20, 21
+
+25. k·C(m + 1, k) = k·((m + 1)!/(((m + 1) − k)!·k!))
+    substitute C(m + 1, k) = (m + 1)!/(((m + 1) − k)!·k!) (line 11)
+
+26. k·((m + 1)!/(((m + 1) − k)!·k!)) = k·((m!·(m + 1))/(((m + 1) − k)!·k!))
+    substitute (m + 1)! = m!·(m + 1) (line 13)
+
+27. k·((m!·(m + 1))/(((m + 1) − k)!·k!)) = k·((m!·(m + 1))/(((m + 1) − k)!·((k − 1)!·k)))
+    substitute k! = (k − 1)!·k (line 16)
+
+28. k·((m!·(m + 1))/(((m + 1) − k)!·((k − 1)!·k))) = (m + 1)·(m!/(((m + 1) − k)!·(k − 1)!))
+    algebra, from 1
+    requires m! ∈ ℝ: from 19
+    requires ((m + 1) − k)! ∈ ℝ: from 20
+    requires (k − 1)! ∈ ℝ: from 21
+    requires ((m + 1) − k)!·((k − 1)!·k) ≠ 0: from 23
+    requires ((m + 1) − k)!·(k − 1)! ≠ 0: from 24
+
+29. (m + 1)·(m!/((m − (k − 1))!·(k − 1)!)) = (m + 1)·(m!/(((m + 1) − k)!·(k − 1)!))
+    substitute m − (k − 1) = (m + 1) − k (line 17)
+
+30. (m + 1)·C(m, k − 1) = (m + 1)·(m!/((m − (k − 1))!·(k − 1)!))
+    substitute C(m, k − 1) = m!/((m − (k − 1))!·(k − 1)!) (line 12)
+
+31. k·C(m + 1, k) = (m + 1)·C(m, k − 1)
+    calculation
+      k·C(m + 1, k) = k·((m + 1)!/(((m + 1) − k)!·k!))                                      25
+                    = k·((m!·(m + 1))/(((m + 1) − k)!·k!))                                  26
+                    = k·((m!·(m + 1))/(((m + 1) − k)!·((k − 1)!·k)))                        27
+                    = (m + 1)·(m!/(((m + 1) − k)!·(k − 1)!))                                28
+                    = (m + 1)·(m!/((m − (k − 1))!·(k − 1)!))                                29
+                    = (m + 1)·C(m, k − 1)                                                   30
+
+theorem binomial-row-sum
+  note        The binomial theorem at x = y = 1: every power of 1 is 1, so the
+              terms are the coefficients, and (1 + 1)^m is 2^m.
+  let m ∈ ℕ₀                                                          (H1)
+  then Σ(k = 0 to m) C(m, k) = 2^m
+
+1.  (1 + 1)^m = Σ(k = 0 to m) C(m, k)·1^(m − k)·1^k
+    thm:binomial x := 1, y := 1, n := m
+
+2.  For all k ∈ {0, …, m}, C(m, k)·1^(m − k)·1^k = C(m, k).
+    proof
+    let k ∈ {0, …, m}                                                 (J)
+
+    2.1.  k ∈ ℤ
+          mun:range-integer a := 0, b := m, from J
+
+    2.2.  m − k ∈ ℕ₀
+          mun:range-difference a := 0, n := m, from J
+
+    2.3.  m − k ∈ ℤ
+          mun:nat0-int m := m − k, from 2.2
+
+    2.4.  1^(m − k) = 1
+          mun:one-power m := m − k, from 2.3
+
+    2.5.  1^k = 1
+          mun:one-power m := k, from 2.1
+
+    2.6.  C(m, k)·1^(m − k)·1^k = C(m, k)·1^k
+          substitute 1^(m − k) = 1 (line 2.4)
+          requires C(m, k) ∈ ℕ₀: mun:binomial-nat0 n := m, from 2.1
+
+    2.7.  C(m, k)·1^k = C(m, k)
+          substitute 1^k = 1 (line 2.5)
+          requires C(m, k) ∈ ℕ₀: mun:binomial-nat0 n := m, from 2.1
+
+    2.8.  C(m, k)·1^(m − k)·1^k = C(m, k)
+          calculation
+            C(m, k)·1^(m − k)·1^k = C(m, k)·1^k     2.6
+                                  = C(m, k)         2.7
+
+3.  For all k ∈ {0, …, m}, C(m, k) ∈ ℝ.
+    proof
+    let k ∈ {0, …, m}                                                 (J2)
+
+    3.1.  k ∈ ℤ
+          mun:range-integer a := 0, b := m, from J2
+
+    3.2.  C(m, k) ∈ ℕ₀
+          mun:binomial-nat0 n := m, from 3.1
+
+    3.3.  C(m, k) ∈ ℝ
+          mun:nat0-real m := C(m, k), from 3.2
+
+4.  For all k ∈ {0, …, m}, C(m, k)·1^(m − k)·1^k ∈ ℝ.
+    proof
+    let k ∈ {0, …, m}                                                 (J3)
+
+    4.1.  C(m, k)·1^(m − k)·1^k = C(m, k)
+          instantiate k := k in line 2, from J3
+
+    4.2.  C(m, k) ∈ ℝ
+          instantiate k := k in line 3, from J3
+
+    4.3.  C(m, k)·1^(m − k)·1^k ∈ ℝ
+          substitute C(m, k)·1^(m − k)·1^k = C(m, k) (line 4.1) into line 4.2
+
+5.  Σ(k = 0 to m) C(m, k)·1^(m − k)·1^k = Σ(k = 0 to m) C(m, k)
+    mun:sum-termwise a := 0, b := m, from 2
+
+6.  1 + 1 = 2
+    arithmetic
+
+7.  (1 + 1)^m = 2^m
+    substitute 1 + 1 = 2 (line 6)
+
+8.  Σ(k = 0 to m) C(m, k) = 2^m
+    calculation
+      Σ(k = 0 to m) C(m, k) = Σ(k = 0 to m) C(m, k)·1^(m − k)·1^k     5
+                            = (1 + 1)^m                                 1
+                            = 2^m                                       7
+
+theorem weighted-row-sum
+  note        Each term k·C(m + 1, k) is (m + 1)·C(m, k − 1), so the sum is
+              m + 1 times the sum of the row m, shifted by one, which is 2^m.
+  let m ∈ ℕ₀                                                          (H1)
+  then Σ(k = 1 to m + 1) k·C(m + 1, k) = (m + 1)·2^m
+
+1.  For all k ∈ {1, …, m + 1}, k·C(m + 1, k) = (m + 1)·C(m, k − 1).
+    thm:weighted-term
+
+2.  For all k ∈ {1, …, m + 1}, C(m, k − 1) ∈ ℝ.
+    proof
+    let k ∈ {1, …, m + 1}                                             (J)
+
+    2.1.  k ∈ ℕ
+          mun:range-nat n := m + 1, from J
+
+    2.2.  k − 1 ∈ ℕ₀
+          mun:nat-minus-one n := k, from 2.1
+
+    2.3.  k − 1 ∈ ℤ
+          mun:nat0-int m := k − 1, from 2.2
+
+    2.4.  C(m, k − 1) ∈ ℕ₀
+          mun:binomial-nat0 n := m, k := k − 1, from 2.3
+
+    2.5.  C(m, k − 1) ∈ ℝ
+          mun:nat0-real m := C(m, k − 1), from 2.4
+
+3.  For all k ∈ {1, …, m + 1}, (m + 1)·C(m, k − 1) ∈ ℝ.
+    proof
+    let k ∈ {1, …, m + 1}                                             (J2)
+
+    3.1.  C(m, k − 1) ∈ ℝ
+          instantiate k := k in line 2, from J2
+
+    3.2.  (m + 1)·C(m, k − 1) ∈ ℝ
+          membership, from 3.1
+
+4.  For all k ∈ {1, …, m + 1}, k·C(m + 1, k) ∈ ℝ.
+    proof
+    let k ∈ {1, …, m + 1}                                             (J3)
+
+    4.1.  k·C(m + 1, k) = (m + 1)·C(m, k − 1)
+          instantiate k := k in line 1, from J3
+
+    4.2.  (m + 1)·C(m, k − 1) ∈ ℝ
+          instantiate k := k in line 3, from J3
+
+    4.3.  k·C(m + 1, k) ∈ ℝ
+          substitute k·C(m + 1, k) = (m + 1)·C(m, k − 1) (line 4.1) into line 4.2
+
+5.  Σ(k = 1 to m + 1) k·C(m + 1, k) = Σ(k = 1 to m + 1) (m + 1)·C(m, k − 1)
+    mun:sum-termwise a := 1, b := m + 1, from 1
+
+6.  (m + 1)·(Σ(k = 1 to m + 1) C(m, k − 1)) = Σ(k = 1 to m + 1) (m + 1)·C(m, k − 1)
+    mun:sum-scaled a := 1, b := m + 1, c := m + 1
+
+7.  For all k ∈ {0, …, m}, C(m, k) ∈ ℝ.
+    proof
+    let k ∈ {0, …, m}                                                 (J4)
+
+    7.1.  k ∈ ℤ
+          mun:range-integer a := 0, b := m, from J4
+
+    7.2.  C(m, k) ∈ ℕ₀
+          mun:binomial-nat0 n := m, from 7.1
+
+    7.3.  C(m, k) ∈ ℝ
+          mun:nat0-real m := C(m, k), from 7.2
+
+8.  Σ(k = 0 to m) C(m, k) = Σ(k = 0 + 1 to m + 1) C(m, k − 1)
+    mun:sum-shift a := 0, b := m, c := 1
+
+9.  0 + 1 = 1
+    arithmetic
+
+10. Σ(k = 0 + 1 to m + 1) C(m, k − 1) = Σ(k = 1 to m + 1) C(m, k − 1)
+    substitute 0 + 1 = 1 (line 9)
+
+11. Σ(k = 0 to m) C(m, k) = 2^m
+    thm:binomial-row-sum
+
+12. Σ(k = 1 to m + 1) C(m, k − 1) = 2^m
+    calculation
+      Σ(k = 1 to m + 1) C(m, k − 1) = Σ(k = 0 + 1 to m + 1) C(m, k − 1)     10
+                                    = Σ(k = 0 to m) C(m, k)                 8
+                                    = 2^m                                   11
+
+13. (m + 1)·(Σ(k = 1 to m + 1) C(m, k − 1)) = (m + 1)·2^m
+    substitute Σ(k = 1 to m + 1) C(m, k − 1) = 2^m (line 12)
+
+14. Σ(k = 1 to m + 1) k·C(m + 1, k) = (m + 1)·2^m
+    calculation
+      Σ(k = 1 to m + 1) k·C(m + 1, k) = Σ(k = 1 to m + 1) (m + 1)·C(m, k − 1)     5
+                                      = (m + 1)·(Σ(k = 1 to m + 1) C(m, k − 1))   6
+                                      = (m + 1)·2^m                               13
+
+theorem weighted-binomial-sum
+  note        Write n as m + 1 with m = n − 1, and the weighted-row-sum
+              formula (m + 1)·2^m is n·2^(n − 1).
+  let n ∈ ℕ                                                           (H1)
+  then Σ(k = 1 to n) k·C(n, k) = n·2^(n − 1)
+
+1.  n − 1 ∈ ℕ₀
+    mun:nat-minus-one
+
+2.  Σ(k = 1 to (n − 1) + 1) k·C((n − 1) + 1, k) = ((n − 1) + 1)·2^(n − 1)
+    thm:weighted-row-sum m := n − 1, from 1
+
+3.  (n − 1) + 1 = n
+    algebra
+
+4.  Σ(k = 1 to n) k·C(n, k) = n·2^(n − 1)
+    substitute (n − 1) + 1 = n (line 3) into line 2

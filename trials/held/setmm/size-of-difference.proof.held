@@ -1,0 +1,113 @@
+import mundane theorem    stdlib/counting/card-disjoint-union
+import mundane theorem    stdlib/counting/card-nat0
+import mundane theorem    stdlib/counting/finite-part
+import mundane axiom      stdlib/reasoning/excluded-middle
+import mundane theorem    stdlib/numbers/nat0-real
+import mundane theorem    stdlib/sets/difference-subset
+import mundane definition stdlib/sets/difference
+import mundane theorem    stdlib/sets/disjoint-difference
+import mundane theorem    stdlib/sets/in-union-left
+import mundane theorem    stdlib/sets/in-union-right
+import mundane definition stdlib/sets/subset
+import mundane theorem    stdlib/sets/subset-antisymmetric
+import mundane theorem    stdlib/sets/union-subset
+
+theorem part-and-rest
+  note        A set is a part of it together with the rest: what is in the
+              part, and what is in the set but not in the part.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  assume B ⊆ A                                                        (H3)
+  then B ∪ (A ∖ B) = A
+
+1.  A ∖ B ⊆ A
+    mun:difference-subset X := A, Y := B
+
+2.  B ∪ (A ∖ B) ⊆ A
+    mun:union-subset X := B, Y := A ∖ B, Z := A, from H3, 1
+
+3.  For all t ∈ A, t ∈ B ∪ (A ∖ B).
+    proof
+    let t ∈ A                                                         (K1)
+
+    3.1.  t ∈ B or not (t ∈ B)
+          mun:excluded-middle P := t ∈ B
+
+    3.2.  t ∈ B ∪ (A ∖ B)
+          cases, from 3.1
+
+          case
+          assume t ∈ B                                                (C1)
+
+          3.2.1.  t ∈ B ∪ (A ∖ B)
+                  mun:in-union-left u := t, Y := B, Z := A ∖ B, from C1
+
+          case
+          assume not (t ∈ B)                                          (C2)
+
+          3.2.2.  t ∈ A ∖ B
+                  mun:difference u := t, Y := A, Z := B, from C2, K1
+
+          3.2.3.  t ∈ B ∪ (A ∖ B)
+                  mun:in-union-right u := t, Y := B, Z := A ∖ B, from 3.2.2
+
+4.  A ⊆ B ∪ (A ∖ B)
+    mun:subset X := A, Y := B ∪ (A ∖ B), from 3
+
+5.  B ∪ (A ∖ B) = A
+    mun:subset-antisymmetric X := B ∪ (A ∖ B), Y := A, from 2, 4
+
+
+theorem size-of-difference
+  metamath    hashssdif
+  note        A is B together with A ∖ B, which have nothing in common, so
+              |A| = |B| + |A ∖ B|.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  assume A is finite                                                  (H3)
+  assume B ⊆ A                                                        (H4)
+  then |A ∖ B| = |A| − |B|
+
+1.  A ∖ B ⊆ A
+    mun:difference-subset X := A, Y := B
+
+2.  B is finite
+    mun:finite-part X := A, Y := B, from H3, H4
+
+3.  A ∖ B is finite
+    mun:finite-part X := A, Y := A ∖ B, from H3, 1
+
+4.  B ∩ (A ∖ B) = ∅
+    mun:disjoint-difference Y := B, Z := A
+
+5.  B ∪ (A ∖ B) = A
+    thm:part-and-rest, from H4
+
+6.  |B| ∈ ℕ₀
+    mun:card-nat0 X := B, from 2
+
+7.  |A ∖ B| ∈ ℕ₀
+    mun:card-nat0 X := A ∖ B, from 3
+
+8.  |B| = |B|
+    algebra
+    requires |B| ∈ ℝ: mun:nat0-real m := |B|, from 6
+
+9.  |A ∖ B| = |A ∖ B|
+    algebra
+    requires |A ∖ B| ∈ ℝ: mun:nat0-real m := |A ∖ B|, from 7
+
+10. |B ∪ (A ∖ B)| = |B| + |A ∖ B|
+    mun:card-disjoint-union X := B, Y := A ∖ B, m := |B|, n := |A ∖ B|, from 4, 6, 7, 8, 9
+
+11. |A| = |B| + |A ∖ B|
+    substitute B ∪ (A ∖ B) = A (line 5) into line 10
+
+12. |A| ∈ ℕ₀
+    mun:card-nat0 X := A, from H3
+
+13. |A ∖ B| = |A| − |B|
+    algebra, from 11
+    requires |A| ∈ ℝ: mun:nat0-real m := |A|, from 12
+    requires |B| ∈ ℝ: mun:nat0-real m := |B|, from 6
+    requires |A ∖ B| ∈ ℝ: mun:nat0-real m := |A ∖ B|, from 7

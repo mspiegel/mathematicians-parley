@@ -1,0 +1,112 @@
+import theorem            proofs/setmm/remainder-facts/remainder-of-small
+import theorem            proofs/setmm/remainder-facts/remainder-shifts
+import mundane theorem    stdlib/divisibility/mod-value
+import mundane theorem    stdlib/numbers/floor-integer
+
+theorem multiple-has-no-remainder
+  note        A whole number of M's is 0 + M·A, which has the remainder of 0, and 0 is below M, so its own remainder.
+  let A ∈ ℤ                                                           (H1)
+  let M ∈ ℝ                                                           (H2)
+  assume M > 0                                                        (H3)
+  then (A·M) mod M = 0
+
+1.  (0 + M·A) mod M = 0 mod M
+    thm:remainder-shifts X := 0, K := A, from H3
+
+2.  0 mod M = 0
+    thm:remainder-of-small A := 0, B := M, from H3
+    requires 0 ≤ 0: arithmetic
+
+3.  A·M = M·A
+    algebra
+
+4.  (A·M) mod M = (M·A) mod M
+    substitute A·M = M·A (line 3)
+
+5.  (A·M) mod M = 0
+    calculation
+      (A·M) mod M = (M·A) mod M       4
+                  = 0 mod M           1
+                  = 0                 2
+
+
+theorem remainder-of-sum
+  note        Write A mod M as A − M·q. Then A mod M + B is A + B less q copies of M, and removing whole copies of M leaves the remainder alone.
+  let A ∈ ℝ                                                           (H1)
+  let B ∈ ℝ                                                           (H2)
+  let M ∈ ℝ                                                           (H3)
+  assume M > 0                                                        (H4)
+  then ((A mod M) + B) mod M = (A + B) mod M
+
+1.  M ≠ 0
+    inequalities, from H4
+
+let q = ⌊A/M⌋, an integer                                             (D1)
+    mun:floor-integer x := A/M, from 1
+    reads the whole number of M's that fit below A
+
+2.  A mod M = A − M·q
+    mun:mod-value a := A, b := M, from D1, H4
+
+3.  (A mod M) + B = (A − M·q) + B
+    substitute A mod M = A − M·q (line 2)
+
+4.  (A − M·q) + B = A + B + M·(−q)
+    algebra
+
+5.  (A mod M) + B = A + B + M·(−q)
+    calculation
+      (A mod M) + B = (A − M·q) + B        3
+                    = A + B + M·(−q)       4
+
+6.  ((A mod M) + B) mod M = (A + B + M·(−q)) mod M
+    substitute (A mod M) + B = A + B + M·(−q) (line 5)
+
+7.  (A + B + M·(−q)) mod M = (A + B) mod M
+    thm:remainder-shifts X := A + B, K := −q, from H4
+
+8.  ((A mod M) + B) mod M = (A + B) mod M
+    calculation
+      ((A mod M) + B) mod M = (A + B + M·(−q)) mod M       6
+                            = (A + B) mod M                7
+
+
+theorem remainder-of-product
+  note        Write A mod M as A − M·q. Then (A mod M)·B is A·B less qB copies of M, a whole number of them since B is whole, and removing whole copies of M leaves the remainder alone.
+  let A ∈ ℝ                                                           (H1)
+  let B ∈ ℤ                                                           (H2)
+  let M ∈ ℝ                                                           (H3)
+  assume M > 0                                                        (H4)
+  then ((A mod M)·B) mod M = (A·B) mod M
+
+1.  M ≠ 0
+    inequalities, from H4
+
+let q = ⌊A/M⌋, an integer                                             (D1)
+    mun:floor-integer x := A/M, from 1
+    reads the whole number of M's that fit below A
+
+2.  A mod M = A − M·q
+    mun:mod-value a := A, b := M, from D1, H4
+
+3.  (A mod M)·B = (A − M·q)·B
+    substitute A mod M = A − M·q (line 2)
+
+4.  (A − M·q)·B = A·B + M·(−q·B)
+    algebra
+
+5.  (A mod M)·B = A·B + M·(−q·B)
+    calculation
+      (A mod M)·B = (A − M·q)·B          3
+                  = A·B + M·(−q·B)       4
+
+6.  ((A mod M)·B) mod M = (A·B + M·(−q·B)) mod M
+    substitute (A mod M)·B = A·B + M·(−q·B) (line 5)
+
+7.  (A·B + M·(−q·B)) mod M = (A·B) mod M
+    thm:remainder-shifts X := A·B, K := −q·B, from H4
+
+8.  ((A mod M)·B) mod M = (A·B) mod M
+    calculation
+      ((A mod M)·B) mod M = (A·B + M·(−q·B)) mod M       6
+                          = (A·B) mod M                  7

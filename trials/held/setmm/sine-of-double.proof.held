@@ -1,0 +1,29 @@
+import theorem            stdlib/trigonometry/sin-add
+import mundane definition stdlib/trigonometry/cos
+import mundane definition stdlib/trigonometry/sin
+
+theorem sine-of-double
+  metamath    sin2t
+  note        Write 2A as A + A and use the addition formula for the sine.
+  let A ∈ ℂ                                                           (H1)
+  then sin(2·A) = 2·sin(A)·cos(A)
+
+1.  sin(A + A) = sin(A)·cos(A) + cos(A)·sin(A)
+    thm:sin-add a := A, b := A
+
+2.  2·A = A + A
+    algebra
+
+3.  sin(2·A) = sin(A + A)
+    substitute 2·A = A + A (line 2)
+
+4.  sin(A)·cos(A) + cos(A)·sin(A) = 2·sin(A)·cos(A)
+    algebra
+    requires sin(A) ∈ ℂ: membership
+    requires cos(A) ∈ ℂ: membership
+
+5.  sin(2·A) = 2·sin(A)·cos(A)
+    calculation
+      sin(2·A) = sin(A + A)                                  3
+               = sin(A)·cos(A) + cos(A)·sin(A)               1
+               = 2·sin(A)·cos(A)                             4

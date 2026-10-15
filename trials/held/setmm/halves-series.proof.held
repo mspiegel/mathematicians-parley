@@ -1,0 +1,155 @@
+import theorem            stdlib/numbers/archimedean
+import mundane definition stdlib/calculus/series-sum
+import mundane theorem    stdlib/numbers/abs-difference-lt
+import mundane theorem    stdlib/numbers/exponent-step
+import mundane theorem    stdlib/numbers/power-real
+import mundane theorem    stdlib/numbers/reciprocal-order
+import mundane theorem    stdlib/numbers/reciprocal-positive
+import mundane theorem    stdlib/sums/sum-extended
+import mundane theorem    stdlib/sums/sum-real
+import mundane theorem    stdlib/sums/sum-single
+import definition         stdlib/calculus/tends-to
+
+theorem halves-series
+  metamath    geoihalfsum
+  note        The first n terms add up to 1 − 1/2^n, by induction on n, and
+              1/2^n is as small as 1/n or smaller, so the partial sums tend
+              to 1.
+  ε ranges over ℝ
+  n ranges over ℕ
+  then Σ(k = 1 to ∞) 1/2^k = 1
+
+1.  For all m ∈ ℕ, m ≤ 2^m.
+    induction on m starting at 1
+
+    base
+    1.1.  1 ≤ 2^1
+          arithmetic
+
+    step
+    let m ∈ ℕ                                                         (K1)
+    assume step 1 is true for m, the induction hypothesis             (IH1)
+
+    1.2.  2^(m + 1) = 2^m·2
+          mun:exponent-step a := 2
+
+    1.3.  m + 1 ≤ 2^(m + 1)
+          inequalities, from IH1, K1, 1.2
+          requires 2^m ∈ ℝ: mun:power-real a := 2
+          requires 2^(m + 1) ∈ ℝ: mun:power-real a := 2, m := m + 1
+
+2.  For all m ∈ ℕ, 2^m > 0.
+    proof
+    let m ∈ ℕ                                                         (K2)
+
+    2.1.  m ≤ 2^m
+          instantiate m := m in line 1
+
+    2.2.  2^m > 0
+          inequalities, from K2, 2.1
+          requires 2^m ∈ ℝ: mun:power-real a := 2
+
+3.  For all m ∈ ℕ, Σ(j = 1 to m) 1/2^j = 1 − 1/2^m.
+    induction on m starting at 1
+
+    base
+    3.1.  Σ(j = 1 to 1) 1/2^j = 1/2^1
+          mun:sum-single a := 1
+
+    3.2.  Σ(j = 1 to 1) 1/2^j = 1 − 1/2^1
+          calculation
+            Σ(j = 1 to 1) 1/2^j = 1/2^1         3.1
+                                = 1 − 1/2^1     arithmetic
+
+    step
+    let m ∈ ℕ                                                         (K3)
+    assume step 3 is true for m, the induction hypothesis             (IH3)
+
+    3.3.  Σ(j = 1 to m + 1) 1/2^j = Σ(j = 1 to m) 1/2^j + 1/2^(m + 1)
+          mun:sum-extended a := 1, n := m
+          requires m ≥ 1: from K3
+
+    3.4.  Σ(j = 1 to m + 1) 1/2^j = (1 − 1/2^m) + 1/2^(m + 1)
+          substitute Σ(j = 1 to m) 1/2^j = 1 − 1/2^m (IH3) into line 3.3
+
+    3.5.  2^(m + 1) = 2^m·2
+          mun:exponent-step a := 2
+
+    3.6.  2^m > 0
+          instantiate m := m in line 2
+
+    3.7.  2^(m + 1) > 0
+          instantiate m := m + 1 in line 2
+
+    3.8.  (1 − 1/2^m) + 1/2^(m + 1) = 1 − 1/2^(m + 1)
+          algebra, from 3.5
+          requires 2^m ≠ 0: inequalities, from 3.6
+          requires 2^(m + 1) ≠ 0: inequalities, from 3.7
+          requires 2^m ∈ ℝ: mun:power-real a := 2
+          requires 2^(m + 1) ∈ ℝ: mun:power-real a := 2, m := m + 1
+
+    3.9.  Σ(j = 1 to m + 1) 1/2^j = 1 − 1/2^(m + 1)
+          calculation
+            Σ(j = 1 to m + 1) 1/2^j = (1 − 1/2^m) + 1/2^(m + 1)     3.4
+                                    = 1 − 1/2^(m + 1)                3.8
+
+4.  For all ε > 0, there exists N ∈ ℕ such that
+    |Σ(k = 1 to n) 1/2^k − 1| < ε for all n ≥ N.
+    proof
+    let ε ∈ ℝ                                                         (K4)
+    assume ε > 0                                                      (A1)
+
+    4.1.  N ∈ ℕ. 1/N < ε.
+          obtain N: thm:archimedean x := ε, from A1
+
+    4.2.  For all n ≥ N, |Σ(k = 1 to n) 1/2^k − 1| < ε.
+          proof
+          let n ∈ ℕ                                                   (K5)
+          assume n ≥ N                                                (A2)
+
+          4.2.1.  Σ(k = 1 to n) 1/2^k = 1 − 1/2^n
+                  instantiate m := n in line 3
+
+          4.2.2.  n ≤ 2^n
+                  instantiate m := n in line 1
+
+          4.2.3.  2^n > 0
+                  instantiate m := n in line 2
+
+          4.2.4.  N ≤ 2^n
+                  inequalities, from A2, 4.2.2
+                  requires 2^n ∈ ℝ: mun:power-real a := 2, m := n
+
+          4.2.5.  1/2^n ≤ 1/N
+                  mun:reciprocal-order x := N, y := 2^n, from 4.2.3, 4.2.4
+                  requires N > 0: inequalities, from 4.1
+                  requires 2^n ∈ ℝ: mun:power-real a := 2, m := n
+
+          4.2.6.  1/2^n > 0
+                  mun:reciprocal-positive x := 2^n, from 4.2.3
+                  requires 2^n ∈ ℝ: mun:power-real a := 2, m := n
+
+          4.2.7.  1 − ε < Σ(k = 1 to n) 1/2^k
+                  inequalities, from 4.1, 4.2.1, 4.2.3, 4.2.5
+                  requires 2^n ∈ ℝ: mun:power-real a := 2, m := n
+                  requires Σ(k = 1 to n) 1/2^k ∈ ℝ: mun:sum-real a := 1, b := n
+                  requires 2^n ≠ 0: inequalities, from 4.2.3
+
+          4.2.8.  Σ(k = 1 to n) 1/2^k < 1 + ε
+                  inequalities, from A1, 4.2.1, 4.2.3, 4.2.6
+                  requires 2^n ∈ ℝ: mun:power-real a := 2, m := n
+                  requires Σ(k = 1 to n) 1/2^k ∈ ℝ: mun:sum-real a := 1, b := n
+                  requires 2^n ≠ 0: inequalities, from 4.2.3
+
+          4.2.9.  |Σ(k = 1 to n) 1/2^k − 1| < ε
+                  mun:abs-difference-lt x := Σ(k = 1 to n) 1/2^k, c := 1, δ := ε, from 4.2.7, 4.2.8
+                  requires Σ(k = 1 to n) 1/2^k ∈ ℝ: mun:sum-real a := 1, b := n
+
+    4.3.  There exists N ∈ ℕ such that |Σ(k = 1 to n) 1/2^k − 1| < ε for all n ≥ N.
+          exhibit, from 4.2
+
+5.  Σ(k = 1 to n) 1/2^k → 1 as n → ∞
+    def:tends-to L := 1, from 4
+
+6.  Σ(k = 1 to ∞) 1/2^k = 1
+    mun:series-sum L := 1, from 5

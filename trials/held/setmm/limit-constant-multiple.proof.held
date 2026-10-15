@@ -1,0 +1,89 @@
+import definition         stdlib/calculus/tends-to
+import mundane theorem    stdlib/numbers/abs-real
+import mundane theorem    stdlib/numbers/quotient-real
+import mundane theorem    stdlib/numbers/real-closure
+import theorem            proofs/setmm/limit-lemmas/abs-nonneg
+import theorem            proofs/setmm/limit-lemmas/quotient-positive
+import theorem            proofs/setmm/limit-lemmas/scaled-small
+
+theorem limit-constant-multiple
+  note        The distance from C·x(n) to C·L is |C| times the distance from
+              x(n) to L. Take x(n) within ε/(2(|C| + 1)) of L, and
+              scaled-small turns that into C·x(n) within ε of C·L.
+  ε ranges over ℝ
+  n ranges over ℕ
+  let x : ℕ → ℝ                                                       (H1)
+  let L ∈ ℝ                                                           (H2)
+  let C ∈ ℝ                                                           (H3)
+  assume x(n) → L as n → ∞                                            (H4)
+  then C·x(n) → C·L as n → ∞
+
+1.  |C| ∈ ℝ
+    mun:abs-real x := C
+
+2.  |C| ≥ 0
+    thm:abs-nonneg x := C
+
+let d = |C| + 1, a real number                                        (D1)
+    mun:real-closure x := |C|, y := 1, from 1
+    reads one more than the size of C
+
+3.  d > 0
+    inequalities, from D1, 1, 2
+
+4.  For all ε > 0, there exists N ∈ ℕ such that |x(n) − L| < ε for all n ≥ N.
+    def:tends-to, from H4
+
+5.  For all ε > 0, there exists N ∈ ℕ such that |C·x(n) − C·L| < ε for all n ≥ N.
+    proof
+    let ε ∈ ℝ                                                         (K1)
+    assume ε > 0                                                      (A1)
+
+    5.1.  2·d > 0
+          inequalities, from 3
+
+    5.2.  ε/(2·d) > 0
+          thm:quotient-positive x := ε, y := 2·d, from A1, 5.1
+
+    5.3.  ε/(2·d) ∈ ℝ
+          mun:quotient-real x := ε, y := 2·d
+          requires 2·d ≠ 0: inequalities, from 5.1
+
+    5.4.  There exists N ∈ ℕ such that |x(n) − L| < ε/(2·d) for all n ≥ N.
+          instantiate ε := ε/(2·d) in line 4, from 5.2, 5.3
+
+    5.5.  N ∈ ℕ. |x(n) − L| < ε/(2·d) for all n ≥ N.
+          obtain N from line 5.4
+
+    5.6.  For all n ≥ N, |C·x(n) − C·L| < ε.
+          proof
+          let n ∈ ℕ                                                   (K2)
+          assume n ≥ N                                                (A2)
+
+          5.6.1.  |x(n) − L| < ε/(2·d)
+                  instantiate n := n in line 5.5, from A2
+
+          5.6.2.  x(n) − L ∈ ℝ
+                  mun:real-closure x := x(n), y := L
+                  requires x(n) ∈ ℝ: from H1, K2
+
+          5.6.3.  |C·(x(n) − L)| < ε
+                  thm:scaled-small u := x(n) − L, from A1, D1, 5.6.1, 5.6.2
+
+          5.6.4.  C·x(n) − C·L = C·(x(n) − L)
+                  algebra
+                  requires x(n) ∈ ℝ: from H1, K2
+
+          5.6.5.  |C·x(n) − C·L| = |C·(x(n) − L)|
+                  substitute C·x(n) − C·L = C·(x(n) − L) (line 5.6.4)
+
+          5.6.6.  |C·x(n) − C·L| < ε
+                  calculation
+                    |C·x(n) − C·L| = |C·(x(n) − L)|    5.6.5
+                                   < ε                 5.6.3
+
+    5.7.  There exists N ∈ ℕ such that |C·x(n) − C·L| < ε for all n ≥ N.
+          exhibit, from 5.6
+
+6.  C·x(n) → C·L as n → ∞
+    def:tends-to L := C·L, from 5

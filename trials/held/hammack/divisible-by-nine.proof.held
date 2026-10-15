@@ -1,0 +1,87 @@
+import mundane theorem    stdlib/divisibility/divides-difference
+import mundane theorem    stdlib/divisibility/divides-multiple
+import mundane theorem    stdlib/numbers/exponent-step
+import mundane theorem    stdlib/numbers/int-closure
+import mundane theorem    stdlib/numbers/power-integer
+import mundane theorem    stdlib/numbers/power-real
+
+theorem divisible-by-nine
+  note        By induction on n: 4^(3(m + 1)) + 8 is 64·(4^(3m) + 8) − 504,
+              and 9 divides both 64·(4^(3m) + 8) and 504 = 9·56.
+  let n ∈ ℕ₀                                                          (H1)
+  then 9 divides 4^(3n) + 8
+
+1.  For all m ∈ ℕ₀, 9 divides 4^(3m) + 8.
+    induction on m starting at 0
+
+    base
+    1.1.  9 divides 4^(3·0) + 8
+          arithmetic
+
+    step
+    let m ∈ ℕ₀                                                        (K)
+    assume step 1 is true for m, the induction hypothesis             (IH)
+
+    1.2.  3(m + 1) = ((3m + 1) + 1) + 1
+          algebra
+
+    1.3.  4^(((3m + 1) + 1) + 1) = 4^((3m + 1) + 1)·4
+          mun:exponent-step a := 4, m := (3m + 1) + 1
+
+    1.4.  4^((3m + 1) + 1) = 4^(3m + 1)·4
+          mun:exponent-step a := 4, m := 3m + 1
+
+    1.5.  4^(3m + 1) = 4^(3m)·4
+          mun:exponent-step a := 4, m := 3m
+
+    1.6.  4^(3(m + 1)) = 4^(((3m + 1) + 1) + 1)
+          substitute 3(m + 1) = ((3m + 1) + 1) + 1 (line 1.2)
+
+    1.7.  4^((3m + 1) + 1)·4 = 4^(3m + 1)·4·4
+          substitute 4^((3m + 1) + 1) = 4^(3m + 1)·4 (line 1.4)
+
+    1.8.  4^(3m + 1)·4·4 = 4^(3m)·4·4·4
+          substitute 4^(3m + 1) = 4^(3m)·4 (line 1.5)
+
+    1.9.  4^(3m)·4·4·4 = 64·4^(3m)
+          algebra
+          requires 4^(3m) ∈ ℝ: mun:power-real a := 4, m := 3m
+
+    1.10. 4^(3(m + 1)) = 64·4^(3m)
+          calculation
+            4^(3(m + 1)) = 4^(((3m + 1) + 1) + 1)     1.6
+                         = 4^((3m + 1) + 1)·4         1.3
+                         = 4^(3m + 1)·4·4             1.7
+                         = 4^(3m)·4·4·4               1.8
+                         = 64·4^(3m)                  1.9
+
+    1.11. 9 divides (4^(3m) + 8)·64
+          mun:divides-multiple e := 9, a := 4^(3m) + 8, x := 64, from IH
+          requires 4^(3m) ∈ ℤ: mun:power-integer a := 4, m := 3m
+          requires 4^(3m) + 8 ∈ ℤ: mun:int-closure a := 4^(3m)
+
+    1.12. 9 divides 504
+          arithmetic
+
+    1.13. 9 divides (4^(3m) + 8)·64 − 504
+          mun:divides-difference d := 9, a := (4^(3m) + 8)·64, b := 504, from 1.11, 1.12
+          requires 4^(3m) ∈ ℤ: mun:power-integer a := 4, m := 3m
+          requires (4^(3m) + 8)·64 ∈ ℤ: mun:int-closure a := 4^(3m) + 8, b := 64
+
+    1.14. 64·4^(3m) + 8 = (4^(3m) + 8)·64 − 504
+          algebra
+          requires 4^(3m) ∈ ℝ: mun:power-real a := 4, m := 3m
+
+    1.15. 4^(3(m + 1)) + 8 = 64·4^(3m) + 8
+          substitute 4^(3(m + 1)) = 64·4^(3m) (line 1.10)
+
+    1.16. 4^(3(m + 1)) + 8 = (4^(3m) + 8)·64 − 504
+          calculation
+            4^(3(m + 1)) + 8 = 64·4^(3m) + 8                1.15
+                             = (4^(3m) + 8)·64 − 504        1.14
+
+    1.17. 9 divides 4^(3(m + 1)) + 8
+          substitute 4^(3(m + 1)) + 8 = (4^(3m) + 8)·64 − 504 (line 1.16) into line 1.13
+
+2.  9 divides 4^(3n) + 8
+    instantiate m := n in line 1

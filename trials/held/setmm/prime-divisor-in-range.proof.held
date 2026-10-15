@@ -1,0 +1,37 @@
+import theorem            stdlib/divisibility/prime-factor
+import mundane theorem    stdlib/divisibility/divides-le
+import mundane theorem    stdlib/numbers/pos-int-nat
+import mundane theorem    stdlib/sums/range-integer
+import mundane theorem    stdlib/sums/range-bounds
+
+theorem prime-divisor-in-range
+  note        Every number from 2 to N has a prime factor, and a factor of a
+              number is at most that number, so at most N.
+  let N ∈ ℕ                                                           (H1)
+  let I ∈ {2, …, N}                                                   (H2)
+  then there is p ∈ ℕ with p is prime, p ≤ N, and p divides I
+
+1.  2 ≤ I. I ≤ N.
+    mun:range-bounds a := 2, b := N, k := I, from H2
+
+2.  I ∈ ℤ
+    mun:range-integer a := 2, b := N, k := I, from H2
+
+3.  I ∈ ℕ
+    mun:pos-int-nat m := I, from 2
+    requires 0 < I: inequalities, from 1, 2
+
+4.  I > 1
+    inequalities, from 1, 2
+
+5.  p ∈ ℕ. p is prime. p divides I.
+    obtain p: thm:prime-factor m := I, from 3, 4
+
+6.  p ≤ I
+    mun:divides-le e := p, m := I, from 3, 5
+
+7.  p ≤ N
+    inequalities, from 1, 2, 6
+
+8.  There is p ∈ ℕ with p is prime, p ≤ N, and p divides I.
+    exhibit, from 5, 7

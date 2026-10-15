@@ -1,0 +1,43 @@
+import mundane theorem stdlib/numbers/floor-above
+import mundane theorem stdlib/numbers/floor-below
+import mundane theorem stdlib/numbers/floor-integer
+import mundane theorem stdlib/numbers/integer-step
+
+theorem less-than-an-integer
+  note        A real number is below a whole number exactly when its floor
+              is: the floor is at most the number, and if the floor is below
+              the whole number it is at least one short of it, while the
+              number is under the floor plus one.
+  let A ∈ ℝ                                                           (H1)
+  let B ∈ ℤ                                                           (H2)
+  then A < B ↔ ⌊A⌋ < B
+
+1.  ⌊A⌋ ≤ A
+    mun:floor-below x := A
+
+2.  A < ⌊A⌋ + 1
+    mun:floor-above x := A
+
+3.  ⌊A⌋ ∈ ℤ
+    mun:floor-integer x := A
+
+4.  ⌊A⌋ ∈ ℝ
+    membership, from 3
+
+5.  A < B ↔ ⌊A⌋ < B
+    both directions
+
+    direction
+    assume A < B                                                      (D1)
+
+    5.1.  ⌊A⌋ < B
+          inequalities, from D1, 1, 4
+
+    direction
+    assume ⌊A⌋ < B                                                    (D2)
+
+    5.2.  ⌊A⌋ + 1 ≤ B
+          mun:integer-step m := ⌊A⌋, n := B, from D2, 3
+
+    5.3.  A < B
+          inequalities, from 2, 4, 5.2

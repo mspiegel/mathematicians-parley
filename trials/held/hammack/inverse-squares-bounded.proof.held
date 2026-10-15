@@ -1,0 +1,86 @@
+import mundane theorem    stdlib/numbers/quotient-positive
+import mundane theorem    stdlib/numbers/reciprocal-positive
+import mundane theorem    stdlib/numbers/square-positive
+import mundane theorem    stdlib/sums/range-nat
+import mundane theorem    stdlib/sums/sum-extended
+import mundane theorem    stdlib/sums/sum-single
+
+theorem inverse-squares-bounded
+  note        By induction on n: adding 1/(k + 1)² to a sum at most 2 − 1/k
+              gives at most 2 − 1/(k + 1), because 1/k − 1/(k + 1) − 1/(k + 1)²
+              is (1/k)/(k + 1)², which is positive.
+  let n ∈ ℕ                                                           (H1)
+  then Σ(k = 1 to n) 1/k² ≤ 2 − 1/n
+
+let S(m) = Σ(j = 1 to m) 1/j², for m ∈ ℕ                              (D1)
+       reads the sum of the first m inverse squares
+
+1.  For all k ∈ ℕ, S(k) ≤ 2 − 1/k.
+    induction on k starting at 1
+
+    base
+    1.1.  Σ(j = 1 to 1) 1/j² = 1/1²
+          mun:sum-single a := 1
+
+    1.2.  S(1) ≤ 2 − 1/1
+          calculation
+            S(1) = Σ(j = 1 to 1) 1/j²     D1
+                 = 1/1²                   1.1
+                 ≤ 2 − 1/1                arithmetic
+
+    step
+    let k ∈ ℕ                                                         (K)
+    assume step 1 is true for k, the induction hypothesis             (IH)
+
+    1.3.  For all j ∈ {1, …, k + 1}, 1/j² ∈ ℝ.
+          proof
+          let j ∈ {1, …, k + 1}                                       (J)
+
+          1.3.1.  j ∈ ℕ
+                  mun:range-nat n := k + 1, from J
+
+          1.3.2.  1/j² ∈ ℝ
+                  membership, from 1.3.1
+
+    1.4.  Σ(j = 1 to k + 1) 1/j² = Σ(j = 1 to k) 1/j² + 1/(k + 1)²
+          mun:sum-extended a := 1, n := k
+          requires k ≥ 1: from K
+
+    1.5.  S(k + 1) = S(k) + 1/(k + 1)²
+          calculation
+            S(k + 1) = Σ(j = 1 to k + 1) 1/j²                 D1
+                     = Σ(j = 1 to k) 1/j² + 1/(k + 1)²        1.4
+                     = S(k) + 1/(k + 1)²                      D1
+
+    1.6.  1/k > 0
+          mun:reciprocal-positive x := k, from K
+
+    1.7.  (k + 1)² > 0
+          mun:square-positive x := k + 1
+          requires k + 1 ≠ 0: inequalities, from K
+
+    1.8.  (1/k)/(k + 1)² > 0
+          mun:quotient-positive x := 1/k, y := (k + 1)², from 1.6, 1.7
+          requires 1/k ∈ ℝ: membership, from K
+
+    1.9.  2 − 1/(k + 1) = 2 − 1/k + 1/(k + 1)² + (1/k)/(k + 1)²
+          algebra
+          requires k ≠ 0: from K
+          requires k + 1 ≠ 0: inequalities, from K
+          requires (k + 1)² ≠ 0: inequalities, from 1.7
+
+    1.10. S(k + 1) ≤ 2 − 1/(k + 1)
+          inequalities, from IH, 1.5, 1.8, 1.9
+          requires k ≠ 0: from K
+          requires k + 1 ≠ 0: inequalities, from K
+          requires (k + 1)² ≠ 0: inequalities, from 1.7
+          requires S(k) ∈ ℝ: membership, from D1
+          requires S(k + 1) ∈ ℝ: membership, from D1
+
+2.  S(n) ≤ 2 − 1/n
+    instantiate k := n in line 1
+
+3.  Σ(k = 1 to n) 1/k² ≤ 2 − 1/n
+    calculation
+      Σ(k = 1 to n) 1/k² = S(n)         D1
+                         ≤ 2 − 1/n      2

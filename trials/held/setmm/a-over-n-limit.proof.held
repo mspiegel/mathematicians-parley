@@ -1,0 +1,106 @@
+import definition         stdlib/calculus/tends-to
+import theorem            stdlib/numbers/archimedean
+import mundane theorem    stdlib/numbers/abs-difference-lt
+import mundane theorem    stdlib/numbers/abs-real
+import mundane theorem    stdlib/numbers/quotient-real
+import mundane theorem    stdlib/numbers/real-closure
+import mundane theorem    stdlib/numbers/reciprocal-order
+import mundane theorem    stdlib/numbers/reciprocal-positive
+import theorem            proofs/setmm/limit-lemmas/abs-nonneg
+import theorem            proofs/setmm/limit-lemmas/quotient-positive
+import theorem            proofs/setmm/limit-lemmas/scaled-small
+
+theorem a-over-n-tends-to-zero
+  note        A/n is A times 1/n, and 1/n is as small as we like from some
+              n on: take 1/n under ε/(2(|A| + 1)), and scaled-small turns
+              that into |A/n| under ε.
+  ε ranges over ℝ
+  n ranges over ℕ
+  let A ∈ ℝ                                                           (H1)
+  then A/n → 0 as n → ∞
+
+1.  |A| ∈ ℝ
+    mun:abs-real x := A
+
+2.  |A| ≥ 0
+    thm:abs-nonneg x := A
+
+let d = |A| + 1, a real number                                        (D1)
+    mun:real-closure x := |A|, y := 1, from 1
+    reads one more than the size of A
+
+3.  d > 0
+    inequalities, from D1, 1, 2
+
+4.  For all ε > 0, there exists N ∈ ℕ such that |A/n − 0| < ε for all n ≥ N.
+    proof
+    let ε ∈ ℝ                                                         (K1)
+    assume ε > 0                                                      (A1)
+
+    4.1.  2·d > 0
+          inequalities, from 3
+
+    4.2.  ε/(2·d) > 0
+          thm:quotient-positive x := ε, y := 2·d, from A1, 4.1
+
+    4.3.  ε/(2·d) ∈ ℝ
+          mun:quotient-real x := ε, y := 2·d
+          requires 2·d ≠ 0: inequalities, from 4.1
+
+    4.4.  N ∈ ℕ. 1/N < ε/(2·d).
+          obtain N: thm:archimedean x := ε/(2·d), from 4.2, 4.3
+
+    4.5.  For all n ≥ N, |A/n − 0| < ε.
+          proof
+          let n ∈ ℕ                                                   (K2)
+          assume n ≥ N                                                (A2)
+
+          4.5.1.  1/n ≤ 1/N
+                  mun:reciprocal-order x := N, y := n, from A2
+                  requires N > 0: inequalities, from 4.4
+                  requires n > 0: inequalities, from K2
+
+          4.5.2.  1/n > 0
+                  mun:reciprocal-positive x := n
+                  requires n > 0: inequalities, from K2
+
+          4.5.3.  1/n ∈ ℝ
+                  mun:quotient-real x := 1, y := n
+                  requires n ≠ 0: inequalities, from K2
+
+          4.5.4.  0 − ε/(2·d) < 1/n
+                  inequalities, from 4.2, 4.5.2
+                  requires d ≠ 0: inequalities, from 3
+                  requires n ≠ 0: inequalities, from K2
+
+          4.5.5.  1/n < 0 + ε/(2·d)
+                  inequalities, from 4.4, 4.5.1
+                  requires d ≠ 0: inequalities, from 3
+                  requires n ≠ 0: inequalities, from K2
+
+          4.5.6.  |1/n − 0| < ε/(2·d)
+                  mun:abs-difference-lt x := 1/n, c := 0, δ := ε/(2·d), from 4.3, 4.5.3, 4.5.4, 4.5.5
+
+          4.5.7.  1/n − 0 ∈ ℝ
+                  mun:real-closure x := 1/n, y := 0, from 4.5.3
+
+          4.5.8.  |A·(1/n − 0)| < ε
+                  thm:scaled-small C := A, u := 1/n − 0, from A1, D1, 4.5.6, 4.5.7
+
+          4.5.9.  A/n − 0 = A·(1/n − 0)
+                  algebra
+                  requires n ≠ 0: inequalities, from K2
+
+          4.5.10. |A/n − 0| = |A·(1/n − 0)|
+                  substitute A/n − 0 = A·(1/n − 0) (line 4.5.9)
+
+          4.5.11. |A/n − 0| < ε
+                  calculation
+                    |A/n − 0| = |A·(1/n − 0)|    4.5.10
+                              < ε                4.5.8
+
+    4.6.  There exists N ∈ ℕ such that |A/n − 0| < ε for all n ≥ N.
+          exhibit, from 4.5
+
+5.  A/n → 0 as n → ∞
+    def:tends-to L := 0, from 4
