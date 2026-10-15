@@ -7,6 +7,7 @@
 
 pub mod algebra;
 pub mod field;
+pub mod inequalities;
 pub mod linear;
 pub mod numerals;
 pub mod terms;

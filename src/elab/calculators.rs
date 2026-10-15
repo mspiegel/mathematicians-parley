@@ -33,6 +33,7 @@ pub use crate::methods::algebra::rescales;
 use crate::methods::algebra::{
     self, claim_says, combination, denominators, readings, Factor,
 };
+use crate::methods::inequalities;
 use crate::mm::kernel::Term;
 use crate::mm::spell::{Builder, Proof};
 use crate::outcome::{Built, Checked, Declined, Problem, Route};
@@ -5315,38 +5316,24 @@ impl<'a> Elaborator<'a> {
         lines: &Lines,
     ) -> Checked<()> {
         let labels = self.b.flabel.clone();
-        let Some(claim) = linear::fact(&self.to_term(term), &labels) else {
-            return Ok(()); // not a relation this decides
-        };
-        let mut given = Vec::new();
+        let mut cited = Vec::new();
+        let mut implied = Vec::new();
         for r in &step.just.refs {
             let Some(held) = lines.get(r) else {
                 continue;
             };
-            for said in self.parts(&held.term) {
-                if let Some(one) = linear::fact(&self.to_term(&said), &labels) {
-                    given.push(one);
-                }
-            }
+            cited.push(self.to_term(&held.term));
             for said in &self.stated_claims(r, facts, lines) {
                 for (extra, _lemmas) in self.implied_terms(said) {
-                    if let Some(one) = linear::fact(&self.to_term(&extra), &labels) {
-                        if one.how != How::Ne {
-                            given.push(one);
-                        }
-                    }
+                    implied.push(self.to_term(&extra));
                 }
             }
         }
-        if !linear::follows(&given, &claim) {
-            return Err(self.defect(
-                step.line,
-                format!(
-                    "{} does not follow from what step {} cites",
-                    self.render(term),
-                    fmt(&step.number)
-                ),
-            ));
+        let decided =
+            inequalities::decide(&self.to_term(term), &cited, &implied, &labels);
+        if decided == Some(false) {
+            let said = inequalities::refusal(&self.render(term), &fmt(&step.number));
+            return Err(self.defect(step.line, said));
         }
         Ok(())
     }

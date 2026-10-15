@@ -759,6 +759,17 @@ fn cases() -> Vec<Case> {
             )],
             "(1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a) + 1 is not an identity, nor does it follow from what step 1.10 cites",
         ),
+        // A bound the cited lines do not give: q ∈ ℕ says q ≥ 1 and so
+        // q > 0, never q > 1 (`check_inequalities_holds`).
+        case(
+            "claim an inequalities step the cited lines do not give",
+            vec![edit(
+                "proofs/sqrt2-irrational.proof",
+                Some("2.  q > 0\n    inequalities, from 1\n".to_string()),
+                "2.  q > 1\n    inequalities, from 1\n".to_string(),
+            )],
+            "q > 1 does not follow from what step 2 cites",
+        ),
         case(
             "ask algebra to multiply out a power past its cost",
             vec![edit(

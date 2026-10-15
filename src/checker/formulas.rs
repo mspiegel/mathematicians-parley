@@ -10,7 +10,7 @@ use super::library::Known;
 use super::record::CheckedTheorem;
 use super::structure::{defined_below, introduced, letters_in_scope};
 use super::Report;
-use crate::citing::{link_unsaid, said_once, Library, Parts};
+use crate::citing::{implied_facts, link_unsaid, said_once, Library, Parts};
 use crate::corpus::proof::{chain, ChainLine};
 use crate::corpus::{
     define_parts, DefineParts, FileScope, Intro, Item, Justification, Method, Record,
@@ -19,9 +19,9 @@ use crate::corpus::{
 use crate::formula::page::{disjoined, made, numeral, related, Written};
 use crate::formula::{walk, Node, Sort, Sorts};
 use crate::matching::{alike_top, free_names, substitute_apart_by, Binding};
-use crate::methods::algebra;
 use crate::methods::field::{decide_closed, Verdict};
 use crate::methods::terms::{term_of_node, Targets};
+use crate::methods::{algebra, inequalities};
 use crate::mm::kernel::{FloatLabels, Term};
 use crate::outcome::{Built, Checked, Declined};
 use crate::sorts::infer::{self, Reader, Store};
@@ -1351,6 +1351,54 @@ pub fn check_algebra_holds(
         if let Some(said) =
             algebra::refusal(&verdict, &step.claim_text(), &number, &render)
         {
+            report.say(&thm.path, step.just.line, said);
+        }
+    }
+}
+
+/// What `inequalities` claims holds (`METHODS.md`, inequalities): a step's
+/// claim of one sentence follows by linear arithmetic from what the lines it
+/// cites say and the bounds a membership among them implies
+/// (`methods::inequalities::decide`), each read as `check_algebra_holds`
+/// reads it.
+pub fn check_inequalities_holds(
+    report: &mut Report,
+    thm: &Theorem,
+    known: &Known,
+    targets: &Targets,
+) {
+    let labels = FloatLabels::new(IndexMap::new());
+    for step in &thm.steps {
+        if !step.just.head.is(Method::Inequalities) {
+            continue;
+        }
+        let sentences = step.claim.sentences();
+        let [claim] = sentences.as_slice() else {
+            continue;
+        };
+        let defined = known.citing_step(step);
+        let Some(claimed) = known.read_citing(claim, &defined) else {
+            continue;
+        };
+        let scope = known.scope(step);
+        let lines: Vec<Node> = step
+            .just
+            .refs
+            .iter()
+            .filter_map(|r| scope.get(r))
+            .flat_map(|written| known.supplied(written, &defined))
+            .collect();
+        let implied: Vec<Term> = lines
+            .iter()
+            .flat_map(conjuncts)
+            .flat_map(|part| implied_facts(&part, known.env, &known.sorts))
+            .map(|n| term_of_node(&n, targets))
+            .collect();
+        let cited: Vec<Term> = lines.iter().map(|n| term_of_node(n, targets)).collect();
+        let claimed = term_of_node(&claimed, targets);
+        if inequalities::decide(&claimed, &cited, &implied, &labels) == Some(false) {
+            let number = step.number.to_string();
+            let said = inequalities::refusal(&step.claim_text(), &number);
             report.say(&thm.path, step.just.line, said);
         }
     }
