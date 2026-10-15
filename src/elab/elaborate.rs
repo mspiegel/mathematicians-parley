@@ -55,7 +55,7 @@ use crate::mm::{Kind, Layered, Lookup, Signature, Signatures};
 use crate::outcome::{Built, Checked, Declined, Problem, Route};
 use crate::rules::{self, lookup};
 use crate::sorts::introduction::{Form, Introduction};
-use crate::sorts::{sorts_in_scope, statement_definitions, OutsideDefines};
+use crate::sorts::{statement_definitions, OutsideDefines};
 use crate::targets;
 use crate::text::repr;
 use crate::{pf, regex, t, take};
@@ -6144,38 +6144,34 @@ fn rested_first(cited: &[String], corpus: &Corpus) -> Vec<String> {
 ///
 /// `statements` gives the statement a cited theorem's file proves, where it
 /// is known.
+#[allow(clippy::too_many_arguments)]
 pub fn elaborate(
     corpus: &Corpus,
     g: &Grammar,
     items: &IndexMap<String, Item>,
     thm: &Theorem,
+    checked: &CheckedTheorem,
     library: &Library,
     statements: &dyn Fn(&str) -> Option<String>,
     options: Options,
 ) -> Checked<Elaborated> {
-    let env = crate::sorts::Env {
-        g,
-        scopes: &corpus.scopes,
-    };
-    // A justification is read only in a form the grammar gives it, as the
-    // checker reads it: `into 1` is no `into line 1`.
-    for step in &thm.steps {
-        if let Some(why) = crate::corpus::proof::unproduced(&step.just) {
-            return Err(Problem::new(&thm.path, step.just.line, why));
-        }
+    // What the checker refuses is not built, and is said as the checker says
+    // it (`checker::checked`).
+    if let Some(first) = checked.problems.first() {
+        return Err(first.clone());
     }
-    let sorts_now = sorts_in_scope(thm, env);
     let mut sigs = Layered::new(Arc::clone(&library.sigs));
     declare_constants(&mut sigs, &corpus.records)?;
     let syntax = library.syntax_for(&sigs);
     let mut work = Elaborator::new(
         thm,
+        checked.clone(),
         g,
         items,
         sigs,
         &corpus.records,
         &corpus.scopes,
-        sorts_now,
+        checked.sorts.clone(),
         statements,
     );
     work.b.share_syntax(syntax);

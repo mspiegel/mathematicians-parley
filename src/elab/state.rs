@@ -369,8 +369,10 @@ pub struct Elaborator<'a> {
 
 impl<'a> Elaborator<'a> {
     #[allow(clippy::too_many_arguments)]
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         thm: &'a Theorem,
+        shape: CheckedTheorem,
         g: &'a Grammar,
         items: &'a IndexMap<String, Item<'a>>,
         sigs: Layered,
@@ -419,7 +421,7 @@ impl<'a> Elaborator<'a> {
             .collect();
         Elaborator {
             thm,
-            shape: CheckedTheorem::of(thm),
+            shape,
             g,
             items,
             records,

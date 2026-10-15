@@ -139,7 +139,8 @@ fn on_the_way<'t>(thm: &'t Theorem, step: &Step, number: &StepNo) -> Option<&'t 
 }
 
 /// The productions of `GRAMMAR.md`, one per justification form, as
-/// `corpus::proof::unproduced` reads them for both tools.
+/// `corpus::proof::unproduced` reads them; the build refuses what this
+/// reports with the rest of the checker's problems.
 pub fn check_justification_form(
     report: &mut Report,
     path: &str,

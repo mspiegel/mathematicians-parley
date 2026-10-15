@@ -1,11 +1,14 @@
 //! What the checker decides about a theorem, once, for itself and for the
 //! build: the block each step stands in and which part of it, each block's
-//! steps and its last, and the place each define is written in.
+//! steps and its last, the place each define is written in, the sort of
+//! each name, and the problems it finds.
 //!
 //! The build is handed this rather than working it out again as it walks
-//! the proof, so the two cannot read one proof's shape two ways.
+//! the proof, so the two cannot read one proof two ways.
 
 use crate::corpus::{Step, StepNo, Theorem};
+use crate::formula::Sorts;
+use crate::outcome::Problem;
 
 /// Where a step or a define stands: directly in a block, and in which part
 /// of it where the block has parts.
@@ -36,7 +39,7 @@ impl Block {
     }
 }
 
-/// The shape of a theorem's proof, as the checker reads it.
+/// A theorem as the checker reads it.
 #[derive(Clone, Debug, Default)]
 pub struct CheckedTheorem {
     pub blocks: Vec<Block>,
@@ -47,6 +50,12 @@ pub struct CheckedTheorem {
     /// `Theorem::defines`: the place of the first step written after it,
     /// which is where the build opens it.
     pub defines: Vec<Option<Place>>,
+    /// The sort of each name, as the theorem's one reading settles it, its
+    /// citations fitted as it goes.
+    pub sorts: Sorts,
+    /// What the checker reports in the theorem, in the order it finds it;
+    /// the build builds a theorem only where this is empty.
+    pub problems: Vec<Problem>,
 }
 
 /// Whether `step` owns a block: it opens one with a line above its steps,

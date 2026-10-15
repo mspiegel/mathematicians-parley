@@ -21,15 +21,15 @@ use std::collections::BTreeSet;
 use indexmap::{IndexMap, IndexSet};
 
 use crate::corpus::{
-    corpus, link_functions, parse_proof, Corpus, Intro, ItemKind, Record,
+    corpus, link_functions, parse_proof, Corpus, Hypothesis, Intro, ItemKind, Record,
 };
 use crate::formula::page::{Sentence, Written};
 use crate::formula::{Grammar, Node, Sorts};
 use crate::regex;
 use crate::said::Said;
 use crate::sorts::infer;
-use crate::sorts::introduction::Introduction;
-use crate::source::{Overlay, Source};
+use crate::sorts::introduction::{Form, Introduction};
+use crate::source::{Memory, Overlay, Source};
 
 // The name a `let` line introduces: what stands before its `∈`, `∉`, `:`,
 // `⊆` or `be`.
@@ -229,13 +229,18 @@ pub fn restatements(
         };
         let text = files.entry(key).or_default();
         let prefix = kind.prefix();
+        let sorts =
+            crate::sorts::sorts_of_record(r, crate::sorts::Env { g, scopes: &[] });
         // The item's assumptions, and what its `let` lines claim, are what
         // the step cites it from, as a proof citing it names the lines that
-        // say them.
+        // say them, but for a membership in a number system, which is said
+        // once, and a function's type, which declares the function and is
+        // asked for by nothing (`unasked`).
         let from: Vec<String> = r
             .hypotheses
             .iter()
             .filter(|h| h.kind == Intro::Assume || is_claim(&h.text))
+            .filter(|h| !unasked(r, h, g, &sorts))
             .filter_map(|h| h.label.clone())
             .collect();
         // A step citing an item says what each of its names stands for,
@@ -253,8 +258,6 @@ pub fn restatements(
                 format!(" {}", said.join(", "))
             }
         };
-        let sorts =
-            crate::sorts::sorts_of_record(r, crate::sorts::Env { g, scopes: &[] });
         let mut ways: Vec<(Option<String>, String)> = Vec::new();
         for (conclusion, _) in &r.conclusions {
             let claim = conclusion.split_whitespace().collect::<Vec<_>>().join(" ");
@@ -474,6 +477,31 @@ fn free_names(r: &Record, g: &Grammar) -> Vec<String> {
 
 /// Whether a `let` line claims something a step may cite, as `let k ∈ ℕ₀`
 /// does, rather than only naming a thing, as `let X be a set` does.
+/// Whether a record's line is a `let` no citation of the item asks for: a
+/// letter in a number system, `let n ∈ ℕ`, which says the membership once
+/// (`citing::said_once`), or a function's type, `let f : D → ℝ`, which
+/// declares the function (`GRAMMAR.md`). A citation of either would be one
+/// for nothing. `let E be a function on X` says what an item asks, and is
+/// cited. A membership of a range says more than the range's
+/// integers, and is asked for.
+fn unasked(r: &Record, h: &Hypothesis, g: &Grammar, sorts: &Sorts) -> bool {
+    if h.kind != Intro::Let {
+        return false;
+    }
+    let introduced = Introduction::read(h.body(&r.path));
+    if matches!(introduced.form, Form::Function) {
+        return true;
+    }
+    let Ok(said) = introduced.body.sentence().and_then(|s| s.read(g, sorts)) else {
+        return false;
+    };
+    said.notation == "membership"
+        && said
+            .children
+            .get(1)
+            .is_some_and(|set| set.notation == "number-systems")
+}
+
 fn is_claim(text: &str) -> bool {
     let body = crate::sorts::unlabel(text);
     let body = str::trim(&body);
@@ -508,17 +536,37 @@ pub fn run_edited(
 
 /// Every restatement `wanted` built over the corpus `all`, and what was
 /// built verified with the library files it includes: green where each
-/// builds and verifies.
+/// builds and verifies. The checker reads what is built first, the records
+/// and the restatements' own files, as it reads the corpus before a build.
 fn built_and_verified(
     source: &dyn Source,
     all: &Corpus,
+    files: &[(String, String)],
     wanted: &[Artifact],
     libraries: &Libraries,
 ) -> Said {
     let mut said = Said::default();
     let mut made: Vec<(String, String)> = Vec::new();
     {
-        let mut maker = match Maker::new(source, all, libraries) {
+        let records = match Memory::copy(source, &["corpus"]) {
+            Ok(records) => records,
+            Err(e) => {
+                return Said {
+                    printed: String::new(),
+                    complained: format!("the corpus cannot be read: {e}\n"),
+                    status: 2,
+                }
+            }
+        };
+        let mut read = Overlay::new(&records);
+        for (path, text) in files {
+            read.write(path, text.clone().into_bytes());
+        }
+        let checked = match crate::checker::checked(&read) {
+            Ok(checked) => checked,
+            Err(out) => return out,
+        };
+        let mut maker = match Maker::new(source, all, libraries, checked) {
             Ok(maker) => maker,
             Err(problem) => {
                 return Said {
@@ -590,8 +638,8 @@ fn restated(source: &dyn Source, libraries: Option<&Libraries>, build: bool) -> 
         ..Corpus::default()
     };
     let (files, schemas) = restatements(&found.records, &g);
-    for (path, text) in files {
-        match parse_proof(&path, &text, all.scopes.len()) {
+    for (path, text) in &files {
+        match parse_proof(path, text, all.scopes.len()) {
             Ok((scope, theorems)) => {
                 all.scopes.push(scope);
                 all.theorems.extend(theorems);
@@ -614,7 +662,7 @@ fn restated(source: &dyn Source, libraries: Option<&Libraries>, build: bool) -> 
 
     let mut said = Said::default();
     if build {
-        let built = built_and_verified(source, &all, &wanted, libraries);
+        let built = built_and_verified(source, &all, &files, &wanted, libraries);
         if !built.green() {
             return built;
         }

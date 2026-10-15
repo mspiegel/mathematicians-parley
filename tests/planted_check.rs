@@ -512,6 +512,605 @@ const UNPLANTED: &[(&str, &str)] = &[
 
 fn cases() -> Vec<Case> {
     vec![
+        // abs asks that x be real, at x := ⌊A + 1/2⌋ − A, and line 1 says
+        // only that the floor is an integer: the difference's membership is
+        // a closure no line the step names states.
+        case(
+            "a hypothesis supplied only by a closure of what the step names",
+            vec![edit(
+                "tests/elaborator/floor-in-a-bound.proof",
+                Some("    mun:abs x := ⌊A + 1/2⌋ − A, from H2, 2\n".to_string()),
+                "    mun:abs x := ⌊A + 1/2⌋ − A, from H2, 1\n".to_string(),
+            )],
+            "step 3 cites mun:abs, which asks for ⌊A + 1 / 2⌋ − A ∈ ℝ, and what it cites does not supply it",
+        ),
+        // A sum of squares of reals is not shown to be a natural number by
+        // the let's reason. The checker does not judge a let's kind against
+        // its reason; it reports what the planted kind makes surplus below.
+        case(
+            "a let saying a kind of number its reason does not show",
+            vec![edit(
+                "proofs/cauchy-schwarz.proof",
+                Some("    let A = Σ(k = 1 to n) a(k)², a real number                        (D1)".to_string()),
+                "    let A = Σ(k = 1 to n) a(k)², a natural number                     (D1)".to_string(),
+            )],
+            "the requires line of step 5.11 says A > 0, which the step's other lines already say",
+        ),
+        // A false divisibility of numerals, on a requires line the step does
+        // not ask for: the checker reports the line as surplus, and does not
+        // work out whether `arithmetic` makes it true.
+        case(
+            "a divisibility of numerals that does not hold",
+            vec![edit(
+                "proofs/divisibility-by-three.proof",
+                Some("          requires 10^m ∈ ℤ: mun:power-integer a := 10\n".to_string()),
+                "          requires 10^m ∈ ℤ: mun:power-integer a := 10\n          requires 3 divides 10 − 2: arithmetic\n".to_string(),
+            )],
+            "the requires line of step 1.3 says 3 divides 10 − 2, and neither thm:congruent-times nor the step's other lines ask for it",
+        ),
+        // A method decides a word only where the word's record names it
+        // (`DATABASE.md`, `decided`). With `arithmetic` struck from
+        // `divides`, every divisibility of numerals it settles is refused.
+        case(
+            "a divisibility arithmetic decides with its record not naming it",
+            vec![edit(
+                "corpus/stdlib/divisibility.records",
+                Some("  then        d divides n ↔ there is k ∈ ℤ with n = d·k\n  decided     arithmetic, inspection".to_string()),
+                "  then        d divides n ↔ there is k ∈ ℤ with n = d·k\n  decided     inspection".to_string(),
+            )],
+            "4 divides 2 is a word divides defines, and arithmetic decides a word only where its record says so in a `decided` field",
+        ),
+        // A count of the odd vertices that leaves A out, 5 being odd. The
+        // checker does not count by `inspection`; it reports the step below
+        // that takes the count of 4 from the line now saying 3.
+        case(
+            "a parity inspection settles that a count leaves out",
+            vec![edit(
+                "proofs/konigsberg.proof",
+                Some("6.  |{x ∈ V : deg(x) is odd}| = 4".to_string()),
+                "6.  |{x ∈ V : deg(x) is odd}| = 3".to_string(),
+            )],
+            "step 7.2 takes |{x ∈ V : deg(x) is odd}| = 4 from 6, which does not say it",
+        ),
+        // `substitute` walks its equation both ways and each sentence of the
+        // line it names, trying the next where one declines. A name the proof
+        // never introduced is not one of those: it is a defect.
+        case(
+            "substitute a name the proof never introduced",
+            vec![edit(
+                "proofs/geometric-series.proof",
+                Some("          substitute a^((k + 1) + 1) = a^(k + 1)·a (line 1.9)".to_string()),
+                "          substitute a^((k + 1) + 1) = z (line 1.9)".to_string(),
+            )],
+            "step 1.11 takes a^(k + 1 + 1) = z from 1.9, which does not say it",
+        ),
+        // A step claims of a definition something it does not say.
+        case(
+            "claim of a definition what it does not say",
+            vec![edit(
+                "proofs/triangle-inequality.proof",
+                Some("    2.5.  |x| = −x".to_string()),
+                "    2.5.  |x| = x".to_string(),
+            )],
+            "step 2.5 claims something that mun:abs does not conclude",
+        ),
+        // A base may be written without an identity element its instance
+        // has, and nothing else: 1 = (1 − a)/(1 − a) is no instance of
+        // G(a, 0) = (1 − a^(0 + 1))/(1 − a) however its elements are read.
+        case(
+            "end an induction's base on what is not its instance",
+            vec![edit(
+                "proofs/geometric-series.proof",
+                Some("    1.5.  G(a, 0) = (1 − a)/(1 − a)\n          calculation\n            G(a, 0) = 1                    1.3\n                    = (1 − a)/(1 − a)      1.4\n\n".to_string()),
+                "".to_string(),
+            )],
+            "step 1.4 ends the base part of step 1, which owes G(a, 0) = (1 − a^(0 + 1)) / (1 − a)",
+        ),
+        // A conclusion is matched with an identity element dropped where the
+        // instance has one, and with nothing else changed: the shifted sum
+        // starts at 0 + 1, which is 1 and not 2.
+        case(
+            "claim a lemma's conclusion with more than an identity element dropped",
+            vec![edit(
+                "proofs/binomial.proof",
+                Some("29. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 1 to m + 1)".to_string()),
+                "29. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 2 to m + 1)".to_string(),
+            )],
+            "step 29 claims something that mun:sum-shift does not conclude",
+        ),
+        // A substitution's line may leave out the + 0 it makes, and nothing
+        // else: the product written the other way round is a reordering, which
+        // no identity law gives.
+        case(
+            "a substitution that reorders where it drops a 0",
+            vec![edit(
+                "proofs/factor.proof",
+                Some("    2.2.  p(x) = (x − a)·q(x)\n".to_string()),
+                "    2.2.  p(x) = q(x)·(x − a)\n".to_string(),
+            )],
+            "step 2.2 claims p(x) = q(x) · (x − a), which putting one side of p(a) = 0 for the other does not make",
+        ),
+        // 0 is an identity on the right of a difference and not on its left:
+        // C(m, 0 − 1) is not C(m, −1) by any identity law.
+        case(
+            "drop a 0 from the side of a difference where it is no identity",
+            vec![edit(
+                "proofs/binomial.proof",
+                Some("= C(m, 0 − 1)·x^(m + 1)·y^0 + Σ(k = 1 to m + 1)".to_string()),
+                "= C(m, −1)·x^(m + 1)·y^0 + Σ(k = 1 to m + 1)".to_string(),
+            )],
+            "step 38 claims something that mun:sum-first does not conclude",
+        ),
+        // A `requires` line has a claim and a reason, and the reason is what
+        // proves it. Here H5 does not say `C ≠ A`, and no line above this one
+        // does.
+        case(
+            "name a line that does not state the side condition",
+            vec![edit(
+                "proofs/pythagoras.proof",
+                Some("    requires C ≠ A: mun:triangle, from H4\n".to_string()),
+                "    requires C ≠ A: mun:triangle, from H5\n".to_string(),
+            )],
+            "the requires line of step 2 needs something that mun:triangle does not conclude",
+        ),
+        // The same, where the scope already holds the claim for another reason:
+        // the hypothesis says A, B, C form a triangle, so `C ≠ B` is held before
+        // the line is read, and H5 does not say it.
+        case(
+            "name a line that does not state a claim the scope already holds",
+            vec![edit(
+                "proofs/pythagoras.proof",
+                Some("    requires C ≠ B: mun:triangle, from H4\n".to_string()),
+                "    requires C ≠ B: mun:triangle, from H5\n".to_string(),
+            )],
+            "the requires line of step 8 needs something that mun:triangle does not conclude",
+        ),
+        // A requires line below that cites an item asks for that item's
+        // hypotheses, and only those: mun:sum-real asks nothing of x^m, and
+        // nothing asks x^m ∈ ℝ of a substitution that drops the 0 before the
+        // sum. A power to a letter is written where it is needed, so the line
+        // is not one the step is spared; it is one nothing needs.
+        case(
+            "a requires line above an item's line that the item does not ask for",
+            vec![edit(
+                "proofs/binomial.proof",
+                Some("    substitute C(m, 0 − 1)·x^(m + 1)·y^0 = 0 (line 37) into line 38\n    requires Σ(k = 1 to m + 1)".to_string()),
+                "    substitute C(m, 0 − 1)·x^(m + 1)·y^0 = 0 (line 37) into line 38\n    requires x^m ∈ ℝ: mun:power-real a := x, m := m, from H1\n    requires Σ(k = 1 to m + 1)".to_string(),
+            )],
+            "the requires line of step 39 cites H1, and mun:power-real asks for nothing it says",
+        ),
+        // A requires line rests only on its reason. Line 2 does not say n! is
+        // an integer, and `mun:int-real` asks it; the scope has it from line
+        // 1, which the line does not cite, so the item it names reaches
+        // nothing.
+        case(
+            "give a requires line a reason that is not where its proof comes from",
+            vec![
+                edit(
+                    "proofs/infinitely-many-primes.proof",
+                    Some("import theorem            stdlib/divisibility/prime-factor\n".to_string()),
+                    "import theorem            stdlib/divisibility/prime-factor\nimport mundane theorem stdlib/numbers/int-real\n".to_string(),
+                ),
+                edit(
+                    "proofs/infinitely-many-primes.proof",
+                    Some("          algebra\n          requires n! ∈ ℝ: from 1\n".to_string()),
+                    "          algebra\n          requires n! ∈ ℝ: mun:int-real, from 2\n".to_string(),
+                ),
+            ],
+            "the requires line of step 5.4 cites mun:int-real, which asks for n! ∈ ℤ, and what it cites does not supply it",
+        ),
+        // Everything a step names does work. A numeral's membership is said
+        // once (`SYNTAX.md`), so the line is true, well formed, and does
+        // nothing.
+        case(
+            "write a requires line nothing asks for",
+            vec![edit(
+                "proofs/sum-formula.proof",
+                Some("    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2\n          algebra\n".to_string()),
+                "    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2\n          algebra\n          requires 2 ∈ ℝ: arithmetic\n".to_string(),
+            )],
+            "the requires line of step 1.6 says 2 ∈ ℝ, which the step's other lines already say",
+        ),
+        // A claim of numerals said to be impossible, given to `inequalities`:
+        // a claim of numerals alone is arithmetic's, and is refused there.
+        case(
+            "say a true claim is impossible",
+            vec![edit(
+                "proofs/reals-uncountable.proof",
+                Some("    2.3.  10 divides 1, which is impossible\n          substitute (t + 1) − t = 1 (line 2.2) into line 2.1\n".to_string()),
+                "    2.3.  10 divides 1\n          substitute (t + 1) − t = 1 (line 2.2) into line 2.1\n\n    2.4.  1 ≤ 10, which is impossible\n          inequalities\n".to_string(),
+            )],
+            "step 2.4 gives inequalities for 1 ≤ 10, which has no letter in it; a claim of numerals alone is arithmetic's",
+        ),
+        // A claim of `algebra` that is not an identity. The checker does not
+        // decide algebra; it reports the link below that cites the changed
+        // line for what it no longer says.
+        case(
+            "claim an algebra step the cited lines do not give",
+            vec![edit(
+                "proofs/geometric-series.proof",
+                Some("    1.10. (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a)".to_string()),
+                "    1.10. (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a) + 1".to_string(),
+            )],
+            "a link of step 1.12 cites 1.10, which does not say (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a); a link cites the line that states it, and a substitution is a step of its own",
+        ),
+        // A power past what `algebra` may multiply out. The checker does not
+        // decide algebra; it reports the link below that cites the changed
+        // line for what it no longer says.
+        case(
+            "ask algebra to multiply out a power past its cost",
+            vec![edit(
+                "proofs/geometric-series.proof",
+                Some("    1.10. (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a)".to_string()),
+                "    1.10. (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a) + (a + 1)^30 − (a + 1)^30".to_string(),
+            )],
+            "a link of step 1.12 cites 1.10, which does not say (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a); a link cites the line that states it, and a substitution is a step of its own",
+        ),
+        // A side condition is supplied by what the step names, not by
+        // everything in scope: the scope holds |T| = 2^k, and with 1.2.5 no
+        // longer cited nothing the step names says it.
+        case(
+            "settle a side condition from a line the step does not cite",
+            vec![edit(
+                "proofs/subsets.proof",
+                Some("n := 2^k, from 1.2.3, 1.2.5, 1.2.6".to_string()),
+                "n := 2^k, from 1.2.3, 1.2.6".to_string(),
+            )],
+            "step 1.2.8 cites mun:card-disjoint-union, which asks for |T| = 2^k, and what it cites does not supply it",
+        ),
+        // `card-remove` loses its target, and the edit to its record changes
+        // what it concludes, so the step citing it claims what it does not.
+        case(
+            "cite a theorem the database gives no target for",
+            vec![edit(
+                "corpus/stdlib/counting.records",
+                Some("  then        |X ∖ {a}| = k\n  metamath    hashdifsnp1\n  target      hashdifsnp1 with V := X, N := a, Y := k\n".to_string()),
+                "  then        |X ∖ {a}| ≤ k\n  metamath    hashdifsnp1\n".to_string(),
+            )],
+            "step 1.2.2 claims something that mun:card-remove does not conclude",
+        ),
+        // A definition with no target concludes only what its record says,
+        // and a step claiming something else of it is refused.
+        case(
+            "unfold a definition with no target into what it does not say",
+            vec![edit(
+                "proofs/intermediate-value.proof",
+                Some("10. For all s ∈ S, s ≤ c.".to_string()),
+                "10. For all s ∈ S, s < c.".to_string(),
+            )],
+            "step 10 claims something that mun:upper-bound does not conclude",
+        ),
+        // Continuity unfolds into what its definition says: with δ where ε
+        // belongs, or with δ ≥ 0 where the definition says δ > 0, it is not
+        // what the definition concludes.
+        case(
+            "unfold continuity into what it does not say",
+            vec![edit(
+                "proofs/intermediate-value.proof",
+                Some("|f(x) − f(c′)| < ε for all x".to_string()),
+                "|f(x) − f(c′)| < δ for all x".to_string(),
+            )],
+            "step 15 claims something that def:continuous-on does not conclude",
+        ),
+        case(
+            "unfold continuity with a weaker bound than it gives",
+            vec![edit(
+                "proofs/intermediate-value.proof",
+                Some("there exists δ > 0 such that".to_string()),
+                "there exists δ ≥ 0 such that".to_string(),
+            )],
+            "step 15 claims something that def:continuous-on does not conclude",
+        ),
+        // The least upper bound is the supremum, which is a number only of a
+        // set bounded above, and line 7 is what says S is. Without it cited
+        // nothing supplies the hypothesis naming a bound, and the step says
+        // which.
+        case(
+            "obtain the least upper bound without the line bounding the set",
+            vec![edit(
+                "proofs/intermediate-value.proof",
+                Some("obtain c: axi:completeness, from 2, 5, 7".to_string()),
+                "obtain c: axi:completeness, from 2, 5".to_string(),
+            )],
+            "step 8 cites axi:completeness, which asks for S ⊆ ℝ; there is s ∈ S; there is u ∈ ℝ with u is an upper bound of S, and what it cites does not supply them",
+        ),
+        // False closed claims, and below them claims with no exact value, on
+        // a requires line the step does not ask for: the checker reports the
+        // line as surplus, and does not work out what `arithmetic` makes of
+        // it.
+        case(
+            "claim a false numeral fact with a number past one digit",
+            vec![edit(
+                "proofs/divisibility-by-three.proof",
+                Some("          requires 10^m ∈ ℤ: mun:power-integer a := 10\n".to_string()),
+                "          requires 10^m ∈ ℤ: mun:power-integer a := 10\n          requires 10 − 1 = 3·4: arithmetic\n".to_string(),
+            )],
+            "the requires line of step 1.3 says 10 − 1 = 3·4, and neither thm:congruent-times nor the step's other lines ask for it",
+        ),
+        case(
+            "claim a false numeral fact of digits",
+            vec![edit(
+                "proofs/divisibility-by-three.proof",
+                Some("          requires 10^m ∈ ℤ: mun:power-integer a := 10\n".to_string()),
+                "          requires 10^m ∈ ℤ: mun:power-integer a := 10\n          requires 9 = 3·4: arithmetic\n".to_string(),
+            )],
+            "the requires line of step 1.3 says 9 = 3·4, and neither thm:congruent-times nor the step's other lines ask for it",
+        ),
+        case(
+            "divide by zero in a numeral fact",
+            vec![edit(
+                "proofs/divisibility-by-three.proof",
+                Some("          requires 10^m ∈ ℤ: mun:power-integer a := 10\n".to_string()),
+                "          requires 10^m ∈ ℤ: mun:power-integer a := 10\n          requires 3/0 ∈ ℝ: arithmetic\n".to_string(),
+            )],
+            "the requires line of step 1.3 says 3/0 ∈ ℝ, and neither thm:congruent-times nor the step's other lines ask for it",
+        ),
+        case(
+            "state a numeral too large to work out",
+            vec![edit(
+                "proofs/divisibility-by-three.proof",
+                Some("          requires 10^m ∈ ℤ: mun:power-integer a := 10\n".to_string()),
+                "          requires 10^m ∈ ℤ: mun:power-integer a := 10\n          requires 9^(9^9) ∈ ℕ: arithmetic\n".to_string(),
+            )],
+            "the requires line of step 1.3 says 9^(9^9) ∈ ℕ, and neither thm:congruent-times nor the step's other lines ask for it",
+        ),
+        case(
+            "raise a numeral to a power that is not whole",
+            vec![edit(
+                "proofs/divisibility-by-three.proof",
+                Some("          requires 10^m ∈ ℤ: mun:power-integer a := 10\n".to_string()),
+                "          requires 10^m ∈ ℤ: mun:power-integer a := 10\n          requires 4^(1/2) ∈ ℕ: arithmetic\n".to_string(),
+            )],
+            "the requires line of step 1.3 says 4^(1/2) ∈ ℕ, and neither thm:congruent-times nor the step's other lines ask for it",
+        ),
+        // A substitution by a false fact of numerals, 0 − 1 = 1. The checker
+        // does not work the fact out; it reports that putting one side for
+        // the other does not make the claim.
+        case(
+            "substitute by a false fact of numerals",
+            vec![edit(
+                "proofs/binomial.proof",
+                Some("substitute 0 − 1 = −1 (arithmetic)".to_string()),
+                "substitute 0 − 1 = 1 (arithmetic)".to_string(),
+            )],
+            "step 33 claims C(m, 0 − 1) = C(m, −1), which putting one side of 0 − 1 = 1 for the other does not make",
+        ),
+        // g(a) is the rule at a only where a is in g's domain [a, b]. That
+        // is no number system, so no introducing line says it once, and
+        // line 1, which does, is not named.
+        case(
+            "read a defined function at a value nothing puts in its domain",
+            vec![edit(
+                "proofs/mean-value.proof",
+                Some("    D1, from 1\n".to_string()),
+                "    D1\n".to_string(),
+            )],
+            "step 17 cites D1 at a, so it needs a ∈ [a, b], and nothing it cites or requires says it",
+        ),
+        // a ∈ S because S is the points of [a, b] where f is below zero; the
+        // item speaks of a set written by its condition, and without the
+        // define S is only a name.
+        case(
+            "membership in a defined set without citing its define",
+            vec![edit(
+                "proofs/intermediate-value.proof",
+                Some("u := a, from D1, H6, 1".to_string()),
+                "u := a, from H6, 1".to_string(),
+            )],
+            "step 2 claims something that mun:set-builder does not conclude",
+        ),
+        // Said of every member, a term's divisor must not be zero for each: k ∈ ℤ
+        // gives no k ≠ 0.
+        case(
+            "membership said of every integer where a divisor may be zero",
+            vec![edit(
+                "proofs/triangular-reciprocals.proof",
+                Some("requires for all k ∈ ℕ, 1/T(k) ∈ ℝ: membership".to_string()),
+                "requires for all k ∈ ℤ, 1/T(k) ∈ ℝ: membership".to_string(),
+            )],
+            "the requires line for all k ∈ ℤ, 1/T(k) ∈ ℝ of step 5 cites D1 at k, so it needs k ∈ ℕ, and nothing it cites or the requires lines above it say it",
+        ),
+        // A membership line says what the table in `rules` says it does and
+        // nothing more: k ∈ ℤ gives no k ≠ 0, and n ∈ ℝ gives no n ∈ ℤ, since
+        // the table goes one way. A membership said once is carried up the
+        // same table and never down: with n let into ℝ, nothing gives the
+        // n ∈ ℤ that sum-telescopes asks of its range's end. Its bound line
+        // goes too, as n ∈ ℝ gives no n + 1 ≥ 1 either, and would be reported
+        // first. sum-termwise asks the same of its b := n, so step 2.1 is
+        // where the citation is first refused.
+        case(
+            "a membership read for a bound it does not give",
+            vec![edit(
+                "proofs/triangular-reciprocals.proof",
+                Some("    let k ∈ ℕ                                                         (K1)".to_string()),
+                "    let k ∈ ℤ                                                         (K1)".to_string(),
+            )],
+            "step 1.2 cites D1 at k, so it needs k ∈ ℕ, and nothing it cites or requires says it",
+        ),
+        case(
+            "a membership read into a smaller number system",
+            vec![edit(
+                "proofs/triangular-reciprocals.proof",
+                Some("    let n ∈ ℕ                                                         (K2)\n\n    2.1.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))\n          mun:sum-termwise a := 1, b := n, from 1\n\n    2.2.  Σ(k = 1 to n) (2/k − 2/(k + 1)) = 2 − 2/(n + 1)\n          thm:sum-telescopes a := 1, b := n\n          requires n + 1 ≥ 1: inequalities, from K2\n".to_string()),
+                "    let n ∈ ℝ                                                         (K2)\n\n    2.1.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))\n          mun:sum-termwise a := 1, b := n, from 1\n\n    2.2.  Σ(k = 1 to n) (2/k − 2/(k + 1)) = 2 − 2/(n + 1)\n          thm:sum-telescopes a := 1, b := n\n".to_string(),
+            )],
+            "the statement says n ranges over ℕ, and this line puts it in ℝ",
+        ),
+        // A link naming `arithmetic` for a piece of numerals that is false,
+        // 2/1 is not 3, with the claim changed to match. The checker does not
+        // work the piece out; it reports that the step no longer gives what
+        // its block owes.
+        case(
+            "a chain link whose closed piece is false",
+            vec![edit(
+                "proofs/triangular-reciprocals.proof",
+                Some("    2.3.  Σ(k = 1 to n) 1/T(k) = 2 − 2/(n + 1)\n          calculation\n            Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))    2.1\n                                 = 2 − 2/(n + 1)                      2.2\n".to_string()),
+                "    2.3.  Σ(k = 1 to n) 1/T(k) = 3 − 2/(n + 1)\n          calculation\n            Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))    2.1\n                                 = 2/1 − 2/(n + 1)                    2.2\n                                 = 3 − 2/(n + 1)                      arithmetic\n".to_string(),
+            )],
+            "step 2.3 ends the proof block of step 2, which owes Σ(k = 1 to n) 1 / T(k) = 2 − 2 / (n + 1)",
+        ),
+        // sum-divisible asks that 3 divide each term, and line 1 says it for
+        // all k ∈ ℕ₀. Without line 1 cited nothing says it.
+        case(
+            "sum what no cited line says each term of is divisible",
+            vec![edit(
+                "proofs/divisibility-by-three.proof",
+                Some("    mun:sum-divisible m := 3, from 1\n".to_string()),
+                "    mun:sum-divisible m := 3\n".to_string(),
+            )],
+            "step 2 cites mun:sum-divisible, which asks for for all a ∈ ℕ₀, 3 divides d(a) · 10^a − d(a), and what it cites does not supply it",
+        ),
+        // A link of a calculation is what the line it cites says, and a line
+        // saying something else is not taken for it.
+        case(
+            "cite a line for a link it does not say",
+            vec![edit(
+                "proofs/sum-formula.proof",
+                Some("= k(k + 1)/2 + (k + 1)         1.5".to_string()),
+                "= k(k + 1)/2 + (k + 1)         1.4".to_string(),
+            )],
+            "a link of step 1.7 cites 1.4, which does not say S(k) + (k + 1) = k(k + 1)/2 + (k + 1); a link cites the line that states it, and a substitution is a step of its own",
+        ),
+        // What says f is continuous is H5. Without it cited, the step unfolds
+        // a continuity nothing it names says.
+        case(
+            "unfold continuity without the line saying f is continuous",
+            vec![edit(
+                "proofs/intermediate-value.proof",
+                Some("    def:continuous-on, from H5".to_string()),
+                "    def:continuous-on".to_string(),
+            )],
+            "step 15 claims something that def:continuous-on does not conclude",
+        ),
+        // The item asks |X| = k + 1, which C2 says. Without C2 cited, the
+        // equation is in scope and not in hand, and the hypothesis must go
+        // unanswered rather than be answered by a line the step does not name.
+        // C2 is also what binds the item's k, so k ∈ ℕ₀ goes unanswered with
+        // it: the item's letter is not the proof's k said once by K2.
+        case(
+            "answer a side condition by an equation the step does not cite",
+            vec![edit(
+                "proofs/subsets.proof",
+                Some("obtain a: mun:card-nonempty, from C2\n".to_string()),
+                "obtain a: mun:card-nonempty\n".to_string(),
+            )],
+            "step 1.2.1 cites mun:card-nonempty, which asks for k ∈ ℕ₀; |X| = k + 1, and what it cites does not supply them",
+        ),
+        // What is put in an image comes from a cited line saying where the
+        // map is read. With the line gone nothing says it.
+        case(
+            "put something in an image without the line saying where it comes from",
+            vec![edit(
+                "proofs/subsets.proof",
+                Some("s := V ∖ {a},\n                    from 1.3.2".to_string()),
+                "s := V ∖ {a}".to_string(),
+            )],
+            "step 1.3.3 cites mun:added-element-in-image, which asks for V ∖ {a} ∈ 𝒫(X ∖ {a}), and what it cites does not supply it",
+        ),
+        // Σ(a(k)t + b(k))² is t²Σa(k)² + 2tΣa(k)b(k) + Σb(k)², and with 3t
+        // in place of 2t the `algebra` claim is no identity. The checker does
+        // not decide algebra; it reports the step below that takes the
+        // changed line for what it no longer says.
+        case(
+            "expand a sum linearly with a wrong coefficient",
+            vec![edit(
+                "proofs/cauchy-schwarz.proof",
+                Some("    1.3.  Σ(k = 1 to n) (a(k)·t + b(k))² = t²·(Σ(k = 1 to n) a(k)²) + 2t·".to_string()),
+                "    1.3.  Σ(k = 1 to n) (a(k)·t + b(k))² = t²·(Σ(k = 1 to n) a(k)²) + 3t·".to_string(),
+            )],
+            "step 1.4 takes Σ(k = 1 to n) (a(k) · t + b(k))² = t² · (Σ(k = 1 to n) a(k)²) + 2 · t · (Σ(k = 1 to n) a(k) · b(k)) + Σ(k = 1 to n) b(k)² from 1.3, which does not say it",
+        ),
+        // A closed exponent that comes to −1, which is not in ℕ₀. The checker
+        // does not work the exponent out; it reports the link below that
+        // cites the changed line for what it no longer says.
+        case(
+            "a closed exponent that is not a whole number",
+            vec![edit(
+                "proofs/binomial.proof",
+                Some("    1.1.  Σ(k = 0 to 0) C(0, k)·x^(0 − k)·y^k = C(0, 0)·x^0·y^0\n".to_string()),
+                "    1.1.  Σ(k = 0 to 0) C(0, k)·x^((0 − 1) − k)·y^k = C(0, 0)·x^((0 − 1) − 0)·y^0\n".to_string(),
+            )],
+            "a link of step 1.6 cites 1.1, which does not say C(0, 0)·x^0·y^0 = Σ(k = 0 to 0) C(0, k)·x^(0 − k)·y^k; a link cites the line that states it, and a substitution is a step of its own",
+        ),
+        // A link reads its cited equation from either side, and nothing on the
+        // page says which: line 2 says |CB| = |BC|, which is neither way round
+        // the link's |CA| = |CB|.
+        case(
+            "cite an equation that says the link neither way round",
+            vec![edit(
+                "proofs/isosceles.proof",
+                Some("           = |CB|       H5\n".to_string()),
+                "           = |CB|       2\n".to_string(),
+            )],
+            "a link of step 3 cites 2, which does not say |CA| = |CB|; a link cites the line that states it, and a substitution is a step of its own",
+        ),
+        // A claim of u = a where the item says u ≠ a is not what it says.
+        case(
+            "claim what a lemma says with one relation changed",
+            vec![edit(
+                "tests/stdlib/sets.proof",
+                Some("then u ∈ Y ∖ {a} ↔ u ∈ Y and u ≠ a\n\n1.  u ∈ Y ∖ {a} ↔ u ∈ Y and u ≠ a\n".to_string()),
+                "then u ∈ Y ∖ {a} ↔ u ∈ Y and u = a\n\n1.  u ∈ Y ∖ {a} ↔ u ∈ Y and u = a\n".to_string(),
+            )],
+            "step 1 claims something that mun:sets-remove-member does not conclude",
+        ),
+        // A step citing a define by cases takes the case from a line it cites.
+        // Here the only line cited says x ∈ A, which is h's domain and no case.
+        case(
+            "cite a define by cases from a line that does not say the case",
+            vec![edit(
+                "proofs/schroeder-bernstein.proof",
+                Some("                  D2, from 8.2.1\n".to_string()),
+                "                  D2, from 8.2.2\n".to_string(),
+            )],
+            "step 8.2.3 cites D2 and claims a value it does not give: no line it cites says whether a case's condition holds or fails",
+        ),
+        // An obtain from part-builder claims what K's condition says of the set
+        // the cited line puts in K: K18 gives Y = aH, and Z = aH is another
+        // claim.
+        case(
+            "obtain from part-builder a claim the condition does not give",
+            vec![edit(
+                "proofs/lagrange.proof",
+                Some("    14.1. a ∈ G. Y = aH.\n".to_string()),
+                "    14.1. a ∈ G. Z = aH.\n".to_string(),
+            )],
+            "step 14.4 takes Y = aH from 14.1, which does not say it",
+        ),
+        // An obtain from a definition reads its left side off a line it cites,
+        // through a define's name where the line uses one: C9 says b ∈ R, and R
+        // is f[C]. K7 says only that b is in B.
+        case(
+            "obtain from a definition citing no line that says its left side",
+            vec![edit(
+                "proofs/schroeder-bernstein.proof",
+                Some("obtain x: mun:image u := b, Y := C, from C9, D1".to_string()),
+                "obtain x: mun:image u := b, Y := C, from D1, K7".to_string(),
+            )],
+            "step 8.2.1 obtains from mun:image, which says there is one only from something the step does not cite",
+        ),
+        // g ∈ gH is shown by the member of H that g is g times, and the line
+        // saying g·e = g is what names it.
+        case(
+            "a coset member with no line naming what it is the element times",
+            vec![edit(
+                "proofs/lagrange.proof",
+                Some("mun:coset u := g, from H2, K3, 4.1, 4.2".to_string()),
+                "mun:coset u := g, from H2, K3, 4.1".to_string(),
+            )],
+            "step 4.3 claims something that mun:coset does not conclude",
+        ),
+        // `inequalities` takes two terms differing only from a line it cites,
+        // and not from a requires line above: 0 ≤ r alone gives no 0 < r.
+        case(
+            "rest an inequalities line on r ≠ 0 above it instead of citing it",
+            vec![edit(
+                "proofs/bezout.proof",
+                Some("          requires 0 < r: inequalities, from S, 1\n".to_string()),
+                "          requires r ≠ 0: from S\n          requires 0 < r: inequalities, from 1\n".to_string(),
+            )],
+            "the requires line of step 3.1 says r ≠ 0, and neither mun:pos-int-nat nor the step's other lines ask for it",
+        ),
         // A method decides a word only where the word's record names it
         // (`DATABASE.md`, `decided`). With `inspection` struck from the
         // record of `odd`, Königsberg's count of its odd vertices asks it to

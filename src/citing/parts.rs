@@ -288,6 +288,34 @@ pub fn function_values(facts: &[Node], env: Env, sorts: &Sorts) -> Vec<Node> {
     out
 }
 
+/// What a function's type, `f : X → Y`, says as a membership: f is among
+/// the functions from X to Y, which "there is f : X → Y with …" runs over
+/// (`notation functions-from`), so a line giving f its type supplies an
+/// exhibit of f. None for any other fact.
+pub fn type_said_otherwise(
+    fact: &Node,
+    library: &Library,
+    sorts: &Sorts,
+) -> Option<Node> {
+    if fact.notation != "function-type" {
+        return None;
+    }
+    let [f, from, to] = fact.children.as_slice() else {
+        return None;
+    };
+    let mut local = sorts.clone();
+    local.insert("X".into(), from.sort.clone());
+    local.insert("Y".into(), to.sort.clone());
+    let set =
+        page::template("the functions from X to Y", library.env.g, &local).ok()?;
+    let put = Binding::from([
+        ("X".to_string(), from.clone()),
+        ("Y".to_string(), to.clone()),
+    ]);
+    let set = substitute_apart(&set, &put, &library.ctx);
+    bound_in("x ∈ S", None, f, &set, library, sorts)
+}
+
 /// What a fact the page writes as a part of a set, `C ⊆ A`, or as a member
 /// of a power set, `C ∈ 𝒫A`, says in the other form (`rules::PARTS`); None
 /// for a fact written otherwise, though its term be the same, as "g is

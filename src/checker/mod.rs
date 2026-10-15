@@ -33,6 +33,7 @@ use crate::source::Source;
 use crate::text::check_encoding;
 
 pub use library::{statements_in_scope, Known};
+pub use record::CheckedTheorem;
 pub use structure::{cited_in_order, out_of_reach, unresolved};
 
 /// Methods whose steps this checker accepts without examining them.
@@ -83,20 +84,24 @@ pub fn run(source: &dyn Source) -> Outcome {
     }
 }
 
-/// The first problem the checker reports in each theorem it refuses, by the
-/// theorem's qualified name: what the build refuses before it builds
-/// anything, so that it refuses exactly what the checker refuses and says
-/// it as the checker does. What the checker reports of the corpus as a
-/// whole, outside every theorem, is `run`'s to say.
-pub fn refused(source: &dyn Source) -> Result<IndexMap<String, Problem>, Outcome> {
+/// Every theorem as the checker reads it, by its qualified name: its shape,
+/// its sorts and what the checker reports in it. The build is handed these
+/// and builds only a theorem with no problem, so that it refuses exactly
+/// what the checker refuses and says it as the checker does. What the
+/// checker reports of the corpus as a whole, outside every theorem, is
+/// `run`'s to say.
+pub fn checked(
+    source: &dyn Source,
+) -> Result<IndexMap<String, CheckedTheorem>, Outcome> {
     let checked = prepared(source, |_, c| {
         let mut out = IndexMap::new();
         for (i, thm) in c.theorems.iter().enumerate() {
             let mut own = Report::default();
             check_theorem(&mut own, c, thm, &c.known[i], &c.clashes[i]);
-            if let Some(first) = own.problems.into_iter().next() {
-                out.insert(thm.qualified(), first);
-            }
+            let mut record = CheckedTheorem::of(thm);
+            record.sorts = c.known[i].sorts.clone();
+            record.problems = own.problems;
+            out.insert(thm.qualified(), record);
         }
         out
     });

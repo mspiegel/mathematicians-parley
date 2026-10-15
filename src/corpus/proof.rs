@@ -889,10 +889,13 @@ regex!(
         super::LABEL
     )
 );
+// `into` and `in` are words of the justification, standing after a space:
+// a word boundary would also find them inside an item's name, as in
+// `mun:function-into X := X`, and read the binding's X as a cited line.
 regex!(
     INTO,
     format!(
-        r"\binto\s+(?:line\s+({})|({}))\b",
+        r"(?:^|\s)into\s+(?:line\s+({})|({}))\b",
         super::NUMBER,
         super::LABEL
     )
@@ -900,7 +903,7 @@ regex!(
 regex!(
     IN_TARGET,
     format!(
-        r"\bin\s+(?:line\s+({})|({}{})|({}))\b",
+        r"(?:^|\s)in\s+(?:line\s+({})|({}{})|({}))\b",
         super::NUMBER,
         super::ITEM_PREFIX,
         super::CITED,

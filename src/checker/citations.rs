@@ -12,8 +12,8 @@ use super::Report;
 use crate::citing::{
     asked, bound_in, claimed_member, concludes, conjuncts, derives, filled, finished,
     function_values, identities_unsaid, names_of, obtained, obtains, readings,
-    said_once, search, substitution_unsaid, supply, taken, taken_ways, with_parts,
-    Group, Library, Parts, Sites, Taken, Ways,
+    said_once, search, substitution_unsaid, supply, taken, taken_ways,
+    type_said_otherwise, with_parts, Group, Library, Parts, Sites, Taken, Ways,
 };
 use crate::corpus::proof::{
     requires_as_step, requires_item, substituted, substituted_into,
@@ -1978,7 +1978,12 @@ pub fn check_exhibited(
             for t in &wants {
                 binding_sites(t, &library.ctx, &[], &mut sites);
             }
-            let facts = with_parts(&parts.facts, library);
+            let mut facts = with_parts(&parts.facts, library);
+            let typed: Vec<Node> = facts
+                .iter()
+                .filter_map(|f| type_said_otherwise(f, library, &known.sorts))
+                .collect();
+            facts.extend(typed);
             let stated = |wants: &[Node]| {
                 supply(
                     wants,

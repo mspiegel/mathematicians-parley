@@ -27,6 +27,7 @@ use std::sync::{Arc, Mutex};
 
 use indexmap::IndexMap;
 
+use crate::checker::CheckedTheorem;
 use crate::corpus::{cited_items, corpus, in_stdlib, index, Corpus, Item};
 use crate::elab::definitions::write_definitions;
 use crate::elab::elaborate::Options;
@@ -264,9 +265,9 @@ pub struct Maker<'a> {
     libraries: &'a Libraries,
     library: Option<Library>,
     made: IndexMap<String, String>,
-    /// The theorems the checker refuses, each with its first problem, which
-    /// the build reports in place of building them (`checker::refused`).
-    refused: IndexMap<String, Problem>,
+    /// Every theorem as the checker reads it (`checker::checked`), which the
+    /// build is handed: one it refuses is not built.
+    checked: IndexMap<String, CheckedTheorem>,
 }
 
 impl<'a> Maker<'a> {
@@ -274,6 +275,7 @@ impl<'a> Maker<'a> {
         source: &'a dyn Source,
         found: &'a Corpus,
         libraries: &'a Libraries,
+        checked: IndexMap<String, CheckedTheorem>,
     ) -> Checked<Maker<'a>> {
         let g = Grammar::load(&found.records)?;
         let items = index(&found.records, &found.theorems);
@@ -285,14 +287,8 @@ impl<'a> Maker<'a> {
             libraries,
             library: None,
             made: IndexMap::new(),
-            refused: IndexMap::new(),
+            checked,
         })
-    }
-
-    /// Refuse each theorem the checker refuses, with the checker's own first
-    /// problem, so that the build refuses exactly what `parley check` does.
-    pub fn refusing(&mut self, refused: IndexMap<String, Problem>) {
-        self.refused = refused;
     }
 
     /// An artifact's text: what this run made, and otherwise its file.
@@ -345,9 +341,13 @@ impl<'a> Maker<'a> {
         else {
             return Err(Problem::new(name, 0, format!("no theorem {name}")));
         };
-        if let Some(problem) = self.refused.get(name) {
-            return Err(problem.clone());
-        }
+        let Some(checked) = self.checked.get(name) else {
+            return Err(Problem::new(
+                name,
+                0,
+                format!("the checker has not read {name}"),
+            ));
+        };
         let statements =
             |cited: &str| -> Option<String> { statement_of(&self.text_of(cited)?) };
         let library = self.library.as_ref().expect("read above");
@@ -356,6 +356,7 @@ impl<'a> Maker<'a> {
             &self.g,
             &self.items,
             thm,
+            checked,
             library,
             &statements,
             Options::default(),
@@ -429,7 +430,13 @@ pub fn run(root: &Path, wanted: Option<&str>, setmm: Option<&str>) -> Said {
             return said;
         }
     };
-    let mut maker = match Maker::new(&source, &found, &libraries) {
+    // The checker reads the page first, and the build builds only what it
+    // accepts, from what it read.
+    let checked = match crate::checker::checked(&source) {
+        Ok(checked) => checked,
+        Err(out) => return out,
+    };
+    let mut maker = match Maker::new(&source, &found, &libraries, checked) {
         Ok(maker) => maker,
         Err(problem) => {
             said.complained = format!("{problem}\n");
@@ -437,17 +444,6 @@ pub fn run(root: &Path, wanted: Option<&str>, setmm: Option<&str>) -> Said {
             return said;
         }
     };
-    // The checker reads the page first, and the build builds only what it
-    // accepts.
-    match crate::checker::refused(&source) {
-        Ok(refused) => maker.refusing(refused),
-        Err(out) => {
-            said.printed = out.printed;
-            said.complained = out.complained;
-            said.status = out.status;
-            return said;
-        }
-    }
 
     let mut changed = 0;
     let mut marks: IndexMap<String, char> = IndexMap::new();
@@ -548,14 +544,29 @@ pub struct Loaded<'s> {
     source: &'s dyn Source,
     found: Corpus,
     g: Rc<Grammar>,
+    /// Every theorem as the checker reads it, which elaborating one is
+    /// handed.
+    checked: IndexMap<String, CheckedTheorem>,
 }
 
 impl<'s> Loaded<'s> {
-    /// The corpus `source` holds, read.
+    /// The corpus `source` holds, read, and read by the checker.
     pub fn new(source: &'s dyn Source) -> Checked<Loaded<'s>> {
         let found = corpus(source)?;
         let g = Grammar::load(&found.records)?;
-        Ok(Loaded { source, found, g })
+        let checked = crate::checker::checked(source).map_err(|out| {
+            Problem::new(
+                source.root().display().to_string(),
+                0,
+                str::trim(&format!("{}{}", out.printed, out.complained)).to_string(),
+            )
+        })?;
+        Ok(Loaded {
+            source,
+            found,
+            g,
+            checked,
+        })
     }
 
     /// Elaborate the theorem `name`.
@@ -577,11 +588,19 @@ impl<'s> Loaded<'s> {
             statement_of(&text)
         };
         let items = index(&self.found.records, &self.found.theorems);
+        let Some(checked) = self.checked.get(name) else {
+            return Err(Problem::new(
+                name,
+                0,
+                format!("the checker has not read {name}"),
+            ));
+        };
         elaborate(
             &self.found,
             &self.g,
             &items,
             thm,
+            checked,
             library,
             &statements,
             options,

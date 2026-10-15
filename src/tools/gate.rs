@@ -93,7 +93,11 @@ fn built_as(
         return said;
     };
     let every = artifacts(&found);
-    let mut maker = match Maker::new(source, &found, libraries) {
+    let checked = match crate::checker::checked(source) {
+        Ok(checked) => checked,
+        Err(out) => return out,
+    };
+    let mut maker = match Maker::new(source, &found, libraries, checked) {
         Ok(maker) => maker,
         Err(problem) => {
             said.complained = format!("{problem}\n");
