@@ -137,6 +137,7 @@ theorem euclid-perfect
 15. (1 − 2^p)/(1 − 2) = 2^p − 1
     algebra
     requires 2^p ∈ ℝ: membership, from H1
+    requires 1 − 2 ≠ 0: arithmetic
 
 16. σ(2^(p − 1)) = 2^p − 1
     calculation

@@ -68,8 +68,20 @@ fn same(a: &Node, b: &Node, ctx: &Context) -> bool {
 
 /// Whether a divisor is not zero: a numeral other than zero, or a fact
 /// saying it, as `d ≠ 0` either way round or as a sign, `0 < d` or `d < 0`.
-fn nonzero(divisor: &Node, facts: &Facts) -> bool {
+pub fn nonzero(divisor: &Node, facts: &Facts) -> bool {
     if numeral_nonzero(divisor) {
+        return true;
+    }
+    let by_parts = match (divisor.notation.as_str(), divisor.children.as_slice()) {
+        ("multiplicative" | "juxtaposition", [a, b]) => {
+            nonzero(a, facts) && nonzero(b, facts)
+        }
+        ("power" | "superscript", [a, e]) => {
+            e.notation == "numeral" && nonzero(a, facts)
+        }
+        _ => false,
+    };
+    if by_parts {
         return true;
     }
     let zero = |n: &Node| n.notation == "numeral" && n.text == "0";
@@ -91,6 +103,25 @@ fn nonzero(divisor: &Node, facts: &Facts) -> bool {
             },
             _ => false,
         })
+}
+
+/// The part of a divisor `nonzero` finds nothing saying is not zero: the
+/// divisor itself, or where it is a product, a quotient or a power to a
+/// numeral, the first of its parts that is not. None where it is not zero.
+pub fn unsaid_part(divisor: &Node, facts: &Facts) -> Option<Node> {
+    if nonzero(divisor, facts) {
+        return None;
+    }
+    let parts: Vec<&Node> =
+        match (divisor.notation.as_str(), divisor.children.as_slice()) {
+            ("multiplicative" | "juxtaposition", [a, b]) => vec![a, b],
+            ("power" | "superscript", [a, e]) if e.notation == "numeral" => vec![a],
+            _ => Vec::new(),
+        };
+    parts
+        .iter()
+        .find_map(|p| unsaid_part(p, facts))
+        .or_else(|| Some(divisor.clone()))
 }
 
 /// Whether a part the walk does not take apart is in `system`: a fact
@@ -276,6 +307,55 @@ fn index_system(start: &Node) -> Option<&'static str> {
         .iter()
         .find(|(_, first, _)| first.is_none() || *first == begins)
         .map(|(system, _, _)| *system)
+}
+
+/// The atoms of a term and the divisors it writes, as `algebra` reads it
+/// (`METHODS.md`): it is taken apart where it is built by +, −, ·, unary −,
+/// / and a power to a numeral, and every other part, a letter included, is
+/// an atom. A numeral is neither.
+pub struct Parts {
+    pub atoms: Vec<Node>,
+    pub divisors: Vec<Node>,
+}
+
+impl Parts {
+    pub fn of(term: &Node) -> Parts {
+        let mut out = Parts {
+            atoms: Vec::new(),
+            divisors: Vec::new(),
+        };
+        out.take(term);
+        out
+    }
+
+    fn take(&mut self, term: &Node) {
+        let numeral_exponent = |e: &Node| e.notation == "numeral";
+        match (
+            term.notation.as_str(),
+            term.text.as_str(),
+            term.children.as_slice(),
+        ) {
+            ("numeral", _, _) => {}
+            ("additive", _, [a, b]) | ("juxtaposition", _, [a, b]) => {
+                self.take(a);
+                self.take(b);
+            }
+            ("multiplicative", "/", [a, b]) => {
+                self.take(a);
+                self.take(b);
+                if b.notation != "numeral" {
+                    self.divisors.push(b.clone());
+                }
+            }
+            ("multiplicative", _, [a, b]) => {
+                self.take(a);
+                self.take(b);
+            }
+            ("unary-minus", _, [a]) => self.take(a),
+            ("power" | "superscript", _, [a, e]) if numeral_exponent(e) => self.take(a),
+            _ => self.atoms.push(term.clone()),
+        }
+    }
 }
 
 /// Whether `term` divides by something other than a numeral that holds

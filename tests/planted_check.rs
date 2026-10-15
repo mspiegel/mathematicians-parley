@@ -512,6 +512,54 @@ const UNPLANTED: &[(&str, &str)] = &[
 
 fn cases() -> Vec<Case> {
     vec![
+        // A step's proof rests only on what it names (`GOALS.md` decision 9).
+        // Without its requires line, `algebra` combines n!, and the scope
+        // holds n! ∈ ℕ from line 1, which step 5.4 does not cite. A factorial
+        // is not a membership said once, so only a line can give it.
+        case(
+            "lean on a line the step does not name",
+            vec![edit(
+                "proofs/infinitely-many-primes.proof",
+                Some("    5.4.  (n! + 1) − n! = 1\n          algebra\n          requires n! ∈ ℝ: from 1\n".to_string()),
+                "    5.4.  (n! + 1) − n! = 1\n          algebra\n".to_string(),
+            )],
+            "proofs/infinitely-many-primes.proof:45  nothing says n! ∈ ℝ or ∈ ℂ, which this step needs",
+        ),
+        // An angle is no letter, numeral or term built from them, so the
+        // `algebra` step combining it writes its membership.
+        case(
+            "leave out the membership of an angle an algebra step combines",
+            vec![edit(
+                "proofs/pythagoras.proof",
+                Some("    requires ∠QPR ∈ ℝ: mun:triangle-angle-real, from H7\n".to_string()),
+                String::new(),
+            )],
+            "nothing says ∠QPR ∈ ℝ or ∈ ℂ, which this step needs",
+        ),
+        // k + 1 is a membership said once, and its being no zero is not: a
+        // divisor's `≠ 0` is written, and a product's is its factors'. The
+        // step divides by k(k + 1)/2, and nothing says its factor k + 1 is
+        // not zero.
+        case(
+            "leave out a divisor's ≠ 0 built from a letter said once",
+            vec![edit(
+                "proofs/triangular-reciprocals.proof",
+                Some("          requires k + 1 ≠ 0: inequalities, from K1\n".to_string()),
+                String::new(),
+            )],
+            "nothing says k + 1 ≠ 0, which this step needs to divide by it",
+        ),
+        // A difference of numerals is no numeral, so a step dividing by one
+        // writes its `≠ 0`.
+        case(
+            "divide by a difference of numerals without saying it is not zero",
+            vec![edit(
+                "proofs/perfect-numbers.proof",
+                Some("    requires 1 − 2 ≠ 0: arithmetic\n".to_string()),
+                String::new(),
+            )],
+            "nothing says 1 − 2 ≠ 0, which this step needs to divide by it",
+        ),
         // Where the proof has no letter of the subject's name in scope, the
         // pair is the only thing that says what the definition is about:
         // even-leg has no d, and its step claims an impossible fold.

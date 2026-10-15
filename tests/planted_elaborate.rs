@@ -269,22 +269,6 @@ fn cases() -> Vec<Case> {
             "          substitute p(a) = 0 (H3) into line 2.1\n",
             "drops an identity element from what the substitution makes, and nothing says (x − a) · q(x) is a number",
         ),
-        // A step's proof rests only on what it names (`GOALS.md` decision 9).
-        // Without its requires line, `algebra` wants n! ∈ ℂ, and the scope
-        // holds n! ∈ ℕ from line 1, which step 5.4 does not cite. A factorial
-        // is not a membership said once, so only a line can give it. Offered
-        // that line, the step would elaborate and verify; it is not offered,
-        // so nothing says n! is a number. The checker's algebra does not yet
-        // ask that each atom is a number, so it is the build that says so.
-        case(
-            "lean on a line the step does not name",
-            "proofs/infinitely-many-primes/prime-above",
-            "proofs/infinitely-many-primes.proof",
-            "          algebra\n          requires n! ∈ ℝ: from 1\n",
-            "          algebra\n",
-            "the build cannot yet prove this, which the checker accepts: nothing says n! ∈ ℝ or ∈ ℂ, which this step needs",
-        )
-        .at("proofs/infinitely-many-primes.proof", "5.4.  (n! + 1) − n! = 1"),
         // The certificate combines lines 2 and 3; line 1 says a + b is at
         // least 0 or below it, which the step does not combine, and is cited
         // for nothing.
@@ -439,17 +423,6 @@ fn cases() -> Vec<Case> {
             "          requires Y ⊆ A: from A1\n",
             "from A1 does not reach",
         ),
-        // An angle's membership left out of an `algebra` step: the search for
-        // it goes only as deep as any side condition's, so the step is
-        // reported at once rather than after minutes of looking.
-        case(
-            "leave out an atom's membership that only a deep search could find",
-            "proofs/pythagoras/similar-triangles",
-            "proofs/pythagoras.proof",
-            "    requires ∠QPR ∈ ℝ: mun:triangle-angle-real, from H7\n",
-            "",
-            "nothing it writes or cites says it is a number",
-        ),
         // f(x) ∈ ℝ is H4's to say, and a step that needs it names H4: a
         // function's type is cited for its values, outside a sum's terms.
         case(
@@ -528,17 +501,6 @@ fn cases() -> Vec<Case> {
             "          requires d(k) ∈ ℝ: from H2\n          requires 10^k ∈ ℝ: mun:power-real a := 10, m := k\n",
             "          requires d(k) ∈ ℝ: from H2\n",
             "step 1.4 combines 10^k, and nothing it writes or cites says it is a number",
-        ),
-        // k + 1 is a membership said once, and its being no zero is not: a
-        // divisor's `≠ 0` is written, and without it the step divides by
-        // what nothing says is not zero.
-        case(
-            "leave out a divisor's ≠ 0 built from a letter said once",
-            "proofs/triangular-reciprocals/triangular-reciprocals",
-            "proofs/triangular-reciprocals.proof",
-            "          requires k ≠ 0: from K1\n          requires k + 1 ≠ 0: inequalities, from K1\n",
-            "          requires k ≠ 0: from K1\n",
-            "nothing says k + 1 ≠ 0, which this step needs to divide by it",
         ),
         // What an obtain claims is the "there is" it obtains from: d > 2 is
         // not what the supposition gives, and the line is the page's claim,

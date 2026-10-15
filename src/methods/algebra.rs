@@ -13,7 +13,10 @@ use super::field::{self, Poly, DIV, Q, SUB};
 
 /// What `decide` finds of an `algebra` step.
 pub enum Verdict {
-    Holds,
+    /// The claim holds, combining the cited lines named here by their place
+    /// among `cited`: what the step's hypotheses are asked of
+    /// (`METHODS.md`, an atom is one of the facts the step combines).
+    Holds { combined: Vec<usize> },
     /// The claim is neither an equation nor a disequality, which algebra
     /// decides.
     Undecided,
@@ -36,7 +39,7 @@ pub fn refusal(
     render: &dyn Fn(&Term) -> String,
 ) -> Option<String> {
     match verdict {
-        Verdict::Holds | Verdict::Undecided => None,
+        Verdict::Holds { .. } | Verdict::Undecided => None,
         Verdict::PastExpanding(power) => Some(format!(
             "{} is a power algebra does not multiply out: writing it out costs more \
              than {}, each step the cube of its terms times the base's",
@@ -72,23 +75,31 @@ pub fn decide(claimed: &Term, cited: &[Term], labels: &FloatLabels) -> Verdict {
     let claim_under = denominators(claimed, labels);
     let mut given = Vec::new();
     let mut unders = Vec::new();
-    for held in cited {
+    // The cited line each equation given is a part of.
+    let mut from = Vec::new();
+    for (i, held) in cited.iter().enumerate() {
         for node in parts(held) {
             if let Some(one) = field::equation(&node, labels) {
                 let read = claim_says(&node, one, labels);
                 let under = field::exactly(&denominators(&node, labels), &read.taken);
                 given.push(read.says);
                 unders.push(under);
+                from.push(i);
             }
         }
     }
-    if claims
+    let found = claims
         .iter()
-        .any(|c| combination(&given, &unders, c, &claim_under).is_some())
-    {
-        Verdict::Holds
-    } else {
-        Verdict::NoCombination
+        .find_map(|c| combination(&given, &unders, c, &claim_under));
+    match found {
+        Some(taken) => {
+            let mut combined: Vec<usize> =
+                taken.iter().map(|t| from[t.which]).collect();
+            combined.sort();
+            combined.dedup();
+            Verdict::Holds { combined }
+        }
+        None => Verdict::NoCombination,
     }
 }
 
@@ -99,11 +110,11 @@ fn decide_apart(claimed: &Term, cited: &[Term], labels: &FloatLabels) -> Verdict
     let Some(claim) = field::denied(claimed, labels) else {
         return Verdict::Undecided;
     };
-    for held in cited {
+    for (i, held) in cited.iter().enumerate() {
         for said in parts(held) {
             let one = field::denied(&said, labels);
             if one.is_some() && rescales(one.as_ref(), Some(&claim)).is_some() {
-                return Verdict::Holds;
+                return Verdict::Holds { combined: vec![i] };
             }
         }
     }

@@ -500,8 +500,11 @@ of
   in each number system closed under what builds it (the table of closure
   lemmas in `src/rules.rs`): a·x + b·y ∈ ℤ where a, b, x and y are integers.
   A quotient's divisor not being zero is the step's to write or cite, unless
-  the divisor is a numeral: `10^0` is no numeral, and `requires 10^0 ≠ 0:
-  arithmetic` says it. A sum's term that divides by something holding the
+  the divisor is a numeral other than zero, or a product, a quotient or a
+  power to a numeral whose parts are each not zero by this same rule:
+  `2^j·2` is not zero where a line says `2^j ≠ 0`. `10^0` is a power of a
+  numeral and so not zero, but `1 − 2` is no numeral, and `requires 1 − 2 ≠
+  0: arithmetic` says it. A sum's term that divides by something holding the
   sum's own letter, `1/k` or `1/T(k)` in `Σ(k = 1 to n)`, has a divisor no
   line outside the sum can speak of, so the citation names a line saying the
   term at every point of a set holding the range, `for all k ∈ ℕ, 1/k ∈ ℝ`,

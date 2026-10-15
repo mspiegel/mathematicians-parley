@@ -1776,6 +1776,57 @@ impl<'a> Elaborator<'a> {
                 }
             }
         }
+        // A product, a quotient or a power to a numeral is not zero when
+        // its parts are not, each by this same test (`METHODS.md`).
+        let node = self.to_term(divisor);
+        if node.variable().is_none()
+            && node.label() == Some("co")
+            && node.children().len() == 3
+        {
+            let how = self.rpn(&node.children()[2]);
+            let (a, b) = (self.rpn(&node.children()[0]), self.rpn(&node.children()[1]));
+            match how.as_str() {
+                "cmul" | "cdiv" => {
+                    let lemma = if how == "cmul" { "mulne0d" } else { "divne0d" };
+                    let mut parts = Vec::new();
+                    for one in [&a, &b] {
+                        parts.push(self.part(one, "cc", scope, facts)?);
+                    }
+                    for one in [&a, &b] {
+                        parts.push(self.divisor_written(one, scope, facts)?);
+                    }
+                    let mut proofs = Vec::new();
+                    for one in parts {
+                        proofs.push(take!(one));
+                    }
+                    return Ok(Built(self.b.ap(
+                        lemma,
+                        &binds! {"ph" => scope, "A" => &a, "B" => &b},
+                        &proofs.iter().collect::<Vec<_>>(),
+                    )));
+                }
+                "cexp" => {
+                    if let Some(power) = super::numerals::value(&node.children()[1]) {
+                        let base = take!(self.part(&a, "cc", scope, facts)?);
+                        let apart_base = take!(self.divisor_written(&a, scope, facts)?);
+                        let whole = if power.is_zero() {
+                            self.b.step("0z")
+                        } else {
+                            let natural = super::numerals::nn(&self.b, power);
+                            self.b.ap("nnzi", &binds! {"N" => &b}, &[&natural])
+                        };
+                        let whole =
+                            pf!(self.b; t!(&b, "cz", "wcel"), scope, whole, "a1i");
+                        return Ok(Built(self.b.ap(
+                            "expne0d",
+                            &binds! {"ph" => scope, "A" => &a, "N" => &b},
+                            &[&base, &apart_base, &whole],
+                        )));
+                    }
+                }
+                _ => {}
+            }
+        }
         Ok(Route::no(format!(
             "nothing the step wrote says {}",
             self.render(&apart)

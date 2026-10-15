@@ -1375,8 +1375,84 @@ fn algebra_holds(
         algebra::refusal(&verdict, &at.claim.to_string(), &number, &render)
     {
         report.say(&thm.path, at.line, at.said(said));
+        return true;
+    }
+    if let algebra::Verdict::Holds { combined } = &verdict {
+        if let Some(said) = algebra_unsaid(at, &read, combined, known, targets) {
+            report.say(&thm.path, at.line, at.said(said));
+        }
     }
     !matches!(verdict, algebra::Verdict::Undecided)
+}
+
+/// What an `algebra` step that holds leaves unsaid of its hypotheses
+/// (`METHODS.md`, algebra): every atom of its claim and of the cited lines
+/// it combines, `combined` by their place among `read.lines`, is a number,
+/// said once or by a line the step names, and every divisor they write
+/// other than a numeral is not zero by such a line. None where both are
+/// said.
+fn algebra_unsaid(
+    at: &ClosureClaim,
+    read: &ClosureRead,
+    combined: &[usize],
+    known: &Known,
+    targets: &Targets,
+) -> Option<String> {
+    let held = MembershipIn::of(at, read, known);
+    let given = held.given(targets, known, false);
+    let mut relations = vec![read.claimed.clone()];
+    relations.extend(
+        combined
+            .iter()
+            .filter_map(|&i| read.lines.get(i))
+            .flat_map(conjuncts)
+            .filter(algebra_relation),
+    );
+    for relation in &relations {
+        for side in sides_of(relation) {
+            let parts = methods_membership::Parts::of(side);
+            if let Some(atom) = parts
+                .atoms
+                .iter()
+                .find(|a| !methods_membership::holds(a, "cc", &given))
+            {
+                return Some(format!(
+                    "nothing says {} ∈ ℝ or ∈ ℂ, which this step needs",
+                    known.print(atom)
+                ));
+            }
+            if let Some(unsaid) = parts
+                .divisors
+                .iter()
+                .find_map(|d| methods_membership::unsaid_part(d, &given))
+            {
+                return Some(format!(
+                    "nothing says {} ≠ 0, which this step needs to divide by it",
+                    known.print(&unsaid)
+                ));
+            }
+        }
+    }
+    None
+}
+
+/// Whether a sentence is an equation or a disequality, what `algebra`
+/// combines.
+fn algebra_relation(node: &Node) -> bool {
+    match (node.notation.as_str(), node.children.as_slice()) {
+        ("equality", [_, _]) => true,
+        ("logical-not", [inner]) => inner.notation == "equality",
+        _ => false,
+    }
+}
+
+/// The two sides of an equation or a disequality; none for anything else.
+fn sides_of(node: &Node) -> Vec<&Node> {
+    match (node.notation.as_str(), node.children.as_slice()) {
+        ("equality", [a, b]) => vec![a, b],
+        ("logical-not", [inner]) => sides_of(inner),
+        _ => Vec::new(),
+    }
 }
 
 /// What `inequalities` claims holds (`METHODS.md`, inequalities): a step's

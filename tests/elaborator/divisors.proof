@@ -34,14 +34,14 @@ theorem a-square-made-ten-times
     requires x^2 ≠ 0: from H3
 
 theorem divided-by-a-half
-  note        x/2 ≠ 0 written, and a/(x/2) is 2·a/x.
+  note        x ≠ 0 written, which says x/2 ≠ 0 too, and a/(x/2) is 2·a/x.
   let x ∈ ℝ    (H1)
-  assume x/2 ≠ 0    (H2)
+  assume x ≠ 0    (H2)
   then 3/(x/2) = 6/x
 
 1.  3/(x/2) = 6/x
     algebra
-    requires x/2 ≠ 0: from H2
+    requires x ≠ 0: from H2
 
 theorem a-multiplier-over-the-divisor
   note        The claim is the cited equation times x/(x + 3), and both sides are multiplied by x + 3.

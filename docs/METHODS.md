@@ -398,11 +398,22 @@ fact about the field rather than an identity.
 
 Two kinds.
 
-Every denominator is nonzero, unless it is a numeral other than zero, and a
-step that divides writes the condition or cites a line saying it.
+Every denominator the step's claim and the cited lines it combines write is
+nonzero, and a step that divides writes the condition or cites a line
+saying it, unless the denominator is a numeral other than zero, or a
+product, a quotient or a power to a numeral whose parts are each not zero
+so: `(2^j·2 − 1)/(2^j·2)` asks only for `2^j ≠ 0` (`membership`, the same
+test).
 
-Every atom is a real number, as for `inequalities`: said once where the atom
-is a numeral, a letter or built from them, and otherwise written.
+Every atom of the claim and of the cited lines it combines is a real
+number, as for `inequalities`: said once where the atom is a numeral, a
+letter or built from them, and otherwise written. An equation is not read
+for it: where the step cites `a(0) = 0`, `a(0)` is still asked for a line
+saying `a(0) ∈ ℝ`, which only a `membership` step would take from the
+equation.
+
+The checker asks both of each `algebra` step that holds
+(`checker::formulas::algebra_unsaid`).
 
 ### Expansion
 
@@ -737,9 +748,11 @@ The term is walked by the operation at its head, as `algebra` walks it:
   a cited equation with the atom on one side, the other side's membership
   read the same way and carried across by `eqeltrd`.
 
-A divisor is not zero when a line says so, as `d ≠ 0` or as a sign, or when
-it is a numeral other than zero (`SYNTAX.md`); one built in ℕ, k + 1, or a
-product of parts that are not zero, says so in a line of its own.
+A divisor is not zero when a line says so, as `d ≠ 0` or as a sign, when it
+is a numeral other than zero, or when it is a product, a quotient or a power
+to a numeral whose parts are each not zero by this same test (`SYNTAX.md`,
+`mulne0d`, `divne0d`, `expne0d`); one built in ℕ, k + 1, says so in a line
+of its own.
 
 ### Refusals
 
