@@ -1519,7 +1519,7 @@ fn algebra_unsaid(
             if let Some(atom) = parts
                 .atoms
                 .iter()
-                .find(|a| !methods_membership::holds(a, System::C, &given))
+                .find(|a| !methods_membership::said(a, System::C, &given))
             {
                 return Some(format!(
                     "nothing says {} ∈ ℝ or ∈ ℂ, which this step needs",
@@ -3333,7 +3333,8 @@ pub fn check_chain_links(
                 seed: Binding::new(),
             };
             let introduced = super::library::introduced(known, step);
-            said_once(&mut parts, &introduced, library, &known.sorts);
+            let typed = super::library::typed_in_scope(known, step);
+            said_once(&mut parts, &introduced, &typed, library, &known.sorts);
             if let Some(left) =
                 link_unsaid(&said, &lines, &parts.facts, library).first()
             {

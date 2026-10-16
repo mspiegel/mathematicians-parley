@@ -128,6 +128,11 @@ pub fn checked_where(
                 .iter()
                 .map(|step| library::typed_in_scope(&c.known[i], step))
                 .collect();
+            record.said_sums = thm
+                .steps
+                .iter()
+                .map(|step| library::sums_said_once(&c.known[i], step))
+                .collect();
             record.cited = thm
                 .steps
                 .iter()

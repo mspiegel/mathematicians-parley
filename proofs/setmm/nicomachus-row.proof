@@ -2,7 +2,6 @@ import mundane definition   stdlib/numbers/nat0
 import mundane theorem      stdlib/sums/sum-add
 import mundane theorem      stdlib/sums/sum-constant
 import mundane theorem      stdlib/sums/sum-first
-import mundane theorem      stdlib/sums/sum-real
 import mundane theorem      stdlib/sums/sum-single
 import theorem              proofs/setmm/odd-numbers-sum/odd-numbers-sum
 
@@ -57,8 +56,6 @@ theorem nicomachus-row
 
     2.10. Σ(k = 0 + 1 to 0) ((0² − 0) + (2k − 1)) = 0
           algebra, from 2.8, 2.9
-          requires Σ(k = 0 to 0) ((0² − 0) + (2k − 1)) ∈ ℝ: mun:sum-real a := 0, b := 0
-          requires Σ(k = 0 + 1 to 0) ((0² − 0) + (2k − 1)) ∈ ℝ: mun:sum-real a := 0 + 1, b := 0
 
     2.11. Σ(k = 1 to 0) ((0² − 0) + (2k − 1)) = 0^3
           calculation

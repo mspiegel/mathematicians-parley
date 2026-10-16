@@ -1872,6 +1872,12 @@ impl<'a> Elaborator<'a> {
         if let Some((letter, set)) = self.introduced_in(said) {
             return self.letter_within(said, &letter, &set, system, scope, facts);
         }
+        // A sum said once by its terms is in ℝ or ℂ by the sum's lemma, its
+        // terms read from the scope at each index.
+        if self.said_sums.contains(said) {
+            let whole = self.to_term(said);
+            return self.summed(&whole, system, scope, facts, None);
+        }
         if self.built_once(said).is_none() {
             return Ok(Route::no(
                 "not a numeral, an introduced letter, or built from them",
@@ -1967,11 +1973,29 @@ impl<'a> Elaborator<'a> {
         }
     }
 
+    /// Keep the sums the step now being elaborated writes that the page
+    /// says are numbers once (`CheckedTheorem::said_sums`), as kernel terms.
+    pub fn note_said_sums(&mut self) -> Checked<()> {
+        let nodes = self
+            .step_now
+            .and_then(|i| self.checked.said_sums.get(i))
+            .cloned()
+            .unwrap_or_default();
+        let mut sums = BTreeSet::new();
+        for node in &nodes {
+            sums.insert(self.term(node)?);
+        }
+        self.said_sums = sums;
+        Ok(())
+    }
+
     /// Whether the page says `said` is a number once, where its letters are
-    /// introduced (`introduced_membership`), read off its shape alone.
+    /// introduced (`introduced_membership`), read off its shape alone, or
+    /// is a sum the checker found said once by its terms.
     pub fn said_once(&self, said: &str) -> bool {
         if said.split_whitespace().all(rules::numeric)
             || self.introduced_in(said).is_some()
+            || self.said_sums.contains(said)
         {
             return true;
         }

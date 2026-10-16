@@ -1230,7 +1230,8 @@ in Bezout, whose a·1 is now a wherever a line is compared.
 `READERS.md` has a membership in a number system said once, where a letter is
 introduced, and the step writes nothing for a numeral, a letter, or a term
 built from them by +, −, ·, negation, a power to a numeral or to a letter
-introduced in ℕ or ℕ₀, and / (`SYNTAX.md`). The elaborator builds each such fact itself, by a walk that
+introduced in ℕ or ℕ₀, and /, or a sum whose term is such a number at
+every index (`SYNTAX.md`). The elaborator builds each such fact itself, by a walk that
 searches nothing (`introduced_membership` in `src/elab/tables.rs`):
 
 - a numeral is worked out, as `settle` works one out (`numeral_within`);
@@ -1245,8 +1246,13 @@ searches nothing (`introduced_membership` in `src/elab/tables.rs`):
 - a compound is built by the closure table, as `built` builds one, its parts
   by the same walk and its divisor's `≠ 0` from what the step names
   (`divisor_written`), and only for the operations listed: a remainder, a
-  binomial coefficient, a sum, a function's value or a defined name is not
-  walked.
+  binomial coefficient, a function's value or a defined name is not
+  walked;
+- a sum the checker found said once by its terms (`CheckedTheorem::said_sums`,
+  kept for the step as kernel terms by `note_said_sums`) is in ℝ or ℂ by
+  `fsumrecl` or `fsumcl`, its terms read from the scope at each index
+  (`summed`). The build takes which sums those are from the record and
+  does not decide it.
 
 The proof of a letter's membership is sealed as `membership@<letter>`, an
 origin a proof may rest on without the step naming it, as it rests on a sort

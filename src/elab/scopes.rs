@@ -2513,6 +2513,7 @@ impl<'a> Elaborator<'a> {
         // (`CheckedTheorem::defines`), and its reason reads what is in scope
         // there.
         self.step_now = self.thm.steps.iter().position(|s| s.line > line);
+        self.note_said_sums()?;
         let body = body.to_string();
         let var = self.spare_var()?;
         let said = t!(format!("{var} cv"), body, "wceq");

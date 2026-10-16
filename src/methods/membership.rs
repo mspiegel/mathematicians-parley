@@ -11,7 +11,7 @@
 use indexmap::IndexMap;
 
 use super::terms::Targets;
-use crate::citing::{numeral_nonzero, within, Introduced};
+use crate::citing::{index_system, numeral_nonzero, sum_said_once, within, Introduced};
 use crate::formula::Node;
 use crate::matching::{alike, substitute_apart, Binding, Context};
 use crate::rules::{self, System};
@@ -69,13 +69,14 @@ pub fn said(term: &Node, system: System, facts: &Facts) -> bool {
     let term = &crate::matching::bare(term, facts.ctx);
     let nonzero = |d: &Node| nonzero(d, facts);
     let stated = |t: &Node, s: System| {
-        facts.facts.iter().any(|f| {
-            f.notation == "membership"
-                && matches!(f.children.as_slice(), [held, set]
-                    if set.notation == "number-systems"
-                        && same(held, t, facts.ctx)
-                        && System::of_sign(&set.text).is_some_and(|k| k.within(s)))
-        })
+        sum_said_once(t, s, &facts.letters, facts.in_sums, facts.ctx)
+            || facts.facts.iter().any(|f| {
+                f.notation == "membership"
+                    && matches!(f.children.as_slice(), [held, set]
+                        if set.notation == "number-systems"
+                            && same(held, t, facts.ctx)
+                            && System::of_sign(&set.text).is_some_and(|k| k.within(s)))
+            })
     };
     within(term, system, &facts.letters, &nonzero, &stated)
 }
@@ -317,24 +318,6 @@ fn summed(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
         ctx: facts.ctx,
     };
     member(body, system, &at, depth)
-}
-
-/// The number system a range from `start` puts its members in: ℕ from 1,
-/// ℕ₀ from 0, ℤ from anywhere.
-fn index_system(start: &Node) -> Option<System> {
-    let begins = (start.notation == "numeral")
-        .then(|| {
-            start
-                .text
-                .parse::<u32>()
-                .ok()
-                .and_then(rules::numeral_label)
-        })
-        .flatten();
-    rules::RANGE_WITHIN
-        .iter()
-        .find(|(_, first, _)| first.is_none() || *first == begins)
-        .and_then(|(system, _, _)| System::of_label(system))
 }
 
 /// The atoms of a term and the divisors it writes, as `algebra` reads it

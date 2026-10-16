@@ -76,6 +76,11 @@ pub struct CheckedTheorem {
     /// n} → V`, by the step's index (`typed_in_scope`): what a citation of
     /// an item over a function is read with (`citing::typed_seed`).
     pub typed: Vec<Vec<Node>>,
+    /// The sums each step writes that the page says are numbers once, by
+    /// their terms at every index, as written, by the step's index
+    /// (`library::sums_said_once`): what the build proves a member of ℝ or
+    /// ℂ without a line saying so.
+    pub said_sums: Vec<Vec<Node>>,
     /// Each step's citation of an item, by the step's index; None for a step
     /// that cites none, or whose citation no group of the item reads, which
     /// the checker reports.

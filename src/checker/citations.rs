@@ -163,7 +163,14 @@ fn requires_parts(
     // on a requires line reaches what it reaches cited by a step, the
     // memberships the page says once among them.
     let mut parts = finished(read, claims, seed, library, &known.sorts);
-    said_once(&mut parts, &introduced(known, step), library, &known.sorts);
+    let typed = super::library::typed_in_scope(known, step);
+    said_once(
+        &mut parts,
+        &introduced(known, step),
+        &typed,
+        library,
+        &known.sorts,
+    );
     if let Some((named, _)) = req.cited_item() {
         typed_seed(&mut parts, &step.just.item(&named), step, known, library);
     }

@@ -240,8 +240,9 @@ Every atom must be a real number. This is a hypothesis of the method exactly as
 `q ≠ 0` is a hypothesis of a division. Where the atom is a numeral, a letter,
 or built from those by +, −, ·, a power to a numeral or to a letter in ℕ or
 ℕ₀, and /, the page says it once, where the letters are introduced
-(`READERS.md`), and the step writes nothing; any other atom, a function's
-value or a sum, is discharged by a
+(`READERS.md`), and the step writes nothing, as it writes nothing for a sum
+whose term is such a number at every index; any other atom, a function's
+value or a sum whose term divides, is discharged by a
 cited line or written as a requires line. A cited line is read as
 `membership` reads it, so an equation the step cites, `a(0) = 0`, says
 `a(0)` is real.
@@ -543,9 +544,11 @@ test).
 
 Every atom of the claim and of the cited lines it combines is a real
 number, as for `inequalities`: said once where the atom is a numeral, a
-letter or built from them, and otherwise written or given by a cited
-equation, as `membership` decides it: citing `a(0) = 0` says `a(0)` is a
-number.
+letter, built from them, or a sum whose term is such a number at every
+index, and otherwise written or given by a cited equation, as `membership`
+decides it: citing `a(0) = 0` says `a(0)` is a number. What the step could
+work out from its parts but the page does not say once, as `Σ(k = 1 to n)
+1/k` from a line about 1/k, is written.
 
 The checker asks both of each `algebra` step that holds
 (`checker::formulas::algebra_unsaid`).

@@ -518,14 +518,21 @@ of
   sum's own letter, `1/k` or `1/T(k)` in `Σ(k = 1 to n)`, has a divisor no
   line outside the sum can speak of, so the citation names a line saying the
   term at every point of a set holding the range, `for all k ∈ ℕ, 1/k ∈ ℝ`,
-  proved as a step of its own.
+  proved as a step of its own;
+- a sum in ℝ or ℂ whose term is a number at every index by these rules and
+  the function types in scope: the index is in the system its range starts
+  in, and a function's value is one where its type's domain is the sum's
+  range or a number system holding the index, `Σ(k = 1 to n) a(k)²` where
+  `let a : {1, …, n} → ℝ`. A term dividing by anything but a numeral is
+  not said once this way.
 
 `let k ∈ ℕ` is still cited for k ≥ 1 and k ≠ 0, which the line says beyond
 the membership. A citation made only for one of these memberships is a line
 doing no work, in a step's citation and in a requires line's reason alike,
 and the checker reports both; the elaborator reports a method step's. Everything else a step needs to be
-a number is written as before: a defined name, a function's value, a sum, a
-power whose exponent is any other term, 2^(j + 1) or 2^k with k ∈ ℤ, |x|,
+a number is written as before: a defined name, a function's value outside a
+sum, a sum the rule above does not reach, a power whose exponent is any
+other term, 2^(j + 1) or 2^k with k ∈ ℤ, |x|,
 n!, a remainder, C(n, k), and anything a library item builds.
 
 **A function's type and a point of its domain say the value is in the

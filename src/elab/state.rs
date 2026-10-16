@@ -314,6 +314,9 @@ pub struct Elaborator<'a> {
     /// item asks of every member. There a function's type gives its values
     /// as the sort it is (`function_value`).
     pub in_family: usize,
+    /// The sums the step being elaborated writes that the page says are
+    /// numbers once, as kernel terms (`CheckedTheorem::said_sums`).
+    pub said_sums: BTreeSet<String>,
     /// Whether the order being proved is a plain `inequalities` step's,
     /// which adds its facts as they stand (`linear::certificate`'s `alike`).
     pub adding_only: bool,
@@ -473,6 +476,7 @@ impl<'a> Elaborator<'a> {
             binding: Vars::new(),
             citing: IndexSet::new(),
             in_family: 0,
+            said_sums: BTreeSet::new(),
             adding_only: false,
             said_back: None,
             answers: None,

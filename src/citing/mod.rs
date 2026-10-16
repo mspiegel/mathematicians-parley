@@ -23,8 +23,8 @@ pub use conclude::{
 };
 pub use library::{conjuncts, readings, with_parts, Group, Library, Proved, Way};
 pub use once::{
-    a_number_said_once, introduction, numeral_nonzero, range_system, said_once, within,
-    Introduced,
+    a_number_said_once, index_system, introduction, numeral_nonzero, range_system,
+    said_once, sum_said_once, within, Introduced,
 };
 pub use parts::{
     at_a_member, bound_in, claimed_member, finished, function_values, implied_facts,

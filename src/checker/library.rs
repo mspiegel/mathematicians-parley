@@ -570,7 +570,14 @@ fn citation_parts(step: &Step, library: &Library, known: &Known) -> Parts {
         }
         None => finished(facts, claims, seed, library, &known.sorts),
     };
-    said_once(&mut parts, &introduced(known, step), library, &known.sorts);
+    let typed = typed_in_scope(known, step);
+    said_once(
+        &mut parts,
+        &introduced(known, step),
+        &typed,
+        library,
+        &known.sorts,
+    );
     if let Some(item) = step.just.cited_item() {
         typed_seed(&mut parts, &step.just.item(&item), step, known, library);
     }
@@ -589,6 +596,61 @@ pub fn introduced(known: &Known, step: &Step) -> Introduced {
             if let Some((letter, system)) = introduction(&node) {
                 out.insert(letter, system);
             }
+        }
+    }
+    out
+}
+
+/// The sums a step writes that the page says are numbers once, by their
+/// terms at every index (`citing::sum_said_once`): those in its claim, its
+/// requires lines and the lines it and they cite, as written
+/// (`CheckedTheorem::said_sums`).
+pub fn sums_said_once(known: &Known, step: &Step) -> Vec<Node> {
+    let letters = introduced(known, step);
+    let typed = typed_in_scope(known, step);
+    let scope = known.scope(step);
+    let mut written: Vec<Node> = Vec::new();
+    for w in std::iter::once(&step.claim).chain(step.requires.iter().map(|r| &r.fact)) {
+        written.extend(
+            w.sentences()
+                .iter()
+                .filter_map(|s| known.read_as_written(s)),
+        );
+    }
+    let refs = step
+        .just
+        .refs
+        .iter()
+        .chain(step.requires.iter().flat_map(|r| r.refs()));
+    for r in refs {
+        written.extend(scope.get(r).and_then(|s| known.stated_as_written(s)));
+    }
+    // A sum under a binder of the line, Σ(k = 1 to m) for all m, speaks of
+    // a letter the scope does not hold, and no step combines it as it is.
+    let in_scope = |sum: &Node| {
+        let bound: BTreeSet<String> = sum
+            .walk()
+            .iter()
+            .filter(|n| n.notation == "sum")
+            .filter_map(|n| n.children.first().map(|i| i.text.clone()))
+            .collect();
+        sum.names().iter().all(|n| {
+            bound.contains(n)
+                || letters.contains_key(n)
+                || typed.iter().any(|t| t.children[0].text == *n)
+        })
+    };
+    let mut out: Vec<Node> = Vec::new();
+    for node in written.iter().flat_map(|n| n.walk()).filter(in_scope) {
+        let said = citing::sum_said_once(
+            &node,
+            crate::rules::System::C,
+            &letters,
+            &typed,
+            known.ctx,
+        );
+        if said {
+            out.push(node);
         }
     }
     out
