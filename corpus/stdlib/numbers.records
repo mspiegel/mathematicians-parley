@@ -558,16 +558,6 @@ mundane theorem le-cases
   note        A bound is a strict one or an equation: what a proof by cases
               on x ≤ y takes its two cases from.
 
-mundane theorem le-antisymmetric
-  let x ∈ ℝ                                                           (H1)
-  let y ∈ ℝ                                                           (H2)
-  then        x = y ↔ x ≤ y and y ≤ x
-  metamath    letri3
-  target      letri3
-  note        Two numbers each at most the other are equal. `inequalities`
-              proves a bound and not an equation, so a step reaching an
-              equation from two bounds cites this.
-
 mundane theorem divide-le
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)

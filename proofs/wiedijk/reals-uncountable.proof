@@ -15,7 +15,6 @@ import mundane theorem    stdlib/numbers/exponent-step
 import mundane theorem    stdlib/numbers/power-nat
 import mundane theorem    stdlib/numbers/multiply-le
 import mundane theorem    stdlib/numbers/divide-le
-import mundane theorem    stdlib/numbers/le-antisymmetric
 import mundane theorem    stdlib/divisibility/mod-natural
 import mundane theorem    stdlib/divisibility/mod-less
 import mundane theorem    stdlib/divisibility/mod-remainder
@@ -668,78 +667,79 @@ let U(k) = (N(k) + 1)/10^k, for k ∈ ℕ₀                                 (D6
            case
            assume ⌊10^n·c⌋ ≤ N(n)                                     (C7)
 
-           16.26.1. ⌊10^n·c⌋ = N(n)
-                    mun:le-antisymmetric x := ⌊10^n·c⌋, y := N(n)
+           16.26.1. N(n) ≤ ⌊10^n·c⌋
+                    inequalities, from 16.21
+                    requires N(n) ∈ ℝ: membership, from 16.7
+                    requires ⌊10^n·c⌋ ∈ ℝ: membership, from 16.16
+
+           16.26.2. ⌊10^n·c⌋ = N(n)
+                    antisymmetry, from C7, 16.26.1
                     requires ⌊10^n·c⌋ ∈ ℝ: membership, from 16.16
                     requires N(n) ∈ ℝ: membership, from 16.7
-                    requires ⌊10^n·c⌋ ≤ N(n): from C7
-                    requires N(n) ≤ ⌊10^n·c⌋: inequalities, from 16.21
 
-           16.26.2. N(n − 1)·10 + d(n) = ⌊10^n·c⌋
-                    algebra, from 16.4, 16.26.1
+           16.26.3. N(n − 1)·10 + d(n) = ⌊10^n·c⌋
+                    algebra, from 16.4, 16.26.2
                     requires N(n − 1) ∈ ℝ: membership, from 16.5
                     requires d(n) ∈ ℝ: membership, from 16.23
                     requires N(n) ∈ ℝ: membership, from 16.7
                     requires ⌊10^n·c⌋ ∈ ℝ: membership, from 16.16
 
-           16.26.3. There is q ∈ ℤ with q·10 + d(n) = ⌊10^n·c⌋.
-                    exhibit, from 16.5, 16.26.2
+           16.26.4. There is q ∈ ℤ with q·10 + d(n) = ⌊10^n·c⌋.
+                    exhibit, from 16.5, 16.26.3
 
-           16.26.4. ⌊10^n·c⌋ mod 10 = d(n)
-                    mun:mod-remainder a := ⌊10^n·c⌋, m := 10, r := d(n), from 16.16, 16.26.3
+           16.26.5. ⌊10^n·c⌋ mod 10 = d(n)
+                    mun:mod-remainder a := ⌊10^n·c⌋, m := 10, r := d(n), from 16.16, 16.26.4
                     requires d(n) ∈ ℕ₀: from 16.23
                     requires d(n) < 10: inequalities, from 16.6
 
-           16.26.5. D(c, n) = d(n)
+           16.26.6. D(c, n) = d(n)
                     calculation
                       D(c, n) = ⌊10^n·c⌋ mod 10    16.22
-                              = d(n)               16.26.4
+                              = d(n)               16.26.5
 
-           16.26.6. D(c, n) = d(n) or D(c, n) = s(d(n))
-                    mun:or-left, from 16.26.5
+           16.26.7. D(c, n) = d(n) or D(c, n) = s(d(n))
+                    mun:or-left, from 16.26.6
 
            case
            assume not (⌊10^n·c⌋ ≤ N(n))                               (C8)
 
-           16.26.7. N(n) < ⌊10^n·c⌋
+           16.26.8. N(n) < ⌊10^n·c⌋
                     inequalities, from C8, 16.7, 16.16
 
-           16.26.8. N(n) + 1 ≤ ⌊10^n·c⌋
-                    mun:integer-step m := N(n), n := ⌊10^n·c⌋, from 16.7, 16.16, 16.26.7
+           16.26.9. N(n) + 1 ≤ ⌊10^n·c⌋
+                    mun:integer-step m := N(n), n := ⌊10^n·c⌋, from 16.7, 16.16, 16.26.8
 
-           16.26.9. ⌊10^n·c⌋ = N(n) + 1
-                    mun:le-antisymmetric x := ⌊10^n·c⌋, y := N(n) + 1
-                    requires ⌊10^n·c⌋ ∈ ℝ: membership, from 16.16
-                    requires N(n) ∈ ℝ: from 16.7
-                    requires ⌊10^n·c⌋ ≤ N(n) + 1: from 16.20
-                    requires N(n) + 1 ≤ ⌊10^n·c⌋: from 16.26.8
+           16.26.10. ⌊10^n·c⌋ = N(n) + 1
+                     antisymmetry, from 16.20, 16.26.9
+                     requires ⌊10^n·c⌋ ∈ ℝ: membership, from 16.16
+                     requires N(n) ∈ ℝ: from 16.7
 
-           16.26.10. ⌊10^n·c⌋ = N(n − 1)·10 + (d(n) + 1)
-                     algebra, from 16.4, 16.26.9
+           16.26.11. ⌊10^n·c⌋ = N(n − 1)·10 + (d(n) + 1)
+                     algebra, from 16.4, 16.26.10
                      requires N(n − 1) ∈ ℝ: membership, from 16.5
                      requires d(n) ∈ ℝ: membership, from 16.23
                      requires N(n) ∈ ℝ: membership, from 16.7
                      requires ⌊10^n·c⌋ ∈ ℝ: membership, from 16.16
 
-           16.26.11. D(c, n) = (N(n − 1)·10 + (d(n) + 1)) mod 10
-                     substitute ⌊10^n·c⌋ = N(n − 1)·10 + (d(n) + 1) (line 16.26.10) into line 16.22
+           16.26.12. D(c, n) = (N(n − 1)·10 + (d(n) + 1)) mod 10
+                     substitute ⌊10^n·c⌋ = N(n − 1)·10 + (d(n) + 1) (line 16.26.11) into line 16.22
 
-           16.26.12. (N(n − 1)·10 + (d(n) + 1)) mod 10 = (d(n) + 1) mod 10
+           16.26.13. (N(n − 1)·10 + (d(n) + 1)) mod 10 = (d(n) + 1) mod 10
                      mun:mod-multiple r := d(n) + 1, m := 10, q := N(n − 1), from 16.5
                      requires d(n) + 1 ∈ ℤ: from 16.24
 
-           16.26.13. s(d(n)) = (d(n) + 1) mod 10
+           16.26.14. s(d(n)) = (d(n) + 1) mod 10
                      D2
                      requires d(n) ∈ ℤ: from H1
 
-           16.26.14. D(c, n) = s(d(n))
+           16.26.15. D(c, n) = s(d(n))
                      calculation
-                       D(c, n) = (N(n − 1)·10 + (d(n) + 1)) mod 10    16.26.11
-                               = (d(n) + 1) mod 10                    16.26.12
-                               = s(d(n))                              16.26.13
+                       D(c, n) = (N(n − 1)·10 + (d(n) + 1)) mod 10    16.26.12
+                               = (d(n) + 1) mod 10                    16.26.13
+                               = s(d(n))                              16.26.14
 
-           16.26.15. D(c, n) = d(n) or D(c, n) = s(d(n))
-                     mun:or-right, from 16.26.14
+           16.26.16. D(c, n) = d(n) or D(c, n) = s(d(n))
+                     mun:or-right, from 16.26.15
 
 17. There is x ∈ ℝ with for all n ∈ ℕ, D(x, n) = d(n) or D(x, n) = s(d(n)).
     exhibit, from 16

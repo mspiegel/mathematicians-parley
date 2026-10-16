@@ -5,7 +5,6 @@ import mundane definition stdlib/numbers/min
 import mundane theorem    stdlib/numbers/min-real
 import mundane theorem    stdlib/numbers/min-le
 import mundane theorem    stdlib/numbers/lt-min
-import mundane theorem    stdlib/numbers/le-antisymmetric
 import mundane theorem    stdlib/functions/function-value
 
 theorem limit-unfolded
@@ -201,4 +200,4 @@ theorem limit-unique
     thm:limit-order L := M, M := L, from H5, H6
 
 3.  L = M
-    mun:le-antisymmetric x := L, y := M, from 1, 2
+    antisymmetry, from 1, 2

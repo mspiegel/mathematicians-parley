@@ -656,7 +656,7 @@ fn cases() -> Vec<Case> {
                 Some("                    requires d(n) ∈ ℝ: membership, from 16.23\n                    requires N(n) ∈ ℝ: membership, from 16.7\n                    requires ⌊10^n·c⌋ ∈ ℝ: membership, from 16.16\n".to_string()),
                 "                    requires d(n) ∈ ℝ: membership\n                    requires N(n) ∈ ℝ: membership, from 16.7\n                    requires ⌊10^n·c⌋ ∈ ℝ: membership, from 16.16\n".to_string(),
             )],
-            "d(n) ∈ ℝ is not built from what step 16.26.2 cites",
+            "d(n) ∈ ℝ is not built from what step 16.26.3 cites",
         ),
         // Every atom an inequalities step combines is a real number by a
         // line it names: |c| is, by line 1, which line 2 does not say.

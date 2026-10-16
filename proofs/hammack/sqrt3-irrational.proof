@@ -10,7 +10,6 @@ import theorem            stdlib/divisibility/coprime-divides
 import mundane definition stdlib/divisibility/gcd
 import mundane theorem    stdlib/divisibility/gcd-commutes
 import mundane theorem    stdlib/numbers/le-cases
-import mundane theorem    stdlib/numbers/le-antisymmetric
 import mundane theorem    stdlib/numbers/integer-step
 import mundane definition stdlib/numbers/irrational
 import mundane definition stdlib/numbers/sqrt
@@ -63,11 +62,11 @@ theorem three-prime
                   2.4.4.1.  2 + 1 ≤ d
                             mun:integer-step m := 2, n := d, from C3
 
-                  2.4.4.2.  d ≤ 3 and 3 ≤ d
-                            inequalities, from 2.1, 2.4.4.1
+                  2.4.4.2.  3 ≤ d
+                            inequalities, from 2.4.4.1
 
                   2.4.4.3.  d = 3
-                            mun:le-antisymmetric x := d, y := 3, from 2.4.4.2
+                            antisymmetry, from 2.1, 2.4.4.2
 
                   2.4.4.4.  d = 1 or d = 3
                             mun:or-right, from 2.4.4.3
