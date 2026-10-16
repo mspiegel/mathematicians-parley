@@ -96,3 +96,23 @@ theorem a-chain-through-one-sentence-of-a-line
 
 1.  a < c
     transitivity, from H4, H5
+
+theorem a-chain-through-a-define
+  note        A define of a name is cited as its equation, the name on one
+              side and what it names on the other.
+  let a ∈ ℝ    (H1)
+  let b ∈ ℝ    (H2)
+  let c ∈ ℝ    (H3)
+  assume a + 1 ≤ b    (H4)
+  assume b < c    (H5)
+  then a + 1 < c
+
+let e = a + 1, a real number    (D1)
+    membership
+    reads one more than a
+
+1.  e < c
+    transitivity, from D1, H4, H5
+
+2.  a + 1 < c
+    substitute e = a + 1 (D1) into line 1

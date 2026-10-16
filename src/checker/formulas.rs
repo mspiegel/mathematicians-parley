@@ -1756,6 +1756,28 @@ fn line_relations(step: &Step, r: &str, known: &Known) -> Vec<Related> {
         .unwrap_or_default()
 }
 
+/// The equation a define of a name says, `e = ⌊A + 1/2⌋ − A` of `let e =
+/// ⌊A + 1/2⌋ − A`, as a link citing it reads it (`SYNTAX.md`, a step may
+/// cite a define); None where `r` carries no define of a name standing for
+/// a term.
+fn define_equation(thm: &Theorem, step: &Step, r: &str, known: &Known) -> Option<Node> {
+    let name = define_named(thm, r, known.env.scopes)?;
+    let defined = known.citing(&[r.to_string()]);
+    let Some(crate::matching::Defined::Term(term)) = defined.get(&name) else {
+        return None;
+    };
+    let named = Written::new(&name, &thm.path, step.just.line)
+        .sentence()
+        .ok()?;
+    let named = known.read_as_written(&named)?;
+    Some(made(
+        known.env.g,
+        "equality",
+        "=",
+        vec![named, term.clone()],
+    ))
+}
+
 /// What the line `r` in a step's scope states, all of it, as written.
 fn cited_whole(step: &Step, r: &str, known: &Known) -> Option<Node> {
     known
@@ -1767,7 +1789,8 @@ fn cited_whole(step: &Step, r: &str, known: &Known) -> Option<Node> {
 /// The lines a step cites, each as one link, in the order cited
 /// (`METHODS.md`, transitivity): a line's relation, or of a line saying
 /// several, the one of them that meets its neighbours, which is to be one
-/// only. The first line with no such relation reported.
+/// only. A define of a name says its equation besides any kind of number it
+/// gives. The first line with no such relation reported.
 fn cited_links(
     thm: &Theorem,
     step: &Step,
@@ -1777,10 +1800,15 @@ fn cited_links(
     let number = &step.number;
     let mut each: Vec<Vec<Related>> = Vec::new();
     for r in &step.just.refs {
-        let said: Vec<Related> = line_relations(step, r, known)
+        let mut said: Vec<Related> = line_relations(step, r, known)
             .into_iter()
             .filter(|l| l.rel != Rel::Ne)
             .collect();
+        said.extend(
+            define_equation(thm, step, r, known)
+                .as_ref()
+                .and_then(Related::of),
+        );
         if said.is_empty() {
             return Err(Problem::new(
                 &thm.path,

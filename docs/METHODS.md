@@ -363,7 +363,11 @@ refuse each false one as not following.
 `<`: from `a ≤ b` and `b < c`, `a < c`. The cited lines, in the order they
 are cited, make a chain. Each gives one relation between two terms: the
 line's, or of a line saying several things, the one of them that meets the
-chain, which is to be one only. Where
+chain, which is to be one only. A define of a name is cited as its
+equation, as a calculation's link citing it is (`SYNTAX.md`, a step may
+cite a define): `let e = ⌊A + 1/2⌋ − A (D1)` gives `e = ⌊A + 1/2⌋ − A`, and
+a define that also says what kind of number its name is gives the
+equation to the chain. Where
 one line ends the next begins: the term they share is written the same way
 in both, since rewriting a side is a row of `inequalities`. A line is read
 from whichever side meets the line before, as an order may be written
