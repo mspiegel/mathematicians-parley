@@ -5,7 +5,10 @@ are not yet in the corpus, because each runs into a fault of the tools.
 The rest of the trials' proofs are in `proofs/setmm/` and `proofs/hammack/`.
 
 Each file is the writer's proof with its imports set to the collections'
-paths, and nothing else changed. It is named `.proof.held` so that no tool
+paths, and nothing else changed, but where the writer broke a rule and a
+tool rightly refuses it: that is corrected, and said here.
+`root-gives-factor` wrote the pair `a := a`, which no pair may
+(`SYNTAX.md`, "No pair says what goes without saying"). It is named `.proof.held` so that no tool
 reads it: the tools read every `.proof` file under the root. A proof joins
 the corpus by moving it to `proofs/<collection>/<name>.proof` in the commit
 that fixes the fault it shows, which the tools' tests then hold.
@@ -63,14 +66,13 @@ then refuse it; or the gate, or `tests/said_back.rs`, fails.
 | setmm/image-as-a-selection | wf_986a075e-80b-1 | a block made a lemma; letters renamed to the library's | the last step does not say what the theorem states: no renaming says the two are one; step 2 claims something that mun:subset does not conclude |
 | setmm/not-both | wf_780145c1-124-3 | a conjunction claim written as sentences | step 1.2.1.2 says it contradicts 1.2.1.1, and neither is the other negated |
 | setmm/binomial-basics | wf_187c8c13-16b-4 | a relation turned around | step 2.8 drops an identity element from what the substitution makes, and nothing says 0! is a number |
-| setmm/root-gives-factor | wf_b955cf1a-292-1 | a relation turned around; the gate | a link of step 2.4 drops an identity element from (x − a) · q(x); step 1 cites with the pair a := a, and the step is checked and built without it |
+| setmm/root-gives-factor | wf_b955cf1a-292-1 | a relation turned around | a link of step 2.4 drops an identity element from (x − a) · q(x) |
 | setmm/two-elements | wf_986a075e-80b-3 | a relation turned around | the build: no clause of mun:remove-member reaches what step 1.6 claims |
 | setmm/images-of-parts-under-a-one-to-one-map | wf_986a075e-80b-2 | a step citing an item written as a requires line | the build: no clause of mun:iff-from-left reaches what step 1.1.3 claims |
 | setmm/implication-and-currying | wf_780145c1-124-3 | a step citing an item written as a requires line | the build: no clause of mun:modus-ponens reaches what step 1.2.3 claims |
 | setmm/prime-divides-power | wf_986a075e-80b-5 | a step citing an item written as a requires line | the build: no clause of mun:iff-from-left reaches what step 2.2.5.2 claims |
 | setmm/size-positive | wf_986a075e-80b-3 | a step serving only requires lines written as one | the requires line of step 2 says \|A\| ∈ ℝ, which the step's other lines already say |
 | setmm/image-of-part | wf_187c8c13-16b-3 | letters renamed to the library's | step 2 claims something that mun:subset does not conclude |
-| setmm/factor-by-root | wf_780145c1-124-4 | the gate | step 1 cites with the pair a := a, and the step is checked and built without it |
 | setmm/group-cancellation | wf_780145c1-124-2 | said back | line 427, "There is k ∈ H with g·h = g·k", has no page reading to say back |
 | hammack/factorial-from-zero | wf_829f59af-3f8-1 | a relation turned around | step 3.7 drops an identity element from what the substitution makes, and nothing says 0! is a number |
 | hammack/mobius-one-to-one | wf_210363c5-087-5 | a relation turned around | the build: no clause of mun:remove-member reaches what step 1.1 claims |
