@@ -2515,7 +2515,16 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/wiedijk/pythagorean-triples.proof", Some("          obtain k, m, n from D2".to_string()), "          obtain k, m, n from H1".to_string()),
             ],
-            "step 1.2 obtains k, m, n from a line that says no \"there is\" of as many",
+            "step 1.2 obtains k, m, n from a line, which says no \"there is\" of as many",
+        ),
+        case(
+            "an obtain of more names than the item's there is binds",
+            vec![edit(
+                "proofs/wiedijk/planted.proof",
+                None,
+                "import mundane definition stdlib/divisibility/odd\n\ntheorem planted\n  let b ∈ ℤ    (H1)\n  assume b is odd    (H2)\n  then b = b\n\n1.  j ∈ ℤ. i ∈ ℤ. b = 2j + 1.\n    obtain j, i: mun:odd n := b, from H2\n\n2.  b = b\n    algebra\n".to_string(),
+            )],
+            "step 1 obtains j, i from mun:odd, which says no \"there is\" of as many",
         ),
         case(
             "a contradiction whose block does not suppose anything",
@@ -4182,6 +4191,42 @@ fn cases() -> Vec<Case> {
                 "theorem planted\n  assume for all y ∈ ℝ, for all z ∈ ℝ, y + z = z + y    (H1)\n  let x ∈ ℝ    (H2)\n  then for all y ∈ ℝ, y + x = x + y\n\n1.  For all y ∈ ℝ, y + x = x + y.\n    instantiate z := x in H1\n".to_string(),
             )],
             "step 1 instantiates H1, which quantifies a name the step gives no value, before the ones it does",
+        ),
+        case(
+            "a requires line under a join",
+            vec![edit(
+                "proofs/wiedijk/planted.proof",
+                None,
+                "theorem planted\n  let x ∈ ℝ    (H1)\n  assume x > 0    (H2)\n  assume x < 2    (H3)\n  then x > 0 and x < 2\n\n1.  x > 0 and x < 2\n    join H2, H3\n    requires x ≠ 0: weakening, from H2\n".to_string(),
+            )],
+            "step 1 is a join, which asks nothing of the lines it puts together, and carries a requires line",
+        ),
+        case(
+            "substitute into a define",
+            vec![edit(
+                "proofs/wiedijk/planted.proof",
+                None,
+                "theorem planted\n  let x ∈ ℝ    (H1)\n  assume x = 1    (H2)\n  then x + 1 = 2\n\nlet y = x + 1, a real number    (D1)\n    membership\n    reads one more than x\n\n1.  y = 1 + 1\n    substitute x = 1 (H2) into D1\n\n2.  x + 1 = 2\n    algebra, from H2\n".to_string(),
+            )],
+            "step 1 puts its equation into D1, which is a define and no line; a step citing D1 writes the line it gives",
+        ),
+        case(
+            "a last case with no steps",
+            vec![edit(
+                "proofs/wiedijk/planted.proof",
+                None,
+                "theorem planted\n  let x ∈ ℝ    (H1)\n  assume x > 2 or x > 1    (H2)\n  then x > 0\n\n1.  x > 0\n    cases, from H2\n\n    case\n    assume x > 2    (C1)\n\n    1.1.  x > 0\n          inequalities, from C1\n\n    case\n    assume x > 1    (C2)\n".to_string(),
+            )],
+            "this case has no steps, and the theorem ends under it; write its steps, or end its assumption `, which is the claim`",
+        ),
+        case(
+            "a proof block with no steps under its let",
+            vec![edit(
+                "proofs/wiedijk/planted.proof",
+                None,
+                "theorem planted\n  then for all y ∈ ℝ, y = y\n\n1.  For all y ∈ ℝ, y = y.\n    proof\n    let y ∈ ℝ    (K1)\n".to_string(),
+            )],
+            "K1 opens a part with no steps, and the theorem ends under it",
         ),
         // An exhibit gives a value of a "there is".
         case(

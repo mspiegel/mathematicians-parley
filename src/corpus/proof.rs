@@ -1626,6 +1626,16 @@ pub fn parse_proof(
     let mut part_no: IndexMap<StepNo, usize> = IndexMap::new();
     let mut by_number: IndexMap<StepNo, usize> = IndexMap::new();
 
+    /// The first marker held, by its word and line.
+    fn first_marker(held: &[(String, usize, Option<Said>)]) -> Option<(&str, usize)> {
+        held.first().map(|(marker, at, _)| (marker.as_str(), *at))
+    }
+
+    /// The first opener held, by its label and line.
+    fn first_opener(held: &[(Intro, String, String, usize)]) -> Option<(&str, usize)> {
+        held.first().map(|(_, _, label, at)| (label.as_str(), *at))
+    }
+
     fn close_step(
         path: &str,
         thm: &Option<DraftTheorem>,
@@ -1850,6 +1860,11 @@ pub fn parse_proof(
         }
         if t.starts_with("theorem ") && line.indent == 0 {
             close_step(path, &thm, &mut step)?;
+            held_at_end(
+                path,
+                first_marker(&pending_markers),
+                first_opener(&pending_openers),
+            )?;
             settle(path, thm.take(), &mut scope, &mut theorems)?;
             let name = str::trim(&t["theorem ".len()..]).to_string();
             if !skeleton::is_name(&name) {
@@ -2342,6 +2357,44 @@ pub fn parse_proof(
         ));
     }
     close_step(path, &thm, &mut step)?;
+    held_at_end(
+        path,
+        first_marker(&pending_markers),
+        first_opener(&pending_openers),
+    )?;
     settle(path, thm.take(), &mut scope, &mut theorems)?;
     Ok((scope, theorems))
+}
+
+/// A part marker or an opener is held for the step after it, so one the
+/// theorem ends under has nothing in it: the last case of a `cases` block
+/// with no steps, which only a case saying it is the claim may be. Each is
+/// given by the first of its kind still held, with its line.
+fn held_at_end(
+    path: &str,
+    marker: Option<(&str, usize)>,
+    opener: Option<(&str, usize)>,
+) -> Checked<()> {
+    if let Some((marker, at)) = marker {
+        let claim = if marker == "case" {
+            ", or end its assumption `, which is the claim`"
+        } else {
+            ""
+        };
+        return Err(Problem::new(
+            path,
+            at,
+            format!("this {marker} has no steps, and the theorem ends under it; write its steps{claim}"),
+        ));
+    }
+    if let Some((label, at)) = opener {
+        return Err(Problem::new(
+            path,
+            at,
+            format!(
+                "{label} opens a part with no steps, and the theorem ends under it"
+            ),
+        ));
+    }
+    Ok(())
 }

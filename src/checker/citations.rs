@@ -957,6 +957,18 @@ pub fn check_joins(
         if !step.just.head.is(Method::Join) {
             continue;
         }
+        // Putting lines together asks nothing of them, so no requires line
+        // under a join is used.
+        if let Some(first) = step.requires.first() {
+            report.say(
+                &thm.path,
+                first.line,
+                format!(
+                    "step {} is a join, which asks nothing of the lines it puts together, and carries a requires line",
+                    step.number
+                ),
+            );
+        }
         let Some(claim) = known.whole_as_written(&step.claim) else {
             continue;
         };
@@ -1289,6 +1301,20 @@ pub fn check_substitutes(
         let into = step.just.into.as_ref().map(|p| p.named().to_string());
         let ways: Vec<(Vec<Node>, Node)> = match into {
             Some(into) => {
+                // A define states no sentence for the equation to be put
+                // into: the step that wants it written out writes it and
+                // cites the define.
+                if defined(&into) {
+                    report.say(
+                        &thm.path,
+                        step.just.line,
+                        format!(
+                            "step {} puts its equation into {into}, which is a define and no line; a step citing {into} writes the line it gives",
+                            step.number
+                        ),
+                    );
+                    continue;
+                }
                 // A reference to nothing is `check_references`'s to report.
                 let scope = known.scope(step);
                 let Some(said) =
@@ -1487,15 +1513,16 @@ pub fn check_obtained_claims(
             body = last;
         }
         if order.len() != names.len() {
-            // A line that says no "there is" at all where one is left to
-            // take has nothing to obtain; another spelling of one, a part
-            // or a function, is the elaborator's to read.
-            if just.cited_item().is_none() && !body.notation.starts_with("there") {
+            // A line or an item that says no "there is" at all where one is
+            // left to take has nothing to obtain; another spelling of one, a
+            // part or a function, is the elaborator's to read.
+            if !body.notation.starts_with("there") {
+                let from = just.cited_item().unwrap_or_else(|| "a line".to_string());
                 report.say(
                     &thm.path,
                     just.line,
                     format!(
-                        "step {} obtains {} from a line that says no \"there is\" of as many",
+                        "step {} obtains {} from {from}, which says no \"there is\" of as many",
                         step.number,
                         names.join(", ")
                     ),
