@@ -1229,8 +1229,8 @@ in Bezout, whose a·1 is now a wherever a line is compared.
 
 `READERS.md` has a membership in a number system said once, where a letter is
 introduced, and the step writes nothing for a numeral, a letter, or a term
-built from them by +, −, ·, negation, a power to a numeral and /
-(`SYNTAX.md`). The elaborator builds each such fact itself, by a walk that
+built from them by +, −, ·, negation, a power to a numeral or to a letter
+introduced in ℕ or ℕ₀, and / (`SYNTAX.md`). The elaborator builds each such fact itself, by a walk that
 searches nothing (`introduced_membership` in `src/elab/tables.rs`):
 
 - a numeral is worked out, as `settle` works one out (`numeral_within`);

@@ -1,6 +1,5 @@
 import mundane theorem    stdlib/counting/factorial-nat
 import mundane theorem    stdlib/counting/factorial-nonzero
-import mundane theorem    stdlib/numbers/power-real
 import mundane theorem    stdlib/numbers/multiply-cancel
 import mundane theorem    stdlib/divisibility/mod-remainder
 import mundane theorem    stdlib/divisibility/mod-natural
@@ -121,7 +120,6 @@ theorem an-exponent-without-its-one
 
 1.  2^(d·1) = 2^d
     algebra
-    requires 2^d ∈ ℝ: mun:power-real a := 2, m := d
 
 theorem a-substitution-back-through-a-name
   note        K = a/2 put in where H6 writes a/2.

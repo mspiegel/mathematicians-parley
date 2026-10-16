@@ -628,8 +628,8 @@ fn cases() -> Vec<Case> {
             "a divisibility of numerals that does not hold",
             vec![edit(
                 "proofs/wiedijk/divisibility-by-three.proof",
-                Some("          requires 10^m ∈ ℤ: mun:power-integer a := 10\n".to_string()),
-                "          requires 10^m ∈ ℤ: mun:power-integer a := 10\n          requires 3 divides 10 − 2: arithmetic\n".to_string(),
+                Some("          thm:congruent-times a := 10^m, b := 1, c := 10, n := 3, from IH\n".to_string()),
+                "          thm:congruent-times a := 10^m, b := 1, c := 10, n := 3, from IH\n          requires 3 divides 10 − 2: arithmetic\n".to_string(),
             )],
             "the requires line 3 divides 10 − 2 of step 1.3 is arithmetic, which is false",
         ),
@@ -1232,8 +1232,8 @@ fn cases() -> Vec<Case> {
             "claim a false numeral fact with a number past one digit",
             vec![edit(
                 "proofs/wiedijk/divisibility-by-three.proof",
-                Some("          requires 10^m ∈ ℤ: mun:power-integer a := 10\n".to_string()),
-                "          requires 10^m ∈ ℤ: mun:power-integer a := 10\n          requires 10 − 1 = 3·4: arithmetic\n".to_string(),
+                Some("          thm:congruent-times a := 10^m, b := 1, c := 10, n := 3, from IH\n".to_string()),
+                "          thm:congruent-times a := 10^m, b := 1, c := 10, n := 3, from IH\n          requires 10 − 1 = 3·4: arithmetic\n".to_string(),
             )],
             "the requires line 10 − 1 = 3·4 of step 1.3 is arithmetic, which is false",
         ),
@@ -1241,8 +1241,8 @@ fn cases() -> Vec<Case> {
             "claim a false numeral fact of digits",
             vec![edit(
                 "proofs/wiedijk/divisibility-by-three.proof",
-                Some("          requires 10^m ∈ ℤ: mun:power-integer a := 10\n".to_string()),
-                "          requires 10^m ∈ ℤ: mun:power-integer a := 10\n          requires 9 = 3·4: arithmetic\n".to_string(),
+                Some("          thm:congruent-times a := 10^m, b := 1, c := 10, n := 3, from IH\n".to_string()),
+                "          thm:congruent-times a := 10^m, b := 1, c := 10, n := 3, from IH\n          requires 9 = 3·4: arithmetic\n".to_string(),
             )],
             "the requires line 9 = 3·4 of step 1.3 is arithmetic, which is false",
         ),
@@ -1250,8 +1250,8 @@ fn cases() -> Vec<Case> {
             "divide by zero in a numeral fact",
             vec![edit(
                 "proofs/wiedijk/divisibility-by-three.proof",
-                Some("          requires 10^m ∈ ℤ: mun:power-integer a := 10\n".to_string()),
-                "          requires 10^m ∈ ℤ: mun:power-integer a := 10\n          requires 3/0 ∈ ℝ: arithmetic\n".to_string(),
+                Some("          thm:congruent-times a := 10^m, b := 1, c := 10, n := 3, from IH\n".to_string()),
+                "          thm:congruent-times a := 10^m, b := 1, c := 10, n := 3, from IH\n          requires 3/0 ∈ ℝ: arithmetic\n".to_string(),
             )],
             "the requires line 3/0 ∈ ℝ of step 1.3 is arithmetic, which divides by zero",
         ),
@@ -1259,8 +1259,8 @@ fn cases() -> Vec<Case> {
             "state a numeral too large to work out",
             vec![edit(
                 "proofs/wiedijk/divisibility-by-three.proof",
-                Some("          requires 10^m ∈ ℤ: mun:power-integer a := 10\n".to_string()),
-                "          requires 10^m ∈ ℤ: mun:power-integer a := 10\n          requires 9^(9^9) ∈ ℕ: arithmetic\n".to_string(),
+                Some("          thm:congruent-times a := 10^m, b := 1, c := 10, n := 3, from IH\n".to_string()),
+                "          thm:congruent-times a := 10^m, b := 1, c := 10, n := 3, from IH\n          requires 9^(9^9) ∈ ℕ: arithmetic\n".to_string(),
             )],
             "the requires line 9^(9^9) ∈ ℕ of step 1.3 is arithmetic, which is too large to work out",
         ),
@@ -1268,8 +1268,8 @@ fn cases() -> Vec<Case> {
             "raise a numeral to a power that is not whole",
             vec![edit(
                 "proofs/wiedijk/divisibility-by-three.proof",
-                Some("          requires 10^m ∈ ℤ: mun:power-integer a := 10\n".to_string()),
-                "          requires 10^m ∈ ℤ: mun:power-integer a := 10\n          requires 4^(1/2) ∈ ℕ: arithmetic\n".to_string(),
+                Some("          thm:congruent-times a := 10^m, b := 1, c := 10, n := 3, from IH\n".to_string()),
+                "          thm:congruent-times a := 10^m, b := 1, c := 10, n := 3, from IH\n          requires 4^(1/2) ∈ ℕ: arithmetic\n".to_string(),
             )],
             "the requires line 4^(1/2) ∈ ℕ of step 1.3 is arithmetic, which is not a rational number: its exponent is not whole",
         ),
@@ -1628,8 +1628,8 @@ fn cases() -> Vec<Case> {
             "ask arithmetic to decide a word its record does not name it for",
             vec![edit(
                 "proofs/wiedijk/divisibility-by-three.proof",
-                Some("          requires 10^m ∈ ℤ: mun:power-integer a := 10\n".to_string()),
-                "          requires 10^m ∈ ℤ: mun:power-integer a := 10\n          requires 3 is prime: arithmetic\n".to_string(),
+                Some("          thm:congruent-times a := 10^m, b := 1, c := 10, n := 3, from IH\n".to_string()),
+                "          thm:congruent-times a := 10^m, b := 1, c := 10, n := 3, from IH\n          requires 3 is prime: arithmetic\n".to_string(),
             )],
             "is a word prime defines, and arithmetic decides a word only where its record says so",
         ),
@@ -3127,18 +3127,6 @@ fn cases() -> Vec<Case> {
             ],
             "step 31 exhibits c := c, so it needs c ∈ (a, b)",
         ),
-        // The witness is read off what the body says, not off the bare
-        // membership, which any number in ℕ satisfies: harmonic-unbounded's
-        // step 9 exhibits 2^N, which line 7 says the sum is above M at, and
-        // without line 8 nothing says 2^N ∈ ℕ. The numeral 1 in the sum is
-        // in ℕ too, and is no candidate.
-        case(
-            "exhibit a witness whose membership is not said, with a numeral in the body",
-            vec![
-                edit("proofs/wiedijk/harmonic.proof", Some("    exhibit, from 6, 7\n".to_string()), "    exhibit, from 6\n".to_string()),
-            ],
-            "step 8 exhibits n := 2^N, so it needs 2^N ∈ ℕ",
-        ),
         // A requires line rests on the lines above it, read top to bottom
         // (`SYNTAX.md`). Written first, |numer(x)| ∈ ℕ₀ asks for numer(x) ∈ ℤ,
         // which no line above it states.
@@ -4237,16 +4225,16 @@ fn cases() -> Vec<Case> {
         ),
         // Each atom a method combines is real, and the step says so where
         // the atom is not a letter, a numeral or built from them by the
-        // operations a membership said once covers: 2^p is a power to a
-        // letter.
+        // operations a membership said once covers: A^(k + 1) is a power
+        // whose exponent is no letter.
         case(
             "leave out the membership of an atom the method combines",
             vec![edit(
-                "proofs/wiedijk/perfect-numbers.proof",
-                Some("            2^p − 1 ≠ 1      weakening\n          requires 2^p ∈ ℝ: membership, from H1\n".to_string()),
-                "            2^p − 1 ≠ 1      weakening\n".to_string(),
+                "proofs/setmm/bernoulli-inequality.proof",
+                Some("          transitivity, from 1.11, 1.3\n          requires A^(k + 1) ∈ ℝ: mun:power-real a := A, m := k + 1\n".to_string()),
+                "          transitivity, from 1.11, 1.3\n".to_string(),
             )],
-            "nothing says 2^p ∈ ℝ, which this step needs",
+            "nothing says A^(k + 1) ∈ ℝ, which this step needs",
         ),
         // A divisor nothing says is not zero is named as the page writes it.
         case(

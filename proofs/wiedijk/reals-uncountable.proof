@@ -324,7 +324,6 @@ let U(k) = (N(k) + 1)/10^k, for k ∈ ℕ₀                                 (D6
           mun:divide-le x := N(k), y := N(k) + 1, c := 10^k, from 4.5
           requires N(k) ∈ ℝ: membership, from 4.1
           requires N(k) + 1 ∈ ℝ: membership, from 4.1
-          requires 10^k ∈ ℝ: membership, from 4.2
           requires 10^k > 0: inequalities, from 4.2
 
     4.7.  L(k) ≤ U(k)
@@ -600,13 +599,11 @@ let U(k) = (N(k) + 1)/10^k, for k ∈ ℕ₀                                 (D6
     16.10. 10^n·(N(n)/10^n) ≤ 10^n·c
            mun:multiply-le x := N(n)/10^n, y := c, c := 10^n, from D5, 16.9
            requires N(n)/10^n ∈ ℝ: membership, from 16.7, 16.8
-           requires 10^n ∈ ℝ: membership, from 16.8
            requires 10^n > 0: inequalities, from 16.8
 
     16.11. 10^n·c ≤ 10^n·((N(n) + 1)/10^n)
            mun:multiply-le x := c, y := (N(n) + 1)/10^n, c := 10^n, from D6, 16.9
            requires (N(n) + 1)/10^n ∈ ℝ: membership, from 16.7, 16.8
-           requires 10^n ∈ ℝ: membership, from 16.8
            requires 10^n > 0: inequalities, from 16.8
 
     16.12. 10^n·(N(n)/10^n) = N(n)
@@ -622,37 +619,30 @@ let U(k) = (N(k) + 1)/10^k, for k ∈ ℕ₀                                 (D6
     16.14. N(n) ≤ 10^n·c
            transitivity, from 16.12, 16.10
            requires N(n) ∈ ℝ: membership, from 16.7
-           requires 10^n ∈ ℝ: membership, from 16.8
            requires 10^n ≠ 0: inequalities, from 16.8
 
     16.15. 10^n·c ≤ N(n) + 1
            transitivity, from 16.11, 16.13
            requires N(n) ∈ ℝ: membership, from 16.7
-           requires 10^n ∈ ℝ: membership, from 16.8
            requires 10^n ≠ 0: inequalities, from 16.8
 
     16.16. ⌊10^n·c⌋ ∈ ℤ
            mun:floor-integer x := 10^n·c
-           requires 10^n·c ∈ ℝ: membership, from 12, 16.8
 
     16.17. ⌊10^n·c⌋ ≤ 10^n·c
            mun:floor-below x := 10^n·c
-           requires 10^n·c ∈ ℝ: membership, from 12, 16.8
 
     16.18. 10^n·c < ⌊10^n·c⌋ + 1
            mun:floor-above x := 10^n·c
-           requires 10^n·c ∈ ℝ: membership, from 12, 16.8
 
     16.19. N(n) < ⌊10^n·c⌋ + 1
            transitivity, from 16.14, 16.18
            requires N(n) ∈ ℝ: membership, from 16.7
-           requires 10^n·c ∈ ℝ: membership, from 12, 16.8
            requires ⌊10^n·c⌋ ∈ ℝ: membership, from 16.16
 
     16.20. ⌊10^n·c⌋ ≤ N(n) + 1
            transitivity, from 16.17, 16.15
            requires N(n) ∈ ℝ: membership, from 16.7
-           requires 10^n·c ∈ ℝ: membership, from 12, 16.8
            requires ⌊10^n·c⌋ ∈ ℝ: membership, from 16.16
 
     16.21. N(n) + 1 ≤ ⌊10^n·c⌋ + 1

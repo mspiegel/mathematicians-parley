@@ -2,8 +2,8 @@
 //! is introduced, and no step writes again (`READERS.md`, membership said
 //! once): a numeral, a letter in the set its introducing line names and the
 //! number systems containing that one, and a term built from those by +, −,
-//! ·, negation, a power to a numeral, and a quotient whose divisor a fact
-//! says is not zero.
+//! ·, negation, a power to a numeral or to a letter in ℕ or ℕ₀, and a
+//! quotient whose divisor a fact says is not zero.
 //!
 //! The elaborator builds the same memberships by the same tables in
 //! `rules` (`Elaborator::introduced_membership`), so the two tools agree on
@@ -240,12 +240,26 @@ pub fn within(
             lookup(rules::DIVIDED, label).is_some() && both(a, b) && nonzero(b)
         }
         ("power", _, [a, e]) | ("superscript", _, [a, e]) => {
-            value(e).is_some_and(|v| v.is_integer() && !v.is_negative())
+            whole_exponent(e, letters)
                 && rules::closed("cexp", label).is_some()
                 && within(a, system, letters, nonzero, said)
         }
         _ => false,
     }
+}
+
+/// Whether a power's exponent makes it a product of copies of its base:
+/// a numeral in ℕ₀, or a letter introduced in ℕ or ℕ₀ (`READERS.md`,
+/// membership said once). 2^j with j ∈ ℕ₀ is then a number wherever 2 is,
+/// and 2^(−1), 0^k with k ∈ ℤ, or 2^(j + 1) are not said once this way.
+fn whole_exponent(exponent: &Node, letters: &Introduced) -> bool {
+    if let Some(v) = value(exponent) {
+        return v.is_integer() && !v.is_negative();
+    }
+    exponent.is_name()
+        && letters
+            .get(&exponent.text)
+            .is_some_and(|set| set.within(System::N0))
 }
 
 /// Whether a divisor is a numeral other than zero, the one divisor whose

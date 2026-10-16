@@ -6,7 +6,6 @@ import mundane theorem    stdlib/numbers/exponent-zero
 import mundane theorem    stdlib/numbers/integer-step
 import mundane theorem    stdlib/numbers/multiply-le
 import mundane theorem    stdlib/numbers/pos-int-nat
-import mundane theorem    stdlib/numbers/power-integer
 import mundane theorem    stdlib/numbers/power-real
 import mundane axiom      stdlib/reasoning/excluded-middle
 import mundane theorem    stdlib/reasoning/modus-ponens
@@ -29,7 +28,6 @@ theorem two-power-add
 
     1.2.  2^(a + 0) = 2^a·2^0
           substitute 2^0 = 1 (line 1.1)
-          requires 2^a ∈ ℝ: mun:power-real a := 2, m := a
 
     step
     let k ∈ ℕ₀                                                        (K)
@@ -55,8 +53,6 @@ theorem two-power-add
 
     1.9.  2^a·(2^k·2) = 2^a·2^k·2
           algebra
-          requires 2^a ∈ ℝ: mun:power-real a := 2, m := a
-          requires 2^k ∈ ℝ: mun:power-real a := 2, m := k
 
     1.10. 2^(a + (k + 1)) = 2^a·2^(k + 1)
           calculation
@@ -94,7 +90,6 @@ theorem two-power-bound
           inequalities
             2^m ≥ m + 1              IH
             2^m·2 ≥ (m + 1)·2        multiplying by 2
-          requires 2^m ∈ ℝ: mun:power-real a := 2
 
     1.4.  (m + 1)·2 ≥ (m + 1) + 1
           inequalities, from K
@@ -102,7 +97,6 @@ theorem two-power-bound
     1.5.  2^(m + 1) ≥ (m + 1) + 1
           transitivity, from 1.2, 1.3, 1.4
           requires 2^(m + 1) ∈ ℝ: mun:power-real a := 2, m := m + 1
-          requires 2^m ∈ ℝ: mun:power-real a := 2
 
 2.  2^d ≥ d + 1
     instantiate m := d in line 1
@@ -122,7 +116,6 @@ theorem power-multiple-quotient
     base
     1.1.  2^d − 1 = (2^d − 1)·1
           algebra
-          requires 2^d ∈ ℝ: mun:power-real a := 2, m := d
 
     1.2.  1 ≥ 1
           arithmetic
@@ -157,14 +150,12 @@ theorem power-multiple-quotient
     1.10. 2^(d·j)·2^d − 1 = 2^d·(2^(d·j) − 1) + (2^d − 1)
           algebra
           requires 2^(d·j) ∈ ℝ: mun:power-real a := 2, m := d·j
-          requires 2^d ∈ ℝ: mun:power-real a := 2, m := d
 
     1.11. 2^d·(2^(d·j) − 1) + (2^d − 1) = 2^d·((2^d − 1)·q) + (2^d − 1)
           substitute 2^(d·j) − 1 = (2^d − 1)·q (line 1.4)
 
     1.12. 2^d·((2^d − 1)·q) + (2^d − 1) = (2^d − 1)·(2^d·q + 1)
           algebra
-          requires 2^d ∈ ℝ: mun:power-real a := 2, m := d
 
     1.13. 2^(d·(j + 1)) − 1 = (2^d − 1)·(2^d·q + 1)
           calculation
@@ -173,49 +164,40 @@ theorem power-multiple-quotient
                               = 2^d·((2^d − 1)·q) + (2^d − 1)          1.11
                               = (2^d − 1)·(2^d·q + 1)                  1.12
 
-    1.14. 2^d·q + 1 ∈ ℕ
-          membership
-
-    1.15. 2^d ≥ d + 1
+    1.14. 2^d ≥ d + 1
           thm:two-power-bound
 
-    1.16. d + 1 ≥ 1
+    1.15. d + 1 ≥ 1
           inequalities, from H1
 
-    1.17. 2^d ≥ 1
-          transitivity, from 1.15, 1.16
-          requires 2^d ∈ ℝ: mun:power-real a := 2, m := d
+    1.16. 2^d ≥ 1
+          transitivity, from 1.14, 1.15
 
-    1.18. q·1 ≤ q·2^d
-          mun:multiply-le x := 1, y := 2^d, c := q, from 1.17
-          requires 2^d ∈ ℝ: mun:power-real a := 2, m := d
+    1.17. q·1 ≤ q·2^d
+          mun:multiply-le x := 1, y := 2^d, c := q, from 1.16
           requires q > 0: inequalities, from K, 1.4
 
-    1.19. q·2^d = 2^d·q
+    1.18. q·2^d = 2^d·q
           algebra
-          requires 2^d ∈ ℝ: mun:power-real a := 2, m := d
 
-    1.20. q ≤ q·2^d
+    1.19. q ≤ q·2^d
           inequalities
-            q·1 ≤ q·2^d          1.18
+            q·1 ≤ q·2^d          1.17
             q ≤ q·2^d            algebra
-          requires 2^d ∈ ℝ: mun:power-real a := 2, m := d
 
-    1.21. j ≤ q
+    1.20. j ≤ q
           inequalities, from 1.4
 
-    1.22. j ≤ 2^d·q
-          transitivity, from 1.21, 1.20, 1.19
-          requires 2^d ∈ ℝ: mun:power-real a := 2, m := d
+    1.21. j ≤ 2^d·q
+          transitivity, from 1.20, 1.19, 1.18
 
-    1.23. 2^d·q + 1 ≥ (j + 1)
+    1.22. 2^d·q + 1 ≥ (j + 1)
           inequalities
-            j ≤ 2^d·q            1.22
+            j ≤ 2^d·q            1.21
             j + 1 ≤ 2^d·q + 1    adding 1
-          requires 2^d ∈ ℝ: mun:power-real a := 2, m := d
 
-    1.24. There is q ∈ ℕ with 2^(d·(j + 1)) − 1 = (2^d − 1)·q and q ≥ j + 1.
-          exhibit, from 1.13, 1.14, 1.23
+    1.23. There is q ∈ ℕ with 2^(d·(j + 1)) − 1 = (2^d − 1)·q and q ≥ j + 1.
+          exhibit, from 1.13, 1.22
 
 2.  There is q ∈ ℕ with 2^(d·m) − 1 = (2^d − 1)·q and q ≥ m.
     instantiate j := m in line 1
@@ -230,222 +212,205 @@ theorem prime-exponent
   assume 2^n − 1 is prime                                             (H2)
   then n is prime
 
-1.  2^n ∈ ℤ
-    mun:power-integer a := 2, m := n
-
-2.  2^n − 1 ∈ ℕ
+1.  2^n − 1 ∈ ℕ
     mun:prime-nat p := 2^n − 1, from H2
-    requires 2^n − 1 ∈ ℤ: membership, from 1
 
-3.  2^n − 1 > 1. For all c ∈ ℕ, if c divides 2^n − 1 then c = 1 or c = 2^n − 1.
-    mun:prime p := 2^n − 1, from H2, 2
+2.  2^n − 1 > 1. For all c ∈ ℕ, if c divides 2^n − 1 then c = 1 or c = 2^n − 1.
+    mun:prime p := 2^n − 1, from H2, 1
 
-4.  n > 1
+3.  n > 1
     contradiction
     suppose not n > 1                                                 (S1)
 
-    4.1.  n ≤ 1
+    3.1.  n ≤ 1
           inequalities, from S1
 
-    4.2.  1 ≤ n
+    3.2.  1 ≤ n
           inequalities, from H1
 
-    4.3.  n = 1
-          antisymmetry, from 4.1, 4.2
+    3.3.  n = 1
+          antisymmetry, from 3.1, 3.2
 
-    4.4.  2^1 − 1 > 1
-          substitute n = 1 (line 4.3) into line 3
+    3.4.  2^1 − 1 > 1
+          substitute n = 1 (line 3.3) into line 2
 
-    4.5.  not 2^1 − 1 > 1
-          arithmetic, contradicting 4.4
+    3.5.  not 2^1 − 1 > 1
+          arithmetic, contradicting 3.4
 
-5.  For all d ∈ ℕ, if d divides n then d = 1 or d = n.
+4.  For all d ∈ ℕ, if d divides n then d = 1 or d = n.
     proof
     let d ∈ ℕ                                                         (K1)
     assume d divides n                                                (K2)
 
-    5.1.  d = 1 or d ≠ 1
+    4.1.  d = 1 or d ≠ 1
           mun:excluded-middle P := d = 1
 
-    5.2.  d = 1 or d = n
-          cases, from 5.1
+    4.2.  d = 1 or d = n
+          cases, from 4.1
 
           case
           assume d = 1                                                (C1)
 
-          5.2.1.  d = 1 or d = n
+          4.2.1.  d = 1 or d = n
                   mun:or-left, from C1
 
           case
           assume d ≠ 1                                                (C2)
 
-          5.2.2.  d = n or d ≠ n
+          4.2.2.  d = n or d ≠ n
                   mun:excluded-middle P := d = n
 
-          5.2.3.  d = 1 or d = n
-                  cases, from 5.2.2
+          4.2.3.  d = 1 or d = n
+                  cases, from 4.2.2
 
                   case
                   assume d = n                                        (C3)
 
-                  5.2.3.1.  d = 1 or d = n
+                  4.2.3.1.  d = 1 or d = n
                             mun:or-right, from C3
 
                   case
                   assume d ≠ n                                        (C4)
 
-                  5.2.3.2.  e ∈ ℤ. n = d·e.
+                  4.2.3.2.  e ∈ ℤ. n = d·e.
                             obtain e: mun:divides, from K2
 
-                  5.2.3.3.  0 < e
+                  4.2.3.3.  0 < e
                             contradiction
                             suppose not 0 < e                         (S2)
 
-                            5.2.3.3.1.  e ≤ 0
+                            4.2.3.3.1.  e ≤ 0
                                         inequalities, from S2
 
-                            5.2.3.3.2.  d·e ≤ d·0
-                                        mun:multiply-le x := e, y := 0, c := d, from 5.2.3.3.1
+                            4.2.3.3.2.  d·e ≤ d·0
+                                        mun:multiply-le x := e, y := 0, c := d, from 4.2.3.3.1
                                         requires d > 0: inequalities, from K1
 
-                            5.2.3.3.3.  n ≤ d·0
-                                        substitute n = d·e (line 5.2.3.2) into line 5.2.3.3.2
+                            4.2.3.3.3.  n ≤ d·0
+                                        substitute n = d·e (line 4.2.3.2) into line 4.2.3.3.2
 
-                            5.2.3.3.4.  d·0 = 0
+                            4.2.3.3.4.  d·0 = 0
                                         algebra
 
-                            5.2.3.3.5.  n ≤ 0
-                                        substitute d·0 = 0 (line 5.2.3.3.4) into line 5.2.3.3.3
+                            4.2.3.3.5.  n ≤ 0
+                                        substitute d·0 = 0 (line 4.2.3.3.4) into line 4.2.3.3.3
 
-                            5.2.3.3.6.  not n ≤ 0
-                                        inequalities, from H1, contradicting 5.2.3.3.5
+                            4.2.3.3.6.  not n ≤ 0
+                                        inequalities, from H1, contradicting 4.2.3.3.5
 
-                  5.2.3.4.  e ∈ ℕ
-                            mun:pos-int-nat m := e, from 5.2.3.3
+                  4.2.3.4.  e ∈ ℕ
+                            mun:pos-int-nat m := e, from 4.2.3.3
 
-                  5.2.3.5.  e ≠ 1
+                  4.2.3.5.  e ≠ 1
                             contradiction
                             suppose e = 1                             (S3)
 
-                            5.2.3.5.1.  n = d·1
-                                        substitute e = 1 (S3) into line 5.2.3.2
+                            4.2.3.5.1.  n = d·1
+                                        substitute e = 1 (S3) into line 4.2.3.2
 
-                            5.2.3.5.2.  d = n
-                                        algebra, from 5.2.3.5.1, contradicting C4
+                            4.2.3.5.2.  d = n
+                                        algebra, from 4.2.3.5.1, contradicting C4
 
-                  5.2.3.6.  1 + 1 ≤ e
+                  4.2.3.6.  1 + 1 ≤ e
                             mun:integer-step m := 1, n := e
-                            requires 1 < e: inequalities, from 5.2.3.4, 5.2.3.5
+                            requires 1 < e: inequalities, from 4.2.3.4, 4.2.3.5
 
-                  5.2.3.7.  1 + 1 ≤ d
+                  4.2.3.7.  1 + 1 ≤ d
                             mun:integer-step m := 1, n := d
                             requires 1 < d: inequalities, from C2, K1
 
-                  5.2.3.8.  q ∈ ℕ. 2^(d·e) − 1 = (2^d − 1)·q. q ≥ e.
-                            obtain q: thm:power-multiple-quotient d := d, m := e, from 5.2.3.4
+                  4.2.3.8.  q ∈ ℕ. 2^(d·e) − 1 = (2^d − 1)·q. q ≥ e.
+                            obtain q: thm:power-multiple-quotient d := d, m := e, from 4.2.3.4
 
-                  5.2.3.9.  2^n − 1 = 2^(d·e) − 1
-                            substitute n = d·e (line 5.2.3.2)
+                  4.2.3.9.  2^n − 1 = 2^(d·e) − 1
+                            substitute n = d·e (line 4.2.3.2)
 
-                  5.2.3.10. 2^n − 1 = (2^d − 1)·q
+                  4.2.3.10. 2^n − 1 = (2^d − 1)·q
                             calculation
-                              2^n − 1 = 2^(d·e) − 1         5.2.3.9
-                                      = (2^d − 1)·q         5.2.3.8
+                              2^n − 1 = 2^(d·e) − 1         4.2.3.9
+                                      = (2^d − 1)·q         4.2.3.8
 
-                  5.2.3.11. 2^d − 1 divides 2^n − 1
-                            mun:divides d := 2^d − 1, n := 2^n − 1, from 5.2.3.10
-                            requires 2^d − 1 ∈ ℤ: membership
-                            requires 2^n − 1 ∈ ℤ: membership
+                  4.2.3.11. 2^d − 1 divides 2^n − 1
+                            mun:divides d := 2^d − 1, n := 2^n − 1, from 4.2.3.10
 
-                  5.2.3.12. 2^d ≥ d + 1
+                  4.2.3.12. 2^d ≥ d + 1
                             thm:two-power-bound
 
-                  5.2.3.13. 2^d − 1 ≥ d
+                  4.2.3.13. 2^d − 1 ≥ d
                             inequalities
-                              2^d ≥ d + 1            5.2.3.12
+                              2^d ≥ d + 1            4.2.3.12
                               2^d − 1 ≥ d            adding −1
-                            requires 2^d ∈ ℝ: mun:power-real a := 2, m := d
 
-                  5.2.3.14. 1 + 1 ≤ 2^d − 1
-                            transitivity, from 5.2.3.7, 5.2.3.13
-                            requires 2^d ∈ ℝ: mun:power-real a := 2, m := d
+                  4.2.3.14. 1 + 1 ≤ 2^d − 1
+                            transitivity, from 4.2.3.7, 4.2.3.13
 
-                  5.2.3.15. 2^d − 1 ≥ 2
+                  4.2.3.15. 2^d − 1 ≥ 2
                             inequalities
-                              1 + 1 ≤ 2^d − 1        5.2.3.14
+                              1 + 1 ≤ 2^d − 1        4.2.3.14
                               2 ≤ 2^d − 1            algebra
-                            requires 2^d ∈ ℝ: mun:power-real a := 2, m := d
 
-                  5.2.3.16. 2^d − 1 ∈ ℕ
+                  4.2.3.16. 2^d − 1 ∈ ℕ
                             mun:pos-int-nat m := 2^d − 1
-                            requires 2^d − 1 ∈ ℤ: membership
-                            requires 0 < 2^d − 1: inequalities, from 5.2.3.15
+                            requires 0 < 2^d − 1: inequalities, from 4.2.3.15
 
-                  5.2.3.17. if 2^d − 1 divides 2^n − 1 then 2^d − 1 = 1 or 2^d − 1 = 2^n − 1
-                            instantiate c := 2^d − 1 in line 3, from 5.2.3.16
+                  4.2.3.17. if 2^d − 1 divides 2^n − 1 then 2^d − 1 = 1 or 2^d − 1 = 2^n − 1
+                            instantiate c := 2^d − 1 in line 2, from 4.2.3.16
 
-                  5.2.3.18. 2^d − 1 = 1 or 2^d − 1 = 2^n − 1
-                            mun:modus-ponens, from 5.2.3.11, 5.2.3.17
+                  4.2.3.18. 2^d − 1 = 1 or 2^d − 1 = 2^n − 1
+                            mun:modus-ponens, from 4.2.3.11, 4.2.3.17
 
-                  5.2.3.19. d = 1 or d = n
-                            cases, from 5.2.3.18
+                  4.2.3.19. d = 1 or d = n
+                            cases, from 4.2.3.18
 
                             case
                             assume 2^d − 1 = 1                        (C5)
 
-                            5.2.3.19.1.  2^d − 1 > 1
-                                         inequalities, from 5.2.3.15
-                                         requires 2^d ∈ ℝ: mun:power-real a := 2, m := d
+                            4.2.3.19.1.  2^d − 1 > 1
+                                         inequalities, from 4.2.3.15
 
-                            5.2.3.19.2.  not 2^d − 1 = 1
+                            4.2.3.19.2.  not 2^d − 1 = 1
                                          inequalities, contradicting C5
-                                           2^d − 1 > 1        5.2.3.19.1
+                                           2^d − 1 > 1        4.2.3.19.1
                                            2^d − 1 ≠ 1        weakening
-                                         requires 2^d ∈ ℝ: mun:power-real a := 2, m := d
 
                             case
                             assume 2^d − 1 = 2^n − 1                  (C6)
 
-                            5.2.3.19.3.  2 ≤ e
+                            4.2.3.19.3.  2 ≤ e
                                          inequalities
-                                           1 + 1 ≤ e          5.2.3.6
+                                           1 + 1 ≤ e          4.2.3.6
                                            2 ≤ e              algebra
 
-                            5.2.3.19.4.  e ≤ q
-                                         inequalities, from 5.2.3.8
+                            4.2.3.19.4.  e ≤ q
+                                         inequalities, from 4.2.3.8
 
-                            5.2.3.19.5.  2 ≤ q
-                                         transitivity, from 5.2.3.19.3, 5.2.3.19.4
+                            4.2.3.19.5.  2 ≤ q
+                                         transitivity, from 4.2.3.19.3, 4.2.3.19.4
 
-                            5.2.3.19.6.  (2^d − 1)·2 ≤ (2^d − 1)·q
-                                         mun:multiply-le x := 2, y := q, c := 2^d − 1, from 5.2.3.19.5
-                                         requires 2^d − 1 ∈ ℝ: from 5.2.3.16
-                                         requires 2^d − 1 > 0: inequalities, from 5.2.3.15
+                            4.2.3.19.6.  (2^d − 1)·2 ≤ (2^d − 1)·q
+                                         mun:multiply-le x := 2, y := q, c := 2^d − 1, from 4.2.3.19.5
+                                         requires 2^d − 1 > 0: inequalities, from 4.2.3.15
 
-                            5.2.3.19.7.  2^d − 1 = (2^d − 1)·q
+                            4.2.3.19.7.  2^d − 1 = (2^d − 1)·q
                                          calculation
                                            2^d − 1 = 2^n − 1          C6
-                                                   = (2^d − 1)·q      5.2.3.10
+                                                   = (2^d − 1)·q      4.2.3.10
 
-                            5.2.3.19.8.  0 < 2^d − 1
-                                         inequalities, from 5.2.3.15
-                                         requires 2^d ∈ ℝ: mun:power-real a := 2, m := d
+                            4.2.3.19.8.  0 < 2^d − 1
+                                         inequalities, from 4.2.3.15
 
-                            5.2.3.19.9.  2^d − 1 < (2^d − 1)·2
+                            4.2.3.19.9.  2^d − 1 < (2^d − 1)·2
                                          inequalities
-                                           0 < 2^d − 1                    5.2.3.19.8
+                                           0 < 2^d − 1                    4.2.3.19.8
                                            2^d − 1 < (2^d − 1)·2          adding 2^d − 1
-                                         requires 2^d ∈ ℝ: mun:power-real a := 2, m := d
 
-                            5.2.3.19.10. 2^d − 1 < (2^d − 1)·q
-                                         transitivity, from 5.2.3.19.9, 5.2.3.19.6
-                                         requires 2^d ∈ ℝ: mun:power-real a := 2, m := d
+                            4.2.3.19.10. 2^d − 1 < (2^d − 1)·q
+                                         transitivity, from 4.2.3.19.9, 4.2.3.19.6
 
-                            5.2.3.19.11. not 2^d − 1 = (2^d − 1)·q
-                                         inequalities, contradicting 5.2.3.19.7
-                                           2^d − 1 < (2^d − 1)·q          5.2.3.19.10
+                            4.2.3.19.11. not 2^d − 1 = (2^d − 1)·q
+                                         inequalities, contradicting 4.2.3.19.7
+                                           2^d − 1 < (2^d − 1)·q          4.2.3.19.10
                                            2^d − 1 ≠ (2^d − 1)·q          weakening
-                                         requires 2^d ∈ ℝ: mun:power-real a := 2, m := d
 
-6.  n is prime
-    mun:prime p := n, from 4, 5
+5.  n is prime
+    mun:prime p := n, from 3, 4

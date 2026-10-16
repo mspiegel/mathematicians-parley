@@ -8,5 +8,5 @@ $[ stdlib/definitions.mm $]
 ${
   $d A m $.
   tests.elaborator.a-requires-line-read-at-a-member.a-requires-line-instantiating $p |- ( ( A e. NN /\ A. m e. NN 0 < ( 2 ^ m ) ) -> 0 < ( 1 / ( 2 ^ A ) ) ) $=
-    ( cn wcel cc0 c2 cv cexp co clt wbr wral wa cr c1 cdiv cn0 2re a1i simpl id syl nnnn0 jca reexpcl simpr wi wceq oveq2d breq2d rspcv mpd recgt0 ) ACDZEFBGZHIZJKZBCLZMZFAHIZNDZEUTJKZMEOUTPIJKUSVAVBUSFNDZAQDZMVAUSVCVDVCUSRSUSUNVDUSUNUNUNURTZUNUAZUBZAUCUBUDFAUEUBUSURVBUNURUFUSUNURVBUGVGUQVBBACUOAUHZUPUTEJVHUOAFHVHUAUIUJUKUBULUDUTUMUB $.
+    ( cn wcel cc0 c2 cv cexp co clt wbr wral wa cr c1 cdiv 2re a1i cn0 simpl id syl nnnn0 reexpcld simpr wi wceq oveq2d breq2d rspcv mpd jca recgt0 ) ACDZEFBGZHIZJKZBCLZMZFAHIZNDZEUTJKZMEOUTPIJKUSVAVBUSFAFNDUSQRUSUNASDUSUNUNUNURTZUNUAZUBZAUCUBUDUSURVBUNURUEUSUNURVBUFVEUQVBBACUOAUGZUPUTEJVFUOAFHVFUAUHUIUJUBUKULUTUMUB $.
 $}

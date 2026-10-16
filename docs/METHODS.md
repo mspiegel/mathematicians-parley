@@ -238,9 +238,10 @@ written as rows, `|x| = x`, then `x = |x|` by `symmetry`, then `x ≤ |x|` by
 
 Every atom must be a real number. This is a hypothesis of the method exactly as
 `q ≠ 0` is a hypothesis of a division. Where the atom is a numeral, a letter,
-or built from those by +, −, ·, a power to a numeral and /, the page says it
-once, where the letters are introduced (`READERS.md`), and the step writes
-nothing; any other atom, a function's value or a sum, is discharged by a
+or built from those by +, −, ·, a power to a numeral or to a letter in ℕ or
+ℕ₀, and /, the page says it once, where the letters are introduced
+(`READERS.md`), and the step writes nothing; any other atom, a function's
+value or a sum, is discharged by a
 cited line or written as a requires line. A cited line is read as
 `membership` reads it, so an equation the step cites, `a(0) = 0`, says
 `a(0)` is real.
@@ -821,7 +822,7 @@ system because its parts are. The method states as a step's claim what `algebra`
 `inequalities` already work out for every atom they touch, and it exists so
 that a dull fact of this kind is one line rather than a climb up the term one
 library item at a time. A term built from numerals and letters by +, −, ·, a
-power to a numeral and / needs no line at all, since the page says it once
+power to a numeral or to a letter in ℕ or ℕ₀, and / needs no line at all, since the page says it once
 (`SYNTAX.md`); the method is for a term with a defined name, a function's
 value, a sum, a remainder or a binomial coefficient in it.
 

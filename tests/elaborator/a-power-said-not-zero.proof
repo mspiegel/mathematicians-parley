@@ -1,5 +1,3 @@
-import mundane theorem stdlib/numbers/power-real
-
 theorem a-power-said-not-zero
   note        A quotient's divisor not being zero is the step's to write, a power to a letter among them.
   let n ∈ ℕ    (H1)
@@ -13,5 +11,4 @@ theorem a-power-said-not-zero
       1/2^n < ε              H4
       −1/2^n > −ε            multiplying by −1
       1 − 1/2^n > 1 − ε      adding 1
-    requires 2^n ∈ ℝ: mun:power-real a := 2, m := n
     requires 2^n ≠ 0: weakening, from H3

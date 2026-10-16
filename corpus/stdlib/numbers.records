@@ -244,9 +244,10 @@ mundane theorem power-real
   then        a^m ∈ ℝ
   metamath    reexpcl
   target      reexpcl
-  note        A power whose exponent is not a numeral is an atom to `algebra`,
-              so it has to be known real in its own right rather than through
-              its base.
+  note        A power whose exponent is not a numeral is an atom to `algebra`.
+              Where the exponent is a letter introduced in ℕ or ℕ₀ the page
+              says the power is real once; for any other exponent, 2^(m + 1),
+              it is cited for that.
 
 mundane theorem power-nat0
   let a ∈ ℕ₀                                                          (H1)

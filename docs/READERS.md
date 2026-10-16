@@ -166,9 +166,10 @@ and of nothing else:
 - **a numeral**, `3 ∈ ℤ` or `10 − 1 ∈ ℕ`, which the page shows whole;
 - **a letter**, in the set its introducing line names and every number system
   containing that one, ℕ ⊆ ℕ₀ ⊆ ℤ ⊆ ℚ ⊆ ℝ ⊆ ℂ;
-- **a term built from those** by +, −, ·, a power with a numeral exponent,
-  and /, in the smallest number system closed under what builds it: a·x + b·y
-  is an integer when a, b, x and y are.
+- **a term built from those** by +, −, ·, a power whose exponent is a
+  numeral or a letter introduced in ℕ or ℕ₀, and /, in the smallest number
+  system closed under what builds it: a·x + b·y is an integer when a, b, x
+  and y are, and so is 2^j when j ∈ ℕ₀, a product of j copies of 2.
 
 This is the move a sort makes (below): the line that says it is in view in
 the scope it opens, and the reader is no more asked to supply something the
@@ -181,8 +182,8 @@ on one step, and those lines buried the ones that can fail.
 What a quotient demands is still written: its divisor's `≠ 0`, which can fail,
 unless the divisor is a numeral. So is every membership the three kinds do
 not reach: a defined name whose naming line says no kind of number, a
-function's value, a sum, |x|, n!, a power with a
-letter exponent, and any term a library item builds. These rest on a lemma or
+function's value, a sum, |x|, n!, a power whose exponent is any other
+term, 2^(j + 1) or 2^k with k ∈ ℤ, and any term a library item builds. These rest on a lemma or
 a line a reader may want to see, and a requires line points to it.
 
 What a written membership says beyond the membership is not carried this way.

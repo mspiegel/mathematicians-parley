@@ -505,8 +505,9 @@ of
   where a is 1 and k ∈ ℕ₀ where a is 0, as a sum's index is, with every
   number system containing that one. What else the range says, k ≥ a and
   k ≤ b, is cited as before;
-- a term built from those by +, −, ·, unary −, a power to a numeral, and /,
-  in each number system closed under what builds it (the table of closure
+- a term built from those by +, −, ·, unary −, a power whose exponent is a
+  numeral or a letter introduced in ℕ or ℕ₀, and /, in each number system
+  closed under what builds it (the table of closure
   lemmas in `src/rules.rs`): a·x + b·y ∈ ℤ where a, b, x and y are integers.
   A quotient's divisor not being zero is the step's to write or cite, unless
   the divisor is a numeral other than zero, or a product, a quotient or a
@@ -524,8 +525,8 @@ the membership. A citation made only for one of these memberships is a line
 doing no work, in a step's citation and in a requires line's reason alike,
 and the checker reports both; the elaborator reports a method step's. Everything else a step needs to be
 a number is written as before: a defined name, a function's value, a sum, a
-power to a letter, |x|, n!, a remainder, C(n, k), and anything a library
-item builds.
+power whose exponent is any other term, 2^(j + 1) or 2^k with k ∈ ℤ, |x|,
+n!, a remainder, C(n, k), and anything a library item builds.
 
 **A function's type and a point of its domain say the value is in the
 codomain.** `let a : {1, …, n} → ℝ (H2)` and `let k ∈ {1, …, n} (K4)`, cited

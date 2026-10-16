@@ -1847,8 +1847,8 @@ impl<'a> Elaborator<'a> {
     /// `said ∈ system` as the page says it once (`READERS.md`, membership said
     /// once), or a decline: a numeral; a letter in the number system its
     /// introducing line names, carried up `WITHIN`; or a term built from those
-    /// by +, −, ·, negation, a power to a numeral, and a quotient whose
-    /// divisor's `≠ 0` the step writes. A letter's membership is sealed as
+    /// by +, −, ·, negation, a power to a numeral or to a letter in ℕ or ℕ₀,
+    /// and a quotient whose divisor's `≠ 0` the step writes. A letter's membership is sealed as
     /// `membership@<letter>`, which a step rests on without naming it, as it
     /// does a sort; nothing but a membership in a number system is ever proved
     /// from it, since only this walk reads it.
@@ -1942,8 +1942,8 @@ impl<'a> Elaborator<'a> {
     }
 
     /// The parts of `said` where it is built by +, −, ·, negation, a power to
-    /// a numeral or a quotient, the shapes `introduced_membership` walks;
-    /// None for any other term.
+    /// a numeral or to a letter in ℕ or ℕ₀, or a quotient, the shapes
+    /// `introduced_membership` walks; None for any other term.
     fn built_once(&self, said: &str) -> Option<Vec<String>> {
         let node = self.to_term(said);
         if node.variable().is_some() {
@@ -1959,6 +1959,7 @@ impl<'a> Elaborator<'a> {
                     "cexp" if right.split_whitespace().all(rules::numeric) => {
                         Some(vec![left])
                     }
+                    "cexp" if self.whole_letter(&right) => Some(vec![left]),
                     _ => None,
                 }
             }
@@ -1976,6 +1977,20 @@ impl<'a> Elaborator<'a> {
         }
         self.built_once(said)
             .is_some_and(|parts| parts.iter().all(|p| self.said_once(p)))
+    }
+
+    /// Whether `said` is a letter introduced in ℕ or ℕ₀, or in a range from
+    /// 0 or 1: an exponent that makes a power a product of copies of its
+    /// base, said once as the checker's `once::whole_exponent` says it.
+    fn whole_letter(&self, said: &str) -> bool {
+        let Some((_, set)) = self.introduced_in(said) else {
+            return false;
+        };
+        let system = match self.range_system(&set) {
+            Some((system, _)) => system.to_string(),
+            None => set,
+        };
+        matches!(system.as_str(), "cn" | "cn0")
     }
 
     /// The letter whose kernel term is `said`, and the number system the

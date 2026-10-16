@@ -279,17 +279,6 @@ fn cases() -> Vec<Case> {
             "          algebra\n          requires d(k) ∈ ℝ: from H2, K\n",
             "from H2, K cites K and uses nothing it says, for d(k) ∈ ℝ",
         ),
-        // A power to a letter is no membership said once, though 10 and k
-        // are: the step writes 10^k ∈ ℝ where it combines it, and an atom
-        // whose membership is neither said once nor on the page is reported.
-        case(
-            "leave out the membership of a power to a letter the method combines",
-            "proofs/wiedijk/divisibility-by-three/divisibility-by-three",
-            "proofs/wiedijk/divisibility-by-three.proof",
-            "          requires d(k) ∈ ℝ: from H2\n          requires 10^k ∈ ℝ: mun:power-real a := 10, m := k\n",
-            "          requires d(k) ∈ ℝ: from H2\n",
-            "step 1.4 combines 10^k, and nothing it writes or cites says it is a number",
-        ),
         // A target naming a lemma the library as built does not hold, as
         // one added to corpus/proved/ before a whole build has written it,
         // is said where the item is cited, and the build goes on.

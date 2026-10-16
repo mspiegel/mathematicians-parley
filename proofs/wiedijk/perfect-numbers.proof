@@ -45,7 +45,6 @@ theorem euclid-perfect
 
     4.1.  2^p − 1 divides 2^(p − 1)·2
           mun:divides-multiple e := 2^p − 1, a := 2^(p − 1), x := 2, from S
-          requires 2^p − 1 ∈ ℤ: membership, from H1
           requires p − 1 ∈ ℕ₀: mun:nat-minus-one n := p
           requires 2^(p − 1) ∈ ℕ: mun:power-nat a := 2, m := p − 1
 
@@ -54,39 +53,31 @@ theorem euclid-perfect
 
     4.3.  2^p − 1 divides 2^p − 1
           mun:divides-self n := 2^p − 1
-          requires 2^p − 1 ∈ ℤ: membership, from H1
 
     4.4.  2^p − 1 divides 2^p − (2^p − 1)
           mun:divides-difference d := 2^p − 1, a := 2^p, b := 2^p − 1, from 4.2, 4.3
-          requires 2^p − 1 ∈ ℤ: membership, from H1
-          requires 2^p ∈ ℕ: mun:power-nat a := 2, m := p
 
     4.5.  2^p − (2^p − 1) = 1
           algebra
-          requires 2^p ∈ ℝ: membership, from H1
 
     4.6.  2^p − 1 divides 1
           substitute 2^p − (2^p − 1) = 1 (line 4.5) into line 4.4
 
     4.7.  2^p − 1 = 1
           mun:divides-one d := 2^p − 1, from 4.6
-          requires 2^p − 1 ∈ ℤ: membership, from H1
           requires 2^p − 1 ∈ ℕ: mun:prime-nat p := 2^p − 1, from H2
 
     4.8.  2^p − 1 > 1
           mun:prime p := 2^p − 1, from H2
-          requires 2^p − 1 ∈ ℤ: membership, from H1
           requires 2^p − 1 ∈ ℕ: mun:prime-nat p := 2^p − 1, from H2
 
     4.9.  2^p − 1 ≠ 1
           inequalities, contradicting 4.7
             2^p − 1 > 1      4.8
             2^p − 1 ≠ 1      weakening
-          requires 2^p ∈ ℝ: membership, from H1
 
 5.  gcd(2^p − 1, 2^(p − 1)) = 1
     mun:prime-coprime p := 2^p − 1, a := 2^(p − 1), from H2, 4
-    requires 2^p − 1 ∈ ℤ: membership, from H1
     requires 2^p − 1 ∈ ℕ: mun:prime-nat p := 2^p − 1, from H2
     requires p − 1 ∈ ℕ₀: mun:nat-minus-one n := p
     requires 2^(p − 1) ∈ ℕ: mun:power-nat a := 2, m := p − 1
@@ -95,7 +86,6 @@ theorem euclid-perfect
     mun:gcd-commutes a := 2^(p − 1), b := 2^p − 1
     requires p − 1 ∈ ℕ₀: mun:nat-minus-one n := p
     requires 2^(p − 1) ∈ ℕ: mun:power-nat a := 2, m := p − 1
-    requires 2^p − 1 ∈ ℤ: membership, from H1
 
 7.  gcd(2^(p − 1), 2^p − 1) = 1
     calculation
@@ -106,17 +96,14 @@ theorem euclid-perfect
     thm:sigma-multiplicative m := 2^(p − 1), n := 2^p − 1, from 7
     requires p − 1 ∈ ℕ₀: mun:nat-minus-one n := p
     requires 2^(p − 1) ∈ ℕ: mun:power-nat a := 2, m := p − 1
-    requires 2^p − 1 ∈ ℤ: membership, from H1
     requires 2^p − 1 ∈ ℕ: mun:prime-nat p := 2^p − 1, from H2
 
 9.  σ(2^p − 1) = (2^p − 1) + 1
     thm:sigma-prime p := 2^p − 1, from H2
-    requires 2^p − 1 ∈ ℤ: membership, from H1
     requires 2^p − 1 ∈ ℕ: mun:prime-nat p := 2^p − 1, from H2
 
 10. (2^p − 1) + 1 = 2^p
     algebra
-    requires 2^p ∈ ℝ: membership, from H1
 
 11. σ(2^p − 1) = 2^p
     calculation
@@ -138,7 +125,6 @@ theorem euclid-perfect
 
 15. (1 − 2^p)/(1 − 2) = 2^p − 1
     algebra
-    requires 2^p ∈ ℝ: membership, from H1
     requires 1 − 2 ≠ 0: arithmetic
 
 16. σ(2^(p − 1)) = 2^p − 1
@@ -156,7 +142,6 @@ theorem euclid-perfect
 
 19. (2^p − 1)·2^p = 2·(2^(p − 1)·(2^p − 1))
     algebra, from 3
-    requires 2^p ∈ ℝ: membership, from H1
     requires p − 1 ∈ ℕ₀: mun:nat-minus-one n := p
     requires 2^(p − 1) ∈ ℝ: membership
 
@@ -171,6 +156,5 @@ theorem euclid-perfect
     def:perfect n := 2^(p − 1)·(2^p − 1), from 20
     requires p − 1 ∈ ℕ₀: mun:nat-minus-one n := p
     requires 2^(p − 1) ∈ ℕ: mun:power-nat a := 2, m := p − 1
-    requires 2^p − 1 ∈ ℤ: membership, from H1
     requires 2^p − 1 ∈ ℕ: mun:prime-nat p := 2^p − 1, from H2
     requires 2^(p − 1)·(2^p − 1) ∈ ℕ: mun:nat-closure

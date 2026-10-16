@@ -111,7 +111,6 @@ let q(k) = C(m, k − 1)·x^((m + 1) − k)·y^k, for k ∈ {0, …, m + 1}     
           requires C(m, k) ∈ ℕ₀: mun:binomial-nat0
           requires m − k ∈ ℕ₀: mun:range-difference a := 0, n := m, from J
           requires x^(m − k) ∈ ℝ: mun:power-real, from H1
-          requires y^k ∈ ℝ: mun:power-real
 
     10.7. C(m, k)·(x^(m − k)·x)·y^k = C(m, k)·x^((m + 1) − k)·y^k
           substitute x^(m − k)·x = x^((m + 1) − k) (line 10.5)
@@ -203,7 +202,6 @@ let q(k) = C(m, k − 1)·x^((m + 1) − k)·y^k, for k ∈ {0, …, m + 1}     
            requires C(m, k) ∈ ℕ₀: mun:binomial-nat0
            requires m − k ∈ ℕ₀: mun:range-difference a := 0, n := m, from J
            requires x^(m − k) ∈ ℝ: mun:power-real, from H1
-           requires y^k ∈ ℝ: mun:power-real
 
     27.4.  C(m, k)·x^(m − k)·(y^k·y) = C(m, k)·x^(m − k)·y^(k + 1)
            substitute y^(k + 1) = y^k·y (line 27.2)
@@ -321,7 +319,6 @@ let q(k) = C(m, k − 1)·x^((m + 1) − k)·y^k, for k ∈ {0, …, m + 1}     
            requires C(m, k − 1) ∈ ℕ₀: mun:binomial-nat0 k := k − 1
            requires (m + 1) − k ∈ ℕ₀: mun:range-difference a := 0, n := m + 1, from J
            requires x^((m + 1) − k) ∈ ℝ: mun:power-real, from H1
-           requires y^k ∈ ℝ: mun:power-real
 
     44.5.  (C(m, k) + C(m, k − 1))·x^((m + 1) − k)·y^k = C(m + 1, k)·x^((m + 1) − k)·y^k
            substitute C(m, k) + C(m, k − 1) = C(m + 1, k) (line 44.3)

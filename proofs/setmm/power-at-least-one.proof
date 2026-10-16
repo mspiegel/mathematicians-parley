@@ -35,25 +35,20 @@ theorem power-at-least-one
     2.3.  a^(m + 1) = a^m·a
           mun:exponent-step
 
-    2.4.  a^m ∈ ℝ
-          mun:power-real
-
-    2.5.  a^(m + 1) ∈ ℝ
+    2.4.  a^(m + 1) ∈ ℝ
           mun:power-real m := m + 1
 
-    2.6.  a·1 ≤ a·a^m
-          mun:multiply-le x := 1, y := a^m, c := a, from IH, 1, 2.4
+    2.5.  a·1 ≤ a·a^m
+          mun:multiply-le x := 1, y := a^m, c := a, from IH, 1
 
-    2.7.  a ≤ a^m·a
+    2.6.  a ≤ a^m·a
           inequalities
-            a·1 ≤ a·a^m        2.6
+            a·1 ≤ a·a^m        2.5
             a ≤ a^m·a          algebra
-          requires a^m ∈ ℝ: from 2.4
 
-    2.8.  1 ≤ a^(m + 1)
-          transitivity, from H3, 2.7, 2.3
-          requires a^m ∈ ℝ: from 2.4
-          requires a^(m + 1) ∈ ℝ: from 2.5
+    2.7.  1 ≤ a^(m + 1)
+          transitivity, from H3, 2.6, 2.3
+          requires a^(m + 1) ∈ ℝ: from 2.4
 
 3.  1 ≤ a^n
     instantiate m := n in line 2

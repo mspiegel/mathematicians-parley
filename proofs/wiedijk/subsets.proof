@@ -9,8 +9,6 @@ import mundane theorem    stdlib/functions/added-elements-are-new
 import mundane theorem    stdlib/functions/added-elements-stay-inside
 import mundane theorem    stdlib/functions/image-of-injection
 import mundane theorem    stdlib/numbers/exponent-step
-import mundane theorem    stdlib/numbers/power-nat0
-import mundane theorem    stdlib/numbers/power-real
 import mundane axiom      stdlib/reasoning/excluded-middle
 import mundane theorem    stdlib/sets/difference-absent
 import mundane theorem    stdlib/sets/difference-of-union
@@ -291,7 +289,6 @@ theorem subsets-count
           1.2.5.  |T| = 2^k
                   mun:card-bijection X := U, Y := T, m := 2^k,
                     from 1.2.3, 1.2.4
-                  requires 2^k ∈ ℕ₀: mun:power-nat0 a := 2, m := k
 
           1.2.6.  U ∩ T = ∅
                   thm:powerset-split-disjoint, from D1, D2, 1.2.1
@@ -302,14 +299,12 @@ theorem subsets-count
           1.2.8.  |U ∪ T| = 2^k + 2^k
                   mun:card-disjoint-union X := U, Y := T, m := 2^k,
                     n := 2^k, from 1.2.3, 1.2.5, 1.2.6
-                  requires 2^k ∈ ℕ₀: mun:power-nat0 a := 2, m := k
 
           1.2.9.  |𝒫X| = 2^k + 2^k
                   substitute 𝒫X = U ∪ T (line 1.2.7) into line 1.2.8
 
           1.2.10. 2^k + 2^k = 2^k·2
                   algebra
-                  requires 2^k ∈ ℝ: mun:power-real a := 2, m := k
 
           1.2.11. 2^(k + 1) = 2^k·2
                   mun:exponent-step a := 2, m := k

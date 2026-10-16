@@ -48,11 +48,8 @@ theorem a-power-plus-one
   let k ∈ ℕ₀                                                          (H2)
   then a^k + 1 ∈ ℤ
 
-1.  a^k ∈ ℤ
-    membership
-
-2.  a^k + 1 ∈ ℤ
-    mun:int-closure a := a^k, b := 1, from 1
+1.  a^k + 1 ∈ ℤ
+    mun:int-closure a := a^k, b := 1
 
 theorem a-gcd-divides
   then gcd(4, 6) divides 4
