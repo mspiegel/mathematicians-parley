@@ -4164,5 +4164,265 @@ fn cases() -> Vec<Case> {
             ],
             "carries no `reads` line",
         ),
+        // An order of two roots asks each root be real, and the message names
+        // that membership, not the one in ℂ an equation would ask.
+        case(
+            "an order whose atoms no line says are real",
+            vec![edit(
+                "tests/elaborator/an-atom-not-said-real.proof",
+                Some("    requires √A ∈ ℝ: from 1\n    requires √B ∈ ℝ: from 2\n".to_string()),
+                String::new(),
+            )],
+            "nothing says √B ∈ ℝ, which this step needs",
+        ),
+        // A chain's congruence of numerals is worked out like any closed
+        // fact: 10 is not 2 more than a multiple of 3.
+        case(
+            "a congruence link of numerals that does not hold",
+            vec![edit(
+                "proofs/wiedijk/divisibility-by-three.proof",
+                Some("                       ≡ 1 (mod 3)        arithmetic".to_string()),
+                "                       ≡ 2 (mod 3)        arithmetic".to_string(),
+            )],
+            "names arithmetic for 10 ≡ 2 (mod 3), which is false",
+        ),
+        // Two equations each multiplied by a term is two steps: the proof
+        // multiplies each law of sines in a step of its own and joins them by
+        // a calculation, and one `algebra` step citing both is refused.
+        case(
+            "one algebra step multiplying two cited equations",
+            vec![edit(
+                "proofs/wiedijk/pythagoras.proof",
+                Some("    calculation\n      |PQ|·|P′R′|·sin(∠PQR) = |PR|·|P′R′|·sin(∠QRP)       9\n                            = |P′Q′|·|PR|·sin(∠PQR)       10".to_string()),
+                "    algebra, from 5, 8\n    requires |PQ| ∈ ℝ: mun:distance-real P := P, Q := Q\n    requires |PR| ∈ ℝ: mun:distance-real P := P, Q := R\n    requires |P′Q′| ∈ ℝ: mun:distance-real P := P′, Q := Q′\n    requires |P′R′| ∈ ℝ: mun:distance-real P := P′, Q := R′\n    requires ∠PQR ∈ ℝ: mun:triangle-angle-real, from H7\n    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR\n    requires ∠QRP ∈ ℝ: mun:triangle-angle-real, from H7\n    requires sin(∠QRP) ∈ ℝ: mun:sin-real a := ∠QRP".to_string(),
+            )],
+            "at most one equation multiplied by a term",
+        ),
+        // A formula that does not lex is a defect with a position, the line
+        // it is written on, and not a route declining: taken for one, the
+        // step would be assumed.
+        case(
+            "a requires line that does not lex",
+            vec![edit(
+                "proofs/wiedijk/geometric-series.proof",
+                Some("          requires 1 − a ≠ 0: algebra, from H2\n          requires a^(k + 1) ∈ ℝ".to_string()),
+                "          requires 1 − a ¿ 0: algebra, from H2\n          requires a^(k + 1) ∈ ℝ".to_string(),
+            )],
+            "the requires line of step 1.10: no token at '¿ 0' in '1 − a ¿ 0'",
+        ),
+        // Dropping the + 0 asks that what is left be a number, and q(x) ∈ ℂ is
+        // a function's value, which the step says in a requires line: without
+        // it nothing does.
+        case(
+            "drop a 0 from a term no line says is a number",
+            vec![edit(
+                "proofs/wiedijk/factor.proof",
+                Some("          substitute p(a) = 0 (H3) into line 2.1\n          requires q(x) ∈ ℂ: mun:polynomial-value p := q, from 1\n".to_string()),
+                "          substitute p(a) = 0 (H3) into line 2.1\n".to_string(),
+            )],
+            "drops an identity element from what the substitution makes, and nothing says (x − a) · q(x) is a number",
+        ),
+        // Each atom a method combines is real, and the step says so where
+        // the atom is not a letter, a numeral or built from them by the
+        // operations a membership said once covers: 2^p is a power to a
+        // letter.
+        case(
+            "leave out the membership of an atom the method combines",
+            vec![edit(
+                "proofs/wiedijk/perfect-numbers.proof",
+                Some("            2^p − 1 ≠ 1      weakening\n          requires 2^p ∈ ℝ: membership, from H1\n".to_string()),
+                "            2^p − 1 ≠ 1      weakening\n".to_string(),
+            )],
+            "nothing says 2^p ∈ ℝ, which this step needs",
+        ),
+        // A divisor nothing says is not zero is named as the page writes it.
+        case(
+            "divide by a term no line says is not zero",
+            vec![edit(
+                "proofs/wiedijk/mean-value.proof",
+                Some("    algebra, from 29\n    requires b − a ≠ 0: weakening, from 1\n".to_string()),
+                "    algebra, from 29\n".to_string(),
+            )],
+            "nothing says b − a ≠ 0, which this step needs to divide by it",
+        ),
+        // A requires line is read as a step citing what it cites. Citing
+        // nothing, it leaves `inequalities` no order to show sin(∠PQR) ≠ 0
+        // from: the order is step 12's, and only step 13 cites it.
+        case(
+            "a requires line its method cannot prove",
+            vec![edit(
+                "proofs/wiedijk/pythagoras.proof",
+                Some("    requires sin(∠PQR) ≠ 0: from 13\n".to_string()),
+                "    requires sin(∠PQR) ≠ 0: inequalities\n".to_string(),
+            )],
+            "the requires line sin(∠PQR) ≠ 0 of step 14, read as a step citing what it cites: sin(∠PQR) ≠ 0 does not follow from what step 14 cites",
+        ),
+        // `membership` builds from what the line cites: f(a) is real because
+        // a is in f's domain [a, b], which line 2 says and no introducing
+        // line says once. H3 says a < b, nothing of where a lies.
+        case(
+            "membership from a line that says nothing of the atom",
+            vec![edit(
+                "proofs/wiedijk/mean-value.proof",
+                Some("    membership, from D1, D2\n    requires f(x) ∈ ℝ: from H4\n    requires b − a ≠ 0: weakening, from 1\n    requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H1, H2, H4, 2, 3\n".to_string()),
+                "    membership, from D1, D2\n    requires f(x) ∈ ℝ: from H4\n    requires b − a ≠ 0: weakening, from 1\n    requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H1, H2, H3, H4, 3\n".to_string(),
+            )],
+            "the requires line (f(a) − f(b))/(b − a) ∈ ℝ of step 9, read as a step citing what it cites: (f(a) − f(b))/(b − a) ∈ ℝ is not built",
+        ),
+        // g(x) is real because of what g is, and a step that uses what a
+        // define says cites it (`SYNTAX.md`). Without the define g stays a
+        // name, and nothing the step cites says g(x) is real.
+        case(
+            "membership of a defined function's value without citing its define",
+            vec![edit(
+                "proofs/wiedijk/mean-value.proof",
+                Some("    membership, from D1\n".to_string()),
+                "    membership\n".to_string(),
+            )],
+            "is not built from what step 7 cites",
+        ),
+        // Line 4 says s(x) ∈ ℕ₀ of every x ∈ ℚ and is read at the step's
+        // member; line 2 says something else of every pair of naturals, and
+        // nothing read at a member of anything gives s(x) ∈ ℕ₀.
+        case(
+            "a requires line citing a line said of every member that does not say the fact",
+            vec![edit(
+                "proofs/wiedijk/rationals-countable.proof",
+                Some("requires s(x) ∈ ℕ₀: from 4".to_string()),
+                "requires s(x) ∈ ℕ₀: from 2".to_string(),
+            )],
+            "from 2 does not reach s(x) ∈ ℕ₀",
+        ),
+        // A sum's terms are said real at every point by step 2, of k ∈ ℕ, and
+        // from 0 the first of them divides by T(0), which step 2 does not
+        // speak of.
+        case(
+            "membership of a sum whose first term divides by zero",
+            vec![edit(
+                "proofs/wiedijk/triangular-reciprocals.proof",
+                Some("                  requires Σ(k = 1 to n) 1/T(k) ∈ ℝ: mun:sum-real a := 1, b := n, from 2\n                  requires n + 1 ≠ 0: weakening, from 6.2.5\n\n          6.2.9.".to_string()),
+                "                  requires Σ(k = 0 to n) 1/T(k) ∈ ℝ: mun:sum-real a := 0, b := n, from 2\n                  requires n + 1 ≠ 0: weakening, from 6.2.5\n\n          6.2.9.".to_string(),
+            )],
+            "the requires line of step 6.2.8 cites 2, and mun:sum-real asks for nothing it says",
+        ),
+        // A function's type gives a value only at a point of its domain, and a
+        // requires line rests only on what it names, so a line citing the
+        // type alone is reported.
+        case(
+            "a requires line citing a function's type for a value without the point's domain",
+            vec![edit(
+                "proofs/wiedijk/cauchy-schwarz.proof",
+                Some("requires a(k) ∈ ℝ: from H2, K4".to_string()),
+                "requires a(k) ∈ ℝ: from H2".to_string(),
+            )],
+            "from H2 does not reach a(k) ∈ ℝ",
+        ),
+        // A part of A is asked of M's argument, and the line named must say it:
+        // A1 says X ⊆ Y, which is not that Y is a part of A.
+        case(
+            "a requires line for a part naming a line that does not say it",
+            vec![edit(
+                "proofs/wiedijk/schroeder-bernstein.proof",
+                Some("          requires Y ⊆ A: from K4\n".to_string()),
+                "          requires Y ⊆ A: from A1\n".to_string(),
+            )],
+            "from A1 does not reach Y ⊆ A",
+        ),
+        // f(x) ∈ ℝ is H4's to say, and a step that needs it names H4: a
+        // function's type is cited for its values, outside a sum's terms.
+        case(
+            "a function's value from a type the step does not name",
+            vec![edit(
+                "proofs/wiedijk/mean-value.proof",
+                Some("    requires f(x) ∈ ℝ: from H4\n".to_string()),
+                String::new(),
+            )],
+            "is not built from what step 9 cites",
+        ),
+        // 2·√a is a number once √a is, so it is √a whose membership is owed.
+        case(
+            "leave out the line saying a root is real from a bound on its multiple",
+            vec![edit(
+                "tests/elaborator/textbook-exercise-shapes-two.proof",
+                Some("    inequalities, from H3, 1\n".to_string()),
+                "    inequalities, from H3\n".to_string(),
+            )],
+            "nothing says √a ∈ ℝ, which this step needs",
+        ),
+        // What an obtain claims is the "there is" it obtains from: d ∈ ℕ is
+        // not what the supposition gives, and the line is the page's claim,
+        // never the existence's body in its place.
+        case(
+            "an obtain claiming more than the line it obtains from",
+            vec![edit(
+                "proofs/wiedijk/sqrt2-irrational.proof",
+                Some("    3.1.  d ∈ ℤ. d > 1. d divides p. d divides q.".to_string()),
+                "    3.1.  d ∈ ℕ. d > 1. d divides p. d divides q.".to_string(),
+            )],
+            "step 3.1 claims d ∈ ℕ, and what it obtains says d ∈ ℤ",
+        ),
+        // Dropping the 1 a substitution makes asks that what is left be a
+        // number, and b(0) is one only by the line saying so.
+        case(
+            "drop an identity element a substitution makes from a value no line says is a number",
+            vec![edit(
+                "tests/elaborator/an-identity-a-substitution-makes.proof",
+                Some("    substitute 1^k = 1 (H3)\n    requires b(0) ∈ ℝ: from H1\n".to_string()),
+                "    substitute 1^k = 1 (H3)\n".to_string(),
+            )],
+            "step 1 drops an identity element from what the substitution makes, and nothing says b(0) is a number; a requires line says it",
+        ),
+        // A divisor that nothing says is not zero is named as the page
+        // writes it.
+        case(
+            "leave out that a power to a letter is not zero",
+            vec![edit(
+                "tests/elaborator/a-power-said-not-zero.proof",
+                Some("    requires 2^n ≠ 0: weakening, from H3\n".to_string()),
+                String::new(),
+            )],
+            "nothing says 2^n ≠ 0, which this step needs to divide by it",
+        ),
+        // A number the step needs is named in ℝ or ℂ, either of which says
+        // it: a root's record gives √A ∈ ℝ and never √A ∈ ℂ.
+        case(
+            "leave out that a root an order cites through an equation is real",
+            vec![edit(
+                "tests/elaborator/a-root-said-real.proof",
+                Some("    requires √A ∈ ℝ: mun:sqrt x := A, from H2\n".to_string()),
+                String::new(),
+            )],
+            "nothing says √A ∈ ℝ, which this step needs",
+        ),
+        // A quotient is a number once its divisor is not zero, and that is
+        // what is named where it is missing.
+        case(
+            "leave out that a quotient's divisor is not zero",
+            vec![edit(
+                "tests/elaborator/a-quotient-divisor-said-not-zero.proof",
+                Some("    requires 2·d ≠ 0: from 1\n".to_string()),
+                String::new(),
+            )],
+            "nothing says d ≠ 0, which this step needs to divide by it",
+        ),
+        case(
+            "a line number after into without the word line, in an induction",
+            vec![edit(
+                "tests/elaborator/induction-under-a-condition.proof",
+                Some("(line 1.2.7) into line 1.2.6".to_string()),
+                "(line 1.2.7) into 1.2.6".to_string(),
+            )],
+            "a line number after `into` carries the word \"line\": `into line 1.2.6`",
+        ),
+        // An item whose import is taken away is reported where it is cited.
+        case(
+            "cite an item whose import is taken away",
+            vec![edit(
+                "proofs/wiedijk/harmonic.proof",
+                Some("import mundane theorem    stdlib/sums/sum-real\n".to_string()),
+                String::new(),
+            )],
+            "mun:sum-real is neither imported nor a theorem of this file",
+        ),
     ]
 }
