@@ -898,6 +898,23 @@ impl Cited<'_> {
                 ),
             );
         }
+        // A manipulation names the one line it manipulates (`GRAMMAR.md`,
+        // requires lines): `weakening, from 2.1`.
+        if let Ok(by) = &req.by {
+            if let (Head::Manipulation(made), Some(_)) = (&by.head, &by.unproduced) {
+                report.say(
+                    &thm.path,
+                    no,
+                    format!(
+                        "{what} names {made}, which manipulates one line, and cites {}: `{made}, from L`",
+                        match by.from.len() {
+                            0 => "none".to_string(),
+                            n => format!("{n}"),
+                        }
+                    ),
+                );
+            }
+        }
         // A requires line cites an item like any other citation, so its
         // pointer resolves and its prefix matches the item's kind.
         if let Some((cited, kind)) = req.cited_item() {

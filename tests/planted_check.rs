@@ -4152,6 +4152,16 @@ fn cases() -> Vec<Case> {
             ],
             "carries no `reads` line",
         ),
+        // A requires line's manipulation is of the one line it names.
+        case(
+            "a requires line naming a manipulation and no line",
+            vec![edit(
+                "tests/elaborator/a-power-said-not-zero.proof",
+                Some("    requires 2^n ≠ 0: weakening, from H3\n".to_string()),
+                "    requires 2^n ≠ 0: weakening\n".to_string(),
+            )],
+            "names weakening, which manipulates one line, and cites none: `weakening, from L`",
+        ),
         // y below and above the midpoint at once cannot be, so the block
         // reaches its contradiction from H4 and H5 alone and never uses S:
         // what it shows is that the hypotheses contradict each other.

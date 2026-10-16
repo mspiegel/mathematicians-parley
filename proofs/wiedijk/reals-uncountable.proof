@@ -711,7 +711,6 @@ let U(k) = (N(k) + 1)/10^k, for k ∈ ℕ₀                                 (D6
            16.26.9. ⌊10^n·c⌋ = N(n) + 1
                     mun:le-antisymmetric x := ⌊10^n·c⌋, y := N(n) + 1
                     requires ⌊10^n·c⌋ ∈ ℝ: membership, from 16.16
-                    requires N(n) ∈ ℝ: membership, from 16.7
                     requires N(n) + 1 ∈ ℝ: membership, from 16.7
                     requires ⌊10^n·c⌋ ≤ N(n) + 1: from 16.20
                     requires N(n) + 1 ≤ ⌊10^n·c⌋: from 16.26.8

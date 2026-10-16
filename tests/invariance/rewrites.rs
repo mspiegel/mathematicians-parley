@@ -2576,7 +2576,10 @@ fn renumbered(
                 changed += 1;
             }
         }
-        for (_, at) in &other.just.chain {
+        // A chain line cites a line at its right end, and so does the first
+        // row of an inequalities step; a later row names a manipulation,
+        // whose `adding 1` is no line.
+        for (_, at) in other.just.chain.iter().chain(other.just.rows.first()) {
             let new = renumbered_link(&lines[at - 1], map);
             if new != lines[at - 1] {
                 lines[at - 1] = new;
@@ -2743,6 +2746,8 @@ fn dull_step_moved(
             || step.just.target.is_some()
             || !step.just.values.is_empty()
             || !step.just.chain.is_empty()
+            // A requires line has one reason and no rows under it.
+            || !step.just.rows.is_empty()
             || step.just.contradicting.is_some()
             || step.just.bad_ref.is_some()
             || !step.parts.is_empty()
@@ -2769,7 +2774,13 @@ fn dull_step_moved(
             otherwise |= other.just.refs.contains(&no)
                 || other.just.contradicting.as_deref() == Some(no.as_str());
             for (k, r) in other.requires.iter().enumerate() {
+                // A manipulation, `weakening, from 5`, names the one line
+                // it manipulates, and with it gone names none.
+                let manipulates =
+                    r.by.as_ref()
+                        .is_ok_and(|by| matches!(by.head, Head::Manipulation(_)));
                 if r.lines().contains(&no) {
+                    otherwise |= manipulates;
                     citers.push((s, k));
                 }
             }
@@ -2885,7 +2896,9 @@ fn dull_step_moved(
                     changed += 1;
                 }
             }
-            for (_, at) in &other.just.chain {
+            // As `renumbered` does: a chain line's cited line, and the first
+            // row's.
+            for (_, at) in other.just.chain.iter().chain(other.just.rows.first()) {
                 let new = renumbered_link(&lines[at - 1], &map);
                 if new != lines[at - 1] {
                     lines[at - 1] = new;
@@ -3510,7 +3523,9 @@ fn lemma_of(
         for o in &s.openers {
             reasons.insert(o.line - 1);
         }
-        for (_, at) in &s.just.chain {
+        // A chain line and the first row of an inequalities step each cite a
+        // line at their right end.
+        for (_, at) in s.just.chain.iter().chain(s.just.rows.first()) {
             links.insert(at - 1);
         }
     }
@@ -4419,6 +4434,9 @@ pub fn steps_as_requires(ctx: &Context, path: &str, text: &str) -> Rewritten {
                     && s.just.contradicting.is_none()
                     && asks(&s.just)
                     && s.just.chain.is_empty()
+                    // A requires line goes after a step's rows, and a row
+                    // cites a line and never a requires line.
+                    && s.just.rows.is_empty()
                     && s.openers.is_empty()
                     && !s.just.head.takes_block()
                     && lone(lines, s.just.line - 1)

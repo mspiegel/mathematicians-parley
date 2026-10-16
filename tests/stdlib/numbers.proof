@@ -28,6 +28,8 @@ import mundane theorem    stdlib/numbers/square-le as numbers-square-le
 import mundane theorem    stdlib/numbers/product-nonneg as numbers-product-nonneg
 import mundane theorem    stdlib/numbers/quotient-nonneg as numbers-quotient-nonneg
 import mundane theorem    stdlib/numbers/le-cases as numbers-le-cases
+import mundane theorem    stdlib/numbers/power-integer as numbers-power-integer
+import mundane theorem    stdlib/numbers/power-nat0 as numbers-power-nat0
 import mundane theorem    stdlib/numbers/quotient-positive as numbers-quotient-positive
 import mundane theorem    stdlib/numbers/less-scaled as numbers-less-scaled
 import mundane theorem    stdlib/numbers/abs-nonneg as numbers-abs-nonneg
@@ -331,3 +333,21 @@ theorem integer-step
 
 1.  m + 1 ≤ n
     mun:numbers-integer-step, from H3
+
+theorem power-integer
+  note        A power whose exponent is a letter in ℕ₀ is said once; one
+              whose exponent is m + 1 cites the record.
+  let a ∈ ℤ                                                           (H1)
+  let m ∈ ℕ₀                                                          (H2)
+  then a^(m + 1) ∈ ℤ
+
+1.  a^(m + 1) ∈ ℤ
+    mun:numbers-power-integer m := m + 1
+
+theorem power-nat0
+  let a ∈ ℕ₀                                                          (H1)
+  let m ∈ ℕ₀                                                          (H2)
+  then a^(m + 1) ∈ ℕ₀
+
+1.  a^(m + 1) ∈ ℕ₀
+    mun:numbers-power-nat0 m := m + 1

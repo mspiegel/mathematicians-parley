@@ -100,7 +100,6 @@ theorem constant-multiple-limit
                     |c|·|a(n) − L| + |a(n) − L| ≥ |c|·|a(n) − L|    adding |c|·|a(n) − L|
                   requires |c| ∈ ℝ: from 1
                   requires |a(n) − L| ∈ ℝ: from 6.6.2
-                  requires |c|·|a(n) − L| ∈ ℝ: membership, from 1, 6.6.2
 
           6.6.12. |c·a(n) − c·L| < ε
                   transitivity, from 6.6.10, 6.6.11, 6.6.7, 6.6.5, 6.6.6

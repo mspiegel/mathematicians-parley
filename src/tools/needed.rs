@@ -132,6 +132,18 @@ fn pair_taken_out(line: &str, name: &str) -> Option<String> {
 /// Every requires line of the proof files `files`, each as the file without
 /// it.
 fn every_line(source: &dyn Source, files: &[String]) -> Result<Vec<Taken>, String> {
+    // A requires line is one the reader reads as one, by the file and line
+    // it is on: a note's words "a requires line may …" are no such line.
+    let read = crate::corpus::load::corpus(source).map_err(|p| p.to_string())?;
+    let requires_at: std::collections::BTreeSet<(String, usize)> = read
+        .theorems
+        .iter()
+        .flat_map(|t| {
+            t.steps
+                .iter()
+                .flat_map(|s| s.requires.iter().map(|r| (t.path.clone(), r.line)))
+        })
+        .collect();
     let mut out = Vec::new();
     for path in files {
         let text = source.read_text(path).map_err(|e| format!("{path}: {e}"))?;
@@ -167,6 +179,9 @@ fn every_line(source: &dyn Source, files: &[String]) -> Result<Vec<Taken>, Strin
             let Some(said) = line.trim_start().strip_prefix("requires ") else {
                 continue;
             };
+            if !requires_at.contains(&(path.clone(), i + 1)) {
+                continue;
+            }
             // A requires line may go on in a deeper line that starts `from`.
             let indent = line.len() - line.trim_start().len();
             let mut end = i + 1;

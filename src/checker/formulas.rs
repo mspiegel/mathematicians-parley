@@ -1459,11 +1459,10 @@ fn algebra_holds(
         return false;
     };
     let labels = FloatLabels::new(IndexMap::new());
-    let cited: Vec<Term> = read
-        .lines
-        .iter()
-        .map(|n| term_of_node(n, targets))
-        .collect();
+    // The cited lines fact by fact, so that a line saying several things,
+    // in sentences or joined by "and", asks only of the ones combined.
+    let facts: Vec<Node> = read.lines.iter().flat_map(conjuncts).collect();
+    let cited: Vec<Term> = facts.iter().map(|n| term_of_node(n, targets)).collect();
     let claimed = term_of_node(&read.claimed, targets);
     // Sums are read as linear where some term of the step is linear in
     // something, as the build reads them (`field::says_something_linear`).
@@ -1483,7 +1482,8 @@ fn algebra_holds(
         return true;
     }
     if let algebra::Verdict::Holds { combined } = &verdict {
-        if let Some(said) = algebra_unsaid(at, &read, combined, known, targets) {
+        if let Some(said) = algebra_unsaid(at, &read, &facts, combined, known, targets)
+        {
             report.say(&thm.path, at.line, at.said(said));
         }
     }
@@ -1492,13 +1492,14 @@ fn algebra_holds(
 
 /// What an `algebra` step that holds leaves unsaid of its hypotheses
 /// (`METHODS.md`, algebra): every atom of its claim and of the cited lines
-/// it combines, `combined` by their place among `read.lines`, is a number,
-/// said once or by a line the step names, and every divisor they write
-/// other than a numeral is not zero by such a line. None where both are
-/// said.
+/// it combines, `combined` by their place among `facts`, the cited lines'
+/// facts one by one, is a number, said once or by a line the step names,
+/// and every divisor they write other than a numeral is not zero by such a
+/// line. None where both are said.
 fn algebra_unsaid(
     at: &ClosureClaim,
     read: &ClosureRead,
+    facts: &[Node],
     combined: &[usize],
     known: &Known,
     targets: &Targets,
@@ -1509,9 +1510,9 @@ fn algebra_unsaid(
     relations.extend(
         combined
             .iter()
-            .filter_map(|&i| read.lines.get(i))
-            .flat_map(conjuncts)
-            .filter(algebra_relation),
+            .filter_map(|&i| facts.get(i))
+            .filter(|n| algebra_relation(n))
+            .cloned(),
     );
     for relation in &relations {
         for side in sides_of(relation) {
@@ -2325,8 +2326,12 @@ pub fn check_requires_manipulations(
             let Head::Manipulation(made) = &by.head else {
                 continue;
             };
+            // One that does not name its one line is `check_reason`'s.
+            let [cited] = req.lines() else {
+                continue;
+            };
+            let cited = cited.clone();
             let reason = made.as_row(&thm.path, req.line);
-            let cited = req.lines().first().cloned().unwrap_or_default();
             let said = line_relations(step, &cited, known);
             let fact = known
                 .whole_as_written(&req.fact)
