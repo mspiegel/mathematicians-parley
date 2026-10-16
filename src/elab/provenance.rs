@@ -417,12 +417,22 @@ impl<'a> Elaborator<'a> {
                 let held = self.rpn(&c.children()[0]);
                 c.label() == Some("wcel") && self.one_atom(&held, atom)
             });
+            // A cited equation with the atom on one side puts it beside a
+            // term the checker found a number (`METHODS.md`, membership,
+            // Facts in): citing a(0) = 0 says a(0) is one.
             said = said
                 || cited.iter().any(|p| {
                     let node = self.to_term(p);
-                    node.label() == Some("wcel") && {
-                        let held = self.rpn(&node.children()[0]);
-                        self.one_atom(&held, atom)
+                    match node.label() {
+                        Some("wcel") => {
+                            let held = self.rpn(&node.children()[0]);
+                            self.one_atom(&held, atom)
+                        }
+                        Some("wceq") => node.children()[..2].iter().any(|side| {
+                            let side = self.rpn(side);
+                            self.one_atom(&side, atom)
+                        }),
+                        _ => false,
                     }
                 });
             !said

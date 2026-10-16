@@ -77,7 +77,6 @@ theorem abs-difference-of-abs
           requires |A| ∈ ℝ: mun:abs-real x := A
           requires |B| ∈ ℝ: mun:abs-real x := B
           requires |A − B| ∈ ℝ: mun:abs-real x := A − B
-          requires ||A| − |B|| ∈ ℝ: mun:abs-real x := |A| − |B|, from 7
 
     case
     assume |A| − |B| < 0                                              (C2)
@@ -98,4 +97,3 @@ theorem abs-difference-of-abs
           requires |A| ∈ ℝ: mun:abs-real x := A
           requires |B| ∈ ℝ: mun:abs-real x := B
           requires |A − B| ∈ ℝ: mun:abs-real x := A − B
-          requires ||A| − |B|| ∈ ℝ: mun:abs-real x := |A| − |B|, from 7

@@ -17,7 +17,6 @@ theorem a-bound-on-the-size-of-a-floor
 
 3.  |⌊A⌋| ≤ 1
     transitivity, from H2, H3
-    requires ⌊A⌋ ∈ ℝ: from 2
     requires |⌊A⌋| ∈ ℝ: mun:abs-real x := ⌊A⌋, from 2
 
 theorem a-rounding-error-at-most-a-half
@@ -39,4 +38,3 @@ theorem a-rounding-error-at-most-a-half
 4.  |⌊A + 1/2⌋ − A| ≤ 1/2
     transitivity, from 3, H3
     requires ⌊A + 1/2⌋ ∈ ℝ: membership, from 1
-    requires |⌊A + 1/2⌋ − A| ∈ ℝ: mun:abs-real x := ⌊A + 1/2⌋ − A, from 2

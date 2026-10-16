@@ -47,7 +47,6 @@ theorem power-at-least-one
 
     2.7.  1 ≤ a^(m + 1)
           transitivity, from H3, 2.6, 2.3
-          requires a^(m + 1) ∈ ℝ: from 2.4
 
 3.  1 ≤ a^n
     instantiate m := n in line 2

@@ -439,7 +439,6 @@ fn a_line_the_step_cites_may_be_restated_for_a_line_below() {
           transitivity, from 3.5, 3.1
           requires N(k) ∈ ℝ: membership, from 3.4
           requires d(k + 1) ∈ ℝ: membership, from H1, 3.2
-          requires N(k + 1) ∈ ℝ: membership, from H1, 3.1, 3.2, 3.4
 "
                 .to_string(),
             ),
@@ -653,8 +652,8 @@ fn cases() -> Vec<Case> {
             "a membership of a typed value citing nothing",
             vec![edit(
                 "proofs/wiedijk/reals-uncountable.proof",
-                Some("                    requires d(n) ∈ ℝ: membership, from 16.23\n                    requires N(n) ∈ ℝ: membership, from 16.7\n                    requires ⌊10^n·c⌋ ∈ ℝ: membership, from 16.16\n".to_string()),
-                "                    requires d(n) ∈ ℝ: membership\n                    requires N(n) ∈ ℝ: membership, from 16.7\n                    requires ⌊10^n·c⌋ ∈ ℝ: membership, from 16.16\n".to_string(),
+                Some("                    requires d(n) ∈ ℝ: membership, from 16.23\n\n           16.26.4.".to_string()),
+                "                    requires d(n) ∈ ℝ: membership\n\n           16.26.4.".to_string(),
             )],
             "d(n) ∈ ℝ is not built from what step 16.26.3 cites",
         ),
@@ -4454,11 +4453,11 @@ fn cases() -> Vec<Case> {
         case(
             "leave out the membership of an atom the method combines",
             vec![edit(
-                "proofs/setmm/bernoulli-inequality.proof",
-                Some("          transitivity, from 1.11, 1.3\n          requires A^(k + 1) ∈ ℝ: mun:power-real a := A, m := k + 1\n".to_string()),
-                "          transitivity, from 1.11, 1.3\n".to_string(),
+                "proofs/setmm/reverse-triangle-inequality.proof",
+                Some("          transitivity, from 9.1, 1\n          requires |A| ∈ ℝ: mun:abs-real x := A\n".to_string()),
+                "          transitivity, from 9.1, 1\n".to_string(),
             )],
-            "nothing says A^(k + 1) ∈ ℝ, which this step needs",
+            "nothing says ||A| − |B|| ∈ ℝ, which this step needs",
         ),
         // A divisor nothing says is not zero is named as the page writes it.
         case(
@@ -4525,10 +4524,10 @@ fn cases() -> Vec<Case> {
             "membership of a sum whose first term divides by zero",
             vec![edit(
                 "proofs/wiedijk/triangular-reciprocals.proof",
-                Some("                  requires Σ(k = 1 to n) 1/T(k) ∈ ℝ: mun:sum-real a := 1, b := n, from 2\n                  requires n + 1 ≠ 0: weakening, from 6.2.5\n\n          6.2.9.".to_string()),
-                "                  requires Σ(k = 0 to n) 1/T(k) ∈ ℝ: mun:sum-real a := 0, b := n, from 2\n                  requires n + 1 ≠ 0: weakening, from 6.2.5\n\n          6.2.9.".to_string(),
+                Some("                  requires Σ(k = 1 to n) 1/T(k) ∈ ℝ: mun:sum-real a := 1, b := n, from 2\n\n    6.3.".to_string()),
+                "                  requires Σ(k = 0 to n) 1/T(k) ∈ ℝ: mun:sum-real a := 0, b := n, from 2\n\n    6.3.".to_string(),
             )],
-            "the requires line of step 6.2.8 cites 2, and mun:sum-real asks for nothing it says",
+            "the requires line of step 6.2.12 cites 2, and mun:sum-real asks for nothing it says",
         ),
         // A function's type gives a value only at a point of its domain, and a
         // requires line rests only on what it names, so a line citing the
@@ -4537,10 +4536,10 @@ fn cases() -> Vec<Case> {
             "a requires line citing a function's type for a value without the point's domain",
             vec![edit(
                 "proofs/wiedijk/cauchy-schwarz.proof",
-                Some("requires a(k) ∈ ℝ: from H2, K4".to_string()),
-                "requires a(k) ∈ ℝ: from H2".to_string(),
+                Some("requires b(k) ∈ ℝ: from H3, K4".to_string()),
+                "requires b(k) ∈ ℝ: from H3".to_string(),
             )],
-            "from H2 does not reach a(k) ∈ ℝ",
+            "from H3 does not reach b(k) ∈ ℝ",
         ),
         // A part of A is asked of M's argument, and the line named must say it:
         // A1 says X ⊆ Y, which is not that Y is a part of A.

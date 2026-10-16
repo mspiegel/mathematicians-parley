@@ -106,8 +106,6 @@ theorem constant-multiple-limit
                   requires |c| ∈ ℝ: from 1
                   requires |a(n) − L| ∈ ℝ: from 6.6.2
                   requires |c| + 1 ≠ 0: from 5
-                  requires c·a(n) − c·L ∈ ℝ: membership, from H1
-                  requires |c·a(n) − c·L| ∈ ℝ: mun:abs-real x := c·a(n) − c·L
 
     6.7.  There exists N ∈ ℕ such that |c·a(n) − c·L| < ε for all n ≥ N.
           exhibit, from 6.6

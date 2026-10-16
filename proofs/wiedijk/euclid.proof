@@ -205,7 +205,6 @@ theorem euclid
           inequalities
             b(0) = N           2
             b(0) ≤ N           weakening
-          requires b(0) ∈ ℝ: mun:nat0-real, from 5.1
 
     5.3.  b(0) ≤ N or b(0) = 0
           mun:or-left, from 5.2

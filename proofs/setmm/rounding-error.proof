@@ -1,5 +1,4 @@
 import mundane definition stdlib/numbers/abs
-import mundane theorem    stdlib/numbers/abs-real
 import mundane theorem    stdlib/numbers/floor-above
 import mundane theorem    stdlib/numbers/floor-below
 import mundane theorem    stdlib/numbers/floor-integer
@@ -65,7 +64,6 @@ let e = ⌊A + 1/2⌋ − A, a real number                                  (D1)
 
     10.2. |e| ≤ 1/2
           transitivity, from 10.1, 5
-          requires |e| ∈ ℝ: mun:abs-real x := e, from D1
 
     case
     assume e < 0                                                      (C2)
@@ -75,7 +73,6 @@ let e = ⌊A + 1/2⌋ − A, a real number                                  (D1)
 
     10.4. |e| ≤ 1/2
           transitivity, from 10.3, 8
-          requires |e| ∈ ℝ: mun:abs-real x := e, from D1
 
 11. |⌊A + 1/2⌋ − A| ≤ 1/2
     substitute e = ⌊A + 1/2⌋ − A (D1) into line 10

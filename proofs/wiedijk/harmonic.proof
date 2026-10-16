@@ -31,7 +31,6 @@ theorem harmonic-block
 
 5.  2^j ≤ 2^(j + 1)
     transitivity, from 4, 1
-    requires 2^(j + 1) ∈ ℝ: membership, from H1
 
 6.  For all k ∈ ℕ, 1/k ∈ ℝ.
     proof
@@ -91,7 +90,6 @@ theorem harmonic-block
 
 13. 2^j + 1 ≤ 2^(j + 1)
     transitivity, from 12, 1
-    requires 2^(j + 1) ∈ ℝ: membership, from H1
 
 14. Σ(k = 2^j + 1 to 2^(j + 1)) 1/2^(j + 1) = (2^(j + 1) − (2^j + 1) + 1)·(1/2^(j + 1))
     mun:sum-constant a := 2^j + 1, b := 2^(j + 1), c := 1/2^(j + 1)
@@ -117,7 +115,6 @@ theorem harmonic-block
     requires 2^(j + 1) ∈ ℤ: membership, from H1
     requires for all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ: from 10
     requires Σ(k = 2^j + 1 to 2^(j + 1)) 1/k ∈ ℝ: mun:sum-real a := 2^j + 1, b := 2^(j + 1)
-    requires Σ(k = 2^j + 1 to 2^(j + 1)) 1/2^(j + 1) ∈ ℝ: membership, from H1
 
 19. Σ(k = 1 to 2^j) 1/k + 1/2 ≤ Σ(k = 1 to 2^j) 1/k + Σ(k = 2^j + 1 to 2^(j + 1)) 1/k
     inequalities
@@ -130,7 +127,6 @@ theorem harmonic-block
 
 20. Σ(k = 1 to 2^(j + 1)) 1/k ≥ Σ(k = 1 to 2^j) 1/k + 1/2
     transitivity, from 19, 7
-    requires Σ(k = 1 to 2^(j + 1)) 1/k ∈ ℝ: membership, from 6
     requires Σ(k = 1 to 2^j) 1/k ∈ ℝ: membership, from 6
     requires 2^(j + 1) ∈ ℤ: membership, from H1
     requires for all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ: from 10
@@ -175,7 +171,6 @@ theorem harmonic-unbounded
 
     2.6.  Σ(k = 1 to 2^0) 1/k ≥ 0/2
           transitivity, from 2.4, 2.5
-          requires Σ(k = 1 to 2^0) 1/k ∈ ℝ: membership, from 1
 
     step
     let m ∈ ℕ₀                                                        (K)

@@ -24,6 +24,7 @@
 use std::sync::Arc;
 
 use crate::checker::{check_cuts, Cut};
+use crate::corpus::proof::cited_items;
 use crate::corpus::skeleton::step_line;
 use crate::corpus::{item_kind, proof_files};
 use crate::elab::elaborate::Options;
@@ -47,8 +48,18 @@ fn item_end(line: &str) -> Option<usize> {
 /// pair naming a variable for itself, by its file line and its variable.
 #[derive(Clone)]
 enum Removal {
-    Lines { start: usize, end: usize },
-    Pair { line: usize, name: String },
+    Lines {
+        start: usize,
+        end: usize,
+        /// The import lines of the items only this line cites, which go
+        /// with it: a file importing an item it cites nothing by is
+        /// refused, and that would keep the line where nothing else does.
+        imports: Vec<usize>,
+    },
+    Pair {
+        line: usize,
+        name: String,
+    },
 }
 
 /// One thing taken away: where it was, what it was, what it said, the step
@@ -68,9 +79,18 @@ fn without(text: &str, removals: &[&Removal]) -> String {
         text.split('\n').map(|l| Some(l.to_string())).collect();
     for removal in removals {
         match removal {
-            Removal::Lines { start, end } => {
+            Removal::Lines {
+                start,
+                end,
+                imports,
+            } => {
                 for line in &mut lines[*start..*end] {
                     *line = None;
+                }
+                for &at in imports {
+                    if let Some(line) = lines.get_mut(at) {
+                        *line = None;
+                    }
                 }
             }
             Removal::Pair { line, name } => {
@@ -146,6 +166,20 @@ fn every_line(source: &dyn Source, files: &[String]) -> Result<Vec<Taken>, Strin
         .collect();
     let mut out = Vec::new();
     for path in files {
+        // Each item the file cites, by the lines citing it, and the line
+        // importing it, both counted from 1.
+        let cites: Vec<(String, usize)> = read
+            .theorems
+            .iter()
+            .filter(|t| &t.path == path)
+            .flat_map(cited_items)
+            .collect();
+        let imported: Vec<(String, usize)> = read
+            .scopes
+            .iter()
+            .filter(|s| &s.path == path)
+            .flat_map(|s| s.items.iter().map(|i| (i.full(), i.line)))
+            .collect();
         let text = source.read_text(path).map_err(|e| format!("{path}: {e}"))?;
         let lines: Vec<&str> = text.split('\n').collect();
         let mut theorem: Option<String> = None;
@@ -191,7 +225,22 @@ fn every_line(source: &dyn Source, files: &[String]) -> Result<Vec<Taken>, Strin
             {
                 end += 1;
             }
-            let removal = Removal::Lines { start: i, end };
+            let spans = |line: usize| line > i && line <= end;
+            let imports = imported
+                .iter()
+                .filter(|(item, _)| {
+                    let mut at =
+                        cites.iter().filter(|(c, _)| c == item).map(|(_, l)| *l);
+                    let first = at.next();
+                    first.is_some_and(spans) && at.all(spans)
+                })
+                .map(|(_, line)| line - 1)
+                .collect();
+            let removal = Removal::Lines {
+                start: i,
+                end,
+                imports,
+            };
             out.push(Taken {
                 line: i + 1,
                 said: str::trim(said).to_string(),

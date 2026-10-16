@@ -115,5 +115,3 @@ theorem product-of-sines
     requires sin(B) ∈ ℂ: mun:sin-complex a := B
     requires cos(A) ∈ ℂ: mun:cos-complex a := A
     requires cos(B) ∈ ℂ: mun:cos-complex a := B
-    requires cos(A − B) ∈ ℂ: mun:cos-complex a := A − B
-    requires cos(A + B) ∈ ℂ: mun:cos-complex a := A + B

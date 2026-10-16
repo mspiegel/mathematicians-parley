@@ -9,7 +9,6 @@ import mundane theorem    stdlib/numbers/min-real
 import mundane theorem    stdlib/numbers/lt-min
 import mundane theorem    stdlib/numbers/less-scaled
 import mundane theorem    stdlib/numbers/multiply-le
-import mundane theorem    stdlib/functions/function-value
 
 theorem square-limit
   note        Near 3, x² − 9 = (x + 3)(x − 3) has |x + 3| below 7 once x is
@@ -70,11 +69,9 @@ theorem square-limit
 
           1.4.7.  0 < |x + 3|
                   transitivity, from 1.4.3, 1.4.5
-                  requires |x + 3| ∈ ℝ: mun:abs-real x := x + 3
 
           1.4.8.  |x + 3| < 7
                   transitivity, from 1.4.5, 1.4.6
-                  requires |x + 3| ∈ ℝ: mun:abs-real x := x + 3
 
           1.4.9.  0 < |x + 3| and |x + 3| < 7
                   join 1.4.7, 1.4.8
@@ -90,7 +87,6 @@ theorem square-limit
 
           1.4.12. f(x) − 7 = (x + 3)·(x − 3)
                   algebra, from 1.4.11
-                  requires f(x) ∈ ℝ: mun:function-value
 
           1.4.13. |(x + 3)·(x − 3)| = |x + 3|·|x − 3|
                   mun:abs-product x := x + 3, y := x − 3

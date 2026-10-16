@@ -1559,7 +1559,7 @@ fn algebra_unsaid(
             if let Some(atom) = parts
                 .atoms
                 .iter()
-                .find(|a| !methods_membership::said(a, System::C, &given))
+                .find(|a| !methods_membership::atom_held(a, System::C, &given))
             {
                 return Some(format!(
                     "nothing says {} ∈ ℝ or ∈ ℂ, which this step needs",
@@ -1638,7 +1638,7 @@ fn real_unsaid(
             if let Some(atom) = parts
                 .atoms
                 .iter()
-                .find(|a| !methods_membership::said(a, System::R, &given))
+                .find(|a| !methods_membership::atom_held(a, System::R, &given))
             {
                 return Some(format!(
                     "nothing says {} ∈ ℝ, which this step needs",

@@ -212,7 +212,6 @@ let U(k) = (N(k) + 1)/10^k, for k ∈ ℕ₀                                 (D6
           transitivity, from 3.5, 3.1
           requires N(k) ∈ ℝ: membership, from 3.4
           requires d(k + 1) ∈ ℝ: membership, from H1, 3.2
-          requires N(k + 1) ∈ ℝ: membership, from H1, 3.1, 3.2, 3.4
 
     3.7.  10·N(k) + d(k + 1) + 1 ≤ 10·(N(k) + 1)
           inequalities
@@ -227,7 +226,6 @@ let U(k) = (N(k) + 1)/10^k, for k ∈ ℕ₀                                 (D6
             N(k + 1) + 1 = 10·N(k) + d(k + 1) + 1    adding 1
           requires N(k) ∈ ℝ: membership, from 3.4
           requires d(k + 1) ∈ ℝ: membership, from H1, 3.2
-          requires N(k + 1) ∈ ℝ: membership, from H1, 3.1, 3.2, 3.4
 
     3.9.  N(k + 1) + 1 ≤ 10·(N(k) + 1)
           transitivity, from 3.8, 3.7
@@ -681,8 +679,6 @@ let U(k) = (N(k) + 1)/10^k, for k ∈ ℕ₀                                 (D6
                     algebra, from 16.4, 16.26.2
                     requires N(n − 1) ∈ ℝ: membership, from 16.5
                     requires d(n) ∈ ℝ: membership, from 16.23
-                    requires N(n) ∈ ℝ: membership, from 16.7
-                    requires ⌊10^n·c⌋ ∈ ℝ: membership, from 16.16
 
            16.26.4. There is q ∈ ℤ with q·10 + d(n) = ⌊10^n·c⌋.
                     exhibit, from 16.5, 16.26.3
@@ -718,8 +714,6 @@ let U(k) = (N(k) + 1)/10^k, for k ∈ ℕ₀                                 (D6
                      algebra, from 16.4, 16.26.10
                      requires N(n − 1) ∈ ℝ: membership, from 16.5
                      requires d(n) ∈ ℝ: membership, from 16.23
-                     requires N(n) ∈ ℝ: membership, from 16.7
-                     requires ⌊10^n·c⌋ ∈ ℝ: membership, from 16.16
 
            16.26.12. D(c, n) = (N(n − 1)·10 + (d(n) + 1)) mod 10
                      substitute ⌊10^n·c⌋ = N(n − 1)·10 + (d(n) + 1) (line 16.26.11) into line 16.22

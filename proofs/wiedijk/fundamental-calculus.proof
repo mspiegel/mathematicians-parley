@@ -2,7 +2,6 @@ import theorem            proofs/wiedijk/mean-value/mean-value
 import theorem            stdlib/calculus/area-function
 import theorem            stdlib/calculus/continuous-difference
 import theorem            stdlib/calculus/derivative-difference
-import mundane theorem    stdlib/calculus/derivative-real
 import mundane theorem    stdlib/calculus/integral-point
 import mundane theorem    stdlib/calculus/integral-real
 import mundane definition stdlib/calculus/interval
@@ -175,7 +174,6 @@ let H(x) = G(x) − F(x), for x ∈ [a, b]                                (D2)
     17.7. H′(x) = 0
           algebra, from 17.5
           requires f(x) ∈ ℝ: from H4, 17.6
-          requires H′(x) ∈ ℝ: mun:derivative-real f := H, from K1, 10, 15
 
 18. H(b) = H(a)
     thm:zero-derivative-ends, from H3, 14, 15, 17

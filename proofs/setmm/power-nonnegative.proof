@@ -59,7 +59,6 @@ theorem power-nonnegative
                   inequalities
                     0 = a^(m + 1)        1.7.3
                     0 ≤ a^(m + 1)        weakening
-                  requires a^(m + 1) ∈ ℝ: from 1.5
 
           case
           assume 0 < a                                                (C3)
@@ -74,7 +73,6 @@ theorem power-nonnegative
 
           1.7.7.  0 ≤ a^(m + 1)
                   transitivity, from 1.7.6, 1.4
-                  requires a^(m + 1) ∈ ℝ: from 1.5
 
 2.  0 ≤ a^n
     instantiate m := n in line 1

@@ -377,7 +377,6 @@ let K = {X ⊆ G : there is g ∈ G with X = gH}                        (D1)
 
 18. |G| = |H|·|K|
     algebra, from 16
-    requires |G| ∈ ℕ₀: mun:card-nat0, from H1
     requires |K| ∈ ℕ₀: mun:card-nat0, from 17
     requires |H| ∈ ℕ₀: mun:card-nat0, from 2
 

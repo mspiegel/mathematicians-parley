@@ -28,7 +28,6 @@ theorem square-root-positive
 
     2.4.  (√a)² = 0
           algebra, from 2.3
-          requires √a ∈ ℝ: from 1
 
     2.5.  a = 0
           algebra, from 1, 2.4

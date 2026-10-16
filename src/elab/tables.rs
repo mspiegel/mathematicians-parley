@@ -2275,7 +2275,6 @@ impl<'a> Elaborator<'a> {
         if self.equating.contains(said) {
             return Ok(None);
         }
-        let inside = |other: &str| format!(" {other} ").contains(&format!(" {said} "));
         for (fact, proof) in facts.entries() {
             // An equation the step names: a line it cites or one of its own
             // requires lines. The scope holds every line above, and an
@@ -2294,9 +2293,12 @@ impl<'a> Elaborator<'a> {
             }
             let (left, right) =
                 (self.rpn(&node.children()[0]), self.rpn(&node.children()[1]));
-            let (other, equal) = if left == said && !inside(&right) {
+            // The other side may hold the term itself, x = (√x)², and is a
+            // number by its own parts; `equating` keeps the search from
+            // coming back to the term through it.
+            let (other, equal) = if left == said {
                 (right, proof)
-            } else if right == said && !inside(&left) {
+            } else if right == said {
                 let turned = self.b.ap(
                     "eqcomd",
                     &binds! {"ph" => scope, "A" => &left, "B" => &right},

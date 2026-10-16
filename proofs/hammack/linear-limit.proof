@@ -39,7 +39,6 @@ theorem linear-limit
 
           1.2.4.  37 − ε < f(x)
                   transitivity, from 1.2.3, 1.2.1
-                  requires f(x) ∈ ℝ: mun:function-value
 
           1.2.5.  8x − 3 < 37 + ε
                   inequalities
@@ -49,7 +48,6 @@ theorem linear-limit
 
           1.2.6.  f(x) < 37 + ε
                   transitivity, from 1.2.1, 1.2.5
-                  requires f(x) ∈ ℝ: mun:function-value
 
           1.2.7.  37 − ε < f(x) and f(x) < 37 + ε
                   join 1.2.4, 1.2.6

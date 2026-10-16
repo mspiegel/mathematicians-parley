@@ -81,6 +81,21 @@ pub fn said(term: &Node, system: System, facts: &Facts) -> bool {
     within(term, system, &facts.letters, &nonzero, &stated)
 }
 
+/// Whether an atom of an `algebra` or `inequalities` step is in `system`
+/// (`METHODS.md`, membership, Facts in: the test every method's side
+/// conditions are asked by): said, or given by a cited equation that puts it
+/// beside a term in `system`, as citing a(0) = 0 says a(0) is a number.
+pub fn atom_held(term: &Node, system: System, facts: &Facts) -> bool {
+    said(term, system, facts)
+        || facts.facts.iter().any(|f| {
+            f.notation == "equality"
+                && f.text == "="
+                && matches!(f.children.as_slice(), [a, b]
+                    if (same(a, term, facts.ctx) && holds(b, system, facts))
+                        || (same(b, term, facts.ctx) && holds(a, system, facts)))
+        })
+}
+
 /// Whether a bare `from` line reads `term ∈ system` off its facts
 /// (`SYNTAX.md`): said, as a method's atoms are, or a function's value at a
 /// point of its domain by a type among them. It builds nothing from parts

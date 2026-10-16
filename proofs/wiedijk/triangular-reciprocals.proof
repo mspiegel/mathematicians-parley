@@ -137,7 +137,6 @@ theorem triangular-reciprocals
 
           6.2.8.  2 − ε < Σ(k = 1 to n) 1/T(k)
                   transitivity, from 6.2.7, 6.2.1
-                  requires Σ(k = 1 to n) 1/T(k) ∈ ℝ: mun:sum-real a := 1, b := n, from 2
                   requires n + 1 ≠ 0: weakening, from 6.2.5
 
           6.2.9.  2 − 2/(n + 1) < 2
@@ -153,7 +152,6 @@ theorem triangular-reciprocals
 
           6.2.11. Σ(k = 1 to n) 1/T(k) < 2 + ε
                   transitivity, from 6.2.1, 6.2.10
-                  requires Σ(k = 1 to n) 1/T(k) ∈ ℝ: mun:sum-real a := 1, b := n, from 2
                   requires n + 1 ≠ 0: weakening, from 6.2.5
 
           6.2.12. |Σ(k = 1 to n) 1/T(k) − 2| < ε

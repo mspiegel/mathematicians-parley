@@ -62,7 +62,6 @@ theorem size-zero-one-or-more
 
           3.7.2.  |M| = 1
                   algebra, from C4
-                  requires |M| ∈ ℝ: mun:nat-real m := |M|, from 3.3
 
           3.7.3.  |M| = 0 or |M| = 1
                   mun:or-right P := |M| = 0, Q := |M| = 1, from 3.7.2

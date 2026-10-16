@@ -139,5 +139,4 @@ let d = |C| + 1, a real number                                        (D1)
 16. |C·u| < ε
     transitivity, from 14, 13, 15
     requires |C| ∈ ℝ: from 1
-    requires |C·u| ∈ ℝ: mun:abs-real x := C·u
     requires |u| ∈ ℝ: mun:abs-real x := u

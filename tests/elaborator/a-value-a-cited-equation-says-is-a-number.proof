@@ -1,0 +1,28 @@
+theorem a-value-equated-for-algebra
+  note        f(c) is a number because the line the step cites puts it
+              beside 1, as membership reads it, so the step needs no line
+              saying f(c) ∈ ℝ.
+  let D be a set                                                      (H1)
+  let E be a set                                                      (H2)
+  let f : D → E                                                       (H3)
+  let c ∈ D                                                           (H4)
+  let x ∈ ℝ                                                           (H5)
+  assume f(c) = 1                                                     (H6)
+  then x·f(c) = x
+
+1.  x·f(c) = x
+    algebra, from H6
+
+theorem a-value-equated-for-inequalities
+  note        The same for inequalities: f(c) is a number by H6.
+  let D be a set                                                      (H1)
+  let E be a set                                                      (H2)
+  let f : D → E                                                       (H3)
+  let c ∈ D                                                           (H4)
+  let x ∈ ℝ                                                           (H5)
+  assume f(c) = 1                                                     (H6)
+  assume x = 2                                                        (H7)
+  then x + f(c) = 3
+
+1.  x + f(c) = 3
+    inequalities, from H6, H7

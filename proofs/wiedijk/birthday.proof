@@ -1,6 +1,5 @@
 import theorem            stdlib/counting/count-functions
 import theorem            stdlib/counting/count-one-to-one
-import mundane theorem    stdlib/counting/card-nat0
 import mundane theorem    stdlib/counting/range-size
 import mundane theorem    stdlib/sums/range-finite
 
@@ -42,8 +41,6 @@ theorem birthday
 
 9.  |{1, …, 23}| ≤ |{1, …, 365}|
     transitivity, from 3, 8, 4
-    requires |{1, …, 23}| ∈ ℕ₀: mun:card-nat0, from 1
-    requires |{1, …, 365}| ∈ ℕ₀: mun:card-nat0, from 2
 
 10. |T| = ∏(k ∈ {0, …, |{1, …, 23}| − 1}) (|{1, …, 365}| − k)
     thm:count-one-to-one X := {1, …, 23}, Y := {1, …, 365}, from D1, D2, 1, 2, 9

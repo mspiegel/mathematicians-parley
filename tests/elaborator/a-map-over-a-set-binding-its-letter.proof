@@ -99,7 +99,6 @@ theorem a-map-over-a-set-binding-its-letter
                   inequalities
                     c = 0         4.4.6
                     c ≤ 0         weakening
-                  requires c ∈ ℝ: from 4.1
 
           4.4.8.  not c > 0
                   inequalities, from 4.4.7, contradicting 4.1
@@ -149,7 +148,7 @@ theorem a-map-over-a-set-binding-its-letter
                   D2, from K2
 
           4.8.10. (√x − √c)·(√x + √c) = x − c
-                  algebra, from 4.1, 4.3, 4.8.1, 4.8.3
+                  algebra, from 4.3, 4.8.3
 
           4.8.11. √x + √c ≥ 0
                   inequalities, from 4.3, 4.8.3
@@ -198,7 +197,6 @@ theorem a-map-over-a-set-binding-its-letter
                   transitivity, from 4.8.21, 4.8.20
                   requires √c ∈ ℝ: from 4.3
                   requires |√x − √c| ∈ ℝ: from 4.8.7
-                  requires |x − c| ∈ ℝ: from 4.8.5
                   requires √x ∈ ℝ: from 4.8.3
 
           4.8.23. ε·√c = √c·ε

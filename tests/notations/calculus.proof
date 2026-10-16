@@ -59,7 +59,6 @@ theorem a-line-tends-to-its-value
 
           1.2.6.  3 − ε < g(x)
                   transitivity, from 1.2.5, 1.2.1
-                  requires g(x) ∈ ℝ: mun:function-value f := g
 
           1.2.7.  2·x + 1 < 3 + ε
                   inequalities
@@ -69,7 +68,6 @@ theorem a-line-tends-to-its-value
 
           1.2.8.  g(x) < 3 + ε
                   transitivity, from 1.2.1, 1.2.7
-                  requires g(x) ∈ ℝ: mun:function-value f := g
 
           1.2.9.  3 − ε < g(x) and g(x) < 3 + ε
                   join 1.2.6, 1.2.8
