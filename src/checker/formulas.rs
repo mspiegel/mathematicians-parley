@@ -11,7 +11,7 @@ use super::record::CheckedTheorem;
 use super::structure::{defined_below, introduced, letters_in_scope};
 use super::Report;
 use crate::citing::{implied_facts, link_unsaid, said_once, Library, Parts};
-use crate::corpus::proof::{chain, ChainLine};
+use crate::corpus::proof::{chain, rows, ChainLine, RowReason};
 use crate::corpus::{
     define_parts, DefineParts, FileScope, Intro, Item, Justification, Method, Record,
     RecordKind, Recursion, Requires, Source, Step, Theorem, Value, Values,
@@ -1620,10 +1620,11 @@ fn real_unsaid(
     None
 }
 
-/// A relation of `=`, `<`, `≤`, `>` or `≥` as the page writes it.
+/// A relation of `=`, `≠`, `<`, `≤`, `>` or `≥` as the page writes it.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum Rel {
     Eq,
+    Ne,
     Lt,
     Le,
     Gt,
@@ -1634,6 +1635,7 @@ impl Rel {
     fn of(node: &Node) -> Option<Rel> {
         match (node.notation.as_str(), node.text.as_str()) {
             ("equality", "=") => Some(Rel::Eq),
+            ("equality", "≠") => Some(Rel::Ne),
             ("order", "<") => Some(Rel::Lt),
             ("order", "≤") => Some(Rel::Le),
             ("order", ">") => Some(Rel::Gt),
@@ -1654,6 +1656,7 @@ impl Rel {
     fn converse(self) -> Rel {
         match self {
             Rel::Eq => Rel::Eq,
+            Rel::Ne => Rel::Ne,
             Rel::Lt => Rel::Gt,
             Rel::Le => Rel::Ge,
             Rel::Gt => Rel::Lt,
@@ -1674,8 +1677,18 @@ struct Related {
 
 impl Related {
     /// A formula that is one relation; None for any other, a conjunction of
-    /// two among them.
+    /// two among them. `a ≠ b` is read as the negation of `a = b`.
     fn of(node: &Node) -> Option<Related> {
+        if let ("logical-not", [inner]) =
+            (node.notation.as_str(), node.children.as_slice())
+        {
+            let equation = Related::of(inner).filter(|e| e.rel == Rel::Eq)?;
+            return Some(Related {
+                rel: Rel::Ne,
+                said: node.clone(),
+                ..equation
+            });
+        }
         let rel = Rel::of(node)?;
         let [left, right] = node.children.as_slice() else {
             return None;
@@ -1745,7 +1758,8 @@ fn cited_links(
         let link = scope
             .get(r)
             .and_then(|s| known.stated_as_written(s))
-            .and_then(|n| Related::of(&n));
+            .and_then(|n| Related::of(&n))
+            .filter(|l| l.rel != Rel::Ne);
         let Some(link) = link else {
             return Err(Problem::new(
                 &thm.path,
@@ -1948,10 +1962,261 @@ pub fn check_antisymmetry(
     }
 }
 
+/// Whether two terms are one number by the field's identities, as `algebra`
+/// decides an identity (`methods::algebra`): what writing a side another way
+/// keeps.
+fn one_number(a: &Node, b: &Node, known: &Known, targets: &Targets) -> bool {
+    let equation = made(known.env.g, "equality", "=", vec![a.clone(), b.clone()]);
+    let labels = FloatLabels::new(IndexMap::new());
+    matches!(
+        algebra::decide(&term_of_node(&equation, targets), &[], &labels),
+        algebra::Verdict::Holds { .. }
+    )
+}
+
+/// A term written in a row's reason, `adding 2·A` or `multiplying by 1/2`,
+/// read through the tree reader.
+fn reason_term(written: &Written, known: &Known) -> Checked<Node> {
+    written.sentence()?.read(known.env.g, &known.sorts)
+}
+
+/// Whether `row` is `above` with the manipulation `reason` names
+/// (`METHODS.md`, inequalities, Rows), each side compared as one number
+/// (`one_number`). `term` is the term the reason writes, read.
+fn row_follows(
+    above: &Related,
+    row: &Related,
+    reason: &RowReason,
+    term: Option<&Node>,
+    known: &Known,
+    targets: &Targets,
+) -> bool {
+    let g = known.env.g;
+    let sides = |rel: Rel, left: &Node, right: &Node| {
+        row_is(row, rel, left, right, known, targets)
+    };
+    match (reason, term) {
+        (RowReason::Adding(_), Some(t)) => {
+            let plus =
+                |side: &Node| made(g, "additive", "+", vec![side.clone(), t.clone()]);
+            sides(above.rel, &plus(&above.left), &plus(&above.right))
+        }
+        (RowReason::Multiplying(_), Some(c)) => {
+            let labels = FloatLabels::new(IndexMap::new());
+            let Some(value) = linear::numeral(&term_of_node(c, targets), &labels)
+            else {
+                return false;
+            };
+            if num_traits::Zero::is_zero(&value) {
+                return false;
+            }
+            // A negative number turns an order round.
+            let rel = if num_traits::Signed::is_negative(&value) {
+                above.rel.converse()
+            } else {
+                above.rel
+            };
+            let times = |side: &Node| {
+                made(g, "multiplicative", "·", vec![c.clone(), side.clone()])
+            };
+            sides(rel, &times(&above.left), &times(&above.right))
+        }
+        (RowReason::Symmetry, _) => {
+            matches!(above.rel, Rel::Eq | Rel::Ne)
+                && row.rel == above.rel
+                && known.alike(&row.left, &above.right)
+                && known.alike(&row.right, &above.left)
+        }
+        (RowReason::Weakening, _) => {
+            let weaker = matches!(
+                (above.rel, row.rel),
+                (Rel::Lt, Rel::Le)
+                    | (Rel::Gt, Rel::Ge)
+                    | (Rel::Eq, Rel::Le)
+                    | (Rel::Eq, Rel::Ge)
+                    | (Rel::Lt, Rel::Ne)
+                    | (Rel::Gt, Rel::Ne)
+            );
+            weaker
+                && known.alike(&row.left, &above.left)
+                && known.alike(&row.right, &above.right)
+        }
+        (RowReason::Algebra, _) => sides(above.rel, &above.left, &above.right),
+        _ => false,
+    }
+}
+
+/// Whether `row` relates by `rel` two sides that are `left` and `right`,
+/// each as one number (`one_number`).
+fn row_is(
+    row: &Related,
+    rel: Rel,
+    left: &Node,
+    right: &Node,
+    known: &Known,
+    targets: &Targets,
+) -> bool {
+    row.rel == rel
+        && one_number(&row.left, left, known, targets)
+        && one_number(&row.right, right, known, targets)
+}
+
+/// What a row names, said in a message: `with 2·A added to both sides`.
+fn row_said(reason: &RowReason) -> String {
+    match reason {
+        RowReason::Cited(r) => format!("as {r} says it"),
+        RowReason::Adding(t) => format!("with {t} added to both sides"),
+        RowReason::Multiplying(c) => {
+            format!("with both sides multiplied by {c}, a numeral other than 0")
+        }
+        RowReason::Symmetry => "with its two sides swapped".to_string(),
+        RowReason::Weakening => "with its relation weakened".to_string(),
+        RowReason::Algebra => {
+            "with a side written as the same number another way".to_string()
+        }
+    }
+}
+
+/// An `inequalities` step's rows (`METHODS.md`, inequalities, Rows): each
+/// a single relation, read through the tree reader; the first the line the
+/// step cites, written out; each after it the row above with the
+/// manipulation its reason names, its atoms real as a step's are; and the
+/// last the claim, written either way round.
+pub fn check_inequality_rows(
+    report: &mut Report,
+    thm: &Theorem,
+    known: &Known,
+    targets: &Targets,
+) {
+    for step in &thm.steps {
+        let Some(cut) = rows(&step.just, &thm.path) else {
+            continue;
+        };
+        let number = &step.number;
+        let written = match cut {
+            Ok(written) => written,
+            Err(defect) => {
+                report.problems.push(defect);
+                continue;
+            }
+        };
+        let mut read: Vec<Related> = Vec::new();
+        for row in &written {
+            let node = match row
+                .formula
+                .sentence()
+                .and_then(|s| s.read(known.env.g, &known.sorts))
+            {
+                Ok(node) => node,
+                Err(problem) => {
+                    report.problems.push(problem);
+                    break;
+                }
+            };
+            let Some(related) = Related::of(&node) else {
+                report.say(
+                    &thm.path,
+                    row.line,
+                    format!("a row of step {number} is no single relation of =, ≠, <, ≤, > or ≥"),
+                );
+                break;
+            };
+            read.push(related);
+        }
+        if read.len() != written.len() {
+            continue;
+        }
+        // The first row writes out the line it cites, the step's only one.
+        let first_says = match &written[0].reason {
+            RowReason::Cited(r) => known
+                .scope(step)
+                .get(r)
+                .and_then(|s| known.stated_as_written(s))
+                .and_then(|n| Related::of(&n))
+                .is_some_and(|line| line.says(&read[0], known)),
+            _ => false,
+        };
+        if !first_says {
+            report.say(
+                &thm.path,
+                written[0].line,
+                format!(
+                    "the first row of step {number} is not a line the step cites, written out with its label as its reason"
+                ),
+            );
+            continue;
+        }
+        let mut held = true;
+        for (i, row) in written.iter().enumerate().skip(1) {
+            let term = match &row.reason {
+                RowReason::Adding(t) | RowReason::Multiplying(t) => {
+                    match reason_term(t, known) {
+                        Ok(node) => Some(node),
+                        Err(problem) => {
+                            report.problems.push(problem);
+                            held = false;
+                            break;
+                        }
+                    }
+                }
+                _ => None,
+            };
+            if !row_follows(
+                &read[i - 1],
+                &read[i],
+                &row.reason,
+                term.as_ref(),
+                known,
+                targets,
+            ) {
+                report.say(
+                    &thm.path,
+                    row.line,
+                    format!(
+                        "a row of step {number} is not the row above {}",
+                        row_said(&row.reason)
+                    ),
+                );
+                held = false;
+                break;
+            }
+            let relations = [read[i].said.clone(), read[i - 1].said.clone()];
+            let pair = ClosureRead {
+                claimed: relations[0].clone(),
+                lines: vec![relations[1].clone()],
+                line_of: vec![0],
+            };
+            if let Some(said) = real_unsaid(
+                &ClosureClaim::step(step),
+                &pair,
+                &relations,
+                known,
+                targets,
+            ) {
+                report.say(&thm.path, row.line, said);
+                held = false;
+                break;
+            }
+        }
+        let Some(claim) = known.whole_as_written(&step.claim) else {
+            continue; // `check_formulas` says it does not read
+        };
+        let last = read.last().expect("a step's rows");
+        if held && !Related::of(&claim).is_some_and(|c| c.says(last, known)) {
+            report.say(
+                &thm.path,
+                written[written.len() - 1].line,
+                format!("the last row of step {number} is not its claim"),
+            );
+        }
+    }
+}
+
 /// How the page writes a relation.
 fn sign(rel: Rel) -> &'static str {
     match rel {
         Rel::Eq => "=",
+        Rel::Ne => "≠",
         Rel::Lt => "<",
         Rel::Le => "≤",
         Rel::Gt => ">",
@@ -2026,7 +2291,8 @@ pub fn check_inequalities_holds(
     targets: &Targets,
 ) {
     for step in &thm.steps {
-        if step.just.head.is(Method::Inequalities) {
+        // A step with rows is its rows' (`check_inequality_rows`).
+        if step.just.head.is(Method::Inequalities) && step.just.rows.is_empty() {
             let at = ClosureClaim::step(step);
             if !inequalities_hold(report, thm, &at, known, targets) {
                 report.undecided(&thm.path, Method::Inequalities, step);

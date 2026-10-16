@@ -658,6 +658,9 @@ pub struct Justification {
     pub values: Values,
     /// Each line of a calculation's chain, with the line it is on.
     pub chain: Vec<(String, usize)>,
+    /// Each row of an `inequalities` step with no `from`, with the line it
+    /// is on (`GRAMMAR.md`, inequality rows).
+    pub rows: Vec<(String, usize)>,
     /// A `from` entry that is neither a line nor a label.
     pub bad_ref: Option<String>,
     /// What the names its file cites stand for.
@@ -701,6 +704,7 @@ impl Justification {
             line,
             target: slots.target,
             chain: Vec::new(),
+            rows: Vec::new(),
             bad_ref: slots.bad_ref,
             names: names.clone(),
             defined: slots.defined,
@@ -1267,6 +1271,89 @@ impl Chain {
             lines,
         }
     }
+}
+
+/// What a row of an `inequalities` step names as its reason (`METHODS.md`,
+/// inequalities, Rows).
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum RowReason {
+    /// The line the first row writes out, by its reference.
+    Cited(String),
+    /// A term added to both sides.
+    Adding(Written),
+    /// Both sides multiplied by a number.
+    Multiplying(Written),
+    /// An equation's two sides swapped.
+    Symmetry,
+    /// A relation weakened.
+    Weakening,
+    /// A side written as the same number another way.
+    Algebra,
+}
+
+/// One row of an `inequalities` step: the formula, the reason, and the line.
+#[derive(Clone, Debug)]
+pub struct Row {
+    pub formula: Written,
+    pub reason: RowReason,
+    pub line: usize,
+}
+
+/// The words a row's reason opens with that a term follows.
+const ROW_WORDS: [&str; 2] = ["adding", "multiplying by"];
+
+/// The rows an `inequalities` step writes, each cut as `GRAMMAR.md`'s
+/// inequality rows cut it, from the right: a last word that is a reference,
+/// `symmetry`, `weakening` or `algebra`, or `adding` or `multiplying by` and
+/// a term. None for a step with no rows; a row with no reason is a defect.
+pub fn rows(just: &Justification, path: &str) -> Option<Checked<Vec<Row>>> {
+    if just.rows.is_empty() {
+        return None;
+    }
+    let mut out = Vec::new();
+    for (text, no) in &just.rows {
+        let whole = str::trim(text);
+        // A formula writes neither `adding` nor `multiplying by`, so where a
+        // row does, its reason starts there and the term after it may be
+        // anything, a lone letter that would read as a label among them.
+        let worded = ROW_WORDS
+            .iter()
+            .filter_map(|w| whole.rfind(&format!(" {w} ")).map(|at| (at, *w)))
+            .max_by_key(|(at, _)| *at)
+            .map(|(at, w)| {
+                let term =
+                    Written::new(str::trim(&whole[at + w.len() + 2..]), path, *no);
+                let reason = if w == "adding" {
+                    RowReason::Adding(term)
+                } else {
+                    RowReason::Multiplying(term)
+                };
+                (str::trim(&whole[..at]), reason)
+            });
+        let last = whole.rsplit(char::is_whitespace).next().unwrap_or(whole);
+        let before_last = str::trim(&whole[..whole.len() - last.len()]);
+        let word = match last {
+            "symmetry" => Some(RowReason::Symmetry),
+            "weakening" => Some(RowReason::Weakening),
+            "algebra" => Some(RowReason::Algebra),
+            _ if skeleton::is_ref(last) => Some(RowReason::Cited(last.to_string())),
+            _ => None,
+        };
+        let cut = worded.or(word.map(|reason| (before_last, reason)));
+        let Some((formula, reason)) = cut.filter(|(f, _)| !f.is_empty()) else {
+            return Some(Err(Problem::new(
+                path,
+                *no,
+                "a row gives no reason: it ends in the line it writes out, `adding` or `multiplying by` and a term, `symmetry`, `weakening` or `algebra`",
+            )));
+        };
+        out.push(Row {
+            formula: Written::new(formula, path, *no),
+            reason,
+            line: *no,
+        });
+    }
+    Some(Ok(out))
 }
 
 /// The chain a calculation writes, cut by the skeleton; None for a
@@ -2122,6 +2209,21 @@ pub fn parse_proof(
                 } else {
                     draft.steps[at].step.claim.continued(&t);
                 }
+                continue;
+            }
+            // An `inequalities` step with no `from` may write its rows; the
+            // first row's reason is the line the step cites, and its only
+            // citation (`GRAMMAR.md`, inequality rows).
+            let just = &draft.steps[at].step.just;
+            if just.head.is(Method::Inequalities)
+                && (!just.rows.is_empty() || just.refs.is_empty())
+            {
+                let first = just.rows.is_empty();
+                let just = &mut draft.steps[at].step.just;
+                if first {
+                    just.refs.extend(chain_cited(&line.text));
+                }
+                just.rows.push((line.text.clone(), line.no));
                 continue;
             }
             if draft.steps[at].step.just.head.is(Method::Calculation) {

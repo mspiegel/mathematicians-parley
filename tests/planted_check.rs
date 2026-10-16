@@ -664,6 +664,54 @@ fn cases() -> Vec<Case> {
             )],
             "nothing says |c| ∈ ℝ, which this step needs",
         ),
+        // An inequalities step's rows: the cited line written out, then the
+        // row above with the manipulation each reason names, the last the
+        // claim.
+        case(
+            "an inequality row with no reason",
+            vec![edit(
+                "tests/elaborator/inequality-rows.proof",
+                Some("      2·A < A + B          algebra\n".to_string()),
+                "      2·A < A + B          because\n".to_string(),
+            )],
+            "a row gives no reason",
+        ),
+        case(
+            "an inequality row that is no single relation",
+            vec![edit(
+                "tests/elaborator/inequality-rows.proof",
+                Some("      x = y                symmetry\n".to_string()),
+                "      x = y and y = x      symmetry\n".to_string(),
+            )],
+            "a row of step 1 is no single relation of =, ≠, <, ≤, > or ≥",
+        ),
+        case(
+            "inequality rows starting from no cited line",
+            vec![edit(
+                "tests/elaborator/inequality-rows.proof",
+                Some("      A < B                H3\n".to_string()),
+                "      A < B                H2\n".to_string(),
+            )],
+            "the first row of step 1 is not a line the step cites, written out with its label as its reason",
+        ),
+        case(
+            "an inequality row that is not the manipulation it names",
+            vec![edit(
+                "tests/elaborator/inequality-rows.proof",
+                Some("      2·A < A + B          algebra\n".to_string()),
+                "      3·A < A + B          algebra\n".to_string(),
+            )],
+            "a row of step 1 is not the row above with a side written as the same number another way",
+        ),
+        case(
+            "inequality rows ending other than on the claim",
+            vec![edit(
+                "tests/elaborator/inequality-rows.proof",
+                Some("      0 < x                H2\n      0 ≠ x                weakening\n".to_string()),
+                "      0 < x                H2\n      0 ≤ x                weakening\n".to_string(),
+            )],
+            "the last row of step 1 is not its claim",
+        ),
         // A transitivity step chains relations, each line's right side the
         // next one's left, and claims the ends by the chain's relation;
         // antisymmetry takes an order and its converse to an equation.

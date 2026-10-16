@@ -1,0 +1,50 @@
+theorem halfway-above
+  note        From A < B, A < (A + B)/2: A added to both sides, the left side
+              written as 2·A, and both sides halved, a row to each.
+  let A ∈ ℝ    (H1)
+  let B ∈ ℝ    (H2)
+  assume A < B    (H3)
+  then A < (A + B)/2
+
+1.  A < (A + B)/2
+    inequalities
+      A < B                H3
+      A + A < A + B        adding A
+      2·A < A + B          algebra
+      A < (A + B)/2        multiplying by 1/2
+
+theorem a-negative-turned
+  note        Multiplying by −1 turns the relation round.
+  let x ∈ ℝ    (H1)
+  assume x < 0    (H2)
+  then 0 < −x
+
+1.  0 < −x
+    inequalities
+      x < 0                H2
+      −x > 0               multiplying by −1
+
+theorem an-equation-read-as-an-order
+  note        An equation's sides swapped, then the equation weakened to ≤.
+  let x ∈ ℝ    (H1)
+  let y ∈ ℝ    (H2)
+  assume y = x    (H3)
+  then x ≤ y
+
+1.  x ≤ y
+    inequalities
+      y = x                H3
+      x = y                symmetry
+      x ≤ y                weakening
+
+theorem positive-so-not-zero
+  note        A strict order weakened to ≠, the claim written from its other
+              side.
+  let x ∈ ℝ    (H1)
+  assume 0 < x    (H2)
+  then x ≠ 0
+
+1.  x ≠ 0
+    inequalities
+      0 < x                H2
+      0 ≠ x                weakening

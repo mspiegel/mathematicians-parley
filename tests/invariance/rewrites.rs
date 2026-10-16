@@ -633,6 +633,32 @@ fn layout(thm: &Theorem, lines: &[String], end: usize) -> Layout {
             push(&mut regions, l, Some((from, to)));
             checked.insert(l);
         }
+        // A row writes a formula and, after `adding` or `multiplying by`, a
+        // term: those hold what the proof writes of its letters. The reason's
+        // words and label are none of them, and a word like `symmetry`
+        // would be read a letter at a time.
+        for (_, no) in &step.just.rows {
+            let l = at(*no);
+            let c = chars(&lines[l]);
+            let (from, end) = (first_text(&c), trimmed_end(&c));
+            let worded = ["adding ", "multiplying by "]
+                .iter()
+                .filter_map(|w| {
+                    char_rfind(&c, &format!(" {w}")).map(|at| (at, w.chars().count()))
+                })
+                .max_by_key(|(at, _)| *at);
+            match worded {
+                Some((at, length)) => {
+                    push(&mut regions, l, Some((from, at)));
+                    push(&mut regions, l, Some((at + 1 + length, end)));
+                }
+                None => {
+                    let last = (from..end).rev().find(|&i| c[i] == ' ').unwrap_or(from);
+                    push(&mut regions, l, Some((from, last)));
+                }
+            }
+            checked.insert(l);
+        }
         for r in &step.requires {
             let l = at(r.line);
             let c = chars(&lines[l]);
