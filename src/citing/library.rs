@@ -26,16 +26,34 @@ pub struct Group {
     /// The library's functions it applies, which are no letters of its: a
     /// citation of `lowest-terms-parts` cannot make denom stand for numer.
     pub functions: BTreeSet<String>,
+    /// The identity each group the item lets names, which is no letter of
+    /// its either: it is the identity of the citing proof's group, which
+    /// the group's line names by the same word, as the elaborator reads it.
+    /// A letter there, `x·y = e` would be met by any line, or by none, with
+    /// e put for x·y.
+    pub identities: BTreeSet<String>,
 }
 
 impl Group {
     /// The item's letters among the names in `trees`: each but the
-    /// library's functions it applies.
+    /// library's functions it applies and its groups' identities.
     pub fn letters(&self, trees: &[Node]) -> BTreeSet<String> {
         let mut out = names_of(trees);
-        out.retain(|n| !self.functions.contains(n));
+        out.retain(|n| !self.functions.contains(n) && !self.identities.contains(n));
         out
     }
+}
+
+/// The identities the group lines among `lines` name.
+fn group_identities(lines: &[(Intro, Written)]) -> BTreeSet<String> {
+    lines
+        .iter()
+        .filter(|(kind, _)| *kind == Intro::Let)
+        .filter_map(|(_, body)| match Introduction::read(body.clone()).form {
+            Form::Group { identity, .. } => Some(identity),
+            _ => None,
+        })
+        .collect()
 }
 
 /// The library's functions the trees apply: a name applied, `denom(x)`,
@@ -309,6 +327,7 @@ impl<'a> Library<'a> {
                 wants: facts,
                 gives,
                 functions,
+                identities: group_identities(&lines),
             }]);
         }
         let &i = self.items.get(name)?;
@@ -334,6 +353,7 @@ impl<'a> Library<'a> {
                 wants,
                 gives,
                 functions,
+                identities: group_identities(&lines),
             });
         }
         if out.is_empty() {
@@ -341,6 +361,7 @@ impl<'a> Library<'a> {
                 wants: Vec::new(),
                 gives: Vec::new(),
                 functions: BTreeSet::new(),
+                identities: BTreeSet::new(),
             });
         }
         Some(out)

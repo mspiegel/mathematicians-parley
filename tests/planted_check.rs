@@ -4192,6 +4192,17 @@ fn cases() -> Vec<Case> {
             )],
             "step 1 instantiates H1, which quantifies a name the step gives no value, before the ones it does",
         ),
+        // A cited item's group identity is the citing proof's, and no letter
+        // a hypothesis on it can be met by.
+        case(
+            "cite an item whose hypothesis on the identity nothing says",
+            vec![edit(
+                "proofs/wiedijk/planted.proof",
+                None,
+                "import mundane axiom      stdlib/groups/group-identity\n\ntheorem planted-lemma\n  let G be a group with operation · and identity e    (H1)\n  let x ∈ G    (H2)\n  assume x = e    (H3)\n  then x·x = x\n\n1.  x·e = x\n    mun:group-identity, from H2\n\n2.  x·x = x\n    substitute x = e (H3) into line 1\n\ntheorem planted\n  let G be a group with operation · and identity e    (H1)\n  let a ∈ G    (H2)\n  then a·a = a\n\n1.  a·a = a\n    thm:planted-lemma x := a, from H2\n".to_string(),
+            )],
+            "step 1 cites thm:planted-lemma, which asks for a = e, and what it cites does not supply it",
+        ),
         case(
             "a requires line under a join",
             vec![edit(

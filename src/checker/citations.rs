@@ -647,6 +647,7 @@ fn concluded_alone(groups: &[Group], parts: &Parts, library: &Library) -> Route<
             wants: Vec::new(),
             gives: g.gives.clone(),
             functions: g.functions.clone(),
+            identities: g.identities.clone(),
         })
         .collect();
     taken(
