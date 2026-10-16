@@ -372,6 +372,22 @@ impl<'a> Maker<'a> {
         };
         let statements =
             |cited: &str| -> Option<String> { statement_of(&self.text_of(cited)?) };
+        // A theorem of another proof is cited by the statement its built file
+        // holds, so one not built stops this one before the build starts:
+        // nothing about this page or the build is wrong.
+        for (full, line) in cited_items(thm) {
+            let proof = self.found.theorems.iter().any(|t| t.qualified() == full);
+            if proof && full != name && !in_stdlib(&full) && statements(&full).is_none()
+            {
+                return Err(Problem::new(
+                    &thm.path,
+                    line,
+                    format!(
+                        "{full}, which this step cites, has no built file under corpus/elaboration/: build it first, or build everything with `parley build`"
+                    ),
+                ));
+            }
+        }
         let library = self.library.as_ref().expect("read above");
         elaborate(
             self.found,

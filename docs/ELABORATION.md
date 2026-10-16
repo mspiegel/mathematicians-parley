@@ -2135,6 +2135,21 @@ used and verified there; only the restatement is missing.
 The stage lists what it skips against this paragraph, and an item skipped
 for either reason that is not named here is a defect.
 
+### Gaps in the build
+
+A theorem the checker refuses has a defect, and the build refuses it in the
+checker's words. One the checker accepts and the build cannot prove is a gap
+in the build (`GOALS.md`, decision 19): the build says so, "the build cannot
+yet prove this, which the checker accepts: …" (`Problem::gap`), and the gap
+is the build's to close, never the page's to work round. A theorem citing
+another proof's theorem that has no built file is neither: the build stops
+before it starts and says which file to build first.
+
+No gap is known. Every theorem of the corpus builds, and so does every
+theorem of the trial proofs held out of it that the checker accepts. A gap
+found is closed in the build or listed here, with the step that shows it,
+until it is closed; the gate is red for a corpus theorem that has one.
+
 ## Geometry
 
 The readable layer writes `∠CAB = ∠CBA`, an equation between numbers, and no
