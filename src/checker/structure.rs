@@ -281,6 +281,9 @@ pub fn check_blocks(
                 ),
             );
         }
+        if step.just.head.is(Method::Contradiction) {
+            check_supposition_used(report, thm, step);
+        }
         if step.just.head.is(Method::Proof)
             && !step
                 .openers
@@ -320,6 +323,35 @@ pub fn check_blocks(
                     );
                 }
             }
+        }
+    }
+}
+
+/// A contradiction's block uses what it supposes (`METHODS.md`,
+/// contradiction): some step under it, or a requires line of one, names
+/// the supposition. A block that reaches its contradiction without it
+/// shows that lines above it contradict each other, which is not what
+/// supposing the claim false and refuting it says.
+fn check_supposition_used(report: &mut Report, thm: &Theorem, step: &Step) {
+    let under = |s: &&Step| {
+        s.number.len() > step.number.len()
+            && s.number.prefix(step.number.len()) == step.number
+    };
+    for o in step.openers.iter().filter(|o| o.kind == Intro::Suppose) {
+        let names = |s: &&Step| {
+            s.just.refs.contains(&o.label)
+                || s.just.contradicting.as_ref() == Some(&o.label)
+                || s.requires.iter().any(|r| r.refs().contains(&o.label))
+        };
+        if !thm.steps.iter().filter(under).any(|s| names(&s)) {
+            report.say(
+                &thm.path,
+                o.line,
+                format!(
+                    "step {} is a contradiction whose block never uses its supposition {}",
+                    step.number, o.label
+                ),
+            );
         }
     }
 }

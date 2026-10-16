@@ -2117,10 +2117,10 @@ fn cases() -> Vec<Case> {
             "number a step with a letter",
             vec![edit(
                 "tests/elaborator/textbook-exercise-shapes-two.proof",
-                Some("1.  b ≤ a\n    contradiction\n".to_string()),
-                "1a. b ≤ a\n    contradiction\n".to_string(),
+                Some("2.  a < 2·√a\n".to_string()),
+                "2a. a < 2·√a\n".to_string(),
             )],
-            "`1a.` is no step number",
+            "`2a.` is no step number",
         ),
         // The item's domain is a's, {1, …, n}, though the step cites a's type:
         // k ∈ ℤ, said once, does not put k in it.
@@ -4163,6 +4163,19 @@ fn cases() -> Vec<Case> {
                 edit("proofs/wiedijk/geometric-series.proof", Some("       reads the geometric series: the powers of a, from a^0 up to a^n\n".to_string()), String::new()),
             ],
             "carries no `reads` line",
+        ),
+        // y below and above the midpoint at once cannot be, so the block
+        // reaches its contradiction from H4 and H5 alone and never uses S:
+        // what it shows is that the hypotheses contradict each other.
+        case(
+            "a contradiction whose block never uses its supposition",
+            vec![edit(
+                "proofs/wiedijk/refute.proof",
+                None,
+                "theorem bounds-that-refute-each-other\n  let a ∈ ℝ                                                           (H1)\n  let b ∈ ℝ                                                           (H2)\n  let y ∈ ℝ                                                           (H3)\n  assume y < (a + b)/2                                                (H4)\n  assume (a + b)/2 < y                                                (H5)\n  then b ≤ a\n\n1.  b ≤ a\n    contradiction\n    suppose not (b ≤ a)                                               (S)\n\n    1.1.  y ≤ (a + b)/2\n          inequalities\n            y < (a + b)/2              H4\n            y ≤ (a + b)/2              weakening\n\n    1.2.  not ((a + b)/2 < y)\n          inequalities, from 1.1, contradicting H5\n"
+                    .to_string(),
+            )],
+            "step 1 is a contradiction whose block never uses its supposition S",
         ),
         // An order of two roots asks each root be real, and the message names
         // that membership, not the one in ℂ an equation would ask.

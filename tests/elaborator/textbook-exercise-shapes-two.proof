@@ -103,27 +103,3 @@ theorem a-root-in-a-bound
 
 2.  a < 2·√a
     inequalities, from H3, 1
-
-theorem bounds-that-refute-each-other
-  note        y below and above the midpoint at once cannot be: H4,
-              weakened and turned round, denies H5, so a block supposing the
-              claim false closes on them alone, and any order of a and b
-              follows.
-  let a ∈ ℝ                                                           (H1)
-  let b ∈ ℝ                                                           (H2)
-  let y ∈ ℝ                                                           (H3)
-  assume y < (a + b)/2                                                (H4)
-  assume (a + b)/2 < y                                                (H5)
-  then b ≤ a
-
-1.  b ≤ a
-    contradiction
-    suppose not (b ≤ a)                                               (S)
-
-    1.1.  y ≤ (a + b)/2
-          inequalities
-            y < (a + b)/2              H4
-            y ≤ (a + b)/2              weakening
-
-    1.2.  not ((a + b)/2 < y)
-          inequalities, from 1.1, contradicting H5

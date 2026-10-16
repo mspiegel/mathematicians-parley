@@ -1124,6 +1124,11 @@ negation denies.
 cited lines but the block itself: the supposition it opens with, and the last
 step inside it.
 
+The block uses its supposition: some step under it, or a requires line of
+one, cites it. A block that reaches a contradiction without it shows that
+the lines above it contradict each other, and supposing the claim false
+plays no part in that; it is refused.
+
 ### Facts in
 
 The block's supposition, which asserts nothing outside the block, and the
