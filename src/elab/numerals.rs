@@ -469,6 +469,27 @@ pub fn worked(
     if term.variable().is_none() && term.label() == Some("cprod") {
         return product_over_range(b, term, labels);
     }
+    // n! of a whole number, which the factorial's record says `arithmetic`
+    // works out: the argument worked out first, `fveq2i` carrying it in.
+    if term.variable().is_none()
+        && term.label() == Some("cfv")
+        && term.children().len() == 2
+        && term.children()[1].label() == Some("cfa")
+    {
+        let arg = &term.children()[0];
+        let (n, first) = worked(b, arg, labels)?;
+        let (value, fact) = factorial_of(b, &n)?;
+        let carried = b.ap(
+            "fveq2i",
+            &binds! {"A" => arg.rpn(labels).to_string(), "B" => spelt(&n), "F" => "cfa"},
+            &[&first],
+        );
+        let at = t!(spelt(&n), "cfa", "cfv");
+        return Some((
+            value.clone(),
+            chain(b, &carried, &fact, &said, &at, &spelt(&value)),
+        ));
+    }
     if term.variable().is_some()
         || term.label() != Some("co")
         || term.children().len() != 3
@@ -529,6 +550,77 @@ pub fn worked(
         &spelt(&result),
     );
     Some((result, whole))
+}
+
+/// |- ( ! ` n ) = v and v, for a whole number n: 0! = 1 (`fac0`), and
+/// (m + 1)! = m!·(m + 1) (`facp1`) with m + 1 worked out to n. None past
+/// what the checker works out (`methods::field::BITS`), which it refuses.
+fn factorial_of(b: &Builder, n: &BigUint) -> Option<(BigUint, Proof)> {
+    if n.is_zero() {
+        return Some((BigUint::one(), b.step("fac0")));
+    }
+    let m = n - 1u32;
+    let (below, held) = factorial_of(b, &m)?;
+    let value = &below * n;
+    if value.bits() > crate::methods::field::BITS {
+        return None;
+    }
+    let (sm, sn, s_below) = (spelt(&m), spelt(n), spelt(&below));
+    let one = BigUint::one();
+    let next = op(&sm, &spelt(&one), ADD);
+    let fac = |x: &str| t!(x, "cfa", "cfv");
+    // ( ! ` ( m + 1 ) ) = ( ( ! ` m ) x. ( m + 1 ) )
+    let step = b.ap(
+        "ax-mp",
+        &binds! {
+            "ph" => t!(&sm, "cn0", "wcel"),
+            "ps" => t!(fac(&next), op(&fac(&sm), &next, MUL), "wceq"),
+        },
+        &[&nn0_of(b, &m), &b.ap("facp1", &binds! {"N" => &sm}, &[])],
+    );
+    let added = sum_of(b, &m, &one);
+    // ( ( ! ` m ) x. ( m + 1 ) ) = ( below x. n )
+    let parts = b.ap(
+        "oveq12i",
+        &binds! {
+            "A" => fac(&sm), "B" => &s_below, "C" => &next, "D" => &sn, "F" => MUL,
+        },
+        &[&held, &added],
+    );
+    let product = product_of(b, &below, n);
+    let worked_out = chain(
+        b,
+        &chain(
+            b,
+            &step,
+            &parts,
+            &fac(&next),
+            &op(&fac(&sm), &next, MUL),
+            &op(&s_below, &sn, MUL),
+        ),
+        &product,
+        &fac(&next),
+        &op(&s_below, &sn, MUL),
+        &spelt(&value),
+    );
+    // ( ! ` n ) = ( ! ` ( m + 1 ) )
+    let back = b.ap("eqcomi", &binds! {"A" => &next, "B" => &sn}, &[&added]);
+    let at_n = b.ap(
+        "fveq2i",
+        &binds! {"A" => &sn, "B" => &next, "F" => "cfa"},
+        &[&back],
+    );
+    Some((
+        value.clone(),
+        chain(
+            b,
+            &at_n,
+            &worked_out,
+            &fac(&sn),
+            &fac(&next),
+            &spelt(&value),
+        ),
+    ))
 }
 
 /// |- ( k = at -> body = body at at ), by `id` at the letter, `eqidd`

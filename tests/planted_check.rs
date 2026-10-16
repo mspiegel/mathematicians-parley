@@ -406,11 +406,11 @@ theorem twice
 fn an_operation_arithmetic_does_not_work_out_is_named_once() {
     let clean = clean();
     let case = case(
-        "write a factorial twice in an arithmetic step",
+        "write a floor twice in an arithmetic step",
         vec![edit(
             "proofs/wiedijk/twice.proof",
             None,
-            "theorem twice\n  then 1! = 1!\n\n1.  1! = 1!\n    arithmetic\n"
+            "theorem twice\n  then ⌊1/2⌋ = ⌊1/2⌋\n\n1.  ⌊1/2⌋ = ⌊1/2⌋\n    arithmetic\n"
                 .to_string(),
         )],
         "",
@@ -419,7 +419,7 @@ fn an_operation_arithmetic_does_not_work_out_is_named_once() {
     let out =
         parley::checker::run_edited(&tree, &["proofs/wiedijk/twice.proof".to_string()])
             .printed;
-    assert_eq!(out.matches("works out factorial").count(), 1, "{out}");
+    assert_eq!(out.matches("works out floor").count(), 1, "{out}");
 }
 
 /// A requires line whose fact the step's own citation gives is not repeated
@@ -4243,13 +4243,22 @@ fn cases() -> Vec<Case> {
             "y ≤ 1 follows from what step 1 cites by a move other than adding its lines as they stand, which is all a plain inequalities step does",
         ),
         case(
-            "a calculation link working out a factorial by arithmetic",
+            "a calculation link working out a floor by arithmetic",
             vec![edit(
                 "proofs/wiedijk/planted.proof",
                 None,
-                "import mundane definition stdlib/counting/factorial\n\ntheorem planted\n  let x ∈ ℝ    (H1)\n  assume x = 1/(1 + 1)!    (H2)\n  then x = 1 − 1/(1 + 1)!\n\n1.  x = 1 − 1/(1 + 1)!\n    calculation\n      x = 1/(1 + 1)!            H2\n        = 1 − 1/(1 + 1)!        arithmetic\n".to_string(),
+                "theorem planted\n  let x ∈ ℝ    (H1)\n  assume x = ⌊5/2⌋    (H2)\n  then x = 2\n\n1.  x = 2\n    calculation\n      x = ⌊5/2⌋            H2\n        = 2                arithmetic\n".to_string(),
             )],
-            "a link of step 1 names arithmetic for 1/(1 + 1)! = 1 − 1/(1 + 1)!, which works out factorial",
+            "a link of step 1 names arithmetic for ⌊5/2⌋ = 2, which works out floor",
+        ),
+        case(
+            "a false factorial by arithmetic",
+            vec![edit(
+                "proofs/wiedijk/planted.proof",
+                None,
+                "theorem planted\n  then 4! = 20\n\n1.  4! = 20\n    arithmetic\n".to_string(),
+            )],
+            "step 1 claims 4! = 20, which is false",
         ),
         case(
             "a requires line under a join",

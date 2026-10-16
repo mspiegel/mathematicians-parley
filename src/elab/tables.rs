@@ -2244,6 +2244,21 @@ impl<'a> Elaborator<'a> {
         if let Some(f) = found {
             return Ok(Built(f));
         }
+        // A closed term `arithmetic` works out and the walk does not take
+        // apart, (1 + 1)!, is in a system where its value is.
+        let labels = self.b.flabel.clone();
+        if let Some((value, equal)) = super::numerals::worked(&self.b, &term, &labels) {
+            let spelt = super::numerals::spell(value);
+            if spelt != said {
+                if let Built(inside) = self.part(&spelt, system, scope, facts)? {
+                    return Ok(Built(self.b.ap(
+                        "eqeltrid",
+                        &binds! {"ph" => scope, "A" => said, "B" => &spelt, "C" => system},
+                        &[&equal, &inside],
+                    )));
+                }
+            }
+        }
         if let Some(valued) = self.function_value(said, system, scope, facts)? {
             return Ok(Built(valued));
         }

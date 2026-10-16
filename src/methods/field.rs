@@ -1062,6 +1062,21 @@ pub fn closed_value(term: &Term) -> Route<Value> {
             Built(Value::Exact(v)) => v,
             other => return other,
         }
+    } else if label == "cfv"
+        && term.children().len() == 2
+        && term.children()[1].label() == Some("cfa")
+    {
+        match closed_value(&term.children()[0]) {
+            Built(Value::Exact(n)) => match factorial(&n) {
+                Some(v) => v,
+                None => {
+                    return Built(Value::Unworked(
+                        "is a factorial arithmetic works out only of a whole number of at least 0",
+                    ))
+                }
+            },
+            other => return other,
+        }
     } else {
         return Route::no("not built from numerals");
     };
@@ -1069,6 +1084,22 @@ pub fn closed_value(term: &Term) -> Route<Value> {
         return Built(Value::Unworked("is too large to work out"));
     }
     Built(Value::Exact(value))
+}
+
+/// n! for a whole number n of at least 0, multiplied up until it passes
+/// what is worked out, where the caller's size test refuses it; None for
+/// any other n.
+fn factorial(n: &Q) -> Option<Q> {
+    if !n.is_integer() || n.is_negative() {
+        return None;
+    }
+    let mut out = q(1);
+    let mut k = q(1);
+    while &k <= n && size(&out) <= BITS {
+        out *= k.clone();
+        k += q(1);
+    }
+    Some(out)
 }
 
 /// The value of a product over a range of whole numbers from zero up,

@@ -462,9 +462,12 @@ notation factorial
   sort        number → number
   level       power
   reads       factorial
+  decided     arithmetic
   metamath    cfa
   target      _1 cfa cfv
   note        No assoc: only the left edge is a hole, so n!! reads one way.
+              `arithmetic` works out n! of a whole number n, from 0! = 1 by
+              (m + 1)! = m!·(m + 1).
 
 notation mod
   pattern     _ mod _

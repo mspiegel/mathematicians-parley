@@ -1,0 +1,30 @@
+theorem a-factorial-of-a-sum
+  note        arithmetic works out 1 + 1 and then the factorial of 2.
+  then (1 + 1)! = 2
+
+1.  (1 + 1)! = 2
+    arithmetic
+
+theorem the-factorial-of-zero
+  then 0! = 1
+
+1.  0! = 1
+    arithmetic
+
+theorem a-factorial-of-several-digits
+  note        12! = 479001600, multiplied up from 0! = 1.
+  then 12! = 479001600
+
+1.  12! = 479001600
+    arithmetic
+
+theorem a-factorial-in-a-link
+  note        The link works out both of its sides, factorials and all.
+  let x ∈ ℝ                                                           (H1)
+  assume x = 1/(1 + 1)!                                               (H2)
+  then x = 1 − 1/(1 + 1)!
+
+1.  x = 1 − 1/(1 + 1)!
+    calculation
+      x = 1/(1 + 1)!            H2
+        = 1 − 1/(1 + 1)!        arithmetic

@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.elaborator.closed-pieces.a-factorial-link-of-numerals $p |- ( ! ` 2 ) = ( ! ` ( 1 + 1 ) ) $=
-    ( c2 cfa cfv c1 caddc co wceq wtru eqid oveq12i 1p1e2 eqtri eqtr4i a1i fveq2d mptru ) ABCDDEFZBCGHAQBAQGHAAQAIQQADDDDEDIZRJKLMNOP $.
+    ( c2 cfa cfv c1 caddc co wceq wtru eqid fveq2i 1p1e2 eqcomi cmul cn0 wcel 1nn0 facp1 ax-mp cc0 ax-1cn addlidi 0nn0 fac0 oveq12i eqtri mulridi 2cn mullidi eqtr4i a1i mptru ) ABCZDDEFZBCZGZUOHULAUNULULAAABAIJULUNAAUMBUMAKLZJZUNDAMFZAUNDBCZUMMFZURDNOZUNUTGZPDQZRZUSDUMAMUSSDEFZBCZDDVEBVEDDTUAZLZJZVFDDMFZDVFSBCZVEMFZVJSNOZVFVLGZUBSQZRZVKDVEDMUCVGUDZUEZDTUFZUEZUEZKUDZUEZAUGUHZUEZUEZUEUNULAUMABUMUMADDDDEDIZWGUDKUEJWFUEUIUJUK $.
 $}
