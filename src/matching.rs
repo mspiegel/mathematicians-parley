@@ -63,6 +63,8 @@ pub struct Context {
     pub functions_on: IndexSet<String>,
     /// The notations writing a sum (`csu`).
     pub sums: IndexSet<String>,
+    /// The notations saying there is something (`wrex`).
+    pub existences: IndexSet<String>,
     /// Each spelling that is another of its notation's with the holes in
     /// another order, by (notation, literal): `x > 0` is `0 < x` (`turned`).
     pub turned: IndexMap<(String, String), Turned>,
@@ -176,6 +178,7 @@ impl Context {
             equations: equations(records),
             functions_on: functions_on(records),
             sums: sums(records),
+            existences: existences(records),
             turned: turned(notations, records),
             unordered: unordered(records),
             identities: identities(notations, records),
@@ -477,6 +480,19 @@ pub fn sums(records: &[Record]) -> IndexSet<String> {
         .filter(|r| {
             r.kind == RecordKind::Notation
                 && str::trim(r.field_or_empty("metamath")).starts_with("csu ")
+        })
+        .map(|r| r.name.clone())
+        .collect()
+}
+
+/// The notations saying there is something: their `metamath` is `wrex`,
+/// once or nested, over whatever set.
+pub fn existences(records: &[Record]) -> IndexSet<String> {
+    records
+        .iter()
+        .filter(|r| {
+            r.kind == RecordKind::Notation
+                && str::trim(r.field_or_empty("metamath")).starts_with("wrex")
         })
         .map(|r| r.name.clone())
         .collect()

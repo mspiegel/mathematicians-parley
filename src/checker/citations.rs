@@ -1429,23 +1429,43 @@ pub fn check_obtained_claims(
             }
             Some(item) => {
                 let name = just.item(&item);
-                if library.item(&name).is_some_and(|i| i.unfolds()) {
-                    continue;
-                }
                 let Some(groups) = library.groups(&name) else {
                     continue;
                 };
-                let Some(read) = searched(step, Search::Obtains, known, library) else {
-                    continue;
-                };
-                let Built(taken) = &*read else {
-                    continue; // `check_obtained` reports it
-                };
-                groups[taken.group]
-                    .gives
-                    .iter()
-                    .map(|g| filled(g, &taken.binding, &library.ctx))
-                    .find(|g| exhibited(g, library, known).is_some())
+                // A definition unfolded is its right side at the step's own
+                // values: from `n is even ↔ there is k ∈ ℤ with n = 2k`,
+                // `mun:even n := P` obtains a k with P = 2k.
+                if library.item(&name).is_some_and(|i| i.unfolds()) {
+                    let Some(read) = searched(step, Search::Obtains, known, library)
+                    else {
+                        continue;
+                    };
+                    let Built(taken) = &*read else {
+                        continue;
+                    };
+                    let seed = &taken.binding;
+                    groups
+                        .iter()
+                        .flat_map(|g| &g.gives)
+                        .filter(|g| {
+                            g.notation == "biconditional" && g.children.len() == 2
+                        })
+                        .map(|g| filled(&g.children[1], seed, &library.ctx))
+                        .find(|right| exhibited(right, library, known).is_some())
+                } else {
+                    let Some(read) = searched(step, Search::Obtains, known, library)
+                    else {
+                        continue;
+                    };
+                    let Built(taken) = &*read else {
+                        continue; // `check_obtained` reports it
+                    };
+                    groups[taken.group]
+                        .gives
+                        .iter()
+                        .map(|g| filled(g, &taken.binding, &library.ctx))
+                        .find(|g| exhibited(g, library, known).is_some())
+                }
             }
         };
         let Some(existence) = existence else {
@@ -2503,8 +2523,22 @@ pub fn check_exhibited(
             .filter_map(|s| known.read_as_written(s))
             .collect();
         for (claim, as_written) in parts.claims.iter().zip(&written) {
+            // An exhibit claims a "there is" and shows a value for it
+            // (`SYNTAX.md`, `exhibit`).
             let Some(Exhibited { wants, letters }) = exhibited(claim, library, known)
             else {
+                if library.ctx.existences.contains(&claim.notation) {
+                    continue;
+                }
+                report.say(
+                    &thm.path,
+                    step.just.line,
+                    format!(
+                        "step {} is an exhibit, and {} is no \"there is\" for it to give a value of",
+                        step.number,
+                        known.print(as_written)
+                    ),
+                );
                 continue;
             };
             let mut sites = Sites::new();
@@ -2864,8 +2898,24 @@ pub fn check_instance_claimed(
             .iter()
             .filter_map(|said| instance_at(said, seed, library))
             .collect();
+        let fits: Vec<Fit> = parts.iter().map(|said| fit_of(said, seed)).collect();
+        if !fits.contains(&Fit::Fits) {
+            let why = if fits.contains(&Fit::Skips) {
+                "quantifies a name the step gives no value, before the ones it does"
+            } else if fits.contains(&Fit::Over) {
+                "quantifies fewer names than the step gives values"
+            } else {
+                "claims nothing of every such name"
+            };
+            report.say(
+                &thm.path,
+                step.just.line,
+                format!("step {} instantiates {target}, which {why}", step.number),
+            );
+            continue;
+        }
         if instances.is_empty() {
-            continue; // no "for all" binds the names; the build reports it
+            continue;
         }
         // The instance reaching the claim, and each condition met on the way
         // among what the step names; one it does not supply is said.
@@ -2910,6 +2960,51 @@ pub fn check_instance_claimed(
 
 /// What `said` says at the values `seed` gives the letters it binds, where
 /// it is a "for all" binding at least one of them; None otherwise.
+/// How an instantiation's values meet a sentence of the line it names
+/// (`SYNTAX.md`, `instantiate`): the values are for the sentence's leading
+/// "for all" letters, outermost first, each one given.
+#[derive(PartialEq)]
+enum Fit {
+    /// The values are for a run of its leading binders.
+    Fits,
+    /// A leading binder has no value before one that does.
+    Skips,
+    /// Values are left when its leading binders end.
+    Over,
+    /// No leading binder is one the values are for.
+    Nothing,
+}
+
+/// How `seed`, the step's values by letter, meets the sentence `said`.
+fn fit_of(said: &Node, seed: &Binding) -> Fit {
+    let mut body = said;
+    let mut taken = 0;
+    let mut skipped = false;
+    loop {
+        let (letter, inner) = match (body.notation.as_str(), body.children.as_slice()) {
+            ("for-all" | "for-all-part", [letter, _, inner]) => (letter, inner),
+            ("for-all-sets", [letter, inner]) => (letter, inner),
+            _ => break,
+        };
+        if seed.contains_key(&letter.text) {
+            if skipped {
+                return Fit::Skips;
+            }
+            taken += 1;
+        } else if taken > 0 {
+            break;
+        } else {
+            skipped = true;
+        }
+        body = inner;
+    }
+    match taken {
+        0 => Fit::Nothing,
+        n if n < seed.len() => Fit::Over,
+        _ => Fit::Fits,
+    }
+}
+
 fn instance_at(said: &Node, seed: &Binding, library: &Library) -> Option<Node> {
     let mut body = said.clone();
     let mut put = Binding::new();

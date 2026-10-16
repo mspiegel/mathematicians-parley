@@ -4154,6 +4154,126 @@ fn cases() -> Vec<Case> {
             ],
             "carries no `reads` line",
         ),
+        // An instantiation's values are for the line's leading "for all"
+        // letters, outermost first.
+        case(
+            "instantiate a line no for-all of which binds the name",
+            vec![edit(
+                "proofs/wiedijk/planted.proof",
+                None,
+                "theorem planted\n  let x ∈ ℝ    (H1)\n  assume x > 0    (H2)\n  then x > 0\n\n1.  x > 0\n    instantiate y := x in H2\n".to_string(),
+            )],
+            "step 1 instantiates H2, which claims nothing of every such name",
+        ),
+        case(
+            "instantiate a line with more values than it binds",
+            vec![edit(
+                "proofs/wiedijk/planted.proof",
+                None,
+                "theorem planted\n  assume for all y ∈ ℝ, y² ≥ 0    (H1)\n  let x ∈ ℝ    (H2)\n  then x² ≥ 0\n\n1.  x² ≥ 0\n    instantiate y := x, z := x in H1\n".to_string(),
+            )],
+            "step 1 instantiates H1, which quantifies fewer names than the step gives values",
+        ),
+        case(
+            "instantiate a line's inner letter and not its outer one",
+            vec![edit(
+                "proofs/wiedijk/planted.proof",
+                None,
+                "theorem planted\n  assume for all y ∈ ℝ, for all z ∈ ℝ, y + z = z + y    (H1)\n  let x ∈ ℝ    (H2)\n  then for all y ∈ ℝ, y + x = x + y\n\n1.  For all y ∈ ℝ, y + x = x + y.\n    instantiate z := x in H1\n".to_string(),
+            )],
+            "step 1 instantiates H1, which quantifies a name the step gives no value, before the ones it does",
+        ),
+        // An exhibit gives a value of a "there is".
+        case(
+            "exhibit what is no there is",
+            vec![edit(
+                "proofs/wiedijk/planted.proof",
+                None,
+                "theorem planted\n  let x ∈ ℝ    (H1)\n  assume x > 0    (H2)\n  then x > 0\n\n1.  x > 0\n    exhibit, from H2\n".to_string(),
+            )],
+            "step 1 is an exhibit, and x > 0 is no \"there is\" for it to give a value of",
+        ),
+        // A define names a thing, and a name the theorem has not given.
+        case(
+            "define a name as a statement",
+            vec![edit(
+                "proofs/wiedijk/planted.proof",
+                None,
+                "theorem planted\n  let x ∈ ℝ    (H1)\n  then x = x\n\nlet P = x > 0    (D1)\n    reads x is positive\n\n1.  x = x\n    algebra\n".to_string(),
+            )],
+            "define D1 says P is x > 0, a statement, and a define names a thing: a number, a set or a map",
+        ),
+        case(
+            "define a letter the theorem already introduces",
+            vec![edit(
+                "proofs/wiedijk/planted.proof",
+                None,
+                "theorem planted\n  let x ∈ ℝ    (H1)\n  then x = x\n\nlet x = 1, a real number    (D1)\n    arithmetic\n    reads one\n\n1.  x = x\n    algebra\n".to_string(),
+            )],
+            "define D1 names x, which theorem planted already introduces",
+        ),
+        // "Which is impossible" says a claim of numerals alone works out
+        // false.
+        case(
+            "say a true claim of numerals is impossible",
+            vec![edit(
+                "proofs/wiedijk/planted.proof",
+                None,
+                "theorem planted\n  let x ∈ ℝ    (H1)\n  then not x < x\n\n1.  not x < x\n    contradiction\n    suppose x < x    (S)\n\n    1.1.  x − x < 0\n          inequalities\n            x < x          S\n            x − x < 0      adding −x\n\n    1.2.  1 < 2, which is impossible\n          arithmetic\n".to_string(),
+            )],
+            "step 1.2 says 1 < 2 is impossible, and it holds",
+        ),
+        // An order between terms with letters is no link arithmetic works
+        // out, false or true.
+        case(
+            "name arithmetic for an order link with letters",
+            vec![edit(
+                "proofs/wiedijk/planted.proof",
+                None,
+                "theorem planted\n  let x ∈ ℝ    (H1)\n  then x + 2 < x + 1\n\n1.  x + 2 < x + 1\n    calculation\n      x + 2 < x + 1      arithmetic\n".to_string(),
+            )],
+            "names arithmetic for x + 2 < x + 1, an order of terms with letters in them, which arithmetic does not work out",
+        ),
+        // A proof block assumes what its claim supposes.
+        case(
+            "a proof block assuming other than its claim supposes",
+            vec![edit(
+                "proofs/wiedijk/planted.proof",
+                None,
+                "theorem planted\n  let x ∈ ℝ    (H1)\n  then if x > 1 then x ≥ 1\n\n1.  If x > 1 then x ≥ 1.\n    proof\n    assume x ≥ 2    (A)\n\n    1.1.  x ≥ 1\n          inequalities, from A\n".to_string(),
+            )],
+            "step 1 opens a proof block assuming x ≥ 2, and its claim supposes 1 < x",
+        ),
+        // A let's kind is shown by its reason, a method's as an item's.
+        case(
+            "a let whose method reason does not show its kind",
+            vec![edit(
+                "proofs/wiedijk/planted.proof",
+                None,
+                "theorem planted\n  let x ∈ ℝ    (H1)\n  then x = x\n\nlet m = 2·x, a natural number    (D1)\n    membership\n    reads twice x\n\n1.  x = x\n    algebra\n".to_string(),
+            )],
+            "the reason under let D1 does not show 2·x ∈ ℕ",
+        ),
+        // An obtain from a definition unfolded claims its right side.
+        case(
+            "obtain from an unfolded definition other than its right side",
+            vec![edit(
+                "proofs/wiedijk/planted.proof",
+                None,
+                "import mundane definition stdlib/divisibility/even\n\ntheorem planted\n  let P ∈ ℤ    (H1)\n  assume P is even    (H2)\n  then P = P\n\n1.  k ∈ ℤ. P = 3k.\n    obtain k: mun:even n := P, from H2\n\n2.  P = P\n    algebra\n".to_string(),
+            )],
+            "step 1 claims other than what it obtains, which says P = 2 · k",
+        ),
+        // A requires line other than a membership does work too.
+        case(
+            "a disequality an algebra step does not divide by",
+            vec![edit(
+                "proofs/wiedijk/planted.proof",
+                None,
+                "theorem planted\n  let x ∈ ℝ    (H1)\n  assume x > 0    (H2)\n  then x + x = 2·x\n\n1.  x + x = 2·x\n    algebra\n    requires x ≠ 0: weakening, from H2\n".to_string(),
+            )],
+            "the requires line of step 1 says x ≠ 0, and the step neither uses nor asks for it",
+        ),
         // A method step uses each line it cites: the certificate combines
         // lines 2 and 3, and line 1 says a + b is at least 0 or below it,
         // which the step does not combine.

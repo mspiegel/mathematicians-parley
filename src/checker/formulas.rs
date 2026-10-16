@@ -648,7 +648,12 @@ fn ends_block(thm: &Theorem, at: usize) -> bool {
 /// alone, which `arithmetic` works out and the elaborator shows false, and
 /// the step ends a contradiction block or a case as one contradicting a
 /// line does, in place of that line.
-pub fn check_impossible(report: &mut Report, thm: &Theorem, known: &Known) {
+pub fn check_impossible(
+    report: &mut Report,
+    thm: &Theorem,
+    known: &Known,
+    targets: &Targets,
+) {
     for (at, step) in thm.steps.iter().enumerate() {
         if !step.impossible {
             continue;
@@ -680,6 +685,25 @@ pub fn check_impossible(report: &mut Report, thm: &Theorem, known: &Known) {
                         named.join(", ")
                     ),
                 );
+            } else {
+                // A claim of numerals alone said to be impossible is one that
+                // works out false, as `arithmetic` works one out.
+                let why = match arithmetic_worked(&step.claim, known, targets) {
+                    Worked::Fails(_) => None,
+                    Worked::Holds => Some("it holds"),
+                    Worked::Undecided => Some("arithmetic does not work it out"),
+                };
+                if let Some(why) = why {
+                    report.say(
+                        &thm.path,
+                        step.line,
+                        format!(
+                            "step {} says {} is impossible, and {why}",
+                            step.number,
+                            step.claim_text()
+                        ),
+                    );
+                }
             }
         }
         if !ends_block(thm, at) {
@@ -1044,6 +1068,21 @@ fn proof_owes(owner: &Step, claim: &Node, known: &Known) -> Checked<Owed> {
             (Intro::Assume, "conditional" | "implication")
                 if rest.children.len() == 2 =>
             {
+                // What the block assumes is what the claim supposes, its
+                // letters the block's (`SYNTAX.md`, `proof`).
+                let assumed = o.body(path).sentence()?.read(known.env.g, &known.sorts)?;
+                if !known.alike(&assumed, &rest.children[0]) {
+                    return Err(Problem::new(
+                        path,
+                        o.line,
+                        format!(
+                            "step {} opens a proof block assuming {}, and its claim supposes {}",
+                            owner.number,
+                            known.print(&assumed),
+                            known.print(&rest.children[0])
+                        ),
+                    ));
+                }
                 rest.children[1].clone()
             }
             (Intro::Let, _) => {
@@ -1752,6 +1791,64 @@ fn line_relations(step: &Step, r: &str, known: &Known) -> Vec<Related> {
     cited_whole(step, r, known)
         .map(|n| conjuncts(&n).iter().filter_map(Related::of).collect())
         .unwrap_or_default()
+}
+
+/// A define of a theorem names something new, and names a thing.
+///
+/// Its name is no letter the theorem introduces, by a `let` or an `obtain`,
+/// and no other define's of the theorem: a name stands for one thing, so a
+/// line saying x says which x. And what it names is a number, a set or a
+/// map, never a statement, as a statement is nothing for the name to equal
+/// (`SYNTAX.md`, a define).
+pub fn check_define_names(
+    report: &mut Report,
+    thm: &Theorem,
+    known: &Known,
+    scopes: &[FileScope],
+) {
+    let letters = introduced(thm);
+    let mut named: IndexMap<String, usize> = IndexMap::new();
+    for d in &thm.defines {
+        let Built(said) = define_parts(&d.text) else {
+            continue;
+        };
+        for name in said.names() {
+            if letters.contains(&name) {
+                report.say(
+                    &thm.path,
+                    d.line,
+                    format!(
+                        "define {} names {name}, which theorem {} already introduces",
+                        d.label, thm.name
+                    ),
+                );
+            } else if let Some(at) = named.get(&name) {
+                report.say(
+                    &thm.path,
+                    d.line,
+                    format!("{name} is already defined at line {at}"),
+                );
+            }
+            named.entry(name).or_insert(d.line);
+        }
+        let Some(name) = define_named(thm, &d.label, scopes) else {
+            continue;
+        };
+        let defined = known.citing(std::slice::from_ref(&d.label));
+        if let Some(crate::matching::Defined::Term(term)) = defined.get(&name) {
+            if term.sort.is("formula") {
+                report.say(
+                    &thm.path,
+                    d.line,
+                    format!(
+                        "define {} says {name} is {}, a statement, and a define names a thing: a number, a set or a map",
+                        d.label,
+                        known.print(term)
+                    ),
+                );
+            }
+        }
+    }
 }
 
 /// The equation a define of a name says, `e = ⌊A + 1/2⌋ − A` of `let e =
@@ -2566,6 +2663,57 @@ pub fn check_requires_combined(
 /// whether it decided, reporting what it refuses.
 type Decides = fn(&mut Report, &Theorem, &ClosureClaim, &Known, &Targets) -> bool;
 
+/// A `let` saying what kind of number its name is shows it by its reason,
+/// as a requires line of the step after it would (`SYNTAX.md`, a let with a
+/// kind; `citations::check_kinds` for a reason citing an item): where the
+/// reason is a method, the method decides `gcd(s, w) ∈ ℕ`, and a reason it
+/// does not decide, or that leaves a hypothesis unsaid, is reported.
+pub fn check_kind_methods(
+    report: &mut Report,
+    thm: &Theorem,
+    known: &Known,
+    targets: &Targets,
+) {
+    for d in &thm.defines {
+        let Ok(Some(kinded)) = d.kinded(&thm.path, &known.env.g.members) else {
+            continue;
+        };
+        let Some(after) = thm.step_after(d.line) else {
+            continue;
+        };
+        let decides: Decides = if kinded.shown.is(Method::Membership) {
+            membership_holds
+        } else if kinded.shown.is(Method::Algebra) {
+            algebra_holds
+        } else if kinded.shown.is(Method::Inequalities) {
+            inequalities_hold
+        } else {
+            continue;
+        };
+        let under = Step {
+            requires: vec![kinded.shown.clone()],
+            ..after.clone()
+        };
+        let mut scratch = Report::default();
+        let at = ClosureClaim::requires(&under, &under.requires[0]);
+        let decided = decides(&mut scratch, thm, &at, known, targets);
+        let why = match scratch.problems.first() {
+            Some(problem) => problem.message.clone(),
+            None if !decided => "its method does not decide it".to_string(),
+            None => continue,
+        };
+        report.say(
+            &thm.path,
+            d.line,
+            format!(
+                "the reason under let {} does not show {}: {why}",
+                d.label,
+                str::trim(kinded.shown.fact.text())
+            ),
+        );
+    }
+}
+
 /// What a method step's lines are asked against: how its method decides,
 /// and the defines of functions the theorem may apply.
 struct CitesAsked<'a> {
@@ -2588,18 +2736,25 @@ impl CitesAsked<'_> {
     ) -> bool {
         let mut lighter = step.clone();
         lighter.just.refs = refs.to_vec();
+        self.holds(thm, &lighter, known)
+    }
+
+    /// Whether `lighter`, a step with something of it taken away, holds:
+    /// its method decides it with nothing refused, and each define it
+    /// applies has its argument in its domain.
+    fn holds(&self, thm: &Theorem, lighter: &Step, known: &Known) -> bool {
         let mut scratch = Report::default();
         let decided = (self.decides)(
             &mut scratch,
             thm,
-            &ClosureClaim::step(&lighter),
+            &ClosureClaim::step(lighter),
             known,
             self.targets,
         );
         decided
             && scratch.problems.is_empty()
             && super::citations::domains_unsaid(
-                &lighter,
+                lighter,
                 self.functions,
                 known,
                 self.library,
@@ -2642,7 +2797,7 @@ pub fn check_method_cites_used(
             targets: &library.targets,
         };
         let refs = &step.just.refs;
-        if refs.is_empty() || !asked.holds_citing(thm, step, refs, known) {
+        if !asked.holds(thm, step, known) {
             continue;
         }
         let mut seen = BTreeSet::new();
@@ -2654,6 +2809,32 @@ pub fn check_method_cites_used(
                     &thm.path,
                     step.just.line,
                     format!("step {} cites {r} and uses nothing it says", step.number),
+                );
+            }
+        }
+        // A requires line other than a membership, `x ≠ 0` or an order,
+        // does work in the same sense; a membership is
+        // `check_requires_combined`'s. A requires line rests on those above
+        // it (`SYNTAX.md`), so only the last is asked here: one above it is
+        // what the elaborator judges by what the lines below rest on.
+        for (i, req) in step.requires.iter().enumerate() {
+            let membership = known
+                .whole(step, &req.fact)
+                .is_some_and(|n| n.notation == "membership");
+            if i + 1 != step.requires.len() || membership {
+                continue;
+            }
+            let mut lighter = step.clone();
+            lighter.requires.remove(i);
+            if asked.holds(thm, &lighter, known) {
+                report.say(
+                    &thm.path,
+                    req.line,
+                    format!(
+                        "the requires line of step {} says {}, and the step neither uses nor asks for it",
+                        step.number,
+                        str::trim(req.fact.text())
+                    ),
                 );
             }
         }
@@ -3222,6 +3403,21 @@ pub fn check_closed_arithmetic(report: &mut Report, thm: &Theorem, known: &Known
             let Some(claim) = link.claim(known) else {
                 continue;
             };
+            // An order is worked out of numerals alone: one relating terms
+            // with letters in them is inequalities', which a step of its own
+            // shows and the link cites.
+            if !claim.names().is_empty() && claim.notation == "order" {
+                report.say(
+                    &thm.path,
+                    link.line.line,
+                    format!(
+                        "a link of step {} names arithmetic for {}, an order of terms with letters in them, which arithmetic does not work out; a step showing it by inequalities is cited instead",
+                        step.number,
+                        link.line.quoted(&link.from)
+                    ),
+                );
+                continue;
+            }
             if !claim.names().is_empty() && !changed_closed(&link, known) {
                 report.say(
                     &thm.path,

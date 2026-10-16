@@ -675,7 +675,7 @@ fn check_theorem(
     formulas::check_clashes(report, thm, clashes);
     formulas::check_contradiction(report, thm, env, k);
     formulas::check_contradicting(report, thm, env, k);
-    formulas::check_impossible(report, thm, k);
+    formulas::check_impossible(report, thm, k, &library.targets);
     formulas::check_decided_words(report, thm, k, c.defined, c.operations);
     formulas::check_chain_congruences(report, thm);
     formulas::check_both_directions(report, thm, k);
@@ -702,10 +702,12 @@ fn check_theorem(
     citations::check_substitutes(report, thm, library, k);
     citations::check_function_types(report, thm, library, k, scopes);
     formulas::check_define_citation(report, thm, library, k, scopes);
+    formulas::check_define_names(report, thm, k, scopes);
     citations::check_obtained(report, thm, library, k);
     citations::check_obtained_claims(report, thm, library, k);
     citations::check_requires(report, thm, library, k);
     citations::check_kinds(report, thm, library, k);
+    formulas::check_kind_methods(report, thm, k, &library.targets);
     citations::check_surplus(report, thm, library, k, scopes);
     // After the surplus of what a requires line cites, which says more of
     // the line than that its term is not the step's.
