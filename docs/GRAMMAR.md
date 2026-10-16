@@ -905,7 +905,9 @@ The seventeen heads and the slots each admits:
   | `instantiate` <instantiation> <target> [ `,` <from> ]
   | `algebra` [ `,` <from> ]
   | `arithmetic`
-  | `inequalities` [ `,` <from> ]
+  | `inequalities` [ `,` <from> ]                  -- with no `from`, rows may follow
+  | `transitivity` `,` <from>
+  | `antisymmetry` `,` <from>
   | `membership` [ `,` <from> ]
   | `inspection` [ `,` <from> ]
   | `join` <ref> { `,` <ref> }
@@ -1014,6 +1016,26 @@ same way; and `≡` with the lines' modulus if any line is `≡`: 10^(m + 1) =
 10^m·10 ≡ 1·10 ≡ 10 ≡ 1 (mod 3) concludes a congruence, never an equation. A `≡` line cites a line stating
 exactly that congruence, as any line does, so a term is never replaced by a
 congruent one inside an exponent, where congruence does not carry.
+
+## Inequality rows
+
+```grammar
+<rows>      ::= <first row> <row> { <row> }
+<first row> ::= <formula> <ref>
+<row>       ::= <formula> <manipulation>
+<manipulation> ::= `adding` <term> | `multiplying by` <term>
+                 | `symmetry` | `weakening` | `algebra`
+```
+
+An `inequalities` justification with no `from` may be followed by its rows,
+one to a line, each a formula and then its reason. The reason is read from
+the right: the last word is a reference, `symmetry`, `weakening` or
+`algebra`, or the line ends in `adding` or `multiplying by` and a term, and
+the formula is what is left. Each formula is an order, an equation, a
+disequality or the negation of an order, a sentence the parser reads; the
+term after `adding` or `multiplying by` is read the same way. The first
+row's reference is a line the step cites, and its only citation. What each
+row may be, and that the last is the claim, is `METHODS.md`'s.
 
 ## Scope of a citation
 

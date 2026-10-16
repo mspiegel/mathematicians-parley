@@ -77,8 +77,8 @@ by it as exactly as by 2.
 A numeral divided by a term that is not one is that numeral times the term's
 reciprocal, and the reciprocal is the atom: `2/(n + 1)` is `2 · (1/(n + 1))`,
 the same atom `1/(n + 1)` a line bounding it names. It is the rule for `/` by
-a numeral taken one step further, and it is what lets `1/(n + 1) ≤ 1/N` bound
-`2/(n + 1)` without a line saying one is twice the other.
+a numeral taken one step further, and it is what lets a row `multiplying by
+2` take `1/(n + 1) ≤ 1/N` to `2/(n + 1) ≤ 2/N`.
 
 So in `f(x₁) − f(c) ≤ |f(x₁) − f(c)|` the atoms are `f(x₁)`, `f(c)` and
 `|f(x₁) − f(c)|`, three of them, and the last is an atom even though its own
@@ -97,6 +97,62 @@ writes a name without what it names reads the name as one atom, so it rests
 on nothing it does not cite. Two sums that
 differ only in their letter are one atom too, and a line saying one of them
 is real says it of the other.
+
+### What a step does
+
+**A step adds the lines it cites, side by side, and nothing more.** From
+`a ≤ b` and `c ≤ d` it claims `a + c ≤ b + d`: the claim's left side is the
+sum of the lines' left sides, and its right side the sum of their right
+sides, each compared as a number, so `c + a` is that sum as well. The
+lines are added as they stand. A step does not multiply one, cancel what two
+share, rewrite a side, or read an equation as an inequality: equations add
+to an equation, and orders to an order, strict where one of them is. Each of
+those is a row (below), and a chain is `transitivity`.
+
+Along the way it uses, without their being written, what a reader takes in
+without thinking:
+
+- **the bounds a membership gives**: `k ∈ ℕ` gives `k ≥ 1`, `k > 0` and
+  `k ≠ 0` (Facts in);
+- **a closed numeral fact**: `1 > 0` (Facts in);
+- **a disequality taken both ways**: `a ≤ b` and `a ≠ b` give `a < b`
+  (The procedure);
+- **a negation turned round**: `not (a ≤ b)` is `b < a` (The procedure).
+
+A step citing nothing it adds may rest on those alone: `m < m + 1`, `a ≤
+a`, and `0 ≤ N` from `N ∈ ℕ` are each one step.
+
+### Rows
+
+A step that makes any other manipulation writes it out, a row at a time,
+with the justification `inequalities` and no `from`:
+
+```
+1.1.  A < (A + B)/2
+      inequalities
+        A < B                D1
+        A + A < A + B        adding A
+        2·A < A + B          algebra
+        A < (A + B)/2        multiplying by 1/2
+```
+
+The first row is a line the step cites, written out, with the line's label
+as its reason. Each row after it is the row above with the manipulation its
+reason names, and the last row is the claim:
+
+| reason | the row is the row above with |
+|---|---|
+| `adding t` | t added to both sides |
+| `multiplying by c` | both sides multiplied by c, a number other than 0; for c negative the relation turned round |
+| `symmetry` | an equation's two sides swapped |
+| `weakening` | `<` or `=` weakened to `≤`, `>` or `=` to `≥`, or `<` or `>` to `≠` |
+| `algebra` | a side written as the same number another way |
+
+A row that adds or multiplies may write what it makes as the same number
+another way: `multiplying by 1/2` takes `2·A < A + B` to `A < (A + B)/2`,
+with `(2·A)/2` written `A`. An `algebra` row is for a rewriting that stands
+alone. Each row's atoms are real, as a step's are (Hypotheses), and a row
+multiplying by a term other than a numeral is no row: the method is linear.
 
 ### Facts in
 
@@ -132,15 +188,17 @@ sentence is what stops that being a quiet borrowing across the boundary
 ### Fact out
 
 The claim must be a single fact of the same five shapes. Both an equation and
-the negation of a relation are permitted as conclusions: the corpus concludes
-`d = gcd(a, b)` from two inequalities, and concludes `not c ≤ c − δ` from
-`δ > 0`.
+the negation of a relation are permitted as conclusions: an equation where the
+lines added are equations, and the negation of a relation turned round, as
+`not c ≤ c − δ` from `δ > 0`. An equation from two orders, `d = gcd(a, b)`
+from `d ≤ gcd(a, b)` and `gcd(a, b) ≤ d`, is `antisymmetry`'s.
 
 ### The procedure
 
 Negate the claim, add it to the cited facts, and show the set has no solution
-over an ordered field. Concretely this is Fourier–Motzkin elimination over the
-atoms, with three additions:
+over an ordered field, by a combination that adds the facts as they stand,
+each once (What a step does). Concretely this is Fourier–Motzkin elimination
+over the atoms, with two additions:
 
 - **A negation is a fact, not a special case.** `not (a ≤ b)` is `b < a` and
   `not (a = b)` is `a < b or b < a`. Eight of the 25 steps do nothing but move
@@ -150,9 +208,10 @@ atoms, with three additions:
 - **A disequality splits.** Using `not (e = 0)` means solving twice, once with
   `e < 0` and once with `0 < e`, and both must fail. Two steps need this, each
   turning `≤` together with `≠` into `<`.
-- **An equation is two inequalities.** This is what lets the method use a cited
-  equation, which four steps of the triangle inequality do when they conclude
-  `x ≤ |x|` from `|x| = x`.
+
+An equation is not two inequalities to a step. `x ≤ |x|` from `|x| = x` is
+written as rows, `|x| = x`, then `x = |x|` by `symmetry`, then `x ≤ |x|` by
+`weakening`, so that the reader sees the equation read as an order.
 
 ### Refusals
 
@@ -163,6 +222,9 @@ atoms, with three additions:
   absolute value, the value of a function. Those are cited items.
 - **Strictness it was not given.** From `a ≤ b` alone it will not conclude
   `a < b`; the disequality must be among the cited facts.
+- **Anything but adding, in a step.** Multiplying a line, cancelling what
+  two lines share, rewriting a side, or reading an equation as an order.
+  Each is a row, and a chain is `transitivity`.
 
 ### Hypotheses
 
@@ -284,6 +346,46 @@ cited fact has a letter of its own that the claim holds, so a true claim
 uses every line it cites, and a cited disequality is drawn only where it
 is what makes the claim strict. The method must prove each true claim and
 refuse each false one as not following.
+
+---
+
+## transitivity
+
+`transitivity, from L₁, …, Lₙ` is the transitive property of `=`, `≤` and
+`<`: from `a ≤ b` and `b < c`, `a < c`. The cited lines, in the order they
+are cited, make a chain. Each is one relation between two terms, and each
+line's right side is the next line's left side, written the same way, since
+rewriting a side is a row of `inequalities`. The claim relates the first
+line's left side to the last line's right side.
+
+Its relation is a calculation's (`SYNTAX.md`, `calculation`): `=` where every
+line is `=`; going up, `≤` where every line is `=` or `≤`, and `<` where any
+is `<`; going down, `≥` and `>` the same way. A chain goes one way: `a ≤ b`
+and `b ≥ c` say nothing of a against c, and are refused. An equation is a
+link either way round, as in a calculation.
+
+It is a calculation whose terms the cited lines write: what the reader of
+`a ≤ b < c` follows, said of two lines that each state a link. A step
+puts two facts together without an "and", as a calculation's links do.
+
+**Refusals.** Lines that do not chain in the order cited; a middle term
+written two ways; a chain that goes both up and down; a claim that is not
+the chain's first term related to its last by the chain's relation.
+
+---
+
+## antisymmetry
+
+`antisymmetry, from L₁, L₂` is the antisymmetry of `≤`: from `a ≤ b` and
+`b ≤ a`, `a = b`. The two cited lines are those two orders, in either
+order, each side written the same way in both, and the claim is the
+equation between them, either way round: Bezout's `d = gcd(a, b)` from `d ≤
+gcd(a, b)` and `gcd(a, b) ≤ d`. `≥` is `≤` the other way round, so `b ≥ a`
+is `a ≤ b`.
+
+**Refusals.** Lines that are not one order and its converse; a strict
+order, which with its converse is a contradiction and not an equation; a
+claim that is not the equation of the two sides.
 
 ---
 

@@ -149,7 +149,11 @@ method inspection
 method inequalities
   form        inequalities, from L
   block       none
-  checks      the rules for inequalities, starting from L.
+  checks      the lines L added side by side, as they stand, with the bounds a
+              membership gives, closed numeral facts, a disequality taken
+              both ways and a negation turned round; or, with no `from`,
+              rows: a cited line written out, each row after it the row above
+              with the manipulation its reason names, the last the claim.
   decides     linear arithmetic over an ordered field, with every subterm that
               is not built from numerals and + − · / treated as an atom it
               knows nothing about
@@ -163,6 +167,31 @@ method inequalities
               disequality is this method's when the order is what settles it,
               as 0 ≤ r with r ≠ 0 giving 0 < r, and algebra's when no order
               is involved, as 1 − a ≠ 0 from a ≠ 1.
+
+method transitivity
+  form        transitivity, from L
+  block       none
+  checks      the lines L, in the order cited, make a chain, each line's right
+              side the next line's left side, written the same way; the claim
+              relates the first left side to the last right side, by the
+              relation a calculation's chain of those links would have.
+  decides     the transitive property of =, ≤ and <, and of ≥ and > going
+              down
+  hypotheses  none
+  specified-in METHODS.md
+  metamath    eqbrtrd, breqtrd, letrd, lttrd, lelttrd, ltletrd
+  note        A calculation whose terms the cited lines write: it puts two
+              facts together without an "and", as a calculation's links do.
+
+method antisymmetry
+  form        antisymmetry, from L
+  block       none
+  checks      L is two lines, a ≤ b and b ≤ a, in either order; the claim is
+              a = b, either way round.
+  decides     the antisymmetry of ≤
+  hypotheses  none
+  specified-in METHODS.md
+  metamath    letri3d, eqcomd
 
 method join
   form        join L
