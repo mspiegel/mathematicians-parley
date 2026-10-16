@@ -419,6 +419,32 @@ pub fn check_decided_words(
                 asked.push((r.line, &r.fact));
             }
         }
+        // A link naming `arithmetic` works out the pieces it changes, which
+        // are asked as a step's claim is: (1 + 1)! = 2 is no fact of its.
+        for link in chain_links(&step.just, &thm.path) {
+            if link.line.cite != "arithmetic" {
+                continue;
+            }
+            let Some(claim) = link.claim(known) else {
+                continue;
+            };
+            let [one, other] = claim.children.as_slice() else {
+                continue;
+            };
+            let mut worked: BTreeSet<String> = BTreeSet::new();
+            link_undecided(one, other, known, operations, &mut worked);
+            for operation in worked {
+                report.say(
+                    &thm.path,
+                    link.line.line,
+                    format!(
+                        "a link of step {} names arithmetic for {}, which works out {operation}, and arithmetic works out an operation beyond its own only where the notation's record says so in a `decided` field",
+                        step.number,
+                        link.line.quoted(&link.from),
+                    ),
+                );
+            }
+        }
         let sentences = asked.into_iter().flat_map(|(line, written)| {
             written.sentences().into_iter().map(move |s| (line, s))
         });
@@ -1397,7 +1423,6 @@ fn link_pieces_unworked(
     known: &Known,
     targets: &Targets,
 ) -> Option<String> {
-    let claim = link.claim(known)?;
     let unworked = |fact: &Node| -> Option<String> {
         match decide_closed(&term_of_node(&written_out(fact, known), targets)) {
             Built(Verdict::Holds(false)) => {
@@ -1407,6 +1432,7 @@ fn link_pieces_unworked(
             _ => None,
         }
     };
+    let claim = link.claim(known)?;
     if claim.names().is_empty() {
         return unworked(&claim);
     }
@@ -1420,6 +1446,41 @@ fn link_pieces_unworked(
     pieces.into_iter().find_map(|Piece { was, now }| {
         unworked(&made(known.env.g, "equality", "=", vec![was, now]))
     })
+}
+
+/// The operations `arithmetic` does not work out (`operations`, false) that
+/// a link naming it works out: those of what it changes, where a part both
+/// sides build by one operation alike is not worked out, only what is
+/// changed inside it. So 2! = (1 + 1)! works out 1 + 1 and no factorial,
+/// and (1 + 1)! = 2 works the factorial out.
+fn link_undecided(
+    one: &Node,
+    other: &Node,
+    known: &Known,
+    operations: &IndexMap<String, bool>,
+    out: &mut BTreeSet<String>,
+) {
+    if known.alike(one, other) {
+        return;
+    }
+    let undecided = |n: &Node| operations.get(&n.notation) == Some(&false);
+    if one.notation == other.notation
+        && one.text == other.text
+        && one.children.len() == other.children.len()
+    {
+        for (a, b) in one.children.iter().zip(&other.children) {
+            link_undecided(a, b, known, operations, out);
+        }
+        return;
+    }
+    for side in [one, other] {
+        out.extend(
+            side.walk()
+                .into_iter()
+                .filter(|n| undecided(n))
+                .map(|n| n.notation.clone()),
+        );
+    }
 }
 
 /// A piece of numerals alone a link changes, and what it becomes.

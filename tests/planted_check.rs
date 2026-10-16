@@ -4203,6 +4203,15 @@ fn cases() -> Vec<Case> {
             "step 1 cites thm:planted-lemma, which asks for a = e, and what it cites does not supply it",
         ),
         case(
+            "a calculation link working out a factorial by arithmetic",
+            vec![edit(
+                "proofs/wiedijk/planted.proof",
+                None,
+                "import mundane definition stdlib/counting/factorial\n\ntheorem planted\n  let x ∈ ℝ    (H1)\n  assume x = 1/(1 + 1)!    (H2)\n  then x = 1 − 1/(1 + 1)!\n\n1.  x = 1 − 1/(1 + 1)!\n    calculation\n      x = 1/(1 + 1)!            H2\n        = 1 − 1/(1 + 1)!        arithmetic\n".to_string(),
+            )],
+            "a link of step 1 names arithmetic for 1/(1 + 1)! = 1 − 1/(1 + 1)!, which works out factorial",
+        ),
+        case(
             "a requires line under a join",
             vec![edit(
                 "proofs/wiedijk/planted.proof",
