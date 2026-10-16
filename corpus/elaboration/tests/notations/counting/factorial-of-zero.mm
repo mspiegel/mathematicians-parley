@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.notations.counting.factorial-of-zero $p |- ( ! ` 0 ) = 1 $=
-    ( cc0 cfa cfv c1 wceq wtru fac0 a1i mptru ) ABCZDEZKFGHI $.
+    ( cc0 cfa cfv c1 wceq wtru eqid fveq2i fac0 eqtri eqtr4i a1i mptru ) ABCZDEZOFNDDNNDAABAGHIJDGKLM $.
 $}

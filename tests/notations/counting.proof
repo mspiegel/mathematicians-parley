@@ -1,5 +1,4 @@
 import mundane definition stdlib/counting/factorial
-import mundane theorem    stdlib/counting/factorial-zero
 import definition         stdlib/counting/C
 import mundane theorem    stdlib/counting/binomial-outside
 import mundane theorem    stdlib/counting/card-empty
@@ -13,7 +12,7 @@ theorem factorial-of-zero
   then 0! = 1
 
 1.  0! = 1
-    mun:factorial-zero
+    arithmetic
 
 theorem factorial-of-two
   then 2! = 2

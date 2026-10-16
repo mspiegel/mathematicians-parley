@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   proofs.setmm.binomial-basics.factorial-nat0 $p |- ( A e. NN0 -> ( ! ` A ) e. NN0 ) $=
-    ( cn0 wcel cn cfa cfv cc0 wceq wa simpr nnnn0 syl faccl c1 fveq2d fac0 a1i eqtrd 1nn0 eqeltrd wo id wb elnn0 mpbid mpjaodan ) ABCZADCZAEFZBCZAGHZUGUHIZUIDCZUJULUGUMULUHUGUGUHJAKLAMLUIKLUGUKIZUINBUNUIGEFZNUNAGEUGUKJOUONHUNPQRNBCUNSQTUGUGUHUKUAZUGUBUGUPUCUGAUDQUEUF $.
+    ( cn0 wcel cn cfa cfv cc0 wceq wa simpr nnnn0 syl faccl c1 fveq2d eqid fveq2i fac0 eqtri eqtr4i a1i eqtrd 1nn0 eqeltrd wo id wb elnn0 mpbid mpjaodan ) ABCZADCZAEFZBCZAGHZUKULIZUMDCZUNUPUKUQUPULUKUKULJAKLAMLUMKLUKUOIZUMNBURUMGEFZNURAGEUKUOJOUSNHURUSNNUSUSNGGEGPQRSNPTUAUBNBCURUCUAUDUKUKULUOUEZUKUFUKUTUGUKAUHUAUIUJ $.
 $}

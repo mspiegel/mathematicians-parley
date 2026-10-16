@@ -169,8 +169,9 @@ words carrying it are `divides`, `even` and `odd`, for both methods, and
 `congruent-mod`, for `arithmetic`; what each method does with them is in
 `METHODS.md`.
 
-An operation is annotated the same way, on its notation record: `mod` carries
-`decided arithmetic`, so `arithmetic` works out 10^0 mod 3. The operations
+An operation is annotated the same way, on its notation record: `mod` and
+the factorial carry `decided arithmetic`, so `arithmetic` works out
+10^0 mod 3 and (1 + 1)!. The operations
 `arithmetic` works out by its nature, +, −, ·, /, powers and a product over a
 range, carry none, as the relations it decides by its nature do not; any
 other is worked out only where its record says so, and both tools refuse a

@@ -1,5 +1,4 @@
 import mundane definition stdlib/counting/factorial
-import mundane theorem    stdlib/counting/factorial-zero
 import mundane definition stdlib/numbers/nat0
 import mundane theorem    stdlib/numbers/nat-minus-one
 
@@ -56,7 +55,7 @@ theorem factorial-by-predecessor
           substitute N − 1 = 0 (C2)
 
     3.10. 0! = 1
-          mun:factorial-zero
+          arithmetic
 
     3.11. (N − 1)! = 1
           calculation

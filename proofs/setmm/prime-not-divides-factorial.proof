@@ -1,7 +1,6 @@
 import theorem            proofs/setmm/prime-divides-product/prime-divides-product
 import mundane definition stdlib/counting/factorial
 import mundane theorem    stdlib/counting/factorial-nat
-import mundane theorem    stdlib/counting/factorial-zero
 import mundane theorem    stdlib/divisibility/divides-le
 import mundane theorem    stdlib/divisibility/divides-one
 import mundane definition stdlib/divisibility/prime
@@ -113,7 +112,7 @@ theorem prime-not-divides-factorial
     assume N = 0                                                      (C3)
 
     4.1.  0! = 1
-          mun:factorial-zero
+          arithmetic
 
     4.2.  N! = 1
           substitute N = 0 (C3) into line 4.1

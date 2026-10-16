@@ -154,11 +154,6 @@ mundane theorem card-empty
   metamath    hash0
   target      hash0
 
-mundane theorem factorial-zero
-  then        0! = 1
-  metamath    fac0
-  target      fac0
-
 mundane theorem finite-part
   assume X is finite                                                  (H1)
   assume Y ⊆ X                                                        (H2)

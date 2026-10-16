@@ -646,13 +646,14 @@ that cites nothing.
 ### Fact out
 
 A relation between **closed numeral expressions**, where a closed numeral
-expression is built from decimal numerals by `+`, `−`, `·`, `/`, powers and
-`mod`, and by products over a range of numerals, ∏(k ∈ {0, …, 22}) (365 −
-k), with every operand closed. `x mod n` is worked out where x is a whole
-number and n one of at least 1: `10^0 mod 3 = 1`. `mod` is not one of the
-operations arithmetic works out by its nature, and its notation record says
-`decided arithmetic` (`DATABASE.md`); an operation whose record does not is
-refused. The relation is `=`, `≠`, `<`, `≤`, `>`, `≥`, or
+expression is built from decimal numerals by `+`, `−`, `·`, `/`, powers,
+`mod` and factorials, and by products over a range of numerals,
+∏(k ∈ {0, …, 22}) (365 − k), with every operand closed. `x mod n` is worked
+out where x is a whole number and n one of at least 1: `10^0 mod 3 = 1`;
+`n!` where n is a whole number, `(1 + 1)! = 2`. `mod` and the factorial are
+not operations arithmetic works out by its nature, and each notation record
+says `decided arithmetic` (`DATABASE.md`); an operation whose record does
+not is refused. The relation is `=`, `≠`, `<`, `≤`, `>`, `≥`, or
 membership of ℕ, ℕ₀, ℤ, ℚ or ℝ.
 
 Or a word whose record names `arithmetic` in its `decided` field
@@ -776,6 +777,9 @@ is worked as exactly as a digit.
 A remainder of whole numbers, x mod n with x = q·n + r and 0 ≤ r < n, is r
 by `modcyc`, which takes the q·n away, and `modid`, which says a number below
 n is its own remainder; where q is 0 `modid` alone says it.
+
+A factorial of a whole number is 0! = 1 (`fac0`) and (m + 1)! = m!·(m + 1)
+(`facp1`), each product worked out as above.
 
 A divisibility of whole numbers is proved at their values and carried back to
 the terms as written by `breq12d`. That d divides n, with n = d·q, is

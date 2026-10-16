@@ -1,6 +1,5 @@
 import mundane definition stdlib/counting/factorial
 import mundane theorem    stdlib/counting/factorial-nat
-import mundane theorem    stdlib/counting/factorial-zero
 import mundane definition stdlib/numbers/nat0
 import definition         stdlib/counting/C
 import theorem            proofs/setmm/factorial-by-predecessor/factorial-by-predecessor
@@ -35,7 +34,7 @@ theorem factorial-nat0
     assume N = 0                                                      (C2)
 
     2.3.  0! = 1
-          mun:factorial-zero
+          arithmetic
 
     2.4.  N! = 0!
           substitute N = 0 (C2)
@@ -82,7 +81,7 @@ theorem factorial-successor
           substitute n = 0 (C2)
 
     2.6.  0! = 1
-          mun:factorial-zero
+          arithmetic
 
     2.7.  n! = 1
           calculation
@@ -127,7 +126,7 @@ theorem factorial-nonzero
     assume N = 0                                                      (C2)
 
     2.3.  0! = 1
-          mun:factorial-zero
+          arithmetic
 
     2.4.  N! = 0!
           substitute N = 0 (C2)
@@ -165,7 +164,7 @@ theorem choose-all
     substitute N − N = 0 (line 4)
 
 6.  0! = 1
-    mun:factorial-zero
+    arithmetic
 
 7.  (N − N)! = 1
     calculation
