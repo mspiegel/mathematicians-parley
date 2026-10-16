@@ -1541,6 +1541,80 @@ fn algebra_unsaid(
     None
 }
 
+/// What an `inequalities` step that holds leaves unsaid of its hypotheses
+/// (`METHODS.md`, inequalities): every atom of its claim and of the facts
+/// the step combines (`inequalities::combined`), not of every sentence a
+/// cited line says, is a real number, said once or by a line the step
+/// names, and a divisor that is not a numeral is not zero by such a line.
+/// None where both are said.
+fn inequalities_unsaid(
+    at: &ClosureClaim,
+    read: &ClosureRead,
+    known: &Known,
+    targets: &Targets,
+) -> Option<String> {
+    let labels = FloatLabels::new(IndexMap::new());
+    // The cited lines fact by fact, so that a line saying several things
+    // asks only of the ones combined.
+    let mut facts: Vec<Node> = Vec::new();
+    let mut line_of: Vec<usize> = Vec::new();
+    for (said, &line) in read.lines.iter().zip(&read.line_of) {
+        for part in conjuncts(said) {
+            facts.push(part);
+            line_of.push(line);
+        }
+    }
+    let implied: Vec<Term> = facts
+        .iter()
+        .flat_map(|part| implied_facts(part, known.env, &known.sorts))
+        .map(|n| term_of_node(&n, targets))
+        .collect();
+    let terms: Vec<Term> = facts.iter().map(|n| term_of_node(n, targets)).collect();
+    let claimed = term_of_node(&read.claimed, targets);
+    let used = inequalities::combined(&claimed, &terms, &line_of, &implied, &labels)?;
+    let held = MembershipIn::of(at, read, known);
+    let given = held.given(targets, known);
+    let relations = conjuncts(&read.claimed)
+        .into_iter()
+        .chain(used.iter().filter_map(|&i| facts.get(i).cloned()));
+    for relation in relations {
+        for side in relation_sides(&relation) {
+            let parts = methods_membership::Parts::of(side);
+            if let Some(atom) = parts
+                .atoms
+                .iter()
+                .find(|a| !methods_membership::holds(a, System::R, &given))
+            {
+                return Some(format!(
+                    "nothing says {} ∈ ℝ, which this step needs",
+                    known.print(atom)
+                ));
+            }
+            if let Some(unsaid) = parts
+                .divisors
+                .iter()
+                .find_map(|d| methods_membership::unsaid_part(d, &given))
+            {
+                return Some(format!(
+                    "nothing says {} ≠ 0, which this step needs to divide by it",
+                    known.print(&unsaid)
+                ));
+            }
+        }
+    }
+    None
+}
+
+/// The two sides of an equation, an order or a disequality; none for
+/// anything else.
+fn relation_sides(node: &Node) -> Vec<&Node> {
+    match (node.notation.as_str(), node.children.as_slice()) {
+        ("equality" | "order", [a, b]) => vec![a, b],
+        ("logical-not", [inner]) => relation_sides(inner),
+        _ => Vec::new(),
+    }
+}
+
 /// Whether a sentence is an equation or a disequality, what `algebra`
 /// combines.
 fn algebra_relation(node: &Node) -> bool {
@@ -1682,7 +1756,12 @@ fn inequalities_hold(
         .collect();
     let claimed = term_of_node(&read.claimed, targets);
     match inequalities::decide(&claimed, &cited, &implied, &labels) {
-        Some(true) => true,
+        Some(true) => {
+            if let Some(said) = inequalities_unsaid(at, &read, known, targets) {
+                report.say(&thm.path, at.line, at.said(said));
+            }
+            true
+        }
         Some(false) => {
             let number = at.step.number.to_string();
             let said = inequalities::refusal(&at.claim.to_string(), &number);
@@ -1963,6 +2042,10 @@ struct ClosureClaim<'s> {
 struct ClosureRead {
     claimed: Node,
     lines: Vec<Node>,
+    /// The page's line each of `lines` is of: the cited line by its place
+    /// among the references, and a requires line above after them, by its
+    /// place among those.
+    line_of: Vec<usize>,
 }
 
 impl<'s> ClosureClaim<'s> {
@@ -2018,14 +2101,19 @@ impl<'s> ClosureClaim<'s> {
             .collect::<Option<_>>()?;
         let claimed = conjoined(known.env.g, sentences)?;
         let scope = known.scope(self.step);
-        let mut lines: Vec<Node> = self
-            .refs
-            .iter()
-            .filter_map(|r| scope.get(r))
-            .flat_map(|written| known.supplied(written, &defined))
-            .collect();
+        let mut lines: Vec<Node> = Vec::new();
+        let mut line_of: Vec<usize> = Vec::new();
+        for (i, r) in self.refs.iter().enumerate() {
+            let Some(written) = scope.get(r) else {
+                continue;
+            };
+            for said in known.supplied(written, &defined) {
+                lines.push(said);
+                line_of.push(i);
+            }
+        }
         let labels = FloatLabels::new(IndexMap::new());
-        for o in &self.above {
+        for (k, o) in self.above.iter().enumerate() {
             for s in o.fact.sentences() {
                 let Some(said) = known.read_citing(&s, &defined) else {
                     continue;
@@ -2034,10 +2122,15 @@ impl<'s> ClosureClaim<'s> {
                     .is_some_and(|f| f.how == linear::How::Ne);
                 if differing || !apart {
                     lines.push(said);
+                    line_of.push(self.refs.len() + k);
                 }
             }
         }
-        Some(ClosureRead { claimed, lines })
+        Some(ClosureRead {
+            claimed,
+            lines,
+            line_of,
+        })
     }
 
     /// A refusal as it is said here: of the requires line, where the claim

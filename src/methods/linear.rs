@@ -297,6 +297,75 @@ pub enum Certificate {
     },
 }
 
+/// A disequality taken both ways: the facts with it put last read as `<`,
+/// and as `>`, and the line each is of in that order.
+struct Readings {
+    below: Vec<Fact>,
+    above: Vec<Fact>,
+    lines: Vec<Option<usize>>,
+}
+
+impl Readings {
+    /// The readings of `facts` at the disequality `at`.
+    fn of(facts: &[Fact], line_of: &[Option<usize>], at: usize) -> Readings {
+        let mut rest: Vec<Fact> = facts[..at].to_vec();
+        rest.extend(facts[at + 1..].iter().cloned());
+        let mut lines: Vec<Option<usize>> = line_of[..at].to_vec();
+        lines.extend(line_of[at + 1..].iter().copied());
+        lines.push(line_of[at]);
+        let one = &facts[at];
+        let mut below = rest.clone();
+        below.push(Fact::new(one.side.clone(), How::Lt));
+        let mut above = rest;
+        above.push(Fact::new(one.side.scaled(&q(-1)), How::Lt));
+        Readings {
+            below,
+            above,
+            lines,
+        }
+    }
+
+    /// The place among the original facts of the fact at `i` here.
+    fn original(at: usize, i: usize, count: usize) -> usize {
+        if i + 1 == count {
+            at
+        } else if i < at {
+            i
+        } else {
+            i + 1
+        }
+    }
+}
+
+/// The facts a contradiction among `facts` uses, by their place: those
+/// `certificate`'s combination weights, and where a disequality is taken
+/// both ways, those either reading's does. None where they do not
+/// contradict.
+pub fn used_facts(
+    facts: &[Fact],
+    line_of: &[Option<usize>],
+) -> Option<BTreeSet<usize>> {
+    match certificate(facts, line_of)? {
+        Certificate::Farkas(weights) => Some(
+            weights
+                .iter()
+                .filter(|(_, w)| !w.is_zero())
+                .map(|(i, _)| *i)
+                .collect(),
+        ),
+        Certificate::Either { at } => {
+            let split = Readings::of(facts, line_of, at);
+            let mut out = BTreeSet::new();
+            for reading in [&split.below, &split.above] {
+                for i in used_facts(reading, &split.lines)? {
+                    out.insert(Readings::original(at, i, reading.len()));
+                }
+            }
+            Some(out)
+        }
+    }
+}
+
 /// Whether these facts have no solution over an ordered field.
 pub fn refutes(facts: &[Fact]) -> bool {
     certificate(facts, &vec![None; facts.len()]).is_some()
@@ -332,23 +401,13 @@ fn lines_used(weights: &Weights, line_of: &[Option<usize>]) -> usize {
 /// are eliminated in the order the facts first name them, which is the
 /// order the page writes them, so which combination is first is the page's.
 pub fn certificate(facts: &[Fact], line_of: &[Option<usize>]) -> Option<Certificate> {
-    for (i, one) in facts.iter().enumerate() {
-        if one.how == How::Ne {
-            let mut rest: Vec<Fact> = facts[..i].to_vec();
-            rest.extend(facts[i + 1..].iter().cloned());
-            let mut lines: Vec<Option<usize>> = line_of[..i].to_vec();
-            lines.extend(line_of[i + 1..].iter().copied());
-            lines.push(line_of[i]);
-            // Both readings must fail, each by a certificate of its own;
-            // the proof finds each again where it writes that side.
-            let mut first = rest.clone();
-            first.push(Fact::new(one.side.clone(), How::Lt));
-            certificate(&first, &lines)?;
-            let mut second = rest;
-            second.push(Fact::new(one.side.scaled(&q(-1)), How::Lt));
-            certificate(&second, &lines)?;
-            return Some(Certificate::Either { at: i });
-        }
+    if let Some(at) = facts.iter().position(|one| one.how == How::Ne) {
+        // Both readings must fail, each by a certificate of its own; the
+        // proof finds each again where it writes that side.
+        let split = Readings::of(facts, line_of, at);
+        certificate(&split.below, &split.lines)?;
+        certificate(&split.above, &split.lines)?;
+        return Some(Certificate::Either { at });
     }
     let mut open: Vec<Fact> = Vec::new();
     for (i, one) in facts.iter().enumerate() {
@@ -455,6 +514,21 @@ mod tests {
 
     fn atom(name: &str) -> Linear {
         Linear::atom(Rc::from(name), q(1))
+    }
+
+    #[test]
+    fn a_disequality_taken_both_ways_uses_only_what_either_reading_uses() {
+        // x ≤ 1 and x ≥ 2 contradict; y ≠ 0 between them is split on and
+        // used by neither reading, and the two bounds keep their places.
+        let x = atom("vx");
+        let y = atom("vy");
+        let facts = [
+            Fact::new(x.minus(&Linear::constant(q(1))), How::Le),
+            Fact::new(y.clone(), How::Ne),
+            Fact::new(Linear::constant(q(2)).minus(&x), How::Le),
+        ];
+        let used = used_facts(&facts, &[Some(0), Some(1), Some(2)]);
+        assert_eq!(used, Some(BTreeSet::from([0, 2])));
     }
 
     #[test]

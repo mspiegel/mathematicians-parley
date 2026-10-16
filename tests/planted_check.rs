@@ -653,6 +653,17 @@ fn cases() -> Vec<Case> {
             )],
             "d(n) ∈ ℝ is not built from what step 16.24.2 cites",
         ),
+        // Every atom an inequalities step combines is a real number by a
+        // line it names: |c| is, by line 1, which line 4 does not say.
+        case(
+            "an inequalities step combining an atom it names nothing real of",
+            vec![edit(
+                "proofs/hammack/constant-multiple-limit.proof",
+                Some("requires |c| + 1 ≠ 0: inequalities, from 1, 4".to_string()),
+                "requires |c| + 1 ≠ 0: inequalities, from 4".to_string(),
+            )],
+            "nothing says |c| ∈ ℝ, which this step needs",
+        ),
         // An induction over ℕ starts at 1 and writes it, runs over ℕ or ℕ₀,
         // and has a base part and a step part.
         case(

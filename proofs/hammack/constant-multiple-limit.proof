@@ -40,7 +40,7 @@ theorem constant-multiple-limit
 
     5.2.  ε/(|c| + 1) ∈ ℝ
           membership, from 1
-          requires |c| + 1 ≠ 0: inequalities, from 4
+          requires |c| + 1 ≠ 0: inequalities, from 1, 4
 
     5.3.  For all ε > 0, there exists N ∈ ℕ such that |a(n) − L| < ε for all n ≥ N.
           def:tends-to, from H4
@@ -73,7 +73,7 @@ theorem constant-multiple-limit
 
           5.6.6.  (|c| + 1)·(ε/(|c| + 1)) = ε
                   algebra, from 1
-                  requires |c| + 1 ≠ 0: inequalities, from 4
+                  requires |c| + 1 ≠ 0: inequalities, from 1, 4
 
           5.6.7.  (|c| + 1)·|a(n) − L| = |c|·|a(n) − L| + |a(n) − L|
                   algebra, from 1, 5.6.2
@@ -90,7 +90,7 @@ theorem constant-multiple-limit
 
           5.6.11. |c·a(n) − c·L| < ε
                   inequalities, from 1, 5.6.2, 5.6.4, 5.6.5, 5.6.6, 5.6.7, 5.6.10
-                  requires |c| + 1 ≠ 0: inequalities, from 4
+                  requires |c| + 1 ≠ 0: inequalities, from 1, 4
                   requires c·a(n) − c·L ∈ ℝ: membership, from H1
                   requires |c·a(n) − c·L| ∈ ℝ: mun:abs-real x := c·a(n) − c·L
 
