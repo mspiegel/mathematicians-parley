@@ -512,6 +512,21 @@ pub fn certificate(
     alike: bool,
 ) -> Option<Certificate> {
     if let Some(at) = facts.iter().position(|one| one.how == How::Ne) {
+        // A disequality is taken both ways only where the facts without it
+        // do not contradict: a combination of the others asks nothing of
+        // either reading, nor that its sides be real.
+        let kept: Vec<usize> = (0..facts.len())
+            .filter(|&i| facts[i].how != How::Ne)
+            .collect();
+        let fewer: Vec<Fact> = kept.iter().map(|&i| facts[i].clone()).collect();
+        let lines: Vec<Option<usize>> = kept
+            .iter()
+            .map(|&i| line_of.get(i).copied().flatten())
+            .collect();
+        if let Some(Certificate::Farkas(weights)) = certificate(&fewer, &lines, alike) {
+            let back = weights.into_iter().map(|(i, w)| (kept[i], w)).collect();
+            return Some(Certificate::Farkas(back));
+        }
         // Both readings must fail, each by a certificate of its own; the
         // proof finds each again where it writes that side.
         let split = Readings::of(facts, line_of, at);

@@ -870,6 +870,10 @@ impl<'a> Elaborator<'a> {
         said: &str,
         named: &str,
     ) -> Checked<Proof> {
+        // What the step may rest on, and nothing else in scope: a line it
+        // does not name says nothing of its divisors (`GOALS.md` decision 9).
+        let restable = self.restable(facts);
+        let facts = &restable;
         if let Some(found) = self.written_nonzero(scope, facts, implied, said)? {
             return Ok(found);
         }
@@ -931,7 +935,30 @@ impl<'a> Elaborator<'a> {
                 return Ok(Some(p));
             }
         }
-        self.apart_as_written(said, scope, facts)
+        if let Some(p) = self.apart_as_written(said, scope, facts)? {
+            return Ok(Some(p));
+        }
+        // A term is not zero where its negation is not (`negne0bd`): the
+        // normaliser writes (−q)/(−p) over p, and the page says −p ∈ ℕ.
+        let term = self.to_term(said);
+        if term.label() == Some("cneg") {
+            return Ok(None);
+        }
+        let negated = t!(said, "cneg");
+        let Some(found) = self.written_nonzero(scope, facts, implied, &negated)? else {
+            return Ok(None);
+        };
+        let Built(number) = self.part(said, "cc", scope, facts)? else {
+            return Ok(None);
+        };
+        let turned =
+            self.b
+                .ap("negne0bd", &binds! {"ph" => scope, "A" => said}, &[&number]);
+        Ok(Some(self.b.ap(
+            "mpbird",
+            &binds! {"ph" => scope, "ps" => &want, "ch" => t!(&negated, "cc0", "wne")},
+            &[&found, &turned],
+        )))
     }
 
     /// The same fact about the same denominator, spelt as the text spells

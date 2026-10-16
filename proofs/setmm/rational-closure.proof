@@ -137,7 +137,7 @@ theorem rational-reciprocal
           requires −p > 0: multiplying by −1, from C1
 
     4.2.  1/A = (−q)/(−p)
-          algebra, from H2, 1, 2, 4.1
+          algebra, from H2, 1, 4.1
 
     4.3.  There are a ∈ ℤ and b ∈ ℕ with 1/A = a/b.
           exhibit, from 4.1, 4.2

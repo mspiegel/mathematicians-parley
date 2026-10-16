@@ -4055,9 +4055,9 @@ fn cases() -> Vec<Case> {
         case(
             "two memberships claimed by one membership step",
             vec![
-                edit("tests/elaborator/textbook-exercise-shapes.proof", Some("1.  Σ(k = 1 to n) (k + 1) ∈ ℝ\n".to_string()), "1.  Σ(k = 1 to n) (k + 1) ∈ ℝ. n + 1 ∈ ℝ.\n".to_string()),
+                edit("proofs/hammack/constant-multiple-limit.proof", Some("3.  |c| + 1 ∈ ℝ\n    membership, from 1\n".to_string()), "3.  |c| + 1 ∈ ℝ. |c| ∈ ℝ.\n    membership, from 1\n".to_string()),
             ],
-            "step 1 claims 2 sentences by membership, which says one term is in a number system; each is a step of its own",
+            "step 3 claims 2 sentences by membership, which says one term is in a number system; each is a step of its own",
         ),
         case(
             "a substitute's source label written with the word line",
@@ -4153,6 +4153,42 @@ fn cases() -> Vec<Case> {
                 edit("proofs/wiedijk/geometric-series.proof", Some("       reads the geometric series: the powers of a, from a^0 up to a^n\n".to_string()), String::new()),
             ],
             "carries no `reads` line",
+        ),
+        // A method step uses each line it cites: the certificate combines
+        // lines 2 and 3, and line 1 says a + b is at least 0 or below it,
+        // which the step does not combine.
+        case(
+            "cite a line a method step does not combine",
+            vec![edit(
+                "proofs/wiedijk/triangle-inequality.proof",
+                Some("    4.2.  a + b ≤ |a| + |b|\n          inequalities, from 2, 3\n".to_string()),
+                "    4.2.  a + b ≤ |a| + |b|\n          inequalities, from 1, 2, 3\n".to_string(),
+            )],
+            "step 4.2 cites 1 and uses nothing it says",
+        ),
+        // k's membership is said once, by K, and every step has it without
+        // naming K. A method step citing K for it cites a line it uses
+        // nothing of.
+        case(
+            "cite a let line only for the membership it says once, in a method step",
+            vec![edit(
+                "proofs/wiedijk/sum-formula.proof",
+                Some("    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2\n          algebra\n".to_string()),
+                "    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2\n          algebra, from K\n".to_string(),
+            )],
+            "step 1.6 cites K and uses nothing it says",
+        ),
+        // A requires line's `from` names the lines it rests on, as a step's
+        // does: d(k) ∈ ℝ rests on H2, d's type, at a k said once in ℕ₀,
+        // read up into ℝ.
+        case(
+            "a requires line from a function's type naming the let of its point",
+            vec![edit(
+                "proofs/wiedijk/divisibility-by-three.proof",
+                Some("          algebra\n          requires d(k) ∈ ℝ: from H2\n".to_string()),
+                "          algebra\n          requires d(k) ∈ ℝ: from H2, K\n".to_string(),
+            )],
+            "the requires line of step 1.4 cites K, and d(k) ∈ ℝ needs nothing it says",
         ),
         // A requires line's manipulation is of the one line it names.
         case(

@@ -81,6 +81,14 @@ pub fn said(term: &Node, system: System, facts: &Facts) -> bool {
     within(term, system, &facts.letters, &nonzero, &stated)
 }
 
+/// Whether a bare `from` line reads `term ∈ system` off its facts
+/// (`SYNTAX.md`): said, as a method's atoms are, or a function's value at a
+/// point of its domain by a type among them. It builds nothing from parts
+/// beyond what is said once, which is the `membership` method's to do.
+pub fn read_off(term: &Node, system: System, facts: &Facts) -> bool {
+    said(term, system, facts) || valued(term, system, facts, 0)
+}
+
 fn member(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
     let nonzero = |d: &Node| nonzero(d, facts);
     let said = |t: &Node, s: System| said_otherwise(t, s, facts, depth);

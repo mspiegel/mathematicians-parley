@@ -832,15 +832,12 @@ let e(n) = s(D(f(n), n)), for n ∈ ℕ                                  (D7)
     proof
     let n ∈ ℕ                                                         (K4)
 
-    5.1.  D(f(n), n) ∈ ℤ
-          instantiate n := n in line 1
-
-    5.2.  e(n) ∈ ℤ and 0 ≤ e(n) and e(n) ≤ 9
+    5.1.  e(n) ∈ ℤ and 0 ≤ e(n) and e(n) ≤ 9
           and e(n) ≠ D(f(n), n) and s(e(n)) ≠ D(f(n), n)
           instantiate n := n in line 2
 
-    5.3.  0 ≤ e(n) and e(n) ≤ 9
-          inequalities, from 5.1, 5.2
+    5.2.  0 ≤ e(n) and e(n) ≤ 9
+          inequalities, from 5.1
 
 6.  x ∈ ℝ. For all n ∈ ℕ, D(x, n) = e(n) or D(x, n) = s(e(n)).
     obtain x: thm:decimal-number d := e, from 5

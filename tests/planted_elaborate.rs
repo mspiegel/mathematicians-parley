@@ -215,17 +215,6 @@ fn cases() -> Vec<Case> {
             "the build cannot yet prove this, which the checker accepts: no clause of mun:abs gives what step 2.6 claims",
         )
         .at("proofs/wiedijk/triangle-inequality.proof", "2.6.  |x| = −x"),
-        // The certificate combines lines 2 and 3; line 1 says a + b is at
-        // least 0 or below it, which the step does not combine, and is cited
-        // for nothing.
-        case(
-            "cite a line a method step does not combine",
-            "proofs/wiedijk/triangle-inequality/triangle-inequality",
-            "proofs/wiedijk/triangle-inequality.proof",
-            "    4.2.  a + b ≤ |a| + |b|\n          inequalities, from 2, 3\n",
-            "    4.2.  a + b ≤ |a| + |b|\n          inequalities, from 1, 2, 3\n",
-            "step 4.2 cites 1 and uses nothing it says",
-        ),
         // Each part of what the claim asks of the witness is one of the
         // target's lemmas, and a part none of them reaches is the target
         // failing, not something to take as stated.
@@ -258,26 +247,6 @@ fn cases() -> Vec<Case> {
             "    mun:odd n := n², from 5",
             "    mun:odd, from 5",
             "with 2 · j + 1 = n",
-        ),
-        // k's membership is said once, by K, and every step has it without
-        // naming K. A step citing K for it cites a line it uses nothing of.
-        case(
-            "cite a let line only for the membership it says once",
-            "proofs/wiedijk/sum-formula/sum-formula",
-            "proofs/wiedijk/sum-formula.proof",
-            "    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2\n          algebra\n",
-            "    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2\n          algebra, from K\n",
-            "step 1.6 cites K and uses nothing it says",
-        ),
-        // A requires line's `from` names the lines it rests on, as a step's
-        // does: d(k) ∈ ℝ rests on H2, d's type, with k's membership said once.
-        case(
-            "a requires line from a function's type naming the let of its point",
-            "proofs/wiedijk/divisibility-by-three/divisibility-by-three",
-            "proofs/wiedijk/divisibility-by-three.proof",
-            "          algebra\n          requires d(k) ∈ ℝ: from H2\n",
-            "          algebra\n          requires d(k) ∈ ℝ: from H2, K\n",
-            "from H2, K cites K and uses nothing it says, for d(k) ∈ ℝ",
         ),
         // A target naming a lemma the library as built does not hold, as
         // one added to corpus/proved/ before a whole build has written it,

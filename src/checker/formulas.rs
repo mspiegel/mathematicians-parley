@@ -2562,6 +2562,104 @@ pub fn check_requires_combined(
     }
 }
 
+/// How a closure method decides a claim (`algebra_holds` and the like):
+/// whether it decided, reporting what it refuses.
+type Decides = fn(&mut Report, &Theorem, &ClosureClaim, &Known, &Targets) -> bool;
+
+/// What a method step's lines are asked against: how its method decides,
+/// and the defines of functions the theorem may apply.
+struct CitesAsked<'a> {
+    decides: Decides,
+    functions: &'a [super::citations::Defined],
+    library: &'a Library<'a>,
+    targets: &'a Targets,
+}
+
+impl CitesAsked<'_> {
+    /// Whether `step` holds citing `refs` in place of its lines: its method
+    /// decides it with nothing refused, and each define it applies has its
+    /// argument in its domain by what it cites (`check_define_domains`).
+    fn holds_citing(
+        &self,
+        thm: &Theorem,
+        step: &Step,
+        refs: &[String],
+        known: &Known,
+    ) -> bool {
+        let mut lighter = step.clone();
+        lighter.just.refs = refs.to_vec();
+        let mut scratch = Report::default();
+        let decided = (self.decides)(
+            &mut scratch,
+            thm,
+            &ClosureClaim::step(&lighter),
+            known,
+            self.targets,
+        );
+        decided
+            && scratch.problems.is_empty()
+            && super::citations::domains_unsaid(
+                &lighter,
+                self.functions,
+                known,
+                self.library,
+            )
+            .is_empty()
+    }
+}
+
+/// A step resting on a closure method uses each line it cites, as a step
+/// citing an item does (`check_surplus`; `DATABASE.md`, a named thing doing
+/// no work is an error): with the line taken away, the method no longer
+/// decides the claim, or a hypothesis of it, an atom's membership, a
+/// divisor's `≠ 0` or a define's argument in its domain, is left unsaid. A
+/// step that does not hold with all its lines is reported where the method
+/// is checked, and asked nothing here. A step with rows cites the one line
+/// its first row is.
+pub fn check_method_cites_used(
+    report: &mut Report,
+    thm: &Theorem,
+    library: &Library,
+    known: &Known,
+    scopes: &[FileScope],
+) {
+    let functions = super::citations::defined_functions(
+        thm.defines.iter().chain(&scopes[thm.scope].defines),
+    );
+    for step in &thm.steps {
+        let decides: Decides = match step.just.head.method() {
+            Some(Method::Algebra) => algebra_holds,
+            Some(Method::Inequalities) if step.just.rows.is_empty() => {
+                inequalities_hold
+            }
+            Some(Method::Membership) => membership_holds,
+            _ => continue,
+        };
+        let asked = CitesAsked {
+            decides,
+            functions: &functions,
+            library,
+            targets: &library.targets,
+        };
+        let refs = &step.just.refs;
+        if refs.is_empty() || !asked.holds_citing(thm, step, refs, known) {
+            continue;
+        }
+        let mut seen = BTreeSet::new();
+        for r in refs.iter().filter(|r| seen.insert(r.as_str())) {
+            let without: Vec<String> =
+                refs.iter().filter(|x| *x != r).cloned().collect();
+            if asked.holds_citing(thm, step, &without, known) {
+                report.say(
+                    &thm.path,
+                    step.just.line,
+                    format!("step {} cites {r} and uses nothing it says", step.number),
+                );
+            }
+        }
+    }
+}
+
 /// `check_inequalities_holds` of one claim; whether it was decided.
 fn inequalities_hold(
     report: &mut Report,
@@ -2919,10 +3017,13 @@ impl<'s> ClosureClaim<'s> {
         targets: &Targets,
         differing: bool,
     ) -> Option<ClosureRead> {
-        let defined = match self.requires {
-            Some(_) => known.citing_item(self.refs, None),
-            None => known.citing_step(self.step),
+        // The defines written out are those the claim cites, `refs`: the
+        // step's own, or fewer where a check asks what a line does.
+        let item = match self.requires {
+            Some(_) => None,
+            None => self.step.just.cited_item().map(|c| self.step.just.item(&c)),
         };
+        let defined = known.citing_item(self.refs, item.as_deref());
         // A claim of several sentences is their conjunction (`SYNTAX.md`),
         // as `0 ≤ e. e ≤ 9.` is `0 ≤ e and e ≤ 9`.
         let sentences: Vec<Node> = self

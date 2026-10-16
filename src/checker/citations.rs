@@ -2144,7 +2144,7 @@ fn domains_asked(
 
 /// A defined function by name, with the domain of each argument in order.
 #[derive(Clone)]
-struct Defined {
+pub(super) struct Defined {
     name: String,
     label: String,
     /// Each argument's domain, as the define writes it.
@@ -2156,7 +2156,7 @@ struct Defined {
 }
 
 /// The functions some defines name.
-fn defined_functions<'d>(
+pub(super) fn defined_functions<'d>(
     defines: impl Iterator<Item = &'d crate::corpus::DefineLine>,
 ) -> Vec<Defined> {
     let mut functions = Vec::new();
@@ -2188,7 +2188,7 @@ fn defined_functions<'d>(
 
 /// One argument a defined function is applied to in a claim, and the
 /// facts any one of which says it is in the function's domain, as written.
-struct Applied {
+pub(super) struct Applied {
     label: String,
     arg: Node,
     says: Vec<Node>,
@@ -2409,7 +2409,7 @@ fn requires_read_as_step(step: &Step, req: &Requires) -> Option<Step> {
 /// What a step citing a define, itself or on a calculation line, needs of
 /// each argument's domain and nothing it cites or requires says, with what
 /// each of those implies: each application once.
-fn domains_unsaid(
+pub(super) fn domains_unsaid(
     step: &Step,
     functions: &[Defined],
     known: &Known,
@@ -3094,7 +3094,14 @@ pub fn check_from_lines(
                 let supplied =
                     requires_parts(step, req, &[], known, library).map(|parts| {
                         parts.claims.iter().all(|c| {
-                            from_lines_give(c, &parts.facts, step, known, library)
+                            from_lines_give(
+                                c,
+                                &parts.facts,
+                                step,
+                                known,
+                                library,
+                                crate::methods::membership::holds,
+                            )
                         })
                     });
                 if supplied == Some(false) {
@@ -3108,17 +3115,38 @@ pub fn check_from_lines(
                         ),
                     );
                 }
-                continue;
+                if supplied != Some(true) {
+                    continue;
+                }
             }
+            // Read off, or given as the build proves the line from its lines
+            // (`from_lines_give`): d(k) ∈ ℝ from d : ℕ₀ → ℤ at a k said once.
+            let gives = |without: &[&str]| -> bool {
+                read_off(without)
+                    || requires_parts(step, req, without, known, library).is_some_and(
+                        |parts| {
+                            parts.claims.iter().all(|c| {
+                                from_lines_give(
+                                    c,
+                                    &parts.facts,
+                                    step,
+                                    known,
+                                    library,
+                                    crate::methods::membership::read_off,
+                                )
+                            })
+                        },
+                    )
+            };
             let refs = req.lines();
             let spare: Vec<&str> = refs
                 .iter()
                 .map(String::as_str)
-                .filter(|r| read_off(&[r]))
+                .filter(|r| gives(&[r]))
                 .collect();
             // Lines each spare alone that the fact needs one of say it twice,
             // which `check_repeated` and the elaborator judge.
-            if spare.len() > 1 && !read_off(&spare) {
+            if spare.len() > 1 && !gives(&spare) {
                 continue;
             }
             for r in spare {
@@ -3136,6 +3164,9 @@ pub fn check_from_lines(
     }
 }
 
+/// How a membership is decided from facts (`methods::membership`).
+type Member = fn(&Node, System, &crate::methods::membership::Facts) -> bool;
+
 /// Whether the facts a bare `from` line reads give `claim` as the build
 /// proves it from them (`ELABORATION.md`, R2), beside what they state and
 /// supply: a membership the membership decider builds from them, a typed
@@ -3143,13 +3174,16 @@ pub fn check_from_lines(
 /// a "for all" among them, at a member the page says once is in its set, or
 /// over a set inside its set (`SYNTAX.md`, a line said of every member).
 /// Only the facts' own function types are offered, as the line rests on
-/// its reason alone.
+/// its reason alone. `member` decides a membership: `holds` for whether
+/// the lines reach the fact at all, as the build proves it, and `read_off`,
+/// the page's rule, for whether a line among them is needed.
 fn from_lines_give(
     claim: &Node,
     facts: &[Node],
     step: &Step,
     known: &Known,
     library: &Library,
+    member: Member,
 ) -> bool {
     let letters = super::library::introduced(known, step);
     if let ("membership", [term, set]) =
@@ -3173,7 +3207,7 @@ fn from_lines_give(
                 targets: &library.targets,
                 ctx: known.ctx,
             };
-            if crate::methods::membership::holds(term, system, &given) {
+            if member(term, system, &given) {
                 return true;
             }
         }

@@ -405,8 +405,12 @@ impl<'a> Elaborator<'a> {
         if let Some(allowed) = &mut self.resting {
             allowed.extend(step.requires.iter().flat_map(|r| r.lines().to_vec()));
         }
+        let said_sums: Vec<String> = self.said_sums.iter().cloned().collect();
         let unsaid = atoms.iter().find(|atom| {
-            if self.said_once(atom) {
+            // A sum the checker found said once may stand here over another
+            // index letter, as the build renames one apart.
+            if self.said_once(atom) || said_sums.iter().any(|s| self.one_atom(s, atom))
+            {
                 return false;
             }
             let mut said = written.iter().any(|c| {

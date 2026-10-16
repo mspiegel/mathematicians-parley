@@ -158,8 +158,5 @@ theorem a-defined-function-under-a-sum
          reads one more
   then Σ(k = 1 to n) t(k) = Σ(k = 1 to n) (k + 1)
 
-1.  Σ(k = 1 to n) (k + 1) ∈ ℝ
-    membership
-
-2.  Σ(k = 1 to n) t(k) = Σ(k = 1 to n) (k + 1)
-    algebra, from D1, 1
+1.  Σ(k = 1 to n) t(k) = Σ(k = 1 to n) (k + 1)
+    algebra, from D1

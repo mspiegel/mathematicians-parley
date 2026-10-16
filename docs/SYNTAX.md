@@ -529,7 +529,10 @@ of
 `let k ∈ ℕ` is still cited for k ≥ 1 and k ≠ 0, which the line says beyond
 the membership. A citation made only for one of these memberships is a line
 doing no work, in a step's citation and in a requires line's reason alike,
-and the checker reports both; the elaborator reports a method step's.
+and the checker reports both. A step resting on a method uses each line it
+cites in the same sense: taken away, the method no longer decides the
+claim, or leaves one of its hypotheses unsaid
+(`checker::formulas::check_method_cites_used`).
 
 A term that a line the step names puts in a number system is a part as a
 letter is, for a method's atoms and a cited item's hypotheses alike: where

@@ -1727,6 +1727,10 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
     ) -> Checked<Route<Proof>> {
         let apart = t!(divisor, "cc0", "wne");
+        // What the step may rest on, and nothing else in scope: a line it
+        // does not name says nothing of its divisors (`GOALS.md` decision 9).
+        let named = self.restable(facts);
+        let facts = &named;
         // A numeral other than zero says so itself: a closed numeral fact,
         // which a method may use unwritten.
         let numeral =
@@ -1839,6 +1843,24 @@ impl<'a> Elaborator<'a> {
                     }
                 }
                 _ => {}
+            }
+        }
+        // A divisor is not zero where its negation is not (`negne0bd`): the
+        // kernel writes (−q)/(−p) over p, and the page says −p ∈ ℕ.
+        if node.label() != Some("cneg") {
+            let negated = t!(divisor, "cneg");
+            if let Built(found) = self.divisor_written(&negated, scope, facts)? {
+                let number = take!(self.part(divisor, "cc", scope, facts)?);
+                let turned = self.b.ap(
+                    "negne0bd",
+                    &binds! {"ph" => scope, "A" => divisor},
+                    &[&number],
+                );
+                return Ok(Built(self.b.ap(
+                    "mpbird",
+                    &binds! {"ph" => scope, "ps" => &apart, "ch" => t!(&negated, "cc0", "wne")},
+                    &[&found, &turned],
+                )));
             }
         }
         Ok(self.no("nothing the step wrote says {}", &[&apart]))
