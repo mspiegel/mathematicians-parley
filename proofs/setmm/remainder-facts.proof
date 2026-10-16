@@ -1,0 +1,92 @@
+import theorem        proofs/setmm/floor-basics/floor-add-integer
+import mundane theorem stdlib/divisibility/mod-value
+import mundane theorem stdlib/numbers/floor-between
+import mundane theorem stdlib/numbers/floor-integer
+import mundane theorem stdlib/numbers/less-scaled
+import mundane theorem stdlib/numbers/quotient-nonneg
+
+theorem remainder-shifts
+  note        Adding K whole copies of M to X changes the whole number below X/M by K and the remainder not at all: the K·M added is exactly what the extra K takes away.
+  let X ∈ ℝ                                                           (H1)
+  let M ∈ ℝ                                                           (H2)
+  assume M > 0                                                        (H3)
+  let K ∈ ℤ                                                           (H4)
+  then (X + M·K) mod M = X mod M
+
+1.  (X + M·K)/M = X/M + K
+    algebra
+    requires M ≠ 0: weakening, from H3
+
+2.  ⌊X/M⌋ ∈ ℤ
+    mun:floor-integer x := X/M
+    requires M ≠ 0: weakening, from H3
+
+3.  ⌊X/M + K⌋ = ⌊X/M⌋ + K
+    thm:floor-add-integer A := X/M, N := K
+    requires M ≠ 0: weakening, from H3
+
+4.  ⌊(X + M·K)/M⌋ = ⌊X/M⌋ + K
+    substitute (X + M·K)/M = X/M + K (line 1) into line 3
+
+5.  (X + M·K) mod M = X + M·K − M·⌊(X + M·K)/M⌋
+    mun:mod-value a := X + M·K, b := M, from H3
+
+6.  X mod M = X − M·⌊X/M⌋
+    mun:mod-value a := X, b := M, from H3
+
+7.  X + M·K − M·⌊(X + M·K)/M⌋ = X + M·K − M·(⌊X/M⌋ + K)
+    substitute ⌊(X + M·K)/M⌋ = ⌊X/M⌋ + K (line 4)
+
+8.  X + M·K − M·(⌊X/M⌋ + K) = X − M·⌊X/M⌋
+    algebra
+    requires ⌊X/M⌋ ∈ ℝ: from 2
+
+9.  (X + M·K) mod M = X mod M
+    calculation
+      (X + M·K) mod M = X + M·K − M·⌊(X + M·K)/M⌋       5
+                      = X + M·K − M·(⌊X/M⌋ + K)         7
+                      = X − M·⌊X/M⌋                     8
+                      = X mod M                         6
+
+
+theorem remainder-of-small
+  note        When A is at least 0 and less than B, A/B is at least 0 and less than 1, so no whole B fits below A, and the remainder is all of A.
+  let A ∈ ℝ                                                           (H1)
+  let B ∈ ℝ                                                           (H2)
+  assume B > 0                                                        (H3)
+  assume 0 ≤ A                                                        (H4)
+  assume A < B                                                        (H5)
+  then A mod B = A
+
+1.  A mod B = A − B·⌊A/B⌋
+    mun:mod-value a := A, b := B, from H3
+
+2.  0 ≤ A/B
+    mun:quotient-nonneg x := A, y := B, from H3, H4
+
+3.  B·(A/B) = A
+    algebra
+    requires B ≠ 0: weakening, from H3
+
+4.  B·(A/B) < B
+    transitivity, from 3, H5
+    requires B ≠ 0: weakening, from H3
+
+5.  A/B < 1
+    mun:less-scaled x := A/B, y := 1, c := B, from H3, 4
+
+6.  ⌊A/B⌋ = 0
+    mun:floor-between x := A/B, k := 0, from 2, 5
+    requires B ≠ 0: weakening, from H3
+
+7.  A − B·⌊A/B⌋ = A − B·0
+    substitute ⌊A/B⌋ = 0 (line 6)
+
+8.  A − B·0 = A
+    algebra
+
+9.  A mod B = A
+    calculation
+      A mod B = A − B·⌊A/B⌋     1
+              = A − B·0         7
+              = A               8

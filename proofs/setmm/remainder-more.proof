@@ -1,0 +1,57 @@
+import theorem        proofs/setmm/remainder-bounds/remainder-below-divisor
+import theorem        proofs/setmm/remainder-bounds/remainder-nonnegative
+import theorem        proofs/setmm/remainder-facts/remainder-of-small
+import theorem        proofs/setmm/remainder-facts/remainder-shifts
+import theorem        proofs/setmm/remainder-real/remainder-is-real
+
+theorem whole-plus-small
+  note        M + A is A with one whole copy of M added, so it has the remainder of A, and A is below M, so its own remainder.
+  let A ∈ ℕ₀                                                          (H1)
+  let M ∈ ℕ                                                           (H2)
+  assume A < M                                                        (H3)
+  then (M + A) mod M = A
+
+1.  (A + M·1) mod M = A mod M
+    thm:remainder-shifts X := A, K := 1, from H2
+
+2.  A mod M = A
+    thm:remainder-of-small B := M, from H1, H2, H3
+
+3.  M + A = A + M
+    algebra
+
+4.  (M + A) mod M = (A + M) mod M
+    substitute M + A = A + M (line 3)
+
+5.  (M + A) mod M = A
+    calculation
+      (M + A) mod M = (A + M) mod M       4
+                    = A mod M             1
+                    = A                   2
+
+
+theorem remainder-under-a-larger-divisor
+  note        A mod B is at least 0 and less than B, which is at most C, so it is below C and is its own remainder on dividing by C.
+  let A ∈ ℝ                                                           (H1)
+  let B ∈ ℝ                                                           (H2)
+  let C ∈ ℝ                                                           (H3)
+  assume B > 0                                                        (H4)
+  assume C > 0                                                        (H5)
+  assume B ≤ C                                                        (H6)
+  then (A mod B) mod C = A mod B
+
+1.  A mod B ∈ ℝ
+    thm:remainder-is-real, from H4
+
+2.  0 ≤ A mod B
+    thm:remainder-nonnegative, from H4
+
+3.  A mod B < B
+    thm:remainder-below-divisor, from H4
+
+4.  A mod B < C
+    transitivity, from 3, H6
+    requires A mod B ∈ ℝ: from 1
+
+5.  (A mod B) mod C = A mod B
+    thm:remainder-of-small A := A mod B, B := C, from H5, 1, 2, 4

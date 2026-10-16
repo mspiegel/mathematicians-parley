@@ -1,0 +1,105 @@
+import mundane theorem    stdlib/numbers/multiply-cancel
+import mundane theorem    stdlib/sums/sum-extended
+import mundane theorem    stdlib/sums/sum-single
+
+theorem nonzero-product
+  note        A product of two nonzero numbers is nonzero: if x·y were 0, then
+              x·y = 0·y, and cancelling the nonzero y gives x = 0.
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume x ≠ 0                                                        (H3)
+  assume y ≠ 0                                                        (H4)
+  then x·y ≠ 0
+
+1.  x·y ≠ 0
+    contradiction
+    suppose x·y = 0                                                   (S)
+
+    1.1.  x·y = 0·y
+          algebra, from S
+
+    1.2.  x = 0
+          mun:multiply-cancel a := x, b := 0, c := y, from H4, 1.1, contradicting H3
+
+theorem reciprocal-step
+  note        The next term 1/(m(m + 1)) added to 1 − 1/m gives 1 − 1/(m + 1).
+  let m ∈ ℕ                                                           (H1)
+  then 1 − 1/m + 1/(m·(m + 1)) = 1 − 1/(m + 1)
+
+1.  m + 1 > 0
+    inequalities, from H1
+
+2.  1/m − 1/(m + 1) = 1/(m·(m + 1))
+    algebra
+    requires m ≠ 0: from H1
+    requires m + 1 ≠ 0: weakening, from 1
+
+3.  1 − 1/m + 1/(m·(m + 1)) = 1 − 1/m + (1/m − 1/(m + 1))
+    substitute 1/m − 1/(m + 1) = 1/(m·(m + 1)) (line 2)
+
+4.  1 − 1/m + (1/m − 1/(m + 1)) = 1 − 1/(m + 1)
+    algebra
+    requires m ≠ 0: from H1
+    requires m + 1 ≠ 0: weakening, from 1
+
+5.  1 − 1/m + 1/(m·(m + 1)) = 1 − 1/(m + 1)
+    calculation
+      1 − 1/m + 1/(m·(m + 1)) = 1 − 1/m + (1/m − 1/(m + 1))    3
+                              = 1 − 1/(m + 1)                  4
+
+theorem reciprocal-product-sum
+  note        By induction on n: adding 1/((k + 1)(k + 2)) to 1 − 1/(k + 1)
+              gives 1 − 1/(k + 2).
+  let n ∈ ℕ                                                           (H1)
+  then Σ(k = 1 to n) 1/(k·(k + 1)) = 1 − 1/(n + 1)
+
+1.  For all j ∈ ℕ, 1/(j·(j + 1)) ∈ ℝ.
+    proof
+    let j ∈ ℕ                                                         (J)
+
+    1.1.  j + 1 > 0
+          inequalities, from J
+
+    1.2.  j·(j + 1) ≠ 0
+          thm:nonzero-product x := j, y := j + 1
+          requires j ≠ 0: from J
+          requires j + 1 ≠ 0: weakening, from 1.1
+
+    1.3.  1/(j·(j + 1)) ∈ ℝ
+          membership
+          requires j·(j + 1) ≠ 0: from 1.2
+
+2.  For all k ∈ ℕ, Σ(j = 1 to k) 1/(j·(j + 1)) = 1 − 1/(k + 1).
+    induction on k starting at 1
+
+    base
+    2.1.  Σ(j = 1 to 1) 1/(j·(j + 1)) = 1/(1·(1 + 1))
+          mun:sum-single a := 1, from 1
+
+    2.2.  Σ(j = 1 to 1) 1/(j·(j + 1)) = 1 − 1/(1 + 1)
+          calculation
+            Σ(j = 1 to 1) 1/(j·(j + 1)) = 1/(1·(1 + 1))     2.1
+                                         = 1 − 1/(1 + 1)    arithmetic
+
+    step
+    let k ∈ ℕ                                                         (K)
+    assume step 2 is true for k, the induction hypothesis             (IH)
+
+    2.3.  Σ(j = 1 to k + 1) 1/(j·(j + 1)) = Σ(j = 1 to k) 1/(j·(j + 1)) + 1/((k + 1)·((k + 1) + 1))
+          mun:sum-extended a := 1, n := k, from 1
+          requires k ≥ 1: from K
+
+    2.4.  Σ(j = 1 to k) 1/(j·(j + 1)) + 1/((k + 1)·((k + 1) + 1)) = 1 − 1/(k + 1) + 1/((k + 1)·((k + 1) + 1))
+          substitute Σ(j = 1 to k) 1/(j·(j + 1)) = 1 − 1/(k + 1) (IH)
+
+    2.5.  1 − 1/(k + 1) + 1/((k + 1)·((k + 1) + 1)) = 1 − 1/((k + 1) + 1)
+          thm:reciprocal-step m := k + 1
+
+    2.6.  Σ(j = 1 to k + 1) 1/(j·(j + 1)) = 1 − 1/((k + 1) + 1)
+          calculation
+            Σ(j = 1 to k + 1) 1/(j·(j + 1)) = Σ(j = 1 to k) 1/(j·(j + 1)) + 1/((k + 1)·((k + 1) + 1))     2.3
+                                             = 1 − 1/(k + 1) + 1/((k + 1)·((k + 1) + 1))                  2.4
+                                             = 1 − 1/((k + 1) + 1)                                        2.5
+
+3.  Σ(k = 1 to n) 1/(k·(k + 1)) = 1 − 1/(n + 1)
+    instantiate k := n in line 2

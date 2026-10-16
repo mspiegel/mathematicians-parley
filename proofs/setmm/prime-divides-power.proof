@@ -1,0 +1,101 @@
+import mundane theorem    stdlib/divisibility/divides-one
+import mundane definition stdlib/divisibility/prime
+import mundane theorem    stdlib/numbers/exponent-step
+import mundane theorem    stdlib/reasoning/modus-ponens
+import theorem            proofs/setmm/prime-divides-product/prime-divides-product
+
+theorem prime-divides-power
+  note        By induction on the exponent. Q^0 is 1, which no prime
+              divides. A prime dividing Q^k·Q divides Q^k, where the
+              hypothesis applies, or divides Q, and a prime that divides a
+              prime is that prime.
+  let P ∈ ℕ                                                           (H1)
+  assume P is prime                                                   (H2)
+  let Q ∈ ℕ                                                           (H3)
+  assume Q is prime                                                   (H4)
+  let N ∈ ℕ₀                                                          (H5)
+  assume P divides Q^N                                                (H6)
+  then P = Q
+
+1.  P > 1
+    mun:prime p := P, from H2
+
+2.  For all d ∈ ℕ, if d divides Q then d = 1 or d = Q.
+    mun:prime p := Q, from H4
+
+3.  For all m ∈ ℕ₀, if P divides Q^m then P = Q.
+    induction on m starting at 0
+
+    base
+    3.1.  If P divides Q^0 then P = Q.
+          proof
+          assume P divides Q^0                                        (C1)
+
+          3.1.1.  Q^0 = 1
+                  algebra
+
+          3.1.2.  P divides 1
+                  substitute Q^0 = 1 (line 3.1.1) into C1
+
+          3.1.3.  P = 1
+                  mun:divides-one d := P, from 3.1.2
+
+          3.1.4.  P ≠ 1
+                  inequalities, contradicting 3.1.3
+                    P > 1            1
+                    P ≠ 1            weakening
+
+    step
+    let m ∈ ℕ₀                                                        (K)
+    assume step 3 is true for m, the induction hypothesis             (IH)
+
+    3.2.  If P divides Q^(m + 1) then P = Q.
+          proof
+          assume P divides Q^(m + 1)                                  (C2)
+
+          3.2.1.  Q^(m + 1) = Q^m·Q
+                  mun:exponent-step a := Q
+
+          3.2.2.  P divides Q^m·Q
+                  substitute Q^(m + 1) = Q^m·Q (line 3.2.1) into C2
+
+          3.2.3.  P divides Q^m or P divides Q
+                  thm:prime-divides-product M := Q^m, N := Q, from H2, 3.2.2
+
+          3.2.4.  P = Q
+                  cases, from 3.2.3
+
+                  case
+                  assume P divides Q^m                                (C3)
+
+                  3.2.4.1.  P = Q
+                            mun:modus-ponens, from C3, IH
+
+                  case
+                  assume P divides Q                                  (C4)
+
+                  3.2.4.2.  If P divides Q then P = 1 or P = Q.
+                            instantiate d := P in line 2
+
+                  3.2.4.3.  P = 1 or P = Q
+                            mun:modus-ponens, from C4, 3.2.4.2
+
+                  3.2.4.4.  P = Q
+                            cases, from 3.2.4.3
+
+                            case
+                            assume P = 1                              (C5)
+
+                            3.2.4.4.1.  P ≠ 1
+                                        inequalities, contradicting C5
+                                          P > 1            1
+                                          P ≠ 1            weakening
+
+                            case
+                            assume P = Q, which is the claim          (C6)
+
+4.  If P divides Q^N then P = Q.
+    instantiate m := N in line 3
+
+5.  P = Q
+    mun:modus-ponens, from H6, 4

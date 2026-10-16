@@ -1,0 +1,53 @@
+import theorem            proofs/wiedijk/binomial/binomial
+import definition         stdlib/counting/C
+import mundane theorem    stdlib/counting/binomial-nat0
+import mundane theorem    stdlib/numbers/one-power
+import mundane theorem    stdlib/sums/sum-termwise
+
+theorem binomial-coefficients-sum
+  metamath    binom11
+  note        The binomial theorem at x = 1 and y = 1: every power of 1 is
+              1, so the terms are the coefficients, and (1 + 1)^N is 2^N.
+  let N ∈ ℕ₀                                                          (H1)
+  then 2^N = Σ(k = 0 to N) C(N, k)
+
+1.  (1 + 1)^N = Σ(k = 0 to N) C(N, k)·1^(N − k)·1^k
+    thm:binomial x := 1, y := 1, n := N
+
+2.  For all k ∈ {0, …, N}, C(N, k)·1^(N − k)·1^k = C(N, k).
+    proof
+    let k ∈ {0, …, N}                                                 (J)
+
+    2.1.  1^(N − k) = 1
+          mun:one-power m := N − k
+
+    2.2.  1^k = 1
+          mun:one-power m := k
+
+    2.3.  C(N, k)·1^(N − k)·1^k = C(N, k)·1^k
+          algebra, from 2.1
+          requires C(N, k) ∈ ℕ₀: mun:binomial-nat0
+
+    2.4.  C(N, k)·1^k = C(N, k)
+          algebra, from 2.2
+          requires C(N, k) ∈ ℕ₀: mun:binomial-nat0
+
+    2.5.  C(N, k)·1^(N − k)·1^k = C(N, k)
+          calculation
+            C(N, k)·1^(N − k)·1^k = C(N, k)·1^k     2.3
+                                  = C(N, k)         2.4
+
+3.  Σ(k = 0 to N) C(N, k)·1^(N − k)·1^k = Σ(k = 0 to N) C(N, k)
+    mun:sum-termwise a := 0, b := N, from 2
+
+4.  1 + 1 = 2
+    arithmetic
+
+5.  (1 + 1)^N = 2^N
+    substitute 1 + 1 = 2 (line 4)
+
+6.  2^N = Σ(k = 0 to N) C(N, k)
+    calculation
+      2^N = (1 + 1)^N                                  5
+          = Σ(k = 0 to N) C(N, k)·1^(N − k)·1^k        1
+          = Σ(k = 0 to N) C(N, k)                      3

@@ -1,0 +1,171 @@
+import mundane theorem stdlib/numbers/floor-above
+import mundane theorem stdlib/numbers/floor-below
+import mundane theorem stdlib/numbers/floor-between
+import mundane theorem stdlib/numbers/floor-integer
+import mundane theorem stdlib/numbers/int-closure
+import mundane theorem stdlib/numbers/integer-step
+
+theorem floor-add-integer
+  note        Adding a whole number N moves the whole number below A to the one below A + N by the same amount: ⌊A⌋ + N is at most A + N and A + N is less than one more.
+  let A ∈ ℝ                                                           (H1)
+  let N ∈ ℤ                                                           (H2)
+  then ⌊A + N⌋ = ⌊A⌋ + N
+
+1.  ⌊A⌋ ∈ ℤ
+    mun:floor-integer x := A
+
+2.  ⌊A⌋ ≤ A
+    mun:floor-below x := A
+
+3.  A < ⌊A⌋ + 1
+    mun:floor-above x := A
+
+4.  ⌊A⌋ + N ≤ A + N
+    inequalities
+      ⌊A⌋ ≤ A                  2
+      ⌊A⌋ + N ≤ A + N          adding N
+    requires ⌊A⌋ ∈ ℝ: from 1
+
+5.  A + N < ⌊A⌋ + N + 1
+    inequalities
+      A < ⌊A⌋ + 1              3
+      A + N < ⌊A⌋ + N + 1      adding N
+    requires ⌊A⌋ ∈ ℝ: from 1
+
+6.  ⌊A + N⌋ = ⌊A⌋ + N
+    mun:floor-between x := A + N, k := ⌊A⌋ + N, from 4, 5
+    requires ⌊A⌋ + N ∈ ℤ: mun:int-closure a := ⌊A⌋, b := N, from 1
+
+
+theorem floor-integer-add
+  note        The same as adding N on the right: the sum is the same in either order.
+  let N ∈ ℤ                                                           (H1)
+  let A ∈ ℝ                                                           (H2)
+  then ⌊N + A⌋ = N + ⌊A⌋
+
+1.  ⌊A + N⌋ = ⌊A⌋ + N
+    thm:floor-add-integer
+
+2.  ⌊A⌋ ∈ ℤ
+    mun:floor-integer x := A
+
+3.  N + A = A + N
+    algebra
+
+4.  ⌊N + A⌋ = ⌊A + N⌋
+    substitute N + A = A + N (line 3)
+
+5.  ⌊A⌋ + N = N + ⌊A⌋
+    algebra
+    requires ⌊A⌋ ∈ ℝ: from 2
+
+6.  ⌊N + A⌋ = N + ⌊A⌋
+    calculation
+      ⌊N + A⌋ = ⌊A + N⌋       4
+              = ⌊A⌋ + N       1
+              = N + ⌊A⌋       5
+
+
+theorem floor-of-integer
+  note        A whole number is the whole number below it: A is at most A and less than A + 1.
+  let A ∈ ℤ                                                           (H1)
+  then ⌊A⌋ = A
+
+1.  A ≤ A
+    inequalities
+
+2.  A < A + 1
+    inequalities
+
+3.  ⌊A⌋ = A
+    mun:floor-between x := A, k := A, from 1, 2
+
+
+theorem floor-at-most-one-more
+  note        A is less than ⌊A⌋ + 1, so certainly at most that.
+  let A ∈ ℝ                                                           (H1)
+  then A ≤ ⌊A⌋ + 1
+
+1.  ⌊A⌋ ∈ ℤ
+    mun:floor-integer x := A
+
+2.  A < ⌊A⌋ + 1
+    mun:floor-above x := A
+
+3.  A ≤ ⌊A⌋ + 1
+    inequalities
+      A < ⌊A⌋ + 1              2
+      A ≤ ⌊A⌋ + 1              weakening
+    requires ⌊A⌋ ∈ ℝ: from 1
+
+
+theorem integer-at-most-floor
+  note        A whole number B is at most A exactly when it is at most the whole number ⌊A⌋ below A. If B is at most A but ⌊A⌋ is below B, then ⌊A⌋ + 1 is at most B, and A, which is less than ⌊A⌋ + 1, is less than B.
+  let A ∈ ℝ                                                           (H1)
+  let B ∈ ℤ                                                           (H2)
+  then B ≤ A ↔ B ≤ ⌊A⌋
+
+1.  ⌊A⌋ ∈ ℤ
+    mun:floor-integer x := A
+
+2.  ⌊A⌋ ≤ A
+    mun:floor-below x := A
+
+3.  A < ⌊A⌋ + 1
+    mun:floor-above x := A
+
+4.  B ≤ A ↔ B ≤ ⌊A⌋
+    both directions
+
+    direction
+    assume B ≤ A                                                      (C1)
+
+    4.1.  B ≤ ⌊A⌋
+          contradiction
+          suppose not B ≤ ⌊A⌋                                         (S)
+
+          4.1.1.  ⌊A⌋ < B
+                  inequalities, from S
+                  requires ⌊A⌋ ∈ ℝ: from 1
+
+          4.1.2.  ⌊A⌋ + 1 ≤ B
+                  mun:integer-step m := ⌊A⌋, n := B, from 1, 4.1.1
+
+          4.1.3.  A < B
+                  transitivity, from 3, 4.1.2
+                  requires ⌊A⌋ ∈ ℝ: from 1
+
+          4.1.4.  not B ≤ A
+                  inequalities, from 4.1.3, contradicting C1
+
+    direction
+    assume B ≤ ⌊A⌋                                                    (C2)
+
+    4.2.  B ≤ A
+          transitivity, from C2, 2
+          requires ⌊A⌋ ∈ ℝ: from 1
+
+
+theorem twice-floor-of-half
+  note        Writing M for the whole number below (N + 1)/2: that number is less than M + 1, so N + 1 is less than 2M + 2, and N, a whole number below 2M + 1, is at most 2M.
+  let N ∈ ℤ                                                           (H1)
+  then N ≤ 2·⌊(N + 1)/2⌋
+
+let M = ⌊(N + 1)/2⌋, an integer                                       (D1)
+    mun:floor-integer x := (N + 1)/2
+    reads the whole number (N + 1)/2 rounds down to
+
+1.  (N + 1)/2 < M + 1
+    mun:floor-above x := (N + 1)/2, from D1
+
+2.  N < 2M + 1
+    inequalities
+      (N + 1)/2 < M + 1      1
+      N + 1 < 2M + 2         multiplying by 2
+      N < 2M + 1             adding −1
+
+3.  N + 1 ≤ 2M + 1
+    mun:integer-step m := N, n := 2M + 1, from 2
+
+4.  N ≤ 2·⌊(N + 1)/2⌋
+    inequalities, from D1, 3

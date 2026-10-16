@@ -1,0 +1,569 @@
+import mundane definition stdlib/counting/factorial
+import mundane theorem    stdlib/counting/factorial-nat
+import mundane theorem    stdlib/counting/factorial-zero
+import mundane definition stdlib/numbers/nat0
+import definition         stdlib/counting/C
+import theorem            proofs/setmm/factorial-by-predecessor/factorial-by-predecessor
+import mundane theorem    stdlib/numbers/nat-minus-one
+import mundane axiom      stdlib/reasoning/excluded-middle
+import mundane theorem    stdlib/counting/binomial-outside
+import mundane theorem    stdlib/sums/range-nat0
+import mundane theorem    stdlib/sums/range-difference
+import mundane definition stdlib/sums/range-between
+
+theorem factorial-nat0
+  note        0! is 1. For any other N, N is a natural number, and so is N!.
+  let N ∈ ℕ₀                                                          (H1)
+  then N! ∈ ℕ₀
+
+1.  N ∈ ℕ or N = 0
+    mun:nat0 n := N
+
+2.  N! ∈ ℕ₀
+    cases, from 1
+
+    case
+    assume N ∈ ℕ                                                      (C1)
+
+    2.1.  N! ∈ ℕ
+          mun:factorial-nat n := N, from C1
+
+    2.2.  N! ∈ ℕ₀
+          membership, from 2.1
+
+    case
+    assume N = 0                                                      (C2)
+
+    2.3.  0! = 1
+          mun:factorial-zero
+
+    2.4.  N! = 0!
+          substitute N = 0 (C2)
+
+    2.5.  N! = 1
+          calculation
+            N! = 0!    2.4
+               = 1     2.3
+
+    2.6.  N! ∈ ℕ₀
+          membership, from 2.5
+
+theorem factorial-successor
+  note        (n + 1)! is n!·(n + 1) for n = 0 as well: 1! is 1, and so is
+              0!·1.
+  let n ∈ ℕ₀                                                          (H1)
+  then (n + 1)! = n!·(n + 1)
+
+1.  n ∈ ℕ or n = 0
+    mun:nat0
+
+2.  (n + 1)! = n!·(n + 1)
+    cases, from 1
+
+    case
+    assume n ∈ ℕ                                                      (C1)
+
+    2.1.  (n + 1)! = n!·(n + 1)
+          mun:factorial, from C1
+
+    case
+    assume n = 0                                                      (C2)
+
+    2.2.  n + 1 = 1
+          algebra, from C2
+
+    2.3.  (n + 1)! = 1!
+          substitute n + 1 = 1 (line 2.2)
+
+    2.4.  1! = 1
+          mun:factorial
+
+    2.5.  n! = 0!
+          substitute n = 0 (C2)
+
+    2.6.  0! = 1
+          mun:factorial-zero
+
+    2.7.  n! = 1
+          calculation
+            n! = 0!    2.5
+               = 1     2.6
+
+    2.8.  n!·(n + 1) = 1·(n + 1)
+          substitute n! = 1 (line 2.7)
+
+    2.9.  1·(n + 1) = 1
+          algebra, from 2.2
+
+    2.10. (n + 1)! = n!·(n + 1)
+          calculation
+            (n + 1)! = 1!             2.3
+                     = 1              2.4
+                     = 1·(n + 1)      2.9
+                     = n!·(n + 1)     2.8
+
+theorem factorial-nonzero
+  note        0! is 1. For any other N, N is a natural number, so N! is
+              one too, and a natural number is at least 1.
+  let N ∈ ℕ₀                                                          (H1)
+  then N! ≠ 0
+
+1.  N ∈ ℕ or N = 0
+    mun:nat0 n := N
+
+2.  N! ≠ 0
+    cases, from 1
+
+    case
+    assume N ∈ ℕ                                                      (C1)
+
+    2.1.  N! ∈ ℕ
+          mun:factorial-nat n := N, from C1
+
+    2.2.  N! ≠ 0
+          inequalities, from 2.1
+
+    case
+    assume N = 0                                                      (C2)
+
+    2.3.  0! = 1
+          mun:factorial-zero
+
+    2.4.  N! = 0!
+          substitute N = 0 (C2)
+
+    2.5.  N! = 1
+          calculation
+            N! = 0!    2.4
+               = 1     2.3
+
+    2.6.  1 ≠ 0
+          arithmetic
+
+    2.7.  N! ≠ 0
+          substitute N! = 1 (line 2.5) into line 2.6
+
+theorem choose-all
+  note        C(N, N) is N!/((N − N)!·N!), which is N!/(0!·N!), and that is
+              1 because N! is not 0.
+  let N ∈ ℕ₀                                                          (H1)
+  then C(N, N) = 1
+
+1.  0 ≤ N. N ≤ N.
+    inequalities, from H1
+
+2.  N ∈ {0, …, N}
+    mun:range-between k := N, a := 0, b := N, from 1
+
+3.  C(N, N) = N!/((N − N)!·N!)
+    def:C n := N, k := N, from 2
+
+4.  N − N = 0
+    algebra
+
+5.  (N − N)! = 0!
+    substitute N − N = 0 (line 4)
+
+6.  0! = 1
+    mun:factorial-zero
+
+7.  (N − N)! = 1
+    calculation
+      (N − N)! = 0!    5
+               = 1     6
+
+8.  N!/((N − N)!·N!) = N!/(1·N!)
+    substitute (N − N)! = 1 (line 7)
+
+9.  N! ≠ 0
+    thm:factorial-nonzero
+
+10. N! ∈ ℕ₀
+    thm:factorial-nat0
+
+11. N!/(1·N!) = 1
+    algebra, from 9, 10
+
+12. C(N, N) = 1
+    calculation
+      C(N, N) = N!/((N − N)!·N!)     3
+              = N!/(1·N!)            8
+              = 1                    11
+
+theorem choose-one
+  note        For N = 0 the lower index 1 is past the end of the row, so
+              C(0, 1) = 0. For N a natural number, C(N, 1) is
+              N!/((N − 1)!·1!), and N! is (N − 1)!·N, so the factors
+              (N − 1)! cancel and N is left.
+  let N ∈ ℕ₀                                                          (H1)
+  then C(N, 1) = N
+
+1.  N ∈ ℕ or N = 0
+    mun:nat0 n := N
+
+2.  C(N, 1) = N
+    cases, from 1
+
+    case
+    assume N ∈ ℕ                                                      (C1)
+
+    2.1.  N − 1 ∈ ℕ₀
+          mun:nat-minus-one n := N, from C1
+
+    2.2.  0 ≤ 1. 1 ≤ N.
+          inequalities, from C1
+
+    2.3.  1 ∈ {0, …, N}
+          mun:range-between k := 1, a := 0, b := N, from 2.2
+
+    2.4.  C(N, 1) = N!/((N − 1)!·1!)
+          def:C n := N, k := 1, from 2.3
+
+    2.5.  1! = 1
+          mun:factorial
+
+    2.6.  N!/((N − 1)!·1!) = N!/((N − 1)!·1)
+          substitute 1! = 1 (line 2.5)
+
+    2.7.  N! = (N − 1)!·N
+          thm:factorial-by-predecessor, from C1
+
+    2.8.  N!/((N − 1)!·1) = (N − 1)!·N/((N − 1)!·1)
+          substitute N! = (N − 1)!·N (line 2.7)
+
+    2.9.  (N − 1)! ≠ 0
+          thm:factorial-nonzero N := N − 1, from 2.1
+
+    2.10. (N − 1)! ∈ ℕ₀
+          thm:factorial-nat0 N := N − 1, from 2.1
+
+    2.11. (N − 1)!·N/((N − 1)!·1) = N
+          algebra, from 2.9, 2.10
+
+    2.12. C(N, 1) = N
+          calculation
+            C(N, 1) = N!/((N − 1)!·1!)                 2.4
+                    = N!/((N − 1)!·1)                  2.6
+                    = (N − 1)!·N/((N − 1)!·1)          2.8
+                    = N                                2.11
+
+    case
+    assume N = 0                                                      (C2)
+
+    2.13. 0 < 1
+          arithmetic
+
+    2.14. N < 1
+          substitute N = 0 (C2) into line 2.13
+
+    2.15. C(N, 1) = 0
+          def:C n := N, k := 1, from 2.14
+
+    2.16. C(N, 1) = N
+          calculation
+            C(N, 1) = 0     2.15
+                    = N     C2
+
+theorem choose-next-row
+  note        C(N + 1, N) is (N + 1)!/(1!·N!), and (N + 1)! is N!·(N + 1),
+              so the factors N! cancel and N + 1 is left.
+  let N ∈ ℕ₀                                                          (H1)
+  then C(N + 1, N) = N + 1
+
+1.  0 ≤ N. N ≤ N + 1.
+    inequalities, from H1
+
+2.  N ∈ {0, …, N + 1}
+    mun:range-between k := N, a := 0, b := N + 1, from 1
+
+3.  C(N + 1, N) = (N + 1)!/(((N + 1) − N)!·N!)
+    def:C n := N + 1, k := N, from 2
+
+4.  (N + 1) − N = 1
+    algebra
+
+5.  ((N + 1) − N)! = 1!
+    substitute (N + 1) − N = 1 (line 4)
+
+6.  1! = 1
+    mun:factorial
+
+7.  ((N + 1) − N)! = 1
+    calculation
+      ((N + 1) − N)! = 1!    5
+                     = 1     6
+
+8.  (N + 1)!/(((N + 1) − N)!·N!) = (N + 1)!/(1·N!)
+    substitute ((N + 1) − N)! = 1 (line 7)
+
+9.  (N + 1)! = N!·(N + 1)
+    thm:factorial-successor n := N
+
+10. (N + 1)!/(1·N!) = N!·(N + 1)/(1·N!)
+    substitute (N + 1)! = N!·(N + 1) (line 9)
+
+11. N! ≠ 0
+    thm:factorial-nonzero
+
+12. N! ∈ ℕ₀
+    thm:factorial-nat0
+
+13. N!·(N + 1)/(1·N!) = N + 1
+    algebra, from 11, 12
+
+14. C(N + 1, N) = N + 1
+    calculation
+      C(N + 1, N) = (N + 1)!/(((N + 1) − N)!·N!)     3
+                  = (N + 1)!/(1·N!)                  8
+                  = N!·(N + 1)/(1·N!)                10
+                  = N + 1                            13
+
+theorem choose-two
+  note        Row N has no entry at 2 when N is 0 or 1, and N·(N − 1)/2 is 0
+              there. For N at least 2, C(N, 2) is N!/((N − 2)!·2!), and N! is
+              (N − 2)!·(N − 1)·N, so the factors (N − 2)! cancel and what is
+              left is N·(N − 1) over 2.
+  let N ∈ ℕ₀                                                          (H1)
+  then C(N, 2) = N·(N − 1)/2
+
+1.  N ∈ ℕ or N = 0
+    mun:nat0 n := N
+
+2.  C(N, 2) = N·(N − 1)/2
+    cases, from 1
+
+    case
+    assume N ∈ ℕ                                                      (C1)
+
+    2.1.  N − 1 ∈ ℕ₀
+          mun:nat-minus-one n := N, from C1
+
+    2.2.  N − 1 ∈ ℕ or N − 1 = 0
+          mun:nat0 n := N − 1, from 2.1
+
+    2.3.  C(N, 2) = N·(N − 1)/2
+          cases, from 2.2
+
+          case
+          assume N − 1 ∈ ℕ                                            (C3)
+
+          2.3.1.  (N − 1) − 1 ∈ ℕ₀
+                  mun:nat-minus-one n := N − 1, from C3
+
+          2.3.2.  0 ≤ 2. 2 ≤ N.
+                  inequalities, from C3
+
+          2.3.3.  2 ∈ {0, …, N}
+                  mun:range-between k := 2, a := 0, b := N, from 2.3.2
+
+          2.3.4.  C(N, 2) = N!/((N − 2)!·2!)
+                  def:C n := N, k := 2, from 2.3.3
+
+          2.3.5.  N − 2 = (N − 1) − 1
+                  algebra
+
+          2.3.6.  (N − 2)! = ((N − 1) − 1)!
+                  substitute N − 2 = (N − 1) − 1 (line 2.3.5)
+
+          2.3.7.  N!/((N − 2)!·2!) = N!/(((N − 1) − 1)!·2!)
+                  substitute (N − 2)! = ((N − 1) − 1)! (line 2.3.6)
+
+          2.3.8.  1! = 1
+                  mun:factorial
+
+          2.3.9.  (1 + 1)! = 1!·(1 + 1)
+                  mun:factorial n := 1
+
+          2.3.10. 2! = 1!·2
+                  substitute 1 + 1 = 2 (arithmetic) into line 2.3.9
+
+          2.3.11. 2! = 1·2
+                  substitute 1! = 1 (line 2.3.8) into line 2.3.10
+
+          2.3.12. 2! = 2
+                  calculation
+                    2! = 1·2    2.3.11
+                       = 2      arithmetic
+
+          2.3.13. N!/(((N − 1) − 1)!·2!) = N!/(((N − 1) − 1)!·2)
+                  substitute 2! = 2 (line 2.3.12)
+
+          2.3.14. N! = (N − 1)!·N
+                  thm:factorial-by-predecessor, from C1
+
+          2.3.15. (N − 1)! = ((N − 1) − 1)!·(N − 1)
+                  thm:factorial-by-predecessor N := N − 1, from C3
+
+          2.3.16. N! = ((N − 1) − 1)!·(N − 1)·N
+                  substitute (N − 1)! = ((N − 1) − 1)!·(N − 1) (line 2.3.15) into line 2.3.14
+
+          2.3.17. N!/(((N − 1) − 1)!·2) = ((N − 1) − 1)!·(N − 1)·N/(((N − 1) − 1)!·2)
+                  substitute N! = ((N − 1) − 1)!·(N − 1)·N (line 2.3.16)
+
+          2.3.18. ((N − 1) − 1)! ≠ 0
+                  thm:factorial-nonzero N := (N − 1) − 1, from 2.3.1
+
+          2.3.19. ((N − 1) − 1)! ∈ ℕ₀
+                  thm:factorial-nat0 N := (N − 1) − 1, from 2.3.1
+
+          2.3.20. ((N − 1) − 1)!·(N − 1)·N/(((N − 1) − 1)!·2) = N·(N − 1)/2
+                  algebra, from 2.3.18, 2.3.19
+
+          2.3.21. C(N, 2) = N·(N − 1)/2
+                  calculation
+                    C(N, 2) = N!/((N − 2)!·2!)                                        2.3.4
+                            = N!/(((N − 1) − 1)!·2!)                                  2.3.7
+                            = N!/(((N − 1) − 1)!·2)                                   2.3.13
+                            = ((N − 1) − 1)!·(N − 1)·N/(((N − 1) − 1)!·2)             2.3.17
+                            = N·(N − 1)/2                                             2.3.20
+
+          case
+          assume N − 1 = 0                                            (C4)
+
+          2.3.22. N = 1
+                  algebra, from C4
+
+          2.3.23. 1 < 2
+                  arithmetic
+
+          2.3.24. N < 2
+                  substitute N = 1 (line 2.3.22) into line 2.3.23
+
+          2.3.25. C(N, 2) = 0
+                  def:C n := N, k := 2, from 2.3.24
+
+          2.3.26. N·(N − 1)/2 = 0
+                  algebra, from C4
+
+          2.3.27. C(N, 2) = N·(N − 1)/2
+                  calculation
+                    C(N, 2) = 0              2.3.25
+                            = N·(N − 1)/2    2.3.26
+
+    case
+    assume N = 0                                                      (C2)
+
+    2.4.  0 < 2
+          arithmetic
+
+    2.5.  N < 2
+          substitute N = 0 (C2) into line 2.4
+
+    2.6.  C(N, 2) = 0
+          def:C n := N, k := 2, from 2.5
+
+    2.7.  N·(N − 1)/2 = 0
+          algebra, from C2
+
+    2.8.  C(N, 2) = N·(N − 1)/2
+          calculation
+            C(N, 2) = 0              2.6
+                    = N·(N − 1)/2    2.7
+
+theorem choose-complement
+  note        Choosing K of N is choosing the N − K left out. Inside 0 … N
+              both sides are N! over the product of K! and (N − K)!, in
+              either order; outside, K and N − K are both outside, and both
+              sides are 0.
+  let N ∈ ℕ₀                                                          (H1)
+  let K ∈ ℤ                                                           (H2)
+  then C(N, K) = C(N, N − K)
+
+1.  K ∈ {0, …, N} or K ∉ {0, …, N}
+    mun:excluded-middle P := K ∈ {0, …, N}
+
+2.  C(N, K) = C(N, N − K)
+    cases, from 1
+
+    case
+    assume K ∈ {0, …, N}                                              (C1)
+
+    2.1.  K ∈ ℕ₀
+          mun:range-nat0 n := N, from C1
+
+    2.2.  N − K ∈ ℕ₀
+          mun:range-difference a := 0, n := N, from C1
+
+    2.3.  0 ≤ N − K. N − K ≤ N.
+          inequalities, from 2.1, 2.2
+
+    2.4.  N − K ∈ {0, …, N}
+          mun:range-between k := N − K, a := 0, b := N, from 2.3
+
+    2.5.  C(N, K) = N!/((N − K)!·K!)
+          def:C n := N, k := K, from C1
+
+    2.6.  C(N, N − K) = N!/((N − (N − K))!·(N − K)!)
+          def:C n := N, k := N − K, from 2.4
+
+    2.7.  N − (N − K) = K
+          algebra
+
+    2.8.  (N − (N − K))! = K!
+          substitute N − (N − K) = K (line 2.7)
+
+    2.9.  N!/((N − (N − K))!·(N − K)!) = N!/(K!·(N − K)!)
+          substitute (N − (N − K))! = K! (line 2.8)
+
+    2.10. (N − K)! ∈ ℕ₀
+          thm:factorial-nat0 N := N − K, from 2.2
+
+    2.11. K! ∈ ℕ₀
+          thm:factorial-nat0 N := K, from 2.1
+
+    2.12. N! ∈ ℕ₀
+          thm:factorial-nat0
+
+    2.13. (N − K)! ≠ 0
+          thm:factorial-nonzero N := N − K, from 2.2
+
+    2.14. K! ≠ 0
+          thm:factorial-nonzero N := K, from 2.1
+
+    2.15. N!/((N − K)!·K!) = N!/(K!·(N − K)!)
+          algebra, from 2.10, 2.11, 2.12, 2.13, 2.14
+
+    2.16. C(N, K) = C(N, N − K)
+          calculation
+            C(N, K) = N!/((N − K)!·K!)                  2.5
+                    = N!/(K!·(N − K)!)                  2.15
+                    = N!/((N − (N − K))!·(N − K)!)      2.9
+                    = C(N, N − K)                       2.6
+
+    case
+    assume K ∉ {0, …, N}                                              (C2)
+
+    2.17. C(N, K) = 0
+          mun:binomial-outside n := N, k := K, from C2
+
+    2.18. N − K ∉ {0, …, N}
+          contradiction
+          suppose N − K ∈ {0, …, N}                                   (S)
+
+          2.18.1. 0 ≤ N − K. N − K ≤ N.
+                  mun:range-between k := N − K, a := 0, b := N, from S
+
+          2.18.2. K ≥ 0
+                  inequalities
+                    N − K ≤ N       2.18.1
+                    −K ≤ 0          adding −N
+                    K ≥ 0           multiplying by −1
+
+          2.18.3. K ≤ N
+                  inequalities
+                    0 ≤ N − K       2.18.1
+                    K ≤ N           adding K
+
+          2.18.4. K ∈ {0, …, N}
+                  mun:range-between k := K, a := 0, b := N, from 2.18.2, 2.18.3
+
+          2.18.5. K ∉ {0, …, N}
+                  join C2, contradicting 2.18.4
+
+    2.19. C(N, N − K) = 0
+          mun:binomial-outside n := N, k := N − K, from 2.18
+
+    2.20. C(N, K) = C(N, N − K)
+          calculation
+            C(N, K) = 0            2.17
+                    = C(N, N − K)  2.19

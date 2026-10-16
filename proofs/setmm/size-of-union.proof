@@ -1,0 +1,150 @@
+import mundane theorem    stdlib/counting/card-disjoint-union
+import mundane theorem    stdlib/counting/card-nat0
+import mundane theorem    stdlib/counting/card-subset
+import mundane theorem    stdlib/counting/finite-part
+import mundane theorem    stdlib/reasoning/disjunctive-syllogism-left
+import mundane axiom      stdlib/reasoning/excluded-middle
+import mundane definition stdlib/sets/difference
+import mundane theorem    stdlib/sets/difference-subset
+import mundane theorem    stdlib/sets/disjoint-empty
+import mundane theorem    stdlib/sets/in-union-left
+import mundane theorem    stdlib/sets/in-union-right
+import mundane definition stdlib/sets/subset
+import mundane theorem    stdlib/sets/subset-antisymmetric
+import mundane definition stdlib/sets/union
+
+theorem union-split
+  note        Everything in A ∪ B is in A, or is in B and not in A, so
+              A ∪ B is A together with what B has beyond A.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  then A ∪ (B ∖ A) = A ∪ B
+
+1.  For all u ∈ A ∪ (B ∖ A), u ∈ A ∪ B.
+    proof
+    let u ∈ A ∪ (B ∖ A)                                               (K1)
+
+    1.1.  u ∈ A or u ∈ B ∖ A
+          mun:union Y := A, Z := B ∖ A, from K1
+
+    1.2.  u ∈ A ∪ B
+          cases, from 1.1
+
+          case
+          assume u ∈ A                                                (C1)
+
+          1.2.1.  u ∈ A ∪ B
+                  mun:in-union-left Y := A, Z := B, from C1
+
+          case
+          assume u ∈ B ∖ A                                            (C2)
+
+          1.2.2.  u ∈ B. u ∉ A.
+                  mun:difference Y := B, Z := A, from C2
+
+          1.2.3.  u ∈ A ∪ B
+                  mun:in-union-right Y := A, Z := B, from 1.2.2
+
+2.  A ∪ (B ∖ A) ⊆ A ∪ B
+    mun:subset X := A ∪ (B ∖ A), Y := A ∪ B, from 1
+
+3.  For all u ∈ A ∪ B, u ∈ A ∪ (B ∖ A).
+    proof
+    let u ∈ A ∪ B                                                     (K2)
+
+    3.1.  u ∈ A or u ∈ B
+          mun:union Y := A, Z := B, from K2
+
+    3.2.  u ∈ A or u ∉ A
+          mun:excluded-middle P := u ∈ A
+
+    3.3.  u ∈ A ∪ (B ∖ A)
+          cases, from 3.2
+
+          case
+          assume u ∈ A                                                (C3)
+
+          3.3.1.  u ∈ A ∪ (B ∖ A)
+                  mun:in-union-left Y := A, Z := B ∖ A, from C3
+
+          case
+          assume u ∉ A                                                (C4)
+
+          3.3.2.  u ∈ B
+                  mun:disjunctive-syllogism-left, from C4, 3.1
+
+          3.3.3.  u ∈ B ∖ A
+                  mun:difference Y := B, Z := A, from C4, 3.3.2
+
+          3.3.4.  u ∈ A ∪ (B ∖ A)
+                  mun:in-union-right Y := A, Z := B ∖ A, from 3.3.3
+
+4.  A ∪ B ⊆ A ∪ (B ∖ A)
+    mun:subset X := A ∪ B, Y := A ∪ (B ∖ A), from 3
+
+5.  A ∪ (B ∖ A) = A ∪ B
+    mun:subset-antisymmetric X := A ∪ (B ∖ A), Y := A ∪ B, from 2, 4
+
+theorem size-of-union
+  metamath    hashun2
+  note        A ∪ B is A together with the part of B outside A, two sets with
+              nothing in common, so its size is |A| plus the size of that part,
+              which is at most |B|.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  assume A is finite                                                  (H3)
+  assume B is finite                                                  (H4)
+  then |A ∪ B| ≤ |A| + |B|
+
+1.  B ∖ A ⊆ B
+    mun:difference-subset X := B, Y := A
+
+2.  B ∖ A is finite
+    mun:finite-part X := B, Y := B ∖ A, from H4, 1
+
+3.  |A| ∈ ℕ₀
+    mun:card-nat0 X := A, from H3
+
+4.  |B| ∈ ℕ₀
+    mun:card-nat0 X := B, from H4
+
+5.  |B ∖ A| ∈ ℕ₀
+    mun:card-nat0 X := B ∖ A, from 2
+
+6.  |B ∖ A| ≤ |B|
+    mun:card-subset A := B ∖ A, from 1
+
+7.  For all s ∈ B ∖ A, s ∉ A.
+    proof
+    let s ∈ B ∖ A                                                     (K)
+
+    7.1.  s ∈ B. s ∉ A.
+          mun:difference Y := B, Z := A, from K
+
+    7.2.  s ∉ A
+          join 7.1
+
+8.  A ∩ (B ∖ A) = ∅
+    mun:disjoint-empty Y := A, Z := B ∖ A, from 7
+
+9.  |A ∪ (B ∖ A)| = |A| + |B ∖ A|
+    mun:card-disjoint-union X := A, Y := B ∖ A, m := |A|, n := |B ∖ A|, from 3, 5, 8
+
+10. A ∪ (B ∖ A) = A ∪ B
+    thm:union-split
+
+11. |A ∪ B| = |A| + |B ∖ A|
+    substitute A ∪ (B ∖ A) = A ∪ B (line 10) into line 9
+
+12. |A| + |B ∖ A| ≤ |A| + |B|
+    inequalities
+      |B ∖ A| ≤ |B|              6
+      |A| + |B ∖ A| ≤ |A| + |B|  adding |A|
+    requires |A| ∈ ℝ: from 3
+    requires |B| ∈ ℝ: from 4
+    requires |B ∖ A| ∈ ℝ: from 5
+
+13. |A ∪ B| ≤ |A| + |B|
+    calculation
+      |A ∪ B| = |A| + |B ∖ A|     11
+              ≤ |A| + |B|         12

@@ -1,0 +1,53 @@
+import mundane theorem stdlib/numbers/floor-above
+import mundane theorem stdlib/numbers/floor-below
+import mundane theorem stdlib/numbers/floor-integer
+import mundane theorem stdlib/numbers/integer-step
+
+theorem integer-below-a-real
+  note        A whole number is at most a real number exactly when it is at
+              most its floor: the floor is at most the number, and a whole
+              number above the floor is at least one more, which the number
+              is under.
+  let A ∈ ℝ                                                           (H1)
+  let B ∈ ℤ                                                           (H2)
+  then B ≤ A ↔ B ≤ ⌊A⌋
+
+1.  ⌊A⌋ ∈ ℤ
+    mun:floor-integer x := A
+
+2.  ⌊A⌋ ≤ A
+    mun:floor-below x := A
+
+3.  A < ⌊A⌋ + 1
+    mun:floor-above x := A
+
+4.  B ≤ A ↔ B ≤ ⌊A⌋
+    both directions
+
+    direction
+    assume B ≤ A                                                      (C1)
+
+    4.1.  B ≤ ⌊A⌋
+          contradiction
+          suppose not B ≤ ⌊A⌋                                         (S)
+
+          4.1.1.  ⌊A⌋ < B
+                  inequalities, from S
+                  requires ⌊A⌋ ∈ ℝ: from 1
+
+          4.1.2.  ⌊A⌋ + 1 ≤ B
+                  mun:integer-step m := ⌊A⌋, n := B, from 1, 4.1.1
+
+          4.1.3.  A < B
+                  transitivity, from 3, 4.1.2
+                  requires ⌊A⌋ ∈ ℝ: from 1
+
+          4.1.4.  not B ≤ A
+                  inequalities, from 4.1.3, contradicting C1
+
+    direction
+    assume B ≤ ⌊A⌋                                                    (C2)
+
+    4.2.  B ≤ A
+          transitivity, from C2, 2
+          requires ⌊A⌋ ∈ ℝ: from 1
