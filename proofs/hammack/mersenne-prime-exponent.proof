@@ -2,7 +2,6 @@ import mundane definition stdlib/divisibility/divides
 import mundane definition stdlib/divisibility/prime
 import mundane theorem    stdlib/divisibility/prime-nat
 import mundane theorem    stdlib/numbers/exponent-step
-import mundane theorem    stdlib/numbers/exponent-zero
 import mundane theorem    stdlib/numbers/integer-step
 import mundane theorem    stdlib/numbers/multiply-le
 import mundane theorem    stdlib/numbers/pos-int-nat
@@ -24,7 +23,7 @@ theorem two-power-add
 
     base
     1.1.  2^0 = 1
-          mun:exponent-zero a := 2
+          arithmetic
 
     1.2.  2^(a + 0) = 2^a·2^0
           substitute 2^0 = 1 (line 1.1)

@@ -1,5 +1,4 @@
 import mundane theorem    stdlib/numbers/exponent-step
-import mundane theorem    stdlib/numbers/exponent-zero
 import mundane theorem    stdlib/numbers/multiply-le
 import mundane theorem    stdlib/numbers/power-real
 import mundane axiom      stdlib/numbers/trichotomy
@@ -17,7 +16,7 @@ theorem power-nonnegative
 
     base
     1.1.  a^0 = 1
-          mun:exponent-zero
+          algebra
 
     1.2.  0 ≤ 1
           arithmetic

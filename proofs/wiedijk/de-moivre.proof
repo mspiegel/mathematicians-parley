@@ -1,7 +1,6 @@
 import theorem            stdlib/trigonometry/cos-add
 import theorem            stdlib/trigonometry/sin-add
 import mundane theorem    stdlib/numbers/exponent-step
-import mundane theorem    stdlib/numbers/exponent-zero
 import mundane definition stdlib/numbers/i
 import mundane theorem    stdlib/numbers/i-complex
 import mundane definition stdlib/trigonometry/cos
@@ -28,7 +27,7 @@ theorem de-moivre
 
     base
     2.1.  (cos(x) + i·sin(x))^0 = 1
-          mun:exponent-zero a := cos(x) + i·sin(x)
+          algebra
           requires cos(x) ∈ ℝ: mun:cos-real a := x
           requires sin(x) ∈ ℝ: mun:sin-real a := x
           requires i ∈ ℂ: mun:i-complex

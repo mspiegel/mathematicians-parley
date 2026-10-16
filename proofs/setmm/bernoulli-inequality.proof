@@ -1,5 +1,4 @@
 import mundane theorem    stdlib/numbers/exponent-step
-import mundane theorem    stdlib/numbers/exponent-zero
 import mundane theorem    stdlib/numbers/multiply-le
 import mundane theorem    stdlib/numbers/power-real
 import mundane theorem    stdlib/numbers/square-nonneg
@@ -63,7 +62,7 @@ theorem bernoulli-inequality
 
     base
     1.1.  A^0 = 1
-          mun:exponent-zero a := A
+          algebra
 
     1.2.  (A − 1)·0 + 1 ≤ A^0
           inequalities

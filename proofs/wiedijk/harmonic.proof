@@ -7,7 +7,6 @@ import mundane theorem    stdlib/sums/sum-single
 import mundane theorem    stdlib/sums/sum-real
 import mundane theorem    stdlib/sums/range-bounds
 import mundane theorem    stdlib/numbers/exponent-step
-import mundane theorem    stdlib/numbers/exponent-zero
 import mundane theorem    stdlib/numbers/power-nat
 import mundane theorem    stdlib/numbers/reciprocal-order
 
@@ -158,7 +157,7 @@ theorem harmonic-unbounded
 
     base
     2.1.  2^0 = 1
-          mun:exponent-zero a := 2
+          arithmetic
 
     2.2.  Σ(k = 1 to 2^0) 1/k = Σ(k = 1 to 1) 1/k
           substitute 2^0 = 1 (line 2.1)

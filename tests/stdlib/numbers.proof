@@ -5,16 +5,12 @@ import mundane theorem    stdlib/numbers/abs-product as numbers-abs-product
 import mundane theorem    stdlib/numbers/abs-quotient as numbers-abs-quotient
 import mundane theorem    stdlib/numbers/abs-square as numbers-abs-square
 import mundane theorem    stdlib/numbers/abs-zero as numbers-abs-zero
-import mundane theorem    stdlib/numbers/exponent-one as numbers-exponent-one
-import mundane theorem    stdlib/numbers/below-successor as numbers-below-successor
-import mundane theorem    stdlib/numbers/half-positive as numbers-half-positive
 import mundane theorem    stdlib/numbers/int-real as numbers-int-real
 import mundane theorem    stdlib/numbers/integer-step as numbers-integer-step
 import mundane theorem    stdlib/numbers/le-max
 import mundane definition stdlib/numbers/max
 import mundane theorem    stdlib/numbers/max-le as numbers-max-le
 import mundane theorem    stdlib/numbers/max-real as numbers-max-real
-import mundane theorem    stdlib/numbers/nat-ge-1 as numbers-nat-ge-1
 import mundane theorem    stdlib/numbers/nat-int as numbers-nat-int
 import mundane theorem    stdlib/numbers/nat-real as numbers-nat-real
 import mundane definition stdlib/numbers/nat0 as numbers-nat0
@@ -118,21 +114,6 @@ theorem rational
 1.  There are p ∈ ℤ and q ∈ ℕ with x = p/q.
     mun:numbers-rational, from H2
 
-theorem half-positive
-  let x ∈ ℝ                                                           (H1)
-  assume x > 0                                                        (H2)
-  then x/2 > 0
-
-1.  x/2 > 0
-    mun:numbers-half-positive, from H2
-
-theorem exponent-one
-  let a ∈ ℝ                                                           (H1)
-  then a^1 = a
-
-1.  a^1 = a
-    mun:numbers-exponent-one
-
 theorem nat-int
   let m ∈ ℕ                                                           (H1)
   then m ∈ ℤ
@@ -161,26 +142,12 @@ theorem nat0-real
 1.  m ∈ ℝ
     mun:numbers-nat0-real
 
-theorem below-successor
-  let a ∈ ℝ                                                           (H1)
-  then a < a + 1
-
-1.  a < a + 1
-    mun:numbers-below-successor
-
 theorem nat0-int
   let m ∈ ℕ₀                                                          (H1)
   then m ∈ ℤ
 
 1.  m ∈ ℤ
     mun:numbers-nat0-int
-
-theorem nat-ge-1
-  let m ∈ ℕ                                                           (H1)
-  then m ≥ 1
-
-1.  m ≥ 1
-    mun:numbers-nat-ge-1
 
 theorem max-real
   let x ∈ ℝ                                                           (H1)

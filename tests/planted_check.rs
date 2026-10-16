@@ -3810,14 +3810,14 @@ fn cases() -> Vec<Case> {
             "step 1.3 cites mun:sum-extended, which asks for",
         ),
         // A letter's membership is said where it is introduced, and a line
-        // cited only for it does no work: H1 says a ∈ ℝ, and exponent-zero
-        // asks nothing else of it.
+        // cited only for it does no work: H2 says c ∈ ℝ, and abs-real asks
+        // nothing else of it.
         case(
             "cite a let line only for the membership it introduces",
             vec![
-                edit("proofs/wiedijk/geometric-series.proof", Some("    1.2.  a^0 = 1\n          mun:exponent-zero\n".to_string()), "    1.2.  a^0 = 1\n          mun:exponent-zero, from H1\n".to_string()),
+                edit("proofs/hammack/constant-multiple-limit.proof", Some("1.  |c| ∈ ℝ\n    mun:abs-real x := c\n".to_string()), "1.  |c| ∈ ℝ\n    mun:abs-real x := c, from H2\n".to_string()),
             ],
-            "step 1.2 cites H1, and mun:exponent-zero asks for nothing it says",
+            "step 1 cites H2, and mun:abs-real asks for nothing it says",
         ),
         // The same of an obtain's sentence `p ∈ ℤ`: even-square asks
         // p ∈ ℤ at n := p, which 2.1 says once, where it obtains p.
@@ -4145,7 +4145,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/wiedijk/geometric-series.proof", Some("       reads the geometric series: the powers of a, from a^0 up to a^n\n".to_string()), "       reads the geometric series: the powers of a, from a^0 up to a^n\n\ndefine H(n) := n + 1, for n ∈ ℕ                                    (D1)\n       reads one more than n\n".to_string()),
             ],
-            "label D1 is already used at line 7",
+            "label D1 is already used at line 6",
         ),
         case(
             "a define with no reads line",
