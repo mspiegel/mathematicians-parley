@@ -171,13 +171,16 @@ method inequalities
 method transitivity
   form        transitivity, from L
   block       none
-  checks      the lines L, in the order cited, make a chain, each line's right
-              side the next line's left side, written the same way; the claim
-              relates the first left side to the last right side, by the
-              relation a calculation's chain of those links would have.
+  checks      the lines L, in the order cited, make a chain: where one line
+              ends the next begins, the term they share written the same way
+              in both, each line read from whichever side meets the one
+              before; the claim relates the chain's first term to its last,
+              by the relation a calculation's chain of those links would
+              have.
   decides     the transitive property of =, ≤ and <, and of ≥ and > going
               down
-  hypotheses  none
+  hypotheses  where a link is an order, every atom of the chain's terms is a
+              real number, as an inequalities step's are
   specified-in METHODS.md
   metamath    eqbrtrd, breqtrd, letrd, lttrd, lelttrd, ltletrd
   note        A calculation whose terms the cited lines write: it puts two
@@ -189,7 +192,7 @@ method antisymmetry
   checks      L is two lines, a ≤ b and b ≤ a, in either order; the claim is
               a = b, either way round.
   decides     the antisymmetry of ≤
-  hypotheses  none
+  hypotheses  every atom of the two sides is a real number
   specified-in METHODS.md
   metamath    letri3d, eqcomd
 

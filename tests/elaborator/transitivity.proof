@@ -1,0 +1,85 @@
+theorem a-chain-going-up
+  note        a ≤ b and b < c chain to a < c, the transitive property.
+  let a ∈ ℝ    (H1)
+  let b ∈ ℝ    (H2)
+  let c ∈ ℝ    (H3)
+  assume a ≤ b    (H4)
+  assume b < c    (H5)
+  then a < c
+
+1.  a < c
+    transitivity, from H4, H5
+
+theorem a-chain-going-down
+  note        A chain going down, c > b ≥ a, gives c > a.
+  let a ∈ ℝ    (H1)
+  let b ∈ ℝ    (H2)
+  let c ∈ ℝ    (H3)
+  assume c > b    (H4)
+  assume b ≥ a    (H5)
+  then c > a
+
+1.  c > a
+    transitivity, from H4, H5
+
+theorem a-chain-through-an-equation
+  note        An equation is a link either way round, and the claim may be
+              written from its right side.
+  let a ∈ ℝ    (H1)
+  let b ∈ ℝ    (H2)
+  let c ∈ ℝ    (H3)
+  assume b = a    (H4)
+  assume b ≤ c    (H5)
+  then c ≥ a
+
+1.  c ≥ a
+    transitivity, from H4, H5
+
+theorem a-chain-of-equations
+  note        A chain of equations gives an equation, of terms of any sort.
+  let A be a set    (H1)
+  let B be a set    (H2)
+  let C be a set    (H3)
+  assume A = B    (H4)
+  assume B = C    (H5)
+  then A = C
+
+1.  A = C
+    transitivity, from H4, H5
+
+theorem an-order-and-its-converse
+  note        a ≤ b and b ≤ a give a = b, the antisymmetry of ≤.
+  let a ∈ ℝ    (H1)
+  let b ∈ ℝ    (H2)
+  assume a ≤ b    (H3)
+  assume a ≥ b    (H4)
+  then b = a
+
+1.  b = a
+    antisymmetry, from H3, H4
+
+theorem a-chain-through-a-turned-order
+  note        An order may be written either way round: c > b is read as
+              b < c where the chain takes it so.
+  let a ∈ ℝ    (H1)
+  let b ∈ ℝ    (H2)
+  let c ∈ ℝ    (H3)
+  assume a ≤ b    (H4)
+  assume c > b    (H5)
+  then a < c
+
+1.  a < c
+    transitivity, from H4, H5
+
+theorem a-chain-cited-in-its-own-order
+  note        A transitivity step cites its lines in the chain's order, which
+              is not the order a list is otherwise in.
+  let a ∈ ℝ    (H1)
+  let b ∈ ℝ    (H2)
+  let c ∈ ℝ    (H3)
+  assume b < c    (H4)
+  assume a ≤ b    (H5)
+  then a < c
+
+1.  a < c
+    transitivity, from H5, H4

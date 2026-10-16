@@ -162,8 +162,12 @@ fn changes() -> Vec<Change> {
 
 /// `line` with the lines and labels of its `from` list in the order the
 /// checker asks for; a list ends where a word that cites nothing starts, as
-/// `contradicting 2` does.
+/// `contradicting 2` does. A `transitivity` step's list is in the chain's
+/// order, and is left as it is (`SYNTAX.md`, a list is in order).
 fn cited_in_written_order(line: &str) -> String {
+    if line.trim_start().starts_with("transitivity,") {
+        return line.to_string();
+    }
     let Some(at) = line.rfind("from ") else {
         return line.to_string();
     };

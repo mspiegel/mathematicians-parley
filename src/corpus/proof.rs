@@ -520,6 +520,8 @@ pub enum Method {
     Algebra,
     Arithmetic,
     Inequalities,
+    Transitivity,
+    Antisymmetry,
     Membership,
     Inspection,
     Join,
@@ -531,7 +533,7 @@ pub enum Method {
     Calculation,
 }
 
-pub const METHODS: [Method; 16] = [
+pub const METHODS: [Method; 18] = [
     Method::Obtain,
     Method::Exhibit,
     Method::Substitute,
@@ -539,6 +541,8 @@ pub const METHODS: [Method; 16] = [
     Method::Algebra,
     Method::Arithmetic,
     Method::Inequalities,
+    Method::Transitivity,
+    Method::Antisymmetry,
     Method::Membership,
     Method::Inspection,
     Method::Join,
@@ -560,6 +564,8 @@ impl Method {
             Method::Algebra => "algebra",
             Method::Arithmetic => "arithmetic",
             Method::Inequalities => "inequalities",
+            Method::Transitivity => "transitivity",
+            Method::Antisymmetry => "antisymmetry",
             Method::Membership => "membership",
             Method::Inspection => "inspection",
             Method::Join => "join",

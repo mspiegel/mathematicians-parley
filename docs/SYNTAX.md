@@ -434,7 +434,7 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
 | `arithmetic` | a fact about closed numerals: value, order, or membership in ℕ ℤ ℚ ℝ |
 | `inequalities, from L` | the lines L added side by side, as they stand, with the bounds a membership gives, closed numeral facts, a disequality taken both ways and a negation turned round taken without being written (`METHODS.md`, inequalities); with nothing in L to add, those alone |
 | `inequalities`, then rows | the manipulations of one line written out, a row to each. The first row is a line the step cites, written out, with its label as reason; each row after it is the row above with the manipulation its reason names, `adding t`, `multiplying by c`, `symmetry`, `weakening` or `algebra` (`METHODS.md`); the last row is the claim |
-| `transitivity, from L` | the lines L, in the order cited, make a chain, each line's right side the next line's left side written the same way; the claim relates the first left side to the last right side, by the relation a calculation's chain would have |
+| `transitivity, from L` | the lines L, in the order cited, make a chain: where one line ends the next begins, the term they share written the same way in both, each line read from whichever side meets the one before; the claim relates the chain's first term to its last, by the relation a calculation's chain would have |
 | `antisymmetry, from L` | L is two lines, `a ≤ b` and `b ≤ a`; the claim is `a = b` |
 | `join L` | the claim is the sentences of the lines L put together; with one cited line it is that line. It infers nothing. A propositional law that does infer something, such as eliminating a double negation, is a cited theorem instead |
 | `contradiction`, then `suppose B (S)` | C is the step's claim; the block supposes B, labelled S, and its last step reaches the opposite of an earlier line and names it after its reasons, `inequalities, from 3.1, contradicting 3.4`, or reaches a fact of numerals alone that `arithmetic` finds false and says so after its claim, `2 ≤ 1, which is impossible`. B is either "not C", which is reductio, or the thing C negates, which is how a negation is proved directly; no formula is its own double negation, so which one it is never has to be guessed. Any rewriting of B, such as p ≤ n for "not p > n", is a step inside the block. `METHODS.md` says what each shape expands to and which of them needs the classical step |
@@ -467,7 +467,9 @@ then their number, and then lines, sorted by step number:
 number comes before the same letters with one, and `3.2` comes before
 `10`. The order says nothing about which hypothesis a line fills, so a
 reader looking for a line knows where in the list to find it. The checker
-reports a list out of order and gives it in order.
+reports a list out of order and gives it in order. A `transitivity` step's
+list is the one exception: its order is the chain's, which the reader
+follows as it is written (`METHODS.md`, transitivity).
 
 **A line said of every member of a set says it of every member of a set
 inside that one.** A hypothesis asking "for all k ∈ {1, …, n}, P(k)" is

@@ -353,20 +353,27 @@ refuse each false one as not following.
 
 `transitivity, from L₁, …, Lₙ` is the transitive property of `=`, `≤` and
 `<`: from `a ≤ b` and `b < c`, `a < c`. The cited lines, in the order they
-are cited, make a chain. Each is one relation between two terms, and each
-line's right side is the next line's left side, written the same way, since
-rewriting a side is a row of `inequalities`. The claim relates the first
-line's left side to the last line's right side.
+are cited, make a chain. Each is one relation between two terms, and where
+one line ends the next begins: the term they share is written the same way
+in both, since rewriting a side is a row of `inequalities`. A line is read
+from whichever side meets the line before, as an order may be written
+either way round (`b > a` is `a < b`). The claim relates the chain's first
+term to its last.
 
 Its relation is a calculation's (`SYNTAX.md`, `calculation`): `=` where every
 line is `=`; going up, `≤` where every line is `=` or `≤`, and `<` where any
-is `<`; going down, `≥` and `>` the same way. A chain goes one way: `a ≤ b`
-and `b ≥ c` say nothing of a against c, and are refused. An equation is a
-link either way round, as in a calculation.
+is `<`; going down, `≥` and `>` the same way, each line read the way the
+chain takes it. A chain goes one way: `a ≤ b` and `c ≤ b` say nothing of a
+against c, and are refused.
 
 It is a calculation whose terms the cited lines write: what the reader of
 `a ≤ b < c` follows, said of two lines that each state a link. A step
 puts two facts together without an "and", as a calculation's links do.
+
+**Hypotheses.** Where a link is an order, every atom of the chain's terms
+is a real number, as an inequalities step's atoms are (inequalities,
+Hypotheses): said once, or by a line the step names. A chain of `=` alone
+asks nothing, for its terms may be sets.
 
 **Refusals.** Lines that do not chain in the order cited; a middle term
 written two ways; a chain that goes both up and down; a claim that is not
@@ -382,6 +389,9 @@ order, each side written the same way in both, and the claim is the
 equation between them, either way round: Bezout's `d = gcd(a, b)` from `d ≤
 gcd(a, b)` and `gcd(a, b) ≤ d`. `≥` is `≤` the other way round, so `b ≥ a`
 is `a ≤ b`.
+
+**Hypotheses.** Every atom of the two sides is a real number, as an
+inequalities step's are.
 
 **Refusals.** Lines that are not one order and its converse; a strict
 order, which with its converse is a contradiction and not an equation; a

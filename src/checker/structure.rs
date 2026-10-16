@@ -700,7 +700,10 @@ pub fn check_citations(
         for r in named_twice(own) {
             report.say(&thm.path, just.line, cited_twice(&what, r));
         }
-        if let Some(said) = out_of_order(&what, own) {
+        // A chain's lines are in the chain's order (`SYNTAX.md`, a list is
+        // in order).
+        let chained = just.head.is(Method::Transitivity);
+        if let Some(said) = out_of_order(&what, own).filter(|_| !chained) {
             report.say(&thm.path, just.line, said);
         }
         for r in &just.refs {

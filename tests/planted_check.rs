@@ -664,6 +664,63 @@ fn cases() -> Vec<Case> {
             )],
             "nothing says |c| ∈ ℝ, which this step needs",
         ),
+        // A transitivity step chains relations, each line's right side the
+        // next one's left, and claims the ends by the chain's relation;
+        // antisymmetry takes an order and its converse to an equation.
+        case(
+            "transitivity citing a line that is no relation",
+            vec![edit(
+                "tests/elaborator/transitivity.proof",
+                Some("    transitivity, from H4, H5\n".to_string()),
+                "    transitivity, from H1, H5\n".to_string(),
+            )],
+            "step 1 cites H1 by transitivity, and H1 states no single relation of =, <, ≤, > or ≥",
+        ),
+        case(
+            "transitivity chaining orders going both ways",
+            vec![edit(
+                "tests/elaborator/transitivity.proof",
+                Some("  assume b ≥ a    (H5)\n".to_string()),
+                "  assume b ≤ a    (H5)\n".to_string(),
+            )],
+            "step 1 chains orders going up and going down, which say nothing of its ends",
+        ),
+        case(
+            "transitivity over lines that do not meet",
+            vec![edit(
+                "tests/elaborator/transitivity.proof",
+                Some("  assume b < c    (H5)\n".to_string()),
+                "  assume c < c + 1    (H5)\n".to_string(),
+            )],
+            "the lines step 1 chains do not meet: H4 ends at b, and H5 starts from c",
+        ),
+        case(
+            "transitivity claiming other than the chain's ends",
+            vec![edit(
+                "tests/elaborator/transitivity.proof",
+                Some("1.  a < c\n    transitivity, from H4, H5\n".to_string()),
+                "1.  a ≤ c\n    transitivity, from H4, H5\n".to_string(),
+            )],
+            "step 1 claims a ≤ c, and the chain it cites gives a < c",
+        ),
+        case(
+            "antisymmetry of a strict order",
+            vec![edit(
+                "tests/elaborator/transitivity.proof",
+                Some("  assume a ≥ b    (H4)\n".to_string()),
+                "  assume a > b    (H4)\n".to_string(),
+            )],
+            "step 1 cites by antisymmetry what is not two lines a ≤ b and b ≤ a, an order and its converse",
+        ),
+        case(
+            "antisymmetry claiming other than the equation of its sides",
+            vec![edit(
+                "tests/elaborator/transitivity.proof",
+                Some("1.  b = a\n    antisymmetry".to_string()),
+                "1.  b = b\n    antisymmetry".to_string(),
+            )],
+            "step 1 claims b = b, and its lines give a = b",
+        ),
         // An induction over ℕ starts at 1 and writes it, runs over ℕ or ℕ₀,
         // and has a base part and a step part.
         case(

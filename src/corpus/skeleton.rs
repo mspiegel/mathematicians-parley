@@ -853,6 +853,8 @@ fn method_slots(
         // must have.
         Method::Exhibit
         | Method::Cases
+        | Method::Transitivity
+        | Method::Antisymmetry
         | Method::Algebra
         | Method::Inequalities
         | Method::Membership
@@ -868,7 +870,13 @@ fn method_slots(
                 from_slot(&list, slots);
                 slots.unproduced(None);
             }
-            let needs_from = matches!(method, Method::Exhibit | Method::Cases);
+            let needs_from = matches!(
+                method,
+                Method::Exhibit
+                    | Method::Cases
+                    | Method::Transitivity
+                    | Method::Antisymmetry
+            );
             if needs_from && slots.from.is_empty() {
                 slots.unproduced(None);
             }

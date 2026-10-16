@@ -1117,7 +1117,11 @@ impl<'a> Elaborator<'a> {
             How::Named(m) => {
                 matches!(
                     m,
-                    Method::Membership | Method::Algebra | Method::Inequalities
+                    Method::Membership
+                        | Method::Algebra
+                        | Method::Inequalities
+                        | Method::Transitivity
+                        | Method::Antisymmetry
                 )
             }
             _ => false,
@@ -1273,7 +1277,15 @@ impl<'a> Elaborator<'a> {
             How::Named(m) => match m {
                 Method::Algebra => self.algebra(step, term, scope, facts, lines)?,
                 Method::Arithmetic => self.arithmetic(step, term, scope, facts)?,
-                Method::Inequalities => {
+                // A chain with an order in it, and an order with its
+                // converse, are linear facts of what they cite, which the
+                // proof of an inequalities step proves; the checker has held
+                // them to their own rules. A chain of equations may relate
+                // terms of any sort, and is folded by `eqtrd`.
+                Method::Transitivity if self.equations_chained(step, lines) => {
+                    Built(self.equation_chain(step, term, scope, facts, lines)?)
+                }
+                Method::Inequalities | Method::Transitivity | Method::Antisymmetry => {
                     self.inequalities(step, term, scope, facts, lines)?
                 }
                 Method::Membership => self.by_membership(step, term, scope, facts)?,
@@ -2832,6 +2844,87 @@ impl<'a> Elaborator<'a> {
     /// join. The chain reaches its first term related to its last; a claim
     /// saying that another way, as an equation turned round, is reached from
     /// it by `same`, as any method's claim is.
+    /// Whether every line a `transitivity` step cites is an equation: a
+    /// chain `eqtrd` folds whatever the sort of its terms.
+    fn equations_chained(&self, step: &Step, lines: &Lines) -> bool {
+        step.just.refs.iter().all(|r| {
+            lines
+                .get(r)
+                .is_some_and(|l| self.to_term(&l.term).label() == Some("wceq"))
+        })
+    }
+
+    /// A proof of `B = A` from one of `A = B`.
+    fn turned_equation(
+        &mut self,
+        scope: &str,
+        a: &str,
+        b: &str,
+        proof: &Proof,
+    ) -> Proof {
+        self.b.ap(
+            "eqcomd",
+            &binds! {"ph" => scope, "A" => a, "B" => b},
+            &[proof],
+        )
+    }
+
+    /// A chain of equations (`METHODS.md`, transitivity), folded a line at a
+    /// time by `eqtrd`: each line turned by `eqcomd` where it meets the one
+    /// before from its right side, the first where the second meets it from
+    /// its left, and what is reached turned where the claim writes it from
+    /// the other end.
+    fn equation_chain(
+        &mut self,
+        step: &Step,
+        term: &str,
+        scope: &str,
+        facts: &Facts,
+        lines: &Lines,
+    ) -> Checked<Proof> {
+        let mut chain: Option<(String, String, Proof)> = None;
+        for r in &step.just.refs {
+            let held = lines.get(r).expect("a line the checker found in scope");
+            let said = self.to_term(&held.term);
+            let (mut a, mut b) =
+                (self.rpn(&said.children()[0]), self.rpn(&said.children()[1]));
+            let mut proof = self.carried(r, facts, lines);
+            chain = Some(match chain {
+                None => (a, b, proof),
+                Some((mut left, mut right, mut before)) => {
+                    if a != right && b != right && (a == left || b == left) {
+                        before = self.turned_equation(scope, &left, &right, &before);
+                        std::mem::swap(&mut left, &mut right);
+                    }
+                    if a != right && b == right {
+                        proof = self.turned_equation(scope, &a, &b, &proof);
+                        std::mem::swap(&mut a, &mut b);
+                    }
+                    if a != right {
+                        return Err(self.defect(
+                            step.line,
+                            "the equations the step chains do not meet",
+                        ));
+                    }
+                    let joined = self.b.ap(
+                        "eqtrd",
+                        &binds! {"ph" => scope, "A" => &left, "B" => &right, "C" => &b},
+                        &[&before, &proof],
+                    );
+                    (left, b, joined)
+                }
+            });
+        }
+        let (left, right, proof) = chain.expect("a transitivity step cites a line");
+        if t!(&left, &right, "wceq") == term {
+            return Ok(proof);
+        }
+        if t!(&right, &left, "wceq") == term {
+            return Ok(self.turned_equation(scope, &left, &right, &proof));
+        }
+        Err(self.defect(step.line, "the chain of equations does not reach the claim"))
+    }
+
     fn calculation(
         &mut self,
         step: &Step,
@@ -5355,10 +5448,12 @@ impl<'a> Elaborator<'a> {
 
 /// The methods the build expands itself; the others open a block or take
 /// apart what a citation gives, and are expanded where those are.
-const EXPANDED: [Method; 10] = [
+const EXPANDED: [Method; 12] = [
     Method::Algebra,
     Method::Arithmetic,
     Method::Inequalities,
+    Method::Transitivity,
+    Method::Antisymmetry,
     Method::Membership,
     Method::Inspection,
     Method::Substitute,

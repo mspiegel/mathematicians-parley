@@ -2214,9 +2214,13 @@ fn naming_follows(
                         return None;
                     }
                 }
+                // A chain's lines meet as they are written, so naming a part
+                // in some of them and not others parts what met.
                 Method::Algebra
                 | Method::Arithmetic
                 | Method::Inequalities
+                | Method::Transitivity
+                | Method::Antisymmetry
                 | Method::Membership
                 | Method::Inspection => return None,
             },

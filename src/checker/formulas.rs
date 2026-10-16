@@ -1572,13 +1572,28 @@ fn inequalities_unsaid(
     let terms: Vec<Term> = facts.iter().map(|n| term_of_node(n, targets)).collect();
     let claimed = term_of_node(&read.claimed, targets);
     let used = inequalities::combined(&claimed, &terms, &line_of, &implied, &labels)?;
+    let relations: Vec<Node> = conjuncts(&read.claimed)
+        .into_iter()
+        .chain(used.iter().filter_map(|&i| facts.get(i).cloned()))
+        .collect();
+    real_unsaid(at, read, &relations, known, targets)
+}
+
+/// What `relations` leave unsaid of an order's hypotheses (`METHODS.md`,
+/// inequalities, Hypotheses): every atom of their sides a real number, and
+/// every divisor that is not a numeral not zero, each said once or by a line
+/// the step names. None where both are said.
+fn real_unsaid(
+    at: &ClosureClaim,
+    read: &ClosureRead,
+    relations: &[Node],
+    known: &Known,
+    targets: &Targets,
+) -> Option<String> {
     let held = MembershipIn::of(at, read, known);
     let given = held.given(targets, known);
-    let relations = conjuncts(&read.claimed)
-        .into_iter()
-        .chain(used.iter().filter_map(|&i| facts.get(i).cloned()));
     for relation in relations {
-        for side in relation_sides(&relation) {
+        for side in relation_sides(relation) {
             let parts = methods_membership::Parts::of(side);
             if let Some(atom) = parts
                 .atoms
@@ -1603,6 +1618,371 @@ fn inequalities_unsaid(
         }
     }
     None
+}
+
+/// A relation of `=`, `<`, `≤`, `>` or `≥` as the page writes it.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum Rel {
+    Eq,
+    Lt,
+    Le,
+    Gt,
+    Ge,
+}
+
+impl Rel {
+    fn of(node: &Node) -> Option<Rel> {
+        match (node.notation.as_str(), node.text.as_str()) {
+            ("equality", "=") => Some(Rel::Eq),
+            ("order", "<") => Some(Rel::Lt),
+            ("order", "≤") => Some(Rel::Le),
+            ("order", ">") => Some(Rel::Gt),
+            ("order", "≥") => Some(Rel::Ge),
+            _ => None,
+        }
+    }
+
+    fn up(self) -> bool {
+        matches!(self, Rel::Lt | Rel::Le)
+    }
+
+    fn down(self) -> bool {
+        matches!(self, Rel::Gt | Rel::Ge)
+    }
+
+    /// The same relation read from its right side: `a < b` is `b > a`.
+    fn converse(self) -> Rel {
+        match self {
+            Rel::Eq => Rel::Eq,
+            Rel::Lt => Rel::Gt,
+            Rel::Le => Rel::Ge,
+            Rel::Gt => Rel::Lt,
+            Rel::Ge => Rel::Le,
+        }
+    }
+}
+
+/// One relation between two terms, its sides as the page writes them, and
+/// the formula it is read from.
+#[derive(Clone, Debug)]
+struct Related {
+    left: Node,
+    right: Node,
+    rel: Rel,
+    said: Node,
+}
+
+impl Related {
+    /// A formula that is one relation; None for any other, a conjunction of
+    /// two among them.
+    fn of(node: &Node) -> Option<Related> {
+        let rel = Rel::of(node)?;
+        let [left, right] = node.children.as_slice() else {
+            return None;
+        };
+        Some(Related {
+            left: left.clone(),
+            right: right.clone(),
+            rel,
+            said: node.clone(),
+        })
+    }
+
+    /// The link read from its right side, from the same formula.
+    fn turned(&self) -> Related {
+        Related {
+            left: self.right.clone(),
+            right: self.left.clone(),
+            rel: self.rel.converse(),
+            said: self.said.clone(),
+        }
+    }
+
+    /// Whether this says what `other` says, as written or read from its
+    /// right side.
+    fn says(&self, other: &Related, known: &Known) -> bool {
+        let same = |a: &Related, b: &Related| {
+            a.rel == b.rel
+                && known.alike(&a.left, &b.left)
+                && known.alike(&a.right, &b.right)
+        };
+        same(self, other) || same(self, &other.turned())
+    }
+}
+
+/// The relation a chain of these links gives (`METHODS.md`, transitivity),
+/// as a calculation's: `=` where every link is `=`, and otherwise the order
+/// it goes, strict where a link is. None for a chain going both ways.
+fn chain_rel(links: &[Related]) -> Option<Rel> {
+    let up = links.iter().any(|l| l.rel.up());
+    let down = links.iter().any(|l| l.rel.down());
+    let strict = links.iter().any(|l| matches!(l.rel, Rel::Lt | Rel::Gt));
+    match (up, down) {
+        (true, true) => None,
+        (false, false) => Some(Rel::Eq),
+        (true, false) => Some(if strict { Rel::Lt } else { Rel::Le }),
+        (false, true) => Some(if strict { Rel::Gt } else { Rel::Ge }),
+    }
+}
+
+/// Whether `term` starts `link`, as written or, for an equation, from its
+/// right side.
+fn starts(term: &Node, link: &Related, known: &Known) -> bool {
+    known.alike(term, &link.left) || known.alike(term, &link.right)
+}
+
+/// The lines a step cites, each as one link, in the order cited; the
+/// first line that states no single relation reported.
+fn cited_links(
+    thm: &Theorem,
+    step: &Step,
+    known: &Known,
+    method: &str,
+) -> Checked<Vec<Related>> {
+    let scope = known.scope(step);
+    let mut out = Vec::new();
+    for r in &step.just.refs {
+        let link = scope
+            .get(r)
+            .and_then(|s| known.stated_as_written(s))
+            .and_then(|n| Related::of(&n));
+        let Some(link) = link else {
+            return Err(Problem::new(
+                &thm.path,
+                step.just.line,
+                format!(
+                    "step {} cites {r} by {method}, and {r} states no single relation of =, <, ≤, > or ≥",
+                    step.number
+                ),
+            ));
+        };
+        out.push(link);
+    }
+    Ok(out)
+}
+
+/// The chain a `transitivity` step's lines make, each line's right side the
+/// next one's left side, written the same way. A line may be read from
+/// either side, an order as its converse (`b > a` is `a < b`), and the chain
+/// goes one way as its lines are read. The link from the first left side to
+/// the last right side, or the defect.
+fn chain_of(
+    thm: &Theorem,
+    step: &Step,
+    links: &[Related],
+    known: &Known,
+) -> Checked<Related> {
+    let number = &step.number;
+    let defect = |message: String| Problem::new(&thm.path, step.just.line, message);
+    let mut chain: Vec<Related> = Vec::new();
+    for (i, link) in links.iter().enumerate() {
+        let link = match chain.last() {
+            None => {
+                // The first line faces the way the next line takes it.
+                let next = links.get(i + 1);
+                let turn = next.is_some_and(|n| {
+                    !starts(&link.right, n, known) && starts(&link.left, n, known)
+                });
+                if turn {
+                    link.turned()
+                } else {
+                    link.clone()
+                }
+            }
+            Some(before) if known.alike(&before.right, &link.left) => link.clone(),
+            Some(before) if known.alike(&before.right, &link.right) => link.turned(),
+            Some(before) => {
+                return Err(defect(format!(
+                    "the lines step {number} chains do not meet: {} ends at {}, and {} starts from {}; a middle term is written the same way in both",
+                    step.just.refs[i - 1],
+                    known.print(&before.right),
+                    step.just.refs[i],
+                    known.print(&link.left)
+                )));
+            }
+        };
+        chain.push(link);
+    }
+    let Some(rel) = chain_rel(&chain) else {
+        return Err(defect(format!(
+            "step {number} chains orders going up and going down, which say nothing of its ends"
+        )));
+    };
+    // The skeleton refuses a `transitivity` with no `from`.
+    let (first, last) = (
+        chain.first().expect("a chain's first line"),
+        chain.last().expect("a chain's last line"),
+    );
+    Ok(Related {
+        left: first.left.clone(),
+        right: last.right.clone(),
+        rel,
+        said: last.said.clone(),
+    })
+}
+
+/// A `transitivity` step (`METHODS.md`, transitivity): the lines it cites
+/// make a chain in the order cited, and the claim is the chain's first term
+/// related to its last by the chain's relation, written either way round.
+/// Where a link is an order, every atom of the chain is real.
+pub fn check_transitivity(
+    report: &mut Report,
+    thm: &Theorem,
+    known: &Known,
+    targets: &Targets,
+) {
+    for step in thm
+        .steps
+        .iter()
+        .filter(|s| s.just.head.is(Method::Transitivity))
+    {
+        let checked = cited_links(thm, step, known, "transitivity")
+            .and_then(|links| chain_of(thm, step, &links, known).map(|c| (links, c)));
+        let (links, chained) = match checked {
+            Ok(both) => both,
+            Err(defect) => {
+                report.problems.push(defect);
+                continue;
+            }
+        };
+        let Some(claim) = known.whole_as_written(&step.claim) else {
+            continue; // `check_formulas` says it does not read
+        };
+        let reached = Related::of(&claim).is_some_and(|c| c.says(&chained, known));
+        if !reached {
+            report.say(
+                &thm.path,
+                step.just.line,
+                format!(
+                    "step {} claims {}, and the chain it cites gives {} {} {}",
+                    step.number,
+                    step.claim_text(),
+                    known.print(&chained.left),
+                    sign(chained.rel),
+                    known.print(&chained.right)
+                ),
+            );
+            continue;
+        }
+        if chained.rel != Rel::Eq {
+            report_unreal(report, thm, step, &claim, &links, known, targets);
+        }
+    }
+}
+
+/// An `antisymmetry` step (`METHODS.md`, antisymmetry): it cites two lines,
+/// an order `a ≤ b` and its converse `b ≤ a`, and claims `a = b`, either way
+/// round, every atom of the two sides real.
+pub fn check_antisymmetry(
+    report: &mut Report,
+    thm: &Theorem,
+    known: &Known,
+    targets: &Targets,
+) {
+    for step in thm
+        .steps
+        .iter()
+        .filter(|s| s.just.head.is(Method::Antisymmetry))
+    {
+        let links = match cited_links(thm, step, known, "antisymmetry") {
+            Ok(links) => links,
+            Err(defect) => {
+                report.problems.push(defect);
+                continue;
+            }
+        };
+        let number = &step.number;
+        // Each read from below: `b ≥ a` is `a ≤ b`.
+        let below: Vec<Related> = links
+            .iter()
+            .map(|l| {
+                if l.rel == Rel::Ge {
+                    l.turned()
+                } else {
+                    l.clone()
+                }
+            })
+            .collect();
+        let converse = match below.as_slice() {
+            [one, other] => {
+                one.rel == Rel::Le
+                    && other.rel == Rel::Le
+                    && known.alike(&one.left, &other.right)
+                    && known.alike(&one.right, &other.left)
+            }
+            _ => false,
+        };
+        if !converse {
+            report.say(
+                &thm.path,
+                step.just.line,
+                format!(
+                    "step {number} cites by antisymmetry what is not two lines a ≤ b and b ≤ a, an order and its converse"
+                ),
+            );
+            continue;
+        }
+        let Some(claim) = known.whole_as_written(&step.claim) else {
+            continue; // `check_formulas` says it does not read
+        };
+        let equation = Related {
+            left: below[0].left.clone(),
+            right: below[0].right.clone(),
+            rel: Rel::Eq,
+            said: claim.clone(),
+        };
+        if !Related::of(&claim).is_some_and(|c| c.says(&equation, known)) {
+            report.say(
+                &thm.path,
+                step.just.line,
+                format!(
+                    "step {number} claims {}, and its lines give {} = {}",
+                    step.claim_text(),
+                    known.print(&equation.left),
+                    known.print(&equation.right)
+                ),
+            );
+            continue;
+        }
+        report_unreal(report, thm, step, &claim, &links, known, targets);
+    }
+}
+
+/// How the page writes a relation.
+fn sign(rel: Rel) -> &'static str {
+    match rel {
+        Rel::Eq => "=",
+        Rel::Lt => "<",
+        Rel::Le => "≤",
+        Rel::Gt => ">",
+        Rel::Ge => "≥",
+    }
+}
+
+/// Reports an atom of the claim or of `links` that nothing says is real
+/// (`real_unsaid`).
+fn report_unreal(
+    report: &mut Report,
+    thm: &Theorem,
+    step: &Step,
+    claim: &Node,
+    links: &[Related],
+    known: &Known,
+    targets: &Targets,
+) {
+    let relations: Vec<Node> = std::iter::once(claim.clone())
+        .chain(links.iter().map(|l| l.said.clone()))
+        .collect();
+    let read = ClosureRead {
+        claimed: claim.clone(),
+        lines: relations[1..].to_vec(),
+        line_of: (0..links.len()).collect(),
+    };
+    if let Some(said) =
+        real_unsaid(&ClosureClaim::step(step), &read, &relations, known, targets)
+    {
+        report.say(&thm.path, step.just.line, said);
+    }
 }
 
 /// The two sides of an equation, an order or a disequality; none for

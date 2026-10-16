@@ -682,6 +682,8 @@ fn check_theorem(
     formulas::check_arithmetic_holds(report, thm, k, targets);
     formulas::check_algebra_holds(report, thm, k, targets);
     formulas::check_inequalities_holds(report, thm, k, targets);
+    formulas::check_transitivity(report, thm, k, targets);
+    formulas::check_antisymmetry(report, thm, k, targets);
     formulas::check_membership_holds(report, thm, k, targets);
     formulas::check_inspection_holds(report, thm, k, targets);
     formulas::check_membership_claims(report, thm, env, k);
