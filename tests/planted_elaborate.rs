@@ -255,9 +255,9 @@ fn cases() -> Vec<Case> {
             "corpus/stdlib/numbers.records",
             "  target      absid, absnid\n",
             "  target      absid, absid\n",
-            "the build cannot yet prove this, which the checker accepts: no clause of mun:abs gives what step 2.5 claims",
+            "the build cannot yet prove this, which the checker accepts: no clause of mun:abs gives what step 2.6 claims",
         )
-        .at("proofs/wiedijk/triangle-inequality.proof", "2.5.  |x| = −x"),
+        .at("proofs/wiedijk/triangle-inequality.proof", "2.6.  |x| = −x"),
         // Dropping the + 0 asks that what is left be a number, and q(x) ∈ ℂ is
         // a function's value, which the step says in a requires line: without
         // it nothing does.
@@ -290,30 +290,31 @@ fn cases() -> Vec<Case> {
             "leave out the membership of an atom the method combines",
             "proofs/wiedijk/perfect-numbers/euclid-perfect",
             "proofs/wiedijk/perfect-numbers.proof",
-            "          inequalities, from 4.8, contradicting 4.7\n          requires 2^p ∈ ℝ: membership, from H1\n",
-            "          inequalities, from 4.8, contradicting 4.7\n",
-            "step 4.9 combines 2^p, and nothing it writes or cites says it is a number",
-        ),
+            "            2^p − 1 ≠ 1      weakening\n          requires 2^p ∈ ℝ: membership, from H1\n",
+            "            2^p − 1 ≠ 1      weakening\n",
+            "nothing says 2^p ∈ ℝ, which this step needs",
+        )
+        .at("proofs/wiedijk/perfect-numbers.proof", "2^p − 1 ≠ 1      weakening"),
         // A divisor nothing says is not zero is named as the page writes
         // it: set.mm's =/= is said back as the page's ≠.
         case(
             "divide by a term no line says is not zero",
             "proofs/wiedijk/mean-value/mean-value",
             "proofs/wiedijk/mean-value.proof",
-            "    algebra, from 28\n    requires b − a ≠ 0: inequalities, from H1, H2, H3\n",
-            "    algebra, from 28\n",
+            "    algebra, from 29\n    requires b − a ≠ 0: weakening, from 1\n",
+            "    algebra, from 29\n",
             "nothing says b − a ≠ 0, which this step needs to divide by it",
         ),
         // A requires line its method cannot prove stops the build at that
-        // line. Without the line saying sin(∠PQR) > 0 above it, nothing gives
-        // `inequalities` an order to show sin(∠PQR) ≠ 0 from.
+        // line. Citing nothing, it leaves `inequalities` no order to show
+        // sin(∠PQR) ≠ 0 from: the order is step 12's, and only step 13 cites it.
         case(
             "a requires line its method cannot prove",
             "proofs/wiedijk/pythagoras/similar-triangles",
             "proofs/wiedijk/pythagoras.proof",
-            "    requires sin(∠PQR) > 0: mun:sine-positive, from H7\n",
-            "",
-            "the requires line sin(∠PQR) ≠ 0 of step 12, read as a step citing what it cites:",
+            "    requires sin(∠PQR) ≠ 0: from 13\n",
+            "    requires sin(∠PQR) ≠ 0: inequalities\n",
+            "the requires line sin(∠PQR) ≠ 0 of step 14, read as a step citing what it cites:",
         ),
         // Each part of what the claim asks of the witness is one of the
         // target's lemmas, and a part none of them reaches is the target
@@ -327,17 +328,17 @@ fn cases() -> Vec<Case> {
             "axi:stdlib/calculus/completeness targets suprcl, suprub, and none of them reaches what step 8 obtains",
         ),
         // `membership` builds from what the line cites and the lines above it:
-        // f(a) is real because a is in f's domain [a, b], which line 1 says
+        // f(a) is real because a is in f's domain [a, b], which line 2 says
         // and no introducing line says once. H3 says a < b, nothing of where
-        // a lies, and line 1 in scope is not the requires line's to use
+        // a lies, and line 2 in scope is not the requires line's to use
         // unnamed, so the quotient is not built.
         case(
             "membership from a line that says nothing of the atom",
             "proofs/wiedijk/mean-value/mean-value",
             "proofs/wiedijk/mean-value.proof",
-            "    membership, from D1, D2\n    requires f(x) ∈ ℝ: from H4\n    requires b − a ≠ 0: inequalities, from H1, H2, H3\n    requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H1, H2, H4, 1, 2\n",
-            "    membership, from D1, D2\n    requires f(x) ∈ ℝ: from H4\n    requires b − a ≠ 0: inequalities, from H1, H2, H3\n    requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H1, H2, H3, H4, 2\n",
-            "the requires line (f(a) − f(b))/(b − a) ∈ ℝ of step 8, read as a step citing what it cites: (f(a) − f(b))/(b − a) ∈ ℝ is not built",
+            "    membership, from D1, D2\n    requires f(x) ∈ ℝ: from H4\n    requires b − a ≠ 0: weakening, from 1\n    requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H1, H2, H4, 2, 3\n",
+            "    membership, from D1, D2\n    requires f(x) ∈ ℝ: from H4\n    requires b − a ≠ 0: weakening, from 1\n    requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H1, H2, H3, H4, 3\n",
+            "the requires line (f(a) − f(b))/(b − a) ∈ ℝ of step 9, read as a step citing what it cites: (f(a) − f(b))/(b − a) ∈ ℝ is not built",
         ),
         // g(x) is real because of what g is, and a step that uses what a
         // define says cites it (`SYNTAX.md`). Without the define g stays a
@@ -348,7 +349,7 @@ fn cases() -> Vec<Case> {
             "proofs/wiedijk/mean-value.proof",
             "    membership, from D1\n",
             "    membership\n",
-            "is not built from what step 6 cites",
+            "is not built from what step 7 cites",
         ),
         // Line 4 says s(x) ∈ ℕ₀ of every x ∈ ℚ and is read at the step's
         // member; line 2 says something else of every pair of naturals, and
@@ -368,9 +369,9 @@ fn cases() -> Vec<Case> {
             "membership of a sum whose first term divides by zero",
             "proofs/wiedijk/triangular-reciprocals/triangular-reciprocals",
             "proofs/wiedijk/triangular-reciprocals.proof",
-            "                  requires Σ(k = 1 to n) 1/T(k) ∈ ℝ: mun:sum-real a := 1, b := n, from 2\n                  requires n + 1 ≠ 0: inequalities, from K7\n\n          6.2.6.",
-            "                  requires Σ(k = 0 to n) 1/T(k) ∈ ℝ: mun:sum-real a := 0, b := n, from 2\n                  requires n + 1 ≠ 0: inequalities, from K7\n\n          6.2.6.",
-            "the requires line of step 6.2.5 cites 2, and mun:sum-real asks for nothing it says",
+            "                  requires Σ(k = 1 to n) 1/T(k) ∈ ℝ: mun:sum-real a := 1, b := n, from 2\n                  requires n + 1 ≠ 0: weakening, from 6.2.5\n\n          6.2.10.",
+            "                  requires Σ(k = 1 to n) 1/T(k) ∈ ℝ: mun:sum-real a := 1, b := n, from 2\n                  requires Σ(k = 0 to n) 1/T(k) ∈ ℝ: mun:sum-real a := 0, b := n, from 2\n                  requires n + 1 ≠ 0: weakening, from 6.2.5\n\n          6.2.10.",
+            "the requires line of step 6.2.9 cites 2, and mun:sum-real asks for nothing it says",
         ),
         // A target is where the claim lands, and a variable bound to the wrong
         // name makes it land somewhere else. That is reported, not assumed.
@@ -423,7 +424,7 @@ fn cases() -> Vec<Case> {
             "proofs/wiedijk/mean-value.proof",
             "    requires f(x) ∈ ℝ: from H4\n",
             "",
-            "is not built from what step 8 cites",
+            "is not built from what step 9 cites",
         ),
         // k's membership is said once, by K, and every step has it without
         // naming K. A step citing K for it cites a line it uses nothing of.
@@ -534,10 +535,11 @@ fn cases() -> Vec<Case> {
             "leave out that a power to a letter is not zero",
             "tests/elaborator/a-power-said-not-zero/a-power-said-not-zero",
             "tests/elaborator/a-power-said-not-zero.proof",
-            "    requires 2^n ≠ 0: inequalities, from H3\n",
+            "    requires 2^n ≠ 0: weakening, from H3\n",
             "",
-            "nothing says 2^n is not zero",
-        ),
+            "nothing says 2^n ≠ 0, which this step needs to divide by it",
+        )
+        .at("tests/elaborator/a-power-said-not-zero.proof", "−1/2^n > −ε"),
         // A number the step needs is named in ℝ or ℂ, either of which says
         // it: a root's record gives √A ∈ ℝ and never √A ∈ ℂ.
         case(
@@ -546,8 +548,9 @@ fn cases() -> Vec<Case> {
             "tests/elaborator/a-root-said-real.proof",
             "    requires √A ∈ ℝ: mun:sqrt x := A, from H2\n",
             "",
-            "nothing says √A ∈ ℝ or ∈ ℂ, which this step needs",
-        ),
+            "nothing says √A ∈ ℝ, which this step needs",
+        )
+        .at("tests/elaborator/a-root-said-real.proof", "transitivity, from 1, 2"),
         // A target naming a lemma the library as built does not hold, as
         // one added to corpus/proved/ before a whole build has written it,
         // is said where the item is cited, and the build goes on.
@@ -565,10 +568,11 @@ fn cases() -> Vec<Case> {
             "leave out that a quotient's divisor is not zero",
             "tests/elaborator/a-quotient-divisor-said-not-zero/a-quotient-divisor-said-not-zero",
             "tests/elaborator/a-quotient-divisor-said-not-zero.proof",
-            "    requires 2·d ≠ 0: inequalities, from H6\n",
+            "    requires 2·d ≠ 0: from 1\n",
             "",
-            "nothing says 2 · d ≠ 0, which this step needs for ε / (2 · d)",
-        ),
+            "nothing says d ≠ 0, which this step needs to divide by it",
+        )
+        .at("tests/elaborator/a-quotient-divisor-said-not-zero.proof", "0 − ε/(2·d) < 0        multiplying"),
         // The build reads a justification only in a form the grammar gives
         // it, and refuses one in none in the checker's words.
         case(

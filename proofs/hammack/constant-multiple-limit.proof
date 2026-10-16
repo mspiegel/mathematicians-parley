@@ -29,73 +29,89 @@ theorem constant-multiple-limit
 4.  |c| + 1 > 0
     inequalities, from 1, 2
 
-5.  For all ε > 0, there exists N ∈ ℕ such that |c·a(n) − c·L| < ε for all n ≥ N.
+5.  |c| + 1 ≠ 0
+    inequalities
+      |c| + 1 > 0      4
+      |c| + 1 ≠ 0      weakening
+    requires |c| ∈ ℝ: from 1
+
+6.  For all ε > 0, there exists N ∈ ℕ such that |c·a(n) − c·L| < ε for all n ≥ N.
     proof
     let ε ∈ ℝ                                                         (K1)
     assume ε > 0                                                      (A1)
 
-    5.1.  ε/(|c| + 1) > 0
+    6.1.  ε/(|c| + 1) > 0
           mun:quotient-positive x := ε, y := |c| + 1, from A1, 4
           requires |c| + 1 ∈ ℝ: from 3
 
-    5.2.  ε/(|c| + 1) ∈ ℝ
+    6.2.  ε/(|c| + 1) ∈ ℝ
           membership, from 1
-          requires |c| + 1 ≠ 0: inequalities, from 1, 4
+          requires |c| + 1 ≠ 0: from 5
 
-    5.3.  For all ε > 0, there exists N ∈ ℕ such that |a(n) − L| < ε for all n ≥ N.
+    6.3.  For all ε > 0, there exists N ∈ ℕ such that |a(n) − L| < ε for all n ≥ N.
           def:tends-to, from H4
 
-    5.4.  There exists N ∈ ℕ such that |a(n) − L| < ε/(|c| + 1) for all n ≥ N.
-          instantiate ε := ε/(|c| + 1) in line 5.3, from 5.1, 5.2
+    6.4.  There exists N ∈ ℕ such that |a(n) − L| < ε/(|c| + 1) for all n ≥ N.
+          instantiate ε := ε/(|c| + 1) in line 6.3, from 6.1, 6.2
 
-    5.5.  N ∈ ℕ. |a(n) − L| < ε/(|c| + 1) for all n ≥ N.
-          obtain N from line 5.4
+    6.5.  N ∈ ℕ. |a(n) − L| < ε/(|c| + 1) for all n ≥ N.
+          obtain N from line 6.4
 
-    5.6.  For all n ≥ N, |c·a(n) − c·L| < ε.
+    6.6.  For all n ≥ N, |c·a(n) − c·L| < ε.
           proof
           let n ∈ ℕ                                                   (K2)
           assume n ≥ N                                                (A2)
 
-          5.6.1.  a(n) − L ∈ ℝ
+          6.6.1.  a(n) − L ∈ ℝ
                   membership, from H1
 
-          5.6.2.  |a(n) − L| ∈ ℝ
-                  mun:abs-real x := a(n) − L, from 5.6.1
+          6.6.2.  |a(n) − L| ∈ ℝ
+                  mun:abs-real x := a(n) − L, from 6.6.1
 
-          5.6.3.  |a(n) − L| < ε/(|c| + 1)
-                  instantiate n := n in line 5.5, from A2
+          6.6.3.  |a(n) − L| < ε/(|c| + 1)
+                  instantiate n := n in line 6.5, from A2
 
-          5.6.4.  |a(n) − L| ≥ 0
-                  mun:abs-nonneg x := a(n) − L, from 5.6.1
+          6.6.4.  |a(n) − L| ≥ 0
+                  mun:abs-nonneg x := a(n) − L, from 6.6.1
 
-          5.6.5.  (|c| + 1)·|a(n) − L| < (|c| + 1)·(ε/(|c| + 1))
-                  mun:less-scaled x := |a(n) − L|, y := ε/(|c| + 1), c := |c| + 1, from 3, 4, 5.2, 5.6.2, 5.6.3
+          6.6.5.  (|c| + 1)·|a(n) − L| < (|c| + 1)·(ε/(|c| + 1))
+                  mun:less-scaled x := |a(n) − L|, y := ε/(|c| + 1), c := |c| + 1, from 3, 4, 6.2, 6.6.2, 6.6.3
 
-          5.6.6.  (|c| + 1)·(ε/(|c| + 1)) = ε
+          6.6.6.  (|c| + 1)·(ε/(|c| + 1)) = ε
                   algebra, from 1
-                  requires |c| + 1 ≠ 0: inequalities, from 1, 4
+                  requires |c| + 1 ≠ 0: from 5
 
-          5.6.7.  (|c| + 1)·|a(n) − L| = |c|·|a(n) − L| + |a(n) − L|
-                  algebra, from 1, 5.6.2
+          6.6.7.  (|c| + 1)·|a(n) − L| = |c|·|a(n) − L| + |a(n) − L|
+                  algebra, from 1, 6.6.2
 
-          5.6.8.  c·a(n) − c·L = c·(a(n) − L)
+          6.6.8.  c·a(n) − c·L = c·(a(n) − L)
                   algebra
                   requires a(n) ∈ ℝ: from H1
 
-          5.6.9.  |c·(a(n) − L)| = |c|·|a(n) − L|
-                  mun:abs-product x := c, y := a(n) − L, from 5.6.1
+          6.6.9.  |c·(a(n) − L)| = |c|·|a(n) − L|
+                  mun:abs-product x := c, y := a(n) − L, from 6.6.1
 
-          5.6.10. |c·a(n) − c·L| = |c|·|a(n) − L|
-                  substitute c·a(n) − c·L = c·(a(n) − L) (line 5.6.8) into line 5.6.9
+          6.6.10. |c·a(n) − c·L| = |c|·|a(n) − L|
+                  substitute c·a(n) − c·L = c·(a(n) − L) (line 6.6.8) into line 6.6.9
 
-          5.6.11. |c·a(n) − c·L| < ε
-                  inequalities, from 1, 5.6.2, 5.6.4, 5.6.5, 5.6.6, 5.6.7, 5.6.10
-                  requires |c| + 1 ≠ 0: inequalities, from 1, 4
+          6.6.11. |c|·|a(n) − L| ≤ |c|·|a(n) − L| + |a(n) − L|
+                  inequalities
+                    |a(n) − L| ≥ 0                                  6.6.4
+                    |c|·|a(n) − L| + |a(n) − L| ≥ |c|·|a(n) − L|    adding |c|·|a(n) − L|
+                  requires |c| ∈ ℝ: from 1
+                  requires |a(n) − L| ∈ ℝ: from 6.6.2
+                  requires |c|·|a(n) − L| ∈ ℝ: membership, from 1, 6.6.2
+
+          6.6.12. |c·a(n) − c·L| < ε
+                  transitivity, from 6.6.10, 6.6.11, 6.6.7, 6.6.5, 6.6.6
+                  requires |c| ∈ ℝ: from 1
+                  requires |a(n) − L| ∈ ℝ: from 6.6.2
+                  requires |c| + 1 ≠ 0: from 5
                   requires c·a(n) − c·L ∈ ℝ: membership, from H1
                   requires |c·a(n) − c·L| ∈ ℝ: mun:abs-real x := c·a(n) − c·L
 
-    5.7.  There exists N ∈ ℕ such that |c·a(n) − c·L| < ε for all n ≥ N.
-          exhibit, from 5.6
+    6.7.  There exists N ∈ ℕ such that |c·a(n) − c·L| < ε for all n ≥ N.
+          exhibit, from 6.6
 
-6.  c·a(n) → c·L as n → ∞
-    def:tends-to L := c·L, from 5
+7.  c·a(n) → c·L as n → ∞
+    def:tends-to L := c·L, from 6

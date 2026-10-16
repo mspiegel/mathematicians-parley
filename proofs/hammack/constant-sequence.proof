@@ -41,7 +41,7 @@ theorem constant-sequence
                                = 0       1.1.4
 
           1.1.6.  |a(n) − c| < ε
-                  inequalities, from A1, 1.1.5
+                  transitivity, from 1.1.5, A1
                   requires a(n) − c ∈ ℝ: membership, from H2
                   requires |a(n) − c| ∈ ℝ: mun:abs-real x := a(n) − c
 

@@ -13,7 +13,9 @@ theorem remainder-nonnegative
   then 0 ≤ A mod B
 
 1.  B ≠ 0
-    inequalities, from H3
+    inequalities
+      B > 0            H3
+      B ≠ 0            weakening
 
 let q = ⌊A/B⌋, an integer                                             (D1)
     mun:floor-integer x := A/B, from 1
@@ -37,7 +39,9 @@ let q = ⌊A/B⌋, an integer                                             (D1)
           = A           5
 
 7.  0 ≤ A − B·q
-    inequalities, from 6
+    inequalities
+      B·q ≤ A          6
+      0 ≤ A − B·q      adding −B·q
 
 8.  0 ≤ A mod B
     substitute A mod B = A − B·q (line 2) into line 7
@@ -51,7 +55,9 @@ theorem remainder-below-divisor
   then A mod B < B
 
 1.  B ≠ 0
-    inequalities, from H3
+    inequalities
+      B > 0            H3
+      B ≠ 0            weakening
 
 let q = ⌊A/B⌋, an integer                                             (D1)
     mun:floor-integer x := A/B, from 1
@@ -79,7 +85,9 @@ let q = ⌊A/B⌋, an integer                                             (D1)
         = B·q + B       6
 
 8.  A − B·q < B
-    inequalities, from 7
+    inequalities
+      A < B·q + B      7
+      A − B·q < B      adding −B·q
 
 9.  A mod B < B
     substitute A mod B = A − B·q (line 2) into line 8

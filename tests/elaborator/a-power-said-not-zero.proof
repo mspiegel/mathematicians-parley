@@ -9,6 +9,9 @@ theorem a-power-said-not-zero
   then 1 − ε < 1 − 1/2^n
 
 1.  1 − ε < 1 − 1/2^n
-    inequalities, from H3, H4
+    inequalities
+      1/2^n < ε              H4
+      −1/2^n > −ε            multiplying by −1
+      1 − 1/2^n > 1 − ε      adding 1
     requires 2^n ∈ ℝ: mun:power-real a := 2, m := n
-    requires 2^n ≠ 0: inequalities, from H3
+    requires 2^n ≠ 0: weakening, from H3

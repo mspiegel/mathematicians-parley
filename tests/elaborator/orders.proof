@@ -1,27 +1,38 @@
 theorem a-split-against-a-bound-written-otherwise
-  note        The side of x ≠ 2 above 2 is denied by 2·x ≤ 4, written another way.
+  note        The side of x ≠ 2 above 2 is denied by 2·x ≤ 4, once a row
+              scales it to x ≤ 2.
   let x ∈ ℝ    (H1)
   assume 2·x ≤ 4    (H2)
   assume x ≠ 2    (H3)
   then x < 2
 
-1.  x < 2
-    inequalities, from H2, H3
+1.  x ≤ 2
+    inequalities
+      2·x ≤ 4          H2
+      x ≤ 2            multiplying by 1/2
+
+2.  x < 2
+    inequalities, from H3, 1
 
 theorem an-equation-from-an-equation
-  note        An equation claimed is the two bounds it is made of.
+  note        An equation scaled by 2 in a row is an equation.
   let x ∈ ℝ    (H1)
   assume x = 2    (H2)
   then 2·x = 4
 
 1.  2·x = 4
-    inequalities, from H2
+    inequalities
+      x = 2            H2
+      2·x = 4          multiplying by 2
 
 theorem a-bound-by-half-an-equation
-  note        One equation scaled by 1/2, its denominator cleared.
+  note        One equation scaled by 1/2 in a row, then weakened to a bound.
   let x ∈ ℝ    (H1)
   assume 2·x = 3    (H2)
   then x ≤ 3/2
 
 1.  x ≤ 3/2
-    inequalities, from H2
+    inequalities
+      2·x = 3          H2
+      x = 3/2          multiplying by 1/2
+      x ≤ 3/2          weakening

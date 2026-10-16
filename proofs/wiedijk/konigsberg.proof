@@ -347,7 +347,7 @@ theorem odd-vertices
     mun:card-pair u := v(0), w := v(n)
 
 7.  |{x ∈ V : deg(x) is odd}| ≤ 2
-    inequalities, from 5, 6
+    transitivity, from 5, 6
     requires {v(0), v(n)} is finite: mun:pair-finite
     requires {x ∈ V : deg(x) is odd} is finite: mun:finite-part, from 4
     requires |{x ∈ V : deg(x) is odd}| ∈ ℕ₀: mun:card-nat0

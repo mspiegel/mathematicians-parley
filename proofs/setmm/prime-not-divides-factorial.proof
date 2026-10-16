@@ -47,7 +47,9 @@ theorem prime-not-divides-factorial
                             mun:divides-one d := P, from 2.1.1.2
 
                   2.1.1.4.  P ≠ 1
-                            inequalities, from 1, contradicting 2.1.1.3
+                            inequalities, contradicting 2.1.1.3
+                              P > 1            1
+                              P ≠ 1            weakening
 
     step
     let k ∈ ℕ                                                         (K)
@@ -127,7 +129,9 @@ theorem prime-not-divides-factorial
                   mun:divides-one d := P, from 4.3.1
 
           4.3.3.  P ≠ 1
-                  inequalities, from 1, contradicting 4.3.2
+                  inequalities, contradicting 4.3.2
+                    P > 1            1
+                    P ≠ 1            weakening
 
     case
     assume N ≠ 0                                                      (C4)

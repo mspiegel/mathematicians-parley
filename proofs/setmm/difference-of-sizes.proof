@@ -19,7 +19,9 @@ theorem difference-of-sizes
     substitute (A − B) + B = A (line 2) into line 1
 
 4.  |A| − |B| ≤ |A − B|
-    inequalities, from 3
+    inequalities
+      |A| ≤ |A − B| + |B|      3
+      |A| − |B| ≤ |A − B|      adding −|B|
     requires |A| ∈ ℝ: mun:abs-real x := A
     requires |B| ∈ ℝ: mun:abs-real x := B
     requires |A − B| ∈ ℝ: mun:abs-real x := A − B

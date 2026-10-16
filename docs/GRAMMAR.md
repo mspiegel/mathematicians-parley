@@ -619,8 +619,15 @@ substitution in the corpus comes close.
                   `a natural number or 0`, `a nonnegative integer`,
                   `an integer`, `a rational number`, `a real number`,
                   `a complex number`
-<reason>      ::= what follows the colon of a <requires> line
+<reason>      ::= what follows the colon of a <requires> line: a
+                  justification, `from` and its lines, or
+                  <manipulation> `,` `from` <ref>
 ```
+
+A `<manipulation>` is one of the rows' reasons (Inequality rows) but
+`algebra`: a requires line naming one takes its one line to its fact with
+that manipulation, as a row is the row above with it. `algebra, from L` is
+the method, which rewrites an equation's or a disequality's sides itself.
 
 A `define` is the file's and stands outside every theorem; a `<naming>` is a
 `let` followed by `=`, one theorem's, and stands inside it (`SYNTAX.md`). The

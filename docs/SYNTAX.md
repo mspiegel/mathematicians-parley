@@ -136,7 +136,11 @@ the 2 that is not there, and the checker reports it. A step is:
    of exactly one citation: a method such as `arithmetic`, an item applied
    to lines already present, or a line that states the fact — or the lines
    that state it together, a function's type and a point of its domain,
-   `requires a(k) ∈ ℝ: from H2, K4` (below). Requires
+   `requires a(k) ∈ ℝ: from H2, K4` (below) — or one manipulation of the
+   one line it cites, named as a row of an `inequalities` step names its
+   own: `requires q ≠ 0: weakening, from 2.1`, where 2.1 says `q > 0`
+   (`METHODS.md`, inequalities, Rows). A side condition that needs more
+   than one manipulation is a numbered step with rows. Requires
    lines do not nest. A fact that needs more than one citation is a
    numbered step before the step that needs it, cited in `from` like any
    line. The alternative, a tree of requires lines under a step, was
@@ -563,12 +567,12 @@ needed:
 
 ```proof
 let m = gcd(s, w), a positive integer                               (D1)
-    mun:gcd a := s, b := w, from 2, 28
+    mun:gcd a := s, b := w, from 4, 35
     reads the number whose square is s
 
-48. s = m²
+55. s = m²
     calculation
-      s = gcd(s, w)²    47
+      s = gcd(s, w)²    54
         = m²            D1
 ```
 

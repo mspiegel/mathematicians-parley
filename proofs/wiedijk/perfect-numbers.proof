@@ -79,7 +79,9 @@ theorem euclid-perfect
           requires 2^p − 1 ∈ ℕ: mun:prime-nat p := 2^p − 1, from H2
 
     4.9.  2^p − 1 ≠ 1
-          inequalities, from 4.8, contradicting 4.7
+          inequalities, contradicting 4.7
+            2^p − 1 > 1      4.8
+            2^p − 1 ≠ 1      weakening
           requires 2^p ∈ ℝ: membership, from H1
 
 5.  gcd(2^p − 1, 2^(p − 1)) = 1

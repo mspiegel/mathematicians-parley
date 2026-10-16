@@ -210,35 +210,47 @@ theorem ninety-seven-is-prime
                   2.6.2.3.  k·d = 97
                             algebra, from 2.4
 
-                  2.6.2.4.  not (k·10 ≤ k·d)
-                            inequalities, from C3, 2.6.2.3, contradicting 2.6.2.2
+                  2.6.2.4.  k·10 ≥ 100
+                            inequalities
+                              k − 10 ≥ 0          C3
+                              k·10 − 100 ≥ 0      multiplying by 10
+                              k·10 ≥ 100          adding 100
+
+                  2.6.2.5.  97 < 100
+                            arithmetic
+
+                  2.6.2.6.  k·d < k·10
+                            transitivity, from 2.6.2.3, 2.6.2.5, 2.6.2.4
+
+                  2.6.2.7.  not (k·10 ≤ k·d)
+                            inequalities, from 2.6.2.6, contradicting 2.6.2.2
 
                   case
                   assume k − 10 < 0                                   (C4)
 
-                  2.6.2.5.  k < 10
+                  2.6.2.8.  k < 10
                             inequalities, from C4
 
-                  2.6.2.6.  k + 1 ≤ 10
-                            mun:integer-step m := k, n := 10, from 2.6.2.5
+                  2.6.2.9.  k + 1 ≤ 10
+                            mun:integer-step m := k, n := 10, from 2.6.2.8
 
-                  2.6.2.7.  k ≤ 9
-                            inequalities, from 2.6.2.6
+                  2.6.2.10. k ≤ 9
+                            inequalities, from 2.6.2.9
 
-                  2.6.2.8.  97 = k·d
+                  2.6.2.11. 97 = k·d
                             algebra, from 2.4
 
-                  2.6.2.9.  k divides 97
-                            mun:divides d := k, n := 97, from 2.6.2.8
+                  2.6.2.12. k divides 97
+                            mun:divides d := k, n := 97, from 2.6.2.11
 
-                  2.6.2.10. k = 1
-                            thm:small-divisor-of-ninety-seven e := k, from 2.6.2.7, 2.6.2.9
+                  2.6.2.13. k = 1
+                            thm:small-divisor-of-ninety-seven e := k, from 2.6.2.10, 2.6.2.12
 
-                  2.6.2.11. d·1 = 97
-                            substitute k = 1 (line 2.6.2.10) into line 2.4
+                  2.6.2.14. d·1 = 97
+                            substitute k = 1 (line 2.6.2.13) into line 2.4
 
-                  2.6.2.12. d = 1 or d = 97
-                            mun:or-right P := d = 1, from 2.6.2.11
+                  2.6.2.15. d = 1 or d = 97
+                            mun:or-right P := d = 1, from 2.6.2.14
 
           case
           assume d − 10 < 0                                           (C2)

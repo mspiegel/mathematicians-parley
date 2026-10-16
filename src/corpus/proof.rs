@@ -606,6 +606,82 @@ pub enum Head {
     /// A requires line's reason that names lines and nothing else, `from 8`:
     /// the fact is one of them, or what they say together.
     Lines,
+    /// A requires line's reason that names one manipulation of the one line
+    /// it cites, `weakening, from 2.1` (`METHODS.md`, inequalities, Rows).
+    Manipulation(Manipulation),
+}
+
+/// A manipulation of one relation, as a requires line names it: what a row
+/// of an `inequalities` step's rows names (`RowReason`), but for the line it
+/// writes out. The term `adding` and `multiplying by` write is kept as
+/// written, and read where the line is checked.
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub enum Manipulation {
+    Adding(String),
+    Multiplying(String),
+    Symmetry,
+    Weakening,
+}
+
+impl Manipulation {
+    /// The manipulation a reason opens with, and the rest of it after the
+    /// words: `weakening, from 2.1` is weakening and `, from 2.1`. None for
+    /// a reason that opens otherwise.
+    pub fn opening(reason: &str) -> Option<(Manipulation, &str)> {
+        let reason = str::trim(reason);
+        // `algebra, from L` is the method, which rewrites an equation's or a
+        // disequality's sides itself.
+        for (word, made) in [
+            ("symmetry", Manipulation::Symmetry),
+            ("weakening", Manipulation::Weakening),
+        ] {
+            if let Some(rest) = reason.strip_prefix(word) {
+                if rest.is_empty() || rest.starts_with(',') {
+                    return Some((made, rest));
+                }
+            }
+        }
+        for word in ["adding ", "multiplying by "] {
+            let Some(rest) = reason.strip_prefix(word) else {
+                continue;
+            };
+            let (term, after) = match rest.find(", from") {
+                Some(at) => (&rest[..at], &rest[at..]),
+                None => (rest, ""),
+            };
+            let term = str::trim(term).to_string();
+            let made = if word == "adding " {
+                Manipulation::Adding(term)
+            } else {
+                Manipulation::Multiplying(term)
+            };
+            return Some((made, after));
+        }
+        None
+    }
+
+    /// The row reason this is, its term read at `path`'s `line`.
+    pub fn as_row(&self, path: &str, line: usize) -> RowReason {
+        match self {
+            Manipulation::Adding(t) => RowReason::Adding(Written::new(t, path, line)),
+            Manipulation::Multiplying(c) => {
+                RowReason::Multiplying(Written::new(c, path, line))
+            }
+            Manipulation::Symmetry => RowReason::Symmetry,
+            Manipulation::Weakening => RowReason::Weakening,
+        }
+    }
+}
+
+impl fmt::Display for Manipulation {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Manipulation::Adding(t) => write!(f, "adding {t}"),
+            Manipulation::Multiplying(c) => write!(f, "multiplying by {c}"),
+            Manipulation::Symmetry => f.write_str("symmetry"),
+            Manipulation::Weakening => f.write_str("weakening"),
+        }
+    }
 }
 
 impl Head {
@@ -637,6 +713,7 @@ impl fmt::Display for Head {
             Head::Method(m) => f.write_str(m.as_str()),
             Head::Define => f.write_str("define"),
             Head::Lines => f.write_str("from"),
+            Head::Manipulation(m) => write!(f, "{m}"),
         }
     }
 }

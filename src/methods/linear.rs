@@ -87,6 +87,11 @@ impl Linear {
     pub fn constant_only(&self) -> bool {
         self.atoms().is_empty()
     }
+
+    /// Whether this is zero: no atom, and a zero constant.
+    pub fn is_zero(&self) -> bool {
+        self.constant_only() && self.constant.is_zero()
+    }
 }
 
 /// The relation a fact stands in to zero.
@@ -273,6 +278,91 @@ pub fn fact(term: &Term, labels: &FloatLabels) -> Option<Fact> {
     Some(Fact::new(right.minus(&left), turned))
 }
 
+/// A relation's two sides, the smaller first: `a < b` and `b > a` are both
+/// (a, b), and `not (a < b)` is (b, a). An equation relates its two either
+/// way round.
+pub struct Sides {
+    pub low: Linear,
+    pub high: Linear,
+    pub equation: bool,
+}
+
+/// The sides of an order or an equation as `fact` reads it; None for a
+/// disequality, which has no smaller side, and for anything else.
+pub fn sides(term: &Term, labels: &FloatLabels) -> Option<Sides> {
+    let (term, negated) = match (term.label(), term.children()) {
+        (Some("wn"), [inner]) if term.variable().is_none() => (inner, true),
+        _ => (term, false),
+    };
+    if term.variable().is_some() {
+        return None;
+    }
+    match (term.label(), term.children()) {
+        (Some("wceq"), [left, right]) if !negated => Some(Sides {
+            low: read(left, labels),
+            high: read(right, labels),
+            equation: true,
+        }),
+        (Some("wbr"), [left, right, how]) => {
+            relation(&how.rpn(labels))?;
+            let (left, right) = (read(left, labels), read(right, labels));
+            let (low, high) = if negated {
+                (right, left)
+            } else {
+                (left, right)
+            };
+            Some(Sides {
+                low,
+                high,
+                equation: false,
+            })
+        }
+        _ => None,
+    }
+}
+
+/// Whether the claim's sides are the sums of the facts' sides, as a plain
+/// `inequalities` step adds lines (`METHODS.md`, inequalities, What a step
+/// does): the smaller side the sum of the smaller sides and the larger the
+/// sum of the larger, each compared as a number, but for a closed numeral
+/// fact the step may add without writing it, which leaves each side a
+/// number apart. Equations add to an equation and orders to an order; an
+/// equation may face either way.
+pub fn sums_sides(claim: &Sides, facts: &[Sides]) -> bool {
+    if facts.iter().any(|f| f.equation != claim.equation) {
+        return false;
+    }
+    let turnable: Vec<usize> =
+        (0..facts.len()).filter(|&i| facts[i].equation).collect();
+    // Each way the equations may face, and the claim if it is one.
+    let ways = 1usize << (turnable.len() + usize::from(claim.equation));
+    (0..ways).any(|way| {
+        let turned = |i: usize| {
+            turnable
+                .iter()
+                .position(|&t| t == i)
+                .is_some_and(|bit| way & (1 << bit) != 0)
+        };
+        let (mut low, mut high) = (Linear::default(), Linear::default());
+        for (i, f) in facts.iter().enumerate() {
+            let (l, h) = if turned(i) {
+                (&f.high, &f.low)
+            } else {
+                (&f.low, &f.high)
+            };
+            low = low.plus(l);
+            high = high.plus(h);
+        }
+        let claim_turned = claim.equation && way & (1 << turnable.len()) != 0;
+        let (cl, ch) = if claim_turned {
+            (&claim.high, &claim.low)
+        } else {
+            (&claim.low, &claim.high)
+        };
+        cl.minus(&low).constant_only() && ch.minus(&high).constant_only()
+    })
+}
+
 /// The fact that denies this one, for the refutation to start from.
 pub fn opposite(one: &Fact) -> Fact {
     match one.how {
@@ -340,12 +430,13 @@ impl Readings {
 /// The facts a contradiction among `facts` uses, by their place: those
 /// `certificate`'s combination weights, and where a disequality is taken
 /// both ways, those either reading's does. None where they do not
-/// contradict.
+/// contradict. `alike` is as `certificate` takes it.
 pub fn used_facts(
     facts: &[Fact],
     line_of: &[Option<usize>],
+    alike: bool,
 ) -> Option<BTreeSet<usize>> {
-    match certificate(facts, line_of)? {
+    match certificate(facts, line_of, alike)? {
         Certificate::Farkas(weights) => Some(
             weights
                 .iter()
@@ -357,7 +448,7 @@ pub fn used_facts(
             let split = Readings::of(facts, line_of, at);
             let mut out = BTreeSet::new();
             for reading in [&split.below, &split.above] {
-                for i in used_facts(reading, &split.lines)? {
+                for i in used_facts(reading, &split.lines, alike)? {
                     out.insert(Readings::original(at, i, reading.len()));
                 }
             }
@@ -368,7 +459,18 @@ pub fn used_facts(
 
 /// Whether these facts have no solution over an ordered field.
 pub fn refutes(facts: &[Fact]) -> bool {
-    certificate(facts, &vec![None; facts.len()]).is_some()
+    certificate(facts, &vec![None; facts.len()], false).is_some()
+}
+
+/// Whether a combination weights every fact it uses alike: each weight
+/// of the same size, the facts added as they stand.
+fn weighted_alike(weights: &Weights) -> bool {
+    let sizes: Vec<Q> = weights
+        .values()
+        .filter(|w| !w.is_zero())
+        .map(|w| w.abs())
+        .collect();
+    sizes.windows(2).all(|pair| pair[0] == pair[1])
 }
 
 /// How many of the page's lines a combination rests on: the distinct lines
@@ -400,13 +502,21 @@ fn lines_used(weights: &Weights, line_of: &[Option<usize>]) -> usize {
 /// one resting on the most lines is taken, and of those the first. Atoms
 /// are eliminated in the order the facts first name them, which is the
 /// order the page writes them, so which combination is first is the page's.
-pub fn certificate(facts: &[Fact], line_of: &[Option<usize>]) -> Option<Certificate> {
+///
+/// Where `alike` asks it, only a combination weighting every fact it uses
+/// alike counts: the facts added as they stand, which is all a plain
+/// `inequalities` step does (`METHODS.md`, inequalities, What a step does).
+pub fn certificate(
+    facts: &[Fact],
+    line_of: &[Option<usize>],
+    alike: bool,
+) -> Option<Certificate> {
     if let Some(at) = facts.iter().position(|one| one.how == How::Ne) {
         // Both readings must fail, each by a certificate of its own; the
         // proof finds each again where it writes that side.
         let split = Readings::of(facts, line_of, at);
-        certificate(&split.below, &split.lines)?;
-        certificate(&split.above, &split.lines)?;
+        certificate(&split.below, &split.lines, alike)?;
+        certificate(&split.above, &split.lines, alike)?;
         return Some(Certificate::Either { at });
     }
     let mut open: Vec<Fact> = Vec::new();
@@ -485,9 +595,9 @@ pub fn certificate(facts: &[Fact], line_of: &[Option<usize>]) -> Option<Certific
             continue;
         }
         let c = &one.side.constant;
-        if (one.how == How::Lt && !c.is_negative())
-            || (one.how == How::Le && c.is_positive())
-        {
+        let contradicts = (one.how == How::Lt && !c.is_negative())
+            || (one.how == How::Le && c.is_positive());
+        if contradicts && (!alike || weighted_alike(&one.weights)) {
             let used = lines_used(&one.weights, line_of);
             if best.as_ref().is_none_or(|(most, _)| used > *most) {
                 best = Some((used, one.weights));
@@ -527,7 +637,7 @@ mod tests {
             Fact::new(y.clone(), How::Ne),
             Fact::new(Linear::constant(q(2)).minus(&x), How::Le),
         ];
-        let used = used_facts(&facts, &[Some(0), Some(1), Some(2)]);
+        let used = used_facts(&facts, &[Some(0), Some(1), Some(2)], false);
         assert_eq!(used, Some(BTreeSet::from([0, 2])));
     }
 
@@ -557,7 +667,7 @@ mod tests {
         let mut all = given.to_vec();
         all.push(opposite(&claim));
         assert!(matches!(
-            certificate(&all, &vec![None; all.len()]),
+            certificate(&all, &vec![None; all.len()], false),
             Some(Certificate::Either { .. })
         ));
     }

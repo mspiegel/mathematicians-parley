@@ -24,88 +24,140 @@ theorem harmonic-block
 2.  2^j ∈ ℕ
     mun:power-nat a := 2, m := j
 
-3.  2^j ≤ 2^(j + 1)
-    inequalities, from 1, 2
+3.  2^(j + 1) ∈ ℕ
+    mun:power-nat a := 2, m := j + 1
+
+4.  2^j ≤ 2^j·2
+    inequalities, from 2
+
+5.  2^j ≤ 2^(j + 1)
+    transitivity, from 4, 1
+    requires 2^j ∈ ℝ: membership, from H1
     requires 2^(j + 1) ∈ ℝ: membership, from H1
 
-4.  For all k ∈ ℕ, 1/k ∈ ℝ.
+6.  For all k ∈ ℕ, 1/k ∈ ℝ.
     proof
     let k ∈ ℕ                                                         (K1)
 
-    4.1.  1/k ∈ ℝ
+    6.1.  1/k ∈ ℝ
           membership
           requires k ≠ 0: from K1
 
-5.  Σ(k = 1 to 2^(j + 1)) 1/k = Σ(k = 1 to 2^j) 1/k + Σ(k = 2^j + 1 to 2^(j + 1)) 1/k
-    mun:sum-split a := 1, b := 2^j, c := 2^(j + 1), from 3, 4
+7.  Σ(k = 1 to 2^(j + 1)) 1/k = Σ(k = 1 to 2^j) 1/k + Σ(k = 2^j + 1 to 2^(j + 1)) 1/k
+    mun:sum-split a := 1, b := 2^j, c := 2^(j + 1), from 5, 6
     requires 2^j ∈ ℤ: membership, from H1
     requires 2^(j + 1) ∈ ℤ: membership, from H1
     requires 1 ≤ 2^j + 1: inequalities, from 2
 
-6.  For all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/2^(j + 1) ≤ 1/k.
+8.  0 < 2^j + 1
+    inequalities, from 2
+
+9.  For all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/2^(j + 1) ≤ 1/k.
     proof
     let k ∈ {2^j + 1, …, 2^(j + 1)}                                   (K2)
 
-    6.1.  2^j + 1 ≤ k. k ≤ 2^(j + 1).
+    9.1.  2^j + 1 ≤ k. k ≤ 2^(j + 1).
           mun:range-bounds a := 2^j + 1, b := 2^(j + 1), from K2
           requires 2^j + 1 ∈ ℤ: membership, from H1
           requires 2^(j + 1) ∈ ℤ: membership, from H1
 
-    6.2.  1/2^(j + 1) ≤ 1/k
-          mun:reciprocal-order x := k, y := 2^(j + 1), from 6.1
-          requires 2^(j + 1) ∈ ℤ: membership, from H1
-          requires k > 0: inequalities, from 2, 6.1
-          requires 2^(j + 1) > 0: inequalities, from 1, 2
+    9.2.  2^j + 1 ≤ k
+          inequalities, from 9.1
+          requires 2^j ∈ ℝ: membership, from H1
 
-7.  For all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ.
+    9.3.  k > 0
+          transitivity, from 8, 9.2
+          requires 2^j ∈ ℝ: membership, from H1
+
+    9.4.  1/2^(j + 1) ≤ 1/k
+          mun:reciprocal-order x := k, y := 2^(j + 1), from 9.1
+          requires 2^(j + 1) ∈ ℤ: membership, from H1
+          requires k > 0: from 9.3
+          requires 2^(j + 1) > 0: inequalities, from 3
+
+10. For all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ.
     proof
     let k ∈ {2^j + 1, …, 2^(j + 1)}                                   (K3)
 
-    7.1.  2^j + 1 ≤ k. k ≤ 2^(j + 1).
+    10.1. 2^j + 1 ≤ k. k ≤ 2^(j + 1).
           mun:range-bounds a := 2^j + 1, b := 2^(j + 1), from K3
           requires 2^j + 1 ∈ ℤ: membership, from H1
           requires 2^(j + 1) ∈ ℤ: membership, from H1
 
-    7.2.  1/k ∈ ℝ
-          membership
-          requires k ≠ 0: inequalities, from 2, 7.1
+    10.2. 2^j + 1 ≤ k
+          inequalities, from 10.1
+          requires 2^j ∈ ℝ: membership, from H1
 
-8.  Σ(k = 2^j + 1 to 2^(j + 1)) 1/2^(j + 1) ≤ Σ(k = 2^j + 1 to 2^(j + 1)) 1/k
-    mun:sum-le a := 2^j + 1, b := 2^(j + 1), from 6
+    10.3. k > 0
+          transitivity, from 8, 10.2
+          requires 2^j ∈ ℝ: membership, from H1
+
+    10.4. 1/k ∈ ℝ
+          membership
+          requires k ≠ 0: weakening, from 10.3
+
+11. Σ(k = 2^j + 1 to 2^(j + 1)) 1/2^(j + 1) ≤ Σ(k = 2^j + 1 to 2^(j + 1)) 1/k
+    mun:sum-le a := 2^j + 1, b := 2^(j + 1), from 9
     requires 2^j + 1 ∈ ℤ: membership, from H1
     requires 2^(j + 1) ∈ ℤ: membership, from H1
-    requires for all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ: from 7
+    requires for all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ: from 10
 
-9.  Σ(k = 2^j + 1 to 2^(j + 1)) 1/2^(j + 1) = (2^(j + 1) − (2^j + 1) + 1)·(1/2^(j + 1))
+12. 2^j + 1 ≤ 2^j·2
+    inequalities, from 2
+
+13. 2^j + 1 ≤ 2^(j + 1)
+    transitivity, from 12, 1
+    requires 2^j ∈ ℝ: membership, from H1
+    requires 2^(j + 1) ∈ ℝ: membership, from H1
+
+14. Σ(k = 2^j + 1 to 2^(j + 1)) 1/2^(j + 1) = (2^(j + 1) − (2^j + 1) + 1)·(1/2^(j + 1))
     mun:sum-constant a := 2^j + 1, b := 2^(j + 1), c := 1/2^(j + 1)
     requires 2^j + 1 ∈ ℤ: membership, from H1
     requires 2^(j + 1) ∈ ℤ: membership, from H1
-    requires 2^j + 1 ≤ 2^(j + 1): inequalities, from 1, 2
-    requires 2^(j + 1) ≠ 0: inequalities, from 1, 2
+    requires 2^j + 1 ≤ 2^(j + 1): from 13
+    requires 2^(j + 1) ≠ 0: inequalities, from 3
     requires 1/2^(j + 1) ∈ ℝ: membership, from H1
 
-10. (2^(j + 1) − (2^j + 1) + 1)·(1/2^(j + 1)) = (2^j·2 − (2^j + 1) + 1)·(1/(2^j·2))
+15. (2^(j + 1) − (2^j + 1) + 1)·(1/2^(j + 1)) = (2^j·2 − (2^j + 1) + 1)·(1/(2^j·2))
     substitute 2^(j + 1) = 2^j·2 (line 1)
 
-11. (2^j·2 − (2^j + 1) + 1)·(1/(2^j·2)) = 1/2
+16. (2^j·2 − (2^j + 1) + 1)·(1/(2^j·2)) = 1/2
     algebra
     requires 2^j ≠ 0: inequalities, from 2
 
-12. (2^(j + 1) − (2^j + 1) + 1)·(1/2^(j + 1)) = 1/2
+17. (2^(j + 1) − (2^j + 1) + 1)·(1/2^(j + 1)) = 1/2
     calculation
-      (2^(j + 1) − (2^j + 1) + 1)·(1/2^(j + 1)) = (2^j·2 − (2^j + 1) + 1)·(1/(2^j·2))    10
-                                                 = 1/2                                    11
+      (2^(j + 1) − (2^j + 1) + 1)·(1/2^(j + 1)) = (2^j·2 − (2^j + 1) + 1)·(1/(2^j·2))    15
+                                                 = 1/2                                    16
 
-13. Σ(k = 1 to 2^(j + 1)) 1/k ≥ Σ(k = 1 to 2^j) 1/k + 1/2
-    inequalities, from 5, 8, 9, 12
-    requires Σ(k = 1 to 2^(j + 1)) 1/k ∈ ℝ: membership, from 4
-    requires Σ(k = 1 to 2^j) 1/k ∈ ℝ: membership, from 4
+18. 1/2 ≤ Σ(k = 2^j + 1 to 2^(j + 1)) 1/k
+    transitivity, from 17, 14, 11
+    requires 2^j ∈ ℝ: membership, from H1
+    requires 2^(j + 1) ≠ 0: inequalities, from 3
     requires 2^j + 1 ∈ ℤ: membership, from H1
     requires 2^(j + 1) ∈ ℤ: membership, from H1
-    requires for all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ: from 7
+    requires for all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ: from 10
     requires Σ(k = 2^j + 1 to 2^(j + 1)) 1/k ∈ ℝ: mun:sum-real a := 2^j + 1, b := 2^(j + 1)
-    requires 2^(j + 1) ≠ 0: inequalities, from 1, 2
     requires Σ(k = 2^j + 1 to 2^(j + 1)) 1/2^(j + 1) ∈ ℝ: membership, from H1
+
+19. Σ(k = 1 to 2^j) 1/k + 1/2 ≤ Σ(k = 1 to 2^j) 1/k + Σ(k = 2^j + 1 to 2^(j + 1)) 1/k
+    inequalities
+      1/2 ≤ Σ(k = 2^j + 1 to 2^(j + 1)) 1/k                                          18
+      Σ(k = 1 to 2^j) 1/k + 1/2 ≤ Σ(k = 1 to 2^j) 1/k + Σ(k = 2^j + 1 to 2^(j + 1)) 1/k   adding Σ(k = 1 to 2^j) 1/k
+    requires Σ(k = 1 to 2^j) 1/k ∈ ℝ: membership, from 6
+    requires 2^j + 1 ∈ ℤ: membership, from H1
+    requires 2^(j + 1) ∈ ℤ: membership, from H1
+    requires for all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ: from 10
+    requires Σ(k = 2^j + 1 to 2^(j + 1)) 1/k ∈ ℝ: mun:sum-real a := 2^j + 1, b := 2^(j + 1)
+
+20. Σ(k = 1 to 2^(j + 1)) 1/k ≥ Σ(k = 1 to 2^j) 1/k + 1/2
+    transitivity, from 19, 7
+    requires Σ(k = 1 to 2^(j + 1)) 1/k ∈ ℝ: membership, from 6
+    requires Σ(k = 1 to 2^j) 1/k ∈ ℝ: membership, from 6
+    requires 2^j + 1 ∈ ℤ: membership, from H1
+    requires 2^(j + 1) ∈ ℤ: membership, from H1
+    requires for all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ: from 10
+    requires Σ(k = 2^j + 1 to 2^(j + 1)) 1/k ∈ ℝ: mun:sum-real a := 2^j + 1, b := 2^(j + 1)
 
 
 theorem harmonic-unbounded
@@ -141,19 +193,28 @@ theorem harmonic-unbounded
             Σ(k = 1 to 2^0) 1/k = Σ(k = 1 to 1) 1/k     2.2
                                 = 1                     2.3
 
-    2.5.  Σ(k = 1 to 2^0) 1/k ≥ 0/2
-          inequalities, from 2.4
+    2.5.  1 ≥ 0/2
+          arithmetic
+
+    2.6.  Σ(k = 1 to 2^0) 1/k ≥ 0/2
+          transitivity, from 2.4, 2.5
           requires Σ(k = 1 to 2^0) 1/k ∈ ℝ: membership, from 1
 
     step
     let m ∈ ℕ₀                                                        (K)
     assume step 2 is true for m, the induction hypothesis             (IH)
 
-    2.6.  Σ(k = 1 to 2^(m + 1)) 1/k ≥ Σ(k = 1 to 2^m) 1/k + 1/2
+    2.7.  Σ(k = 1 to 2^(m + 1)) 1/k ≥ Σ(k = 1 to 2^m) 1/k + 1/2
           thm:harmonic-block j := m
 
-    2.7.  Σ(k = 1 to 2^(m + 1)) 1/k ≥ (m + 1)/2
-          inequalities, from IH, 2.6
+    2.8.  Σ(k = 1 to 2^m) 1/k + 1/2 ≥ (m + 1)/2
+          inequalities
+            Σ(k = 1 to 2^m) 1/k ≥ m/2                  IH
+            Σ(k = 1 to 2^m) 1/k + 1/2 ≥ (m + 1)/2      adding 1/2
+          requires Σ(k = 1 to 2^m) 1/k ∈ ℝ: membership, from 1
+
+    2.9.  Σ(k = 1 to 2^(m + 1)) 1/k ≥ (m + 1)/2
+          transitivity, from 2.7, 2.8
           requires Σ(k = 1 to 2^(m + 1)) 1/k ∈ ℝ: membership, from 1
           requires Σ(k = 1 to 2^m) 1/k ∈ ℝ: membership, from 1
 
@@ -163,15 +224,23 @@ theorem harmonic-unbounded
 4.  Σ(k = 1 to 2^N) 1/k ≥ N/2
     instantiate m := N in line 2
 
-5.  Σ(k = 1 to 2^N) 1/k > M
-    inequalities, from 3, 4
+5.  N > 2M
+    inequalities, from 3
+
+6.  N/2 > M
+    inequalities
+      N > 2M           5
+      N/2 > M          multiplying by 1/2
+
+7.  Σ(k = 1 to 2^N) 1/k > M
+    transitivity, from 4, 6
     requires Σ(k = 1 to 2^N) 1/k ∈ ℝ: membership, from 1
 
-6.  2^N ∈ ℕ
+8.  2^N ∈ ℕ
     mun:power-nat a := 2, m := N
 
-7.  There is n ∈ ℕ with Σ(k = 1 to n) 1/k > M.
-    exhibit, from 5, 6
+9.  There is n ∈ ℕ with Σ(k = 1 to n) 1/k > M.
+    exhibit, from 7, 8
 
 
 theorem harmonic

@@ -19,32 +19,46 @@ theorem squares-keep-order
     case
     assume b − a < 0                                                  (C1)
 
-    2.1.  not a ≤ b
-          inequalities, from C1, contradicting H4
+    2.1.  b < a
+          inequalities
+            b − a < 0        C1
+            b < a            adding a
+
+    2.2.  not a ≤ b
+          inequalities, from 2.1, contradicting H4
 
     case
     assume b − a = 0                                                  (C2)
 
-    2.2.  a = b
-          inequalities, from C2, H4
+    2.3.  a = b
+          inequalities
+            b − a = 0        C2
+            b = a            adding a
+            a = b            symmetry
 
-    2.3.  a² = b²
-          substitute a = b (line 2.2)
+    2.4.  a² = b²
+          substitute a = b (line 2.3)
 
-    2.4.  a² ≤ b²
-          inequalities, from 2.3
+    2.5.  a² ≤ b²
+          inequalities
+            a² = b²          2.4
+            a² ≤ b²          weakening
 
     case
     assume 0 < b − a                                                  (C3)
 
-    2.5.  a < b
-          inequalities, from C3
+    2.6.  a < b
+          inequalities
+            0 < b − a        C3
+            a < b            adding a
 
-    2.6.  b ≥ 0
-          inequalities, from H3, H4
+    2.7.  b ≥ 0
+          transitivity, from H3, H4
 
-    2.7.  a² < b²
-          mun:square-less x := a, y := b, from H3, 2.5, 2.6
+    2.8.  a² < b²
+          mun:square-less x := a, y := b, from H3, 2.6, 2.7
 
-    2.8.  a² ≤ b²
-          inequalities, from 2.7
+    2.9.  a² ≤ b²
+          inequalities
+            a² < b²          2.8
+            a² ≤ b²          weakening

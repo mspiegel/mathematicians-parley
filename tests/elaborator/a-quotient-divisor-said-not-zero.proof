@@ -1,5 +1,5 @@
 theorem a-quotient-divisor-said-not-zero
-  note        A quotient is a number once its divisor is not zero, which the step writes.
+  note        A quotient is a number once its divisor is not zero, which each step writes as a requires line citing step 1.
   let ε ∈ ℝ                                                           (H1)
   let d ∈ ℝ                                                           (H2)
   let n ∈ ℕ                                                           (H3)
@@ -8,7 +8,19 @@ theorem a-quotient-divisor-said-not-zero
   assume d > 0                                                        (H6)
   then 0 − ε/(2·d) < 1/n
 
-1.  0 − ε/(2·d) < 1/n
-    inequalities, from H4, H5
-    requires 2·d ≠ 0: inequalities, from H6
+1.  2·d ≠ 0
+    inequalities
+      d > 0                  H6
+      2·d > 0                multiplying by 2
+      2·d ≠ 0                weakening
+
+2.  0 − ε/(2·d) < 0
+    inequalities
+      ε/(2·d) > 0            H4
+      0 − ε/(2·d) < 0        multiplying by −1
+    requires 2·d ≠ 0: from 1
+
+3.  0 − ε/(2·d) < 1/n
+    transitivity, from 2, H5
+    requires 2·d ≠ 0: from 1
     requires n ≠ 0: inequalities, from H3

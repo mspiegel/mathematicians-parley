@@ -30,7 +30,9 @@ theorem a-line-tends-to-its-value
     assume ε > 0                                                      (A1)
 
     1.1.  ε/2 > 0
-          inequalities, from A1
+          inequalities
+            ε > 0            A1
+            ε/2 > 0          multiplying by 1/2
 
     1.2.  For all x ∈ ℝ with (x ≠ 1 and |x − 1| < ε/2), |g(x) − 3| < ε.
           proof
@@ -43,12 +45,37 @@ theorem a-line-tends-to-its-value
           1.2.2.  1 − ε/2 < x and x < 1 + ε/2
                   mun:abs-difference-lt c := 1, δ := ε/2, from A2
 
-          1.2.3.  3 − ε < g(x) and g(x) < 3 + ε
-                  inequalities, from 1.2.1, 1.2.2
+          1.2.3.  1 − ε/2 < x
+                  inequalities, from 1.2.2
+
+          1.2.4.  x < 1 + ε/2
+                  inequalities, from 1.2.2
+
+          1.2.5.  3 − ε < 2·x + 1
+                  inequalities
+                    1 − ε/2 < x              1.2.3
+                    2 − ε < 2·x              multiplying by 2
+                    3 − ε < 2·x + 1          adding 1
+
+          1.2.6.  3 − ε < g(x)
+                  transitivity, from 1.2.5, 1.2.1
                   requires g(x) ∈ ℝ: mun:function-value f := g
 
-          1.2.4.  |g(x) − 3| < ε
-                  mun:abs-difference-lt x := g(x), c := 3, δ := ε, from 1.2.3
+          1.2.7.  2·x + 1 < 3 + ε
+                  inequalities
+                    x < 1 + ε/2              1.2.4
+                    2·x < 2 + ε              multiplying by 2
+                    2·x + 1 < 3 + ε          adding 1
+
+          1.2.8.  g(x) < 3 + ε
+                  transitivity, from 1.2.1, 1.2.7
+                  requires g(x) ∈ ℝ: mun:function-value f := g
+
+          1.2.9.  3 − ε < g(x) and g(x) < 3 + ε
+                  join 1.2.6, 1.2.8
+
+          1.2.10. |g(x) − 3| < ε
+                  mun:abs-difference-lt x := g(x), c := 3, δ := ε, from 1.2.9
                   requires g(x) ∈ ℝ: mun:function-value f := g
 
     1.3.  There exists δ > 0 such that |g(x) − 3| < ε for all x ∈ ℝ with (x ≠ 1 and |x − 1| < δ).
@@ -219,14 +246,25 @@ theorem one-over-n-tends-to-zero
                   mun:reciprocal-positive x := n
                   requires n > 0: inequalities, from K2
 
-          1.2.3.  0 − ε < 1/n
-                  inequalities, from A1, K2, 1.2.2
+          1.2.3.  0 − ε < 0
+                  inequalities
+                    ε > 0            A1
+                    0 − ε < 0        multiplying by −1
 
-          1.2.4.  1/n < 0 + ε
-                  inequalities, from K2, 1.1, 1.2.1
+          1.2.4.  0 − ε < 1/n
+                  transitivity, from 1.2.3, 1.2.2
+                  requires n ≠ 0: from K2
 
-          1.2.5.  |1/n − 0| < ε
-                  mun:abs-difference-lt x := 1/n, c := 0, δ := ε, from K2, 1.2.3, 1.2.4
+          1.2.5.  1/N < ε
+                  inequalities, from 1.1
+
+          1.2.6.  1/n < 0 + ε
+                  transitivity, from 1.2.1, 1.2.5
+                  requires n ≠ 0: from K2
+                  requires N ≠ 0: inequalities, from 1.1
+
+          1.2.7.  |1/n − 0| < ε
+                  mun:abs-difference-lt x := 1/n, c := 0, δ := ε, from K2, 1.2.4, 1.2.6
 
     1.3.  There exists N ∈ ℕ such that |1/n − 0| < ε for all n ≥ N.
           exhibit, from 1.2
@@ -273,18 +311,21 @@ theorem one-over-n-does-not-tend-to-one
           instantiate n := N + 1 in line 2.3
           requires N + 1 ≥ N: inequalities
 
-    2.5.  1 − 1/2 < 1/(N + 1) and 1/(N + 1) < 1 + 1/2
-          mun:abs-difference-lt x := 1/(N + 1), c := 1, δ := 1/2, from 2.4
-          requires N + 1 ≠ 0: inequalities, from 2.3
-
-    2.6.  2 ≤ N + 1
+    2.5.  N + 1 > 0
           inequalities, from 2.3
 
-    2.7.  1/(N + 1) ≤ 1/2
-          mun:reciprocal-order x := 2, y := N + 1, from 2.6
-          requires 2 > 0: arithmetic
-          requires N + 1 > 0: inequalities, from 2.3
+    2.6.  1 − 1/2 < 1/(N + 1) and 1/(N + 1) < 1 + 1/2
+          mun:abs-difference-lt x := 1/(N + 1), c := 1, δ := 1/2, from 2.4
+          requires N + 1 ≠ 0: weakening, from 2.5
 
-    2.8.  not (1/(N + 1) ≤ 1/2)
-          inequalities, from 2.5, contradicting 2.7
-          requires N + 1 ≠ 0: inequalities, from 2.3
+    2.7.  2 ≤ N + 1
+          inequalities, from 2.3
+
+    2.8.  1/(N + 1) ≤ 1/2
+          mun:reciprocal-order x := 2, y := N + 1, from 2.7
+          requires 2 > 0: arithmetic
+          requires N + 1 > 0: from 2.5
+
+    2.9.  not (1/(N + 1) ≤ 1/2)
+          inequalities, from 2.6, contradicting 2.8
+          requires N + 1 ≠ 0: weakening, from 2.5

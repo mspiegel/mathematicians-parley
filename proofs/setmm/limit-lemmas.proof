@@ -15,8 +15,14 @@ theorem abs-nonneg
 1.  x ≤ |x|. −x ≤ |x|.
     thm:abs-bounds
 
-2.  |x| ≥ 0
+2.  0 ≤ 2·|x|
     inequalities, from 1
+    requires |x| ∈ ℝ: mun:abs-real
+
+3.  |x| ≥ 0
+    inequalities
+      0 ≤ 2·|x|        2
+      0 ≤ |x|          multiplying by 1/2
     requires |x| ∈ ℝ: mun:abs-real
 
 theorem quotient-positive
@@ -38,14 +44,16 @@ theorem quotient-positive
 
     2.1.  x = 0
           algebra, from S
-          requires y ≠ 0: inequalities, from H4
+          requires y ≠ 0: weakening, from H4
 
     2.2.  x ≠ 0
-          inequalities, from H3, contradicting 2.1
+          inequalities, contradicting 2.1
+            x > 0            H3
+            x ≠ 0            weakening
 
 3.  x/y > 0
     inequalities, from 1, 2
-    requires y ≠ 0: inequalities, from H4
+    requires y ≠ 0: weakening, from H4
 
 theorem scaled-small
   note        If |u| is under ε/(2d), where d = |C| + 1, then |C·u| =
@@ -72,7 +80,10 @@ let d = |C| + 1, a real number                                        (D1)
     inequalities, from D1, 1, 2
 
 4. 2·d ≠ 0
-    inequalities, from 3
+    inequalities
+      d > 0            3
+      2·d > 0          multiplying by 2
+      2·d ≠ 0          weakening
 
 5.  ε/(2·d) ∈ ℝ
     mun:quotient-real x := ε, y := 2·d, from 4
@@ -87,7 +98,7 @@ let d = |C| + 1, a real number                                        (D1)
 
 8.  d·(ε/(2·d)) = ε/2
     algebra
-    requires 2·d ≠ 0: inequalities, from 3
+    requires 2·d ≠ 0: from 4
 
 9.  d·|u| = |C|·|u| + |u|
     algebra, from D1, 1
@@ -96,15 +107,30 @@ let d = |C| + 1, a real number                                        (D1)
 10. |u| ≥ 0
     thm:abs-nonneg x := u
 
-11. |C|·|u| ≤ ε/2
-    inequalities, from 1, 3, 7, 8, 9, 10
-    requires d ≠ 0: inequalities, from 3
+11. |C|·|u| ≤ |C|·|u| + |u|
+    inequalities
+      |u| ≥ 0                      10
+      |C|·|u| + |u| ≥ |C|·|u|      adding |C|·|u|
+    requires |C| ∈ ℝ: from 1
     requires |u| ∈ ℝ: mun:abs-real x := u
 
-12. |C·u| = |C|·|u|
+12. |C|·|u| ≤ ε/2
+    transitivity, from 11, 9, 7, 8
+    requires |C| ∈ ℝ: from 1
+    requires d ≠ 0: weakening, from 3
+    requires |u| ∈ ℝ: mun:abs-real x := u
+
+13. |C·u| = |C|·|u|
     mun:abs-product x := C, y := u
 
-13. |C·u| < ε
-    inequalities, from H4, 1, 11, 12
+14. ε/2 < ε
+    inequalities
+      ε > 0            H4
+      ε/2 > 0          multiplying by 1/2
+      ε > ε/2          adding ε/2
+
+15. |C·u| < ε
+    transitivity, from 13, 12, 14
+    requires |C| ∈ ℝ: from 1
     requires |C·u| ∈ ℝ: mun:abs-real x := C·u
     requires |u| ∈ ℝ: mun:abs-real x := u

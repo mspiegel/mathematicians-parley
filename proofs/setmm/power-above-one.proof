@@ -40,13 +40,19 @@ theorem power-above-one
           algebra
           requires A^k ∈ ℝ: mun:power-real a := A, m := k
 
-    1.7.  1 < A·A^k
-          inequalities, from H2, 1.5
+    1.7.  A ≤ A·A^k
+          inequalities
+            A·1 ≤ A·A^k            1.5
+            A ≤ A·A^k              algebra
           requires A^k ∈ ℝ: mun:power-real a := A, m := k
 
-    1.8.  1 < A^(k + 1)
+    1.8.  1 < A·A^k
+          transitivity, from H2, 1.7
+          requires A^k ∈ ℝ: mun:power-real a := A, m := k
+
+    1.9.  1 < A^(k + 1)
           calculation
-            1 < A·A^k              1.7
+            1 < A·A^k              1.8
               = A^k·A              1.6
               = A^(k + 1)          1.2
 

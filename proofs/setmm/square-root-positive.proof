@@ -15,12 +15,28 @@ theorem square-root-positive
     contradiction
     suppose not 0 < √a                                                (S)
 
-    2.1.  √a = 0
-          inequalities, from S, 1
-
-    2.2.  (√a)² = 0
-          algebra, from 2.1
+    2.1.  √a ≤ 0
+          inequalities, from S
           requires √a ∈ ℝ: from 1
 
-    2.3.  not 0 < a
-          inequalities, from 1, 2.2, contradicting H2
+    2.2.  √a ≥ 0
+          inequalities, from 1
+
+    2.3.  √a = 0
+          antisymmetry, from 2.1, 2.2
+          requires √a ∈ ℝ: from 1
+
+    2.4.  (√a)² = 0
+          algebra, from 2.3
+          requires √a ∈ ℝ: from 1
+
+    2.5.  a = 0
+          algebra, from 1, 2.4
+
+    2.6.  a ≤ 0
+          inequalities
+            a = 0            2.5
+            a ≤ 0            weakening
+
+    2.7.  not 0 < a
+          inequalities, from 2.6, contradicting H2

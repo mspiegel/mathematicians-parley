@@ -134,7 +134,7 @@ theorem rational-reciprocal
 
     4.1.  −p ∈ ℕ
           mun:pos-int-nat m := −p
-          requires 0 < −p: inequalities, from C1
+          requires −p > 0: multiplying by −1, from C1
 
     4.2.  1/A = (−q)/(−p)
           algebra, from H2, 1, 2, 4.1

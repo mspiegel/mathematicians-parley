@@ -3,7 +3,7 @@ import mundane theorem stdlib/numbers/abs-real
 import mundane theorem stdlib/numbers/floor-integer
 
 theorem a-bound-on-the-size-of-a-floor
-  note        A bound on |⌊A⌋| read from an equation and a bound, the floor term an atom of the inequality.
+  note        A bound on |⌊A⌋| chained from an equation and a bound, the floor term an atom of the chain.
   let A ∈ ℝ    (H1)
   assume |⌊A⌋| = ⌊A⌋    (H2)
   assume ⌊A⌋ ≤ 1    (H3)
@@ -16,7 +16,8 @@ theorem a-bound-on-the-size-of-a-floor
     membership, from 1
 
 3.  |⌊A⌋| ≤ 1
-    inequalities, from H2, H3, 2
+    transitivity, from H2, H3
+    requires ⌊A⌋ ∈ ℝ: from 2
     requires |⌊A⌋| ∈ ℝ: mun:abs-real x := ⌊A⌋, from 2
 
 theorem a-rounding-error-at-most-a-half
@@ -36,5 +37,6 @@ theorem a-rounding-error-at-most-a-half
     mun:abs x := ⌊A + 1/2⌋ − A, from H2, 2
 
 4.  |⌊A + 1/2⌋ − A| ≤ 1/2
-    inequalities, from H3, 1, 3
+    transitivity, from 3, H3
+    requires ⌊A + 1/2⌋ ∈ ℝ: membership, from 1
     requires |⌊A + 1/2⌋ − A| ∈ ℝ: mun:abs-real x := ⌊A + 1/2⌋ − A, from 2

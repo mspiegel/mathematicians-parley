@@ -23,19 +23,29 @@ theorem arithmetic-geometric-mean
 3.  √(A·B) ≥ 0
     mun:sqrt x := A·B, from 1
 
-4.  (A + B)/2 ≥ 0
+4.  A + B ≥ 0
     inequalities, from H3, H4
 
-5.  ((A + B)/2)² = A·B + ((A − B)/2)²
+5.  (A + B)/2 ≥ 0
+    inequalities
+      A + B ≥ 0                          4
+      (A + B)/2 ≥ 0                      multiplying by 1/2
+
+6.  ((A + B)/2)² = A·B + ((A − B)/2)²
     algebra
 
-6.  ((A − B)/2)² ≥ 0
+7.  ((A − B)/2)² ≥ 0
     mun:square-nonneg x := (A − B)/2
 
-7.  (√(A·B))² ≤ ((A + B)/2)²
-    inequalities, from 2, 5, 6
+8.  A·B ≤ A·B + ((A − B)/2)²
+    inequalities
+      ((A − B)/2)² ≥ 0                   7
+      A·B + ((A − B)/2)² ≥ A·B           adding A·B
+
+9.  (√(A·B))² ≤ ((A + B)/2)²
+    transitivity, from 2, 8, 6
     requires √(A·B) ∈ ℝ: mun:sqrt x := A·B, from 1
 
-8.  √(A·B) ≤ (A + B)/2
-    mun:square-le x := √(A·B), y := (A + B)/2, from 3, 4, 7
+10. √(A·B) ≤ (A + B)/2
+    mun:square-le x := √(A·B), y := (A + B)/2, from 3, 5, 9
     requires √(A·B) ∈ ℝ: mun:sqrt x := A·B, from 1

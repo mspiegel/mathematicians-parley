@@ -1060,6 +1060,10 @@ impl<'a> Elaborator<'a> {
         let mut how: Option<How> = match &step.just.head {
             Head::Method(m) if EXPANDED.contains(m) => Some(How::Named(*m)),
             Head::Define => Some(How::Define),
+            // A requires line naming a manipulation of its one line is a
+            // linear fact of that line, which the proof of an inequalities
+            // step proves; the checker has held it to its manipulation.
+            Head::Manipulation(_) => Some(How::Named(Method::Inequalities)),
             _ => None,
         };
         // Whether a step unfolds what it cites is read from the record: a
@@ -1277,15 +1281,15 @@ impl<'a> Elaborator<'a> {
             How::Named(m) => match m {
                 Method::Algebra => self.algebra(step, term, scope, facts, lines)?,
                 Method::Arithmetic => self.arithmetic(step, term, scope, facts)?,
-                // A chain with an order in it, and an order with its
-                // converse, are linear facts of what they cite, which the
-                // proof of an inequalities step proves; the checker has held
-                // them to their own rules. A chain of equations may relate
-                // terms of any sort, and is folded by `eqtrd`.
-                Method::Transitivity if self.equations_chained(step, lines) => {
-                    Built(self.equation_chain(step, term, scope, facts, lines)?)
+                // A chain is folded a link at a time, as a calculation's
+                // links are, so that it rests on every line it cites. An
+                // order with its converse is a linear fact of the two, which
+                // the proof of an inequalities step proves; the checker has
+                // held it to its own rule.
+                Method::Transitivity => {
+                    Built(self.transitivity_chain(step, term, scope, facts, lines)?)
                 }
-                Method::Inequalities | Method::Transitivity | Method::Antisymmetry => {
+                Method::Inequalities | Method::Antisymmetry => {
                     self.inequalities(step, term, scope, facts, lines)?
                 }
                 Method::Membership => self.by_membership(step, term, scope, facts)?,
@@ -2838,22 +2842,6 @@ impl<'a> Elaborator<'a> {
         )
     }
 
-    /// A chain folded by transitivity, one link at a time: each link is read
-    /// as the claim relating the run so far to what the link adds, and the
-    /// lemma that folds it is chosen by the two relations either side of the
-    /// join. The chain reaches its first term related to its last; a claim
-    /// saying that another way, as an equation turned round, is reached from
-    /// it by `same`, as any method's claim is.
-    /// Whether every line a `transitivity` step cites is an equation: a
-    /// chain `eqtrd` folds whatever the sort of its terms.
-    fn equations_chained(&self, step: &Step, lines: &Lines) -> bool {
-        step.just.refs.iter().all(|r| {
-            lines
-                .get(r)
-                .is_some_and(|l| self.to_term(&l.term).label() == Some("wceq"))
-        })
-    }
-
     /// A proof of `B = A` from one of `A = B`.
     fn turned_equation(
         &mut self,
@@ -2869,12 +2857,16 @@ impl<'a> Elaborator<'a> {
         )
     }
 
-    /// A chain of equations (`METHODS.md`, transitivity), folded a line at a
-    /// time by `eqtrd`: each line turned by `eqcomd` where it meets the one
-    /// before from its right side, the first where the second meets it from
-    /// its left, and what is reached turned where the claim writes it from
-    /// the other end.
-    fn equation_chain(
+    /// A chain (`METHODS.md`, transitivity), folded a line at a time by the
+    /// lemmas a calculation's links fold by (`rules::folding`,
+    /// `rules::order_folding`), so that the proof rests on every line the
+    /// step cites. An order is held low side first, `_ > _` as `_ < _`
+    /// turned, so a link going down is the same link going up, and a chain
+    /// going down is its links going up taken from the last. An equation
+    /// meets its neighbours from either side and is turned by `eqcomd` where
+    /// it meets them from the other; what is reached is carried to the claim
+    /// as the page writes it by `same`, as any method's claim is.
+    fn transitivity_chain(
         &mut self,
         step: &Step,
         term: &str,
@@ -2882,47 +2874,190 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         lines: &Lines,
     ) -> Checked<Proof> {
-        let mut chain: Option<(String, String, Proof)> = None;
+        let mut links = Vec::new();
+        let mut combined = vec![term.to_string()];
         for r in &step.just.refs {
             let held = lines.get(r).expect("a line the checker found in scope");
+            combined.push(held.term.clone());
             let said = self.to_term(&held.term);
-            let (mut a, mut b) =
-                (self.rpn(&said.children()[0]), self.rpn(&said.children()[1]));
-            let mut proof = self.carried(r, facts, lines);
-            chain = Some(match chain {
-                None => (a, b, proof),
-                Some((mut left, mut right, mut before)) => {
-                    if a != right && b != right && (a == left || b == left) {
-                        before = self.turned_equation(scope, &left, &right, &before);
-                        std::mem::swap(&mut left, &mut right);
-                    }
-                    if a != right && b == right {
-                        proof = self.turned_equation(scope, &a, &b, &proof);
-                        std::mem::swap(&mut a, &mut b);
-                    }
-                    if a != right {
-                        return Err(self.defect(
-                            step.line,
-                            "the equations the step chains do not meet",
-                        ));
-                    }
-                    let joined = self.b.ap(
-                        "eqtrd",
-                        &binds! {"ph" => scope, "A" => &left, "B" => &right, "C" => &b},
-                        &[&before, &proof],
-                    );
-                    (left, b, joined)
-                }
+            let kids = said.children();
+            let relation = match said.label() {
+                Some("wceq") => None,
+                _ => Some(self.rpn(&kids[2])),
+            };
+            links.push(ChainRun {
+                left: self.rpn(&kids[0]),
+                right: self.rpn(&kids[1]),
+                relation,
+                proof: self.carried(r, facts, lines),
             });
         }
-        let (left, right, proof) = chain.expect("a transitivity step cites a line");
-        if t!(&left, &right, "wceq") == term {
-            return Ok(proof);
+        // Where a link is an order, every atom of the chain is real
+        // (`METHODS.md`, transitivity), which the step's requires lines say
+        // and the build holds them to, as for an inequalities step.
+        if links.iter().any(|l| l.relation.is_some()) {
+            self.combining(&combined);
         }
-        if t!(&right, &left, "wceq") == term {
-            return Ok(self.turned_equation(scope, &left, &right, &proof));
+        // A term a join asks to be real is settled from the step's requires
+        // lines, offered to the membership lookup, as for an inequalities
+        // step.
+        let known = self.supplied(Some(step), scope, facts)?;
+        let up = self.writing(scope, &known, false, |me| {
+            me.folded_up(step, scope, &known, lines, links.clone())
+        })?;
+        let run = match up {
+            Some(run) => run,
+            None => {
+                links.reverse();
+                let down = self.writing(scope, &known, false, |me| {
+                    me.folded_up(step, scope, &known, lines, links)
+                })?;
+                match down {
+                    Some(run) => run,
+                    None => {
+                        return Err(self.defect(
+                            step.line,
+                            "the lines the step chains do not meet",
+                        ))
+                    }
+                }
+            }
+        };
+        let reached = match &run.relation {
+            None => t!(&run.left, &run.right, "wceq"),
+            Some(r) => t!(&run.left, &run.right, r, "wbr"),
+        };
+        if reached == term {
+            return Ok(run.proof);
         }
-        Err(self.defect(step.line, "the chain of equations does not reach the claim"))
+        if run.relation.is_none() && t!(&run.right, &run.left, "wceq") == term {
+            return Ok(self.turned_equation(scope, &run.left, &run.right, &run.proof));
+        }
+        // An identity element goes without saying (`SYNTAX.md`): n·1 ≤ n² is
+        // the claim n ≤ n².
+        if let Some(tidy) = self.tidied(&run.proof, &reached, term, scope, facts)? {
+            return Ok(tidy);
+        }
+        let alike = match self.same(
+            &self.to_term(&reached),
+            &self.to_term(term),
+            scope,
+            facts,
+            Some(step),
+        )? {
+            Built(p) => p,
+            Declined(d) => {
+                return Err(self.defect(
+                    step.line,
+                    format!(
+                        "the chain reaches {}, which is not the claim: {}",
+                        self.render(&reached),
+                        self.say(&d)
+                    ),
+                ))
+            }
+        };
+        Ok(pf!(self.b; scope, reached, term, run.proof, alike, "mpbid"))
+    }
+
+    /// The links of a chain folded in the order given, each going up from
+    /// where the one before ends; None where one does not begin there.
+    fn folded_up(
+        &mut self,
+        step: &Step,
+        scope: &str,
+        facts: &Facts,
+        lines: &Lines,
+        links: Vec<ChainRun>,
+    ) -> Checked<Option<ChainRun>> {
+        let mut links = links.into_iter();
+        let Some(mut run) = links.next() else {
+            return Ok(None);
+        };
+        for mut link in links {
+            let meets = |t: &str| t == link.left || t == link.right;
+            if run.relation.is_none() && !meets(&run.right) && meets(&run.left) {
+                run.proof =
+                    self.turned_equation(scope, &run.left, &run.right, &run.proof);
+                std::mem::swap(&mut run.left, &mut run.right);
+            }
+            if link.relation.is_none()
+                && link.left != run.right
+                && link.right == run.right
+            {
+                link.proof =
+                    self.turned_equation(scope, &link.left, &link.right, &link.proof);
+                std::mem::swap(&mut link.left, &mut link.right);
+            }
+            if link.left != run.right {
+                return Ok(None);
+            }
+            let (left, right, nxt) = (&run.left, &run.right, &link.right);
+            let (proof, relation) = match (&run.relation, &link.relation) {
+                (None, None) => (
+                    self.b.ap(
+                        "eqtrd",
+                        &binds! {"ph" => scope, "A" => left, "B" => right, "C" => nxt},
+                        &[&run.proof, &link.proof],
+                    ),
+                    None,
+                ),
+                (Some(above), Some(below)) => {
+                    let Some(fold) = rules::order_folding(above, below) else {
+                        return Ok(None);
+                    };
+                    // Each of the three terms is real, which the page says
+                    // once or not at all (`READERS.md`), and is settled as
+                    // any other membership a step needs.
+                    let mut real = Vec::new();
+                    for t in [left, right, nxt] {
+                        let wanted = self.to_term(&t!(t, "cr", "wcel"));
+                        match self.settle(&wanted, scope, facts, 3, Some(step), Some(lines))? {
+                            Built(p) => real.push(p),
+                            Declined(d) => {
+                                return Err(self.defect(
+                                    step.line,
+                                    format!(
+                                        "step {} chains {}, and nothing it writes or cites says it is a number: {}",
+                                        fmt(&step.number),
+                                        self.render(t),
+                                        self.say(&d)
+                                    ),
+                                ))
+                            }
+                        }
+                    }
+                    let lemma = fold.lemma;
+                    (
+                        pf!(self.b; scope, left, right, nxt,
+                            real[0], real[1], real[2], run.proof, link.proof, lemma),
+                        Some(fold.folded.to_string()),
+                    )
+                }
+                (above, below) => {
+                    let (first, second) = (
+                        if above.is_some() { "wbr" } else { "wceq" },
+                        if below.is_some() { "wbr" } else { "wceq" },
+                    );
+                    let fold = rules::folding(first, second).expect(
+                        "an equation folds into an order and an order into an equation",
+                    );
+                    let relation = above.clone().or(below.clone());
+                    let r = relation.clone().expect("one of the two is an order");
+                    (
+                        pf!(self.b; scope, left, right, nxt, r, run.proof, link.proof, fold),
+                        relation,
+                    )
+                }
+            };
+            run = ChainRun {
+                left: run.left,
+                right: link.right,
+                relation,
+                proof,
+            };
+        }
+        Ok(Some(run))
     }
 
     fn calculation(
@@ -5876,6 +6011,17 @@ pub fn elaborate(
         said_back: work.said_back.take().unwrap_or_default(),
         answers: work.answers.take().unwrap_or_default(),
     })
+}
+
+/// A run of a transitivity step's chain, or one of its links: `left`
+/// related to `right`, each as set.mm writes it, and its proof.
+#[derive(Clone)]
+struct ChainRun {
+    left: String,
+    right: String,
+    /// The order, `clt` or `cle`, low side first; None for an equation.
+    relation: Option<String>,
+    proof: Proof,
 }
 
 /// A congruence a ≡ b (mod n), as set.mm writes it, n ∥ (a − b).

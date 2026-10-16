@@ -1,5 +1,5 @@
 theorem an-equation-from-a-difference-with-a-bound-uncited
-  note        a = b follows from b − a = 0 alone, with an uncited a ≤ b in scope that says one of its bounds.
+  note        a = b follows from b − a = 0 alone, a added to both sides, with an uncited a ≤ b in scope that says one of its bounds.
   let a ∈ ℝ    (H1)
   let b ∈ ℝ    (H2)
   assume a ≤ b    (H3)
@@ -7,7 +7,9 @@ theorem an-equation-from-a-difference-with-a-bound-uncited
   then a = b
 
 1.  a = b
-    inequalities, from H4
+    inequalities
+      b − a = 0      H4
+      b = a          adding a
 
 theorem positive-from-a-natural-with-a-bound-uncited
   note        n > 0 follows from n ∈ ℕ alone, with an uncited line saying 1 ≤ n.

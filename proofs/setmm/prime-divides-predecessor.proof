@@ -31,4 +31,6 @@ theorem prime-divides-predecessor
           mun:divides-one d := P, from 2.3
 
     2.5.  P ≠ 1
-          inequalities, from 1, contradicting 2.4
+          inequalities, contradicting 2.4
+            P > 1            1
+            P ≠ 1            weakening

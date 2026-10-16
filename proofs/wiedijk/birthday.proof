@@ -37,38 +37,43 @@ theorem birthday
 7.  |S| = 365^23
     substitute |{1, …, 23}| = 23 (line 3) into line 6
 
-8.  |{1, …, 23}| ≤ |{1, …, 365}|
-    inequalities, from 3, 4
+8.  23 ≤ 365
+    arithmetic
+
+9.  |{1, …, 23}| ≤ |{1, …, 365}|
+    transitivity, from 3, 8, 4
     requires |{1, …, 23}| ∈ ℕ₀: mun:card-nat0, from 1
     requires |{1, …, 365}| ∈ ℕ₀: mun:card-nat0, from 2
 
-9.  |T| = ∏(k ∈ {0, …, |{1, …, 23}| − 1}) (|{1, …, 365}| − k)
-    thm:count-one-to-one X := {1, …, 23}, Y := {1, …, 365}, from D1, D2, 1, 2, 8
+10. |T| = ∏(k ∈ {0, …, |{1, …, 23}| − 1}) (|{1, …, 365}| − k)
+    thm:count-one-to-one X := {1, …, 23}, Y := {1, …, 365}, from D1, D2, 1, 2, 9
 
-10. |T| = ∏(k ∈ {0, …, 23 − 1}) (|{1, …, 365}| − k)
-    substitute |{1, …, 23}| = 23 (line 3) into line 9
+11. |T| = ∏(k ∈ {0, …, 23 − 1}) (|{1, …, 365}| − k)
+    substitute |{1, …, 23}| = 23 (line 3) into line 10
 
-11. |T| = ∏(k ∈ {0, …, 22}) (|{1, …, 365}| − k)
-    substitute 23 − 1 = 22 (arithmetic) into line 10
+12. |T| = ∏(k ∈ {0, …, 22}) (|{1, …, 365}| − k)
+    substitute 23 − 1 = 22 (arithmetic) into line 11
 
-12. |T| = ∏(k ∈ {0, …, 22}) (365 − k)
-    substitute |{1, …, 365}| = 365 (line 4) into line 11
+13. |T| = ∏(k ∈ {0, …, 22}) (365 − k)
+    substitute |{1, …, 365}| = 365 (line 4) into line 12
 
-13. 2·∏(k ∈ {0, …, 22}) (365 − k) < 365^23
+14. 2·∏(k ∈ {0, …, 22}) (365 − k) < 365^23
     arithmetic
 
-14. |T|/|S| = |T|/365^23
+15. |T|/|S| = |T|/365^23
     substitute |S| = 365^23 (line 7)
 
-15. |T|/365^23 = (∏(k ∈ {0, …, 22}) (365 − k))/365^23
-    substitute |T| = ∏(k ∈ {0, …, 22}) (365 − k) (line 12)
+16. |T|/365^23 = (∏(k ∈ {0, …, 22}) (365 − k))/365^23
+    substitute |T| = ∏(k ∈ {0, …, 22}) (365 − k) (line 13)
 
-16. (∏(k ∈ {0, …, 22}) (365 − k))/365^23 < 1/2
-    inequalities, from 13
+17. (∏(k ∈ {0, …, 22}) (365 − k))/365^23 < 1/2
+    inequalities
+      2·∏(k ∈ {0, …, 22}) (365 − k) < 365^23                  14
+      (∏(k ∈ {0, …, 22}) (365 − k))/365^23 < 1/2              multiplying by 1/(2·365^23)
     requires ∏(k ∈ {0, …, 22}) (365 − k) ∈ ℝ: arithmetic
 
-17. |T|/|S| < 1/2
+18. |T|/|S| < 1/2
     calculation
-      |T|/|S| = |T|/365^23                                     14
-              = (∏(k ∈ {0, …, 22}) (365 − k))/365^23           15
-              < 1/2                                            16
+      |T|/|S| = |T|/365^23                                     15
+              = (∏(k ∈ {0, …, 22}) (365 − k))/365^23           16
+              < 1/2                                            17

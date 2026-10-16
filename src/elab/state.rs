@@ -314,6 +314,9 @@ pub struct Elaborator<'a> {
     /// item asks of every member. There a function's type gives its values
     /// as the sort it is (`function_value`).
     pub in_family: usize,
+    /// Whether the order being proved is a plain `inequalities` step's,
+    /// which adds its facts as they stand (`linear::certificate`'s `alike`).
+    pub adding_only: bool,
     /// Where messages are being tested, each sentence said back as another
     /// term (`Options::say_back`).
     pub said_back: Option<Vec<String>>,
@@ -470,6 +473,7 @@ impl<'a> Elaborator<'a> {
             binding: Vars::new(),
             citing: IndexSet::new(),
             in_family: 0,
+            adding_only: false,
             said_back: None,
             answers: None,
             resting: None,

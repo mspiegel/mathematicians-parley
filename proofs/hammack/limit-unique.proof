@@ -44,7 +44,10 @@ theorem limit-order
           inequalities, from S
 
     1.2.  (M − L)/3 > 0
-          inequalities, from 1.1
+          inequalities
+            L < M              1.1
+            0 < M − L          adding −L
+            0 < (M − L)/3      multiplying by 1/3
 
     1.3.  For all ε > 0, there exists δ > 0 such that |f(x) − L| < ε for all x ∈ ℝ with (x ≠ c and |x − c| < δ).
           thm:limit-unfolded D := ℝ, from H5
@@ -80,38 +83,110 @@ theorem limit-order
            membership, from D1
            reads a point half of m to the right of c
 
-    1.11. x₁ ≠ c
-          inequalities, from D1, D2, 1.9
+    1.11. 0 < m
+          inequalities, from D1, 1.9
 
-    1.12. c − p < x₁ and x₁ < c + p
-          inequalities, from D1, D2, 1.9, 1.10
+    1.12. c < c + m/2
+          inequalities
+            0 < m              1.11
+            0 < m/2            multiplying by 1/2
+            c < c + m/2        adding c
 
-    1.13. c − q < x₁ and x₁ < c + q
-          inequalities, from D1, D2, 1.9, 1.10
+    1.13. c ≠ c + m/2
+          inequalities
+            c < c + m/2        1.12
+            c ≠ c + m/2        weakening
 
-    1.14. |x₁ − c| < p
-          mun:abs-difference-lt x := x₁, δ := p, from 1.12
+    1.14. x₁ ≠ c
+          inequalities, from D2, 1.13
 
-    1.15. |x₁ − c| < q
-          mun:abs-difference-lt x := x₁, δ := q, from 1.13
+    1.15. c + m/2 < c + m
+          inequalities
+            0 < m              1.11
+            0 < m/2            multiplying by 1/2
+            m/2 < m            adding m/2
+            c + m/2 < c + m    adding c
 
-    1.16. |f(x₁) − L| < (M − L)/3
-          instantiate x := x₁ in line 1.7, from 1.11, 1.14
+    1.16. m ≤ p
+          inequalities, from D1, 1.10
 
-    1.17. |f(x₁) − M| < (M − L)/3
-          instantiate x := x₁ in line 1.8, from 1.11, 1.15
+    1.17. m ≤ q
+          inequalities, from D1, 1.10
 
-    1.18. f(x₁) < L + (M − L)/3
-          mun:abs-difference-lt x := f(x₁), c := L, δ := (M − L)/3, from 1.16
+    1.18. c + m ≤ c + p
+          inequalities
+            m ≤ p              1.16
+            c + m ≤ c + p      adding c
+
+    1.19. c + m ≤ c + q
+          inequalities
+            m ≤ q              1.17
+            c + m ≤ c + q      adding c
+
+    1.20. c + m/2 < c + p
+          transitivity, from 1.15, 1.18
+
+    1.21. c + m/2 < c + q
+          transitivity, from 1.15, 1.19
+
+    1.22. 0 < p
+          inequalities, from 1.7
+
+    1.23. 0 < q
+          inequalities, from 1.8
+
+    1.24. c − p < c
+          inequalities
+            0 < p              1.22
+            c − p < c          adding c − p
+
+    1.25. c − q < c
+          inequalities
+            0 < q              1.23
+            c − q < c          adding c − q
+
+    1.26. c − p < c + m/2
+          transitivity, from 1.24, 1.12
+
+    1.27. c − q < c + m/2
+          transitivity, from 1.25, 1.12
+
+    1.28. c − p < x₁ and x₁ < c + p
+          inequalities, from D2, 1.20, 1.26
+
+    1.29. c − q < x₁ and x₁ < c + q
+          inequalities, from D2, 1.21, 1.27
+
+    1.30. |x₁ − c| < p
+          mun:abs-difference-lt x := x₁, δ := p, from 1.28
+
+    1.31. |x₁ − c| < q
+          mun:abs-difference-lt x := x₁, δ := q, from 1.29
+
+    1.32. |f(x₁) − L| < (M − L)/3
+          instantiate x := x₁ in line 1.7, from 1.14, 1.30
+
+    1.33. |f(x₁) − M| < (M − L)/3
+          instantiate x := x₁ in line 1.8, from 1.14, 1.31
+
+    1.34. f(x₁) < L + (M − L)/3
+          mun:abs-difference-lt x := f(x₁), c := L, δ := (M − L)/3, from 1.32
           requires f(x₁) ∈ ℝ: mun:function-value
 
-    1.19. M − (M − L)/3 < f(x₁)
-          mun:abs-difference-lt x := f(x₁), c := M, δ := (M − L)/3, from 1.17
+    1.35. M − (M − L)/3 < f(x₁)
+          mun:abs-difference-lt x := f(x₁), c := M, δ := (M − L)/3, from 1.33
           requires f(x₁) ∈ ℝ: mun:function-value
 
-    1.20. M ≤ L
-          inequalities, from 1.18, 1.19, contradicting S
+    1.36. M − (M − L)/3 < L + (M − L)/3
+          transitivity, from 1.35, 1.34
           requires f(x₁) ∈ ℝ: mun:function-value
+
+    1.37. M ≤ L
+          inequalities, contradicting S
+            M − (M − L)/3 < L + (M − L)/3     1.36
+            2·M + L < 2·L + M                  multiplying by 3
+            M < L                              adding −M − L
+            M ≤ L                              weakening
 
 
 theorem limit-unique

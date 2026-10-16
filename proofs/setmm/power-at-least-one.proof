@@ -23,7 +23,10 @@ theorem power-at-least-one
           mun:exponent-zero
 
     2.2.  1 ≤ a^0
-          inequalities, from 2.1
+          inequalities
+            a^0 = 1            2.1
+            1 = a^0            symmetry
+            1 ≤ a^0            weakening
 
     step
     let m ∈ ℕ₀                                                        (K)
@@ -41,12 +44,16 @@ theorem power-at-least-one
     2.6.  a·1 ≤ a·a^m
           mun:multiply-le x := 1, y := a^m, c := a, from IH, 1, 2.4
 
-    2.7.  a^m·a = a·a^m
-          algebra
+    2.7.  a ≤ a^m·a
+          inequalities
+            a·1 ≤ a·a^m        2.6
+            a ≤ a^m·a          algebra
           requires a^m ∈ ℝ: from 2.4
 
     2.8.  1 ≤ a^(m + 1)
-          inequalities, from H3, 2.3, 2.4, 2.5, 2.6, 2.7
+          transitivity, from H3, 2.7, 2.3
+          requires a^m ∈ ℝ: from 2.4
+          requires a^(m + 1) ∈ ℝ: from 2.5
 
 3.  1 ≤ a^n
     instantiate m := n in line 2

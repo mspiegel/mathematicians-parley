@@ -12,7 +12,9 @@ theorem four-over-product
   then 4/(x·(4 − x)) ≥ 1
 
 1.  0 < 4 − x
-    inequalities, from H3
+    inequalities
+      x < 4            H3
+      0 < 4 − x        adding −x
 
 2.  x·0 < x·(4 − x)
     mun:less-scaled x := 0, y := 4 − x, c := x, from H2, 1
@@ -26,16 +28,21 @@ theorem four-over-product
 5.  (x − 2)² = 4 − x·(4 − x)
     algebra
 
-6.  x·(4 − x) ≤ 4
-    inequalities, from 4, 5
+6.  0 ≤ 4 − x·(4 − x)
+    transitivity, from 4, 5
 
-7.  x·(4 − x)/(x·(4 − x)) ≤ 4/(x·(4 − x))
-    mun:divide-le x := x·(4 − x), y := 4, c := x·(4 − x), from 3, 6
+7.  x·(4 − x) ≤ 4
+    inequalities
+      0 ≤ 4 − x·(4 − x)      6
+      x·(4 − x) ≤ 4          adding x·(4 − x)
 
-8.  x·(4 − x)/(x·(4 − x)) = 1
+8.  x·(4 − x)/(x·(4 − x)) ≤ 4/(x·(4 − x))
+    mun:divide-le x := x·(4 − x), y := 4, c := x·(4 − x), from 3, 7
+
+9.  x·(4 − x)/(x·(4 − x)) = 1
     algebra
-    requires x·(4 − x) ≠ 0: inequalities, from 3
+    requires x·(4 − x) ≠ 0: weakening, from 3
 
-9.  4/(x·(4 − x)) ≥ 1
-    inequalities, from 7, 8
-    requires x·(4 − x) ≠ 0: inequalities, from 3
+10. 4/(x·(4 − x)) ≥ 1
+    transitivity, from 9, 8
+    requires x·(4 − x) ≠ 0: weakening, from 3

@@ -13,8 +13,8 @@ use super::Report;
 use crate::citing::{implied_facts, link_unsaid, said_once, Library, Parts};
 use crate::corpus::proof::{chain, rows, ChainLine, RowReason};
 use crate::corpus::{
-    define_parts, DefineParts, FileScope, Intro, Item, Justification, Method, Record,
-    RecordKind, Recursion, Requires, Source, Step, Theorem, Value, Values,
+    define_parts, DefineParts, FileScope, Head, Intro, Item, Justification, Method,
+    Record, RecordKind, Recursion, Requires, Source, Step, Theorem, Value, Values,
 };
 use crate::formula::page::{conjoined, disjoined, made, numeral, related, Written};
 use crate::formula::{walk, Node, Sort, Sorts};
@@ -1595,10 +1595,13 @@ fn real_unsaid(
     for relation in relations {
         for side in relation_sides(relation) {
             let parts = methods_membership::Parts::of(side);
+            // A side a fact says is real as it stands, `2^d − 1 ∈ ℤ`, asks
+            // nothing of its atoms.
+            let whole = methods_membership::said(side, System::R, &given);
             if let Some(atom) = parts
                 .atoms
                 .iter()
-                .find(|a| !methods_membership::holds(a, System::R, &given))
+                .find(|a| !whole && !methods_membership::said(a, System::R, &given))
             {
                 return Some(format!(
                     "nothing says {} ∈ ℝ, which this step needs",
@@ -2208,6 +2211,84 @@ pub fn check_inequality_rows(
                 written[written.len() - 1].line,
                 format!("the last row of step {number} is not its claim"),
             );
+        }
+    }
+}
+
+/// A requires line naming one manipulation, `requires q ≠ 0: weakening,
+/// from 2.1` (`METHODS.md`, inequalities, Rows): its fact is the one line it
+/// cites with that manipulation, as a row is of the row above, and its
+/// atoms are real.
+pub fn check_requires_manipulations(
+    report: &mut Report,
+    thm: &Theorem,
+    known: &Known,
+    targets: &Targets,
+) {
+    for step in &thm.steps {
+        for req in &step.requires {
+            let Ok(by) = &req.by else {
+                continue;
+            };
+            let Head::Manipulation(made) = &by.head else {
+                continue;
+            };
+            let reason = made.as_row(&thm.path, req.line);
+            let cited = req.lines().first().cloned().unwrap_or_default();
+            let line = known
+                .scope(step)
+                .get(&cited)
+                .and_then(|s| known.stated_as_written(s))
+                .and_then(|n| Related::of(&n));
+            let fact = known
+                .whole_as_written(&req.fact)
+                .and_then(|n| Related::of(&n));
+            let term = match &reason {
+                RowReason::Adding(t) | RowReason::Multiplying(t) => {
+                    match reason_term(&t.clone(), known) {
+                        Ok(node) => Some(node),
+                        Err(problem) => {
+                            report.problems.push(problem);
+                            continue;
+                        }
+                    }
+                }
+                _ => None,
+            };
+            // The fact may be written either way round, as a step's last
+            // row may: `0 < ε/7` is `ε/7 > 0`.
+            let follows = match (&line, &fact) {
+                (Some(line), Some(fact)) => {
+                    [fact.clone(), fact.turned()].iter().any(|f| {
+                        row_follows(line, f, &reason, term.as_ref(), known, targets)
+                    })
+                }
+                _ => false,
+            };
+            if !follows {
+                report.say(
+                    &thm.path,
+                    req.line,
+                    format!(
+                        "the requires line {} of step {} is not {cited} {}",
+                        str::trim(req.fact.text()),
+                        step.number,
+                        row_said(&reason)
+                    ),
+                );
+                continue;
+            }
+            let (Some(line), Some(fact)) = (line, fact) else {
+                continue;
+            };
+            let relations = [fact.said.clone(), line.said.clone()];
+            let at = ClosureClaim::requires(step, req);
+            let Some(read) = at.read(known, targets, false) else {
+                continue;
+            };
+            if let Some(said) = real_unsaid(&at, &read, &relations, known, targets) {
+                report.say(&thm.path, req.line, said);
+            }
         }
     }
 }

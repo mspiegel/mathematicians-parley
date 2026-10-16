@@ -62,38 +62,71 @@ theorem a-step-is-not-continuous
     4.5.  min(δ, 1/2) ≤ δ. min(δ, 1/2) ≤ 1/2.
           mun:min-le x := δ, y := 1/2
 
-    4.6.  x₁ < 1/2
-          inequalities, from D2, D3, 4.4
+    4.6.  0 < min(δ, 1/2)/2
+          inequalities
+            0 < min(δ, 1/2)                    4.4
+            0 < min(δ, 1/2)/2                  multiplying by 1/2
+          requires min(δ, 1/2) ∈ ℝ: mun:min-real x := δ, y := 1/2
 
-    4.7.  x₁ ∈ [0, 1]
+    4.7.  1/2 − min(δ, 1/2)/2 < 1/2
+          inequalities
+            0 < min(δ, 1/2)/2                  4.6
+            1/2 − min(δ, 1/2)/2 < 1/2          adding 1/2 − min(δ, 1/2)/2
+          requires min(δ, 1/2) ∈ ℝ: mun:min-real x := δ, y := 1/2
+
+    4.8.  x₁ < 1/2
+          inequalities, from D2, D3, 4.7
+
+    4.9.  min(δ, 1/2) ≤ 1/2
+          inequalities, from 4.5
+          requires min(δ, 1/2) ∈ ℝ: mun:min-real x := δ, y := 1/2
+
+    4.10. 1/2 − min(δ, 1/2)/2 ≥ 1/4
+          inequalities
+            min(δ, 1/2) ≤ 1/2                  4.9
+            −min(δ, 1/2)/2 ≥ −1/4              multiplying by −1/2
+            1/2 − min(δ, 1/2)/2 ≥ 1/4          adding 1/2
+          requires min(δ, 1/2) ∈ ℝ: mun:min-real x := δ, y := 1/2
+
+    4.11. x₁ ∈ [0, 1]
           mun:interval a := 0, b := 1, x := x₁, from D3
-          requires 0 ≤ x₁: inequalities, from D2, D3, 4.5
-          requires x₁ ≤ 1: inequalities, from 4.6
+          requires 0 ≤ x₁: inequalities, from D2, D3, 4.10
+          requires x₁ ≤ 1: inequalities, from 4.8
 
-    4.8.  |x₁ − 1/2| < δ
+    4.12. min(δ, 1/2) ≤ δ
+          inequalities, from 4.5
+          requires min(δ, 1/2) ∈ ℝ: mun:min-real x := δ, y := 1/2
+
+    4.13. −δ ≤ −min(δ, 1/2)
+          inequalities
+            min(δ, 1/2) ≤ δ                    4.12
+            −min(δ, 1/2) ≥ −δ                  multiplying by −1
+          requires min(δ, 1/2) ∈ ℝ: mun:min-real x := δ, y := 1/2
+
+    4.14. |x₁ − 1/2| < δ
           mun:abs-difference-lt x := x₁, c := 1/2, from D3
-          requires 1/2 − δ < x₁: inequalities, from D2, D3, 4.4, 4.5
-          requires x₁ < 1/2 + δ: inequalities, from 4.3, 4.6
+          requires 1/2 − δ < x₁: inequalities, from D2, D3, 4.6, 4.13
+          requires x₁ < 1/2 + δ: inequalities, from 4.3, 4.8
 
-    4.9.  |f(x₁) − f(1/2)| < 1/2
-          instantiate x := x₁ in line 4.3, from 4.7, 4.8
+    4.15. |f(x₁) − f(1/2)| < 1/2
+          instantiate x := x₁ in line 4.3, from 4.11, 4.14
 
-    4.10. f(x₁) = 0
-          D1, from 4.6, 4.7
+    4.16. f(x₁) = 0
+          D1, from 4.8, 4.11
 
-    4.11. |0 − f(1/2)| < 1/2
-          substitute f(x₁) = 0 (line 4.10) into line 4.9
+    4.17. |0 − f(1/2)| < 1/2
+          substitute f(x₁) = 0 (line 4.16) into line 4.15
 
-    4.12. |0 − 1| < 1/2
-          substitute f(1/2) = 1 (line 3) into line 4.11
+    4.18. |0 − 1| < 1/2
+          substitute f(1/2) = 1 (line 3) into line 4.17
 
-    4.13. 0 − 1 < 0
+    4.19. 0 − 1 < 0
           arithmetic
 
-    4.14. |0 − 1| = −(0 − 1)
-          mun:abs x := 0 − 1, from 4.13
+    4.20. |0 − 1| = −(0 − 1)
+          mun:abs x := 0 − 1, from 4.19
 
-    4.15. −(0 − 1) < 1/2, which is impossible
+    4.21. −(0 − 1) < 1/2, which is impossible
           calculation
-          −(0 − 1) = |0 − 1|     4.14
-                   < 1/2         4.12
+          −(0 − 1) = |0 − 1|     4.20
+                   < 1/2         4.18

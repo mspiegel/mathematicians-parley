@@ -22,7 +22,9 @@ theorem power-at-most-one
           mun:exponent-zero
 
     1.2.  a^0 ≤ 1
-          inequalities, from 1.1
+          inequalities
+            a^0 = 1          1.1
+            a^0 ≤ 1          weakening
 
     step
     let m ∈ ℕ₀                                                        (K)
@@ -60,17 +62,30 @@ theorem power-at-most-one
                   algebra, from C2
                   requires a^m ∈ ℝ: from 1.4
 
-          1.8.3.  a^(m + 1) ≤ 1
-                  inequalities, from 1.3, 1.4, 1.5, 1.6, 1.8.2
+          1.8.3.  0 ≤ 1
+                  arithmetic
+
+          1.8.4.  a^(m + 1) ≤ 1
+                  transitivity, from 1.3, 1.6, 1.8.2, 1.8.3
+                  requires a^m ∈ ℝ: from 1.4
+                  requires a^(m + 1) ∈ ℝ: from 1.5
 
           case
           assume 0 < a                                                (C3)
 
-          1.8.4.  a·a^m ≤ a·1
+          1.8.5.  a·a^m ≤ a·1
                   mun:multiply-le x := a^m, y := 1, c := a, from C3, IH, 1.4
 
-          1.8.5.  a^(m + 1) ≤ 1
-                  inequalities, from H4, 1.3, 1.4, 1.5, 1.6, 1.8.4
+          1.8.6.  a·a^m ≤ a
+                  inequalities
+                    a·a^m ≤ a·1      1.8.5
+                    a·a^m ≤ a        algebra
+                  requires a^m ∈ ℝ: from 1.4
+
+          1.8.7.  a^(m + 1) ≤ 1
+                  transitivity, from 1.3, 1.6, 1.8.6, H4
+                  requires a^m ∈ ℝ: from 1.4
+                  requires a^(m + 1) ∈ ℝ: from 1.5
 
 2.  a^n ≤ 1
     instantiate m := n in line 1

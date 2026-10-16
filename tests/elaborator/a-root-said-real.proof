@@ -9,6 +9,9 @@ theorem a-root-said-real
 1.  (√A)² = A
     mun:sqrt x := A, from H2
 
-2.  (√A)² ≤ A + 1
-    inequalities, from 1
+2.  A ≤ A + 1
+    inequalities
+
+3.  (√A)² ≤ A + 1
+    transitivity, from 1, 2
     requires √A ∈ ℝ: mun:sqrt x := A, from H2

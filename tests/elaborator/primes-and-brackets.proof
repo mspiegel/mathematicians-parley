@@ -30,7 +30,10 @@ theorem order-apart
   then b − a ≠ 0
 
 1.  b − a ≠ 0
-    inequalities, from H3
+    inequalities
+      a < b            H3
+      0 < b − a        adding −a
+      0 ≠ b − a        weakening
 
 theorem bracketed-formula
   let a ∈ ℝ                                                           (H1)

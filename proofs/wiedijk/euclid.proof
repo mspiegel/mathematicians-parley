@@ -202,7 +202,9 @@ theorem euclid
           instantiate k := 0 in line 3
 
     5.2.  b(0) ≤ N
-          inequalities, from 2
+          inequalities
+            b(0) = N           2
+            b(0) ≤ N           weakening
           requires b(0) ∈ ℝ: mun:nat0-real, from 5.1
 
     5.3.  b(0) ≤ N or b(0) = 0
@@ -262,13 +264,20 @@ theorem euclid
           5.6.11. b(k) + k ≤ N
                   mun:disjunctive-syllogism, from C6, IH3
 
-          5.6.12. b(k + 1) + (k + 1) ≤ N
-                  inequalities, from 5.6.10, 5.6.11
+          5.6.12. b(k + 1) + (k + 1) ≤ b(k) + k
+                  inequalities
+                    b(k + 1) + 1 ≤ b(k)                  5.6.10
+                    b(k + 1) + (k + 1) ≤ b(k) + k        adding k
                   requires b(k + 1) ∈ ℝ: mun:nat0-real, from 5.6.9
                   requires b(k) ∈ ℝ: mun:nat0-real, from 5.4
 
-          5.6.13. b(k + 1) + (k + 1) ≤ N or b(k + 1) = 0
-                  mun:or-left, from 5.6.12
+          5.6.13. b(k + 1) + (k + 1) ≤ N
+                  transitivity, from 5.6.12, 5.6.11
+                  requires b(k + 1) ∈ ℝ: mun:nat0-real, from 5.6.9
+                  requires b(k) ∈ ℝ: mun:nat0-real, from 5.4
+
+          5.6.14. b(k + 1) + (k + 1) ≤ N or b(k + 1) = 0
+                  mun:or-left, from 5.6.13
 
 6.  a(N) ∈ ℕ₀ and b(N) ∈ ℕ₀
     instantiate k := N in line 3

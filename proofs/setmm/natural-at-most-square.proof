@@ -17,4 +17,4 @@ theorem natural-at-most-square
     algebra
 
 4.  n ≤ n²
-    inequalities, from 2, 3
+    transitivity, from 2, 3

@@ -20,7 +20,10 @@ theorem average-at-most-an-end
     assume B − A ≥ 0                                                  (C1)
 
     2.1.  (A + B)/2 ≤ B
-          inequalities, from C1
+          inequalities
+            B − A ≥ 0          C1
+            2·B ≥ A + B        adding A + B
+            B ≥ (A + B)/2      multiplying by 1/2
 
     2.2.  (A + B)/2 ≤ A or (A + B)/2 ≤ B
           mun:or-right, from 2.1
@@ -29,7 +32,11 @@ theorem average-at-most-an-end
     assume B − A < 0                                                  (C2)
 
     2.3.  (A + B)/2 ≤ A
-          inequalities, from C2
+          inequalities
+            B − A < 0          C2
+            A + B < 2·A        adding 2·A
+            (A + B)/2 < A      multiplying by 1/2
+            (A + B)/2 ≤ A      weakening
 
     2.4.  (A + B)/2 ≤ A or (A + B)/2 ≤ B
           mun:or-left, from 2.3

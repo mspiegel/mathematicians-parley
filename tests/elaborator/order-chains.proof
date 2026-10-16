@@ -43,7 +43,9 @@ theorem an-equation-between-two-bounds
     algebra
 
 3.  1 + x ≤ 1 + x + y
-    inequalities, from H3
+    inequalities
+      0 ≤ y               H3
+      1 + x ≤ 1 + x + y   adding 1 + x
 
 4.  x < 1 + x + y
     calculation

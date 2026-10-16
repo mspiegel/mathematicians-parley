@@ -57,6 +57,25 @@ pub fn holds(term: &Node, system: System, facts: &Facts) -> bool {
     member(term, system, facts, CARRIED)
 }
 
+/// Whether the page says `term` is in `system`, which a method's atoms ask
+/// of it (`READERS.md`, membership is said once): by the walk, or by a fact
+/// stating the membership of what the walk does not take apart. A power
+/// with a letter exponent, a function's value or a sum is not reached from
+/// its parts, as `holds` reaches it; a line says it.
+pub fn said(term: &Node, system: System, facts: &Facts) -> bool {
+    let nonzero = |d: &Node| nonzero(d, facts);
+    let stated = |t: &Node, s: System| {
+        facts.facts.iter().any(|f| {
+            f.notation == "membership"
+                && matches!(f.children.as_slice(), [held, set]
+                    if set.notation == "number-systems"
+                        && same(held, t, facts.ctx)
+                        && System::of_sign(&set.text).is_some_and(|k| k.within(s)))
+        })
+    };
+    within(term, system, &facts.letters, &nonzero, &stated)
+}
+
 fn member(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
     let nonzero = |d: &Node| nonzero(d, facts);
     let said = |t: &Node, s: System| said_otherwise(t, s, facts, depth);

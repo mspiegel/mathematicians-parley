@@ -7,7 +7,7 @@
 //! a substitute's destination and never the end of an item's name, as in
 //! `mun:function-into`, and `algebra` is a head where `algebraic` is not.
 
-use super::proof::{Head, ItemKind, Method, METHODS};
+use super::proof::{Head, ItemKind, Manipulation, Method, METHODS};
 use super::values::Given;
 use crate::formula::page::Written;
 use crate::matching::split_commas;
@@ -623,6 +623,18 @@ pub fn cut(text: &str, path: &str, line: usize, defines: &[String]) -> Checked<S
 /// or the lines it rests on and nothing else, `from 8`.
 pub fn cut_reason(text: &str, path: &str, line: usize) -> Checked<Slots> {
     let text = str::trim(text);
+    // A manipulation of the one line it cites, `weakening, from 2.1`
+    // (`GRAMMAR.md`, requires lines).
+    if let Some((made, rest)) = Manipulation::opening(text) {
+        let rest = str::trim(rest.strip_prefix(',').unwrap_or(rest));
+        let pieces: Vec<&str> = split_commas(rest).into_iter().map(str::trim).collect();
+        let mut slots = Slots::new(Head::Manipulation(made), text);
+        from_slot(&pieces, &mut slots);
+        if slots.from.len() != 1 {
+            slots.unproduced(None);
+        }
+        return Ok(slots);
+    }
     if after_word(text, "from").is_some() {
         let pieces: Vec<&str> = split_commas(text).into_iter().map(str::trim).collect();
         let mut slots = Slots::new(Head::Lines, text);

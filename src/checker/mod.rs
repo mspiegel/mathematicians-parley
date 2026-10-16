@@ -683,6 +683,7 @@ fn check_theorem(
     formulas::check_algebra_holds(report, thm, k, targets);
     formulas::check_inequalities_holds(report, thm, k, targets);
     formulas::check_inequality_rows(report, thm, k, targets);
+    formulas::check_requires_manipulations(report, thm, k, targets);
     formulas::check_transitivity(report, thm, k, targets);
     formulas::check_antisymmetry(report, thm, k, targets);
     formulas::check_membership_holds(report, thm, k, targets);

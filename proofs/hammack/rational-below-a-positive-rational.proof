@@ -5,10 +5,14 @@ theorem rational-below-a-positive-rational
   then there exists y ∈ ℚ such that y > 0 and y < x
 
 1.  x/2 > 0
-    inequalities, from H2
+    inequalities
+      x > 0            H2
+      x/2 > 0          multiplying by 1/2
 
 2.  x/2 < x
-    inequalities, from H2
+    inequalities
+      x/2 > 0          1
+      x > x/2          adding x/2
 
 3.  There exists y ∈ ℚ such that y > 0 and y < x.
     exhibit, from 1, 2

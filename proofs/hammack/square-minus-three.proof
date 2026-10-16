@@ -23,20 +23,42 @@ theorem four-times-between
     case
     assume j − 1 ≥ 0                                                  (C1)
 
-    2.1.  4j ≠ r
-          inequalities, from C1, H4
+    2.1.  4j ≥ 4
+          inequalities
+            j − 1 ≥ 0        C1
+            4j − 4 ≥ 0       multiplying by 4
+            4j ≥ 4           adding 4
+
+    2.2.  r < 4j
+          transitivity, from H4, 2.1
+
+    2.3.  4j ≠ r
+          inequalities
+            r < 4j           2.2
+            r ≠ 4j           weakening
 
     case
     assume j − 1 < 0                                                  (C2)
 
-    2.2.  j < 1
+    2.4.  j < 1
           inequalities, from C2
 
-    2.3.  j + 1 ≤ 1
-          mun:integer-step m := j, n := 1, from 2.2
+    2.5.  j + 1 ≤ 1
+          mun:integer-step m := j, n := 1, from 2.4
 
-    2.4.  4j ≠ r
-          inequalities, from H3, 2.3
+    2.6.  4j ≤ 0
+          inequalities
+            j + 1 ≤ 1        2.5
+            j ≤ 0            adding −1
+            4j ≤ 0           multiplying by 4
+
+    2.7.  4j < r
+          transitivity, from 2.6, H3
+
+    2.8.  4j ≠ r
+          inequalities
+            4j < r           2.7
+            4j ≠ r           weakening
 
 
 theorem square-minus-three

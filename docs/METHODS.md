@@ -137,7 +137,8 @@ with the justification `inequalities` and no `from`:
 ```
 
 The first row is a line the step cites, written out, with the line's label
-as its reason. Each row after it is the row above with the manipulation its
+as its reason; of a line saying several things, `0 < x and x < 1`, it is
+one of them. Each row after it is the row above with the manipulation its
 reason names, and the last row is the claim:
 
 | reason | the row is the row above with |
@@ -153,6 +154,13 @@ another way: `multiplying by 1/2` takes `2·A < A + B` to `A < (A + B)/2`,
 with `(2·A)/2` written `A`. An `algebra` row is for a rewriting that stands
 alone. Each row's atoms are real, as a step's are (Hypotheses), and a row
 multiplying by a term other than a numeral is no row: the method is linear.
+
+A requires line has no rows, and names its one manipulation as its reason
+instead: `requires q ≠ 0: weakening, from 2.1`, where 2.1 says `q > 0`, is
+2.1 with `q > 0` weakened, as a row would be, and of a line saying several
+things it is one of them. That is how a divisor's
+`≠ 0` is most often said. A side condition needing more than one
+manipulation is a numbered step with rows, which the requires line cites.
 
 ### Facts in
 
@@ -353,7 +361,9 @@ refuse each false one as not following.
 
 `transitivity, from L₁, …, Lₙ` is the transitive property of `=`, `≤` and
 `<`: from `a ≤ b` and `b < c`, `a < c`. The cited lines, in the order they
-are cited, make a chain. Each is one relation between two terms, and where
+are cited, make a chain. Each gives one relation between two terms: the
+line's, or of a line saying several things, the one of them that meets the
+chain, which is to be one only. Where
 one line ends the next begins: the term they share is written the same way
 in both, since rewriting a side is a row of `inequalities`. A line is read
 from whichever side meets the line before, as an order may be written

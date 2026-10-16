@@ -37,17 +37,38 @@ theorem sum-of-squares-zero
     1.5.  B² ≥ 0
           mun:square-nonneg x := B
 
-    1.6.  A² = 0
-          inequalities, from D2, 1.4, 1.5
+    1.6.  A² + B² ≤ 0
+          inequalities
+            A² + B² = 0      D2
+            A² + B² ≤ 0      weakening
 
-    1.7.  B² = 0
-          inequalities, from D2, 1.4, 1.5
+    1.7.  −B² ≤ 0
+          inequalities
+            B² ≥ 0           1.5
+            −B² ≤ 0          multiplying by −1
 
-    1.8.  A = 0
-          mun:square-zero x := A, from 1.6
+    1.8.  A² ≤ 0
+          inequalities, from 1.6, 1.7
 
-    1.9.  B = 0
-          mun:square-zero x := B, from 1.7
+    1.9.  A² = 0
+          antisymmetry, from 1.4, 1.8
 
-    1.10. A = 0 and B = 0
-          join 1.8, 1.9
+    1.10. −A² ≤ 0
+          inequalities
+            A² ≥ 0           1.4
+            −A² ≤ 0          multiplying by −1
+
+    1.11. B² ≤ 0
+          inequalities, from 1.6, 1.10
+
+    1.12. B² = 0
+          antisymmetry, from 1.5, 1.11
+
+    1.13. A = 0
+          mun:square-zero x := A, from 1.9
+
+    1.14. B = 0
+          mun:square-zero x := B, from 1.12
+
+    1.15. A = 0 and B = 0
+          join 1.13, 1.14

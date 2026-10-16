@@ -13,10 +13,16 @@ theorem average-below-an-end
     assume A < B                                                      (D1)
 
     1.1.  (A + B)/2 < B
-          inequalities, from D1
+          inequalities
+            A < B              D1
+            A + B < B + B      adding B
+            (A + B)/2 < B      multiplying by 1/2
 
     direction
     assume (A + B)/2 < B                                              (D2)
 
     1.2.  A < B
-          inequalities, from D2
+          inequalities
+            (A + B)/2 < B      D2
+            A + B < 2B         multiplying by 2
+            A < B              adding −B

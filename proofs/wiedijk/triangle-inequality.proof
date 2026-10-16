@@ -22,32 +22,54 @@ theorem abs-bounds
           mun:abs, from C1
 
     2.2.  x ≤ |x|
-          inequalities, from 2.1
+          inequalities
+            |x| = x          2.1
+            x = |x|          symmetry
+            x ≤ |x|          weakening
           requires |x| ∈ ℝ: mun:abs-real
 
-    2.3.  −x ≤ |x|
-          inequalities, from C1, 2.1
+    2.3.  −x ≤ 0
+          inequalities
+            x ≥ 0            C1
+            −x ≤ 0           multiplying by −1
+
+    2.4.  −x ≤ |x|
+          transitivity, from 2.3, C1, 2.1
           requires |x| ∈ ℝ: mun:abs-real
 
-    2.4.  x ≤ |x|. −x ≤ |x|.
-          join 2.2, 2.3
+    2.5.  x ≤ |x|. −x ≤ |x|.
+          join 2.2, 2.4
 
     case
     assume x < 0                                                      (C2)
 
-    2.5.  |x| = −x
+    2.6.  |x| = −x
           mun:abs, from C2
 
-    2.6.  −x ≤ |x|
-          inequalities, from 2.5
+    2.7.  −x ≤ |x|
+          inequalities
+            |x| = −x         2.6
+            −x = |x|         symmetry
+            −x ≤ |x|         weakening
           requires |x| ∈ ℝ: mun:abs-real
 
-    2.7.  x ≤ |x|
-          inequalities, from C2, 2.5
+    2.8.  0 < −x
+          inequalities
+            x < 0            C2
+            −x > 0           multiplying by −1
+
+    2.9.  x < |x|
+          transitivity, from C2, 2.8, 2.6
           requires |x| ∈ ℝ: mun:abs-real
 
-    2.8.  x ≤ |x|. −x ≤ |x|.
-          join 2.6, 2.7
+    2.10. x ≤ |x|
+          inequalities
+            x < |x|          2.9
+            x ≤ |x|          weakening
+          requires |x| ∈ ℝ: mun:abs-real
+
+    2.11. x ≤ |x|. −x ≤ |x|.
+          join 2.7, 2.10
 
 
 theorem triangle-inequality

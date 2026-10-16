@@ -21,8 +21,24 @@ theorem linear-below-power-of-three
     1.2.  3^(k + 1) = 3^k·3
           mun:exponent-step a := 3
 
-    1.3.  2(k + 1) + 1 ≤ 3^(k + 1)
-          inequalities, from IH, K, 1.2
+    1.3.  6k + 3 ≤ 3^k·3
+          inequalities
+            2k + 1 ≤ 3^k            IH
+            6k + 3 ≤ 3^k·3          multiplying by 3
+          requires 3^k ∈ ℝ: mun:power-real a := 3, m := k
+
+    1.4.  0 < k
+          inequalities, from K
+
+    1.5.  2(k + 1) + 1 ≤ 6k + 3
+          inequalities
+            0 < k                   1.4
+            0 < 4k                  multiplying by 4
+            2(k + 1) + 1 < 6k + 3   adding 2k + 3
+            2(k + 1) + 1 ≤ 6k + 3   weakening
+
+    1.6.  2(k + 1) + 1 ≤ 3^(k + 1)
+          transitivity, from 1.5, 1.3, 1.2
           requires 3^k ∈ ℝ: mun:power-real a := 3, m := k
           requires 3^(k + 1) ∈ ℝ: mun:power-real a := 3, m := k + 1
 

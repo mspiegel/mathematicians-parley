@@ -1,7 +1,15 @@
 theorem one-equation-and-a-constant
+  note        The equation s = 1 is read as the order s ≥ 1 by a weakening
+              row, and s ≥ 0 follows from that one line with a constant to
+              spare, 1 > 0, which the step takes without writing it.
   let s ∈ ℝ                                                           (H1)
   assume s = 1                                                        (H2)
   then s ≥ 0
 
-1.  s ≥ 0
-    inequalities, from H2
+1.  s ≥ 1
+    inequalities
+      s = 1            H2
+      s ≥ 1            weakening
+
+2.  s ≥ 0
+    inequalities, from 1

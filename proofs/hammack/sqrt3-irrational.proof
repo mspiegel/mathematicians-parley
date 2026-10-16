@@ -160,33 +160,36 @@ theorem sqrt3-irrational
     2.2.  (p/q)² = 3
           substitute √3 = p/q (line 2.1) into line 1
 
-    2.3.  p² = 3q²
+    2.3.  q > 0
+          inequalities, from 2.1
+
+    2.4.  p² = 3q²
           algebra, from 2.2
-          requires q ≠ 0: inequalities, from 2.1
+          requires q ≠ 0: weakening, from 2.3
 
-    2.4.  3 divides p²
-          mun:divides d := 3, n := p², from 2.3
+    2.5.  3 divides p²
+          mun:divides d := 3, n := p², from 2.4
 
-    2.5.  3 divides p
-          thm:three-divides-square n := p, from 2.4
+    2.6.  3 divides p
+          thm:three-divides-square n := p, from 2.5
 
-    2.6.  r ∈ ℤ. p = 3r.
-          obtain r: mun:divides d := 3, n := p, from 2.5
+    2.7.  r ∈ ℤ. p = 3r.
+          obtain r: mun:divides d := 3, n := p, from 2.6
 
-    2.7.  (3r)² = 3q²
-          substitute p = 3r (line 2.6) into line 2.3
+    2.8.  (3r)² = 3q²
+          substitute p = 3r (line 2.7) into line 2.4
 
-    2.8.  q² = 3r²
-          algebra, from 2.7
+    2.9.  q² = 3r²
+          algebra, from 2.8
 
-    2.9.  3 divides q²
-          mun:divides d := 3, n := q², from 2.8
+    2.10. 3 divides q²
+          mun:divides d := 3, n := q², from 2.9
 
-    2.10. 3 divides q
-          thm:three-divides-square n := q, from 2.9
+    2.11. 3 divides q
+          thm:three-divides-square n := q, from 2.10
 
-    2.11. There is d ∈ ℤ with d > 1, d divides p, and d divides q.
-          exhibit, from 2.5, 2.10, contradicting 2.1
+    2.12. There is d ∈ ℤ with d > 1, d divides p, and d divides q.
+          exhibit, from 2.6, 2.11, contradicting 2.1
           requires 3 > 1: arithmetic
 
 3.  √3 is irrational

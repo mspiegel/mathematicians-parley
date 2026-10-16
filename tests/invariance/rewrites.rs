@@ -2213,7 +2213,7 @@ fn naming_follows(
                 let from = !step.just.from.is_empty();
                 cite.push((last, from));
             }
-            Head::Define | Head::Lines => return None,
+            Head::Define | Head::Lines | Head::Manipulation(_) => return None,
             Head::Method(m) => match m {
                 Method::Proof
                 | Method::Contradiction
@@ -2731,7 +2731,7 @@ fn dull_step_moved(
         let head_ok = match &step.just.head {
             Head::Item { .. } => true,
             Head::Method(m) => REQUIRES_METHODS.contains(m),
-            Head::Define | Head::Lines => false,
+            Head::Define | Head::Lines | Head::Manipulation(_) => false,
         };
         let mut next = step.number.0.clone();
         *next.last_mut()? += 1;

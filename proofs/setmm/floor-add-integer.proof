@@ -22,11 +22,15 @@ theorem floor-add-integer
     mun:floor-above x := A
 
 4.  ⌊A⌋ + N ≤ A + N
-    inequalities, from 2
+    inequalities
+      ⌊A⌋ ≤ A                  2
+      ⌊A⌋ + N ≤ A + N          adding N
     requires ⌊A⌋ ∈ ℝ: from 1
 
 5.  A + N < ⌊A⌋ + N + 1
-    inequalities, from 3
+    inequalities
+      A < ⌊A⌋ + 1              3
+      A + N < ⌊A⌋ + N + 1      adding N
     requires ⌊A⌋ ∈ ℝ: from 1
 
 6.  ⌊A + N⌋ = ⌊A⌋ + N

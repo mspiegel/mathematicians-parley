@@ -68,23 +68,36 @@ theorem a-definition-folded-without-its-pair
           contradiction
           suppose not √c > 0                                          (S1)
 
-          4.4.1.  √c = 0
+          4.4.1.  √c ≤ 0
                   inequalities, from S1, 4.3
 
-          4.4.2.  (√c)² = 0²
-                  substitute √c = 0 (line 4.4.1)
+          4.4.2.  √c ≥ 0
+                  inequalities, from 4.3
 
-          4.4.3.  0² = 0
+          4.4.3.  √c = 0
+                  antisymmetry, from 4.4.1, 4.4.2
+                  requires √c ∈ ℝ: from 4.3
+
+          4.4.4.  (√c)² = 0²
+                  substitute √c = 0 (line 4.4.3)
+
+          4.4.5.  0² = 0
                   arithmetic
 
-          4.4.4.  c = 0
+          4.4.6.  c = 0
                   calculation
                     c = (√c)²     4.3
-                      = 0²        4.4.2
-                      = 0         4.4.3
+                      = 0²        4.4.4
+                      = 0         4.4.5
 
-          4.4.5.  not c > 0
-                  inequalities, from 4.4.4, contradicting 4.1
+          4.4.7.  c ≤ 0
+                  inequalities
+                    c = 0            4.4.6
+                    c ≤ 0            weakening
+                  requires c ∈ ℝ: from 4.1
+
+          4.4.8.  not c > 0
+                  inequalities, from 4.4.7, contradicting 4.1
                   requires c ∈ ℝ: from 4.1
 
     4.5.  ε·0 < ε·√c
@@ -163,23 +176,38 @@ theorem a-definition-folded-without-its-pair
           4.8.19. |√x − √c|·(√x + √c) = |√x − √c|·√x + √c·|√x − √c|
                   algebra, from 4.3, 4.8.3, 4.8.7
 
-          4.8.20. √c·|√x − √c| ≤ |x − c|
-                  inequalities, from 4.3, 4.8.3, 4.8.5, 4.8.7, 4.8.17, 4.8.18, 4.8.19
+          4.8.20. |√x − √c|·√x + √c·|√x − √c| ≥ √c·|√x − √c|
+                  inequalities
+                    |√x − √c|·√x ≥ 0                                 4.8.18
+                    |√x − √c|·√x + √c·|√x − √c| ≥ √c·|√x − √c|       adding √c·|√x − √c|
+                  requires √x ∈ ℝ: from 4.8.3
+                  requires √c ∈ ℝ: from 4.3
+                  requires |√x − √c| ∈ ℝ: from 4.8.7
 
-          4.8.21. ε·√c = √c·ε
+          4.8.21. √c·|√x − √c| ≤ |x − c|
+                  transitivity, from 4.8.20, 4.8.19, 4.8.17
+                  requires √x ∈ ℝ: from 4.8.3
+                  requires √c ∈ ℝ: from 4.3
+                  requires |√x − √c| ∈ ℝ: from 4.8.7
+                  requires |x − c| ∈ ℝ: from 4.8.5
+
+          4.8.22. ε·√c = √c·ε
                   algebra, from 4.3
 
-          4.8.22. √c·|√x − √c| < √c·ε
-                  inequalities, from A2, 4.3, 4.8.5, 4.8.7, 4.8.20, 4.8.21
+          4.8.23. √c·|√x − √c| < √c·ε
+                  transitivity, from 4.8.21, A2, 4.8.22
+                  requires √c ∈ ℝ: from 4.3
+                  requires |√x − √c| ∈ ℝ: from 4.8.7
+                  requires |x − c| ∈ ℝ: from 4.8.5
 
-          4.8.23. |√x − √c| < ε
-                  mun:less-scaled x := |√x − √c|, y := ε, c := √c, from 4.3, 4.4, 4.8.7, 4.8.22
+          4.8.24. |√x − √c| < ε
+                  mun:less-scaled x := |√x − √c|, y := ε, c := √c, from 4.3, 4.4, 4.8.7, 4.8.23
 
-          4.8.24. |g(x) − √c| < ε
-                  substitute g(x) = √x (line 4.8.8) into line 4.8.23
+          4.8.25. |g(x) − √c| < ε
+                  substitute g(x) = √x (line 4.8.8) into line 4.8.24
 
-          4.8.25. |g(x) − g(c)| < ε
-                  substitute g(c) = √c (line 4.8.9) into line 4.8.24
+          4.8.26. |g(x) − g(c)| < ε
+                  substitute g(c) = √c (line 4.8.9) into line 4.8.25
 
     4.9.  There exists δ > 0 such that |g(x) − g(c)| < ε for all x ∈ D with |x − c| < δ.
           exhibit, from 4.6, 4.7, 4.8

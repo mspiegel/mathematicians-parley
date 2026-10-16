@@ -28,7 +28,8 @@ use super::numerals;
 use super::state::{Elaborator, Vars};
 use super::{Facts, Line, Lines};
 use crate::binds;
-use crate::corpus::{fmt, Item, RecordKind, Step};
+use crate::corpus::proof::{rows, RowReason};
+use crate::corpus::{fmt, Item, Method, RecordKind, Step};
 pub use crate::methods::algebra::rescales;
 use crate::methods::algebra::{
     self, claim_says, combination, denominators, readings, Factor,
@@ -311,6 +312,14 @@ fn spelt_rational(value: &Q) -> String {
     } else {
         quotient
     }
+}
+
+/// What an inequalities step with rows is proved from (`algebra_rows`): the
+/// lines it cites with each algebra row's side equations, and the table
+/// holding them.
+struct RowsRewritten {
+    refs: Vec<String>,
+    lines: Lines,
 }
 
 /// One fact a combination uses, and its weight.
@@ -3153,15 +3162,33 @@ impl<'a> Elaborator<'a> {
         // scope that says the same, which the step does not name.
         let cited = self.with_cited(Some(step), scope, &out.facts, None);
         let facts_out = &self.restable(&cited);
-        self.decide_order(step, term_out, facts_out, lines_out)?;
+        // A plain step adds its facts as they stand, the combination the
+        // checker decided it by; a step with rows, a chain and an order
+        // with its converse are proved from their lines in one, by any.
+        let plain =
+            step.just.head.is(Method::Inequalities) && step.just.rows.is_empty();
+        if plain {
+            self.decide_order(step, term_out, facts_out, lines_out)?;
+        }
         // The method wants every atom in ℝ, and a `requires` line is where
         // the step writes that; offered to the membership lookup and to
         // nothing else.
         let known = self.supplied(Some(step), scope, facts)?;
         let refs = step.just.refs.clone();
+        let kept = std::mem::replace(&mut self.adding_only, plain);
         let found = self.writing(scope, &known, false, |me| {
-            me.prove_order(&refs, term_out, scope, facts_out, lines_out, &[])
-        })?;
+            let rewritten = me.algebra_rows(step, refs, scope, facts_out, lines_out)?;
+            me.prove_order(
+                &rewritten.refs,
+                term_out,
+                scope,
+                facts_out,
+                &rewritten.lines,
+                &[],
+            )
+        });
+        self.adding_only = kept;
+        let found = found?;
         if let Declined(d) = &found {
             return Err(self.defect(
                 step.line,
@@ -3184,6 +3211,77 @@ impl<'a> Elaborator<'a> {
         Ok(Built(
             pf!(self.b; scope, term_out, term, proof, back, "mpbid"),
         ))
+    }
+
+    /// What an inequalities step with rows is proved from: the lines it
+    /// cites, and for each `algebra` row, the equation of each side it
+    /// rewrites with that side of the row above, which the algebra method
+    /// proves (`METHODS.md`, inequalities, Rows). A row keeps its sides where
+    /// the row above has them, so side meets side. With the equations, what
+    /// the rows make is linear in what the step writes; without them a
+    /// rewriting such as a·a^m to a^m·a is two atoms. A step with no rows is
+    /// proved from its lines as they are.
+    fn algebra_rows(
+        &mut self,
+        step: &Step,
+        refs: Vec<String>,
+        scope: &str,
+        facts: &Facts,
+        lines: &Lines,
+    ) -> Checked<RowsRewritten> {
+        let unchanged = RowsRewritten {
+            refs: refs.clone(),
+            lines: lines.clone(),
+        };
+        let Some(cut) = rows(&step.just, &self.thm.path) else {
+            return Ok(unchanged);
+        };
+        let here = lines.copy();
+        let mut refs = refs;
+        let mut above: Option<Term> = None;
+        for row in cut? {
+            let node = self.read_one(&row.formula)?;
+            let written = self.term(&node)?;
+            let said = self.to_term(&written);
+            if let (RowReason::Algebra, Some(before)) = (&row.reason, &above) {
+                for side in 0..2 {
+                    let was = self.rpn(&before.children()[side]);
+                    let now = self.rpn(&said.children()[side]);
+                    if was == now {
+                        continue;
+                    }
+                    let equation = t!(&was, &now, "wceq");
+                    match self.prove_field(None, &equation, scope, facts, &here)? {
+                        Built(proof) => {
+                            let label = format!("row {} side {side}", row.line);
+                            here.set(
+                                label.clone(),
+                                Line {
+                                    term: equation,
+                                    proof,
+                                    sentences: Vec::new(),
+                                },
+                            );
+                            refs.push(label);
+                        }
+                        Declined(d) => {
+                            return Err(self.defect(
+                                row.line,
+                                format!(
+                                    "the algebra row of step {} rewrites {} as {}, which algebra does not prove: {}",
+                                    fmt(&step.number),
+                                    self.render(&was),
+                                    self.render(&now),
+                                    self.say(&d)
+                                ),
+                            ))
+                        }
+                    }
+                }
+            }
+            above = Some(said);
+        }
+        Ok(RowsRewritten { refs, lines: here })
     }
 
     /// A term with each defined name written out as what it names.
@@ -3401,7 +3499,7 @@ impl<'a> Elaborator<'a> {
             .map(|(r, _)| refs.iter().position(|one| one == r))
             .collect();
         line_of.push(None);
-        let Some(found) = linear::certificate(&all, &line_of) else {
+        let Some(found) = linear::certificate(&all, &line_of, self.adding_only) else {
             return Ok(Route::no("the cited facts do not reach the claim"));
         };
         let found = match found {

@@ -137,7 +137,7 @@ let S = {t ∈ ℕ : there are m, n ∈ ℤ with t = a·m + b·n}       (D1)
     mun:divides-le e := gcd(a, b), m := d, from 6, 13, 16
 
 18. d = gcd(a, b)
-    inequalities, from 14, 17
+    antisymmetry, from 14, 17
     requires d ∈ ℝ: from 6
     requires gcd(a, b) ∈ ℝ: from 13
 

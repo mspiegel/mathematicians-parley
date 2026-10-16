@@ -424,8 +424,8 @@ fn an_operation_arithmetic_does_not_work_out_is_named_once() {
 
 /// A requires line whose fact the step's own citation gives is not repeated
 /// where a line below needs it: the line below sees only its reason and the
-/// lines above it (R2). Here the birthday problem's step 8 cites line 1,
-/// which says {1, …, 23} is finite, and `|{1, …, 23}| ∈ ℕ₀: mun:card-nat0`
+/// lines above it (R2). Here reals-uncountable's step 3.8 cites line 3.1,
+/// which says N(k + 1) = 10·N(k) + d(k + 1), and `N(k + 1) ∈ ℝ: membership`
 /// below asks that of the line above it.
 #[test]
 fn a_line_the_step_cites_may_be_restated_for_a_line_below() {
@@ -433,18 +433,22 @@ fn a_line_the_step_cites_may_be_restated_for_a_line_below() {
     let case = case(
         "restate a fact the step cites, for a requires line below",
         vec![edit(
-            "proofs/wiedijk/birthday.proof",
+            "proofs/wiedijk/reals-uncountable.proof",
             Some(
                 "\
-    inequalities, from 3, 4
-    requires |{1, …, 23}| ∈ ℕ₀: mun:card-nat0, from 1
+          transitivity, from 3.7, 3.1
+          requires N(k) ∈ ℝ: membership, from 3.4
+          requires d(k + 1) ∈ ℝ: membership, from H1, 3.2
+          requires N(k + 1) ∈ ℝ: membership, from H1, 3.1, 3.2, 3.4
 "
                 .to_string(),
             ),
             "\
-    inequalities, from 1, 3, 4
-    requires {1, …, 23} is finite: from 1
-    requires |{1, …, 23}| ∈ ℕ₀: mun:card-nat0, from 1
+          transitivity, from 3.7, 3.1
+          requires N(k) ∈ ℝ: membership, from 3.4
+          requires d(k + 1) ∈ ℝ: membership, from H1, 3.2
+          requires N(k + 1) = 10·N(k) + d(k + 1): from 3.1
+          requires N(k + 1) ∈ ℝ: membership, from H1, 3.1, 3.2, 3.4
 "
             .to_string(),
         )],
@@ -553,7 +557,7 @@ fn cases() -> Vec<Case> {
             "leave out a divisor's ≠ 0 built from a letter said once",
             vec![edit(
                 "proofs/wiedijk/triangular-reciprocals.proof",
-                Some("          requires k + 1 ≠ 0: inequalities, from K1\n".to_string()),
+                Some("          requires k + 1 ≠ 0: weakening, from 1.1\n".to_string()),
                 String::new(),
             )],
             "nothing says k + 1 ≠ 0, which this step needs to divide by it",
@@ -616,7 +620,7 @@ fn cases() -> Vec<Case> {
                 Some("    let A = Σ(k = 1 to n) a(k)², a real number                        (D1)".to_string()),
                 "    let A = Σ(k = 1 to n) a(k)², a natural number                     (D1)".to_string(),
             )],
-            "the requires line of step 5.11 says A > 0, which the step's other lines already say",
+            "the requires line of step 5.13 says A > 0, which the step's other lines already say",
         ),
         // A false divisibility of numerals, on a requires line: the checker
         // works it out as `arithmetic` does (`check_arithmetic_holds`).
@@ -642,25 +646,25 @@ fn cases() -> Vec<Case> {
             "4 divides 2 is a word divides defines, and arithmetic decides a word only where its record says so in a `decided` field",
         ),
         // A membership step builds a typed value from the type it cites,
-        // never one merely in scope: H1 types d, and with 16.21 left out the
+        // never one merely in scope: H1 types d, and with 16.23 left out the
         // line names nothing saying d(n) is a number.
         case(
             "a membership of a typed value citing nothing",
             vec![edit(
                 "proofs/wiedijk/reals-uncountable.proof",
-                Some("                    requires d(n) ∈ ℝ: membership, from 16.21\n                    requires N(n) ∈ ℝ: membership, from 16.7\n                    requires ⌊10^n·c⌋ ∈ ℝ: membership, from 16.15\n".to_string()),
-                "                    requires d(n) ∈ ℝ: membership\n                    requires N(n) ∈ ℝ: membership, from 16.7\n                    requires ⌊10^n·c⌋ ∈ ℝ: membership, from 16.15\n".to_string(),
+                Some("                    requires d(n) ∈ ℝ: membership, from 16.23\n                    requires N(n) ∈ ℝ: membership, from 16.7\n                    requires ⌊10^n·c⌋ ∈ ℝ: membership, from 16.16\n".to_string()),
+                "                    requires d(n) ∈ ℝ: membership\n                    requires N(n) ∈ ℝ: membership, from 16.7\n                    requires ⌊10^n·c⌋ ∈ ℝ: membership, from 16.16\n".to_string(),
             )],
-            "d(n) ∈ ℝ is not built from what step 16.24.2 cites",
+            "d(n) ∈ ℝ is not built from what step 16.26.2 cites",
         ),
         // Every atom an inequalities step combines is a real number by a
-        // line it names: |c| is, by line 1, which line 4 does not say.
+        // line it names: |c| is, by line 1, which line 2 does not say.
         case(
             "an inequalities step combining an atom it names nothing real of",
             vec![edit(
                 "proofs/hammack/constant-multiple-limit.proof",
-                Some("requires |c| + 1 ≠ 0: inequalities, from 1, 4".to_string()),
-                "requires |c| + 1 ≠ 0: inequalities, from 4".to_string(),
+                Some("4.  |c| + 1 > 0\n    inequalities, from 1, 2\n".to_string()),
+                "4.  |c| + 1 > 0\n    inequalities, from 2\n".to_string(),
             )],
             "nothing says |c| ∈ ℝ, which this step needs",
         ),
@@ -711,6 +715,17 @@ fn cases() -> Vec<Case> {
                 "      0 < x                H2\n      0 ≤ x                weakening\n".to_string(),
             )],
             "the last row of step 1 is not its claim",
+        ),
+        // A requires line naming a manipulation is its one line with it: q >
+        // 0 weakened is q ≠ 0, and no weakening of it is q ≠ 1.
+        case(
+            "a requires line naming a manipulation its line does not take",
+            vec![edit(
+                "tests/elaborator/inequality-rows.proof",
+                Some("    requires q ≠ 0: weakening, from H3\n".to_string()),
+                "    requires q ≠ 1: weakening, from H3\n".to_string(),
+            )],
+            "the requires line q ≠ 1 of step 1 is not H3 with its relation weakened",
         ),
         // A transitivity step chains relations, each line's right side the
         // next one's left, and claims the ends by the chain's relation;
@@ -828,15 +843,15 @@ fn cases() -> Vec<Case> {
             "step 2 opens a proof block with an assume line, and its claim supposes nothing there",
         ),
         // A requires line of a closure step says a membership of a term the
-        // step combines: step 13 sums to 2^(j + 1), and to 3^(j + 1) nowhere.
+        // step combines: step 19 sums to 2^j, and to 3^j nowhere.
         case(
             "a requires line of an inequalities step about a term it never combines",
             vec![edit(
                 "proofs/wiedijk/harmonic.proof",
-                Some("to 2^(j + 1)) 1/k ∈ ℝ: membership, from 4".to_string()),
-                "to 3^(j + 1)) 1/k ∈ ℝ: membership, from 4".to_string(),
+                Some("    requires Σ(k = 1 to 2^j) 1/k ∈ ℝ: membership, from 6\n".to_string()),
+                "    requires Σ(k = 1 to 3^j) 1/k ∈ ℝ: membership, from 6\n".to_string(),
             )],
-            "to 3^(j + 1)) 1/k ∈ ℝ, and the step neither uses nor asks for it",
+            "to 3^j) 1/k ∈ ℝ, and the step neither uses nor asks for it",
         ),
         // A library function an item applies is no letter of the item's:
         // lowest-terms-parts says denom(x) ∈ ℕ, which is not numer(x) ∈ ℕ.
@@ -891,10 +906,10 @@ fn cases() -> Vec<Case> {
             "a from line that leaves out the type its value needs",
             vec![edit(
                 "proofs/wiedijk/mean-value.proof",
-                Some("    requires f′(c) ∈ ℝ: mun:derivative-real x := c, from H6, 24\n    requires f(a) ∈ ℝ: from H4, 1\n    requires f(b) ∈ ℝ: from H4, 2\n".to_string()),
-                "    requires f′(c) ∈ ℝ: mun:derivative-real x := c, from H6, 24\n    requires f(a) ∈ ℝ: from H4, 1\n    requires f(b) ∈ ℝ: from 2\n".to_string(),
+                Some("    requires f′(c) ∈ ℝ: mun:derivative-real x := c, from H6, 25\n    requires f(a) ∈ ℝ: from H4, 2\n    requires f(b) ∈ ℝ: from H4, 3\n".to_string()),
+                "    requires f′(c) ∈ ℝ: mun:derivative-real x := c, from H6, 25\n    requires f(a) ∈ ℝ: from H4, 2\n    requires f(b) ∈ ℝ: from 3\n".to_string(),
             )],
-            "from 2 does not reach f(b) ∈ ℝ, which this line claims it supplies",
+            "from 3 does not reach f(b) ∈ ℝ, which this line claims it supplies",
         ),
         // A claim the method named does not decide, a membership said by
         // `inequalities`: no closure step is taken without examining it.
@@ -966,10 +981,10 @@ fn cases() -> Vec<Case> {
             "claim of a definition what it does not say",
             vec![edit(
                 "proofs/wiedijk/triangle-inequality.proof",
-                Some("    2.5.  |x| = −x".to_string()),
-                "    2.5.  |x| = x".to_string(),
+                Some("    2.6.  |x| = −x".to_string()),
+                "    2.6.  |x| = x".to_string(),
             )],
-            "step 2.5 claims something that mun:abs does not conclude",
+            "step 2.6 claims something that mun:abs does not conclude",
         ),
         // A base may be written without an identity element its instance
         // has, and nothing else: 1 = (1 − a)/(1 − a) is no instance of
@@ -1269,15 +1284,15 @@ fn cases() -> Vec<Case> {
         ),
         // g(a) is the rule at a only where a is in g's domain [a, b]. That
         // is no number system, so no introducing line says it once, and
-        // line 1, which does, is not named.
+        // line 2, which does, is not named.
         case(
             "read a defined function at a value nothing puts in its domain",
             vec![edit(
                 "proofs/wiedijk/mean-value.proof",
-                Some("    D1, from 1\n".to_string()),
+                Some("    D1, from 2\n".to_string()),
                 "    D1\n".to_string(),
             )],
-            "step 17 cites D1 at a, so it needs a ∈ [a, b], and nothing it cites or requires says it",
+            "step 18 cites D1 at a, so it needs a ∈ [a, b], and nothing it cites or requires says it",
         ),
         // a ∈ S because S is the points of [a, b] where f is below zero; the
         // item speaks of a set written by its condition, and without the
@@ -1317,7 +1332,7 @@ fn cases() -> Vec<Case> {
                 Some("    let k ∈ ℕ                                                         (K1)".to_string()),
                 "    let k ∈ ℤ                                                         (K1)".to_string(),
             )],
-            "step 1.2 cites D1 at k, so it needs k ∈ ℕ, and nothing it cites or requires says it",
+            "step 1.3 cites D1 at k, so it needs k ∈ ℕ, and nothing it cites or requires says it",
         ),
         case(
             "a membership read into a smaller number system",
@@ -1529,10 +1544,10 @@ fn cases() -> Vec<Case> {
             vec![edit(
                 "proofs/wiedijk/mean-value.proof",
                 Some(
-                    "    algebra, from 28\n    requires b − a ≠ 0: inequalities, from H1, H2, H3\n"
+                    "    mun:interval x := a\n    requires a ≤ a: inequalities, from H1\n    requires a ≤ b: inequalities, from H1, H2, H3\n"
                         .to_string(),
                 ),
-                "    algebra, from 28\n    requires b − a ≠ 0: inequalities, from H1, H2, H1, H3\n"
+                "    mun:interval x := a\n    requires a ≤ a: inequalities, from H1\n    requires a ≤ b: inequalities, from H1, H2, H1, H3\n"
                     .to_string(),
             )],
             "cites H1 more than once",
@@ -1897,23 +1912,23 @@ fn cases() -> Vec<Case> {
         case(
             "say what kind of number a let's name is with no reason under it",
             vec![
-                edit("proofs/wiedijk/pythagorean-triples.proof", Some("    mun:gcd a := s, b := w, from 2, 28\n    reads the number whose square is s".to_string()), "    reads the number whose square is s".to_string()),
+                edit("proofs/wiedijk/pythagorean-triples.proof", Some("    mun:gcd a := s, b := w, from 4, 35\n    reads the number whose square is s".to_string()), "    reads the number whose square is s".to_string()),
             ],
             "the line under it gives no reason",
         ),
         case(
             "give a let a reason that shows another term in the set",
             vec![
-                edit("proofs/wiedijk/pythagorean-triples.proof", Some("    mun:gcd a := t, b := w, from 2, 27".to_string()), "    mun:gcd a := s, b := w, from 2, 28".to_string()),
+                edit("proofs/wiedijk/pythagorean-triples.proof", Some("    mun:gcd a := t, b := w, from 4, 32".to_string()), "    mun:gcd a := s, b := w, from 4, 35".to_string()),
             ],
             "the reason under let D2 needs gcd(t, w) ∈ ℕ",
         ),
         case(
             "cite in a let's reason a step below the let",
             vec![
-                edit("proofs/wiedijk/pythagorean-triples.proof", Some("    mun:gcd a := t, b := w, from 2, 27".to_string()), "    mun:gcd a := t, b := w, from 27, 49".to_string()),
+                edit("proofs/wiedijk/pythagorean-triples.proof", Some("    mun:gcd a := t, b := w, from 4, 32".to_string()), "    mun:gcd a := t, b := w, from 32, 56".to_string()),
             ],
-            "the reason under let D2 cites 49, which is not above the let",
+            "the reason under let D2 cites 56, which is not above the let",
         ),
         case(
             "say what kind of number a let in a theorem's statement names",
@@ -2071,10 +2086,10 @@ fn cases() -> Vec<Case> {
             "cite a define written in an earlier case",
             vec![edit(
                 "tests/elaborator/textbook-exercise-shapes-two.proof",
-                Some("    assume x = 2                                                      (C2)\n\n    1.3.  x > 0\n          inequalities, from C2\n".to_string()),
-                "    assume x = 2                                                      (C2)\n\n    1.3.  y = x + 1\n          D1\n\n    1.4.  x > 0\n          inequalities, from C2\n".to_string(),
+                Some("    assume x = 2                                                      (C2)\n\n    1.4.  2 > 0\n          arithmetic\n\n    1.5.  x > 0\n          transitivity, from C2, 1.4\n".to_string()),
+                "    assume x = 2                                                      (C2)\n\n    1.4.  y = x + 1\n          D1\n\n    1.5.  2 > 0\n          arithmetic\n\n    1.6.  x > 0\n          transitivity, from C2, 1.5\n".to_string(),
             )],
-            "step 1.3 cites D1, which is not in scope here",
+            "step 1.4 cites D1, which is not in scope here",
         ),
         // What one case shows is no line of the next.
         case(
@@ -2091,8 +2106,8 @@ fn cases() -> Vec<Case> {
             "number a step with a letter",
             vec![edit(
                 "tests/elaborator/textbook-exercise-shapes-two.proof",
-                Some("1.  b ≤ a\n    inequalities, from H4, H5\n".to_string()),
-                "1a. b ≤ a\n    inequalities, from H4, H5\n".to_string(),
+                Some("1.  b ≤ a\n    contradiction\n".to_string()),
+                "1a. b ≤ a\n    contradiction\n".to_string(),
             )],
             "`1a.` is no step number",
         ),
@@ -2205,14 +2220,14 @@ fn cases() -> Vec<Case> {
         case(
             "cite a line that does not exist",
             vec![
-                edit("proofs/wiedijk/sqrt2-irrational.proof", Some("    2.5.  p is even\n          thm:even-square n := p, from 2.4".to_string()), "    2.5.  p is even\n          thm:even-square n := p, from 2.99".to_string()),
+                edit("proofs/wiedijk/sqrt2-irrational.proof", Some("    2.6.  p is even\n          thm:even-square n := p, from 2.5".to_string()), "    2.6.  p is even\n          thm:even-square n := p, from 2.99".to_string()),
             ],
             "does not exist",
         ),
         case(
             "cite the assumption of another case",
             vec![
-                edit("proofs/wiedijk/triangle-inequality.proof", Some("    2.6.  −x ≤ |x|\n          inequalities, from 2.5".to_string()), "    2.6.  −x ≤ |x|\n          inequalities, from 2.5, C1".to_string()),
+                edit("proofs/wiedijk/triangle-inequality.proof", Some("    2.9.  x < |x|\n          transitivity, from C2, 2.8, 2.6".to_string()), "    2.9.  x < |x|\n          transitivity, from C2, 2.8, 2.6, C1".to_string()),
             ],
             "not in scope",
         ),
@@ -2449,9 +2464,9 @@ fn cases() -> Vec<Case> {
         case(
             "a case that stops short of the block's claim",
             vec![
-                edit("proofs/wiedijk/triangle-inequality.proof", Some("    2.4.  x ≤ |x|. −x ≤ |x|.\n          join 2.2, 2.3\n\n    case\n    assume x < 0".to_string()), "    case\n    assume x < 0".to_string()),
+                edit("proofs/wiedijk/triangle-inequality.proof", Some("    2.5.  x ≤ |x|. −x ≤ |x|.\n          join 2.2, 2.4\n\n    case\n    assume x < 0".to_string()), "    case\n    assume x < 0".to_string()),
             ],
-            "step 2.3 ends case 1 of step 2, which owes",
+            "step 2.4 ends case 1 of step 2, which owes",
         ),
         case(
             "a proof block that stops short of its claim",
@@ -2947,14 +2962,14 @@ fn cases() -> Vec<Case> {
         case(
             "end a contradiction block without saying what it contradicts",
             vec![
-                edit("proofs/wiedijk/infinitely-many-primes.proof", Some("inequalities, from 4, contradicting 5.6".to_string()), "inequalities, from 4".to_string()),
+                edit("proofs/wiedijk/infinitely-many-primes.proof", Some("inequalities, contradicting 5.6\n".to_string()), "inequalities\n".to_string()),
             ],
             "does not say which line it contradicts",
         ),
         case(
             "contradict a line that is not the claim's opposite",
             vec![
-                edit("proofs/wiedijk/infinitely-many-primes.proof", Some("inequalities, from 4, contradicting 5.6".to_string()), "inequalities, from 4, contradicting 5.5".to_string()),
+                edit("proofs/wiedijk/infinitely-many-primes.proof", Some("inequalities, contradicting 5.6\n".to_string()), "inequalities, contradicting 5.5\n".to_string()),
             ],
             "says it contradicts 5.5, and neither is the other negated",
         ),
@@ -2968,7 +2983,7 @@ fn cases() -> Vec<Case> {
         case(
             "say a step is impossible and contradict a line as well",
             vec![
-                edit("proofs/wiedijk/pythagorean-triples.proof", Some("          mun:divides d := 2, n := 1, from 8.5\n".to_string()), "          mun:divides d := 2, n := 1, from 8.5, contradicting 8.5\n".to_string()),
+                edit("proofs/wiedijk/pythagorean-triples.proof", Some("          mun:divides d := 2, n := 1, from 10.5\n".to_string()), "          mun:divides d := 2, n := 1, from 10.5, contradicting 10.5\n".to_string()),
             ],
             "says it is impossible and contradicts a line",
         ),
@@ -3091,27 +3106,27 @@ fn cases() -> Vec<Case> {
             "step 1 cites H1, and mun:nonneg-or-neg asks for nothing it says",
         ),
         // A "there is" given by an instance is given only where the instance is
-        // in the domain. The mean value theorem's step 30 exhibits c, and
-        // without line 24, which says c ∈ (a, b), the witness could be
+        // in the domain. The mean value theorem's step 31 exhibits c, and
+        // without line 25, which says c ∈ (a, b), the witness could be
         // anywhere.
         case(
             "exhibit a witness without saying it is in the domain",
             vec![
-                edit("proofs/wiedijk/mean-value.proof", Some("    exhibit, from 24, 29\n".to_string()), "    exhibit, from 29\n".to_string()),
+                edit("proofs/wiedijk/mean-value.proof", Some("    exhibit, from 25, 30\n".to_string()), "    exhibit, from 30\n".to_string()),
             ],
-            "step 30 exhibits c := c, so it needs c ∈ (a, b)",
+            "step 31 exhibits c := c, so it needs c ∈ (a, b)",
         ),
         // The witness is read off what the body says, not off the bare
         // membership, which any number in ℕ satisfies: harmonic-unbounded's
-        // step 6 exhibits 2^N, which line 4 says the sum is above M at, and
-        // without line 5 nothing says 2^N ∈ ℕ. The numeral 1 in the sum is
+        // step 9 exhibits 2^N, which line 7 says the sum is above M at, and
+        // without line 8 nothing says 2^N ∈ ℕ. The numeral 1 in the sum is
         // in ℕ too, and is no candidate.
         case(
             "exhibit a witness whose membership is not said, with a numeral in the body",
             vec![
-                edit("proofs/wiedijk/harmonic.proof", Some("    exhibit, from 5, 6\n".to_string()), "    exhibit, from 5\n".to_string()),
+                edit("proofs/wiedijk/harmonic.proof", Some("    exhibit, from 7, 8\n".to_string()), "    exhibit, from 7\n".to_string()),
             ],
-            "step 7 exhibits n := 2^N, so it needs 2^N ∈ ℕ",
+            "step 9 exhibits n := 2^N, so it needs 2^N ∈ ℕ",
         ),
         // A requires line rests on the lines above it, read top to bottom
         // (`SYNTAX.md`). Written first, |numer(x)| ∈ ℕ₀ asks for numer(x) ∈ ℤ,
@@ -3493,14 +3508,14 @@ fn cases() -> Vec<Case> {
             "the requires line of step 10.6 says m − k ∈ ℝ, which the step's other lines already say",
         ),
         // A line saying a term is not zero is asked for by a line below that
-        // divides by it, and only by such a line: nothing in step 11 divides
+        // divides by it, and only by such a line: nothing in step 12 divides
         // by b − a.
         case(
             "a term said not zero that nothing below divides by",
             vec![
-                edit("proofs/wiedijk/mean-value.proof", Some("    requires F : [a, b] → ℝ: from 9\n    requires g : [a, b] → ℝ: from 7\n".to_string()), "    requires b − a ≠ 0: inequalities, from H1, H2, H3\n    requires F : [a, b] → ℝ: from 9\n    requires g : [a, b] → ℝ: from 7\n".to_string()),
+                edit("proofs/wiedijk/mean-value.proof", Some("    requires F : [a, b] → ℝ: from 10\n    requires g : [a, b] → ℝ: from 8\n".to_string()), "    requires b − a ≠ 0: weakening, from 1\n    requires F : [a, b] → ℝ: from 10\n    requires g : [a, b] → ℝ: from 8\n".to_string()),
             ],
-            "the requires line of step 11 says b − a ≠ 0, and neither thm:continuous-sum nor the step's other lines ask for it",
+            "the requires line of step 12 says b − a ≠ 0, and neither thm:continuous-sum nor the step's other lines ask for it",
         ),
         // Counting by parts asks that two parts which meet be one part.
         case(
@@ -3666,14 +3681,14 @@ fn cases() -> Vec<Case> {
         case(
             "give the type of a define the citation does not bind",
             vec![
-                edit("proofs/wiedijk/mean-value.proof", Some("requires g : [a, b] → ℝ: from 7".to_string()), "requires F : [a, b] → ℝ: from 9".to_string()),
+                edit("proofs/wiedijk/mean-value.proof", Some("requires g : [a, b] → ℝ: from 8".to_string()), "requires F : [a, b] → ℝ: from 10".to_string()),
             ],
             "says F : [a, b] → ℝ, and neither thm:continuous-linear nor the step's other lines ask for it",
         ),
         case(
             "give a bound define a type other than the item asks",
             vec![
-                edit("proofs/wiedijk/mean-value.proof", Some("requires g : [a, b] → ℝ: from 7".to_string()), "requires g : ℕ → ℝ: from 7".to_string()),
+                edit("proofs/wiedijk/mean-value.proof", Some("requires g : [a, b] → ℝ: from 8".to_string()), "requires g : ℕ → ℝ: from 8".to_string()),
             ],
             "says g : ℕ → ℝ, and neither thm:continuous-linear nor the step's other lines ask for it",
         ),
@@ -3736,7 +3751,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/wiedijk/sqrt2-irrational.proof", Some("          requires 2 > 1: arithmetic\n".to_string()), String::new()),
             ],
-            "step 2.16 exhibits d := 2, so it needs 2 > 1, and nothing it cites or requires says it",
+            "step 2.17 exhibits d := 2, so it needs 2 > 1, and nothing it cites or requires says it",
         ),
         // An instantiation's value is in what its letter ranges over, as a
         // line the step names says: −f(c) > 0 says nothing of ℝ.
@@ -3782,7 +3797,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/wiedijk/intermediate-value.proof", Some("    let x₁ = min(b, c + δ/2), a real number                            (D2)\n           mun:min-real x := b, y := c + δ/2\n".to_string()), "    let x₁ = min(b, c + δ/2)                                           (D2)\n".to_string()),
             ],
-            "step 16.15 cites mun:abs-difference-lt, which asks for",
+            "step 16.21 cites mun:abs-difference-lt, which asks for",
         ),
         // `let k ∈ ℕ` says k ≥ 1 beyond the membership, and a step using it
         // cites the line: sum-extended asks n ≥ a at n := k, a := 1.
@@ -3808,9 +3823,9 @@ fn cases() -> Vec<Case> {
         case(
             "cite an obtain only for the membership it states",
             vec![
-                edit("proofs/wiedijk/sqrt2-irrational.proof", Some("          thm:even-square n := p, from 2.4\n".to_string()), "          thm:even-square n := p, from 2.1, 2.4\n".to_string()),
+                edit("proofs/wiedijk/sqrt2-irrational.proof", Some("          thm:even-square n := p, from 2.5\n".to_string()), "          thm:even-square n := p, from 2.1, 2.5\n".to_string()),
             ],
-            "step 2.5 cites 2.1, and thm:even-square asks for nothing it says",
+            "step 2.6 cites 2.1, and thm:even-square asks for nothing it says",
         ),
         case(
             "an exhibit citing nothing that says the claim of a value",

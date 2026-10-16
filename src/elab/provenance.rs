@@ -198,6 +198,21 @@ impl<'a> Elaborator<'a> {
     /// without the kernel needing it, and each atom's membership must be on
     /// the page. A step citing an item, as its head or as what it obtains
     /// from, is the checker's to judge.
+    /// Every requires line `one` rests on, directly or through another
+    /// (`rests_on`).
+    fn rests_on_through(&self, one: &str) -> BTreeSet<String> {
+        let mut out: BTreeSet<String> = BTreeSet::new();
+        let mut todo = vec![one.to_string()];
+        while let Some(at) = todo.pop() {
+            for m in self.rests_on.get(&at).into_iter().flatten() {
+                if out.insert(m.clone()) {
+                    todo.push(m.clone());
+                }
+            }
+        }
+        out
+    }
+
     pub fn does_work(
         &mut self,
         step: &Step,
@@ -323,6 +338,21 @@ impl<'a> Elaborator<'a> {
                 }
             }
             if asked {
+                continue;
+            }
+            // A requires line below may rest on this one, as `Σ … ∈ ℝ:
+            // mun:sum-real` rests on the line saying each summand is real,
+            // which supplies the item's function type.
+            let below: Vec<String> = step
+                .requires
+                .iter()
+                .filter(|o| o.line > r.line)
+                .map(|o| requirement(o.line))
+                .collect();
+            if below
+                .iter()
+                .any(|o| self.rests_on_through(o).contains(&requirement(r.line)))
+            {
                 continue;
             }
             let demanded = match claim.label() {

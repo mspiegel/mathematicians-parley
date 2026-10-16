@@ -12,10 +12,17 @@ theorem average-above-left
     assume A < B                                                      (D1)
 
     1.1.  A < (A + B)/2
-          inequalities, from D1
+          inequalities
+            A < B                D1
+            A + A < A + B        adding A
+            2·A < A + B          algebra
+            A < (A + B)/2        multiplying by 1/2
 
     direction
     assume A < (A + B)/2                                              (D2)
 
     1.2.  A < B
-          inequalities, from D2
+          inequalities
+            A < (A + B)/2        D2
+            2·A < A + B          multiplying by 2
+            A < B                adding −A

@@ -45,9 +45,14 @@ theorem zero-derivative-ends
       (H(b) − H(a))/(b − a) = H′(c)                            3
                             = 0                                4
 
-6.  H(b) = H(a)
+6.  b − a > 0
+    inequalities
+      a < b                  H3
+      0 < b − a              adding −a
+
+7.  H(b) = H(a)
     algebra, from 5
-    requires b − a ≠ 0: inequalities, from H1, H2, H3
+    requires b − a ≠ 0: weakening, from 6
     requires H(a) ∈ ℝ: from H4, 1
     requires H(b) ∈ ℝ: from H4, 2
 

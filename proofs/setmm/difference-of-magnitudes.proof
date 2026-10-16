@@ -62,7 +62,9 @@ theorem difference-of-magnitudes
           requires |A| − |B| ∈ ℝ: membership, from 10, 11
 
     13.2. |A| − |B| ≤ |A − B|
-          inequalities, from 3
+          inequalities
+            |A| ≤ |A − B| + |B|      3
+            |A| − |B| ≤ |A − B|      adding −|B|
           requires |A| ∈ ℝ: from 10
           requires |B| ∈ ℝ: from 11
           requires |A − B| ∈ ℝ: mun:abs-real x := A − B
@@ -79,14 +81,18 @@ theorem difference-of-magnitudes
           mun:abs x := |A| − |B|, from C2
           requires |A| − |B| ∈ ℝ: membership, from 10, 11
 
-    13.5. −(|A| − |B|) ≤ |A − B|
-          inequalities, from 6, 9
+    13.5. |B| ≤ |A − B| + |A|
+          substitute |B − A| = |A − B| (line 9) into line 6
+
+    13.6. −(|A| − |B|) ≤ |A − B|
+          inequalities
+            |B| ≤ |A − B| + |A|      13.5
+            −(|A| − |B|) ≤ |A − B|   adding −|A|
           requires |A| ∈ ℝ: from 10
           requires |B| ∈ ℝ: from 11
           requires |A − B| ∈ ℝ: mun:abs-real x := A − B
-          requires |B − A| ∈ ℝ: mun:abs-real x := B − A
 
-    13.6. ||A| − |B|| ≤ |A − B|
+    13.7. ||A| − |B|| ≤ |A − B|
           calculation
             ||A| − |B|| = −(|A| − |B|)     13.4
-                        ≤ |A − B|          13.5
+                        ≤ |A − B|          13.6
