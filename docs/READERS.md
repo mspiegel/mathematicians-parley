@@ -192,7 +192,8 @@ function's value outside a sum, a sum whose term divides or leaves its
 function's domain, |x|, n!, a power whose exponent is any other term,
 2^(j + 1) or 2^k with k ∈ ℤ, and any term a library item builds. These
 rest on a lemma or a line a reader may want to see, and a requires line
-points to it.
+points to it. Once one is written, what +, −, · and / build from it is not
+written again: a line saying N(n) ∈ ℝ says N(n) + 1 is real as well.
 
 What a written membership says beyond the membership is not carried this way.
 `let k ∈ ℕ` also says that k ≥ 1 and k ≠ 0 (`SYNTAX.md`, what a membership line

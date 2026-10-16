@@ -1872,6 +1872,12 @@ impl<'a> Elaborator<'a> {
         if let Some((letter, set)) = self.introduced_in(said) {
             return self.letter_within(said, &letter, &set, system, scope, facts);
         }
+        // A part that a line the step names puts in a number system is a
+        // number there, carried up to `system`, as the checker reads it
+        // (`citing::said_once`): N(n) + 1 ∈ ℝ where a line says N(n) ∈ ℝ.
+        if let Some(found) = self.stated_within(said, system, scope, facts)? {
+            return Ok(Built(found));
+        }
         // A sum said once by its terms is in ℝ or ℂ by the sum's lemma, its
         // terms read from the scope at each index.
         if self.said_sums.contains(said) {
@@ -1971,6 +1977,28 @@ impl<'a> Elaborator<'a> {
             }
             _ => None,
         }
+    }
+
+    /// `said ∈ system` from a line the step names saying `said` is in a
+    /// number system inside `system`, carried up `WITHIN`; None where no
+    /// such line says it.
+    fn stated_within(
+        &mut self,
+        said: &str,
+        system: &str,
+        scope: &str,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        let named = self.restable(facts);
+        for (_, set) in rules::SYSTEM_OF {
+            let Some(held) = self.held(&named, &t!(said, set, "wcel"), scope)? else {
+                continue;
+            };
+            if let Built(proof) = self.carried_within(said, set, system, held, scope)? {
+                return Ok(Some(proof));
+            }
+        }
+        Ok(None)
     }
 
     /// Keep the sums the step now being elaborated writes that the page

@@ -32,7 +32,6 @@ theorem de-moivre
           requires cos(x) ∈ ℝ: mun:cos-real a := x
           requires sin(x) ∈ ℝ: mun:sin-real a := x
           requires i ∈ ℂ: mun:i-complex
-          requires cos(x) + i·sin(x) ∈ ℂ: membership
 
     2.2.  0·x = 0
           algebra
@@ -73,7 +72,6 @@ theorem de-moivre
           requires cos(x) ∈ ℝ: mun:cos-real a := x
           requires sin(x) ∈ ℝ: mun:sin-real a := x
           requires i ∈ ℂ: mun:i-complex
-          requires cos(x) + i·sin(x) ∈ ℂ: membership
 
     2.11. (cos(x) + i·sin(x))^k·(cos(x) + i·sin(x)) = (cos(k·x) + i·sin(k·x))·(cos(x) + i·sin(x))
           substitute (cos(x) + i·sin(x))^k = cos(k·x) + i·sin(k·x) (IH)

@@ -3373,6 +3373,23 @@ fn lemma_of(
                 names: said.names(),
             });
         }
+        // A line saying only that a term other than a letter is a number,
+        // `|c| + 1 ∈ ℝ`, may be one the citation of the lemma builds from
+        // the lines it cites besides (`SYNTAX.md`, a term a line puts in a
+        // number system), and then citing it does no work.
+        let only_memberships = !said_all.is_empty()
+            && said_all.iter().all(|s| {
+                s.notation == "membership"
+                    && s.children.first().is_some_and(|t| !t.is_name())
+                    && s.children
+                        .get(1)
+                        .is_some_and(|set| set.notation == "number-systems")
+            });
+        if is_cited && only_memberships {
+            return Err(format!(
+                "it cites {number}, which says only that a term is a number, as the lemma's citation may build it"
+            ));
+        }
         if is_cited {
             let label = fresh.next().expect("labels without end");
             labels.push(label.clone());

@@ -75,7 +75,7 @@ theorem constant-multiple-limit
                   mun:abs-nonneg x := a(n) − L, from 6.6.1
 
           6.6.5.  (|c| + 1)·|a(n) − L| < (|c| + 1)·(ε/(|c| + 1))
-                  mun:less-scaled x := |a(n) − L|, y := ε/(|c| + 1), c := |c| + 1, from 3, 4, 6.2, 6.6.2, 6.6.3
+                  mun:less-scaled x := |a(n) − L|, y := ε/(|c| + 1), c := |c| + 1, from 3, 4, 6.6.2, 6.6.3
 
           6.6.6.  (|c| + 1)·(ε/(|c| + 1)) = ε
                   algebra, from 1

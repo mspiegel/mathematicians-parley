@@ -78,17 +78,25 @@ pub fn said_once(
     sorts: &Sorts,
 ) {
     let mut letters = introduced.clone();
+    // A term other than a letter that a fact puts in a number system is a
+    // number there as a letter is, and what the said-once operations build
+    // from it is too: N(n) + 1 ∈ ℝ where a line says N(n) ∈ ℝ, as a
+    // method's atoms are read (`methods::membership::said`).
+    let mut atoms: Vec<(Node, System)> = Vec::new();
     for f in &parts.facts {
         let [term, set] = f.children.as_slice() else {
             continue;
         };
-        if f.notation == "membership"
-            && term.is_name()
-            && set.notation == "number-systems"
-        {
-            if let Some(system) = System::of_sign(&set.text) {
-                letters.entry(term.text.clone()).or_insert(system);
-            }
+        if f.notation != "membership" || set.notation != "number-systems" {
+            continue;
+        }
+        let Some(system) = System::of_sign(&set.text) else {
+            continue;
+        };
+        if term.is_name() {
+            letters.entry(term.text.clone()).or_insert(system);
+        } else {
+            atoms.push((term.clone(), system));
         }
     }
     let ctx = &library.ctx;
@@ -141,14 +149,37 @@ pub fn said_once(
             let Some(system) = System::of_label(label) else {
                 continue;
             };
-            let summed =
-                |t: &Node, s: System| sum_said_once(t, s, &letters, typed, ctx);
-            if within(&node, system, &letters, &nonzero, &summed) {
+            let given = Given {
+                atoms: &atoms,
+                letters: &letters,
+                typed,
+                ctx,
+            };
+            if within(&node, system, &letters, &nonzero, &|t, s| given.says(t, s)) {
                 out.extend(member(sign, &node));
             }
         }
     }
     parts.facts.extend(out);
+}
+
+/// What the said-once walk takes as it stands, where it does not take a
+/// term apart: a term a fact puts in a number system, and a sum said once
+/// by its terms (`sum_said_once`).
+struct Given<'a> {
+    atoms: &'a [(Node, System)],
+    letters: &'a Introduced,
+    typed: &'a [Node],
+    ctx: &'a crate::matching::Context,
+}
+
+impl Given<'_> {
+    fn says(&self, term: &Node, system: System) -> bool {
+        let none = IndexMap::new();
+        self.atoms.iter().any(|(a, s)| {
+            s.within(system) && crate::matching::alike(a, term, self.ctx, &none, &none)
+        }) || sum_said_once(term, system, self.letters, self.typed, self.ctx)
+    }
 }
 
 /// Whether `term` is a number by what the page says once of the letters in

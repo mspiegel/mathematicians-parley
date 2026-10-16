@@ -1,0 +1,14 @@
+import mundane theorem    stdlib/numbers/square-nonneg
+
+theorem a-hypothesis-built-from-a-stated-part
+  note        A cited item's hypothesis f(n) + 1 ∈ ℝ is met by a line
+              saying f(n) ∈ ℝ: what +, −, · and / build from a term a line
+              puts in a number system is a number there, as for a method's
+              atoms.
+  let n ∈ ℕ                                                           (H1)
+  let f : ℕ → ℝ                                                       (H2)
+  then (f(n) + 1)² ≥ 0
+
+1.  (f(n) + 1)² ≥ 0
+    mun:square-nonneg x := f(n) + 1
+    requires f(n) ∈ ℝ: from H2

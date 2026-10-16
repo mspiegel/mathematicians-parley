@@ -529,7 +529,12 @@ of
 `let k ∈ ℕ` is still cited for k ≥ 1 and k ≠ 0, which the line says beyond
 the membership. A citation made only for one of these memberships is a line
 doing no work, in a step's citation and in a requires line's reason alike,
-and the checker reports both; the elaborator reports a method step's. Everything else a step needs to be
+and the checker reports both; the elaborator reports a method step's.
+
+A term that a line the step names puts in a number system is a part as a
+letter is, for a method's atoms and a cited item's hypotheses alike: where
+a requires line says `N(n) ∈ ℝ`, `N(n) + 1`, `2·N(n)` and `N(n)²` are real
+too, and a line saying so does no work. Everything else a step needs to be
 a number is written as before: a defined name, a function's value outside a
 sum, a sum the rule above does not reach, a power whose exponent is any
 other term, 2^(j + 1) or 2^k with k ∈ ℤ, |x|,

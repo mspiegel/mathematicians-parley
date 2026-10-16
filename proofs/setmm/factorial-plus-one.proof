@@ -42,12 +42,10 @@ theorem factorial-plus-one
     1.7.  N divides M! + 1
           mun:divides d := N, n := M! + 1, from 1.6
           requires M! ∈ ℕ: mun:factorial-nat n := M, from 1.3
-          requires M! + 1 ∈ ℤ: membership
 
     1.8.  N divides (M! + 1) − M!
           mun:divides-difference d := N, a := M! + 1, b := M!, from 1.4, 1.7
           requires M! ∈ ℕ: mun:factorial-nat n := M, from 1.3
-          requires M! + 1 ∈ ℤ: membership
 
     1.9.  (M! + 1) − M! = 1
           algebra

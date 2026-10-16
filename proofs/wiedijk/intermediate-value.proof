@@ -134,7 +134,6 @@ let S = {x ∈ [a, b] : f(x) < 0}                                       (D1)
     16.4.  There exists δ > 0 such that
            |f(x) − f(c)| < −f(c) for all x ∈ [a, b] with |x − c| < δ.
            instantiate c′ := c, ε := −f(c) in line 15, from H4, 13, 16.3
-           requires −f(c) ∈ ℝ: membership, from H4, 13
 
     16.5.  δ ∈ ℝ. δ > 0.
            For all x ∈ [a, b], if |x − c| < δ then |f(x) − f(c)| < −f(c).
@@ -211,7 +210,6 @@ let S = {x ∈ [a, b] : f(x) < 0}                                       (D1)
            transitivity, from 16.21, 16.20
            requires f(x₁) ∈ ℝ: from H4, 16.15
            requires f(c) ∈ ℝ: from H4, 13
-           requires f(x₁) − f(c) ∈ ℝ: mun:real-closure, from H4, 13, 16.15
            requires |f(x₁) − f(c)| ∈ ℝ: mun:abs-real x := f(x₁) − f(c)
 
     16.23. f(x₁) < 0
@@ -286,7 +284,6 @@ let S = {x ∈ [a, b] : f(x) < 0}                                       (D1)
                                  transitivity, from 16.29.4.5, 16.29.4.4
                                  requires f(s) ∈ ℝ: from H4, 16.29.1
                                  requires f(c) ∈ ℝ: from H4, 13
-                                 requires f(s) − f(c) ∈ ℝ: mun:real-closure, from H4, 13, 16.29.1
                                  requires |f(s) − f(c)| ∈ ℝ: mun:abs-real x := f(s) − f(c)
 
                      16.29.4.7.  0 ≤ f(s)

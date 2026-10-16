@@ -104,8 +104,6 @@ theorem similar-triangles
     requires |PR| ∈ ℝ: mun:distance-real Q := R
     requires |P′Q′| ∈ ℝ: mun:distance-real P := P′, Q := Q′
     requires |P′R′| ∈ ℝ: mun:distance-real P := P′, Q := R′
-    requires |PQ|·|P′R′| ∈ ℝ: membership
-    requires |P′Q′|·|PR| ∈ ℝ: membership
     requires ∠PQR ∈ ℝ: mun:triangle-angle-real, from H7
     requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR
     requires sin(∠PQR) ≠ 0: from 13

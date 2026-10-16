@@ -99,7 +99,6 @@ theorem harmonic-block
     requires 2^(j + 1) ∈ ℤ: membership, from H1
     requires 2^j + 1 ≤ 2^(j + 1): from 13
     requires 2^(j + 1) ≠ 0: inequalities, from 3
-    requires 1/2^(j + 1) ∈ ℝ: membership, from H1
 
 15. (2^(j + 1) − (2^j + 1) + 1)·(1/2^(j + 1)) = (2^j·2 − (2^j + 1) + 1)·(1/(2^j·2))
     substitute 2^(j + 1) = 2^j·2 (line 1)

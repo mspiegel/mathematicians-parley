@@ -534,7 +534,7 @@ fn cases() -> Vec<Case> {
                 Some("    5.4.  (n! + 1) − n! = 1\n          algebra\n          requires n! ∈ ℝ: from 1\n".to_string()),
                 "    5.4.  (n! + 1) − n! = 1\n          algebra\n".to_string(),
             )],
-            "proofs/wiedijk/infinitely-many-primes.proof:45  nothing says n! ∈ ℝ or ∈ ℂ, which this step needs",
+            "proofs/wiedijk/infinitely-many-primes.proof:44  nothing says n! ∈ ℝ or ∈ ℂ, which this step needs",
         ),
         // An angle is no letter, numeral or term built from them, so the
         // `algebra` step combining it writes its membership, unless a cited
@@ -598,15 +598,16 @@ fn cases() -> Vec<Case> {
             )],
             "proofs/wiedijk/stated-over.proof:19  step 1 claims something that thm:above does not conclude",
         ),
-        // abs asks that x be real, at x := ⌊A + 1/2⌋ − A, and line 1 says
-        // only that the floor is an integer: the difference's membership is
-        // a closure no line the step names states.
+        // abs asks that x be real, at x := ⌊A + 1/2⌋ − A. A line saying the
+        // floor is an integer would make the difference a number, as what
+        // − builds from a part a line states is; citing neither that line
+        // nor the difference's own, the step has nothing to build it from.
         case(
-            "a hypothesis supplied only by a closure of what the step names",
+            "a hypothesis about a term whose parts no line the step names states",
             vec![edit(
                 "tests/elaborator/floor-in-a-bound.proof",
                 Some("    mun:abs x := ⌊A + 1/2⌋ − A, from H2, 2\n".to_string()),
-                "    mun:abs x := ⌊A + 1/2⌋ − A, from H2, 1\n".to_string(),
+                "    mun:abs x := ⌊A + 1/2⌋ − A, from H2\n".to_string(),
             )],
             "step 3 cites mun:abs, which asks for ⌊A + 1 / 2⌋ − A ∈ ℝ, and what it cites does not supply it",
         ),
@@ -3753,11 +3754,12 @@ fn cases() -> Vec<Case> {
             "step 2.16 exhibits d := 2, so it needs 2 > 1, and nothing it cites or requires says it",
         ),
         // An instantiation's value is in what its letter ranges over, as a
-        // line the step names says: −f(c) > 0 says nothing of ℝ.
+        // line the step names says: −f(c) > 0 says nothing of ℝ, and without
+        // line 13, which puts c in f's domain, nothing says f(c) is real.
         case(
             "instantiate ε := −f(c) without saying −f(c) is real",
             vec![
-                edit("proofs/wiedijk/intermediate-value.proof", Some("           requires −f(c) ∈ ℝ: membership, from H4, 13\n".to_string()), String::new()),
+                edit("proofs/wiedijk/intermediate-value.proof", Some("ε := −f(c) in line 15, from H4, 13, 16.3\n".to_string()), "ε := −f(c) in line 15, from H4, 16.3\n".to_string()),
             ],
             "step 16.4 puts −f(c) for ε in line 15, so it needs −f(c) ∈ ℝ, and nothing it cites or requires says it",
         ),

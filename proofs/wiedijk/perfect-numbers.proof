@@ -13,7 +13,6 @@ import mundane theorem    stdlib/divisibility/prime-coprime
 import mundane theorem    stdlib/divisibility/prime-nat
 import mundane theorem    stdlib/divisibility/two-prime
 import mundane theorem    stdlib/numbers/exponent-step
-import mundane theorem    stdlib/numbers/nat-closure
 import mundane theorem    stdlib/numbers/nat-minus-one
 import mundane theorem    stdlib/numbers/power-nat
 import definition         stdlib/divisibility/perfect
@@ -157,4 +156,3 @@ theorem euclid-perfect
     requires p − 1 ∈ ℕ₀: mun:nat-minus-one n := p
     requires 2^(p − 1) ∈ ℕ: mun:power-nat a := 2, m := p − 1
     requires 2^p − 1 ∈ ℕ: mun:prime-nat p := 2^p − 1, from H2
-    requires 2^(p − 1)·(2^p − 1) ∈ ℕ: mun:nat-closure

@@ -19,7 +19,6 @@ import mundane theorem    stdlib/divisibility/phi-natural
 import mundane theorem    stdlib/functions/function-into
 import mundane definition stdlib/functions/one-to-one
 import mundane theorem    stdlib/counting/finite-part
-import mundane theorem    stdlib/numbers/int-closure
 import mundane theorem    stdlib/sums/range-finite
 import mundane theorem    stdlib/sums/range-from-bounds
 import mundane theorem    stdlib/sums/range-in-integers
@@ -201,7 +200,6 @@ let f(r) = (r·a) mod n, for r ∈ S                                    (D2)
     requires φ(n) ∈ ℕ: mun:phi-natural
     requires a^φ(n) ∈ ℤ: membership, from H2
     requires ∏(r ∈ S) r ∈ ℤ: mun:product-integer, from 4, 5
-    requires a^φ(n)·∏(r ∈ S) r ∈ ℤ: mun:int-closure
 
 22. n divides (a^φ(n) − 1)·∏(r ∈ S) r
     substitute a^φ(n)·∏(r ∈ S) r − ∏(r ∈ S) r = (a^φ(n) − 1)·∏(r ∈ S) r (line 20) into line 21

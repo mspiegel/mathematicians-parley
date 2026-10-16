@@ -38,7 +38,6 @@ theorem prime-above
 
     5.3.  p divides (n! + 1) − n!
           mun:divides-difference d := p, a := n! + 1, b := n!, from 3, 5.2
-          requires n! + 1 ∈ ℤ: membership, from 1
           requires n! ∈ ℤ: from 1
 
     5.4.  (n! + 1) − n! = 1
