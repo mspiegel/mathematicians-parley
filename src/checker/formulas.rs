@@ -2936,7 +2936,14 @@ fn inequalities_hold(
         }
         Some(false) => {
             let number = at.step.number.to_string();
-            let said = inequalities::refusal(&at.claim.to_string(), &number);
+            let said = inequalities::refusal(
+                &at.claim.to_string(),
+                &number,
+                &claimed,
+                &cited,
+                &implied,
+                &labels,
+            );
             report.say(&thm.path, at.line, at.said(said));
             true
         }

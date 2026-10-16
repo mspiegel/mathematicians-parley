@@ -580,17 +580,28 @@ fn missing_hypotheses(
             return None;
         }
         // Each under what the citation writes for its letters: `c := m`
-        // shows gcd(m, 3), not the item's gcd(c, 3).
-        missing = Some(
-            want.iter()
-                .map(|(_, tree)| {
-                    library
-                        .env
-                        .g
-                        .print(&filled(tree, &parts.seed, &library.ctx))
-                })
-                .collect(),
-        );
+        // shows gcd(m, 3), not the item's gcd(c, 3). Those the facts supply
+        // one at a time are left out, as 2 ∈ ℤ at d := 2 is, which is said
+        // once; where every one is supplied alone and not all together, all
+        // are named.
+        let print = |tree: &Node| {
+            library
+                .env
+                .g
+                .print(&filled(tree, &parts.seed, &library.ctx))
+        };
+        let unmet: Vec<String> = want
+            .iter()
+            .filter(|(_, tree)| {
+                !supplied_alone(tree, group, parts, &parts.seed, library)
+            })
+            .map(|(_, tree)| print(tree))
+            .collect();
+        missing = Some(if unmet.is_empty() {
+            want.iter().map(|(_, tree)| print(tree)).collect()
+        } else {
+            unmet
+        });
     }
     missing
 }
@@ -1400,7 +1411,12 @@ pub fn check_obtained(
             continue;
         };
         let parts = known.parts(step, library);
-        if !obtains(&groups, &parts.facts, &parts.seed, library) {
+        // A hypothesis nothing supplies is `check_hypotheses`'s to name; the
+        // way to the "there is" fails for it, and saying so again would
+        // point at the line the step does cite.
+        if !obtains(&groups, &parts.facts, &parts.seed, library)
+            && unsupplied(step, known, library).is_none()
+        {
             report.say(
                 &thm.path,
                 just.line,

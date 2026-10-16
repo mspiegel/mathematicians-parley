@@ -1223,7 +1223,7 @@ fn cases() -> Vec<Case> {
                 Some("obtain c: axi:completeness, from 2, 5, 7".to_string()),
                 "obtain c: axi:completeness, from 2, 5".to_string(),
             )],
-            "step 8 cites axi:completeness, which asks for S ⊆ ℝ; there is s ∈ S; there is u ∈ ℝ with u is an upper bound of S, and what it cites does not supply them",
+            "step 8 cites axi:completeness, which asks for there is u ∈ ℝ with u is an upper bound of S, and what it cites does not supply it",
         ),
         // False closed claims, and below them claims with no exact value, on
         // a requires line: the checker works out what `arithmetic` makes of
@@ -4201,6 +4201,46 @@ fn cases() -> Vec<Case> {
                 "import mundane axiom      stdlib/groups/group-identity\n\ntheorem planted-lemma\n  let G be a group with operation · and identity e    (H1)\n  let x ∈ G    (H2)\n  assume x = e    (H3)\n  then x·x = x\n\n1.  x·e = x\n    mun:group-identity, from H2\n\n2.  x·x = x\n    substitute x = e (H3) into line 1\n\ntheorem planted\n  let G be a group with operation · and identity e    (H1)\n  let a ∈ G    (H2)\n  then a·a = a\n\n1.  a·a = a\n    thm:planted-lemma x := a, from H2\n".to_string(),
             )],
             "step 1 cites thm:planted-lemma, which asks for a = e, and what it cites does not supply it",
+        ),
+        case(
+            "a hyphen for the minus sign inside brackets",
+            vec![edit(
+                "proofs/wiedijk/planted.proof",
+                None,
+                "theorem planted\n  let N ∈ ℕ₀    (H1)\n  then N·(N − 1) = N·N − N\n\n1.  N·(N - 1) = N·N − N\n    algebra\n".to_string(),
+            )],
+            "the `-` at '·(N - 1) ' is a hyphen, and the minus sign is `−`",
+        ),
+        // A hypothesis an obtain's item asks and nothing supplies is named
+        // once, and alone: d ∈ ℤ at d := 2 is said once.
+        case(
+            "an obtain whose item asks a membership nothing says",
+            vec![edit(
+                "proofs/wiedijk/planted.proof",
+                None,
+                "import mundane definition stdlib/divisibility/divides\n\ntheorem planted\n  let A ∈ ℤ    (H1)\n  let B = 2A + 1    (D1)\n      reads the odd number after 2A\n  assume 2 divides B    (H2)\n  then B = B\n\n1.  k ∈ ℤ. B = 2·k.\n    obtain k: mun:divides d := 2, n := B, from H2\n\n2.  B = B\n    algebra\n".to_string(),
+            )],
+            "step 1 cites mun:divides, which asks for B ∈ ℤ, and what it cites does not supply it",
+        ),
+        // A plain inequalities step adds its lines as they stand; a claim
+        // that follows only by another move is told the row it takes.
+        case(
+            "a disequality from an order in a plain inequalities step",
+            vec![edit(
+                "proofs/wiedijk/planted.proof",
+                None,
+                "theorem planted\n  let P ∈ ℕ    (H1)\n  assume P > 1    (H2)\n  then P ≠ 1\n\n1.  P ≠ 1\n    inequalities, from H2\n".to_string(),
+            )],
+            "P ≠ 1 follows from an order step 1 cites by a `weakening` row, and a plain inequalities step only adds its lines as they stand",
+        ),
+        case(
+            "a plain inequalities step that follows only by cancelling",
+            vec![edit(
+                "proofs/wiedijk/planted.proof",
+                None,
+                "theorem planted\n  let x ∈ ℝ    (H1)\n  let y ∈ ℝ    (H2)\n  let a ∈ ℝ    (H3)\n  let c ∈ ℝ    (H4)\n  assume y = x + c    (H5)\n  assume x ≤ 2 − a    (H6)\n  assume c ≤ a − 1    (H7)\n  then y ≤ 1\n\n1.  y ≤ 1\n    inequalities, from H5, H6, H7\n".to_string(),
+            )],
+            "y ≤ 1 follows from what step 1 cites by a move other than adding its lines as they stand, which is all a plain inequalities step does",
         ),
         case(
             "a calculation link working out a factorial by arithmetic",

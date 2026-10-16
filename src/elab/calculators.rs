@@ -5577,10 +5577,17 @@ impl<'a> Elaborator<'a> {
                 }
             }
         }
-        let decided =
-            inequalities::decide(&self.to_term(term), &cited, &implied, &labels);
+        let claimed = self.to_term(term);
+        let decided = inequalities::decide(&claimed, &cited, &implied, &labels);
         if decided == Some(false) {
-            let said = inequalities::refusal(&self.render(term), &fmt(&step.number));
+            let said = inequalities::refusal(
+                &self.render(term),
+                &fmt(&step.number),
+                &claimed,
+                &cited,
+                &implied,
+                &labels,
+            );
             return Err(self.defect(step.line, said));
         }
         Ok(())

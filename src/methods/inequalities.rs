@@ -9,6 +9,7 @@ use std::collections::BTreeSet;
 use crate::mm::kernel::{FloatLabels, Term};
 
 use super::algebra::parts;
+use super::field::q;
 use super::linear::{self, How};
 
 /// Whether a plain `inequalities` step's claim follows from `cited`, the
@@ -26,57 +27,76 @@ pub fn decide(
 ) -> Option<bool> {
     // A claim of two facts or more, `0 ≤ e and e ≤ 9`, holds where each
     // does, as the build proves each and joins them.
-    let claims: Vec<(Term, linear::Fact)> = parts(claimed)
-        .into_iter()
-        .filter(|part| !conjoined(part))
-        .map(|part| linear::fact(&part, labels).map(|f| (part, f)))
-        .collect::<Option<_>>()?;
-    // Each fact with the term it was read from.
-    let mut given = Vec::new();
-    let mut said_as = Vec::new();
-    for held in cited {
-        for said in parts(held) {
-            if let Some(fact) = linear::fact(&said, labels) {
-                given.push(fact);
-                said_as.push(said);
-            }
-        }
-    }
-    let cited_count = given.len();
-    // A membership's bounds are offered as facts, but a disequality among
-    // them, `k ≠ 0` from `k ∈ ℕ`, only as a disequality the step may claim.
-    let mut apart = Vec::new();
-    for said in implied {
-        match linear::fact(said, labels) {
-            Some(fact) if fact.how == How::Ne => apart.push(fact),
-            Some(fact) => {
-                given.push(fact);
-                said_as.push(said.clone());
-            }
-            None => {}
-        }
-    }
-    let read = Given {
-        facts: &given,
-        said_as: &said_as,
-        cited: cited_count,
-        apart: &apart,
-    };
+    let claims = claim_parts(claimed, labels)?;
+    let read = Given::of(cited, implied, labels);
     Some(
         claims
             .iter()
-            .all(|(part, claim)| added(part, claim, &read, labels)),
+            .all(|part| added(&part.term, &part.fact, &read, labels)),
     )
+}
+
+/// One fact a claim says.
+struct ClaimPart {
+    /// The term it is read from.
+    term: Term,
+    fact: linear::Fact,
+}
+
+/// Each fact a claim says; None where one is no relation `linear` reads.
+fn claim_parts(claimed: &Term, labels: &FloatLabels) -> Option<Vec<ClaimPart>> {
+    parts(claimed)
+        .into_iter()
+        .filter(|part| !conjoined(part))
+        .map(|term| linear::fact(&term, labels).map(|fact| ClaimPart { term, fact }))
+        .collect()
 }
 
 /// What a plain step adds: the facts, the term each is read from, how many
 /// of them, first, the lines the step cites give, and the disequalities a
 /// membership among them implies.
-struct Given<'a> {
-    facts: &'a [linear::Fact],
-    said_as: &'a [Term],
+struct Given {
+    facts: Vec<linear::Fact>,
+    said_as: Vec<Term>,
     cited: usize,
-    apart: &'a [linear::Fact],
+    apart: Vec<linear::Fact>,
+}
+
+impl Given {
+    /// The facts of the lines `cited`, each part of them, and of `implied`,
+    /// what a membership among them implies. A membership's bounds are
+    /// offered as facts, but a disequality among them, `k ≠ 0` from
+    /// `k ∈ ℕ`, only as a disequality the step may claim.
+    fn of(cited: &[Term], implied: &[Term], labels: &FloatLabels) -> Given {
+        let mut facts = Vec::new();
+        let mut said_as = Vec::new();
+        for held in cited {
+            for said in parts(held) {
+                if let Some(fact) = linear::fact(&said, labels) {
+                    facts.push(fact);
+                    said_as.push(said);
+                }
+            }
+        }
+        let cited = facts.len();
+        let mut apart = Vec::new();
+        for said in implied {
+            match linear::fact(said, labels) {
+                Some(fact) if fact.how == How::Ne => apart.push(fact),
+                Some(fact) => {
+                    facts.push(fact);
+                    said_as.push(said.clone());
+                }
+                None => {}
+            }
+        }
+        Given {
+            facts,
+            said_as,
+            cited,
+            apart,
+        }
+    }
 }
 
 /// Whether one claim follows from what is given by adding it as it stands
@@ -97,9 +117,9 @@ fn added(
                 && (f.side.minus(&claim.side).is_zero()
                     || f.side.plus(&claim.side).is_zero())
         };
-        return given.facts.iter().chain(given.apart).any(restates);
+        return given.facts.iter().chain(&given.apart).any(restates);
     }
-    let facts = given.facts;
+    let facts = &given.facts;
     let mut all = facts.to_vec();
     all.push(linear::opposite(claim));
     let lines = vec![None; all.len()];
@@ -198,8 +218,50 @@ fn conjoined(term: &Term) -> bool {
         .is_some_and(|l| crate::rules::lookup(crate::rules::SPLIT, l).is_some())
 }
 
-/// What a step whose claim `shown` does not follow is told, the step by its
-/// number.
-pub fn refusal(shown: &str, number: &str) -> String {
-    format!("{shown} does not follow from what step {number} cites")
+/// What a plain step `decide` refuses is told, its claim `shown` and the
+/// step by its number. A claim that follows from the facts by linear
+/// arithmetic, but not by adding them as they stand, is told the move it
+/// takes is written as a row (`METHODS.md`, inequalities, Refusals): a
+/// disequality from an order is a `weakening` row, and any other move a
+/// row naming it, or a chain `transitivity`. Only one that does not follow
+/// at all is told so.
+pub fn refusal(
+    shown: &str,
+    number: &str,
+    claimed: &Term,
+    cited: &[Term],
+    implied: &[Term],
+    labels: &FloatLabels,
+) -> String {
+    let given = Given::of(cited, implied, labels);
+    let claims = claim_parts(claimed, labels).unwrap_or_default();
+    let follows = claims
+        .iter()
+        .all(|part| follows_linearly(&part.fact, &given));
+    if claims.is_empty() || !follows {
+        return format!("{shown} does not follow from what step {number} cites");
+    }
+    if claims.iter().any(|part| part.fact.how == How::Ne) {
+        return format!(
+            "{shown} follows from an order step {number} cites by a `weakening` row, and a plain inequalities step only adds its lines as they stand; write the line, then the claim with `weakening` as its reason"
+        );
+    }
+    format!(
+        "{shown} follows from what step {number} cites by a move other than adding its lines as they stand, which is all a plain inequalities step does; write the move as a row that names it, or a chain of lines as `transitivity`"
+    )
+}
+
+/// Whether `claim` follows from what is given by any combination linear
+/// arithmetic finds, whatever multiplies each fact. A disequality follows
+/// where either order between its sides does.
+fn follows_linearly(claim: &linear::Fact, given: &Given) -> bool {
+    if claim.how == How::Ne {
+        let below = linear::Fact::new(claim.side.clone(), How::Lt);
+        let above = linear::Fact::new(claim.side.scaled(&q(-1)), How::Lt);
+        return follows_linearly(&below, given) || follows_linearly(&above, given);
+    }
+    let mut all = given.facts.clone();
+    all.push(linear::opposite(claim));
+    let lines = vec![None; all.len()];
+    linear::used_facts(&all, &lines, false).is_some()
 }

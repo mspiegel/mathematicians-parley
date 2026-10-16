@@ -425,7 +425,25 @@ fn read(
         refused: None,
         refused_order: false,
     };
-    let Some(node) = p.expression(None, &[])? else {
+    let read = p.expression(None, &[])?;
+    // A hyphen standing apart is the minus sign mistyped, which is what a
+    // sentence that does not read is told before any reason a notation
+    // tried along the way gave.
+    if read.is_none() || p.i != tokens.len() {
+        if let Some(hyphen) = stray_hyphen(tokens) {
+            return Err(Problem::new(
+                path,
+                line,
+                format!(
+                    "{}: the `-` at {} is a hyphen, and the minus sign is `−`",
+                    repr(text),
+                    repr(&near_token(text, hyphen))
+                ),
+            )
+            .into());
+        }
+    }
+    let Some(node) = read else {
         return Err(Problem::new(path, line, p.why()).into());
     };
     if p.i != tokens.len() {
@@ -451,6 +469,31 @@ fn read(
         )));
     }
     Ok(node)
+}
+
+/// The first hyphen among `tokens` that is no part of a word: one a word's
+/// letters do not touch on both sides, as they do in `one-to-one`.
+fn stray_hyphen(tokens: &[Token]) -> Option<&Token> {
+    let touches = |a: &Token, b: &Token| a.at + a.text.chars().count() == b.at;
+    tokens.iter().enumerate().find_map(|(k, t)| {
+        if t.text != "-" {
+            return None;
+        }
+        let before = k.checked_sub(1).and_then(|j| tokens.get(j));
+        let after = tokens.get(k + 1);
+        let worded = |n: &Token| matches!(n.kind, TokenKind::Word | TokenKind::Name);
+        let inside = before.is_some_and(|b| worded(b) && touches(b, t))
+            && after.is_some_and(|a| worded(a) && touches(t, a));
+        (!inside).then_some(t)
+    })
+}
+
+/// The text around a token, for a message pointing at it.
+fn near_token(text: &str, token: &Token) -> String {
+    let chars: Vec<char> = text.chars().collect();
+    let start = token.at.saturating_sub(4);
+    let end = (token.at + 5).min(chars.len());
+    chars[start..end].iter().collect()
 }
 
 /// `a or as b`, `a, as b or as c`: the readings a sentence has, for a
