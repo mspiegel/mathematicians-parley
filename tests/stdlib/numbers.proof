@@ -22,6 +22,7 @@ import mundane theorem    stdlib/numbers/quotient-real as numbers-quotient-real
 import mundane definition stdlib/numbers/rational as numbers-rational
 import mundane theorem    stdlib/numbers/square-le as numbers-square-le
 import mundane theorem    stdlib/numbers/product-nonneg as numbers-product-nonneg
+import mundane theorem    stdlib/numbers/product-positive as numbers-product-positive
 import mundane theorem    stdlib/numbers/quotient-nonneg as numbers-quotient-nonneg
 import mundane theorem    stdlib/numbers/le-cases as numbers-le-cases
 import mundane theorem    stdlib/numbers/power-integer as numbers-power-integer
@@ -87,6 +88,16 @@ theorem product-nonneg
 
 1.  x·y ≥ 0
     mun:numbers-product-nonneg, from H3, H4
+
+theorem product-positive
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume x > 0                                                        (H3)
+  assume y > 0                                                        (H4)
+  then x·y > 0
+
+1.  x·y > 0
+    mun:numbers-product-positive, from H3, H4
 
 theorem quotient-nonneg
   let x ∈ ℝ                                                           (H1)

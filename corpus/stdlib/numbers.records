@@ -451,6 +451,16 @@ mundane theorem product-nonneg
   note        `inequalities` combines bounds and multiplies one only by a
               number, so a product of two terms each at least 0 cites this.
 
+mundane theorem product-positive
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume x > 0                                                        (H3)
+  assume y > 0                                                        (H4)
+  then        x·y > 0
+  metamath    mulgt0
+  target      mulgt0
+  note        As product-nonneg, strictly.
+
 mundane theorem quotient-nonneg
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)

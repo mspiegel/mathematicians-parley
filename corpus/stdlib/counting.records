@@ -27,6 +27,13 @@ mundane definition factorial
   note        Two `then` groups: the base sentence has no hypothesis and the
               step sentence has H1. See DATABASE.md on recursive definitions.
 
+mundane theorem factorial-two
+  then        2! = 2
+  metamath    fac2
+  target      fac2
+  note        `arithmetic` works out no factorial, so a value a proof needs
+              is cited; (1 + 1)! is 2! by working out 1 + 1 inside it.
+
 mundane theorem factorial-nat
   let n ∈ ℕ                                                           (H1)
   then        n! ∈ ℕ
