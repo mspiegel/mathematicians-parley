@@ -129,61 +129,55 @@ theorem limit-order
     1.21. c + m/2 < c + q
           transitivity, from 1.15, 1.19
 
-    1.22. 0 < p
-          inequalities, from 1.7
-
-    1.23. 0 < q
-          inequalities, from 1.8
-
-    1.24. c − p < c
+    1.22. c − p < c
           inequalities
-            0 < p              1.22
+            0 < p              1.7
             c − p < c          adding c − p
 
-    1.25. c − q < c
+    1.23. c − q < c
           inequalities
-            0 < q              1.23
+            0 < q              1.8
             c − q < c          adding c − q
 
-    1.26. c − p < c + m/2
-          transitivity, from 1.24, 1.12
+    1.24. c − p < c + m/2
+          transitivity, from 1.22, 1.12
 
-    1.27. c − q < c + m/2
-          transitivity, from 1.25, 1.12
+    1.25. c − q < c + m/2
+          transitivity, from 1.23, 1.12
 
-    1.28. c − p < x₁ and x₁ < c + p
-          inequalities, from D2, 1.20, 1.26
+    1.26. c − p < x₁ and x₁ < c + p
+          inequalities, from D2, 1.20, 1.24
 
-    1.29. c − q < x₁ and x₁ < c + q
-          inequalities, from D2, 1.21, 1.27
+    1.27. c − q < x₁ and x₁ < c + q
+          inequalities, from D2, 1.21, 1.25
 
-    1.30. |x₁ − c| < p
-          mun:abs-difference-lt x := x₁, δ := p, from 1.28
+    1.28. |x₁ − c| < p
+          mun:abs-difference-lt x := x₁, δ := p, from 1.26
 
-    1.31. |x₁ − c| < q
-          mun:abs-difference-lt x := x₁, δ := q, from 1.29
+    1.29. |x₁ − c| < q
+          mun:abs-difference-lt x := x₁, δ := q, from 1.27
 
-    1.32. |f(x₁) − L| < (M − L)/3
-          instantiate x := x₁ in line 1.7, from 1.14, 1.30
+    1.30. |f(x₁) − L| < (M − L)/3
+          instantiate x := x₁ in line 1.7, from 1.14, 1.28
 
-    1.33. |f(x₁) − M| < (M − L)/3
-          instantiate x := x₁ in line 1.8, from 1.14, 1.31
+    1.31. |f(x₁) − M| < (M − L)/3
+          instantiate x := x₁ in line 1.8, from 1.14, 1.29
 
-    1.34. f(x₁) < L + (M − L)/3
-          mun:abs-difference-lt x := f(x₁), c := L, δ := (M − L)/3, from 1.32
+    1.32. f(x₁) < L + (M − L)/3
+          mun:abs-difference-lt x := f(x₁), c := L, δ := (M − L)/3, from 1.30
           requires f(x₁) ∈ ℝ: mun:function-value
 
-    1.35. M − (M − L)/3 < f(x₁)
-          mun:abs-difference-lt x := f(x₁), c := M, δ := (M − L)/3, from 1.33
+    1.33. M − (M − L)/3 < f(x₁)
+          mun:abs-difference-lt x := f(x₁), c := M, δ := (M − L)/3, from 1.31
           requires f(x₁) ∈ ℝ: mun:function-value
 
-    1.36. M − (M − L)/3 < L + (M − L)/3
-          transitivity, from 1.35, 1.34
+    1.34. M − (M − L)/3 < L + (M − L)/3
+          transitivity, from 1.33, 1.32
           requires f(x₁) ∈ ℝ: mun:function-value
 
-    1.37. M ≤ L
+    1.35. M ≤ L
           inequalities, contradicting S
-            M − (M − L)/3 < L + (M − L)/3     1.36
+            M − (M − L)/3 < L + (M − L)/3     1.34
             2·M + L < 2·L + M                  multiplying by 3
             M < L                              adding −M − L
             M ≤ L                              weakening

@@ -26,51 +26,48 @@ theorem sqrt6-irrational
     2.2.  (p/q)² = 6
           substitute √6 = p/q (line 2.1) into line 1
 
-    2.3.  q > 0
-          inequalities, from 2.1
-
-    2.4.  p² = 6q²
+    2.3.  p² = 6q²
           algebra, from 2.2
-          requires q ≠ 0: weakening, from 2.3
+          requires q ≠ 0: weakening, from 2.1
 
-    2.5.  p² = 2(3q²)
-          algebra, from 2.4
+    2.4.  p² = 2(3q²)
+          algebra, from 2.3
 
-    2.6.  p² is even
-          mun:even n := p², from 2.5
+    2.5.  p² is even
+          mun:even n := p², from 2.4
 
-    2.7.  p is even
-          thm:even-square n := p, from 2.6
+    2.6.  p is even
+          thm:even-square n := p, from 2.5
 
-    2.8.  r ∈ ℤ. p = 2r.
-          obtain r: mun:even n := p, from 2.7
+    2.7.  r ∈ ℤ. p = 2r.
+          obtain r: mun:even n := p, from 2.6
 
-    2.9.  (2r)² = 6q²
-          substitute p = 2r (line 2.8) into line 2.4
+    2.8.  (2r)² = 6q²
+          substitute p = 2r (line 2.7) into line 2.3
 
-    2.10. 2r² = 3q²
+    2.9.  2r² = 3q²
+          algebra, from 2.8
+
+    2.10. q² = 2(r² − q²)
           algebra, from 2.9
 
-    2.11. q² = 2(r² − q²)
-          algebra, from 2.10
+    2.11. q² is even
+          mun:even n := q², from 2.10
 
-    2.12. q² is even
-          mun:even n := q², from 2.11
+    2.12. q is even
+          thm:even-square n := q, from 2.11
 
-    2.13. q is even
-          thm:even-square n := q, from 2.12
+    2.13. s ∈ ℤ. q = 2s.
+          obtain s: mun:even n := q, from 2.12
 
-    2.14. s ∈ ℤ. q = 2s.
-          obtain s: mun:even n := q, from 2.13
+    2.14. 2 divides p
+          mun:divides d := 2, n := p, from 2.7
 
-    2.15. 2 divides p
-          mun:divides d := 2, n := p, from 2.8
+    2.15. 2 divides q
+          mun:divides d := 2, n := q, from 2.13
 
-    2.16. 2 divides q
-          mun:divides d := 2, n := q, from 2.14
-
-    2.17. There is d ∈ ℤ with d > 1, d divides p, and d divides q.
-          exhibit, from 2.15, 2.16, contradicting 2.1
+    2.16. There is d ∈ ℤ with d > 1, d divides p, and d divides q.
+          exhibit, from 2.14, 2.15, contradicting 2.1
           requires 2 > 1: arithmetic
 
 3.  √6 is irrational

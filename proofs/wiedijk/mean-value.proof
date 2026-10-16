@@ -39,11 +39,11 @@ let F(x) = f(x) + g(x), for x ∈ [a, b]                                (D2)
 2.  a ∈ [a, b]
     mun:interval x := a
     requires a ≤ a: inequalities, from H1
-    requires a ≤ b: inequalities, from H1, H2, H3
+    requires a ≤ b: weakening, from H3
 
 3.  b ∈ [a, b]
     mun:interval x := b
-    requires a ≤ b: inequalities, from H1, H2, H3
+    requires a ≤ b: weakening, from H3
     requires b ≤ b: inequalities, from H2
 
 4.  [a, b] ⊆ ℝ

@@ -2876,10 +2876,41 @@ impl<'a> Elaborator<'a> {
     ) -> Checked<Proof> {
         let mut links = Vec::new();
         let mut combined = vec![term.to_string()];
-        for r in &step.just.refs {
+        let chosen = self
+            .checked
+            .links
+            .get(&step.line)
+            .cloned()
+            .unwrap_or_default();
+        for (i, r) in step.just.refs.iter().enumerate() {
             let held = lines.get(r).expect("a line the checker found in scope");
-            combined.push(held.term.clone());
-            let said = self.to_term(&held.term);
+            let carried = self.carried(r, facts, lines);
+            // The relation the checker read the line as giving the chain:
+            // the line's own, or one of several it says.
+            let (link, proof) = match chosen.get(i) {
+                Some(sentence) => {
+                    let part = self.term(sentence)?;
+                    if part == held.term {
+                        (part, carried)
+                    } else {
+                        let apart = facts.copy();
+                        self.unpack_all(&held.term, &carried, scope, &apart);
+                        let Some(proof) = self.held(&apart, &part, scope)? else {
+                            return Err(self.defect(
+                                step.line,
+                                format!(
+                                    "{r} says {}, which the build does not take out of it",
+                                    self.render(&part)
+                                ),
+                            ));
+                        };
+                        (part, proof)
+                    }
+                }
+                None => (held.term.clone(), carried),
+            };
+            combined.push(link.clone());
+            let said = self.to_term(&link);
             let kids = said.children();
             let relation = match said.label() {
                 Some("wceq") => None,
@@ -2889,7 +2920,7 @@ impl<'a> Elaborator<'a> {
                 left: self.rpn(&kids[0]),
                 right: self.rpn(&kids[1]),
                 relation,
-                proof: self.carried(r, facts, lines),
+                proof,
             });
         }
         // Where a link is an order, every atom of the chain is real

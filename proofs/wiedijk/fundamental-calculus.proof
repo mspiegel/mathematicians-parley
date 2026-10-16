@@ -27,11 +27,11 @@ theorem zero-derivative-ends
 1.  a ∈ [a, b]
     mun:interval x := a
     requires a ≤ a: inequalities, from H1
-    requires a ≤ b: inequalities, from H1, H2, H3
+    requires a ≤ b: weakening, from H3
 
 2.  b ∈ [a, b]
     mun:interval x := b
-    requires a ≤ b: inequalities, from H1, H2, H3
+    requires a ≤ b: weakening, from H3
     requires b ≤ b: inequalities, from H2
 
 3.  c ∈ (a, b). H′(c) = (H(b) − H(a))/(b − a).
@@ -82,11 +82,11 @@ let H(x) = G(x) − F(x), for x ∈ [a, b]                                (D2)
 1.  a ∈ [a, b]
     mun:interval x := a
     requires a ≤ a: inequalities, from H1
-    requires a ≤ b: inequalities, from H1, H2, H3
+    requires a ≤ b: weakening, from H3
 
 2.  b ∈ [a, b]
     mun:interval x := b
-    requires a ≤ b: inequalities, from H1, H2, H3
+    requires a ≤ b: weakening, from H3
     requires b ≤ b: inequalities, from H2
 
 3.  [a, b] ⊆ ℝ

@@ -83,3 +83,16 @@ theorem a-chain-cited-in-its-own-order
 
 1.  a < c
     transitivity, from H5, H4
+
+theorem a-chain-through-one-sentence-of-a-line
+  note        A line saying several relations gives the chain the one of
+              them that meets it: of 0 < a and a ≤ b, a ≤ b meets b < c.
+  let a ∈ ℝ    (H1)
+  let b ∈ ℝ    (H2)
+  let c ∈ ℝ    (H3)
+  assume 0 < a and a ≤ b    (H4)
+  assume b < c    (H5)
+  then a < c
+
+1.  a < c
+    transitivity, from H4, H5

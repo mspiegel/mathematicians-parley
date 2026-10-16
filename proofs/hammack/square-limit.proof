@@ -54,31 +54,35 @@ theorem square-limit
           1.4.2.  3 − 1 < x and x < 3 + 1
                   mun:abs-difference-lt c := 3, δ := 1, from 1.4.1
 
-          1.4.3.  x + 3 ≥ 0
+          1.4.3.  x + 3 > 0
                   inequalities, from 1.4.2
 
-          1.4.4.  |x + 3| = x + 3
-                  mun:abs x := x + 3, from 1.4.3
+          1.4.4.  x + 3 ≥ 0
+                  inequalities
+                    x + 3 > 0        1.4.3
+                    x + 3 ≥ 0        weakening
 
-          1.4.5.  0 < x + 3
-                  inequalities, from 1.4.2
+          1.4.5.  |x + 3| = x + 3
+                  mun:abs x := x + 3, from 1.4.4
 
           1.4.6.  x + 3 < 7
                   inequalities, from 1.4.2
 
           1.4.7.  0 < |x + 3|
-                  transitivity, from 1.4.5, 1.4.4
+                  transitivity, from 1.4.3, 1.4.5
                   requires |x + 3| ∈ ℝ: mun:abs-real x := x + 3
 
           1.4.8.  |x + 3| < 7
-                  transitivity, from 1.4.4, 1.4.6
+                  transitivity, from 1.4.5, 1.4.6
                   requires |x + 3| ∈ ℝ: mun:abs-real x := x + 3
 
           1.4.9.  0 < |x + 3| and |x + 3| < 7
                   join 1.4.7, 1.4.8
 
           1.4.10. |x + 3| ≤ 7
-                  inequalities, from 1.4.9
+                  inequalities
+                    |x + 3| < 7      1.4.8
+                    |x + 3| ≤ 7      weakening
                   requires |x + 3| ∈ ℝ: mun:abs-real x := x + 3
 
           1.4.11. f(x) = x² − 2

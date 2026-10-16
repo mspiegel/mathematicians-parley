@@ -33,7 +33,9 @@ theorem a-map-over-a-set-binding-its-letter
           mun:set-builder, from D1, K1
 
     2.2.  x ≥ 0
-          inequalities, from 2.1
+          inequalities
+            x > 0         2.1
+            x ≥ 0         weakening
 
     2.3.  √x ∈ ℝ. √x ≥ 0. (√x)² = x.
           mun:sqrt, from 2.1, 2.2
@@ -59,7 +61,9 @@ theorem a-map-over-a-set-binding-its-letter
           mun:set-builder, from D1, K2
 
     4.2.  c ≥ 0
-          inequalities, from 4.1
+          inequalities
+            c > 0         4.1
+            c ≥ 0         weakening
 
     4.3.  √c ∈ ℝ. √c ≥ 0. (√c)² = c.
           mun:sqrt x := c, from 4.1, 4.2
@@ -119,7 +123,9 @@ theorem a-map-over-a-set-binding-its-letter
                   mun:set-builder, from D1, K4
 
           4.8.2.  x ≥ 0
-                  inequalities, from 4.8.1
+                  inequalities
+                    x > 0         4.8.1
+                    x ≥ 0         weakening
 
           4.8.3.  √x ∈ ℝ. √x ≥ 0. (√x)² = x.
                   mun:sqrt, from 4.8.1, 4.8.2

@@ -83,6 +83,10 @@ pub struct CheckedTheorem {
     /// Each requires line's citation of an item, by the line it is on, read
     /// as the step the line would be (`requires_as_step`).
     pub cited_requires: IndexMap<usize, Cited>,
+    /// The relation each line a `transitivity` step cites gives its chain,
+    /// in the order cited, by the line the step is on: the line's own, or
+    /// of a line saying several, the one that meets the chain.
+    pub links: IndexMap<usize, Vec<Node>>,
 }
 
 /// A step's citation of an item as the checker reads it (`citing::taken`,

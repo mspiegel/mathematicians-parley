@@ -369,9 +369,9 @@ fn cases() -> Vec<Case> {
             "membership of a sum whose first term divides by zero",
             "proofs/wiedijk/triangular-reciprocals/triangular-reciprocals",
             "proofs/wiedijk/triangular-reciprocals.proof",
-            "                  requires Σ(k = 1 to n) 1/T(k) ∈ ℝ: mun:sum-real a := 1, b := n, from 2\n                  requires n + 1 ≠ 0: weakening, from 6.2.5\n\n          6.2.10.",
-            "                  requires Σ(k = 1 to n) 1/T(k) ∈ ℝ: mun:sum-real a := 1, b := n, from 2\n                  requires Σ(k = 0 to n) 1/T(k) ∈ ℝ: mun:sum-real a := 0, b := n, from 2\n                  requires n + 1 ≠ 0: weakening, from 6.2.5\n\n          6.2.10.",
-            "the requires line of step 6.2.9 cites 2, and mun:sum-real asks for nothing it says",
+            "                  requires Σ(k = 1 to n) 1/T(k) ∈ ℝ: mun:sum-real a := 1, b := n, from 2\n                  requires n + 1 ≠ 0: weakening, from 6.2.5\n\n          6.2.9.",
+            "                  requires Σ(k = 1 to n) 1/T(k) ∈ ℝ: mun:sum-real a := 1, b := n, from 2\n                  requires Σ(k = 0 to n) 1/T(k) ∈ ℝ: mun:sum-real a := 0, b := n, from 2\n                  requires n + 1 ≠ 0: weakening, from 6.2.5\n\n          6.2.9.",
+            "the requires line of step 6.2.8 cites 2, and mun:sum-real asks for nothing it says",
         ),
         // A target is where the claim lands, and a variable bound to the wrong
         // name makes it land somewhere else. That is reported, not assumed.
@@ -476,7 +476,7 @@ fn cases() -> Vec<Case> {
             "          requires d(k) ∈ ℝ: from H2\n",
             "step 1.4 combines 10^k, and nothing it writes or cites says it is a number",
         ),
-        // What an obtain claims is the "there is" it obtains from: d > 2 is
+        // What an obtain claims is the "there is" it obtains from: d ∈ ℕ is
         // not what the supposition gives, and the line is the page's claim,
         // never the existence's body in its place.
         case(
@@ -484,7 +484,7 @@ fn cases() -> Vec<Case> {
             "proofs/wiedijk/sqrt2-irrational/lowest-terms",
             "proofs/wiedijk/sqrt2-irrational.proof",
             "    3.1.  d ∈ ℤ. d > 1. d divides p. d divides q.",
-            "    3.1.  d ∈ ℤ. d > 2. d divides p. d divides q.",
+            "    3.1.  d ∈ ℕ. d > 1. d divides p. d divides q.",
             "step 3.1 claims",
         ),
         case(

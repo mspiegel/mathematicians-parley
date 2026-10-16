@@ -424,7 +424,7 @@ fn an_operation_arithmetic_does_not_work_out_is_named_once() {
 
 /// A requires line whose fact the step's own citation gives is not repeated
 /// where a line below needs it: the line below sees only its reason and the
-/// lines above it (R2). Here reals-uncountable's step 3.8 cites line 3.1,
+/// lines above it (R2). Here reals-uncountable's step 3.6 cites line 3.1,
 /// which says N(k + 1) = 10·N(k) + d(k + 1), and `N(k + 1) ∈ ℝ: membership`
 /// below asks that of the line above it.
 #[test]
@@ -436,7 +436,7 @@ fn a_line_the_step_cites_may_be_restated_for_a_line_below() {
             "proofs/wiedijk/reals-uncountable.proof",
             Some(
                 "\
-          transitivity, from 3.7, 3.1
+          transitivity, from 3.5, 3.1
           requires N(k) ∈ ℝ: membership, from 3.4
           requires d(k + 1) ∈ ℝ: membership, from H1, 3.2
           requires N(k + 1) ∈ ℝ: membership, from H1, 3.1, 3.2, 3.4
@@ -444,7 +444,7 @@ fn a_line_the_step_cites_may_be_restated_for_a_line_below() {
                 .to_string(),
             ),
             "\
-          transitivity, from 3.7, 3.1
+          transitivity, from 3.5, 3.1
           requires N(k) ∈ ℝ: membership, from 3.4
           requires d(k + 1) ∈ ℝ: membership, from H1, 3.2
           requires N(k + 1) = 10·N(k) + d(k + 1): from 3.1
@@ -716,6 +716,17 @@ fn cases() -> Vec<Case> {
             )],
             "the last row of step 1 is not its claim",
         ),
+        // A line saying several relations gives a chain the one that meets
+        // it, and one saying two that meet it gives the chain nothing.
+        case(
+            "chain a line two of whose relations meet the next",
+            vec![edit(
+                "tests/elaborator/transitivity.proof",
+                Some("  assume 0 < a and a ≤ b    (H4)\n".to_string()),
+                "  assume 0 ≤ b and a ≤ b    (H4)\n".to_string(),
+            )],
+            "step 1 cites H4 by transitivity, which says several relations, and not just one of them meets the lines it is cited with",
+        ),
         // A requires line naming a manipulation is its one line with it: q >
         // 0 weakened is q ≠ 0, and no weakening of it is q ≠ 1.
         case(
@@ -737,7 +748,7 @@ fn cases() -> Vec<Case> {
                 Some("    transitivity, from H4, H5\n".to_string()),
                 "    transitivity, from H1, H5\n".to_string(),
             )],
-            "step 1 cites H1 by transitivity, and H1 states no single relation of =, <, ≤, > or ≥",
+            "step 1 cites H1 by transitivity, and H1 states no relation of =, <, ≤, > or ≥",
         ),
         case(
             "transitivity chaining orders going both ways",
@@ -1544,10 +1555,10 @@ fn cases() -> Vec<Case> {
             vec![edit(
                 "proofs/wiedijk/mean-value.proof",
                 Some(
-                    "    mun:interval x := a\n    requires a ≤ a: inequalities, from H1\n    requires a ≤ b: inequalities, from H1, H2, H3\n"
+                    "7.  For all x ∈ [a, b], g(x) ∈ ℝ.\n    membership, from D1\n    requires b − a ≠ 0: weakening, from 1\n    requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H1, H2, H4, 2, 3\n"
                         .to_string(),
                 ),
-                "    mun:interval x := a\n    requires a ≤ a: inequalities, from H1\n    requires a ≤ b: inequalities, from H1, H2, H1, H3\n"
+                "7.  For all x ∈ [a, b], g(x) ∈ ℝ.\n    membership, from D1\n    requires b − a ≠ 0: weakening, from 1\n    requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H1, H2, H1, H4, 2, 3\n"
                     .to_string(),
             )],
             "cites H1 more than once",
@@ -2220,7 +2231,7 @@ fn cases() -> Vec<Case> {
         case(
             "cite a line that does not exist",
             vec![
-                edit("proofs/wiedijk/sqrt2-irrational.proof", Some("    2.6.  p is even\n          thm:even-square n := p, from 2.5".to_string()), "    2.6.  p is even\n          thm:even-square n := p, from 2.99".to_string()),
+                edit("proofs/wiedijk/sqrt2-irrational.proof", Some("    2.5.  p is even\n          thm:even-square n := p, from 2.4".to_string()), "    2.5.  p is even\n          thm:even-square n := p, from 2.99".to_string()),
             ],
             "does not exist",
         ),
@@ -3124,9 +3135,9 @@ fn cases() -> Vec<Case> {
         case(
             "exhibit a witness whose membership is not said, with a numeral in the body",
             vec![
-                edit("proofs/wiedijk/harmonic.proof", Some("    exhibit, from 7, 8\n".to_string()), "    exhibit, from 7\n".to_string()),
+                edit("proofs/wiedijk/harmonic.proof", Some("    exhibit, from 6, 7\n".to_string()), "    exhibit, from 6\n".to_string()),
             ],
-            "step 9 exhibits n := 2^N, so it needs 2^N ∈ ℕ",
+            "step 8 exhibits n := 2^N, so it needs 2^N ∈ ℕ",
         ),
         // A requires line rests on the lines above it, read top to bottom
         // (`SYNTAX.md`). Written first, |numer(x)| ∈ ℕ₀ asks for numer(x) ∈ ℤ,
@@ -3751,7 +3762,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/wiedijk/sqrt2-irrational.proof", Some("          requires 2 > 1: arithmetic\n".to_string()), String::new()),
             ],
-            "step 2.17 exhibits d := 2, so it needs 2 > 1, and nothing it cites or requires says it",
+            "step 2.16 exhibits d := 2, so it needs 2 > 1, and nothing it cites or requires says it",
         ),
         // An instantiation's value is in what its letter ranges over, as a
         // line the step names says: −f(c) > 0 says nothing of ℝ.
@@ -3797,7 +3808,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/wiedijk/intermediate-value.proof", Some("    let x₁ = min(b, c + δ/2), a real number                            (D2)\n           mun:min-real x := b, y := c + δ/2\n".to_string()), "    let x₁ = min(b, c + δ/2)                                           (D2)\n".to_string()),
             ],
-            "step 16.21 cites mun:abs-difference-lt, which asks for",
+            "step 16.19 cites mun:abs-difference-lt, which asks for",
         ),
         // `let k ∈ ℕ` says k ≥ 1 beyond the membership, and a step using it
         // cites the line: sum-extended asks n ≥ a at n := k, a := 1.
@@ -3823,9 +3834,9 @@ fn cases() -> Vec<Case> {
         case(
             "cite an obtain only for the membership it states",
             vec![
-                edit("proofs/wiedijk/sqrt2-irrational.proof", Some("          thm:even-square n := p, from 2.5\n".to_string()), "          thm:even-square n := p, from 2.1, 2.5\n".to_string()),
+                edit("proofs/wiedijk/sqrt2-irrational.proof", Some("          thm:even-square n := p, from 2.4\n".to_string()), "          thm:even-square n := p, from 2.1, 2.4\n".to_string()),
             ],
-            "step 2.6 cites 2.1, and thm:even-square asks for nothing it says",
+            "step 2.5 cites 2.1, and thm:even-square asks for nothing it says",
         ),
         case(
             "an exhibit citing nothing that says the claim of a value",

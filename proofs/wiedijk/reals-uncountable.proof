@@ -202,35 +202,27 @@ let U(k) = (N(k) + 1)/10^k, for k ∈ ℕ₀                                 (D6
     3.4.  N(k) ∈ ℤ
           instantiate k := k in line 2
 
-    3.5.  0 ≤ d(k + 1)
-          inequalities, from 3.3
-          requires d(k + 1) ∈ ℝ: membership, from H1, 3.2
-
-    3.6.  d(k + 1) ≤ 9
-          inequalities, from 3.3
-          requires d(k + 1) ∈ ℝ: membership, from H1, 3.2
-
-    3.7.  10·N(k) ≤ 10·N(k) + d(k + 1)
+    3.5.  10·N(k) ≤ 10·N(k) + d(k + 1)
           inequalities
-            0 ≤ d(k + 1)                             3.5
+            0 ≤ d(k + 1)                             3.3
             10·N(k) ≤ 10·N(k) + d(k + 1)             adding 10·N(k)
           requires N(k) ∈ ℝ: membership, from 3.4
           requires d(k + 1) ∈ ℝ: membership, from H1, 3.2
 
-    3.8.  10·N(k) ≤ N(k + 1)
-          transitivity, from 3.7, 3.1
+    3.6.  10·N(k) ≤ N(k + 1)
+          transitivity, from 3.5, 3.1
           requires N(k) ∈ ℝ: membership, from 3.4
           requires d(k + 1) ∈ ℝ: membership, from H1, 3.2
           requires N(k + 1) ∈ ℝ: membership, from H1, 3.1, 3.2, 3.4
 
-    3.9.  10·N(k) + d(k + 1) + 1 ≤ 10·(N(k) + 1)
+    3.7.  10·N(k) + d(k + 1) + 1 ≤ 10·(N(k) + 1)
           inequalities
-            d(k + 1) ≤ 9                             3.6
+            d(k + 1) ≤ 9                             3.3
             10·N(k) + d(k + 1) + 1 ≤ 10·(N(k) + 1)   adding 10·N(k) + 1
           requires N(k) ∈ ℝ: membership, from 3.4
           requires d(k + 1) ∈ ℝ: membership, from H1, 3.2
 
-    3.10. N(k + 1) + 1 = 10·N(k) + d(k + 1) + 1
+    3.8.  N(k + 1) + 1 = 10·N(k) + d(k + 1) + 1
           inequalities
             N(k + 1) = 10·N(k) + d(k + 1)            3.1
             N(k + 1) + 1 = 10·N(k) + d(k + 1) + 1    adding 1
@@ -238,74 +230,74 @@ let U(k) = (N(k) + 1)/10^k, for k ∈ ℕ₀                                 (D6
           requires d(k + 1) ∈ ℝ: membership, from H1, 3.2
           requires N(k + 1) ∈ ℝ: membership, from H1, 3.1, 3.2, 3.4
 
-    3.11. N(k + 1) + 1 ≤ 10·(N(k) + 1)
-          transitivity, from 3.10, 3.9
+    3.9.  N(k + 1) + 1 ≤ 10·(N(k) + 1)
+          transitivity, from 3.8, 3.7
           requires N(k) ∈ ℝ: membership, from 3.4
           requires d(k + 1) ∈ ℝ: membership, from H1, 3.2
           requires N(k + 1) ∈ ℝ: membership, from H1, 3.1, 3.2, 3.4
 
-    3.12. 10·N(k) ≤ N(k + 1) and N(k + 1) + 1 ≤ 10·(N(k) + 1)
-          join 3.8, 3.11
+    3.10. 10·N(k) ≤ N(k + 1) and N(k + 1) + 1 ≤ 10·(N(k) + 1)
+          join 3.6, 3.9
 
-    3.13. 10^k ∈ ℕ
+    3.11. 10^k ∈ ℕ
           mun:power-nat a := 10, m := k
 
-    3.14. 10^(k + 1) ∈ ℕ
+    3.12. 10^(k + 1) ∈ ℕ
           mun:power-nat a := 10, m := k + 1
 
-    3.15. 10^(k + 1) = 10^k·10
+    3.13. 10^(k + 1) = 10^k·10
           mun:exponent-step a := 10, m := k
 
-    3.16. N(k)/10^k = (10·N(k))/(10^k·10)
+    3.14. N(k)/10^k = (10·N(k))/(10^k·10)
           algebra
           requires N(k) ∈ ℝ: membership, from 3.4
-          requires 10^k ≠ 0: inequalities, from 3.13
+          requires 10^k ≠ 0: inequalities, from 3.11
 
-    3.17. N(k)/10^k = (10·N(k))/10^(k + 1)
-          substitute 10^(k + 1) = 10^k·10 (line 3.15) into line 3.16
+    3.15. N(k)/10^k = (10·N(k))/10^(k + 1)
+          substitute 10^(k + 1) = 10^k·10 (line 3.13) into line 3.14
 
-    3.18. (N(k) + 1)/10^k = (10·(N(k) + 1))/(10^k·10)
+    3.16. (N(k) + 1)/10^k = (10·(N(k) + 1))/(10^k·10)
           algebra
           requires N(k) ∈ ℝ: membership, from 3.4
-          requires 10^k ≠ 0: inequalities, from 3.13
+          requires 10^k ≠ 0: inequalities, from 3.11
 
-    3.19. (N(k) + 1)/10^k = (10·(N(k) + 1))/10^(k + 1)
-          substitute 10^(k + 1) = 10^k·10 (line 3.15) into line 3.18
+    3.17. (N(k) + 1)/10^k = (10·(N(k) + 1))/10^(k + 1)
+          substitute 10^(k + 1) = 10^k·10 (line 3.13) into line 3.16
 
-    3.20. (10·N(k))/10^(k + 1) ≤ N(k + 1)/10^(k + 1)
-          mun:divide-le x := 10·N(k), y := N(k + 1), c := 10^(k + 1), from 3.12
+    3.18. (10·N(k))/10^(k + 1) ≤ N(k + 1)/10^(k + 1)
+          mun:divide-le x := 10·N(k), y := N(k + 1), c := 10^(k + 1), from 3.10
           requires 10·N(k) ∈ ℝ: membership, from 3.4
           requires N(k + 1) ∈ ℝ: membership, from H1, 3.1, 3.2, 3.4
-          requires 10^(k + 1) ∈ ℝ: membership, from 3.14
-          requires 10^(k + 1) > 0: inequalities, from 3.14
+          requires 10^(k + 1) ∈ ℝ: membership, from 3.12
+          requires 10^(k + 1) > 0: inequalities, from 3.12
 
-    3.21. (N(k + 1) + 1)/10^(k + 1) ≤ (10·(N(k) + 1))/10^(k + 1)
-          mun:divide-le x := N(k + 1) + 1, y := 10·(N(k) + 1), c := 10^(k + 1), from 3.12
+    3.19. (N(k + 1) + 1)/10^(k + 1) ≤ (10·(N(k) + 1))/10^(k + 1)
+          mun:divide-le x := N(k + 1) + 1, y := 10·(N(k) + 1), c := 10^(k + 1), from 3.10
           requires N(k + 1) + 1 ∈ ℝ: membership, from H1, 3.1, 3.2, 3.4
           requires 10·(N(k) + 1) ∈ ℝ: membership, from 3.4
-          requires 10^(k + 1) ∈ ℝ: membership, from 3.14
-          requires 10^(k + 1) > 0: inequalities, from 3.14
+          requires 10^(k + 1) ∈ ℝ: membership, from 3.12
+          requires 10^(k + 1) > 0: inequalities, from 3.12
 
-    3.22. N(k)/10^k ≤ N(k + 1)/10^(k + 1)
-          substitute N(k)/10^k = (10·N(k))/10^(k + 1) (line 3.17) into line 3.20
+    3.20. N(k)/10^k ≤ N(k + 1)/10^(k + 1)
+          substitute N(k)/10^k = (10·N(k))/10^(k + 1) (line 3.15) into line 3.18
 
-    3.23. (N(k + 1) + 1)/10^(k + 1) ≤ (N(k) + 1)/10^k
-          substitute (N(k) + 1)/10^k = (10·(N(k) + 1))/10^(k + 1) (line 3.19) into line 3.21
+    3.21. (N(k + 1) + 1)/10^(k + 1) ≤ (N(k) + 1)/10^k
+          substitute (N(k) + 1)/10^k = (10·(N(k) + 1))/10^(k + 1) (line 3.17) into line 3.19
 
-    3.24. L(k) ≤ L(k + 1)
+    3.22. L(k) ≤ L(k + 1)
           calculation
             L(k) = N(k)/10^k                     D5
-                 ≤ N(k + 1)/10^(k + 1)           3.22
+                 ≤ N(k + 1)/10^(k + 1)           3.20
                  = L(k + 1)                      D5
 
-    3.25. U(k + 1) ≤ U(k)
+    3.23. U(k + 1) ≤ U(k)
           calculation
             U(k + 1) = (N(k + 1) + 1)/10^(k + 1)    D6
-                     ≤ (N(k) + 1)/10^k              3.23
+                     ≤ (N(k) + 1)/10^k              3.21
                      = U(k)                         D6
 
-    3.26. L(k) ≤ L(k + 1) and U(k + 1) ≤ U(k)
-          join 3.24, 3.25
+    3.24. L(k) ≤ L(k + 1) and U(k + 1) ≤ U(k)
+          join 3.22, 3.23
 
 4.  For all k ∈ ℕ₀, L(k) ∈ ℝ and U(k) ∈ ℝ and L(k) ≤ U(k).
     proof
@@ -453,50 +445,40 @@ let U(k) = (N(k) + 1)/10^k, for k ∈ ℕ₀                                 (D6
           6.4.5.  L(j) ≤ L(k)
                   inequalities, from 6.1, 6.2, 6.4.4
 
-          6.4.6.  L(k) ≤ U(k)
-                  inequalities, from 6.2
-
-          6.4.7.  L(j) ≤ U(k)
-                  transitivity, from 6.4.5, 6.4.6
+          6.4.6.  L(j) ≤ U(k)
+                  transitivity, from 6.4.5, 6.2
                   requires L(j) ∈ ℝ: from 6.1
-                  requires L(k) ∈ ℝ: from 6.2
-                  requires U(k) ∈ ℝ: from 6.2
 
           case
           assume not (j ≤ k)                                          (C6)
 
-          6.4.8.  k < j
+          6.4.7.  k < j
                   inequalities, from C6
 
-          6.4.9.  0 ≤ j − k
+          6.4.8.  0 ≤ j − k
                   inequalities
-                    k < j            6.4.8
+                    k < j            6.4.7
                     0 < j − k        adding −k
                     0 ≤ j − k        weakening
 
-          6.4.10. j − k ∈ ℕ₀
+          6.4.9.  j − k ∈ ℕ₀
                   mun:nat0-as-int
-                  requires 0 ≤ j − k: from 6.4.9
+                  requires 0 ≤ j − k: from 6.4.8
 
-          6.4.11. L(k) ≤ L(k + (j − k)) and U(k + (j − k)) ≤ U(k)
-                  instantiate g := j − k, p := k in line 5, from 6.4.10
+          6.4.10. L(k) ≤ L(k + (j − k)) and U(k + (j − k)) ≤ U(k)
+                  instantiate g := j − k, p := k in line 5, from 6.4.9
 
-          6.4.12. k + (j − k) = j
+          6.4.11. k + (j − k) = j
                   algebra
 
-          6.4.13. L(k) ≤ L(j) and U(j) ≤ U(k)
-                  substitute k + (j − k) = j (line 6.4.12) into line 6.4.11
+          6.4.12. L(k) ≤ L(j) and U(j) ≤ U(k)
+                  substitute k + (j − k) = j (line 6.4.11) into line 6.4.10
 
-          6.4.14. L(j) ≤ U(j)
-                  inequalities, from 6.1
+          6.4.13. U(j) ≤ U(k)
+                  inequalities, from 6.1, 6.2, 6.4.12
 
-          6.4.15. U(j) ≤ U(k)
-                  inequalities, from 6.1, 6.2, 6.4.13
-
-          6.4.16. L(j) ≤ U(k)
-                  transitivity, from 6.4.14, 6.4.15
-                  requires L(j) ∈ ℝ: from 6.1
-                  requires U(j) ∈ ℝ: from 6.1
+          6.4.14. L(j) ≤ U(k)
+                  transitivity, from 6.1, 6.4.13
                   requires U(k) ∈ ℝ: from 6.2
 
 7.  S ⊆ ℝ

@@ -49,6 +49,26 @@ theorem a-divisor-not-zero-by-weakening
     algebra
     requires q ≠ 0: weakening, from H3
 
+theorem rows-from-one-sentence-of-a-line
+  note        The first row may be one of the relations a line says, and a
+              requires line may manipulate one: of 0 < q and q < 1, each.
+  let p ∈ ℝ    (H1)
+  let q ∈ ℝ    (H2)
+  assume 0 < q and q < 1    (H3)
+  then 2·q < 2. p/q·q = p.
+
+1.  2·q < 2
+    inequalities
+      q < 1        H3
+      2·q < 2      multiplying by 2
+
+2.  p/q·q = p
+    algebra
+    requires q ≠ 0: weakening, from H3
+
+3.  2·q < 2. p/q·q = p.
+    join 1, 2
+
 theorem positive-so-not-zero
   note        A strict order weakened to ≠, the claim written from its other
               side.

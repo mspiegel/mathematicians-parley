@@ -61,18 +61,14 @@ theorem harmonic-block
           requires 2^j + 1 ∈ ℤ: membership, from H1
           requires 2^(j + 1) ∈ ℤ: membership, from H1
 
-    9.2.  2^j + 1 ≤ k
-          inequalities, from 9.1
+    9.2.  k > 0
+          transitivity, from 8, 9.1
           requires 2^j ∈ ℝ: membership, from H1
 
-    9.3.  k > 0
-          transitivity, from 8, 9.2
-          requires 2^j ∈ ℝ: membership, from H1
-
-    9.4.  1/2^(j + 1) ≤ 1/k
+    9.3.  1/2^(j + 1) ≤ 1/k
           mun:reciprocal-order x := k, y := 2^(j + 1), from 9.1
           requires 2^(j + 1) ∈ ℤ: membership, from H1
-          requires k > 0: from 9.3
+          requires k > 0: from 9.2
           requires 2^(j + 1) > 0: inequalities, from 3
 
 10. For all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ.
@@ -84,17 +80,13 @@ theorem harmonic-block
           requires 2^j + 1 ∈ ℤ: membership, from H1
           requires 2^(j + 1) ∈ ℤ: membership, from H1
 
-    10.2. 2^j + 1 ≤ k
-          inequalities, from 10.1
+    10.2. k > 0
+          transitivity, from 8, 10.1
           requires 2^j ∈ ℝ: membership, from H1
 
-    10.3. k > 0
-          transitivity, from 8, 10.2
-          requires 2^j ∈ ℝ: membership, from H1
-
-    10.4. 1/k ∈ ℝ
+    10.3. 1/k ∈ ℝ
           membership
-          requires k ≠ 0: weakening, from 10.3
+          requires k ≠ 0: weakening, from 10.2
 
 11. Σ(k = 2^j + 1 to 2^(j + 1)) 1/2^(j + 1) ≤ Σ(k = 2^j + 1 to 2^(j + 1)) 1/k
     mun:sum-le a := 2^j + 1, b := 2^(j + 1), from 9
@@ -224,23 +216,20 @@ theorem harmonic-unbounded
 4.  Σ(k = 1 to 2^N) 1/k ≥ N/2
     instantiate m := N in line 2
 
-5.  N > 2M
-    inequalities, from 3
-
-6.  N/2 > M
+5.  N/2 > M
     inequalities
-      N > 2M           5
+      N > 2M           3
       N/2 > M          multiplying by 1/2
 
-7.  Σ(k = 1 to 2^N) 1/k > M
-    transitivity, from 4, 6
+6.  Σ(k = 1 to 2^N) 1/k > M
+    transitivity, from 4, 5
     requires Σ(k = 1 to 2^N) 1/k ∈ ℝ: membership, from 1
 
-8.  2^N ∈ ℕ
+7.  2^N ∈ ℕ
     mun:power-nat a := 2, m := N
 
-9.  There is n ∈ ℕ with Σ(k = 1 to n) 1/k > M.
-    exhibit, from 7, 8
+8.  There is n ∈ ℕ with Σ(k = 1 to n) 1/k > M.
+    exhibit, from 6, 7
 
 
 theorem harmonic

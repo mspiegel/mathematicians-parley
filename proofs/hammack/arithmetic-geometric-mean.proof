@@ -14,10 +14,14 @@ theorem arithmetic-geometric-mean
   then a + b ≥ 2·√(a·b)
 
 1.  a ≥ 0
-    inequalities, from H3
+    inequalities
+      a > 0      H3
+      a ≥ 0      weakening
 
 2.  b ≥ 0
-    inequalities, from H4
+    inequalities
+      b > 0      H4
+      b ≥ 0      weakening
 
 3.  a·b ≥ 0
     mun:product-nonneg x := a, y := b, from 1, 2
@@ -32,20 +36,21 @@ theorem arithmetic-geometric-mean
     5.1.  a + b < 2·√(a·b)
           inequalities, from S, 4
 
-    5.2.  √(a·b) ≥ 0
-          inequalities, from 4
-
-    5.3.  2·√(a·b) ≥ 0
+    5.2.  2·√(a·b) ≥ 0
           inequalities
-            √(a·b) ≥ 0                  5.2
+            √(a·b) ≥ 0                  4
             2·√(a·b) ≥ 0                multiplying by 2
-          requires √(a·b) ∈ ℝ: from 4
 
-    5.4.  a + b ≥ 0
+    5.3.  a + b > 0
           inequalities, from H3, H4
 
+    5.4.  a + b ≥ 0
+          inequalities
+            a + b > 0                   5.3
+            a + b ≥ 0                   weakening
+
     5.5.  (a + b)² < (2·√(a·b))²
-          mun:square-less x := a + b, y := 2·√(a·b), from 5.1, 5.3, 5.4
+          mun:square-less x := a + b, y := 2·√(a·b), from 5.1, 5.2, 5.4
           requires 2·√(a·b) ∈ ℝ: membership, from 4
 
     5.6.  (2·√(a·b))² = 4·(a·b)

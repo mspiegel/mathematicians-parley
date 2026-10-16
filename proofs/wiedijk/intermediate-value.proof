@@ -39,7 +39,7 @@ let S = {x ∈ [a, b] : f(x) < 0}                                       (D1)
 1.  a ∈ [a, b]
     mun:interval x := a
     requires a ≤ a: inequalities
-    requires a ≤ b: inequalities, from H3
+    requires a ≤ b: weakening, from H3
 
 2.  a ∈ S
     mun:set-builder u := a, from D1, H6, 1
@@ -109,11 +109,17 @@ let S = {x ∈ [a, b] : f(x) < 0}                                       (D1)
 
            16.1.2.  b ∈ [a, b]
                     mun:interval x := b
-                    requires a ≤ b: inequalities, from H3
+                    requires a ≤ b: weakening, from H3
                     requires b ≤ b: inequalities
 
-           16.1.3.  not f(b) < 0
-                    inequalities, from H7, contradicting 16.1.1
+           16.1.3.  0 ≤ f(b)
+                    inequalities
+                      0 < f(b)          H7
+                      0 ≤ f(b)          weakening
+                    requires f(b) ∈ ℝ: from H4, 16.1.2
+
+           16.1.4.  not f(b) < 0
+                    inequalities, from 16.1.3, contradicting 16.1.1
                     requires f(b) ∈ ℝ: from H4, 16.1.2
 
     16.2.  c < b
@@ -138,97 +144,91 @@ let S = {x ∈ [a, b] : f(x) < 0}                                       (D1)
            mun:min-real x := b, y := c + δ/2
            reads a point right of c, within δ of it, and not past b
 
-    16.6.  δ > 0
-           inequalities, from 16.5
-
-    16.7.  δ/2 > 0
+    16.6.  δ/2 > 0
            inequalities
-             δ > 0             16.6
+             δ > 0             16.5
              δ/2 > 0           multiplying by 1/2
 
-    16.8.  c < c + δ/2
+    16.7.  c < c + δ/2
            inequalities
-             δ/2 > 0           16.7
+             δ/2 > 0           16.6
              c + δ/2 > c       adding c
 
-    16.9.  c < x₁
-           mun:lt-min z := c, x := b, y := c + δ/2, from D2, 16.2, 16.8
+    16.8.  c < x₁
+           mun:lt-min z := c, x := b, y := c + δ/2, from D2, 16.2, 16.7
 
-    16.10. x₁ ≤ b. x₁ ≤ c + δ/2.
+    16.9.  x₁ ≤ b. x₁ ≤ c + δ/2.
            mun:min-le x := b, y := c + δ/2, from D2
 
-    16.11. x₁ ≤ c + δ/2
-           inequalities, from 16.10
-
-    16.12. x₁ − c ≤ δ/2
+    16.10. x₁ − c ≤ δ/2
            inequalities
-             x₁ ≤ c + δ/2      16.11
+             x₁ ≤ c + δ/2      16.9
              x₁ − c ≤ δ/2      adding −c
 
-    16.13. δ/2 < δ
+    16.11. δ/2 < δ
            inequalities
-             δ/2 > 0           16.7
+             δ/2 > 0           16.6
              δ > δ/2           adding δ/2
 
-    16.14. x₁ − c < δ
-           transitivity, from 16.12, 16.13
+    16.12. x₁ − c < δ
+           transitivity, from 16.10, 16.11
 
-    16.15. a < x₁
-           transitivity, from 11, 16.9
+    16.13. a < x₁
+           transitivity, from 11, 16.8
 
-    16.16. a ≤ x₁
+    16.14. a ≤ x₁
            inequalities
-             a < x₁            16.15
+             a < x₁            16.13
              a ≤ x₁            weakening
 
-    16.17. x₁ ∈ [a, b]
-           mun:interval x := x₁, from 16.10, 16.16
+    16.15. x₁ ∈ [a, b]
+           mun:interval x := x₁, from 16.9, 16.14
 
-    16.18. c − δ < c
+    16.16. c − δ < c
            inequalities
-             δ > 0             16.6
+             δ > 0             16.5
              c > c − δ         adding c − δ
 
-    16.19. c − δ < x₁
-           transitivity, from 16.18, 16.9
+    16.17. c − δ < x₁
+           transitivity, from 16.16, 16.8
 
-    16.20. x₁ < c + δ
+    16.18. x₁ < c + δ
            inequalities
-             x₁ − c < δ        16.14
+             x₁ − c < δ        16.12
              x₁ < c + δ        adding c
 
-    16.21. |x₁ − c| < δ
-           mun:abs-difference-lt x := x₁, from 16.19, 16.20
+    16.19. |x₁ − c| < δ
+           mun:abs-difference-lt x := x₁, from 16.17, 16.18
 
-    16.22. |f(x₁) − f(c)| < −f(c)
-           instantiate x := x₁ in line 16.5, from 16.17, 16.21
+    16.20. |f(x₁) − f(c)| < −f(c)
+           instantiate x := x₁ in line 16.5, from 16.15, 16.19
 
-    16.23. f(x₁) − f(c) ≤ |f(x₁) − f(c)|
+    16.21. f(x₁) − f(c) ≤ |f(x₁) − f(c)|
            thm:abs-bounds x := f(x₁) − f(c)
-           requires f(x₁) − f(c) ∈ ℝ: mun:real-closure, from H4, 13, 16.17
+           requires f(x₁) − f(c) ∈ ℝ: mun:real-closure, from H4, 13, 16.15
 
-    16.24. f(x₁) − f(c) < −f(c)
-           transitivity, from 16.23, 16.22
-           requires f(x₁) ∈ ℝ: from H4, 16.17
+    16.22. f(x₁) − f(c) < −f(c)
+           transitivity, from 16.21, 16.20
+           requires f(x₁) ∈ ℝ: from H4, 16.15
            requires f(c) ∈ ℝ: from H4, 13
-           requires f(x₁) − f(c) ∈ ℝ: mun:real-closure, from H4, 13, 16.17
+           requires f(x₁) − f(c) ∈ ℝ: mun:real-closure, from H4, 13, 16.15
            requires |f(x₁) − f(c)| ∈ ℝ: mun:abs-real x := f(x₁) − f(c)
 
-    16.25. f(x₁) < 0
+    16.23. f(x₁) < 0
            inequalities
-             f(x₁) − f(c) < −f(c)      16.24
+             f(x₁) − f(c) < −f(c)      16.22
              f(x₁) < 0                 adding f(c)
-           requires f(x₁) ∈ ℝ: from H4, 16.17
+           requires f(x₁) ∈ ℝ: from H4, 16.15
            requires f(c) ∈ ℝ: from H4, 13
 
-    16.26. x₁ ∈ S
-           mun:set-builder u := x₁, from D1, 16.17, 16.25
+    16.24. x₁ ∈ S
+           mun:set-builder u := x₁, from D1, 16.15, 16.23
 
-    16.27. x₁ ≤ c
-           instantiate s := x₁ in line 10, from 16.26
+    16.25. x₁ ≤ c
+           instantiate s := x₁ in line 10, from 16.24
 
-    16.28. not x₁ ≤ c
-           inequalities, from 16.9, contradicting 16.27
+    16.26. not x₁ ≤ c
+           inequalities, from 16.8, contradicting 16.25
 
     case
     assume f(c) = 0, which is the claim                               (C2)
@@ -237,85 +237,83 @@ let S = {x ∈ [a, b] : f(x) < 0}                                       (D1)
     note f stays above 0 within δ of c, so c − δ is a bound below c
     assume 0 < f(c)                                                   (C3)
 
-    16.29. There exists δ > 0 such that
+    16.27. There exists δ > 0 such that
            |f(x) − f(c)| < f(c) for all x ∈ [a, b] with |x − c| < δ.
            instantiate c′ := c, ε := f(c) in line 15, from C3, H4, 13
 
-    16.30. δ ∈ ℝ. δ > 0.
+    16.28. δ ∈ ℝ. δ > 0.
            For all x ∈ [a, b], if |x − c| < δ then |f(x) − f(c)| < f(c).
-           obtain δ from line 16.29
+           obtain δ from line 16.27
 
-    16.31. For all s ∈ S, s ≤ c − δ.
+    16.29. For all s ∈ S, s ≤ c − δ.
            proof
            let s ∈ S                                                  (K2)
 
-           16.31.1.  s ∈ [a, b]
+           16.29.1.  s ∈ [a, b]
                      mun:set-builder, from D1, K2
 
-           16.31.2.  f(s) < 0
+           16.29.2.  f(s) < 0
                      mun:set-builder, from D1, K2
 
-           16.31.3.  s ≤ c
+           16.29.3.  s ≤ c
                      instantiate s := s in line 10, from K2
 
-           16.31.4.  s ≤ c − δ
+           16.29.4.  s ≤ c − δ
                      contradiction
                      suppose not s ≤ c − δ                            (S2)
 
-                     16.31.4.1.  c − δ < s
+                     16.29.4.1.  c − δ < s
                                  inequalities, from S2
-                                 requires s ∈ ℝ: mun:interval, from 16.31.1
+                                 requires s ∈ ℝ: mun:interval, from 16.29.1
 
-                     16.31.4.2.  s < c + δ
-                                 inequalities, from 16.30, 16.31.3
-                                 requires s ∈ ℝ: mun:interval, from 16.31.1
+                     16.29.4.2.  s < c + δ
+                                 inequalities, from 16.28, 16.29.3
+                                 requires s ∈ ℝ: mun:interval, from 16.29.1
 
-                     16.31.4.3.  |s − c| < δ
+                     16.29.4.3.  |s − c| < δ
                                  mun:abs-difference-lt x := s,
-                                   from 16.31.4.1, 16.31.4.2
-                                 requires s ∈ ℝ: mun:interval, from 16.31.1
+                                   from 16.29.4.1, 16.29.4.2
+                                 requires s ∈ ℝ: mun:interval, from 16.29.1
 
-                     16.31.4.4.  |f(s) − f(c)| < f(c)
-                                 instantiate x := s in line 16.30, from 16.31.1, 16.31.4.3
+                     16.29.4.4.  |f(s) − f(c)| < f(c)
+                                 instantiate x := s in line 16.28, from 16.29.1, 16.29.4.3
 
-                     16.31.4.5.  −(f(s) − f(c)) ≤ |f(s) − f(c)|
+                     16.29.4.5.  −(f(s) − f(c)) ≤ |f(s) − f(c)|
                                  thm:abs-bounds x := f(s) − f(c)
-                                 requires f(s) − f(c) ∈ ℝ: mun:real-closure, from H4, 13, 16.31.1
+                                 requires f(s) − f(c) ∈ ℝ: mun:real-closure, from H4, 13, 16.29.1
 
-                     16.31.4.6.  −(f(s) − f(c)) < f(c)
-                                 transitivity, from 16.31.4.5, 16.31.4.4
-                                 requires f(s) ∈ ℝ: from H4, 16.31.1
+                     16.29.4.6.  −(f(s) − f(c)) < f(c)
+                                 transitivity, from 16.29.4.5, 16.29.4.4
+                                 requires f(s) ∈ ℝ: from H4, 16.29.1
                                  requires f(c) ∈ ℝ: from H4, 13
-                                 requires f(s) − f(c) ∈ ℝ: mun:real-closure, from H4, 13, 16.31.1
+                                 requires f(s) − f(c) ∈ ℝ: mun:real-closure, from H4, 13, 16.29.1
                                  requires |f(s) − f(c)| ∈ ℝ: mun:abs-real x := f(s) − f(c)
 
-                     16.31.4.7.  0 < f(s)
+                     16.29.4.7.  0 ≤ f(s)
                                  inequalities
-                                   −(f(s) − f(c)) < f(c)      16.31.4.6
+                                   −(f(s) − f(c)) < f(c)      16.29.4.6
                                    0 < f(s)                   adding f(s) − f(c)
-                                 requires f(s) ∈ ℝ: from H4, 16.31.1
+                                   0 ≤ f(s)                   weakening
+                                 requires f(s) ∈ ℝ: from H4, 16.29.1
                                  requires f(c) ∈ ℝ: from H4, 13
 
-                     16.31.4.8.  not f(s) < 0
-                                 inequalities, from 16.31.4.7, contradicting 16.31.2
-                                 requires f(s) ∈ ℝ: from H4, 16.31.1
+                     16.29.4.8.  not f(s) < 0
+                                 inequalities, from 16.29.4.7, contradicting 16.29.2
+                                 requires f(s) ∈ ℝ: from H4, 16.29.1
 
-    16.32. c − δ is an upper bound of S
-           mun:upper-bound, from 16.31
+    16.30. c − δ is an upper bound of S
+           mun:upper-bound, from 16.29
 
-    16.33. c ≤ c − δ
-           instantiate u := c − δ in line 9, from 16.32
+    16.31. c ≤ c − δ
+           instantiate u := c − δ in line 9, from 16.30
 
-    16.34. δ > 0
-           inequalities, from 16.30
-
-    16.35. c − δ < c
+    16.32. c − δ < c
            inequalities
-             δ > 0             16.34
+             δ > 0             16.28
              c > c − δ         adding c − δ
 
-    16.36. not c ≤ c − δ
-           inequalities, from 16.35, contradicting 16.33
+    16.33. not c ≤ c − δ
+           inequalities, from 16.32, contradicting 16.31
 
 17. There exists c ∈ [a, b] such that f(c) = 0.
     exhibit, from 13, 16

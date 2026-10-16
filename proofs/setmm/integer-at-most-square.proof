@@ -25,34 +25,39 @@ theorem integer-at-most-square
     case
     assume n < 0                                                      (C1)
 
-    4.1.  n ≤ n²
+    4.1.  n < n²
           inequalities, from C1, 2
+
+    4.2.  n ≤ n²
+          inequalities
+            n < n²           4.1
+            n ≤ n²           weakening
 
     case
     assume n = 0                                                      (C2)
 
-    4.2.  n·n = 0
+    4.3.  n·n = 0
           algebra, from C2
 
-    4.3.  n = n²
-          transitivity, from C2, 4.2, 3
+    4.4.  n = n²
+          transitivity, from C2, 4.3, 3
 
-    4.4.  n ≤ n²
+    4.5.  n ≤ n²
           inequalities
-            n = n²           4.3
+            n = n²           4.4
             n ≤ n²           weakening
 
     case
     assume 0 < n                                                      (C3)
 
-    4.5.  0 + 1 ≤ n
+    4.6.  0 + 1 ≤ n
           mun:integer-step m := 0, from C3
 
-    4.6.  n·1 ≤ n·n
-          mun:multiply-le x := 1, y := n, c := n, from C3, 4.5
+    4.7.  n·1 ≤ n·n
+          mun:multiply-le x := 1, y := n, c := n, from C3, 4.6
 
-    4.7.  n ≤ n²
+    4.8.  n ≤ n²
           inequalities
-            n·1 ≤ n·n        4.6
+            n·1 ≤ n·n        4.7
             n ≤ n·n          algebra
             n ≤ n²           algebra

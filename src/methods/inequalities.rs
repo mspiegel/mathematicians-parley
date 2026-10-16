@@ -109,6 +109,14 @@ fn added(
     if !used.iter().any(|&i| i < given.cited) {
         return true;
     }
+    // Lines added as they stand make a sum as strict as the strictest of
+    // them: `a < b` gives `a < b`, and `a ≤ b` from it is a `weakening` row.
+    let strict = used
+        .iter()
+        .any(|&i| i < given.cited && facts[i].how == How::Lt);
+    if claim.how == How::Le && strict {
+        return false;
+    }
     // An equation is added from equations: from two orders it is
     // `antisymmetry`.
     let ordered = used

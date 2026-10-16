@@ -1747,35 +1747,96 @@ fn starts(term: &Node, link: &Related, known: &Known) -> bool {
     known.alike(term, &link.left) || known.alike(term, &link.right)
 }
 
-/// The lines a step cites, each as one link, in the order cited; the
-/// first line that states no single relation reported.
+/// Each relation of `=`, `≠`, `<`, `≤`, `>` or `≥` the line `r` in a step's
+/// scope says, one to a sentence: the line's own, or of a line saying
+/// several things, `0 < x and x < 1`, each of them.
+fn line_relations(step: &Step, r: &str, known: &Known) -> Vec<Related> {
+    cited_whole(step, r, known)
+        .map(|n| conjuncts(&n).iter().filter_map(Related::of).collect())
+        .unwrap_or_default()
+}
+
+/// What the line `r` in a step's scope states, all of it, as written.
+fn cited_whole(step: &Step, r: &str, known: &Known) -> Option<Node> {
+    known
+        .scope(step)
+        .get(r)
+        .and_then(|s| known.stated_as_written(s))
+}
+
+/// The lines a step cites, each as one link, in the order cited
+/// (`METHODS.md`, transitivity): a line's relation, or of a line saying
+/// several, the one of them that meets its neighbours, which is to be one
+/// only. The first line with no such relation reported.
 fn cited_links(
     thm: &Theorem,
     step: &Step,
     known: &Known,
     method: &str,
 ) -> Checked<Vec<Related>> {
-    let scope = known.scope(step);
-    let mut out = Vec::new();
+    let number = &step.number;
+    let mut each: Vec<Vec<Related>> = Vec::new();
     for r in &step.just.refs {
-        let link = scope
-            .get(r)
-            .and_then(|s| known.stated_as_written(s))
-            .and_then(|n| Related::of(&n))
-            .filter(|l| l.rel != Rel::Ne);
-        let Some(link) = link else {
+        let said: Vec<Related> = line_relations(step, r, known)
+            .into_iter()
+            .filter(|l| l.rel != Rel::Ne)
+            .collect();
+        if said.is_empty() {
             return Err(Problem::new(
                 &thm.path,
                 step.just.line,
                 format!(
-                    "step {} cites {r} by {method}, and {r} states no single relation of =, <, ≤, > or ≥",
-                    step.number
+                    "step {number} cites {r} by {method}, and {r} states no relation of =, <, ≤, > or ≥"
+                ),
+            ));
+        }
+        each.push(said);
+    }
+    let meets = |a: &Related, b: &Related| {
+        starts(&a.left, b, known) || starts(&a.right, b, known)
+    };
+    let mut out: Vec<Related> = Vec::new();
+    for (i, said) in each.iter().enumerate() {
+        if let [one] = said.as_slice() {
+            out.push(one.clone());
+            continue;
+        }
+        let fits: Vec<&Related> = said
+            .iter()
+            .filter(|s| match out.last() {
+                Some(before) => meets(before, s),
+                None => each
+                    .get(i + 1)
+                    .is_some_and(|next| next.iter().any(|n| meets(s, n))),
+            })
+            .collect();
+        let [one] = fits.as_slice() else {
+            return Err(Problem::new(
+                &thm.path,
+                step.just.line,
+                format!(
+                    "step {number} cites {} by {method}, which says several relations, and not just one of them meets the lines it is cited with",
+                    step.just.refs[i]
                 ),
             ));
         };
-        out.push(link);
+        out.push((*one).clone());
     }
     Ok(out)
+}
+
+/// The relation each line a `transitivity` step cites gives its chain, as
+/// written, by the line each step is on (`CheckedTheorem::links`); a step
+/// whose lines make no chain has none, and is among the theorem's problems.
+pub fn transitivity_links(thm: &Theorem, known: &Known) -> IndexMap<usize, Vec<Node>> {
+    thm.steps
+        .iter()
+        .filter(|s| s.just.head.is(Method::Transitivity))
+        .filter_map(|s| {
+            let links = cited_links(thm, s, known, "transitivity").ok()?;
+            Some((s.line, links.into_iter().map(|l| l.said).collect()))
+        })
+        .collect()
 }
 
 /// The chain a `transitivity` step's lines make, each line's right side the
@@ -2129,14 +2190,12 @@ pub fn check_inequality_rows(
         if read.len() != written.len() {
             continue;
         }
-        // The first row writes out the line it cites, the step's only one.
+        // The first row writes out the line it cites, the step's only one,
+        // or one of the relations a line saying several says.
         let first_says = match &written[0].reason {
-            RowReason::Cited(r) => known
-                .scope(step)
-                .get(r)
-                .and_then(|s| known.stated_as_written(s))
-                .and_then(|n| Related::of(&n))
-                .is_some_and(|line| line.says(&read[0], known)),
+            RowReason::Cited(r) => line_relations(step, r, known)
+                .iter()
+                .any(|line| line.says(&read[0], known)),
             _ => false,
         };
         if !first_says {
@@ -2149,6 +2208,10 @@ pub fn check_inequality_rows(
             );
             continue;
         }
+        let whole_cited: Vec<Node> = match &written[0].reason {
+            RowReason::Cited(r) => cited_whole(step, r, known).into_iter().collect(),
+            _ => Vec::new(),
+        };
         let mut held = true;
         for (i, row) in written.iter().enumerate().skip(1) {
             let term = match &row.reason {
@@ -2183,11 +2246,15 @@ pub fn check_inequality_rows(
                 held = false;
                 break;
             }
+            // What the cited line says besides the relation the rows start
+            // from, `x ∈ ℝ. x > 0.`, says it of every row.
             let relations = [read[i].said.clone(), read[i - 1].said.clone()];
+            let mut lines = vec![relations[1].clone()];
+            lines.extend(whole_cited.iter().cloned());
             let pair = ClosureRead {
                 claimed: relations[0].clone(),
-                lines: vec![relations[1].clone()],
-                line_of: vec![0],
+                line_of: vec![0; lines.len()],
+                lines,
             };
             if let Some(said) = real_unsaid(
                 &ClosureClaim::step(step),
@@ -2235,11 +2302,7 @@ pub fn check_requires_manipulations(
             };
             let reason = made.as_row(&thm.path, req.line);
             let cited = req.lines().first().cloned().unwrap_or_default();
-            let line = known
-                .scope(step)
-                .get(&cited)
-                .and_then(|s| known.stated_as_written(s))
-                .and_then(|n| Related::of(&n));
+            let said = line_relations(step, &cited, known);
             let fact = known
                 .whole_as_written(&req.fact)
                 .and_then(|n| Related::of(&n));
@@ -2256,16 +2319,18 @@ pub fn check_requires_manipulations(
                 _ => None,
             };
             // The fact may be written either way round, as a step's last
-            // row may: `0 < ε/7` is `ε/7 > 0`.
-            let follows = match (&line, &fact) {
-                (Some(line), Some(fact)) => {
-                    [fact.clone(), fact.turned()].iter().any(|f| {
-                        row_follows(line, f, &reason, term.as_ref(), known, targets)
+            // row may: `0 < ε/7` is `ε/7 > 0`. Of a line saying several
+            // relations, it is one of them manipulated.
+            let line = fact.as_ref().and_then(|fact| {
+                said.iter()
+                    .find(|line| {
+                        [fact.clone(), fact.turned()].iter().any(|f| {
+                            row_follows(line, f, &reason, term.as_ref(), known, targets)
+                        })
                     })
-                }
-                _ => false,
-            };
-            if !follows {
+                    .cloned()
+            });
+            if line.is_none() {
                 report.say(
                     &thm.path,
                     req.line,
@@ -2319,10 +2384,20 @@ fn report_unreal(
     let relations: Vec<Node> = std::iter::once(claim.clone())
         .chain(links.iter().map(|l| l.said.clone()))
         .collect();
+    // A cited line says all it says, not only the relation the chain takes
+    // from it: `δ ∈ ℝ. δ > 0.` says δ is real.
+    let mut lines = relations[1..].to_vec();
+    let mut line_of: Vec<usize> = (0..links.len()).collect();
+    for (i, r) in step.just.refs.iter().enumerate() {
+        if let Some(whole) = cited_whole(step, r, known) {
+            lines.push(whole);
+            line_of.push(i);
+        }
+    }
     let read = ClosureRead {
         claimed: claim.clone(),
-        lines: relations[1..].to_vec(),
-        line_of: (0..links.len()).collect(),
+        lines,
+        line_of,
     };
     if let Some(said) =
         real_unsaid(&ClosureClaim::step(step), &read, &relations, known, targets)
