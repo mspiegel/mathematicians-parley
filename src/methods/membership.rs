@@ -59,10 +59,14 @@ pub fn holds(term: &Node, system: System, facts: &Facts) -> bool {
 
 /// Whether the page says `term` is in `system`, which a method's atoms ask
 /// of it (`READERS.md`, membership is said once): by the walk, or by a fact
-/// stating the membership of what the walk does not take apart. A power
-/// with a letter exponent, a function's value or a sum is not reached from
-/// its parts, as `holds` reaches it; a line says it.
+/// stating the membership of what the walk does not take apart. A power to
+/// an exponent other than a numeral or a letter in ℕ or ℕ₀, a function's
+/// value or a sum is not reached from its parts, as `holds` reaches it; a
+/// line says it. The term is read with
+/// its identity elements dropped (`SYNTAX.md`, an identity element goes
+/// without saying), so 2^(d·1) is the power to the letter d.
 pub fn said(term: &Node, system: System, facts: &Facts) -> bool {
+    let term = &crate::matching::bare(term, facts.ctx);
     let nonzero = |d: &Node| nonzero(d, facts);
     let stated = |t: &Node, s: System| {
         facts.facts.iter().any(|f| {

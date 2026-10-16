@@ -832,7 +832,7 @@ fn dropped_into(instance: &Node, ground: &Node, ctx: &Context, out: &mut Vec<Nod
 }
 
 /// A term with every identity element dropped, its parts first.
-fn bare(node: &Node, ctx: &Context) -> Node {
+pub fn bare(node: &Node, ctx: &Context) -> Node {
     if node.children.is_empty() {
         return node.clone();
     }

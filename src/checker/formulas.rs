@@ -1595,13 +1595,10 @@ fn real_unsaid(
     for relation in relations {
         for side in relation_sides(relation) {
             let parts = methods_membership::Parts::of(side);
-            // A side a fact says is real as it stands, `2^d − 1 ∈ ℤ`, asks
-            // nothing of its atoms.
-            let whole = methods_membership::said(side, System::R, &given);
             if let Some(atom) = parts
                 .atoms
                 .iter()
-                .find(|a| !whole && !methods_membership::said(a, System::R, &given))
+                .find(|a| !methods_membership::said(a, System::R, &given))
             {
                 return Some(format!(
                     "nothing says {} ∈ ℝ, which this step needs",
