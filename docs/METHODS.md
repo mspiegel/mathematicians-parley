@@ -154,6 +154,31 @@ atoms, with three additions:
   equation, which four steps of the triangle inequality do when they conclude
   `x ≤ |x|` from `|x| = x`.
 
+**A step makes one manipulation.** It adds the facts it cites as they
+stand, which is adding the same term to both sides and chaining `a ≤ b`
+with `b < c`; or it multiplies both sides of one cited fact by a positive
+number. It does not do both, and it does not multiply two facts. From
+`A < B`, `A < (A + B)/2` adds A to both sides and halves the result, two
+things, so it is written as a step for each, starting from the line:
+
+```
+1.1.  A + A < A + B
+      inequalities, from D1
+
+1.2.  2·A < A + B
+      inequalities, from 1.1
+
+1.3.  A < (A + B)/2
+      inequalities, from 1.2
+```
+
+Writing a side as the same number another way, `A + A` as `2·A` in 1.2 or
+`(2·A)/2` as `A` in 1.3, is no manipulation, and a step may do it as it
+goes. In the combination that refutes the claim's denial, every fact is
+weighted alike, or one cited fact is weighted apart from the denial and no
+other fact is used; where a disequality is taken both ways, each reading's
+combination is one of these.
+
 ### Refusals
 
 - **Anything non-linear.** Multiplying two atoms, or dividing an atom by
@@ -163,6 +188,8 @@ atoms, with three additions:
   absolute value, the value of a function. Those are cited items.
 - **Strictness it was not given.** From `a ≤ b` alone it will not conclude
   `a < b`; the disequality must be among the cited facts.
+- **Two manipulations in one step.** Adding facts and multiplying one, or
+  multiplying two facts by different numbers. That is a step for each.
 
 ### Hypotheses
 
