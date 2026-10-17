@@ -1,0 +1,57 @@
+import theorem            stdlib/divisibility/coprime-divides
+import mundane theorem    stdlib/divisibility/gcd-commutes
+import mundane definition stdlib/divisibility/gcd
+import mundane theorem    stdlib/divisibility/prime-coprime
+import mundane theorem    stdlib/divisibility/prime-nat
+import mundane axiom      stdlib/reasoning/excluded-middle
+import mundane theorem    stdlib/reasoning/or-left
+import mundane theorem    stdlib/reasoning/or-right
+
+theorem prime-divides-a-factor
+  note        If p does not divide a, then p and a have no common factor, since
+              p's only divisors are 1 and p; so p divides b.
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  let p ∈ ℤ                                                           (H3)
+  assume p is prime                                                   (H4)
+  assume p divides a·b                                                (H5)
+  then p divides a or p divides b
+
+1.  p ∈ ℕ
+    mun:prime-nat, from H4
+
+2.  p divides a or not (p divides a)
+    mun:excluded-middle P := p divides a
+
+3.  p divides a or p divides b
+    cases, from 2
+
+    case
+    assume p divides a                                                (C1)
+
+    3.1.  p divides a or p divides b
+          mun:or-left Q := p divides b, from C1
+
+    case
+    assume not (p divides a)                                          (C2)
+
+    3.2.  gcd(p, a) = 1
+          mun:prime-coprime, from C2, H4, 1
+
+    3.3.  gcd(p, a) = gcd(a, p)
+          mun:gcd-commutes a := p, b := a
+
+    3.4.  gcd(a, p) = 1
+          substitute gcd(p, a) = gcd(a, p) (line 3.3) into line 3.2
+
+    3.5.  a·b = b·a
+          algebra
+
+    3.6.  p divides b·a
+          substitute a·b = b·a (line 3.5) into H5
+
+    3.7.  p divides b
+          thm:coprime-divides x := b, c := a, n := p, from 1, 3.4, 3.6
+
+    3.8.  p divides a or p divides b
+          mun:or-right P := p divides a, from 3.7

@@ -1,0 +1,137 @@
+import mundane definition stdlib/functions/image
+import mundane definition stdlib/functions/preimage
+import mundane definition stdlib/functions/onto
+import mundane theorem    stdlib/functions/value-in-image
+import mundane definition stdlib/sets/subset
+import mundane definition stdlib/sets/singleton
+import mundane theorem    stdlib/sets/singleton-subset
+import mundane theorem    stdlib/sets/in-subset
+import mundane theorem    stdlib/sets/subset-antisymmetric
+
+theorem onto-image-of-preimage
+  note        If f is onto, every y in Y is f(x) for some x, and that x is
+              sent into Y. If f[f⁻¹[{y}]] = {y}, then y is f(s) for some s.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  let f : A → B                                                       (H3)
+  then f : A → B is onto ↔ for all Y ⊆ B, f[f⁻¹[Y]] = Y
+
+1.  f : A → B is onto ↔ for all Y ⊆ B, f[f⁻¹[Y]] = Y
+    both directions
+
+    direction
+    assume f : A → B is onto                                          (D1)
+
+    1.1.  For all y ∈ B, there is x ∈ A with y = f(x).
+          mun:onto, from D1
+
+    1.2.  For all Y ⊆ B, f[f⁻¹[Y]] = Y.
+          proof
+          let Y ⊆ B                                                   (K1)
+
+          1.2.1.  For all u ∈ f⁻¹[Y], u ∈ A.
+                  proof
+                  let u ∈ f⁻¹[Y]                                      (K2)
+
+                  1.2.1.1.  u ∈ A
+                            mun:preimage Z := Y, from K2
+
+          1.2.2.  f⁻¹[Y] ⊆ A
+                  mun:subset, from 1.2.1
+
+          1.2.3.  For all y ∈ f[f⁻¹[Y]], y ∈ Y.
+                  proof
+                  let y ∈ f[f⁻¹[Y]]                                   (K3)
+
+                  1.2.3.1.  There is s ∈ f⁻¹[Y] with y = f(s).
+                            mun:image u := y, Y := f⁻¹[Y], from K3, 1.2.2
+
+                  1.2.3.2.  s ∈ f⁻¹[Y]. y = f(s).
+                            obtain s from line 1.2.3.1
+
+                  1.2.3.3.  s ∈ A. f(s) ∈ Y.
+                            mun:preimage u := s, Z := Y, from 1.2.3.2
+
+                  1.2.3.4.  y ∈ Y
+                            substitute y = f(s) (line 1.2.3.2) into line 1.2.3.3
+
+          1.2.4.  f[f⁻¹[Y]] ⊆ Y
+                  mun:subset, from 1.2.3
+
+          1.2.5.  For all y ∈ Y, y ∈ f[f⁻¹[Y]].
+                  proof
+                  let y ∈ Y                                           (K4)
+
+                  1.2.5.1.  y ∈ B
+                            mun:in-subset X := Y, Y := B, u := y, from K1, K4
+
+                  1.2.5.2.  There is x ∈ A with y = f(x).
+                            instantiate y := y in line 1.1, from 1.2.5.1
+
+                  1.2.5.3.  x ∈ A. y = f(x).
+                            obtain x from line 1.2.5.2
+
+                  1.2.5.4.  f(x) ∈ Y
+                            substitute y = f(x) (line 1.2.5.3) into K4
+
+                  1.2.5.5.  x ∈ f⁻¹[Y]
+                            mun:preimage u := x, Z := Y, from 1.2.5.3, 1.2.5.4
+
+                  1.2.5.6.  f(x) ∈ f[f⁻¹[Y]]
+                            mun:value-in-image Y := f⁻¹[Y], s := x, from 1.2.2, 1.2.5.5
+
+                  1.2.5.7.  y ∈ f[f⁻¹[Y]]
+                            substitute y = f(x) (line 1.2.5.3) into line 1.2.5.6
+
+          1.2.6.  Y ⊆ f[f⁻¹[Y]]
+                  mun:subset, from 1.2.5
+
+          1.2.7.  f[f⁻¹[Y]] = Y
+                  mun:subset-antisymmetric, from 1.2.4, 1.2.6
+
+    1.3.  For all Y ⊆ B, f[f⁻¹[Y]] = Y.
+          join 1.2
+
+    direction
+    assume for all Y ⊆ B, f[f⁻¹[Y]] = Y                              (D2)
+
+    1.4.  For all y ∈ B, there is x ∈ A with y = f(x).
+          proof
+          let y ∈ B                                                   (K5)
+
+          1.4.1.  {y} ⊆ B
+                  mun:singleton-subset a := y, X := B, from K5
+
+          1.4.2.  f[f⁻¹[{y}]] = {y}
+                  instantiate Y := {y} in D2, from 1.4.1
+
+          1.4.3.  y ∈ {y}
+                  mun:singleton x := y, a := y
+
+          1.4.4.  y ∈ f[f⁻¹[{y}]]
+                  substitute f[f⁻¹[{y}]] = {y} (line 1.4.2) into line 1.4.3
+
+          1.4.5.  For all u ∈ f⁻¹[{y}], u ∈ A.
+                  proof
+                  let u ∈ f⁻¹[{y}]                                    (K6)
+
+                  1.4.5.1.  u ∈ A
+                            mun:preimage Z := {y}, from K6
+
+          1.4.6.  f⁻¹[{y}] ⊆ A
+                  mun:subset, from 1.4.5
+
+          1.4.7.  There is s ∈ f⁻¹[{y}] with y = f(s).
+                  mun:image u := y, Y := f⁻¹[{y}], from 1.4.4, 1.4.6
+
+          1.4.8.  s ∈ f⁻¹[{y}]. y = f(s).
+                  obtain s from line 1.4.7
+
+          1.4.9.  s ∈ A
+                  mun:preimage u := s, Z := {y}, from 1.4.8
+
+          1.4.10. There is x ∈ A with y = f(x).
+                  exhibit, from 1.4.8, 1.4.9
+
+    1.5.  f : A → B is onto
+          mun:onto, from H3, 1.4

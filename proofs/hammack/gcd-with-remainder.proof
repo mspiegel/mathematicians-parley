@@ -1,0 +1,40 @@
+import mundane definition stdlib/divisibility/gcd
+import mundane theorem    stdlib/divisibility/mod-multiple
+import theorem            stdlib/divisibility/gcd-mod
+
+theorem gcd-with-remainder
+  note        Dividing a = q·b + r by b leaves the remainder of r, since a
+              whole number of b's changes no remainder, and the gcd is the
+              gcd of the remainder and b.
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℕ                                                           (H2)
+  let q ∈ ℤ                                                           (H3)
+  let r ∈ ℤ                                                           (H4)
+  assume a = q·b + r                                                  (H5)
+  then gcd(a, b) = gcd(r, b)
+
+1.  gcd(a mod b, b) = gcd(a, b)
+    thm:gcd-mod
+
+2.  gcd(r mod b, b) = gcd(r, b)
+    thm:gcd-mod a := r
+
+3.  (q·b + r) mod b = r mod b
+    mun:mod-multiple
+
+4.  a mod b = (q·b + r) mod b
+    substitute a = q·b + r (H5)
+
+5.  a mod b = r mod b
+    calculation
+      a mod b = (q·b + r) mod b      4
+              = r mod b              3
+
+6.  gcd(a mod b, b) = gcd(r mod b, b)
+    substitute a mod b = r mod b (line 5)
+
+7.  gcd(a, b) = gcd(r, b)
+    calculation
+      gcd(a, b) = gcd(a mod b, b)       1
+                = gcd(r mod b, b)       6
+                = gcd(r, b)             2

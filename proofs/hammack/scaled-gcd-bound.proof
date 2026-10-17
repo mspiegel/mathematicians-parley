@@ -1,0 +1,210 @@
+import theorem            proofs/hammack/divides-product/divides-product
+import theorem            stdlib/divisibility/divides-gcd
+import mundane definition stdlib/divisibility/gcd
+import mundane theorem    stdlib/divisibility/divides-le
+import mundane theorem    stdlib/divisibility/divides-self
+import mundane theorem    stdlib/divisibility/gcd-integer
+import mundane theorem    stdlib/divisibility/zero-divides
+import mundane axiom      stdlib/reasoning/excluded-middle
+import mundane theorem    stdlib/reasoning/iff-from-left
+import mundane theorem    stdlib/numbers/int-closure
+import mundane theorem    stdlib/numbers/nat-closure
+import mundane theorem    stdlib/numbers/nat0-nonzero
+import mundane theorem    stdlib/numbers/nonneg-or-neg
+import mundane theorem    stdlib/numbers/pos-int-nat
+import mundane theorem    stdlib/numbers/product-nonzero
+import mundane theorem    stdlib/numbers/product-positive
+
+theorem gcd-positive
+  note        The gcd of two integers is at least 0, and is 0 only when it is
+              a divisor of 0 alone: 0 divides x only for x = 0.
+  let x ∈ ℤ                                                           (H1)
+  let y ∈ ℤ                                                           (H2)
+  assume not (x = 0 and y = 0)                                        (H3)
+  then gcd(x, y) ∈ ℕ
+
+1.  gcd(x, y) ∈ ℕ₀
+    mun:gcd-integer
+
+2.  gcd(x, y) divides x
+    mun:gcd-integer
+
+3.  gcd(x, y) divides y
+    mun:gcd-integer
+
+4.  gcd(x, y) ≠ 0
+    contradiction
+    suppose gcd(x, y) = 0                                             (S)
+
+    4.1.  0 divides x
+          substitute gcd(x, y) = 0 (S) into line 2
+
+    4.2.  0 divides x ↔ x = 0
+          mun:zero-divides n := x
+
+    4.3.  x = 0
+          mun:iff-from-left P := 0 divides x, Q := x = 0, from 4.1, 4.2
+
+    4.4.  0 divides y
+          substitute gcd(x, y) = 0 (S) into line 3
+
+    4.5.  0 divides y ↔ y = 0
+          mun:zero-divides n := y
+
+    4.6.  y = 0
+          mun:iff-from-left P := 0 divides y, Q := y = 0, from 4.4, 4.5
+
+    4.7.  x = 0 and y = 0
+          join 4.3, 4.6, contradicting H3
+
+5.  gcd(x, y) ∈ ℕ
+    mun:nat0-nonzero m := gcd(x, y), from 1, 4
+
+theorem scaled-pair-not-both-zero
+  note        If c is not 0 and x is not 0 then c·x is not 0, and likewise
+              for y.
+  let x ∈ ℤ                                                           (H1)
+  let y ∈ ℤ                                                           (H2)
+  let c ∈ ℤ                                                           (H3)
+  assume not (x = 0 and y = 0)                                        (H4)
+  assume c ≠ 0                                                        (H5)
+  then not (c·x = 0 and c·y = 0)
+
+1.  not (c·x = 0 and c·y = 0)
+    contradiction
+    suppose c·x = 0 and c·y = 0                                       (S)
+
+    1.1.  x = 0 or not (x = 0)
+          mun:excluded-middle P := x = 0
+
+    1.2.  x = 0
+          cases, from 1.1
+
+          case
+          assume x = 0, which is the claim                            (C1)
+
+          case
+          assume not (x = 0)                                          (C2)
+
+          1.2.1.  c·x ≠ 0
+                  mun:product-nonzero x := c, y := x, from C2, H5, contradicting S
+
+    1.3.  y = 0 or not (y = 0)
+          mun:excluded-middle P := y = 0
+
+    1.4.  y = 0
+          cases, from 1.3
+
+          case
+          assume y = 0, which is the claim                            (C3)
+
+          case
+          assume not (y = 0)                                          (C4)
+
+          1.4.1.  c·y ≠ 0
+                  mun:product-nonzero x := c, from C4, H5, contradicting S
+
+    1.5.  x = 0 and y = 0
+          join 1.2, 1.4, contradicting H4
+
+theorem scaled-gcd-bound
+  note        Let d = gcd(a, b). Then c·d divides c·a and c·b, so it divides
+              gcd(c·a, c·b), which is at least 1; for c > 0 a divisor of a
+              natural number is at most it, and for c < 0 the product c·d is
+              negative.
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  let c ∈ ℤ                                                           (H3)
+  assume not (a = 0 and b = 0)                                        (H4)
+  assume c ≠ 0                                                        (H5)
+  then c·gcd(a, b) ≤ gcd(c·a, c·b)
+
+1.  gcd(a, b) ∈ ℕ
+    thm:gcd-positive x := a, y := b, from H4
+
+2.  gcd(a, b) divides a
+    mun:gcd-integer
+
+3.  gcd(a, b) divides b
+    mun:gcd-integer
+
+4.  not (c·a = 0 and c·b = 0)
+    thm:scaled-pair-not-both-zero x := a, y := b, from H4, H5
+
+5.  gcd(c·a, c·b) ∈ ℕ
+    thm:gcd-positive x := c·a, y := c·b, from 4
+
+6.  c divides c
+    mun:divides-self n := c
+
+7.  c·gcd(a, b) divides c·a
+    thm:divides-product a := c, b := c, c := gcd(a, b), d := a, from 2, 6
+    requires gcd(a, b) ∈ ℤ: from 1
+
+8.  c·gcd(a, b) divides c·b
+    thm:divides-product a := c, b := c, c := gcd(a, b), d := b, from 3, 6
+    requires gcd(a, b) ∈ ℤ: from 1
+
+9.  c·gcd(a, b) divides gcd(c·a, c·b)
+    thm:divides-gcd d := c·gcd(a, b), a := c·a, b := c·b, from 7, 8
+    requires c·gcd(a, b) ∈ ℤ: mun:int-closure a := c, b := gcd(a, b), from 1
+
+10. c ≥ 0 or c < 0
+    mun:nonneg-or-neg x := c
+
+11. c·gcd(a, b) ≤ gcd(c·a, c·b)
+    cases, from 10
+
+    case
+    assume c ≥ 0                                                      (C1)
+
+    11.1. 0 < c
+          inequalities, from C1, H5
+
+    11.2. c ∈ ℕ
+          mun:pos-int-nat m := c, from 11.1
+
+    11.3. c·gcd(a, b) ∈ ℕ
+          mun:nat-closure a := c, b := gcd(a, b), from 1, 11.2
+
+    11.4. c·gcd(a, b) ≤ gcd(c·a, c·b)
+          mun:divides-le e := c·gcd(a, b), m := gcd(c·a, c·b), from 5, 9, 11.3
+
+    case
+    assume c < 0                                                      (C2)
+
+    11.5. 0 < −c
+          inequalities
+            c < 0          C2
+            −c > 0         multiplying by −1
+
+    11.6. 0 < gcd(a, b)
+          inequalities, from 1
+
+    11.7. 0 < (−c)·gcd(a, b)
+          mun:product-positive x := −c, y := gcd(a, b), from 11.5, 11.6
+          requires gcd(a, b) ∈ ℝ: from 1
+
+    11.8. (−c)·gcd(a, b) = −(c·gcd(a, b))
+          algebra
+          requires gcd(a, b) ∈ ℝ: from 1
+
+    11.9. 0 < −(c·gcd(a, b))
+          substitute (−c)·gcd(a, b) = −(c·gcd(a, b)) (line 11.8) into line 11.7
+
+    11.10. c·gcd(a, b) < 0
+           inequalities
+             0 < −(c·gcd(a, b))      11.9
+             c·gcd(a, b) < 0         multiplying by −1
+           requires gcd(a, b) ∈ ℝ: from 1
+
+    11.11. c·gcd(a, b) < gcd(c·a, c·b)
+           inequalities, from 5, 11.10
+           requires gcd(a, b) ∈ ℝ: from 1
+
+    11.12. c·gcd(a, b) ≤ gcd(c·a, c·b)
+           inequalities
+             c·gcd(a, b) < gcd(c·a, c·b)      11.11
+             c·gcd(a, b) ≤ gcd(c·a, c·b)      weakening
+           requires gcd(a, b) ∈ ℝ: from 1
+           requires gcd(c·a, c·b) ∈ ℝ: from 5

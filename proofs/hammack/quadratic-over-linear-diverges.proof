@@ -1,0 +1,98 @@
+import theorem            stdlib/numbers/archimedean-natural
+import mundane theorem    stdlib/numbers/less-scaled
+import mundane theorem    stdlib/numbers/square-nonneg
+
+theorem quadratic-over-linear-diverges
+  note        (2n² + 1)/(3n − 1) is above n/3, because multiplying both by
+              3n − 1 gives n² − n/3 < 2n² + 1. So once n is past a natural
+              number N above 3M, a(n) is above M.
+  n ranges over ℕ
+  let a : ℕ → ℝ                                                       (H1)
+  assume for all n ∈ ℕ, a(n) = (2n² + 1)/(3n − 1)                    (H2)
+  then for all M ∈ ℝ, there exists N ∈ ℕ such that a(n) > M for all n > N
+
+1.  For all M ∈ ℝ, there exists N ∈ ℕ such that a(n) > M for all n > N.
+    proof
+    let M ∈ ℝ                                                         (K1)
+
+    1.1.  N ∈ ℕ. N > 3M.
+          obtain N: thm:archimedean-natural x := 3M
+
+    1.2.  For all n > N, a(n) > M.
+          proof
+          let n ∈ ℕ                                                   (K2)
+          assume n > N                                                (A2)
+
+          1.2.1.  n ≥ 1
+                  inequalities, from K2
+
+          1.2.2.  n > 0
+                  inequalities, from K2
+
+          1.2.3.  3n − 1 ≥ 2
+                  inequalities
+                    n ≥ 1              1.2.1
+                    3n ≥ 3             multiplying by 3
+                    3n − 1 ≥ 2         adding −1
+
+          1.2.4.  3n − 1 > 0
+                  inequalities, from 1.2.3
+
+          1.2.5.  3n − 1 ≠ 0
+                  inequalities
+                    3n − 1 > 0         1.2.4
+                    3n − 1 ≠ 0         weakening
+
+          1.2.6.  a(n) = (2n² + 1)/(3n − 1)
+                  instantiate n := n in H2
+
+          1.2.7.  (3n − 1)·a(n) = 2n² + 1
+                  algebra, from 1.2.6
+                  requires 3n − 1 ≠ 0: from 1.2.5
+
+          1.2.8.  (3n − 1)·(n/3) = n² − n/3
+                  algebra
+
+          1.2.9.  n² − n/3 < n²
+                  inequalities
+                    n > 0                1.2.2
+                    n/3 > 0              multiplying by 1/3
+                    −(n/3) < 0           multiplying by −1
+                    n² − n/3 < n²        adding n²
+
+          1.2.10. n² ≥ 0
+                  mun:square-nonneg x := n
+
+          1.2.11. 0 < n² + 1
+                  inequalities, from 1.2.10
+
+          1.2.12. n² < 2n² + 1
+                  inequalities
+                    0 < n² + 1           1.2.11
+                    n² < 2n² + 1         adding n²
+
+          1.2.13. (3n − 1)·(n/3) < (3n − 1)·a(n)
+                  calculation
+                    (3n − 1)·(n/3) = n² − n/3           1.2.8
+                                   < n²                 1.2.9
+                                   < 2n² + 1            1.2.12
+                                   = (3n − 1)·a(n)      1.2.7
+
+          1.2.14. n/3 < a(n)
+                  mun:less-scaled x := n/3, y := a(n), c := 3n − 1, from 1.2.4, 1.2.13
+                  requires a(n) ∈ ℝ: from H1
+
+          1.2.15. 3M < n
+                  transitivity, from 1.1, A2
+
+          1.2.16. M < n/3
+                  inequalities
+                    3M < n             1.2.15
+                    M < n/3            multiplying by 1/3
+
+          1.2.17. a(n) > M
+                  transitivity, from 1.2.16, 1.2.14
+                  requires a(n) ∈ ℝ: from H1
+
+    1.3.  There exists N ∈ ℕ such that a(n) > M for all n > N.
+          exhibit, from 1.2

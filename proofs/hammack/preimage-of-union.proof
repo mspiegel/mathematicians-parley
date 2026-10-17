@@ -1,0 +1,90 @@
+import mundane definition stdlib/functions/preimage
+import mundane definition stdlib/sets/union
+import mundane definition stdlib/sets/subset
+import mundane theorem    stdlib/sets/subset-antisymmetric
+import mundane theorem    stdlib/sets/in-union-left
+import mundane theorem    stdlib/sets/in-union-right
+
+theorem preimage-of-union
+  note        A point goes into Y ∪ Z exactly when it goes into Y or goes
+              into Z.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  let f : A → B                                                       (H3)
+  let Y ⊆ B                                                           (H4)
+  let Z ⊆ B                                                           (H5)
+  then f⁻¹[Y ∪ Z] = f⁻¹[Y] ∪ f⁻¹[Z]
+
+1.  For all u ∈ f⁻¹[Y ∪ Z], u ∈ f⁻¹[Y] ∪ f⁻¹[Z].
+    proof
+    let u ∈ f⁻¹[Y ∪ Z]                                                (K1)
+
+    1.1.  u ∈ A. f(u) ∈ Y ∪ Z.
+          mun:preimage Z := Y ∪ Z, from K1
+
+    1.2.  f(u) ∈ Y or f(u) ∈ Z.
+          mun:union u := f(u), from 1.1
+
+    1.3.  u ∈ f⁻¹[Y] ∪ f⁻¹[Z]
+          cases, from 1.2
+
+          case
+          assume f(u) ∈ Y                                             (C1)
+
+          1.3.1.  u ∈ f⁻¹[Y]
+                  mun:preimage Z := Y, from C1, 1.1
+
+          1.3.2.  u ∈ f⁻¹[Y] ∪ f⁻¹[Z]
+                  mun:in-union-left Y := f⁻¹[Y], Z := f⁻¹[Z], from 1.3.1
+
+          case
+          assume f(u) ∈ Z                                             (C2)
+
+          1.3.3.  u ∈ f⁻¹[Z]
+                  mun:preimage, from C2, 1.1
+
+          1.3.4.  u ∈ f⁻¹[Y] ∪ f⁻¹[Z]
+                  mun:in-union-right Y := f⁻¹[Y], Z := f⁻¹[Z], from 1.3.3
+
+2.  f⁻¹[Y ∪ Z] ⊆ f⁻¹[Y] ∪ f⁻¹[Z]
+    mun:subset, from 1
+
+3.  For all u ∈ f⁻¹[Y] ∪ f⁻¹[Z], u ∈ f⁻¹[Y ∪ Z].
+    proof
+    let u ∈ f⁻¹[Y] ∪ f⁻¹[Z]                                           (K2)
+
+    3.1.  u ∈ f⁻¹[Y] or u ∈ f⁻¹[Z].
+          mun:union Y := f⁻¹[Y], Z := f⁻¹[Z], from K2
+
+    3.2.  u ∈ f⁻¹[Y ∪ Z]
+          cases, from 3.1
+
+          case
+          assume u ∈ f⁻¹[Y]                                           (C3)
+
+          3.2.1.  u ∈ A. f(u) ∈ Y.
+                  mun:preimage Z := Y, from C3
+
+          3.2.2.  f(u) ∈ Y ∪ Z
+                  mun:in-union-left u := f(u), from 3.2.1
+
+          3.2.3.  u ∈ f⁻¹[Y ∪ Z]
+                  mun:preimage Z := Y ∪ Z, from 3.2.1, 3.2.2
+
+          case
+          assume u ∈ f⁻¹[Z]                                           (C4)
+
+          3.2.4.  u ∈ A. f(u) ∈ Z.
+                  mun:preimage, from C4
+
+          3.2.5.  f(u) ∈ Y ∪ Z
+                  mun:in-union-right u := f(u), from 3.2.4
+
+          3.2.6.  u ∈ f⁻¹[Y ∪ Z]
+                  mun:preimage Z := Y ∪ Z, from 3.2.4, 3.2.5
+
+4.  f⁻¹[Y] ∪ f⁻¹[Z] ⊆ f⁻¹[Y ∪ Z]
+    mun:subset, from 3
+
+5.  f⁻¹[Y ∪ Z] = f⁻¹[Y] ∪ f⁻¹[Z]
+    mun:subset-antisymmetric, from 2, 4

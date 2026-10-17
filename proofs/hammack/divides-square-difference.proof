@@ -1,0 +1,30 @@
+import mundane theorem    stdlib/divisibility/divides-difference
+import mundane theorem    stdlib/divisibility/divides-multiple
+
+theorem divides-square-difference
+  note        a divides b, so it divides b·b, which is b². It divides b² − c
+              as well, so it divides their difference, b² − (b² − c) = c.
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  let c ∈ ℤ                                                           (H3)
+  assume a divides b                                                  (H4)
+  assume a divides b² − c                                             (H5)
+  then a divides c
+
+1.  a divides b·b
+    mun:divides-multiple e := a, a := b, x := b, from H4
+
+2.  b·b = b²
+    algebra
+
+3.  a divides b²
+    substitute b·b = b² (line 2) into line 1
+
+4.  a divides b² − (b² − c)
+    mun:divides-difference d := a, a := b², b := b² − c, from H5, 3
+
+5.  b² − (b² − c) = c
+    algebra
+
+6.  a divides c
+    substitute b² − (b² − c) = c (line 5) into line 4

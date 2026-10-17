@@ -1,0 +1,54 @@
+import theorem            proofs/hammack/preimage-of-image/subset-of-preimage-of-image
+import mundane definition stdlib/functions/image
+import mundane definition stdlib/functions/preimage
+import mundane theorem    stdlib/functions/image-monotone
+import mundane definition stdlib/sets/subset
+import mundane theorem    stdlib/sets/subset-antisymmetric
+
+theorem image-of-preimage-of-image
+  note        A point of f[f⁻¹[f[X]]] is f(s) for an s that f sends into
+              f[X], so it is in f[X]; and f[X] is inside it because X is
+              inside f⁻¹[f[X]].
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  let f : A → B                                                       (H3)
+  let X ⊆ A                                                           (H4)
+  then f[f⁻¹[f[X]]] = f[X]
+
+1.  For all u ∈ f⁻¹[f[X]], u ∈ A.
+    proof
+    let u ∈ f⁻¹[f[X]]                                                 (K1)
+
+    1.1.  u ∈ A
+          mun:preimage Z := f[X], from K1
+
+2.  f⁻¹[f[X]] ⊆ A
+    mun:subset, from 1
+
+3.  For all y ∈ f[f⁻¹[f[X]]], y ∈ f[X].
+    proof
+    let y ∈ f[f⁻¹[f[X]]]                                              (K2)
+
+    3.1.  There is s ∈ f⁻¹[f[X]] with y = f(s).
+          mun:image u := y, Y := f⁻¹[f[X]], from K2, 2
+
+    3.2.  s ∈ f⁻¹[f[X]]. y = f(s).
+          obtain s from line 3.1
+
+    3.3.  s ∈ A. f(s) ∈ f[X].
+          mun:preimage u := s, Z := f[X], from 3.2
+
+    3.4.  y ∈ f[X]
+          substitute y = f(s) (line 3.2) into line 3.3
+
+4.  f[f⁻¹[f[X]]] ⊆ f[X]
+    mun:subset, from 3
+
+5.  X ⊆ f⁻¹[f[X]]
+    thm:subset-of-preimage-of-image, from H4
+
+6.  f[X] ⊆ f[f⁻¹[f[X]]]
+    mun:image-monotone Y := X, Z := f⁻¹[f[X]], from 5
+
+7.  f[f⁻¹[f[X]]] = f[X]
+    mun:subset-antisymmetric, from 4, 6

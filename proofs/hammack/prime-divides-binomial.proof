@@ -1,0 +1,97 @@
+import theorem            proofs/hammack/weighted-binomial-sum/weighted-term
+import definition         stdlib/counting/C
+import mundane theorem    stdlib/counting/binomial-nat0
+import theorem            stdlib/divisibility/coprime-divides
+import mundane theorem    stdlib/divisibility/divides-le
+import mundane theorem    stdlib/divisibility/divides-multiple
+import mundane theorem    stdlib/divisibility/divides-self
+import mundane theorem    stdlib/divisibility/gcd-commutes
+import mundane theorem    stdlib/divisibility/prime-coprime
+import mundane definition stdlib/divisibility/gcd
+import mundane theorem    stdlib/numbers/nat-minus-one
+import mundane theorem    stdlib/numbers/pos-int-nat
+import mundane definition stdlib/sums/range-between
+
+theorem prime-divides-binomial
+  note        k·C(p, k) is p·C(p − 1, k − 1), so p divides k·C(p, k). Since
+              0 < k < p, p does not divide k, so p and k have no common
+              factor, and p divides C(p, k).
+  let p ∈ ℕ                                                           (H1)
+  let k ∈ ℤ                                                           (H2)
+  assume p is prime                                                   (H3)
+  assume 0 < k                                                        (H4)
+  assume k < p                                                        (H5)
+  then p divides C(p, k)
+
+1.  k ∈ ℕ
+    mun:pos-int-nat m := k, from H4
+
+2.  p − 1 ∈ ℕ₀
+    mun:nat-minus-one n := p
+
+3.  1 ≤ k
+    inequalities, from 1
+
+4.  k ≤ (p − 1) + 1
+    inequalities
+      k < p                  H5
+      k ≤ p                  weakening
+      k ≤ (p − 1) + 1        algebra
+
+5.  k ∈ {1, …, (p − 1) + 1}
+    mun:range-between a := 1, b := (p − 1) + 1, from 3, 4
+
+6.  k·C((p − 1) + 1, k) = ((p − 1) + 1)·C(p − 1, k − 1)
+    thm:weighted-term m := p − 1, from 2, 5
+
+7.  (p − 1) + 1 = p
+    algebra
+
+8.  k·C(p, k) = p·C(p − 1, k − 1)
+    substitute (p − 1) + 1 = p (line 7) into line 6
+
+9.  C(p − 1, k − 1) ∈ ℕ₀
+    mun:binomial-nat0 n := p − 1, k := k − 1, from 2
+
+10. C(p, k) ∈ ℕ₀
+    mun:binomial-nat0 n := p
+
+11. p divides p
+    mun:divides-self n := p
+
+12. p divides p·C(p − 1, k − 1)
+    mun:divides-multiple e := p, a := p, x := C(p − 1, k − 1), from 11
+    requires C(p − 1, k − 1) ∈ ℤ: from 9
+
+13. p divides k·C(p, k)
+    substitute k·C(p, k) = p·C(p − 1, k − 1) (line 8) into line 12
+
+14. C(p, k)·k = k·C(p, k)
+    algebra
+    requires C(p, k) ∈ ℝ: from 10
+
+15. p divides C(p, k)·k
+    substitute C(p, k)·k = k·C(p, k) (line 14) into line 13
+
+16. not (p divides k)
+    contradiction
+    suppose p divides k                                               (S)
+
+    16.1. p ≤ k
+          mun:divides-le e := p, m := k, from S, 1
+
+    16.2. not p ≤ k
+          inequalities, from H5, contradicting 16.1
+
+17. gcd(p, k) = 1
+    mun:prime-coprime a := k, from H3, 16
+
+18. gcd(p, k) = gcd(k, p)
+    mun:gcd-commutes a := p, b := k
+
+19. gcd(k, p) = 1
+    substitute gcd(p, k) = gcd(k, p) (line 18) into line 17
+
+20. p divides C(p, k)
+    thm:coprime-divides x := C(p, k), c := k, n := p, from 15, 19
+    requires C(p, k) ∈ ℤ: from 10

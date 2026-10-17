@@ -1,0 +1,39 @@
+import mundane definition stdlib/functions/set-image
+import mundane definition stdlib/sets/intersection
+
+theorem common-multiple-exists
+  note        (p·q)·p is p times p·q and also q times p·p.
+  let p ∈ ℕ                                                           (H1)
+  let q ∈ ℕ                                                           (H2)
+  then {p·n : n ∈ ℕ} ∩ {q·n : n ∈ ℕ} ≠ ∅
+
+1.  (p·q)·p = p·(p·q)
+    algebra
+
+2.  There is n ∈ ℕ with (p·q)·p = p·n.
+    exhibit, from 1
+
+3.  (p·q)·p ∈ {p·n : n ∈ ℕ}
+    mun:set-image u := (p·q)·p, from 2
+
+4.  (p·q)·p = q·(p·p)
+    algebra
+
+5.  There is n ∈ ℕ with (p·q)·p = q·n.
+    exhibit, from 4
+
+6.  (p·q)·p ∈ {q·n : n ∈ ℕ}
+    mun:set-image u := (p·q)·p, from 5
+
+7.  (p·q)·p ∈ {p·n : n ∈ ℕ} ∩ {q·n : n ∈ ℕ}
+    mun:intersection u := (p·q)·p, from 3, 6
+
+8.  {p·n : n ∈ ℕ} ∩ {q·n : n ∈ ℕ} ≠ ∅
+    contradiction
+    suppose {p·n : n ∈ ℕ} ∩ {q·n : n ∈ ℕ} = ∅                        (S)
+
+    8.1.  (p·q)·p ∈ ∅
+          substitute {p·n : n ∈ ℕ} ∩ {q·n : n ∈ ℕ} = ∅ (S) into line 7
+
+    8.2.  (p·q)·p ∉ ∅
+          inspection, contradicting 8.1

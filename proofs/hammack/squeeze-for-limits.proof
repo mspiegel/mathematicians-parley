@@ -1,0 +1,134 @@
+import definition         stdlib/calculus/limit-at
+import mundane theorem    stdlib/sets/subset-self
+import mundane theorem    stdlib/numbers/abs-real
+import mundane theorem    stdlib/numbers/abs-difference-lt
+import mundane definition stdlib/numbers/min
+import mundane theorem    stdlib/numbers/min-real
+import mundane theorem    stdlib/numbers/lt-min
+import mundane theorem    stdlib/functions/function-value
+
+theorem squeeze-for-limits
+  note        Near c, f(x) lies between g(x) and h(x), which are within ε
+              of L once x is within the smallest of the three distances, so
+              f(x) is within ε of L.
+  ε, δ range over ℝ
+  let f : ℝ → ℝ                                                       (H1)
+  let g : ℝ → ℝ                                                       (H2)
+  let h : ℝ → ℝ                                                       (H3)
+  let c ∈ ℝ                                                           (H4)
+  let L ∈ ℝ                                                           (H5)
+  assume there exists δ > 0 such that (g(x) ≤ f(x) and f(x) ≤ h(x)) for all x ∈ ℝ with (x ≠ c and |x − c| < δ)   (H6)
+  assume g tends to L at c                                            (H7)
+  assume h tends to L at c                                            (H8)
+  then f tends to L at c
+
+1.  For all ε > 0, there exists δ > 0 such that |f(x) − L| < ε for all x ∈ ℝ with (x ≠ c and |x − c| < δ).
+    proof
+    let ε ∈ ℝ                                                         (K1)
+    assume ε > 0                                                      (A1)
+
+    1.1.  For all ε > 0, there exists δ > 0 such that |g(x) − L| < ε for all x ∈ ℝ with (x ≠ c and |x − c| < δ).
+          def:limit-at D := ℝ, f := g, from H7
+          requires ℝ ⊆ ℝ: mun:subset-self
+
+    1.2.  For all ε > 0, there exists δ > 0 such that |h(x) − L| < ε for all x ∈ ℝ with (x ≠ c and |x − c| < δ).
+          def:limit-at D := ℝ, f := h, from H8
+          requires ℝ ⊆ ℝ: mun:subset-self
+
+    1.3.  There exists δ > 0 such that |g(x) − L| < ε for all x ∈ ℝ with (x ≠ c and |x − c| < δ).
+          instantiate ε := ε in line 1.1, from A1
+
+    1.4.  There exists δ > 0 such that |h(x) − L| < ε for all x ∈ ℝ with (x ≠ c and |x − c| < δ).
+          instantiate ε := ε in line 1.2, from A1
+
+    1.5.  p ∈ ℝ. p > 0. (g(x) ≤ f(x) and f(x) ≤ h(x)) for all x ∈ ℝ with (x ≠ c and |x − c| < p).
+          obtain p from H6
+
+    1.6.  q ∈ ℝ. q > 0. For all x ∈ ℝ with (x ≠ c and |x − c| < q), |g(x) − L| < ε.
+          obtain q from line 1.3
+
+    1.7.  r ∈ ℝ. r > 0. For all x ∈ ℝ with (x ≠ c and |x − c| < r), |h(x) − L| < ε.
+          obtain r from line 1.4
+
+    let m = min(p, q), a real number                                  (D1)
+           mun:min-real x := p, y := q
+           reads the smaller of p and q
+
+    let n = min(m, r), a real number                                  (D2)
+           mun:min-real x := m, y := r
+           reads the smaller of m and r
+
+    1.8.  0 < min(p, q)
+          mun:lt-min z := 0, x := p, y := q, from 1.5, 1.6
+
+    1.9.  0 < m
+          inequalities, from D1, 1.8
+
+    1.10. 0 < min(m, r)
+          mun:lt-min z := 0, x := m, y := r, from 1.7, 1.9
+
+    1.11. n > 0
+          inequalities, from D2, 1.10
+
+    1.12. For all x ∈ ℝ with (x ≠ c and |x − c| < n), |f(x) − L| < ε.
+          proof
+          let x ∈ ℝ                                                   (K2)
+          assume x ≠ c and |x − c| < n                                (A2)
+
+          1.12.1.  |x − c| < m and |x − c| < r
+                   mun:lt-min z := |x − c|, x := m, y := r, from A2, D2
+                   requires |x − c| ∈ ℝ: mun:abs-real x := x − c
+
+          1.12.2.  |x − c| < p and |x − c| < q
+                   mun:lt-min z := |x − c|, x := p, y := q, from D1, 1.12.1
+                   requires |x − c| ∈ ℝ: mun:abs-real x := x − c
+
+          1.12.3.  x ≠ c and |x − c| < p
+                   join A2, 1.12.2
+
+          1.12.4.  x ≠ c and |x − c| < q
+                   join A2, 1.12.2
+
+          1.12.5.  x ≠ c and |x − c| < r
+                   join A2, 1.12.1
+
+          1.12.6.  g(x) ≤ f(x) and f(x) ≤ h(x)
+                   instantiate x := x in line 1.5, from 1.12.3
+
+          1.12.7.  |g(x) − L| < ε
+                   instantiate x := x in line 1.6, from 1.12.4
+
+          1.12.8.  |h(x) − L| < ε
+                   instantiate x := x in line 1.7, from 1.12.5
+
+          1.12.9.  L − ε < g(x)
+                   mun:abs-difference-lt x := g(x), c := L, δ := ε, from 1.12.7
+                   requires g(x) ∈ ℝ: mun:function-value
+
+          1.12.10. h(x) < L + ε
+                   mun:abs-difference-lt x := h(x), c := L, δ := ε, from 1.12.8
+                   requires h(x) ∈ ℝ: mun:function-value
+
+          1.12.11. L − ε < f(x)
+                   transitivity, from 1.12.9, 1.12.6
+                   requires g(x) ∈ ℝ: mun:function-value
+                   requires f(x) ∈ ℝ: mun:function-value
+
+          1.12.12. f(x) < L + ε
+                   transitivity, from 1.12.6, 1.12.10
+                   requires f(x) ∈ ℝ: mun:function-value
+                   requires h(x) ∈ ℝ: mun:function-value
+
+          1.12.13. L − ε < f(x) and f(x) < L + ε
+                   join 1.12.11, 1.12.12
+
+          1.12.14. |f(x) − L| < ε
+                   mun:abs-difference-lt x := f(x), c := L, δ := ε, from 1.12.13
+                   requires f(x) ∈ ℝ: mun:function-value
+
+    1.13. There exists δ > 0 such that |f(x) − L| < ε for all x ∈ ℝ with (x ≠ c and |x − c| < δ).
+          exhibit, from 1.11, 1.12
+
+2.  f tends to L at c
+    def:limit-at D := ℝ, from 1
+    requires ℝ ⊆ ℝ: mun:subset-self

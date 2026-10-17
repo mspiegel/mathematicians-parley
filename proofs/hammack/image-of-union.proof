@@ -1,0 +1,97 @@
+import mundane definition stdlib/functions/image
+import mundane theorem    stdlib/functions/value-in-image
+import mundane theorem    stdlib/functions/image-monotone
+import mundane definition stdlib/sets/union
+import mundane definition stdlib/sets/subset
+import mundane theorem    stdlib/sets/subset-antisymmetric
+import mundane theorem    stdlib/sets/union-subset
+import mundane theorem    stdlib/sets/in-union-left
+import mundane theorem    stdlib/sets/in-union-right
+
+theorem image-of-union
+  note        A point of f[W ∪ X] is f(s) for an s in W or in X, so it is in
+              f[W] or in f[X]; and conversely.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  let f : A → B                                                       (H3)
+  let W ⊆ A                                                           (H4)
+  let X ⊆ A                                                           (H5)
+  then f[W ∪ X] = f[W] ∪ f[X]
+
+1.  W ∪ X ⊆ A
+    mun:union-subset, from H4, H5
+
+2.  For all y ∈ f[W ∪ X], y ∈ f[W] ∪ f[X].
+    proof
+    let y ∈ f[W ∪ X]                                                  (K1)
+
+    2.1.  There is s ∈ W ∪ X with y = f(s).
+          mun:image u := y, Y := W ∪ X, from K1, 1
+
+    2.2.  s ∈ W ∪ X. y = f(s).
+          obtain s from line 2.1
+
+    2.3.  s ∈ W or s ∈ X.
+          mun:union u := s, Y := W, Z := X, from 2.2
+
+    2.4.  y ∈ f[W] ∪ f[X]
+          cases, from 2.3
+
+          case
+          assume s ∈ W                                                (C1)
+
+          2.4.1.  f(s) ∈ f[W]
+                  mun:value-in-image Y := W, from C1, H4
+
+          2.4.2.  y ∈ f[W]
+                  substitute y = f(s) (line 2.2) into line 2.4.1
+
+          2.4.3.  y ∈ f[W] ∪ f[X]
+                  mun:in-union-left Y := f[W], Z := f[X], from 2.4.2
+
+          case
+          assume s ∈ X                                                (C2)
+
+          2.4.4.  f(s) ∈ f[X]
+                  mun:value-in-image Y := X, from C2, H5
+
+          2.4.5.  y ∈ f[X]
+                  substitute y = f(s) (line 2.2) into line 2.4.4
+
+          2.4.6.  y ∈ f[W] ∪ f[X]
+                  mun:in-union-right Y := f[W], Z := f[X], from 2.4.5
+
+3.  f[W ∪ X] ⊆ f[W] ∪ f[X]
+    mun:subset, from 2
+
+4.  For all t ∈ W, t ∈ W ∪ X.
+    proof
+    let t ∈ W                                                         (K2)
+
+    4.1.  t ∈ W ∪ X
+          mun:in-union-left Y := W, Z := X, from K2
+
+5.  W ⊆ W ∪ X
+    mun:subset, from 4
+
+6.  f[W] ⊆ f[W ∪ X]
+    mun:image-monotone Y := W, Z := W ∪ X, from 5
+
+7.  For all t ∈ X, t ∈ W ∪ X.
+    proof
+    let t ∈ X                                                         (K3)
+
+    7.1.  t ∈ W ∪ X
+          mun:in-union-right Y := W, Z := X, from K3
+
+8.  X ⊆ W ∪ X
+    mun:subset, from 7
+
+9.  f[X] ⊆ f[W ∪ X]
+    mun:image-monotone Y := X, Z := W ∪ X, from 8
+
+10. f[W] ∪ f[X] ⊆ f[W ∪ X]
+    mun:union-subset X := f[W], Y := f[X], Z := f[W ∪ X], from 6, 9
+
+11. f[W ∪ X] = f[W] ∪ f[X]
+    mun:subset-antisymmetric, from 3, 10

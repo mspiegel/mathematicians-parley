@@ -1,0 +1,52 @@
+import mundane theorem    stdlib/numbers/multiply-le
+import mundane theorem    stdlib/numbers/product-nonneg
+
+theorem product-step-bound
+  note        Multiplying p ≥ 1/4 + t by 1 − t > 0 gives at least
+              (1 − t)(1/4 + t), which is 1/4 + t/2 plus t(1/4 − t), and the
+              last term is not negative when t ≤ 1/4.
+  let t ∈ ℝ                                                           (H1)
+  let p ∈ ℝ                                                           (H2)
+  assume 0 < t                                                        (H3)
+  assume t ≤ 1/4                                                      (H4)
+  assume p ≥ 1/4 + t                                                  (H5)
+  then p·(1 − t) ≥ 1/4 + t/2
+
+1.  3/4 ≤ 1 − t
+    inequalities
+      t ≤ 1/4          H4
+      0 ≤ 1/4 − t      adding −t
+      3/4 ≤ 1 − t      adding 3/4
+
+2.  0 < 1 − t
+    inequalities, from 1
+
+3.  (1 − t)·(1/4 + t) ≤ (1 − t)·p
+    mun:multiply-le x := 1/4 + t, y := p, c := 1 − t, from H5, 2
+
+4.  (1 − t)·(1/4 + t) = 1/4 + t/2 + t·(1/4 − t)
+    algebra
+
+5.  0 ≤ 1/4 − t
+    inequalities
+      t ≤ 1/4          H4
+      0 ≤ 1/4 − t      adding −t
+
+6.  t ≥ 0
+    inequalities
+      0 < t      H3
+      0 ≤ t      weakening
+
+7.  t·(1/4 − t) ≥ 0
+    mun:product-nonneg x := t, y := 1/4 − t, from 5, 6
+
+8.  1/4 + t/2 + t·(1/4 − t) ≥ 1/4 + t/2
+    inequalities
+      t·(1/4 − t) ≥ 0                         7
+      1/4 + t/2 + t·(1/4 − t) ≥ 1/4 + t/2     adding 1/4 + t/2
+
+9.  p·(1 − t) = (1 − t)·p
+    algebra
+
+10. p·(1 − t) ≥ 1/4 + t/2
+    transitivity, from 9, 3, 4, 8

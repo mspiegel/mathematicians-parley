@@ -1,0 +1,73 @@
+import mundane definition stdlib/divisibility/gcd
+import mundane definition stdlib/divisibility/prime
+import mundane axiom      stdlib/reasoning/excluded-middle
+import mundane theorem    stdlib/reasoning/modus-ponens
+import mundane theorem    stdlib/reasoning/or-left
+import mundane theorem    stdlib/reasoning/or-right
+
+theorem divides-or-not-prime
+  note        Let d = gcd(a, b), which divides b and exceeds 1. If b is prime,
+              d is 1 or b, so d is b, and b = d divides a. Hence either b
+              divides a, or b is not prime.
+  let a ∈ ℕ                                                           (H1)
+  let b ∈ ℕ                                                           (H2)
+  assume gcd(a, b) > 1                                                (H3)
+  then b divides a or not (b is prime)
+
+1.  b divides a or not (b divides a)
+    mun:excluded-middle P := b divides a
+
+2.  b divides a or not (b is prime)
+    cases, from 1
+
+    case
+    assume b divides a                                                (C1)
+
+    2.1.  b divides a or not (b is prime)
+          mun:or-left Q := not (b is prime), from C1
+
+    case
+    assume not (b divides a)                                          (C2)
+
+    2.2.  not (b is prime)
+          contradiction
+          suppose b is prime                                          (S)
+
+          2.2.1.  b > 1. For all d ∈ ℕ, if d divides b then d = 1 or d = b.
+                  mun:prime p := b, from S
+
+          2.2.2.  gcd(a, b) ∈ ℕ. gcd(a, b) divides b.
+                  mun:gcd
+
+          2.2.3.  If gcd(a, b) divides b then gcd(a, b) = 1 or gcd(a, b) = b.
+                  instantiate d := gcd(a, b) in line 2.2.1, from 2.2.2
+
+          2.2.4.  gcd(a, b) = 1 or gcd(a, b) = b
+                  mun:modus-ponens P := gcd(a, b) divides b, from 2.2.2, 2.2.3
+
+          2.2.5.  gcd(a, b) divides a
+                  mun:gcd
+
+          2.2.6.  b divides a
+                  cases, from 2.2.4
+
+                  case
+                  assume gcd(a, b) = 1                                (C3)
+
+                  2.2.6.1.  gcd(a, b) ≠ 1
+                            inequalities, contradicting C3
+                              gcd(a, b) > 1     H3
+                              gcd(a, b) ≠ 1     weakening
+                            requires gcd(a, b) ∈ ℝ: from 2.2.2
+
+                  case
+                  assume gcd(a, b) = b                                (C4)
+
+                  2.2.6.2.  b divides a
+                            substitute gcd(a, b) = b (C4) into line 2.2.5
+
+          2.2.7.  b divides a
+                  join 2.2.6, contradicting C2
+
+    2.3.  b divides a or not (b is prime)
+          mun:or-right P := b divides a, from 2.2

@@ -1,0 +1,143 @@
+import definition         stdlib/calculus/limit-at
+import mundane theorem    stdlib/sets/difference-subset
+import mundane theorem    stdlib/sets/remove-member
+import mundane definition stdlib/numbers/abs
+import mundane theorem    stdlib/numbers/abs-negative
+import mundane theorem    stdlib/numbers/abs-difference-lt
+import mundane theorem    stdlib/functions/function-value
+
+theorem sign-has-no-limit
+  note        Within any δ of 0 the function takes the value 1 at δ/2 and
+              −1 at −δ/2. A limit L would be within 1 of both, so L > 0 and
+              L < 0.
+  ε, δ range over ℝ
+  let f : ℝ ∖ {0} → ℝ                                                 (H1)
+  assume for all x ∈ ℝ ∖ {0}, f(x) = |x|/x                           (H2)
+  then not (there is L ∈ ℝ with f tends to L at 0)
+
+1.  not (there is L ∈ ℝ with f tends to L at 0)
+    contradiction
+    suppose there is L ∈ ℝ with f tends to L at 0                     (S)
+
+    1.1.  L ∈ ℝ. f tends to L at 0.
+          obtain L from S
+
+    1.2.  For all ε > 0, there exists δ > 0 such that |f(x) − L| < ε for all x ∈ ℝ ∖ {0} with (x ≠ 0 and |x − 0| < δ).
+          def:limit-at D := ℝ ∖ {0}, c := 0, from 1.1
+          requires ℝ ∖ {0} ⊆ ℝ: mun:difference-subset X := ℝ, Y := {0}
+
+    1.3.  There exists δ > 0 such that |f(x) − L| < 1 for all x ∈ ℝ ∖ {0} with (x ≠ 0 and |x − 0| < δ).
+          instantiate ε := 1 in line 1.2
+          requires 0 < 1: arithmetic
+
+    1.4.  p ∈ ℝ. p > 0. For all x ∈ ℝ ∖ {0} with (x ≠ 0 and |x − 0| < p), |f(x) − L| < 1.
+          obtain p from line 1.3
+
+    1.5.  p/2 > 0
+          inequalities
+            p > 0          1.4
+            p/2 > 0        multiplying by 1/2
+
+    1.6.  p/2 ≠ 0
+          inequalities
+            p/2 > 0        1.5
+            p/2 ≠ 0        weakening
+
+    1.7.  p/2 ∈ ℝ ∖ {0}
+          mun:remove-member u := p/2, from 1.6
+
+    1.8.  |p/2| = p/2
+          mun:abs x := p/2
+          requires p/2 ≥ 0: weakening, from 1.5
+
+    1.9.  p/2 < p
+          inequalities
+            p/2 > 0                1.5
+            p/2 + p/2 > p/2        adding p/2
+            p > p/2                algebra
+
+    1.10. |p/2 − 0| < p
+          transitivity, from 1.8, 1.9
+
+    1.11. |f(p/2) − L| < 1
+          instantiate x := p/2 in line 1.4, from 1.6, 1.7, 1.10
+
+    1.12. f(p/2) = |p/2|/(p/2)
+          instantiate x := p/2 in H2, from 1.7
+
+    1.13. |p/2|/(p/2) = 1
+          algebra, from 1.8
+          requires p/2 ≠ 0: from 1.6
+
+    1.14. f(p/2) = 1
+          calculation
+            f(p/2) = |p/2|/(p/2)    1.12
+                   = 1              1.13
+
+    1.15. f(p/2) < L + 1
+          mun:abs-difference-lt x := f(p/2), c := L, δ := 1, from 1.11
+          requires f(p/2) ∈ ℝ: mun:function-value, from H1, 1.7
+
+    1.16. 1 < L + 1
+          transitivity, from 1.14, 1.15
+
+    1.17. 0 < L
+          inequalities
+            1 < L + 1        1.16
+            0 < L            adding −1
+
+    1.18. (−p)/2 ≠ 0
+          inequalities
+            p/2 > 0           1.5
+            (−p)/2 < 0        multiplying by −1
+            (−p)/2 ≠ 0        weakening
+
+    1.19. (−p)/2 ∈ ℝ ∖ {0}
+          mun:remove-member u := (−p)/2, from 1.18
+
+    1.20. (−p)/2 = −(p/2)
+          algebra
+
+    1.21. |−(p/2)| = |p/2|
+          mun:abs-negative x := p/2
+
+    1.22. |(−p)/2| = |p/2|
+          substitute (−p)/2 = −(p/2) (line 1.20) into line 1.21
+
+    1.23. |(−p)/2 − 0| < p
+          transitivity, from 1.22, 1.8, 1.9
+
+    1.24. |f((−p)/2) − L| < 1
+          instantiate x := (−p)/2 in line 1.4, from 1.18, 1.19, 1.23
+
+    1.25. f((−p)/2) = |(−p)/2|/((−p)/2)
+          instantiate x := (−p)/2 in H2, from 1.19
+
+    1.26. |(−p)/2|/((−p)/2) = −1
+          algebra, from 1.8, 1.22
+          requires (−p)/2 ≠ 0: from 1.18
+
+    1.27. f((−p)/2) = −1
+          calculation
+            f((−p)/2) = |(−p)/2|/((−p)/2)    1.25
+                      = −1                   1.26
+
+    1.28. L − 1 < f((−p)/2)
+          mun:abs-difference-lt x := f((−p)/2), c := L, δ := 1, from 1.24
+          requires f((−p)/2) ∈ ℝ: mun:function-value, from H1, 1.19
+
+    1.29. L − 1 < −1
+          transitivity, from 1.28, 1.27
+
+    1.30. L < 0
+          inequalities
+            L − 1 < −1       1.29
+            L < 0            adding 1
+
+    1.31. L ≤ 0
+          inequalities
+            L < 0        1.30
+            L ≤ 0        weakening
+
+    1.32. not 0 < L
+          inequalities, from 1.31, contradicting 1.17
