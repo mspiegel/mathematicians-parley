@@ -1280,22 +1280,21 @@ impl<'a> Elaborator<'a> {
         let claim = self.claim_of(&step.claim)?;
         let left = self.term(&block.assumed[&0].0)?;
         let right = self.term(&block.assumed[&1].0)?;
-        let PartEnd {
-            claim: forward_end,
-            proof: forward,
-            ..
-        } = block.parts[&0].clone();
-        let PartEnd {
-            claim: backward_end,
-            proof: backward,
-            ..
-        } = block.parts[&1].clone();
-        if forward_end != right || backward_end != left {
+        // Each direction ends on the side it does not assume as the text
+        // writes it, which may rename a bound letter: a part ending on a
+        // proof block fixing t says the side over the block's own t.
+        let allowed = Some(self.named(step, &number_of(step), true));
+        let forward = self.resting_on(allowed.clone(), |me| {
+            me.direction_reached(&block.parts[&0], &right)
+        })?;
+        let backward = self
+            .resting_on(allowed, |me| me.direction_reached(&block.parts[&1], &left))?;
+        let (Some(forward), Some(backward)) = (forward, backward) else {
             return Err(self.defect(
                 step.line,
                 "a direction does not end on the side it does not assume",
             ));
-        }
+        };
         let joined = t!(left, right, "wb");
         let mut proof = self.b.ap(
             "impbida",
@@ -1321,6 +1320,20 @@ impl<'a> Elaborator<'a> {
             proof = pf!(self.b; scope, joined, claim, proof, alike, "mpbid");
         }
         Ok((claim, proof))
+    }
+
+    /// The proof a direction ends on, of the side `want` it does not
+    /// assume: its own where it says the side as written, and otherwise
+    /// carried there (`reached`); None where it says something else.
+    fn direction_reached(
+        &mut self,
+        end: &PartEnd,
+        want: &str,
+    ) -> Checked<Option<Proof>> {
+        if end.claim == want {
+            return Ok(Some(end.proof.clone()));
+        }
+        self.reached(&end.proof, &end.claim, want, &end.scope, &end.facts)
     }
 
     fn close_cases(&mut self, block: &Block) -> Checked<(String, Proof)> {

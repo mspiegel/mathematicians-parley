@@ -1,0 +1,29 @@
+import mundane definition stdlib/sets/subset
+import mundane theorem    stdlib/sets/in-subset
+
+theorem a-direction-ending-on-a-proof-block
+  note        The first direction ends on a proof block fixing t, so it says
+              the side it owes over the block's own t, and the block closes
+              on it as on any part of the side written another way.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  then A ⊆ B ↔ for all t ∈ A, t ∈ B
+
+1.  A ⊆ B ↔ for all t ∈ A, t ∈ B
+    both directions
+
+    direction
+    assume A ⊆ B                                                      (D1)
+
+    1.1.  For all t ∈ A, t ∈ B.
+          proof
+          let t ∈ A                                                   (K1)
+
+          1.1.1.  t ∈ B
+                  mun:in-subset X := A, Y := B, u := t, from D1, K1
+
+    direction
+    assume for all t ∈ A, t ∈ B                                       (D2)
+
+    1.2.  A ⊆ B
+          mun:subset, from D2
