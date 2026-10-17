@@ -633,7 +633,7 @@ impl<'a> Elaborator<'a> {
                     None => made,
                 });
             }
-            if label == "wf" {
+            if label == "wf" && !self.map_types_off {
                 if let Some(found) = self.map_into(wanted, scope, unfiltered, depth)? {
                     return Ok(Built(found));
                 }

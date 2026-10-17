@@ -5782,6 +5782,11 @@ pub struct Options {
     /// that comes back as another term kept in `Elaborated::said_back`.
     /// Only the test of what messages say turns it on.
     pub say_back: bool,
+    /// The route proving a defined function's type from its rule
+    /// (`map_into`) not taken. Only the test of gaps turns it on, to see a
+    /// step the checker accepts and the build cannot prove reported as the
+    /// build's to fix.
+    pub map_types_off: bool,
 }
 
 /// One theorem's elaborated file, and the statement it proves, which a
@@ -5860,6 +5865,7 @@ pub fn elaborate(
     );
     work.b.share_syntax(syntax);
     work.whole_scope = options.whole_scope_offered;
+    work.map_types_off = options.map_types_off;
     work.said_back = options.say_back.then(Vec::new);
     // The checker accepted the theorem, so what stops its proof here is the
     // build's to fix (`Problem::gap`).

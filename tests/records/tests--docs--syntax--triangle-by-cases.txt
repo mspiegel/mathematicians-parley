@@ -1,0 +1,7 @@
+theorem tests/docs/syntax/triangle-by-cases
+block of 2: 2.1, 2.2
+  part 0 owes |a + b| ≤ |a| + |b|
+  part 1 owes |a + b| ≤ |a| + |b|
+step 1 cites stdlib/numbers/nonneg-or-neg group 0; x := a + b; concludes 0 AsWritten; from no line
+step 2.1 cites tests/docs/syntax/sum-nonneg-bounded group 0; a := a, b := b; concludes 0 AsWritten; from no line
+step 2.2 cites tests/docs/syntax/sum-neg-bounded group 0; a := a, b := b; concludes 0 AsWritten; from no line

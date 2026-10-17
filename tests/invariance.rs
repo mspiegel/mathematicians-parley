@@ -26,7 +26,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::path::Path;
 use std::sync::Arc;
 
-use parley::checker::CheckedCorpus;
+use parley::checker::{checked, CheckedCorpus};
 use parley::corpus::corpus;
 use parley::corpus::proof::cited_items;
 use parley::elab::elaborate::Options;
@@ -39,6 +39,8 @@ use parley::tools::{path_of, verify};
 
 #[path = "invariance/rewrites.rs"]
 mod rewrites;
+
+mod record;
 
 use rewrites::{Context, Declined, Rewritten};
 
@@ -382,6 +384,82 @@ fn changed(clean: &Memory, context: &Context, change: &Change) -> Changed {
         theorems,
         declined,
     }
+}
+
+/// A rewrite that changes only how a line is spelt leaves what the checker
+/// hands the build as it was: each theorem of a file it changed has the
+/// record it had (`record::printed_but`), so the build is handed one meaning
+/// however a line spells it. A requires line the rewrite changed may be
+/// read under another binding that fits it as well, `triangle` at the
+/// points of an equation turned round, so its own citation is left out.
+/// This half checks alone, and builds nothing.
+#[test]
+fn a_line_spelt_otherwise_leaves_the_record_as_it_was() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let clean = Memory::copy(&Disk::new(root), &["corpus", "proofs", "tests"]).unwrap();
+    let before = checked(&clean).unwrap_or_else(|out| panic!("{}", out.printed));
+    let context = Context::new(
+        corpus(&clean).expect("the corpus reads"),
+        parley::checker::obtained_there(&clean).expect("the corpus reads"),
+        parley::checker::bound_there(&clean).expect("the corpus reads"),
+    );
+    let mut compared = 0;
+    let mut differ = Vec::new();
+    for change in changes() {
+        if !matches!(change.rewrite, Rewrite::Line(_)) {
+            continue;
+        }
+        let done = changed(&clean, &context, &change);
+        let after = checked(&done.tree).unwrap_or_else(|out| panic!("{}", out.printed));
+        for thm in &after.corpus.theorems {
+            if !done.files.contains(&thm.path) {
+                continue;
+            }
+            let name = thm.qualified();
+            let rewritten = rewritten_requires(&before, thm);
+            let omitted = |at: &str| rewritten.contains(at);
+            let (was, now) = (
+                record::printed_but(&before, &name, &omitted),
+                record::printed_but(&after, &name, &omitted),
+            );
+            compared += 1;
+            if was != now {
+                differ.push(format!(
+                    "{} | {name}\n--- was\n{was}--- now\n{now}",
+                    change.name
+                ));
+            }
+        }
+    }
+    // A test over nothing says nothing.
+    assert!(compared > 100, "only {compared} records were compared");
+    assert!(differ.is_empty(), "{}", differ.join("\n"));
+}
+
+/// The requires lines of `after` whose fact is written otherwise than in
+/// the same theorem as `before` read it, by their place in their step,
+/// `requires line 1 of step 2`.
+fn rewritten_requires(
+    before: &CheckedCorpus,
+    after: &parley::corpus::Theorem,
+) -> BTreeSet<String> {
+    let mut out = BTreeSet::new();
+    let Some(was) = before
+        .corpus
+        .theorems
+        .iter()
+        .find(|t| t.qualified() == after.qualified())
+    else {
+        return out;
+    };
+    for (old, new) in was.steps.iter().zip(&after.steps) {
+        for (a, b) in old.requires.iter().zip(&new.requires) {
+            if a.fact.text() != b.fact.text() {
+                out.insert(record::requires_at(after, b.line));
+            }
+        }
+    }
+    out
 }
 
 #[test]

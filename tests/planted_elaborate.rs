@@ -190,6 +190,37 @@ fn the_elaborator_reports_every_planted_defect() {
     assert_eq!(missed, 0, "{}", said.join("\n"));
 }
 
+/// A step the checker accepts and the build cannot prove is the build's to
+/// fix, and is reported as one: with the route that proves a defined
+/// function's type from its rule turned off, the type a-define-filling's
+/// step 2 cites value-at-one for is left unproved, and the build says so
+/// as a gap rather than as a fault in the page. With the route on, the
+/// theorem builds.
+#[test]
+fn a_step_the_build_cannot_prove_is_a_gap() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let library = library(root, None).expect(
+        "set.mm is found: say where it is with SET_MM, or leave a copy at the root",
+    );
+    let clean = clean();
+    let name = "tests/elaborator/a-define-filling-a-cited-function/a-define-filling-a-cited-function";
+    let built = elaborate_one(&clean, name, &library, Options::default());
+    assert!(built.is_ok(), "{name} does not build with every route on");
+    let off = Options {
+        map_types_off: true,
+        ..Options::default()
+    };
+    let said = match elaborate_one(&clean, name, &library, off) {
+        Ok(_) => panic!("{name} builds without the route that proves its type"),
+        Err(problem) => problem.to_string(),
+    };
+    assert!(
+        said.contains("the build cannot yet prove this, which the checker accepts")
+            && said.contains("t : ℕ → ℝ"),
+        "{said}"
+    );
+}
+
 fn cases() -> Vec<Case> {
     vec![
         // A gap in the database rather than in the text, reported at the line

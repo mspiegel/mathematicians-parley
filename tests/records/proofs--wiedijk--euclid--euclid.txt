@@ -1,0 +1,54 @@
+theorem proofs/wiedijk/euclid/euclid
+block of 3: 3.1, 3.2, 3.3, 3.4, 3.5
+  part 0 owes a(0) ∈ ℕ₀ and b(0) ∈ ℕ₀
+  part 1 owes a(k + 1) ∈ ℕ₀ and b(k + 1) ∈ ℕ₀
+block of 3.5: 3.5.1, 3.5.2, 3.5.3, 3.5.4, 3.5.5, 3.5.6, 3.5.7, 3.5.8, 3.5.9, 3.5.10, 3.5.11, 3.5.12
+  part 0 owes a(k + 1) ∈ ℕ₀ and b(k + 1) ∈ ℕ₀
+  part 1 owes a(k + 1) ∈ ℕ₀ and b(k + 1) ∈ ℕ₀
+block of 4: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6
+  part 0 owes gcd(a(0), b(0)) = gcd(M, N)
+  part 1 owes gcd(a(k + 1), b(k + 1)) = gcd(M, N)
+block of 4.6: 4.6.1, 4.6.2, 4.6.3, 4.6.4, 4.6.5, 4.6.6, 4.6.7, 4.6.8, 4.6.9, 4.6.10, 4.6.11, 4.6.12, 4.6.13, 4.6.14, 4.6.15
+  part 0 owes gcd(a(k + 1), b(k + 1)) = gcd(M, N)
+  part 1 owes gcd(a(k + 1), b(k + 1)) = gcd(M, N)
+block of 5: 5.1, 5.2, 5.3, 5.4, 5.5
+  part 0 owes b(0) + 0 ≤ N or b(0) = 0
+  part 1 owes b(k + 1) + (k + 1) ≤ N or b(k + 1) = 0
+block of 5.5: 5.5.1, 5.5.2, 5.5.3, 5.5.4, 5.5.5, 5.5.6, 5.5.7, 5.5.8, 5.5.9, 5.5.10, 5.5.11, 5.5.12, 5.5.13, 5.5.14
+  part 0 owes b(k + 1) + (k + 1) ≤ N or b(k + 1) = 0
+  part 1 owes b(k + 1) + (k + 1) ≤ N or b(k + 1) = 0
+block of 10: 10.1, 10.2, 10.3
+  part 0 owes b(N) = 0
+  part 1 owes b(N) = 0
+step 3.4 cites stdlib/reasoning/excluded-middle group 0; P := b(k) = 0; concludes 0 AsWritten; from no line
+step 3.5.8 cites stdlib/numbers/nat0-nonzero group 0; m := b(k); concludes 0 AsWritten; from no line
+step 3.5.9 cites stdlib/divisibility/mod-natural group 0; a := a(k), b := b(k); concludes 0 AsWritten; from no line
+step 4.5 cites stdlib/reasoning/excluded-middle group 0; P := b(k) = 0; concludes 0 AsWritten; from no line
+step 4.6.9 cites stdlib/numbers/nat0-nonzero group 0; m := b(k); concludes 0 AsWritten; from no line
+step 4.6.10 cites stdlib/numbers/nat0-int group 0; m := a(k); concludes 0 AsWritten; from no line
+step 4.6.11 cites stdlib/divisibility/gcd-mod group 0; a := a(k), b := b(k); concludes 0 AsWritten; from no line
+step 4.6.12 cites stdlib/divisibility/gcd-commutes group 0; a := b(k), b := a(k) mod b(k); concludes 0 AsWritten; from no line
+step 5.2 cites stdlib/reasoning/or-left group 0; P := b(0) ≤ N, Q := b(0) = 0; concludes 0 AsWritten; from no line
+step 5.4 cites stdlib/reasoning/excluded-middle group 0; P := b(k) = 0; concludes 0 AsWritten; from no line
+step 5.5.2 cites stdlib/reasoning/or-right group 0; P := b(k + 1) + (k + 1) ≤ N, Q := b(k + 1) = 0; concludes 0 AsWritten; from no line
+step 5.5.4 cites stdlib/numbers/nat0-nonzero group 0; m := b(k); concludes 0 AsWritten; from no line
+step 5.5.5 cites stdlib/numbers/nat0-int group 0; m := a(k); concludes 0 AsWritten; from no line
+step 5.5.6 cites stdlib/divisibility/mod-less group 0; a := a(k), b := b(k); concludes 0 AsWritten; from no line
+step 5.5.7 cites stdlib/divisibility/mod-natural group 0; a := a(k), b := b(k); concludes 0 AsWritten; from no line
+step 5.5.10 cites stdlib/numbers/integer-step group 0; m := b(k + 1), n := b(k); concludes 0 AsWritten; from no line
+step 5.5.11 cites stdlib/reasoning/disjunctive-syllogism group 0; P := b(k) + k ≤ N, Q := b(k) = 0; concludes 0 AsWritten; from no line
+step 5.5.14 cites stdlib/reasoning/or-left group 0; P := b(k + 1) + (k + 1) ≤ N, Q := b(k + 1) = 0; concludes 0 AsWritten; from no line
+step 9 cites stdlib/reasoning/excluded-middle group 0; P := b(N) = 0; concludes 0 AsWritten; from no line
+step 10.1 cites stdlib/reasoning/disjunctive-syllogism group 0; P := b(N) + N ≤ N, Q := b(N) = 0; concludes 0 AsWritten; from no line
+step 10.2 cites stdlib/numbers/nat0-nonzero group 0; m := b(N); concludes 0 AsWritten; from no line
+step 11 cites stdlib/divisibility/gcd-zero group 0; n := a(N); concludes 0 AsWritten; from no line
+requires line 1 of step 3.5.9 cites stdlib/numbers/nat0-int group 0; m := a(k); concludes 0 AsWritten; from no line
+requires line 1 of step 4.6.12 cites stdlib/numbers/nat0-int group 0; m := b(k); concludes 0 AsWritten; from no line
+requires line 2 of step 4.6.12 cites stdlib/divisibility/mod-natural group 0; a := a(k), b := b(k); concludes 0 AsWritten; from no line
+requires line 1 of step 5.5.10 cites stdlib/numbers/nat0-int group 0; m := b(k + 1); concludes 0 AsWritten; from no line
+requires line 2 of step 5.5.10 cites stdlib/numbers/nat0-int group 0; m := b(k); concludes 0 AsWritten; from no line
+requires line 1 of step 5.5.12 cites stdlib/numbers/nat0-real group 0; m := b(k + 1); concludes 0 AsWritten; from no line
+requires line 2 of step 5.5.12 cites stdlib/numbers/nat0-real group 0; m := b(k); concludes 0 AsWritten; from no line
+requires line 1 of step 5.5.13 cites stdlib/numbers/nat0-real group 0; m := b(k + 1); concludes 0 AsWritten; from no line
+requires line 2 of step 5.5.13 cites stdlib/numbers/nat0-real group 0; m := b(k); concludes 0 AsWritten; from no line
+step 5.5.13 chains b(k + 1) + (k + 1) ≤ b(k) + k | b(k) + k ≤ N

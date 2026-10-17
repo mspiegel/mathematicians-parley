@@ -374,6 +374,9 @@ pub struct Elaborator<'a> {
     pub statements: &'a dyn Fn(&str) -> Option<String>,
     /// Whether the search is offered every fact in scope (`Options`).
     pub whole_scope: bool,
+    /// Whether the route proving a defined function's type is off
+    /// (`Options::map_types_off`).
+    pub map_types_off: bool,
     /// What each record asks a citation and concludes, read as the checker
     /// reads it (`citing`), the first time a citation asks.
     pub item_library: OnceCell<Rc<citing::Library<'a>>>,
@@ -502,6 +505,7 @@ impl<'a> Elaborator<'a> {
             terms,
             statements,
             whole_scope: false,
+            map_types_off: false,
             item_library: OnceCell::new(),
             readings: OnceCell::new(),
         }
