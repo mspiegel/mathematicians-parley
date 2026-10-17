@@ -21,7 +21,6 @@ pub mod elaborate;
 pub(crate) use crate::methods::field;
 mod inspection;
 pub(crate) use crate::methods::linear;
-mod listing;
 pub(crate) mod matcher;
 pub(crate) mod normal;
 pub mod numerals;

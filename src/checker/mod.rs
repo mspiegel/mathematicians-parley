@@ -298,20 +298,6 @@ impl<'a> Checking<'a> {
     }
 }
 
-/// What each record a requires line or an obtain cites asks or says there,
-/// as the checker reads the page (`citations::answers`), for every theorem:
-/// what `tests/agree.rs` compares with the elaborator's answers.
-pub fn answers(source: &dyn Source) -> Result<Vec<String>, Outcome> {
-    prepared(source, |_, c| {
-        c.theorems
-            .iter()
-            .zip(c.known)
-            .flat_map(|(thm, k)| citations::answers(thm, c.library, k))
-            .collect()
-    })
-    .map(|(_, _, said)| said)
-}
-
 /// What the item each obtain cites says there is, at the step
 /// (`citations::obtained_there`).
 pub struct ObtainedThere {

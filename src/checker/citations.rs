@@ -177,66 +177,6 @@ fn requires_parts(
     Some(parts)
 }
 
-/// What the record each requires line cites asks of it, and what the
-/// record each obtain cites says there is, as this checker reads the page:
-/// one line per hypothesis or sentence, in the page's notation, and one
-/// saying the shared matcher declines where it does. `tests/agree.rs`
-/// compares them with the elaborator's (`Elaborator::list_asked`), since
-/// the two read the page each its own way before they ask `citing` alike.
-pub fn answers(thm: &Theorem, library: &Library, known: &Known) -> Vec<String> {
-    let mut out = Vec::new();
-    for step in &thm.steps {
-        for req in &step.requires {
-            let Some((named, _)) = req.cited_item() else {
-                continue;
-            };
-            let name = step.just.item(&named);
-            if !matches!(library.item(&name), Some(Item::Record(_))) {
-                continue;
-            }
-            let Some(parts) = requires_parts(step, req, &[], known, library) else {
-                continue;
-            };
-            let at = format!("{}:{} | asked | {named}", thm.path, req.line);
-            match asked(&name, &parts, library) {
-                Built(asks) => {
-                    for h in &asks.hypotheses {
-                        out.push(format!("{at} | {}", known.print(h)));
-                    }
-                }
-                Declined(_) => out.push(format!("{at} | declines")),
-            }
-        }
-        if !step.just.head.is(Method::Obtain) {
-            continue;
-        }
-        let Some(item) = step.just.cited_item() else {
-            continue;
-        };
-        let Some(Item::Record(record)) = library.item(&step.just.item(&item)) else {
-            continue;
-        };
-        let Some(there) = obtained_there(step, library, known) else {
-            continue;
-        };
-        let at = format!(
-            "{}:{} | obtained | {}",
-            thm.path,
-            step.line,
-            record.qualified()
-        );
-        match there {
-            Built(said) => {
-                for said in &said {
-                    out.push(format!("{at} | {}", known.print(said)));
-                }
-            }
-            Declined(_) => out.push(format!("{at} | declines")),
-        }
-    }
-    out
-}
-
 /// What the item an obtain cites says there is, at the step: the item's
 /// statements, each letter as the step's lines fix it (`obtained`). None
 /// where the step obtains from no item, or from a definition that unfolds,

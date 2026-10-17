@@ -28,7 +28,6 @@ use crate::corpus::{
 };
 use crate::formula::page::{made_as, Written};
 use crate::formula::{Node, Sorts};
-use crate::matching::standard;
 use crate::mm::kernel::Term;
 use crate::mm::spell::Proof;
 use crate::mm::Signature;
@@ -1794,30 +1793,6 @@ impl<'a> Elaborator<'a> {
                             me.read_one(&Self::claimed_by(item))
                         })?,
                     };
-                    // Listed in the standard order the checker lists its own
-                    // answer in, since the two are compared (`checker::answers`).
-                    if me.answers.is_some() {
-                        if let Item::Record(r) = item {
-                            let library = me.item_library();
-                            // An item saying "A ↔ there is …" gives the
-                            // "there is", as the obtain below reads it.
-                            let there_is = crate::citing::readings(&node, &library)
-                                .into_iter()
-                                .map(|r| r.claimed)
-                                .find(|t| library.exists.contains(&t.notation))
-                                .unwrap_or_else(|| node.clone());
-                            let said = me.g.print(&standard(&there_is, &library.ctx));
-                            let line = format!(
-                                "{}:{} | obtained | {} | {said}",
-                                me.thm.path,
-                                step.line,
-                                r.qualified()
-                            );
-                            if let Some(list) = &mut me.answers {
-                                list.push(line);
-                            }
-                        }
-                    }
                     me.term(&node)
                 })?;
                 // An item states its existential in its own names, and a

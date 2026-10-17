@@ -914,10 +914,6 @@ impl<'a> Elaborator<'a> {
         let resting = self.named(step, number, false);
         self.named_first(&step.just.refs, &resting, facts);
         if step.just.head.is(Method::Obtain) {
-            // An obtain's requires lines cite items as any step's do.
-            if self.answers.is_some() {
-                self.list_asked(step)?;
-            }
             return self.obtain(step, number, scope, facts, closers);
         }
         let sentences = step.claim.sentences();
@@ -928,12 +924,6 @@ impl<'a> Elaborator<'a> {
         let term = self.claim_of(&step.claim)?;
         if self.said_back.is_some() {
             self.say_back(&sentences, step.line)?;
-        }
-        if self.answers.is_some() {
-            let mut facts = sentences.clone();
-            facts.extend(step.requires.iter().flat_map(|r| r.fact.sentences()));
-            self.list_implied(step, &facts)?;
-            self.list_asked(step)?;
         }
         let Some(how) = self.method_for(step)? else {
             return Err(
@@ -5848,9 +5838,6 @@ pub struct Options {
     /// that comes back as another term kept in `Elaborated::said_back`.
     /// Only the test of what messages say turns it on.
     pub say_back: bool,
-    /// What the elaborator answers to the questions the checker answers
-    /// too, listed in `Elaborated::answers` for `tests/agree.rs`.
-    pub list_answers: bool,
 }
 
 /// One theorem's elaborated file, and the statement it proves, which a
@@ -5861,8 +5848,6 @@ pub struct Elaborated {
     /// Where `Options::say_back` is on, each sentence said back as another
     /// term: the sentence, what it was said back as, and its line.
     pub said_back: Vec<String>,
-    /// Where `Options::list_answers` is on, the elaborator's answers.
-    pub answers: Vec<String>,
 }
 
 /// The theorems `cited` names, each after every other of them it rests on,
@@ -5932,7 +5917,6 @@ pub fn elaborate(
     work.b.share_syntax(syntax);
     work.whole_scope = options.whole_scope_offered;
     work.said_back = options.say_back.then(Vec::new);
-    work.answers = options.list_answers.then(Vec::new);
     // The checker accepted the theorem, so what stops its proof here is the
     // build's to fix (`Problem::gap`).
     let (goal, hypotheses, mut proof) = work.run().map_err(Problem::gap)?;
@@ -6041,7 +6025,6 @@ pub fn elaborate(
         text: out,
         statement: format!("|- {says}"),
         said_back: work.said_back.take().unwrap_or_default(),
-        answers: work.answers.take().unwrap_or_default(),
     })
 }
 
