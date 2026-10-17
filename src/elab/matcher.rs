@@ -634,11 +634,7 @@ impl<'a> Elaborator<'a> {
                 });
             }
             if label == "wf" {
-                let held = Held {
-                    named: &facts,
-                    scope: unfiltered,
-                };
-                if let Some(found) = self.map_into(wanted, scope, &held, depth)? {
+                if let Some(found) = self.map_into(wanted, scope, unfiltered, depth)? {
                     return Ok(Built(found));
                 }
             }
@@ -662,36 +658,25 @@ impl<'a> Elaborator<'a> {
         }
         Ok(self.no("cannot settle {}", &[&rpn]))
     }
-}
 
-/// The facts a side condition is settled from: those the step may rest on,
-/// and the scope's whole, which holds its copy of each line in scope.
-struct Held<'f> {
-    named: &'f Facts,
-    scope: &'f Facts,
-}
-
-impl<'a> Elaborator<'a> {
-    /// ( scope -> F : A ⟶ C ), F the map ( x ∈ A ↦ B ) or a name a fact
-    /// says is that map, a define's, where B is in C at every point of A
-    /// (`fmpt`, `feq1d`): a defined function's type, which the page says
-    /// once where its rule is a number there by what it says once
-    /// (`SYNTAX.md`, "A define with a parameter also states what its
-    /// function is on").
+    /// ( scope -> F : A ⟶ C ), F the name a define gives the map ( x ∈ A ↦
+    /// B ), where B is in C at every point of A (`fmpt`, `feq1d`): a
+    /// defined function's type, which the page says once where its rule is
+    /// a number there by what it says once (`SYNTAX.md`, "A define with a
+    /// parameter also states what its function is on").
+    ///
+    /// `facts` are the scope's whole, which holds its copy of the define's
+    /// line; `settle` keeps of them what the step may rest on.
     fn map_into(
         &mut self,
         wanted: &Term,
         scope: &str,
-        held: &Held,
+        facts: &Facts,
         depth: i32,
     ) -> Checked<Option<Proof>> {
-        let facts = held.named;
         let [domain, codomain, named] = wanted.children() else {
             return Ok(None);
         };
-        if named.variable().is_none() && named.label() == Some("cmpt") {
-            return self.map_type(named, domain, codomain, scope, facts, depth);
-        }
         // A define's name is equal to its map by the define's own line,
         // which every step may rest on.
         let var = match (named.label(), named.children()) {
@@ -713,7 +698,7 @@ impl<'a> Elaborator<'a> {
             return Ok(None);
         };
         let (a, c, name) = (self.rpn(domain), self.rpn(codomain), self.rpn(named));
-        let Some(equal) = self.held(held.scope, &t!(name, body, "wceq"), scope)? else {
+        let Some(equal) = self.held(facts, &t!(name, body, "wceq"), scope)? else {
             return Ok(None);
         };
         let turned = self.b.ap(
