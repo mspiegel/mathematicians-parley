@@ -1616,7 +1616,7 @@ pub fn check_arithmetic_holds(
             if !req.is(Method::Arithmetic) {
                 continue;
             }
-            if let Worked::Fails(why) = arithmetic_worked(&req.fact, known, targets) {
+            if let Some(why) = arithmetic_unshown(&req.fact, known, targets) {
                 report.say(
                     &thm.path,
                     req.line,
@@ -1645,6 +1645,25 @@ pub fn check_arithmetic_holds(
                 );
             }
         }
+    }
+}
+
+/// Why `arithmetic` does not show a fact a line gives it as a reason, a
+/// requires line's or a let's: it is false or has no value, or it is not a
+/// fact of numerals alone, which is all arithmetic decides. None where it
+/// holds.
+fn arithmetic_unshown(
+    fact: &Written,
+    known: &Known,
+    targets: &Targets,
+) -> Option<String> {
+    match arithmetic_worked(fact, known, targets) {
+        Worked::Holds => None,
+        Worked::Fails(why) => Some(why),
+        Worked::Undecided => Some(
+            "is not a fact about numerals alone, and arithmetic decides nothing else"
+                .to_string(),
+        ),
     }
 }
 
@@ -2152,7 +2171,12 @@ pub fn check_define_names(
 /// ⌊A + 1/2⌋ − A`, as a link citing it reads it (`SYNTAX.md`, a step may
 /// cite a define); None where `r` carries no define of a name standing for
 /// a term.
-fn define_equation(thm: &Theorem, step: &Step, r: &str, known: &Known) -> Option<Node> {
+pub(super) fn define_equation(
+    thm: &Theorem,
+    step: &Step,
+    r: &str,
+    known: &Known,
+) -> Option<Node> {
     let name = define_named(thm, r, known.env.scopes)?;
     let defined = known.citing(&[r.to_string()]);
     let Some(crate::matching::Defined::Term(term)) = defined.get(&name) else {
@@ -2979,28 +3003,37 @@ pub fn check_kind_methods(
     known: &Known,
     targets: &Targets,
 ) {
-    for d in &thm.defines {
-        let Ok(Some(kinded)) = d.kinded(&thm.path, &known.env.g.members) else {
+    for UnderLet {
+        define: d,
+        step: under,
+    } in reasons_under_lets(thm, known)
+    {
+        let shown = &under.requires[0];
+        if shown.is(Method::Arithmetic) {
+            if let Some(why) = arithmetic_unshown(&shown.fact, known, targets) {
+                report.say(
+                    &thm.path,
+                    d.line,
+                    format!(
+                        "the reason under let {} does not show {}: arithmetic finds it {why}",
+                        d.label,
+                        str::trim(shown.fact.text())
+                    ),
+                );
+            }
             continue;
-        };
-        let Some(after) = thm.step_after(d.line) else {
-            continue;
-        };
-        let decides: Decides = if kinded.shown.is(Method::Membership) {
+        }
+        let decides: Decides = if shown.is(Method::Membership) {
             membership_holds
-        } else if kinded.shown.is(Method::Algebra) {
+        } else if shown.is(Method::Algebra) {
             algebra_holds
-        } else if kinded.shown.is(Method::Inequalities) {
+        } else if shown.is(Method::Inequalities) {
             inequalities_hold
         } else {
             continue;
         };
-        let under = Step {
-            requires: vec![kinded.shown.clone()],
-            ..after.clone()
-        };
         let mut scratch = Report::default();
-        let at = ClosureClaim::requires(&under, &under.requires[0]);
+        let at = ClosureClaim::requires(&under, shown);
         let decided = decides(&mut scratch, thm, &at, known, targets);
         let why = match scratch.problems.first() {
             Some(problem) => problem.message.clone(),
@@ -3013,10 +3046,40 @@ pub fn check_kind_methods(
             format!(
                 "the reason under let {} does not show {}: {why}",
                 d.label,
-                str::trim(kinded.shown.fact.text())
+                str::trim(shown.fact.text())
             ),
         );
     }
+}
+
+/// A let saying what kind of number its name is, and the step below it
+/// with the let's reason as its one requires line, which is how the reason
+/// is read (`SYNTAX.md`, a let with a kind).
+pub struct UnderLet<'t> {
+    pub define: &'t crate::corpus::DefineLine,
+    pub step: Step,
+}
+
+/// The theorem's lets that say a kind, each with its reason read as a
+/// requires line of the step after it (`UnderLet`); a let with no step
+/// after it is reported by the reader.
+pub fn reasons_under_lets<'t>(thm: &'t Theorem, known: &Known) -> Vec<UnderLet<'t>> {
+    thm.defines
+        .iter()
+        .filter_map(|d| {
+            let Ok(Some(kinded)) = d.kinded(&thm.path, &known.env.g.members) else {
+                return None;
+            };
+            let after = thm.step_after(d.line)?;
+            Some(UnderLet {
+                define: d,
+                step: Step {
+                    requires: vec![kinded.shown.clone()],
+                    ..after.clone()
+                },
+            })
+        })
+        .collect()
 }
 
 /// What a method step's lines are asked against: how its method decides,

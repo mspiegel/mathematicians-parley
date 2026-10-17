@@ -1193,10 +1193,9 @@ pub fn check_substitutes(
             continue;
         };
         // The equation is part of the line it is taken from (`SYNTAX.md`,
-        // substitute), as that line writes it or turned. A reference to
-        // nothing is `check_references`'s to report, and a define, whose
-        // equation is the name and what it names and no sentence a line
-        // states, the elaborator's.
+        // substitute), as that line writes it or turned, and of a define of
+        // a name the name and what it names. A reference to nothing is
+        // `check_references`'s to report.
         let defined = |r: &str| thm.defines.iter().any(|d| d.label == r);
         // An equation worked out where it stands, `(arithmetic)`, is a fact
         // of numerals `arithmetic` decides (`METHODS.md`, arithmetic).
@@ -1219,11 +1218,16 @@ pub fn check_substitutes(
             }
         }
         let source = step.just.source.as_ref().map(|s| s.named().to_string());
-        if let Some(source) = source.filter(|s| !defined(s)) {
-            let scope = known.scope(step);
-            if let Some(said) =
+        if let Some(source) = source {
+            // A define of a name says its equation, as a link citing it
+            // reads it; a define of a function is the elaborator's.
+            let said = if defined(&source) {
+                super::formulas::define_equation(thm, step, &source, known)
+            } else {
+                let scope = known.scope(step);
                 scope.get(&source).and_then(|s| known.stated_as_written(s))
-            {
+            };
+            if let Some(said) = said {
                 let turned = Node::new(
                     &equation.notation,
                     equation.sort.clone(),
@@ -1406,10 +1410,40 @@ pub fn check_obtained_claims(
                 };
                 let defined = known.citing_step(step);
                 let said = known.said_parts(&stated, Some(&defined));
-                let [one] = said.as_slice() else {
-                    continue;
-                };
-                one.clone()
+                // A line of several sentences gives its one "there is",
+                // as the build takes it; with none or several the line
+                // states no one existence to obtain from.
+                if let [one] = said.as_slice() {
+                    one.clone()
+                } else if said.iter().any(Option::is_none) {
+                    continue; // `check_formulas` says a sentence does not read
+                } else {
+                    let existences: Vec<&Node> = said
+                        .iter()
+                        .flatten()
+                        .filter(|s| s.notation.starts_with("there"))
+                        .collect();
+                    match existences.as_slice() {
+                        [one] => Some((*one).clone()),
+                        none_or_more => {
+                            let says = if none_or_more.is_empty() {
+                                "says no \"there is\""
+                            } else {
+                                "says more than one \"there is\"; obtain from a line that says one"
+                            };
+                            report.say(
+                                &thm.path,
+                                just.line,
+                                format!(
+                                    "step {} obtains {} from a line, which {says}",
+                                    step.number,
+                                    names.join(", ")
+                                ),
+                            );
+                            continue;
+                        }
+                    }
+                }
             }
             Some(item) => {
                 let name = just.item(&item);
@@ -1511,10 +1545,16 @@ pub fn check_obtained_claims(
         else {
             continue; // `check_formulas` says it does not read
         };
-        // A membership written `x ∈ S` is the one the "there is" gives; one
-        // its notation spells otherwise is the elaborator's to read.
+        // A membership written `x ∈ S` is the one the "there is" gives, and
+        // `X ⊆ A` is `X ∈ 𝒫A` written the other way; one its notation spells
+        // otherwise, `f : X → Y`, is the elaborator's to read.
         for ((letter, domain), claimed) in order.iter().zip(&said) {
-            let member = bound_in(Bound::Member, letter, domain, library);
+            let member = match (claimed.notation.as_str(), domain.notation.as_str()) {
+                ("subset", "powerset") if domain.children.len() == 1 => {
+                    bound_in(Bound::Part, letter, &domain.children[0], library)
+                }
+                _ => bound_in(Bound::Member, letter, domain, library),
+            };
             let member = substitute_apart(&member, &put, &library.ctx);
             if claimed.notation == member.notation && !known.alike(claimed, &member) {
                 report.say(
@@ -2426,6 +2466,52 @@ pub(super) fn defined_functions<'d>(
         }
     }
     functions
+}
+
+/// Why a requires line `f is a function on A`, from a define it names, is
+/// not given by it: a define gives a function on the one domain it writes,
+/// as a map of one argument, which the build proves it on (`define_on`), so
+/// f is to be such a function of a define the line names and A that domain.
+/// None where it is, and for a line claiming anything else.
+fn function_on_unshown(
+    thm: &Theorem,
+    req: &Requires,
+    known: &Known,
+    scopes: &[FileScope],
+) -> Option<String> {
+    let claim = known.whole_as_written(&req.fact)?;
+    let ("function-on", [function, on]) =
+        (claim.notation.as_str(), claim.children.as_slice())
+    else {
+        return None;
+    };
+    let named = req.lines();
+    let defines = thm.defines.iter().chain(&scopes[thm.scope].defines);
+    let given = defined_functions(defines)
+        .into_iter()
+        .find(|f| f.name == function.text && named.contains(&f.label));
+    let Some(given) = given else {
+        return Some(format!(
+            "no define it names gives {}",
+            known.print(function)
+        ));
+    };
+    let ([domain], false) = (given.domains.as_slice(), given.recursive) else {
+        return Some(format!(
+            "{} gives {} of more than one argument or by recursion, and a function on one domain is a map of one argument",
+            given.label,
+            known.print(function)
+        ));
+    };
+    let domain = known.read_as_written(&domain.sentence().ok()?)?;
+    (!known.alike(&domain, on)).then(|| {
+        format!(
+            "{} gives {} on {}",
+            given.label,
+            known.print(function),
+            known.print(&domain)
+        )
+    })
 }
 
 /// One argument a defined function is applied to in a claim, and the
@@ -3448,7 +3534,9 @@ pub fn check_from_lines(
         .chain(&scopes[thm.scope].defines)
         .map(|d| d.label.as_str())
         .collect();
-    for step in &thm.steps {
+    // A let's reason is read as a requires line of the step below it.
+    let under = super::formulas::reasons_under_lets(thm, known);
+    for step in thm.steps.iter().chain(under.iter().map(|u| &u.step)) {
         for req in &step.requires {
             if !str::trim(&req.how).starts_with("from ") {
                 continue;
@@ -3475,6 +3563,17 @@ pub fn check_from_lines(
                 req.lines().iter().any(|r| defines.contains(r.as_str()));
             if !read_off(&[]) {
                 if names_a_define {
+                    if let Some(why) = function_on_unshown(thm, req, known, scopes) {
+                        report.say(
+                            &thm.path,
+                            req.line,
+                            format!(
+                                "{} does not give {}: {why}",
+                                str::trim(&req.how),
+                                str::trim(req.fact.text())
+                            ),
+                        );
+                    }
                     continue;
                 }
                 let supplied =

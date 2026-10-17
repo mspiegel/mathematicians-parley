@@ -2788,6 +2788,87 @@ fn cases() -> Vec<Case> {
             "without stating its sort",
         ),
         case(
+            "obtain from a line of several sentences a body it does not say",
+            vec![edit(
+                "proofs/zz/obtain-several.proof",
+                None,
+                "theorem obtain-several\n  assume 1 = 1                                                        (H1)\n  assume there is n ∈ ℕ with n = 1                                    (H2)\n  then 2 ∈ ℕ\n\n1.  1 = 1. There is n ∈ ℕ with n = 1.\n    join H1, H2\n\n2.  P ∈ ℕ. P = 2.\n    obtain P from line 1\n\n3.  2 ∈ ℕ\n    substitute P = 2 (line 2) into line 2\n".to_string(),
+            )],
+            "step 2 claims other than what it obtains, which says P = 1",
+        ),
+        case(
+            "obtain from a line of several sentences none of them a there is",
+            vec![edit(
+                "proofs/zz/obtain-none.proof",
+                None,
+                "theorem obtain-none\n  assume 1 = 1                                                        (H1)\n  assume 2 = 2                                                        (H2)\n  then 1 ∈ ℕ\n\n1.  1 = 1. 2 = 2.\n    join H1, H2\n\n2.  P ∈ ℕ. P = 1.\n    obtain P from line 1\n\n3.  1 ∈ ℕ\n    substitute P = 1 (line 2) into line 2\n".to_string(),
+            )],
+            "step 2 obtains P from a line, which says no \"there is\"",
+        ),
+        case(
+            "say a define gives its function on a domain it does not write",
+            vec![edit(
+                "proofs/zz/define-domain.proof",
+                None,
+                "import mundane theorem    stdlib/functions/function-into\n\ndefine f(n) := n, for n ∈ ℕ                                           (D1)\n       reads each natural number, as a rational\n\ntheorem define-domain\n  assume for all n ∈ ℤ, f(n) ∈ ℚ                                      (H1)\n  then f : ℤ → ℚ\n\n1.  f : ℤ → ℚ\n    mun:function-into, from H1\n    requires f is a function on ℤ: from D1\n".to_string(),
+            )],
+            "from D1 does not give f is a function on ℤ: D1 gives f on ℕ",
+        ),
+        case(
+            "substitute from a define an equation it does not say",
+            vec![edit(
+                "proofs/zz/substitute-define.proof",
+                None,
+                "theorem substitute-define\n  let x ∈ ℝ                                                           (H1)\n  let y = x + 1                                                       (D1)\n      reads one more than x\n  assume x > 0                                                        (H2)\n  then y > 0\n\n1.  y > 0\n    substitute x = y (D1) into H2\n".to_string(),
+            )],
+            "step 1 takes x = y from D1, which does not say it",
+        ),
+        case(
+            "let a kind be shown from a line that does not give it",
+            vec![edit(
+                "proofs/zz/let-from.proof",
+                None,
+                "theorem let-from\n  let N ∈ ℤ                                                           (H1)\n  assume N = 1                                                        (H2)\n  then N/2 ∈ ℤ\n\nlet k = N/2, an integer                                               (D1)\n    from H2\n    reads half of N\n\n1.  k = N/2\n    D1\n\n2.  k ∈ ℤ\n    join D1\n\n3.  N/2 ∈ ℤ\n    substitute k = N/2 (line 1) into line 2\n".to_string(),
+            )],
+            "from H2 does not reach N/2 ∈ ℤ, which this line claims it supplies",
+        ),
+        case(
+            "let a kind be shown by arithmetic that finds it false",
+            vec![edit(
+                "proofs/zz/let-arithmetic.proof",
+                None,
+                "theorem let-arithmetic\n  then 3/2 ∈ ℤ\n\nlet k = 3/2, an integer                                               (D1)\n    arithmetic\n    reads three halves\n\n1.  k = 3/2\n    D1\n\n2.  k ∈ ℤ\n    join D1\n\n3.  3/2 ∈ ℤ\n    substitute k = 3/2 (line 1) into line 2\n".to_string(),
+            )],
+            "the reason under let D1 does not show 3/2 ∈ ℤ: arithmetic finds it is false",
+        ),
+        case(
+            "give arithmetic a requires line with a letter in it",
+            vec![edit(
+                "proofs/zz/requires-arithmetic.proof",
+                None,
+                "theorem requires-arithmetic\n  let x ∈ ℝ                                                           (H1)\n  assume x > 1                                                        (H2)\n  then (x·x)/x = x\n\n1.  (x·x)/x = x\n    algebra\n    requires x ≠ 0: arithmetic\n".to_string(),
+            )],
+            "the requires line x ≠ 0 of step 1 is arithmetic, which is not a fact about numerals alone, and arithmetic decides nothing else",
+        ),
+        case(
+            "obtain a part of a set the there is does not give",
+            vec![edit(
+                "proofs/zz/obtain-part.proof",
+                None,
+                "theorem obtain-part\n  let A be a set                                                      (H1)\n  let B be a set                                                      (H2)\n  assume there is X ⊆ A with X = A                                    (H3)\n  then A ⊆ B\n\n1.  X ⊆ B. X = A.\n    obtain X from H3\n\n2.  A ⊆ B\n    substitute X = A (line 1) into line 1\n".to_string(),
+            )],
+            "step 1 claims X ⊆ B, and what it obtains says X ⊆ A",
+        ),
+        case(
+            "obtain from a line saying two there is",
+            vec![edit(
+                "proofs/zz/obtain-two.proof",
+                None,
+                "theorem obtain-two\n  assume there is n ∈ ℕ with n = 1                                    (H1)\n  assume there is m ∈ ℕ with m = 2                                    (H2)\n  then 1 ∈ ℕ\n\n1.  There is n ∈ ℕ with n = 1. There is m ∈ ℕ with m = 2.\n    join H1, H2\n\n2.  P ∈ ℕ. P = 1.\n    obtain P from line 1\n\n3.  1 ∈ ℕ\n    substitute P = 1 (line 2) into line 2\n".to_string(),
+            )],
+            "step 2 obtains P from a line, which says more than one \"there is\"",
+        ),
+        case(
             "write a contradiction in prose after a claim",
             vec![
                 edit("proofs/wiedijk/infinitely-many-primes.proof", Some("4.  p > 1\n    mun:prime, from 3".to_string()), "4.  p > 1, which contradicts p ≤ 1\n    mun:prime, from 3".to_string()),
