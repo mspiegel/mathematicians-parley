@@ -366,12 +366,17 @@ fn fits(
     // hypotheses after it as much as by the fact it is matched with.
     for first in either_way(&first, library) {
         let mut body_form: Option<(Node, BTreeSet<String>)> = None;
+        // The letters a "there is" binds are its own, though the item may
+        // write the same letter elsewhere: set-image's s in {E(s) : s ∈ Y}
+        // is bound by the claim, and its "there is s ∈ Y" binds it anew.
+        let mut inside = binding.clone();
         if library.exists.contains(&first.notation) && first.children.len() > 2 {
             let (pairs, body) = existential_levels(&first, library);
             let mut seen = open_names.as_ref().clone();
             for (name, _) in pairs {
                 if name.is_name() {
                     seen.insert(name.text.clone());
+                    inside.shift_remove(&name.text);
                 }
             }
             body_form = Some((body.clone(), seen));
@@ -388,7 +393,8 @@ fn fits(
             let fact = &facts[i];
             for (which, (form, seen)) in forms.clone().enumerate() {
                 let is_first = which == 0;
-                let mut found = match_tree(form, fact, binding, seen, sites, ctx);
+                let at = if is_first { binding } else { &inside };
+                let mut found = match_tree(form, fact, at, seen, sites, ctx);
                 if found.is_none()
                     && is_first
                     && library.exists.contains(&first.notation)

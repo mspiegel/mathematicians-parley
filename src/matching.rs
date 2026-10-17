@@ -633,7 +633,7 @@ fn fit(
         if ctx.props.get(&pattern.notation).map(String::as_str) != Some("function") {
             return property(pattern, ground, binding, sites, ctx);
         }
-        if let Some(fits) = family(pattern, ground, binding, sites, ctx) {
+        if let Some(fits) = family(pattern, ground, binding, variables, sites, ctx) {
             return fits;
         }
     }
@@ -1057,17 +1057,24 @@ fn family(
     pattern: &Node,
     ground: &Node,
     binding: &mut Binding,
+    variables: &BTreeSet<String>,
     sites: &IndexSet<NodeId>,
     ctx: &Context,
 ) -> Option<bool> {
     let name = &pattern.children[0].text;
     let arg = read_at(&pattern.children[1], binding, ctx);
-    let stands = binding.get(name);
-    if let Some(stands) = stands {
+    let stands = binding.get(name).cloned();
+    if let Some(stands) = &stands {
         if stands.notation == PROPERTY {
             let mut at = Binding::new();
-            at.insert(stands.text.clone(), arg);
+            at.insert(stands.text.clone(), arg.clone());
             let filled = substitute_apart(&stands.children[0], &at, ctx);
+            // At a letter still to be bound, a "there is"'s own in u =
+            // E(s), the rule there is matched, which binds it: E(s) with E
+            // the map n ↦ 2n meets 2m at s := m.
+            if is_variable(&arg, variables) && !binding.contains_key(&arg.text) {
+                return Some(fit(&filled, ground, binding, variables, sites, ctx));
+            }
             return Some(alike_top(&filled, ground, ctx));
         }
     }

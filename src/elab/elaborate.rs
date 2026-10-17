@@ -4558,8 +4558,14 @@ impl<'a> Elaborator<'a> {
         // `matched_here`: the g of `u ∈ gH` is the element the step's claim
         // writes there, whatever the proof calls it.
         let mut matched = Vec::new();
+        // A letter the citation makes a rule, E := n ↦ 2n in set-image, has
+        // no term of its own: the right side is read with the rule applied
+        // where it applies the letter (`citing::filled`).
+        let mut rules = crate::matching::Binding::new();
         for (name, node) in self.matched_here(step, cited)? {
-            if node.notation != crate::matching::PROPERTY {
+            if node.notation == crate::matching::PROPERTY {
+                rules.insert(name, node);
+            } else {
                 matched.push((name, self.term(&node)?));
             }
         }
@@ -4580,8 +4586,12 @@ impl<'a> Elaborator<'a> {
                 let node = me.in_its_names(Item::Record(item), |me| {
                     me.read_one(&item.stated()[0])
                 })?;
-                let (left, right) =
-                    (node.children[0].clone(), node.children[1].clone());
+                let left = node.children[0].clone();
+                let right = crate::citing::filled(
+                    &node.children[1],
+                    &rules,
+                    &me.item_library().ctx,
+                );
                 me.names
                     .insert(left.leftmost().text.clone(), subject.clone());
                 // Each name the right side binds is a letter nothing in the

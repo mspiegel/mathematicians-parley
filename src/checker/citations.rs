@@ -2762,7 +2762,7 @@ fn check_exhibit_cites_used(
         lighter.just.refs = refs.iter().filter(|x| *x != r).cloned().collect();
         let mut scratch = Report::default();
         check_exhibit(&mut scratch, thm, &lighter, library, known);
-        if scratch.problems.is_empty() {
+        if scratch.problems.is_empty() && !shows_value(step, r, library, known) {
             report.say(
                 &thm.path,
                 step.just.line,
@@ -2770,6 +2770,49 @@ fn check_exhibit_cites_used(
             );
         }
     }
+}
+
+/// Whether the line `r` an exhibit cites states a part of its body, short
+/// of a letter's membership of its domain, at some value: the line shows
+/// the reader the value (`SYNTAX.md`, `exhibit`: "the reader finds the
+/// value by comparing"), as `p·q = p·q` shows n := q for "there is n ∈ ℕ
+/// with p·q = p·n", though the equation would name its value itself.
+fn shows_value(step: &Step, r: &str, library: &Library, known: &Known) -> bool {
+    let scope = known.scope(step);
+    let Some(written) = scope.get(r) else {
+        return false;
+    };
+    let said = known.supplied(written, &known.citing_step(step));
+    let parts = known.parts(step, library);
+    parts.claims.iter().any(|claim| {
+        let Some(Exhibited { wants, letters }) = exhibited(claim, library) else {
+            return false;
+        };
+        let mut sites = Sites::new();
+        for t in &wants {
+            binding_sites(t, &library.ctx, &[], &mut sites);
+        }
+        wants
+            .iter()
+            .filter(|w| {
+                !(w.notation == "membership"
+                    && w.children
+                        .first()
+                        .is_some_and(|t| letters.contains(&t.text)))
+            })
+            .any(|w| {
+                supply(
+                    std::slice::from_ref(w),
+                    &said,
+                    &Binding::new(),
+                    &letters,
+                    library,
+                    &sites,
+                    true,
+                )
+                .is_some()
+            })
+    })
 }
 
 /// One exhibit's claim, a "there is", each part of it said of one value by

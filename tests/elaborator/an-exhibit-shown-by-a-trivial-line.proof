@@ -1,0 +1,13 @@
+theorem an-exhibit-shown-by-a-trivial-line
+  note        p·q is a multiple of p, n := q. The line p·q = p·q shows the
+              reader the value by comparing it with the body, and is used,
+              though the equation would name its value itself.
+  let p ∈ ℕ                                                           (H1)
+  let q ∈ ℕ                                                           (H2)
+  then there is n ∈ ℕ with p·q = p·n
+
+1.  p·q = p·q
+    algebra
+
+2.  There is n ∈ ℕ with p·q = p·n.
+    exhibit, from 1

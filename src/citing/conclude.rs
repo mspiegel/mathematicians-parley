@@ -56,9 +56,12 @@ fn take(
     };
     for (taking, (cand, first)) in candidates.iter().enumerate() {
         // What a property stands for is decided inside the braces, so a
-        // requirement holding them is matched before the claim that uses it.
-        let starts: Vec<Start> = if walk(first).iter().any(|x| sites.contains(&x.id()))
-        {
+        // requirement holding them is matched before the claim that uses it;
+        // where the claim holds them itself, `t ∈ {2n : n ∈ ℤ}` for set-image,
+        // the claim decides it, and the requirement is supplied after, a
+        // "there is" from a line saying its body at a value as any is.
+        let holds = |x: &[Node]| walk(x).iter().any(|y| sites.contains(&y.id()));
+        let starts: Vec<Start> = if holds(first) && !holds(std::slice::from_ref(cand)) {
             supplied_first(first, given, binding, variables, library, sites)
         } else {
             vec![Start {

@@ -1,0 +1,14 @@
+import mundane definition stdlib/functions/set-image
+
+theorem a-set-image-from-an-equation
+  note        set-image concluded from a line saying its body at a value, as
+              mun:even is: the claim's braces make E the map n ↦ 2n, and
+              t = 2m says the "there is" at s := m. The "there is" binds s
+              anew, though the braces bind a letter of that name too.
+  let m ∈ ℤ                                                           (H1)
+  let t ∈ ℤ                                                           (H2)
+  assume t = 2m                                                       (H3)
+  then t ∈ {2n : n ∈ ℤ}
+
+1.  t ∈ {2n : n ∈ ℤ}
+    mun:set-image u := t, from H3
