@@ -250,8 +250,9 @@ cited line or written as a requires line. A cited line is read as
 
 A reciprocal atom brings its divisor's hypothesis with it: `1/(n + 1)` is a
 real number when `n + 1` is one and is not zero. That `n + 1` is real is said
-once, with n; that it is not zero is the page's to write. A divisor that is a
-numeral other than zero needs no line: that 2 is not zero is a closed numeral
+once, with n; that it is not zero is said once too where n ∈ ℕ₀, since
+n + 1 is then a positive integer, and is the page's to write where n ∈ ℤ. A
+divisor that is a numeral other than zero needs no line either: that 2 is not zero is a closed numeral
 fact, so `δ/2` is real because `δ` is.
 
 An atom is one of the claim or of the facts the step combines — not of every
@@ -538,9 +539,10 @@ Two kinds.
 
 Every denominator the step's claim and the cited lines it combines write is
 nonzero, and a step that divides writes the condition or cites a line
-saying it, unless the denominator is a numeral other than zero, or a
-product, a quotient or a power to a numeral whose parts are each not zero
-so: `(2^j·2 − 1)/(2^j·2)` asks only for `2^j ≠ 0` (`membership`, the same
+saying it, unless the page says once the denominator is a positive integer
+(`SYNTAX.md`), or it is a product, a quotient or a power to a numeral whose
+parts are each not zero so: `(x·2 − 1)/(x·2)` asks only for `x ≠ 0`, and
+`(2^j·2 − 1)/(2^j·2)` with j ∈ ℕ₀ asks nothing (`membership`, the same
 test).
 
 Every atom of the claim and of the cited lines it combines is a real

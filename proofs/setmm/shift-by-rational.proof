@@ -33,7 +33,7 @@ theorem shift-by-rational
           substitute B = r/s (line 1)
 
     2.6.  p/q − r/s = (p·s − r·q)/(q·s)
-          algebra, from 1, 2.3
+          algebra
 
     2.7.  A = (p·s − r·q)/(q·s)
           calculation
@@ -60,7 +60,7 @@ theorem shift-by-rational
           substitute B = r/s (line 1)
 
     2.13. p/q + r/s = (p·s + r·q)/(q·s)
-          algebra, from 1, 2.9
+          algebra
 
     2.14. A + B = (p·s + r·q)/(q·s)
           calculation

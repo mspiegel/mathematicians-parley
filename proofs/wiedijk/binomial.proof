@@ -176,6 +176,7 @@ let q(k) = C(m, k − 1)·x^((m + 1) − k)·y^k, for k ∈ {0, …, m + 1}     
 
 24. Σ(k = 0 to m + 1) p(k) = Σ(k = 0 to m + 1) C(m, k)·x^((m + 1) − k)·y^k
     mun:sum-termwise a := 0, b := m + 1, t := p, from 23
+    requires p : {0, …, m + 1} → ℝ: from 4
 
 25. x·(Σ(k = 0 to m) t(k)) = Σ(k = 0 to m + 1) p(k)
     calculation
@@ -284,6 +285,7 @@ let q(k) = C(m, k − 1)·x^((m + 1) − k)·y^k, for k ∈ {0, …, m + 1}     
 
 41. Σ(k = 0 to m + 1) q(k) = Σ(k = 0 to m + 1) C(m, k − 1)·x^((m + 1) − k)·y^k
     mun:sum-termwise a := 0, b := m + 1, t := q, from 40
+    requires q : {0, …, m + 1} → ℝ: from 6
 
 42. y·(Σ(k = 0 to m) t(k)) = Σ(k = 0 to m + 1) q(k)
     calculation
@@ -354,6 +356,7 @@ let q(k) = C(m, k − 1)·x^((m + 1) − k)·y^k, for k ∈ {0, …, m + 1}     
 
 49. Σ(k = 0 to m) t(k) = Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k
     mun:sum-termwise a := 0, b := m, from 48
+    requires t : {0, …, m} → ℝ: from 2
 
 50. (Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k)·(x + y) = (Σ(k = 0 to m) t(k))·(x + y)
     substitute Σ(k = 0 to m) t(k) = Σ(k = 0 to m) C(m, k)·x^(m − k)·y^k (line 49)

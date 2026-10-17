@@ -1,5 +1,4 @@
 import mundane definition stdlib/numbers/abs
-import mundane theorem stdlib/numbers/abs-real
 import mundane theorem stdlib/numbers/floor-integer
 
 theorem a-bound-on-the-size-of-a-floor
@@ -17,7 +16,7 @@ theorem a-bound-on-the-size-of-a-floor
 
 3.  |⌊A⌋| ≤ 1
     transitivity, from H2, H3
-    requires |⌊A⌋| ∈ ℝ: mun:abs-real x := ⌊A⌋, from 2
+    requires ⌊A⌋ ∈ ℝ: from 2
 
 theorem a-rounding-error-at-most-a-half
   note        The size of a rounding error, the floor of a sum an atom inside an absolute value.

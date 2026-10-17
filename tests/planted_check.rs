@@ -447,7 +447,7 @@ fn a_line_the_step_cites_may_be_restated_for_a_line_below() {
           requires N(k) ∈ ℝ: membership, from 3.4
           requires d(k + 1) ∈ ℝ: membership, from H1, 3.2
           requires N(k + 1) = 10·N(k) + d(k + 1): from 3.1
-          requires N(k + 1) ∈ ℝ: membership, from H1, 3.1, 3.2, 3.4
+          requires N(k + 1) ∈ ℝ: membership, from H1, 3.2, 3.4
 "
             .to_string(),
         )],
@@ -548,18 +548,17 @@ fn cases() -> Vec<Case> {
             )],
             "nothing says ∠QRP ∈ ℝ or ∈ ℂ, which this step needs",
         ),
-        // k + 1 is a membership said once, and its being no zero is not: a
-        // divisor's `≠ 0` is written, and a product's is its factors'. The
-        // step divides by k(k + 1)/2, and nothing says its factor k + 1 is
-        // not zero.
+        // A letter of a range not starting at 1 or 0 is said once to be an
+        // integer, and its being no zero is not: a divisor's `≠ 0` is written
+        // where the page does not say once it is a positive integer.
         case(
             "leave out a divisor's ≠ 0 built from a letter said once",
             vec![edit(
-                "proofs/wiedijk/triangular-reciprocals.proof",
-                Some("          requires k + 1 ≠ 0: weakening, from 1.1\n".to_string()),
+                "proofs/wiedijk/harmonic.proof",
+                Some("          requires k ≠ 0: weakening, from 10.2\n".to_string()),
                 String::new(),
             )],
-            "nothing says k + 1 ≠ 0, which this step needs to divide by it",
+            "1/k ∈ ℝ is not built from what step 10.3 cites",
         ),
         // A difference of numerals is no numeral, so a step dividing by one
         // writes its `≠ 0`.
@@ -854,15 +853,15 @@ fn cases() -> Vec<Case> {
             "step 2 opens a proof block with an assume line, and its claim supposes nothing there",
         ),
         // A requires line of a closure step says a membership of a term the
-        // step combines: step 19 sums to 2^j, and to 3^j nowhere.
+        // step combines: step 19 combines no power of 3.
         case(
             "a requires line of an inequalities step about a term it never combines",
             vec![edit(
                 "proofs/wiedijk/harmonic.proof",
-                Some("    requires Σ(k = 1 to 2^j) 1/k ∈ ℝ: membership, from 6\n".to_string()),
-                "    requires Σ(k = 1 to 3^j) 1/k ∈ ℝ: membership, from 6\n".to_string(),
+                Some("    requires Σ(k = 2^j + 1 to 2^(j + 1)) 1/k ∈ ℝ: mun:sum-real a := 2^j + 1, b := 2^(j + 1)\n\n20.".to_string()),
+                "    requires Σ(k = 2^j + 1 to 2^(j + 1)) 1/k ∈ ℝ: mun:sum-real a := 2^j + 1, b := 2^(j + 1)\n    requires 3^j ∈ ℝ: membership\n\n20.".to_string(),
             )],
-            "to 3^j) 1/k ∈ ℝ, and the step neither uses nor asks for it",
+            "says 3^j ∈ ℝ, and the step neither uses nor asks for it",
         ),
         // A library function an item applies is no letter of the item's:
         // lowest-terms-parts says denom(x) ∈ ℕ, which is not numer(x) ∈ ℕ.
@@ -1343,7 +1342,7 @@ fn cases() -> Vec<Case> {
                 Some("    let k ∈ ℕ                                                         (K1)".to_string()),
                 "    let k ∈ ℤ                                                         (K1)".to_string(),
             )],
-            "step 1.3 cites D1 at k, so it needs k ∈ ℕ, and nothing it cites or requires says it",
+            "step 1.2 cites D1 at k, so it needs k ∈ ℕ, and nothing it cites or requires says it",
         ),
         case(
             "a membership read into a smaller number system",
@@ -2513,9 +2512,9 @@ fn cases() -> Vec<Case> {
         case(
             "an obtain whose membership is not the one its there is gives",
             vec![
-                edit("proofs/wiedijk/harmonic.proof", Some("    2.2.  B ∈ ℝ. For all m ∈ ℕ, Σ(k = 1 to m) 1/k ≤ B.".to_string()), "    2.2.  B ∈ ℚ. For all m ∈ ℕ, Σ(k = 1 to m) 1/k ≤ B.".to_string()),
+                edit("proofs/wiedijk/harmonic.proof", Some("    1.2.  B ∈ ℝ. For all m ∈ ℕ, Σ(k = 1 to m) 1/k ≤ B.".to_string()), "    1.2.  B ∈ ℚ. For all m ∈ ℕ, Σ(k = 1 to m) 1/k ≤ B.".to_string()),
             ],
-            "step 2.2 claims B ∈ ℚ, and what it obtains says B ∈ ℝ",
+            "step 1.2 claims B ∈ ℚ, and what it obtains says B ∈ ℝ",
         ),
         case(
             "an obtain from a line that says no there is",
@@ -4492,8 +4491,8 @@ fn cases() -> Vec<Case> {
             "a requires line naming a manipulation and no line",
             vec![edit(
                 "tests/elaborator/a-power-said-not-zero.proof",
-                Some("    requires 2^n ≠ 0: weakening, from H3\n".to_string()),
-                "    requires 2^n ≠ 0: weakening\n".to_string(),
+                Some("    requires x^n ≠ 0: weakening, from H4\n".to_string()),
+                "    requires x^n ≠ 0: weakening\n".to_string(),
             )],
             "names weakening, which manipulates one line, and cites none: `weakening, from L`",
         ),
@@ -4649,7 +4648,67 @@ fn cases() -> Vec<Case> {
                 Some("                  requires Σ(k = 1 to n) 1/T(k) ∈ ℝ: mun:sum-real a := 1, b := n, from 2\n\n    6.3.".to_string()),
                 "                  requires Σ(k = 0 to n) 1/T(k) ∈ ℝ: mun:sum-real a := 0, b := n, from 2\n\n    6.3.".to_string(),
             )],
-            "the requires line of step 6.2.12 cites 2, and mun:sum-real asks for nothing it says",
+            "the requires line of step 6.2.11 cites 2, and mun:sum-real asks for nothing it says",
+        ),
+        // A requires line citing a sum's item is read as a step citing it,
+        // on a step citing no item itself: step 18 is a transitivity, and
+        // its line saying the harmonic block's sum is real asks the terms
+        // 1/k, k in a range from 2^j + 1, at every point.
+        case(
+            "a requires line on a method step citing a sum's item whose terms nothing says",
+            vec![edit(
+                "proofs/wiedijk/harmonic.proof",
+                Some("    transitivity, from 17, 14, 11\n    requires 2^(j + 1) ≠ 0: inequalities, from 3\n    requires 2^(j + 1) ∈ ℤ: membership, from H1\n    requires for all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ: from 10\n".to_string()),
+                "    transitivity, from 17, 14, 11\n    requires 2^(j + 1) ≠ 0: inequalities, from 3\n    requires 2^(j + 1) ∈ ℤ: membership, from H1\n".to_string(),
+            )],
+            "the requires line Σ(k = 2^j + 1 to 2^(j + 1)) 1/k ∈ ℝ of step 18 cites mun:sum-real, which asks that every term 1 / k is in ℝ",
+        ),
+        // A function the proof defines has its type said by a line the step
+        // names, as any function's is: t is defined by D1, and its type is
+        // step 2's.
+        case(
+            "cite a sum's item of a defined function no line types",
+            vec![edit(
+                "proofs/wiedijk/binomial.proof",
+                Some("    mun:sum-termwise a := 0, b := m, from 48\n    requires t : {0, …, m} → ℝ: from 2\n".to_string()),
+                "    mun:sum-termwise a := 0, b := m, from 48\n".to_string(),
+            )],
+            "step 49 cites mun:sum-termwise, which asks for t : {0, …, m} → ℝ, and nothing it cites or requires says it",
+        ),
+        // The same of a requires line citing the item, which sees only what
+        // it cites.
+        case(
+            "a requires line citing a sum's item of a defined function it does not type",
+            vec![edit(
+                "proofs/wiedijk/binomial.proof",
+                Some("    algebra\n    requires Σ(k = 0 to m) t(k) ∈ ℝ: from 7\n\n9.".to_string()),
+                "    algebra\n    requires Σ(k = 0 to m) t(k) ∈ ℝ: mun:sum-real a := 0, b := m\n\n9.".to_string(),
+            )],
+            "the requires line of step 8 cites mun:sum-real, which asks for t : {0, …, m} → ℝ, and nothing it cites says it",
+        ),
+        // An identity element inside the place a substitution matches is
+        // dropped there: 1.4.1 says ||a(n)| − 0| < ε, the equation's left
+        // side ||a(n)|| stands at |a(n)| − 0 only once the − 0 goes, and
+        // what is left, |a(n)|, is to be said a number.
+        case(
+            "drop an identity element inside the place a substitution matches",
+            vec![edit(
+                "proofs/hammack/abs-limit-zero.proof",
+                Some("                  requires |a(n)| ∈ ℝ: from 1.4.4\n".to_string()),
+                String::new(),
+            )],
+            "step 1.4.6 drops an identity element from what the substitution makes, and nothing says |a(n)| is a number",
+        ),
+        // A divisor the page says once is a positive integer needs no line
+        // saying it is not zero: k ∈ ℕ, so k + 1 is one.
+        case(
+            "say a divisor the page says once is a positive integer is not zero",
+            vec![edit(
+                "proofs/wiedijk/triangular-reciprocals.proof",
+                Some("    1.1.  1/(k(k + 1)/2) = 2/k − 2/(k + 1)\n          algebra\n".to_string()),
+                "    1.1.  1/(k(k + 1)/2) = 2/k − 2/(k + 1)\n          algebra\n          requires k + 1 ≠ 0: inequalities, from K1\n".to_string(),
+            )],
+            "the requires line of step 1.1 says k + 1 ≠ 0, and the step neither uses nor asks for it",
         ),
         // A function's type gives a value only at a point of its domain, and a
         // requires line rests only on what it names, so a line citing the
@@ -4724,10 +4783,10 @@ fn cases() -> Vec<Case> {
             "leave out that a power to a letter is not zero",
             vec![edit(
                 "tests/elaborator/a-power-said-not-zero.proof",
-                Some("    requires 2^n ≠ 0: weakening, from H3\n".to_string()),
+                Some("    requires x^n ≠ 0: weakening, from H4\n".to_string()),
                 String::new(),
             )],
-            "nothing says 2^n ≠ 0, which this step needs to divide by it",
+            "nothing says x^n ≠ 0, which this step needs to divide by it",
         ),
         // A number the step needs is named in ℝ or ℂ, either of which says
         // it: a root's record gives √A ∈ ℝ and never √A ∈ ℂ.

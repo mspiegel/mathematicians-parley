@@ -168,6 +168,11 @@ impl Oracle for Ask<'_, '_> {
             .written_nonzero(&self.spec.scope, &facts, implied, said)
     }
 
+    fn positive(&mut self, said: &str) -> Checked<Option<Proof>> {
+        let (scope, facts) = (self.spec.scope.clone(), self.spec.facts.clone());
+        self.el.positive_divisor(said, &scope, &facts)
+    }
+
     fn linear_sum(&mut self, said: &str) -> Checked<Route<(Term, Proof)>> {
         let Some(letter) = self.el.sum_letter.clone() else {
             return Ok(Route::no("a sum is one atom outside `algebra`"));
@@ -855,6 +860,11 @@ impl<'a> Elaborator<'a> {
         // does not name says nothing of its divisors (`GOALS.md` decision 9).
         let restable = self.restable(facts);
         let facts = &restable;
+        // A divisor the page says once is a positive integer is not zero
+        // by that alone (`SYNTAX.md`), whatever else says so.
+        if let Some(positive) = self.positive_divisor(said, scope, facts)? {
+            return Ok(positive);
+        }
         if let Some(found) = self.written_nonzero(scope, facts, implied, said)? {
             return Ok(found);
         }
@@ -877,7 +887,7 @@ impl<'a> Elaborator<'a> {
                 ));
             }
         }
-        // A divisor not being zero is the page's to say, so no membership
+        // Any other divisor's `≠ 0` is the page's to say, so no membership
         // said once leads to it (`READERS.md`).
         self.beyond_once += 1;
         let found = self.settle(&self.to_term(&want), scope, facts, 3, None, None);
@@ -3963,6 +3973,15 @@ impl<'a> Elaborator<'a> {
             whole.children()[1].clone(),
             whole.children()[2].clone(),
         );
+        // A sum the checker found the page says once is a number by its
+        // terms at each index, whatever they divide by
+        // (`CheckedTheorem::said_sums`), over its own index or one it is
+        // renamed to.
+        let spelt = self.rpn(whole);
+        let said_once = self
+            .said_sums
+            .iter()
+            .any(|s| *s == spelt || self.rebound(s, &spelt));
         let Some(lemma) = lemma.filter(|_| {
             limits.variable().is_none()
                 && limits.label() == Some("co")
@@ -4009,10 +4028,11 @@ impl<'a> Elaborator<'a> {
             &[],
         );
         let system_term = self.to_term(system);
-        let pointwise = self.divides_by_index(&summand, &letter);
         let each = self.frames_kept(|me| {
             let (inner, lifted) = me.fixed(scope, known, &index, &limits)?;
             let claim = Term::apply("wcel", vec![summand.clone(), system_term.clone()]);
+            let pointwise = !said_once
+                && me.divides_by_index(&summand, &letter, &inner, &lifted)?;
             if pointwise {
                 me.said_at_every_index(&claim, &inner, &lifted)
             } else {
@@ -4027,20 +4047,37 @@ impl<'a> Elaborator<'a> {
         )))
     }
 
-    /// Whether a sum's term divides by something other than a numeral that
-    /// holds its index, `letter` as a proof spells it: a divisor no line
-    /// outside the sum can say is not zero (`SYNTAX.md`).
-    fn divides_by_index(&self, summand: &Term, letter: &str) -> bool {
+    /// Whether a sum's term divides by something holding its index that the
+    /// page does not say once is a positive integer (`positive_divisor`),
+    /// `letter` as a proof spells it and `scope` fixing it in its range: a
+    /// divisor no line outside the sum can say is not zero (`SYNTAX.md`).
+    fn divides_by_index(
+        &mut self,
+        summand: &Term,
+        letter: &str,
+        scope: &str,
+        facts: &Facts,
+    ) -> Checked<bool> {
         if summand.variable().is_some() {
-            return false;
+            return Ok(false);
         }
         let kids = summand.children();
-        let here = summand.label() == Some("co")
+        if summand.label() == Some("co")
             && kids.len() == 3
             && self.rpn(&kids[2]) == "cdiv"
-            && numerals::value(&kids[1]).is_none()
-            && self.rpn(&kids[1]).split_whitespace().any(|t| t == letter);
-        here || kids.iter().any(|k| self.divides_by_index(k, letter))
+        {
+            let divisor = self.rpn(&kids[1]);
+            let holds = divisor.split_whitespace().any(|t| t == letter);
+            if holds && self.positive_divisor(&divisor, scope, facts)?.is_none() {
+                return Ok(true);
+            }
+        }
+        for k in kids {
+            if self.divides_by_index(k, letter, scope, facts)? {
+                return Ok(true);
+            }
+        }
+        Ok(false)
     }
 
     /// A sum's term at its index taken from a line the step cites saying it

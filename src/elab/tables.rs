@@ -1717,9 +1717,31 @@ impl<'a> Elaborator<'a> {
         )
     }
 
+    /// ( scope -> d =/= 0 ) where the page says once that d is a positive
+    /// integer (`SYNTAX.md`): d ∈ ℕ as `introduced_membership` builds it,
+    /// k, k + 1, j·(j + 1) or 2^n, and so not zero (`nnne0d`). None for any
+    /// other divisor.
+    pub fn positive_divisor(
+        &mut self,
+        divisor: &str,
+        scope: &str,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        let Built(member) = self.introduced_membership(divisor, "cn", scope, facts)?
+        else {
+            return Ok(None);
+        };
+        Ok(Some(self.b.ap(
+            "nnne0d",
+            &binds! {"ph" => scope, "A" => divisor},
+            &[&member],
+        )))
+    }
+
     /// ( scope -> d =/= 0 ) from what the step wrote, or a decline: the
     /// divisor not being zero is the page's to say, in a requires line or a
-    /// line the step cites, and is not searched for.
+    /// line the step cites, unless the page says once it is a positive
+    /// integer, and is not searched for.
     pub fn divisor_written(
         &mut self,
         divisor: &str,
@@ -1738,6 +1760,9 @@ impl<'a> Elaborator<'a> {
         if let Some(value) = numeral {
             let closed = super::numerals::ne0(&self.b, value);
             return Ok(Built(pf!(self.b; apart, scope, closed, "a1i")));
+        }
+        if let Some(positive) = self.positive_divisor(divisor, scope, facts)? {
+            return Ok(Built(positive));
         }
         // Held however the page wrote it: either way round, as ≠ or as the
         // denial of an equation (`held`).
@@ -2377,10 +2402,13 @@ impl<'a> Elaborator<'a> {
             if named != function {
                 continue;
             }
-            let unnamed_sort = !held.origin.is_empty()
-                && held.origin.iter().all(|o| self.sorts.contains(o))
-                && !held.origin.iter().all(|o| self.citing.contains(o));
-            if unnamed_sort && self.in_family == 0 {
+            // A type the step names, by a line it cites or one of its own
+            // requires lines; one only in scope is a reason the page does
+            // not give, whether a `let` or a numbered step says it.
+            let unnamed = !held.origin.is_empty()
+                && !held.origin.iter().all(|o| self.citing.contains(o))
+                && !from_requires(&held);
+            if unnamed && self.in_family == 0 {
                 continue;
             }
             let inside = t!(&point, &domain, "wcel");

@@ -1,9 +1,9 @@
 theorem divided-by-a-cited-natural
   note        H3 says k ∈ ℕ as one part of an "and", which is where the step
-              takes k ≠ 0 from: it cites H3, and not the `let` that says k ∈ ℕ
-              once.
+              takes k ≠ 0 from: it cites H3, since the `let` says only that
+              k ∈ ℤ.
   let a ∈ ℕ                                                           (H1)
-  let k ∈ ℕ                                                           (H2)
+  let k ∈ ℤ                                                           (H2)
   assume k ∈ ℕ and a/k ∈ ℕ and a > 1                                  (H3)
   then (a/k)² = a²/k²
 

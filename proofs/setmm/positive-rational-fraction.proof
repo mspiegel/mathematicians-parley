@@ -27,7 +27,6 @@ theorem positive-rational-fraction
 
     2.3.  0/q = 0
           algebra
-          requires q ≠ 0: inequalities, from 1
 
     2.4.  A ≤ 0
           calculation

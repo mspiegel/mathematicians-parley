@@ -11,7 +11,9 @@
 use indexmap::IndexMap;
 
 use super::terms::Targets;
-use crate::citing::{index_system, numeral_nonzero, sum_said_once, within, Introduced};
+use crate::citing::{
+    index_system, nonzero_said_once, sum_said_once, within, Introduced,
+};
 use crate::formula::Node;
 use crate::matching::{alike, substitute_apart, Binding, Context};
 use crate::rules::{self, System};
@@ -114,10 +116,11 @@ fn same(a: &Node, b: &Node, ctx: &Context) -> bool {
     alike(a, b, ctx, &IndexMap::new(), &IndexMap::new())
 }
 
-/// Whether a divisor is not zero: a numeral other than zero, or a fact
+/// Whether a divisor is not zero: a numeral other than zero or a term the
+/// page says once is a positive integer (`nonzero_said_once`), or a fact
 /// saying it, as `d ≠ 0` either way round or as a sign, `0 < d` or `d < 0`.
 pub fn nonzero(divisor: &Node, facts: &Facts) -> bool {
-    if numeral_nonzero(divisor) {
+    if nonzero_said_once(divisor, &facts.letters) {
         return true;
     }
     let by_parts = match (divisor.notation.as_str(), divisor.children.as_slice()) {
@@ -305,8 +308,11 @@ fn summed(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
     if !matches!(system, System::R | System::C) || !index.is_name() {
         return false;
     }
-    let inside = index_system(start);
-    if divides_by(body, &index.text) {
+    let mut letters = facts.letters.clone();
+    if let Some(inside) = index_system(start) {
+        letters.insert(index.text.clone(), inside);
+    }
+    if divides_by(body, &index.text, &letters) {
         let sum = Summed {
             index: &index.text,
             body,
@@ -317,10 +323,6 @@ fn summed(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
             .facts
             .iter()
             .any(|f| said_pointwise(f, &sum, system, facts.ctx));
-    }
-    let mut letters = facts.letters.clone();
-    if let Some(inside) = inside {
-        letters.insert(index.text.clone(), inside);
     }
     let mut ranged = facts.ranged.clone();
     ranged.insert(
@@ -392,16 +394,16 @@ impl Parts {
     }
 }
 
-/// Whether `term` divides by something other than a numeral that holds
-/// the letter `index`.
-pub fn divides_by(term: &Node, index: &str) -> bool {
+/// Whether `term` divides by something holding the letter `index` that the
+/// page does not say once is a positive integer, `letters` holding the
+/// index's own system (`citing::nonzero_said_once`).
+pub fn divides_by(term: &Node, index: &str, letters: &Introduced) -> bool {
     term.walk().iter().any(|part| {
         part.notation == "multiplicative"
             && part.text == "/"
-            && part
-                .children
-                .get(1)
-                .is_some_and(|d| d.notation != "numeral" && d.names().contains(index))
+            && part.children.get(1).is_some_and(|d| {
+                d.names().contains(index) && !nonzero_said_once(d, letters)
+            })
     })
 }
 

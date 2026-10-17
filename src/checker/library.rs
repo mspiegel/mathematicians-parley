@@ -617,6 +617,18 @@ pub fn sums_said_once(known: &Known, step: &Step) -> Vec<Node> {
                 .filter_map(|s| known.read_as_written(s)),
         );
     }
+    // The rows of an inequalities step write what it combines, the first a
+    // line it cites written out.
+    if let Some(Ok(rows)) = crate::corpus::proof::rows(&step.just, &known.thm.path) {
+        for row in &rows {
+            written.extend(
+                row.formula
+                    .sentences()
+                    .iter()
+                    .filter_map(|s| known.read_as_written(s)),
+            );
+        }
+    }
     let refs = step
         .just
         .refs

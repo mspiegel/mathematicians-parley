@@ -23,11 +23,11 @@ pub use conclude::{
 };
 pub use library::{conjuncts, readings, with_parts, Group, Library, Proved, Way};
 pub use once::{
-    a_number_said_once, index_system, introduction, numeral_nonzero, range_system,
-    said_once, sum_said_once, within, Introduced,
+    a_number_said_once, index_system, introduction, nonzero_said_once, numeral_nonzero,
+    range_system, said_once, sum_said_once, within, Introduced,
 };
 pub use parts::{
     at_a_member, bound_in, claimed_member, finished, function_values, implied_facts,
-    part_said_otherwise, type_said_otherwise, typed_seed, Bound, Parts,
+    part_said_otherwise, stood_for, type_said_otherwise, typed_seed, Bound, Parts,
 };
 pub use supply::{largest_search, names_of, search, set_within, supply, Sites, Ways};

@@ -23,4 +23,3 @@ theorem a-quotient-divisor-said-not-zero
 3.  0 − ε/(2·d) < 1/n
     transitivity, from 2, H5
     requires 2·d ≠ 0: from 1
-    requires n ≠ 0: inequalities, from H3

@@ -87,7 +87,6 @@ theorem weighted-term
 
 22. k·((m!·(m + 1))/(((m + 1) − k)!·((k − 1)!·k))) = (m + 1)·(m!/(((m + 1) − k)!·(k − 1)!))
     algebra, from 15, 17, 18
-    requires k ≠ 0: weakening, from 2
 
 23. C(m, k − 1) = m!/(((m + 1) − k)!·(k − 1)!)
     calculation

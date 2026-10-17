@@ -788,6 +788,9 @@ impl<'a> Elaborator<'a> {
             for (said, proof) in implied.entries() {
                 self.know(&known, said, proof);
             }
+            // A line saying several sentences says each of them, as a line
+            // the step cites does.
+            self.know_conjuncts(&known, &term, &made, scope);
             self.know(&known, term, made);
         }
         Ok(known)

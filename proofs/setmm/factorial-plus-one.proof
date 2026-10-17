@@ -33,7 +33,6 @@ theorem factorial-plus-one
 
     1.5.  M! + 1 = N·((M! + 1)/N)
           algebra
-          requires N ≠ 0: inequalities, from H2
           requires M! ∈ ℕ: mun:factorial-nat n := M, from 1.3
 
     1.6.  There is k ∈ ℤ with M! + 1 = N·k.

@@ -318,6 +318,29 @@ impl<'a> Elaborator<'a> {
         self.know(facts, turned, made);
     }
 
+    /// Each sentence a conjunction joins, and each group of them it nests
+    /// together, known with its proof: `simpld` and `simprd` take it apart,
+    /// as a line saying several sentences supplies each of them.
+    pub fn know_conjuncts(
+        &mut self,
+        facts: &Facts,
+        term: &str,
+        proof: &Proof,
+        scope: &str,
+    ) {
+        let node = self.to_term(term);
+        if node.label() != Some("wa") {
+            return;
+        }
+        let pair: Vec<String> = node.children().iter().map(|c| self.rpn(c)).collect();
+        let left = pf!(self.b; scope, pair[0], pair[1], proof.clone(), "simpld");
+        let right = pf!(self.b; scope, pair[0], pair[1], proof.clone(), "simprd");
+        self.know_conjuncts(facts, &pair[0], &left, scope);
+        self.know(facts, pair[0].clone(), left);
+        self.know_conjuncts(facts, &pair[1], &right, scope);
+        self.know(facts, pair[1].clone(), right);
+    }
+
     /// How deep `term` is a conjunction: 0 for anything else, and one more
     /// than its deepest part for a conjunction. A fact taken apart this deep
     /// says each thing its "and"s join, however many there are.
@@ -2758,30 +2781,12 @@ impl<'a> Elaborator<'a> {
         let wanted = self.claim_of(&step.claim)?;
         let held = Facts::new();
         // A line joined supplies each of its sentences, and each group of
-        // them it nests together, so that the claim may group them otherwise:
-        // `simpld` and `simprd` take a conjunction apart.
-        fn supply(
-            me: &mut Elaborator,
-            held: &Facts,
-            term: String,
-            proof: Proof,
-            scope: &str,
-        ) {
-            let node = me.to_term(&term);
-            if node.label() == Some("wa") {
-                let pair: Vec<String> =
-                    node.children().iter().map(|c| me.rpn(c)).collect();
-                let left = pf!(me.b; scope, pair[0], pair[1], proof, "simpld");
-                let right = pf!(me.b; scope, pair[0], pair[1], proof, "simprd");
-                supply(me, held, pair[0].clone(), left, scope);
-                supply(me, held, pair[1].clone(), right, scope);
-            }
-            me.know(held, term, proof);
-        }
+        // them it nests together, so that the claim may group them otherwise.
         for r in &step.just.refs {
             let line = lines.get(r).expect("a line joined");
             let proof = self.carried(r, facts, &lines);
-            supply(self, &held, line.term.clone(), proof, scope);
+            self.know_conjuncts(&held, &line.term, &proof, scope);
+            self.know(&held, line.term.clone(), proof);
         }
         // A line joined is the claim, or a part of it, as it stands or over
         // other bound letters; and where the step cites a define, with the

@@ -211,8 +211,10 @@ fn numerals(r: &mut Random, g: &Grammar) -> (Node, Verdict) {
 const VERTICES: [&str; 4] = ["A", "B", "C", "D"];
 const EDGES: [&str; 4] = ["b₁", "b₂", "b₃", "b₄"];
 
-/// A claim about a multigraph a `let` line lists.
-fn graph(r: &mut Random, g: &Grammar) -> (String, Node, Verdict) {
+/// A claim about a multigraph a `let` line lists, and whether the step
+/// cites that line: a vertex the claim says is in a list it writes is seen
+/// there without it, and inspection uses every line it cites.
+fn graph(r: &mut Random, g: &Grammar) -> (String, Node, Verdict, bool) {
     let vertices = &VERTICES[..3 + r.below(2) as usize];
     let edges = &EDGES[..SIZES[r.below(4) as usize]];
     let ends: Vec<(usize, usize)> = edges
@@ -256,7 +258,7 @@ fn graph(r: &mut Random, g: &Grammar) -> (String, Node, Verdict) {
             ],
         )
     };
-    let (claim, holds) = match r.below(3) {
+    let (claim, holds, cites) = match r.below(3) {
         // The edges at a vertex.
         0 => {
             let mut said = shuffled(r, &incident);
@@ -274,7 +276,7 @@ fn graph(r: &mut Random, g: &Grammar) -> (String, Node, Verdict) {
                 b.sort();
                 a == b
             };
-            (equal(g, builder(), names(g, &said)), holds)
+            (equal(g, builder(), names(g, &said)), holds, true)
         }
         // How many there are.
         1 => {
@@ -282,6 +284,7 @@ fn graph(r: &mut Random, g: &Grammar) -> (String, Node, Verdict) {
             (
                 equal(g, size(g, builder()), number(g, n)),
                 n == incident.len() as i64,
+                true,
             )
         }
         // A vertex in a list of vertices.
@@ -293,28 +296,30 @@ fn graph(r: &mut Random, g: &Grammar) -> (String, Node, Verdict) {
             let t = vertices[r.below(vertices.len() as u64) as usize];
             let said_in = r.below(2) == 0;
             let pattern = if said_in { "_ ∈ _" } else { "_ ∉ _" };
+            let holds = some.contains(&t) == said_in;
             (
                 made(g, pattern, vec![name(t), names(g, &some)]),
-                some.contains(&t) == said_in,
+                holds,
+                !(holds && said_in),
             )
         }
     };
-    (line, claim, verdict(holds))
+    (line, claim, verdict(holds), cites)
 }
 
 /// A claim for `inspection`, drawn and judged.
 pub fn claim(r: &mut Random, g: &Grammar) -> Drawn {
-    let (header, claim, verdict) = if r.below(2) == 0 {
+    let (header, claim, verdict, cites) = if r.below(2) == 0 {
         let (claim, verdict) = numerals(r, g);
-        (Vec::new(), claim, verdict)
+        (Vec::new(), claim, verdict, false)
     } else {
-        let (line, claim, verdict) = graph(r, g);
-        (vec![line], claim, verdict)
+        let (line, claim, verdict, cites) = graph(r, g);
+        (vec![line], claim, verdict, cites)
     };
-    let justification = if header.is_empty() {
-        "inspection".to_string()
-    } else {
+    let justification = if cites {
         "inspection, from H1".to_string()
+    } else {
+        "inspection".to_string()
     };
     let written = g.print(&claim);
     Drawn {

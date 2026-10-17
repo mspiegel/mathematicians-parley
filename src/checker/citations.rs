@@ -15,10 +15,10 @@ use super::structure::letters_in_scope;
 use super::Report;
 use crate::citing::{
     asked, bound_in, claimed_member, concludes, conjuncts, derives, filled, finished,
-    function_values, identities_unsaid, obtained, obtains, range_system, readings,
-    said_once, search, substitution_unsaid, supply, taken, taken_ways,
-    type_said_otherwise, with_parts, Bound, Concluded, Group, Library, Parts, Sites,
-    Taken, Ways,
+    function_values, identities_unsaid, index_system, obtained, obtains, range_system,
+    readings, said_once, search, stood_for, substitution_unsaid, supply, taken,
+    taken_ways, type_said_otherwise, with_parts, Bound, Concluded, Group, Introduced,
+    Library, Parts, Sites, Taken, Ways,
 };
 use crate::corpus::proof::{reason_as_step, Requires};
 use crate::corpus::skeleton::Source;
@@ -26,13 +26,14 @@ use crate::corpus::{
     define_parts, DefineParts, FileScope, Head, Item, Method, Step, Theorem,
 };
 use crate::formula::page::{self, conjoined, Written};
-use crate::formula::Node;
+use crate::formula::{Node, Sort};
 use crate::matching::{
     alike, binding_sites, match_tree, standard, substitute_apart, Binding, Context,
     PROPERTY,
 };
 use crate::outcome::{Built, Declined, Route};
 use crate::rules::{self, System};
+use crate::sorts::TYPING;
 use crate::text::squash;
 
 /// A requires line whose cited item does not give its fact.
@@ -1024,6 +1025,8 @@ pub fn check_function_types(
         }
         let what = format!("step {}", step.number);
         terms_unsaid(report, thm, step, step.just.line, &what, library, known);
+    }
+    for step in &thm.steps {
         for req in &step.requires {
             let Some(as_step) = requires_read_as_step(step, req) else {
                 continue;
@@ -1069,8 +1072,9 @@ fn terms_unsaid(
         // line; one holding a sum whose term divides by that sum's index is
         // a number where `membership` would build it, the sum's term said
         // at every point by a line the citation names.
-        let inner = !t.inner_sums().is_empty();
-        if !t.needs_saying() && !inner {
+        let needs_saying = t.needs_saying(&asks.letters);
+        let inner = !t.inner_sums(&asks.letters).is_empty();
+        if !needs_saying && !inner {
             continue;
         }
         if parts
@@ -1080,7 +1084,7 @@ fn terms_unsaid(
         {
             continue;
         }
-        if !t.needs_saying() && term_built(t, step, &parts.facts, known, library) {
+        if !needs_saying && term_built(t, step, &parts.facts, known, library) {
             continue;
         }
         report.say(
@@ -1788,6 +1792,9 @@ struct FamilyAsks {
     held: BTreeSet<String>,
     values: Vec<Node>,
     types: Vec<AskedType>,
+    /// The number systems the page says once its letters are in at the
+    /// step, which say whether a term's divisor is a positive integer.
+    letters: Introduced,
     /// Which notations bind, so that a value is compared up to the letters
     /// it binds.
     ctx: Context,
@@ -1825,27 +1832,34 @@ impl AskedType {
     }
 
     /// Whether the term the type asks at every point must be said there: it
-    /// divides by something other than a numeral that holds the sum's own
-    /// letter, as 1/T(k) and 1/(k(k + 1)/2) do. A divisor's `≠ 0` is written
+    /// divides by something holding the type's letter that the page does
+    /// not say once is a positive integer, `letters` its letters, as 1/T(k)
+    /// and 1/(k(k + 1)/2) do. A divisor's `≠ 0` is written there
     /// (`SYNTAX.md`), and no line outside the sum can speak of its letter,
     /// so the term is said at every point by a line the citation names.
-    fn needs_saying(&self) -> bool {
-        let Some((letter, term)) = self.pointwise() else {
+    fn needs_saying(&self, letters: &Introduced) -> bool {
+        let (Some((letter, term)), Some(domain)) =
+            (self.pointwise(), self.asked.children.get(1))
+        else {
             return false;
         };
-        term.walk().iter().any(|part| {
-            part.notation == "multiplicative"
-                && part.text == "/"
-                && part.children.get(1).is_some_and(|divisor| {
-                    divisor.notation != "numeral" && divisor.names().contains(letter)
-                })
-        })
+        let inside = match domain.notation.as_str() {
+            "integer-range" => range_system(domain),
+            "number-systems" => System::of_sign(&domain.text),
+            _ => None,
+        };
+        let mut letters = letters.clone();
+        if let Some(inside) = inside {
+            letters.insert(letter.to_string(), inside);
+        }
+        crate::methods::membership::divides_by(term, letter, &letters)
     }
 
     /// The sums inside the term the type asks at every point whose own
-    /// term divides by their index: Σ(k = 1 to n) 1/k inside `x : ℕ → ℝ`
-    /// at x := n ↦ Σ(k = 1 to n) 1/k.
-    fn inner_sums(&self) -> Vec<Node> {
+    /// term divides by their index as `needs_saying` reads it, `letters`
+    /// the page's: Σ(k = 1 to n) 1/T(k) inside `x : ℕ → ℝ` at x := n ↦
+    /// Σ(k = 1 to n) 1/T(k).
+    fn inner_sums(&self, letters: &Introduced) -> Vec<Node> {
         let Some((_, term)) = self.pointwise() else {
             return Vec::new();
         };
@@ -1853,7 +1867,11 @@ impl AskedType {
             .into_iter()
             .filter(|part| {
                 crate::methods::membership::Summed::of(part).is_some_and(|s| {
-                    crate::methods::membership::divides_by(s.body, s.index)
+                    let mut letters = letters.clone();
+                    if let Some(inside) = index_system(s.start) {
+                        letters.insert(s.index.to_string(), inside);
+                    }
+                    crate::methods::membership::divides_by(s.body, s.index, &letters)
                 })
             })
             .collect()
@@ -1861,14 +1879,19 @@ impl AskedType {
 
     /// Whether `node` says an inner sum's term at every point of its range
     /// (`inner_sums`), in the type's codomain.
-    fn says_inner_term(&self, node: &Node, ctx: &Context) -> bool {
+    fn says_inner_term(
+        &self,
+        node: &Node,
+        letters: &Introduced,
+        ctx: &Context,
+    ) -> bool {
         let Some(codomain) = self.asked.children.get(2) else {
             return false;
         };
         let Some(system) = System::of_sign(&codomain.text) else {
             return false;
         };
-        self.inner_sums().iter().any(|sum| {
+        self.inner_sums(letters).iter().any(|sum| {
             crate::methods::membership::Summed::of(sum).is_some_and(|s| {
                 crate::methods::membership::said_pointwise(node, &s, system, ctx)
             })
@@ -2037,6 +2060,7 @@ fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
         held,
         values,
         types,
+        letters: super::library::introduced(known, step),
         ctx: library.ctx.clone(),
     }
 }
@@ -2048,7 +2072,7 @@ impl FamilyAsks {
         self.types.iter().any(|t| {
             t.stated_by(node, known)
                 || t.said_pointwise(node, known, &self.ctx)
-                || t.says_inner_term(node, &self.ctx)
+                || t.says_inner_term(node, &self.letters, &self.ctx)
         })
     }
 
@@ -2154,6 +2178,121 @@ pub(super) struct Defined {
     /// clause at k + 1 holds for k in the domain, and the base clause for
     /// its one argument.
     recursive: bool,
+}
+
+/// A cited item's `let f : D → E` asks nothing of a function the citing
+/// proof introduces with a type, `let g : X → Y`, whose type is its sort,
+/// as a letter's membership is (`READERS.md`, a function's type). Of any
+/// other f it asks a fact, which the step names, in its `from` or by a
+/// requires line (R1): a function the proof defines has no type until a
+/// line says one, `G : [a, b] → ℝ` by `function-into`.
+pub fn check_defined_types(
+    report: &mut Report,
+    thm: &Theorem,
+    library: &Library,
+    known: &Known,
+    scopes: &[FileScope],
+) {
+    let defined: BTreeSet<String> =
+        defined_functions(thm.defines.iter().chain(&scopes[thm.scope].defines))
+            .into_iter()
+            .map(|d| d.name)
+            .collect();
+    for step in &thm.steps {
+        if let Some(item) = step.just.cited_item() {
+            let name = step.just.item(&item);
+            let parts = known.parts(step, library);
+            for said in defined_types_unsaid(&parts, &name, &defined, library) {
+                report.say(
+                    &thm.path,
+                    step.just.line,
+                    format!(
+                        "step {} cites {item}, which asks for {}, and nothing it cites or requires says it",
+                        step.number,
+                        known.print(&said)
+                    ),
+                );
+            }
+        }
+        for req in &step.requires {
+            let Some((item, _)) = req.cited_item() else {
+                continue;
+            };
+            let name = step.just.item(&item);
+            let Some(parts) = requires_parts(step, req, &[], known, library) else {
+                continue;
+            };
+            for said in defined_types_unsaid(&parts, &name, &defined, library) {
+                report.say(
+                    &thm.path,
+                    req.line,
+                    format!(
+                        "the requires line of step {} cites {item}, which asks for {}, and nothing it cites says it",
+                        step.number,
+                        known.print(&said)
+                    ),
+                );
+            }
+        }
+    }
+}
+
+/// Each type the item named asks of a function in `defined`
+/// (`check_defined_types`), at what its letters stand for, that no fact of
+/// `parts` says.
+fn defined_types_unsaid(
+    parts: &Parts,
+    name: &str,
+    defined: &BTreeSet<String>,
+    library: &Library,
+) -> Vec<Node> {
+    let typed = library.function_types(name);
+    if typed.is_empty() {
+        return Vec::new();
+    }
+    let stands = stood_for(parts, name, library);
+    let mut out = Vec::new();
+    for t in &typed {
+        let Some(v) = t.children.first().and_then(|f| stands.get(&f.text)) else {
+            continue;
+        };
+        if !v.is_name() || !defined.contains(&v.text) {
+            continue;
+        }
+        let typed = substitute_apart(t, &stands, &library.ctx);
+        let said = parts.facts.iter().any(|fact| {
+            TYPING.contains(&fact.notation.as_str())
+                && fact.children.first().is_some_and(|g| g.text == v.text)
+        });
+        if !said && !values_said(&typed, &parts.facts, library) {
+            out.push(typed);
+        }
+    }
+    out
+}
+
+/// Whether a fact says a function's type `f : D → E` of its values, `for
+/// all k ∈ D, f(k) ∈ E`, as a step citing a sum's item over a range writes
+/// it of a defined function (`tests/elaborator/a-for-all-over-a-range`).
+fn values_said(typed: &Node, facts: &[Node], library: &Library) -> bool {
+    let [f, domain, codomain] = typed.children.as_slice() else {
+        return false;
+    };
+    let g = library.env.g;
+    let k = Node::leaf("name", domain.sort.held().unwrap_or_else(Sort::none), "k");
+    let Some(value) = page::made_as(g, "_(_)", vec![f.clone(), k.clone()]) else {
+        return false;
+    };
+    let member = bound_in(Bound::Member, &value, codomain, library);
+    let Some(every) =
+        page::made_as(g, "for all _ ∈ _, _", vec![k, domain.clone(), member])
+    else {
+        return false;
+    };
+    let none = IndexMap::new();
+    facts
+        .iter()
+        .any(|fact| crate::matching::alike(fact, &every, &library.ctx, &none, &none))
 }
 
 /// The functions some defines name.
@@ -3364,7 +3503,7 @@ fn member_in(
                 member,
                 system,
                 letters,
-                &crate::citing::numeral_nonzero,
+                &|d| crate::citing::nonzero_said_once(d, letters),
                 &|_, _| false,
             )
         });

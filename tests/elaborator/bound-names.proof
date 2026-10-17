@@ -19,7 +19,7 @@ theorem series-under-its-own-letters
           requires k + 1 ≠ 0: weakening, from 1.1
 
     1.3.  1/(k·(k + 1)) ∈ ℝ
-          membership, from 1.2
+          membership
 
 2.  Σ(k = 1 to ∞) 1/(k·(k + 1)) = 1
     mun:series-sum L := 1, from H1, 1

@@ -21,7 +21,7 @@ use crate::citing::{Library, Proved};
 use crate::corpus::{
     index, link_definitions, link_functions, module_of, parse_database, parse_proof,
     proof_files, record_files, FileScope, Intro, Item, Method, Record, RecordKind,
-    Theorem,
+    Step, Theorem,
 };
 use crate::formula::page::{Sentence, Written};
 use crate::formula::Grammar;
@@ -654,6 +654,83 @@ fn check_theorem(
     k: &Known<'_>,
     clashes: &[infer::Clash],
 ) {
+    check_passes(report, c, thm, k, clashes);
+    check_requires_work(report, c, thm, k, clashes);
+}
+
+/// A requires line does work (`SYNTAX.md`, requires; `DATABASE.md`, a named
+/// thing doing no work is an error): with it taken away, the checks find
+/// something wrong with its step that they do not find with it there, a
+/// fact the step's method or citation needs, or one a requires line below
+/// rests on, left unsaid. One rule for every method: the step is checked as
+/// a theorem of that one step, under what `k` knows of the whole theorem,
+/// once as written and once with each requires line taken away, so that
+/// what the one step's theorem lacks is found alike both times. A step the
+/// checks already find something wrong with is asked nothing here.
+fn check_requires_work(
+    report: &mut Report,
+    c: &Checking<'_>,
+    thm: &Theorem,
+    k: &Known<'_>,
+    clashes: &[infer::Clash],
+) {
+    for (i, step) in thm.steps.iter().enumerate() {
+        if step.requires.is_empty() {
+            continue;
+        }
+        let end = thm.steps.get(i + 1).map_or(usize::MAX, |next| next.line);
+        let reported = report
+            .problems
+            .iter()
+            .any(|p| p.path == thm.path && (step.line..end).contains(&p.line.line));
+        if reported {
+            continue;
+        }
+        let found = found_alone(c, thm, step, k, clashes);
+        for (r, req) in step.requires.iter().enumerate() {
+            let mut lighter = step.clone();
+            lighter.requires.remove(r);
+            let without = found_alone(c, thm, &lighter, k, clashes);
+            if without.is_subset(&found) {
+                report.say(
+                    &thm.path,
+                    req.line,
+                    format!(
+                        "the requires line of step {} says {}, and the step neither uses nor asks for it",
+                        step.number,
+                        str::trim(req.fact.text())
+                    ),
+                );
+            }
+        }
+    }
+}
+
+/// What the checks find of `step` checked as a theorem of that one step.
+fn found_alone(
+    c: &Checking<'_>,
+    thm: &Theorem,
+    step: &Step,
+    k: &Known<'_>,
+    clashes: &[infer::Clash],
+) -> BTreeSet<String> {
+    let alone = Theorem {
+        steps: vec![step.clone()],
+        ..thm.clone()
+    };
+    let mut seen = Report::default();
+    check_passes(&mut seen, c, &alone, k, clashes);
+    seen.problems.iter().map(|p| p.to_string()).collect()
+}
+
+/// The checks of one theorem, each asked once.
+fn check_passes(
+    report: &mut Report,
+    c: &Checking<'_>,
+    thm: &Theorem,
+    k: &Known<'_>,
+    clashes: &[infer::Clash],
+) {
     let (env, library, scopes) = (c.env, c.library, c.scopes);
     formulas::check_formulas(report, thm, env, k);
     formulas::check_letters_introduced(report, thm, env, k);
@@ -695,6 +772,7 @@ fn check_theorem(
     citations::check_kinds(report, thm, library, k);
     formulas::check_kind_methods(report, thm, k, &library.targets);
     citations::check_surplus(report, thm, library, k, scopes);
+    citations::check_defined_types(report, thm, library, k, scopes);
     // After the surplus of what a requires line cites, which says more of
     // the line than that its term is not the step's.
     formulas::check_requires_combined(report, thm, k, targets);

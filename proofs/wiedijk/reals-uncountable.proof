@@ -236,65 +236,60 @@ let U(k) = (N(k) + 1)/10^k, for k ∈ ℕ₀                                 (D6
     3.10. 10·N(k) ≤ N(k + 1) and N(k + 1) + 1 ≤ 10·(N(k) + 1)
           join 3.6, 3.9
 
-    3.11. 10^k ∈ ℕ
-          mun:power-nat a := 10, m := k
-
-    3.12. 10^(k + 1) ∈ ℕ
+    3.11. 10^(k + 1) ∈ ℕ
           mun:power-nat a := 10, m := k + 1
 
-    3.13. 10^(k + 1) = 10^k·10
+    3.12. 10^(k + 1) = 10^k·10
           mun:exponent-step a := 10, m := k
 
-    3.14. N(k)/10^k = (10·N(k))/(10^k·10)
+    3.13. N(k)/10^k = (10·N(k))/(10^k·10)
           algebra
           requires N(k) ∈ ℝ: membership, from 3.4
-          requires 10^k ≠ 0: inequalities, from 3.11
 
-    3.15. N(k)/10^k = (10·N(k))/10^(k + 1)
-          substitute 10^(k + 1) = 10^k·10 (line 3.13) into line 3.14
+    3.14. N(k)/10^k = (10·N(k))/10^(k + 1)
+          substitute 10^(k + 1) = 10^k·10 (line 3.12) into line 3.13
 
-    3.16. (N(k) + 1)/10^k = (10·(N(k) + 1))/(10^k·10)
+    3.15. (N(k) + 1)/10^k = (10·(N(k) + 1))/(10^k·10)
           algebra
           requires N(k) ∈ ℝ: membership, from 3.4
-          requires 10^k ≠ 0: inequalities, from 3.11
 
-    3.17. (N(k) + 1)/10^k = (10·(N(k) + 1))/10^(k + 1)
-          substitute 10^(k + 1) = 10^k·10 (line 3.13) into line 3.16
+    3.16. (N(k) + 1)/10^k = (10·(N(k) + 1))/10^(k + 1)
+          substitute 10^(k + 1) = 10^k·10 (line 3.12) into line 3.15
 
-    3.18. (10·N(k))/10^(k + 1) ≤ N(k + 1)/10^(k + 1)
+    3.17. (10·N(k))/10^(k + 1) ≤ N(k + 1)/10^(k + 1)
           mun:divide-le x := 10·N(k), y := N(k + 1), c := 10^(k + 1), from 3.10
           requires 10·N(k) ∈ ℝ: membership, from 3.4
           requires N(k + 1) ∈ ℝ: membership, from H1, 3.1, 3.2, 3.4
-          requires 10^(k + 1) ∈ ℝ: membership, from 3.12
-          requires 10^(k + 1) > 0: inequalities, from 3.12
+          requires 10^(k + 1) ∈ ℝ: membership, from 3.11
+          requires 10^(k + 1) > 0: inequalities, from 3.11
 
-    3.19. (N(k + 1) + 1)/10^(k + 1) ≤ (10·(N(k) + 1))/10^(k + 1)
+    3.18. (N(k + 1) + 1)/10^(k + 1) ≤ (10·(N(k) + 1))/10^(k + 1)
           mun:divide-le x := N(k + 1) + 1, y := 10·(N(k) + 1), c := 10^(k + 1), from 3.10
           requires N(k + 1) + 1 ∈ ℝ: membership, from H1, 3.1, 3.2, 3.4
           requires 10·(N(k) + 1) ∈ ℝ: membership, from 3.4
-          requires 10^(k + 1) ∈ ℝ: membership, from 3.12
-          requires 10^(k + 1) > 0: inequalities, from 3.12
+          requires 10^(k + 1) ∈ ℝ: membership, from 3.11
+          requires 10^(k + 1) > 0: inequalities, from 3.11
 
-    3.20. N(k)/10^k ≤ N(k + 1)/10^(k + 1)
-          substitute N(k)/10^k = (10·N(k))/10^(k + 1) (line 3.15) into line 3.18
+    3.19. N(k)/10^k ≤ N(k + 1)/10^(k + 1)
+          substitute N(k)/10^k = (10·N(k))/10^(k + 1) (line 3.14) into line 3.17
 
-    3.21. (N(k + 1) + 1)/10^(k + 1) ≤ (N(k) + 1)/10^k
-          substitute (N(k) + 1)/10^k = (10·(N(k) + 1))/10^(k + 1) (line 3.17) into line 3.19
+    3.20. (N(k + 1) + 1)/10^(k + 1) ≤ (N(k) + 1)/10^k
+          substitute (N(k) + 1)/10^k = (10·(N(k) + 1))/10^(k + 1) (line 3.16) into line 3.18
 
-    3.22. L(k) ≤ L(k + 1)
+    3.21. L(k) ≤ L(k + 1)
           calculation
             L(k) = N(k)/10^k                     D5
-                 ≤ N(k + 1)/10^(k + 1)           3.20
+                 ≤ N(k + 1)/10^(k + 1)           3.19
                  = L(k + 1)                      D5
 
-    3.23. U(k + 1) ≤ U(k)
+    3.22. U(k + 1) ≤ U(k)
           calculation
             U(k + 1) = (N(k + 1) + 1)/10^(k + 1)    D6
-                     ≤ (N(k) + 1)/10^k              3.21
+                     ≤ (N(k) + 1)/10^k              3.20
                      = U(k)                         D6
 
-    3.24. L(k) ≤ L(k + 1) and U(k + 1) ≤ U(k)
-          join 3.22, 3.23
+    3.23. L(k) ≤ L(k + 1) and U(k + 1) ≤ U(k)
+          join 3.21, 3.22
 
 4.  For all k ∈ ℕ₀, L(k) ∈ ℝ and U(k) ∈ ℝ and L(k) ≤ U(k).
     proof
@@ -308,10 +303,10 @@ let U(k) = (N(k) + 1)/10^k, for k ∈ ℕ₀                                 (D6
           mun:power-nat a := 10, m := k
 
     4.3.  L(k) ∈ ℝ
-          membership, from D5, 4.1, 4.2
+          membership, from D5, 4.1
 
     4.4.  U(k) ∈ ℝ
-          membership, from D6, 4.1, 4.2
+          membership, from D6, 4.1
 
     4.5.  N(k) ≤ N(k) + 1
           inequalities
@@ -605,22 +600,18 @@ let U(k) = (N(k) + 1)/10^k, for k ∈ ℕ₀                                 (D6
     16.12. 10^n·(N(n)/10^n) = N(n)
            algebra
            requires N(n) ∈ ℝ: membership, from 16.7
-           requires 10^n ≠ 0: inequalities, from 16.8
 
     16.13. 10^n·((N(n) + 1)/10^n) = N(n) + 1
            algebra
            requires N(n) ∈ ℝ: membership, from 16.7
-           requires 10^n ≠ 0: inequalities, from 16.8
 
     16.14. N(n) ≤ 10^n·c
            transitivity, from 16.12, 16.10
            requires N(n) ∈ ℝ: membership, from 16.7
-           requires 10^n ≠ 0: inequalities, from 16.8
 
     16.15. 10^n·c ≤ N(n) + 1
            transitivity, from 16.11, 16.13
            requires N(n) ∈ ℝ: membership, from 16.7
-           requires 10^n ≠ 0: inequalities, from 16.8
 
     16.16. ⌊10^n·c⌋ ∈ ℤ
            mun:floor-integer x := 10^n·c

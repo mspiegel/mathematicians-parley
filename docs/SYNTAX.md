@@ -512,21 +512,23 @@ of
   closed under what builds it (the table of closure
   lemmas in `src/rules.rs`): a·x + b·y ∈ ℤ where a, b, x and y are integers.
   A quotient's divisor not being zero is the step's to write or cite, unless
-  the divisor is a numeral other than zero, or a product, a quotient or a
+  the page says once that it is a positive integer: a numeral other than
+  zero, or a term these rules put in ℕ, as k, k + 1, j·(j + 1) and 2^n are
+  where k, j ∈ ℕ and n ∈ ℕ₀; or unless it is a product, a quotient or a
   power to a numeral whose parts are each not zero by this same rule:
-  `2^j·2` is not zero where a line says `2^j ≠ 0`. `10^0` is a power of a
+  `x·2` is not zero where a line says `x ≠ 0`. `10^0` is a power of a
   numeral and so not zero, but `1 − 2` is no numeral, and `requires 1 − 2 ≠
   0: arithmetic` says it. A sum's term that divides by something holding the
-  sum's own letter, `1/k` or `1/T(k)` in `Σ(k = 1 to n)`, has a divisor no
-  line outside the sum can speak of, so the citation names a line saying the
-  term at every point of a set holding the range, `for all k ∈ ℕ, 1/k ∈ ℝ`,
-  proved as a step of its own;
+  sum's own letter, `1/T(k)` in `Σ(k = 1 to n)`, or `1/k` in `Σ(k = 0 to
+  n)`, has a divisor no line outside the sum can speak of, so the citation
+  names a line saying the term at every point of a set holding the range,
+  `for all k ∈ ℕ, 1/T(k) ∈ ℝ`, proved as a step of its own;
 - a sum in ℝ or ℂ whose term is a number at every index by these rules and
   the function types in scope: the index is in the system its range starts
   in, and a function's value is one where its type's domain is the sum's
   range or a number system holding the index, `Σ(k = 1 to n) a(k)²` where
-  `let a : {1, …, n} → ℝ`. A term dividing by anything but a numeral is
-  not said once this way.
+  `let a : {1, …, n} → ℝ`. A term dividing by anything but a positive
+  integer, as above, is not said once this way.
 
 `let k ∈ ℕ` is still cited for k ≥ 1 and k ≠ 0, which the line says beyond
 the membership. A citation made only for one of these memberships is a line

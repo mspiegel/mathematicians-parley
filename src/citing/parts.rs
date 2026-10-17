@@ -54,16 +54,8 @@ pub fn typed_seed(parts: &mut Parts, name: &str, ours: &[Node], library: &Librar
     if typed.is_empty() || ours.is_empty() {
         return;
     }
-    let mut stands = parts.seed.clone();
+    let stands = stood_for(parts, name, library);
     let groups = library.groups(name);
-    if let Some(groups) = &groups {
-        let taken = taken(groups, &parts.claims, &parts.facts, &parts.seed, library);
-        if let Built(t) = taken {
-            for (letter, value) in t.binding {
-                stands.entry(letter).or_insert(value);
-            }
-        }
-    }
     let typing = |node: &Node, f: &str| {
         TYPING.contains(&node.notation.as_str())
             && node.children.first().is_some_and(|g| g.text == f)
@@ -104,6 +96,21 @@ pub fn typed_seed(parts: &mut Parts, name: &str, ours: &[Node], library: &Librar
             }
         }
     }
+}
+
+/// What each letter of the item named stands for in a citation: what the
+/// citation names it, or else what the citation takes it to be.
+pub fn stood_for(parts: &Parts, name: &str, library: &Library) -> Binding {
+    let mut stands = parts.seed.clone();
+    if let Some(groups) = &library.groups(name) {
+        let taken = taken(groups, &parts.claims, &parts.facts, &parts.seed, library);
+        if let Built(t) = taken {
+            for (letter, value) in t.binding {
+                stands.entry(letter).or_insert(value);
+            }
+        }
+    }
+    stands
 }
 
 /// What a citation supplies, what it claims, and what it says its variables

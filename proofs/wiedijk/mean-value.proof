@@ -149,6 +149,7 @@ let F(x) = f(x) + g(x), for x ∈ [a, b]                                (D2)
 
 25. c ∈ (a, b). F′(c) = 0.
     obtain c: thm:rolle f := F, from H3, 12, 15, 24
+    requires F : [a, b] → ℝ: from 10
 
 26. F′(c) = f′(c) + g′(c)
     instantiate x := c in line 16, from 25

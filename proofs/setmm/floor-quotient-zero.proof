@@ -13,7 +13,6 @@ theorem floor-quotient-zero
 
 1.  B·(A/B) = A
     algebra
-    requires B ≠ 0: from H2
 
 2.  0 ≤ A/B
     mun:quotient-nonneg x := A, y := B, from H1, H2
@@ -26,25 +25,21 @@ theorem floor-quotient-zero
 
     3.1.  B·(A/B) < B
           transitivity, from 1, C1
-          requires B ≠ 0: from H2
 
     3.2.  A/B < 1
           mun:less-scaled x := A/B, y := 1, c := B, from H2, 3.1
 
     3.3.  ⌊A/B⌋ = 0
           mun:floor-between x := A/B, k := 0, from 2, 3.2
-          requires B ≠ 0: from H2
 
     direction
     assume ⌊A/B⌋ = 0                                                  (C2)
 
     3.4.  0 ≤ A/B and A/B < 0 + 1
           mun:floor-between x := A/B, k := 0, from C2
-          requires B ≠ 0: from H2
 
     3.5.  B·(A/B) < B
           mun:less-scaled x := A/B, y := 1, c := B, from H2, 3.4
 
     3.6.  A < B
           transitivity, from 1, 3.5
-          requires B ≠ 0: from H2

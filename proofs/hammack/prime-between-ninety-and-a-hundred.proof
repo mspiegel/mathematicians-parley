@@ -175,7 +175,6 @@ theorem ninety-seven-is-prime
 
     2.2.  d·(97/d) = 97
           algebra
-          requires d ≠ 0: from K
 
     2.3.  There is k ∈ ℕ with d·k = 97.
           exhibit, from 2.1, 2.2

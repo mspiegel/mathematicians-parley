@@ -1,5 +1,6 @@
 import definition         stdlib/calculus/continuous-on
 import mundane definition stdlib/calculus/interval
+import mundane theorem    stdlib/functions/function-into
 import mundane theorem    stdlib/calculus/interval-real
 import mundane definition stdlib/numbers/abs
 import mundane theorem    stdlib/numbers/abs-difference-lt
@@ -37,6 +38,9 @@ theorem a-step-is-not-continuous
           |f(x) − f(c)| < ε for all x ∈ [0, 1] with |x − c| < δ.
           def:continuous-on D := [0, 1], from S
           requires [0, 1] ⊆ ℝ: mun:interval-real a := 0, b := 1
+          requires for all x ∈ [0, 1], f(x) ∈ ℝ: membership, from D1
+          requires f is a function on [0, 1]: from D1
+          requires f : [0, 1] → ℝ: mun:function-into
 
     4.2.  There exists δ > 0 such that |f(x) − f(1/2)| < 1/2 for all
           x ∈ [0, 1] with |x − 1/2| < δ.

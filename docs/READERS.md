@@ -174,9 +174,10 @@ and of nothing else:
 - **a sum whose term is a number at every index**, in ℝ or ℂ: the index is
   in the system its range starts in, and a function's value is one at a
   point of its domain by the function's type, `Σ(k = 1 to n) a(k)²` where
-  `let a : {1, …, n} → ℝ`. A term that divides by anything but a numeral,
-  or takes a value at a point the type does not cover, as `Σ(k = 0 to n)
-  a(k)` does, is not said once this way.
+  `let a : {1, …, n} → ℝ`. A term that divides by anything the page does
+  not say once is a positive integer (`SYNTAX.md`), or takes a value at a
+  point the type does not cover, as `Σ(k = 0 to n) a(k)` does, is not said
+  once this way.
 
 This is the move a sort makes (below): the line that says it is in view in
 the scope it opens, and the reader is no more asked to supply something the
@@ -187,7 +188,8 @@ Writing it at each use cost 990 of the corpus's 1,195 requires lines, eleven
 on one step, and those lines buried the ones that can fail.
 
 What a quotient demands is still written: its divisor's `≠ 0`, which can fail,
-unless the divisor is a numeral. So is every membership the four kinds do
+unless the page says once the divisor is a positive integer, a numeral other
+than zero or a term such as k, k + 1 or 2^n with k ∈ ℕ and n ∈ ℕ₀. So is every membership the four kinds do
 not reach: a defined name whose naming line says no kind of number, a
 function's value outside a sum, a sum whose term divides or leaves its
 function's domain, |x|, n!, a power whose exponent is any other term,
@@ -199,7 +201,8 @@ written again: a line saying N(n) ∈ ℝ says N(n) + 1 is real as well.
 What a written membership says beyond the membership is not carried this way.
 `let k ∈ ℕ` also says that k ≥ 1 and k ≠ 0 (`SYNTAX.md`, what a membership line
 says), and a step that uses either cites the line, as it cites any line it
-uses.
+uses. A divisor's `≠ 0` is the exception: where the divisor is a positive
+integer by what the page says once, as k is, it goes without saying.
 
 **A sort is stated once, and is not a dull fact.** `let X be a set`, `let
 A be a point` and `let f : A → B` say what kind of thing a name is, the way a

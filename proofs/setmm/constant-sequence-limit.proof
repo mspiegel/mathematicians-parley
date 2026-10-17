@@ -1,6 +1,5 @@
 import definition         stdlib/calculus/tends-to
 import mundane theorem    stdlib/numbers/abs-zero
-import mundane theorem    stdlib/numbers/abs-real
 
 theorem constant-sequence-limit
   note        Every term is c, so every term is at distance 0 from c, which
@@ -41,8 +40,6 @@ theorem constant-sequence-limit
 
           1.1.6.  |x(n) − c| < ε
                   transitivity, from 1.1.5, A1
-                  requires x(n) − c ∈ ℝ: membership, from H2
-                  requires |x(n) − c| ∈ ℝ: mun:abs-real x := x(n) − c
 
     1.2.  There exists N ∈ ℕ such that |x(n) − c| < ε for all n ≥ N.
           exhibit, from 1.1

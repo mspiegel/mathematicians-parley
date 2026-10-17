@@ -4,20 +4,27 @@ import mundane theorem    stdlib/sums/sum-termwise
 theorem sum-under-a-hypothesis-over-its-letter
   note        The hypothesis sums over k, and so does the claim: the lemma
               that puts a sum in ℝ keeps its index out of the scope, so the
-              sum is shown over another letter and renamed back.
+              sum is shown over another letter and renamed back. Its term
+              divides by k + x, which the page does not say once is a
+              positive integer, so a line says the term at every index.
   let n ∈ ℕ                                                           (H1)
-  assume Σ(k = 1 to n) 1/k ≥ 0                                        (H2)
-  then Σ(k = 1 to n + 1) 1/k ∈ ℝ
+  let x ∈ ℝ                                                           (H2)
+  assume x > 0                                                        (H3)
+  assume Σ(k = 1 to n) 1/(k + x) ≥ 0                                  (H4)
+  then Σ(k = 1 to n + 1) 1/(k + x) ∈ ℝ
 
-1.  For all k ∈ ℕ, 1/k ∈ ℝ.
+1.  For all k ∈ ℕ, 1/(k + x) ∈ ℝ.
     proof
     let k ∈ ℕ                                                         (K1)
 
-    1.1.  1/k ∈ ℝ
-          membership
-          requires k ≠ 0: from K1
+    1.1.  k + x > 0
+          inequalities, from H3, K1
 
-2.  Σ(k = 1 to n + 1) 1/k ∈ ℝ
+    1.2.  1/(k + x) ∈ ℝ
+          membership
+          requires k + x ≠ 0: weakening, from 1.1
+
+2.  Σ(k = 1 to n + 1) 1/(k + x) ∈ ℝ
     membership, from 1
 
 theorem termwise-under-a-hypothesis-over-its-letter

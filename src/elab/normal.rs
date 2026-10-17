@@ -71,6 +71,10 @@ pub trait Oracle {
     /// What the page says makes `said` not zero, asked only of an emitter
     /// given a way to.
     fn written(&mut self, said: &str) -> Checked<Option<Proof>>;
+    /// ( under -> said =/= 0 ) where the page says once that `said` is a
+    /// positive integer (`SYNTAX.md`), which no line need say; None
+    /// otherwise.
+    fn positive(&mut self, said: &str) -> Checked<Option<Proof>>;
     /// A finite sum written out as linear, as `field::linear_sum` reads it,
     /// and ( under -> said = that ); declined where sums are atoms.
     fn linear_sum(&mut self, said: &str) -> Checked<Route<(Term, Proof)>> {
@@ -2316,6 +2320,10 @@ impl Emitter {
             let rc = self.run_cc(o, under)?;
             return Ok(Built((rc, kept)));
         }
+        if let Some(positive) = o.positive(&said)? {
+            let rc = self.run_cc(o, under)?;
+            return Ok(Built((rc, positive)));
+        }
         let page = if self.written {
             o.written(&said)?
         } else {
@@ -2978,10 +2986,15 @@ impl Emitter {
         term: &Term,
         labels: &FloatLabels,
     ) -> Checked<Route<Proof>> {
+        let said = term.rpn(labels).to_string();
+        // A positive integer the page says once is not zero by that alone
+        // (`SYNTAX.md`), and rests on no line.
+        if let Some(positive) = o.positive(&said)? {
+            return Ok(Built(positive));
+        }
         if let Built(p) = self.split_apart(o, term, labels)? {
             return Ok(Built(p));
         }
-        let said = term.rpn(labels).to_string();
         match o.written(&said)? {
             Some(page) => Ok(Built(page)),
             None => Ok(Route::no(

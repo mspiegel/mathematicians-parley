@@ -121,9 +121,10 @@ pub fn said_once(
             Binding::from([("x".to_string(), term.clone()), ("S".to_string(), set)]);
         Some(standard(&substitute_apart(&made, &put, ctx), ctx))
     };
-    // A divisor is not zero where a fact says so, as `≠ 0` or as a sign.
+    // A divisor is not zero where the page says once it is a positive
+    // integer, or a fact says so, as `≠ 0` or as a sign.
     let nonzero = |d: &Node| -> bool {
-        if numeral_nonzero(d) {
+        if nonzero_said_once(d, &letters) {
             return true;
         }
         ["x ≠ 0", "x > 0", "x < 0"].iter().any(|said| {
@@ -213,7 +214,8 @@ pub fn a_number_said_once(
             atoms.push((name, system));
         }
     }
-    let nonzero = numeral_nonzero;
+    let positive = letters.clone();
+    let nonzero = |d: &Node| nonzero_said_once(d, &positive);
     let said = |t: &Node, system: System| {
         atoms.iter().any(|(a, s)| {
             crate::matching::alike(a, t, ctx, &IndexMap::new(), &IndexMap::new())
@@ -332,9 +334,13 @@ pub fn sum_said_once(
         typed,
         ctx,
     };
-    within(body, system, &letters, &numeral_nonzero, &|t, s| {
-        at.says(t, s)
-    })
+    within(
+        body,
+        system,
+        &letters,
+        &|d| nonzero_said_once(d, &letters),
+        &|t, s| at.says(t, s),
+    )
 }
 
 /// What a sum's term is read with at each index: the index and its range,
@@ -412,11 +418,19 @@ pub fn index_system(start: &Node) -> Option<System> {
         .and_then(|(system, _, _)| System::of_label(system))
 }
 
-/// Whether a divisor is a numeral other than zero, the one divisor whose
-/// `≠ 0` a step need not write (`SYNTAX.md`): 10^0 is worked out to 1, and
-/// is no numeral.
+/// Whether a divisor is a numeral other than zero: 10^0 is worked out to 1,
+/// and is no numeral.
 pub fn numeral_nonzero(divisor: &Node) -> bool {
     divisor.notation == "numeral" && value(divisor).is_some_and(|v| !v.is_zero())
+}
+
+/// Whether a divisor goes without its `≠ 0` (`SYNTAX.md`): a numeral other
+/// than zero, or a term the page says once is in ℕ by `letters`, a positive
+/// integer, as k, j·(j + 1), 2^n and (k + 1)! are where k, j and n are
+/// letters in ℕ.
+pub fn nonzero_said_once(divisor: &Node, letters: &Introduced) -> bool {
+    numeral_nonzero(divisor)
+        || within(divisor, System::N, letters, &numeral_nonzero, &|_, _| false)
 }
 
 /// The value of a term built from numerals alone, worked out exactly; None

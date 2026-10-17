@@ -3,7 +3,6 @@ import mundane theorem    stdlib/numbers/product-nonzero
 import mundane theorem    stdlib/numbers/reciprocal-order
 import mundane theorem    stdlib/numbers/square-positive
 import mundane theorem    stdlib/sums/sum-extended
-import mundane theorem    stdlib/sums/sum-real
 import mundane theorem    stdlib/sums/sum-single
 
 theorem inverse-squares-bounded
@@ -19,7 +18,6 @@ theorem inverse-squares-bounded
 
     1.1.  1/j² ∈ ℝ
           membership
-          requires j ≠ 0: from J
 
 2.  For all k ∈ ℕ, Σ(j = 1 to k) 1/j² ≤ 2 − 1/k.
     induction on k starting at 1
@@ -46,8 +44,6 @@ theorem inverse-squares-bounded
 
     2.5.  1/k − 1/(k + 1) = 1/(k·(k + 1))
           algebra
-          requires k ≠ 0: from K
-          requires k + 1 ≠ 0: weakening, from 2.4
 
     2.6.  (k + 1)² > 0
           mun:square-positive x := k + 1
@@ -87,29 +83,19 @@ theorem inverse-squares-bounded
 
     2.15. 1/(k + 1)² ≤ 1/k − 1/(k + 1)
           transitivity, from 2.14, 2.5
-          requires k ≠ 0: from K
-          requires k + 1 ≠ 0: weakening, from 2.4
 
     2.16. Σ(j = 1 to k) 1/j² + 1/(k + 1)² ≤ 2 − 1/k + 1/(k + 1)²
           inequalities
             Σ(j = 1 to k) 1/j² ≤ 2 − 1/k                                  IH
             Σ(j = 1 to k) 1/j² + 1/(k + 1)² ≤ 2 − 1/k + 1/(k + 1)²        adding 1/(k + 1)²
-          requires Σ(j = 1 to k) 1/j² ∈ ℝ: mun:sum-real a := 1, b := k, from 1
-          requires k ≠ 0: from K
-          requires (k + 1)² ≠ 0: weakening, from 2.6
 
     2.17. 2 − 1/k + 1/(k + 1)² ≤ 2 − 1/(k + 1)
           inequalities
             1/(k + 1)² ≤ 1/k − 1/(k + 1)                                  2.15
             2 − 1/k + 1/(k + 1)² ≤ 2 − 1/(k + 1)                          adding 2 − 1/k
-          requires k ≠ 0: from K
-          requires k + 1 ≠ 0: weakening, from 2.4
 
     2.18. Σ(j = 1 to k + 1) 1/j² ≤ 2 − 1/(k + 1)
           transitivity, from 2.3, 2.16, 2.17
-          requires Σ(j = 1 to k) 1/j² ∈ ℝ: mun:sum-real a := 1, b := k, from 1
-          requires k ≠ 0: from K
-          requires k + 1 ≠ 0: weakening, from 2.4
 
 3.  Σ(k = 1 to n) 1/k² ≤ 2 − 1/n
     instantiate k := n in line 2

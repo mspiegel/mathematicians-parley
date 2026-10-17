@@ -1,14 +1,15 @@
 theorem a-power-said-not-zero
-  note        A quotient's divisor not being zero is the step's to write, a power to a letter among them.
+  note        A quotient's divisor not being zero is the step's to write, a power to a letter among them, where the page does not say once it is a positive integer.
   let n ∈ ℕ    (H1)
   let ε ∈ ℝ    (H2)
-  assume 2^n > 0    (H3)
-  assume 1/2^n < ε    (H4)
-  then 1 − ε < 1 − 1/2^n
+  let x ∈ ℝ    (H3)
+  assume x^n > 0    (H4)
+  assume 1/x^n < ε    (H5)
+  then 1 − ε < 1 − 1/x^n
 
-1.  1 − ε < 1 − 1/2^n
+1.  1 − ε < 1 − 1/x^n
     inequalities
-      1/2^n < ε              H4
-      −1/2^n > −ε            multiplying by −1
-      1 − 1/2^n > 1 − ε      adding 1
-    requires 2^n ≠ 0: weakening, from H3
+      1/x^n < ε              H5
+      −1/x^n > −ε            multiplying by −1
+      1 − 1/x^n > 1 − ε      adding 1
+    requires x^n ≠ 0: weakening, from H4

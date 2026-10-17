@@ -6,14 +6,18 @@
 //!
 //! The oracle is the rule as the document gives it, worked over the term:
 //! a numeral and a letter let in a number system are said once, and so is
-//! what +, −, · build from them, a quotient by a numeral other than 0, a
-//! power to a numeral or to a letter let in ℕ or ℕ₀, a term of numerals
-//! alone that `arithmetic` works out (a factorial), and a sum whose term is
-//! such a number at every index. A letter let only as an element is not,
-//! nor a power to a letter in ℤ, nor a factorial of a letter, nor a
-//! quotient by a letter, whose not being zero the step has to cite, nor a
-//! sum whose term divides by its index. A claim the rule says is said once
-//! is built and verified; any other is refused for the membership or the
+//! what +, −, · build from them, a quotient by a divisor the page says once
+//! is a positive integer or by a term of numerals alone that works out to
+//! other than 0, a power to a numeral or to a letter let in ℕ or
+//! ℕ₀, a term of numerals alone that `arithmetic` works out (a factorial),
+//! and a sum whose term is such a number at every index. A positive integer
+//! is a numeral other than 0, a letter let in ℕ, a factorial of a numeral,
+//! and what + and · build from them and a power of one to a numeral or to a
+//! letter let in ℕ or ℕ₀; the index of a sum from 1 is one. A letter let
+//! only as an element is not said once, nor a power to a letter in ℤ, nor a
+//! factorial of a letter, nor a quotient by any other divisor, whose not
+//! being zero the step has to cite. A claim the rule says is said once is
+//! built and verified; any other is refused for the membership or the
 //! divisor it lacks.
 
 use parley::formula::grammar::Grammar;
@@ -53,8 +57,8 @@ enum Term {
     Mul(Box<Term>, Box<Term>),
     /// A quotient by a numeral, 2 to 5.
     DivNum(Box<Term>, u32),
-    /// A quotient by a letter of the header.
-    DivLetter(Box<Term>, &'static str),
+    /// A quotient by a drawn term.
+    DivBy(Box<Term>, Box<Term>),
     /// A power to a numeral, 2 or 3.
     PowNum(Box<Term>, u32),
     /// A power to a letter of the header.
@@ -81,13 +85,79 @@ enum Summand {
 /// divisor's not being zero is asked with it.
 fn said(t: &Term) -> bool {
     match t {
-        Term::Num(_) | Term::Factorial(_) => true,
+        Term::Num(_) | Term::Factorial(_) | Term::Sum(_) => true,
         Term::Letter(l) => *l != "p",
         Term::Add(a, b) | Term::Sub(a, b) | Term::Mul(a, b) => said(a) && said(b),
         Term::DivNum(a, _) | Term::PowNum(a, _) => said(a),
-        Term::DivLetter(..) | Term::FactorialOfLetter => false,
+        Term::DivBy(a, d) => {
+            said(a) && (positive(d) || closed(d).is_some_and(|v| v.0 != 0))
+        }
+        Term::FactorialOfLetter => false,
         Term::PowLetter(a, e) => matches!(*e, "a" | "b") && said(a),
-        Term::Sum(s) => !matches!(s, Summand::Reciprocal),
+    }
+}
+
+/// The value of a term of numerals alone, as a fraction over a positive
+/// denominator; None where a letter or a sum stands in it, or a division
+/// by zero.
+fn closed(t: &Term) -> Option<(i128, i128)> {
+    let fraction = |n: i128, d: i128| {
+        let (mut a, mut b) = (n.abs(), d);
+        while b != 0 {
+            (a, b) = (b, a % b);
+        }
+        let g = a.max(1);
+        (n / g, d / g)
+    };
+    let factorial = |n: u32| (1..=n as i128).product::<i128>();
+    Some(match t {
+        Term::Num(n) => (*n as i128, 1),
+        Term::Factorial(n) => (factorial(*n), 1),
+        Term::Add(a, b) | Term::Sub(a, b) => {
+            let ((p, q), (r, s)) = (closed(a)?, closed(b)?);
+            let sign = if matches!(t, Term::Sub(..)) { -1 } else { 1 };
+            fraction(p * s + sign * r * q, q * s)
+        }
+        Term::Mul(a, b) => {
+            let ((p, q), (r, s)) = (closed(a)?, closed(b)?);
+            fraction(p * r, q * s)
+        }
+        Term::DivNum(a, d) => {
+            let (p, q) = closed(a)?;
+            fraction(p, q * *d as i128)
+        }
+        Term::DivBy(a, d) => {
+            let ((p, q), (r, s)) = (closed(a)?, closed(d)?);
+            if r == 0 {
+                return None;
+            }
+            fraction(p * s * r.signum(), q * r.abs())
+        }
+        Term::PowNum(a, k) => {
+            let (p, q) = closed(a)?;
+            (p.pow(*k), q.pow(*k))
+        }
+        Term::Letter(_)
+        | Term::PowLetter(..)
+        | Term::FactorialOfLetter
+        | Term::Sum(_) => return None,
+    })
+}
+
+/// Whether the page says once the term is a positive integer, so that it
+/// needs no line saying it is not zero.
+fn positive(t: &Term) -> bool {
+    match t {
+        Term::Num(_) | Term::Factorial(_) => true,
+        Term::Letter(l) => *l == "a",
+        Term::Add(a, b) | Term::Mul(a, b) => positive(a) && positive(b),
+        Term::PowNum(a, _) => positive(a),
+        Term::PowLetter(a, e) => matches!(*e, "a" | "b") && positive(a),
+        Term::Sub(..)
+        | Term::DivNum(..)
+        | Term::DivBy(..)
+        | Term::FactorialOfLetter
+        | Term::Sum(_) => false,
     }
 }
 
@@ -117,7 +187,7 @@ fn node(g: &Grammar, t: &Term) -> Node {
         Term::DivNum(a, d) => {
             made(g, "_ / _", vec![node(g, a), numeral(&d.to_string())])
         }
-        Term::DivLetter(a, d) => made(g, "_ / _", vec![node(g, a), letter(d)]),
+        Term::DivBy(a, d) => two(a, d, "_ / _"),
         Term::PowNum(a, k) => made(g, "_^_", vec![node(g, a), numeral(&k.to_string())]),
         Term::PowLetter(a, e) => made(g, "_^_", vec![node(g, a), letter(e)]),
         Term::Factorial(n) => made(g, "_!", vec![numeral(&n.to_string())]),
@@ -166,7 +236,7 @@ fn drawn(r: &mut Random, depth: u32) -> Term {
         1 => Term::Sub(sub(r), sub(r)),
         2 => Term::Mul(sub(r), sub(r)),
         3 => Term::DivNum(sub(r), 2 + r.below(4) as u32),
-        4 => Term::DivLetter(sub(r), ["a", "c", "x"][r.below(3) as usize]),
+        4 => Term::DivBy(sub(r), sub(r)),
         5 => Term::PowNum(sub(r), 2 + r.below(2) as u32),
         _ => Term::PowLetter(sub(r), ["a", "b", "c"][r.below(3) as usize]),
     }

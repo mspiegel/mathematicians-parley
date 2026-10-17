@@ -72,43 +72,36 @@ theorem factorial-quotient-step
   assume F ≠ 0                                                        (H3)
   then 1 − 1/F + c/(F·(c + 1)) = 1 − 1/(F·(c + 1))
 
-1.  c + 1 > 0
-    inequalities, from H1
-
-2.  c/(F·(c + 1)) = (1/F)·(c/(c + 1))
+1.  c/(F·(c + 1)) = (1/F)·(c/(c + 1))
     algebra
     requires F ≠ 0: from H3
-    requires c + 1 ≠ 0: weakening, from 1
 
-3.  c/(c + 1) = 1 − 1/(c + 1)
+2.  c/(c + 1) = 1 − 1/(c + 1)
     algebra
-    requires c + 1 ≠ 0: weakening, from 1
 
-4.  1/(F·(c + 1)) = (1/F)·(1/(c + 1))
+3.  1/(F·(c + 1)) = (1/F)·(1/(c + 1))
     algebra
     requires F ≠ 0: from H3
-    requires c + 1 ≠ 0: weakening, from 1
 
-5.  1 − 1/F + (1/F)·(1 − 1/(c + 1)) = 1 − (1/F)·(1/(c + 1))
+4.  1 − 1/F + (1/F)·(1 − 1/(c + 1)) = 1 − (1/F)·(1/(c + 1))
     algebra
     requires F ≠ 0: from H3
-    requires c + 1 ≠ 0: weakening, from 1
 
-6.  1 − 1/F + c/(F·(c + 1)) = 1 − 1/F + (1/F)·(c/(c + 1))
-    substitute c/(F·(c + 1)) = (1/F)·(c/(c + 1)) (line 2)
+5.  1 − 1/F + c/(F·(c + 1)) = 1 − 1/F + (1/F)·(c/(c + 1))
+    substitute c/(F·(c + 1)) = (1/F)·(c/(c + 1)) (line 1)
 
-7.  1 − 1/F + (1/F)·(c/(c + 1)) = 1 − 1/F + (1/F)·(1 − 1/(c + 1))
-    substitute c/(c + 1) = 1 − 1/(c + 1) (line 3)
+6.  1 − 1/F + (1/F)·(c/(c + 1)) = 1 − 1/F + (1/F)·(1 − 1/(c + 1))
+    substitute c/(c + 1) = 1 − 1/(c + 1) (line 2)
 
-8.  1 − (1/F)·(1/(c + 1)) = 1 − 1/(F·(c + 1))
-    substitute 1/(F·(c + 1)) = (1/F)·(1/(c + 1)) (line 4)
+7.  1 − (1/F)·(1/(c + 1)) = 1 − 1/(F·(c + 1))
+    substitute 1/(F·(c + 1)) = (1/F)·(1/(c + 1)) (line 3)
 
-9.  1 − 1/F + c/(F·(c + 1)) = 1 − 1/(F·(c + 1))
+8.  1 − 1/F + c/(F·(c + 1)) = 1 − 1/(F·(c + 1))
     calculation
-      1 − 1/F + c/(F·(c + 1)) = 1 − 1/F + (1/F)·(c/(c + 1))             6
-                              = 1 − 1/F + (1/F)·(1 − 1/(c + 1))         7
-                              = 1 − (1/F)·(1/(c + 1))                   5
-                              = 1 − 1/(F·(c + 1))                       8
+      1 − 1/F + c/(F·(c + 1)) = 1 − 1/F + (1/F)·(c/(c + 1))             5
+                              = 1 − 1/F + (1/F)·(1 − 1/(c + 1))         6
+                              = 1 − (1/F)·(1/(c + 1))                   4
+                              = 1 − 1/(F·(c + 1))                       7
 
 theorem sum-of-factorial-quotients
   note        By induction on n: adding (k + 1)/(k + 2)! to 1 − 1/(k + 1)!

@@ -79,7 +79,7 @@ theorem rational-product
     substitute B = r/s (line 2)
 
 5.  (p/q)·(r/s) = (p·r)/(q·s)
-    algebra, from 1, 2
+    algebra
 
 6.  A·B = (p·r)/(q·s)
     calculation
@@ -113,7 +113,7 @@ theorem rational-reciprocal
           substitute p = 0 (S) into line 1
 
     2.2.  0/q = 0
-          algebra, from 1
+          algebra
 
     2.3.  A = 0
           calculation

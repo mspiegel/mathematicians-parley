@@ -7,8 +7,8 @@ use crate::formula::{walk, Node};
 use indexmap::IndexMap;
 
 use crate::matching::{
-    alike, binding_sites, free_names, identities_dropped, match_tree, put_everywhere,
-    substitute_apart, Binding, PROPERTY,
+    alike, alike_top, binding_sites, free_names, identities_dropped, match_tree,
+    put_everywhere, substitute_apart, Binding, Context, PROPERTY,
 };
 use crate::outcome::{Built, Route};
 
@@ -135,6 +135,19 @@ fn unnumbered(
     let ctx = &library.ctx;
     let instance = filled(cand, binding, ctx);
     let dropped = identities_dropped(&instance, claim, ctx);
+    not_numbers(dropped, &instance, claim, given, library)
+}
+
+/// Of what dropping identity elements left, `dropped`, those the facts do
+/// not say are numbers, with the letters `instance` and `claim` bind.
+fn not_numbers(
+    dropped: Vec<Node>,
+    instance: &Node,
+    claim: &Node,
+    given: &[Node],
+    library: &Library,
+) -> Vec<Node> {
+    let ctx = &library.ctx;
     if dropped.is_empty() {
         return dropped;
     }
@@ -196,10 +209,31 @@ pub fn substitution_unsaid(
                 if !left_over.is_empty() {
                     return left_over;
                 }
+                // A place the side stands at only once an identity element
+                // is dropped, Σ + 0 for Σ, drops it there, before the putting.
+                let at_sites = if dropped_at_sites(start, was, ctx) {
+                    vec![now.clone()]
+                } else {
+                    Vec::new()
+                };
+                let left_over = not_numbers(at_sites, start, aim, facts, library);
+                if !left_over.is_empty() {
+                    return left_over;
+                }
             }
         }
     }
     Vec::new()
+}
+
+/// Whether a place in `start` that `was` stands at, as `put_everywhere`
+/// finds the places, is `was` only once an identity element is dropped:
+/// what is put there is then what is left of the place.
+fn dropped_at_sites(start: &Node, was: &Node, ctx: &Context) -> bool {
+    if alike_top(start, was, ctx) {
+        return !identities_dropped(start, was, ctx).is_empty();
+    }
+    start.children.iter().any(|c| dropped_at_sites(c, was, ctx))
 }
 
 /// What a calculation link leaves unsaid to be a number, where it is what

@@ -27,7 +27,7 @@ theorem rational-times-irrational
           substitute b = r/s (line 1.2)
 
     1.5.  (p/q)·(r/s) = (p·r)/(q·s)
-          algebra, from 1.1, 1.2
+          algebra
 
     1.6.  a·b = (p·r)/(q·s)
           calculation

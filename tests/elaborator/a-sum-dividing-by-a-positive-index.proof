@@ -1,0 +1,12 @@
+import mundane theorem    stdlib/sums/sum-le
+
+theorem a-sum-dividing-by-a-positive-index
+  note        The sum's term divides by its index, which runs from 1, so the
+              page says once the divisor is a positive integer and no line
+              says the term at every point.
+  let n ∈ ℕ                                                           (H1)
+  assume for all k ∈ {1, …, n}, 0 ≤ 1/k                              (H2)
+  then Σ(k = 1 to n) 0 ≤ Σ(k = 1 to n) 1/k
+
+1.  Σ(k = 1 to n) 0 ≤ Σ(k = 1 to n) 1/k
+    mun:sum-le a := 1, b := n, from H2
