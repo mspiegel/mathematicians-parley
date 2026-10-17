@@ -2351,6 +2351,37 @@ fn renumbered_link(line: &str, map: &BTreeMap<String, String>) -> String {
     }
 }
 
+/// Whether `fact` says the term `claim` says is in a number system, of a
+/// system holding that one: `|A| ∈ ℝ` of `|A| ∈ ℕ₀`.
+fn widened(fact: &str, claim: &str) -> bool {
+    match (membership_of(fact), membership_of(claim)) {
+        (Some(wide), Some(narrow)) => {
+            wide.term == narrow.term && narrow.system <= wide.system
+        }
+        _ => false,
+    }
+}
+
+/// The number systems, each inside the next.
+const SYSTEMS: [&str; 6] = ["ℕ", "ℕ₀", "ℤ", "ℚ", "ℝ", "ℂ"];
+
+/// A membership in a number system as a line writes it: the term, and the
+/// system by its place among `SYSTEMS`.
+struct Membership {
+    term: String,
+    system: usize,
+}
+
+/// `t ∈ S` read off a fact with S a number system; None for any other.
+fn membership_of(said: &str) -> Option<Membership> {
+    let (term, set) = said.trim().trim_end_matches('.').split_once(" ∈ ")?;
+    let system = SYSTEMS.iter().position(|s| *s == set.trim())?;
+    Some(Membership {
+        term: term.trim().to_string(),
+        system,
+    })
+}
+
 /// `from 2, 17` without 17, and `membership, from 14` without 14 as
 /// `membership`; None where nothing would be left.
 fn without_ref(how: &str, gone: &str) -> Option<String> {
@@ -2828,12 +2859,16 @@ fn dull_step_moved(
                 fits = false;
                 break;
             }
+            // A line saying what the step says, or that its term is in a
+            // number system holding the step's, |A| ∈ ℝ from |A| ∈ ℕ₀, says
+            // nothing the moved line does not, and goes with the move.
+            if r.fact.text().trim() == claim.trim() || widened(r.fact.text(), claim) {
+                said.push((r.line - 1, None));
+                continue;
+            }
             match without_ref(&r.how, &no) {
                 Some(how) => {
                     said.push((r.line - 1, Some(format!("{}{how}", &line[..at]))))
-                }
-                None if r.fact.text().trim() == claim.trim() => {
-                    said.push((r.line - 1, None))
                 }
                 None => {
                     fits = false;
@@ -2846,6 +2881,19 @@ fn dull_step_moved(
             .filter(|(_, new)| new.is_none())
             .map(|(l, _)| *l)
             .collect();
+        // A line that goes may be the only one citing its item, whose import
+        // would then cite nothing; such a step is left where it is.
+        let item = re(r"\b[a-z]+:[A-Za-z0-9′-]+");
+        let orphaned = gone.iter().any(|&l| {
+            item.find(&lines[l]).is_some_and(|m| {
+                let cited = m.as_str();
+                !lines
+                    .iter()
+                    .enumerate()
+                    .any(|(k, other)| !gone.contains(&k) && other.contains(cited))
+            })
+        });
+        fits &= !orphaned;
         let resting: BTreeSet<usize> = citers.iter().map(|(s, _)| *s).collect();
         for &s in &resting {
             let restated = thm.steps[s].requires.iter().any(|r| {

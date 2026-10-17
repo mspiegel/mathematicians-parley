@@ -772,9 +772,18 @@ pub fn check_contradicting(
             continue;
         };
         // The claim is the opposite of the line, or of one sentence of it:
-        // a line may say several things and be contradicted in one.
+        // a line may say several things and be contradicted in one, or in
+        // all of them at once, since "A. B" is "A and B".
         let claimed = known.whole(step, &step.claim);
-        let there = known.said_parts(said, Some(&known.citing_step(step)));
+        let mut there = known.said_parts(said, Some(&known.citing_step(step)));
+        if there.len() > 1 {
+            let parts: Option<Vec<Node>> = there.iter().cloned().collect();
+            if let Some(whole) =
+                parts.and_then(|p| crate::formula::page::conjoined(env.g, p))
+            {
+                there.push(Some(whole));
+            }
+        }
         let opposed = there.iter().any(|t| {
             negates(claimed.as_ref(), t.as_ref(), &wrappers, known)
                 || negates(t.as_ref(), claimed.as_ref(), &wrappers, known)

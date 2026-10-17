@@ -1,0 +1,21 @@
+import theorem            proofs/setmm/size-at-least-one/size-at-least-one
+import mundane theorem    stdlib/counting/card-nat0
+import mundane theorem    stdlib/numbers/nat0-real
+
+theorem size-positive
+  metamath    hashgt0
+  note        A nonempty set has at least 1 element, and 0 is less than 1.
+  let A be a set                                                      (H1)
+  assume A is finite                                                  (H2)
+  assume A ≠ ∅                                                        (H3)
+  then 0 < |A|
+
+1.  1 ≤ |A|
+    thm:size-at-least-one, from H3
+
+2.  |A| ∈ ℕ₀
+    mun:card-nat0, from H2
+
+3.  0 < |A|
+    inequalities, from 1
+    requires |A| ∈ ℝ: mun:nat0-real m := |A|, from 2
