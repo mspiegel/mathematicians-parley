@@ -217,9 +217,16 @@ pub fn link_unsaid(
 ) -> Vec<Node> {
     let ctx = &library.ctx;
     let none = IndexMap::new();
-    if says.iter().any(|s| {
+    // A line saying the link as it stands, or the other way round, drops
+    // nothing: `t + 0 = t` is `t = t + 0` read from its right.
+    let as_it_stands = |s: &Node| {
         identities_dropped(s, link, ctx).is_empty() && alike(s, link, ctx, &none, &none)
-    }) {
+    };
+    if says
+        .iter()
+        .flat_map(|s| either_way(s, library))
+        .any(|s| as_it_stands(&s))
+    {
         return Vec::new();
     }
     for said in says {

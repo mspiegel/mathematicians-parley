@@ -5185,7 +5185,7 @@ impl<'a> Elaborator<'a> {
     ) -> Option<Binding> {
         let p = self.read_through(pattern, false, None);
         let t = self.respelt_as(&p, read, variables);
-        fit(&p, &t, seed, variables)
+        fit_either_way(&p, &t, seed, variables)
     }
 
     /// `term` with its bound letters respelt so that each letter `pattern`
@@ -6494,6 +6494,90 @@ fn subterms(term: &Term) -> Vec<Term> {
         out.push(node);
     }
     out
+}
+
+/// `fit` where an equation of the pattern may meet one of the term either
+/// way round: what the lemma says in other words is the instance fitted,
+/// and its caller carries that to the claim by `Matcher::same`, which reads
+/// an equation either way round as the page does. Every other fit is the
+/// kernel's, which a proof takes symbol for symbol.
+fn fit_either_way(
+    pattern: &Term,
+    ground: &Term,
+    seed: &Binding,
+    variables: &Vars,
+) -> Option<Binding> {
+    let first = ToFit {
+        pattern: pattern.clone(),
+        ground: ground.clone(),
+    };
+    either_way(vec![first], seed.clone(), variables)
+}
+
+/// A part of a pattern and the part of the term it is fitted to.
+#[derive(Clone)]
+struct ToFit {
+    pattern: Term,
+    ground: Term,
+}
+
+/// The parts still to fit, the last fitted now: a variable bound or
+/// checked against what it is bound to, an equation tried with its sides
+/// as written and then turned, any other node part by part. A choice that
+/// a later part does not fit is undone.
+fn either_way(
+    mut left: Vec<ToFit>,
+    mut binding: Binding,
+    variables: &Vars,
+) -> Option<Binding> {
+    let Some(ToFit { pattern, ground }) = left.pop() else {
+        return Some(binding);
+    };
+    if let Some(v) = pattern.variable().filter(|v| variables.contains(*v)) {
+        match binding.get(v) {
+            Some(seen) if !crate::mm::kernel::same(seen, &ground) => return None,
+            Some(_) => {}
+            None => {
+                binding.insert(v.to_string(), ground.clone());
+            }
+        }
+        return either_way(left, binding, variables);
+    }
+    if pattern.variable().is_some() || ground.variable().is_some() {
+        if pattern.variable() != ground.variable() {
+            return None;
+        }
+        return either_way(left, binding, variables);
+    }
+    if pattern.label() != ground.label()
+        || pattern.children().len() != ground.children().len()
+    {
+        return None;
+    }
+    let paired = |turn: bool| {
+        let mut more = left.clone();
+        let theirs: Vec<Term> = if turn {
+            ground.children().iter().rev().cloned().collect()
+        } else {
+            ground.children().to_vec()
+        };
+        more.extend(
+            pattern
+                .children()
+                .iter()
+                .cloned()
+                .zip(theirs)
+                .map(|(pattern, ground)| ToFit { pattern, ground })
+                .rev(),
+        );
+        more
+    };
+    let equation = pattern.label() == Some("wceq") && pattern.children().len() == 2;
+    either_way(paired(false), binding.clone(), variables).or_else(|| {
+        equation
+            .then(|| either_way(paired(true), binding, variables))
+            .flatten()
+    })
 }
 
 /// The lemma carrying a class's equality up through one place of a term.

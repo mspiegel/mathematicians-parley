@@ -1,0 +1,82 @@
+import definition         stdlib/calculus/tends-to
+import theorem            proofs/setmm/limit-lemmas/scaled-small
+import mundane theorem    stdlib/numbers/abs-nonneg
+import mundane theorem    stdlib/numbers/abs-real
+import mundane theorem    stdlib/numbers/quotient-positive
+
+theorem limit-constant-multiple
+  note        The distance from C·x(n) to C·L is |C| times the distance from
+              x(n) to L. Take x(n) within ε/(2(|C| + 1)) of L, and
+              scaled-small turns that into C·x(n) within ε of C·L.
+  ε ranges over ℝ
+  n ranges over ℕ
+  let x : ℕ → ℝ                                                       (H1)
+  let L ∈ ℝ                                                           (H2)
+  let C ∈ ℝ                                                           (H3)
+  assume x(n) → L as n → ∞                                            (H4)
+  then C·x(n) → C·L as n → ∞
+
+1.  |C| ∈ ℝ
+    mun:abs-real x := C
+
+2.  |C| ≥ 0
+    mun:abs-nonneg x := C
+
+3.  |C| + 1 > 0
+    inequalities, from 1, 2
+
+4.  2·(|C| + 1) > 0
+    inequalities
+      |C| + 1 > 0          3
+      2·(|C| + 1) > 0      multiplying by 2
+    requires |C| ∈ ℝ: from 1
+
+5.  For all ε > 0, there exists N ∈ ℕ such that |C·x(n) − C·L| < ε for all n ≥ N.
+    proof
+    let ε ∈ ℝ                                                         (K1)
+    assume ε > 0                                                      (A1)
+
+    5.1.  ε/(2·(|C| + 1)) > 0
+          mun:quotient-positive x := ε, y := 2·(|C| + 1), from A1, 4
+          requires 2·(|C| + 1) ∈ ℝ: membership, from 1
+
+    5.2.  ε/(2·(|C| + 1)) ∈ ℝ
+          membership
+          requires |C| ∈ ℝ: from 1
+          requires 2·(|C| + 1) ≠ 0: weakening, from 4
+
+    5.3.  For all ε > 0, there exists N ∈ ℕ such that |x(n) − L| < ε for all n ≥ N.
+          def:tends-to, from H4
+
+    5.4.  There exists N ∈ ℕ such that |x(n) − L| < ε/(2·(|C| + 1)) for all n ≥ N.
+          instantiate ε := ε/(2·(|C| + 1)) in line 5.3, from 5.1, 5.2
+
+    5.5.  N ∈ ℕ. |x(n) − L| < ε/(2·(|C| + 1)) for all n ≥ N.
+          obtain N from line 5.4
+
+    5.6.  For all n ≥ N, |C·x(n) − C·L| < ε.
+          proof
+          let n ∈ ℕ                                                   (K2)
+          assume n ≥ N                                                (A2)
+
+          5.6.1.  |x(n) − L| < ε/(2·(|C| + 1))
+                  instantiate n := n in line 5.5, from A2
+
+          5.6.2.  x(n) − L ∈ ℝ
+                  membership, from H1
+
+          5.6.3.  |C·(x(n) − L)| < ε
+                  thm:scaled-small u := x(n) − L, from A1, 5.6.1, 5.6.2
+
+          5.6.4.  C·x(n) − C·L = C·(x(n) − L)
+                  algebra
+                  requires x(n) ∈ ℝ: from H1
+
+          5.6.5.  |C·x(n) − C·L| < ε
+                  substitute C·x(n) − C·L = C·(x(n) − L) (line 5.6.4) into line 5.6.3
+
+    5.7.  There exists N ∈ ℕ such that |C·x(n) − C·L| < ε for all n ≥ N.
+          exhibit, from 5.6
+
+6.  C·x(n) → C·L as n → ∞
+    def:tends-to L := C·L, from 5

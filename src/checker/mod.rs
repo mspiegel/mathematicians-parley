@@ -343,7 +343,7 @@ pub fn obtained_there(source: &dyn Source) -> Result<Vec<ObtainedThere>, Outcome
     .map(|(_, _, said)| said)
 }
 
-/// What a step citing a corpus theorem makes each of its letters
+/// What a step citing an item makes each of its letters
 /// (`citations::bound_there`).
 pub struct BoundThere {
     pub path: String,
@@ -354,8 +354,8 @@ pub struct BoundThere {
     pub letters: Vec<(String, String)>,
 }
 
-/// What each citation of a corpus theorem, in every theorem, makes the cited
-/// theorem's letters.
+/// What each citation of an item, in every theorem, makes the cited item's
+/// letters.
 pub fn bound_there(source: &dyn Source) -> Result<Vec<BoundThere>, Outcome> {
     prepared(source, |_, c| {
         let mut out = Vec::new();

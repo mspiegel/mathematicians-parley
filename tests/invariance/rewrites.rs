@@ -47,8 +47,8 @@ pub struct Context {
     /// What the item each obtain cites says there is, as the checker reads
     /// it at the step, by the step's file and line.
     obtained: BTreeMap<(String, usize), Route<Vec<String>>>,
-    /// What each step citing a corpus theorem makes its letters, as the
-    /// checker reads it at the step, by the step's file and line.
+    /// What each step citing an item makes its letters, as the checker
+    /// reads it at the step, by the step's file and line.
     bound: BTreeMap<(String, usize), BTreeMap<String, String>>,
 }
 
@@ -1055,8 +1055,12 @@ fn renaming(ctx: &Context, path: &str, text: &str, choose: Choose) -> Rewritten 
 /// where the step says something of that letter, as "u ∈ aH" cited from
 /// `coset` does; where the step does not write it, matching finds the
 /// subject, as it finds u for "Y ⊆ G" from `part-builder`. So where the
-/// renaming changed a letter the step's claim writes, the citation is given
-/// the pair `u := w` and means what it meant.
+/// checker made the subject the proof's letter of its name, and the
+/// renaming changed that letter, the citation is given the pair `u := w`
+/// and means what it meant. A letter written inside the term matching
+/// fills the subject with, the x of "x(n) + C → L + C" cited from
+/// `tends-to`, is no pin of it. A requires line, whose binding the checker
+/// does not keep, is given the pair where its claim opens with the letter.
 fn subjects_named(
     ctx: &Context,
     thm: &Theorem,
@@ -1064,16 +1068,18 @@ fn subjects_named(
     map: &BTreeMap<String, String>,
 ) {
     let item = re(r"\b[a-z]+:([A-Za-z0-9′-]+)");
-    let mut cited: Vec<(usize, String)> = Vec::new();
+    // Each citing line, what it claims, and the step's line where the
+    // checker keeps what the citation makes the item's letters.
+    let mut cited: Vec<(usize, String, Option<usize>)> = Vec::new();
     for step in &thm.steps {
-        cited.push((step.just.line, step.claim_text()));
+        cited.push((step.just.line, step.claim_text(), Some(step.line)));
         cited.extend(
             step.requires
                 .iter()
-                .map(|r| (r.line, r.fact.text().to_string())),
+                .map(|r| (r.line, r.fact.text().to_string(), None)),
         );
     }
-    for (no, claim) in cited {
+    for (no, claim, step_line) in cited {
         let Some(line) = no.checked_sub(1).and_then(|i| lines.get_mut(i)) else {
             continue;
         };
@@ -1100,10 +1106,14 @@ fn subjects_named(
         let Some(new) = map.get(&subject) else {
             continue;
         };
-        let written = ctx.tokens(&claim).is_some_and(|t| {
-            t.iter()
-                .any(|t| t.kind == TokenKind::Name && t.text == subject)
-        });
+        let bound = step_line.and_then(|l| ctx.bound.get(&(thm.path.clone(), l)));
+        let written = match bound {
+            Some(letters) => letters.get(&subject) == Some(&subject),
+            None => ctx.tokens(&claim).is_some_and(|t| {
+                t.first()
+                    .is_some_and(|t| t.kind == TokenKind::Name && t.text == subject)
+            }),
+        };
         let at = m.get(0).expect("the whole match").end();
         if !written || line[at..].contains(&format!("{subject} :=")) {
             continue;

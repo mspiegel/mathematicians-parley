@@ -464,10 +464,10 @@ fn across_groups(taken: &Taken, before: usize) -> Vec<Concluded> {
         .collect()
 }
 
-/// What a step citing a corpus theorem, other than to obtain, makes each of
-/// its letters, as the matcher reads the citation (`taken`): the values it
+/// What a step citing an item, other than to obtain, makes each of its
+/// letters, as the matcher reads the citation (`taken`): the values it
 /// writes and what its claim and lines fix. None where the step cites no
-/// theorem, or no group of it concludes the claim.
+/// item, or no group of it concludes the claim.
 pub fn bound_there(
     step: &Step,
     library: &Library,
@@ -476,10 +476,7 @@ pub fn bound_there(
     if step.just.head.is(Method::Obtain) {
         return None;
     }
-    let name = step.just.item(&step.just.cited_item()?);
-    if !matches!(library.item(&name)?, Item::Theorem(_)) {
-        return None;
-    }
+    step.just.cited_item()?;
     let read = searched(step, Search::Takes, known, library)?;
     let Built(taken) = &*read else {
         return None;
@@ -2041,10 +2038,14 @@ fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
             filled: fixed.contains_key(&t.children[0].text),
             rule: rules.get(&t.children[0].text).cloned(),
         })
+        // A letter the citation leaves unfilled is the item's own, whatever
+        // the page calls by the same name: sum-termwise's u, read as a rule,
+        // is no page's `let u : ℕ → ℝ`.
         .filter(|t| {
             let function = &t.asked.children[0];
             function.notation == PROPERTY
-                || (function.is_name() && !declared.contains(&function.text))
+                || (function.is_name()
+                    && (!t.filled || !declared.contains(&function.text)))
         })
         .collect();
     for group in groups.iter() {
