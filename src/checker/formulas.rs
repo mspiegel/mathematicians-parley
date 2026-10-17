@@ -13,7 +13,7 @@ use super::Report;
 use crate::citing::{
     implied_facts, link_unsaid, not_numbers, said_once, Library, Parts,
 };
-use crate::corpus::proof::{chain, rows, ChainLine, RowReason};
+use crate::corpus::proof::{chain, rows, visible, ChainLine, RowReason};
 use crate::corpus::{
     define_parts, DefineParts, FileScope, Head, Intro, Item, Justification, Method,
     Record, RecordKind, Recursion, Requires, Source, Step, Theorem, Value, Values,
@@ -554,6 +554,149 @@ pub fn check_letters_introduced(
                     }
                 }
                 ended.extend(known.bound(&node));
+            }
+        }
+        // A value the step gives an item's letter, `k := t`, is a term it
+        // writes, of letters it may use, the claim's bound ones among them
+        // where the item is read at a member, as its requires lines may.
+        let Ok(values) = s.just.values.read(env.g, &known.sorts) else {
+            continue; // `check_formulas` says a value does not read
+        };
+        for v in &values {
+            let scope = in_scope.get_or_insert_with(|| {
+                letters_in_scope(thm, s, env.scopes, &known.sorts)
+            });
+            for name in free_names(&v.value, &binders) {
+                if !scope.contains(&name) && !claimed.contains(&name) {
+                    report.say(
+                        &thm.path,
+                        s.just.line,
+                        format!(
+                            "step {}: {name} in {} := {} is not introduced here",
+                            s.number, v.name, v.shown
+                        ),
+                    );
+                }
+            }
+        }
+    }
+    header_letters_introduced(report, thm, env, known);
+}
+
+/// Each letter the theorem's statement writes free, in a hypothesis or the
+/// `then` line, is one it introduces, the file's, or a define's written
+/// above the `then`: the statement says what it says before its proof
+/// begins (`check_statement_names`).
+fn header_letters_introduced(
+    report: &mut Report,
+    thm: &Theorem,
+    env: Env,
+    known: &Known,
+) {
+    let binders = env.g.binders();
+    let mut scope = super::structure::hypotheses_introduce(thm);
+    scope.extend(
+        visible(env.scopes, thm.scope, thm.line)
+            .into_iter()
+            .map(|(n, _, _)| n),
+    );
+    scope.extend(known.sorts.imported.iter().cloned());
+    for d in thm.defines.iter().filter(|d| d.line < thm.conclusion_line) {
+        if let Built(said) = define_parts(&d.text) {
+            scope.extend(said.names());
+        }
+    }
+    let mut written: Vec<Written> =
+        thm.hypotheses.iter().map(|h| h.body(&thm.path)).collect();
+    written.push(thm.stated());
+    for w in &written {
+        for sentence in w.sentences() {
+            let Ok(node) = sentence.read(env.g, &known.sorts) else {
+                continue; // `check_formulas` says it does not read
+            };
+            for name in free_names(&node, &binders) {
+                if !scope.contains(&name) {
+                    report.say(
+                        &thm.path,
+                        w.line(),
+                        format!(
+                            "the statement writes {name}, which it does not introduce"
+                        ),
+                    );
+                }
+            }
+        }
+    }
+}
+
+/// A notation that takes a part of a graph or a group, `deg(v)` the graph's
+/// degree, is written where a `let` line of the theorem introduces one:
+/// nothing on the page names the part, and the line is what gives it
+/// (`targets::GRAPH_PARTS`, `GROUP_PARTS`).
+pub fn check_structure_parts(
+    report: &mut Report,
+    thm: &Theorem,
+    env: Env,
+    known: &Known,
+    targets: &Targets,
+) {
+    let lets = thm
+        .hypotheses
+        .iter()
+        .filter(|h| h.kind == Intro::Let)
+        .map(|h| h.body(&thm.path))
+        .chain(thm.steps.iter().flat_map(|s| {
+            s.openers
+                .iter()
+                .filter(|o| o.kind == Intro::Let)
+                .map(|o| Written::new(&o.text, &thm.path, o.line))
+        }));
+    let mut given: BTreeSet<&str> = BTreeSet::new();
+    for body in lets {
+        let parts = match Introduction::read(body).form {
+            Form::Graph(_) | Form::GraphListed(_) => crate::targets::GRAPH_PARTS,
+            Form::Group { .. } => crate::targets::GROUP_PARTS,
+            _ => continue,
+        };
+        given.extend(parts.iter().map(|(name, _)| *name));
+    }
+    let mut written: Vec<Written> =
+        thm.hypotheses.iter().map(|h| h.body(&thm.path)).collect();
+    written.push(thm.stated());
+    for s in &thm.steps {
+        written.push(s.claim.clone());
+        written.extend(s.requires.iter().map(|r| r.fact.clone()));
+    }
+    let mut told: BTreeSet<String> = BTreeSet::new();
+    for w in &written {
+        for sentence in w.sentences() {
+            let Ok(node) = sentence.read(env.g, &known.sorts) else {
+                continue; // `check_formulas` says it does not read
+            };
+            for part in &node.walk() {
+                for context in targets.contexts(part) {
+                    if given.contains(context.as_str())
+                        || !told.insert(part.notation.clone())
+                    {
+                        continue;
+                    }
+                    let structure = if crate::targets::GRAPH_PARTS
+                        .iter()
+                        .any(|(name, _)| *name == context)
+                    {
+                        "a graph"
+                    } else {
+                        "a group"
+                    };
+                    report.say(
+                        &thm.path,
+                        w.line(),
+                        format!(
+                            "{} is said of {structure}, and no `let` line of the theorem introduces one",
+                            known.print(part)
+                        ),
+                    );
+                }
             }
         }
     }
@@ -1473,6 +1616,64 @@ impl Link {
 /// no other, says the same one on all of them, has no `≤` or `<`, since an
 /// order and a congruence join into nothing, and once a line says `≡` does
 /// not go back to `=` (`GRAMMAR.md`, calculation chains).
+/// A congruence relates integers (`SYNTAX.md`, congruence), so a chain
+/// that says ≡ has each of its terms an integer, said once, by a line one
+/// of its links cites, or beside one in an equation such a line says
+/// (`methods::membership::atom_held`), as an order's chain has its atoms real
+/// (`check_transitivity`): a ≡ b (mod 3) of a, b ∈ ℝ is refused, and so is
+/// one of x/y, which no integers are closed under.
+pub fn check_congruence_integers(
+    report: &mut Report,
+    thm: &Theorem,
+    known: &Known,
+    targets: &Targets,
+) {
+    for step in &thm.steps {
+        let links = chain_links(&step.just, &thm.path);
+        if !links.iter().any(|l| l.line.relation == "≡") {
+            continue;
+        }
+        let read = |w: &Written| known.read_as_written(&w.sentence().ok()?);
+        let Some(first) = links.first().and_then(|l| read(&l.from)) else {
+            continue; // `check_formulas` says it does not read
+        };
+        let mut terms = vec![first];
+        terms.extend(links.iter().filter_map(|l| read(&l.line.term)));
+        let mut lines = Vec::new();
+        let mut line_of = Vec::new();
+        for (i, l) in links.iter().enumerate() {
+            if let Some(whole) = cited_whole(step, &l.line.cite, known) {
+                lines.push(whole);
+                line_of.push(i);
+            }
+        }
+        let Some(claimed) = known.whole_as_written(&step.claim) else {
+            continue;
+        };
+        let read = ClosureRead {
+            claimed,
+            lines,
+            line_of,
+        };
+        let held = MembershipIn::of(&ClosureClaim::step(step), &read, known);
+        let given = held.given(targets, known);
+        if let Some(term) = terms
+            .iter()
+            .find(|t| !methods_membership::atom_held(t, System::Z, &given))
+        {
+            report.say(
+                &thm.path,
+                step.just.line,
+                format!(
+                    "nothing says {} ∈ ℤ, which step {}'s congruence needs",
+                    known.print(term),
+                    step.number
+                ),
+            );
+        }
+    }
+}
+
 pub fn check_chain_congruences(report: &mut Report, thm: &Theorem) {
     for step in &thm.steps {
         let links = chain_links(&step.just, &thm.path);

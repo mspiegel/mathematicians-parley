@@ -1942,24 +1942,30 @@ pub fn letters_in_scope(
     out
 }
 
-/// The letters the page introduces that are in scope at `step`: the
-/// theorem's hypotheses, the `let` lines of the blocks around it (of its own
-/// part only), and what the steps it may cite obtained, its own included.
-/// What a define or the library names is not among them.
-pub fn letters_introduced(thm: &Theorem, step: &Step) -> BTreeSet<String> {
+/// The letters a theorem's hypotheses introduce: each `let`'s names, and of
+/// a `let … be` line the things in the sets it lists, as a graph's vertices
+/// and edges are named.
+pub fn hypotheses_introduce(thm: &Theorem) -> BTreeSet<String> {
     let mut out: BTreeSet<String> = named_by_hypotheses(thm);
     for h in &thm.hypotheses {
         if let Some(names) = let_names(&h.text) {
             out.extend(names_listed(names));
         }
-        // A `let … be` line may name things in the sets it lists, as a
-        // graph's vertices and edges are named.
         if h.kind == Intro::Let {
             for list in listed(&h.text) {
                 out.extend(names_listed(list));
             }
         }
     }
+    out
+}
+
+/// The letters the page introduces that are in scope at `step`: the
+/// theorem's hypotheses, the `let` lines of the blocks around it (of its own
+/// part only), and what the steps it may cite obtained, its own included.
+/// What a define or the library names is not among them.
+pub fn letters_introduced(thm: &Theorem, step: &Step) -> BTreeSet<String> {
+    let mut out = hypotheses_introduce(thm);
     let shape = CheckedTheorem::of(thm);
     for other in &thm.steps {
         let k = other.number.len();

@@ -544,12 +544,7 @@ impl<'a> Elaborator<'a> {
         let part = |label: &str| t!(structure, label, "cfv");
         self.names.insert(group.to_string(), part("cbs"));
         self.names.insert(identity.to_string(), part("c0g"));
-        for (name, label) in [
-            ("@op", "cplusg"),
-            ("@inv", "cminusg"),
-            ("@subgroups", "csubg"),
-            ("@lsm", "clsm"),
-        ] {
+        for (name, label) in targets::GROUP_PARTS {
             self.names.insert(name.to_string(), part(label));
         }
         let mut claim = t!(structure, "cgrp", "wcel");
@@ -582,8 +577,9 @@ impl<'a> Elaborator<'a> {
         self.names.insert(said.vertices.clone(), part("cvtx"));
         self.names
             .insert(said.edges.clone(), t!(part("ciedg"), "cdm"));
-        self.names.insert("@ends".to_string(), part("ciedg"));
-        self.names.insert("@deg".to_string(), part("cvtxdg"));
+        for (name, label) in targets::GRAPH_PARTS {
+            self.names.insert(name.to_string(), part(label));
+        }
         if let Some(listing) = &said.listed {
             for name in listing.vertices.iter().chain(&listing.edges) {
                 if spare.is_empty() {

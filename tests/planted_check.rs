@@ -2806,6 +2806,60 @@ fn cases() -> Vec<Case> {
             "step 2 obtains P from a line, which says no \"there is\"",
         ),
         case(
+            "exhibit from a line that says nothing of the value",
+            vec![edit(
+                "proofs/zz/exhibit-unrelated.proof",
+                None,
+                "theorem exhibit-unrelated\n  let n ∈ ℤ                                                           (H1)\n  let M ∈ ℤ                                                           (H2)\n  assume M = 2                                                        (H3)\n  then there is q ∈ ℤ with q = n\n\n1.  there is q ∈ ℤ with q = n\n    exhibit, from H3\n".to_string(),
+            )],
+            "step 1 cites H3 and uses nothing it says",
+        ),
+        case(
+            "instantiate a part of a line at more values than it quantifies",
+            vec![edit(
+                "proofs/zz/instantiate-over.proof",
+                None,
+                "theorem instantiate-over\n  assume (for all x ∈ ℝ, for all y ∈ ℝ, x + y = y + x) and (for all x ∈ ℝ, x + 0 = x)   (H1)\n  then 1 + 0 = 1\n\n1.  1 + 0 = 1\n    instantiate x := 1, y := 2 in H1\n".to_string(),
+            )],
+            "H1 at those terms says 1 + 2 = 2 + 1, and the step claims 1 + 0 = 1",
+        ),
+        case(
+            "chain congruences of terms nothing says are integers",
+            vec![edit(
+                "proofs/zz/congruence-real.proof",
+                None,
+                "theorem congruence-real\n  let a ∈ ℝ                                                           (H1)\n  let b ∈ ℝ                                                           (H2)\n  let c ∈ ℝ                                                           (H3)\n  assume a ≡ b (mod 3)                                                (H4)\n  assume b ≡ c (mod 3)                                                (H5)\n  then a ≡ c (mod 3)\n\n1.  a ≡ c (mod 3)\n    calculation\n      a ≡ b (mod 3)      H4\n        ≡ c (mod 3)      H5\n".to_string(),
+            )],
+            "nothing says a ∈ ℤ, which step 1's congruence needs",
+        ),
+        case(
+            "write a vertex's degree where no graph is let",
+            vec![edit(
+                "proofs/zz/degree-no-graph.proof",
+                None,
+                "theorem degree-no-graph\n  let V be a set                                                      (H1)\n  let v ∈ V                                                           (H2)\n  assume deg(v) = 2                                                   (H3)\n  then deg(v) = 2\n\n1.  deg(v) = 2\n    join H3\n".to_string(),
+            )],
+            "deg(v) is said of a graph, and no `let` line of the theorem introduces one",
+        ),
+        case(
+            "assume a fact of a letter nothing introduces",
+            vec![edit(
+                "proofs/zz/assume-unknown.proof",
+                None,
+                "theorem assume-unknown\n  let x ∈ ℝ                                                           (H1)\n  assume y = x                                                        (H2)\n  then x = x\n\n1.  x = x\n    algebra\n".to_string(),
+            )],
+            "the statement writes y, which it does not introduce",
+        ),
+        case(
+            "give an item's letter a value of a letter nothing introduces",
+            vec![edit(
+                "proofs/zz/value-unknown.proof",
+                None,
+                "import mundane definition stdlib/divisibility/divides\n\ntheorem value-unknown\n  let a ∈ ℤ                                                           (H1)\n  then a divides a\n\n1.  a = a·1\n    algebra\n\n2.  a divides a\n    mun:divides d := a, n := a, k := y, from 1\n".to_string(),
+            )],
+            "step 2: y in k := y is not introduced here",
+        ),
+        case(
             "say a define gives its function on a domain it does not write",
             vec![edit(
                 "proofs/zz/define-domain.proof",

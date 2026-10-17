@@ -2887,6 +2887,8 @@ fn shows_value(step: &Step, r: &str, library: &Library, known: &Known) -> bool {
                         .is_some_and(|t| letters.contains(&t.text)))
             })
             .any(|w| {
+                // The line itself says the part at the value, and not only
+                // an equation true of itself there, n = n of q = n.
                 supply(
                     std::slice::from_ref(w),
                     &said,
@@ -2896,7 +2898,10 @@ fn shows_value(step: &Step, r: &str, library: &Library, known: &Known) -> bool {
                     &sites,
                     true,
                 )
-                .is_some()
+                .is_some_and(|at| {
+                    let there = substitute_apart(w, &at, &library.ctx);
+                    said.iter().any(|s| known.alike(s, &there))
+                })
             })
     })
 }
@@ -3272,11 +3277,15 @@ pub fn check_instance_claimed(
                 all
             })
             .collect();
+        let fits: Vec<Fit> = parts.iter().map(|said| fit_of(said, seed)).collect();
+        // The part instantiated is one the values fit: a part they leave
+        // values over gives no instance, however its own letters fall.
         let instances: Vec<Node> = parts
             .iter()
-            .filter_map(|said| instance_at(said, seed, library))
+            .zip(&fits)
+            .filter(|(_, fit)| **fit == Fit::Fits)
+            .filter_map(|(said, _)| instance_at(said, seed, library))
             .collect();
-        let fits: Vec<Fit> = parts.iter().map(|said| fit_of(said, seed)).collect();
         if !fits.contains(&Fit::Fits) {
             let why = if fits.contains(&Fit::Skips) {
                 "quantifies a name the step gives no value, before the ones it does"

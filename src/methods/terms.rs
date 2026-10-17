@@ -169,6 +169,19 @@ impl Targets {
         })
     }
 
+    /// The parts of a structure a `let` line introduced that `node`'s own
+    /// target takes, `@deg` of a graph's degree (`targets::contexts`).
+    pub fn contexts(&self, node: &Node) -> Vec<String> {
+        self.pattern(node)
+            .map(|p| {
+                crate::targets::contexts(p)
+                    .into_iter()
+                    .map(str::to_string)
+                    .collect()
+            })
+            .unwrap_or_default()
+    }
+
     /// The target of the pattern `node` was built from; None for a
     /// notation with none.
     fn pattern(&self, node: &Node) -> Option<&str> {

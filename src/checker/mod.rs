@@ -822,6 +822,7 @@ fn check_passes(
     formulas::check_formulas(report, thm, env, k);
     formulas::check_letters_introduced(report, thm, env, k);
     formulas::check_statement_names(report, thm, env, k);
+    formulas::check_structure_parts(report, thm, env, k, &library.targets);
     structure::check_defined_below(report, thm, scopes, env.g);
     formulas::check_clashes(report, thm, clashes);
     formulas::check_contradiction(report, thm, env, k);
@@ -829,6 +830,7 @@ fn check_passes(
     formulas::check_impossible(report, thm, k, &library.targets);
     formulas::check_decided_words(report, thm, k, c.defined, c.operations);
     formulas::check_chain_congruences(report, thm);
+    formulas::check_congruence_integers(report, thm, k, &library.targets);
     formulas::check_both_directions(report, thm, k);
     formulas::check_block_ends(report, thm, k);
     formulas::check_claimed_cases(report, thm, k);

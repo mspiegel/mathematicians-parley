@@ -43,6 +43,20 @@ pub fn is_context(token: &str) -> bool {
     CONTEXT_WHOLE.is_match(token)
 }
 
+/// The parts of a group a target may take, each with the set.mm label of
+/// the slot it is (`@op` is `+g` of the group the theorem lets): what a
+/// group's `let` line gives.
+pub const GROUP_PARTS: &[(&str, &str)] = &[
+    ("@op", "cplusg"),
+    ("@inv", "cminusg"),
+    ("@subgroups", "csubg"),
+    ("@lsm", "clsm"),
+];
+
+/// The parts of a graph a target may take, as `GROUP_PARTS`: what a
+/// graph's `let` line gives.
+pub const GRAPH_PARTS: &[(&str, &str)] = &[("@ends", "ciedg"), ("@deg", "cvtxdg")];
+
 /// The context tokens a target takes, as written.
 pub fn contexts(pattern: &str) -> Vec<&str> {
     CONTEXT.find_iter(pattern).map(|m| m.as_str()).collect()
