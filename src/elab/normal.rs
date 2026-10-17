@@ -3519,6 +3519,12 @@ pub fn divides(term: &Term) -> bool {
     }
     match Op::applied(term) {
         Some(Op::Div) => true,
+        // A power to anything but a whole numeral is an atom, whatever its
+        // base divides by (`field::Power::Atom`): (b/5)^b is not taken apart.
+        Some(Op::Exp) => {
+            numerals::value(&term.children()[1]).is_some()
+                && divides(&term.children()[0])
+        }
         Some(_) => term.children()[..2].iter().any(divides),
         None => false,
     }

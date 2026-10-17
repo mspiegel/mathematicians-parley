@@ -2,18 +2,22 @@
 //!
 //! `arithmetic`, `algebra`, `inequalities`, `membership` and `inspection`
 //! decide a claim from its form, and every proof leans on them
-//! (`METHODS.md`). Coverage says whether their code ran; this asks whether
+//! (`METHODS.md`), as it leans on the rule that a membership is said once
+//! (`SYNTAX.md`). Coverage says whether their code ran; this asks whether
 //! their answers are right. Claims are drawn at random from the forms the
 //! document says each takes, each is worked out by an oracle of the test's
 //! own that shares none of the method's code (`oracle/judge.rs` for
-//! `arithmetic`, `algebra.rs`, `order.rs`, `member.rs` and `inspect.rs` for
-//! the others), and each is written as a theorem of one step and asked of
-//! the tools:
+//! `arithmetic`, `algebra.rs`, `order.rs`, `member.rs`, `inspect.rs` and
+//! `said.rs` for the others), and each is written as a theorem of one step
+//! and asked of the tools:
 //!
 //! - a claim the oracle says holds is accepted by the checker, built with
 //!   nothing assumed, and verified;
 //! - a claim it says fails is refused as false;
 //! - a claim the document says the method refuses is refused in those words.
+//!
+//! The checker decides what the build would refuse, in the same words, so
+//! a refusal is either tool's.
 //!
 //! Any other answer is a fault, printed with the seed that draws it again,
 //! and each class found is pinned as a theorem the build elaborates
@@ -62,6 +66,9 @@ mod member;
 
 #[path = "oracle/inspect.rs"]
 mod inspect;
+
+#[path = "oracle/said.rs"]
+mod said;
 
 use gen::Drawn;
 use judge::Verdict;
@@ -141,6 +148,14 @@ import mundane definition stdlib/divisibility/congruent-mod
             // Its false claims are drawn as refusals in either of its words
             // (`inspect.rs`).
             false_said: "is not seen by inspection of what it cites",
+        },
+        Method {
+            name: "said-once",
+            draw: said::claim,
+            imports: "",
+            // Every claim drawn holds, as an identity; what it lacks is
+            // drawn as a refusal (`said.rs`).
+            false_said: "is not an identity",
         },
     ]
 }
@@ -345,12 +360,14 @@ fn a_decision_method_answers_as_its_oracle() {
     for (a, answer) in asked.iter().zip(answers) {
         let answer = answer.expect("every claim answered");
         let method = &methods[a.method];
+        // The checker decides what the build would refuse, and says it in
+        // the same words, so either tool's refusal is an answer.
         let right = match (&a.drawn.verdict, &answer) {
             (Verdict::Holds(true), Answer::Built { verified, .. }) => *verified,
-            (Verdict::Holds(false), Answer::Refused(said)) => {
+            (Verdict::Holds(false), Answer::Refused(said) | Answer::Checker(said)) => {
                 said.contains(method.false_said)
             }
-            (Verdict::Refused(any), Answer::Refused(said)) => {
+            (Verdict::Refused(any), Answer::Refused(said) | Answer::Checker(said)) => {
                 any.iter().any(|why| said.contains(why))
             }
             _ => false,

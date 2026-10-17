@@ -406,18 +406,11 @@ impl<'a> Elaborator<'a> {
             allowed.extend(step.requires.iter().flat_map(|r| r.lines().to_vec()));
         }
         let said_sums: Vec<String> = self.said_sums.iter().cloned().collect();
-        let labels = self.b.flabel.clone();
         let unsaid = atoms.iter().find(|atom| {
             // A sum the checker found said once may stand here over another
             // index letter, as the build renames one apart.
             if self.said_once(atom) || said_sums.iter().any(|s| self.one_atom(s, atom))
             {
-                return false;
-            }
-            // A closed term `arithmetic` works out, (1 + 1)!, is a number by
-            // its value, as a numeral is.
-            let term = self.to_term(atom);
-            if super::numerals::worked(&self.b, &term, &labels).is_some() {
                 return false;
             }
             let mut said = written.iter().any(|c| {

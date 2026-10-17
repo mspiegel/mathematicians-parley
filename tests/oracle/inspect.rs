@@ -21,9 +21,11 @@ use crate::judge::Verdict;
 use crate::shared::Random;
 
 /// How `inspection` refuses a claim it cannot see, and a size or value it
-/// works out to something else.
+/// works out to something else: the build's words, and the checker's,
+/// which decides it first.
 const NOT_SEEN: &str = "is not seen by inspection of what it cites";
 const FALSE: &str = "which is false";
+const SHOWN_FALSE: &str = "which inspection of what it cites shows false";
 
 /// Listings the database declares, by size: a set written with any other
 /// number of elements has no notation.
@@ -33,7 +35,7 @@ fn verdict(holds: bool) -> Verdict {
     if holds {
         Verdict::Holds(true)
     } else {
-        Verdict::Refused(vec![NOT_SEEN, FALSE])
+        Verdict::Refused(vec![NOT_SEEN, FALSE, SHOWN_FALSE])
     }
 }
 

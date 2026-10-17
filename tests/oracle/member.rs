@@ -239,16 +239,18 @@ pub fn claim(r: &mut Random, g: &Grammar) -> Drawn {
     // the point's among them, is said once and is not cited.
     let mut functions = Vec::new();
     t.functions(&mut functions);
-    let labels: Vec<String> = functions
+    // In the order a citation names labels, by number (`SYNTAX.md`).
+    let mut places: Vec<usize> = functions
         .iter()
         .map(|f| {
-            let at = ["f", "g", "h"]
+            ["f", "g", "h"]
                 .iter()
                 .position(|x| x == f)
-                .expect("a function");
-            format!("H{}", 5 + at)
+                .expect("a function")
         })
         .collect();
+    places.sort();
+    let labels: Vec<String> = places.iter().map(|at| format!("H{}", 5 + at)).collect();
     let justification = if labels.is_empty() {
         "membership".to_string()
     } else {

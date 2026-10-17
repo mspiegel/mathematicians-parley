@@ -1,0 +1,20 @@
+theorem a-power-to-a-letter-of-a-quotient
+  note        (b/5)^b is a power to a letter in ℕ₀, said once, and an atom to
+              algebra however its base divides: it is not taken apart.
+  let b ∈ ℕ₀                                                          (H1)
+  let x ∈ ℝ                                                           (H2)
+  then x·(b/5)^b = (b/5)^b·x
+
+1.  x·(b/5)^b = (b/5)^b·x
+    algebra
+
+theorem a-power-whose-base-holds-a-factorial
+  note        z − 4! is a number as z − 24 is, said once, so its power to a
+              letter in ℕ₀ is too.
+  let b ∈ ℕ₀                                                          (H1)
+  let x ∈ ℝ                                                           (H2)
+  let z ∈ ℂ                                                           (H3)
+  then x·(z − 4!)^b = (z − 4!)^b·x
+
+1.  x·(z − 4!)^b = (z − 4!)^b·x
+    algebra

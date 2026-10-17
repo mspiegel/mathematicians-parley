@@ -2049,6 +2049,12 @@ impl<'a> Elaborator<'a> {
         {
             return true;
         }
+        // A term of numerals alone that `arithmetic` works out, 4!, is a
+        // number by its value, as a numeral is (`SYNTAX.md`).
+        let labels = self.b.flabel.clone();
+        if super::numerals::worked(&self.b, &self.to_term(said), &labels).is_some() {
+            return true;
+        }
         self.built_once(said)
             .is_some_and(|parts| parts.iter().all(|p| self.said_once(p)))
     }

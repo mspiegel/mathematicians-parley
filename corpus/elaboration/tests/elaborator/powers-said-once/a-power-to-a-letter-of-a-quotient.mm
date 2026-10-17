@@ -1,0 +1,11 @@
+$( tests/elaborator/powers-said-once/a-power-to-a-letter-of-a-quotient, elaborated from tests/elaborator/powers-said-once.proof by parley build.
+   Nothing here is assumed.
+   Checked against a set.mm of 51,256 assertions, sha256
+   0d7fb3e59afff60f4cec2287cbb616bf651bbfbf2356a611a43a5c98b5e0462d. $)
+
+$[ stdlib/definitions.mm $]
+
+${
+  tests.elaborator.powers-said-once.a-power-to-a-letter-of-a-quotient $p |- ( ( A e. NN0 /\ B e. RR ) -> ( B x. ( ( A / 5 ) ^ A ) ) = ( ( ( A / 5 ) ^ A ) x. B ) ) $=
+    ( cn0 wcel cr wa c5 cdiv co cexp cmul c1 cc wceq simpr recn syl exp1 eqcomd 1nn0 a1i expcld mullid eqtrd simpl id nn0cn 5cn cc0 wne 5ne0 divcld oveq12d ax-1cn jca mul4 mulridi mulcom syl2anc eqidd eqtr4d ) ACDZBEDZFZBAGHIZAJIZKIZLVFLJIZBLJIZKIZKIZVFBKIZVDVGLVIKIZLVHKIZKIZVKVDBVMVFVNKVDBVIVMVDVIBVDBMDZVIBNZVDVCVPVBVCOZBPZQZBRZQZSZVDVMVIVDVIMDZVMVINZVDBLVTLCDZVDTUAZUBZVIUCZQZSZUDZVDVFVHVNVDVHVFVDVFMDZVHVFNZVDVEAVDAGVDVBAMDZVDVBVBVBVCUEZVBUFZQZAUGZQZGMDZVDUHUAZGUIUJZVDUKUAZULZWRUBZVFRZQZSZVDVNVHVDVHMDZVNVHNZVDVFLXFWGUBZVHUCZQZSZUDZUMVDVOLLKIZVIVHKIZKIZVKVDLMDZWDFZXTXJFZFVOXSNVDYAYBVDXTWDXTVDUNUAZWHUOZVDXTXJYCXLUOZUOLVILVHUPQVDXQLXRVJKXQLNZVDLUNUQZUAZVDWDXJXRVJNWHXLVIVHURUSUMUDUDVDVLVNVMKIZVKVDVFVNBVMKXPWLUMVDYIXQVJKIZVKVDYBYAFYIYJNVDYBYAYEYDUOLVHLVIUPQVDXQLVJVJKYHVDVJUTUMUDUDVA $.
+$}

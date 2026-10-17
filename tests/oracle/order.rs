@@ -1,24 +1,30 @@
-//! Claims for `inequalities`, drawn around a point (`METHODS.md`,
-//! inequalities: the claim follows when its denial and the cited facts have
-//! no solution over an ordered field).
+//! Claims for a plain `inequalities` step, drawn around a point
+//! (`METHODS.md`, inequalities, What a step does: a plain step adds the
+//! lines it cites as they stand, each once, and claims their sums, the
+//! smaller sides' sum against the larger sides').
 //!
-//! The letters are given whole values, a point p, and each cited fact is a
-//! linear fact true at p. A claim made true is a sum of the cited facts,
-//! each by a positive number (an equation by a number of either sign), less
-//! a number 0 or more: Farkas's combination, which is the method's own
-//! certificate, so it follows. A claim made false fails at p, where every
-//! cited fact holds, so nothing it cites gives it. No solver is needed for
-//! either.
+//! The letters are given whole values, a point p, and each cited line is a
+//! linear relation true at p: all orders, or all equations, since an
+//! equation adds to an equation and an order to an order. Each holds a
+//! letter of its own, which no other line holds and the claim does, so a
+//! claim uses every line it cites. From them one claim is drawn of four
+//! kinds:
 //!
-//! Each cited fact has a letter of its own, which no other cited fact
-//! holds and which the claim holds, so a claim made true uses every line it
-//! cites: none could be left out and the claim still follow.
+//! - their sums, `<` where a line is strict and `≤` where none is, or `=`
+//!   of equations, which the step takes;
+//! - one line taken twice, or `≤` where a line is strict, or `≠` from
+//!   orders, which follow and are not their sums: the step is told the move
+//!   is a row (`refusal`);
+//! - their sums moved by a constant so that the claim fails at p, which
+//!   does not follow.
+//!
+//! No solver is needed: the claim is made true or false by construction.
 
 use std::collections::BTreeMap;
 
 use num_bigint::BigInt;
 use num_rational::BigRational;
-use num_traits::{Signed, Zero};
+use num_traits::One;
 
 use parley::formula::grammar::Grammar;
 
@@ -27,259 +33,205 @@ use crate::gen::{made, term, Drawn};
 use crate::judge::Verdict;
 use crate::shared::Random;
 
-/// A relation of a linear form to 0: `form how 0`.
+/// What the tools say of a claim that follows only by a move a row names,
+/// and of a disequality from an order.
+const A_MOVE: &str = "by a move other than adding its lines as they stand";
+const A_WEAKENING: &str = "by a `weakening` row";
+
+/// The relation a line or the claim states, of its smaller side to its
+/// larger.
 #[derive(Clone, Copy, Debug, PartialEq)]
-enum How {
+enum Rel {
     Le,
     Lt,
     Eq,
     Ne,
 }
 
-/// What a cited group of lines says: a fact, or for `Split` the same form
-/// said at most 0 and not 0, which together are below 0 by the split the
-/// method makes of a disequality.
-#[derive(Clone, Copy, Debug, PartialEq)]
-enum Kind {
-    Le,
-    Lt,
-    Eq,
-    Split,
+/// One relation: its two sides, the smaller first.
+#[derive(Clone, Debug)]
+struct Relation {
+    low: Poly,
+    high: Poly,
+    rel: Rel,
 }
 
-fn ratio(n: i64, d: i64) -> BigRational {
-    BigRational::new(BigInt::from(n), BigInt::from(d))
-}
-
-/// A small positive number: 1, 2, 3, or a half.
-fn positive(r: &mut Random) -> BigRational {
-    match r.below(4) {
-        0 => ratio(1, 2),
-        k => BigRational::from_integer(BigInt::from(k)),
-    }
+fn ratio(n: i64) -> BigRational {
+    BigRational::from_integer(BigInt::from(n))
 }
 
 fn letter(x: &'static str, c: BigRational) -> Poly {
     BTreeMap::from([(vec![(x, 1)], c)])
 }
 
-/// A linear form with a nonzero coefficient of `own` and any of `shared`,
+/// A linear form with a nonzero coefficient of `own`, any of `shared`,
 /// and a constant.
 fn form(r: &mut Random, own: &'static str, shared: &[&'static str]) -> Poly {
-    let mut out = letter(own, BigRational::from_integer(small(r, true)));
-    for x in shared {
-        if r.below(2) == 0 {
-            out = sum(
-                &out,
-                &letter(x, BigRational::from_integer(small(r, true))),
-                1,
-            );
-        }
-    }
-    sum(
-        &out,
-        &constant(BigRational::from_integer(small(r, true))),
-        1,
-    )
+    let start = letter(own, BigRational::from_integer(small(r, true)));
+    let out = with_shared(r, start, shared);
+    let c = constant(BigRational::from_integer(small(r, true)));
+    sum(&out, &c, 1)
 }
 
-/// A linear form in one of the letters and any of the others. A claim
-/// written with it holds a letter, as `inequalities`' claims do: one of
-/// numerals alone is `arithmetic`'s.
-fn any_form(r: &mut Random) -> Poly {
-    let first = LETTERS[r.below(3) as usize];
-    let mut out = sum(
-        &constant(BigRational::from_integer(small(r, true))),
-        &letter(first, BigRational::from_integer(small(r, true))),
-        1,
-    );
-    for x in LETTERS {
-        if x != first && r.below(2) == 0 {
-            out = sum(
-                &out,
-                &letter(x, BigRational::from_integer(small(r, true))),
-                1,
-            );
+/// `start` with any of `shared`, each by a small coefficient.
+fn with_shared(r: &mut Random, start: Poly, shared: &[&'static str]) -> Poly {
+    let mut out = start;
+    for x in shared {
+        if r.below(2) == 0 {
+            let term = letter(x, BigRational::from_integer(small(r, true)));
+            out = sum(&out, &term, 1);
         }
     }
     out
 }
 
-/// `form how 0` written as the page writes a relation: its terms split
-/// between two sides, each side holding `common` as well, so that letters
-/// stand on both; the relation turned round or denied at random.
-fn written(
+/// A line true at p: a form of its own letter against one of the shared
+/// letters alone, so that its own letter does not cancel and the line says
+/// more than a fact of numerals; the other side moved by a constant so that
+/// p meets the relation, strictly or not.
+fn line(
     r: &mut Random,
-    g: &Grammar,
-    form: &Poly,
-    how: How,
-    common: &Poly,
-) -> String {
-    let (mut left, mut right) = (common.clone(), common.clone());
-    for (m, c) in form {
-        let one = BTreeMap::from([(m.clone(), c.clone())]);
-        if r.below(2) == 0 {
-            left = sum(&left, &one, 1);
-        } else {
-            right = sum(&right, &one, -1);
-        }
+    own: &'static str,
+    shared: &[&'static str],
+    rel: Rel,
+    point: &BTreeMap<&'static str, BigInt>,
+) -> Relation {
+    let low = form(r, own, shared);
+    let start = constant(BigRational::from_integer(small(r, true)));
+    let high = with_shared(r, start, shared);
+    let gap = match rel {
+        Rel::Eq | Rel::Ne => ratio(0),
+        Rel::Le => ratio(r.below(2) as i64),
+        Rel::Lt => ratio(1 + r.below(3) as i64),
+    };
+    let moved = at(&low, point) + gap - at(&high, point);
+    Relation {
+        high: sum(&high, &constant(moved), 1),
+        low,
+        rel,
     }
-    let (l, rt) = (term(g, &written_out(&left)), term(g, &written_out(&right)));
-    let node = match (how, r.below(3)) {
-        (How::Le, 0) => made(g, "_ ≤ _", vec![l, rt]),
-        (How::Le, 1) => made(g, "_ ≥ _", vec![rt, l]),
-        (How::Le, _) => made(g, "not _", vec![made(g, "_ < _", vec![rt, l])]),
-        (How::Lt, 0) => made(g, "_ < _", vec![l, rt]),
-        (How::Lt, 1) => made(g, "_ > _", vec![rt, l]),
-        (How::Lt, _) => made(g, "not _", vec![made(g, "_ ≤ _", vec![rt, l])]),
-        (How::Eq, 0) => made(g, "_ = _", vec![rt, l]),
-        (How::Eq, _) => made(g, "_ = _", vec![l, rt]),
-        (How::Ne, 0) => made(g, "_ ≠ _", vec![rt, l]),
-        (How::Ne, _) => made(g, "_ ≠ _", vec![l, rt]),
+}
+
+/// The relation as the page writes it, turned round at random.
+fn written(r: &mut Random, g: &Grammar, f: &Relation) -> String {
+    let l = term(g, &written_out(&f.low));
+    let h = term(g, &written_out(&f.high));
+    let turned = r.below(2) == 0;
+    let node = match (f.rel, turned) {
+        (Rel::Le, false) => made(g, "_ ≤ _", vec![l, h]),
+        (Rel::Le, true) => made(g, "_ ≥ _", vec![h, l]),
+        (Rel::Lt, false) => made(g, "_ < _", vec![l, h]),
+        (Rel::Lt, true) => made(g, "_ > _", vec![h, l]),
+        (Rel::Eq, false) => made(g, "_ = _", vec![l, h]),
+        (Rel::Eq, true) => made(g, "_ = _", vec![h, l]),
+        (Rel::Ne, false) => made(g, "_ ≠ _", vec![l, h]),
+        (Rel::Ne, true) => made(g, "_ ≠ _", vec![h, l]),
     };
     g.print(&node)
 }
 
-/// Whether `how` holds of a value.
-fn holds(how: How, v: &BigRational) -> bool {
-    match how {
-        How::Le => !v.is_positive(),
-        How::Lt => v.is_negative(),
-        How::Eq => v.is_zero(),
-        How::Ne => !v.is_zero(),
+/// The lines added as they stand, each `by` times: the smaller sides'
+/// sum against the larger sides'.
+fn summed(lines: &[Relation], by: &[i64], rel: Rel) -> Relation {
+    let (mut low, mut high) = (Poly::new(), Poly::new());
+    for (f, k) in lines.iter().zip(by) {
+        low = sum(&low, &times(&constant(ratio(*k)), &f.low), 1);
+        high = sum(&high, &times(&constant(ratio(*k)), &f.high), 1);
     }
+    Relation { low, high, rel }
 }
 
-/// A claim for `inequalities`, drawn around a point and judged there.
+/// A claim for a plain `inequalities` step, drawn around a point and
+/// judged by how it was made.
 pub fn claim(r: &mut Random, g: &Grammar) -> Drawn {
     let point: BTreeMap<&'static str, BigInt> = LETTERS
         .iter()
         .map(|x| (*x, BigInt::from(r.below(7)) - 3))
         .collect();
-    let groups = r.below(4) as usize;
-    let shared = &LETTERS[groups..];
-    let mut kinds: Vec<Kind> = (0..groups)
-        .map(|_| [Kind::Le, Kind::Lt, Kind::Eq, Kind::Split][r.below(4) as usize])
+    let count = 1 + r.below(3) as usize;
+    let shared = &LETTERS[count..];
+    let equations = r.below(4) == 0;
+    let lines: Vec<Relation> = LETTERS[..count]
+        .iter()
+        .map(|own| {
+            let rel = if equations {
+                Rel::Eq
+            } else if r.below(2) == 0 {
+                Rel::Lt
+            } else {
+                Rel::Le
+            };
+            line(r, own, shared, rel, &point)
+        })
         .collect();
-    // A disequality cited is what makes the claim strict, and nothing else
-    // does: one that was not needed would be a line the step cites and
-    // uses nothing of.
-    let split = kinds.iter().position(|k| *k == Kind::Split);
-    if let Some(at_split) = split {
-        for (i, kind) in kinds.iter_mut().enumerate() {
-            if i != at_split && (*kind == Kind::Split || *kind == Kind::Lt) {
-                *kind = Kind::Le;
+    let strict = lines.iter().any(|f| f.rel == Rel::Lt);
+    let sums = if equations {
+        Rel::Eq
+    } else if strict {
+        Rel::Lt
+    } else {
+        Rel::Le
+    };
+    let once = vec![1; count];
+    let (claim, verdict) = match r.below(4) {
+        // Their sums, as the step adds them.
+        0 | 1 => (summed(&lines, &once, sums), Verdict::Holds(true)),
+        // A move: a line taken twice, or a strict sum weakened.
+        2 => {
+            let mut twice = once.clone();
+            twice[0] = 2;
+            let weakened = strict && r.below(2) == 0;
+            let made = if weakened {
+                summed(&lines, &once, Rel::Le)
+            } else {
+                summed(&lines, &twice, sums)
+            };
+            let ne = strict && r.below(3) == 0;
+            if ne {
+                (
+                    summed(&lines, &once, Rel::Ne),
+                    Verdict::Refused(vec![A_WEAKENING]),
+                )
+            } else {
+                (made, Verdict::Refused(vec![A_MOVE]))
             }
         }
-    }
-    let mut drawn: Vec<(Kind, Poly)> = Vec::new();
-    for (own, kind) in LETTERS[..groups].iter().zip(kinds) {
-        let e = form(r, own, shared);
-        let value = at(&e, &point);
-        // The bound each fact sets on e, so that p meets it: at or above its
-        // value, strictly above it where the fact is strict or denies.
-        let bound = match kind {
-            Kind::Eq => value,
-            Kind::Le if r.below(2) == 0 => value,
-            Kind::Le => value + positive(r),
-            Kind::Lt | Kind::Split => value + positive(r),
-        };
-        drawn.push((kind, sum(&e, &constant(bound), -1)));
-    }
-    // The combination: each fact by a positive weight, an equation by one of
-    // either sign, less a slack of 0 or more.
-    let mut combined = Poly::new();
-    for (kind, f) in &drawn {
-        let mut weight = positive(r);
-        if *kind == Kind::Eq && r.below(2) == 0 {
-            weight = -weight;
+        // Their sums, moved to fail at p.
+        _ => {
+            let mut made = summed(&lines, &once, sums);
+            let value = at(&made.low, &point) - at(&made.high, &point);
+            // The larger side moved below the smaller by one, or to meet it
+            // where the claim is strict.
+            let shift = match sums {
+                Rel::Lt => value,
+                _ => value - BigRational::one(),
+            };
+            made.high = sum(&made.high, &constant(shift), 1);
+            (made, Verdict::Holds(false))
         }
-        combined = sum(&combined, &times(&constant(weight), f), 1);
-    }
-    let slack = if split.is_some() || r.below(2) == 0 {
-        BigRational::zero()
-    } else {
-        positive(r)
     };
-    combined = sum(&combined, &constant(slack.clone()), -1);
-    let strict_by = |kind: Kind| kind == Kind::Lt || kind == Kind::Split;
-    let strict = slack.is_positive() || drawn.iter().any(|(k, _)| strict_by(*k));
-    let all_equations = drawn.iter().all(|(k, _)| *k == Kind::Eq);
-    // What the combination gives: below 0 where something in it is strict,
-    // 0 where it is all equations, at most 0 otherwise. Where a disequality
-    // makes it strict, the claim is strict too.
-    let wanted = if split.is_some() {
-        [How::Lt, How::Ne][r.below(2) as usize]
-    } else if strict {
-        [How::Lt, How::Le, How::Ne][r.below(3) as usize]
-    } else if all_equations {
-        [How::Eq, How::Le][r.below(2) as usize]
-    } else {
-        How::Le
-    };
-    let true_claim = r.below(2) == 0;
-    let (claim, how) = if true_claim {
-        (combined, wanted)
-    } else {
-        // Moved by a constant to fail at p.
-        let value = at(&combined, &point);
-        let shift = match wanted {
-            How::Le => -value + positive(r),
-            How::Lt if r.below(2) == 0 => -value,
-            How::Lt => -value + positive(r),
-            How::Eq => -value + positive(r),
-            How::Ne => -value,
-        };
-        (sum(&combined, &constant(shift), 1), wanted)
-    };
-    debug_assert_eq!(holds(how, &at(&claim, &point)), true_claim);
-
-    let others_equations = drawn
-        .iter()
-        .all(|(k, _)| *k == Kind::Eq || *k == Kind::Split);
     let mut header: Vec<String> =
         LETTERS.iter().map(|x| format!("let {x} ∈ ℝ")).collect();
     let mut labels = Vec::new();
-    let mut cite = |line: String, header: &mut Vec<String>| {
-        header.push(format!("assume {line}"));
+    for f in &lines {
+        header.push(format!("assume {}", written(r, g, f)));
         labels.push(format!("H{}", header.len()));
-    };
-    for (kind, f) in &drawn {
-        let common = any_form(r);
-        match kind {
-            Kind::Le => cite(written(r, g, f, How::Le, &common), &mut header),
-            Kind::Lt => cite(written(r, g, f, How::Lt, &common), &mut header),
-            Kind::Eq => cite(written(r, g, f, How::Eq, &common), &mut header),
-            // Where the claim is a `≠` and all else it combines is
-            // equations, the claim denied makes the form 0, which the `≠`
-            // denies alone, and the bound beside it is not needed.
-            Kind::Split => {
-                if !(wanted == How::Ne && others_equations) {
-                    cite(written(r, g, f, How::Le, &common), &mut header);
-                }
-                cite(written(r, g, f, How::Ne, &common), &mut header);
-            }
-        }
     }
-    let common = any_form(r);
-    let said = written(r, g, &claim, how, &common);
-    let justification = if labels.is_empty() {
-        "inequalities".to_string()
-    } else {
-        format!("inequalities, from {}", labels.join(", "))
-    };
     let shown = format!(
-        "{claim:?} {how:?} 0 from {:?} at {point:?}",
-        drawn
+        "{:?} {:?} {:?} from {:?} at {point:?}",
+        claim.low,
+        claim.rel,
+        claim.high,
+        lines
             .iter()
-            .map(|(k, f)| format!("{f:?} {k:?}"))
+            .map(|f| format!("{:?} {:?} {:?}", f.low, f.rel, f.high))
             .collect::<Vec<_>>()
     );
     Drawn {
         header,
-        written: said,
-        justification,
-        verdict: Verdict::Holds(true_claim),
+        written: written(r, g, &claim),
+        justification: format!("inequalities, from {}", labels.join(", ")),
+        verdict,
         shown,
     }
 }
