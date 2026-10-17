@@ -2058,14 +2058,14 @@ catching it.
 
 ### Lines taken away
 
-R3 asks of a requires line whether the proof rests on it, and a line can be
-rested on without being needed: a route that finds `B²/A ∈ ℝ` written takes
-it, and with the line gone the same step builds B²/A from A ∈ ℝ, B ∈ ℝ and
-A > 0, as `membership` builds any compound. Neither tool sees that from the
-proof in hand. So the gate's last stage takes each requires line of each
-proof away in turn and asks both tools again of the theorem it sits in: the
-checker, of that theorem read from the edited file against the corpus read
-once, and the elaborator. A line neither complains of is reported.
+The checker asks of a requires line whether its step needs it, checking the
+step as a theorem of that one step (`check_requires_work`). The gate's last
+stage asks the same of the whole theorem: it takes each requires line of
+each proof away in turn and checks the theorem it sits in again, read from
+the edited file against the corpus read once. A line the checker does not
+complain of is reported. What the page needs is the checker's to say: a
+line the checker does without and the build does not is a fault in the
+build, and is fixed there.
 
 Two lines of one step can stand in for each other, each surplus alone and
 not both. Where a theorem has several surplus lines, each after the first is
@@ -2075,11 +2075,7 @@ only if it can go with them.
 A line needed only by a surplus line is needed while that line is there, so
 it is reported once the surplus line is gone, in the next run.
 
-The stage runs in thirteen seconds over eight workers, each reading the
-corpus and loading set.mm once. That rests on a failure being quick: with a
-membership left out, the search for it goes only as deep as any side
-condition's (three lemmas, "Facts the text never writes"), so a step that
-cannot be built says so at once rather than after minutes of looking.
+The stage runs in ten seconds over eight workers, and reads no set.mm.
 
 ### What they do not check
 
