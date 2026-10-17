@@ -3273,6 +3273,9 @@ impl<'a> Elaborator<'a> {
         one: &Term,
         other: &Term,
     ) -> Checked<Option<Proof>> {
+        if one.label() == Some("crab") {
+            return self.selection_renamed_within(one, other);
+        }
         let Some(body_lemma) = one.label().and_then(|l| lookup(rules::CLASS_BODY, l))
         else {
             return Ok(None);
@@ -3327,6 +3330,49 @@ impl<'a> Elaborator<'a> {
             self.b
                 .ap("a1i", &binds! {"ph" => &equal, "ps" => &under}, &[&inner]);
         let lifted = self.b.ap(body_lemma, &self.spelt(&binding), &[&carried]);
+        let Some(outer) = self.class_renamed(&middle, other)? else {
+            return Ok(None);
+        };
+        Ok(Some(self.b.ap(
+            "eqtri",
+            &binds! {"A" => self.rpn(one), "B" => self.rpn(&middle), "C" => self.rpn(other)},
+            &[&lifted, &outer],
+        )))
+    }
+
+    /// `class_renamed_within` of a selection, {y ∈ B | φ}, whose body is a
+    /// statement: the body's own bound letters are renamed first, under the
+    /// selection's letter as it stands (`renaming`, carried in by `rabbii`),
+    /// and then the selection's letter (`class_renamed`). {y ∈ B : there is
+    /// x ∈ X with F(x) = y} is so {j ∈ B : there is i ∈ X with F(i) = j}.
+    fn selection_renamed_within(
+        &mut self,
+        one: &Term,
+        other: &Term,
+    ) -> Checked<Option<Proof>> {
+        let [_, ours, _] = one.children() else {
+            return Ok(None);
+        };
+        let theirs = &other.children()[1];
+        let (Some(_), Some(their_letter)) = (ours.variable(), theirs.variable()) else {
+            return Ok(None);
+        };
+        if ours.variable() == theirs.variable() {
+            return Ok(None);
+        }
+        let mut put = Binding::new();
+        put.insert(their_letter.to_string(), ours.clone());
+        let middle = other.substitute(&put);
+        if self.rpn(&one.children()[2]) != self.rpn(&middle.children()[2]) {
+            return Ok(None);
+        }
+        let Some(inner) = self.renaming(&one.children()[0], &middle.children()[0])?
+        else {
+            return Ok(None);
+        };
+        let Some(lifted) = self.by_lemma("rabbii", one, &middle, &[&inner]) else {
+            return Ok(None);
+        };
         let Some(outer) = self.class_renamed(&middle, other)? else {
             return Ok(None);
         };

@@ -1,0 +1,12 @@
+$( proofs/setmm/group-cancellation/inverse-reverses-products, elaborated from proofs/setmm/group-cancellation.proof by parley build.
+   Nothing here is assumed.
+   Checked against a set.mm of 51,256 assertions, sha256
+   0d7fb3e59afff60f4cec2287cbb616bf651bbfbf2356a611a43a5c98b5e0462d. $)
+
+$[ proofs/setmm/group-cancellation/the-left-identity.mm $]
+$[ proofs/setmm/group-cancellation/left-cancellation.mm $]
+
+${
+  proofs.setmm.group-cancellation.inverse-reverses-products $p |- ( ( ( A e. Grp /\ B e. ( Base ` A ) ) /\ C e. ( Base ` A ) ) -> ( ( invg ` A ) ` ( B ( +g ` A ) C ) ) = ( ( ( invg ` A ) ` C ) ( +g ` A ) ( ( invg ` A ) ` B ) ) ) $=
+    ( cgrp wcel cbs cfv wa cplusg co cminusg wceq c0g simpl id syl w3a simpr 3jca eqid grpcl jca grprinv eqcomd eqtrd grpinvcl grpass oveq1d eqeq1d mpbid proofs.setmm.group-cancellation.the-left-identity oveq2d eqeq2d wb proofs.setmm.group-cancellation.left-cancellation ) ADEZBAFGZEZHZCUQEZHZBCAIGZJZVCAKGZGZVBJZVCCVDGZBVDGZVBJZVBJZLZVEVILZVAVFBVHVBJZVJVAVFAMGZVMVAUPVCUQEZHZVFVNLVAUPVOVAUSUPUSUTNZUSUPUPUPURNZUPOZPZPZVAUPURUTQZVOVAUPURUTWAVAUSURVQUPURRZPZUSUTRZSZUQVBABCUQTZVBTZUAZPZUBZUQVBAVDVCVNWGWHVNTZVDTZUCPVAVMVNVAUSVMVNLVAUPURWAWDUBZUQVBAVDBVNWGWHWLWMUCPUDUEVAVJVMVAVJBCVIVBJZVBJZLZVJVMLVAUPURUTVIUQEZQZHWQVAUPWSWAVAURUTWRWDWEVAUPVGUQEZVHUQEZQZWRVAUPWTXAWAVAUPUTHZWTVAUPUTWAWEUBZUQAVDCWGWMUFZPZVAUSXAWNUQAVDBWGWMUFZPZSZUQVBAVGVHWGWHUAZPZSUBUQVBABCVIWGWHUGPVAWPVMVJVAWOVHBVBVAWOVNVHVBJZVHVAXLWOVACVGVBJZVHVBJZWOLZXLWOLVAUPUTWTXAQZHXOVAUPXPWAVAUTWTXAWEXFXHSUBUQVBACVGVHWGWHUGPVAXNXLWOVAXMVNVHVBVAXCXMVNLXDUQVBAVDCVNWGWHWLWMUCPUHUIUJUDVAUPXAHXLVHLVAUPXAWAXHUBAVHUKPUEULUMUJUDUEVAUPVEUQEZHZWRHZVOHVKVLUNVAXSVOVAXRWRVAUPXQWAVAVPXQWKUQAVDVCWGWMUFPUBXKUBWJUBAVEVIVCUOPUJ $.
+$}

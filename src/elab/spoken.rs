@@ -13,7 +13,7 @@
 //! the kernel's spelling whole: half a translation would read as page text
 //! and mean something else.
 
-use indexmap::IndexSet;
+use indexmap::IndexMap;
 
 use crate::formula::page::{Sentence, Written};
 use crate::formula::{Node, Sort};
@@ -219,14 +219,21 @@ impl Elaborator<'_> {
     }
 
     pub(super) fn page_node(&self, term: &Term) -> Option<Node> {
-        self.page_node_under(term, &IndexSet::new())
+        self.page_node_under(term, &IndexMap::new())
     }
 
     /// `page_node` of a part of a term, inside binders that introduce the
     /// letters `bound`: a part is read back with them as names, as the page
     /// reads it inside its binder, so the i of {i ∈ X : P(i)} is a letter and
-    /// not the imaginary unit.
-    fn page_node_under(&self, term: &Term, bound: &IndexSet<String>) -> Option<Node> {
+    /// not the imaginary unit. Each letter has the sort of what its binder's
+    /// domain holds where the domain says, as the page reads it: the k of
+    /// "there is k ∈ H" is an element of the group H is a set of, and g·k
+    /// reads as the group's product.
+    fn page_node_under(
+        &self,
+        term: &Term,
+        bound: &IndexMap<String, Sort>,
+    ) -> Option<Node> {
         let rpn = self.rpn(term);
         // A name the proof gave this term; a part of a structure is held
         // under a name no page writes (`@op`), and is read by its notation.
@@ -299,14 +306,30 @@ impl Elaborator<'_> {
             let Some(holes) = self.matched(&r.target, term) else {
                 continue;
             };
-            // The letters this reading binds are names in its parts.
+            // The letters this reading binds are names in its parts, of the
+            // sort its domain's elements have where a hole holds one.
+            let binding_at: Vec<usize> = self
+                .binders
+                .get(&r.notation)
+                .into_iter()
+                .flatten()
+                .copied()
+                .collect();
+            let domain_holds = holes
+                .iter()
+                .enumerate()
+                .filter(|(at, _)| !binding_at.contains(at))
+                .filter_map(|(_, h)| self.page_node_under(h, bound))
+                .filter(Node::is_name)
+                .find_map(|n| self.sorts_now.get(&n.text).and_then(Sort::held))
+                .unwrap_or_else(Sort::none);
             let mut inner = bound.clone();
-            for at in self.binders.get(&r.notation).into_iter().flatten() {
+            for at in &binding_at {
                 if let Some(letter) =
                     holes.get(*at).and_then(|h| self.page_node_under(h, bound))
                 {
                     if letter.is_name() {
-                        inner.insert(letter.text.clone());
+                        inner.insert(letter.text.clone(), domain_holds.clone());
                     }
                 }
             }
@@ -329,8 +352,10 @@ impl Elaborator<'_> {
                 self.read_here(&printed)
             } else {
                 let mut sorts = self.sorts_now.clone();
-                for letter in bound {
-                    if !sorts.introduces(letter) {
+                for (letter, sort) in bound {
+                    if sort.name().is_some() {
+                        sorts.insert(letter.clone(), sort.clone());
+                    } else if !sorts.introduces(letter) {
                         sorts.unsettled.insert(letter.clone());
                     }
                 }
