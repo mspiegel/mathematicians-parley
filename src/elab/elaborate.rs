@@ -1541,15 +1541,16 @@ impl<'a> Elaborator<'a> {
         values.read(self.g, &self.sorts_now)
     }
 
-    /// Whether the universal `said`, at the values written for the names it
-    /// quantifies, concludes `term`: the instance is the claim, or the claim
-    /// is what it gives once each thing it asks is supplied.
-    fn instance_concludes(
+    /// How many conditions the universal `said`, at the values written for
+    /// the names it quantifies, asks before it concludes `term`: none where
+    /// the instance is the claim, and each thing it asks before the claim
+    /// is what it gives otherwise. None where it does not conclude it.
+    fn conditions_to(
         &mut self,
         said: &str,
         values: &IndexMap<String, String>,
         term: &str,
-    ) -> bool {
+    ) -> Option<usize> {
         let mut whole = self.to_term(said);
         while rules::INSTANCES
             .iter()
@@ -1570,15 +1571,17 @@ impl<'a> Elaborator<'a> {
             whole = self.restated(&body, &mark, at);
         }
         let wanted = self.fact_key(term);
+        let mut asked = 0;
         loop {
             let reached = self.rpn(&whole);
             if reached == term || self.fact_key(&reached) == wanted {
-                return true;
+                return Some(asked);
             }
             if whole.label() != Some("wi") {
-                return false;
+                return None;
             }
             whole = whole.children()[1].clone();
+            asked += 1;
         }
     }
 
@@ -1632,16 +1635,25 @@ impl<'a> Elaborator<'a> {
         };
         // A line of several universals over the same name, as an induction
         // hypothesis of two halves is, gives the claim from the one whose
-        // instance concludes it.
+        // instance concludes it asking the fewest conditions, as the checker
+        // takes it (`check_instance_claimed`).
         let mut values: IndexMap<String, String> = IndexMap::new();
         for v in &pairs {
             values.insert(v.name.clone(), self.term(&v.value)?);
         }
-        let said = candidates
-            .iter()
-            .find(|p| self.instance_concludes(p, &values, term))
-            .or(candidates.first())
-            .map(|p| (*p).clone());
+        let mut fewest: Option<(usize, &String)> = None;
+        for p in &candidates {
+            let Some(asked) = self.conditions_to(p, &values, term) else {
+                continue;
+            };
+            if fewest.is_none_or(|(least, _)| asked < least) {
+                fewest = Some((asked, p));
+            }
+        }
+        let said = fewest
+            .map(|(_, p)| p)
+            .or(candidates.first().copied())
+            .cloned();
         let Some(said) = said else {
             return Err(self.defect(
                 step.line,

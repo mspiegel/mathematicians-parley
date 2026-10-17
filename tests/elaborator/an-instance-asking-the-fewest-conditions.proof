@@ -1,0 +1,9 @@
+theorem an-instance-asking-the-fewest-conditions
+  note        Both parts of the line at x := a give a + 0 = a, the first only
+              where a > 0: the part asking nothing is the one taken.
+  assume (for all x ∈ ℝ, if x > 0 then x + 0 = x) and (for all x ∈ ℝ, x + 0 = x)   (H1)
+  let a ∈ ℝ                                                           (H2)
+  then a + 0 = a
+
+1.  a + 0 = a
+    instantiate x := a in H1, from H2

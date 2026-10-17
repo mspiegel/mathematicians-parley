@@ -55,6 +55,16 @@ struct FunctionSet {
     codomain: String,
 }
 
+/// A contradiction block's ends, as set.mm writes them: what it supposes,
+/// what it claims, and ( scope -> ( supposed -> claim ) ), which the block's
+/// last step and the line it contradicts give (`supposed_otherwise`).
+#[derive(Clone, Copy)]
+struct Supposed<'s> {
+    supposed: &'s str,
+    claim: &'s str,
+    lifted: &'s Proof,
+}
+
 /// What proves a claim under a widened scope, given the claim, the scope and
 /// what is known there.
 pub type Prove<'p, 'a> =
@@ -981,9 +991,109 @@ impl<'a> Elaborator<'a> {
         if supposed == t!(claim, "wn") {
             return Ok((claim.clone(), pf!(self.b; scope, claim, lifted, "pm2.18d")));
         }
+        let ends = Supposed {
+            supposed: &supposed,
+            claim: &claim,
+            lifted: &lifted,
+        };
+        if let Built(proof) = self.supposed_otherwise(&ends, scope, &known)? {
+            return Ok((claim.clone(), proof));
+        }
         Err(self.defect(
             step.line,
             "the block claims neither its supposition negated nor what its supposition denies",
+        ))
+    }
+
+    /// ( scope -> claim ) where the block supposes what its claim denies, or
+    /// denies what its claim says, written another way, as the checker reads
+    /// the two alike: a ≠ 1 from `suppose 1 = a`. The spellings' equivalence
+    /// (`same`) carries the supposition to the claim's spelling, and the
+    /// contradiction closes there.
+    fn supposed_otherwise(
+        &mut self,
+        ends: &Supposed,
+        scope: &str,
+        known: &Facts,
+    ) -> Checked<Route<Proof>> {
+        let Supposed {
+            supposed,
+            claim,
+            lifted,
+        } = *ends;
+        let (claim_term, supposed_term) = (self.to_term(claim), self.to_term(supposed));
+        // Reductio: the claim is ¬X, and the block supposed X written
+        // otherwise.
+        if claim_term.label() == Some("wn") {
+            let x = self.rpn(&claim_term.children()[0]);
+            let alike = take!(self.same(
+                &supposed_term,
+                &claim_term.children()[0],
+                scope,
+                known,
+                None
+            )?);
+            let not_supposed = t!(supposed, "wn");
+            let neg = self.b.ap(
+                "notbid",
+                &binds! {"ph" => scope, "ps" => supposed, "ch" => &x},
+                &[&alike],
+            );
+            let turned = self.b.ap(
+                "imbi2d",
+                &binds! {"ph" => scope, "ps" => &not_supposed, "ch" => claim, "th" => supposed},
+                &[&neg],
+            );
+            let denying = self.b.ap(
+                "mpbird",
+                &binds! {"ph" => scope, "ps" => t!(supposed, not_supposed, "wi"),
+                "ch" => t!(supposed, claim, "wi")},
+                &[lifted, &turned],
+            );
+            let denied = self.b.ap(
+                "pm2.01d",
+                &binds! {"ph" => scope, "ps" => supposed},
+                &[&denying],
+            );
+            return Ok(Built(self.b.ap(
+                "mpbid",
+                &binds! {"ph" => scope, "ps" => &not_supposed, "ch" => claim},
+                &[&denied, &neg],
+            )));
+        }
+        // Indirect proof: the block supposed ¬Y, and the claim is Y written
+        // otherwise.
+        if supposed_term.label() == Some("wn") {
+            let y = self.rpn(&supposed_term.children()[0]);
+            let alike = take!(self.same(
+                &supposed_term.children()[0],
+                &claim_term,
+                scope,
+                known,
+                None
+            )?);
+            let turned = self.b.ap(
+                "imbi2d",
+                &binds! {"ph" => scope, "ps" => &y, "ch" => claim, "th" => supposed},
+                &[&alike],
+            );
+            let back = self.b.ap(
+                "mpbird",
+                &binds! {"ph" => scope, "ps" => t!(supposed, y, "wi"),
+                "ch" => t!(supposed, claim, "wi")},
+                &[lifted, &turned],
+            );
+            let got =
+                self.b
+                    .ap("pm2.18d", &binds! {"ph" => scope, "ps" => &y}, &[&back]);
+            return Ok(Built(self.b.ap(
+                "mpbid",
+                &binds! {"ph" => scope, "ps" => &y, "ch" => claim},
+                &[&got, &alike],
+            )));
+        }
+        Ok(Route::no(
+            "the claim is no supposition denied, written any way",
         ))
     }
 
@@ -1461,7 +1571,27 @@ impl<'a> Elaborator<'a> {
         // The lemma is applied at the claim's own letter, which `nn0indd`
         // keeps apart only from its x, and `ralrimiva` then gives the claim as
         // written. The step part's letter is the lemma's y.
-        let bound = self.rpn(&self.to_term(&claim).children()[1]);
+        // A hypothesis binding the claim's letter, "for all m ∈ ℕ₀, m ≥ 0",
+        // keeps it out of `ralrimiva`'s reach, so the claim is proved over a
+        // letter of its own and read back as written.
+        let written_bound = self.rpn(&self.to_term(&claim).children()[1]);
+        let apart = if scope.split_whitespace().any(|t| t == written_bound) {
+            let whole_claim = self.to_term(&claim);
+            let Some(letter) = self.unheld(&[&self.to_term(scope), &whole_claim])
+            else {
+                return Err(self.defect(
+                    step.line,
+                    "no letter left to prove the induction's claim apart from what the theorem assumes",
+                ));
+            };
+            let var = self.sig(&written_bound).statement[1].clone();
+            let moved = Binding::from([(var, letter)]);
+            Some(self.rpn(&whole_claim.substitute(&moved)))
+        } else {
+            None
+        };
+        let target = apart.clone().unwrap_or_else(|| claim.clone());
+        let bound = self.rpn(&self.to_term(&target).children()[1]);
         if scope.split_whitespace().any(|t| t == bound) {
             return Err(self.defect(
                 step.line,
@@ -1557,16 +1687,29 @@ impl<'a> Elaborator<'a> {
         // `( ( scope ∧ k ∈ X ) → P(k) )`, and so P of every k in X.
         let run = self.b.proof(&all);
         let every = t!(whole, bound, over, "wral");
-        if every != claim {
+        if every != target {
             return Err(self.defect(
                 step.line,
                 "the induction does not reach its claim over the claim's letter",
             ));
         }
-        Ok((
-            claim,
-            pf!(self.b; scope, whole, bound, over, run, "ralrimiva"),
-        ))
+        let proved = pf!(self.b; scope, whole, bound, over, run, "ralrimiva");
+        let Some(apart) = apart else {
+            return Ok((claim, proved));
+        };
+        let Some(back) = self.renaming(&self.to_term(&apart), &self.to_term(&claim))?
+        else {
+            return Err(self.defect(
+                step.line,
+                "the claim proved apart does not read back as the claim",
+            ));
+        };
+        let carried = self.b.ap(
+            "sylib",
+            &binds! {"ph" => scope, "ps" => &apart, "ch" => &claim},
+            &[&proved, &back],
+        );
+        Ok((claim, carried))
     }
 
     /// The functions from X to Y, where `over` is that set (`X ↑m Y` in

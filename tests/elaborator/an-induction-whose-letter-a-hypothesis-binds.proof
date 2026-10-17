@@ -1,0 +1,19 @@
+theorem an-induction-whose-letter-a-hypothesis-binds
+  note        The hypothesis binds m as the claim does: the induction is
+              proved over a letter of its own and read back as the claim.
+  assume for all m ∈ ℕ₀, m ≥ 0                                        (H1)
+  then for all m ∈ ℕ₀, m + 0 = m
+
+1.  For all m ∈ ℕ₀, m + 0 = m.
+    induction on m starting at 0
+
+    base
+    1.1.  0 + 0 = 0
+          arithmetic
+
+    step
+    let m ∈ ℕ₀                                                        (K)
+    assume step 1 is true for m, the induction hypothesis             (IH)
+
+    1.2.  (m + 1) + 0 = m + 1
+          algebra

@@ -1,0 +1,27 @@
+theorem a-claim-denying-its-supposition-written-otherwise
+  note        The block supposes 1 = a and claims a ≠ 1: the supposition
+              denied, its sides the other way round.
+  let a ∈ ℝ                                                           (H1)
+  assume a ≠ 1                                                        (H2)
+  then a ≠ 1
+
+1.  a ≠ 1
+    contradiction
+    suppose 1 = a                                                     (S)
+
+    1.1.  1 = a
+          join S, contradicting H2
+
+theorem a-supposition-denying-its-claim-written-otherwise
+  note        The block supposes 1 ≠ a and claims a = 1: the claim denied,
+              its sides the other way round.
+  let a ∈ ℝ                                                           (H1)
+  assume a = 1                                                        (H2)
+  then a = 1
+
+1.  a = 1
+    contradiction
+    suppose 1 ≠ a                                                     (S)
+
+    1.1.  1 ≠ a
+          join S, contradicting H2
