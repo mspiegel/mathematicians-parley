@@ -1,0 +1,12 @@
+theorem a-row-multiplied-by-a-negative-number-read-from-its-other-side
+  note        Multiplying 4·x − 5 ≤ 0 by −2 turns it round, to
+              −8·x + 10 ≥ 0, which the row writes as 0 ≤ −8·x + 10: the same
+              order read from its other side.
+  let x ∈ ℝ                                                           (H1)
+  assume 4·x − 5 ≤ 0                                                  (H2)
+  then 0 ≤ −8·x + 10
+
+1.  0 ≤ −8·x + 10
+    inequalities
+      4·x − 5 ≤ 0        H2
+      0 ≤ −8·x + 10      multiplying by −2

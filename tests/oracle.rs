@@ -8,8 +8,9 @@
 //! document says each takes, each is worked out by an oracle of the test's
 //! own that shares none of the method's code (`oracle/judge.rs` for
 //! `arithmetic`, `algebra.rs`, `order.rs`, `member.rs`, `inspect.rs` and
-//! `said.rs` for the others), and each is written as a theorem of one step
-//! and asked of the tools:
+//! `said.rs` for the others, and `rows.rs` for an inequalities step's rows,
+//! `transitivity` and `antisymmetry`), and each is written as a theorem of
+//! one step and asked of the tools:
 //!
 //! - a claim the oracle says holds is accepted by the checker, built with
 //!   nothing assumed, and verified;
@@ -69,6 +70,9 @@ mod inspect;
 
 #[path = "oracle/said.rs"]
 mod said;
+
+#[path = "oracle/rows.rs"]
+mod rows;
 
 use gen::Drawn;
 use judge::Verdict;
@@ -156,6 +160,25 @@ import mundane definition stdlib/divisibility/congruent-mod
             // Every claim drawn holds, as an identity; what it lacks is
             // drawn as a refusal (`said.rs`).
             false_said: "is not an identity",
+        },
+        // What these draw false is drawn as a refusal (`rows.rs`).
+        Method {
+            name: "rows",
+            draw: rows::rows,
+            imports: "",
+            false_said: "is not the row above",
+        },
+        Method {
+            name: "transitivity",
+            draw: rows::transitivity,
+            imports: "",
+            false_said: "and the chain it cites gives",
+        },
+        Method {
+            name: "antisymmetry",
+            draw: rows::antisymmetry,
+            imports: "",
+            false_said: "by antisymmetry what is not two lines",
         },
     ]
 }

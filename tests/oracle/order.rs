@@ -41,7 +41,7 @@ const A_WEAKENING: &str = "by a `weakening` row";
 /// The relation a line or the claim states, of its smaller side to its
 /// larger.
 #[derive(Clone, Copy, Debug, PartialEq)]
-enum Rel {
+pub enum Rel {
     Le,
     Lt,
     Eq,
@@ -50,10 +50,10 @@ enum Rel {
 
 /// One relation: its two sides, the smaller first.
 #[derive(Clone, Debug)]
-struct Relation {
-    low: Poly,
-    high: Poly,
-    rel: Rel,
+pub struct Relation {
+    pub low: Poly,
+    pub high: Poly,
+    pub rel: Rel,
 }
 
 fn ratio(n: i64) -> BigRational {
@@ -89,7 +89,7 @@ fn with_shared(r: &mut Random, start: Poly, shared: &[&'static str]) -> Poly {
 /// letters alone, so that its own letter does not cancel and the line says
 /// more than a fact of numerals; the other side moved by a constant so that
 /// p meets the relation, strictly or not.
-fn line(
+pub fn line(
     r: &mut Random,
     own: &'static str,
     shared: &[&'static str],

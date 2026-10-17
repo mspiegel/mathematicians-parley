@@ -2314,7 +2314,9 @@ fn row_follows(
 }
 
 /// Whether `row` relates by `rel` two sides that are `left` and `right`,
-/// each as one number (`one_number`).
+/// each as one number (`one_number`). An order is the same fact read from
+/// either side, `b ≥ a` as `a ≤ b` (`METHODS.md`, transitivity); an
+/// equation's sides swapped is a `symmetry` row of its own.
 fn row_is(
     row: &Related,
     rel: Rel,
@@ -2323,9 +2325,15 @@ fn row_is(
     known: &Known,
     targets: &Targets,
 ) -> bool {
-    row.rel == rel
+    let as_written = row.rel == rel
         && one_number(&row.left, left, known, targets)
-        && one_number(&row.right, right, known, targets)
+        && one_number(&row.right, right, known, targets);
+    let order = !matches!(rel, Rel::Eq | Rel::Ne);
+    as_written
+        || (order
+            && row.rel == rel.converse()
+            && one_number(&row.left, right, known, targets)
+            && one_number(&row.right, left, known, targets))
 }
 
 /// What a row names, said in a message: `with 2·A added to both sides`.
