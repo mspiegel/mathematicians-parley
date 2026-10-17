@@ -1301,6 +1301,66 @@ pub fn check_readings(report: &mut Report, thm: &Theorem) {
     }
 }
 
+/// A numbered step is there to be used (`SYNTAX.md`, Steps): another step,
+/// a requires line, a row or a let's reason cites it, or it is the last
+/// step of its part of a block, or of the proof, which says what that part
+/// owes. Any other step says something nothing goes on to use.
+pub fn check_steps_used(report: &mut Report, thm: &Theorem) {
+    let mut cited: BTreeSet<String> = BTreeSet::new();
+    for step in &thm.steps {
+        cites(&step.just, &thm.path, &mut cited);
+        for r in &step.requires {
+            if let Ok(by) = &r.by {
+                cites(by, &thm.path, &mut cited);
+            }
+        }
+    }
+    for d in &thm.defines {
+        if let Some(Ok(by)) = d.reason.as_ref().map(|r| &r.by) {
+            cites(by, &thm.path, &mut cited);
+        }
+    }
+    for (i, step) in thm.steps.iter().enumerate() {
+        let number = step.number.to_string();
+        if cited.contains(&number) {
+            continue;
+        }
+        let depth = step.number.len();
+        let parent = step.number.prefix(depth - 1);
+        let followed = thm.steps[i + 1..].iter().any(|s| {
+            s.number.len() == depth
+                && s.number.prefix(depth - 1) == parent
+                && s.part == step.part
+        });
+        if !followed {
+            continue;
+        }
+        report.say(
+            &thm.path,
+            step.line,
+            format!(
+                "step {number} is cited by nothing, and is not the last step of its part"
+            ),
+        );
+    }
+}
+
+/// What a justification cites, into `cited`: its lines and labels, an
+/// instantiate's target, the line it contradicts, and the line its first
+/// inequality row writes out.
+fn cites(just: &Justification, path: &str, cited: &mut BTreeSet<String>) {
+    cited.extend(just.refs.iter().cloned());
+    cited.extend(just.target.iter().cloned());
+    cited.extend(just.contradicting.iter().cloned());
+    if let Some(Ok(rows)) = crate::corpus::proof::rows(just, path) {
+        for row in rows {
+            if let crate::corpus::proof::RowReason::Cited(r) = row.reason {
+                cited.insert(r);
+            }
+        }
+    }
+}
+
 /// The last step of a proof is the theorem's conclusion (`SYNTAX.md`): its
 /// sentences, in order, each one formula with the statement's, as
 /// `Known::alike` compares two. A sentence that does not read is reported by

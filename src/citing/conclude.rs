@@ -140,7 +140,7 @@ fn unnumbered(
 
 /// Of what dropping identity elements left, `dropped`, those the facts do
 /// not say are numbers, with the letters `instance` and `claim` bind.
-fn not_numbers(
+pub fn not_numbers(
     dropped: Vec<Node>,
     instance: &Node,
     claim: &Node,
@@ -151,16 +151,16 @@ fn not_numbers(
     if dropped.is_empty() {
         return dropped;
     }
-    // A letter the claim or the instance binds over a number system is said
-    // to be in it by its binder, as a `let` says it; what is left is spelt
-    // in the instance's letters where the two bind different ones.
+    // A letter the claim or the instance binds over a number system, for
+    // all of it or for some, is said to be in it by its binder, as a `let`
+    // says it; what is left is spelt in the instance's letters where the
+    // two bind different ones.
     let mut bound = Introduced::new();
     for node in claim.walk().into_iter().chain(instance.walk()) {
         if let [name, set, _] = node.children.as_slice() {
-            if library.exists.contains(&node.notation)
-                && name.is_name()
-                && set.notation == "number-systems"
-            {
+            let binds = library.exists.contains(&node.notation)
+                || library.every.contains(&node.notation);
+            if binds && name.is_name() && set.notation == "number-systems" {
                 if let Some(system) = rules::System::of_sign(&set.text) {
                     bound.insert(name.text.clone(), system);
                 }

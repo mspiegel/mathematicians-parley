@@ -154,7 +154,11 @@ the 2 that is not there, and the checker reports it. A step is:
    before it, `requires b ≤ b: inequalities`; a colon inside a fact stands
    apart, as in `requires g : [a, b] → ℝ: from 7`.
 
-The last step of a proof is the theorem's conclusion.
+The last step of a proof is the theorem's conclusion. Every other step is
+there to be used: a later step, a requires line, a row or a let's reason
+cites it, or it is the last step of its part of a block, which claims what
+the part owes. A step nothing cites says something the proof never goes on
+to use, and the checker reports it.
 
 ## Blocks
 
@@ -236,16 +240,16 @@ with an `assume` line, labelled like a hypothesis, stating the disjunct
 that the part handles:
 
 ```proof
-4.  |a + b| ≤ |a| + |b|
+2.  |a + b| ≤ |a| + |b|
     cases, from 1
 
     case
     assume a + b ≥ 0                                  (C1)
-    4.1.  |a + b| ≤ |a| + |b|
+    2.1.  |a + b| ≤ |a| + |b|
           ...
     case
     assume a + b < 0                                  (C2)
-    4.2.  |a + b| ≤ |a| + |b|
+    2.2.  |a + b| ≤ |a| + |b|
           ...
 ```
 
@@ -274,11 +278,11 @@ textbook says so without supposing the opposite of what it claims:
 ```proof
           assume 0 ≤ n and x = v(0) and x ≠ v(0)                      (C2)
 
-          1.2.1.  x = v(0)
+          1.1.1.  x = v(0)
                   join C2
 
-          1.2.2.  x ≠ v(0)
-                  join C2, contradicting 1.2.1
+          1.1.2.  x ≠ v(0)
+                  join C2, contradicting 1.1.1
 ```
 
 The block's last step reaches the opposite of an earlier line and names it,
@@ -747,12 +751,17 @@ of its own.
 **A define with a parameter also states what its function is on**, since the
 domain is written beside the rule: `let t(c) = g·c, for c ∈ H (D2)`
 gives `t is a function on H`, cited `D2` as a step or `from D2` in a
-`requires` line. It states nothing about where the values lie: `t : H → gH`
+`requires` line. It states nothing about where the values lie, save what
+the page says once of its rule: `t : H → gH`
 is proved, from a line saying each value is in gH, as Lagrange's step 8.2
 does. The domain may be a set another define names, as Euler's `let f(r) =
 (r·a) mod n, for r ∈ S` is on S. A cited item whose `let g : D → ℝ` the citation fills with a defined
 function, `g := g`, asks that type in a `requires` line citing the step that
-proves it, as the mean value theorem's steps 10 to 15 do.
+proves it, as the mean value theorem's steps 10 to 15 do. The page says the
+type once where the define's domain holds D and its rule, at a point of D,
+is in ℝ by what the page says once: `t(j) = j + 1, for j ∈ ℕ` is a function
+from ℕ into ℝ, and no line says so, while `t(j) = j/x` needs one. A citation
+that writes the define out as its rule asks the same of it.
 
 **A define outside a theorem belongs to the file.** Written above a theorem,
 it may be used in that theorem's statement, as a textbook writes "let

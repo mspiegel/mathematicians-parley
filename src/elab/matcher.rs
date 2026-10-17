@@ -23,7 +23,7 @@ use std::rc::Rc;
 use indexmap::{IndexMap, IndexSet};
 
 use super::elaborate::Sides;
-use super::provenance::{from_requires, may_rest_on};
+use super::provenance::{from_requires, may_rest_on, MEMBERSHIP};
 use super::state::{
     fit, fit_respelt, names_of, Binding, Elaborator, Frame, HeadKey, Role, Shape, Vars,
 };
@@ -633,6 +633,15 @@ impl<'a> Elaborator<'a> {
                     None => made,
                 });
             }
+            if label == "wf" {
+                let held = Held {
+                    named: &facts,
+                    scope: unfiltered,
+                };
+                if let Some(found) = self.map_into(wanted, scope, &held, depth)? {
+                    return Ok(Built(found));
+                }
+            }
             if let Some(found) = self.searched(wanted, scope, &facts, depth)? {
                 return Ok(Built(found));
             }
@@ -652,6 +661,115 @@ impl<'a> Elaborator<'a> {
             }
         }
         Ok(self.no("cannot settle {}", &[&rpn]))
+    }
+}
+
+/// The facts a side condition is settled from: those the step may rest on,
+/// and the scope's whole, which holds its copy of each line in scope.
+struct Held<'f> {
+    named: &'f Facts,
+    scope: &'f Facts,
+}
+
+impl<'a> Elaborator<'a> {
+    /// ( scope -> F : A ⟶ C ), F the map ( x ∈ A ↦ B ) or a name a fact
+    /// says is that map, a define's, where B is in C at every point of A
+    /// (`fmpt`, `feq1d`): a defined function's type, which the page says
+    /// once where its rule is a number there by what it says once
+    /// (`SYNTAX.md`, "A define with a parameter also states what its
+    /// function is on").
+    fn map_into(
+        &mut self,
+        wanted: &Term,
+        scope: &str,
+        held: &Held,
+        depth: i32,
+    ) -> Checked<Option<Proof>> {
+        let facts = held.named;
+        let [domain, codomain, named] = wanted.children() else {
+            return Ok(None);
+        };
+        if named.variable().is_none() && named.label() == Some("cmpt") {
+            return self.map_type(named, domain, codomain, scope, facts, depth);
+        }
+        // A define's name is equal to its map by the define's own line,
+        // which every step may rest on.
+        let var = match (named.label(), named.children()) {
+            (Some("cv"), [v]) => self.rpn(v),
+            _ => return Ok(None),
+        };
+        let (Some(body), Some(label)) = (
+            self.definitions.get(&var).cloned(),
+            self.defined_by.get(&var).cloned(),
+        ) else {
+            return Ok(None);
+        };
+        let map = self.to_term(&body);
+        if map.variable().is_some() || map.label() != Some("cmpt") {
+            return Ok(None);
+        }
+        let Some(typed) = self.map_type(&map, domain, codomain, scope, facts, depth)?
+        else {
+            return Ok(None);
+        };
+        let (a, c, name) = (self.rpn(domain), self.rpn(codomain), self.rpn(named));
+        let Some(equal) = self.held(held.scope, &t!(name, body, "wceq"), scope)? else {
+            return Ok(None);
+        };
+        let turned = self.b.ap(
+            "feq1d",
+            &binds! {"ph" => scope, "A" => &a, "B" => &c, "F" => &name, "G" => &body},
+            &[&equal],
+        );
+        let want = self.rpn(wanted);
+        let theirs = t!(a, c, body, "wf");
+        let made = pf!(self.b; scope, want, theirs, typed, turned, "mpbird");
+        // The page says the type once, on the define's line, and a step
+        // rests on it without naming that line, as on a letter's membership.
+        Ok(Some(Proof {
+            items: made.items,
+            origin: std::iter::once(format!("{MEMBERSHIP}{label}")).collect(),
+        }))
+    }
+
+    /// ( scope -> ( x ∈ A ↦ B ) : A ⟶ C ) where B is in C at every point of
+    /// A (`fmpt`); None where the map is over another set, or the rule is
+    /// not settled there.
+    fn map_type(
+        &mut self,
+        map: &Term,
+        domain: &Term,
+        codomain: &Term,
+        scope: &str,
+        facts: &Facts,
+        depth: i32,
+    ) -> Checked<Option<Proof>> {
+        let [x, over, rule] = map.children() else {
+            return Ok(None);
+        };
+        if self.rpn(over) != self.rpn(domain) {
+            return Ok(None);
+        }
+        let (x, over, rule, codomain, map) = (
+            self.rpn(x),
+            self.rpn(over),
+            self.rpn(rule),
+            self.rpn(codomain),
+            self.rpn(map),
+        );
+        let every = t!(t!(rule, codomain, "wcel"), x, over, "wral");
+        let Built(each) =
+            self.settle(&self.to_term(&every), scope, facts, depth - 1, None, None)?
+        else {
+            return Ok(None);
+        };
+        let iff = self.b.ap(
+            "fmpt",
+            &binds! {"x" => &x, "A" => &over, "B" => &codomain, "C" => &rule, "F" => &map},
+            &[&pf!(self.b; map, "eqid")],
+        );
+        let want = t!(over, codomain, map, "wf");
+        Ok(Some(pf!(self.b; scope, every, want, each, iff, "sylib")))
     }
 
     /// ( scope -> wanted ) where a fact says it of every member of a set and

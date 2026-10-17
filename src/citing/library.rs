@@ -122,10 +122,11 @@ pub struct Library<'a> {
     items: IndexMap<String, usize>,
     proved: IndexMap<String, Proved<'a>>,
     cache: RefCell<IndexMap<String, Option<Rc<Vec<Group>>>>>,
-    /// Which notations are an existential, a membership, a conjunction, a
-    /// biconditional, an implication and a negation, taken from what they
-    /// target in the kernel rather than named here.
+    /// Which notations are an existential, a universal, a membership, a
+    /// conjunction, a biconditional, an implication and a negation, taken
+    /// from what they target in the kernel rather than named here.
     pub exists: IndexSet<String>,
+    pub every: IndexSet<String>,
     pub members: IndexSet<String>,
     pub conj: IndexSet<String>,
     pub bicond: IndexSet<String>,
@@ -165,6 +166,7 @@ impl<'a> Library<'a> {
             proved,
             cache: RefCell::new(IndexMap::new()),
             exists: IndexSet::new(),
+            every: IndexSet::new(),
             members: IndexSet::new(),
             conj: IndexSet::new(),
             bicond: IndexSet::new(),
@@ -185,6 +187,7 @@ impl<'a> Library<'a> {
             };
             let set = match first.as_str() {
                 "wrex" => &mut lib.exists,
+                "wral" => &mut lib.every,
                 "wcel" => &mut lib.members,
                 "wa" => &mut lib.conj,
                 "wb" => &mut lib.bicond,

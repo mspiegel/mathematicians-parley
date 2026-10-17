@@ -932,6 +932,9 @@ pub const MEMBERSHIP: &[&str] = &[
     // with membership of the subset in the body.
     "rexss",
     "prmssnn",
+    // A member of a difference is a member of the set taken from, as the
+    // checker reads `let x ∈ V ∖ {v(0)}` to put x in V.
+    "eldifi",
     // A summation index runs over a range of integers, and what the summand
     // asks of it is not always integrality.
     "elfzelz",

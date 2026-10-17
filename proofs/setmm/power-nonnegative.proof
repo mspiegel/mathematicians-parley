@@ -1,6 +1,5 @@
 import mundane theorem    stdlib/numbers/exponent-step
 import mundane theorem    stdlib/numbers/multiply-le
-import mundane theorem    stdlib/numbers/power-real
 import mundane axiom      stdlib/numbers/trichotomy
 
 theorem power-nonnegative
@@ -31,48 +30,45 @@ theorem power-nonnegative
     1.4.  a^(m + 1) = a^m·a
           mun:exponent-step
 
-    1.5.  a^(m + 1) ∈ ℝ
-          mun:power-real m := m + 1
-
-    1.6.  a < 0 or a = 0 or 0 < a
+    1.5.  a < 0 or a = 0 or 0 < a
           mun:trichotomy x := a
 
-    1.7.  0 ≤ a^(m + 1)
-          cases, from 1.6
+    1.6.  0 ≤ a^(m + 1)
+          cases, from 1.5
 
           case
           assume a < 0                                                (C1)
 
-          1.7.1.  not 0 ≤ a
+          1.6.1.  not 0 ≤ a
                   inequalities, from C1, contradicting H3
 
           case
           assume a = 0                                                (C2)
 
-          1.7.2.  a^m·a = 0
+          1.6.2.  a^m·a = 0
                   algebra, from C2
 
-          1.7.3.  0 = a^(m + 1)
-                  transitivity, from 1.7.2, 1.4
+          1.6.3.  0 = a^(m + 1)
+                  transitivity, from 1.6.2, 1.4
 
-          1.7.4.  0 ≤ a^(m + 1)
+          1.6.4.  0 ≤ a^(m + 1)
                   inequalities
-                    0 = a^(m + 1)        1.7.3
+                    0 = a^(m + 1)        1.6.3
                     0 ≤ a^(m + 1)        weakening
 
           case
           assume 0 < a                                                (C3)
 
-          1.7.5.  a·0 ≤ a·a^m
+          1.6.5.  a·0 ≤ a·a^m
                   mun:multiply-le x := 0, y := a^m, c := a, from C3, IH
 
-          1.7.6.  0 ≤ a^m·a
+          1.6.6.  0 ≤ a^m·a
                   inequalities
-                    a·0 ≤ a·a^m          1.7.5
+                    a·0 ≤ a·a^m          1.6.5
                     0 ≤ a^m·a            algebra
 
-          1.7.7.  0 ≤ a^(m + 1)
-                  transitivity, from 1.7.6, 1.4
+          1.6.7.  0 ≤ a^(m + 1)
+                  transitivity, from 1.6.6, 1.4
 
 2.  0 ≤ a^n
     instantiate m := n in line 1

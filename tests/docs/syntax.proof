@@ -3,7 +3,6 @@ import theorem            proofs/wiedijk/triangle-inequality/abs-bounds
 import mundane definition stdlib/numbers/abs
 import mundane theorem    stdlib/numbers/abs-real
 import mundane theorem    stdlib/numbers/nonneg-or-neg
-import mundane theorem    stdlib/functions/function-value
 import mundane theorem    stdlib/divisibility/even-or-odd
 import mundane theorem    stdlib/divisibility/not-both
 import mundane theorem    stdlib/reasoning/disjunctive-syllogism
@@ -88,22 +87,16 @@ theorem triangle-by-cases
 1.  a + b ≥ 0 or a + b < 0
     mun:nonneg-or-neg x := a + b
 
-2.  a ≤ |a|. −a ≤ |a|.
-    thm:abs-bounds x := a
-
-3.  b ≤ |b|. −b ≤ |b|.
-    thm:abs-bounds x := b
-
-4.  |a + b| ≤ |a| + |b|
+2.  |a + b| ≤ |a| + |b|
     cases, from 1
 
     case
     assume a + b ≥ 0                                  (C1)
-    4.1.  |a + b| ≤ |a| + |b|
+    2.1.  |a + b| ≤ |a| + |b|
           thm:sum-nonneg-bounded, from C1
     case
     assume a + b < 0                                  (C2)
-    4.2.  |a + b| ≤ |a| + |b|
+    2.2.  |a + b| ≤ |a| + |b|
           thm:sum-neg-bounded, from C2
 
 theorem nothing-to-show
@@ -117,15 +110,12 @@ theorem nothing-to-show
     proof
     let x ∈ V                                                         (K1)
 
-    1.1.  v(n) ∈ V
-          mun:function-value f := v, x := n
-
-    1.2.  If 0 ≤ n and x = v(0) and x ≠ v(0) then x = v(n).
+    1.1.  If 0 ≤ n and x = v(0) and x ≠ v(0) then x = v(n).
           proof
           assume 0 ≤ n and x = v(0) and x ≠ v(0)                      (C2)
 
-          1.2.1.  x = v(0)
+          1.1.1.  x = v(0)
                   join C2
 
-          1.2.2.  x ≠ v(0)
-                  join C2, contradicting 1.2.1
+          1.1.2.  x ≠ v(0)
+                  join C2, contradicting 1.1.1

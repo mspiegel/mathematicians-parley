@@ -71,10 +71,7 @@ theorem the-left-inverse
 18. (a⁻¹·a)·e = a⁻¹·a
     mun:group-identity a := a⁻¹·a, from 3
 
-19. e = a⁻¹·a
-    substitute (a⁻¹·a)·e = a⁻¹·a (line 18) into line 17
-
-20. a⁻¹·a = e
+19. a⁻¹·a = e
     calculation
     a⁻¹·a = (a⁻¹·a)·e     18
           = e             17

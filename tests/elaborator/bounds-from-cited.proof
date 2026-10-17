@@ -14,10 +14,13 @@ theorem an-equation-from-a-difference-with-a-bound-uncited
 theorem positive-from-a-natural-with-a-bound-uncited
   note        n > 0 follows from n ∈ ℕ alone, with an uncited line saying 1 ≤ n.
   let n ∈ ℕ    (H1)
-  then n > 0
+  then 1 ≤ n and n > 0
 
 1.  1 ≤ n
     inequalities, from H1
 
 2.  n > 0
     inequalities, from H1
+
+3.  1 ≤ n and n > 0
+    join 1, 2

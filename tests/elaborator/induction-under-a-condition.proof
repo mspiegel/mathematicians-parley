@@ -275,8 +275,5 @@ theorem walk-parity-by-induction
 3.  For all y ∈ V ∖ {v(0)}, c(k, y) is odd ↔ y = v(k).
     instantiate j := k in line 1, from 2
 
-4.  x ∈ V. x ∉ {v(0)}.
-    mun:difference, from H7
-
-5.  c(k, x) is odd ↔ x = v(k)
+4.  c(k, x) is odd ↔ x = v(k)
     instantiate y := x in line 3, from H7

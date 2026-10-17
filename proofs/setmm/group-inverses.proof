@@ -83,36 +83,33 @@ theorem group-left-identity
   let a ∈ G                                                           (H2)
   then e·a = a
 
-1.  e ∈ G
-    mun:group-identity-closed
-
-2.  a⁻¹ ∈ G
+1.  a⁻¹ ∈ G
     mun:group-inverse-closed, from H2
 
-3.  a·a⁻¹ = e
+2.  a·a⁻¹ = e
     mun:group-inverse, from H2
 
-4.  (a·a⁻¹)·a = e·a
-    substitute a·a⁻¹ = e (line 3)
+3.  (a·a⁻¹)·a = e·a
+    substitute a·a⁻¹ = e (line 2)
 
-5.  (a·a⁻¹)·a = a·(a⁻¹·a)
-    mun:group-associative b := a⁻¹, c := a, from H2, 2
+4.  (a·a⁻¹)·a = a·(a⁻¹·a)
+    mun:group-associative b := a⁻¹, c := a, from H2, 1
 
-6.  a⁻¹·a = e
+5.  a⁻¹·a = e
     thm:group-left-inverse, from H2
 
-7.  a·(a⁻¹·a) = a·e
-    substitute a⁻¹·a = e (line 6)
+6.  a·(a⁻¹·a) = a·e
+    substitute a⁻¹·a = e (line 5)
 
-8.  a·e = a
+7.  a·e = a
     mun:group-identity, from H2
 
-9.  e·a = a
+8.  e·a = a
     calculation
-      e·a = (a·a⁻¹)·a      4
-          = a·(a⁻¹·a)      5
-          = a·e            7
-          = a              8
+      e·a = (a·a⁻¹)·a      3
+          = a·(a⁻¹·a)      4
+          = a·e            6
+          = a              7
 
 
 theorem group-inverse-of-identity

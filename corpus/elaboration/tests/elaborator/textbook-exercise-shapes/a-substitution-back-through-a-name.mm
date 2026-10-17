@@ -10,5 +10,5 @@ ${
   $d B m $.
   $d C m $.
   tests.elaborator.textbook-exercise-shapes.a-substitution-back-through-a-name $p |- ( ( ( ( A e. RR /\ B e. RR ) /\ C e. RR ) /\ ( abs ` ( B - ( A / 2 ) ) ) < C ) -> ( abs ` ( B - ( A / 2 ) ) ) < C ) $=
-    ( cr wcel wa c2 cdiv co cmin cabs cfv clt wbr vm cv wceq wex cvv ovex a1i elisset syl simpl simpr ex exlimdv mpd ) ADEZBDEZFZCDEZFZBAGHIZJIZKLZCMNZFZOPZUNQZORZUQURUNSEZVAVBURAGHTUAOUNSUBUCURUTUQOURUTUQURUTFURUQURUTUDUMUQUEUCUFUGUH $.
+    ( cr wcel wa c2 cdiv co cmin cabs cfv clt wbr vm cv wceq wex cvv ovex a1i elisset syl simpl simpr eqcomd oveq2d fveq2d breq1d mpbid ex exlimdv mpd ) ADEZBDEZFZCDEZFZBAGHIZJIZKLZCMNZFZOPZUSQZORZVBVCUSSEZVFVGVCAGHTUAOUSSUBUCVCVEVBOVCVEVBVCVEFZBVDJIZKLZCMNZVBVHVBVKVHVCVBVCVEUDURVBUEUCVHVAVJCMVHUTVIKVHUSVDBJVHVDUSVCVEUEZUFUGUHUIUJVHVJVACMVHVIUTKVHVDUSBJVLUGUHUIUJUKULUM $.
 $}

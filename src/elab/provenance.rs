@@ -92,6 +92,16 @@ impl<'a> Elaborator<'a> {
                     .into_iter()
                     .filter(|k| k.starts_with(&prefix)),
             );
+            // A step's requires lines are the block's as the step is: the
+            // last step of a part says there what the part's end asks, an
+            // identity element's operand a number (`SYNTAX.md`).
+            out.extend(
+                self.thm
+                    .steps
+                    .iter()
+                    .filter(|s| number_of(s).starts_with(&prefix))
+                    .flat_map(|s| s.requires.iter().map(|r| requirement(r.line))),
+            );
             out.extend(
                 step.openers
                     .iter()

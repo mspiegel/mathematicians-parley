@@ -270,7 +270,8 @@ fn a_line_saying_a_divisor_is_not_zero_does_work() {
 /// A citation whose claim is what the item concludes, with one hypothesis
 /// not supplied, is reported once, naming that hypothesis: here
 /// divides-difference without line 5.2, which says p divides n!. The other
-/// hypotheses are supplied, and the claim is the item's conclusion.
+/// hypotheses are supplied, and the claim is the item's conclusion. Line
+/// 5.2 is then cited by nothing, which is said of it too.
 #[test]
 fn a_hypothesis_not_supplied_is_named_alone() {
     let clean = clean();
@@ -295,7 +296,8 @@ fn a_hypothesis_not_supplied_is_named_alone() {
         "{out}"
     );
     assert!(!out.contains("does not conclude"), "{out}");
-    assert!(out.contains("\n1 problem(s)\n"), "{out}");
+    assert!(out.contains("step 5.2 is cited by nothing"), "{out}");
+    assert!(out.contains("\n2 problem(s)\n"), "{out}");
 }
 
 /// A step number written twice, once in each direction of a biconditional,
@@ -2096,10 +2098,10 @@ fn cases() -> Vec<Case> {
             "cite a define written in an earlier case",
             vec![edit(
                 "tests/elaborator/textbook-exercise-shapes-two.proof",
-                Some("    assume x = 2                                                      (C2)\n\n    1.4.  2 > 0\n          arithmetic\n\n    1.5.  x > 0\n          transitivity, from C2, 1.4\n".to_string()),
-                "    assume x = 2                                                      (C2)\n\n    1.4.  y = x + 1\n          D1\n\n    1.5.  2 > 0\n          arithmetic\n\n    1.6.  x > 0\n          transitivity, from C2, 1.5\n".to_string(),
+                Some("    assume x = 2                                                      (C2)\n\n    1.5.  2 > 0\n          arithmetic\n\n    1.6.  x > 0\n          transitivity, from C2, 1.5\n".to_string()),
+                "    assume x = 2                                                      (C2)\n\n    1.5.  y = x\n          D1\n\n    1.6.  2 > 0\n          arithmetic\n\n    1.7.  x > 0\n          transitivity, from C2, 1.6\n".to_string(),
             )],
-            "step 1.4 cites D1, which is not in scope here",
+            "step 1.5 cites D1, which is not in scope here",
         ),
         // What one case shows is no line of the next.
         case(
@@ -4698,6 +4700,40 @@ fn cases() -> Vec<Case> {
                 String::new(),
             )],
             "step 1.4.6 drops an identity element from what the substitution makes, and nothing says |a(n)| is a number",
+        ),
+        // A base that ends on its instance with an identity element dropped,
+        // b(0) ≤ N for b(0) + 0 ≤ N, asks that b(0) be a number, which
+        // nothing the step names says once its requires line goes.
+        case(
+            "end an induction's base by dropping an identity element from a value nothing says is a number",
+            vec![edit(
+                "proofs/wiedijk/euclid.proof",
+                Some("          mun:or-left, from 5.1\n          requires b(0) ∈ ℝ: membership, from 2\n".to_string()),
+                "          mun:or-left, from 5.1\n".to_string(),
+            )],
+            "step 5.2 ends the base part of step 5 by dropping an identity element, and nothing says b(0) is a number",
+        ),
+        // The statement is read before the proof, so a name only the proof
+        // defines is no name there.
+        case(
+            "state a theorem of a name only its proof defines",
+            vec![edit(
+                "tests/elaborator/a-define-filling-a-cited-function.proof",
+                Some("  let t(j) = j + 1, for j ∈ ℕ                                         (D1)\n         reads one more\n  then t(1) = 1 + 1\n".to_string()),
+                "  then t(1) = 1 + 1\n\nlet t(j) = j + 1, for j ∈ ℕ                                           (D1)\n    reads one more\n".to_string(),
+            )],
+            "theorem a-define-filling-a-cited-function states t, which only its proof defines",
+        ),
+        // A step nothing cites, and that ends no part, says something the
+        // proof never uses: 0 < 1 is true, and no line goes on from it.
+        case(
+            "write a step nothing cites",
+            vec![edit(
+                "proofs/hammack/abs-limit-zero.proof",
+                Some("2.  a(n) → 0 as n → ∞\n    def:tends-to L := 0, from 1\n".to_string()),
+                "2.  0 < 1\n    arithmetic\n\n3.  a(n) → 0 as n → ∞\n    def:tends-to L := 0, from 1\n".to_string(),
+            )],
+            "step 2 is cited by nothing, and is not the last step of its part",
         ),
         // A divisor the page says once is a positive integer needs no line
         // saying it is not zero: k ∈ ℕ, so k + 1 is one.

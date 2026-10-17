@@ -124,27 +124,24 @@ theorem binomial-row-sum
     proof
     let k ∈ {0, …, m}                                                 (J)
 
-    3.1.  m − k ∈ ℕ₀
-          mun:range-difference a := 0, n := m, from J
-
-    3.2.  1^(m − k) = 1
+    3.1.  1^(m − k) = 1
           mun:one-power m := m − k
 
-    3.3.  1^k = 1
+    3.2.  1^k = 1
           mun:one-power m := k
 
-    3.4.  C(m, k)·1^(m − k)·1^k = C(m, k)·1^k
-          substitute 1^(m − k) = 1 (line 3.2)
+    3.3.  C(m, k)·1^(m − k)·1^k = C(m, k)·1^k
+          substitute 1^(m − k) = 1 (line 3.1)
           requires C(m, k) ∈ ℕ₀: mun:binomial-nat0
 
-    3.5.  C(m, k)·1^k = C(m, k)
-          substitute 1^k = 1 (line 3.3)
+    3.4.  C(m, k)·1^k = C(m, k)
+          substitute 1^k = 1 (line 3.2)
           requires C(m, k) ∈ ℕ₀: mun:binomial-nat0
 
-    3.6.  C(m, k)·1^(m − k)·1^k = C(m, k)
+    3.5.  C(m, k)·1^(m − k)·1^k = C(m, k)
           calculation
-            C(m, k)·1^(m − k)·1^k = C(m, k)·1^k     3.4
-                                  = C(m, k)         3.5
+            C(m, k)·1^(m − k)·1^k = C(m, k)·1^k     3.3
+                                  = C(m, k)         3.4
 
 4.  Σ(k = 0 to m) C(m, k)·1^(m − k)·1^k = Σ(k = 0 to m) C(m, k)
     mun:sum-termwise a := 0, b := m, from 2, 3

@@ -721,13 +721,20 @@ impl<'a> Elaborator<'a> {
                     }
                     (None, None) => (held.term, held.proof),
                 };
+                // What the part's end asks that its last step's requires
+                // lines say is in hand where the block closes on it.
+                let ended = if step.requires.is_empty() {
+                    facts.clone()
+                } else {
+                    self.supplied(Some(&step), &scope, &facts)?
+                };
                 block.parts.insert(
                     part,
                     PartEnd {
                         claim: term,
                         proof,
                         scope: scope.clone(),
-                        facts: facts.clone(),
+                        facts: ended,
                     },
                 );
             }

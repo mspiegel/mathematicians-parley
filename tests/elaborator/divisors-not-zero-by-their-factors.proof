@@ -38,7 +38,7 @@ theorem a-product-divisor-below-a-line-saying-it
               factor is not zero, and rests on those, not on line 2.
   let k ∈ ℤ                                                           (H1)
   assume k > 0                                                        (H2)
-  then 1/k − 1/(k + 1) = 1/(k·(k + 1))
+  then k·(k + 1) ≠ 0 and 1/k − 1/(k + 1) = 1/(k·(k + 1))
 
 1.  k + 1 > 0
     inequalities, from H2
@@ -52,3 +52,6 @@ theorem a-product-divisor-below-a-line-saying-it
     algebra
     requires k ≠ 0: weakening, from H2
     requires k + 1 ≠ 0: weakening, from 1
+
+4.  k·(k + 1) ≠ 0 and 1/k − 1/(k + 1) = 1/(k·(k + 1))
+    join 2, 3

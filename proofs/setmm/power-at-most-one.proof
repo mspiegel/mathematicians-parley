@@ -1,6 +1,5 @@
 import mundane theorem    stdlib/numbers/exponent-step
 import mundane theorem    stdlib/numbers/multiply-le
-import mundane theorem    stdlib/numbers/power-real
 import mundane axiom      stdlib/numbers/trichotomy
 
 theorem power-at-most-one
@@ -32,49 +31,46 @@ theorem power-at-most-one
     1.3.  a^(m + 1) = a^m·a
           mun:exponent-step
 
-    1.4.  a^(m + 1) ∈ ℝ
-          mun:power-real m := m + 1
-
-    1.5.  a^m·a = a·a^m
+    1.4.  a^m·a = a·a^m
           algebra
 
-    1.6.  a < 0 or a = 0 or 0 < a
+    1.5.  a < 0 or a = 0 or 0 < a
           mun:trichotomy x := a
 
-    1.7.  a^(m + 1) ≤ 1
-          cases, from 1.6
+    1.6.  a^(m + 1) ≤ 1
+          cases, from 1.5
 
           case
           assume a < 0                                                (C1)
 
-          1.7.1.  not 0 ≤ a
+          1.6.1.  not 0 ≤ a
                   inequalities, from C1, contradicting H3
 
           case
           assume a = 0                                                (C2)
 
-          1.7.2.  a·a^m = 0
+          1.6.2.  a·a^m = 0
                   algebra, from C2
 
-          1.7.3.  0 ≤ 1
+          1.6.3.  0 ≤ 1
                   arithmetic
 
-          1.7.4.  a^(m + 1) ≤ 1
-                  transitivity, from 1.3, 1.5, 1.7.2, 1.7.3
+          1.6.4.  a^(m + 1) ≤ 1
+                  transitivity, from 1.3, 1.4, 1.6.2, 1.6.3
 
           case
           assume 0 < a                                                (C3)
 
-          1.7.5.  a·a^m ≤ a·1
+          1.6.5.  a·a^m ≤ a·1
                   mun:multiply-le x := a^m, y := 1, c := a, from C3, IH
 
-          1.7.6.  a·a^m ≤ a
+          1.6.6.  a·a^m ≤ a
                   inequalities
-                    a·a^m ≤ a·1      1.7.5
+                    a·a^m ≤ a·1      1.6.5
                     a·a^m ≤ a        algebra
 
-          1.7.7.  a^(m + 1) ≤ 1
-                  transitivity, from 1.3, 1.5, 1.7.6, H4
+          1.6.7.  a^(m + 1) ≤ 1
+                  transitivity, from 1.3, 1.4, 1.6.6, H4
 
 2.  a^n ≤ 1
     instantiate m := n in line 1

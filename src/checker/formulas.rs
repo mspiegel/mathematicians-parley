@@ -10,15 +10,21 @@ use super::library::Known;
 use super::record::CheckedTheorem;
 use super::structure::{defined_below, introduced, letters_in_scope};
 use super::Report;
-use crate::citing::{implied_facts, link_unsaid, said_once, Library, Parts};
+use crate::citing::{
+    implied_facts, link_unsaid, not_numbers, said_once, Library, Parts,
+};
 use crate::corpus::proof::{chain, rows, ChainLine, RowReason};
 use crate::corpus::{
     define_parts, DefineParts, FileScope, Head, Intro, Item, Justification, Method,
     Record, RecordKind, Recursion, Requires, Source, Step, Theorem, Value, Values,
 };
-use crate::formula::page::{conjoined, disjoined, made, numeral, related, Written};
+use crate::formula::page::{
+    conjoined, disjoined, made, numeral, related, Sentence, Written,
+};
 use crate::formula::{walk, Node, Sort, Sorts};
-use crate::matching::{alike_top, free_names, substitute_apart_by, Binding};
+use crate::matching::{
+    alike_top, free_names, identities_dropped, standard, substitute_apart_by, Binding,
+};
 use crate::methods::field::{decide_closed, Verdict};
 use crate::methods::membership as methods_membership;
 use crate::methods::terms::{term_of_node, Targets};
@@ -553,6 +559,59 @@ pub fn check_letters_introduced(
     }
 }
 
+/// A theorem's statement says what it says before its proof begins, so it
+/// writes no name only the proof defines (`SYNTAX.md`, "A define may name a
+/// function"): a define the statement uses is written in the header, among
+/// its `let` lines, or above the theorem.
+pub fn check_statement_names(
+    report: &mut Report,
+    thm: &Theorem,
+    env: Env,
+    known: &Known,
+) {
+    let proof_defines: BTreeSet<String> = thm
+        .defines
+        .iter()
+        .filter(|d| d.line > thm.conclusion_line)
+        .filter_map(|d| match define_parts(&d.text) {
+            Built(said) => Some(said.names()),
+            Declined(_) => None,
+        })
+        .flatten()
+        .collect();
+    if proof_defines.is_empty() {
+        return;
+    }
+    let binders = env.g.binders();
+    let assumed = thm
+        .hypotheses
+        .iter()
+        .filter(|h| h.kind == Intro::Assume)
+        .map(|h| (h.body(&thm.path), h.line));
+    let stated = Written::new(&thm.conclusion, &thm.path, thm.conclusion_line);
+    let mut named: BTreeSet<String> = BTreeSet::new();
+    for (written, line) in assumed.chain(std::iter::once((stated, thm.conclusion_line)))
+    {
+        for sentence in written.sentences() {
+            let Ok(node) = sentence.read(env.g, &known.sorts) else {
+                continue;
+            };
+            for name in free_names(&node, &binders) {
+                if proof_defines.contains(&name) && named.insert(name.clone()) {
+                    report.say(
+                        &thm.path,
+                        line,
+                        format!(
+                            "theorem {} states {name}, which only its proof defines; a define the statement uses is written in its header",
+                            thm.name
+                        ),
+                    );
+                }
+            }
+        }
+    }
+}
+
 /// True when a is b with a negation in front.
 ///
 /// A folded negation counts, because a record declaring `negates` makes "n
@@ -1033,6 +1092,164 @@ pub fn check_block_ends(report: &mut Report, thm: &Theorem, known: &Known) {
                 );
             }
         }
+    }
+}
+
+/// A sentence a step ends on, with the one it owes there: what a part of a
+/// block owes of its last step, or what the theorem states of the proof's.
+struct Ending {
+    said: Node,
+    owed: Node,
+    /// What the step ends, for a message: "the base", or the proof.
+    called: String,
+}
+
+/// What `step` ends owing, each sentence it says beside the one it owes:
+/// for each part of a block it is the last step of (`check_block_ends`),
+/// and for the proof where it is the last step (`check_last_step`). Empty
+/// for any other step, and where the two do not say as many sentences.
+fn endings(thm: &Theorem, step: &Step, known: &Known) -> Vec<Ending> {
+    let mut out = Vec::new();
+    let outside = known.citing(&[]);
+    for owner in &thm.steps {
+        let Ok(owed) = block_owes(owner, known) else {
+            continue;
+        };
+        let depth = owner.number.len() + 1;
+        for Owed {
+            part,
+            claim,
+            called,
+        } in owed
+        {
+            let last = thm.steps.iter().rev().find(|s| {
+                s.number.len() == depth
+                    && s.number.prefix(depth - 1) == owner.number
+                    && s.part == part
+            });
+            if last.is_none_or(|l| l.line != step.line) {
+                continue;
+            }
+            let said = conjuncts_read(&step.claim, |s| known.read_citing(s, &outside));
+            if let Some(said) = said {
+                let owed = claim.iter().flat_map(conjuncts).collect();
+                paired(said, owed, &called, &mut out);
+            }
+        }
+    }
+    let last = thm.steps.iter().rev().find(|s| s.number.len() == 1);
+    if last.is_some_and(|l| l.line == step.line) {
+        let stated = Written::new(&thm.conclusion, &thm.path, thm.line);
+        let said = conjuncts_read(&step.claim, |s| known.read_as_written(s));
+        let owed = conjuncts_read(&stated, |s| known.read_as_written(s));
+        if let (Some(said), Some(owed)) = (said, owed) {
+            paired(said, owed, "the proof", &mut out);
+        }
+    }
+    out
+}
+
+/// The conjuncts of what `written` says, each sentence read by `read`;
+/// None where one does not read.
+fn conjuncts_read(
+    written: &Written,
+    read: impl Fn(&Sentence) -> Option<Node>,
+) -> Option<Vec<Node>> {
+    let mut out = Vec::new();
+    for s in written.sentences() {
+        out.extend(conjuncts(&read(&s)?));
+    }
+    Some(out)
+}
+
+/// Each sentence said beside the one owed in its place, into `out`, where
+/// the two say as many.
+fn paired(said: Vec<Node>, owed: Vec<Node>, called: &str, out: &mut Vec<Ending>) {
+    if said.len() != owed.len() {
+        return;
+    }
+    for (said, owed) in said.into_iter().zip(owed) {
+        out.push(Ending {
+            said,
+            owed,
+            called: called.to_string(),
+        });
+    }
+}
+
+/// An identity element goes without saying where a step ends a part of a
+/// block or the proof, and dropping one asks that what is left be a number
+/// (`SYNTAX.md`, an identity element goes without saying): the base of an
+/// induction claiming b(0) ≤ N where it owes b(0) + 0 ≤ N says b(0) is one,
+/// by a line it cites or a requires line, where the page does not say it
+/// once.
+pub fn ends_unnumbered(
+    report: &mut Report,
+    thm: &Theorem,
+    step: &Step,
+    known: &Known,
+    library: &Library,
+) {
+    let facts = known.parts(step, library).facts.clone();
+    for Unnumbered { left, called } in ends_asking(thm, step, known, library, &facts) {
+        report.say(
+            &thm.path,
+            step.line,
+            format!(
+                "step {} ends {called} by dropping an identity element, and nothing says {} is a number; a requires line says it",
+                step.number,
+                known.print(&left)
+            ),
+        );
+    }
+}
+
+/// What dropping an identity element left where a step ends, and what it
+/// ends.
+pub struct Unnumbered {
+    pub left: Node,
+    called: String,
+}
+
+/// What `step` ends on by dropping identity elements leaves that `facts`
+/// do not say is a number and the page does not say once, each once
+/// (`ends_unnumbered`). With no facts, what the step is asked to say.
+pub fn ends_asking(
+    thm: &Theorem,
+    step: &Step,
+    known: &Known,
+    library: &Library,
+    facts: &[Node],
+) -> Vec<Unnumbered> {
+    let mut out: Vec<Unnumbered> = Vec::new();
+    for Ending { said, owed, called } in endings(thm, step, known) {
+        let (said, owed) = (standard(&said, known.ctx), standard(&owed, known.ctx));
+        if !known.alike(&said, &owed) {
+            continue;
+        }
+        let mut dropped = identities_dropped(&owed, &said, known.ctx);
+        dropped.extend(identities_dropped(&said, &owed, known.ctx));
+        for left in not_numbers(dropped, &owed, &said, facts, library) {
+            if !out.iter().any(|u| known.alike(&u.left, &left)) {
+                out.push(Unnumbered {
+                    left,
+                    called: called.clone(),
+                });
+            }
+        }
+    }
+    out
+}
+
+/// `ends_unnumbered` of every step of the theorem.
+pub fn check_ends_numbered(
+    report: &mut Report,
+    thm: &Theorem,
+    known: &Known,
+    library: &Library,
+) {
+    for step in &thm.steps {
+        ends_unnumbered(report, thm, step, known, library);
     }
 }
 

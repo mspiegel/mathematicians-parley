@@ -13,26 +13,23 @@ theorem gcd-minus-second-natural
 1.  gcd(a mod b, b) = gcd(a, b)
     thm:gcd-mod
 
-2.  a − b ∈ ℤ
-    membership
-
-3.  gcd((a − b) mod b, b) = gcd(a − b, b)
+2.  gcd((a − b) mod b, b) = gcd(a − b, b)
     thm:gcd-mod a := a − b
 
-4.  ((−1)·b + a) mod b = a mod b
+3.  ((−1)·b + a) mod b = a mod b
     mun:mod-multiple r := a, m := b, q := −1
 
-5.  (−1)·b + a = a − b
+4.  (−1)·b + a = a − b
     algebra
 
-6.  (a − b) mod b = a mod b
-    substitute (−1)·b + a = a − b (line 5) into line 4
+5.  (a − b) mod b = a mod b
+    substitute (−1)·b + a = a − b (line 4) into line 3
 
-7.  gcd((a − b) mod b, b) = gcd(a mod b, b)
-    substitute (a − b) mod b = a mod b (line 6)
+6.  gcd((a − b) mod b, b) = gcd(a mod b, b)
+    substitute (a − b) mod b = a mod b (line 5)
 
-8.  gcd(a, b) = gcd(a − b, b)
+7.  gcd(a, b) = gcd(a − b, b)
     calculation
       gcd(a, b) = gcd(a mod b, b)           1
-                = gcd((a − b) mod b, b)     7
-                = gcd(a − b, b)             3
+                = gcd((a − b) mod b, b)     6
+                = gcd(a − b, b)             2

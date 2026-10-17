@@ -93,31 +93,28 @@ theorem powerset-split-disjoint
   let a ∈ X                                                           (H2)
   then 𝒫(X ∖ {a}) ∩ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})} = ∅
 
-1.  a ∉ X ∖ {a}
-    mun:not-in-difference
-
-2.  For all S ∈ 𝒫(X ∖ {a}), S ∪ {a} ∉ 𝒫(X ∖ {a}).
+1.  For all S ∈ 𝒫(X ∖ {a}), S ∪ {a} ∉ 𝒫(X ∖ {a}).
     proof
     let S ∈ 𝒫(X ∖ {a})                                                (K1)
 
-    2.1.  a ∈ S ∪ {a}
+    1.1.  a ∈ S ∪ {a}
           mun:in-union-singleton
 
-    2.2.  S ∪ {a} ∉ 𝒫(X ∖ {a})
+    1.2.  S ∪ {a} ∉ 𝒫(X ∖ {a})
           contradiction
           suppose S ∪ {a} ∈ 𝒫(X ∖ {a})                                (S1)
 
-          2.2.1.  S ∪ {a} ⊆ X ∖ {a}
+          1.2.1.  S ∪ {a} ⊆ X ∖ {a}
                   mun:powerset S := S ∪ {a}, from S1
 
-          2.2.2.  a ∉ S ∪ {a}
-                  mun:subset-of-difference, from 2.2.1, contradicting 2.1
+          1.2.2.  a ∉ S ∪ {a}
+                  mun:subset-of-difference, from 1.2.1, contradicting 1.1
 
-3.  For all V ∈ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})}, V ∉ 𝒫(X ∖ {a}).
-    mun:added-elements-are-new Y := 𝒫(X ∖ {a}), from 2
+2.  For all V ∈ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})}, V ∉ 𝒫(X ∖ {a}).
+    mun:added-elements-are-new Y := 𝒫(X ∖ {a}), from 1
 
-4.  𝒫(X ∖ {a}) ∩ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})} = ∅
-    mun:disjoint-empty, from 3
+3.  𝒫(X ∖ {a}) ∩ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})} = ∅
+    mun:disjoint-empty, from 2
 
 
 theorem powerset-split

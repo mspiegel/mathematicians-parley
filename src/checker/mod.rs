@@ -655,6 +655,7 @@ fn check_theorem(
     clashes: &[infer::Clash],
 ) {
     check_passes(report, c, thm, k, clashes);
+    formulas::check_ends_numbered(report, thm, k, c.library);
     check_requires_work(report, c, thm, k, clashes);
 }
 
@@ -720,6 +721,9 @@ fn found_alone(
     };
     let mut seen = Report::default();
     check_passes(&mut seen, c, &alone, k, clashes);
+    // What the step owes where it ends a part of a block or the proof is
+    // read in the whole theorem, which the one step's theorem has not.
+    formulas::ends_unnumbered(&mut seen, thm, step, k, c.library);
     seen.problems.iter().map(|p| p.to_string()).collect()
 }
 
@@ -734,6 +738,7 @@ fn check_passes(
     let (env, library, scopes) = (c.env, c.library, c.scopes);
     formulas::check_formulas(report, thm, env, k);
     formulas::check_letters_introduced(report, thm, env, k);
+    formulas::check_statement_names(report, thm, env, k);
     structure::check_defined_below(report, thm, scopes, env.g);
     formulas::check_clashes(report, thm, clashes);
     formulas::check_contradiction(report, thm, env, k);
@@ -785,6 +790,7 @@ fn check_passes(
     formulas::check_method_cites_used(report, thm, library, k, scopes);
     formulas::check_chain_links(report, thm, library, k, scopes);
     structure::check_last_step(report, thm, k);
+    structure::check_steps_used(report, thm);
     structure::check_readings(report, thm);
     database::check_introductions(report, thm, env, k);
     formulas::check_recursions(report, thm, env, k);

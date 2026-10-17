@@ -198,85 +198,83 @@ theorem euclid
     note b starts at N and falls by at least 1 a step until it is 0
 
     base
-    5.1.  a(0) ∈ ℕ₀ and b(0) ∈ ℕ₀
-          instantiate k := 0 in line 3
-
-    5.2.  b(0) ≤ N
+    5.1.  b(0) ≤ N
           inequalities
             b(0) = N           2
             b(0) ≤ N           weakening
 
-    5.3.  b(0) ≤ N or b(0) = 0
-          mun:or-left, from 5.2
+    5.2.  b(0) ≤ N or b(0) = 0
+          mun:or-left, from 5.1
+          requires b(0) ∈ ℝ: membership, from 2
 
     step
     let k ∈ ℕ₀                                                        (K3)
     assume step 5 is true for k, the induction hypothesis             (IH3)
 
-    5.4.  a(k) ∈ ℕ₀ and b(k) ∈ ℕ₀
+    5.3.  a(k) ∈ ℕ₀ and b(k) ∈ ℕ₀
           instantiate k := k in line 3
 
-    5.5.  b(k) = 0 or b(k) ≠ 0
+    5.4.  b(k) = 0 or b(k) ≠ 0
           mun:excluded-middle P := b(k) = 0
 
-    5.6.  b(k + 1) + (k + 1) ≤ N or b(k + 1) = 0
-          cases, from 5.5
+    5.5.  b(k + 1) + (k + 1) ≤ N or b(k + 1) = 0
+          cases, from 5.4
 
           case
           assume b(k) = 0                                             (C5)
 
-          5.6.1.  b(k + 1) = 0
+          5.5.1.  b(k + 1) = 0
                   D1, from C5
 
-          5.6.2.  b(k + 1) + (k + 1) ≤ N or b(k + 1) = 0
-                  mun:or-right, from 5.6.1
+          5.5.2.  b(k + 1) + (k + 1) ≤ N or b(k + 1) = 0
+                  mun:or-right, from 5.5.1
 
           case
           assume b(k) ≠ 0                                             (C6)
 
-          5.6.3.  b(k + 1) = a(k) mod b(k)
+          5.5.3.  b(k + 1) = a(k) mod b(k)
                   D1, from C6
 
-          5.6.4.  b(k) ∈ ℕ
-                  mun:nat0-nonzero, from C6, 5.4
+          5.5.4.  b(k) ∈ ℕ
+                  mun:nat0-nonzero, from C6, 5.3
 
-          5.6.5.  a(k) ∈ ℤ
-                  mun:nat0-int, from 5.4
+          5.5.5.  a(k) ∈ ℤ
+                  mun:nat0-int, from 5.3
 
-          5.6.6.  a(k) mod b(k) < b(k)
-                  mun:mod-less, from 5.6.4, 5.6.5
+          5.5.6.  a(k) mod b(k) < b(k)
+                  mun:mod-less, from 5.5.4, 5.5.5
 
-          5.6.7.  a(k) mod b(k) ∈ ℕ₀
-                  mun:mod-natural, from 5.6.4, 5.6.5
+          5.5.7.  a(k) mod b(k) ∈ ℕ₀
+                  mun:mod-natural, from 5.5.4, 5.5.5
 
-          5.6.8.  b(k + 1) < b(k)
-                  substitute b(k + 1) = a(k) mod b(k) (line 5.6.3) into line 5.6.6
+          5.5.8.  b(k + 1) < b(k)
+                  substitute b(k + 1) = a(k) mod b(k) (line 5.5.3) into line 5.5.6
 
-          5.6.9.  b(k + 1) ∈ ℕ₀
-                  substitute b(k + 1) = a(k) mod b(k) (line 5.6.3) into line 5.6.7
+          5.5.9.  b(k + 1) ∈ ℕ₀
+                  substitute b(k + 1) = a(k) mod b(k) (line 5.5.3) into line 5.5.7
 
-          5.6.10. b(k + 1) + 1 ≤ b(k)
-                  mun:integer-step, from 5.6.8
-                  requires b(k + 1) ∈ ℤ: mun:nat0-int, from 5.6.9
-                  requires b(k) ∈ ℤ: mun:nat0-int, from 5.4
+          5.5.10. b(k + 1) + 1 ≤ b(k)
+                  mun:integer-step, from 5.5.8
+                  requires b(k + 1) ∈ ℤ: mun:nat0-int, from 5.5.9
+                  requires b(k) ∈ ℤ: mun:nat0-int, from 5.3
 
-          5.6.11. b(k) + k ≤ N
+          5.5.11. b(k) + k ≤ N
                   mun:disjunctive-syllogism, from C6, IH3
 
-          5.6.12. b(k + 1) + (k + 1) ≤ b(k) + k
+          5.5.12. b(k + 1) + (k + 1) ≤ b(k) + k
                   inequalities
-                    b(k + 1) + 1 ≤ b(k)                  5.6.10
+                    b(k + 1) + 1 ≤ b(k)                  5.5.10
                     b(k + 1) + (k + 1) ≤ b(k) + k        adding k
-                  requires b(k + 1) ∈ ℝ: mun:nat0-real, from 5.6.9
-                  requires b(k) ∈ ℝ: mun:nat0-real, from 5.4
+                  requires b(k + 1) ∈ ℝ: mun:nat0-real, from 5.5.9
+                  requires b(k) ∈ ℝ: mun:nat0-real, from 5.3
 
-          5.6.13. b(k + 1) + (k + 1) ≤ N
-                  transitivity, from 5.6.12, 5.6.11
-                  requires b(k + 1) ∈ ℝ: mun:nat0-real, from 5.6.9
-                  requires b(k) ∈ ℝ: mun:nat0-real, from 5.4
+          5.5.13. b(k + 1) + (k + 1) ≤ N
+                  transitivity, from 5.5.12, 5.5.11
+                  requires b(k + 1) ∈ ℝ: mun:nat0-real, from 5.5.9
+                  requires b(k) ∈ ℝ: mun:nat0-real, from 5.3
 
-          5.6.14. b(k + 1) + (k + 1) ≤ N or b(k + 1) = 0
-                  mun:or-left, from 5.6.13
+          5.5.14. b(k + 1) + (k + 1) ≤ N or b(k + 1) = 0
+                  mun:or-left, from 5.5.13
 
 6.  a(N) ∈ ℕ₀ and b(N) ∈ ℕ₀
     instantiate k := N in line 3

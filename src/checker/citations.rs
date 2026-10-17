@@ -2193,16 +2193,31 @@ pub fn check_defined_types(
     known: &Known,
     scopes: &[FileScope],
 ) {
-    let defined: BTreeSet<String> =
-        defined_functions(thm.defines.iter().chain(&scopes[thm.scope].defines))
+    let defines: Vec<&crate::corpus::DefineLine> = thm
+        .defines
+        .iter()
+        .chain(&scopes[thm.scope].defines)
+        .collect();
+    let mut defined: IndexMap<String, Option<DefinedRule>> =
+        defined_functions(defines.iter().copied())
             .into_iter()
-            .map(|d| d.name)
+            .map(|d| (d.name, None))
             .collect();
+    for d in &defines {
+        if let Some(rule) = DefinedRule::of(d, known) {
+            defined.insert(rule.name.clone(), Some(rule));
+        }
+    }
     for step in &thm.steps {
+        let letters = super::library::introduced(known, step);
+        let at = DefinedAt {
+            defined: &defined,
+            letters: &letters,
+        };
         if let Some(item) = step.just.cited_item() {
             let name = step.just.item(&item);
             let parts = known.parts(step, library);
-            for said in defined_types_unsaid(&parts, &name, &defined, library) {
+            for said in defined_types_unsaid(&parts, &name, &at, library, known) {
                 report.say(
                     &thm.path,
                     step.just.line,
@@ -2222,7 +2237,7 @@ pub fn check_defined_types(
             let Some(parts) = requires_parts(step, req, &[], known, library) else {
                 continue;
             };
-            for said in defined_types_unsaid(&parts, &name, &defined, library) {
+            for said in defined_types_unsaid(&parts, &name, &at, library, known) {
                 report.say(
                     &thm.path,
                     req.line,
@@ -2237,14 +2252,95 @@ pub fn check_defined_types(
     }
 }
 
-/// Each type the item named asks of a function in `defined`
+/// A function a define gives of one argument, read: `t(j) = j + 1, for j ∈
+/// ℕ` is t with letter j, domain ℕ and rule j + 1.
+struct DefinedRule {
+    name: String,
+    letter: String,
+    domain: Node,
+    rule: Node,
+}
+
+impl DefinedRule {
+    /// The define's function of one argument, read with its argument's
+    /// sort; None for a define of anything else, or one that does not
+    /// read, which `check_formulas` reports.
+    fn of(d: &crate::corpus::DefineLine, known: &Known) -> Option<DefinedRule> {
+        let Built(DefineParts::One(one)) = define_parts(&d.text) else {
+            return None;
+        };
+        let [param] = one.params.as_slice() else {
+            return None;
+        };
+        let local = crate::sorts::define_sorts(&one, &known.sorts);
+        let rule = d.formula(&one.body).sentence().ok()?;
+        let domain = d.formula(&param.domain).sentence().ok()?;
+        Some(DefinedRule {
+            name: one.name.clone(),
+            letter: param.name.clone(),
+            domain: known.read_as_written(&domain)?,
+            rule: rule.read(known.env.g, &local).ok()?,
+        })
+    }
+
+    /// Whether the type `f : D → E` asked of this function is said once
+    /// (`SYNTAX.md`, "A define with a parameter also states what its
+    /// function is on"): its domain holds D, and its rule at a point of D
+    /// is in E by what the page says once, with `letters` the step's.
+    fn typed_once(
+        &self,
+        domain: &Node,
+        codomain: &Node,
+        letters: &Introduced,
+        known: &Known,
+    ) -> bool {
+        let Some(into) = (codomain.notation == "number-systems")
+            .then(|| System::of_sign(&codomain.text))
+            .flatten()
+        else {
+            return false;
+        };
+        let inside = match domain.notation.as_str() {
+            "integer-range" => range_system(domain),
+            "number-systems" => System::of_sign(&domain.text),
+            _ => None,
+        };
+        let holds = known.alike(&self.domain, domain)
+            || (self.domain.notation == "number-systems"
+                && System::of_sign(&self.domain.text)
+                    .zip(inside)
+                    .is_some_and(|(own, asked)| asked.within(own)));
+        let Some(inside) = inside.filter(|_| holds) else {
+            return false;
+        };
+        let mut letters = letters.clone();
+        letters.insert(self.letter.clone(), inside);
+        crate::citing::within(
+            &self.rule,
+            into,
+            &letters,
+            &|d| crate::citing::nonzero_said_once(d, &letters),
+            &|_, _| false,
+        )
+    }
+}
+
+/// The functions the theorem and its file define, each with its rule where
+/// it is of one argument, and the letters the page says once at a step.
+struct DefinedAt<'a> {
+    defined: &'a IndexMap<String, Option<DefinedRule>>,
+    letters: &'a Introduced,
+}
+
+/// Each type the item named asks of a function `at` defines
 /// (`check_defined_types`), at what its letters stand for, that no fact of
-/// `parts` says.
+/// `parts` says and that is not said once of its rule.
 fn defined_types_unsaid(
     parts: &Parts,
     name: &str,
-    defined: &BTreeSet<String>,
+    at: &DefinedAt,
     library: &Library,
+    known: &Known,
 ) -> Vec<Node> {
     let typed = library.function_types(name);
     if typed.is_empty() {
@@ -2256,15 +2352,21 @@ fn defined_types_unsaid(
         let Some(v) = t.children.first().and_then(|f| stands.get(&f.text)) else {
             continue;
         };
-        if !v.is_name() || !defined.contains(&v.text) {
+        if !v.is_name() {
             continue;
         }
+        let Some(rule) = at.defined.get(&v.text) else {
+            continue;
+        };
         let typed = substitute_apart(t, &stands, &library.ctx);
         let said = parts.facts.iter().any(|fact| {
             TYPING.contains(&fact.notation.as_str())
                 && fact.children.first().is_some_and(|g| g.text == v.text)
         });
-        if !said && !values_said(&typed, &parts.facts, library) {
+        let once = rule.as_ref().is_some_and(|r| {
+            r.typed_once(&typed.children[1], &typed.children[2], at.letters, known)
+        });
+        if !said && !once && !values_said(&typed, &parts.facts, library) {
             out.push(typed);
         }
     }
@@ -3776,15 +3878,23 @@ pub fn check_surplus(
         }
         // Compared as formulas, so that `x∈ℤ` is `x ∈ ℤ`.
         let in_domain = domains_asked(thm, step, scopes, known);
+        // What the step ends on by dropping an identity element asks to be
+        // a number (`formulas::ends_asking`).
+        let ends = super::formulas::ends_asking(thm, step, known, library, &[]);
         for (i, req) in step.requires.iter().enumerate() {
             let mut lighter = step.clone();
             lighter.requires.remove(i);
             let domain = known
                 .whole_as_written(&req.fact)
                 .is_some_and(|n| in_domain.contains(n.shape()));
+            let ended = known.whole_as_written(&req.fact).is_some_and(|n| {
+                n.notation == "membership"
+                    && ends.iter().any(|u| known.alike(&n.children[0], &u.left))
+            });
             // What keeps a line without a search is asked before the search.
             if !asks.asks(step, &req.fact, known)
                 && !domain
+                && !ended
                 && !built_on(req, step, known)
                 && !lost_without(&lighter)
                 && holds(&lighter)
