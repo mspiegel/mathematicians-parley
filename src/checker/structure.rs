@@ -1308,16 +1308,16 @@ pub fn check_readings(report: &mut Report, thm: &Theorem) {
 pub fn check_steps_used(report: &mut Report, thm: &Theorem) {
     let mut cited: BTreeSet<String> = BTreeSet::new();
     for step in &thm.steps {
-        cites(&step.just, &thm.path, &mut cited);
+        cites(&step.just, &mut cited);
         for r in &step.requires {
             if let Ok(by) = &r.by {
-                cites(by, &thm.path, &mut cited);
+                cites(by, &mut cited);
             }
         }
     }
     for d in &thm.defines {
         if let Some(Ok(by)) = d.reason.as_ref().map(|r| &r.by) {
-            cites(by, &thm.path, &mut cited);
+            cites(by, &mut cited);
         }
     }
     for (i, step) in thm.steps.iter().enumerate() {
@@ -1345,20 +1345,13 @@ pub fn check_steps_used(report: &mut Report, thm: &Theorem) {
     }
 }
 
-/// What a justification cites, into `cited`: its lines and labels, an
-/// instantiate's target, the line it contradicts, and the line its first
-/// inequality row writes out.
-fn cites(just: &Justification, path: &str, cited: &mut BTreeSet<String>) {
+/// What a justification cites, into `cited`: its lines and labels, among
+/// them those its chain and rows cite (`Justification::refs`), an
+/// instantiate's target, and the line it contradicts.
+fn cites(just: &Justification, cited: &mut BTreeSet<String>) {
     cited.extend(just.refs.iter().cloned());
     cited.extend(just.target.iter().cloned());
     cited.extend(just.contradicting.iter().cloned());
-    if let Some(Ok(rows)) = crate::corpus::proof::rows(just, path) {
-        for row in rows {
-            if let crate::corpus::proof::RowReason::Cited(r) = row.reason {
-                cited.insert(r);
-            }
-        }
-    }
 }
 
 /// The last step of a proof is the theorem's conclusion (`SYNTAX.md`): its
