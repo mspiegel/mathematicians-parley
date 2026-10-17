@@ -2797,6 +2797,9 @@ impl Emitter {
         labels: &FloatLabels,
         said: &str,
     ) -> Checked<Route<Quotiented>> {
+        if right.variable().is_none() && right.label() == Some("cneg") {
+            return self.divided_by_negation(o, left, right, labels, said);
+        }
         if right.variable().is_some()
             || right.label() != Some("co")
             || right.children().len() != 3
@@ -2888,6 +2891,70 @@ impl Emitter {
             &proof,
             said,
             &flipped,
+            &Self::spell_quotient(&over, under.as_deref()),
+        );
+        Ok(Built(Quotiented {
+            over,
+            under,
+            proof: p,
+        }))
+    }
+
+    /// `a / -u y`, a divisor that divides only under a negation, as
+    /// x/(−(x/2)), normalised as `-u ( a / y )` (`divneg2d`). y is not 0
+    /// where the page says −y is not (`written`, by `negne0bd`).
+    fn divided_by_negation(
+        &mut self,
+        o: &mut dyn Oracle,
+        left: &Term,
+        right: &Term,
+        labels: &FloatLabels,
+        said: &str,
+    ) -> Checked<Route<Quotiented>> {
+        let y = &right.children()[0];
+        let (a_s, y_s) = (left.rpn(labels).to_string(), y.rpn(labels).to_string());
+        let Some(y_apart) = o.written(&y_s)? else {
+            return Ok(Route::no(format!(
+                "nothing says {} is not zero, which {said} divides by negated",
+                o.shown(&y_s)
+            )));
+        };
+        let (a_cc, y_cc) = (o.atom(&a_s)?, o.atom(&y_s)?);
+        let inner = op(&a_s, &y_s, DIV);
+        let negated = t!(inner, "cneg");
+        let turned = {
+            let b = o.b();
+            let moved = b.ap(
+                "divneg2d",
+                &binds! {"ph" => &self.under, "A" => &a_s, "B" => &y_s},
+                &[&a_cc, &y_cc, &y_apart],
+            );
+            b.ap(
+                "eqcomd",
+                &binds! {"ph" => &self.under, "A" => &negated, "B" => said},
+                &[&moved],
+            )
+        };
+        let Some(div) = (y.variable().is_none() && y.label() == Some("co"))
+            .then(|| y.children().get(2).cloned())
+            .flatten()
+        else {
+            return Ok(Route::no(format!(
+                "{said} divides by a negation of no quotient"
+            )));
+        };
+        let rebuilt = Term::apply(
+            "cneg",
+            vec![Term::apply("co", vec![left.clone(), y.clone(), div])],
+        );
+        let Quotiented { over, under, proof } =
+            take!(self.normalize_quotient(o, &rebuilt, labels)?);
+        let p = self.chain(
+            o,
+            &turned,
+            &proof,
+            said,
+            &negated,
             &Self::spell_quotient(&over, under.as_deref()),
         );
         Ok(Built(Quotiented {

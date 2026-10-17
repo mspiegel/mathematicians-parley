@@ -1,0 +1,11 @@
+theorem a-divisor-negating-a-quotient
+  note        algebra divides by −(x/2), a quotient under a negation, from a
+              line saying −(x/2) is not zero: x/2 is not zero because its
+              negation is not.
+  let x ∈ ℝ                                                           (H1)
+  assume −(x/2) ≠ 0                                                   (H2)
+  then x/(−(x/2)) = −2
+
+1.  x/(−(x/2)) = −2
+    algebra
+    requires −(x/2) ≠ 0: from H2
