@@ -439,6 +439,16 @@ fn check_step_part(report: &mut Report, thm: &Theorem, step: &Step, known: &Know
             return;
         }
     };
+    if let Some(over) = step.just.on.as_ref().filter(|on| **on != letter.text) {
+        report.say(
+            &thm.path,
+            step.line,
+            format!(
+                "the induction is on {over}, and its claim is not said for all {over}"
+            ),
+        );
+        return;
+    }
     check_induction_runs(report, thm, step, set, known);
     // The letter an induction runs over is its own: one the page has
     // introduced where the induction stands would be two things at once.

@@ -2454,6 +2454,14 @@ fn cases() -> Vec<Case> {
             ],
             "step 1 is an induction whose claim does not say \"for all k ∈ X, …\"",
         ),
+        // The letter an induction says it is on is the one its claim binds.
+        case(
+            "an induction on a letter its claim does not bind",
+            vec![
+                edit("proofs/wiedijk/sum-formula.proof", Some("    induction on k starting at 1".to_string()), "    induction on j starting at 1".to_string()),
+            ],
+            "the induction is on j, and its claim is not said for all j",
+        ),
         // Each part of a block ends on what it owes (`SYNTAX.md`): the base
         // on the claim's statement at the start, the step on it at k + 1, a
         // case on the block's claim, a proof block on its claim with what

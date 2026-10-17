@@ -3559,37 +3559,7 @@ impl<'a> Elaborator<'a> {
         scope: &str,
         facts: &Facts,
     ) -> Checked<Route<Proof>> {
-        // One line, one step, as the checker says it.
-        let sentences = step.claim.sentences().len();
-        if sentences > 1 {
-            return Err(self.defect(
-                step.line,
-                format!(
-                    "step {} claims {sentences} sentences by membership, which says one term is in a number system; each is a step of its own",
-                    fmt(&step.number)
-                ),
-            ));
-        }
         let claim = self.to_term(term);
-        // What is said of every member is read at one, down to the
-        // membership (`member_of`).
-        let mut said = claim.clone();
-        while said.variable().is_none() && said.label() == Some("wral") {
-            said = said.children()[0].clone();
-        }
-        if said.variable().is_some()
-            || said.label() != Some("wcel")
-            || lookup(rules::SYSTEMS, &self.rpn(&said.children()[1])).is_none()
-        {
-            return Err(self.defect(
-                step.line,
-                format!(
-                    "step {} names membership for {}, which says no term is in a number system",
-                    fmt(&step.number),
-                    self.render(term)
-                ),
-            ));
-        }
         let supplied = self.supplied(Some(step), scope, facts)?;
         let cited = self.with_cited(Some(step), scope, &supplied, None);
         let known = facts.with(&cited);

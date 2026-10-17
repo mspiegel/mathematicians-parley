@@ -523,22 +523,13 @@ impl<'a> Elaborator<'a> {
                 }
             }
             Some(Method::Induction) => {
+                // The letter the claim says "for all k ∈ X, …" of, as the
+                // checker holds.
                 let over = step
                     .just
                     .on
                     .clone()
                     .expect("an induction says what it is on");
-                // The claim says "for all k ∈ X, …" of the letter the
-                // induction is on.
-                let claim = self.claim_node(&step.claim)?;
-                let letter = (claim.notation == "for-all" && claim.children.len() == 3)
-                    .then(|| claim.children[0].text.clone());
-                if letter.as_deref() != Some(over.as_str()) {
-                    return Err(self.defect(
-                        step.line,
-                        format!("the induction is on {over}, and its claim is not said for all {over}"),
-                    ));
-                }
                 let base = self.spare_var()?;
                 // The step part fixes a name of its own, and `nn0indd` wants
                 // that one apart from this.
@@ -644,32 +635,6 @@ impl<'a> Elaborator<'a> {
             .cloned()
             .collect();
         for o in openers {
-            // An induction hypothesis writes no formula of its own: what it
-            // says is read off the claim below.
-            if let Some(letter) = &o.hypothesis_for {
-                let claim = self.claim_node(&block.owner.claim)?;
-                let bound = match (claim.notation.as_str(), claim.children.as_slice()) {
-                    ("for-all", [k, _, _]) => k.text.clone(),
-                    _ => {
-                        return Err(self.defect(
-                            o.line,
-                            format!(
-                                "step {} is an induction whose claim does not say \"for all k ∈ X, …\"",
-                                fmt(&block.owner.number)
-                            ),
-                        ))
-                    }
-                };
-                if &bound != letter {
-                    return Err(self.defect(
-                        o.line,
-                        format!(
-                            "the induction hypothesis is for {letter}, and step {} is said for all {bound}",
-                            fmt(&block.owner.number)
-                        ),
-                    ));
-                }
-            }
             let said = match o.is_hypothesis {
                 true => None,
                 false => Some(self.hypothesis_node(o.kind, &o.body(&self.thm.path))?),
@@ -1406,23 +1371,27 @@ impl<'a> Elaborator<'a> {
     fn close_induction(&mut self, block: &Block) -> Checked<(String, Proof)> {
         let step = &block.owner;
         let scope = &block.outer;
-        let keys: std::collections::BTreeSet<usize> =
-            block.parts.keys().copied().collect();
-        if keys != [0usize, 1].into_iter().collect() {
-            return Err(self.defect(step.line, "induction wants a base and a step"));
-        }
+        // A base part and a step part, as the checker holds.
         let PartEnd {
             claim: base_claim,
             proof: base,
             scope: beneath,
             facts: outside,
-        } = block.parts[&0].clone();
+        } = block
+            .parts
+            .get(&0)
+            .expect("an induction's base part")
+            .clone();
         let PartEnd {
             claim: step_claim,
             proof: stepped,
             scope: under,
             facts: inside,
-        } = block.parts[&1].clone();
+        } = block
+            .parts
+            .get(&1)
+            .expect("an induction's step part")
+            .clone();
         let name = block.over.clone().unwrap_or_default();
         let general = format!("{} cv", block.base.clone().unwrap_or_default());
         let Some(variable) = block.variable.clone() else {
@@ -1439,25 +1408,9 @@ impl<'a> Elaborator<'a> {
                 format!("nothing here inducts over {}", self.render(&over)),
             ));
         };
-        let start = match step.just.start.as_deref() {
-            Some(m) => {
-                let node =
-                    self.read_one(&Written::new(m, &self.thm.path, step.just.line))?;
-                self.term(&node)?
-            }
-            None => begins.to_string(),
-        };
-        if start != begins {
-            return Err(self.defect(
-                step.line,
-                format!(
-                    "an induction over {} starts at {}, and the text says {}",
-                    self.render(&over),
-                    self.render(begins),
-                    self.render(&start)
-                ),
-            ));
-        }
+        // The start the page writes is the set's first element, as the
+        // checker holds (`check_induction_runs`).
+        let start = begins.to_string();
         let next_one = t!(format!("{variable} cv"), "c1", "caddc", "co");
         let written = step.claim.clone();
         // The statement after "for all k ∈ X,", with k the general name.
