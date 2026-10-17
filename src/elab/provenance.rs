@@ -760,7 +760,22 @@ impl<'a> Elaborator<'a> {
             // rests on as it rests on a cited one (R2). A reason that is only
             // `from` names its lines, and is read from those.
             let above = !req.is_some_and(Requires::is_lines);
-            return match self.unfolded_at(&term, scope, facts, &refs, above)? {
+            if let Built(p) = self.unfolded_at(&term, scope, facts, &refs, above)? {
+                return Ok(Built(p));
+            }
+            // A membership the lines give together is built from them as
+            // `membership` builds one, which the checker reads a bare `from`
+            // as giving: (k + 1)! ∈ ℝ from k! ∈ ℕ and (k + 1)! = k!·(k + 1),
+            // c·gcd(a, b) ∈ ℤ from gcd(a, b) ∈ ℕ. What it may rest on is
+            // the line's reason, as `side` offers it.
+            let in_system = whole.variable().is_none()
+                && whole.label() == Some("wcel")
+                && lookup(rules::SYSTEMS, &self.rpn(&whole.children()[1])).is_some();
+            let built = match in_system {
+                true => self.member_of(&whole, scope, facts, step)?,
+                false => self.no("not a membership in a number system", &[]),
+            };
+            return match built {
                 Built(p) => Ok(Built(p)),
                 Declined(_) => Err(self.defect(
                     self.at,
