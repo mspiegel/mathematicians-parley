@@ -32,9 +32,8 @@ use crate::corpus::proof::{rows, RowReason};
 use crate::corpus::{fmt, Item, Method, RecordKind, Step};
 pub use crate::methods::algebra::rescales;
 use crate::methods::algebra::{
-    self, claim_says, combination, denominators, readings, Factor,
+    claim_says, combination, denominators, readings, Factor,
 };
-use crate::methods::inequalities;
 use crate::mm::kernel::Term;
 use crate::mm::spell::{Builder, Proof};
 use crate::outcome::{Built, Checked, Declined, Problem, Route};
@@ -180,20 +179,6 @@ impl Oracle for Ask<'_, '_> {
     fn shown(&self, said: &str) -> String {
         self.el.render(said)
     }
-}
-
-/// Whether a claim is a divisibility or its denial, which is the kernel form
-/// of every word `arithmetic` may be asked to decide.
-fn divisibility(claim: &Term) -> bool {
-    let core = if claim.label() == Some("wn") && claim.children().len() == 1 {
-        &claim.children()[0]
-    } else {
-        claim
-    };
-    core.variable().is_none()
-        && core.label() == Some("wbr")
-        && core.children().len() == 3
-        && core.children()[2].label() == Some("cdvds")
 }
 
 /// Whether `claim` is the word `word` is the kernel form of: the same tree,
@@ -393,10 +378,6 @@ impl<'a> Elaborator<'a> {
             facts,
             lines
         )?);
-        let linear = self.sums_linear(&out.term, Some(step), &out.lines);
-        field::reading_sums(linear, || {
-            self.decide_field(step, &out.term, term, &out.lines)
-        })?;
         let found =
             self.algebra_written_out(step, &out.term, scope, &out.facts, &out.lines)?;
         if out.term == term {
@@ -1593,40 +1574,6 @@ impl<'a> Elaborator<'a> {
         ))
     }
 
-    /// Refuse an `algebra` step that is not an identity: with nothing cited
-    /// the claim must vanish outright; with equations cited it must be a
-    /// combination of them.
-    /// `term` is decided, with the lines it cites as `lines` holds them;
-    /// `shown` is the claim as the page writes it, which a refusal names.
-    fn decide_field(
-        &mut self,
-        step: &Step,
-        term: &str,
-        shown: &str,
-        lines: &Lines,
-    ) -> Checked<()> {
-        let labels = self.b.flabel.clone();
-        let cited: Vec<Term> = step
-            .just
-            .refs
-            .iter()
-            .filter_map(|r| lines.get(r))
-            .map(|held| self.to_term(&held.term))
-            .collect();
-        let verdict = algebra::decide(&self.to_term(term), &cited, &labels);
-        let render = |t: &Term| self.render(&t.rpn(&labels));
-        let said = algebra::refusal(
-            &verdict,
-            &self.render(shown),
-            &fmt(&step.number),
-            &render,
-        );
-        match said {
-            Some(said) => Err(self.defect(step.line, said)),
-            None => Ok(()),
-        }
-    }
-
     /// Closed numerals, worked out and then said. Nothing is taken as
     /// stated: the claim is worked out first, so what cannot be proved is
     /// reported as what it is.
@@ -1652,20 +1599,7 @@ impl<'a> Elaborator<'a> {
         what: &str,
         step: Option<&Step>,
     ) -> Checked<Proof> {
-        self.worked_out(term, what)?;
         let said = self.to_term(term);
-        if let Some(op) = self.undecided_operation(&said) {
-            return Err(self.defect(
-                self.at,
-                format!("{what}, which works out {op}, and no notation's record says arithmetic works it out (`decided`)"),
-            ));
-        }
-        if divisibility(&said) && !self.decided_by("arithmetic", &said)? {
-            return Err(self.defect(
-                self.at,
-                format!("{what}, which is a word no record says arithmetic decides (`decided`)"),
-            ));
-        }
         if let Built(p) = self.prove_numeral(term, scope, facts)? {
             return Ok(p);
         }
@@ -1960,21 +1894,6 @@ impl<'a> Elaborator<'a> {
         Ok(Built((v, canon, joined)))
     }
 
-    /// A claim `arithmetic` is asked for, refused where it is false or has
-    /// no exact value.
-    pub fn worked_out(&self, term: &str, what: &str) -> Checked<()> {
-        match field::decide_closed(&self.to_term(term)) {
-            Declined(_) => Ok(()),
-            Built(Verdict::Holds(true)) => Ok(()),
-            Built(Verdict::Holds(false)) => {
-                Err(self.defect(self.at, format!("{what}, which is false")))
-            }
-            Built(Verdict::Unworked(why)) => {
-                Err(self.defect(self.at, format!("{what}, which {why}")))
-            }
-        }
-    }
-
     /// The defect for a claim `arithmetic` could not prove: it is never taken
     /// as stated instead.
     pub fn unshown(&self, term: &str, what: &str) -> Problem {
@@ -1983,7 +1902,13 @@ impl<'a> Elaborator<'a> {
                 self.at,
                 format!("{what}, which is not a fact about numerals alone, and arithmetic decides nothing else"),
             ),
-            Built(_) => self.defect(
+            Built(Verdict::Holds(false)) => {
+                self.defect(self.at, format!("{what}, which is false"))
+            }
+            Built(Verdict::Unworked(why)) => {
+                self.defect(self.at, format!("{what}, which {why}"))
+            }
+            Built(Verdict::Holds(true)) => self.defect(
                 self.at,
                 format!("{what}, which is true, and arithmetic cannot show it yet; cite a theorem that states it"),
             ),
@@ -2237,31 +2162,6 @@ impl<'a> Elaborator<'a> {
         Ok(Route::no(format!(
             "{a} {how} {b} is not what the numbers do"
         )))
-    }
-
-    /// An operation `term` holds that `arithmetic` does not work out: one
-    /// beyond those of its own nature whose notation's record does not name
-    /// it in a `decided` field (`DATABASE.md`). The operation is its kernel
-    /// label, read off the records' targets as the checker reads them
-    /// (`field::worked_operations`).
-    fn undecided_operation(&self, term: &Term) -> Option<String> {
-        let worked = field::worked_operations(self.records);
-        let mut rest = vec![term.clone()];
-        while let Some(node) = rest.pop() {
-            if node.variable().is_some() {
-                continue;
-            }
-            let kids = node.children();
-            if node.label() == Some("co") && kids.len() == 3 {
-                if let Some(op) = kids[2].label() {
-                    if !worked.contains(op) {
-                        return Some(op.to_string());
-                    }
-                }
-            }
-            rest.extend(kids.iter().cloned());
-        }
-        None
     }
 
     /// Whether the word `claim` says, or for a denial the word it denies, is
@@ -3194,9 +3094,6 @@ impl<'a> Elaborator<'a> {
         // with its converse are proved from their lines in one, by any.
         let plain =
             step.just.head.is(Method::Inequalities) && step.just.rows.is_empty();
-        if plain {
-            self.decide_order(step, term_out, facts_out, lines_out)?;
-        }
         // The method wants every atom in ℝ, and a `requires` line is where
         // the step writes that; offered to the membership lookup and to
         // nothing else.
@@ -5551,45 +5448,5 @@ impl<'a> Elaborator<'a> {
             &binds! {"ph" => &scope, "ps" => t!(gap, "cc0", "wceq"), "ch" => t!(was[0], was[1], "wceq")},
             &[given, &turn],
         ))
-    }
-
-    /// Refuse an `inequalities` step that does not follow from its lines: a
-    /// cited line of several sentences supplies each sentence that is a
-    /// linear fact, and the bounds a membership it states implies.
-    fn decide_order(
-        &mut self,
-        step: &Step,
-        term: &str,
-        facts: &Facts,
-        lines: &Lines,
-    ) -> Checked<()> {
-        let labels = self.b.flabel.clone();
-        let mut cited = Vec::new();
-        let mut implied = Vec::new();
-        for r in &step.just.refs {
-            let Some(held) = lines.get(r) else {
-                continue;
-            };
-            cited.push(self.to_term(&held.term));
-            for said in &self.stated_claims(r, facts, lines) {
-                for (extra, _lemmas) in self.implied_terms(said) {
-                    implied.push(self.to_term(&extra));
-                }
-            }
-        }
-        let claimed = self.to_term(term);
-        let decided = inequalities::decide(&claimed, &cited, &implied, &labels);
-        if decided == Some(false) {
-            let said = inequalities::refusal(
-                &self.render(term),
-                &fmt(&step.number),
-                &claimed,
-                &cited,
-                &implied,
-                &labels,
-            );
-            return Err(self.defect(step.line, said));
-        }
-        Ok(())
     }
 }

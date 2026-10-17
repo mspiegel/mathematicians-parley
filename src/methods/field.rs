@@ -71,29 +71,6 @@ pub fn decides(record: &crate::corpus::Record, method: &str) -> bool {
     })
 }
 
-/// The kernel labels of every operation `arithmetic` works out, read off
-/// the targets of the notations it works out (`worked_out`): each `op co`
-/// in a target applies the operation op, so `product-over` gives the
-/// range's `cfz` with the product.
-pub fn worked_operations(
-    records: &[crate::corpus::Record],
-) -> std::collections::BTreeSet<String> {
-    records
-        .iter()
-        .filter(|r| r.kind == crate::corpus::RecordKind::Notation && worked_out(r))
-        .flat_map(|r| crate::targets::split_entries(r.field_or_empty("target")))
-        .flat_map(|entry| {
-            let tokens: Vec<String> =
-                entry.split_whitespace().map(String::from).collect();
-            tokens
-                .windows(2)
-                .filter(|pair| pair[1] == "co")
-                .map(|pair| pair[0].clone())
-                .collect::<Vec<_>>()
-        })
-        .collect()
-}
-
 /// An operation of the field a term `( A op B )` applies, by the label set.mm
 /// gives it.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
