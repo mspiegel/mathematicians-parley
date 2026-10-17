@@ -2444,7 +2444,68 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/wiedijk/sum-formula.proof", Some("    assume step 1 is true for k, the induction hypothesis             (IH)".to_string()), "    assume S(k) = k(k + 1)/2                                          (IH)".to_string()),
             ],
-            "the step part of step 1 does not open with `let k ∈ ℕ` and `assume step 1 is true for k, the induction hypothesis`",
+            "the step part of step 1 does not open with `let k ∈ ℕ` and `assume step 1 is true for k, the induction hypothesis`, those two lines in that order and no other",
+        ),
+        case(
+            "a step part that assumes something besides its hypothesis",
+            vec![
+                edit("proofs/wiedijk/sum-formula.proof", Some("    assume step 1 is true for k, the induction hypothesis             (IH)".to_string()), "    assume step 1 is true for k, the induction hypothesis             (IH)\n    assume k = k                                                      (A1)".to_string()),
+            ],
+            "the step part of step 1 does not open with `let k ∈ ℕ` and `assume step 1 is true for k, the induction hypothesis`, those two lines in that order and no other",
+        ),
+        case(
+            "split into one case",
+            vec![edit(
+                "proofs/zz/one-case.proof",
+                None,
+                "theorem one-case\n  let a ∈ ℝ                                                           (H1)\n  assume a = 0                                                        (H2)\n  then a = 0\n\n1.  a = 0\n    cases, from H2\n\n    case\n    assume a = 0                                                      (C1)\n\n    1.1.  a = 0\n          join C1\n".to_string(),
+            )],
+            "step 1 takes one case, and a case split takes two or more; prove the one case as a plain step",
+        ),
+        case(
+            "induct on a letter the statement does not mention",
+            vec![edit(
+                "proofs/zz/induct-unused.proof",
+                None,
+                "theorem induct-unused\n  then for all m ∈ ℕ₀, 0 + 0 = 0\n\n1.  For all m ∈ ℕ₀, 0 + 0 = 0.\n    induction on m starting at 0\n\n    base\n    1.1.  0 + 0 = 0\n          arithmetic\n\n    step\n    let m ∈ ℕ₀                                                        (K)\n    assume step 1 is true for m, the induction hypothesis             (IH)\n\n    1.2.  0 + 0 = 0\n          arithmetic\n".to_string(),
+            )],
+            "step 1 inducts on m, and what it says of every m does not mention m",
+        ),
+        case(
+            "define a function whose values are statements",
+            vec![edit(
+                "proofs/zz/define-statement.proof",
+                None,
+                "theorem define-statement\n  let a ∈ ℝ                                                           (H1)\n  then a = a\n\n  let Q(x) = x < 1, for x ∈ ℝ                                         (D1)\n      reads a statement of x\n\n1.  a = a\n    algebra\n".to_string(),
+            )],
+            "define D1 says each value of Q is x < 1, a statement, and a define names a thing",
+        ),
+        case(
+            "claim nothing but a full stop",
+            vec![edit(
+                "proofs/zz/claim-stop.proof",
+                None,
+                "theorem claim-stop\n  let x ∈ ℝ                                                           (H1)\n  assume x + 0 = x                                                    (H2)\n  then x + 0 = x\n\n1.  .\n    join H2\n\n2.  x + 0 = x\n    join H2, 1\n".to_string(),
+            )],
+            "step 1 says nothing",
+        ),
+        case(
+            "assume nothing but a full stop",
+            vec![edit(
+                "proofs/zz/assume-stop.proof",
+                None,
+                "theorem assume-stop\n  let x ∈ ℝ                                                           (H1)\n  assume .                                                            (H2)\n  then x = x\n\n1.  x = x\n    algebra\n".to_string(),
+            )],
+            "the `assume` line says nothing",
+        ),
+        case(
+            "a proof block claiming two sentences",
+            vec![edit(
+                "proofs/zz/proof-two.proof",
+                None,
+                "theorem proof-two\n  let a ∈ ℝ                                                           (H1)\n  then if a = 0 then a = 0\n\n1.  If a = 0 then a = 0. If a = 0 then a = 0.\n    proof\n    assume a = 0                                                      (K1)\n\n    1.1.  a = 0\n          join K1\n\n2.  If a = 0 then a = 0.\n    join 1\n".to_string(),
+            )],
+            "step 1 opens a proof block and claims 2 sentences; the block proves one, and each other sentence is a step of its own",
         ),
         // An induction proves a statement of every k; a claim about the
         // theorem's own n leaves the step part no letter of the claim's.
@@ -2804,6 +2865,24 @@ fn cases() -> Vec<Case> {
                 "theorem obtain-none\n  assume 1 = 1                                                        (H1)\n  assume 2 = 2                                                        (H2)\n  then 1 ∈ ℕ\n\n1.  1 = 1. 2 = 2.\n    join H1, H2\n\n2.  P ∈ ℕ. P = 1.\n    obtain P from line 1\n\n3.  1 ∈ ℕ\n    substitute P = 1 (line 2) into line 2\n".to_string(),
             )],
             "step 2 obtains P from a line, which says no \"there is\"",
+        ),
+        case(
+            "open a block under a calculation",
+            vec![edit(
+                "proofs/zz/calculation-block.proof",
+                None,
+                "theorem calculation-block\n  let a ∈ ℝ                                                           (H1)\n  assume a = 1                                                        (H2)\n  then a = 1\n\n1.  a = 1\n    calculation\n      a = 1          H2\n    assume a = a                                                      (A1)\n\n    1.1.  a = 1\n          join H2\n".to_string(),
+            )],
+            "step 1 is a calculation, which writes its chain and opens no block of steps",
+        ),
+        case(
+            "justify a requires line by a method that opens a block",
+            vec![edit(
+                "proofs/zz/requires-block.proof",
+                None,
+                "theorem requires-block\n  let x ∈ ℝ                                                           (H1)\n  assume x > 1                                                        (H2)\n  then (x·x)/x = x\n\n1.  (x·x)/x = x\n    algebra\n    requires x ≠ 0: cases, from H2\n".to_string(),
+            )],
+            "the requires line x ≠ 0 of step 1 names cases, which opens a block, and a requires line holds none",
         ),
         case(
             "exhibit from a line that says nothing of the value",

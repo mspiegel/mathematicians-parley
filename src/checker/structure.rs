@@ -235,6 +235,47 @@ pub fn check_blocks(
                 ),
             );
         }
+        // A case split has two cases or more: one case is the step itself.
+        if step.just.head.is(Method::Cases) && step.parts.len() == 1 {
+            report.say(
+                &thm.path,
+                step.line,
+                format!(
+                    "step {} takes one case, and a case split takes two or more; prove the one case as a plain step",
+                    step.number
+                ),
+            );
+        }
+        // A calculation's chain stands where a block would, and is all of it.
+        if has_children && step.just.head.is(Method::Calculation) {
+            report.say(
+                &thm.path,
+                step.line,
+                format!(
+                    "step {} is a calculation, which writes its chain and opens no block of steps",
+                    step.number
+                ),
+            );
+        }
+        // A requires line is one line, with no block for a method that
+        // opens one to hold.
+        for req in &step.requires {
+            let Ok(by) = req.by() else {
+                continue; // the reader reports a reason that does not read
+            };
+            if by.head.takes_block() {
+                report.say(
+                    &thm.path,
+                    req.line,
+                    format!(
+                        "the requires line {} of step {} names {}, which opens a block, and a requires line holds none; prove it as a step and cite it",
+                        str::trim(req.fact.text()),
+                        step.number,
+                        by.head
+                    ),
+                );
+            }
+        }
         let declared = method.map(|m| declared_parts(m)).unwrap_or_default();
         if !declared.is_empty() && step.parts.is_empty() && has_children {
             report.say(
@@ -427,6 +468,19 @@ fn check_step_part(report: &mut Report, thm: &Theorem, step: &Step, known: &Know
         return; // `check_formulas` says it does not read
     };
     let (letter, set) = match (claim.notation.as_str(), claim.children.as_slice()) {
+        ("for-all", [letter, set, body])
+            if letter.is_name() && !body.names().contains(&letter.text) =>
+        {
+            report.say(
+                &thm.path,
+                step.line,
+                format!(
+                    "step {number} inducts on {k}, and what it says of every {k} does not mention {k}; the induction does no work, and the statement is a step of its own",
+                    k = letter.text
+                ),
+            );
+            return;
+        }
         ("for-all", [letter, set, _]) if letter.is_name() => (letter, set),
         _ => {
             report.say(
@@ -481,25 +535,29 @@ fn check_step_part(report: &mut Report, thm: &Theorem, step: &Step, known: &Know
             }
             continue;
         }
-        // The membership the part's `let` line introduces, `k ∈ X`.
-        let fixed = opens
-            .iter()
-            .filter(|o| o.kind == Intro::Let)
-            .map(|o| Introduction::read(o.body(&thm.path)))
-            .filter(|i| matches!(i.form, Form::Member))
-            .find_map(|i| i.asserted(known.env.g, &known.sorts).ok()?.pop());
-        let opened = opens.iter().any(|o| o.is_hypothesis)
-            && fixed.as_ref().is_some_and(|f| match f.children.as_slice() {
-                [k, x] => k.text == letter.text && known.alike(x, set),
-                _ => false,
-            });
+        // The part opens with its `let k ∈ X` and then its hypothesis, and
+        // with nothing else: the induction lemma takes the statement at k
+        // and gives it at k + 1.
+        let fixed = match opens.as_slice() {
+            [first, second] if first.kind == Intro::Let && second.is_hypothesis => {
+                let i = Introduction::read(first.body(&thm.path));
+                matches!(i.form, Form::Member)
+                    .then(|| i.asserted(known.env.g, &known.sorts).ok()?.pop())
+                    .flatten()
+            }
+            _ => None,
+        };
+        let opened = fixed.as_ref().is_some_and(|f| match f.children.as_slice() {
+            [k, x] => k.text == letter.text && known.alike(x, set),
+            _ => false,
+        });
         if !opened {
             let (k, x) = (known.print(letter), known.print(set));
             report.say(
                 &thm.path,
                 *no,
                 format!(
-                    "the step part of step {number} does not open with `let {k} ∈ {x}` and `assume step {number} is true for {k}, the induction hypothesis`"
+                    "the step part of step {number} does not open with `let {k} ∈ {x}` and `assume step {number} is true for {k}, the induction hypothesis`, those two lines in that order and no other"
                 ),
             );
         }

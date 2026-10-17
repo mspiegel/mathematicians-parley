@@ -240,6 +240,11 @@ pub fn check_formulas(report: &mut Report, thm: &Theorem, env: Env, known: &Know
         Written::new(&thm.conclusion, &thm.path, thm.line),
     ));
     for (line, what, written) in places {
+        // Each of these places says something: a `.` alone is no sentence.
+        if written.sentences().is_empty() {
+            report.say(&thm.path, line, format!("{what} says nothing"));
+            continue;
+        }
         for sentence in written.sentences() {
             if let Err(p) = sentence.read(env.g, &known.sorts) {
                 // A name the file defines only further down is why, and
@@ -1152,7 +1157,22 @@ pub(super) fn block_owes(owner: &Step, known: &Known) -> Checked<Vec<Owed>> {
     else {
         return Ok(Vec::new());
     };
-    Ok(match (owner.just.head.method(), claim.as_slice()) {
+    // A proof block and an induction prove one statement, which their
+    // parts end on: a claim of several sentences is several steps.
+    let method = owner.just.head.method();
+    if matches!(method, Some(Method::Proof | Method::Induction)) && claim.len() != 1 {
+        return Err(Problem::new(
+            &known.thm.path,
+            owner.line,
+            format!(
+                "step {} opens a {} block and claims {} sentences; the block proves one, and each other sentence is a step of its own",
+                owner.number,
+                owner.just.head,
+                claim.len()
+            ),
+        ));
+    }
+    Ok(match (method, claim.as_slice()) {
         (Some(Method::Induction), [one]) => induction_owes(owner, one, known),
         (Some(Method::Cases), _) => (0..owner.parts.len())
             .map(|part| Owed {
@@ -2352,6 +2372,21 @@ pub fn check_define_names(
             continue;
         };
         let defined = known.citing(std::slice::from_ref(&d.label));
+        // A function's value is a thing as the name is: Q(x) = x < 1 is a
+        // statement of x, and no function.
+        if let Some(crate::matching::Defined::Rule(rule)) = defined.get(&name) {
+            if rule.body.sort.is("formula") {
+                report.say(
+                    &thm.path,
+                    d.line,
+                    format!(
+                        "define {} says each value of {name} is {}, a statement, and a define names a thing: a number, a set or a map",
+                        d.label,
+                        known.print(&rule.body)
+                    ),
+                );
+            }
+        }
         if let Some(crate::matching::Defined::Term(term)) = defined.get(&name) {
             if term.sort.is("formula") {
                 report.say(
