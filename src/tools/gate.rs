@@ -76,14 +76,6 @@ fn built_as(
     edited: Option<&[String]>,
 ) -> Said {
     let mut said = Said::default();
-    let found = match corpus(source) {
-        Ok(found) => found,
-        Err(problem) => {
-            said.complained = format!("{problem}\n");
-            said.status = 2;
-            return said;
-        }
-    };
     let Some(libraries) = libraries else {
         said.printed =
             "set.mm not found; say where it is with SET_MM, or leave a copy or a \
@@ -92,19 +84,12 @@ fn built_as(
         said.status = 2;
         return said;
     };
-    let every = artifacts(&found);
     let checked = match crate::checker::checked(source) {
         Ok(checked) => checked,
         Err(out) => return out,
     };
-    let mut maker = match Maker::new(source, &found, libraries, checked) {
-        Ok(maker) => maker,
-        Err(problem) => {
-            said.complained = format!("{problem}\n");
-            said.status = 2;
-            return said;
-        }
-    };
+    let every = artifacts(&checked.corpus);
+    let mut maker = Maker::new(source, &checked, libraries);
     let all: Vec<&Artifact> = match edited {
         Some(edited) => reached_by(&every, edited),
         None => every.iter().collect(),

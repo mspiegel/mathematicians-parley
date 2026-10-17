@@ -27,8 +27,8 @@ use std::sync::{Arc, Mutex, OnceLock};
 
 use indexmap::IndexMap;
 
-use crate::checker::CheckedTheorem;
-use crate::corpus::{cited_items, corpus, in_stdlib, index, Corpus, Item};
+use crate::checker::{CheckedCorpus, CheckedTheorem};
+use crate::corpus::{cited_items, in_stdlib, index, Corpus, Item};
 use crate::elab::definitions::write_definitions;
 use crate::elab::elaborate::Options;
 use crate::elab::{elaborate, statement_of, Elaborated, Library, ReadLibrary};
@@ -277,8 +277,8 @@ impl Libraries {
     }
 }
 
-/// What makes artifacts: the corpus read once, set.mm read once, and what
-/// this run has made so far.
+/// What makes artifacts: the corpus as the checker read it, set.mm read
+/// once, and what this run has made so far.
 pub struct Maker<'a> {
     source: &'a dyn Source,
     found: &'a Corpus,
@@ -289,28 +289,26 @@ pub struct Maker<'a> {
     made: IndexMap<String, String>,
     /// Every theorem as the checker reads it (`checker::checked`), which the
     /// build is handed: one it refuses is not built.
-    checked: IndexMap<String, CheckedTheorem>,
+    checked: &'a IndexMap<String, CheckedTheorem>,
 }
 
 impl<'a> Maker<'a> {
     pub fn new(
         source: &'a dyn Source,
-        found: &'a Corpus,
+        checked: &'a CheckedCorpus,
         libraries: &'a Libraries,
-        checked: IndexMap<String, CheckedTheorem>,
-    ) -> Checked<Maker<'a>> {
-        let g = Grammar::load(&found.records)?;
-        let items = index(&found.records, &found.theorems);
-        Ok(Maker {
+    ) -> Maker<'a> {
+        let found = &checked.corpus;
+        Maker {
             source,
             found,
-            g,
-            items,
+            g: Rc::clone(&checked.grammar),
+            items: index(&found.records, &found.theorems),
             libraries,
             library: None,
             made: IndexMap::new(),
-            checked,
-        })
+            checked: &checked.theorems,
+        }
     }
 
     /// An artifact's text: what this run made, and otherwise its file.
@@ -424,15 +422,13 @@ fn gb(bytes: u64) -> f64 {
 pub fn run(root: &Path, wanted: Option<&str>, setmm: Option<&str>) -> Said {
     let mut said = Said::default();
     let source = Disk::new(root.to_path_buf());
-    let found = match corpus(&source) {
-        Ok(found) => found,
-        Err(problem) => {
-            said.complained = format!("{problem}\n");
-            said.status = 2;
-            return said;
-        }
+    // The checker reads the page first, and the build builds only what it
+    // accepts, from what it read.
+    let checked = match crate::checker::checked(&source) {
+        Ok(checked) => checked,
+        Err(out) => return out,
     };
-    let every = artifacts(&found);
+    let every = artifacts(&checked.corpus);
     let asked = wanted;
     let wanted: Vec<&Artifact> = match asked {
         Some(name) => every.iter().filter(|a| a.name == name).collect(),
@@ -468,20 +464,7 @@ pub fn run(root: &Path, wanted: Option<&str>, setmm: Option<&str>) -> Said {
             return said;
         }
     };
-    // The checker reads the page first, and the build builds only what it
-    // accepts, from what it read.
-    let checked = match crate::checker::checked(&source) {
-        Ok(checked) => checked,
-        Err(out) => return out,
-    };
-    let mut maker = match Maker::new(&source, &found, &libraries, checked) {
-        Ok(maker) => maker,
-        Err(problem) => {
-            said.complained = format!("{problem}\n");
-            said.status = 2;
-            return said;
-        }
-    };
+    let mut maker = Maker::new(&source, &checked, &libraries);
 
     let mut changed = 0;
     let mut marks: IndexMap<String, char> = IndexMap::new();
@@ -573,44 +556,29 @@ pub fn library(root: &Path, setmm: Option<&str>) -> Checked<Library> {
     Library::read(&setmm, proved.as_deref())
 }
 
-/// The corpus a tree holds and its grammar, read once for elaborating as
-/// many of its theorems as are wanted. A test elaborating each theorem of a
-/// tree in turn spent a seventh of its run reading them again for each. The
-/// index, which borrows from the corpus, is a map of names and cheap to make
-/// for each theorem.
+/// The corpus a tree holds as the checker read it, with its grammar and the
+/// checker's records, for elaborating as many of its theorems as are
+/// wanted. The index, which borrows from the corpus, is a map of names and
+/// cheap to make for each theorem.
 pub struct Loaded<'s> {
     source: &'s dyn Source,
-    found: Corpus,
-    g: Rc<Grammar>,
-    /// Every theorem as the checker reads it, which elaborating one is
-    /// handed.
-    checked: IndexMap<String, CheckedTheorem>,
+    checked: CheckedCorpus,
 }
 
 impl<'s> Loaded<'s> {
-    /// The corpus `source` holds, read, and read by the checker.
+    /// The corpus `source` holds, read and checked.
     pub fn new(source: &'s dyn Source) -> Checked<Loaded<'s>> {
-        Loaded::with_checked(source, checked_in(source, |_| true)?)
+        Ok(Loaded::with_checked(source, checked_in(source, |_| true)?))
     }
 
-    /// The corpus `source` holds, read, with `checked` the checker's records
-    /// of the theorems to be elaborated (`checked_in`): what `checked`
-    /// leaves out cannot be elaborated. A caller elaborating a few theorems
-    /// of many trees, or one tree again as files are built into it, checks
-    /// those theorems once, since the checker reads proofs and records and
-    /// no built file.
-    pub fn with_checked(
-        source: &'s dyn Source,
-        checked: IndexMap<String, CheckedTheorem>,
-    ) -> Checked<Loaded<'s>> {
-        let found = corpus(source)?;
-        let g = Grammar::load(&found.records)?;
-        Ok(Loaded {
-            source,
-            found,
-            g,
-            checked,
-        })
+    /// The corpus `source` holds as `checked` read it (`checked_in`), with
+    /// the records of the theorems to be elaborated: what it leaves out
+    /// cannot be elaborated. A caller elaborating a few theorems of many
+    /// trees, or one tree again as files are built into it, checks those
+    /// theorems once, since the checker reads proofs and records and no
+    /// built file.
+    pub fn with_checked(source: &'s dyn Source, checked: CheckedCorpus) -> Loaded<'s> {
+        Loaded { source, checked }
     }
 
     /// Elaborate the theorem `name`.
@@ -623,16 +591,16 @@ impl<'s> Loaded<'s> {
         library: &Library,
         options: Options,
     ) -> Checked<Elaborated> {
-        let Some(thm) = self.found.theorems.iter().find(|t| t.qualified() == name)
-        else {
+        let found = &self.checked.corpus;
+        let Some(thm) = found.theorems.iter().find(|t| t.qualified() == name) else {
             return Err(Problem::new(name, 0, format!("no theorem {name}")));
         };
         let statements = |cited: &str| -> Option<String> {
             let text = self.source.read_text(&path_of(cited)).ok()?;
             statement_of(&text)
         };
-        let items = index(&self.found.records, &self.found.theorems);
-        let Some(checked) = self.checked.get(name) else {
+        let items = index(&found.records, &found.theorems);
+        let Some(checked) = self.checked.theorems.get(name) else {
             return Err(Problem::new(
                 name,
                 0,
@@ -640,8 +608,8 @@ impl<'s> Loaded<'s> {
             ));
         };
         elaborate(
-            &self.found,
-            &self.g,
+            found,
+            &self.checked.grammar,
             &items,
             thm,
             checked,
@@ -652,13 +620,13 @@ impl<'s> Loaded<'s> {
     }
 }
 
-/// The checker's records of the theorems of `source` whose full name
-/// `wanted` holds (`checker::checked_where`), a corpus that does not read
-/// being a problem.
+/// The corpus of `source` as the checker reads it, with its records of the
+/// theorems whose full name `wanted` holds (`checker::checked_where`), a
+/// corpus that does not read being a problem.
 pub fn checked_in(
     source: &dyn Source,
     wanted: impl Fn(&str) -> bool,
-) -> Checked<IndexMap<String, CheckedTheorem>> {
+) -> Checked<CheckedCorpus> {
     crate::checker::checked_where(source, wanted).map_err(|out| {
         Problem::new(
             source.root().display().to_string(),
@@ -677,5 +645,5 @@ pub fn elaborate_one(
     options: Options,
 ) -> Checked<Elaborated> {
     let checked = checked_in(source, |n| n == name)?;
-    Loaded::with_checked(source, checked)?.elaborate(name, library, options)
+    Loaded::with_checked(source, checked).elaborate(name, library, options)
 }

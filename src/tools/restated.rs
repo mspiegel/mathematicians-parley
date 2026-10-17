@@ -537,13 +537,13 @@ pub fn run_edited(
     restated(source, libraries, built)
 }
 
-/// Every restatement `wanted` built over the corpus `all`, and what was
-/// built verified with the library files it includes: green where each
-/// builds and verifies. The checker reads what is built first, the records
-/// and the restatements' own files, as it reads the corpus before a build.
+/// Every restatement `wanted` built, and what was built verified with the
+/// library files it includes: green where each builds and verifies. The
+/// checker reads what is built first, the records and the restatements' own
+/// files, as it reads the corpus before a build, and the build builds from
+/// what it read.
 fn built_and_verified(
     source: &dyn Source,
-    all: &Corpus,
     files: &[(String, String)],
     wanted: &[Artifact],
     libraries: &Libraries,
@@ -569,16 +569,7 @@ fn built_and_verified(
             Ok(checked) => checked,
             Err(out) => return out,
         };
-        let mut maker = match Maker::new(source, all, libraries, checked) {
-            Ok(maker) => maker,
-            Err(problem) => {
-                return Said {
-                    printed: String::new(),
-                    complained: format!("{problem}\n"),
-                    status: 2,
-                }
-            }
-        };
+        let mut maker = Maker::new(source, &checked, libraries);
         for artifact in wanted {
             match maker.make(artifact) {
                 Ok(text) => made.push((artifact.path(), text)),
@@ -665,7 +656,7 @@ fn restated(source: &dyn Source, libraries: Option<&Libraries>, build: bool) -> 
 
     let mut said = Said::default();
     if build {
-        let built = built_and_verified(source, &all, &files, &wanted, libraries);
+        let built = built_and_verified(source, &files, &wanted, libraries);
         if !built.green() {
             return built;
         }

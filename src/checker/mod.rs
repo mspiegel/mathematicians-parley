@@ -20,8 +20,8 @@ use indexmap::{IndexMap, IndexSet};
 use crate::citing::{Library, Proved};
 use crate::corpus::{
     index, link_definitions, link_functions, module_of, parse_database, parse_proof,
-    proof_files, record_files, FileScope, Intro, Item, Method, Record, RecordKind,
-    Step, Theorem,
+    proof_files, record_files, Corpus, FileScope, Intro, Item, Method, Record,
+    RecordKind, Step, Theorem,
 };
 use crate::formula::page::{Sentence, Written};
 use crate::formula::Grammar;
@@ -99,20 +99,34 @@ pub fn run(source: &dyn Source) -> Outcome {
 /// what the checker refuses and says it as the checker does. What the
 /// checker reports of the corpus as a whole, outside every theorem, is
 /// `run`'s to say.
-pub fn checked(
-    source: &dyn Source,
-) -> Result<IndexMap<String, CheckedTheorem>, Outcome> {
+pub fn checked(source: &dyn Source) -> Result<CheckedCorpus, Outcome> {
     checked_where(source, |_| true)
+}
+
+/// The corpus as the checker read it, which the build builds from, and the
+/// checker's record of each theorem it was asked for.
+pub struct CheckedCorpus {
+    pub corpus: Corpus,
+    /// The grammar the corpus's records declare, which the checker read with.
+    pub grammar: std::rc::Rc<Grammar>,
+    pub theorems: IndexMap<String, CheckedTheorem>,
 }
 
 /// `checked` of the theorems whose full name `wanted` holds, and of no
 /// other: a theorem's record depends on the corpus as read and on nothing
-/// another theorem's check did, so each is what `checked` makes of it.
+/// another theorem's check did, so each is what `checked` makes of it. A
+/// file that does not read or parse is the outcome, as nothing of the
+/// corpus can be built without all of it.
 pub fn checked_where(
     source: &dyn Source,
     wanted: impl Fn(&str) -> bool,
-) -> Result<IndexMap<String, CheckedTheorem>, Outcome> {
-    let checked = prepared(source, |_, c| {
+) -> Result<CheckedCorpus, Outcome> {
+    let read = read_corpus(source)?;
+    if !read.whole {
+        let counts = counts_of(&read.corpus);
+        return Err(summary(read.report, counts));
+    }
+    let checked = prepared_in(&read.corpus, read.report, |_, c| {
         let mut out = IndexMap::new();
         for (i, thm) in c.theorems.iter().enumerate() {
             if !wanted(&thm.qualified()) {
@@ -159,7 +173,32 @@ pub fn checked_where(
         }
         out
     });
-    checked.map(|(_, _, out)| out)
+    let (_, _, theorems) = checked?;
+    // The grammar the checks read with: a grammar is kept for the records it
+    // was loaded from (`Grammar::load`), and `prepared_in` loaded it.
+    let grammar = Grammar::load(&read.corpus.records).map_err(|p| {
+        let mut report = Report::default();
+        report.problems.push(p);
+        summary(report, counts_of(&read.corpus))
+    })?;
+    Ok(CheckedCorpus {
+        corpus: read.corpus,
+        grammar,
+        theorems,
+    })
+}
+
+/// How many theorems, steps, items and methods the corpus holds, which a
+/// summary ends on.
+fn counts_of(corpus: &Corpus) -> (usize, usize, usize, usize) {
+    let steps: usize = corpus.theorems.iter().map(|t| t.steps.len()).sum();
+    let items = index(&corpus.records, &corpus.theorems).len();
+    let methods = corpus
+        .records
+        .iter()
+        .filter(|r| r.kind == RecordKind::Method)
+        .count();
+    (corpus.theorems.len(), steps, items, methods)
 }
 
 /// Check the corpus under the source's root, after the files `edited` were
@@ -409,13 +448,19 @@ pub fn printed_back(source: &dyn Source) -> Result<(usize, Vec<String>), Outcome
     .map(|(_, _, out)| out)
 }
 
-/// Read the corpus, check what is checked of the corpus as a whole, and give
-/// what was read to `then`; or the outcome where nothing can be read.
-#[allow(clippy::type_complexity)]
-fn prepared<T>(
-    source: &dyn Source,
-    then: impl FnOnce(&mut Report, &mut Checking<'_>) -> T,
-) -> Result<(Report, (usize, usize, usize, usize), T), Outcome> {
+/// The corpus as the checker reads it, and what reading it found wrong.
+struct Read {
+    corpus: Corpus,
+    report: Report,
+    /// Whether every file read and parsed, so that `corpus` is all of it:
+    /// a file that does not is reported and left out.
+    whole: bool,
+}
+
+/// Read every record file and proof file under the source's root, and link
+/// each file's imports of library functions and definitions; or the
+/// outcome where there is no corpus to read.
+fn read_corpus(source: &dyn Source) -> Result<Read, Outcome> {
     let mut report = Report::default();
     let db_files = record_files(source);
     let proofs = proof_files(source);
@@ -427,12 +472,14 @@ fn prepared<T>(
         });
     }
 
+    let mut whole = true;
     let mut texts: IndexMap<String, String> = IndexMap::new();
     for rel in db_files.iter().chain(proofs.iter()) {
         let raw = match source.read(rel) {
             Ok(raw) => raw,
             Err(e) => {
                 report.say(rel, 1, format!("cannot be read: {e}"));
+                whole = false;
                 continue;
             }
         };
@@ -440,7 +487,10 @@ fn prepared<T>(
             Ok(text) => {
                 texts.insert(rel.clone(), text);
             }
-            Err(p) => report.problems.push(p),
+            Err(p) => {
+                report.problems.push(p);
+                whole = false;
+            }
         }
     }
 
@@ -449,18 +499,13 @@ fn prepared<T>(
         let Some(text) = texts.get(rel) else { continue };
         match parse_database(rel, text) {
             Ok(found) => records.extend(found),
-            Err(p) => report.problems.push(p),
+            Err(p) => {
+                report.problems.push(p);
+                whole = false;
+            }
         }
     }
 
-    let mut methods: IndexMap<String, usize> = IndexMap::new();
-    // A method written in words, `both directions`, names its record with
-    // a hyphen between them, as every record's name is one word.
-    for (i, r) in records.iter().enumerate() {
-        if r.kind == RecordKind::Method {
-            methods.insert(r.name.replace('-', " "), i);
-        }
-    }
     let mut allowed: IndexSet<char> = IndexSet::new();
     for r in records.iter().filter(|r| r.kind == RecordKind::Notation) {
         for value in r.fields.values() {
@@ -475,10 +520,6 @@ fn prepared<T>(
     }
     allowed.extend(IDENTIFIER_CHARACTERS.chars());
 
-    database::check_database(&mut report, &records);
-    database::check_notation(&mut report, &records);
-    let words = structure::declared_words(&records);
-
     let mut theorems: Vec<Theorem> = Vec::new();
     let mut scopes: Vec<FileScope> = Vec::new();
     for rel in &proofs {
@@ -489,13 +530,67 @@ fn prepared<T>(
                 scopes.push(scope);
                 theorems.extend(found);
             }
-            Err(p) => report.problems.push(p),
+            Err(p) => {
+                report.problems.push(p);
+                whole = false;
+            }
         }
     }
+    for (path, no, message) in link_functions(&records, &mut scopes)
+        .into_iter()
+        .chain(link_definitions(&theorems, &mut scopes))
+    {
+        report.say(&path, no, message);
+    }
+    Ok(Read {
+        corpus: Corpus {
+            records,
+            theorems,
+            scopes,
+        },
+        report,
+        whole,
+    })
+}
 
-    let items = index(&records, &theorems);
+/// Read the corpus, check what is checked of the corpus as a whole, and give
+/// what was read to `then`; or the outcome where nothing can be read.
+#[allow(clippy::type_complexity)]
+fn prepared<T>(
+    source: &dyn Source,
+    then: impl FnOnce(&mut Report, &mut Checking<'_>) -> T,
+) -> Result<(Report, (usize, usize, usize, usize), T), Outcome> {
+    let read = read_corpus(source)?;
+    prepared_in(&read.corpus, read.report, then)
+}
+
+/// `prepared` of a corpus already read, with what reading it found.
+#[allow(clippy::type_complexity)]
+fn prepared_in<T>(
+    corpus: &Corpus,
+    mut report: Report,
+    then: impl FnOnce(&mut Report, &mut Checking<'_>) -> T,
+) -> Result<(Report, (usize, usize, usize, usize), T), Outcome> {
+    let Corpus {
+        records,
+        theorems,
+        scopes,
+    } = corpus;
+    let mut methods: IndexMap<String, usize> = IndexMap::new();
+    // A method written in words, `both directions`, names its record with
+    // a hyphen between them, as every record's name is one word.
+    for (i, r) in records.iter().enumerate() {
+        if r.kind == RecordKind::Method {
+            methods.insert(r.name.replace('-', " "), i);
+        }
+    }
+    database::check_database(&mut report, records);
+    database::check_notation(&mut report, records);
+    let words = structure::declared_words(records);
+
+    let items = index(records, theorems);
     let mut seen: IndexMap<String, usize> = IndexMap::new();
-    for thm in &theorems {
+    for thm in theorems {
         let name = thm.qualified();
         if let Some(at) = seen.get(&name) {
             report.say(
@@ -506,26 +601,19 @@ fn prepared<T>(
         }
         seen.entry(name).or_insert(thm.line);
     }
-    for (path, no, message) in link_functions(&records, &mut scopes)
-        .into_iter()
-        .chain(link_definitions(&theorems, &mut scopes))
-    {
-        report.say(&path, no, message);
-    }
     // The library files a proof may import: those whose items it may cite.
     let library: IndexSet<String> = records
         .iter()
         .filter(|r| r.kind.is_item())
         .map(|r| r.module().to_string())
         .collect();
-    structure::check_imports(&mut report, &theorems, &scopes, &items, &library);
+    structure::check_imports(&mut report, theorems, scopes, &items, &library);
 
-    let steps: usize = theorems.iter().map(|t| t.steps.len()).sum();
-    let counts = (theorems.len(), steps, items.len(), methods.len());
+    let counts = counts_of(corpus);
 
     // Nothing is read without the grammar, so a notation it cannot be built
     // from ends the run here.
-    let grammar = match Grammar::load(&records) {
+    let grammar = match Grammar::load(records) {
         Ok(g) => g,
         Err(p) => {
             report.problems.push(p);
@@ -534,18 +622,13 @@ fn prepared<T>(
     };
     let env = Env {
         g: &grammar,
-        scopes: &scopes,
+        scopes,
     };
-    structure::check_function_names(
-        &mut report,
-        &theorems,
-        &scopes,
-        &grammar.functions,
-    );
+    structure::check_function_names(&mut report, theorems, scopes, &grammar.functions);
     // Which names a file writes is read off its formulas' tokens, which the
     // grammar lexes.
-    structure::check_definitions(&mut report, &theorems, &scopes, &grammar);
-    structure::check_function_imports(&mut report, &theorems, &scopes, &grammar);
+    structure::check_definitions(&mut report, theorems, scopes, &grammar);
+    structure::check_function_imports(&mut report, theorems, scopes, &grammar);
     database::check_functions(&mut report, &grammar);
     // A library function's name of several letters reads as one, as a word
     // does, so two names run together into it are caught as into a word.
@@ -592,20 +675,20 @@ fn prepared<T>(
             &record_sorts[&i],
         );
     }
-    database::check_statements(&mut report, &records, env, &record_sorts);
-    database::check_unsorted(&mut report, &records, env, &record_sorts);
-    database::check_symbols(&mut report, &records);
-    let defined = formulas::defined_words(&mut report, &records, env, &record_sorts);
-    let operations = formulas::operations(&records);
+    database::check_statements(&mut report, records, env, &record_sorts);
+    database::check_unsorted(&mut report, records, env, &record_sorts);
+    database::check_symbols(&mut report, records);
+    let defined = formulas::defined_words(&mut report, records, env, &record_sorts);
+    let operations = formulas::operations(records);
 
     // Each theorem's lines, read once, after every statement it may cite.
-    for thm in &theorems {
+    for thm in theorems {
         statements.insert(thm.qualified(), infer::read_statement(thm, env, &mut store));
     }
-    let ctx = Context::new(&env.g.notations, &records);
+    let ctx = Context::new(&env.g.notations, records);
     let mut known: Vec<Known> = Vec::new();
     let mut clashes: Vec<Vec<infer::Clash>> = Vec::new();
-    for thm in &theorems {
+    for thm in theorems {
         let reader = formulas::read_with_citations(thm, env, &statements, &mut store);
         known.push(Known::new(thm, env, settled(&reader, &store), &ctx));
         clashes.push(reader.clashes);
@@ -620,7 +703,7 @@ fn prepared<T>(
             (k.thm.qualified(), at)
         })
         .collect();
-    let library = Library::new(&records, record_sorts.clone(), proved, env);
+    let library = Library::new(records, record_sorts.clone(), proved, env);
 
     formulas::check_item_clashes(&mut report, &statements, &items);
     let methods: IndexMap<String, &Record> = methods
@@ -628,12 +711,12 @@ fn prepared<T>(
         .map(|(name, &i)| (name.clone(), &records[i]))
         .collect();
     let mut checking = Checking {
-        theorems: &theorems,
+        theorems,
         known: &known,
         clashes: &clashes,
         env,
         library: &library,
-        scopes: &scopes,
+        scopes,
         words: &words,
         defined: &defined,
         operations: &operations,

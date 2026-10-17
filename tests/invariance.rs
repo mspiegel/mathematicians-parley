@@ -26,8 +26,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::path::Path;
 use std::sync::Arc;
 
-use indexmap::IndexMap;
-use parley::checker::CheckedTheorem;
+use parley::checker::CheckedCorpus;
 use parley::corpus::corpus;
 use parley::corpus::proof::cited_items;
 use parley::elab::elaborate::Options;
@@ -294,14 +293,10 @@ fn each_line(text: &str, line: fn(&str) -> Option<String>) -> Rewritten {
     }
 }
 
-/// The checker's records of the theorems a round builds of change `i`'s
-/// tree, and of no other: a thread reads the tree once a round, and checking
-/// the whole corpus for it was half of this test's time.
-fn round_checked(
-    tree: &Memory,
-    i: usize,
-    jobs: &[(usize, String)],
-) -> IndexMap<String, CheckedTheorem> {
+/// Change `i`'s tree as the checker reads it, with its records of the
+/// theorems a round builds and of no other: a thread reads the tree once a
+/// round, and checking the whole corpus for it was half of this test's time.
+fn round_checked(tree: &Memory, i: usize, jobs: &[(usize, String)]) -> CheckedCorpus {
     let wanted: BTreeSet<&str> = jobs
         .iter()
         .filter(|(j, _)| *j == i)
@@ -518,7 +513,6 @@ fn a_proof_means_what_it_says_however_it_spells_it() {
                     let overlay =
                         overlays[*i].as_ref().expect("a tree this round builds");
                     Loaded::with_checked(overlay, round_checked(overlay, *i, &jobs))
-                        .expect("the changed corpus reads")
                 });
                 tree.elaborate(name, lib, Options::default())
                     .map(|e| e.text)
