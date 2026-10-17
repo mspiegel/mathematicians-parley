@@ -1,19 +1,17 @@
 //! Every requires line is needed.
 //!
-//! A requires line does work when its step cannot be checked or built
-//! without it. The checker and the elaborator each see part of what a line
-//! is for: a hypothesis of an item that the kernel lemma does not use is the
-//! checker's to ask for, and a membership the kernel builds from is the
-//! elaborator's. Taken away, a line one of them needs makes that one
-//! complain. A line neither needs is surplus, whatever route a proof took
-//! through it while it was there: `requires 2 ∈ ℤ: arithmetic` on a step
-//! that `exhibit`s 2 is used when it is written and worked out when it is
-//! not (`ELABORATION.md`, R3).
+//! A requires line does work when its theorem cannot be checked without
+//! it: what the page needs is the checker's to say, and a line the checker
+//! does without and the build does not is a fault in the build. A line the
+//! checker does not need is surplus, whatever route a proof took through it
+//! while it was there: `requires 2 ∈ ℤ: arithmetic` on a step that
+//! `exhibit`s 2 is used when it is written and worked out when it is not
+//! (`ELABORATION.md`, R3).
 //!
 //! So each requires line of each proof is taken away in turn, and the
-//! theorem it sits in is checked and elaborated without it. The lines are
-//! shared out among workers that run side by side; set.mm is read once for
-//! all of them, and each builds its own library on it.
+//! theorem it sits in is checked without it, over the whole theorem where
+//! the checker's own rule asks of one step. The lines are shared out among
+//! workers that run side by side.
 //!
 //! A pair naming a variable for itself, `n := n` in a citation, is asked the
 //! same way (`SYNTAX.md`, no pair says what goes without saying): a
@@ -21,18 +19,12 @@
 //! a theorem's variable is found by matching, so such a pair does work only
 //! where matching would find something else.
 
-use std::sync::Arc;
-
 use crate::checker::{check_cuts, Cut};
 use crate::corpus::proof::cited_items;
 use crate::corpus::skeleton::step_line;
 use crate::corpus::{item_kind, proof_files};
-use crate::elab::elaborate::Options;
-use crate::elab::Library;
 use crate::said::Said;
-use crate::source::{Memory, Overlay, Source};
-use crate::tools::build::{elaborate_one, Libraries, PROVED};
-use crate::tools::path_of;
+use crate::source::{Memory, Source};
 
 /// Where the item a line cites ends, the first word that opens with an
 /// item's prefix, `mun:abs`; None for a line that cites none.
@@ -257,9 +249,11 @@ fn every_line(source: &dyn Source, files: &[String]) -> Result<Vec<Taken>, Strin
     Ok(out)
 }
 
-/// Whether each line in `share` is needed: the checker or the elaborator
-/// complains of its theorem without it.
-fn needed(tree: &Memory, lib: &Library, share: &[&Taken]) -> Result<Vec<bool>, String> {
+/// Whether each line in `share` is needed: the checker complains of its
+/// theorem without it. What the page needs is the checker's to say, and a
+/// line the checker can do without that the build cannot is a fault in the
+/// build.
+fn needed(tree: &Memory, share: &[&Taken]) -> Result<Vec<bool>, String> {
     let cuts: Vec<Cut> = share
         .iter()
         .map(|t| Cut {
@@ -269,23 +263,10 @@ fn needed(tree: &Memory, lib: &Library, share: &[&Taken]) -> Result<Vec<bool>, S
         })
         .collect();
     let checked = check_cuts(tree, &cuts).map_err(|out| out.complained)?;
-    let mut out = Vec::new();
-    for (taken, problems) in share.iter().zip(checked) {
-        if !problems.is_empty() {
-            out.push(true);
-            continue;
-        }
-        let mut edited = Overlay::new(tree);
-        edited.write(&taken.cut.path, taken.cut.text.clone().into_bytes());
-        let name = format!(
-            "{}/{}",
-            taken.cut.path.trim_end_matches(".proof"),
-            taken.cut.theorem
-        );
-        let options = Options::default();
-        out.push(elaborate_one(&edited, &name, lib, options).is_err());
-    }
-    Ok(out)
+    Ok(checked
+        .iter()
+        .map(|problems| !problems.is_empty())
+        .collect())
 }
 
 /// The surplus lines of one theorem that can all go at once.
@@ -298,7 +279,6 @@ fn needed(tree: &Memory, lib: &Library, share: &[&Taken]) -> Result<Vec<bool>, S
 /// round asks the next line of every such theorem at once.
 fn together<'t>(
     tree: &Memory,
-    lib: &Library,
     surplus: Vec<&'t Taken>,
 ) -> Result<Vec<&'t Taken>, String> {
     let mut groups: Vec<Vec<&'t Taken>> = Vec::new();
@@ -342,7 +322,7 @@ fn together<'t>(
             ));
         }
         let share: Vec<&Taken> = asked.iter().map(|(_, t)| t).collect();
-        let needs = needed(tree, lib, &share)?;
+        let needs = needed(tree, &share)?;
         for ((i, _), need) in asked.iter().zip(needs) {
             if !need {
                 kept[*i].push(groups[*i][round]);
@@ -353,27 +333,15 @@ fn together<'t>(
 }
 
 /// Every requires line of every proof file is needed.
-pub fn run(source: &dyn Source, libraries: Option<&Libraries>) -> Said {
-    run_over(source, libraries, &proof_files(source))
+pub fn run(source: &dyn Source) -> Said {
+    run_over(source, &proof_files(source))
 }
 
 /// Every requires line of the proof files `files` is needed: each is taken
-/// away in turn, and its theorem checked and elaborated over the corpus
-/// without it. A planted line is asked of its own file alone.
-pub fn run_over(
-    source: &dyn Source,
-    libraries: Option<&Libraries>,
-    files: &[String],
-) -> Said {
+/// away in turn, and its theorem checked over the corpus without it. A
+/// planted line is asked of its own file alone.
+pub fn run_over(source: &dyn Source, files: &[String]) -> Said {
     let mut said = Said::default();
-    let Some(libraries) = libraries else {
-        said.printed =
-            "set.mm not found; say where it is with SET_MM, or leave a copy or a \
-                        link at the root of the working tree\n"
-                .to_string();
-        said.status = 2;
-        return said;
-    };
     let tree = match Memory::copy(source, &["corpus", "proofs", "tests"]) {
         Ok(tree) => tree,
         Err(e) => {
@@ -390,21 +358,6 @@ pub fn run_over(
             return said;
         }
     };
-    // The library is the one the build reads: set.mm with the `proved.mm`
-    // the tree's root holds, read once for every worker.
-    let proved = tree.root().join(path_of(PROVED));
-    let proved = match proved.exists().then(|| std::fs::read_to_string(&proved)) {
-        None => None,
-        Some(Ok(text)) => Some(text),
-        Some(Err(e)) => {
-            said.complained = format!("{}: {e}\n", proved.display());
-            said.status = 2;
-            return said;
-        }
-    };
-    let read = libraries.read_library(proved.as_deref());
-    // Each worker builds its own library on what was read, since the
-    // syntaxes a library builds are its own.
     let workers = std::thread::available_parallelism()
         .map_or(1, |n| n.get())
         .clamp(1, 8);
@@ -416,8 +369,7 @@ pub fn run_over(
             .iter()
             .map(|share| {
                 let tree = &tree;
-                let read = Arc::clone(&read);
-                scope.spawn(move || needed(tree, &Library::new(read), share))
+                scope.spawn(move || needed(tree, share))
             })
             .collect();
         running
@@ -441,7 +393,7 @@ pub fn run_over(
         }
     }
     surplus.sort_by(|a, b| a.cut.path.cmp(&b.cut.path).then(a.line.cmp(&b.line)));
-    let surplus = match together(&tree, &Library::new(read), surplus) {
+    let surplus = match together(&tree, surplus) {
         Ok(surplus) => surplus,
         Err(e) => {
             said.complained = format!("{e}\n");

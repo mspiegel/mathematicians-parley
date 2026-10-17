@@ -120,7 +120,8 @@ real. The real x the last lemma gives is f(m) for some m, and f(m) ≠ x. ∎
    binds it, and the verifier refused it; the existential is now carried
    whole and turned into the bounded one by `df-rex`.
 8. **The checker and the elaborator spell a define-bearing answer alike**,
-   so `tests/agree.rs` compares one fact as one.
+   so `tests/agree.rs`, which compared the two tools' answers until the
+   build came to take the checker's, compared one fact as one.
 9. **The first version nested intervals**, as `ruc` does, cutting each in
    thirds to miss the next term and closing on the least upper bound of
    the left ends. The diagonal argument replaced it.

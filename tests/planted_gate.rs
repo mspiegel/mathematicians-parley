@@ -63,8 +63,8 @@ const NEEDED_FILE: &str = "proofs/wiedijk/sum-formula.proof";
 /// Whether every requires line and every pair naming a variable for itself
 /// is needed, asked of one file: a case asks it of the file it edits, and
 /// the gate asks it of every file.
-fn needed_stage(tree: &dyn Source, setmm: &SetMm) -> Said {
-    needed::run_over(tree, Some(&setmm.libraries), &[NEEDED_FILE.to_string()])
+fn needed_stage(tree: &dyn Source, _: &SetMm) -> Said {
+    needed::run_over(tree, &[NEEDED_FILE.to_string()])
 }
 
 /// A stage as a case asks it, told the files the case edited. A case passes
@@ -98,8 +98,8 @@ fn restated_case(tree: &dyn Source, setmm: &SetMm, edited: &[String]) -> Said {
     restated::run_edited(tree, Some(&setmm.libraries), edited)
 }
 
-fn needed_case(tree: &dyn Source, setmm: &SetMm, edited: &[String]) -> Said {
-    needed::run_over(tree, Some(&setmm.libraries), edited)
+fn needed_case(tree: &dyn Source, _: &SetMm, edited: &[String]) -> Said {
+    needed::run_over(tree, edited)
 }
 
 const STAGES: [(&str, Stage); 7] = [

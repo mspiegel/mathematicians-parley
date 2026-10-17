@@ -189,7 +189,7 @@ pub fn run(root: &Path) -> Said {
         ),
         (
             "every requires line is needed",
-            Box::new(|| needed::run(&source, libraries)),
+            Box::new(|| needed::run(&source)),
         ),
     ];
 

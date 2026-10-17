@@ -111,10 +111,26 @@ bridged on set.mm's side, and a proof reads as a mathematician writes it.
    claim and the lines a step cites, each decides whether the claim follows
    and produces its proof. `METHODS.md` specifies each.
 6. **The proof rules.** Given a finished step's proof and what the step names,
-   it refuses a proof that rests on anything the step does not name, a
-   `requires` line or a named line that does no work, and a `requires` line
-   whose proof does not come from its reason. The section on provenance
-   states the rules.
+   it refuses a proof that rests on anything the step does not name, and a
+   `requires` line whose proof does not come from its reason. Whether the
+   step uses everything it names is the checker's to say. The section on
+   provenance states the rules.
+
+**The checker reads the page, and the elaborator builds what it read.**
+`parley build` runs the checker first (`checker::checked`). It reads the
+corpus once and decides every question about the page: which sentence a
+citation takes and under what binding, which memberships the page says
+once, what each part of a block owes, and whether a step uses what it
+names. It hands the build a `CheckedCorpus`: the corpus as read, the
+grammar it read with, and a `CheckedTheorem` for each theorem. The build
+refuses a theorem the checker reports anything in, with the checker's own
+message, and otherwise elaborates it from the record (`GOALS.md` decision
+19). What `src/elab/` keeps is set.mm's side: proving memberships and
+sethood, standard-form lemma chains, the commuting set.mm's spellings need,
+and a lemma's own bound letters. A step the checker accepts and the build
+cannot prove is a fault in the build. It is reported as one ("the build
+cannot yet prove this, which the checker accepts") and fixed in the build.
+No theorem of the corpus is one.
 
 **Growth goes into the tables first.** A pilot that meets a new difference
 between the page and set.mm adds a rule or a table entry. A new part is for a
@@ -127,26 +143,28 @@ are. Each family is one table, so the next one is added in one place, and each
 pilot is the test of whether the list still holds.
 
 **What is true of the code today.** Each part is a module, and each is an
-`impl` block on the one `Elaborator` in `src/elab/state.rs` (617 lines),
+`impl` block on the one `Elaborator` in `src/elab/state.rs` (727 lines),
 which holds the state they share:
 
 | part | module | lines |
 |---|---|---|
-| reading | `src/elab/reading.rs` | 870 |
-| scopes | `src/elab/scopes.rs` | 2,048 |
-| the matcher | `src/elab/matcher.rs` | 5,118 |
-| rule tables, as data | `src/rules.rs` | 944 |
-| rule tables, read | `src/elab/tables.rs` | 1,632 |
-| the calculators | `src/elab/calculators.rs`, deciding in `field.rs`, `normal.rs`, `linear.rs` | 8,171 |
-| the proof rules | `src/elab/provenance.rs` | 1,020 |
-| what a cited item asks and gives, shared with the checker | `src/citing/` | 1,333 |
+| the checker | `src/checker/` | 13,086 |
+| the methods' procedures, which the checker runs | `src/methods/`, deciding in `field.rs`, `linear.rs` | 3,953 |
+| reading | `src/elab/reading.rs` | 1,009 |
+| scopes | `src/elab/scopes.rs` | 2,942 |
+| the matcher | `src/elab/matcher.rs` | 6,722 |
+| rule tables, as data | `src/rules.rs` | 1,230 |
+| rule tables, read | `src/elab/tables.rs` | 2,482 |
+| the calculators | `src/elab/calculators.rs`, `normal.rs` | 8,999 |
+| the proof rules | `src/elab/provenance.rs` | 889 |
+| what a cited item asks and gives, shared with the checker | `src/citing/` | 3,126 |
 
 `src/citing/` depends on neither tool: the checker and the elaborator each
 read a citation from the page and hand it the nodes, and it answers which
 group of the item the citation takes, under what binding, and what the item
 then asks (`asked`) or says there is (`obtained`).
 
-What `src/elab/elaborate.rs` keeps (3,877 lines) is the step loop, the handler
+What `src/elab/elaborate.rs` keeps (6,040 lines) is the step loop, the handler
 for each kind of step, citing an item or a corpus theorem, the definition
 readings, and writing the file. Each part changes the shared state only
 through its own methods: the frames through the scopes (`frames_kept`,
@@ -1276,9 +1294,10 @@ apparatus, and takes the membership as it takes any fact it holds.
 
 Which memberships the page writes is settled where the page is judged, not by
 what the kernel can build. The checker reads an item's hypotheses with the
-memberships said once and nothing more (`said_once`), and `does_work` asks
-each atom a method combines, a power to a letter or a function's value among
-them, to be said once or on the page. Inside, the elaborator builds a
+memberships said once and nothing more (`said_once`), and asks each atom a
+method combines, a power to a letter or a function's value among them, to be
+said once or on the page, the method's own membership check
+(`methods::membership`). Inside, the elaborator builds a
 compound as it always has, from its parts however each is given, so a letter
 said once is a part as a letter written was: x^(m − k) is built from x ∈ ℝ.
 The one search that could reach past the page is `not_zero`'s for a
@@ -1850,7 +1869,7 @@ assertion it applies. A proof put together from proofs rests on the union of
 what they rest on.
 
 An origin begins where a page item does. `seal` gives a proof the item it now
-stands for and records in `rests_on` what it was built from: the hypotheses in
+stands for, and from then on it rests on that item alone: the hypotheses in
 `run`, a block's assumption where `widen` conjoins it, an obtain's source and
 what it introduces, a step's result, a block's result, and a requires line
 where it is proved. A conjunct taken out of a fact has that fact's origin. A
@@ -1864,10 +1883,11 @@ reads `scope → claim` as it stands; one it states a biconditional with, as
 `elnnz` does with `( N ∈ ℤ ∧ 0 < N )`, or asks after another, is discharged
 as any antecedent is, by `id`.
 
-Three rules follow, each a defect naming the line, checked where the proof is
-sealed. A step's proof, a block's, and an obtain's source all pass through
-one `check_step` in `src/elab/provenance.rs`, which applies R1 and then R3 and
-then seals; what it allows is `named`, the same set `resting_on` offers the
+Three rules follow, each a defect naming the line. R1 and R2 are checked
+where the proof is sealed, and R3 is the checker's. A step's proof, a
+block's, and an obtain's source all pass through
+one `check_step` in `src/elab/provenance.rs`, which applies R1 and then
+seals; what it allows is `named`, the same set `resting_on` offers the
 search while the step is built. A requires line is checked by R2 where it is
 proved (`discharged_by`).
 
@@ -1913,33 +1933,10 @@ proved (`discharged_by`).
   only the step's own citations give is not in hand on a requires line below,
   which sees its own reason and the lines above it (R2), so a line saying it
   is refused only where no line below needs it: none cites a record asking it
-  (`citing::asked`, the answer the elaborator's `asked_by_requires` gives),
-  and none has a method asking it of the terms it names (`built_on`). The
-  rest is divided by who can see it:
-  - the elaborator, on every step but an item citation: each cited line is in
-    the proof's provenance. On a method step, a requires line the proof does
-    not rest on is at work only where the method demands it — the membership
-    of an atom of what the certificate combined, or a term of it not zero —
-    or where a requires line below it cites an item whose hypotheses, under
-    the binding that line gives, include what it says, though the record's
-    lemma proves its fact without it: `mun:range-integer` asks a ∈ ℤ and
-    b ∈ ℤ, and its lemma proves k ∈ ℤ from k ∈ {a, …, b} alone
-    (`asked_by_requires`). What a record asks there is the checker's answer,
-    from the one search both tools use (`citing::asked`): the line's fact is
-    the claim, and the lines its reason cites, the requires lines above it
-    and the member a claim said of every member names are the facts. A
-    record none of whose groups concludes the fact asks nothing. Each atom combined has its membership on the page:
-    said once, where the atom is a numeral, a letter or built from them
-    (`said_once`); otherwise written, or cited by the step or by one of its
-    requires lines, whose method may be what combined it (`METHODS.md`). A
-    cited line is read as the page writes it, and a defined name is the atom it names where a line saying its
-    membership cites the define. What a step writes, which a method reads
-    for a term not zero as for a membership, is its requires lines and the
-    lines it cites, with what each implies: a cited `N ∈ ℕ` says N ≠ 0. An atom is what the method treats as a number it knows
-    nothing about; sums, products, quotients, negations and numeral powers are
-    looked inside, and numerals are not atoms. A line saying a term is a
-    number says it of the atom that term is over other bound letters, or with
-    its defined names written out (`one_atom`), as the method reads it.
+  (`citing::asked`), and none has a method asking it of the terms it names
+  (`built_on`). The checker judges it of every step: checked as a theorem of
+  that one step, the step finds something wrong without the line
+  (`check_requires_work`). The rest is by what the step does:
   - the checker, on a step citing an item: the item's statement says what is
     needed. Each cited line and each requires line is taken away in turn and
     the step checked again, and one whose absence changes nothing is surplus.
@@ -1999,19 +1996,15 @@ proved (`discharged_by`).
     group's operation is read through the parts its `let` line names. A
     reading is used only where the page reads it back as itself, which is
     what tells |x − c| of two numbers from |PQ| of two points, and a term
-    with no reading is said in set.mm's spelling whole. "step 4 combines
-    ∠QPR, and nothing it writes or cites says it is a number" was
+    with no reading is said in set.mm's spelling whole. "nothing says ∠QPR
+    ∈ ℝ, which this step needs" was said of
     `( abs ` ( ( B - A ) ang ( C - A ) ) )`. A citation no clause of an item
     reaches says why each clause stopped: "no clause of mun:series-sum gives
     what step 5 claims: cannot settle 1 / T(k) ∈ ℝ". `tests/said_back.rs`
     elaborates every theorem with each sentence its steps claim said back
     and read again.
   - both, where both answer one question: what a line implies besides
-    itself. `tests/agree.rs` elaborates every theorem and asks each tool of
-    every sentence a step claims or requires, comparing the answers as kernel
-    terms, since k ≥ 0 and 0 ≤ k are one term written two ways; an answer
-    the page cannot say, set.mm's =/=, is not compared. They answer alike
-    throughout, and a difference fails the test. Both read one set of tables
+    itself. Both read one set of tables
     in `rules`: what a membership in a number system says (`WITHIN`,
     `IMPLIED`), and that a part of a set and a member of its power set say
     each other (`PARTS`), the checker reading each row's two forms and the
@@ -2029,9 +2022,8 @@ proved (`discharged_by`).
     `src/citing/` (`asked`, `obtained`), and both have the page's trees from
     one front end (`GRAMMAR.md`, "One front end"), so what can differ is
     what each hands it: which lines a citation names, and which defines are
-    written out, only those the citation cites (`SYNTAX.md`). `tests/agree.rs` has each tool list its
-    answers in the page's notation (`checker::answers`, `list_asked`) and
-    compares the two lists; they are alike, and a difference fails the test.
+    written out, only those the citation cites (`SYNTAX.md`). The build takes
+    the checker's answer (`CheckedTheorem::cited`, `cited_requires`).
     A definition that unfolds is not asked: the elaborator reaches the
     existence an obtain of one claims from the claim itself. Page trees are
     compared in one standard order (`matching::standard`), as the
