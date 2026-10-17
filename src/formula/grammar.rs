@@ -457,6 +457,26 @@ fn read(
                 );
             }
         }
+        // Where the rest starts inside a word, the word is named whole
+        // rather than the letters it was cut into: `which` in "p ≤ k, which
+        // contradicts k < p", or `contradicting` read as a row. The two
+        // words a writer reaches for to say a line contradicts another are
+        // told where that is said.
+        if let Some(word) = word_at(text, tokens[p.i].at) {
+            let hint = match word.as_str() {
+                "contradicting" | "which" => "; a step reaching the opposite of an earlier line names it after its reasons on its method line, as `inequalities, from 3.1, contradicting 3.4`, and `, which is impossible` follows only a claim of numerals alone",
+                _ => "",
+            };
+            return Err(Stop::Defect(Problem::new(
+                path,
+                line,
+                format!(
+                    "{} does not read past {}, a word no notation in scope writes{hint}",
+                    repr(text),
+                    repr(&word)
+                ),
+            )));
+        }
         return Err(Stop::Defect(Problem::new(
             path,
             line,
@@ -469,6 +489,27 @@ fn read(
         )));
     }
     Ok(node)
+}
+
+/// The word of three letters or more that the character at `at` of `text`
+/// is in, read as the letters touching it on either side; None where it is
+/// in no such word.
+fn word_at(text: &str, at: usize) -> Option<String> {
+    let chars: Vec<char> = text.chars().collect();
+    if !chars.get(at)?.is_alphabetic() {
+        return None;
+    }
+    let start = (0..at)
+        .rev()
+        .take_while(|&i| chars[i].is_alphabetic())
+        .last()
+        .unwrap_or(at);
+    let end = (at..chars.len())
+        .take_while(|&i| chars[i].is_alphabetic())
+        .last()
+        .unwrap_or(at);
+    let word: String = chars[start..=end].iter().collect();
+    (word.chars().count() >= 3).then_some(word)
 }
 
 /// The first hyphen among `tokens` that is no part of a word: one a word's

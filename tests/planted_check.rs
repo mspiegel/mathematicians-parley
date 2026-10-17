@@ -1763,7 +1763,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("corpus/stdlib/divisibility.records", Some("mundane definition gcd\n".to_string()), "mundane definition gcdx\n".to_string()),
             ],
-            "'d divides gcd(a, b)' has 7 token(s) left over, starting at 'c'",
+            "'d divides gcd(a, b)' does not read past 'gcd', a word no notation in scope writes",
         ),
         case(
             "let a function of the proof's take a library function's name",
@@ -2788,11 +2788,25 @@ fn cases() -> Vec<Case> {
             "without stating its sort",
         ),
         case(
+            "write a contradiction in prose after a claim",
+            vec![
+                edit("proofs/wiedijk/infinitely-many-primes.proof", Some("4.  p > 1\n    mun:prime, from 3".to_string()), "4.  p > 1, which contradicts p ≤ 1\n    mun:prime, from 3".to_string()),
+            ],
+            "does not read past 'which', a word no notation in scope writes; a step reaching the opposite",
+        ),
+        case(
             "write a claim in a notation nobody declared",
             vec![
                 edit("proofs/wiedijk/infinitely-many-primes.proof", Some("4.  p > 1\n    mun:prime, from 3".to_string()), "4.  p exceeds 1\n    mun:prime, from 3".to_string()),
             ],
-            "token(s) left over",
+            "'p exceeds 1' does not read past 'exceeds', a word no notation in scope writes",
+        ),
+        case(
+            "close a bracket nothing opened",
+            vec![
+                edit("proofs/wiedijk/infinitely-many-primes.proof", Some("4.  p > 1\n    mun:prime, from 3".to_string()), "4.  p > 1)\n    mun:prime, from 3".to_string()),
+            ],
+            "token(s) left over, starting at ')'",
         ),
         case(
             "write a formula that reads two ways because nothing says what a name is",
