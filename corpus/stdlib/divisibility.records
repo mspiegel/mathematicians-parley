@@ -252,6 +252,31 @@ mundane theorem gcd-integer
               ℕ: it is at least 0, being 0 only for gcd(0, 0), and divides
               both arguments.
 
+mundane theorem gcd-natural
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  assume not (a = 0 and b = 0)                                        (H3)
+  then        gcd(a, b) ∈ ℕ
+  metamath    gcdn0cl
+  target      gcdn0cl
+
+mundane theorem gcd-scaled
+  let c ∈ ℕ₀                                                          (H1)
+  let a ∈ ℤ                                                           (H2)
+  let b ∈ ℤ                                                           (H3)
+  then        gcd(c·a, c·b) = c·gcd(a, b)
+  metamath    mulgcd
+  target      mulgcd
+
+mundane theorem gcd-scaled-integer
+  let c ∈ ℤ                                                           (H1)
+  let a ∈ ℤ                                                           (H2)
+  let b ∈ ℤ                                                           (H3)
+  then        gcd(c·a, c·b) = |c·gcd(a, b)|
+  metamath    absmulgcd
+  target      absmulgcd
+  note        gcd-scaled for a factor of either sign.
+
 mundane theorem gcd-negative
   let a ∈ ℤ                                                           (H1)
   let b ∈ ℤ                                                           (H2)

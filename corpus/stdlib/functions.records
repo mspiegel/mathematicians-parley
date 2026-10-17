@@ -166,6 +166,14 @@ mundane definition preimage
   note        f⁻¹[Z] is everything in X that f sends into Z, whether or not
               f has an inverse.
 
+mundane theorem preimage-within
+  let f : X → W                                                       (H1)
+  then        f⁻¹[Z] ⊆ X
+  metamath    cnvimass and fdm, which this corpus proves together in
+              elaboration/stdlib/proved.mm
+  target      gpreimass
+  note        A preimage holds only points of the domain.
+
 mundane theorem inverse-function
   let f : X → Y be one-to-one                                         (H1)
   assume f[X] = Y                                                     (H2)

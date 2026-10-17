@@ -461,6 +461,36 @@ mundane theorem product-positive
   target      mulgt0
   note        As product-nonneg, strictly.
 
+mundane theorem power-positive
+  let a ∈ ℝ                                                           (H1)
+  let m ∈ ℤ                                                           (H2)
+  assume a > 0                                                        (H3)
+  then        a^m > 0
+  metamath    expgt0
+  target      expgt0
+
+mundane theorem quotients-compared
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  let z ∈ ℝ                                                           (H3)
+  let w ∈ ℝ                                                           (H4)
+  assume 0 ≤ x                                                        (H5)
+  assume x ≤ z                                                        (H6)
+  assume 0 < w                                                        (H7)
+  assume w ≤ y                                                        (H8)
+  then        x/y ≤ z/w
+  metamath    lediv12a
+  target      lediv12a
+  note        A smaller top over a larger bottom: both moves make the
+              quotient smaller.
+
+mundane theorem zero-product
+  let x ∈ ℂ                                                           (H1)
+  let y ∈ ℂ                                                           (H2)
+  then        x·y = 0 ↔ x = 0 or y = 0
+  metamath    mul0or
+  target      mul0or
+
 mundane theorem quotient-nonneg
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)

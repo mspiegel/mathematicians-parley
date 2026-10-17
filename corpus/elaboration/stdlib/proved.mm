@@ -397,6 +397,9 @@ $d x S $.
     ( wf wfn ccnv cima wcel cfv wa wb ffn elpreima syl )
     ABEFEAGCEHDIJCAJCEKDJLMABENACDEOP $.
 
+  gpreimass $p |- ( F : A --> B -> ( `' F " C ) C_ A ) $=
+    ( wf cdm ccnv cima cnvimass fdm sseqtrid ) ABDEDFDGCHADCIABDJK $.
+
   gf1cnvf $p |- ( ( F : A -1-1-> B /\ ( F " A ) = B ) -> `' F : B --> A ) $=
     ( wf1 cima wceq wa crn ccnv wf wf1o simpl f1f1orn syl f1ocnv f1of wfn
     f1fn fnima simpr eqtr3d feq2d mpbid )

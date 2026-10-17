@@ -1,0 +1,106 @@
+import mundane theorem    stdlib/sets/member-nonempty
+import mundane theorem    stdlib/functions/preimage-within
+import mundane theorem    stdlib/sums/product-real
+import mundane theorem    stdlib/sums/product-single
+import mundane theorem    stdlib/sums/product-extended
+import mundane theorem    stdlib/numbers/power-positive
+import mundane theorem    stdlib/numbers/quotients-compared
+import mundane theorem    stdlib/numbers/zero-product
+import mundane definition stdlib/divisibility/gcd
+import mundane theorem    stdlib/divisibility/gcd-natural
+import mundane theorem    stdlib/divisibility/gcd-scaled
+import mundane theorem    stdlib/divisibility/gcd-scaled-integer
+
+theorem a-set-with-a-member
+  let A be a set                                                      (H1)
+  assume 3 ∈ A                                                        (H2)
+  then A ≠ ∅
+
+1.  A ≠ ∅
+    mun:member-nonempty a := 3, Y := A, from H2
+
+theorem a-preimage-in-the-domain
+  let f : ℝ → ℝ                                                       (H1)
+  let B ⊆ ℝ                                                           (H2)
+  then f⁻¹[B] ⊆ ℝ
+
+1.  f⁻¹[B] ⊆ ℝ
+    mun:preimage-within X := ℝ, W := ℝ, Z := B
+
+theorem a-product-of-reals
+  let n ∈ ℤ                                                           (H1)
+  assume n ≥ 1                                                        (H2)
+  let t : {1, …, n + 1} → ℝ                                           (H3)
+  then ∏(k ∈ {1, …, n + 1}) t(k) = (∏(k ∈ {1, …, n}) t(k))·t(n + 1)
+
+1.  ∏(k ∈ {1, …, n + 1}) t(k) = (∏(k ∈ {1, …, n}) t(k))·t(n + 1)
+    mun:product-extended a := 1, from H2
+
+theorem a-product-of-one-factor
+  let t : {1, …, 1} → ℝ                                               (H1)
+  then ∏(k ∈ {1, …, 1}) t(k) = t(1)
+
+1.  ∏(k ∈ {1, …, 1}) t(k) = t(1)
+    mun:product-single a := 1
+
+theorem a-product-is-real
+  let n ∈ ℕ                                                           (H1)
+  let t : {1, …, n} → ℝ                                               (H2)
+  then ∏(k ∈ {1, …, n}) t(k) ∈ ℝ
+
+1.  ∏(k ∈ {1, …, n}) t(k) ∈ ℝ
+    mun:product-real a := 1, b := n
+
+theorem a-power-of-a-positive-base
+  let n ∈ ℕ                                                           (H1)
+  then 2^n > 0
+
+1.  2^n > 0
+    mun:power-positive a := 2, m := n
+    requires 2 > 0: arithmetic
+
+theorem quotients-compared-at-a-point
+  let x ∈ ℝ                                                           (H1)
+  assume 0 ≤ x                                                        (H2)
+  assume x ≤ 1                                                        (H3)
+  then x/4 ≤ 1/2
+
+1.  x/4 ≤ 1/2
+    mun:quotients-compared y := 4, z := 1, w := 2, from H2, H3
+    requires 0 < 2: arithmetic
+    requires 2 ≤ 4: arithmetic
+
+theorem a-product-that-is-zero
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume x·y = 0                                                      (H3)
+  then x = 0 or y = 0
+
+1.  x = 0 or y = 0
+    mun:zero-product, from H3
+
+theorem a-gcd-not-of-two-zeros
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  assume not (a = 0 and b = 0)                                        (H3)
+  then gcd(a, b) ∈ ℕ
+
+1.  gcd(a, b) ∈ ℕ
+    mun:gcd-natural, from H3
+
+theorem a-gcd-scaled
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  then gcd(3a, 3b) = 3gcd(a, b)
+
+1.  gcd(3a, 3b) = 3gcd(a, b)
+    mun:gcd-scaled c := 3
+
+theorem a-gcd-scaled-by-an-integer
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  let c ∈ ℤ                                                           (H3)
+  then gcd(c·a, c·b) = |c·gcd(a, b)|
+
+1.  gcd(c·a, c·b) = |c·gcd(a, b)|
+    mun:gcd-scaled-integer

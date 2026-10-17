@@ -143,6 +143,31 @@ mundane theorem sum-real
   metamath    fsumrecl
   target      fsumrecl
 
+mundane theorem product-real
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  let t : {a, …, b} → ℝ                                               (H3)
+  then        ∏(k ∈ {a, …, b}) t(k) ∈ ℝ
+  metamath    fprodrecl
+  target      fprodrecl
+
+mundane theorem product-single
+  let a ∈ ℤ                                                           (H1)
+  let t : {a, …, a} → ℝ                                               (H2)
+  then        ∏(k ∈ {a, …, a}) t(k) = t(a)
+  metamath    fprod1
+  target      fprod1
+
+mundane theorem product-extended
+  let a ∈ ℤ                                                           (H1)
+  let n ∈ ℤ                                                           (H2)
+  assume n ≥ a                                                        (H3)
+  let t : {a, …, n + 1} → ℝ                                           (H4)
+  then        ∏(k ∈ {a, …, n + 1}) t(k) = (∏(k ∈ {a, …, n}) t(k))·t(n + 1)
+  metamath    fprodp1
+  target      fprodp1
+  note        As sum-extended, for a product: the last factor split off.
+
 mundane theorem range-difference
   let a ∈ ℤ                                                           (H1)
   let n ∈ ℤ                                                           (H2)

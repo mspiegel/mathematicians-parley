@@ -80,6 +80,14 @@ lemma gelpreima
   2 elpreima |- ( F Fn A -> ( C e. ( `' F " D ) <-> ( C e. A /\ ( F ` C ) e. D ) ) )
   3 syl 1 2 |- ( F : A --> B -> ( C e. ( `' F " D ) <-> ( C e. A /\ ( F ` C ) e. D ) ) )
 
+# ( F : A --> B -> ( `' F " C ) C_ A ): a preimage lies in the domain,
+# `cnvimass` with the domain `fdm` reads off the function's type.
+lemma gpreimass
+  |- ( F : A --> B -> ( `' F " C ) C_ A )
+  1 cnvimass |- ( `' F " C ) C_ dom F
+  2 fdm |- ( F : A --> B -> dom F = A )
+  3 sseqtrid 1 2 |- ( F : A --> B -> ( `' F " C ) C_ A )
+
 # ( ( F : A -1-1-> B /\ ( F " A ) = B ) -> `' F : B --> A ): a one-to-one
 # function onto B has an inverse from B back to A. `f1f1orn` makes F onto
 # its range, `f1ocnv` turns it round, and its range is F[A], which is B.

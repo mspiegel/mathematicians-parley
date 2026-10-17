@@ -294,6 +294,14 @@ mundane theorem nonempty-member
   target      n0
   note        A set that is not empty has an element, which an obtain names.
 
+mundane theorem member-nonempty
+  assume a ∈ Y                                                        (H1)
+  then        Y ≠ ∅
+  metamath    ne0i
+  target      ne0i
+  note        The converse of nonempty-member: a set with an element is
+              not empty.
+
 mundane theorem intersection-self
   then        Y ∩ Y = Y
   metamath    inidm
