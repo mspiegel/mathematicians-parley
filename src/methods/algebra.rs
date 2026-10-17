@@ -196,8 +196,9 @@ fn divisors_into(term: &Term, labels: &FloatLabels, out: &mut Vec<Term>) {
 }
 
 /// What a claim's sides are multiplied by for one divisor it writes, which
-/// is what `field::read` takes the divisor as: the divisor itself, or, where
-/// it is a quotient c/e, its numerator c.
+/// is what `field::read` takes the divisor as: the divisor itself; where it
+/// is a quotient c/e, its numerator c; and where it is −(c/e), read as
+/// (−c)/e, the negated numerator −c.
 #[derive(Clone)]
 pub enum Factor {
     Divisor(Term),
@@ -207,6 +208,16 @@ pub enum Factor {
         top: Term,
         below: Term,
     },
+    NegatedNumerator {
+        /// The divisor as written, −(c/e), which the page says is not 0.
+        divisor: Term,
+        /// c/e.
+        quotient: Term,
+        top: Term,
+        below: Term,
+        /// −c, what the sides are multiplied by.
+        negated: Term,
+    },
 }
 
 impl Factor {
@@ -214,31 +225,58 @@ impl Factor {
         match self {
             Factor::Divisor(t) => t,
             Factor::Numerator { top, .. } => top,
+            Factor::NegatedNumerator { negated, .. } => negated,
         }
     }
 }
 
-/// What a divisor of a claim's is read as: itself, where nothing in it
-/// divides, or its numerator c where it is c/e; None for a divisor that
-/// divides deeper than that.
-fn factor_of(d: Term, labels: &FloatLabels) -> Option<Factor> {
+/// A quotient c/e with nothing dividing in either part.
+struct QuotientParts {
+    top: Term,
+    below: Term,
+}
+
+/// `d`'s parts where it is a quotient c/e with nothing dividing in either;
+/// None otherwise.
+fn quotient_parts(d: &Term, labels: &FloatLabels) -> Option<QuotientParts> {
     let whole = |t: &Term| field::read(t, labels).under == field::one();
-    if whole(&d) {
-        return Some(Factor::Divisor(d));
-    }
     let kids = d.children();
     let quotient = d.variable().is_none()
         && d.label() == Some("co")
         && kids.len() == 3
         && &*kids[2].rpn(labels) == DIV;
-    if !quotient || !whole(&kids[0]) || !whole(&kids[1]) {
+    (quotient && whole(&kids[0]) && whole(&kids[1])).then(|| QuotientParts {
+        top: kids[0].clone(),
+        below: kids[1].clone(),
+    })
+}
+
+/// What a divisor of a claim's is read as: itself, where nothing in it
+/// divides, its numerator c where it is c/e, or −c where it is −(c/e);
+/// None for a divisor that divides deeper than that.
+fn factor_of(d: Term, labels: &FloatLabels) -> Option<Factor> {
+    if field::read(&d, labels).under == field::one() {
+        return Some(Factor::Divisor(d));
+    }
+    if let Some(QuotientParts { top, below }) = quotient_parts(&d, labels) {
+        return Some(Factor::Numerator {
+            divisor: d,
+            top,
+            below,
+        });
+    }
+    if d.variable().is_some() || d.label() != Some("cneg") {
         return None;
     }
-    let (top, below) = (kids[0].clone(), kids[1].clone());
-    Some(Factor::Numerator {
+    let quotient = d.children()[0].clone();
+    let QuotientParts { top, below } = quotient_parts(&quotient, labels)?;
+    let negated = Term::apply("cneg", vec![top.clone()]);
+    Some(Factor::NegatedNumerator {
         divisor: d,
+        quotient,
         top,
         below,
+        negated,
     })
 }
 

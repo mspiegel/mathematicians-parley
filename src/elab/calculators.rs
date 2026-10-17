@@ -312,6 +312,19 @@ struct RowsRewritten {
     lines: Lines,
 }
 
+/// A divisor −(c/e) of an algebra claim, and its parts, as set.mm writes
+/// them (`negated_top_apart`).
+struct NegatedQuotient {
+    /// −(c/e).
+    divisor: String,
+    /// c/e.
+    quotient: String,
+    /// c.
+    top: String,
+    /// e.
+    below: String,
+}
+
 /// One fact a combination uses, and its weight.
 struct Part {
     /// The line the fact is cited from.
@@ -1378,7 +1391,8 @@ impl<'a> Elaborator<'a> {
     /// it is not 1, times each of `factors` in turn: the numeral is not 0 as
     /// a numeral, and a divisor by what the page says of it, which a step
     /// that divides writes. The numerator c of a divisor c/e is not 0 by
-    /// what the page says of c/e, carried to c by `divne0bd`.
+    /// what the page says of c/e, carried to c by `divne0bd`; the −c of a
+    /// divisor −(c/e) by `negated_top_apart`.
     fn factors_apart(
         &mut self,
         w: &mut Work,
@@ -1420,6 +1434,21 @@ impl<'a> Elaborator<'a> {
                         &[&whole_apart, &iff],
                     )
                 }
+                Factor::NegatedNumerator {
+                    divisor,
+                    quotient,
+                    top,
+                    below,
+                    ..
+                } => {
+                    let parts = NegatedQuotient {
+                        divisor: self.rpn(divisor),
+                        quotient: self.rpn(quotient),
+                        top: self.rpn(top),
+                        below: self.rpn(below),
+                    };
+                    take!(self.negated_top_apart(&parts, scope, facts)?)
+                }
             };
             each.push((said, held, apart));
         }
@@ -1438,6 +1467,57 @@ impl<'a> Elaborator<'a> {
             "jca",
             &binds! {"ph" => scope, "ps" => t!(so_far, "cc", "wcel"), "ch" => t!(so_far, "cc0", "wne")},
             &[&held, &apart],
+        )))
+    }
+
+    /// ( scope -> -u c =/= 0 ) for a divisor −(c/e) the page says is not 0:
+    /// c/e is not 0 as its negation is not, c as c/e is not (`divne0bd`),
+    /// and −c as c is not (`negne0bd` each way).
+    fn negated_top_apart(
+        &mut self,
+        parts: &NegatedQuotient,
+        scope: &str,
+        facts: &Facts,
+    ) -> Checked<Route<Proof>> {
+        let NegatedQuotient {
+            divisor,
+            quotient,
+            top,
+            below,
+        } = parts;
+        let ne0 = |t: &str| t!(t, "cc0", "wne");
+        let whole_apart = self.not_zero(scope, facts, divisor)?;
+        let quotient_cc = take!(self.in_cc(quotient, scope, facts)?);
+        let top_cc = take!(self.in_cc(top, scope, facts)?);
+        let below_cc = take!(self.in_cc(below, scope, facts)?);
+        let below_apart = self.not_zero(scope, facts, below)?;
+        let quotient_turn = self.b.ap(
+            "negne0bd",
+            &binds! {"ph" => scope, "A" => quotient},
+            &[&quotient_cc],
+        );
+        let quotient_apart = self.b.ap(
+            "mpbird",
+            &binds! {"ph" => scope, "ps" => ne0(quotient), "ch" => ne0(divisor)},
+            &[&whole_apart, &quotient_turn],
+        );
+        let divided = self.b.ap(
+            "divne0bd",
+            &binds! {"ph" => scope, "A" => top, "B" => below},
+            &[&top_cc, &below_cc, &below_apart],
+        );
+        let top_apart = self.b.ap(
+            "mpbird",
+            &binds! {"ph" => scope, "ps" => ne0(top), "ch" => ne0(quotient)},
+            &[&quotient_apart, &divided],
+        );
+        let top_turn =
+            self.b
+                .ap("negne0bd", &binds! {"ph" => scope, "A" => top}, &[&top_cc]);
+        Ok(Built(self.b.ap(
+            "mpbid",
+            &binds! {"ph" => scope, "ps" => ne0(top), "ch" => ne0(&t!(top, "cneg"))},
+            &[&top_apart, &top_turn],
         )))
     }
 

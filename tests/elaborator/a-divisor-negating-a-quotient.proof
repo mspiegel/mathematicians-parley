@@ -9,3 +9,16 @@ theorem a-divisor-negating-a-quotient
 1.  x/(−(x/2)) = −2
     algebra
     requires −(x/2) ≠ 0: from H2
+
+theorem an-absolute-value-over-its-negation
+  note        A cited equation, and a divisor −(p/2): the claim's sides are
+              multiplied by −p, which is not zero because −(p/2) is not.
+  let p ∈ ℝ                                                           (H1)
+  assume |p/2| = p/2                                                  (H2)
+  assume |−(p/2)| = |p/2|                                             (H3)
+  assume −(p/2) ≠ 0                                                   (H4)
+  then |−(p/2)|/(−(p/2)) = −1
+
+1.  |−(p/2)|/(−(p/2)) = −1
+    algebra, from H2, H3
+    requires −(p/2) ≠ 0: from H4
