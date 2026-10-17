@@ -1,0 +1,12 @@
+theorem two-bounds-below-added
+  note        A plain step adds its lines as they stand: x ≥ 4 and x ≥ 0
+              add to x + x ≥ 4 + 0, which is the claim. Both lines are
+              bounds below on x, which no pairing of a bound above with one
+              below finds.
+  let x ∈ ℝ                                                           (H1)
+  assume x ≥ 4                                                        (H2)
+  assume x ≥ 0                                                        (H3)
+  then x + x ≥ 4
+
+1.  x + x ≥ 4
+    inequalities, from H2, H3

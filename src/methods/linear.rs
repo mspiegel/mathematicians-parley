@@ -534,6 +534,9 @@ pub fn certificate(
         certificate(&split.above, &split.lines, alike)?;
         return Some(Certificate::Either { at });
     }
+    if alike {
+        return alike_certificate(facts, line_of);
+    }
     let mut open: Vec<Fact> = Vec::new();
     for (i, one) in facts.iter().enumerate() {
         let alone = |weight: i64| {
@@ -622,6 +625,113 @@ pub fn certificate(
     best.map(|(_, weights)| Certificate::Farkas(weights))
 }
 
+/// The most facts `alike_certificate` takes one at a time: each is left
+/// out, added, or for an equation added turned round, so the search is
+/// three ways a fact. Past anything a plain step cites in the corpus.
+const ALIKE_MOST: usize = 14;
+
+/// A combination of `facts`, each it uses taken once as it stands, an
+/// equation either way round, that contradicts: the facts a plain
+/// `inequalities` step adds (`certificate`, `alike`). Elimination one atom
+/// at a time pairs one bound above with one below, so it does not find a
+/// sum of two bounds below against one above, x ≥ 4 and x ≥ 0 against
+/// x + x < 4; the sums are searched for themselves. Of those that
+/// contradict, the one resting on the most lines, and of those the first
+/// in the order the facts are given.
+fn alike_certificate(facts: &[Fact], line_of: &[Option<usize>]) -> Option<Certificate> {
+    alike_combinations(facts, line_of)
+        .into_iter()
+        .next()
+        .map(Certificate::Farkas)
+}
+
+/// Every combination of `facts` that contradicts, each fact it uses taken
+/// once as it stands, an equation either way round (`alike_certificate`),
+/// with none inside it that contradicts as well: one with a smaller inside
+/// only adds facts that cancel, an equation taken each way round, which do
+/// no work however many lines they are of. Those resting on the most lines
+/// first, and of those the first in the order the facts are given; none for
+/// more facts than `ALIKE_MOST`.
+pub fn alike_combinations(facts: &[Fact], line_of: &[Option<usize>]) -> Vec<Weights> {
+    if facts.len() > ALIKE_MOST {
+        return Vec::new();
+    }
+    // How much of each atom the facts from each place on can take away, so
+    // that a sum holding more of one than that is given up at once.
+    let mut later: Vec<IndexMap<Rc<str>, Q>> = vec![IndexMap::new(); facts.len() + 1];
+    for at in (0..facts.len()).rev() {
+        let mut room = later[at + 1].clone();
+        for (atom, w) in &facts[at].side.weight {
+            *room.entry(atom.clone()).or_insert_with(Q::zero) += w.abs();
+        }
+        later[at] = room;
+    }
+    let mut search = AlikeSearch {
+        facts,
+        later,
+        found: Vec::new(),
+    };
+    search.from(0, &Linear::default(), false, &mut Weights::new());
+    let found = &search.found;
+    let inside = |small: &Weights, large: &Weights| {
+        small.len() < large.len() && small.iter().all(|(i, w)| large.get(i) == Some(w))
+    };
+    let mut kept: Vec<(usize, Weights)> = found
+        .iter()
+        .filter(|one| !found.iter().any(|other| inside(other, one)))
+        .map(|one| (lines_used(one, line_of), one.clone()))
+        .collect();
+    kept.sort_by_key(|(used, _)| std::cmp::Reverse(*used));
+    kept.into_iter().map(|(_, weights)| weights).collect()
+}
+
+/// The search `alike_combinations` makes, and each combination it has
+/// found that contradicts.
+struct AlikeSearch<'f> {
+    facts: &'f [Fact],
+    /// How much of each atom the facts from each place on can take away.
+    later: Vec<IndexMap<Rc<str>, Q>>,
+    found: Vec<Weights>,
+}
+
+impl AlikeSearch<'_> {
+    /// Each way to take the facts from `at` on, beside `sum`, the side of
+    /// those taken, strict where one of them is, and `weights`, which they
+    /// are.
+    fn from(&mut self, at: usize, sum: &Linear, strict: bool, weights: &mut Weights) {
+        let stranded = sum.weight.iter().any(|(a, w)| {
+            !w.is_zero() && self.later[at].get(a).is_none_or(|room| w.abs() > *room)
+        });
+        if stranded {
+            return;
+        }
+        if at == self.facts.len() {
+            let contradicts = !weights.is_empty()
+                && if strict {
+                    !sum.constant.is_negative()
+                } else {
+                    sum.constant.is_positive()
+                };
+            if contradicts {
+                self.found.push(weights.clone());
+            }
+            return;
+        }
+        let one = &self.facts[at];
+        let signs: &[i64] = match one.how {
+            How::Eq => &[1, -1],
+            _ => &[1],
+        };
+        for &sign in signs {
+            weights.insert(at, q(sign));
+            let more = sum.plus(&one.side.scaled(&q(sign)));
+            self.from(at + 1, &more, strict || one.how == How::Lt, weights);
+            weights.shift_remove(&at);
+        }
+        self.from(at + 1, sum, strict, weights);
+    }
+}
+
 /// Whether the claim follows from the given facts.
 ///
 /// The claim is denied and the set shown to have no solution. Denying an
@@ -654,6 +764,28 @@ mod tests {
         ];
         let used = used_facts(&facts, &[Some(0), Some(1), Some(2)], false);
         assert_eq!(used, Some(BTreeSet::from([0, 2])));
+    }
+
+    #[test]
+    fn two_bounds_below_added_against_one_above() {
+        // x ≥ 4 and x ≥ 0 give x + x ≥ 4, each added once.
+        let x = atom("vx");
+        let four = Linear::constant(q(4));
+        let facts = [
+            Fact::new(four.minus(&x), How::Le),
+            Fact::new(x.scaled(&q(-1)), How::Le),
+            Fact::new(x.scaled(&q(2)).minus(&four), How::Lt),
+        ];
+        let used = used_facts(&facts, &[Some(0), Some(1), None], true);
+        assert_eq!(used, Some(BTreeSet::from([0, 1, 2])));
+        // a < s restated: a − s < 0 against its denial s − a ≤ 0.
+        let (a, s) = (atom("va"), atom("vs"));
+        let restated = [
+            Fact::new(a.minus(&s), How::Lt),
+            Fact::new(s.minus(&a), How::Le),
+        ];
+        let used = used_facts(&restated, &[Some(0), None], true);
+        assert_eq!(used, Some(BTreeSet::from([0, 1])));
     }
 
     #[test]

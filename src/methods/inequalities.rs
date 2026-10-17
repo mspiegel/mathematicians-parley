@@ -58,6 +58,9 @@ fn claim_parts(claimed: &Term, labels: &FloatLabels) -> Option<Vec<ClaimPart>> {
 struct Given {
     facts: Vec<linear::Fact>,
     said_as: Vec<Term>,
+    /// The cited line each fact is of, by its place among them; None for
+    /// one a membership implies.
+    term_of: Vec<Option<usize>>,
     cited: usize,
     apart: Vec<linear::Fact>,
 }
@@ -70,11 +73,13 @@ impl Given {
     fn of(cited: &[Term], implied: &[Term], labels: &FloatLabels) -> Given {
         let mut facts = Vec::new();
         let mut said_as = Vec::new();
-        for held in cited {
+        let mut term_of = Vec::new();
+        for (i, held) in cited.iter().enumerate() {
             for said in parts(held) {
                 if let Some(fact) = linear::fact(&said, labels) {
                     facts.push(fact);
                     said_as.push(said);
+                    term_of.push(Some(i));
                 }
             }
         }
@@ -86,6 +91,7 @@ impl Given {
                 Some(fact) => {
                     facts.push(fact);
                     said_as.push(said.clone());
+                    term_of.push(None);
                 }
                 None => {}
             }
@@ -93,6 +99,7 @@ impl Given {
         Given {
             facts,
             said_as,
+            term_of,
             cited,
             apart,
         }
@@ -119,13 +126,54 @@ fn added(
         };
         return given.facts.iter().chain(&given.apart).any(restates);
     }
-    let facts = &given.facts;
-    let mut all = facts.to_vec();
+    accepted(part, claim, given, &given.term_of, labels).is_some()
+}
+
+/// The facts of `given` a claim that is no disequality adds, by their
+/// place: the first combination of them that adds as they stand
+/// (`linear::alike_combinations`, resting on the most of the lines
+/// `lines` says each is of) whose sum is the claim (`sums_to`). Where
+/// a disequality is among the facts, the one combination `linear::
+/// used_facts` takes, which takes it both ways. None where no combination
+/// is the claim.
+fn accepted(
+    part: &Term,
+    claim: &linear::Fact,
+    given: &Given,
+    lines: &[Option<usize>],
+    labels: &FloatLabels,
+) -> Option<BTreeSet<usize>> {
+    let mut all = given.facts.to_vec();
     all.push(linear::opposite(claim));
-    let lines = vec![None; all.len()];
-    let Some(used) = linear::used_facts(&all, &lines, true) else {
-        return false;
+    let mut all_lines = lines.to_vec();
+    all_lines.resize(all.len(), None);
+    let combinations: Vec<BTreeSet<usize>> = if all.iter().any(|f| f.how == How::Ne) {
+        linear::used_facts(&all, &all_lines, true)
+            .into_iter()
+            .collect()
+    } else {
+        linear::alike_combinations(&all, &all_lines)
+            .into_iter()
+            .map(|weights| weights.keys().copied().collect())
+            .collect()
     };
+    combinations
+        .into_iter()
+        .find(|used| sums_to(part, claim, given, used, labels))
+}
+
+/// Whether the facts of `given` at `used` add to the claim as they stand
+/// (`accepted`): as strict as the claim says, equations from equations
+/// alone, and the claim's sides the sums of theirs. Facts that add no cited
+/// line are what a step takes unwritten, and the claim rests on them alone.
+fn sums_to(
+    part: &Term,
+    claim: &linear::Fact,
+    given: &Given,
+    used: &BTreeSet<usize>,
+    labels: &FloatLabels,
+) -> bool {
+    let facts = &given.facts;
     if !used.iter().any(|&i| i < given.cited) {
         return true;
     }
@@ -171,11 +219,38 @@ pub fn combined(
     implied: &[Term],
     labels: &FloatLabels,
 ) -> Option<BTreeSet<usize>> {
-    let claims: Vec<_> = parts(claimed)
+    let claims = claim_parts(claimed, labels)?;
+    let read = Given::of(cited, implied, labels);
+    // The page's line each fact is of, which a combination rests on.
+    let lines: Vec<Option<usize>> = read
+        .term_of
         .iter()
-        .filter(|part| !conjoined(part))
-        .map(|part| linear::fact(part, labels))
-        .collect::<Option<_>>()?;
+        .map(|t| t.and_then(|i| line_of.get(i).copied()))
+        .collect();
+    let mut out = BTreeSet::new();
+    for part in &claims {
+        if part.fact.how == How::Ne {
+            out.extend(restated_apart(&part.fact, cited, line_of, implied, labels)?);
+            continue;
+        }
+        let used = accepted(&part.term, &part.fact, &read, &lines, labels)?;
+        out.extend(
+            used.iter()
+                .filter_map(|&j| read.term_of.get(j).copied().flatten()),
+        );
+    }
+    Some(out)
+}
+
+/// The cited facts a disequality claim combines, as `combined` gives them:
+/// the combination `linear::used_facts` takes against its denial.
+fn restated_apart(
+    claim: &linear::Fact,
+    cited: &[Term],
+    line_of: &[usize],
+    implied: &[Term],
+    labels: &FloatLabels,
+) -> Option<BTreeSet<usize>> {
     let mut given = Vec::new();
     // For each fact, the cited fact it is of and the page's line.
     let mut of_cited: Vec<Option<usize>> = Vec::new();
@@ -196,19 +271,14 @@ pub fn combined(
             lines.push(None);
         }
     }
-    let mut out = BTreeSet::new();
-    for claim in &claims {
-        let mut all = given.clone();
-        all.push(linear::opposite(claim));
-        let mut all_lines = lines.clone();
-        all_lines.push(None);
-        let used = linear::used_facts(&all, &all_lines, true)?;
-        out.extend(
-            used.iter()
-                .filter_map(|j| of_cited.get(*j).copied().flatten()),
-        );
-    }
-    Some(out)
+    given.push(linear::opposite(claim));
+    lines.push(None);
+    let used = linear::used_facts(&given, &lines, true)?;
+    Some(
+        used.iter()
+            .filter_map(|j| of_cited.get(*j).copied().flatten())
+            .collect(),
+    )
 }
 
 /// Whether a term is a conjunction, which `algebra::parts` takes apart
