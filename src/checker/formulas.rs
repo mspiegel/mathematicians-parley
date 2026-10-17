@@ -2876,6 +2876,7 @@ pub fn check_method_cites_used(
                 inequalities_hold
             }
             Some(Method::Membership) => membership_holds,
+            Some(Method::Inspection) => inspection_holds,
             _ => continue,
         };
         let asked = CitesAsked {
@@ -2994,34 +2995,52 @@ pub fn check_inspection_holds(
             continue;
         }
         // A claim that does not read is `check_formulas`'s to report.
-        let Some(claim) = known.whole(step, &step.claim) else {
+        if known.whole(step, &step.claim).is_none() {
             continue;
-        };
-        let scope = known.scope(step);
-        let cited: Vec<Term> = step
-            .just
-            .refs
-            .iter()
-            .filter_map(|r| scope.get(r))
-            .flat_map(|stated| known.stated_at(step, stated))
-            .map(|n| term_of_node(&n, targets))
-            .collect();
-        use crate::methods::inspection::{Facts, Inspected};
-        let what = format!("step {} claims {}", step.number, known.print(&claim));
-        match Facts::of(&cited).decide(&term_of_node(&claim, targets)) {
-            Inspected::Holds => {}
-            Inspected::Fails => report.say(
-                &thm.path,
-                step.just.line,
-                format!("{what}, which inspection of what it cites shows false"),
-            ),
-            Inspected::Unsettled(why) => {
-                report.say(&thm.path, step.just.line, format!("{what}, and {why}"))
-            }
-            Inspected::Undecided => {
-                report.undecided(&thm.path, Method::Inspection, step)
-            }
         }
+        if !inspection_holds(report, thm, &ClosureClaim::step(step), known, targets) {
+            report.undecided(&thm.path, Method::Inspection, step);
+        }
+    }
+}
+
+/// `check_inspection_holds` of one claim, from the lines it cites; whether
+/// it was decided.
+fn inspection_holds(
+    report: &mut Report,
+    thm: &Theorem,
+    at: &ClosureClaim,
+    known: &Known,
+    targets: &Targets,
+) -> bool {
+    let Some(claim) = known.whole(at.step, at.claim) else {
+        return false;
+    };
+    let scope = known.scope(at.step);
+    let cited: Vec<Term> = at
+        .refs
+        .iter()
+        .filter_map(|r| scope.get(r))
+        .flat_map(|stated| known.stated_at(at.step, stated))
+        .map(|n| term_of_node(&n, targets))
+        .collect();
+    use crate::methods::inspection::{Facts, Inspected};
+    let what = format!("step {} claims {}", at.step.number, known.print(&claim));
+    match Facts::of(&cited).decide(&term_of_node(&claim, targets)) {
+        Inspected::Holds => true,
+        Inspected::Fails => {
+            report.say(
+                &thm.path,
+                at.line,
+                format!("{what}, which inspection of what it cites shows false"),
+            );
+            true
+        }
+        Inspected::Unsettled(why) => {
+            report.say(&thm.path, at.line, format!("{what}, and {why}"));
+            true
+        }
+        Inspected::Undecided => false,
     }
 }
 

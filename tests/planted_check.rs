@@ -927,11 +927,11 @@ fn cases() -> Vec<Case> {
         case(
             "rest a claim on a method that does not decide it",
             vec![edit(
-                "proofs/wiedijk/sqrt2-irrational.proof",
-                Some("2.  q > 0\n    inequalities, from 1\n".to_string()),
-                "2.  q ∈ ℤ\n    inequalities, from 1\n".to_string(),
+                "proofs/hammack/mersenne-prime-exponent.proof",
+                Some("    1.19. j ≤ q\n          inequalities, from 1.3\n".to_string()),
+                "    1.19. j ∈ ℤ\n          inequalities, from 1.3\n".to_string(),
             )],
-            "step 2 names inequalities, which does not decide what it claims",
+            "step 1.19 names inequalities, which does not decide what it claims",
         ),
         // A link of numerals alone naming arithmetic, worked out whole.
         case(
@@ -1137,16 +1137,16 @@ fn cases() -> Vec<Case> {
             )],
             "(1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a) + 1 is not an identity, nor does it follow from what step 1.10 cites",
         ),
-        // A bound the cited lines do not give: q ∈ ℕ says q ≥ 1 and so
-        // q > 0, never q > 1 (`check_inequalities_holds`).
+        // A bound the cited lines do not give: q ≥ j says j ≤ q, never
+        // j < q (`check_inequalities_holds`).
         case(
             "claim an inequalities step the cited lines do not give",
             vec![edit(
-                "proofs/wiedijk/sqrt2-irrational.proof",
-                Some("2.  q > 0\n    inequalities, from 1\n".to_string()),
-                "2.  q > 1\n    inequalities, from 1\n".to_string(),
+                "proofs/hammack/mersenne-prime-exponent.proof",
+                Some("    1.19. j ≤ q\n          inequalities, from 1.3\n".to_string()),
+                "    1.19. j < q\n          inequalities, from 1.3\n".to_string(),
             )],
-            "q > 1 does not follow from what step 2 cites",
+            "j < q does not follow from what step 1.19 cites",
         ),
         case(
             "ask algebra to multiply out a power past its cost",
@@ -1545,10 +1545,10 @@ fn cases() -> Vec<Case> {
             "cite one line twice in a step's list",
             vec![edit(
                 "proofs/wiedijk/sqrt2-irrational.proof",
-                Some("thm:divides-gcd a := p, b := q, from 3.1\n".to_string()),
-                "thm:divides-gcd a := p, b := q, from 3.1, 3.1\n".to_string(),
+                Some("thm:divides-gcd a := p, b := q, from 2.1\n".to_string()),
+                "thm:divides-gcd a := p, b := q, from 2.1, 2.1\n".to_string(),
             )],
-            "step 3.2 cites 3.1 more than once",
+            "step 2.2 cites 2.1 more than once",
         ),
         case(
             "cite one line twice in a requires line's list",
@@ -2499,9 +2499,9 @@ fn cases() -> Vec<Case> {
         case(
             "an obtain from a line that claims more than the line's there is",
             vec![
-                edit("proofs/wiedijk/sqrt2-irrational.proof", Some("    3.1.  d ∈ ℤ. d > 1. d divides p. d divides q.".to_string()), "    3.1.  d ∈ ℤ. d > 2. d divides p. d divides q.".to_string()),
+                edit("proofs/wiedijk/sqrt2-irrational.proof", Some("    2.1.  d ∈ ℤ. d > 1. d divides p. d divides q.".to_string()), "    2.1.  d ∈ ℤ. d > 2. d divides p. d divides q.".to_string()),
             ],
-            "step 3.1 claims other than what it obtains, which says",
+            "step 2.1 claims other than what it obtains, which says",
         ),
         case(
             "an obtain from an item that claims more than the item's there is",
@@ -3993,7 +3993,7 @@ fn cases() -> Vec<Case> {
         case(
             "a part marker in a block that has no parts",
             vec![
-                edit("proofs/wiedijk/sqrt2-irrational.proof", Some("    3.1.  d ∈ ℤ. d > 1. d divides p. d divides q.".to_string()), "    base\n    3.1.  d ∈ ℤ. d > 1. d divides p. d divides q.".to_string()),
+                edit("proofs/wiedijk/sqrt2-irrational.proof", Some("    2.1.  d ∈ ℤ. d > 1. d divides p. d divides q.".to_string()), "    base\n    2.1.  d ∈ ℤ. d > 1. d divides p. d divides q.".to_string()),
             ],
             "under a contradiction block, which declares no parts",
         ),
@@ -4431,6 +4431,50 @@ fn cases() -> Vec<Case> {
             )],
             "step 1.6 cites K and uses nothing it says",
         ),
+        // Inspection reads the facts of what it cites, and C's degree is
+        // read off H1 and the degree's definition, not off A's.
+        case(
+            "cite a line an inspection does not read",
+            vec![edit(
+                "proofs/wiedijk/konigsberg.proof",
+                Some("4.  deg(C) = 3\n    inspection, from H1, 1\n".to_string()),
+                "4.  deg(C) = 3\n    inspection, from H1, 1, 2\n".to_string(),
+            )],
+            "step 4 cites 2 and uses nothing it says",
+        ),
+        // An exhibit cites what it says of its value; N/2 > M says nothing
+        // of the sum the claim is about.
+        case(
+            "cite a line an exhibit says nothing of its value by",
+            vec![edit(
+                "proofs/wiedijk/harmonic.proof",
+                Some("    exhibit, from 6\n".to_string()),
+                "    exhibit, from 5, 6\n".to_string(),
+            )],
+            "step 7 cites 5 and uses nothing it says",
+        ),
+        // "There is a polynomial q with …" asks that q is a polynomial,
+        // which line 1 says.
+        case(
+            "exhibit a polynomial nothing says is one",
+            vec![edit(
+                "proofs/wiedijk/factor.proof",
+                Some("    exhibit, from 1, 2\n".to_string()),
+                "    exhibit, from 2\n".to_string(),
+            )],
+            "step 3 exhibits q := q, so it needs",
+        ),
+        // "There is s ∈ S" binds s over nothing, and asks only that the
+        // value is in S.
+        case(
+            "exhibit a member of a set nothing says one is in",
+            vec![edit(
+                "tests/docs/grammar.proof",
+                Some("1.  There is s ∈ S.\n    exhibit, from H2\n".to_string()),
+                "1.  There is s ∈ S.\n    exhibit, from H3\n".to_string(),
+            )],
+            "step 1 exhibits a value, and nothing it cites or requires says the claim's body of any one value",
+        ),
         // A requires line's `from` names the lines it rests on, as a step's
         // does: d(k) ∈ ℝ rests on H2, d's type, at a k said once in ℕ₀,
         // read up into ℝ.
@@ -4658,10 +4702,10 @@ fn cases() -> Vec<Case> {
             "an obtain claiming more than the line it obtains from",
             vec![edit(
                 "proofs/wiedijk/sqrt2-irrational.proof",
-                Some("    3.1.  d ∈ ℤ. d > 1. d divides p. d divides q.".to_string()),
-                "    3.1.  d ∈ ℕ. d > 1. d divides p. d divides q.".to_string(),
+                Some("    2.1.  d ∈ ℤ. d > 1. d divides p. d divides q.".to_string()),
+                "    2.1.  d ∈ ℕ. d > 1. d divides p. d divides q.".to_string(),
             )],
-            "step 3.1 claims d ∈ ℕ, and what it obtains says d ∈ ℤ",
+            "step 2.1 claims d ∈ ℕ, and what it obtains says d ∈ ℤ",
         ),
         // Dropping the 1 a substitution makes asks that what is left be a
         // number, and b(0) is one only by the line saying so.

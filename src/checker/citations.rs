@@ -17,8 +17,8 @@ use crate::citing::{
     asked, bound_in, claimed_member, concludes, conjuncts, derives, filled, finished,
     function_values, identities_unsaid, obtained, obtains, range_system, readings,
     said_once, search, substitution_unsaid, supply, taken, taken_ways,
-    type_said_otherwise, with_parts, Concluded, Group, Library, Parts, Sites, Taken,
-    Ways,
+    type_said_otherwise, with_parts, Bound, Concluded, Group, Library, Parts, Sites,
+    Taken, Ways,
 };
 use crate::corpus::proof::{reason_as_step, Requires};
 use crate::corpus::skeleton::Source;
@@ -26,7 +26,7 @@ use crate::corpus::{
     define_parts, DefineParts, FileScope, Head, Item, Method, Step, Theorem,
 };
 use crate::formula::page::{self, conjoined, Written};
-use crate::formula::{Node, Sort};
+use crate::formula::Node;
 use crate::matching::{
     alike, binding_sites, match_tree, standard, substitute_apart, Binding, Context,
     PROPERTY,
@@ -122,7 +122,7 @@ fn requires_parts(
         .is_some_and(|i| !i.says_for_all());
     if at_member {
         if let [claim] = claims.as_slice() {
-            if let Some((member, body)) = claimed_member(claim, library, &known.sorts) {
+            if let Some((member, body)) = claimed_member(claim, library) {
                 read.push(member);
                 claims = vec![body];
             }
@@ -143,7 +143,7 @@ fn requires_parts(
     // of the member, whose membership the claim gives (`SYNTAX.md`).
     if step.openers.is_empty() {
         if let [claim] = read_all(&step.claim).as_slice() {
-            if let Some((member, _)) = claimed_member(claim, library, &known.sorts) {
+            if let Some((member, _)) = claimed_member(claim, library) {
                 read.push(member);
             }
         }
@@ -1431,7 +1431,7 @@ pub fn check_obtained_claims(
                             g.notation == "biconditional" && g.children.len() == 2
                         })
                         .map(|g| filled(&g.children[1], seed, &library.ctx))
-                        .find(|right| exhibited(right, library, known).is_some())
+                        .find(|right| exhibited(right, library).is_some())
                 } else {
                     let Some(read) = searched(step, Search::Obtains, known, library)
                     else {
@@ -1444,7 +1444,7 @@ pub fn check_obtained_claims(
                         .gives
                         .iter()
                         .map(|g| filled(g, &taken.binding, &library.ctx))
-                        .find(|g| exhibited(g, library, known).is_some())
+                        .find(|g| exhibited(g, library).is_some())
                 }
             }
         };
@@ -1510,11 +1510,7 @@ pub fn check_obtained_claims(
         // A membership written `x ∈ S` is the one the "there is" gives; one
         // its notation spells otherwise is the elaborator's to read.
         for ((letter, domain), claimed) in order.iter().zip(&said) {
-            let Some(member) =
-                bound_in("x ∈ S", None, letter, domain, library, &known.sorts)
-            else {
-                continue;
-            };
+            let member = bound_in(Bound::Member, letter, domain, library);
             let member = substitute_apart(&member, &put, &library.ctx);
             if claimed.notation == member.notation && !known.alike(claimed, &member) {
                 report.say(
@@ -2450,7 +2446,7 @@ pub(super) fn domains_unsaid(
         parts
             .claims
             .iter()
-            .filter_map(|c| claimed_member(c, library, &known.sorts))
+            .filter_map(|c| claimed_member(c, library))
             .map(|(member, _)| member),
     );
     let facts =
@@ -2496,26 +2492,69 @@ pub fn check_exhibited(
     library: &Library,
     known: &Known,
 ) {
-    for step in &thm.steps {
-        if !step.just.head.is(Method::Exhibit) {
-            continue;
+    for step in thm.steps.iter().filter(|s| s.just.head.is(Method::Exhibit)) {
+        check_exhibit(report, thm, step, library, known);
+        check_exhibit_cites_used(report, thm, step, library, known);
+    }
+}
+
+/// An exhibit uses each line it cites (`DATABASE.md`, a named thing doing
+/// no work is an error): with the line taken away, what the exhibit needs
+/// of its value is left unsaid. An exhibit that does not hold with all its
+/// lines is reported by `check_exhibit`, and asked nothing here.
+fn check_exhibit_cites_used(
+    report: &mut Report,
+    thm: &Theorem,
+    step: &Step,
+    library: &Library,
+    known: &Known,
+) {
+    let mut whole = Report::default();
+    check_exhibit(&mut whole, thm, step, library, known);
+    if !whole.problems.is_empty() {
+        return;
+    }
+    let refs = &step.just.refs;
+    let mut seen = BTreeSet::new();
+    for r in refs.iter().filter(|r| seen.insert(r.as_str())) {
+        let mut lighter = step.clone();
+        lighter.just.refs = refs.iter().filter(|x| *x != r).cloned().collect();
+        let mut scratch = Report::default();
+        check_exhibit(&mut scratch, thm, &lighter, library, known);
+        if scratch.problems.is_empty() {
+            report.say(
+                &thm.path,
+                step.just.line,
+                format!("step {} cites {r} and uses nothing it says", step.number),
+            );
         }
-        let parts = known.parts(step, library);
-        let written: Vec<Node> = step
-            .claim
-            .sentences()
-            .iter()
-            .filter_map(|s| known.read_as_written(s))
-            .collect();
-        for (claim, as_written) in parts.claims.iter().zip(&written) {
-            // An exhibit claims a "there is" and shows a value for it
-            // (`SYNTAX.md`, `exhibit`).
-            let Some(Exhibited { wants, letters }) = exhibited(claim, library, known)
-            else {
-                if library.ctx.existences.contains(&claim.notation) {
-                    continue;
-                }
-                report.say(
+    }
+}
+
+/// One exhibit's claim, a "there is", each part of it said of one value by
+/// what the step cites or requires.
+fn check_exhibit(
+    report: &mut Report,
+    thm: &Theorem,
+    step: &Step,
+    library: &Library,
+    known: &Known,
+) {
+    let parts = known.parts(step, library);
+    let written: Vec<Node> = step
+        .claim
+        .sentences()
+        .iter()
+        .filter_map(|s| known.read_as_written(s))
+        .collect();
+    for (claim, as_written) in parts.claims.iter().zip(&written) {
+        // An exhibit claims a "there is" and shows a value for it
+        // (`SYNTAX.md`, `exhibit`).
+        let Some(Exhibited { wants, letters }) = exhibited(claim, library) else {
+            if library.ctx.existences.contains(&claim.notation) {
+                continue;
+            }
+            report.say(
                     &thm.path,
                     step.just.line,
                     format!(
@@ -2524,86 +2563,86 @@ pub fn check_exhibited(
                         known.print(as_written)
                     ),
                 );
+            continue;
+        };
+        let mut sites = Sites::new();
+        for t in &wants {
+            binding_sites(t, &library.ctx, &[], &mut sites);
+        }
+        let mut facts = with_parts(&parts.facts, library);
+        let typed: Vec<Node> = facts
+            .iter()
+            .filter_map(|f| type_said_otherwise(f, library))
+            .collect();
+        facts.extend(typed);
+        let stated = |wants: &[Node]| {
+            supply(
+                wants,
+                &facts,
+                &Binding::new(),
+                &letters,
+                library,
+                &sites,
+                true,
+            )
+        };
+        // A term equals itself, which no line need write: gH = aH at
+        // a = g is stated by nothing and needs nothing.
+        let itself = |w: &Node| {
+            w.notation == "equality"
+                && w.children.len() == 2
+                && known.alike(&w.children[0], &w.children[1])
+        };
+        let (equations, rest): (Vec<Node>, Vec<Node>) = wants
+            .iter()
+            .cloned()
+            .partition(|w| w.notation == "equality" && w.children.len() == 2);
+        let said = stated(&wants).is_some()
+            || (!equations.is_empty()
+                && stated(&rest).is_some_and(|at| {
+                    equations
+                        .iter()
+                        .all(|e| itself(&substitute_apart(e, &at, &library.ctx)))
+                }));
+        if said {
+            continue;
+        }
+        // The value is the one the most parts are said of, each part's
+        // own line suggesting one; what is not said of it is what the
+        // step needs.
+        let holds = |w: &Node, at: &Binding| {
+            let w = substitute_apart(w, at, &library.ctx);
+            itself(&w) || facts.iter().any(|f| known.alike(f, &w))
+        };
+        // A letter's bare membership, n ∈ ℕ, fits every number in ℕ, and
+        // a numeral's membership is said once (`said_once`), so the value
+        // it suggests is no reading of the claim: what the body says is
+        // asked first, and wins where as many parts are said of each.
+        let bare = |w: &Node| {
+            w.notation == "membership"
+                && w.children
+                    .first()
+                    .is_some_and(|t| letters.contains(&t.text))
+        };
+        let mut best: Option<(usize, Binding)> = None;
+        for w in wants
+            .iter()
+            .filter(|w| !bare(w))
+            .chain(wants.iter().filter(|w| bare(w)))
+        {
+            let Some(at) = stated(std::slice::from_ref(w)) else {
                 continue;
             };
-            let mut sites = Sites::new();
-            for t in &wants {
-                binding_sites(t, &library.ctx, &[], &mut sites);
-            }
-            let mut facts = with_parts(&parts.facts, library);
-            let typed: Vec<Node> = facts
-                .iter()
-                .filter_map(|f| type_said_otherwise(f, library, &known.sorts))
-                .collect();
-            facts.extend(typed);
-            let stated = |wants: &[Node]| {
-                supply(
-                    wants,
-                    &facts,
-                    &Binding::new(),
-                    &letters,
-                    library,
-                    &sites,
-                    true,
-                )
-            };
-            // A term equals itself, which no line need write: gH = aH at
-            // a = g is stated by nothing and needs nothing.
-            let itself = |w: &Node| {
-                w.notation == "equality"
-                    && w.children.len() == 2
-                    && known.alike(&w.children[0], &w.children[1])
-            };
-            let (equations, rest): (Vec<Node>, Vec<Node>) = wants
-                .iter()
-                .cloned()
-                .partition(|w| w.notation == "equality" && w.children.len() == 2);
-            let said = stated(&wants).is_some()
-                || (!equations.is_empty()
-                    && stated(&rest).is_some_and(|at| {
-                        equations
-                            .iter()
-                            .all(|e| itself(&substitute_apart(e, &at, &library.ctx)))
-                    }));
-            if said {
+            if !letters.iter().all(|l| at.contains_key(l)) {
                 continue;
             }
-            // The value is the one the most parts are said of, each part's
-            // own line suggesting one; what is not said of it is what the
-            // step needs.
-            let holds = |w: &Node, at: &Binding| {
-                let w = substitute_apart(w, at, &library.ctx);
-                itself(&w) || facts.iter().any(|f| known.alike(f, &w))
-            };
-            // A letter's bare membership, n ∈ ℕ, fits every number in ℕ, and
-            // a numeral's membership is said once (`said_once`), so the value
-            // it suggests is no reading of the claim: what the body says is
-            // asked first, and wins where as many parts are said of each.
-            let bare = |w: &Node| {
-                w.notation == "membership"
-                    && w.children
-                        .first()
-                        .is_some_and(|t| letters.contains(&t.text))
-            };
-            let mut best: Option<(usize, Binding)> = None;
-            for w in wants
-                .iter()
-                .filter(|w| !bare(w))
-                .chain(wants.iter().filter(|w| bare(w)))
-            {
-                let Some(at) = stated(std::slice::from_ref(w)) else {
-                    continue;
-                };
-                if !letters.iter().all(|l| at.contains_key(l)) {
-                    continue;
-                }
-                let count = wants.iter().filter(|w| holds(w, &at)).count();
-                if best.as_ref().is_none_or(|(most, _)| count > *most) {
-                    best = Some((count, at));
-                }
+            let count = wants.iter().filter(|w| holds(w, &at)).count();
+            if best.as_ref().is_none_or(|(most, _)| count > *most) {
+                best = Some((count, at));
             }
-            let Some((_, at)) = best else {
-                report.say(
+        }
+        let Some((_, at)) = best else {
+            report.say(
                     &thm.path,
                     step.just.line,
                     format!(
@@ -2611,21 +2650,21 @@ pub fn check_exhibited(
                         step.number
                     ),
                 );
+            continue;
+        };
+        let shown = exhibited(as_written, library)
+            .map(|e| e.wants)
+            .filter(|w| w.len() == wants.len())
+            .unwrap_or_else(|| wants.clone());
+        let values: Vec<String> = letters
+            .iter()
+            .filter_map(|l| at.get(l).map(|v| format!("{l} := {}", known.print(v))))
+            .collect();
+        for (want, show) in wants.iter().zip(&shown) {
+            if holds(want, &at) {
                 continue;
-            };
-            let shown = exhibited(as_written, library, known)
-                .map(|e| e.wants)
-                .filter(|w| w.len() == wants.len())
-                .unwrap_or_else(|| wants.clone());
-            let values: Vec<String> = letters
-                .iter()
-                .filter_map(|l| at.get(l).map(|v| format!("{l} := {}", known.print(v))))
-                .collect();
-            for (want, show) in wants.iter().zip(&shown) {
-                if holds(want, &at) {
-                    continue;
-                }
-                report.say(
+            }
+            report.say(
                     &thm.path,
                     step.just.line,
                     format!(
@@ -2635,7 +2674,6 @@ pub fn check_exhibited(
                         known.print(&substitute_apart(show, &at, &library.ctx))
                     ),
                 );
-            }
         }
     }
 }
@@ -2647,31 +2685,36 @@ struct Exhibited {
     letters: BTreeSet<String>,
 }
 
-fn exhibited(claim: &Node, library: &Library, known: &Known) -> Option<Exhibited> {
+fn exhibited(claim: &Node, library: &Library) -> Option<Exhibited> {
     // The letters and their domains, then the body: a "there is" whose body
     // is a "there is" again, as "there are k, m, n ∈ ℕ with …" builds, binds
-    // each letter in turn.
+    // each letter in turn. "There is s ∈ S" binds its letter over nothing,
+    // and asks only that the value is in S.
     let mut bound: Vec<(&Node, &Node)> = Vec::new();
-    let mut body = claim;
-    loop {
-        match body.notation.as_str() {
-            "there-is" if body.children.len() == 3 => {
-                bound.push((&body.children[0], &body.children[1]));
+    let mut body = Some(claim);
+    while let Some(at) = body {
+        match (at.notation.as_str(), at.children.as_slice()) {
+            ("there-is", [letter, domain, inner]) => {
+                bound.push((letter, domain));
+                body = Some(inner);
+            }
+            ("there-is-some", [letter, domain]) => {
+                bound.push((letter, domain));
+                body = None;
             }
             _ => break,
         }
-        body = body.children.last()?;
     }
     if bound.is_empty() {
         return None;
     }
     let mut wants: Vec<Node> = bound
         .iter()
-        .filter_map(|(letter, domain)| {
-            bound_in("x ∈ S", None, letter, domain, library, &known.sorts)
-        })
+        .map(|(letter, domain)| bound_in(Bound::Member, letter, domain, library))
         .collect();
-    wants.extend(conjuncts(body, library));
+    if let Some(body) = body {
+        wants.extend(conjuncts(body, library));
+    }
     let letters = bound.iter().map(|(l, _)| l.text.clone()).collect();
     Some(Exhibited { wants, letters })
 }
@@ -2750,17 +2793,7 @@ pub fn check_instantiated(
                 };
                 let domain = substitute_apart(&b.domain, &outer, &library.ctx);
                 outer.insert(b.letter.text.clone(), value.clone());
-                let Some(want) = bound_in(
-                    b.how,
-                    b.held.clone(),
-                    value,
-                    &domain,
-                    library,
-                    &known.sorts,
-                ) else {
-                    judged = false;
-                    continue;
-                };
+                let want = bound_in(b.how, value, &domain, library);
                 let value_written = written
                     .get(&b.letter.text)
                     .cloned()
@@ -2773,15 +2806,7 @@ pub fn check_instantiated(
                     continue;
                 }
                 judged = false;
-                let needed = bound_in(
-                    b.how,
-                    b.held.clone(),
-                    &value_written,
-                    &domain_written,
-                    library,
-                    &known.sorts,
-                )
-                .unwrap_or(want);
+                let needed = bound_in(b.how, &value_written, &domain_written, library);
                 report.say(
                     &thm.path,
                     step.just.line,
@@ -2831,13 +2856,11 @@ pub fn check_instantiated(
 }
 
 /// One binder of a "for all": the letter, the domain, and how a value is
-/// said to be in it — `x ∈ S`, or `x ⊆ S` for a part, with the sort the
-/// letter then has.
+/// said to be in it, `x ∈ S`, or `x ⊆ S` for a part.
 struct Binder {
     letter: Node,
     domain: Node,
-    how: &'static str,
-    held: Option<Sort>,
+    how: Bound,
 }
 
 /// An instantiation claims what its line says at the values it writes
@@ -3035,9 +3058,9 @@ fn binders_of(node: &Node) -> Vec<Binder> {
     let mut out = Vec::new();
     let mut node = node.clone();
     loop {
-        let (how, held) = match node.notation.as_str() {
-            "for-all" => ("x ∈ S", None),
-            "for-all-part" => ("x ⊆ S", Some(Sort::of("set"))),
+        let how = match node.notation.as_str() {
+            "for-all" => Bound::Member,
+            "for-all-part" => Bound::Part,
             _ => break,
         };
         if node.children.len() != 3 {
@@ -3047,7 +3070,6 @@ fn binders_of(node: &Node) -> Vec<Binder> {
             letter: node.children[0].clone(),
             domain: node.children[1].clone(),
             how,
-            held,
         });
         node = node.children[2].clone();
     }

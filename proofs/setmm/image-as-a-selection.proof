@@ -35,14 +35,11 @@ theorem image-as-a-selection
     1.5.  u ∈ B
           substitute u = F(s) (line 1.2) into line 1.4
 
-    1.6.  F(s) = u
-          substitute u = F(s) (line 1.2)
+    1.6.  there is x ∈ X with F(x) = u
+          exhibit, from 1.2
 
-    1.7.  there is x ∈ X with F(x) = u
-          exhibit, from 1.2, 1.6
-
-    1.8.  u ∈ {y ∈ B : there is x ∈ X with F(x) = y}
-          mun:set-builder, from 1.5, 1.7
+    1.7.  u ∈ {y ∈ B : there is x ∈ X with F(x) = y}
+          mun:set-builder, from 1.5, 1.6
 
 2.  F[X] ⊆ {y ∈ B : there is x ∈ X with F(x) = y}
     mun:subset, from 1

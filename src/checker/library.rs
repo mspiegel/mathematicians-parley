@@ -562,7 +562,7 @@ fn citation_parts(step: &Step, library: &Library, known: &Known) -> Parts {
             &defined,
         );
     }
-    let mut parts = match at_a_member(step, &claims, library, &known.sorts) {
+    let mut parts = match at_a_member(step, &claims, library) {
         Some((member, body)) => {
             let mut facts = facts;
             facts.push(member);

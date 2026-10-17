@@ -112,90 +112,87 @@ theorem power-multiple-quotient
     induction on j starting at 1
 
     base
-    1.1.  2^d − 1 = (2^d − 1)·1
-          algebra
-
-    1.2.  1 ≥ 1
+    1.1.  1 ≥ 1
           arithmetic
 
-    1.3.  There is q ∈ ℕ with 2^(d·1) − 1 = (2^d − 1)·q and q ≥ 1.
-          exhibit, from 1.1, 1.2
+    1.2.  There is q ∈ ℕ with 2^(d·1) − 1 = (2^d − 1)·q and q ≥ 1.
+          exhibit, from 1.1
 
     step
     let j ∈ ℕ                                                         (K)
     assume step 1 is true for j, the induction hypothesis             (IH)
 
-    1.4.  q ∈ ℕ. 2^(d·j) − 1 = (2^d − 1)·q. q ≥ j.
+    1.3.  q ∈ ℕ. 2^(d·j) − 1 = (2^d − 1)·q. q ≥ j.
           obtain q from IH
 
-    1.5.  d·(j + 1) = d·j + d
+    1.4.  d·(j + 1) = d·j + d
           algebra
 
-    1.6.  2^(d·(j + 1)) = 2^(d·j + d)
-          substitute d·(j + 1) = d·j + d (line 1.5)
+    1.5.  2^(d·(j + 1)) = 2^(d·j + d)
+          substitute d·(j + 1) = d·j + d (line 1.4)
 
-    1.7.  2^(d·j + d) = 2^(d·j)·2^d
+    1.6.  2^(d·j + d) = 2^(d·j)·2^d
           thm:two-power-add a := d·j, b := d
 
-    1.8.  2^(d·(j + 1)) = 2^(d·j)·2^d
+    1.7.  2^(d·(j + 1)) = 2^(d·j)·2^d
           calculation
-            2^(d·(j + 1)) = 2^(d·j + d)       1.6
-                          = 2^(d·j)·2^d       1.7
+            2^(d·(j + 1)) = 2^(d·j + d)       1.5
+                          = 2^(d·j)·2^d       1.6
 
-    1.9.  2^(d·(j + 1)) − 1 = 2^(d·j)·2^d − 1
-          substitute 2^(d·(j + 1)) = 2^(d·j)·2^d (line 1.8)
+    1.8.  2^(d·(j + 1)) − 1 = 2^(d·j)·2^d − 1
+          substitute 2^(d·(j + 1)) = 2^(d·j)·2^d (line 1.7)
 
-    1.10. 2^(d·j)·2^d − 1 = 2^d·(2^(d·j) − 1) + (2^d − 1)
+    1.9.  2^(d·j)·2^d − 1 = 2^d·(2^(d·j) − 1) + (2^d − 1)
           algebra
           requires 2^(d·j) ∈ ℝ: mun:power-real a := 2, m := d·j
 
-    1.11. 2^d·(2^(d·j) − 1) + (2^d − 1) = 2^d·((2^d − 1)·q) + (2^d − 1)
-          substitute 2^(d·j) − 1 = (2^d − 1)·q (line 1.4)
+    1.10. 2^d·(2^(d·j) − 1) + (2^d − 1) = 2^d·((2^d − 1)·q) + (2^d − 1)
+          substitute 2^(d·j) − 1 = (2^d − 1)·q (line 1.3)
 
-    1.12. 2^d·((2^d − 1)·q) + (2^d − 1) = (2^d − 1)·(2^d·q + 1)
+    1.11. 2^d·((2^d − 1)·q) + (2^d − 1) = (2^d − 1)·(2^d·q + 1)
           algebra
 
-    1.13. 2^(d·(j + 1)) − 1 = (2^d − 1)·(2^d·q + 1)
+    1.12. 2^(d·(j + 1)) − 1 = (2^d − 1)·(2^d·q + 1)
           calculation
-            2^(d·(j + 1)) − 1 = 2^(d·j)·2^d − 1                        1.9
-                              = 2^d·(2^(d·j) − 1) + (2^d − 1)          1.10
-                              = 2^d·((2^d − 1)·q) + (2^d − 1)          1.11
-                              = (2^d − 1)·(2^d·q + 1)                  1.12
+            2^(d·(j + 1)) − 1 = 2^(d·j)·2^d − 1                        1.8
+                              = 2^d·(2^(d·j) − 1) + (2^d − 1)          1.9
+                              = 2^d·((2^d − 1)·q) + (2^d − 1)          1.10
+                              = (2^d − 1)·(2^d·q + 1)                  1.11
 
-    1.14. 2^d ≥ d + 1
+    1.13. 2^d ≥ d + 1
           thm:two-power-bound
 
-    1.15. d + 1 ≥ 1
+    1.14. d + 1 ≥ 1
           inequalities, from H1
 
-    1.16. 2^d ≥ 1
-          transitivity, from 1.14, 1.15
+    1.15. 2^d ≥ 1
+          transitivity, from 1.13, 1.14
 
-    1.17. q·1 ≤ q·2^d
-          mun:multiply-le x := 1, y := 2^d, c := q, from 1.16
-          requires q > 0: inequalities, from K, 1.4
+    1.16. q·1 ≤ q·2^d
+          mun:multiply-le x := 1, y := 2^d, c := q, from 1.15
+          requires q > 0: inequalities, from K, 1.3
 
-    1.18. q·2^d = 2^d·q
+    1.17. q·2^d = 2^d·q
           algebra
 
-    1.19. q ≤ q·2^d
+    1.18. q ≤ q·2^d
           inequalities
-            q·1 ≤ q·2^d          1.17
+            q·1 ≤ q·2^d          1.16
             q ≤ q·2^d            algebra
 
-    1.20. j ≤ q
-          inequalities, from 1.4
+    1.19. j ≤ q
+          inequalities, from 1.3
 
-    1.21. j ≤ 2^d·q
-          transitivity, from 1.20, 1.19, 1.18
+    1.20. j ≤ 2^d·q
+          transitivity, from 1.19, 1.18, 1.17
 
-    1.22. 2^d·q + 1 ≥ (j + 1)
+    1.21. 2^d·q + 1 ≥ (j + 1)
           inequalities
-            j ≤ 2^d·q            1.21
+            j ≤ 2^d·q            1.20
             j + 1 ≤ 2^d·q + 1    adding 1
 
-    1.23. There is q ∈ ℕ with 2^(d·(j + 1)) − 1 = (2^d − 1)·q and q ≥ j + 1.
-          exhibit, from 1.13, 1.22
+    1.22. There is q ∈ ℕ with 2^(d·(j + 1)) − 1 = (2^d − 1)·q and q ≥ j + 1.
+          exhibit, from 1.12, 1.21
 
 2.  There is q ∈ ℕ with 2^(d·m) − 1 = (2^d − 1)·q and q ≥ m.
     instantiate j := m in line 1

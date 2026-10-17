@@ -3,10 +3,10 @@
 use crate::corpus::{Head, Step};
 use crate::formula::page;
 use crate::formula::{Node, Sort, Sorts, Whole};
-use crate::matching::{standard, substitute_apart, substitute_apart_by, Binding};
+use crate::matching::{standard, substitute_apart_by, Binding};
 use crate::outcome::Built;
 use crate::rules;
-use crate::sorts::{element_sort, Env, TYPING};
+use crate::sorts::{Env, TYPING};
 
 use super::conclude::taken;
 use super::library::{with_parts, Library};
@@ -22,7 +22,6 @@ pub fn at_a_member(
     step: &Step,
     claims: &[Node],
     library: &Library,
-    sorts: &Sorts,
 ) -> Option<(Node, Node)> {
     let [claim] = claims else {
         return None;
@@ -39,7 +38,7 @@ pub fn at_a_member(
             return None;
         }
     }
-    claimed_member(claim, library, sorts)
+    claimed_member(claim, library)
 }
 
 /// The citation's seed with what the citing proof says a function of the
@@ -159,57 +158,43 @@ pub fn finished(
 /// What a claim "for all k ∈ X, P" gives a step that proves it in one line:
 /// the membership k ∈ X, and P. "for all X ⊆ A" gives X ⊆ A. None for any
 /// other claim.
-pub fn claimed_member(
-    claim: &Node,
-    library: &Library,
-    sorts: &Sorts,
-) -> Option<(Node, Node)> {
+pub fn claimed_member(claim: &Node, library: &Library) -> Option<(Node, Node)> {
     // "for all X ⊆ A" ranges over the parts of A, and a member is one.
-    let (written, held_as) = match claim.notation.as_str() {
-        "for-all" => ("x ∈ S", None),
-        "for-all-part" => ("x ⊆ S", Some(Sort::of("set"))),
+    let how = match claim.notation.as_str() {
+        "for-all" => Bound::Member,
+        "for-all-part" => Bound::Part,
         _ => return None,
     };
-    if claim.children.len() != 3 {
+    let [letter, domain, body] = claim.children.as_slice() else {
         return None;
-    }
-    let (letter, domain, body) =
-        (&claim.children[0], &claim.children[1], &claim.children[2]);
-    let said = bound_in(written, held_as, letter, domain, library, sorts)?;
-    Some((said, body.clone()))
+    };
+    Some((bound_in(how, letter, domain, library), body.clone()))
 }
 
-/// What a binder says of the letter it binds: `x ∈ S`, or `x ⊆ S` as
-/// `written` has it, at the letter and the domain.
-pub fn bound_in(
-    written: &'static str,
-    held_as: Option<Sort>,
-    letter: &Node,
-    domain: &Node,
-    library: &Library,
-    sorts: &Sorts,
-) -> Option<Node> {
-    // What a set holds is often not settled on the node; a membership of
-    // it reads whatever the letter is.
-    let held = held_as.unwrap_or_else(|| {
-        domain
-            .sort
-            .held()
-            .unwrap_or_else(|| element_sort(&domain.text, sorts))
-    });
-    let held = if held.is_unsorted() {
-        Sort::of("any")
-    } else {
-        held
+/// What a binder says of the letter it binds, `x ∈ S` or `x ⊆ S` as `how`
+/// has it, at the letter and the domain.
+pub fn bound_in(how: Bound, letter: &Node, domain: &Node, library: &Library) -> Node {
+    let (notation, literal) = match how {
+        Bound::Member => ("membership", "∈"),
+        Bound::Part => ("subset", "⊆"),
     };
-    let mut local = sorts.clone();
-    local.insert("x".into(), held);
-    local.insert("S".into(), domain.sort.clone());
-    let said = page::template(written, library.env.g, &local).ok()?;
-    let mut put = Binding::new();
-    put.insert("x".into(), letter.clone());
-    put.insert("S".into(), domain.clone());
-    Some(substitute_apart(&said, &put, &library.ctx))
+    page::made(
+        library.env.g,
+        notation,
+        literal,
+        vec![letter.clone(), domain.clone()],
+    )
+}
+
+/// How a binder says a value is in its domain: as a member, `x ∈ S`, or
+/// for "for all X ⊆ A" as a part, `X ⊆ A`. The tree is built, not read
+/// from text, so a letter of any sort is put in it: "there is a polynomial
+/// q with …" asks `q ∈ (the polynomials)`, which no reading of `x ∈ S` with
+/// x a function gives, since `_ ∈ _` reads a term on its left.
+#[derive(Clone, Copy, Debug)]
+pub enum Bound {
+    Member,
+    Part,
 }
 
 /// Whether `fact` has the form `form` writes, with its letters `x` and `S`
@@ -292,28 +277,20 @@ pub fn function_values(facts: &[Node], env: Env, sorts: &Sorts) -> Vec<Node> {
 /// the functions from X to Y, which "there is f : X → Y with …" runs over
 /// (`notation functions-from`), so a line giving f its type supplies an
 /// exhibit of f. None for any other fact.
-pub fn type_said_otherwise(
-    fact: &Node,
-    library: &Library,
-    sorts: &Sorts,
-) -> Option<Node> {
+pub fn type_said_otherwise(fact: &Node, library: &Library) -> Option<Node> {
     if fact.notation != "function-type" {
         return None;
     }
     let [f, from, to] = fact.children.as_slice() else {
         return None;
     };
-    let mut local = sorts.clone();
-    local.insert("X".into(), from.sort.clone());
-    local.insert("Y".into(), to.sort.clone());
-    let set =
-        page::template("the functions from X to Y", library.env.g, &local).ok()?;
-    let put = Binding::from([
-        ("X".to_string(), from.clone()),
-        ("Y".to_string(), to.clone()),
-    ]);
-    let set = substitute_apart(&set, &put, &library.ctx);
-    bound_in("x ∈ S", None, f, &set, library, sorts)
+    let set = page::made_as(
+        library.env.g,
+        "the functions from _ to _",
+        vec![from.clone(), to.clone()],
+    )
+    .expect("the database declares the functions from _ to _");
+    Some(bound_in(Bound::Member, f, &set, library))
 }
 
 /// What a fact the page writes as a part of a set, `C ⊆ A`, or as a member
