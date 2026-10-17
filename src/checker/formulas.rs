@@ -776,6 +776,15 @@ pub fn check_contradicting(
         // all of them at once, since "A. B" is "A and B".
         let claimed = known.whole(step, &step.claim);
         let mut there = known.said_parts(said, Some(&known.citing_step(step)));
+        // A sentence joined by "and" says each of its parts, as sentences of
+        // their own would.
+        let joined: Vec<Option<Node>> = there
+            .iter()
+            .flatten()
+            .filter(|n| n.notation == "conjunction")
+            .flat_map(conjuncts)
+            .map(Some)
+            .collect();
         if there.len() > 1 {
             let parts: Option<Vec<Node>> = there.iter().cloned().collect();
             if let Some(whole) =
@@ -784,6 +793,7 @@ pub fn check_contradicting(
                 there.push(Some(whole));
             }
         }
+        there.extend(joined);
         let opposed = there.iter().any(|t| {
             negates(claimed.as_ref(), t.as_ref(), &wrappers, known)
                 || negates(t.as_ref(), claimed.as_ref(), &wrappers, known)
