@@ -1249,9 +1249,16 @@ in Bezout, whose a·1 is now a wherever a line is compared.
 introduced, and the step writes nothing for a numeral, a letter, or a term
 built from them by +, −, ·, negation, a power to a numeral or to a letter
 introduced in ℕ or ℕ₀, and /, or a sum whose term is such a number at
-every index (`SYNTAX.md`). The elaborator builds each such fact itself, by a walk that
-searches nothing (`introduced_membership` in `src/elab/tables.rs`):
+every index (`SYNTAX.md`). Whether a membership is said once, and why, is
+one rule both tools read, `citing::reason`, over a view each gives of a
+term (`OnceAsk`): the checker of the page's sentences, the build of its
+kernel terms, including terms the page never writes, as a lemma's own side
+conditions. The build proves the reason the rule gives and decides nothing
+of its own (`introduced_membership` in `src/elab/tables.rs`), and searches
+nothing:
 
+- a term a line the step names puts in a number system is a number there,
+  carried up `rules.WITHIN` (`stated_within`);
 - a numeral is worked out, as `settle` works one out (`numeral_within`);
 - a letter is in the set its introducing line names, and in each number
   system containing that one, carried up `rules.WITHIN` a lemma at a time.
