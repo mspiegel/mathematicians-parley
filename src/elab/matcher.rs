@@ -5760,8 +5760,11 @@ impl<'a> Elaborator<'a> {
         // that hypothesis binds. A hypothesis that is a bare letter under the
         // context, as `mpbid` asks ( ph -> ps ), would fit any line, so it is
         // fitted to none and is fixed by the hypotheses that give it a shape.
-        // A cited line of several sentences supplies each of them.
-        let cited: Vec<Term> = match step {
+        // A cited line of several sentences supplies each of them, and a
+        // requires line of the step is a line it names as surely, so what
+        // it says is offered too: `If b = 0 then c = 0` as a requires line
+        // fixes modus ponens's P as it does cited.
+        let mut cited: Vec<Term> = match step {
             Some(step) => step
                 .just
                 .refs
@@ -5771,6 +5774,13 @@ impl<'a> Elaborator<'a> {
                 .collect(),
             None => Vec::new(),
         };
+        if let Some(step) = step {
+            for r in &step.requires {
+                let node = self.read_one(&r.fact)?;
+                let said = self.term(&node)?;
+                cited.extend(conjuncts_of(&self.to_term(&said)));
+            }
+        }
         for text in &sig.essentials {
             let said = self.essential(text);
             if said.label() != Some("wi") || said.children()[0].variable().is_none() {
