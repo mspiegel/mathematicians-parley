@@ -3026,6 +3026,33 @@ impl<'a> Elaborator<'a> {
         Ok(Some(run))
     }
 
+    /// ( scope -> left e. RR* ) and ( scope -> right e. RR* ), from the
+    /// proof that the link relates them: an order relates only extended
+    /// reals (`rules::ORDER_FIELD`, `brel`).
+    fn extended_ends(&mut self, scope: &str, link: &OrderLink) -> (Proof, Proof) {
+        let field = lookup(rules::ORDER_FIELD, link.relation)
+            .expect("a chain folds only the orders `rules::ORDER_FOLDING` lists");
+        let (a, b) = (link.left, link.right);
+        let (a_in, b_in) = (t!(a, "cxr", "wcel"), t!(b, "cxr", "wcel"));
+        let both = t!(a_in, b_in, "wa");
+        let within = self.b.ap(field, &binds! {}, &[]);
+        let ends = self.b.ap(
+            "brel",
+            &binds! {"A" => a, "B" => b, "R" => link.relation, "C" => "cxr", "D" => "cxr"},
+            &[&within],
+        );
+        let pair = self.b.ap(
+            "syl",
+            &binds! {"ph" => scope, "ps" => t!(a, b, link.relation, "wbr"), "ch" => &both},
+            &[link.proof, &ends],
+        );
+        let parts = binds! {"ph" => scope, "ps" => &a_in, "ch" => &b_in};
+        (
+            self.b.ap("simpld", &parts, &[&pair]),
+            self.b.ap("simprd", &parts, &[&pair]),
+        )
+    }
+
     fn calculation(
         &mut self,
         step: &Step,
@@ -3189,23 +3216,25 @@ impl<'a> Elaborator<'a> {
                 let held = self.link_held(
                     step, cite, &joined, &written, scope, facts, lines, &defines,
                 )?;
-                // Each of the three terms is real, which the page says once
-                // or not at all (`READERS.md`), and is settled as any other
-                // membership a step needs.
-                let mut real = Vec::new();
-                for t in [&left, &right, &nxt] {
-                    let wanted = self.to_term(&t!(t, "cr", "wcel"));
-                    real.push(take!(self.settle(
-                        &wanted,
-                        scope,
-                        facts,
-                        3,
-                        Some(step),
-                        Some(lines)
-                    )?));
-                }
+                // A calculation only joins (`SYNTAX.md`), so it asks no
+                // membership: the links fold in ℝ*, where each order puts
+                // the terms it relates.
+                let before = OrderLink {
+                    left: &left,
+                    right: &right,
+                    relation: &relation,
+                    proof: &proof,
+                };
+                let after = OrderLink {
+                    left: &right,
+                    right: &nxt,
+                    relation: &next_relation,
+                    proof: &held,
+                };
+                let (first, middle) = self.extended_ends(scope, &before);
+                let (_, last) = self.extended_ends(scope, &after);
                 proof = pf!(self.b; scope, left, right, nxt,
-                    real[0], real[1], real[2], proof, held, fold.lemma);
+                    first, middle, last, proof, held, fold.extended);
                 right = nxt;
                 rest = added;
                 relation = fold.folded.to_string();
@@ -5997,6 +6026,15 @@ struct ChainRun {
     /// The order, `clt` or `cle`, low side first; None for an equation.
     relation: Option<String>,
     proof: Proof,
+}
+
+/// One order link of a calculation's chain, as set.mm writes it: `left`
+/// related to `right` by `relation`, `clt` or `cle`, and its proof.
+struct OrderLink<'a> {
+    left: &'a str,
+    right: &'a str,
+    relation: &'a str,
+    proof: &'a Proof,
 }
 
 /// A congruence a ≡ b (mod n), as set.mm writes it, n ∥ (a − b).

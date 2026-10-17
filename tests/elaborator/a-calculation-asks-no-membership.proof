@@ -1,0 +1,14 @@
+theorem a-calculation-asks-no-membership
+  note        A calculation only joins: its orders fold over the extended
+              reals each link puts its terms in, so nothing says 2·k! ∈ ℝ
+              and nothing need.
+  let k ∈ ℕ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume y ≤ 2·k!                                                     (H3)
+  assume 2·k! < 2·k!·2                                                (H4)
+  then y < 2·k!·2
+
+1.  y < 2·k!·2
+    calculation
+      y ≤ 2·k!            H3
+        < 2·k!·2          H4

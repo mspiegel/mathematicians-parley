@@ -391,9 +391,16 @@ pub struct OrderFold {
     /// The transitivity that folds them, which asks that the three terms be
     /// real, before the two links.
     pub lemma: &'static str,
+    /// The same transitivity over ℝ*, whose memberships each link gives
+    /// (`lerelxr`, `ltrelxr`), taking its hypotheses in the same order.
+    pub extended: &'static str,
     /// The relation they fold into.
     pub folded: &'static str,
 }
+
+/// The set.mm theorem that an order relates only extended reals, by the
+/// order's label: `<_ C_ ( RR* X. RR* )`.
+pub const ORDER_FIELD: &[(&str, &str)] = &[("cle", "lerelxr"), ("clt", "ltrelxr")];
 
 // ≤ then ≤ is ≤, and a < anywhere makes it <.
 pub const ORDER_FOLDING: &[OrderFold] = &[
@@ -401,24 +408,28 @@ pub const ORDER_FOLDING: &[OrderFold] = &[
         above: "cle",
         link: "cle",
         lemma: "letrd",
+        extended: "xrletrd",
         folded: "cle",
     },
     OrderFold {
         above: "clt",
         link: "clt",
         lemma: "lttrd",
+        extended: "xrlttrd",
         folded: "clt",
     },
     OrderFold {
         above: "clt",
         link: "cle",
         lemma: "ltletrd",
+        extended: "xrltletrd",
         folded: "clt",
     },
     OrderFold {
         above: "cle",
         link: "clt",
         lemma: "lelttrd",
+        extended: "xrlelttrd",
         folded: "clt",
     },
 ];

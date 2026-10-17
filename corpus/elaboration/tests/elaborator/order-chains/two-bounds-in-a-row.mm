@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.elaborator.order-chains.two-bounds-in-a-row $p |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ C e. RR ) /\ A <_ B ) /\ B <_ C ) -> A <_ C ) $=
-    ( cr wcel wa cle wbr simpl id syl simpr letrd ) ADEZBDEZFZCDEZFZABGHZFZBCGHZFZABCUBTNTUAIZTRNRSIZRPNPQIZPNNNOINJKKKKUBTOUCTROUDRPOUENOLKKKUBTQUCTRQUDPQLKKUBTSUCRSLKTUALM $.
+    ( cr wcel wa cle wbr cxr simpl simpr syl lerelxr brel simpld simprd xrletrd ) ADEZBDEZFZCDEZFZABGHZFZBCGHZFZABCUFAIEZBIEZUFUCUGUHFZUFUDUCUDUEJZUBUCKZLZABIIGMNZLZOUFUGUHUNPUFUHCIEZUFUEUHUOFUDUEKZBCIIGMNLPULUPQ $.
 $}
