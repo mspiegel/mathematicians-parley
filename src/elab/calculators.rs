@@ -506,7 +506,6 @@ impl<'a> Elaborator<'a> {
         {
             return Ok(Route::no("the claim is not an equation"));
         }
-        self.combining(&[term.to_string()]);
         // A `requires` line is where a step says its denominator is not
         // zero, so what the normalizer is asked is asked of those as well;
         // and what the step cites is laid over the scope's copies, so that
@@ -1244,9 +1243,6 @@ impl<'a> Elaborator<'a> {
         let Some(common) = common.to_i64() else {
             return Ok(Route::no("a common denominator past what a numeral writes"));
         };
-        let mut combined = vec![t!(left, right, "wceq")];
-        combined.extend(how.iter().map(|taken| self.rpn(&where_[taken.which].1)));
-        self.combining(&combined);
         let mut pieces: Vec<(String, Proof)> = Vec::new();
         for (taken, by) in how.iter().zip(&multipliers) {
             let (r, node) = where_[taken.which].clone();
@@ -1509,7 +1505,6 @@ impl<'a> Elaborator<'a> {
             }
             let sides: Vec<Proof> =
                 sides.into_iter().filter_map(|s| s.built()).collect();
-            self.combining(&[t!(left, right, "wceq"), held.term.clone()]);
             let given = self.carried(r, facts, lines);
             return self
                 .cancel_multiple(
@@ -3418,7 +3413,6 @@ impl<'a> Elaborator<'a> {
         let Some(claim) = linear::fact(&goal, &labels) else {
             return Ok(Route::no("the claim is not linear"));
         };
-        self.combining(&[term.to_string()]);
         if let Some(closed) = self.by_antisymmetry(&goal, scope, facts)? {
             return Ok(Built(closed));
         }
@@ -3483,9 +3477,6 @@ impl<'a> Elaborator<'a> {
             .filter(|(i, k)| !k.is_zero() && **i < given.len())
             .map(|(i, _)| *i)
             .collect();
-        let mut combined = vec![term.to_string()];
-        combined.extend(used.iter().map(|i| self.rpn(&where_[*i].1)));
-        self.combining(&combined);
         let weight = found[&given.len()].clone();
         if claim.how == How::Ne {
             let made = self.stays_apart(

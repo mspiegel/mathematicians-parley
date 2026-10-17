@@ -272,8 +272,6 @@ pub struct Elaborator<'a> {
     /// Terms whose membership is being read from an equation now, so that
     /// `x = y` and `y = x` do not send `part` from one to the other.
     pub equating: IndexSet<String>,
-    /// By page item, what its proof was built on.
-    pub rests_on: IndexMap<String, BTreeSet<String>>,
     /// (from system, to system) -> one lemma.
     pub bridges: Option<IndexMap<(String, String), String>>,
     /// Declared lemma -> what its readings end on, and its role.
@@ -329,8 +327,6 @@ pub struct Elaborator<'a> {
     /// divisor is not zero is the page's to say, so no membership said once
     /// is offered on the way to it (`introduced_membership`, `not_zero`).
     pub beyond_once: u32,
-    /// By step line, what its method combined.
-    pub combined: IndexMap<usize, IndexSet<String>>,
     /// Labels of sort lines and `define` lines.
     pub sorts: BTreeSet<String>,
     /// Side conditions the step being proved wrote, with the scope each was
@@ -459,7 +455,6 @@ impl<'a> Elaborator<'a> {
             rules_read: IndexMap::new(),
             supplying: IndexSet::new(),
             equating: IndexSet::new(),
-            rests_on: IndexMap::new(),
             bridges: None,
             lemma_heads: None,
             standards: IndexMap::new(),
@@ -478,7 +473,6 @@ impl<'a> Elaborator<'a> {
             said_back: None,
             resting: None,
             beyond_once: 0,
-            combined: IndexMap::new(),
             sorts: BTreeSet::new(),
             written: Written::new(),
             saying: IndexSet::new(),

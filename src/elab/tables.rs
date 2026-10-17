@@ -2064,26 +2064,6 @@ impl<'a> Elaborator<'a> {
         Ok(())
     }
 
-    /// Whether the page says `said` is a number once, where its letters are
-    /// introduced (`introduced_membership`), read off its shape alone, or
-    /// is a sum the checker found said once by its terms.
-    pub fn said_once(&self, said: &str) -> bool {
-        if said.split_whitespace().all(rules::numeric)
-            || self.introduced_in(said).is_some()
-            || self.said_sums.contains(said)
-        {
-            return true;
-        }
-        // A term of numerals alone that `arithmetic` works out, 4!, is a
-        // number by its value, as a numeral is (`SYNTAX.md`).
-        let labels = self.b.flabel.clone();
-        if super::numerals::worked(&self.b, &self.to_term(said), &labels).is_some() {
-            return true;
-        }
-        self.built_once(said)
-            .is_some_and(|parts| parts.iter().all(|p| self.said_once(p)))
-    }
-
     /// Whether `said` is a letter introduced in ℕ or ℕ₀, or in a range from
     /// 0 or 1: an exponent that makes a power a product of copies of its
     /// base, said once as the checker's `once::whole_exponent` says it.

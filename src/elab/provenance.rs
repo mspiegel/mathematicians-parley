@@ -1,19 +1,17 @@
-//! The proof rules: what a step's proof may rest on, and what it must use.
+//! The proof rules: what a step's proof may rest on.
 //!
 //! This is the sixth of the elaborator's six parts (`ELABORATION.md`, "How
 //! the elaborator is built"). Given a finished step's proof and what the step
-//! names, it refuses a proof that rests on anything the step does not name
-//! (R1), a `requires` line or a named line that does no work, and a
-//! `requires` line whose proof does not come from its reason (R2).
+//! names, it refuses a proof the build made that rests on anything the step
+//! does not name (R1), and a `requires` line whose proof does not come from
+//! its reason (R2). Whether the step uses everything it names is the
+//! checker's to say.
 //!
 //! A proof carries its `origin`, the page items it rests on. `seal` makes a
-//! proof stand for one item from then on, and keeps what it was built from
-//! in `rests_on`, so a line is asked the same of its own reason and a use is
-//! traced through the lines that use it.
+//! proof stand for one item from then on.
 
 use std::collections::BTreeSet;
 
-use super::linear;
 use super::state::{number_of, Elaborator};
 use super::Facts;
 use crate::corpus::proof::Requires;
@@ -69,403 +67,6 @@ pub fn rests_on_only(proof: &Proof, item: &str) -> bool {
 }
 
 impl<'a> Elaborator<'a> {
-    /// The side of `A ≠ B` or `A = B` other than zero, as the page may write
-    /// a divisor's `≠ 0` either way round; None where neither side is zero.
-    fn apart_side(&self, relation: &crate::mm::Term) -> Option<String> {
-        let [a, b, ..] = relation.children() else {
-            return None;
-        };
-        let (a, b) = (self.rpn(a), self.rpn(b));
-        if b == "cc0" {
-            Some(a)
-        } else if a == "cc0" {
-            Some(b)
-        } else {
-            None
-        }
-    }
-
-    /// The atoms of a claim a method combined, and every term in it.
-    ///
-    /// An atom is what the method treats as a number it knows nothing
-    /// about: a name, an absolute value, a function's value, a power whose
-    /// exponent is not a numeral. A numeral of more than one digit is an atom
-    /// to the method, which reads only digits, but not to the page: `deccl`
-    /// says 10 is a number, so the step is not asked to.
-    pub fn atoms_of(
-        &self,
-        rpn: &str,
-        linear: bool,
-        atoms: &mut BTreeSet<String>,
-        terms: &mut BTreeSet<String>,
-    ) {
-        fn walk(
-            me: &Elaborator,
-            node: &crate::mm::Term,
-            linear: bool,
-            atoms: &mut BTreeSet<String>,
-            terms: &mut BTreeSet<String>,
-        ) {
-            let label = node.label().unwrap_or("");
-            if node.variable().is_none() && rules::RELATIONS.contains(&label) {
-                let kids = if label == "wbr" {
-                    &node.children()[..2]
-                } else {
-                    node.children()
-                };
-                for kid in kids {
-                    walk(me, kid, linear, atoms, terms);
-                }
-                return;
-            }
-            terms.insert(me.rpn(node));
-            if linear::numeral(node, me.flabel()).is_some() || label == "cdc" {
-                return;
-            }
-            if node.variable().is_none() && label == "co" && node.children().len() == 3
-            {
-                let op = me.rpn(&node.children()[2]);
-                if rules::ARITHMETIC.contains(&op.as_str()) {
-                    walk(me, &node.children()[0], linear, atoms, terms);
-                    walk(me, &node.children()[1], linear, atoms, terms);
-                    return;
-                }
-                if op == "cexp"
-                    && linear::numeral(&node.children()[1], me.flabel()).is_some()
-                {
-                    walk(me, &node.children()[0], linear, atoms, terms);
-                    return;
-                }
-                // A power whose exponent is one atom alone is the power over
-                // that atom, as `field` reads it: 2^(d·1) is 2^d.
-                if op == "cexp" {
-                    let exponent = &node.children()[1];
-                    if let Some(name) =
-                        super::field::exponent_atom(exponent, me.flabel())
-                    {
-                        let base = me.rpn(&node.children()[0]);
-                        atoms.insert(t!(base, name, "cexp", "co"));
-                        return;
-                    }
-                }
-            }
-            if node.variable().is_none() && label == "cneg" {
-                walk(me, &node.children()[0], linear, atoms, terms);
-                return;
-            }
-            // A finite sum read as linear is looked inside: what it combines
-            // is each part's factor free of its letter, and what holds the
-            // letter is a number as a summand is, by what its terms are.
-            if let Some((_, _, parts)) = linear
-                .then(|| super::field::linear_sum(node, me.flabel()))
-                .flatten()
-            {
-                for part in parts {
-                    for (atom, _) in &part.free {
-                        walk(me, &me.to_term(atom), linear, atoms, terms);
-                    }
-                }
-                return;
-            }
-            atoms.insert(me.rpn(node));
-        }
-        walk(self, &self.to_term(rpn), linear, atoms, terms);
-    }
-
-    /// Whether a term a line says is a number is an atom a method combined:
-    /// the same term, over other bound letters or with its defined names
-    /// written out, and a defined function applied read as its rule there,
-    /// as `inequalities` and `algebra` read it (`names_written_out`).
-    fn one_atom(&mut self, held: &str, atom: &str) -> bool {
-        if held == atom || self.rebound(held, atom) {
-            return true;
-        }
-        let term = self.to_term(held);
-        let out = self.rpn(&self.defined_names_out(&term));
-        if out == atom || self.rebound(&out, atom) {
-            return true;
-        }
-        let read = self.read_out(&term);
-        let read = self.rpn(&read);
-        read == atom || self.rebound(&read, atom)
-    }
-
-    /// Everything a step names does work, or a defect names what does not.
-    ///
-    /// A cited line or requires line is at work where the proof rests on it,
-    /// directly or through another of the step's requires lines. On a method
-    /// step a requires line is also at work where the method demands it
-    /// without the kernel needing it, and each atom's membership must be on
-    /// the page. A step citing an item, as its head or as what it obtains
-    /// from, is the checker's to judge.
-    /// Every requires line `one` rests on, directly or through another
-    /// (`rests_on`).
-    fn rests_on_through(&self, one: &str) -> BTreeSet<String> {
-        let mut out: BTreeSet<String> = BTreeSet::new();
-        let mut todo = vec![one.to_string()];
-        while let Some(at) = todo.pop() {
-            for m in self.rests_on.get(&at).into_iter().flatten() {
-                if out.insert(m.clone()) {
-                    todo.push(m.clone());
-                }
-            }
-        }
-        out
-    }
-
-    pub fn does_work(
-        &mut self,
-        step: &Step,
-        number: &str,
-        proof: &Proof,
-    ) -> Checked<()> {
-        if step.just.cited_item().is_some() {
-            return Ok(());
-        }
-        let mut used: BTreeSet<String> = proof.origin.clone();
-        let mut todo: Vec<String> = used
-            .iter()
-            .filter(|u| u.starts_with(REQUIRES))
-            .cloned()
-            .collect();
-        while let Some(one) = todo.pop() {
-            let more: Vec<String> = self
-                .rests_on
-                .get(&one)
-                .map(|s| s.iter().cloned().collect())
-                .unwrap_or_default();
-            for m in more {
-                if !used.contains(&m) {
-                    used.insert(m.clone());
-                    if m.starts_with(REQUIRES) {
-                        todo.push(m);
-                    }
-                }
-            }
-        }
-        // A define the theorem's statement is read over is written out in
-        // the statement's own lines, which the kernel states closed, so a
-        // step citing one of them that names the define rests on it there:
-        // `join D2, H3` with H3 saying S(n) → K.
-        let header: Vec<(String, BTreeSet<String>)> = self
-            .thm
-            .defines
-            .iter()
-            .filter(|d| d.line < self.thm.conclusion_line)
-            .filter_map(|d| match crate::corpus::define_parts(&d.text) {
-                Built(said) => {
-                    Some((d.label.clone(), said.names().into_iter().collect()))
-                }
-                Declined(_) => None,
-            })
-            .collect();
-        let named_in_cited = |me: &Self, label: &str| {
-            let Some((_, names)) = header.iter().find(|(l, _)| l == label) else {
-                return false;
-            };
-            step.just.refs.iter().filter(|o| *o != label).any(|o| {
-                me.lines.get(o).is_some_and(|line| {
-                    line.sentences
-                        .iter()
-                        .any(|s| s.names().iter().any(|n| names.contains(n.as_str())))
-                })
-            })
-        };
-        let mut seen: BTreeSet<&str> = BTreeSet::new();
-        for r in &step.just.refs {
-            if !seen.insert(r) {
-                continue;
-            }
-            if !used.contains(r) && !self.sorts.contains(r) && !named_in_cited(self, r)
-            {
-                return Err(self.defect(
-                    step.line,
-                    format!("step {number} cites {r} and uses nothing it says"),
-                ));
-            }
-        }
-        let mut atoms = BTreeSet::new();
-        let mut terms = BTreeSet::new();
-        let combined: Vec<String> = self
-            .combined
-            .get(&step.line)
-            .map(|s| s.iter().cloned().collect())
-            .unwrap_or_default();
-        // An `algebra` step reads its sums as linear where one of them is
-        // linear in something, and then what it combines is inside them.
-        let lines = self.lines.clone();
-        let linear = step.just.head.is(Method::Algebra)
-            && combined
-                .iter()
-                .any(|c| self.sums_linear(c, Some(step), &lines));
-        for claim in &combined {
-            self.atoms_of(claim, linear, &mut atoms, &mut terms);
-        }
-        let mut written = Vec::new();
-        let letter = if step.requires.is_empty() {
-            None
-        } else {
-            self.member_letter(step)?
-        };
-        for r in &step.requires {
-            let term = self.names_kept(|me| -> Checked<String> {
-                if let Some((page, kernel)) = &letter {
-                    if !me.names.contains_key(page) {
-                        me.names.insert(page.clone(), kernel.clone());
-                    }
-                }
-                let node = me.read_one(&r.fact)?;
-                me.term(&node)
-            })?;
-            let claim = self.to_term(&term);
-            written.push(claim.clone());
-            if used.contains(&requirement(r.line)) {
-                continue;
-            }
-            // A requires line below that cites an item asks for that item's
-            // hypotheses, which the kernel may prove without: a line saying
-            // one of them is at work as an item's hypothesis is on a step
-            // citing it.
-            let mut asked = false;
-            for o in step.requires.iter().filter(|o| o.line > r.line) {
-                if o.cited_item().is_none() {
-                    continue;
-                }
-                let asks = self.names_kept(|me| me.asked_by_requires(o))?;
-                if asks.contains(&term) {
-                    asked = true;
-                    break;
-                }
-            }
-            if asked {
-                continue;
-            }
-            // A requires line below may rest on this one, as `Σ … ∈ ℝ:
-            // mun:sum-real` rests on the line saying each summand is real,
-            // which supplies the item's function type.
-            let below: Vec<String> = step
-                .requires
-                .iter()
-                .filter(|o| o.line > r.line)
-                .map(|o| requirement(o.line))
-                .collect();
-            if below
-                .iter()
-                .any(|o| self.rests_on_through(o).contains(&requirement(r.line)))
-            {
-                continue;
-            }
-            let demanded = match claim.label() {
-                // An atom is the same atom over other bound letters, and a
-                // defined name the atom it names.
-                Some("wcel") => {
-                    let held = self.rpn(&claim.children()[0]);
-                    atoms.iter().any(|a| self.one_atom(&held, a))
-                }
-                // A divisor said not zero either way round, `d ≠ 0` or
-                // `0 ≠ d`, in either spelling of ≠.
-                Some("wne") => {
-                    self.apart_side(&claim).is_some_and(|d| terms.contains(&d))
-                }
-                Some("wn") if claim.children()[0].label() == Some("wceq") => self
-                    .apart_side(&claim.children()[0])
-                    .is_some_and(|d| terms.contains(&d)),
-                _ => false,
-            };
-            if !demanded {
-                return Err(self.defect(
-                    r.line,
-                    format!(
-                        "the requires line of step {number} says {}, and the step neither uses nor asks for it",
-                        str::trim(r.fact.text())
-                    ),
-                ));
-            }
-        }
-        // Cited by the step, or by one of its requires lines: what a
-        // requires line's method combines, its own reason may say is a
-        // number.
-        let mut cited: BTreeSet<String> = BTreeSet::new();
-        let from_requires = step.requires.iter().flat_map(|r| r.lines().to_vec());
-        for r in step.just.refs.iter().cloned().chain(from_requires) {
-            if let Some(line) = self.lines.get(&r) {
-                cited.extend(self.parts(&line.term));
-                // What the page wrote, which for an `obtain` holds the
-                // witnesses' memberships its proved term keeps in the scope.
-                for said in &line.sentences {
-                    let term = self.term(said)?;
-                    cited.extend(self.parts(&term));
-                }
-            }
-        }
-        // A defined name is read as what it names where a line saying its
-        // membership cites the define, as `A ∈ ℝ: membership, from D1` does,
-        // whether or not the step cites it.
-        let kept = self.resting.clone();
-        if let Some(allowed) = &mut self.resting {
-            allowed.extend(step.requires.iter().flat_map(|r| r.lines().to_vec()));
-        }
-        let said_sums: Vec<String> = self.said_sums.iter().cloned().collect();
-        let unsaid = atoms.iter().find(|atom| {
-            // A sum the checker found said once may stand here over another
-            // index letter, as the build renames one apart.
-            if self.said_once(atom) || said_sums.iter().any(|s| self.one_atom(s, atom))
-            {
-                return false;
-            }
-            let mut said = written.iter().any(|c| {
-                let held = self.rpn(&c.children()[0]);
-                c.label() == Some("wcel") && self.one_atom(&held, atom)
-            });
-            // A cited equation with the atom on one side puts it beside a
-            // term the checker found a number (`METHODS.md`, membership,
-            // Facts in): citing a(0) = 0 says a(0) is one.
-            said = said
-                || cited.iter().any(|p| {
-                    let node = self.to_term(p);
-                    match node.label() {
-                        Some("wcel") => {
-                            let held = self.rpn(&node.children()[0]);
-                            self.one_atom(&held, atom)
-                        }
-                        Some("wceq") => node.children()[..2].iter().any(|side| {
-                            let side = self.rpn(side);
-                            self.one_atom(&side, atom)
-                        }),
-                        _ => false,
-                    }
-                });
-            !said
-        });
-        self.resting = kept;
-        if let Some(atom) = unsaid {
-            // By the name the page writes, where the atom is one.
-            let shown = self
-                .names
-                .iter()
-                .find(|(_, kernel)| *kernel == atom)
-                .map(|(name, _)| name.clone())
-                .unwrap_or_else(|| self.render(atom));
-            return Err(self.defect(
-                step.line,
-                format!(
-                    "step {number} combines {shown}, and nothing it writes or cites says it is a number"
-                ),
-            ));
-        }
-        Ok(())
-    }
-
-    /// Record what a method step's claim is built from: the claim and the
-    /// sentences of cited lines the method combined.
-    pub fn combining(&mut self, terms: &[String]) {
-        let at = self.at;
-        let held = self.combined.entry(at).or_default();
-        for t in terms {
-            held.insert(t.clone());
-        }
-    }
-
     /// What a step names, which is everything its proof may rest on: the
     /// lines it cites, its own requires lines, and the sorts in scope. A block
     /// also rests on its own steps and on what it assumes, and on the lines a
@@ -621,22 +222,14 @@ impl<'a> Elaborator<'a> {
         ))
     }
 
-    /// The proof, standing from here on for one thing on the page. What the
-    /// proof was built from is kept in `rests_on`.
+    /// The proof, standing from here on for one thing on the page.
     pub fn seal(&mut self, proof: Proof, item: &str) -> Proof {
-        self.rests_on
-            .entry(item.to_string())
-            .or_default()
-            .extend(proof.origin.iter().cloned());
         Proof {
             items: proof.items,
             origin: std::iter::once(item.to_string()).collect(),
         }
     }
 
-    /// A step's finished proof, checked by the rules and sealed: it rests on
-    /// nothing the step does not name (R1), everything the step names does
-    /// work, and from here on the proof stands for the step's number.
     /// The letter a step's claim says "for all" of, as the page writes it,
     /// and the kernel name it is bound to; None for any other claim. A step
     /// said of every member is proved at one, and its requires lines speak
@@ -659,6 +252,9 @@ impl<'a> Elaborator<'a> {
         Ok(Some((node.children[0].text.clone(), kernel)))
     }
 
+    /// A step's finished proof, sealed: it rests on nothing the step does
+    /// not name (R1), and from here on the proof stands for the step's
+    /// number.
     pub fn check_step(
         &mut self,
         proof: Proof,
@@ -668,7 +264,6 @@ impl<'a> Elaborator<'a> {
     ) -> Checked<Proof> {
         let allowed = self.named(step, number, block);
         self.rests_on_named(&proof, &allowed, step.line, &format!("step {number}"))?;
-        self.does_work(step, number, &proof)?;
         Ok(self.seal(proof, number))
     }
 
@@ -1156,25 +751,7 @@ impl<'a> Elaborator<'a> {
             // `from` names its lines, and is read from those.
             let above = !req.is_some_and(Requires::is_lines);
             return match self.unfolded_at(&term, scope, facts, &refs, above)? {
-                // A line a `from` reason names is one it rests on, as a
-                // step's are (`does_work`): `d(n) ∈ ℤ: from H1, K6` where
-                // n's membership is said once rests on H1 alone.
-                Built(p) => {
-                    let unused = refs
-                        .iter()
-                        .find(|r| !p.origin.contains(*r) && !self.sorts.contains(*r));
-                    match unused {
-                        Some(r) if !above => Err(self.defect(
-                            self.at,
-                            format!(
-                                "{} cites {r} and uses nothing it says, for {}",
-                                str::trim(how),
-                                self.render(&term)
-                            ),
-                        )),
-                        _ => Ok(Built(p)),
-                    }
-                }
+                Built(p) => Ok(Built(p)),
                 Declined(_) => Err(self.defect(
                     self.at,
                     format!(
@@ -1298,23 +875,5 @@ impl<'a> Elaborator<'a> {
                 format!("no requires line for {}", self.render(goal)),
             )),
         }
-    }
-
-    /// The `requires` lines of this theorem never proved from their reasons.
-    ///
-    /// Each is proved from its reason once, when its step starts, and checked
-    /// then to rest on nothing else. A line never proved is one whose reason
-    /// nothing checked.
-    pub fn unproved_requires(&self) -> Vec<usize> {
-        let mut out: Vec<usize> = self
-            .thm
-            .steps
-            .iter()
-            .flat_map(|s| s.requires.iter())
-            .filter(|r| !self.rests_on.contains_key(&requirement(r.line)))
-            .map(|r| r.line)
-            .collect();
-        out.sort();
-        out
     }
 }

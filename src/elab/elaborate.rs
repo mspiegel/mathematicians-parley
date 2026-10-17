@@ -80,14 +80,6 @@ struct Pushed {
     floats: Vec<(String, String)>,
 }
 
-/// What a requires line's record asks of it (`Elaborator::asked_here`).
-pub(crate) struct AskedHere<'a> {
-    /// The record the line cites, in whose names the hypotheses are terms.
-    pub item: &'a Record,
-    /// Its hypotheses, each letter the citation fixes put in.
-    pub hypotheses: Vec<Node>,
-}
-
 /// Where a class that binds a name keeps it among its parts: a map and an
 /// indexed union first, a set built from a property second, a sum third.
 fn binder_at(label: &str) -> Option<usize> {
@@ -806,17 +798,6 @@ impl<'a> Elaborator<'a> {
             proof = self.close(close, proof, &goal)?;
         }
         self.built_as_stated(self.thm.line, &proof)?;
-        let unproved = self.unproved_requires();
-        if let Some(first) = unproved.first() {
-            let all: Vec<String> = unproved.iter().map(|n| n.to_string()).collect();
-            return Err(self.defect(
-                *first,
-                format!(
-                    "the requires lines at {} were never proved from their reasons",
-                    all.join(", ")
-                ),
-            ));
-        }
         Ok((goal, terms, proof))
     }
 
@@ -1530,42 +1511,6 @@ impl<'a> Elaborator<'a> {
             out.push(self.in_its_names(Item::Record(item), |me| me.term(&instance))?);
         }
         Ok(out)
-    }
-
-    /// What a requires line citing an item asks for, as terms
-    /// (`asked_here`). Empty where the line cites no record, and where no
-    /// group of the item concludes the line's fact: then it asks nothing.
-    pub fn asked_by_requires(&mut self, o: &Requires) -> Checked<Vec<String>> {
-        let AskedHere { item, hypotheses } = match self.asked_here(o) {
-            Built(here) => here,
-            Declined(_) => return Ok(Vec::new()),
-        };
-        // Each letter the binding fixes is already replaced in the hypotheses
-        // (`citing::filled`), so they are terms in the item's names as they
-        // stand.
-        self.in_its_names(Item::Record(item), |me| {
-            hypotheses.iter().map(|h| me.term(h)).collect()
-        })
-    }
-
-    /// What a requires line citing a record asks for: the record's
-    /// hypotheses under the checker's reading of the line's citation
-    /// (`CheckedTheorem::cited_requires`, `citing::asks_of`), as trees.
-    /// Declined where the line cites no record, and where no group of the
-    /// record concludes the line's fact.
-    pub(crate) fn asked_here(&self, o: &Requires) -> Route<AskedHere<'a>> {
-        let Some(cited) = self.checked.cited_requires.get(&o.line) else {
-            return Route::no("the checker reads no citation of an item on the line");
-        };
-        let Some(Item::Record(item)) = self.items.get(&cited.item).copied() else {
-            return Route::no("the line cites no record");
-        };
-        let library = self.item_library();
-        let binding: NodeBinding = cited.binding.clone().into_iter().collect();
-        Built(AskedHere {
-            item,
-            hypotheses: citing::asks_of(&cited.item, cited.group, &binding, &library),
-        })
     }
 
     /// The values a citation gives its item's letters, `name := value`, as
@@ -2866,7 +2811,6 @@ impl<'a> Elaborator<'a> {
         lines: &Lines,
     ) -> Checked<Proof> {
         let mut links = Vec::new();
-        let mut combined = vec![term.to_string()];
         let chosen = self
             .checked
             .links
@@ -2900,7 +2844,6 @@ impl<'a> Elaborator<'a> {
                 }
                 None => (held.term.clone(), carried),
             };
-            combined.push(link.clone());
             let said = self.to_term(&link);
             let kids = said.children();
             let relation = match said.label() {
@@ -2913,12 +2856,6 @@ impl<'a> Elaborator<'a> {
                 relation,
                 proof,
             });
-        }
-        // Where a link is an order, every atom of the chain is real
-        // (`METHODS.md`, transitivity), which the step's requires lines say
-        // and the build holds them to, as for an inequalities step.
-        if links.iter().any(|l| l.relation.is_some()) {
-            self.combining(&combined);
         }
         // A term a join asks to be real is settled from the step's requires
         // lines, offered to the membership lookup, as for an inequalities
