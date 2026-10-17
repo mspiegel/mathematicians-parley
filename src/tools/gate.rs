@@ -16,8 +16,8 @@
 //!    built and verified the same way (`restated`), and each item it cannot
 //!    restate listed in `ELABORATION.md`;
 //! 8. every requires line needed, and every pair naming a variable for
-//!    itself: each taken away in turn, and its theorem checked and
-//!    elaborated without it (`needed`).
+//!    itself: each taken away in turn, and its theorem checked without it
+//!    (`needed`).
 //!
 //! The verifier stages are the only evidence the elaborator is right rather
 //! than consistent. The others read the corpus against itself or
