@@ -20,13 +20,13 @@ use super::provenance::{from_requires, may_rest_on, rests_on_only, MEMBERSHIP};
 use super::state::{fit, names_of, Binding, Elaborator};
 use super::{Facts, Lines, Written};
 use crate::binds;
-use crate::citing::part_said_otherwise;
+use crate::citing::{part_said_otherwise, OnceReason, Shape};
 use crate::corpus::Step;
 use crate::formula::Node;
 use crate::mm::kernel::Term;
 use crate::mm::spell::Proof;
 use crate::outcome::{Built, Checked, Declined, Route};
-use crate::rules::{self, lookup, numeral_label};
+use crate::rules::{self, lookup, numeral_label, System};
 use crate::{pf, t, take};
 
 /// One kind of difference the walk in `congruence` closes where two terms
@@ -91,6 +91,90 @@ pub type Parts<'p, 'a> =
 /// How a caller proves a divisor is not zero.
 pub type Nonzero<'p, 'a> =
     dyn FnMut(&mut Elaborator<'a>, &str) -> Checked<Route<Proof>> + 'p;
+
+/// The build's kernel terms as the said-once walk reads them
+/// (`citing::OnceAsk`): letters by the lines introducing them, a divisor
+/// not zero by what the step wrote (`divisor_written`), and a part stated
+/// by a line the step names or a sum said once. A defect met on the way is
+/// kept, and stops the step once the walk is done.
+struct BuildOnce<'m, 'a> {
+    me: &'m mut Elaborator<'a>,
+    scope: &'m str,
+    facts: &'m Facts,
+    problem: Option<crate::outcome::Problem>,
+}
+
+impl BuildOnce<'_, '_> {
+    /// What `checked` holds, or None, keeping the first defect.
+    fn keep<T>(&mut self, checked: Checked<T>) -> Option<T> {
+        match checked {
+            Ok(value) => Some(value),
+            Err(problem) => {
+                if self.problem.is_none() {
+                    self.problem = Some(problem);
+                }
+                None
+            }
+        }
+    }
+}
+
+impl crate::citing::OnceAsk for BuildOnce<'_, '_> {
+    type T = Term;
+
+    fn shape<'t>(&self, term: &'t Term) -> Shape<'t, Term> {
+        if let Built(crate::methods::field::Value::Exact(v)) =
+            crate::methods::field::closed_value(term)
+        {
+            return Shape::Value(v);
+        }
+        if term.variable().is_some()
+            || self.me.introduced_in(&self.me.rpn(term)).is_some()
+        {
+            return Shape::Letter;
+        }
+        let kids = term.children();
+        match (term.label(), kids.len()) {
+            (Some("cneg"), 1) => Shape::Negated(&kids[0]),
+            (Some("co"), 3) => match self.me.rpn(&kids[2]).as_str() {
+                "caddc" => Shape::Operation("caddc", &kids[0], &kids[1]),
+                "cmin" => Shape::Operation("cmin", &kids[0], &kids[1]),
+                "cmul" => Shape::Operation("cmul", &kids[0], &kids[1]),
+                "cdiv" => Shape::Operation("cdiv", &kids[0], &kids[1]),
+                "cexp" => Shape::Power(&kids[0], &kids[1]),
+                _ => Shape::Other,
+            },
+            _ => Shape::Other,
+        }
+    }
+
+    fn letter(&mut self, term: &Term) -> Option<System> {
+        let (_, set) = self.me.introduced_in(&self.me.rpn(term))?;
+        let system = match self.me.range_system(&set) {
+            Some((system, _)) => system.to_string(),
+            None => set,
+        };
+        System::of_label(&system)
+    }
+
+    fn nonzero(&mut self, divisor: &Term) -> bool {
+        let said = self.me.rpn(divisor);
+        let written = self.me.divisor_written(&said, self.scope, self.facts);
+        self.keep(written)
+            .is_some_and(|found| matches!(found, Built(_)))
+    }
+
+    fn said(&mut self, term: &Term, system: System) -> Option<OnceReason> {
+        let said = self.me.rpn(term);
+        let stated =
+            self.me
+                .stated_within(&said, system.label(), self.scope, self.facts);
+        if self.keep(stated).flatten().is_some() {
+            return Some(OnceReason::Stated);
+        }
+        self.me.said_sums.contains(&said).then_some(OnceReason::Sum)
+    }
+}
 
 impl<'a> Elaborator<'a> {
     /// Run `f` with what the step's requires lines made offered to the
@@ -1892,13 +1976,16 @@ impl<'a> Elaborator<'a> {
     }
 
     /// `said ∈ system` as the page says it once (`READERS.md`, membership said
-    /// once), or a decline: a numeral; a letter in the number system its
-    /// introducing line names, carried up `WITHIN`; or a term built from those
-    /// by +, −, ·, negation, a power to a numeral or to a letter in ℕ or ℕ₀,
-    /// and a quotient whose divisor's `≠ 0` the step writes. A letter's membership is sealed as
+    /// once), or a decline. Whether and why is `citing::reason`'s, the rule
+    /// the checker reads too: a line the step names stating it; a numeral; a
+    /// letter in the number system its introducing line names, carried up
+    /// `WITHIN`; a sum said once; or a term built from those by +, −, ·,
+    /// negation, a power to a numeral or to a letter in ℕ or ℕ₀, and a
+    /// quotient whose divisor's `≠ 0` the step writes. What is built here is
+    /// the proof of the reason it gives. A letter's membership is sealed as
     /// `membership@<letter>`, which a step rests on without naming it, as it
     /// does a sort; nothing but a membership in a number system is ever proved
-    /// from it, since only this walk reads it.
+    /// from it, since only this route reads it.
     pub fn introduced_membership(
         &mut self,
         said: &str,
@@ -1906,45 +1993,67 @@ impl<'a> Elaborator<'a> {
         scope: &str,
         facts: &Facts,
     ) -> Checked<Route<Proof>> {
-        if lookup(rules::SYSTEMS, system).is_none() {
+        let Some(within) = System::of_label(system) else {
             return Ok(Route::no("not a number system"));
-        }
+        };
         if self.beyond_once > 0 {
             return Ok(Route::no("a part of a fact the page writes"));
         }
-        if said.split_whitespace().all(rules::numeric) {
-            let goal = self.to_term(&t!(said, system, "wcel"));
-            return self.numeral_within(&goal, scope, facts);
+        // Whether and why is the rule both tools read (`citing::reason`);
+        // what is built here is the proof of the reason it gives.
+        let term = self.to_term(said);
+        let mut ask = BuildOnce {
+            me: self,
+            scope,
+            facts,
+            problem: None,
+        };
+        let reason = crate::citing::reason(&mut ask, &term, within);
+        if let Some(problem) = ask.problem {
+            return Err(problem);
         }
-        if let Some((letter, set)) = self.introduced_in(said) {
-            return self.letter_within(said, &letter, &set, system, scope, facts);
-        }
-        // A part that a line the step names puts in a number system is a
-        // number there, carried up to `system`, as the checker reads it
-        // (`citing::said_once`): N(n) + 1 ∈ ℝ where a line says N(n) ∈ ℝ.
-        if let Some(found) = self.stated_within(said, system, scope, facts)? {
-            return Ok(Built(found));
-        }
-        // A sum said once by its terms is in ℝ or ℂ by the sum's lemma, its
-        // terms read from the scope at each index.
-        if self.said_sums.contains(said) {
-            let whole = self.to_term(said);
-            return self.summed(&whole, system, scope, facts, None);
-        }
-        if self.built_once(said).is_none() {
+        let Some(reason) = reason else {
             return Ok(Route::no(
                 "not a numeral, an introduced letter, or built from them",
             ));
+        };
+        match reason {
+            OnceReason::Numeral => {
+                let goal = self.to_term(&t!(said, system, "wcel"));
+                self.numeral_within(&goal, scope, facts)
+            }
+            OnceReason::Letter => {
+                let (letter, set) = self
+                    .introduced_in(said)
+                    .expect("a letter the walk found introduced");
+                self.letter_within(said, &letter, &set, system, scope, facts)
+            }
+            // A part that a line the step names puts in a number system is
+            // a number there, carried up to `system`: N(n) + 1 ∈ ℝ where a
+            // line says N(n) ∈ ℝ.
+            OnceReason::Stated => {
+                match self.stated_within(said, system, scope, facts)? {
+                    Some(found) => Ok(Built(found)),
+                    None => Ok(Route::no("no line the step names states it")),
+                }
+            }
+            // A sum said once by its terms is in ℝ or ℂ by the sum's lemma,
+            // its terms read from the scope at each index.
+            OnceReason::Sum => self.summed(&term, system, scope, facts, None),
+            // A divisor's `≠ 0` is the page's, from what the step names.
+            OnceReason::Built(_) => {
+                let named = self.restable(facts);
+                self.built(
+                    said,
+                    system,
+                    scope,
+                    &mut |me, part, into| {
+                        me.introduced_membership(part, into, scope, facts)
+                    },
+                    Some(&mut |me, divisor| me.divisor_written(divisor, scope, &named)),
+                )
+            }
         }
-        // A divisor's `≠ 0` is the page's, from what the step names.
-        let named = self.restable(facts);
-        self.built(
-            said,
-            system,
-            scope,
-            &mut |me, term, into| me.introduced_membership(term, into, scope, facts),
-            Some(&mut |me, divisor| me.divisor_written(divisor, scope, &named)),
-        )
     }
 
     /// Keep, for each letter let into a number system and not yet kept, its
@@ -2000,32 +2109,6 @@ impl<'a> Elaborator<'a> {
         Ok(joined.unwrap_or_else(|| Route::no("not a membership")))
     }
 
-    /// The parts of `said` where it is built by +, −, ·, negation, a power to
-    /// a numeral or to a letter in ℕ or ℕ₀, or a quotient, the shapes
-    /// `introduced_membership` walks; None for any other term.
-    fn built_once(&self, said: &str) -> Option<Vec<String>> {
-        let node = self.to_term(said);
-        if node.variable().is_some() {
-            return None;
-        }
-        let kids = node.children();
-        match node.label() {
-            Some("cneg") if kids.len() == 1 => Some(vec![self.rpn(&kids[0])]),
-            Some("co") if kids.len() == 3 => {
-                let (left, right) = (self.rpn(&kids[0]), self.rpn(&kids[1]));
-                match self.rpn(&kids[2]).as_str() {
-                    "caddc" | "cmin" | "cmul" | "cdiv" => Some(vec![left, right]),
-                    "cexp" if right.split_whitespace().all(rules::numeric) => {
-                        Some(vec![left])
-                    }
-                    "cexp" if self.whole_letter(&right) => Some(vec![left]),
-                    _ => None,
-                }
-            }
-            _ => None,
-        }
-    }
-
     /// `said ∈ system` from a line the step names saying `said` is in a
     /// number system inside `system`, carried up `WITHIN`; None where no
     /// such line says it.
@@ -2062,20 +2145,6 @@ impl<'a> Elaborator<'a> {
         }
         self.said_sums = sums;
         Ok(())
-    }
-
-    /// Whether `said` is a letter introduced in ℕ or ℕ₀, or in a range from
-    /// 0 or 1: an exponent that makes a power a product of copies of its
-    /// base, said once as the checker's `once::whole_exponent` says it.
-    fn whole_letter(&self, said: &str) -> bool {
-        let Some((_, set)) = self.introduced_in(said) else {
-            return false;
-        };
-        let system = match self.range_system(&set) {
-            Some((system, _)) => system.to_string(),
-            None => set,
-        };
-        matches!(system.as_str(), "cn" | "cn0")
     }
 
     /// The letter whose kernel term is `said`, and the number system the

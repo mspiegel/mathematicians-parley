@@ -5,9 +5,11 @@
 //! ·, negation, a power to a numeral or to a letter in ℕ or ℕ₀, and a
 //! quotient whose divisor a fact says is not zero.
 //!
-//! The elaborator builds the same memberships by the same tables in
-//! `rules` (`Elaborator::introduced_membership`), so the two tools agree on
-//! which ones a step need not write.
+//! The rule is written once, in `reason`, over a view of a term both tools
+//! give (`OnceAsk`): the page's sentences here, and the build's kernel
+//! terms in `Elaborator::introduced_membership`, which proves what `reason`
+//! answers. So the two tools agree on which memberships a step need not
+//! write.
 
 use indexmap::IndexMap;
 use num_bigint::BigInt;
@@ -156,7 +158,8 @@ pub fn said_once(
                 typed,
                 ctx,
             };
-            if within(&node, system, &letters, &nonzero, &|t, s| given.says(t, s)) {
+            let said = |t: &Node, s: System| given.says(t, s);
+            if reason_within(&node, system, &letters, &nonzero, &said).is_some() {
                 out.extend(member(sign, &node));
             }
         }
@@ -175,11 +178,16 @@ struct Given<'a> {
 }
 
 impl Given<'_> {
-    fn says(&self, term: &Node, system: System) -> bool {
+    fn says(&self, term: &Node, system: System) -> Option<OnceReason> {
         let none = IndexMap::new();
-        self.atoms.iter().any(|(a, s)| {
+        let stated = self.atoms.iter().any(|(a, s)| {
             s.within(system) && crate::matching::alike(a, term, self.ctx, &none, &none)
-        }) || sum_said_once(term, system, self.letters, self.typed, self.ctx)
+        });
+        if stated {
+            return Some(OnceReason::Stated);
+        }
+        sum_said_once(term, system, self.letters, self.typed, self.ctx)
+            .then_some(OnceReason::Sum)
     }
 }
 
@@ -225,6 +233,25 @@ pub fn a_number_said_once(
     within(term, System::C, &letters, &nonzero, &said)
 }
 
+/// Why the page says once that a term is in a number system (`within`):
+/// what the build proves the membership from.
+#[derive(Clone, Debug, PartialEq)]
+pub enum OnceReason {
+    /// A line the step names puts the term in the system or one inside it.
+    Stated,
+    /// A sum whose term is in the system at every index (`sum_said_once`).
+    Sum,
+    /// A numeral, whose value is in the system.
+    Numeral,
+    /// A letter introduced in the system or one inside it.
+    Letter,
+    /// The term's operation applied to parts each in the system, the
+    /// reasons given in the order the term writes its parts; a power's
+    /// exponent is no part, being a numeral or a letter in ℕ or ℕ₀, and a
+    /// quotient's divisor is not zero by `nonzero`.
+    Built(Vec<OnceReason>),
+}
+
 /// Whether `term` is in `system` by what the page says once, or by `said`,
 /// which puts a term in a system as a line stating it does.
 pub fn within(
@@ -234,55 +261,114 @@ pub fn within(
     nonzero: &dyn Fn(&Node) -> bool,
     said: &dyn Fn(&Node, System) -> bool,
 ) -> bool {
-    if said(term, system) {
-        return true;
-    }
-    if let Some(v) = value(term) {
-        let whole = v.is_integer();
-        return match system {
-            System::N => whole && v.is_positive(),
-            System::N0 => whole && !v.is_negative(),
-            System::Z => whole,
-            _ => true,
-        };
-    }
-    if term.is_name() {
-        return letters
-            .get(&term.text)
-            .is_some_and(|set| set.within(system));
+    let stated = |t: &Node, s: System| said(t, s).then_some(OnceReason::Stated);
+    reason_within(term, system, letters, nonzero, &stated).is_some()
+}
+
+/// Why `term` is in `system` by what the page says once, or by `said`,
+/// which gives the reason a part the walk does not take apart is in a
+/// system (`OnceReason::Stated` or `Sum`); None where it is not.
+pub fn reason_within(
+    term: &Node,
+    system: System,
+    letters: &Introduced,
+    nonzero: &dyn Fn(&Node) -> bool,
+    said: &dyn Fn(&Node, System) -> Option<OnceReason>,
+) -> Option<OnceReason> {
+    let mut page = PageOnce {
+        letters,
+        nonzero,
+        said,
+    };
+    reason(&mut page, term, system)
+}
+
+/// How a term is made, as the said-once walk takes it apart (`OnceAsk`).
+pub enum Shape<'t, T> {
+    /// Numerals alone, worked out to this value.
+    Value(BigRational),
+    /// A letter, whose number system `OnceAsk::letter` gives.
+    Letter,
+    Negated(&'t T),
+    /// a op b, the operation by its set.mm label: `caddc`, `cmin`, `cmul`
+    /// or `cdiv`.
+    Operation(&'static str, &'t T, &'t T),
+    /// A base to an exponent.
+    Power(&'t T, &'t T),
+    /// Anything the walk does not take apart.
+    Other,
+}
+
+/// What the said-once walk asks of a term, written once for both tools:
+/// the page's sentences (`PageOnce`) and the build's kernel terms. The
+/// rule is `reason`'s; each tool says only how its terms are made and what
+/// its page says of them.
+pub trait OnceAsk {
+    type T;
+    fn shape<'t>(&self, term: &'t Self::T) -> Shape<'t, Self::T>;
+    /// The number system a letter is introduced in; None for one that is
+    /// not.
+    fn letter(&mut self, term: &Self::T) -> Option<System>;
+    /// Whether a divisor is not zero by what the page says.
+    fn nonzero(&mut self, divisor: &Self::T) -> bool;
+    /// Why a part the walk does not take apart is in `system`: a line
+    /// stating it (`Stated`), or a sum said once (`Sum`).
+    fn said(&mut self, term: &Self::T, system: System) -> Option<OnceReason>;
+}
+
+/// Why the page says once that `term` is in `system` (`READERS.md`,
+/// membership said once): what a line says of it, a numeral, a letter in
+/// the system its introducing line names or one inside it, or +, −, ·,
+/// negation, a power to a numeral or to a letter in ℕ or ℕ₀, and a quotient
+/// whose divisor is not zero, of parts that are; None where it is not.
+pub fn reason<A: OnceAsk>(
+    ask: &mut A,
+    term: &A::T,
+    system: System,
+) -> Option<OnceReason> {
+    if let Some(said) = ask.said(term, system) {
+        return Some(said);
     }
     let label = system.label();
-    let both = |a: &Node, b: &Node| {
-        within(a, system, letters, nonzero, said)
-            && within(b, system, letters, nonzero, said)
-    };
-    match (
-        term.notation.as_str(),
-        term.text.as_str(),
-        term.children.as_slice(),
-    ) {
-        ("unary-minus", _, [a]) => {
-            lookup(rules::NEGATED, label).is_some()
-                && within(a, system, letters, nonzero, said)
+    match ask.shape(term) {
+        Shape::Value(v) => {
+            let whole = v.is_integer();
+            let holds = match system {
+                System::N => whole && v.is_positive(),
+                System::N0 => whole && !v.is_negative(),
+                System::Z => whole,
+                _ => true,
+            };
+            holds.then_some(OnceReason::Numeral)
         }
-        ("additive", "+", [a, b]) => {
-            rules::closed("caddc", label).is_some() && both(a, b)
+        Shape::Letter => ask
+            .letter(term)
+            .is_some_and(|set| set.within(system))
+            .then_some(OnceReason::Letter),
+        Shape::Negated(a) => {
+            lookup(rules::NEGATED, label)?;
+            Some(OnceReason::Built(vec![reason(ask, a, system)?]))
         }
-        ("additive", "−", [a, b]) => {
-            rules::closed("cmin", label).is_some() && both(a, b)
+        Shape::Operation(op, a, b) => {
+            if op == "cdiv" {
+                lookup(rules::DIVIDED, label)?;
+                if !ask.nonzero(b) {
+                    return None;
+                }
+            } else {
+                rules::closed(op, label)?;
+            }
+            let first = reason(ask, a, system)?;
+            Some(OnceReason::Built(vec![first, reason(ask, b, system)?]))
         }
-        ("multiplicative", "·", [a, b]) | ("juxtaposition", _, [a, b]) => {
-            rules::closed("cmul", label).is_some() && both(a, b)
+        Shape::Power(a, e) => {
+            if !whole_exponent(ask, e) {
+                return None;
+            }
+            rules::closed("cexp", label)?;
+            Some(OnceReason::Built(vec![reason(ask, a, system)?]))
         }
-        ("multiplicative", "/", [a, b]) => {
-            lookup(rules::DIVIDED, label).is_some() && both(a, b) && nonzero(b)
-        }
-        ("power", _, [a, e]) | ("superscript", _, [a, e]) => {
-            whole_exponent(e, letters)
-                && rules::closed("cexp", label).is_some()
-                && within(a, system, letters, nonzero, said)
-        }
-        _ => false,
+        Shape::Other => None,
     }
 }
 
@@ -290,14 +376,62 @@ pub fn within(
 /// a numeral in ℕ₀, or a letter introduced in ℕ or ℕ₀ (`READERS.md`,
 /// membership said once). 2^j with j ∈ ℕ₀ is then a number wherever 2 is,
 /// and 2^(−1), 0^k with k ∈ ℤ, or 2^(j + 1) are not said once this way.
-fn whole_exponent(exponent: &Node, letters: &Introduced) -> bool {
-    if let Some(v) = value(exponent) {
-        return v.is_integer() && !v.is_negative();
+fn whole_exponent<A: OnceAsk>(ask: &mut A, exponent: &A::T) -> bool {
+    match ask.shape(exponent) {
+        Shape::Value(v) => v.is_integer() && !v.is_negative(),
+        Shape::Letter => ask
+            .letter(exponent)
+            .is_some_and(|set| set.within(System::N0)),
+        _ => false,
     }
-    exponent.is_name()
-        && letters
-            .get(&exponent.text)
-            .is_some_and(|set| set.within(System::N0))
+}
+
+/// The page's sentences as the said-once walk reads them: letters by the
+/// systems `letters` introduces them in, and what `nonzero` and `said` say.
+struct PageOnce<'a> {
+    letters: &'a Introduced,
+    nonzero: &'a dyn Fn(&Node) -> bool,
+    said: &'a dyn Fn(&Node, System) -> Option<OnceReason>,
+}
+
+impl OnceAsk for PageOnce<'_> {
+    type T = Node;
+
+    fn shape<'t>(&self, term: &'t Node) -> Shape<'t, Node> {
+        if let Some(v) = value(term) {
+            return Shape::Value(v);
+        }
+        if term.is_name() {
+            return Shape::Letter;
+        }
+        match (
+            term.notation.as_str(),
+            term.text.as_str(),
+            term.children.as_slice(),
+        ) {
+            ("unary-minus", _, [a]) => Shape::Negated(a),
+            ("additive", "+", [a, b]) => Shape::Operation("caddc", a, b),
+            ("additive", "−", [a, b]) => Shape::Operation("cmin", a, b),
+            ("multiplicative", "·", [a, b]) | ("juxtaposition", _, [a, b]) => {
+                Shape::Operation("cmul", a, b)
+            }
+            ("multiplicative", "/", [a, b]) => Shape::Operation("cdiv", a, b),
+            ("power", _, [a, e]) | ("superscript", _, [a, e]) => Shape::Power(a, e),
+            _ => Shape::Other,
+        }
+    }
+
+    fn letter(&mut self, term: &Node) -> Option<System> {
+        self.letters.get(&term.text).copied()
+    }
+
+    fn nonzero(&mut self, divisor: &Node) -> bool {
+        (self.nonzero)(divisor)
+    }
+
+    fn said(&mut self, term: &Node, system: System) -> Option<OnceReason> {
+        (self.said)(term, system)
+    }
 }
 
 /// Whether a sum over a range is a number the page says once (`READERS.md`,
