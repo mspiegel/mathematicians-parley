@@ -144,6 +144,11 @@ pub struct Block {
     pub named: IndexMap<String, String>,
     pub bound: IndexMap<String, String>,
     pub inner: IndexMap<String, String>,
+    /// The lines in hand before it opened, which closing it gives back: a
+    /// label its openers or steps give again, `J` in a block inside a block
+    /// labelling a line `J`, is the outer line again once it closes, as the
+    /// checker reads a label in scope.
+    pub lines: Lines,
     /// Cases: part number -> what it assumes, and its label.
     pub assumed: IndexMap<usize, (Node, String)>,
     pub entered: Option<usize>,

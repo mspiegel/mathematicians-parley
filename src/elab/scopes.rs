@@ -452,6 +452,7 @@ impl<'a> Elaborator<'a> {
             named: self.names.clone(),
             bound: self.bound_as.clone(),
             inner: IndexMap::new(),
+            lines: self.lines.copy(),
             assumed: IndexMap::new(),
             entered: None,
             case_opened_at: None,
@@ -909,8 +910,10 @@ impl<'a> Elaborator<'a> {
         let outer = block.outside.copy();
         self.know(&outer, claim.clone(), proof.clone());
         // A block's claim is a line like any other, which a later step may
-        // rewrite: Cantor's x ∉ B, shown by cases, becomes x ∉ f(x).
+        // rewrite: Cantor's x ∉ B, shown by cases, becomes x ∉ f(x). The
+        // block's own lines end with it.
         let said = self.said(&step)?;
+        self.lines.restore(&block.lines);
         self.lines.set(
             number.clone(),
             Line {

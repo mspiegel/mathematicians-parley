@@ -66,6 +66,11 @@ impl<V: Clone> Table<V> {
         Table::of(self.0.borrow().clone())
     }
 
+    /// This table's entries made `saved`'s again, for every holder of it.
+    pub fn restore(&self, saved: &Table<V>) {
+        *self.0.borrow_mut() = saved.0.borrow().clone();
+    }
+
     pub fn get(&self, key: &str) -> Option<V> {
         self.0.borrow().get(key).cloned()
     }
