@@ -1,0 +1,95 @@
+import mundane definition stdlib/counting/factorial
+import mundane theorem    stdlib/counting/factorial-nat
+import mundane theorem    stdlib/numbers/le-cases
+import mundane theorem    stdlib/numbers/pos-int-nat
+
+theorem factorial-successor
+  note        The recursion (n + 1)! = n!·(n + 1) is given for n ≥ 1; at n = 0
+              it says 1! = 0!·1, which is 1 = 1.
+  let n ∈ ℕ₀                                                          (H1)
+  then (n + 1)! = n!·(n + 1)
+
+1.  0 ≤ n
+    inequalities, from H1
+
+2.  0 < n or 0 = n
+    mun:le-cases x := 0, y := n, from 1
+
+3.  (n + 1)! = n!·(n + 1)
+    cases, from 2
+
+    case
+    assume 0 < n                                                      (C1)
+
+    3.1.  n ∈ ℕ
+          mun:pos-int-nat m := n, from C1
+
+    3.2.  (n + 1)! = n!·(n + 1)
+          mun:factorial, from 3.1
+
+    case
+    assume 0 = n                                                      (C2)
+
+    3.3.  1! = 1
+          mun:factorial
+
+    3.4.  0 + 1 = 1
+          arithmetic
+
+    3.5.  (0 + 1)! = 1!
+          substitute 0 + 1 = 1 (line 3.4)
+
+    3.6.  0! = 1
+          arithmetic
+
+    3.7.  0!·(0 + 1) = 1·(0 + 1)
+          substitute 0! = 1 (line 3.6)
+
+    3.8.  (0 + 1)! = 0!·(0 + 1)
+          calculation
+            (0 + 1)! = 1!              3.5
+                     = 1               3.3
+                     = 1·(0 + 1)       arithmetic
+                     = 0!·(0 + 1)      3.7
+
+    3.9.  (n + 1)! = n!·(n + 1)
+          substitute 0 = n (C2) into line 3.8
+
+theorem factorial-natural
+  note        n! is a natural number for n = 0, since 0! = 1, and for n ≥ 1
+              by the library's fact.
+  let n ∈ ℕ₀                                                          (H1)
+  then n! ∈ ℕ
+
+1.  0 ≤ n
+    inequalities, from H1
+
+2.  0 < n or 0 = n
+    mun:le-cases x := 0, y := n, from 1
+
+3.  n! ∈ ℕ
+    cases, from 2
+
+    case
+    assume 0 < n                                                      (C1)
+
+    3.1.  n ∈ ℕ
+          mun:pos-int-nat m := n, from C1
+
+    3.2.  n! ∈ ℕ
+          mun:factorial-nat, from 3.1
+
+    case
+    assume 0 = n                                                      (C2)
+
+    3.3.  0! = 1
+          arithmetic
+
+    3.4.  1 ∈ ℕ
+          arithmetic
+
+    3.5.  0! ∈ ℕ
+          substitute 0! = 1 (line 3.3) into line 3.4
+
+    3.6.  n! ∈ ℕ
+          substitute 0 = n (C2) into line 3.5

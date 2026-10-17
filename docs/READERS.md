@@ -163,7 +163,8 @@ gcd(s, w), a positive integer` (`SYNTAX.md`). A step does not write it again,
 and does not cite that line for it. The same holds of four kinds of term,
 and of nothing else:
 
-- **a numeral**, `3 ∈ ℤ` or `10 − 1 ∈ ℕ`, which the page shows whole;
+- **a numeral**, or a term of numerals alone that `arithmetic` works out,
+  `3 ∈ ℤ`, `10 − 1 ∈ ℕ` or `0! ∈ ℕ`, which the page shows whole;
 - **a letter**, in the set its introducing line names and every number system
   containing that one, ℕ ⊆ ℕ₀ ⊆ ℤ ⊆ ℚ ⊆ ℝ ⊆ ℂ;
 - **a term built from those** by +, −, ·, a power whose exponent is a

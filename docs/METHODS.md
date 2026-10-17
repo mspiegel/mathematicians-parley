@@ -237,7 +237,8 @@ written as rows, `|x| = x`, then `x = |x|` by `symmetry`, then `x ≤ |x|` by
 ### Hypotheses
 
 Every atom must be a real number. This is a hypothesis of the method exactly as
-`q ≠ 0` is a hypothesis of a division. Where the atom is a numeral, a letter,
+`q ≠ 0` is a hypothesis of a division. Where the atom is a numeral, a term of
+numerals alone that `arithmetic` works out (`0!`), a letter,
 or built from those by +, −, ·, a power to a numeral or to a letter in ℕ or
 ℕ₀, and /, the page says it once, where the letters are introduced
 (`READERS.md`), and the step writes nothing, as it writes nothing for a sum

@@ -12,7 +12,7 @@
 use indexmap::IndexMap;
 use num_bigint::BigInt;
 use num_rational::BigRational;
-use num_traits::{Signed, ToPrimitive, Zero};
+use num_traits::{One, Signed, ToPrimitive, Zero};
 
 use crate::formula::page::template;
 use crate::formula::{Node, Sort, Sorts};
@@ -442,6 +442,27 @@ fn value(term: &Node) -> Option<BigRational> {
             // working it out is not the point.
             let base = value(a)?;
             (k <= 512).then(|| num_traits::pow(base, k as usize))
+        }
+        // The operations whose records say `decided arithmetic`, worked out
+        // where `arithmetic` works them out (`methods::field::closed_value`):
+        // a remainder of a whole number on dividing by one of at least 1,
+        // and a factorial of a whole number, as far as a page writes one.
+        ("mod", _, [a, n]) => {
+            let (a, n) = (value(a)?, value(n)?);
+            let whole = a.is_integer() && !a.is_negative() && n.is_integer();
+            (whole && n >= BigRational::one())
+                .then(|| BigRational::from_integer(a.to_integer() % n.to_integer()))
+        }
+        ("factorial", _, [n]) => {
+            let n = value(n)?;
+            let k = (n.is_integer() && !n.is_negative())
+                .then(|| n.to_integer().to_u32())
+                .flatten()?;
+            (k <= 512).then(|| {
+                (1..=k)
+                    .map(|f| BigRational::from_integer(BigInt::from(f)))
+                    .fold(BigRational::one(), |product, f| product * f)
+            })
         }
         _ => None,
     }

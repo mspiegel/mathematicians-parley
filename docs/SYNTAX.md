@@ -496,7 +496,9 @@ read: that an integer above 0 is a natural number is the item `pos-int-nat`.
 **A membership in a number system is said once, where a letter is
 introduced** (`READERS.md`). A step neither writes nor cites the membership
 of
-- a numeral: `3 ∈ ℤ`, `10 − 1 ∈ ℕ`, worked out;
+- a numeral, or a term of numerals alone that `arithmetic` works out, in
+  each number system its value is in: `3 ∈ ℤ`, `10 − 1 ∈ ℕ`, `0! ∈ ℕ`,
+  `7 mod 3 ∈ ℕ₀`;
 - a letter, in the set the line introducing it names and every number system
   containing that one: a `let` of the theorem or of a block around the
   step, an induction's `let k ∈ X`, or an `obtain`'s sentence `p ∈ ℤ`, which

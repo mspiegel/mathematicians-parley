@@ -4251,6 +4251,18 @@ fn cases() -> Vec<Case> {
             )],
             "a link of step 1 names arithmetic for ⌊5/2⌋ = 2, which works out floor",
         ),
+        // A term of numerals alone is said once only where arithmetic works
+        // it out: 1/(1 − 1) divides by zero, and no line says its divisor
+        // is not.
+        case(
+            "an atom of numerals alone that divides by zero",
+            vec![edit(
+                "proofs/wiedijk/planted.proof",
+                None,
+                "theorem planted\n  let x ∈ ℝ    (H1)\n  then x·(1/(1 − 1)) = (1/(1 − 1))·x\n\n1.  x·(1/(1 − 1)) = (1/(1 − 1))·x\n    algebra\n".to_string(),
+            )],
+            "nothing says 1 − 1 ≠ 0, which this step needs to divide by it",
+        ),
         case(
             "a false factorial by arithmetic",
             vec![edit(
