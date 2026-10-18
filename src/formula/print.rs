@@ -36,11 +36,10 @@ impl Grammar {
         for n in &self.notations {
             let Some(f) = &n.fill else { continue };
             let at = f.hole.saturating_sub(1);
-            let named = node
-                .children
-                .get(at)
-                .is_some_and(|c| c.notation == f.name && c.children.is_empty());
-            if Spelling::new(n.key_id, n.literal_id) == node.spelling()
+            let named = node.children.get(at).is_some_and(|c| {
+                c.notation() == f.spelling.notation && c.children.is_empty()
+            });
+            if n.spelling() == node.spelling()
                 && named
                 && holes(n) + 1 == node.children.len()
             {
@@ -66,10 +65,11 @@ impl Grammar {
 
     /// The plain pattern a node of this notation and literal is written by,
     /// where it has one: what each hole takes and what it yields.
-    pub fn written_by(&self, notation: &str, literal: &str) -> Option<&Notation> {
+    pub fn written_by(&self, spelling: Spelling) -> Option<&Notation> {
+        let literal = spelling.text();
         self.notations.iter().find(|n| {
-            n.name == notation
-                && n.literal == literal
+            n.record_id == spelling.notation
+                && *n.literal == *literal
                 && n.places.is_none()
                 && n.nests.is_none()
                 && n.bounds.is_none()

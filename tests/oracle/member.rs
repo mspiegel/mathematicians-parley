@@ -189,7 +189,7 @@ fn drawn(r: &mut Random, depth: u32) -> Term {
 }
 
 fn letter(name: &str) -> Node {
-    Node::leaf("name", Sort::of("number"), name)
+    Node::name(Sort::of("number"), name)
 }
 
 fn node(g: &Grammar, t: &Term) -> Node {
@@ -201,7 +201,7 @@ fn node(g: &Grammar, t: &Term) -> Node {
             g,
             "_(_)",
             vec![
-                Node::leaf("name", Sort::of("function from number to number"), f),
+                Node::name(Sort::of("function from number to number"), f),
                 letter("a"),
             ],
         ),

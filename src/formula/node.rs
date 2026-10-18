@@ -340,15 +340,67 @@ impl fmt::Debug for Node {
 pub type NodeId = usize;
 
 impl Node {
-    pub fn new(notation: &str, sort: Sort, children: Vec<Node>, text: &str) -> Node {
-        let notation_id = NotationId::of(notation);
+    fn made(spelling: Spelling, sort: Sort, children: Vec<Node>, text: String) -> Node {
         Node(Rc::new(NodeData {
-            notation: notation.to_string(),
+            notation: spelling.notation.name().to_string(),
             sort,
             children,
-            text: text.to_string(),
-            notation_id,
-            literal_id: literal_of(notation_id, text),
+            text,
+            notation_id: spelling.notation,
+            literal_id: spelling.literal,
+            rpn: None,
+            shape: OnceCell::new(),
+            span: Cell::new(None),
+            grouped: Cell::new(false),
+        }))
+    }
+
+    /// A node of a notation, written with one of its literals.
+    pub fn of(spelling: Spelling, sort: Sort, children: Vec<Node>) -> Node {
+        Node::made(spelling, sort, children, spelling.text().to_string())
+    }
+
+    /// A letter.
+    pub fn name(sort: Sort, letter: &str) -> Node {
+        Node::made(
+            Spelling::new(NAME, NO_LITERAL),
+            sort,
+            Vec::new(),
+            letter.to_string(),
+        )
+    }
+
+    /// A numeral, its digits as written.
+    pub fn numeral(digits: &str) -> Node {
+        Node::made(
+            Spelling::new(NUMERAL, NO_LITERAL),
+            Sort::of("number"),
+            Vec::new(),
+            digits.to_string(),
+        )
+    }
+
+    /// What a property stands for: `body` with the letter `hole` marked as
+    /// its hole. No text is parsed as one; it exists only inside a binding.
+    pub fn property(hole: &str, body: Node) -> Node {
+        Node::made(
+            Spelling::new(PROPERTY_OF, NO_LITERAL),
+            Sort::of("property"),
+            vec![body],
+            hole.to_string(),
+        )
+    }
+
+    /// This node with other children: its notation, literal, text and sort
+    /// kept, and nothing of where it was read or what term it stood for.
+    pub fn with_children(&self, children: Vec<Node>) -> Node {
+        Node(Rc::new(NodeData {
+            notation: self.notation.clone(),
+            sort: self.sort.clone(),
+            children,
+            text: self.text.clone(),
+            notation_id: self.notation_id,
+            literal_id: self.literal_id,
             rpn: None,
             shape: OnceCell::new(),
             span: Cell::new(None),
@@ -427,17 +479,13 @@ impl Node {
             sort: Sort::none(),
             children: Vec::new(),
             text: String::new(),
-            notation_id: crate::notations::LITERAL,
+            notation_id: LITERAL,
             literal_id: NO_LITERAL,
             rpn: Some(Rc::from(rpn)),
             shape: OnceCell::new(),
             span: Cell::new(None),
             grouped: Cell::new(false),
         }))
-    }
-
-    pub fn leaf(notation: &str, sort: Sort, text: &str) -> Node {
-        Node::new(notation, sort, Vec::new(), text)
     }
 
     pub fn id(&self) -> NodeId {
@@ -517,17 +565,6 @@ impl Node {
 }
 
 /// Every node of every tree, in order.
-/// The literal a node of `notation` written `text` has: its place among the
-/// notation's literals, or none for a node whose text is its own, a
-/// letter's name, a numeral's digits.
-fn literal_of(notation: NotationId, text: &str) -> LiteralId {
-    if matches!(notation, NAME | NUMERAL | LITERAL | PROPERTY_OF) {
-        NO_LITERAL
-    } else {
-        LiteralId::of(notation, text)
-    }
-}
-
 pub fn walk(nodes: &[Node]) -> Vec<Node> {
     nodes.iter().flat_map(|n| n.walk()).collect()
 }

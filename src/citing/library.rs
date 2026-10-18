@@ -482,15 +482,13 @@ pub fn either_way(node: &Node, library: &Library) -> Vec<Node> {
         (library.ctx.equations.contains(&eq.notation()) && eq.children.len() == 2).then(
             || {
                 let sides = vec![eq.children[1].clone(), eq.children[0].clone()];
-                Node::new(&eq.notation, eq.sort.clone(), sides, &eq.text)
+                eq.with_children(sides)
             },
         )
     };
     let turned =
         if library.negations.contains(&node.notation()) && node.children.len() == 1 {
-            turn(&node.children[0]).map(|eq| {
-                Node::new(&node.notation, node.sort.clone(), vec![eq], &node.text)
-            })
+            turn(&node.children[0]).map(|eq| node.with_children(vec![eq]))
         } else {
             turn(node)
         };

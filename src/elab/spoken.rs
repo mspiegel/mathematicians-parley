@@ -15,10 +15,11 @@
 
 use indexmap::IndexMap;
 
-use crate::formula::notation_id::NotationId;
+use crate::formula::notation_id::Spelling;
 use crate::formula::page::{Sentence, Written};
 use crate::formula::{Node, Sort};
 use crate::mm::kernel::Term;
+use crate::notations::{APPLICATION, APPLICATION_TO_TWO};
 use crate::outcome::Checked;
 use crate::rules::NUMERALS;
 use crate::targets::{is_context, is_hole, repeated};
@@ -54,8 +55,9 @@ fn numeral(term: &Term) -> Option<String> {
 #[derive(Clone)]
 struct Reading {
     target: String,
-    notation: String,
-    literal: String,
+    /// The notation record's and its literal, which the node read back is
+    /// of.
+    spelling: Spelling,
     applies: Option<String>,
 }
 
@@ -166,19 +168,18 @@ impl Elaborator<'_> {
         let mut table: Vec<Ranked> = Vec::new();
         for f in self.g.functions.values() {
             let notation = if f.arity == 1 {
-                "application"
+                APPLICATION
             } else {
-                "application-to-two"
+                APPLICATION_TO_TWO
             };
-            let Some(literal) = self.literals.get(notation).and_then(|l| l.first())
+            let Some(&spelling) = self.literals.get(&notation).and_then(|l| l.first())
             else {
                 continue;
             };
             table.push(Ranked {
                 reading: Reading {
                     target: f.builds.clone(),
-                    notation: notation.to_string(),
-                    literal: literal.clone(),
+                    spelling,
                     applies: Some(f.name.clone()),
                 },
                 place: table.len(),
@@ -188,11 +189,12 @@ impl Elaborator<'_> {
         for (notation, entries) in &self.terms {
             for (at, entry) in entries.iter().enumerate() {
                 let Some(target) = entry else { continue };
-                let Some(literal) = self.literals.get(notation).and_then(|l| l.get(at))
+                let Some(&spelling) =
+                    self.literals.get(notation).and_then(|l| l.get(at))
                 else {
                     continue;
                 };
-                let Some(written) = self.g.written_by(notation, literal) else {
+                let Some(written) = self.g.written_by(spelling) else {
                     continue;
                 };
                 let list = written.repeat.as_ref().and_then(|r| {
@@ -206,8 +208,7 @@ impl Elaborator<'_> {
                 table.push(Ranked {
                     reading: Reading {
                         target: target.clone(),
-                        notation: notation.clone(),
-                        literal: literal.clone(),
+                        spelling,
                         applies: None,
                     },
                     place: table.len(),
@@ -240,7 +241,7 @@ impl Elaborator<'_> {
         // under a name no page writes (`@op`), and is read by its notation.
         let named = |page: &str| {
             let sort = self.sorts_now.get(page).cloned().unwrap_or_else(Sort::none);
-            Node::leaf("name", sort, page)
+            Node::name(sort, page)
         };
         if let Some((page, _)) = self
             .names
@@ -262,7 +263,7 @@ impl Elaborator<'_> {
             return self.page_node_under(&kids[0], bound);
         }
         if let Some(digits) = numeral(term) {
-            return Some(Node::leaf("numeral", Sort::of("number"), &digits));
+            return Some(Node::numeral(&digits));
         }
         // Every pattern that builds a term of this shape, the one saying most
         // of it first: ∠PQR is an absolute value too, and reads as an angle.
@@ -311,7 +312,7 @@ impl Elaborator<'_> {
             // sort its domain's elements have where a hole holds one.
             let binding_at: Vec<usize> = self
                 .binders
-                .get(&NotationId::of(&r.notation))
+                .get(&r.spelling.notation)
                 .into_iter()
                 .flatten()
                 .copied()
@@ -342,9 +343,9 @@ impl Elaborator<'_> {
                 continue;
             };
             if let Some(name) = &r.applies {
-                children.insert(0, Node::leaf("name", Sort::none(), name));
+                children.insert(0, Node::name(Sort::none(), name));
             }
-            let node = Node::new(&r.notation, Sort::none(), children, &r.literal);
+            let node = Node::of(r.spelling, Sort::none(), children);
             // A reading is the page's only where the page reads it back as
             // itself: |xc| is a distance between points, and of two numbers
             // the page reads nothing, so |x − c| is the reading.

@@ -999,9 +999,9 @@ impl<'a> Parser<'a> {
                     .or_else(library)
                     .cloned()
                     .unwrap_or_else(Sort::unknown);
-                Node::leaf("name", sort, &tok.text)
+                Node::name(sort, &tok.text)
             } else {
-                Node::leaf("numeral", Sort::of("number"), &tok.text)
+                Node::numeral(&tok.text)
             };
             leaf.set_span(tok.at, tok.at + tok.text.chars().count());
             if cands.is_empty() {
@@ -1048,7 +1048,7 @@ impl<'a> Parser<'a> {
         let inner = match self.derivative(stem, at)? {
             Some(node) => node,
             None => match self.said_sort(stem) {
-                Some(sort) => Node::leaf("name", sort, stem),
+                Some(sort) => Node::name(sort, stem),
                 None => return Ok(None),
             },
         };
@@ -1064,7 +1064,7 @@ impl<'a> Parser<'a> {
                 ),
             ));
         }
-        let node = Node::new(n.key(), Sort::of(&n.yields), vec![inner], &n.literal);
+        let node = Node::of(n.spelling(), Sort::of(&n.yields), vec![inner]);
         node.set_span(at, at + text.chars().count());
         Ok(Some(node))
     }
@@ -1382,8 +1382,7 @@ impl<'a> Parser<'a> {
                             )
                         });
                     };
-                    let leaf =
-                        Node::leaf("numeral", Sort::of("number"), &lowered(&tok.text));
+                    let leaf = Node::numeral(&lowered(&tok.text));
                     leaf.set_span(tok.at, tok.at + tok.text.chars().count());
                     kids.push(leaf);
                     took.push(Some((self.i, self.i + 1)));
@@ -1448,8 +1447,7 @@ impl<'a> Parser<'a> {
         // could otherwise tell either pair apart.
         if let Some(w) = &n.wrap {
             let inner = kids[w.hole - 1].clone();
-            kids[w.hole - 1] =
-                Node::new(&w.name, Sort::of(&w.yields), vec![inner], &w.literal);
+            kids[w.hole - 1] = Node::of(w.spelling, Sort::of(&w.yields), vec![inner]);
         }
         // A binder written with a bound where its set stands, "for all ε >
         // 0", builds the node its long form builds, "for all ε ∈ ℝ with ε >
@@ -1527,11 +1525,10 @@ impl<'a> Parser<'a> {
         let mut gone: Option<usize> = None;
         if let Some(j) = &n.joins {
             let (first, then) = (&kids[j.first - 1], &kids[j.then - 1]);
-            let joined = Node::new(
-                &j.by.name,
+            let joined = Node::of(
+                j.by.spelling,
                 Sort::of(&j.by.yields),
                 vec![first.clone(), then.clone()],
-                &j.by.literal,
             );
             if let (Some(a), Some(b)) = (first.span(), then.span()) {
                 joined.set_span(a.0.min(b.0), a.1.max(b.1));
@@ -1550,7 +1547,7 @@ impl<'a> Parser<'a> {
             let sort = Whole::read(&f.yields)
                 .and_then(Sort::whole)
                 .unwrap_or_else(|| Sort::of("set"));
-            kids.insert(f.hole - 1, Node::new(&f.name, sort, Vec::new(), &f.literal));
+            kids.insert(f.hole - 1, Node::of(f.spelling, sort, Vec::new()));
         }
         // Where it was read from: its first token, or the value it extends,
         // to its last token.
@@ -1565,11 +1562,10 @@ impl<'a> Parser<'a> {
         if let Some(levels) = &n.nests {
             let mut body = kids[kids.len() - 1].clone();
             for (name, domain) in levels.iter().rev() {
-                let level = Node::new(
-                    n.key(),
+                let level = Node::of(
+                    n.spelling(),
                     Sort::of(&n.yields),
                     vec![kids[name - 1].clone(), kids[domain - 1].clone(), body],
-                    &n.literal,
                 );
                 if let (Some(from), Some(to)) = (begin, end) {
                     level.set_span(from, to);
@@ -1578,7 +1574,7 @@ impl<'a> Parser<'a> {
             }
             return Ok(Some(body));
         }
-        let node = Node::new(n.key(), yields, kids, &n.literal);
+        let node = Node::of(n.spelling(), yields, kids);
         if let (Some(from), Some(to)) = (begin, end) {
             node.set_span(from, to);
             if let Some(at) = wrapped_at {
@@ -1590,11 +1586,10 @@ impl<'a> Parser<'a> {
         // A pattern declared as the negation of another builds the other and
         // wraps it, so the folded spelling and the `not` spelling are one
         // tree. The wrapper is named by the record, not known here.
-        match &n.folds {
+        match n.fold {
             None => Ok(Some(node)),
-            Some(folds) => {
-                let folded =
-                    Node::new(folds, Sort::of("formula"), vec![node], &n.fold_literal);
+            Some(fold) => {
+                let folded = Node::of(fold, Sort::of("formula"), vec![node]);
                 if let (Some(from), Some(to)) = (begin, end) {
                     folded.set_span(from, to);
                 }
@@ -1616,7 +1611,7 @@ impl<'a> Parser<'a> {
             .g
             .notations
             .iter()
-            .find(|m| m.name == join.name)
+            .find(|m| m.record_id == join.spelling.notation)
             .filter(|m| m.assoc.as_deref() == Some("left"))
             .map(|m| m.level.clone());
         let in_run = |node: &Node| {
@@ -1636,11 +1631,10 @@ impl<'a> Parser<'a> {
             node
         };
         if level.is_none() || !in_run(body) {
-            let node = Node::new(
-                &join.name,
+            let node = Node::of(
+                join.spelling,
                 Sort::of(&join.yields),
                 vec![condition, body.clone()],
-                &join.literal,
             );
             return spanned(node, body);
         }
@@ -1651,27 +1645,20 @@ impl<'a> Parser<'a> {
             // The new join is never a list's last, so it takes the run's
             // first pattern: "d > 1, A, and B" joins d > 1 to A by `_, _`,
             // and only B by `_, and _`.
-            let literal = self
+            let spelling = self
                 .g
                 .notations
                 .iter()
                 .find(|m| m.record_id == body.notation())
-                .map_or(body.text.as_str(), |m| m.literal.as_str());
-            let node = Node::new(
-                &body.notation,
-                body.sort.clone(),
-                vec![condition, first.clone()],
-                literal,
-            );
+                .map_or(body.spelling(), Notation::spelling);
+            let node =
+                Node::of(spelling, body.sort.clone(), vec![condition, first.clone()]);
             spanned(node, first)
         };
-        let node = Node::new(
-            &body.notation,
-            body.sort.clone(),
-            vec![first, body.children[1].clone()],
-            &body.text,
-        );
-        spanned(node, body)
+        spanned(
+            body.with_children(vec![first, body.children[1].clone()]),
+            body,
+        )
     }
 
     /// A `variable` hole takes a bare name; any other takes an expression,
@@ -1686,7 +1673,7 @@ impl<'a> Parser<'a> {
                 return self.no(|| "a binder wants a name".into());
             }
             self.i += 1;
-            let leaf = Node::leaf("name", Sort::of("variable"), &tok.text);
+            let leaf = Node::name(Sort::of("variable"), &tok.text);
             leaf.set_span(tok.at, tok.at + tok.text.chars().count());
             return Ok(Some(leaf));
         }

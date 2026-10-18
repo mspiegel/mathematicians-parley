@@ -214,7 +214,7 @@ pub fn term(g: &Grammar, e: &Expr) -> Node {
             made(g, "−_", vec![numeral(&(-n).to_string())])
         }
         Expr::Num(n) => numeral(&n.to_string()),
-        Expr::Letter(x) => Node::leaf("name", Sort::of("number"), x),
+        Expr::Letter(x) => Node::name(Sort::of("number"), x),
         Expr::Neg(a) => made(g, "−_", vec![term(g, a)]),
         Expr::Add(a, b) => two(a, b, "_ + _"),
         Expr::Sub(a, b) => two(a, b, "_ − _"),

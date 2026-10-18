@@ -36,7 +36,7 @@ use crate::notations::{
     APPLICATION, AT_LEAST, AT_MOST, BICONDITIONAL, BY_CASES, CONDITIONAL, CONJUNCTION,
     EQUALITY, EQUALS, FOR_ALL, FOR_ALL_SETS, FUNCTION_TYPE, GREATER, IMPLICATION,
     INTEGER_RANGE, LESS, LOGICAL_NOT, MEMBERSHIP, NUMBER_SYSTEMS, NUMERAL, ORDER, PLUS,
-    PRODUCT_OVER, SUM,
+    PRODUCT_OVER, SUM, TIMES,
 };
 use crate::outcome::{Built, Checked, Declined, Problem};
 use crate::rules::System;
@@ -1446,12 +1446,7 @@ fn induction_owes(owner: &Step, claim: &Node, known: &Known) -> Vec<Owed> {
         let written = Written::new(v, &known.thm.path, owner.just.line);
         known.read_as_written(&written.sentence().ok()?)
     });
-    let next = made(
-        known.env.g,
-        "additive",
-        "+",
-        vec![letter.clone(), numeral("1")],
-    );
+    let next = made(known.env.g, PLUS, vec![letter.clone(), numeral("1")]);
     let mut owed = Vec::new();
     for (part, (marker, _)) in owner.parts.iter().enumerate() {
         let (value, which) = match marker.as_str() {
@@ -1929,7 +1924,7 @@ fn link_pieces_unworked(
     let mut pieces = Vec::new();
     closed_pieces(one, other, known, &mut pieces);
     pieces.into_iter().find_map(|Piece { was, now }| {
-        unworked(&made(known.env.g, "equality", "=", vec![was, now]))
+        unworked(&made(known.env.g, EQUALS, vec![was, now]))
     })
 }
 
@@ -2430,12 +2425,7 @@ pub(super) fn define_equation(
         .sentence()
         .ok()?;
     let named = known.read_as_written(&named)?;
-    Some(made(
-        known.env.g,
-        "equality",
-        "=",
-        vec![named, term.clone()],
-    ))
+    Some(made(known.env.g, EQUALS, vec![named, term.clone()]))
 }
 
 /// What the line `r` in a step's scope states, all of it, as written.
@@ -2718,7 +2708,7 @@ pub fn check_antisymmetry(
 /// decides an identity (`methods::algebra`): what writing a side another way
 /// keeps.
 fn one_number(a: &Node, b: &Node, known: &Known, targets: &Targets) -> bool {
-    let equation = made(known.env.g, "equality", "=", vec![a.clone(), b.clone()]);
+    let equation = made(known.env.g, EQUALS, vec![a.clone(), b.clone()]);
     let labels = FloatLabels::new(IndexMap::new());
     matches!(
         algebra::decide(&term_of_node(&equation, targets), &[], &labels),
@@ -2749,8 +2739,7 @@ fn row_follows(
     };
     match (reason, term) {
         (RowReason::Adding(_), Some(t)) => {
-            let plus =
-                |side: &Node| made(g, "additive", "+", vec![side.clone(), t.clone()]);
+            let plus = |side: &Node| made(g, PLUS, vec![side.clone(), t.clone()]);
             sides(above.rel, &plus(&above.left), &plus(&above.right))
         }
         (RowReason::Multiplying(_), Some(c)) => {
@@ -2768,9 +2757,7 @@ fn row_follows(
             } else {
                 above.rel
             };
-            let times = |side: &Node| {
-                made(g, "multiplicative", "·", vec![c.clone(), side.clone()])
-            };
+            let times = |side: &Node| made(g, TIMES, vec![c.clone(), side.clone()]);
             sides(rel, &times(&above.left), &times(&above.right))
         }
         (RowReason::Symmetry, _) => {
@@ -3955,18 +3942,16 @@ fn written_out(node: &Node, known: &Known) -> Node {
         .iter()
         .map(|c| written_out(c, known))
         .collect();
-    let here = Node::new(&node.notation, node.sort.clone(), children, &node.text);
+    let here = node.with_children(children);
     let (index, start, end, body, joined) =
         match (here.notation(), here.children.as_slice()) {
             (PRODUCT_OVER, [index, range, body]) => match range.children.as_slice() {
                 [start, end] if range.notation() == INTEGER_RANGE => {
-                    (index, start, end, body, ("multiplicative", "·"))
+                    (index, start, end, body, TIMES)
                 }
                 _ => return here,
             },
-            (SUM, [index, start, end, body]) => {
-                (index, start, end, body, ("additive", "+"))
-            }
+            (SUM, [index, start, end, body]) => (index, start, end, body, PLUS),
             _ => return here,
         };
     let bound = |n: &Node| {
@@ -3985,9 +3970,7 @@ fn written_out(node: &Node, known: &Known) -> Node {
         let put = Binding::from([(index.text.clone(), numeral(&k.to_string()))]);
         crate::matching::substitute_apart(body, &put, known.ctx)
     };
-    (from + 1..=to).fold(at(from), |acc, k| {
-        made(g, joined.0, joined.1, vec![acc, at(k)])
-    })
+    (from + 1..=to).fold(at(from), |acc, k| made(g, joined, vec![acc, at(k)]))
 }
 
 /// `arithmetic` stands in for a line only where the fact is numerals alone.

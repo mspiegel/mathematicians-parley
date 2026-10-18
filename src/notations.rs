@@ -43,7 +43,7 @@ notations! {
     THERE_IS = 11, "there-is";
     FUNCTION_TYPE = 12, "function-type";
     INTEGER_RANGE = 13, "integer-range";
-    CONJUNCTION = 14, "conjunction";
+    CONJUNCTION = 14, "conjunction", [AND = 1, "and"];
     COMMA_CONJUNCTION = 15, "comma-conjunction";
     BICONDITIONAL = 16, "biconditional";
     IMPLICATION = 17, "implication";
@@ -63,7 +63,7 @@ notations! {
     JUXTAPOSITION = 31, "juxtaposition";
     FOR_ALL_PART = 32, "for-all-part";
     FOR_ALL_SETS = 33, "for-all-sets";
-    SUBSET = 34, "subset";
+    SUBSET = 34, "subset", [SUBSET_OF = 1, "⊆"];
     ONE_TO_ONE = 35, "one-to-one";
     ONTO = 36, "onto";
     ONE_TO_ONE_ONTO = 37, "one-to-one-onto";
@@ -75,4 +75,5 @@ notations! {
     THERE_IS_SOME = 43, "there-is-some";
     FUNCTION_ON = 44, "function-on";
     PRODUCT_OVER = 45, "product-over";
+    DISJUNCTION = 46, "disjunction", [OR = 1, "or"];
 }

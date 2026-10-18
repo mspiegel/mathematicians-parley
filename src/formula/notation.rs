@@ -3,7 +3,7 @@
 use indexmap::{IndexMap, IndexSet};
 
 use super::node::Node;
-use super::notation_id::{LiteralId, NotationId, Spelling};
+use super::notation_id::{LiteralId, NotationId, Spelling, NO_LITERAL};
 use super::token::is_letter;
 use crate::corpus::{Record, RecordKind};
 use crate::outcome::{Built, Checked, Problem};
@@ -60,6 +60,30 @@ pub struct Wrap {
     pub name: String,
     pub literal: String,
     pub yields: String,
+    /// The notation and its literal, as ids: what the node it builds is.
+    pub spelling: Spelling,
+}
+
+impl Wrap {
+    /// The wrap of hole `hole` by the notation `name`, its literal and sort
+    /// filled in once every notation is read (`fill_in`).
+    fn new(hole: usize, name: &str) -> Wrap {
+        Wrap {
+            hole,
+            name: name.to_string(),
+            literal: String::new(),
+            yields: String::new(),
+            spelling: Spelling::new(NotationId::of(name), NO_LITERAL),
+        }
+    }
+
+    /// The wrapping notation's literal and what it yields.
+    fn fill_in(&mut self, literal: String, yields: String) {
+        let notation = self.spelling.notation;
+        self.spelling = Spelling::new(notation, LiteralId::of(notation, &literal));
+        self.literal = literal;
+        self.yields = yields;
+    }
 }
 
 /// A notation's `bounds` line: a binder written with a bound where its set
@@ -122,8 +146,8 @@ pub struct Notation {
     pub literal: String,
     /// The record's name, or another it spells.
     pub stands_under: String,
-    /// The literal of the notation that wraps it.
-    pub fold_literal: String,
+    /// The notation that wraps it and that notation's literal, as ids.
+    pub fold: Option<Spelling>,
     /// Its `sort` field as written: the sort of each hole and of what it
     /// produces.
     pub sort: Option<String>,
@@ -237,12 +261,16 @@ impl Notation {
         }
     }
 
+    /// The notation the node this pattern builds is of, and its literal.
+    pub fn spelling(&self) -> Spelling {
+        Spelling::new(self.key_id, self.literal_id)
+    }
+
     /// Whether `node` is of this notation's record and has its literal. A
     /// record named for a node's notation spells no other, so the record's
     /// literals are that notation's.
     pub fn writes(&self, node: &Node) -> bool {
-        self.record_id == node.notation()
-            && Spelling::new(self.key_id, self.literal_id) == node.spelling()
+        self.record_id == node.notation() && self.spelling() == node.spelling()
     }
 }
 
@@ -475,12 +503,9 @@ pub fn compile_notations(
                 Some(Bounds {
                     name: m[1].parse().unwrap(),
                     to: m[2].parse().unwrap(),
-                    join: m.get(3).map(|hole| Wrap {
-                        hole: hole.as_str().parse().unwrap(),
-                        name: m[4].to_string(),
-                        literal: String::new(),
-                        yields: String::new(),
-                    }),
+                    join: m
+                        .get(3)
+                        .map(|hole| Wrap::new(hole.as_str().parse().unwrap(), &m[4])),
                 })
             }
         };
@@ -501,12 +526,7 @@ pub fn compile_notations(
                 Some(Join {
                     first: m[1].parse().unwrap(),
                     then: m[2].parse().unwrap(),
-                    by: Wrap {
-                        hole: m[1].parse().unwrap(),
-                        name: m[3].to_string(),
-                        literal: String::new(),
-                        yields: String::new(),
-                    },
+                    by: Wrap::new(m[1].parse().unwrap(), &m[3]),
                 })
             }
         };
@@ -624,24 +644,18 @@ pub fn compile_notations(
                 } else {
                     None
                 },
-                fold_literal: String::new(),
+                fold: None,
                 sort: r.field("sort").map(String::from),
-                wrap: wraps.as_ref().map(|w| Wrap {
-                    hole: w[1].parse().unwrap(),
-                    name: w[2].to_string(),
-                    literal: String::new(),
-                    yields: String::new(),
-                }),
+                wrap: wraps
+                    .as_ref()
+                    .map(|w| Wrap::new(w[1].parse().unwrap(), &w[2])),
                 places: places.clone(),
                 nests: nests.clone(),
                 bounds: bounds.clone(),
                 joins: joins.clone(),
-                fill: fills.as_ref().map(|f| Wrap {
-                    hole: f[1].parse().unwrap(),
-                    name: f[2].to_string(),
-                    literal: String::new(),
-                    yields: String::new(),
-                }),
+                fill: fills
+                    .as_ref()
+                    .map(|f| Wrap::new(f[1].parse().unwrap(), &f[2])),
                 repeat: repeat.clone(),
                 shadowed: r.field("shadowed").is_some(),
             });
@@ -669,26 +683,31 @@ pub fn compile_notations(
     }
     for n in &mut out {
         if let Some(folds) = &n.folds {
-            n.fold_literal = literals.get(folds).cloned().unwrap_or_default();
+            let literal = literals.get(folds).map_or("", String::as_str);
+            let wrapping = NotationId::of(folds);
+            n.fold = Some(Spelling::new(wrapping, LiteralId::of(wrapping, literal)));
         }
         // A wrapping notation's node carries its own literal and what it
         // yields, as it would parsed where it is written.
         if let Some(w) = &mut n.wrap {
-            w.literal = literals.get(&w.name).cloned().unwrap_or_default();
-            w.yields = yields.get(&w.name).cloned().unwrap_or_default();
+            let literal = literals.get(&w.name).cloned().unwrap_or_default();
+            let made = yields.get(&w.name).cloned().unwrap_or_default();
+            w.fill_in(literal, made);
         }
         // A filled set's node is the whole sort its record gives, `set of
         // function from number to number`, since what it holds is what a
         // name its binder introduces is.
         if let Some(f) = &mut n.fill {
-            f.literal = literals.get(&f.name).cloned().unwrap_or_default();
-            f.yields = whole_sorts.get(&f.name).cloned().unwrap_or_default();
+            let literal = literals.get(&f.name).cloned().unwrap_or_default();
+            let made = whole_sorts.get(&f.name).cloned().unwrap_or_default();
+            f.fill_in(literal, made);
         }
         let joining = n.joins.as_mut().map(|j| &mut j.by);
         let bounding = n.bounds.as_mut().and_then(|b| b.join.as_mut());
         for w in joining.into_iter().chain(bounding) {
-            w.literal = literals.get(&w.name).cloned().unwrap_or_default();
-            w.yields = yields.get(&w.name).cloned().unwrap_or_default();
+            let literal = literals.get(&w.name).cloned().unwrap_or_default();
+            let made = yields.get(&w.name).cloned().unwrap_or_default();
+            w.fill_in(literal, made);
         }
     }
     // A symbol may be a prefix of another, so try the longest first.

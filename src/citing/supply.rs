@@ -519,12 +519,7 @@ fn self_evident(
         .map(|(v, t)| (v.clone(), t.clone()))
         .collect();
     let spelt = substitute_apart(side, &terms, ctx);
-    Some(Node::new(
-        &body.notation,
-        body.sort.clone(),
-        vec![spelt.clone(), spelt],
-        &body.text,
-    ))
+    Some(body.with_children(vec![spelt.clone(), spelt]))
 }
 
 /// Every one of the variables the tree names is bound already.
@@ -605,12 +600,11 @@ fn narrowed(
     if !set_within(&asked, &fact.children[1]) {
         return None;
     }
-    Some(Node::new(
-        &fact.notation,
-        fact.sort.clone(),
-        vec![fact.children[0].clone(), asked, fact.children[2].clone()],
-        &fact.text,
-    ))
+    Some(fact.with_children(vec![
+        fact.children[0].clone(),
+        asked,
+        fact.children[2].clone(),
+    ]))
 }
 
 /// The names a "there is" binds, each with its domain, outermost first, and

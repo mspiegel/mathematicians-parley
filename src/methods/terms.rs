@@ -107,10 +107,7 @@ impl Targets {
     pub fn of(g: &Grammar, records: &[crate::corpus::Record]) -> Targets {
         let mut literals: FxIndexMap<NotationId, Vec<Spelling>> = FxIndexMap::default();
         for n in &g.notations {
-            literals
-                .entry(n.record_id)
-                .or_default()
-                .push(Spelling::new(n.key_id, n.literal_id));
+            literals.entry(n.record_id).or_default().push(n.spelling());
         }
         let builds = g
             .functions
@@ -123,7 +120,7 @@ impl Targets {
             .filter_map(|n| {
                 let r = n.repeat.as_ref()?;
                 Some((
-                    Spelling::new(n.key_id, n.literal_id),
+                    n.spelling(),
                     Repeats {
                         holes: n.holes.len(),
                         building: r.building.clone(),

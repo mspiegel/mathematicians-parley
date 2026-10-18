@@ -17,7 +17,7 @@ use super::{Facts, Lines, Written};
 use crate::checker::record::CheckedTheorem;
 use crate::citing;
 use crate::corpus::{written_text, FileScope, Item, Record, Step, Theorem};
-use crate::formula::notation_id::NotationId;
+use crate::formula::notation_id::{LiteralId, NotationId, Spelling};
 use crate::formula::{Grammar, Node, Sorts};
 use crate::matching::{binding_context, Defined, FxIndexMap};
 use crate::mm::kernel::{match_term, term_of, FloatLabels, Term, VarSet};
@@ -236,7 +236,8 @@ pub struct Elaborator<'a> {
     /// The sort of each name, as the grammar reads it now.
     pub sorts_now: Sorts,
     pub b: Builder,
-    pub terms: IndexMap<String, Vec<Option<String>>>,
+    /// Notation record -> the `target` entry of each of its patterns.
+    pub terms: FxIndexMap<NotationId, Vec<Option<String>>>,
     /// Letters the notations' own targets bind and the proof writes.
     pub taken: IndexSet<String>,
     pub spare: Vec<String>,
@@ -366,9 +367,10 @@ pub struct Elaborator<'a> {
     /// The scope frames, innermost last.
     pub frames: Vec<Frame>,
     pub lines: Lines,
-    /// Notation -> the literals of its patterns, in the order the `pattern`
-    /// and `target` fields both use.
-    pub literals: IndexMap<String, Vec<String>>,
+    /// Notation record -> the literals of its patterns, in the order the
+    /// `pattern` and `target` fields both use, each as a spelling of the
+    /// record's own notation.
+    pub literals: FxIndexMap<NotationId, Vec<Spelling>>,
     /// Notation -> the holes each binder introduces a name in.
     pub binders: FxIndexMap<NotationId, Vec<usize>>,
     /// The statement a cited theorem's file proves, where it is known.
@@ -400,7 +402,11 @@ impl<'a> Elaborator<'a> {
     ) -> Elaborator<'a> {
         let sorts_now = checked.sorts.clone();
         let b = Builder::new(sigs);
-        let terms = targets::terms(records);
+        let terms: FxIndexMap<NotationId, Vec<Option<String>>> =
+            targets::terms(records)
+                .into_iter()
+                .map(|(name, entries)| (NotationId::of(&name), entries))
+                .collect();
         let mut taken: IndexSet<String> = IndexSet::new();
         for entries in terms.values() {
             for e in entries.iter().flatten() {
@@ -425,12 +431,12 @@ impl<'a> Elaborator<'a> {
             .filter(|v| !taken.contains(**v))
             .map(|v| v.to_string())
             .collect();
-        let mut literals: IndexMap<String, Vec<String>> = IndexMap::new();
+        let mut literals: FxIndexMap<NotationId, Vec<Spelling>> = FxIndexMap::default();
         for n in &g.notations {
-            literals
-                .entry(n.name.clone())
-                .or_default()
-                .push(n.literal.clone());
+            literals.entry(n.record_id).or_default().push(Spelling::new(
+                n.record_id,
+                LiteralId::of(n.record_id, &n.literal),
+            ));
         }
         let binders = binding_context(&g.notations)
             .0

@@ -48,7 +48,7 @@ fn number(g: &Grammar, n: i64) -> Node {
 }
 
 fn name(text: &str) -> Node {
-    Node::leaf("name", Sort::of("object"), text)
+    Node::name(Sort::of("object"), text)
 }
 
 /// A set listed in full, or ∅ where nothing is listed.
@@ -174,7 +174,7 @@ fn numerals(r: &mut Random, g: &Grammar) -> (Node, Verdict) {
                 .copied()
                 .filter(|v| (v.rem_euclid(2) == 0) == even)
                 .collect();
-            let x = || Node::leaf("name", Sort::of("number"), "x");
+            let x = || Node::name(Sort::of("number"), "x");
             let builder = made(
                 g,
                 "{_ ∈ _ : _}",
@@ -246,7 +246,7 @@ fn graph(r: &mut Random, g: &Grammar) -> (String, Node, Verdict, bool) {
         .filter(|(_, (a, b))| *a == v || *b == v)
         .map(|(e, _)| *e)
         .collect();
-    let x = || Node::leaf("name", Sort::of("object"), "x");
+    let x = || Node::name(Sort::of("object"), "x");
     let builder = || {
         made(
             g,

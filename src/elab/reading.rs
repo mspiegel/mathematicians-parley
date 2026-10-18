@@ -72,7 +72,7 @@ impl<'a> Elaborator<'a> {
         let introduced = Introduction::read(body.clone());
         let named = |name: &str| introduced.read_part(name, g, sorts);
         let is_a = |form: &'static str, x: &Node| filled(form, g, sorts, &[("x", x)]);
-        let both = |a: Node, b: Node| made(g, "conjunction", "and", vec![a, b]);
+        let both = |a: Node, b: Node| made(g, crate::notations::AND, vec![a, b]);
         match &introduced.form {
             Form::Element(name) => {
                 let x = named(name)?;
@@ -363,15 +363,15 @@ impl<'a> Elaborator<'a> {
     /// A notation with no target is a gap in `corpus/db/notation.records` and so a
     /// person's to fix, at the line that wrote the notation.
     pub fn pattern(&self, node: &Node) -> Checked<String> {
-        let Some(entries) = self.terms.get(&node.notation) else {
+        let Some(entries) = self.terms.get(&node.notation()) else {
             return Err(self.defect(
                 self.at,
                 format!("notation {} has no target field", repr(&node.notation)),
             ));
         };
-        let order = self.literals.get(&node.notation);
+        let order = self.literals.get(&node.notation());
         let at = order
-            .and_then(|o| o.iter().position(|l| *l == node.text))
+            .and_then(|o| o.iter().position(|s| *s == node.spelling()))
             .unwrap_or(0);
         let Some(found) = entries.get(at).cloned().flatten() else {
             return Err(self.defect(
@@ -967,12 +967,7 @@ impl<'a> Elaborator<'a> {
             for c in &node.children[1..] {
                 kids.push(self.freeze(c)?);
             }
-            return Ok(Node::new(
-                &node.notation,
-                node.sort.clone(),
-                kids,
-                &node.text,
-            ));
+            return Ok(node.with_children(kids));
         }
         let bound = self
             .binders
@@ -993,12 +988,7 @@ impl<'a> Elaborator<'a> {
                     me.freeze(c)?
                 });
             }
-            Ok(Node::new(
-                &node.notation,
-                node.sort.clone(),
-                kids,
-                &node.text,
-            ))
+            Ok(node.with_children(kids))
         })
     }
 }

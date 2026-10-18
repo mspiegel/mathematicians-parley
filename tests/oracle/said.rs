@@ -162,7 +162,7 @@ fn positive(t: &Term) -> bool {
 }
 
 fn letter(name: &str) -> Node {
-    Node::leaf("name", Sort::of("number"), name)
+    Node::name(Sort::of("number"), name)
 }
 
 fn summand(g: &Grammar, s: Summand) -> Node {

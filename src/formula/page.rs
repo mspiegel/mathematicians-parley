@@ -12,7 +12,9 @@ use std::sync::Arc;
 
 use super::grammar::{parse, Grammar, Sorts};
 use super::node::{Node, Sort};
+use super::notation_id::Spelling;
 use super::token::Token;
+use crate::notations::{AND, OR};
 use crate::outcome::{Built, Checked, Declined, Problem, Route};
 
 /// Formula text as the skeleton reader cut it out of a line, and where.
@@ -204,16 +206,20 @@ impl std::fmt::Display for Sentence {
 /// The code names the notations it makes, as `rules` names those it reads,
 /// so one the database does not declare is a fault of the build, not of a
 /// page.
-pub fn made(g: &Grammar, name: &str, literal: &str, children: Vec<Node>) -> Node {
-    let Some(n) = g.notations.iter().find(|n| {
-        n.key() == name && n.literal == literal && n.holes.len() == children.len()
-    }) else {
+pub fn made(g: &Grammar, spelling: Spelling, children: Vec<Node>) -> Node {
+    let Some(n) = g
+        .notations
+        .iter()
+        .find(|n| n.spelling() == spelling && n.holes.len() == children.len())
+    else {
         panic!(
-            "the database declares no notation {name} written {literal} of {} holes",
+            "the database declares no notation {} written {} of {} holes",
+            spelling.notation.name(),
+            spelling.text(),
             children.len()
         );
     };
-    Node::new(n.key(), Sort::of(&n.yields), children, &n.literal)
+    Node::of(n.spelling(), Sort::of(&n.yields), children)
 }
 
 /// The tokens the front end lexes a written part into, for a question about
@@ -312,42 +318,41 @@ pub fn made_as(g: &Grammar, pattern: &str, children: Vec<Node>) -> Option<Node> 
         .notations
         .iter()
         .find(|n| n.pattern == pattern && n.holes.len() == children.len())?;
-    let node = Node::new(n.key(), Sort::of(&n.yields), children, &n.literal);
+    let node = Node::of(n.spelling(), Sort::of(&n.yields), children);
     // A pattern declared as the negation of another builds the other and
     // wraps it, as the parser builds it: `a ≠ b` is not (a = b).
-    Some(match &n.folds {
-        Some(folds) => {
-            Node::new(folds, Sort::of("formula"), vec![node], &n.fold_literal)
-        }
+    Some(match n.fold {
+        Some(fold) => Node::of(fold, Sort::of("formula"), vec![node]),
         None => node,
     })
 }
 
 /// A numeral, as the parser reads one.
 pub fn numeral(digits: &str) -> Node {
-    Node::leaf("numeral", Sort::of("number"), digits)
+    Node::numeral(digits)
 }
 
 /// Several sentences as one claim: their conjunction, joined from the left
 /// as a claim of several sentences is (`SYNTAX.md`); the one sentence where
 /// there is one.
 pub fn conjoined(g: &Grammar, said: Vec<Node>) -> Option<Node> {
-    joined(g, "conjunction", "and", said)
+    joined(g, AND, said)
 }
 
 /// Several formulas joined by "or", from the left, as `A or B or C` reads.
 pub fn disjoined(g: &Grammar, said: Vec<Node>) -> Option<Node> {
-    joined(g, "disjunction", "or", said)
+    joined(g, OR, said)
 }
 
-fn joined(g: &Grammar, name: &str, literal: &str, mut said: Vec<Node>) -> Option<Node> {
+fn joined(g: &Grammar, by: Spelling, mut said: Vec<Node>) -> Option<Node> {
     if said.is_empty() {
         return None;
     }
     let first = said.remove(0);
-    Some(said.into_iter().fold(first, |whole, next| {
-        made(g, name, literal, vec![whole, next])
-    }))
+    Some(
+        said.into_iter()
+            .fold(first, |whole, next| made(g, by, vec![whole, next])),
+    )
 }
 
 /// The sentences of a text, each without its full stop.

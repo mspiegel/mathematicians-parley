@@ -5,7 +5,7 @@ use crate::formula::page;
 use crate::formula::{Node, Sort, Sorts, Whole};
 use crate::matching::{standard, substitute_apart_by, Binding};
 use crate::notations::{
-    FOR_ALL, FOR_ALL_PART, FUNCTION_TYPE, MEMBERSHIP, NUMBER_SYSTEMS,
+    FOR_ALL, FOR_ALL_PART, FUNCTION_TYPE, IN, MEMBERSHIP, NUMBER_SYSTEMS, SUBSET_OF,
 };
 use crate::outcome::Built;
 use crate::rules;
@@ -184,14 +184,13 @@ pub fn claimed_member(claim: &Node, library: &Library) -> Option<(Node, Node)> {
 /// What a binder says of the letter it binds, `x ∈ S` or `x ⊆ S` as `how`
 /// has it, at the letter and the domain.
 pub fn bound_in(how: Bound, letter: &Node, domain: &Node, library: &Library) -> Node {
-    let (notation, literal) = match how {
-        Bound::Member => ("membership", "∈"),
-        Bound::Part => ("subset", "⊆"),
+    let spelling = match how {
+        Bound::Member => IN,
+        Bound::Part => SUBSET_OF,
     };
     page::made(
         library.env.g,
-        notation,
-        literal,
+        spelling,
         vec![letter.clone(), domain.clone()],
     )
 }

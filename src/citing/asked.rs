@@ -124,7 +124,7 @@ pub fn filled(node: &Node, bound: &Binding, ctx: &Context) -> Node {
                     .into_iter()
                     .find(|c| !used.contains(c))
                     .unwrap_or_default();
-                let fresh = Node::leaf("name", var.sort.clone(), &letter);
+                let fresh = Node::name(var.sort.clone(), &letter);
                 used.insert(letter);
                 spelt.insert(at, fresh.clone());
                 inner.insert(var.text.clone(), fresh);
@@ -144,15 +144,12 @@ pub fn filled(node: &Node, bound: &Binding, ctx: &Context) -> Node {
                 }
             })
             .collect();
-        return Node::new(&node.notation, node.sort.clone(), children, &node.text);
+        return node.with_children(children);
     }
-    Node::new(
-        &node.notation,
-        node.sort.clone(),
+    node.with_children(
         node.children
             .iter()
             .map(|c| filled(c, bound, ctx))
             .collect(),
-        &node.text,
     )
 }

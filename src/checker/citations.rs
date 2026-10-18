@@ -1235,12 +1235,7 @@ pub fn check_substitutes(
                 scope.get(&source).and_then(|s| known.stated_as_written(s))
             };
             if let Some(said) = said {
-                let turned = Node::new(
-                    &equation.notation,
-                    equation.sort.clone(),
-                    vec![right.clone(), left.clone()],
-                    &equation.text,
-                );
+                let turned = equation.with_children(vec![right.clone(), left.clone()]);
                 let mut parts = vec![said.clone()];
                 parts.extend(conjuncts(&said, library));
                 let there = parts
@@ -2428,7 +2423,7 @@ fn values_said(typed: &Node, facts: &[Node], library: &Library) -> bool {
         return false;
     };
     let g = library.env.g;
-    let k = Node::leaf("name", domain.sort.held().unwrap_or_else(Sort::none), "k");
+    let k = Node::name(domain.sort.held().unwrap_or_else(Sort::none), "k");
     let Some(value) = page::made_as(g, "_(_)", vec![f.clone(), k.clone()]) else {
         return false;
     };

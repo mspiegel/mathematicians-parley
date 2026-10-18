@@ -44,11 +44,6 @@ pub fn split_commas(text: &str) -> Vec<&str> {
         .collect()
 }
 
-/// What a property stands for: a formula with one name marked as its hole.
-/// This notation is never parsed from anything; it exists only inside a
-/// binding.
-pub const PROPERTY: &str = "property-of";
-
 /// What the names of a pattern have been matched to.
 pub type Binding = IndexMap<String, Node>;
 
@@ -181,7 +176,7 @@ fn permutations(parts: &[Node]) -> Vec<Vec<Node>> {
 /// each hole of that one.
 #[derive(Clone, Debug)]
 pub struct Turned {
-    pub literal: String,
+    pub spelling: Spelling,
     pub places: Vec<usize>,
 }
 
@@ -417,9 +412,9 @@ fn turned(notations: &[Notation], records: &[Record]) -> FxIndexMap<Spelling, Tu
             });
             if let Some((j, _)) = standard {
                 out.insert(
-                    Spelling::new(patterns[i].key_id, patterns[i].literal_id),
+                    patterns[i].spelling(),
                     Turned {
-                        literal: patterns[j].literal.clone(),
+                        spelling: patterns[j].spelling(),
                         places: holes.clone(),
                     },
                 );
@@ -462,9 +457,9 @@ fn turned_to_standard(node: &Node, ctx: &Context) -> Option<Node> {
     Some(match here {
         Some(t) => {
             let placed = t.places.iter().map(|&p| children[p - 1].clone()).collect();
-            Node::new(&node.notation, node.sort.clone(), placed, &t.literal)
+            Node::of(t.spelling, node.sort.clone(), placed)
         }
-        None => Node::new(&node.notation, node.sort.clone(), children, &node.text),
+        None => node.with_children(children),
     })
 }
 
@@ -763,12 +758,7 @@ fn bound_as(
                 }
             })
             .collect();
-        pattern = Node::new(
-            &pattern.notation,
-            pattern.sort.clone(),
-            children,
-            &pattern.text,
-        );
+        pattern = pattern.with_children(children);
     }
     pattern
 }
@@ -869,7 +859,7 @@ pub fn bare(node: &Node, ctx: &Context) -> Node {
         return node.clone();
     }
     let kids: Vec<Node> = node.children.iter().map(|c| bare(c, ctx)).collect();
-    let mut out = Node::new(&node.notation, node.sort.clone(), kids, &node.text);
+    let mut out = node.with_children(kids);
     while let Some(kept) = identity_kept(&out, ctx) {
         out = kept;
     }
@@ -971,7 +961,7 @@ pub fn put_everywhere(start: &Node, was: &Node, now: &Node, ctx: &Context) -> No
         .iter()
         .map(|c| put_everywhere(c, was, now, ctx))
         .collect();
-    Node::new(&start.notation, start.sort.clone(), kids, &start.text)
+    start.with_children(kids)
 }
 
 /// `substituted_in` put at some of the places, each part compared with its
@@ -1022,15 +1012,7 @@ fn property(
         if !sites.contains(&pattern.id()) || !arg.is_name() {
             return false; // only the inside occurrence decides
         }
-        binding.insert(
-            name.clone(),
-            Node::new(
-                PROPERTY,
-                crate::formula::Sort::of("property"),
-                vec![ground.clone()],
-                &arg.text,
-            ),
-        );
+        binding.insert(name.clone(), Node::property(&arg.text, ground.clone()));
         return true;
     };
     if stands.notation() != PROPERTY_OF {
@@ -1098,15 +1080,7 @@ fn family(
         && ground.children.len() == 2
         && ground.children[1].shape() == arg.shape();
     if stands.is_none() && sites.contains(&pattern.id()) && arg.is_name() && !plain {
-        binding.insert(
-            name.clone(),
-            Node::new(
-                PROPERTY,
-                crate::formula::Sort::of("property"),
-                vec![ground.clone()],
-                &arg.text,
-            ),
-        );
+        binding.insert(name.clone(), Node::property(&arg.text, ground.clone()));
         return Some(true);
     }
     None
@@ -1179,11 +1153,9 @@ fn expand_to(node: &Node, definitions: &Definitions, depth: i32) -> Node {
             // property with the argument as its hole. One of two has no such
             // reading, and its name stands as written.
             Some(Defined::Rule(rule)) if rule.params.len() == 1 => {
-                return Node::new(
-                    PROPERTY,
-                    crate::formula::Sort::of("property"),
-                    vec![expand_to(&rule.body, definitions, depth - 1)],
+                return Node::property(
                     &rule.params[0].name,
+                    expand_to(&rule.body, definitions, depth - 1),
                 );
             }
             Some(Defined::Term(t)) => return expand_to(t, definitions, depth - 1),
@@ -1207,14 +1179,11 @@ fn expand_to(node: &Node, definitions: &Definitions, depth: i32) -> Node {
     if node.children.is_empty() {
         return node.clone();
     }
-    Node::new(
-        &node.notation,
-        node.sort.clone(),
+    node.with_children(
         node.children
             .iter()
             .map(|c| expand_to(c, definitions, depth))
             .collect(),
-        &node.text,
     )
 }
 
@@ -1256,14 +1225,11 @@ pub fn substitute_apart_by(
         None => (Vec::new(), Vec::new()),
     };
     if held.is_empty() || held.iter().any(|&at| !node.children[at].is_name()) {
-        return Node::new(
-            &node.notation,
-            node.sort.clone(),
+        return node.with_children(
             node.children
                 .iter()
                 .map(|c| substitute_apart_by(c, binding, binders))
                 .collect(),
-            &node.text,
         );
     }
     let own: BTreeSet<String> = held
@@ -1288,7 +1254,7 @@ pub fn substitute_apart_by(
                 .into_iter()
                 .find(|c| !used.contains(c))
                 .unwrap_or_default();
-            let fresh = Node::leaf("name", var.sort.clone(), &letter);
+            let fresh = Node::name(var.sort.clone(), &letter);
             used.insert(letter);
             spelt.insert(at, fresh.clone());
             renamed.insert(var.text.clone(), fresh);
@@ -1308,5 +1274,5 @@ pub fn substitute_apart_by(
             }
         })
         .collect();
-    Node::new(&node.notation, node.sort.clone(), children, &node.text)
+    node.with_children(children)
 }
