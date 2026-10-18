@@ -670,7 +670,8 @@ more than their letters.
 
 A define names a thing: a number, a set or a map. One whose body is a
 statement is a defect where it is written, since there is nothing for the
-name to be equal to.
+name to be equal to. A function's define does too: each of its values is a
+thing, so Q(x) = x < 1 is the same defect.
 
 A define is not a sort: a step that uses what it says cites it (`SYNTAX.md`),
 and R1 refuses one that rests on a define it does not cite. The standard form
