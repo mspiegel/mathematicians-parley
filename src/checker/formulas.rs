@@ -3885,12 +3885,12 @@ fn printed(
     targets: &Targets,
     labels: &FloatLabels,
 ) -> String {
-    let want = term.txt(labels).to_string();
+    let want = term.rpn(labels);
     read.iter()
         .flat_map(|n| n.walk())
-        .find(|part| *term_of_node(part, targets).txt(labels) == *want)
+        .find(|part| term_of_node(part, targets).rpn(labels) == want)
         .map(|part| known.print(&part))
-        .unwrap_or(want)
+        .unwrap_or_else(|| want.to_string())
 }
 
 /// What working out a fact `arithmetic` claims finds.

@@ -244,7 +244,7 @@ fn quotient_parts(d: &Term, labels: &FloatLabels) -> Option<QuotientParts> {
     let quotient = d.variable().is_none()
         && d.label() == Some("co")
         && kids.len() == 3
-        && &*kids[2].txt(labels) == DIV;
+        && kids[2].rpn(labels).alone() == Some(DIV);
     (quotient && whole(&kids[0]) && whole(&kids[1])).then(|| QuotientParts {
         top: kids[0].clone(),
         below: kids[1].clone(),

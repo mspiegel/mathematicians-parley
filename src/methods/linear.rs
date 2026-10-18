@@ -20,19 +20,20 @@
 //! means solving twice, once each side of the equation, and both must fail.
 
 use std::collections::BTreeSet;
-use std::rc::Rc;
 
 use indexmap::{IndexMap, IndexSet};
 use num_traits::{Signed, Zero};
 
 use super::field::{q, ADD, DIV, EXP, MUL, NEG, Q, SUB};
 use crate::mm::kernel::{FloatLabels, Term};
+use crate::mm::Rpn;
 use crate::rules::numeral_label;
+use crate::t;
 
 /// A rational combination of atoms, plus a constant.
 #[derive(Clone, Debug, Default)]
 pub struct Linear {
-    pub weight: IndexMap<Rc<str>, Q>,
+    pub weight: IndexMap<Rpn, Q>,
     pub constant: Q,
 }
 
@@ -44,7 +45,7 @@ impl Linear {
         }
     }
 
-    pub fn atom(said: Rc<str>, weight: Q) -> Linear {
+    pub fn atom(said: Rpn, weight: Q) -> Linear {
         let mut out = Linear::constant(Q::zero());
         out.weight.insert(said, weight);
         out
@@ -76,7 +77,7 @@ impl Linear {
         self.plus(&other.scaled(&q(-1)))
     }
 
-    pub fn atoms(&self) -> BTreeSet<Rc<str>> {
+    pub fn atoms(&self) -> BTreeSet<Rpn> {
         self.weight
             .iter()
             .filter(|(_, v)| !v.is_zero())
@@ -165,10 +166,10 @@ pub fn numeral(term: &Term, labels: &FloatLabels) -> Option<Q> {
     if label != "co" || term.children().len() != 3 {
         return None;
     }
-    let operation = term.children()[2].txt(labels);
+    let operation = term.children()[2].rpn(labels);
     let left = numeral(&term.children()[0], labels)?;
     let right = numeral(&term.children()[1], labels)?;
-    match &*operation {
+    match operation.alone().unwrap_or_default() {
         ADD => Some(left + right),
         SUB => Some(left - right),
         MUL => Some(left * right),
@@ -202,9 +203,9 @@ pub fn read(term: &Term, labels: &FloatLabels) -> Linear {
         && term.label() == Some("co")
         && term.children().len() == 3
     {
-        let operation = term.children()[2].txt(labels);
+        let operation = term.children()[2].rpn(labels);
         let (left, right) = (&term.children()[0], &term.children()[1]);
-        match &*operation {
+        match operation.alone().unwrap_or_default() {
             ADD => return read(left, labels).plus(&read(right, labels)),
             SUB => return read(left, labels).minus(&read(right, labels)),
             MUL => {
@@ -228,9 +229,8 @@ pub fn read(term: &Term, labels: &FloatLabels) -> Linear {
                     if let Some(top) = numeral(left, labels) {
                         if !top.is_zero() {
                             let one = numeral_label(1).expect("a digit");
-                            let reciprocal =
-                                format!("{one} {} {DIV} co", right.txt(labels));
-                            return Linear::atom(Rc::from(reciprocal), top);
+                            let reciprocal = t!(one, right.rpn(labels), DIV, "co");
+                            return Linear::atom(reciprocal, top);
                         }
                     }
                 }
@@ -238,7 +238,7 @@ pub fn read(term: &Term, labels: &FloatLabels) -> Linear {
             _ => {}
         }
     }
-    Linear::atom(term.txt(labels), q(1))
+    Linear::atom(term.rpn(labels), q(1))
 }
 
 /// A claim as a fact about zero, or None if it states no relation.
@@ -267,7 +267,7 @@ pub fn fact(term: &Term, labels: &FloatLabels) -> Option<Fact> {
     if term.label() != Some("wbr") || term.children().len() != 3 {
         return None;
     }
-    let how = relation(&term.children()[2].txt(labels))?;
+    let how = relation(term.children()[2].rpn(labels).alone()?)?;
     let left = read(&term.children()[0], labels);
     let right = read(&term.children()[1], labels);
     if !negated {
@@ -304,7 +304,7 @@ pub fn sides(term: &Term, labels: &FloatLabels) -> Option<Sides> {
             equation: true,
         }),
         (Some("wbr"), [left, right, how]) => {
-            relation(&how.txt(labels))?;
+            relation(how.rpn(labels).alone()?)?;
             let (left, right) = (read(left, labels), read(right, labels));
             let (low, high) = if negated {
                 (right, left)
@@ -563,7 +563,7 @@ pub fn certificate(
             });
         }
     }
-    let mut atoms: IndexSet<Rc<str>> = IndexSet::new();
+    let mut atoms: IndexSet<Rpn> = IndexSet::new();
     for one in &open {
         for (atom, weight) in &one.side.weight {
             if !weight.is_zero() {
@@ -658,7 +658,7 @@ pub fn alike_combinations(facts: &[Fact], line_of: &[Option<usize>]) -> Vec<Weig
     }
     // How much of each atom the facts from each place on can take away, so
     // that a sum holding more of one than that is given up at once.
-    let mut later: Vec<IndexMap<Rc<str>, Q>> = vec![IndexMap::new(); facts.len() + 1];
+    let mut later: Vec<IndexMap<Rpn, Q>> = vec![IndexMap::new(); facts.len() + 1];
     for at in (0..facts.len()).rev() {
         let mut room = later[at + 1].clone();
         for (atom, w) in &facts[at].side.weight {
@@ -690,7 +690,7 @@ pub fn alike_combinations(facts: &[Fact], line_of: &[Option<usize>]) -> Vec<Weig
 struct AlikeSearch<'f> {
     facts: &'f [Fact],
     /// How much of each atom the facts from each place on can take away.
-    later: Vec<IndexMap<Rc<str>, Q>>,
+    later: Vec<IndexMap<Rpn, Q>>,
     found: Vec<Weights>,
 }
 
@@ -748,7 +748,7 @@ mod tests {
     use super::*;
 
     fn atom(name: &str) -> Linear {
-        Linear::atom(Rc::from(name), q(1))
+        Linear::atom(Rpn::read(name), q(1))
     }
 
     #[test]
