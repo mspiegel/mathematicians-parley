@@ -29,6 +29,7 @@ use indexmap::IndexMap;
 
 use super::kernel::{FloatLabels, Syntax};
 use super::library::{Kind, Layered, Signature};
+use super::rpn::Rpn;
 use crate::formula::symbol::Symbol;
 use crate::outcome::Checked;
 
@@ -100,11 +101,19 @@ impl Proof {
     }
 }
 
-/// One part of a proof being built: labels as text, or a proof.
+/// One part of a proof being built: labels as text or as tokens, or a
+/// proof.
 #[derive(Clone, Copy)]
 pub enum Part<'a> {
     Text(&'a str),
+    Tokens(&'a Rpn),
     Proof(&'a Proof),
+}
+
+impl<'a> From<&'a Rpn> for Part<'a> {
+    fn from(rpn: &'a Rpn) -> Part<'a> {
+        Part::Tokens(rpn)
+    }
 }
 
 impl<'a> From<&'a str> for Part<'a> {
@@ -270,8 +279,11 @@ pub struct Builder {
     /// What a theorem of this corpus that a proof cites takes and states,
     /// where the library does not have it.
     pub arities: IndexMap<String, Signature>,
-    arity_of: RefCell<IndexMap<String, Taking>>,
+    arity_of: RefCell<IndexMap<Symbol, Taking>>,
     term_steps: RefCell<IndexMap<String, Vec<StepRef>>>,
+    /// What each run of tokens that builds whole things of its own was
+    /// built as (`read_tokens_onto`).
+    token_steps: RefCell<IndexMap<Rpn, Vec<StepRef>>>,
     /// What each step built says, by the step (`says`).
     said: RefCell<IndexMap<usize, Said>>,
     /// What a step was built as that the kernel would refuse, oldest first,
@@ -373,6 +385,7 @@ impl Builder {
             arities: IndexMap::new(),
             arity_of: RefCell::new(IndexMap::new()),
             term_steps: RefCell::new(IndexMap::new()),
+            token_steps: RefCell::new(IndexMap::new()),
             said: RefCell::new(IndexMap::new()),
             faults: RefCell::new(Vec::new()),
             prints: RefCell::new(rustc_hash::FxHashMap::default()),
@@ -728,11 +741,16 @@ impl Builder {
         let parts: Vec<Part> = parts
             .iter()
             .copied()
-            .filter(|p| !matches!(p, Part::Text("")))
+            .filter(|p| match p {
+                Part::Text(t) => !t.is_empty(),
+                Part::Tokens(r) => !r.is_empty(),
+                Part::Proof(_) => true,
+            })
             .collect();
         let end = match parts.last() {
             Some(Part::Proof(p)) => p.last().to_string(),
             Some(Part::Text(t)) => t.rsplit(' ').next().unwrap_or("").to_string(),
+            Some(Part::Tokens(r)) => r.last().map(String::from).unwrap_or_default(),
             None => String::new(),
         };
         if !self.proves(&end) {
@@ -747,6 +765,7 @@ impl Builder {
                     origin.extend(p.origin.iter().cloned());
                 }
                 Part::Text(t) => self.read_onto(t, &mut stack),
+                Part::Tokens(r) => self.read_tokens_onto(r, &mut stack),
             }
         }
         Proof {
@@ -767,15 +786,50 @@ impl Builder {
             return;
         }
         let base = stack.len();
-        let mut low = base;
-        for label in text.split_whitespace() {
+        let low =
+            self.applied_onto(text.split_whitespace(), stack, &|| text.to_string());
+        if low >= base {
+            self.term_steps
+                .borrow_mut()
+                .insert(text.to_string(), stack[base..].to_vec());
+        }
+    }
+
+    /// The labels of `rpn` applied onto `stack`, as `read_onto` applies
+    /// text's, and kept as it keeps them.
+    fn read_tokens_onto(&self, rpn: &Rpn, stack: &mut Vec<StepRef>) {
+        if let Some(known) = self.token_steps.borrow().get(rpn) {
+            stack.extend(known.iter().cloned());
+            return;
+        }
+        let base = stack.len();
+        let labels = rpn.tokens().iter().map(|t| t.as_str());
+        let low = self.applied_onto(labels, stack, &|| rpn.to_string());
+        if low >= base {
+            self.token_steps
+                .borrow_mut()
+                .insert(rpn.clone(), stack[base..].to_vec());
+        }
+    }
+
+    /// Each label applied in turn onto `stack`, checked against what it
+    /// takes; `written` says what was being read, for a message. The lowest
+    /// the stack fell while they were applied.
+    fn applied_onto<'t>(
+        &self,
+        labels: impl Iterator<Item = &'t str>,
+        stack: &mut Vec<StepRef>,
+        written: &dyn Fn() -> String,
+    ) -> usize {
+        let mut low = stack.len();
+        for label in labels {
             let taking = self.taking(label);
             if stack.len() < taking.takes {
                 panic!(
                     "{label} takes {} things and has {}: …{}",
                     taking.takes,
                     stack.len(),
-                    tail(text, 60)
+                    tail(&written(), 60)
                 );
             }
             let kids: Vec<StepRef> = stack.split_off(stack.len() - taking.takes);
@@ -798,11 +852,7 @@ impl Builder {
                 typecode: taking.typecode,
             }));
         }
-        if low >= base {
-            self.term_steps
-                .borrow_mut()
-                .insert(text.to_string(), stack[base..].to_vec());
-        }
+        low
     }
 
     fn taking(&self, label: &str) -> Taking {
@@ -844,7 +894,7 @@ impl Builder {
         };
         self.arity_of
             .borrow_mut()
-            .insert(label.to_string(), found.clone());
+            .insert(found.label, found.clone());
         found
     }
 }

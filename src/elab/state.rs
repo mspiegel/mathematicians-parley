@@ -24,6 +24,7 @@ use crate::matching::{binding_context, Defined, FxIndexMap};
 use crate::mm::kernel::{match_term, term_of, FloatLabels, Term, VarSet};
 use crate::mm::library::{render, Layered, Signature};
 use crate::mm::spell::{Binds, Builder, Proof};
+use crate::mm::Rpn;
 use crate::outcome::{Decline, Problem, Route};
 use crate::sorts::{sorts_of_statement, Env};
 use crate::targets::{self, Commuting, Identity};
@@ -621,7 +622,7 @@ impl<'a> Elaborator<'a> {
         if let Some(found) = self.trees.borrow().get(rpn) {
             return found.clone();
         }
-        let made = term_of(rpn, &self.b.sigs);
+        let made = term_of(&Rpn::read(rpn), &self.b.sigs);
         self.trees
             .borrow_mut()
             .insert(rpn.to_string(), made.clone());

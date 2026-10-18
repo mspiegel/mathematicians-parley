@@ -463,6 +463,12 @@ impl PartOf for Rc<str> {
     }
 }
 
+impl PartOf for crate::mm::Rpn {
+    fn part(&self) -> Part<'_> {
+        Part::Tokens(self)
+    }
+}
+
 impl PartOf for Proof {
     fn part(&self) -> Part<'_> {
         Part::Proof(self)

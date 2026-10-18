@@ -24,6 +24,7 @@ use std::rc::Rc;
 use indexmap::{IndexMap, IndexSet};
 
 use super::library::{Kind, Lookup, Signature};
+use super::rpn::Rpn;
 use crate::formula::symbol::Symbol;
 use crate::outcome::{Checked, Problem};
 use crate::text::repr;
@@ -54,6 +55,9 @@ struct TermData {
     variable: Option<Symbol>,
     names: OnceCell<Rc<BTreeSet<Symbol>>>,
     rpn: RefCell<Option<(u64, Rc<str>)>>,
+    /// The reverse Polish as tokens, with the map it was written by
+    /// (`tokens`).
+    tokens: RefCell<Option<(u64, Rpn)>>,
 }
 
 /// A parsed statement: a constructor applied to terms, or a variable.
@@ -140,6 +144,7 @@ impl Term {
             variable,
             names: OnceCell::new(),
             rpn: RefCell::new(None),
+            tokens: RefCell::new(None),
         }))
     }
 
@@ -183,6 +188,30 @@ impl Term {
             }
         };
         *self.0.rpn.borrow_mut() = Some((key, said.clone()));
+        said
+    }
+
+    /// The term as a proof writes it, as tokens: what `rpn` writes, with
+    /// nothing joined.
+    pub fn tokens(&self, labels: &FloatLabels) -> Rpn {
+        let key = labels.id;
+        if let Some((held, said)) = &*self.0.tokens.borrow() {
+            if *held == key {
+                return said.clone();
+            }
+        }
+        let said = match self.0.variable {
+            Some(v) => Rpn::from(labels.get(&v).into_iter().collect::<Vec<_>>()),
+            None => {
+                let parts: Vec<Rpn> =
+                    self.0.children.iter().map(|c| c.tokens(labels)).collect();
+                let label: Vec<Symbol> = self.0.label.into_iter().collect();
+                let mut runs: Vec<&[Symbol]> = parts.iter().map(Rpn::tokens).collect();
+                runs.push(&label);
+                Rpn::joined(&runs)
+            }
+        };
+        *self.0.tokens.borrow_mut() = Some((key, said.clone()));
         said
     }
 
@@ -238,11 +267,11 @@ pub fn same(a: &Term, b: &Term) -> bool {
 
 /// Bind the pattern's variables so that it becomes the ground term.
 /// The tree a run of reverse Polish builds.
-pub fn term_of(rpn: &str, sigs: &dyn Lookup) -> Term {
+pub fn term_of(rpn: &Rpn, sigs: &dyn Lookup) -> Term {
     let mut stack: Vec<Term> = Vec::new();
-    for token in rpn.split_whitespace() {
+    for token in rpn.tokens() {
         let sig = sigs
-            .get(token)
+            .get(token.as_str())
             .unwrap_or_else(|| panic!("no label {token} to read"));
         if sig.kind == Kind::Float {
             stack.push(Term::var(sig.statement[1]));

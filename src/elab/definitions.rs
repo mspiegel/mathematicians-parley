@@ -5,7 +5,7 @@ use sha2::{Digest, Sha256};
 use crate::corpus::{Record, RecordKind};
 use crate::mm::kernel::term_of;
 use crate::mm::library::{render, thousands};
-use crate::mm::{Kind, Lookup, Signatures};
+use crate::mm::{Kind, Lookup, Rpn, Signatures};
 use crate::outcome::{Checked, Problem};
 use crate::text::{repr, squash};
 
@@ -59,7 +59,7 @@ pub fn definitions(records: &[Record], sigs: &dyn Lookup) -> Checked<Vec<Introdu
             ));
         }
         let body = squash(r.field_or_empty("defines"));
-        let term = term_of(&body, sigs);
+        let term = term_of(&Rpn::read(&body), sigs);
         let free: Vec<String> = term
             .names()
             .iter()
