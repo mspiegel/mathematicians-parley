@@ -33,10 +33,10 @@ use crate::methods::terms::{term_of_node, Targets};
 use crate::methods::{algebra, inequalities, linear};
 use crate::mm::kernel::{FloatLabels, Term};
 use crate::notations::{
-    ADDITIVE, APPLICATION, AT_LEAST, AT_MOST, BICONDITIONAL, BY_CASES, CONDITIONAL,
-    CONJUNCTION, EQUALITY, EQUALS, FOR_ALL, FOR_ALL_SETS, FUNCTION_TYPE, GREATER,
-    IMPLICATION, INTEGER_RANGE, LESS, LOGICAL_NOT, MEMBERSHIP, NUMBER_SYSTEMS, NUMERAL,
-    ORDER, PRODUCT_OVER, SUM,
+    APPLICATION, AT_LEAST, AT_MOST, BICONDITIONAL, BY_CASES, CONDITIONAL, CONJUNCTION,
+    EQUALITY, EQUALS, FOR_ALL, FOR_ALL_SETS, FUNCTION_TYPE, GREATER, IMPLICATION,
+    INTEGER_RANGE, LESS, LOGICAL_NOT, MEMBERSHIP, NUMBER_SYSTEMS, NUMERAL, ORDER, PLUS,
+    PRODUCT_OVER, SUM,
 };
 use crate::outcome::{Built, Checked, Declined, Problem};
 use crate::rules::System;
@@ -4320,8 +4320,7 @@ fn recursion_value(
 ) -> Checked<Option<(Node, Option<Node>)>> {
     let (rule, index) = if at.notation() == NUMERAL && at.text == "0" {
         (&said.start[name], None)
-    } else if at.notation() == ADDITIVE
-        && at.text == "+"
+    } else if at.spelling() == PLUS
         && at.children.len() == 2
         && at.children[1].notation() == NUMERAL
         && at.children[1].text == "1"

@@ -20,8 +20,9 @@ use crate::formula::page::template;
 use crate::formula::{Node, Sort, Sorts};
 use crate::matching::{alike_top, standard, substitute_apart, Binding};
 use crate::notations::{
-    APPLICATION, DIVIDED, FACTORIAL, INTEGER_RANGE, JUXTAPOSITION, MEMBERSHIP, MINUS,
-    MOD, NUMBER_SYSTEMS, NUMERAL, PLUS, POWER, SUM, SUPERSCRIPT, TIMES, UNARY_MINUS,
+    APPLICATION, DIVIDED, FACTORIAL, IN, INTEGER_RANGE, JUXTAPOSITION, MEMBERSHIP,
+    MINUS, MOD, NUMBER_SYSTEMS, NUMERAL, PLUS, POWER, SUM, SUPERSCRIPT, TIMES,
+    UNARY_MINUS,
 };
 use crate::rules::{self, lookup, System};
 
@@ -38,7 +39,7 @@ pub fn introduction(said: &Node) -> Option<(String, System)> {
     let [letter, set] = said.children.as_slice() else {
         return None;
     };
-    if said.notation() != MEMBERSHIP || said.text != "∈" || !letter.is_name() {
+    if said.spelling() != IN || !letter.is_name() {
         return None;
     }
     let system = match set.notation() {
