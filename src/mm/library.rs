@@ -16,6 +16,7 @@ use std::path::{Path, PathBuf};
 use indexmap::{IndexMap, IndexSet};
 
 use crate::formula::symbol::Symbol;
+use crate::matching::FxIndexMap;
 
 /// What a label is: an axiom or definition, a theorem, or a floating
 /// hypothesis, which proves its variable is of its type and is pushed by
@@ -70,7 +71,7 @@ impl Signature {
 
 /// Every label of a database, by label, in the order the file declares
 /// them.
-pub type Signatures = IndexMap<Symbol, Signature>;
+pub type Signatures = FxIndexMap<Symbol, Signature>;
 
 /// Where a label's signature is looked up: one table read from files, or a
 /// [`Layered`] one. What only reads takes this, and either will do.
@@ -122,7 +123,7 @@ impl Layered {
     pub fn new(base: std::sync::Arc<Signatures>) -> Layered {
         Layered {
             base,
-            added: Signatures::new(),
+            added: Signatures::default(),
         }
     }
 
@@ -264,7 +265,7 @@ pub fn read_texts(texts: &[&str]) -> Signatures {
             .unwrap_or(toks.len())
     };
     let mut stack: Vec<Scope> = vec![Scope::default()];
-    let mut out = Signatures::new();
+    let mut out = Signatures::default();
     let mut label: Option<Symbol> = None;
     let mut i = 0;
     while i < toks.len() {

@@ -31,6 +31,7 @@ use super::kernel::{FloatLabels, Syntax};
 use super::library::{Kind, Layered, Signature};
 use super::rpn::Rpn;
 use crate::formula::symbol::Symbol;
+use crate::matching::FxIndexMap;
 use crate::outcome::Checked;
 
 /// One label applied to the steps it takes, and what kind of thing that
@@ -279,13 +280,13 @@ pub struct Builder {
     /// What a theorem of this corpus that a proof cites takes and states,
     /// where the library does not have it.
     pub arities: IndexMap<String, Signature>,
-    arity_of: RefCell<IndexMap<Symbol, Taking>>,
-    term_steps: RefCell<IndexMap<String, Vec<StepRef>>>,
+    arity_of: RefCell<FxIndexMap<Symbol, Taking>>,
+    term_steps: RefCell<FxIndexMap<String, Vec<StepRef>>>,
     /// What each run of tokens that builds whole things of its own was
     /// built as (`read_tokens_onto`).
-    token_steps: RefCell<IndexMap<Rpn, Vec<StepRef>>>,
+    token_steps: RefCell<FxIndexMap<Rpn, Vec<StepRef>>>,
     /// What each step built says, by the step (`says`).
-    said: RefCell<IndexMap<usize, Said>>,
+    said: RefCell<FxIndexMap<usize, Said>>,
     /// What a step was built as that the kernel would refuse, oldest first,
     /// until the elaborator takes it (`fault`).
     faults: RefCell<Vec<String>>,
@@ -383,10 +384,10 @@ impl Builder {
             flabel: Rc::new(FloatLabels::new(flabel)),
             ordered,
             arities: IndexMap::new(),
-            arity_of: RefCell::new(IndexMap::new()),
-            term_steps: RefCell::new(IndexMap::new()),
-            token_steps: RefCell::new(IndexMap::new()),
-            said: RefCell::new(IndexMap::new()),
+            arity_of: RefCell::new(FxIndexMap::default()),
+            term_steps: RefCell::new(FxIndexMap::default()),
+            token_steps: RefCell::new(FxIndexMap::default()),
+            said: RefCell::new(FxIndexMap::default()),
             faults: RefCell::new(Vec::new()),
             prints: RefCell::new(rustc_hash::FxHashMap::default()),
         }
@@ -482,7 +483,7 @@ impl Builder {
             return None;
         }
         let (floats, essentials) = kids.split_at(sig.floats.len());
-        let put: IndexMap<Symbol, Print> = sig
+        let put: FxIndexMap<Symbol, Print> = sig
             .floats
             .iter()
             .zip(floats)

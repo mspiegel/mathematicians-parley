@@ -29,6 +29,7 @@ use indexmap::{IndexMap, IndexSet};
 use super::library::Lookup;
 use super::spell::{Step, StepRef};
 use crate::formula::symbol::Symbol;
+use crate::matching::FxIndexMap;
 
 /// 0 to 19: the last digit of an index.
 pub const LAST: &[u8; 20] = b"ABCDEFGHIJKLMNOPQRST";
@@ -56,7 +57,7 @@ pub type Shape = (Symbol, Vec<usize>);
 /// share a number: the root's number, and the subproofs in the order each
 /// is first finished.
 pub fn shapes(proof: &str, sigs: &dyn Lookup) -> Result<(usize, Vec<Shape>), String> {
-    let mut seen: IndexMap<Shape, usize> = IndexMap::new();
+    let mut seen: FxIndexMap<Shape, usize> = FxIndexMap::default();
     let mut kinds: Vec<Shape> = Vec::new();
     let mut stack: Vec<usize> = Vec::new();
     for token in proof.split_whitespace() {
@@ -93,9 +94,9 @@ pub fn shapes_of(items: &[StepRef]) -> Result<(usize, Vec<Shape>), String> {
             items.len()
         ));
     }
-    let mut seen: IndexMap<Shape, usize> = IndexMap::new();
+    let mut seen: FxIndexMap<Shape, usize> = FxIndexMap::default();
     let mut kinds: Vec<Shape> = Vec::new();
-    let mut number: IndexMap<*const Step, usize> = IndexMap::new();
+    let mut number: FxIndexMap<*const Step, usize> = FxIndexMap::default();
     let mut work: Vec<(&StepRef, bool)> = vec![(&items[0], false)];
     while let Some((step, done)) = work.pop() {
         let id = Rc::as_ptr(step);

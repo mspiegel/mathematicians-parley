@@ -26,6 +26,7 @@ use indexmap::{IndexMap, IndexSet};
 use super::library::{Kind, Lookup, Signature};
 use super::rpn::Rpn;
 use crate::formula::symbol::Symbol;
+use crate::matching::{FxIndexMap, FxIndexSet};
 use crate::outcome::{Checked, Problem};
 use crate::text::repr;
 
@@ -364,14 +365,14 @@ pub struct Syntax {
     /// rule is predicted only where the next token can open it. set.mm has
     /// hundreds of rules yielding `class`, nearly all of which the next
     /// token rules out, and predicting them all is most of a parse.
-    opening: IndexMap<Symbol, IndexMap<Symbol, Vec<usize>>>,
+    opening: FxIndexMap<Symbol, FxIndexMap<Symbol, Vec<usize>>>,
     /// The rules yielding each typecode that spell nothing, which any token
     /// may follow.
-    bare: IndexMap<Symbol, Vec<usize>>,
+    bare: FxIndexMap<Symbol, Vec<usize>>,
     /// Each variable's typecode, and the label of its float.
     pub typecode: IndexMap<Symbol, Symbol>,
     pub label: FloatLabels,
-    spelt: RefCell<IndexMap<(Vec<String>, String), Term>>,
+    spelt: RefCell<FxIndexMap<(Vec<String>, String), Term>>,
     /// Every math symbol the library declares: its variables, and each
     /// constant a syntax axiom spells, typecodes and `|-` among them. A
     /// label may be none of these (the Metamath specification, 4.2.1).
@@ -448,9 +449,9 @@ impl Syntax {
                 break;
             }
         }
-        let mut opening: IndexMap<Symbol, IndexMap<Symbol, Vec<usize>>> =
-            IndexMap::new();
-        let mut bare: IndexMap<Symbol, Vec<usize>> = IndexMap::new();
+        let mut opening: FxIndexMap<Symbol, FxIndexMap<Symbol, Vec<usize>>> =
+            FxIndexMap::default();
+        let mut bare: FxIndexMap<Symbol, Vec<usize>> = FxIndexMap::default();
         for (at, rule) in rules.iter().enumerate() {
             let opens: Vec<Symbol> = match rule.symbols.first() {
                 None => {
@@ -484,7 +485,7 @@ impl Syntax {
             bare,
             typecode,
             label,
-            spelt: RefCell::new(IndexMap::new()),
+            spelt: RefCell::new(FxIndexMap::default()),
             symbols,
         }
     }
@@ -551,12 +552,12 @@ impl Syntax {
             return Ok(Term::var(tokens[0]));
         }
         let n = tokens.len();
-        let mut chart: Vec<IndexMap<(usize, usize, usize), Item>> =
-            (0..=n).map(|_| IndexMap::new()).collect();
+        let mut chart: Vec<FxIndexMap<(usize, usize, usize), Item>> =
+            (0..=n).map(|_| FxIndexMap::default()).collect();
         // What has been offered at a position, so it is offered once. set.mm
         // has hundreds of productions yielding `class`, and every item
         // waiting for one would otherwise offer them all again.
-        let mut told: IndexSet<(usize, Symbol)> = IndexSet::new();
+        let mut told: FxIndexSet<(usize, Symbol)> = FxIndexSet::default();
         told.insert((0, Symbol::of(start)));
         let empty = Rc::new(Vec::new());
         for rule in self.predicted(start, tokens.first().copied()) {
@@ -653,7 +654,7 @@ impl Syntax {
 
 /// Put one item in a chart row, and give it back if it is new.
 fn add(
-    row: &mut IndexMap<(usize, usize, usize), Item>,
+    row: &mut FxIndexMap<(usize, usize, usize), Item>,
     rule: usize,
     dot: usize,
     origin: usize,
