@@ -833,6 +833,7 @@ pub fn check_subjects(
     library: &Library,
     known: &Known,
 ) {
+    let shape = super::record::CheckedTheorem::of(thm);
     for step in &thm.steps {
         let just = &step.just;
         if !just.head.is_item() || just.head.is(Method::Obtain) {
@@ -879,7 +880,8 @@ pub fn check_subjects(
         }
         // The proof's letter of the same name is one in scope at the step,
         // which is the letter the build gives the subject.
-        let in_scope = letters_in_scope(thm, step, known.env.scopes, &known.sorts);
+        let in_scope =
+            letters_in_scope(thm, &shape, step, known.env.scopes, &known.sorts);
         if !in_scope.contains(&letter) {
             report.say(
                 &thm.path,

@@ -16,7 +16,7 @@ use crate::corpus::{Intro, Kinded, Method, Step, StepNo, Theorem, Values};
 use crate::formula::page::{conjoined, filled, Sentence, Written};
 use crate::formula::{Node, Sorts};
 use crate::matching::{
-    alike, expand, standard, substituted_in, Binding, Context, Definitions,
+    alike, expand, standard, substituted_in, Binding, Context, Definitions, FxIndexMap,
 };
 use crate::outcome::Route;
 use crate::sorts::introduction::Introduction;
@@ -98,13 +98,18 @@ pub struct Known<'a> {
     pub ctx: &'a Context,
     /// The definitions from outside the theorem a citation may write out.
     outside: OutsideDefines,
-    cited: RefCell<IndexMap<Vec<String>, Rc<Definitions>>>,
-    scopes: RefCell<IndexMap<(StepNo, usize), Rc<Statements>>>,
-    parts: RefCell<IndexMap<PartsKey, Rc<Parts>>>,
+    cited: RefCell<FxIndexMap<Vec<String>, Rc<Definitions>>>,
+    scopes: RefCell<FxIndexMap<(StepNo, usize), Rc<Statements>>>,
+    parts: RefCell<FxIndexMap<PartsKey, Rc<Parts>>>,
     /// Each search a check has asked of a step's citation, which several
     /// checks ask alike: the parts and the groups are kept for the run
     /// (`parts`, `Library::groups`), so their addresses name them.
-    pub(super) searches: RefCell<IndexMap<SearchKey, Rc<Route<Taken>>>>,
+    pub(super) searches: RefCell<FxIndexMap<SearchKey, Rc<Route<Taken>>>>,
+    /// The theorem's blocks and where each step stands, made once
+    /// (`CheckedTheorem::of`, `Known::shape`).
+    shape: std::cell::OnceCell<CheckedTheorem>,
+    /// Each sentence read, by its text (`Known::parse`).
+    parsed: RefCell<rustc_hash::FxHashMap<String, Node>>,
 }
 
 impl<'a> Known<'a> {
@@ -121,11 +126,19 @@ impl<'a> Known<'a> {
             sorts,
             ctx,
             outside: OutsideDefines::of(thm, env),
-            cited: RefCell::new(IndexMap::new()),
-            scopes: RefCell::new(IndexMap::new()),
-            parts: RefCell::new(IndexMap::new()),
-            searches: RefCell::new(IndexMap::new()),
+            cited: RefCell::new(FxIndexMap::default()),
+            scopes: RefCell::new(FxIndexMap::default()),
+            parts: RefCell::new(FxIndexMap::default()),
+            searches: RefCell::new(FxIndexMap::default()),
+            shape: std::cell::OnceCell::new(),
+            parsed: RefCell::new(rustc_hash::FxHashMap::default()),
         }
+    }
+
+    /// The blocks of `thm`, the theorem this knows, and where each of its
+    /// steps stands: what scopes and defines are read against.
+    pub fn shape(&self) -> &CheckedTheorem {
+        self.shape.get_or_init(|| CheckedTheorem::of(self.thm))
     }
 
     /// A sentence as the checks of `step` compare it: parsed with its sorts,
@@ -270,7 +283,25 @@ impl<'a> Known<'a> {
     /// The sentence read with its defined names kept, as a message prints
     /// it; None where it does not read, which `check_formulas` reports.
     pub fn read_as_written(&self, sentence: &Sentence) -> Option<Node> {
-        sentence.read(self.env.g, &self.sorts).ok()
+        self.parse(sentence).ok()
+    }
+
+    /// The sentence parsed with the theorem's sorts, or why it does not
+    /// read. The sorts are the theorem's throughout, so a sentence's text
+    /// decides its tree, and each text is parsed once; a reading that fails
+    /// is not kept, as its problem says where the sentence is written.
+    pub fn parse(&self, sentence: &Sentence) -> crate::Checked<Node> {
+        let Some(text) = sentence.deciding_text() else {
+            return sentence.read(self.env.g, &self.sorts);
+        };
+        if let Some(node) = self.parsed.borrow().get(text) {
+            return Ok(node.clone());
+        }
+        let node = sentence.read(self.env.g, &self.sorts)?;
+        self.parsed
+            .borrow_mut()
+            .insert(text.to_string(), node.clone());
+        Ok(node)
     }
 
     /// Whether two readings are one formula: alike but for the letters they
@@ -411,7 +442,7 @@ impl<'a> Known<'a> {
         if let Some(found) = self.scopes.borrow().get(&key) {
             return found.clone();
         }
-        let made = Rc::new(statements_in_scope(self.thm, step, self.env));
+        let made = Rc::new(statements_in_scope(self.thm, self.shape(), step, self.env));
         self.scopes.borrow_mut().insert(key, made.clone());
         made
     }
@@ -444,7 +475,12 @@ impl<'a> Known<'a> {
 /// A block's label holds inside that block only, so two sibling blocks may
 /// each fix a k under the same label, and what the label says is what the
 /// block around the citing step says.
-pub fn statements_in_scope(thm: &Theorem, step: &Step, env: Env) -> Statements {
+pub fn statements_in_scope(
+    thm: &Theorem,
+    shape: &CheckedTheorem,
+    step: &Step,
+    env: Env,
+) -> Statements {
     // A `let` line says what its introduction asserts, and an `assume` or
     // `suppose` line its formula.
     let said = |kind, body: Written| match kind {
@@ -471,7 +507,7 @@ pub fn statements_in_scope(thm: &Theorem, step: &Step, env: Env) -> Statements {
             out.insert(label.clone(), said(h.kind, h.body(&thm.path)));
         }
     }
-    let visible = labels_in_scope(thm, step, env.scopes);
+    let visible = labels_in_scope(thm, shape, step, env.scopes);
     for other in &thm.steps {
         for o in &other.openers {
             if visible.get(&o.label) == Some(&Declared::Block(o.line)) {
@@ -482,7 +518,7 @@ pub fn statements_in_scope(thm: &Theorem, step: &Step, env: Env) -> Statements {
     // A let saying what kind of number its name is says so to a line citing
     // it, besides what it names; a kind no record names is reported where
     // the lets are checked (`check_kinds`).
-    for k in kinded_above(thm, step, env) {
+    for k in kinded_above(thm, shape, step, env) {
         out.insert(
             k.label.clone(),
             Stated::Kind {
@@ -496,8 +532,12 @@ pub fn statements_in_scope(thm: &Theorem, step: &Step, env: Env) -> Statements {
 
 /// The lets above `step` that say what kind of number their names are, each
 /// read; one whose kind no record names is left out.
-pub fn kinded_above(thm: &Theorem, step: &Step, env: Env) -> Vec<Kinded> {
-    let shape = CheckedTheorem::of(thm);
+pub fn kinded_above(
+    thm: &Theorem,
+    shape: &CheckedTheorem,
+    step: &Step,
+    env: Env,
+) -> Vec<Kinded> {
     thm.defines
         .iter()
         .enumerate()
@@ -705,7 +745,7 @@ fn introducing(known: &Known, step: &Step) -> Vec<Stated> {
         .filter(|h| h.kind == Intro::Let)
         .map(|h| (h.line, Stated::Introduced(Introduction::read(h.body(path)))))
         .collect();
-    let visible = labels_in_scope(known.thm, step, known.env.scopes);
+    let visible = labels_in_scope(known.thm, known.shape(), step, known.env.scopes);
     for other in &known.thm.steps {
         for o in &other.openers {
             if o.kind == Intro::Let
@@ -720,7 +760,7 @@ fn introducing(known: &Known, step: &Step) -> Vec<Stated> {
             said.push((other.line, Stated::Written(other.claim.clone())));
         }
     }
-    for k in kinded_above(known.thm, step, known.env) {
+    for k in kinded_above(known.thm, known.shape(), step, known.env) {
         let kind = Stated::Kind {
             name: Written::new(&k.name, path, k.shown.line),
             set: Written::new(&k.set, path, k.shown.line),

@@ -830,7 +830,7 @@ fn check_passes(
     formulas::check_formulas(report, thm, env, k);
     formulas::check_letters_introduced(report, thm, env, k);
     formulas::check_statement_names(report, thm, env, k);
-    formulas::check_structure_parts(report, thm, env, k, &library.targets);
+    formulas::check_structure_parts(report, thm, k, &library.targets);
     structure::check_defined_below(report, thm, scopes, env.g);
     formulas::check_clashes(report, thm, clashes);
     formulas::check_contradiction(report, thm, env, k);
@@ -855,7 +855,7 @@ fn check_passes(
     formulas::check_antisymmetry(report, thm, k, targets);
     formulas::check_membership_holds(report, thm, k, targets);
     formulas::check_inspection_holds(report, thm, k, targets);
-    formulas::check_membership_claims(report, thm, env, k);
+    formulas::check_membership_claims(report, thm, k);
     citations::check_hypotheses(report, thm, library, k);
     citations::check_conclusion(report, thm, library, k);
     citations::check_subjects(report, thm, library, k);

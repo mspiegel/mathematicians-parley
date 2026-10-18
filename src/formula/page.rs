@@ -8,6 +8,8 @@
 //! read from text was read from what the splitter cut, the same way for
 //! every tool.
 
+use std::sync::Arc;
+
 use super::grammar::{parse, Grammar, Sorts};
 use super::node::{Node, Sort};
 use super::token::Token;
@@ -17,7 +19,8 @@ use crate::outcome::{Built, Checked, Declined, Problem, Route};
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Written {
     text: String,
-    path: String,
+    /// Shared by the sentences cut from it, which each say where they are.
+    path: Arc<str>,
     line: usize,
     /// Where the formula is a membership the page says in words, `let A =
     /// …, a real number`, its two parts, from which its tree is made.
@@ -37,7 +40,7 @@ struct Member {
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Sentence {
     text: String,
-    path: String,
+    path: Arc<str>,
     line: usize,
     member: Option<Box<Member>>,
 }
@@ -46,7 +49,7 @@ impl Written {
     pub fn new(text: impl Into<String>, path: &str, line: usize) -> Written {
         Written {
             text: text.into(),
-            path: path.to_string(),
+            path: Arc::from(path),
             line,
             member: None,
         }
@@ -58,7 +61,7 @@ impl Written {
     pub fn member(term: Written, set: Written, path: &str, line: usize) -> Written {
         Written {
             text: format!("{term} ∈ {set}"),
-            path: path.to_string(),
+            path: Arc::from(path),
             line,
             member: Some(Box::new(Member { term, set })),
         }
@@ -115,7 +118,7 @@ impl Written {
         let mut all = self.sentences();
         if all.len() != 1 {
             return Err(Problem::new(
-                &self.path,
+                &*self.path,
                 self.line,
                 format!(
                     "{:?} is {} sentences where one formula is written",
@@ -140,6 +143,13 @@ impl Sentence {
         &self.text
     }
 
+    /// The text that alone decides what the sentence reads as, with given
+    /// sorts: its own, where it is no membership made from parts (`Member`);
+    /// None for one that is.
+    pub fn deciding_text(&self) -> Option<&str> {
+        self.member.is_none().then_some(self.text.as_str())
+    }
+
     pub fn path(&self) -> &str {
         &self.path
     }
@@ -154,7 +164,7 @@ impl Sentence {
     pub fn read(&self, g: &Grammar, sorts: &Sorts) -> Checked<Node> {
         match self.read_so_far(g, sorts)? {
             Built(node) => Ok(node),
-            Declined(why) => Err(why.into_problem(&self.path, self.line)),
+            Declined(why) => Err(why.into_problem(&*self.path, self.line)),
         }
     }
 
@@ -343,27 +353,19 @@ fn joined(g: &Grammar, name: &str, literal: &str, mut said: Vec<Node>) -> Option
 /// The sentences of a text, each without its full stop.
 fn split(text: &str) -> Vec<String> {
     let text = str::trim(text);
-    let chars: Vec<(usize, char)> = text.char_indices().collect();
     let mut pieces: Vec<&str> = Vec::new();
     let mut start = 0;
-    let mut i = 0;
-    while i < chars.len() {
-        let (at, c) = chars[i];
-        if c.is_whitespace() && i > 0 && chars[i - 1].1 == '.' {
-            let mut j = i;
-            while j < chars.len() && chars[j].1.is_whitespace() {
-                j += 1;
-            }
+    let mut chars = text.char_indices().peekable();
+    let mut before = None;
+    while let Some((at, c)) = chars.next() {
+        if c.is_whitespace() && before == Some('.') {
+            while chars.next_if(|(_, w)| w.is_whitespace()).is_some() {}
             pieces.push(&text[start..at]);
-            start = if j < chars.len() {
-                chars[j].0
-            } else {
-                text.len()
-            };
-            i = j;
+            start = chars.peek().map_or(text.len(), |&(next, _)| next);
+            before = None;
             continue;
         }
-        i += 1;
+        before = Some(c);
     }
     pieces.push(&text[start..]);
     pieces

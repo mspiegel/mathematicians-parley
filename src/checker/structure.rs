@@ -85,6 +85,7 @@ pub enum Declared {
 /// cannot cite the assumption of another.
 pub fn labels_in_scope(
     thm: &Theorem,
+    shape: &CheckedTheorem,
     step: &Step,
     scopes: &[FileScope],
 ) -> IndexMap<String, Declared> {
@@ -109,7 +110,6 @@ pub fn labels_in_scope(
     }
     // A define written inside a block is the block's, and the part's it is
     // written in (`record::CheckedTheorem::define_in_scope`).
-    let shape = CheckedTheorem::of(thm);
     for (i, d) in thm.defines.iter().enumerate() {
         if shape.define_in_scope(thm, i, step) {
             out.insert(d.label.clone(), Declared::Define(d.line));
@@ -506,7 +506,7 @@ fn check_step_part(report: &mut Report, thm: &Theorem, step: &Step, known: &Know
     check_induction_runs(report, thm, step, set, known);
     // The letter an induction runs over is its own: one the page has
     // introduced where the induction stands would be two things at once.
-    if letters_introduced(thm, step).contains(&letter.text) {
+    if letters_introduced(thm, &CheckedTheorem::of(thm), step).contains(&letter.text) {
         report.say(
             &thm.path,
             step.line,
@@ -782,7 +782,7 @@ pub fn check_citations(
     let shape = CheckedTheorem::of(thm);
     for step in &thm.steps {
         let just = &step.just;
-        let scope = labels_in_scope(thm, step, scopes);
+        let scope = labels_in_scope(thm, &shape, step, scopes);
         if let Some(bad) = &just.bad_ref {
             report.say(
                 &thm.path,
@@ -899,7 +899,7 @@ pub fn check_citations(
         let (Some(reason), Some(step)) = (&d.reason, thm.step_after(d.line)) else {
             continue;
         };
-        let scope = labels_in_scope(thm, step, scopes);
+        let scope = labels_in_scope(thm, &shape, step, scopes);
         let at = Cited {
             thm,
             items,
@@ -1978,18 +1978,18 @@ pub fn introduced(thm: &Theorem) -> BTreeSet<String> {
 /// labels), and what the steps it may cite obtained, its own included.
 pub fn letters_in_scope(
     thm: &Theorem,
+    shape: &CheckedTheorem,
     step: &Step,
     scopes: &[FileScope],
     sorts: &Sorts,
 ) -> BTreeSet<String> {
-    let mut out = letters_introduced(thm, step);
+    let mut out = letters_introduced(thm, shape, step);
     out.extend(
         visible(scopes, thm.scope, thm.line)
             .into_iter()
             .map(|(n, _, _)| n),
     );
     out.extend(sorts.imported.iter().cloned());
-    let shape = CheckedTheorem::of(thm);
     for (i, d) in thm.defines.iter().enumerate() {
         if shape.define_in_scope(thm, i, step) {
             if let Built(said) = define_parts(&d.text) {
@@ -2022,9 +2022,12 @@ pub fn hypotheses_introduce(thm: &Theorem) -> BTreeSet<String> {
 /// theorem's hypotheses, the `let` lines of the blocks around it (of its own
 /// part only), and what the steps it may cite obtained, its own included.
 /// What a define or the library names is not among them.
-pub fn letters_introduced(thm: &Theorem, step: &Step) -> BTreeSet<String> {
+pub fn letters_introduced(
+    thm: &Theorem,
+    shape: &CheckedTheorem,
+    step: &Step,
+) -> BTreeSet<String> {
     let mut out = hypotheses_introduce(thm);
-    let shape = CheckedTheorem::of(thm);
     for other in &thm.steps {
         let k = other.number.len();
         let encloses =
@@ -2042,7 +2045,7 @@ pub fn letters_introduced(thm: &Theorem, step: &Step) -> BTreeSet<String> {
             }
         }
         let visible_here = other.number == step.number
-            || out_of_reach(thm, &shape, &other.number, step).is_none();
+            || out_of_reach(thm, shape, &other.number, step).is_none();
         if visible_here && other.just.head.is(Method::Obtain) {
             out.extend(other.just.obtained.iter().cloned());
         }

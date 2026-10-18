@@ -731,7 +731,7 @@ pub enum Tighter {
 
 /// Whether a nests inside b.
 pub fn binds_tighter(
-    tighter: &IndexMap<String, IndexSet<String>>,
+    tighter: &IndexMap<String, IndexSet<String>, rustc_hash::FxBuildHasher>,
     a: &str,
     b: &str,
 ) -> Tighter {

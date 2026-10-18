@@ -29,7 +29,9 @@ use crate::text::repr;
 /// range is known.
 #[derive(Clone, Debug, Default)]
 pub struct Sorts {
-    names: IndexMap<String, Sort>,
+    /// Hashed with Fx, as the grammar's caches are: every token of every
+    /// sentence read looks its name up here.
+    names: IndexMap<String, Sort, FxBuildHasher>,
     pub ranges: IndexMap<String, String>,
     /// Names the lines introduce whose sort the reading has not settled, as
     /// a set defined from what it has not read yet. They are the theorem's
@@ -54,14 +56,14 @@ impl Sorts {
 }
 
 impl std::ops::Deref for Sorts {
-    type Target = IndexMap<String, Sort>;
-    fn deref(&self) -> &IndexMap<String, Sort> {
+    type Target = IndexMap<String, Sort, FxBuildHasher>;
+    fn deref(&self) -> &IndexMap<String, Sort, FxBuildHasher> {
         &self.names
     }
 }
 
 impl std::ops::DerefMut for Sorts {
-    fn deref_mut(&mut self) -> &mut IndexMap<String, Sort> {
+    fn deref_mut(&mut self) -> &mut IndexMap<String, Sort, FxBuildHasher> {
         &mut self.names
     }
 }
@@ -109,20 +111,21 @@ pub struct Grammar {
     pub notations: Vec<Notation>,
     pub words: IndexSet<String>,
     pub symbols: Vec<String>,
-    pub tighter: IndexMap<String, IndexSet<String>>,
+    pub tighter: IndexMap<String, IndexSet<String>, FxBuildHasher>,
     /// The functions the library declares, by name (`library_functions`).
     pub functions: IndexMap<String, Function>,
     /// Their names of two letters or more, which the tokeniser reads as one
     /// name each where it would otherwise read one letter at a time.
     long_names: IndexSet<String>,
     /// The sort each library function's name has in a formula.
-    function_sorts: IndexMap<String, Sort>,
+    function_sorts: IndexMap<String, Sort, FxBuildHasher>,
     /// How a reader says one member of a set, by the words, and the set's
     /// symbol: `a natural number` is a member of ℕ (the `member` field).
     pub members: IndexMap<String, String>,
-    /// The two caches are hashed with Fx rather than the default SipHash:
-    /// every sentence read is looked up in both, and with SipHash the looking
-    /// up took about half the time reading did.
+    /// The tighter levels, the functions' sorts and the two caches are
+    /// hashed with Fx rather than the default SipHash: every sentence read
+    /// is looked up in the caches and every node in the tables, and with
+    /// SipHash the looking up took about half the time reading did.
     tokens: RefCell<IndexMap<String, Rc<Vec<Token>>, FxBuildHasher>>,
     readings: RefCell<IndexMap<ReadingKey, Node, FxBuildHasher>>,
     notation_sorts: OnceCell<Rc<NotationSorts>>,
@@ -181,7 +184,7 @@ impl Grammar {
             long_names,
             function_sorts,
             members,
-            tighter: compile_precedence(records),
+            tighter: compile_precedence(records).into_iter().collect(),
             tokens: RefCell::new(IndexMap::default()),
             readings: RefCell::new(IndexMap::default()),
             notation_sorts: OnceCell::new(),

@@ -13,7 +13,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::rc::Rc;
 
 use indexmap::IndexSet;
-use parley::checker::{statements_in_scope, BoundThere, ObtainedThere};
+use parley::checker::{statements_in_scope, BoundThere, CheckedTheorem, ObtainedThere};
 use parley::corpus::proof::{
     chain, chain_cited, parse_proof, Head, Intro, Method, Theorem,
 };
@@ -2187,6 +2187,7 @@ fn naming_follows(
         // line that writes the part will write the name in its place.
         let scope = statements_in_scope(
             thm,
+            &CheckedTheorem::of(thm),
             step,
             Env {
                 g: &ctx.g,

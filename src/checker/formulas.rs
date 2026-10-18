@@ -246,7 +246,7 @@ pub fn check_formulas(report: &mut Report, thm: &Theorem, env: Env, known: &Know
             continue;
         }
         for sentence in written.sentences() {
-            if let Err(p) = sentence.read(env.g, &known.sorts) {
+            if let Err(p) = known.parse(&sentence) {
                 // A name the file defines only further down is why, and
                 // `check_defined_below` says so: above its define it names
                 // nothing, and `U(0)` then reads several ways because
@@ -512,13 +512,14 @@ pub fn check_letters_introduced(
     known: &Known,
 ) {
     let binders = env.g.binders();
+    let shape = CheckedTheorem::of(thm);
     for s in &thm.steps {
         // The letters the claim binds, which its requires lines may write.
         let claimed: BTreeSet<String> = s
             .claim
             .sentences()
             .iter()
-            .filter_map(|c| c.read(env.g, &known.sorts).ok())
+            .filter_map(|c| known.parse(c).ok())
             .flat_map(|c| known.bound(&c))
             .collect();
         let mut texts: Vec<(usize, String, &Written, bool)> =
@@ -537,11 +538,11 @@ pub fn check_letters_introduced(
             // with them.
             let mut ended: BTreeSet<String> = BTreeSet::new();
             for sentence in written.sentences() {
-                let Ok(node) = sentence.read(env.g, &known.sorts) else {
+                let Ok(node) = known.parse(&sentence) else {
                     continue;
                 };
                 let scope = in_scope.get_or_insert_with(|| {
-                    letters_in_scope(thm, s, env.scopes, &known.sorts)
+                    letters_in_scope(thm, &shape, s, env.scopes, &known.sorts)
                 });
                 for name in free_names(&node, &binders) {
                     let bound = under_claim && claimed.contains(&name);
@@ -569,7 +570,7 @@ pub fn check_letters_introduced(
         };
         for v in &values {
             let scope = in_scope.get_or_insert_with(|| {
-                letters_in_scope(thm, s, env.scopes, &known.sorts)
+                letters_in_scope(thm, &shape, s, env.scopes, &known.sorts)
             });
             for name in free_names(&v.value, &binders) {
                 if !scope.contains(&name) && !claimed.contains(&name) {
@@ -616,7 +617,7 @@ fn header_letters_introduced(
     written.push(thm.stated());
     for w in &written {
         for sentence in w.sentences() {
-            let Ok(node) = sentence.read(env.g, &known.sorts) else {
+            let Ok(node) = known.parse(&sentence) else {
                 continue; // `check_formulas` says it does not read
             };
             for name in free_names(&node, &binders) {
@@ -641,7 +642,6 @@ fn header_letters_introduced(
 pub fn check_structure_parts(
     report: &mut Report,
     thm: &Theorem,
-    env: Env,
     known: &Known,
     targets: &Targets,
 ) {
@@ -675,7 +675,7 @@ pub fn check_structure_parts(
     let mut told: BTreeSet<String> = BTreeSet::new();
     for w in &written {
         for sentence in w.sentences() {
-            let Ok(node) = sentence.read(env.g, &known.sorts) else {
+            let Ok(node) = known.parse(&sentence) else {
                 continue; // `check_formulas` says it does not read
             };
             for part in &node.walk() {
@@ -741,7 +741,7 @@ pub fn check_statement_names(
     for (written, line) in assumed.chain(std::iter::once((stated, thm.conclusion_line)))
     {
         for sentence in written.sentences() {
-            let Ok(node) = sentence.read(env.g, &known.sorts) else {
+            let Ok(node) = known.parse(&sentence) else {
                 continue;
             };
             for name in free_names(&node, &binders) {
@@ -1479,8 +1479,8 @@ fn proof_owes(owner: &Step, claim: &Node, known: &Known) -> Checked<Owed> {
                 match fixed {
                     Some(name) if name != rest.children[0].text => {
                         let named = Written::new(name, path, o.line)
-                            .sentence()?
-                            .read(known.env.g, &known.sorts)?;
+                            .sentence()
+                            .and_then(|s| known.parse(&s))?;
                         put.insert(rest.children[0].text.clone(), named);
                         substitute_apart_by(&body, &put, &known.env.g.binders())
                     }
@@ -1495,7 +1495,7 @@ fn proof_owes(owner: &Step, claim: &Node, known: &Known) -> Checked<Owed> {
             {
                 // What the block assumes is what the claim supposes, its
                 // letters the block's (`SYNTAX.md`, `proof`).
-                let assumed = o.body(path).sentence()?.read(known.env.g, &known.sorts)?;
+                let assumed = known.parse(&o.body(path).sentence()?)?;
                 if !known.alike(&assumed, &rest.children[0]) {
                     return Err(Problem::new(
                         path,
@@ -2721,7 +2721,7 @@ fn one_number(a: &Node, b: &Node, known: &Known, targets: &Targets) -> bool {
 /// A term written in a row's reason, `adding 2·A` or `multiplying by 1/2`,
 /// read through the tree reader.
 fn reason_term(written: &Written, known: &Known) -> Checked<Node> {
-    written.sentence()?.read(known.env.g, &known.sorts)
+    known.parse(&written.sentence()?)
 }
 
 /// Whether `row` is `above` with the manipulation `reason` names
@@ -2854,11 +2854,7 @@ pub fn check_inequality_rows(
         };
         let mut read: Vec<Related> = Vec::new();
         for row in &written {
-            let node = match row
-                .formula
-                .sentence()
-                .and_then(|s| s.read(known.env.g, &known.sorts))
-            {
+            let node = match row.formula.sentence().and_then(|s| known.parse(&s)) {
                 Ok(node) => node,
                 Err(problem) => {
                     report.problems.push(problem);
@@ -4135,12 +4131,7 @@ pub fn check_closed_by_arithmetic(report: &mut Report, thm: &Theorem, known: &Kn
 
 /// `membership` claims that a term is in a number system, and nothing else
 /// (`METHODS.md`), or that every member of a set has a term in one.
-pub fn check_membership_claims(
-    report: &mut Report,
-    thm: &Theorem,
-    env: Env,
-    known: &Known,
-) {
+pub fn check_membership_claims(report: &mut Report, thm: &Theorem, known: &Known) {
     fn says_membership(node: &Node) -> bool {
         if node.notation == "for-all" && node.children.len() == 3 {
             return says_membership(&node.children[2]);
@@ -4169,7 +4160,7 @@ pub fn check_membership_claims(
             continue;
         }
         for sentence in sentences {
-            let Ok(node) = sentence.read(env.g, &known.sorts) else {
+            let Ok(node) = known.parse(&sentence) else {
                 continue; // `check_formulas` says it does not read
             };
             if !says_membership(&node) {
@@ -4403,7 +4394,7 @@ fn recursion_equation(
     line: usize,
     known: &Known,
     wrappers: &IndexSet<String>,
-    equals: &IndexSet<String>,
+    equals: &crate::matching::FxIndexSet<String>,
 ) -> Option<String> {
     let sorts = &known.sorts;
     if claims.len() != 1 || !equals.contains(&claims[0].notation) {
@@ -4620,7 +4611,7 @@ pub fn check_define_citation(
             .claim
             .sentences()
             .iter()
-            .map(|s| s.read(env.g, &known.sorts))
+            .map(|s| known.parse(s))
             .collect();
         let Ok(written) = written else {
             continue;

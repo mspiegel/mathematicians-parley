@@ -57,26 +57,32 @@ pub struct Context {
     pub binders: IndexMap<String, Binds>,
     /// For each application, whether it applies a `property` or a
     /// `function`.
-    pub props: IndexMap<String, String>,
-    pub equations: IndexSet<String>,
+    pub props: FxIndexMap<String, String>,
+    pub equations: FxIndexSet<String>,
     /// The notations saying a function is a function on a set (`wfn`).
-    pub functions_on: IndexSet<String>,
+    pub functions_on: FxIndexSet<String>,
     /// The notations writing a sum (`csu`).
-    pub sums: IndexSet<String>,
+    pub sums: FxIndexSet<String>,
     /// The notations saying there is something (`wrex`).
-    pub existences: IndexSet<String>,
+    pub existences: FxIndexSet<String>,
     /// Each spelling that is another of its notation's with the holes in
     /// another order, by (notation, literal): `x > 0` is `0 < x` (`turned`).
-    pub turned: IndexMap<(String, String), Turned>,
+    pub turned: FxIndexMap<(String, String), Turned>,
     /// The notations whose holes stand in any order, more than two of them
     /// and `commutes yes`: "A, B, C form a triangle" is "C, A, B form a
     /// triangle".
-    pub unordered: IndexSet<String>,
+    pub unordered: FxIndexSet<String>,
     /// Each operation's identity element, by (notation, literal), from the
     /// records' `identity` field. It goes without saying wherever it
     /// stands, so every match and comparison reads x + 0 as x (`SYNTAX.md`).
-    pub identities: IndexMap<(String, String), IdentityElement>,
+    pub identities: FxIndexMap<(String, String), IdentityElement>,
 }
+
+/// The maps every match and comparison looks a notation up in, at each
+/// node: hashed by `FxHash`, for short keys the program makes itself and no
+/// one chooses to collide, where the default hasher guards against that.
+pub type FxIndexMap<K, V> = IndexMap<K, V, rustc_hash::FxBuildHasher>;
+pub type FxIndexSet<K> = IndexSet<K, rustc_hash::FxBuildHasher>;
 
 /// An operation's identity element, and the holes, counted from 0, it may
 /// stand in: 0 in either of x + y's, 0 in the second of x − y's.
@@ -174,14 +180,14 @@ impl Context {
         let (binders, props) = binding_context(notations);
         Context {
             binders,
-            props,
-            equations: equations(records),
-            functions_on: functions_on(records),
-            sums: sums(records),
-            existences: existences(records),
-            turned: turned(notations, records),
-            unordered: unordered(records),
-            identities: identities(notations, records),
+            props: props.into_iter().collect(),
+            equations: equations(records).into_iter().collect(),
+            functions_on: functions_on(records).into_iter().collect(),
+            sums: sums(records).into_iter().collect(),
+            existences: existences(records).into_iter().collect(),
+            turned: turned(notations, records).into_iter().collect(),
+            unordered: unordered(records).into_iter().collect(),
+            identities: identities(notations, records).into_iter().collect(),
         }
     }
 
