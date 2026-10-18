@@ -13,10 +13,10 @@
 use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
 
-use indexmap::{IndexMap, IndexSet};
+use indexmap::IndexMap;
 
 use crate::formula::symbol::Symbol;
-use crate::matching::FxIndexMap;
+use crate::matching::{FxIndexMap, FxIndexSet};
 
 /// What a label is: an axiom or definition, a theorem, or a floating
 /// hypothesis, which proves its variable is of its type and is pushed by
@@ -243,7 +243,7 @@ fn tokens<'t>(text: &'t str, out: &mut Vec<&'t str>) {
 
 #[derive(Default)]
 struct Scope {
-    variables: IndexSet<Symbol>,
+    variables: FxIndexSet<Symbol>,
     floats: Vec<(Symbol, Symbol)>,
     essentials: Vec<Vec<Symbol>>,
     disjoint: BTreeSet<(Symbol, Symbol)>,
@@ -368,17 +368,14 @@ fn assertion(
     label: Symbol,
     body: Vec<Symbol>,
 ) -> Signature {
-    let active: IndexSet<Symbol> = stack
-        .iter()
-        .flat_map(|s| s.variables.iter().copied())
-        .collect();
+    let active = |t: &Symbol| stack.iter().any(|s| s.variables.contains(t));
     let essentials: Vec<Vec<Symbol>> =
         stack.iter().flat_map(|s| s.essentials.clone()).collect();
-    let mut wanted: IndexSet<Symbol> = essentials
+    let mut wanted: FxIndexSet<Symbol> = essentials
         .iter()
         .chain(std::iter::once(&body))
         .flat_map(|h| h.iter().copied())
-        .filter(|t| active.contains(t))
+        .filter(active)
         .collect();
     let names = wanted.clone();
     let mut floats = Vec::new();
