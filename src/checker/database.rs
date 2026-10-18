@@ -551,7 +551,7 @@ pub fn check_unsorted(
         line: usize,
         out: &mut BTreeSet<String>,
     ) {
-        if let Some(sig) = notations.signature(&node.notation) {
+        if let Some(sig) = notations.signature(node.notation()) {
             if sig.holes() == node.children.len() {
                 for (element, set) in sig.members() {
                     let named = &node.children[element];

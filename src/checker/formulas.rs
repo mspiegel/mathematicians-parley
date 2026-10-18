@@ -4,7 +4,7 @@
 
 use std::collections::BTreeSet;
 
-use indexmap::{IndexMap, IndexSet};
+use indexmap::IndexMap;
 
 use super::library::Known;
 use super::record::CheckedTheorem;
@@ -25,6 +25,7 @@ use crate::formula::page::{
 use crate::formula::{walk, Node, Sort, Sorts};
 use crate::matching::{
     alike_top, free_names, identities_dropped, standard, substitute_apart_by, Binding,
+    FxIndexSet,
 };
 use crate::methods::field::{decide_closed, Verdict};
 use crate::methods::membership as methods_membership;
@@ -367,7 +368,7 @@ const NATIVE: [NotationId; 3] = [MEMBERSHIP, EQUALITY, ORDER];
 /// Every operation a notation declares, one building a number from numbers,
 /// by its notation's name, and whether `arithmetic` works it out: one of
 /// its own nature, or one whose record names it in a `decided` field.
-pub fn operations(records: &[Record]) -> IndexMap<String, bool> {
+pub fn operations(records: &[Record]) -> IndexMap<NotationId, bool> {
     records
         .iter()
         .filter(|r| r.kind == RecordKind::Notation)
@@ -375,7 +376,12 @@ pub fn operations(records: &[Record]) -> IndexMap<String, bool> {
             r.field_or_empty("sort").trim_end().ends_with("→ number")
                 && r.field_or_empty("pattern").contains('_')
         })
-        .map(|r| (r.name.clone(), crate::methods::field::worked_out(r)))
+        .map(|r| {
+            (
+                NotationId::of(&r.name),
+                crate::methods::field::worked_out(r),
+            )
+        })
         .collect()
 }
 
@@ -393,7 +399,7 @@ pub fn check_decided_words(
     thm: &Theorem,
     known: &Known,
     words: &IndexMap<Spelling, DefinedWord>,
-    operations: &IndexMap<String, bool>,
+    operations: &IndexMap<NotationId, bool>,
 ) {
     for step in &thm.steps {
         if step.just.head.is(Method::Inspection) {
@@ -474,7 +480,7 @@ pub fn check_decided_words(
             // the sentence writes it.
             let mut named: BTreeSet<String> = BTreeSet::new();
             for part in node.walk() {
-                if operations.get(&part.notation) == Some(&false)
+                if operations.get(&part.notation()) == Some(&false)
                     && named.insert(part.notation.clone())
                 {
                     report.say(
@@ -775,22 +781,22 @@ pub fn check_statement_names(
 fn negates(
     a: Option<&Node>,
     b: Option<&Node>,
-    wrappers: &IndexSet<String>,
+    wrappers: &FxIndexSet<NotationId>,
     known: &Known,
 ) -> bool {
     let (Some(a), Some(b)) = (a, b) else {
         return false;
     };
     !a.children.is_empty()
-        && wrappers.contains(&a.notation)
+        && wrappers.contains(&a.notation())
         && known.alike(&a.children[0], b)
 }
 
-fn wrappers(env: Env) -> IndexSet<String> {
+fn wrappers(env: Env) -> FxIndexSet<NotationId> {
     env.g
         .notations
         .iter()
-        .filter_map(|n| n.folds.clone())
+        .filter_map(|n| n.folds.as_deref().map(NotationId::of))
         .collect()
 }
 
@@ -1936,13 +1942,13 @@ fn link_undecided(
     one: &Node,
     other: &Node,
     known: &Known,
-    operations: &IndexMap<String, bool>,
+    operations: &IndexMap<NotationId, bool>,
     out: &mut BTreeSet<String>,
 ) {
     if known.alike(one, other) {
         return;
     }
-    let undecided = |n: &Node| operations.get(&n.notation) == Some(&false);
+    let undecided = |n: &Node| operations.get(&n.notation()) == Some(&false);
     if one.notation() == other.notation()
         && one.text == other.text
         && one.children.len() == other.children.len()
@@ -4348,7 +4354,7 @@ enum Case {
 fn case_taken(
     node: &Node,
     facts: &[Node],
-    wrappers: &IndexSet<String>,
+    wrappers: &FxIndexSet<NotationId>,
     known: &Known,
 ) -> Case {
     let mut node = node.clone();
@@ -4362,7 +4368,7 @@ fn case_taken(
             return Case::Value(value);
         }
         if facts.iter().any(|f| {
-            wrappers.contains(&f.notation)
+            wrappers.contains(&f.notation())
                 && !f.children.is_empty()
                 && known.alike(&f.children[0], &condition)
         }) {
@@ -4389,8 +4395,8 @@ fn recursion_equation(
     said: &Recursion,
     line: usize,
     known: &Known,
-    wrappers: &IndexSet<String>,
-    equals: &crate::matching::FxIndexSet<NotationId>,
+    wrappers: &FxIndexSet<NotationId>,
+    equals: &FxIndexSet<NotationId>,
 ) -> Option<String> {
     let sorts = &known.sorts;
     if claims.len() != 1 || !equals.contains(&claims[0].notation()) {

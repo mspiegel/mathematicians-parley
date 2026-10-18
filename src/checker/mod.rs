@@ -239,7 +239,7 @@ pub struct Checking<'a> {
     /// Each definition's word, and the methods its record says decide it.
     defined: &'a IndexMap<Spelling, formulas::DefinedWord>,
     /// Each operation a notation declares, and whether arithmetic works it out.
-    operations: &'a IndexMap<String, bool>,
+    operations: &'a IndexMap<crate::formula::notation_id::NotationId, bool>,
     methods: &'a IndexMap<String, &'a Record>,
     items: &'a IndexMap<String, Item<'a>>,
     statements: &'a IndexMap<String, infer::Reader>,

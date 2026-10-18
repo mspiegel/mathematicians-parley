@@ -12,6 +12,7 @@
 use super::grammar::Grammar;
 use super::node::Node;
 use super::notation::{binds_tighter, Notation, Part, Tighter, RAISED_HOLE};
+use super::notation_id::Spelling;
 use super::token::raised;
 
 impl Grammar {
@@ -25,10 +26,7 @@ impl Grammar {
         {
             let inner = &node.children[0];
             if let Some(n) = self.notations.iter().find(|n| {
-                n.folds.is_some()
-                    && n.name == inner.notation
-                    && n.literal == inner.text
-                    && holes(n) == inner.children.len()
+                n.folds.is_some() && n.writes(inner) && holes(n) == inner.children.len()
             }) {
                 return self.fill(n, &inner.children);
             }
@@ -42,8 +40,7 @@ impl Grammar {
                 .children
                 .get(at)
                 .is_some_and(|c| c.notation == f.name && c.children.is_empty());
-            if n.stands_under == node.notation
-                && n.literal == node.text
+            if Spelling::new(n.key_id, n.literal_id) == node.spelling()
                 && named
                 && holes(n) + 1 == node.children.len()
             {
@@ -87,8 +84,7 @@ impl Grammar {
     /// one repeats, and none of the rules a second spelling adds.
     fn plain(&self, node: &Node) -> Option<&Notation> {
         self.notations.iter().find(|n| {
-            n.name == node.notation
-                && n.literal == node.text
+            n.writes(node)
                 && n.folds.is_none()
                 && n.places.is_none()
                 && n.nests.is_none()
@@ -171,15 +167,14 @@ impl Grammar {
             let ends_open = self
                 .notations
                 .iter()
-                .find(|n| n.name == child.notation && n.literal == child.text)
+                .find(|n| n.writes(child))
                 .is_some_and(|n| n.parts.last().is_some_and(|p| p.is_hole()));
             return matches!(edge, Edge::Left) && ends_open;
         }
-        let Some(inner) = self.plain(child).or_else(|| {
-            self.notations
-                .iter()
-                .find(|n| n.name == child.notation && n.literal == child.text)
-        }) else {
+        let Some(inner) = self
+            .plain(child)
+            .or_else(|| self.notations.iter().find(|n| n.writes(child)))
+        else {
             return true;
         };
         let tighter =
@@ -189,7 +184,7 @@ impl Grammar {
                 let level = self
                     .notations
                     .iter()
-                    .find(|n| n.name == child.notation)
+                    .find(|n| n.record_id == child.notation())
                     .map(|n| n.level.as_str())
                     .unwrap_or("");
                 if level.is_empty() {

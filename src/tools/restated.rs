@@ -23,6 +23,7 @@ use indexmap::{IndexMap, IndexSet};
 use crate::corpus::{
     corpus, link_functions, parse_proof, Corpus, Hypothesis, Intro, ItemKind, Record,
 };
+use crate::formula::notation_id::NotationId;
 use crate::formula::page::{Sentence, Written};
 use crate::formula::{Grammar, Node, Sorts};
 use crate::regex;
@@ -46,7 +47,7 @@ fn introduced_name(body: &str) -> Option<&str> {
 struct Shapes<'a> {
     g: &'a Grammar,
     /// The kernel constructor each notation builds, by its record's name.
-    builds: IndexMap<String, String>,
+    builds: IndexMap<NotationId, String>,
 }
 
 impl<'a> Shapes<'a> {
@@ -59,7 +60,7 @@ impl<'a> Shapes<'a> {
                 .next()
                 .and_then(|e| e.split_whitespace().last())
             {
-                builds.insert(name, head.to_string());
+                builds.insert(NotationId::of(&name), head.to_string());
             }
         }
         Shapes { g, builds }
@@ -68,7 +69,7 @@ impl<'a> Shapes<'a> {
     /// The sentence's tree, where it reads, and what its root builds.
     fn root(&self, sentence: &Sentence, sorts: &Sorts) -> Option<(Node, &str)> {
         let tree = sentence.read(self.g, sorts).ok()?;
-        let head = self.builds.get(&tree.notation)?.as_str();
+        let head = self.builds.get(&tree.notation())?.as_str();
         Some((tree, head))
     }
 
@@ -111,7 +112,7 @@ impl<'a> Shapes<'a> {
         let mut names = Vec::new();
         loop {
             let n = self.g.notations.iter().find(|n| {
-                n.key() == tree.notation
+                n.key_id == tree.notation()
                     && n.holes.len() == tree.children.len()
                     && n.binds.is_some()
             })?;
@@ -138,7 +139,7 @@ impl<'a> Shapes<'a> {
                 return None;
             };
             let body = tree.children.get(*body)?.clone();
-            if self.builds.get(&body.notation).map(String::as_str) != Some("wrex") {
+            if self.builds.get(&body.notation()).map(String::as_str) != Some("wrex") {
                 return Some((names, body.written(sentence)?));
             }
             tree = body;

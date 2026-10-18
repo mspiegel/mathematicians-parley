@@ -28,9 +28,10 @@ use indexmap::{IndexMap, IndexSet};
 use crate::corpus::{
     define_parts, DefineParts, Intro, Method, Record, Requires, Step, Theorem,
 };
+use crate::formula::notation_id::NotationId;
 use crate::formula::page::Written;
 use crate::formula::{Node, Sort, Sorts, Whole};
-use crate::matching::Defined;
+use crate::matching::{Defined, FxIndexMap, FxIndexSet};
 use crate::outcome::{At, Built, Decline, Declined, Route};
 use crate::regex;
 use crate::sorts::introduction::{Form, Introduction};
@@ -673,23 +674,24 @@ pub fn ranges_of(ranges: &[crate::corpus::Range]) -> IndexMap<String, String> {
 /// (`Grammar::notation_sorts`) and every reader shares it; each use of a
 /// signature takes fresh variables of its own (`Signature::fresh`).
 pub struct NotationSorts {
-    signatures: IndexMap<String, Rc<Signature>>,
-    bound: IndexMap<String, IndexSet<usize>>,
+    signatures: FxIndexMap<NotationId, Rc<Signature>>,
+    bound: FxIndexMap<NotationId, IndexSet<usize>>,
     /// The notations whose last hole repeats (`repeats`).
-    repeats: IndexSet<String>,
+    repeats: FxIndexSet<NotationId>,
     /// The sort of each function the library declares, by its name.
     functions: IndexMap<String, Rc<Signature>>,
 }
 
 impl NotationSorts {
     pub fn read(g: &crate::formula::Grammar) -> NotationSorts {
-        let mut signatures: IndexMap<String, Rc<Signature>> = IndexMap::new();
-        let mut bound: IndexMap<String, IndexSet<usize>> = IndexMap::new();
-        let mut repeats: IndexSet<String> = IndexSet::new();
+        let mut signatures: FxIndexMap<NotationId, Rc<Signature>> =
+            FxIndexMap::default();
+        let mut bound: FxIndexMap<NotationId, IndexSet<usize>> = FxIndexMap::default();
+        let mut repeats: FxIndexSet<NotationId> = FxIndexSet::default();
         for n in &g.notations {
-            let key = n.key().to_string();
+            let key = n.key_id;
             if n.repeat.is_some() {
-                repeats.insert(key.clone());
+                repeats.insert(key);
             }
             let Some(said) = &n.sort else { continue };
             if said.is_empty() {
@@ -699,10 +701,8 @@ impl NotationSorts {
                 continue;
             };
             let made = Rc::new(made);
-            signatures
-                .entry(key.clone())
-                .or_insert_with(|| made.clone());
-            signatures.entry(n.name.clone()).or_insert(made);
+            signatures.entry(key).or_insert_with(|| made.clone());
+            signatures.entry(n.record_id).or_insert(made);
             // Counted in the holes of the node the pattern builds, which a
             // spelling of another notation may lay out otherwise: "for all
             // a, b ∈ X" binds its second hole, which in the `for-all` node it
@@ -729,8 +729,8 @@ impl NotationSorts {
     }
 
     /// The signature a node of this notation reads by, where it has one.
-    pub fn signature(&self, notation: &str) -> Option<&Signature> {
-        self.signatures.get(notation).map(|s| &**s)
+    pub fn signature(&self, notation: NotationId) -> Option<&Signature> {
+        self.signatures.get(&notation).map(|s| &**s)
     }
 }
 
@@ -842,10 +842,10 @@ impl Reader {
             return NUMBER;
         }
         let notations = Rc::clone(&self.notations);
-        let repeats = notations.repeats.contains(&node.notation);
+        let repeats = notations.repeats.contains(&node.notation());
         let made = notations
             .signatures
-            .get(&node.notation)
+            .get(&node.notation())
             .and_then(|make| make.fresh_for(store, node.children.len(), repeats));
         let (holes, out) = match made {
             Some(made) => made,
@@ -857,7 +857,7 @@ impl Reader {
             }
         };
         let mut inner = local.clone();
-        if let Some(indices) = notations.bound.get(&node.notation) {
+        if let Some(indices) = notations.bound.get(&node.notation()) {
             for &i in indices {
                 if i < node.children.len() && node.children[i].is_name() {
                     let v = store.var();

@@ -16,7 +16,7 @@ use crate::corpus::{
     Step, StepNo, Theorem,
 };
 use crate::formula::library::Function;
-use crate::formula::notation_id::NotationId;
+use crate::formula::notation_id::{NotationId, Spelling};
 use crate::formula::page::Written;
 use crate::formula::token::{Token, TokenKind};
 use crate::formula::{holds, Node, Sorts};
@@ -445,7 +445,7 @@ fn letters_bound(claim: &Node, known: &Known) -> Vec<String> {
             .g
             .notations
             .iter()
-            .find(|n| n.key() == node.notation && n.literal == node.text)
+            .find(|n| Spelling::new(n.key_id, n.literal_id) == node.spelling())
             .and_then(|n| n.node_binds());
         let Some(binds) = binds else {
             return out;

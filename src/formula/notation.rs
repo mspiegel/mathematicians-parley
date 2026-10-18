@@ -2,7 +2,8 @@
 
 use indexmap::{IndexMap, IndexSet};
 
-use super::notation_id::{LiteralId, NotationId};
+use super::node::Node;
+use super::notation_id::{LiteralId, NotationId, Spelling};
 use super::token::is_letter;
 use crate::corpus::{Record, RecordKind};
 use crate::outcome::{Built, Checked, Problem};
@@ -234,6 +235,14 @@ impl Notation {
         } else {
             &self.stands_under
         }
+    }
+
+    /// Whether `node` is of this notation's record and has its literal. A
+    /// record named for a node's notation spells no other, so the record's
+    /// literals are that notation's.
+    pub fn writes(&self, node: &Node) -> bool {
+        self.record_id == node.notation()
+            && Spelling::new(self.key_id, self.literal_id) == node.spelling()
     }
 }
 

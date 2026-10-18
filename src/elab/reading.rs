@@ -350,7 +350,7 @@ impl<'a> Elaborator<'a> {
             .g
             .notations
             .iter()
-            .find(|n| n.name == node.notation && n.literal == node.text)
+            .find(|n| n.writes(node))
             .and_then(|n| n.repeat.as_ref().map(|r| (r, n.holes.len())));
         if let Some((r, written)) = repeat {
             pattern = targets::repeated(&pattern, &r.building, written, holes.len());

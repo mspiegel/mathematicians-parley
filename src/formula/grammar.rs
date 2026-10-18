@@ -1075,7 +1075,7 @@ impl<'a> Parser<'a> {
         self.g
             .notations
             .iter()
-            .find(|n| n.name == node.notation)
+            .find(|n| n.record_id == node.notation())
             .map(|n| n.level.clone())
             .filter(|level| !level.is_empty())
     }
@@ -1209,7 +1209,7 @@ impl<'a> Parser<'a> {
                                 .g
                                 .notations
                                 .iter()
-                                .find(|m| m.name == left.notation)
+                                .find(|m| m.record_id == left.notation())
                                 .map(|m| {
                                     m.parts
                                         .iter()
@@ -1437,7 +1437,7 @@ impl<'a> Parser<'a> {
             let filled: Vec<&Sort> = kids.iter().map(|k| &k.sort).collect();
             let sorts = self.g.notation_sorts();
             if let Some(found) =
-                sorts.signature(n.key()).and_then(|s| s.settled(&filled))
+                sorts.signature(n.key_id).and_then(|s| s.settled(&filled))
             {
                 yields = found;
             }
@@ -1655,7 +1655,7 @@ impl<'a> Parser<'a> {
                 .g
                 .notations
                 .iter()
-                .find(|m| m.name == body.notation)
+                .find(|m| m.record_id == body.notation())
                 .map_or(body.text.as_str(), |m| m.literal.as_str());
             let node = Node::new(
                 &body.notation,
