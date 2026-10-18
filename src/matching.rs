@@ -67,6 +67,9 @@ pub struct Context {
     pub sums: FxIndexSet<NotationId>,
     /// The notations saying there is something (`wrex`).
     pub existences: FxIndexSet<NotationId>,
+    /// The notations saying something of everything, over a set or not
+    /// (`wral`, `wal`).
+    pub universals: FxIndexSet<NotationId>,
     /// Each spelling that is another of its notation's with the holes in
     /// another order: `x > 0` is `0 < x` (`turned`).
     pub turned: FxIndexMap<Spelling, Turned>,
@@ -195,6 +198,7 @@ impl Context {
             functions_on: ids_of(functions_on(records)),
             sums: ids_of(sums(records)),
             existences: ids_of(existences(records)),
+            universals: ids_of(universals(records)),
             turned: turned(notations, records),
             unordered: ids_of(unordered(records)),
             identities: identities(notations, records),
@@ -494,6 +498,20 @@ pub fn existences(records: &[Record]) -> IndexSet<String> {
         .filter(|r| {
             r.kind == RecordKind::Notation
                 && str::trim(r.field_or_empty("metamath")).starts_with("wrex")
+        })
+        .map(|r| r.name.clone())
+        .collect()
+}
+
+/// The notations saying something of everything: their `metamath` is
+/// `wral`, once or nested, over whatever set, or `wal`, over no set.
+pub fn universals(records: &[Record]) -> IndexSet<String> {
+    records
+        .iter()
+        .filter(|r| {
+            let metamath = str::trim(r.field_or_empty("metamath"));
+            r.kind == RecordKind::Notation
+                && (metamath.starts_with("wral") || metamath.starts_with("wal"))
         })
         .map(|r| r.name.clone())
         .collect()

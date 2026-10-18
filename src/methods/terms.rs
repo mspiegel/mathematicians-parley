@@ -10,7 +10,9 @@
 use indexmap::IndexMap;
 use num_bigint::BigUint;
 
+use crate::formula::notation_id::{NotationId, Spelling};
 use crate::formula::{Grammar, Node};
+use crate::matching::FxIndexMap;
 use crate::mm::kernel::Term;
 use crate::targets;
 
@@ -75,14 +77,15 @@ const ATOM: &str = "§";
 /// The notations' targets, by notation and literal, as the build reads them
 /// (`targets::terms`).
 pub struct Targets {
-    terms: IndexMap<String, Vec<Option<String>>>,
-    literals: IndexMap<String, Vec<String>>,
+    terms: FxIndexMap<NotationId, Vec<Option<String>>>,
+    /// Each record's spellings, in the order its `target` entries take.
+    literals: FxIndexMap<NotationId, Vec<Spelling>>,
     /// What each library function builds, by its name (`builds`).
     builds: IndexMap<String, String>,
     /// For a pattern a hole of which repeats, by its notation and literal:
     /// how many holes the pattern writes, and what each further one adds,
     /// `_ csn cun` for a list of four elements or more (`Repeat`).
-    repeats: IndexMap<(String, String), Repeats>,
+    repeats: FxIndexMap<Spelling, Repeats>,
 }
 
 /// How a node holds more children than its pattern's holes: the holes the
@@ -102,12 +105,12 @@ pub struct Operation<'n> {
 
 impl Targets {
     pub fn of(g: &Grammar, records: &[crate::corpus::Record]) -> Targets {
-        let mut literals: IndexMap<String, Vec<String>> = IndexMap::new();
+        let mut literals: FxIndexMap<NotationId, Vec<Spelling>> = FxIndexMap::default();
         for n in &g.notations {
             literals
-                .entry(n.name.clone())
+                .entry(n.record_id)
                 .or_default()
-                .push(n.literal.clone());
+                .push(Spelling::new(n.key_id, n.literal_id));
         }
         let builds = g
             .functions
@@ -120,7 +123,7 @@ impl Targets {
             .filter_map(|n| {
                 let r = n.repeat.as_ref()?;
                 Some((
-                    (n.key().to_string(), n.literal.clone()),
+                    Spelling::new(n.key_id, n.literal_id),
                     Repeats {
                         holes: n.holes.len(),
                         building: r.building.clone(),
@@ -129,7 +132,10 @@ impl Targets {
             })
             .collect();
         Targets {
-            terms: targets::terms(records),
+            terms: targets::terms(records)
+                .into_iter()
+                .map(|(name, entries)| (NotationId::of(&name), entries))
+                .collect(),
             literals,
             builds,
             repeats,
@@ -187,11 +193,11 @@ impl Targets {
     /// The target of the pattern `node` was built from; None for a
     /// notation with none.
     fn pattern(&self, node: &Node) -> Option<&str> {
-        let entries = self.terms.get(&node.notation)?;
+        let entries = self.terms.get(&node.notation())?;
         let at = self
             .literals
-            .get(&node.notation)
-            .and_then(|o| o.iter().position(|l| *l == node.text))
+            .get(&node.notation())
+            .and_then(|o| o.iter().position(|s| *s == node.spelling()))
             .unwrap_or(0);
         entries.get(at)?.as_deref()
     }
@@ -237,7 +243,7 @@ fn term_under(node: &Node, targets: &Targets, indices: &[&Node]) -> Term {
     // further child added as the record's `repeats` says.
     let repeats = targets
         .repeats
-        .get(&(node.notation.clone(), node.text.clone()))
+        .get(&node.spelling())
         .filter(|r| holes.len() > r.holes);
     let made = match repeats {
         Some(r) => {

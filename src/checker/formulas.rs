@@ -18,7 +18,7 @@ use crate::corpus::{
     define_parts, DefineParts, FileScope, Head, Intro, Item, Justification, Method,
     Record, RecordKind, Recursion, Requires, Source, Step, Theorem, Value, Values,
 };
-use crate::formula::notation_id::NotationId;
+use crate::formula::notation_id::{NotationId, Spelling};
 use crate::formula::page::{
     conjoined, disjoined, made, numeral, related, Sentence, Written,
 };
@@ -291,7 +291,7 @@ pub struct DefinedWord {
     pub methods: Vec<String>,
 }
 
-/// Every definition's word, keyed by the notation and the pattern a parse
+/// Every definition's word, keyed by the notation and the literal a parse
 /// of its `then` line's left side gives it: a relation `arithmetic` does not
 /// decide of its own nature, as an equation or a membership it does. Words
 /// are what a `decided` field is about, so it may name only a method that
@@ -301,7 +301,7 @@ pub fn defined_words(
     records: &[Record],
     env: Env,
     sorts: &IndexMap<usize, Sorts>,
-) -> IndexMap<(String, String), DefinedWord> {
+) -> IndexMap<Spelling, DefinedWord> {
     let mut out = IndexMap::new();
     for (i, r) in records.iter().enumerate() {
         if r.kind != RecordKind::Definition {
@@ -346,7 +346,7 @@ pub fn defined_words(
             continue;
         }
         out.insert(
-            (left.notation.clone(), left.text.clone()),
+            left.spelling(),
             DefinedWord {
                 record: r.name.clone(),
                 methods,
@@ -392,27 +392,26 @@ pub fn check_decided_words(
     report: &mut Report,
     thm: &Theorem,
     known: &Known,
-    words: &IndexMap<(String, String), DefinedWord>,
+    words: &IndexMap<Spelling, DefinedWord>,
     operations: &IndexMap<String, bool>,
 ) {
-    let key = |n: &Node| (n.notation.clone(), n.text.clone());
     for step in &thm.steps {
         if step.just.head.is(Method::Inspection) {
             let scope = known.scope(step);
-            let cited: BTreeSet<(String, String)> = step
+            let cited: BTreeSet<Spelling> = step
                 .just
                 .refs
                 .iter()
                 .filter_map(|r| scope.get(r))
                 .flat_map(|stated| known.stated_at(step, stated))
-                .flat_map(|n| n.walk().into_iter().map(|m| key(&m)).collect::<Vec<_>>())
+                .flat_map(|n| n.walk().iter().map(Node::spelling).collect::<Vec<_>>())
                 .collect();
             if let Some(claim) = known.whole(step, &step.claim) {
                 for node in claim.walk() {
-                    let Some(word) = words.get(&key(&node)) else {
+                    let Some(word) = words.get(&node.spelling()) else {
                         continue;
                     };
-                    if cited.contains(&key(&node))
+                    if cited.contains(&node.spelling())
                         || word.methods.iter().any(|m| m == "inspection")
                     {
                         continue;
@@ -491,8 +490,7 @@ pub fn check_decided_words(
             while node.notation() == LOGICAL_NOT && node.children.len() == 1 {
                 node = node.children[0].clone();
             }
-            let Some(word) = words.get(&(node.notation.clone(), node.text.clone()))
-            else {
+            let Some(word) = words.get(&node.spelling()) else {
                 continue;
             };
             if !word.methods.iter().any(|m| m == "arithmetic") {

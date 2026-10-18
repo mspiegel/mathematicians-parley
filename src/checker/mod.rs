@@ -23,6 +23,7 @@ use crate::corpus::{
     proof_files, record_files, Corpus, FileScope, Intro, Item, Method, Record,
     RecordKind, Step, Theorem,
 };
+use crate::formula::notation_id::Spelling;
 use crate::formula::page::{Sentence, Written};
 use crate::formula::Grammar;
 use crate::formula::Sorts;
@@ -236,7 +237,7 @@ pub struct Checking<'a> {
     scopes: &'a [FileScope],
     words: &'a IndexSet<String>,
     /// Each definition's word, and the methods its record says decide it.
-    defined: &'a IndexMap<(String, String), formulas::DefinedWord>,
+    defined: &'a IndexMap<Spelling, formulas::DefinedWord>,
     /// Each operation a notation declares, and whether arithmetic works it out.
     operations: &'a IndexMap<String, bool>,
     methods: &'a IndexMap<String, &'a Record>,

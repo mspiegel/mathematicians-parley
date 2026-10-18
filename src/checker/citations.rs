@@ -1429,7 +1429,7 @@ pub fn check_obtained_claims(
                     let existences: Vec<&Node> = said
                         .iter()
                         .flatten()
-                        .filter(|s| s.notation.starts_with("there"))
+                        .filter(|s| library.ctx.existences.contains(&s.notation()))
                         .collect();
                     match existences.as_slice() {
                         [one] => Some((*one).clone()),
@@ -1516,7 +1516,7 @@ pub fn check_obtained_claims(
             // A line or an item that says no "there is" at all where one is
             // left to take has nothing to obtain; another spelling of one, a
             // part or a function, is the elaborator's to read.
-            if !body.notation.starts_with("there") {
+            if !library.ctx.existences.contains(&body.notation()) {
                 let from = just.cited_item().unwrap_or_else(|| "a line".to_string());
                 report.say(
                     &thm.path,

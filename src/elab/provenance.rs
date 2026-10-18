@@ -250,7 +250,8 @@ impl<'a> Elaborator<'a> {
             return Ok(None);
         };
         let node = self.read(sentence)?;
-        if !node.notation.starts_with("for-all") || !node.children[0].is_name() {
+        let universals = &self.item_library().ctx.universals;
+        if !universals.contains(&node.notation()) || !node.children[0].is_name() {
             return Ok(None);
         }
         let said = self.term(&node)?;

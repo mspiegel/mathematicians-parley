@@ -1118,7 +1118,8 @@ impl<'a> Elaborator<'a> {
         // only: "1 is an upper bound of [0, 1]" is a "for all" in set.mm's
         // words and none in the page's, and is cited whole.
         let whole = self.to_term(term);
-        let says_for_all = node.notation.starts_with("for-all");
+        let universals = &self.item_library().ctx.universals;
+        let says_for_all = universals.contains(&node.notation());
         if at_a_member
             && says_for_all
             && whole.variable().is_none()
