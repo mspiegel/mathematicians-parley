@@ -16,6 +16,7 @@ use crate::corpus::proof::visible;
 use crate::corpus::{DefineLine, Intro, Item, Recursion, ScopeId, Step};
 use crate::formula::grammar::Sorts;
 use crate::formula::page::{filled, made, made_as, template, Sentence, Written};
+use crate::formula::symbol::Symbol;
 use crate::formula::{fits, Node, Sort};
 use crate::matching::{substitute_apart_by, Binding};
 use crate::matching::{Defined, Definitions};
@@ -187,8 +188,8 @@ impl<'a> Elaborator<'a> {
         sorts.insert("Y".into(), to.sort.clone());
         let made = template("the functions from X to Y", self.g, &sorts)?;
         let put = Binding::from([
-            ("X".to_string(), from.clone()),
-            ("Y".to_string(), to.clone()),
+            (Symbol::of("X"), from.clone()),
+            (Symbol::of("Y"), to.clone()),
         ]);
         Ok(substitute_apart_by(&made, &put, &self.g.binders()))
     }
@@ -218,7 +219,7 @@ impl<'a> Elaborator<'a> {
         if !applied {
             return None;
         }
-        let head = &node.children[0].text;
+        let head = node.children[0].text.as_str();
         let f = self.g.functions.get(head)?;
         let own = self.names.contains_key(head) || self.from_outside.contains_key(head);
         let in_scope = self.sorts_now.imported.contains(head);
@@ -240,7 +241,7 @@ impl<'a> Elaborator<'a> {
         // which in set.mm are the parts of the state the step is applied to
         // (`recursion_terms`).
         if !self.recurring.is_empty() && applies_name {
-            if let Some(part) = self.recurring.get(&node.children[0].text) {
+            if let Some(part) = self.recurring.get(node.children[0].text.as_str()) {
                 return Ok(part.clone());
             }
         }
@@ -248,7 +249,7 @@ impl<'a> Elaborator<'a> {
         // written out, so what it says in set.mm never names them.
         if !self.from_outside.is_empty() && applies_name {
             if let Some(Defined::Rule(rule)) =
-                self.from_outside.get(&node.children[0].text)
+                self.from_outside.get(node.children[0].text.as_str())
             {
                 if let Some(body) = rule.at(&node.children[1..]) {
                     return self.term(&body);
@@ -263,13 +264,14 @@ impl<'a> Elaborator<'a> {
             return Ok(targets::fill(&builds, &terms));
         }
         if node.is_name() {
-            if let Some(Defined::Term(t)) = self.from_outside.get(&node.text) {
+            if let Some(Defined::Term(t)) = self.from_outside.get(node.text.as_str()) {
                 let t = t.clone();
                 return self.term(&t);
             }
             // A function written alone, "f is continuous on [0, 1]", is the
             // map its define says, each argument over its domain.
-            if let Some(Defined::Rule(rule)) = self.from_outside.get(&node.text) {
+            if let Some(Defined::Rule(rule)) = self.from_outside.get(node.text.as_str())
+            {
                 let rule = rule.clone();
                 let pattern = match rule.params.len() {
                     1 => "the map sending _ ∈ _ to _",
@@ -293,7 +295,7 @@ impl<'a> Elaborator<'a> {
                 let map = made_as(self.g, pattern, held).expect("the map notations");
                 return self.term(&map);
             }
-            return match self.names.get(&node.text) {
+            return match self.names.get(node.text.as_str()) {
                 Some(t) => Ok(t.clone()),
                 // A name the proof never introduced, which is the text's to
                 // fix wherever the reading of it came from.
@@ -329,7 +331,7 @@ impl<'a> Elaborator<'a> {
             .unwrap_or_default();
         let holes = self.names_kept(|me| -> Checked<Vec<String>> {
             for &i in &bound {
-                let said = node.children[i].text.clone();
+                let said = node.children[i].text.to_string();
                 let var = me.binder_var(&said)?;
                 me.names.insert(said, format!("{var} cv"));
             }
@@ -446,7 +448,7 @@ impl<'a> Elaborator<'a> {
             .in_its_names(Item::Record(item), |me| me.read_one(&item.stated()[0]))?
             .children[0]
             .clone();
-        let letter = left.leftmost().text.clone();
+        let letter = left.leftmost().text;
         let given: IndexMap<&str, &str> = values
             .iter()
             .map(|(a, b)| (a.as_str(), b.as_str()))
@@ -454,7 +456,7 @@ impl<'a> Elaborator<'a> {
         if let Some(v) = given.get(letter.as_str()) {
             return Ok(v.to_string());
         }
-        match self.names.get(&letter) {
+        match self.names.get(letter.as_str()) {
             Some(own) => Ok(own.clone()),
             None => Err(self.defect(
                 line,
@@ -519,14 +521,16 @@ impl<'a> Elaborator<'a> {
             if h.kind == Intro::Let || subgroup {
                 let introduced = node.leftmost().clone();
                 if !introduced.text.is_empty()
-                    && !self.names.contains_key(&introduced.text)
+                    && !self.names.contains_key(introduced.text.as_str())
                 {
-                    self.names
-                        .insert(introduced.text.clone(), spare.remove(0).to_string());
+                    self.names.insert(
+                        introduced.text.to_string(),
+                        spare.remove(0).to_string(),
+                    );
                 }
                 if node.notation() == crate::notations::MEMBERSHIP {
                     let set = self.term(&node.children[1])?;
-                    self.sets.insert(introduced.text.clone(), set);
+                    self.sets.insert(introduced.text.to_string(), set);
                 }
             }
             nodes.push(node);
@@ -982,7 +986,7 @@ impl<'a> Elaborator<'a> {
             .unwrap_or_default();
         self.names_kept(|me| -> Checked<Node> {
             for &i in &bound {
-                let said = node.children[i].text.clone();
+                let said = node.children[i].text.to_string();
                 let var = me.binder_var(&said)?;
                 me.names.insert(said, format!("{var} cv"));
             }

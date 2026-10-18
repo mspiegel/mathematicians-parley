@@ -402,7 +402,7 @@ pub fn bound_there(source: &dyn Source) -> Result<Vec<BoundThere>, Outcome> {
                         line: step.line,
                         letters: bound
                             .iter()
-                            .map(|(name, node)| (name.clone(), k.print(node)))
+                            .map(|(name, node)| (name.to_string(), k.print(node)))
                             .collect(),
                     });
                 }

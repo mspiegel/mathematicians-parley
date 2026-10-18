@@ -4,6 +4,7 @@ use std::collections::BTreeSet;
 
 use indexmap::IndexMap;
 
+use crate::formula::symbol::Symbol;
 use crate::formula::Node;
 use crate::matching::{fresh_letters, substitute_apart, Binding, Context};
 use crate::notations::PROPERTY_OF;
@@ -60,7 +61,9 @@ pub fn asks_of(
     let mut hypotheses = Vec::new();
     for asks in wants.chain(typed) {
         let unfixed = asks.names().iter().any(|n| {
-            let fixed = binding.get(n).is_some_and(|b| b.notation() != PROPERTY_OF);
+            let fixed = binding
+                .get(n.as_str())
+                .is_some_and(|b| b.notation() != PROPERTY_OF);
             !fixed && !library.env.g.functions.contains_key(n)
         });
         if !unfixed {
@@ -86,7 +89,7 @@ pub fn filled(node: &Node, bound: &Binding, ctx: &Context) -> Node {
         if let Some(rule) = bound.get(&node.children[0].text) {
             if rule.notation() == PROPERTY_OF {
                 let mut at = Binding::new();
-                at.insert(rule.text.clone(), filled(&node.children[1], bound, ctx));
+                at.insert(rule.text, filled(&node.children[1], bound, ctx));
                 return substitute_apart(&rule.children[0], &at, ctx);
             }
         }
@@ -100,14 +103,12 @@ pub fn filled(node: &Node, bound: &Binding, ctx: &Context) -> Node {
     // and never the p of p!.
     let (held, body) = ctx.held_body(node.notation());
     if !held.is_empty() && held.iter().all(|&at| node.children[at].is_name()) {
-        let own: BTreeSet<String> = held
-            .iter()
-            .map(|&at| node.children[at].text.clone())
-            .collect();
+        let own: BTreeSet<Symbol> =
+            held.iter().map(|&at| node.children[at].text).collect();
         let mut inner: Binding = bound
             .iter()
             .filter(|(k, _)| !own.contains(*k))
-            .map(|(k, v)| (k.clone(), v.clone()))
+            .map(|(k, v)| (*k, v.clone()))
             .collect();
         let mut used = node.names();
         for v in bound.values() {
@@ -118,7 +119,7 @@ pub fn filled(node: &Node, bound: &Binding, ctx: &Context) -> Node {
             let var = &node.children[at];
             if bound
                 .iter()
-                .any(|(k, v)| !own.contains(k) && v.names().contains(&var.text))
+                .any(|(k, v)| !own.contains(k) && v.names().contains(var.text.as_str()))
             {
                 let letter = fresh_letters()
                     .into_iter()
@@ -127,7 +128,7 @@ pub fn filled(node: &Node, bound: &Binding, ctx: &Context) -> Node {
                 let fresh = Node::name(var.sort.clone(), &letter);
                 used.insert(letter);
                 spelt.insert(at, fresh.clone());
-                inner.insert(var.text.clone(), fresh);
+                inner.insert(var.text, fresh);
             }
         }
         let children = node

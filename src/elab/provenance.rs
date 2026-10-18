@@ -260,7 +260,7 @@ impl<'a> Elaborator<'a> {
             return Ok(None);
         }
         let kernel = format!("{} cv", self.rpn(&term.children()[1]));
-        Ok(Some((node.children[0].text.clone(), kernel)))
+        Ok(Some((node.children[0].text.to_string(), kernel)))
     }
 
     /// A step's finished proof, sealed: it rests on nothing the step does

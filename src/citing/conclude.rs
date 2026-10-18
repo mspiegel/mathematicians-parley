@@ -169,7 +169,7 @@ pub fn not_numbers(
                 && set.notation() == crate::notations::NUMBER_SYSTEMS
             {
                 if let Some(system) = rules::System::of_sign(&set.text) {
-                    bound.insert(name.text.clone(), system);
+                    bound.insert(name.text.to_string(), system);
                 }
             }
         }
@@ -399,7 +399,7 @@ impl Taken {
         for t in of.gives.iter().chain(of.wants.iter().map(|(_, t)| t)) {
             free.extend(free_names(t, &library.ctx.binders));
         }
-        binding.retain(|name, _| free.contains(name));
+        binding.retain(|name, _| free.contains(name.as_str()));
         Taken {
             group,
             binding,
@@ -648,7 +648,7 @@ impl Offer {
         // A conclusion is a sentence, so one that is a bare letter of the
         // item's is a statement letter.
         let letter = matches!(gives.as_slice(), [one]
-            if one.is_name() && variables.contains(&one.text));
+            if one.is_name() && variables.contains(one.text.as_str()));
         Offer {
             letter,
             candidates,
@@ -754,11 +754,11 @@ fn existential(part: &Node, binding: &Binding, library: &Library) -> bool {
         let terms: Binding = binding
             .iter()
             .filter(|(_, v)| v.notation() != PROPERTY_OF)
-            .map(|(k, v)| (k.clone(), v.clone()))
+            .map(|(k, v)| (*k, v.clone()))
             .collect();
         let arg = substitute_apart(&part.children[1], &terms, &library.ctx);
         let mut at = Binding::new();
-        at.insert(stands.text.clone(), arg);
+        at.insert(stands.text, arg);
         part = substitute_apart(&stands.children[0], &at, &library.ctx);
     }
     library.exists.contains(&part.notation())

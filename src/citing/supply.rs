@@ -315,11 +315,11 @@ fn fits(
                 let terms: Binding = binding
                     .iter()
                     .filter(|(_, t)| t.notation() != PROPERTY_OF)
-                    .map(|(v, t)| (v.clone(), t.clone()))
+                    .map(|(v, t)| (*v, t.clone()))
                     .collect();
                 let arg = substitute_apart(&first.children[1], &terms, ctx);
                 let mut at = Binding::new();
-                at.insert(stands.text.clone(), arg.clone());
+                at.insert(stands.text, arg.clone());
                 first = substitute_apart(&stands.children[0], &at, ctx);
                 // The formula a property stands for is the step's own, so a
                 // name in it is the step's, even spelt as one of the item's.
@@ -329,7 +329,9 @@ fn fits(
                     .names()
                     .iter()
                     .map(|n| n.to_string())
-                    .filter(|n| variables.contains(n) && !binding.contains_key(n))
+                    .filter(|n| {
+                        variables.contains(n) && !binding.contains_key(n.as_str())
+                    })
                     .collect();
                 open_names = Cow::Owned(unbound);
             }
@@ -345,7 +347,7 @@ fn fits(
         let terms: Binding = binding
             .iter()
             .filter(|(_, t)| t.notation() != PROPERTY_OF)
-            .map(|(v, t)| (v.clone(), t.clone()))
+            .map(|(v, t)| (*v, t.clone()))
             .collect();
         let put = |side: &Node| substitute_apart(side, &terms, ctx);
         let none = IndexMap::new();
@@ -377,7 +379,7 @@ fn fits(
             let mut seen = open_names.as_ref().clone();
             for (name, _) in pairs {
                 if name.is_name() {
-                    seen.insert(name.text.clone());
+                    seen.insert(name.text.to_string());
                     inside.shift_remove(&name.text);
                 }
             }
@@ -516,7 +518,7 @@ fn self_evident(
     let terms: Binding = binding
         .iter()
         .filter(|(_, t)| t.notation() != PROPERTY_OF)
-        .map(|(v, t)| (v.clone(), t.clone()))
+        .map(|(v, t)| (*v, t.clone()))
         .collect();
     let spelt = substitute_apart(side, &terms, ctx);
     Some(body.with_children(vec![spelt.clone(), spelt]))
@@ -525,7 +527,7 @@ fn self_evident(
 /// Every one of the variables the tree names is bound already.
 fn all_bound(tree: &Node, variables: &BTreeSet<String>, binding: &Binding) -> bool {
     if tree.is_name()
-        && variables.contains(&tree.text)
+        && variables.contains(tree.text.as_str())
         && !binding.contains_key(&tree.text)
     {
         return false;
@@ -587,14 +589,14 @@ fn narrowed(
     if pattern.children[1]
         .names()
         .iter()
-        .any(|n| !binding.contains_key(n))
+        .any(|n| !binding.contains_key(n.as_str()))
     {
         return None;
     }
     let terms: Binding = binding
         .iter()
         .filter(|(_, t)| t.notation() != PROPERTY_OF)
-        .map(|(v, t)| (v.clone(), t.clone()))
+        .map(|(v, t)| (*v, t.clone()))
         .collect();
     let asked = substitute_apart(&pattern.children[1], &terms, ctx);
     if !set_within(&asked, &fact.children[1]) {

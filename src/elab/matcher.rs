@@ -1555,7 +1555,7 @@ impl<'a> Elaborator<'a> {
             .unwrap_or_default();
         let walked = self.names_kept(|me| -> Checked<Route<Walked>> {
             for &i in &bound {
-                let said = node.children[i].text.clone();
+                let said = node.children[i].text.to_string();
                 let var = me.binder_var(&said)?;
                 me.names.insert(said, format!("{var} cv"));
             }

@@ -14,6 +14,7 @@ use super::terms::Targets;
 use crate::citing::{
     index_system, nonzero_said_once, sum_said_once, within, Introduced,
 };
+use crate::formula::symbol::Symbol;
 use crate::formula::Node;
 use crate::matching::{alike, substitute_apart, Binding, Context};
 use crate::notations::{
@@ -253,7 +254,7 @@ fn in_domain(x: &Node, domain: &Node, facts: &Facts, depth: usize) -> bool {
             .is_some_and(|s| member(x, s, facts, depth));
     }
     let runs_over = x.is_name()
-        && facts.ranged.get(&x.text).is_some_and(|r| {
+        && facts.ranged.get(x.text.as_str()).is_some_and(|r| {
             matches!(domain.children.as_slice(), [a, b]
                 if domain.notation() == INTEGER_RANGE
                     && same(a, &r.start, facts.ctx)
@@ -304,7 +305,7 @@ fn summed(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
     }
     let mut letters = facts.letters.clone();
     if let Some(inside) = index_system(start) {
-        letters.insert(index.text.clone(), inside);
+        letters.insert(index.text.to_string(), inside);
     }
     if divides_by(body, &index.text, &letters) {
         let sum = Summed {
@@ -320,7 +321,7 @@ fn summed(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
     }
     let mut ranged = facts.ranged.clone();
     ranged.insert(
-        index.text.clone(),
+        index.text.to_string(),
         Range {
             start: start.clone(),
             end: end.clone(),
@@ -448,6 +449,6 @@ pub fn said_pointwise(
     };
     let lands = into.notation() == NUMBER_SYSTEMS
         && System::of_sign(&into.text).is_some_and(|s| s.within(system));
-    let at = Binding::from([(sum.index.to_string(), bound.clone())]);
+    let at = Binding::from([(Symbol::of(sum.index), bound.clone())]);
     holds_range && lands && same(&substitute_apart(sum.body, &at, ctx), value, ctx)
 }

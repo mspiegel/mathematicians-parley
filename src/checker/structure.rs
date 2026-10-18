@@ -452,7 +452,7 @@ fn letters_bound(claim: &Node, known: &Known) -> Vec<String> {
         };
         for &h in &binds.held {
             if let Some(name) = node.children.get(h).filter(|c| c.is_name()) {
-                out.push(name.text.clone());
+                out.push(name.text.to_string());
             }
         }
         let Some(body) = binds.body.last().and_then(|&b| node.children.get(b)) else {
@@ -473,7 +473,7 @@ fn check_step_part(report: &mut Report, thm: &Theorem, step: &Step, known: &Know
     };
     let (letter, set) = match (claim.notation(), claim.children.as_slice()) {
         (FOR_ALL, [letter, set, body])
-            if letter.is_name() && !body.names().contains(&letter.text) =>
+            if letter.is_name() && !body.names().contains(letter.text.as_str()) =>
         {
             report.say(
                 &thm.path,
@@ -510,7 +510,9 @@ fn check_step_part(report: &mut Report, thm: &Theorem, step: &Step, known: &Know
     check_induction_runs(report, thm, step, set, known);
     // The letter an induction runs over is its own: one the page has
     // introduced where the induction stands would be two things at once.
-    if letters_introduced(thm, &CheckedTheorem::of(thm), step).contains(&letter.text) {
+    if letters_introduced(thm, &CheckedTheorem::of(thm), step)
+        .contains(letter.text.as_str())
+    {
         report.say(
             &thm.path,
             step.line,
@@ -1148,7 +1150,7 @@ pub fn check_capture(report: &mut Report, thm: &Theorem, known: &Known) {
                 for &at in &binds.held {
                     if let Some(letter) = node.children.get(at).filter(|l| l.is_name())
                     {
-                        bound.insert(letter.text.clone());
+                        bound.insert(letter.text.to_string());
                     }
                 }
             }

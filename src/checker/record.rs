@@ -11,6 +11,7 @@ use indexmap::IndexMap;
 use crate::citing::Concluded;
 use crate::corpus::{Step, StepNo, Theorem};
 use crate::formula::{Node, Sorts};
+use crate::matching::Binding;
 use crate::outcome::Problem;
 
 /// Where a step or a define stands: directly in a block, and in which part
@@ -102,7 +103,7 @@ pub struct Cited {
     /// The item, by its full name.
     pub item: String,
     pub group: usize,
-    pub binding: IndexMap<String, Node>,
+    pub binding: Binding,
     /// The sentences of the item's conclusions the claim takes, and which
     /// way each is read, each sentence by its place among them all, counted
     /// across the groups in order: the place of the lemma that proves it in
@@ -118,7 +119,7 @@ pub struct Cited {
     /// What the citation's own pairs make the item's letters, `n := b`, as
     /// the checker reads them (`Parts::seed`): what an obtain unfolds a
     /// definition at, where it claims no conclusion of the item.
-    pub written: IndexMap<String, Node>,
+    pub written: Binding,
 }
 
 /// A line a citation names that states a fact its reading is taken from.

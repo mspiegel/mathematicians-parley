@@ -13,6 +13,7 @@ use std::sync::Arc;
 use super::grammar::{parse, Grammar, Sorts};
 use super::node::{Node, Sort};
 use super::notation_id::Spelling;
+use super::symbol::Symbol;
 use super::token::Token;
 use crate::notations::{AND, OR};
 use crate::outcome::{Built, Checked, Declined, Problem, Route};
@@ -97,7 +98,7 @@ impl Written {
     pub fn sentences(&self) -> Vec<Sentence> {
         if self.member.is_some() {
             return vec![Sentence {
-                text: self.text.clone(),
+                text: self.text.to_string(),
                 path: self.path.clone(),
                 line: self.line,
                 member: self.member.clone(),
@@ -258,7 +259,7 @@ pub fn filled(
     let mut put = crate::matching::Binding::new();
     for (letter, node) in fills {
         local.insert(letter.to_string(), node.sort.clone());
-        put.insert(letter.to_string(), (*node).clone());
+        put.insert(Symbol::of(letter), (*node).clone());
     }
     let made = template(text, g, &local)?;
     Ok(crate::matching::substitute_apart_by(

@@ -517,7 +517,7 @@ pub fn check_unsorted(
     fn bound(node: &Node, wanted: Wanted, out: &mut BTreeSet<String>) {
         for (i, kid) in node.children.iter().enumerate() {
             if wanted(node, i).contains("variable") {
-                out.insert(kid.text.clone());
+                out.insert(kid.text.to_string());
             }
             bound(kid, wanted, out);
         }
@@ -531,11 +531,11 @@ pub fn check_unsorted(
         for (i, kid) in node.children.iter().enumerate() {
             let w = wanted(node, i);
             if kid.is_name()
-                && !spoken.contains(&kid.text)
+                && !spoken.contains(kid.text.as_str())
                 && w.len() == 1
                 && w.contains("number")
             {
-                out.push(kid.text.clone());
+                out.push(kid.text.to_string());
             }
             open_numbers(kid, spoken, wanted, out);
         }
@@ -566,7 +566,7 @@ pub fn check_unsorted(
                     );
                     if let infer::SortTerm::Set(inner) = store.find(&held) {
                         if store.find(&inner) == infer::NUMBER {
-                            out.insert(named.text.clone());
+                            out.insert(named.text.to_string());
                         }
                     }
                 }

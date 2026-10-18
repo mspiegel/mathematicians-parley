@@ -466,11 +466,11 @@ fn free_names(r: &Record, g: &Grammar) -> Vec<String> {
             for n in &nodes {
                 if n.is_name()
                     && !bound.contains(n.text.as_str())
-                    && !introduced.contains(&n.text)
-                    && !g.functions.contains_key(&n.text)
-                    && !out.contains(&n.text)
+                    && !introduced.contains(n.text.as_str())
+                    && !g.functions.contains_key(n.text.as_str())
+                    && !out.iter().any(|o| *o == n.text)
                 {
-                    out.push(n.text.clone());
+                    out.push(n.text.to_string());
                 }
             }
         }

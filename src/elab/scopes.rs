@@ -506,7 +506,7 @@ impl<'a> Elaborator<'a> {
                         // class, and it must avoid whatever the notations
                         // bind.
                         let node = said.clone();
-                        let name = node.leftmost().text.clone();
+                        let name = node.leftmost().text.to_string();
                         let var = self.fixed_var(&name, &block.scope.clone())?;
                         self.names.insert(name.clone(), format!("{var} cv"));
                         block.variable = Some(var);
@@ -674,7 +674,7 @@ impl<'a> Elaborator<'a> {
                 false => Some(self.hypothesis_node(o.kind, &o.body(&self.thm.path))?),
             };
             if let (Intro::Let, Some(node)) = (o.kind, &said) {
-                let name = node.leftmost().text.clone();
+                let name = node.leftmost().text.to_string();
                 let var = self.fixed_var(&name, &block.scope.clone())?;
                 self.names.insert(name.clone(), format!("{var} cv"));
                 block.variable = Some(var);
@@ -2713,7 +2713,9 @@ impl<'a> Elaborator<'a> {
         for sentence in step.claim.sentences() {
             let said = self.read(&sentence)?;
             let named = |n: &Node| {
-                n.is_name() && got.contains(&n.text) && !domains.contains_key(&n.text)
+                n.is_name()
+                    && got.iter().any(|g| *g == n.text)
+                    && !domains.contains_key(n.text.as_str())
             };
             match (said.notation(), said.spelling(), said.children.as_slice()) {
                 // A function's membership is its type, `f : X → Y`, which
@@ -2721,10 +2723,10 @@ impl<'a> Elaborator<'a> {
                 // is f : X → Y" runs.
                 (FUNCTION_TYPE, _, [f, from, to]) if named(f) => {
                     let functions = self.functions_from(from, to)?;
-                    domains.insert(f.text.clone(), functions);
+                    domains.insert(f.text.to_string(), functions);
                 }
                 (_, IN, [x, set]) if named(x) => {
-                    domains.insert(x.text.clone(), set.clone());
+                    domains.insert(x.text.to_string(), set.clone());
                 }
                 _ => rest.push(said),
             }

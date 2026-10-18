@@ -12,6 +12,7 @@ pub(crate) mod notation;
 pub mod notation_id;
 pub mod page;
 mod print;
+pub mod symbol;
 pub mod token;
 
 pub use grammar::{fits, holds, Grammar, Sorts, TERM_SORTS};

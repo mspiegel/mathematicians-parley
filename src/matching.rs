@@ -18,6 +18,7 @@ use indexmap::{IndexMap, IndexSet};
 
 use crate::corpus::{Record, RecordKind};
 use crate::formula::notation_id::{NotationId, Spelling};
+use crate::formula::symbol::Symbol;
 use crate::formula::{Binds, Node, NodeId, Notation};
 use crate::notations::{APPLICATION, APPLICATION_TO_TWO, NUMERAL, PROPERTY_OF};
 use crate::regex;
@@ -45,7 +46,7 @@ pub fn split_commas(text: &str) -> Vec<&str> {
 }
 
 /// What the names of a pattern have been matched to.
-pub type Binding = IndexMap<String, Node>;
+pub type Binding = IndexMap<Symbol, Node>;
 
 /// What a match needs to know of the notations: which bind a variable,
 /// which apply a property or a function, and which are equations.
@@ -253,12 +254,12 @@ pub fn free_names(
 fn free_names_under(
     node: &Node,
     binders: &FxIndexMap<NotationId, Binds>,
-    bound: &mut Vec<String>,
+    bound: &mut Vec<Symbol>,
     out: &mut BTreeSet<String>,
 ) {
     if node.is_name() {
         if !bound.contains(&node.text) {
-            out.insert(node.text.clone());
+            out.insert(node.text.to_string());
         }
         return;
     }
@@ -272,12 +273,12 @@ fn free_names_under(
             continue;
         }
         if binds.body.contains(&at) {
-            let held: Vec<String> = binds
+            let held: Vec<Symbol> = binds
                 .held
                 .iter()
                 .filter_map(|&h| node.children.get(h))
                 .filter(|h| h.is_name())
-                .map(|h| h.text.clone())
+                .map(|h| h.text)
                 .collect();
             let depth = bound.len();
             bound.extend(held);
@@ -322,7 +323,7 @@ fn applies_first(n: &Notation) -> bool {
 pub fn binding_sites(
     pattern: &Node,
     ctx: &Context,
-    bound: &[String],
+    bound: &[Symbol],
     out: &mut IndexSet<NodeId>,
 ) {
     if ctx.props.contains_key(&pattern.notation())
@@ -333,10 +334,10 @@ pub fn binding_sites(
         out.insert(pattern.id());
     }
     let (held, body) = ctx.held_body(pattern.notation());
-    let own: Vec<String> = held
+    let own: Vec<Symbol> = held
         .iter()
         .filter(|&&at| pattern.children[at].is_name())
-        .map(|&at| pattern.children[at].text.clone())
+        .map(|&at| pattern.children[at].text)
         .collect();
     for (i, child) in pattern.children.iter().enumerate() {
         if body.contains(&i) {
@@ -554,7 +555,7 @@ pub fn match_tree(
 
 /// The pattern is one of the variables being bound.
 fn is_variable(pattern: &Node, variables: &BTreeSet<String>) -> bool {
-    pattern.is_name() && variables.contains(&pattern.text)
+    pattern.is_name() && variables.contains(pattern.text.as_str())
 }
 
 /// The pattern applies a property or function that is one of the variables.
@@ -566,7 +567,7 @@ fn applies_variable(
     ctx.props.contains_key(&pattern.notation())
         && pattern.children.len() == 2
         && pattern.children[0].is_name()
-        && variables.contains(&pattern.children[0].text)
+        && variables.contains(pattern.children[0].text.as_str())
 }
 
 /// The two nodes differ in what they are, so no binding makes one the other.
@@ -637,7 +638,7 @@ fn fit(
         if let Some(seen) = binding.get(&pattern.text) {
             return alike(seen, ground, ctx, &IndexMap::new(), &IndexMap::new());
         }
-        binding.insert(pattern.text.clone(), ground.clone());
+        binding.insert(pattern.text, ground.clone());
         return true;
     }
     if applies_variable(pattern, variables, ctx) {
@@ -736,13 +737,13 @@ fn bound_as(
         if !ours.is_name()
             || !theirs.is_name()
             || ours.text == theirs.text
-            || variables.contains(&ours.text)
-            || pattern.names().contains(&theirs.text)
+            || variables.contains(ours.text.as_str())
+            || pattern.names().contains(theirs.text.as_str())
         {
             continue;
         }
         let mut swap = Binding::new();
-        swap.insert(ours.text.clone(), theirs.clone());
+        swap.insert(ours.text, theirs.clone());
         let children = pattern
             .children
             .iter()
@@ -775,8 +776,8 @@ pub fn alike(
     a: &Node,
     b: &Node,
     ctx: &Context,
-    ours: &IndexMap<String, String>,
-    theirs: &IndexMap<String, String>,
+    ours: &IndexMap<Symbol, Symbol>,
+    theirs: &IndexMap<Symbol, Symbol>,
 ) -> bool {
     if alike_as_written(a, b, ctx, ours, theirs) {
         return true;
@@ -871,8 +872,8 @@ fn alike_as_written(
     a: &Node,
     b: &Node,
     ctx: &Context,
-    ours: &IndexMap<String, String>,
-    theirs: &IndexMap<String, String>,
+    ours: &IndexMap<Symbol, Symbol>,
+    theirs: &IndexMap<Symbol, Symbol>,
 ) -> bool {
     if a.is_name() && b.is_name() {
         if ours.contains_key(&a.text) || theirs.contains_key(&b.text) {
@@ -906,10 +907,10 @@ fn alike_as_written(
     let mut inner_ours = ours.clone();
     let mut inner_theirs = theirs.clone();
     for (x, y) in &pairs {
-        inner_ours.insert(x.text.clone(), y.text.clone());
+        inner_ours.insert(x.text, y.text);
     }
     for (x, y) in &pairs {
-        inner_theirs.insert(y.text.clone(), x.text.clone());
+        inner_theirs.insert(y.text, x.text);
     }
     a.children
         .iter()
@@ -1012,14 +1013,14 @@ fn property(
         if !sites.contains(&pattern.id()) || !arg.is_name() {
             return false; // only the inside occurrence decides
         }
-        binding.insert(name.clone(), Node::property(&arg.text, ground.clone()));
+        binding.insert(*name, Node::property(&arg.text, ground.clone()));
         return true;
     };
     if stands.notation() != PROPERTY_OF {
         return false;
     }
     let mut at = Binding::new();
-    at.insert(stands.text.clone(), arg);
+    at.insert(stands.text, arg);
     let filled = substitute_apart(&stands.children[0], &at, ctx);
     alike_top(&filled, ground, ctx)
 }
@@ -1034,7 +1035,7 @@ fn read_at(arg: &Node, binding: &Binding, ctx: &Context) -> Node {
     let terms: Binding = binding
         .iter()
         .filter(|(_, t)| t.notation() != PROPERTY_OF)
-        .map(|(v, t)| (v.clone(), t.clone()))
+        .map(|(v, t)| (*v, t.clone()))
         .collect();
     substitute_apart(arg, &terms, ctx)
 }
@@ -1065,7 +1066,7 @@ fn family(
     if let Some(stands) = &stands {
         if stands.notation() == PROPERTY_OF {
             let mut at = Binding::new();
-            at.insert(stands.text.clone(), arg.clone());
+            at.insert(stands.text, arg.clone());
             let filled = substitute_apart(&stands.children[0], &at, ctx);
             // At a letter still to be bound, a "there is"'s own in u =
             // E(s), the rule there is matched, which binds it: E(s) with E
@@ -1080,7 +1081,7 @@ fn family(
         && ground.children.len() == 2
         && ground.children[1].shape() == arg.shape();
     if stands.is_none() && sites.contains(&pattern.id()) && arg.is_name() && !plain {
-        binding.insert(name.clone(), Node::property(&arg.text, ground.clone()));
+        binding.insert(*name, Node::property(&arg.text, ground.clone()));
         return Some(true);
     }
     None
@@ -1110,7 +1111,7 @@ impl Rule {
         }
         let mut put = Binding::new();
         for (p, v) in self.params.iter().zip(values) {
-            put.insert(p.name.clone(), v.clone());
+            put.insert(Symbol::of(&p.name), v.clone());
         }
         Some(substitute_apart_by(&self.body, &put, &self.binders))
     }
@@ -1148,7 +1149,7 @@ fn expand_to(node: &Node, definitions: &Definitions, depth: i32) -> Node {
         return node.clone();
     }
     if node.is_name() {
-        match definitions.get(&node.text) {
+        match definitions.get(node.text.as_str()) {
             // A function of one argument standing alone is its rule, a
             // property with the argument as its hole. One of two has no such
             // reading, and its name stands as written.
@@ -1166,7 +1167,9 @@ fn expand_to(node: &Node, definitions: &Definitions, depth: i32) -> Node {
         && node.children.len() >= 2
         && node.children[0].is_name()
     {
-        if let Some(Defined::Rule(rule)) = definitions.get(&node.children[0].text) {
+        if let Some(Defined::Rule(rule)) =
+            definitions.get(node.children[0].text.as_str())
+        {
             let values: Vec<Node> = node.children[1..]
                 .iter()
                 .map(|c| expand_to(c, definitions, depth))
@@ -1232,14 +1235,11 @@ pub fn substitute_apart_by(
                 .collect(),
         );
     }
-    let own: BTreeSet<String> = held
-        .iter()
-        .map(|&at| node.children[at].text.clone())
-        .collect();
+    let own: BTreeSet<Symbol> = held.iter().map(|&at| node.children[at].text).collect();
     let inner: Binding = binding
         .iter()
         .filter(|(k, _)| !own.contains(*k))
-        .map(|(k, v)| (k.clone(), v.clone()))
+        .map(|(k, v)| (*k, v.clone()))
         .collect();
     let mut used = node.names();
     for v in binding.values() {
@@ -1249,7 +1249,10 @@ pub fn substitute_apart_by(
     let mut renamed = inner.clone();
     for &at in &held {
         let var = &node.children[at];
-        if inner.values().any(|v| v.names().contains(&var.text)) {
+        if inner
+            .values()
+            .any(|v| v.names().contains(var.text.as_str()))
+        {
             let letter = fresh_letters()
                 .into_iter()
                 .find(|c| !used.contains(c))
@@ -1257,7 +1260,7 @@ pub fn substitute_apart_by(
             let fresh = Node::name(var.sort.clone(), &letter);
             used.insert(letter);
             spelt.insert(at, fresh.clone());
-            renamed.insert(var.text.clone(), fresh);
+            renamed.insert(var.text, fresh);
         }
     }
     let children = node

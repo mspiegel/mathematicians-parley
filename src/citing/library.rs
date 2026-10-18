@@ -84,11 +84,11 @@ fn applied_functions<'t>(
                 continue;
             };
             if head.is_name()
-                && env.g.functions.contains_key(&head.text)
-                && sorts.imported.contains(&head.text)
-                && !own.contains(&head.text)
+                && env.g.functions.contains_key(head.text.as_str())
+                && sorts.imported.contains(head.text.as_str())
+                && !own.contains(head.text.as_str())
             {
-                out.insert(head.text.clone());
+                out.insert(head.text.to_string());
             }
         }
     }

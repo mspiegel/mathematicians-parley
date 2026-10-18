@@ -17,6 +17,7 @@ use num_rational::BigRational;
 use num_traits::{One, Signed, ToPrimitive, Zero};
 
 use crate::formula::page::template;
+use crate::formula::symbol::Symbol;
 use crate::formula::{Node, Sort, Sorts};
 use crate::matching::{alike_top, standard, substitute_apart, Binding};
 use crate::notations::{
@@ -47,7 +48,7 @@ pub fn introduction(said: &Node) -> Option<(String, System)> {
         INTEGER_RANGE => range_system(set)?,
         _ => return None,
     };
-    Some((letter.text.clone(), system))
+    Some((letter.text.to_string(), system))
 }
 
 /// The least number system the declared table puts a range {a, …, b} in:
@@ -101,7 +102,7 @@ pub fn said_once(
             continue;
         };
         if term.is_name() {
-            letters.entry(term.text.clone()).or_insert(system);
+            letters.entry(term.text.to_string()).or_insert(system);
         } else {
             atoms.push((term.clone(), system));
         }
@@ -114,7 +115,7 @@ pub fn said_once(
     // nothing here, and its own checks report what it lacks.
     let form = |said: &'static str, term: &Node| -> Option<Node> {
         let made = template(said, library.env.g, &local).ok()?;
-        let put = Binding::from([("x".to_string(), term.clone())]);
+        let put = Binding::from([(Symbol::of("x"), term.clone())]);
         Some(standard(&substitute_apart(&made, &put, ctx), ctx))
     };
     // S is read as the number system that fills it, whatever the page's S
@@ -125,7 +126,7 @@ pub fn said_once(
         sets.insert("S".into(), set.sort.clone());
         let made = template("x ∈ S", library.env.g, &sets).ok()?;
         let put =
-            Binding::from([("x".to_string(), term.clone()), ("S".to_string(), set)]);
+            Binding::from([(Symbol::of("x"), term.clone()), (Symbol::of("S"), set)]);
         Some(standard(&substitute_apart(&made, &put, ctx), ctx))
     };
     // A divisor is not zero where the page says once it is a positive
@@ -222,7 +223,7 @@ pub fn a_number_said_once(
             continue;
         };
         if name.is_name() {
-            letters.entry(name.text.clone()).or_insert(system);
+            letters.entry(name.text.to_string()).or_insert(system);
         } else {
             atoms.push((name, system));
         }
@@ -423,7 +424,7 @@ impl OnceAsk for PageOnce<'_> {
     }
 
     fn letter(&mut self, term: &Node) -> Option<System> {
-        self.letters.get(&term.text).copied()
+        self.letters.get(term.text.as_str()).copied()
     }
 
     fn nonzero(&mut self, divisor: &Node) -> bool {
@@ -458,7 +459,7 @@ pub fn sum_said_once(
     }
     let mut letters = letters.clone();
     if let Some(inside) = index_system(start) {
-        letters.insert(index.text.clone(), inside);
+        letters.insert(index.text.to_string(), inside);
     }
     let at = SumIndex {
         index: &index.text,
@@ -527,8 +528,11 @@ impl SumIndex<'_> {
         }
         domain.notation() == NUMBER_SYSTEMS
             && x.is_name()
-            && System::of_sign(&domain.text)
-                .is_some_and(|d| self.letters.get(&x.text).is_some_and(|s| s.within(d)))
+            && System::of_sign(&domain.text).is_some_and(|d| {
+                self.letters
+                    .get(x.text.as_str())
+                    .is_some_and(|s| s.within(d))
+            })
     }
 }
 

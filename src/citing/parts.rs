@@ -2,6 +2,7 @@
 
 use crate::corpus::{Head, Step};
 use crate::formula::page;
+use crate::formula::symbol::Symbol;
 use crate::formula::{Node, Sort, Sorts, Whole};
 use crate::matching::{standard, substitute_apart_by, Binding};
 use crate::notations::{
@@ -93,9 +94,7 @@ pub fn typed_seed(parts: &mut Parts, name: &str, ours: &[Node], library: &Librar
         };
         for (letter, set) in [(d, &said.children[1]), (e, &said.children[2])] {
             if letter.is_name() && !parts.seed.contains_key(&letter.text) {
-                parts
-                    .seed
-                    .insert(letter.text.clone(), standard(set, &library.ctx));
+                parts.seed.insert(letter.text, standard(set, &library.ctx));
             }
         }
     }
@@ -214,7 +213,7 @@ fn fits_form(form: &Node, fact: &Node, put: &mut Binding) -> bool {
         return match put.get(&form.text) {
             Some(held) => held.shape() == fact.shape(),
             None => {
-                put.insert(form.text.clone(), fact.clone());
+                put.insert(form.text, fact.clone());
                 true
             }
         };
@@ -365,13 +364,13 @@ pub fn implied_facts(fact: &Node, env: Env, sorts: &Sorts) -> Vec<Node> {
             let mut systems = local.clone();
             systems.insert("S".into(), set.sort.clone());
             let put = Binding::from([
-                ("x".to_string(), term.clone()),
-                ("S".to_string(), set),
+                (Symbol::of("x"), term.clone()),
+                (Symbol::of("S"), set),
             ]);
             substitute_apart_by(&template("x ∈ S", env, &systems), &put, &binders)
         })
         .collect();
-    let put = Binding::from([("x".to_string(), term)]);
+    let put = Binding::from([(Symbol::of("x"), term)]);
     said.extend(rules::implied(system.map(rules::System::label)).iter().map(
         |(form, _)| substitute_apart_by(&template(form, env, &local), &put, &binders),
     ));

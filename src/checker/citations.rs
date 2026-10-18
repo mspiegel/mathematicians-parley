@@ -26,6 +26,7 @@ use crate::corpus::{
     define_parts, DefineParts, FileScope, Head, Item, Method, Step, Theorem,
 };
 use crate::formula::page::{self, conjoined, Written};
+use crate::formula::symbol::Symbol;
 use crate::formula::{Node, Sort};
 use crate::matching::{
     alike, binding_sites, match_tree, standard, substitute_apart, Binding, Context,
@@ -242,16 +243,8 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
         group: taken.group,
         concluded: across_groups(taken, before),
         firsts,
-        binding: taken
-            .binding
-            .iter()
-            .map(|(k, v)| (k.clone(), v.clone()))
-            .collect(),
-        written: parts
-            .seed
-            .iter()
-            .map(|(k, v)| (k.clone(), v.clone()))
-            .collect(),
+        binding: taken.binding.clone(),
+        written: parts.seed.clone(),
     })
 }
 
@@ -320,8 +313,8 @@ pub fn cited_requires(
         group: taken.group,
         concluded: across_groups(&taken, before),
         firsts,
-        binding: taken.binding.into_iter().collect(),
-        written: parts.seed.into_iter().collect(),
+        binding: taken.binding,
+        written: parts.seed,
     })
 }
 
@@ -414,11 +407,7 @@ fn across_groups(taken: &Taken, before: usize) -> Vec<Concluded> {
 /// letters, as the matcher reads the citation (`taken`): the values it
 /// writes and what its claim and lines fix. None where the step cites no
 /// item, or no group of it concludes the claim.
-pub fn bound_there(
-    step: &Step,
-    library: &Library,
-    known: &Known,
-) -> Option<IndexMap<String, Node>> {
+pub fn bound_there(step: &Step, library: &Library, known: &Known) -> Option<Binding> {
     if step.just.head.is(Method::Obtain) {
         return None;
     }
@@ -427,13 +416,7 @@ pub fn bound_there(
     let Built(taken) = &*read else {
         return None;
     };
-    Some(
-        taken
-            .binding
-            .iter()
-            .map(|(k, v)| (k.clone(), v.clone()))
-            .collect(),
-    )
+    Some(taken.binding.clone())
 }
 
 /// The hypotheses of the item a step cites that nothing it names supplies,
@@ -480,7 +463,7 @@ fn missing_hypotheses(
         // which fixes a letter the conclusion does not hold: c := m.
         let mut fixed = parts.seed.clone();
         for (name, value) in &alone.binding {
-            fixed.insert(name.clone(), value.clone());
+            fixed.insert(*name, value.clone());
         }
         let group = &groups[alone.group];
         let unmet: Vec<String> = group
@@ -879,7 +862,7 @@ pub fn check_subjects(
             continue;
         }
         let subject = left.leftmost();
-        let letter = subject.text.clone();
+        let letter = subject.text;
         if !subject.is_name() || just.values.names().any(|n| n == letter) {
             continue;
         }
@@ -887,7 +870,7 @@ pub fn check_subjects(
         // which is the letter the build gives the subject.
         let in_scope =
             letters_in_scope(thm, &shape, step, known.env.scopes, &known.sorts);
-        if !in_scope.contains(&letter) {
+        if !in_scope.contains(letter.as_str()) {
             report.say(
                 &thm.path,
                 just.line,
@@ -1008,7 +991,7 @@ pub fn check_function_types(
         let parts = known.parts(step, library);
         for t in &asks.types {
             let function = &t.asked.children[0];
-            if !function.is_name() || defines.contains(&function.text) {
+            if !function.is_name() || defines.contains(function.text.as_str()) {
                 continue;
             }
             // A function the citation leaves the item's own letter is not
@@ -1535,7 +1518,7 @@ pub fn check_obtained_claims(
                 else {
                     continue;
                 };
-                put.insert(letter.text.clone(), named);
+                put.insert(letter.text, named);
             }
         }
         let Some(said) = step
@@ -1959,7 +1942,7 @@ impl AskedType {
         let [value, into] = body.children.as_slice() else {
             return false;
         };
-        let at = Binding::from([(letter.to_string(), bound.clone())]);
+        let at = Binding::from([(Symbol::of(letter), bound.clone())]);
         let holds = known.alike(set, domain)
             || (set.notation() == NUMBER_SYSTEMS
                 && range_system(domain).is_some_and(|inside| {
@@ -1981,7 +1964,8 @@ impl AskedType {
         asked.notation() == said.notation()
             && asked.children.len() == said.children.len()
             && asked.children.iter().zip(&said.children).all(|(a, s)| {
-                (a.is_name() && self.open.contains(&a.text)) || known.alike(a, s)
+                (a.is_name() && self.open.contains(a.text.as_str()))
+                    || known.alike(a, s)
             })
     }
 }
@@ -2003,9 +1987,9 @@ fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
     // for (`GRAMMAR.md`, the function's type is a declaration). What the
     // step claims is no guide to the letters: an `obtain` claims the
     // witness, not the item's conclusion.
-    let declared: BTreeSet<String> = typed_in_scope(known, step)
+    let declared: BTreeSet<Symbol> = typed_in_scope(known, step)
         .iter()
-        .map(|t| t.children[0].text.clone())
+        .map(|t| t.children[0].text)
         .collect();
     // What the citation writes, and what the match of the item against the
     // claim and the cited lines fixes beside it: `g is continuous on D`
@@ -2020,9 +2004,9 @@ fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
     if let Some(Built(taken)) = read.as_deref() {
         for (name, value) in &taken.binding {
             if value.notation() == PROPERTY_OF {
-                rules.insert(name.clone(), value.clone());
+                rules.insert(*name, value.clone());
             } else if !fixed.contains_key(name) {
-                fixed.insert(name.clone(), value.clone());
+                fixed.insert(*name, value.clone());
             }
         }
     }
@@ -2034,10 +2018,10 @@ fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
             open: t.children[1..]
                 .iter()
                 .filter(|s| s.is_name() && !fixed.contains_key(&s.text))
-                .map(|s| s.text.clone())
+                .map(|s| s.text.to_string())
                 .collect(),
             filled: fixed.contains_key(&t.children[0].text),
-            rule: rules.get(&t.children[0].text).cloned(),
+            rule: rules.get(t.children[0].text.as_str()).cloned(),
         })
         // A letter the citation leaves unfilled is the item's own, whatever
         // the page calls by the same name: sum-termwise's u, read as a rule,
@@ -2161,7 +2145,7 @@ impl FamilyAsks {
                     };
                     f.is_name()
                         && known.alike(f, &value.children[0])
-                        && ((d.is_name() && t.open.contains(&d.text))
+                        && ((d.is_name() && t.open.contains(d.text.as_str()))
                             || known.alike(d, set))
                         && known.alike(e, &body.children[1])
                 });
@@ -2174,7 +2158,7 @@ impl FamilyAsks {
             let none = IndexMap::new();
             return self.values.iter().any(|v| {
                 let mut at = Binding::new();
-                at.insert(v.text.clone(), bound.clone());
+                at.insert(v.text, bound.clone());
                 let value = substitute_apart(&v.children[0], &at, &self.ctx);
                 alike(&value, &body.children[0], &self.ctx, &none, &none)
             });
@@ -2397,7 +2381,7 @@ fn defined_types_unsaid(
         if !v.is_name() {
             continue;
         }
-        let Some(rule) = at.defined.get(&v.text) else {
+        let Some(rule) = at.defined.get(v.text.as_str()) else {
             continue;
         };
         let typed = substitute_apart(t, &stands, &library.ctx);
@@ -2644,7 +2628,7 @@ fn sum_indices(node: &Node, ctx: &Context, out: &mut BTreeSet<String>) {
         let (held, _) = ctx.held_body(node.notation());
         for at in held {
             if let Some(letter) = node.children.get(at).filter(|c| c.is_name()) {
-                out.insert(letter.text.clone());
+                out.insert(letter.text.to_string());
             }
         }
     }
@@ -2879,7 +2863,7 @@ fn shows_value(step: &Step, r: &str, library: &Library, known: &Known) -> bool {
                 !(w.notation() == MEMBERSHIP
                     && w.children
                         .first()
-                        .is_some_and(|t| letters.contains(&t.text)))
+                        .is_some_and(|t| letters.contains(t.text.as_str())))
             })
             .any(|w| {
                 // The line itself says the part at the value, and not only
@@ -2992,7 +2976,7 @@ fn check_exhibit(
             w.notation() == MEMBERSHIP
                 && w.children
                     .first()
-                    .is_some_and(|t| letters.contains(&t.text))
+                    .is_some_and(|t| letters.contains(t.text.as_str()))
         };
         let mut best: Option<(usize, Binding)> = None;
         for w in wants
@@ -3003,7 +2987,7 @@ fn check_exhibit(
             let Some(at) = stated(std::slice::from_ref(w)) else {
                 continue;
             };
-            if !letters.iter().all(|l| at.contains_key(l)) {
+            if !letters.iter().all(|l| at.contains_key(l.as_str())) {
                 continue;
             }
             let count = wants.iter().filter(|w| holds(w, &at)).count();
@@ -3028,7 +3012,10 @@ fn check_exhibit(
             .unwrap_or_else(|| wants.clone());
         let values: Vec<String> = letters
             .iter()
-            .filter_map(|l| at.get(l).map(|v| format!("{l} := {}", known.print(v))))
+            .filter_map(|l| {
+                at.get(l.as_str())
+                    .map(|v| format!("{l} := {}", known.print(v)))
+            })
             .collect();
         for (want, show) in wants.iter().zip(&shown) {
             if holds(want, &at) {
@@ -3085,7 +3072,7 @@ fn exhibited(claim: &Node, library: &Library) -> Option<Exhibited> {
     if let Some(body) = body {
         wants.extend(conjuncts(body, library));
     }
-    let letters = bound.iter().map(|(l, _)| l.text.clone()).collect();
+    let letters = bound.iter().map(|(l, _)| l.text.to_string()).collect();
     Some(Exhibited { wants, letters })
 }
 
@@ -3162,15 +3149,15 @@ pub fn check_instantiated(
                     continue;
                 };
                 let domain = substitute_apart(&b.domain, &outer, &library.ctx);
-                outer.insert(b.letter.text.clone(), value.clone());
+                outer.insert(b.letter.text, value.clone());
                 let want = bound_in(b.how, value, &domain, library);
                 let value_written = written
-                    .get(&b.letter.text)
+                    .get(b.letter.text.as_str())
                     .cloned()
                     .unwrap_or_else(|| value.clone());
                 let domain_written =
                     substitute_apart(&w.domain, &outer_written, &library.ctx);
-                outer_written.insert(w.letter.text.clone(), value_written.clone());
+                outer_written.insert(w.letter.text, value_written.clone());
                 if parts.facts.iter().any(|f| known.alike(f, &want)) {
                     wants.push(want);
                     continue;
@@ -3401,7 +3388,7 @@ fn instance_at(said: &Node, seed: &Binding, library: &Library) -> Option<Node> {
         let Some(value) = seed.get(&letter.text) else {
             break;
         };
-        put.insert(letter.text.clone(), value.clone());
+        put.insert(letter.text, value.clone());
         body = inner.clone();
     }
     (!put.is_empty()).then(|| substitute_apart(&body, &put, &library.ctx))
@@ -3707,13 +3694,13 @@ fn from_lines_give(
         if let (FOR_ALL, [letter, inner, said]) =
             (claim.notation(), claim.children.as_slice())
         {
-            let put = Binding::from([(bound.text.clone(), letter.clone())]);
+            let put = Binding::from([(bound.text, letter.clone())]);
             return (known.alike(inner, over)
                 || crate::citing::set_within(inner, over))
                 && known.alike(&substitute_apart(body, &put, known.ctx), said);
         }
         // At a member: the claim is the body, or one part of it, there.
-        let variables = BTreeSet::from([bound.text.clone()]);
+        let variables = BTreeSet::from([bound.text.to_string()]);
         conjuncts(body, library).iter().any(|part| {
             let Some(fit) = match_tree(
                 part,

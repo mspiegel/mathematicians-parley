@@ -150,9 +150,10 @@ impl Targets {
             crate::notations::APPLICATION | crate::notations::APPLICATION_TO_TWO
         );
         let library = match node.children.as_slice() {
-            [head, args @ ..] if applied && head.is_name() => {
-                self.builds.get(&head.text).map(|b| (b.as_str(), args))
-            }
+            [head, args @ ..] if applied && head.is_name() => self
+                .builds
+                .get(head.text.as_str())
+                .map(|b| (b.as_str(), args)),
             _ => None,
         };
         let (pattern, holes): (&str, &'n [Node]) = match library {
@@ -285,7 +286,7 @@ fn atom(node: &Node, indices: &[&Node]) -> Term {
     let names = node.names();
     for index in indices {
         let itself = node.is_name() && node.text == index.text;
-        if !itself && names.contains(&index.text) {
+        if !itself && names.contains(index.text.as_str()) {
             name.push(' ');
             name.push_str(&format!("{ATOM}{}", index.shape()));
         }

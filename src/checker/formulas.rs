@@ -22,6 +22,7 @@ use crate::formula::notation_id::{NotationId, Spelling};
 use crate::formula::page::{
     conjoined, disjoined, made, numeral, related, Sentence, Written,
 };
+use crate::formula::symbol::Symbol;
 use crate::formula::{walk, Node, Sort, Sorts};
 use crate::matching::{
     alike_top, free_names, identities_dropped, standard, substitute_apart_by, Binding,
@@ -158,11 +159,11 @@ fn cited_sorts(
             let mut names: Vec<String> = Vec::new();
             for n in tree.walk() {
                 if n.is_name()
-                    && reader.env.contains_key(&n.text)
-                    && !member.contains_key(&n.text)
-                    && !names.contains(&n.text)
+                    && reader.env.contains_key(n.text.as_str())
+                    && !member.contains_key(n.text.as_str())
+                    && !names.iter().any(|m| *m == n.text)
                 {
-                    names.push(n.text.clone());
+                    names.push(n.text.to_string());
                 }
             }
             let before: Vec<Option<Sort>> = names
@@ -917,7 +918,7 @@ pub fn check_impossible(
                 .walk()
                 .iter()
                 .filter(|n| n.is_name())
-                .map(|n| n.text.clone())
+                .map(|n| n.text.to_string())
                 .collect();
             if !named.is_empty() {
                 report.say(
@@ -1437,7 +1438,7 @@ fn induction_owes(owner: &Step, claim: &Node, known: &Known) -> Vec<Owed> {
     let letter = &claim.children[0];
     let at = |value: Node| -> Node {
         let mut put = Binding::new();
-        put.insert(letter.text.clone(), value);
+        put.insert(letter.text, value);
         substitute_apart_by(&claim.children[2], &put, &known.env.g.binders())
     };
     // The start as the justification writes it, `starting at 0`; one that
@@ -1487,7 +1488,7 @@ fn proof_owes(owner: &Step, claim: &Node, known: &Known) -> Checked<Owed> {
                         let named = Written::new(name, path, o.line)
                             .sentence()
                             .and_then(|s| known.parse(&s))?;
-                        put.insert(rest.children[0].text.clone(), named);
+                        put.insert(rest.children[0].text, named);
                         substitute_apart_by(&body, &put, &known.env.g.binders())
                     }
                     _ => body,
@@ -3674,7 +3675,7 @@ impl MembershipIn {
                 if let (true, Some(system)) =
                     (name.is_name(), System::of_sign(&set.text))
                 {
-                    letters.entry(name.text.clone()).or_insert(system);
+                    letters.entry(name.text.to_string()).or_insert(system);
                 }
             }
         }
@@ -3735,10 +3736,10 @@ fn member_of(
     let Some(system) = system else {
         return false;
     };
-    letters.insert(bound.text.clone(), system);
+    letters.insert(bound.text.to_string(), system);
     if let (INTEGER_RANGE, [start, end]) = (set.notation(), set.children.as_slice()) {
         ranged.insert(
-            bound.text.clone(),
+            bound.text.to_string(),
             methods_membership::Range {
                 start: start.clone(),
                 end: end.clone(),
@@ -3967,7 +3968,7 @@ fn written_out(node: &Node, known: &Known) -> Node {
     }
     let g = known.env.g;
     let at = |k: u64| {
-        let put = Binding::from([(index.text.clone(), numeral(&k.to_string()))]);
+        let put = Binding::from([(index.text, numeral(&k.to_string()))]);
         crate::matching::substitute_apart(body, &put, known.ctx)
     };
     (from + 1..=to).fold(at(from), |acc, k| made(g, joined, vec![acc, at(k)]))
@@ -4317,7 +4318,7 @@ fn recursion_value(
     let mut term = written(rule).sentence()?.read(env.g, &local)?;
     if let Some(index) = &index {
         let mut put = Binding::new();
-        put.insert(said.index.clone(), index.clone());
+        put.insert(Symbol::of(&said.index), index.clone());
         // Apart from a letter the rule binds, a sum's index among them.
         term = substitute_apart_by(&term, &put, &env.g.binders());
     }
@@ -4397,7 +4398,7 @@ fn recursion_equation(
         if !(one.notation() == APPLICATION
             && one.children.len() == 2
             && one.children[0].is_name()
-            && said.names.contains(&one.children[0].text))
+            && said.names.iter().any(|n| *n == one.children[0].text))
         {
             continue;
         }
@@ -4493,7 +4494,7 @@ pub fn check_recursions(report: &mut Report, thm: &Theorem, env: Env, known: &Kn
                     node.notation() == APPLICATION
                         && node.children.len() == 2
                         && node.children[0].is_name()
-                        && said.names.contains(&node.children[0].text)
+                        && said.names.iter().any(|n| *n == node.children[0].text)
                 };
                 let nodes = walk(std::slice::from_ref(&tree));
                 let at_k: BTreeSet<usize> = nodes
@@ -4636,7 +4637,7 @@ pub fn check_define_citation(
             .walk()
             .iter()
             .filter(|n| n.is_name())
-            .map(|n| n.text.clone())
+            .map(|n| n.text.to_string())
             .collect();
         if !named.contains(&name) {
             report.say(

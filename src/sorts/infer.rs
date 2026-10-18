@@ -813,11 +813,11 @@ impl Reader {
                     .unify(&over, &SortTerm::set(one.clone()))
                     .is_declined()
                 {
-                    out.insert(letter.text.clone(), one);
+                    out.insert(letter.text.to_string(), one);
                 }
             }
             crate::notations::FOR_ALL_PART => {
-                out.insert(letter.text.clone(), over);
+                out.insert(letter.text.to_string(), over);
             }
             _ => {}
         }
@@ -833,7 +833,7 @@ impl Reader {
         store: &mut Store,
     ) -> SortTerm {
         if node.is_name() {
-            if let Some(k) = local.get(&node.text) {
+            if let Some(k) = local.get(node.text.as_str()) {
                 return k.clone();
             }
             return self.of_name(&node.text, store);
@@ -861,7 +861,7 @@ impl Reader {
             for &i in indices {
                 if i < node.children.len() && node.children[i].is_name() {
                     let v = store.var();
-                    inner.insert(node.children[i].text.clone(), v);
+                    inner.insert(node.children[i].text.to_string(), v);
                 }
             }
         }
@@ -871,7 +871,7 @@ impl Reader {
                 let what = if child.text.is_empty() {
                     child.notation_name().to_string()
                 } else {
-                    child.text.clone()
+                    child.text.to_string()
                 };
                 self.clash(line, what, &said);
             }

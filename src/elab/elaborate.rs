@@ -44,6 +44,7 @@ use crate::corpus::{
     Theorem, Value, Values,
 };
 use crate::formula::page::{related, Written};
+use crate::formula::symbol::Symbol;
 use crate::formula::{Grammar, Node, Sorts};
 use crate::matching::{Binding as NodeBinding, Defined};
 use crate::mm::compress::{compressed, labels as compress_labels, shapes_of};
@@ -4356,7 +4357,7 @@ impl<'a> Elaborator<'a> {
             (whole.children()[0].clone(), whole.children()[2].clone());
         // The name the text quantifies under and the variable it stands for
         // are two different things.
-        let said = node.children[0].text.clone();
+        let said = node.children[0].text;
         let mut stands = format!("{} cv", self.binder_var(&said)?);
         // The witness stands where the claim's name does in a cited line,
         // read against the whole of what the claim asks of it: what it says
@@ -4412,7 +4413,7 @@ impl<'a> Elaborator<'a> {
         // any witness.
         let (here, instance) = if let [_, _, said_of] = node.children.as_slice() {
             let shape = self.names_kept(|me| -> Checked<Node> {
-                me.names.insert(said.clone(), stands.clone());
+                me.names.insert(said.to_string(), stands.clone());
                 me.freeze(said_of)
             })?;
             let identity = pf!(self.b; at, "id");
@@ -4625,7 +4626,7 @@ impl<'a> Elaborator<'a> {
         let (lemma, flipped, right) =
             self.names_kept(|me| -> Checked<(String, bool, String)> {
                 for (name, term) in matched {
-                    me.names.insert(name, term);
+                    me.names.insert(name.to_string(), term);
                 }
                 // A definition may name more than the thing it is about.
                 for (name, term) in values {
@@ -4646,7 +4647,7 @@ impl<'a> Elaborator<'a> {
                     &me.item_library().ctx,
                 );
                 me.names
-                    .insert(left.leftmost().text.clone(), subject.clone());
+                    .insert(left.leftmost().text.to_string(), subject.clone());
                 // Each name the right side binds is a letter nothing in the
                 // proof holds and the subject does not spell (`unheld_for`, as
                 // the renaming rule gives one), given for this reading only.
@@ -4656,7 +4657,7 @@ impl<'a> Elaborator<'a> {
                     if let Some(held) = me.binders.get(&node.notation()) {
                         for &at in held {
                             if node.children[at].is_name() {
-                                bound.push(node.children[at].text.clone());
+                                bound.push(node.children[at].text.to_string());
                             }
                         }
                     }
@@ -5002,7 +5003,7 @@ impl<'a> Elaborator<'a> {
             .filter(|(name, _)| !given.iter().any(|v| &v.name == name))
             .collect();
         for v in given {
-            bound.insert(v.name, v.value);
+            bound.insert(Symbol::of(&v.name), v.value);
         }
         let library = self.item_library();
         let mut out = Binding::new();
@@ -5098,10 +5099,11 @@ impl<'a> Elaborator<'a> {
             .map(|v| v.name)
             .collect();
         for (name, node) in &taken.binding {
-            if written.contains(name) || (node.is_name() && node.text == *name) {
+            if written.contains(name.as_str()) || (node.is_name() && node.text == *name)
+            {
                 continue;
             }
-            out.insert(name.clone(), self.term(node)?);
+            out.insert(name.to_string(), self.term(node)?);
         }
         Ok(out)
     }
@@ -5218,7 +5220,7 @@ impl<'a> Elaborator<'a> {
                                 | FUNCTION_TYPE
                         )
                     {
-                        let name = node.leftmost().text.clone();
+                        let name = node.leftmost().text.to_string();
                         let theirs = spare
                             .pop_front()
                             .expect("a class for each let")

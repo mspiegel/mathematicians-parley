@@ -14,6 +14,7 @@ use crate::citing::{
 };
 use crate::corpus::{Intro, Kinded, Method, Step, StepNo, Theorem, Values};
 use crate::formula::page::{conjoined, filled, Sentence, Written};
+use crate::formula::symbol::Symbol;
 use crate::formula::{Node, Sorts};
 use crate::matching::{
     alike, expand, standard, substituted_in, Binding, Context, Definitions, FxIndexMap,
@@ -258,7 +259,7 @@ impl<'a> Known<'a> {
             };
             for &at in &binds.held {
                 if let Some(letter) = n.children.get(at).filter(|l| l.is_name()) {
-                    out.insert(letter.text.clone());
+                    out.insert(letter.text.to_string());
                 }
             }
         }
@@ -393,7 +394,12 @@ impl<'a> Known<'a> {
             return Binding::new();
         };
         read.into_iter()
-            .map(|v| (v.name, standard(&expand(&v.value, defined), self.ctx)))
+            .map(|v| {
+                (
+                    Symbol::of(&v.name),
+                    standard(&expand(&v.value, defined), self.ctx),
+                )
+            })
             .collect()
     }
 
@@ -560,12 +566,12 @@ pub fn listed_seed(
     defined: &Definitions,
 ) {
     for name in library.listed_names(item) {
-        if seed.contains_key(&name) {
+        if seed.contains_key(name.as_str()) {
             continue;
         }
         let said = Written::new(&name, &known.thm.path, line);
         if let Some(got) = known.read_value(&said, defined) {
-            seed.insert(name, got);
+            seed.insert(Symbol::of(&name), got);
         }
     }
 }
@@ -684,7 +690,7 @@ pub fn sums_said_once(known: &Known, step: &Step) -> Vec<Node> {
             .walk()
             .iter()
             .filter(|n| n.notation() == crate::notations::SUM)
-            .filter_map(|n| n.children.first().map(|i| i.text.clone()))
+            .filter_map(|n| n.children.first().map(|i| i.text.to_string()))
             .collect();
         sum.names().iter().all(|n| {
             bound.contains(n)

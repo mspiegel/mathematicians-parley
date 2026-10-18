@@ -7,6 +7,7 @@ use std::rc::Rc;
 use std::sync::Arc;
 
 use super::notation_id::{LiteralId, NotationId, Spelling, NO_LITERAL};
+use super::symbol::Symbol;
 use crate::notations::{LITERAL, NAME, NUMERAL, PROPERTY_OF};
 
 /// The sort of a node: what kind of thing its term is, or none at all.
@@ -296,7 +297,8 @@ impl fmt::Display for Sort {
 pub struct NodeData {
     pub sort: Sort,
     pub children: Vec<Node>,
-    pub text: String,
+    /// A letter's name, a numeral's digits, or a notation node's literal.
+    pub text: Symbol,
     /// The notation and the literal as ids (`Node::notation`,
     /// `Node::spelling`).
     notation_id: NotationId,
@@ -340,7 +342,7 @@ impl fmt::Debug for Node {
 pub type NodeId = usize;
 
 impl Node {
-    fn made(spelling: Spelling, sort: Sort, children: Vec<Node>, text: String) -> Node {
+    fn made(spelling: Spelling, sort: Sort, children: Vec<Node>, text: Symbol) -> Node {
         Node(Rc::new(NodeData {
             sort,
             children,
@@ -356,7 +358,7 @@ impl Node {
 
     /// A node of a notation, written with one of its literals.
     pub fn of(spelling: Spelling, sort: Sort, children: Vec<Node>) -> Node {
-        Node::made(spelling, sort, children, spelling.text().to_string())
+        Node::made(spelling, sort, children, spelling.text())
     }
 
     /// A letter.
@@ -365,7 +367,7 @@ impl Node {
             Spelling::new(NAME, NO_LITERAL),
             sort,
             Vec::new(),
-            letter.to_string(),
+            Symbol::of(letter),
         )
     }
 
@@ -375,7 +377,7 @@ impl Node {
             Spelling::new(NUMERAL, NO_LITERAL),
             Sort::of("number"),
             Vec::new(),
-            digits.to_string(),
+            Symbol::of(digits),
         )
     }
 
@@ -386,7 +388,7 @@ impl Node {
             Spelling::new(PROPERTY_OF, NO_LITERAL),
             Sort::of("property"),
             vec![body],
-            hole.to_string(),
+            Symbol::of(hole),
         )
     }
 
@@ -396,7 +398,7 @@ impl Node {
         Node(Rc::new(NodeData {
             sort: self.sort.clone(),
             children,
-            text: self.text.clone(),
+            text: self.text,
             notation_id: self.notation_id,
             literal_id: self.literal_id,
             rpn: None,
@@ -464,7 +466,7 @@ impl Node {
         Node(Rc::new(NodeData {
             sort: self.sort.clone(),
             children: self.children.iter().map(Node::unwritten).collect(),
-            text: self.text.clone(),
+            text: self.text,
             notation_id: self.notation_id,
             literal_id: self.literal_id,
             rpn: self.rpn.clone(),
@@ -480,7 +482,7 @@ impl Node {
         Node(Rc::new(NodeData {
             sort: Sort::none(),
             children: Vec::new(),
-            text: String::new(),
+            text: Symbol::default(),
             notation_id: LITERAL,
             literal_id: NO_LITERAL,
             rpn: Some(Rc::from(rpn)),
@@ -544,7 +546,7 @@ impl Node {
     fn gather_names(&self, out: &mut BTreeSet<String>) {
         if self.children.is_empty() {
             if self.is_name() {
-                out.insert(self.text.clone());
+                out.insert(self.text.to_string());
             }
             return;
         }

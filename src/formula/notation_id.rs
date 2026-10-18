@@ -19,6 +19,8 @@ use std::sync::{Arc, OnceLock, RwLock};
 
 use rustc_hash::FxHashMap;
 
+use super::symbol::Symbol;
+
 /// A notation, by its id (`NotationId::of`, `name`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Debug)]
 pub struct NotationId(pub(crate) u16);
@@ -51,7 +53,7 @@ struct Registry {
     names: Vec<Arc<str>>,
     by_name: FxHashMap<Arc<str>, NotationId>,
     /// Each notation's literals, by place.
-    literals: Vec<Vec<Arc<str>>>,
+    literals: Vec<Vec<Symbol>>,
 }
 
 impl Registry {
@@ -80,7 +82,7 @@ impl Registry {
                     place + 1,
                     literal.0
                 );
-                out.literals[usize::from(id.0)].push(Arc::from(*text));
+                out.literals[usize::from(id.0)].push(Symbol::of(text));
             }
         }
         out
@@ -94,7 +96,7 @@ impl Registry {
         self.names.push(Arc::clone(&name));
         self.by_name.insert(name, id);
         // Place 0 is `NO_LITERAL`, the empty literal.
-        self.literals.push(vec![Arc::from("")]);
+        self.literals.push(vec![Symbol::of("")]);
         id
     }
 }
@@ -139,15 +141,15 @@ impl LiteralId {
             return id;
         }
         let all = &mut write.literals[at];
-        all.push(Arc::from(text));
+        all.push(Symbol::of(text));
         LiteralId(u8::try_from(all.len() - 1).expect("fewer than 256 literals"))
     }
 }
 
 /// The place of the literal `text` among `all`, a notation's literals.
-fn place_of(all: &[Arc<str>], text: &str) -> Option<LiteralId> {
+fn place_of(all: &[Symbol], text: &str) -> Option<LiteralId> {
     all.iter()
-        .position(|l| &**l == text)
+        .position(|l| l.as_str() == text)
         .map(|p| LiteralId(u8::try_from(p).expect("fewer than 256 literals")))
 }
 
@@ -157,10 +159,8 @@ impl Spelling {
     }
 
     /// The literal as written.
-    pub fn text(self) -> Arc<str> {
+    pub fn text(self) -> Symbol {
         let read = registry().read().expect("the registry");
-        Arc::clone(
-            &read.literals[usize::from(self.notation.0)][usize::from(self.literal.0)],
-        )
+        read.literals[usize::from(self.notation.0)][usize::from(self.literal.0)]
     }
 }

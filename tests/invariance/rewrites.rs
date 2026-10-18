@@ -1256,9 +1256,9 @@ fn bound(ctx: &Context, thm: &Theorem) -> Vec<String> {
                     };
                     if letter.is_name()
                         && is_one_letter(&letter.text)
-                        && !out.contains(&letter.text)
+                        && !out.iter().any(|o| *o == letter.text)
                     {
-                        out.push(letter.text.clone());
+                        out.push(letter.text.to_string());
                     }
                 }
             }
@@ -2079,7 +2079,7 @@ fn parts_of(ctx: &Context, thm: &Theorem) -> Result<Vec<Part>, String> {
                         .iter()
                         .filter_map(|&h| n.children.get(h))
                         .filter(|h| h.is_name())
-                        .map(|h| h.text.clone())
+                        .map(|h| h.text.to_string())
                         .collect::<Vec<_>>()
                 })
                 .collect();
@@ -3413,7 +3413,7 @@ fn lemma_of(
             let Some(name) = said
                 .children
                 .first()
-                .filter(|c| c.is_name() && names.contains(&c.text))
+                .filter(|c| c.is_name() && names.iter().any(|n| *n == c.text))
             else {
                 continue;
             };
@@ -3851,17 +3851,19 @@ fn existence_of(
     let mut said = Vec::new();
     for node in read {
         let named = |n: &Node| {
-            n.is_name() && names.contains(&n.text) && !over.contains_key(&n.text)
+            n.is_name()
+                && names.iter().any(|m| *m == n.text)
+                && !over.contains_key(n.text.as_str())
         };
         match (node.notation(), node.spelling(), node.children.as_slice()) {
             // "There is f : X → Y" runs over the functions from X to Y.
             (parley::notations::FUNCTION_TYPE, _, [f, from, to]) if named(f) => {
                 let functions =
                     made("the functions from _ to _", vec![from.clone(), to.clone()])?;
-                over.insert(f.text.clone(), (f.clone(), functions));
+                over.insert(f.text.to_string(), (f.clone(), functions));
             }
             (_, parley::notations::IN, [x, set]) if named(x) => {
-                over.insert(x.text.clone(), (x.clone(), set.clone()));
+                over.insert(x.text.to_string(), (x.clone(), set.clone()));
             }
             _ => said.push(node),
         }

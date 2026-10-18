@@ -604,7 +604,7 @@ fn bound_here(tokens: &[Token], g: &Grammar) -> Vec<String> {
         }
         bound[i] = true;
         if is_shadowed(&name.text, g) && !out.contains(&name.text) {
-            out.push(name.text.clone());
+            out.push(name.text.to_string());
         }
     }
     out
@@ -649,7 +649,7 @@ fn bound_sorts(tokens: &[Token], g: &Grammar, sorts: &Sorts) -> Vec<(String, Sor
             continue;
         }
         if let Some(held) = named_after.get(word.text.as_str()) {
-            out.entry(x.text.clone()).or_insert(held.clone());
+            out.entry(x.text.to_string()).or_insert(held.clone());
         }
     }
     for i in 0..tokens.len().saturating_sub(2) {
@@ -692,7 +692,7 @@ fn bound_sorts(tokens: &[Token], g: &Grammar, sorts: &Sorts) -> Vec<(String, Sor
                 j -= 2;
                 out.entry(tokens[j].text.clone()).or_insert(held.clone());
             }
-            out.entry(x.text.clone()).or_insert(held);
+            out.entry(x.text.to_string()).or_insert(held);
         }
     }
     // `f : X → Y`, as "there is f : X → Y with …" binds it: f is a function
@@ -741,7 +741,7 @@ fn bound_sorts(tokens: &[Token], g: &Grammar, sorts: &Sorts) -> Vec<(String, Sor
             }
             _ => Sort::of("function"),
         };
-        out.entry(f.text.clone()).or_insert(sort);
+        out.entry(f.text.to_string()).or_insert(sort);
     }
     out.into_iter().collect()
 }
@@ -1151,7 +1151,7 @@ impl<'a> Parser<'a> {
                     });
                 if written {
                     let what = if left.is_name() {
-                        left.text.clone()
+                        left.text.to_string()
                     } else {
                         format!("what stands before `{}`", n.pattern)
                     };
@@ -1283,9 +1283,9 @@ impl<'a> Parser<'a> {
                 for node in w.walk() {
                     if node.is_name()
                         && node.sort.is_unknown()
-                        && !open.contains(&node.text)
+                        && !open.iter().any(|o| *o == node.text)
                     {
-                        open.push(node.text.clone());
+                        open.push(node.text.to_string());
                     }
                 }
             }
@@ -1416,7 +1416,7 @@ impl<'a> Parser<'a> {
             };
             if !fits(want, &kid.sort) {
                 let what = match span {
-                    _ if kid.is_name() => kid.text.clone(),
+                    _ if kid.is_name() => kid.text.to_string(),
                     Some((from, to)) => repr(&self.written(*from, *to)),
                     None => format!("what stands before `{}`", n.pattern),
                 };
@@ -1457,7 +1457,7 @@ impl<'a> Parser<'a> {
         // as it would be read anywhere else.
         if let Some(b) = &n.bounds {
             let held = kids[b.name - 1].clone();
-            let name = held.text.clone();
+            let name = held.text.to_string();
             let Some(set) = self.sorts.ranges.get(&name).cloned() else {
                 let why = format!(
                     "nothing says what set {name} belongs to: write `{name} ∈` a set before the bound, or say what {name} ranges over in the theorem's statement"

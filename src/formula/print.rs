@@ -19,7 +19,7 @@ impl Grammar {
     /// The node as page text.
     pub fn print(&self, node: &Node) -> String {
         if node.children.is_empty() {
-            return node.text.clone();
+            return node.text.to_string();
         }
         // A negation its record spells as one pattern: `a ≠ b`.
         if node.notation() == crate::notations::LOGICAL_NOT && node.children.len() == 1

@@ -323,7 +323,7 @@ impl Elaborator<'_> {
                 .filter(|(at, _)| !binding_at.contains(at))
                 .filter_map(|(_, h)| self.page_node_under(h, bound))
                 .filter(Node::is_name)
-                .find_map(|n| self.sorts_now.get(&n.text).and_then(Sort::held))
+                .find_map(|n| self.sorts_now.get(n.text.as_str()).and_then(Sort::held))
                 .unwrap_or_else(Sort::none);
             let mut inner = bound.clone();
             for at in &binding_at {
@@ -331,7 +331,7 @@ impl Elaborator<'_> {
                     holes.get(*at).and_then(|h| self.page_node_under(h, bound))
                 {
                     if letter.is_name() {
-                        inner.insert(letter.text.clone(), domain_holds.clone());
+                        inner.insert(letter.text.to_string(), domain_holds.clone());
                     }
                 }
             }
