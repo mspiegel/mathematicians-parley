@@ -4,6 +4,7 @@ use std::cell::{Cell, OnceCell};
 use std::collections::BTreeSet;
 use std::fmt;
 use std::rc::Rc;
+use std::sync::Arc;
 
 use super::notation_id::{LiteralId, NotationId, Spelling, NO_LITERAL};
 use crate::notations::{LITERAL, NAME, NUMERAL, PROPERTY_OF};
@@ -293,7 +294,6 @@ impl fmt::Display for Sort {
 }
 
 pub struct NodeData {
-    pub notation: String,
     pub sort: Sort,
     pub children: Vec<Node>,
     pub text: String,
@@ -342,7 +342,6 @@ pub type NodeId = usize;
 impl Node {
     fn made(spelling: Spelling, sort: Sort, children: Vec<Node>, text: String) -> Node {
         Node(Rc::new(NodeData {
-            notation: spelling.notation.name().to_string(),
             sort,
             children,
             text,
@@ -395,7 +394,6 @@ impl Node {
     /// kept, and nothing of where it was read or what term it stood for.
     pub fn with_children(&self, children: Vec<Node>) -> Node {
         Node(Rc::new(NodeData {
-            notation: self.notation.clone(),
             sort: self.sort.clone(),
             children,
             text: self.text.clone(),
@@ -411,6 +409,12 @@ impl Node {
     /// The node's notation.
     pub fn notation(&self) -> NotationId {
         self.notation_id
+    }
+
+    /// The name of the node's notation, as its record declares it: for a
+    /// message, and for the node's shape.
+    pub fn notation_name(&self) -> Arc<str> {
+        self.notation_id.name()
     }
 
     /// The node's notation and the literal it is written with.
@@ -441,7 +445,7 @@ impl Node {
         assert!(
             from <= to,
             "a span runs forwards, and {} was given {from}..{to}",
-            self.notation
+            self.notation_name()
         );
         self.span.set(Some((from, to)));
     }
@@ -458,7 +462,6 @@ impl Node {
     /// that nothing cuts text for it from a sentence it was not read from.
     pub fn unwritten(&self) -> Node {
         Node(Rc::new(NodeData {
-            notation: self.notation.clone(),
             sort: self.sort.clone(),
             children: self.children.iter().map(Node::unwritten).collect(),
             text: self.text.clone(),
@@ -475,7 +478,6 @@ impl Node {
     /// `literal`, no sort, no children and no text.
     pub fn literal(rpn: &str) -> Node {
         Node(Rc::new(NodeData {
-            notation: "literal".to_string(),
             sort: Sort::none(),
             children: Vec::new(),
             text: String::new(),
@@ -518,10 +520,11 @@ impl Node {
     /// `a ≥ b` are both `order`, and only the sign tells them apart.
     pub fn shape(&self) -> &str {
         self.shape.get_or_init(|| {
+            let notation = self.notation_name();
             let head = if self.text.is_empty() {
-                self.notation.clone()
+                notation.to_string()
             } else {
-                format!("{}:{}", self.notation, self.text)
+                format!("{notation}:{}", self.text)
             };
             if self.children.is_empty() {
                 return head;

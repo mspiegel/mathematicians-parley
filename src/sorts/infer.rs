@@ -869,7 +869,7 @@ impl Reader {
             let got = self.sort_of(child, line, &inner, store);
             if let Declined(said) = store.unify(&got, want) {
                 let what = if child.text.is_empty() {
-                    child.notation.clone()
+                    child.notation_name().to_string()
                 } else {
                     child.text.clone()
                 };

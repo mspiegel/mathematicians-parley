@@ -481,14 +481,14 @@ pub fn check_decided_words(
             let mut named: BTreeSet<String> = BTreeSet::new();
             for part in node.walk() {
                 if operations.get(&part.notation()) == Some(&false)
-                    && named.insert(part.notation.clone())
+                    && named.insert(part.notation_name().to_string())
                 {
                     report.say(
                         &thm.path,
                         line,
                         format!(
                             "{text} works out {}, and arithmetic works out an operation beyond its own only where the notation's record says so in a `decided` field",
-                            part.notation
+                            part.notation_name()
                         ),
                     );
                 }
@@ -692,7 +692,7 @@ pub fn check_structure_parts(
             for part in &node.walk() {
                 for context in targets.contexts(part) {
                     if given.contains(context.as_str())
-                        || !told.insert(part.notation.clone())
+                        || !told.insert(part.notation_name().to_string())
                     {
                         continue;
                     }
@@ -1958,7 +1958,7 @@ fn link_undecided(
             side.walk()
                 .into_iter()
                 .filter(|n| undecided(n))
-                .map(|n| n.notation.clone()),
+                .map(|n| n.notation_name().to_string()),
         );
     }
 }

@@ -366,7 +366,10 @@ impl<'a> Elaborator<'a> {
         let Some(entries) = self.terms.get(&node.notation()) else {
             return Err(self.defect(
                 self.at,
-                format!("notation {} has no target field", repr(&node.notation)),
+                format!(
+                    "notation {} has no target field",
+                    repr(&node.notation_name())
+                ),
             ));
         };
         let order = self.literals.get(&node.notation());
@@ -376,7 +379,10 @@ impl<'a> Elaborator<'a> {
         let Some(found) = entries.get(at).cloned().flatten() else {
             return Err(self.defect(
                 self.at,
-                format!("notation {} builds no term here", repr(&node.notation)),
+                format!(
+                    "notation {} builds no term here",
+                    repr(&node.notation_name())
+                ),
             ));
         };
         // A part of the group the theorem lets, which nothing on the page
@@ -394,7 +400,7 @@ impl<'a> Elaborator<'a> {
                     self.at,
                     format!(
                         "{} needs a group, and no `let` line gives one",
-                        node.notation
+                        node.notation_name()
                     ),
                 ));
             };

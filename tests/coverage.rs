@@ -128,7 +128,7 @@ fn every_method_and_notation_is_written_by_a_proof() {
         // the literal that pattern writes, as `matching::turned` tells two
         // patterns of one record apart.
         for n in walk(&formulas(thm, &g, &sorts)) {
-            written.insert(format!("notation {} {}", n.notation, n.text));
+            written.insert(format!("notation {} {}", n.notation_name(), n.text));
         }
     }
     let mut every: BTreeSet<String> = METHODS

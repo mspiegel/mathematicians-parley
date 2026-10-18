@@ -1218,7 +1218,7 @@ impl<'a> Parser<'a> {
                                         .collect::<Vec<_>>()
                                         .join(" ")
                                 })
-                                .unwrap_or_else(|| left.notation.clone());
+                                .unwrap_or_else(|| left.notation_name().to_string());
                             let why = format!(
                                 "`{before}` and `{}` are not ordered against each other, so which is inside the other is written with brackets",
                                 run.join(" ")
@@ -1271,10 +1271,11 @@ impl<'a> Parser<'a> {
         let winners: Vec<&(Node, usize)> =
             results.iter().filter(|r| r.1 == best).collect();
         if winners.len() > 1 {
-            let readings: std::collections::BTreeSet<&str> =
-                winners.iter().map(|w| w.0.notation.as_str()).collect();
-            let readings: Vec<String> =
-                readings.into_iter().map(String::from).collect();
+            let readings: std::collections::BTreeSet<String> = winners
+                .iter()
+                .map(|w| w.0.notation_name().to_string())
+                .collect();
+            let readings: Vec<String> = readings.into_iter().collect();
             // What would tell the readings apart is the sort of a name in
             // them that nothing has given one.
             let mut open: Vec<String> = Vec::new();

@@ -58,7 +58,7 @@ impl Grammar {
             None => {
                 let inner: Vec<String> =
                     node.children.iter().map(|c| self.print(c)).collect();
-                format!("{}({})", node.notation, inner.join(", "))
+                format!("{}({})", node.notation_name(), inner.join(", "))
             }
         }
     }
