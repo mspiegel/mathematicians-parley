@@ -2,6 +2,7 @@
 
 use indexmap::{IndexMap, IndexSet};
 
+use super::notation_id::{LiteralId, NotationId};
 use super::token::is_letter;
 use crate::corpus::{Record, RecordKind};
 use crate::outcome::{Built, Checked, Problem};
@@ -96,6 +97,13 @@ pub struct Binds {
 /// One pattern of a notation record, ready to be matched.
 #[derive(Clone, Debug)]
 pub struct Notation {
+    /// The notation the node this pattern builds is of (`key`), as an id.
+    pub key_id: NotationId,
+    /// The record the pattern is declared in (`name`), as an id; it differs
+    /// from `key_id` where the record spells another notation.
+    pub record_id: NotationId,
+    /// The pattern's literal among its key's literals (`literal`).
+    pub literal_id: LiteralId,
     pub name: String,
     /// The pattern as its record writes it, `_ is a set`, for a message to
     /// quote.
@@ -582,7 +590,12 @@ pub fn compile_notations(
             } else {
                 assocs[0]
             };
+            let key_id =
+                NotationId::of(if under.is_empty() { &r.name } else { &under });
             out.push(Notation {
+                key_id,
+                record_id: NotationId::of(&r.name),
+                literal_id: LiteralId::of(key_id, &stands),
                 literal: stands,
                 stands_under: under,
                 name: r.name.clone(),

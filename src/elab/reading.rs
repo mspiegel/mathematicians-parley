@@ -230,7 +230,7 @@ impl<'a> Elaborator<'a> {
 
     /// A tree as the kernel term it stands for.
     pub fn term(&mut self, node: &Node) -> Checked<String> {
-        if let Some(rpn) = &node.literal {
+        if let Some(rpn) = &node.rpn {
             return Ok(rpn.to_string());
         }
         let applies_name =

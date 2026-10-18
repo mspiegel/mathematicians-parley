@@ -213,7 +213,7 @@ fn term_under(node: &Node, targets: &Targets, indices: &[&Node]) -> Term {
             return numeral_term(&value);
         }
     }
-    if node.is_name() || node.literal.is_some() {
+    if node.is_name() || node.rpn.is_some() {
         return atom(node, indices);
     }
     let Some(pattern) = targets.pattern(node) else {

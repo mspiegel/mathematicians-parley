@@ -9,6 +9,7 @@ pub mod grammar;
 pub(crate) mod library;
 pub mod node;
 pub(crate) mod notation;
+pub mod notation_id;
 pub mod page;
 mod print;
 pub mod token;

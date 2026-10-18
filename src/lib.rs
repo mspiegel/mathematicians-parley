@@ -16,6 +16,7 @@ pub mod formula;
 pub mod matching;
 pub mod methods;
 pub mod mm;
+pub mod notations;
 pub mod outcome;
 pub mod proofs;
 pub(crate) mod rules;

@@ -5,6 +5,9 @@ use std::collections::BTreeSet;
 use std::fmt;
 use std::rc::Rc;
 
+use super::notation_id::{LiteralId, NotationId, Spelling, NO_LITERAL};
+use crate::notations::{LITERAL, NAME, NUMERAL, PROPERTY_OF};
+
 /// The sort of a node: what kind of thing its term is, or none at all.
 ///
 /// Sorts nest: a number, a set of numbers and a set of sets of numbers are
@@ -294,9 +297,13 @@ pub struct NodeData {
     pub sort: Sort,
     pub children: Vec<Node>,
     pub text: String,
+    /// The notation and the literal as ids (`Node::notation`,
+    /// `Node::spelling`).
+    notation_id: NotationId,
+    literal_id: LiteralId,
     /// For a node standing in for a term the elaborator already holds, the
     /// term in reverse Polish.
-    pub literal: Option<Rc<str>>,
+    pub rpn: Option<Rc<str>>,
     shape: OnceCell<String>,
     /// The characters of the sentence the parser read this node from, for
     /// a tool that restates a part of what was written; none for a node
@@ -334,16 +341,29 @@ pub type NodeId = usize;
 
 impl Node {
     pub fn new(notation: &str, sort: Sort, children: Vec<Node>, text: &str) -> Node {
+        let notation_id = NotationId::of(notation);
         Node(Rc::new(NodeData {
             notation: notation.to_string(),
             sort,
             children,
             text: text.to_string(),
-            literal: None,
+            notation_id,
+            literal_id: literal_of(notation_id, text),
+            rpn: None,
             shape: OnceCell::new(),
             span: Cell::new(None),
             grouped: Cell::new(false),
         }))
+    }
+
+    /// The node's notation.
+    pub fn notation(&self) -> NotationId {
+        self.notation_id
+    }
+
+    /// The node's notation and the literal it is written with.
+    pub fn spelling(&self) -> Spelling {
+        Spelling::new(self.notation_id, self.literal_id)
     }
 
     /// Whether the text wrote this node inside brackets.
@@ -390,7 +410,9 @@ impl Node {
             sort: self.sort.clone(),
             children: self.children.iter().map(Node::unwritten).collect(),
             text: self.text.clone(),
-            literal: self.literal.clone(),
+            notation_id: self.notation_id,
+            literal_id: self.literal_id,
+            rpn: self.rpn.clone(),
             shape: OnceCell::new(),
             span: Cell::new(None),
             grouped: Cell::new(self.grouped()),
@@ -405,7 +427,9 @@ impl Node {
             sort: Sort::none(),
             children: Vec::new(),
             text: String::new(),
-            literal: Some(Rc::from(rpn)),
+            notation_id: crate::notations::LITERAL,
+            literal_id: NO_LITERAL,
+            rpn: Some(Rc::from(rpn)),
             shape: OnceCell::new(),
             span: Cell::new(None),
             grouped: Cell::new(false),
@@ -493,6 +517,17 @@ impl Node {
 }
 
 /// Every node of every tree, in order.
+/// The literal a node of `notation` written `text` has: its place among the
+/// notation's literals, or none for a node whose text is its own, a
+/// letter's name, a numeral's digits.
+fn literal_of(notation: NotationId, text: &str) -> LiteralId {
+    if matches!(notation, NAME | NUMERAL | LITERAL | PROPERTY_OF) {
+        NO_LITERAL
+    } else {
+        LiteralId::of(notation, text)
+    }
+}
+
 pub fn walk(nodes: &[Node]) -> Vec<Node> {
     nodes.iter().flat_map(|n| n.walk()).collect()
 }
