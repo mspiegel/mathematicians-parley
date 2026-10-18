@@ -71,4 +71,8 @@ notations! {
     IS_A_POINT = 39, "is-a-point";
     MOD = 40, "mod";
     FACTORIAL = 41, "factorial";
+    POWERSET = 42, "powerset";
+    THERE_IS_SOME = 43, "there-is-some";
+    FUNCTION_ON = 44, "function-on";
+    PRODUCT_OVER = 45, "product-over";
 }

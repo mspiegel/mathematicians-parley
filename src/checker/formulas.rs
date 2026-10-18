@@ -32,9 +32,10 @@ use crate::methods::terms::{term_of_node, Targets};
 use crate::methods::{algebra, inequalities, linear};
 use crate::mm::kernel::{FloatLabels, Term};
 use crate::notations::{
-    ADDITIVE, APPLICATION, BICONDITIONAL, BY_CASES, CONJUNCTION, EQUALITY, FOR_ALL,
-    FUNCTION_TYPE, INTEGER_RANGE, LOGICAL_NOT, MEMBERSHIP, NUMBER_SYSTEMS, NUMERAL,
-    ORDER,
+    ADDITIVE, APPLICATION, AT_LEAST, AT_MOST, BICONDITIONAL, BY_CASES, CONDITIONAL,
+    CONJUNCTION, EQUALITY, EQUALS, FOR_ALL, FOR_ALL_SETS, FUNCTION_TYPE, GREATER,
+    IMPLICATION, INTEGER_RANGE, LESS, LOGICAL_NOT, MEMBERSHIP, NUMBER_SYSTEMS, NUMERAL,
+    ORDER, PRODUCT_OVER, SUM,
 };
 use crate::outcome::{Built, Checked, Declined, Problem};
 use crate::rules::System;
@@ -341,7 +342,7 @@ pub fn defined_words(
             continue;
         }
         let left = &node.children[0];
-        if NATIVE.contains(&left.notation.as_str()) {
+        if NATIVE.contains(&left.notation()) {
             continue;
         }
         out.insert(
@@ -361,7 +362,7 @@ const DECIDING: [&str; 2] = ["arithmetic", "inspection"];
 
 /// The notations of the relations `arithmetic` decides of its own nature,
 /// which a definition may unfold without making them words.
-const NATIVE: [&str; 3] = ["membership", "equality", "order"];
+const NATIVE: [NotationId; 3] = [MEMBERSHIP, EQUALITY, ORDER];
 
 /// Every operation a notation declares, one building a number from numbers,
 /// by its notation's name, and whether `arithmetic` works it out: one of
@@ -1473,8 +1474,8 @@ fn proof_owes(owner: &Step, claim: &Node, known: &Known) -> Checked<Owed> {
     let path = &known.thm.path;
     let mut rest = claim.clone();
     for o in owner.openers.iter().filter(|o| o.part.is_none()) {
-        rest = match (o.kind, rest.notation.as_str()) {
-            (Intro::Let, "for-all") if rest.children.len() == 3 => {
+        rest = match (o.kind, rest.notation()) {
+            (Intro::Let, FOR_ALL) if rest.children.len() == 3 => {
                 let mut put = Binding::new();
                 let opened = Introduction::read(o.body(path));
                 let fixed = match opened.form {
@@ -1493,10 +1494,10 @@ fn proof_owes(owner: &Step, claim: &Node, known: &Known) -> Checked<Owed> {
                     _ => body,
                 }
             }
-            (Intro::Let, "for-all-sets") if rest.children.len() == 2 => {
+            (Intro::Let, FOR_ALL_SETS) if rest.children.len() == 2 => {
                 rest.children[1].clone()
             }
-            (Intro::Assume, "conditional" | "implication")
+            (Intro::Assume, CONDITIONAL | IMPLICATION)
                 if rest.children.len() == 2 =>
             {
                 // What the block assumes is what the claim supposes, its
@@ -1918,9 +1919,7 @@ fn link_pieces_unworked(
     if claim.names().is_empty() {
         return unworked(&claim);
     }
-    let ("equality", [one, other]) =
-        (claim.notation.as_str(), claim.children.as_slice())
-    else {
+    let (EQUALITY, [one, other]) = (claim.notation(), claim.children.as_slice()) else {
         return None;
     };
     let mut pieces = Vec::new();
@@ -2216,13 +2215,14 @@ enum Rel {
 
 impl Rel {
     fn of(node: &Node) -> Option<Rel> {
-        match (node.notation.as_str(), node.text.as_str()) {
-            ("equality", "=") => Some(Rel::Eq),
-            ("equality", "≠") => Some(Rel::Ne),
-            ("order", "<") => Some(Rel::Lt),
-            ("order", "≤") => Some(Rel::Le),
-            ("order", ">") => Some(Rel::Gt),
-            ("order", "≥") => Some(Rel::Ge),
+        // A disequality is the negation of an equation (`Related::of`): a
+        // record declares `_ ≠ _` the negation of `_ = _`.
+        match node.spelling() {
+            EQUALS => Some(Rel::Eq),
+            LESS => Some(Rel::Lt),
+            AT_MOST => Some(Rel::Le),
+            GREATER => Some(Rel::Gt),
+            AT_LEAST => Some(Rel::Ge),
             _ => None,
         }
     }
@@ -2262,9 +2262,7 @@ impl Related {
     /// A formula that is one relation; None for any other, a conjunction of
     /// two among them. `a ≠ b` is read as the negation of `a = b`.
     fn of(node: &Node) -> Option<Related> {
-        if let ("logical-not", [inner]) =
-            (node.notation.as_str(), node.children.as_slice())
-        {
+        if let (LOGICAL_NOT, [inner]) = (node.notation(), node.children.as_slice()) {
             let equation = Related::of(inner).filter(|e| e.rel == Rel::Eq)?;
             return Some(Related {
                 rel: Rel::Ne,
@@ -3103,9 +3101,9 @@ fn report_unreal(
 /// The two sides of an equation, an order or a disequality; none for
 /// anything else.
 fn relation_sides(node: &Node) -> Vec<&Node> {
-    match (node.notation.as_str(), node.children.as_slice()) {
-        ("equality" | "order", [a, b]) => vec![a, b],
-        ("logical-not", [inner]) => relation_sides(inner),
+    match (node.notation(), node.children.as_slice()) {
+        (EQUALITY | ORDER, [a, b]) => vec![a, b],
+        (LOGICAL_NOT, [inner]) => relation_sides(inner),
         _ => Vec::new(),
     }
 }
@@ -3113,18 +3111,18 @@ fn relation_sides(node: &Node) -> Vec<&Node> {
 /// Whether a sentence is an equation or a disequality, what `algebra`
 /// combines.
 fn algebra_relation(node: &Node) -> bool {
-    match (node.notation.as_str(), node.children.as_slice()) {
-        ("equality", [_, _]) => true,
-        ("logical-not", [inner]) => inner.notation() == EQUALITY,
+    match (node.notation(), node.children.as_slice()) {
+        (EQUALITY, [_, _]) => true,
+        (LOGICAL_NOT, [inner]) => inner.notation() == EQUALITY,
         _ => false,
     }
 }
 
 /// The two sides of an equation or a disequality; none for anything else.
 fn sides_of(node: &Node) -> Vec<&Node> {
-    match (node.notation.as_str(), node.children.as_slice()) {
-        ("equality", [a, b]) => vec![a, b],
-        ("logical-not", [inner]) => sides_of(inner),
+    match (node.notation(), node.children.as_slice()) {
+        (EQUALITY, [a, b]) => vec![a, b],
+        (LOGICAL_NOT, [inner]) => sides_of(inner),
         _ => Vec::new(),
     }
 }
@@ -3197,8 +3195,7 @@ pub fn check_requires_combined(
             let Some(fact) = &said[i] else {
                 continue;
             };
-            let ("membership", [term, _]) =
-                (fact.notation.as_str(), fact.children.as_slice())
+            let (MEMBERSHIP, [term, _]) = (fact.notation(), fact.children.as_slice())
             else {
                 continue;
             };
@@ -3602,16 +3599,15 @@ fn membership_holds(
     let mut held = MembershipIn::of(at, &read, known);
     // A claim said of every member is decided at a member.
     let mut claimed = read.claimed.clone();
-    if let ("for-all", [bound, set, body]) =
-        (claimed.notation.as_str(), claimed.children.as_slice())
+    if let (FOR_ALL, [bound, set, body]) =
+        (claimed.notation(), claimed.children.as_slice())
     {
         if !member_of(bound, set, &mut held.letters, &mut held.ranged) {
             return false;
         }
         claimed = body.clone();
     }
-    let ("membership", [term, set]) =
-        (claimed.notation.as_str(), claimed.children.as_slice())
+    let (MEMBERSHIP, [term, set]) = (claimed.notation(), claimed.children.as_slice())
     else {
         return false;
     };
@@ -3668,8 +3664,8 @@ impl MembershipIn {
             let defined = known.citing_step(at.step);
             if let [sentence] = at.step.claim.sentences().as_slice() {
                 if let Some(whole) = known.read_citing(sentence, &defined) {
-                    if let ("for-all", [bound, set, _]) =
-                        (whole.notation.as_str(), whole.children.as_slice())
+                    if let (FOR_ALL, [bound, set, _]) =
+                        (whole.notation(), whole.children.as_slice())
                     {
                         member_of(bound, set, &mut letters, &mut ranged);
                     }
@@ -3683,9 +3679,7 @@ impl MembershipIn {
             .collect();
         facts.extend(implied);
         for f in &facts {
-            if let ("membership", [name, set]) =
-                (f.notation.as_str(), f.children.as_slice())
-            {
+            if let (MEMBERSHIP, [name, set]) = (f.notation(), f.children.as_slice()) {
                 if let (true, Some(system)) =
                     (name.is_name(), System::of_sign(&set.text))
                 {
@@ -3742,18 +3736,16 @@ fn member_of(
     if !bound.is_name() {
         return false;
     }
-    let system = match set.notation.as_str() {
-        "number-systems" => System::of_sign(&set.text),
-        "integer-range" => crate::citing::range_system(set),
+    let system = match set.notation() {
+        NUMBER_SYSTEMS => System::of_sign(&set.text),
+        INTEGER_RANGE => crate::citing::range_system(set),
         _ => return true,
     };
     let Some(system) = system else {
         return false;
     };
     letters.insert(bound.text.clone(), system);
-    if let ("integer-range", [start, end]) =
-        (set.notation.as_str(), set.children.as_slice())
-    {
+    if let (INTEGER_RANGE, [start, end]) = (set.notation(), set.children.as_slice()) {
         ranged.insert(
             bound.text.clone(),
             methods_membership::Range {
@@ -3961,14 +3953,14 @@ fn written_out(node: &Node, known: &Known) -> Node {
         .collect();
     let here = Node::new(&node.notation, node.sort.clone(), children, &node.text);
     let (index, start, end, body, joined) =
-        match (here.notation.as_str(), here.children.as_slice()) {
-            ("product-over", [index, range, body]) => match range.children.as_slice() {
+        match (here.notation(), here.children.as_slice()) {
+            (PRODUCT_OVER, [index, range, body]) => match range.children.as_slice() {
                 [start, end] if range.notation() == INTEGER_RANGE => {
                     (index, start, end, body, ("multiplicative", "·"))
                 }
                 _ => return here,
             },
-            ("sum", [index, start, end, body]) => {
+            (SUM, [index, start, end, body]) => {
                 (index, start, end, body, ("additive", "+"))
             }
             _ => return here,
@@ -4216,8 +4208,8 @@ pub fn check_chain_links(
                 };
                 let written =
                     known.as_cited(&claim, &known.citing(std::slice::from_ref(cite)));
-                if let ("equality", [one, other]) =
-                    (written.notation.as_str(), written.children.as_slice())
+                if let (EQUALITY, [one, other]) =
+                    (written.notation(), written.children.as_slice())
                 {
                     if !known.alike(one, other) {
                         report.say(

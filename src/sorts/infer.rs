@@ -806,8 +806,8 @@ impl Reader {
             return out;
         }
         let over = self.sort_of(domain, line.into(), &IndexMap::new(), store);
-        match tree.notation.as_str() {
-            "for-all" => {
+        match tree.notation() {
+            crate::notations::FOR_ALL => {
                 let one = store.var();
                 if !store
                     .unify(&over, &SortTerm::set(one.clone()))
@@ -816,7 +816,7 @@ impl Reader {
                     out.insert(letter.text.clone(), one);
                 }
             }
-            "for-all-part" => {
+            crate::notations::FOR_ALL_PART => {
                 out.insert(letter.text.clone(), over);
             }
             _ => {}

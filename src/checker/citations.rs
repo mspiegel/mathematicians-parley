@@ -32,8 +32,10 @@ use crate::matching::{
     PROPERTY,
 };
 use crate::notations::{
-    APPLICATION, BICONDITIONAL, EQUALITY, FOR_ALL, FUNCTION_TYPE, MEMBERSHIP,
-    NUMBER_SYSTEMS, NUMERAL,
+    APPLICATION, APPLICATION_TO_TWO, BICONDITIONAL, CONDITIONAL, EQUALITY, FOR_ALL,
+    FOR_ALL_PART, FOR_ALL_SETS, FUNCTION_ON, FUNCTION_TYPE, IMPLICATION, INTEGER_RANGE,
+    LOGICAL_NOT, MEMBERSHIP, NUMBER_SYSTEMS, NUMERAL, ORDER, PLUS, POWERSET, SUBSET,
+    THERE_IS, THERE_IS_SOME,
 };
 use crate::outcome::{Built, Declined, Route};
 use crate::rules::{self, System};
@@ -1131,13 +1133,13 @@ fn term_built(
     };
     let mut letters = super::library::introduced(known, step);
     let mut ranged = IndexMap::new();
-    match (domain.notation.as_str(), domain.children.as_slice()) {
-        ("number-systems", _) => {
+    match (domain.notation(), domain.children.as_slice()) {
+        (NUMBER_SYSTEMS, _) => {
             if let Some(s) = System::of_sign(&domain.text) {
                 letters.insert(letter.to_string(), s);
             }
         }
-        ("integer-range", [start, end]) => {
+        (INTEGER_RANGE, [start, end]) => {
             if let Some(s) = range_system(domain) {
                 letters.insert(letter.to_string(), s);
             }
@@ -1504,8 +1506,8 @@ pub fn check_obtained_claims(
                 break;
             };
             let kids = &body.children;
-            match body.notation.as_str() {
-                "there-is" if kids.len() == 3 => order.push((&kids[0], &kids[1])),
+            match body.notation() {
+                THERE_IS if kids.len() == 3 => order.push((&kids[0], &kids[1])),
                 _ => break,
             }
             body = last;
@@ -1555,8 +1557,8 @@ pub fn check_obtained_claims(
         // `X ⊆ A` is `X ∈ 𝒫A` written the other way; one its notation spells
         // otherwise, `f : X → Y`, is the elaborator's to read.
         for ((letter, domain), claimed) in order.iter().zip(&said) {
-            let member = match (claimed.notation.as_str(), domain.notation.as_str()) {
-                ("subset", "powerset") if domain.children.len() == 1 => {
+            let member = match (claimed.notation(), domain.notation()) {
+                (SUBSET, POWERSET) if domain.children.len() == 1 => {
                     bound_in(Bound::Part, letter, &domain.children[0], library)
                 }
                 _ => bound_in(Bound::Member, letter, domain, library),
@@ -1722,44 +1724,43 @@ fn built_on(req: &crate::corpus::Requires, step: &Step, known: &Known) -> bool {
     // an order. t = u names both sides too, and a line below may say of one
     // what it says of the other, so there a term the line below holds whole
     // is one it rests on.
-    let (held, asking, whole): (Vec<&Node>, &[&str], bool) =
-        match said.notation.as_str() {
-            "membership" if said.children.len() == 2 => {
-                (vec![&said.children[0]], &ASKING, false)
-            }
-            "logical-not"
-                if said.children.len() == 1
-                    && said.children[0].notation() == EQUALITY
-                    && said.children[0].children.len() == 2 =>
-            {
-                (
-                    said.children[0]
-                        .children
-                        .iter()
-                        .filter(|c| c.notation() != NUMERAL)
-                        .collect(),
-                    &["membership", "algebra"],
-                    false,
-                )
-            }
-            "order" if said.children.len() == 2 => (
-                said.children
+    let (held, asking, whole): (Vec<&Node>, &[&str], bool) = match said.notation() {
+        MEMBERSHIP if said.children.len() == 2 => {
+            (vec![&said.children[0]], &ASKING, false)
+        }
+        LOGICAL_NOT
+            if said.children.len() == 1
+                && said.children[0].notation() == EQUALITY
+                && said.children[0].children.len() == 2 =>
+        {
+            (
+                said.children[0]
+                    .children
                     .iter()
                     .filter(|c| c.notation() != NUMERAL)
                     .collect(),
-                &["inequalities"],
+                &["membership", "algebra"],
                 false,
-            ),
-            "equality" if said.children.len() == 2 => (
-                said.children
-                    .iter()
-                    .filter(|c| c.notation() != NUMERAL)
-                    .collect(),
-                &ASKING,
-                true,
-            ),
-            _ => return false,
-        };
+            )
+        }
+        ORDER if said.children.len() == 2 => (
+            said.children
+                .iter()
+                .filter(|c| c.notation() != NUMERAL)
+                .collect(),
+            &["inequalities"],
+            false,
+        ),
+        EQUALITY if said.children.len() == 2 => (
+            said.children
+                .iter()
+                .filter(|c| c.notation() != NUMERAL)
+                .collect(),
+            &ASKING,
+            true,
+        ),
+        _ => return false,
+    };
     let atoms: Vec<String> = held.iter().map(|h| h.shape().to_string()).collect();
     let holds_atom = |n: &Node| {
         atoms
@@ -1889,9 +1890,9 @@ impl AskedType {
         else {
             return false;
         };
-        let inside = match domain.notation.as_str() {
-            "integer-range" => range_system(domain),
-            "number-systems" => System::of_sign(&domain.text),
+        let inside = match domain.notation() {
+            INTEGER_RANGE => range_system(domain),
+            NUMBER_SYSTEMS => System::of_sign(&domain.text),
             _ => None,
         };
         let mut letters = letters.clone();
@@ -2346,9 +2347,9 @@ impl DefinedRule {
         else {
             return false;
         };
-        let inside = match domain.notation.as_str() {
-            "integer-range" => range_system(domain),
-            "number-systems" => System::of_sign(&domain.text),
+        let inside = match domain.notation() {
+            INTEGER_RANGE => range_system(domain),
+            NUMBER_SYSTEMS => System::of_sign(&domain.text),
             _ => None,
         };
         let holds = known.alike(&self.domain, domain)
@@ -2406,7 +2407,7 @@ fn defined_types_unsaid(
         };
         let typed = substitute_apart(t, &stands, &library.ctx);
         let said = parts.facts.iter().any(|fact| {
-            TYPING.contains(&fact.notation.as_str())
+            TYPING.contains(&fact.notation())
                 && fact.children.first().is_some_and(|g| g.text == v.text)
         });
         let once = rule.as_ref().is_some_and(|r| {
@@ -2486,8 +2487,7 @@ fn function_on_unshown(
     scopes: &[FileScope],
 ) -> Option<String> {
     let claim = known.whole_as_written(&req.fact)?;
-    let ("function-on", [function, on]) =
-        (claim.notation.as_str(), claim.children.as_slice())
+    let (FUNCTION_ON, [function, on]) = (claim.notation(), claim.children.as_slice())
     else {
         return None;
     };
@@ -2594,7 +2594,7 @@ fn applied(
             let [function, args @ ..] = node.children.as_slice() else {
                 continue;
             };
-            if !matches!(node.notation.as_str(), "application" | "application-to-two")
+            if !matches!(node.notation(), APPLICATION | APPLICATION_TO_TWO)
                 || !function.is_name()
                 || &function.text != name
                 || args.len() != domains.len()
@@ -2605,12 +2605,8 @@ fn applied(
                 // A recursion's step at m asks m; any other argument is its
                 // value at 0, which asks nothing.
                 let member = if *recursive {
-                    match (
-                        arg.notation.as_str(),
-                        arg.text.as_str(),
-                        arg.children.as_slice(),
-                    ) {
-                        ("additive", "+", [index, one])
+                    match (arg.spelling(), arg.children.as_slice()) {
+                        (PLUS, [index, one])
                             if one.notation() == NUMERAL && one.text == "1" =>
                         {
                             index.clone()
@@ -2629,9 +2625,7 @@ fn applied(
                 let mut says: Vec<Node> = within("x ∈ S", &set).into_iter().collect();
                 // A power set's member is a part, which the page may say with
                 // ⊆: `for X ⊆ A` asks C ⊆ A of M(C).
-                if let ("powerset", [inner]) =
-                    (set.notation.as_str(), set.children.as_slice())
-                {
+                if let (POWERSET, [inner]) = (set.notation(), set.children.as_slice()) {
                     says.extend(within("x ⊆ S", inner));
                 }
                 if says.is_empty() {
@@ -3074,12 +3068,12 @@ fn exhibited(claim: &Node, library: &Library) -> Option<Exhibited> {
     let mut bound: Vec<(&Node, &Node)> = Vec::new();
     let mut body = Some(claim);
     while let Some(at) = body {
-        match (at.notation.as_str(), at.children.as_slice()) {
-            ("there-is", [letter, domain, inner]) => {
+        match (at.notation(), at.children.as_slice()) {
+            (THERE_IS, [letter, domain, inner]) => {
                 bound.push((letter, domain));
                 body = Some(inner);
             }
-            ("there-is-some", [letter, domain]) => {
+            (THERE_IS_SOME, [letter, domain]) => {
                 bound.push((letter, domain));
                 body = None;
             }
@@ -3152,7 +3146,7 @@ pub fn check_instantiated(
             if read
                 .walk()
                 .iter()
-                .any(|n| ["implication", "conditional"].contains(&n.notation.as_str()))
+                .any(|n| matches!(n.notation(), IMPLICATION | CONDITIONAL))
             {
                 judged = false;
             }
@@ -3374,9 +3368,9 @@ fn fit_of(said: &Node, seed: &Binding) -> Fit {
     let mut taken = 0;
     let mut skipped = false;
     loop {
-        let (letter, inner) = match (body.notation.as_str(), body.children.as_slice()) {
-            ("for-all" | "for-all-part", [letter, _, inner]) => (letter, inner),
-            ("for-all-sets", [letter, inner]) => (letter, inner),
+        let (letter, inner) = match (body.notation(), body.children.as_slice()) {
+            (FOR_ALL | FOR_ALL_PART, [letter, _, inner]) => (letter, inner),
+            (FOR_ALL_SETS, [letter, inner]) => (letter, inner),
             _ => break,
         };
         if seed.contains_key(&letter.text) {
@@ -3404,9 +3398,9 @@ fn instance_at(said: &Node, seed: &Binding, library: &Library) -> Option<Node> {
     loop {
         // "for all x ∈ S, B" and "for all X ⊆ A, B" bind x over a set;
         // "for all sets X, B" binds X over every set.
-        let (letter, inner) = match (body.notation.as_str(), body.children.as_slice()) {
-            ("for-all" | "for-all-part", [letter, _, inner]) => (letter, inner),
-            ("for-all-sets", [letter, inner]) => (letter, inner),
+        let (letter, inner) = match (body.notation(), body.children.as_slice()) {
+            (FOR_ALL | FOR_ALL_PART, [letter, _, inner]) => (letter, inner),
+            (FOR_ALL_SETS, [letter, inner]) => (letter, inner),
             _ => break,
         };
         let Some(value) = seed.get(&letter.text) else {
@@ -3428,8 +3422,8 @@ fn concludes_claim(instance: &Node, claim: &Node, known: &Known) -> Option<Vec<N
         if known.alike(&at, claim) {
             return Some(asked);
         }
-        match (at.notation.as_str(), at.children.as_slice()) {
-            ("implication" | "conditional", [condition, then]) => {
+        match (at.notation(), at.children.as_slice()) {
+            (IMPLICATION | CONDITIONAL, [condition, then]) => {
                 asked.push(condition.clone());
                 at = then.clone();
             }
@@ -3443,9 +3437,9 @@ fn binders_of(node: &Node) -> Vec<Binder> {
     let mut out = Vec::new();
     let mut node = node.clone();
     loop {
-        let how = match node.notation.as_str() {
-            "for-all" => Bound::Member,
-            "for-all-part" => Bound::Part,
+        let how = match node.notation() {
+            FOR_ALL => Bound::Member,
+            FOR_ALL_PART => Bound::Part,
             _ => break,
         };
         if node.children.len() != 3 {
@@ -3686,9 +3680,7 @@ fn from_lines_give(
     member: Member,
 ) -> bool {
     let letters = super::library::introduced(known, step);
-    if let ("membership", [term, set]) =
-        (claim.notation.as_str(), claim.children.as_slice())
-    {
+    if let (MEMBERSHIP, [term, set]) = (claim.notation(), claim.children.as_slice()) {
         if let Some(system) = (set.notation() == NUMBER_SYSTEMS)
             .then(|| System::of_sign(&set.text))
             .flatten()
@@ -3713,13 +3705,12 @@ fn from_lines_give(
         }
     }
     facts.iter().any(|f| {
-        let ("for-all", [bound, over, body]) =
-            (f.notation.as_str(), f.children.as_slice())
+        let (FOR_ALL, [bound, over, body]) = (f.notation(), f.children.as_slice())
         else {
             return false;
         };
-        if let ("for-all", [letter, inner, said]) =
-            (claim.notation.as_str(), claim.children.as_slice())
+        if let (FOR_ALL, [letter, inner, said]) =
+            (claim.notation(), claim.children.as_slice())
         {
             let put = Binding::from([(bound.text.clone(), letter.clone())]);
             return (known.alike(inner, over)
@@ -3778,8 +3769,8 @@ fn member_in(
         return false;
     };
     matches!(
-        (whole.notation.as_str(), whole.children.as_slice()),
-        ("for-all", [bound, over, _])
+        (whole.notation(), whole.children.as_slice()),
+        (FOR_ALL, [bound, over, _])
             if bound.is_name()
                 && member.is_name()
                 && bound.text == member.text
@@ -3851,7 +3842,7 @@ fn bound_below(step: &Step, i: usize, said: &Node, known: &Known) -> bool {
     }
     step.requires[i + 1..].iter().any(|o| {
         known.whole(step, &o.fact).is_some_and(|f| {
-            matches!(f.notation.as_str(), "order" | "equality")
+            matches!(f.notation(), ORDER | EQUALITY)
                 && f.walk().iter().any(|n| known.alike(n, term))
         })
     })

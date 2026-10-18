@@ -51,6 +51,7 @@ use crate::mm::kernel::{Syntax, Term};
 use crate::mm::library::thousands;
 use crate::mm::spell::Proof;
 use crate::mm::{Kind, Layered, Lookup, Signature, Signatures};
+use crate::notations::{CONJUNCTION, FUNCTION_TYPE, IS_A_POINT, IS_A_SET, MEMBERSHIP};
 use crate::outcome::{Built, Checked, Declined, Problem, Route};
 use crate::rules::{self, lookup};
 use crate::sorts::introduction::{Form, Introduction};
@@ -5208,12 +5209,12 @@ impl<'a> Elaborator<'a> {
                     // place.
                     if h.kind == Intro::Let
                         && matches!(
-                            node.notation.as_str(),
-                            "membership"
-                                | "is-a-set"
-                                | "is-a-point"
-                                | "conjunction"
-                                | "function-type"
+                            node.notation(),
+                            MEMBERSHIP
+                                | IS_A_SET
+                                | IS_A_POINT
+                                | CONJUNCTION
+                                | FUNCTION_TYPE
                         )
                     {
                         let name = node.leftmost().text.clone();

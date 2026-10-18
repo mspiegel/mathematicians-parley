@@ -19,6 +19,7 @@ use crate::formula::page::{filled, made, made_as, template, Sentence, Written};
 use crate::formula::{fits, Node, Sort};
 use crate::matching::{substitute_apart_by, Binding};
 use crate::matching::{Defined, Definitions};
+use crate::notations::{APPLICATION, APPLICATION_TO_TWO};
 use crate::outcome::Checked;
 use crate::rules::NUMERALS;
 use crate::sorts::introduction::{Form, Introduction};
@@ -212,9 +213,8 @@ impl<'a> Elaborator<'a> {
         &self,
         node: &'n Node,
     ) -> Option<(String, &'n [Node])> {
-        let applied =
-            matches!(node.notation.as_str(), "application" | "application-to-two")
-                && node.children.first().is_some_and(Node::is_name);
+        let applied = matches!(node.notation(), APPLICATION | APPLICATION_TO_TWO)
+            && node.children.first().is_some_and(Node::is_name);
         if !applied {
             return None;
         }
@@ -233,10 +233,9 @@ impl<'a> Elaborator<'a> {
         if let Some(rpn) = &node.rpn {
             return Ok(rpn.to_string());
         }
-        let applies_name =
-            matches!(node.notation.as_str(), "application" | "application-to-two")
-                && node.children.len() >= 2
-                && node.children[0].is_name();
+        let applies_name = matches!(node.notation(), APPLICATION | APPLICATION_TO_TWO)
+            && node.children.len() >= 2
+            && node.children[0].is_name();
         // A step rule of a define by recursion speaks of the values at k,
         // which in set.mm are the parts of the state the step is applied to
         // (`recursion_terms`).

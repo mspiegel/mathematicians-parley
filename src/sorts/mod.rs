@@ -22,10 +22,12 @@ use crate::corpus::{
 pub(crate) mod infer;
 pub mod introduction;
 
+use crate::formula::notation_id::NotationId;
 use crate::formula::page::{tokens, Written};
 use crate::formula::token::{Token, TokenKind};
 use crate::formula::{holds, Grammar, Sort, Sorts};
 use crate::matching::{expand, Defined, Definitions, Rule};
+use crate::notations::{FUNCTION_TYPE, ONE_TO_ONE, ONE_TO_ONE_ONTO, ONTO};
 use crate::outcome::{Built, Declined};
 pub use introduction::graph_line;
 use introduction::{Form, Introduction};
@@ -36,8 +38,7 @@ pub const NUMBER_SYSTEMS: [&str; 5] = ["ℕ", "ℕ₀", "ℤ", "ℚ", "ℝ"];
 /// first and its domain and codomain after: `f : X → Y`, and `f : X → Y is
 /// one-to-one`, `is onto` and `is one-to-one and onto`, which say the type
 /// and a property.
-pub const TYPING: [&str; 4] =
-    ["function-type", "one-to-one", "onto", "one-to-one-onto"];
+pub const TYPING: [NotationId; 4] = [FUNCTION_TYPE, ONE_TO_ONE, ONTO, ONE_TO_ONE_ONTO];
 
 /// What the tools read a text against: the grammar, and every proof file's
 /// scope, which is where a definition a theorem sees from outside it is

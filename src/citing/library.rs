@@ -11,6 +11,7 @@ use crate::formula::page::Written;
 use crate::formula::{Node, Sorts};
 use crate::matching::{expand, standard, Context};
 use crate::methods::terms::Targets;
+use crate::notations::{APPLICATION, APPLICATION_TO_TWO};
 use crate::regex;
 use crate::sorts::introduction::{Form, Introduction};
 use crate::sorts::{sorts_of_statement, statement_definitions, Env};
@@ -75,8 +76,8 @@ fn applied_functions<'t>(
     let mut out = BTreeSet::new();
     for tree in trees {
         for node in tree.walk() {
-            let ("application" | "application-to-two", Some(head)) =
-                (node.notation.as_str(), node.children.first())
+            let (APPLICATION | APPLICATION_TO_TWO, Some(head)) =
+                (node.notation(), node.children.first())
             else {
                 continue;
             };

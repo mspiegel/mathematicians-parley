@@ -31,6 +31,7 @@ use crate::formula::{Node, Sorts};
 use crate::mm::kernel::Term;
 use crate::mm::spell::Proof;
 use crate::mm::Signature;
+use crate::notations::{FUNCTION_TYPE, IN};
 use crate::outcome::{Built, Checked, Declined, Route};
 use crate::rules::{self, lookup};
 use crate::sorts::file_definitions;
@@ -2714,19 +2715,15 @@ impl<'a> Elaborator<'a> {
             let named = |n: &Node| {
                 n.is_name() && got.contains(&n.text) && !domains.contains_key(&n.text)
             };
-            match (
-                said.notation.as_str(),
-                said.text.as_str(),
-                said.children.as_slice(),
-            ) {
+            match (said.notation(), said.spelling(), said.children.as_slice()) {
                 // A function's membership is its type, `f : X → Y`, which
                 // says it is among the functions from X to Y, where "there
                 // is f : X → Y" runs.
-                ("function-type", _, [f, from, to]) if named(f) => {
+                (FUNCTION_TYPE, _, [f, from, to]) if named(f) => {
                     let functions = self.functions_from(from, to)?;
                     domains.insert(f.text.clone(), functions);
                 }
-                ("membership", "∈", [x, set]) if named(x) => {
+                (_, IN, [x, set]) if named(x) => {
                     domains.insert(x.text.clone(), set.clone());
                 }
                 _ => rest.push(said),

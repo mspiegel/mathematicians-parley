@@ -227,8 +227,8 @@ impl<'a> Known<'a> {
                     .sentence()
                     .ok()
                     .and_then(|s| self.read_as_written(&s))
-                    .and_then(|c| match (c.notation.as_str(), c.children.as_slice()) {
-                        ("for-all", [_, _, body]) => Some(body.clone()),
+                    .and_then(|c| match (c.notation(), c.children.as_slice()) {
+                        (crate::notations::FOR_ALL, [_, _, body]) => Some(body.clone()),
                         _ => None,
                     });
                 vec![statement.map(cited)]
@@ -714,7 +714,7 @@ pub fn typed_in_scope(known: &Known, step: &Step) -> Vec<Node> {
     introducing(known, step)
         .iter()
         .flat_map(|stated| known.said_parts(stated, None).into_iter().flatten())
-        .filter(|n| TYPING.contains(&n.notation.as_str()))
+        .filter(|n| TYPING.contains(&n.notation()))
         .filter(|n| n.children.len() == 3 && n.children[0].is_name())
         .collect()
 }

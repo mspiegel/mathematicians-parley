@@ -4,7 +4,9 @@ use crate::corpus::{Head, Step};
 use crate::formula::page;
 use crate::formula::{Node, Sort, Sorts, Whole};
 use crate::matching::{standard, substitute_apart_by, Binding};
-use crate::notations::{FUNCTION_TYPE, MEMBERSHIP, NUMBER_SYSTEMS};
+use crate::notations::{
+    FOR_ALL, FOR_ALL_PART, FUNCTION_TYPE, MEMBERSHIP, NUMBER_SYSTEMS,
+};
 use crate::outcome::Built;
 use crate::rules;
 use crate::sorts::{Env, TYPING};
@@ -58,7 +60,7 @@ pub fn typed_seed(parts: &mut Parts, name: &str, ours: &[Node], library: &Librar
     let stands = stood_for(parts, name, library);
     let groups = library.groups(name);
     let typing = |node: &Node, f: &str| {
-        TYPING.contains(&node.notation.as_str())
+        TYPING.contains(&node.notation())
             && node.children.first().is_some_and(|g| g.text == f)
     };
     for t in &typed {
@@ -168,9 +170,9 @@ pub fn finished(
 /// other claim.
 pub fn claimed_member(claim: &Node, library: &Library) -> Option<(Node, Node)> {
     // "for all X ⊆ A" ranges over the parts of A, and a member is one.
-    let how = match claim.notation.as_str() {
-        "for-all" => Bound::Member,
-        "for-all-part" => Bound::Part,
+    let how = match claim.notation() {
+        FOR_ALL => Bound::Member,
+        FOR_ALL_PART => Bound::Part,
         _ => return None,
     };
     let [letter, domain, body] = claim.children.as_slice() else {

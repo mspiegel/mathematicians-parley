@@ -16,9 +16,13 @@ use crate::corpus::{
     Step, StepNo, Theorem,
 };
 use crate::formula::library::Function;
+use crate::formula::notation_id::NotationId;
 use crate::formula::page::Written;
 use crate::formula::token::{Token, TokenKind};
 use crate::formula::{holds, Node, Sorts};
+use crate::notations::{
+    FOR_ALL, FUNCTION_TYPE, IS_A_POINT, IS_A_POLYNOMIAL, IS_A_SET, MEMBERSHIP, SUBSET,
+};
 use crate::outcome::{Built, Declined};
 use crate::regex;
 use crate::rules;
@@ -467,8 +471,8 @@ fn check_step_part(report: &mut Report, thm: &Theorem, step: &Step, known: &Know
     let Some(claim) = known.whole_as_written(&step.claim) else {
         return; // `check_formulas` says it does not read
     };
-    let (letter, set) = match (claim.notation.as_str(), claim.children.as_slice()) {
-        ("for-all", [letter, set, body])
+    let (letter, set) = match (claim.notation(), claim.children.as_slice()) {
+        (FOR_ALL, [letter, set, body])
             if letter.is_name() && !body.names().contains(&letter.text) =>
         {
             report.say(
@@ -481,7 +485,7 @@ fn check_step_part(report: &mut Report, thm: &Theorem, step: &Step, known: &Know
             );
             return;
         }
-        ("for-all", [letter, set, _]) if letter.is_name() => (letter, set),
+        (FOR_ALL, [letter, set, _]) if letter.is_name() => (letter, set),
         _ => {
             report.say(
                 &thm.path,
@@ -1286,13 +1290,13 @@ pub fn check_sorts(report: &mut Report, thm: &Theorem, known: &Known) {
     // What says a name's sort: its membership, a part of a set by ⊆ as
     // surely as by ∈ 𝒫, its being a set, a point or a polynomial, or a
     // function's type.
-    const SAYING: [&str; 6] = [
-        "membership",
-        "subset",
-        "is-a-set",
-        "is-a-point",
-        "is-a-polynomial",
-        "function-type",
+    const SAYING: [NotationId; 6] = [
+        MEMBERSHIP,
+        SUBSET,
+        IS_A_SET,
+        IS_A_POINT,
+        IS_A_POLYNOMIAL,
+        FUNCTION_TYPE,
     ];
     for s in &thm.steps {
         if !s.just.head.is(Method::Obtain) {
@@ -1304,7 +1308,7 @@ pub fn check_sorts(report: &mut Report, thm: &Theorem, known: &Known) {
         let said = claim.walk();
         for v in &s.just.obtained {
             let stated = said.iter().any(|n| {
-                SAYING.contains(&n.notation.as_str())
+                SAYING.contains(&n.notation())
                     && n.children
                         .first()
                         .is_some_and(|x| x.is_name() && x.text == *v)

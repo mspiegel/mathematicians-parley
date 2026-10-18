@@ -1490,8 +1490,10 @@ fn flatten(node: &Node, out: &mut Vec<String>, g: &Grammar) {
 }
 
 fn is_conjunction(node: &Node) -> bool {
-    matches!(node.notation.as_str(), "conjunction" | "comma-conjunction")
-        && node.children.len() == 2
+    matches!(
+        node.notation(),
+        parley::notations::CONJUNCTION | parley::notations::COMMA_CONJUNCTION
+    ) && node.children.len() == 2
 }
 
 /// `A and B` as `A. B`: `SYNTAX.md` writes a conjunction as sentences, and
@@ -3419,9 +3421,11 @@ fn lemma_of(
                 || said.children.get(1).is_some_and(|set| {
                     set.notation() == parley::notations::POLYNOMIALS
                 });
-            let introduced = match said.notation.as_str() {
+            let introduced = match said.notation() {
                 _ if polynomial => format!("{} be a polynomial", name.text),
-                "membership" | "function-type" => ctx.g.print(&said),
+                parley::notations::MEMBERSHIP | parley::notations::FUNCTION_TYPE => {
+                    ctx.g.print(&said)
+                }
                 _ => continue,
             };
             asks |= let_asked(ctx, sorts, &thm.path, &introduced)?;
@@ -3849,18 +3853,14 @@ fn existence_of(
         let named = |n: &Node| {
             n.is_name() && names.contains(&n.text) && !over.contains_key(&n.text)
         };
-        match (
-            node.notation.as_str(),
-            node.text.as_str(),
-            node.children.as_slice(),
-        ) {
+        match (node.notation(), node.spelling(), node.children.as_slice()) {
             // "There is f : X → Y" runs over the functions from X to Y.
-            ("function-type", _, [f, from, to]) if named(f) => {
+            (parley::notations::FUNCTION_TYPE, _, [f, from, to]) if named(f) => {
                 let functions =
                     made("the functions from _ to _", vec![from.clone(), to.clone()])?;
                 over.insert(f.text.clone(), (f.clone(), functions));
             }
-            ("membership", "∈", [x, set]) if named(x) => {
+            (_, parley::notations::IN, [x, set]) if named(x) => {
                 over.insert(x.text.clone(), (x.clone(), set.clone()));
             }
             _ => said.push(node),

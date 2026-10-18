@@ -19,7 +19,7 @@ use indexmap::{IndexMap, IndexSet};
 use crate::corpus::{Record, RecordKind};
 use crate::formula::notation_id::{NotationId, Spelling};
 use crate::formula::{Binds, Node, NodeId, Notation};
-use crate::notations::NUMERAL;
+use crate::notations::{APPLICATION, APPLICATION_TO_TWO, NUMERAL};
 use crate::regex;
 
 /// Split on the commas outside brackets.
@@ -1169,7 +1169,7 @@ fn expand_to(node: &Node, definitions: &Definitions, depth: i32) -> Node {
             _ => {}
         }
     }
-    if matches!(node.notation.as_str(), "application" | "application-to-two")
+    if matches!(node.notation(), APPLICATION | APPLICATION_TO_TWO)
         && node.children.len() >= 2
         && node.children[0].is_name()
     {

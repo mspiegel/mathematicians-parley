@@ -142,8 +142,10 @@ impl Targets {
     pub fn operation<'n>(&self, node: &'n Node) -> Option<Operation<'n>> {
         // A library function's value is what its `builds` line makes; any
         // other term is what its notation's target makes.
-        let applied =
-            matches!(node.notation.as_str(), "application" | "application-to-two");
+        let applied = matches!(
+            node.notation(),
+            crate::notations::APPLICATION | crate::notations::APPLICATION_TO_TWO
+        );
         let library = match node.children.as_slice() {
             [head, args @ ..] if applied && head.is_name() => {
                 self.builds.get(&head.text).map(|b| (b.as_str(), args))

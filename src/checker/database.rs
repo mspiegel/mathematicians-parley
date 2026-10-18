@@ -9,6 +9,7 @@ use super::library::Known;
 use super::Report;
 use crate::corpus::records::allowed_fields;
 use crate::corpus::{in_stdlib, Intro, Record, RecordKind, Theorem, PART_MARKERS};
+use crate::formula::notation_id::NotationId;
 use crate::formula::page::Written;
 use crate::formula::{
     categories_of, holes_in, patterns_of, Grammar, Node, Sorts, TERM_SORTS,
@@ -496,14 +497,14 @@ pub fn check_unsorted(
     env: Env,
     record_sorts: &IndexMap<usize, Sorts>,
 ) {
-    let mut shapes: IndexMap<&str, Vec<&Vec<String>>> = IndexMap::new();
+    let mut shapes: IndexMap<NotationId, Vec<&Vec<String>>> = IndexMap::new();
     for n in &env.g.notations {
-        shapes.entry(n.key()).or_default().push(&n.holes);
-        shapes.entry(n.name.as_str()).or_default().push(&n.holes);
+        shapes.entry(n.key_id).or_default().push(&n.holes);
+        shapes.entry(n.record_id).or_default().push(&n.holes);
     }
     let wanted = |node: &Node, i: usize| -> BTreeSet<String> {
         shapes
-            .get(node.notation.as_str())
+            .get(&node.notation())
             .map(|all| {
                 all.iter()
                     .filter(|h| i < h.len())
