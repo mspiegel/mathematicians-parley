@@ -1793,7 +1793,7 @@ fn changed_closed(link: &Link, known: &Known) -> bool {
         return false;
     };
     fn alike(a: &Node, b: &Node) -> bool {
-        if a.shape() == b.shape() {
+        if a.same_shape(b) {
             return true;
         }
         if a.names().is_empty() && b.names().is_empty() {

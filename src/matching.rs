@@ -815,7 +815,7 @@ pub fn identities_dropped(instance: &Node, ground: &Node, ctx: &Context) -> Vec<
 }
 
 fn dropped_into(instance: &Node, ground: &Node, ctx: &Context, out: &mut Vec<Node>) {
-    if instance.shape() == ground.shape() {
+    if instance.same_shape(ground) {
         return;
     }
     if !differs(instance, ground) {
@@ -902,7 +902,7 @@ fn alike_as_written(
         .map(|&at| (&a.children[at], &b.children[at]))
         .collect();
     if pairs.iter().any(|(x, y)| !x.is_name() || !y.is_name()) {
-        return a.shape() == b.shape();
+        return a.same_shape(b);
     }
     let mut inner_ours = ours.clone();
     let mut inner_theirs = theirs.clone();
@@ -1079,7 +1079,7 @@ fn family(
     }
     let plain = ground.notation() == pattern.notation()
         && ground.children.len() == 2
-        && ground.children[1].shape() == arg.shape();
+        && ground.children[1].same_shape(&arg);
     if stands.is_none() && sites.contains(&pattern.id()) && arg.is_name() && !plain {
         binding.insert(*name, Node::property(&arg.text, ground.clone()));
         return Some(true);

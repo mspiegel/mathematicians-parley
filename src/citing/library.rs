@@ -451,7 +451,7 @@ pub fn with_parts(facts: &[Node], library: &Library) -> Vec<Node> {
     let mut out: Vec<Node> = facts.to_vec();
     for fact in facts {
         for part in conjuncts(fact, library) {
-            if out.iter().all(|x| part.shape() != x.shape()) {
+            if out.iter().all(|x| !part.same_shape(x)) {
                 out.push(part);
             }
         }
@@ -494,7 +494,7 @@ pub fn either_way(node: &Node, library: &Library) -> Vec<Node> {
             turn(node)
         };
     match turned {
-        Some(turned) if turned.shape() != node.shape() => vec![node.clone(), turned],
+        Some(turned) if !turned.same_shape(node) => vec![node.clone(), turned],
         _ => vec![node.clone()],
     }
 }

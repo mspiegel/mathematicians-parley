@@ -211,7 +211,7 @@ pub enum Bound {
 fn fits_form(form: &Node, fact: &Node, put: &mut Binding) -> bool {
     if form.is_name() && (form.text == "x" || form.text == "S") {
         return match put.get(&form.text) {
-            Some(held) => held.shape() == fact.shape(),
+            Some(held) => held.same_shape(fact),
             None => {
                 put.insert(form.text, fact.clone());
                 true
@@ -249,7 +249,7 @@ pub fn function_values(facts: &[Node], env: Env, sorts: &Sorts) -> Vec<Node> {
         for member in facts {
             if member.notation() != MEMBERSHIP
                 || member.children.len() != 2
-                || member.children[1].shape() != domain.shape()
+                || !member.children[1].same_shape(domain)
             {
                 continue;
             }

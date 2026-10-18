@@ -18,8 +18,8 @@ use num_traits::{One, Signed, ToPrimitive, Zero};
 
 use crate::formula::page::template;
 use crate::formula::symbol::Symbol;
-use crate::formula::{Node, Sort, Sorts};
-use crate::matching::{alike_top, standard, substitute_apart, Binding};
+use crate::formula::{ByShape, Node, Sort, Sorts};
+use crate::matching::{alike_top, standard, substitute_apart, Binding, FxIndexSet};
 use crate::notations::{
     APPLICATION, DIVIDED, FACTORIAL, IN, INTEGER_RANGE, JUXTAPOSITION, MEMBERSHIP,
     MINUS, MOD, NUMBER_SYSTEMS, NUMERAL, PLUS, POWER, SUM, SUPERSCRIPT, TIMES,
@@ -142,7 +142,7 @@ pub fn said_once(
         })
     };
     let seeded: Vec<Node> = parts.seed.values().cloned().collect();
-    let mut seen = std::collections::BTreeSet::new();
+    let mut seen: FxIndexSet<ByShape> = FxIndexSet::default();
     let mut out = Vec::new();
     for node in parts
         .facts
@@ -151,7 +151,7 @@ pub fn said_once(
         .chain(&seeded)
         .flat_map(|n| n.walk())
     {
-        if !node.sort.is("number") || !seen.insert(node.shape().to_string()) {
+        if !node.sort.is("number") || !seen.insert(node.by_shape()) {
             continue;
         }
         for (sign, label) in rules::SYSTEM_OF {

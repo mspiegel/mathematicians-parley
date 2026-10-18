@@ -3,6 +3,7 @@
 use std::cell::{Cell, OnceCell};
 use std::collections::BTreeSet;
 use std::fmt;
+use std::hash::{Hash, Hasher};
 use std::rc::Rc;
 use std::sync::Arc;
 
@@ -307,6 +308,9 @@ pub struct NodeData {
     /// term in reverse Polish.
     pub rpn: Option<Rc<str>>,
     shape: OnceCell<String>,
+    /// A hash of the shape, worked out from the parts and not the text
+    /// (`same_shape`).
+    shape_hash: OnceCell<u64>,
     /// The characters of the sentence the parser read this node from, for
     /// a tool that restates a part of what was written; none for a node
     /// built any other way.
@@ -341,6 +345,26 @@ impl fmt::Debug for Node {
 /// A node's identity, for sets of occurrences.
 pub type NodeId = usize;
 
+/// A node as a key by its shape: two keys are equal where their nodes have
+/// one shape (`Node::same_shape`), for a set of formulas told apart as
+/// `shape` tells them.
+#[derive(Clone, Debug)]
+pub struct ByShape(pub Node);
+
+impl PartialEq for ByShape {
+    fn eq(&self, other: &ByShape) -> bool {
+        self.0.same_shape(&other.0)
+    }
+}
+
+impl Eq for ByShape {}
+
+impl Hash for ByShape {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        state.write_u64(self.0.shape_hash());
+    }
+}
+
 impl Node {
     fn made(spelling: Spelling, sort: Sort, children: Vec<Node>, text: Symbol) -> Node {
         Node(Rc::new(NodeData {
@@ -351,6 +375,7 @@ impl Node {
             literal_id: spelling.literal,
             rpn: None,
             shape: OnceCell::new(),
+            shape_hash: OnceCell::new(),
             span: Cell::new(None),
             grouped: Cell::new(false),
         }))
@@ -403,6 +428,7 @@ impl Node {
             literal_id: self.literal_id,
             rpn: None,
             shape: OnceCell::new(),
+            shape_hash: OnceCell::new(),
             span: Cell::new(None),
             grouped: Cell::new(false),
         }))
@@ -471,6 +497,7 @@ impl Node {
             literal_id: self.literal_id,
             rpn: self.rpn.clone(),
             shape: OnceCell::new(),
+            shape_hash: OnceCell::new(),
             span: Cell::new(None),
             grouped: Cell::new(self.grouped()),
         }))
@@ -487,6 +514,7 @@ impl Node {
             literal_id: NO_LITERAL,
             rpn: Some(Rc::from(rpn)),
             shape: OnceCell::new(),
+            shape_hash: OnceCell::new(),
             span: Cell::new(None),
             grouped: Cell::new(false),
         }))
@@ -534,6 +562,42 @@ impl Node {
             let inner: Vec<&str> = self.children.iter().map(|c| c.shape()).collect();
             format!("{head}({})", inner.join(", "))
         })
+    }
+
+    /// Whether the two have one shape: the same notation, text and
+    /// children's shapes, as `shape` writes them, compared part by part and
+    /// with no text built. The hashes settle most pairs that differ.
+    pub fn same_shape(&self, other: &Node) -> bool {
+        self.same(other)
+            || (self.shape_hash() == other.shape_hash()
+                && self.notation_id == other.notation_id
+                && self.text == other.text
+                && self.children.len() == other.children.len()
+                && self
+                    .children
+                    .iter()
+                    .zip(&other.children)
+                    .all(|(a, b)| a.same_shape(b)))
+    }
+
+    /// A hash of the shape, the same for two nodes `same_shape` holds of,
+    /// worked out once.
+    pub fn shape_hash(&self) -> u64 {
+        *self.shape_hash.get_or_init(|| {
+            let mut state = rustc_hash::FxHasher::default();
+            self.notation_id.hash(&mut state);
+            self.text.hash(&mut state);
+            self.children.len().hash(&mut state);
+            for c in &self.children {
+                c.shape_hash().hash(&mut state);
+            }
+            state.finish()
+        })
+    }
+
+    /// The node as a key that two nodes of one shape share (`same_shape`).
+    pub fn by_shape(&self) -> ByShape {
+        ByShape(self.clone())
     }
 
     /// The names the formula uses.

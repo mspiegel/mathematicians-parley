@@ -23,73 +23,88 @@ use regex::Regex;
 /// the line that finds it, and why spelling is the question there.
 const ALLOWED: &[(&str, &str, &str)] = &[
     (
+        "src/formula/node.rs",
+        ".all(|(a, b)| a.same_shape(b)))",
+        "`same_shape` itself, comparing children part by part",
+    ),
+    (
+        "src/formula/node.rs",
+        "self.0.same_shape(&other.0)",
+        "`ByShape`, the key a set of formulas told apart as spelt is kept by",
+    ),
+    (
+        "src/checker/mod.rs",
+        "a.same_shape(&node)",
+        "the printer's test: what it prints reads back as the very tree printed",
+    ),
+    (
         "src/matching.rs",
-        "return a.shape() == b.shape();",
+        "return a.same_shape(b);",
         "`alike` itself: a binder over something other than a name is the same only as written",
     ),
     (
         "src/matching.rs",
-        "ground.children[1].shape() == arg.shape()",
+        "ground.children[1].same_shape(&arg)",
         "the matcher asking whether an application is applied to that very argument",
     ),
     (
         "src/elab/spoken.rs",
-        "b.shape() == node.shape()",
+        "b.same_shape(&node)",
         "a reading said back is the page's only where it reads back as itself, letter for letter",
     ),
     (
         "src/citing/supply.rs",
-        "f.children[0].shape() == value.shape()",
+        "f.children[0].same_shape(value)",
         "a membership said of the very term a letter is bound to",
     ),
     (
         "src/citing/supply.rs",
-        "|| f.shape() != value.shape()",
+        "|| !f.same_shape(value)",
         "a function's type said of the very term a letter is bound to",
     ),
     (
         "src/matching.rs",
-        "if instance.shape() == ground.shape() {",
+        "if instance.same_shape(ground) {",
         "a pair spelt the same has no identity element dropped between them",
     ),
     (
         "src/citing/library.rs",
-        "part.shape() != x.shape()",
+        "!part.same_shape(x)",
         "a part already listed is not listed twice",
     ),
     (
         "src/citing/library.rs",
-        "turned.shape() != node.shape()",
+        "!turned.same_shape(node)",
         "an equation that reads the same turned around is listed once",
     ),
     (
         "src/citing/parts.rs",
-        "held.shape() == fact.shape()",
+        "held.same_shape(fact)",
         "a letter of a form stands for one term wherever the form writes it",
     ),
     (
         "src/citing/parts.rs",
-        "member.children[1].shape() != domain.shape()",
+        "!member.children[1].same_shape(domain)",
         "a membership in the set a function's type writes as its domain",
     ),
     (
         "src/checker/citations.rs",
-        "held.shape() != *atom",
+        "!held.same_shape(atom)",
         "an atom found among a term's parts, part by part",
     ),
     (
         "src/checker/citations.rs",
-        "part.shape() == *atom",
+        "part.same_shape(atom)",
         "an atom found among a term's parts, part by part",
     ),
     (
         "src/checker/citations.rs",
-        "one.iter().zip(other).all(|(a, b)| a.shape() == b.shape())",
+        "one.iter().zip(other).all(|(a, b)| a.same_shape(b))",
         "the surplus check skips a search only where the claim and seed are the trees its ways were found under; trees alike but spelt otherwise only cost a search",
     ),
     (
         "src/checker/formulas.rs",
-        "if a.shape() == b.shape() {",
+        "if a.same_shape(b) {",
         "two terms walked in step to find where they differ (`changed_closed`)",
     ),
 ];
@@ -108,8 +123,7 @@ fn sources(dir: &Path, out: &mut Vec<std::path::PathBuf>) {
 #[test]
 fn formulas_are_compared_as_formulas() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let comparison =
-        Regex::new(r"shape\(\)\s*[!=]=|[!=]=\s*[\w.&*\[\]]*\.shape\(\)").unwrap();
+    let comparison = Regex::new(r"\.same_shape\(").unwrap();
     let mut files = Vec::new();
     sources(&root.join("src"), &mut files);
     files.sort();

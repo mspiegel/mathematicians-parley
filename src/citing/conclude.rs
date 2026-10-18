@@ -3,12 +3,12 @@
 use std::collections::BTreeSet;
 
 use crate::formula::page::conjoined;
-use crate::formula::{walk, Node};
+use crate::formula::{walk, ByShape, Node};
 use indexmap::IndexMap;
 
 use crate::matching::{
     alike, alike_top, binding_sites, free_names, identities_dropped, match_tree,
-    put_everywhere, substitute_apart, Binding, Context,
+    put_everywhere, substitute_apart, Binding, Context, FxIndexSet,
 };
 use crate::notations::PROPERTY_OF;
 use crate::outcome::{Built, Route};
@@ -79,9 +79,14 @@ fn take(
             if !identities_on_numbers(cand, claim, &found, given, library) {
                 continue;
             }
-            let seen: BTreeSet<&str> = used.iter().map(|u| u.shape()).collect();
+            let seen: FxIndexSet<ByShape> = used.iter().map(Node::by_shape).collect();
             let mut more = used.to_vec();
-            more.extend(first.iter().filter(|f| !seen.contains(f.shape())).cloned());
+            more.extend(
+                first
+                    .iter()
+                    .filter(|f| !seen.contains(&f.by_shape()))
+                    .cloned(),
+            );
             let at = ways.as_deref().map_or(0, |w| w.path.len());
             if let Some(w) = ways.as_deref_mut() {
                 w.path.extend(&start.path);

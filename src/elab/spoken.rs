@@ -365,7 +365,7 @@ impl Elaborator<'_> {
                     .sentence()
                     .and_then(|s| s.read(self.g, &sorts))
             };
-            if back.is_ok_and(|b| b.shape() == node.shape()) {
+            if back.is_ok_and(|b| b.same_shape(&node)) {
                 return Some(node);
             }
         }

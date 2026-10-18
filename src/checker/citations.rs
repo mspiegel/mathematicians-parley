@@ -27,9 +27,10 @@ use crate::corpus::{
 };
 use crate::formula::page::{self, conjoined, Written};
 use crate::formula::symbol::Symbol;
-use crate::formula::{Node, Sort};
+use crate::formula::{ByShape, Node, Sort};
 use crate::matching::{
     alike, binding_sites, match_tree, standard, substitute_apart, Binding, Context,
+    FxIndexMap, FxIndexSet,
 };
 use crate::notations::{
     APPLICATION, APPLICATION_TO_TWO, BICONDITIONAL, CONDITIONAL, EQUALITY, FOR_ALL,
@@ -699,18 +700,17 @@ fn ways_supplied(
 /// The two lists say the same things in the same order, facts being the
 /// same when they are spelt the same.
 fn same_shapes(one: &[Node], other: &[Node]) -> bool {
-    one.len() == other.len()
-        && one.iter().zip(other).all(|(a, b)| a.shape() == b.shape())
+    one.len() == other.len() && one.iter().zip(other).all(|(a, b)| a.same_shape(b))
 }
 
 /// Every fact of `some` is among `all`, as many times as it is in `some`,
 /// facts being the same when they are spelt the same.
 fn within(some: &[Node], all: &[Node]) -> bool {
-    let mut left: IndexMap<&str, usize> = IndexMap::new();
+    let mut left: FxIndexMap<ByShape, usize> = FxIndexMap::default();
     for f in all {
-        *left.entry(f.shape()).or_default() += 1;
+        *left.entry(f.by_shape()).or_default() += 1;
     }
-    some.iter().all(|f| match left.get_mut(f.shape()) {
+    some.iter().all(|f| match left.get_mut(&f.by_shape()) {
         Some(n) if *n > 0 => {
             *n -= 1;
             true
@@ -1739,11 +1739,11 @@ fn built_on(req: &crate::corpus::Requires, step: &Step, known: &Known) -> bool {
         ),
         _ => return false,
     };
-    let atoms: Vec<String> = held.iter().map(|h| h.shape().to_string()).collect();
+    let atoms: Vec<&Node> = held;
     let holds_atom = |n: &Node| {
         atoms
             .iter()
-            .any(|atom| n.walk().iter().any(|part| part.shape() == *atom))
+            .any(|atom| n.walk().iter().any(|part| part.same_shape(atom)))
     };
     let scope = known.scope(step);
     step.requires
@@ -1764,8 +1764,8 @@ fn built_on(req: &crate::corpus::Requires, step: &Step, known: &Known) -> bool {
                 &n
             };
             let written = atoms.iter().any(|atom| {
-                (whole || held.shape() != *atom)
-                    && held.walk().iter().any(|part| part.shape() == *atom)
+                (whole || !held.same_shape(atom))
+                    && held.walk().iter().any(|part| part.same_shape(atom))
             });
             // Or it holds the term once the defines it cites are written
             // out: `U(0) ∈ ℝ: membership, from D6` divides by 10^0, which
@@ -2180,16 +2180,16 @@ fn domains_asked(
     step: &Step,
     scopes: &[FileScope],
     known: &Known,
-) -> BTreeSet<String> {
+) -> FxIndexSet<ByShape> {
     let functions =
         defined_functions(thm.defines.iter().chain(&scopes[thm.scope].defines));
     let Some(claim) = known.whole_as_written(&step.claim) else {
-        return BTreeSet::new(); // `check_formulas` says it does not read
+        return FxIndexSet::default(); // `check_formulas` says it does not read
     };
     applied(&functions, &claim, false, known)
         .into_iter()
         .flat_map(|a| a.says)
-        .map(|s| s.shape().to_string())
+        .map(ByShape)
         .collect()
 }
 
@@ -2763,9 +2763,9 @@ pub(super) fn domains_unsaid(
     for claim in &parts.claims {
         sum_indices(claim, &library.ctx, &mut indices);
     }
-    let shapes: BTreeSet<&str> = facts.iter().map(|f| f.shape()).collect();
+    let shapes: FxIndexSet<ByShape> = facts.iter().map(Node::by_shape).collect();
     let defined = known.citing_step(step);
-    let mut seen: BTreeSet<String> = BTreeSet::new();
+    let mut seen: FxIndexSet<ByShape> = FxIndexSet::default();
     let mut out = Vec::new();
     for asked in evaluated(step, &used, known, library) {
         if !asked.arg.names().is_disjoint(&indices) {
@@ -2775,8 +2775,8 @@ pub(super) fn domains_unsaid(
         let said = asked
             .says
             .iter()
-            .any(|s| shapes.contains(known.as_cited(s, &defined).shape()));
-        if said || !seen.insert(asked.says[0].shape().to_string()) {
+            .any(|s| shapes.contains(&known.as_cited(s, &defined).by_shape()));
+        if said || !seen.insert(asked.says[0].by_shape()) {
             continue;
         }
         out.push(asked);
@@ -4016,7 +4016,7 @@ pub fn check_surplus(
             lighter.requires.remove(i);
             let domain = known
                 .whole_as_written(&req.fact)
-                .is_some_and(|n| in_domain.contains(n.shape()));
+                .is_some_and(|n| in_domain.contains(&n.by_shape()));
             let ended = known.whole_as_written(&req.fact).is_some_and(|n| {
                 n.notation() == MEMBERSHIP
                     && ends.iter().any(|u| known.alike(&n.children[0], &u.left))

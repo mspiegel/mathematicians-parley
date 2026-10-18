@@ -6,7 +6,8 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 
 use indexmap::{IndexMap, IndexSet};
 
-use crate::formula::{Node, NodeId};
+use crate::formula::symbol::Symbol;
+use crate::formula::{ByShape, Node, NodeId};
 use crate::matching::{alike, match_tree, substitute_apart, Binding, Context};
 use crate::notations::{
     FOR_ALL, FUNCTIONS_FROM, FUNCTION_TYPE, INTEGER_RANGE, NUMBER_SYSTEMS, NUMERAL,
@@ -128,8 +129,8 @@ pub fn largest_search() -> usize {
 /// by its shape, and the binding it leaves, each value by its shape.
 #[derive(PartialEq)]
 struct Tried {
-    fact: Option<String>,
-    binding: Vec<String>,
+    fact: Option<ByShape>,
+    binding: Vec<(Symbol, ByShape)>,
 }
 
 /// `search` over the hypotheses still to supply, counting in `asked` each
@@ -203,11 +204,11 @@ fn searched(
     let mut tried: Vec<Tried> = Vec::new();
     for fit in these {
         let key = Tried {
-            fact: fit.fact.map(|i| facts[i].shape().to_string()),
+            fact: fit.fact.map(|i| facts[i].by_shape()),
             binding: fit
                 .binding
                 .iter()
-                .map(|(k, v)| format!("{k} := {}", v.shape()))
+                .map(|(k, v)| (*k, v.by_shape()))
                 .collect(),
         };
         if tried.contains(&key) {
@@ -647,7 +648,7 @@ fn typed_into(
     };
     if domain.notation() != FUNCTIONS_FROM
         || fact.notation() != FUNCTION_TYPE
-        || f.shape() != value.shape()
+        || !f.same_shape(value)
     {
         return false;
     }
@@ -678,7 +679,7 @@ fn witnessed_in(
         let witnessed = facts.iter().any(|f| {
             let member = library.members.contains(&f.notation())
                 && f.children.len() == 2
-                && f.children[0].shape() == value.shape()
+                && f.children[0].same_shape(value)
                 && match_tree(
                     domain,
                     &f.children[1],

@@ -444,7 +444,7 @@ pub fn printed_back(source: &dyn Source) -> Result<(usize, Vec<String>), Outcome
                         Written::new(&printed, sentence.path(), sentence.line());
                     let again = again.sentence().ok();
                     let again = again.as_ref().and_then(read);
-                    if again.as_ref().map(|a| a.shape()) != Some(node.shape()) {
+                    if !again.as_ref().is_some_and(|a| a.same_shape(&node)) {
                         out.push(format!(
                             "{}:{}  {text}  printed as  {printed}",
                             thm.path, step.line
