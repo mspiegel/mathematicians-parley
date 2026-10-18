@@ -1034,7 +1034,7 @@ impl Elaborator<'_> {
                 "inspection settles whether a number below 841 is prime, by trial division by the primes up to 23, and {value} is not below 841"
             )));
         };
-        let spelt = numerals::spell(value.clone());
+        let spelt = numerals::print(value.clone());
         let said = |t: String| if negated { t!(t, "wn") } else { t };
         let (claim, at_value) = (
             said(t!(&written, "cprime", "wcel")),
@@ -1101,7 +1101,7 @@ impl Elaborator<'_> {
     /// for a prime of 841 or more.
     fn primality(&self, n: &BigUint) -> Option<Proof> {
         let b = &self.b;
-        let sn = numerals::spell(n.clone());
+        let sn = numerals::print(n.clone());
         let small = n.to_u32();
         match small {
             Some(0) => return Some(b.step("0nprm")),
@@ -1114,8 +1114,8 @@ impl Elaborator<'_> {
             let factor = least_factor(n);
             let rest = n / &factor;
             let (sa, sb) = (
-                numerals::spell(factor.clone()),
-                numerals::spell(rest.clone()),
+                numerals::print(factor.clone()),
+                numerals::print(rest.clone()),
             );
             return Some(b.ap(
                 "nprmi",

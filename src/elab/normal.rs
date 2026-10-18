@@ -21,8 +21,6 @@
 //! What it cannot do for itself — say that an atom is a complex number, or
 //! that a term is not zero — it asks of an [`Oracle`].
 
-use std::rc::Rc;
-
 use indexmap::IndexMap;
 use num_bigint::BigInt;
 use num_integer::Integer;
@@ -35,8 +33,9 @@ use super::numerals;
 use crate::binds;
 use crate::mm::kernel::{FloatLabels, Term};
 use crate::mm::spell::{Builder, Proof};
+use crate::mm::Rpn;
 use crate::outcome::{Built, Checked, Declined, Route};
-use crate::{t_text as t, take};
+use crate::{t, take};
 
 const ADD: &str = "caddc";
 const MUL: &str = "cmul";
@@ -64,36 +63,36 @@ pub trait Oracle {
     /// The builder every step is assembled on.
     fn b(&self) -> &Builder;
     /// ( under -> said e. CC ), for a term the recursion bottoms out at.
-    fn atom(&mut self, said: &str) -> Checked<Proof>;
+    fn atom(&mut self, said: &Rpn) -> Checked<Proof>;
     /// ( under -> said =/= 0 ), asked only of an emitter given a way to;
     /// `named` is the term as the page wrote it, which a message names.
-    fn apart(&mut self, said: &str, named: &str) -> Checked<Proof>;
+    fn apart(&mut self, said: &Rpn, named: &Rpn) -> Checked<Proof>;
     /// What the page says makes `said` not zero, asked only of an emitter
     /// given a way to.
-    fn written(&mut self, said: &str) -> Checked<Option<Proof>>;
+    fn written(&mut self, said: &Rpn) -> Checked<Option<Proof>>;
     /// ( under -> said =/= 0 ) where the page says once that `said` is a
     /// positive integer (`SYNTAX.md`), which no line need say; None
     /// otherwise.
-    fn positive(&mut self, said: &str) -> Checked<Option<Proof>>;
+    fn positive(&mut self, said: &Rpn) -> Checked<Option<Proof>>;
     /// A finite sum written out as linear, as `field::linear_sum` reads it,
     /// and ( under -> said = that ); declined where sums are atoms.
-    fn linear_sum(&mut self, said: &str) -> Checked<Route<(Term, Proof)>> {
+    fn linear_sum(&mut self, said: &Rpn) -> Checked<Route<(Term, Proof)>> {
         let _ = said;
         Ok(Route::no("a sum is one atom here"))
     }
     /// A term as the page would write it, for a message to name.
-    fn shown(&self, said: &str) -> String {
+    fn shown(&self, said: &Rpn) -> String {
         said.to_string()
     }
 }
 
 /// `( left what right )`, which reverse Polish writes the other way.
-fn op(left: &str, right: &str, what: &str) -> String {
+fn op(left: &Rpn, right: &Rpn, what: &str) -> Rpn {
     t!(left, right, what, "co")
 }
 
 /// A left-associated run, which is the shape every canonical form has.
-fn join(terms: &[String], what: &str) -> String {
+fn join(terms: &[Rpn], what: &str) -> Rpn {
     let mut out = terms[0].clone();
     for one in &terms[1..] {
         out = op(&out, one, what);
@@ -112,7 +111,7 @@ struct Fractions {
 }
 
 impl Fractions {
-    fn spelt(&self) -> String {
+    fn spelt(&self) -> Rpn {
         op(
             &op(
                 &Emitter::spell_run(&self.over),
@@ -162,7 +161,7 @@ fn whole(weight: &Q) -> BigInt {
 }
 
 /// A whole number's magnitude as set.mm spells it.
-fn spelt(value: &BigInt) -> String {
+fn spelt(value: &BigInt) -> Rpn {
     numerals::spell(value.magnitude().clone())
 }
 
@@ -170,7 +169,7 @@ fn big(value: i64) -> BigInt {
     BigInt::from(value)
 }
 
-fn coeff(weight: &Q) -> String {
+fn coeff(weight: &Q) -> Rpn {
     spell_coefficient(weight).unwrap_or_default()
 }
 
@@ -184,7 +183,7 @@ enum Made {
     Coefficient(Q),
     MonomialCc(Monomial),
     TermCc(Monomial, Q),
-    FactorCc(Rc<str>, u32),
+    FactorCc(Rpn, u32),
 }
 
 /// Proofs over one scope.
@@ -193,24 +192,24 @@ enum Made {
 /// Everything here is built by applying a label to what it is applied to,
 /// and nothing is parsed.
 pub struct Emitter {
-    pub under: String,
+    pub under: Rpn,
     /// Whether the oracle can say a term is not zero, by search.
     apart: bool,
     /// Whether the oracle can say what the page wrote a term is not.
     written: bool,
-    held: IndexMap<String, Proof>,
+    held: IndexMap<Rpn, Proof>,
     made: IndexMap<Made, Proof>,
-    nonzero: IndexMap<String, Proof>,
+    nonzero: IndexMap<Rpn, Proof>,
     /// Each denominator made from a divisor the page wrote, by its
     /// canonical form, and the divisor as written: what a message names
     /// where nothing says it is not zero.
-    divisors: IndexMap<String, String>,
+    divisors: IndexMap<Rpn, Rpn>,
 }
 
 impl Emitter {
-    pub fn new(under: &str, apart: bool, written: bool) -> Emitter {
+    pub fn new(under: &Rpn, apart: bool, written: bool) -> Emitter {
         Emitter {
-            under: under.to_string(),
+            under: under.clone(),
             apart,
             written,
             held: IndexMap::new(),
@@ -221,7 +220,7 @@ impl Emitter {
     }
 
     /// ( under -> what = what ).
-    pub fn same(&self, o: &dyn Oracle, what: &str) -> Proof {
+    pub fn same(&self, o: &dyn Oracle, what: &Rpn) -> Proof {
         o.b()
             .ap("eqidd", &binds! {"ph" => &self.under, "A" => what}, &[])
     }
@@ -232,9 +231,9 @@ impl Emitter {
         o: &dyn Oracle,
         first: &Proof,
         second: &Proof,
-        a: &str,
-        b: &str,
-        c: &str,
+        a: &Rpn,
+        b: &Rpn,
+        c: &Rpn,
     ) -> Proof {
         o.b().ap(
             "eqtrd",
@@ -270,7 +269,7 @@ impl Emitter {
         let b = o.b();
         let made = b.ap(
             "a1i",
-            &binds! {"ph" => t!(n(value as u32), "cn0", "wcel"), "ps" => &self.under},
+            &binds! {"ph" => t!(&n(value as u32), "cn0", "wcel"), "ps" => &self.under},
             &[&numerals::nn0(b, value as u64)],
         );
         self.made.insert(key, made.clone());
@@ -312,17 +311,17 @@ impl Emitter {
         let made = if monomial.is_empty() {
             self.number(o, &big(1))
         } else {
-            let mut said: Option<String> = None;
+            let mut said: Option<Rpn> = None;
             let mut out: Option<Proof> = None;
             for (name, power) in monomial {
                 let atom = o.atom(name)?;
                 let index = self.index(o, *power as i64);
                 let one = o.b().ap(
                     "expcld",
-                    &binds! {"ph" => &self.under, "A" => &**name, "N" => n(*power)},
+                    &binds! {"ph" => &self.under, "A" => name, "N" => n(*power)},
                     &[&atom, &index],
                 );
-                let spelt = op(name, n(*power), EXP);
+                let spelt = op(name, &n(*power), EXP);
                 match (&said, &out) {
                     (Some(s), Some(p)) => {
                         out = Some(o.b().ap(
@@ -366,14 +365,14 @@ impl Emitter {
         Ok(made)
     }
 
-    pub fn spell_term(item: &(Monomial, Q)) -> String {
+    pub fn spell_term(item: &(Monomial, Q)) -> Rpn {
         op(&coeff(&item.1), &spell_monomial(&item.0), MUL)
     }
 
     /// A run of terms as one term; the empty run is zero.
-    pub fn spell_run(items: &[(Monomial, Q)]) -> String {
+    pub fn spell_run(items: &[(Monomial, Q)]) -> Rpn {
         if items.is_empty() {
-            return n(0).to_string();
+            return n(0);
         }
         join(&items.iter().map(Self::spell_term).collect::<Vec<_>>(), ADD)
     }
@@ -420,13 +419,12 @@ impl Emitter {
         &self,
         o: &dyn Oracle,
         proof: Proof,
-        left: &str,
-        right: &str,
-        tail: &[String],
+        left: &Rpn,
+        right: &Rpn,
+        tail: &[Rpn],
         what: &str,
     ) -> Proof {
-        let (mut proof, mut left, mut right) =
-            (proof, left.to_string(), right.to_string());
+        let (mut proof, mut left, mut right) = (proof, left.clone(), right.clone());
         for one in tail {
             proof = o.b().ap(
                 "oveq1d",
@@ -451,7 +449,7 @@ impl Emitter {
         let head = &items[..at];
         let a = Self::spell_term(&items[at]);
         let b = Self::spell_term(&items[at + 1]);
-        let tail: Vec<String> = items[at + 2..].iter().map(Self::spell_term).collect();
+        let tail: Vec<Rpn> = items[at + 2..].iter().map(Self::spell_term).collect();
         let (before, after, step);
         if !head.is_empty() {
             let prefix = Self::spell_run(head);
@@ -490,7 +488,7 @@ impl Emitter {
     // --- coefficients ---------------------------------------------------
 
     /// ( under -> claim ) from a claim that holds outright.
-    pub fn a1i(&self, o: &dyn Oracle, claim: &str, proof: &Proof) -> Proof {
+    pub fn a1i(&self, o: &dyn Oracle, claim: &Rpn, proof: &Proof) -> Proof {
         o.b().ap(
             "a1i",
             &binds! {"ph" => claim, "ps" => &self.under},
@@ -551,7 +549,7 @@ impl Emitter {
                 &cancels,
                 &op(&c, &d, ADD),
                 &op(&d, &c, ADD),
-                n(0),
+                &n(0),
             ));
         }
         if a.is_negative() && bn.is_negative() {
@@ -639,7 +637,7 @@ impl Emitter {
     ) -> Route<Proof> {
         let gap = bigger - smaller;
         let (left, right, out) = (spelt(bigger), spelt(smaller), spelt(&gap));
-        let (left, right, out) = (left.as_str(), right.as_str(), out.as_str());
+        let (left, right, out) = (&left, &right, &out);
         let back = match self.coefficient_sum(
             o,
             &Q::from_integer(smaller.clone()),
@@ -682,9 +680,9 @@ impl Emitter {
         o: &dyn Oracle,
         first: &BigInt,
         second: &BigInt,
-        c: &str,
-        d: &str,
-        said: &str,
+        c: &Rpn,
+        d: &Rpn,
+        said: &Rpn,
     ) -> Route<Proof> {
         let (sf, ss) = (spelt(first), spelt(second));
         let gap = op(&sf, &ss, "cmin");
@@ -717,7 +715,7 @@ impl Emitter {
             return self.gap_numeral(o, first, second);
         }
         let (f, s) = (spelt(first), spelt(second));
-        let (f, s) = (f.as_str(), s.as_str());
+        let (f, s) = (&f, &s);
         let gap = spelt(&(second - first));
         let other = op(s, f, "cmin");
         let back = match self.gap_numeral(o, second, first) {
@@ -873,12 +871,12 @@ impl Emitter {
             b.ap(
                 "syl",
                 &binds! {"ph" => &self.under, "ps" => t!(spelt, "cc", "wcel"),
-                "ch" => t!(zero, n(0), "wceq")},
+                "ch" => t!(zero, &n(0), "wceq")},
                 &[&pm, &law],
             )
         };
         if rest.is_empty() {
-            let p = self.chain(o, &walked, &vanishes, &start, &run, n(0));
+            let p = self.chain(o, &walked, &vanishes, &start, &run, &n(0));
             return Ok((rest, p));
         }
         let keep = Self::spell_run(&rest);
@@ -894,10 +892,10 @@ impl Emitter {
             let second = b.ap(
                 "syl",
                 &binds! {"ph" => &self.under, "ps" => t!(keep, "cc", "wcel"),
-                "ch" => t!(op(&keep, n(0), ADD), keep, "wceq")},
+                "ch" => t!(op(&keep, &n(0), ADD), keep, "wceq")},
                 &[&rc, &law],
             );
-            self.chain(o, &first, &second, &run, &op(&keep, n(0), ADD), &keep)
+            self.chain(o, &first, &second, &run, &op(&keep, &n(0), ADD), &keep)
         };
         let p = self.chain(o, &walked, &comes_off, &start, &run, &keep);
         Ok((rest, p))
@@ -923,7 +921,7 @@ impl Emitter {
             let p = b.ap(
                 "syl",
                 &binds! {"ph" => &self.under, "ps" => t!(term, "cc", "wcel"),
-                "ch" => t!(op(n(0), &term, ADD), term, "wceq")},
+                "ch" => t!(op(&n(0), &term, ADD), term, "wceq")},
                 &[&cc, &law],
             );
             return Ok(Built((vec![(monomial.clone(), weight.clone())], p)));
@@ -985,7 +983,7 @@ impl Emitter {
             Self::spell_term(&(monomial.clone(), &items[at].1 + &items[at + 1].1));
         let collect =
             take!(self.combine(o, monomial, &items[at].1, &items[at + 1].1)?);
-        let tail: Vec<String> = rest.iter().map(Self::spell_term).collect();
+        let tail: Vec<Rpn> = rest.iter().map(Self::spell_term).collect();
         if head.is_empty() {
             return Ok(Built(self.lift(
                 o,
@@ -1062,7 +1060,7 @@ impl Emitter {
             let p = b.ap(
                 "syl",
                 &binds! {"ph" => &self.under, "ps" => t!(keep, "cc", "wcel"),
-                "ch" => t!(op(&keep, n(0), ADD), keep, "wceq")},
+                "ch" => t!(op(&keep, &n(0), ADD), keep, "wceq")},
                 &[&rc, &law],
             );
             return Ok(Built((left.to_vec(), p)));
@@ -1122,7 +1120,7 @@ impl Emitter {
     fn factor_cc(
         &mut self,
         o: &mut dyn Oracle,
-        name: &Rc<str>,
+        name: &Rpn,
         power: u32,
     ) -> Checked<Proof> {
         let key = Made::FactorCc(name.clone(), power);
@@ -1133,7 +1131,7 @@ impl Emitter {
         let index = self.index(o, power as i64);
         let made = o.b().ap(
             "expcld",
-            &binds! {"ph" => &self.under, "A" => &**name, "N" => n(power)},
+            &binds! {"ph" => &self.under, "A" => name, "N" => n(power)},
             &[&atom, &index],
         );
         self.made.insert(key, made.clone());
@@ -1143,7 +1141,7 @@ impl Emitter {
     fn factors_cc(
         &mut self,
         o: &mut dyn Oracle,
-        factors: &[(Rc<str>, u32)],
+        factors: &[(Rpn, u32)],
     ) -> Checked<Proof> {
         if factors.is_empty() {
             return Ok(self.number(o, &big(1)));
@@ -1166,7 +1164,7 @@ impl Emitter {
     fn swap_factors(
         &mut self,
         o: &mut dyn Oracle,
-        factors: &[(Rc<str>, u32)],
+        factors: &[(Rpn, u32)],
         at: usize,
     ) -> Checked<Proof> {
         let head = &factors[..at];
@@ -1204,14 +1202,14 @@ impl Emitter {
                 &[&p1, &p2, &law],
             );
         }
-        let tail: Vec<String> = factors[at + 2..].iter().map(spell_factor).collect();
+        let tail: Vec<Rpn> = factors[at + 2..].iter().map(spell_factor).collect();
         Ok(self.lift(o, step, &before, &after, &tail, MUL))
     }
 
     fn shift_factors(
         &mut self,
         o: &mut dyn Oracle,
-        factors: &[(Rc<str>, u32)],
+        factors: &[(Rpn, u32)],
         frm: usize,
         to: usize,
     ) -> Checked<(Monomial, Proof)> {
@@ -1242,14 +1240,14 @@ impl Emitter {
     fn gather_factors(
         &mut self,
         o: &mut dyn Oracle,
-        name: &Rc<str>,
+        name: &Rpn,
         first: u32,
         second: u32,
     ) -> Checked<Route<Proof>> {
-        let a = op(name, n(first), EXP);
-        let b = op(name, n(second), EXP);
+        let a = op(name, &n(first), EXP);
+        let b = op(name, &n(second), EXP);
         let total = first + second;
-        let exponent = op(n(first), n(second), ADD);
+        let exponent = op(&n(first), &n(second), ADD);
         let atom = o.atom(name)?;
         let i1 = self.index(o, first as i64);
         let i2 = self.index(o, second as i64);
@@ -1257,13 +1255,13 @@ impl Emitter {
             let bb = o.b();
             let law = bb.ap(
                 "expadd",
-                &binds! {"A" => &**name, "M" => n(first), "N" => n(second)},
+                &binds! {"A" => name, "M" => n(first), "N" => n(second)},
                 &[],
             );
             let inner = bb.ap(
                 "syl3anc",
                 &binds! {"ph" => &self.under, "ps" => t!(name, "cc", "wcel"),
-                "ch" => t!(n(first), "cn0", "wcel"), "th" => t!(n(second), "cn0", "wcel"),
+                "ch" => t!(&n(first), "cn0", "wcel"), "th" => t!(&n(second), "cn0", "wcel"),
                 "ta" => t!(op(name, &exponent, EXP), op(&a, &b, MUL), "wceq")},
                 &[&atom, &i1, &i2, &law],
             );
@@ -1281,7 +1279,7 @@ impl Emitter {
         let moved = o.b().ap(
             "oveq2d",
             &binds! {"ph" => &self.under, "A" => &exponent, "B" => n(total),
-            "C" => &**name, "F" => EXP},
+            "C" => name, "F" => EXP},
             &[&exponents],
         );
         Ok(Built(self.chain(
@@ -1290,7 +1288,7 @@ impl Emitter {
             &moved,
             &op(&a, &b, MUL),
             &op(name, &exponent, EXP),
-            &op(name, n(total), EXP),
+            &op(name, &n(total), EXP),
         )))
     }
 
@@ -1298,11 +1296,11 @@ impl Emitter {
     fn insert_factor(
         &mut self,
         o: &mut dyn Oracle,
-        factors: &[(Rc<str>, u32)],
-        name: &Rc<str>,
+        factors: &[(Rpn, u32)],
+        name: &Rpn,
         power: u32,
     ) -> Checked<Route<(Monomial, Proof)>> {
-        let one = op(name, n(power), EXP);
+        let one = op(name, &n(power), EXP);
         if factors.is_empty() {
             let f = self.factor_cc(o, name, power)?;
             let b = o.b();
@@ -1310,7 +1308,7 @@ impl Emitter {
             let p = b.ap(
                 "syl",
                 &binds! {"ph" => &self.under, "ps" => t!(one, "cc", "wcel"),
-                "ch" => t!(op(n(1), &one, MUL), one, "wceq")},
+                "ch" => t!(op(&n(1), &one, MUL), one, "wceq")},
                 &[&f, &law],
             );
             return Ok(Built((vec![(name.clone(), power)], p)));
@@ -1347,7 +1345,7 @@ impl Emitter {
     fn spread(
         &mut self,
         o: &mut dyn Oracle,
-        factors: &[(Rc<str>, u32)],
+        factors: &[(Rpn, u32)],
         at: usize,
         collect: Proof,
     ) -> Checked<Proof> {
@@ -1357,7 +1355,7 @@ impl Emitter {
         let b = spell_factor(&factors[at + 1]);
         let total =
             spell_factor(&(factors[at].0.clone(), factors[at].1 + factors[at + 1].1));
-        let tail: Vec<String> = rest.iter().map(spell_factor).collect();
+        let tail: Vec<Rpn> = rest.iter().map(spell_factor).collect();
         if head.is_empty() {
             return Ok(self.lift(o, collect, &op(&a, &b, MUL), &total, &tail, MUL));
         }
@@ -1403,8 +1401,8 @@ impl Emitter {
     fn multiply_monomials(
         &mut self,
         o: &mut dyn Oracle,
-        left: &[(Rc<str>, u32)],
-        right: &[(Rc<str>, u32)],
+        left: &[(Rpn, u32)],
+        right: &[(Rpn, u32)],
     ) -> Checked<Route<(Monomial, Proof)>> {
         let start = op(
             &spell_monomial(&left.to_vec()),
@@ -1419,7 +1417,7 @@ impl Emitter {
             let p = b.ap(
                 "syl",
                 &binds! {"ph" => &self.under, "ps" => t!(keep, "cc", "wcel"),
-                "ch" => t!(op(&keep, n(1), MUL), keep, "wceq")},
+                "ch" => t!(op(&keep, &n(1), MUL), keep, "wceq")},
                 &[&fc, &law],
             );
             return Ok(Built((left.to_vec(), p)));
@@ -1566,11 +1564,11 @@ impl Emitter {
         label: &str,
         first: &BigInt,
         second: &BigInt,
-        before: &str,
-        after: &str,
+        before: &Rpn,
+        after: &Rpn,
     ) -> Proof {
         let (left, right) = (spelt(first), spelt(second));
-        let (left, right) = (left.as_str(), right.as_str());
+        let (left, right) = (&left, &right);
         let pl = self.number(o, first);
         let pr = self.number(o, second);
         let b = o.b();
@@ -1678,7 +1676,7 @@ impl Emitter {
             let p = b.ap(
                 "syl",
                 &binds! {"ph" => &self.under, "ps" => t!(term, "cc", "wcel"),
-                "ch" => t!(op(&term, n(0), MUL), n(0), "wceq")},
+                "ch" => t!(op(&term, &n(0), MUL), &n(0), "wceq")},
                 &[&cc, &law],
             );
             return Ok(Built((Vec::new(), p)));
@@ -1744,7 +1742,7 @@ impl Emitter {
             let p = b.ap(
                 "syl",
                 &binds! {"ph" => &self.under, "ps" => t!(keep, "cc", "wcel"),
-                "ch" => t!(op(n(0), &keep, MUL), n(0), "wceq")},
+                "ch" => t!(op(&n(0), &keep, MUL), &n(0), "wceq")},
                 &[&rc, &law],
             );
             return Ok(Built((Vec::new(), p)));
@@ -1806,7 +1804,7 @@ impl Emitter {
         times: u32,
     ) -> Checked<Route<(Run, Proof)>> {
         let run = Self::spell_run(items);
-        let start = op(&run, n(times), EXP);
+        let start = op(&run, &n(times), EXP);
         let unit: Run = vec![(Vec::new(), q(1))];
         if times == 0 {
             let rc = self.run_cc(o, items)?;
@@ -1816,13 +1814,13 @@ impl Emitter {
                 b.ap(
                     "syl",
                     &binds! {"ph" => &self.under, "ps" => t!(run, "cc", "wcel"),
-                    "ch" => t!(start, n(1), "wceq")},
+                    "ch" => t!(start, &n(1), "wceq")},
                     &[&rc, &law],
                 )
             };
             let one = self.one_as_term(o);
             let p =
-                self.chain(o, &first, &one, &start, n(1), &Self::spell_term(&unit[0]));
+                self.chain(o, &first, &one, &start, &n(1), &Self::spell_term(&unit[0]));
             return Ok(Built((unit, p)));
         }
         if times == 1 {
@@ -1837,14 +1835,14 @@ impl Emitter {
             );
             return Ok(Built((items.to_vec(), p)));
         }
-        let below = n(times - 1);
+        let below = &n(times - 1);
         let stepped_from = match self.coefficient_sum(o, &q(times as i64 - 1), &q(1)) {
             Built(p) => p,
             Declined(d) => return Ok(Declined(d)),
         };
         let rc = self.run_cc(o, items)?;
         let ix = self.index(o, times as i64 - 1);
-        let peeled_exponent = op(below, n(1), ADD);
+        let peeled_exponent = op(below, &n(1), ADD);
         let stepped = {
             let b = o.b();
             let turned = b.ap(
@@ -1902,7 +1900,7 @@ impl Emitter {
         let product = self.positive_product(o, &big(1), &big(1));
         o.b().ap(
             "eqcomd",
-            &binds! {"ph" => &self.under, "A" => op(n(1), n(1), MUL), "B" => n(1)},
+            &binds! {"ph" => &self.under, "A" => op(&n(1), &n(1), MUL), "B" => n(1)},
             &[&product],
         )
     }
@@ -1921,7 +1919,7 @@ impl Emitter {
         term: &Term,
         labels: &FloatLabels,
     ) -> Checked<Route<(Run, Proof)>> {
-        let said = term.txt(labels).to_string();
+        let said = term.rpn(labels);
         if term.variable().is_none() {
             if let Some(value) = numerals::value(term) {
                 let value = BigInt::from(value);
@@ -1929,7 +1927,7 @@ impl Emitter {
                     // The empty run, not a term of weight zero: a canonical
                     // form holds no such term, and one left in it would be
                     // carried through every sum it took part in.
-                    return Ok(Built((Vec::new(), self.same(o, n(0)))));
+                    return Ok(Built((Vec::new(), self.same(o, &n(0)))));
                 }
                 if value == big(1) {
                     return Ok(Built((vec![(Vec::new(), q(1))], self.one_as_term(o))));
@@ -1937,7 +1935,7 @@ impl Emitter {
                 let product = self.positive_product(o, &value, &big(1));
                 let p = o.b().ap(
                     "eqcomd",
-                    &binds! {"ph" => &self.under, "A" => op(&spelt(&value), n(1), MUL),
+                    &binds! {"ph" => &self.under, "A" => op(&spelt(&value), &n(1), MUL),
                     "B" => spelt(&value)},
                     &[&product],
                 );
@@ -1950,14 +1948,14 @@ impl Emitter {
         {
             let (items, proof) =
                 take!(self.normalize(o, &term.children()[0], labels)?);
-            let inner = term.children()[0].txt(labels).to_string();
+            let inner = term.children()[0].rpn(labels);
             return self.negated(o, &inner, &items, proof, &said);
         }
         // A finite sum is linear: it is written out as its parts' sums, each
         // scaled by what is free of its letter, and that is normalised.
         if term.variable().is_none() && term.label() == Some("csu") {
             if let Built((linear, written)) = o.linear_sum(&said)? {
-                let spelt = linear.txt(labels).to_string();
+                let spelt = linear.rpn(labels);
                 let (items, proof) = take!(self.normalize(o, &linear, labels)?);
                 let p = self.chain(
                     o,
@@ -1987,7 +1985,7 @@ impl Emitter {
                     let (out, raised) = take!(self.power(o, &inner, times)?);
                     let moved = o.b().ap(
                         "oveq1d",
-                        &binds! {"ph" => &self.under, "A" => &*left.txt(labels),
+                        &binds! {"ph" => &self.under, "A" => left.rpn(labels),
                         "B" => Self::spell_run(&inner), "C" => n(times), "F" => EXP},
                         &[&proof],
                     );
@@ -1996,7 +1994,7 @@ impl Emitter {
                         &moved,
                         &raised,
                         &said,
-                        &op(&Self::spell_run(&inner), n(times), EXP),
+                        &op(&Self::spell_run(&inner), &n(times), EXP),
                         &Self::spell_run(&out),
                     );
                     return Ok(Built((out, p)));
@@ -2004,21 +2002,21 @@ impl Emitter {
                 // An exponent that is one atom alone is that atom, as
                 // `field` reads it: 2^(d·1) is 2^d.
                 if let Some(name) = field::exponent_atom(right, labels) {
-                    let exponent = right.txt(labels).to_string();
+                    let exponent = right.rpn(labels);
                     let (run, to_run) = take!(self.normalize(o, right, labels)?);
                     let (_, from_name) = self.as_atom(o, &name)?;
                     let spelt = Self::spell_run(&run);
                     let b = o.b();
                     let is_name = b.ap(
                         "eqtr4d",
-                        &binds! {"ph" => &self.under, "A" => &exponent, "B" => &spelt, "C" => &*name},
+                        &binds! {"ph" => &self.under, "A" => &exponent, "B" => &spelt, "C" => &name},
                         &[&to_run, &from_name],
                     );
-                    let base = left.txt(labels).to_string();
+                    let base = left.rpn(labels);
                     let over = op(&base, &name, EXP);
                     let moved = b.ap(
                         "oveq2d",
-                        &binds! {"ph" => &self.under, "A" => &exponent, "B" => &*name,
+                        &binds! {"ph" => &self.under, "A" => &exponent, "B" => &name,
                         "C" => &base, "F" => EXP},
                         &[&is_name],
                     );
@@ -2045,10 +2043,10 @@ impl Emitter {
     }
 
     /// A subterm nothing above recognises, as `( 1 x. ( t ^ 1 ) )`.
-    fn as_atom(&mut self, o: &mut dyn Oracle, said: &str) -> Checked<(Run, Proof)> {
-        let raised = op(said, n(1), EXP);
+    fn as_atom(&mut self, o: &mut dyn Oracle, said: &Rpn) -> Checked<(Run, Proof)> {
+        let raised = op(said, &n(1), EXP);
         let atom = o.atom(said)?;
-        let name: Rc<str> = Rc::from(said);
+        let name = said.clone();
         let fc = self.factor_cc(o, &name, 1)?;
         let b = o.b();
         let law = b.ap("exp1", &binds! {"A" => said}, &[]);
@@ -2067,15 +2065,15 @@ impl Emitter {
         let inner = b.ap(
             "syl",
             &binds! {"ph" => &self.under, "ps" => t!(raised, "cc", "wcel"),
-            "ch" => t!(op(n(1), &raised, MUL), raised, "wceq")},
+            "ch" => t!(op(&n(1), &raised, MUL), raised, "wceq")},
             &[&fc, &law],
         );
         let second = b.ap(
             "eqcomd",
-            &binds! {"ph" => &self.under, "A" => op(n(1), &raised, MUL), "B" => &raised},
+            &binds! {"ph" => &self.under, "A" => op(&n(1), &raised, MUL), "B" => &raised},
             &[&inner],
         );
-        let p = self.chain(o, &first, &second, said, &raised, &op(n(1), &raised, MUL));
+        let p = self.chain(o, &first, &second, said, &raised, &op(&n(1), &raised, MUL));
         Ok((vec![(vec![(name, 1)], q(1))], p))
     }
 
@@ -2086,14 +2084,14 @@ impl Emitter {
     fn negated(
         &mut self,
         o: &mut dyn Oracle,
-        inner: &str,
+        inner: &Rpn,
         items: &[(Monomial, Q)],
         proof: Proof,
-        said: &str,
+        said: &Rpn,
     ) -> Checked<Route<(Run, Proof)>> {
         let run = Self::spell_run(items);
         let minus: Run = vec![(Vec::new(), q(-1))];
-        let bare = t!(n(1), "cneg");
+        let bare = t!(&n(1), "cneg");
         let unit = Self::spell_run(&minus);
         let rc = self.run_cc(o, items)?;
         let inner_cc = o.b().ap(
@@ -2177,13 +2175,13 @@ impl Emitter {
     fn subtracted(
         &mut self,
         o: &mut dyn Oracle,
-        la: &str,
-        lb: &str,
+        la: &Rpn,
+        lb: &Rpn,
         first: &[(Monomial, Q)],
         one: Proof,
         second: &[(Monomial, Q)],
         two: Proof,
-        said: &str,
+        said: &Rpn,
     ) -> Checked<Route<(Run, Proof)>> {
         let rc1 = self.run_cc(o, first)?;
         let a_cc = o.b().ap(
@@ -2236,15 +2234,15 @@ impl Emitter {
         left: &Term,
         right: &Term,
         labels: &FloatLabels,
-        said: &str,
+        said: &Rpn,
     ) -> Checked<Route<(Run, Proof)>> {
         let (first, one) = take!(self.normalize(o, left, labels)?);
         let (second, two) = take!(self.normalize(o, right, labels)?);
         if how == Op::Sub {
             return self.subtracted(
                 o,
-                &left.txt(labels),
-                &right.txt(labels),
+                &left.rpn(labels),
+                &right.rpn(labels),
                 &first,
                 one,
                 &second,
@@ -2255,8 +2253,8 @@ impl Emitter {
         let what = if how == Op::Add { ADD } else { MUL };
         let joined = o.b().ap(
             "oveq12d",
-            &binds! {"ph" => &self.under, "A" => &*left.txt(labels),
-            "B" => Self::spell_run(&first), "C" => &*right.txt(labels),
+            &binds! {"ph" => &self.under, "A" => left.rpn(labels),
+            "B" => Self::spell_run(&first), "C" => right.rpn(labels),
             "D" => Self::spell_run(&second), "F" => what},
             &[&one, &two],
         );
@@ -2284,7 +2282,7 @@ impl Emitter {
     pub fn spell_quotient(
         over: &[(Monomial, Q)],
         under: Option<&[(Monomial, Q)]>,
-    ) -> String {
+    ) -> Rpn {
         match under {
             None => Self::spell_run(over),
             Some(under) => op(&Self::spell_run(over), &Self::spell_run(under), DIV),
@@ -2367,7 +2365,7 @@ impl Emitter {
     fn keep_nonzero(
         &mut self,
         o: &dyn Oracle,
-        whole: &str,
+        whole: &Rpn,
         run: &[(Monomial, Q)],
         apart: &Proof,
         equal: &Proof,
@@ -2465,19 +2463,19 @@ impl Emitter {
         if monomial.is_empty() {
             return Ok(Built(self.a1i(
                 o,
-                &t!(n(1), "cc0", "wne"),
+                &t!(&n(1), "cc0", "wne"),
                 &numerals::ne0(o.b(), 1u32),
             )));
         }
-        let mut out: Option<(Proof, String, Proof)> = None;
+        let mut out: Option<(Proof, Rpn, Proof)> = None;
         for (name, power) in monomial {
-            let spelt = op(name, n(*power), EXP);
+            let spelt = op(name, &n(*power), EXP);
             let apart = take!(self.atom_apart(o, name)?);
             let atom = o.atom(name)?;
             let wi = self.whole_index(o, *power);
             let one = o.b().ap(
                 "expne0d",
-                &binds! {"ph" => &self.under, "A" => &**name, "N" => n(*power)},
+                &binds! {"ph" => &self.under, "A" => name, "N" => n(*power)},
                 &[&atom, &apart, &wi],
             );
             let mine = self.factor_cc(o, name, *power)?;
@@ -2508,7 +2506,7 @@ impl Emitter {
     fn whole_index(&self, o: &dyn Oracle, power: u32) -> Proof {
         let natural = numerals::nn(o.b(), power as u64);
         let whole = o.b().ap("nnzi", &binds! {"N" => n(power)}, &[&natural]);
-        self.a1i(o, &t!(n(power), "cz", "wcel"), &whole)
+        self.a1i(o, &t!(&n(power), "cz", "wcel"), &whole)
     }
 
     /// A numerator on its own, given the denominator of one it hides: `div1`
@@ -2520,7 +2518,7 @@ impl Emitter {
         over: Run,
         under: Option<Run>,
         proof: Proof,
-        said: &str,
+        said: &Rpn,
     ) -> Checked<(Run, Run, Proof)> {
         if let Some(under) = under {
             return Ok((over, under, proof));
@@ -2548,7 +2546,7 @@ impl Emitter {
             let second = b.ap(
                 "syl",
                 &binds! {"ph" => &self.under, "ps" => t!(run, "cc", "wcel"),
-                "ch" => t!(op(&run, n(1), DIV), run, "wceq")},
+                "ch" => t!(op(&run, &n(1), DIV), run, "wceq")},
                 &[&rc, &law],
             );
             self.chain(
@@ -2556,7 +2554,7 @@ impl Emitter {
                 &first,
                 &second,
                 &op(&run, &unit, DIV),
-                &op(&run, n(1), DIV),
+                &op(&run, &n(1), DIV),
                 &run,
             )
         };
@@ -2580,7 +2578,7 @@ impl Emitter {
         term: &Term,
         labels: &FloatLabels,
     ) -> Checked<Route<Quotiented>> {
-        let said = term.txt(labels).to_string();
+        let said = term.rpn(labels);
         if !divides(term) {
             let (items, proof) = take!(self.normalize(o, term, labels)?);
             return Ok(Built(Quotiented {
@@ -2618,14 +2616,14 @@ impl Emitter {
         o: &mut dyn Oracle,
         inner: &Term,
         labels: &FloatLabels,
-        said: &str,
+        said: &Rpn,
     ) -> Checked<Route<Quotiented>> {
         let Quotiented {
             over,
             under,
             proof: first,
         } = take!(self.normalize_quotient(o, inner, labels)?);
-        let inner_s = inner.txt(labels).to_string();
+        let inner_s = inner.rpn(labels);
         let Some(under) = under else {
             let (items, p) = take!(self.negated(o, &inner_s, &over, first, said)?);
             return Ok(Built(Quotiented {
@@ -2688,7 +2686,7 @@ impl Emitter {
         left: &Term,
         right: &Term,
         labels: &FloatLabels,
-        said: &str,
+        said: &Rpn,
     ) -> Checked<Route<Quotiented>> {
         let Quotiented {
             over,
@@ -2705,21 +2703,21 @@ impl Emitter {
         }
         self.divisors
             .entry(Self::spell_run(&below))
-            .or_insert_with(|| right.txt(labels).to_string());
+            .or_insert_with(|| right.rpn(labels));
         // A divisor written as a product or a power is not zero by its
         // factors, which is known only while it is written so: multiplied
         // out, (k + 1)² is one polynomial whose factors are gone.
         if self.written {
             if let Built(apart) = self.page_apart(o, right, labels)? {
-                let whole = right.txt(labels).to_string();
+                let whole = right.rpn(labels);
                 self.keep_nonzero(o, &whole, &below, &apart, &second);
             }
         }
         let joined = o.b().ap(
             "oveq12d",
-            &binds! {"ph" => &self.under, "A" => &*left.txt(labels),
+            &binds! {"ph" => &self.under, "A" => left.rpn(labels),
             "B" => Self::spell_quotient(&over, under.as_deref()),
-            "C" => &*right.txt(labels), "D" => Self::spell_run(&below), "F" => DIV},
+            "C" => right.rpn(labels), "D" => Self::spell_run(&below), "F" => DIV},
             &[&first, &second],
         );
         let Some(under) = under else {
@@ -2795,7 +2793,7 @@ impl Emitter {
         left: &Term,
         right: &Term,
         labels: &FloatLabels,
-        said: &str,
+        said: &Rpn,
     ) -> Checked<Route<Quotiented>> {
         if right.variable().is_none() && right.label() == Some("cneg") {
             return self.divided_by_negation(o, left, right, labels, said);
@@ -2803,21 +2801,17 @@ impl Emitter {
         if right.variable().is_some()
             || right.label() != Some("co")
             || right.children().len() != 3
-            || &*right.children()[2].txt(labels) != DIV
+            || right.children()[2].rpn(labels).alone() != Some(DIV)
         {
             return Ok(Route::no(format!(
                 "{said} divides by something that divides"
             )));
         }
         let (c, d) = (&right.children()[0], &right.children()[1]);
-        let (a_s, c_s, d_s) = (
-            left.txt(labels).to_string(),
-            c.txt(labels).to_string(),
-            d.txt(labels).to_string(),
-        );
+        let (a_s, c_s, d_s) = (left.rpn(labels), c.rpn(labels), d.rpn(labels));
         // c is not 0 by what the page says of the divisor as it is written,
         // c/d ≠ 0, carried to c by `divne0bd`; or by what it says of c.
-        let whole = right.txt(labels).to_string();
+        let whole = right.rpn(labels);
         let page = if self.written {
             o.written(&whole)?
         } else {
@@ -2909,10 +2903,10 @@ impl Emitter {
         left: &Term,
         right: &Term,
         labels: &FloatLabels,
-        said: &str,
+        said: &Rpn,
     ) -> Checked<Route<Quotiented>> {
         let y = &right.children()[0];
-        let (a_s, y_s) = (left.txt(labels).to_string(), y.txt(labels).to_string());
+        let (a_s, y_s) = (left.rpn(labels), y.rpn(labels));
         let Some(y_apart) = o.written(&y_s)? else {
             return Ok(Route::no(format!(
                 "nothing says {} is not zero, which {said} divides by negated",
@@ -2971,7 +2965,7 @@ impl Emitter {
         term: &Term,
         labels: &FloatLabels,
     ) -> Checked<Route<Proof>> {
-        let said = term.txt(labels).to_string();
+        let said = term.rpn(labels);
         let apart = take!(self.written_apart(o, term, labels)?);
         let atom = o.atom(&said)?;
         Ok(Built(o.b().ap(
@@ -2990,7 +2984,7 @@ impl Emitter {
         term: &Term,
         labels: &FloatLabels,
     ) -> Checked<Route<Proof>> {
-        let said = term.txt(labels).to_string();
+        let said = term.rpn(labels);
         if let Some(value) = numerals::value(term) {
             if !value.is_zero() {
                 return Ok(Built(self.a1i(
@@ -3003,13 +2997,13 @@ impl Emitter {
         if term.variable().is_none()
             && term.label() == Some("co")
             && term.children().len() == 3
-            && &*term.children()[2].txt(labels) == MUL
+            && term.children()[2].rpn(labels).alone() == Some(MUL)
         {
             let (a, b) = (&term.children()[0], &term.children()[1]);
             let pa = self.written_apart(o, a, labels)?;
             let pb = self.written_apart(o, b, labels)?;
             let (pa, pb) = (take!(pa), take!(pb));
-            let (a_s, b_s) = (a.txt(labels).to_string(), b.txt(labels).to_string());
+            let (a_s, b_s) = (a.rpn(labels), b.rpn(labels));
             let aa = o.atom(&a_s)?;
             let ab = o.atom(&b_s)?;
             return Ok(Built(o.b().ap(
@@ -3035,7 +3029,10 @@ impl Emitter {
         let compound = term.variable().is_none()
             && term.label() == Some("co")
             && term.children().len() == 3
-            && [MUL, EXP].contains(&&*term.children()[2].txt(labels));
+            && term.children()[2]
+                .rpn(labels)
+                .alone()
+                .is_some_and(|how| [MUL, EXP].contains(&how));
         if !compound {
             return Ok(Route::no("the divisor is neither a product nor a power"));
         }
@@ -3053,7 +3050,7 @@ impl Emitter {
         term: &Term,
         labels: &FloatLabels,
     ) -> Checked<Route<Proof>> {
-        let said = term.txt(labels).to_string();
+        let said = term.rpn(labels);
         // A positive integer the page says once is not zero by that alone
         // (`SYNTAX.md`), and rests on no line.
         if let Some(positive) = o.positive(&said)? {
@@ -3078,7 +3075,7 @@ impl Emitter {
         term: &Term,
         labels: &FloatLabels,
     ) -> Checked<Route<Proof>> {
-        let said = term.txt(labels).to_string();
+        let said = term.rpn(labels);
         if let Some(value) = numerals::value(term) {
             if !value.is_zero() {
                 return Ok(Built(self.a1i(
@@ -3095,9 +3092,9 @@ impl Emitter {
             return Ok(Route::no("the term is no product or power to split"));
         }
         let (a, b) = (&term.children()[0], &term.children()[1]);
-        let how = term.children()[2].txt(labels);
-        let (a_s, b_s) = (a.txt(labels).to_string(), b.txt(labels).to_string());
-        if &*how == MUL {
+        let how = term.children()[2].rpn(labels).alone();
+        let (a_s, b_s) = (a.rpn(labels), b.rpn(labels));
+        if how == Some(MUL) {
             let pa = take!(self.factors_apart(o, a, labels)?);
             let pb = take!(self.factors_apart(o, b, labels)?);
             let (aa, ab) = (o.atom(&a_s)?, o.atom(&b_s)?);
@@ -3108,7 +3105,7 @@ impl Emitter {
             )));
         }
         let power = numerals::value(b).and_then(|v| u32::try_from(v).ok());
-        if let (true, Some(power)) = (&*how == EXP, power.filter(|p| *p > 0)) {
+        if let (true, Some(power)) = (how == Some(EXP), power.filter(|p| *p > 0)) {
             let apart = take!(self.factors_apart(o, a, labels)?);
             let atom = o.atom(&a_s)?;
             let wi = self.whole_index(o, power);
@@ -3123,7 +3120,7 @@ impl Emitter {
 
     /// ( under -> said =/= 0 ) from the oracle, or from the page where the
     /// oracle gives only that, or a decline.
-    fn atom_apart(&mut self, o: &mut dyn Oracle, said: &str) -> Checked<Route<Proof>> {
+    fn atom_apart(&mut self, o: &mut dyn Oracle, said: &Rpn) -> Checked<Route<Proof>> {
         if self.apart {
             return o.apart(said, said).map(Built);
         }
@@ -3219,7 +3216,7 @@ impl Emitter {
         };
         let under = self.under.clone();
         let bb = o.b();
-        let parts = |pair: &Proof, x: &str| {
+        let parts = |pair: &Proof, x: &Rpn| {
             let both = t!(x, "cc", "wcel");
             let apart = t!(x, "cc0", "wne");
             (
@@ -3316,7 +3313,7 @@ impl Emitter {
         left: &Term,
         right: &Term,
         labels: &FloatLabels,
-        said: &str,
+        said: &Rpn,
     ) -> Checked<Route<Quotiented>> {
         let written_op = if how == Op::Add {
             ADD
@@ -3334,7 +3331,7 @@ impl Emitter {
                 over,
                 under,
                 proof,
-                &side.txt(labels),
+                &side.rpn(labels),
             )?);
         }
         let (below, beneath, second) = quotients.pop().unwrap();
@@ -3343,8 +3340,8 @@ impl Emitter {
         let (c, d) = (Self::spell_run(&below), Self::spell_run(&beneath));
         let joined = o.b().ap(
             "oveq12d",
-            &binds! {"ph" => &self.under, "A" => &*left.txt(labels), "B" => op(&a, &b, DIV),
-            "C" => &*right.txt(labels), "D" => op(&c, &d, DIV), "F" => written_op},
+            &binds! {"ph" => &self.under, "A" => left.rpn(labels), "B" => op(&a, &b, DIV),
+            "C" => right.rpn(labels), "D" => op(&c, &d, DIV), "F" => written_op},
             &[&first, &second],
         );
         // A whole number common to one numerator and the other denominator
@@ -3503,7 +3500,7 @@ impl Emitter {
         left: &Term,
         right: &Term,
         labels: &FloatLabels,
-        said: &str,
+        said: &Rpn,
     ) -> Checked<Route<Quotiented>> {
         let field::Power::Expanded { by: times, .. } =
             field::power_of(left, right, labels)
@@ -3516,18 +3513,18 @@ impl Emitter {
             proof: p1,
         } = take!(self.normalize_quotient(o, left, labels)?);
         let (over, under, first) =
-            self.as_quotient(o, o1, u1, p1, &left.txt(labels))?;
+            self.as_quotient(o, o1, u1, p1, &left.rpn(labels))?;
         let (a, b) = (Self::spell_run(&over), Self::spell_run(&under));
         let pair = take!(self.pair_of(o, &under)?);
         let joined = o.b().ap(
             "oveq1d",
-            &binds! {"ph" => &self.under, "A" => &*left.txt(labels), "B" => op(&a, &b, DIV),
+            &binds! {"ph" => &self.under, "A" => left.rpn(labels), "B" => op(&a, &b, DIV),
             "C" => n(times), "F" => EXP},
             &[&first],
         );
         let rc = self.run_cc(o, &over)?;
         let ix = self.index(o, times as i64);
-        let split = op(&op(&a, n(times), EXP), &op(&b, n(times), EXP), DIV);
+        let split = op(&op(&a, &n(times), EXP), &op(&b, &n(times), EXP), DIV);
         let spread = {
             let bb = o.b();
             let law = bb.ap(
@@ -3539,8 +3536,8 @@ impl Emitter {
                 "syl3anc",
                 &binds! {"ph" => &self.under, "ps" => t!(a, "cc", "wcel"),
                 "ch" => t!(t!(b, "cc", "wcel"), t!(b, "cc0", "wne"), "wa"),
-                "th" => t!(n(times), "cn0", "wcel"),
-                "ta" => t!(op(&op(&a, &b, DIV), n(times), EXP), split, "wceq")},
+                "th" => t!(&n(times), "cn0", "wcel"),
+                "ta" => t!(op(&op(&a, &b, DIV), &n(times), EXP), split, "wceq")},
                 &[&rc, &pair, &ix, &law],
             )
         };
@@ -3551,13 +3548,13 @@ impl Emitter {
             &joined,
             &spread,
             said,
-            &op(&op(&a, &b, DIV), n(times), EXP),
+            &op(&op(&a, &b, DIV), &n(times), EXP),
             &split,
         );
         let second_link = o.b().ap(
             "oveq12d",
-            &binds! {"ph" => &self.under, "A" => op(&a, n(times), EXP), "B" => Self::spell_run(&made),
-            "C" => op(&b, n(times), EXP), "D" => Self::spell_run(&low), "F" => DIV},
+            &binds! {"ph" => &self.under, "A" => op(&a, &n(times), EXP), "B" => Self::spell_run(&made),
+            "C" => op(&b, &n(times), EXP), "D" => Self::spell_run(&low), "F" => DIV},
             &[&numerator, &denominator],
         );
         let p = self.chain(
@@ -3611,6 +3608,6 @@ pub fn divides(term: &Term) -> bool {
 }
 
 /// One factor of a monomial, always `( x ^ k )`.
-fn spell_factor(factor: &(Rc<str>, u32)) -> String {
-    op(&factor.0, n(factor.1), EXP)
+fn spell_factor(factor: &(Rpn, u32)) -> Rpn {
+    op(&factor.0, &n(factor.1), EXP)
 }

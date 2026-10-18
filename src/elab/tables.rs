@@ -792,7 +792,7 @@ impl<'a> Elaborator<'a> {
             else {
                 return Ok(named);
             };
-            let spelt = super::numerals::spell(value);
+            let spelt = super::numerals::print(value);
             let system = self.txt(&goal.children()[1]);
             let at = self.of_text(&t!(&spelt, &system, "wcel"));
             let held = take!(self.numeral_within(&at, scope, facts)?);
@@ -2330,7 +2330,7 @@ impl<'a> Elaborator<'a> {
         // apart, (1 + 1)!, is in a system where its value is.
         let labels = self.b.flabel.clone();
         if let Some((value, equal)) = super::numerals::worked(&self.b, &term, &labels) {
-            let spelt = super::numerals::spell(value);
+            let spelt = super::numerals::print(value);
             if spelt != said {
                 if let Built(inside) = self.part(&spelt, system, scope, facts)? {
                     return Ok(Built(self.b.ap(

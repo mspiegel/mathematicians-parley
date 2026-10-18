@@ -2001,7 +2001,7 @@ impl<'a> Elaborator<'a> {
                 } else {
                     (law.places.1, law.places.0)
                 };
-                if self.txt(&term.children()[at]) == element {
+                if self.rpn(&term.children()[at]) == element {
                     return Some(term.children()[other].clone());
                 }
             }
@@ -5654,7 +5654,7 @@ impl<'a> Elaborator<'a> {
             {
                 continue;
             }
-            let element = self.of_text(super::field::numeral(law.element));
+            let element = self.to_term(&super::field::numeral(law.element));
             for &hole in &law.holes {
                 let (unit, kept) = if hole == 0 {
                     (law.places.0, law.places.1)

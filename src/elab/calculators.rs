@@ -37,6 +37,7 @@ use crate::methods::algebra::{
 };
 use crate::mm::kernel::Term;
 use crate::mm::spell::{Builder, Proof};
+use crate::mm::Rpn;
 use crate::outcome::{Built, Checked, Declined, Problem, Route};
 use crate::rules::{self, lookup};
 use crate::{pf, t_text as t, take};
@@ -78,7 +79,11 @@ pub struct Work {
 impl Work {
     pub fn new(spec: Spec) -> Work {
         Work {
-            e: Emitter::new(&spec.scope, spec.apart, spec.written.is_some()),
+            e: Emitter::new(
+                &Rpn::read(&spec.scope),
+                spec.apart,
+                spec.written.is_some(),
+            ),
             spec,
         }
     }
@@ -144,7 +149,8 @@ impl Oracle for Ask<'_, '_> {
         &self.el.b
     }
 
-    fn atom(&mut self, said: &str) -> Checked<Proof> {
+    fn atom(&mut self, said: &Rpn) -> Checked<Proof> {
+        let said = &said.to_string();
         if let Some(p) = self.spec.atoms.borrow().get(said) {
             return Ok(p.clone());
         }
@@ -156,25 +162,29 @@ impl Oracle for Ask<'_, '_> {
         Ok(p)
     }
 
-    fn apart(&mut self, said: &str, named: &str) -> Checked<Proof> {
+    fn apart(&mut self, said: &Rpn, named: &Rpn) -> Checked<Proof> {
+        let (said, named) = (&said.to_string(), &named.to_string());
         let (scope, facts) = (&self.spec.scope, &self.spec.facts);
         let implied = &self.spec.implied.facts;
         self.el.not_zero_named(scope, facts, implied, said, named)
     }
 
-    fn written(&mut self, said: &str) -> Checked<Option<Proof>> {
+    fn written(&mut self, said: &Rpn) -> Checked<Option<Proof>> {
+        let said = &said.to_string();
         let facts = self.spec.written.clone().unwrap_or_default();
         let implied = &self.spec.implied.written;
         self.el
             .written_nonzero(&self.spec.scope, &facts, implied, said)
     }
 
-    fn positive(&mut self, said: &str) -> Checked<Option<Proof>> {
+    fn positive(&mut self, said: &Rpn) -> Checked<Option<Proof>> {
+        let said = &said.to_string();
         let (scope, facts) = (self.spec.scope.clone(), self.spec.facts.clone());
         self.el.positive_divisor(said, &scope, &facts)
     }
 
-    fn linear_sum(&mut self, said: &str) -> Checked<Route<(Term, Proof)>> {
+    fn linear_sum(&mut self, said: &Rpn) -> Checked<Route<(Term, Proof)>> {
+        let said = &said.to_string();
         let Some(letter) = self.el.sum_letter.clone() else {
             return Ok(Route::no("a sum is one atom outside `algebra`"));
         };
@@ -182,8 +192,8 @@ impl Oracle for Ask<'_, '_> {
         self.el.linear_sum(said, &letter, &scope, &facts)
     }
 
-    fn shown(&self, said: &str) -> String {
-        self.el.render(said)
+    fn shown(&self, said: &Rpn) -> String {
+        self.el.render(&said.to_string())
     }
 }
 
@@ -273,7 +283,7 @@ pub fn multiplier(times: &Poly) -> Option<String> {
         let first = out.is_none();
         let shown = if first { weight.clone() } else { size };
         let term = match product {
-            None => field::spell_coefficient(&shown)?,
+            None => field::spell_coefficient(&shown)?.to_string(),
             Some(product) if shown.is_one() => product,
             Some(product) if shown == q(-1) => t!(product, "cneg"),
             Some(product) => {
@@ -293,10 +303,10 @@ pub fn multiplier(times: &Poly) -> Option<String> {
 /// it is negative, and any other as the quotient of two, `1 / 2`.
 fn spelt_rational(value: &Q) -> String {
     if let Some(whole) = field::spell_coefficient(value) {
-        return whole;
+        return whole.to_string();
     }
-    let top = numerals::spell(value.numer().magnitude().clone());
-    let below = numerals::spell(value.denom().magnitude().clone());
+    let top = numerals::print(value.numer().magnitude().clone());
+    let below = numerals::print(value.denom().magnitude().clone());
     let quotient = t!(top, below, "cdiv", "co");
     if value.is_negative() {
         t!(quotient, "cneg")
@@ -767,7 +777,7 @@ impl<'a> Elaborator<'a> {
                 over,
                 under,
                 proof,
-                said,
+                &Rpn::read(said),
             )?);
         }
         let (below, beneath, second) = quotients.pop().unwrap();
@@ -788,7 +798,7 @@ impl<'a> Elaborator<'a> {
             &[&given, &first, &second],
         );
         let tops = self.b.ap("jca", &binds! {"ph" => &u, "ps" => t!(a, "cc", "wcel"), "ch" => t!(c, "cc", "wcel")}, &[&rc1, &rc2]);
-        let pair = |x: &str| t!(t!(x, "cc", "wcel"), t!(x, "cc0", "wne"), "wa");
+        let pair = |x: &Rpn| t!(t!(x, "cc", "wcel"), t!(x, "cc0", "wne"), "wa");
         let bottoms = self.b.ap(
             "jca",
             &binds! {"ph" => &u, "ps" => pair(&b), "ch" => pair(&d)},
@@ -1020,7 +1030,7 @@ impl<'a> Elaborator<'a> {
             else {
                 continue;
             };
-            if Emitter::spell_run(&items) != said {
+            if Emitter::spell_run(&items) != Rpn::read(said) {
                 continue;
             }
             return Ok(Some(self.b.ap(
@@ -1086,10 +1096,20 @@ impl<'a> Elaborator<'a> {
         one: (Run, Option<Run>, Proof),
         other: (Run, Option<Run>, Proof),
     ) -> Checked<Route<Proof>> {
-        let (over, under, first) =
-            w.e.as_quotient(&mut self.ask(&w.spec), one.0, one.1, one.2, left)?;
-        let (below, beneath, second) =
-            w.e.as_quotient(&mut self.ask(&w.spec), other.0, other.1, other.2, right)?;
+        let (over, under, first) = w.e.as_quotient(
+            &mut self.ask(&w.spec),
+            one.0,
+            one.1,
+            one.2,
+            &Rpn::read(left),
+        )?;
+        let (below, beneath, second) = w.e.as_quotient(
+            &mut self.ask(&w.spec),
+            other.0,
+            other.1,
+            other.2,
+            &Rpn::read(right),
+        )?;
         let (a, b) = (Emitter::spell_run(&over), Emitter::spell_run(&under));
         let (c, d) = (Emitter::spell_run(&below), Emitter::spell_run(&beneath));
         let crossed = take!(self.same_polynomial(
@@ -1103,7 +1123,7 @@ impl<'a> Elaborator<'a> {
         let u = w.spec.scope.clone();
         let rc1 = w.e.run_cc(&mut self.ask(&w.spec), &below)?;
         let rc2 = w.e.run_cc(&mut self.ask(&w.spec), &over)?;
-        let pair = |x: &str| t!(t!(x, "cc", "wcel"), t!(x, "cc0", "wne"), "wa");
+        let pair = |x: &Rpn| t!(t!(x, "cc", "wcel"), t!(x, "cc0", "wne"), "wa");
         let turned = self.b.ap(
             "eqcomd",
             &binds! {"ph" => &u, "A" => t!(a, d, "cmul", "co"), "B" => t!(c, b, "cmul", "co")},
@@ -1342,7 +1362,7 @@ impl<'a> Elaborator<'a> {
         let mut spelt: Vec<String> =
             factors.iter().map(|f| self.txt(f.term())).collect();
         if common != 1 {
-            spelt.insert(0, numerals::spell(common.unsigned_abs()));
+            spelt.insert(0, numerals::print(common.unsigned_abs()));
         }
         let factor: Option<String> = spelt
             .iter()
@@ -1404,7 +1424,7 @@ impl<'a> Elaborator<'a> {
     ) -> Checked<Route<Proof>> {
         let mut each: Vec<(String, Proof, Proof)> = Vec::new();
         if common != 1 {
-            let numeral = numerals::spell(common.unsigned_abs());
+            let numeral = numerals::print(common.unsigned_abs());
             let held = w.e.number(&self.ask(&w.spec), &BigInt::from(common));
             let apart = self.b.ap(
                 "a1i",
@@ -1569,7 +1589,7 @@ impl<'a> Elaborator<'a> {
             let Some(times) = times else {
                 continue;
             };
-            let numeral = numerals::spell(times.unsigned_abs());
+            let numeral = numerals::print(times.unsigned_abs());
             let numeral = numeral.as_str();
             let scaled: Vec<String> = [left, right]
                 .iter()
@@ -1620,7 +1640,7 @@ impl<'a> Elaborator<'a> {
         let Built(both) = self.factors_apart(w, times, &[], scope, facts)? else {
             unreachable!("a numeral is a number and not 0");
         };
-        let numeral = numerals::spell(times.unsigned_abs());
+        let numeral = numerals::print(times.unsigned_abs());
         self.cancelled_by(&numeral, both, left, right, scaled, matched, scope, facts)
     }
 
@@ -1811,7 +1831,7 @@ impl<'a> Elaborator<'a> {
             _ => return Ok(Route::no("a non-membership of a system a fraction is in")),
         };
         let floor = v.floor().to_integer();
-        let low = numerals::spell(floor.magnitude().clone());
+        let low = numerals::print(floor.magnitude().clone());
         let low = if floor.is_negative() {
             t!(low, "cneg")
         } else {
@@ -1864,7 +1884,7 @@ impl<'a> Elaborator<'a> {
         let Built(Value::Exact(v)) = field::closed_value(t) else {
             return Ok(Route::no("it has no exact value"));
         };
-        let plain = |n: &BigInt| numerals::spell(n.magnitude().clone());
+        let plain = |n: &BigInt| numerals::print(n.magnitude().clone());
         let body = if v.is_integer() {
             plain(v.numer())
         } else {
@@ -2122,7 +2142,7 @@ impl<'a> Elaborator<'a> {
                         let (sf, ss) = (self.txt(&first), self.txt(&second));
                         let joined = self.b.ap(
                             "eqtr4i",
-                            &binds! {"A" => &sf, "B" => numerals::spell(a), "C" => &ss},
+                            &binds! {"A" => &sf, "B" => numerals::print(a), "C" => &ss},
                             &[&a_is, &b_is],
                         );
                         return Ok(Built(self.b.ap(
@@ -2150,7 +2170,7 @@ impl<'a> Elaborator<'a> {
                     if a != b {
                         let apart = self.numerals_differ(scope, &a, &b);
                         let (sf, ss) = (self.txt(&first), self.txt(&second));
-                        let (na, nb) = (numerals::spell(a), numerals::spell(b));
+                        let (na, nb) = (numerals::print(a), numerals::print(b));
                         let same = self.b.ap(
                             "eqeq12i",
                             &binds! {"A" => &sf, "B" => &na, "C" => &ss, "D" => &nb},
@@ -2185,7 +2205,7 @@ impl<'a> Elaborator<'a> {
             return self
                 .order_by_values(&goal, &first, &second, how, negated, scope, facts);
         };
-        let (na, nb) = (numerals::spell(a.clone()), numerals::spell(b.clone()));
+        let (na, nb) = (numerals::print(a.clone()), numerals::print(b.clone()));
         let na = na.as_str();
         let nb = nb.as_str();
         if negated {
@@ -2318,7 +2338,7 @@ impl<'a> Elaborator<'a> {
         if (&num % &d).is_zero() == negated {
             return Route::no("a divisibility that is not what the numbers do");
         }
-        let (sd, sn) = (numerals::spell(d.clone()), numerals::spell(num.clone()));
+        let (sd, sn) = (numerals::print(d.clone()), numerals::print(num.clone()));
         let at_values = t!(sd, sn, "cdvds", "wbr");
         let shown = self.divides_at_values(&d, &num);
         let said = |t: String| if negated { t!(t, "wn") } else { t };
@@ -2358,16 +2378,16 @@ impl<'a> Elaborator<'a> {
         let (quotient, rest) = (num / d, num % d);
         let negated = !rest.is_zero();
         let (sd, sn, sq) = (
-            numerals::spell(d.clone()),
-            numerals::spell(num.clone()),
-            numerals::spell(quotient.clone()),
+            numerals::print(d.clone()),
+            numerals::print(num.clone()),
+            numerals::print(quotient.clone()),
         );
         let times = t!(sd, sq, "cmul", "co");
         let product = numerals::product(&self.b, d.clone(), quotient.clone());
         if negated {
             // n = d·q + r with 0 < r < d.
-            let sr = numerals::spell(rest.clone());
-            let sp = numerals::spell(d * &quotient);
+            let sr = numerals::print(rest.clone());
+            let sp = numerals::print(d * &quotient);
             let moved = self.b.ap(
                 "oveq1i",
                 &binds! {"A" => &times, "B" => &sp, "C" => &sr, "F" => "caddc"},
@@ -2445,7 +2465,7 @@ impl<'a> Elaborator<'a> {
             d.to_integer().magnitude().clone(),
             n.to_integer().magnitude().clone(),
         );
-        let (sa, sb) = (numerals::spell(a.clone()), numerals::spell(b.clone()));
+        let (sa, sb) = (numerals::print(a.clone()), numerals::print(b.clone()));
         let sizes = t!(sa, sb, "cdvds", "wbr");
         let at_sizes =
             take!(self.numeral_divides(&self.of_text(&sizes), negated, scope));
@@ -2575,8 +2595,8 @@ impl<'a> Elaborator<'a> {
             let proof = self.b.ap(
                 "oveq12i",
                 &binds! {
-                    "A" => self.txt(&kids[0]), "B" => numerals::spell(over.clone()),
-                    "C" => self.txt(&kids[1]), "D" => numerals::spell(under.clone()),
+                    "A" => self.txt(&kids[0]), "B" => numerals::print(over.clone()),
+                    "C" => self.txt(&kids[1]), "D" => numerals::print(under.clone()),
                     "F" => "cdiv",
                 },
                 &[&over_is, &under_is],
@@ -2584,7 +2604,7 @@ impl<'a> Elaborator<'a> {
             return Some((over, under, proof));
         }
         let (whole, whole_is) = numerals::worked(&self.b, side, &labels)?;
-        let sw = numerals::spell(whole.clone());
+        let sw = numerals::print(whole.clone());
         let over_one = t!(&sw, n(1), "cdiv", "co");
         let one = self.b.ap(
             "div1i",
@@ -2616,7 +2636,7 @@ impl<'a> Elaborator<'a> {
     ) -> Option<Proof> {
         let (a, d, first_is) = self.as_fraction(first)?;
         let (c, b, second_is) = self.as_fraction(second)?;
-        let sp = |v: &BigUint| numerals::spell(v.clone());
+        let sp = |v: &BigUint| numerals::print(v.clone());
         let (sa, sb, sc, sd) = (sp(&a), sp(&b), sp(&c), sp(&d));
         let (p, q) = (&a * &b, &c * &d);
         let (ab, cd) = (t!(&sa, &sb, "cmul", "co"), t!(&sc, &sd, "cmul", "co"));
@@ -2840,7 +2860,7 @@ impl<'a> Elaborator<'a> {
             ));
         };
         let relation = if how == "<" { "clt" } else { "cle" };
-        let (na, nb) = (numerals::spell(a), numerals::spell(b));
+        let (na, nb) = (numerals::print(a), numerals::print(b));
         let said = self.txt(goal);
         let valued = t!(&na, &nb, relation, "wbr");
         let mut turn = self.b.ap(
@@ -2990,7 +3010,7 @@ impl<'a> Elaborator<'a> {
                 "{x} {how} {y} is not what the numbers do"
             )));
         }
-        let whole = |v: &BigInt| numerals::spell(v.to_biguint().unwrap_or_default());
+        let whole = |v: &BigInt| numerals::print(v.to_biguint().unwrap_or_default());
         let value = if gap.is_integer() {
             whole(&gap.to_integer())
         } else {
@@ -3084,7 +3104,7 @@ impl<'a> Elaborator<'a> {
     /// ( scope -> n e. RR ) for a whole multiplier.
     fn real_numeral(&self, scope: &str, times: &Q) -> Proof {
         let whole = times.numer().magnitude().clone();
-        let nw = numerals::spell(whole.clone());
+        let nw = numerals::print(whole.clone());
         let held = self.b.ap(
             "a1i",
             &binds! {"ph" => t!(nw, "cr", "wcel"), "ps" => scope},
@@ -3101,7 +3121,7 @@ impl<'a> Elaborator<'a> {
     fn numeral_below(&self, scope: &str, a: &BigUint, b: &BigUint) -> Proof {
         self.b.ap(
             "a1i",
-            &binds! {"ph" => t!(numerals::spell(a.clone()), numerals::spell(b.clone()), "clt", "wbr"), "ps" => scope},
+            &binds! {"ph" => t!(numerals::print(a.clone()), numerals::print(b.clone()), "clt", "wbr"), "ps" => scope},
             &[&numerals::below(&self.b, a.clone(), b.clone())],
         )
     }
@@ -3109,7 +3129,7 @@ impl<'a> Elaborator<'a> {
     /// ( scope -> -. a = b ), from whichever of the two is below.
     fn numerals_differ(&self, scope: &str, a: &BigUint, b: &BigUint) -> Proof {
         let (low, high) = if a < b { (a, b) } else { (b, a) };
-        let (nl, nh) = (numerals::spell(low.clone()), numerals::spell(high.clone()));
+        let (nl, nh) = (numerals::print(low.clone()), numerals::print(high.clone()));
         let (nl, nh) = (nl.as_str(), nh.as_str());
         let real = self.real_numeral(scope, &Q::from_integer(low.clone().into()));
         let below = self.numeral_below(scope, low, high);
@@ -3125,7 +3145,7 @@ impl<'a> Elaborator<'a> {
             "ch" => t!(nh, nl, "wne")},
             &[&both, &law],
         );
-        let (na, nb) = (numerals::spell(a.clone()), numerals::spell(b.clone()));
+        let (na, nb) = (numerals::print(a.clone()), numerals::print(b.clone()));
         if a != low {
             return self.b.ap(
                 "neneqd",
@@ -3809,7 +3829,12 @@ impl<'a> Elaborator<'a> {
     ) -> Checked<Route<(Term, Proof)>> {
         let labels = self.b.flabel.clone();
         let whole = self.of_text(said);
-        let Some((range, letter, parts)) = field::linear_sum(&whole, &labels) else {
+        let Some(field::LinearSum {
+            range,
+            letter,
+            parts,
+        }) = field::linear_sum(&whole, &labels)
+        else {
             return Ok(Route::no("the sum is read as one atom"));
         };
         let summand = whole.children()[1].clone();
@@ -3819,7 +3844,7 @@ impl<'a> Elaborator<'a> {
             && parts.len() == 1
             && parts[0].weight == q(1)
             && parts[0].free.is_empty()
-            && self.txt(&summand) == field::spell_monomial(&parts[0].bound)
+            && self.rpn(&summand) == field::spell_monomial(&parts[0].bound)
         {
             return Ok(Route::no("the sum is written out already"));
         }
@@ -3843,9 +3868,10 @@ impl<'a> Elaborator<'a> {
         // The parts, each its free factor times what holds the letter.
         let mut scaled: Vec<(String, String, String)> = Vec::new();
         for part in &parts {
-            let bound = field::respelt(&part.bound, &letter, spare);
-            let m = field::spell_monomial(&bound);
-            let c = Emitter::spell_run(&[(part.free.clone(), part.weight.clone())]);
+            let bound = field::respelt(&part.bound, letter, Symbol::of(spare));
+            let m = field::spell_monomial(&bound).to_string();
+            let c = Emitter::spell_run(&[(part.free.clone(), part.weight.clone())])
+                .to_string();
             let t = t!(c, m, "cmul", "co");
             scaled.push((c, m, t));
         }
@@ -4368,7 +4394,7 @@ impl<'a> Elaborator<'a> {
             &[&rl, &rr],
         );
         let (mut times_span, mut times_real) = (span.clone(), span_real.clone());
-        let numeral = numerals::spell(whole.magnitude().clone());
+        let numeral = numerals::print(whole.magnitude().clone());
         if !whole.is_one() {
             times_span = t!(&numeral, span, "cmul", "co");
             let real = self.real_numeral(scope, &whole_q);
@@ -4508,7 +4534,7 @@ impl<'a> Elaborator<'a> {
             }));
         }
         let times_n = times.to_integer();
-        let numeral = numerals::spell(times_n.magnitude().clone());
+        let numeral = numerals::print(times_n.magnitude().clone());
         let scaled = t!(&numeral, gap, "cmul", "co");
         let rn = self.real_numeral(&scope, times);
         let scaled_real = self.b.ap(
@@ -4664,7 +4690,7 @@ impl<'a> Elaborator<'a> {
             ));
         }
         let whole = value.to_integer();
-        let numeral = numerals::spell(whole.magnitude().clone());
+        let numeral = numerals::print(whole.magnitude().clone());
         let numeral = numeral.as_str();
         let real = self.real_numeral(scope, value);
         let positive = self.b.ap(
@@ -5207,9 +5233,9 @@ impl<'a> Elaborator<'a> {
                 &self.ask(&w.spec),
                 &lifted,
                 &naught,
-                &scaled,
-                &at_zero,
-                "cc0",
+                &Rpn::read(&scaled),
+                &Rpn::read(&at_zero),
+                &Rpn::read("cc0"),
             );
             let below = self.b.ap(
                 "eqled",
@@ -5440,12 +5466,18 @@ impl<'a> Elaborator<'a> {
             &self.ask(&w.spec),
             &lifted,
             &naught,
-            &scaled,
-            &at_zero,
-            "cc0",
+            &Rpn::read(&scaled),
+            &Rpn::read(&at_zero),
+            &Rpn::read("cc0"),
         );
-        let reached =
-            w.e.chain(&self.ask(&w.spec), &alike, &inner, &span, &scaled, "cc0");
+        let reached = w.e.chain(
+            &self.ask(&w.spec),
+            &alike,
+            &inner,
+            &Rpn::read(&span),
+            &Rpn::read(&scaled),
+            &Rpn::read("cc0"),
+        );
         if how == "=" {
             let cl = self.membership(left, "cc", scope, facts)?;
             let cr = self.membership(right, "cc", scope, facts)?;

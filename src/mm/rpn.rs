@@ -12,8 +12,9 @@ use std::rc::Rc;
 
 use crate::formula::symbol::Symbol;
 
-/// Labels in reverse Polish (the module's doc says how it compares).
-#[derive(Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+/// Labels in reverse Polish (the module's doc says how it compares). The
+/// default is no labels.
+#[derive(Clone, Default, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct Rpn(Rc<[Symbol]>);
 
 impl Rpn {
@@ -51,6 +52,14 @@ impl Rpn {
     /// The first label pushed.
     pub fn first(&self) -> Option<Symbol> {
         self.0.first().copied()
+    }
+
+    /// The one token, where there is one alone: a constant's label.
+    pub fn alone(&self) -> Option<&'static str> {
+        match *self.0 {
+            [one] => Some(one.as_str()),
+            _ => None,
+        }
     }
 
     /// Whether some token is `label`.

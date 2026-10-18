@@ -10,8 +10,9 @@ use num_bigint::BigUint;
 use num_traits::{ToPrimitive, Zero};
 
 use crate::mm::kernel::Term;
+use crate::mm::Rpn;
 use crate::rules::{digit_of, numeral_label};
-use crate::t_text as t;
+use crate::t;
 
 /// The digits before the last, and the last.
 pub(crate) fn last_off(n: &BigUint) -> (BigUint, u32) {
@@ -25,13 +26,13 @@ pub(crate) fn one_digit(n: &BigUint) -> Option<u32> {
 }
 
 /// A whole number as set.mm spells it, in reverse Polish.
-pub fn spell(value: impl Into<BigUint>) -> String {
+pub fn spell(value: impl Into<BigUint>) -> Rpn {
     spelt(&value.into())
 }
 
-pub(crate) fn spelt(value: &BigUint) -> String {
+pub(crate) fn spelt(value: &BigUint) -> Rpn {
     match one_digit(value) {
-        Some(d) => digit(d).to_string(),
+        Some(d) => t!(digit(d)),
         None => {
             let (upper, last) = last_off(value);
             t!(spelt(&upper), digit(last), "cdc")

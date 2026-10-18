@@ -18,17 +18,18 @@
 //! decided here.
 
 use std::cmp::Reverse;
-use std::rc::Rc;
-use std::sync::{LazyLock, Mutex};
 
 use indexmap::IndexMap;
 use num_bigint::BigInt;
 use num_rational::BigRational;
 use num_traits::{Signed, ToPrimitive, Zero};
 
+use crate::formula::symbol::Symbol;
 use crate::mm::kernel::{FloatLabels, Term};
+use crate::mm::Rpn;
 use crate::outcome::{Built, Declined, Route};
 use crate::rules::{digit_of, System};
+use crate::t;
 
 pub const ADD: &str = "caddc";
 pub const SUB: &str = "cmin";
@@ -137,20 +138,14 @@ pub fn q(n: i64) -> Q {
 }
 
 /// A whole number as set.mm spells it: a digit's constant, or a decimal
-/// (`numerals::spell`). Each spelling is made once and kept for the run, so
-/// that it is lent out as a digit's constant is.
-pub fn numeral(value: u32) -> &'static str {
-    static SPELT: LazyLock<Mutex<IndexMap<u32, &'static str>>> =
-        LazyLock::new(Default::default);
-    let mut spelt = SPELT.lock().unwrap_or_else(|e| e.into_inner());
-    spelt.entry(value).or_insert_with(|| {
-        Box::leak(super::numerals::spell(value as u64).into_boxed_str())
-    })
+/// (`numerals::spell`).
+pub fn numeral(value: u32) -> Rpn {
+    super::numerals::spell(value)
 }
 
 /// A monomial: (atom, power) pairs in atom order, so the empty one is the
 /// constant one and two spellings of a product are one key.
-pub type Monomial = Vec<(Rc<str>, u32)>;
+pub type Monomial = Vec<(Rpn, u32)>;
 
 /// A polynomial over atoms, as coefficients by monomial, in the order the
 /// monomials were first met.
@@ -221,7 +216,7 @@ impl Poly {
 
 /// One monomial from two, adding the powers of a shared atom.
 fn join(left: &Monomial, right: &Monomial) -> Monomial {
-    let mut powers: IndexMap<Rc<str>, u32> = left.iter().cloned().collect();
+    let mut powers: IndexMap<Rpn, u32> = left.iter().cloned().collect();
     for (atom, power) in right {
         *powers.entry(atom.clone()).or_insert(0) += power;
     }
@@ -252,9 +247,9 @@ pub fn one() -> Poly {
     constant(q(1))
 }
 
-pub fn atom(said: &str) -> Poly {
+pub fn atom(said: &Rpn) -> Poly {
     let mut terms = IndexMap::new();
-    terms.insert(vec![(Rc::from(said), 1)], q(1));
+    terms.insert(vec![(said.clone(), 1)], q(1));
     Poly::new(terms)
 }
 
@@ -269,31 +264,31 @@ pub fn order(monomial: &Monomial) -> (Reverse<u32>, Monomial) {
 ///
 /// Every factor is written `( x ^ k )`, the exponent one included, and the
 /// empty monomial is `1`. The product associates to the left.
-pub fn spell_monomial(monomial: &Monomial) -> String {
+pub fn spell_monomial(monomial: &Monomial) -> Rpn {
     if monomial.is_empty() {
-        return numeral(1).to_string();
+        return numeral(1);
     }
-    let said: Vec<String> = monomial
+    let said: Vec<Rpn> = monomial
         .iter()
-        .map(|(atom, power)| format!("{atom} {} cexp co", numeral(*power)))
+        .map(|(atom, power)| t!(atom, numeral(*power), "cexp", "co"))
         .collect();
     let mut out = said[0].clone();
     for one in &said[1..] {
-        out = format!("{out} {one} cmul co");
+        out = t!(out, one, "cmul", "co");
     }
     out
 }
 
 /// A rational coefficient as a numeral, negated where it is negative; None
 /// where it is not a whole number.
-pub fn spell_coefficient(weight: &Q) -> Option<String> {
+pub fn spell_coefficient(weight: &Q) -> Option<Rpn> {
     if !weight.is_integer() {
         return None;
     }
     let whole = weight.to_integer();
     let said = super::numerals::spell(whole.magnitude().clone());
     Some(if whole.is_negative() {
-        format!("{said} cneg")
+        t!(said, "cneg")
     } else {
         said
     })
@@ -406,7 +401,7 @@ pub fn power_of(base: &Term, exponent: &Term, labels: &FloatLabels) -> Power {
 /// power over such an exponent is the atom over the atom, so 2^(d·1) and
 /// 2^d are one atom, an identity element going without saying. None for
 /// any other exponent, which leaves the power the atom it is written as.
-pub fn exponent_atom(exponent: &Term, labels: &FloatLabels) -> Option<Rc<str>> {
+pub fn exponent_atom(exponent: &Term, labels: &FloatLabels) -> Option<Rpn> {
     let read = read(exponent, labels);
     if read.under != one() || read.over.terms.len() != 1 {
         return None;
@@ -415,7 +410,7 @@ pub fn exponent_atom(exponent: &Term, labels: &FloatLabels) -> Option<Rc<str>> {
     let [(name, 1)] = monomial.as_slice() else {
         return None;
     };
-    (*weight == q(1) && **name != *exponent.txt(labels)).then(|| name.clone())
+    (*weight == q(1) && *name != exponent.rpn(labels)).then(|| name.clone())
 }
 
 /// `base ^ by` multiplied out as the proof multiplies it, by the base once
@@ -462,7 +457,7 @@ pub fn past_expanding(term: &Term, labels: &FloatLabels) -> Option<Term> {
         return Some(inner);
     }
     match operation(term, labels) {
-        Some((how, base, exponent)) if &*how == EXP => {
+        Some((how, base, exponent)) if how.alone() == Some(EXP) => {
             matches!(power_of(base, exponent, labels), Power::Past)
                 .then(|| term.clone())
         }
@@ -474,13 +469,13 @@ pub fn past_expanding(term: &Term, labels: &FloatLabels) -> Option<Term> {
 fn operation<'t>(
     term: &'t Term,
     labels: &FloatLabels,
-) -> Option<(Rc<str>, &'t Term, &'t Term)> {
+) -> Option<(Rpn, &'t Term, &'t Term)> {
     if term.variable().is_none()
         && term.label() == Some("co")
         && term.children().len() == 3
     {
         let kids = term.children();
-        return Some((kids[2].txt(labels), &kids[0], &kids[1]));
+        return Some((kids[2].rpn(labels), &kids[0], &kids[1]));
     }
     None
 }
@@ -494,16 +489,21 @@ pub struct SumPart {
     pub bound: Monomial,
 }
 
+/// A finite sum read as linear (`linear_sum`).
+pub struct LinearSum {
+    /// The range, {a, …, b}.
+    pub range: Rpn,
+    /// The sum's letter, as its float.
+    pub letter: Symbol,
+    pub parts: Vec<SumPart>,
+}
+
 /// A finite sum over a range {a, …, b} read as linear: Σ(k ∈ R) Σᵢ wᵢ·Fᵢ·Mᵢ
 /// is Σᵢ wᵢ·Fᵢ·Σ(k ∈ R) Mᵢ, each Fᵢ free of k and each Mᵢ holding it
-/// (`fsumadd`, `fsummulc2`). Given as the range, the letter, and the parts,
-/// all spelt; None where the sum is one atom: a range that is no {a, …, b},
-/// a summand that divides or holds a sum of its own, or a part free of k,
-/// which would be a count of the range rather than a sum.
-pub fn linear_sum(
-    term: &Term,
-    labels: &FloatLabels,
-) -> Option<(String, String, Vec<SumPart>)> {
+/// (`fsumadd`, `fsummulc2`). None where the sum is one atom: a range that
+/// is no {a, …, b}, a summand that divides or holds a sum of its own, or a
+/// part free of k, which would be a count of the range rather than a sum.
+pub fn linear_sum(term: &Term, labels: &FloatLabels) -> Option<LinearSum> {
     if term.variable().is_some()
         || term.label() != Some("csu")
         || term.children().len() != 3
@@ -518,16 +518,16 @@ pub fn linear_sum(
     let ranged = range.variable().is_none()
         && range.label() == Some("co")
         && range.children().len() == 3
-        && &*range.children()[2].txt(labels) == "cfz";
-    if !ranged || summand.txt(labels).split_whitespace().any(|t| t == "csu") {
+        && range.children()[2].rpn(labels).alone() == Some("cfz");
+    if !ranged || summand.rpn(labels).has("csu") {
         return None;
     }
-    let letter = letter.txt(labels).to_string();
+    let letter = letter.rpn(labels).alone().map(Symbol::of)?;
     let read = read(summand, labels);
     if read.under != one() {
         return None;
     }
-    let holds = |atom: &str| atom.split_whitespace().any(|t| t == letter);
+    let holds = |atom: &Rpn| atom.tokens().contains(&letter);
     let mut parts = Vec::new();
     for (monomial, weight) in &read.over.terms {
         let (bound, free): (Monomial, Monomial) =
@@ -544,7 +544,11 @@ pub fn linear_sum(
     if parts.is_empty() {
         return None;
     }
-    Some((range.txt(labels).to_string(), letter, parts))
+    Some(LinearSum {
+        range: range.rpn(labels),
+        letter,
+        parts,
+    })
 }
 
 thread_local! {
@@ -566,7 +570,7 @@ pub fn reading_sums<T>(linear: bool, f: impl FnOnce() -> T) -> T {
 /// whose terms is reads every sum it holds as linear; a step none of whose
 /// terms is reads each sum as one atom, as a reader takes Σ in x·Σ + 0.
 pub fn says_something_linear(term: &Term, labels: &FloatLabels) -> bool {
-    if let Some((_, _, parts)) = linear_sum(term, labels) {
+    if let Some(LinearSum { parts, .. }) = linear_sum(term, labels) {
         if parts.len() > 1
             || parts.iter().any(|p| !p.free.is_empty() || p.weight != q(1))
         {
@@ -581,15 +585,16 @@ pub fn says_something_linear(term: &Term, labels: &FloatLabels) -> bool {
 }
 
 /// A monomial with every occurrence of one letter respelt as another.
-pub fn respelt(monomial: &Monomial, from: &str, to: &str) -> Monomial {
+pub fn respelt(monomial: &Monomial, from: Symbol, to: Symbol) -> Monomial {
     monomial
         .iter()
         .map(|(atom, power)| {
-            let said: Vec<&str> = atom
-                .split_whitespace()
-                .map(|t| if t == from { to } else { t })
+            let said: Vec<Symbol> = atom
+                .tokens()
+                .iter()
+                .map(|&t| if t == from { to } else { t })
                 .collect();
-            (Rc::from(said.join(" ")), *power)
+            (Rpn::from(said), *power)
         })
         .collect()
 }
@@ -600,13 +605,17 @@ pub fn read(term: &Term, labels: &FloatLabels) -> Quotient {
     // over its letter is an atom, and the letter is read as one placeholder,
     // so that two sums over different letters are one atom.
     let linear = LINEAR.with(|c| c.get());
-    if let Some((range, letter, parts)) =
-        linear.then(|| linear_sum(term, labels)).flatten()
+    if let Some(LinearSum {
+        range,
+        letter,
+        parts,
+    }) = linear.then(|| linear_sum(term, labels)).flatten()
     {
         let mut out = Poly::default();
+        let placeholder = Symbol::of("§");
         for part in parts {
-            let bound = respelt(&part.bound, &letter, "§");
-            let inner = format!("{range} {} § csu", spell_monomial(&bound));
+            let bound = respelt(&part.bound, letter, placeholder);
+            let inner = t!(range, spell_monomial(&bound), placeholder, "csu");
             let mut free = IndexMap::new();
             free.insert(part.free.clone(), part.weight.clone());
             out = out.plus(&Poly::new(free).times(&atom(&inner)));
@@ -627,7 +636,7 @@ pub fn read(term: &Term, labels: &FloatLabels) -> Quotient {
         };
     }
     if let Some((how, left, right)) = operation(term, labels) {
-        match &*how {
+        match how.alone().unwrap_or_default() {
             ADD => return read(left, labels).plus(&read(right, labels)),
             SUB => return read(left, labels).minus(&read(right, labels)),
             MUL => return read(left, labels).times(&read(right, labels)),
@@ -646,14 +655,14 @@ pub fn read(term: &Term, labels: &FloatLabels) -> Quotient {
                     return raised;
                 }
                 if let Some(name) = exponent_atom(right, labels) {
-                    let over = format!("{} {name} {EXP} co", left.txt(labels));
+                    let over = t!(left.rpn(labels), name, EXP, "co");
                     return Quotient::whole(atom(&over));
                 }
             }
             _ => {}
         }
     }
-    Quotient::whole(atom(&term.txt(labels)))
+    Quotient::whole(atom(&term.rpn(labels)))
 }
 
 /// A claim as a polynomial that must vanish, or None if it is not one.
@@ -793,8 +802,8 @@ pub fn exactly(p: &Poly, by: &Poly) -> Option<Poly> {
 }
 
 /// Every atom the polynomials hold, once each and sorted.
-fn atoms_of<'p>(polys: impl IntoIterator<Item = &'p Poly>) -> Vec<Rc<str>> {
-    let mut atoms: Vec<Rc<str>> = polys
+fn atoms_of<'p>(polys: impl IntoIterator<Item = &'p Poly>) -> Vec<Rpn> {
+    let mut atoms: Vec<Rpn> = polys
         .into_iter()
         .flat_map(|p| p.terms.keys().flatten().map(|(a, _)| a.clone()))
         .collect();
@@ -813,8 +822,8 @@ struct Divided {
 /// A monomial's place in the order division takes terms in: by degree, then
 /// by the power of each atom in turn. Multiplying keeps it, which is what
 /// makes a remainder nought exactly for a multiple.
-fn rank(monomial: &Monomial, atoms: &[Rc<str>]) -> (u32, Vec<u32>) {
-    let power = |atom: &Rc<str>| {
+fn rank(monomial: &Monomial, atoms: &[Rpn]) -> (u32, Vec<u32>) {
+    let power = |atom: &Rpn| {
         monomial
             .iter()
             .find(|(a, _)| a == atom)
@@ -826,7 +835,7 @@ fn rank(monomial: &Monomial, atoms: &[Rc<str>]) -> (u32, Vec<u32>) {
     )
 }
 
-fn leading<'p>(p: &'p Poly, atoms: &[Rc<str>]) -> Option<&'p Monomial> {
+fn leading<'p>(p: &'p Poly, atoms: &[Rpn]) -> Option<&'p Monomial> {
     p.terms.keys().max_by_key(|m| rank(m, atoms))
 }
 
@@ -842,7 +851,7 @@ fn monomial_over(over: &Monomial, under: &Monomial) -> Option<Monomial> {
 }
 
 /// `p` divided by `by`, which is not nought, term by leading term.
-fn divided(p: &Poly, by: &Poly, atoms: &[Rc<str>]) -> Divided {
+fn divided(p: &Poly, by: &Poly, atoms: &[Rpn]) -> Divided {
     let lead = leading(by, atoms).expect("a divisor not nought").clone();
     let weight = by.terms[&lead].clone();
     let mut left = p.clone();
@@ -1247,7 +1256,12 @@ mod tests {
     use super::*;
 
     fn m(atoms: &[(&str, u32)]) -> Monomial {
-        atoms.iter().map(|(a, p)| (Rc::from(*a), *p)).collect()
+        atoms.iter().map(|(a, p)| (Rpn::read(a), *p)).collect()
+    }
+
+    /// The atom written as this text.
+    fn atom(said: &str) -> Poly {
+        super::atom(&Rpn::read(said))
     }
 
     #[test]
