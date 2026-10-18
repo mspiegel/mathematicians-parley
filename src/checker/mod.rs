@@ -22,14 +22,14 @@ use crate::citing::{Library, Proved};
 use crate::corpus::{
     index, link_definitions, link_functions, module_of, parse_database, parse_proof,
     proof_files, record_files, Corpus, FileScope, Intro, Item, Method, Record,
-    RecordKind, Step, Theorem,
+    RecordKind, ScopeId, Step, Theorem,
 };
 use crate::formula::notation_id::Spelling;
 use crate::formula::page::{Sentence, Written};
 use crate::formula::Grammar;
 use crate::formula::Sorts;
 use crate::matching::Context;
-use crate::outcome::{At, Problem, Route};
+use crate::outcome::{At, Checked, Problem, Route};
 use crate::sorts::infer;
 use crate::sorts::{settled, Env};
 use crate::source::Source;
@@ -123,12 +123,12 @@ pub fn checked_where(
     source: &dyn Source,
     wanted: impl Fn(&str) -> bool,
 ) -> Result<CheckedCorpus, Outcome> {
-    let read = read_corpus(source)?;
+    let read = read_corpus(source, &FileReads::new())?;
     if !read.whole {
         let counts = counts_of(&read.corpus);
         return Err(summary(read.report, counts));
     }
-    let checked = prepared_in(&read.corpus, read.report, |_, c| {
+    let checked = prepared_in(&read.corpus, read.report, None, |_, c| {
         let mut out = IndexMap::new();
         for (i, thm) in c.theorems.iter().enumerate() {
             if !wanted(&thm.qualified()) {
@@ -205,8 +205,8 @@ fn counts_of(corpus: &Corpus) -> (usize, usize, usize, usize) {
 
 /// Check the corpus under the source's root, after the files `edited` were
 /// changed, with only the theorems an edit to them can reach checked
-/// (`Checking::reached_from`). What is checked of the corpus as a whole is
-/// checked, and the counts are the whole corpus's.
+/// (`reached_from`). What is checked of the corpus as a whole is checked,
+/// and the counts are the whole corpus's.
 ///
 /// A theorem's problems depend on the corpus as read and on nothing another
 /// theorem's check did, so what this reports is what `run` reports less the
@@ -214,17 +214,83 @@ fn counts_of(corpus: &Corpus) -> (usize, usize, usize, usize) {
 /// is reported, which it answers as `run` does; whether nothing is reported
 /// is `run`'s to answer.
 pub fn run_edited(source: &dyn Source, edited: &[String]) -> Outcome {
-    let checked = prepared(source, |report, c| {
-        let reached = c.reached_from(edited);
-        for (i, thm) in c.theorems.iter().enumerate() {
-            if reached.contains(thm.path.as_str()) {
-                check_theorem(report, c, thm, &c.known[i], &c.clashes[i]);
-            }
-        }
-    });
+    let checked = prepared(source, |report, c| check_reached(report, c, edited));
     match checked {
         Ok((report, counts, ())) => summary(report, counts),
         Err(out) => out,
+    }
+}
+
+/// Every theorem an edit to `edited` can reach, checked (`run_edited`).
+fn check_reached(report: &mut Report, c: &Checking<'_>, edited: &[String]) {
+    let reached = reached_from(c.scopes, edited);
+    for (i, thm) in c.theorems.iter().enumerate() {
+        if reached.contains(thm.path.as_str()) {
+            check_theorem(report, c, thm, &c.known[i], &c.clashes[i]);
+        }
+    }
+}
+
+/// The corpus read and prepared once, for checking many edits of it
+/// (`Clean::run_edited`).
+///
+/// What a run reads again is what an edit can change. A file whose bytes
+/// are the same is not decoded again, nor a proof file parsed again where it
+/// stands where it stood (`read_corpus`). While every record is the same,
+/// the records are not read again, and neither is a theorem of a proof file
+/// no changed file reaches (`reached_from`): what it reads is its own file
+/// and the files it imports, which are the same.
+pub struct Clean {
+    files: FileReads,
+    readings: Readings,
+}
+
+impl Clean {
+    pub fn read(source: &dyn Source) -> Result<Clean, Outcome> {
+        let read = read_corpus(source, &FileReads::new())?;
+        let (_, _, readings) =
+            prepared_in(&read.corpus, read.report, None, |_, c| Readings::of(c))?;
+        Ok(Clean {
+            files: read.files,
+            readings,
+        })
+    }
+
+    /// `run_edited` of the corpus under `source`, which says what it does
+    /// and what it reports.
+    pub fn run_edited(&self, source: &dyn Source, edited: &[String]) -> Outcome {
+        let read = match read_corpus(source, &self.files) {
+            Ok(read) => read,
+            Err(out) => return out,
+        };
+        let changed = self.changed(&read.files);
+        let records_alike = changed.iter().all(|path| path.ends_with(".proof"));
+        let reuse = records_alike.then(|| Reuse {
+            readings: &self.readings,
+            moved: reached_from(&read.corpus.scopes, &changed),
+        });
+        let checked =
+            prepared_in(&read.corpus, read.report, reuse.as_ref(), |report, c| {
+                check_reached(report, c, edited)
+            });
+        match checked {
+            Ok((report, counts, ())) => summary(report, counts),
+            Err(out) => out,
+        }
+    }
+
+    /// The files whose bytes differ from the clean reading's, or which one
+    /// of the readings has and the other does not, and the proof files
+    /// parsed at another place among the proof files.
+    fn changed(&self, files: &FileReads) -> Vec<String> {
+        let place = |f: &FileRead| f.proof.as_ref().map(|p| p.at);
+        let differ = files.iter().filter(|(path, now)| {
+            self.files
+                .get(*path)
+                .is_none_or(|was| was.raw != now.raw || place(was) != place(now))
+        });
+        let gone = self.files.keys().filter(|path| !files.contains_key(*path));
+        differ.map(|(path, _)| path).chain(gone).cloned().collect()
     }
 }
 
@@ -244,6 +310,8 @@ pub struct Checking<'a> {
     methods: &'a IndexMap<String, &'a Record>,
     items: &'a IndexMap<String, Item<'a>>,
     statements: &'a IndexMap<String, infer::Reader>,
+    /// Each item record's sorts, by its place among the records.
+    record_sorts: &'a IndexMap<usize, Sorts>,
     store: infer::Store,
 }
 
@@ -268,57 +336,55 @@ pub fn check_cuts(
     .map(|(_, _, said)| said)
 }
 
-impl<'a> Checking<'a> {
-    /// The proof files an edit to `edited` can change what is said of: the
-    /// edited files, and every file importing from one of them, and every
-    /// file importing from one of those. Where a file edited is not a proof
-    /// file, a record or a notation, every theorem reads it, and every proof
-    /// file is reached.
-    fn reached_from(&self, edited: &[String]) -> BTreeSet<&'a str> {
-        let every: BTreeSet<&'a str> =
-            self.scopes.iter().map(|s| s.path.as_str()).collect();
-        let mut reached: BTreeSet<&'a str> = BTreeSet::new();
-        // A proof file the reader refused has no theorems, and its problem is
-        // the reader's, said already; what imports it is reached still. A
-        // record reaches every theorem, as what any of them reads may change.
-        let mut refused: BTreeSet<&str> = BTreeSet::new();
-        for path in edited {
-            match every.get(path.as_str()) {
-                Some(&proof) => {
-                    reached.insert(proof);
-                }
-                None if path.ends_with(".proof") => {
-                    refused.insert(module_of(path));
-                }
-                None => return every,
+/// The proof files of `scopes` an edit to `edited` can change what is said
+/// of: the edited files, and every file importing from one of them, and
+/// every file importing from one of those. Where a file edited is not a
+/// proof file, a record or a notation, every theorem reads it, and every
+/// proof file is reached.
+fn reached_from<'a>(scopes: &'a [FileScope], edited: &[String]) -> BTreeSet<&'a str> {
+    let every: BTreeSet<&'a str> = scopes.iter().map(|s| s.path.as_str()).collect();
+    let mut reached: BTreeSet<&'a str> = BTreeSet::new();
+    // A proof file the reader refused has no theorems, and its problem is
+    // the reader's, said already; what imports it is reached still. A
+    // record reaches every theorem, as what any of them reads may change.
+    let mut refused: BTreeSet<&str> = BTreeSet::new();
+    for path in edited {
+        match every.get(path.as_str()) {
+            Some(&proof) => {
+                reached.insert(proof);
             }
-        }
-        loop {
-            let mut modules: BTreeSet<&str> =
-                reached.iter().map(|p| module_of(p)).collect();
-            modules.extend(refused.iter().copied());
-            let importing: Vec<&'a str> = self
-                .scopes
-                .iter()
-                .filter(|s| !reached.contains(s.path.as_str()))
-                .filter(|s| {
-                    let mut from = s
-                        .imports
-                        .iter()
-                        .map(|i| i.module.as_str())
-                        .chain(s.items.iter().map(|i| i.module.as_str()))
-                        .chain(s.functions.iter().map(|f| f.module.as_str()));
-                    from.any(|m| modules.contains(m))
-                })
-                .map(|s| s.path.as_str())
-                .collect();
-            if importing.is_empty() {
-                return reached;
+            None if path.ends_with(".proof") => {
+                refused.insert(module_of(path));
             }
-            reached.extend(importing);
+            None => return every,
         }
     }
+    loop {
+        let mut modules: BTreeSet<&str> =
+            reached.iter().map(|p| module_of(p)).collect();
+        modules.extend(refused.iter().copied());
+        let importing: Vec<&'a str> = scopes
+            .iter()
+            .filter(|s| !reached.contains(s.path.as_str()))
+            .filter(|s| {
+                let mut from = s
+                    .imports
+                    .iter()
+                    .map(|i| i.module.as_str())
+                    .chain(s.items.iter().map(|i| i.module.as_str()))
+                    .chain(s.functions.iter().map(|f| f.module.as_str()));
+                from.any(|m| modules.contains(m))
+            })
+            .map(|s| s.path.as_str())
+            .collect();
+        if importing.is_empty() {
+            return reached;
+        }
+        reached.extend(importing);
+    }
+}
 
+impl<'a> Checking<'a> {
     /// The problems one cut's theorem has, read from the cut's text. What a
     /// requires line says does not change what the theorem states, so the
     /// rest of the corpus is read as it was.
@@ -465,12 +531,107 @@ struct Read {
     /// Whether every file read and parsed, so that `corpus` is all of it:
     /// a file that does not is reported and left out.
     whole: bool,
+    /// What each file read gave, by its path.
+    files: FileReads,
+}
+
+/// What each file a reading of the corpus read gave, by its path, which a
+/// later reading is given back for a file whose bytes are the same
+/// (`read_corpus`).
+type FileReads = IndexMap<String, FileRead>;
+
+/// One record or proof file as read: its bytes, its text, and a proof
+/// file's parse.
+#[derive(Clone)]
+struct FileRead {
+    raw: Vec<u8>,
+    text: Checked<String>,
+    proof: Option<ProofRead>,
+}
+
+/// A proof file's parse, and the place among the proof files it was parsed
+/// at, which its theorems carry as their scope.
+#[derive(Clone)]
+struct ProofRead {
+    at: ScopeId,
+    parsed: Checked<(FileScope, Vec<Theorem>)>,
+}
+
+/// What the records and theorems of a corpus read as (`prepared_in`).
+struct Readings {
+    /// The store every reading below holds its sort variables in.
+    store: infer::Store,
+    /// The reader of each item record and each theorem's statement, by its
+    /// qualified name.
+    statements: IndexMap<String, infer::Reader>,
+    /// Each item record's sorts, by its place among the records.
+    record_sorts: IndexMap<usize, Sorts>,
+    /// Each proof file's theorems as read with their citations, in the
+    /// order the file writes them.
+    theorems: IndexMap<String, Vec<TheoremReading>>,
+}
+
+/// One theorem as read with its citations: the sorts it settled, and what
+/// did not fit.
+struct TheoremReading {
+    sorts: Sorts,
+    clashes: Vec<infer::Clash>,
+}
+
+impl Readings {
+    fn of(c: &Checking<'_>) -> Readings {
+        let mut theorems: IndexMap<String, Vec<TheoremReading>> = IndexMap::new();
+        for (i, thm) in c.theorems.iter().enumerate() {
+            theorems
+                .entry(thm.path.clone())
+                .or_default()
+                .push(TheoremReading {
+                    sorts: c.known[i].sorts.clone(),
+                    clashes: c.clashes[i].clone(),
+                });
+        }
+        Readings {
+            store: c.store.clone(),
+            statements: c.statements.clone(),
+            record_sorts: c.record_sorts.clone(),
+            theorems,
+        }
+    }
+}
+
+/// The readings a run of an edited corpus takes as they were: every
+/// record's, and those of the theorems of each proof file not in `moved`.
+struct Reuse<'k> {
+    readings: &'k Readings,
+    moved: BTreeSet<&'k str>,
+}
+
+impl Reuse<'_> {
+    /// The reading kept of the theorem `thm`, the `nth` its file writes.
+    fn theorem(&self, thm: &Theorem, nth: usize) -> Option<&TheoremReading> {
+        if self.moved.contains(thm.path.as_str()) {
+            return None;
+        }
+        self.readings.theorems.get(&thm.path)?.get(nth)
+    }
+
+    /// The reader kept of the statement of `thm`.
+    fn statement(&self, thm: &Theorem) -> Option<&infer::Reader> {
+        if self.moved.contains(thm.path.as_str()) {
+            return None;
+        }
+        self.readings.statements.get(&thm.qualified())
+    }
 }
 
 /// Read every record file and proof file under the source's root, and link
 /// each file's imports of library functions and definitions; or the
 /// outcome where there is no corpus to read.
-fn read_corpus(source: &dyn Source) -> Result<Read, Outcome> {
+///
+/// A file whose bytes are those `kept` holds for it is not decoded again,
+/// and a proof file is not parsed again where it also stands where it
+/// stood: what reading it gave is what reading it again would give.
+fn read_corpus(source: &dyn Source, kept: &FileReads) -> Result<Read, Outcome> {
     let mut report = Report::default();
     let db_files = record_files(source);
     let proofs = proof_files(source);
@@ -483,7 +644,7 @@ fn read_corpus(source: &dyn Source) -> Result<Read, Outcome> {
     }
 
     let mut whole = true;
-    let mut texts: IndexMap<String, String> = IndexMap::new();
+    let mut files = FileReads::new();
     for rel in db_files.iter().chain(proofs.iter()) {
         let raw = match source.read(rel) {
             Ok(raw) => raw,
@@ -493,20 +654,29 @@ fn read_corpus(source: &dyn Source) -> Result<Read, Outcome> {
                 continue;
             }
         };
-        match check_encoding(rel, &raw) {
-            Ok(text) => {
-                texts.insert(rel.clone(), text);
-            }
-            Err(p) => {
-                report.problems.push(p);
-                whole = false;
-            }
+        let text = match kept_alike(kept, rel, &raw) {
+            Some(was) => was.text.clone(),
+            None => check_encoding(rel, &raw),
+        };
+        if let Err(p) = &text {
+            report.problems.push(p.clone());
+            whole = false;
         }
+        files.insert(
+            rel.clone(),
+            FileRead {
+                raw,
+                text,
+                proof: None,
+            },
+        );
     }
 
     let mut records: Vec<Record> = Vec::new();
     for rel in &db_files {
-        let Some(text) = texts.get(rel) else { continue };
+        let Some(Ok(text)) = files.get(rel).map(|f| &f.text) else {
+            continue;
+        };
         match parse_database(rel, text) {
             Ok(found) => records.extend(found),
             Err(p) => {
@@ -533,18 +703,28 @@ fn read_corpus(source: &dyn Source) -> Result<Read, Outcome> {
     let mut theorems: Vec<Theorem> = Vec::new();
     let mut scopes: Vec<FileScope> = Vec::new();
     for rel in &proofs {
-        let Some(text) = texts.get(rel) else { continue };
+        let Some(read) = files.get_mut(rel) else {
+            continue;
+        };
+        let Ok(text) = &read.text else { continue };
         database::check_characters(&mut report, rel, text, &allowed);
-        match parse_proof(rel, text, scopes.len()) {
+        let at = scopes.len();
+        let parsed =
+            match kept_alike(kept, rel, &read.raw).and_then(|f| f.proof.as_ref()) {
+                Some(was) if was.at == at => was.parsed.clone(),
+                _ => parse_proof(rel, text, at),
+            };
+        match &parsed {
             Ok((scope, found)) => {
-                scopes.push(scope);
-                theorems.extend(found);
+                scopes.push(scope.clone());
+                theorems.extend(found.iter().cloned());
             }
             Err(p) => {
-                report.problems.push(p);
+                report.problems.push(p.clone());
                 whole = false;
             }
         }
+        read.proof = Some(ProofRead { at, parsed });
     }
     for (path, no, message) in link_functions(&records, &mut scopes)
         .into_iter()
@@ -560,7 +740,13 @@ fn read_corpus(source: &dyn Source) -> Result<Read, Outcome> {
         },
         report,
         whole,
+        files,
     })
+}
+
+/// What `kept` holds of the file `rel`, where its bytes were `raw`.
+fn kept_alike<'k>(kept: &'k FileReads, rel: &str, raw: &[u8]) -> Option<&'k FileRead> {
+    kept.get(rel).filter(|f| f.raw == raw)
 }
 
 /// Read the corpus, check what is checked of the corpus as a whole, and give
@@ -570,8 +756,8 @@ fn prepared<T>(
     source: &dyn Source,
     then: impl FnOnce(&mut Report, &mut Checking<'_>) -> T,
 ) -> Result<(Report, (usize, usize, usize, usize), T), Outcome> {
-    let read = read_corpus(source)?;
-    prepared_in(&read.corpus, read.report, then)
+    let read = read_corpus(source, &FileReads::new())?;
+    prepared_in(&read.corpus, read.report, None, then)
 }
 
 /// `prepared` of a corpus already read, with what reading it found.
@@ -579,6 +765,7 @@ fn prepared<T>(
 fn prepared_in<T>(
     corpus: &Corpus,
     mut report: Report,
+    reuse: Option<&Reuse>,
     then: impl FnOnce(&mut Report, &mut Checking<'_>) -> T,
 ) -> Result<(Report, (usize, usize, usize, usize), T), Outcome> {
     let Corpus {
@@ -637,8 +824,9 @@ fn prepared_in<T>(
     structure::check_function_names(&mut report, theorems, scopes, &grammar.functions);
     // Which names a file writes is read off its formulas' tokens, which the
     // grammar lexes.
-    structure::check_definitions(&mut report, theorems, scopes, &grammar);
-    structure::check_function_imports(&mut report, theorems, scopes, &grammar);
+    let files_tokens = structure::files_tokens(theorems, scopes, &grammar);
+    structure::check_definitions(&mut report, theorems, scopes, &files_tokens);
+    structure::check_function_imports(&mut report, scopes, &files_tokens);
     database::check_functions(&mut report, &grammar);
     // A library function's name of several letters reads as one, as a word
     // does, so two names run together into it are caught as into a word.
@@ -655,12 +843,23 @@ fn prepared_in<T>(
     // where they stand, as two may share a name (`check_database` reports
     // that). One store holds every kind, since a citation copies the kinds
     // of what it cites into the reading of the proof citing it.
-    let mut store = infer::Store::default();
+    let mut store =
+        reuse.map_or_else(infer::Store::default, |k| k.readings.store.clone());
     let mut statements: IndexMap<String, infer::Reader> = IndexMap::new();
     let mut record_sorts: IndexMap<usize, Sorts> = IndexMap::new();
     for (i, r) in records.iter().enumerate().filter(|(_, r)| r.kind.is_item()) {
-        let reader = infer::read_record(r, env, &mut store);
-        record_sorts.insert(i, settled(&reader, &store));
+        let (reader, sorts) = match reuse {
+            Some(k) => (
+                k.readings.statements[&r.qualified()].clone(),
+                k.readings.record_sorts[&i].clone(),
+            ),
+            None => {
+                let reader = infer::read_record(r, env, &mut store);
+                let sorts = settled(&reader, &store);
+                (reader, sorts)
+            }
+        };
+        record_sorts.insert(i, sorts);
         statements.insert(r.qualified(), reader);
     }
     for (i, r) in records
@@ -693,15 +892,30 @@ fn prepared_in<T>(
 
     // Each theorem's lines, read once, after every statement it may cite.
     for thm in theorems {
-        statements.insert(thm.qualified(), infer::read_statement(thm, env, &mut store));
+        let reader = match reuse.and_then(|k| k.statement(thm)) {
+            Some(kept) => kept.clone(),
+            None => infer::read_statement(thm, env, &mut store),
+        };
+        statements.insert(thm.qualified(), reader);
     }
     let ctx = Context::new(&env.g.notations, records);
     let mut known: Vec<Known> = Vec::new();
     let mut clashes: Vec<Vec<infer::Clash>> = Vec::new();
+    let mut nth_in_file: IndexMap<&str, usize> = IndexMap::new();
     for thm in theorems {
-        let reader = formulas::read_with_citations(thm, env, &statements, &mut store);
-        known.push(Known::new(thm, env, settled(&reader, &store), &ctx));
-        clashes.push(reader.clashes);
+        let nth = nth_in_file.entry(thm.path.as_str()).or_default();
+        let kept = reuse.and_then(|k| k.theorem(thm, *nth));
+        *nth += 1;
+        let (sorts, clashed) = match kept {
+            Some(kept) => (kept.sorts.clone(), kept.clashes.clone()),
+            None => {
+                let reader =
+                    formulas::read_with_citations(thm, env, &statements, &mut store);
+                (settled(&reader, &store), reader.clashes)
+            }
+        };
+        known.push(Known::new(thm, env, sorts, &ctx));
+        clashes.push(clashed);
     }
     let proved = known
         .iter()
@@ -733,6 +947,7 @@ fn prepared_in<T>(
         methods: &methods,
         items: &items,
         statements: &statements,
+        record_sorts: &record_sorts,
         store,
     };
     let out = then(&mut report, &mut checking);

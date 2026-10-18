@@ -1504,12 +1504,10 @@ fn functions_defined(text: &str) -> Vec<String> {
 /// (`link_functions`), so where it comes from is not asked again here.
 pub fn check_function_imports(
     report: &mut Report,
-    theorems: &[Theorem],
     scopes: &[FileScope],
-    g: &crate::formula::Grammar,
+    files_tokens: &[Vec<Vec<Token>>],
 ) {
-    for (id, scope) in scopes.iter().enumerate() {
-        let tokens = file_tokens(theorems, id, scope, g);
+    for (scope, tokens) in scopes.iter().zip(files_tokens) {
         let mut seen: IndexSet<&str> = IndexSet::new();
         for fi in &scope.functions {
             let (path, no, name) = (&scope.path, fi.line, fi.name.as_str());
@@ -1532,19 +1530,33 @@ pub fn check_function_imports(
     }
 }
 
+/// The tokens of every formula each file of `scopes` writes, by the file's
+/// place (`file_tokens`).
+pub fn files_tokens(
+    theorems: &[Theorem],
+    scopes: &[FileScope],
+    g: &crate::formula::Grammar,
+) -> Vec<Vec<Vec<Token>>> {
+    let mut by_scope: Vec<Vec<&Theorem>> = vec![Vec::new(); scopes.len()];
+    for t in theorems {
+        by_scope[t.scope].push(t);
+    }
+    scopes
+        .iter()
+        .zip(by_scope)
+        .map(|(scope, thms)| file_tokens(&thms, scope, g))
+        .collect()
+}
+
 /// The tokens of every formula a file writes: its theorems' and its own
 /// defines' (`theorem_tokens`, `define_formulas`).
 fn file_tokens(
-    theorems: &[Theorem],
-    scope_id: usize,
+    theorems: &[&Theorem],
     scope: &FileScope,
     g: &crate::formula::Grammar,
 ) -> Vec<Vec<Token>> {
-    let mut out: Vec<Vec<Token>> = theorems
-        .iter()
-        .filter(|t| t.scope == scope_id)
-        .flat_map(|t| theorem_tokens(t, g))
-        .collect();
+    let mut out: Vec<Vec<Token>> =
+        theorems.iter().flat_map(|t| theorem_tokens(t, g)).collect();
     let defines: Vec<Written> =
         scope.defines.iter().flat_map(define_formulas).collect();
     out.extend(written_tokens(&defines, g));
@@ -1634,7 +1646,7 @@ pub fn check_definitions(
     report: &mut Report,
     theorems: &[Theorem],
     scopes: &[FileScope],
-    g: &crate::formula::Grammar,
+    files_tokens: &[Vec<Vec<Token>>],
 ) {
     for thms in by_file(theorems).values() {
         let scope_id = thms[0].scope;
@@ -1692,7 +1704,7 @@ pub fn check_definitions(
                 );
             }
         }
-        let written = names_written(&file_tokens(theorems, scope_id, scope, g));
+        let written = names_written(&files_tokens[scope_id]);
         for i in &scope.imports {
             if scope.linked.contains_key(&i.alias) && !written.contains(&i.alias) {
                 let message = if i.alias != i.name {

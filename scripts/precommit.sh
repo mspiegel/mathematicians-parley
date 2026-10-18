@@ -7,7 +7,7 @@
 #                                   receives a merge.
 #   scripts/precommit.sh --branch   what must pass before a commit to a
 #                                   branch: the same with the gate and the
-#                                   four slowest test binaries left out.
+#                                   slowest tests left out.
 #
 # Three lanes run side by side:
 #
@@ -67,8 +67,10 @@ case "${1:-}" in
         ;;
 esac
 
-# The test binaries the branch level leaves out, the four slowest.
-slow='binary(invariance) | binary(planted_elaborate) | binary(planted_gate) | binary(coverage)'
+# The tests the branch level leaves out, the slowest: four binaries, and
+# the test that checks every planted case twice, against the clean corpus
+# read once and read afresh.
+slow='binary(invariance) | binary(planted_elaborate) | binary(planted_gate) | binary(coverage) | test(=a_clean_reading_kept_reports_what_a_fresh_one_does)'
 
 logs=$(mktemp -d)
 trap 'rm -rf "$logs"' EXIT
@@ -124,7 +126,7 @@ release_lane() {
 
 test_lane() {
     if [ -n "$branch" ]; then
-        step test "cargo nextest run --release (all but the four slowest)" \
+        step test "cargo nextest run --release (all but the slowest)" \
             cargo nextest run --release -E "not ($slow)" || return 1
     else
         step test "cargo nextest run --release" cargo nextest run --release || return 1

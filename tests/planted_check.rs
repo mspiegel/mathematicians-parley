@@ -7,9 +7,9 @@
 //! The corpus is read once into memory and each case edits it through an
 //! overlay of its own, so no case copies a directory and none can see
 //! another's edit. The clean corpus is checked whole; a case checks the
-//! theorems its edits can reach (`checker::run_edited`). The cases run side by
-//! side (`threads::in_order`), and are reported in the order they are
-//! written.
+//! theorems its edits can reach (`checker::run_edited`), against the clean
+//! corpus as read once (`checker::Clean`). The cases run side by side
+//! (`threads::in_order`), and are reported in the order they are written.
 //!
 //! Every message the checker writes out where it reports it is said by some
 //! case, so that a check no case reaches is found: one that had stopped
@@ -18,6 +18,7 @@
 
 use std::path::Path;
 
+use parley::checker::Clean;
 use parley::source::{Disk, Memory, Overlay, Source};
 use parley::threads::in_order;
 
@@ -62,6 +63,14 @@ fn clean() -> Memory {
     Memory::copy(&Disk::new(root), &["corpus", "proofs", "tests"]).unwrap()
 }
 
+/// The clean corpus read once, which each case's edits are read against.
+/// What it holds cannot be shared between threads, so each thread reads its
+/// own.
+fn clean_read(clean: &Memory) -> Clean {
+    Clean::read(clean)
+        .unwrap_or_else(|out| panic!("the corpus reads: {}", out.complained))
+}
+
 /// Plant one case's edits, or say why they could not be planted.
 fn plant<'a>(case: &Case, clean: &'a Memory) -> Result<Overlay<'a>, String> {
     let mut tree = Overlay::new(clean);
@@ -87,7 +96,7 @@ fn plant<'a>(case: &Case, clean: &'a Memory) -> Result<Overlay<'a>, String> {
 /// What one case says, whether it missed, and everything the checker
 /// printed: a case misses where its edit could not be planted, or the
 /// checker did not report it.
-fn outcome(case: &Case, clean: &Memory) -> (String, bool, String) {
+fn outcome(case: &Case, clean: &Memory, read: &Clean) -> (String, bool, String) {
     let tree = match plant(case, clean) {
         Ok(tree) => tree,
         Err(why) => return (why, true, String::new()),
@@ -96,7 +105,7 @@ fn outcome(case: &Case, clean: &Memory) -> (String, bool, String) {
     // problem is reported, and a theorem left unchecked can only leave a
     // problem out.
     let edited: Vec<String> = case.edits.iter().map(|e| e.file.to_string()).collect();
-    let out = parley::checker::run_edited(&tree, &edited).printed;
+    let out = read.run_edited(&tree, &edited).printed;
     if out.contains(case.expect) {
         return (format!("  caught        {}", case.name), false, out);
     }
@@ -470,7 +479,11 @@ fn the_checker_catches_every_planted_defect() {
         base.printed
     );
     let cases = cases();
-    let results = in_order(&cases, || (), |_, case| outcome(case, &clean));
+    let results = in_order(
+        &cases,
+        || clean_read(&clean),
+        |read, case| outcome(case, &clean, read),
+    );
     let missed = results.iter().filter(|(_, missed, _)| *missed).count();
     let said: Vec<&str> = results.iter().map(|(line, _, _)| line.as_str()).collect();
     println!("{}", said.join("\n"));
@@ -503,6 +516,32 @@ fn the_checker_catches_every_planted_defect() {
         new.iter().map(|s| s.as_str()).collect::<Vec<_>>().join("\n"),
         gone.iter().map(|s| s.as_str()).collect::<Vec<_>>().join("\n")
     );
+}
+
+/// A case's edits checked against the clean corpus read once report what
+/// they report read afresh, word for word.
+#[test]
+fn a_clean_reading_kept_reports_what_a_fresh_one_does() {
+    let clean = clean();
+    let cases = cases();
+    let differ = in_order(
+        &cases,
+        || clean_read(&clean),
+        |read, case| kept_unlike_fresh(case, &clean, read),
+    );
+    let differ: Vec<String> = differ.into_iter().flatten().collect();
+    assert!(differ.is_empty(), "{}", differ.join("\n\n"));
+}
+
+/// What a case's edits report against the clean corpus read once and read
+/// afresh, where the two differ.
+fn kept_unlike_fresh(case: &Case, clean: &Memory, read: &Clean) -> Option<String> {
+    let tree = plant(case, clean).ok()?;
+    let edited: Vec<String> = case.edits.iter().map(|e| e.file.to_string()).collect();
+    let kept = read.run_edited(&tree, &edited).printed;
+    let fresh = parley::checker::run_edited(&tree, &edited).printed;
+    (kept != fresh)
+        .then(|| format!("{}\n  kept:\n{kept}\n  fresh:\n{fresh}", case.name))
 }
 
 /// The checker's messages no planted edit can make it say, by their words

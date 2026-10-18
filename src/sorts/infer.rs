@@ -83,6 +83,7 @@ pub const POINT: SortTerm = SortTerm::Atom(Atom::Point);
 pub const FORMULA: SortTerm = SortTerm::Atom(Atom::Formula);
 pub const GROUP_ELEMENT: SortTerm = SortTerm::Atom(Atom::GroupElement);
 
+#[derive(Clone)]
 struct VarData {
     bound: Option<SortTerm>,
     rigid: bool,
@@ -93,7 +94,7 @@ struct VarData {
 ///
 /// One store serves every reader that may share variables: a cited
 /// statement's sorts are copied into the reader of the proof citing it.
-#[derive(Default)]
+#[derive(Clone, Default)]
 pub struct Store {
     vars: Vec<VarData>,
 }
@@ -626,6 +627,7 @@ pub struct Clash {
 /// `env` maps a name to its sort; a `let` shadows what came before, since a
 /// block may use a letter an earlier one did. What does not fit is kept in
 /// `clashes`.
+#[derive(Clone)]
 pub struct Reader {
     /// The file whose lines are read.
     path: String,
