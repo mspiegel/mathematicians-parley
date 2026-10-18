@@ -550,6 +550,13 @@ impl<'a> Elaborator<'a> {
         Problem::new(&self.thm.path, line, message)
     }
 
+    /// A page shape the build stops at that the checker refuses
+    /// (`Problem::internal`): a guard the guard audit found the checker
+    /// holds, which a page the checker accepts never reaches.
+    pub fn unreached(&self, line: usize, message: impl Into<String>) -> Problem {
+        Problem::internal(&self.thm.path, line, message)
+    }
+
     /// This route does not apply, and why, in the terms as they stand. The
     /// words are put together only if something reads them.
     pub fn no<T>(

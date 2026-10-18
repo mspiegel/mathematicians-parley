@@ -586,9 +586,8 @@ impl<'a> Elaborator<'a> {
             }
             _ => {
                 let head = &step.just.head;
-                return Err(
-                    self.defect(step.line, format!("no expansion for a {head} block"))
-                );
+                return Err(self
+                    .unreached(step.line, format!("no expansion for a {head} block")));
             }
         }
         Ok(block)
@@ -952,7 +951,7 @@ impl<'a> Elaborator<'a> {
         let supposed = block.supposed.clone().unwrap_or_default();
         let Some(other) = self.contradicted.clone() else {
             return Err(
-                self.defect(step.line, "the block's last step contradicts no line")
+                self.unreached(step.line, "the block's last step contradicts no line")
             );
         };
         let held = self.last.as_ref().and_then(|l| self.lines.get(l));
@@ -1206,7 +1205,7 @@ impl<'a> Elaborator<'a> {
             .and_then(|o| o.claim.first())
             .cloned();
         let Some(node) = owed else {
-            return Err(self.defect(
+            return Err(self.unreached(
                 owner.line,
                 "the checker's record says nothing this proof block owes",
             ));
@@ -1253,12 +1252,12 @@ impl<'a> Elaborator<'a> {
                 });
                 rest = kids[1].clone();
             } else if o.kind == Intro::Let {
-                return Err(self.defect(
+                return Err(self.unreached(
                     step.line,
                     "a proof block that claims nothing of every such name",
                 ));
             } else {
-                return Err(self.defect(
+                return Err(self.unreached(
                     step.line,
                     "a proof block whose claim supposes nothing where the block assumes",
                 ));
@@ -1384,7 +1383,7 @@ impl<'a> Elaborator<'a> {
             .all(|p| block.parts.contains_key(p) && block.assumed.contains_key(p))
         {
             return Err(
-                self.defect(step.line, "a direction of the block proves nothing")
+                self.unreached(step.line, "a direction of the block proves nothing")
             );
         }
         let claim = self.claim_of(&step.claim)?;
@@ -1400,7 +1399,7 @@ impl<'a> Elaborator<'a> {
         let backward = self
             .resting_on(allowed, |me| me.direction_reached(&block.parts[&1], &left))?;
         let (Some(forward), Some(backward)) = (forward, backward) else {
-            return Err(self.defect(
+            return Err(self.unreached(
                 step.line,
                 "a direction does not end on the side it does not assume",
             ));
@@ -1454,7 +1453,7 @@ impl<'a> Elaborator<'a> {
         let assumed_parts: std::collections::BTreeSet<usize> =
             block.assumed.keys().copied().collect();
         if parts != assumed_parts {
-            return Err(self.defect(step.line, "a case of the block proves nothing"));
+            return Err(self.unreached(step.line, "a case of the block proves nothing"));
         }
         let claim = self.claim_of(&step.claim)?;
         let order: Vec<usize> = assumed_parts.into_iter().collect();
@@ -1544,7 +1543,7 @@ impl<'a> Elaborator<'a> {
         let name = block.over.clone().unwrap_or_default();
         let general = format!("{} cv", block.base.clone().unwrap_or_default());
         let Some(variable) = block.variable.clone() else {
-            return Err(self.defect(
+            return Err(self.unreached(
                 step.line,
                 format!("the step part of the induction does not fix {name}"),
             ));
@@ -1552,7 +1551,7 @@ impl<'a> Elaborator<'a> {
         let claim = self.claim_of(&step.claim)?;
         let over = self.rpn(&self.to_term(&claim).children()[2]);
         let Some((lemma, begins)) = lookup(rules::INDUCTION, &over) else {
-            return Err(self.defect(
+            return Err(self.unreached(
                 step.line,
                 format!("nothing here inducts over {}", self.render(&over)),
             ));
@@ -1641,7 +1640,7 @@ impl<'a> Elaborator<'a> {
         let member = t!(format!("{variable} cv"), over, "wcel");
         let asked = t!(t!(scope, member, "wa"), held, "wa");
         if under != asked {
-            return Err(self.defect(
+            return Err(self.unreached(
                 step.line,
                 "the step part does not assume the claim's statement at its letter",
             ));
@@ -1763,7 +1762,7 @@ impl<'a> Elaborator<'a> {
                 let where_ = step.just.refs.first().cloned();
                 let held = where_.as_ref().and_then(|w| self.lines.get(w));
                 let (Some(where_), Some(held)) = (where_, held) else {
-                    return Err(self.defect(
+                    return Err(self.unreached(
                         step.line,
                         "an obtain that names neither an item nor a line claiming the existence",
                     ));
@@ -2002,7 +2001,7 @@ impl<'a> Elaborator<'a> {
         while layers.len() < got.len() {
             let kids = rest.children().to_vec();
             if rest.label() != Some("wrex") || kids.len() != 3 {
-                return Err(self.defect(
+                return Err(self.unreached(
                     step.line,
                     format!(
                         "step {number} obtains {} from {}, which is no \"there is\" of as many",
@@ -2229,7 +2228,7 @@ impl<'a> Elaborator<'a> {
                 // The claim discharged here was read before the define was,
                 // so it cannot name the variable; `exlimdv` forbids it.
                 if goal.split_whitespace().any(|t| t == c.var.as_str()) {
-                    return Err(self.defect(
+                    return Err(self.unreached(
                         c.line,
                         format!(
                             "what {} names is still named where its scope ends",
@@ -2411,7 +2410,7 @@ impl<'a> Elaborator<'a> {
             let said = match define_parts(&d.text) {
                 Built(said) => said,
                 Declined(why) => {
-                    return Err(self.defect(
+                    return Err(self.unreached(
                         d.line,
                         format!("define {}: {}", d.label, why.reason()),
                     ));
@@ -2419,7 +2418,9 @@ impl<'a> Elaborator<'a> {
             };
             for name in said.names() {
                 if self.names.contains_key(&name) {
-                    return Err(self.defect(d.line, format!("{name} is already named")));
+                    return Err(
+                        self.unreached(d.line, format!("{name} is already named"))
+                    );
                 }
             }
             match &said {
@@ -2454,7 +2455,7 @@ impl<'a> Elaborator<'a> {
                         1 => Some("the map sending _ ∈ _ to _"),
                         2 => Some("the map sending _ ∈ _, _ ∈ _ to _"),
                         _ => {
-                            return Err(self.defect(
+                            return Err(self.unreached(
                                 d.line,
                                 format!(
                                     "define {} takes more arguments than two",
@@ -2475,7 +2476,7 @@ impl<'a> Elaborator<'a> {
                     // statement is none: there is nothing for the name to be
                     // equal to.
                     if self.is_wff(&self.to_term(&term)) {
-                        return Err(self.defect(
+                        return Err(self.unreached(
                             d.line,
                             format!(
                                 "define {}: {} is a statement, and a define names a thing",
@@ -2517,7 +2518,7 @@ impl<'a> Elaborator<'a> {
             requires: Vec::new(),
             ..s.clone()
         }) else {
-            return Err(self.defect(
+            return Err(self.unreached(
                 line,
                 format!(
                     "let {} stands below every step, where no step uses it",
@@ -2737,7 +2738,7 @@ impl<'a> Elaborator<'a> {
             .map(String::as_str)
             .collect();
         if !missing.is_empty() {
-            return Err(self.defect(
+            return Err(self.unreached(
                 step.line,
                 format!(
                     "step {} states no membership of {}",
@@ -2747,7 +2748,7 @@ impl<'a> Elaborator<'a> {
             ));
         }
         if rest.is_empty() {
-            return Err(self.defect(
+            return Err(self.unreached(
                 step.line,
                 format!(
                     "step {} states nothing of what it obtains",

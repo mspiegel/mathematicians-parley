@@ -844,7 +844,9 @@ impl<'a> Elaborator<'a> {
     ) -> Checked<Proof> {
         let lines = self.lines.clone();
         let Some(there) = lines.get(other) else {
-            return Err(self.defect(step.line, format!("{other} is no line in scope")));
+            return Err(
+                self.unreached(step.line, format!("{other} is no line in scope"))
+            );
         };
         let pair = Facts::new();
         self.know(&pair, held.term.clone(), held.proof.clone());
@@ -906,7 +908,9 @@ impl<'a> Elaborator<'a> {
         }
         let sentences = step.claim.sentences();
         let Some(last) = sentences.last() else {
-            return Err(self.defect(step.line, format!("step {number} claims nothing")));
+            return Err(
+                self.unreached(step.line, format!("step {number} claims nothing"))
+            );
         };
         let node = self.read(last)?;
         let term = self.claim_of(&step.claim)?;
@@ -915,7 +919,7 @@ impl<'a> Elaborator<'a> {
         }
         let Some(how) = self.method_for(step)? else {
             return Err(
-                self.defect(step.line, format!("no expansion for {}", repr(&head)))
+                self.unreached(step.line, format!("no expansion for {}", repr(&head)))
             );
         };
         let citing = std::mem::replace(
@@ -1597,7 +1601,7 @@ impl<'a> Elaborator<'a> {
     ) -> Checked<Route<Proof>> {
         let where_ = step.just.target.clone().unwrap_or_default();
         let Some(held) = lines.get(&where_) else {
-            return Err(self.defect(
+            return Err(self.unreached(
                 step.line,
                 format!("instantiate names no line or label {}", repr(&where_)),
             ));
@@ -1655,7 +1659,7 @@ impl<'a> Elaborator<'a> {
             .or(candidates.first().copied())
             .cloned();
         let Some(said) = said else {
-            return Err(self.defect(
+            return Err(self.unreached(
                 step.line,
                 format!("{where_} claims nothing of every such name"),
             ));
@@ -1675,8 +1679,10 @@ impl<'a> Elaborator<'a> {
             let found = rules::INSTANCES.iter().find(|(k, _)| *k == label);
             let Some(instance) = found.map(|(_, i)| (i.lemma, i.domain_var, i.domain))
             else {
-                return Err(self
-                    .defect(step.line, "more names instantiated than are quantified"));
+                return Err(self.unreached(
+                    step.line,
+                    "more names instantiated than are quantified",
+                ));
             };
             let (lemma, slot, domain) = instance;
             let (body, variable) =
@@ -1692,7 +1698,7 @@ impl<'a> Elaborator<'a> {
                 .cloned()
                 .unwrap_or(letter.clone());
             let Some(value) = by_name.get(&named).cloned() else {
-                return Err(self.defect(
+                return Err(self.unreached(
                     step.line,
                     format!("{where_} quantifies a name the step gives no value, before the ones it does"),
                 ));
@@ -1871,7 +1877,9 @@ impl<'a> Elaborator<'a> {
     ) -> Checked<Route<Proof>> {
         let (Some(written), Some(source)) = (&step.just.equation, &step.just.source)
         else {
-            return Err(self.defect(step.line, "a substitute that names no equation"));
+            return Err(
+                self.unreached(step.line, "a substitute that names no equation")
+            );
         };
         let equation = self.read_one(written)?;
         let (left, right) =
@@ -1951,7 +1959,7 @@ impl<'a> Elaborator<'a> {
             .unwrap_or_else(|| panic!("no line {where_} to substitute into"));
         if into.sentences.is_empty() {
             return Err(
-                self.defect(step.line, format!("{where_} is not a line to rewrite"))
+                self.unreached(step.line, format!("{where_} is not a line to rewrite"))
             );
         }
         // A line may say several things and the substitution land in one of
@@ -3074,7 +3082,7 @@ impl<'a> Elaborator<'a> {
         lines: &Lines,
     ) -> Checked<Route<Proof>> {
         let Some(chain) = chain(&step.just, &self.thm.path) else {
-            return Err(self.defect(step.line, "a calculation writes no chain"));
+            return Err(self.unreached(step.line, "a calculation writes no chain"));
         };
         // A chain going down is composed as the same links going up, which
         // concludes the same formula: t₀ ≥ t₂ is t₂ ≤ t₀ (`Chain::upward`).
@@ -3150,7 +3158,7 @@ impl<'a> Elaborator<'a> {
                 let ordered = (modulus.is_none() && said == "wbr")
                     || (joined_congruence.is_none() && joined_label == "wbr");
                 if ordered {
-                    return Err(self.defect(
+                    return Err(self.unreached(
                         step.line,
                         "a congruence and an order join into nothing",
                     ));
@@ -3166,20 +3174,20 @@ impl<'a> Elaborator<'a> {
                     ),
                 };
                 if from != right {
-                    return Err(self.defect(
+                    return Err(self.unreached(
                         step.line,
                         "a link that reads the other way round from the one above it",
                     ));
                 }
                 if modulus.is_some() && n.is_none() {
-                    return Err(self.defect(
+                    return Err(self.unreached(
                         step.line,
                         "a chain that has become a congruence does not go back to =",
                     ));
                 }
                 if let (Some(a), Some(b)) = (&modulus, &n) {
                     if a != b {
-                        return Err(self.defect(
+                        return Err(self.unreached(
                             step.line,
                             "a chain's congruences are modulo one number",
                         ));
@@ -3211,7 +3219,7 @@ impl<'a> Elaborator<'a> {
             if said == "wbr" && joined_label == "wbr" {
                 let next_relation = self.rpn(&joined.children()[2]);
                 let Some(fold) = rules::order_folding(&relation, &next_relation) else {
-                    return Err(self.defect(
+                    return Err(self.unreached(
                         step.line,
                         format!(
                             "no transitivity folds {relation} into {next_relation}"
@@ -3219,7 +3227,7 @@ impl<'a> Elaborator<'a> {
                     ));
                 };
                 if self.rpn(&joined.children()[0]) != right {
-                    return Err(self.defect(
+                    return Err(self.unreached(
                         step.line,
                         "a link that reads the other way round from the one above it",
                     ));
@@ -3254,13 +3262,13 @@ impl<'a> Elaborator<'a> {
                 continue;
             }
             let Some(fold) = rules::folding(&said, &joined_label) else {
-                return Err(self.defect(
+                return Err(self.unreached(
                     step.line,
                     format!("no transitivity folds {said} into {joined_label}"),
                 ));
             };
             if self.rpn(&joined.children()[0]) != right {
-                return Err(self.defect(
+                return Err(self.unreached(
                     step.line,
                     "a link that reads the other way round from the one above it",
                 ));
@@ -3422,7 +3430,7 @@ impl<'a> Elaborator<'a> {
         // numerals alone change.
         if cite == "arithmetic" {
             if claim.label() != Some("wceq") {
-                return Err(self.defect(
+                return Err(self.unreached(
                     step.line,
                     format!("{written} relates terms with letters in them, which arithmetic does not"),
                 ));
@@ -3544,7 +3552,7 @@ impl<'a> Elaborator<'a> {
             return self.define_on(&whole, scope, &held);
         }
         if whole.label() != Some("wceq") {
-            return Err(self.defect(
+            return Err(self.unreached(
                 step.line,
                 format!(
                     "{} is cited for a claim that is no equation",
@@ -4331,7 +4339,9 @@ impl<'a> Elaborator<'a> {
     ) -> Checked<Route<Proof>> {
         let whole = self.to_term(term);
         if whole.label() != Some("wrex") {
-            return Err(self.defect(step.line, "an exhibit that claims no existence"));
+            return Err(
+                self.unreached(step.line, "an exhibit that claims no existence")
+            );
         }
         // A claim may quantify over more than one name, and reading several
         // witnesses off the lines a step cites is what `witnessed` does.

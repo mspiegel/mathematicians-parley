@@ -30,6 +30,10 @@ pub struct Problem {
     pub path: String,
     pub line: At,
     pub message: String,
+    /// The build met a page the checker refuses, in a theorem the checker
+    /// accepts: the two read the page differently, a fault in the tools and
+    /// no gap in the build (`Problem::internal`).
+    pub internal: bool,
 }
 
 /// Where in a file: a line, or the place just after one.
@@ -74,13 +78,37 @@ impl Problem {
             path: path.into(),
             line: line.into(),
             message: message.into(),
+            internal: false,
+        }
+    }
+
+    /// A page shape the build stops at that the checker refuses, met in a
+    /// theorem the checker accepts: the build guards a rule the checker
+    /// holds, and reaching the guard means the two read the step
+    /// differently.
+    pub fn internal(
+        path: impl Into<String>,
+        line: impl Into<At>,
+        message: impl Into<String>,
+    ) -> Self {
+        Problem {
+            message: format!(
+                "the checker and the build read this differently, which is a fault in the tools: the build stops at what the checker refuses: {}",
+                message.into()
+            ),
+            internal: true,
+            ..Problem::new(path, line, "")
         }
     }
 
     /// This problem, found by the build in a theorem the checker accepts: a
     /// gap in the build, whose to fix it is, and not a defect of the page
-    /// (`GOALS.md`, one reading of the page).
+    /// (`GOALS.md`, one reading of the page). An internal one says what it
+    /// is already.
     pub fn gap(self) -> Problem {
+        if self.internal {
+            return self;
+        }
         Problem {
             message: format!(
                 "the build cannot yet prove this, which the checker accepts: {}",
@@ -239,5 +267,15 @@ mod tests {
         assert_eq!(first.or_try(|| panic!("not asked")), Route::Built(1));
         let second: Route<u32> = Route::no("does not fit");
         assert_eq!(second.or_try(|| Route::Built(2)), Route::Built(2));
+    }
+
+    #[test]
+    fn an_internal_failure_is_no_gap() {
+        let gap = Problem::new("p.proof", 3, "cannot settle x ∈ ℝ").gap();
+        assert!(gap.message.starts_with("the build cannot yet prove this"));
+        let internal =
+            Problem::internal("p.proof", 3, "a case of the block proves nothing");
+        assert_eq!(internal.clone().gap(), internal);
+        assert!(internal.message.contains("a fault in the tools"));
     }
 }

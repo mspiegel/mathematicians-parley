@@ -276,7 +276,7 @@ impl<'a> Elaborator<'a> {
                     1 => "the map sending _ ∈ _ to _",
                     2 => "the map sending _ ∈ _, _ ∈ _ to _",
                     _ => {
-                        return Err(self.defect(
+                        return Err(self.unreached(
                             self.at,
                             format!(
                                 "{} takes more arguments than two",
@@ -391,7 +391,7 @@ impl<'a> Elaborator<'a> {
         }
         for token in tokens {
             let Some(stands) = self.names.get(&token) else {
-                return Err(self.defect(
+                return Err(self.unreached(
                     self.at,
                     format!(
                         "{} needs a group, and no `let` line gives one",
@@ -419,7 +419,7 @@ impl<'a> Elaborator<'a> {
         let name = self.thm.names.full(cited);
         match self.items.get(&name) {
             Some(item) => Ok(*item),
-            None => Err(self.defect(self.at, crate::checker::unresolved(cited))),
+            None => Err(self.unreached(self.at, crate::checker::unresolved(cited))),
         }
     }
 
@@ -691,7 +691,7 @@ impl<'a> Elaborator<'a> {
             ([x], [a]) => t!(x, a, body, "cmpt"),
             ([x, y], [a, b]) => t!(x, y, a, b, body, "cmpo"),
             _ => {
-                return Err(self.defect(
+                return Err(self.unreached(
                     self.thm.line,
                     "a define from outside takes more arguments than two",
                 ))
