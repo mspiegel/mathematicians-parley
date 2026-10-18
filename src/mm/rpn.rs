@@ -21,16 +21,16 @@ pub struct Rpn(Rc<[Symbol]>);
 impl Rpn {
     /// The tokens of text in reverse Polish, split where it has space.
     pub fn read(text: &str) -> Rpn {
-        Rpn(text.split_whitespace().map(Symbol::of).collect())
+        built(|out| text.spell_onto(out))
     }
 
     /// The runs one after another.
     pub fn joined(parts: &[&[Symbol]]) -> Rpn {
-        let mut out = Vec::with_capacity(parts.iter().map(|p| p.len()).sum());
-        for part in parts {
-            out.extend_from_slice(part);
-        }
-        Rpn(out.into())
+        built(|out| {
+            for part in parts {
+                out.extend_from_slice(part);
+            }
+        })
     }
 
     pub fn tokens(&self) -> &[Symbol] {
@@ -86,10 +86,24 @@ pub trait Spell {
 
     /// Its tokens as reverse Polish: lent where they are held so already.
     fn as_rpn(&self) -> Cow<'_, Rpn> {
-        let mut out = Vec::new();
-        self.spell_onto(&mut out);
-        Cow::Owned(Rpn(out.into()))
+        Cow::Owned(built(|out| self.spell_onto(out)))
     }
+}
+
+thread_local! {
+    /// The tokens a term is put together in before it is shared, kept from
+    /// one term to the next so that a term is one allocation.
+    static BUILDING: std::cell::Cell<Vec<Symbol>> = const { std::cell::Cell::new(Vec::new()) };
+}
+
+/// The tokens `fill` puts down, shared.
+fn built(fill: impl FnOnce(&mut Vec<Symbol>)) -> Rpn {
+    let mut out = BUILDING.with(std::cell::Cell::take);
+    out.clear();
+    fill(&mut out);
+    let made = Rpn(Rc::from(&out[..]));
+    BUILDING.with(|b| b.set(out));
+    made
 }
 
 impl Spell for Rpn {
@@ -139,18 +153,19 @@ impl<T: Spell + ?Sized> Spell for &T {
 impl Rpn {
     /// The parts' tokens one after another.
     pub fn of(parts: &[&dyn Spell]) -> Rpn {
-        let mut out = Vec::new();
-        for part in parts {
-            part.spell_onto(&mut out);
+        if let [one] = parts {
+            return one.as_rpn().into_owned();
         }
-        Rpn(out.into())
+        built(|out| {
+            for part in parts {
+                part.spell_onto(out);
+            }
+        })
     }
 
-    /// One part's tokens.
+    /// One part's tokens: the part itself where it is tokens already.
     pub fn spelt(part: &(impl Spell + ?Sized)) -> Rpn {
-        let mut out = Vec::new();
-        part.spell_onto(&mut out);
-        Rpn(out.into())
+        part.as_rpn().into_owned()
     }
 }
 

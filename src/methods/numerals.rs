@@ -31,13 +31,24 @@ pub fn spell(value: impl Into<BigUint>) -> Rpn {
 }
 
 pub(crate) fn spelt(value: &BigUint) -> Rpn {
-    match one_digit(value) {
+    thread_local! {
+        /// Each number spelt so far, which a proof about numbers asks for
+        /// again at every digit.
+        static SPELT: std::cell::RefCell<rustc_hash::FxHashMap<BigUint, Rpn>> =
+            std::cell::RefCell::new(rustc_hash::FxHashMap::default());
+    }
+    if let Some(known) = SPELT.with(|s| s.borrow().get(value).cloned()) {
+        return known;
+    }
+    let made = match one_digit(value) {
         Some(d) => t!(digit(d)),
         None => {
             let (upper, last) = last_off(value);
             t!(spelt(&upper), digit(last), "cdc")
         }
-    }
+    };
+    SPELT.with(|s| s.borrow_mut().insert(value.clone(), made.clone()));
+    made
 }
 
 /// The number a term spells, where it is a digit or a decimal of digits

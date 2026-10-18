@@ -27,9 +27,26 @@ fn interned() -> &'static RwLock<FxHashSet<&'static str>> {
     INTERNED.get_or_init(|| RwLock::new(FxHashSet::default()))
 }
 
+thread_local! {
+    /// The texts this thread has interned or found, asked first, so that a
+    /// text asked again takes no lock.
+    static NEAR: std::cell::RefCell<FxHashSet<&'static str>> =
+        std::cell::RefCell::new(FxHashSet::default());
+}
+
 impl Symbol {
     /// The symbol of `text`, interning it the first time it is asked.
     pub fn of(text: &str) -> Symbol {
+        if let Some(held) = NEAR.with(|near| near.borrow().get(text).copied()) {
+            return Symbol(held);
+        }
+        let held = Symbol::interned(text);
+        NEAR.with(|near| near.borrow_mut().insert(held.0));
+        held
+    }
+
+    /// `of`, from the texts every thread shares.
+    fn interned(text: &str) -> Symbol {
         if let Some(&held) = interned().read().expect("the interned texts").get(text) {
             return Symbol(held);
         }
