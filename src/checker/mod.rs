@@ -276,17 +276,25 @@ impl<'a> Checking<'a> {
         let every: BTreeSet<&'a str> =
             self.scopes.iter().map(|s| s.path.as_str()).collect();
         let mut reached: BTreeSet<&'a str> = BTreeSet::new();
+        // A proof file the reader refused has no theorems, and its problem is
+        // the reader's, said already; what imports it is reached still. A
+        // record reaches every theorem, as what any of them reads may change.
+        let mut refused: BTreeSet<&str> = BTreeSet::new();
         for path in edited {
             match every.get(path.as_str()) {
                 Some(&proof) => {
                     reached.insert(proof);
                 }
+                None if path.ends_with(".proof") => {
+                    refused.insert(module_of(path));
+                }
                 None => return every,
             }
         }
         loop {
-            let modules: BTreeSet<&str> =
+            let mut modules: BTreeSet<&str> =
                 reached.iter().map(|p| module_of(p)).collect();
+            modules.extend(refused.iter().copied());
             let importing: Vec<&'a str> = self
                 .scopes
                 .iter()
