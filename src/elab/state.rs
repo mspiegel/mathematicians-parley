@@ -310,7 +310,11 @@ pub struct Elaborator<'a> {
     pub sums_in_cc: IndexMap<(String, String), Proof>,
     /// The rules of the standard form set.mm has, plain and conditional,
     /// read once.
-    pub rewrite_rules: Option<[Vec<super::matcher::Rewrite>; 2]>,
+    pub rewrite_rules: Option<[Rc<[super::matcher::Rewrite]>; 2]>,
+    /// Each library label's statement as a term, read from its text the
+    /// first time it is asked (`statement`). A label the theorem adds is
+    /// read each time, since what it says is the theorem's to change.
+    pub statements_read: RefCell<FxIndexMap<String, Term>>,
     /// Letters `same` reads as blanks.
     pub binding: Vars,
     /// The lines what is being proved cites, in the order it writes them.
@@ -484,6 +488,7 @@ impl<'a> Elaborator<'a> {
             sum_letter: None,
             sums_in_cc: IndexMap::new(),
             rewrite_rules: None,
+            statements_read: RefCell::new(FxIndexMap::default()),
             binding: Vars::new(),
             citing: IndexSet::new(),
             in_family: 0,
@@ -650,11 +655,21 @@ impl<'a> Elaborator<'a> {
 
     /// What a labelled statement claims, as a term.
     pub fn statement(&self, label: &str) -> Term {
+        if let Some(read) = self.statements_read.borrow().get(label) {
+            return read.clone();
+        }
         let sig = self.sig(label);
-        self.b
+        let read = self
+            .b
             .syntax()
             .statement(sig)
-            .unwrap_or_else(|p| panic!("{label} does not parse: {p}"))
+            .unwrap_or_else(|p| panic!("{label} does not parse: {p}"));
+        if self.b.sigs.is_library(label) {
+            self.statements_read
+                .borrow_mut()
+                .insert(label.to_string(), read.clone());
+        }
+        read
     }
 
     /// An essential hypothesis's claim, as a term.

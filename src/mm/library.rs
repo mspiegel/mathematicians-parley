@@ -144,6 +144,12 @@ impl Layered {
         self.get(label).is_some()
     }
 
+    /// Whether the library has the label, and not what was added: one of
+    /// the library's is never changed.
+    pub fn is_library(&self, label: &str) -> bool {
+        self.base.contains_key(label)
+    }
+
     /// Where a label stands among every label, library first, as `iter`
     /// walks them.
     pub fn index_of(&self, label: &str) -> Option<usize> {

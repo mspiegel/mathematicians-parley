@@ -2225,7 +2225,7 @@ impl<'a> Elaborator<'a> {
         if term.variable().is_some() {
             return None;
         }
-        for rule in self.rewrites(false) {
+        for rule in self.rewrites(false).iter() {
             if let Some(bound) = fit(&rule.given, term, &Binding::new(), &rule.names) {
                 if rule.gives.names().iter().all(|n| bound.contains_key(&**n)) {
                     return Some((
@@ -2537,11 +2537,12 @@ impl<'a> Elaborator<'a> {
     /// first holds only where that is so, which a standard form cannot know;
     /// such a rule is `conditional`, and is used only where it closes a
     /// difference the walk has found.
-    pub fn rewrites(&mut self, conditional: bool) -> Vec<Rewrite> {
+    pub fn rewrites(&mut self, conditional: bool) -> Rc<[Rewrite]> {
         if self.rewrite_rules.is_none() {
-            self.rewrite_rules = Some(self.standard_rules());
+            let [plain, asking] = self.standard_rules();
+            self.rewrite_rules = Some([plain.into(), asking.into()]);
         }
-        self.rewrite_rules.as_ref().unwrap()[conditional as usize].clone()
+        Rc::clone(&self.rewrite_rules.as_ref().unwrap()[conditional as usize])
     }
 
     /// The rules of `rules::STANDARD` set.mm has, those that ask nothing
@@ -3489,7 +3490,7 @@ impl<'a> Elaborator<'a> {
         where_: &str,
         held: &Facts,
     ) -> Checked<Option<Proof>> {
-        for rule in self.rewrites(true) {
+        for rule in self.rewrites(true).iter() {
             for (a, b, forward) in [(one, other, true), (other, one, false)] {
                 let Some(bound) = fit(&rule.given, a, &Binding::new(), &rule.names)
                 else {
@@ -5463,7 +5464,7 @@ impl<'a> Elaborator<'a> {
             }
         }
         for conditional in [false, true] {
-            for rule in self.rewrites(conditional) {
+            for rule in self.rewrites(conditional).iter() {
                 if let Some(bound) =
                     fit(&rule.given, &term, &Binding::new(), &rule.names)
                 {
