@@ -17,7 +17,9 @@ use crate::citing::{
 use crate::formula::Node;
 use crate::matching::{alike, substitute_apart, Binding, Context};
 use crate::notations::{
-    EQUALITY, INTEGER_RANGE, MEMBERSHIP, MULTIPLICATIVE, NUMBER_SYSTEMS, NUMERAL,
+    ADDITIVE, APPLICATION, BY_CASES, DIVIDED, EQUALITY, EQUALS, FOR_ALL, GREATER,
+    INTEGER_RANGE, JUXTAPOSITION, LESS, LOGICAL_NOT, MEMBERSHIP, MULTIPLICATIVE,
+    NUMBER_SYSTEMS, NUMERAL, POWER, SUM, SUPERSCRIPT, UNARY_MINUS,
 };
 use crate::rules::{self, System};
 
@@ -93,8 +95,7 @@ pub fn said(term: &Node, system: System, facts: &Facts) -> bool {
 pub fn atom_held(term: &Node, system: System, facts: &Facts) -> bool {
     said(term, system, facts)
         || facts.facts.iter().any(|f| {
-            f.notation() == EQUALITY
-                && f.text == "="
+            f.spelling() == EQUALS
                 && matches!(f.children.as_slice(), [a, b]
                     if (same(a, term, facts.ctx) && holds(b, system, facts))
                         || (same(b, term, facts.ctx) && holds(a, system, facts)))
@@ -126,13 +127,11 @@ pub fn nonzero(divisor: &Node, facts: &Facts) -> bool {
     if nonzero_said_once(divisor, &facts.letters) {
         return true;
     }
-    let by_parts = match (divisor.notation.as_str(), divisor.children.as_slice()) {
-        ("multiplicative" | "juxtaposition", [a, b]) => {
+    let by_parts = match (divisor.notation(), divisor.children.as_slice()) {
+        (MULTIPLICATIVE | JUXTAPOSITION, [a, b]) => {
             nonzero(a, facts) && nonzero(b, facts)
         }
-        ("power" | "superscript", [a, e]) => {
-            e.notation() == NUMERAL && nonzero(a, facts)
-        }
+        (POWER | SUPERSCRIPT, [a, e]) => e.notation() == NUMERAL && nonzero(a, facts),
         _ => false,
     };
     if by_parts {
@@ -140,23 +139,19 @@ pub fn nonzero(divisor: &Node, facts: &Facts) -> bool {
     }
     let zero = |n: &Node| n.notation() == NUMERAL && n.text == "0";
     let is = |n: &Node| same(n, divisor, facts.ctx);
-    facts
-        .facts
-        .iter()
-        .any(|f| match (f.notation.as_str(), f.children.as_slice()) {
-            ("logical-not", [inner]) => {
-                match (inner.notation.as_str(), inner.children.as_slice()) {
-                    ("equality", [a, b]) => (is(a) && zero(b)) || (zero(a) && is(b)),
+    facts.facts.iter().any(|f| {
+        match (f.spelling(), f.notation(), f.children.as_slice()) {
+            (_, LOGICAL_NOT, [inner]) => {
+                match (inner.notation(), inner.children.as_slice()) {
+                    (EQUALITY, [a, b]) => (is(a) && zero(b)) || (zero(a) && is(b)),
                     _ => false,
                 }
             }
-            ("order", [a, b]) => match f.text.as_str() {
-                "<" => (zero(a) && is(b)) || (is(a) && zero(b)),
-                ">" => (is(a) && zero(b)) || (zero(a) && is(b)),
-                _ => false,
-            },
+            (LESS, _, [a, b]) => (zero(a) && is(b)) || (is(a) && zero(b)),
+            (GREATER, _, [a, b]) => (is(a) && zero(b)) || (zero(a) && is(b)),
             _ => false,
-        })
+        }
+    })
 }
 
 /// The part of a divisor `nonzero` finds nothing saying is not zero: the
@@ -166,12 +161,11 @@ pub fn unsaid_part(divisor: &Node, facts: &Facts) -> Option<Node> {
     if nonzero(divisor, facts) {
         return None;
     }
-    let parts: Vec<&Node> =
-        match (divisor.notation.as_str(), divisor.children.as_slice()) {
-            ("multiplicative" | "juxtaposition", [a, b]) => vec![a, b],
-            ("power" | "superscript", [a, e]) if e.notation() == NUMERAL => vec![a],
-            _ => Vec::new(),
-        };
+    let parts: Vec<&Node> = match (divisor.notation(), divisor.children.as_slice()) {
+        (MULTIPLICATIVE | JUXTAPOSITION, [a, b]) => vec![a, b],
+        (POWER | SUPERSCRIPT, [a, e]) if e.notation() == NUMERAL => vec![a],
+        _ => Vec::new(),
+    };
     parts
         .iter()
         .find_map(|p| unsaid_part(p, facts))
@@ -214,8 +208,7 @@ fn said_otherwise(term: &Node, system: System, facts: &Facts, depth: usize) -> b
 /// A term by cases, what a define by cases writes out to, in a system
 /// where each of its values is: s(x) ∈ ℕ₀ where s is 0 or 1.
 fn cased(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
-    let ("by-cases", [value, _, otherwise]) =
-        (term.notation.as_str(), term.children.as_slice())
+    let (BY_CASES, [value, _, otherwise]) = (term.notation(), term.children.as_slice())
     else {
         return false;
     };
@@ -225,8 +218,8 @@ fn cased(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
 /// A power a^e in a system the closure table closes under powers, a in it
 /// and e in ℕ₀: 2^j ∈ ℤ where j ∈ ℕ₀. A power to a numeral is the walk's.
 fn powered(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
-    let ("power" | "superscript", [base, exponent]) =
-        (term.notation.as_str(), term.children.as_slice())
+    let (POWER | SUPERSCRIPT, [base, exponent]) =
+        (term.notation(), term.children.as_slice())
     else {
         return false;
     };
@@ -239,8 +232,7 @@ fn powered(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
 /// says `f : D → E` and x is in D: by a number system D holds, by a range
 /// D x runs over, or by a fact putting x in D.
 fn valued(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
-    let ("application", [f, at]) = (term.notation.as_str(), term.children.as_slice())
-    else {
+    let (APPLICATION, [f, at]) = (term.notation(), term.children.as_slice()) else {
         return false;
     };
     facts.typed.iter().any(|t| {
@@ -303,8 +295,7 @@ fn whole(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
 /// a term dividing by something that holds the index is one a fact says at
 /// every point of a set holding the range (`SYNTAX.md`).
 fn summed(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
-    let ("sum", [index, start, end, body]) =
-        (term.notation.as_str(), term.children.as_slice())
+    let (SUM, [index, start, end, body]) = (term.notation(), term.children.as_slice())
     else {
         return false;
     };
@@ -369,29 +360,25 @@ impl Parts {
 
     fn take(&mut self, term: &Node) {
         let numeral_exponent = |e: &Node| e.notation() == NUMERAL;
-        match (
-            term.notation.as_str(),
-            term.text.as_str(),
-            term.children.as_slice(),
-        ) {
-            ("numeral", _, _) => {}
-            ("additive", _, [a, b]) | ("juxtaposition", _, [a, b]) => {
+        match (term.notation(), term.spelling(), term.children.as_slice()) {
+            (NUMERAL, _, _) => {}
+            (ADDITIVE | JUXTAPOSITION, _, [a, b]) => {
                 self.take(a);
                 self.take(b);
             }
-            ("multiplicative", "/", [a, b]) => {
+            (_, DIVIDED, [a, b]) => {
                 self.take(a);
                 self.take(b);
                 if b.notation() != NUMERAL {
                     self.divisors.push(b.clone());
                 }
             }
-            ("multiplicative", _, [a, b]) => {
+            (MULTIPLICATIVE, _, [a, b]) => {
                 self.take(a);
                 self.take(b);
             }
-            ("unary-minus", _, [a]) => self.take(a),
-            ("power" | "superscript", _, [a, e]) if numeral_exponent(e) => self.take(a),
+            (UNARY_MINUS, _, [a]) => self.take(a),
+            (POWER | SUPERSCRIPT, _, [a, e]) if numeral_exponent(e) => self.take(a),
             _ => self.atoms.push(term.clone()),
         }
     }
@@ -402,8 +389,7 @@ impl Parts {
 /// index's own system (`citing::nonzero_said_once`).
 pub fn divides_by(term: &Node, index: &str, letters: &Introduced) -> bool {
     term.walk().iter().any(|part| {
-        part.notation() == MULTIPLICATIVE
-            && part.text == "/"
+        part.spelling() == DIVIDED
             && part.children.get(1).is_some_and(|d| {
                 d.names().contains(index) && !nonzero_said_once(d, letters)
             })
@@ -421,8 +407,8 @@ pub struct Summed<'n> {
 impl<'n> Summed<'n> {
     /// `term` as a sum over a range, where it is one.
     pub fn of(term: &'n Node) -> Option<Summed<'n>> {
-        let ("sum", [index, start, end, body]) =
-            (term.notation.as_str(), term.children.as_slice())
+        let (SUM, [index, start, end, body]) =
+            (term.notation(), term.children.as_slice())
         else {
             return None;
         };
@@ -444,21 +430,19 @@ pub fn said_pointwise(
     system: System,
     ctx: &Context,
 ) -> bool {
-    let ("for-all", [bound, set, body]) =
-        (fact.notation.as_str(), fact.children.as_slice())
+    let (FOR_ALL, [bound, set, body]) = (fact.notation(), fact.children.as_slice())
     else {
         return false;
     };
-    let ("membership", [value, into]) =
-        (body.notation.as_str(), body.children.as_slice())
+    let (MEMBERSHIP, [value, into]) = (body.notation(), body.children.as_slice())
     else {
         return false;
     };
-    let holds_range = match set.notation.as_str() {
-        "number-systems" => {
+    let holds_range = match set.notation() {
+        NUMBER_SYSTEMS => {
             System::maybe_within(index_system(sum.start), System::of_sign(&set.text))
         }
-        "integer-range" => matches!(set.children.as_slice(), [a, b]
+        INTEGER_RANGE => matches!(set.children.as_slice(), [a, b]
             if same(a, sum.start, ctx) && same(b, sum.end, ctx)),
         _ => false,
     };

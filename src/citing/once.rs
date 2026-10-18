@@ -19,7 +19,10 @@ use num_traits::{One, Signed, ToPrimitive, Zero};
 use crate::formula::page::template;
 use crate::formula::{Node, Sort, Sorts};
 use crate::matching::{alike_top, standard, substitute_apart, Binding};
-use crate::notations::{INTEGER_RANGE, MEMBERSHIP, NUMBER_SYSTEMS, NUMERAL};
+use crate::notations::{
+    APPLICATION, DIVIDED, FACTORIAL, INTEGER_RANGE, JUXTAPOSITION, MEMBERSHIP, MINUS,
+    MOD, NUMBER_SYSTEMS, NUMERAL, PLUS, POWER, SUM, SUPERSCRIPT, TIMES, UNARY_MINUS,
+};
 use crate::rules::{self, lookup, System};
 
 use super::library::Library;
@@ -38,9 +41,9 @@ pub fn introduction(said: &Node) -> Option<(String, System)> {
     if said.notation() != MEMBERSHIP || said.text != "∈" || !letter.is_name() {
         return None;
     }
-    let system = match set.notation.as_str() {
-        "number-systems" => System::of_sign(&set.text)?,
-        "integer-range" => range_system(set)?,
+    let system = match set.notation() {
+        NUMBER_SYSTEMS => System::of_sign(&set.text)?,
+        INTEGER_RANGE => range_system(set)?,
         _ => return None,
     };
     Some((letter.text.clone(), system))
@@ -405,19 +408,15 @@ impl OnceAsk for PageOnce<'_> {
         if term.is_name() {
             return Shape::Letter;
         }
-        match (
-            term.notation.as_str(),
-            term.text.as_str(),
-            term.children.as_slice(),
-        ) {
-            ("unary-minus", _, [a]) => Shape::Negated(a),
-            ("additive", "+", [a, b]) => Shape::Operation("caddc", a, b),
-            ("additive", "−", [a, b]) => Shape::Operation("cmin", a, b),
-            ("multiplicative", "·", [a, b]) | ("juxtaposition", _, [a, b]) => {
+        match (term.notation(), term.spelling(), term.children.as_slice()) {
+            (UNARY_MINUS, _, [a]) => Shape::Negated(a),
+            (_, PLUS, [a, b]) => Shape::Operation("caddc", a, b),
+            (_, MINUS, [a, b]) => Shape::Operation("cmin", a, b),
+            (_, TIMES, [a, b]) | (JUXTAPOSITION, _, [a, b]) => {
                 Shape::Operation("cmul", a, b)
             }
-            ("multiplicative", "/", [a, b]) => Shape::Operation("cdiv", a, b),
-            ("power", _, [a, e]) | ("superscript", _, [a, e]) => Shape::Power(a, e),
+            (_, DIVIDED, [a, b]) => Shape::Operation("cdiv", a, b),
+            (POWER | SUPERSCRIPT, _, [a, e]) => Shape::Power(a, e),
             _ => Shape::Other,
         }
     }
@@ -449,8 +448,7 @@ pub fn sum_said_once(
     typed: &[Node],
     ctx: &crate::matching::Context,
 ) -> bool {
-    let ("sum", [index, start, end, body]) =
-        (term.notation.as_str(), term.children.as_slice())
+    let (SUM, [index, start, end, body]) = (term.notation(), term.children.as_slice())
     else {
         return false;
     };
@@ -497,9 +495,7 @@ impl SumIndex<'_> {
         if sum_said_once(term, system, self.letters, self.typed, self.ctx) {
             return true;
         }
-        let ("application", [f, x]) =
-            (term.notation.as_str(), term.children.as_slice())
-        else {
+        let (APPLICATION, [f, x]) = (term.notation(), term.children.as_slice()) else {
             return false;
         };
         self.typed.iter().any(|t| {
@@ -572,19 +568,17 @@ pub fn nonzero_said_once(divisor: &Node, letters: &Introduced) -> bool {
 /// where a letter stands in it, or a division by zero.
 fn value(term: &Node) -> Option<BigRational> {
     let kids = term.children.as_slice();
-    match (term.notation.as_str(), term.text.as_str(), kids) {
-        ("numeral", said, []) => numeral(said),
-        ("unary-minus", _, [a]) => Some(-value(a)?),
-        ("additive", "+", [a, b]) => Some(value(a)? + value(b)?),
-        ("additive", "−", [a, b]) => Some(value(a)? - value(b)?),
-        ("multiplicative", "·", [a, b]) | ("juxtaposition", _, [a, b]) => {
-            Some(value(a)? * value(b)?)
-        }
-        ("multiplicative", "/", [a, b]) => {
+    match (term.notation(), term.spelling(), kids) {
+        (NUMERAL, _, []) => numeral(&term.text),
+        (UNARY_MINUS, _, [a]) => Some(-value(a)?),
+        (_, PLUS, [a, b]) => Some(value(a)? + value(b)?),
+        (_, MINUS, [a, b]) => Some(value(a)? - value(b)?),
+        (_, TIMES, [a, b]) | (JUXTAPOSITION, _, [a, b]) => Some(value(a)? * value(b)?),
+        (_, DIVIDED, [a, b]) => {
             let d = value(b)?;
             (!d.is_zero()).then(|| value(a)).flatten().map(|n| n / d)
         }
-        ("power", _, [a, e]) | ("superscript", _, [a, e]) => {
+        (POWER | SUPERSCRIPT, _, [a, e]) => {
             let e = value(e)?;
             let k = e.is_integer().then(|| e.to_integer().to_u32()).flatten()?;
             // Past a few hundred the number is not one a page writes, and
@@ -596,13 +590,13 @@ fn value(term: &Node) -> Option<BigRational> {
         // where `arithmetic` works them out (`methods::field::closed_value`):
         // a remainder of a whole number on dividing by one of at least 1,
         // and a factorial of a whole number, as far as a page writes one.
-        ("mod", _, [a, n]) => {
+        (MOD, _, [a, n]) => {
             let (a, n) = (value(a)?, value(n)?);
             let whole = a.is_integer() && !a.is_negative() && n.is_integer();
             (whole && n >= BigRational::one())
                 .then(|| BigRational::from_integer(a.to_integer() % n.to_integer()))
         }
-        ("factorial", _, [n]) => {
+        (FACTORIAL, _, [n]) => {
             let n = value(n)?;
             let k = (n.is_integer() && !n.is_negative())
                 .then(|| n.to_integer().to_u32())

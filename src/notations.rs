@@ -69,4 +69,6 @@ notations! {
     ONE_TO_ONE_ONTO = 37, "one-to-one-onto";
     IS_A_SET = 38, "is-a-set";
     IS_A_POINT = 39, "is-a-point";
+    MOD = 40, "mod";
+    FACTORIAL = 41, "factorial";
 }
