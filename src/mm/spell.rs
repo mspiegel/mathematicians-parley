@@ -155,87 +155,79 @@ macro_rules! seq {
     };
 }
 
-/// `seq!` as text, for a module still passing terms as text.
-#[macro_export]
-macro_rules! seq_text {
-    ($($part:expr),* $(,)?) => {
-        $crate::mm::Rpn::of(&[$(&$part as &dyn $crate::mm::Spell),*]).to_string()
-    };
-}
-
 // Terms. `co` is Metamath's binary operation and most of the rest are it
-// with the operator filled in. Each takes `&str` or `String` alike, so a
-// term built inline is passed as it is.
-pub fn co(a: impl Spell, b: impl Spell, f: impl Spell) -> String {
-    seq_text!(a, b, f, "co")
+// with the operator filled in. Each takes tokens or text alike (`Spell`),
+// so a term built inline is passed as it is.
+pub fn co(a: impl Spell, b: impl Spell, f: impl Spell) -> Rpn {
+    seq!(a, b, f, "co")
 }
-pub fn mul(a: impl Spell, b: impl Spell) -> String {
+pub fn mul(a: impl Spell, b: impl Spell) -> Rpn {
     co(a, b, "cmul")
 }
-pub fn add(a: impl Spell, b: impl Spell) -> String {
+pub fn add(a: impl Spell, b: impl Spell) -> Rpn {
     co(a, b, "caddc")
 }
-pub fn sub(a: impl Spell, b: impl Spell) -> String {
+pub fn sub(a: impl Spell, b: impl Spell) -> Rpn {
     co(a, b, "cmin")
 }
-pub fn div(a: impl Spell, b: impl Spell) -> String {
+pub fn div(a: impl Spell, b: impl Spell) -> Rpn {
     co(a, b, "cdiv")
 }
-pub fn exp(a: impl Spell, b: impl Spell) -> String {
+pub fn exp(a: impl Spell, b: impl Spell) -> Rpn {
     co(a, b, "cexp")
 }
-pub fn fz(a: impl Spell, b: impl Spell) -> String {
+pub fn fz(a: impl Spell, b: impl Spell) -> Rpn {
     co(a, b, "cfz")
 }
-pub fn neg(a: impl Spell) -> String {
-    seq_text!(a, "cneg")
+pub fn neg(a: impl Spell) -> Rpn {
+    seq!(a, "cneg")
 }
-pub fn summ(range: impl Spell, body: impl Spell, v: impl Spell) -> String {
-    seq_text!(range, body, v, "csu")
+pub fn summ(range: impl Spell, body: impl Spell, v: impl Spell) -> Rpn {
+    seq!(range, body, v, "csu")
 }
 
 // Formulas.
-pub fn cel(a: impl Spell, b: impl Spell) -> String {
-    seq_text!(a, b, "wcel")
+pub fn cel(a: impl Spell, b: impl Spell) -> Rpn {
+    seq!(a, b, "wcel")
 }
-pub fn br(a: impl Spell, b: impl Spell, r: impl Spell) -> String {
-    seq_text!(a, b, r, "wbr")
+pub fn br(a: impl Spell, b: impl Spell, r: impl Spell) -> Rpn {
+    seq!(a, b, r, "wbr")
 }
-pub fn lt(a: impl Spell, b: impl Spell) -> String {
+pub fn lt(a: impl Spell, b: impl Spell) -> Rpn {
     br(a, b, "clt")
 }
-pub fn le(a: impl Spell, b: impl Spell) -> String {
+pub fn le(a: impl Spell, b: impl Spell) -> Rpn {
     br(a, b, "cle")
 }
-pub fn dvds(a: impl Spell, b: impl Spell) -> String {
+pub fn dvds(a: impl Spell, b: impl Spell) -> Rpn {
     br(a, b, "cdvds")
 }
-pub fn eq(a: impl Spell, b: impl Spell) -> String {
-    seq_text!(a, b, "wceq")
+pub fn eq(a: impl Spell, b: impl Spell) -> Rpn {
+    seq!(a, b, "wceq")
 }
-pub fn ne(a: impl Spell, b: impl Spell) -> String {
-    seq_text!(a, b, "wne")
+pub fn ne(a: impl Spell, b: impl Spell) -> Rpn {
+    seq!(a, b, "wne")
 }
-pub fn wa(a: impl Spell, b: impl Spell) -> String {
-    seq_text!(a, b, "wa")
+pub fn wa(a: impl Spell, b: impl Spell) -> Rpn {
+    seq!(a, b, "wa")
 }
-pub fn wo(a: impl Spell, b: impl Spell) -> String {
-    seq_text!(a, b, "wo")
+pub fn wo(a: impl Spell, b: impl Spell) -> Rpn {
+    seq!(a, b, "wo")
 }
-pub fn wi(a: impl Spell, b: impl Spell) -> String {
-    seq_text!(a, b, "wi")
+pub fn wi(a: impl Spell, b: impl Spell) -> Rpn {
+    seq!(a, b, "wi")
 }
-pub fn wb(a: impl Spell, b: impl Spell) -> String {
-    seq_text!(a, b, "wb")
+pub fn wb(a: impl Spell, b: impl Spell) -> Rpn {
+    seq!(a, b, "wb")
 }
-pub fn wn(a: impl Spell) -> String {
-    seq_text!(a, "wn")
+pub fn wn(a: impl Spell) -> Rpn {
+    seq!(a, "wn")
 }
-pub fn w3a(a: impl Spell, b: impl Spell, c: impl Spell) -> String {
-    seq_text!(a, b, c, "w3a")
+pub fn w3a(a: impl Spell, b: impl Spell, c: impl Spell) -> Rpn {
+    seq!(a, b, c, "w3a")
 }
-pub fn rex(body: impl Spell, v: impl Spell, over: impl Spell) -> String {
-    seq_text!(body, v, over, "wrex")
+pub fn rex(body: impl Spell, v: impl Spell, over: impl Spell) -> Rpn {
+    seq!(body, v, over, "wrex")
 }
 
 /// What a step binds each of its label's variables to, in reverse Polish.

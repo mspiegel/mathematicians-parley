@@ -8,6 +8,14 @@
 //! constructors in `mm::spell`, and each file is written to
 //! `corpus/elaboration/<name>.mm`.
 
+use crate::mm::Spell;
+
+/// What a hand-written step is put together from: a label, a constant, or
+/// a term or proof built already, each lent as it is.
+pub trait Part: Spell + Copy {}
+
+impl<T: Spell + Copy> Part for T {}
+
 pub(crate) mod abs_bounds;
 pub(crate) mod algebra;
 pub(crate) mod parity;

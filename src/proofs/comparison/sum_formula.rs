@@ -8,8 +8,10 @@
 //!
 //! Nothing here is assumed.
 
+use super::Part;
 use crate::mm::spell::{add, cel, div, eq, fz, mul, ne, summ, w3a, wa};
-use crate::seq_text as seq;
+use crate::mm::Rpn;
+use crate::seq;
 
 const ONE: &str = "c1";
 const TWO: &str = "c2";
@@ -19,17 +21,17 @@ const YV: &str = "vy cv";
 const XV: &str = "vx cv";
 const AV: &str = "cA";
 
-fn ai(claim: &str, th: &str, pf: &str) -> String {
+fn ai(claim: impl Part, th: impl Part, pf: impl Part) -> Rpn {
     seq!(claim, th, pf, "a1i")
 }
 
 /// The claim at `t`: the sum to t is t( t + 1 ) / 2.
-fn claim(t: &str) -> String {
+fn claim(t: impl Part) -> Rpn {
     eq(summ(fz(ONE, t), KV, "vk"), div(mul(t, add(t, ONE)), TWO))
 }
 
 /// ( x = T -> ( claim(x) <-> claim(T) ) ).
-fn instance(t: &str) -> String {
+fn instance(t: impl Part) -> Rpn {
     let at = eq(XV, t);
     let idp = seq!(at, "id");
     let e_sum = seq!(

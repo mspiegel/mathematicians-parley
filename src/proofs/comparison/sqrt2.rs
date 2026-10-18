@@ -5,10 +5,12 @@
 //! directly. thm:proofs/wiedijk/sqrt2-irrational/lowest-terms and the three `algebra`
 //! steps are axioms here; everything else is the real thing.
 
+use super::Part;
 use crate::mm::spell::{
     cel, div, dvds, eq, exp, le, lt, mul, ne, rex, w3a, wa, wb, wi, wn,
 };
-use crate::seq_text as seq;
+use crate::mm::Rpn;
+use crate::seq;
 
 const TWO: &str = "c2";
 const ONE: &str = "c1";
@@ -25,19 +27,19 @@ const AV: &str = "cA";
 const BV: &str = "cB";
 
 /// th -> claim, from a closed proof of claim.
-fn a1i(claim: &str, th: &str, pf: &str) -> String {
+fn a1i(claim: impl Part, th: impl Part, pf: impl Part) -> Rpn {
     seq!(claim, th, pf, "a1i")
 }
 
-fn zcn(th: &str, x: &str, pf: &str) -> String {
+fn zcn(th: impl Part, x: impl Part, pf: impl Part) -> Rpn {
     seq!(th, cel(x, "cz"), cel(x, "cc"), pf, x, "zcn", "syl")
 }
 
-fn zre(th: &str, x: &str, pf: &str) -> String {
+fn zre(th: impl Part, x: impl Part, pf: impl Part) -> Rpn {
     seq!(th, cel(x, "cz"), cel(x, "cr"), pf, x, "zre", "syl")
 }
 
-fn zsq(th: &str, x: &str, pf: &str) -> String {
+fn zsq(th: impl Part, x: impl Part, pf: impl Part) -> Rpn {
     seq!(
         th,
         cel(x, "cz"),
@@ -50,15 +52,15 @@ fn zsq(th: &str, x: &str, pf: &str) -> String {
 }
 
 /// ( th /\ added ) -> claim, from th -> claim.
-fn adr(th: &str, claim: &str, added: &str, pf: &str) -> String {
+fn adr(th: impl Part, claim: impl Part, added: impl Part, pf: impl Part) -> Rpn {
     seq!(th, claim, added, pf, "adantr")
 }
 
 /// Carry a fact proved at `outer` into the scope that `adds` opens.
-fn lift(claim: &str, pf: &str, outer: &str, adds: &[&str]) -> String {
-    let mut pf = pf.to_string();
-    let mut outer = outer.to_string();
-    for add in adds {
+fn lift(claim: impl Part, pf: impl Part, outer: impl Part, adds: &[&Rpn]) -> Rpn {
+    let mut pf = Rpn::spelt(&pf);
+    let mut outer = Rpn::spelt(&outer);
+    for &add in adds {
         pf = adr(&outer, claim, add, &pf);
         outer = wa(&outer, add);
     }
@@ -66,7 +68,7 @@ fn lift(claim: &str, pf: &str, outer: &str, adds: &[&str]) -> String {
 }
 
 /// th -> ( 2 x. ( 2 x. X ) ) = ( 4 x. X ), the one numeral fact needed.
-fn two_of(th: &str, x: &str, p_x: &str) -> String {
+fn two_of(th: impl Part, x: impl Part, p_x: impl Part) -> Rpn {
     let assoc = seq!(
         th,
         mul(mul(TWO, TWO), x),
@@ -118,7 +120,14 @@ fn two_of(th: &str, x: &str, p_x: &str) -> String {
 /// odd-square was. The kernel writes the witness equation as
 /// ( k x. 2 ) = X where the corpus writes X = 2k, so the two ends of it have
 /// to be turned round.
-fn even_of(th: &str, x: &str, y: &str, p_eq: &str, p_yzz: &str, p_xzz: &str) -> String {
+fn even_of(
+    th: impl Part,
+    x: impl Part,
+    y: impl Part,
+    p_eq: impl Part,
+    p_yzz: impl Part,
+    p_xzz: impl Part,
+) -> Rpn {
     let comm = seq!(
         th,
         TWO,
@@ -185,8 +194,14 @@ fn even_of(th: &str, x: &str, y: &str, p_eq: &str, p_yzz: &str, p_xzz: &str) -> 
 /// `divides` supplies the existential over its own bound variable n, and the
 /// readable proof names the obtained integer r and then s. Two obtains from
 /// one definition cannot share a name, so the rename is not optional.
-fn obtain_even(th: &str, x: &str, v: &str, p_div: &str, p_xzz: &str) -> String {
-    let vc = format!("{v} cv");
+fn obtain_even(
+    th: impl Part,
+    x: impl Part,
+    v: impl Part,
+    p_div: impl Part,
+    p_xzz: impl Part,
+) -> Rpn {
+    let vc = seq!(v, "cv");
     let exn = rex(eq(mul(NV, TWO), x), "vn", "cz");
     let exv = rex(eq(mul(&vc, TWO), x), v, "cz");
     let bic = seq!(
@@ -235,14 +250,14 @@ fn obtain_even(th: &str, x: &str, v: &str, p_div: &str, p_xzz: &str) -> String {
 
 /// th -> target, discharging the existential the obtain opened.
 fn close_scope(
-    th: &str,
-    x: &str,
-    v: &str,
-    target: &str,
-    p_exv: &str,
-    body: &str,
-) -> String {
-    let vc = format!("{v} cv");
+    th: impl Part,
+    x: impl Part,
+    v: impl Part,
+    target: impl Part,
+    p_exv: impl Part,
+    body: impl Part,
+) -> Rpn {
+    let vc = seq!(v, "cv");
     let eqv = eq(mul(&vc, TWO), x);
     seq!(
         th,
@@ -405,7 +420,7 @@ pub fn text() -> String {
     let h1 = eq(exp(div(AV, BV), TWO), TWO);
     let t1 = wa(&g1, &h1);
 
-    let g1_up = |claim: &str, pf: &str| seq!(g1, claim, h1, pf, "adantr");
+    let g1_up = |claim: &Rpn, pf: &Rpn| seq!(g1, claim, h1, pf, "adantr");
 
     let g1_ar = g1_up(
         &cel(AV, "cr"),
@@ -586,7 +601,7 @@ pub fn text() -> String {
     // --- step 3.6 opens the second scope ------------------------------------
     let up2_r = cel(RV, "cz");
     let up2_eq = eq(mul(RV, TWO), PV);
-    let up2 = [up2_r.as_str(), up2_eq.as_str()];
+    let up2 = [&up2_r, &up2_eq];
     let t_r = seq!(th1, cel(RV, "cz"), eq(mul(RV, TWO), PV), "simplr");
     let t_eqr = seq!(wa(&th1, cel(RV, "cz")), eq(mul(RV, TWO), PV), "simpr");
 
@@ -679,7 +694,7 @@ pub fn text() -> String {
 
     let up3_s = cel(SV, "cz");
     let up3_eq = eq(mul(SV, TWO), QV);
-    let up3 = [up3_s.as_str(), up3_eq.as_str()];
+    let up3 = [&up3_s, &up3_eq];
     let up23 = [up2[0], up2[1], up3[0], up3[1]];
 
     // --- steps 3.14 to 3.16, the exhibit ------------------------------------

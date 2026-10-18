@@ -11,9 +11,10 @@
 //! normalisations with no cited equation, and the second reuses the first's
 //! pieces, which is the fixed lemma order METHODS.md asks `algebra` for.
 
+use super::Part;
 use crate::mm::spell::{add, cel, dvds, eq, exp, mul, w3a, wa, wi, wn, wo};
-use crate::mm::Spell;
-use crate::seq_text as seq;
+use crate::mm::{Rpn, Spell};
+use crate::seq;
 
 const A: &str = "cA";
 const TWO: &str = "c2";
@@ -25,12 +26,56 @@ const NV: &str = "vn cv";
 const MV: &str = "vm cv";
 const NC: &str = "cN";
 
-fn in_zz(a: impl Spell) -> String {
+fn in_zz(a: impl Spell) -> Rpn {
     cel(a, "cz")
 }
 
-fn in_cc(a: impl Spell) -> String {
+fn in_cc(a: impl Spell) -> Rpn {
     cel(a, "cc")
+}
+
+/// alg -> ( 2 x. ( 2 x. X ) ) = ( 4 x. X ), where a_2 proves alg -> 2 e. CC
+/// and p_x proves alg -> X e. CC.
+///
+/// Twice-two is the only numeral fact these identities need, and it is
+/// reached the same way each time: associate, then replace the product of
+/// numerals. Three of the five uses below are this one call.
+fn double(alg: &Rpn, a_2: &Rpn, x: impl Part, p_x: impl Part) -> Rpn {
+    let assoc = seq!(
+        alg,
+        mul(mul(TWO, TWO), x),
+        mul(TWO, mul(TWO, x)),
+        seq!(
+            alg,
+            w3a(in_cc(TWO), in_cc(TWO), in_cc(x)),
+            eq(mul(mul(TWO, TWO), x), mul(TWO, mul(TWO, x))),
+            seq!(alg, in_cc(TWO), in_cc(TWO), in_cc(x), a_2, a_2, p_x, "3jca"),
+            TWO,
+            TWO,
+            x,
+            "mulass",
+            "syl"
+        ),
+        "eqcomd"
+    );
+    let numeral = seq!(
+        alg,
+        mul(TWO, TWO),
+        FOUR,
+        x,
+        "cmul",
+        seq!(eq(mul(TWO, TWO), FOUR), alg, "2t2e4", "a1i"),
+        "oveq1d"
+    );
+    seq!(
+        alg,
+        mul(TWO, mul(TWO, x)),
+        mul(mul(TWO, TWO), x),
+        mul(FOUR, x),
+        assoc,
+        numeral,
+        "eqtrd"
+    )
 }
 
 pub fn text() -> String {
@@ -61,56 +106,13 @@ pub fn text() -> String {
     let ncsq = exp(NC, TWO);
     let tnc = mul(TWO, NC);
 
-    let ai = |claim: &str, pf: &str| seq!(claim, alg, pf, "a1i");
+    let ai = |claim: &Rpn, pf: &str| seq!(claim, alg, pf, "a1i");
 
     let a_n = seq!(alg, "id");
     let a_2 = ai(&in_cc(TWO), "2cn");
     let a_1 = ai(&in_cc(ONE), "ax-1cn");
     let a_tn = seq!(alg, TWO, NC, a_2, a_n, "mulcld");
     let a_nsq = seq!(alg, in_cc(NC), in_cc(&ncsq), a_n, NC, "sqcl", "syl");
-
-    // ALG -> ( 2 x. ( 2 x. X ) ) = ( 4 x. X ).
-    //
-    // Twice-two is the only numeral fact these identities need, and it is
-    // reached the same way each time: associate, then replace the product of
-    // numerals. Three of the five uses below are this one call.
-    let double = |x: &str, p_x: &str| {
-        let assoc = seq!(
-            alg,
-            mul(mul(TWO, TWO), x),
-            mul(TWO, mul(TWO, x)),
-            seq!(
-                alg,
-                w3a(in_cc(TWO), in_cc(TWO), in_cc(x)),
-                eq(mul(mul(TWO, TWO), x), mul(TWO, mul(TWO, x))),
-                seq!(alg, in_cc(TWO), in_cc(TWO), in_cc(x), a_2, a_2, p_x, "3jca"),
-                TWO,
-                TWO,
-                x,
-                "mulass",
-                "syl"
-            ),
-            "eqcomd"
-        );
-        let numeral = seq!(
-            alg,
-            mul(TWO, TWO),
-            FOUR,
-            x,
-            "cmul",
-            ai(&eq(mul(TWO, TWO), FOUR), "2t2e4"),
-            "oveq1d"
-        );
-        seq!(
-            alg,
-            mul(TWO, mul(TWO, x)),
-            mul(mul(TWO, TWO), x),
-            mul(FOUR, x),
-            assoc,
-            numeral,
-            "eqtrd"
-        )
-    };
 
     // oalg1, the square of a sum. binom2 gets close, and the three terms it
     // leaves are what the rest of this settles.
@@ -176,7 +178,7 @@ pub fn text() -> String {
             ),
             "oveq2d"
         ),
-        double(NC, &a_n),
+        double(&alg, &a_2, NC, &a_n),
         "eqtrd"
     );
     let expanded = add(add(mul(FOUR, &ncsq), mul(FOUR, NC)), ONE);
@@ -248,8 +250,8 @@ pub fn text() -> String {
             mul(TWO, mul(TWO, NC)),
             mul(FOUR, NC),
             "caddc",
-            double(&ncsq, &a_nsq),
-            double(NC, &a_n),
+            double(&alg, &a_2, &ncsq, &a_nsq),
+            double(&alg, &a_2, NC, &a_n),
             "oveq12d"
         ),
         "eqtrd"

@@ -5,13 +5,15 @@
 //!
 //! Nothing here is assumed.
 
+use super::Part;
 use crate::mm::spell::{cel, eq, le, lt, neg, wa, wi, wo};
-use crate::seq_text as seq;
+use crate::mm::Rpn;
+use crate::seq;
 
 const X: &str = "cX";
 const ZERO: &str = "cc0";
 
-fn ai(claim: &str, th: &str, pf: &str) -> String {
+fn ai(claim: impl Part, th: impl Part, pf: impl Part) -> Rpn {
     seq!(claim, th, pf, "a1i")
 }
 

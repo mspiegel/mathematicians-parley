@@ -11,8 +11,10 @@
 //! in CC, and the proof carries that conjunction into every line, which is
 //! most of its size.
 
+use super::Part;
 use crate::mm::spell::{add, cel, eq, mul, sub, w3a, wa, wb};
-use crate::seq_text as seq;
+use crate::mm::Rpn;
+use crate::seq;
 
 const A: &str = "cA";
 const B: &str = "cB";
@@ -27,7 +29,7 @@ const R: &str = "cR";
 const ATOMS: [&str; 10] = [A, B, C, D, U, V, X, Y, Q, R];
 
 /// The parts joined into a left-nested conjunction.
-fn conj(parts: &[String]) -> String {
+fn conj(parts: &[Rpn]) -> Rpn {
     let mut out = parts[0].clone();
     for p in &parts[1..] {
         out = wa(&out, p);
@@ -36,7 +38,7 @@ fn conj(parts: &[String]) -> String {
 }
 
 /// GH -> MEM[i], by walking out of the left-nested conjunction.
-fn pick(mem: &[String], i: usize) -> String {
+fn pick(mem: &[Rpn], i: usize) -> Rpn {
     let (mut pf, mut k) = if i == 0 {
         (seq!(mem[0], mem[1], "simpl"), 2)
     } else {
@@ -56,6 +58,78 @@ fn pick(mem: &[String], i: usize) -> String {
     pf
 }
 
+/// th -> ( f x. ( g x. h ) ) = ( g x. ( f x. h ) ), from each of the three
+/// being a complex number.
+fn swap(
+    th: &Rpn,
+    f: impl Part,
+    g: impl Part,
+    h: impl Part,
+    p_f: impl Part,
+    p_g: impl Part,
+    p_h: impl Part,
+) -> Rpn {
+    seq!(
+        th,
+        w3a(cel(f, "cc"), cel(g, "cc"), cel(h, "cc")),
+        eq(mul(f, mul(g, h)), mul(g, mul(f, h))),
+        seq!(
+            th,
+            cel(f, "cc"),
+            cel(g, "cc"),
+            cel(h, "cc"),
+            p_f,
+            p_g,
+            p_h,
+            "3jca"
+        ),
+        f,
+        g,
+        h,
+        "mul12",
+        "syl"
+    )
+}
+
+/// th -> ( ( f x. g ) - ( f x. h ) ) = ( f x. ( g - h ) ), from each of the
+/// three being a complex number.
+fn factor(
+    th: &Rpn,
+    f: impl Part,
+    g: impl Part,
+    h: impl Part,
+    p_f: impl Part,
+    p_g: impl Part,
+    p_h: impl Part,
+) -> Rpn {
+    seq!(
+        th,
+        mul(f, sub(g, h)),
+        sub(mul(f, g), mul(f, h)),
+        seq!(
+            th,
+            w3a(cel(f, "cc"), cel(g, "cc"), cel(h, "cc")),
+            eq(mul(f, sub(g, h)), sub(mul(f, g), mul(f, h))),
+            seq!(
+                th,
+                cel(f, "cc"),
+                cel(g, "cc"),
+                cel(h, "cc"),
+                p_f,
+                p_g,
+                p_h,
+                "3jca"
+            ),
+            f,
+            g,
+            h,
+            "subdi",
+            "syl"
+        ),
+        "eqcomd"
+    )
+}
+
 /// The text of a left-nested conjunction, as set.mm writes it.
 fn cj(parts: &[String]) -> String {
     let mut out = parts[0].clone();
@@ -66,7 +140,7 @@ fn cj(parts: &[String]) -> String {
 }
 
 pub fn text() -> String {
-    let mem: Vec<String> = ATOMS.iter().map(|a| cel(a, "cc")).collect();
+    let mem: Vec<Rpn> = ATOMS.iter().map(|a| cel(a, "cc")).collect();
     let gh = conj(&mem);
 
     let e1 = eq(C, add(mul(Q, D), R)); // from line 2
@@ -75,12 +149,12 @@ pub fn text() -> String {
     let hyp = w3a(&e1, &e2, &e3);
     let th = wa(&gh, &hyp);
 
-    let in_cc: Vec<String> = ATOMS
+    let in_cc: Vec<Rpn> = ATOMS
         .iter()
         .enumerate()
         .map(|(i, a)| seq!(gh, cel(a, "cc"), hyp, pick(&mem, i), "adantr"))
         .collect();
-    let cc = |a: &str| -> &str {
+    let cc = |a: &str| -> &Rpn {
         let i = ATOMS.iter().position(|x| *x == a).expect("an atom");
         &in_cc[i]
     };
@@ -178,30 +252,6 @@ pub fn text() -> String {
         "syl"
     );
 
-    // TH -> ( f x. ( g x. h ) ) = ( g x. ( f x. h ) ).
-    let swap = |f: &str, g: &str, h: &str, p_f: &str, p_g: &str, p_h: &str| {
-        seq!(
-            th,
-            w3a(cel(f, "cc"), cel(g, "cc"), cel(h, "cc")),
-            eq(mul(f, mul(g, h)), mul(g, mul(f, h))),
-            seq!(
-                th,
-                cel(f, "cc"),
-                cel(g, "cc"),
-                cel(h, "cc"),
-                p_f,
-                p_g,
-                p_h,
-                "3jca"
-            ),
-            f,
-            g,
-            h,
-            "mul12",
-            "syl"
-        )
-    };
-
     let regroup = seq!(
         th,
         mul(Q, &ax),
@@ -209,8 +259,8 @@ pub fn text() -> String {
         mul(Q, &by),
         mul(B, &qy),
         "caddc",
-        swap(Q, A, X, cc(Q), cc(A), cc(X)),
-        swap(Q, B, Y, cc(Q), cc(B), cc(Y)),
+        swap(&th, Q, A, X, cc(Q), cc(A), cc(X)),
+        swap(&th, Q, B, Y, cc(Q), cc(B), cc(Y)),
         "oveq12d"
     );
     let qterm = seq!(
@@ -257,36 +307,6 @@ pub fn text() -> String {
         "syl"
     );
 
-    // TH -> ( ( f x. g ) - ( f x. h ) ) = ( f x. ( g - h ) ).
-    let factor = |f: &str, g: &str, h: &str, p_g: &str, p_h: &str| {
-        seq!(
-            th,
-            mul(f, sub(g, h)),
-            sub(mul(f, g), mul(f, h)),
-            seq!(
-                th,
-                w3a(cel(f, "cc"), cel(g, "cc"), cel(h, "cc")),
-                eq(mul(f, sub(g, h)), sub(mul(f, g), mul(f, h))),
-                seq!(
-                    th,
-                    cel(f, "cc"),
-                    cel(g, "cc"),
-                    cel(h, "cc"),
-                    cc(f),
-                    p_g,
-                    p_h,
-                    "3jca"
-                ),
-                f,
-                g,
-                h,
-                "subdi",
-                "syl"
-            ),
-            "eqcomd"
-        )
-    };
-
     let target = add(mul(A, sub(U, &qx)), mul(B, sub(V, &qy)));
     let refactor = seq!(
         th,
@@ -295,8 +315,8 @@ pub fn text() -> String {
         sub(&bv, mul(B, &qy)),
         mul(B, sub(V, &qy)),
         "caddc",
-        factor(A, U, &qx, cc(U), &p_qx),
-        factor(B, V, &qy, cc(V), &p_qy),
+        factor(&th, A, U, &qx, cc(A), cc(U), &p_qx),
+        factor(&th, B, V, &qy, cc(B), cc(V), &p_qy),
         "oveq12d"
     );
 
