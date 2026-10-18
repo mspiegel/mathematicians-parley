@@ -1286,7 +1286,7 @@ pub fn check_substitutes(
                 vec![(starts, claim.clone())]
             }
             None => match claim.children.as_slice() {
-                [t, rewritten] if known.ctx.equations.contains(&claim.notation) => {
+                [t, rewritten] if known.ctx.equations.contains(&claim.notation()) => {
                     vec![
                         (vec![t.clone()], rewritten.clone()),
                         (vec![rewritten.clone()], t.clone()),
@@ -2545,7 +2545,7 @@ fn evaluated(
     };
     if !(direct
         && claim.children.len() == 2
-        && library.ctx.equations.contains(&claim.notation))
+        && library.ctx.equations.contains(&claim.notation()))
     {
         return applied(used, &claim, false, known);
     }
@@ -2647,7 +2647,7 @@ fn applied(
 /// The indices of the sums anywhere in a formula, by the places the
 /// notation database declares each sum holds its index in.
 fn sum_indices(node: &Node, ctx: &Context, out: &mut BTreeSet<String>) {
-    if ctx.sums.contains(&node.notation) {
+    if ctx.sums.contains(&node.notation()) {
         let (held, _) = ctx.held_body(&node.notation);
         for at in held {
             if let Some(letter) = node.children.get(at).filter(|c| c.is_name()) {
@@ -2928,7 +2928,7 @@ fn check_exhibit(
         // An exhibit claims a "there is" and shows a value for it
         // (`SYNTAX.md`, `exhibit`).
         let Some(Exhibited { wants, letters }) = exhibited(claim, library) else {
-            if library.ctx.existences.contains(&claim.notation) {
+            if library.ctx.existences.contains(&claim.notation()) {
                 continue;
             }
             report.say(

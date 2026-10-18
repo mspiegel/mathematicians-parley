@@ -18,6 +18,7 @@ use crate::corpus::{
     define_parts, DefineParts, FileScope, Head, Intro, Item, Justification, Method,
     Record, RecordKind, Recursion, Requires, Source, Step, Theorem, Value, Values,
 };
+use crate::formula::notation_id::NotationId;
 use crate::formula::page::{
     conjoined, disjoined, made, numeral, related, Sentence, Written,
 };
@@ -4394,10 +4395,10 @@ fn recursion_equation(
     line: usize,
     known: &Known,
     wrappers: &IndexSet<String>,
-    equals: &crate::matching::FxIndexSet<String>,
+    equals: &crate::matching::FxIndexSet<NotationId>,
 ) -> Option<String> {
     let sorts = &known.sorts;
-    if claims.len() != 1 || !equals.contains(&claims[0].notation) {
+    if claims.len() != 1 || !equals.contains(&claims[0].notation()) {
         return Some(
             "claims no one equation; a define says what its names are equal to"
                 .to_string(),
@@ -4620,7 +4621,10 @@ pub fn check_define_citation(
         // what its name is equal to (`ELABORATION.md`).
         if parts.claims.len() == 1
             && written.len() == 1
-            && library.ctx.functions_on.contains(&parts.claims[0].notation)
+            && library
+                .ctx
+                .functions_on
+                .contains(&parts.claims[0].notation())
         {
             // The subject as written: the claim's parts have the defined
             // name written out, and h is then the function it names.
@@ -4636,7 +4640,7 @@ pub fn check_define_citation(
         }
         if parts.claims.len() != 1
             || written.len() != 1
-            || !library.ctx.equations.contains(&parts.claims[0].notation)
+            || !library.ctx.equations.contains(&parts.claims[0].notation())
         {
             report.say(
                 &thm.path,

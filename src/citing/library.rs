@@ -477,7 +477,7 @@ pub fn conjuncts(node: &Node, library: &Library) -> Vec<Node> {
 /// that fits.
 pub fn either_way(node: &Node, library: &Library) -> Vec<Node> {
     let turn = |eq: &Node| -> Option<Node> {
-        (library.ctx.equations.contains(&eq.notation) && eq.children.len() == 2).then(
+        (library.ctx.equations.contains(&eq.notation()) && eq.children.len() == 2).then(
             || {
                 let sides = vec![eq.children[1].clone(), eq.children[0].clone()];
                 Node::new(&eq.notation, eq.sort.clone(), sides, &eq.text)

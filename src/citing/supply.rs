@@ -264,7 +264,7 @@ fn settled(
     if all_bound(pattern, variables, binding) {
         return true;
     }
-    let applied = library.ctx.props.contains_key(&pattern.notation)
+    let applied = library.ctx.props.contains_key(&pattern.notation())
         && pattern.children.len() == 2
         && pattern.children[0].is_name();
     !(applied
@@ -302,7 +302,7 @@ fn fits(
     // is what lets the rules below see it: `P(a)` may turn out to be a
     // "there is", and then a fact giving an instance of it supplies it.
     let mut open_names: Cow<BTreeSet<String>> = Cow::Borrowed(variables);
-    if ctx.props.contains_key(&first.notation)
+    if ctx.props.contains_key(&first.notation())
         && first.children.len() == 2
         && first.children[0].is_name()
     {
@@ -336,7 +336,7 @@ fn fits(
     // An equation whose two sides are one once the binding is put in needs
     // no line (`SYNTAX.md`, "An identity element goes without saying"):
     // |X| = m at X := A and m := |A|.
-    if ctx.equations.contains(&first.notation)
+    if ctx.equations.contains(&first.notation())
         && first.children.len() == 2
         && all_bound(&first, variables, binding)
     {
@@ -499,7 +499,7 @@ fn self_evident(
     open: &BTreeSet<String>,
     ctx: &Context,
 ) -> Option<Node> {
-    if !ctx.equations.contains(&body.notation) || body.children.len() != 2 {
+    if !ctx.equations.contains(&body.notation()) || body.children.len() != 2 {
         return None;
     }
     let closed = |side: &Node| {

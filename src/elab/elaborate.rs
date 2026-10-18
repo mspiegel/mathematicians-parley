@@ -4910,7 +4910,7 @@ impl<'a> Elaborator<'a> {
                 let [left, right] = said.children.as_slice() else {
                     continue;
                 };
-                if !library.ctx.equations.contains(&said.notation)
+                if !library.ctx.equations.contains(&said.notation())
                     || !crate::matching::alike(left, right, &library.ctx, &none, &none)
                 {
                     continue;

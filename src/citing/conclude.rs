@@ -737,7 +737,7 @@ pub fn obtained(
 /// property it applies read as what the binding says the property is.
 fn existential(part: &Node, binding: &Binding, library: &Library) -> bool {
     let mut part = part.clone();
-    if library.ctx.props.contains_key(&part.notation)
+    if library.ctx.props.contains_key(&part.notation())
         && part.children.len() == 2
         && part.children[0].is_name()
     {

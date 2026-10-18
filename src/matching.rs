@@ -17,7 +17,9 @@ use std::rc::Rc;
 use indexmap::{IndexMap, IndexSet};
 
 use crate::corpus::{Record, RecordKind};
+use crate::formula::notation_id::{NotationId, Spelling};
 use crate::formula::{Binds, Node, NodeId, Notation};
+use crate::notations::NUMERAL;
 use crate::regex;
 
 /// Split on the commas outside brackets.
@@ -57,25 +59,25 @@ pub struct Context {
     pub binders: IndexMap<String, Binds>,
     /// For each application, whether it applies a `property` or a
     /// `function`.
-    pub props: FxIndexMap<String, String>,
-    pub equations: FxIndexSet<String>,
+    pub props: FxIndexMap<NotationId, String>,
+    pub equations: FxIndexSet<NotationId>,
     /// The notations saying a function is a function on a set (`wfn`).
-    pub functions_on: FxIndexSet<String>,
+    pub functions_on: FxIndexSet<NotationId>,
     /// The notations writing a sum (`csu`).
-    pub sums: FxIndexSet<String>,
+    pub sums: FxIndexSet<NotationId>,
     /// The notations saying there is something (`wrex`).
-    pub existences: FxIndexSet<String>,
+    pub existences: FxIndexSet<NotationId>,
     /// Each spelling that is another of its notation's with the holes in
-    /// another order, by (notation, literal): `x > 0` is `0 < x` (`turned`).
-    pub turned: FxIndexMap<(String, String), Turned>,
+    /// another order: `x > 0` is `0 < x` (`turned`).
+    pub turned: FxIndexMap<Spelling, Turned>,
     /// The notations whose holes stand in any order, more than two of them
     /// and `commutes yes`: "A, B, C form a triangle" is "C, A, B form a
     /// triangle".
-    pub unordered: FxIndexSet<String>,
-    /// Each operation's identity element, by (notation, literal), from the
+    pub unordered: FxIndexSet<NotationId>,
+    /// Each operation's identity element, by its spelling, from the
     /// records' `identity` field. It goes without saying wherever it
     /// stands, so every match and comparison reads x + 0 as x (`SYNTAX.md`).
-    pub identities: FxIndexMap<(String, String), IdentityElement>,
+    pub identities: FxIndexMap<Spelling, IdentityElement>,
 }
 
 /// The maps every match and comparison looks a notation up in, at each
@@ -83,6 +85,11 @@ pub struct Context {
 /// one chooses to collide, where the default hasher guards against that.
 pub type FxIndexMap<K, V> = IndexMap<K, V, rustc_hash::FxBuildHasher>;
 pub type FxIndexSet<K> = IndexSet<K, rustc_hash::FxBuildHasher>;
+
+/// The notations of these names, as ids.
+fn ids_of(names: IndexSet<String>) -> FxIndexSet<NotationId> {
+    names.iter().map(|n| NotationId::of(n)).collect()
+}
 
 /// An operation's identity element, and the holes, counted from 0, it may
 /// stand in: 0 in either of x + y's, 0 in the second of x − y's.
@@ -96,7 +103,7 @@ impl IdentityElement {
     /// Whether the node is this element, a numeral written as it.
     fn is(&self, node: &Node) -> bool {
         node.children.is_empty()
-            && node.notation == "numeral"
+            && node.notation() == NUMERAL
             && node.text == self.element
     }
 }
@@ -105,8 +112,8 @@ impl IdentityElement {
 fn identities(
     notations: &[Notation],
     records: &[Record],
-) -> IndexMap<(String, String), IdentityElement> {
-    let mut out = IndexMap::new();
+) -> FxIndexMap<Spelling, IdentityElement> {
+    let mut out = FxIndexMap::default();
     for r in records.iter().filter(|r| r.kind == RecordKind::Notation) {
         let Some(says) = r.field("identity") else {
             continue;
@@ -122,7 +129,7 @@ fn identities(
                 continue;
             };
             out.insert(
-                (pattern.key().to_string(), pattern.literal.clone()),
+                Spelling::new(pattern.key_id, pattern.literal_id),
                 IdentityElement {
                     element: element.to_string(),
                     holes,
@@ -180,14 +187,17 @@ impl Context {
         let (binders, props) = binding_context(notations);
         Context {
             binders,
-            props: props.into_iter().collect(),
-            equations: equations(records).into_iter().collect(),
-            functions_on: functions_on(records).into_iter().collect(),
-            sums: sums(records).into_iter().collect(),
-            existences: existences(records).into_iter().collect(),
-            turned: turned(notations, records).into_iter().collect(),
-            unordered: unordered(records).into_iter().collect(),
-            identities: identities(notations, records).into_iter().collect(),
+            props: props
+                .into_iter()
+                .map(|(n, how)| (NotationId::of(&n), how))
+                .collect(),
+            equations: ids_of(equations(records)),
+            functions_on: ids_of(functions_on(records)),
+            sums: ids_of(sums(records)),
+            existences: ids_of(existences(records)),
+            turned: turned(notations, records),
+            unordered: ids_of(unordered(records)),
+            identities: identities(notations, records),
         }
     }
 
@@ -313,7 +323,7 @@ pub fn binding_sites(
     bound: &[String],
     out: &mut IndexSet<NodeId>,
 ) {
-    if ctx.props.contains_key(&pattern.notation)
+    if ctx.props.contains_key(&pattern.notation())
         && pattern.children.len() == 2
         && pattern.children[1].is_name()
         && bound.contains(&pattern.children[1].text)
@@ -359,11 +369,8 @@ pub fn equations(records: &[Record]) -> IndexSet<String> {
 /// holes exchanged, so x > 0 and 0 < x are one term in the kernel. The
 /// pattern whose holes stand in order is the standard one, and is taken from
 /// what the database targets rather than named here.
-fn turned(
-    notations: &[Notation],
-    records: &[Record],
-) -> IndexMap<(String, String), Turned> {
-    let mut out = IndexMap::new();
+fn turned(notations: &[Notation], records: &[Record]) -> FxIndexMap<Spelling, Turned> {
+    let mut out = FxIndexMap::default();
     for r in records.iter().filter(|r| r.kind == RecordKind::Notation) {
         let targets: Vec<&str> = r
             .field_or_empty("target")
@@ -403,7 +410,7 @@ fn turned(
             });
             if let Some((j, _)) = standard {
                 out.insert(
-                    (patterns[i].key().to_string(), patterns[i].literal.clone()),
+                    Spelling::new(patterns[i].key_id, patterns[i].literal_id),
                     Turned {
                         literal: patterns[j].literal.clone(),
                         places: holes.clone(),
@@ -425,18 +432,6 @@ pub fn standard(node: &Node, ctx: &Context) -> Node {
     turned_to_standard(node, ctx).unwrap_or_else(|| node.clone())
 }
 
-/// A node's notation and literal, borrowed, looked up in `Context::turned`
-/// as its `(notation, literal)` key without copying either: it hashes as
-/// that pair does, one string after the other.
-#[derive(Hash)]
-struct Spelling<'a>(&'a str, &'a str);
-
-impl indexmap::Equivalent<(String, String)> for Spelling<'_> {
-    fn equivalent(&self, key: &(String, String)) -> bool {
-        self.0 == key.0 && self.1 == key.1
-    }
-}
-
 /// `standard` of a tree that has a spelling to turn somewhere in it; None
 /// for one that has none, which is kept as it is, with what it was read from.
 fn turned_to_standard(node: &Node, ctx: &Context) -> Option<Node> {
@@ -447,7 +442,7 @@ fn turned_to_standard(node: &Node, ctx: &Context) -> Option<Node> {
         .collect();
     let here = ctx
         .turned
-        .get(&Spelling(&node.notation, &node.text))
+        .get(&node.spelling())
         .filter(|t| t.places.len() == node.children.len());
     if here.is_none() && turned.iter().all(Option::is_none) {
         return None;
@@ -507,12 +502,12 @@ pub fn existences(records: &[Record]) -> IndexSet<String> {
 /// The ways b's parts may stand against a's: as written, turned round where
 /// a is an equation, and in every order where a's notation is unordered.
 pub fn orders(a: &Node, b: &Node, ctx: &Context) -> Vec<Vec<Node>> {
-    if ctx.equations.contains(&a.notation) && b.children.len() == 2 {
+    if ctx.equations.contains(&a.notation()) && b.children.len() == 2 {
         let mut turned = b.children.clone();
         turned.reverse();
         return vec![b.children.clone(), turned];
     }
-    if ctx.unordered.contains(&a.notation) {
+    if ctx.unordered.contains(&a.notation()) {
         return permutations(&b.children);
     }
     vec![b.children.clone()]
@@ -552,7 +547,7 @@ fn applies_variable(
     variables: &BTreeSet<String>,
     ctx: &Context,
 ) -> bool {
-    ctx.props.contains_key(&pattern.notation)
+    ctx.props.contains_key(&pattern.notation())
         && pattern.children.len() == 2
         && pattern.children[0].is_name()
         && variables.contains(&pattern.children[0].text)
@@ -599,18 +594,12 @@ fn holds_identity(
 }
 
 /// The identity element of the operation a node applies, where it has one
-/// and two holes. The table is a handful of entries, read in place rather
-/// than keyed, since this is asked wherever two nodes fail to match.
+/// and two holes.
 fn identity_of<'c>(node: &Node, ctx: &'c Context) -> Option<&'c IdentityElement> {
     if node.children.len() != 2 {
         return None;
     }
-    ctx.identities
-        .iter()
-        .find(|((notation, literal), _)| {
-            *notation == node.notation && *literal == node.text
-        })
-        .map(|(_, law)| law)
+    ctx.identities.get(&node.spelling())
 }
 
 /// `match_tree` into one binding, growing it in place.
@@ -636,7 +625,7 @@ fn fit(
         return true;
     }
     if applies_variable(pattern, variables, ctx) {
-        if ctx.props.get(&pattern.notation).map(String::as_str) != Some("function") {
+        if ctx.props.get(&pattern.notation()).map(String::as_str) != Some("function") {
             return property(pattern, ground, binding, sites, ctx);
         }
         if let Some(fits) = family(pattern, ground, binding, variables, sites, ctx) {
@@ -825,7 +814,7 @@ fn dropped_into(instance: &Node, ground: &Node, ctx: &Context, out: &mut Vec<Nod
         let one =
             |a: &Node, b: &Node| alike(&bare(a, ctx), &bare(b, ctx), ctx, &none, &none);
         let kids = &instance.children;
-        let swapped = ctx.equations.contains(&instance.notation)
+        let swapped = ctx.equations.contains(&instance.notation())
             && kids.len() == 2
             && !(one(&kids[0], &ground.children[0])
                 && one(&kids[1], &ground.children[1]))

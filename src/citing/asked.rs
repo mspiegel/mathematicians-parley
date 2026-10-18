@@ -78,7 +78,7 @@ pub fn filled(node: &Node, bound: &Binding, ctx: &Context) -> Node {
             _ => node.clone(),
         };
     }
-    if ctx.props.contains_key(&node.notation)
+    if ctx.props.contains_key(&node.notation())
         && node.children.len() == 2
         && node.children[0].is_name()
     {
