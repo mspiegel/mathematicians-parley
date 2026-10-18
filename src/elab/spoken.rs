@@ -15,6 +15,7 @@
 
 use indexmap::IndexMap;
 
+use crate::formula::notation_id::NotationId;
 use crate::formula::page::{Sentence, Written};
 use crate::formula::{Node, Sort};
 use crate::mm::kernel::Term;
@@ -310,7 +311,7 @@ impl Elaborator<'_> {
             // sort its domain's elements have where a hole holds one.
             let binding_at: Vec<usize> = self
                 .binders
-                .get(&r.notation)
+                .get(&NotationId::of(&r.notation))
                 .into_iter()
                 .flatten()
                 .copied()

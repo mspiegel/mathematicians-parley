@@ -4616,7 +4616,7 @@ impl<'a> Elaborator<'a> {
         // where it applies the letter (`citing::filled`).
         let mut rules = crate::matching::Binding::new();
         for (name, node) in self.matched_here(step, cited)? {
-            if node.notation == crate::matching::PROPERTY {
+            if node.notation() == crate::notations::PROPERTY_OF {
                 rules.insert(name, node);
             } else {
                 matched.push((name, self.term(&node)?));
@@ -4653,7 +4653,7 @@ impl<'a> Elaborator<'a> {
                 let mut bound = Vec::new();
                 let mut rest = vec![right.clone()];
                 while let Some(node) = rest.pop() {
-                    if let Some(held) = me.binders.get(&node.notation) {
+                    if let Some(held) = me.binders.get(&node.notation()) {
                         for &at in held {
                             if node.children[at].is_name() {
                                 bound.push(node.children[at].text.clone());

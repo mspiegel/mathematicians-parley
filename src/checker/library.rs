@@ -253,7 +253,7 @@ impl<'a> Known<'a> {
         let binders = self.env.g.binders();
         let mut out = BTreeSet::new();
         for n in node.walk() {
-            let Some(binds) = binders.get(&n.notation) else {
+            let Some(binds) = binders.get(&n.notation()) else {
                 continue;
             };
             for &at in &binds.held {

@@ -13,6 +13,7 @@ use super::notation::{
     binds_tighter, compile_notations, compile_precedence, Binds, Notation, Part,
     Tighter, Wrap,
 };
+use super::notation_id::NotationId;
 use super::token::{lowered, tokenise, Token, TokenKind};
 use crate::corpus::Record;
 use crate::outcome::{Built, Checked, Decline, Declined, Problem, Route};
@@ -129,7 +130,7 @@ pub struct Grammar {
     tokens: RefCell<IndexMap<String, Rc<Vec<Token>>, FxBuildHasher>>,
     readings: RefCell<IndexMap<ReadingKey, Node, FxBuildHasher>>,
     notation_sorts: OnceCell<Rc<NotationSorts>>,
-    binders: OnceCell<Rc<IndexMap<String, Binds>>>,
+    binders: OnceCell<Rc<IndexMap<NotationId, Binds, FxBuildHasher>>>,
 }
 
 thread_local! {
@@ -196,7 +197,7 @@ impl Grammar {
     /// is bound in (`matching::binding_context`), read once: what keeps a
     /// value put into a tree apart from the tree's own letters
     /// (`matching::substitute_apart_by`).
-    pub fn binders(&self) -> Rc<IndexMap<String, Binds>> {
+    pub fn binders(&self) -> Rc<IndexMap<NotationId, Binds, FxBuildHasher>> {
         Rc::clone(self.binders.get_or_init(|| {
             Rc::new(crate::matching::binding_context(&self.notations).0)
         }))

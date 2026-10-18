@@ -8,8 +8,9 @@ use indexmap::IndexMap;
 
 use crate::matching::{
     alike, alike_top, binding_sites, free_names, identities_dropped, match_tree,
-    put_everywhere, substitute_apart, Binding, Context, PROPERTY,
+    put_everywhere, substitute_apart, Binding, Context,
 };
+use crate::notations::PROPERTY_OF;
 use crate::outcome::{Built, Route};
 
 use super::asked::filled;
@@ -161,8 +162,8 @@ pub fn not_numbers(
     let mut bound = Introduced::new();
     for node in claim.walk().into_iter().chain(instance.walk()) {
         if let [name, set, _] = node.children.as_slice() {
-            let binds = library.exists.contains(&node.notation)
-                || library.every.contains(&node.notation);
+            let binds = library.exists.contains(&node.notation())
+                || library.every.contains(&node.notation());
             if binds
                 && name.is_name()
                 && set.notation() == crate::notations::NUMBER_SYSTEMS
@@ -178,7 +179,7 @@ pub fn not_numbers(
         .filter(|left| {
             !a_number_said_once(left, given, &bound, ctx)
                 && !given.iter().any(|f| {
-                    library.members.contains(&f.notation)
+                    library.members.contains(&f.notation())
                         && matches!(f.children.as_slice(), [term, set]
                             if set.notation() == crate::notations::NUMBER_SYSTEMS
                                 && alike(term, left, ctx, &IndexMap::new(), &IndexMap::new()))
@@ -747,12 +748,12 @@ fn existential(part: &Node, binding: &Binding, library: &Library) -> bool {
         let Some(stands) = binding.get(&part.children[0].text) else {
             return false;
         };
-        if stands.notation != PROPERTY {
+        if stands.notation() != PROPERTY_OF {
             return false;
         }
         let terms: Binding = binding
             .iter()
-            .filter(|(_, v)| v.notation != PROPERTY)
+            .filter(|(_, v)| v.notation() != PROPERTY_OF)
             .map(|(k, v)| (k.clone(), v.clone()))
             .collect();
         let arg = substitute_apart(&part.children[1], &terms, &library.ctx);
@@ -760,7 +761,7 @@ fn existential(part: &Node, binding: &Binding, library: &Library) -> bool {
         at.insert(stands.text.clone(), arg);
         part = substitute_apart(&stands.children[0], &at, &library.ctx);
     }
-    library.exists.contains(&part.notation)
+    library.exists.contains(&part.notation())
 }
 
 /// The fact follows from the cited item applied as often as it takes.

@@ -1550,7 +1550,7 @@ impl<'a> Elaborator<'a> {
         // it; the body speaks of what the binder introduces.
         let bound = self
             .binders
-            .get(&node.notation)
+            .get(&node.notation())
             .cloned()
             .unwrap_or_default();
         let walked = self.names_kept(|me| -> Checked<Route<Walked>> {

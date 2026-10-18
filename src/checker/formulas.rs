@@ -1797,7 +1797,7 @@ fn changed_closed(link: &Link, known: &Known) -> bool {
         if a.names().is_empty() && b.names().is_empty() {
             return true;
         }
-        if a.notation != b.notation
+        if a.notation() != b.notation()
             || a.text != b.text
             || a.children.len() != b.children.len()
         {
@@ -1943,7 +1943,7 @@ fn link_undecided(
         return;
     }
     let undecided = |n: &Node| operations.get(&n.notation) == Some(&false);
-    if one.notation == other.notation
+    if one.notation() == other.notation()
         && one.text == other.text
         && one.children.len() == other.children.len()
     {
@@ -1981,7 +1981,7 @@ fn closed_pieces(one: &Node, other: &Node, known: &Known, out: &mut Vec<Piece>) 
         });
         return;
     }
-    if one.notation == other.notation
+    if one.notation() == other.notation()
         && one.text == other.text
         && one.children.len() == other.children.len()
     {

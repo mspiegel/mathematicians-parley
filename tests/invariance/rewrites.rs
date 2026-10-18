@@ -1247,7 +1247,7 @@ fn bound(ctx: &Context, thm: &Theorem) -> Vec<String> {
     for tree in trees {
         {
             for node in tree.walk() {
-                let Some(binds) = binders.get(&node.notation) else {
+                let Some(binds) = binders.get(&node.notation()) else {
                     continue;
                 };
                 for &at in &binds.held {
@@ -2073,7 +2073,7 @@ fn parts_of(ctx: &Context, thm: &Theorem) -> Result<Vec<Part>, String> {
             // define above the step would not, so it is not named.
             let held: BTreeSet<String> = nodes
                 .iter()
-                .filter_map(|n| binders.get(&n.notation).map(|b| (n, b)))
+                .filter_map(|n| binders.get(&n.notation()).map(|b| (n, b)))
                 .flat_map(|(n, b)| {
                     b.held
                         .iter()
@@ -2092,7 +2092,7 @@ fn parts_of(ctx: &Context, thm: &Theorem) -> Result<Vec<Part>, String> {
                 let binds = node
                     .walk()
                     .iter()
-                    .any(|n| binders.contains_key(&n.notation));
+                    .any(|n| binders.contains_key(&n.notation()));
                 if !(term && read && binds) {
                     continue;
                 }

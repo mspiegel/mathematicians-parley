@@ -17,8 +17,9 @@ use super::{Facts, Lines, Written};
 use crate::checker::record::CheckedTheorem;
 use crate::citing;
 use crate::corpus::{written_text, FileScope, Item, Record, Step, Theorem};
+use crate::formula::notation_id::NotationId;
 use crate::formula::{Grammar, Node, Sorts};
-use crate::matching::{binding_context, Defined};
+use crate::matching::{binding_context, Defined, FxIndexMap};
 use crate::mm::kernel::{match_term, term_of, FloatLabels, Term, VarSet};
 use crate::mm::library::{render, Layered, Signature};
 use crate::mm::spell::{Binds, Builder, Proof};
@@ -369,7 +370,7 @@ pub struct Elaborator<'a> {
     /// and `target` fields both use.
     pub literals: IndexMap<String, Vec<String>>,
     /// Notation -> the holes each binder introduces a name in.
-    pub binders: IndexMap<String, Vec<usize>>,
+    pub binders: FxIndexMap<NotationId, Vec<usize>>,
     /// The statement a cited theorem's file proves, where it is known.
     pub statements: &'a dyn Fn(&str) -> Option<String>,
     /// Whether the search is offered every fact in scope (`Options`).
@@ -434,7 +435,7 @@ impl<'a> Elaborator<'a> {
         let binders = binding_context(&g.notations)
             .0
             .into_iter()
-            .map(|(name, b)| (name, b.held))
+            .map(|(notation, b)| (notation, b.held))
             .collect();
         Elaborator {
             thm,

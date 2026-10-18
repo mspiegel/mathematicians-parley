@@ -220,7 +220,7 @@ fn fits_form(form: &Node, fact: &Node, put: &mut Binding) -> bool {
             }
         };
     }
-    form.notation == fact.notation
+    form.notation() == fact.notation()
         && form.text == fact.text
         && form.children.len() == fact.children.len()
         && form

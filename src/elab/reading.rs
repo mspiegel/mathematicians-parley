@@ -324,7 +324,7 @@ impl<'a> Elaborator<'a> {
         // for itself rather than for whatever a name is bound to.
         let bound = self
             .binders
-            .get(&node.notation)
+            .get(&node.notation())
             .cloned()
             .unwrap_or_default();
         let holes = self.names_kept(|me| -> Checked<Vec<String>> {
@@ -976,7 +976,7 @@ impl<'a> Elaborator<'a> {
         }
         let bound = self
             .binders
-            .get(&node.notation)
+            .get(&node.notation())
             .cloned()
             .unwrap_or_default();
         self.names_kept(|me| -> Checked<Node> {

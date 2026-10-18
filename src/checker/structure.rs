@@ -1142,7 +1142,7 @@ pub fn check_capture(report: &mut Report, thm: &Theorem, known: &Known) {
             .flatten()
         {
             for node in tree.walk() {
-                let Some(binds) = binders.get(&node.notation) else {
+                let Some(binds) = binders.get(&node.notation()) else {
                     continue;
                 };
                 for &at in &binds.held {

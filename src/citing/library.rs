@@ -4,12 +4,13 @@ use std::cell::RefCell;
 use std::collections::BTreeSet;
 use std::rc::Rc;
 
-use indexmap::{IndexMap, IndexSet};
+use indexmap::IndexMap;
 
 use crate::corpus::{Intro, Record, RecordKind, Theorem};
+use crate::formula::notation_id::NotationId;
 use crate::formula::page::Written;
 use crate::formula::{Node, Sorts};
-use crate::matching::{expand, standard, Context};
+use crate::matching::{expand, standard, Context, FxIndexSet};
 use crate::methods::terms::Targets;
 use crate::notations::{APPLICATION, APPLICATION_TO_TWO};
 use crate::regex;
@@ -126,13 +127,13 @@ pub struct Library<'a> {
     /// Which notations are an existential, a universal, a membership, a
     /// conjunction, a biconditional, an implication and a negation, taken
     /// from what they target in the kernel rather than named here.
-    pub exists: IndexSet<String>,
-    pub every: IndexSet<String>,
-    pub members: IndexSet<String>,
-    pub conj: IndexSet<String>,
-    pub bicond: IndexSet<String>,
-    pub implies: IndexSet<String>,
-    pub negations: IndexSet<String>,
+    pub exists: FxIndexSet<NotationId>,
+    pub every: FxIndexSet<NotationId>,
+    pub members: FxIndexSet<NotationId>,
+    pub conj: FxIndexSet<NotationId>,
+    pub bicond: FxIndexSet<NotationId>,
+    pub implies: FxIndexSet<NotationId>,
+    pub negations: FxIndexSet<NotationId>,
     pub ctx: Context,
     /// The notations' and library functions' targets, which the deciders
     /// read a term by (`methods::terms`).
@@ -166,13 +167,13 @@ impl<'a> Library<'a> {
             items,
             proved,
             cache: RefCell::new(IndexMap::new()),
-            exists: IndexSet::new(),
-            every: IndexSet::new(),
-            members: IndexSet::new(),
-            conj: IndexSet::new(),
-            bicond: IndexSet::new(),
-            implies: IndexSet::new(),
-            negations: IndexSet::new(),
+            exists: FxIndexSet::default(),
+            every: FxIndexSet::default(),
+            members: FxIndexSet::default(),
+            conj: FxIndexSet::default(),
+            bicond: FxIndexSet::default(),
+            implies: FxIndexSet::default(),
+            negations: FxIndexSet::default(),
             ctx,
             targets,
         };
@@ -196,7 +197,7 @@ impl<'a> Library<'a> {
                 "wn" => &mut lib.negations,
                 _ => continue,
             };
-            set.insert(r.name.clone());
+            set.insert(NotationId::of(&r.name));
         }
         lib
     }
@@ -462,7 +463,7 @@ pub fn with_parts(facts: &[Node], library: &Library) -> Vec<Node> {
 /// conjunction at kernel level either way and the projection lives in the
 /// method's expansion.
 pub fn conjuncts(node: &Node, library: &Library) -> Vec<Node> {
-    if library.conj.contains(&node.notation) && node.children.len() == 2 {
+    if library.conj.contains(&node.notation()) && node.children.len() == 2 {
         let mut out = conjuncts(&node.children[0], library);
         out.extend(conjuncts(&node.children[1], library));
         return out;
@@ -486,7 +487,7 @@ pub fn either_way(node: &Node, library: &Library) -> Vec<Node> {
         )
     };
     let turned =
-        if library.negations.contains(&node.notation) && node.children.len() == 1 {
+        if library.negations.contains(&node.notation()) && node.children.len() == 1 {
             turn(&node.children[0]).map(|eq| {
                 Node::new(&node.notation, node.sort.clone(), vec![eq], &node.text)
             })
@@ -533,8 +534,8 @@ pub fn readings(node: &Node, library: &Library) -> Vec<Reading> {
     }];
     if node.children.len() == 2 {
         let (left, right) = (&node.children[0], &node.children[1]);
-        if library.bicond.contains(&node.notation)
-            || library.implies.contains(&node.notation)
+        if library.bicond.contains(&node.notation())
+            || library.implies.contains(&node.notation())
         {
             out.push(Reading {
                 claimed: right.clone(),
@@ -542,7 +543,7 @@ pub fn readings(node: &Node, library: &Library) -> Vec<Reading> {
                 way: Way::Forward,
             });
         }
-        if library.bicond.contains(&node.notation) {
+        if library.bicond.contains(&node.notation()) {
             out.push(Reading {
                 claimed: left.clone(),
                 first: vec![right.clone()],

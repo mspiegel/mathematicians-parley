@@ -7,11 +7,10 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use indexmap::{IndexMap, IndexSet};
 
 use crate::formula::{Node, NodeId};
-use crate::matching::{
-    alike, match_tree, substitute_apart, Binding, Context, PROPERTY,
-};
+use crate::matching::{alike, match_tree, substitute_apart, Binding, Context};
 use crate::notations::{
     FOR_ALL, FUNCTIONS_FROM, FUNCTION_TYPE, INTEGER_RANGE, NUMBER_SYSTEMS, NUMERAL,
+    PROPERTY_OF,
 };
 use crate::rules;
 
@@ -272,7 +271,7 @@ fn settled(
         && pattern.children[0].is_name();
     !(applied
         || pattern.notation() == FOR_ALL
-        || library.exists.contains(&pattern.notation))
+        || library.exists.contains(&pattern.notation()))
 }
 
 /// One way a fact supplies a hypothesis: the binding it is supplied under,
@@ -310,12 +309,12 @@ fn fits(
         && first.children[0].is_name()
     {
         if let Some(stands) = binding.get(&first.children[0].text) {
-            if stands.notation == PROPERTY {
+            if stands.notation() == PROPERTY_OF {
                 // The argument is read through the binding whole: P(k + 1)
                 // with k bound to o asks the property of o + 1.
                 let terms: Binding = binding
                     .iter()
-                    .filter(|(_, t)| t.notation != PROPERTY)
+                    .filter(|(_, t)| t.notation() != PROPERTY_OF)
                     .map(|(v, t)| (v.clone(), t.clone()))
                     .collect();
                 let arg = substitute_apart(&first.children[1], &terms, ctx);
@@ -345,7 +344,7 @@ fn fits(
     {
         let terms: Binding = binding
             .iter()
-            .filter(|(_, t)| t.notation != PROPERTY)
+            .filter(|(_, t)| t.notation() != PROPERTY_OF)
             .map(|(v, t)| (v.clone(), t.clone()))
             .collect();
         let put = |side: &Node| substitute_apart(side, &terms, ctx);
@@ -373,7 +372,7 @@ fn fits(
         // write the same letter elsewhere: set-image's s in {E(s) : s ∈ Y}
         // is bound by the claim, and its "there is s ∈ Y" binds it anew.
         let mut inside = binding.clone();
-        if library.exists.contains(&first.notation) && first.children.len() > 2 {
+        if library.exists.contains(&first.notation()) && first.children.len() > 2 {
             let (pairs, body) = existential_levels(&first, library);
             let mut seen = open_names.as_ref().clone();
             for (name, _) in pairs {
@@ -400,9 +399,9 @@ fn fits(
                 let mut found = match_tree(form, fact, at, seen, sites, ctx);
                 if found.is_none()
                     && is_first
-                    && library.exists.contains(&first.notation)
+                    && library.exists.contains(&first.notation())
                     && first.children.len() == 2
-                    && library.members.contains(&fact.notation)
+                    && library.members.contains(&fact.notation())
                     && fact.children.len() == 2
                 {
                     found = match_tree(
@@ -516,7 +515,7 @@ fn self_evident(
     }
     let terms: Binding = binding
         .iter()
-        .filter(|(_, t)| t.notation != PROPERTY)
+        .filter(|(_, t)| t.notation() != PROPERTY_OF)
         .map(|(v, t)| (v.clone(), t.clone()))
         .collect();
     let spelt = substitute_apart(side, &terms, ctx);
@@ -599,7 +598,7 @@ fn narrowed(
     }
     let terms: Binding = binding
         .iter()
-        .filter(|(_, t)| t.notation != PROPERTY)
+        .filter(|(_, t)| t.notation() != PROPERTY_OF)
         .map(|(v, t)| (v.clone(), t.clone()))
         .collect();
     let asked = substitute_apart(&pattern.children[1], &terms, ctx);
@@ -625,7 +624,7 @@ fn existential_levels<'n>(
 ) -> (Vec<(&'n Node, &'n Node)>, &'n Node) {
     let mut pairs = Vec::new();
     let mut body = exists;
-    while library.exists.contains(&body.notation) && body.children.len() == 3 {
+    while library.exists.contains(&body.notation()) && body.children.len() == 3 {
         pairs.push((&body.children[0], &body.children[1]));
         body = &body.children[2];
     }
@@ -681,7 +680,7 @@ fn witnessed_in(
             return false;
         };
         let witnessed = facts.iter().any(|f| {
-            let member = library.members.contains(&f.notation)
+            let member = library.members.contains(&f.notation())
                 && f.children.len() == 2
                 && f.children[0].shape() == value.shape()
                 && match_tree(

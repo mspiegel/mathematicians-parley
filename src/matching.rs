@@ -19,7 +19,7 @@ use indexmap::{IndexMap, IndexSet};
 use crate::corpus::{Record, RecordKind};
 use crate::formula::notation_id::{NotationId, Spelling};
 use crate::formula::{Binds, Node, NodeId, Notation};
-use crate::notations::{APPLICATION, APPLICATION_TO_TWO, NUMERAL};
+use crate::notations::{APPLICATION, APPLICATION_TO_TWO, NUMERAL, PROPERTY_OF};
 use crate::regex;
 
 /// Split on the commas outside brackets.
@@ -56,7 +56,7 @@ pub type Binding = IndexMap<String, Node>;
 /// which apply a property or a function, and which are equations.
 #[derive(Clone, Debug, Default)]
 pub struct Context {
-    pub binders: IndexMap<String, Binds>,
+    pub binders: FxIndexMap<NotationId, Binds>,
     /// For each application, whether it applies a `property` or a
     /// `function`.
     pub props: FxIndexMap<NotationId, String>,
@@ -190,10 +190,7 @@ impl Context {
         let (binders, props) = binding_context(notations);
         Context {
             binders,
-            props: props
-                .into_iter()
-                .map(|(n, how)| (NotationId::of(&n), how))
-                .collect(),
+            props,
             equations: ids_of(equations(records)),
             functions_on: ids_of(functions_on(records)),
             sums: ids_of(sums(records)),
@@ -207,8 +204,8 @@ impl Context {
 
     /// The places of a binder that hold the letters it binds, and those of
     /// the body they are bound in; neither for a notation that binds none.
-    pub fn held_body(&self, notation: &str) -> (Vec<usize>, Vec<usize>) {
-        match self.binders.get(notation) {
+    pub fn held_body(&self, notation: NotationId) -> (Vec<usize>, Vec<usize>) {
+        match self.binders.get(&notation) {
             Some(b) => (b.held.clone(), b.body.clone()),
             None => (Vec::new(), Vec::new()),
         }
@@ -226,17 +223,20 @@ impl Context {
 /// known by name.
 pub fn binding_context(
     notations: &[Notation],
-) -> (IndexMap<String, Binds>, IndexMap<String, String>) {
-    let mut binders = IndexMap::new();
-    let mut props = IndexMap::new();
+) -> (
+    FxIndexMap<NotationId, Binds>,
+    FxIndexMap<NotationId, String>,
+) {
+    let mut binders = FxIndexMap::default();
+    let mut props = FxIndexMap::default();
     for n in notations {
         if let Some(first) = n.holes.first() {
             if (first == "property" || first == "function") && applies_first(n) {
-                props.insert(n.key().to_string(), first.clone());
+                props.insert(n.key_id, first.clone());
             }
         }
         if let Some(b) = n.node_binds() {
-            binders.insert(n.key().to_string(), b);
+            binders.insert(n.key_id, b);
         }
     }
     (binders, props)
@@ -244,7 +244,10 @@ pub fn binding_context(
 
 /// The names free in `node`: those no binder in it holds, `binders` being
 /// the binding notations as `binding_context` reads them.
-pub fn free_names(node: &Node, binders: &IndexMap<String, Binds>) -> BTreeSet<String> {
+pub fn free_names(
+    node: &Node,
+    binders: &FxIndexMap<NotationId, Binds>,
+) -> BTreeSet<String> {
     let mut out = BTreeSet::new();
     free_names_under(node, binders, &mut Vec::new(), &mut out);
     out
@@ -254,7 +257,7 @@ pub fn free_names(node: &Node, binders: &IndexMap<String, Binds>) -> BTreeSet<St
 /// it hold.
 fn free_names_under(
     node: &Node,
-    binders: &IndexMap<String, Binds>,
+    binders: &FxIndexMap<NotationId, Binds>,
     bound: &mut Vec<String>,
     out: &mut BTreeSet<String>,
 ) {
@@ -264,7 +267,7 @@ fn free_names_under(
         }
         return;
     }
-    let binds = binders.get(&node.notation);
+    let binds = binders.get(&node.notation());
     for (at, child) in node.children.iter().enumerate() {
         let Some(binds) = binds else {
             free_names_under(child, binders, bound, out);
@@ -334,7 +337,7 @@ pub fn binding_sites(
     {
         out.insert(pattern.id());
     }
-    let (held, body) = ctx.held_body(&pattern.notation);
+    let (held, body) = ctx.held_body(pattern.notation());
     let own: Vec<String> = held
         .iter()
         .filter(|&&at| pattern.children[at].is_name())
@@ -573,7 +576,7 @@ fn applies_variable(
 
 /// The two nodes differ in what they are, so no binding makes one the other.
 fn differs(pattern: &Node, ground: &Node) -> bool {
-    pattern.notation != ground.notation
+    pattern.notation() != ground.notation()
         || pattern.text != ground.text
         || pattern.children.len() != ground.children.len()
 }
@@ -657,7 +660,7 @@ fn fit(
         // over, wherever the notation writes them: ∫(a to x) f(t) dt names
         // its letter last, and f(t) read before t is paired would make f
         // a function of a letter it does not mention.
-        let (held, _) = ctx.held_body(&pattern.notation);
+        let (held, _) = ctx.held_body(pattern.notation());
         let mut first: Vec<usize> = held.clone();
         first.extend((0..pattern.children.len()).filter(|i| !held.contains(i)));
         for children in orders(&pattern, ground, ctx) {
@@ -730,7 +733,7 @@ fn bound_as(
     variables: &BTreeSet<String>,
     ctx: &Context,
 ) -> Node {
-    let (held, body) = ctx.held_body(&pattern.notation);
+    let (held, body) = ctx.held_body(pattern.notation());
     let mut pattern = pattern.clone();
     for at in held {
         let ours = pattern.children[at].clone();
@@ -888,13 +891,13 @@ fn alike_as_written(
         }
         return a.text == b.text;
     }
-    if a.notation != b.notation
+    if a.notation() != b.notation()
         || a.text != b.text
         || a.children.len() != b.children.len()
     {
         return false;
     }
-    let Some(shape) = ctx.binders.get(&a.notation) else {
+    let Some(shape) = ctx.binders.get(&a.notation()) else {
         return orders(a, b, ctx).iter().any(|kids| {
             a.children
                 .iter()
@@ -986,7 +989,7 @@ pub fn put_at_some(
     {
         return true;
     }
-    if start.notation == aim.notation
+    if start.notation() == aim.notation()
         && start.text == aim.text
         && !start.children.is_empty()
         && start.children.len() == aim.children.len()
@@ -1030,7 +1033,7 @@ fn property(
         );
         return true;
     };
-    if stands.notation != PROPERTY {
+    if stands.notation() != PROPERTY_OF {
         return false;
     }
     let mut at = Binding::new();
@@ -1048,7 +1051,7 @@ fn property(
 fn read_at(arg: &Node, binding: &Binding, ctx: &Context) -> Node {
     let terms: Binding = binding
         .iter()
-        .filter(|(_, t)| t.notation != PROPERTY)
+        .filter(|(_, t)| t.notation() != PROPERTY_OF)
         .map(|(v, t)| (v.clone(), t.clone()))
         .collect();
     substitute_apart(arg, &terms, ctx)
@@ -1078,7 +1081,7 @@ fn family(
     let arg = read_at(&pattern.children[1], binding, ctx);
     let stands = binding.get(name).cloned();
     if let Some(stands) = &stands {
-        if stands.notation == PROPERTY {
+        if stands.notation() == PROPERTY_OF {
             let mut at = Binding::new();
             at.insert(stands.text.clone(), arg.clone());
             let filled = substitute_apart(&stands.children[0], &at, ctx);
@@ -1091,7 +1094,7 @@ fn family(
             return Some(alike_top(&filled, ground, ctx));
         }
     }
-    let plain = ground.notation == pattern.notation
+    let plain = ground.notation() == pattern.notation()
         && ground.children.len() == 2
         && ground.children[1].shape() == arg.shape();
     if stands.is_none() && sites.contains(&pattern.id()) && arg.is_name() && !plain {
@@ -1120,7 +1123,7 @@ pub struct Rule {
     pub body: Node,
     /// What binds, from the grammar the body was read with
     /// (`Grammar::binders`).
-    pub binders: Rc<IndexMap<String, Binds>>,
+    pub binders: Rc<FxIndexMap<NotationId, Binds>>,
 }
 
 impl Rule {
@@ -1240,7 +1243,7 @@ pub fn substitute_apart(node: &Node, binding: &Binding, ctx: &Context) -> Node {
 pub fn substitute_apart_by(
     node: &Node,
     binding: &Binding,
-    binders: &IndexMap<String, Binds>,
+    binders: &FxIndexMap<NotationId, Binds>,
 ) -> Node {
     if node.notation() == crate::notations::NAME || node.notation() == NUMERAL {
         return binding
@@ -1248,7 +1251,7 @@ pub fn substitute_apart_by(
             .cloned()
             .unwrap_or_else(|| node.clone());
     }
-    let (held, body) = match binders.get(&node.notation) {
+    let (held, body) = match binders.get(&node.notation()) {
         Some(b) => (b.held.clone(), b.body.clone()),
         None => (Vec::new(), Vec::new()),
     };

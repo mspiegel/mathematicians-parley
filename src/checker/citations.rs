@@ -29,13 +29,12 @@ use crate::formula::page::{self, conjoined, Written};
 use crate::formula::{Node, Sort};
 use crate::matching::{
     alike, binding_sites, match_tree, standard, substitute_apart, Binding, Context,
-    PROPERTY,
 };
 use crate::notations::{
     APPLICATION, APPLICATION_TO_TWO, BICONDITIONAL, CONDITIONAL, EQUALITY, FOR_ALL,
     FOR_ALL_PART, FOR_ALL_SETS, FUNCTION_ON, FUNCTION_TYPE, IMPLICATION, INTEGER_RANGE,
-    LOGICAL_NOT, MEMBERSHIP, NUMBER_SYSTEMS, NUMERAL, ORDER, PLUS, POWERSET, SUBSET,
-    THERE_IS, THERE_IS_SOME,
+    LOGICAL_NOT, MEMBERSHIP, NUMBER_SYSTEMS, NUMERAL, ORDER, PLUS, POWERSET,
+    PROPERTY_OF, SUBSET, THERE_IS, THERE_IS_SOME,
 };
 use crate::outcome::{Built, Declined, Route};
 use crate::rules::{self, System};
@@ -214,7 +213,7 @@ pub fn obtained_there(
                 let there_is = readings(said, library)
                     .into_iter()
                     .map(|r| r.claimed)
-                    .find(|t| library.exists.contains(&t.notation))
+                    .find(|t| library.exists.contains(&t.notation()))
                     .unwrap_or_else(|| said.clone());
                 filled(&there_is, &taken.binding, &library.ctx)
             })
@@ -861,8 +860,8 @@ pub fn check_subjects(
         let [left, right] = whole.children.as_slice() else {
             continue;
         };
-        if !library.bicond.contains(&whole.notation)
-            || !library.exists.contains(&right.notation)
+        if !library.bicond.contains(&whole.notation())
+            || !library.exists.contains(&right.notation())
         {
             continue;
         }
@@ -871,11 +870,11 @@ pub fn check_subjects(
         let cites_one = known
             .lines_say(step, &refs, library)
             .iter()
-            .any(|n| library.exists.contains(&n.notation));
+            .any(|n| library.exists.contains(&n.notation()));
         let claims_one = parts
             .claims
             .iter()
-            .any(|n| library.exists.contains(&n.notation));
+            .any(|n| library.exists.contains(&n.notation()));
         if cites_one || claims_one || parts.claims.is_empty() {
             continue;
         }
@@ -1564,7 +1563,8 @@ pub fn check_obtained_claims(
                 _ => bound_in(Bound::Member, letter, domain, library),
             };
             let member = substitute_apart(&member, &put, &library.ctx);
-            if claimed.notation == member.notation && !known.alike(claimed, &member) {
+            if claimed.notation() == member.notation() && !known.alike(claimed, &member)
+            {
                 report.say(
                     &thm.path,
                     step.line,
@@ -1870,7 +1870,7 @@ impl AskedType {
     /// fills with a named function.
     fn pointwise(&self) -> Option<(&str, &Node)> {
         let f = self.asked.children.first()?;
-        let f = if f.notation == PROPERTY {
+        let f = if f.notation() == PROPERTY_OF {
             f
         } else {
             self.rule.as_ref()?
@@ -1983,7 +1983,7 @@ impl AskedType {
     /// Whether `node` states this type, an open letter standing for any set.
     fn stated_by(&self, node: &Node, known: &Known) -> bool {
         let (asked, said) = (&self.asked, node);
-        asked.notation == said.notation
+        asked.notation() == said.notation()
             && asked.children.len() == said.children.len()
             && asked.children.iter().zip(&said.children).all(|(a, s)| {
                 (a.is_name() && self.open.contains(&a.text)) || known.alike(a, s)
@@ -2024,7 +2024,7 @@ fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
     let read = searched(step, search_of(step), known, library);
     if let Some(Built(taken)) = read.as_deref() {
         for (name, value) in &taken.binding {
-            if value.notation == PROPERTY {
+            if value.notation() == PROPERTY_OF {
                 rules.insert(name.clone(), value.clone());
             } else if !fixed.contains_key(name) {
                 fixed.insert(name.clone(), value.clone());
@@ -2049,7 +2049,7 @@ fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
         // is no page's `let u : ℕ → ℝ`.
         .filter(|t| {
             let function = &t.asked.children[0];
-            function.notation == PROPERTY
+            function.notation() == PROPERTY_OF
                 || (function.is_name()
                     && (!t.filled || !declared.contains(&function.text)))
         })
@@ -2092,7 +2092,7 @@ fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
                 &library.ctx,
             );
             for value in found.iter().flat_map(|b| b.values()) {
-                if value.notation == PROPERTY {
+                if value.notation() == PROPERTY_OF {
                     for n in value.children[0].names() {
                         if n != value.text {
                             held.insert(n);
@@ -2646,7 +2646,7 @@ fn applied(
 /// notation database declares each sum holds its index in.
 fn sum_indices(node: &Node, ctx: &Context, out: &mut BTreeSet<String>) {
     if ctx.sums.contains(&node.notation()) {
-        let (held, _) = ctx.held_body(&node.notation);
+        let (held, _) = ctx.held_body(node.notation());
         for at in held {
             if let Some(letter) = node.children.get(at).filter(|c| c.is_name()) {
                 out.insert(letter.text.clone());

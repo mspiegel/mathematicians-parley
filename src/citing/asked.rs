@@ -5,7 +5,8 @@ use std::collections::BTreeSet;
 use indexmap::IndexMap;
 
 use crate::formula::Node;
-use crate::matching::{fresh_letters, substitute_apart, Binding, Context, PROPERTY};
+use crate::matching::{fresh_letters, substitute_apart, Binding, Context};
+use crate::notations::PROPERTY_OF;
 use crate::outcome::{Built, Declined, Route};
 
 use super::conclude::{taken, Taken};
@@ -59,7 +60,7 @@ pub fn asks_of(
     let mut hypotheses = Vec::new();
     for asks in wants.chain(typed) {
         let unfixed = asks.names().iter().any(|n| {
-            let fixed = binding.get(n).is_some_and(|b| b.notation != PROPERTY);
+            let fixed = binding.get(n).is_some_and(|b| b.notation() != PROPERTY_OF);
             !fixed && !library.env.g.functions.contains_key(n)
         });
         if !unfixed {
@@ -74,7 +75,7 @@ pub fn asks_of(
 pub fn filled(node: &Node, bound: &Binding, ctx: &Context) -> Node {
     if node.is_name() {
         return match bound.get(&node.text) {
-            Some(stands) if stands.notation != PROPERTY => stands.clone(),
+            Some(stands) if stands.notation() != PROPERTY_OF => stands.clone(),
             _ => node.clone(),
         };
     }
@@ -83,7 +84,7 @@ pub fn filled(node: &Node, bound: &Binding, ctx: &Context) -> Node {
         && node.children[0].is_name()
     {
         if let Some(rule) = bound.get(&node.children[0].text) {
-            if rule.notation == PROPERTY {
+            if rule.notation() == PROPERTY_OF {
                 let mut at = Binding::new();
                 at.insert(rule.text.clone(), filled(&node.children[1], bound, ctx));
                 return substitute_apart(&rule.children[0], &at, ctx);
@@ -97,7 +98,7 @@ pub fn filled(node: &Node, bound: &Binding, ctx: &Context) -> Node {
     // one is kept apart from it, as `substitute_apart` keeps it: prime-factor's
     // `there is p ∈ ℕ with … p divides m` at m := p! + 1 binds another letter,
     // and never the p of p!.
-    let (held, body) = ctx.held_body(&node.notation);
+    let (held, body) = ctx.held_body(node.notation());
     if !held.is_empty() && held.iter().all(|&at| node.children[at].is_name()) {
         let own: BTreeSet<String> = held
             .iter()
