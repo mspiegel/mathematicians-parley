@@ -21,7 +21,8 @@ impl Grammar {
             return node.text.clone();
         }
         // A negation its record spells as one pattern: `a ≠ b`.
-        if node.notation == "logical-not" && node.children.len() == 1 {
+        if node.notation() == crate::notations::LOGICAL_NOT && node.children.len() == 1
+        {
             let inner = &node.children[0];
             if let Some(n) = self.notations.iter().find(|n| {
                 n.folds.is_some()

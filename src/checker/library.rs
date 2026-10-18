@@ -683,7 +683,7 @@ pub fn sums_said_once(known: &Known, step: &Step) -> Vec<Node> {
         let bound: BTreeSet<String> = sum
             .walk()
             .iter()
-            .filter(|n| n.notation == "sum")
+            .filter(|n| n.notation() == crate::notations::SUM)
             .filter_map(|n| n.children.first().map(|i| i.text.clone()))
             .collect();
         sum.names().iter().all(|n| {

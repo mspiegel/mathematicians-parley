@@ -694,7 +694,7 @@ pub fn introduction_problem(
     // for.
     if let Form::Function = introduced.form {
         if let Ok(node) = read(introduction) {
-            if node.notation != "function-type" {
+            if node.notation() != crate::notations::FUNCTION_TYPE {
                 return Some(format!(
                     "`let {}` says more than a function's type; a property of it follows `be`, as `let f : A → B be one-to-one`",
                     prefix(body, 40)

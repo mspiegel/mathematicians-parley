@@ -163,7 +163,10 @@ pub fn not_numbers(
         if let [name, set, _] = node.children.as_slice() {
             let binds = library.exists.contains(&node.notation)
                 || library.every.contains(&node.notation);
-            if binds && name.is_name() && set.notation == "number-systems" {
+            if binds
+                && name.is_name()
+                && set.notation() == crate::notations::NUMBER_SYSTEMS
+            {
                 if let Some(system) = rules::System::of_sign(&set.text) {
                     bound.insert(name.text.clone(), system);
                 }
@@ -177,7 +180,7 @@ pub fn not_numbers(
                 && !given.iter().any(|f| {
                     library.members.contains(&f.notation)
                         && matches!(f.children.as_slice(), [term, set]
-                            if set.notation == "number-systems"
+                            if set.notation() == crate::notations::NUMBER_SYSTEMS
                                 && alike(term, left, ctx, &IndexMap::new(), &IndexMap::new()))
                 })
         })

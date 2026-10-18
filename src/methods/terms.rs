@@ -208,7 +208,7 @@ pub fn term_of_node(node: &Node, targets: &Targets) -> Term {
 /// Σ(k = 1 to n) is read as a part that holds k times one that does not,
 /// which reading a sum as linear asks (`field::linear_sum`).
 fn term_under(node: &Node, targets: &Targets, indices: &[&Node]) -> Term {
-    if node.notation == "numeral" {
+    if node.notation() == crate::notations::NUMERAL {
         if let Ok(value) = node.text.parse::<BigUint>() {
             return numeral_term(&value);
         }

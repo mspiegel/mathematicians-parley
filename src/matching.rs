@@ -1224,7 +1224,7 @@ pub fn substitute_apart_by(
     binding: &Binding,
     binders: &IndexMap<String, Binds>,
 ) -> Node {
-    if node.notation == "name" || node.notation == "numeral" {
+    if node.notation() == crate::notations::NAME || node.notation() == NUMERAL {
         return binding
             .get(&node.text)
             .cloned()

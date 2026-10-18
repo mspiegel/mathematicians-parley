@@ -449,7 +449,7 @@ impl Node {
     }
 
     pub fn is_name(&self) -> bool {
-        self.notation == "name"
+        self.notation_id == NAME
     }
 
     /// The leftmost leaf of the tree: the name a `let` line introduces, and

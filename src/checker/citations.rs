@@ -31,6 +31,10 @@ use crate::matching::{
     alike, binding_sites, match_tree, standard, substitute_apart, Binding, Context,
     PROPERTY,
 };
+use crate::notations::{
+    APPLICATION, BICONDITIONAL, EQUALITY, FOR_ALL, FUNCTION_TYPE, MEMBERSHIP,
+    NUMBER_SYSTEMS, NUMERAL,
+};
 use crate::outcome::{Built, Declined, Route};
 use crate::rules::{self, System};
 use crate::sorts::TYPING;
@@ -1119,7 +1123,7 @@ fn term_built(
     else {
         return false;
     };
-    let Some(system) = (codomain.notation == "number-systems")
+    let Some(system) = (codomain.notation() == NUMBER_SYSTEMS)
         .then(|| System::of_sign(&codomain.text))
         .flatten()
     else {
@@ -1151,7 +1155,7 @@ fn term_built(
     typed.extend(
         facts
             .iter()
-            .filter(|f| f.notation == "function-type")
+            .filter(|f| f.notation() == FUNCTION_TYPE)
             .cloned(),
     );
     let given = crate::methods::membership::Facts {
@@ -1468,7 +1472,7 @@ pub fn check_obtained_claims(
                         .iter()
                         .flat_map(|g| &g.gives)
                         .filter(|g| {
-                            g.notation == "biconditional" && g.children.len() == 2
+                            g.notation() == BICONDITIONAL && g.children.len() == 2
                         })
                         .map(|g| filled(&g.children[1], seed, &library.ctx))
                         .find(|right| exhibited(right, library).is_some())
@@ -1725,14 +1729,14 @@ fn built_on(req: &crate::corpus::Requires, step: &Step, known: &Known) -> bool {
             }
             "logical-not"
                 if said.children.len() == 1
-                    && said.children[0].notation == "equality"
+                    && said.children[0].notation() == EQUALITY
                     && said.children[0].children.len() == 2 =>
             {
                 (
                     said.children[0]
                         .children
                         .iter()
-                        .filter(|c| c.notation != "numeral")
+                        .filter(|c| c.notation() != NUMERAL)
                         .collect(),
                     &["membership", "algebra"],
                     false,
@@ -1741,7 +1745,7 @@ fn built_on(req: &crate::corpus::Requires, step: &Step, known: &Known) -> bool {
             "order" if said.children.len() == 2 => (
                 said.children
                     .iter()
-                    .filter(|c| c.notation != "numeral")
+                    .filter(|c| c.notation() != NUMERAL)
                     .collect(),
                 &["inequalities"],
                 false,
@@ -1749,7 +1753,7 @@ fn built_on(req: &crate::corpus::Requires, step: &Step, known: &Known) -> bool {
             "equality" if said.children.len() == 2 => (
                 said.children
                     .iter()
-                    .filter(|c| c.notation != "numeral")
+                    .filter(|c| c.notation() != NUMERAL)
                     .collect(),
                 &ASKING,
                 true,
@@ -1775,7 +1779,7 @@ fn built_on(req: &crate::corpus::Requires, step: &Step, known: &Known) -> bool {
         })
         .filter_map(|r| known.whole(step, &r.fact).map(|n| (r, n)))
         .any(|(r, n)| {
-            let held = if n.notation == "membership" && n.children.len() == 2 {
+            let held = if n.notation() == MEMBERSHIP && n.children.len() == 2 {
                 &n.children[0]
             } else {
                 &n
@@ -1953,7 +1957,7 @@ impl AskedType {
         let [bound, set, body] = node.children.as_slice() else {
             return false;
         };
-        if node.notation != "for-all" || body.notation != "membership" {
+        if node.notation() != FOR_ALL || body.notation() != MEMBERSHIP {
             return false;
         }
         let [value, into] = body.children.as_slice() else {
@@ -1961,13 +1965,13 @@ impl AskedType {
         };
         let at = Binding::from([(letter.to_string(), bound.clone())]);
         let holds = known.alike(set, domain)
-            || (set.notation == "number-systems"
+            || (set.notation() == NUMBER_SYSTEMS
                 && range_system(domain).is_some_and(|inside| {
                     System::of_sign(&set.text).is_some_and(|s| inside.within(s))
                 }));
         let lands = known.alike(into, codomain)
-            || (into.notation == "number-systems"
-                && codomain.notation == "number-systems"
+            || (into.notation() == NUMBER_SYSTEMS
+                && codomain.notation() == NUMBER_SYSTEMS
                 && System::maybe_within(
                     System::of_sign(&into.text),
                     System::of_sign(&codomain.text),
@@ -2124,7 +2128,7 @@ impl FamilyAsks {
         let Some(node) = known.whole(step, fact) else {
             return false;
         };
-        if node.notation == "function-type" {
+        if node.notation() == FUNCTION_TYPE {
             return self.types.iter().any(|t| t.stated_by(&node, known));
         }
         if self
@@ -2139,10 +2143,10 @@ impl FamilyAsks {
         // asks that every partial sum be real. T is a defined function and
         // no name a membership could be asked of, so what is compared is the
         // value itself, read at the name the line binds.
-        if node.notation == "for-all" && node.children.len() == 3 {
+        if node.notation() == FOR_ALL && node.children.len() == 3 {
             let (bound, body) = (&node.children[0], &node.children[2]);
-            if body.notation != "membership"
-                || body.children[1].notation != "number-systems"
+            if body.notation() != MEMBERSHIP
+                || body.children[1].notation() != NUMBER_SYSTEMS
             {
                 return false;
             }
@@ -2152,7 +2156,7 @@ impl FamilyAsks {
             // `t : {1, …, k + 1} → ℝ` does not, t's domain being the
             // define's.
             let (set, value) = (&node.children[1], &body.children[0]);
-            let pointwise = value.notation == "application"
+            let pointwise = value.notation() == APPLICATION
                 && value.children.len() == 2
                 && known.alike(&value.children[1], bound)
                 && self.types.iter().any(|t| {
@@ -2179,8 +2183,8 @@ impl FamilyAsks {
                 alike(&value, &body.children[0], &self.ctx, &none, &none)
             });
         }
-        node.notation == "membership"
-            && node.children[1].notation == "number-systems"
+        node.notation() == MEMBERSHIP
+            && node.children[1].notation() == NUMBER_SYSTEMS
             && !node.children[0].names().is_empty()
             && node.children[0].names().is_subset(&self.held)
     }
@@ -2336,7 +2340,7 @@ impl DefinedRule {
         letters: &Introduced,
         known: &Known,
     ) -> bool {
-        let Some(into) = (codomain.notation == "number-systems")
+        let Some(into) = (codomain.notation() == NUMBER_SYSTEMS)
             .then(|| System::of_sign(&codomain.text))
             .flatten()
         else {
@@ -2348,7 +2352,7 @@ impl DefinedRule {
             _ => None,
         };
         let holds = known.alike(&self.domain, domain)
-            || (self.domain.notation == "number-systems"
+            || (self.domain.notation() == NUMBER_SYSTEMS
                 && System::of_sign(&self.domain.text)
                     .zip(inside)
                     .is_some_and(|(own, asked)| asked.within(own)));
@@ -2607,7 +2611,7 @@ fn applied(
                         arg.children.as_slice(),
                     ) {
                         ("additive", "+", [index, one])
-                            if one.notation == "numeral" && one.text == "1" =>
+                            if one.notation() == NUMERAL && one.text == "1" =>
                         {
                             index.clone()
                         }
@@ -2883,7 +2887,7 @@ fn shows_value(step: &Step, r: &str, library: &Library, known: &Known) -> bool {
         wants
             .iter()
             .filter(|w| {
-                !(w.notation == "membership"
+                !(w.notation() == MEMBERSHIP
                     && w.children
                         .first()
                         .is_some_and(|t| letters.contains(&t.text)))
@@ -2966,14 +2970,14 @@ fn check_exhibit(
         // A term equals itself, which no line need write: gH = aH at
         // a = g is stated by nothing and needs nothing.
         let itself = |w: &Node| {
-            w.notation == "equality"
+            w.notation() == EQUALITY
                 && w.children.len() == 2
                 && known.alike(&w.children[0], &w.children[1])
         };
         let (equations, rest): (Vec<Node>, Vec<Node>) = wants
             .iter()
             .cloned()
-            .partition(|w| w.notation == "equality" && w.children.len() == 2);
+            .partition(|w| w.notation() == EQUALITY && w.children.len() == 2);
         let said = stated(&wants).is_some()
             || (!equations.is_empty()
                 && stated(&rest).is_some_and(|at| {
@@ -2996,7 +3000,7 @@ fn check_exhibit(
         // it suggests is no reading of the claim: what the body says is
         // asked first, and wins where as many parts are said of each.
         let bare = |w: &Node| {
-            w.notation == "membership"
+            w.notation() == MEMBERSHIP
                 && w.children
                     .first()
                     .is_some_and(|t| letters.contains(&t.text))
@@ -3685,13 +3689,13 @@ fn from_lines_give(
     if let ("membership", [term, set]) =
         (claim.notation.as_str(), claim.children.as_slice())
     {
-        if let Some(system) = (set.notation == "number-systems")
+        if let Some(system) = (set.notation() == NUMBER_SYSTEMS)
             .then(|| System::of_sign(&set.text))
             .flatten()
         {
             let typed: Vec<Node> = facts
                 .iter()
-                .filter(|f| f.notation == "function-type")
+                .filter(|f| f.notation() == FUNCTION_TYPE)
                 .cloned()
                 .collect();
             let given = crate::methods::membership::Facts {
@@ -3752,7 +3756,7 @@ fn member_in(
     step: &Step,
     known: &Known,
 ) -> bool {
-    let said_once = set.notation == "number-systems"
+    let said_once = set.notation() == NUMBER_SYSTEMS
         && System::of_sign(&set.text).is_some_and(|system| {
             crate::citing::within(
                 member,
@@ -3799,7 +3803,7 @@ fn in_a_domain(step: &Step, r: &str, known: &Known) -> bool {
         .said_parts(stated, None)
         .into_iter()
         .flatten()
-        .any(|n| n.notation == "function-type")
+        .any(|n| n.notation() == FUNCTION_TYPE)
 }
 
 /// Whether `lighter`, `step` with a line taken away, is no longer supplied.
@@ -3842,7 +3846,7 @@ fn bound_below(step: &Step, i: usize, said: &Node, known: &Known) -> bool {
         return false;
     };
     let system = rules::system_of(&set.text);
-    if said.notation != "membership" || rules::implied(system).is_empty() {
+    if said.notation() != MEMBERSHIP || rules::implied(system).is_empty() {
         return false;
     }
     step.requires[i + 1..].iter().any(|o| {
@@ -4041,7 +4045,7 @@ pub fn check_surplus(
                 .whole_as_written(&req.fact)
                 .is_some_and(|n| in_domain.contains(n.shape()));
             let ended = known.whole_as_written(&req.fact).is_some_and(|n| {
-                n.notation == "membership"
+                n.notation() == MEMBERSHIP
                     && ends.iter().any(|u| known.alike(&n.children[0], &u.left))
             });
             // What keeps a line without a search is asked before the search.

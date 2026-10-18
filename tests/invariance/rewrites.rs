@@ -3277,10 +3277,10 @@ fn let_asked(
         | Form::Graph(_) => false,
         // A membership is said once where its set is a number system.
         Form::Member => !read_all(ctx, sorts, &written)?.iter().all(|m| {
-            m.notation == "membership"
-                && m.children
-                    .get(1)
-                    .is_some_and(|set| set.notation == "number-systems")
+            m.notation() == parley::notations::MEMBERSHIP
+                && m.children.get(1).is_some_and(|set| {
+                    set.notation() == parley::notations::NUMBER_SYSTEMS
+                })
         }),
         _ => true,
     })
@@ -3415,11 +3415,10 @@ fn lemma_of(
             else {
                 continue;
             };
-            let polynomial = said.notation == "is-a-polynomial"
-                || said
-                    .children
-                    .get(1)
-                    .is_some_and(|set| set.notation == "polynomials");
+            let polynomial = said.notation() == parley::notations::IS_A_POLYNOMIAL
+                || said.children.get(1).is_some_and(|set| {
+                    set.notation() == parley::notations::POLYNOMIALS
+                });
             let introduced = match said.notation.as_str() {
                 _ if polynomial => format!("{} be a polynomial", name.text),
                 "membership" | "function-type" => ctx.g.print(&said),
@@ -3438,11 +3437,11 @@ fn lemma_of(
         // number system), and then citing it does no work.
         let only_memberships = !said_all.is_empty()
             && said_all.iter().all(|s| {
-                s.notation == "membership"
+                s.notation() == parley::notations::MEMBERSHIP
                     && s.children.first().is_some_and(|t| !t.is_name())
-                    && s.children
-                        .get(1)
-                        .is_some_and(|set| set.notation == "number-systems")
+                    && s.children.get(1).is_some_and(|set| {
+                        set.notation() == parley::notations::NUMBER_SYSTEMS
+                    })
             });
         if is_cited && only_memberships {
             return Err(format!(

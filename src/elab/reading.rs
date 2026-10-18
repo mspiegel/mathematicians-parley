@@ -38,7 +38,7 @@ pub const CLASS_NAMES: [&str; 26] = [
 
 /// Whether a hypothesis says a group has a subgroup: `H is a subgroup of G`.
 pub fn is_subgroup(said: &Node) -> bool {
-    said.notation == "subgroup"
+    said.notation() == crate::notations::SUBGROUP
 }
 
 /// A term already in kernel form, standing in a tree.
@@ -304,7 +304,7 @@ impl<'a> Elaborator<'a> {
                 )),
             };
         }
-        if node.notation == "numeral" {
+        if node.notation() == crate::notations::NUMERAL {
             // set.mm writes a numeral of several digits as decimals,
             // `; A B` with A the digits before the last: 10 is `; 1 0`.
             let digit = |c: char| -> &'static str {
@@ -519,7 +519,7 @@ impl<'a> Elaborator<'a> {
                     self.names
                         .insert(introduced.text.clone(), spare.remove(0).to_string());
                 }
-                if node.notation == "membership" {
+                if node.notation() == crate::notations::MEMBERSHIP {
                     let set = self.term(&node.children[1])?;
                     self.sets.insert(introduced.text.clone(), set);
                 }

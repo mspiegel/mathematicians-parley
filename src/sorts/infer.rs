@@ -838,7 +838,7 @@ impl Reader {
             }
             return self.of_name(&node.text, store);
         }
-        if node.notation == "numeral" {
+        if node.notation() == crate::notations::NUMERAL {
             return NUMBER;
         }
         let notations = Rc::clone(&self.notations);

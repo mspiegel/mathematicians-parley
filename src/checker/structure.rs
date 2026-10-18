@@ -600,7 +600,7 @@ fn check_induction_runs(
         }
     }
     let first_of = |label: &str| rules::digit_of(label).map(|d| d.to_string());
-    let begins = (set.notation == "number-systems")
+    let begins = (set.notation() == crate::notations::NUMBER_SYSTEMS)
         .then(|| rules::System::of_sign(&set.text))
         .flatten()
         .and_then(|s| rules::lookup(rules::INDUCTION, s.label()))
@@ -1429,7 +1429,8 @@ pub fn check_last_step(report: &mut Report, thm: &Theorem, known: &Known) {
     // sentence joining them with "and" (`SYNTAX.md`), so each side is
     // compared as the conjuncts it says, in order.
     fn conjuncts(node: Node, out: &mut Vec<Node>) {
-        if node.notation == "conjunction" && node.children.len() == 2 {
+        if node.notation() == crate::notations::CONJUNCTION && node.children.len() == 2
+        {
             for part in node.children.iter() {
                 conjuncts(part.clone(), out);
             }

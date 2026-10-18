@@ -19,6 +19,7 @@ use num_traits::{One, Signed, ToPrimitive, Zero};
 use crate::formula::page::template;
 use crate::formula::{Node, Sort, Sorts};
 use crate::matching::{alike_top, standard, substitute_apart, Binding};
+use crate::notations::{INTEGER_RANGE, MEMBERSHIP, NUMBER_SYSTEMS, NUMERAL};
 use crate::rules::{self, lookup, System};
 
 use super::library::Library;
@@ -34,7 +35,7 @@ pub fn introduction(said: &Node) -> Option<(String, System)> {
     let [letter, set] = said.children.as_slice() else {
         return None;
     };
-    if said.notation != "membership" || said.text != "∈" || !letter.is_name() {
+    if said.notation() != MEMBERSHIP || said.text != "∈" || !letter.is_name() {
         return None;
     }
     let system = match set.notation.as_str() {
@@ -50,7 +51,7 @@ pub fn introduction(said: &Node) -> Option<(String, System)> {
 /// the elaborator reads as well).
 pub fn range_system(range: &Node) -> Option<System> {
     let start = range.children.first()?;
-    let begins = (start.notation == "numeral")
+    let begins = (start.notation() == NUMERAL)
         .then(|| {
             start
                 .text
@@ -89,7 +90,7 @@ pub fn said_once(
         let [term, set] = f.children.as_slice() else {
             continue;
         };
-        if f.notation != "membership" || set.notation != "number-systems" {
+        if f.notation() != MEMBERSHIP || set.notation() != NUMBER_SYSTEMS {
             continue;
         }
         let Some(system) = System::of_sign(&set.text) else {
@@ -210,7 +211,7 @@ pub fn a_number_said_once(
         let [name, set] = f.children.as_slice() else {
             continue;
         };
-        if f.notation != "membership" || set.notation != "number-systems" {
+        if f.notation() != MEMBERSHIP || set.notation() != NUMBER_SYSTEMS {
             continue;
         }
         let Some(system) = System::of_sign(&set.text) else {
@@ -508,7 +509,7 @@ impl SumIndex<'_> {
             g.is_name()
                 && f.is_name()
                 && g.text == f.text
-                && codomain.notation == "number-systems"
+                && codomain.notation() == NUMBER_SYSTEMS
                 && System::of_sign(&codomain.text).is_some_and(|s| s.within(system))
                 && self.in_domain(x, domain)
         })
@@ -521,13 +522,13 @@ impl SumIndex<'_> {
         let same = |a: &Node, b: &Node| {
             crate::matching::alike(a, b, self.ctx, &IndexMap::new(), &IndexMap::new())
         };
-        if domain.notation == "integer-range" {
+        if domain.notation() == INTEGER_RANGE {
             return x.is_name()
                 && x.text == self.index
                 && matches!(domain.children.as_slice(), [a, b]
                     if same(a, self.start) && same(b, self.end));
         }
-        domain.notation == "number-systems"
+        domain.notation() == NUMBER_SYSTEMS
             && x.is_name()
             && System::of_sign(&domain.text)
                 .is_some_and(|d| self.letters.get(&x.text).is_some_and(|s| s.within(d)))
@@ -537,7 +538,7 @@ impl SumIndex<'_> {
 /// The number system a range from `start` puts its members in: ℕ from 1,
 /// ℕ₀ from 0, ℤ from anywhere (`rules::RANGE_WITHIN`).
 pub fn index_system(start: &Node) -> Option<System> {
-    let begins = (start.notation == "numeral")
+    let begins = (start.notation() == NUMERAL)
         .then(|| {
             start
                 .text
@@ -555,7 +556,7 @@ pub fn index_system(start: &Node) -> Option<System> {
 /// Whether a divisor is a numeral other than zero: 10^0 is worked out to 1,
 /// and is no numeral.
 pub fn numeral_nonzero(divisor: &Node) -> bool {
-    divisor.notation == "numeral" && value(divisor).is_some_and(|v| !v.is_zero())
+    divisor.notation() == NUMERAL && value(divisor).is_some_and(|v| !v.is_zero())
 }
 
 /// Whether a divisor goes without its `≠ 0` (`SYNTAX.md`): a numeral other

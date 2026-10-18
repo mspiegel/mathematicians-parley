@@ -1546,7 +1546,7 @@ impl<'a> Elaborator<'a> {
             };
             let said = t!(kernel, "cvv", "wcel");
             let origin = format!("sethood@{label}");
-            let membership = if node.notation == "membership" {
+            let membership = if node.notation() == crate::notations::MEMBERSHIP {
                 self.held(facts, t, scope)?
             } else {
                 None

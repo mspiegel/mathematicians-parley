@@ -16,6 +16,9 @@ use crate::citing::{
 };
 use crate::formula::Node;
 use crate::matching::{alike, substitute_apart, Binding, Context};
+use crate::notations::{
+    EQUALITY, INTEGER_RANGE, MEMBERSHIP, MULTIPLICATIVE, NUMBER_SYSTEMS, NUMERAL,
+};
 use crate::rules::{self, System};
 
 /// What a membership is decided from: the facts the step cites and its
@@ -73,9 +76,9 @@ pub fn said(term: &Node, system: System, facts: &Facts) -> bool {
     let stated = |t: &Node, s: System| {
         sum_said_once(t, s, &facts.letters, facts.in_sums, facts.ctx)
             || facts.facts.iter().any(|f| {
-                f.notation == "membership"
+                f.notation() == MEMBERSHIP
                     && matches!(f.children.as_slice(), [held, set]
-                        if set.notation == "number-systems"
+                        if set.notation() == NUMBER_SYSTEMS
                             && same(held, t, facts.ctx)
                             && System::of_sign(&set.text).is_some_and(|k| k.within(s)))
             })
@@ -90,7 +93,7 @@ pub fn said(term: &Node, system: System, facts: &Facts) -> bool {
 pub fn atom_held(term: &Node, system: System, facts: &Facts) -> bool {
     said(term, system, facts)
         || facts.facts.iter().any(|f| {
-            f.notation == "equality"
+            f.notation() == EQUALITY
                 && f.text == "="
                 && matches!(f.children.as_slice(), [a, b]
                     if (same(a, term, facts.ctx) && holds(b, system, facts))
@@ -128,14 +131,14 @@ pub fn nonzero(divisor: &Node, facts: &Facts) -> bool {
             nonzero(a, facts) && nonzero(b, facts)
         }
         ("power" | "superscript", [a, e]) => {
-            e.notation == "numeral" && nonzero(a, facts)
+            e.notation() == NUMERAL && nonzero(a, facts)
         }
         _ => false,
     };
     if by_parts {
         return true;
     }
-    let zero = |n: &Node| n.notation == "numeral" && n.text == "0";
+    let zero = |n: &Node| n.notation() == NUMERAL && n.text == "0";
     let is = |n: &Node| same(n, divisor, facts.ctx);
     facts
         .facts
@@ -166,7 +169,7 @@ pub fn unsaid_part(divisor: &Node, facts: &Facts) -> Option<Node> {
     let parts: Vec<&Node> =
         match (divisor.notation.as_str(), divisor.children.as_slice()) {
             ("multiplicative" | "juxtaposition", [a, b]) => vec![a, b],
-            ("power" | "superscript", [a, e]) if e.notation == "numeral" => vec![a],
+            ("power" | "superscript", [a, e]) if e.notation() == NUMERAL => vec![a],
             _ => Vec::new(),
         };
     parts
@@ -181,9 +184,9 @@ pub fn unsaid_part(divisor: &Node, facts: &Facts) -> Option<Node> {
 /// over a range, a power, a function's value or a term by cases.
 fn said_otherwise(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
     let stated = facts.facts.iter().any(|f| {
-        f.notation == "membership"
+        f.notation() == MEMBERSHIP
             && matches!(f.children.as_slice(), [t, set]
-                if set.notation == "number-systems"
+                if set.notation() == NUMBER_SYSTEMS
                     && same(t, term, facts.ctx)
                     && System::of_sign(&set.text).is_some_and(|s| s.within(system)))
     });
@@ -192,7 +195,7 @@ fn said_otherwise(term: &Node, system: System, facts: &Facts, depth: usize) -> b
     }
     if depth > 0 {
         let carried = facts.facts.iter().any(|f| {
-            f.notation == "equality"
+            f.notation() == EQUALITY
                 && matches!(f.children.as_slice(), [a, b]
                     if (same(a, term, facts.ctx) && member(b, system, facts, depth - 1))
                         || (same(b, term, facts.ctx) && member(a, system, facts, depth - 1)))
@@ -245,7 +248,7 @@ fn valued(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
             return false;
         };
         same(g, f, facts.ctx)
-            && codomain.notation == "number-systems"
+            && codomain.notation() == NUMBER_SYSTEMS
             && System::of_sign(&codomain.text).is_some_and(|s| s.within(system))
             && in_domain(at, domain, facts, depth)
     })
@@ -253,20 +256,20 @@ fn valued(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
 
 /// Whether `x` is in the set `domain` a function is typed over.
 fn in_domain(x: &Node, domain: &Node, facts: &Facts, depth: usize) -> bool {
-    if domain.notation == "number-systems" {
+    if domain.notation() == NUMBER_SYSTEMS {
         return System::of_sign(&domain.text)
             .is_some_and(|s| member(x, s, facts, depth));
     }
     let runs_over = x.is_name()
         && facts.ranged.get(&x.text).is_some_and(|r| {
             matches!(domain.children.as_slice(), [a, b]
-                if domain.notation == "integer-range"
+                if domain.notation() == INTEGER_RANGE
                     && same(a, &r.start, facts.ctx)
                     && same(b, &r.end, facts.ctx))
         });
     runs_over
         || facts.facts.iter().any(|f| {
-            f.notation == "membership"
+            f.notation() == MEMBERSHIP
                 && matches!(f.children.as_slice(), [y, set]
                     if same(y, x, facts.ctx) && same(set, domain, facts.ctx))
         })
@@ -365,7 +368,7 @@ impl Parts {
     }
 
     fn take(&mut self, term: &Node) {
-        let numeral_exponent = |e: &Node| e.notation == "numeral";
+        let numeral_exponent = |e: &Node| e.notation() == NUMERAL;
         match (
             term.notation.as_str(),
             term.text.as_str(),
@@ -379,7 +382,7 @@ impl Parts {
             ("multiplicative", "/", [a, b]) => {
                 self.take(a);
                 self.take(b);
-                if b.notation != "numeral" {
+                if b.notation() != NUMERAL {
                     self.divisors.push(b.clone());
                 }
             }
@@ -399,7 +402,7 @@ impl Parts {
 /// index's own system (`citing::nonzero_said_once`).
 pub fn divides_by(term: &Node, index: &str, letters: &Introduced) -> bool {
     term.walk().iter().any(|part| {
-        part.notation == "multiplicative"
+        part.notation() == MULTIPLICATIVE
             && part.text == "/"
             && part.children.get(1).is_some_and(|d| {
                 d.names().contains(index) && !nonzero_said_once(d, letters)
@@ -459,7 +462,7 @@ pub fn said_pointwise(
             if same(a, sum.start, ctx) && same(b, sum.end, ctx)),
         _ => false,
     };
-    let lands = into.notation == "number-systems"
+    let lands = into.notation() == NUMBER_SYSTEMS
         && System::of_sign(&into.text).is_some_and(|s| s.within(system));
     let at = Binding::from([(sum.index.to_string(), bound.clone())]);
     holds_range && lands && same(&substitute_apart(sum.body, &at, ctx), value, ctx)

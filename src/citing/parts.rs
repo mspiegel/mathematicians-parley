@@ -4,6 +4,7 @@ use crate::corpus::{Head, Step};
 use crate::formula::page;
 use crate::formula::{Node, Sort, Sorts, Whole};
 use crate::matching::{standard, substitute_apart_by, Binding};
+use crate::notations::{FUNCTION_TYPE, MEMBERSHIP, NUMBER_SYSTEMS};
 use crate::outcome::Built;
 use crate::rules;
 use crate::sorts::{Env, TYPING};
@@ -240,13 +241,13 @@ fn template(said: &'static str, env: Env, sorts: &Sorts) -> Node {
 pub fn function_values(facts: &[Node], env: Env, sorts: &Sorts) -> Vec<Node> {
     let mut out = Vec::new();
     for typed in facts {
-        if typed.notation != "function-type" || typed.children.len() != 3 {
+        if typed.notation() != FUNCTION_TYPE || typed.children.len() != 3 {
             continue;
         }
         let (function, domain, codomain) =
             (&typed.children[0], &typed.children[1], &typed.children[2]);
         for member in facts {
-            if member.notation != "membership"
+            if member.notation() != MEMBERSHIP
                 || member.children.len() != 2
                 || member.children[1].shape() != domain.shape()
             {
@@ -285,7 +286,7 @@ pub fn function_values(facts: &[Node], env: Env, sorts: &Sorts) -> Vec<Node> {
 /// (`notation functions-from`), so a line giving f its type supplies an
 /// exhibit of f. None for any other fact.
 pub fn type_said_otherwise(fact: &Node, library: &Library) -> Option<Node> {
-    if fact.notation != "function-type" {
+    if fact.notation() != FUNCTION_TYPE {
         return None;
     }
     let [f, from, to] = fact.children.as_slice() else {
@@ -337,9 +338,9 @@ pub fn implied_facts(fact: &Node, env: Env, sorts: &Sorts) -> Vec<Node> {
         return vec![other];
     }
     let both = fact.children.len() == 2;
-    if fact.notation != "membership"
+    if fact.notation() != MEMBERSHIP
         || !both
-        || fact.children[1].notation != "number-systems"
+        || fact.children[1].notation() != NUMBER_SYSTEMS
     {
         return Vec::new();
     }

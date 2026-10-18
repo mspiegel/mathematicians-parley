@@ -511,7 +511,7 @@ impl<'a> Elaborator<'a> {
                         block.variable = Some(var);
                         // `let X be a set` fixes a name over nothing, so
                         // there is no set to record.
-                        if node.notation == "membership" {
+                        if node.notation() == crate::notations::MEMBERSHIP {
                             let set = self.term(&node.children[1])?;
                             self.sets.insert(name, set);
                         }

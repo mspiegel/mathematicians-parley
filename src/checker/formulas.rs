@@ -31,6 +31,11 @@ use crate::methods::membership as methods_membership;
 use crate::methods::terms::{term_of_node, Targets};
 use crate::methods::{algebra, inequalities, linear};
 use crate::mm::kernel::{FloatLabels, Term};
+use crate::notations::{
+    ADDITIVE, APPLICATION, BICONDITIONAL, BY_CASES, CONJUNCTION, EQUALITY, FOR_ALL,
+    FUNCTION_TYPE, INTEGER_RANGE, LOGICAL_NOT, MEMBERSHIP, NUMBER_SYSTEMS, NUMERAL,
+    ORDER,
+};
 use crate::outcome::{Built, Checked, Declined, Problem};
 use crate::rules::System;
 use crate::sorts::infer::{self, Reader, Store};
@@ -332,7 +337,7 @@ pub fn defined_words(
         let Ok(node) = stated.and_then(|s| s.read(env.g, record_sorts)) else {
             continue;
         };
-        if node.notation != "biconditional" || node.children.len() != 2 {
+        if node.notation() != BICONDITIONAL || node.children.len() != 2 {
             continue;
         }
         let left = &node.children[0];
@@ -482,7 +487,7 @@ pub fn check_decided_words(
                     );
                 }
             }
-            while node.notation == "logical-not" && node.children.len() == 1 {
+            while node.notation() == LOGICAL_NOT && node.children.len() == 1 {
                 node = node.children[0].clone();
             }
             let Some(word) = words.get(&(node.notation.clone(), node.text.clone()))
@@ -989,7 +994,7 @@ pub fn check_contradicting(
         let joined: Vec<Option<Node>> = there
             .iter()
             .flatten()
-            .filter(|n| n.notation == "conjunction")
+            .filter(|n| n.notation() == CONJUNCTION)
             .flat_map(conjuncts)
             .map(Some)
             .collect();
@@ -1085,7 +1090,7 @@ pub fn check_both_directions(report: &mut Report, thm: &Theorem, known: &Known) 
         let Some(claim) = known.whole(owner, &owner.claim) else {
             continue; // `check_formulas` says it does not read
         };
-        if claim.notation != "biconditional" || claim.children.len() != 2 {
+        if claim.notation() != BICONDITIONAL || claim.children.len() != 2 {
             say(report, "its claim is not \"A ↔ B\"".into());
             continue;
         }
@@ -1421,7 +1426,7 @@ pub fn check_ends_numbered(
 /// start the justification writes; the step, the statement at k + 1. A
 /// claim not "for all k ∈ X, …" is `check_step_part`'s to report.
 fn induction_owes(owner: &Step, claim: &Node, known: &Known) -> Vec<Owed> {
-    if claim.notation != "for-all" || claim.children.len() != 3 {
+    if claim.notation() != FOR_ALL || claim.children.len() != 3 {
         return Vec::new();
     }
     let letter = &claim.children[0];
@@ -1542,7 +1547,7 @@ fn proof_owes(owner: &Step, claim: &Node, known: &Known) -> Checked<Owed> {
 
 /// The sentences a formula says, an "and" taken apart, in order.
 fn conjuncts(node: &Node) -> Vec<Node> {
-    if node.notation == "conjunction" && node.children.len() == 2 {
+    if node.notation() == CONJUNCTION && node.children.len() == 2 {
         node.children.iter().flat_map(conjuncts).collect()
     } else {
         vec![node.clone()]
@@ -3110,7 +3115,7 @@ fn relation_sides(node: &Node) -> Vec<&Node> {
 fn algebra_relation(node: &Node) -> bool {
     match (node.notation.as_str(), node.children.as_slice()) {
         ("equality", [_, _]) => true,
-        ("logical-not", [inner]) => inner.notation == "equality",
+        ("logical-not", [inner]) => inner.notation() == EQUALITY,
         _ => false,
     }
 }
@@ -3422,7 +3427,7 @@ pub fn check_method_cites_used(
         for (i, req) in step.requires.iter().enumerate() {
             let membership = known
                 .whole(step, &req.fact)
-                .is_some_and(|n| n.notation == "membership");
+                .is_some_and(|n| n.notation() == MEMBERSHIP);
             if i + 1 != step.requires.len() || membership {
                 continue;
             }
@@ -3610,7 +3615,7 @@ fn membership_holds(
     else {
         return false;
     };
-    let Some(system) = (set.notation == "number-systems")
+    let Some(system) = (set.notation() == NUMBER_SYSTEMS)
         .then(|| System::of_sign(&set.text))
         .flatten()
     else {
@@ -3692,7 +3697,7 @@ impl MembershipIn {
         // types among what the claim rests on, and none merely in scope.
         let typed: Vec<Node> = facts
             .iter()
-            .filter(|f| f.notation == "function-type")
+            .filter(|f| f.notation() == FUNCTION_TYPE)
             .cloned()
             .collect();
         MembershipIn {
@@ -3958,7 +3963,7 @@ fn written_out(node: &Node, known: &Known) -> Node {
     let (index, start, end, body, joined) =
         match (here.notation.as_str(), here.children.as_slice()) {
             ("product-over", [index, range, body]) => match range.children.as_slice() {
-                [start, end] if range.notation == "integer-range" => {
+                [start, end] if range.notation() == INTEGER_RANGE => {
                     (index, start, end, body, ("multiplicative", "·"))
                 }
                 _ => return here,
@@ -3969,7 +3974,7 @@ fn written_out(node: &Node, known: &Known) -> Node {
             _ => return here,
         };
     let bound = |n: &Node| {
-        (n.notation == "numeral")
+        (n.notation() == NUMERAL)
             .then(|| n.text.parse::<u64>().ok())
             .flatten()
     };
@@ -4033,7 +4038,7 @@ pub fn check_closed_arithmetic(report: &mut Report, thm: &Theorem, known: &Known
             // An order is worked out of numerals alone: one relating terms
             // with letters in them is inequalities', which a step of its own
             // shows and the link cites.
-            if !claim.names().is_empty() && claim.notation == "order" {
+            if !claim.names().is_empty() && claim.notation() == ORDER {
                 report.say(
                     &thm.path,
                     link.line.line,
@@ -4080,7 +4085,7 @@ pub fn check_closed_by_arithmetic(report: &mut Report, thm: &Theorem, known: &Kn
                     parts
                         .iter()
                         .filter(|m| m.children.is_empty())
-                        .all(|m| m.notation == "numeral")
+                        .all(|m| m.notation() == NUMERAL)
                         && !parts.iter().any(|m| {
                             matches!(
                                 m.sort.name(),
@@ -4134,12 +4139,12 @@ pub fn check_closed_by_arithmetic(report: &mut Report, thm: &Theorem, known: &Kn
 /// (`METHODS.md`), or that every member of a set has a term in one.
 pub fn check_membership_claims(report: &mut Report, thm: &Theorem, known: &Known) {
     fn says_membership(node: &Node) -> bool {
-        if node.notation == "for-all" && node.children.len() == 3 {
+        if node.notation() == FOR_ALL && node.children.len() == 3 {
             return says_membership(&node.children[2]);
         }
-        node.notation == "membership"
+        node.notation() == MEMBERSHIP
             && node.children.len() == 2
-            && node.children[1].notation == "number-systems"
+            && node.children[1].notation() == NUMBER_SYSTEMS
     }
     for step in &thm.steps {
         if !step.just.head.is(Method::Membership) {
@@ -4317,12 +4322,12 @@ fn recursion_value(
     env: Env,
     sorts: &Sorts,
 ) -> Checked<Option<(Node, Option<Node>)>> {
-    let (rule, index) = if at.notation == "numeral" && at.text == "0" {
+    let (rule, index) = if at.notation() == NUMERAL && at.text == "0" {
         (&said.start[name], None)
-    } else if at.notation == "additive"
+    } else if at.notation() == ADDITIVE
         && at.text == "+"
         && at.children.len() == 2
-        && at.children[1].notation == "numeral"
+        && at.children[1].notation() == NUMERAL
         && at.children[1].text == "1"
     {
         (&said.step[name], Some(at.children[0].clone()))
@@ -4357,7 +4362,7 @@ fn case_taken(
     known: &Known,
 ) -> Case {
     let mut node = node.clone();
-    while node.notation == "by-cases" && node.children.len() == 3 {
+    while node.notation() == BY_CASES && node.children.len() == 3 {
         let (value, condition, rest) = (
             node.children[0].clone(),
             node.children[1].clone(),
@@ -4411,7 +4416,7 @@ fn recursion_equation(
     let kids = &claims[0].children;
     let orders = [(&kids[0], &kids[1]), (&kids[1], &kids[0])];
     for (one, other) in orders {
-        if !(one.notation == "application"
+        if !(one.notation() == APPLICATION
             && one.children.len() == 2
             && one.children[0].is_name()
             && said.names.contains(&one.children[0].text))
@@ -4435,7 +4440,7 @@ fn recursion_equation(
         };
         if let Some(index) = &index {
             let said_in = facts.iter().any(|f| {
-                f.notation == "membership"
+                f.notation() == MEMBERSHIP
                     && f.children.len() == 2
                     && known.alike(&f.children[0], index)
                     && f.children[1].text == said.domain
@@ -4507,7 +4512,7 @@ pub fn check_recursions(report: &mut Report, thm: &Theorem, env: Env, known: &Kn
                     }
                 };
                 let applied = |node: &Node| {
-                    node.notation == "application"
+                    node.notation() == APPLICATION
                         && node.children.len() == 2
                         && node.children[0].is_name()
                         && said.names.contains(&node.children[0].text)

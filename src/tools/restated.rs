@@ -126,11 +126,12 @@ impl<'a> Shapes<'a> {
                 let name = tree.children.get(held)?.written(sentence)?;
                 let set_node = tree.children.get(*set)?;
                 let written = set_node.written(sentence)?;
-                let membership = if set_node.notation == "functions-from" {
-                    format!("{name} : {written}")
-                } else {
-                    format!("{name} ∈ {written}")
-                };
+                let membership =
+                    if set_node.notation() == crate::notations::FUNCTIONS_FROM {
+                        format!("{name} : {written}")
+                    } else {
+                        format!("{name} ∈ {written}")
+                    };
                 names.push(Witness { name, membership });
             }
             let [body] = binds.body.as_slice() else {
@@ -496,11 +497,11 @@ fn unasked(r: &Record, h: &Hypothesis, g: &Grammar, sorts: &Sorts) -> bool {
     let Ok(said) = introduced.body.sentence().and_then(|s| s.read(g, sorts)) else {
         return false;
     };
-    said.notation == "membership"
+    said.notation() == crate::notations::MEMBERSHIP
         && said
             .children
             .get(1)
-            .is_some_and(|set| set.notation == "number-systems")
+            .is_some_and(|set| set.notation() == crate::notations::NUMBER_SYSTEMS)
 }
 
 /// Whether a record's line claims something: any but a thing named of a

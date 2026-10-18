@@ -10,6 +10,9 @@ use crate::formula::{Node, NodeId};
 use crate::matching::{
     alike, match_tree, substitute_apart, Binding, Context, PROPERTY,
 };
+use crate::notations::{
+    FOR_ALL, FUNCTIONS_FROM, FUNCTION_TYPE, INTEGER_RANGE, NUMBER_SYSTEMS, NUMERAL,
+};
 use crate::rules;
 
 use super::library::{either_way, Library};
@@ -268,7 +271,7 @@ fn settled(
         && pattern.children.len() == 2
         && pattern.children[0].is_name();
     !(applied
-        || pattern.notation == "for-all"
+        || pattern.notation() == FOR_ALL
         || library.exists.contains(&pattern.notation))
 }
 
@@ -544,16 +547,16 @@ fn all_bound(tree: &Node, variables: &BTreeSet<String>, binding: &Binding) -> bo
 /// `rules::WITHIN` and `rules::RANGE_WITHIN` are the table, which the
 /// elaborator reads as well.
 pub fn set_within(inner: &Node, outer: &Node) -> bool {
-    if outer.notation != "number-systems" {
+    if outer.notation() != NUMBER_SYSTEMS {
         return false;
     }
     let big = rules::System::of_sign(&outer.text);
-    if inner.notation == "number-systems" {
+    if inner.notation() == NUMBER_SYSTEMS {
         return rules::System::maybe_within(rules::System::of_sign(&inner.text), big);
     }
-    if inner.notation == "integer-range" && inner.children.len() == 2 {
+    if inner.notation() == INTEGER_RANGE && inner.children.len() == 2 {
         let start = &inner.children[0];
-        let begins = if start.notation == "numeral" {
+        let begins = if start.notation() == NUMERAL {
             start
                 .text
                 .parse::<u32>()
@@ -578,8 +581,8 @@ fn narrowed(
     binding: &Binding,
     ctx: &Context,
 ) -> Option<Node> {
-    if pattern.notation != "for-all"
-        || fact.notation != "for-all"
+    if pattern.notation() != FOR_ALL
+        || fact.notation() != FOR_ALL
         || pattern.children.len() != 3
         || fact.children.len() != 3
     {
@@ -647,8 +650,8 @@ fn typed_into(
     else {
         return false;
     };
-    if domain.notation != "functions-from"
-        || fact.notation != "function-type"
+    if domain.notation() != FUNCTIONS_FROM
+        || fact.notation() != FUNCTION_TYPE
         || f.shape() != value.shape()
     {
         return false;
