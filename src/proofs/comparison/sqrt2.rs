@@ -8,7 +8,7 @@
 use crate::mm::spell::{
     cel, div, dvds, eq, exp, le, lt, mul, ne, rex, w3a, wa, wb, wi, wn,
 };
-use crate::seq;
+use crate::seq_text as seq;
 
 const TWO: &str = "c2";
 const ONE: &str = "c1";

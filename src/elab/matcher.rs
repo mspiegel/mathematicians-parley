@@ -35,10 +35,10 @@ use crate::formula::symbol::Symbol;
 use crate::formula::Node;
 use crate::mm::kernel::Term;
 use crate::mm::spell::Proof;
-use crate::mm::Signature;
+use crate::mm::{Rpn, Signature};
 use crate::outcome::{Built, Checked, Decline, Declined, Route};
 use crate::rules::{self, discharge, lookup, Join, Side};
-use crate::{pf, t, take};
+use crate::{pf, t_text as t, take};
 
 /// One rule of the standard form: its label, the side it rewrites, the side
 /// it becomes, and the lemma's variables.
@@ -98,10 +98,10 @@ impl<'a> Elaborator<'a> {
             return found.clone();
         }
         let kept = std::mem::take(&mut self.binding);
-        let term = self.to_term(claim);
+        let term = self.of_text(claim);
         let written = self.written_form(&term);
         self.binding = kept;
-        let key = self.rpn(&written);
+        let key = self.txt(&written);
         self.fact_keys.insert(claim.to_string(), key.clone());
         key
     }
@@ -194,7 +194,7 @@ impl<'a> Elaborator<'a> {
         // The normalizer proves under the innermost frame it may (`allowed`),
         // and the fact is held under `scope`, which may be an outer one: the
         // two are made one claim at a frame of `scope`'s own.
-        let (was, now) = (self.to_term(stored), self.to_term(wanted));
+        let (was, now) = (self.of_text(stored), self.of_text(wanted));
         let across = self.frames_kept(|me| {
             me.frames.push(Frame {
                 scope: scope.to_string(),
@@ -264,7 +264,7 @@ impl<'a> Elaborator<'a> {
             return Ok(None);
         }
         let Some(at) =
-            self.fits_as(&shape, &self.to_term(wanted), &names_of(&shape), None)
+            self.fits_as(&shape, &self.of_text(wanted), &names_of(&shape), None)
         else {
             return Ok(None);
         };
@@ -280,7 +280,7 @@ impl<'a> Elaborator<'a> {
             for (&letter, &i) in letters.iter().zip(order) {
                 put.insert(letter, points[i].clone());
             }
-            me.rpn(&shape.substitute(&put))
+            me.txt(&shape.substitute(&put))
         };
         let swap = |o: &[usize]| vec![o[0], o[2], o[1]];
         let rotate = |o: &[usize]| vec![o[1], o[2], o[0]];
@@ -326,7 +326,7 @@ impl<'a> Elaborator<'a> {
                 } else {
                     rotate(&order)
                 };
-                let next = self.to_term(&named(self, &order));
+                let next = self.of_text(&named(self, &order));
                 let Built(made) =
                     self.apply_lemma(label, &next, scope, &known, None, false, None)?
                 else {
@@ -442,8 +442,8 @@ impl<'a> Elaborator<'a> {
         if !settled.is_declined() {
             return Ok(settled);
         }
-        let (want, bare) = (self.rpn(wanted), self.without_identities(wanted));
-        let bare_rpn = self.rpn(&bare);
+        let (want, bare) = (self.txt(wanted), self.without_identities(wanted));
+        let bare_rpn = self.txt(&bare);
         if bare_rpn == want {
             return Ok(settled);
         }
@@ -484,7 +484,7 @@ impl<'a> Elaborator<'a> {
         let numeral = wanted.label() == Some("wcel")
             && wanted.children().len() == 2
             && self
-                .rpn(&wanted.children()[0])
+                .txt(&wanted.children()[0])
                 .split_whitespace()
                 .all(rules::numeric);
         if !numeral {
@@ -492,7 +492,7 @@ impl<'a> Elaborator<'a> {
                 return Ok(Built(p));
             }
         }
-        let rpn = self.rpn(wanted);
+        let rpn = self.txt(wanted);
         if let Some(p) = self.held(&facts, &rpn, scope)? {
             return Ok(Built(p));
         }
@@ -505,9 +505,9 @@ impl<'a> Elaborator<'a> {
         // A term equals itself, which no line need write.
         if label == "wceq"
             && kids.len() == 2
-            && self.rpn(&kids[0]) == self.rpn(&kids[1])
+            && self.txt(&kids[0]) == self.txt(&kids[1])
         {
-            let a = self.rpn(&kids[0]);
+            let a = self.txt(&kids[0]);
             return Ok(Built(self.b.ap(
                 "eqidd",
                 &binds! {"ph" => scope, "A" => &a},
@@ -521,7 +521,7 @@ impl<'a> Elaborator<'a> {
             && kids[1]
                 .label()
                 .is_some_and(|l| lookup(rules::SYSTEMS, l).is_some())
-            && self.rpn(&kids[0]).split_whitespace().all(rules::numeric)
+            && self.txt(&kids[0]).split_whitespace().all(rules::numeric)
         {
             // Inside the search that works out one number, the numbers it is
             // built from are looked up and not searched for again.
@@ -536,7 +536,7 @@ impl<'a> Elaborator<'a> {
         }
         // Whether a term is a set is read off its structure, not searched
         // for.
-        if label == "wcel" && kids.len() == 2 && self.rpn(&kids[1]) == "cvv" {
+        if label == "wcel" && kids.len() == 2 && self.txt(&kids[1]) == "cvv" {
             let made = self.made_a_set(wanted, scope, &facts)?;
             if !made.is_declined() {
                 return Ok(made);
@@ -545,7 +545,7 @@ impl<'a> Elaborator<'a> {
         // A membership a requires line wrote in another number system is the
         // one to carry, before the lemmas below are tried in their order.
         if label == "wcel" && kids.len() == 2 {
-            let (s, sys) = (self.rpn(&kids[0]), self.rpn(&kids[1]));
+            let (s, sys) = (self.txt(&kids[0]), self.txt(&kids[1]));
             if let Some(found) = self.bridged(&s, &sys, scope, &facts)? {
                 return Ok(Built(found));
             }
@@ -681,7 +681,7 @@ impl<'a> Elaborator<'a> {
         // A define's name is equal to its map by the define's own line,
         // which every step may rest on.
         let var = match (named.label(), named.children()) {
-            (Some("cv"), [v]) => self.rpn(v),
+            (Some("cv"), [v]) => self.txt(v),
             _ => return Ok(None),
         };
         let (Some(body), Some(label)) = (
@@ -690,7 +690,7 @@ impl<'a> Elaborator<'a> {
         ) else {
             return Ok(None);
         };
-        let map = self.to_term(&body);
+        let map = self.of_text(&body);
         if map.variable().is_some() || map.label() != Some("cmpt") {
             return Ok(None);
         }
@@ -698,7 +698,7 @@ impl<'a> Elaborator<'a> {
         else {
             return Ok(None);
         };
-        let (a, c, name) = (self.rpn(domain), self.rpn(codomain), self.rpn(named));
+        let (a, c, name) = (self.txt(domain), self.txt(codomain), self.txt(named));
         let Some(equal) = self.held(facts, &t!(name, body, "wceq"), scope)? else {
             return Ok(None);
         };
@@ -707,7 +707,7 @@ impl<'a> Elaborator<'a> {
             &binds! {"ph" => scope, "A" => &a, "B" => &c, "F" => &name, "G" => &body},
             &[&equal],
         );
-        let want = self.rpn(wanted);
+        let want = self.txt(wanted);
         let theirs = t!(a, c, body, "wf");
         let made = pf!(self.b; scope, want, theirs, typed, turned, "mpbird");
         // The page says the type once, on the define's line, and a step
@@ -733,19 +733,19 @@ impl<'a> Elaborator<'a> {
         let [x, over, rule] = map.children() else {
             return Ok(None);
         };
-        if self.rpn(over) != self.rpn(domain) {
+        if self.txt(over) != self.txt(domain) {
             return Ok(None);
         }
         let (x, over, rule, codomain, map) = (
-            self.rpn(x),
-            self.rpn(over),
-            self.rpn(rule),
-            self.rpn(codomain),
-            self.rpn(map),
+            self.txt(x),
+            self.txt(over),
+            self.txt(rule),
+            self.txt(codomain),
+            self.txt(map),
         );
         let every = t!(t!(rule, codomain, "wcel"), x, over, "wral");
         let Built(each) =
-            self.settle(&self.to_term(&every), scope, facts, depth - 1, None, None)?
+            self.settle(&self.of_text(&every), scope, facts, depth - 1, None, None)?
         else {
             return Ok(None);
         };
@@ -773,26 +773,26 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
     ) -> Checked<Option<Proof>> {
         for (said, held) in facts.entries() {
-            let whole = self.to_term(&said);
+            let whole = self.of_text(&said);
             if whole.variable().is_some() || whole.label() != Some("wral") {
                 continue;
             }
             let (body, letter, domain) = (
                 whole.children()[0].clone(),
-                self.rpn(&whole.children()[1]),
-                self.rpn(&whole.children()[2]),
+                self.txt(&whole.children()[1]),
+                self.txt(&whole.children()[2]),
             );
             let mark = format!("{letter} cv");
             for (member, inside) in facts.entries() {
-                let m = self.to_term(&member);
+                let m = self.of_text(&member);
                 if m.variable().is_some()
                     || m.label() != Some("wcel")
-                    || self.rpn(&m.children()[1]) != domain
+                    || self.txt(&m.children()[1]) != domain
                 {
                     continue;
                 }
-                let at = self.rpn(&m.children()[0]);
-                let instance = self.rpn(&self.restated(&body, &mark, &at));
+                let at = self.txt(&m.children()[0]);
+                let instance = self.txt(&self.restated(&body, &mark, &at));
                 let across = if instance == wanted {
                     None
                 } else if self.rebound(&instance, wanted) {
@@ -803,7 +803,7 @@ impl<'a> Elaborator<'a> {
                 } else {
                     continue;
                 };
-                let ph = self.rpn(&body);
+                let ph = self.txt(&body);
                 // At the letter it binds the instance is the body itself, and
                 // `rsp` takes it: `rspcv` keeps its term apart from the letter.
                 let applied = if at == mark {
@@ -820,7 +820,7 @@ impl<'a> Elaborator<'a> {
                         &[&taken],
                     )
                 } else {
-                    let tie = self.to_term(&t!(
+                    let tie = self.of_text(&t!(
                         t!(mark, at, "wceq"),
                         t!(ph, instance, "wb"),
                         "wi"
@@ -863,17 +863,17 @@ impl<'a> Elaborator<'a> {
         depth: i32,
     ) -> Checked<Option<Proof>> {
         for (said, _) in facts.entries() {
-            let whole = self.to_term(&said);
+            let whole = self.of_text(&said);
             if whole.variable().is_some() || whole.label() != Some("wral") {
                 continue;
             }
             let (body, letter, domain) = (
                 whole.children()[0].clone(),
-                self.rpn(&whole.children()[1]),
-                self.rpn(&whole.children()[2]),
+                self.txt(&whole.children()[1]),
+                self.txt(&whole.children()[2]),
             );
             // The body with its letter a pattern variable no part of it names.
-            let text = self.rpn(&body);
+            let text = self.txt(&body);
             let Some(hole) = ["A", "B", "C", "D", "E", "F"]
                 .into_iter()
                 .find(|v| !text.split_whitespace().any(|t| t == *v))
@@ -920,24 +920,24 @@ impl<'a> Elaborator<'a> {
             let Some(at) = binding.and_then(|b| b.get(hole).cloned()) else {
                 continue;
             };
-            let at = self.rpn(&at);
+            let at = self.txt(&at);
             if at.split_whitespace().any(|t| t == letter) {
                 continue;
             }
-            let member = self.to_term(&t!(at, domain, "wcel"));
+            let member = self.of_text(&t!(at, domain, "wcel"));
             let Built(inside) =
                 self.settle(&member, scope, facts, depth - 1, None, None)?
             else {
                 continue;
             };
             let there = facts.copy();
-            self.know(&there, self.rpn(&member), inside);
+            self.know(&there, self.txt(&member), inside);
             let instance =
-                self.rpn(&self.restated(&body, &format!("{letter} cv"), &at));
+                self.txt(&self.restated(&body, &format!("{letter} cv"), &at));
             let Some(p) = self.instance_of_universal(&instance, scope, &there)? else {
                 continue;
             };
-            let rpn = self.rpn(wanted);
+            let rpn = self.txt(wanted);
             if instance == rpn {
                 return Ok(Some(p));
             }
@@ -947,8 +947,8 @@ impl<'a> Elaborator<'a> {
             }
             if membership(wanted) {
                 let (s, sys) = (
-                    self.rpn(&wanted.children()[0]),
-                    self.rpn(&wanted.children()[1]),
+                    self.txt(&wanted.children()[0]),
+                    self.txt(&wanted.children()[1]),
                 );
                 if let Some(found) = self.bridged(&s, &sys, scope, &there)? {
                     return Ok(Some(found));
@@ -1008,7 +1008,7 @@ impl<'a> Elaborator<'a> {
             if given.label() == Some("wcel")
                 && gives.label() == Some("wcel")
                 && given.children()[0].variable().is_some()
-                && self.rpn(&given.children()[0]) == self.rpn(&gives.children()[0])
+                && self.txt(&given.children()[0]) == self.txt(&gives.children()[0])
             {
                 return Role::Carrier;
             }
@@ -1058,7 +1058,7 @@ impl<'a> Elaborator<'a> {
             && node.children().len() == 2
             && node.children()[1].names().is_empty()
         {
-            return HeadKey::Member(self.rpn(&node.children()[1]));
+            return HeadKey::Member(self.txt(&node.children()[1]));
         }
         HeadKey::Head(node.label().unwrap_or("").to_string())
     }
@@ -1072,7 +1072,7 @@ impl<'a> Elaborator<'a> {
         }
         keys.insert(HeadKey::Head(wanted.label().unwrap_or("").to_string()));
         if wanted.label() == Some("wcel") && wanted.children().len() == 2 {
-            keys.insert(HeadKey::Member(self.rpn(&wanted.children()[1])));
+            keys.insert(HeadKey::Member(self.txt(&wanted.children()[1])));
         }
         keys
     }
@@ -1091,7 +1091,7 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         depth: i32,
     ) -> Checked<Route<Proof>> {
-        let want = self.rpn(wanted);
+        let want = self.txt(wanted);
         if self.rewriting.contains(&want) {
             return Ok(self.no("{} is already being rewritten", &[&want]));
         }
@@ -1111,7 +1111,7 @@ impl<'a> Elaborator<'a> {
         depth: i32,
     ) -> Checked<Route<Proof>> {
         for said in facts.keys() {
-            let equation = self.to_term(&said);
+            let equation = self.of_text(&said);
             if equation.label() != Some("wceq") || equation.children().len() != 2 {
                 continue;
             }
@@ -1126,14 +1126,14 @@ impl<'a> Elaborator<'a> {
                 {
                     continue;
                 }
-                let (was, now) = (self.rpn(old), self.rpn(new));
+                let (was, now) = (self.txt(old), self.txt(new));
                 // A numeral is a constant however set.mm spells it, and so is
                 // a sum of them.
                 if was.split_whitespace().all(rules::numeric) {
                     continue;
                 }
                 let put = self.replaced(wanted, &was, new);
-                if self.rpn(&put) == want {
+                if self.txt(&put) == want {
                     continue;
                 }
                 let Built(under) =
@@ -1153,7 +1153,7 @@ impl<'a> Elaborator<'a> {
                     continue;
                 };
                 return Ok(Built(
-                    pf!(self.b; scope, self.rpn(&put), want, under, alike, "mpbid"),
+                    pf!(self.b; scope, self.txt(&put), want, under, alike, "mpbid"),
                 ));
             }
         }
@@ -1162,7 +1162,7 @@ impl<'a> Elaborator<'a> {
 
     /// `term` with every occurrence of the term spelt `was` put as `new`.
     pub(crate) fn replaced(&self, term: &Term, was: &str, new: &Term) -> Term {
-        if self.rpn(term) == was {
+        if self.txt(term) == was {
             return new.clone();
         }
         if term.variable().is_some() || term.children().is_empty() {
@@ -1195,7 +1195,7 @@ impl<'a> Elaborator<'a> {
         depth: i32,
     ) -> Checked<Option<Proof>> {
         let _ = depth;
-        let want = self.rpn(wanted);
+        let want = self.txt(wanted);
         if !self.saying.is_empty() {
             return Ok(None);
         }
@@ -1218,7 +1218,7 @@ impl<'a> Elaborator<'a> {
             if said == want {
                 continue;
             }
-            let alike = self.same(&self.to_term(&said), wanted, scope, facts, None)?;
+            let alike = self.same(&self.of_text(&said), wanted, scope, facts, None)?;
             if let Built(alike) = alike {
                 return Ok(Some(pf!(self.b; scope, said, want, proof, alike, "mpbid")));
             }
@@ -1367,7 +1367,7 @@ impl<'a> Elaborator<'a> {
             .keys()
             .iter()
             .map(|held| {
-                let held = self.to_term(held);
+                let held = self.of_text(held);
                 self.read_through(&held, false, None)
             })
             .collect();
@@ -1455,14 +1455,14 @@ impl<'a> Elaborator<'a> {
             &proofs.iter().collect::<Vec<_>>(),
         );
         if antecedents.is_empty() {
-            return Ok(Some(pf!(self.b; self.rpn(wanted), scope, proof, "a1i")));
+            return Ok(Some(pf!(self.b; self.txt(wanted), scope, proof, "a1i")));
         }
         for (i, slot) in antecedents.iter().enumerate() {
             let asks = slot.substitute(&binding);
-            let mut rest = self.rpn(wanted);
+            let mut rest = self.txt(wanted);
             for (later, join) in antecedents[i + 1..].iter().zip(&joins[i + 1..]).rev()
             {
-                let said = self.rpn(&later.substitute(&binding));
+                let said = self.txt(&later.substitute(&binding));
                 // A biconditional read backwards states its sides the other
                 // way round from the order they are taken in.
                 rest = if *join == Join::Iff && backwards {
@@ -1481,7 +1481,7 @@ impl<'a> Elaborator<'a> {
             if joins[i] == Join::Iff && backwards {
                 fold = if first { "sylibr" } else { "mpbird" };
             }
-            proof = pf!(self.b; scope, self.rpn(&asks), rest, under, proof, fold);
+            proof = pf!(self.b; scope, self.txt(&asks), rest, under, proof, fold);
         }
         Ok(Some(proof))
     }
@@ -1668,8 +1668,8 @@ impl<'a> Elaborator<'a> {
         // `iuneq1d` take the letter before the domains, so their parts are
         // given by name.
         if (head == "cmpt" || head == "ciun") && slots == [1] {
-            let old_map = self.to_term(&t!(was[0], was[1], was[2], label));
-            let new_map = self.to_term(&t!(now[0], now[1], now[2], label));
+            let old_map = self.of_text(&t!(was[0], was[1], was[2], label));
+            let new_map = self.of_text(&t!(now[0], now[1], now[2], label));
             if let Some(wider) =
                 self.domain_holding(&old_map, &new_map, scope, &deeper[0])
             {
@@ -1819,8 +1819,8 @@ impl<'a> Elaborator<'a> {
                 }
                 // A pair arithmetic does not work out whole, 2! and (1 + 1)!,
                 // is carried a level in, where the pieces that change are.
-                let claim = t!(self.rpn(one), self.rpn(other), "wceq");
-                if super::field::decide_closed(&self.to_term(&claim)).is_declined() {
+                let claim = t!(self.txt(one), self.txt(other), "wceq");
+                if super::field::decide_closed(&self.of_text(&claim)).is_declined() {
                     return Ok(None);
                 }
                 self.closed_fact(&claim, where_, held, what, Some(step))
@@ -1839,15 +1839,15 @@ impl<'a> Elaborator<'a> {
         where_: &str,
         held: &Facts,
     ) -> Checked<Option<Route<Proof>>> {
-        if self.rpn(one) == self.rpn(other) || self.is_wff(one) {
+        if self.txt(one) == self.txt(other) || self.is_wff(one) {
             return Ok(None);
         }
         let bare = self.without_identities(one);
-        if self.rpn(&bare) != self.rpn(&self.without_identities(other)) {
+        if self.txt(&bare) != self.txt(&self.without_identities(other)) {
             return Ok(None);
         }
         let mut links = Vec::new();
-        if self.rpn(one) != self.rpn(&bare) {
+        if self.txt(one) != self.txt(&bare) {
             let made = match self.bared(one, where_, held)? {
                 Built(p) => p,
                 declined => return Ok(Some(declined)),
@@ -1858,7 +1858,7 @@ impl<'a> Elaborator<'a> {
                 proof: made,
             });
         }
-        if self.rpn(other) != self.rpn(&bare) {
+        if self.txt(other) != self.txt(&bare) {
             let made = match self.bared(other, where_, held)? {
                 Built(p) => p,
                 declined => return Ok(Some(declined)),
@@ -1882,8 +1882,8 @@ impl<'a> Elaborator<'a> {
         where_: &str,
         held: &Facts,
     ) -> Checked<Option<Route<Proof>>> {
-        if self.rpn(one) == self.rpn(other)
-            || self.rpn(&self.without_identities(one)) != self.rpn(other)
+        if self.txt(one) == self.txt(other)
+            || self.txt(&self.without_identities(one)) != self.txt(other)
             || one.variable().is_some()
         {
             return Ok(None);
@@ -1918,7 +1918,7 @@ impl<'a> Elaborator<'a> {
             .map(|c| self.without_identities(c))
             .collect();
         let mut cur = Term::apply(term.label().unwrap_or(""), kids);
-        if self.rpn(&cur) != self.rpn(term) {
+        if self.txt(&cur) != self.txt(term) {
             let made = take!(self.congruence(
                 term,
                 &cur,
@@ -1966,7 +1966,7 @@ impl<'a> Elaborator<'a> {
             }
         }
         let offered = held.with(&written);
-        let goal = self.to_term(&t!(self.rpn(term), self.rpn(kept), "wceq"));
+        let goal = self.of_text(&t!(self.txt(term), self.txt(kept), "wceq"));
         for label in rules::IDENTITY {
             if let Built(p) =
                 self.apply_lemma(label, &goal, where_, &offered, None, false, None)?
@@ -1974,7 +1974,7 @@ impl<'a> Elaborator<'a> {
                 return Ok(Built(p));
             }
         }
-        Ok(self.no("no identity law drops it from {}", &[&self.rpn(term)]))
+        Ok(self.no("no identity law drops it from {}", &[&self.txt(term)]))
     }
 
     /// The operand an identity element leaves, where `term` is an operation
@@ -1990,7 +1990,7 @@ impl<'a> Elaborator<'a> {
                 || law
                     .fixed
                     .iter()
-                    .any(|(k, token)| self.rpn(&term.children()[*k]) != *token)
+                    .any(|(k, token)| self.txt(&term.children()[*k]) != *token)
             {
                 continue;
             }
@@ -2001,7 +2001,7 @@ impl<'a> Elaborator<'a> {
                 } else {
                     (law.places.1, law.places.0)
                 };
-                if self.rpn(&term.children()[at]) == element {
+                if self.txt(&term.children()[at]) == element {
                     return Some(term.children()[other].clone());
                 }
             }
@@ -2017,7 +2017,7 @@ impl<'a> Elaborator<'a> {
         where_: &str,
         held: &Facts,
     ) -> Checked<Option<Route<Proof>>> {
-        let (a, b) = (self.rpn(one), self.rpn(other));
+        let (a, b) = (self.txt(one), self.txt(other));
         if a == b {
             return Ok(None);
         }
@@ -2039,7 +2039,7 @@ impl<'a> Elaborator<'a> {
         said: &str,
         flip: bool,
     ) -> Checked<Option<Route<Proof>>> {
-        if self.rpn(one) != now || self.rpn(other) != was {
+        if self.txt(one) != now || self.txt(other) != was {
             return Ok(None);
         }
         let Some(proof) = self.held(held, said, where_)? else {
@@ -2065,7 +2065,7 @@ impl<'a> Elaborator<'a> {
         now: &str,
         under: &str,
     ) -> Checked<Option<Route<Proof>>> {
-        if self.rpn(one) == was && self.rpn(other) == now {
+        if self.txt(one) == was && self.txt(other) == now {
             Ok(self.held(held, under, where_)?.map(Built))
         } else {
             Ok(None)
@@ -2162,7 +2162,7 @@ impl<'a> Elaborator<'a> {
 
     /// The term with every rule applied, parts first, each pair in order.
     pub fn standard(&mut self, term: &Term) -> Term {
-        let key = (self.rpn(term), self.binding.clone(), self.names_readable());
+        let key = (self.txt(term), self.binding.clone(), self.names_readable());
         if let Some(found) = self.standards.get(&key) {
             return found.clone();
         }
@@ -2253,7 +2253,7 @@ impl<'a> Elaborator<'a> {
             }
             if c.fixed
                 .iter()
-                .any(|(k, token)| self.rpn(&term.children()[*k]) != *token)
+                .any(|(k, token)| self.txt(&term.children()[*k]) != *token)
             {
                 continue;
             }
@@ -2288,12 +2288,12 @@ impl<'a> Elaborator<'a> {
         {
             return None;
         }
-        let var = self.rpn(&term.children()[0]);
+        let var = self.txt(&term.children()[0]);
         if !self.may_read(&var) {
             return None;
         }
         let body = self.definitions.get(&var)?;
-        Some(self.to_term(body))
+        Some(self.of_text(body))
     }
 
     /// Whether the proof being built may read the defined name `var` as what
@@ -2330,9 +2330,9 @@ impl<'a> Elaborator<'a> {
         let at = term.children()[0].clone();
         let (bound, rule) = (f.children()[0].clone(), f.children()[2].clone());
         let mut spelt: BTreeSet<String> =
-            self.rpn(&at).split_whitespace().map(String::from).collect();
+            self.txt(&at).split_whitespace().map(String::from).collect();
         let through = self.read_through(&at, true, None);
-        spelt.extend(self.rpn(&through).split_whitespace().map(String::from));
+        spelt.extend(self.txt(&through).split_whitespace().map(String::from));
         let own = bound.variable().unwrap_or("").to_string();
         let meets = |me: &Self, one: &Term| {
             me.letters_bound(one)
@@ -2350,8 +2350,8 @@ impl<'a> Elaborator<'a> {
                 rule = other;
             }
         }
-        let was = format!("{} cv", self.rpn(&bound));
-        Some(self.restated(&rule, &was, &self.rpn(&at)))
+        let was = format!("{} cv", self.txt(&bound));
+        Some(self.restated(&rule, &was, &self.txt(&at)))
     }
 
     /// The map of two arguments an application `( A F B )` applies, written
@@ -2388,7 +2388,7 @@ impl<'a> Elaborator<'a> {
         let spelt: BTreeSet<String> = [&first, &second]
             .iter()
             .flat_map(|v| {
-                self.rpn(v)
+                self.txt(v)
                     .split_whitespace()
                     .map(String::from)
                     .collect::<Vec<_>>()
@@ -2398,17 +2398,17 @@ impl<'a> Elaborator<'a> {
             .letters_bound(&rule)
             .iter()
             .map(|v| self.float_of(v))
-            .chain([self.rpn(&x), self.rpn(&y)])
+            .chain([self.txt(&x), self.txt(&y)])
             .collect();
         if bound.iter().any(|v| spelt.contains(v)) {
             return None;
         }
         let at_first =
-            self.restated(&rule, &format!("{} cv", self.rpn(&x)), &self.rpn(&first));
+            self.restated(&rule, &format!("{} cv", self.txt(&x)), &self.txt(&first));
         Some(self.restated(
             &at_first,
-            &format!("{} cv", self.rpn(&y)),
-            &self.rpn(&second),
+            &format!("{} cv", self.txt(&y)),
+            &self.txt(&second),
         ))
     }
 
@@ -2425,27 +2425,27 @@ impl<'a> Elaborator<'a> {
     ) -> Checked<Route<Proof>> {
         let kids = cur.children();
         let (a, b, written) =
-            (self.rpn(&kids[0]), self.rpn(&kids[1]), self.rpn(&kids[2]));
+            (self.txt(&kids[0]), self.txt(&kids[1]), self.txt(&kids[2]));
         let map = self.applied_map_of_two(cur).expect("an applied map of two");
         let m = map.children();
         let (x, y, c, d, r) = (
-            self.rpn(&m[0]),
-            self.rpn(&m[1]),
-            self.rpn(&m[2]),
-            self.rpn(&m[3]),
-            self.rpn(&m[4]),
+            self.txt(&m[0]),
+            self.txt(&m[1]),
+            self.txt(&m[2]),
+            self.txt(&m[3]),
+            self.txt(&m[4]),
         );
-        let s = self.rpn(nxt);
+        let s = self.txt(nxt);
         // The rule moves one letter at a time, the first to A and then the
         // second to B, and `sylan9eq` joins the two moves.
         let (x_is, y_is) = (
             t!(format!("{x} cv"), a, "wceq"),
             t!(format!("{y} cv"), b, "wceq"),
         );
-        let halfway = self.rpn(&self.restated(&m[4], &format!("{x} cv"), &a));
-        let first = self.to_term(&t!(x_is, t!(r, halfway, "wceq"), "wi"));
+        let halfway = self.txt(&self.restated(&m[4], &format!("{x} cv"), &a));
+        let first = self.of_text(&t!(x_is, t!(r, halfway, "wceq"), "wi"));
         let first = take!(self.prove_essential(&first, "", &Facts::new())?);
-        let second = self.to_term(&t!(y_is, t!(halfway, s, "wceq"), "wi"));
+        let second = self.of_text(&t!(y_is, t!(halfway, s, "wceq"), "wi"));
         let second = take!(self.prove_essential(&second, "", &Facts::new())?);
         let instance = self.b.ap(
             "sylan9eq",
@@ -2455,7 +2455,7 @@ impl<'a> Elaborator<'a> {
         let mut members = Vec::new();
         for want in [t!(a, c, "wcel"), t!(b, d, "wcel"), t!(s, "cvv", "wcel")] {
             members.push(take!(self.settle(
-                &self.to_term(&want),
+                &self.of_text(&want),
                 where_,
                 held,
                 3,
@@ -2463,7 +2463,7 @@ impl<'a> Elaborator<'a> {
                 None
             )?));
         }
-        let mapped = self.rpn(&map);
+        let mapped = self.txt(&map);
         let closed = self.b.ap(
             "ovmpoga",
             &binds! {"x" => &x, "y" => &y, "A" => &a, "B" => &b, "C" => &c, "D" => &d,
@@ -2503,7 +2503,7 @@ impl<'a> Elaborator<'a> {
     /// letters nothing holds when it is first asked for: one spelling per
     /// map, so that the rule at any value reads one way wherever it is read.
     fn rule_apart(&mut self, f: &Term) -> Term {
-        let key = self.rpn(f);
+        let key = self.txt(f);
         if let Some(found) = self.rules_read.get(&key) {
             return found.clone();
         }
@@ -2584,7 +2584,7 @@ impl<'a> Elaborator<'a> {
         where_: &str,
         held: &Facts,
     ) -> Checked<Route<Proof>> {
-        let (a, b) = (self.rpn(cur), self.rpn(nxt));
+        let (a, b) = (self.txt(cur), self.txt(nxt));
         match how {
             How::Defined => Ok(match self.held(held, &t!(a, b, "wceq"), where_)? {
                 Some(p) => Built(p),
@@ -2596,25 +2596,25 @@ impl<'a> Elaborator<'a> {
             How::Applied => self.applied_proof(cur, nxt, where_, held),
             How::Eqcom => {
                 let (left, right) =
-                    (self.rpn(&cur.children()[0]), self.rpn(&cur.children()[1]));
+                    (self.txt(&cur.children()[0]), self.txt(&cur.children()[1]));
                 let law =
                     self.b
                         .ap("eqcom", &binds! {"A" => &left, "B" => &right}, &[]);
                 Ok(Built(pf!(self.b; t!(a, b, "wb"), where_, law, "a1i")))
             }
             How::Commuted => {
-                let goal = self.to_term(&t!(a, b, "wceq"));
+                let goal = self.of_text(&t!(a, b, "wceq"));
                 self.settle(&goal, where_, held, 3, None, None)
             }
             How::Rule(label) => {
                 let wff = self.is_wff(cur);
                 let join = if wff { "wb" } else { "wceq" };
                 if lookup(rules::STANDARD, label) == Some(Side::Right) {
-                    let goal = self.to_term(&t!(a, b, join));
+                    let goal = self.of_text(&t!(a, b, join));
                     return self
                         .apply_lemma(label, &goal, where_, held, None, false, None);
                 }
-                let goal = self.to_term(&t!(b, a, join));
+                let goal = self.of_text(&t!(b, a, join));
                 let made =
                     take!(self
                         .apply_lemma(label, &goal, where_, held, None, false, None)?);
@@ -2674,15 +2674,15 @@ impl<'a> Elaborator<'a> {
             own.children()[1].clone(),
             own.children()[2].clone(),
         );
-        let c = self.rpn(nxt);
+        let c = self.txt(nxt);
         // Where the rule was read in its other spelling, the map is first
         // shown to be the same map over that spelling, closed, and the value
         // is taken there.
-        let apart = self.rules_read.get(&self.rpn(&own)).cloned();
+        let apart = self.rules_read.get(&self.txt(&own)).cloned();
         let mut renamed = None;
         if let Some(apart) = apart {
-            let was = format!("{} cv", self.rpn(&bound));
-            if self.rpn(&self.restated(&rule, &was, &self.rpn(&at))) != c {
+            let was = format!("{} cv", self.txt(&bound));
+            if self.txt(&self.restated(&rule, &was, &self.txt(&at))) != c {
                 f = Term::apply(
                     own.label().unwrap_or(""),
                     vec![bound.clone(), over.clone(), apart.clone()],
@@ -2694,19 +2694,19 @@ impl<'a> Elaborator<'a> {
                 }
             }
         }
-        let x = self.rpn(&bound);
-        let a = self.rpn(&at);
-        let b = self.rpn(&rule);
-        let d = self.rpn(&over);
-        let written_f = self.rpn(&written);
-        let tie = self.to_term(&t!(
+        let x = self.txt(&bound);
+        let a = self.txt(&at);
+        let b = self.txt(&rule);
+        let d = self.txt(&over);
+        let written_f = self.txt(&written);
+        let tie = self.of_text(&t!(
             t!(format!("{x} cv"), a, "wceq"),
             t!(b, c, "wceq"),
             "wi"
         ));
         let instance = take!(self.prove_essential(&tie, "", &Facts::new())?);
         let member = take!(self.settle(
-            &self.to_term(&t!(a, d, "wcel")),
+            &self.of_text(&t!(a, d, "wcel")),
             where_,
             held,
             3,
@@ -2714,14 +2714,14 @@ impl<'a> Elaborator<'a> {
             None
         )?);
         let a_set = take!(self.settle(
-            &self.to_term(&t!(c, "cvv", "wcel")),
+            &self.of_text(&t!(c, "cvv", "wcel")),
             where_,
             held,
             3,
             None,
             None
         )?);
-        let mapped = self.rpn(&f);
+        let mapped = self.txt(&f);
         let direct = self.b.ap(
             "fvmptd3",
             &binds! {"ph" => where_, "x" => &x, "A" => &a, "B" => &b, "C" => &c, "D" => &d, "F" => &mapped, "V" => "cvv"},
@@ -2731,7 +2731,7 @@ impl<'a> Elaborator<'a> {
             return Ok(Built(direct));
         }
         // A defined name is carried to its map first.
-        let spelt = self.rpn(&own);
+        let spelt = self.txt(&own);
         let mut named = None;
         if written_f != spelt {
             named = self.held(held, &t!(written_f, spelt, "wceq"), where_)?;
@@ -2782,14 +2782,14 @@ impl<'a> Elaborator<'a> {
             links[0].proof.clone(),
         );
         let wff = self.is_wff(&first);
-        let start = self.rpn(&first);
+        let start = self.txt(&first);
         for ChainLink {
             to: now,
             proof: more,
             ..
         } in &links[1..]
         {
-            let (mid, end) = (self.rpn(&last), self.rpn(now));
+            let (mid, end) = (self.txt(&last), self.txt(now));
             proof = if wff {
                 self.b.ap(
                     "bitrd",
@@ -2819,9 +2819,9 @@ impl<'a> Elaborator<'a> {
         {
             return false;
         }
-        let spelt: Vec<String> = one.children().iter().map(|c| self.rpn(c)).collect();
+        let spelt: Vec<String> = one.children().iter().map(|c| self.txt(c)).collect();
         let theirs: Vec<String> =
-            other.children().iter().map(|c| self.rpn(c)).collect();
+            other.children().iter().map(|c| self.txt(c)).collect();
         let label = one.label().unwrap_or("");
         if label == "wrex" && spelt[1] != theirs[1] {
             return false;
@@ -2851,7 +2851,7 @@ impl<'a> Elaborator<'a> {
         where_: &str,
         held: &Facts,
     ) -> Checked<Option<Route<Proof>>> {
-        if self.rpn(one) == self.rpn(other) {
+        if self.txt(one) == self.txt(other) {
             return Ok(None);
         }
         // A function applied keeps its function.
@@ -2870,12 +2870,12 @@ impl<'a> Elaborator<'a> {
             })
             .collect();
         let parts = Term::apply(one.label().unwrap_or(""), kids);
-        if self.rpn(&parts) == self.rpn(other) && self.lifts(one, &parts) {
+        if self.txt(&parts) == self.txt(other) && self.lifts(one, &parts) {
             return Ok(None);
         }
         let mut links: Vec<ChainLink> = Vec::new();
         let mut cur = one.clone();
-        if self.rpn(&parts) != self.rpn(one) {
+        if self.txt(&parts) != self.txt(one) {
             if !self.lifts(one, &parts) {
                 return Ok(Some(Route::no("the parts cannot be rewritten in place")));
             }
@@ -2909,7 +2909,7 @@ impl<'a> Elaborator<'a> {
             to: nxt.clone(),
             proof: made,
         });
-        if self.rpn(&nxt) != self.rpn(other) {
+        if self.txt(&nxt) != self.txt(other) {
             let made = self.congruence(
                 &nxt,
                 other,
@@ -2940,7 +2940,7 @@ impl<'a> Elaborator<'a> {
         where_: &str,
         held: &Facts,
     ) -> Checked<Option<Route<Proof>>> {
-        let (a, b) = (self.rpn(one), self.rpn(other));
+        let (a, b) = (self.txt(one), self.txt(other));
         if a == b {
             return Ok(None);
         }
@@ -2961,7 +2961,7 @@ impl<'a> Elaborator<'a> {
             }
         }
         let (ours, theirs) = (self.standard(one), self.standard(other));
-        let (said, want) = (self.rpn(&ours), self.rpn(&theirs));
+        let (said, want) = (self.txt(&ours), self.txt(&theirs));
         // Letters bound at two depths are paired at each by `class_alpha`
         // and not by `rebound`, which pairs them once for the whole term.
         if said != want && !self.rebound(&said, &want) {
@@ -2997,7 +2997,7 @@ impl<'a> Elaborator<'a> {
                 to: nxt.clone(),
                 proof: made,
             }];
-            if self.rpn(&nxt) != self.rpn(y) {
+            if self.txt(&nxt) != self.txt(y) {
                 let Built(rest) = self.congruence(
                     &nxt,
                     y,
@@ -3023,7 +3023,7 @@ impl<'a> Elaborator<'a> {
             })));
         }
         let mut links: Vec<ChainLink> = Vec::new();
-        if self.rpn(&ours) != a {
+        if self.txt(&ours) != a {
             let made = self.congruence(
                 one,
                 &ours,
@@ -3058,7 +3058,7 @@ impl<'a> Elaborator<'a> {
                 proof: pf!(self.b; t!(said, want, join), where_, renamed, "a1i"),
             });
         }
-        if self.rpn(&theirs) != b {
+        if self.txt(&theirs) != b {
             let made = self.congruence(
                 other,
                 &theirs,
@@ -3087,7 +3087,7 @@ impl<'a> Elaborator<'a> {
         one: &Term,
         other: &Term,
     ) -> Checked<Option<Proof>> {
-        let (a, b) = (self.rpn(one), self.rpn(other));
+        let (a, b) = (self.txt(one), self.txt(other));
         self.renaming_apart(&a, &b)
     }
 
@@ -3096,9 +3096,9 @@ impl<'a> Elaborator<'a> {
     /// bind, which only `class_renamed` closes and only at the class itself.
     fn alike_in_place(&mut self, one: &Term, other: &Term) -> bool {
         let said = self.standard(one);
-        let said = self.rpn(&said);
+        let said = self.txt(&said);
         let want = self.standard(other);
-        let want = self.rpn(&want);
+        let want = self.txt(&want);
         said == want || (!self.is_wff(one) && self.rebound(&said, &want))
     }
 
@@ -3132,8 +3132,8 @@ impl<'a> Elaborator<'a> {
         };
         let apart = domain.substitute(&moved);
         let to_apart = |me: &mut Self, d: &Term| -> Checked<Option<Proof>> {
-            if me.rpn(d) == me.rpn(&apart) {
-                let d = me.rpn(d);
+            if me.txt(d) == me.txt(&apart) {
+                let d = me.txt(d);
                 return Ok(Some(me.b.ap("eqid", &binds! {"A" => &d}, &[])));
             }
             me.class_alpha(d, &apart)
@@ -3162,10 +3162,10 @@ impl<'a> Elaborator<'a> {
             return Ok(None);
         };
         let (a, b, c, d) = (
-            self.rpn(one),
-            self.rpn(&one_there),
-            self.rpn(&other_there),
-            self.rpn(other),
+            self.txt(one),
+            self.txt(&one_there),
+            self.txt(&other_there),
+            self.txt(other),
         );
         let to_there = self.b.ap(
             "eqtri",
@@ -3226,7 +3226,7 @@ impl<'a> Elaborator<'a> {
     /// A closed proof of `one = other`, two classes that differ only in the
     /// letters they bind; None where they differ in more, or not at all.
     pub fn class_alpha(&mut self, one: &Term, other: &Term) -> Checked<Option<Proof>> {
-        let (a, b) = (self.rpn(one), self.rpn(other));
+        let (a, b) = (self.txt(one), self.txt(other));
         if a == b
             || one.variable().is_some()
             || other.variable().is_some()
@@ -3240,7 +3240,7 @@ impl<'a> Elaborator<'a> {
             // The renaming lemmas hold their two letters apart, so they are
             // asked only where the letters differ.
             let letters = label != "cmpt"
-                || self.rpn(&one.children()[0]) != self.rpn(&other.children()[0]);
+                || self.txt(&one.children()[0]) != self.txt(&other.children()[0]);
             if letters && label == "cmpt" {
                 if let Some(p) = self.renamed_over_a_domain_apart(one, other)? {
                     return Ok(Some(p));
@@ -3256,8 +3256,8 @@ impl<'a> Elaborator<'a> {
                 // each by itself, and `mpteq12i` asks nothing of the letter.
                 let mut parts = Vec::new();
                 for (x, y) in one.children()[1..].iter().zip(&other.children()[1..]) {
-                    if self.rpn(x) == self.rpn(y) {
-                        let x = self.rpn(x);
+                    if self.txt(x) == self.txt(y) {
+                        let x = self.txt(x);
                         parts.push(Some(self.b.ap("eqid", &binds! {"A" => &x}, &[])));
                     } else {
                         parts.push(self.class_alpha(x, y)?);
@@ -3268,9 +3268,9 @@ impl<'a> Elaborator<'a> {
                 }
                 let parts: Vec<Proof> = parts.into_iter().flatten().collect();
                 let k: Vec<String> =
-                    one.children().iter().map(|c| self.rpn(c)).collect();
+                    one.children().iter().map(|c| self.txt(c)).collect();
                 let o: Vec<String> =
-                    other.children().iter().map(|c| self.rpn(c)).collect();
+                    other.children().iter().map(|c| self.txt(c)).collect();
                 return Ok(Some(self.b.ap(
                     "mpteq12i",
                     &binds! {"x" => &k[0], "A" => &k[1], "B" => &k[2], "C" => &o[1], "D" => &o[2]},
@@ -3294,7 +3294,7 @@ impl<'a> Elaborator<'a> {
             let Some(moved) = self.by_lemma(lemma, one, &there, &[&inner]) else {
                 return Ok(None);
             };
-            let there_rpn = self.rpn(&there);
+            let there_rpn = self.txt(&there);
             if there_rpn == b {
                 return Ok(Some(moved));
             }
@@ -3315,7 +3315,7 @@ impl<'a> Elaborator<'a> {
         let mut here = one.clone();
         let mut proof: Option<Proof> = None;
         for (i, (x, y)) in one.children().iter().zip(other.children()).enumerate() {
-            if self.rpn(x) == self.rpn(y) {
+            if self.txt(x) == self.txt(y) {
                 continue;
             }
             let lemma = class_lift(&label, i);
@@ -3333,7 +3333,7 @@ impl<'a> Elaborator<'a> {
                 None => step,
                 Some(p) => self.b.ap(
                     "eqtri",
-                    &binds! {"A" => &a, "B" => self.rpn(&here), "C" => self.rpn(&there)},
+                    &binds! {"A" => &a, "B" => self.txt(&here), "C" => self.txt(&there)},
                     &[&p, &step],
                 ),
             });
@@ -3363,7 +3363,7 @@ impl<'a> Elaborator<'a> {
             .iter()
             .enumerate()
             .filter(|(_, c)| {
-                c.variable().is_some() && self.typecode(&self.rpn(c)) == "setvar"
+                c.variable().is_some() && self.typecode(&self.txt(c)) == "setvar"
             })
             .map(|(i, c)| (i, c.clone()))
             .collect();
@@ -3380,7 +3380,7 @@ impl<'a> Elaborator<'a> {
         let middle = other.substitute(&put);
         let differ: Vec<usize> = (0..one.children().len())
             .filter(|&i| {
-                self.rpn(&one.children()[i]) != self.rpn(&middle.children()[i])
+                self.txt(&one.children()[i]) != self.txt(&middle.children()[i])
             })
             .collect();
         if differ.len() != 1 {
@@ -3401,8 +3401,8 @@ impl<'a> Elaborator<'a> {
         let sig = self.sig(body_lemma).clone();
         let asked = self.essential(&sig.essentials[0]).substitute(&binding);
         let (under, equal) = (
-            self.rpn(&asked.children()[0]),
-            self.rpn(&asked.children()[1]),
+            self.txt(&asked.children()[0]),
+            self.txt(&asked.children()[1]),
         );
         let carried =
             self.b
@@ -3413,7 +3413,7 @@ impl<'a> Elaborator<'a> {
         };
         Ok(Some(self.b.ap(
             "eqtri",
-            &binds! {"A" => self.rpn(one), "B" => self.rpn(&middle), "C" => self.rpn(other)},
+            &binds! {"A" => self.txt(one), "B" => self.txt(&middle), "C" => self.txt(other)},
             &[&lifted, &outer],
         )))
     }
@@ -3441,7 +3441,7 @@ impl<'a> Elaborator<'a> {
         let mut put = Binding::new();
         put.insert(Symbol::of(their_letter), ours.clone());
         let middle = other.substitute(&put);
-        if self.rpn(&one.children()[2]) != self.rpn(&middle.children()[2]) {
+        if self.txt(&one.children()[2]) != self.txt(&middle.children()[2]) {
             return Ok(None);
         }
         let Some(inner) = self.renaming(&one.children()[0], &middle.children()[0])?
@@ -3456,14 +3456,14 @@ impl<'a> Elaborator<'a> {
         };
         Ok(Some(self.b.ap(
             "eqtri",
-            &binds! {"A" => self.rpn(one), "B" => self.rpn(&middle), "C" => self.rpn(other)},
+            &binds! {"A" => self.txt(one), "B" => self.txt(&middle), "C" => self.txt(other)},
             &[&lifted, &outer],
         )))
     }
 
     /// ( where -> y <-> x ), or `=`, from a proof of `x` against `y`.
     pub fn flipped(&self, where_: &str, x: &Term, y: &Term, proof: &Proof) -> Proof {
-        let (a, b) = (self.rpn(x), self.rpn(y));
+        let (a, b) = (self.txt(x), self.txt(y));
         if self.is_wff(x) {
             self.b.ap(
                 "bicomd",
@@ -3501,9 +3501,9 @@ impl<'a> Elaborator<'a> {
                 }
                 let became = rule.gives.substitute(&bound);
                 let ours = self.standard(&became);
-                let ours = self.rpn(&ours);
+                let ours = self.txt(&ours);
                 let theirs = self.standard(b);
-                let theirs = self.rpn(&theirs);
+                let theirs = self.txt(&theirs);
                 if ours != theirs && !self.rebound(&ours, &theirs) {
                     continue;
                 }
@@ -3522,7 +3522,7 @@ impl<'a> Elaborator<'a> {
                     to: became.clone(),
                     proof: made,
                 }];
-                if self.rpn(&became) != self.rpn(b) {
+                if self.txt(&became) != self.txt(b) {
                     let Built(rest) = self.congruence(
                         &became,
                         b,
@@ -3600,15 +3600,15 @@ impl<'a> Elaborator<'a> {
             return None;
         }
         let names = |t: &Term| {
-            let spelt = self.rpn(t);
+            let spelt = self.txt(t);
             layers
                 .iter()
                 .any(|(_, v, _)| spelt.split_whitespace().any(|w| w == v))
         };
         let (left, right) = (&body.children()[0], &body.children()[1]);
         match (names(left), names(right)) {
-            (false, true) => Some(self.rpn(left)),
-            (true, false) => Some(self.rpn(right)),
+            (false, true) => Some(self.txt(left)),
+            (true, false) => Some(self.txt(right)),
             _ => None,
         }
     }
@@ -3635,7 +3635,7 @@ impl<'a> Elaborator<'a> {
         let mut rest = wanted.clone();
         while rest.label() == Some("wrex") {
             let kids = rest.children().to_vec();
-            layers.push((kids[0].clone(), self.rpn(&kids[1]), self.rpn(&kids[2])));
+            layers.push((kids[0].clone(), self.txt(&kids[1]), self.txt(&kids[2])));
             rest = kids[0].clone();
         }
         // A line proved before a block opened holds inside it too, and the
@@ -3658,9 +3658,9 @@ impl<'a> Elaborator<'a> {
         // and bound letters renamed names no witness: it is the claim
         // (`reached`), as "there is q ∈ ℤ with q·N = A" is "there is z ∈ ℤ
         // with z·N + 0 = A".
-        let want = self.rpn(wanted);
+        let want = self.txt(wanted);
         for (said, proof) in &sources {
-            if self.to_term(said).label() != Some("wrex") {
+            if self.of_text(said).label() != Some("wrex") {
                 continue;
             }
             if let Some(p) = self.reached(proof, said, &want, scope, facts)? {
@@ -3708,10 +3708,10 @@ impl<'a> Elaborator<'a> {
                 // the domain a line names; one that says something takes what it
                 // says.
                 let silent = here.len() == 1
-                    && !self.rpn(&rest).split_whitespace().any(|t| t == here[0].1);
+                    && !self.txt(&rest).split_whitespace().any(|t| t == here[0].1);
                 for (said, proof) in &sources {
                     for part in self.parts(said) {
-                        let mut held = self.to_term(&part);
+                        let mut held = self.of_text(&part);
                         if bare {
                             held = self.without_identities(&held);
                         }
@@ -3749,7 +3749,7 @@ impl<'a> Elaborator<'a> {
                 step.line,
                 format!(
                     "no cited line names a witness for {}",
-                    self.render(&self.rpn(wanted))
+                    self.render(&self.txt(wanted))
                 ),
             ));
         };
@@ -3764,7 +3764,7 @@ impl<'a> Elaborator<'a> {
         });
         if meets {
             let witnesses: Vec<Term> =
-                found.values().map(|w| self.to_term(w)).collect();
+                found.values().map(|w| self.of_text(w)).collect();
             let mut seen: Vec<&Term> = witnesses.iter().collect();
             seen.push(wanted);
             let names: Vec<Symbol> = letters
@@ -3786,7 +3786,7 @@ impl<'a> Elaborator<'a> {
             };
             return Ok(Built(self.b.ap(
                 "sylib",
-                &binds! {"ph" => scope, "ps" => &self.rpn(&renamed), "ch" => &self.rpn(wanted)},
+                &binds! {"ph" => scope, "ps" => &self.txt(&renamed), "ch" => &self.txt(wanted)},
                 &[&made, &back],
             )));
         }
@@ -3798,16 +3798,16 @@ impl<'a> Elaborator<'a> {
             let mark = format!("{v} cv");
             innermost = self.restated(&innermost, &mark, &found[&mark]);
         }
-        let inner_rpn = self.rpn(&innermost);
-        let turned = turned_equation(&innermost).map(|t| self.rpn(&t));
+        let inner_rpn = self.txt(&innermost);
+        let turned = turned_equation(&innermost).map(|t| self.txt(&t));
         if inner_rpn == "wtru" {
             // A body that says nothing of its variable holds outright, by
             // the one lemma that states truth.
             proof = pf!(self.b; "wtru", scope, "tru", "a1i");
         } else if part == said && turned.as_deref() == Some(said.as_str()) {
             let (a, b) = (
-                self.rpn(&innermost.children()[0]),
-                self.rpn(&innermost.children()[1]),
+                self.txt(&innermost.children()[0]),
+                self.txt(&innermost.children()[1]),
             );
             proof = pf!(self.b; scope, b, a, proof, "eqcomd");
         } else if inner_rpn != said {
@@ -3823,7 +3823,7 @@ impl<'a> Elaborator<'a> {
             let (body, var, over) = layers[i].clone();
             let mark = format!("{var} cv");
             let mut held = body;
-            let mut over = self.to_term(&over);
+            let mut over = self.of_text(&over);
             // The quantifiers further out are still open here, and the ones
             // already closed have their witnesses in place: in the body, and
             // in the domain, which may run over one of them, as a walk's
@@ -3833,16 +3833,16 @@ impl<'a> Elaborator<'a> {
                 held = self.restated(&held, &m, &found[&m]);
                 over = self.restated(&over, &m, &found[&m]);
             }
-            let over = self.rpn(&over);
+            let over = self.txt(&over);
             let witness = found[&mark].clone();
             let here = self.restated(&held, &mark, &witness);
-            let (ph, ps) = (self.rpn(&held), self.rpn(&here));
+            let (ph, ps) = (self.txt(&held), self.txt(&here));
             let instance = if ph == ps {
                 // The body does not mention the variable, so the witness
                 // changes nothing in it: `biidd` says so outright.
                 pf!(self.b; t!(mark, witness, "wceq"), ph, "biidd")
             } else {
-                let tie = self.to_term(&t!(
+                let tie = self.of_text(&t!(
                     t!(mark, witness, "wceq"),
                     t!(ph, ps, "wb"),
                     "wi"
@@ -3867,13 +3867,13 @@ impl<'a> Elaborator<'a> {
     ) -> Option<IndexMap<String, String>> {
         let (_, var, over) = layer;
         for part in self.parts(said) {
-            let node = self.to_term(&part);
+            let node = self.of_text(&part);
             if node.variable().is_none()
                 && node.label() == Some("wcel")
-                && self.rpn(&node.children()[1]) == *over
+                && self.txt(&node.children()[1]) == *over
             {
                 let mut out = IndexMap::new();
-                out.insert(format!("{var} cv"), self.rpn(&node.children()[0]));
+                out.insert(format!("{var} cv"), self.txt(&node.children()[0]));
                 return Some(out);
             }
         }
@@ -3883,8 +3883,8 @@ impl<'a> Elaborator<'a> {
     /// `term` with every occurrence of the subterm `was` reading `now`, both
     /// given in reverse Polish, because a term is compared by what it spells.
     pub fn restated(&self, term: &Term, was: &str, now: &str) -> Term {
-        if self.rpn(term) == was {
-            return self.to_term(now);
+        if self.txt(term) == was {
+            return self.of_text(now);
         }
         if term.variable().is_some() {
             return term.clone();
@@ -3991,11 +3991,11 @@ impl<'a> Elaborator<'a> {
                     let Some(letter) = self.unheld(&held) else {
                         continue;
                     };
-                    let was = self.rpn(&Term::apply(
+                    let was = self.txt(&Term::apply(
                         "cv",
                         vec![out[other.children()[0].variable().unwrap()].clone()],
                     ));
-                    let now = self.rpn(&Term::apply("cv", vec![letter.clone()]));
+                    let now = self.txt(&Term::apply("cv", vec![letter.clone()]));
                     let value = self.restated(&out[&name].clone(), &was, &now);
                     out.insert(Symbol::of(index.variable().unwrap_or("")), letter);
                     out.insert(*summand, value);
@@ -4009,8 +4009,8 @@ impl<'a> Elaborator<'a> {
             {
                 continue;
             }
-            let was = self.rpn(&at.children()[0].substitute(&out));
-            let now = self.rpn(&at.children()[1].substitute(&out));
+            let was = self.txt(&at.children()[0].substitute(&out));
+            let now = self.txt(&at.children()[1].substitute(&out));
             let value = self.restated(&says.children()[0].substitute(&out), &was, &now);
             out.insert(name, value);
         }
@@ -4035,7 +4035,7 @@ impl<'a> Elaborator<'a> {
     /// `cbvrexvw` is set.mm saying those are one claim. Closed, and lifted
     /// by closed lemmas, since none of this wants a scope.
     pub fn renaming(&mut self, given: &Term, want: &Term) -> Checked<Option<Proof>> {
-        if self.rpn(given) == self.rpn(want) {
+        if self.txt(given) == self.txt(want) {
             return Ok(None); // nothing is spelt differently
         }
         if given.label() != want.label()
@@ -4053,7 +4053,7 @@ impl<'a> Elaborator<'a> {
                 other = want.children()[0].clone();
                 renamed = want.children()[1].clone();
                 let runs = want.children()[2].clone();
-                if self.rpn(over.as_ref().unwrap()) != self.rpn(&runs) {
+                if self.txt(over.as_ref().unwrap()) != self.txt(&runs) {
                     // The domains may be one class spelt with other bound
                     // letters inside. The domain is carried across first,
                     // and the rest renamed.
@@ -4071,7 +4071,7 @@ impl<'a> Elaborator<'a> {
                     else {
                         return Ok(None);
                     };
-                    if self.rpn(&moved) == self.rpn(want) {
+                    if self.txt(&moved) == self.txt(want) {
                         return Ok(Some(first));
                     }
                     let Some(rest) = self.renaming(&moved, want)? else {
@@ -4079,7 +4079,7 @@ impl<'a> Elaborator<'a> {
                     };
                     return Ok(Some(self.b.ap(
                         "bitri",
-                        &binds! {"ph" => self.rpn(given), "ps" => self.rpn(&moved), "ch" => self.rpn(want)},
+                        &binds! {"ph" => self.txt(given), "ps" => self.txt(&moved), "ch" => self.txt(want)},
                         &[&first, &rest],
                     )));
                 }
@@ -4090,15 +4090,15 @@ impl<'a> Elaborator<'a> {
                 renamed = want.children()[1].clone();
                 over = None;
             }
-            let x = self.rpn(&variable);
+            let x = self.txt(&variable);
             let mut binds =
-                binds! {"ph" => self.rpn(&body), "ps" => self.rpn(&other), "x" => &x};
+                binds! {"ph" => self.txt(&body), "ps" => self.txt(&other), "x" => &x};
             if let Some(over) = &over {
                 binds.insert("A".to_string(), self.rpn(over));
             }
             let bound = |me: &Self, said: &str| -> String {
                 match &over {
-                    Some(runs) => t!(said, x, me.rpn(runs), label),
+                    Some(runs) => t!(said, x, me.txt(runs), label),
                     None => t!(said, x, label),
                 }
             };
@@ -4112,7 +4112,7 @@ impl<'a> Elaborator<'a> {
             // relating the two bodies at x = y, which a body still spelt two
             // ways inside is not. So the bodies are made to agree first, over
             // this binder as it stands, and only then is it changed.
-            let y = self.rpn(&renamed);
+            let y = self.txt(&renamed);
             let here = self.restated(&other, &format!("{y} cv"), &format!("{x} cv"));
             let mut middle = binds.clone();
             middle.insert("ph".to_string(), self.rpn(&here));
@@ -4122,12 +4122,12 @@ impl<'a> Elaborator<'a> {
                 "wi"
             );
             let Built(said) =
-                self.prove_essential(&self.to_term(&at), "", &Facts::new())?
+                self.prove_essential(&self.of_text(&at), "", &Facts::new())?
             else {
                 return Ok(None);
             };
             let mut crossed = middle.clone();
-            crossed.insert("y".to_string(), y.clone());
+            crossed.insert("y".to_string(), Rpn::read(&y));
             let changed = self.b.ap(cross, &crossed, &[&said]);
             if middle["ph"] == binds["ph"] {
                 return Ok(Some(changed));
@@ -4140,12 +4140,12 @@ impl<'a> Elaborator<'a> {
             let agreed = self.b.ap(same_lemma, &agreeing, &[&inner]);
             return Ok(Some(self.b.ap(
                 "bitri",
-                &binds! {"ph" => bound(self, &binds["ph"]), "ps" => bound(self, &middle["ph"]), "ch" => self.rpn(want)},
+                &binds! {"ph" => bound(self, &binds["ph"].to_string()), "ps" => bound(self, &middle["ph"].to_string()), "ch" => self.rpn(want)},
                 &[&agreed, &changed],
             )));
         }
-        let spelt: Vec<String> = given.children().iter().map(|c| self.rpn(c)).collect();
-        let other: Vec<String> = want.children().iter().map(|c| self.rpn(c)).collect();
+        let spelt: Vec<String> = given.children().iter().map(|c| self.txt(c)).collect();
+        let other: Vec<String> = want.children().iter().map(|c| self.txt(c)).collect();
         // Both halves of an implication may be spelt differently at once. The
         // lifters each change one side and hold the other, so the sides are
         // changed one at a time and the halfway claim is what joins the two.
@@ -4183,8 +4183,8 @@ impl<'a> Elaborator<'a> {
             let now = t!(next.join(" "), label);
             let Some(step) = self.by_lemma(
                 lemma,
-                &self.to_term(&was),
-                &self.to_term(&now),
+                &self.of_text(&was),
+                &self.of_text(&now),
                 &[&inner],
             ) else {
                 return Ok(None);
@@ -4216,7 +4216,7 @@ impl<'a> Elaborator<'a> {
         if said == want {
             return Ok(Some(proof.clone()));
         }
-        let (from, to) = (self.to_term(said), self.to_term(want));
+        let (from, to) = (self.of_text(said), self.of_text(want));
         let across = self.congruence(
             &from,
             &to,
@@ -4266,8 +4266,8 @@ impl<'a> Elaborator<'a> {
             self.unpack_all(&line, &held, scope, &known);
         }
         let facts = &known;
-        let said_bare = self.rpn(&self.without_identities(&self.to_term(said)));
-        let want_bare = self.rpn(&self.without_identities(&self.to_term(want)));
+        let said_bare = self.txt(&self.without_identities(&self.of_text(said)));
+        let want_bare = self.txt(&self.without_identities(&self.of_text(want)));
         let Some(bare) = self.tidied(proof, said, &said_bare, scope, facts)? else {
             return Ok(None);
         };
@@ -4309,8 +4309,8 @@ impl<'a> Elaborator<'a> {
             return Ok(Some(proof.clone()));
         }
         let alike = self.same(
-            &self.to_term(said),
-            &self.to_term(want),
+            &self.of_text(said),
+            &self.of_text(want),
             scope,
             &Facts::new(),
             None,
@@ -4328,7 +4328,7 @@ impl<'a> Elaborator<'a> {
     /// not taken.
     pub fn renaming_apart(&mut self, said: &str, want: &str) -> Checked<Option<Proof>> {
         let mut letters: Vec<Symbol> = Vec::new();
-        let mut rest = vec![self.to_term(said)];
+        let mut rest = vec![self.of_text(said)];
         while let Some(node) = rest.pop() {
             // What a binder binds is the set variable it takes as an
             // operand, wherever the binder puts it.
@@ -4341,7 +4341,7 @@ impl<'a> Elaborator<'a> {
                     let Some(letter) = kid.variable_symbol() else {
                         continue;
                     };
-                    if self.typecode(&self.rpn(kid)) != "setvar"
+                    if self.typecode(&self.txt(kid)) != "setvar"
                         || letters.contains(&letter)
                     {
                         continue;
@@ -4355,19 +4355,19 @@ impl<'a> Elaborator<'a> {
             return Ok(None); // it binds nothing, so it is not the other respelt
         }
         let Some(moved) =
-            self.unheld_for(letters, &[&self.to_term(said), &self.to_term(want)])
+            self.unheld_for(letters, &[&self.of_text(said), &self.of_text(want)])
         else {
             return Ok(None);
         };
-        let middle = self.to_term(said).substitute(&moved);
-        let there = self.renaming(&self.to_term(said), &middle)?;
-        let back = self.renaming(&middle, &self.to_term(want))?;
+        let middle = self.of_text(said).substitute(&moved);
+        let there = self.renaming(&self.of_text(said), &middle)?;
+        let back = self.renaming(&middle, &self.of_text(want))?;
         let (Some(there), Some(back)) = (there, back) else {
             return Ok(None);
         };
         Ok(Some(self.b.ap(
             "bitri",
-            &binds! {"ph" => said, "ps" => self.rpn(&middle), "ch" => want},
+            &binds! {"ph" => said, "ps" => self.txt(&middle), "ch" => want},
             &[&there, &back],
         )))
     }
@@ -4379,7 +4379,7 @@ impl<'a> Elaborator<'a> {
         held.extend(self.reserved.iter().cloned());
         held.extend(self.bound_as.values().cloned());
         for t in terms {
-            held.extend(self.rpn(t).split_whitespace().map(String::from));
+            held.extend(self.txt(t).split_whitespace().map(String::from));
         }
         let free = self.spare.iter().find(|v| !held.contains(*v))?;
         Some(self.var_of(free))
@@ -4413,12 +4413,12 @@ impl<'a> Elaborator<'a> {
         scope: &str,
         facts: &Facts,
     ) -> Checked<Option<Proof>> {
-        let want = self.rpn(wanted);
+        let want = self.txt(wanted);
         for (said, proof) in facts.entries() {
             if said == want {
                 return Ok(Some(proof));
             }
-            let held = self.to_term(&said);
+            let held = self.of_text(&said);
             if held.label() != wanted.label() {
                 continue;
             }
@@ -4484,7 +4484,7 @@ impl<'a> Elaborator<'a> {
             apart.into_iter().filter(|v| !out.contains_key(v)).collect();
         let moved = {
             let frames: Vec<Term> =
-                self.frames.iter().map(|f| self.to_term(&f.scope)).collect();
+                self.frames.iter().map(|f| self.of_text(&f.scope)).collect();
             let mut terms: Vec<&Term> = frames.iter().collect();
             terms.extend(out.values());
             self.unheld_for(open, &terms)
@@ -4515,7 +4515,7 @@ impl<'a> Elaborator<'a> {
         let mut rest = vec![goal.clone()];
         while let Some(node) = rest.pop() {
             if let Some(letter) = node.variable_symbol() {
-                let said = self.rpn(&node);
+                let said = self.txt(&node);
                 if self.typecode(&said) == "setvar"
                     && !held.contains(&said)
                     && spelt.contains(&said)
@@ -4530,7 +4530,7 @@ impl<'a> Elaborator<'a> {
             return Ok(Declined(why));
         }
         let frames: Vec<Term> =
-            self.frames.iter().map(|f| self.to_term(&f.scope)).collect();
+            self.frames.iter().map(|f| self.of_text(&f.scope)).collect();
         let mut terms: Vec<&Term> = vec![goal];
         terms.extend(frames.iter());
         let Some(moved) = self.unheld_for(letters, &terms) else {
@@ -4550,7 +4550,7 @@ impl<'a> Elaborator<'a> {
             crossing,
             seed.as_ref()
         )?);
-        let back = self.respelt(&proof, &self.rpn(&other), &self.rpn(goal), scope)?;
+        let back = self.respelt(&proof, &self.txt(&other), &self.txt(goal), scope)?;
         Ok(match back {
             Some(p) => Built(p),
             None => Declined(why),
@@ -4615,15 +4615,15 @@ impl<'a> Elaborator<'a> {
         let tie = take!(self.prove_essential(&tie, scope, facts)?);
         let same_sum = self.b.ap(
             "cbvsumv",
-            &binds! {"j" => self.rpn(&letter), "k" => self.rpn(&index), "A" => self.rpn(&limits),
-            "B" => self.rpn(&moved), "C" => self.rpn(&summand)},
+            &binds! {"j" => self.txt(&letter), "k" => self.txt(&index), "A" => self.txt(&limits),
+            "B" => self.txt(&moved), "C" => self.txt(&summand)},
             &[&tie],
         );
-        let (was, now) = (self.rpn(&renamed), self.rpn(&right));
+        let (was, now) = (self.txt(&renamed), self.txt(&right));
         let carried = pf!(self.b; t!(was, now, "wceq"), scope, same_sum, "a1i");
         Ok(Built(self.b.ap(
             "eqtrd",
-            &binds! {"ph" => scope, "A" => self.rpn(&left), "B" => &was, "C" => &now},
+            &binds! {"ph" => scope, "A" => self.txt(&left), "B" => &was, "C" => &now},
             &[&first, &carried],
         )))
     }
@@ -4689,23 +4689,23 @@ impl<'a> Elaborator<'a> {
         if ground.label() == Some("wreu") {
             let weaker = Term::apply("wrex", ground.children().to_vec());
             let kids: Vec<String> =
-                ground.children().iter().map(|c| self.rpn(c)).collect();
+                ground.children().iter().map(|c| self.txt(c)).collect();
             let law = self.b.ap(
                 "reurex",
                 &binds! {"ph" => &kids[0], "x" => &kids[1], "A" => &kids[2]},
                 &[],
             );
-            strong = pf!(self.b; scope, self.rpn(&ground), self.rpn(&weaker), strong, law, "syl");
+            strong = pf!(self.b; scope, self.txt(&ground), self.txt(&weaker), strong, law, "syl");
             ground = weaker;
         }
         let mut layers: Vec<(String, String)> = Vec::new();
         let mut rest = ground.clone();
         while rest.label() == Some("wrex") {
             let kids = rest.children().to_vec();
-            layers.push((self.rpn(&kids[1]), self.rpn(&kids[2])));
+            layers.push((self.txt(&kids[1]), self.txt(&kids[2])));
             rest = kids[0].clone();
         }
-        let body = self.rpn(&rest);
+        let body = self.txt(&rest);
         let memberships: Vec<String> = layers
             .iter()
             .map(|(v, s)| t!(format!("{v} cv"), s, "wcel"))
@@ -4721,7 +4721,7 @@ impl<'a> Elaborator<'a> {
                 .map(|r| r.map(|p| (outer, p)))
         })?;
         let (outer, made) = take!(made);
-        let want = self.rpn(goal);
+        let want = self.txt(goal);
         let discharge = if layers.len() == 1 {
             "rexlimdva"
         } else {
@@ -4740,7 +4740,7 @@ impl<'a> Elaborator<'a> {
         all.push(crate::elab::part(discharge));
         let eliminated = self.b.proof(&all);
         Ok(Built(
-            pf!(self.b; scope, self.rpn(&ground), want, strong, eliminated, "mpd"),
+            pf!(self.b; scope, self.txt(&ground), want, strong, eliminated, "mpd"),
         ))
     }
 
@@ -4759,7 +4759,7 @@ impl<'a> Elaborator<'a> {
         let Some(seed) = seed.filter(|s| !labels.is_empty() && !s.is_empty()) else {
             return Ok(Route::no("no `with` target says what the lemmas are about"));
         };
-        let want = self.to_term(goal);
+        let want = self.of_text(goal);
         if want.label() != Some("wrex") {
             return Ok(Route::no("the claim is not \"there is\""));
         }
@@ -4798,10 +4798,10 @@ impl<'a> Elaborator<'a> {
                     "the target does not say what {label} is about"
                 )));
             }
-            let said = self.rpn(&reads.substitute(seed));
+            let said = self.txt(&reads.substitute(seed));
             let proof = take!(self.apply_lemma(
                 label,
-                &self.to_term(&said),
+                &self.of_text(&said),
                 scope,
                 facts,
                 Some(step),
@@ -4841,8 +4841,8 @@ impl<'a> Elaborator<'a> {
             want.children()[2].clone(),
         );
         let stood = seed[&witness[0]].clone();
-        let member = t!(self.rpn(&stood), self.rpn(&over), "wcel");
-        let said = self.replaced(&body, &format!("{} cv", self.rpn(&variable)), &stood);
+        let member = t!(self.txt(&stood), self.txt(&over), "wcel");
+        let said = self.replaced(&body, &format!("{} cv", self.txt(&variable)), &stood);
         let mut by_lemmas = |me: &mut Self, one: &Term| -> Checked<Route<Proof>> {
             let mut refused = Vec::new();
             for label in labels {
@@ -4856,13 +4856,13 @@ impl<'a> Elaborator<'a> {
             Ok(Route::no(refused.join("; ")))
         };
         let known = facts.copy();
-        for part in [self.to_term(&member), said] {
+        for part in [self.of_text(&member), said] {
             let made = match self.conjoined(&part, scope, &mut by_lemmas)? {
                 Some(made) => made,
                 None => by_lemmas(self, &part)?,
             };
             let made = take!(made);
-            let key = self.rpn(&part);
+            let key = self.txt(&part);
             self.know(&known, key.clone(), made.clone());
             self.unpack_all(&key, &made, scope, &known);
         }
@@ -4888,11 +4888,11 @@ impl<'a> Elaborator<'a> {
         let mark_set: BTreeSet<String> = marks.iter().cloned().collect();
         let mut found: Option<Binding> = None;
         let keys = facts.keys();
-        'parts: for piece in self.parts(&self.rpn(&rest)) {
-            let shape = as_class(&self.to_term(&piece), &mark_set);
+        'parts: for piece in self.parts(&self.txt(&rest)) {
+            let shape = as_class(&self.of_text(&piece), &mark_set);
             for said in &keys {
                 if let Some(fits) =
-                    fit(&shape, &self.to_term(said), &Binding::new(), &mark_set)
+                    fit(&shape, &self.of_text(said), &Binding::new(), &mark_set)
                 {
                     if fits.len() == marks.len() {
                         found = Some(fits);
@@ -4907,7 +4907,7 @@ impl<'a> Elaborator<'a> {
         // What each binder stands for, as `rspcev` wants it: a class.
         let mut stood: IndexMap<String, String> = IndexMap::new();
         for (name, term) in &found {
-            let said = self.rpn(term);
+            let said = self.txt(term);
             stood.insert(
                 name.to_string(),
                 if term.variable().is_some() {
@@ -4924,7 +4924,7 @@ impl<'a> Elaborator<'a> {
             layers.push((
                 kids[0].clone(),
                 kids[1].variable().unwrap_or("").to_string(),
-                self.rpn(&kids[2]),
+                self.txt(&kids[2]),
             ));
             rest = kids[0].clone();
         }
@@ -4943,12 +4943,12 @@ impl<'a> Elaborator<'a> {
                 );
             }
             let here = self.restated(&held, &format!("{var} cv"), &stood[&name]);
-            let (ph, ps) = (self.rpn(&held), self.rpn(&here));
+            let (ph, ps) = (self.txt(&held), self.txt(&here));
             if proof.is_none() {
                 proof = Some(take!(self.settle(&here, scope, facts, 3, None, None)?));
             }
             let witness = stood[&name].clone();
-            let tie = self.to_term(&t!(
+            let tie = self.of_text(&t!(
                 t!(format!("{var} cv"), witness, "wceq"),
                 t!(ph, ps, "wb"),
                 "wi"
@@ -4956,7 +4956,7 @@ impl<'a> Elaborator<'a> {
             let instance = take!(self.prove_essential(&tie, scope, facts)?);
             let member = t!(witness, over, "wcel");
             let stands = take!(self.settle(
-                &self.to_term(&member),
+                &self.of_text(&member),
                 scope,
                 facts,
                 3,
@@ -5048,7 +5048,7 @@ impl<'a> Elaborator<'a> {
                 }
                 for held in &keys {
                     if let Some(filled) =
-                        fit(slot, &self.to_term(held), &bound, &variables)
+                        fit(slot, &self.of_text(held), &bound, &variables)
                     {
                         bound = filled;
                         break;
@@ -5071,7 +5071,7 @@ impl<'a> Elaborator<'a> {
             else {
                 continue;
             };
-            let (a, b) = (self.rpn(&said.children()[0]), self.rpn(&said.children()[1]));
+            let (a, b) = (self.txt(&said.children()[0]), self.txt(&said.children()[1]));
             let pick = if i == 0 { "simpld" } else { "simprd" };
             return Ok(Built(pf!(self.b; scope, a, b, proof, pick)));
         }
@@ -5103,7 +5103,7 @@ impl<'a> Elaborator<'a> {
         }
         let seed = seed.unwrap();
         let said = reads.substitute(seed);
-        if self.rpn(&said) == self.rpn(goal) {
+        if self.txt(&said) == self.txt(goal) {
             return Ok(Route::no(format!(
                 "{label} at its seed is the claim as written"
             )));
@@ -5128,7 +5128,7 @@ impl<'a> Elaborator<'a> {
             )));
         };
         Ok(Built(
-            pf!(self.b; scope, self.rpn(&said), self.rpn(goal), proof, across, "mpbid"),
+            pf!(self.b; scope, self.txt(&said), self.txt(goal), proof, across, "mpbid"),
         ))
     }
 
@@ -5235,7 +5235,7 @@ impl<'a> Elaborator<'a> {
                 }
                 let binding = self.refolded(binding, goal);
                 let instance = side.substitute(&binding);
-                if self.rpn(&instance) == self.rpn(goal) {
+                if self.txt(&instance) == self.txt(goal) {
                     continue;
                 }
                 found = self.apply_lemma(
@@ -5265,7 +5265,7 @@ impl<'a> Elaborator<'a> {
                     continue;
                 };
                 return Ok(Built(
-                    pf!(self.b; scope, self.rpn(&instance), self.rpn(goal), made, across, "mpbid"),
+                    pf!(self.b; scope, self.txt(&instance), self.txt(goal), made, across, "mpbid"),
                 ));
             }
         }
@@ -5400,11 +5400,11 @@ impl<'a> Elaborator<'a> {
         let mut written: IndexMap<String, Term> = IndexMap::new();
         for sub in subterms(term) {
             let read = self.read_through(&sub, true, None);
-            written.entry(self.rpn(&read)).or_insert(sub);
+            written.entry(self.txt(&read)).or_insert(sub);
         }
         let mut out = binding.clone();
         for (name, value) in &binding {
-            let said = self.rpn(value);
+            let said = self.txt(value);
             let others: BTreeSet<&String> = binds
                 .iter()
                 .filter(|(n, _)| *n != name)
@@ -5414,7 +5414,7 @@ impl<'a> Elaborator<'a> {
                 if said
                     .split_whitespace()
                     .any(|t| others.iter().any(|o| o.as_str() == t))
-                    && self.rpn(w) != said
+                    && self.txt(w) != said
                 {
                     out.insert(*name, w.clone());
                 }
@@ -5549,7 +5549,7 @@ impl<'a> Elaborator<'a> {
         let filled = fit_respelt(pattern, held, &Binding::new(), variables, fresh)?;
         let agrees = filled.iter().all(|(k, v)| match binding.get(k) {
             Some(had) => {
-                let (had, v) = (self.rpn(had), self.rpn(v));
+                let (had, v) = (self.txt(had), self.txt(v));
                 had == v || self.rebound(&had, &v)
             }
             None => true,
@@ -5592,7 +5592,7 @@ impl<'a> Elaborator<'a> {
         let binding = self.read_off(&sig, binding, &variables);
         let settled = self.instanced(&sig, binding);
         let literal = reads.substitute(&settled);
-        let (said, want) = (self.rpn(&literal), self.rpn(goal));
+        let (said, want) = (self.txt(&literal), self.txt(goal));
         if said == want {
             return Ok(Route::no(format!("{label} does not conclude the claim")));
         }
@@ -5650,11 +5650,11 @@ impl<'a> Elaborator<'a> {
                 || law
                     .fixed
                     .iter()
-                    .any(|(k, token)| self.rpn(&pattern.children()[*k]) != *token)
+                    .any(|(k, token)| self.txt(&pattern.children()[*k]) != *token)
             {
                 continue;
             }
-            let element = self.to_term(super::field::numeral(law.element));
+            let element = self.of_text(super::field::numeral(law.element));
             for &hole in &law.holes {
                 let (unit, kept) = if hole == 0 {
                     (law.places.0, law.places.1)
@@ -5837,7 +5837,7 @@ impl<'a> Elaborator<'a> {
         let settled = self.instanced(&sig, binding.clone());
         if binding
             .iter()
-            .any(|(name, stood)| self.rpn(&settled[name]) != self.rpn(stood))
+            .any(|(name, stood)| self.txt(&settled[name]) != self.txt(stood))
         {
             return self
                 .at_its_own_value(label, &sig, goal, scope, facts, step, &settled);
@@ -5855,7 +5855,7 @@ impl<'a> Elaborator<'a> {
                 && kinds.get(b.as_str()) == Some(&"setvar")
                 && binding.contains_key(a)
                 && binding.contains_key(b)
-                && self.rpn(&binding[a]) == self.rpn(&binding[b])
+                && self.txt(&binding[a]) == self.txt(&binding[b])
         }) {
             return self.letters_apart(label, goal, scope, facts, step, crossing, seed);
         }
@@ -5891,7 +5891,7 @@ impl<'a> Elaborator<'a> {
                 .refs
                 .iter()
                 .filter_map(|r| self.lines.get(r))
-                .flat_map(|l| conjuncts_of(&self.to_term(&l.term)))
+                .flat_map(|l| conjuncts_of(&self.of_text(&l.term)))
                 .collect(),
             None => Vec::new(),
         };
@@ -5899,7 +5899,7 @@ impl<'a> Elaborator<'a> {
             for r in &step.requires {
                 let node = self.read_one(&r.fact)?;
                 let said = self.term(&node)?;
-                cited.extend(conjuncts_of(&self.to_term(&said)));
+                cited.extend(conjuncts_of(&self.of_text(&said)));
             }
         }
         for text in &sig.essentials {
@@ -5942,7 +5942,7 @@ impl<'a> Elaborator<'a> {
                 for held in &keys {
                     if let Some(filled) = fit_respelt(
                         slot,
-                        &self.to_term(held),
+                        &self.of_text(held),
                         &binding,
                         &variables,
                         &fresh,
@@ -6014,7 +6014,7 @@ impl<'a> Elaborator<'a> {
                     continue
                 }
                 Some(s) if s.variable().is_some() => {
-                    binding.insert(s.variable_symbol().unwrap(), self.to_term(&where_));
+                    binding.insert(s.variable_symbol().unwrap(), self.of_text(&where_));
                     continue;
                 }
                 Some(s) => conjuncts_of(s)
@@ -6033,7 +6033,7 @@ impl<'a> Elaborator<'a> {
                 for held in &known_keys {
                     if let Some(filled) = fit_respelt(
                         piece,
-                        &self.to_term(held),
+                        &self.of_text(held),
                         &binding,
                         &variables,
                         &fresh,
@@ -6046,7 +6046,7 @@ impl<'a> Elaborator<'a> {
                 if !filled_any {
                     // Or as the standard form reads the line.
                     for held in &known_keys {
-                        let fact = self.to_term(held);
+                        let fact = self.of_text(held);
                         if let Some(filled) =
                             self.fits_as(piece, &fact, &variables, Some(&binding))
                         {
@@ -6058,7 +6058,7 @@ impl<'a> Elaborator<'a> {
             }
             if let Some(slot) = slot {
                 for open in sethood(slot, &binding) {
-                    binding.insert(open, self.to_term("cvv"));
+                    binding.insert(open, self.of_text("cvv"));
                 }
             }
         }
@@ -6076,7 +6076,7 @@ impl<'a> Elaborator<'a> {
             &self.spelt(&binding),
             &essentials.iter().collect::<Vec<_>>(),
         );
-        let goal_rpn = self.rpn(goal);
+        let goal_rpn = self.txt(goal);
         if antecedents.is_empty() {
             // The lemma asks nothing, so it states the claim outright and has
             // to be brought into the scope the step sits in.
@@ -6088,7 +6088,7 @@ impl<'a> Elaborator<'a> {
         let mut stood_under = false;
         for (i, slot) in antecedents.iter().enumerate() {
             let asks = slot.substitute(&binding);
-            let asks_rpn = self.rpn(&asks);
+            let asks_rpn = self.txt(&asks);
             let mut is_scope = asks_rpn == where_;
             // Standing under a scope rests on every line it is made of. Where
             // the step does not name them all, as where a letter's membership
@@ -6117,7 +6117,7 @@ impl<'a> Elaborator<'a> {
             let mut rest = goal_rpn.clone();
             for (later, join) in antecedents[i + 1..].iter().zip(&joins[i + 1..]).rev()
             {
-                let said = self.rpn(&later.substitute(&binding));
+                let said = self.txt(&later.substitute(&binding));
                 if said != where_ {
                     // A biconditional crossed the other way puts the claim on
                     // the left.
@@ -6141,7 +6141,7 @@ impl<'a> Elaborator<'a> {
             let instanced = self
                 .parts(&asks_rpn)
                 .iter()
-                .any(|p| self.to_term(p).label() == Some("wrex"));
+                .any(|p| self.of_text(p).label() == Some("wrex"));
             let mut under = if is_scope {
                 Built(pf!(self.b; where_, "id"))
             } else if instanced && step.is_some() {
@@ -6158,7 +6158,7 @@ impl<'a> Elaborator<'a> {
             if under.is_declined() && frame + 1 < self.frames.len() {
                 let mut remaining = goal_rpn.clone();
                 for (later, join) in antecedents[i..].iter().zip(&joins[i..]).rev() {
-                    let said = self.rpn(&later.substitute(&binding));
+                    let said = self.txt(&later.substitute(&binding));
                     if said != where_ {
                         remaining = if *join == Join::Turned {
                             t!(remaining, said, "wb")
@@ -6222,7 +6222,7 @@ impl<'a> Elaborator<'a> {
         let proof =
             take!(self.apply_lemma(label, &said, scope, facts, step, false, None)?);
         let known = facts.copy();
-        let said = self.rpn(&said);
+        let said = self.txt(&said);
         self.know(&known, said.clone(), proof.clone());
         let settled = self.settle(goal, scope, &known, 3, None, None)?;
         if !settled.is_declined() {
@@ -6231,7 +6231,7 @@ impl<'a> Elaborator<'a> {
         // The value may hold an identity element the claim leaves out: fsum1's
         // one term, the summand at k := 0, has x^(0 − 0) where the claim
         // writes x^0 (`SYNTAX.md`, the literal-instance rule).
-        let want = self.rpn(goal);
+        let want = self.txt(goal);
         Ok(match self.tidied(&proof, &said, &want, scope, facts)? {
             Some(p) => Built(p),
             None => settled,
@@ -6248,11 +6248,11 @@ impl<'a> Elaborator<'a> {
         let kids = want.children();
         if want.label() == Some("wceq")
             && kids.len() == 2
-            && self.rpn(&kids[0]) == self.rpn(&kids[1])
+            && self.txt(&kids[0]) == self.txt(&kids[1])
         {
             // A lemma that names a thing asks for the naming as it stands
             // rather than under the scope.
-            return Ok(Built(pf!(self.b; self.rpn(&kids[0]), "eqid")));
+            return Ok(Built(pf!(self.b; self.txt(&kids[0]), "eqid")));
         }
         // And the very map spelt over another letter: the same naming,
         // closed.
@@ -6265,22 +6265,22 @@ impl<'a> Elaborator<'a> {
             return self.settle(want, scope, facts, 3, None, None);
         }
         let (left, right) = (&kids[0], &kids[1]);
-        let under = self.rpn(left);
-        if under == self.rpn(right) {
+        let under = self.txt(left);
+        if under == self.txt(right) {
             return Ok(Built(pf!(self.b; under, "id")));
         }
         // Two sides alike say one thing whatever is assumed: a renaming whose
         // body does not hold the letter it renames asks this.
         let sides = right.children();
-        if sides.len() == 2 && self.rpn(&sides[0]) == self.rpn(&sides[1]) {
-            let one = self.rpn(&sides[0]);
+        if sides.len() == 2 && self.txt(&sides[0]) == self.txt(&sides[1]) {
+            let one = self.txt(&sides[0]);
             let alike = match right.label() {
                 Some("wb") => Some(self.b.ap("biid", &binds! {"ph" => &one}, &[])),
                 Some("wceq") => Some(self.b.ap("eqid", &binds! {"A" => &one}, &[])),
                 _ => None,
             };
             if let Some(alike) = alike {
-                return Ok(Built(pf!(self.b; self.rpn(right), under, alike, "a1i")));
+                return Ok(Built(pf!(self.b; self.txt(right), under, alike, "a1i")));
             }
         }
         // A lemma may state its instance rather than ask for it, and wants
@@ -6290,8 +6290,8 @@ impl<'a> Elaborator<'a> {
             && matches!(right.label(), Some("wb") | Some("wceq"))
             && left.children()[0].label() == Some("cv")
         {
-            let was = self.rpn(&left.children()[0]);
-            let now = self.rpn(&left.children()[1]);
+            let was = self.txt(&left.children()[0]);
+            let now = self.txt(&left.children()[1]);
             let held = Facts::new();
             let id = pf!(self.b; under, "id");
             self.know(&held, under.clone(), id);
@@ -6312,8 +6312,8 @@ impl<'a> Elaborator<'a> {
         if under == scope {
             return self.settle(right, scope, facts, 3, None, None);
         }
-        if left.label() == Some("wa") && self.rpn(&left.children()[0]) == scope {
-            let extra = self.rpn(&left.children()[1]);
+        if left.label() == Some("wa") && self.txt(&left.children()[0]) == scope {
+            let extra = self.txt(&left.children()[1]);
             let weaken = pf!(self.b; scope, extra, "simpl");
             let wider = Facts::new();
             for (k, v) in facts.entries() {
@@ -6362,11 +6362,11 @@ impl<'a> Elaborator<'a> {
             return Ok(None);
         }
         let index = member.children()[0].clone();
-        let want = self.rpn(right);
+        let want = self.txt(right);
         // Only what the step names, as `settle` is offered only that.
         let facts = self.restable(facts);
         for (said, proof) in facts.entries() {
-            let line = self.to_term(&said);
+            let line = self.of_text(&said);
             if line.label() != Some("wral") || line.children()[1].variable().is_none() {
                 continue;
             }
@@ -6380,30 +6380,30 @@ impl<'a> Elaborator<'a> {
                 letter.variable_symbol().unwrap(),
                 index.children()[0].clone(),
             );
-            if self.rpn(&body.substitute(&put)) != want {
+            if self.txt(&body.substitute(&put)) != want {
                 continue;
             }
-            let inside = t!(self.rpn(&index), self.rpn(&over), "wcel");
+            let inside = t!(self.txt(&index), self.txt(&over), "wcel");
             let Built(there) =
-                self.settle(&self.to_term(&inside), under, &facts, 3, None, None)?
+                self.settle(&self.of_text(&inside), under, &facts, 3, None, None)?
             else {
                 continue;
             };
-            let reads = self.to_term(&t!(
+            let reads = self.of_text(&t!(
                 t!(
-                    format!("{} cv", self.rpn(&letter)),
-                    self.rpn(&index),
+                    format!("{} cv", self.txt(&letter)),
+                    self.txt(&index),
                     "wceq"
                 ),
-                t!(self.rpn(&body), want, "wb"),
+                t!(self.txt(&body), want, "wb"),
                 "wi"
             ));
             // The line may bind the index's own letter, and then the body at
             // the index is the body: `rsp` reads it there.
-            let read = if self.rpn(&body) == want {
+            let read = if self.txt(&body) == want {
                 let rsp = self.b.ap(
                     "rsp",
-                    &binds! {"ph" => &want, "x" => self.rpn(&letter), "A" => self.rpn(&over)},
+                    &binds! {"ph" => &want, "x" => self.txt(&letter), "A" => self.txt(&over)},
                     &[],
                 );
                 self.b.ap(
@@ -6417,8 +6417,8 @@ impl<'a> Elaborator<'a> {
                 };
                 self.b.ap(
                     "rspcv",
-                    &binds! {"ph" => self.rpn(&body), "ps" => &want, "x" => self.rpn(&letter),
-                    "A" => self.rpn(&index), "B" => self.rpn(&over)},
+                    &binds! {"ph" => self.txt(&body), "ps" => &want, "x" => self.txt(&letter),
+                    "A" => self.txt(&index), "B" => self.txt(&over)},
                     &[&tied],
                 )
             };
@@ -6470,8 +6470,8 @@ impl<'a> Elaborator<'a> {
                 Some(&fixed)
             )?);
             let (l, r) = (
-                self.rpn(&left.substitute(&fixed)),
-                self.rpn(&right.substitute(&fixed)),
+                self.txt(&left.substitute(&fixed)),
+                self.txt(&right.substitute(&fixed)),
             );
             return Ok(Built(pf!(self.b; scope, l, r, both, fold)));
         }

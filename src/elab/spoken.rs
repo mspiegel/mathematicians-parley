@@ -110,7 +110,7 @@ impl Elaborator<'_> {
     /// The term as page text, or None where some part of it has no page
     /// reading.
     pub fn spoken(&self, rpn: &str) -> Option<String> {
-        let node = self.page_node(&self.to_term(rpn))?;
+        let node = self.page_node(&self.of_text(rpn))?;
         Some(self.g.print(&node))
     }
 
@@ -236,7 +236,7 @@ impl Elaborator<'_> {
         term: &Term,
         bound: &IndexMap<String, Sort>,
     ) -> Option<Node> {
-        let rpn = self.rpn(term);
+        let rpn = self.txt(term);
         // A name the proof gave this term; a part of a structure is held
         // under a name no page writes (`@op`), and is read by its notation.
         let named = |page: &str| {
@@ -441,14 +441,14 @@ impl Elaborator<'_> {
                     holes.resize(*n, None);
                 }
                 match &holes[n - 1] {
-                    Some(held) => self.rpn(held) == self.rpn(term),
+                    Some(held) => self.txt(held) == self.txt(term),
                     None => {
                         holes[n - 1] = Some(term.clone());
                         true
                     }
                 }
             }
-            Pattern::Fixed(rpn) => self.rpn(term) == *rpn,
+            Pattern::Fixed(rpn) => self.txt(term) == *rpn,
             Pattern::Apply(label, args) => {
                 term.label() == Some(label.as_str())
                     && term.children().len() == args.len()

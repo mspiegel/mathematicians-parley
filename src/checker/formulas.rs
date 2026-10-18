@@ -3885,10 +3885,10 @@ fn printed(
     targets: &Targets,
     labels: &FloatLabels,
 ) -> String {
-    let want = term.rpn(labels).to_string();
+    let want = term.txt(labels).to_string();
     read.iter()
         .flat_map(|n| n.walk())
-        .find(|part| *term_of_node(part, targets).rpn(labels) == *want)
+        .find(|part| *term_of_node(part, targets).txt(labels) == *want)
         .map(|part| known.print(&part))
         .unwrap_or(want)
 }

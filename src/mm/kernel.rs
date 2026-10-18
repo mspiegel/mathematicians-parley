@@ -170,8 +170,8 @@ impl Term {
         Rc::ptr_eq(&self.0, &other.0)
     }
 
-    /// The term as a proof writes it, pushing what each label wants.
-    pub fn rpn(&self, labels: &FloatLabels) -> Rc<str> {
+    /// `rpn` as text.
+    pub fn txt(&self, labels: &FloatLabels) -> Rc<str> {
         let key = labels.id;
         if let Some((held, said)) = &*self.0.rpn.borrow() {
             if *held == key {
@@ -182,7 +182,7 @@ impl Term {
             Some(v) => Rc::from(labels.get(v).map_or("", Symbol::as_str)),
             None => {
                 let mut parts: Vec<Rc<str>> =
-                    self.0.children.iter().map(|c| c.rpn(labels)).collect();
+                    self.0.children.iter().map(|c| c.txt(labels)).collect();
                 parts.push(Rc::from(self.0.label.map_or("", Symbol::as_str)));
                 let joined: Vec<&str> = parts.iter().map(|p| &**p).collect();
                 Rc::from(joined.join(" "))
@@ -192,9 +192,8 @@ impl Term {
         said
     }
 
-    /// The term as a proof writes it, as tokens: what `rpn` writes, with
-    /// nothing joined.
-    pub fn tokens(&self, labels: &FloatLabels) -> Rpn {
+    /// The term as a proof writes it, pushing what each label wants.
+    pub fn rpn(&self, labels: &FloatLabels) -> Rpn {
         let key = labels.id;
         if let Some((held, said)) = &*self.0.tokens.borrow() {
             if *held == key {
@@ -205,7 +204,7 @@ impl Term {
             Some(v) => Rpn::from(labels.get(&v).into_iter().collect::<Vec<_>>()),
             None => {
                 let parts: Vec<Rpn> =
-                    self.0.children.iter().map(|c| c.tokens(labels)).collect();
+                    self.0.children.iter().map(|c| c.rpn(labels)).collect();
                 let label: Vec<Symbol> = self.0.label.into_iter().collect();
                 let mut runs: Vec<&[Symbol]> = parts.iter().map(Rpn::tokens).collect();
                 runs.push(&label);

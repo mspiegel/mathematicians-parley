@@ -415,7 +415,7 @@ pub fn exponent_atom(exponent: &Term, labels: &FloatLabels) -> Option<Rc<str>> {
     let [(name, 1)] = monomial.as_slice() else {
         return None;
     };
-    (*weight == q(1) && **name != *exponent.rpn(labels)).then(|| name.clone())
+    (*weight == q(1) && **name != *exponent.txt(labels)).then(|| name.clone())
 }
 
 /// `base ^ by` multiplied out as the proof multiplies it, by the base once
@@ -480,7 +480,7 @@ fn operation<'t>(
         && term.children().len() == 3
     {
         let kids = term.children();
-        return Some((kids[2].rpn(labels), &kids[0], &kids[1]));
+        return Some((kids[2].txt(labels), &kids[0], &kids[1]));
     }
     None
 }
@@ -518,11 +518,11 @@ pub fn linear_sum(
     let ranged = range.variable().is_none()
         && range.label() == Some("co")
         && range.children().len() == 3
-        && &*range.children()[2].rpn(labels) == "cfz";
-    if !ranged || summand.rpn(labels).split_whitespace().any(|t| t == "csu") {
+        && &*range.children()[2].txt(labels) == "cfz";
+    if !ranged || summand.txt(labels).split_whitespace().any(|t| t == "csu") {
         return None;
     }
-    let letter = letter.rpn(labels).to_string();
+    let letter = letter.txt(labels).to_string();
     let read = read(summand, labels);
     if read.under != one() {
         return None;
@@ -544,7 +544,7 @@ pub fn linear_sum(
     if parts.is_empty() {
         return None;
     }
-    Some((range.rpn(labels).to_string(), letter, parts))
+    Some((range.txt(labels).to_string(), letter, parts))
 }
 
 thread_local! {
@@ -646,14 +646,14 @@ pub fn read(term: &Term, labels: &FloatLabels) -> Quotient {
                     return raised;
                 }
                 if let Some(name) = exponent_atom(right, labels) {
-                    let over = format!("{} {name} {EXP} co", left.rpn(labels));
+                    let over = format!("{} {name} {EXP} co", left.txt(labels));
                     return Quotient::whole(atom(&over));
                 }
             }
             _ => {}
         }
     }
-    Quotient::whole(atom(&term.rpn(labels)))
+    Quotient::whole(atom(&term.txt(labels)))
 }
 
 /// A claim as a polynomial that must vanish, or None if it is not one.

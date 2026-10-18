@@ -6,7 +6,7 @@
 //! Nothing here is assumed.
 
 use crate::mm::spell::{cel, eq, le, lt, neg, wa, wi, wo};
-use crate::seq;
+use crate::seq_text as seq;
 
 const X: &str = "cX";
 const ZERO: &str = "cc0";

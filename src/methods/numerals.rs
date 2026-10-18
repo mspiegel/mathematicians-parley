@@ -11,7 +11,7 @@ use num_traits::{ToPrimitive, Zero};
 
 use crate::mm::kernel::Term;
 use crate::rules::{digit_of, numeral_label};
-use crate::t;
+use crate::t_text as t;
 
 /// The digits before the last, and the last.
 pub(crate) fn last_off(n: &BigUint) -> (BigUint, u32) {

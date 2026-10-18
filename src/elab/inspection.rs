@@ -22,7 +22,7 @@ use crate::mm::kernel::Term;
 use crate::mm::spell::Proof;
 use crate::outcome::{Built, Checked, Declined, Route};
 use crate::rules;
-use crate::{t, take};
+use crate::{t_text as t, take};
 
 /// A set read in the standard form: its elements in order, and a proof
 /// that the set is the union of their singletons.
@@ -97,7 +97,7 @@ impl Elaborator<'_> {
         for (fact, proof) in known.entries() {
             self.unpack(&fact, &proof, scope, &known, usize::MAX);
         }
-        let claim = self.to_term(term);
+        let claim = self.of_text(term);
         let made = self.inspected(&claim, scope, &known)?;
         match made {
             Built(p) => Ok(Built(p)),
@@ -145,8 +145,8 @@ impl Elaborator<'_> {
                 let Some(at) = self.position(element, &listing.elements) else {
                     return Ok(Route::no(format!(
                         "{} is not one of the things {} lists",
-                        self.render(&self.rpn(element)),
-                        self.render(&self.rpn(set))
+                        self.render(&self.txt(element)),
+                        self.render(&self.txt(set))
                     )));
                 };
                 let inside = take!(self.in_union(
@@ -158,8 +158,8 @@ impl Elaborator<'_> {
                 )?);
                 Ok(Built(self.b.ap(
                     "eleqtrrd",
-                    &binds! {"ph" => scope, "A" => &self.rpn(element),
-                    "B" => &self.union_of(&listing.elements), "C" => &self.rpn(set)},
+                    &binds! {"ph" => scope, "A" => &self.txt(element),
+                    "B" => &self.union_of(&listing.elements), "C" => &self.txt(set)},
                     &[&inside, &listing.proof],
                 )))
             }
@@ -204,12 +204,12 @@ impl Elaborator<'_> {
         }
         let kids = term.children().to_vec();
         if term.variable().is_none() && term.label() == Some("crab") {
-            let (body, letter, over) = (&kids[0], self.rpn(&kids[1]), &kids[2]);
+            let (body, letter, over) = (&kids[0], self.txt(&kids[1]), &kids[2]);
             let source = take!(self.listing(over, scope, known)?);
             let kept =
                 take!(self.kept(body, &letter, &source.elements, scope, known)?);
-            let p = self.rpn(body);
-            let (s, u_source) = (self.rpn(over), self.union_of(&source.elements));
+            let p = self.txt(body);
+            let (s, u_source) = (self.txt(over), self.union_of(&source.elements));
             let moved = self.b.ap(
                 "rabeqdv",
                 &binds! {"ph" => scope, "ps" => &p, "x" => &letter, "A" => &s, "B" => &u_source},
@@ -218,7 +218,7 @@ impl Elaborator<'_> {
             let over_listing = t!(p, letter, u_source, "crab");
             let proof = self.b.ap(
                 "eqtrd",
-                &binds! {"ph" => scope, "A" => &self.rpn(term), "B" => &over_listing,
+                &binds! {"ph" => scope, "A" => &self.txt(term), "B" => &over_listing,
                 "C" => &self.listed(&kept.elements)},
                 &[&moved, &kept.proof],
             );
@@ -229,11 +229,11 @@ impl Elaborator<'_> {
         }
         if term.variable().is_none()
             && term.label() == Some("cfv")
-            && self.rpn(&kids[1]) == "chash"
+            && self.txt(&kids[1]) == "chash"
         {
             let set = &kids[0];
             let listing = take!(self.set_value(set, scope, known)?);
-            let (s, u) = (self.rpn(set), self.listed(&listing.elements));
+            let (s, u) = (self.txt(set), self.listed(&listing.elements));
             let moved = self.b.ap(
                 "fveq2d",
                 &binds! {"ph" => scope, "A" => &s, "B" => &u, "F" => "chash"},
@@ -262,7 +262,7 @@ impl Elaborator<'_> {
                 proof: Some(proof),
             }));
         }
-        let said = self.rpn(term);
+        let said = self.txt(term);
         if said == "c0" {
             let none = self
                 .b
@@ -292,7 +292,7 @@ impl Elaborator<'_> {
             Value::Set { elements, proof } => Ok(Built(Listing { elements, proof })),
             Value::Count { .. } => Ok(Route::no(format!(
                 "{} is a number, and a set is wanted",
-                self.render(&self.rpn(term))
+                self.render(&self.txt(term))
             ))),
         }
     }
@@ -306,14 +306,14 @@ impl Elaborator<'_> {
         scope: &str,
         known: &Facts,
     ) -> Checked<Route<Value>> {
-        let said = self.rpn(term);
+        let said = self.txt(term);
         for (fact, all) in known.entries() {
-            let held = self.to_term(&fact);
+            let held = self.of_text(&fact);
             if held.variable().is_some() || held.label() != Some("wral") {
                 continue;
             }
             let kids = held.children().to_vec();
-            let (body, letter, domain) = (&kids[0], self.rpn(&kids[1]), &kids[2]);
+            let (body, letter, domain) = (&kids[0], self.txt(&kids[1]), &kids[2]);
             if body.variable().is_some() || body.label() != Some("wceq") {
                 continue;
             }
@@ -323,12 +323,12 @@ impl Elaborator<'_> {
                 continue;
             };
             let Some(at) = listing.elements.iter().position(|e| {
-                self.rpn(&self.restated(&sides[0], &bound, &self.rpn(e))) == said
+                self.txt(&self.restated(&sides[0], &bound, &self.txt(e))) == said
             }) else {
                 continue;
             };
             let element = listing.elements[at].clone();
-            let c = self.rpn(&element);
+            let c = self.txt(&element);
             let instance = self.restated(body, &bound, &c);
             let other = instance.children()[1].clone();
             let inside =
@@ -336,20 +336,20 @@ impl Elaborator<'_> {
             let member = self.b.ap(
                 "eleqtrrd",
                 &binds! {"ph" => scope, "A" => &c,
-                "B" => &self.union_of(&listing.elements), "C" => &self.rpn(domain)},
+                "B" => &self.union_of(&listing.elements), "C" => &self.txt(domain)},
                 &[&inside, &listing.proof],
             );
-            let (p, at_c) = (self.rpn(body), self.rpn(&instance));
-            let tie = self.to_term(&t!(t!(bound, c, "wceq"), t!(p, at_c, "wb"), "wi"));
+            let (p, at_c) = (self.txt(body), self.txt(&instance));
+            let tie = self.of_text(&t!(t!(bound, c, "wceq"), t!(p, at_c, "wb"), "wi"));
             let tie = take!(self.prove_essential(&tie, "", &Facts::new())?);
             let given = self.b.ap(
                 "rspcdva",
                 &binds! {"x" => &letter, "ps" => &p, "ch" => &at_c, "ph" => scope,
-                "A" => &self.rpn(domain), "C" => &c},
+                "A" => &self.txt(domain), "C" => &c},
                 &[&tie, &all, &member],
             );
             let worked = take!(self.value(&other, scope, known)?);
-            let r = self.rpn(&other);
+            let r = self.txt(&other);
             let joined = |me: &Self, to: &str, rest: Option<Proof>| -> Proof {
                 match rest {
                     None => given.clone(),
@@ -392,7 +392,7 @@ impl Elaborator<'_> {
     ) -> Checked<Route<Proof>> {
         let one = take!(self.value(left, scope, known)?);
         let other = take!(self.value(right, scope, known)?);
-        let (a, b) = (self.rpn(left), self.rpn(right));
+        let (a, b) = (self.txt(left), self.txt(right));
         match (one, other) {
             (
                 Value::Set {
@@ -504,8 +504,8 @@ impl Elaborator<'_> {
         scope: &str,
     ) -> Checked<Proof> {
         let (t, s, u) = (
-            self.rpn(element),
-            self.rpn(set),
+            self.txt(element),
+            self.txt(set),
             self.listed(&listing.elements),
         );
         let same = self.b.ap(
@@ -522,17 +522,17 @@ impl Elaborator<'_> {
 
     /// The union of the singletons of `elements`, joined from the left.
     fn union_of(&self, elements: &[Term]) -> String {
-        let mut out = t!(self.rpn(&elements[0]), "csn");
+        let mut out = t!(self.txt(&elements[0]), "csn");
         for e in &elements[1..] {
-            out = t!(out, t!(self.rpn(e), "csn"), "cun");
+            out = t!(out, t!(self.txt(e), "csn"), "cun");
         }
         out
     }
 
     /// Where `element` stands among `elements`, as written.
     fn position(&self, element: &Term, elements: &[Term]) -> Option<usize> {
-        let said = self.rpn(element);
-        elements.iter().position(|e| self.rpn(e) == said)
+        let said = self.txt(element);
+        elements.iter().position(|e| self.txt(e) == said)
     }
 
     /// A set as the cited lines list it: written as a listing, or given by
@@ -547,21 +547,21 @@ impl Elaborator<'_> {
             let union = self.union_of(&elements);
             let proof = self.b.ap(
                 "a1i",
-                &binds! {"ph" => &t!(self.rpn(set), union, "wceq"), "ps" => scope},
+                &binds! {"ph" => &t!(self.txt(set), union, "wceq"), "ps" => scope},
                 &[&closed],
             );
             return Ok(Built(Listing { elements, proof }));
         }
-        let said = self.rpn(set);
+        let said = self.txt(set);
         for (fact, proof) in known.entries() {
-            let held = self.to_term(&fact);
+            let held = self.of_text(&fact);
             if held.label() != Some("wceq") || held.variable().is_some() {
                 continue;
             }
             let sides = held.children().to_vec();
-            let (other, flipped) = if self.rpn(&sides[0]) == said {
+            let (other, flipped) = if self.txt(&sides[0]) == said {
                 (sides[1].clone(), false)
-            } else if self.rpn(&sides[1]) == said {
+            } else if self.txt(&sides[1]) == said {
                 (sides[0].clone(), true)
             } else {
                 continue;
@@ -570,7 +570,7 @@ impl Elaborator<'_> {
                 continue;
             };
             let union = self.union_of(&elements);
-            let named = self.rpn(&other);
+            let named = self.txt(&other);
             let to_listed = if flipped {
                 self.b.ap(
                     "eqcomd",
@@ -589,7 +589,7 @@ impl Elaborator<'_> {
         }
         Ok(Route::no(format!(
             "nothing cited lists {}",
-            self.render(&self.rpn(set))
+            self.render(&self.txt(set))
         )))
     }
 
@@ -603,11 +603,11 @@ impl Elaborator<'_> {
         let kids = set.children().to_vec();
         match set.label()? {
             "csn" => {
-                let one = self.rpn(set);
+                let one = self.txt(set);
                 Some((kids, self.b.ap("eqid", &binds! {"A" => &one}, &[])))
             }
             "cpr" => {
-                let (a, b) = (self.rpn(&kids[0]), self.rpn(&kids[1]));
+                let (a, b) = (self.txt(&kids[0]), self.txt(&kids[1]));
                 Some((
                     kids,
                     self.b.ap("df-pr", &binds! {"A" => &a, "B" => &b}, &[]),
@@ -615,7 +615,7 @@ impl Elaborator<'_> {
             }
             "ctp" => {
                 let (a, b, c) =
-                    (self.rpn(&kids[0]), self.rpn(&kids[1]), self.rpn(&kids[2]));
+                    (self.txt(&kids[0]), self.txt(&kids[1]), self.txt(&kids[2]));
                 let tp =
                     self.b
                         .ap("df-tp", &binds! {"A" => &a, "B" => &b, "C" => &c}, &[]);
@@ -630,7 +630,7 @@ impl Elaborator<'_> {
                 );
                 let proof = self.b.ap(
                     "eqtri",
-                    &binds! {"A" => &self.rpn(set), "B" => &t!(pair, single, "cun"),
+                    &binds! {"A" => &self.txt(set), "B" => &t!(pair, single, "cun"),
                     "C" => &t!(pair_union, single, "cun")},
                     &[&tp, &lifted],
                 );
@@ -639,7 +639,7 @@ impl Elaborator<'_> {
             "cun" if kids[1].label() == Some("csn") => {
                 let (mut elements, inner) = self.written_listing(&kids[0])?;
                 let last = kids[1].children()[0].clone();
-                let (was, single) = (self.rpn(&kids[0]), self.rpn(&kids[1]));
+                let (was, single) = (self.txt(&kids[0]), self.txt(&kids[1]));
                 let now = self.union_of(&elements);
                 let proof = self.b.ap(
                     "uneq1i",
@@ -663,7 +663,7 @@ impl Elaborator<'_> {
         scope: &str,
         known: &Facts,
     ) -> Checked<Route<Proof>> {
-        let t = self.rpn(element);
+        let t = self.txt(element);
         if elements.len() == 1 {
             let is_set = take!(self.a_set(element, scope, known)?);
             let law = self.b.ap("snidg", &binds! {"A" => &t, "V" => "cvv"}, &[]);
@@ -717,7 +717,7 @@ impl Elaborator<'_> {
         scope: &str,
         known: &Facts,
     ) -> Checked<Route<Proof>> {
-        let t = self.rpn(element);
+        let t = self.txt(element);
         if elements.is_empty() {
             let none = self.b.ap("noel", &binds! {"A" => &t}, &[]);
             return Ok(Built(self.b.ap(
@@ -727,7 +727,7 @@ impl Elaborator<'_> {
             )));
         }
         if elements.len() == 1 {
-            let c = self.rpn(&elements[0]);
+            let c = self.txt(&elements[0]);
             let apart = take!(self.differs(element, &elements[0], scope, known)?);
             let law = self.b.ap("nelsn", &binds! {"A" => &t, "B" => &c}, &[]);
             return Ok(Built(self.b.ap(
@@ -786,7 +786,7 @@ impl Elaborator<'_> {
         scope: &str,
         known: &Facts,
     ) -> Checked<Route<Proof>> {
-        let (a, b) = (self.rpn(one), self.rpn(other));
+        let (a, b) = (self.txt(one), self.txt(other));
         let valued =
             |t: &Term| matches!(field::closed_value(t), Built(field::Value::Exact(_)));
         if valued(one) && valued(other) {
@@ -843,7 +843,7 @@ impl Elaborator<'_> {
         scope: &str,
         known: &Facts,
     ) -> Checked<Route<Proof>> {
-        let said = self.to_term(&t!(self.rpn(element), "cvv", "wcel"));
+        let said = self.of_text(&t!(self.txt(element), "cvv", "wcel"));
         self.settle(&said, scope, known, 3, None, None)
     }
 
@@ -859,8 +859,8 @@ impl Elaborator<'_> {
         scope: &str,
         known: &Facts,
     ) -> Checked<Route<Settled>> {
-        let at = self.restated(body, &format!("{letter} cv"), &self.rpn(element));
-        let said = self.rpn(&at);
+        let at = self.restated(body, &format!("{letter} cv"), &self.txt(element));
+        let said = self.txt(&at);
         if let Some(p) = self.held(known, &said, scope)? {
             return Ok(Built(Settled::Holds(p)));
         }
@@ -884,8 +884,8 @@ impl Elaborator<'_> {
                 take!(self.in_union(member, &listing.elements, i, scope, known)?);
             return Ok(Built(Settled::Holds(self.b.ap(
                 "eleqtrrd",
-                &binds! {"ph" => scope, "A" => &self.rpn(member),
-                "B" => &self.union_of(&listing.elements), "C" => &self.rpn(set)},
+                &binds! {"ph" => scope, "A" => &self.txt(member),
+                "B" => &self.union_of(&listing.elements), "C" => &self.txt(set)},
                 &[&inside, &listing.proof],
             ))));
         }
@@ -925,7 +925,7 @@ impl Elaborator<'_> {
         // Each side, and ( scope -> side = its value ).
         let mut sides: Vec<(String, String, Proof)> = Vec::new();
         for side in &core.children()[..2] {
-            let written = self.rpn(side);
+            let written = self.txt(side);
             if written.split_whitespace().all(rules::numeric) {
                 let same =
                     self.b
@@ -940,16 +940,16 @@ impl Elaborator<'_> {
         }
         let at_values = t!(sides[0].1, sides[1].1, "cdvds", "wbr");
         let Built(Verdict::Holds(holds)) =
-            field::decide_closed(&self.to_term(&at_values))
+            field::decide_closed(&self.of_text(&at_values))
         else {
             return Ok(None);
         };
         let Built(shown) =
-            self.divides_proved(&self.to_term(&at_values), !holds, scope, known)?
+            self.divides_proved(&self.of_text(&at_values), !holds, scope, known)?
         else {
             return Ok(None);
         };
-        let written = self.rpn(&core);
+        let written = self.txt(&core);
         let mut same = self.b.ap(
             "breq12d",
             &binds! {"ph" => scope, "A" => &sides[0].0, "B" => &sides[0].1,
@@ -999,7 +999,7 @@ impl Elaborator<'_> {
         known: &Facts,
     ) -> Checked<Route<Proof>> {
         let labels = self.b.flabel.clone();
-        let written = self.rpn(element);
+        let written = self.txt(element);
         // The value, and the equation from the term to it: closed where the
         // term is numerals, under the scope where a cited line gives it.
         let (value, closed_equal, cited_equal) =
@@ -1013,7 +1013,7 @@ impl Elaborator<'_> {
                             self.render(&written)
                         )));
                     };
-                    let Some(value) = numerals::value(&self.to_term(&said)) else {
+                    let Some(value) = numerals::value(&self.of_text(&said)) else {
                         return Ok(Route::no(format!(
                             "{} is not a whole number",
                             self.render(&said)
@@ -1163,14 +1163,14 @@ impl Elaborator<'_> {
     ) -> Checked<Option<(String, Proof)>> {
         let numeric = |x: &str| x.split_whitespace().all(rules::numeric);
         for claim in known.keys() {
-            let said = self.to_term(&claim);
+            let said = self.of_text(&claim);
             if said.variable().is_some()
                 || said.label() != Some("wceq")
                 || said.children().len() != 2
             {
                 continue;
             }
-            let (l, r) = (self.rpn(&said.children()[0]), self.rpn(&said.children()[1]));
+            let (l, r) = (self.txt(&said.children()[0]), self.txt(&said.children()[1]));
             let (value, turned) = if l == side && numeric(&r) {
                 (r, false)
             } else if r == side && numeric(&l) {
@@ -1204,13 +1204,13 @@ impl Elaborator<'_> {
         scope: &str,
         known: &Facts,
     ) -> Checked<Route<Kept>> {
-        let p = self.rpn(body);
+        let p = self.txt(body);
         let builder = |over: &str| t!(p, letter, over, "crab");
         if elements.len() == 1 {
-            let c = self.rpn(&elements[0]);
+            let c = self.txt(&elements[0]);
             let single = t!(c, "csn");
-            let at = self.rpn(&self.restated(body, &format!("{letter} cv"), &c));
-            let tie = self.to_term(&t!(
+            let at = self.txt(&self.restated(body, &format!("{letter} cv"), &c));
+            let tie = self.of_text(&t!(
                 t!(format!("{letter} cv"), c, "wceq"),
                 t!(p, at, "wb"),
                 "wi"
@@ -1338,13 +1338,13 @@ impl Elaborator<'_> {
             let Some(at) = self.position(&from[0], into) else {
                 return Ok(Route::no(format!(
                     "{} is on one side and not the other",
-                    self.render(&self.rpn(&from[0]))
+                    self.render(&self.txt(&from[0]))
                 )));
             };
             let inside = take!(self.in_union(&from[0], into, at, scope, known)?);
             return Ok(Built(self.b.ap(
                 "snssd",
-                &binds! {"ph" => scope, "A" => &self.rpn(&from[0]), "B" => &whole},
+                &binds! {"ph" => scope, "A" => &self.txt(&from[0]), "B" => &whole},
                 &[&inside],
             )));
         }
@@ -1369,7 +1369,7 @@ impl Elaborator<'_> {
         scope: &str,
         known: &Facts,
     ) -> Checked<Route<(Proof, String)>> {
-        let first = self.rpn(&elements[0]);
+        let first = self.txt(&elements[0]);
         if elements.len() == 1 {
             let is_set = take!(self.a_set(&elements[0], scope, known)?);
             let law = self
@@ -1389,7 +1389,7 @@ impl Elaborator<'_> {
         let (init, last) = elements.split_at(elements.len() - 1);
         let (before, sum_before) = take!(self.counted(init, scope, known)?);
         let front = self.union_of(init);
-        let c = self.rpn(&last[0]);
+        let c = self.txt(&last[0]);
         let whole = t!(front, t!(c, "csn"), "cun");
         let size_whole = t!(whole, "chash", "cfv");
         let size_front = t!(front, "chash", "cfv");
@@ -1470,12 +1470,12 @@ impl Elaborator<'_> {
 
     /// |- the union of `elements`' singletons is finite.
     fn finite(&self, elements: &[Term]) -> Proof {
-        let first = self.rpn(&elements[0]);
+        let first = self.txt(&elements[0]);
         let mut proof = self.b.ap("snfi", &binds! {"A" => &first}, &[]);
         let mut union = t!(first, "csn");
         for e in &elements[1..] {
-            let single = t!(self.rpn(e), "csn");
-            let one = self.b.ap("snfi", &binds! {"A" => &self.rpn(e)}, &[]);
+            let single = t!(self.txt(e), "csn");
+            let one = self.b.ap("snfi", &binds! {"A" => &self.txt(e)}, &[]);
             let (left, right) = (t!(union, "cfn", "wcel"), t!(single, "cfn", "wcel"));
             let both = self.b.ap(
                 "pm3.2i",

@@ -39,7 +39,7 @@ use crate::mm::kernel::Term;
 use crate::mm::spell::{Builder, Proof};
 use crate::outcome::{Built, Checked, Declined, Problem, Route};
 use crate::rules::{self, lookup};
-use crate::{pf, t, take};
+use crate::{pf, t_text as t, take};
 
 /// What an emitter asks of the elaborator: the scope, the facts a
 /// membership is answered from, whether it may search for a term not being
@@ -403,7 +403,7 @@ impl<'a> Elaborator<'a> {
             return Ok(found);
         }
         let proof = take!(found);
-        let (said, want) = (self.to_term(&out.term), self.to_term(term));
+        let (said, want) = (self.of_text(&out.term), self.of_text(term));
         let Built(back) = self.same(&said, &want, scope, facts, Some(step))? else {
             return Ok(Route::no("the claim written out is not carried back"));
         };
@@ -455,11 +455,11 @@ impl<'a> Elaborator<'a> {
     /// a line it cites, is linear in something (`field::says_something_linear`).
     pub fn sums_linear(&self, term: &str, step: Option<&Step>, lines: &Lines) -> bool {
         let labels = self.b.flabel.clone();
-        let mut said = vec![self.to_term(term)];
+        let mut said = vec![self.of_text(term)];
         if let Some(step) = step {
             for r in &step.just.refs {
                 if let Some(line) = lines.get(r) {
-                    said.push(self.to_term(&line.term));
+                    said.push(self.of_text(&line.term));
                 }
             }
         }
@@ -480,16 +480,16 @@ impl<'a> Elaborator<'a> {
         // where the step reads its sums as atoms there is none.
         let linear = self.sums_linear(term, step, lines);
         let letter = if linear {
-            let mut seen: Vec<Term> = vec![self.to_term(term), self.to_term(scope)];
+            let mut seen: Vec<Term> = vec![self.of_text(term), self.of_text(scope)];
             if let Some(step) = step {
                 for r in &step.just.refs {
                     if let Some(line) = lines.get(r) {
-                        seen.push(self.to_term(&line.term));
+                        seen.push(self.of_text(&line.term));
                     }
                 }
             }
             let refs: Vec<&Term> = seen.iter().collect();
-            self.unheld(&refs).map(|v| self.rpn(&v))
+            self.unheld(&refs).map(|v| self.txt(&v))
         } else {
             None
         };
@@ -509,7 +509,7 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         lines: &Lines,
     ) -> Checked<Route<Proof>> {
-        let goal = self.to_term(term);
+        let goal = self.of_text(term);
         let apart = goal.variable().is_none()
             && goal.label() == Some("wn")
             && goal.children().len() == 1;
@@ -542,8 +542,8 @@ impl<'a> Elaborator<'a> {
         if apart {
             return self.apart_from_cited(step, &goal, scope, &facts, lines, &mut w);
         }
-        let left = self.rpn(&goal.children()[0]);
-        let right = self.rpn(&goal.children()[1]);
+        let left = self.txt(&goal.children()[0]);
+        let right = self.txt(&goal.children()[1]);
         // Each route's decline, written out only if every route declines.
         let mut declines = Vec::new();
         let found = self.same_polynomial(&mut w, &left, &right)?;
@@ -594,8 +594,8 @@ impl<'a> Elaborator<'a> {
         let claim = field::denied(goal, &labels);
         let inner = goal.children()[0].clone();
         let (lhs, rhs) = (
-            self.rpn(&inner.children()[0]),
-            self.rpn(&inner.children()[1]),
+            self.txt(&inner.children()[0]),
+            self.txt(&inner.children()[1]),
         );
         let whole = t!(lhs, rhs, "cmin", "co");
         for r in &step.just.refs {
@@ -603,21 +603,21 @@ impl<'a> Elaborator<'a> {
                 continue;
             };
             for said in self.parts(&held.term) {
-                let node = self.to_term(&said);
+                let node = self.of_text(&said);
                 let cited = field::denied(&node, &labels);
                 let Some(numerators) = rescales(cited.as_ref(), claim.as_ref()) else {
                     continue;
                 };
                 let pair = node.children()[0].clone();
                 let (p, qq) =
-                    (self.rpn(&pair.children()[0]), self.rpn(&pair.children()[1]));
+                    (self.txt(&pair.children()[0]), self.txt(&pair.children()[1]));
                 let mut gap = t!(p, qq, "cmin", "co");
                 // A disequality is read by its numerator, so the two
                 // differences are one a multiple of the other by the scale
                 // of their numerators times the ratio of their denominators,
                 // where both are numbers: k(k + 1)/2 − 0 is 1/2 of k(k + 1) − 0.
                 let below = |t: &str| {
-                    field::read(&self.to_term(t), &labels)
+                    field::read(&self.of_text(t), &labels)
                         .under
                         .constant_value()
                 };
@@ -712,7 +712,7 @@ impl<'a> Elaborator<'a> {
         w: &mut Work,
     ) -> Checked<Route<Proof>> {
         let labels = self.b.flabel.clone();
-        let want = field::equation(&self.to_term(&t!(left, right, "wceq")), &labels);
+        let want = field::equation(&self.of_text(&t!(left, right, "wceq")), &labels);
         for r in &step.just.refs {
             let Some(held) = lines.get(r) else {
                 continue;
@@ -720,7 +720,7 @@ impl<'a> Elaborator<'a> {
             // A line saying several things is read a sentence at a time, as
             // any line a step cites is.
             for part in self.parts(&held.term) {
-                let cited = self.to_term(&part);
+                let cited = self.of_text(&part);
                 if cited.variable().is_some()
                     || cited.label() != Some("wceq")
                     || cited.children().len() != 2
@@ -755,7 +755,7 @@ impl<'a> Elaborator<'a> {
         given: Proof,
     ) -> Checked<Route<Proof>> {
         let labels = self.b.flabel.clone();
-        let was: Vec<String> = cited.children().iter().map(|c| self.rpn(c)).collect();
+        let was: Vec<String> = cited.children().iter().map(|c| self.txt(c)).collect();
         let mut quotients = Vec::new();
         for (side, said) in cited.children().iter().zip(&was) {
             let Quotiented { over, under, proof } =
@@ -885,7 +885,7 @@ impl<'a> Elaborator<'a> {
         // A closed denominator not zero is a fact about numerals, worked
         // out as `arithmetic` works one out and taken uncited, as a closed
         // numeral fact is (`METHODS.md`).
-        if matches!(field::closed_value(&self.to_term(said)), Built(Value::Exact(v)) if !v.is_zero())
+        if matches!(field::closed_value(&self.of_text(said)), Built(Value::Exact(v)) if !v.is_zero())
         {
             let denial = t!(t!(said, "cc0", "wceq"), "wn");
             let worked = match self.prove_numeral(&denial, scope, facts)? {
@@ -903,7 +903,7 @@ impl<'a> Elaborator<'a> {
         // Any other divisor's `≠ 0` is the page's to say, so no membership
         // said once leads to it (`READERS.md`).
         self.beyond_once += 1;
-        let found = self.settle(&self.to_term(&want), scope, facts, 3, None, None);
+        let found = self.settle(&self.of_text(&want), scope, facts, 3, None, None);
         self.beyond_once -= 1;
         match found? {
             Built(p) => Ok(p),
@@ -944,7 +944,7 @@ impl<'a> Elaborator<'a> {
         }
         // A term is not zero where its negation is not (`negne0bd`): the
         // normaliser writes (−q)/(−p) over p, and the page says −p ∈ ℕ.
-        let term = self.to_term(said);
+        let term = self.of_text(said);
         if term.label() == Some("cneg") {
             return Ok(None);
         }
@@ -981,7 +981,7 @@ impl<'a> Elaborator<'a> {
             if tail != "wne" && tail != "wn" {
                 continue;
             }
-            let node = self.to_term(&fact);
+            let node = self.of_text(&fact);
             if node.variable().is_some() {
                 continue;
             }
@@ -999,13 +999,13 @@ impl<'a> Elaborator<'a> {
             }
             // The side that is not zero, whichever side the page wrote it on,
             // and the fact read as that side =/= 0 (`held`).
-            let (left, right) = (self.rpn(&sides[0]), self.rpn(&sides[1]));
+            let (left, right) = (self.txt(&sides[0]), self.txt(&sides[1]));
             let subject = match (left == "cc0", right == "cc0") {
                 (false, true) => sides[0].clone(),
                 (true, false) => sides[1].clone(),
                 _ => continue,
             };
-            let was = self.rpn(&subject);
+            let was = self.txt(&subject);
             if was == said {
                 continue;
             }
@@ -1042,7 +1042,7 @@ impl<'a> Elaborator<'a> {
         right: &str,
     ) -> Checked<Route<Proof>> {
         let labels = self.b.flabel.clone();
-        let lt = self.to_term(left);
+        let lt = self.of_text(left);
         let Quotiented {
             over: first_items,
             under: first_under,
@@ -1050,7 +1050,7 @@ impl<'a> Elaborator<'a> {
         } = take!(w
             .e
             .normalize_quotient(&mut self.ask(&w.spec), &lt, &labels)?);
-        let rt = self.to_term(right);
+        let rt = self.of_text(right);
         let Quotiented {
             over: second_items,
             under: second_under,
@@ -1161,7 +1161,7 @@ impl<'a> Elaborator<'a> {
         w: &mut Work,
     ) -> Checked<Route<Proof>> {
         let labels = self.b.flabel.clone();
-        let claimed = self.to_term(&t!(left, right, "wceq"));
+        let claimed = self.of_text(&t!(left, right, "wceq"));
         let want = field::equation(&claimed, &labels);
         let mut given = Vec::new();
         let mut unders = Vec::new();
@@ -1173,7 +1173,7 @@ impl<'a> Elaborator<'a> {
                 continue;
             };
             for said in self.parts(&held.term) {
-                let node = self.to_term(&said);
+                let node = self.of_text(&said);
                 if let Some(one) = field::equation(&node, &labels) {
                     let read = claim_says(&node, one, &labels);
                     given.push(read.says);
@@ -1260,7 +1260,7 @@ impl<'a> Elaborator<'a> {
         let mut pieces: Vec<(String, Proof)> = Vec::new();
         for (taken, by) in how.iter().zip(&multipliers) {
             let (r, node) = where_[taken.which].clone();
-            let (a, b) = (self.rpn(&node.children()[0]), self.rpn(&node.children()[1]));
+            let (a, b) = (self.txt(&node.children()[0]), self.txt(&node.children()[1]));
             let gap = t!(a, b, "cmin", "co");
             let Some(times) =
                 multiplier(&by.scaled(&Q::from_integer(BigInt::from(common))))
@@ -1340,7 +1340,7 @@ impl<'a> Elaborator<'a> {
         // What the claim's sides are multiplied by: the common denominator of
         // the weights, then each divisor the claim writes.
         let mut spelt: Vec<String> =
-            factors.iter().map(|f| self.rpn(f.term())).collect();
+            factors.iter().map(|f| self.txt(f.term())).collect();
         if common != 1 {
             spelt.insert(0, numerals::spell(common.unsigned_abs()));
         }
@@ -1414,12 +1414,12 @@ impl<'a> Elaborator<'a> {
             each.push((numeral, held, apart));
         }
         for f in factors {
-            let said = self.rpn(f.term());
+            let said = self.txt(f.term());
             let held = take!(self.in_cc(&said, scope, facts)?);
             let apart = match f {
                 Factor::Divisor(_) => self.not_zero(scope, facts, &said)?,
                 Factor::Numerator { divisor, below, .. } => {
-                    let (whole, under) = (self.rpn(divisor), self.rpn(below));
+                    let (whole, under) = (self.txt(divisor), self.txt(below));
                     let whole_apart = self.not_zero(scope, facts, &whole)?;
                     let under_apart = self.not_zero(scope, facts, &under)?;
                     let under_cc = take!(self.in_cc(&under, scope, facts)?);
@@ -1443,10 +1443,10 @@ impl<'a> Elaborator<'a> {
                     ..
                 } => {
                     let parts = NegatedQuotient {
-                        divisor: self.rpn(divisor),
-                        quotient: self.rpn(quotient),
-                        top: self.rpn(top),
-                        below: self.rpn(below),
+                        divisor: self.txt(divisor),
+                        quotient: self.txt(quotient),
+                        top: self.txt(top),
+                        below: self.txt(below),
                     };
                     take!(self.negated_top_apart(&parts, scope, facts)?)
                 }
@@ -1553,12 +1553,12 @@ impl<'a> Elaborator<'a> {
         w: &mut Work,
     ) -> Checked<Route<Proof>> {
         let labels = self.b.flabel.clone();
-        let want = field::equation(&self.to_term(&t!(left, right, "wceq")), &labels);
+        let want = field::equation(&self.of_text(&t!(left, right, "wceq")), &labels);
         for r in &step.just.refs {
             let Some(held) = lines.get(r) else {
                 continue;
             };
-            let cited = self.to_term(&held.term);
+            let cited = self.of_text(&held.term);
             if cited.variable().is_some() || cited.label() != Some("wceq") {
                 continue;
             }
@@ -1576,7 +1576,7 @@ impl<'a> Elaborator<'a> {
                 .map(|one| t!(numeral, one, "cmul", "co"))
                 .collect();
             let was: Vec<String> =
-                cited.children().iter().map(|c| self.rpn(c)).collect();
+                cited.children().iter().map(|c| self.txt(c)).collect();
             let mut sides = Vec::new();
             for (x, y) in was.iter().zip(&scaled) {
                 sides.push(self.same_polynomial(w, x, y)?);
@@ -1613,7 +1613,7 @@ impl<'a> Elaborator<'a> {
     ) -> Checked<Proof> {
         let matched = self.b.ap(
             "3eqtr3d",
-            &binds! {"ph" => scope, "A" => self.rpn(&cited.children()[0]), "B" => self.rpn(&cited.children()[1]),
+            &binds! {"ph" => scope, "A" => self.txt(&cited.children()[0]), "B" => self.txt(&cited.children()[1]),
             "C" => &scaled[0], "D" => &scaled[1]},
             &[&given, &sides[0], &sides[1]],
         );
@@ -1685,7 +1685,7 @@ impl<'a> Elaborator<'a> {
         what: &str,
         step: Option<&Step>,
     ) -> Checked<Proof> {
-        let said = self.to_term(term);
+        let said = self.of_text(term);
         if let Built(p) = self.prove_numeral(term, scope, facts)? {
             return Ok(p);
         }
@@ -1707,7 +1707,7 @@ impl<'a> Elaborator<'a> {
     /// Whether a term holds what the normaliser holds as an atom where
     /// `arithmetic` works it out: a remainder, or a product over a range.
     fn normaliser_opaque(&self, t: &Term) -> bool {
-        self.rpn(t)
+        self.txt(t)
             .split_whitespace()
             .any(|token| token == "cmo" || token == "cprod")
     }
@@ -1724,7 +1724,7 @@ impl<'a> Elaborator<'a> {
         scope: &str,
         facts: &Facts,
     ) -> Checked<Route<Proof>> {
-        let mut goal = self.to_term(term);
+        let mut goal = self.of_text(term);
         let negated = goal.label() == Some("wn") && goal.children().len() == 1;
         if negated {
             goal = goal.children()[0].clone();
@@ -1734,7 +1734,7 @@ impl<'a> Elaborator<'a> {
         let (valued, iff) = match (goal.label(), kids.as_slice()) {
             (Some("wcel"), [x, set]) => {
                 let (_, cx, px) = take!(side(self, x)?);
-                let (sx, ss) = (self.rpn(x), self.rpn(set));
+                let (sx, ss) = (self.txt(x), self.txt(set));
                 let iff = self.b.ap(
                     "eleq1d",
                     &binds! {"ph" => scope, "A" => &sx, "B" => &cx, "C" => &ss},
@@ -1747,7 +1747,7 @@ impl<'a> Elaborator<'a> {
                 let (_, cb, pb) = take!(side(self, b)?);
                 let iff = self.b.ap(
                     "eqeq12d",
-                    &binds! {"ph" => scope, "A" => self.rpn(a), "B" => &ca, "C" => self.rpn(b), "D" => &cb},
+                    &binds! {"ph" => scope, "A" => self.txt(a), "B" => &ca, "C" => self.txt(b), "D" => &cb},
                     &[&pa, &pb],
                 );
                 (t!(&ca, &cb, "wceq"), iff)
@@ -1755,17 +1755,17 @@ impl<'a> Elaborator<'a> {
             (Some("wbr"), [a, b, relation]) => {
                 let (_, ca, pa) = take!(side(self, a)?);
                 let (_, cb, pb) = take!(side(self, b)?);
-                let r = self.rpn(relation);
+                let r = self.txt(relation);
                 let iff = self.b.ap(
                     "breq12d",
-                    &binds! {"ph" => scope, "A" => self.rpn(a), "B" => &ca, "C" => self.rpn(b), "D" => &cb, "R" => &r},
+                    &binds! {"ph" => scope, "A" => self.txt(a), "B" => &ca, "C" => self.txt(b), "D" => &cb, "R" => &r},
                     &[&pa, &pb],
                 );
                 (t!(&ca, &cb, &r, "wbr"), iff)
             }
             _ => return Ok(Route::no("not a relation of closed terms")),
         };
-        let said = self.rpn(&goal);
+        let said = self.txt(&goal);
         if valued == said {
             return Ok(Route::no("its sides are their values already"));
         }
@@ -1817,7 +1817,7 @@ impl<'a> Elaborator<'a> {
         } else {
             low
         };
-        let sm = self.rpn(member);
+        let sm = self.txt(member);
         let next = t!(&low, "c1", "caddc", "co");
         let closed = |me: &mut Self, claim: String| -> Checked<Route<Proof>> {
             Ok(match me.prove_numeral(&claim, scope, facts)? {
@@ -1875,7 +1875,7 @@ impl<'a> Elaborator<'a> {
         } else {
             body
         };
-        let said = self.rpn(t);
+        let said = self.txt(t);
         if said == canon {
             let same = self
                 .b
@@ -1904,10 +1904,10 @@ impl<'a> Elaborator<'a> {
             (Some("co"), [x, y, op]) => {
                 let (_, cx, px) = take!(self.closed_valued(x, scope, facts)?);
                 let (_, cy, py) = take!(self.closed_valued(y, scope, facts)?);
-                let op = self.rpn(op);
+                let op = self.txt(op);
                 let moved = self.b.ap(
                     "oveq12d",
-                    &binds! {"ph" => scope, "A" => self.rpn(x), "B" => &cx, "C" => self.rpn(y), "D" => &cy, "F" => &op},
+                    &binds! {"ph" => scope, "A" => self.txt(x), "B" => &cx, "C" => self.txt(y), "D" => &cy, "F" => &op},
                     &[&px, &py],
                 );
                 (moved, t!(&cx, &cy, &op, "co"))
@@ -1916,7 +1916,7 @@ impl<'a> Elaborator<'a> {
                 let (_, cx, px) = take!(self.closed_valued(x, scope, facts)?);
                 let moved = self.b.ap(
                     "negeqd",
-                    &binds! {"ph" => scope, "A" => self.rpn(x), "B" => &cx},
+                    &binds! {"ph" => scope, "A" => self.txt(x), "B" => &cx},
                     &[&px],
                 );
                 (moved, t!(&cx, "cneg"))
@@ -1930,12 +1930,12 @@ impl<'a> Elaborator<'a> {
         let field = |me: &mut Self, from: &str| {
             me.prove_field(None, &t!(from, &canon, "wceq"), scope, facts, &Lines::new())
         };
-        let middle_term = self.to_term(&middle);
+        let middle_term = self.of_text(&middle);
         let by_negative = match (middle_term.label(), middle_term.children()) {
             (Some("co"), [x, y, op])
                 if op.label() == Some(DIV) && y.label() == Some("cneg") =>
             {
-                Some((self.rpn(x), self.rpn(&y.children()[0])))
+                Some((self.txt(x), self.txt(&y.children()[0])))
             }
             _ => None,
         };
@@ -1946,7 +1946,7 @@ impl<'a> Elaborator<'a> {
             (Some((_, is)), _) => lifted(self, is, &middle),
             (None, Some((top, bottom))) => {
                 let within = |me: &mut Self, s: &str| {
-                    let goal = me.to_term(&t!(s, "cc", "wcel"));
+                    let goal = me.of_text(&t!(s, "cc", "wcel"));
                     me.numeral_within(&goal, scope, facts)
                 };
                 let top_cc = take!(within(self, &top)?);
@@ -1983,7 +1983,7 @@ impl<'a> Elaborator<'a> {
     /// The defect for a claim `arithmetic` could not prove: it is never taken
     /// as stated instead.
     pub fn unshown(&self, term: &str, what: &str) -> Problem {
-        match field::decide_closed(&self.to_term(term)) {
+        match field::decide_closed(&self.of_text(term)) {
             Declined(_) => self.defect(
                 self.at,
                 format!("{what}, which is not a fact about numerals alone, and arithmetic decides nothing else"),
@@ -2010,14 +2010,14 @@ impl<'a> Elaborator<'a> {
         scope: &str,
         facts: &Facts,
     ) -> Checked<Route<Proof>> {
-        let mut goal = self.to_term(term);
+        let mut goal = self.of_text(term);
         // set.mm's other spelling of a disequation, A =/= B, is the page's
         // ¬ (A = B) proved and turned (`neqned`).
         if goal.variable().is_none()
             && goal.label() == Some("wne")
             && goal.children().len() == 2
         {
-            let (a, b) = (self.rpn(&goal.children()[0]), self.rpn(&goal.children()[1]));
+            let (a, b) = (self.txt(&goal.children()[0]), self.txt(&goal.children()[1]));
             let denied = t!(t!(&a, &b, "wceq"), "wn");
             let proof = take!(self.prove_numeral(&denied, scope, facts)?);
             return Ok(Built(self.b.ap(
@@ -2089,18 +2089,18 @@ impl<'a> Elaborator<'a> {
             let below = take!(
                 self.order_by_difference(&zero, member, how, true, scope, facts)?
             );
-            let m = self.rpn(member);
+            let m = self.txt(member);
             let relation = if how == "<" { "clt" } else { "cle" };
             let held = t!("cc0", &m, relation, "wbr");
             let law = self.b.ap(law, &binds! {"N" => &m, "A" => &m}, &[]);
             let law = self.b.ap(
                 "a1i",
-                &binds! {"ph" => t!(self.rpn(&goal), &held, "wi"), "ps" => scope},
+                &binds! {"ph" => t!(self.txt(&goal), &held, "wi"), "ps" => scope},
                 &[&law],
             );
             return Ok(Built(self.b.ap(
                 "mtod",
-                &binds! {"ph" => scope, "ps" => self.rpn(&goal), "ch" => &held},
+                &binds! {"ph" => scope, "ps" => self.txt(&goal), "ch" => &held},
                 &[&below, &law],
             )));
         }
@@ -2119,7 +2119,7 @@ impl<'a> Elaborator<'a> {
                     numerals::worked(&self.b, &second, &labels),
                 ) {
                     if a == b {
-                        let (sf, ss) = (self.rpn(&first), self.rpn(&second));
+                        let (sf, ss) = (self.txt(&first), self.txt(&second));
                         let joined = self.b.ap(
                             "eqtr4i",
                             &binds! {"A" => &sf, "B" => numerals::spell(a), "C" => &ss},
@@ -2149,7 +2149,7 @@ impl<'a> Elaborator<'a> {
                 ) {
                     if a != b {
                         let apart = self.numerals_differ(scope, &a, &b);
-                        let (sf, ss) = (self.rpn(&first), self.rpn(&second));
+                        let (sf, ss) = (self.txt(&first), self.txt(&second));
                         let (na, nb) = (numerals::spell(a), numerals::spell(b));
                         let same = self.b.ap(
                             "eqeq12i",
@@ -2277,7 +2277,7 @@ impl<'a> Elaborator<'a> {
                             me.term(&left)
                         })
                     })?;
-                words.push(self.to_term(&said));
+                words.push(self.of_text(&said));
             }
             self.decided.insert(method.to_string(), words);
         }
@@ -2322,11 +2322,11 @@ impl<'a> Elaborator<'a> {
         let at_values = t!(sd, sn, "cdvds", "wbr");
         let shown = self.divides_at_values(&d, &num);
         let said = |t: String| if negated { t!(t, "wn") } else { t };
-        let (written, at) = (said(self.rpn(core)), said(at_values.clone()));
+        let (written, at) = (said(self.txt(core)), said(at_values.clone()));
         let closed = if written == at {
             shown
         } else {
-            let (rd, rn) = (self.rpn(&kids[0]), self.rpn(&kids[1]));
+            let (rd, rn) = (self.txt(&kids[0]), self.txt(&kids[1]));
             let mut same = self.b.ap(
                 "breq12i",
                 &binds! {"A" => &rd, "B" => &sd, "C" => &rn, "D" => &sn, "R" => "cdvds"},
@@ -2335,7 +2335,7 @@ impl<'a> Elaborator<'a> {
             if negated {
                 same = self.b.ap(
                     "notbii",
-                    &binds! {"ph" => self.rpn(core), "ps" => &at_values},
+                    &binds! {"ph" => self.txt(core), "ps" => &at_values},
                     &[&same],
                 );
             }
@@ -2448,7 +2448,7 @@ impl<'a> Elaborator<'a> {
         let (sa, sb) = (numerals::spell(a.clone()), numerals::spell(b.clone()));
         let sizes = t!(sa, sb, "cdvds", "wbr");
         let at_sizes =
-            take!(self.numeral_divides(&self.to_term(&sizes), negated, scope));
+            take!(self.numeral_divides(&self.of_text(&sizes), negated, scope));
         // |- ( a ∥ b <-> vd ∥ vn ), a sign turned at a time.
         let za = self.b.ap(
             "nnzi",
@@ -2532,11 +2532,11 @@ impl<'a> Elaborator<'a> {
             &binds! {"ph" => scope, "ps" => &before, "ch" => &after},
             &[&at_sizes, &iff],
         );
-        let written = self.rpn(core);
+        let written = self.txt(core);
         let mut same = self.b.ap(
             "breq12d",
-            &binds! {"ph" => scope, "A" => self.rpn(&kids[0]), "B" => &vd,
-            "C" => self.rpn(&kids[1]), "D" => &vn, "R" => "cdvds"},
+            &binds! {"ph" => scope, "A" => self.txt(&kids[0]), "B" => &vd,
+            "C" => self.txt(&kids[1]), "D" => &vn, "R" => "cdvds"},
             &[&d_is, &n_is],
         );
         let claim = if negated {
@@ -2575,8 +2575,8 @@ impl<'a> Elaborator<'a> {
             let proof = self.b.ap(
                 "oveq12i",
                 &binds! {
-                    "A" => self.rpn(&kids[0]), "B" => numerals::spell(over.clone()),
-                    "C" => self.rpn(&kids[1]), "D" => numerals::spell(under.clone()),
+                    "A" => self.txt(&kids[0]), "B" => numerals::spell(over.clone()),
+                    "C" => self.txt(&kids[1]), "D" => numerals::spell(under.clone()),
                     "F" => "cdiv",
                 },
                 &[&over_is, &under_is],
@@ -2596,7 +2596,7 @@ impl<'a> Elaborator<'a> {
             .ap("eqcomi", &binds! {"A" => &over_one, "B" => &sw}, &[&one]);
         let proof = self.b.ap(
             "eqtri",
-            &binds! {"A" => self.rpn(side), "B" => &sw, "C" => &over_one},
+            &binds! {"A" => self.txt(side), "B" => &sw, "C" => &over_one},
             &[&whole_is, &back],
         );
         Some((whole, BigUint::from(1u32), proof))
@@ -2778,12 +2778,12 @@ impl<'a> Elaborator<'a> {
         };
         let back = self.b.ap(
             "breq12i",
-            &binds! {"A" => self.rpn(first), "B" => &ad, "C" => self.rpn(second), "D" => &cb, "R" => relation},
+            &binds! {"A" => self.txt(first), "B" => &ad, "C" => self.txt(second), "D" => &cb, "R" => relation},
             &[&first_is, &second_is],
         );
         Some(self.b.ap(
             "mpbir",
-            &binds! {"ph" => self.rpn(goal), "ps" => t!(&ad, &cb, relation, "wbr")},
+            &binds! {"ph" => self.txt(goal), "ps" => t!(&ad, &cb, relation, "wbr")},
             &[&between, &back],
         ))
     }
@@ -2823,7 +2823,7 @@ impl<'a> Elaborator<'a> {
             return Ok(match self.fractions_ordered(goal, first, second, how) {
                 Some(closed) => Built(self.b.ap(
                     "a1i",
-                    &binds! {"ph" => self.rpn(goal), "ps" => scope},
+                    &binds! {"ph" => self.txt(goal), "ps" => scope},
                     &[&closed],
                 )),
                 None => Route::no(
@@ -2841,11 +2841,11 @@ impl<'a> Elaborator<'a> {
         };
         let relation = if how == "<" { "clt" } else { "cle" };
         let (na, nb) = (numerals::spell(a), numerals::spell(b));
-        let said = self.rpn(goal);
+        let said = self.txt(goal);
         let valued = t!(&na, &nb, relation, "wbr");
         let mut turn = self.b.ap(
             "breq12i",
-            &binds! {"A" => self.rpn(first), "B" => &na, "C" => self.rpn(second), "D" => &nb, "R" => relation},
+            &binds! {"A" => self.txt(first), "B" => &na, "C" => self.txt(second), "D" => &nb, "R" => relation},
             &[&a_is, &b_is],
         );
         let (said, valued) = if negated {
@@ -2893,7 +2893,7 @@ impl<'a> Elaborator<'a> {
         } else {
             (second, first)
         };
-        let (sl, sh) = (self.rpn(low), self.rpn(high));
+        let (sl, sh) = (self.txt(low), self.txt(high));
         let below =
             take!(self.order_by_difference(low, high, "<", false, scope, facts)?);
         let real = take!(self.prove_numeral(&t!(&sl, "cr", "wcel"), scope, facts)?);
@@ -2909,7 +2909,7 @@ impl<'a> Elaborator<'a> {
             "ch" => t!(&sh, &sl, "wne")},
             &[&both, &law],
         );
-        let (sf, ss) = (self.rpn(first), self.rpn(second));
+        let (sf, ss) = (self.txt(first), self.txt(second));
         if first_lower {
             apart = self.b.ap(
                 "necomd",
@@ -2949,7 +2949,7 @@ impl<'a> Elaborator<'a> {
                 "a side holds what the normaliser does not work out, and is said by its value",
             ));
         }
-        let (sf, ss) = (self.rpn(first), self.rpn(second));
+        let (sf, ss) = (self.txt(first), self.txt(second));
         let real = |s: &str| t!(s, "cr", "wcel");
         let first_real = take!(self.prove_numeral(&real(&sf), scope, facts)?);
         let second_real = take!(self.prove_numeral(&real(&ss), scope, facts)?);
@@ -3068,7 +3068,7 @@ impl<'a> Elaborator<'a> {
     ) -> Proof {
         let real = |n: &str| {
             let value =
-                linear::numeral(&self.to_term(n), &self.b.flabel).unwrap_or_default();
+                linear::numeral(&self.of_text(n), &self.b.flabel).unwrap_or_default();
             self.real_numeral(scope, &value)
         };
         let said = t!(x, y, relation, "wbr");
@@ -3214,7 +3214,7 @@ impl<'a> Elaborator<'a> {
         }
         // Back from the claim written out to the claim as the page writes it.
         let proof = take!(found);
-        let (said, want) = (self.to_term(term_out), self.to_term(term));
+        let (said, want) = (self.of_text(term_out), self.of_text(term));
         let Built(back) = self.same(&said, &want, scope, facts, Some(step))? else {
             return Ok(Route::no("the claim written out is not carried back"));
         };
@@ -3252,11 +3252,11 @@ impl<'a> Elaborator<'a> {
         for row in cut? {
             let node = self.read_one(&row.formula)?;
             let written = self.term(&node)?;
-            let said = self.to_term(&written);
+            let said = self.of_text(&written);
             if let (RowReason::Algebra, Some(before)) = (&row.reason, &above) {
                 for side in 0..2 {
-                    let was = self.rpn(&before.children()[side]);
-                    let now = self.rpn(&said.children()[side]);
+                    let was = self.txt(&before.children()[side]);
+                    let now = self.txt(&said.children()[side]);
                     if was == now {
                         continue;
                     }
@@ -3318,9 +3318,9 @@ impl<'a> Elaborator<'a> {
         }
         let kids = term.children();
         if term.label() == Some("csu") && kids.len() == 3 {
-            let inner = self.rpn(&kids[1]);
+            let inner = self.txt(&kids[1]);
             if !inner.split_whitespace().any(|t| t == "csu") {
-                let from = self.rpn(&kids[2]);
+                let from = self.txt(&kids[2]);
                 let summand = self.restated(
                     &kids[1],
                     &format!("{from} cv"),
@@ -3349,22 +3349,22 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         lines: &Lines,
     ) -> Checked<Route<WrittenOut>> {
-        let claim = self.to_term(term);
+        let claim = self.of_text(term);
         let cited: Vec<(String, Line)> = refs
             .iter()
             .filter_map(|r| lines.get(r).map(|l| (r.clone(), l)))
             .collect();
         // Every sum is written over one letter nothing holds, so that a sum
         // a define names and the same sum a line writes are one term.
-        let mut seen: Vec<Term> = vec![claim.clone(), self.to_term(scope)];
-        seen.extend(cited.iter().map(|(_, l)| self.to_term(&l.term)));
+        let mut seen: Vec<Term> = vec![claim.clone(), self.of_text(scope)];
+        seen.extend(cited.iter().map(|(_, l)| self.of_text(&l.term)));
         let refs: Vec<&Term> = seen.iter().collect();
         let as_written = WrittenOut {
             term: term.to_string(),
             facts: facts.clone(),
             lines: lines.clone(),
         };
-        let Some(letter) = self.unheld(&refs).map(|v| self.rpn(&v)) else {
+        let Some(letter) = self.unheld(&refs).map(|v| self.txt(&v)) else {
             return Ok(Built(as_written));
         };
         // Only a step that writes both a defined name and what it names
@@ -3375,7 +3375,7 @@ impl<'a> Elaborator<'a> {
         rest.extend(
             cited
                 .iter()
-                .map(|(_, l)| self.sums_over(&self.to_term(&l.term), &letter)),
+                .map(|(_, l)| self.sums_over(&self.of_text(&l.term), &letter)),
         );
         while let Some(node) = rest.pop() {
             if node.variable().is_some() {
@@ -3385,18 +3385,18 @@ impl<'a> Elaborator<'a> {
             if node.label() == Some("cv") && kids.len() == 1 {
                 if let Some(body) = self.named_body(&node, &Vars::new()) {
                     let out = self.defined_names_out(&body);
-                    named.insert(self.rpn(&self.sums_over(&out, &letter)));
+                    named.insert(self.txt(&self.sums_over(&out, &letter)));
                 }
             }
             // A defined function applied names its rule at the argument:
             // t(k) with t(j) = j + 1 names k + 1.
             if node.label() == Some("cfv") && kids.len() == 2 {
                 let out = self.read_out(&node);
-                if self.rpn(&out) != self.rpn(&node) {
-                    named.insert(self.rpn(&self.sums_over(&out, &letter)));
+                if self.txt(&out) != self.txt(&node) {
+                    named.insert(self.txt(&self.sums_over(&out, &letter)));
                 }
             }
-            written.insert(self.rpn(&node));
+            written.insert(self.txt(&node));
             rest.extend(kids.iter().cloned());
         }
         if !named.iter().any(|body| written.contains(body)) {
@@ -3407,12 +3407,12 @@ impl<'a> Elaborator<'a> {
             me.sums_over(&out, &letter)
         };
         let out = written_out(self, &claim);
-        let term_out = self.rpn(&out);
+        let term_out = self.txt(&out);
         let (facts_out, lines_out) = (facts.copy(), lines.copy());
         for (r, line) in &cited {
-            let said = self.to_term(&line.term);
+            let said = self.of_text(&line.term);
             let written = written_out(self, &said);
-            let out_rpn = self.rpn(&written);
+            let out_rpn = self.txt(&written);
             if out_rpn == line.term {
                 continue;
             }
@@ -3453,7 +3453,7 @@ impl<'a> Elaborator<'a> {
         skip: &[String],
     ) -> Checked<Route<Proof>> {
         let labels = self.b.flabel.clone();
-        let goal = self.to_term(term);
+        let goal = self.of_text(term);
         let mut given = Vec::new();
         let mut where_: Vec<(String, Term)> = Vec::new();
         // What a cited membership implies is offered with the facts as
@@ -3468,9 +3468,9 @@ impl<'a> Elaborator<'a> {
                 if skip.contains(&said) {
                     continue;
                 }
-                if let Some(one) = linear::fact(&self.to_term(&said), &labels) {
+                if let Some(one) = linear::fact(&self.of_text(&said), &labels) {
                     given.push(one);
-                    where_.push((r.clone(), self.to_term(&said)));
+                    where_.push((r.clone(), self.of_text(&said)));
                 }
             }
             // The bounds only: k ≠ 0 would split every certificate.
@@ -3479,10 +3479,10 @@ impl<'a> Elaborator<'a> {
                     continue;
                 }
                 for (extra, _lemmas) in self.implied_terms(said) {
-                    if let Some(one) = linear::fact(&self.to_term(&extra), &labels) {
+                    if let Some(one) = linear::fact(&self.of_text(&extra), &labels) {
                         if one.how != How::Ne {
                             implied_given.push(one);
-                            implied_where.push((r.clone(), self.to_term(&extra)));
+                            implied_where.push((r.clone(), self.of_text(&extra)));
                         }
                     }
                 }
@@ -3537,7 +3537,7 @@ impl<'a> Elaborator<'a> {
                 ));
             };
             let (r, said) = where_[j].clone();
-            let fact = self.rpn(&said);
+            let fact = self.txt(&said);
             let mut leave = skip.to_vec();
             leave.push(fact.clone());
             let denied = take!(self.prove_order(
@@ -3578,7 +3578,7 @@ impl<'a> Elaborator<'a> {
         let Some((left, right, how)) = order_sides(&goal) else {
             return Ok(Route::no("the claim states no relation"));
         };
-        let (left, right) = (self.rpn(&left), self.rpn(&right));
+        let (left, right) = (self.txt(&left), self.txt(&right));
         // What the scaled facts leave over is a constant, which the method
         // may use as a closed numeral fact the step does not cite.
         let mut spare = claim.side.clone();
@@ -3641,7 +3641,7 @@ impl<'a> Elaborator<'a> {
         scope: &str,
         facts: &Facts,
     ) -> Checked<Route<Proof>> {
-        let claim = self.to_term(term);
+        let claim = self.of_text(term);
         let supplied = self.supplied(Some(step), scope, facts)?;
         let cited = self.with_cited(Some(step), scope, &supplied, None);
         let known = facts.with(&cited);
@@ -3686,7 +3686,7 @@ impl<'a> Elaborator<'a> {
                 true,
             );
         }
-        let term = self.rpn(claim);
+        let term = self.txt(claim);
         // The claim with its defined names and maps read as what they stand
         // for, and nothing else changed (`read_out`): a part is then the term
         // the page wrote, which the facts saying it are found by, and not a
@@ -3699,17 +3699,17 @@ impl<'a> Elaborator<'a> {
         // real is then a line about what the claim, read, holds.
         let known = &self.read_memberships(scope, known, step)?;
         let made = if whole.variable().is_none() && whole.label() == Some("csu") {
-            self.summed(&whole, &self.rpn(&system), scope, known, step)?
+            self.summed(&whole, &self.txt(&system), scope, known, step)?
         } else {
-            self.part(&self.rpn(&whole), &self.rpn(&system), scope, known)?
+            self.part(&self.txt(&whole), &self.txt(&system), scope, known)?
         };
-        if made.is_declined() || self.rpn(&read) == term {
+        if made.is_declined() || self.txt(&read) == term {
             return Ok(made);
         }
         let made = take!(made);
         let alike = take!(self.same(&read, claim, scope, known, step)?);
         Ok(Built(
-            pf!(self.b; scope, self.rpn(&read), term, made, alike, "mpbid"),
+            pf!(self.b; scope, self.txt(&read), term, made, alike, "mpbid"),
         ))
     }
 
@@ -3744,22 +3744,22 @@ impl<'a> Elaborator<'a> {
             }
         }
         for (said, held) in offered {
-            let fact = self.to_term(&said);
+            let fact = self.of_text(&said);
             let member = fact.label() == Some("wcel")
-                && lookup(rules::SYSTEMS, &self.rpn(&fact.children()[1])).is_some();
+                && lookup(rules::SYSTEMS, &self.txt(&fact.children()[1])).is_some();
             let nonzero = fact.label() == Some("wn")
                 && fact.children()[0].label() == Some("wceq")
-                && self.rpn(&fact.children()[0].children()[1]) == "cc0";
+                && self.txt(&fact.children()[0].children()[1]) == "cc0";
             // A term above zero or below it, which says it is not zero.
             let signed = fact.label() == Some("wbr")
-                && self.rpn(&fact.children()[2]) == "clt"
-                && (self.rpn(&fact.children()[0]) == "cc0"
-                    || self.rpn(&fact.children()[1]) == "cc0");
+                && self.txt(&fact.children()[2]) == "clt"
+                && (self.txt(&fact.children()[0]) == "cc0"
+                    || self.txt(&fact.children()[1]) == "cc0");
             if fact.variable().is_some() || !(member || nonzero || signed) {
                 continue;
             }
             let read = self.standard(&fact);
-            let read_rpn = self.rpn(&read);
+            let read_rpn = self.txt(&read);
             if read_rpn == said || self.holds(&out, &read_rpn) {
                 continue;
             }
@@ -3780,7 +3780,7 @@ impl<'a> Elaborator<'a> {
         variable: &Term,
         over: &Term,
     ) -> Checked<(String, Facts)> {
-        let member = t!(format!("{} cv", self.rpn(variable)), self.rpn(over), "wcel");
+        let member = t!(format!("{} cv", self.txt(variable)), self.txt(over), "wcel");
         let (inner, lifted) = self.widen(scope, known, &member, None);
         let held = self
             .held(&lifted, &member, &inner)?
@@ -3808,7 +3808,7 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
     ) -> Checked<Route<(Term, Proof)>> {
         let labels = self.b.flabel.clone();
-        let whole = self.to_term(said);
+        let whole = self.of_text(said);
         let Some((range, letter, parts)) = field::linear_sum(&whole, &labels) else {
             return Ok(Route::no("the sum is read as one atom"));
         };
@@ -3819,22 +3819,22 @@ impl<'a> Elaborator<'a> {
             && parts.len() == 1
             && parts[0].weight == q(1)
             && parts[0].free.is_empty()
-            && self.rpn(&summand) == field::spell_monomial(&parts[0].bound)
+            && self.txt(&summand) == field::spell_monomial(&parts[0].bound)
         {
             return Ok(Route::no("the sum is written out already"));
         }
         let member_cv = format!("{spare} cv");
         let summand_at = if letter == spare {
-            self.rpn(&summand)
+            self.txt(&summand)
         } else {
             let moved = self.restated(&summand, &format!("{letter} cv"), &member_cv);
-            self.rpn(&moved)
+            self.txt(&moved)
         };
         let at_spare = t!(range, summand_at, spare, "csu");
         let renamed = if letter == spare {
             None
         } else {
-            let Some(closed) = self.class_alpha(&whole, &self.to_term(&at_spare))?
+            let Some(closed) = self.class_alpha(&whole, &self.of_text(&at_spare))?
             else {
                 return Ok(Route::no("the sum is not renamed to the spare letter"));
             };
@@ -3903,7 +3903,7 @@ impl<'a> Elaborator<'a> {
             let kids = range_term.children();
             let law = self.b.ap(
                 "fzfi",
-                &binds! {"M" => self.rpn(&kids[0]), "N" => self.rpn(&kids[1])},
+                &binds! {"M" => self.txt(&kids[0]), "N" => self.txt(&kids[1])},
                 &[],
             );
             pf!(self.b; t!(range, "cfn", "wcel"), scope, law, "a1i")
@@ -4008,7 +4008,7 @@ impl<'a> Elaborator<'a> {
             last = b;
         }
         let _ = last;
-        Ok(Built((self.to_term(&linear), proof)))
+        Ok(Built((self.of_text(&linear), proof)))
     }
 
     /// A finite sum in ℝ or ℂ because each term is, for each index in its
@@ -4049,7 +4049,7 @@ impl<'a> Elaborator<'a> {
         // terms at each index, whatever they divide by
         // (`CheckedTheorem::said_sums`), over its own index or one it is
         // renamed to.
-        let spelt = self.rpn(whole);
+        let spelt = self.txt(whole);
         let said_once = self
             .said_sums
             .iter()
@@ -4057,7 +4057,7 @@ impl<'a> Elaborator<'a> {
         let Some(lemma) = lemma.filter(|_| {
             limits.variable().is_none()
                 && limits.label() == Some("co")
-                && self.rpn(&limits.children()[2]) == "cfz"
+                && self.txt(&limits.children()[2]) == "cfz"
         }) else {
             return Ok(Route::no(format!(
                 "a sum in {system} over this range is not written"
@@ -4067,21 +4067,21 @@ impl<'a> Elaborator<'a> {
         // either spells it, as an induction hypothesis about a sum over the
         // same letter does, the sum is shown over a letter nothing holds and
         // renamed back (`renaming_apart`).
-        let letter = self.rpn(&index);
+        let letter = self.txt(&index);
         let spells = |text: &str| text.split_whitespace().any(|t| t == letter);
-        if spells(scope) || spells(&self.rpn(&limits)) {
+        if spells(scope) || spells(&self.txt(&limits)) {
             let Some(name) = index.variable() else {
                 return Ok(Route::no("a sum's index is no letter"));
             };
-            let Some(fresh) = self.unheld(&[&self.to_term(scope), whole]) else {
+            let Some(fresh) = self.unheld(&[&self.of_text(scope), whole]) else {
                 return Ok(Route::no("no letter is left to sum over"));
             };
             let mut put = IndexMap::new();
             put.insert(Symbol::of(name), fresh);
             let moved = whole.substitute(&put);
             let shown = take!(self.summed(&moved, system, scope, known, step)?);
-            let said = t!(self.rpn(&moved), system, "wcel");
-            let want = t!(self.rpn(whole), system, "wcel");
+            let said = t!(self.txt(&moved), system, "wcel");
+            let want = t!(self.txt(whole), system, "wcel");
             let Some(across) = self.renaming_apart(&said, &want)? else {
                 return Ok(Route::no("the sum does not rename back"));
             };
@@ -4091,15 +4091,15 @@ impl<'a> Elaborator<'a> {
             ));
         }
         let (low, high) = (
-            self.rpn(&limits.children()[0]),
-            self.rpn(&limits.children()[1]),
+            self.txt(&limits.children()[0]),
+            self.txt(&limits.children()[1]),
         );
         let finite = self.b.ap(
             "fzfid",
             &binds! {"ph" => scope, "M" => &low, "N" => &high},
             &[],
         );
-        let system_term = self.to_term(system);
+        let system_term = self.of_text(system);
         let each = self.frames_kept(|me| {
             let (inner, lifted) = me.fixed(scope, known, &index, &limits)?;
             let claim = Term::apply("wcel", vec![summand.clone(), system_term.clone()]);
@@ -4114,7 +4114,7 @@ impl<'a> Elaborator<'a> {
         let each = take!(each);
         Ok(Built(self.b.ap(
             lemma,
-            &binds! {"ph" => scope, "A" => self.rpn(&limits), "B" => self.rpn(&summand), "k" => self.rpn(&index)},
+            &binds! {"ph" => scope, "A" => self.txt(&limits), "B" => self.txt(&summand), "k" => self.txt(&index)},
             &[&finite, &each],
         )))
     }
@@ -4136,9 +4136,9 @@ impl<'a> Elaborator<'a> {
         let kids = summand.children();
         if summand.label() == Some("co")
             && kids.len() == 3
-            && self.rpn(&kids[2]) == "cdiv"
+            && self.txt(&kids[2]) == "cdiv"
         {
-            let divisor = self.rpn(&kids[1]);
+            let divisor = self.txt(&kids[1]);
             let holds = divisor.split_whitespace().any(|t| t == letter);
             if holds && self.positive_divisor(&divisor, scope, facts)?.is_none() {
                 return Ok(true);
@@ -4164,7 +4164,7 @@ impl<'a> Elaborator<'a> {
     ) -> Checked<Route<Proof>> {
         // Only what the proof may rest on, as `settle` offers it.
         let facts = &self.restable(facts);
-        let wanted = self.rpn(claim);
+        let wanted = self.txt(claim);
         if let Some(p) = self.instance_of_universal(&wanted, scope, facts)? {
             return Ok(Built(p));
         }
@@ -4184,7 +4184,7 @@ impl<'a> Elaborator<'a> {
         lines: &Lines,
         skip: &[String],
     ) -> Checked<Route<Proof>> {
-        let halves: Vec<String> = goal.children().iter().map(|c| self.rpn(c)).collect();
+        let halves: Vec<String> = goal.children().iter().map(|c| self.txt(c)).collect();
         let mut made = Vec::new();
         for one in &halves {
             made.push(self.prove_order(refs, one, scope, facts, lines, skip)?);
@@ -4215,7 +4215,7 @@ impl<'a> Elaborator<'a> {
             return Ok(Route::no("the claim is not a disequality"));
         }
         let pair = goal.children()[0].clone();
-        let (a, b) = (self.rpn(&pair.children()[0]), self.rpn(&pair.children()[1]));
+        let (a, b) = (self.txt(&pair.children()[0]), self.txt(&pair.children()[1]));
         for (lo, hi, turn) in [(&b, &a, "gtned"), (&a, &b, "ltned")] {
             let Built(below) = self.prove_order(
                 refs,
@@ -4478,7 +4478,7 @@ impl<'a> Elaborator<'a> {
             }));
         }
         let was: Vec<String> =
-            said.children()[..2].iter().map(|c| self.rpn(c)).collect();
+            said.children()[..2].iter().map(|c| self.txt(c)).collect();
         let gap = t!(was[0], was[1], "cmin", "co");
         let r0 = self.membership(&was[0], "cr", &scope, facts)?;
         let r1 = self.membership(&was[1], "cr", &scope, facts)?;
@@ -4790,7 +4790,7 @@ impl<'a> Elaborator<'a> {
         if how != "=" {
             return Ok(None);
         }
-        let (a, b) = (self.rpn(&a), self.rpn(&b));
+        let (a, b) = (self.txt(&a), self.txt(&b));
         let (up, down) = (t!(a, b, "cle", "wbr"), t!(b, a, "cle", "wbr"));
         let (Some(pu), Some(pd)) = (
             self.held(facts, &up, scope)?,
@@ -4816,14 +4816,14 @@ impl<'a> Elaborator<'a> {
         lines: &Lines,
         skip: &[String],
     ) -> Checked<Route<Proof>> {
-        let goal = self.to_term(term);
+        let goal = self.of_text(term);
         let Some((a, b, how)) = order_sides(&goal) else {
             return Ok(Route::no("the claim states no relation"));
         };
         if how != "=" {
             return Ok(Route::no("what splits is the claim, and it is no equation"));
         }
-        let (a, b) = (self.rpn(&a), self.rpn(&b));
+        let (a, b) = (self.txt(&a), self.txt(&b));
         let mut halves = Vec::new();
         for half in [t!(a, b, "cle", "wbr"), t!(b, a, "cle", "wbr")] {
             halves.push(match self.held(facts, &half, scope)? {
@@ -4861,7 +4861,7 @@ impl<'a> Elaborator<'a> {
         let ra = self.membership(a, "cr", scope, facts)?;
         let rb = self.membership(b, "cr", scope, facts)?;
         let law = self.b.ap("letri3", &binds! {"A" => a, "B" => b}, &[]);
-        let g = self.rpn(goal);
+        let g = self.txt(goal);
         let turn = self.b.ap(
             "syl2anc",
             &binds! {"ph" => scope, "ps" => t!(a, "cr", "wcel"), "ch" => t!(b, "cr", "wcel"), "th" => t!(g, both, "wb")},
@@ -4892,7 +4892,7 @@ impl<'a> Elaborator<'a> {
         else {
             return Ok(Route::no("what is denied states no relation"));
         };
-        let (a, b) = (self.rpn(&a), self.rpn(&b));
+        let (a, b) = (self.txt(&a), self.txt(&b));
         let (turns, rel) = if how == "<=" {
             ("ltnle", "clt")
         } else {
@@ -4948,7 +4948,7 @@ impl<'a> Elaborator<'a> {
             return Ok(Route::no("what splits is not a denied equation"));
         }
         let pair = said.children()[0].clone();
-        let (a, b) = (self.rpn(&pair.children()[0]), self.rpn(&pair.children()[1]));
+        let (a, b) = (self.txt(&pair.children()[0]), self.txt(&pair.children()[1]));
         let (below, above) = (t!(a, b, "clt", "wbr"), t!(b, a, "clt", "wbr"));
         let given_fact = take!(self.cited_fact(&r, &said, scope, facts, lines)?);
         let turned = self.b.ap(
@@ -4970,7 +4970,7 @@ impl<'a> Elaborator<'a> {
             &binds! {"ph" => scope, "ps" => t!(a, b, "wne"), "ch" => t!(below, above, "wo")},
             &[&turned, &split],
         );
-        let said_rpn = self.rpn(&said);
+        let said_rpn = self.txt(&said);
         let sides = self.frames_kept(|me| -> Checked<Route<Vec<Proof>>> {
             let mut sides = Vec::new();
             for bound in [&below, &above] {
@@ -5044,11 +5044,11 @@ impl<'a> Elaborator<'a> {
         refs: &[String],
         skip: &[String],
     ) -> Checked<Route<Proof>> {
-        let node = self.to_term(bound);
+        let node = self.of_text(bound);
         let Some((low, high, _)) = order_sides(&node).filter(|s| s.2 == "<") else {
             return Ok(Route::no("the bound states no strict order"));
         };
-        let (low, high) = (self.rpn(&low), self.rpn(&high));
+        let (low, high) = (self.txt(&low), self.txt(&high));
         let denies = t!(high, low, "cle", "wbr");
         let held = match self.held(facts, &denies, scope)? {
             Some(p) => p,
@@ -5105,7 +5105,7 @@ impl<'a> Elaborator<'a> {
             return Ok(Route::no("the cited bound is not stated as one"));
         };
         let below: Vec<String> =
-            said.children()[..2].iter().map(|c| self.rpn(c)).collect();
+            said.children()[..2].iter().map(|c| self.txt(c)).collect();
         // The claim must be about the two the bound is about, and no more.
         let left_over = claim.side.minus(&given[used[0]].side.scaled(&q(-1)));
         if !left_over.atoms().is_empty() || !left_over.constant.is_zero() {
@@ -5113,7 +5113,7 @@ impl<'a> Elaborator<'a> {
         }
         // And written as the two of them: `b − a ≠ 0` is the same bound
         // turned, and another statement, which the order proves.
-        if self.rpn(goal) != t!(t!(below[1], below[0], "wceq"), "wn") {
+        if self.txt(goal) != t!(t!(below[1], below[0], "wceq"), "wn") {
             return Ok(Route::no("the claim is not the two the bound names"));
         }
         let bound = take!(self.cited_fact(&r, &said, scope, facts, lines)?);
@@ -5160,7 +5160,7 @@ impl<'a> Elaborator<'a> {
             return Ok(Route::no("a cited fact states no relation"));
         };
         let was: Vec<String> =
-            said.children()[..2].iter().map(|c| self.rpn(c)).collect();
+            said.children()[..2].iter().map(|c| self.txt(c)).collect();
         let gap = t!(was[0], was[1], "cmin", "co");
         let r0 = self.membership(&was[0], "cr", &scope, facts)?;
         let r1 = self.membership(&was[1], "cr", &scope, facts)?;
@@ -5301,8 +5301,8 @@ impl<'a> Elaborator<'a> {
             return Ok(Route::no("only a denied `<` or `≤` is turned round"));
         };
         let was: Vec<String> =
-            inner.children()[..2].iter().map(|c| self.rpn(c)).collect();
-        let turned = self.to_term(&t!(was[1], was[0], said, "wbr"));
+            inner.children()[..2].iter().map(|c| self.txt(c)).collect();
+        let turned = self.of_text(&t!(was[1], was[0], said, "wbr"));
         let r1 = self.membership(&was[1], "cr", scope, facts)?;
         let r0 = self.membership(&was[0], "cr", scope, facts)?;
         let law = self
@@ -5336,7 +5336,7 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         lines: &Lines,
     ) -> Checked<Route<Proof>> {
-        let want = self.rpn(said);
+        let want = self.txt(said);
         let held = self.carried(r, facts, lines);
         let term = lines.get(r).map(|l| l.term).unwrap_or_default();
         if term == want {
@@ -5415,7 +5415,7 @@ impl<'a> Elaborator<'a> {
             )));
         };
         let mut w = Work::plain(scope, facts);
-        let was: Vec<String> = said.children().iter().map(|c| self.rpn(c)).collect();
+        let was: Vec<String> = said.children().iter().map(|c| self.txt(c)).collect();
         let gap = t!(was[0], was[1], "cmin", "co");
         let scaled = t!(numeral, gap, "cmul", "co");
         let span = t!(left, right, "cmin", "co");

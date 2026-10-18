@@ -26,7 +26,8 @@ use crate::methods::numerals::{
 };
 use crate::mm::kernel::{FloatLabels, Term};
 use crate::mm::spell::{Builder, Proof};
-use crate::t;
+use crate::mm::Rpn;
+use crate::t_text as t;
 
 const ADD: &str = "caddc";
 const SUB: &str = "cmin";
@@ -236,7 +237,7 @@ fn sum_of(b: &Builder, m: &BigUint, n: &BigUint) -> Proof {
         &op(&spelt(&ac), digit(1), ADD),
         &spelt(&(&ac + 1u32)),
     );
-    binds.insert("E".to_string(), spelt(&(&ac + 1u32)));
+    binds.insert("E".to_string(), Rpn::read(&spelt(&(&ac + 1u32))));
     let f = nn0_of(b, &BigUint::from((last_m + last_n) % 10));
     let lower = sum_of(b, &bm, &bn);
     let hyps: Vec<&Proof> = shared.iter().chain([&e, &f, &lower]).collect();
@@ -461,7 +462,7 @@ pub fn worked(
     term: &Term,
     labels: &FloatLabels,
 ) -> Option<(BigUint, Proof)> {
-    let said = term.rpn(labels).to_string();
+    let said = term.txt(labels).to_string();
     if let Some(v) = value(term) {
         let same = b.ap("eqid", &binds! {"A" => &said}, &[]);
         return Some((v, same));
@@ -481,7 +482,7 @@ pub fn worked(
         let (value, fact) = factorial_of(b, &n)?;
         let carried = b.ap(
             "fveq2i",
-            &binds! {"A" => arg.rpn(labels).to_string(), "B" => spelt(&n), "F" => "cfa"},
+            &binds! {"A" => arg.txt(labels).to_string(), "B" => spelt(&n), "F" => "cfa"},
             &[&first],
         );
         let at = t!(spelt(&n), "cfa", "cfv");
@@ -535,8 +536,8 @@ pub fn worked(
     let parts = b.ap(
         "oveq12i",
         &binds! {
-            "A" => kids[0].rpn(labels).to_string(), "B" => &sl,
-            "C" => kids[1].rpn(labels).to_string(), "D" => &sr,
+            "A" => kids[0].txt(labels).to_string(), "B" => &sl,
+            "C" => kids[1].txt(labels).to_string(), "D" => &sr,
             "F" => how,
         },
         &[&first, &second],
@@ -632,15 +633,15 @@ fn at_index(
     at: &Term,
     labels: &FloatLabels,
 ) -> Option<Proof> {
-    let kv = Term::var(k).rpn(labels).to_string();
-    let hyp = t!(&kv, "cv", at.rpn(labels).to_string(), "wceq");
+    let kv = Term::var(k).txt(labels).to_string();
+    let hyp = t!(&kv, "cv", at.txt(labels).to_string(), "wceq");
     if is_letter(body, k) {
         return Some(b.ap("id", &binds! {"ph" => &hyp}, &[]));
     }
     if !body.names().iter().any(|n| &**n == k) {
         return Some(b.ap(
             "eqidd",
-            &binds! {"ph" => &hyp, "A" => body.rpn(labels).to_string()},
+            &binds! {"ph" => &hyp, "A" => body.txt(labels).to_string()},
             &[],
         ));
     }
@@ -657,9 +658,9 @@ fn at_index(
         "oveq12d",
         &binds! {
             "ph" => &hyp,
-            "A" => kids[0].rpn(labels).to_string(), "B" => put(&kids[0], k, at).rpn(labels).to_string(),
-            "C" => kids[1].rpn(labels).to_string(), "D" => put(&kids[1], k, at).rpn(labels).to_string(),
-            "F" => kids[2].rpn(labels).to_string(),
+            "A" => kids[0].txt(labels).to_string(), "B" => put(&kids[0], k, at).txt(labels).to_string(),
+            "C" => kids[1].txt(labels).to_string(), "D" => put(&kids[1], k, at).txt(labels).to_string(),
+            "F" => kids[2].txt(labels).to_string(),
         },
         &[&first, &second],
     ))
@@ -677,7 +678,7 @@ fn complex_in(
     if is_letter(body, k) {
         return Some(k_complex.clone());
     }
-    let said = body.rpn(labels).to_string();
+    let said = body.txt(labels).to_string();
     if let Some(v) = value(body) {
         return Some(b.ap(
             "a1i",
@@ -693,8 +694,8 @@ fn complex_in(
     }
     let kids = body.children();
     let (sa, sb) = (
-        kids[0].rpn(labels).to_string(),
-        kids[1].rpn(labels).to_string(),
+        kids[0].txt(labels).to_string(),
+        kids[1].txt(labels).to_string(),
     );
     let first = complex_in(b, context, &kids[0], k, k_complex, labels)?;
     let law = match kids[2].label()? {
@@ -765,14 +766,14 @@ fn product_up_to(
     to: &BigUint,
     labels: &FloatLabels,
 ) -> Option<(BigUint, Proof)> {
-    let kv = Term::var(k).rpn(labels).to_string();
-    let sbody = body.rpn(labels).to_string();
+    let kv = Term::var(k).txt(labels).to_string();
+    let sbody = body.txt(labels).to_string();
     let sf = spelt(from);
     let product = |top: &str| t!(op(&sf, top, "cfz"), &sbody, &kv, "cprod");
     if to == from {
         let at = numeral_term(from);
         let instance = put(body, k, &at);
-        let si = instance.rpn(labels).to_string();
+        let si = instance.txt(labels).to_string();
         let (v, is) = worked(b, &instance, labels)?;
         let complex = b.ap(
             "eqeltrri",
@@ -810,7 +811,7 @@ fn product_up_to(
         ],
     );
     let instance = put(body, k, &next_term);
-    let si = instance.rpn(labels).to_string();
+    let si = instance.txt(labels).to_string();
     let truth = "wtru";
     // less is in the integers from `from` up.
     let real_from = re(b, from.clone());

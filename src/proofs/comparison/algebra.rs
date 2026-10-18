@@ -12,7 +12,7 @@
 //! most of its size.
 
 use crate::mm::spell::{add, cel, eq, mul, sub, w3a, wa, wb};
-use crate::seq;
+use crate::seq_text as seq;
 
 const A: &str = "cA";
 const B: &str = "cB";

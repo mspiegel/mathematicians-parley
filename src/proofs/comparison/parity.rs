@@ -12,7 +12,8 @@
 //! pieces, which is the fixed lemma order METHODS.md asks `algebra` for.
 
 use crate::mm::spell::{add, cel, dvds, eq, exp, mul, w3a, wa, wi, wn, wo};
-use crate::seq;
+use crate::mm::Spell;
+use crate::seq_text as seq;
 
 const A: &str = "cA";
 const TWO: &str = "c2";
@@ -24,11 +25,11 @@ const NV: &str = "vn cv";
 const MV: &str = "vm cv";
 const NC: &str = "cN";
 
-fn in_zz(a: impl AsRef<str>) -> String {
+fn in_zz(a: impl Spell) -> String {
     cel(a, "cz")
 }
 
-fn in_cc(a: impl AsRef<str>) -> String {
+fn in_cc(a: impl Spell) -> String {
     cel(a, "cc")
 }
 

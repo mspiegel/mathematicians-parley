@@ -165,7 +165,7 @@ pub fn numeral(term: &Term, labels: &FloatLabels) -> Option<Q> {
     if label != "co" || term.children().len() != 3 {
         return None;
     }
-    let operation = term.children()[2].rpn(labels);
+    let operation = term.children()[2].txt(labels);
     let left = numeral(&term.children()[0], labels)?;
     let right = numeral(&term.children()[1], labels)?;
     match &*operation {
@@ -202,7 +202,7 @@ pub fn read(term: &Term, labels: &FloatLabels) -> Linear {
         && term.label() == Some("co")
         && term.children().len() == 3
     {
-        let operation = term.children()[2].rpn(labels);
+        let operation = term.children()[2].txt(labels);
         let (left, right) = (&term.children()[0], &term.children()[1]);
         match &*operation {
             ADD => return read(left, labels).plus(&read(right, labels)),
@@ -229,7 +229,7 @@ pub fn read(term: &Term, labels: &FloatLabels) -> Linear {
                         if !top.is_zero() {
                             let one = numeral_label(1).expect("a digit");
                             let reciprocal =
-                                format!("{one} {} {DIV} co", right.rpn(labels));
+                                format!("{one} {} {DIV} co", right.txt(labels));
                             return Linear::atom(Rc::from(reciprocal), top);
                         }
                     }
@@ -238,7 +238,7 @@ pub fn read(term: &Term, labels: &FloatLabels) -> Linear {
             _ => {}
         }
     }
-    Linear::atom(term.rpn(labels), q(1))
+    Linear::atom(term.txt(labels), q(1))
 }
 
 /// A claim as a fact about zero, or None if it states no relation.
@@ -267,7 +267,7 @@ pub fn fact(term: &Term, labels: &FloatLabels) -> Option<Fact> {
     if term.label() != Some("wbr") || term.children().len() != 3 {
         return None;
     }
-    let how = relation(&term.children()[2].rpn(labels))?;
+    let how = relation(&term.children()[2].txt(labels))?;
     let left = read(&term.children()[0], labels);
     let right = read(&term.children()[1], labels);
     if !negated {
@@ -304,7 +304,7 @@ pub fn sides(term: &Term, labels: &FloatLabels) -> Option<Sides> {
             equation: true,
         }),
         (Some("wbr"), [left, right, how]) => {
-            relation(&how.rpn(labels))?;
+            relation(&how.txt(labels))?;
             let (left, right) = (read(left, labels), read(right, labels));
             let (low, high) = if negated {
                 (right, left)

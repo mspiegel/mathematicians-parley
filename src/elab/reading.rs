@@ -28,7 +28,7 @@ use crate::sorts::{
     definition_sorts, sorts_of_record, sorts_of_statement, statement_definitions,
     unlabel, Env, GraphLine,
 };
-use crate::t;
+use crate::t_text as t;
 use crate::targets;
 use crate::text::repr;
 
@@ -865,7 +865,7 @@ impl<'a> Elaborator<'a> {
     /// the body binds are moved: a name the proof already holds keeps its
     /// meaning.
     pub fn apart(&mut self, rpn: &str) -> Checked<String> {
-        let whole = self.to_term(rpn);
+        let whole = self.of_text(rpn);
         let mut binding = crate::elab::state::Binding::new();
         let holds = self.names_held();
         for said in whole.names().iter() {
@@ -877,7 +877,7 @@ impl<'a> Elaborator<'a> {
                 binding.insert(*said, self.var_of(&fresh));
             }
         }
-        Ok(self.rpn(&whole.substitute(&binding)))
+        Ok(self.txt(&whole.substitute(&binding)))
     }
 
     /// Every sentence of a step's claim, as trees.

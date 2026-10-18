@@ -296,6 +296,8 @@ pub struct Elaborator<'a> {
     /// not change once declared. Reading the same text again was a sixth of
     /// a run that elaborates every theorem.
     trees: RefCell<IndexMap<String, Term>>,
+    /// `trees`, by the tokens.
+    term_trees: RefCell<FxIndexMap<Rpn, Term>>,
     /// Whether the facts are being read in standard form, so that the
     /// comparisons the reading makes are offered the facts as they stand.
     pub reading_facts: bool,
@@ -485,6 +487,7 @@ impl<'a> Elaborator<'a> {
             standards: IndexMap::new(),
             fact_keys: IndexMap::new(),
             trees: RefCell::new(IndexMap::new()),
+            term_trees: RefCell::new(FxIndexMap::default()),
             reading_facts: false,
             member: None,
             sum_letter: None,
@@ -618,20 +621,37 @@ impl<'a> Elaborator<'a> {
     }
 
     /// A term the proof holds, read back as a tree.
-    pub fn to_term(&self, rpn: &str) -> Term {
+    pub fn of_text(&self, rpn: &str) -> Term {
         if let Some(found) = self.trees.borrow().get(rpn) {
             return found.clone();
         }
-        let made = term_of(&Rpn::read(rpn), &self.b.sigs);
+        let made = self.to_term(&Rpn::read(rpn));
         self.trees
             .borrow_mut()
             .insert(rpn.to_string(), made.clone());
         made
     }
 
+    /// A term the proof holds, read back as a tree.
+    pub fn to_term(&self, rpn: &Rpn) -> Term {
+        if let Some(found) = self.term_trees.borrow().get(rpn) {
+            return found.clone();
+        }
+        let made = term_of(rpn, &self.b.sigs);
+        self.term_trees
+            .borrow_mut()
+            .insert(rpn.clone(), made.clone());
+        made
+    }
+
     /// A term as a proof spells it.
-    pub fn rpn(&self, term: &Term) -> String {
+    /// `rpn` as text.
+    pub fn txt(&self, term: &Term) -> String {
         term.rpn(&self.b.flabel).to_string()
+    }
+
+    pub fn rpn(&self, term: &Term) -> Rpn {
+        term.rpn(&self.b.flabel)
     }
 
     pub fn sig(&self, label: &str) -> &Signature {
@@ -682,7 +702,7 @@ impl<'a> Elaborator<'a> {
             .unwrap_or_else(|p| panic!("{words:?} does not parse: {p}"))
     }
 
-    /// A binding of kernel terms, as the strings `ap` wants pushed.
+    /// A binding of kernel terms, as the reverse Polish `ap` wants pushed.
     pub fn spelt(&self, binding: &Binding) -> Binds {
         binding
             .iter()

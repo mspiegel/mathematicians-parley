@@ -29,7 +29,7 @@ use indexmap::IndexMap;
 
 use super::kernel::{FloatLabels, Syntax};
 use super::library::{Kind, Layered, Signature};
-use super::rpn::Rpn;
+use super::rpn::{Rpn, Spell};
 use crate::formula::symbol::Symbol;
 use crate::matching::FxIndexMap;
 use crate::outcome::Checked;
@@ -146,96 +146,100 @@ pub fn seq(parts: &[&str]) -> String {
         .join(" ")
 }
 
-/// Tokens in order, skipping any that are empty, from any mix of `&str` and
-/// `String`: `seq!(claim, th, pf, "a1i")`.
+/// Tokens in order, from any mix of tokens and text:
+/// `seq!(claim, th, pf, "a1i")`.
 #[macro_export]
 macro_rules! seq {
     ($($part:expr),* $(,)?) => {
-        $crate::mm::spell::seq(&[$(::std::convert::AsRef::<str>::as_ref(&$part)),*])
+        $crate::mm::Rpn::of(&[$(&$part as &dyn $crate::mm::Spell),*])
+    };
+}
+
+/// `seq!` as text, for a module still passing terms as text.
+#[macro_export]
+macro_rules! seq_text {
+    ($($part:expr),* $(,)?) => {
+        $crate::mm::Rpn::of(&[$(&$part as &dyn $crate::mm::Spell),*]).to_string()
     };
 }
 
 // Terms. `co` is Metamath's binary operation and most of the rest are it
 // with the operator filled in. Each takes `&str` or `String` alike, so a
 // term built inline is passed as it is.
-pub fn co(a: impl AsRef<str>, b: impl AsRef<str>, f: impl AsRef<str>) -> String {
-    seq!(a, b, f, "co")
+pub fn co(a: impl Spell, b: impl Spell, f: impl Spell) -> String {
+    seq_text!(a, b, f, "co")
 }
-pub fn mul(a: impl AsRef<str>, b: impl AsRef<str>) -> String {
+pub fn mul(a: impl Spell, b: impl Spell) -> String {
     co(a, b, "cmul")
 }
-pub fn add(a: impl AsRef<str>, b: impl AsRef<str>) -> String {
+pub fn add(a: impl Spell, b: impl Spell) -> String {
     co(a, b, "caddc")
 }
-pub fn sub(a: impl AsRef<str>, b: impl AsRef<str>) -> String {
+pub fn sub(a: impl Spell, b: impl Spell) -> String {
     co(a, b, "cmin")
 }
-pub fn div(a: impl AsRef<str>, b: impl AsRef<str>) -> String {
+pub fn div(a: impl Spell, b: impl Spell) -> String {
     co(a, b, "cdiv")
 }
-pub fn exp(a: impl AsRef<str>, b: impl AsRef<str>) -> String {
+pub fn exp(a: impl Spell, b: impl Spell) -> String {
     co(a, b, "cexp")
 }
-pub fn fz(a: impl AsRef<str>, b: impl AsRef<str>) -> String {
+pub fn fz(a: impl Spell, b: impl Spell) -> String {
     co(a, b, "cfz")
 }
-pub fn neg(a: impl AsRef<str>) -> String {
-    seq!(a, "cneg")
+pub fn neg(a: impl Spell) -> String {
+    seq_text!(a, "cneg")
 }
-pub fn summ(
-    range: impl AsRef<str>,
-    body: impl AsRef<str>,
-    v: impl AsRef<str>,
-) -> String {
-    seq!(range, body, v, "csu")
+pub fn summ(range: impl Spell, body: impl Spell, v: impl Spell) -> String {
+    seq_text!(range, body, v, "csu")
 }
 
 // Formulas.
-pub fn cel(a: impl AsRef<str>, b: impl AsRef<str>) -> String {
-    seq!(a, b, "wcel")
+pub fn cel(a: impl Spell, b: impl Spell) -> String {
+    seq_text!(a, b, "wcel")
 }
-pub fn br(a: impl AsRef<str>, b: impl AsRef<str>, r: impl AsRef<str>) -> String {
-    seq!(a, b, r, "wbr")
+pub fn br(a: impl Spell, b: impl Spell, r: impl Spell) -> String {
+    seq_text!(a, b, r, "wbr")
 }
-pub fn lt(a: impl AsRef<str>, b: impl AsRef<str>) -> String {
+pub fn lt(a: impl Spell, b: impl Spell) -> String {
     br(a, b, "clt")
 }
-pub fn le(a: impl AsRef<str>, b: impl AsRef<str>) -> String {
+pub fn le(a: impl Spell, b: impl Spell) -> String {
     br(a, b, "cle")
 }
-pub fn dvds(a: impl AsRef<str>, b: impl AsRef<str>) -> String {
+pub fn dvds(a: impl Spell, b: impl Spell) -> String {
     br(a, b, "cdvds")
 }
-pub fn eq(a: impl AsRef<str>, b: impl AsRef<str>) -> String {
-    seq!(a, b, "wceq")
+pub fn eq(a: impl Spell, b: impl Spell) -> String {
+    seq_text!(a, b, "wceq")
 }
-pub fn ne(a: impl AsRef<str>, b: impl AsRef<str>) -> String {
-    seq!(a, b, "wne")
+pub fn ne(a: impl Spell, b: impl Spell) -> String {
+    seq_text!(a, b, "wne")
 }
-pub fn wa(a: impl AsRef<str>, b: impl AsRef<str>) -> String {
-    seq!(a, b, "wa")
+pub fn wa(a: impl Spell, b: impl Spell) -> String {
+    seq_text!(a, b, "wa")
 }
-pub fn wo(a: impl AsRef<str>, b: impl AsRef<str>) -> String {
-    seq!(a, b, "wo")
+pub fn wo(a: impl Spell, b: impl Spell) -> String {
+    seq_text!(a, b, "wo")
 }
-pub fn wi(a: impl AsRef<str>, b: impl AsRef<str>) -> String {
-    seq!(a, b, "wi")
+pub fn wi(a: impl Spell, b: impl Spell) -> String {
+    seq_text!(a, b, "wi")
 }
-pub fn wb(a: impl AsRef<str>, b: impl AsRef<str>) -> String {
-    seq!(a, b, "wb")
+pub fn wb(a: impl Spell, b: impl Spell) -> String {
+    seq_text!(a, b, "wb")
 }
-pub fn wn(a: impl AsRef<str>) -> String {
-    seq!(a, "wn")
+pub fn wn(a: impl Spell) -> String {
+    seq_text!(a, "wn")
 }
-pub fn w3a(a: impl AsRef<str>, b: impl AsRef<str>, c: impl AsRef<str>) -> String {
-    seq!(a, b, c, "w3a")
+pub fn w3a(a: impl Spell, b: impl Spell, c: impl Spell) -> String {
+    seq_text!(a, b, c, "w3a")
 }
-pub fn rex(body: impl AsRef<str>, v: impl AsRef<str>, over: impl AsRef<str>) -> String {
-    seq!(body, v, over, "wrex")
+pub fn rex(body: impl Spell, v: impl Spell, over: impl Spell) -> String {
+    seq_text!(body, v, over, "wrex")
 }
 
 /// What a step binds each of its label's variables to, in reverse Polish.
-pub type Binds = IndexMap<String, String>;
+pub type Binds = IndexMap<String, Rpn>;
 
 /// A binding written out: `binds! { "ph" => b.wff(..), "A" => b.class(..) }`.
 #[macro_export]
@@ -243,7 +247,7 @@ macro_rules! binds {
     ($($var:expr => $term:expr),* $(,)?) => {{
         #[allow(unused_mut)]
         let mut out = $crate::mm::spell::Binds::new();
-        $(out.insert(String::from($var), String::from($term));)*
+        $(out.insert(String::from($var), $crate::mm::Rpn::spelt(&$term));)*
         out
     }};
 }
@@ -660,7 +664,7 @@ impl Builder {
     }
 
     /// A term written in set.mm's notation, as the labels that build it.
-    pub fn rpn(&self, text: &str, start: &str) -> Checked<String> {
+    pub fn txt(&self, text: &str, start: &str) -> Checked<String> {
         let tokens: Vec<&str> = text.split_whitespace().collect();
         let term = self.syntax().parse(&tokens, start)?;
         Ok(term.rpn(&self.flabel).to_string())
@@ -682,13 +686,13 @@ impl Builder {
 
     /// A class written in set.mm's notation, in reverse Polish.
     pub fn class(&self, text: &str) -> String {
-        self.rpn(text, "class")
+        self.txt(text, "class")
             .unwrap_or_else(|p| panic!("{text:?} is not a class: {p}"))
     }
 
     /// A formula written in set.mm's notation, in reverse Polish.
     pub fn wff(&self, text: &str) -> String {
-        self.rpn(text, "wff")
+        self.txt(text, "wff")
             .unwrap_or_else(|p| panic!("{text:?} is not a formula: {p}"))
     }
 
@@ -703,16 +707,12 @@ impl Builder {
             .sigs
             .get(label)
             .unwrap_or_else(|| panic!("no label {label} to apply"));
-        let pushed: Vec<String> = sig
+        let pushed: Vec<Rpn> = sig
             .floats
             .iter()
             .map(|(_, var)| match binds.get(var.as_str()) {
                 Some(t) => t.clone(),
-                None => self
-                    .flabel
-                    .get(var)
-                    .map(|f| f.to_string())
-                    .unwrap_or_default(),
+                None => Rpn::from(self.flabel.get(var).into_iter().collect::<Vec<_>>()),
             })
             .collect();
         let mut parts: Vec<Part> = pushed.iter().map(Part::from).collect();

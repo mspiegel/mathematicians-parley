@@ -68,6 +68,67 @@ impl Rpn {
     }
 }
 
+/// What reverse Polish is put together from: tokens, one symbol, or text,
+/// whose tokens are its words.
+pub trait Spell {
+    /// Its tokens, after what `out` holds.
+    fn spell_onto(&self, out: &mut Vec<Symbol>);
+}
+
+impl Spell for Rpn {
+    fn spell_onto(&self, out: &mut Vec<Symbol>) {
+        out.extend_from_slice(&self.0);
+    }
+}
+
+impl Spell for Symbol {
+    fn spell_onto(&self, out: &mut Vec<Symbol>) {
+        out.push(*self);
+    }
+}
+
+impl Spell for str {
+    fn spell_onto(&self, out: &mut Vec<Symbol>) {
+        out.extend(self.split_whitespace().map(Symbol::of));
+    }
+}
+
+impl Spell for String {
+    fn spell_onto(&self, out: &mut Vec<Symbol>) {
+        self.as_str().spell_onto(out);
+    }
+}
+
+impl Spell for Rc<str> {
+    fn spell_onto(&self, out: &mut Vec<Symbol>) {
+        (**self).spell_onto(out);
+    }
+}
+
+impl<T: Spell + ?Sized> Spell for &T {
+    fn spell_onto(&self, out: &mut Vec<Symbol>) {
+        (**self).spell_onto(out);
+    }
+}
+
+impl Rpn {
+    /// The parts' tokens one after another.
+    pub fn of(parts: &[&dyn Spell]) -> Rpn {
+        let mut out = Vec::new();
+        for part in parts {
+            part.spell_onto(&mut out);
+        }
+        Rpn(out.into())
+    }
+
+    /// One part's tokens.
+    pub fn spelt(part: &(impl Spell + ?Sized)) -> Rpn {
+        let mut out = Vec::new();
+        part.spell_onto(&mut out);
+        Rpn(out.into())
+    }
+}
+
 impl From<&[Symbol]> for Rpn {
     fn from(tokens: &[Symbol]) -> Rpn {
         Rpn(tokens.into())

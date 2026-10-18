@@ -234,7 +234,7 @@ fn step(
     }
     let binds: Binds = binding
         .iter()
-        .map(|(v, t)| (v.to_string(), t.rpn(&b.flabel).to_string()))
+        .map(|(v, t)| (v.to_string(), t.rpn(&b.flabel)))
         .collect();
     let proofs: Vec<&Proof> = taken.iter().map(|s| &s.proof).collect();
     Ok(b.ap(label, &binds, &proofs))

@@ -9,7 +9,7 @@
 //! Nothing here is assumed.
 
 use crate::mm::spell::{add, cel, div, eq, fz, mul, ne, summ, w3a, wa};
-use crate::seq;
+use crate::seq_text as seq;
 
 const ONE: &str = "c1";
 const TWO: &str = "c2";

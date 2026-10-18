@@ -490,7 +490,15 @@ pub fn part<T: PartOf + ?Sized>(x: &T) -> Part<'_> {
 #[macro_export]
 macro_rules! t {
     ($($x:expr),* $(,)?) => {
-        $crate::mm::spell::seq(&[$(::std::convert::AsRef::<str>::as_ref(&$x)),*])
+        $crate::mm::Rpn::of(&[$(&$x as &dyn $crate::mm::Spell),*])
+    };
+}
+
+/// `t!` as text, for a module still passing terms as text.
+#[macro_export]
+macro_rules! t_text {
+    ($($x:expr),* $(,)?) => {
+        $crate::mm::Rpn::of(&[$(&$x as &dyn $crate::mm::Spell),*]).to_string()
     };
 }
 
