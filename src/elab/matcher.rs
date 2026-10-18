@@ -31,6 +31,7 @@ use super::tables::{Leaf, Row};
 use super::{Facts, Lines, WrittenFact};
 use crate::binds;
 use crate::corpus::Step;
+use crate::formula::symbol::Symbol;
 use crate::formula::Node;
 use crate::mm::kernel::Term;
 use crate::mm::spell::Proof;
@@ -248,12 +249,12 @@ impl<'a> Elaborator<'a> {
         // ( the points are numbers -> ( P, Q, R form a triangle -> … ) ).
         let whole = self.statement(SWAP);
         let shape = whole.children()[1].children()[0].clone();
-        let mut letters: Vec<String> = Vec::new();
+        let mut letters: Vec<Symbol> = Vec::new();
         let mut rest = vec![shape.clone()];
         while let Some(node) = rest.pop() {
-            if let Some(v) = node.variable() {
-                if !letters.iter().any(|l| l == v) {
-                    letters.push(v.to_string());
+            if let Some(v) = node.variable_symbol() {
+                if !letters.contains(&v) {
+                    letters.push(v);
                 }
                 continue;
             }
@@ -276,8 +277,8 @@ impl<'a> Elaborator<'a> {
         };
         let named = |me: &Self, order: &[usize]| -> String {
             let mut put = Binding::new();
-            for (letter, &i) in letters.iter().zip(order) {
-                put.insert(letter.clone(), points[i].clone());
+            for (&letter, &i) in letters.iter().zip(order) {
+                put.insert(letter, points[i].clone());
             }
             me.rpn(&shape.substitute(&put))
         };
@@ -896,7 +897,7 @@ impl<'a> Elaborator<'a> {
             }
             let name = whole.children()[1].variable().unwrap_or("").to_string();
             let pattern = holed(&body, &name, &Term::var(hole));
-            let vars: Vars = [Rc::from(hole)].into_iter().collect();
+            let vars: Vars = [Symbol::of(hole)].into_iter().collect();
             let membership = |t: &Term| {
                 t.label() == Some("wcel")
                     && t.children().len() == 2
@@ -2134,9 +2135,8 @@ impl<'a> Elaborator<'a> {
                 out.extend(
                     node.children()
                         .iter()
-                        .filter_map(|c| c.variable())
-                        .filter(|v| self.is_setvar(&self.float_of(v)))
-                        .map(Rc::from),
+                        .filter_map(|c| c.variable_symbol())
+                        .filter(|v| self.is_setvar(&self.float_of(v))),
                 );
             }
             rest.extend(node.children().iter().cloned());
@@ -2509,10 +2509,10 @@ impl<'a> Elaborator<'a> {
         }
         let (bound, mut rule) = (f.children()[0].clone(), f.children()[2].clone());
         let own = bound.variable().unwrap_or("").to_string();
-        let mut letters: Vec<Rc<str>> = self
+        let mut letters: Vec<Symbol> = self
             .letters_bound(&rule)
             .into_iter()
-            .filter(|v| **v != *own)
+            .filter(|v| *v != own)
             .collect();
         letters.sort_by_key(|v| {
             self.b.float_order(&self.float_of(v)).unwrap_or(usize::MAX)
@@ -2526,7 +2526,7 @@ impl<'a> Elaborator<'a> {
                 break;
             };
             let mut put = Binding::new();
-            put.insert(letter.to_string(), fresh);
+            put.insert(letter, fresh);
             rule = rule.substitute(&put);
         }
         self.rules_read.insert(key, rule.clone());
@@ -3115,14 +3115,14 @@ impl<'a> Elaborator<'a> {
     ) -> Checked<Option<Proof>> {
         let letters: Vars = [&one.children()[0], &other.children()[0]]
             .iter()
-            .filter_map(|v| v.variable().map(Rc::from))
+            .filter_map(|v| v.variable_symbol())
             .collect();
         let (domain, there) = (&one.children()[1], &other.children()[1]);
-        let clashing: Vec<String> = self
+        let clashing: Vec<Symbol> = self
             .letters_bound(domain)
             .union(&self.letters_bound(there))
             .filter(|v| letters.contains(*v))
-            .map(|v| v.to_string())
+            .copied()
             .collect();
         if clashing.is_empty() {
             return Ok(None);
@@ -3376,7 +3376,7 @@ impl<'a> Elaborator<'a> {
             return Ok(None);
         }
         let mut put = Binding::new();
-        put.insert(theirs.variable().unwrap().to_string(), ours.clone());
+        put.insert(theirs.variable_symbol().unwrap(), ours.clone());
         let middle = other.substitute(&put);
         let differ: Vec<usize> = (0..one.children().len())
             .filter(|&i| {
@@ -3439,7 +3439,7 @@ impl<'a> Elaborator<'a> {
             return Ok(None);
         }
         let mut put = Binding::new();
-        put.insert(their_letter.to_string(), ours.clone());
+        put.insert(Symbol::of(their_letter), ours.clone());
         let middle = other.substitute(&put);
         if self.rpn(&one.children()[2]) != self.rpn(&middle.children()[2]) {
             return Ok(None);
@@ -3583,9 +3583,9 @@ impl<'a> Elaborator<'a> {
         let marks: BTreeSet<String> = std::iter::once(name.clone()).collect();
         let said = as_class(&body.substitute(binding), &marks);
         let mut put = Binding::new();
-        put.insert(name, element);
+        put.insert(Symbol::of(&name), element);
         let mut out = Binding::new();
-        out.insert(slot.variable().unwrap().to_string(), said.substitute(&put));
+        out.insert(slot.variable_symbol().unwrap(), said.substitute(&put));
         Some(out)
     }
 
@@ -3767,9 +3767,9 @@ impl<'a> Elaborator<'a> {
                 found.values().map(|w| self.to_term(w)).collect();
             let mut seen: Vec<&Term> = witnesses.iter().collect();
             seen.push(wanted);
-            let names: Vec<String> = letters
+            let names: Vec<Symbol> = letters
                 .iter()
-                .filter_map(|l| self.var_of(l).variable().map(String::from))
+                .filter_map(|l| self.var_of(l).variable_symbol())
                 .collect();
             let Some(moved) = self.unheld_for(names, &seen) else {
                 return Err(
@@ -3915,7 +3915,7 @@ impl<'a> Elaborator<'a> {
             if asked.label() != Some("wceq") || asked.children().len() != 2 {
                 continue;
             }
-            let name = asked.children()[0].variable().map(String::from);
+            let name = asked.children()[0].variable_symbol();
             if let Some(name) = &name {
                 if !binding.contains_key(name)
                     && asked.children()[1]
@@ -3924,7 +3924,7 @@ impl<'a> Elaborator<'a> {
                         .all(|n| binding.contains_key(&**n))
                 {
                     let value = asked.children()[1].substitute(&binding);
-                    binding.insert(name.clone(), value);
+                    binding.insert(*name, value);
                     continue;
                 }
             }
@@ -3968,10 +3968,10 @@ impl<'a> Elaborator<'a> {
             {
                 continue;
             }
-            let Some(name) = says.children()[1].variable().map(String::from) else {
+            let Some(name) = says.children()[1].variable_symbol() else {
                 continue;
             };
-            let summand = says.children()[0].variable().map(String::from);
+            let summand = says.children()[0].variable_symbol();
             let index = at.children()[0].children()[0].clone();
             let other = at.children()[1].clone();
             // Read the other way where the claim fixed the instance and not
@@ -3997,8 +3997,8 @@ impl<'a> Elaborator<'a> {
                     ));
                     let now = self.rpn(&Term::apply("cv", vec![letter.clone()]));
                     let value = self.restated(&out[&name].clone(), &was, &now);
-                    out.insert(index.variable().unwrap_or("").to_string(), letter);
-                    out.insert(summand.clone(), value);
+                    out.insert(Symbol::of(index.variable().unwrap_or("")), letter);
+                    out.insert(*summand, value);
                     continue;
                 }
             }
@@ -4327,7 +4327,7 @@ impl<'a> Elaborator<'a> {
     /// there, where nothing can be caught. The letters are only looked at,
     /// not taken.
     pub fn renaming_apart(&mut self, said: &str, want: &str) -> Checked<Option<Proof>> {
-        let mut letters: Vec<String> = Vec::new();
+        let mut letters: Vec<Symbol> = Vec::new();
         let mut rest = vec![self.to_term(said)];
         while let Some(node) = rest.pop() {
             // What a binder binds is the set variable it takes as an
@@ -4338,15 +4338,15 @@ impl<'a> Elaborator<'a> {
             });
             if binder {
                 for kid in node.children() {
-                    let Some(letter) = kid.variable() else {
+                    let Some(letter) = kid.variable_symbol() else {
                         continue;
                     };
                     if self.typecode(&self.rpn(kid)) != "setvar"
-                        || letters.iter().any(|l| l == letter)
+                        || letters.contains(&letter)
                     {
                         continue;
                     }
-                    letters.push(letter.to_string());
+                    letters.push(letter);
                 }
             }
             rest.extend(node.children().iter().cloned());
@@ -4390,7 +4390,7 @@ impl<'a> Elaborator<'a> {
     /// are left. Looked at, not taken.
     pub fn unheld_for(
         &self,
-        letters: impl IntoIterator<Item = String>,
+        letters: impl IntoIterator<Item = Symbol>,
         terms: &[&Term],
     ) -> Option<Binding> {
         let mut moved = Binding::new();
@@ -4459,7 +4459,7 @@ impl<'a> Elaborator<'a> {
             .iter()
             .map(|(t, v)| (v.as_str(), t.as_str()))
             .collect();
-        let mut apart: BTreeSet<String> = BTreeSet::new();
+        let mut apart: BTreeSet<Symbol> = BTreeSet::new();
         for (a, b) in &sig.disjoint {
             for (one, other) in [(a, b), (b, a)] {
                 if kinds.get(one.as_str()) != Some(&"setvar") {
@@ -4475,12 +4475,12 @@ impl<'a> Elaborator<'a> {
                 let from_fixed = kinds.get(other.as_str()) == Some(&"setvar")
                     && binding.contains_key(other);
                 if from_class || from_fixed {
-                    apart.insert(one.clone());
+                    apart.insert(*one);
                 }
             }
         }
         let mut out = binding;
-        let open: Vec<String> =
+        let open: Vec<Symbol> =
             apart.into_iter().filter(|v| !out.contains_key(v)).collect();
         let moved = {
             let frames: Vec<Term> =
@@ -4511,16 +4511,16 @@ impl<'a> Elaborator<'a> {
     ) -> Checked<Route<Proof>> {
         let held = self.names_held();
         let spelt = self.frames_spell();
-        let mut letters: BTreeSet<String> = BTreeSet::new();
+        let mut letters: BTreeSet<Symbol> = BTreeSet::new();
         let mut rest = vec![goal.clone()];
         while let Some(node) = rest.pop() {
-            if node.variable().is_some() {
+            if let Some(letter) = node.variable_symbol() {
                 let said = self.rpn(&node);
                 if self.typecode(&said) == "setvar"
                     && !held.contains(&said)
                     && spelt.contains(&said)
                 {
-                    letters.insert(node.variable().unwrap().to_string());
+                    letters.insert(letter);
                 }
                 continue;
             }
@@ -4539,11 +4539,8 @@ impl<'a> Elaborator<'a> {
         let other = goal.substitute(&moved);
         // What the citation fixed of the claim is fixed of it over the new
         // letters too: a set-builder's letter the seed names moves with it.
-        let seed: Option<Binding> = seed.map(|s| {
-            s.iter()
-                .map(|(k, v)| (k.clone(), v.substitute(&moved)))
-                .collect()
-        });
+        let seed: Option<Binding> =
+            seed.map(|s| s.iter().map(|(k, v)| (*k, v.substitute(&moved))).collect());
         let proof = take!(self.apply_lemma(
             label,
             &other,
@@ -4589,7 +4586,7 @@ impl<'a> Elaborator<'a> {
             return Ok(Route::no("no letter left to rename a sum with"));
         };
         let mut put = Binding::new();
-        put.insert(index.variable().unwrap_or("").to_string(), letter.clone());
+        put.insert(Symbol::of(index.variable().unwrap_or("")), letter.clone());
         let moved = summand.substitute(&put);
         let renamed =
             Term::apply("csu", vec![limits.clone(), moved.clone(), letter.clone()]);
@@ -4782,10 +4779,10 @@ impl<'a> Elaborator<'a> {
                     .collect::<Vec<_>>()
             })
             .collect();
-        let witness: Vec<String> = seed
+        let witness: Vec<Symbol> = seed
             .keys()
-            .filter(|n| !theirs.contains(*n))
-            .cloned()
+            .filter(|n| !theirs.contains(n.as_str()))
+            .copied()
             .collect();
         if !witness.is_empty() {
             return self.at_witness(labels, &want, seed, &witness, scope, facts, step);
@@ -4827,7 +4824,7 @@ impl<'a> Elaborator<'a> {
         labels: &[String],
         want: &Term,
         seed: &Binding,
-        witness: &[String],
+        witness: &[Symbol],
         scope: &str,
         facts: &Facts,
         step: &Step,
@@ -4912,7 +4909,7 @@ impl<'a> Elaborator<'a> {
         for (name, term) in &found {
             let said = self.rpn(term);
             stood.insert(
-                name.clone(),
+                name.to_string(),
                 if term.variable().is_some() {
                     t!(said, "cv")
                 } else {
@@ -5223,7 +5220,7 @@ impl<'a> Elaborator<'a> {
         if let Some(seed) = seed.filter(|s| !s.is_empty()) {
             let mut read = Binding::new();
             for (name, value) in seed {
-                read.insert(name.clone(), self.read_through(value, true, None));
+                read.insert(*name, self.read_through(value, true, None));
             }
             seeds.push(read);
         }
@@ -5365,7 +5362,7 @@ impl<'a> Elaborator<'a> {
                 };
                 if u != w && !term.names().contains(u.as_str()) {
                     let mut to = Binding::new();
-                    to.insert(w.to_string(), Term::var(&u));
+                    to.insert(Symbol::of(w), Term::var(&u));
                     term = term.substitute(&to);
                 }
             }
@@ -5398,7 +5395,7 @@ impl<'a> Elaborator<'a> {
                     out.insert(l);
                 }
             }
-            binds.insert(name.clone(), out);
+            binds.insert(name.to_string(), out);
         }
         let mut written: IndexMap<String, Term> = IndexMap::new();
         for sub in subterms(term) {
@@ -5419,7 +5416,7 @@ impl<'a> Elaborator<'a> {
                     .any(|t| others.iter().any(|o| o.as_str() == t))
                     && self.rpn(w) != said
                 {
-                    out.insert(name.clone(), w.clone());
+                    out.insert(*name, w.clone());
                 }
             }
         }
@@ -5877,7 +5874,7 @@ impl<'a> Elaborator<'a> {
         let fresh: Binding = binding
             .iter()
             .filter(|(k, _)| !before.contains_key(*k))
-            .map(|(k, v)| (k.clone(), v.clone()))
+            .map(|(k, v)| (*k, v.clone()))
             .collect();
         // A deduction's hypothesis may bind letters its conclusion never
         // names, each its own: each is the letter the line the step cites for
@@ -6017,10 +6014,7 @@ impl<'a> Elaborator<'a> {
                     continue
                 }
                 Some(s) if s.variable().is_some() => {
-                    binding.insert(
-                        s.variable().unwrap().to_string(),
-                        self.to_term(&where_),
-                    );
+                    binding.insert(s.variable_symbol().unwrap(), self.to_term(&where_));
                     continue;
                 }
                 Some(s) => conjuncts_of(s)
@@ -6383,7 +6377,7 @@ impl<'a> Elaborator<'a> {
             );
             let mut put = Binding::new();
             put.insert(
-                letter.variable().unwrap().to_string(),
+                letter.variable_symbol().unwrap(),
                 index.children()[0].clone(),
             );
             if self.rpn(&body.substitute(&put)) != want {
@@ -6574,7 +6568,7 @@ pub fn conjuncts_of(slot: &Term) -> Vec<Term> {
 /// The classes an antecedent asks about and nothing decides: set.mm leaves
 /// such a class free so that a citation may name any class holding the
 /// thing, and what it is asking is that the thing be a set.
-pub fn sethood(slot: &Term, binding: &Binding) -> Vec<String> {
+pub fn sethood(slot: &Term, binding: &Binding) -> Vec<Symbol> {
     let mut out = Vec::new();
     let mut rest = vec![slot.clone()];
     while let Some(node) = rest.pop() {
@@ -6589,9 +6583,9 @@ pub fn sethood(slot: &Term, binding: &Binding) -> Vec<String> {
         let Some(at) = node.label().and_then(|l| lookup(rules::HELD_IN, l)) else {
             continue;
         };
-        if let Some(name) = node.children()[at].variable() {
-            if !binding.contains_key(name) {
-                out.push(name.to_string());
+        if let Some(name) = node.children()[at].variable_symbol() {
+            if !binding.contains_key(&name) {
+                out.push(name);
             }
         }
     }
@@ -6672,7 +6666,7 @@ fn either_way(
             Some(seen) if !crate::mm::kernel::same(seen, &ground) => return None,
             Some(_) => {}
             None => {
-                binding.insert(v.to_string(), ground.clone());
+                binding.insert(Symbol::of(v), ground.clone());
             }
         }
         return either_way(left, binding, variables);

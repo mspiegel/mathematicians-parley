@@ -27,6 +27,7 @@ use crate::corpus::{
     define_parts, fmt, DefineParts, Intro, Item, Kinded, Method, Step,
 };
 use crate::formula::page::{made_as, Written};
+use crate::formula::symbol::Symbol;
 use crate::formula::{Node, Sorts};
 use crate::mm::kernel::Term;
 use crate::mm::spell::Proof;
@@ -1584,7 +1585,7 @@ impl<'a> Elaborator<'a> {
                     "no letter left to prove the induction's claim apart from what the theorem assumes",
                 ));
             };
-            let var = self.sig(&written_bound).statement[1].clone();
+            let var = self.sig(&written_bound).statement[1];
             let moved = Binding::from([(var, letter)]);
             Some(self.rpn(&whole_claim.substitute(&moved)))
         } else {
@@ -2336,7 +2337,7 @@ impl<'a> Elaborator<'a> {
                     self.defect(c.line, "no letter left to rename the goal apart with")
                 );
             };
-            let var = self.sig(v).statement[1].clone();
+            let var = self.sig(v).statement[1];
             moved.insert(var, letter);
         }
         let apart = whole.substitute(&moved);
@@ -2789,7 +2790,7 @@ impl<'a> Elaborator<'a> {
                 break;
             }
             let fresh = self.spare_var()?;
-            let var = term.children()[1].variable().unwrap_or("").to_string();
+            let var = Symbol::of(term.children()[1].variable().unwrap_or(""));
             binding.insert(var, self.var_of(&fresh));
             term = term.children()[0].clone();
         }
@@ -2812,11 +2813,11 @@ impl<'a> Elaborator<'a> {
     }
 
     /// The variables an existential's own binders introduce, outermost first.
-    pub fn bound_in(&self, term: &Term) -> Vec<String> {
+    pub fn bound_in(&self, term: &Term) -> Vec<Symbol> {
         let mut out = Vec::new();
         let mut rest = term.clone();
         while matches!(rest.label(), Some("wrex") | Some("wreu")) {
-            out.push(rest.children()[1].variable().unwrap_or("").to_string());
+            out.push(Symbol::of(rest.children()[1].variable().unwrap_or("")));
             rest = rest.children()[0].clone();
         }
         out

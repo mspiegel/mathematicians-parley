@@ -29,6 +29,7 @@ use indexmap::IndexMap;
 
 use super::kernel::{FloatLabels, Syntax};
 use super::library::{Kind, Layered, Signature};
+use crate::formula::symbol::Symbol;
 use crate::outcome::Checked;
 
 /// One label applied to the steps it takes, and what kind of thing that
@@ -40,9 +41,9 @@ use crate::outcome::Checked;
 /// text it took gigabytes.
 #[derive(Debug)]
 pub struct Step {
-    pub label: Rc<str>,
+    pub label: Symbol,
     pub kids: Vec<StepRef>,
-    pub typecode: Rc<str>,
+    pub typecode: Symbol,
 }
 
 pub type StepRef = Rc<Step>;
@@ -55,7 +56,7 @@ pub fn spelt(items: &[StepRef]) -> String {
         items.iter().rev().map(|s| (s, false)).collect();
     while let Some((step, done)) = work.pop() {
         if done || step.kids.is_empty() {
-            out.push(&step.label);
+            out.push(step.label.as_str());
             continue;
         }
         work.push((step, true));
@@ -89,7 +90,7 @@ impl Proof {
 
     /// The label applied last, which says what the proof is of.
     pub fn last(&self) -> &str {
-        &self.items[self.items.len() - 1].label
+        self.items[self.items.len() - 1].label.as_str()
     }
 
     /// The same proof, resting also on `more`.
@@ -248,9 +249,11 @@ pub fn with(base: &Binds, more: Binds) -> Binds {
 /// thing it takes where that is known.
 #[derive(Clone, Debug)]
 struct Taking {
+    /// The label, as the library holds it.
+    label: Symbol,
     takes: usize,
-    typecode: Rc<str>,
-    kinds: Option<Vec<String>>,
+    typecode: Symbol,
+    kinds: Option<Vec<Symbol>>,
 }
 
 /// Statements in set.mm's notation, proofs in stack order.
@@ -274,6 +277,8 @@ pub struct Builder {
     /// What a step was built as that the kernel would refuse, oldest first,
     /// until the elaborator takes it (`fault`).
     faults: RefCell<Vec<String>>,
+    /// Each token's print, worked out once (`Print::token`).
+    prints: RefCell<rustc_hash::FxHashMap<Symbol, Print>>,
 }
 
 /// What one step says, kept by the step it was worked out for; the step is
@@ -356,7 +361,7 @@ impl Builder {
         let mut flabel = IndexMap::new();
         for (label, s) in sigs.iter() {
             if s.kind == Kind::Float {
-                flabel.insert(s.statement[1].clone(), label.clone());
+                flabel.insert(s.statement[1], *label);
             }
         }
         let ordered = sigs.len();
@@ -370,7 +375,18 @@ impl Builder {
             term_steps: RefCell::new(IndexMap::new()),
             said: RefCell::new(IndexMap::new()),
             faults: RefCell::new(Vec::new()),
+            prints: RefCell::new(rustc_hash::FxHashMap::default()),
         }
+    }
+
+    /// A token's print, worked out the first time it is asked.
+    fn print_of(&self, token: Symbol) -> Print {
+        if let Some(&found) = self.prints.borrow().get(&token) {
+            return found;
+        }
+        let made = Print::token(token.as_str());
+        self.prints.borrow_mut().insert(token, made);
+        made
     }
 
     /// Where a label stands among those the builder was made with, the
@@ -453,26 +469,22 @@ impl Builder {
             return None;
         }
         let (floats, essentials) = kids.split_at(sig.floats.len());
-        let put: IndexMap<&str, Print> = sig
+        let put: IndexMap<Symbol, Print> = sig
             .floats
             .iter()
             .zip(floats)
-            .map(|((_, var), kid)| (var.as_str(), *kid))
+            .map(|(&(_, var), kid)| (var, *kid))
             .collect();
-        let filled = |tokens: &[String]| -> Print {
+        let filled = |tokens: &[Symbol]| -> Print {
             tokens.iter().fold(Print::EMPTY, |out, t| {
-                out.then(
-                    put.get(t.as_str())
-                        .copied()
-                        .unwrap_or_else(|| Print::token(t)),
-                )
+                out.then(put.get(t).copied().unwrap_or_else(|| self.print_of(*t)))
             })
         };
         let given = &step.kids[sig.floats.len()..];
         for (n, ((asked, print), kid)) in
             sig.essentials.iter().zip(essentials).zip(given).enumerate()
         {
-            if asked[0] != *kid.typecode || filled(&asked[1..]) != *print {
+            if asked[0] != kid.typecode || filled(&asked[1..]) != *print {
                 let floats = &step.kids[..sig.floats.len()];
                 self.faults.borrow_mut().push(format!(
                     "{} asks in its hypothesis {} for {} and is handed a proof of {}",
@@ -483,8 +495,8 @@ impl Builder {
                 ));
             }
         }
-        for (x, y) in &sig.disjoint {
-            let at = |v: &str| sig.floats.iter().position(|(_, f)| f == v);
+        for &(x, y) in &sig.disjoint {
+            let at = |v: Symbol| sig.floats.iter().position(|&(_, f)| f == v);
             let (Some(a), Some(b)) = (at(x), at(y)) else {
                 continue;
             };
@@ -504,13 +516,13 @@ impl Builder {
     }
 
     /// The variables a term's steps write: those of the floats it rests on.
-    fn variables(&self, term: &Step) -> BTreeSet<String> {
+    fn variables(&self, term: &Step) -> BTreeSet<Symbol> {
         let mut out = BTreeSet::new();
         let mut work = vec![term];
         while let Some(step) = work.pop() {
             match self.sigs.get(&step.label) {
                 Some(sig) if sig.kind == Kind::Float => {
-                    out.insert(sig.statement[1].clone());
+                    out.insert(sig.statement[1]);
                 }
                 _ => work.extend(step.kids.iter().map(|k| &**k)),
             }
@@ -524,16 +536,16 @@ impl Builder {
         &self,
         sig: &Signature,
         floats: &[StepRef],
-        tokens: &[String],
+        tokens: &[Symbol],
     ) -> Vec<String> {
         let mut out = Vec::new();
         for t in tokens {
             match sig.floats.iter().position(|(_, v)| v == t) {
                 Some(n) => match self.spelt_statement(&floats[n]) {
                     Some(term) => out.extend(term.into_iter().skip(1)),
-                    None => out.push(t.clone()),
+                    None => out.push(t.to_string()),
                 },
-                None => out.push(t.clone()),
+                None => out.push(t.to_string()),
             }
         }
         out
@@ -577,34 +589,36 @@ impl Builder {
     /// in order. Its variables are those of the statement and the
     /// hypotheses together, as `proved` writes them.
     pub fn define_with_hyps(&mut self, label: &str, statement: &str, hyps: &[&str]) {
-        let tokens: Vec<String> =
-            statement.split_whitespace().map(String::from).collect();
-        let essentials: Vec<Vec<String>> = hyps
+        let tokens: Vec<Symbol> =
+            statement.split_whitespace().map(Symbol::of).collect();
+        let essentials: Vec<Vec<Symbol>> = hyps
             .iter()
-            .map(|h| h.split_whitespace().map(String::from).collect())
+            .map(|h| h.split_whitespace().map(Symbol::of).collect())
             .collect();
-        let mut free: Vec<&String> = tokens
+        let mut free: Vec<Symbol> = tokens
             .iter()
             .chain(essentials.iter().flatten())
             .filter(|t| self.flabel.contains(t))
+            .copied()
             .collect::<BTreeSet<_>>()
             .into_iter()
             .collect();
         free.sort_by_key(|v| {
-            self.float_order(self.flabel.get(v).unwrap())
+            self.float_order(self.flabel.get(v).unwrap().as_str())
                 .unwrap_or(usize::MAX)
         });
         let floats = free
             .iter()
-            .map(|v| {
-                let float = &self.sigs[self.flabel.get(v).unwrap()];
-                (float.statement[0].clone(), (*v).clone())
+            .map(|&v| {
+                let float = &self.sigs[self.flabel.get(&v).unwrap().as_str()];
+                (float.statement[0], v)
             })
             .collect();
+        let label = Symbol::of(label);
         self.sigs.insert(
-            label.to_string(),
+            label,
             Signature {
-                label: label.to_string(),
+                label,
                 kind: Kind::Theorem,
                 statement: tokens,
                 floats,
@@ -617,12 +631,13 @@ impl Builder {
     /// Register a hypothesis a lemma of this file states, so its proof may
     /// rest on it: a step taking nothing and giving the statement.
     pub fn hypothesis(&mut self, label: &str, statement: &str) {
+        let label = Symbol::of(label);
         self.sigs.insert(
-            label.to_string(),
+            label,
             Signature {
-                label: label.to_string(),
+                label,
                 kind: Kind::Essential,
-                statement: statement.split_whitespace().map(String::from).collect(),
+                statement: statement.split_whitespace().map(Symbol::of).collect(),
                 floats: Vec::new(),
                 essentials: Vec::new(),
                 disjoint: BTreeSet::new(),
@@ -641,8 +656,8 @@ impl Builder {
     pub fn float(&self, var: &str) -> String {
         self.flabel
             .get(var)
-            .cloned()
             .unwrap_or_else(|| panic!("no float for {var}"))
+            .to_string()
     }
 
     /// A proof that is one label taking nothing: a hypothesis, or a closed
@@ -677,9 +692,13 @@ impl Builder {
         let pushed: Vec<String> = sig
             .floats
             .iter()
-            .map(|(_, var)| match binds.get(var) {
+            .map(|(_, var)| match binds.get(var.as_str()) {
                 Some(t) => t.clone(),
-                None => self.flabel.get(var).cloned().unwrap_or_default(),
+                None => self
+                    .flabel
+                    .get(var)
+                    .map(|f| f.to_string())
+                    .unwrap_or_default(),
             })
             .collect();
         let mut parts: Vec<Part> = pushed.iter().map(Part::from).collect();
@@ -698,7 +717,7 @@ impl Builder {
     pub fn proves(&self, label: &str) -> bool {
         self.sigs
             .get(label)
-            .is_some_and(|s| s.statement.first().map(String::as_str) == Some("|-"))
+            .is_some_and(|s| s.statement.first().is_some_and(|t| *t == "|-"))
     }
 
     /// A proof, from labels and proofs in order: resting on what its parts
@@ -762,7 +781,7 @@ impl Builder {
             let kids: Vec<StepRef> = stack.split_off(stack.len() - taking.takes);
             if let Some(kinds) = &taking.kinds {
                 for (n, (kid, kind)) in kids.iter().zip(kinds).enumerate() {
-                    if &*kid.typecode != kind {
+                    if kid.typecode != *kind {
                         panic!(
                             "{label} takes a {kind} in place {} and is handed a {}: …{}",
                             n + 1,
@@ -774,7 +793,7 @@ impl Builder {
             }
             low = low.min(stack.len());
             stack.push(Rc::new(Step {
-                label: Rc::from(label),
+                label: taking.label,
                 kids,
                 typecode: taking.typecode,
             }));
@@ -792,15 +811,16 @@ impl Builder {
         }
         let found = match self.sigs.get(label) {
             Some(sig) => {
-                let mut kinds: Vec<String> =
-                    sig.floats.iter().map(|(t, _)| t.clone()).collect();
+                let mut kinds: Vec<Symbol> =
+                    sig.floats.iter().map(|&(t, _)| t).collect();
                 kinds.extend(std::iter::repeat_n(
-                    "|-".to_string(),
+                    Symbol::of("|-"),
                     sig.essentials.len(),
                 ));
                 Taking {
+                    label: sig.label,
                     takes: kinds.len(),
-                    typecode: Rc::from(sig.statement[0].as_str()),
+                    typecode: sig.statement[0],
                     kinds: if sig.kind == Kind::Float {
                         None
                     } else {
@@ -815,8 +835,9 @@ impl Builder {
                     panic!("no label {label} in the library or the corpus")
                 });
                 Taking {
+                    label: sig.label,
                     takes: sig.floats.len() + sig.essentials.len(),
-                    typecode: Rc::from(sig.statement[0].as_str()),
+                    typecode: sig.statement[0],
                     kinds: None,
                 }
             }

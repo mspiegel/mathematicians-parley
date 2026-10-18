@@ -15,6 +15,8 @@ use std::path::{Path, PathBuf};
 
 use indexmap::{IndexMap, IndexSet};
 
+use crate::formula::symbol::Symbol;
+
 /// What a label is: an axiom or definition, a theorem, or a floating
 /// hypothesis, which proves its variable is of its type and is pushed by
 /// label like anything else.
@@ -42,13 +44,13 @@ impl Kind {
 /// One label: what it concludes and what it wants pushed.
 #[derive(Clone, Debug)]
 pub struct Signature {
-    pub label: String,
+    pub label: Symbol,
     pub kind: Kind,
-    pub statement: Vec<String>,
+    pub statement: Vec<Symbol>,
     /// (typecode, variable) of each mandatory float, in push order.
-    pub floats: Vec<(String, String)>,
-    pub essentials: Vec<Vec<String>>,
-    pub disjoint: BTreeSet<(String, String)>,
+    pub floats: Vec<(Symbol, Symbol)>,
+    pub essentials: Vec<Vec<Symbol>>,
+    pub disjoint: BTreeSet<(Symbol, Symbol)>,
 }
 
 impl Signature {
@@ -68,7 +70,7 @@ impl Signature {
 
 /// Every label of a database, by label, in the order the file declares
 /// them.
-pub type Signatures = IndexMap<String, Signature>;
+pub type Signatures = IndexMap<Symbol, Signature>;
 
 /// Where a label's signature is looked up: one table read from files, or a
 /// [`Layered`] one. What only reads takes this, and either will do.
@@ -127,7 +129,7 @@ impl Layered {
     /// Add a label. One the library already has is refused: nothing here
     /// redefines the library, and a layer that did would be read one way
     /// by a lookup and another by a walk.
-    pub fn insert(&mut self, label: String, sig: Signature) {
+    pub fn insert(&mut self, label: Symbol, sig: Signature) {
         assert!(
             !self.base.contains_key(&label),
             "{label} is the library's, and a theorem only adds labels"
@@ -167,17 +169,17 @@ impl Layered {
     }
 
     /// Every label with its signature, library first.
-    pub fn iter(&self) -> impl Iterator<Item = (&String, &Signature)> {
+    pub fn iter(&self) -> impl Iterator<Item = (&Symbol, &Signature)> {
         self.base.iter().chain(self.added.iter())
     }
 
     /// The labels added on top of the library, in the order they were added.
-    pub fn added(&self) -> impl Iterator<Item = (&String, &Signature)> {
+    pub fn added(&self) -> impl Iterator<Item = (&Symbol, &Signature)> {
         self.added.iter()
     }
 
     /// Every label, library first.
-    pub fn keys(&self) -> impl Iterator<Item = &String> {
+    pub fn keys(&self) -> impl Iterator<Item = &Symbol> {
         self.base.keys().chain(self.added.keys())
     }
 }
@@ -222,7 +224,7 @@ pub fn where_set_mm(said: Option<&str>, root: &Path) -> Option<PathBuf> {
 /// Comments nest in Metamath, so the depth is counted rather than matched.
 /// An include names a file rather than saying anything, and the caller
 /// supplies the files it wants read, so the directive is dropped.
-fn tokens(text: &str, out: &mut Vec<String>) {
+fn tokens<'t>(text: &'t str, out: &mut Vec<&'t str>) {
     let mut depth = 0usize;
     let mut including = false;
     for tok in text.split_ascii_whitespace() {
@@ -232,7 +234,7 @@ fn tokens(text: &str, out: &mut Vec<String>) {
             _ if depth > 0 => {}
             "$[" => including = true,
             "$]" => including = false,
-            _ if !including => out.push(tok.to_string()),
+            _ if !including => out.push(tok),
             _ => {}
         }
     }
@@ -240,10 +242,10 @@ fn tokens(text: &str, out: &mut Vec<String>) {
 
 #[derive(Default)]
 struct Scope {
-    variables: IndexSet<String>,
-    floats: Vec<(String, String)>,
-    essentials: Vec<Vec<String>>,
-    disjoint: BTreeSet<(String, String)>,
+    variables: IndexSet<Symbol>,
+    floats: Vec<(Symbol, Symbol)>,
+    essentials: Vec<Vec<Symbol>>,
+    disjoint: BTreeSet<(Symbol, Symbol)>,
 }
 
 /// Every label in the texts, as a signature.
@@ -263,10 +265,10 @@ pub fn read_texts(texts: &[&str]) -> Signatures {
     };
     let mut stack: Vec<Scope> = vec![Scope::default()];
     let mut out = Signatures::new();
-    let mut label: Option<String> = None;
+    let mut label: Option<Symbol> = None;
     let mut i = 0;
     while i < toks.len() {
-        let tok = toks[i].as_str();
+        let tok = toks[i];
         match tok {
             "${" => {
                 stack.push(Scope::default());
@@ -282,12 +284,15 @@ pub fn read_texts(texts: &[&str]) -> Signatures {
                 } else {
                     find(i, "$.")
                 };
-                let body: Vec<String> = toks[i + 1..end.min(toks.len())].to_vec();
+                let body: Vec<Symbol> = toks[i + 1..end.min(toks.len())]
+                    .iter()
+                    .map(|t| Symbol::of(t))
+                    .collect();
                 statement(&mut stack, &mut out, tok, label.take(), body);
                 i = if tok == "$p" { find(end, "$.") } else { end } + 1;
             }
             _ => {
-                label = Some(tok.to_string());
+                label = Some(Symbol::of(tok));
                 i += 1;
             }
         }
@@ -309,32 +314,28 @@ fn statement(
     stack: &mut [Scope],
     out: &mut Signatures,
     kind: &str,
-    label: Option<String>,
-    body: Vec<String>,
+    label: Option<Symbol>,
+    body: Vec<Symbol>,
 ) {
     let top = stack.last_mut().unwrap();
     match kind {
         "$v" => top.variables.extend(body),
         "$c" => {}
         "$d" => {
-            for a in &body {
-                for b in &body {
+            for &a in &body {
+                for &b in &body {
                     if a != b {
-                        let pair = if a < b {
-                            (a.clone(), b.clone())
-                        } else {
-                            (b.clone(), a.clone())
-                        };
+                        let pair = if a < b { (a, b) } else { (b, a) };
                         top.disjoint.insert(pair);
                     }
                 }
             }
         }
         "$f" => {
-            top.floats.push((body[0].clone(), body[1].clone()));
+            top.floats.push((body[0], body[1]));
             let label = label.unwrap_or_default();
             out.insert(
-                label.clone(),
+                label,
                 Signature {
                     label,
                     kind: Kind::Float,
@@ -353,43 +354,48 @@ fn statement(
                 Kind::Theorem
             };
             let label = label.unwrap_or_default();
-            let made = assertion(stack, kind, &label, body);
+            let made = assertion(stack, kind, label, body);
             out.insert(label, made);
         }
     }
 }
 
 /// The mandatory hypotheses of one assertion, in push order.
-fn assertion(stack: &[Scope], kind: Kind, label: &str, body: Vec<String>) -> Signature {
-    let active: IndexSet<&str> = stack
+fn assertion(
+    stack: &[Scope],
+    kind: Kind,
+    label: Symbol,
+    body: Vec<Symbol>,
+) -> Signature {
+    let active: IndexSet<Symbol> = stack
         .iter()
-        .flat_map(|s| s.variables.iter().map(String::as_str))
+        .flat_map(|s| s.variables.iter().copied())
         .collect();
-    let essentials: Vec<Vec<String>> =
+    let essentials: Vec<Vec<Symbol>> =
         stack.iter().flat_map(|s| s.essentials.clone()).collect();
-    let mut wanted: IndexSet<&str> = essentials
+    let mut wanted: IndexSet<Symbol> = essentials
         .iter()
         .chain(std::iter::once(&body))
-        .flat_map(|h| h.iter().map(String::as_str))
+        .flat_map(|h| h.iter().copied())
         .filter(|t| active.contains(t))
         .collect();
     let names = wanted.clone();
     let mut floats = Vec::new();
     for s in stack {
-        for (typecode, var) in &s.floats {
-            if wanted.shift_remove(var.as_str()) {
-                floats.push((typecode.clone(), var.clone()));
+        for &(typecode, var) in &s.floats {
+            if wanted.shift_remove(&var) {
+                floats.push((typecode, var));
             }
         }
     }
     let disjoint = stack
         .iter()
         .flat_map(|s| s.disjoint.iter())
-        .filter(|(a, b)| names.contains(a.as_str()) && names.contains(b.as_str()))
-        .cloned()
+        .filter(|(a, b)| names.contains(a) && names.contains(b))
+        .copied()
         .collect();
     Signature {
-        label: label.to_string(),
+        label,
         kind,
         statement: body,
         floats,
@@ -448,15 +454,15 @@ mod tests {
         let sigs = read_texts(&[text]);
         let ax = &sigs["ax"];
         assert_eq!(ax.push(), vec!["ps", "ph"]);
-        assert!(ax.disjoint.contains(&("ph".to_string(), "ps".to_string())));
+        assert!(ax.disjoint.contains(&(Symbol::of("ph"), Symbol::of("ps"))));
         assert_eq!(sigs["wph"].kind, Kind::Float);
     }
 
     fn axiom(label: &str) -> Signature {
         Signature {
-            label: label.to_string(),
+            label: Symbol::of(label),
             kind: Kind::Axiom,
-            statement: vec!["|-".to_string(), label.to_string()],
+            statement: vec![Symbol::of("|-"), Symbol::of(label)],
             floats: Vec::new(),
             essentials: Vec::new(),
             disjoint: BTreeSet::new(),
@@ -469,10 +475,10 @@ mod tests {
             read_texts(&["$c wff |- $. $v ph $. wph $f wff ph $. ax $a |- ph $."]);
         let shared = std::sync::Arc::new(base);
         let mut one = Layered::new(std::sync::Arc::clone(&shared));
-        one.insert("itm1".to_string(), axiom("itm1"));
+        one.insert(Symbol::of("itm1"), axiom("itm1"));
         assert!(one.contains_key("ax") && one.contains_key("itm1"));
         assert_eq!(one.len(), 3);
-        let walked: Vec<&String> = one.keys().collect();
+        let walked: Vec<&str> = one.keys().map(|k| k.as_str()).collect();
         assert_eq!(walked, ["wph", "ax", "itm1"]);
         // What one theorem adds, another sharing the library does not see.
         let other = Layered::new(shared);
@@ -484,6 +490,6 @@ mod tests {
     fn a_layer_never_redefines_the_library() {
         let base = read_texts(&["$c |- $. ax $a |- $."]);
         let mut one = Layered::from(base);
-        one.insert("ax".to_string(), axiom("ax"));
+        one.insert(Symbol::of("ax"), axiom("ax"));
     }
 }

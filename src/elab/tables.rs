@@ -22,6 +22,7 @@ use super::{Facts, Lines, Written};
 use crate::binds;
 use crate::citing::{part_said_otherwise, OnceReason, Shape};
 use crate::corpus::Step;
+use crate::formula::symbol::Symbol;
 use crate::formula::Node;
 use crate::mm::kernel::Term;
 use crate::mm::spell::Proof;
@@ -240,7 +241,7 @@ impl<'a> Elaborator<'a> {
         let moved_to = |term: &Term| {
             let mut put = Binding::new();
             put.insert(
-                term.children()[place].variable().unwrap_or("").to_string(),
+                Symbol::of(term.children()[place].variable().unwrap_or("")),
                 fresh.clone(),
             );
             term.substitute(&put)
@@ -713,7 +714,7 @@ impl<'a> Elaborator<'a> {
                 return Ok(Declined(why));
             };
             let mut put = Binding::new();
-            put.insert(variable.variable().unwrap_or("").to_string(), fresh);
+            put.insert(Symbol::of(variable.variable().unwrap_or("")), fresh);
             let moved = given.substitute(&put);
             let moved_want = want.substitute(&put);
             let walked = self.under_member(
@@ -1341,7 +1342,7 @@ impl<'a> Elaborator<'a> {
         let mut binding = fit(carried, fact, &Binding::new(), &names_of(&whole))?;
         let mut sets = Vec::new();
         if sethood {
-            let class = premise.children()[0].children()[1].variable()?.to_string();
+            let class = premise.children()[0].children()[1].variable_symbol()?;
             binding.insert(class, Term::apply("cvv", Vec::new()));
             sets.push(premise.children()[0].substitute(&binding));
         }

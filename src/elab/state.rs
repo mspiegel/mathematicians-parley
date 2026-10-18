@@ -18,6 +18,7 @@ use crate::checker::record::CheckedTheorem;
 use crate::citing;
 use crate::corpus::{written_text, FileScope, Item, Record, Step, Theorem};
 use crate::formula::notation_id::{LiteralId, NotationId, Spelling};
+use crate::formula::symbol::Symbol;
 use crate::formula::{Grammar, Node, Sorts};
 use crate::matching::{binding_context, Defined, FxIndexMap};
 use crate::mm::kernel::{match_term, term_of, FloatLabels, Term, VarSet};
@@ -65,10 +66,10 @@ fn letter_at(chars: &[char], i: usize) -> bool {
 }
 
 /// A kernel term's variables and what each stands for.
-pub type Binding = IndexMap<String, Term>;
+pub type Binding = IndexMap<Symbol, Term>;
 
 /// The variables a lemma's statement mentions, which a match may bind.
-pub type Vars = BTreeSet<Rc<str>>;
+pub type Vars = BTreeSet<Symbol>;
 
 /// One scope frame: the scope with an assumption conjoined, the assumption,
 /// and what is known there.
@@ -431,7 +432,7 @@ impl<'a> Elaborator<'a> {
         let text = written_text(thm);
         for letter in lone_letters(&text) {
             if let Some(label) = b.flabel.get(&letter) {
-                taken.insert(label.clone());
+                taken.insert(label.to_string());
             }
         }
         let spare = SPARE_VARS
@@ -612,8 +613,7 @@ impl<'a> Elaborator<'a> {
         self.b
             .flabel
             .get(var)
-            .cloned()
-            .unwrap_or_else(|| var.to_string())
+            .map_or_else(|| var.to_string(), |f| f.to_string())
     }
 
     /// A term the proof holds, read back as a tree.
@@ -673,8 +673,8 @@ impl<'a> Elaborator<'a> {
     }
 
     /// An essential hypothesis's claim, as a term.
-    pub fn essential(&self, tokens: &[String]) -> Term {
-        let words: Vec<&str> = tokens[1..].iter().map(String::as_str).collect();
+    pub fn essential(&self, tokens: &[Symbol]) -> Term {
+        let words: Vec<&str> = tokens[1..].iter().map(|t| t.as_str()).collect();
         self.b
             .syntax()
             .parse(&words, "wff")
@@ -685,13 +685,13 @@ impl<'a> Elaborator<'a> {
     pub fn spelt(&self, binding: &Binding) -> Binds {
         binding
             .iter()
-            .map(|(v, t)| (v.clone(), self.rpn(t)))
+            .map(|(v, t)| (v.to_string(), self.rpn(t)))
             .collect()
     }
 
     /// The set variable a setvar's label stands for, as a term.
     pub fn var_of(&self, label: &str) -> Term {
-        Term::var(&self.sig(label).statement[1])
+        Term::var(self.sig(label).statement[1])
     }
 
     /// The setvar labels every name the proof holds as `x cv` stands for.

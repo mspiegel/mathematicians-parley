@@ -29,6 +29,7 @@ use std::collections::BTreeSet;
 use indexmap::IndexMap;
 
 use super::Lemma;
+use crate::formula::symbol::Symbol;
 use crate::mm::kernel::{match_term, same, Term};
 use crate::mm::spell::{Binds, Builder, Proof};
 use crate::outcome::{Checked, Problem};
@@ -217,13 +218,12 @@ fn step(
             taken.len()
         ));
     }
-    let variables: BTreeSet<String> =
-        sig.floats.iter().map(|(_, v)| v.clone()).collect();
+    let variables: BTreeSet<Symbol> = sig.floats.iter().map(|&(_, v)| v).collect();
     let pattern = b.syntax().statement(&sig).map_err(|p| p.to_string())?;
     let mut binding = match_term(&pattern, ground, &IndexMap::new(), &variables)
         .ok_or_else(|| format!("{label} does not prove what the step says"))?;
     for (n, (essential, shown)) in sig.essentials.iter().zip(taken).enumerate() {
-        let tokens: Vec<&str> = essential[1..].iter().map(String::as_str).collect();
+        let tokens: Vec<&str> = essential[1..].iter().map(|t| t.as_str()).collect();
         let pattern = b
             .syntax()
             .parse(&tokens, "wff")
@@ -234,7 +234,7 @@ fn step(
     }
     let binds: Binds = binding
         .iter()
-        .map(|(v, t)| (v.clone(), t.rpn(&b.flabel).to_string()))
+        .map(|(v, t)| (v.to_string(), t.rpn(&b.flabel).to_string()))
         .collect();
     let proofs: Vec<&Proof> = taken.iter().map(|s| &s.proof).collect();
     Ok(b.ap(label, &binds, &proofs))

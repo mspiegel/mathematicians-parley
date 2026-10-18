@@ -28,6 +28,7 @@ use indexmap::{IndexMap, IndexSet};
 
 use super::library::Lookup;
 use super::spell::{Step, StepRef};
+use crate::formula::symbol::Symbol;
 
 /// 0 to 19: the last digit of an index.
 pub const LAST: &[u8; 20] = b"ABCDEFGHIJKLMNOPQRST";
@@ -49,7 +50,7 @@ pub fn letters(index: usize) -> String {
 }
 
 /// A subproof: its label and the numbers of its parts.
-pub type Shape = (Rc<str>, Vec<usize>);
+pub type Shape = (Symbol, Vec<usize>);
 
 /// Every subproof of a proof in normal format, numbered so that two alike
 /// share a number: the root's number, and the subproofs in the order each
@@ -62,7 +63,7 @@ pub fn shapes(proof: &str, sigs: &dyn Lookup) -> Result<(usize, Vec<Shape>), Str
         let sig = sigs.get(token).ok_or_else(|| format!("no label {token}"))?;
         let count = sig.floats.len() + sig.essentials.len();
         let kids = stack.split_off(stack.len() - count);
-        let key: Shape = (Rc::from(token), kids);
+        let key: Shape = (sig.label, kids);
         let at = *seen.entry(key.clone()).or_insert_with(|| {
             kinds.push(key);
             kinds.len() - 1
@@ -107,7 +108,7 @@ pub fn shapes_of(items: &[StepRef]) -> Result<(usize, Vec<Shape>), String> {
             continue;
         }
         let key: Shape = (
-            step.label.clone(),
+            step.label,
             step.kids.iter().map(|k| number[&Rc::as_ptr(k)]).collect(),
         );
         let at = *seen.entry(key.clone()).or_insert_with(|| {
@@ -148,8 +149,8 @@ pub fn compress(
 }
 
 /// Every label a proof applies, read off its shapes rather than its text.
-pub fn labels(kinds: &[Shape]) -> IndexSet<Rc<str>> {
-    kinds.iter().map(|(t, _)| t.clone()).collect()
+pub fn labels(kinds: &[Shape]) -> IndexSet<Symbol> {
+    kinds.iter().map(|&(t, _)| t).collect()
 }
 
 /// The compressed format of a proof already read into its shapes.
@@ -168,8 +169,8 @@ pub fn compressed(root: usize, kinds: &[Shape], mandatory: &[String]) -> String 
     let mut order: Vec<&str> = Vec::new();
     let mut seen: IndexSet<&str> = mandatory.iter().map(String::as_str).collect();
     for (token, _) in kinds {
-        if seen.insert(token) {
-            order.push(token);
+        if seen.insert(token.as_str()) {
+            order.push(token.as_str());
         }
     }
     let mut index: IndexMap<&str, usize> = IndexMap::new();
@@ -187,7 +188,7 @@ pub fn compressed(root: usize, kinds: &[Shape], mandatory: &[String]) -> String 
     let mut work: Vec<(usize, bool)> = vec![(root, false)];
     while let Some((at, done)) = work.pop() {
         if done {
-            out.push_str(&letters(index[&*kinds[at].0]));
+            out.push_str(&letters(index[kinds[at].0.as_str()]));
             if keeping.contains(&at) {
                 let n = kept.len();
                 kept.insert(at, n);
@@ -253,9 +254,9 @@ pub fn expand_steps(
         let count = sig.floats.len() + sig.essentials.len();
         let kids = stack.split_off(stack.len() - count);
         stack.push(Rc::new(Step {
-            label: Rc::from(label.as_str()),
+            label: sig.label,
             kids,
-            typecode: Rc::from(sig.statement[0].as_str()),
+            typecode: sig.statement[0],
         }));
     }
     stack

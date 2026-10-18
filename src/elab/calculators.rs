@@ -30,6 +30,7 @@ use super::{Facts, Line, Lines};
 use crate::binds;
 use crate::corpus::proof::{rows, RowReason};
 use crate::corpus::{fmt, Item, Method, RecordKind, Step};
+use crate::formula::symbol::Symbol;
 pub use crate::methods::algebra::rescales;
 use crate::methods::algebra::{
     claim_says, combination, denominators, readings, Factor,
@@ -4076,7 +4077,7 @@ impl<'a> Elaborator<'a> {
                 return Ok(Route::no("no letter is left to sum over"));
             };
             let mut put = IndexMap::new();
-            put.insert(name.to_string(), fresh);
+            put.insert(Symbol::of(name), fresh);
             let moved = whole.substitute(&put);
             let shown = take!(self.summed(&moved, system, scope, known, step)?);
             let said = t!(self.rpn(&moved), system, "wcel");

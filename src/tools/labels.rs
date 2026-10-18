@@ -129,7 +129,7 @@ fn supplied(
     }
     let built = path_of("stdlib/proved");
     if let Ok(text) = source.read_text(&built) {
-        out.extend(mm::read_texts(&[&text]).into_keys());
+        out.extend(mm::read_texts(&[&text]).into_keys().map(String::from));
     }
     out
 }
@@ -176,7 +176,7 @@ pub fn run(source: &dyn Source, library: Option<&Path>, tables_at: &str) -> Said
     }));
     let wanted = named(&namings, tables_at);
     let mut have: BTreeSet<String> = match mm::read(&[library]) {
-        Ok(sigs) => sigs.into_keys().collect(),
+        Ok(sigs) => sigs.into_keys().map(String::from).collect(),
         Err(e) => {
             return Said {
                 printed: String::new(),

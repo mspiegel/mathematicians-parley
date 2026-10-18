@@ -869,12 +869,12 @@ impl<'a> Elaborator<'a> {
         let mut binding = crate::elab::state::Binding::new();
         let holds = self.names_held();
         for said in whole.names().iter() {
-            let Some(label) = self.b.flabel.get(said).cloned() else {
+            let Some(label) = self.b.flabel.get(said) else {
                 continue;
             };
-            if !holds.contains(&label) && self.is_setvar(&label) {
+            if !holds.contains(label.as_str()) && self.is_setvar(&label) {
                 let fresh = self.spare_var()?;
-                binding.insert(said.to_string(), self.var_of(&fresh));
+                binding.insert(*said, self.var_of(&fresh));
             }
         }
         Ok(self.rpn(&whole.substitute(&binding)))
@@ -905,7 +905,7 @@ impl<'a> Elaborator<'a> {
             return Ok(v.clone());
         }
         let label = match self.b.flabel.get(name) {
-            Some(l) if self.is_setvar(l) => l.clone(),
+            Some(l) if self.is_setvar(&l) => l.to_string(),
             _ => self.spare_var()?,
         };
         self.bound_as.insert(name.to_string(), label.clone());
@@ -928,14 +928,14 @@ impl<'a> Elaborator<'a> {
                 held.insert(t.to_string());
             }
         }
-        let own = self.b.flabel.get(name).cloned();
+        let own = self.b.flabel.get(name);
         let own = match own {
             Some(o)
                 if self.is_setvar(&o)
-                    && !held.contains(&o)
-                    && !self.taken.contains(&o) =>
+                    && !held.contains(o.as_str())
+                    && !self.taken.contains(o.as_str()) =>
             {
-                o
+                o.to_string()
             }
             _ => self.spare_var()?,
         };

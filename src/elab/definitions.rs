@@ -38,7 +38,7 @@ pub fn definitions(records: &[Record], sigs: &dyn Lookup) -> Checked<Vec<Introdu
     let mut labels = indexmap::IndexMap::new();
     for s in sigs.values() {
         if s.kind == Kind::Float {
-            labels.insert(s.statement[1].clone(), s.label.clone());
+            labels.insert(s.statement[1], s.label);
         }
     }
     let mut said = Vec::new();

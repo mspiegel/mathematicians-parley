@@ -152,6 +152,18 @@ impl From<&str> for Symbol {
     }
 }
 
+impl From<&Symbol> for Symbol {
+    fn from(symbol: &Symbol) -> Symbol {
+        *symbol
+    }
+}
+
+impl From<&String> for Symbol {
+    fn from(text: &String) -> Symbol {
+        Symbol::of(text)
+    }
+}
+
 impl From<Symbol> for String {
     fn from(symbol: Symbol) -> String {
         symbol.0.to_string()

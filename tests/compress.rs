@@ -20,6 +20,7 @@ use std::collections::BTreeSet;
 use std::path::Path;
 use std::sync::Arc;
 
+use parley::formula::symbol::Symbol;
 use parley::mm::compress::{
     compress, compressed, expand, expand_steps, shapes, shapes_of,
 };
@@ -103,11 +104,11 @@ fn every_compressed_proof_survives_a_round_trip() {
             let mut local = Layered::new(Arc::clone(&sigs));
             for (h, s) in &hyps {
                 local.insert(
-                    h.clone(),
+                    Symbol::of(h),
                     Signature {
-                        label: h.clone(),
+                        label: Symbol::of(h),
                         kind: Kind::Essential,
-                        statement: s.split_whitespace().map(String::from).collect(),
+                        statement: s.split_whitespace().map(Symbol::of).collect(),
                         floats: Vec::new(),
                         essentials: Vec::new(),
                         disjoint: BTreeSet::new(),
@@ -119,9 +120,10 @@ fn every_compressed_proof_survives_a_round_trip() {
                 .chain(hyps.iter().map(|(_, s)| s.as_str()))
                 .flat_map(|s| s.split_whitespace())
                 .collect();
-            let floats: BTreeSet<&String> =
+            let floats: BTreeSet<Symbol> =
                 words.iter().filter_map(|t| spell.flabel.get(t)).collect();
-            let mut mandatory: Vec<String> = floats.into_iter().cloned().collect();
+            let mut mandatory: Vec<String> =
+                floats.into_iter().map(String::from).collect();
             mandatory.sort_by_key(|one| spell.float_order(one).unwrap_or(usize::MAX));
             mandatory.extend(hyps.iter().map(|(h, _)| h.clone()));
             // Read back as the steps it was written from, which is how the

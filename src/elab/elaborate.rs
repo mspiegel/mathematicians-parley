@@ -77,9 +77,9 @@ struct Pushed {
     /// What the citation pushes for each of the theorem's variables, in order.
     values: Vec<String>,
     /// The theorem's statement, typecode first, over its own variables.
-    statement: Vec<String>,
+    statement: Vec<Symbol>,
     /// Each of those variables with its typecode, in the order pushed.
-    floats: Vec<(String, String)>,
+    floats: Vec<(Symbol, Symbol)>,
 }
 
 /// Where a class that binds a name keeps it among its parts: a map and an
@@ -202,9 +202,9 @@ impl<'a> Elaborator<'a> {
         // A lemma in deduction form assumes a formula it says nothing else
         // about, and that formula is a scope: which one is chosen below,
         // once the lemma's other variables are fixed.
-        let deduced = asks.first().and_then(|a| a.variable().map(String::from));
+        let deduced = asks.first().and_then(Term::variable_symbol);
         if let Some(v) = &deduced {
-            binding.insert(v.clone(), self.to_term(scope));
+            binding.insert(*v, self.to_term(scope));
             asks.remove(0);
         }
         // A lemma's left side need not fix everything it mentions, so what
@@ -238,7 +238,7 @@ impl<'a> Elaborator<'a> {
                 .filter(|(kind, _)| kind == "setvar")
                 .map(|(_, name)| name.as_str())
                 .collect();
-            let open: Vec<String> = sig
+            let open: Vec<Symbol> = sig
                 .disjoint
                 .iter()
                 .flat_map(|(a, b)| [(a, b), (b, a)])
@@ -247,7 +247,7 @@ impl<'a> Elaborator<'a> {
                         && setvars.contains(one.as_str())
                         && !binding.contains_key(one.as_str())
                 })
-                .map(|(one, _)| one.clone())
+                .map(|(one, _)| *one)
                 .collect::<BTreeSet<_>>()
                 .into_iter()
                 .collect();
@@ -284,8 +284,8 @@ impl<'a> Elaborator<'a> {
                 }
             }
             for open in slot.names().iter() {
-                if !binding.contains_key(&**open) {
-                    binding.insert(open.to_string(), Term::apply("cvv", Vec::new()));
+                if !binding.contains_key(open) {
+                    binding.insert(*open, Term::apply("cvv", Vec::new()));
                 }
             }
         }
@@ -305,13 +305,13 @@ impl<'a> Elaborator<'a> {
             let (mut where_, mut index) = self.allowed(&sig, &open);
             if where_.is_declined() {
                 let spelt: BTreeSet<&str> = scope.split_whitespace().collect();
-                let letters: Vec<String> = sig
+                let letters: Vec<Symbol> = sig
                     .disjoint
                     .iter()
                     .flat_map(|(a, b)| [(a, b), (b, a)])
                     .filter(|(_, other)| *other == v)
                     .filter_map(|(one, _)| open.get(one.as_str()))
-                    .filter_map(|t| t.variable().map(String::from))
+                    .filter_map(Term::variable_symbol)
                     .filter(|l| spelt.contains(self.float_of(l).as_str()))
                     .collect::<BTreeSet<_>>()
                     .into_iter()
@@ -334,7 +334,7 @@ impl<'a> Elaborator<'a> {
             at = take!(where_);
             frame = index;
             binding = open;
-            binding.insert(v.clone(), self.to_term(&at));
+            binding.insert(*v, self.to_term(&at));
         }
         let at_facts = match frame {
             Some(f) => self.frames_facts(f, facts),
@@ -376,7 +376,7 @@ impl<'a> Elaborator<'a> {
         // reached from it.
         if let (Some(h), Some(v)) = (&held, var) {
             let var_term = self.var_of(v);
-            binding.insert(h.clone(), var_term);
+            binding.insert(Symbol::of(h), var_term);
         }
         if let (Some(_), Some(f)) = (&deduced, frame) {
             let gives = self.rpn(&whole.children()[1].substitute(&binding));
@@ -1628,7 +1628,7 @@ impl<'a> Elaborator<'a> {
                 self.bound_as
                     .get(&v.name)
                     .cloned()
-                    .or_else(|| self.b.flabel.get(&v.name).cloned())
+                    .or_else(|| self.b.flabel.get(&v.name).map(|f| f.to_string()))
             })
             .collect();
         let binding: Vec<&String> = universals
@@ -1727,7 +1727,7 @@ impl<'a> Elaborator<'a> {
                     ));
                 };
                 let mut moved = Binding::new();
-                moved.insert(variable.variable().unwrap().to_string(), fresh);
+                moved.insert(variable.variable_symbol().unwrap(), fresh);
                 let respelt = whole.substitute(&moved);
                 let Some(renamed) = self.renaming(&whole, &respelt)? else {
                     return Err(self.defect(
@@ -2509,13 +2509,11 @@ impl<'a> Elaborator<'a> {
                     .collect::<Vec<_>>()
             })
             .collect();
-        let meeting: Vec<String> = self
+        let meeting: Vec<Symbol> = self
             .letters_bound(&reads)
             .iter()
-            .filter(|v| {
-                !binding.contains_key(&***v) && spelt.contains(&self.float_of(v))
-            })
-            .map(|v| v.to_string())
+            .filter(|v| !binding.contains_key(*v) && spelt.contains(&self.float_of(v)))
+            .copied()
             .collect();
         if !meeting.is_empty() {
             let seen: Vec<&Term> = values.iter().collect();
@@ -4256,11 +4254,11 @@ impl<'a> Elaborator<'a> {
             .floats
             .iter()
             .zip(term.children())
-            .map(|((_, name), child)| (name.clone(), self.rpn(child)))
+            .map(|((_, name), child)| (name.to_string(), self.rpn(child)))
             .collect();
         let mut asked = Vec::new();
         for said in &sig.essentials {
-            match self.closed_set(&self.to_term(&binds[&said[1]])) {
+            match self.closed_set(&self.to_term(&binds[said[1].as_str()])) {
                 Built(p) => asked.push(p),
                 Declined(d) => return Declined(d),
             }
@@ -4398,7 +4396,7 @@ impl<'a> Elaborator<'a> {
             stands = format!("{spare} cv");
             let mut put = Binding::new();
             put.insert(
-                whole.children()[1].variable().unwrap_or("").to_string(),
+                Symbol::of(whole.children()[1].variable().unwrap_or("")),
                 letter.clone(),
             );
             body = body.substitute(&put);
@@ -4657,7 +4655,7 @@ impl<'a> Elaborator<'a> {
                     if let Some(held) = me.binders.get(&node.notation()) {
                         for &at in held {
                             if node.children[at].is_name() {
-                                bound.push(node.children[at].text.to_string());
+                                bound.push(node.children[at].text);
                             }
                         }
                     }
@@ -4672,7 +4670,7 @@ impl<'a> Elaborator<'a> {
                 };
                 let kept = me.bound_as.clone();
                 for (name, letter) in &letters {
-                    me.bound_as.insert(name.clone(), me.rpn(letter));
+                    me.bound_as.insert(name.to_string(), me.rpn(letter));
                 }
                 let read = me.term(&right);
                 me.bound_as = kept;
@@ -5013,7 +5011,7 @@ impl<'a> Elaborator<'a> {
                 self.in_its_names(Item::Record(item), |me| me.read_one(&fill))?;
             let node = filled(&node, &bound, &library.ctx);
             let term = self.term(&node)?;
-            out.insert(name.clone(), self.to_term(&term));
+            out.insert(Symbol::of(name), self.to_term(&term));
         }
         Ok(out)
     }
@@ -5034,19 +5032,17 @@ impl<'a> Elaborator<'a> {
         })?;
         let words: Vec<&str> = said.split_whitespace().skip(1).collect();
         let pattern = self.b.syntax().parse(&words, "wff")?;
-        let mut theirs: Vec<String> = Vec::new();
+        let mut theirs: Vec<Symbol> = Vec::new();
         for token in words.iter().copied() {
             if let Some(label) = self.b.flabel.get(token) {
-                if !theirs.contains(label) {
-                    theirs.push(label.clone());
+                if !theirs.contains(&label) {
+                    theirs.push(label);
                 }
             }
         }
         theirs.sort_by_key(|label| self.b.float_order(label).unwrap_or(usize::MAX));
-        let variables: BTreeSet<String> = theirs
-            .iter()
-            .map(|l| self.sig(l).statement[1].clone())
-            .collect();
+        let variables: BTreeSet<Symbol> =
+            theirs.iter().map(|l| self.sig(l).statement[1]).collect();
         let Some(binding) = fit(
             &pattern,
             &self.to_term(applied),
@@ -5066,12 +5062,12 @@ impl<'a> Elaborator<'a> {
             .iter()
             .map(|l| {
                 let float = &self.sig(l).statement;
-                (float[0].clone(), float[1].clone())
+                (float[0], float[1])
             })
             .collect();
         Ok(Pushed {
             values,
-            statement: said.split_whitespace().map(String::from).collect(),
+            statement: said.split_whitespace().map(Symbol::of).collect(),
             floats,
         })
     }
@@ -5399,7 +5395,7 @@ impl<'a> Elaborator<'a> {
             self.b.arities.insert(
                 cited.clone(),
                 Signature {
-                    label: cited.clone(),
+                    label: Symbol::of(&cited),
                     kind: Kind::Theorem,
                     statement: pushed.statement.clone(),
                     floats: pushed.floats.clone(),
@@ -5497,9 +5493,9 @@ impl<'a> Elaborator<'a> {
             .filter(|g| apart.contains(&g.name))
             .flat_map(|g| free_in(self, &g.term))
             .collect();
-        let moving: Vec<String> = bound_in(self, &second)
+        let moving: Vec<Symbol> = bound_in(self, &second)
             .intersection(&held)
-            .cloned()
+            .map(|v| Symbol::of(v))
             .collect();
         let terms: Vec<Term> = second
             .wanted
@@ -5516,8 +5512,8 @@ impl<'a> Elaborator<'a> {
             ));
         };
         for g in second.given.iter().filter(|g| apart.contains(&g.name)) {
-            if let Some(class) = self.to_term(&g.class).variable() {
-                binding.insert(class.to_string(), self.to_term(&g.term));
+            if let Some(class) = self.to_term(&g.class).variable_symbol() {
+                binding.insert(class, self.to_term(&g.term));
             }
         }
         let put = |me: &Self, t: &str| me.rpn(&me.to_term(t).substitute(&binding));
@@ -5692,7 +5688,10 @@ impl ReadLibrary {
                 .collect()
         };
         let provided: BTreeSet<String> = match proved {
-            Some(p) => crate::mm::read_texts(&[p]).into_keys().collect(),
+            Some(p) => crate::mm::read_texts(&[p])
+                .into_keys()
+                .map(String::from)
+                .collect(),
             None => BTreeSet::new(),
         };
         let mut texts = vec![setmm];
@@ -5726,7 +5725,7 @@ pub struct Library {
 
 /// The labels a corpus declares on top of the library, with their
 /// statements, in the order they are declared.
-type Constants = Vec<(String, Vec<String>)>;
+type Constants = Vec<(Symbol, Vec<Symbol>)>;
 
 impl std::ops::Deref for Library {
     type Target = ReadLibrary;
@@ -5788,7 +5787,7 @@ impl Library {
     fn syntax_for(&self, sigs: &Layered) -> Rc<Syntax> {
         let key: Constants = sigs
             .added()
-            .map(|(label, sig)| (label.clone(), sig.statement.clone()))
+            .map(|(label, sig)| (*label, sig.statement.clone()))
             .collect();
         if let Some(found) = self.syntaxes.borrow().get(&key) {
             return Rc::clone(found);
@@ -5806,23 +5805,26 @@ impl Library {
 fn declare_constants(sigs: &mut Layered, records: &[Record]) -> Checked<()> {
     for one in super::definitions::definitions(records, sigs)? {
         let rendered = crate::mm::library::render(&one.body, sigs);
+        let class = Symbol::of(&format!("c{}", one.token));
+        let token = Symbol::of(&one.token);
         sigs.insert(
-            format!("c{}", one.token),
+            class,
             Signature {
-                label: format!("c{}", one.token),
+                label: class,
                 kind: Kind::Axiom,
-                statement: vec!["class".to_string(), one.token.clone()],
+                statement: vec![Symbol::of("class"), token],
                 floats: Vec::new(),
                 essentials: Vec::new(),
                 disjoint: BTreeSet::new(),
             },
         );
-        let mut statement = vec!["|-".to_string(), one.token.clone(), "=".to_string()];
-        statement.extend(rendered.split_whitespace().map(String::from));
+        let mut statement = vec![Symbol::of("|-"), token, Symbol::of("=")];
+        statement.extend(rendered.split_whitespace().map(Symbol::of));
+        let definition = Symbol::of(&format!("df-{}", one.token));
         sigs.insert(
-            format!("df-{}", one.token),
+            definition,
             Signature {
-                label: format!("df-{}", one.token),
+                label: definition,
                 kind: Kind::Axiom,
                 statement,
                 floats: Vec::new(),
@@ -5995,19 +5997,19 @@ pub fn elaborate(
     let sigs = &work.b.sigs;
     let held: Vec<&str> = used
         .iter()
-        .map(|l| &**l)
+        .map(|l| l.as_str())
         .filter(|t| sigs.get(t).is_some_and(|s| s.kind == Kind::Float))
         .collect();
     let mut bound: Vec<String> = held
         .iter()
         .filter(|t| sigs[**t].statement[0] == "setvar")
-        .map(|t| sigs[*t].statement[1].clone())
+        .map(|t| sigs[*t].statement[1].to_string())
         .collect();
     bound.sort();
     let mut free: Vec<String> = held
         .iter()
         .filter(|t| sigs[**t].statement[0] != "setvar")
-        .map(|t| sigs[*t].statement[1].clone())
+        .map(|t| sigs[*t].statement[1].to_string())
         .collect();
     free.sort();
     out.push_str("${\n");
@@ -6028,7 +6030,7 @@ pub fn elaborate(
     };
     let mut mandatory: Vec<String> = says
         .split_whitespace()
-        .filter_map(|t| work.b.flabel.get(t).cloned())
+        .filter_map(|t| work.b.flabel.get(t).map(String::from))
         .collect::<BTreeSet<String>>()
         .into_iter()
         .collect();

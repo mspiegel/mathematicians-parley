@@ -96,7 +96,7 @@ fn written(lemma: &Lemma, b: &Builder) -> String {
         .collect();
     let mut floats: Vec<String> = words
         .iter()
-        .filter_map(|t| b.flabel.get(t).cloned())
+        .filter_map(|t| b.flabel.get(t).map(String::from))
         .collect::<std::collections::BTreeSet<_>>()
         .into_iter()
         .collect();

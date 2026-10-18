@@ -24,34 +24,35 @@ use std::rc::Rc;
 use indexmap::{IndexMap, IndexSet};
 
 use super::library::{Kind, Lookup, Signature};
+use crate::formula::symbol::Symbol;
 use crate::outcome::{Checked, Problem};
 use crate::text::repr;
 
 /// The typecodes a syntax axiom builds.
 pub const TYPECODES: [&str; 3] = ["wff", "class", "setvar"];
 
-/// One symbol of a production: a constant token, or a hole of a typecode.
+/// One piece of a production: a constant token, or a hole of a typecode.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-enum Symbol {
-    Token(String),
-    Hole(String),
+enum Piece {
+    Token(Symbol),
+    Hole(Symbol),
 }
 
 /// One syntax axiom, as a production of the grammar.
 #[derive(Debug)]
 struct Rule {
-    label: Rc<str>,
-    yields: String,
-    symbols: Vec<Symbol>,
+    label: Symbol,
+    yields: Symbol,
+    symbols: Vec<Piece>,
     /// The push position of each part, in reading order.
     order: Vec<usize>,
 }
 
 struct TermData {
-    label: Option<Rc<str>>,
+    label: Option<Symbol>,
     children: Vec<Term>,
-    variable: Option<Rc<str>>,
-    names: OnceCell<Rc<BTreeSet<Rc<str>>>>,
+    variable: Option<Symbol>,
+    names: OnceCell<Rc<BTreeSet<Symbol>>>,
     rpn: RefCell<Option<(u64, Rc<str>)>>,
 }
 
@@ -89,26 +90,26 @@ impl std::fmt::Debug for Term {
 #[derive(Debug)]
 pub struct FloatLabels {
     id: u64,
-    map: IndexMap<String, String>,
+    map: IndexMap<Symbol, Symbol>,
 }
 
 static NEXT_LABELS: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
 
 impl FloatLabels {
-    pub fn new(map: IndexMap<String, String>) -> FloatLabels {
+    pub fn new(map: IndexMap<Symbol, Symbol>) -> FloatLabels {
         let id = NEXT_LABELS.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
         FloatLabels { id, map }
     }
 
-    pub fn get(&self, var: &str) -> Option<&String> {
-        self.map.get(var)
+    pub fn get(&self, var: &str) -> Option<Symbol> {
+        self.map.get(var).copied()
     }
 
     pub fn contains(&self, var: &str) -> bool {
         self.map.contains_key(var)
     }
 
-    pub fn map(&self) -> &IndexMap<String, String> {
+    pub fn map(&self) -> &IndexMap<Symbol, Symbol> {
         &self.map
     }
 }
@@ -120,18 +121,18 @@ impl Clone for FloatLabels {
 }
 
 impl Term {
-    pub fn apply(label: &str, children: Vec<Term>) -> Term {
-        Term::make(Some(Rc::from(label)), children, None)
+    pub fn apply(label: impl Into<Symbol>, children: Vec<Term>) -> Term {
+        Term::make(Some(label.into()), children, None)
     }
 
-    pub fn var(name: &str) -> Term {
-        Term::make(None, Vec::new(), Some(Rc::from(name)))
+    pub fn var(name: impl Into<Symbol>) -> Term {
+        Term::make(None, Vec::new(), Some(name.into()))
     }
 
     fn make(
-        label: Option<Rc<str>>,
+        label: Option<Symbol>,
         children: Vec<Term>,
-        variable: Option<Rc<str>>,
+        variable: Option<Symbol>,
     ) -> Term {
         Term(Rc::new(TermData {
             label,
@@ -143,7 +144,7 @@ impl Term {
     }
 
     pub fn label(&self) -> Option<&str> {
-        self.0.label.as_deref()
+        self.0.label.map(Symbol::as_str)
     }
 
     pub fn children(&self) -> &[Term] {
@@ -151,7 +152,12 @@ impl Term {
     }
 
     pub fn variable(&self) -> Option<&str> {
-        self.0.variable.as_deref()
+        self.0.variable.map(Symbol::as_str)
+    }
+
+    /// The variable, as the symbol a binding is keyed by.
+    pub fn variable_symbol(&self) -> Option<Symbol> {
+        self.0.variable
     }
 
     pub fn same_object(&self, other: &Term) -> bool {
@@ -167,11 +173,11 @@ impl Term {
             }
         }
         let said: Rc<str> = match &self.0.variable {
-            Some(v) => Rc::from(labels.get(v).map(String::as_str).unwrap_or("")),
+            Some(v) => Rc::from(labels.get(v).map_or("", Symbol::as_str)),
             None => {
                 let mut parts: Vec<Rc<str>> =
                     self.0.children.iter().map(|c| c.rpn(labels)).collect();
-                parts.push(self.0.label.clone().unwrap_or_else(|| Rc::from("")));
+                parts.push(Rc::from(self.0.label.map_or("", Symbol::as_str)));
                 let joined: Vec<&str> = parts.iter().map(|p| &**p).collect();
                 Rc::from(joined.join(" "))
             }
@@ -181,14 +187,14 @@ impl Term {
     }
 
     /// The variables the term mentions.
-    pub fn names(&self) -> Rc<BTreeSet<Rc<str>>> {
+    pub fn names(&self) -> Rc<BTreeSet<Symbol>> {
         self.0
             .names
             .get_or_init(|| {
                 let mut out = BTreeSet::new();
-                match &self.0.variable {
+                match self.0.variable {
                     Some(v) => {
-                        out.insert(v.clone());
+                        out.insert(v);
                     }
                     None => {
                         for c in &self.0.children {
@@ -201,12 +207,12 @@ impl Term {
             .clone()
     }
 
-    pub fn substitute(&self, binding: &IndexMap<String, Term>) -> Term {
-        if let Some(v) = &self.0.variable {
-            return binding.get(&**v).cloned().unwrap_or_else(|| self.clone());
+    pub fn substitute(&self, binding: &IndexMap<Symbol, Term>) -> Term {
+        if let Some(v) = self.0.variable {
+            return binding.get(&v).cloned().unwrap_or_else(|| self.clone());
         }
         Term::make(
-            self.0.label.clone(),
+            self.0.label,
             self.0
                 .children
                 .iter()
@@ -239,11 +245,11 @@ pub fn term_of(rpn: &str, sigs: &dyn Lookup) -> Term {
             .get(token)
             .unwrap_or_else(|| panic!("no label {token} to read"));
         if sig.kind == Kind::Float {
-            stack.push(Term::var(&sig.statement[1]));
+            stack.push(Term::var(sig.statement[1]));
             continue;
         }
         let args = stack.split_off(stack.len() - sig.floats.len());
-        stack.push(Term::apply(token, args));
+        stack.push(Term::apply(sig.label, args));
     }
     stack
         .into_iter()
@@ -262,7 +268,7 @@ impl VarSet for IndexSet<String> {
     }
 }
 
-impl VarSet for BTreeSet<Rc<str>> {
+impl VarSet for BTreeSet<Symbol> {
     fn has(&self, name: &str) -> bool {
         self.contains(name)
     }
@@ -278,9 +284,9 @@ impl VarSet for BTreeSet<String> {
 pub fn match_term<V: VarSet + ?Sized>(
     pattern: &Term,
     ground: &Term,
-    binding: &IndexMap<String, Term>,
+    binding: &IndexMap<Symbol, Term>,
     variables: &V,
-) -> Option<IndexMap<String, Term>> {
+) -> Option<IndexMap<Symbol, Term>> {
     let mut out = binding.clone();
     bound_into(pattern, ground, &mut out, variables).then_some(out)
 }
@@ -290,15 +296,15 @@ pub fn match_term<V: VarSet + ?Sized>(
 fn bound_into<V: VarSet + ?Sized>(
     pattern: &Term,
     ground: &Term,
-    binding: &mut IndexMap<String, Term>,
+    binding: &mut IndexMap<Symbol, Term>,
     variables: &V,
 ) -> bool {
-    if let Some(v) = pattern.variable() {
-        if variables.has(v) {
-            if let Some(seen) = binding.get(v) {
+    if let Some(v) = pattern.0.variable {
+        if variables.has(v.as_str()) {
+            if let Some(seen) = binding.get(&v) {
                 return same(seen, ground);
             }
-            binding.insert(v.to_string(), ground.clone());
+            binding.insert(v, ground.clone());
             return true;
         }
     }
@@ -329,18 +335,18 @@ pub struct Syntax {
     /// rule is predicted only where the next token can open it. set.mm has
     /// hundreds of rules yielding `class`, nearly all of which the next
     /// token rules out, and predicting them all is most of a parse.
-    opening: IndexMap<String, IndexMap<String, Vec<usize>>>,
+    opening: IndexMap<Symbol, IndexMap<Symbol, Vec<usize>>>,
     /// The rules yielding each typecode that spell nothing, which any token
     /// may follow.
-    bare: IndexMap<String, Vec<usize>>,
+    bare: IndexMap<Symbol, Vec<usize>>,
     /// Each variable's typecode, and the label of its float.
-    pub typecode: IndexMap<String, String>,
+    pub typecode: IndexMap<Symbol, Symbol>,
     pub label: FloatLabels,
     spelt: RefCell<IndexMap<(Vec<String>, String), Term>>,
     /// Every math symbol the library declares: its variables, and each
     /// constant a syntax axiom spells, typecodes and `|-` among them. A
     /// label may be none of these (the Metamath specification, 4.2.1).
-    symbols: IndexSet<String>,
+    symbols: IndexSet<Symbol>,
 }
 
 impl Syntax {
@@ -349,8 +355,8 @@ impl Syntax {
         let mut floats = IndexMap::new();
         for sig in signatures.values() {
             if sig.kind == Kind::Float {
-                typecode.insert(sig.statement[1].clone(), sig.statement[0].clone());
-                floats.insert(sig.statement[1].clone(), sig.label.clone());
+                typecode.insert(sig.statement[1], sig.statement[0]);
+                floats.insert(sig.statement[1], sig.label);
             }
         }
         let label = FloatLabels::new(floats);
@@ -362,14 +368,14 @@ impl Syntax {
                 continue;
             }
             let mut symbols = Vec::new();
-            let mut reading: Vec<&str> = Vec::new();
-            for token in &sig.statement[1..] {
-                match typecode.get(token) {
-                    Some(kind) => {
-                        symbols.push(Symbol::Hole(kind.clone()));
+            let mut reading: Vec<Symbol> = Vec::new();
+            for &token in &sig.statement[1..] {
+                match typecode.get(&token) {
+                    Some(&kind) => {
+                        symbols.push(Piece::Hole(kind));
                         reading.push(token);
                     }
-                    None => symbols.push(Symbol::Token(token.clone())),
+                    None => symbols.push(Piece::Token(token)),
                 }
             }
             let order = if reading.is_empty() {
@@ -381,33 +387,30 @@ impl Syntax {
                     .collect()
             };
             rules.push(Rule {
-                label: Rc::from(sig.label.as_str()),
-                yields: sig.statement[0].clone(),
+                label: sig.label,
+                yields: sig.statement[0],
                 symbols,
                 order,
             });
         }
         // The tokens that can open a term of each typecode: its variables,
         // and what opens each rule yielding it, to a fixed point.
-        let mut first: IndexMap<String, IndexSet<String>> = IndexMap::new();
-        for (variable, kind) in &typecode {
-            first
-                .entry(kind.clone())
-                .or_default()
-                .insert(variable.clone());
+        let mut first: IndexMap<Symbol, IndexSet<Symbol>> = IndexMap::new();
+        for (&variable, &kind) in &typecode {
+            first.entry(kind).or_default().insert(variable);
         }
         loop {
             let mut grew = false;
             for rule in &rules {
-                let opens: Vec<String> = match rule.symbols.first() {
+                let opens: Vec<Symbol> = match rule.symbols.first() {
                     None => continue,
-                    Some(Symbol::Token(token)) => vec![token.clone()],
-                    Some(Symbol::Hole(kind)) => first
+                    Some(Piece::Token(token)) => vec![*token],
+                    Some(Piece::Hole(kind)) => first
                         .get(kind)
-                        .map(|s| s.iter().cloned().collect())
+                        .map(|s| s.iter().copied().collect())
                         .unwrap_or_default(),
                 };
-                let set = first.entry(rule.yields.clone()).or_default();
+                let set = first.entry(rule.yields).or_default();
                 for token in opens {
                     grew |= set.insert(token);
                 }
@@ -416,33 +419,33 @@ impl Syntax {
                 break;
             }
         }
-        let mut opening: IndexMap<String, IndexMap<String, Vec<usize>>> =
+        let mut opening: IndexMap<Symbol, IndexMap<Symbol, Vec<usize>>> =
             IndexMap::new();
-        let mut bare: IndexMap<String, Vec<usize>> = IndexMap::new();
+        let mut bare: IndexMap<Symbol, Vec<usize>> = IndexMap::new();
         for (at, rule) in rules.iter().enumerate() {
-            let opens: Vec<&String> = match rule.symbols.first() {
+            let opens: Vec<Symbol> = match rule.symbols.first() {
                 None => {
-                    bare.entry(rule.yields.clone()).or_default().push(at);
+                    bare.entry(rule.yields).or_default().push(at);
                     continue;
                 }
-                Some(Symbol::Token(token)) => vec![token],
-                Some(Symbol::Hole(kind)) => first
+                Some(Piece::Token(token)) => vec![*token],
+                Some(Piece::Hole(kind)) => first
                     .get(kind)
-                    .map(|s| s.iter().collect())
+                    .map(|s| s.iter().copied().collect())
                     .unwrap_or_default(),
             };
-            let row = opening.entry(rule.yields.clone()).or_default();
+            let row = opening.entry(rule.yields).or_default();
             for token in opens {
-                row.entry(token.clone()).or_default().push(at);
+                row.entry(token).or_default().push(at);
             }
         }
-        let mut symbols: IndexSet<String> = typecode.keys().cloned().collect();
-        symbols.extend(TYPECODES.iter().map(|t| t.to_string()));
-        symbols.insert("|-".to_string());
+        let mut symbols: IndexSet<Symbol> = typecode.keys().copied().collect();
+        symbols.extend(TYPECODES.iter().map(|t| Symbol::of(t)));
+        symbols.insert(Symbol::of("|-"));
         for rule in &rules {
             for symbol in &rule.symbols {
-                if let Symbol::Token(token) = symbol {
-                    symbols.insert(token.clone());
+                if let Piece::Token(token) = symbol {
+                    symbols.insert(*token);
                 }
             }
         }
@@ -480,7 +483,7 @@ impl Syntax {
     fn build(&self, rule: usize, parts: &[Term]) -> Term {
         let rule = &self.rules[rule];
         Term::make(
-            Some(rule.label.clone()),
+            Some(rule.label),
             rule.order.iter().map(|&i| parts[i].clone()).collect(),
             None,
         )
@@ -504,7 +507,7 @@ impl Syntax {
     pub fn statement(&self, signature: &Signature) -> Checked<Term> {
         let tokens: Vec<&str> = signature.statement[1..]
             .iter()
-            .map(String::as_str)
+            .map(|t| t.as_str())
             .collect();
         self.parse(&tokens, "wff")
     }
@@ -514,7 +517,7 @@ impl Syntax {
         // A statement may be one variable and nothing else, which no rule
         // produces: `vtocl3` concludes `ps`.
         if tokens.len() == 1
-            && self.typecode.get(tokens[0]).map(String::as_str) == Some(start)
+            && self.typecode.get(tokens[0]).map(|t| t.as_str()) == Some(start)
         {
             return Ok(Term::var(tokens[0]));
         }
@@ -524,8 +527,8 @@ impl Syntax {
         // What has been offered at a position, so it is offered once. set.mm
         // has hundreds of productions yielding `class`, and every item
         // waiting for one would otherwise offer them all again.
-        let mut told: IndexSet<(usize, String)> = IndexSet::new();
-        told.insert((0, start.to_string()));
+        let mut told: IndexSet<(usize, Symbol)> = IndexSet::new();
+        told.insert((0, Symbol::of(start)));
         let empty = Rc::new(Vec::new());
         for rule in self.predicted(start, tokens.first().copied()) {
             add(&mut chart[0], rule, 0, 0, empty.clone());
@@ -547,7 +550,7 @@ impl Syntax {
                             continue;
                         }
                         match &orule.symbols[o.dot] {
-                            Symbol::Hole(what) if *what == rule.yields => {}
+                            Piece::Hole(what) if *what == rule.yields => {}
                             _ => continue,
                         }
                         let mut parts = (*o.parts).clone();
@@ -565,8 +568,8 @@ impl Syntax {
                     continue;
                 }
                 match &rule.symbols[item.dot] {
-                    Symbol::Hole(what) => {
-                        if told.insert((i, what.clone())) {
+                    Piece::Hole(what) => {
+                        if told.insert((i, *what)) {
                             for other in self.predicted(what, tokens.get(i).copied()) {
                                 if let Some(added) =
                                     add(&mut chart[i], other, 0, i, empty.clone())
@@ -588,7 +591,7 @@ impl Syntax {
                             );
                         }
                     }
-                    Symbol::Token(what) => {
+                    Piece::Token(what) => {
                         if i < n && tokens[i] == what {
                             add(
                                 &mut chart[i + 1],
