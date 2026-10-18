@@ -18,10 +18,11 @@ use crate::corpus::proof::Requires;
 use crate::corpus::{Head, Item, Method, Step};
 use crate::formula::Node;
 use crate::mm::spell::Proof;
+use crate::mm::Rpn;
 use crate::outcome::{Built, Checked, Declined, Route};
 use crate::rules::{self, lookup};
 use crate::targets;
-use crate::{pf, t_text as t, take};
+use crate::{pf, t, take};
 
 pub const REQUIRES: &str = "requires@";
 
@@ -244,7 +245,7 @@ impl<'a> Elaborator<'a> {
     /// and the kernel name it is bound to; None for any other claim. A step
     /// said of every member is proved at one, and its requires lines speak
     /// of that member by this letter.
-    pub fn member_letter(&mut self, step: &Step) -> Checked<Option<(String, String)>> {
+    pub fn member_letter(&mut self, step: &Step) -> Checked<Option<(String, Rpn)>> {
         let said = step.claim.sentences();
         let [sentence] = said.as_slice() else {
             return Ok(None);
@@ -255,11 +256,11 @@ impl<'a> Elaborator<'a> {
             return Ok(None);
         }
         let said = self.term(&node)?;
-        let term = self.of_text(&said);
+        let term = self.to_term(&said);
         if term.variable().is_some() || term.label() != Some("wral") {
             return Ok(None);
         }
-        let kernel = format!("{} cv", self.txt(&term.children()[1]));
+        let kernel = t!(self.rpn(&term.children()[1]), "cv");
         Ok(Some((node.children[0].text.to_string(), kernel)))
     }
 
@@ -299,11 +300,11 @@ impl<'a> Elaborator<'a> {
     /// The page items a scope is the conjunction of.
     pub fn scope_origin(
         &mut self,
-        scope: &str,
+        scope: &Rpn,
         facts: &Facts,
     ) -> Checked<BTreeSet<String>> {
         let mut out = BTreeSet::new();
-        let mut todo = vec![scope.to_string()];
+        let mut todo = vec![scope.clone()];
         while let Some(one) = todo.pop() {
             if let Some(held) = self.held(facts, &one, scope)? {
                 if !held.origin.is_empty() {
@@ -311,12 +312,12 @@ impl<'a> Elaborator<'a> {
                     continue;
                 }
             }
-            let node = self.of_text(&one);
+            let node = self.to_term(&one);
             if node.variable().is_none()
                 && node.label() == Some("wa")
                 && node.children().len() == 2
             {
-                todo.extend(node.children().iter().map(|c| self.txt(c)));
+                todo.extend(node.children().iter().map(|c| self.rpn(c)));
             }
         }
         Ok(out)
@@ -334,7 +335,7 @@ impl<'a> Elaborator<'a> {
     pub fn supplied(
         &mut self,
         step: Option<&Step>,
-        scope: &str,
+        scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Facts> {
         let known = facts.copy();
@@ -440,19 +441,19 @@ impl<'a> Elaborator<'a> {
     /// A sentence as the page writes it: a membership of a power set is the
     /// part `let X ⊆ A` writes, and every other sentence is written as it is
     /// read.
-    fn as_written(&self, said: &str) -> String {
-        let node = self.of_text(said);
+    fn as_written(&self, said: &Rpn) -> Rpn {
+        let node = self.to_term(said);
         if node.label() == Some("wcel") && node.children().len() == 2 {
             let power = &node.children()[1];
             if power.label() == Some("cpw") && power.children().len() == 1 {
                 return t!(
-                    self.txt(&node.children()[0]),
-                    self.txt(&power.children()[0]),
+                    self.rpn(&node.children()[0]),
+                    self.rpn(&power.children()[0]),
                     "wss"
                 );
             }
         }
-        said.to_string()
+        said.clone()
     }
 
     /// What a line said of every member of a set says at a member the facts
@@ -461,37 +462,37 @@ impl<'a> Elaborator<'a> {
     /// ∈ ℚ. None where no member gives `term`.
     fn part_at_a_member(
         &mut self,
-        said: &str,
+        said: &Rpn,
         whole: &Proof,
-        term: &str,
-        scope: &str,
+        term: &Rpn,
+        scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Option<Proof>> {
-        let line = self.of_text(said);
+        let line = self.to_term(said);
         let (body, letter, domain) = (
             line.children()[0].clone(),
-            self.txt(&line.children()[1]),
-            self.txt(&line.children()[2]),
+            self.rpn(&line.children()[1]),
+            self.rpn(&line.children()[2]),
         );
-        let mark = format!("{letter} cv");
+        let mark = t!(letter, "cv");
         for (member, inside) in facts.entries() {
-            let m = self.of_text(&member);
+            let m = self.to_term(&member);
             if m.variable().is_some()
                 || m.label() != Some("wcel")
-                || self.txt(&m.children()[1]) != domain
+                || self.rpn(&m.children()[1]) != domain
             {
                 continue;
             }
-            let at = self.txt(&m.children()[0]);
+            let at = self.rpn(&m.children()[0]);
             // A membership the page says once is taken from where it says
             // it, so the line rests on no let it does not name.
             let inside = match self.said_once_proof(&m, scope, facts)? {
                 Built(p) => p,
                 Declined(_) => inside,
             };
-            let instance = self.txt(&self.restated(&body, &mark, &at));
+            let instance = self.rpn(&self.restated(&body, &mark, &at));
             let held = Facts::new();
-            self.know(&held, said, whole.clone());
+            self.know(&held, said.clone(), whole.clone());
             self.know(&held, member.clone(), inside);
             let Some(p) = self.instance_of_universal(&instance, scope, &held)? else {
                 continue;
@@ -513,25 +514,25 @@ impl<'a> Elaborator<'a> {
     /// checker reads), and the line taken at it (`part_at_a_member`).
     fn narrowed(
         &mut self,
-        said: &str,
+        said: &Rpn,
         whole: &Proof,
-        term: &str,
-        scope: &str,
+        term: &Rpn,
+        scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Route<Proof>> {
-        let want = self.of_text(term);
+        let want = self.to_term(term);
         if want.label() != Some("wral") {
             return Ok(Route::no("the claim is not \"for all\""));
         }
-        let domain = self.txt(&self.of_text(said).children()[2]);
+        let domain = self.rpn(&self.to_term(said).children()[2]);
         let over = want.children()[2].clone();
-        if self.txt(&over) == domain {
+        if self.rpn(&over) == domain {
             return Ok(Route::no("the claim is over the line's own set"));
         }
         let held = facts.copy();
-        self.know(&held, said.to_string(), whole.clone());
+        self.know(&held, said.clone(), whole.clone());
         let (body, variable) = (want.children()[0].clone(), want.children()[1].clone());
-        let over_rpn = self.txt(&over);
+        let over_rpn = self.rpn(&over);
         self.for_every(
             scope,
             &held,
@@ -541,11 +542,11 @@ impl<'a> Elaborator<'a> {
             &mut |me, claim, inner, lifted| {
                 // The member `for_every` fixed, under whatever letter it chose.
                 let fixed = lifted.entries().into_iter().find_map(|(k, _)| {
-                    let m = me.of_text(&k);
+                    let m = me.to_term(&k);
                     (m.label() == Some("wcel")
                         && m.children()[0].label() == Some("cv")
-                        && me.txt(&m.children()[1]) == over_rpn)
-                        .then(|| me.txt(&m.children()[0]))
+                        && me.rpn(&m.children()[1]) == over_rpn)
+                        .then(|| me.rpn(&m.children()[0]))
                 });
                 let Some(at) = fixed else {
                     return Ok(Route::no("no member of the claim's set is fixed"));
@@ -558,7 +559,7 @@ impl<'a> Elaborator<'a> {
                 };
                 let there = lifted.copy();
                 me.know(&there, t!(at, domain, "wcel"), inside);
-                let claim = me.txt(claim);
+                let claim = me.rpn(claim);
                 match me.part_at_a_member(said, &line, &claim, inner, &there)? {
                     Some(p) => Ok(Built(p)),
                     None => {
@@ -577,8 +578,8 @@ impl<'a> Elaborator<'a> {
     /// this one is such a line too.
     pub fn unfolded_at(
         &mut self,
-        term: &str,
-        scope: &str,
+        term: &Rpn,
+        scope: &Rpn,
         facts: &Facts,
         refs: &[String],
         above: bool,
@@ -610,7 +611,7 @@ impl<'a> Elaborator<'a> {
             let mut says_it = false;
             for s in &line.sentences {
                 let said = self.term(s)?;
-                if self.as_written(&said) == term {
+                if self.as_written(&said) == *term {
                     says_it = true;
                 }
             }
@@ -638,7 +639,7 @@ impl<'a> Elaborator<'a> {
                 if !says_it {
                     continue;
                 }
-                let (was, now) = (self.of_text(&said), self.of_text(term));
+                let (was, now) = (self.to_term(&said), self.to_term(term));
                 if let Built(across) = self.same(&was, &now, scope, facts, None)? {
                     return Ok(Built(
                         pf!(self.b; scope, said, term, proof, across, "mpbid"),
@@ -646,7 +647,7 @@ impl<'a> Elaborator<'a> {
                 }
             }
             // The line with its own letters bound: one claim, spelt apart.
-            let label = self.of_text(&line.term).label().unwrap_or("").to_string();
+            let label = self.to_term(&line.term).label().unwrap_or("").to_string();
             if lookup(rules::BOUND, &label).is_some() {
                 if let Some(spelt) = self.respelt(&whole, &line.term, term, scope)? {
                     return Ok(Built(spelt));
@@ -675,13 +676,13 @@ impl<'a> Elaborator<'a> {
         }
         // What two of the lines say together: a function's type and a
         // membership of its domain put its value there in its codomain.
-        let wanted = self.of_text(term);
+        let wanted = self.to_term(term);
         if wanted.label() == Some("wcel") && wanted.children().len() == 2 {
             let (value, system) = (
-                self.txt(&wanted.children()[0]),
-                self.txt(&wanted.children()[1]),
+                self.rpn(&wanted.children()[0]),
+                self.rpn(&wanted.children()[1]),
             );
-            if lookup(rules::SYSTEMS, &system).is_some() {
+            if lookup(rules::SYSTEMS, system.alone().unwrap_or_default()).is_some() {
                 if let Some(p) = self.function_value(&value, &system, scope, facts)? {
                     return Ok(Built(p));
                 }
@@ -698,7 +699,7 @@ impl<'a> Elaborator<'a> {
         &mut self,
         want: &Node,
         req: &Requires,
-        scope: &str,
+        scope: &Rpn,
         facts: &Facts,
         step: Option<&Step>,
     ) -> Checked<Route<Proof>> {
@@ -717,7 +718,7 @@ impl<'a> Elaborator<'a> {
         &mut self,
         want: &Node,
         req: Option<&Requires>,
-        scope: &str,
+        scope: &Rpn,
         facts: &Facts,
         step: Option<&Step>,
     ) -> Checked<Route<Proof>> {
@@ -726,7 +727,7 @@ impl<'a> Elaborator<'a> {
         let refs: Vec<String> = req.map_or(Vec::new(), |r| r.refs().to_vec());
         // A define gives its function on the domain it names, which is proved
         // as it is for a step citing the define.
-        let whole = self.of_text(&term);
+        let whole = self.to_term(&term);
         // The theorem's own defines, and those above it in its file or
         // imported, by the label each is held under (`outside_label`).
         let outside: Vec<String> = self
@@ -771,7 +772,11 @@ impl<'a> Elaborator<'a> {
             // the line's reason, as `side` offers it.
             let in_system = whole.variable().is_none()
                 && whole.label() == Some("wcel")
-                && lookup(rules::SYSTEMS, &self.txt(&whole.children()[1])).is_some();
+                && lookup(
+                    rules::SYSTEMS,
+                    self.rpn(&whole.children()[1]).alone().unwrap_or_default(),
+                )
+                .is_some();
             let built = match in_system {
                 true => self.member_of(&whole, scope, facts, step)?,
                 false => self.no("not a membership in a number system", &[]),
@@ -824,11 +829,11 @@ impl<'a> Elaborator<'a> {
     pub fn required(
         &mut self,
         step: &Step,
-        goal: &str,
-        scope: &str,
+        goal: &Rpn,
+        scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Proof> {
-        let mut written: BTreeSet<String> = BTreeSet::new();
+        let mut written: BTreeSet<Rpn> = BTreeSet::new();
         for r in &step.requires {
             let node = self.read_one(&r.fact)?;
             written.insert(self.term(&node)?);
@@ -837,7 +842,7 @@ impl<'a> Elaborator<'a> {
         // writes it, and a membership the page says once is taken from where
         // it says it.
         if !written.contains(goal) {
-            if let Built(p) = self.said_once_proof(&self.of_text(goal), scope, facts)? {
+            if let Built(p) = self.said_once_proof(&self.to_term(goal), scope, facts)? {
                 return Ok(p);
             }
             if let Some(p) = self.held(facts, goal, scope)? {
@@ -847,14 +852,14 @@ impl<'a> Elaborator<'a> {
         // A lemma may ask its side conditions as one conjunction where the
         // text writes a line each, and a conjunction the lines do name
         // between them is answered a part at a time.
-        let whole = self.of_text(goal);
+        let whole = self.to_term(goal);
         if whole
             .children()
             .iter()
-            .any(|one| written.contains(&self.txt(one)))
+            .any(|one| written.contains(&self.rpn(one)))
         {
             let joined = self.conjoined(&whole, scope, &mut |me, one| {
-                let part = me.txt(one);
+                let part = me.rpn(one);
                 me.required(step, &part, scope, facts).map(Built)
             })?;
             match joined {
@@ -865,7 +870,7 @@ impl<'a> Elaborator<'a> {
         }
         for r in &step.requires {
             let node = self.read_one(&r.fact)?;
-            if self.term(&node)? == goal {
+            if self.term(&node)? == *goal {
                 // The line proved once already, by its own reason, where the
                 // step's requires lines were supplied: that proof is the line.
                 if let Some(p) = self.held(facts, goal, scope)? {
@@ -894,7 +899,7 @@ impl<'a> Elaborator<'a> {
         }
         // A `requires` line that is not there is the text's to fix, so this
         // one is a defect.
-        match self.settle(&self.of_text(goal), scope, facts, 3, None, None)? {
+        match self.settle(&self.to_term(goal), scope, facts, 3, None, None)? {
             Built(p) => Ok(p),
             Declined(_) => Err(self.defect(
                 self.at,

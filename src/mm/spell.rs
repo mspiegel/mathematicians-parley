@@ -32,7 +32,6 @@ use super::library::{Kind, Layered, Signature};
 use super::rpn::{Rpn, Spell};
 use crate::formula::symbol::Symbol;
 use crate::matching::FxIndexMap;
-use crate::outcome::Checked;
 
 /// One label applied to the steps it takes, and what kind of thing that
 /// builds: a `wff`, a `class`, a `setvar`, or a proof (`|-`).
@@ -135,17 +134,6 @@ impl<'a> From<&'a Proof> for Part<'a> {
     }
 }
 
-/// Tokens in order, skipping any that are empty, as text: a term or a
-/// formula in reverse Polish.
-pub fn seq(parts: &[&str]) -> String {
-    parts
-        .iter()
-        .filter(|p| !p.is_empty())
-        .copied()
-        .collect::<Vec<_>>()
-        .join(" ")
-}
-
 /// Tokens in order, from any mix of tokens and text:
 /// `seq!(claim, th, pf, "a1i")`.
 #[macro_export]
@@ -233,7 +221,7 @@ pub fn rex(body: impl Spell, v: impl Spell, over: impl Spell) -> Rpn {
 /// What a step binds each of its label's variables to, in reverse Polish.
 pub type Binds = IndexMap<String, Rpn>;
 
-/// A binding written out: `binds! { "ph" => b.wff(..), "A" => b.class(..) }`.
+/// A binding written out: `binds! { "ph" => t!(..), "A" => &term }`.
 #[macro_export]
 macro_rules! binds {
     ($($var:expr => $term:expr),* $(,)?) => {{
@@ -655,13 +643,6 @@ impl Builder {
         );
     }
 
-    /// A term written in set.mm's notation, as the labels that build it.
-    pub fn txt(&self, text: &str, start: &str) -> Checked<String> {
-        let tokens: Vec<&str> = text.split_whitespace().collect();
-        let term = self.syntax().parse(&tokens, start)?;
-        Ok(term.rpn(&self.flabel).to_string())
-    }
-
     /// The label that pushes a variable: its floating hypothesis.
     pub fn float(&self, var: &str) -> String {
         self.flabel
@@ -674,18 +655,6 @@ impl Builder {
     /// lemma such as `1z`.
     pub fn step(&self, label: &str) -> Proof {
         self.proof(&[Part::Text(label)])
-    }
-
-    /// A class written in set.mm's notation, in reverse Polish.
-    pub fn class(&self, text: &str) -> String {
-        self.txt(text, "class")
-            .unwrap_or_else(|p| panic!("{text:?} is not a class: {p}"))
-    }
-
-    /// A formula written in set.mm's notation, in reverse Polish.
-    pub fn wff(&self, text: &str) -> String {
-        self.txt(text, "wff")
-            .unwrap_or_else(|p| panic!("{text:?} is not a formula: {p}"))
     }
 
     /// One step: what the label wants pushed, then what it is applied to.
@@ -711,11 +680,6 @@ impl Builder {
         parts.extend(essentials.iter().map(|p| Part::Proof(p)));
         parts.push(Part::Text(label));
         self.proof(&parts)
-    }
-
-    /// Tokens in order, skipping any that are empty: a term.
-    pub fn term(&self, parts: &[&str]) -> String {
-        seq(parts)
     }
 
     /// Whether reverse Polish ending in this label is a proof: the label's

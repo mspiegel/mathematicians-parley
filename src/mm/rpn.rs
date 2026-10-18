@@ -7,6 +7,7 @@
 //! characters compare one by one as the joined text does, since a space
 //! sorts below every character a token holds.
 
+use std::borrow::Cow;
 use std::fmt;
 use std::rc::Rc;
 
@@ -82,11 +83,22 @@ impl Rpn {
 pub trait Spell {
     /// Its tokens, after what `out` holds.
     fn spell_onto(&self, out: &mut Vec<Symbol>);
+
+    /// Its tokens as reverse Polish: lent where they are held so already.
+    fn as_rpn(&self) -> Cow<'_, Rpn> {
+        let mut out = Vec::new();
+        self.spell_onto(&mut out);
+        Cow::Owned(Rpn(out.into()))
+    }
 }
 
 impl Spell for Rpn {
     fn spell_onto(&self, out: &mut Vec<Symbol>) {
         out.extend_from_slice(&self.0);
+    }
+
+    fn as_rpn(&self) -> Cow<'_, Rpn> {
+        Cow::Borrowed(self)
     }
 }
 
@@ -117,6 +129,10 @@ impl Spell for Rc<str> {
 impl<T: Spell + ?Sized> Spell for &T {
     fn spell_onto(&self, out: &mut Vec<Symbol>) {
         (**self).spell_onto(out);
+    }
+
+    fn as_rpn(&self) -> Cow<'_, Rpn> {
+        (**self).as_rpn()
     }
 }
 

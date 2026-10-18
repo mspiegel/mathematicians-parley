@@ -19,6 +19,7 @@ use crate::formula::notation_id::Spelling;
 use crate::formula::page::{Sentence, Written};
 use crate::formula::{Node, Sort};
 use crate::mm::kernel::Term;
+use crate::mm::Rpn;
 use crate::notations::{APPLICATION, APPLICATION_TO_TWO};
 use crate::outcome::Checked;
 use crate::rules::NUMERALS;
@@ -32,7 +33,7 @@ use super::state::{fit, Binding, Elaborator};
 enum Pattern {
     Hole(usize),
     Apply(String, Vec<Pattern>),
-    Fixed(String),
+    Fixed(Rpn),
 }
 
 /// The digits of a numeral as set.mm writes it: a digit's label, or
@@ -109,8 +110,8 @@ impl ReadingOrder {
 impl Elaborator<'_> {
     /// The term as page text, or None where some part of it has no page
     /// reading.
-    pub fn spoken(&self, rpn: &str) -> Option<String> {
-        let node = self.page_node(&self.of_text(rpn))?;
+    pub fn spoken(&self, rpn: &Rpn) -> Option<String> {
+        let node = self.page_node(&self.to_term(rpn))?;
         Some(self.g.print(&node))
     }
 
@@ -144,7 +145,7 @@ impl Elaborator<'_> {
                 Some(said) => {
                     // What the page would write, read as the page is read.
                     let back = self.read_here(&said).and_then(|n| self.term(&n)).ok();
-                    (back.as_deref() != Some(kernel.as_str())).then_some(said)
+                    (back.as_ref() != Some(&kernel)).then_some(said)
                 }
                 None => Some("(no page reading)".to_string()),
             };
@@ -236,7 +237,7 @@ impl Elaborator<'_> {
         term: &Term,
         bound: &IndexMap<String, Sort>,
     ) -> Option<Node> {
-        let rpn = self.txt(term);
+        let rpn = self.rpn(term);
         // A name the proof gave this term; a part of a structure is held
         // under a name no page writes (`@op`), and is read by its notation.
         let named = |page: &str| {
@@ -253,7 +254,9 @@ impl Elaborator<'_> {
         // A letter a binder introduced, by the name the page bound it under.
         if let Some(letter) = term.variable() {
             return Some(named(
-                self.written_as.get(&rpn).map_or(letter, String::as_str),
+                rpn.alone()
+                    .and_then(|float| self.written_as.get(float))
+                    .map_or(letter, String::as_str),
             ));
         }
         let label = term.label()?;
@@ -274,7 +277,7 @@ impl Elaborator<'_> {
         let mut lists: Vec<ListAt> = Vec::new();
         for ranked in table {
             let Some(list) = &ranked.list else { continue };
-            let most = rpn.split_whitespace().filter(|t| *t == list.last).count();
+            let most = rpn.tokens().iter().filter(|t| **t == list.last).count();
             for count in list.holes + 1..=list.holes + most {
                 lists.push(ListAt {
                     place: ranked.place,
@@ -412,7 +415,7 @@ impl Elaborator<'_> {
             // bound of S", is that letter in the term, which reads it as a
             // variable.
             if sig.kind == crate::mm::Kind::Float {
-                stack.push(Pattern::Fixed(token.to_string()));
+                stack.push(Pattern::Fixed(Rpn::read(token)));
                 continue;
             }
             let arity = sig.floats.len();
@@ -441,14 +444,14 @@ impl Elaborator<'_> {
                     holes.resize(*n, None);
                 }
                 match &holes[n - 1] {
-                    Some(held) => self.txt(held) == self.txt(term),
+                    Some(held) => self.rpn(held) == self.rpn(term),
                     None => {
                         holes[n - 1] = Some(term.clone());
                         true
                     }
                 }
             }
-            Pattern::Fixed(rpn) => self.txt(term) == *rpn,
+            Pattern::Fixed(rpn) => self.rpn(term) == *rpn,
             Pattern::Apply(label, args) => {
                 term.label() == Some(label.as_str())
                     && term.children().len() == args.len()

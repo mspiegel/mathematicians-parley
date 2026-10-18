@@ -13,6 +13,8 @@
 use indexmap::IndexMap;
 
 use crate::corpus::{Record, RecordKind};
+use crate::formula::symbol::Symbol;
+use crate::mm::{Rpn, Spell};
 use crate::regex;
 
 regex!(HOLE, r"_(\d+)");
@@ -285,13 +287,20 @@ pub fn clauses(record: &Record) -> Vec<String> {
         .collect()
 }
 
-/// A target with its holes replaced by the terms filling them.
-pub fn fill(pattern: &str, holes: &[String]) -> String {
-    HOLE.replace_all(pattern, |c: &regex::Captures| {
-        let n: usize = c[1].parse().unwrap();
-        holes[n - 1].clone()
-    })
-    .into_owned()
+/// A target with each hole, a token `_1` of its own, replaced by the term
+/// filling it.
+pub fn fill(pattern: &str, holes: &[Rpn]) -> Rpn {
+    let mut out = Vec::new();
+    for token in pattern.split_whitespace() {
+        match HOLE_WHOLE.captures(token) {
+            Some(hole) => {
+                let n: usize = hole[1].parse().unwrap();
+                holes[n - 1].spell_onto(&mut out);
+            }
+            None => out.push(Symbol::of(token)),
+        }
+    }
+    Rpn::from(out)
 }
 
 /// A repeating notation's target for a node of `count` children: its own

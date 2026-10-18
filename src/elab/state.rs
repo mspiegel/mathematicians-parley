@@ -76,8 +76,8 @@ pub type Vars = BTreeSet<Symbol>;
 /// and what is known there.
 #[derive(Clone)]
 pub struct Frame {
-    pub scope: String,
-    pub added: Option<String>,
+    pub scope: Rpn,
+    pub added: Option<Rpn>,
     pub facts: Facts,
 }
 
@@ -102,22 +102,23 @@ pub enum Closer {
 
 pub struct ObtainCloser {
     pub line: usize,
-    pub scope: String,
-    pub ex: String,
+    pub scope: Rpn,
+    pub ex: Rpn,
     pub p_ex: Proof,
-    pub body: String,
-    pub outer: String,
-    pub inner: String,
-    pub pushed: Vec<String>,
-    pub layers: Vec<(String, String)>,
+    pub body: Rpn,
+    pub outer: Rpn,
+    pub inner: Rpn,
+    pub pushed: Vec<Rpn>,
+    /// Each layer's variable, by its float, and the set it ranges over.
+    pub layers: Vec<(String, Rpn)>,
     pub discharge: &'static str,
 }
 
 pub struct DefineCloser {
-    pub scope: String,
-    pub said: String,
+    pub scope: Rpn,
+    pub said: Rpn,
     pub var: String,
-    pub ex: String,
+    pub ex: Rpn,
     pub p_ex: Proof,
     pub line: usize,
     pub label: String,
@@ -126,14 +127,14 @@ pub struct DefineCloser {
 /// A block being elaborated: what it opened over and what it opened.
 pub struct Block {
     pub owner: Step,
-    pub outer: String,
+    pub outer: Rpn,
     pub outside: Facts,
     /// Index into the scope frames.
     pub frame: usize,
-    pub scope: String,
+    pub scope: Rpn,
     pub facts: Facts,
     /// A contradiction's supposition.
-    pub supposed: Option<String>,
+    pub supposed: Option<Rpn>,
     /// An induction's name and spare.
     pub over: Option<String>,
     pub base: Option<String>,
@@ -141,10 +142,10 @@ pub struct Block {
     pub variable: Option<String>,
     /// What each opener of a `proof` block laid down, as it is written, in
     /// order: the scope its steps are proved under.
-    pub opened: Vec<String>,
+    pub opened: Vec<Rpn>,
     /// The names in hand before it opened, and which variable each binder
     /// had; and which each had while it was open.
-    pub named: IndexMap<String, String>,
+    pub named: IndexMap<String, Rpn>,
     pub bound: IndexMap<String, String>,
     pub inner: IndexMap<String, String>,
     /// The lines in hand before it opened, which closing it gives back: a
@@ -157,7 +158,7 @@ pub struct Block {
     pub entered: Option<usize>,
     pub case_opened_at: Option<usize>,
     pub opened_at: usize,
-    pub claim: String,
+    pub claim: Rpn,
     pub proof: Option<Proof>,
     /// Part number -> the last fact in it.
     pub parts: IndexMap<usize, PartEnd>,
@@ -166,10 +167,10 @@ pub struct Block {
 /// What a part of a block ends on.
 #[derive(Clone)]
 pub struct PartEnd {
-    pub claim: String,
+    pub claim: Rpn,
     pub proof: Proof,
     /// The scope the claim is proved under.
-    pub scope: String,
+    pub scope: Rpn,
     /// What is known there, which is what carrying the claim to the instance
     /// the block wants may rest on (`Elaborator::reached`).
     pub facts: Facts,
@@ -180,7 +181,7 @@ pub struct PartEnd {
 /// line says the same.
 #[derive(Clone)]
 pub struct Contradicted {
-    pub claim: String,
+    pub claim: Rpn,
     pub proof: Proof,
 }
 
@@ -190,15 +191,15 @@ pub struct Recurrence {
     /// The map from a state to the next, `(x ∈ _V ↦ …)`; for an indexed
     /// recursion the map of two, `(z ∈ _V, w ∈ _V ↦ …)`, taking the state
     /// and the input at the next index.
-    pub step: String,
+    pub step: Rpn,
     /// The values at 0, as one state.
-    pub start: String,
+    pub start: Rpn,
     /// How many names the define gives.
     pub count: usize,
     /// For a recursion whose rules name the index, the input `(i ∈ ℕ₀ ↦ ⟨i,
     /// start⟩)` that hands each step its index; None for one whose rules
     /// see only the values.
-    pub input: Option<String>,
+    pub input: Option<Rpn>,
 }
 
 /// What a lemma is for, read off what it states.
@@ -218,7 +219,7 @@ pub type LemmaIndex = IndexMap<String, ([IndexSet<HeadKey>; 2], Role)>;
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum HeadKey {
     Any,
-    Member(String),
+    Member(Rpn),
     Head(String),
 }
 
@@ -263,55 +264,53 @@ pub struct Elaborator<'a> {
     /// Where the elaborator has got to, for whatever it reads there.
     pub at: usize,
     /// Readable name -> kernel term.
-    pub names: IndexMap<String, String>,
+    pub names: IndexMap<String, Rpn>,
     /// Readable name -> the set it was let into.
-    pub sets: IndexMap<String, String>,
+    pub sets: IndexMap<String, Rpn>,
     /// Readable name -> its membership as each line introducing it says it:
     /// the claim, its proof, and the scope that proof is under, carried to
     /// any scope inside that one (`introduced_membership`). Two cases may
     /// each obtain a δ, so a name may be introduced more than once.
-    pub introduced: IndexMap<String, Vec<(String, Proof, String)>>,
+    pub introduced: IndexMap<String, Vec<(Rpn, Proof, Rpn)>>,
     /// Setvars the conclusion quantifies over, and those a step said of
     /// every member was proved over: none is a letter nothing holds.
     pub reserved: IndexSet<String>,
     /// Map -> its rule spelt apart (`rule_apart`).
-    pub rules_read: IndexMap<String, Term>,
+    pub rules_read: IndexMap<Rpn, Term>,
     /// `requires` terms being discharged now.
-    pub supplying: IndexSet<String>,
+    pub supplying: IndexSet<Rpn>,
     /// Terms whose membership is being read from an equation now, so that
     /// `x = y` and `y = x` do not send `part` from one to the other.
-    pub equating: IndexSet<String>,
+    pub equating: IndexSet<Rpn>,
     /// (from system, to system) -> one lemma.
     pub bridges: Option<IndexMap<(String, String), String>>,
     /// Declared lemma -> what its readings end on, and its role.
     pub lemma_heads: Option<LemmaIndex>,
     /// Term, bound letters and the defined names it may read -> its standard
     /// form.
-    pub standards: IndexMap<(String, Vars, String), Term>,
+    pub standards: IndexMap<(Rpn, Vars, String), Term>,
     /// Claim -> the key a fact of it is stored and found by
     /// (`Elaborator::fact_key`), which depends on the claim alone.
-    pub fact_keys: IndexMap<String, String>,
+    pub fact_keys: IndexMap<Rpn, Rpn>,
     /// Reverse Polish -> the tree it builds (`to_term`), which depends on the
-    /// text and the labels' signatures alone, and a label's signature does
-    /// not change once declared. Reading the same text again was a sixth of
+    /// tokens and the labels' signatures alone, and a label's signature does
+    /// not change once declared. Reading the same tokens again was a sixth of
     /// a run that elaborates every theorem.
-    trees: RefCell<IndexMap<String, Term>>,
-    /// `trees`, by the tokens.
-    term_trees: RefCell<FxIndexMap<Rpn, Term>>,
+    trees: RefCell<FxIndexMap<Rpn, Term>>,
     /// Whether the facts are being read in standard form, so that the
     /// comparisons the reading makes are offered the facts as they stand.
     pub reading_facts: bool,
     /// While a step said of every member is proved at one, that member's
     /// membership: what the claim's "for all k ∈ X" gives the step, as a
     /// cited line would.
-    pub member: Option<String>,
+    pub member: Option<Rpn>,
     /// While `algebra` proves a step, the one letter nothing holds that
     /// every finite sum it reads is written over, so that sums over
     /// different letters are one atom; None outside it, where a sum is one.
     pub sum_letter: Option<String>,
     /// (scope, sum) -> ( scope -> sum e. CC ), for each sum a linear reading
     /// wrote, proved from its terms when it was written.
-    pub sums_in_cc: IndexMap<(String, String), Proof>,
+    pub sums_in_cc: IndexMap<(Rpn, Rpn), Proof>,
     /// The rules of the standard form set.mm has, plain and conditional,
     /// read once.
     pub rewrite_rules: Option<[Rc<[super::matcher::Rewrite]>; 2]>,
@@ -329,7 +328,7 @@ pub struct Elaborator<'a> {
     pub in_family: usize,
     /// The sums the step being elaborated writes that the page says are
     /// numbers once, as kernel terms (`CheckedTheorem::said_sums`).
-    pub said_sums: BTreeSet<String>,
+    pub said_sums: BTreeSet<Rpn>,
     /// Whether the order being proved is a plain `inequalities` step's,
     /// which adds its facts as they stand (`linear::certificate`'s `alike`).
     pub adding_only: bool,
@@ -347,18 +346,18 @@ pub struct Elaborator<'a> {
     /// Side conditions the step being proved wrote, with the scope each was
     /// proved under.
     pub written: Written,
-    pub saying: IndexSet<String>,
-    pub rewriting: IndexSet<String>,
-    pub numbering: IndexSet<String>,
+    pub saying: IndexSet<Rpn>,
+    pub rewriting: IndexSet<Rpn>,
+    pub numbering: IndexSet<Rpn>,
     /// (membership, scope) -> what it came to.
-    pub numbers: IndexMap<(String, String), Route<Proof>>,
+    pub numbers: IndexMap<(Rpn, Rpn), Route<Proof>>,
     /// Binder name -> the setvar it stands for, and back.
     pub bound_as: IndexMap<String, String>,
     pub written_as: IndexMap<String, String>,
     /// How far down the `define` lines we have read.
     pub unread: usize,
     /// A defined name's setvar -> the term it names.
-    pub definitions: IndexMap<String, String>,
+    pub definitions: IndexMap<String, Rpn>,
     /// A defined name's setvar -> the label of the define that names it, which
     /// a step cites to read the name as what it names.
     pub defined_by: IndexMap<String, String>,
@@ -367,9 +366,9 @@ pub struct Elaborator<'a> {
     /// A define by recursion: its label -> each name's map; its seq term ->
     /// how it is built; and while a step rule is read, each name -> its part
     /// of the state.
-    pub recursion_maps: IndexMap<String, IndexMap<String, String>>,
-    pub recursions: IndexMap<String, Recurrence>,
-    pub recurring: IndexMap<String, String>,
+    pub recursion_maps: IndexMap<String, IndexMap<String, Rpn>>,
+    pub recursions: IndexMap<Rpn, Recurrence>,
+    pub recurring: IndexMap<String, Rpn>,
     pub file_given: bool,
     pub last: Option<String>,
     /// The scope frames, innermost last.
@@ -486,8 +485,7 @@ impl<'a> Elaborator<'a> {
             lemma_heads: None,
             standards: IndexMap::new(),
             fact_keys: IndexMap::new(),
-            trees: RefCell::new(IndexMap::new()),
-            term_trees: RefCell::new(FxIndexMap::default()),
+            trees: RefCell::new(FxIndexMap::default()),
             reading_facts: false,
             member: None,
             sum_letter: None,
@@ -582,7 +580,7 @@ impl<'a> Elaborator<'a> {
     pub fn no<T>(
         &self,
         shape: impl Into<std::borrow::Cow<'static, str>>,
-        terms: &[&str],
+        terms: &[&Rpn],
     ) -> Route<T> {
         Route::Declined(Decline::shaped(
             shape,
@@ -591,21 +589,21 @@ impl<'a> Elaborator<'a> {
     }
 
     /// A decline's reason, with its terms written as a Metamath file writes
-    /// them.
+    /// them. A decline holds its terms as text, as every route's does.
     pub fn say(&self, decline: &Decline) -> String {
-        decline.render(|t| self.render(t))
+        decline.render(|t| self.render(&Rpn::read(t)))
     }
 
     /// A term as a message names it: in the page's notation, or the way a
     /// Metamath file writes it where some part has no page reading
     /// (`spoken`).
-    pub fn render(&self, rpn: &str) -> String {
+    pub fn render(&self, rpn: &Rpn) -> String {
         self.spoken(rpn).unwrap_or_else(|| self.kernel_text(rpn))
     }
 
     /// A term the way a Metamath file writes it, for the file itself.
-    pub fn kernel_text(&self, rpn: &str) -> String {
-        render(rpn, &self.b.sigs)
+    pub fn kernel_text(&self, rpn: &Rpn) -> String {
+        render(&rpn.to_string(), &self.b.sigs)
     }
 
     pub fn flabel(&self) -> &FloatLabels {
@@ -621,35 +619,16 @@ impl<'a> Elaborator<'a> {
     }
 
     /// A term the proof holds, read back as a tree.
-    pub fn of_text(&self, rpn: &str) -> Term {
+    pub fn to_term(&self, rpn: &Rpn) -> Term {
         if let Some(found) = self.trees.borrow().get(rpn) {
             return found.clone();
         }
-        let made = self.to_term(&Rpn::read(rpn));
-        self.trees
-            .borrow_mut()
-            .insert(rpn.to_string(), made.clone());
-        made
-    }
-
-    /// A term the proof holds, read back as a tree.
-    pub fn to_term(&self, rpn: &Rpn) -> Term {
-        if let Some(found) = self.term_trees.borrow().get(rpn) {
-            return found.clone();
-        }
         let made = term_of(rpn, &self.b.sigs);
-        self.term_trees
-            .borrow_mut()
-            .insert(rpn.clone(), made.clone());
+        self.trees.borrow_mut().insert(rpn.clone(), made.clone());
         made
     }
 
     /// A term as a proof spells it.
-    /// `rpn` as text.
-    pub fn txt(&self, term: &Term) -> String {
-        term.rpn(&self.b.flabel).to_string()
-    }
-
     pub fn rpn(&self, term: &Term) -> Rpn {
         term.rpn(&self.b.flabel)
     }
@@ -719,8 +698,8 @@ impl<'a> Elaborator<'a> {
     pub fn names_held(&self) -> IndexSet<String> {
         self.names
             .values()
-            .filter(|t| t.ends_with(" cv"))
-            .filter_map(|t| t.split(' ').next().map(String::from))
+            .filter(|t| t.len() > 1 && t.ends_with(&["cv"]))
+            .filter_map(|t| t.first().map(String::from))
             .collect()
     }
 

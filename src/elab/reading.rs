@@ -20,6 +20,7 @@ use crate::formula::symbol::Symbol;
 use crate::formula::{fits, Node, Sort};
 use crate::matching::{substitute_apart_by, Binding};
 use crate::matching::{Defined, Definitions};
+use crate::mm::Rpn;
 use crate::notations::{APPLICATION, APPLICATION_TO_TWO};
 use crate::outcome::Checked;
 use crate::rules::NUMERALS;
@@ -28,7 +29,7 @@ use crate::sorts::{
     definition_sorts, sorts_of_record, sorts_of_statement, statement_definitions,
     unlabel, Env, GraphLine,
 };
-use crate::t_text as t;
+use crate::t;
 use crate::targets;
 use crate::text::repr;
 
@@ -44,7 +45,7 @@ pub fn is_subgroup(said: &Node) -> bool {
 }
 
 /// A term already in kernel form, standing in a tree.
-pub fn literal(rpn: &str) -> Node {
+pub fn literal(rpn: &Rpn) -> Node {
     Node::literal(rpn)
 }
 
@@ -230,9 +231,9 @@ impl<'a> Elaborator<'a> {
     }
 
     /// A tree as the kernel term it stands for.
-    pub fn term(&mut self, node: &Node) -> Checked<String> {
+    pub fn term(&mut self, node: &Node) -> Checked<Rpn> {
         if let Some(rpn) = &node.rpn {
-            return Ok(rpn.to_string());
+            return Ok(rpn.clone());
         }
         let applies_name = matches!(node.notation(), APPLICATION | APPLICATION_TO_TWO)
             && node.children.len() >= 2
@@ -316,7 +317,7 @@ impl<'a> Elaborator<'a> {
                     .unwrap_or("")
             };
             let mut chars = node.text.chars();
-            let mut said = digit(chars.next().unwrap_or('0')).to_string();
+            let mut said = t!(digit(chars.next().unwrap_or('0')));
             for c in chars {
                 said = t!(said, digit(c), "cdc");
             }
@@ -329,16 +330,16 @@ impl<'a> Elaborator<'a> {
             .get(&node.notation())
             .cloned()
             .unwrap_or_default();
-        let holes = self.names_kept(|me| -> Checked<Vec<String>> {
+        let holes = self.names_kept(|me| -> Checked<Vec<Rpn>> {
             for &i in &bound {
                 let said = node.children[i].text.to_string();
                 let var = me.binder_var(&said)?;
-                me.names.insert(said, format!("{var} cv"));
+                me.names.insert(said, t!(var, "cv"));
             }
             let mut holes = Vec::new();
             for (i, c) in node.children.iter().enumerate() {
                 holes.push(if bound.contains(&i) {
-                    me.binder_var(&c.text)?
+                    t!(me.binder_var(&c.text)?)
                 } else {
                     me.term(c)?
                 });
@@ -412,7 +413,7 @@ impl<'a> Elaborator<'a> {
             ))
             .expect("a token as a pattern");
             found = alone
-                .replace_all(&found, fancy_regex::NoExpand(stands))
+                .replace_all(&found, fancy_regex::NoExpand(&stands.to_string()))
                 .into_owned();
         }
         Ok(found)
@@ -438,9 +439,9 @@ impl<'a> Elaborator<'a> {
     pub fn subject_given(
         &mut self,
         name: &str,
-        values: &[(String, String)],
+        values: &[(String, Rpn)],
         line: usize,
-    ) -> Checked<String> {
+    ) -> Checked<Rpn> {
         let Item::Record(item) = self.item_cited(name)? else {
             panic!("{name} is a definition of the database");
         };
@@ -449,12 +450,10 @@ impl<'a> Elaborator<'a> {
             .children[0]
             .clone();
         let letter = left.leftmost().text;
-        let given: IndexMap<&str, &str> = values
-            .iter()
-            .map(|(a, b)| (a.as_str(), b.as_str()))
-            .collect();
+        let given: IndexMap<&str, &Rpn> =
+            values.iter().map(|(a, b)| (a.as_str(), b)).collect();
         if let Some(v) = given.get(letter.as_str()) {
-            return Ok(v.to_string());
+            return Ok((*v).clone());
         }
         match self.names.get(letter.as_str()) {
             Some(own) => Ok(own.clone()),
@@ -469,7 +468,7 @@ impl<'a> Elaborator<'a> {
 
     /// A claim of several sentences is their conjunction, in the order the
     /// text writes them: the kernel has one conclusion.
-    pub fn claim_of(&mut self, written: &Written) -> Checked<String> {
+    pub fn claim_of(&mut self, written: &Written) -> Checked<Rpn> {
         let mut said = Vec::new();
         for s in written.sentences() {
             let node = self.read(&s)?;
@@ -523,10 +522,8 @@ impl<'a> Elaborator<'a> {
                 if !introduced.text.is_empty()
                     && !self.names.contains_key(introduced.text.as_str())
                 {
-                    self.names.insert(
-                        introduced.text.to_string(),
-                        spare.remove(0).to_string(),
-                    );
+                    self.names
+                        .insert(introduced.text.to_string(), t!(spare.remove(0)));
                 }
                 if node.notation() == crate::notations::MEMBERSHIP {
                     let set = self.term(&node.children[1])?;
@@ -582,7 +579,7 @@ impl<'a> Elaborator<'a> {
         spare: &mut Vec<&str>,
     ) -> Checked<Node> {
         let part = |label: &str| t!(structure, label, "cfv");
-        self.names.insert(said.graph.clone(), structure.to_string());
+        self.names.insert(said.graph.clone(), t!(structure));
         self.names.insert(said.vertices.clone(), part("cvtx"));
         self.names
             .insert(said.edges.clone(), t!(part("ciedg"), "cdm"));
@@ -597,10 +594,14 @@ impl<'a> Elaborator<'a> {
                         "a graph given in full names more things than there are classes to name them",
                     ));
                 }
-                self.names.insert(name.clone(), spare.remove(0).to_string());
+                self.names.insert(name.clone(), t!(spare.remove(0)));
             }
         }
-        Ok(literal(&self.graph_said(said, structure, introduced)?))
+        Ok(literal(&self.graph_said(
+            said,
+            &t!(structure),
+            introduced,
+        )?))
     }
 
     /// What a graph's `let` line says, in the names it is read in now: the
@@ -611,14 +612,14 @@ impl<'a> Elaborator<'a> {
     pub fn graph_said(
         &mut self,
         said: &GraphLine,
-        structure: &str,
+        structure: &Rpn,
         introduced: &Introduction,
-    ) -> Checked<String> {
+    ) -> Checked<Rpn> {
         let graph = t!(structure, "cumgr", "wcel");
         let mut hypothesis = graph.clone();
         if let Some(listing) = &said.listed {
-            let mut listed: Option<String> = None;
-            let mut join = |part: String| {
+            let mut listed: Option<Rpn> = None;
+            let mut join = |part: Rpn| {
                 listed = Some(match listed.take() {
                     Some(so_far) => t!(so_far, part, "wa"),
                     None => part,
@@ -670,7 +671,7 @@ impl<'a> Elaborator<'a> {
 
     /// A definition from outside the theorem, written out, as a term: its
     /// rule, or for a function the map from its domain to its rule.
-    pub fn outside_term(&mut self, made: &Defined) -> Checked<String> {
+    pub fn outside_term(&mut self, made: &Defined) -> Checked<Rpn> {
         let rule = match made {
             Defined::Term(t) => {
                 let said = self.term(t)?;
@@ -682,19 +683,18 @@ impl<'a> Elaborator<'a> {
         for p in &rule.params {
             vars.push(self.binder_var(&p.name)?);
         }
-        let (body, overs) =
-            self.names_kept(|me| -> Checked<(String, Vec<String>)> {
-                for (p, var) in rule.params.iter().zip(&vars) {
-                    me.names.insert(p.name.clone(), format!("{var} cv"));
-                }
-                let body = me.term(&rule.body)?;
-                let mut overs = Vec::new();
-                for p in &rule.params {
-                    let domain = me.read_here(&p.domain)?;
-                    overs.push(me.term(&domain)?);
-                }
-                Ok((body, overs))
-            })?;
+        let (body, overs) = self.names_kept(|me| -> Checked<(Rpn, Vec<Rpn>)> {
+            for (p, var) in rule.params.iter().zip(&vars) {
+                me.names.insert(p.name.clone(), t!(var, "cv"));
+            }
+            let body = me.term(&rule.body)?;
+            let mut overs = Vec::new();
+            for p in &rule.params {
+                let domain = me.read_here(&p.domain)?;
+                overs.push(me.term(&domain)?);
+            }
+            Ok((body, overs))
+        })?;
         // One argument is a map, `cmpt`; two are a map of two, `cmpo`.
         let made = match (vars.as_slice(), overs.as_slice()) {
             ([x], [a]) => t!(x, a, body, "cmpt"),
@@ -728,14 +728,14 @@ impl<'a> Elaborator<'a> {
         &mut self,
         label: &str,
         said: &Recursion,
-    ) -> Checked<IndexMap<String, String>> {
+    ) -> Checked<IndexMap<String, Rpn>> {
         if let Some(maps) = self.recursion_maps.get(label) {
             return Ok(maps.clone());
         }
         let state = self.spare_var()?;
         let index = self.spare_var()?;
         let count = said.names.len();
-        let parts = |of: String| -> Vec<String> {
+        let parts = |of: Rpn| -> Vec<Rpn> {
             let mut out = Vec::new();
             let mut of = of;
             for _ in 1..count {
@@ -745,7 +745,7 @@ impl<'a> Elaborator<'a> {
             out.push(of);
             out
         };
-        fn tuple_of(values: &[String]) -> String {
+        fn tuple_of(values: &[Rpn]) -> Rpn {
             if values.len() == 1 {
                 return values[0].clone();
             }
@@ -760,17 +760,15 @@ impl<'a> Elaborator<'a> {
         // comes back, a rule names k, and the rules are read again over the
         // indexed state.
         const MARK: &str = "§k";
-        let whole = format!("{state} cv");
-        let steps = self.rules_read(said, parts(whole.clone()), MARK)?;
-        let names_k = steps
-            .iter()
-            .any(|s| s.split_whitespace().any(|t| t == MARK));
+        let whole = t!(state, "cv");
+        let steps = self.rules_read(said, parts(whole.clone()), &t!(MARK))?;
+        let names_k = steps.iter().any(|s| s.has(MARK));
         let start = tuple_of(&starts);
         let (recursion, at_k, made) = if names_k {
             // The state is ⟨index, values⟩, and k is the next index less one.
             let input = self.spare_var()?;
             let counter = self.spare_var()?;
-            let given = format!("{input} cv");
+            let given = t!(input, "cv");
             let index_less_one = t!(t!(given, "c1st", "cfv"), "c1", "cmin", "co");
             let values = parts(t!(whole, "c2nd", "cfv"));
             let steps = self.rules_read(said, values, &index_less_one)?;
@@ -782,14 +780,9 @@ impl<'a> Elaborator<'a> {
                 t!(t!(given, "c1st", "cfv"), tuple_of(&steps), "cop"),
                 "cmpo"
             );
-            let g = t!(
-                counter,
-                "cn0",
-                t!(format!("{counter} cv"), start, "cop"),
-                "cmpt"
-            );
+            let g = t!(counter, "cn0", t!(counter, "cv", start, "cop"), "cmpt");
             let recursion = t!(step, g, "cc0", "cseq");
-            let at_k = t!(t!(format!("{index} cv"), recursion, "cfv"), "c2nd", "cfv");
+            let at_k = t!(t!(index, "cv", recursion, "cfv"), "c2nd", "cfv");
             let made = super::state::Recurrence {
                 step,
                 start,
@@ -805,7 +798,7 @@ impl<'a> Elaborator<'a> {
                 "cc0",
                 "cseq"
             );
-            let at_k = t!(format!("{index} cv"), recursion, "cfv");
+            let at_k = t!(index, "cv", recursion, "cfv");
             let made = super::state::Recurrence {
                 step,
                 start,
@@ -815,7 +808,7 @@ impl<'a> Elaborator<'a> {
             (recursion, at_k, made)
         };
         self.recursions.insert(recursion.clone(), made);
-        let maps: IndexMap<String, String> = said
+        let maps: IndexMap<String, Rpn> = said
             .names
             .iter()
             .cloned()
@@ -831,17 +824,17 @@ impl<'a> Elaborator<'a> {
     fn rules_read(
         &mut self,
         said: &Recursion,
-        parts: Vec<String>,
-        k: &str,
-    ) -> Checked<Vec<String>> {
+        parts: Vec<Rpn>,
+        k: &Rpn,
+    ) -> Checked<Vec<Rpn>> {
         let kept = self.recurring.clone();
         let kept_sorts = self.sorts_now.clone();
         let kept_k = self.names.get(&said.index).cloned();
         self.recurring = said.names.iter().cloned().zip(parts).collect();
         self.sorts_now
             .insert(said.index.clone(), Sort::of("number"));
-        self.names.insert(said.index.clone(), k.to_string());
-        let steps = (|| -> Checked<Vec<String>> {
+        self.names.insert(said.index.clone(), k.clone());
+        let steps = (|| -> Checked<Vec<Rpn>> {
             let mut steps = Vec::new();
             for name in &said.names {
                 let node = self.read_here(&said.step[name])?;
@@ -864,8 +857,8 @@ impl<'a> Elaborator<'a> {
     /// the proof may go on to fix a name spelt the same way. Only the names
     /// the body binds are moved: a name the proof already holds keeps its
     /// meaning.
-    pub fn apart(&mut self, rpn: &str) -> Checked<String> {
-        let whole = self.of_text(rpn);
+    pub fn apart(&mut self, rpn: &Rpn) -> Checked<Rpn> {
+        let whole = self.to_term(rpn);
         let mut binding = crate::elab::state::Binding::new();
         let holds = self.names_held();
         for said in whole.names().iter() {
@@ -877,7 +870,7 @@ impl<'a> Elaborator<'a> {
                 binding.insert(*said, self.var_of(&fresh));
             }
         }
-        Ok(self.txt(&whole.substitute(&binding)))
+        Ok(self.rpn(&whole.substitute(&binding)))
     }
 
     /// Every sentence of a step's claim, as trees.
@@ -916,13 +909,13 @@ impl<'a> Elaborator<'a> {
     /// The variable a fixed name takes: its own letter where nothing else is
     /// holding it, because the claim the block states binds that letter and
     /// the two have to agree; a spare otherwise.
-    pub fn fixed_var(&mut self, name: &str, scope: &str) -> Checked<String> {
+    pub fn fixed_var(&mut self, name: &str, scope: &Rpn) -> Checked<String> {
         let mut held = self.names_held();
-        for t in scope.split_whitespace() {
+        for t in scope.tokens() {
             if self
                 .b
                 .sigs
-                .get(t)
+                .get(t.as_str())
                 .is_some_and(|s| s.kind == crate::mm::Kind::Float)
             {
                 held.insert(t.to_string());
@@ -988,7 +981,7 @@ impl<'a> Elaborator<'a> {
             for &i in &bound {
                 let said = node.children[i].text.to_string();
                 let var = me.binder_var(&said)?;
-                me.names.insert(said, format!("{var} cv"));
+                me.names.insert(said, t!(var, "cv"));
             }
             let mut kids = Vec::new();
             for (i, c) in node.children.iter().enumerate() {

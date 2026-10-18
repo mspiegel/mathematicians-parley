@@ -39,11 +39,6 @@ fn op(left: &Rpn, right: &Rpn, what: &str) -> Rpn {
     t!(left, right, what, "co")
 }
 
-/// `spell` as text, for a module still passing terms as text.
-pub fn print(value: impl Into<BigUint>) -> String {
-    spell(value).to_string()
-}
-
 /// |- n e. NN0
 pub fn nn0(b: &Builder, n: impl Into<BigUint>) -> Proof {
     nn0_of(b, &n.into())

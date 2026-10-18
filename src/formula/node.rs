@@ -9,6 +9,7 @@ use std::sync::Arc;
 
 use super::notation_id::{LiteralId, NotationId, Spelling, NO_LITERAL};
 use super::symbol::Symbol;
+use crate::mm::Rpn;
 use crate::notations::{LITERAL, NAME, NUMERAL, PROPERTY_OF};
 
 /// The sort of a node: what kind of thing its term is, or none at all.
@@ -306,7 +307,7 @@ pub struct NodeData {
     literal_id: LiteralId,
     /// For a node standing in for a term the elaborator already holds, the
     /// term in reverse Polish.
-    pub rpn: Option<Rc<str>>,
+    pub rpn: Option<Rpn>,
     shape: OnceCell<String>,
     /// A hash of the shape, worked out from the parts and not the text
     /// (`same_shape`).
@@ -505,14 +506,14 @@ impl Node {
 
     /// A term already in kernel form, standing in a tree: notation
     /// `literal`, no sort, no children and no text.
-    pub fn literal(rpn: &str) -> Node {
+    pub fn literal(rpn: &Rpn) -> Node {
         Node(Rc::new(NodeData {
             sort: Sort::none(),
             children: Vec::new(),
             text: Symbol::default(),
             notation_id: LITERAL,
             literal_id: NO_LITERAL,
-            rpn: Some(Rc::from(rpn)),
+            rpn: Some(rpn.clone()),
             shape: OnceCell::new(),
             shape_hash: OnceCell::new(),
             span: Cell::new(None),

@@ -55,10 +55,8 @@ struct TermData {
     children: Vec<Term>,
     variable: Option<Symbol>,
     names: OnceCell<Rc<BTreeSet<Symbol>>>,
-    rpn: RefCell<Option<(u64, Rc<str>)>>,
-    /// The reverse Polish as tokens, with the map it was written by
-    /// (`tokens`).
-    tokens: RefCell<Option<(u64, Rpn)>>,
+    /// The reverse Polish, with the map it was written by (`rpn`).
+    rpn: RefCell<Option<(u64, Rpn)>>,
 }
 
 /// A parsed statement: a constructor applied to terms, or a variable.
@@ -145,7 +143,6 @@ impl Term {
             variable,
             names: OnceCell::new(),
             rpn: RefCell::new(None),
-            tokens: RefCell::new(None),
         }))
     }
 
@@ -170,32 +167,10 @@ impl Term {
         Rc::ptr_eq(&self.0, &other.0)
     }
 
-    /// `rpn` as text.
-    pub fn txt(&self, labels: &FloatLabels) -> Rc<str> {
-        let key = labels.id;
-        if let Some((held, said)) = &*self.0.rpn.borrow() {
-            if *held == key {
-                return said.clone();
-            }
-        }
-        let said: Rc<str> = match &self.0.variable {
-            Some(v) => Rc::from(labels.get(v).map_or("", Symbol::as_str)),
-            None => {
-                let mut parts: Vec<Rc<str>> =
-                    self.0.children.iter().map(|c| c.txt(labels)).collect();
-                parts.push(Rc::from(self.0.label.map_or("", Symbol::as_str)));
-                let joined: Vec<&str> = parts.iter().map(|p| &**p).collect();
-                Rc::from(joined.join(" "))
-            }
-        };
-        *self.0.rpn.borrow_mut() = Some((key, said.clone()));
-        said
-    }
-
     /// The term as a proof writes it, pushing what each label wants.
     pub fn rpn(&self, labels: &FloatLabels) -> Rpn {
         let key = labels.id;
-        if let Some((held, said)) = &*self.0.tokens.borrow() {
+        if let Some((held, said)) = &*self.0.rpn.borrow() {
             if *held == key {
                 return said.clone();
             }
@@ -211,7 +186,7 @@ impl Term {
                 Rpn::joined(&runs)
             }
         };
-        *self.0.tokens.borrow_mut() = Some((key, said.clone()));
+        *self.0.rpn.borrow_mut() = Some((key, said.clone()));
         said
     }
 
