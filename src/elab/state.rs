@@ -24,7 +24,7 @@ use crate::mm::kernel::{match_term, term_of, FloatLabels, Term, VarSet};
 use crate::mm::library::{render, Layered, Signature};
 use crate::mm::spell::{Binds, Builder, Proof};
 use crate::outcome::{Decline, Problem, Route};
-use crate::sorts::{sorts_of_record, sorts_of_statement, Env};
+use crate::sorts::{sorts_of_statement, Env};
 use crate::targets::{self, Commuting, Identity};
 
 /// Variables for a name the proof does not spell: what a `define` renames
@@ -383,6 +383,9 @@ pub struct Elaborator<'a> {
     /// What each record asks a citation and concludes, read as the checker
     /// reads it (`citing`), the first time a citation asks.
     pub item_library: OnceCell<Rc<citing::Library<'a>>>,
+    /// The sorts of every item record, read once for the build
+    /// (`sorts::sorts_of_records`).
+    pub record_sorts: &'a IndexMap<usize, Sorts>,
     /// Every reading the grammar has, in the order a term is read back to
     /// the page by (`reading_table`), made the first time one is.
     pub(super) readings: OnceCell<Vec<super::spoken::Ranked>>,
@@ -397,6 +400,7 @@ impl<'a> Elaborator<'a> {
         items: &'a IndexMap<String, Item<'a>>,
         sigs: Layered,
         records: &'a [Record],
+        record_sorts: &'a IndexMap<usize, Sorts>,
         scopes: &'a [FileScope],
         statements: &'a dyn Fn(&str) -> Option<String>,
     ) -> Elaborator<'a> {
@@ -514,6 +518,7 @@ impl<'a> Elaborator<'a> {
             whole_scope: false,
             map_types_off: false,
             item_library: OnceCell::new(),
+            record_sorts,
             readings: OnceCell::new(),
         }
     }
@@ -526,13 +531,6 @@ impl<'a> Elaborator<'a> {
                 g: self.g,
                 scopes: self.scopes,
             };
-            let sorts = self
-                .records
-                .iter()
-                .enumerate()
-                .filter(|(_, r)| r.kind.is_item())
-                .map(|(i, r)| (i, sorts_of_record(r, env)))
-                .collect();
             // The corpus theorems this theorem cites, which a citation
             // matches as it matches a record: each with the sorts its
             // statement settles, all a citation reads of it.
@@ -545,7 +543,12 @@ impl<'a> Elaborator<'a> {
                     });
                 }
             }
-            Rc::new(citing::Library::new(self.records, sorts, proved, env))
+            Rc::new(citing::Library::new(
+                self.records,
+                std::borrow::Cow::Borrowed(self.record_sorts),
+                proved,
+                env,
+            ))
         });
         library.clone()
     }

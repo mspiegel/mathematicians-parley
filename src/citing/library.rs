@@ -1,5 +1,6 @@
 //! What each item asks a citation to supply, read once into patterns.
 
+use std::borrow::Cow;
 use std::cell::RefCell;
 use std::collections::BTreeSet;
 use std::rc::Rc;
@@ -120,7 +121,7 @@ pub struct Library<'a> {
     records: &'a [Record],
     /// The sort of each name an item record's statement uses, by the
     /// record's place in `records`.
-    record_sorts: IndexMap<usize, Sorts>,
+    record_sorts: Cow<'a, IndexMap<usize, Sorts>>,
     items: IndexMap<String, usize>,
     proved: IndexMap<String, Proved<'a>>,
     cache: RefCell<IndexMap<String, Option<Rc<Vec<Group>>>>>,
@@ -148,7 +149,7 @@ impl<'a> Library<'a> {
     /// full name.
     pub fn new(
         records: &'a [Record],
-        record_sorts: IndexMap<usize, Sorts>,
+        record_sorts: Cow<'a, IndexMap<usize, Sorts>>,
         proved: IndexMap<String, Proved<'a>>,
         env: Env<'a>,
     ) -> Library<'a> {

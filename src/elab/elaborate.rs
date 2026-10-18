@@ -44,7 +44,7 @@ use crate::corpus::{
     Theorem, Value, Values,
 };
 use crate::formula::page::{related, Written};
-use crate::formula::{Grammar, Node};
+use crate::formula::{Grammar, Node, Sorts};
 use crate::matching::{Binding as NodeBinding, Defined};
 use crate::mm::compress::{compressed, labels as compress_labels, shapes_of};
 use crate::mm::kernel::{Syntax, Term};
@@ -5896,7 +5896,8 @@ fn rested_first(cited: &[String], corpus: &Corpus) -> Vec<String> {
 /// Elaborate one theorem of the corpus into its file.
 ///
 /// `statements` gives the statement a cited theorem's file proves, where it
-/// is known.
+/// is known, and `record_sorts` the sorts of every item record
+/// (`sorts::sorts_of_records`).
 #[allow(clippy::too_many_arguments)]
 pub fn elaborate(
     corpus: &Corpus,
@@ -5905,6 +5906,7 @@ pub fn elaborate(
     thm: &Theorem,
     checked: &CheckedTheorem,
     library: &Library,
+    record_sorts: &IndexMap<usize, Sorts>,
     statements: &dyn Fn(&str) -> Option<String>,
     options: Options,
 ) -> Checked<Elaborated> {
@@ -5923,6 +5925,7 @@ pub fn elaborate(
         items,
         sigs,
         &corpus.records,
+        record_sorts,
         &corpus.scopes,
         statements,
     );

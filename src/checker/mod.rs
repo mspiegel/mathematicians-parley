@@ -13,6 +13,7 @@ mod library;
 pub mod record;
 mod structure;
 
+use std::borrow::Cow;
 use std::collections::BTreeSet;
 
 use indexmap::{IndexMap, IndexSet};
@@ -712,7 +713,7 @@ fn prepared_in<T>(
             (k.thm.qualified(), at)
         })
         .collect();
-    let library = Library::new(records, record_sorts.clone(), proved, env);
+    let library = Library::new(records, Cow::Borrowed(&record_sorts), proved, env);
 
     formulas::check_item_clashes(&mut report, &statements, &items);
     let methods: IndexMap<String, &Record> = methods

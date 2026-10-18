@@ -575,6 +575,20 @@ pub fn sorts_of_record(record: &Record, env: Env) -> Sorts {
     settled(&reader, &store)
 }
 
+/// `sorts_of_record` of every item record, by its place in `records`: read
+/// once for a build, since every theorem cites from the same records.
+pub fn sorts_of_records(
+    records: &[Record],
+    env: Env,
+) -> indexmap::IndexMap<usize, Sorts> {
+    records
+        .iter()
+        .enumerate()
+        .filter(|(_, r)| r.kind.is_item())
+        .map(|(i, r)| (i, sorts_of_record(r, env)))
+        .collect()
+}
+
 /// The names a theorem's hypotheses introduce in so many words: `n ∈ ℕ`, a
 /// group and its identity, a set, a point, a property or a function.
 ///
