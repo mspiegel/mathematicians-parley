@@ -64,11 +64,9 @@ pub struct Spec {
 /// How far `Elaborator::divisor_apart` looks for a divisor's ≠ 0 past the
 /// lines the step may rest on and the divisor's parts.
 pub struct Reach<'r> {
-    /// Whether a closed value not zero is worked out (stage 4).
-    pub closed: bool,
-    /// The lines the page writes in scope (stage 5).
+    /// The lines the page writes in scope (stage 4).
     pub in_scope: Option<InScope<'r>>,
-    /// Whether the search is asked last (stage 6).
+    /// Whether the search is asked last (stage 5).
     pub search: bool,
 }
 
@@ -211,7 +209,6 @@ impl Oracle for Ask<'_, '_> {
             named: &spec.implied.named,
         });
         let reach = Reach {
-            closed: true,
             in_scope,
             search: search && spec.apart,
         };
@@ -935,7 +932,6 @@ impl<'a> Elaborator<'a> {
         named: &Rpn,
     ) -> Checked<Proof> {
         let reach = Reach {
-            closed: true,
             in_scope: None,
             search: true,
         };
@@ -954,16 +950,15 @@ impl<'a> Elaborator<'a> {
     /// ( scope -> divisor =/= 0 ) by the one order the build takes evidence
     /// of a divisor in (`ELABORATION.md`, a divisor's ≠ 0), or a decline:
     ///
-    /// 1. a numeral other than zero, or a positive integer the page says
+    /// 1. a term of numerals alone whose value is not zero, worked out as
+    ///    `arithmetic` works one out, or a positive integer the page says
     ///    once (`SYNTAX.md`), which rests on no line;
     /// 2. a line the step may rest on saying it (`written_nonzero`);
     /// 3. its parts: a product, a quotient, a negation or a power to a
     ///    numeral is not zero when its parts are, each by this same order;
-    /// 4. a closed value not zero, worked out as `arithmetic` works one out,
-    ///    where `reach` says;
-    /// 5. a line in scope the step does not name, where `reach` gives them,
+    /// 4. a line in scope the step does not name, where `reach` gives them,
     ///    which the step then rests on;
-    /// 6. the search, where `reach` says, which offers only lines the step
+    /// 5. the search, where `reach` says, which offers only lines the step
     ///    may rest on.
     ///
     /// A line saying the whole comes before its parts, and the parts before
@@ -987,6 +982,9 @@ impl<'a> Elaborator<'a> {
             let closed = numerals::ne0(&self.b, value);
             return Ok(Built(pf!(self.b; apart, scope, closed, "a1i")));
         }
+        if let Some(found) = self.closed_nonzero(divisor, scope, &named)? {
+            return Ok(Built(found));
+        }
         if let Some(positive) = self.positive_divisor(divisor, scope, &named)? {
             return Ok(Built(positive));
         }
@@ -1005,11 +1003,6 @@ impl<'a> Elaborator<'a> {
             self.parts_apart(divisor, scope, &named, implied, reach)?
         {
             return Ok(Built(found));
-        }
-        if reach.closed {
-            if let Some(found) = self.closed_nonzero(divisor, scope, &named)? {
-                return Ok(Built(found));
-            }
         }
         if let Some(lines) = &reach.in_scope {
             if let Some(found) =
@@ -1102,9 +1095,8 @@ impl<'a> Elaborator<'a> {
     }
 
     /// ( scope -> divisor =/= 0 ) for a closed divisor whose value is not
-    /// zero, a fact about numerals worked out as `arithmetic` works one out
-    /// and taken uncited, as a closed numeral fact is (`METHODS.md`); None
-    /// for any other.
+    /// zero, a fact about numerals worked out as `arithmetic` works one out,
+    /// which the page says once (`SYNTAX.md`); None for any other.
     fn closed_nonzero(
         &mut self,
         divisor: &Rpn,

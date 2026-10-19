@@ -1873,9 +1873,9 @@ impl<'a> Elaborator<'a> {
 
     /// ( scope -> d =/= 0 ) from what the step wrote, or a decline: the
     /// divisor not being zero is the page's to say, in a requires line or a
-    /// line the step cites, unless the page says once it is a positive
-    /// integer, and is not searched for, nor worked out as a closed value
-    /// (`divisor_apart`, stages 1 to 3).
+    /// line the step cites, unless the page says it once, of a term of
+    /// numerals alone whose value is not zero or of a positive integer, and
+    /// is not searched for (`divisor_apart`, stages 1 to 3).
     pub fn divisor_written(
         &mut self,
         divisor: &Rpn,
@@ -1883,7 +1883,6 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
     ) -> Checked<Route<Proof>> {
         let reach = super::calculators::Reach {
-            closed: false,
             in_scope: None,
             search: false,
         };

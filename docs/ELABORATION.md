@@ -984,7 +984,8 @@ negation or a power in the claim or a line the step cites, of a
 denominator's atoms, of a quotient a membership is built for, and of what
 `not_zero` is asked.
 
-1. A numeral other than zero, or a positive integer the page says once
+1. A term of numerals alone whose value is not zero, worked out as
+   `arithmetic` works one out, or a positive integer the page says once
    (`SYNTAX.md`), which rests on no line.
 2. A line the step may rest on saying so: as `≠`, either way round, as the
    denial of an equation, as the divisor above zero or below it

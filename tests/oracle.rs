@@ -23,8 +23,8 @@
 //! Any other answer is a fault, printed with the seed that draws it again,
 //! and each class found is pinned as a theorem the build elaborates
 //! (in `tests/elaborator/`: `closed-values`, `combinations`, `powers`,
-//! `divisors`, `orders`, `rationals`, `listed-numerals` and
-//! `signed-divisibility`). The test draws `ORACLE_COUNT`
+//! `divisors`, `orders`, `rationals`, `listed-numerals`,
+//! `signed-divisibility` and `divisors-not-zero-by-their-factors`). The test draws `ORACLE_COUNT`
 //! claims of each method (1500 where it is not set) from `ORACLE_SEED`, of
 //! the methods whose names hold `ORACLE_ONLY` where it is set, and reads
 //! set.mm, so it is not run with the others:

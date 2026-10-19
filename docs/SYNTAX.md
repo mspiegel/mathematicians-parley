@@ -441,7 +441,7 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
 | `instantiate v := t in line L, from L2` | line L claims "for all v ∈ X, B"; the claim is B with t in place of v, and L2 supplies t ∈ X, or says what t is built from as a cited item's lines do: L2 saying q ∈ ℕ₀ supplies 3q + 1 ∈ ℕ₀, though a `let` put q in ℤ (below, "A term that a line the step names"). Several variables may be given at once. L may also be a hypothesis or supposition label. L is never an item: a definition whose sentence is a "for all" is first claimed by a numbered step citing it, and that number is instantiated. This is the rule that keeps an item out of `from` applied to the other slot that says where a fact comes from, and for the same reason, that a reader can look at everything a step names |
 | `algebra, from L` | ring and field identities, starting from the equations in L |
 | `arithmetic` | a fact about closed numerals: value, order, or membership in ℕ ℤ ℚ ℝ |
-| `real arithmetic` | a fact about closed terms with square roots of rationals, π, e, logarithms and exponentials of rationals, and sines and cosines of multiples of π/4 and π/6: value, disequality where `METHODS.md` says it is decided, membership in ℝ, and order or membership in ℕ ℤ ℚ where the values are rational |
+| `real arithmetic` | a fact about closed terms with square roots of rationals, π, e, logarithms and exponentials of rationals, and sines and cosines of multiples of π/4 and π/6: value, disequality and order where `METHODS.md` says they are decided, membership in ℝ, and membership in ℕ ℤ ℚ where the value is rational |
 | `inequalities, from L` | the lines L added side by side, as they stand, with the bounds a membership gives, closed numeral facts, a disequality taken both ways and a negation turned round taken without being written (`METHODS.md`, inequalities); with nothing in L to add, those alone |
 | `inequalities`, then rows | the manipulations of one line written out, a row to each. The first row is a line the step cites, written out, with its label as reason; each row after it is the row above with the manipulation its reason names, `adding t`, `multiplying by c`, `symmetry`, `weakening` or `algebra` (`METHODS.md`); the last row is the claim |
 | `transitivity, from L` | the lines L, in the order cited, make a chain: where one line ends the next begins, the term they share written the same way in both, each line read from whichever side meets the one before; the claim relates the chain's first term to its last, by the relation a calculation's chain would have |
@@ -524,14 +524,13 @@ of
   closed under what builds it (the table of closure
   lemmas in `src/rules.rs`): a·x + b·y ∈ ℤ where a, b, x and y are integers.
   A quotient's divisor not being zero is the step's to write or cite, unless
-  the page says once that it is a positive integer: a numeral other than
-  zero, or a term these rules put in ℕ, as k, k + 1, j·(j + 1) and 2^n are
-  where k, j ∈ ℕ and n ∈ ℕ₀; or unless it is a product, a quotient, a
+  the page says it once: of a term of numerals alone that `arithmetic`
+  works out to a value other than zero, `3`, `1 − 2` and `10^0`; of a
+  positive integer, a term these rules put in ℕ, as k, k + 1, j·(j + 1)
+  and 2^n are where k, j ∈ ℕ and n ∈ ℕ₀; or of a product, a quotient, a
   negation or a power to a numeral, 0 included, whose parts are each not
   zero by this same rule: `x·2`, `−x` and `x⁰` are not zero where a line
-  says `x ≠ 0`, or `x > 0`. `10^0` is a power of a
-  numeral and so not zero, but `1 − 2` is no numeral, and `requires 1 − 2 ≠
-  0: arithmetic` says it. A sum's term that divides by something holding the
+  says `x ≠ 0`, or `x > 0`. A sum's term that divides by something holding the
   sum's own letter, `1/T(k)` in `Σ(k = 1 to n)`, or `1/k` in `Σ(k = 0 to
   n)`, has a divisor no line outside the sum can speak of, so the citation
   names a line saying the term at every point of a set holding the range,

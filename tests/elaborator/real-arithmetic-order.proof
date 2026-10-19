@@ -1,0 +1,117 @@
+import mundane definition stdlib/logarithms/ln
+import mundane definition stdlib/trigonometry/sin
+import mundane theorem stdlib/divisibility/mod-below
+
+theorem a-root-below-a-fraction
+  then √2 < 3/2
+
+1.  √2 < 3/2
+    real arithmetic
+
+theorem one-below-a-root
+  then 1 < √2
+
+1.  1 < √2
+    real arithmetic
+
+theorem a-sum-of-roots-below-a-root
+  then √2 + √3 < √10
+
+1.  √2 + √3 < √10
+    real arithmetic
+
+theorem a-root-less-one-above-zero
+  then 0 < √2 − 1
+
+1.  0 < √2 − 1
+    real arithmetic
+
+theorem a-root-at-most-its-value
+  note        √4 is 2, so the two sides are equal.
+  then √4 ≤ 2
+
+1.  √4 ≤ 2
+    real arithmetic
+
+theorem a-root-not-below-one
+  then not (√2 < 1)
+
+1.  not (√2 < 1)
+    real arithmetic
+
+theorem a-sine-below-one
+  then sin(π/4) < 1
+
+1.  sin(π/4) < 1
+    real arithmetic
+
+theorem pi-above-zero
+  then 0 < π
+
+1.  0 < π
+    real arithmetic
+
+theorem pi-above-three
+  then 3 < π
+
+1.  3 < π
+    real arithmetic
+
+theorem pi-below-four
+  then π < 4
+
+1.  π < 4
+    real arithmetic
+
+theorem e-below-pi
+  then e < π
+
+1.  e < π
+    real arithmetic
+
+theorem a-quarter-of-pi-below-one
+  then π/4 < 1
+
+1.  π/4 < 1
+    real arithmetic
+
+theorem pi-squared-below-sixteen
+  then π² < 16
+
+1.  π² < 16
+    real arithmetic
+
+theorem a-logarithm-above-zero
+  then 0 < ln(2)
+
+1.  0 < ln(2)
+    real arithmetic
+
+theorem a-logarithm-below-one
+  then ln(2) < 1
+
+1.  ln(2) < 1
+    real arithmetic
+
+theorem logarithms-by-their-ratio
+  note        2·ln(2) − ln(3) is ln(4/3), and 4/3 is above 1.
+  then ln(3) < 2·ln(2)
+
+1.  ln(3) < 2·ln(2)
+    real arithmetic
+
+theorem one-below-a-logarithm
+  then 1 < ln(3)
+
+1.  1 < ln(3)
+    real arithmetic
+
+theorem pi-at-least-zero-on-a-requires-line
+  note        A real above π leaves π as the remainder of π.
+  let N ∈ ℝ    (H1)
+  assume π < N    (H2)
+  then π mod N = π
+
+1.  π mod N = π
+    mun:mod-below a := π, b := N, from H2
+    requires 0 ≤ π: real arithmetic

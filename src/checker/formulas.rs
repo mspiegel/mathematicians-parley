@@ -4290,8 +4290,9 @@ pub fn check_real_arithmetic_holds(
 /// works out cites arithmetic (`check_closed_by_arithmetic`): asked of a
 /// step and each requires line giving `algebra` or `inequalities` for a
 /// claim that holds a square root, π, e or a logarithm and that real
-/// arithmetic finds true or false. One it does not decide, an order of
-/// values that are not rational or π = e, stays theirs.
+/// arithmetic finds true or false. One it does not decide, π = e, stays
+/// theirs, and so does an order, which `inequalities` may prove from what
+/// it cites of a root or an atom whether or not real arithmetic decides it.
 pub fn check_closed_by_real_arithmetic(
     report: &mut Report,
     thm: &Theorem,
@@ -4312,6 +4313,7 @@ pub fn check_closed_by_real_arithmetic(
             .collect();
         terms.is_some_and(|terms| {
             terms.iter().any(reals::beyond_arithmetic)
+                && !terms.iter().any(reals::is_order)
                 && terms
                     .iter()
                     .all(|t| matches!(reals::decide_closed(t), Built(Surd::Holds(_))))

@@ -252,8 +252,9 @@ A reciprocal atom brings its divisor's hypothesis with it: `1/(n + 1)` is a
 real number when `n + 1` is one and is not zero. That `n + 1` is real is said
 once, with n; that it is not zero is said once too where n ∈ ℕ₀, since
 n + 1 is then a positive integer, and is the page's to write where n ∈ ℤ. A
-divisor that is a numeral other than zero needs no line either: that 2 is not zero is a closed numeral
-fact, so `δ/2` is real because `δ` is.
+divisor of numerals alone whose value is not zero needs no line either: that
+2 or 1 − 3 is not zero is a closed numeral fact, so `δ/2` and `δ/(1 − 3)` are
+real because `δ` is.
 
 An atom is one of the claim or of the facts the step combines — not of every
 sentence a cited line says. Line 1 of `least-combination-divides` says
@@ -539,7 +540,8 @@ Two kinds.
 
 Every denominator the step's claim and the cited lines it combines write is
 nonzero, and a step that divides writes the condition or cites a line
-saying it, unless the page says once the denominator is a positive integer
+saying it, unless the page says once that the denominator is not zero, as
+of a term of numerals alone whose value is not zero or of a positive integer
 (`SYNTAX.md`), or it is a product, a quotient, a negation or a power to a
 numeral whose parts are each not zero so: `(x·2 − 1)/(x·2)` asks only for
 `x ≠ 0`, and
@@ -844,7 +846,8 @@ refused for any of them.
 `real arithmetic` decides **closed facts about square roots of rationals,
 π, e, and logarithms of rationals**: `√8 = 2·√2`, `(1 + √2)² = 3 + 2·√2`,
 `1/(√3 − 1) = (√3 + 1)/2`, `√2 − 1 ≠ 0`, `ln 8 = 3·ln 2`, `exp(ln 5) = 5`,
-`(π + e)² = π² + 2·π·e + e²`, `ln 2 ≠ ln 3`, `180° = π`. It stands where
+`(π + e)² = π² + 2·π·e + e²`, `ln 2 ≠ ln 3`, `180° = π`, `√2 < 3/2`,
+`0 < ln 2`, `e < π`. It stands where
 `arithmetic` stands, and for the same reason:
 a claim it works out gives a reader nothing to check but working it out. So
 it justifies a requires line, `requires √2 − 1 ≠ 0: real arithmetic`; it is
@@ -895,7 +898,7 @@ The relations, and their denials:
 | relation | decided |
 |---|---|
 | `=`, `≠` | where neither side holds π, e or a logarithm; otherwise where the two values are equal, or where they differ by a surd or by rational multiples of logarithms of primes (The procedure) |
-| `<`, `≤`, `>`, `≥` | where the values of both sides are rational, `√4 < 3` |
+| `<`, `≤`, `>`, `≥` | where the two values are equal, or their difference is rational, holds no π, e or logarithm, or is rational multiples of logarithms of primes; otherwise where the bounds on π, e and logarithms decide it (Order) |
 | membership of ℝ or ℂ | always |
 | membership of ℕ, ℕ₀, ℤ or ℚ | where the value is rational, `√(9/4) ∈ ℚ`, `exp(ln 4) ∈ ℕ` |
 
@@ -930,8 +933,9 @@ value has one spelling; that theorem is what makes `=` and `≠` decided
 always, and nothing proved here leans on it, since a proof shows each
 equation it states.
 
-An order is decided where both values are rational, and a membership of ℕ,
-ℕ₀, ℤ or ℚ where the value is, by `arithmetic`'s tests. Every value is real.
+An order is decided by the sign of the difference of its sides (Order,
+below), and a membership of ℕ, ℕ₀, ℤ or ℚ where the value is rational, by
+`arithmetic`'s tests. Every value is real.
 
 **π, e and logarithms.** A value is then a polynomial in the atoms π, e and
 ln p for primes p, its coefficients values of the square-root kind above:
@@ -973,6 +977,40 @@ is left is 0, π/6, π/4 or π/3, whose sines and cosines are 0 and 1, 1/2 and
 or ±1, a value of the square-root kind, and holds no atom: sin(7·π/6) is
 −1/2, cos(3·π/4) is −√2/2, and sin(30°) is 1/2.
 
+**Order.** L < R and L ≤ R are decided by the sign of D = R − L, worked
+out as a value:
+
+- D is 0: L ≤ R holds and L < R fails.
+- D is rational: its sign is `arithmetic`'s.
+- D is Σ qₚ·ln p, rational multiples of logarithms of primes and nothing
+  else: with n the least whole number making each n·qₚ whole, n·D is
+  ln r, r = Π p^(n·qₚ), and D is above 0 exactly where r is above 1:
+  `ln 3 < 2·ln 2`, since 3 < 4.
+- Otherwise D's sign is read from **brackets**. Each factor of a part of
+  D, a root √p, π, e or ln p, lies strictly between two rationals l < u,
+  and l is above 0:
+  - √p between ⌊2ʲ·√p⌋/2ʲ and that plus 2⁻ʲ, for a precision j of 4,
+    8, 16, 32 or 64 bits, the least that decides;
+  - π between 3 and 4, set.mm's `pigt3` and `pigt2lt4`;
+  - e between 2 and 3, set.mm's `egt2lt3`;
+  - ln p between a/b, the greatest with b at most 8 and 3ᵃ ≤ pᵇ, and
+    a′/b′, the least with b′ at most 8 and pᵇ′ ≤ 2ᵃ′, since eᵃ < 3ᵃ and
+    2ᵃ′ < eᵃ′: ln 2 between 5/8 and 1, ln 3 between 1 and 8/5.
+
+  A product of factors lies between the products of their ends, a power
+  as a product of its factor; a part c·X between c·l and c·u, the other
+  way round where c is below 0; and a sum between the sums of its parts'
+  ends. D is above 0 where the lower end of the sum is at least 0, and
+  below 0 where its upper end is at most 0, strictly in each case, since
+  each factor's bracket is strict.
+
+A difference holding no π, e or logarithm is not 0, which is decided
+exactly, so some precision decides its sign; it is only too large where
+64 bits do not (Refusals). A difference holding one may lie in a bracket
+that holds 0 however fine its roots: π² < 10 holds, but π² lies between
+9 and 16 by set.mm's bounds, and no tighter bound on π is proved there.
+Such an order is reported as not decided, never as false.
+
 ### Refusals
 
 - **Anything containing a variable.** As for `arithmetic`.
@@ -1002,8 +1040,8 @@ or ±1, a value of the square-root kind, and holds no atom: sin(7·π/6) is
 - **A power with an exponent that is not whole,** `2^(1/2)`. The square root
   is written `√`, and it is the only root taken.
 - **A division by zero,** `1/(√2 − √2)`, worked out as its divisor's value.
-- **An order between values not both rational,** `√2 < 3/2`. It is reported
-  as not decided, never as false. Order is not part of this method yet.
+- **An order the bounds on π, e and logarithms do not decide,** `π² < 10`
+  (Order). It is reported as not decided, never as false.
 - **A membership of ℕ, ℕ₀, ℤ or ℚ of a value that is not rational, or its
   denial.** That √2 is not in ℚ is the theorem `sqrt2-irrational` proves,
   and a method that worked it out would make that proof one line.
@@ -1019,7 +1057,9 @@ or ±1, a value of the square-root kind, and holds no atom: sin(7·π/6) is
   (√2 + √3 + √5 + √7)⁸ some 190 000 and 2.7 GB of the 2 GB a build allows.
   A claim whose proof would write a numeral past 62 bits is refused too,
   since the normaliser reads a numeral as a number only within 64 bits:
-  (1 + √2)⁴⁰ is proved, and (1 + √2)⁸⁰ is refused.
+  (1 + √2)⁴⁰ is proved, and (1 + √2)⁸⁰ is refused. An order whose sign
+  roots bracketed to 64 bits do not decide is refused, where finer roots
+  would decide it.
 - **Anything false.** The claim is worked out before a proof is attempted,
   so a false one is reported as false.
 
@@ -1042,12 +1082,16 @@ none of them is `arithmetic`'s. `√4 = 2` writes a root, so it cites
 checker refuses `real arithmetic` for a claim that writes none of them ("a
 claim of numerals alone cites arithmetic").
 
-As against `algebra` and `inequalities`, the rule is `arithmetic`'s: a closed
-claim this method decides cites it, and the checker refuses `algebra` or
-`inequalities` for it. `√2·√2 = 2` cites `real arithmetic`. A closed claim it
-does not decide, an order between values that are not rational,
-`0 ≤ √2/2`, stays `inequalities'`, which takes √2 as an atom and cites what
-it uses of it from a line citing `mun:sqrt x := 2`.
+As against `algebra` and `inequalities`, the rule for an equation, a
+disequality and a membership is `arithmetic`'s: a closed one this method
+decides cites it, and the checker refuses `algebra` or `inequalities` for
+it. `√2·√2 = 2` cites `real arithmetic`. An order is not held to that rule:
+`0 ≤ √2/2` may cite `real arithmetic`, or `inequalities`, which takes √2 as
+an atom and cites what it uses of it from a line citing `mun:sqrt x := 2`.
+A closed order this method's bounds do not reach, `π² < 10`, asks a bound
+on π tighter than set.mm proves, and is a theorem to cite. `inequalities`
+does not reach it from set.mm's bounds either, since it reads π² as an atom
+of its own and knows of it only what a cited line says.
 
 A square root, π, e, a logarithm, a sine or a cosine this method works out
 is in ℝ, and so is what the field's operations build from them; that is said
@@ -1093,9 +1137,9 @@ is read over N.
   identity D·C = N is proved as above, N ≠ 0 by `arithmetic`, and D ≠ 0
   follows (`mulne0bad`). A disequality L ≠ R is L − R not zero (`subne0ad`).
 - **A division** A/B is a quotient Q where B·Q = A and B ≠ 0 (`divmuld`).
-- **An order or a membership** of rational values is proved of the values
-  by `arithmetic` and carried back to the sides as written (`breq12d`,
-  `eleq1d`). A membership of ℝ is the expression's, built from √p ∈ ℝ
+- **A membership** of a rational value is proved of the value by
+  `arithmetic` and carried back to the term as written (`eleq1d`). A
+  membership of ℝ is the expression's, built from √p ∈ ℝ
   (`resqrtcld`), π ∈ ℝ (`pire`), e ∈ ℝ (`ere`), ln p ∈ ℝ (`relogcld`) and
   the field's closure (`remulcld`, `readdcld`).
 
@@ -1133,6 +1177,29 @@ atoms like √p, given π ∈ ℂ (`picn`), e ∈ ℂ and ln p ∈ ℂ.
   numbers, is an identity; ln P − ln Q is ln(P/Q) (`relogdiv`), which is not
   zero because P/Q is not 1 (`logne0`, P/Q ≠ 1 by `arithmetic`); and D is
   not zero because N·D is not (`mulne0bad`).
+- **An order.** L < R is 0 < R − L (`posdifd`, each side in ℝ as said
+  once), and R − L is proved equal to the canon of D, its value, as for a
+  disequality. 0 < D is then shown as the procedure found it:
+  - D rational: by `arithmetic`.
+  - D logarithms of primes: n·D = ln r is an identity and the logarithm
+    above, ln r is above 0 because r is above 1 (`loggt0b`, r > 1 by
+    `arithmetic`), and so is D, n being above 0.
+  - D by brackets: each factor's bracket is proved. l < √p is l² < p by
+    `arithmetic`, then √(l²) < √p (`sqrtltd`) and √(l²) = l (`sqrtsqd`),
+    and √p < u likewise; 3 < π < 4 is `pigt3` and `pigt2lt4`, 2 < e < 3
+    `egt2lt3`; and a/b < ln p is a < ln(pᵇ), ln(pᵇ) = b·ln p by the
+    logarithm above, from eᵃ < 3ᵃ (`ltexp1dd`), 3ᵃ ≤ pᵇ by `arithmetic`,
+    ln(eᵃ) = a, and `logltb`, and ln p < a′/b′ likewise. A product's
+    bracket is its factors' (`ltmul12ad`), a power's its base's
+    (`ltexp1dd`), a part's its coefficient's times its product's
+    (`ltmul2dd`, and `ltnegd` where the coefficient is below 0), and the
+    sum's its parts' added (`lt2addd`, `leltaddd`, `leidd` for the
+    rational part). The sum of the lower ends is at least 0 by
+    `arithmetic`, so D's whole part is above 0 (`lelttrd`), and D, over a
+    denominator above 0, is too (`divgt0d`).
+
+  L ≤ R is L < R weakened (`ltled`), or L = R where D is 0 (`eqled`); the
+  denial of L < R is R ≤ L (`lenltd`), and of L ≤ R is R < L (`ltnled`).
 
 ### Held to an oracle
 
@@ -1168,6 +1235,18 @@ as a value of roots, and not by the reduction above; the values are then
 held to the method's answers as any value of roots is. A sine or cosine is
 drawn into a claim over √2 and √3 only, which keeps the claim within the
 limits; on three seeds of 1500 the answers agree with the judge's.
+
+An order of values of roots is judged by the sign of the interval around
+the difference of its sides, a gap narrower than 2⁻⁴⁰ taken as too large to
+work out. An order holding π, e or a logarithm is judged by the rule of
+Order written again over the judge's own polynomials: equal sides, a
+rational difference, logarithms of primes by their ratio, and otherwise
+the brackets above, set.mm's bounds on π and e and the logarithms' from
+e's; and each sign the rule finds is held to the value worked out from π,
+e and the logarithms to 35 digits. π and e are drawn against rationals near
+their bounds, against each other, and logarithms against rationals and
+against multiples of each other; on three seeds of 1500 the answers agree
+with the judge's.
 
 ---
 

@@ -684,6 +684,15 @@ fn refusals(e: &Real, out: &mut Vec<&'static str>) {
     }
 }
 
+/// How near two values not equal may be for the judge to say the method
+/// orders them: the method brackets each root to 64 bits, and the terms
+/// drawn are small, so a gap of 2⁻⁴⁰ is far wider than its brackets. A gap
+/// narrower than that is taken as too large to work out, which nothing
+/// drawn is expected to give.
+fn near() -> Q {
+    Q::new(BigInt::one(), BigInt::one() << 40)
+}
+
 /// Whether the claim is past the method's limits: the one drawn on purpose,
 /// four primes raised to the eighth power.
 fn past_limits(e: &Real) -> bool {
@@ -736,16 +745,16 @@ fn decided(c: &Claim, terms: &[&Real]) -> Verdict {
                     Verdict::Holds(zero == matches!(rel, Rel::Eq))
                 }
                 Rel::Lt | Rel::Le => {
-                    let (Some(a), Some(b)) =
-                        (rational(&values[0]), rational(&values[1]))
-                    else {
-                        return Verdict::Refused(vec![UNDECIDED]);
-                    };
-                    Verdict::Holds(if matches!(rel, Rel::Lt) {
-                        a < b
-                    } else {
-                        a <= b
-                    })
+                    let zero = is_zero(&gap)
+                        .unwrap_or_else(|| panic!("the judge cannot tell {c:?}"));
+                    if zero {
+                        return Verdict::Holds(matches!(rel, Rel::Le));
+                    }
+                    let (lo, hi) = gap.ends();
+                    if hi.abs().max(lo.abs()) < near() {
+                        return Verdict::Refused(vec![TOO_LARGE]);
+                    }
+                    Verdict::Holds(hi.is_negative())
                 }
             }
         }

@@ -183,7 +183,7 @@ and of nothing else:
   in the system its range starts in, and a function's value is one at a
   point of its domain by the function's type, `Σ(k = 1 to n) a(k)²` where
   `let a : {1, …, n} → ℝ`. A term that divides by anything the page does
-  not say once is a positive integer (`SYNTAX.md`), or takes a value at a
+  not say once is not zero (`SYNTAX.md`), or takes a value at a
   point the type does not cover, as `Σ(k = 0 to n) a(k)` does, is not said
   once this way.
 
@@ -196,8 +196,9 @@ Writing it at each use cost 990 of the corpus's 1,195 requires lines, eleven
 on one step, and those lines buried the ones that can fail.
 
 What a quotient demands is still written: its divisor's `≠ 0`, which can fail,
-unless the page says once the divisor is a positive integer, a numeral other
-than zero or a term such as k, k + 1 or 2^n with k ∈ ℕ and n ∈ ℕ₀. So is every membership the four kinds do
+unless the page says once the divisor is not zero: a term of numerals alone
+whose value is not zero, as 2 and 1 − 3 are, or a positive integer such as
+k, k + 1 or 2^n with k ∈ ℕ and n ∈ ℕ₀. So is every membership the four kinds do
 not reach: a defined name whose naming line says no kind of number, a
 function's value outside a sum, a sum whose term divides or leaves its
 function's domain, |x|, n!, a power whose exponent is any other term,

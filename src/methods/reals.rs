@@ -10,17 +10,19 @@
 //! they are not, the claim is decided only where the difference holds no
 //! atom, or is rational multiples of logarithms of primes and nothing else,
 //! which unique factorisation shows is not 0; any other difference is not
-//! decided, never false.
+//! decided, never false. An order is decided by the sign of the difference
+//! of its sides (`sign_of`), with or without atoms.
 //!
 //! What holds none of these atoms is `surds`', and is decided there.
 
 use std::collections::BTreeMap;
 
-use num_bigint::BigInt;
-use num_traits::{Signed, ToPrimitive, Zero};
+use num_bigint::{BigInt, BigUint};
+use num_integer::Integer;
+use num_traits::{One, Signed, ToPrimitive, Zero};
 
 use super::field::{q, ADD, DIV, EXP, MUL, NEG, Q, SUB};
-use super::surds::{self, Piece, Surd, Verdict};
+use super::surds::{self, Bracket, Piece, Surd, Verdict};
 use crate::mm::kernel::Term;
 use crate::outcome::{Built, Declined, Route};
 use crate::rules::System;
@@ -572,14 +574,247 @@ pub fn pure_logarithms(value: &Real) -> bool {
         .is_some_and(|l| l.constant.is_zero() && !l.logs.is_empty())
 }
 
+// --- order -------------------------------------------------------------------
+
+/// Why an order is not decided.
+pub const ORDER_UNDECIDED: &str =
+    "is an order that the bounds on π, e and logarithms do not decide";
+
+/// The precisions, in bits, a root's bracket is tried at, least first.
+pub const PRECISIONS: [u32; 5] = [4, 8, 16, 32, 64];
+
+/// The precision that stands for a root's exact value, in telling an order
+/// too large to work out from one no bracket on its atoms decides.
+const FINEST: u32 = 512;
+
+/// The largest denominator of a logarithm's bracket.
+pub const LN_DENOMINATOR: u32 = 8;
+
+/// The most bits the ratio of a difference of logarithms may take, as
+/// `arithmetic` works out no number past ten thousand.
+const RATIO_BITS: u64 = 10_000;
+
+/// A factor of a part of a value: the root of a prime, or an atom.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Factor {
+    Root(u64),
+    Atom(Atom),
+}
+
+/// How the sign of a value not 0 is shown.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Shown {
+    /// The value is rational, and `arithmetic` compares it with 0.
+    Rational,
+    /// The value is rational multiples of logarithms of primes, which over
+    /// their least common denominator n is ln r, r compared with 1
+    /// (`logarithm_ratio`).
+    Logarithms,
+    /// From the brackets of its factors, its roots' at this precision
+    /// (`value_bracket`).
+    Bracketed { precision: u32 },
+}
+
+/// What the sign of a value not 0 comes to.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Sign {
+    Shown {
+        positive: bool,
+        how: Shown,
+    },
+    /// Roots bracketed finer than [`PRECISIONS`] allow would decide it.
+    TooLarge,
+    /// No bracket of its roots decides it with the bounds on its atoms.
+    Undecided,
+}
+
+/// A value Σ qₚ·ln p read as ln r over n: n the least whole number making
+/// each n·qₚ whole, and r = Π p^(n·qₚ).
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct LogarithmRatio {
+    pub scale: BigInt,
+    pub ratio: Q,
+}
+
+/// The ratio of rational multiples of logarithms of primes, or too large
+/// where it would take more than [`RATIO_BITS`].
+pub fn logarithm_ratio(
+    logs: &BTreeMap<u64, Q>,
+) -> Result<LogarithmRatio, &'static str> {
+    let scale = logs.values().fold(BigInt::one(), |d, v| d.lcm(v.denom()));
+    let mut size = 0u64;
+    let mut powers = Vec::new();
+    for (p, weight) in logs {
+        let n = (weight * Q::from_integer(scale.clone())).to_integer();
+        let n = n.to_i32().ok_or(surds::TOO_LARGE)?;
+        size = size.saturating_add(
+            u64::from(n.unsigned_abs()) * (64 - p.leading_zeros()) as u64,
+        );
+        powers.push((*p, n));
+    }
+    if size > RATIO_BITS {
+        return Err(surds::TOO_LARGE);
+    }
+    let ratio = powers.iter().fold(q(1), |r, (p, n)| {
+        r * Q::from_integer(BigInt::from(*p)).pow(*n)
+    });
+    Ok(LogarithmRatio { scale, ratio })
+}
+
+/// The bracket of a factor: a root's at `precision` (`surds::root_bracket`);
+/// π between 3 and 4 and e between 2 and 3, set.mm's `pigt3`, `pigt2lt4`
+/// and `egt2lt3`; and a logarithm's from e's (`ln_bracket`).
+pub fn factor_bracket(factor: Factor, precision: u32) -> Bracket {
+    match factor {
+        Factor::Root(p) => surds::root_bracket(p, precision),
+        Factor::Atom(Atom::Pi) => Bracket {
+            below: q(3),
+            above: q(4),
+        },
+        Factor::Atom(Atom::E) => Bracket {
+            below: q(2),
+            above: q(3),
+        },
+        Factor::Atom(Atom::Ln(p)) => ln_bracket(p),
+    }
+}
+
+/// ln p between a/b, the greatest with b at most [`LN_DENOMINATOR`] and
+/// 3ᵃ ≤ pᵇ, and a′/b′, the least with b′ at most it and pᵇ′ ≤ 2ᵃ′; since e
+/// is between 2 and 3, eᵃ < 3ᵃ ≤ pᵇ and pᵇ′ ≤ 2ᵃ′ < eᵃ′. Each end is above
+/// 0, as p² ≥ 3.
+pub fn ln_bracket(p: u64) -> Bracket {
+    let mut below = Q::zero();
+    let mut above: Option<Q> = None;
+    for b in 1..=LN_DENOMINATOR {
+        let power = BigUint::from(p).pow(b);
+        let mut a = 0u32;
+        let mut three = BigUint::one();
+        while &three * 3u32 <= power {
+            three *= 3u32;
+            a += 1;
+        }
+        below = below.max(Q::new(BigInt::from(a), BigInt::from(b)));
+        let least = Q::new(BigInt::from((&power - 1u32).bits()), BigInt::from(b));
+        above = Some(match above {
+            Some(held) => held.min(least),
+            None => least,
+        });
+    }
+    Bracket {
+        below,
+        above: above.expect("a denominator of at least 1"),
+    }
+}
+
+/// The factors of a part of a value, its roots and then its atoms, each
+/// with its power, as its canon writes them.
+pub fn part_factors(basis: &surds::Basis, monomial: &Monomial) -> Vec<(Factor, u32)> {
+    let roots = basis.iter().map(|p| (Factor::Root(*p), 1));
+    let atoms = monomial.iter().map(|(atom, k)| (Factor::Atom(*atom), *k));
+    roots.chain(atoms).collect()
+}
+
+/// The bracket of a product of factors, each above 0: the products of
+/// their ends.
+pub fn product_bracket(factors: &[(Factor, u32)], precision: u32) -> Bracket {
+    let mut out = Bracket {
+        below: q(1),
+        above: q(1),
+    };
+    for (factor, k) in factors {
+        let b = factor_bracket(*factor, precision);
+        out.below *= b.below.pow(*k as i32);
+        out.above *= b.above.pow(*k as i32);
+    }
+    out
+}
+
+/// The bracket of a value, its roots' at `precision`: each part's
+/// coefficient times its product's bracket, the ends swapped where the
+/// coefficient is below 0, added.
+pub fn value_bracket(value: &Real, precision: u32) -> Bracket {
+    let mut out = Bracket {
+        below: Q::zero(),
+        above: Q::zero(),
+    };
+    for (monomial, surd) in &value.parts {
+        for (basis, weight) in &surd.parts {
+            let b = product_bracket(&part_factors(basis, monomial), precision);
+            let (low, high) = if weight.is_positive() {
+                (weight * b.below, weight * b.above)
+            } else {
+                (weight * b.above, weight * b.below)
+            };
+            out.below += low;
+            out.above += high;
+        }
+    }
+    out
+}
+
+/// The sign of a value not 0: a rational's by its own; rational multiples
+/// of logarithms of primes' by their ratio; and any other value's by the
+/// least precision whose bracket lies on one side of 0. A bracket is
+/// strict at each end, as each factor's is, so an end at 0 decides.
+pub fn sign_of(value: &Real) -> Sign {
+    if let Some(r) = value.as_surd().and_then(|s| s.as_rational()) {
+        return Sign::Shown {
+            positive: r.is_positive(),
+            how: Shown::Rational,
+        };
+    }
+    if pure_logarithms(value) {
+        let logs = value.logarithmic().expect("pure logarithms").logs;
+        return match logarithm_ratio(&logs) {
+            Ok(r) => Sign::Shown {
+                positive: r.ratio > q(1),
+                how: Shown::Logarithms,
+            },
+            Err(_) => Sign::TooLarge,
+        };
+    }
+    for precision in PRECISIONS {
+        let b = value_bracket(value, precision);
+        if !b.below.is_negative() || !b.above.is_positive() {
+            return Sign::Shown {
+                positive: !b.below.is_negative(),
+                how: Shown::Bracketed { precision },
+            };
+        }
+    }
+    let finest = value_bracket(value, FINEST);
+    if value.as_surd().is_some()
+        || !finest.below.is_negative()
+        || !finest.above.is_positive()
+    {
+        Sign::TooLarge
+    } else {
+        Sign::Undecided
+    }
+}
+
+/// Whether a claim, or the claim it denies, is `<` or `≤`.
+pub fn is_order(claim: &Term) -> bool {
+    let claim = match claim.label() {
+        Some("wn") if claim.children().len() == 1 => &claim.children()[0],
+        _ => claim,
+    };
+    claim.label() == Some("wbr")
+        && claim.children().len() == 3
+        && matches!(claim.children()[2].label(), Some("clt" | "cle"))
+}
+
 /// Whether a relation between closed terms holds, as `surds::decide_closed`
-/// says of one holding no π, e or logarithm. An equation or a disequality
-/// holding one is decided where the difference of its sides is 0, holds no
-/// atom, or is `pure_logarithms`, and is not decided otherwise; an order is
-/// decided between rational values, a membership of ℝ or ℂ always, and one
-/// of ℕ, ℕ₀, ℤ or ℚ where the value is rational.
+/// says of an equation, a disequality or a membership holding no π, e or
+/// logarithm. An equation or a disequality holding one is decided where
+/// the difference of its sides is 0, holds no atom, or is
+/// `pure_logarithms`, and is not decided otherwise; an order, with atoms or
+/// without, where the sides are equal or the sign of their difference is
+/// shown (`sign_of`); a membership of ℝ or ℂ always, and one of ℕ, ℕ₀, ℤ
+/// or ℚ where the value is rational.
 pub fn decide_closed(claim: &Term) -> Route<Verdict> {
-    if !holds_atom(claim) {
+    if !holds_atom(claim) && !is_order(claim) {
         return surds::decide_closed(claim);
     }
     let negated = claim.label() == Some("wn") && claim.children().len() == 1;
@@ -609,14 +844,19 @@ pub fn decide_closed(claim: &Term) -> Route<Verdict> {
                 (Ok(a), Ok(b)) => (a, b),
                 (Err(stop), _) | (_, Err(stop)) => return stop,
             };
-            let rational = |v: &Real| v.as_surd().and_then(|s| s.as_rational());
-            let (Some(a), Some(b)) = (rational(&a), rational(&b)) else {
-                return Built(Verdict::Undecided(surds::ORDER_UNDECIDED));
-            };
-            if kids[2].label() == Some("clt") {
-                a < b
+            let gap = b.minus(&a);
+            if gap.is_zero() {
+                kids[2].label() == Some("cle")
             } else {
-                a <= b
+                match sign_of(&gap) {
+                    Sign::Shown { positive, .. } => positive,
+                    Sign::TooLarge => {
+                        return Built(Verdict::Unworked(surds::TOO_LARGE))
+                    }
+                    Sign::Undecided => {
+                        return Built(Verdict::Undecided(ORDER_UNDECIDED))
+                    }
+                }
             }
         }
         Some("wcel")
@@ -671,8 +911,8 @@ fn proof_cost(claim: &Term, negated: bool) -> Result<(), &'static str> {
         Some("wceq") => negated,
         _ => false,
     };
+    let gap = values[0].minus(values.last().expect("a side"));
     if apart {
-        let gap = values[0].minus(&values[1]);
         written(&gap)?;
         total = total.saturating_add(surds::cube(
             values[0].part_count() + values[1].part_count(),
@@ -681,6 +921,16 @@ fn proof_cost(claim: &Term, negated: bool) -> Result<(), &'static str> {
             Some(s) => surds::apart_cost(&s)?,
             None => surds::cube(gap.part_count() + 2),
         });
+    }
+    // An order's difference is an identity to its canon, and n times it
+    // one more where it is logarithms; its brackets are a few laws a part.
+    if claim.label() == Some("wbr") && !gap.is_zero() {
+        written(&gap)?;
+        total = total
+            .saturating_add(surds::cube(
+                values[0].part_count() + values[1].part_count(),
+            ))
+            .saturating_add(surds::cube(gap.part_count() + 2));
     }
     if total > surds::WORK {
         return Err(surds::TOO_LARGE);
@@ -947,5 +1197,113 @@ mod tests {
             closed_value(&op(n("c1"), n("cpi"), DIV)),
             Built(Value::Unworked(DIVIDES_BY_ATOM))
         );
+    }
+
+    fn root(x: Term) -> Term {
+        Term::apply("cfv", vec![x, n("csqrt")])
+    }
+
+    fn below(a: Term, b: Term) -> Term {
+        Term::apply("wbr", vec![a, b, n("clt")])
+    }
+
+    fn at_most(a: Term, b: Term) -> Term {
+        Term::apply("wbr", vec![a, b, n("cle")])
+    }
+
+    fn ratio(a: i64, b: i64) -> Q {
+        Q::new(BigInt::from(a), BigInt::from(b))
+    }
+
+    #[test]
+    fn brackets_of_roots_and_logarithms() {
+        let two = surds::root_bracket(2, 4);
+        assert_eq!((two.below, two.above), (ratio(22, 16), ratio(23, 16)));
+        let fine = surds::root_bracket(3, 64);
+        assert!(fine.below.pow(2) < q(3) && q(3) < fine.above.pow(2));
+        assert_eq!(
+            ln_bracket(2),
+            Bracket {
+                below: ratio(5, 8),
+                above: q(1)
+            }
+        );
+        assert_eq!(
+            ln_bracket(3),
+            Bracket {
+                below: q(1),
+                above: ratio(8, 5)
+            }
+        );
+        let five = ln_bracket(5);
+        assert!(five.below > q(1) && five.above < q(3));
+    }
+
+    #[test]
+    fn orders_of_roots_are_decided() {
+        let holds = |claim: Term| {
+            assert_eq!(decide_closed(&claim), Built(Verdict::Holds(true)))
+        };
+        holds(below(root(n("c2")), op(n("c3"), n("c2"), DIV)));
+        holds(below(n("c1"), root(n("c2"))));
+        let roots = op(root(n("c2")), root(n("c3")), ADD);
+        holds(below(roots, root(op(n("c5"), n("c2"), MUL))));
+        holds(at_most(root(n("c4")), n("c2")));
+        holds(Term::apply("wn", vec![below(root(n("c2")), n("c1"))]));
+        assert_eq!(
+            decide_closed(&below(root(n("c4")), n("c2"))),
+            Built(Verdict::Holds(false))
+        );
+    }
+
+    #[test]
+    fn orders_with_pi_e_and_logarithms() {
+        let verdict = |claim: Term| decide_closed(&claim);
+        let pi = || n("cpi");
+        assert_eq!(verdict(below(n("cc0"), pi())), Built(Verdict::Holds(true)));
+        assert_eq!(verdict(below(n("c3"), pi())), Built(Verdict::Holds(true)));
+        assert_eq!(verdict(below(pi(), n("c4"))), Built(Verdict::Holds(true)));
+        assert_eq!(verdict(below(n("ceu"), pi())), Built(Verdict::Holds(true)));
+        assert_eq!(verdict(below(pi(), n("c3"))), Built(Verdict::Holds(false)));
+        let ten = Term::apply("cdc", vec![n("c1"), n("cc0")]);
+        assert_eq!(
+            verdict(below(op(pi(), n("c2"), EXP), ten)),
+            Built(Verdict::Undecided(ORDER_UNDECIDED))
+        );
+        assert_eq!(
+            verdict(below(n("cc0"), ln(n("c2")))),
+            Built(Verdict::Holds(true))
+        );
+        assert_eq!(
+            verdict(below(ln(n("c2")), n("c1"))),
+            Built(Verdict::Holds(true))
+        );
+        let twice = op(n("c2"), ln(n("c2")), MUL);
+        assert_eq!(
+            verdict(below(ln(n("c3")), twice)),
+            Built(Verdict::Holds(true))
+        );
+    }
+
+    #[test]
+    fn a_difference_of_logarithms_is_signed_by_its_ratio() {
+        let mut logs = Real::atom(Atom::Ln(3)).times(&Real::rational(ratio(1, 2)));
+        logs = logs.minus(&Real::atom(Atom::Ln(2)));
+        assert_eq!(
+            sign_of(&logs),
+            Sign::Shown {
+                positive: false,
+                how: Shown::Logarithms
+            }
+        );
+    }
+
+    #[test]
+    fn a_near_tie_of_roots_is_too_large() {
+        // 10812186007/7645370045 is within 2⁻⁶⁷ of √2, nearer than the
+        // bracket of √2 at 64 bits is wide.
+        let mut near = Surd::rational(ratio(10_812_186_007, 7_645_370_045));
+        near.parts.insert(vec![2], q(-1));
+        assert_eq!(sign_of(&Real::surd(near)), Sign::TooLarge);
     }
 }

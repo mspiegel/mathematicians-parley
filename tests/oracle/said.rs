@@ -7,18 +7,24 @@
 //! The oracle is the rule as the document gives it, worked over the term:
 //! a numeral and a letter let in a number system are said once, and so is
 //! what +, −, · build from them, a quotient by a divisor the page says once
-//! is a positive integer or by a term of numerals alone that works out to
-//! other than 0, a power to a numeral or to a letter let in ℕ or
-//! ℕ₀, a term of numerals alone that `arithmetic` works out (a factorial),
-//! and a sum whose term is such a number at every index. A positive integer
-//! is a numeral other than 0, a letter let in ℕ, a factorial of a numeral,
-//! and what + and · build from them and a power of one to a numeral or to a
-//! letter let in ℕ or ℕ₀; the index of a sum from 1 is one. A letter let
-//! only as an element is not said once, nor a power to a letter in ℤ, nor a
-//! factorial of a letter, nor a quotient by any other divisor, whose not
-//! being zero the step has to cite. A claim the rule says is said once is
-//! built and verified; any other is refused for the membership or the
-//! divisor it lacks.
+//! is not zero, a power to a numeral or to a letter let in ℕ or ℕ₀, a term
+//! of numerals alone that `arithmetic` works out (a factorial), and a sum
+//! whose term is such a number at every index. A divisor the page says
+//! once is not zero is a term of numerals alone whose value is not zero, as
+//! 2 − 5 is; a positive integer; or a product, a quotient or a power to a
+//! numeral whose parts are each such a divisor. A positive integer is a
+//! letter let in ℕ, a term of numerals alone whose value is one, and what +
+//! and · build from them and a power of one to a numeral or to a letter let
+//! in ℕ or ℕ₀; the index of a sum from 1 is one. A letter let only as an
+//! element is not said once, nor a power to a letter in ℤ, nor a factorial
+//! of a letter, nor a quotient by any other divisor, whose not being zero
+//! the step has to cite. A claim the rule says is said once is built and
+//! verified; any other is refused for the membership or the divisor it
+//! lacks.
+
+use num_bigint::BigInt;
+use num_rational::BigRational;
+use num_traits::{Signed, Zero};
 
 use parley::formula::grammar::Grammar;
 use parley::formula::node::Node;
@@ -89,54 +95,31 @@ fn said(t: &Term) -> bool {
         Term::Letter(l) => *l != "p",
         Term::Add(a, b) | Term::Sub(a, b) | Term::Mul(a, b) => said(a) && said(b),
         Term::DivNum(a, _) | Term::PowNum(a, _) => said(a),
-        Term::DivBy(a, d) => {
-            said(a) && (positive(d) || closed(d).is_some_and(|v| v.0 != 0))
-        }
+        Term::DivBy(a, d) => said(a) && nonzero(d),
         Term::FactorialOfLetter => false,
         Term::PowLetter(a, e) => matches!(*e, "a" | "b") && said(a),
     }
 }
 
-/// The value of a term of numerals alone, as a fraction over a positive
-/// denominator; None where a letter or a sum stands in it, or a division
-/// by zero.
-fn closed(t: &Term) -> Option<(i128, i128)> {
-    let fraction = |n: i128, d: i128| {
-        let (mut a, mut b) = (n.abs(), d);
-        while b != 0 {
-            (a, b) = (b, a % b);
-        }
-        let g = a.max(1);
-        (n / g, d / g)
-    };
-    let factorial = |n: u32| (1..=n as i128).product::<i128>();
+/// The value of a term of numerals alone; None where a letter or a sum
+/// stands in it, or a division by zero.
+fn closed(t: &Term) -> Option<BigRational> {
+    let whole = |n: u64| BigRational::from_integer(BigInt::from(n));
     Some(match t {
-        Term::Num(n) => (*n as i128, 1),
-        Term::Factorial(n) => (factorial(*n), 1),
-        Term::Add(a, b) | Term::Sub(a, b) => {
-            let ((p, q), (r, s)) = (closed(a)?, closed(b)?);
-            let sign = if matches!(t, Term::Sub(..)) { -1 } else { 1 };
-            fraction(p * s + sign * r * q, q * s)
-        }
-        Term::Mul(a, b) => {
-            let ((p, q), (r, s)) = (closed(a)?, closed(b)?);
-            fraction(p * r, q * s)
-        }
-        Term::DivNum(a, d) => {
-            let (p, q) = closed(a)?;
-            fraction(p, q * *d as i128)
-        }
+        Term::Num(n) => whole(u64::from(*n)),
+        Term::Factorial(n) => whole((1..=u64::from(*n)).product()),
+        Term::Add(a, b) => closed(a)? + closed(b)?,
+        Term::Sub(a, b) => closed(a)? - closed(b)?,
+        Term::Mul(a, b) => closed(a)? * closed(b)?,
+        Term::DivNum(a, d) => closed(a)? / whole(u64::from(*d)),
         Term::DivBy(a, d) => {
-            let ((p, q), (r, s)) = (closed(a)?, closed(d)?);
-            if r == 0 {
+            let d = closed(d)?;
+            if d.is_zero() {
                 return None;
             }
-            fraction(p * s * r.signum(), q * r.abs())
+            closed(a)? / d
         }
-        Term::PowNum(a, k) => {
-            let (p, q) = closed(a)?;
-            (p.pow(*k), q.pow(*k))
-        }
+        Term::PowNum(a, k) => closed(a)?.pow(*k as i32),
         Term::Letter(_)
         | Term::PowLetter(..)
         | Term::FactorialOfLetter
@@ -144,9 +127,29 @@ fn closed(t: &Term) -> Option<(i128, i128)> {
     })
 }
 
-/// Whether the page says once the term is a positive integer, so that it
-/// needs no line saying it is not zero.
+/// Whether a divisor goes without a line saying it is not zero: a term of
+/// numerals alone whose value is not zero, 2 − 5 among them; a positive
+/// integer; or a product, a quotient or a power to a numeral whose parts
+/// are each not zero by this same rule.
+fn nonzero(t: &Term) -> bool {
+    if let Some(value) = closed(t) {
+        return !value.is_zero();
+    }
+    positive(t)
+        || match t {
+            Term::Mul(a, b) | Term::DivBy(a, b) => nonzero(a) && nonzero(b),
+            Term::DivNum(a, _) | Term::PowNum(a, _) => nonzero(a),
+            _ => false,
+        }
+}
+
+/// Whether the page says once the term is a positive integer: a term of
+/// numerals alone is one where its value is (`10 − 1`), and other terms by
+/// how they are built.
 fn positive(t: &Term) -> bool {
+    if let Some(value) = closed(t) {
+        return value.is_integer() && value.is_positive();
+    }
     match t {
         Term::Num(_) | Term::Factorial(_) => true,
         Term::Letter(l) => *l == "a",

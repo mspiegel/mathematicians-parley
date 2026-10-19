@@ -55,3 +55,14 @@ theorem a-product-divisor-below-a-line-saying-it
 
 4.  k·(k + 1) ≠ 0 and 1/k − 1/(k + 1) = 1/(k·(k + 1))
     join 2, 3
+
+theorem a-divisor-of-numerals-below-zero
+  note        2 − 5 is a term of numerals alone whose value, −3, is not
+              zero, so the page says once that it is not zero, though it is
+              no positive integer.
+  let c ∈ ℤ                                                           (H1)
+  let x ∈ ℝ                                                           (H2)
+  then x · ((c − c) / (2 − 5)) = (c − c) / (2 − 5) · x
+
+1.  x · ((c − c) / (2 − 5)) = (c − c) / (2 − 5) · x
+    algebra

@@ -601,17 +601,6 @@ fn cases() -> Vec<Case> {
             )],
             "1/k ∈ ℝ is not built from what step 10.3 cites: nothing says k ≠ 0, which it needs to divide by it",
         ),
-        // A difference of numerals is no numeral, so a step dividing by one
-        // writes its `≠ 0`.
-        case(
-            "divide by a difference of numerals without saying it is not zero",
-            vec![edit(
-                "proofs/wiedijk/perfect-numbers.proof",
-                Some("    requires 1 − 2 ≠ 0: arithmetic\n".to_string()),
-                String::new(),
-            )],
-            "nothing says 1 − 2 ≠ 0, which this step needs to divide by it",
-        ),
         // Where the proof has no letter of the subject's name in scope, the
         // pair is the only thing that says what the definition is about:
         // even-leg has no d, and its step claims an impossible fold.
@@ -3348,6 +3337,28 @@ fn cases() -> Vec<Case> {
                 edit("tests/elaborator/real-arithmetic-in-place.proof", Some("    requires √2 − 1 ≠ 0: real arithmetic".to_string()), "    requires √2 − 1 ≠ 0: algebra".to_string()),
             ],
             "the requires line of step 1 gives algebra for √2 − 1 ≠ 0, which real arithmetic can work out; a fact real arithmetic can work out cites real arithmetic",
+        ),
+        // A divisor of numerals alone is said once to be other than zero
+        // only where its value is.
+        case(
+            "divide by a difference of numerals whose value is zero",
+            vec![edit(
+                "tests/elaborator/divisors-not-zero-by-their-factors.proof",
+                Some("1.  x · ((c − c) / (2 − 5)) = (c − c) / (2 − 5) · x\n".to_string()),
+                "1.  x · ((c − c) / (5 − 5)) = (c − c) / (5 − 5) · x\n".to_string(),
+            )],
+            "nothing says 5 − 5 ≠ 0, which this step needs to divide by it",
+        ),
+        // An order set.mm's bounds on π do not reach is not decided, and
+        // not false.
+        case(
+            "ask real arithmetic for an order past the bounds on π",
+            vec![edit(
+                "tests/elaborator/real-arithmetic-order.proof",
+                Some("  then π² < 16\n\n1.  π² < 16\n".to_string()),
+                "  then π² < 10\n\n1.  π² < 10\n".to_string(),
+            )],
+            "is an order that the bounds on π, e and logarithms do not decide; real arithmetic does not decide it",
         ),
         // Real arithmetic takes a root only because the square root's
         // record says it decides it.

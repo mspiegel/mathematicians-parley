@@ -695,19 +695,19 @@ pub fn nonzero_by_parts(divisor: &Node, said: &dyn Fn(&Node) -> bool) -> bool {
     }
 }
 
-/// Whether a divisor is a numeral other than zero: 10^0 is worked out to 1,
-/// and is no numeral.
-pub fn numeral_nonzero(divisor: &Node) -> bool {
-    divisor.notation() == NUMERAL && value(divisor).is_some_and(|v| !v.is_zero())
+/// Whether a divisor is a term of numerals alone whose value, as
+/// `arithmetic` works it out, is not zero: 3, 2 − 5 and 10^0.
+pub fn closed_nonzero(divisor: &Node) -> bool {
+    value(divisor).is_some_and(|v| !v.is_zero())
 }
 
-/// Whether a divisor goes without its `≠ 0` (`SYNTAX.md`): a numeral other
-/// than zero, or a term the page says once is in ℕ by `letters`, a positive
-/// integer, as k, j·(j + 1), 2^n and (k + 1)! are where k, j and n are
-/// letters in ℕ.
+/// Whether a divisor goes without its `≠ 0` (`SYNTAX.md`): a term of
+/// numerals alone whose value is not zero, or a term the page says once is
+/// in ℕ by `letters`, a positive integer, as k, j·(j + 1), 2^n and (k + 1)!
+/// are where k, j and n are letters in ℕ.
 pub fn nonzero_said_once(divisor: &Node, letters: &Introduced) -> bool {
-    numeral_nonzero(divisor)
-        || within(divisor, System::N, letters, &numeral_nonzero, &|_, _| false)
+    closed_nonzero(divisor)
+        || within(divisor, System::N, letters, &closed_nonzero, &|_, _| false)
 }
 
 /// The value of a term built from numerals alone, worked out exactly; None

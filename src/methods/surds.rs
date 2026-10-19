@@ -60,10 +60,6 @@ pub const NOT_RATIONAL: &str =
 
 pub const TOO_LARGE: &str = "is too large to work out";
 
-/// Why an order is not decided: only one between rationals is.
-pub const ORDER_UNDECIDED: &str =
-    "is an order between numbers that are not both rational";
-
 /// Why a membership of ℕ, ℕ₀, ℤ or ℚ is not decided.
 pub const MEMBERSHIP_UNDECIDED: &str =
     "is a membership of a number that is not rational, which is a theorem to cite";
@@ -308,6 +304,26 @@ pub fn root_of(value: &Q) -> Result<Root, &'static str> {
     })
 }
 
+/// Two rationals a number lies strictly between.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Bracket {
+    pub below: Q,
+    pub above: Q,
+}
+
+/// The bracket of √p for a prime p at a precision of j bits: ⌊2ʲ·√p⌋/2ʲ
+/// and that plus 2⁻ʲ. Neither end is √p, which is not rational.
+pub fn root_bracket(p: u64, precision: u32) -> Bracket {
+    let scale = BigUint::one() << precision;
+    let floor = (BigUint::from(p) * &scale * &scale).sqrt();
+    let step = Q::new(BigInt::one(), BigInt::from(scale));
+    let below = Q::from_integer(BigInt::from(floor)) * &step;
+    Bracket {
+        above: &below + step,
+        below,
+    }
+}
+
 /// What a closed term comes to: its value, or why it has none.
 #[derive(Clone, Debug, PartialEq)]
 pub enum Value {
@@ -438,8 +454,8 @@ pub enum Verdict {
     /// A part of it has no value, and why.
     Unworked(&'static str),
     /// Each side has a value, and the relation between them is not one
-    /// real arithmetic decides: an order or a membership where a value is
-    /// not rational.
+    /// real arithmetic decides: an equation or an order the method cannot
+    /// tell, or a membership where a value is not rational.
     Undecided(&'static str),
 }
 
@@ -454,9 +470,10 @@ pub(crate) fn system_test(system: System) -> fn(&Q) -> bool {
 }
 
 /// Whether a relation between closed terms holds: `=` and `≠` of any
-/// values, `<` and `≤` of rational ones, and membership of ℝ and ℂ of any
-/// value and of ℕ, ℕ₀, ℤ and ℚ of a rational one; and the denial of each.
-/// A decline where the claim is none of these or holds a letter.
+/// values, and membership of ℝ and ℂ of any value and of ℕ, ℕ₀, ℤ and ℚ
+/// of a rational one; and the denial of each. An order is
+/// `reals::decide_closed`'s, with or without atoms. A decline where the
+/// claim is none of these or holds a letter.
 pub fn decide_closed(claim: &Term) -> Route<Verdict> {
     let negated = claim.label() == Some("wn") && claim.children().len() == 1;
     let claim = if negated { &claim.children()[0] } else { claim };
@@ -473,22 +490,6 @@ pub fn decide_closed(claim: &Term) -> Route<Verdict> {
                 (Err(stop), _) | (_, Err(stop)) => return stop,
             };
             (a == b) == (claim.label() == Some("wceq"))
-        }
-        Some("wbr")
-            if kids.len() == 3 && matches!(kids[2].label(), Some("clt" | "cle")) =>
-        {
-            let (a, b) = match (side(&kids[0]), side(&kids[1])) {
-                (Ok(a), Ok(b)) => (a, b),
-                (Err(stop), _) | (_, Err(stop)) => return stop,
-            };
-            let (Some(a), Some(b)) = (a.as_rational(), b.as_rational()) else {
-                return Built(Verdict::Undecided(ORDER_UNDECIDED));
-            };
-            if kids[2].label() == Some("clt") {
-                a < b
-            } else {
-                a <= b
-            }
         }
         Some("wcel")
             if kids.len() == 2

@@ -300,9 +300,9 @@ fn decided(c: &Claim) -> Verdict {
         }
         Claim::Below(a, b) => match pair(a, b) {
             Err(why) => refused(why),
-            Ok((a, b)) => match (a.rational(), b.rational()) {
-                (Some(a), Some(b)) => Verdict::Holds(a < b),
-                _ => refused(UNDECIDED),
+            Ok((a, b)) => match above_zero(&b.plus(&a.scaled(&-Q::one()))) {
+                Some(holds) => Verdict::Holds(holds),
+                None => refused(UNDECIDED),
             },
         },
         Claim::Member(a, real) => match worked(a) {
@@ -314,6 +314,133 @@ fn decided(c: &Claim) -> Verdict {
             },
         },
     }
+}
+
+// --- order -----------------------------------------------------------------------
+
+/// Whether a value is above 0, as `METHODS.md` says the method decides it:
+/// 0 is not; a rational by its sign; rational multiples of logarithms of
+/// primes by whether Π p^(n·qₚ) is above 1, n clearing the denominators;
+/// and anything else by its bracket, where the bracket lies on one side of
+/// 0. None where it does not. A sign so found is held to the value worked
+/// out from π, e and the logarithms to 35 digits.
+fn above_zero(gap: &Poly) -> Option<bool> {
+    if gap.0.is_empty() {
+        return Some(false);
+    }
+    if let Some(q) = gap.rational() {
+        return Some(q.is_positive());
+    }
+    let sign = if gap.logarithms_only() {
+        let scale = gap.0.values().fold(BigInt::one(), |d, q| {
+            num_integer::Integer::lcm(&d, q.denom())
+        });
+        let (mut over, mut under) = (BigInt::one(), BigInt::one());
+        for (m, q) in &gap.0 {
+            let (Atom::Ln(p), _) = m.iter().next().expect("one logarithm") else {
+                unreachable!("logarithms only")
+            };
+            let n = (q * Q::from_integer(scale.clone())).to_integer();
+            let power = BigInt::from(*p).pow(n.magnitude().try_into().unwrap());
+            if n.is_positive() {
+                over *= power;
+            } else {
+                under *= power;
+            }
+        }
+        over > under
+    } else {
+        let (low, high) = bracket(gap);
+        if !low.is_negative() {
+            true
+        } else if !high.is_positive() {
+            false
+        } else {
+            return None;
+        }
+    };
+    let near = estimate(gap);
+    assert!(
+        near.abs() < Q::new(BigInt::one(), BigInt::from(10u64).pow(20))
+            || near.is_positive() == sign,
+        "the judge's sign for {gap:?} is not the value's"
+    );
+    Some(sign)
+}
+
+/// The ends of a value's bracket: each atom between two rationals, π
+/// between 3 and 4, e between 2 and 3, ln p as `ln_ends` has it; a
+/// monomial between the products of its atoms' ends; a part between its
+/// coefficient times those, the other way round where the coefficient is
+/// below 0; and the sum between the sums.
+fn bracket(p: &Poly) -> (Q, Q) {
+    let (mut low, mut high) = (Q::zero(), Q::zero());
+    for (m, q) in &p.0 {
+        let (mut l, mut h) = (Q::one(), Q::one());
+        for (atom, k) in m {
+            let (al, ah) = match atom {
+                Atom::Pi => (Q::from_integer(3.into()), Q::from_integer(4.into())),
+                Atom::E => (Q::from_integer(2.into()), Q::from_integer(3.into())),
+                Atom::Ln(p) => ln_ends(*p),
+            };
+            l *= al.pow(*k as i32);
+            h *= ah.pow(*k as i32);
+        }
+        if q.is_positive() {
+            low += q * l;
+            high += q * h;
+        } else {
+            low += q * h;
+            high += q * l;
+        }
+    }
+    (low, high)
+}
+
+/// ln p between a/b, the greatest with b at most 8 and 3ᵃ ≤ pᵇ, and a/b,
+/// the least with b at most 8 and pᵇ ≤ 2ᵃ.
+fn ln_ends(p: u64) -> (Q, Q) {
+    let mut low = Q::zero();
+    let mut high: Option<Q> = None;
+    for b in 1..=8u32 {
+        let power = BigInt::from(p).pow(b);
+        let mut a = 0i64;
+        while BigInt::from(3).pow(a as u32 + 1) <= power {
+            a += 1;
+        }
+        low = low.max(Q::new(a.into(), b.into()));
+        let mut a = 0i64;
+        while BigInt::from(2).pow(a as u32) < power {
+            a += 1;
+        }
+        let up = Q::new(a.into(), b.into());
+        high = Some(high.map_or(up.clone(), |h| h.min(up)));
+    }
+    (low, high.expect("a denominator"))
+}
+
+/// The value worked out from π, e and the logarithms of 2, 3 and 5 to 35
+/// digits.
+fn estimate(p: &Poly) -> Q {
+    let digits = |s: &str| {
+        let (whole, frac) = s.split_once('.').unwrap();
+        let top: BigInt = format!("{whole}{frac}").parse().unwrap();
+        Q::new(top, BigInt::from(10u64).pow(frac.len() as u32))
+    };
+    let value = |a: &Atom| match a {
+        Atom::Pi => digits("3.14159265358979323846264338327950288"),
+        Atom::E => digits("2.71828182845904523536028747135266250"),
+        Atom::Ln(2) => digits("0.69314718055994530941723212145817657"),
+        Atom::Ln(3) => digits("1.09861228866810969139524523692252570"),
+        Atom::Ln(5) => digits("1.60943791243410037460075933322618764"),
+        Atom::Ln(p) => panic!("no value of ln {p} is written here"),
+    };
+    p.0.iter()
+        .map(|(m, q)| {
+            m.iter()
+                .fold(q.clone(), |acc, (a, k)| acc * value(a).pow(*k as i32))
+        })
+        .fold(Q::zero(), |s, x| s + x)
 }
 
 // --- drawing -------------------------------------------------------------------
@@ -388,7 +515,37 @@ fn spelt(p: &Poly) -> Term {
 /// logarithm or exponential and its value; a disequality, an order, a
 /// membership; or a refusal.
 pub fn draw(r: &mut Random) -> Claim {
-    match r.below(8) {
+    match r.below(9) {
+        8 => {
+            // Orders the bounds decide and orders they do not: π and e
+            // against rationals near their bounds and each other, a
+            // logarithm against a rational, and two multiples of
+            // logarithms.
+            let tenths =
+                |r: &mut Random, from: i64| Term::Ratio(from + r.below(30) as i64, 10);
+            let (a, c) = match r.below(4) {
+                0 => {
+                    let atom = [Term::Pi, Term::E][r.below(2) as usize].clone();
+                    (atom, tenths(r, 15))
+                }
+                1 => (
+                    Term::Mul(b(Term::Num(1 + r.below(2) as i64)), b(Term::E)),
+                    Term::Pi,
+                ),
+                2 => (Term::Ln(b(ratio_drawn(r))), tenths(r, -5)),
+                _ => (
+                    Term::Mul(
+                        b(Term::Num(1 + r.below(3) as i64)),
+                        b(Term::Ln(b(ratio_drawn(r)))),
+                    ),
+                    Term::Ln(b(ratio_drawn(r))),
+                ),
+            };
+            match r.below(2) {
+                0 => Claim::Below(a, c),
+                _ => Claim::Below(c, a),
+            }
+        }
         0..=2 => {
             let t = term_drawn(r, 3);
             let expanded = worked(&t).expect("a drawn term has a value");
