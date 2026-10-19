@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.logarithms.ln-real $p |- ( ( A e. RR /\ 0 < A ) -> ( log ` A ) e. RR ) $=
-    ( cr wcel cc0 clt wbr wa crp clog cfv simpl id syl simpr elrpd relogcl ) ABCZDAEFZGZAHCAIJBCSASQQQRKQLMQRNOAPM $.
+    ( cr wcel cc0 clt wbr wa crp clog cfv simpl id syl simpr jca elrp sylibr relogcl ) ABCZDAEFZGZAHCZAIJBCUAUAUBUASTUASSSTKSLMSTNOAPQARM $.
 $}

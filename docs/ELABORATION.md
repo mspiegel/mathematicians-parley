@@ -1438,8 +1438,9 @@ a coefficient complex through ℕ₀, and searched for, each product was a lemma
 spent before the atoms were reached.
 
 A membership of ℝ⁺, which set.mm's laws of the logarithm ask of each
-argument (`relogmul`, `logltb`), is the term in ℝ and above 0, each settled
-in turn, joined by `elrpd`. The page says x ∈ ℝ and x > 0, as
+argument (`relogmul`, `logltb`), is searched for by `elrp`, a declared
+lemma (`rules::MEMBERSHIP`): read from right to left it asks the term in ℝ
+and above 0, each settled in turn. The page says x ∈ ℝ and x > 0, as
 `mun:stdlib/logarithms/ln-product` does, and never ℝ⁺ itself.
 
 A sum's lemmas ask things of each index: `fsumdvds` that N divide the term

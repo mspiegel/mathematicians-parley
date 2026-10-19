@@ -1050,6 +1050,9 @@ pub const MEMBERSHIP: &[&str] = &[
     // A part of a set is a member of its power set, and the other way.
     "gsspw",
     "elpwi",
+    // A positive real is in ℝ⁺, which set.mm's laws of the logarithm ask of
+    // each argument, where the page says x ∈ ℝ and x > 0.
+    "elrp",
 ];
 
 /// Every string the tables hold, with the table that holds it, the tables

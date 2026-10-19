@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.logarithms.ln-power $p |- ( ( ( A e. RR /\ B e. ZZ ) /\ 0 < A ) -> ( log ` ( A ^ B ) ) = ( B x. ( log ` A ) ) ) $=
-    ( cr wcel cz wa cc0 clt wbr crp cexp co clog cfv cmul wceq simpl id syl simpr elrpd jca relogexp ) ACDZBEDZFZGAHIZFZAJDZUEFABKLMNBAMNOLPUHUIUEUHAUHUFUDUFUGQZUFUDUDUDUEQUDRSSUFUGTUAUHUFUEUJUDUETSUBABUCS $.
+    ( cr wcel cz wa cc0 clt wbr crp cexp co clog cfv cmul wceq simpl id syl simpr jca elrp sylibr relogexp ) ACDZBEDZFZGAHIZFZAJDZUFFABKLMNBAMNOLPUIUJUFUIUEUHFUJUIUEUHUIUGUEUGUHQZUGUEUEUEUFQUERSSUGUHTUAAUBUCUIUGUFUKUEUFTSUAABUDS $.
 $}

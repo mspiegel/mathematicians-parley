@@ -554,30 +554,6 @@ impl<'a> Elaborator<'a> {
                 return Ok(made);
             }
         }
-        // A positive real is in ℝ⁺, which set.mm's laws of the logarithm ask
-        // of each argument: the term in ℝ and above 0, each settled
-        // (`elrpd`).
-        if label == "wcel"
-            && kids.len() == 2
-            && self.rpn(&kids[1]).alone() == Some("crp")
-        {
-            let x = self.rpn(&kids[0]);
-            let real = self.to_term(&t!(&x, "cr", "wcel"));
-            let above = self.to_term(&t!("cc0", &x, "clt", "wbr"));
-            if let Built(real) =
-                self.settle(&real, scope, unfiltered, depth, None, None)?
-            {
-                if let Built(above) =
-                    self.settle(&above, scope, unfiltered, depth, None, None)?
-                {
-                    return Ok(Built(self.b.ap(
-                        "elrpd",
-                        &binds! {"ph" => scope, "A" => &x},
-                        &[&real, &above],
-                    )));
-                }
-            }
-        }
         // A membership a requires line wrote in another number system is the
         // one to carry, before the lemmas below are tried in their order.
         if label == "wcel" && kids.len() == 2 {

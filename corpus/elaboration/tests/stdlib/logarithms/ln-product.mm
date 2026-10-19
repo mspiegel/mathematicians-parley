@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.logarithms.ln-product $p |- ( ( ( ( A e. RR /\ B e. RR ) /\ 0 < A ) /\ 0 < B ) -> ( log ` ( A x. B ) ) = ( ( log ` A ) + ( log ` B ) ) ) $=
-    ( cr wcel wa cc0 clt wbr crp cmul co clog cfv caddc wceq simpl id syl simpr elrpd jca relogmul ) ACDZBCDZEZFAGHZEZFBGHZEZAIDZBIDZEABJKLMALMBLMNKOUIUJUKUIAUIUGUCUGUHPZUGUEUCUEUFPZUEUCUCUCUDPUCQRRRUIUGUFULUEUFSRTUIBUIUGUDULUGUEUDUMUCUDSRRUGUHSTUAABUBR $.
+    ( cr wcel wa cc0 clt wbr crp cmul co clog cfv caddc wceq simpl id syl simpr jca elrp sylibr relogmul ) ACDZBCDZEZFAGHZEZFBGHZEZAIDZBIDZEABJKLMALMBLMNKOUJUKULUJUDUGEUKUJUDUGUJUHUDUHUIPZUHUFUDUFUGPZUFUDUDUDUEPUDQRRRUJUHUGUMUFUGSRTAUAUBUJUEUIEULUJUEUIUJUHUEUMUHUFUEUNUDUESRRUHUISTBUAUBTABUCR $.
 $}

@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.logarithms.ln-nonzero $p |- ( ( ( A e. RR /\ 0 < A ) /\ -. A = 1 ) -> -. ( log ` A ) = 0 ) $=
-    ( cr wcel cc0 clt wbr wa c1 wceq wn clog cfv wne crp simpl id syl simpr elrpd neqcomd wb df-ne a1i eqcom notbid bitrd bicomd mpbid jca logne0 ) ABCZDAEFZGZAHIZJZGZAKLZDMZUQDIZJZUPANCZAHMZGURUPVAVBUPAUPUMUKUMUOOZUMUKUKUKULOUKPQQUPUMULVCUKULRQSUPHAIZJZVBUPAHUMUORTUPVBVEUPVBUOVEVBUOUAUPAHUBUCUPUNVDUNVDUAUPAHUDUCUEUFUGUHUIAUJQURUTUAUPUQDUBUCUH $.
+    ( cr wcel cc0 clt wbr wa c1 wceq wn clog cfv wne crp simpl id syl simpr jca elrp sylibr neqcomd wb df-ne a1i eqcom notbid bitrd bicomd mpbid logne0 ) ABCZDAEFZGZAHIZJZGZAKLZDMZURDIZJZUQANCZAHMZGUSUQVBVCUQUNVBUQULUMUQUNULUNUPOZUNULULULUMOULPQQUQUNUMVDULUMRQSATUAUQHAIZJZVCUQAHUNUPRUBUQVCVFUQVCUPVFVCUPUCUQAHUDUEUQUOVEUOVEUCUQAHUFUEUGUHUIUJSAUKQUSVAUCUQURDUDUEUJ $.
 $}
