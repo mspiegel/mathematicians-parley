@@ -42,7 +42,13 @@ debug = 1
 # The tests run in this profile (`scripts/precommit.sh`), and an overflow is
 # a fault to stop at there and in the tools alike.
 overflow-checks = true
-incremental = true
+# Not incremental. On macOS the debug info stays in the object files, which
+# the binaries point to and nothing removes; incremental names them anew at
+# each build, and one changed line left 1,110 more (about 1 GB). Measured
+# 2026-10-18 on a clean directory: a rebuild after a change takes 47s
+# against 20s incremental, the branch test run 36s against 39s, and none
+# accumulate.
+incremental = false
 
 [lints.rust]
 unsafe_code = "forbid"
