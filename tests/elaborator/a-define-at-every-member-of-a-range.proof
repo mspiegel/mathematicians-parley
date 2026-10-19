@@ -1,0 +1,11 @@
+theorem a-define-at-every-member-of-a-range
+  note        A step said of every member of {1, …, m}, citing a define
+              over ℕ: the member is in ℕ, the system the range is in, as
+              the same step's proof block would have it from its let.
+  let m ∈ ℕ                                                           (H1)
+  let q(j) = j + 1, for j ∈ ℕ                                         (D1)
+         reads one more than j
+  then For all j ∈ {1, …, m}, q(j) = j + 1.
+
+1.  For all j ∈ {1, …, m}, q(j) = j + 1.
+    D1

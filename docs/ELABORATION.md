@@ -1593,6 +1593,10 @@ above as asked for when a `membership` line below builds on it, as
   taken apart as the line is (`part_at_a_member`, `rspcv`):
   `requires s(x) ∈ ℕ₀: from 4`, where line 4 says for all x ∈ ℚ, s(x) ∈ ℕ₀
   and more, in a step said of every x ∈ ℚ (rationals-countable, step 5);
+  the member is in the line's set as a fact writes it, or by the table or
+  by closure (`within`), found by matching the line's body against the
+  requires line: `requires F(m + 1) ∈ ℝ: from 2`, where 2 says for all
+  k ∈ ℕ₀, F(k) ∈ ℝ, and m ∈ ℕ;
 
 - the kernel's sethood of what a let introduces: `let x be an element` and
   `let a ∉ X` give that the thing is a set, which `READERS.md` keeps off the

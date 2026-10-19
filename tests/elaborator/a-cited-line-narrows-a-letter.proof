@@ -1,0 +1,16 @@
+import mundane theorem stdlib/numbers/nat0-as-int
+
+theorem a-cited-line-narrows-a-letter
+  note        A line saying q ∈ ℕ₀ narrows the q a let put in ℤ, so 3q + 1
+              is in ℕ₀ by what the page says once, and the for-all over ℕ₀
+              is read at it with no requires line.
+  let q ∈ ℤ                                                           (H1)
+  assume q ≥ 0                                                        (H2)
+  assume for all k ∈ ℕ₀, k + 1 > 0                                    (H3)
+  then 3q + 1 + 1 > 0
+
+1.  q ∈ ℕ₀
+    mun:nat0-as-int n := q, from H2
+
+2.  3q + 1 + 1 > 0
+    instantiate k := 3q + 1 in H3, from 1

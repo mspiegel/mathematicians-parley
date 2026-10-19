@@ -608,8 +608,15 @@ fn citation_parts(step: &Step, library: &Library, known: &Known) -> Parts {
             &defined,
         );
     }
+    let mut letters = introduced(known, step);
     let mut parts = match at_a_member(step, &claims, library) {
         Some((member, body)) => {
+            // A step said of every member introduces the member as the same
+            // step's block would by its `let`: j of "for all j ∈ {1, …, m}"
+            // is in ℕ, the system the range is in (`SYNTAX.md`).
+            if let Some((letter, system)) = crate::citing::introduction(&member) {
+                letters.insert(letter, system);
+            }
             let mut facts = facts;
             facts.push(member);
             finished(facts, vec![body], seed, library, &known.sorts)
@@ -617,13 +624,7 @@ fn citation_parts(step: &Step, library: &Library, known: &Known) -> Parts {
         None => finished(facts, claims, seed, library, &known.sorts),
     };
     let typed = typed_in_scope(known, step);
-    said_once(
-        &mut parts,
-        &introduced(known, step),
-        &typed,
-        library,
-        &known.sorts,
-    );
+    said_once(&mut parts, &letters, &typed, library, &known.sorts);
     if let Some(item) = step.just.cited_item() {
         typed_seed(&mut parts, &step.just.item(&item), step, known, library);
     }

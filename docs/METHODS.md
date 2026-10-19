@@ -886,11 +886,13 @@ The term is walked by the operation at its head, as `algebra` walks it:
   and k in ℤ (`bccl`);
 - a sum over a range {a, …, b} is in ℝ or ℂ when its term is, for each index
   in the range (`fsumrecl`, `fsumcl`); the index is in ℕ where the range
-  starts at 1, by the table of `SYNTAX.md`. A term dividing by something
-  that holds the index has a divisor no line outside the sum can say is not
-  zero, so the step cites a line saying the term at every point of a set
-  holding the range: `Σ(k = 1 to n) 1/k ∈ ℝ: membership, from 4`, where 4
-  says for all k ∈ ℕ, 1/k ∈ ℝ;
+  starts at 1, by the table of `SYNTAX.md`. A cited line saying the term at
+  every point of a set holding the range says it, whatever the term:
+  `Σ(j = 1 to m) q(j) ∈ ℝ` from a line saying for all j ∈ {1, …, m},
+  q(j) ∈ ℝ. A term dividing by something that holds the index has a divisor
+  no line outside the sum can say is not zero, so only such a line says it:
+  `Σ(k = 1 to n) 1/k ∈ ℝ: membership, from 4`, where 4 says for all k ∈ ℕ,
+  1/k ∈ ℝ;
 - a term by cases, what a define by cases writes out to, is in S when each
   of its values is: s(x) ∈ ℕ₀ where s is 0 or 1;
 - anything else is an atom, and its membership is a line the step cites or

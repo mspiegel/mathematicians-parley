@@ -17,6 +17,7 @@ use super::Facts;
 use crate::corpus::proof::Requires;
 use crate::corpus::{Head, Item, Method, Step};
 use crate::formula::Node;
+use crate::mm::kernel::{same, Term};
 use crate::mm::spell::Proof;
 use crate::mm::Rpn;
 use crate::outcome::{Built, Checked, Declined, Route};
@@ -60,6 +61,46 @@ fn not_above(step: &Step, req: &Requires) -> BTreeSet<String> {
         .skip_while(|o| o.line != req.line)
         .map(|o| requirement(o.line))
         .collect()
+}
+
+/// What a line's "for all" body has in the place of its letter, `mark`,
+/// where the body or a sentence of it is `term` with something in that
+/// place: `F(k) ∈ ℝ` against `F(m + 1) ∈ ℝ` gives m + 1. None where no
+/// sentence of the body is `term` so, or the letter's places differ.
+fn member_giving(body: &Term, mark: &Term, term: &Term) -> Option<Term> {
+    fn fits(p: &Term, g: &Term, mark: &Term, found: &mut Option<Term>) -> bool {
+        if same(p, mark) {
+            return match found {
+                Some(f) => same(f, g),
+                None => {
+                    *found = Some(g.clone());
+                    true
+                }
+            };
+        }
+        if p.variable().is_some() || g.variable().is_some() {
+            return p.variable() == g.variable();
+        }
+        p.label() == g.label()
+            && p.children().len() == g.children().len()
+            && p.children()
+                .iter()
+                .zip(g.children())
+                .all(|(a, b)| fits(a, b, mark, found))
+    }
+    let mut sentences = vec![body.clone()];
+    let mut at = 0;
+    while at < sentences.len() {
+        let s = sentences[at].clone();
+        if s.variable().is_none() && matches!(s.label(), Some("wa" | "w3a")) {
+            sentences.extend(s.children().iter().cloned());
+        }
+        at += 1;
+    }
+    sentences.iter().find_map(|s| {
+        let mut found = None;
+        (fits(s, term, mark, &mut found)).then_some(found).flatten()
+    })
 }
 
 pub fn rests_on_only(proof: &Proof, item: &str) -> bool {
@@ -495,21 +536,50 @@ impl<'a> Elaborator<'a> {
                 Built(p) => p,
                 Declined(_) => inside,
             };
-            let instance = self.rpn(&self.restated(&body, &mark, &at));
-            let held = Facts::new();
-            self.know(&held, said.clone(), whole.clone());
-            self.know(&held, member.clone(), inside);
-            let Some(p) = self.instance_of_universal(&instance, scope, &held)? else {
-                continue;
-            };
-            let parts = Facts::new();
-            self.know(&parts, instance.clone(), p.clone());
-            self.unpack_all(&instance, &p, scope, &parts);
-            if let Some(found) = self.held(&parts, term, scope)? {
+            let taken = (said, whole, &body, &mark);
+            if let Some(found) = self.taken_at(taken, &at, inside, term, scope)? {
                 return Ok(Some(found));
             }
         }
-        Ok(None)
+        // A member no fact puts in the line's set as written, which is in it
+        // by the table or by closure: m ∈ ℕ is in ℕ₀, and so is m + 1
+        // (`within`). The member is what the line's body, matched against
+        // `term`, has in the letter's place, as the checker reads it.
+        let Some(at) = member_giving(&body, &self.to_term(&mark), &self.to_term(term))
+        else {
+            return Ok(None);
+        };
+        let at = self.rpn(&at);
+        let Built(inside) = self.within(&at, &domain, scope, facts, 3)? else {
+            return Ok(None);
+        };
+        self.taken_at((said, whole, &body, &mark), &at, inside, term, scope)
+    }
+
+    /// `term` from the line `said`, proved by `whole`, taken at the member
+    /// `at`, which `inside` puts in its set: the line's body with `at` for
+    /// the letter `mark`, taken apart. None where `term` is no part of it.
+    fn taken_at(
+        &mut self,
+        (said, whole, body, mark): (&Rpn, &Proof, &Term, &Rpn),
+        at: &Rpn,
+        inside: Proof,
+        term: &Rpn,
+        scope: &Rpn,
+    ) -> Checked<Option<Proof>> {
+        let line = self.to_term(said);
+        let member = t!(at, self.rpn(&line.children()[2]), "wcel");
+        let instance = self.rpn(&self.restated(body, mark, at));
+        let held = Facts::new();
+        self.know(&held, said.clone(), whole.clone());
+        self.know(&held, member, inside);
+        let Some(p) = self.instance_of_universal(&instance, scope, &held)? else {
+            return Ok(None);
+        };
+        let parts = Facts::new();
+        self.know(&parts, instance.clone(), p.clone());
+        self.unpack_all(&instance, &p, scope, &parts);
+        self.held(&parts, term, scope)
     }
 
     /// A "for all" over a set inside the one a line's "for all" is over: a

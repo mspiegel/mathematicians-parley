@@ -1,0 +1,12 @@
+theorem a-sum-of-defined-values-said-pointwise
+  note        A sum's membership from a line saying its term at every
+              index, whatever the term: nothing else says what a sequence
+              by recursion's values are.
+  let m ∈ ℕ                                                           (H1)
+  let F(0) = 1,  F(k + 1) = F(k) + 1,  for k ∈ ℕ₀                     (D1)
+         reads the counting sequence from 1
+  assume for all j ∈ {1, …, m}, F(j) ∈ ℝ                              (H2)
+  then Σ(j = 1 to m) F(j) ∈ ℝ
+
+1.  Σ(j = 1 to m) F(j) ∈ ℝ
+    membership, from H2

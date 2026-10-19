@@ -101,11 +101,20 @@ pub fn said_once(
         let Some(system) = System::of_sign(&set.text) else {
             continue;
         };
-        if term.is_name() {
-            letters.entry(term.text.to_string()).or_insert(system);
-        } else {
+        if !term.is_name() {
             atoms.push((term.clone(), system));
+            continue;
         }
+        // Of two systems a letter is in, the narrower stands: a line saying
+        // q ∈ ℕ₀ narrows a q a `let` or an `obtain` put in ℤ.
+        letters
+            .entry(term.text.to_string())
+            .and_modify(|held| {
+                if system.within(*held) {
+                    *held = system;
+                }
+            })
+            .or_insert(system);
     }
     let ctx = &library.ctx;
     let mut local = sorts.clone();
@@ -151,7 +160,11 @@ pub fn said_once(
         .chain(&seeded)
         .flat_map(|n| n.walk())
     {
-        if !node.sort.is("number") || !seen.insert(node.by_shape()) {
+        // A letter a fact puts in a number system is a number, as the bound
+        // j of "for all j ∈ {1, …, m}" is, read at a member.
+        let number = node.sort.is("number")
+            || (node.is_name() && letters.contains_key(node.text.as_str()));
+        if !number || !seen.insert(node.by_shape()) {
             continue;
         }
         for (sign, label) in rules::SYSTEM_OF {

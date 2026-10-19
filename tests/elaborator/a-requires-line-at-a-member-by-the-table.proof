@@ -1,0 +1,15 @@
+theorem a-requires-line-at-a-member-by-the-table
+  note        A line said of every member of ℕ₀ read at m, which is in ℕ₀
+              by the table since m ∈ ℕ, and at m + 1, by closure: the
+              member is found by matching the line against the requires
+              line, and no line need say it is in ℕ₀.
+  let m ∈ ℕ                                                           (H1)
+  let F(0) = 1,  F(k + 1) = F(k) + 1,  for k ∈ ℕ₀                     (D1)
+         reads the counting sequence from 1
+  assume for all k ∈ ℕ₀, F(k) ∈ ℝ                                     (H2)
+  then F(m) + F(m + 1) = F(m + 1) + F(m)
+
+1.  F(m) + F(m + 1) = F(m + 1) + F(m)
+    algebra
+    requires F(m) ∈ ℝ: from H2
+    requires F(m + 1) ∈ ℝ: from H2

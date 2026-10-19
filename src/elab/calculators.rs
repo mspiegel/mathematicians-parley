@@ -4182,13 +4182,17 @@ impl<'a> Elaborator<'a> {
         let each = self.frames_kept(|me| {
             let (inner, lifted) = me.fixed(scope, known, &index, &limits)?;
             let claim = Term::apply("wcel", vec![summand.clone(), system_term.clone()]);
-            let pointwise = !said_once
-                && me.divides_by_index(&summand, &letter, &inner, &lifted)?;
-            if pointwise {
-                me.said_at_every_index(&claim, &inner, &lifted)
-            } else {
-                me.member_of(&claim, &inner, &lifted, step)
+            // A line saying the term at every index says it, whatever the
+            // term; a term dividing by the index is so only by such a line
+            // (`methods::membership::summed`).
+            let by_line = me.said_at_every_index(&claim, &inner, &lifted)?;
+            if let Built(_) = by_line {
+                return Ok(by_line);
             }
+            if !said_once && me.divides_by_index(&summand, &letter, &inner, &lifted)? {
+                return Ok(by_line);
+            }
+            me.member_of(&claim, &inner, &lifted, step)
         })?;
         let each = take!(each);
         Ok(Built(self.b.ap(

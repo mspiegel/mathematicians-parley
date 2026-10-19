@@ -438,7 +438,7 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
 | `exhibit, from L` | the claim is a bare "there is" sentence; the lines L state its body with some value in place of the bound variable, and the reader finds the value by comparing. The value is never written, since by the literal-instance rule the cited lines determine it. Where the "there is" is a sentence of a cited definition, no keyword is used: `mun:even n := p², from 2.3` proves "p² is even" from a line stating p² = 2k for some k, by the ↔ convention |
 | `substitute e (line L1) into line L2` | replace by the equation e, which is part of line L1, inside line L2 |
 | `substitute e (line L1)` | the claim is t = t′, where t′ is t with one side of e, which is part of line L1, replaced by the other |
-| `instantiate v := t in line L, from L2` | line L claims "for all v ∈ X, B"; the claim is B with t in place of v, and L2 supplies t ∈ X. Several variables may be given at once. L may also be a hypothesis or supposition label. L is never an item: a definition whose sentence is a "for all" is first claimed by a numbered step citing it, and that number is instantiated. This is the rule that keeps an item out of `from` applied to the other slot that says where a fact comes from, and for the same reason, that a reader can look at everything a step names |
+| `instantiate v := t in line L, from L2` | line L claims "for all v ∈ X, B"; the claim is B with t in place of v, and L2 supplies t ∈ X, or says what t is built from as a cited item's lines do: L2 saying q ∈ ℕ₀ supplies 3q + 1 ∈ ℕ₀, though a `let` put q in ℤ (below, "A term that a line the step names"). Several variables may be given at once. L may also be a hypothesis or supposition label. L is never an item: a definition whose sentence is a "for all" is first claimed by a numbered step citing it, and that number is instantiated. This is the rule that keeps an item out of `from` applied to the other slot that says where a fact comes from, and for the same reason, that a reader can look at everything a step names |
 | `algebra, from L` | ring and field identities, starting from the equations in L |
 | `arithmetic` | a fact about closed numerals: value, order, or membership in ℕ ℤ ℚ ℝ |
 | `inequalities, from L` | the lines L added side by side, as they stand, with the bounds a membership gives, closed numeral facts, a disequality taken both ways and a negation turned round taken without being written (`METHODS.md`, inequalities); with nothing in L to add, those alone |
@@ -546,7 +546,13 @@ claim, or leaves one of its hypotheses unsaid
 A term that a line the step names puts in a number system is a part as a
 letter is, for a method's atoms and a cited item's hypotheses alike: where
 a requires line says `N(n) ∈ ℝ`, `N(n) + 1`, `2·N(n)` and `N(n)²` are real
-too, and a line saying so does no work. Everything else a step needs to be
+too, and a line saying so does no work. A letter is such a term as well: a
+line the step names saying q ∈ ℕ₀ puts q there though a `let` or an
+`obtain` put it in ℤ, the narrower system standing. A line putting a letter
+in a range says nothing past itself, and that r ∈ {0, …, n − 1} is whole is
+`mun:range-integer`, cited; but a step said of every member of a range,
+"for all j ∈ {1, …, m}, …" justified as at a member, introduces j as its
+block's `let` would, in ℕ here. Everything else a step needs to be
 a number is written as before: a defined name, a function's value outside a
 sum, a sum the rule above does not reach, a power whose exponent is any
 other term, 2^(j + 1) or 2^k with k ∈ ℤ, |x|,

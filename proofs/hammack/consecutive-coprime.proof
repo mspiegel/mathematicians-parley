@@ -39,7 +39,6 @@ theorem consecutive-coprime
 
     2.5.  gcd(n, n + 1) ∈ ℕ. gcd(n, n + 1) divides n. gcd(n, n + 1) divides n + 1.
           mun:gcd a := n, b := n + 1, from 2.4
-          requires n + 1 ∈ ℕ: membership, from 2.4
 
     2.6.  gcd(n, n + 1) divides (n + 1) − n
           mun:divides-difference d := gcd(n, n + 1), a := n + 1, b := n, from 2.5

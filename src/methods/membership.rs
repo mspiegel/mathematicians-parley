@@ -307,17 +307,24 @@ fn summed(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
     if let Some(inside) = index_system(start) {
         letters.insert(index.text.to_string(), inside);
     }
+    // A line saying the term at every index of the sum says the sum is a
+    // number, whatever the term is; a term dividing by the index is so only
+    // by such a line, since nothing else says its divisor is not zero.
+    let sum = Summed {
+        index: &index.text,
+        body,
+        start,
+        end,
+    };
+    if facts
+        .facts
+        .iter()
+        .any(|f| said_pointwise(f, &sum, system, facts.ctx))
+    {
+        return true;
+    }
     if divides_by(body, &index.text, &letters) {
-        let sum = Summed {
-            index: &index.text,
-            body,
-            start,
-            end,
-        };
-        return facts
-            .facts
-            .iter()
-            .any(|f| said_pointwise(f, &sum, system, facts.ctx));
+        return false;
     }
     let mut ranged = facts.ranged.clone();
     ranged.insert(
