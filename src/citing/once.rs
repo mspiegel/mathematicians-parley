@@ -21,9 +21,9 @@ use crate::formula::symbol::Symbol;
 use crate::formula::{ByShape, Node, Sort, Sorts};
 use crate::matching::{alike_top, standard, substitute_apart, Binding, FxIndexSet};
 use crate::notations::{
-    APPLICATION, DIVIDED, FACTORIAL, IN, INTEGER_RANGE, JUXTAPOSITION, MEMBERSHIP,
-    MINUS, MOD, MULTIPLICATIVE, NUMBER_SYSTEMS, NUMERAL, PLUS, POWER, SQUARE_ROOT, SUM,
-    SUPERSCRIPT, TIMES, UNARY_MINUS,
+    APPLICATION, DIVIDED, EULER, FACTORIAL, IN, INTEGER_RANGE, JUXTAPOSITION,
+    MEMBERSHIP, MINUS, MOD, MULTIPLICATIVE, NUMBER_SYSTEMS, NUMERAL, PI, PLUS, POWER,
+    SQUARE_ROOT, SUM, SUPERSCRIPT, TIMES, UNARY_MINUS,
 };
 use crate::rules::{self, lookup, System};
 
@@ -266,8 +266,9 @@ pub enum OnceReason {
     Numeral,
     /// A letter introduced in the system or one inside it.
     Letter,
-    /// A square root `real arithmetic` works out, which is in ℝ and ℂ.
-    Root,
+    /// A square root, π, e or a logarithm `real arithmetic` works out, which
+    /// is in ℝ and ℂ.
+    Real,
     /// The term's operation applied to parts each in the system, the
     /// reasons given in the order the term writes its parts; a power's
     /// exponent is no part, being a numeral or a letter in ℕ or ℕ₀, and a
@@ -318,9 +319,10 @@ pub enum Shape<'t, T> {
     Operation(&'static str, &'t T, &'t T),
     /// A base to an exponent.
     Power(&'t T, &'t T),
-    /// The square root of numerals whose value is a rational of at least 0,
-    /// which `real arithmetic` works out; the radicand.
-    Root(&'t T),
+    /// What `real arithmetic` works out and the walk takes whole: the square
+    /// root of numerals whose value is a rational of at least 0, π, e, and
+    /// the logarithm of numerals whose value is a positive rational.
+    Real,
     /// Anything the walk does not take apart.
     Other,
 }
@@ -394,8 +396,8 @@ pub fn reason<A: OnceAsk>(
             rules::closed("cexp", label)?;
             Some(OnceReason::Built(vec![reason(ask, a, system)?]))
         }
-        Shape::Root(_) => {
-            matches!(system, System::R | System::C).then_some(OnceReason::Root)
+        Shape::Real => {
+            matches!(system, System::R | System::C).then_some(OnceReason::Real)
         }
         Shape::Other => None,
     }
@@ -405,6 +407,12 @@ pub fn reason<A: OnceAsk>(
 /// least 0, within its limits (`methods::surds::root_of`).
 pub fn root_taken(value: &BigRational) -> bool {
     crate::methods::surds::root_of(value).is_ok()
+}
+
+/// Whether `real arithmetic` takes the logarithm of a rational: a positive
+/// one, within its limits (`methods::reals::factored`).
+pub fn log_taken(value: &BigRational) -> bool {
+    value.is_positive() && crate::methods::reals::factored(value).is_ok()
 }
 
 /// Whether a power's exponent makes it a product of copies of its base:
@@ -449,7 +457,18 @@ impl OnceAsk for PageOnce<'_> {
             (_, DIVIDED, [a, b]) => Shape::Operation("cdiv", a, b),
             (POWER | SUPERSCRIPT, _, [a, e]) => Shape::Power(a, e),
             (SQUARE_ROOT, _, [a]) if value(a).is_some_and(|v| root_taken(&v)) => {
-                Shape::Root(a)
+                Shape::Real
+            }
+            (PI | EULER, _, []) => Shape::Real,
+            // The library's ln: one the theorem introduces as a letter of its
+            // own is not it.
+            (APPLICATION, _, [head, a])
+                if head.is_name()
+                    && head.text == "ln"
+                    && !self.letters.contains_key("ln")
+                    && value(a).is_some_and(|v| log_taken(&v)) =>
+            {
+                Shape::Real
             }
             _ => Shape::Other,
         }

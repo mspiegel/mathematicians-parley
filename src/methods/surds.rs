@@ -60,6 +60,14 @@ pub const NOT_RATIONAL: &str =
 
 pub const TOO_LARGE: &str = "is too large to work out";
 
+/// Why an order is not decided: only one between rationals is.
+pub const ORDER_UNDECIDED: &str =
+    "is an order between numbers that are not both rational";
+
+/// Why a membership of ℕ, ℕ₀, ℤ or ℚ is not decided.
+pub const MEMBERSHIP_UNDECIDED: &str =
+    "is a membership of a number that is not rational, which is a theorem to cite";
+
 /// Whether `real arithmetic` works out the operations a notation record's
 /// target applies: one `arithmetic` works out, or one whose record names
 /// `real arithmetic` in its `decided` field, as `square-root` does.
@@ -436,7 +444,7 @@ pub enum Verdict {
 }
 
 /// The number systems a rational value is tested for membership of.
-fn system_test(system: System) -> fn(&Q) -> bool {
+pub(crate) fn system_test(system: System) -> fn(&Q) -> bool {
     match system {
         System::N => |v: &Q| v.is_integer() && v.is_positive(),
         System::N0 => |v: &Q| v.is_integer() && !v.is_negative(),
@@ -474,9 +482,7 @@ pub fn decide_closed(claim: &Term) -> Route<Verdict> {
                 (Err(stop), _) | (_, Err(stop)) => return stop,
             };
             let (Some(a), Some(b)) = (a.as_rational(), b.as_rational()) else {
-                return Built(Verdict::Undecided(
-                    "is an order between numbers that are not both rational",
-                ));
+                return Built(Verdict::Undecided(ORDER_UNDECIDED));
             };
             if kids[2].label() == Some("clt") {
                 a < b
@@ -497,11 +503,7 @@ pub fn decide_closed(claim: &Term) -> Route<Verdict> {
             match (system, v.as_rational()) {
                 (System::R | System::C, _) => true,
                 (_, Some(v)) => system_test(system)(&v),
-                (_, None) => {
-                    return Built(Verdict::Undecided(
-                        "is a membership of a number that is not rational, which is a theorem to cite",
-                    ))
-                }
+                (_, None) => return Built(Verdict::Undecided(MEMBERSHIP_UNDECIDED)),
             }
         }
         _ => return Route::no("not a relation real arithmetic decides"),
@@ -557,6 +559,12 @@ struct Estimate {
     cost: u64,
 }
 
+/// What proving a term with no atom equal to its canon costs, or why it is
+/// past the limits.
+pub(crate) fn term_cost(term: &Term) -> Result<u64, &'static str> {
+    estimate(term).map(|e| e.cost)
+}
+
 fn estimate(term: &Term) -> Result<Estimate, &'static str> {
     let Built(Value::Exact(value)) = closed_value(term) else {
         return Err(TOO_LARGE);
@@ -598,8 +606,20 @@ fn parts(value: &Surd) -> u64 {
     value.parts.len().max(1) as u64
 }
 
-fn cube(n: u64) -> u64 {
+pub(crate) fn cube(n: u64) -> u64 {
     n.saturating_pow(3)
+}
+
+/// The longest numeral a canon writes whose coefficients are `weights`, in
+/// bits: the least common denominator, and each coefficient times it.
+pub(crate) fn weights_bits<'q>(weights: impl Iterator<Item = &'q Q> + Clone) -> u64 {
+    let common = weights.clone().fold(BigInt::one(), |d, v| d.lcm(v.denom()));
+    let scale = Q::from_integer(common.clone());
+    weights
+        .map(|v| (v * &scale).numer().bits())
+        .max()
+        .unwrap_or(0)
+        .max(common.bits())
 }
 
 /// The least common denominator of a value's coefficients.
@@ -617,15 +637,7 @@ fn bits(value: &Surd) -> u64 {
     if value.as_rational().is_some() {
         return value.size();
     }
-    let common = common_denominator(value);
-    let scale = Q::from_integer(BigInt::from(common.clone()));
-    value
-        .parts
-        .values()
-        .map(|v| (v * &scale).numer().bits())
-        .max()
-        .unwrap_or(0)
-        .max(common.bits())
+    weights_bits(value.parts.values())
 }
 
 /// The value, where its canon writes no coefficient past
@@ -637,32 +649,58 @@ fn written(value: &Surd) -> Result<(), &'static str> {
     Ok(())
 }
 
-/// The identity that brings a product of two canons to the canon of their
-/// product. The expanded product has a monomial for each pair of parts, a
-/// prime the two share squared in it, and pairs of one monomial add. The
-/// multiple of (√p)² − p the identity writes for a monomial is its
-/// coefficient times each shared prime but the last taken out, times the
-/// least common denominator the identity scales by; that, with a bit to
-/// spare for multiples that add, is what must fit the numerals the
-/// normaliser reads.
-fn product_cost(a: &Surd, b: &Surd) -> Result<u64, &'static str> {
-    let terms = parts(a) * parts(b);
-    let product = a.times(b);
-    let mut monomials: BTreeMap<(Basis, Basis), Q> = BTreeMap::new();
-    for (left, x) in &a.parts {
-        for (right, y) in &b.parts {
-            let (once, twice) = squared_apart(left, right);
-            *monomials.entry((once, twice)).or_insert_with(Q::zero) += x * y;
+/// One part of a value as the bound on a product reads it: what the part
+/// holds besides roots (nothing, for a value of this module; π, e and
+/// logarithms for `reals`), its roots, and its coefficient.
+pub(crate) struct Piece<K> {
+    pub atoms: K,
+    pub basis: Basis,
+    pub weight: Q,
+}
+
+/// The pieces of a value with no atoms.
+fn pieces(value: &Surd) -> Vec<Piece<()>> {
+    value
+        .parts
+        .iter()
+        .map(|(basis, weight)| Piece {
+            atoms: (),
+            basis: basis.clone(),
+            weight: weight.clone(),
+        })
+        .collect()
+}
+
+/// The longest numeral the identity bringing a product of two canons to
+/// the canon of their product writes, in bits. The expanded product has a
+/// monomial for each pair of parts, a prime the two share squared in it,
+/// and pairs of one monomial add. The multiple of (√p)² − p the identity
+/// writes for a monomial is its coefficient times each shared prime but the
+/// last taken out, times the least common denominator the identity scales
+/// by, the product's own coefficients among those it takes; with a bit to
+/// spare for multiples that add.
+pub(crate) fn product_widest<K: Ord + Clone>(
+    a: &[Piece<K>],
+    b: &[Piece<K>],
+    join: impl Fn(&K, &K) -> K,
+    product: &[Q],
+) -> u64 {
+    let mut monomials: BTreeMap<(K, Basis, Basis), Q> = BTreeMap::new();
+    for x in a {
+        for y in b {
+            let (once, twice) = squared_apart(&x.basis, &y.basis);
+            let key = (join(&x.atoms, &y.atoms), once, twice);
+            *monomials.entry(key).or_insert_with(Q::zero) += &x.weight * &y.weight;
         }
     }
     let scale = monomials
         .values()
-        .chain(product.parts.values())
+        .chain(product)
         .fold(BigInt::one(), |d, v| d.lcm(v.denom()));
     let scale = Q::from_integer(scale);
-    let widest = monomials
+    monomials
         .iter()
-        .map(|((_, twice), w)| {
+        .map(|((_, _, twice), w)| {
             let carried: u64 = twice.iter().rev().skip(1).product();
             (w * &scale * Q::from_integer(BigInt::from(carried)))
                 .numer()
@@ -670,8 +708,19 @@ fn product_cost(a: &Surd, b: &Surd) -> Result<u64, &'static str> {
         })
         .max()
         .unwrap_or(0)
-        + 1;
-    if widest > COEFFICIENT_BITS {
+        + 1
+}
+
+/// The identity that brings a product of two canons to the canon of their
+/// product, which must write no numeral past [`COEFFICIENT_BITS`]
+/// (`product_widest`), and costs (P·B)³.
+pub(crate) fn product_cost(a: &Surd, b: &Surd) -> Result<u64, &'static str> {
+    let terms = parts(a) * parts(b);
+    let product = a.times(b);
+    let coefficients: Vec<Q> = product.parts.values().cloned().collect();
+    if product_widest(&pieces(a), &pieces(b), |_, _| (), &coefficients)
+        > COEFFICIENT_BITS
+    {
         return Err(TOO_LARGE);
     }
     written(&product)?;
@@ -695,7 +744,7 @@ fn squared_apart(left: &Basis, right: &Basis) -> (Basis, Basis) {
 
 /// What shows a value is not zero: nothing for a rational, which
 /// `arithmetic` decides, and otherwise the value times its cofactor.
-fn apart_cost(value: &Surd) -> Result<u64, &'static str> {
+pub(crate) fn apart_cost(value: &Surd) -> Result<u64, &'static str> {
     if value.as_rational().is_some() {
         return Ok(0);
     }
@@ -706,7 +755,7 @@ fn apart_cost(value: &Surd) -> Result<u64, &'static str> {
 
 /// A quotient: the divisor not zero, and the divisor times the quotient is
 /// the dividend.
-fn quotient_cost(top: &Surd, below: &Surd) -> Result<u64, &'static str> {
+pub(crate) fn quotient_cost(top: &Surd, below: &Surd) -> Result<u64, &'static str> {
     if below.is_zero() {
         return Ok(0);
     }
@@ -717,7 +766,7 @@ fn quotient_cost(top: &Surd, below: &Surd) -> Result<u64, &'static str> {
 
 /// A power built a step at a time, each step the power before times the
 /// base; a negative exponent is one over the power.
-fn power_cost(base: &Surd, k: i64) -> Result<u64, &'static str> {
+pub(crate) fn power_cost(base: &Surd, k: i64) -> Result<u64, &'static str> {
     let mut cost = 0u64;
     let mut at = base.clone();
     for _ in 1..k.unsigned_abs() {

@@ -3359,6 +3359,15 @@ fn cases() -> Vec<Case> {
             "works out square-root, and real arithmetic works out an operation beyond arithmetic's only where the notation's record says so in a `decided` field",
         ),
         case(
+            "a logarithm real arithmetic takes with its record not naming it",
+            vec![edit(
+                "corpus/stdlib/logarithms.records",
+                Some("  reads       the natural logarithm of\n  decided     real arithmetic\n".to_string()),
+                "  reads       the natural logarithm of\n".to_string(),
+            )],
+            "works out ln, and real arithmetic works out a function only where its record says so in a `decided` field",
+        ),
+        case(
             "ask real arithmetic to decide a word",
             vec![edit(
                 "proofs/wiedijk/divisibility-by-three.proof",

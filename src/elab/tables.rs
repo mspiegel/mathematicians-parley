@@ -145,12 +145,23 @@ impl crate::citing::OnceAsk for BuildOnce<'_, '_> {
                     _ => Shape::Other,
                 }
             }
+            (Some("cpi" | "ceu"), 0) => Shape::Real,
             _ if crate::methods::surds::is_root(term) => {
                 match crate::methods::field::closed_value(&kids[0]) {
                     Built(crate::methods::field::Value::Exact(v))
                         if crate::citing::root_taken(&v) =>
                     {
-                        Shape::Root(&kids[0])
+                        Shape::Real
+                    }
+                    _ => Shape::Other,
+                }
+            }
+            _ if crate::methods::reals::applies(term, "clog") => {
+                match crate::methods::field::closed_value(&kids[0]) {
+                    Built(crate::methods::field::Value::Exact(v))
+                        if crate::citing::log_taken(&v) =>
+                    {
+                        Shape::Real
                     }
                     _ => Shape::Other,
                 }
@@ -1926,7 +1937,7 @@ impl<'a> Elaborator<'a> {
                     .expect("a letter the walk found introduced");
                 self.letter_within(said, &letter, &set, system, scope, facts)
             }
-            OnceReason::Root => self.root_within(&term, system, scope, facts),
+            OnceReason::Real => self.real_within(&term, system, scope, facts),
             // A part that a line the step names puts in a number system is
             // a number there, carried up to `system`: N(n) + 1 ∈ ℝ where a
             // line says N(n) ∈ ℝ.

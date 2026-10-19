@@ -1131,7 +1131,9 @@ expands them with polynomial arithmetic of its own, so an equation of a
 polynomial and its expansion is true; logarithms and exponentials of
 rationals whose values it knows from its own factoring; and each one moved
 by a known amount, which is false where the move is rational or rational
-multiples of logarithms, and not decided where it holds π or e.
+multiples of logarithms, and not decided where it holds π or e. A third of
+the claims are drawn so (`tests/oracle/atoms.rs`), and on three seeds of
+1500 it finds no answer that differs from the judge's.
 
 ---
 

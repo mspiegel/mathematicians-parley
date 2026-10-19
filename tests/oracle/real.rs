@@ -235,6 +235,10 @@ pub fn draw(r: &mut Random) -> Claim {
 
 /// A claim for `real arithmetic`, drawn and judged.
 pub fn claim(r: &mut Random, g: &Grammar) -> Drawn {
+    // One claim in three holds π, e or a logarithm, which `atoms` judges.
+    if r.below(3) == 0 {
+        return crate::atoms::claim(r, g);
+    }
     let c = draw(r);
     Drawn {
         header: Vec::new(),

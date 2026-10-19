@@ -307,8 +307,11 @@ pub struct Checking<'a> {
     defined: &'a IndexMap<Spelling, formulas::DefinedWord>,
     /// Each operation a notation declares, and whether arithmetic works it out.
     operations: &'a IndexMap<crate::formula::notation_id::NotationId, bool>,
-    /// The same, by whether real arithmetic works it out.
+    /// The same, by whether real arithmetic works it out, constants with
+    /// them.
     real_operations: &'a IndexMap<crate::formula::notation_id::NotationId, bool>,
+    /// Each library function, and whether real arithmetic works it out.
+    real_functions: &'a IndexMap<String, bool>,
     methods: &'a IndexMap<String, &'a Record>,
     items: &'a IndexMap<String, Item<'a>>,
     statements: &'a IndexMap<String, infer::Reader>,
@@ -892,6 +895,7 @@ fn prepared_in<T>(
     let defined = formulas::defined_words(&mut report, records, env, &record_sorts);
     let operations = formulas::operations(records);
     let real_operations = formulas::real_operations(records);
+    let real_functions = formulas::real_functions(records);
 
     // Each theorem's lines, read once, after every statement it may cite.
     for thm in theorems {
@@ -948,6 +952,7 @@ fn prepared_in<T>(
         defined: &defined,
         operations: &operations,
         real_operations: &real_operations,
+        real_functions: &real_functions,
         methods: &methods,
         items: &items,
         statements: &statements,
@@ -1058,7 +1063,14 @@ fn check_passes(
     formulas::check_contradicting(report, thm, env, k);
     formulas::check_impossible(report, thm, k, &library.targets);
     formulas::check_decided_words(report, thm, k, c.defined, c.operations);
-    formulas::check_real_decided_words(report, thm, k, c.defined, c.real_operations);
+    formulas::check_real_decided_words(
+        report,
+        thm,
+        k,
+        c.defined,
+        c.real_operations,
+        c.real_functions,
+    );
     formulas::check_chain_congruences(report, thm);
     formulas::check_congruence_integers(report, thm, k, &library.targets);
     formulas::check_both_directions(report, thm, k);

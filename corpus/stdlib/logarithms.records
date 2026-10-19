@@ -1,0 +1,42 @@
+# Standard library: logarithms
+#
+# The natural logarithm and the exponential function.
+#
+# One record per item. A record begins at column 0 with its kind, axiom,
+# theorem or definition, and its name; `mundane` before the kind marks an
+# item a proof takes for granted. A proof imports each item it cites,
+# `import <header> stdlib/logarithms/<name>`, where the header is the
+# record's own before its name, as `mundane theorem` or `axiom`. Format is described in DATABASE.md.
+#
+# An item's statement is written in the theorem form of SYNTAX.md: let and
+# assume lines with labels, then a `then` line.
+#
+# Every item carries at least one of:
+#   metamath    a set.mm label or labels supply it
+#   open        it is cited but unproved and unbridged
+#
+# Other fields: target, note, and for a function, sort, builds, reads and
+# decided.
+
+
+mundane definition ln
+  sort        number → number
+  builds      _1 clog cfv
+  reads       the natural logarithm of
+  decided     real arithmetic
+  metamath    df-log, the inverse of the exponential function
+  note        set.mm's log is taken in ℂ, its value at a negative number having
+              an imaginary part; real arithmetic takes it only of a positive
+              rational, or one times a whole power of e (METHODS.md), where it
+              is the logarithm a reader knows. As for cos, this definition
+              states nothing but what ln(x) builds.
+
+mundane definition exp
+  sort        number → number
+  builds      _1 ce cfv
+  reads       the exponential of
+  decided     real arithmetic
+  metamath    df-ef, by its power series
+  note        exp(x) is eˣ, which set.mm defines the other way round, e being
+              exp(1) (df-e). Real arithmetic takes it of a whole number of at
+              least 0 plus whole multiples of logarithms of primes.

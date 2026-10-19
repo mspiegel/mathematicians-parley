@@ -30,7 +30,8 @@ use super::state::Elaborator;
 use super::Facts;
 use crate::binds;
 use crate::corpus::{fmt, Step};
-use crate::methods::surds::{self, Surd, Value, Verdict};
+use crate::methods::reals::{self, Atom, Real};
+use crate::methods::surds::{self, Surd, Verdict};
 use crate::mm::kernel::Term;
 use crate::mm::spell::Proof;
 use crate::mm::Rpn;
@@ -39,9 +40,28 @@ use crate::{t, take};
 
 /// A term proved equal to the canon of its value: ( scope -> term = canon ).
 struct Valued {
-    value: Surd,
+    value: Real,
     canon: Rpn,
     proof: Proof,
+}
+
+/// The logarithm of a positive rational worked out:
+/// ( scope -> ( log ` ratio ) = expression ), the expression a sum of
+/// whole multiples of logarithms of primes, 0 for the ratio 1.
+struct Logarithm {
+    /// The ratio, as `arithmetic` writes a value.
+    ratio: Rpn,
+    expression: Rpn,
+    proof: Proof,
+}
+
+/// A product of powers of primes, with what it is proved of:
+/// ( scope -> ( log ` product ) = expression ) and ( scope -> product e. RR+ ).
+struct LoggedProduct {
+    product: Rpn,
+    expression: Rpn,
+    logged: Proof,
+    positive: Proof,
 }
 
 /// The multiple of (√p)² − p that a difference holds, for one prime.
@@ -75,7 +95,7 @@ impl<'a> Elaborator<'a> {
         what: &str,
     ) -> Checked<Proof> {
         let goal = self.to_term(term);
-        match surds::decide_closed(&goal) {
+        match reals::decide_closed(&goal) {
             Built(Verdict::Holds(true)) => {}
             other => return Err(self.real_unshown(other, what)),
         }
@@ -96,7 +116,7 @@ impl<'a> Elaborator<'a> {
     fn real_unshown(&self, verdict: Route<Verdict>, what: &str) -> Problem {
         let message = match verdict {
             Declined(_) => format!(
-                "{what}, which is not a fact about numerals and square roots alone, and real arithmetic decides nothing else"
+                "{what}, which is not a fact about numerals, square roots, π, e and logarithms alone, and real arithmetic decides nothing else"
             ),
             Built(Verdict::Holds(false)) => format!("{what}, which is false"),
             Built(Verdict::Unworked(why)) => format!("{what}, which {why}"),
@@ -109,7 +129,8 @@ impl<'a> Elaborator<'a> {
     }
 
     /// The facts, with √p ∈ ℂ and √p ∈ ℝ for each prime p under a root of
-    /// the claim: what the normaliser and a membership ask of each root.
+    /// the claim, and the same of π, e and each ln p its values hold: what
+    /// the normaliser and a membership ask of each atom.
     fn roots_known(
         &mut self,
         goal: &Term,
@@ -117,6 +138,33 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
     ) -> Checked<Facts> {
         let known = facts.copy();
+        for atom in atoms_under(goal) {
+            let (said, real) = match atom {
+                Atom::Pi => (
+                    t!("cpi"),
+                    self.closed_law(&t!("cpi", "cr", "wcel"), "pire", scope),
+                ),
+                Atom::E => (
+                    t!("ceu"),
+                    self.closed_law(&t!("ceu", "cr", "wcel"), "ere", scope),
+                ),
+                Atom::Ln(p) => {
+                    let prime = numerals::spell(p);
+                    let positive = self.positive(&prime, scope, facts)?;
+                    let real = self.b.ap(
+                        "relogcld",
+                        &binds! {"ph" => scope, "A" => &prime},
+                        &[&positive],
+                    );
+                    (spelt_atom(atom), real)
+                }
+            };
+            let complex =
+                self.b
+                    .ap("recnd", &binds! {"ph" => scope, "A" => &said}, &[&real]);
+            self.know(&known, t!(&said, "cr", "wcel"), real);
+            self.know(&known, t!(&said, "cc", "wcel"), complex);
+        }
         for p in primes_under(goal) {
             let prime = numerals::spell(p);
             let root = root_of_prime(p);
@@ -140,11 +188,48 @@ impl<'a> Elaborator<'a> {
         Ok(known)
     }
 
+    /// ( scope -> t e. system ) for a square root, π, e or a logarithm that
+    /// `real arithmetic` takes, in ℝ or ℂ: its membership said once
+    /// (`READERS.md`). π is real (`pire`) and complex (`picn`), e real
+    /// (`ere`), and the logarithm of a positive rational real (`relogcld`);
+    /// a real one is complex (`recnd`).
+    pub(super) fn real_within(
+        &mut self,
+        t: &Term,
+        system: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Route<Proof>> {
+        if surds::is_root(t) {
+            return self.root_within(t, system, scope, facts);
+        }
+        let said = self.rpn(t);
+        let real = match t.label() {
+            Some("cpi") => self.closed_law(&t!("cpi", "cr", "wcel"), "pire", scope),
+            Some("ceu") => self.closed_law(&t!("ceu", "cr", "wcel"), "ere", scope),
+            _ => {
+                let x = self.rpn(&t.children()[0]);
+                let positive = self.positive(&x, scope, facts)?;
+                self.b
+                    .ap("relogcld", &binds! {"ph" => scope, "A" => &x}, &[&positive])
+            }
+        };
+        match system.alone() {
+            Some("cr") => Ok(Built(real)),
+            Some("cc") => Ok(Built(self.b.ap(
+                "recnd",
+                &binds! {"ph" => scope, "A" => &said},
+                &[&real],
+            ))),
+            _ => Ok(Route::no("said once only in ℝ and ℂ")),
+        }
+    }
+
     /// ( scope -> √x e. system ) for a root `real arithmetic` takes, in ℝ
     /// or ℂ: its membership said once (`READERS.md`). x is a rational of at
     /// least 0, which `arithmetic` says, and its root is real (`resqrtcld`),
     /// or complex (`sqrtcld`).
-    pub(super) fn root_within(
+    fn root_within(
         &mut self,
         root: &Term,
         system: &Rpn,
@@ -173,6 +258,26 @@ impl<'a> Elaborator<'a> {
             }
             _ => Ok(Route::no("a root is said once only in ℝ and ℂ")),
         }
+    }
+
+    /// ( scope -> claim ) for a theorem of set.mm stating `claim` with no
+    /// hypothesis, as `pire` states π ∈ ℝ.
+    fn closed_law(&self, claim: &Rpn, label: &str, scope: &Rpn) -> Proof {
+        self.b.ap(
+            "a1i",
+            &binds! {"ph" => claim, "ps" => scope},
+            &[&self.step(label)],
+        )
+    }
+
+    /// ( scope -> x e. RR+ ) for a closed x of numerals with a positive
+    /// value: x ∈ ℝ and 0 < x by arithmetic (`elrpd`).
+    fn positive(&mut self, x: &Rpn, scope: &Rpn, facts: &Facts) -> Checked<Proof> {
+        let real = self.numeral_fact(&t!(x, "cr", "wcel"), scope, facts)?;
+        let above = self.numeral_fact(&t!("cc0", x, "clt", "wbr"), scope, facts)?;
+        Ok(self
+            .b
+            .ap("elrpd", &binds! {"ph" => scope, "A" => x}, &[&real, &above]))
     }
 
     /// A fact about numerals alone, which arithmetic proves.
@@ -246,7 +351,11 @@ impl<'a> Elaborator<'a> {
             &binds! {"ph" => scope, "A" => &difference, "B" => &between, "C" => &worked.canon},
             &[&moved, &worked.proof],
         );
-        let canon_apart = take!(self.surd_apart(&worked.canon, &gap, scope, facts)?);
+        // The decider found the difference a surd or logarithms of primes.
+        let canon_apart = match gap.as_surd() {
+            Some(s) => take!(self.surd_apart(&worked.canon, &s, scope, facts)?),
+            None => take!(self.ln_apart(&worked.canon, &gap, scope, facts)?),
+        };
         let differs = self.b.ap(
             "eqnetrd",
             &binds! {"ph" => scope, "A" => &difference, "B" => &worked.canon, "C" => "cc0"},
@@ -293,9 +402,13 @@ impl<'a> Elaborator<'a> {
         let negated = goal.label() == Some("wn") && goal.children().len() == 1;
         let inner = if negated { &goal.children()[0] } else { goal };
         let kids = inner.children().to_vec();
+        // A membership of a value that is not rational is ℝ's or ℂ's, which
+        // the canon has by the atoms it is built from.
+        let mut atoms_in = false;
         let (valued, iff) = match (inner.label(), kids.as_slice()) {
             (Some("wcel"), [x, set]) => {
                 let side = take!(self.valued(x, scope, facts)?);
+                atoms_in = side.value.as_surd().and_then(|s| s.as_rational()).is_none();
                 let (sx, ss) = (self.rpn(x), self.rpn(set));
                 let iff = self.b.ap(
                     "eleq1d",
@@ -328,9 +441,7 @@ impl<'a> Elaborator<'a> {
         } else {
             (said, valued, iff)
         };
-        let held = if valued.has("csqrt") {
-            // Only a membership of ℝ or ℂ is decided of a value that is not
-            // rational.
+        let held = if atoms_in {
             let goal = self.to_term(&valued);
             let system = goal.children()[1].label().unwrap_or("").to_string();
             let canon = self.rpn(&goal.children()[0]);
@@ -352,11 +463,11 @@ impl<'a> Elaborator<'a> {
         scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Route<Valued>> {
-        let Built(Value::Exact(value)) = surds::closed_value(t) else {
+        let Built(reals::Value::Exact(value)) = reals::closed_value(t) else {
             return Ok(Route::no("a term with no value"));
         };
         let said = self.rpn(t);
-        if !surds::takes_root(t) {
+        if !reals::beyond_arithmetic(t) {
             let canon = canon(&value);
             if said == canon {
                 let same =
@@ -379,7 +490,16 @@ impl<'a> Elaborator<'a> {
         if surds::is_root(t) {
             return self.root_piece(t, value, scope, facts);
         }
+        if reals::applies(t, "clog") {
+            return self.ln_piece(t, value, scope, facts);
+        }
+        if reals::applies(t, "ce") {
+            return self.exp_piece(t, value, scope, facts);
+        }
         let kids = t.children().to_vec();
+        if matches!(t.label(), Some("cpi" | "ceu")) && kids.is_empty() {
+            return self.made_canon(&said, &value, scope, facts);
+        }
         let (written, moved) = match (t.label(), kids.as_slice()) {
             (Some("cneg"), [x]) => {
                 let inner = take!(self.valued(x, scope, facts)?);
@@ -439,12 +559,12 @@ impl<'a> Elaborator<'a> {
         }))
     }
 
-    /// ( scope -> written = canon ) for an expression in roots of primes
-    /// whose value is `value`.
+    /// ( scope -> written = canon ) for an expression in roots of primes, π,
+    /// e and logarithms of primes whose value is `value`.
     fn made_canon(
         &mut self,
         written: &Rpn,
-        value: &Surd,
+        value: &Real,
         scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Route<Valued>> {
@@ -478,7 +598,7 @@ impl<'a> Elaborator<'a> {
                 .map(Built);
         }
         let surds::Cofactor { times, norm } = surds::cofactor(value);
-        let cofactor = canon(&times);
+        let cofactor = canon(&Real::surd(times));
         let norm = spelt_rational(&norm);
         let product = t!(canon_of, &cofactor, "cmul", "co");
         let is_norm = take!(self.identity(&product, &norm, scope, facts)?);
@@ -507,10 +627,10 @@ impl<'a> Elaborator<'a> {
         scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Route<Valued>> {
-        if below.value.is_zero() {
-            return Ok(Route::no("a division by zero"));
-        }
-        let value = top.value.times(&below.value.recip());
+        let Some(divisor) = below.value.as_surd().filter(|s| !s.is_zero()) else {
+            return Ok(Route::no("a division by zero or by an atom"));
+        };
+        let value = top.value.times(&Real::surd(divisor.recip()));
         let canon = canon(&value);
         let (a, b) = (&top.canon, &below.canon);
         let back =
@@ -518,7 +638,7 @@ impl<'a> Elaborator<'a> {
         let a_cc = take!(self.in_cc(a, scope, facts)?);
         let b_cc = take!(self.in_cc(b, scope, facts)?);
         let canon_cc = take!(self.in_cc(&canon, scope, facts)?);
-        let b_apart = take!(self.surd_apart(b, &below.value, scope, facts)?);
+        let b_apart = take!(self.surd_apart(b, &divisor, scope, facts)?);
         let iff = self.b.ap(
             "divmuld",
             &binds! {"ph" => scope, "A" => a, "B" => b, "C" => &canon},
@@ -551,7 +671,8 @@ impl<'a> Elaborator<'a> {
     ) -> Checked<Route<Valued>> {
         let Some(k) = exponent
             .value
-            .as_rational()
+            .as_surd()
+            .and_then(|s| s.as_rational())
             .filter(|k| k.is_integer())
             .and_then(|k| k.to_integer().to_i64())
         else {
@@ -560,14 +681,17 @@ impl<'a> Elaborator<'a> {
         let c = &base.canon;
         let c_cc = take!(self.in_cc(c, scope, facts)?);
         if k < 0 {
+            let Some(base_surd) = base.value.as_surd() else {
+                return Ok(Route::no("a power of an atom to an exponent below 0"));
+            };
             let m = numerals::spell(k.unsigned_abs());
             let whole = Valued {
-                value: Surd::rational(Q::from_integer(k.unsigned_abs().into())),
+                value: Real::rational(Q::from_integer(k.unsigned_abs().into())),
                 canon: m.clone(),
                 proof: self.b.ap("eqidd", &binds! {"ph" => scope, "A" => &m}, &[]),
             };
             let raised = take!(self.power(base, &whole, scope, facts)?);
-            let c_apart = take!(self.surd_apart(c, &base.value, scope, facts)?);
+            let c_apart = take!(self.surd_apart(c, &base_surd, scope, facts)?);
             let m_z = self.numeral_fact(&t!(&m, "cz", "wcel"), scope, facts)?;
             let turned = self.b.ap(
                 "expnegd",
@@ -575,7 +699,7 @@ impl<'a> Elaborator<'a> {
                 &[&c_cc, &c_apart, &m_z],
             );
             let one = Valued {
-                value: Surd::rational(field::q(1)),
+                value: Real::rational(field::q(1)),
                 canon: numeral(1),
                 proof: self.b.ap(
                     "eqidd",
@@ -613,7 +737,7 @@ impl<'a> Elaborator<'a> {
                 .b
                 .ap("exp0d", &binds! {"ph" => scope, "A" => c}, &[&c_cc]);
             return Ok(Built(Valued {
-                value: Surd::rational(field::q(1)),
+                value: Real::rational(field::q(1)),
                 canon: numeral(1),
                 proof,
             }));
@@ -682,12 +806,12 @@ impl<'a> Elaborator<'a> {
     fn root_piece(
         &mut self,
         t: &Term,
-        value: Surd,
+        value: Real,
         scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Route<Valued>> {
         let x = &t.children()[0];
-        let Built(Value::Exact(v)) = surds::closed_value(x) else {
+        let Built(surds::Value::Exact(v)) = surds::closed_value(x) else {
             return Ok(Route::no("a root of a number with no value"));
         };
         let Some(r) = v.as_rational() else {
@@ -778,6 +902,575 @@ impl<'a> Elaborator<'a> {
             canon: worked.canon,
             proof: joined,
         }))
+    }
+
+    /// The logarithm of a positive rational r = Π p^nₚ: r is that product of
+    /// powers by arithmetic, carried under the logarithm (`fveq2d`), and the
+    /// logarithm of the product is Σ nₚ·ln p (`ln_product`); ln 1 is 0
+    /// (`log1`).
+    fn ln_rational(
+        &mut self,
+        ratio: &Q,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Route<Logarithm>> {
+        let spelt = spelt_rational(ratio);
+        let Ok(factors) = reals::factored(ratio) else {
+            return Ok(Route::no("a ratio too large to factor"));
+        };
+        let powers: Vec<Rpn> = factors
+            .iter()
+            .filter(|(_, n)| **n != 0)
+            .map(|(p, n)| t!(numerals::spell(*p), spelt_whole(*n), "cexp", "co"))
+            .collect();
+        if powers.is_empty() {
+            let proof = self.closed_law(
+                &t!(t!("c1", "clog", "cfv"), "cc0", "wceq"),
+                "log1",
+                scope,
+            );
+            return Ok(Built(Logarithm {
+                ratio: spelt,
+                expression: numeral(0),
+                proof,
+            }));
+        }
+        let product = take!(self.ln_product(&factors, scope, facts)?);
+        let is =
+            self.numeral_fact(&t!(&spelt, &product.product, "wceq"), scope, facts)?;
+        let carried = self.b.ap(
+            "fveq2d",
+            &binds! {"ph" => scope, "A" => &spelt, "B" => &product.product, "F" => "clog"},
+            &[&is],
+        );
+        let proof = self.b.ap(
+            "eqtrd",
+            &binds! {"ph" => scope, "A" => t!(&spelt, "clog", "cfv"),
+            "B" => t!(&product.product, "clog", "cfv"), "C" => &product.expression},
+            &[&carried, &product.logged],
+        );
+        Ok(Built(Logarithm {
+            ratio: spelt,
+            expression: product.expression,
+            proof,
+        }))
+    }
+
+    /// p₁^n₁·p₂^n₂·…, multiplied from the left, with its logarithm
+    /// n₁·ln p₁ + n₂·ln p₂ + …: the logarithm of a product of positive reals
+    /// is the sum of theirs (`relogmuld`), and of a power to a whole
+    /// exponent the exponent times it (`relogexp`).
+    fn ln_product(
+        &mut self,
+        factors: &std::collections::BTreeMap<u64, i64>,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Route<LoggedProduct>> {
+        let mut out: Option<LoggedProduct> = None;
+        for (p, n) in factors.iter().filter(|(_, n)| **n != 0) {
+            let prime = numerals::spell(*p);
+            let exponent = spelt_whole(*n);
+            let power = t!(&prime, &exponent, "cexp", "co");
+            let prime_rp = self.positive(&prime, scope, facts)?;
+            let exponent_z =
+                self.numeral_fact(&t!(&exponent, "cz", "wcel"), scope, facts)?;
+            let positive = self.b.ap(
+                "rpexpcld",
+                &binds! {"ph" => scope, "A" => &prime, "N" => &exponent},
+                &[&prime_rp, &exponent_z],
+            );
+            let ln_p = t!(&prime, "clog", "cfv");
+            let expression = t!(&exponent, &ln_p, "cmul", "co");
+            let law =
+                self.b
+                    .ap("relogexp", &binds! {"A" => &prime, "N" => &exponent}, &[]);
+            let logged = self.b.ap(
+                "syl2anc",
+                &binds! {"ph" => scope, "ps" => t!(&prime, "crp", "wcel"), "ch" => t!(&exponent, "cz", "wcel"),
+                "th" => t!(t!(&power, "clog", "cfv"), &expression, "wceq")},
+                &[&prime_rp, &exponent_z, &law],
+            );
+            let this = LoggedProduct {
+                product: power,
+                expression,
+                logged,
+                positive,
+            };
+            out = Some(match out {
+                None => this,
+                Some(before) => {
+                    let product = t!(&before.product, &this.product, "cmul", "co");
+                    let split = self.b.ap(
+                        "relogmuld",
+                        &binds! {"ph" => scope, "A" => &before.product, "B" => &this.product},
+                        &[&before.positive, &this.positive],
+                    );
+                    let carried = self.b.ap(
+                        "oveq12d",
+                        &binds! {"ph" => scope, "A" => t!(&before.product, "clog", "cfv"), "B" => &before.expression,
+                        "C" => t!(&this.product, "clog", "cfv"), "D" => &this.expression, "F" => "caddc"},
+                        &[&before.logged, &this.logged],
+                    );
+                    let expression =
+                        t!(&before.expression, &this.expression, "caddc", "co");
+                    let logged = self.b.ap(
+                        "eqtrd",
+                        &binds! {"ph" => scope, "A" => t!(&product, "clog", "cfv"),
+                        "B" => t!(t!(&before.product, "clog", "cfv"), t!(&this.product, "clog", "cfv"), "caddc", "co"),
+                        "C" => &expression},
+                        &[&split, &carried],
+                    );
+                    let positive = self.b.ap(
+                        "rpmulcld",
+                        &binds! {"ph" => scope, "A" => &before.product, "B" => &this.product},
+                        &[&before.positive, &this.positive],
+                    );
+                    LoggedProduct {
+                        product,
+                        expression,
+                        logged,
+                        positive,
+                    }
+                }
+            });
+        }
+        Ok(match out {
+            Some(done) => Built(done),
+            None => Route::no("a product of no primes"),
+        })
+    }
+
+    /// ( scope -> ( log ` x ) = canon ) for x of value q·eᵏ: x is q·eᵏ
+    /// written so, ln(q·eᵏ) = ln q + ln(eᵏ) (`relogmuld`), ln q is worked out
+    /// (`ln_rational`), and ln(eᵏ) = k·ln e = k·1 (`relogexp`, `loge`).
+    fn ln_piece(
+        &mut self,
+        t: &Term,
+        value: Real,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Route<Valued>> {
+        let x = &t.children()[0];
+        let inner = take!(self.valued(x, scope, facts)?);
+        let Some((ratio, k)) = inner.value.rational_times_e() else {
+            return Ok(Route::no("a logarithm of a number not q·eᵏ"));
+        };
+        let sx = self.rpn(x);
+        let log = |r: &Rpn| t!(r, "clog", "cfv");
+        let rational = take!(self.ln_rational(&ratio, scope, facts)?);
+        // x is the ratio times eᵏ, as the logarithm takes it apart.
+        let (written, is) = if k == 0 {
+            (rational.ratio.clone(), inner.proof)
+        } else {
+            let power = match k {
+                1 => t!("ceu"),
+                _ => t!("ceu", numeral(k), "cexp", "co"),
+            };
+            let written = t!(&rational.ratio, &power, "cmul", "co");
+            let same = take!(self.identity(&inner.canon, &written, scope, facts)?);
+            let is = self.b.ap(
+                "eqtrd",
+                &binds! {"ph" => scope, "A" => &sx, "B" => &inner.canon, "C" => &written},
+                &[&inner.proof, &same],
+            );
+            (written, is)
+        };
+        let carried = self.b.ap(
+            "fveq2d",
+            &binds! {"ph" => scope, "A" => &sx, "B" => &written, "F" => "clog"},
+            &[&is],
+        );
+        let (expression, logged) = if k == 0 {
+            (rational.expression, rational.proof)
+        } else {
+            let power = match k {
+                1 => t!("ceu"),
+                _ => t!("ceu", numeral(k), "cexp", "co"),
+            };
+            let e_rp = self.closed_law(&t!("ceu", "crp", "wcel"), "epr", scope);
+            let k_spelt = numeral(k);
+            let k_z = self.numeral_fact(&t!(&k_spelt, "cz", "wcel"), scope, facts)?;
+            let power_rp = if k == 1 {
+                e_rp.clone()
+            } else {
+                self.b.ap(
+                    "rpexpcld",
+                    &binds! {"ph" => scope, "A" => "ceu", "N" => &k_spelt},
+                    &[&e_rp, &k_z],
+                )
+            };
+            let ratio_rp = self.positive(&rational.ratio, scope, facts)?;
+            let split = self.b.ap(
+                "relogmuld",
+                &binds! {"ph" => scope, "A" => &rational.ratio, "B" => &power},
+                &[&ratio_rp, &power_rp],
+            );
+            let one = t!("c1");
+            let log_e =
+                self.closed_law(&t!(log(&t!("ceu")), &one, "wceq"), "loge", scope);
+            let (e_part, e_logged) = if k == 1 {
+                (one.clone(), log_e)
+            } else {
+                let law =
+                    self.b
+                        .ap("relogexp", &binds! {"A" => "ceu", "N" => &k_spelt}, &[]);
+                let times_log = t!(&k_spelt, log(&t!("ceu")), "cmul", "co");
+                let down = self.b.ap(
+                    "syl2anc",
+                    &binds! {"ph" => scope, "ps" => t!("ceu", "crp", "wcel"), "ch" => t!(&k_spelt, "cz", "wcel"),
+                    "th" => t!(log(&power), &times_log, "wceq")},
+                    &[&e_rp, &k_z, &law],
+                );
+                let times_one = t!(&k_spelt, &one, "cmul", "co");
+                let to_one = self.b.ap(
+                    "oveq2d",
+                    &binds! {"ph" => scope, "A" => log(&t!("ceu")), "B" => &one, "C" => &k_spelt, "F" => "cmul"},
+                    &[&log_e],
+                );
+                let joined = self.b.ap(
+                    "eqtrd",
+                    &binds! {"ph" => scope, "A" => log(&power), "B" => &times_log, "C" => &times_one},
+                    &[&down, &to_one],
+                );
+                (times_one, joined)
+            };
+            let expression = t!(&rational.expression, &e_part, "caddc", "co");
+            let both = self.b.ap(
+                "oveq12d",
+                &binds! {"ph" => scope, "A" => log(&rational.ratio), "B" => &rational.expression,
+                "C" => log(&power), "D" => &e_part, "F" => "caddc"},
+                &[&rational.proof, &e_logged],
+            );
+            let logged = self.b.ap(
+                "eqtrd",
+                &binds! {"ph" => scope, "A" => log(&written),
+                "B" => t!(log(&rational.ratio), log(&power), "caddc", "co"), "C" => &expression},
+                &[&split, &both],
+            );
+            (expression, logged)
+        };
+        let worked = take!(self.made_canon(&expression, &value, scope, facts)?);
+        let reached = self.b.ap(
+            "eqtrd",
+            &binds! {"ph" => scope, "A" => log(&sx), "B" => log(&written), "C" => &expression},
+            &[&carried, &logged],
+        );
+        let proof = self.b.ap(
+            "eqtrd",
+            &binds! {"ph" => scope, "A" => log(&sx), "B" => &expression, "C" => &worked.canon},
+            &[&reached, &worked.proof],
+        );
+        Ok(Built(Valued {
+            value,
+            canon: worked.canon,
+            proof,
+        }))
+    }
+
+    /// ( scope -> ( exp ` x ) = canon ) for x of value k + Σ nₚ·ln p: with r
+    /// = Π p^nₚ, x is k + ln r, exp(k + ln r) = exp k · exp(ln r) (`efadd`),
+    /// exp(ln r) = r (`reeflogd`), and exp k = (exp 1)ᵏ = eᵏ (`efexp`,
+    /// `df-e`); exp 0 is 1 (`ef0`).
+    fn exp_piece(
+        &mut self,
+        t: &Term,
+        value: Real,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Route<Valued>> {
+        let x = &t.children()[0];
+        let inner = take!(self.valued(x, scope, facts)?);
+        let Some(reals::Logarithmic { constant, logs }) = inner.value.logarithmic()
+        else {
+            return Ok(Route::no("an exponential of a number not k + Σ nₚ·ln p"));
+        };
+        let Some(k) = constant
+            .to_integer()
+            .to_u32()
+            .filter(|_| constant.is_integer())
+        else {
+            return Ok(Route::no(
+                "an exponential of a number whose rational part is not whole",
+            ));
+        };
+        let mut ratio = field::q(1);
+        for (p, n) in &logs {
+            let n = n.to_integer().to_i32().unwrap_or(0);
+            ratio *= Q::from_integer(BigInt::from(*p)).pow(n);
+        }
+        let sx = self.rpn(x);
+        let exp = |r: &Rpn| t!(r, "ce", "cfv");
+        let k_spelt = numeral(k);
+        // x as k + ln r, or the one of them it holds.
+        let rational = if logs.is_empty() {
+            None
+        } else {
+            Some(take!(self.ln_rational(&ratio, scope, facts)?))
+        };
+        let (written, is) = match &rational {
+            None => (k_spelt.clone(), inner.proof.clone()),
+            Some(l) => {
+                let as_logs = if k == 0 {
+                    l.expression.clone()
+                } else {
+                    t!(&k_spelt, &l.expression, "caddc", "co")
+                };
+                let written = if k == 0 {
+                    t!(&l.ratio, "clog", "cfv")
+                } else {
+                    t!(&k_spelt, t!(&l.ratio, "clog", "cfv"), "caddc", "co")
+                };
+                let same =
+                    take!(self.identity(&inner.canon, &as_logs, scope, facts)?);
+                let back = self.b.ap(
+                    "eqcomd",
+                    &binds! {"ph" => scope, "A" => t!(&l.ratio, "clog", "cfv"), "B" => &l.expression},
+                    &[&l.proof],
+                );
+                let folded = if k == 0 {
+                    back
+                } else {
+                    self.b.ap(
+                        "oveq2d",
+                        &binds! {"ph" => scope, "A" => &l.expression, "B" => t!(&l.ratio, "clog", "cfv"),
+                        "C" => &k_spelt, "F" => "caddc"},
+                        &[&back],
+                    )
+                };
+                let first = self.b.ap(
+                    "eqtrd",
+                    &binds! {"ph" => scope, "A" => &sx, "B" => &inner.canon, "C" => &as_logs},
+                    &[&inner.proof, &same],
+                );
+                let is = self.b.ap(
+                    "eqtrd",
+                    &binds! {"ph" => scope, "A" => &sx, "B" => &as_logs, "C" => &written},
+                    &[&first, &folded],
+                );
+                (written, is)
+            }
+        };
+        let carried = self.b.ap(
+            "fveq2d",
+            &binds! {"ph" => scope, "A" => &sx, "B" => &written, "F" => "ce"},
+            &[&is],
+        );
+        // exp k = eᵏ, and exp 0 = 1.
+        let power = match k {
+            0 => t!("c1"),
+            1 => t!("ceu"),
+            _ => t!("ceu", &k_spelt, "cexp", "co"),
+        };
+        let exp_k = if k == 0 {
+            self.closed_law(&t!(exp(&t!("cc0")), "c1", "wceq"), "ef0", scope)
+        } else {
+            self.exp_whole(&k_spelt, &power, scope, facts)?
+        };
+        let (expression, valued) = match &rational {
+            None => (power.clone(), exp_k),
+            Some(l) => {
+                let r_rp = self.positive(&l.ratio, scope, facts)?;
+                let back = self.b.ap(
+                    "reeflogd",
+                    &binds! {"ph" => scope, "A" => &l.ratio},
+                    &[&r_rp],
+                );
+                if k == 0 {
+                    (l.ratio.clone(), back)
+                } else {
+                    let log_r = t!(&l.ratio, "clog", "cfv");
+                    let k_cc =
+                        self.numeral_fact(&t!(&k_spelt, "cc", "wcel"), scope, facts)?;
+                    let log_real = self.b.ap(
+                        "relogcld",
+                        &binds! {"ph" => scope, "A" => &l.ratio},
+                        &[&r_rp],
+                    );
+                    let log_cc = self.b.ap(
+                        "recnd",
+                        &binds! {"ph" => scope, "A" => &log_r},
+                        &[&log_real],
+                    );
+                    let law = self.b.ap(
+                        "efadd",
+                        &binds! {"A" => &k_spelt, "B" => &log_r},
+                        &[],
+                    );
+                    let split = self.b.ap(
+                        "syl2anc",
+                        &binds! {"ph" => scope, "ps" => t!(&k_spelt, "cc", "wcel"), "ch" => t!(&log_r, "cc", "wcel"),
+                        "th" => t!(exp(&written), t!(exp(&k_spelt), exp(&log_r), "cmul", "co"), "wceq")},
+                        &[&k_cc, &log_cc, &law],
+                    );
+                    let both = self.b.ap(
+                        "oveq12d",
+                        &binds! {"ph" => scope, "A" => exp(&k_spelt), "B" => &power,
+                        "C" => exp(&log_r), "D" => &l.ratio, "F" => "cmul"},
+                        &[&exp_k, &back],
+                    );
+                    let expression = t!(&power, &l.ratio, "cmul", "co");
+                    let joined = self.b.ap(
+                        "eqtrd",
+                        &binds! {"ph" => scope, "A" => exp(&written),
+                        "B" => t!(exp(&k_spelt), exp(&log_r), "cmul", "co"), "C" => &expression},
+                        &[&split, &both],
+                    );
+                    (expression, joined)
+                }
+            }
+        };
+        let worked = take!(self.made_canon(&expression, &value, scope, facts)?);
+        let reached = self.b.ap(
+            "eqtrd",
+            &binds! {"ph" => scope, "A" => exp(&sx), "B" => exp(&written), "C" => &expression},
+            &[&carried, &valued],
+        );
+        let proof = self.b.ap(
+            "eqtrd",
+            &binds! {"ph" => scope, "A" => exp(&sx), "B" => &expression, "C" => &worked.canon},
+            &[&reached, &worked.proof],
+        );
+        Ok(Built(Valued {
+            value,
+            canon: worked.canon,
+            proof,
+        }))
+    }
+
+    /// ( scope -> ( exp ` k ) = e^k ) for a whole k of at least 1: k is k·1,
+    /// exp(k·1) = (exp 1)ᵏ (`efexp`), and exp 1 is e (`df-e`).
+    fn exp_whole(
+        &mut self,
+        k: &Rpn,
+        power: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Proof> {
+        let exp = |r: &Rpn| t!(r, "ce", "cfv");
+        let one = t!("c1");
+        let times_one = t!(k, &one, "cmul", "co");
+        let counted = self.numeral_fact(&t!(k, &times_one, "wceq"), scope, facts)?;
+        let carried = self.b.ap(
+            "fveq2d",
+            &binds! {"ph" => scope, "A" => k, "B" => &times_one, "F" => "ce"},
+            &[&counted],
+        );
+        let one_cc = self.numeral_fact(&t!(&one, "cc", "wcel"), scope, facts)?;
+        let k_z = self.numeral_fact(&t!(k, "cz", "wcel"), scope, facts)?;
+        let law = self.b.ap("efexp", &binds! {"A" => &one, "N" => k}, &[]);
+        let raised = t!(exp(&one), k, "cexp", "co");
+        let grown = self.b.ap(
+            "syl2anc",
+            &binds! {"ph" => scope, "ps" => t!(&one, "cc", "wcel"), "ch" => t!(k, "cz", "wcel"),
+            "th" => t!(exp(&times_one), &raised, "wceq")},
+            &[&one_cc, &k_z, &law],
+        );
+        // e is exp 1, by its definition, turned.
+        let defined = self.b.ap(
+            "eqcomi",
+            &binds! {"A" => "ceu", "B" => exp(&one)},
+            &[&self.step("df-e")],
+        );
+        let named = self.b.ap(
+            "a1i",
+            &binds! {"ph" => t!(exp(&one), "ceu", "wceq"), "ps" => scope},
+            &[&defined],
+        );
+        let e_power = t!("ceu", k, "cexp", "co");
+        let to_e = self.b.ap(
+            "oveq1d",
+            &binds! {"ph" => scope, "A" => exp(&one), "B" => "ceu", "C" => k, "F" => "cexp"},
+            &[&named],
+        );
+        let first = self.b.ap(
+            "eqtrd",
+            &binds! {"ph" => scope, "A" => exp(k), "B" => exp(&times_one), "C" => &raised},
+            &[&carried, &grown],
+        );
+        let to_power = self.b.ap(
+            "eqtrd",
+            &binds! {"ph" => scope, "A" => exp(k), "B" => &raised, "C" => &e_power},
+            &[&first, &to_e],
+        );
+        if *power == e_power {
+            return Ok(to_power);
+        }
+        // e¹ is written e.
+        let e_cc = self.closed_law(&t!("ceu", "cr", "wcel"), "ere", scope);
+        let e_cc = self
+            .b
+            .ap("recnd", &binds! {"ph" => scope, "A" => "ceu"}, &[&e_cc]);
+        let unit = self
+            .b
+            .ap("exp1d", &binds! {"ph" => scope, "A" => "ceu"}, &[&e_cc]);
+        Ok(self.b.ap(
+            "eqtrd",
+            &binds! {"ph" => scope, "A" => exp(k), "B" => &e_power, "C" => power},
+            &[&to_power, &unit],
+        ))
+    }
+
+    /// ( scope -> canon =/= 0 ) for the canon of D = Σ qₚ·ln p, rational
+    /// multiples of logarithms of primes and not all 0. With N the least
+    /// whole number making each N·qₚ whole and r = Π p^(N·qₚ), D·N is ln r
+    /// (an identity, and `ln_rational`), ln r ≠ 0 as r ≠ 1 (`logne0`), and
+    /// so D ≠ 0 (`mulne0bad`).
+    fn ln_apart(
+        &mut self,
+        canon_of: &Rpn,
+        value: &Real,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Route<Proof>> {
+        let Some(reals::Logarithmic { logs, .. }) = value.logarithmic() else {
+            return Ok(Route::no("a difference that is not logarithms of primes"));
+        };
+        let scale = logs.values().fold(BigInt::one(), |d, v| d.lcm(v.denom()));
+        let mut ratio = field::q(1);
+        for (p, weight) in &logs {
+            let n = (weight * Q::from_integer(scale.clone())).to_integer();
+            let Some(n) = n.to_i32() else {
+                return Ok(Route::no("a multiple of a logarithm too large"));
+            };
+            ratio *= Q::from_integer(BigInt::from(*p)).pow(n);
+        }
+        let logged = take!(self.ln_rational(&ratio, scope, facts)?);
+        let n = numerals::spell(scale.magnitude().clone());
+        let product = t!(canon_of, &n, "cmul", "co");
+        let is = take!(self.identity(&product, &logged.expression, scope, facts)?);
+        let log_r = t!(&logged.ratio, "clog", "cfv");
+        let back = self.b.ap(
+            "eqcomd",
+            &binds! {"ph" => scope, "A" => &log_r, "B" => &logged.expression},
+            &[&logged.proof],
+        );
+        let is_log = self.b.ap(
+            "eqtrd",
+            &binds! {"ph" => scope, "A" => &product, "B" => &logged.expression, "C" => &log_r},
+            &[&is, &back],
+        );
+        let r_rp = self.positive(&logged.ratio, scope, facts)?;
+        let r_apart =
+            self.numeral_fact(&t!(&logged.ratio, "c1", "wne"), scope, facts)?;
+        let law = self.b.ap("logne0", &binds! {"A" => &logged.ratio}, &[]);
+        let log_apart = self.b.ap(
+            "syl2anc",
+            &binds! {"ph" => scope, "ps" => t!(&logged.ratio, "crp", "wcel"), "ch" => t!(&logged.ratio, "c1", "wne"),
+            "th" => t!(&log_r, "cc0", "wne")},
+            &[&r_rp, &r_apart, &law],
+        );
+        let product_apart = self.b.ap(
+            "eqnetrd",
+            &binds! {"ph" => scope, "A" => &product, "B" => &log_r, "C" => "cc0"},
+            &[&is_log, &log_apart],
+        );
+        let value_cc = take!(self.in_cc(canon_of, scope, facts)?);
+        let n_cc = self.numeral_fact(&t!(&n, "cc", "wcel"), scope, facts)?;
+        Ok(Built(self.b.ap(
+            "mulne0bad",
+            &binds! {"ph" => scope, "A" => canon_of, "B" => &n},
+            &[&value_cc, &n_cc, &product_apart],
+        )))
     }
 
     /// ( scope -> √(p₁·(p₂·…)) = √p₁·(√p₂·…) ), and the right side.
@@ -1050,7 +1743,7 @@ fn collect_primes(term: &Term, out: &mut Vec<u64>) {
         return;
     }
     if surds::is_root(term) {
-        if let Built(Value::Exact(v)) = surds::closed_value(term) {
+        if let Built(surds::Value::Exact(v)) = surds::closed_value(term) {
             out.extend(v.primes());
         }
     }
@@ -1074,53 +1767,115 @@ fn product_of_primes(primes: &[u64]) -> Option<Rpn> {
     Some(out)
 }
 
-/// √p₁·(√p₂·…), or None for no primes.
-fn product_of_roots(primes: &[u64]) -> Option<Rpn> {
-    let (last, before) = primes.split_last()?;
-    let mut out = root_of_prime(*last);
-    for p in before.iter().rev() {
-        out = t!(root_of_prime(*p), out, "cmul", "co");
-    }
-    Some(out)
-}
-
 /// The canon of a value: a rational as `arithmetic` writes it, and any
 /// other value with whole coefficients as its parts added from the left,
-/// the rational part first and then by the product under the root, each
-/// part its coefficient times the product of its roots. A value with a
+/// in the order of their atoms (none first, then π, e, ln 2, ln 3 and on)
+/// and then by the product under the root, each part its coefficient times
+/// the product of its roots and its atoms' powers. A value with a
 /// coefficient that is not whole is that sum for its multiple by the least
 /// common denominator, over the denominator: the normaliser adds fractions
 /// without cancelling, so a sum of eight parts each over the same N is
 /// read over N⁸, and one over N is read over N.
-fn canon(value: &Surd) -> Rpn {
-    if let Some(rational) = value.as_rational() {
+fn canon(value: &Real) -> Rpn {
+    if let Some(rational) = value.as_surd().and_then(|s| s.as_rational()) {
         return spelt_rational(&rational);
     }
-    let common = surds::common_denominator(value);
+    let common = value
+        .weights()
+        .iter()
+        .fold(BigInt::one(), |d, v| d.lcm(v.denom()));
     if common.is_one() {
         return whole_canon(value);
     }
-    let whole = value.scaled(&Q::from_integer(BigInt::from(common.clone())));
-    t!(whole_canon(&whole), numerals::spell(common), "cdiv", "co")
+    let whole = value.times(&Real::rational(Q::from_integer(common.clone())));
+    t!(
+        whole_canon(&whole),
+        numerals::spell(common.magnitude().clone()),
+        "cdiv",
+        "co"
+    )
 }
 
 /// The canon of a value with whole coefficients.
-fn whole_canon(value: &Surd) -> Rpn {
-    let mut parts: Vec<(&Vec<u64>, &Q)> = value.parts.iter().collect();
-    parts.sort_by_key(|(basis, _)| basis.iter().map(|p| *p as u128).product::<u128>());
+fn whole_canon(value: &Real) -> Rpn {
     let mut out: Option<Rpn> = None;
-    for (basis, weight) in parts {
-        let coefficient = spelt_rational(weight);
-        let part = match product_of_roots(basis) {
-            None => coefficient,
-            Some(roots) => t!(coefficient, roots, "cmul", "co"),
-        };
-        out = Some(match out {
-            None => part,
-            Some(sum) => t!(sum, part, "caddc", "co"),
+    for (monomial, surd) in &value.parts {
+        let mut parts: Vec<(&Vec<u64>, &Q)> = surd.parts.iter().collect();
+        parts.sort_by_key(|(basis, _)| {
+            basis.iter().map(|p| *p as u128).product::<u128>()
         });
+        for (basis, weight) in parts {
+            let coefficient = spelt_rational(weight);
+            let mut factors: Vec<Rpn> =
+                basis.iter().map(|p| root_of_prime(*p)).collect();
+            factors.extend(monomial.iter().map(|(atom, k)| match k {
+                1 => spelt_atom(*atom),
+                _ => t!(spelt_atom(*atom), numeral(*k), "cexp", "co"),
+            }));
+            let part = match right_product(factors) {
+                None => coefficient,
+                Some(rest) => t!(coefficient, rest, "cmul", "co"),
+            };
+            out = Some(match out {
+                None => part,
+                Some(sum) => t!(sum, part, "caddc", "co"),
+            });
+        }
     }
     out.unwrap_or_else(|| numeral(0))
+}
+
+/// A whole number as a term: a numeral, negated where it is below 0.
+fn spelt_whole(n: i64) -> Rpn {
+    let size = numerals::spell(n.unsigned_abs());
+    if n < 0 {
+        t!(size, "cneg")
+    } else {
+        size
+    }
+}
+
+/// f₁·(f₂·(…)), or None for no factors.
+fn right_product(factors: Vec<Rpn>) -> Option<Rpn> {
+    let mut factors = factors.into_iter().rev();
+    let last = factors.next()?;
+    Some(factors.fold(last, |rest, f| t!(f, rest, "cmul", "co")))
+}
+
+/// An atom as set.mm spells it: `_pi`, `_e`, or ( log ` p ).
+fn spelt_atom(atom: Atom) -> Rpn {
+    match atom {
+        Atom::Pi => t!("cpi"),
+        Atom::E => t!("ceu"),
+        Atom::Ln(p) => t!(numerals::spell(p), "clog", "cfv"),
+    }
+}
+
+/// Every atom a value of the term or of a part of it holds, and π and e
+/// wherever the term writes them.
+fn atoms_under(term: &Term) -> Vec<Atom> {
+    let mut out = Vec::new();
+    collect_atoms(term, &mut out);
+    out.sort();
+    out.dedup();
+    out
+}
+
+fn collect_atoms(term: &Term, out: &mut Vec<Atom>) {
+    if term.variable().is_some() || !reals::holds_atom(term) {
+        return;
+    }
+    if let Built(reals::Value::Exact(v)) = reals::closed_value(term) {
+        out.extend(v.atoms());
+    }
+    match term.label() {
+        Some("cpi") => out.push(Atom::Pi),
+        Some("ceu") => out.push(Atom::E),
+        _ => {}
+    }
+    for kid in term.children() {
+        collect_atoms(kid, out);
+    }
 }
 
 /// A rational number as a term: a whole number as a numeral, and any other

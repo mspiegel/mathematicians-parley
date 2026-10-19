@@ -79,6 +79,7 @@ has, and a subject is one file:
 | `corpus/stdlib/geometry.records` | points, distance, angles, triangles, congruence, parallels and sides of a line, the law of sines | 23 |
 | `corpus/stdlib/groups.records` | groups, their laws, subgroups, cosets | 12 |
 | `corpus/stdlib/trigonometry.records` | cos and sin, and their addition formulas | 13 |
+| `corpus/stdlib/logarithms.records` | the natural logarithm and the exponential function | 2 |
 | `corpus/stdlib/polynomials.records` | polynomials with complex coefficients, their values, and division by x − a | 2 |
 | `corpus/stdlib/graphs.records` | walks, Euler paths, traversable graphs, degree | 10 |
 

@@ -30,14 +30,14 @@ use crate::matching::{
 };
 use crate::methods::field::{decide_closed, Verdict};
 use crate::methods::membership as methods_membership;
-use crate::methods::terms::{term_of_node, Targets};
+use crate::methods::terms::{term_of_node, term_of_node_reading, Targets};
 use crate::methods::{algebra, inequalities, linear};
 use crate::mm::kernel::{FloatLabels, Term};
 use crate::notations::{
-    APPLICATION, AT_LEAST, AT_MOST, BICONDITIONAL, BY_CASES, CONDITIONAL, CONJUNCTION,
-    EQUALITY, EQUALS, FOR_ALL, FOR_ALL_SETS, FUNCTION_TYPE, GREATER, IMPLICATION,
-    INTEGER_RANGE, LESS, LOGICAL_NOT, MEMBERSHIP, NUMBER_SYSTEMS, NUMERAL, ORDER, PLUS,
-    PRODUCT_OVER, SUM, TIMES,
+    APPLICATION, APPLICATION_TO_TWO, AT_LEAST, AT_MOST, BICONDITIONAL, BY_CASES,
+    CONDITIONAL, CONJUNCTION, EQUALITY, EQUALS, FOR_ALL, FOR_ALL_SETS, FUNCTION_TYPE,
+    GREATER, IMPLICATION, INTEGER_RANGE, LESS, LOGICAL_NOT, MEMBERSHIP, NUMBER_SYSTEMS,
+    NUMERAL, ORDER, PLUS, PRODUCT_OVER, SUM, TIMES,
 };
 use crate::outcome::{Built, Checked, Declined, Problem};
 use crate::rules::System;
@@ -318,6 +318,21 @@ pub fn defined_words(
                     .collect()
             })
             .unwrap_or_default();
+        // A function's record names the method that works it out, and only
+        // `real arithmetic` works out a function (`DATABASE.md`, decided).
+        if r.is_function() {
+            for m in methods.iter().filter(|m| *m != "real arithmetic") {
+                report.say(
+                    &r.path,
+                    r.lines.get("decided").copied().unwrap_or(r.line),
+                    format!(
+                        "{} says {m} decides it, and {m} works out no function; the method that does is real arithmetic",
+                        r.name
+                    ),
+                );
+            }
+            continue;
+        }
         for m in &methods {
             if !DECIDING.contains(&m.as_str()) {
                 report.say(
@@ -370,25 +385,41 @@ const NATIVE: [NotationId; 3] = [MEMBERSHIP, EQUALITY, ORDER];
 /// by its notation's name, and whether `arithmetic` works it out: one of
 /// its own nature, or one whose record names it in a `decided` field.
 pub fn operations(records: &[Record]) -> IndexMap<NotationId, bool> {
-    operations_by(records, crate::methods::field::worked_out)
+    operations_by(records, crate::methods::field::worked_out, false)
 }
 
 /// `operations`, by whether `real arithmetic` works each out: one
-/// `arithmetic` does, or one whose record names `real arithmetic`.
+/// `arithmetic` does, or one whose record names `real arithmetic`; and the
+/// constants with them, π and e worked out, i not.
 pub fn real_operations(records: &[Record]) -> IndexMap<NotationId, bool> {
-    operations_by(records, crate::methods::surds::worked_out)
+    operations_by(records, crate::methods::surds::worked_out, true)
+}
+
+/// Each library function, by its name, and whether its record says
+/// `real arithmetic` works it out (`DATABASE.md`, decided): ln and exp do,
+/// cos and gcd do not.
+pub fn real_functions(records: &[Record]) -> IndexMap<String, bool> {
+    records
+        .iter()
+        .filter(|r| r.is_function())
+        .map(|r| {
+            let decided = crate::methods::field::decides(r, "real arithmetic");
+            (r.name.clone(), decided)
+        })
+        .collect()
 }
 
 fn operations_by(
     records: &[Record],
     worked_out: fn(&Record) -> bool,
+    constants: bool,
 ) -> IndexMap<NotationId, bool> {
     records
         .iter()
         .filter(|r| r.kind == RecordKind::Notation)
         .filter(|r| {
             r.field_or_empty("sort").trim_end().ends_with("→ number")
-                && r.field_or_empty("pattern").contains('_')
+                && (constants || r.field_or_empty("pattern").contains('_'))
         })
         .map(|r| (NotationId::of(&r.name), worked_out(r)))
         .collect()
@@ -532,6 +563,7 @@ pub fn check_real_decided_words(
     known: &Known,
     words: &IndexMap<Spelling, DefinedWord>,
     operations: &IndexMap<NotationId, bool>,
+    functions: &IndexMap<String, bool>,
 ) {
     for step in &thm.steps {
         let mut asked: Vec<(usize, &Written)> = Vec::new();
@@ -576,6 +608,26 @@ pub fn check_real_decided_words(
                         format!(
                             "{text} works out {}, and real arithmetic works out an operation beyond arithmetic's only where the notation's record says so in a `decided` field",
                             part.notation_name()
+                        ),
+                    );
+                }
+                let applied =
+                    matches!(part.notation(), APPLICATION | APPLICATION_TO_TWO);
+                let Some(head) =
+                    part.children.first().filter(|h| applied && h.is_name())
+                else {
+                    continue;
+                };
+                let name = head.text.to_string();
+                if library_named(&name, known)
+                    && functions.get(&name) == Some(&false)
+                    && named.insert(name.clone())
+                {
+                    report.say(
+                        &thm.path,
+                        line,
+                        format!(
+                            "{text} works out {name}, and real arithmetic works out a function only where its record says so in a `decided` field"
                         ),
                     );
                 }
@@ -4054,14 +4106,16 @@ pub(super) enum RealWorked {
     /// Its sides have values, and the relation between them is not one
     /// real arithmetic decides, and why. It is not reported as false.
     Undecided(String),
-    /// A sentence of it is not built from numerals and square roots.
+    /// A sentence of it is not built from numerals, square roots, π, e and
+    /// logarithms.
     Unread,
-    /// It holds and takes no square root, so it is `arithmetic`'s.
-    NoRoot,
+    /// It holds and takes nothing beyond what `arithmetic` works out, so it
+    /// is `arithmetic`'s.
+    NumeralsAlone,
 }
 
 /// A fact `real arithmetic` claims, each sentence worked out
-/// (`methods::surds::decide_closed`). A sentence that does not read is
+/// (`methods::reals::decide_closed`). A sentence that does not read is
 /// `check_formulas`'s to report.
 pub(super) fn real_worked(
     written: &Written,
@@ -4076,15 +4130,33 @@ pub(super) fn real_worked(
     real_worked_of(&nodes, known, targets)
 }
 
+/// A sentence as `real arithmetic` reads it: as `term_of_node` does, with
+/// each library function the theorem imports, and gives no meaning of its
+/// own, built out of what it builds, as the build reads it.
+fn real_term(node: &Node, known: &Known, targets: &Targets) -> Term {
+    let library = |name: &str| library_named(name, known);
+    term_of_node_reading(&written_out(node, known), targets, &library)
+}
+
+/// Whether `name` is a library function in the theorem: imported, and not a
+/// name its `let` lines or `obtain` steps introduce (`introduced`). The
+/// settled sorts hold a library function's name with the library's sort, so
+/// they do not tell the two apart; a define's name is one letter, which no
+/// library function's is.
+fn library_named(name: &str, known: &Known) -> bool {
+    known.sorts.imported.contains(name) && !introduced(known.thm).contains(name)
+}
+
 /// `real_worked` of sentences already read.
 fn real_worked_of(nodes: &[Node], known: &Known, targets: &Targets) -> RealWorked {
-    use crate::methods::surds::{self, Verdict as Surd};
+    use crate::methods::reals;
+    use crate::methods::surds::Verdict as Surd;
     let mut out = RealWorked::Holds;
-    let mut rooted = false;
+    let mut beyond = false;
     for node in nodes {
-        let term = term_of_node(&written_out(node, known), targets);
-        rooted |= surds::takes_root(&term);
-        match surds::decide_closed(&term) {
+        let term = real_term(node, known, targets);
+        beyond |= reals::beyond_arithmetic(&term);
+        match reals::decide_closed(&term) {
             Built(Surd::Holds(false)) => {
                 return RealWorked::Fails("is false".to_string())
             }
@@ -4097,7 +4169,7 @@ fn real_worked_of(nodes: &[Node], known: &Known, targets: &Targets) -> RealWorke
         }
     }
     match out {
-        RealWorked::Holds if !rooted => RealWorked::NoRoot,
+        RealWorked::Holds if !beyond => RealWorked::NumeralsAlone,
         out => out,
     }
 }
@@ -4112,11 +4184,12 @@ fn real_unshown(worked: RealWorked) -> Option<String> {
             Some(format!("{why}; real arithmetic does not decide it"))
         }
         RealWorked::Unread => Some(
-            "is not a fact about numerals and square roots alone, and real arithmetic decides nothing else"
+            "is not a fact about numerals, square roots, π, e and logarithms alone, and real arithmetic decides nothing else"
                 .to_string(),
         ),
-        RealWorked::NoRoot => Some(
-            "takes no square root; a claim of numerals alone cites arithmetic".to_string(),
+        RealWorked::NumeralsAlone => Some(
+            "takes no square root, π, e, logarithm or exponential; a claim of numerals alone cites arithmetic"
+                .to_string(),
         ),
     }
 }
@@ -4188,7 +4261,9 @@ pub fn check_real_arithmetic_holds(
             let Some(claim) = link.claim(known) else {
                 continue;
             };
-            let why = if claim.names().is_empty() {
+            // A library function's name, ln in ln(2), is no letter.
+            let closed = claim.names().iter().all(|name| library_named(name, known));
+            let why = if closed {
                 real_unshown(real_worked_of(&[claim], known, targets))
             } else {
                 Some(
@@ -4214,16 +4289,17 @@ pub fn check_real_arithmetic_holds(
 /// A closed claim `real arithmetic` decides cites it, as one `arithmetic`
 /// works out cites arithmetic (`check_closed_by_arithmetic`): asked of a
 /// step and each requires line giving `algebra` or `inequalities` for a
-/// claim that takes a square root and that real arithmetic finds true or
-/// false. One it does not decide, an order of values that are not
-/// rational, stays theirs.
+/// claim that holds a square root, π, e or a logarithm and that real
+/// arithmetic finds true or false. One it does not decide, an order of
+/// values that are not rational or π = e, stays theirs.
 pub fn check_closed_by_real_arithmetic(
     report: &mut Report,
     thm: &Theorem,
     known: &Known,
     targets: &Targets,
 ) {
-    use crate::methods::surds::{self, Verdict as Surd};
+    use crate::methods::reals;
+    use crate::methods::surds::Verdict as Surd;
     let decided = |written: &Written| {
         let terms: Option<Vec<Term>> = written
             .sentences()
@@ -4231,14 +4307,14 @@ pub fn check_closed_by_real_arithmetic(
             .map(|s| {
                 known
                     .read_as_written(s)
-                    .map(|n| term_of_node(&written_out(&n, known), targets))
+                    .map(|n| real_term(&n, known, targets))
             })
             .collect();
         terms.is_some_and(|terms| {
-            terms.iter().any(surds::takes_root)
+            terms.iter().any(reals::beyond_arithmetic)
                 && terms
                     .iter()
-                    .all(|t| matches!(surds::decide_closed(t), Built(Surd::Holds(_))))
+                    .all(|t| matches!(reals::decide_closed(t), Built(Surd::Holds(_))))
         })
     };
     for step in &thm.steps {

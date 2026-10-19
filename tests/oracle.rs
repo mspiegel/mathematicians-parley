@@ -77,6 +77,9 @@ mod rows;
 #[path = "oracle/real.rs"]
 mod real;
 
+#[path = "oracle/atoms.rs"]
+mod atoms;
+
 use gen::Drawn;
 use judge::Verdict;
 use shared::{included, Random};
@@ -186,7 +189,12 @@ import mundane definition stdlib/divisibility/congruent-mod
         Method {
             name: "real-arithmetic",
             draw: real::claim,
-            imports: "",
+            // The functions a claim holding a logarithm applies, imported as
+            // a proof applying them would.
+            imports: "\
+import mundane definition stdlib/logarithms/ln
+import mundane definition stdlib/logarithms/exp
+",
             false_said: "which is false",
         },
     ]
