@@ -1,0 +1,26 @@
+import mundane theorem stdlib/sums/sum-single
+
+theorem a-sum-of-squares-of-a-recursion
+  note        Nothing says what a sequence by recursion's values are, so a
+              sum of their squares is said of every point by a line the
+              step cites.
+  let F(0) = 1,  F(k + 1) = F(k) + 1,  for k ∈ ℕ₀                     (D1)
+         reads the counting sequence from 1
+  assume for all k ∈ ℕ₀, F(k)² ∈ ℝ                                    (H1)
+  then Σ(j = 1 to 1) F(j)² = F(1)²
+
+1.  Σ(j = 1 to 1) F(j)² = F(1)²
+    mun:sum-single a := 1, from H1
+
+theorem a-sum-of-a-recursion
+  note        The sequence itself asked over a range is said of every point
+              of it by a requires line, from a line saying its values on a
+              set holding the range.
+  let F(0) = 1,  F(k + 1) = F(k) + 1,  for k ∈ ℕ₀                     (D1)
+         reads the counting sequence from 1
+  assume for all k ∈ ℕ₀, F(k) ∈ ℝ                                     (H1)
+  then Σ(j = 1 to 1) F(j) = F(1)
+
+1.  Σ(j = 1 to 1) F(j) = F(1)
+    mun:sum-single a := 1
+    requires for all k ∈ {1, …, 1}, F(k) ∈ ℝ: from H1

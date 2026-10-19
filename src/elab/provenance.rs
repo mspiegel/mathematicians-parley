@@ -84,6 +84,11 @@ impl<'a> Elaborator<'a> {
         if let Some(cited) = step.just.cited_item() {
             let full = self.thm.names.full(&cited);
             out.extend(crate::sorts::stated_over(self.thm, self.scopes, &full));
+            // A theorem stated over a sequence by recursion is read with this
+            // proof's define of it, which the step rests on the same way.
+            if let Some(Item::Theorem(other)) = self.items.get(&full) {
+                out.extend(self.recursions_read(other));
+            }
         }
         if block {
             let prefix = format!("{number}.");

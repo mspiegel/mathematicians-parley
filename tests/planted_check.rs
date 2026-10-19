@@ -5132,5 +5132,49 @@ fn cases() -> Vec<Case> {
             )],
             "mun:sum-real is neither imported nor a theorem of this file",
         ),
+        // A theorem stated over a sequence by recursion is about that
+        // sequence: a proof whose sequence of the name adds 2 does not have
+        // what the cited theorem says of one that adds 1.
+        case(
+            "cite a theorem over another recursion of the same name",
+            vec![edit(
+                "tests/elaborator/citing-a-theorem-over-a-header-recursion.proof",
+                Some("F(n + 1) = F(n) + 1,".to_string()),
+                "F(n + 1) = F(n) + 2,".to_string(),
+            )],
+            "step 1 cites thm:counted-to-one, which is stated over F, defined by recursion there; there F(n + 1) is F(n) + 1, and D1 here says it is F(n) + 2",
+        ),
+        // The cited recursion with the citation's letters put in: M := N
+        // makes its value at 0 N, and this proof's starts at N + 1.
+        case(
+            "cite a theorem over a recursion that starts elsewhere once its letters are put in",
+            vec![edit(
+                "tests/elaborator/citing-a-theorem-over-a-header-recursion.proof",
+                Some("let F(0) = N,".to_string()),
+                "let F(0) = N + 1,".to_string(),
+            )],
+            "there F(0) is N, and D1 here says it is N + 1",
+        ),
+        // Nothing says what a sequence by recursion's values are, so a sum of
+        // their squares asks a line saying it at every point.
+        case(
+            "cite a sum's item over a compound of a recursion no line types",
+            vec![edit(
+                "tests/elaborator/a-sum-over-a-compound-of-a-defined-function.proof",
+                Some("    mun:sum-single a := 1, from H1\n".to_string()),
+                "    mun:sum-single a := 1\n".to_string(),
+            )],
+            "step 1 cites mun:sum-single, which asks that every term F(j)² is in ℝ, and it is no number by what the page says once",
+        ),
+        // The sequence itself, untyped, is told where its values are said.
+        case(
+            "cite a sum's item over a recursion no line types",
+            vec![edit(
+                "tests/elaborator/a-sum-over-a-compound-of-a-defined-function.proof",
+                Some("    requires for all k ∈ {1, …, 1}, F(k) ∈ ℝ: from H1\n".to_string()),
+                String::new(),
+            )],
+            "a requires line says it, as for all k ∈ {1, …, 1}, F(k) ∈ ℝ, from a line saying the values on a set holding {1, …, 1}",
+        ),
     ]
 }

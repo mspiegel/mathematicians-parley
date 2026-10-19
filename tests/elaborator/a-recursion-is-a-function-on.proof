@@ -1,0 +1,13 @@
+import mundane theorem stdlib/functions/function-into
+
+theorem a-recursion-is-a-function-on
+  note        A sequence by recursion is a function on the set its index
+              runs over, which its define gives.
+  let F(0) = 1,  F(k + 1) = F(k) + 1,  for k ∈ ℕ₀                     (D1)
+         reads the counting sequence from 1
+  assume for all k ∈ ℕ₀, F(k) ∈ ℝ                                     (H1)
+  then F : ℕ₀ → ℝ
+
+1.  F : ℕ₀ → ℝ
+    mun:function-into, from H1
+    requires F is a function on ℕ₀: from D1

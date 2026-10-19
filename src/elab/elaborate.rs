@@ -505,6 +505,23 @@ impl<'a> Elaborator<'a> {
             }
         }
         self.sorts = sorts;
+        // A define by recursion in the statement is stated written out, as a
+        // definition from outside is, in the hypotheses below it as in the
+        // conclusion. Its rules may name a letter a `let` gives, which
+        // `hypotheses` has named.
+        let first = self.thm.steps.first().map(|s| s.line);
+        for d in self.thm.defines.clone() {
+            let Built(DefineParts::Recursion(given)) = define_parts(&d.text) else {
+                continue;
+            };
+            if first.is_some_and(|f| d.line >= f) {
+                continue;
+            }
+            for (name, made) in self.recursion_terms(&d.label, &given)? {
+                self.from_outside
+                    .insert(name, Defined::Term(Node::literal(&made)));
+            }
+        }
         let mut terms = Vec::new();
         for n in &nodes {
             terms.push(self.term(n)?);
@@ -563,21 +580,6 @@ impl<'a> Elaborator<'a> {
                     sentences: vec![node.clone()],
                 },
             );
-        }
-        // A define by recursion in the statement is stated written out, as a
-        // definition from outside is.
-        let first = self.thm.steps.first().map(|s| s.line);
-        for d in self.thm.defines.clone() {
-            let Built(DefineParts::Recursion(given)) = define_parts(&d.text) else {
-                continue;
-            };
-            if first.is_some_and(|f| d.line >= f) {
-                continue;
-            }
-            for (name, made) in self.recursion_terms(&d.label, &given)? {
-                self.from_outside
-                    .insert(name, Defined::Term(Node::literal(&made)));
-            }
         }
         let goal = self.claim_of(&self.thm.stated())?;
         self.from_outside = IndexMap::new();
@@ -5128,6 +5130,23 @@ impl<'a> Elaborator<'a> {
         if !self.cited.contains(&full) {
             self.cited.push(full.clone());
         }
+        // A sequence the cited statement defines by recursion is read as
+        // this proof's sequence of that name (`in_its_names`), and the step
+        // reads that define without citing it, as the statement speaks of
+        // the sequence by name.
+        for (_, r) in other.stated_recursions() {
+            if let Some(name) =
+                r.names.iter().find(|n| self.recursion_named(n).is_none())
+            {
+                return Err(self.defect(
+                    step.line,
+                    format!(
+                        "{full} is stated over {name}, which its define gives by recursion, and nothing here defines {name} by recursion"
+                    ),
+                ));
+            }
+        }
+        let recursive = self.recursions_read(other);
         let claimed = step.claim.sentences().len();
         // The theorem read under what the citation gives its letters. A
         // letter named in `apart` is read as a class of its own, and what it
@@ -5444,6 +5463,7 @@ impl<'a> Elaborator<'a> {
         let over = crate::sorts::stated_over(self.thm, self.scopes, &other.qualified());
         if let Some(allowed) = &mut self.resting {
             allowed.extend(over);
+            allowed.extend(recursive);
         }
         // What the step writes and cites is what reading the statement over
         // the step's own terms may ask: e(n) ∈ ℤ, to read s at e(n).

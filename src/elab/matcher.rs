@@ -4299,35 +4299,47 @@ impl<'a> Elaborator<'a> {
     }
 
     /// `renaming` by way of letters neither statement holds: every letter
-    /// the first statement binds, under a statement's binder or a class's,
-    /// is moved to one nothing holds, and the statement is renamed from
-    /// there, where nothing can be caught. The letters are only looked at,
-    /// not taken.
+    /// the first statement binds where the second binds another, under a
+    /// statement's binder or a class's, is moved to one nothing holds, and
+    /// the statement is renamed from there, where nothing can be caught. The
+    /// letters are only looked at, not taken.
+    ///
+    /// A letter both bind at the same place stays: a sequence by recursion
+    /// written out binds letters inside it, which the two statements share,
+    /// and set.mm has no lemma carrying a renaming through a sequence.
     pub fn renaming_apart(&mut self, said: &Rpn, want: &Rpn) -> Checked<Option<Proof>> {
         let mut letters: Vec<Symbol> = Vec::new();
-        let mut rest = vec![self.to_term(said)];
-        while let Some(node) = rest.pop() {
+        let mut rest = vec![(self.to_term(said), Some(self.to_term(want)))];
+        while let Some((node, theirs)) = rest.pop() {
+            // Where the two are built alike, each part is compared with the
+            // other's part in its place; below a place where they are not,
+            // no letter of the first is bound where the second binds it.
+            let theirs = theirs.filter(|t| {
+                t.label() == node.label() && t.children().len() == node.children().len()
+            });
             // What a binder binds is the set variable it takes as an
             // operand, wherever the binder puts it.
             let binder = node.label().is_some_and(|l| {
                 lookup(rules::BOUND, l).is_some()
                     || lookup(rules::CLASS_BOUND, l).is_some()
             });
-            if binder {
-                for kid in node.children() {
-                    let Some(letter) = kid.variable_symbol() else {
-                        continue;
-                    };
-                    if self.typecode(self.rpn(kid).alone().unwrap_or_default())
-                        != "setvar"
-                        || letters.contains(&letter)
-                    {
-                        continue;
-                    }
-                    letters.push(letter);
+            for (at, kid) in node.children().iter().enumerate() {
+                let other = theirs.as_ref().map(|t| t.children()[at].clone());
+                rest.push((kid.clone(), other.clone()));
+                if !binder {
+                    continue;
                 }
+                let Some(letter) = kid.variable_symbol() else {
+                    continue;
+                };
+                if self.typecode(self.rpn(kid).alone().unwrap_or_default()) != "setvar"
+                    || letters.contains(&letter)
+                    || other.and_then(|o| o.variable_symbol()) == Some(letter)
+                {
+                    continue;
+                }
+                letters.push(letter);
             }
-            rest.extend(node.children().iter().cloned());
         }
         if letters.is_empty() {
             return Ok(None); // it binds nothing, so it is not the other respelt

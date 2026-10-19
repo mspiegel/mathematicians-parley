@@ -1014,6 +1014,20 @@ impl Theorem {
         format!("{}/{}", self.module(), self.name)
     }
 
+    /// Each define by recursion above the `then`, which the statement is
+    /// read with, and its line. One that does not read is left out, and is
+    /// `check_recursions`'s to report.
+    pub fn stated_recursions(&self) -> Vec<(usize, super::define::Recursion)> {
+        self.defines
+            .iter()
+            .filter(|d| d.line < self.conclusion_line)
+            .filter_map(|d| match define_parts(&d.text) {
+                Built(DefineParts::Recursion(r)) => Some((d.line, r)),
+                _ => None,
+            })
+            .collect()
+    }
+
     /// Each let that says what kind of number its name is, read
     /// (`DefineLine::kinded`).
     pub fn kinded(&self, members: &IndexMap<String, String>) -> Checked<Vec<Kinded>> {

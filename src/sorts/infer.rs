@@ -1054,13 +1054,23 @@ pub fn read_statement(thm: &Theorem, env: Env, store: &mut Store) -> Reader {
     let mut reader = Reader::new(env, &thm.path);
     reader.ranges = ranges_of(&thm.ranges);
     reader.imported = imported_in(thm, env);
+    // A define by recursion among the hypotheses names sequences the
+    // statement speaks of, read where it stands: its rules may name a
+    // letter a `let` above it gives.
+    let mut recursions = thm.stated_recursions().into_iter().peekable();
     for h in &thm.hypotheses {
+        while let Some((line, r)) = recursions.next_if(|(line, _)| *line < h.line) {
+            recursion_sorts(&mut reader, &r, line.into(), env, store);
+        }
         let body = str::trim(&unlabel(&h.text[h.kind.as_str().len()..])).to_string();
         if h.kind == Intro::Let {
             introduce(&mut reader, &body, h.line.into(), env, store);
         } else {
             claim_text(&mut reader, &body, h.line.into(), env, store);
         }
+    }
+    for (line, r) in recursions {
+        recursion_sorts(&mut reader, &r, line.into(), env, store);
     }
     claim_text(&mut reader, &thm.conclusion, thm.line.into(), env, store);
     reader
@@ -1078,10 +1088,6 @@ pub fn read_lets(record: &Record, env: Env, store: &mut Store) -> Reader {
     reader
 }
 
-/// The sorts of the sequences a define by recursion gives: each takes a
-/// number, the index, and gives what its value at 0 is, which each rule at
-/// k + 1 must give too. Every name is in scope in every rule, since a rule
-/// may name any of the sequences at k.
 /// The sort of a function taking `taken` one at a time and giving `gives`:
 /// a function of two is a function from the first to a function from the
 /// second, as `application-to-two` reads one.
@@ -1091,6 +1097,10 @@ fn curried(taken: Vec<SortTerm>, gives: SortTerm) -> SortTerm {
     })
 }
 
+/// The sorts of the sequences a define by recursion gives: each takes a
+/// number, the index, and gives what its value at 0 is, which each rule at
+/// k + 1 must give too. Every name is in scope in every rule, since a rule
+/// may name any of the sequences at k.
 fn recursion_sorts(
     reader: &mut Reader,
     said: &crate::corpus::Recursion,

@@ -1075,6 +1075,7 @@ fn check_passes(
     formulas::check_membership_claims(report, thm, k);
     citations::check_hypotheses(report, thm, library, k);
     citations::check_conclusion(report, thm, library, k);
+    citations::check_recursions_cited(report, thm, library, k);
     citations::check_subjects(report, thm, library, k);
     citations::check_joins(report, thm, library, k);
     citations::check_substitutes(report, thm, library, k);

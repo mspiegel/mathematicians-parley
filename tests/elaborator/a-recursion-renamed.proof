@@ -1,0 +1,23 @@
+theorem a-recursion-rule-for-all
+  note        A recursion's rule said of every index, by the define alone.
+  let F(0) = 0,  F(k + 1) = F(k) + 1,  for k ∈ ℕ₀                     (D1)
+         reads the counting sequence
+  then For all n ∈ ℕ₀, F(n + 1) = F(n) + 1.
+
+1.  For all n ∈ ℕ₀, F(n + 1) = F(n) + 1.
+    D1
+
+theorem a-recursion-rule-by-a-block
+  note        The same by a proof block as the last step: the statement
+              and the block's claim bind the letters inside the recursion
+              alike, and only the for-all's letter is renamed.
+  let F(0) = 0,  F(k + 1) = F(k) + 1,  for k ∈ ℕ₀                     (D1)
+         reads the counting sequence
+  then For all n ∈ ℕ₀, F(n + 1) = F(n) + 1.
+
+1.  For all n ∈ ℕ₀, F(n + 1) = F(n) + 1.
+    proof
+    let n ∈ ℕ₀                                                        (K1)
+
+    1.1.  F(n + 1) = F(n) + 1
+          D1

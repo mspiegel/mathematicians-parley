@@ -1,0 +1,65 @@
+theorem counted-to-one
+  note        A sequence defined by recursion in the statement, which a
+              theorem below cites.
+  let F(0) = 0,  F(k + 1) = F(k) + 1,  for k ∈ ℕ₀                     (D1)
+         reads the counting sequence
+  then F(1) = 1
+
+1.  F(0) = 0
+    D1
+
+2.  F(0 + 1) = F(0) + 1
+    D1
+
+3.  F(0) + 1 = 0 + 1
+    substitute F(0) = 0 (line 1)
+
+4.  F(1) = 1
+    calculation
+      F(1) = F(0 + 1)      arithmetic
+           = F(0) + 1      2
+           = 0 + 1         3
+           = 1             arithmetic
+
+theorem counted-to-one-again
+  note        The cited theorem's F is this proof's F, the same recursion
+              over another index letter.
+  let F(0) = 0,  F(n + 1) = F(n) + 1,  for n ∈ ℕ₀                     (D1)
+         reads the counting sequence
+  then F(1) = 1
+
+1.  F(1) = 1
+    thm:counted-to-one
+
+theorem counted-on-from
+  note        A recursion whose value at 0 is a letter the statement lets.
+  let M ∈ ℕ₀                                                          (H1)
+  let F(0) = M,  F(k + 1) = F(k) + 1,  for k ∈ ℕ₀                     (D1)
+         reads counting on from M
+  then F(1) = M + 1
+
+1.  F(0) = M
+    D1
+
+2.  F(0 + 1) = F(0) + 1
+    D1
+
+3.  F(0) + 1 = M + 1
+    substitute F(0) = M (line 1)
+
+4.  F(1) = M + 1
+    calculation
+      F(1) = F(0 + 1)      arithmetic
+           = F(0) + 1      2
+           = M + 1         3
+
+theorem counted-on-from-a-letter
+  note        The citation puts N for M, and the cited recursion with N put
+              in is this proof's.
+  let N ∈ ℕ₀                                                          (H1)
+  let F(0) = N,  F(j + 1) = F(j) + 1,  for j ∈ ℕ₀                     (D1)
+         reads counting on from N
+  then F(1) = N + 1
+
+1.  F(1) = N + 1
+    thm:counted-on-from M := N

@@ -13,7 +13,7 @@ use indexmap::IndexMap;
 
 use super::state::Elaborator;
 use crate::corpus::proof::visible;
-use crate::corpus::{DefineLine, Intro, Item, Recursion, ScopeId, Step};
+use crate::corpus::{DefineLine, Intro, Item, Recursion, ScopeId, Step, Theorem};
 use crate::formula::grammar::Sorts;
 use crate::formula::page::{filled, made, made_as, template, Sentence, Written};
 use crate::formula::symbol::Symbol;
@@ -149,7 +149,24 @@ impl<'a> Elaborator<'a> {
         let (written, own) = match item {
             Item::Theorem(t) => {
                 let own = sorts_of_statement(t, self.env());
-                (statement_definitions(t, self.env(), &own), own)
+                let mut written = statement_definitions(t, self.env(), &own);
+                // A sequence the statement defines by recursion is the
+                // proof's sequence of that name, as the proof writes it out.
+                // That the two are one recursion is the checker's to say, and
+                // the kernel holds it: the cited statement, which writes out
+                // its own recursion, is fitted to what this reads
+                // (`cited_pushes`).
+                for (_, r) in t.stated_recursions() {
+                    for name in &r.names {
+                        if let Some((_, made)) = self.recursion_named(name) {
+                            written.insert(
+                                name.clone(),
+                                Defined::Term(Node::literal(&made)),
+                            );
+                        }
+                    }
+                }
+                (written, own)
             }
             Item::Record(r) => (Definitions::new(), sorts_of_record(r, self.env())),
         };
@@ -707,6 +724,32 @@ impl<'a> Elaborator<'a> {
             }
         };
         self.apart(&made)
+    }
+
+    /// The labels of this proof's defines by recursion that a citation of
+    /// `other` reads, one for each sequence its statement defines so
+    /// (`in_its_names`).
+    pub fn recursions_read(&self, other: &Theorem) -> Vec<String> {
+        let mut out: Vec<String> = Vec::new();
+        for (_, r) in other.stated_recursions() {
+            for name in &r.names {
+                if let Some((label, _)) = self.recursion_named(name) {
+                    if !out.contains(&label) {
+                        out.push(label);
+                    }
+                }
+            }
+        }
+        out
+    }
+
+    /// The label of the define by recursion of this proof that names `name`,
+    /// and the set.mm term of that sequence (`recursion_terms`), where one
+    /// does.
+    pub fn recursion_named(&self, name: &str) -> Option<(String, Rpn)> {
+        self.recursion_maps
+            .iter()
+            .find_map(|(label, maps)| Some((label.clone(), maps.get(name)?.clone())))
     }
 
     /// Each name a define by recursion gives, as its set.mm term: the map

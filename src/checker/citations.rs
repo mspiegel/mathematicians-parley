@@ -807,6 +807,153 @@ pub fn check_conclusion(
     }
 }
 
+/// A theorem stated over a sequence it defines by recursion speaks of that
+/// sequence, and a step citing it speaks of its own sequence of the name,
+/// as the build reads it (`Elaborator::in_its_names`). The citation holds
+/// only where the two are one recursion: the same names in the same order,
+/// each with the same value at 0 and the same rule at k + 1, once the
+/// letters the citation fills are put in and the index is read as the
+/// citing define's. Otherwise what the theorem says is about another
+/// sequence.
+pub fn check_recursions_cited(
+    report: &mut Report,
+    thm: &Theorem,
+    library: &Library,
+    known: &Known,
+) {
+    for step in &thm.steps {
+        let mut citations: Vec<(usize, String, Option<Cited>)> = Vec::new();
+        if let Some(named) = step.just.cited_item() {
+            citations.push((step.just.line, named, cited(step, library, known)));
+        }
+        for req in &step.requires {
+            if let Some((named, _)) = req.cited_item() {
+                let read = cited_requires(step, req, library, known);
+                citations.push((req.line, named, read));
+            }
+        }
+        // A citation no group reads is `check_conclusion`'s and
+        // `check_requires`'s to report.
+        for (line, named, read) in citations {
+            let Some(read) = read else {
+                continue;
+            };
+            let (Some(Item::Theorem(other)), Some(sorts)) =
+                (library.item(&read.item), library.proved_sorts(&read.item))
+            else {
+                continue;
+            };
+            for (theirs_line, theirs) in other.stated_recursions() {
+                let theirs_at = (theirs_line, &theirs);
+                if let Some(why) = recursion_differs(
+                    thm,
+                    other,
+                    sorts,
+                    theirs_at,
+                    &read.binding,
+                    known,
+                ) {
+                    report.say(
+                        &thm.path,
+                        line,
+                        format!(
+                            "step {} cites {named}, which is stated over {}, defined by recursion there; {why}",
+                            step.number,
+                            theirs.names.join(", ")
+                        ),
+                    );
+                }
+            }
+        }
+    }
+}
+
+/// How the citing proof's sequences differ from those `theirs`, a define by
+/// recursion of the theorem `other` on its line `theirs_line`, read with
+/// `sorts`, gives: in the names, or in the first value or rule that is not
+/// the same once `binding` is put in and the index renamed. None where they
+/// are one recursion.
+fn recursion_differs(
+    thm: &Theorem,
+    other: &Theorem,
+    sorts: &crate::formula::Sorts,
+    (theirs_line, theirs): (usize, &crate::corpus::Recursion),
+    binding: &Binding,
+    known: &Known,
+) -> Option<String> {
+    let ours = thm
+        .defines
+        .iter()
+        .find_map(|d| match define_parts(&d.text) {
+            Built(DefineParts::Recursion(r)) if r.names.contains(&theirs.names[0]) => {
+                Some((d, r))
+            }
+            _ => None,
+        });
+    let Some((define, ours)) = ours else {
+        return Some(format!(
+            "this proof defines no {} by recursion",
+            theirs.names[0]
+        ));
+    };
+    let label = &define.label;
+    if ours.names != theirs.names {
+        return Some(format!(
+            "{label} here gives {}, and the theorem's define gives {}",
+            ours.names.join(", "),
+            theirs.names.join(", ")
+        ));
+    }
+    let g = known.env.g;
+    let mut theirs_local = sorts.clone();
+    theirs_local.insert(theirs.index.clone(), Sort::of("number"));
+    let mut ours_local = known.sorts.clone();
+    ours_local.insert(ours.index.clone(), Sort::of("number"));
+    let mut put = binding.clone();
+    put.insert(
+        Symbol::of(&theirs.index),
+        Node::name(Sort::of("number"), &ours.index),
+    );
+    for (rules_theirs, rules_ours, at) in [
+        (&theirs.start, &ours.start, None),
+        (&theirs.step, &ours.step, Some(&ours.index)),
+    ] {
+        for name in &ours.names {
+            let (Some(a), Some(b)) = (rules_theirs.get(name), rules_ours.get(name))
+            else {
+                continue;
+            };
+            // A rule that does not read is `check_recursions`'s to report, in
+            // the theorem that writes it.
+            let read =
+                |text: &str, path: &str, line: usize, local: &crate::formula::Sorts| {
+                    Written::new(text, path, line)
+                        .sentence()
+                        .and_then(|s| s.read(g, local))
+                };
+            let (Ok(a_tree), Ok(b_tree)) = (
+                read(a, &other.path, theirs_line, &theirs_local),
+                read(b, &thm.path, define.line, &ours_local),
+            ) else {
+                continue;
+            };
+            let a_tree = substitute_apart(&a_tree, &put, known.ctx);
+            if !known.alike(&a_tree, &b_tree) {
+                let place = match at {
+                    None => format!("{name}(0)"),
+                    Some(k) => format!("{name}({k} + 1)"),
+                };
+                return Some(format!(
+                    "there {place} is {}, and {label} here says it is {}",
+                    known.print(&a_tree),
+                    str::trim(b)
+                ));
+            }
+        }
+    }
+    None
+}
+
 /// A definition folded from what its "there is" says of a witness is about
 /// one letter, its subject, and with no pair for it the subject is the
 /// proof's letter of the same name (`SYNTAX.md`, "No pair says what goes
@@ -1064,7 +1211,8 @@ fn terms_unsaid(
         // at every point by a line the citation names.
         let needs_saying = t.needs_saying(&asks.letters);
         let inner = !t.inner_sums(&asks.letters).is_empty();
-        if !needs_saying && !inner {
+        let untyped = applies_untyped(term, thm, &parts.facts, known);
+        if !needs_saying && !inner && !untyped {
             continue;
         }
         if parts
@@ -1090,6 +1238,34 @@ fn terms_unsaid(
             ),
         );
     }
+}
+
+/// Whether `term` applies a sequence a define by recursion of the proof
+/// gives, and no fact among `facts` gives its type. Nothing says what such
+/// a sequence's values are, so F(j)² is no number by what the page says
+/// once, as F(j) is not (`check_defined_types`). A function defined by a
+/// rule is a number where its rule is, as the build reads it
+/// (`Elaborator::map_into`).
+fn applies_untyped(term: &Node, thm: &Theorem, facts: &[Node], known: &Known) -> bool {
+    let defines = thm
+        .defines
+        .iter()
+        .chain(&known.env.scopes[thm.scope].defines);
+    let sequences: Vec<String> = defined_functions(defines)
+        .into_iter()
+        .filter(|d| d.recursive)
+        .map(|d| d.name)
+        .collect();
+    term.walk().iter().any(|node| {
+        let (APPLICATION, [f, _]) = (node.notation(), node.children.as_slice()) else {
+            return false;
+        };
+        sequences.contains(&f.text.to_string())
+            && !facts.iter().any(|fact| {
+                TYPING.contains(&fact.notation())
+                    && fact.children.first().is_some_and(|g| g.text == f.text)
+            })
+    })
 }
 
 /// Whether the term a function hypothesis `t : D → E` asks at every point
@@ -2248,9 +2424,11 @@ pub fn check_defined_types(
                     &thm.path,
                     step.just.line,
                     format!(
-                        "step {} cites {item}, which asks for {}, and nothing it cites or requires says it",
+                        "step {} cites {item}, which asks for {}, and nothing it cites or requires says it; a requires line says it, as {}, from a line saying the values on a set holding {}",
                         step.number,
-                        known.print(&said)
+                        known.print(&said),
+                        values_everywhere(&said, known),
+                        said.children.get(1).map(|d| known.print(d)).unwrap_or_default()
                     ),
                 );
             }
@@ -2399,6 +2577,20 @@ fn defined_types_unsaid(
     out
 }
 
+/// A function's type `f : D → E` said of its values, `for all k ∈ D, f(k)
+/// ∈ E`, as a message writes it (`values_said`).
+fn values_everywhere(typed: &Node, known: &Known) -> String {
+    match typed.children.as_slice() {
+        [f, domain, codomain] => format!(
+            "for all k ∈ {}, {}(k) ∈ {}",
+            known.print(domain),
+            known.print(f),
+            known.print(codomain)
+        ),
+        _ => known.print(typed),
+    }
+}
+
 /// Whether a fact says a function's type `f : D → E` of its values, `for
 /// all k ∈ D, f(k) ∈ E`, as a step citing a sum's item over a range writes
 /// it of a defined function (`tests/elaborator/a-for-all-over-a-range`).
@@ -2481,11 +2673,14 @@ fn function_on_unshown(
             known.print(function)
         ));
     };
-    let ([domain], false) = (given.domains.as_slice(), given.recursive) else {
+    // A sequence by recursion is a map of one argument, its index, on the
+    // set the index runs over.
+    let [domain] = given.domains.as_slice() else {
         return Some(format!(
-            "{} gives {} of more than one argument or by recursion, and a function on one domain is a map of one argument",
+            "{} gives {} of {} arguments, and a function on one domain is a map of one argument",
             given.label,
-            known.print(function)
+            known.print(function),
+            given.domains.len()
         ));
     };
     let domain = known.read_as_written(&domain.sentence().ok()?)?;

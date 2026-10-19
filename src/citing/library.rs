@@ -213,6 +213,12 @@ impl<'a> Library<'a> {
             .map(|k| crate::corpus::Item::Theorem(k.thm))
     }
 
+    /// The sorts a theorem this corpus proves, of that full name, is read
+    /// with (`Proved`).
+    pub fn proved_sorts(&self, name: &str) -> Option<&Sorts> {
+        self.proved.get(name).map(|k| k.sorts.as_ref())
+    }
+
     /// The groups of the item of that full name, or None where no item has
     /// it.
     pub fn groups(&self, name: &str) -> Option<Rc<Vec<Group>>> {
