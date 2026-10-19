@@ -68,18 +68,19 @@ has, and a subject is one file:
 
 | file | holds | items |
 |---|---|---|
-| `corpus/stdlib/reasoning.records` | the laws of logic a proof cites by name | 5 |
-| `corpus/stdlib/numbers.records` | the number systems, closure, order, powers, roots, absolute value | 67 |
-| `corpus/stdlib/divisibility.records` | even and odd, divisors, primes, gcd, division, congruence, Euler's φ | 43 |
-| `corpus/stdlib/sums.records` | sums over a range, and the ranges; products over a finite set | 34 |
-| `corpus/stdlib/sets.records` | subsets, set-builder, union, intersection, difference, power set | 51 |
-| `corpus/stdlib/functions.records` | functions, their values, images, and inverses | 15 |
-| `corpus/stdlib/counting.records` | the size of a set, factorials, binomial coefficients, counting by parts | 20 |
-| `corpus/stdlib/calculus.records` | intervals, bounds and completeness, continuity, derivatives, bounded sequences | 18 |
-| `corpus/stdlib/geometry.records` | points, distance, angles, triangles, congruence, parallels and sides of a line, the law of sines | 24 |
-| `corpus/stdlib/groups.records` | groups, their laws, subgroups, cosets | 11 |
-| `corpus/stdlib/trigonometry.records` | cos and sin, and their addition formulas | 8 |
+| `corpus/stdlib/reasoning.records` | the laws of logic a proof cites by name | 13 |
+| `corpus/stdlib/numbers.records` | the number systems, closure, order, powers, roots, absolute value | 91 |
+| `corpus/stdlib/divisibility.records` | even and odd, divisors, primes, gcd, division, congruence, Euler's φ | 70 |
+| `corpus/stdlib/sums.records` | sums over a range, and the ranges; products over a finite set | 40 |
+| `corpus/stdlib/sets.records` | subsets, set-builder, union, intersection, difference, power set | 60 |
+| `corpus/stdlib/functions.records` | functions, their values, images, and inverses | 23 |
+| `corpus/stdlib/counting.records` | the size of a set, factorials, binomial coefficients, counting by parts | 38 |
+| `corpus/stdlib/calculus.records` | intervals, bounds and completeness, continuity, derivatives, bounded sequences | 26 |
+| `corpus/stdlib/geometry.records` | points, distance, angles, triangles, congruence, parallels and sides of a line, the law of sines | 23 |
+| `corpus/stdlib/groups.records` | groups, their laws, subgroups, cosets | 12 |
+| `corpus/stdlib/trigonometry.records` | cos and sin, and their addition formulas | 13 |
 | `corpus/stdlib/polynomials.records` | polynomials with complex coefficients, their values, and division by x − a | 2 |
+| `corpus/stdlib/graphs.records` | walks, Euler paths, traversable graphs, degree | 10 |
 
 A proof imports each library item it cites, as it imports each theorem of
 another proof file it cites, so its head says where everything it cites comes
@@ -123,7 +124,7 @@ Every item in the standard library carries a field saying where it comes from:
 
 | field | meaning | count |
 |---|---|---|
-| `metamath` | a set.mm label or labels supply it | 303 |
+| `metamath` | a set.mm label or labels supply it | 417 |
 | `open` | it is cited but unproved and unbridged | 4 |
 
 A theorem this corpus proves has no
@@ -138,7 +139,7 @@ the record; every other proof cites the record. The two are one fact in two
 roles, each checked on its own: the record against its set.mm lemma, the
 theorem by its proof. What a record would say beside the statement,
 the set.mm theorem it answers to and a note, the proof says in `metamath` and
-`note` lines under its `theorem` line; 29 of the 40 name a set.mm
+`note` lines under its `theorem` line; 74 of the 432 name a set.mm
 counterpart.
 
 A definition may also carry a `target`, which says which set.mm theorem
@@ -480,11 +481,11 @@ mundane definition difference
 | header | items |
 |---|---|
 | `axiom` | 4 |
-| `mundane axiom` | 7 |
-| `theorem` | 33 |
-| `mundane theorem` | 201 |
-| `definition` | 7 |
-| `mundane definition` | 46 |
+| `mundane axiom` | 8 |
+| `theorem` | 43 |
+| `mundane theorem` | 302 |
+| `definition` | 11 |
+| `mundane definition` | 53 |
 
 The two questions are independent, so no rule is needed to say which wins:
 trichotomy is an axiom and is taken for granted, and its header says both.
@@ -496,7 +497,7 @@ nothing else: a mundane definition is still written out where it is used
 and is still unfolded, because the elaborator reads the kind from the record
 and not from the line.
 
-Every item is supplied by a set.mm label or is `open`, and the ten axioms are
+Every item is supplied by a set.mm label or is `open`, and the twelve axioms are
 supplied the way every other item is: by a lemma set.mm proves,
 or for `side-angle-side` by one `corpus/elaboration/stdlib/proved.mm` proves.
 So an axiom's kind is the reader's view of it and not the kernel's. Notation
@@ -633,8 +634,9 @@ Euclid's algorithm to show. `well-ordering` and `side-angle-side` are proved in
 some presentations, and are axioms here because Reader A meets them as the
 Well-Ordering Principle and the SAS postulate.
 
-Counted this way, 346 of the 395 numbered steps that cite a library item cite
-a mundane one. `def:` is rare: seven steps cite a named definition.
+Counted this way, 2,047 of the 2,194 numbered steps whose reason cites a
+library item cite a mundane one. `def:` is rare: 55 steps cite a named
+definition, 42 of them `tends-to` or `C`.
 
 ### Follow-ups
 
