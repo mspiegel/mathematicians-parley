@@ -76,6 +76,14 @@ theorem a-negative-power
 1.  (1 + √2)^(−2) = 3 − 2·√2
     real arithmetic
 
+theorem a-root-against-a-negative-power-of-numerals
+  note        3^(−1) has no root; real arithmetic takes it apart as it takes
+              a power of a root.
+  then √2 ≠ 3^(−1)
+
+1.  √2 ≠ 3^(−1)
+    real arithmetic
+
 theorem a-fortieth-power
   then (1 + √2)^40 = 1023286908188737 + 723573111879672·√2
 

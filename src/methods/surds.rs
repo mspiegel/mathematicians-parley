@@ -223,6 +223,11 @@ pub fn cofactor(value: &Surd) -> Cofactor {
     let mut times = Surd::rational(q(1));
     let mut at = value.clone();
     for p in value.primes() {
+        // A conjugate in one prime may take another with it, as √21 in 3
+        // takes 7: a prime the product no longer holds is passed over.
+        if !at.primes().contains(&p) {
+            continue;
+        }
         let turned = conjugate(&at, p);
         times = times.times(&turned);
         at = at.times(&turned);

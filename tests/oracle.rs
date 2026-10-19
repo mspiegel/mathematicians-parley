@@ -74,6 +74,9 @@ mod said;
 #[path = "oracle/rows.rs"]
 mod rows;
 
+#[path = "oracle/real.rs"]
+mod real;
+
 use gen::Drawn;
 use judge::Verdict;
 use shared::{included, Random};
@@ -179,6 +182,12 @@ import mundane definition stdlib/divisibility/congruent-mod
             draw: rows::antisymmetry,
             imports: "",
             false_said: "by antisymmetry what is not two lines",
+        },
+        Method {
+            name: "real-arithmetic",
+            draw: real::claim,
+            imports: "",
+            false_said: "which is false",
         },
     ]
 }

@@ -1018,13 +1018,18 @@ is read over N.
 
 `tests/oracle.rs` draws claims of every form above, true by construction
 and one coefficient away: √(s²·m) and s·√m, a value and its conjugate, one
-over a + b·√p, products of roots, squares of sums of roots, orders and
-memberships of rational values and of values that are not, and each
+over a + √p, products of roots, squares of sums of roots; equations,
+disequalities and orders of terms three deep over the roots of two primes;
+memberships of rational values and of values that are not; and each
 refusal. It judges them with an evaluator of its own that shares nothing
 with the procedure: exact rationals where there is no root, and otherwise
-intervals of 4096 bits around each value, an equation holding where the
-interval lies within 2⁻²⁰⁴⁸ of 0. Each true claim must be proved and
-verified, and each refusal given in its own words.
+intervals with rational ends 1024 bits fine around each value, a value
+being 0 where its interval holds 0 and is narrower than 2⁻⁵¹², and
+rational where a fraction of denominator at most 10¹² lies inside it.
+Each true claim must be proved and verified, and each refusal given in its
+own words. The terms drawn stay inside the method's limits, and a claim
+past them is drawn on purpose; on three seeds of 1500 claims it finds no
+answer that differs from the judge's.
 
 ---
 

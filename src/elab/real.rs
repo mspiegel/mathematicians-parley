@@ -368,13 +368,19 @@ impl<'a> Elaborator<'a> {
                     proof: same,
                 }));
             }
-            let (_, worked, proof) = take!(self.closed_valued(t, scope, facts)?);
-            debug_assert_eq!(worked, canon, "a rational has one canon");
-            return Ok(Built(Valued {
-                value,
-                canon,
-                proof,
-            }));
+            // `arithmetic` works a term of numerals to its value, except one
+            // holding a power to an exponent below 0, whose power it holds as
+            // an atom with no membership: that is taken apart here, as a
+            // term with a root is, and `power` takes the exponent below 0.
+            if !negative_power(t) {
+                let (_, worked, proof) = take!(self.closed_valued(t, scope, facts)?);
+                debug_assert_eq!(worked, canon, "a rational has one canon");
+                return Ok(Built(Valued {
+                    value,
+                    canon,
+                    proof,
+                }));
+            }
         }
         if surds::is_root(t) {
             return self.root_piece(t, value, scope, facts);
@@ -1057,6 +1063,22 @@ fn collect_primes(term: &Term, out: &mut Vec<u64>) {
     for kid in term.children() {
         collect_primes(kid, out);
     }
+}
+
+/// Whether a term raises something to an exponent whose value is below 0.
+fn negative_power(term: &Term) -> bool {
+    if term.variable().is_some() {
+        return false;
+    }
+    let kids = term.children();
+    let here = term.label() == Some("co")
+        && kids.len() == 3
+        && kids[2].label() == Some(field::EXP)
+        && matches!(
+            field::closed_value(&kids[1]),
+            Built(field::Value::Exact(v)) if v.is_negative()
+        );
+    here || kids.iter().any(negative_power)
 }
 
 /// √p, as set.mm spells it.
