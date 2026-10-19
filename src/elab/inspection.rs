@@ -98,6 +98,17 @@ struct Named {
     turned: bool,
 }
 
+/// The cited membership a line of equations is read against
+/// (`listed_membership`).
+struct Membership {
+    /// The cited `t ∈ S`.
+    said: Term,
+    /// One for each equation of the line, in its order.
+    named: Vec<Named>,
+    /// S, listed.
+    listing: Listing,
+}
+
 /// What a term comes to by the cited lines (`value`).
 enum Value {
     /// A set, as the elements it lists.
@@ -220,9 +231,19 @@ impl Elaborator<'_> {
                 self.carried_out(element, set, &listing, outside, scope)
                     .map(Built)
             }
-            Some("wceq") => self.equation(&kids[0], &kids[1], scope, known),
-            Some("wo") if claim.variable().is_none() => {
-                self.one_of(claim, scope, known, lines)
+            // A line of equations joined by "or", or one equation alone, is
+            // read against a cited membership in a listed set where there is
+            // one, and an equation is otherwise read as an equation.
+            Some("wceq" | "wo") if claim.variable().is_none() => {
+                match self.listed_membership(claim, scope, known, lines)? {
+                    Some(found) => self.one_of(claim, found, scope, known),
+                    None if claim.label() == Some("wceq") => {
+                        self.equation(&kids[0], &kids[1], scope, known)
+                    }
+                    None => Ok(Route::no(
+                        "nothing cited puts in a listed set the one term every equation of the claim names",
+                    )),
+                }
             }
             _ => Ok(Route::no(
                 "inspection says what is in a listed set, that two things it \
@@ -533,8 +554,46 @@ impl Elaborator<'_> {
         }
     }
 
-    /// A line of "or"s, `t = s₁ or … or t = sₙ`, from the first cited line
-    /// `t ∈ S` whose t is one side of each of its equations, S being a set
+    /// The cited `t ∈ S` a line of equations joined by "or", or one equation
+    /// alone, is read against, as the checker reads it: the first whose t
+    /// is one side of every equation and whose S comes to a listed set
+    /// (`set_value`). None where nothing cited does.
+    fn listed_membership(
+        &mut self,
+        claim: &Term,
+        scope: &Rpn,
+        known: &Facts,
+        lines: &[Rpn],
+    ) -> Checked<Option<Membership>> {
+        let sentences = disjuncts(claim);
+        let cited: Vec<Term> = lines
+            .iter()
+            .flat_map(|l| conjuncts(&self.to_term(l)))
+            .collect();
+        for said in cited {
+            if said.variable().is_some() || said.label() != Some("wcel") {
+                continue;
+            }
+            let element = &said.children()[0];
+            let named: Option<Vec<Named>> =
+                sentences.iter().map(|s| self.says_of(s, element)).collect();
+            let Some(named) = named else {
+                continue;
+            };
+            let set = said.children()[1].clone();
+            if let Built(listing) = self.set_value(&set, scope, known)? {
+                return Ok(Some(Membership {
+                    said,
+                    named,
+                    listing,
+                }));
+            }
+        }
+        Ok(None)
+    }
+
+    /// A line of "or"s, `t = s₁ or … or t = sₙ`, or one equation `t = s`,
+    /// from the cited line `t ∈ S` that `listed_membership` finds, S being a set
     /// the cited lines list (`METHODS.md`, inspection): an equation for each
     /// element and for nothing else, in any order, each written `t = s` or
     /// `s = t`, s the element or a term of numerals alone of its value. t is
@@ -544,31 +603,17 @@ impl Elaborator<'_> {
     fn one_of(
         &mut self,
         claim: &Term,
+        found: Membership,
         scope: &Rpn,
         known: &Facts,
-        lines: &[Rpn],
     ) -> Checked<Route<Proof>> {
         let sentences = disjuncts(claim);
-        let mut found = None;
-        for said in lines.iter().flat_map(|l| conjuncts(&self.to_term(l))) {
-            if said.variable().is_some() || said.label() != Some("wcel") {
-                continue;
-            }
-            let element = said.children()[0].clone();
-            let named: Option<Vec<Named>> = sentences
-                .iter()
-                .map(|s| self.says_of(s, &element))
-                .collect();
-            if let Some(named) = named {
-                found = Some((said, element, named));
-                break;
-            }
-        }
-        let Some((said, element, named)) = found else {
-            return Ok(Route::no(
-                "nothing cited puts in a set the one term every equation of the claim names",
-            ));
-        };
+        let Membership {
+            said,
+            named,
+            listing,
+        } = found;
+        let element = said.children()[0].clone();
         let Some(proof) = self.held(known, &self.rpn(&said), scope)? else {
             return Ok(Route::no(format!(
                 "{} is cited and not held",
@@ -581,7 +626,6 @@ impl Elaborator<'_> {
             proof,
             named,
         };
-        let listing = take!(self.set_value(&member.set, scope, known)?);
         let elements = listing.elements.clone();
         if let Some(stray) = member
             .named

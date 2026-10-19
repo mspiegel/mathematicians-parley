@@ -1013,6 +1013,10 @@ them.
 Or a line of "or"s, `t = s₁ or t = s₂ or … or t = sₙ`, from a cited line
 `t ∈ S` where S is a set the facts list: the line says which element of S
 t is, and so splits S into its cases for `cases` to take one at a time.
+A set of one element gives a line of one equation: `x = 3` from
+`x ∈ {3}`, or from `x ∈ {3, …, 3}`. An equation is read so wherever a
+cited line puts one of its sides in a listed set, and otherwise as an
+equation of two things worked out, above.
 
 ```
 5.1.  n mod 3 ∈ {0, …, 3 − 1}
@@ -1059,7 +1063,8 @@ what the line's other side says there is worked out the same way. Two sets
 are compared as sets, so their order is never asked, and two numbers by
 working out the sum that counts one against the other.
 
-A line of "or"s is read against its cited membership `t ∈ S`: S is
+A line of "or"s is read against its cited membership `t ∈ S`, the first
+cited whose t every equation names and whose S the facts list: S is
 replaced by its listing, each element is matched with the equation that
 names it, and each equation with the element it names, two numbers being
 one where their values are. No element is settled, and no two names need

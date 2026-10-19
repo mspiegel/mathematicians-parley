@@ -88,6 +88,33 @@ theorem one-of-a-named-range
 1.  x = 3 or x = 4 or x = 5
     inspection, from H2, H3
 
+theorem one-of-a-singleton
+  note        `inspection` reading a set of one element: the line of
+              equations is one equation.
+  let x ∈ {3}                                                         (H1)
+  then x = 3
+
+1.  x = 3
+    inspection, from H1
+
+theorem one-of-a-range-of-one
+  note        `inspection` reading a range of one numeral, the equation
+              written the other way round.
+  let k ∈ {2, …, 2}                                                   (H1)
+  then 2 = k
+
+1.  2 = k
+    inspection, from H1
+
+theorem one-of-a-singleton-of-a-letter
+  note        `inspection` reading a set of one name.
+  let a ∈ ℝ                                                           (H1)
+  let x ∈ {a}                                                         (H2)
+  then x = a
+
+1.  x = a
+    inspection, from H2
+
 theorem one-of-a-listed-pair
   note        `inspection` reading a set listed by two names: x is one of
               them whether or not they differ, so nothing need say they do.

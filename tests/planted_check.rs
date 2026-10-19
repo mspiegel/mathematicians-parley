@@ -1059,6 +1059,17 @@ fn cases() -> Vec<Case> {
             )],
             "and inspection lists a range of at most 64 numerals, and the one from 1 to 100 holds 100",
         ),
+        // One equation is a line of one, read against a listed set as a
+        // line of "or"s is: from x ∈ {3, 4} it leaves out 4.
+        case(
+            "one equation by inspection from a set of two",
+            vec![edit(
+                "tests/elaborator/inspection-cases-of-a-range.proof",
+                Some("  let x ∈ {3}".to_string()),
+                "  let x ∈ {3, 4}".to_string(),
+            )],
+            "and the claim leaves out 4, an element of the set the cited membership names",
+        ),
         // `substitute` walks its equation both ways and each sentence of the
         // line it names, trying the next where one declines. A name the proof
         // never introduced is not one of those: it is a defect.

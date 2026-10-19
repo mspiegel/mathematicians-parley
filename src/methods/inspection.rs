@@ -118,11 +118,13 @@ impl Facts {
         }
     }
 
-    /// The cited `t ∈ S` a line of "or"s is read against: the first whose t
-    /// is one side of every equation the line joins. None where the claim is
-    /// no such line, or nothing cited says where its t is.
+    /// The cited `t ∈ S` a line of equations joined by "or", or one equation
+    /// alone, is read against: the first whose t is one side of every
+    /// equation and whose S the facts list. None where the claim is no such
+    /// line, or nothing cited puts its t in a listed set, and an equation is
+    /// then read as an equation.
     fn membership_of(&self, claim: &Term) -> Option<Said> {
-        if claim.label() != Some("wo") {
+        if !matches!(claim.label(), Some("wo" | "wceq")) {
             return None;
         }
         let sentences = disjuncts(claim);
@@ -130,7 +132,8 @@ impl Facts {
             .iter()
             .find_map(|fact| match (fact.label(), fact.children()) {
                 (Some("wcel"), [element, set])
-                    if sentences.iter().all(|s| named(s, element).is_some()) =>
+                    if sentences.iter().all(|s| named(s, element).is_some())
+                        && self.elements(set, DEPTH).is_some() =>
                 {
                     Some(Said {
                         term: element.clone(),

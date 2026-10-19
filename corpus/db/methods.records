@@ -137,7 +137,8 @@ method inspection
               have a property settled by L, the size of such a set of
               distinct names, a numeral, or a term a "for all" equation in L
               gives at a listed element; and, from t ∈ S in L with S listed,
-              the line of "or"s with an equation t = s for each element s
+              the line of "or"s with an equation t = s for each element s,
+              one equation where S has one element
   hypotheses  none beyond its facts in
   specified-in METHODS.md
   metamath    snidg, elun1, elun2, nelsn, noel, elun, ioran, rabun2,
