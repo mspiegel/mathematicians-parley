@@ -23,7 +23,7 @@
 //! (`bracketed_positive`).
 
 use indexmap::IndexMap;
-use num_bigint::BigInt;
+use num_bigint::{BigInt, BigUint};
 use num_integer::Integer;
 use num_traits::{One, Signed, ToPrimitive, Zero};
 
@@ -2994,8 +2994,10 @@ fn canon_parts(value: &Real) -> Vec<CanonPart> {
     let mut out = Vec::new();
     for (monomial, surd) in &value.parts {
         let mut parts: Vec<(&Vec<u64>, &Q)> = surd.parts.iter().collect();
+        // Four primes of up to 40 bits multiply past 128 bits, so the
+        // product is taken exactly.
         parts.sort_by_key(|(basis, _)| {
-            basis.iter().map(|p| *p as u128).product::<u128>()
+            basis.iter().map(|p| BigUint::from(*p)).product::<BigUint>()
         });
         for (basis, weight) in parts {
             let factors = reals::part_factors(basis, monomial);
