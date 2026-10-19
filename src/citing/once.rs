@@ -21,7 +21,7 @@ use crate::formula::symbol::Symbol;
 use crate::formula::{ByShape, Node, Sort, Sorts};
 use crate::matching::{alike_top, standard, substitute_apart, Binding, FxIndexSet};
 use crate::notations::{
-    APPLICATION, DIVIDED, EULER, FACTORIAL, IN, INTEGER_RANGE, JUXTAPOSITION,
+    APPLICATION, DEGREES, DIVIDED, EULER, FACTORIAL, IN, INTEGER_RANGE, JUXTAPOSITION,
     MEMBERSHIP, MINUS, MOD, MULTIPLICATIVE, NUMBER_SYSTEMS, NUMERAL, PI, PLUS, POWER,
     SQUARE_ROOT, SUM, SUPERSCRIPT, TIMES, UNARY_MINUS,
 };
@@ -415,6 +415,63 @@ pub fn log_taken(value: &BigRational) -> bool {
     value.is_positive() && crate::methods::reals::factored(value).is_ok()
 }
 
+/// Whether `real arithmetic` takes the sine and cosine of q·π: q's
+/// denominator divides 4 or 6 (`methods::reals::trig_value`).
+pub fn angle_taken(multiple: &BigRational) -> bool {
+    use crate::methods::reals::{trig_value, Trig};
+    trig_value(Trig::Sine, multiple).is_ok()
+}
+
+/// The q of a closed angle written as q·π, in radians or degrees: π, a
+/// numeral, and what +, −, ·, / and negation build from them where the
+/// result is a multiple of π, or x° for a numeral x. None for any other.
+fn pi_multiple(term: &Node) -> Option<BigRational> {
+    let (rational, of_pi) = pi_parts(term)?;
+    rational.is_zero().then_some(of_pi)
+}
+
+/// A closed term as a + b·π, its rational part and its multiple of π.
+fn pi_parts(term: &Node) -> Option<(BigRational, BigRational)> {
+    if let Some(v) = value(term) {
+        return Some((v, BigRational::zero()));
+    }
+    let kids = term.children.as_slice();
+    Some(match (term.notation(), term.spelling(), kids) {
+        (PI, _, []) => (BigRational::zero(), BigRational::one()),
+        (DEGREES, _, [x]) => (
+            BigRational::zero(),
+            value(x)? / BigRational::from_integer(180.into()),
+        ),
+        (UNARY_MINUS, _, [a]) => {
+            let (r, p) = pi_parts(a)?;
+            (-r, -p)
+        }
+        (_, PLUS, [a, b]) => {
+            let ((r, p), (s, q)) = (pi_parts(a)?, pi_parts(b)?);
+            (r + s, p + q)
+        }
+        (_, MINUS, [a, b]) => {
+            let ((r, p), (s, q)) = (pi_parts(a)?, pi_parts(b)?);
+            (r - s, p - q)
+        }
+        (_, TIMES, [a, b]) | (JUXTAPOSITION, _, [a, b]) => {
+            let ((r, p), (s, q)) = (pi_parts(a)?, pi_parts(b)?);
+            if !p.is_zero() && !q.is_zero() {
+                return None;
+            }
+            (&r * &s, r * q + p * s)
+        }
+        (_, DIVIDED, [a, b]) => {
+            let ((r, p), (s, q)) = (pi_parts(a)?, pi_parts(b)?);
+            if !q.is_zero() || s.is_zero() {
+                return None;
+            }
+            (r / &s, p / s)
+        }
+        _ => return None,
+    })
+}
+
 /// Whether a power's exponent makes it a product of copies of its base:
 /// a numeral in ℕ₀, or a letter introduced in ℕ or ℕ₀ (`READERS.md`,
 /// membership said once). 2^j with j ∈ ℕ₀ is then a number wherever 2 is,
@@ -460,13 +517,21 @@ impl OnceAsk for PageOnce<'_> {
                 Shape::Real
             }
             (PI | EULER, _, []) => Shape::Real,
-            // The library's ln: one the theorem introduces as a letter of its
-            // own is not it.
+            // The library's ln, sin and cos: one the theorem introduces as a
+            // letter of its own is not it.
             (APPLICATION, _, [head, a])
                 if head.is_name()
                     && head.text == "ln"
                     && !self.letters.contains_key("ln")
                     && value(a).is_some_and(|v| log_taken(&v)) =>
+            {
+                Shape::Real
+            }
+            (APPLICATION, _, [head, a])
+                if head.is_name()
+                    && matches!(head.text.as_str(), "sin" | "cos")
+                    && !self.letters.contains_key(head.text.as_str())
+                    && pi_multiple(a).is_some_and(|q| angle_taken(&q)) =>
             {
                 Shape::Real
             }

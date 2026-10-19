@@ -22,6 +22,7 @@ mundane definition cos
   sort        number → number
   builds      _1 ccos cfv
   reads       the cosine of
+  decided     real arithmetic
   metamath    df-cos, by the exponential function
   note        A reader knows the cosine from school, and set.mm's definition of
               it by the exponential is not what that reader means by it, so
@@ -32,8 +33,11 @@ mundane definition sin
   sort        number → number
   builds      _1 csin cfv
   reads       the sine of
+  decided     real arithmetic
   metamath    df-sin, by the exponential function
-  note        As for cos.
+  note        As for cos. Real arithmetic works out the sine and cosine of an
+              angle of value 0 or a rational multiple of π whose denominator
+              divides 4 or 6 (METHODS.md).
 
 theorem cos-add
   let a ∈ ℂ                                                           (H1)

@@ -204,7 +204,21 @@ impl<'a> Elaborator<'a> {
             return self.root_within(t, system, scope, facts);
         }
         let said = self.rpn(t);
+        // A sine or cosine of a real angle is real.
+        let trig = reals::Trig::of(t).map(|f| match f {
+            reals::Trig::Sine => "resincld",
+            reals::Trig::Cosine => "recoscld",
+        });
         let real = match t.label() {
+            _ if trig.is_some() => {
+                let x = self.rpn(&t.children()[0]);
+                let angle = self.membership(&x, "cr", scope, facts)?;
+                self.b.ap(
+                    trig.expect("a sine or cosine"),
+                    &binds! {"ph" => scope, "A" => &x},
+                    &[&angle],
+                )
+            }
             Some("cpi") => self.closed_law(&t!("cpi", "cr", "wcel"), "pire", scope),
             Some("ceu") => self.closed_law(&t!("ceu", "cr", "wcel"), "ere", scope),
             _ => {
@@ -495,6 +509,9 @@ impl<'a> Elaborator<'a> {
         }
         if reals::applies(t, "ce") {
             return self.exp_piece(t, value, scope, facts);
+        }
+        if let Some(f) = reals::Trig::of(t) {
+            return self.trig_piece(t, f, value, scope, facts);
         }
         let kids = t.children().to_vec();
         if matches!(t.label(), Some("cpi" | "ceu")) && kids.is_empty() {
@@ -1473,6 +1490,224 @@ impl<'a> Elaborator<'a> {
         )))
     }
 
+    /// ( scope -> ( f ` x ) = canon ) for f sine or cosine and x of value
+    /// q·π: with q = 2k + r, 0 ≤ r < 2, x is a(r) + k·(2·π), or a(r) where k
+    /// is 0 (`angle_form`), by an identity; a turn is taken off (`sinper`,
+    /// `cosper`), the rest reduced to set.mm's values (`trig_reduced`), and
+    /// what a value lemma says brought to the canon.
+    fn trig_piece(
+        &mut self,
+        t: &Term,
+        f: reals::Trig,
+        value: Real,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Route<Valued>> {
+        let x = &t.children()[0];
+        let inner = take!(self.valued(x, scope, facts)?);
+        let Some(multiple) = reals::multiple_of_pi(&inner.value) else {
+            return Ok(Route::no("an angle that is not a multiple of π"));
+        };
+        let r = reals::turned(&multiple);
+        let turns = ((&multiple - &r) / field::q(2)).to_integer();
+        let Some(turns) = turns.to_i64() else {
+            return Ok(Route::no("an angle of too many turns"));
+        };
+        let label = trig_label(f);
+        let apply = |a: &Rpn| t!(a, label, "cfv");
+        let base = angle_form(&r);
+        let written = if turns == 0 {
+            base.clone()
+        } else {
+            t!(
+                &base,
+                t!(
+                    spelt_whole(turns),
+                    t!("c2", "cpi", "cmul", "co"),
+                    "cmul",
+                    "co"
+                ),
+                "caddc",
+                "co"
+            )
+        };
+        let sx = self.rpn(x);
+        let same = if inner.canon == written {
+            self.b
+                .ap("eqidd", &binds! {"ph" => scope, "A" => &written}, &[])
+        } else {
+            take!(self.identity(&inner.canon, &written, scope, facts)?)
+        };
+        let is = self.b.ap(
+            "eqtrd",
+            &binds! {"ph" => scope, "A" => &sx, "B" => &inner.canon, "C" => &written},
+            &[&inner.proof, &same],
+        );
+        let carried = self.b.ap(
+            "fveq2d",
+            &binds! {"ph" => scope, "A" => &sx, "B" => &written, "F" => label},
+            &[&is],
+        );
+        // A turn taken off.
+        let at_base = if turns == 0 {
+            carried
+        } else {
+            let base_cc = take!(self.in_cc(&base, scope, facts)?);
+            let k = spelt_whole(turns);
+            let k_z = self.numeral_fact(&t!(&k, "cz", "wcel"), scope, facts)?;
+            let periodic = match f {
+                reals::Trig::Sine => "sinper",
+                reals::Trig::Cosine => "cosper",
+            };
+            let law = self.b.ap(periodic, &binds! {"A" => &base, "K" => &k}, &[]);
+            let turned = self.b.ap(
+                "syl2anc",
+                &binds! {"ph" => scope, "ps" => t!(&base, "cc", "wcel"), "ch" => t!(&k, "cz", "wcel"),
+                "th" => t!(apply(&written), apply(&base), "wceq")},
+                &[&base_cc, &k_z, &law],
+            );
+            self.b.ap(
+                "eqtrd",
+                &binds! {"ph" => scope, "A" => apply(&sx), "B" => apply(&written), "C" => apply(&base)},
+                &[&carried, &turned],
+            )
+        };
+        let (said, reduced) = take!(self.trig_reduced(f, &r, scope, facts)?);
+        let reached = self.b.ap(
+            "eqtrd",
+            &binds! {"ph" => scope, "A" => apply(&sx), "B" => apply(&base), "C" => &said},
+            &[&at_base, &reduced],
+        );
+        let worked = take!(self.valued(&self.to_term(&said), scope, facts)?);
+        let proof = self.b.ap(
+            "eqtrd",
+            &binds! {"ph" => scope, "A" => apply(&sx), "B" => &said, "C" => &worked.canon},
+            &[&reached, &worked.proof],
+        );
+        debug_assert_eq!(
+            worked.value, value,
+            "the reduction comes to the decider's value"
+        );
+        Ok(Built(Valued {
+            value,
+            canon: worked.canon,
+            proof,
+        }))
+    }
+
+    /// ( scope -> ( f ` a(r) ) = v ) for 0 ≤ r < 2 and v what set.mm's lemmas
+    /// say: a π taken off (`sinppi`, `cosppi`), then π/2 (`sinhalfpip`,
+    /// `coshalfpip`), and the value at 0, π/6, π/4 or π/3 (`sin0`, `cos0`,
+    /// `sincos6thpi`, `sincos4thpi`, `sincos3rdpi`).
+    fn trig_reduced(
+        &mut self,
+        f: reals::Trig,
+        r: &Q,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Route<(Rpn, Proof)>> {
+        use reals::Trig::{Cosine, Sine};
+        let half = Q::new(BigInt::from(1), BigInt::from(2));
+        let apply = |g: reals::Trig, a: &Rpn| t!(a, trig_label(g), "cfv");
+        let angle = angle_form(r);
+        // A π or a π/2 off: the lemma, the function and angle it leaves, and
+        // whether it negates.
+        let step = if *r >= field::q(1) {
+            let rest = r - field::q(1);
+            let lemma = match f {
+                Sine => "sinppi",
+                Cosine => "cosppi",
+            };
+            Some((lemma, f, rest, true))
+        } else if *r >= half {
+            let rest = r - &half;
+            match f {
+                Sine => Some(("sinhalfpip", Cosine, rest, false)),
+                Cosine => Some(("coshalfpip", Sine, rest, true)),
+            }
+        } else {
+            None
+        };
+        let Some((lemma, then, rest, negates)) = step else {
+            return Ok(Built(self.trig_base(f, r, scope)));
+        };
+        let left = angle_form(&rest);
+        let left_cc = take!(self.in_cc(&left, scope, facts)?);
+        let shifted = if negates {
+            t!(apply(then, &left), "cneg")
+        } else {
+            apply(then, &left)
+        };
+        let law = self.b.ap(lemma, &binds! {"A" => &left}, &[]);
+        let moved = self.b.ap(
+            "syl",
+            &binds! {"ph" => scope, "ps" => t!(&left, "cc", "wcel"), "ch" => t!(apply(f, &angle), &shifted, "wceq")},
+            &[&left_cc, &law],
+        );
+        let (below, proof) = take!(self.trig_reduced(then, &rest, scope, facts)?);
+        let (said, carried) = if negates {
+            let carried = self.b.ap(
+                "negeqd",
+                &binds! {"ph" => scope, "A" => apply(then, &left), "B" => &below},
+                &[&proof],
+            );
+            (t!(&below, "cneg"), carried)
+        } else {
+            (below, proof)
+        };
+        let joined = self.b.ap(
+            "eqtrd",
+            &binds! {"ph" => scope, "A" => apply(f, &angle), "B" => &shifted, "C" => &said},
+            &[&moved, &carried],
+        );
+        Ok(Built((said, joined)))
+    }
+
+    /// ( scope -> ( f ` a ) = v ) for a = 0, π/6, π/4 or π/3, from set.mm's
+    /// statement of the value, the one of its two halves that names f.
+    fn trig_base(&mut self, f: reals::Trig, r: &Q, scope: &Rpn) -> (Rpn, Proof) {
+        use reals::Trig::{Cosine, Sine};
+        let apply = |g: reals::Trig, a: &Rpn| t!(a, trig_label(g), "cfv");
+        let over = |top: Rpn, d: &str| t!(top, d, "cdiv", "co");
+        let root = |p: &str| t!(p, "csqrt", "cfv");
+        let twelfths = (r * field::q(12)).to_integer().to_i64().unwrap_or(-1);
+        let angle = angle_form(r);
+        if twelfths == 0 {
+            let (value, label) = match f {
+                Sine => (t!("cc0"), "sin0"),
+                Cosine => (t!("c1"), "cos0"),
+            };
+            let proof =
+                self.closed_law(&t!(apply(f, &angle), &value, "wceq"), label, scope);
+            return (value, proof);
+        }
+        let (label, sine, cosine) = match twelfths {
+            2 => ("sincos6thpi", over(t!("c1"), "c2"), over(root("c3"), "c2")),
+            // set.mm writes both values at π/4 as 1/√2.
+            3 => (
+                "sincos4thpi",
+                t!("c1", root("c2"), "cdiv", "co"),
+                t!("c1", root("c2"), "cdiv", "co"),
+            ),
+            _ => ("sincos3rdpi", over(root("c3"), "c2"), over(t!("c1"), "c2")),
+        };
+        let first = t!(apply(Sine, &angle), &sine, "wceq");
+        let second = t!(apply(Cosine, &angle), &cosine, "wceq");
+        let (half, value, claim) = match f {
+            Sine => ("simpli", sine, first.clone()),
+            Cosine => ("simpri", cosine, second.clone()),
+        };
+        let taken = self.b.ap(
+            half,
+            &binds! {"ph" => &first, "ps" => &second},
+            &[&self.step(label)],
+        );
+        let proof =
+            self.b
+                .ap("a1i", &binds! {"ph" => &claim, "ps" => scope}, &[&taken]);
+        (value, proof)
+    }
+
     /// ( scope -> √(p₁·(p₂·…)) = √p₁·(√p₂·…) ), and the right side.
     fn split_root(
         &mut self,
@@ -1832,6 +2067,38 @@ fn spelt_whole(n: i64) -> Rpn {
         t!(size, "cneg")
     } else {
         size
+    }
+}
+
+/// set.mm's function for sin or cos.
+fn trig_label(f: reals::Trig) -> &'static str {
+    match f {
+        reals::Trig::Sine => "csin",
+        reals::Trig::Cosine => "ccos",
+    }
+}
+
+/// The angle r·π, 0 ≤ r < 2, as the reduction takes it apart (`trig_reduced`):
+/// 0, π/6, π/4 or π/3 below π/2; (π/2) + a(r − 1/2) from π/2 to π; and
+/// a(r − 1) + π from π to 2π.
+fn angle_form(r: &Q) -> Rpn {
+    let half = Q::new(BigInt::from(1), BigInt::from(2));
+    if *r >= field::q(1) {
+        return t!(angle_form(&(r - field::q(1))), "cpi", "caddc", "co");
+    }
+    if *r >= half {
+        return t!(
+            t!("cpi", "c2", "cdiv", "co"),
+            angle_form(&(r - &half)),
+            "caddc",
+            "co"
+        );
+    }
+    match (r * field::q(12)).to_integer().to_i64() {
+        Some(2) => t!("cpi", "c6", "cdiv", "co"),
+        Some(3) => t!("cpi", "c4", "cdiv", "co"),
+        Some(4) => t!("cpi", "c3", "cdiv", "co"),
+        _ => t!("cc0"),
     }
 }
 

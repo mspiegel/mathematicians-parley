@@ -62,6 +62,8 @@ pub const VOCABULARY: &[(&str, usize)] = &[
     ("ceu", 0),
     ("ce", 0),
     ("clog", 0),
+    ("csin", 0),
+    ("ccos", 0),
     ("chash", 0),
     ("cprime", 0),
     ("cc0", 0),

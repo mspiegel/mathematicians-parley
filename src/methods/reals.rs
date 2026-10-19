@@ -261,8 +261,95 @@ pub fn holds_atom(term: &Term) -> bool {
     let here = matches!(term.label(), Some("cpi" | "ceu"))
         && term.children().is_empty()
         || applies(term, "clog")
-        || applies(term, "ce");
+        || applies(term, "ce")
+        || Trig::of(term).is_some();
     here || term.children().iter().any(holds_atom)
+}
+
+/// The two functions of an angle the method works out.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Trig {
+    Sine,
+    Cosine,
+}
+
+impl Trig {
+    /// The function a term applies, `( x csin cfv )` or `( x ccos cfv )`.
+    pub fn of(term: &Term) -> Option<Trig> {
+        if applies(term, "csin") {
+            Some(Trig::Sine)
+        } else if applies(term, "ccos") {
+            Some(Trig::Cosine)
+        } else {
+            None
+        }
+    }
+}
+
+/// Why a sine or cosine is refused: its angle is no rational multiple of π.
+pub const TRIG_NOT_SPECIAL: &str =
+    "takes the sine or cosine of an angle that is not a rational multiple of π";
+
+/// Why a sine or cosine of another rational multiple of π is refused.
+pub const TRIG_DENOMINATOR: &str =
+    "takes the sine or cosine of a multiple of π whose denominator divides neither 4 nor 6";
+
+/// An angle's value as q·π, q rational, where it is one, 0 included.
+pub fn multiple_of_pi(angle: &Real) -> Option<Q> {
+    match angle.parts.iter().collect::<Vec<_>>().as_slice() {
+        [] => Some(Q::zero()),
+        [(m, s)] if m.len() == 1 && m.get(&Atom::Pi) == Some(&1) => s.as_rational(),
+        _ => None,
+    }
+}
+
+/// The sine or cosine of q·π, q with a denominator dividing 4 or 6: q less a
+/// whole multiple of 2 is r, 0 ≤ r < 2; a π is taken off r of at least 1
+/// (sin(t + π) = −sin t, cos(t + π) = −cos t), and π/2 off r of at least 1/2
+/// (sin(π/2 + t) = cos t, cos(π/2 + t) = −sin t); what is left is 0, π/6,
+/// π/4 or π/3.
+pub fn trig_value(f: Trig, multiple: &Q) -> Result<Surd, &'static str> {
+    let d = multiple.denom();
+    if !(BigInt::from(4) % d).is_zero() && !(BigInt::from(6) % d).is_zero() {
+        return Err(TRIG_DENOMINATOR);
+    }
+    Ok(reduced(f, &turned(multiple)))
+}
+
+/// q less the whole multiple of 2 that leaves it from 0 up to 2.
+pub fn turned(multiple: &Q) -> Q {
+    let two = q(2);
+    multiple - (multiple / &two).floor() * &two
+}
+
+/// `trig_value` of r·π, 0 ≤ r < 2.
+fn reduced(f: Trig, r: &Q) -> Surd {
+    let half = Q::new(BigInt::from(1), BigInt::from(2));
+    if *r >= q(1) {
+        return reduced(f, &(r - q(1))).scaled(&q(-1));
+    }
+    if *r >= half {
+        let rest = r - &half;
+        return match f {
+            Trig::Sine => reduced(Trig::Cosine, &rest),
+            Trig::Cosine => reduced(Trig::Sine, &rest).scaled(&q(-1)),
+        };
+    }
+    let root_half = |p: u64| {
+        let mut out = Surd::default();
+        out.parts.insert(vec![p], half.clone());
+        out
+    };
+    let twelfths = (r * q(12)).to_integer();
+    let twelfths = twelfths.to_i64().expect("r below 1/2");
+    match (f, twelfths) {
+        (Trig::Sine, 0) | (Trig::Cosine, 6) => Surd::default(),
+        (Trig::Sine, 2) | (Trig::Cosine, 4) => Surd::rational(half.clone()),
+        (_, 3) => root_half(2),
+        (Trig::Sine, 4) | (Trig::Cosine, 2) => root_half(3),
+        (Trig::Cosine, 0) => Surd::rational(q(1)),
+        _ => unreachable!("a denominator dividing 4 or 6 leaves 0, π/6, π/4 or π/3"),
+    }
 }
 
 /// Whether a term holds anything `real arithmetic` works out and
@@ -303,6 +390,18 @@ pub fn closed_value(term: &Term) -> Route<Value> {
                 Ok(v) => v,
                 Err(why) => return Built(Value::Unworked(why)),
             },
+            other => return other,
+        },
+        _ if Trig::of(term).is_some() => match closed_value(&kids[0]) {
+            Built(Value::Exact(x)) => {
+                let Some(q) = multiple_of_pi(&x) else {
+                    return Built(Value::Unworked(TRIG_NOT_SPECIAL));
+                };
+                match trig_value(Trig::of(term).expect("a sine or cosine"), &q) {
+                    Ok(v) => Real::surd(v),
+                    Err(why) => return Built(Value::Unworked(why)),
+                }
+            }
             other => return other,
         },
         // A root of a term holding an atom is of no rational.
@@ -596,9 +695,14 @@ fn estimate(term: &Term) -> Result<Estimate, &'static str> {
         Some("cpi" | "ceu") if kids.is_empty() => 0,
         // A logarithm or an exponential is its argument's value, a few
         // laws, and an identity to its canon.
-        _ if applies(term, "clog") || applies(term, "ce") => estimate(&kids[0])?
-            .cost
-            .saturating_add(surds::cube(value.part_count() + 2)),
+        _ if applies(term, "clog")
+            || applies(term, "ce")
+            || Trig::of(term).is_some() =>
+        {
+            estimate(&kids[0])?
+                .cost
+                .saturating_add(surds::cube(value.part_count() + 2))
+        }
         Some(NEG) => {
             let x = estimate(&kids[0])?;
             x.cost.saturating_add(surds::cube(x.value.part_count()))
@@ -749,6 +853,67 @@ mod tests {
         );
         let claim = Term::apply("wceq", vec![square, expanded]);
         assert_eq!(decide_closed(&claim), Built(Verdict::Holds(true)));
+    }
+
+    #[test]
+    fn sines_and_cosines_of_the_special_angles() {
+        let half = q(1) / q(2);
+        let root_half = |p: u64| {
+            let mut out = Surd::default();
+            out.parts.insert(vec![p], half.clone());
+            out
+        };
+        // sin(nπ/12) for each n from 0 to 23 the method takes, written out.
+        let table: [(i64, Surd); 16] = [
+            (0, Surd::default()),
+            (2, Surd::rational(half.clone())),
+            (3, root_half(2)),
+            (4, root_half(3)),
+            (6, Surd::rational(q(1))),
+            (8, root_half(3)),
+            (9, root_half(2)),
+            (10, Surd::rational(half.clone())),
+            (12, Surd::default()),
+            (14, Surd::rational(-half.clone())),
+            (15, root_half(2).scaled(&q(-1))),
+            (16, root_half(3).scaled(&q(-1))),
+            (18, Surd::rational(q(-1))),
+            (20, root_half(3).scaled(&q(-1))),
+            (21, root_half(2).scaled(&q(-1))),
+            (22, Surd::rational(-half.clone())),
+        ];
+        let at = |n: i64| Q::new(BigInt::from(n), BigInt::from(12));
+        for (n, sine) in &table {
+            assert_eq!(
+                trig_value(Trig::Sine, &at(*n)).unwrap(),
+                *sine,
+                "sin({n}π/12)"
+            );
+            // cos t = sin(t + π/2), and the same angle a turn on or back.
+            let cos_at = (n + 6).rem_euclid(24);
+            let cosine = &table.iter().find(|(m, _)| *m == cos_at).unwrap().1;
+            assert_eq!(
+                trig_value(Trig::Cosine, &at(*n)).unwrap(),
+                *cosine,
+                "cos({n}π/12)"
+            );
+            assert_eq!(trig_value(Trig::Sine, &at(n + 24)).unwrap(), *sine);
+            assert_eq!(trig_value(Trig::Sine, &at(n - 48)).unwrap(), *sine);
+        }
+        assert_eq!(trig_value(Trig::Sine, &at(1)), Err(TRIG_DENOMINATOR));
+        assert_eq!(
+            trig_value(Trig::Sine, &Q::new(BigInt::from(1), BigInt::from(5))),
+            Err(TRIG_DENOMINATOR)
+        );
+    }
+
+    #[test]
+    fn a_sine_of_one_is_refused() {
+        let sine = Term::apply("cfv", vec![n("c1"), n("csin")]);
+        assert_eq!(
+            closed_value(&sine),
+            Built(Value::Unworked(TRIG_NOT_SPECIAL))
+        );
     }
 
     #[test]

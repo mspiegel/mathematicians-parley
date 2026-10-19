@@ -79,4 +79,5 @@ notations! {
     SQUARE_ROOT = 47, "square-root";
     PI = 48, "pi";
     EULER = 49, "euler";
+    DEGREES = 50, "degrees";
 }

@@ -156,6 +156,12 @@ impl crate::citing::OnceAsk for BuildOnce<'_, '_> {
                     _ => Shape::Other,
                 }
             }
+            _ if crate::methods::reals::Trig::of(term).is_some() => {
+                match crate::methods::reals::closed_value(term) {
+                    Built(crate::methods::reals::Value::Exact(_)) => Shape::Real,
+                    _ => Shape::Other,
+                }
+            }
             _ if crate::methods::reals::applies(term, "clog") => {
                 match crate::methods::field::closed_value(&kids[0]) {
                     Built(crate::methods::field::Value::Exact(v))
