@@ -68,6 +68,7 @@ pub struct Spec {
 pub struct Implied {
     facts: OnceCell<Vec<Facts>>,
     written: OnceCell<Vec<Facts>>,
+    named: OnceCell<Vec<Facts>>,
 }
 
 /// An emitter and what it asks, which live as long as one calculation.
@@ -163,6 +164,14 @@ impl Oracle for Ask<'_, '_> {
     fn written(&mut self, said: &Rpn) -> Checked<Option<Proof>> {
         let facts = self.spec.written.clone().unwrap_or_default();
         let implied = &self.spec.implied.written;
+        self.el
+            .written_nonzero(&self.spec.scope, &facts, implied, said)
+    }
+
+    fn named(&mut self, said: &Rpn) -> Checked<Option<Proof>> {
+        let facts = self.spec.written.clone().unwrap_or_default();
+        let facts = self.el.restable(&facts);
+        let implied = &self.spec.implied.named;
         self.el
             .written_nonzero(&self.spec.scope, &facts, implied, said)
     }
@@ -871,33 +880,10 @@ impl<'a> Elaborator<'a> {
         // does not name says nothing of its divisors (`GOALS.md` decision 9).
         let restable = self.restable(facts);
         let facts = &restable;
-        // A divisor the page says once is a positive integer is not zero
-        // by that alone (`SYNTAX.md`), whatever else says so.
-        if let Some(positive) = self.positive_divisor(said, scope, facts)? {
-            return Ok(positive);
-        }
-        if let Some(found) = self.written_nonzero(scope, facts, implied, said)? {
+        if let Some(found) = self.nonzero_said(scope, facts, implied, said)? {
             return Ok(found);
         }
         let want = t!(said, "cc0", "wne");
-        // A closed denominator not zero is a fact about numerals, worked
-        // out as `arithmetic` works one out and taken uncited, as a closed
-        // numeral fact is (`METHODS.md`).
-        if matches!(field::closed_value(&self.to_term(said)), Built(Value::Exact(v)) if !v.is_zero())
-        {
-            let denial = t!(t!(said, "cc0", "wceq"), "wn");
-            let worked = match self.prove_numeral(&denial, scope, facts)? {
-                Built(p) => Built(p),
-                Declined(_) => self.by_values(&denial, scope, facts)?,
-            };
-            if let Built(p) = worked {
-                return Ok(self.b.ap(
-                    "neqned",
-                    &binds! {"ph" => scope, "A" => said, "B" => "cc0"},
-                    &[&p],
-                ));
-            }
-        }
         // Any other divisor's `≠ 0` is the page's to say, so no membership
         // said once leads to it (`READERS.md`).
         self.beyond_once += 1;
@@ -913,6 +899,99 @@ impl<'a> Elaborator<'a> {
                 ),
             )),
         }
+    }
+
+    /// ( scope -> said =/= 0 ) from what `facts` and the page say, or None:
+    /// a positive integer the page says once (`SYNTAX.md`), a line saying
+    /// it, a closed term that is not zero, or a product, a quotient, a
+    /// negation or a power to a numeral whose parts are each not zero so.
+    /// A line saying the whole comes before its parts, as `factors_apart`
+    /// takes them in the normal form: a step citing t² ≠ 0 rests on that.
+    fn nonzero_said(
+        &mut self,
+        scope: &Rpn,
+        facts: &Facts,
+        implied: &OnceCell<Vec<Facts>>,
+        said: &Rpn,
+    ) -> Checked<Option<Proof>> {
+        // A divisor the page says once is a positive integer is not zero
+        // by that alone (`SYNTAX.md`), whatever else says so.
+        if let Some(positive) = self.positive_divisor(said, scope, facts)? {
+            return Ok(Some(positive));
+        }
+        if let Some(found) = self.written_nonzero(scope, facts, implied, said)? {
+            return Ok(Some(found));
+        }
+        // A closed denominator not zero is a fact about numerals, worked
+        // out as `arithmetic` works one out and taken uncited, as a closed
+        // numeral fact is (`METHODS.md`).
+        if matches!(field::closed_value(&self.to_term(said)), Built(Value::Exact(v)) if !v.is_zero())
+        {
+            let denial = t!(t!(said, "cc0", "wceq"), "wn");
+            let worked = match self.prove_numeral(&denial, scope, facts)? {
+                Built(p) => Built(p),
+                Declined(_) => self.by_values(&denial, scope, facts)?,
+            };
+            if let Built(p) = worked {
+                return Ok(Some(self.b.ap(
+                    "neqned",
+                    &binds! {"ph" => scope, "A" => said, "B" => "cc0"},
+                    &[&p],
+                )));
+            }
+        }
+        let term = self.to_term(said);
+        if term.variable().is_some() {
+            return Ok(None);
+        }
+        let parts: Vec<Rpn> = term.children().iter().map(|c| self.rpn(c)).collect();
+        let how = (term.label() == Some("co") && parts.len() == 3)
+            .then(|| parts[2].alone().map(String::from))
+            .flatten();
+        let power = (how.as_deref() == Some("cexp"))
+            .then(|| numerals::value(&term.children()[1]))
+            .flatten()
+            .and_then(|v| u64::try_from(v).ok())
+            .filter(|p| *p > 0);
+        let (lemma, nonzero): (&str, Vec<&Rpn>) = match (term.label(), how.as_deref()) {
+            (Some("cneg"), _) if parts.len() == 1 => ("negne0d", vec![&parts[0]]),
+            (_, Some("cmul")) => ("mulne0d", vec![&parts[0], &parts[1]]),
+            (_, Some("cdiv")) => ("divne0d", vec![&parts[0], &parts[1]]),
+            (_, Some("cexp")) if power.is_some() => ("expne0d", vec![&parts[0]]),
+            _ => return Ok(None),
+        };
+        let mut held = Vec::new();
+        let mut apart = Vec::new();
+        for part in &nonzero {
+            let Built(cc) = self.in_cc(part, scope, facts)? else {
+                return Ok(None);
+            };
+            let Some(not_zero) = self.nonzero_said(scope, facts, implied, part)? else {
+                return Ok(None);
+            };
+            held.push(cc);
+            apart.push(not_zero);
+        }
+        let mut binds = binds! {"ph" => scope, "A" => nonzero[0]};
+        if let Some(second) = nonzero.get(1) {
+            binds.insert("B".to_string(), (*second).clone());
+        }
+        let mut hyps: Vec<Proof> = held.into_iter().chain(apart).collect();
+        // ( A ^ N ) with N the whole number written, which `expne0d` asks
+        // in ℤ.
+        if let Some(power) = power {
+            let exponent = &parts[1];
+            let natural = numerals::nn(&self.b, power);
+            let whole = self.b.ap("nnzi", &binds! {"N" => exponent}, &[&natural]);
+            hyps.push(self.b.ap(
+                "a1i",
+                &binds! {"ph" => t!(exponent, "cz", "wcel"), "ps" => scope},
+                &[&whole],
+            ));
+            binds.insert("N".to_string(), exponent.clone());
+        }
+        let hyps: Vec<&Proof> = hyps.iter().collect();
+        Ok(Some(self.b.ap(lemma, &binds, &hyps)))
     }
 
     /// What the page says makes a term not zero, or None: `not_zero` without

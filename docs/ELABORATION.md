@@ -971,13 +971,25 @@ The normaliser reads only the arithmetic it normalises, and a division
 inside anything else — the summand of Σ(k = 1 to n) 1/T(k) — belongs to that
 atom and is no denominator of the term the atom stands in.
 
-A quotient by a quotient, `a / (c/d)`, is first `(a·d) / c` by `divdiv2`, and
-that is normalised as any quotient is. The law asks that `c` is not zero, and
-that is asked of `c` as the page writes it, not of its canonical form: a
-product is not zero when its factors are not (`mulne0d`), and each factor's
-disequality is the page's own. The triangular reciprocals divide 1 by
-`k(k + 1)/2` and say `k ≠ 0` and `k + 1 ≠ 0`; the canonical form of `k(k + 1)`
-is `k² + k`, of which the page says nothing.
+A quotient by anything that divides once normalised, `a / R` with R = P/Q,
+is `a / (P/Q)` (`oveq2d`), which is `(a·Q) / P` by `divdiv2`, and that is
+normalised as any quotient is: `1/(1/j)²`, `1/(2·(1/j))` and `x/(−(x/2))`
+alike. The law asks that P is not zero, and that comes from R, asked as the
+page writes it and not of its canonical form, carried across R = P/Q
+(`divne0bd`): R is not zero by a line saying so, or by its parts, a product,
+a quotient, a negation or a power to a numeral not being zero when its parts
+are not (`mulne0d`, `divne0d`, `negne0d`, `expne0d`), each part's
+disequality the page's own or a positive integer it says once. The
+triangular reciprocals divide 1 by `k(k + 1)/2` and say `k ≠ 0` and
+`k + 1 ≠ 0`; the canonical form of `k(k + 1)` is `k² + k`, of which the page
+says nothing.
+
+A divisor written as a product or a power, in the claim or in a line the
+step cites, is not zero by a line the step may rest on saying so of the
+whole; else by its factors, each the same way; else by any line in scope.
+A step whose requires line says t² ≠ 0 rests on that line and not on a
+t ≠ 0 above it that it does not name, and one saying each factor is not
+zero rests on those lines and not on one above saying the product is.
 
 A finite sum the step reads as linear (`METHODS.md`) is written out by the
 oracle the normaliser asks (`linear_sum`), and the parts' sums it gives are

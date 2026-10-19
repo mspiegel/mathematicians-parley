@@ -1,0 +1,44 @@
+import mundane theorem stdlib/numbers/square-positive
+
+theorem a-cited-equation-divides-by-a-power
+  note        The cited equation divides by t², which is not zero by what
+              the requires line says of t.
+  let t ∈ ℝ                                                           (H1)
+  let F ∈ ℝ                                                           (H2)
+  assume t ≠ 0                                                        (H3)
+  assume F = 1/t²                                                     (H4)
+  then F·t² = 1
+
+1.  F·t² = 1
+    algebra, from H4
+    requires t ≠ 0: from H3
+
+theorem the-claim-divides-by-a-power
+  note        The claim divides by t², which is not zero by what the
+              requires line says of t: a power to a numeral is not zero
+              where its base is not.
+  let t ∈ ℝ                                                           (H1)
+  let F ∈ ℝ                                                           (H2)
+  assume t ≠ 0                                                        (H3)
+  assume F·t² = 1                                                     (H4)
+  then F = 1/t²
+
+1.  F = 1/t²
+    algebra, from H4
+    requires t ≠ 0: from H3
+
+theorem the-power-said-not-zero-whole
+  note        A requires line saying t² ≠ 0 is what the step rests on, and
+              not the t ≠ 0 above it, which it does not name.
+  let t ∈ ℝ                                                           (H1)
+  let F ∈ ℝ                                                           (H2)
+  assume t ≠ 0                                                        (H3)
+  assume F = 1/t²                                                     (H4)
+  then F·t² = 1
+
+1.  t² > 0
+    mun:square-positive x := t, from H3
+
+2.  F·t² = 1
+    algebra, from H4
+    requires t² ≠ 0: weakening, from 1

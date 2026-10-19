@@ -31,7 +31,7 @@ use super::field::{
 };
 use super::numerals;
 use crate::binds;
-use crate::mm::kernel::{FloatLabels, Term};
+use crate::mm::kernel::{term_of, FloatLabels, Term};
 use crate::mm::spell::{Builder, Proof};
 use crate::mm::Rpn;
 use crate::outcome::{Built, Checked, Declined, Route};
@@ -70,6 +70,9 @@ pub trait Oracle {
     /// What the page says makes `said` not zero, asked only of an emitter
     /// given a way to.
     fn written(&mut self, said: &Rpn) -> Checked<Option<Proof>>;
+    /// `written`, from only the lines the step may rest on: those it names,
+    /// and what the page says once.
+    fn named(&mut self, said: &Rpn) -> Checked<Option<Proof>>;
     /// ( under -> said =/= 0 ) where the page says once that `said` is a
     /// positive integer (`SYNTAX.md`), which no line need say; None
     /// otherwise.
@@ -2698,8 +2701,13 @@ impl Emitter {
             under: beneath,
             proof: second,
         } = take!(self.normalize_quotient(o, right, labels)?);
-        if beneath.is_some() {
-            return self.divided_by_quotient(o, left, right, labels, said);
+        if let Some(beneath) = beneath {
+            let divisor = Quotiented {
+                over: below,
+                under: Some(beneath),
+                proof: second,
+            };
+            return self.divided_by_quotient(o, left, right, divisor, labels, said);
         }
         self.divisors
             .entry(Self::spell_run(&below))
@@ -2784,97 +2792,114 @@ impl Emitter {
         }))
     }
 
-    /// `a / ( c / d )`, normalised as `( a x. d ) / c` (`divdiv2`). What is
-    /// asked of c is asked of it as written (`written_pair`). A divisor that
-    /// divides only once normalised, a sum of quotients, is not reached.
+    /// `a / R`, where R divides, `P / Q` once normalised (`divisor`): a / R
+    /// is a / ( P / Q ) (`oveq2d`), which is ( a x. Q ) / P (`divdiv2`), and
+    /// that is normalised in turn. R is not 0 by what the page says of it as
+    /// written, or of the parts it is written with (`written_apart`); P is
+    /// not 0 because R is not, across R = P / Q (`divne0bd`), and is kept so
+    /// for the denominator it now is; Q is not 0 as the denominator the
+    /// normal form made of R.
     fn divided_by_quotient(
         &mut self,
         o: &mut dyn Oracle,
         left: &Term,
         right: &Term,
+        divisor: Quotiented,
         labels: &FloatLabels,
         said: &Rpn,
     ) -> Checked<Route<Quotiented>> {
-        if right.variable().is_none() && right.label() == Some("cneg") {
-            return self.divided_by_negation(o, left, right, labels, said);
-        }
-        if right.variable().is_some()
-            || right.label() != Some("co")
-            || right.children().len() != 3
-            || right.children()[2].rpn(labels).alone() != Some(DIV)
-        {
-            return Ok(Route::no(format!(
-                "{said} divides by something that divides"
-            )));
-        }
-        let (c, d) = (&right.children()[0], &right.children()[1]);
-        let (a_s, c_s, d_s) = (left.rpn(labels), c.rpn(labels), d.rpn(labels));
-        // c is not 0 by what the page says of the divisor as it is written,
-        // c/d ≠ 0, carried to c by `divne0bd`; or by what it says of c.
-        let whole = right.rpn(labels);
-        let page = if self.written {
-            o.written(&whole)?
-        } else {
-            None
+        let Quotiented {
+            over: top,
+            under: Some(bottom),
+            proof: equal,
+        } = divisor
+        else {
+            return Ok(Route::no(format!("{said} divides by no quotient")));
         };
-        let c_apart = match page {
-            Some(whole_apart) => {
-                let d_apart = take!(self.written_apart(o, d, labels)?);
-                let (c_cc, d_cc) = (o.atom(&c_s)?, o.atom(&d_s)?);
-                let b = o.b();
-                let iff = b.ap(
-                    "divne0bd",
-                    &binds! {"ph" => &self.under, "A" => &c_s, "B" => &d_s},
-                    &[&c_cc, &d_cc, &d_apart],
-                );
-                b.ap(
-                    "mpbird",
-                    &binds! {"ph" => &self.under, "ps" => t!(c_s, "cc0", "wne"),
-                    "ch" => t!(whole, "cc0", "wne")},
-                    &[&whole_apart, &iff],
-                )
-            }
-            None => take!(self.written_apart(o, c, labels)?),
+        let (a_s, r_s) = (left.rpn(labels), right.rpn(labels));
+        let (p_s, q_s) = (Self::spell_run(&top), Self::spell_run(&bottom));
+        let pq = op(&p_s, &q_s, DIV);
+        let page = if self.written { o.written(&r_s)? } else { None };
+        let r_apart = match page {
+            Some(p) => p,
+            None => take!(self.written_apart(o, right, labels)?),
         };
-        let c_cc = o.atom(&c_s)?;
-        let p1 = o.b().ap(
-            "jca",
-            &binds! {"ph" => &self.under, "ps" => t!(c_s, "cc", "wcel"), "ch" => t!(c_s, "cc0", "wne")},
-            &[&c_cc, &c_apart],
-        );
-        let p2 = take!(self.written_pair(o, d, labels)?);
-        // c is the new denominator, and its canonical form is asked later.
-        let spread = self.normalize(o, c, labels)?;
-        if let Built((items, equal)) = &spread {
-            self.keep_nonzero(o, &c_s, items, &c_apart, equal);
-        }
-        let flipped = op(&op(&a_s, &d_s, MUL), &c_s, DIV);
+        let p_cc = self.run_cc(o, &top)?;
+        let (q_cc, q_apart) = take!(self.denominator(o, &bottom)?);
+        let p_apart = {
+            let b = o.b();
+            let moved = b.ap(
+                "neeq1d",
+                &binds! {"ph" => &self.under, "A" => &r_s, "B" => &pq, "C" => "cc0"},
+                &[&equal],
+            );
+            let pq_apart = b.ap(
+                "mpbid",
+                &binds! {"ph" => &self.under, "ps" => t!(r_s, "cc0", "wne"),
+                "ch" => t!(pq, "cc0", "wne")},
+                &[&r_apart, &moved],
+            );
+            let iff = b.ap(
+                "divne0bd",
+                &binds! {"ph" => &self.under, "A" => &p_s, "B" => &q_s},
+                &[&p_cc, &q_cc, &q_apart],
+            );
+            b.ap(
+                "mpbird",
+                &binds! {"ph" => &self.under, "ps" => t!(p_s, "cc0", "wne"),
+                "ch" => t!(pq, "cc0", "wne")},
+                &[&pq_apart, &iff],
+            )
+        };
+        self.nonzero
+            .entry(p_s.clone())
+            .or_insert_with(|| p_apart.clone());
+        let across = op(&a_s, &pq, DIV);
+        let flipped = op(&op(&a_s, &q_s, MUL), &p_s, DIV);
         let atom = o.atom(&a_s)?;
         let turned = {
             let b = o.b();
+            let paired = |s: &Rpn, held: &Proof, apart: &Proof| {
+                b.ap(
+                    "jca",
+                    &binds! {"ph" => &self.under, "ps" => t!(s, "cc", "wcel"),
+                    "ch" => t!(s, "cc0", "wne")},
+                    &[held, apart],
+                )
+            };
+            let (p_pair, q_pair) =
+                (paired(&p_s, &p_cc, &p_apart), paired(&q_s, &q_cc, &q_apart));
+            let put = b.ap(
+                "oveq2d",
+                &binds! {"ph" => &self.under, "A" => &r_s, "B" => &pq, "C" => &a_s, "F" => DIV},
+                &[&equal],
+            );
             let law = b.ap(
                 "divdiv2",
-                &binds! {"A" => &a_s, "B" => &c_s, "C" => &d_s},
+                &binds! {"A" => &a_s, "B" => &p_s, "C" => &q_s},
                 &[],
             );
-            b.ap(
+            let folded = b.ap(
                 "syl3anc",
                 &binds! {"ph" => &self.under, "ps" => t!(a_s, "cc", "wcel"),
-                "ch" => t!(t!(c_s, "cc", "wcel"), t!(c_s, "cc0", "wne"), "wa"),
-                "th" => t!(t!(d_s, "cc", "wcel"), t!(d_s, "cc0", "wne"), "wa"),
-                "ta" => t!(said, flipped, "wceq")},
-                &[&atom, &p1, &p2, &law],
-            )
+                "ch" => t!(t!(p_s, "cc", "wcel"), t!(p_s, "cc0", "wne"), "wa"),
+                "th" => t!(t!(q_s, "cc", "wcel"), t!(q_s, "cc0", "wne"), "wa"),
+                "ta" => t!(across, flipped, "wceq")},
+                &[&atom, &p_pair, &q_pair, &law],
+            );
+            (put, folded)
         };
+        let turned = self.chain(o, &turned.0, &turned.1, said, &across, &flipped);
+        let sigs = &o.b().sigs;
         let rebuilt = Term::apply(
             "co",
             vec![
                 Term::apply(
                     "co",
-                    vec![left.clone(), d.clone(), Term::apply(MUL, vec![])],
+                    vec![left.clone(), term_of(&q_s, sigs), Term::apply(MUL, vec![])],
                 ),
-                c.clone(),
-                right.children()[2].clone(),
+                term_of(&p_s, sigs),
+                Term::apply(DIV, vec![]),
             ],
         );
         let Quotiented { over, under, proof } =
@@ -2894,90 +2919,12 @@ impl Emitter {
         }))
     }
 
-    /// `a / -u y`, a divisor that divides only under a negation, as
-    /// x/(−(x/2)), normalised as `-u ( a / y )` (`divneg2d`). y is not 0
-    /// where the page says −y is not (`written`, by `negne0bd`).
-    fn divided_by_negation(
-        &mut self,
-        o: &mut dyn Oracle,
-        left: &Term,
-        right: &Term,
-        labels: &FloatLabels,
-        said: &Rpn,
-    ) -> Checked<Route<Quotiented>> {
-        let y = &right.children()[0];
-        let (a_s, y_s) = (left.rpn(labels), y.rpn(labels));
-        let Some(y_apart) = o.written(&y_s)? else {
-            return Ok(Route::no(format!(
-                "nothing says {} is not zero, which {said} divides by negated",
-                o.shown(&y_s)
-            )));
-        };
-        let (a_cc, y_cc) = (o.atom(&a_s)?, o.atom(&y_s)?);
-        let inner = op(&a_s, &y_s, DIV);
-        let negated = t!(inner, "cneg");
-        let turned = {
-            let b = o.b();
-            let moved = b.ap(
-                "divneg2d",
-                &binds! {"ph" => &self.under, "A" => &a_s, "B" => &y_s},
-                &[&a_cc, &y_cc, &y_apart],
-            );
-            b.ap(
-                "eqcomd",
-                &binds! {"ph" => &self.under, "A" => &negated, "B" => said},
-                &[&moved],
-            )
-        };
-        let Some(div) = (y.variable().is_none() && y.label() == Some("co"))
-            .then(|| y.children().get(2).cloned())
-            .flatten()
-        else {
-            return Ok(Route::no(format!(
-                "{said} divides by a negation of no quotient"
-            )));
-        };
-        let rebuilt = Term::apply(
-            "cneg",
-            vec![Term::apply("co", vec![left.clone(), y.clone(), div])],
-        );
-        let Quotiented { over, under, proof } =
-            take!(self.normalize_quotient(o, &rebuilt, labels)?);
-        let p = self.chain(
-            o,
-            &turned,
-            &proof,
-            said,
-            &negated,
-            &Self::spell_quotient(&over, under.as_deref()),
-        );
-        Ok(Built(Quotiented {
-            over,
-            under,
-            proof: p,
-        }))
-    }
-
-    /// ( under -> ( t e. CC /\ t =/= 0 ) ) for a term as the page wrote it.
-    fn written_pair(
-        &mut self,
-        o: &mut dyn Oracle,
-        term: &Term,
-        labels: &FloatLabels,
-    ) -> Checked<Route<Proof>> {
-        let said = term.rpn(labels);
-        let apart = take!(self.written_apart(o, term, labels)?);
-        let atom = o.atom(&said)?;
-        Ok(Built(o.b().ap(
-            "jca",
-            &binds! {"ph" => &self.under, "ps" => t!(said, "cc", "wcel"), "ch" => t!(said, "cc0", "wne")},
-            &[&atom, &apart],
-        )))
-    }
-
-    /// ( under -> t =/= 0 ), for `written_pair`: a digit says so itself, and
-    /// a product is not zero when its factors are not (`mulne0d`). Anything
-    /// else is what the page said of it.
+    /// ( under -> t =/= 0 ) for a divisor as the page wrote it
+    /// (`divided_by_quotient`): a digit says so itself, a positive integer
+    /// the page says once is not zero by that alone (`SYNTAX.md`), and a
+    /// product, a quotient, a negation or a power to a numeral is not zero
+    /// when its parts are not (`mulne0d`, `divne0d`, `negne0d`, `expne0d`).
+    /// Anything else is what the page said of it.
     fn written_apart(
         &mut self,
         o: &mut dyn Oracle,
@@ -2994,11 +2941,31 @@ impl Emitter {
                 )));
             }
         }
-        if term.variable().is_none()
+        if let Some(positive) = o.positive(&said)? {
+            return Ok(Built(positive));
+        }
+        if term.variable().is_none() && term.label() == Some("cneg") {
+            let inner = &term.children()[0];
+            let apart = take!(self.written_apart(o, inner, labels)?);
+            let inner_s = inner.rpn(labels);
+            let held = o.atom(&inner_s)?;
+            return Ok(Built(o.b().ap(
+                "negne0d",
+                &binds! {"ph" => &self.under, "A" => &inner_s},
+                &[&held, &apart],
+            )));
+        }
+        let how = (term.variable().is_none()
             && term.label() == Some("co")
-            && term.children().len() == 3
-            && term.children()[2].rpn(labels).alone() == Some(MUL)
-        {
+            && term.children().len() == 3)
+            .then(|| term.children()[2].rpn(labels).alone().map(String::from))
+            .flatten();
+        let lemma = match how.as_deref() {
+            Some(MUL) => Some("mulne0d"),
+            Some(DIV) => Some("divne0d"),
+            _ => None,
+        };
+        if let Some(lemma) = lemma {
             let (a, b) = (&term.children()[0], &term.children()[1]);
             let pa = self.written_apart(o, a, labels)?;
             let pb = self.written_apart(o, b, labels)?;
@@ -3007,9 +2974,26 @@ impl Emitter {
             let aa = o.atom(&a_s)?;
             let ab = o.atom(&b_s)?;
             return Ok(Built(o.b().ap(
-                "mulne0d",
+                lemma,
                 &binds! {"ph" => &self.under, "A" => &a_s, "B" => &b_s},
                 &[&aa, &ab, &pa, &pb],
+            )));
+        }
+        let power = (how.as_deref() == Some(EXP))
+            .then(|| numerals::value(&term.children()[1]))
+            .flatten()
+            .and_then(|v| u32::try_from(v).ok())
+            .filter(|p| *p > 0);
+        if let Some(power) = power {
+            let base = &term.children()[0];
+            let apart = take!(self.written_apart(o, base, labels)?);
+            let base_s = base.rpn(labels);
+            let atom = o.atom(&base_s)?;
+            let wi = self.whole_index(o, power);
+            return Ok(Built(o.b().ap(
+                "expne0d",
+                &binds! {"ph" => &self.under, "A" => &base_s, "N" => n(power)},
+                &[&atom, &apart, &wi],
             )));
         }
         self.atom_apart(o, &said)
@@ -3039,11 +3023,13 @@ impl Emitter {
         self.factors_apart(o, term, labels)
     }
 
-    /// `page_apart` of a factor: a numeral not zero, a product or power to a
-    /// numeral of factors so said, or the page's line saying it. The factors
-    /// come first: the lines the page writes are every line in scope, and a
-    /// step saying each factor is not zero rests on those lines, not on one
-    /// above saying the product is (`ELABORATION.md`, R1).
+    /// `page_apart` of a factor: a numeral not zero, a line the step may
+    /// rest on saying it, a product or power to a numeral of factors so
+    /// said, or any line the page writes saying it. A line the step names
+    /// comes before the factors, and the factors before a line it does not:
+    /// a step saying t² ≠ 0 rests on that line, not on a t ≠ 0 above it; and
+    /// a step saying each factor is not zero rests on those lines, not on
+    /// one above saying the product is (`ELABORATION.md`, R1).
     fn factors_apart(
         &mut self,
         o: &mut dyn Oracle,
@@ -3055,6 +3041,9 @@ impl Emitter {
         // (`SYNTAX.md`), and rests on no line.
         if let Some(positive) = o.positive(&said)? {
             return Ok(Built(positive));
+        }
+        if let Some(named) = o.named(&said)? {
+            return Ok(Built(named));
         }
         if let Built(p) = self.split_apart(o, term, labels)? {
             return Ok(Built(p));

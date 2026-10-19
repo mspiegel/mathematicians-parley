@@ -1,0 +1,32 @@
+theorem divide-by-a-square-of-a-quotient
+  note        A divisor that divides once normalised, (1/j)² = 1/j², is
+              turned as one written c/d is: 1/(P/Q) is Q/P.
+  let j ∈ ℕ                                                           (H1)
+  then 1/(1/j)² = j²
+
+1.  1/(1/j)² = j²
+    algebra
+
+theorem divide-by-a-square-of-a-quotient-scaled
+  let j ∈ ℕ                                                           (H1)
+  then 2/(1/j)² = 2j²
+
+1.  2/(1/j)² = 2j²
+    algebra
+
+theorem divide-by-a-product-with-a-quotient
+  let j ∈ ℕ                                                           (H1)
+  then 1/(2·(1/j)) = j/2
+
+1.  1/(2·(1/j)) = j/2
+    algebra
+
+theorem divide-by-a-quotient
+  note        The reciprocal of a reciprocal, its divisor not zero by what
+              the page says of x.
+  let x ∈ ℝ                                                           (H1)
+  assume x ≠ 0                                                        (H2)
+  then 1/(1/x) = x
+
+1.  1/(1/x) = x
+    algebra, from H2

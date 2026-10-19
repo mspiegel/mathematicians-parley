@@ -20,7 +20,7 @@ use crate::formula::page::{Sentence, Written};
 use crate::formula::{Node, Sort};
 use crate::mm::kernel::Term;
 use crate::mm::Rpn;
-use crate::notations::{APPLICATION, APPLICATION_TO_TWO};
+use crate::notations::{APPLICATION, APPLICATION_TO_TWO, SUPERSCRIPT};
 use crate::outcome::Checked;
 use crate::rules::NUMERALS;
 use crate::targets::{is_context, is_hole, repeated};
@@ -215,6 +215,14 @@ impl Elaborator<'_> {
                     place: table.len(),
                     list,
                 });
+            }
+        }
+        // A power to a numeral is written raised, t², as the page writes it
+        // (the `superscript` record); `^` builds the same term, and reads
+        // back any other exponent, which a raised one does not.
+        for r in &mut table {
+            if r.reading.spelling.notation == SUPERSCRIPT {
+                r.place = 0;
             }
         }
         table.sort_by_key(|r| ReadingOrder::of(&r.reading, r.place, 0));
