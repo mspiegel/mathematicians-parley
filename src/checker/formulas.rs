@@ -3566,7 +3566,11 @@ pub fn check_membership_holds(
     for step in &thm.steps {
         if step.just.head.is(Method::Membership) {
             let at = ClosureClaim::step(step);
-            if !membership_holds(report, thm, &at, known, targets) {
+            // A claim of no shape the method decides is refused once, by
+            // `check_membership_claims`, which says why.
+            if !membership_holds(report, thm, &at, known, targets)
+                && membership_claim_refused(step, known).is_none()
+            {
                 report.undecided(&thm.path, Method::Membership, step);
             }
         }
@@ -4144,6 +4148,21 @@ pub fn check_closed_by_arithmetic(
 /// `membership` claims that a term is in a number system, and nothing else
 /// (`METHODS.md`), or that every member of a set has a term in one.
 pub fn check_membership_claims(report: &mut Report, thm: &Theorem, known: &Known) {
+    for step in &thm.steps {
+        if !step.just.head.is(Method::Membership) {
+            continue;
+        }
+        if let Some(why) = membership_claim_refused(step, known) {
+            report.say(&thm.path, step.just.line, why);
+        }
+    }
+}
+
+/// Why a `membership` step's claim is none the method makes, or None where
+/// it is one, or does not read (`check_formulas` says so). One line, one
+/// step: a membership step says one term is in a number system, and two,
+/// as sentences or joined by "and", are two steps.
+fn membership_claim_refused(step: &Step, known: &Known) -> Option<String> {
     fn says_membership(node: &Node) -> bool {
         if node.notation() == FOR_ALL && node.children.len() == 3 {
             return says_membership(&node.children[2]);
@@ -4152,41 +4171,32 @@ pub fn check_membership_claims(report: &mut Report, thm: &Theorem, known: &Known
             && node.children.len() == 2
             && node.children[1].notation() == NUMBER_SYSTEMS
     }
-    for step in &thm.steps {
-        if !step.just.head.is(Method::Membership) {
+    let many = |count: usize| {
+        format!(
+            "step {} claims {count} sentences by membership, which says one term is in a number system; each is a step of its own",
+            step.number
+        )
+    };
+    let sentences = step.claim.sentences();
+    if sentences.len() > 1 {
+        return Some(many(sentences.len()));
+    }
+    for sentence in sentences {
+        let Ok(node) = known.parse(&sentence) else {
             continue;
+        };
+        let joined = conjuncts(&node).len();
+        if joined > 1 {
+            return Some(many(joined));
         }
-        // One line, one step: a membership step says one term is in a
-        // number system, and two are two steps.
-        let sentences = step.claim.sentences();
-        if sentences.len() > 1 {
-            report.say(
-                &thm.path,
-                step.just.line,
-                format!(
-                    "step {} claims {} sentences by membership, which says one term is in a number system; each is a step of its own",
-                    step.number,
-                    sentences.len()
-                ),
-            );
-            continue;
-        }
-        for sentence in sentences {
-            let Ok(node) = known.parse(&sentence) else {
-                continue; // `check_formulas` says it does not read
-            };
-            if !says_membership(&node) {
-                report.say(
-                    &thm.path,
-                    step.just.line,
-                    format!(
-                        "step {} names membership for {sentence}, which says no term is in a number system",
-                        step.number
-                    ),
-                );
-            }
+        if !says_membership(&node) {
+            return Some(format!(
+                "step {} names membership for {sentence}, which says no term is in a number system",
+                step.number
+            ));
         }
     }
+    None
 }
 
 /// Each link of a calculation cites a line that says it.

@@ -129,6 +129,18 @@ theorem pascal
   note        Holds for every integer k, the ends included, because C(n, k)
               is 0 outside 0 … n.
 
+theorem absorption
+  let n ∈ ℕ₀                                                          (H1)
+  let k ∈ {0, …, n}                                                   (H2)
+  then        C(n + 1, k + 1) = C(n, k)·((n + 1)/(k + 1))
+  metamath    bcp1nk
+  target      bcp1nk
+  note        The absorption identity, as set.mm states it: multiplied out,
+              (k + 1)·C(n + 1, k + 1) = (n + 1)·C(n, k), which is
+              k·C(m, k) = m·C(m − 1, k − 1) at m = n + 1.
+              `proofs/hammack/weighted-binomial-sum.proof` proves that form
+              as its own exercise (DATABASE.md).
+
 mundane theorem binomial-zero-index
   let n ∈ ℕ₀                                                          (H1)
   then        C(n, 0) = 1

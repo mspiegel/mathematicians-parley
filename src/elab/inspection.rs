@@ -1436,7 +1436,7 @@ impl Elaborator<'_> {
     /// to the term as written (`eleq1i`, `eleq1d`). A decline where what is
     /// asked is not what the number is, or the number is 841 or more, past
     /// what trial division by 23 settles.
-    fn prime_decided(
+    pub(super) fn prime_decided(
         &mut self,
         element: &Term,
         negated: bool,

@@ -2257,7 +2257,7 @@ pub fn parse_proof(
                     path,
                     line.no,
                     format!(
-                        "requires line under let {}, which carries none; the reason under a let is one line, and a step below it can say what the reason needs",
+                        "requires line under let {}, which carries none: the reason under a let is one line, and what it needs is a step above the let that the reason cites",
                         d.label
                     ),
                 ));

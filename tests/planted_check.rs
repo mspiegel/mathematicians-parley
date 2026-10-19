@@ -5276,6 +5276,27 @@ fn cases() -> Vec<Case> {
             )],
             "nothing says x ≠ 0, which this step needs to divide by it",
         ),
+        // A let's reason is one line, and what it needs is a step above.
+        case(
+            "write a requires line under a let's reason",
+            vec![edit(
+                "tests/elaborator/textbook-exercise-shapes.proof",
+                Some("    membership\n    reads half of a\n".to_string()),
+                "    membership\n    requires a ∈ ℝ: from H1\n    reads half of a\n".to_string(),
+            )],
+            "requires line under let D1, which carries none: the reason under a let is one line, and what it needs is a step above the let that the reason cites",
+        ),
+        // Two memberships joined by "and" are two sentences, as two
+        // sentences written apart are.
+        case(
+            "claim two memberships joined by and in one membership step",
+            vec![edit(
+                "tests/elaborator/floor-in-a-bound.proof",
+                Some("2.  ⌊A⌋ ∈ ℝ\n    membership, from 1\n".to_string()),
+                "2.  ⌊A⌋ ∈ ℝ and ⌊A⌋ ∈ ℂ\n    membership, from 1\n".to_string(),
+            )],
+            "step 2 claims 2 sentences by membership, which says one term is in a number system; each is a step of its own",
+        ),
         // A nested block's step numbered as its owner's sibling is read as
         // the enclosing block's, and the numbering is what is named.
         case(

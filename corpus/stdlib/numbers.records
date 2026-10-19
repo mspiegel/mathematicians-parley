@@ -213,6 +213,41 @@ mundane theorem exponent-negative
   metamath    expnegz
   target      expnegz
 
+mundane theorem power-cancel
+  let a ∈ ℝ                                                           (H1)
+  let m ∈ ℤ                                                           (H2)
+  let n ∈ ℤ                                                           (H3)
+  assume a > 1                                                        (H4)
+  then        a^m = a^n ↔ m = n
+  metamath    expcan
+  target      expcan
+  note        Powers of a number above 1 are equal only at equal exponents.
+
+mundane theorem power-order
+  let a ∈ ℝ                                                           (H1)
+  let m ∈ ℤ                                                           (H2)
+  let n ∈ ℤ                                                           (H3)
+  assume a > 1                                                        (H4)
+  then        m < n ↔ a^m < a^n
+  metamath    ltexp2
+  target      ltexp2
+  note        Powers of a number above 1 grow with the exponent.
+
+mundane theorem minus-one-even-power
+  let n ∈ ℤ                                                           (H1)
+  then        (−1)^(2n) = 1
+  metamath    m1expeven
+  target      m1expeven
+  note        `proofs/setmm/minus-one-even-power.proof` proves it for
+              n ∈ ℕ₀ as its own exercise (DATABASE.md).
+
+mundane theorem minus-one-odd-power
+  let n ∈ ℤ                                                           (H1)
+  assume n is odd                                                     (H2)
+  then        (−1)^n = −1
+  metamath    m1expo
+  target      m1expo
+
 mundane theorem product-nonzero
   let x ∈ ℂ                                                           (H1)
   let y ∈ ℂ                                                           (H2)
@@ -616,6 +651,29 @@ mundane theorem reciprocal-order
               that a larger number has the smaller reciprocal is cited. The
               `with` says which side is which: 1/y ≤ 1/x fits the near side
               too, at x := 1/y, and that reading asks 1/y to be positive.
+
+mundane theorem reciprocal-order-strict
+  let x ∈ ℝ                                                           (H1)
+  assume x > 0                                                        (H2)
+  let y ∈ ℝ                                                           (H3)
+  assume y > 0                                                        (H4)
+  then        x < y ↔ 1/y < 1/x
+  metamath    ltrec
+  target      ltrec with A := x, B := y
+  note        reciprocal-order with < for ≤.
+
+mundane theorem cross-multiplied-order
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume b > 0                                                        (H3)
+  let c ∈ ℝ                                                           (H4)
+  let d ∈ ℝ                                                           (H5)
+  assume d > 0                                                        (H6)
+  then        a·b < c·d ↔ a/d < c/b
+  metamath    lt2mul2div
+  target      lt2mul2div
+  note        Two quotients with positive denominators compare as their
+              cross products do.
 
 theorem archimedean
   let x ∈ ℝ                                                           (H1)

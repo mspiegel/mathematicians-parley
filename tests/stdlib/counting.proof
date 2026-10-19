@@ -6,6 +6,15 @@ import theorem            stdlib/counting/count-functions
 import theorem            stdlib/counting/count-one-to-one
 import mundane theorem    stdlib/counting/union-finite as counting-union-finite
 import mundane theorem    stdlib/counting/factorial-nonzero as counting-factorial-nonzero
+import theorem            stdlib/counting/absorption as counting-absorption
+
+theorem absorption
+  let n ∈ ℕ₀                                                          (H1)
+  let k ∈ {0, …, n}                                                   (H2)
+  then C(n + 1, k + 1) = C(n, k)·((n + 1)/(k + 1))
+
+1.  C(n + 1, k + 1) = C(n, k)·((n + 1)/(k + 1))
+    thm:counting-absorption, from H2
 
 theorem factorial-nonzero
   let n ∈ ℕ₀                                                          (H1)

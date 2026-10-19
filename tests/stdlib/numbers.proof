@@ -36,6 +36,12 @@ import mundane theorem    stdlib/numbers/exponent-sum as numbers-exponent-sum
 import mundane theorem    stdlib/numbers/exponent-sum-integer as numbers-exponent-sum-integer
 import mundane theorem    stdlib/numbers/exponent-negative as numbers-exponent-negative
 import mundane theorem    stdlib/numbers/product-nonzero as numbers-product-nonzero
+import mundane theorem    stdlib/numbers/power-cancel as numbers-power-cancel
+import mundane theorem    stdlib/numbers/power-order as numbers-power-order
+import mundane theorem    stdlib/numbers/minus-one-even-power as numbers-minus-one-even-power
+import mundane theorem    stdlib/numbers/minus-one-odd-power as numbers-minus-one-odd-power
+import mundane theorem    stdlib/numbers/reciprocal-order-strict as numbers-reciprocal-order-strict
+import mundane theorem    stdlib/numbers/cross-multiplied-order as numbers-cross-multiplied-order
 
 theorem quotient-positive
   let x ∈ ℝ                                                           (H1)
@@ -313,6 +319,63 @@ theorem exponent-negative
 
 1.  a^(−m) = 1/a^m
     mun:numbers-exponent-negative, from H2
+
+theorem power-cancel
+  let a ∈ ℝ                                                           (H1)
+  let m ∈ ℤ                                                           (H2)
+  let n ∈ ℤ                                                           (H3)
+  assume a > 1                                                        (H4)
+  then a^m = a^n ↔ m = n
+
+1.  a^m = a^n ↔ m = n
+    mun:numbers-power-cancel, from H4
+
+theorem power-order
+  let a ∈ ℝ                                                           (H1)
+  let m ∈ ℤ                                                           (H2)
+  let n ∈ ℤ                                                           (H3)
+  assume a > 1                                                        (H4)
+  then m < n ↔ a^m < a^n
+
+1.  m < n ↔ a^m < a^n
+    mun:numbers-power-order, from H4
+
+theorem minus-one-even-power
+  let n ∈ ℤ                                                           (H1)
+  then (−1)^(2n) = 1
+
+1.  (−1)^(2n) = 1
+    mun:numbers-minus-one-even-power
+
+theorem minus-one-odd-power
+  let n ∈ ℤ                                                           (H1)
+  assume n is odd                                                     (H2)
+  then (−1)^n = −1
+
+1.  (−1)^n = −1
+    mun:numbers-minus-one-odd-power, from H2
+
+theorem reciprocal-order-strict
+  let x ∈ ℝ                                                           (H1)
+  assume x > 0                                                        (H2)
+  let y ∈ ℝ                                                           (H3)
+  assume y > 0                                                        (H4)
+  then x < y ↔ 1/y < 1/x
+
+1.  x < y ↔ 1/y < 1/x
+    mun:numbers-reciprocal-order-strict, from H2, H4
+
+theorem cross-multiplied-order
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume b > 0                                                        (H3)
+  let c ∈ ℝ                                                           (H4)
+  let d ∈ ℝ                                                           (H5)
+  assume d > 0                                                        (H6)
+  then a·b < c·d ↔ a/d < c/b
+
+1.  a·b < c·d ↔ a/d < c/b
+    mun:numbers-cross-multiplied-order, from H3, H6
 
 theorem product-nonzero
   let x ∈ ℝ                                                           (H1)

@@ -1,8 +1,8 @@
 import mundane theorem    stdlib/divisibility/divides-one
 import mundane definition stdlib/divisibility/prime
+import theorem            stdlib/divisibility/prime-divides-product
 import mundane theorem    stdlib/numbers/exponent-step
 import mundane theorem    stdlib/reasoning/modus-ponens
-import theorem            proofs/setmm/prime-divides-product/prime-divides-product
 
 theorem prime-divides-power
   note        By induction on the exponent. Q^0 is 1, which no prime
@@ -60,7 +60,7 @@ theorem prime-divides-power
                   substitute Q^(m + 1) = Q^m·Q (line 3.2.1) into C2
 
           3.2.3.  P divides Q^m or P divides Q
-                  thm:prime-divides-product M := Q^m, N := Q, from H2, 3.2.2
+                  thm:prime-divides-product m := Q^m, n := Q, from H2, 3.2.2
 
           3.2.4.  P = Q
                   cases, from 3.2.3

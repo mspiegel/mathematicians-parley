@@ -72,6 +72,88 @@ mundane theorem not-both
               double negation introduction, ( ph -> not not ph ), and the
               expansion never uses H1.
 
+mundane theorem odd-not-even
+  let n ∈ ℤ                                                           (H1)
+  assume n is odd                                                     (H2)
+  then        not (n is even)
+  metamath    id
+  target      id
+  note        not-both the other way: mun:stdlib/divisibility/odd makes "n
+              is odd" the denial of "n is even", so this statement is
+              ( ph -> ph ), and the expansion never uses H1.
+
+mundane theorem odd-plus-odd
+  let a ∈ ℤ                                                           (H1)
+  assume a is odd                                                     (H2)
+  let b ∈ ℤ                                                           (H3)
+  assume b is odd                                                     (H4)
+  then        a + b is even
+  metamath    opoe
+  target      opoe
+  note        `proofs/setmm/parity.proof` proves it as its own exercise
+              (DATABASE.md).
+
+mundane theorem odd-minus-odd
+  let a ∈ ℤ                                                           (H1)
+  assume a is odd                                                     (H2)
+  let b ∈ ℤ                                                           (H3)
+  assume b is odd                                                     (H4)
+  then        a − b is even
+  metamath    omoe
+  target      omoe
+  note        `proofs/setmm/parity.proof` proves it as its own exercise
+              (DATABASE.md).
+
+mundane theorem odd-plus-even
+  let a ∈ ℤ                                                           (H1)
+  assume a is odd                                                     (H2)
+  let b ∈ ℤ                                                           (H3)
+  assume b is even                                                    (H4)
+  then        a + b is odd
+  metamath    opeo
+  target      opeo
+
+mundane theorem odd-minus-even
+  let a ∈ ℤ                                                           (H1)
+  assume a is odd                                                     (H2)
+  let b ∈ ℤ                                                           (H3)
+  assume b is even                                                    (H4)
+  then        a − b is odd
+  metamath    omeo
+  target      omeo
+
+mundane theorem even-product
+  let a ∈ ℤ                                                           (H1)
+  assume a is even                                                    (H2)
+  let x ∈ ℤ                                                           (H3)
+  then        a·x is even
+  metamath    dvdsmultr1
+  target      dvdsmultr1 with K := 2
+  note        An even number times any integer is even:
+              mun:stdlib/divisibility/divides-multiple at 2, said in the
+              words even and odd use.
+
+mundane theorem even-product-factor
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  then        a·b is even ↔ a is even or b is even
+  metamath    euclemma
+  target      euclemma with P := 2
+  note        thm:stdlib/divisibility/prime-divides-product at 2, said in
+              the words even and odd use. An odd factor of an even product
+              leaves the other even.
+
+theorem prime-divides-product
+  let p ∈ ℕ                                                           (H1)
+  assume p is prime                                                   (H2)
+  let m ∈ ℤ                                                           (H3)
+  let n ∈ ℤ                                                           (H4)
+  then        p divides m·n ↔ p divides m or p divides n
+  metamath    euclemma
+  target      euclemma
+  note        Euclid's lemma. `proofs/setmm/prime-divides-product.proof`
+              proves it as its own exercise (DATABASE.md).
+
 theorem divides-gcd
   let d ∈ ℤ                                                           (H1)
   let a ∈ ℤ                                                           (H2)

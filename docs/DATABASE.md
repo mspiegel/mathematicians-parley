@@ -129,7 +129,14 @@ Every item in the standard library carries a field saying where it comes from:
 A theorem this corpus proves has no
 record: it is its proof, and its statement is the head of the proof file, so
 that it has one home and cannot drift. This is the rule that the collisions
-below were caused by breaking. What a record would say beside the statement,
+below were caused by breaking. A proof file is written to stand alone, so a
+fact proofs reach for as known is a library item even where one proof file
+proves it as its own exercise: odd + odd is even is
+`mun:stdlib/divisibility/odd-plus-odd`, and `proofs/setmm/parity.proof`
+proves it for its own sake. The proof keeps its theorem and does not cite
+the record; every other proof cites the record. The two are one fact in two
+roles, each checked on its own: the record against its set.mm lemma, the
+theorem by its proof. What a record would say beside the statement,
 the set.mm theorem it answers to and a note, the proof says in `metamath` and
 `note` lines under its `theorem` line; 29 of the 40 name a set.mm
 counterpart.

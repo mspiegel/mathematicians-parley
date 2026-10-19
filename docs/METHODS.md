@@ -877,7 +877,8 @@ the page shows.
 proved as a `proof` block would prove it: k is taken in X, what that
 membership says is laid beside the other facts in, and t ∈ S is proved of
 it. One fact, as a step says one thing: `x(n) + 1 ∈ ℝ. x(n) − 1 ∈ ℝ.` is
-two steps, and both tools refuse it as one.
+two steps, and so is `x(n) + 1 ∈ ℝ and x(n) − 1 ∈ ℝ`; both tools refuse
+either as one.
 
 ### The procedure
 

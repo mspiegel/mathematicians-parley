@@ -14,6 +14,89 @@ import definition         stdlib/divisibility/σ
 import mundane theorem    stdlib/divisibility/mod-real as divisibility-mod-real
 import mundane definition stdlib/divisibility/lcm
 import mundane theorem    stdlib/divisibility/lcm-times-gcd as divisibility-lcm-times-gcd
+import mundane theorem    stdlib/divisibility/odd-plus-odd as divisibility-odd-plus-odd
+import mundane theorem    stdlib/divisibility/odd-minus-odd as divisibility-odd-minus-odd
+import mundane theorem    stdlib/divisibility/odd-plus-even as divisibility-odd-plus-even
+import mundane theorem    stdlib/divisibility/odd-minus-even as divisibility-odd-minus-even
+import mundane theorem    stdlib/divisibility/even-product as divisibility-even-product
+import mundane theorem    stdlib/divisibility/even-product-factor as divisibility-even-product-factor
+import theorem            stdlib/divisibility/prime-divides-product as divisibility-prime-divides-product
+import mundane theorem    stdlib/divisibility/odd-not-even as divisibility-odd-not-even
+
+theorem odd-not-even
+  let n ∈ ℤ                                                           (H1)
+  assume n is odd                                                     (H2)
+  then not (n is even)
+
+1.  not (n is even)
+    mun:divisibility-odd-not-even, from H2
+
+theorem even-product-factor
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  then a·b is even ↔ a is even or b is even
+
+1.  a·b is even ↔ a is even or b is even
+    mun:divisibility-even-product-factor
+
+theorem prime-divides-product
+  let p ∈ ℕ                                                           (H1)
+  assume p is prime                                                   (H2)
+  let m ∈ ℤ                                                           (H3)
+  let n ∈ ℤ                                                           (H4)
+  then p divides m·n ↔ p divides m or p divides n
+
+1.  p divides m·n ↔ p divides m or p divides n
+    thm:divisibility-prime-divides-product, from H2
+
+theorem odd-plus-odd
+  let a ∈ ℤ                                                           (H1)
+  assume a is odd                                                     (H2)
+  let b ∈ ℤ                                                           (H3)
+  assume b is odd                                                     (H4)
+  then a + b is even
+
+1.  a + b is even
+    mun:divisibility-odd-plus-odd, from H2, H4
+
+theorem odd-minus-odd
+  let a ∈ ℤ                                                           (H1)
+  assume a is odd                                                     (H2)
+  let b ∈ ℤ                                                           (H3)
+  assume b is odd                                                     (H4)
+  then a − b is even
+
+1.  a − b is even
+    mun:divisibility-odd-minus-odd, from H2, H4
+
+theorem odd-plus-even
+  let a ∈ ℤ                                                           (H1)
+  assume a is odd                                                     (H2)
+  let b ∈ ℤ                                                           (H3)
+  assume b is even                                                    (H4)
+  then a + b is odd
+
+1.  a + b is odd
+    mun:divisibility-odd-plus-even, from H2, H4
+
+theorem odd-minus-even
+  let a ∈ ℤ                                                           (H1)
+  assume a is odd                                                     (H2)
+  let b ∈ ℤ                                                           (H3)
+  assume b is even                                                    (H4)
+  then a − b is odd
+
+1.  a − b is odd
+    mun:divisibility-odd-minus-even, from H2, H4
+
+theorem even-product
+  let a ∈ ℤ                                                           (H1)
+  assume a is even                                                    (H2)
+  let x ∈ ℤ                                                           (H3)
+  then a·x is even
+
+1.  a·x is even
+    mun:divisibility-even-product, from H2
 
 theorem lcm-a-multiple
   let a ∈ ℤ                                                           (H1)

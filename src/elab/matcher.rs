@@ -526,6 +526,23 @@ impl<'a> Elaborator<'a> {
                 return Ok(number);
             }
         }
+        // A number spelt in numerals is prime as `inspection` decides it, a
+        // closed fact a lemma at a numeral asks, as `2 ∈ Prime` is of
+        // `euclemma` at 2, and not searched for.
+        if label == "wcel"
+            && kids.len() == 2
+            && kids[1].label() == Some("cprime")
+            && self
+                .rpn(&kids[0])
+                .tokens()
+                .iter()
+                .all(|t| rules::numeric(t.as_str()))
+        {
+            let decided = self.prime_decided(&kids[0], false, scope, &facts)?;
+            if !decided.is_declined() {
+                return Ok(decided);
+            }
+        }
         // Whether a term is a set is read off its structure, not searched
         // for.
         if label == "wcel"

@@ -1,0 +1,22 @@
+import mundane theorem    stdlib/divisibility/even-product-factor
+import mundane theorem    stdlib/divisibility/odd-not-even
+import mundane theorem    stdlib/reasoning/disjunctive-syllogism-left
+
+theorem an-odd-factor-of-an-even-product
+  note        A product is even when a factor is, and only then
+              (`even-product-factor`, set.mm's `euclemma` at the prime 2);
+              an odd factor is not even, so the other factor is.
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  assume a is odd                                                     (H3)
+  assume a·b is even                                                  (H4)
+  then b is even
+
+1.  a is even or b is even
+    mun:even-product-factor, from H4
+
+2.  not (a is even)
+    mun:odd-not-even, from H3
+
+3.  b is even
+    mun:disjunctive-syllogism-left, from 1, 2
