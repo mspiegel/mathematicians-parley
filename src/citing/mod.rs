@@ -24,8 +24,9 @@ pub use conclude::{
 pub use library::{conjuncts, readings, with_parts, Group, Library, Proved, Way};
 pub use once::{
     a_number_said_once, index_system, introduction, nonzero_by_parts,
-    nonzero_said_once, numeral_nonzero, range_system, reason, reason_within, said_once,
-    sum_said_once, within, Introduced, OnceAsk, OnceReason, Shape,
+    nonzero_said_once, numeral_nonzero, range_system, reason, reason_within,
+    root_taken, said_once, sum_said_once, within, Introduced, OnceAsk, OnceReason,
+    Shape,
 };
 pub use parts::{
     at_a_member, bound_in, claimed_member, finished, function_values, implied_facts,

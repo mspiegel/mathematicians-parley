@@ -370,6 +370,19 @@ const NATIVE: [NotationId; 3] = [MEMBERSHIP, EQUALITY, ORDER];
 /// by its notation's name, and whether `arithmetic` works it out: one of
 /// its own nature, or one whose record names it in a `decided` field.
 pub fn operations(records: &[Record]) -> IndexMap<NotationId, bool> {
+    operations_by(records, crate::methods::field::worked_out)
+}
+
+/// `operations`, by whether `real arithmetic` works each out: one
+/// `arithmetic` does, or one whose record names `real arithmetic`.
+pub fn real_operations(records: &[Record]) -> IndexMap<NotationId, bool> {
+    operations_by(records, crate::methods::surds::worked_out)
+}
+
+fn operations_by(
+    records: &[Record],
+    worked_out: fn(&Record) -> bool,
+) -> IndexMap<NotationId, bool> {
     records
         .iter()
         .filter(|r| r.kind == RecordKind::Notation)
@@ -377,12 +390,7 @@ pub fn operations(records: &[Record]) -> IndexMap<NotationId, bool> {
             r.field_or_empty("sort").trim_end().ends_with("→ number")
                 && r.field_or_empty("pattern").contains('_')
         })
-        .map(|r| {
-            (
-                NotationId::of(&r.name),
-                crate::methods::field::worked_out(r),
-            )
-        })
+        .map(|r| (NotationId::of(&r.name), worked_out(r)))
         .collect()
 }
 
@@ -506,6 +514,81 @@ pub fn check_decided_words(
                     line,
                     format!(
                         "{text} is a word {} defines, and arithmetic decides a word only where its record says so in a `decided` field",
+                        word.record
+                    ),
+                );
+            }
+        }
+    }
+}
+
+/// `real arithmetic` works out an operation beyond `arithmetic`'s only
+/// where its notation's record names it, as `square-root` does, and decides
+/// no word (`DATABASE.md`, `decided`). Asked of a step it justifies and a
+/// requires line it is the reason for.
+pub fn check_real_decided_words(
+    report: &mut Report,
+    thm: &Theorem,
+    known: &Known,
+    words: &IndexMap<Spelling, DefinedWord>,
+    operations: &IndexMap<NotationId, bool>,
+) {
+    for step in &thm.steps {
+        let mut asked: Vec<(usize, &Written)> = Vec::new();
+        if step.just.head.is(Method::RealArithmetic) {
+            asked.push((step.line, &step.claim));
+        }
+        for r in &step.requires {
+            if r.is(Method::RealArithmetic) {
+                asked.push((r.line, &r.fact));
+            }
+        }
+        if let (Some(Source::RealArithmetic), Some(equation)) =
+            (&step.just.source, &step.just.equation)
+        {
+            asked.push((step.just.line, equation));
+        }
+        let mut read: Vec<(usize, String, Node)> = Vec::new();
+        for (line, written) in asked {
+            for sentence in written.sentences() {
+                if let Some(node) = known.read(step, &sentence) {
+                    read.push((line, sentence.text().to_string(), node));
+                }
+            }
+        }
+        for link in chain_links(&step.just, &thm.path) {
+            if link.line.cite != "real arithmetic" {
+                continue;
+            }
+            if let Some(claim) = link.claim(known) {
+                read.push((link.line.line, link.line.quoted(&link.from), claim));
+            }
+        }
+        for (line, text, mut node) in read {
+            let mut named: BTreeSet<String> = BTreeSet::new();
+            for part in node.walk() {
+                if operations.get(&part.notation()) == Some(&false)
+                    && named.insert(part.notation_name().to_string())
+                {
+                    report.say(
+                        &thm.path,
+                        line,
+                        format!(
+                            "{text} works out {}, and real arithmetic works out an operation beyond arithmetic's only where the notation's record says so in a `decided` field",
+                            part.notation_name()
+                        ),
+                    );
+                }
+            }
+            while node.notation() == LOGICAL_NOT && node.children.len() == 1 {
+                node = node.children[0].clone();
+            }
+            if let Some(word) = words.get(&node.spelling()) {
+                report.say(
+                    &thm.path,
+                    line,
+                    format!(
+                        "{text} is a word {} defines, and real arithmetic decides no word",
                         word.record
                     ),
                 );
@@ -3961,6 +4044,240 @@ pub(super) fn arithmetic_worked(
         }
     }
     out
+}
+
+/// What working out a fact `real arithmetic` claims finds.
+pub(super) enum RealWorked {
+    Holds,
+    /// It is false, or a part of it has no value, and why.
+    Fails(String),
+    /// Its sides have values, and the relation between them is not one
+    /// real arithmetic decides, and why. It is not reported as false.
+    Undecided(String),
+    /// A sentence of it is not built from numerals and square roots.
+    Unread,
+    /// It holds and takes no square root, so it is `arithmetic`'s.
+    NoRoot,
+}
+
+/// A fact `real arithmetic` claims, each sentence worked out
+/// (`methods::surds::decide_closed`). A sentence that does not read is
+/// `check_formulas`'s to report.
+pub(super) fn real_worked(
+    written: &Written,
+    known: &Known,
+    targets: &Targets,
+) -> RealWorked {
+    let nodes: Vec<Node> = written
+        .sentences()
+        .iter()
+        .filter_map(|s| known.read_as_written(s))
+        .collect();
+    real_worked_of(&nodes, known, targets)
+}
+
+/// `real_worked` of sentences already read.
+fn real_worked_of(nodes: &[Node], known: &Known, targets: &Targets) -> RealWorked {
+    use crate::methods::surds::{self, Verdict as Surd};
+    let mut out = RealWorked::Holds;
+    let mut rooted = false;
+    for node in nodes {
+        let term = term_of_node(&written_out(node, known), targets);
+        rooted |= surds::takes_root(&term);
+        match surds::decide_closed(&term) {
+            Built(Surd::Holds(false)) => {
+                return RealWorked::Fails("is false".to_string())
+            }
+            Built(Surd::Unworked(why)) => return RealWorked::Fails(why.to_string()),
+            Built(Surd::Undecided(why)) => {
+                return RealWorked::Undecided(why.to_string())
+            }
+            Built(Surd::Holds(true)) => {}
+            Declined(_) => out = RealWorked::Unread,
+        }
+    }
+    match out {
+        RealWorked::Holds if !rooted => RealWorked::NoRoot,
+        out => out,
+    }
+}
+
+/// Why `real arithmetic` does not show a fact, or None where it holds:
+/// what is said after "which".
+fn real_unshown(worked: RealWorked) -> Option<String> {
+    match worked {
+        RealWorked::Holds => None,
+        RealWorked::Fails(why) => Some(why),
+        RealWorked::Undecided(why) => {
+            Some(format!("{why}; real arithmetic does not decide it"))
+        }
+        RealWorked::Unread => Some(
+            "is not a fact about numerals and square roots alone, and real arithmetic decides nothing else"
+                .to_string(),
+        ),
+        RealWorked::NoRoot => Some(
+            "takes no square root; a claim of numerals alone cites arithmetic".to_string(),
+        ),
+    }
+}
+
+/// What `real arithmetic` claims holds when it is worked out (`METHODS.md`,
+/// real arithmetic): a step's claim and a requires line's fact are decided
+/// (`methods::surds::decide_closed`), and one that is false, has a part with
+/// no value, states a relation the method does not decide, or takes no
+/// square root, is reported.
+pub fn check_real_arithmetic_holds(
+    report: &mut Report,
+    thm: &Theorem,
+    known: &Known,
+    targets: &Targets,
+) {
+    for step in &thm.steps {
+        if step.just.head.is(Method::RealArithmetic) {
+            let worked = real_worked(&step.claim, known, targets);
+            if matches!(worked, RealWorked::Unread) {
+                report.undecided(&thm.path, Method::RealArithmetic, step);
+            } else if let Some(why) = real_unshown(worked) {
+                report.say(
+                    &thm.path,
+                    step.just.line,
+                    format!(
+                        "step {} claims {}, which {why}",
+                        step.number,
+                        step.claim_text()
+                    ),
+                );
+            }
+        }
+        for req in &step.requires {
+            if !req.is(Method::RealArithmetic) {
+                continue;
+            }
+            if let Some(why) = real_unshown(real_worked(&req.fact, known, targets)) {
+                report.say(
+                    &thm.path,
+                    req.line,
+                    format!(
+                        "the requires line {} of step {} is real arithmetic, which {why}",
+                        req.fact, step.number
+                    ),
+                );
+            }
+        }
+        let just = &step.just;
+        if let (Some(Source::RealArithmetic), Some(equation)) =
+            (&just.source, &just.equation)
+        {
+            if let Some(why) = real_unshown(real_worked(equation, known, targets)) {
+                report.say(
+                    &thm.path,
+                    just.line,
+                    format!(
+                        "step {} takes {equation} from real arithmetic, which {why}",
+                        step.number
+                    ),
+                );
+            }
+        }
+        // A link naming `real arithmetic` is closed, and worked out whole.
+        for link in chain_links(just, &thm.path) {
+            if link.line.cite != "real arithmetic" {
+                continue;
+            }
+            // A link that does not read is the elaborator's to report.
+            let Some(claim) = link.claim(known) else {
+                continue;
+            };
+            let why = if claim.names().is_empty() {
+                real_unshown(real_worked_of(&[claim], known, targets))
+            } else {
+                Some(
+                    "has a letter in it; a link may name real arithmetic only where its terms are closed, and any other cites the numbered step that states it"
+                        .to_string(),
+                )
+            };
+            if let Some(why) = why {
+                report.say(
+                    &thm.path,
+                    link.line.line,
+                    format!(
+                        "a link of step {} names real arithmetic for {}, which {why}",
+                        step.number,
+                        link.line.quoted(&link.from)
+                    ),
+                );
+            }
+        }
+    }
+}
+
+/// A closed claim `real arithmetic` decides cites it, as one `arithmetic`
+/// works out cites arithmetic (`check_closed_by_arithmetic`): asked of a
+/// step and each requires line giving `algebra` or `inequalities` for a
+/// claim that takes a square root and that real arithmetic finds true or
+/// false. One it does not decide, an order of values that are not
+/// rational, stays theirs.
+pub fn check_closed_by_real_arithmetic(
+    report: &mut Report,
+    thm: &Theorem,
+    known: &Known,
+    targets: &Targets,
+) {
+    use crate::methods::surds::{self, Verdict as Surd};
+    let decided = |written: &Written| {
+        let terms: Option<Vec<Term>> = written
+            .sentences()
+            .iter()
+            .map(|s| {
+                known
+                    .read_as_written(s)
+                    .map(|n| term_of_node(&written_out(&n, known), targets))
+            })
+            .collect();
+        terms.is_some_and(|terms| {
+            terms.iter().any(surds::takes_root)
+                && terms
+                    .iter()
+                    .all(|t| matches!(surds::decide_closed(t), Built(Surd::Holds(_))))
+        })
+    };
+    for step in &thm.steps {
+        let just = &step.just;
+        if (just.head.is(Method::Algebra) || just.head.is(Method::Inequalities))
+            && decided(&step.claim)
+        {
+            report.say(
+                &thm.path,
+                just.line,
+                format!(
+                    "step {} gives {} for {}, which real arithmetic can work out; a claim real arithmetic can work out cites real arithmetic",
+                    step.number,
+                    just.head,
+                    step.claim_text()
+                ),
+            );
+        }
+        for req in &step.requires {
+            let Some(method) = [Method::Algebra, Method::Inequalities]
+                .into_iter()
+                .find(|m| req.is(*m))
+            else {
+                continue;
+            };
+            if decided(&req.fact) {
+                report.say(
+                    &thm.path,
+                    req.line,
+                    format!(
+                        "the requires line of step {} gives {} for {}, which real arithmetic can work out; a fact real arithmetic can work out cites real arithmetic",
+                        step.number,
+                        method.as_str(),
+                        req.fact
+                    ),
+                );
+            }
+        }
+    }
 }
 
 /// The most terms a sum or product over a range of numerals is written out

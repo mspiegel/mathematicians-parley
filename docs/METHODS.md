@@ -930,13 +930,16 @@ An order is decided where both values are rational, and a membership of ℕ,
 - **A number too large to work out.** A radicand whose numerator times
   denominator passes 40 bits is refused, since its squarefree part is found
   by trial division. A claim holding more than four distinct primes under its
-  roots is refused, since each prime doubles how many parts a value may have
-  and the proof multiplies them out. A power is estimated before it is
-  computed, as `arithmetic`'s is, and a coefficient past ten thousand bits
-  is refused. Expanded whole, (√2 + √3 + √5 + √7)⁴ peaks at 2.7 GB of the
-  2 GB a build allows, where (√2 + √3 + √5 + √7)² takes 0.5 GB and
-  (√2 + √3 + √5)⁴ 0.65 GB; that is why a power is built a step at a time
-  (Expansion), and the limits are measured against the proof so built.
+  roots is refused, since each prime doubles how many parts a value may have.
+  A true claim's proof is estimated before it is built: each product of two
+  values of P and B parts it writes is an identity whose proof restates the
+  product at every move, and costs (P·B)³, and a claim costing more than
+  100 000 is refused. Measured, (√2 + √3 + √5 + √7)⁴ costs some 59 000 and
+  peaks at 1.0 GB, 1/(1 + √2 + √3 + √5) ≠ 0 some 99 000 and 0.8 GB, and
+  (√2 + √3 + √5 + √7)⁸ some 190 000 and 2.7 GB of the 2 GB a build allows.
+  A claim whose proof would write a numeral past 62 bits is refused too,
+  since the normaliser reads a numeral as a number only within 64 bits:
+  (1 + √2)⁴⁰ is proved, and (1 + √2)⁸⁰ is refused.
 - **Anything false.** The claim is worked out before a proof is attempted,
   so a false one is reported as false.
 
@@ -970,9 +973,15 @@ as a numeral's membership is: `requires √2 ∈ ℝ` is not written.
 ### Expansion
 
 The claim is worked out first, and the proof follows what the procedure
-found. Each side is proved equal to an **expression in roots of primes**:
-a term whose only atoms are √p for primes p, built by the field's operations
-and rational numerals.
+found. Each term is proved equal to the **canon** of its value: an
+expression in roots of primes, its parts added from the left, the rational
+part first and then by the product under the root, each part a whole
+coefficient times a product of roots of primes, and the whole over the
+least common denominator of the coefficients where they are not whole. Two
+terms of one value have one canon, so an equation is each side proved
+equal to it. The normaliser adds fractions without cancelling, so a canon
+of eight parts each over N would be read over N⁸; written over N once, it
+is read over N.
 
 - **A root.** For √x with x of value r = c²·(p₁·(p₂·…)), `arithmetic` proves
   x equals that product, `fveq2d` carries the equation under the root, the
@@ -987,14 +996,15 @@ and rational numerals.
   less (`expp1d`) and each product brought back to an expression of the
   value's parts before the next, so a power never expands whole. A negative
   exponent is one over the power (`expnegd`).
-- **An identity.** Two expressions with one value differ by a sum of
-  multiples of (√p)² − p, one for each prime: the procedure reduces the
-  difference by (√p)² = p, highest powers first, and the multiples are what
+- **An identity.** Two expressions with one value, times d, the least
+  whole number that makes the coefficients of their difference whole,
+  differ by a sum of whole multiples of (√p)² − p, one for each prime: the
+  procedure reduces the difference by (√p)² = p, and the multiples are what
   it takes away. Each (√p)² = p is `sqsqrtd`, each multiple of a difference
   that is 0 is 0 (`subeq0ad`, `mul01d`), and the normaliser proves the sum of
-  the multiples is the difference itself; the last step is `subeq0ad` again.
-  The normaliser is the one `algebra` uses, given √p ∈ ℂ for each prime
-  (`sqrtcld`).
+  the multiples is the difference itself; `subeq0ad` again, and d is
+  cancelled (`mulcanad`). The normaliser is the one `algebra` uses, given
+  √p ∈ ℂ for each prime (`sqrtcld`).
 - **A value not zero.** For a value D with cofactor C and norm N, the
   identity D·C = N is proved as above, N ≠ 0 by `arithmetic`, and D ≠ 0
   follows (`mulne0bad`). A disequality L ≠ R is L − R not zero (`subne0ad`).

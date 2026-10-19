@@ -15,8 +15,9 @@
 
 use std::collections::BTreeMap;
 
-use num_bigint::BigInt;
-use num_traits::{Signed, ToPrimitive, Zero};
+use num_bigint::{BigInt, BigUint};
+use num_integer::Integer;
+use num_traits::{One, Signed, ToPrimitive, Zero};
 
 use super::field::{self, q, ADD, DIV, EXP, MUL, NEG, Q, SUB};
 use crate::mm::kernel::Term;
@@ -33,6 +34,21 @@ pub const RADICAND_BITS: u64 = 40;
 /// out.
 pub const PRIMES: usize = 4;
 
+/// What a true claim may cost to prove (`proof_cost`). Each product of two
+/// values the proof writes, of P and B parts, is an identity the
+/// normaliser proves, and its proof restates the product at every move it
+/// makes: it costs (P·B)³. Measured, (√2 + √3 + √5 + √7)⁴ costs some
+/// 59 000 and peaks at 1.0 GB, 1/(1 + √2 + √3 + √5) ≠ 0 some 99 000 and
+/// 0.8 GB, (√2 + √3 + √5 + √7)⁸ some 190 000 and 2.7 GB, and
+/// 1/(1 + √2 + √3 + √5 + √7) ≠ 0 some 1 541 000 and 10.9 GB; this keeps a
+/// claim under the build's 2 GB.
+pub const WORK: u64 = 100_000;
+
+/// The longest coefficient a proof may write, in bits. The normaliser
+/// reads a numeral as a number only where it fits 64 bits, and as an atom
+/// past that, so an identity holding a longer one does not come out.
+pub const COEFFICIENT_BITS: u64 = 62;
+
 /// Why a radicand is refused: set.mm's square root is taken in ℂ, so the
 /// square root of a number below 0 is not a real number.
 pub const BELOW_ZERO: &str =
@@ -43,6 +59,13 @@ pub const NOT_RATIONAL: &str =
     "takes the square root of a number that is not rational, and real arithmetic takes roots of rationals only";
 
 pub const TOO_LARGE: &str = "is too large to work out";
+
+/// Whether `real arithmetic` works out the operations a notation record's
+/// target applies: one `arithmetic` works out, or one whose record names
+/// `real arithmetic` in its `decided` field, as `square-root` does.
+pub fn worked_out(record: &crate::corpus::Record) -> bool {
+    field::worked_out(record) || field::decides(record, "real arithmetic")
+}
 
 /// The primes whose product a root is the square root of, in ascending
 /// order: the empty list is the root of 1, the rational part.
@@ -478,13 +501,200 @@ pub fn decide_closed(claim: &Term) -> Route<Verdict> {
         }
         _ => return Route::no("not a relation real arithmetic decides"),
     };
-    Built(Verdict::Holds(holds != negated))
+    let holds = holds != negated;
+    if holds && takes_root(claim) {
+        if let Err(why) = proof_cost(claim, negated) {
+            return Built(Verdict::Unworked(why));
+        }
+    }
+    Built(Verdict::Holds(holds))
+}
+
+/// Whether the proof of a true claim stays within [`WORK`] and writes no
+/// coefficient past [`COEFFICIENT_BITS`]: each side's cost (`estimate`),
+/// and for a disequality the difference of the sides and what shows it is
+/// not zero.
+fn proof_cost(claim: &Term, negated: bool) -> Result<(), &'static str> {
+    let kids = claim.children();
+    let sides: &[Term] = match claim.label() {
+        Some("wcel") => &kids[..1],
+        _ => &kids[..2],
+    };
+    let mut total = 0u64;
+    let mut values = Vec::new();
+    for side in sides {
+        let side = estimate(side)?;
+        total = total.saturating_add(side.cost);
+        values.push(side.value);
+    }
+    let apart = match claim.label() {
+        Some("wne") => !negated,
+        Some("wceq") => negated,
+        _ => false,
+    };
+    if apart {
+        let gap = values[0].minus(&values[1]);
+        written(&gap)?;
+        total = total
+            .saturating_add(cube(parts(&values[0]) + parts(&values[1])))
+            .saturating_add(apart_cost(&gap)?);
+    }
+    if total > WORK {
+        return Err(TOO_LARGE);
+    }
+    Ok(())
+}
+
+/// A term's value and what proving it equal to its canon costs, the sum of
+/// the identities its proof writes, as `crate::elab::real` writes them.
+struct Estimate {
+    value: Surd,
+    cost: u64,
+}
+
+fn estimate(term: &Term) -> Result<Estimate, &'static str> {
+    let Built(Value::Exact(value)) = closed_value(term) else {
+        return Err(TOO_LARGE);
+    };
+    written(&value)?;
+    if !takes_root(term) || is_root(term) {
+        return Ok(Estimate { value, cost: 0 });
+    }
+    let kids = term.children();
+    let cost = if term.label() == Some(NEG) {
+        let x = estimate(&kids[0])?;
+        x.cost.saturating_add(cube(parts(&x.value)))
+    } else {
+        let how = kids[2].label().unwrap_or("");
+        let x = estimate(&kids[0])?;
+        let y = estimate(&kids[1])?;
+        let here = match how {
+            ADD | SUB => cube(parts(&x.value) + parts(&y.value)),
+            MUL => product_cost(&x.value, &y.value)?,
+            DIV => quotient_cost(&x.value, &y.value)?,
+            EXP => {
+                let k = y
+                    .value
+                    .as_rational()
+                    .filter(|k| k.is_integer())
+                    .and_then(|k| k.to_integer().to_i64())
+                    .ok_or(TOO_LARGE)?;
+                power_cost(&x.value, k)?
+            }
+            _ => 0,
+        };
+        x.cost.saturating_add(y.cost).saturating_add(here)
+    };
+    Ok(Estimate { value, cost })
+}
+
+/// How many parts a value has, the value 0 counted as one.
+fn parts(value: &Surd) -> u64 {
+    value.parts.len().max(1) as u64
+}
+
+fn cube(n: u64) -> u64 {
+    n.saturating_pow(3)
+}
+
+/// The least common denominator of a value's coefficients.
+pub fn common_denominator(value: &Surd) -> BigUint {
+    value
+        .parts
+        .values()
+        .fold(BigUint::one(), |d, v| d.lcm(v.denom().magnitude()))
+}
+
+/// The longest numeral a value's canon writes, in bits: a rational's
+/// numerator and denominator, and for any other value the common
+/// denominator and each coefficient times it (`crate::elab::real`).
+fn bits(value: &Surd) -> u64 {
+    if value.as_rational().is_some() {
+        return value.size();
+    }
+    let common = common_denominator(value);
+    let scale = Q::from_integer(BigInt::from(common.clone()));
+    value
+        .parts
+        .values()
+        .map(|v| (v * &scale).numer().bits())
+        .max()
+        .unwrap_or(0)
+        .max(common.bits())
+}
+
+/// The value, where its canon writes no coefficient past
+/// [`COEFFICIENT_BITS`].
+fn written(value: &Surd) -> Result<(), &'static str> {
+    if bits(value) > COEFFICIENT_BITS {
+        return Err(TOO_LARGE);
+    }
+    Ok(())
+}
+
+/// The identity that brings a product of two canons to the canon of their
+/// product: the normaliser multiplies every part of one by every part of
+/// the other, so the coefficients it reads are the products of theirs, and
+/// a multiple of (√p)² − p the identity writes is one of those times p.
+fn product_cost(a: &Surd, b: &Surd) -> Result<u64, &'static str> {
+    let terms = parts(a) * parts(b);
+    let prime = a
+        .primes()
+        .into_iter()
+        .chain(b.primes())
+        .max()
+        .map_or(0, |p| u64::from(64 - p.leading_zeros()));
+    let widest = bits(a) + bits(b) + u64::from(64 - terms.leading_zeros()) + prime;
+    if widest > COEFFICIENT_BITS {
+        return Err(TOO_LARGE);
+    }
+    written(&a.times(b))?;
+    Ok(cube(terms))
+}
+
+/// What shows a value is not zero: nothing for a rational, which
+/// `arithmetic` decides, and otherwise the value times its cofactor.
+fn apart_cost(value: &Surd) -> Result<u64, &'static str> {
+    if value.as_rational().is_some() {
+        return Ok(0);
+    }
+    let Cofactor { times, .. } = cofactor(value);
+    written(&times)?;
+    product_cost(value, &times)
+}
+
+/// A quotient: the divisor not zero, and the divisor times the quotient is
+/// the dividend.
+fn quotient_cost(top: &Surd, below: &Surd) -> Result<u64, &'static str> {
+    if below.is_zero() {
+        return Ok(0);
+    }
+    let quotient = top.times(&below.recip());
+    written(&quotient)?;
+    Ok(product_cost(below, &quotient)?.saturating_add(apart_cost(below)?))
+}
+
+/// A power built a step at a time, each step the power before times the
+/// base; a negative exponent is one over the power.
+fn power_cost(base: &Surd, k: i64) -> Result<u64, &'static str> {
+    let mut cost = 0u64;
+    let mut at = base.clone();
+    for _ in 1..k.unsigned_abs() {
+        cost = cost.saturating_add(product_cost(&at, base)?);
+        at = at.times(base);
+    }
+    if k < 0 {
+        let one = Surd::rational(q(1));
+        cost = cost
+            .saturating_add(apart_cost(base)?)
+            .saturating_add(quotient_cost(&one, &at)?);
+    }
+    Ok(cost)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use num_traits::One;
 
     fn unit() -> Surd {
         Surd::rational(Q::one())
@@ -537,6 +747,57 @@ mod tests {
         assert_eq!(x.times(&x.recip()), unit());
         let Cofactor { times, norm } = cofactor(&x);
         assert_eq!(x.times(&times), Surd::rational(norm));
+    }
+
+    #[test]
+    fn the_claims_measured_fall_on_their_side_of_the_limit() {
+        let n = |d: &str| Term::apply(d, vec![]);
+        let op = |a: Term, b: Term, o: &str| Term::apply("co", vec![a, b, n(o)]);
+        let r = |d: &str| Term::apply("cfv", vec![n(d), n("csqrt")]);
+        let three = op(op(op(n("c1"), r("c2"), ADD), r("c3"), ADD), r("c5"), ADD);
+        let four = op(three.clone(), r("c7"), ADD);
+        let apart = |d: Term| Term::apply("wne", vec![op(n("c1"), d, DIV), n("cc0")]);
+        let roots = op(op(op(r("c2"), r("c3"), ADD), r("c5"), ADD), r("c7"), ADD);
+        let power = |k: &str| {
+            let raised = op(roots.clone(), n(k), EXP);
+            let value = match closed_value(&raised) {
+                Built(Value::Exact(v)) => v,
+                _ => unreachable!("a power of roots has a value"),
+            };
+            let same = canon_term(&value);
+            Term::apply("wceq", vec![raised, same])
+        };
+        assert_eq!(proof_cost(&apart(three), false), Ok(()));
+        assert_eq!(proof_cost(&power("c4"), false), Ok(()));
+        assert_eq!(proof_cost(&apart(four), false), Err(TOO_LARGE));
+        assert_eq!(proof_cost(&power("c8"), false), Err(TOO_LARGE));
+    }
+
+    /// A value as a term, its parts added: what a claim states it equals.
+    fn canon_term(value: &Surd) -> Term {
+        let n = |d: &str| Term::apply(d, vec![]);
+        let numeral = |v: &Q| {
+            crate::methods::numerals::numeral_term(&v.to_integer().magnitude().clone())
+        };
+        value
+            .parts
+            .iter()
+            .map(|(basis, weight)| {
+                let roots = basis.iter().fold(None, |acc: Option<Term>, p| {
+                    let root =
+                        Term::apply("cfv", vec![numeral(&q(*p as i64)), n("csqrt")]);
+                    Some(match acc {
+                        None => root,
+                        Some(a) => Term::apply("co", vec![a, root, n(MUL)]),
+                    })
+                });
+                match roots {
+                    None => numeral(weight),
+                    Some(r) => Term::apply("co", vec![numeral(weight), r, n(MUL)]),
+                }
+            })
+            .reduce(|a, b| Term::apply("co", vec![a, b, n(ADD)]))
+            .expect("a value not zero")
     }
 
     #[test]

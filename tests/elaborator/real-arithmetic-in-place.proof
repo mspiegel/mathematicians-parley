@@ -1,0 +1,27 @@
+theorem a-link-by-real-arithmetic
+  note        A closed fact with a square root names real arithmetic where
+              it is used, as a fact of numerals alone names arithmetic.
+  then √8 + √2 = 3·√2
+
+1.  √8 + √2 = 3·√2
+    calculation
+      √8 + √2 = 2·√2 + √2    real arithmetic
+              = 3·√2         real arithmetic
+
+theorem a-substitution-from-real-arithmetic
+  let a ∈ ℝ    (H1)
+  assume a = √8    (H2)
+  then a = 2·√2
+
+1.  a = 2·√2
+    substitute √8 = 2·√2 (real arithmetic) into H2
+
+theorem a-requires-line-by-real-arithmetic
+  note        A divisor with a square root is not zero by real arithmetic,
+              and the root's membership of ℝ is said once.
+  let a ∈ ℝ    (H1)
+  then a·(√2 − 1)/(√2 − 1) = a
+
+1.  a·(√2 − 1)/(√2 − 1) = a
+    algebra
+    requires √2 − 1 ≠ 0: real arithmetic

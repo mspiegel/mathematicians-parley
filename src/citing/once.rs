@@ -22,8 +22,8 @@ use crate::formula::{ByShape, Node, Sort, Sorts};
 use crate::matching::{alike_top, standard, substitute_apart, Binding, FxIndexSet};
 use crate::notations::{
     APPLICATION, DIVIDED, FACTORIAL, IN, INTEGER_RANGE, JUXTAPOSITION, MEMBERSHIP,
-    MINUS, MOD, MULTIPLICATIVE, NUMBER_SYSTEMS, NUMERAL, PLUS, POWER, SUM, SUPERSCRIPT,
-    TIMES, UNARY_MINUS,
+    MINUS, MOD, MULTIPLICATIVE, NUMBER_SYSTEMS, NUMERAL, PLUS, POWER, SQUARE_ROOT, SUM,
+    SUPERSCRIPT, TIMES, UNARY_MINUS,
 };
 use crate::rules::{self, lookup, System};
 
@@ -266,6 +266,8 @@ pub enum OnceReason {
     Numeral,
     /// A letter introduced in the system or one inside it.
     Letter,
+    /// A square root `real arithmetic` works out, which is in ℝ and ℂ.
+    Root,
     /// The term's operation applied to parts each in the system, the
     /// reasons given in the order the term writes its parts; a power's
     /// exponent is no part, being a numeral or a letter in ℕ or ℕ₀, and a
@@ -316,6 +318,9 @@ pub enum Shape<'t, T> {
     Operation(&'static str, &'t T, &'t T),
     /// A base to an exponent.
     Power(&'t T, &'t T),
+    /// The square root of numerals whose value is a rational of at least 0,
+    /// which `real arithmetic` works out; the radicand.
+    Root(&'t T),
     /// Anything the walk does not take apart.
     Other,
 }
@@ -389,8 +394,17 @@ pub fn reason<A: OnceAsk>(
             rules::closed("cexp", label)?;
             Some(OnceReason::Built(vec![reason(ask, a, system)?]))
         }
+        Shape::Root(_) => {
+            matches!(system, System::R | System::C).then_some(OnceReason::Root)
+        }
         Shape::Other => None,
     }
+}
+
+/// Whether `real arithmetic` takes the square root of a rational: one of at
+/// least 0, within its limits (`methods::surds::root_of`).
+pub fn root_taken(value: &BigRational) -> bool {
+    crate::methods::surds::root_of(value).is_ok()
 }
 
 /// Whether a power's exponent makes it a product of copies of its base:
@@ -434,6 +448,9 @@ impl OnceAsk for PageOnce<'_> {
             }
             (_, DIVIDED, [a, b]) => Shape::Operation("cdiv", a, b),
             (POWER | SUPERSCRIPT, _, [a, e]) => Shape::Power(a, e),
+            (SQUARE_ROOT, _, [a]) if value(a).is_some_and(|v| root_taken(&v)) => {
+                Shape::Root(a)
+            }
             _ => Shape::Other,
         }
     }

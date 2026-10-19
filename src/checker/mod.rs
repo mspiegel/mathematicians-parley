@@ -307,6 +307,8 @@ pub struct Checking<'a> {
     defined: &'a IndexMap<Spelling, formulas::DefinedWord>,
     /// Each operation a notation declares, and whether arithmetic works it out.
     operations: &'a IndexMap<crate::formula::notation_id::NotationId, bool>,
+    /// The same, by whether real arithmetic works it out.
+    real_operations: &'a IndexMap<crate::formula::notation_id::NotationId, bool>,
     methods: &'a IndexMap<String, &'a Record>,
     items: &'a IndexMap<String, Item<'a>>,
     statements: &'a IndexMap<String, infer::Reader>,
@@ -889,6 +891,7 @@ fn prepared_in<T>(
     database::check_symbols(&mut report, records);
     let defined = formulas::defined_words(&mut report, records, env, &record_sorts);
     let operations = formulas::operations(records);
+    let real_operations = formulas::real_operations(records);
 
     // Each theorem's lines, read once, after every statement it may cite.
     for thm in theorems {
@@ -944,6 +947,7 @@ fn prepared_in<T>(
         words: &words,
         defined: &defined,
         operations: &operations,
+        real_operations: &real_operations,
         methods: &methods,
         items: &items,
         statements: &statements,
@@ -1054,6 +1058,7 @@ fn check_passes(
     formulas::check_contradicting(report, thm, env, k);
     formulas::check_impossible(report, thm, k, &library.targets);
     formulas::check_decided_words(report, thm, k, c.defined, c.operations);
+    formulas::check_real_decided_words(report, thm, k, c.defined, c.real_operations);
     formulas::check_chain_congruences(report, thm);
     formulas::check_congruence_integers(report, thm, k, &library.targets);
     formulas::check_both_directions(report, thm, k);
@@ -1063,7 +1068,9 @@ fn check_passes(
     formulas::check_closed_arithmetic(report, thm, k);
     let targets = &library.targets;
     formulas::check_closed_by_arithmetic(report, thm, k, targets);
+    formulas::check_closed_by_real_arithmetic(report, thm, k, targets);
     formulas::check_arithmetic_holds(report, thm, k, targets);
+    formulas::check_real_arithmetic_holds(report, thm, k, targets);
     formulas::check_algebra_holds(report, thm, k, targets);
     formulas::check_inequalities_holds(report, thm, k, targets);
     formulas::check_inequality_rows(report, thm, k, targets);

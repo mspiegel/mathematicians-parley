@@ -190,5 +190,3 @@ theorem sqrt3-irrational
 
 3.  √3 is irrational
     mun:irrational x := √3, from 2
-    requires 3 ≥ 0: arithmetic
-    requires √3 ∈ ℝ: mun:sqrt x := 3

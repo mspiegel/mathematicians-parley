@@ -3186,18 +3186,19 @@ fn cases() -> Vec<Case> {
         case(
             "point a requires line at an item that does not cover it",
             vec![
-                edit("proofs/wiedijk/sqrt2-irrational.proof", Some("theorem odd-square\n".to_string()), "import mundane theorem stdlib/numbers/int-real\n\ntheorem odd-square\n".to_string()),
-                edit("proofs/wiedijk/sqrt2-irrational.proof", Some("    requires √2 ∈ ℝ: mun:sqrt x := 2".to_string()), "    requires √2 ∈ ℝ: mun:int-real m := 2".to_string()),
+                edit("tests/elaborator/a-root-said-real.proof", Some("theorem a-root-said-real\n".to_string()), "import mundane theorem stdlib/numbers/square-nonneg\n\ntheorem a-root-said-real\n".to_string()),
+                edit("tests/elaborator/a-root-said-real.proof", Some("    requires √A ∈ ℝ: mun:sqrt x := A, from H2".to_string()), "    requires √A ∈ ℝ: mun:square-nonneg x := A".to_string()),
             ],
             "does not conclude",
         ),
-        // `requires √2 ∈ ℝ: mun:sqrt x := 2` rests on 2 ≥ 0 written above it.
+        // `requires √A ∈ ℝ: mun:sqrt x := A, from H2` rests on A ≥ 0, which
+        // H2 says.
         case(
             "drop the dull fact a requires line leans on",
             vec![
-                edit("proofs/wiedijk/sqrt2-irrational.proof", Some("    mun:irrational x := √2, from 2\n    requires 2 ≥ 0: arithmetic\n".to_string()), "    mun:irrational x := √2, from 2\n".to_string()),
+                edit("tests/elaborator/a-root-said-real.proof", Some("    requires √A ∈ ℝ: mun:sqrt x := A, from H2".to_string()), "    requires √A ∈ ℝ: mun:sqrt x := A".to_string()),
             ],
-            "the requires line of step 3 cites mun:sqrt, which asks for 0 ≤ 2, and what it cites does not supply it",
+            "the requires line of step 3 cites mun:sqrt, which asks for 0 ≤ A, and what it cites does not supply it",
         ),
         case(
             "claim something the cited item does not conclude",
@@ -3331,6 +3332,40 @@ fn cases() -> Vec<Case> {
                 edit("proofs/wiedijk/pythagorean-triples.proof", Some("    requires 2 ≠ 0: arithmetic\n".to_string()), "    requires 2 ≠ 0: inequalities\n".to_string()),
             ],
             "gives inequalities for 2 ≠ 0, which arithmetic can work out",
+        ),
+        // A closed claim with a square root that real arithmetic decides
+        // cites it, as one of numerals alone cites arithmetic.
+        case(
+            "give algebra for a closed claim with a square root",
+            vec![
+                edit("tests/elaborator/real-arithmetic.proof", Some("1.  √2·√2 = 2\n    real arithmetic".to_string()), "1.  √2·√2 = 2\n    algebra".to_string()),
+            ],
+            "step 1 gives algebra for √2·√2 = 2, which real arithmetic can work out; a claim real arithmetic can work out cites real arithmetic",
+        ),
+        case(
+            "give algebra for a closed fact with a square root on a requires line",
+            vec![
+                edit("tests/elaborator/real-arithmetic-in-place.proof", Some("    requires √2 − 1 ≠ 0: real arithmetic".to_string()), "    requires √2 − 1 ≠ 0: algebra".to_string()),
+            ],
+            "the requires line of step 1 gives algebra for √2 − 1 ≠ 0, which real arithmetic can work out; a fact real arithmetic can work out cites real arithmetic",
+        ),
+        // Real arithmetic takes a root only because the square root's
+        // record says it decides it.
+        case(
+            "a square root real arithmetic takes with its record not naming it",
+            vec![
+                edit("corpus/db/notation.records", Some("  decided     real arithmetic\n".to_string()), String::new()),
+            ],
+            "works out square-root, and real arithmetic works out an operation beyond arithmetic's only where the notation's record says so in a `decided` field",
+        ),
+        case(
+            "ask real arithmetic to decide a word",
+            vec![edit(
+                "proofs/wiedijk/divisibility-by-three.proof",
+                Some("          thm:congruent-times a := 10^m, b := 1, c := 10, n := 3, from IH\n".to_string()),
+                "          thm:congruent-times a := 10^m, b := 1, c := 10, n := 3, from IH\n          requires √9 is prime: real arithmetic\n".to_string(),
+            )],
+            "is a word prime defines, and real arithmetic decides no word",
         ),
         case(
             "say a step is impossible and contradict a line as well",

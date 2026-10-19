@@ -57,6 +57,7 @@ pub const VOCABULARY: &[(&str, usize)] = &[
     ("wral", 3),
     ("cfv", 2),
     ("cfa", 0),
+    ("csqrt", 0),
     ("chash", 0),
     ("cprime", 0),
     ("cc0", 0),

@@ -325,8 +325,11 @@ notation square-root
   sort        number → number
   level       power
   reads       the square root of
+  decided     real arithmetic
   metamath    csqrt
   target      _1 csqrt cfv
+  note        `real arithmetic` works out the square root of a rational of at
+              least 0; `arithmetic` takes no root.
 
 notation logical-not
   pattern     not _

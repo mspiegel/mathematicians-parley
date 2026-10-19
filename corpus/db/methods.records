@@ -122,7 +122,7 @@ mundane method real-arithmetic
   hypotheses  none, and it cites nothing, as arithmetic
   specified-in METHODS.md
   metamath    sqrtmuld, sqrtsqd, sqsqrtd, sqrtcld, resqrtcld, subeq0ad,
-              mulne0bad, subne0ad, divmuld, expp1d, expnegd
+              mulcanad, mulne0bad, subne0ad, divmuld, expp1d, expnegd
   note        Kept apart from arithmetic so that what arithmetic decides stays
               small enough to read. A claim with no square root cites
               arithmetic. Marked mundane, as arithmetic is.

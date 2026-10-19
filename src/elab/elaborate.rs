@@ -1906,6 +1906,11 @@ impl<'a> Elaborator<'a> {
                 Some(step),
             )?);
         }
+        if *source == crate::corpus::Source::RealArithmetic {
+            let what = format!("step {} substitutes {written}", fmt(&step.number));
+            facing =
+                Some(self.real_fact(&t!(old, new, "wceq"), scope, facts, &what)?);
+        }
         let facing = match facing {
             Some(f) => f,
             None => {
@@ -3434,6 +3439,11 @@ impl<'a> Elaborator<'a> {
             claim.label() == Some("wceq") && field::decide_closed(claim).is_declined();
         if cite == "arithmetic" && claim.names().is_empty() && !pieces {
             return self.closed_fact(&self.rpn(claim), scope, facts, &what, Some(step));
+        }
+        // A link naming `real arithmetic` is closed, which the checker holds
+        // it to, and is worked out whole.
+        if cite == "real arithmetic" {
+            return self.real_fact(&self.rpn(claim), scope, facts, &what);
         }
         // One whose terms have letters in them may too, where only pieces of
         // numerals alone change.
