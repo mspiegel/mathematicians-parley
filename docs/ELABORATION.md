@@ -1437,6 +1437,11 @@ binomial theorem's summand C(m, k)·x^(m − k)·y^k is two products, a power an
 a coefficient complex through ℕ₀, and searched for, each product was a lemma
 spent before the atoms were reached.
 
+A membership of ℝ⁺, which set.mm's laws of the logarithm ask of each
+argument (`relogmul`, `logltb`), is the term in ℝ and above 0, each settled
+in turn, joined by `elrpd`. The page says x ∈ ℝ and x > 0, as
+`mun:stdlib/logarithms/ln-product` does, and never ℝ⁺ itself.
+
 A sum's lemmas ask things of each index: `fsumdvds` that N divide the term
 for k in the range it sums over, `fsumzcl` that the term be an integer. The
 first is a line the step cites read at the index (`at_the_index`, by

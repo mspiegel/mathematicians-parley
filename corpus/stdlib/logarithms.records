@@ -1,6 +1,7 @@
 # Standard library: logarithms
 #
-# The natural logarithm and the exponential function.
+# The natural logarithm and the exponential function: their laws, that each
+# undoes the other, the order of logarithms, and their signs.
 #
 # One record per item. A record begins at column 0 with its kind, axiom,
 # theorem or definition, and its name; `mundane` before the kind marks an
@@ -40,3 +41,87 @@ mundane definition exp
   note        exp(x) is eˣ, which set.mm defines the other way round, e being
               exp(1) (df-e). Real arithmetic takes it of a whole number of at
               least 0 plus whole multiples of logarithms of primes.
+
+theorem ln-product
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume x > 0                                                        (H3)
+  assume y > 0                                                        (H4)
+  then        ln(x·y) = ln(x) + ln(y)
+  metamath    relogmul
+  target      relogmul
+
+theorem ln-quotient
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume x > 0                                                        (H3)
+  assume y > 0                                                        (H4)
+  then        ln(x/y) = ln(x) − ln(y)
+  metamath    relogdiv
+  target      relogdiv
+
+theorem ln-power
+  let x ∈ ℝ                                                           (H1)
+  let n ∈ ℤ                                                           (H2)
+  assume x > 0                                                        (H3)
+  then        ln(x^n) = n·ln(x)
+  metamath    relogexp
+  target      relogexp
+
+theorem exp-ln
+  let x ∈ ℝ                                                           (H1)
+  assume x > 0                                                        (H2)
+  then        exp(ln(x)) = x
+  metamath    reeflog
+  target      reeflog
+  note        With ln-exp, the logarithm and the exponential undo each other:
+              each is one-to-one where the other is defined.
+
+theorem ln-exp
+  let x ∈ ℝ                                                           (H1)
+  then        ln(exp(x)) = x
+  metamath    relogef
+  target      relogef
+
+theorem exp-sum
+  let a ∈ ℂ                                                           (H1)
+  let b ∈ ℂ                                                           (H2)
+  then        exp(a + b) = exp(a)·exp(b)
+  metamath    efadd
+  target      efadd
+
+theorem ln-order
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume x > 0                                                        (H3)
+  assume y > 0                                                        (H4)
+  then        x < y ↔ ln(x) < ln(y)
+  metamath    logltb
+  target      logltb with A := x, B := y
+
+mundane theorem ln-real
+  let x ∈ ℝ                                                           (H1)
+  assume x > 0                                                        (H2)
+  then        ln(x) ∈ ℝ
+  metamath    relogcl
+  target      relogcl
+
+mundane theorem ln-nonzero
+  let x ∈ ℝ                                                           (H1)
+  assume x > 0                                                        (H2)
+  assume x ≠ 1                                                        (H3)
+  then        ln(x) ≠ 0
+  metamath    logne0
+  target      logne0
+
+mundane theorem exp-real
+  let x ∈ ℝ                                                           (H1)
+  then        exp(x) ∈ ℝ
+  metamath    reefcl
+  target      reefcl
+
+mundane theorem exp-positive
+  let x ∈ ℝ                                                           (H1)
+  then        exp(x) > 0
+  metamath    efgt0
+  target      efgt0
