@@ -519,6 +519,7 @@ pub enum Method {
     Instantiate,
     Algebra,
     Arithmetic,
+    RealArithmetic,
     Inequalities,
     Transitivity,
     Antisymmetry,
@@ -533,13 +534,14 @@ pub enum Method {
     Calculation,
 }
 
-pub const METHODS: [Method; 18] = [
+pub const METHODS: [Method; 19] = [
     Method::Obtain,
     Method::Exhibit,
     Method::Substitute,
     Method::Instantiate,
     Method::Algebra,
     Method::Arithmetic,
+    Method::RealArithmetic,
     Method::Inequalities,
     Method::Transitivity,
     Method::Antisymmetry,
@@ -563,6 +565,7 @@ impl Method {
             Method::Instantiate => "instantiate",
             Method::Algebra => "algebra",
             Method::Arithmetic => "arithmetic",
+            Method::RealArithmetic => "real arithmetic",
             Method::Inequalities => "inequalities",
             Method::Transitivity => "transitivity",
             Method::Antisymmetry => "antisymmetry",

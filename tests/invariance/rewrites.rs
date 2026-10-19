@@ -2257,6 +2257,7 @@ fn naming_follows(
                 // in some of them and not others parts what met.
                 Method::Algebra
                 | Method::Arithmetic
+                | Method::RealArithmetic
                 | Method::Inequalities
                 | Method::Transitivity
                 | Method::Antisymmetry

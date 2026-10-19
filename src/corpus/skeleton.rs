@@ -853,6 +853,7 @@ fn method_slots(
         }
         // A method that takes nothing.
         Method::Arithmetic
+        | Method::RealArithmetic
         | Method::Contradiction
         | Method::Proof
         | Method::BothDirections

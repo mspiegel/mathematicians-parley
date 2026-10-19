@@ -1269,6 +1269,9 @@ impl<'a> Elaborator<'a> {
             How::Named(m) => match m {
                 Method::Algebra => self.algebra(step, term, scope, facts, lines)?,
                 Method::Arithmetic => self.arithmetic(step, term, scope, facts)?,
+                Method::RealArithmetic => {
+                    self.real_arithmetic(step, term, scope, facts)?
+                }
                 // A chain is folded a link at a time, as a calculation's
                 // links are, so that it rests on every line it cites. An
                 // order with its converse is a linear fact of the two, which
@@ -5644,9 +5647,10 @@ impl<'a> Elaborator<'a> {
 
 /// The methods the build expands itself; the others open a block or take
 /// apart what a citation gives, and are expanded where those are.
-const EXPANDED: [Method; 12] = [
+const EXPANDED: [Method; 13] = [
     Method::Algebra,
     Method::Arithmetic,
+    Method::RealArithmetic,
     Method::Inequalities,
     Method::Transitivity,
     Method::Antisymmetry,

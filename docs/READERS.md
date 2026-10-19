@@ -163,11 +163,14 @@ method demands it, and it is written once: on the line that introduces p,
 `let p ∈ ℝ`, the sentence `p ∈ ℤ` that an `obtain` states of each name it
 introduces, or the kind of number a naming line says its name is, `let m =
 gcd(s, w), a positive integer` (`SYNTAX.md`). A step does not write it again,
-and does not cite that line for it. The same holds of four kinds of term,
+and does not cite that line for it. The same holds of five kinds of term,
 and of nothing else:
 
 - **a numeral**, or a term of numerals alone that `arithmetic` works out,
   `3 ∈ ℤ`, `10 − 1 ∈ ℕ` or `0! ∈ ℕ`, which the page shows whole;
+- **a term with a square root that `real arithmetic` works out**, in ℝ and
+  ℂ: `√2 ∈ ℝ`, `1 + √2 ∈ ℝ`, `√8/2 ∈ ℝ`, which the page shows whole as it
+  shows a numeral;
 - **a letter**, in the set its introducing line names and every number system
   containing that one, ℕ ⊆ ℕ₀ ⊆ ℤ ⊆ ℚ ⊆ ℝ ⊆ ℂ;
 - **a term built from those** by +, −, ·, a power whose exponent is a

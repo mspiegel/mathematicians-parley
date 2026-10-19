@@ -12,4 +12,5 @@ pub mod inspection;
 pub mod linear;
 pub mod membership;
 pub mod numerals;
+pub mod surds;
 pub mod terms;

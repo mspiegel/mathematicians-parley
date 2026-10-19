@@ -1258,7 +1258,7 @@ impl<'a> Elaborator<'a> {
     /// Two terms driven to one canonical form, and so to each other. Where
     /// either divides, the canonical form is a numerator over a denominator,
     /// and two of those are the same when the cross product is.
-    fn same_polynomial(
+    pub(super) fn same_polynomial(
         &mut self,
         w: &mut Work,
         left: &Rpn,
@@ -1749,7 +1749,7 @@ impl<'a> Elaborator<'a> {
     /// ( scope -> said e. CC ), for a term of the step's own depth: built by
     /// `part` first, from the step's own lines, and searched for where that
     /// cannot, to the depth every side condition is searched to.
-    fn in_cc(
+    pub(super) fn in_cc(
         &mut self,
         said: &Rpn,
         scope: &Rpn,
@@ -1928,7 +1928,7 @@ impl<'a> Elaborator<'a> {
 
     /// Whether a term holds what the normaliser holds as an atom where
     /// `arithmetic` works it out: a remainder, or a product over a range.
-    fn normaliser_opaque(&self, t: &Term) -> bool {
+    pub(super) fn normaliser_opaque(&self, t: &Term) -> bool {
         let said = self.rpn(t);
         said.has("cmo") || said.has("cprod")
     }

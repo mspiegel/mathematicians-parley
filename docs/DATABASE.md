@@ -183,7 +183,10 @@ the factorial carry `decided arithmetic`, so `arithmetic` works out
 `arithmetic` works out by its nature, +, −, ·, /, powers and a product over a
 range, carry none, as the relations it decides by its nature do not; any
 other is worked out only where its record says so, and both tools refuse a
-closed fact holding one that does not.
+closed fact holding one that does not. `real arithmetic` reads the same
+field for the operations it adds: the `square-root` notation carries
+`decided real arithmetic`, so `real arithmetic` works out √8, and no word
+names it.
 
 **A `target` that never fires is an error, not a shrug.** An item with no
 `target` builds nothing, and a step citing it stops the build, except a

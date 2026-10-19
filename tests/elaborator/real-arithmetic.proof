@@ -1,0 +1,41 @@
+theorem a-root-with-a-square-part
+  then √8 = 2·√2
+
+1.  √8 = 2·√2
+    real arithmetic
+
+theorem a-root-squared
+  then √2·√2 = 2
+
+1.  √2·√2 = 2
+    real arithmetic
+
+theorem a-square-of-a-sum-with-a-root
+  then (1 + √2)² = 3 + 2·√2
+
+1.  (1 + √2)² = 3 + 2·√2
+    real arithmetic
+
+theorem a-root-of-a-product
+  then √6 = √2·√3
+
+1.  √6 = √2·√3
+    real arithmetic
+
+theorem a-root-of-a-half
+  then 2·√(1/2) = √2
+
+1.  2·√(1/2) = √2
+    real arithmetic
+
+theorem a-cube-of-a-product-of-roots
+  then (√2·√3)³ = 6·√2·√3
+
+1.  (√2·√3)³ = 6·√2·√3
+    real arithmetic
+
+theorem a-square-of-a-sum-of-three-roots
+  then (√2 + √3 + √5)² = 10 + 2·√6 + 2·√10 + 2·√15
+
+1.  (√2 + √3 + √5)² = 10 + 2·√6 + 2·√10 + 2·√15
+    real arithmetic

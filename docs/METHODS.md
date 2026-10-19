@@ -19,9 +19,9 @@ The expansion language of open question 4 in `GOALS.md` is not designed, so
 part 6 names the set.mm lemma families rather than giving the expansion.
 Everything else is fixed here.
 
-Seven methods are specified below: the four closure methods (`inequalities`,
-`algebra`, `arithmetic`, `membership`), `inspection`, `join`, and
-`contradiction`. The rest
+Eight methods are specified below: the five closure methods (`inequalities`,
+`algebra`, `arithmetic`, `real arithmetic`, `membership`), `inspection`,
+`join`, and `contradiction`. The rest
 are not yet: the citation form, the block methods `proof`, `cases`,
 `both directions` and `induction`, and `substitute`, `instantiate`, `obtain`
 and `exhibit`. None is
@@ -693,7 +693,8 @@ divides 9.
   refusing it exposed that the claim smuggled in an exponent law. The geometric
   series now pays four steps for that one fact.
 - **Anything that does not evaluate to a rational.** `√2 ∈ ℝ` is not
-  arithmetic, and the corpus does not treat it as such; it cites `mun:stdlib/numbers/sqrt`.
+  arithmetic; a square root of a rational is `real arithmetic`'s, which is
+  kept apart so that what arithmetic decides stays small enough to read.
   Nor is `4^(1/2)`: a power is taken only with a whole exponent, and no root
   is taken, because a fractional power is in general irrational and could
   only be held as a float, and a float may be inexact, infinite or zero
@@ -743,11 +744,10 @@ the operations under *Fact out*, stating a relation it decides. The checker
 refuses `algebra` or `inequalities` for one, in a step or a requires line.
 
 A claim with no letter that arithmetic cannot work out is not arithmetic's.
-`1 + i·0 = 1` holds a constant it has no value for, and `√2·√2 = 2` an
-operation it does not take. Such a claim is `algebra`'s or `inequalities'`,
-which take √2 as an atom, as they take a letter, and cite what they use of
-it as they would of a letter: `√2·√2 = 2` by `algebra, from` a line citing
-`mun:sqrt x := 2`, which says (√2)² = 2 and √2 ∈ ℝ.
+`√2·√2 = 2` takes a square root, which is `real arithmetic`'s (below).
+`1 + i·0 = 1` holds a constant neither method has a value for, and is
+`algebra`'s, which takes i as an atom, as it takes a letter, and cites what
+it uses of it as it would of a letter.
 
 Denials of an order are `arithmetic`'s with the rest: not a ≤ b is b < a, and
 not a < b is b ≤ a, each turned by the law that says so (`ltnled`, `lenltd`).
@@ -832,6 +832,189 @@ and congruences of numeral terms up to three deep, of every operation, and
 works each out in exact rationals of its own. Each refusal above is drawn
 and expected in its own words; a claim with several parts refused may be
 refused for any of them.
+
+---
+
+## real arithmetic
+
+`real arithmetic` decides **closed facts about square roots of rationals**:
+`√8 = 2·√2`, `(1 + √2)² = 3 + 2·√2`, `1/(√3 − 1) = (√3 + 1)/2`,
+`√2 − 1 ≠ 0`. It stands where `arithmetic` stands, and for the same reason:
+a claim it works out gives a reader nothing to check but working it out. So
+it justifies a requires line, `requires √2 − 1 ≠ 0: real arithmetic`; it is
+the source of a substitution, `substitute √8 = 2·√2 (real arithmetic)`; it
+is the reason on a chain line of closed terms, `= 2·√2    real arithmetic`;
+and it justifies a numbered step only where the proof's shape asks a line
+there. Like `arithmetic` it is marked mundane, and the checker refuses it
+for a fact with a letter in it.
+
+It is a method of its own, and not more of `arithmetic`, so that what
+`arithmetic` decides stays small enough to read and its procedure and
+expansion stay as they are. `real arithmetic` reads a part with no root in
+it by `arithmetic`'s procedure; `arithmetic` reads nothing of this one.
+
+### Facts in
+
+None. It cites nothing.
+
+### Fact out
+
+A relation between **closed real expressions**, where a closed real
+expression is built from decimal numerals by the operations `arithmetic`
+works out and by `√`, the square root, taken of a closed real expression
+whose value is a rational of at least 0. `√` is not an operation it works
+out by its nature: the `square-root` notation record says `decided real
+arithmetic` (`DATABASE.md`), as `mod` says `decided arithmetic`, and an
+operation whose record does not name the method is refused.
+
+The relations, and their denials:
+
+| relation | decided |
+|---|---|
+| `=`, `≠` | always |
+| `<`, `≤`, `>`, `≥` | where the values of both sides are rational, `√4 < 3` |
+| membership of ℝ or ℂ | always |
+| membership of ℕ, ℕ₀, ℤ or ℚ | where the value is rational, `√(9/4) ∈ ℚ` |
+
+No word is decided: `√4 is even` is refused, as a word whose record does not
+name the method is.
+
+### The procedure
+
+Evaluate each side to a **value**: a sum of rational multiples of square
+roots of distinct squarefree whole numbers, Σ qₘ·√m, where m = 1 is the
+rational part and no qₘ is 0. Each root is held as the primes whose product
+it is the root of.
+
+- A rational r = a/b of at least 0, in lowest terms, has a·b = s²·m for one
+  whole s and one squarefree m, and √r is s/b·√m: √8 is 2·√2, and √(1/2) is
+  1/2·√2.
+- Sums and differences add the coefficients of each root.
+- √m·√n is the product of the primes m and n share, times the root of the
+  primes only one of them holds: √6·√10 is 2·√15.
+- A value holding √p, read as a + b·√p with a and b free of √p, times its
+  **conjugate** a − b·√p is a² − p·b², which holds √p no more. Multiplied by
+  its conjugate in each of its primes in turn, a value becomes a rational,
+  its **norm**, and the product of the conjugates is its **cofactor**. A
+  value is not 0 exactly where its norm is not, and one over it is its
+  cofactor over its norm: 1/(√3 − 1) is (√3 + 1)/2.
+- A power is taken only with a whole exponent, and a negative one is the
+  power of one over the base.
+
+Two values are equal exactly where their coefficients are. The square roots
+of distinct squarefree whole numbers are linearly independent over ℚ, so a
+value has one spelling; that theorem is what makes `=` and `≠` decided
+always, and nothing proved here leans on it, since a proof shows each
+equation it states.
+
+An order is decided where both values are rational, and a membership of ℕ,
+ℕ₀, ℤ or ℚ where the value is, by `arithmetic`'s tests. Every value is real.
+
+### Refusals
+
+- **Anything containing a variable.** As for `arithmetic`.
+- **A claim with no square root.** That is `arithmetic`'s, and cites it
+  (Boundary, below).
+- **A square root of a number below 0.** set.mm's `√` is taken in ℂ, and
+  √(−4) is 2·i there, which is not a real number.
+- **A square root of a number that is not rational,** √(1 + √2). Whether a
+  nested root comes apart is a question of its own, and is not asked.
+- **A power with an exponent that is not whole,** `2^(1/2)`. The square root
+  is written `√`, and it is the only root taken.
+- **A division by zero,** `1/(√2 − √2)`, worked out as its divisor's value.
+- **An order between values not both rational,** `√2 < 3/2`. It is reported
+  as not decided, never as false. Order is not part of this method yet.
+- **A membership of ℕ, ℕ₀, ℤ or ℚ of a value that is not rational, or its
+  denial.** That √2 is not in ℚ is the theorem `sqrt2-irrational` proves,
+  and a method that worked it out would make that proof one line.
+- **A number too large to work out.** A radicand whose numerator times
+  denominator passes 40 bits is refused, since its squarefree part is found
+  by trial division. A claim holding more than four distinct primes under its
+  roots is refused, since each prime doubles how many parts a value may have
+  and the proof multiplies them out. A power is estimated before it is
+  computed, as `arithmetic`'s is, and a coefficient past ten thousand bits
+  is refused. Expanded whole, (√2 + √3 + √5 + √7)⁴ peaks at 2.7 GB of the
+  2 GB a build allows, where (√2 + √3 + √5 + √7)² takes 0.5 GB and
+  (√2 + √3 + √5)⁴ 0.65 GB; that is why a power is built a step at a time
+  (Expansion), and the limits are measured against the proof so built.
+- **Anything false.** The claim is worked out before a proof is attempted,
+  so a false one is reported as false.
+
+What it finds true and cannot prove is reported with the instruction to cite
+a theorem that states it; nothing is taken as stated.
+
+### Hypotheses
+
+None. That a radicand is at least 0 and a divisor not 0 are closed facts of
+their own, which the procedure works out with the claim, and which the
+expansion proves (below).
+
+### Boundary with arithmetic, algebra and inequalities
+
+The line against `arithmetic` is on the text: a closed claim that writes `√`
+is this method's, and one that does not is `arithmetic`'s. `√4 = 2` writes a
+root, so it cites `real arithmetic` though both its values are rational. The
+checker refuses `real arithmetic` for a claim with no root in it ("a claim
+of numerals alone cites arithmetic").
+
+As against `algebra` and `inequalities`, the rule is `arithmetic`'s: a closed
+claim this method decides cites it, and the checker refuses `algebra` or
+`inequalities` for it. `√2·√2 = 2` cites `real arithmetic`. A closed claim it
+does not decide, an order between values that are not rational,
+`0 ≤ √2/2`, stays `inequalities'`, which takes √2 as an atom and cites what
+it uses of it from a line citing `mun:sqrt x := 2`.
+
+A term this method works out is in ℝ, and that is said once (`READERS.md`),
+as a numeral's membership is: `requires √2 ∈ ℝ` is not written.
+
+### Expansion
+
+The claim is worked out first, and the proof follows what the procedure
+found. Each side is proved equal to an **expression in roots of primes**:
+a term whose only atoms are √p for primes p, built by the field's operations
+and rational numerals.
+
+- **A root.** For √x with x of value r = c²·(p₁·(p₂·…)), `arithmetic` proves
+  x equals that product, `fveq2d` carries the equation under the root, the
+  root of a product is the product of the roots (`sqrtmuld`, its four side
+  conditions facts of numerals), and the root of c² is c (`sqrtsqd`). So √x
+  is c·(√p₁·(√p₂·…)).
+- **An operation.** Each operand is proved equal to its expression, and the
+  equations are carried up through the operation (`oveq12d`, `negeqd`). A
+  part with no root is left as written, except a remainder, a factorial or a
+  product over a range, which `arithmetic` works to its value first.
+- **A power** is built a step at a time, each step the base times one power
+  less (`expp1d`) and each product brought back to an expression of the
+  value's parts before the next, so a power never expands whole. A negative
+  exponent is one over the power (`expnegd`).
+- **An identity.** Two expressions with one value differ by a sum of
+  multiples of (√p)² − p, one for each prime: the procedure reduces the
+  difference by (√p)² = p, highest powers first, and the multiples are what
+  it takes away. Each (√p)² = p is `sqsqrtd`, each multiple of a difference
+  that is 0 is 0 (`subeq0ad`, `mul01d`), and the normaliser proves the sum of
+  the multiples is the difference itself; the last step is `subeq0ad` again.
+  The normaliser is the one `algebra` uses, given √p ∈ ℂ for each prime
+  (`sqrtcld`).
+- **A value not zero.** For a value D with cofactor C and norm N, the
+  identity D·C = N is proved as above, N ≠ 0 by `arithmetic`, and D ≠ 0
+  follows (`mulne0bad`). A disequality L ≠ R is L − R not zero (`subne0ad`).
+- **A division** A/B is a quotient Q where B·Q = A and B ≠ 0 (`divmuld`).
+- **An order or a membership** of rational values is proved of the values
+  by `arithmetic` and carried back to the sides as written (`breq12d`,
+  `eleq1d`). A membership of ℝ is the expression's, built from √p ∈ ℝ
+  (`resqrtcld`) and the field's closure (`remulcld`, `readdcld`).
+
+### Held to an oracle
+
+`tests/oracle.rs` draws claims of every form above, true by construction
+and one coefficient away: √(s²·m) and s·√m, a value and its conjugate, one
+over a + b·√p, products of roots, squares of sums of roots, orders and
+memberships of rational values and of values that are not, and each
+refusal. It judges them with an evaluator of its own that shares nothing
+with the procedure: exact rationals where there is no root, and otherwise
+intervals of 4096 bits around each value, an equation holding where the
+interval lies within 2⁻²⁰⁴⁸ of 0. Each true claim must be proved and
+verified, and each refusal given in its own words.
 
 ---
 

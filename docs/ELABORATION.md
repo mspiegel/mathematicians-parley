@@ -1276,7 +1276,8 @@ in Bezout, whose a·1 is now a wherever a line is compared.
 #### A membership said once
 
 `READERS.md` has a membership in a number system said once, where a letter is
-introduced, and the step writes nothing for a numeral, a letter, or a term
+introduced, and the step writes nothing for a numeral, a closed term with a
+square root `real arithmetic` works out, in ℝ or ℂ, a letter, or a term
 built from them by +, −, ·, negation, a power to a numeral or to a letter
 introduced in ℕ or ℕ₀, and /, or a sum whose term is such a number at
 every index (`SYNTAX.md`). Whether a membership is said once, and why, is
@@ -1290,6 +1291,10 @@ nothing:
 - a term a line the step names puts in a number system is a number there,
   carried up `rules.WITHIN` (`stated_within`);
 - a numeral is worked out, as `settle` works one out (`numeral_within`);
+- a closed term with a square root that `real arithmetic` works out is in ℝ
+  and ℂ by the expression in roots of primes it equals, built from √p ∈ ℝ
+  (`resqrtcld`) and the field's closure, as `METHODS.md` says the method's
+  memberships are proved (`surd_real`);
 - a letter is in the set its introducing line names, and in each number
   system containing that one, carried up `rules.WITHIN` a lemma at a time.
   Where a letter is let into a number system, by a `let` of the theorem, of
