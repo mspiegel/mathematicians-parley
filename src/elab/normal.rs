@@ -2830,10 +2830,23 @@ impl Emitter {
         let (a_s, r_s) = (left.rpn(labels), right.rpn(labels));
         let (p_s, q_s) = (Self::spell_run(&top), Self::spell_run(&bottom));
         let pq = op(&p_s, &q_s, DIV);
-        let page = if self.written { o.written(&r_s)? } else { None };
-        let r_apart = match page {
+        // A line the step names saying R is not 0 comes first, then R's
+        // parts, then any line the page writes, as `factors_apart` takes a
+        // divisor's: an uncited line saying 1/x ≠ 0 is not what a step
+        // naming x ≠ 0 rests on.
+        let named = if self.written { o.named(&r_s)? } else { None };
+        let r_apart = match named {
             Some(p) => p,
-            None => take!(self.written_apart(o, right, labels)?),
+            None => match self.written_apart(o, right, labels)? {
+                Built(p) => p,
+                Declined(why) => {
+                    let page = if self.written { o.written(&r_s)? } else { None };
+                    let Some(p) = page else {
+                        return Ok(Declined(why));
+                    };
+                    p
+                }
+            },
         };
         let p_cc = self.run_cc(o, &top)?;
         let (q_cc, q_apart) = take!(self.denominator(o, &bottom)?);

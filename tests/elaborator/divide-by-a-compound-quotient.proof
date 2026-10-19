@@ -30,3 +30,15 @@ theorem divide-by-a-quotient
 
 1.  1/(1/x) = x
     algebra, from H2
+
+theorem a-divisor-said-above-and-by-its-parts
+  note        A line above saying the divisor is not zero, which the step
+              does not name, is not what it rests on: the divisor is not
+              zero by the x ≠ 0 it names.
+  let x ∈ ℝ                                                           (H1)
+  assume x ≠ 0                                                        (H2)
+  assume 1/x ≠ 0                                                      (H3)
+  then 1/(1/x) = x
+
+1.  1/(1/x) = x
+    algebra, from H2
