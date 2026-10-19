@@ -168,9 +168,10 @@ and of nothing else:
 
 - **a numeral**, or a term of numerals alone that `arithmetic` works out,
   `3 ∈ ℤ`, `10 − 1 ∈ ℕ` or `0! ∈ ℕ`, which the page shows whole;
-- **a term with a square root that `real arithmetic` works out**, in ℝ and
-  ℂ: `√2 ∈ ℝ`, `1 + √2 ∈ ℝ`, `√8/2 ∈ ℝ`, which the page shows whole as it
-  shows a numeral;
+- **a square root, π, e or a logarithm that `real arithmetic` works out**,
+  in ℝ and ℂ: `√2 ∈ ℝ`, `π ∈ ℝ`, `ln 2 ∈ ℝ`, which the page shows whole as
+  it shows a numeral, and so `1 + √2`, `√8/2` and `π + ln 2` by the rule for
+  terms built from these, below;
 - **a letter**, in the set its introducing line names and every number system
   containing that one, ℕ ⊆ ℕ₀ ⊆ ℤ ⊆ ℚ ⊆ ℝ ⊆ ℂ;
 - **a term built from those** by +, −, ·, a power whose exponent is a

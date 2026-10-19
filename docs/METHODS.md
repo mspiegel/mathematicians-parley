@@ -841,9 +841,11 @@ refused for any of them.
 
 ## real arithmetic
 
-`real arithmetic` decides **closed facts about square roots of rationals**:
-`√8 = 2·√2`, `(1 + √2)² = 3 + 2·√2`, `1/(√3 − 1) = (√3 + 1)/2`,
-`√2 − 1 ≠ 0`. It stands where `arithmetic` stands, and for the same reason:
+`real arithmetic` decides **closed facts about square roots of rationals,
+π, e, and logarithms of rationals**: `√8 = 2·√2`, `(1 + √2)² = 3 + 2·√2`,
+`1/(√3 − 1) = (√3 + 1)/2`, `√2 − 1 ≠ 0`, `ln 8 = 3·ln 2`, `exp(ln 5) = 5`,
+`(π + e)² = π² + 2·π·e + e²`, `ln 2 ≠ ln 3`, `180° = π`. It stands where
+`arithmetic` stands, and for the same reason:
 a claim it works out gives a reader nothing to check but working it out. So
 it justifies a requires line, `requires √2 − 1 ≠ 0: real arithmetic`; it is
 the source of a substitution, `substitute √8 = 2·√2 (real arithmetic)`; it
@@ -865,20 +867,35 @@ None. It cites nothing.
 
 A relation between **closed real expressions**, where a closed real
 expression is built from decimal numerals by the operations `arithmetic`
-works out and by `√`, the square root, taken of a closed real expression
-whose value is a rational of at least 0. `√` is not an operation it works
-out by its nature: the `square-root` notation record says `decided real
-arithmetic` (`DATABASE.md`), as `mod` says `decided arithmetic`, and an
-operation whose record does not name the method is refused.
+works out, and by:
+
+- `√`, the square root, taken of a closed real expression whose value is a
+  rational of at least 0;
+- the constants π and e, Euler's number, which a letter the text names e
+  shadows, as it shadows i;
+- `ln`, the natural logarithm, taken of a closed real expression whose
+  value is a positive rational, or a positive rational times a whole power
+  of e: `ln(1/2)`, `ln(e³)`;
+- `exp`, taken of a closed real expression whose value is a whole number of
+  at least 0 plus whole multiples of logarithms of primes: `exp(ln 5)`,
+  `exp(2)`, `exp(1 + ln 3)`;
+- `°`, the degrees notation, x° being x·π/180.
+
+None of these is worked out by the method's nature. Each record says
+`decided real arithmetic` (`DATABASE.md`): the notation records of `√`, π, e
+and `°`, and the function records of `ln` and `exp`, which a proof imports
+as it imports `cos`. An operation, a constant or a function whose record
+does not name the method is refused, as `sin(π/6)` is until `sin`'s record
+names it, and as i always is.
 
 The relations, and their denials:
 
 | relation | decided |
 |---|---|
-| `=`, `≠` | always |
+| `=`, `≠` | where neither side holds π, e or a logarithm; otherwise where the two values are equal, or where they differ by a surd or by rational multiples of logarithms of primes (The procedure) |
 | `<`, `≤`, `>`, `≥` | where the values of both sides are rational, `√4 < 3` |
 | membership of ℝ or ℂ | always |
-| membership of ℕ, ℕ₀, ℤ or ℚ | where the value is rational, `√(9/4) ∈ ℚ` |
+| membership of ℕ, ℕ₀, ℤ or ℚ | where the value is rational, `√(9/4) ∈ ℚ`, `exp(ln 4) ∈ ℕ` |
 
 No word is decided: `√4 is even` is refused, as a word whose record does not
 name the method is.
@@ -914,11 +931,54 @@ equation it states.
 An order is decided where both values are rational, and a membership of ℕ,
 ℕ₀, ℤ or ℚ where the value is, by `arithmetic`'s tests. Every value is real.
 
+**π, e and logarithms.** A value is then a polynomial in the atoms π, e and
+ln p for primes p, its coefficients values of the square-root kind above:
+Σ sₘ·M, M a product of whole powers of atoms.
+
+- A logarithm of a positive rational r = Π p^nₚ, its numerator and
+  denominator factored, is Σ nₚ·ln p: ln 8 is 3·ln 2, ln(1/2) is −ln 2, and
+  ln 1 is 0. A logarithm of r·eᵏ is that plus k: ln(e³) is 3.
+- exp(k + Σ nₚ·ln p), k and each nₚ whole and k at least 0, is eᵏ·Π p^nₚ:
+  exp(ln 5) is 5 and exp(2) is e².
+- Sums, differences, products and whole powers are those of polynomials.
+  A division is taken only by a value with no atom.
+
+Two such values are equal where their coefficients are, and that is proved.
+Where they are not, the claim is decided only where their difference D is
+one the method can show is not zero:
+
+- D holds no atom: it is a value of the square-root kind, and decided as
+  above;
+- D is Σ qₚ·ln p, rational multiples of logarithms of primes and nothing
+  else: Σ nₚ·ln p = 0, with whole nₚ, would make Π p^nₚ = 1, which unique
+  factorisation forbids unless every nₚ is 0, so ln 2 ≠ ln 3 and
+  ln 8 ≠ 2·ln 2 hold.
+
+Any other difference is **not decided**: π = e, π² = 10, ln 2 = 1,
+√2·ln 2 = ln 3. Each is false, but showing it asks more than the method
+proves: that π is irrational, which set.mm does not prove; that e is
+transcendental, which a mathbox does and the method does not use; or that
+logarithms of primes stay independent over the roots, which is Baker's
+theorem. Such a claim is reported as not decided, never as false.
+
 ### Refusals
 
 - **Anything containing a variable.** As for `arithmetic`.
-- **A claim with no square root.** That is `arithmetic`'s, and cites it
-  (Boundary, below).
+- **A claim holding nothing beyond what `arithmetic` works out,** no root,
+  π, e, logarithm, exponential or degree. That is `arithmetic`'s, and cites
+  it (Boundary, below).
+- **An operation, constant or function whose record does not name the
+  method:** `sin(π/6)`, `i·i = −1`.
+- **A logarithm of a number not above 0.** set.mm's `log` is taken in ℂ,
+  and ln(−1) is i·π there, which is not a real number; ln 0 is no number.
+- **A logarithm of a number that is neither a positive rational nor one
+  times a whole power of e,** `ln 2^(1/2)`, `ln π`.
+- **An exponential of a number not of the form above,** `exp(1/2)`,
+  `exp(−1)`, `exp(π)`: √e and 1/e are no values of the method.
+- **A division by a value holding π, e or a logarithm,** `1/π`, `2/ln 2`.
+- **An equation or a disequality whose difference holds π, e or a
+  logarithm otherwise than as rational multiples of logarithms of primes,**
+  `π = e`. It is reported as not decided, never as false.
 - **A square root of a number below 0.** set.mm's `√` is taken in ℂ, and
   √(−4) is 2·i there, which is not a real number.
 - **A square root of a number that is not rational,** √(1 + √2). Whether a
@@ -952,17 +1012,18 @@ a theorem that states it; nothing is taken as stated.
 
 ### Hypotheses
 
-None. That a radicand is at least 0 and a divisor not 0 are closed facts of
-their own, which the procedure works out with the claim, and which the
-expansion proves (below).
+None. That a radicand is at least 0, a logarithm's argument above 0 and a
+divisor not 0 are closed facts of their own, which the procedure works out
+with the claim, and which the expansion proves (below).
 
 ### Boundary with arithmetic, algebra and inequalities
 
-The line against `arithmetic` is on the text: a closed claim that writes `√`
-is this method's, and one that does not is `arithmetic`'s. `√4 = 2` writes a
-root, so it cites `real arithmetic` though both its values are rational. The
-checker refuses `real arithmetic` for a claim with no root in it ("a claim
-of numerals alone cites arithmetic").
+The line against `arithmetic` is on the text: a closed claim that writes `√`,
+π, e, `ln`, `exp` or `°` is this method's, and one that writes none of them
+is `arithmetic`'s. `√4 = 2` writes a root, so it cites `real arithmetic`
+though both its values are rational, and so does `exp(ln 4) = 4`. The
+checker refuses `real arithmetic` for a claim that writes none of them ("a
+claim of numerals alone cites arithmetic").
 
 As against `algebra` and `inequalities`, the rule is `arithmetic`'s: a closed
 claim this method decides cites it, and the checker refuses `algebra` or
@@ -971,8 +1032,10 @@ does not decide, an order between values that are not rational,
 `0 ≤ √2/2`, stays `inequalities'`, which takes √2 as an atom and cites what
 it uses of it from a line citing `mun:sqrt x := 2`.
 
-A term this method works out is in ℝ, and that is said once (`READERS.md`),
-as a numeral's membership is: `requires √2 ∈ ℝ` is not written.
+A square root, π, e or a logarithm this method works out is in ℝ, and so is
+what the field's operations build from them; that is said once
+(`READERS.md`), as a numeral's membership is: `requires √2 ∈ ℝ` and
+`requires π + ln 2 ∈ ℝ` are not written.
 
 ### Expansion
 
@@ -1016,7 +1079,33 @@ is read over N.
 - **An order or a membership** of rational values is proved of the values
   by `arithmetic` and carried back to the sides as written (`breq12d`,
   `eleq1d`). A membership of ℝ is the expression's, built from √p ∈ ℝ
-  (`resqrtcld`) and the field's closure (`remulcld`, `readdcld`).
+  (`resqrtcld`), π ∈ ℝ (`pire`), e ∈ ℝ (`ere`), ln p ∈ ℝ (`relogcld`) and
+  the field's closure (`remulcld`, `readdcld`).
+
+With π, e and logarithms, a canon's part is its coefficient times its roots
+times its atoms' powers, the parts in the order of their atoms, π first,
+then e, then ln 2, ln 3 and on. The identity above is unchanged: it reduces
+(√p)² = p and nothing else, and to the normaliser π, e and each ln p are
+atoms like √p, given π ∈ ℂ (`picn`), e ∈ ℂ and ln p ∈ ℂ.
+
+- **A logarithm.** For ln x with x of value Π p^nₚ·eᵏ, x is proved equal to
+  that product, by `arithmetic` where k is 0 and by an identity where it is
+  not, and `fveq2d` carries the equation under the logarithm. The logarithm
+  of a product of positive reals is the sum of the logarithms (`relogmul`,
+  each factor in ℝ⁺ by `elrpd` or `rpexpcld`), of a power to a whole
+  exponent the exponent times the logarithm (`relogexp`), of e is 1
+  (`loge`), and of 1 is 0 (`log1`).
+- **An exponential.** For exp x with x of value k + Σ nₚ·ln p, x is proved
+  equal to k + ln r, r = Π p^nₚ, by an identity and the logarithm above;
+  exp(k + ln r) is exp k · exp(ln r) (`efadd`), exp(ln r) is r (`reeflog`),
+  and exp k is (exp 1)ᵏ (`efexp`), which is eᵏ by `df-e`.
+- **Degrees.** x° is (x·π)/180 by its notation's target, an operation like
+  any other.
+- **A logarithm difference not zero.** For D = Σ qₚ·ln p, N·D = ln P − ln Q,
+  N the least whole number making each N·qₚ whole and P and Q whole
+  numbers, is an identity; ln P − ln Q is ln(P/Q) (`relogdiv`), which is not
+  zero because P/Q is not 1 (`logne0`, P/Q ≠ 1 by `arithmetic`); and D is
+  not zero because N·D is not (`mulne0bad`).
 
 ### Held to an oracle
 
@@ -1034,6 +1123,15 @@ Each true claim must be proved and verified, and each refusal given in its
 own words. The terms drawn stay inside the method's limits, and a claim
 past them is drawn on purpose; on three seeds of 1500 claims it finds no
 answer that differs from the judge's.
+
+For π, e and logarithms the judge works by construction rather than by
+intervals, since an interval cannot tell a false claim from one the method
+does not decide. It draws polynomials in π, e and logarithms of primes and
+expands them with polynomial arithmetic of its own, so an equation of a
+polynomial and its expansion is true; logarithms and exponentials of
+rationals whose values it knows from its own factoring; and each one moved
+by a known amount, which is false where the move is rational or rational
+multiples of logarithms, and not decided where it holds π or e.
 
 ---
 

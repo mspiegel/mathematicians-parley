@@ -822,11 +822,13 @@ one may be any name.
 
 A constant the page writes as a letter is that constant until a line
 introduces a name with the same letter, if its notation is marked
-`shadowed`; then, in that line's scope, the letter is the name. Only the
-imaginary unit i is marked: a proof may write `obtain i` or `Σ(i = 1 to n)`
-and mean its own i, as a reader does. Which constants yield is decided one
-at a time, since a letter a reader would not reuse is one the page should
-not let them reuse.
+`shadowed`; then, in that line's scope, the letter is the name. Two
+constants are marked, the imaginary unit i and Euler's number e: a proof may
+write `obtain i` or `Σ(i = 1 to n)` and mean its own i, and a group's
+identity e, a walk `let e : {1, …, n} → E` or `let e = ⌊A + 1/2⌋ − A` is
+the proof's own e, as a reader takes it. Which constants yield is decided
+one at a time, since a letter a reader would not reuse is one the page
+should not let them reuse.
 
 **Each of these is a defect:** an item cited or applied and not imported; an
 import that nothing cites or applies; an item imported twice; an import whose

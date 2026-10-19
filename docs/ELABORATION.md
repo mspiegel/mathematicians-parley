@@ -1291,10 +1291,11 @@ nothing:
 - a term a line the step names puts in a number system is a number there,
   carried up `rules.WITHIN` (`stated_within`);
 - a numeral is worked out, as `settle` works one out (`numeral_within`);
-- a closed term with a square root that `real arithmetic` works out is in ℝ
-  and ℂ by the expression in roots of primes it equals, built from √p ∈ ℝ
-  (`resqrtcld`) and the field's closure, as `METHODS.md` says the method's
-  memberships are proved (`surd_real`);
+- a square root of a rational of at least 0 is in ℝ (`resqrtcld`) and ℂ
+  (`sqrtcld`), π by `pire` and `picn`, e by `ere`, and a logarithm of a
+  positive rational by `relogcld`, each from facts of numerals
+  (`root_within`); what the operations build from them is the compound
+  case below;
 - a letter is in the set its introducing line names, and in each number
   system containing that one, carried up `rules.WITHIN` a lemma at a time.
   Where a letter is let into a number system, by a `let` of the theorem, of
