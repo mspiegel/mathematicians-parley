@@ -351,6 +351,23 @@ fn spelt_rational(value: &Q) -> Rpn {
     }
 }
 
+/// Whether a term raises something to an exponent whose value is below 0,
+/// which the normaliser holds as an atom.
+pub(super) fn negative_power(term: &Term) -> bool {
+    if term.variable().is_some() {
+        return false;
+    }
+    let kids = term.children();
+    let here = term.label() == Some("co")
+        && kids.len() == 3
+        && kids[2].label() == Some(field::EXP)
+        && matches!(
+            field::closed_value(&kids[1]),
+            Built(Value::Exact(v)) if v.is_negative()
+        );
+    here || kids.iter().any(negative_power)
+}
+
 /// What an inequalities step with rows is proved from (`algebra_rows`): the
 /// lines it cites with each algebra row's side equations, and the table
 /// holding them.
@@ -1927,10 +1944,11 @@ impl<'a> Elaborator<'a> {
     }
 
     /// Whether a term holds what the normaliser holds as an atom where
-    /// `arithmetic` works it out: a remainder, or a product over a range.
+    /// `arithmetic` works it out: a remainder, a product over a range, or a
+    /// power to an exponent below 0.
     pub(super) fn normaliser_opaque(&self, t: &Term) -> bool {
         let said = self.rpn(t);
-        said.has("cmo") || said.has("cprod")
+        said.has("cmo") || said.has("cprod") || negative_power(t)
     }
 
     /// ( scope -> claim ) for a closed claim, said of its sides' values: each
@@ -2160,12 +2178,42 @@ impl<'a> Elaborator<'a> {
             }
             _ => None,
         };
+        // A power to −n is one over the power to n (`expnegd`), which the
+        // normaliser multiplies out.
+        let by_reciprocal = match (middle_term.label(), middle_term.children()) {
+            (Some("co"), [x, y, op])
+                if op.label() == Some(field::EXP) && y.label() == Some("cneg") =>
+            {
+                Some((self.rpn(x), self.rpn(&y.children()[0])))
+            }
+            _ => None,
+        };
         let rest = match (
             numerals::worked(&self.b, &middle_term, &labels),
             by_negative,
+            by_reciprocal,
         ) {
-            (Some((_, is)), _) => lifted(self, is, &middle),
-            (None, Some((top, bottom))) => {
+            (Some((_, is)), _, _) => lifted(self, is, &middle),
+            (None, None, Some((base, n))) => {
+                let goal = self.to_term(&t!(&base, "cc", "wcel"));
+                let base_cc = take!(self.numeral_within(&goal, scope, facts)?);
+                let apart = self.not_zero(scope, facts, &base)?;
+                let goal = self.to_term(&t!(&n, "cz", "wcel"));
+                let n_z = take!(self.numeral_within(&goal, scope, facts)?);
+                let turned = self.b.ap(
+                    "expnegd",
+                    &binds! {"ph" => scope, "A" => &base, "N" => &n},
+                    &[&base_cc, &apart, &n_z],
+                );
+                let over = t!("c1", t!(&base, &n, field::EXP, "co"), DIV, "co");
+                let valued = take!(field(self, &over)?);
+                self.b.ap(
+                    "eqtrd",
+                    &binds! {"ph" => scope, "A" => &middle, "B" => &over, "C" => &canon},
+                    &[&turned, &valued],
+                )
+            }
+            (None, Some((top, bottom)), _) => {
                 let within = |me: &mut Self, s: &Rpn| {
                     let goal = me.to_term(&t!(s, "cc", "wcel"));
                     me.numeral_within(&goal, scope, facts)
@@ -2191,7 +2239,7 @@ impl<'a> Elaborator<'a> {
                     &[&turned, &valued],
                 )
             }
-            (None, None) => take!(field(self, &middle)?),
+            (None, None, None) => take!(field(self, &middle)?),
         };
         let joined = self.b.ap(
             "eqtrd",

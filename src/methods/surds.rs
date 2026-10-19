@@ -638,23 +638,59 @@ fn written(value: &Surd) -> Result<(), &'static str> {
 }
 
 /// The identity that brings a product of two canons to the canon of their
-/// product: the normaliser multiplies every part of one by every part of
-/// the other, so the coefficients it reads are the products of theirs, and
-/// a multiple of (√p)² − p the identity writes is one of those times p.
+/// product. The expanded product has a monomial for each pair of parts, a
+/// prime the two share squared in it, and pairs of one monomial add. The
+/// multiple of (√p)² − p the identity writes for a monomial is its
+/// coefficient times each shared prime but the last taken out, times the
+/// least common denominator the identity scales by; that, with a bit to
+/// spare for multiples that add, is what must fit the numerals the
+/// normaliser reads.
 fn product_cost(a: &Surd, b: &Surd) -> Result<u64, &'static str> {
     let terms = parts(a) * parts(b);
-    let prime = a
-        .primes()
-        .into_iter()
-        .chain(b.primes())
+    let product = a.times(b);
+    let mut monomials: BTreeMap<(Basis, Basis), Q> = BTreeMap::new();
+    for (left, x) in &a.parts {
+        for (right, y) in &b.parts {
+            let (once, twice) = squared_apart(left, right);
+            *monomials.entry((once, twice)).or_insert_with(Q::zero) += x * y;
+        }
+    }
+    let scale = monomials
+        .values()
+        .chain(product.parts.values())
+        .fold(BigInt::one(), |d, v| d.lcm(v.denom()));
+    let scale = Q::from_integer(scale);
+    let widest = monomials
+        .iter()
+        .map(|((_, twice), w)| {
+            let carried: u64 = twice.iter().rev().skip(1).product();
+            (w * &scale * Q::from_integer(BigInt::from(carried)))
+                .numer()
+                .bits()
+        })
         .max()
-        .map_or(0, |p| u64::from(64 - p.leading_zeros()));
-    let widest = bits(a) + bits(b) + u64::from(64 - terms.leading_zeros()) + prime;
+        .unwrap_or(0)
+        + 1;
     if widest > COEFFICIENT_BITS {
         return Err(TOO_LARGE);
     }
-    written(&a.times(b))?;
+    written(&product)?;
     Ok(cube(terms))
+}
+
+/// The primes one of two roots holds, and those both hold, which their
+/// product holds squared.
+fn squared_apart(left: &Basis, right: &Basis) -> (Basis, Basis) {
+    let once: Basis = left
+        .iter()
+        .filter(|p| !right.contains(p))
+        .chain(right.iter().filter(|p| !left.contains(p)))
+        .copied()
+        .collect();
+    let mut once = once;
+    once.sort_unstable();
+    let twice: Basis = left.iter().filter(|p| right.contains(p)).copied().collect();
+    (once, twice)
 }
 
 /// What shows a value is not zero: nothing for a rational, which

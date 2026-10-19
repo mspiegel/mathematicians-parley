@@ -831,6 +831,11 @@ impl<'a> Elaborator<'a> {
         }
         self.numbering.insert(want.clone());
         let found = (|| -> Checked<Route<Proof>> {
+            // A power to an exponent below 0 is no atom the closure lemmas
+            // reach, and is worked to its value.
+            if super::calculators::negative_power(&goal.children()[0]) {
+                return self.within_by_value(goal, scope, facts);
+            }
             let found = self.settle(goal, scope, &Facts::new(), 4, None, None)?;
             if !found.is_declined() {
                 return Ok(found);

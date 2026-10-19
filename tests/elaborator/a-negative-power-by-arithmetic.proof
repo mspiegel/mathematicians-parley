@@ -1,0 +1,20 @@
+theorem a-negative-power-by-arithmetic
+  note        A power of numerals to an exponent below 0 is one over the
+              power, which arithmetic works out; the normaliser would hold
+              it as an atom with no membership.
+  then 2^(−1) < 1
+
+1.  2^(−1) < 1
+    arithmetic
+
+theorem a-negative-power-in-a-system
+  then 1^(−1) ∈ ℕ
+
+1.  1^(−1) ∈ ℕ
+    arithmetic
+
+theorem a-negative-power-of-a-negative
+  then (−2)^(−3) = −1/8
+
+1.  (−2)^(−3) = −1/8
+    arithmetic

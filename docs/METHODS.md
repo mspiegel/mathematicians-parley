@@ -812,8 +812,11 @@ or the negation of one. The normaliser works a side whole where it reaches
 it. Otherwise the side is worked part by part from the inside out: a
 remainder or a product over a range by the steps above, the rest by the
 normaliser, each part's equation carried up through the operation above it
-(`oveq12d`, `negeqd`), and a division by a value below 0 as the negation of
-one by its opposite (`divneg2d`). The claim is proved of the values and
+(`oveq12d`, `negeqd`), a division by a value below 0 as the negation of
+one by its opposite (`divneg2d`), and a power to an exponent below 0 as
+one over the power (`expnegd`), which the normaliser would hold as an atom
+it has no membership for. A membership of a term holding such a power is
+its value's, carried back by `eleq1d`. The claim is proved of the values and
 carried back to the sides as written (`breq12d`, `eqeq12d`, `eleq1d`).
 
 Between values, two that differ are apart because the lower is below the
@@ -828,8 +831,9 @@ closed numeral fact is taken anywhere.
 ### Held to an oracle
 
 `tests/oracle.rs` draws relations, memberships, divisibilities, parities
-and congruences of numeral terms up to three deep, of every operation, and
-works each out in exact rationals of its own. Each refusal above is drawn
+and congruences of numeral terms up to three deep, of every operation,
+powers to exponents from −2 to 3 among them, and works each out in exact
+rationals of its own. Each refusal above is drawn
 and expected in its own words; a claim with several parts refused may be
 refused for any of them.
 

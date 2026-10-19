@@ -62,13 +62,20 @@ fn value(e: &Expr) -> Result<BigRational, &'static str> {
             }
             a / b
         }
+        // A power to −k is one over the power to k.
         Expr::Pow(a, k) => {
             let a = value(a)?;
             let mut out = BigRational::one();
-            for _ in 0..*k {
+            for _ in 0..k.unsigned_abs() {
                 out *= &a;
             }
-            out
+            if *k >= 0 {
+                out
+            } else if out.is_zero() {
+                return Err(DIVIDES_BY_ZERO);
+            } else {
+                out.recip()
+            }
         }
         // x mod n is worked out where x is a whole number and n one of at
         // least 1.
