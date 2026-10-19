@@ -1292,10 +1292,11 @@ nothing:
   carried up `rules.WITHIN` (`stated_within`);
 - a numeral is worked out, as `settle` works one out (`numeral_within`);
 - a square root of a rational of at least 0 is in ℝ (`resqrtcld`) and ℂ
-  (`sqrtcld`), π by `pire` and `picn`, e by `ere`, and a logarithm of a
-  positive rational by `relogcld`, each from facts of numerals
-  (`root_within`); what the operations build from them is the compound
-  case below;
+  (`sqrtcld`), π by `pire` and `picn`, e by `ere`, a logarithm of a
+  positive rational by `relogcld`, and a sine or cosine of an angle the
+  method takes by `resincld` or `recoscld` from the angle in ℝ, each from
+  facts of numerals and of π (`real_within`); what the operations build
+  from them is the compound case below;
 - a letter is in the set its introducing line names, and in each number
   system containing that one, carried up `rules.WITHIN` a lemma at a time.
   Where a letter is let into a number system, by a `let` of the theorem, of

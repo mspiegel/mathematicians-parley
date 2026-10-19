@@ -187,11 +187,11 @@ other is worked out only where its record says so, and both tools refuse a
 closed fact holding one that does not. `real arithmetic` reads the same
 field for what it adds, on three kinds of record: the notations of the
 operations `square-root` and `degrees`, of the constants `pi` and `euler`,
-and the function definitions `ln` and `exp` (`stdlib/logarithms`). So it
-works out √8, π, e, 180°, ln 8 and exp(ln 5). A function record carries the
-field only for `real arithmetic`; `cos` and `sin` carry none, so
-`real arithmetic` refuses cos(π/3) until theirs does. No word names
-`real arithmetic`.
+and the function definitions `ln` and `exp` (`stdlib/logarithms`) and `sin`
+and `cos` (`stdlib/trigonometry`). So it works out √8, π, e, 180°, ln 8,
+exp(ln 5) and cos(π/3). A function record carries the field only for
+`real arithmetic`; `gcd` carries none, so `real arithmetic` refuses
+gcd(4, 6). No word names `real arithmetic`.
 
 **A `target` that never fires is an error, not a shrug.** An item with no
 `target` builds nothing, and a step citing it stops the build, except a

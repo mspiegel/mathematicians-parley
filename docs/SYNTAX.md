@@ -441,7 +441,7 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
 | `instantiate v := t in line L, from L2` | line L claims "for all v ∈ X, B"; the claim is B with t in place of v, and L2 supplies t ∈ X, or says what t is built from as a cited item's lines do: L2 saying q ∈ ℕ₀ supplies 3q + 1 ∈ ℕ₀, though a `let` put q in ℤ (below, "A term that a line the step names"). Several variables may be given at once. L may also be a hypothesis or supposition label. L is never an item: a definition whose sentence is a "for all" is first claimed by a numbered step citing it, and that number is instantiated. This is the rule that keeps an item out of `from` applied to the other slot that says where a fact comes from, and for the same reason, that a reader can look at everything a step names |
 | `algebra, from L` | ring and field identities, starting from the equations in L |
 | `arithmetic` | a fact about closed numerals: value, order, or membership in ℕ ℤ ℚ ℝ |
-| `real arithmetic` | a fact about closed terms with square roots of rationals, π, e, and logarithms and exponentials of rationals: value, disequality where `METHODS.md` says it is decided, membership in ℝ, and order or membership in ℕ ℤ ℚ where the values are rational |
+| `real arithmetic` | a fact about closed terms with square roots of rationals, π, e, logarithms and exponentials of rationals, and sines and cosines of multiples of π/4 and π/6: value, disequality where `METHODS.md` says it is decided, membership in ℝ, and order or membership in ℕ ℤ ℚ where the values are rational |
 | `inequalities, from L` | the lines L added side by side, as they stand, with the bounds a membership gives, closed numeral facts, a disequality taken both ways and a negation turned round taken without being written (`METHODS.md`, inequalities); with nothing in L to add, those alone |
 | `inequalities`, then rows | the manipulations of one line written out, a row to each. The first row is a line the step cites, written out, with its label as reason; each row after it is the row above with the manipulation its reason names, `adding t`, `multiplying by c`, `symmetry`, `weakening` or `algebra` (`METHODS.md`); the last row is the claim |
 | `transitivity, from L` | the lines L, in the order cited, make a chain: where one line ends the next begins, the term they share written the same way in both, each line read from whichever side meets the one before; the claim relates the chain's first term to its last, by the relation a calculation's chain would have |
@@ -505,8 +505,9 @@ of
 - a numeral, or a term of numerals alone that `arithmetic` works out, in
   each number system its value is in: `3 ∈ ℤ`, `10 − 1 ∈ ℕ`, `0! ∈ ℕ`,
   `7 mod 3 ∈ ℕ₀`;
-- a square root, π, e or a logarithm that `real arithmetic` works out, in ℝ
-  and ℂ, and what the operations below build from them: `√2 ∈ ℝ`,
+- a square root, π, e, a logarithm, a sine or a cosine that
+  `real arithmetic` works out, in ℝ and ℂ, and what the operations below
+  build from them: `√2 ∈ ℝ`, `sin(π/6) ∈ ℝ`,
   `1 + √2 ∈ ℝ`, `π + ln 2 ∈ ℝ`. Its membership of ℕ, ℕ₀, ℤ or ℚ is not said
   once, even where its value is rational: `√4 ∈ ℕ` is a requires line
   `real arithmetic` justifies;
@@ -859,7 +860,8 @@ arithmetic` under `3 divides 9`. The checker refuses `arithmetic` in any of
 these places for a fact with a letter in it, and the elaborator works each
 fact out before proving it, as it does a step's.
 
-A closed fact that takes a square root, or writes π, e, `ln`, `exp` or `°`,
+A closed fact that takes a square root, or writes π, e, `ln`, `exp`, `sin`,
+`cos` or `°`,
 names `real arithmetic` in the same
 places, and for the same reason: `substitute √8 = 2·√2 (real arithmetic)`,
 `= 2·√2    real arithmetic` on a chain line, `requires √2 − 1 ≠ 0: real

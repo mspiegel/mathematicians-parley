@@ -879,14 +879,16 @@ works out, and by:
 - `exp`, taken of a closed real expression whose value is a whole number of
   at least 0 plus whole multiples of logarithms of primes: `exp(ln 5)`,
   `exp(2)`, `exp(1 + ln 3)`;
+- `sin` and `cos`, taken of a closed real expression whose value is 0 or a
+  rational multiple of π whose denominator divides 4 or 6: `sin(π/6)`,
+  `cos(3·π/4)`, `sin(210°)`, `cos(0)`;
 - `°`, the degrees notation, x° being x·π/180.
 
 None of these is worked out by the method's nature. Each record says
 `decided real arithmetic` (`DATABASE.md`): the notation records of `√`, π, e
-and `°`, and the function records of `ln` and `exp`, which a proof imports
-as it imports `cos`. An operation, a constant or a function whose record
-does not name the method is refused, as `sin(π/6)` is until `sin`'s record
-names it, and as i always is.
+and `°`, and the function records of `ln`, `exp`, `sin` and `cos`, which a
+proof imports. An operation, a constant or a function whose record does not
+name the method is refused, as `gcd(4, 6)` is, and as i always is.
 
 The relations, and their denials:
 
@@ -961,14 +963,28 @@ transcendental, which a mathbox does and the method does not use; or that
 logarithms of primes stay independent over the roots, which is Baker's
 theorem. Such a claim is reported as not decided, never as false.
 
+**sin and cos.** An angle of value q·π, q rational with a denominator that
+divides 4 or 6, is reduced to r·π with r = q less a whole multiple of 2, so
+0 ≤ r < 2, since sin and cos repeat every 2π. Then, for r of at least 1,
+sin(t + π) = −sin t and cos(t + π) = −cos t take π away; for r of at least
+1/2, sin(π/2 + t) = cos t and cos(π/2 + t) = −sin t take π/2 away; and what
+is left is 0, π/6, π/4 or π/3, whose sines and cosines are 0 and 1, 1/2 and
+√3/2, √2/2 and √2/2, √3/2 and 1/2. So every value is 0, ±1/2, ±√2/2, ±√3/2
+or ±1, a value of the square-root kind, and holds no atom: sin(7·π/6) is
+−1/2, cos(3·π/4) is −√2/2, and sin(30°) is 1/2.
+
 ### Refusals
 
 - **Anything containing a variable.** As for `arithmetic`.
 - **A claim holding nothing beyond what `arithmetic` works out,** no root,
-  π, e, logarithm, exponential or degree. That is `arithmetic`'s, and cites
-  it (Boundary, below).
+  π, e, logarithm, exponential, sine, cosine or degree. That is
+  `arithmetic`'s, and cites it (Boundary, below).
 - **An operation, constant or function whose record does not name the
-  method:** `sin(π/6)`, `i·i = −1`.
+  method:** `gcd(4, 6) = 2`, `i·i = −1`.
+- **A sine or cosine of an angle that is not a rational multiple of π,**
+  `sin(1)`, `cos(π + 1)`, or **of one whose denominator divides neither 4
+  nor 6,** `sin(π/12)`, `cos(π/5)`. Each is a value the method has no
+  spelling for.
 - **A logarithm of a number not above 0.** set.mm's `log` is taken in ℂ,
   and ln(−1) is i·π there, which is not a real number; ln 0 is no number.
 - **A logarithm of a number that is neither a positive rational nor one
@@ -1019,9 +1035,10 @@ with the claim, and which the expansion proves (below).
 ### Boundary with arithmetic, algebra and inequalities
 
 The line against `arithmetic` is on the text: a closed claim that writes `√`,
-π, e, `ln`, `exp` or `°` is this method's, and one that writes none of them
-is `arithmetic`'s. `√4 = 2` writes a root, so it cites `real arithmetic`
-though both its values are rational, and so does `exp(ln 4) = 4`. The
+π, e, `ln`, `exp`, `sin`, `cos` or `°` is this method's, and one that writes
+none of them is `arithmetic`'s. `√4 = 2` writes a root, so it cites
+`real arithmetic` though both its values are rational, and so do
+`exp(ln 4) = 4` and `cos(0) = 1`. The
 checker refuses `real arithmetic` for a claim that writes none of them ("a
 claim of numerals alone cites arithmetic").
 
@@ -1032,10 +1049,10 @@ does not decide, an order between values that are not rational,
 `0 ≤ √2/2`, stays `inequalities'`, which takes √2 as an atom and cites what
 it uses of it from a line citing `mun:sqrt x := 2`.
 
-A square root, π, e or a logarithm this method works out is in ℝ, and so is
-what the field's operations build from them; that is said once
-(`READERS.md`), as a numeral's membership is: `requires √2 ∈ ℝ` and
-`requires π + ln 2 ∈ ℝ` are not written.
+A square root, π, e, a logarithm, a sine or a cosine this method works out
+is in ℝ, and so is what the field's operations build from them; that is said
+once (`READERS.md`), as a numeral's membership is: `requires √2 ∈ ℝ`,
+`requires π + ln 2 ∈ ℝ` and `requires sin(π/6) ∈ ℝ` are not written.
 
 ### Expansion
 
@@ -1101,6 +1118,16 @@ atoms like √p, given π ∈ ℂ (`picn`), e ∈ ℂ and ln p ∈ ℂ.
   and exp k is (exp 1)ᵏ (`efexp`), which is eᵏ by `df-e`.
 - **Degrees.** x° is (x·π)/180 by its notation's target, an operation like
   any other.
+- **A sine or a cosine.** For sin x with x of value q·π, q = 2k + r and
+  0 ≤ r < 2, x is proved equal to a(r) + k·(2·π), or to a(r) where k is 0,
+  by an identity, a(r) being 0, π/6, π/4 or π/3 below π/2, (π/2) + a(r − 1/2)
+  from π/2 to π, and a(r − 1) + π from π to 2π; `fveq2d` carries it under
+  the sine. sin(t + k·(2·π)) = sin t (`sinper`, `cosper`); sin(t + π) =
+  −sin t (`sinppi`, `cosppi`); sin(π/2 + t) = cos t and cos(π/2 + t) =
+  −sin t (`sinhalfpip`, `coshalfpip`); and the values at 0, π/6, π/4, π/3
+  and π/2 are set.mm's (`sin0`, `cos0`, `sincos6thpi`, `sincos4thpi`,
+  `sincos3rdpi`, `sinhalfpi`, `coshalfpi`). What a value lemma says,
+  1/√2 for sin(π/4), is brought to the canon as any term is.
 - **A logarithm difference not zero.** For D = Σ qₚ·ln p, N·D = ln P − ln Q,
   N the least whole number making each N·qₚ whole and P and Q whole
   numbers, is an identity; ln P − ln Q is ln(P/Q) (`relogdiv`), which is not
@@ -1134,6 +1161,11 @@ by a known amount, which is false where the move is rational or rational
 multiples of logarithms, and not decided where it holds π or e. A third of
 the claims are drawn so (`tests/oracle/atoms.rs`), and on three seeds of
 1500 it finds no answer that differs from the judge's.
+
+Sines and cosines of angles written in radians and in degrees are judged
+from a table of their own, sin(n·π/12) for each n from 0 to 23 written out
+as a value of roots, and not by the reduction above; the values are then
+held to the method's answers as any value of roots is.
 
 ---
 
