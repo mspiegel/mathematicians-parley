@@ -540,8 +540,9 @@ Two kinds.
 Every denominator the step's claim and the cited lines it combines write is
 nonzero, and a step that divides writes the condition or cites a line
 saying it, unless the page says once the denominator is a positive integer
-(`SYNTAX.md`), or it is a product, a quotient or a power to a numeral whose
-parts are each not zero so: `(x·2 − 1)/(x·2)` asks only for `x ≠ 0`, and
+(`SYNTAX.md`), or it is a product, a quotient, a negation or a power to a
+numeral whose parts are each not zero so: `(x·2 − 1)/(x·2)` asks only for
+`x ≠ 0`, and
 `(2^j·2 − 1)/(2^j·2)` with j ∈ ℕ₀ asks nothing (`membership`, the same
 test).
 
@@ -911,10 +912,10 @@ The term is walked by the operation at its head, as `algebra` walks it:
   read the same way and carried across by `eqeltrd`.
 
 A divisor is not zero when a line says so, as `d ≠ 0` or as a sign, when it
-is a numeral other than zero, or when it is a product, a quotient or a power
-to a numeral whose parts are each not zero by this same test (`SYNTAX.md`,
-`mulne0d`, `divne0d`, `expne0d`); one built in ℕ, k + 1, says so in a line
-of its own.
+is a numeral other than zero, or when it is a product, a quotient, a
+negation or a power to a numeral whose parts are each not zero by this same
+test (`SYNTAX.md`, `mulne0d`, `divne0d`, `negne0d`, `expne0d`); one built in
+ℕ, k + 1, says so in a line of its own.
 
 ### Refusals
 
@@ -965,12 +966,14 @@ Königsberg graph is its first use, and nothing in it knows about graphs.
 A set the claim itself writes in full, `|{1, 2}| = 2` or `4 ∉ {1, 2, 3}`,
 is listed where the reader sees it, and the step cites nothing for it. Two
 numerals differ by their values, which no line need say. Otherwise, the
-lines the step cites, read for four kinds of sentence and nothing else:
+lines the step cites, read for six kinds of sentence and nothing else:
 
 - **a set listed in full:** an equation `S = {s₁, …, sₙ}`, or a `let` line
   that names a set by listing it, as "the multigraph with distinct vertices
   V = {A, B, C, D} and distinct edges E = {a, …, g}" names its vertices
   and its edges;
+- **where a thing lies:** a membership `t ∈ S`, which a line of "or"s
+  (below) is read against;
 - **distinct names:** that the names of a list are pairwise different, as
   "distinct vertices A, B, C, D" says, and any `≠` between two names;
 - **what a listed thing is:** an equation giving a term at a listed name,
@@ -990,6 +993,12 @@ is something the facts let the reader work out. What a term works out to:
 
 - a set the facts list, or a set-builder `{x ∈ S : P(x)}` over one, is the
   list of its elements: those of S of which P holds, and ∅ lists none;
+- a range `{a, …, b}` whose ends work out to whole numbers, as `arithmetic`
+  works one out, is the list of
+  the numerals from a to b, and none where b is below a: `{0, …, 3 − 1}`
+  lists 0, 1 and 2, and `{1, …, 0}` nothing. A range is read so only up to
+  64 numerals, past which a list of its elements is not one a reader runs
+  down;
 - the size `|S|` of such a set, once the facts say its names are distinct,
   is the numeral that counts them, a name written twice counted once:
   `|{2, 3, 2}| = 2`;
@@ -1000,6 +1009,28 @@ is something the facts let the reader work out. What a term works out to:
 So `{x ∈ E : A is incident with x} = {b₁, b₂, b₃, b₄, b₅}`, `|{b₁, b₂, b₆}| = 3`
 and `deg(B) = 3` are one method, which works out both sides and compares
 them.
+
+Or a line of "or"s, `t = s₁ or t = s₂ or … or t = sₙ`, from a cited line
+`t ∈ S` where S is a set the facts list: the line says which element of S
+t is, and so splits S into its cases for `cases` to take one at a time.
+
+```
+5.1.  n mod 3 ∈ {0, …, 3 − 1}
+      mun:range-from-bounds, from 4
+
+5.2.  n mod 3 = 0 or n mod 3 = 1 or n mod 3 = 2
+      inspection, from 5.1
+
+5.3.  …
+      cases, from 5.2
+```
+
+The line has one equation for each element of S and none for anything
+else, in any order and grouped however its parentheses group it. Each
+equation is `t = s` or `s = t`, s being the element as the listing writes
+it or a term of numerals alone of the same value: `k = 1 + 2` is the
+equation for the 3 of `{0, …, 4}`. The cited line is the first that says t
+is in a set, for the t each equation names.
 
 Or `t is prime`, or its denial, where t is a number spelt in numerals or
 one a cited line gives such a value: `97 is prime`, `not (91 is prime)`.
@@ -1028,11 +1059,27 @@ what the line's other side says there is worked out the same way. Two sets
 are compared as sets, so their order is never asked, and two numbers by
 working out the sum that counts one against the other.
 
+A line of "or"s is read against its cited membership `t ∈ S`: S is
+replaced by its listing, each element is matched with the equation that
+names it, and each equation with the element it names, two numbers being
+one where their values are. No element is settled, and no two names need
+be said to differ: t is one of the elements, whichever it is, and the line
+says no more than that.
+
 ### Refusals
 
 - **A set not listed in full**, by a cited line, or a range or a set-builder
   the facts do not list: `inspection` checks a finite list a reader can see,
-  and nothing it has to find.
+  and nothing it has to find. A range whose ends are not whole numbers
+  worked out from numerals, `{0, …, n}`, is not listed.
+- **A range of more than 64 numerals.** `{1, …, 100}` is a list of a
+  hundred, which no reader runs down by eye.
+- **A line of "or"s that is not the listing:** one that leaves out an
+  element of S, or names something S does not list. `n mod 3 = 0 or n mod
+  3 = 1` does not follow from `n mod 3 ∈ {0, …, 2}`, which leaves 2 open;
+  `n mod 3 = 0 or n mod 3 = 1 or n mod 3 = 2 or n mod 3 = 5` does, but it
+  is not the list the reader runs down, and a case for 5 is one `cases`
+  would ask the writer to settle for nothing.
 - **A property that does not come down to listed membership** through what
   the cited lines say, nor to a word its record lets `inspection` decide at a
   value the lines give: an element whose case needs a lemma, a calculation or
@@ -1066,6 +1113,18 @@ at the quotient and remainder; a number that is not prime is `0nprm`,
 the term as written by `eleq1i`, or `eleq1d` where a cited line gives it. A "for all" line is read
 at its element by `rspcdva`. The two sides are joined by `eqtrd` and
 `eqtr4d`, two listings in different orders by `eqssd`.
+
+A range of numerals is its ends worked out, each an equation `arithmetic`
+proves (`closed_fact`), carried in (`oveq12i`), and then built up a
+numeral at a time: the range of one numeral is its singleton (`fzsn`), and
+a longer one the range below its top joined with the top's singleton
+(`fzsuc`, the top ≥ the bottom by `eluz2`); a range whose top is below its
+bottom is empty (`fzn`). A line of "or"s puts t in the union of the
+singletons (`eleqtrd`) and follows from each: t ∈ {s} gives t = s
+(`elsni`), turned to the equation as the line writes it (`eqeq2d` with a
+closed numeral fact, `eqcom`), and the equation widens to the whole line
+(`orc`, `olc`). The singletons are joined by `elun` and `jaod`, and the
+line drawn by `mpd`.
 
 ### Held to an oracle
 

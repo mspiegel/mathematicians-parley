@@ -104,7 +104,10 @@ impl Facts {
 
     /// Whether `claim` holds by inspection of the facts.
     pub fn decide(&self, claim: &Term) -> Inspected {
-        let found = self.holds(claim, DEPTH);
+        let found = match self.membership_of(claim) {
+            Some(member) => self.one_of(&member, claim),
+            None => self.holds(claim, DEPTH),
+        };
         if let Some(why) = self.past.borrow_mut().take() {
             return Inspected::Unsettled(why);
         }
@@ -113,6 +116,59 @@ impl Facts {
             Some(false) => Inspected::Fails,
             None => Inspected::Undecided,
         }
+    }
+
+    /// The cited `t ∈ S` a line of "or"s is read against: the first whose t
+    /// is one side of every equation the line joins. None where the claim is
+    /// no such line, or nothing cited says where its t is.
+    fn membership_of(&self, claim: &Term) -> Option<Said> {
+        if claim.label() != Some("wo") {
+            return None;
+        }
+        let sentences = disjuncts(claim);
+        self.said
+            .iter()
+            .find_map(|fact| match (fact.label(), fact.children()) {
+                (Some("wcel"), [element, set])
+                    if sentences.iter().all(|s| named(s, element).is_some()) =>
+                {
+                    Some(Said {
+                        term: element.clone(),
+                        is: set.clone(),
+                    })
+                }
+                _ => None,
+            })
+    }
+
+    /// Whether `claim`, a line of "or"s each saying what `member.term` is,
+    /// has an equation for each element of the set `member` puts it in, and
+    /// none for anything else, the elements compared as `equal` compares
+    /// them, in any order (`METHODS.md`, inspection).
+    fn one_of(&self, member: &Said, claim: &Term) -> Option<bool> {
+        let elements = self.elements(&member.is, DEPTH)?;
+        let names: Vec<Term> = disjuncts(claim)
+            .iter()
+            .filter_map(|s| named(s, &member.term))
+            .collect();
+        let one = |a: &Term, b: &Term| self.equal(a, b) == Some(true);
+        if let Some(stray) = names.iter().find(|n| !elements.iter().any(|e| one(n, e)))
+        {
+            *self.past.borrow_mut() = Some(match shown(stray) {
+                Some(s) => format!("{s} is not an element of the set the cited membership names"),
+                None => "the claim names something that is not an element of the set the cited membership names".to_string(),
+            });
+            return None;
+        }
+        if let Some(missed) = elements.iter().find(|e| !names.iter().any(|n| one(e, n)))
+        {
+            *self.past.borrow_mut() = Some(match shown(missed) {
+                Some(s) => format!("the claim leaves out {s}, an element of the set the cited membership names"),
+                None => "the claim leaves out an element of the set the cited membership names".to_string(),
+            });
+            return None;
+        }
+        Some(true)
     }
 
     fn holds(&self, claim: &Term, depth: usize) -> Option<bool> {
@@ -183,6 +239,28 @@ impl Facts {
             (Some("cun"), [a, b]) => {
                 let mut out = self.elements(a, depth)?;
                 out.extend(self.elements(b, depth)?);
+                return Some(out);
+            }
+            // {a, …, b} lists the numerals from a to b, none where b is
+            // below a, its ends worked out where they are closed terms.
+            (Some("co"), [from, to, how]) if how.label() == Some("cfz") => {
+                let (low, high) = (whole_value(from)?, whole_value(to)?);
+                if high < low {
+                    return Some(Vec::new());
+                }
+                let length = &high - &low + 1u32;
+                if length > BigUint::from(RANGE_LISTED) {
+                    *self.past.borrow_mut() = Some(format!(
+                        "inspection lists a range of at most {RANGE_LISTED} numerals, and the one from {low} to {high} holds {length}"
+                    ));
+                    return None;
+                }
+                let mut out = Vec::new();
+                let mut k = low;
+                while k <= high {
+                    out.push(numeral_term(&k));
+                    k += 1u32;
+                }
                 return Some(out);
             }
             (Some("crab"), [property, letter, over]) => {
@@ -334,21 +412,82 @@ const DEPTH: usize = 24;
 /// 23 does not settle, 29² (`METHODS.md`, inspection).
 const PRIMES_SETTLED: u32 = 841;
 
+/// The most numerals a range `{a, …, b}` is read as a list of (`METHODS.md`,
+/// inspection). A reader runs down a short list by eye, and a line of "or"s
+/// with an equation for each of more numerals than this is no longer
+/// something read at a glance; the build's proof also grows with each
+/// element, a step of `fzsuc` and its numerals apiece.
+pub const RANGE_LISTED: u32 = 64;
+
 /// What inspection finds of a claim.
 pub enum Inspected {
     Holds,
     /// The facts show it false.
     Fails,
     /// The method cannot settle it, and why: a prime past what trial
-    /// division by the primes up to 23 settles.
+    /// division by the primes up to 23 settles, a range longer than
+    /// `RANGE_LISTED`, or a line of "or"s that leaves out an element of the
+    /// set it is read against or names something that set does not list.
     Unsettled(String),
     /// The facts settle it neither way.
     Undecided,
 }
 
-/// Whether a term is a set written by listing, or the empty set.
+/// Whether a term is a set written by listing, the empty set, or a range of
+/// numerals whose ends are whole numbers.
 fn listing(term: &Term) -> bool {
-    matches!(term.label(), Some("c0" | "csn" | "cpr" | "ctp" | "cun"))
+    match (term.label(), term.children()) {
+        (Some("c0" | "csn" | "cpr" | "ctp" | "cun"), _) => true,
+        (Some("co"), [from, to, how]) => {
+            how.label() == Some("cfz")
+                && whole_value(from).is_some()
+                && whole_value(to).is_some()
+        }
+        _ => false,
+    }
+}
+
+/// The value of a term of numerals alone, where it is a whole number not
+/// below zero: a range's end as both tools read it.
+pub fn whole_value(term: &Term) -> Option<BigUint> {
+    match closed_value(term) {
+        Built(Value::Exact(v)) => whole(&v),
+        _ => None,
+    }
+}
+
+/// The sentences a line of "or"s joins, however it groups them, in the
+/// order it writes them.
+pub fn disjuncts(claim: &Term) -> Vec<Term> {
+    match (claim.label(), claim.children()) {
+        (Some("wo"), [a, b]) => {
+            let mut out = disjuncts(a);
+            out.extend(disjuncts(b));
+            out
+        }
+        _ => vec![claim.clone()],
+    }
+}
+
+/// What an equation says `t` is: its other side, of `t = s` or `s = t`.
+fn named(sentence: &Term, t: &Term) -> Option<Term> {
+    match (sentence.label(), sentence.children()) {
+        (Some("wceq"), [a, b]) if same(a, t) => Some(b.clone()),
+        (Some("wceq"), [a, b]) if same(b, t) => Some(a.clone()),
+        _ => None,
+    }
+}
+
+/// An element as a message names it: a number by its value, a name as it
+/// is written; None for anything else.
+fn shown(term: &Term) -> Option<String> {
+    if let Some(name) = term.variable() {
+        return Some(name.to_string());
+    }
+    match closed_value(term) {
+        Built(Value::Exact(v)) => Some(v.to_string()),
+        _ => None,
+    }
 }
 
 /// Whether a term is built from numerals alone.

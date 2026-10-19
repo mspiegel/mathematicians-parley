@@ -1,0 +1,75 @@
+theorem two-sequences
+  note        Two sequences defined together, one theorem citing it below.
+  let F(0) = 0,  G(0) = 1,
+      F(k + 1) = G(k),  G(k + 1) = F(k) + G(k),  for k ∈ ℕ₀           (D1)
+         reads the Fibonacci numbers, F(k) the kth and G(k) the next
+  then F(1) = 1
+
+1.  F(0 + 1) = G(0)
+    D1
+
+2.  G(0) = 1
+    D1
+
+3.  F(1) = 1
+    calculation
+      F(1) = F(0 + 1)      arithmetic
+           = G(0)          1
+           = 1             2
+
+theorem two-sequences-again
+  note        The same two sequences over another index letter: the cited
+              theorem's F is this proof's F.
+  let F(0) = 0,  G(0) = 1,
+      F(n + 1) = G(n),  G(n + 1) = F(n) + G(n),  for n ∈ ℕ₀           (D1)
+         reads the Fibonacci numbers
+  then F(1) = 1
+
+1.  F(1) = 1
+    thm:two-sequences
+
+theorem names-the-index
+  note        A rule that names the index itself.
+  let T(0) = 0,  T(k + 1) = T(k) + (k + 1),  for k ∈ ℕ₀               (D1)
+         reads the triangular numbers
+  then T(1) = 1
+
+1.  T(0) = 0
+    D1
+
+2.  T(0 + 1) = T(0) + (0 + 1)
+    D1
+
+3.  T(0) + (0 + 1) = 0 + (0 + 1)
+    substitute T(0) = 0 (line 1)
+
+4.  T(1) = 1
+    calculation
+      T(1) = T(0 + 1)            arithmetic
+           = T(0) + (0 + 1)      2
+           = 0 + (0 + 1)         3
+           = 1                   arithmetic
+
+theorem names-the-index-again
+  let T(0) = 0,  T(j + 1) = T(j) + (j + 1),  for j ∈ ℕ₀               (D1)
+         reads the triangular numbers
+  then T(1) = 1
+
+1.  T(1) = 1
+    thm:names-the-index
+
+theorem defined-in-the-body
+  note        The citing proof defines its sequence below the statement,
+              which does not speak of it.
+  then 1 = 1
+
+let T(0) = 0,  T(k + 1) = T(k) + (k + 1),  for k ∈ ℕ₀                 (D1)
+       reads the triangular numbers
+
+1.  T(1) = 1
+    thm:names-the-index
+
+2.  1 = 1
+    calculation
+      1 = T(1)       1
+        = 1          1

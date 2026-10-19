@@ -2,7 +2,8 @@
 //! in a number system because its parts are. The term is walked as the
 //! page says a membership once (`citing::within`: numerals, letters, and
 //! what +, −, ·, unary −, a power to a numeral and / build from them), with
-//! a quotient's divisor not zero by a line saying so or by being a numeral.
+//! a quotient's divisor not zero by a line saying so, by being a numeral,
+//! or by its parts (`nonzero`).
 //! What that walk does not take apart is in a system where a fact says so,
 //! where a cited equation puts it beside a term that is, or by the closure
 //! table: an operation `rules::WHOLE` names by its target, and a sum over a
@@ -12,7 +13,8 @@ use indexmap::IndexMap;
 
 use super::terms::Targets;
 use crate::citing::{
-    index_system, nonzero_said_once, sum_said_once, within, Introduced,
+    index_system, nonzero_by_parts, nonzero_said_once, sum_said_once, within,
+    Introduced,
 };
 use crate::formula::symbol::Symbol;
 use crate::formula::Node;
@@ -122,20 +124,18 @@ fn same(a: &Node, b: &Node, ctx: &Context) -> bool {
 }
 
 /// Whether a divisor is not zero: a numeral other than zero or a term the
-/// page says once is a positive integer (`nonzero_said_once`), or a fact
-/// saying it, as `d ≠ 0` either way round or as a sign, `0 < d` or `d < 0`.
+/// page says once is a positive integer (`nonzero_said_once`), a fact
+/// saying it, as `d ≠ 0` either way round or as a sign, `0 < d` or `d < 0`,
+/// or its parts: a product, a quotient, a negation or a power to a numeral
+/// is not zero when its parts are (`ELABORATION.md`, the divisor's order).
 pub fn nonzero(divisor: &Node, facts: &Facts) -> bool {
+    nonzero_by_parts(divisor, &|d| said_nonzero(d, facts))
+}
+
+/// Whether the page says a divisor is not zero once, or a fact says it
+/// (`nonzero`).
+fn said_nonzero(divisor: &Node, facts: &Facts) -> bool {
     if nonzero_said_once(divisor, &facts.letters) {
-        return true;
-    }
-    let by_parts = match (divisor.notation(), divisor.children.as_slice()) {
-        (MULTIPLICATIVE | JUXTAPOSITION, [a, b]) => {
-            nonzero(a, facts) && nonzero(b, facts)
-        }
-        (POWER | SUPERSCRIPT, [a, e]) => e.notation() == NUMERAL && nonzero(a, facts),
-        _ => false,
-    };
-    if by_parts {
         return true;
     }
     let zero = |n: &Node| n.notation() == NUMERAL && n.text == "0";
@@ -156,15 +156,23 @@ pub fn nonzero(divisor: &Node, facts: &Facts) -> bool {
 }
 
 /// The part of a divisor `nonzero` finds nothing saying is not zero: the
-/// divisor itself, or where it is a product, a quotient or a power to a
-/// numeral, the first of its parts that is not. None where it is not zero.
+/// divisor itself, or where it is a product, a quotient, a negation or a
+/// power to a numeral, the first of its parts that is not. None where it is
+/// not zero.
 pub fn unsaid_part(divisor: &Node, facts: &Facts) -> Option<Node> {
     if nonzero(divisor, facts) {
         return None;
     }
-    let parts: Vec<&Node> = match (divisor.notation(), divisor.children.as_slice()) {
-        (MULTIPLICATIVE | JUXTAPOSITION, [a, b]) => vec![a, b],
-        (POWER | SUPERSCRIPT, [a, e]) if e.notation() == NUMERAL => vec![a],
+    let parts: Vec<&Node> = match (
+        divisor.notation(),
+        divisor.spelling(),
+        divisor.children.as_slice(),
+    ) {
+        (MULTIPLICATIVE | JUXTAPOSITION, _, [a, b]) | (_, DIVIDED, [a, b]) => {
+            vec![a, b]
+        }
+        (UNARY_MINUS, _, [a]) => vec![a],
+        (POWER | SUPERSCRIPT, _, [a, e]) if e.notation() == NUMERAL => vec![a],
         _ => Vec::new(),
     };
     parts

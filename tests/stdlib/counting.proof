@@ -31,7 +31,7 @@ theorem factorial-base
     mun:factorial
 
 theorem factorial-step
-  let n ∈ ℕ                                                           (H1)
+  let n ∈ ℕ₀                                                          (H1)
   then (n + 1)! = n!·(n + 1)
 
 1.  (n + 1)! = n!·(n + 1)

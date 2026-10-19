@@ -89,6 +89,11 @@ const ALLOWED: &[(&str, &str, &str)] = &[
     ),
     (
         "src/checker/citations.rs",
+        "!as_written(&a_tree).same_shape(&as_written(&b_tree))",
+        "a recursion is the term its rules build, so two rules are one only as written",
+    ),
+    (
+        "src/checker/citations.rs",
         "!held.same_shape(atom)",
         "an atom found among a term's parts, part by part",
     ),

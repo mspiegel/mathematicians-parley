@@ -194,6 +194,25 @@ mundane theorem exponent-sum
   metamath    expadd
   target      expadd
 
+mundane theorem exponent-sum-integer
+  let a ∈ ℂ                                                           (H1)
+  assume a ≠ 0                                                        (H2)
+  let m ∈ ℤ                                                           (H3)
+  let n ∈ ℤ                                                           (H4)
+  then        a^(m + n) = a^m·a^n
+  metamath    expaddz
+  target      expaddz
+  note        exponent-sum over the integers, where a power to a negative
+              exponent asks a base other than 0.
+
+mundane theorem exponent-negative
+  let a ∈ ℂ                                                           (H1)
+  assume a ≠ 0                                                        (H2)
+  let m ∈ ℤ                                                           (H3)
+  then        a^(−m) = 1/a^m
+  metamath    expnegz
+  target      expnegz
+
 mundane theorem product-nonzero
   let x ∈ ℂ                                                           (H1)
   let y ∈ ℂ                                                           (H2)

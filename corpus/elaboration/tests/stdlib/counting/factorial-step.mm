@@ -6,6 +6,6 @@ $( tests/stdlib/counting/factorial-step, elaborated from tests/stdlib/counting.p
 $[ stdlib/definitions.mm $]
 
 ${
-  tests.stdlib.counting.factorial-step $p |- ( A e. NN -> ( ! ` ( A + 1 ) ) = ( ( ! ` A ) x. ( A + 1 ) ) ) $=
-    ( cn wcel cn0 c1 caddc co cfa cfv cmul wceq id nnnn0 syl facp1 ) ABCZADCZAEFGZHIAHIRJGKPPQPLAMNAON $.
+  tests.stdlib.counting.factorial-step $p |- ( A e. NN0 -> ( ! ` ( A + 1 ) ) = ( ( ! ` A ) x. ( A + 1 ) ) ) $=
+    ( cn0 wcel c1 caddc co cfa cfv cmul wceq id facp1 syl ) ABCZNADEFZGHAGHOIFJNKALM $.
 $}

@@ -1,0 +1,39 @@
+theorem a-sign-named-before-an-uncited-line
+  note        The step names x > 0, which says x ≠ 0; H3 says x ≠ 0 too,
+              and the step does not cite it, so it rests on H2 alone.
+  let x ∈ ℝ                                                           (H1)
+  assume x > 0                                                        (H2)
+  assume x ≠ 0                                                        (H3)
+  then (1/x)·x = 1
+
+1.  (1/x)·x = 1
+    algebra, from H2
+
+theorem a-negation-divisor
+  note        −x is not zero because x is not; H3 says −x ≠ 0, and the step
+              does not cite it, so it rests on H2.
+  let x ∈ ℝ                                                           (H1)
+  assume x ≠ 0                                                        (H2)
+  assume −x ≠ 0                                                       (H3)
+  then 1/(−x) = −(1/x)
+
+1.  1/(−x) = −(1/x)
+    algebra, from H2
+
+theorem a-power-to-zero-divisor
+  note        x⁰ is not zero because x is not.
+  let x ∈ ℝ                                                           (H1)
+  assume x ≠ 0                                                        (H2)
+  then 1/x⁰ = 1
+
+1.  1/x⁰ = 1
+    algebra, from H2
+
+theorem a-quotient-divisor
+  note        x/2 is not zero because x and 2 are not.
+  let x ∈ ℝ                                                           (H1)
+  assume x ≠ 0                                                        (H2)
+  then 1/(x/2) = 2/x
+
+1.  1/(x/2) = 2/x
+    algebra, from H2

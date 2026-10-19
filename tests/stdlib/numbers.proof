@@ -33,6 +33,8 @@ import mundane theorem    stdlib/numbers/abs-nonneg as numbers-abs-nonneg
 import mundane theorem    stdlib/numbers/one-power as numbers-one-power
 import mundane theorem    stdlib/numbers/abs-positive as numbers-abs-positive
 import mundane theorem    stdlib/numbers/exponent-sum as numbers-exponent-sum
+import mundane theorem    stdlib/numbers/exponent-sum-integer as numbers-exponent-sum-integer
+import mundane theorem    stdlib/numbers/exponent-negative as numbers-exponent-negative
 import mundane theorem    stdlib/numbers/product-nonzero as numbers-product-nonzero
 
 theorem quotient-positive
@@ -292,6 +294,25 @@ theorem exponent-sum
 
 1.  a^(m + n) = a^m·a^n
     mun:numbers-exponent-sum
+
+theorem exponent-sum-integer
+  let a ∈ ℝ                                                           (H1)
+  assume a ≠ 0                                                        (H2)
+  let m ∈ ℤ                                                           (H3)
+  let n ∈ ℤ                                                           (H4)
+  then a^(m + n) = a^m·a^n
+
+1.  a^(m + n) = a^m·a^n
+    mun:numbers-exponent-sum-integer, from H2
+
+theorem exponent-negative
+  let a ∈ ℝ                                                           (H1)
+  assume a ≠ 0                                                        (H2)
+  let m ∈ ℤ                                                           (H3)
+  then a^(−m) = 1/a^m
+
+1.  a^(−m) = 1/a^m
+    mun:numbers-exponent-negative, from H2
 
 theorem product-nonzero
   let x ∈ ℝ                                                           (H1)

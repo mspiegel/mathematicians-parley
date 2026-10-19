@@ -777,7 +777,6 @@ fn product_up_to(
             &binds! {"A" => spelt(&v), "B" => &si, "C" => "cc"},
             &[&eqcom(b, &is, &si, &spelt(&v)), &cc_of(b, &v)],
         );
-        let integer = b.ap("nn0zi", &binds! {"N" => &sf}, &[&nn0_of(b, from)]);
         let law = b.ap(
             "fprod1",
             &binds! {"k" => &kv, "M" => &sf, "A" => &sbody, "B" => &si},
@@ -789,7 +788,7 @@ fn product_up_to(
                 "ph" => t!(&sf, "cz", "wcel"), "ps" => t!(&si, "cc", "wcel"),
                 "ch" => t!(product(&sf), &si, "wceq"),
             },
-            &[&integer, &complex, &law],
+            &[&integer(b, from), &complex, &law],
         );
         return Some((
             v.clone(),
@@ -810,42 +809,11 @@ fn product_up_to(
     let instance = put(body, k, &next_term);
     let si = instance.rpn(labels);
     let truth = "wtru";
-    // less is in the integers from `from` up.
-    let real_from = re(b, from.clone());
-    let real_less = re(b, less.clone());
-    let ordered = if *from == less {
-        b.ap("leidi", &binds! {"A" => &sf}, &[&real_from])
-    } else {
-        let law = b.ap(
-            "ltlei",
-            &binds! {"A" => &sf, "B" => &sl},
-            &[&real_from, &real_less],
-        );
-        b.ap(
-            "ax-mp",
-            &binds! {"ph" => t!(&sf, &sl, "clt", "wbr"), "ps" => t!(&sf, &sl, "cle", "wbr")},
-            &[&below_of(b, from, &less), &law],
-        )
-    };
     let upper = t!(&sf, "cuz", "cfv");
-    let reaches = b.ap(
-        "mpbir3an",
-        &binds! {
-            "ph" => t!(&sl, &upper, "wcel"),
-            "ps" => t!(&sf, "cz", "wcel"), "ch" => t!(&sl, "cz", "wcel"),
-            "th" => t!(&sf, &sl, "cle", "wbr"),
-        },
-        &[
-            &b.ap("nn0zi", &binds! {"N" => &sf}, &[&nn0_of(b, from)]),
-            &b.ap("nn0zi", &binds! {"N" => &sl}, &[&nn0_of(b, &less)]),
-            &ordered,
-            &b.ap("eluz2", &binds! {"M" => &sf, "N" => &sl}, &[]),
-        ],
-    );
     let reaches = b.ap(
         "a1i",
         &binds! {"ph" => t!(&sl, &upper, "wcel"), "ps" => truth},
-        &[&reaches],
+        &[&reaches(b, from, &less)],
     );
     // Every factor is a complex number, from k's being an integer.
     let within = t!(&kv, "cv", op(&sf, &next, "cfz"), "wcel");
@@ -917,6 +885,145 @@ fn product_up_to(
             &spelt(&whole),
         ),
     ))
+}
+
+/// |- n e. ( ZZ>= ` m ), for m at most n: both are integers and m ≤ n
+/// (`eluz2`), m ≤ n being `leidi` where they are one and the order weakened
+/// (`ltlei`) where m is below.
+fn reaches(b: &Builder, m: &BigUint, n: &BigUint) -> Proof {
+    let (sm, sn) = (spelt(m), spelt(n));
+    let ordered = if m == n {
+        b.ap("leidi", &binds! {"A" => &sm}, &[&re(b, m.clone())])
+    } else {
+        let law = b.ap(
+            "ltlei",
+            &binds! {"A" => &sm, "B" => &sn},
+            &[&re(b, m.clone()), &re(b, n.clone())],
+        );
+        b.ap(
+            "ax-mp",
+            &binds! {"ph" => t!(&sm, &sn, "clt", "wbr"), "ps" => t!(&sm, &sn, "cle", "wbr")},
+            &[&below_of(b, m, n), &law],
+        )
+    };
+    b.ap(
+        "mpbir3an",
+        &binds! {
+            "ph" => t!(&sn, t!(&sm, "cuz", "cfv"), "wcel"),
+            "ps" => t!(&sm, "cz", "wcel"), "ch" => t!(&sn, "cz", "wcel"),
+            "th" => t!(&sm, &sn, "cle", "wbr"),
+        },
+        &[
+            &integer(b, m),
+            &integer(b, n),
+            &ordered,
+            &b.ap("eluz2", &binds! {"M" => &sm, "N" => &sn}, &[]),
+        ],
+    )
+}
+
+/// |- n e. ZZ
+fn integer(b: &Builder, n: &BigUint) -> Proof {
+    b.ap("nn0zi", &binds! {"N" => spelt(n)}, &[&nn0_of(b, n)])
+}
+
+/// The singletons of the numerals from `from` to `to`, joined from the
+/// left: `( ( { 0 } u. { 1 } ) u. { 2 } )`.
+pub fn singletons(from: &BigUint, to: &BigUint) -> Rpn {
+    let mut out = t!(spelt(from), "csn");
+    let mut k = from + 1u32;
+    while k <= *to {
+        out = t!(out, t!(spelt(&k), "csn"), "cun");
+        k += 1u32;
+    }
+    out
+}
+
+/// |- ( from ... to ) = the singletons of the numerals from `from` to
+/// `to`, joined from the left (`singletons`), for `from` at most `to`: the
+/// range of one numeral is its singleton (`fzsn`), and a longer one is the
+/// range below its top joined with the top's singleton (`fzsuc`), the top
+/// spelt as one less, plus one, and worked out.
+pub fn range(b: &Builder, from: &BigUint, to: &BigUint) -> Proof {
+    let (sf, st) = (spelt(from), spelt(to));
+    let range_to = |top: &Rpn| op(&sf, top, "cfz");
+    if to == from {
+        return b.ap(
+            "ax-mp",
+            &binds! {
+                "ph" => t!(&sf, "cz", "wcel"),
+                "ps" => t!(range_to(&sf), t!(&sf, "csn"), "wceq"),
+            },
+            &[&integer(b, from), &b.ap("fzsn", &binds! {"M" => &sf}, &[])],
+        );
+    }
+    let less = to - 1u32;
+    let sl = spelt(&less);
+    let next = op(&sl, &spelt(&BigUint::one()), ADD);
+    let split = t!(range_to(&sl), t!(&next, "csn"), "cun");
+    let law = b.ap("fzsuc", &binds! {"M" => &sf, "N" => &sl}, &[]);
+    // ( from ... ( less + 1 ) ) = ( ( from ... less ) u. { ( less + 1 ) } )
+    let step = b.ap(
+        "ax-mp",
+        &binds! {
+            "ph" => t!(&sl, t!(&sf, "cuz", "cfv"), "wcel"),
+            "ps" => t!(range_to(&next), &split, "wceq"),
+        },
+        &[&reaches(b, from, &less), &law],
+    );
+    let added = sum_of(b, &less, &BigUint::one());
+    let ends = b.ap(
+        "oveq2i",
+        &binds! {"A" => &next, "B" => &st, "C" => &sf, "F" => "cfz"},
+        &[&added],
+    );
+    let peeled = b.ap(
+        "eqtr3i",
+        &binds! {"A" => range_to(&next), "B" => range_to(&st), "C" => &split},
+        &[&ends, &step],
+    );
+    let below = singletons(from, &less);
+    let top = b.ap("sneqi", &binds! {"A" => &next, "B" => &st}, &[&added]);
+    let joined = b.ap(
+        "uneq12i",
+        &binds! {
+            "A" => range_to(&sl), "B" => &below,
+            "C" => t!(&next, "csn"), "D" => t!(&st, "csn"),
+        },
+        &[&range(b, from, &less), &top],
+    );
+    chain(
+        b,
+        &peeled,
+        &joined,
+        &range_to(&st),
+        &split,
+        &singletons(from, to),
+    )
+}
+
+/// |- ( from ... to ) = (/), for `to` below `from` (`fzn`).
+pub fn empty_range(b: &Builder, from: &BigUint, to: &BigUint) -> Proof {
+    let (sf, st) = (spelt(from), spelt(to));
+    let below = t!(&st, &sf, "clt", "wbr");
+    let empty = t!(op(&sf, &st, "cfz"), "c0", "wceq");
+    let law = b.ap(
+        "mp2an",
+        &binds! {
+            "ph" => t!(&sf, "cz", "wcel"), "ps" => t!(&st, "cz", "wcel"),
+            "ch" => t!(&below, &empty, "wb"),
+        },
+        &[
+            &integer(b, from),
+            &integer(b, to),
+            &b.ap("fzn", &binds! {"M" => &sf, "N" => &st}, &[]),
+        ],
+    );
+    b.ap(
+        "mpbi",
+        &binds! {"ph" => &below, "ps" => &empty},
+        &[&below_of(b, to, from), &law],
+    )
 }
 
 /// |- b = a from |- a = b.

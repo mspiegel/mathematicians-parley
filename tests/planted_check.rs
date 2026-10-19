@@ -1015,6 +1015,50 @@ fn cases() -> Vec<Case> {
             )],
             "step 6 claims |{x ∈ V : deg(x) is odd}| = 3, which inspection of what it cites shows false",
         ),
+        // A line of "or"s read from a membership has an equation for each
+        // element of the set and for nothing else, and a range is read as
+        // a list only up to its cap.
+        case(
+            "a line of ors by inspection that leaves out an element of the range",
+            vec![
+                edit(
+                    "tests/elaborator/inspection-cases-of-a-range.proof",
+                    Some("  then k = 4 or k = 0 or 2 = k or k = 1 or k = 1 + 2\n".to_string()),
+                    "  then k = 4 or k = 0 or 2 = k or k = 1 + 2\n".to_string(),
+                ),
+                edit(
+                    "tests/elaborator/inspection-cases-of-a-range.proof",
+                    Some("1.  k = 4 or k = 0 or 2 = k or k = 1 or k = 1 + 2\n".to_string()),
+                    "1.  k = 4 or k = 0 or 2 = k or k = 1 + 2\n".to_string(),
+                ),
+            ],
+            "and the claim leaves out 1, an element of the set the cited membership names",
+        ),
+        case(
+            "a line of ors by inspection that names something the range does not list",
+            vec![
+                edit(
+                    "tests/elaborator/inspection-cases-of-a-range.proof",
+                    Some("  then x = 1 or x = 2\n".to_string()),
+                    "  then x = 1 or x = 2 or x = 3\n".to_string(),
+                ),
+                edit(
+                    "tests/elaborator/inspection-cases-of-a-range.proof",
+                    Some("1.  x = 1 or x = 2\n".to_string()),
+                    "1.  x = 1 or x = 2 or x = 3\n".to_string(),
+                ),
+            ],
+            "and 3 is not an element of the set the cited membership names",
+        ),
+        case(
+            "a line of ors by inspection from a range past the cap",
+            vec![edit(
+                "tests/elaborator/inspection-cases-of-a-range.proof",
+                Some("  let x ∈ {1, …, 2}".to_string()),
+                "  let x ∈ {1, …, 100}".to_string(),
+            )],
+            "and inspection lists a range of at most 64 numerals, and the one from 1 to 100 holds 100",
+        ),
         // `substitute` walks its equation both ways and each sentence of the
         // line it names, trying the next where one declines. A name the proof
         // never introduced is not one of those: it is a defect.
@@ -5176,6 +5220,50 @@ fn cases() -> Vec<Case> {
                 String::new(),
             )],
             "a requires line says it, as for all k ∈ {1, …, 1}, F(k) ∈ ℝ, from a line saying the values on a set holding {1, …, 1}",
+        ),
+        // A cited recursion is the citing proof's only with the same names in
+        // the same order: the state is a pair in that order, and another
+        // order is another term.
+        case(
+            "cite a theorem over two sequences named the other way round",
+            vec![edit(
+                "tests/elaborator/recursion-shapes-cited.proof",
+                Some("  let F(0) = 0,  G(0) = 1,\n      F(n + 1) = G(n),  G(n + 1) = F(n) + G(n),  for n ∈ ℕ₀           (D1)\n".to_string()),
+                "  let G(0) = 1,  F(0) = 0,\n      G(n + 1) = F(n) + G(n),  F(n + 1) = G(n),  for n ∈ ℕ₀           (D1)\n".to_string(),
+            )],
+            "D1 here gives G, F, and the theorem's define gives F, G",
+        ),
+        // A rule is the term it builds, as written: commuted, or with an
+        // identity element added, it is another recursion.
+        case(
+            "cite a theorem over a recursion whose rule is written the other way",
+            vec![edit(
+                "tests/elaborator/recursion-shapes-cited.proof",
+                Some("T(j + 1) = T(j) + (j + 1),".to_string()),
+                "T(j + 1) = (j + 1) + T(j),".to_string(),
+            )],
+            "there T(j + 1) is T(j) + (j + 1), and D1 here says it is (j + 1) + T(j)",
+        ),
+        case(
+            "cite a theorem over a recursion whose rule adds a zero",
+            vec![edit(
+                "tests/elaborator/recursion-shapes-cited.proof",
+                Some("T(j + 1) = T(j) + (j + 1),".to_string()),
+                "T(j + 1) = T(j) + (j + 1) + 0,".to_string(),
+            )],
+            "there T(j + 1) is T(j) + (j + 1), and D1 here says it is T(j) + (j + 1) + 0",
+        ),
+        // A negation is not zero by its part, which the step must name: a
+        // line in scope saying −x ≠ 0 that the step does not cite says
+        // nothing for it.
+        case(
+            "divide by a negation whose part the step does not name",
+            vec![edit(
+                "tests/elaborator/divisor-order.proof",
+                Some("1.  1/(−x) = −(1/x)\n    algebra, from H2\n".to_string()),
+                "1.  1/(−x) = −(1/x)\n    algebra\n".to_string(),
+            )],
+            "nothing says x ≠ 0, which this step needs to divide by it",
         ),
         // A nested block's step numbered as its owner's sibling is read as
         // the enclosing block's, and the numbering is what is named.

@@ -132,15 +132,17 @@ method inspection
               what L says of each listed element and which names L says are
               distinct, and the two sides compared.
   decides     membership of a name in a listed set, and an equation of two
-              things it works out: a listed set, the empty set, the elements
-              of a listed set that have a property settled by L, the size of
-              such a set of distinct names, a numeral, or a term a "for all"
-              equation in L gives at a listed element
+              things it works out: a listed set, a range of at most 64
+              numerals, the empty set, the elements of a listed set that
+              have a property settled by L, the size of such a set of
+              distinct names, a numeral, or a term a "for all" equation in L
+              gives at a listed element; and, from t ∈ S in L with S listed,
+              the line of "or"s with an equation t = s for each element s
   hypotheses  none beyond its facts in
   specified-in METHODS.md
   metamath    snidg, elun1, elun2, nelsn, noel, elun, ioran, rabun2,
               rabsnif, iftrue, iffalse, hashsng, hashunsng, hash0, rspcdva,
-              eqssd
+              eqssd, fzsn, fzsuc, fzn, elsni, orc, olc, jaod
   note        What a textbook writes as "by inspection": the reader runs down
               a short list the text has just given. Named for that act, not
               for a subject; a case that needs a reason of its own is not

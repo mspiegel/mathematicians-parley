@@ -22,8 +22,8 @@ use crate::formula::{ByShape, Node, Sort, Sorts};
 use crate::matching::{alike_top, standard, substitute_apart, Binding, FxIndexSet};
 use crate::notations::{
     APPLICATION, DIVIDED, FACTORIAL, IN, INTEGER_RANGE, JUXTAPOSITION, MEMBERSHIP,
-    MINUS, MOD, NUMBER_SYSTEMS, NUMERAL, PLUS, POWER, SUM, SUPERSCRIPT, TIMES,
-    UNARY_MINUS,
+    MINUS, MOD, MULTIPLICATIVE, NUMBER_SYSTEMS, NUMERAL, PLUS, POWER, SUM, SUPERSCRIPT,
+    TIMES, UNARY_MINUS,
 };
 use crate::rules::{self, lookup, System};
 
@@ -139,8 +139,9 @@ pub fn said_once(
         Some(standard(&substitute_apart(&made, &put, ctx), ctx))
     };
     // A divisor is not zero where the page says once it is a positive
-    // integer, or a fact says so, as `≠ 0` or as a sign.
-    let nonzero = |d: &Node| -> bool {
+    // integer, where a fact says so, as `≠ 0` or as a sign, or by its parts
+    // (`nonzero_by_parts`).
+    let said_nonzero = |d: &Node| -> bool {
         if nonzero_said_once(d, &letters) {
             return true;
         }
@@ -150,6 +151,7 @@ pub fn said_once(
             })
         })
     };
+    let nonzero = |d: &Node| nonzero_by_parts(d, &said_nonzero);
     let seeded: Vec<Node> = parts.seed.values().cloned().collect();
     let mut seen: FxIndexSet<ByShape> = FxIndexSet::default();
     let mut out = Vec::new();
@@ -565,6 +567,31 @@ pub fn index_system(start: &Node) -> Option<System> {
         .iter()
         .find(|(_, first, _)| first.is_none() || *first == begins)
         .and_then(|(system, _, _)| System::of_label(system))
+}
+
+/// Whether a divisor is not zero by `said`, or by its parts: a product, a
+/// quotient, a negation or a power to a numeral is not zero when its parts
+/// are, each by this same test. The checker's one order and list of parts
+/// for a divisor (`ELABORATION.md`, a divisor's ≠ 0), `said` being what a
+/// check takes as a line or the page saying it.
+pub fn nonzero_by_parts(divisor: &Node, said: &dyn Fn(&Node) -> bool) -> bool {
+    if said(divisor) {
+        return true;
+    }
+    match (
+        divisor.notation(),
+        divisor.spelling(),
+        divisor.children.as_slice(),
+    ) {
+        (MULTIPLICATIVE | JUXTAPOSITION, _, [a, b]) | (_, DIVIDED, [a, b]) => {
+            nonzero_by_parts(a, said) && nonzero_by_parts(b, said)
+        }
+        (UNARY_MINUS, _, [a]) => nonzero_by_parts(a, said),
+        (POWER | SUPERSCRIPT, _, [a, e]) => {
+            e.notation() == NUMERAL && nonzero_by_parts(a, said)
+        }
+        _ => false,
+    }
 }
 
 /// Whether a divisor is a numeral other than zero: 10^0 is worked out to 1,

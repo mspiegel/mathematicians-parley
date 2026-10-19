@@ -32,6 +32,7 @@ pub const VOCABULARY: &[(&str, usize)] = &[
     ("wne", 2),
     ("wn", 1),
     ("wa", 2),
+    ("wo", 2),
     ("w3a", 3),
     ("wbr", 3),
     ("clt", 0),

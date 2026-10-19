@@ -19,18 +19,19 @@
 
 
 mundane definition factorial
-  then        1! = 1
-  let n ∈ ℕ                                                           (H1)
+  then        0! = 1. 1! = 1.
+  let n ∈ ℕ₀                                                          (H1)
   then        (n + 1)! = n!·(n + 1)
-  metamath    fac1, facp1
-  target      fac1, facp1
-  note        Two `then` groups: the base sentence has no hypothesis and the
-              step sentence has H1. See DATABASE.md on recursive definitions.
+  metamath    fac0, fac1, facp1
+  target      fac0, fac1, facp1
+  note        Two `then` groups: the base sentences have no hypothesis and the
+              step sentence has H1, every n from 0 on, as set.mm states it.
+              See DATABASE.md on recursive definitions.
 
 mundane theorem factorial-nat
-  let n ∈ ℕ                                                           (H1)
+  let n ∈ ℕ₀                                                          (H1)
   then        n! ∈ ℕ
-  metamath    faccl, which states it on ℕ0
+  metamath    faccl
   target      faccl
 
 mundane theorem factorial-divisible

@@ -76,7 +76,7 @@ theorem choose-two-less
                   substitute ((N + 1) − (N − 1))! = 2 (line 2.3.11)
 
           2.3.13. (N + 1)! = N!·(N + 1)
-                  mun:factorial n := N, from C1
+                  mun:factorial n := N
 
           2.3.14. N! = (N − 1)!·N
                   thm:factorial-by-predecessor, from C1

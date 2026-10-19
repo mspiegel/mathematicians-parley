@@ -5,9 +5,11 @@
 //!
 //! A listed set is read in one standard form, the singletons of its
 //! elements joined from the left, `(({a} ∪ {b}) ∪ {c})`, which is how set.mm
-//! defines its pair and triple (`df-pr`, `df-tp`). A set the lines give by an
-//! equation is read through it. Every proof here is in deduction form under
-//! the step's scope.
+//! defines its pair and triple (`df-pr`, `df-tp`), and a range of numerals
+//! is read in the same form, its numerals in order. A set the lines give by
+//! an equation is read through it. A line of "or"s is read against a cited
+//! membership, as the listing of the set it names (`one_of`). Every proof
+//! here is in deduction form under the step's scope.
 
 use num_bigint::BigUint;
 use num_traits::ToPrimitive;
@@ -18,12 +20,14 @@ use super::state::Elaborator;
 use super::Facts;
 use crate::binds;
 use crate::corpus::{fmt, Step};
+use crate::methods::inspection::{disjuncts, whole_value, RANGE_LISTED};
+use crate::methods::numerals::numeral_term;
 use crate::mm::kernel::Term;
 use crate::mm::spell::Proof;
 use crate::mm::Rpn;
 use crate::outcome::{Built, Checked, Declined, Route};
 use crate::rules;
-use crate::{t, take};
+use crate::{pf, t, take};
 
 /// A set read in the standard form: its elements in order, and a proof
 /// that the set is the union of their singletons.
@@ -31,6 +35,17 @@ struct Listing {
     elements: Vec<Term>,
     /// ( scope -> set = the union of the elements' singletons ).
     proof: Proof,
+}
+
+/// The sentences a line joins with "and", however it groups them.
+fn conjuncts(line: &Term) -> Vec<Term> {
+    if line.variable().is_some() {
+        return vec![line.clone()];
+    }
+    match line.label() {
+        Some("wa" | "w3a") => line.children().iter().flat_map(conjuncts).collect(),
+        _ => vec![line.clone()],
+    }
 }
 
 /// The least factor of n above 1, n itself where n is prime; n at least 2.
@@ -62,6 +77,25 @@ enum Settled {
 struct Kept {
     elements: Vec<Term>,
     proof: Proof,
+}
+
+/// A cited line `t ∈ S` that a line of "or"s is read against, and what each
+/// of that line's equations says t is.
+struct Member {
+    element: Term,
+    set: Term,
+    /// ( scope -> t ∈ S ).
+    proof: Proof,
+    /// One for each equation of the line, in its order.
+    named: Vec<Named>,
+}
+
+/// What one equation of a line of "or"s says t is.
+struct Named {
+    /// The equation's other side.
+    is: Term,
+    /// Whether the equation is written `s = t`, t on the right.
+    turned: bool,
 }
 
 /// What a term comes to by the cited lines (`value`).
@@ -99,7 +133,13 @@ impl Elaborator<'_> {
             self.unpack(&fact, &proof, scope, &known, usize::MAX);
         }
         let claim = self.to_term(term);
-        let made = self.inspected(&claim, scope, &known)?;
+        let lines: Vec<Rpn> = step
+            .just
+            .refs
+            .iter()
+            .filter_map(|r| self.lines.get(r).map(|l| l.term.clone()))
+            .collect();
+        let made = self.inspected(&claim, scope, &known, &lines)?;
         match made {
             Built(p) => Ok(Built(p)),
             Declined(d) => Err(self.defect(
@@ -114,12 +154,15 @@ impl Elaborator<'_> {
     }
 
     /// The claim, a membership or an equation, with each side worked out to
-    /// what the cited lines make it (`value`) and the two compared.
+    /// what the cited lines make it (`value`) and the two compared; or a
+    /// line of "or"s read against a membership `lines`, the cited lines,
+    /// say (`one_of`).
     fn inspected(
         &mut self,
         claim: &Term,
         scope: &Rpn,
         known: &Facts,
+        lines: &[Rpn],
     ) -> Checked<Route<Proof>> {
         let kids = claim.children().to_vec();
         // "n is prime", a word whose record names inspection in `decided`.
@@ -178,9 +221,13 @@ impl Elaborator<'_> {
                     .map(Built)
             }
             Some("wceq") => self.equation(&kids[0], &kids[1], scope, known),
+            Some("wo") if claim.variable().is_none() => {
+                self.one_of(claim, scope, known, lines)
+            }
             _ => Ok(Route::no(
-                "inspection says what is in a listed set, or that two things it \
-                 can work out are equal",
+                "inspection says what is in a listed set, that two things it \
+                 can work out are equal, or which element of a listed set a \
+                 thing in it is",
             )),
         }
     }
@@ -210,7 +257,7 @@ impl Elaborator<'_> {
             let kept =
                 take!(self.kept(body, &letter, &source.elements, scope, known)?);
             let p = self.rpn(body);
-            let (s, u_source) = (self.rpn(over), self.union_of(&source.elements));
+            let (s, u_source) = (self.rpn(over), self.listed(&source.elements));
             let moved = self.b.ap(
                 "rabeqdv",
                 &binds! {"ph" => scope, "ps" => &p, "x" => &letter, "A" => &s, "B" => &u_source},
@@ -486,6 +533,273 @@ impl Elaborator<'_> {
         }
     }
 
+    /// A line of "or"s, `t = s₁ or … or t = sₙ`, from the first cited line
+    /// `t ∈ S` whose t is one side of each of its equations, S being a set
+    /// the cited lines list (`METHODS.md`, inspection): an equation for each
+    /// element and for nothing else, in any order, each written `t = s` or
+    /// `s = t`, s the element or a term of numerals alone of its value. t is
+    /// in the union of the elements' singletons (`eleqtrd`), the line
+    /// follows from each singleton (`singleton_into`), and the singletons
+    /// are joined from the left as the union is (`elun`, `jaod`).
+    fn one_of(
+        &mut self,
+        claim: &Term,
+        scope: &Rpn,
+        known: &Facts,
+        lines: &[Rpn],
+    ) -> Checked<Route<Proof>> {
+        let sentences = disjuncts(claim);
+        let mut found = None;
+        for said in lines.iter().flat_map(|l| conjuncts(&self.to_term(l))) {
+            if said.variable().is_some() || said.label() != Some("wcel") {
+                continue;
+            }
+            let element = said.children()[0].clone();
+            let named: Option<Vec<Named>> = sentences
+                .iter()
+                .map(|s| self.says_of(s, &element))
+                .collect();
+            if let Some(named) = named {
+                found = Some((said, element, named));
+                break;
+            }
+        }
+        let Some((said, element, named)) = found else {
+            return Ok(Route::no(
+                "nothing cited puts in a set the one term every equation of the claim names",
+            ));
+        };
+        let Some(proof) = self.held(known, &self.rpn(&said), scope)? else {
+            return Ok(Route::no(format!(
+                "{} is cited and not held",
+                self.render(&self.rpn(&said))
+            )));
+        };
+        let member = Member {
+            set: said.children()[1].clone(),
+            element,
+            proof,
+            named,
+        };
+        let listing = take!(self.set_value(&member.set, scope, known)?);
+        let elements = listing.elements.clone();
+        if let Some(stray) = member
+            .named
+            .iter()
+            .find(|n| !elements.iter().any(|e| self.one_value(&n.is, e)))
+        {
+            return Ok(Route::no(format!(
+                "{} is not an element of {}",
+                self.render(&self.rpn(&stray.is)),
+                self.render(&self.rpn(&member.set))
+            )));
+        }
+        let t = self.rpn(&member.element);
+        let line = self.rpn(claim);
+        // ( scope -> ( t ∈ the first k singletons' union -> line ) ).
+        let mut joined: Option<Proof> = None;
+        for (k, s) in elements.iter().enumerate() {
+            let Some(at) = member.named.iter().position(|n| self.one_value(s, &n.is))
+            else {
+                return Ok(Route::no(format!(
+                    "the claim leaves out {}, an element of {}",
+                    self.render(&self.rpn(s)),
+                    self.render(&self.rpn(&member.set))
+                )));
+            };
+            let from_one =
+                self.singleton_into(&member, s, at, &sentences, claim, scope, known)?;
+            joined = Some(match joined {
+                None => from_one,
+                Some(before) => {
+                    let front = self.union_of(&elements[..k]);
+                    let single = t!(self.rpn(s), "csn");
+                    let (in_front, in_single) =
+                        (t!(t, front, "wcel"), t!(t, single, "wcel"));
+                    let either = self.b.ap(
+                        "jaod",
+                        &binds! {"ph" => scope, "ps" => &in_front, "ch" => &line,
+                        "th" => &in_single},
+                        &[&before, &from_one],
+                    );
+                    let split = self.b.ap(
+                        "elun",
+                        &binds! {"A" => &t, "B" => &front, "C" => &single},
+                        &[],
+                    );
+                    self.b.ap(
+                        "biimtrid",
+                        &binds! {"ph" => &t!(t, t!(front, single, "cun"), "wcel"),
+                        "ps" => &t!(in_front, in_single, "wo"), "ch" => scope, "th" => &line},
+                        &[&split, &either],
+                    )
+                }
+            });
+        }
+        let Some(joined) = joined else {
+            return Ok(Route::no(format!(
+                "{} lists nothing",
+                self.render(&self.rpn(&member.set))
+            )));
+        };
+        let union = self.union_of(&elements);
+        let inside = self.b.ap(
+            "eleqtrd",
+            &binds! {"ph" => scope, "A" => &t, "B" => &self.rpn(&member.set), "C" => &union},
+            &[&member.proof, &listing.proof],
+        );
+        Ok(Built(self.b.ap(
+            "mpd",
+            &binds! {"ph" => scope, "ps" => &t!(t, union, "wcel"), "ch" => &line},
+            &[&inside, &joined],
+        )))
+    }
+
+    /// ( scope -> ( t ∈ { s } -> line ) ), the line's equation at `at` naming
+    /// s: t is s (`elsni`), so t is what that equation writes for s, a term
+    /// of numerals alone of its value turned to (`eqeq2d`) and the equation
+    /// turned round where it is written `s = t` (`eqcom`), and the line holds
+    /// where one of its equations does (`widened`).
+    #[allow(clippy::too_many_arguments)]
+    fn singleton_into(
+        &mut self,
+        member: &Member,
+        s: &Term,
+        at: usize,
+        sentences: &[Term],
+        claim: &Term,
+        scope: &Rpn,
+        known: &Facts,
+    ) -> Checked<Proof> {
+        let (t, sv, line) = (self.rpn(&member.element), self.rpn(s), self.rpn(claim));
+        let in_single = t!(t, t!(sv, "csn"), "wcel");
+        let is_s = t!(t, sv, "wceq");
+        let named = &member.named[at];
+        let c = self.rpn(&named.is);
+        let mut reached = self.b.ap(
+            "a1i",
+            &binds! {"ph" => &t!(in_single, is_s, "wi"), "ps" => scope},
+            &[&self.b.ap("elsni", &binds! {"A" => &t, "B" => &sv}, &[])],
+        );
+        // ( scope -> ( t = s <-> now ) ), now the equation as the line writes it.
+        let mut same: Option<Proof> = None;
+        let mut now = is_s.clone();
+        if c != sv {
+            let what = format!(
+                "inspection takes {} for {}",
+                self.render(&c),
+                self.render(&sv)
+            );
+            let valued =
+                self.closed_fact(&t!(sv, c, "wceq"), scope, known, &what, None)?;
+            same = Some(self.b.ap(
+                "eqeq2d",
+                &binds! {"ph" => scope, "A" => &sv, "B" => &c, "C" => &t},
+                &[&valued],
+            ));
+            now = t!(t, c, "wceq");
+        }
+        if named.turned {
+            let flip = self.b.ap("eqcom", &binds! {"A" => &t, "B" => &c}, &[]);
+            let turned = t!(c, t, "wceq");
+            same = Some(match same {
+                None => self.b.ap(
+                    "a1i",
+                    &binds! {"ph" => &t!(now, turned, "wb"), "ps" => scope},
+                    &[&flip],
+                ),
+                Some(p) => self.b.ap(
+                    "bitrdi",
+                    &binds! {"ph" => scope, "ps" => &is_s, "ch" => &now, "th" => &turned},
+                    &[&p, &flip],
+                ),
+            });
+            now = turned;
+        }
+        if let Some(same) = same {
+            reached = self.b.ap(
+                "sylibd",
+                &binds! {"ph" => scope, "ps" => &in_single, "ch" => &is_s, "th" => &now},
+                &[&reached, &same],
+            );
+        }
+        let into = self.widened(at, sentences, claim);
+        let into = self.b.ap(
+            "a1i",
+            &binds! {"ph" => &t!(now, line, "wi"), "ps" => scope},
+            &[&into],
+        );
+        Ok(self.b.ap(
+            "syld",
+            &binds! {"ph" => scope, "ps" => &in_single, "ch" => &now, "th" => &line},
+            &[&reached, &into],
+        ))
+    }
+
+    /// |- ( the line's sentence at `at` -> line ): the sentence itself
+    /// (`id`), or the part of an "or" that holds it, widened by `orc` where
+    /// it is the left part and `olc` where it is the right.
+    fn widened(&self, at: usize, sentences: &[Term], line: &Term) -> Proof {
+        let (said, whole) = (self.rpn(&sentences[at]), self.rpn(line));
+        let kids = line.children();
+        if line.variable().is_some() || line.label() != Some("wo") || kids.len() != 2 {
+            return self.b.ap("id", &binds! {"ph" => &whole}, &[]);
+        }
+        let (left, right) = (self.rpn(&kids[0]), self.rpn(&kids[1]));
+        let on_left = disjuncts(&kids[0]).len();
+        let (inner, law, part) = if at < on_left {
+            (
+                self.widened(at, &sentences[..on_left], &kids[0]),
+                self.b
+                    .ap("orc", &binds! {"ph" => &left, "ps" => &right}, &[]),
+                left,
+            )
+        } else {
+            (
+                self.widened(at - on_left, &sentences[on_left..], &kids[1]),
+                self.b
+                    .ap("olc", &binds! {"ph" => &right, "ps" => &left}, &[]),
+                right,
+            )
+        };
+        self.b.ap(
+            "syl",
+            &binds! {"ph" => &said, "ps" => &part, "ch" => &whole},
+            &[&inner, &law],
+        )
+    }
+
+    /// What an equation says `t` is, where t is one of its sides as written.
+    fn says_of(&self, sentence: &Term, t: &Term) -> Option<Named> {
+        if sentence.variable().is_some() || sentence.label() != Some("wceq") {
+            return None;
+        }
+        let (a, b) = (&sentence.children()[0], &sentence.children()[1]);
+        let at = self.rpn(t);
+        if self.rpn(a) == at {
+            return Some(Named {
+                is: b.clone(),
+                turned: false,
+            });
+        }
+        (self.rpn(b) == at).then(|| Named {
+            is: a.clone(),
+            turned: true,
+        })
+    }
+
+    /// Whether two elements are one: the same term, or two terms of
+    /// numerals alone of one value.
+    fn one_value(&self, a: &Term, b: &Term) -> bool {
+        if self.rpn(a) == self.rpn(b) {
+            return true;
+        }
+        matches!(
+            (field::closed_value(a), field::closed_value(b)),
+            (Built(field::Value::Exact(x)), Built(field::Value::Exact(y))) if x == y
+        )
+    }
+
     /// The union of the singletons of `elements`, or the empty set where
     /// there are none.
     fn listed(&self, elements: &[Term]) -> Rpn {
@@ -545,8 +859,8 @@ impl Elaborator<'_> {
         scope: &Rpn,
         known: &Facts,
     ) -> Checked<Route<Listing>> {
-        if let Some((elements, closed)) = self.written_listing(set) {
-            let union = self.union_of(&elements);
+        if let Some((elements, closed)) = self.written_listing(set)? {
+            let union = self.listed(&elements);
             let proof = self.b.ap(
                 "a1i",
                 &binds! {"ph" => &t!(self.rpn(set), union, "wceq"), "ps" => scope},
@@ -568,10 +882,10 @@ impl Elaborator<'_> {
             } else {
                 continue;
             };
-            let Some((elements, closed)) = self.written_listing(&other) else {
+            let Some((elements, closed)) = self.written_listing(&other)? else {
                 continue;
             };
-            let union = self.union_of(&elements);
+            let union = self.listed(&elements);
             let named = self.rpn(&other);
             let to_listed = if flipped {
                 self.b.ap(
@@ -598,12 +912,15 @@ impl Elaborator<'_> {
     /// A set written as a listing, its elements and the closed proof that
     /// it is the union of their singletons: a singleton, a pair, a triple,
     /// or a listing joined with one more singleton.
-    fn written_listing(&self, set: &Term) -> Option<(Vec<Term>, Proof)> {
+    fn written_listing(&mut self, set: &Term) -> Checked<Option<(Vec<Term>, Proof)>> {
         if set.variable().is_some() {
-            return None;
+            return Ok(None);
         }
         let kids = set.children().to_vec();
-        match set.label()? {
+        let Some(label) = set.label() else {
+            return Ok(None);
+        };
+        Ok(match label {
             "csn" => {
                 let one = self.rpn(set);
                 Some((kids, self.b.ap("eqid", &binds! {"A" => &one}, &[])))
@@ -639,7 +956,10 @@ impl Elaborator<'_> {
                 Some((kids, proof))
             }
             "cun" if kids[1].label() == Some("csn") => {
-                let (mut elements, inner) = self.written_listing(&kids[0])?;
+                let Some((mut elements, inner)) = self.written_listing(&kids[0])?
+                else {
+                    return Ok(None);
+                };
                 let last = kids[1].children()[0].clone();
                 let (was, single) = (self.rpn(&kids[0]), self.rpn(&kids[1]));
                 let now = self.union_of(&elements);
@@ -651,8 +971,87 @@ impl Elaborator<'_> {
                 elements.push(last);
                 Some((elements, proof))
             }
+            "co" if kids.len() == 3 && kids[2].label() == Some("cfz") => {
+                return self.range_listing(set);
+            }
             _ => None,
+        })
+    }
+
+    /// A range `{a, …, b}` whose ends work out to whole numbers, as the
+    /// numerals from a to b, and the closed proof that it is the union of
+    /// their singletons, or the empty set where b is below a: the ends
+    /// worked out (`range_end`, carried in by `oveq12i`) where they are not
+    /// numerals already, and the range of numerals built up a numeral at a
+    /// time (`numerals::range`, `numerals::empty_range`). None for an end
+    /// that is no whole number, or a range longer than `RANGE_LISTED`, which
+    /// the checker refuses.
+    fn range_listing(&mut self, set: &Term) -> Checked<Option<(Vec<Term>, Proof)>> {
+        let kids = set.children().to_vec();
+        let Some((from, from_is)) = self.range_end(&kids[0])? else {
+            return Ok(None);
+        };
+        let Some((to, to_is)) = self.range_end(&kids[1])? else {
+            return Ok(None);
+        };
+        let mut elements = Vec::new();
+        let mut k = from.clone();
+        while k <= to {
+            if elements.len() >= RANGE_LISTED as usize {
+                return Ok(None);
+            }
+            elements.push(numeral_term(&k));
+            k += 1u32;
         }
+        let (sf, st) = (numerals::spell(from.clone()), numerals::spell(to.clone()));
+        let of_numerals = t!(sf, st, "cfz", "co");
+        let (union, listed) = if elements.is_empty() {
+            (t!("c0"), numerals::empty_range(&self.b, &from, &to))
+        } else {
+            (
+                numerals::singletons(&from, &to),
+                numerals::range(&self.b, &from, &to),
+            )
+        };
+        let written = self.rpn(set);
+        if written == of_numerals {
+            return Ok(Some((elements, listed)));
+        }
+        let ends = self.b.ap(
+            "oveq12i",
+            &binds! {"A" => self.rpn(&kids[0]), "B" => &sf,
+            "C" => self.rpn(&kids[1]), "D" => &st, "F" => "cfz"},
+            &[&from_is, &to_is],
+        );
+        Ok(Some((
+            elements,
+            self.b.ap(
+                "eqtri",
+                &binds! {"A" => &written, "B" => &of_numerals, "C" => &union},
+                &[&ends, &listed],
+            ),
+        )))
+    }
+
+    /// A range's end, the whole number it works out to as the checker reads
+    /// it (`whole_value`), and |- end = that numeral: `eqid` where the end is
+    /// the numeral, and otherwise the equation proved as `arithmetic` proves
+    /// one of numerals (`closed_fact`), under truth and taken out of it
+    /// (`mptru`). None for an end that is no whole number.
+    fn range_end(&mut self, end: &Term) -> Checked<Option<(BigUint, Proof)>> {
+        let Some(value) = whole_value(end) else {
+            return Ok(None);
+        };
+        let said = self.rpn(end);
+        let numeral = numerals::spell(value.clone());
+        if said == numeral {
+            let same = self.b.ap("eqid", &binds! {"A" => &said}, &[]);
+            return Ok(Some((value, same)));
+        }
+        let goal = t!(&said, &numeral, "wceq");
+        let what = format!("a range ends at {}", self.render(&said));
+        let p = self.closed_fact(&goal, &t!("wtru"), &Facts::new(), &what, None)?;
+        Ok(Some((value, pf!(self.b; goal, p, "mptru"))))
     }
 
     /// ( scope -> t ∈ the union of `elements`' singletons ), t being the
@@ -1208,6 +1607,17 @@ impl Elaborator<'_> {
     ) -> Checked<Route<Kept>> {
         let p = self.rpn(body);
         let builder = |over: &Rpn| t!(p, letter, over, "crab");
+        if elements.is_empty() {
+            let none = self.b.ap("rab0", &binds! {"x" => letter, "ph" => &p}, &[]);
+            return Ok(Built(Kept {
+                elements: Vec::new(),
+                proof: self.b.ap(
+                    "a1i",
+                    &binds! {"ph" => &t!(builder(&t!("c0")), "c0", "wceq"), "ps" => scope},
+                    &[&none],
+                ),
+            }));
+        }
         if elements.len() == 1 {
             let c = self.rpn(&elements[0]);
             let single = t!(c, "csn");

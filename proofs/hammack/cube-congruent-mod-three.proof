@@ -3,80 +3,20 @@ import mundane definition stdlib/divisibility/divides
 import mundane theorem    stdlib/divisibility/mod-less
 import mundane theorem    stdlib/divisibility/mod-natural
 import mundane theorem    stdlib/divisibility/mod-remainder
-import mundane theorem    stdlib/numbers/integer-step
-import mundane theorem    stdlib/numbers/nat0-nonzero
-import mundane axiom      stdlib/reasoning/excluded-middle
-import mundane theorem    stdlib/reasoning/or-left
-import mundane theorem    stdlib/reasoning/or-right
+import mundane theorem    stdlib/sums/range-from-bounds
 
 theorem residue-mod-three
-  note        A whole number below 3 is 0, 1 or 2: if it is not 0 and not 1
-              it is at least 2, and below 3 means at most 2.
+  note        A whole number below 3 is 0, 1 or 2: it is one of the whole
+              numbers from 0 to 3 − 1, which are those three.
   let r ∈ ℕ₀                                                          (H1)
   assume r < 3                                                        (H2)
   then r = 0 or r = 1 or r = 2
 
-1.  r = 0 or r ≠ 0
-    mun:excluded-middle P := r = 0
+1.  r ∈ {0, …, 3 − 1}
+    mun:range-from-bounds, from H2
 
 2.  r = 0 or r = 1 or r = 2
-    cases, from 1
-
-    case
-    assume r = 0                                                      (C1)
-
-    2.1.  r = 0 or r = 1
-          mun:or-left, from C1
-
-    2.2.  r = 0 or r = 1 or r = 2
-          mun:or-left, from 2.1
-
-    case
-    assume r ≠ 0                                                      (C2)
-
-    2.3.  r ∈ ℕ
-          mun:nat0-nonzero m := r, from C2
-
-    2.4.  r = 1 or r ≠ 1
-          mun:excluded-middle P := r = 1
-
-    2.5.  r = 0 or r = 1 or r = 2
-          cases, from 2.4
-
-          case
-          assume r = 1                                                (C3)
-
-          2.5.1.  r = 0 or r = 1
-                  mun:or-right, from C3
-
-          2.5.2.  r = 0 or r = 1 or r = 2
-                  mun:or-left, from 2.5.1
-
-          case
-          assume r ≠ 1                                                (C4)
-
-          2.5.3.  1 + 1 ≤ r
-                  mun:integer-step m := 1, n := r
-                  requires 1 < r: inequalities, from C4, 2.3
-
-          2.5.4.  r + 1 ≤ 3
-                  mun:integer-step m := r, n := 3, from H2
-
-          2.5.5.  r ≤ 2
-                  inequalities
-                    r + 1 ≤ 3        2.5.4
-                    r ≤ 2            adding −1
-
-          2.5.6.  2 ≤ r
-                  inequalities
-                    1 + 1 ≤ r        2.5.3
-                    2 ≤ r            algebra
-
-          2.5.7.  r = 2
-                  antisymmetry, from 2.5.5, 2.5.6
-
-          2.5.8.  r = 0 or r = 1 or r = 2
-                  mun:or-right, from 2.5.7
+    inspection, from 1
 
 
 theorem cube-congruent-mod-three

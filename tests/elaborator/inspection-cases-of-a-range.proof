@@ -1,0 +1,100 @@
+import mundane theorem    stdlib/divisibility/mod-less
+import mundane theorem    stdlib/divisibility/mod-natural
+import mundane theorem    stdlib/sums/range-from-bounds
+
+theorem remainder-by-three-is-one-of-three
+  note        `inspection` reading a range of numerals as the list it is, its
+              top end a closed term worked out: a remainder on dividing by 3
+              lies in {0, …, 3 − 1}, so it is 0, 1 or 2, a line `cases`
+              splits on.
+  let n ∈ ℤ                                                           (H1)
+  then n mod 3 ≤ 2
+
+1.  n mod 3 ∈ ℕ₀
+    mun:mod-natural b := 3
+
+2.  n mod 3 < 3
+    mun:mod-less b := 3
+
+3.  n mod 3 ∈ {0, …, 3 − 1}
+    mun:range-from-bounds, from 1, 2
+
+4.  n mod 3 = 0 or n mod 3 = 1 or n mod 3 = 2
+    inspection, from 3
+
+5.  n mod 3 ≤ 2
+    cases, from 4
+
+    case
+    assume n mod 3 = 0                                                (C1)
+
+    5.1.  n mod 3 ≤ 2
+          calculation
+            n mod 3 = 0         C1
+                    ≤ 2         arithmetic
+
+    case
+    assume n mod 3 = 1                                                (C2)
+
+    5.2.  n mod 3 ≤ 2
+          calculation
+            n mod 3 = 1         C2
+                    ≤ 2         arithmetic
+
+    case
+    assume n mod 3 = 2                                                (C3)
+
+    5.3.  n mod 3 ≤ 2
+          calculation
+            n mod 3 = 2         C3
+                    ≤ 2         arithmetic
+
+theorem one-of-a-range-of-two
+  note        `inspection` reading a range of two numerals.
+  let x ∈ {1, …, 2}                                                   (H1)
+  then x = 1 or x = 2
+
+1.  x = 1 or x = 2
+    inspection, from H1
+
+theorem one-of-a-range-of-five
+  note        `inspection` reading a range of five numerals, the equations
+              in another order than the range's, one written the other way
+              round and one naming its numeral by a sum of the same value.
+  let k ∈ {0, …, 4}                                                   (H1)
+  then k = 4 or k = 0 or 2 = k or k = 1 or k = 1 + 2
+
+1.  k = 4 or k = 0 or 2 = k or k = 1 or k = 1 + 2
+    inspection, from H1
+
+theorem one-of-a-range-ending-in-a-quotient
+  note        `inspection` reading a range whose ends are closed terms
+              arithmetic works out, a quotient and a difference below zero
+              on the way among them.
+  let k ∈ {1 − 2 + 1, …, 6/3}                                         (H1)
+  then k = 0 or k = 1 or k = 2
+
+1.  k = 0 or k = 1 or k = 2
+    inspection, from H1
+
+theorem one-of-a-named-range
+  note        `inspection` reading a set a cited line names, which another
+              cited line gives as a range.
+  let S ⊆ ℤ                                                           (H1)
+  assume S = {3, …, 5}                                                (H2)
+  let x ∈ S                                                           (H3)
+  then x = 3 or x = 4 or x = 5
+
+1.  x = 3 or x = 4 or x = 5
+    inspection, from H2, H3
+
+theorem one-of-a-listed-pair
+  note        `inspection` reading a set listed by two names: x is one of
+              them whether or not they differ, so nothing need say they do.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let x ∈ {a, b}                                                      (H3)
+  then x = b or a = x
+
+1.  x = b or a = x
+    inspection, from H3

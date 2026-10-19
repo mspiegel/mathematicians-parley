@@ -48,13 +48,13 @@ theorem choose-one-less
           substitute ((N + 1) − N)! = 1 (line 2.7)
 
     2.9.  (N + 1)! = N!·(N + 1)
-          mun:factorial n := N, from C1
+          mun:factorial n := N
 
     2.10. (N + 1)!/(1·N!) = N!·(N + 1)/(1·N!)
           substitute (N + 1)! = N!·(N + 1) (line 2.9)
 
     2.11. N! ∈ ℕ
-          mun:factorial-nat n := N, from C1
+          mun:factorial-nat n := N
 
     2.12. N!·(N + 1)/(1·N!) = N + 1
           algebra, from 2.11

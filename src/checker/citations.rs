@@ -938,7 +938,11 @@ fn recursion_differs(
                 continue;
             };
             let a_tree = substitute_apart(&a_tree, &put, known.ctx);
-            if !known.alike(&a_tree, &b_tree) {
+            // The rules as written, not as alike: a sequence by recursion is
+            // the term its rules build, and F(k) + 1 + 0 builds another term
+            // than F(k) + 1, which the kernel will not fit to it.
+            let as_written = |t: &Node| standard(t, known.ctx);
+            if !as_written(&a_tree).same_shape(&as_written(&b_tree)) {
                 let place = match at {
                     None => format!("{name}(0)"),
                     Some(k) => format!("{name}({k} + 1)"),

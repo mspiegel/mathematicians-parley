@@ -1,5 +1,5 @@
-import theorem            proofs/hammack/factorial-from-zero/factorial-natural
-import theorem            proofs/hammack/factorial-from-zero/factorial-successor
+import mundane definition stdlib/counting/factorial
+import mundane theorem    stdlib/counting/factorial-nat
 import theorem            proofs/wiedijk/binomial/binomial
 import definition         stdlib/counting/C
 import mundane definition stdlib/sums/range-between
@@ -51,10 +51,10 @@ theorem weighted-term
     substitute (m − (k − 1))! = ((m + 1) − k)! (line 9)
 
 11. (m + 1)! = m!·(m + 1)
-    thm:factorial-successor n := m
+    mun:factorial n := m
 
 12. ((k − 1) + 1)! = (k − 1)!·((k − 1) + 1)
-    thm:factorial-successor n := k − 1
+    mun:factorial n := k − 1
     requires k − 1 ∈ ℕ₀: mun:nat-minus-one n := k
 
 13. (k − 1) + 1 = k
@@ -64,16 +64,16 @@ theorem weighted-term
     substitute (k − 1) + 1 = k (line 13) into line 12
 
 15. m! ∈ ℕ
-    thm:factorial-natural n := m
+    mun:factorial-nat n := m
 
 16. (m + 1) − k ∈ ℕ₀
     mun:range-difference a := 1, n := m + 1, from H2
 
 17. ((m + 1) − k)! ∈ ℕ
-    thm:factorial-natural n := (m + 1) − k, from 16
+    mun:factorial-nat n := (m + 1) − k, from 16
 
 18. (k − 1)! ∈ ℕ
-    thm:factorial-natural n := k − 1
+    mun:factorial-nat n := k − 1
     requires k − 1 ∈ ℕ₀: mun:nat-minus-one n := k
 
 19. k·C(m + 1, k) = k·((m + 1)!/(((m + 1) − k)!·k!))

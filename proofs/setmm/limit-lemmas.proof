@@ -3,7 +3,6 @@ import mundane theorem    stdlib/numbers/abs-product
 import mundane theorem    stdlib/numbers/abs-real
 import mundane theorem    stdlib/numbers/multiply-le
 import mundane theorem    stdlib/numbers/quotient-nonneg
-import mundane theorem    stdlib/numbers/quotient-real
 import mundane theorem    stdlib/numbers/real-closure
 
 theorem abs-nonneg
@@ -85,58 +84,55 @@ let d = |C| + 1, a real number                                        (D1)
       2·d > 0          multiplying by 2
       2·d ≠ 0          weakening
 
-5.  ε/(2·d) ∈ ℝ
-    mun:quotient-real x := ε, y := 2·d, from 4
-
-6.  |u| < ε/(2·d)
+5.  |u| < ε/(2·d)
     inequalities, from D1, H5, 1, 4
     requires |u| ∈ ℝ: mun:abs-real x := u
 
-7.  |u| ≤ ε/(2·d)
+6.  |u| ≤ ε/(2·d)
     inequalities
-      |u| < ε/(2·d)    6
+      |u| < ε/(2·d)    5
       |u| ≤ ε/(2·d)    weakening
     requires d ≠ 0: weakening, from 3
     requires |u| ∈ ℝ: mun:abs-real x := u
 
-8.  d·|u| ≤ d·(ε/(2·d))
-    mun:multiply-le x := |u|, y := ε/(2·d), c := d, from 3, 5, 7
+7.  d·|u| ≤ d·(ε/(2·d))
+    mun:multiply-le x := |u|, y := ε/(2·d), c := d, from 3, 6
     requires |u| ∈ ℝ: mun:abs-real x := u
 
-9.  d·(ε/(2·d)) = ε/2
+8.  d·(ε/(2·d)) = ε/2
     algebra
     requires 2·d ≠ 0: from 4
 
-10. d·|u| = |C|·|u| + |u|
+9.  d·|u| = |C|·|u| + |u|
     algebra, from D1, 1
     requires |u| ∈ ℝ: mun:abs-real x := u
 
-11. |u| ≥ 0
+10. |u| ≥ 0
     thm:abs-nonneg x := u
 
-12. |C|·|u| ≤ |C|·|u| + |u|
+11. |C|·|u| ≤ |C|·|u| + |u|
     inequalities
-      |u| ≥ 0                      11
+      |u| ≥ 0                      10
       |C|·|u| + |u| ≥ |C|·|u|      adding |C|·|u|
     requires |C| ∈ ℝ: from 1
     requires |u| ∈ ℝ: mun:abs-real x := u
 
-13. |C|·|u| ≤ ε/2
-    transitivity, from 12, 10, 8, 9
+12. |C|·|u| ≤ ε/2
+    transitivity, from 11, 9, 7, 8
     requires |C| ∈ ℝ: from 1
     requires d ≠ 0: weakening, from 3
     requires |u| ∈ ℝ: mun:abs-real x := u
 
-14. |C·u| = |C|·|u|
+13. |C·u| = |C|·|u|
     mun:abs-product x := C, y := u
 
-15. ε/2 < ε
+14. ε/2 < ε
     inequalities
       ε > 0            H4
       ε/2 > 0          multiplying by 1/2
       ε > ε/2          adding ε/2
 
-16. |C·u| < ε
-    transitivity, from 14, 13, 15
+15. |C·u| < ε
+    transitivity, from 13, 12, 14
     requires |C| ∈ ℝ: from 1
     requires |u| ∈ ℝ: mun:abs-real x := u

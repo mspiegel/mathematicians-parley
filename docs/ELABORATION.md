@@ -953,9 +953,7 @@ one side, whose other side is placed the same way and carried across by
 `eqeltrd` (`equated_part`, which every method's side conditions read, and
 which reads no term twice at once, so that x = y and y = x do not send it
 round); and `same` carries it back to the claim as written. A divisor is not
-zero by a line, by being a numeral other than zero, by a membership that
-says so (`let k ∈ ℕ`), or as a product, a quotient or a power to a numeral
-of such (`mulne0d`, `divne0d`, `expne0d`). A requires line may name it too, and
+zero by the one order below (a divisor's `≠ 0`). A requires line may name it too, and
 is proved the same way from the lines it cites (`member_of`). A claim said of
 every member is proved of one fixed by `widen`, with what its membership says
 laid beside it (`fixed`), and closed by `ralrimiva`; a sum over a range is
@@ -976,20 +974,39 @@ is `a / (P/Q)` (`oveq2d`), which is `(a·Q) / P` by `divdiv2`, and that is
 normalised as any quotient is: `1/(1/j)²`, `1/(2·(1/j))` and `x/(−(x/2))`
 alike. The law asks that P is not zero, and that comes from R, asked as the
 page writes it and not of its canonical form, carried across R = P/Q
-(`divne0bd`): R is not zero by a line saying so, or by its parts, a product,
-a quotient, a negation or a power to a numeral not being zero when its parts
-are not (`mulne0d`, `divne0d`, `negne0d`, `expne0d`), each part's
-disequality the page's own or a positive integer it says once. The
-triangular reciprocals divide 1 by `k(k + 1)/2` and say `k ≠ 0` and
-`k + 1 ≠ 0`; the canonical form of `k(k + 1)` is `k² + k`, of which the page
-says nothing.
+(`divne0bd`). The triangular reciprocals divide 1 by `k(k + 1)/2` and say
+`k ≠ 0` and `k + 1 ≠ 0`; the canonical form of `k(k + 1)` is `k² + k`, of
+which the page says nothing.
 
-A divisor written as a product or a power, in the claim or in a line the
-step cites, is not zero by a line the step may rest on saying so of the
-whole; else by its factors, each the same way; else by any line in scope.
-A step whose requires line says t² ≠ 0 rests on that line and not on a
-t ≠ 0 above it that it does not name, and one saying each factor is not
-zero rests on those lines and not on one above saying the product is.
+A divisor's `≠ 0` is taken in one order wherever it is asked
+(`divisor_apart`): of R above, of a divisor written as a product, a
+negation or a power in the claim or a line the step cites, of a
+denominator's atoms, of a quotient a membership is built for, and of what
+`not_zero` is asked.
+
+1. A numeral other than zero, or a positive integer the page says once
+   (`SYNTAX.md`), which rests on no line.
+2. A line the step may rest on saying so: as `≠`, either way round, as the
+   denial of an equation, as the divisor above zero or below it
+   (`gt0ne0d`, `lt0ne0d`), or as a membership that says so (`let k ∈ ℕ`).
+3. Its parts: a product, a quotient, a negation, or a power to a numeral,
+   0 among them, is not zero when its parts are not (`mulne0d`, `divne0d`,
+   `negne0d`, `expne0d`), each part by this same order.
+4. A closed value not zero, worked out as `arithmetic` works one out.
+5. A line in scope the step does not name, which the step then rests on.
+6. The search, which offers only what the step may rest on.
+
+Where it is asked decides how far the order goes. A quotient a membership is
+built for stops at 3 (`divisor_written`), since its divisor's `≠ 0` is the
+step's to name; a method's normaliser goes to 5, and to 6 where it is given
+a way to search; `not_zero` takes every stage but 5. A line saying the
+whole comes before its parts, and the parts before a line the step does not
+name: a step whose requires line says t² ≠ 0 rests on that line and not on
+a t ≠ 0 above it that it does not name; one saying each factor is not zero
+rests on those lines and not on one above saying the product is; and one
+naming x > 0 rests on that and not on an uncited x ≠ 0. The checker asks
+the same of a divisor's parts (`nonzero_by_parts`), so that the two tools
+agree on which lines a step need not write.
 
 A finite sum the step reads as linear (`METHODS.md`) is written out by the
 oracle the normaliser asks (`linear_sum`), and the parts' sums it gives are

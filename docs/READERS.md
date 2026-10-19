@@ -72,7 +72,10 @@ of them for each of four vertices would bury the one that is. `inspection`
 lines it cites list in full, each element is settled by what those lines say
 of it and by their saying which names are distinct, and nothing is searched
 for. A case analysis whose cases need reasons of their own is still written
-out, each case with its conclusion.
+out, each case with its conclusion. That a remainder on dividing by 3 is 0,
+1 or 2, once a line has put it in {0, …, 3 − 1}, is seen the same way: a
+small range of numerals is a list, `inspection` gives the line of "or"s it
+lists, and `cases` takes them one at a time, each case written.
 
 **That 5 is odd is seen, not argued.** A reader knows 5 is odd and 3 divides
 9 at a glance, and a line writing 5 = 2·2 + 1 to unfold "odd" asks them to

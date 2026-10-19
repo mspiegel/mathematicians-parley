@@ -519,9 +519,10 @@ of
   A quotient's divisor not being zero is the step's to write or cite, unless
   the page says once that it is a positive integer: a numeral other than
   zero, or a term these rules put in ℕ, as k, k + 1, j·(j + 1) and 2^n are
-  where k, j ∈ ℕ and n ∈ ℕ₀; or unless it is a product, a quotient or a
-  power to a numeral whose parts are each not zero by this same rule:
-  `x·2` is not zero where a line says `x ≠ 0`. `10^0` is a power of a
+  where k, j ∈ ℕ and n ∈ ℕ₀; or unless it is a product, a quotient, a
+  negation or a power to a numeral, 0 included, whose parts are each not
+  zero by this same rule: `x·2`, `−x` and `x⁰` are not zero where a line
+  says `x ≠ 0`, or `x > 0`. `10^0` is a power of a
   numeral and so not zero, but `1 − 2` is no numeral, and `requires 1 − 2 ≠
   0: arithmetic` says it. A sum's term that divides by something holding the
   sum's own letter, `1/T(k)` in `Σ(k = 1 to n)`, or `1/k` in `Σ(k = 0 to
@@ -747,6 +748,15 @@ into its rule: a step that needs a value writes it and cites the define.
 saying b(k) ≠ 0, the case being taken as for a define by cases, with a
 `requires` line saying k ∈ ℕ₀. What holds of every value is proved by
 induction on k, as anything true for all k ∈ ℕ₀ is.
+
+A theorem stated over a sequence it defines by recursion speaks of that
+sequence, and a step citing it speaks of the citing proof's sequence of the
+same name, defined in its statement or its proof. The citation holds where
+the two are one recursion: the same names in the same order, each with the
+same value at 0 and the same rule at k + 1 as written, the index letter
+apart and the cited theorem's letters given what the citation gives them.
+A rule written another way, `1 + F(k)` for `F(k) + 1`, or with an identity
+element more, defines another sequence, as set.mm writes it.
 
 **A step may cite a define** by its label alone, `D1`, or with the lines it
 uses, `D1, from 3`. Its claim is an equation with the name on one side,
