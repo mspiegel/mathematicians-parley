@@ -615,15 +615,16 @@ term, in letters they do not share, are drawn as the refusal above.
 
 ## arithmetic
 
-`arithmetic` decides **closed numeral facts**. A fact with no letter in it
-gives a reader nothing to check but working it out, so it names `arithmetic`
+`arithmetic` decides **closed numeral facts**, a subset of the facts with no
+letter in them (Boundary, below). A fact it can work out gives a reader
+nothing to check but working it out, so it names `arithmetic`
 where it is used rather than standing as a step of its own (`SYNTAX.md`). It
 justifies a requires line; it is the source of a `substitute`, `substitute 0
 + 1 = 1 (arithmetic)`; and it is the reason on a chain line of numerals alone,
 `= 1(1 + 1)/2    arithmetic`. It justifies a numbered step only where the
 proof's shape asks a line there: an induction's base case, and a fact a
-method takes only from a cited line. One step of the corpus is such, the
-birthday problem's step 13.
+method takes only from a cited line, as the birthday problem's step 8,
+23 ≤ 365, is for the `transitivity` of step 9.
 In each place the same procedure and the same refusals apply, and the
 checker refuses the method for a fact with a letter in it.
 
@@ -636,10 +637,12 @@ The requires lines of the corpus that cite it, counted 2026-10-09:
 | an order relation, as 2 ≥ 0 | 3 |
 | a disequality, as 2 ≠ 0 | 4 |
 
-A numeral's membership is not written at all (`READERS.md`, said once); the
-one membership left is of a product over a range, ∏(k ∈ {0, …, 22}) (365 − k),
-which is closed but not built from numerals by the operations the page says
-once.
+A numeral's membership is not written at all (`READERS.md`, said once). A
+product over a range, ∏(k ∈ {0, …, 22}) (365 − k), is closed but not built
+from numerals by the operations the page says once, so its membership is
+written where a step asks it; the birthday problem's claim about it,
+(∏(k ∈ {0, …, 22}) (365 − k))/365^23 < 1/2, is one arithmetic works out, and
+cites `arithmetic` whole.
 
 ### Facts in
 
@@ -732,12 +735,18 @@ stops.
 On a claim of numerals alone `algebra` would succeed too, normalising
 `1 − 1(1 + 1)/2` to zero, and so would `inequalities` on `not 2 ≤ 1`, from
 the closed facts it takes uncited. Both combine what a step says of its
-letters, and a claim with none gives a reader nothing to check but working it
-out. So a claim whose every leaf is a numeral cites `arithmetic`, whatever
-relation it states, and the checker refuses `algebra` or `inequalities` for
-one, in a step or a requires line. A claim with no letter but a constant,
-`1 + i·0 = 1`, is not numerals alone: `arithmetic` cannot work i out, and the
-claim stays `algebra`'s.
+letters and constants, and a claim `arithmetic` can work out gives a reader
+nothing to check but working it out. So a claim arithmetic can work out
+cites `arithmetic`, whatever relation it states: one built from numerals by
+the operations under *Fact out*, stating a relation it decides. The checker
+refuses `algebra` or `inequalities` for one, in a step or a requires line.
+
+A claim with no letter that arithmetic cannot work out is not arithmetic's.
+`1 + i·0 = 1` holds a constant it has no value for, and `√2·√2 = 2` an
+operation it does not take. Such a claim is `algebra`'s or `inequalities'`,
+which take √2 as an atom, as they take a letter, and cite what they use of
+it as they would of a letter: `√2·√2 = 2` by `algebra, from` a line citing
+`mun:sqrt x := 2`, which says (√2)² = 2 and √2 ∈ ℝ.
 
 Denials of an order are `arithmetic`'s with the rest: not a ≤ b is b < a, and
 not a < b is b ≤ a, each turned by the law that says so (`ltnled`, `lenltd`).

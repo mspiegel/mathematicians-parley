@@ -1,0 +1,20 @@
+theorem positive-at-a-point
+  note        A theorem whose free n is also the letter its own for-all
+              hypothesis binds; the two are different letters.
+  let n ∈ ℕ                                                           (H1)
+  let f : ℕ → ℝ                                                       (H2)
+  assume for all n ∈ ℕ, f(n) > 0                                      (H3)
+  then f(n) > 0
+
+1.  f(n) > 0
+    instantiate n := n in H3
+
+theorem positive-at-three
+  note        The citation puts 3 for the free n only, and the hypothesis
+              is supplied by a line over its own letter k.
+  let g : ℕ → ℝ                                                       (H1)
+  assume for all k ∈ ℕ, g(k) > 0                                      (H2)
+  then g(3) > 0
+
+1.  g(3) > 0
+    thm:positive-at-a-point n := 3, f := g, from H2

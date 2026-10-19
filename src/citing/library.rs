@@ -10,8 +10,9 @@ use indexmap::IndexMap;
 use crate::corpus::{Intro, Record, RecordKind, Theorem};
 use crate::formula::notation_id::NotationId;
 use crate::formula::page::Written;
+use crate::formula::Binds;
 use crate::formula::{Node, Sorts};
-use crate::matching::{expand, standard, Context, FxIndexSet};
+use crate::matching::{expand, free_names, standard, Context, FxIndexMap, FxIndexSet};
 use crate::methods::terms::Targets;
 use crate::notations::{APPLICATION, APPLICATION_TO_TWO};
 use crate::regex;
@@ -38,6 +39,37 @@ pub struct Group {
 }
 
 impl Group {
+    /// The group with each letter a binder in it holds, where the letter is
+    /// free elsewhere in the group, spelt apart (`matching::bound_apart`):
+    /// the item's free n and the n of its own "for all n ∈ ℕ, f(n) > 0" are
+    /// two letters, and a citation puts its value for the free one only.
+    fn bound_apart(self, binders: &FxIndexMap<NotationId, Binds>) -> Group {
+        let trees: Vec<&Node> = self
+            .wants
+            .iter()
+            .map(|(_, t)| t)
+            .chain(&self.gives)
+            .collect();
+        let mut free = BTreeSet::new();
+        let mut used = BTreeSet::new();
+        for t in &trees {
+            free.extend(free_names(t, binders));
+            used.extend(t.names());
+        }
+        let apart = |t: &Node| crate::matching::bound_apart(t, &free, &used, binders);
+        let wants = self
+            .wants
+            .iter()
+            .map(|(s, t)| (s.clone(), apart(t)))
+            .collect();
+        let gives = self.gives.iter().map(apart).collect();
+        Group {
+            wants,
+            gives,
+            ..self
+        }
+    }
+
     /// The item's letters among the names in `trees`: each but the
     /// library's functions it applies and its groups' identities.
     pub fn letters(&self, trees: &[Node]) -> BTreeSet<String> {
@@ -335,12 +367,13 @@ impl<'a> Library<'a> {
                 &k.sorts,
                 self.env,
             );
-            return Some(vec![Group {
+            let group = Group {
                 wants: facts,
                 gives,
                 functions,
                 identities: group_identities(&lines),
-            }]);
+            };
+            return Some(vec![group.bound_apart(&self.ctx.binders)]);
         }
         let &i = self.items.get(name)?;
         let item = &self.records[i];
@@ -361,12 +394,13 @@ impl<'a> Library<'a> {
                 sorts,
                 self.env,
             );
-            out.push(Group {
+            let group = Group {
                 wants,
                 gives,
                 functions,
                 identities: group_identities(&lines),
-            });
+            };
+            out.push(group.bound_apart(&self.ctx.binders));
         }
         if out.is_empty() {
             out.push(Group {

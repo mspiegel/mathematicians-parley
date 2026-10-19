@@ -599,7 +599,7 @@ fn cases() -> Vec<Case> {
                 Some("          requires k ≠ 0: weakening, from 10.2\n".to_string()),
                 String::new(),
             )],
-            "1/k ∈ ℝ is not built from what step 10.3 cites",
+            "1/k ∈ ℝ is not built from what step 10.3 cites: nothing says k ≠ 0, which it needs to divide by it",
         ),
         // A difference of numerals is no numeral, so a step dividing by one
         // writes its `≠ 0`.
@@ -695,7 +695,7 @@ fn cases() -> Vec<Case> {
                 Some("                    requires d(n) ∈ ℝ: membership, from 16.23\n\n           16.26.4.".to_string()),
                 "                    requires d(n) ∈ ℝ: membership\n\n           16.26.4.".to_string(),
             )],
-            "d(n) ∈ ℝ is not built from what step 16.26.3 cites",
+            "d(n) ∈ ℝ is not built from what step 16.26.3 cites: nothing says d(n) ∈ ℝ, which it needs",
         ),
         // Every atom an inequalities step combines is a real number by a
         // line it names: |c| is, by line 1, which line 2 does not say.
@@ -1155,7 +1155,8 @@ fn cases() -> Vec<Case> {
             "the requires line of step 1.6 says 2 ∈ ℝ, which the step's other lines already say",
         ),
         // A claim of numerals said to be impossible, given to `inequalities`:
-        // a claim of numerals alone is arithmetic's, and is refused there.
+        // a claim arithmetic can work out is arithmetic's, and is refused
+        // there.
         case(
             "say a true claim is impossible",
             vec![edit(
@@ -1163,7 +1164,7 @@ fn cases() -> Vec<Case> {
                 Some("    2.3.  10 divides 1, which is impossible\n          substitute (t + 1) − t = 1 (line 2.2) into line 2.1\n".to_string()),
                 "    2.3.  10 divides 1\n          substitute (t + 1) − t = 1 (line 2.2) into line 2.1\n\n    2.4.  1 ≤ 10, which is impossible\n          inequalities\n".to_string(),
             )],
-            "step 2.4 gives inequalities for 1 ≤ 10, which has no letter in it; a claim of numerals alone is arithmetic's",
+            "step 2.4 gives inequalities for 1 ≤ 10, which arithmetic can work out; a claim arithmetic can work out cites arithmetic",
         ),
         // A claim of `algebra` that is not an identity, and one asking a
         // power past what algebra may multiply out: the checker decides
@@ -3274,7 +3275,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/wiedijk/pythagorean-triples.proof", Some("    requires 2 ≠ 0: arithmetic\n".to_string()), "    requires 2 ≠ 0: inequalities\n".to_string()),
             ],
-            "gives inequalities for 2 ≠ 0, which has no letter in it",
+            "gives inequalities for 2 ≠ 0, which arithmetic can work out",
         ),
         case(
             "say a step is impossible and contradict a line as well",
@@ -4215,7 +4216,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/wiedijk/sum-formula.proof", Some("    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2\n          algebra".to_string()), "    1.6.  2 + 2 = 4\n          algebra".to_string()),
             ],
-            "step 1.6 gives algebra for 2 + 2 = 4, which has no letter in it",
+            "step 1.6 gives algebra for 2 + 2 = 4, which arithmetic can work out",
         ),
         // A step citing a define is the define at its values: one equation,
         // or that its name is a function on a set.
@@ -5175,6 +5176,17 @@ fn cases() -> Vec<Case> {
                 String::new(),
             )],
             "a requires line says it, as for all k ∈ {1, …, 1}, F(k) ∈ ℝ, from a line saying the values on a set holding {1, …, 1}",
+        ),
+        // A nested block's step numbered as its owner's sibling is read as
+        // the enclosing block's, and the numbering is what is named.
+        case(
+            "number a nested case's step at the outer level",
+            vec![edit(
+                "proofs/setmm/prime-two-or-odd.proof",
+                Some("          2.6.1.  2 ≠ 1\n".to_string()),
+                "          2.7.    2 ≠ 1\n".to_string(),
+            )],
+            "step 2.6 is justified by cases, which needs a block, and has no sub-steps: the step below it is numbered 2.7, so what stands under it is read as part of step 2's block; a step of 2.6's block is numbered 2.6.1",
         ),
     ]
 }

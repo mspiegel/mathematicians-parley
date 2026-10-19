@@ -847,8 +847,8 @@ Where none of those places can carry it, the fact is a numbered step after
 all, justified by `arithmetic`: where the proof's shape asks a line and not a
 reason. An induction's base case of numerals alone is one, read by the
 induction as its base, and so is a fact a method takes only from the lines it
-cites, as `inequalities` takes the birthday problem's 2·∏(k ∈ {0, …, 22})
-(365 − k) < 365^23. A step a numeral fact could have been written beside
+cites, as `transitivity` takes the birthday problem's 23 ≤ 365. A step a
+numeral fact could have been written beside
 instead is still a line too many.
 
 A chain line whose terms have a letter in them may still name `arithmetic`

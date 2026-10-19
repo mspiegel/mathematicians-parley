@@ -1210,6 +1210,65 @@ pub fn substitute_apart(node: &Node, binding: &Binding, ctx: &Context) -> Node {
     substitute_apart_by(node, binding, &ctx.binders)
 }
 
+/// The tree with each letter a binder in it holds that is one of `clash`
+/// spelt with a letter neither `clash` nor `used` has, in the binder and
+/// in its body: an item's `for all n ∈ ℕ, f(n) > 0` beside its free n is
+/// `for all a ∈ ℕ, f(a) > 0`, so that what a citation puts for the free n
+/// is never caught by the binder.
+pub fn bound_apart(
+    node: &Node,
+    clash: &BTreeSet<String>,
+    used: &BTreeSet<String>,
+    binders: &FxIndexMap<NotationId, Binds>,
+) -> Node {
+    let held = binders
+        .get(&node.notation())
+        .map(|b| (b.held.clone(), b.body.clone()));
+    let mut renamed = Binding::new();
+    let mut spelt: IndexMap<usize, Node> = IndexMap::new();
+    if let Some((held, _)) = &held {
+        let mut taken: BTreeSet<String> = used.union(clash).cloned().collect();
+        taken.extend(node.names().iter().map(|n| n.to_string()));
+        for &at in held {
+            let var = &node.children[at];
+            if !var.is_name() || !clash.contains(var.text.as_str()) {
+                continue;
+            }
+            let letter = fresh_letters()
+                .into_iter()
+                .find(|c| !taken.contains(c))
+                .unwrap_or_default();
+            taken.insert(letter.clone());
+            let fresh = Node::name(var.sort.clone(), &letter);
+            spelt.insert(at, fresh.clone());
+            renamed.insert(var.text, fresh);
+        }
+    }
+    let body = held.map(|(_, body)| body).unwrap_or_default();
+    let children: Vec<Node> = node
+        .children
+        .iter()
+        .enumerate()
+        .map(|(i, c)| {
+            if let Some(fresh) = spelt.get(&i) {
+                return fresh.clone();
+            }
+            let c = if body.contains(&i) && !renamed.is_empty() {
+                substitute_apart_by(c, &renamed, binders)
+            } else {
+                c.clone()
+            };
+            bound_apart(&c, clash, used, binders)
+        })
+        .collect();
+    // A tree no binder in it renames is the tree itself, whose nodes keep
+    // their identity (`Node::same`).
+    if children.iter().zip(&node.children).all(|(a, b)| a.same(b)) {
+        return node.clone();
+    }
+    node.with_children(children)
+}
+
 /// `substitute_apart` with only the table of what binds, which the grammar
 /// keeps (`Grammar::binders`), for a place that has no matching context.
 pub fn substitute_apart_by(

@@ -214,20 +214,40 @@ pub fn check_blocks(
     methods: &IndexMap<String, &Record>,
     known: &Known,
 ) {
-    for step in &thm.steps {
+    for (at, step) in thm.steps.iter().enumerate() {
         let has_children = thm.steps.iter().any(|s| s.number.parent() == step.number);
         let head = step.just.head.to_string();
         let method = methods.get(&head);
         let wants_block = step.just.head.takes_block();
         if wants_block && !has_children && !step.just.head.is(Method::Calculation) {
-            report.say(
-                &thm.path,
-                step.line,
-                format!(
+            // A block whose steps are numbered as the step's siblings, 2.4
+            // under a step 2.3 where 2.3.1 is meant, is read as the
+            // enclosing block's: the numbering is what is wrong, and it is
+            // named before what it breaks.
+            let parent = step.number.parent();
+            let below = thm
+                .steps
+                .get(at + 1)
+                .filter(|s| s.number.parent() == parent);
+            let said = match below {
+                Some(next) => {
+                    let enclosing = if parent.0.is_empty() {
+                        "the proof's own steps".to_string()
+                    } else {
+                        format!("part of step {parent}'s block")
+                    };
+                    format!(
+                        "step {n} is justified by {head}, which needs a block, and has no sub-steps: the step below it is numbered {next}, so what stands under it is read as {enclosing}; a step of {n}'s block is numbered {n}.1",
+                        n = step.number,
+                        next = next.number
+                    )
+                }
+                None => format!(
                     "step {} is justified by {head}, which needs a block, and has no sub-steps",
                     step.number
                 ),
-            );
+            };
+            report.say(&thm.path, step.line, said);
         }
         if has_children && !wants_block {
             report.say(

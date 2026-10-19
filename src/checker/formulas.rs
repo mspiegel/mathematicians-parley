@@ -3612,7 +3612,37 @@ fn membership_holds(
     let given = held.given(targets, known);
     if !methods_membership::holds(term, system, &given) {
         let number = at.step.number.to_string();
-        let said = format!("{} is not built from what step {number} cites", at.claim);
+        // The first part the claim is built from that nothing held says is
+        // a number there, or a divisor nothing says is not zero.
+        let parts = methods_membership::Parts::of(term);
+        let unsaid = parts
+            .atoms
+            .iter()
+            .find(|a| !methods_membership::holds(a, system, &given))
+            .map(|a| {
+                format!(
+                    ": nothing says {} ∈ {}, which it needs",
+                    known.print(a),
+                    known.print(set)
+                )
+            })
+            .or_else(|| {
+                parts
+                    .divisors
+                    .iter()
+                    .find_map(|d| methods_membership::unsaid_part(d, &given))
+                    .map(|d| {
+                        format!(
+                            ": nothing says {} ≠ 0, which it needs to divide by it",
+                            known.print(&d)
+                        )
+                    })
+            })
+            .unwrap_or_default();
+        let said = format!(
+            "{} is not built from what step {number} cites{unsaid}",
+            at.claim
+        );
         report.say(&thm.path, at.line, at.said(said));
     }
     true
@@ -4045,47 +4075,43 @@ pub fn check_closed_arithmetic(report: &mut Report, thm: &Theorem, known: &Known
     }
 }
 
-/// A claim of numerals alone is `arithmetic`'s, whatever relation it states:
-/// `algebra` and `inequalities` combine what a step says of its letters, and
-/// a claim with none gives a reader nothing to check but working it out
-/// (`METHODS.md`, arithmetic). Asked of a step and of each requires line.
-pub fn check_closed_by_arithmetic(report: &mut Report, thm: &Theorem, known: &Known) {
-    // Numerals alone: every leaf a numeral, so that no name and no constant
-    // such as i, which arithmetic cannot work out, stands in it; and no part
-    // a set, since |{1, …, 23}| has numerals for leaves and arithmetic cannot
-    // work out the size of a set.
-    // A sentence that does not read is `check_formulas`'s to report.
-    let closed = |written: &Written| -> bool {
-        written
-            .sentences()
-            .iter()
-            .all(|s| match known.read_as_written(s) {
-                Some(n) => {
-                    let parts = n.walk();
-                    parts
-                        .iter()
-                        .filter(|m| m.children.is_empty())
-                        .all(|m| m.notation() == NUMERAL)
-                        && !parts.iter().any(|m| {
-                            matches!(
-                                m.sort.name(),
-                                Some("set" | "group-set" | "set-of-sets")
-                            )
-                        })
-                }
-                None => false,
-            })
-    };
+/// Whether `arithmetic` works out each sentence of `written`, true or false
+/// (`methods::field::decide_closed`): built from numerals by the operations
+/// it reads, and a relation it decides. √2·√2 = 2 has no letter and is not
+/// one, nor is 1 + i·0 = 1, nor |{1, …, 23}| = 23. A sentence that does not
+/// read is `check_formulas`'s to report, and is none.
+fn arithmetic_works_out(written: &Written, known: &Known, targets: &Targets) -> bool {
+    written.sentences().iter().all(|s| {
+        known.read_as_written(s).is_some_and(|n| {
+            let term = term_of_node(&written_out(&n, known), targets);
+            matches!(decide_closed(&term), Built(Verdict::Holds(_)))
+        })
+    })
+}
+
+/// A claim `arithmetic` can work out cites it, whatever relation it states:
+/// `algebra` and `inequalities` combine what a step says of its letters and
+/// constants, and a claim arithmetic works out gives a reader nothing to
+/// check but working it out (`METHODS.md`, arithmetic). A claim with no
+/// letter that it cannot work out, √2·√2 = 2, is theirs. Asked of a step
+/// and of each requires line.
+pub fn check_closed_by_arithmetic(
+    report: &mut Report,
+    thm: &Theorem,
+    known: &Known,
+    targets: &Targets,
+) {
+    let worked = |written: &Written| arithmetic_works_out(written, known, targets);
     for step in &thm.steps {
         let just = &step.just;
         if (just.head.is(Method::Algebra) || just.head.is(Method::Inequalities))
-            && closed(&step.claim)
+            && worked(&step.claim)
         {
             report.say(
                 &thm.path,
                 just.line,
                 format!(
-                    "step {} gives {} for {}, which has no letter in it; a claim of numerals alone is arithmetic's",
+                    "step {} gives {} for {}, which arithmetic can work out; a claim arithmetic can work out cites arithmetic",
                     step.number,
                     just.head,
                     step.claim_text()
@@ -4099,12 +4125,12 @@ pub fn check_closed_by_arithmetic(report: &mut Report, thm: &Theorem, known: &Kn
             else {
                 continue;
             };
-            if closed(&req.fact) {
+            if worked(&req.fact) {
                 report.say(
                     &thm.path,
                     req.line,
                     format!(
-                        "the requires line of step {} gives {} for {}, which has no letter in it; a fact of numerals alone is arithmetic's",
+                        "the requires line of step {} gives {} for {}, which arithmetic can work out; a fact arithmetic can work out cites arithmetic",
                         step.number,
                         method.as_str(),
                         req.fact

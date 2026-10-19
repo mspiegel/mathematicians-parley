@@ -1,0 +1,38 @@
+import mundane definition stdlib/numbers/sqrt
+
+theorem a-square-root-by-algebra
+  note        A claim with no letter that arithmetic cannot work out is
+              algebra's: √2 is an atom, and what algebra uses of it is
+              cited, (√2)² = 2 and √2 ∈ ℝ from the sqrt record.
+  then √2·√2 = 2
+
+1.  √2 ∈ ℝ. √2 ≥ 0. (√2)² = 2.
+    mun:sqrt x := 2
+    requires 2 ≥ 0: arithmetic
+
+2.  √2·√2 = 2
+    algebra, from 1
+
+theorem a-square-of-a-sum-with-a-root
+  then (1 + √2)² = 3 + 2·√2
+
+1.  √2 ∈ ℝ. √2 ≥ 0. (√2)² = 2.
+    mun:sqrt x := 2
+    requires 2 ≥ 0: arithmetic
+
+2.  (1 + √2)² = 3 + 2·√2
+    algebra, from 1
+
+theorem a-root-halved-by-inequalities
+  note        The same of an order: inequalities takes √2 as an atom, and
+              what it knows of it is cited.
+  then 0 ≤ √2/2
+
+1.  √2 ∈ ℝ. √2 ≥ 0. (√2)² = 2.
+    mun:sqrt x := 2
+    requires 2 ≥ 0: arithmetic
+
+2.  0 ≤ √2/2
+    inequalities
+      0 ≤ √2        1
+      0 ≤ √2/2      multiplying by 1/2

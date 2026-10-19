@@ -1061,8 +1061,8 @@ fn check_passes(
     formulas::check_claimed_cases(report, thm, k);
     formulas::check_cases_cited(report, thm, k);
     formulas::check_closed_arithmetic(report, thm, k);
-    formulas::check_closed_by_arithmetic(report, thm, k);
     let targets = &library.targets;
+    formulas::check_closed_by_arithmetic(report, thm, k, targets);
     formulas::check_arithmetic_holds(report, thm, k, targets);
     formulas::check_algebra_holds(report, thm, k, targets);
     formulas::check_inequalities_holds(report, thm, k, targets);
