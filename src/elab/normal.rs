@@ -89,6 +89,15 @@ pub trait Oracle {
     }
 }
 
+/// A decline naming a term, which a message writes in the page's notation
+/// (`Elaborator::say`).
+fn named_decline<T>(shape: &'static str, term: &Rpn) -> Route<T> {
+    Route::Declined(crate::outcome::Decline::shaped(
+        shape,
+        vec![term.to_string()],
+    ))
+}
+
 /// `( left what right )`, which reverse Polish writes the other way.
 fn op(left: &Rpn, right: &Rpn, what: &str) -> Rpn {
     t!(left, right, what, "co")
@@ -2037,9 +2046,10 @@ impl Emitter {
                 return self.as_atom(o, &said).map(Built);
             }
             if how == Op::Div {
-                return Ok(Route::no(format!(
-                    "{said} divides, which is cross-multiplied"
-                )));
+                return Ok(named_decline(
+                    "{} divides, which is cross-multiplied",
+                    &said,
+                ));
             }
         }
         self.as_atom(o, &said).map(Built)
@@ -2606,9 +2616,10 @@ impl Emitter {
                 Op::Exp => return self.quotient_raised(o, left, right, labels, &said),
             }
         }
-        Ok(Route::no(format!(
-            "{said} divides somewhere this does not reach"
-        )))
+        Ok(named_decline(
+            "{} divides somewhere this does not reach",
+            &said,
+        ))
     }
 
     /// `-u x`, where x divides: x is normalised to `a / b`, `divnegd` moves
@@ -2814,7 +2825,7 @@ impl Emitter {
             proof: equal,
         } = divisor
         else {
-            return Ok(Route::no(format!("{said} divides by no quotient")));
+            return Ok(named_decline("{} divides by no quotient", said));
         };
         let (a_s, r_s) = (left.rpn(labels), right.rpn(labels));
         let (p_s, q_s) = (Self::spell_run(&top), Self::spell_run(&bottom));
@@ -3494,7 +3505,7 @@ impl Emitter {
         let field::Power::Expanded { by: times, .. } =
             field::power_of(left, right, labels)
         else {
-            return Ok(Route::no(format!("{said} is not a power multiplied out")));
+            return Ok(named_decline("{} is not a power multiplied out", said));
         };
         let Quotiented {
             over: o1,

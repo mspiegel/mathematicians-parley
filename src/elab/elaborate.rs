@@ -5062,7 +5062,10 @@ impl<'a> Elaborator<'a> {
         ) else {
             return Err(self.defect(
                 step.line,
-                format!("{name} states {said}, which is not what this step applies"),
+                format!(
+                    "{name} states {}, which is not what this step applies",
+                    self.render(&self.rpn(&pattern))
+                ),
             ));
         };
         let values = theirs
