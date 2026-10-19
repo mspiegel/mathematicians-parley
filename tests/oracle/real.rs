@@ -37,6 +37,36 @@ pub const DIVIDES_BY_ZERO: &str = "divides by zero";
 pub const UNDECIDED: &str = "real arithmetic does not decide it";
 pub const NO_ROOT: &str = "takes no square root";
 pub const TOO_LARGE: &str = "is too large to work out";
+pub const TRIG_DENOMINATOR: &str =
+    "takes the sine or cosine of a multiple of π whose denominator divides neither 4 nor 6";
+pub const TRIG_NOT_SPECIAL: &str =
+    "takes the sine or cosine of an angle that is not a rational multiple of π";
+
+/// The sine or the cosine.
+#[derive(Clone, Copy, Debug)]
+pub enum Trig {
+    Sin,
+    Cos,
+}
+
+/// How an angle is written.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Spelling {
+    /// (num·π)/den.
+    Radians,
+    /// The same in degrees, (num·180/den)°.
+    Degrees,
+    /// The number num, no multiple of π.
+    Plain,
+}
+
+/// An angle, num/den of π unless it is `Plain`.
+#[derive(Clone, Copy, Debug)]
+pub struct Angle {
+    pub num: i64,
+    pub den: i64,
+    pub spelling: Spelling,
+}
 
 /// A term of numerals and square roots.
 #[derive(Clone, Debug)]
@@ -50,6 +80,8 @@ pub enum Real {
     Div(Box<Real>, Box<Real>),
     /// A power to a whole exponent, which may be below 0.
     Pow(Box<Real>, i64),
+    /// The sine or cosine of an angle.
+    Trig(Trig, Angle),
 }
 
 /// A relation between two terms.
@@ -115,8 +147,12 @@ fn root_drawn(r: &mut Random, ps: [i64; 2]) -> Real {
 /// A term at most `depth` deep.
 fn expr(r: &mut Random, ps: [i64; 2], depth: u32) -> Real {
     if depth == 0 || r.below(3) == 0 {
-        return match r.below(3) {
+        // A sine or cosine brings √2 and √3, so it is drawn only into a
+        // claim over those two primes, which keeps the claim within limits.
+        let over_two_and_three = ps.contains(&2) && ps.contains(&3);
+        return match r.below(4) {
             0 => num(r.below(10) as i64 - 3),
+            1 if over_two_and_three => trig_drawn(r),
             _ => root_drawn(r, ps),
         };
     }
@@ -131,6 +167,65 @@ fn expr(r: &mut Random, ps: [i64; 2], depth: u32) -> Real {
         // numeral its proof writes inside the 62 bits the method allows.
         _ => Real::Pow(sub(r), r.below(4) as i64 - 1),
     }
+}
+
+/// An angle of a denominator the method takes, most often, and of 5 or 12,
+/// or no multiple of π, now and then; written in radians or degrees.
+fn angle_drawn(r: &mut Random) -> Angle {
+    let den = [1, 2, 3, 4, 6, 1, 2, 3, 4, 6, 12, 5][r.below(12) as usize];
+    let num = r.below(4 * den as u64 + 1) as i64 - 2 * den;
+    let spelling = match r.below(6) {
+        0 => Spelling::Degrees,
+        1 if r.below(4) == 0 => Spelling::Plain,
+        _ => Spelling::Radians,
+    };
+    Angle { num, den, spelling }
+}
+
+fn trig_drawn(r: &mut Random) -> Real {
+    let f = if r.below(2) == 0 {
+        Trig::Sin
+    } else {
+        Trig::Cos
+    };
+    Real::Trig(f, angle_drawn(r))
+}
+
+/// sin(n·π/12) for n from 0 to 23, written out: None where the method
+/// refuses the angle, n not a multiple of 2 or 3.
+fn sine_table(n: i64) -> Option<Real> {
+    let half = || Real::Div(b(num(1)), b(num(2)));
+    let root_half = |p: i64| Real::Div(b(root(p)), b(num(2)));
+    let negated = |x: Real| Real::Neg(b(x));
+    Some(match n {
+        0 | 12 => num(0),
+        2 | 10 => half(),
+        3 | 9 => root_half(2),
+        4 | 8 => root_half(3),
+        6 => num(1),
+        14 | 22 => negated(half()),
+        15 | 21 => negated(root_half(2)),
+        16 | 20 => negated(root_half(3)),
+        18 => num(-1),
+        _ => return None,
+    })
+}
+
+/// The value of a sine or cosine, from the table: cos t is sin(t + π/2).
+fn trig_table(f: Trig, a: &Angle) -> Result<Real, &'static str> {
+    if a.spelling == Spelling::Plain && a.num != 0 {
+        return Err(TRIG_NOT_SPECIAL);
+    }
+    let twelfths = a.num * 12;
+    if twelfths % a.den != 0 {
+        return Err(TRIG_DENOMINATOR);
+    }
+    let shift = match f {
+        Trig::Sin => 0,
+        Trig::Cos => 6,
+    };
+    let n = (twelfths / a.den + shift).rem_euclid(24);
+    sine_table(n).ok_or(TRIG_DENOMINATOR)
 }
 
 /// A claim true by construction, or one coefficient away where `off`.
@@ -191,10 +286,38 @@ fn refused(r: &mut Random, ps: [i64; 2]) -> Claim {
 pub fn draw(r: &mut Random) -> Claim {
     let ps = primes(r);
     let e = |r: &mut Random| expr(r, ps, 3);
-    match r.below(10) {
+    match r.below(11) {
         0..=2 => {
             let off = r.below(3) == 0;
             identity(r, ps, off)
+        }
+        10 => {
+            // A sine or cosine against the table's value, or one away; or
+            // sin² + cos² = 1 at an angle.
+            let a = angle_drawn(r);
+            match r.below(3) {
+                0 => {
+                    let square = |f| Real::Pow(b(Real::Trig(f, a)), 2);
+                    Claim::Rel(
+                        Rel::Eq,
+                        Real::Add(b(square(Trig::Sin)), b(square(Trig::Cos))),
+                        num(1),
+                    )
+                }
+                _ => {
+                    let f = if r.below(2) == 0 {
+                        Trig::Sin
+                    } else {
+                        Trig::Cos
+                    };
+                    let value = trig_table(f, &a).unwrap_or_else(|_| num(0));
+                    let said = match r.below(3) {
+                        0 => Real::Add(b(value), b(num(1))),
+                        _ => value,
+                    };
+                    Claim::Rel(Rel::Eq, Real::Trig(f, a), said)
+                }
+            }
         }
         3 | 4 => {
             let rel = [Rel::Eq, Rel::Ne, Rel::Lt, Rel::Le][r.below(4) as usize];
@@ -272,6 +395,54 @@ fn term(g: &Grammar, e: &Real) -> Node {
                 exponent
             };
             made(g, "_^_", vec![term(g, x), exponent])
+        }
+        Real::Trig(f, a) => {
+            let name = match f {
+                Trig::Sin => "sin",
+                Trig::Cos => "cos",
+            };
+            made(
+                g,
+                "_(_)",
+                vec![
+                    Node::name(
+                        parley::formula::Sort::of("function from number to number"),
+                        name,
+                    ),
+                    angle_node(g, a),
+                ],
+            )
+        }
+    }
+}
+
+/// An angle as the page writes it: (num·π)/den, π/den, num·π or π, or the
+/// same in degrees, or the plain number.
+fn angle_node(g: &Grammar, a: &Angle) -> Node {
+    let whole = |n: i64| {
+        let size = numeral(&n.unsigned_abs().to_string());
+        if n < 0 {
+            made(g, "−_", vec![size])
+        } else {
+            size
+        }
+    };
+    match a.spelling {
+        Spelling::Plain => whole(a.num),
+        Spelling::Degrees => made(g, "_°", vec![whole(a.num * 180 / a.den)]),
+        Spelling::Radians => {
+            let pi = made(g, "π", Vec::new());
+            let times = match a.num {
+                0 => return numeral("0"),
+                1 => pi,
+                -1 => made(g, "−_", vec![pi]),
+                n => made(g, "_ · _", vec![whole(n), pi]),
+            };
+            if a.den == 1 {
+                times
+            } else {
+                made(g, "_ / _", vec![times, numeral(&a.den.to_string())])
+            }
         }
     }
 }
@@ -453,6 +624,7 @@ fn value(e: &Real) -> Result<Value, &'static str> {
                 out
             }
         }
+        Real::Trig(f, a) => value(&trig_table(*f, a)?)?,
     })
 }
 
@@ -487,7 +659,7 @@ fn over(a: &Value, c: &Value) -> Result<Value, &'static str> {
 fn has_root(e: &Real) -> bool {
     match e {
         Real::Num(_) => false,
-        Real::Root(_) => true,
+        Real::Root(_) | Real::Trig(..) => true,
         Real::Neg(x) | Real::Pow(x, _) => has_root(x),
         Real::Add(x, y) | Real::Sub(x, y) | Real::Mul(x, y) | Real::Div(x, y) => {
             has_root(x) || has_root(y)
@@ -503,7 +675,7 @@ fn refusals(e: &Real, out: &mut Vec<&'static str>) {
         }
     }
     match e {
-        Real::Num(_) => {}
+        Real::Num(_) | Real::Trig(..) => {}
         Real::Root(x) | Real::Neg(x) | Real::Pow(x, _) => refusals(x, out),
         Real::Add(x, y) | Real::Sub(x, y) | Real::Mul(x, y) | Real::Div(x, y) => {
             refusals(x, out);

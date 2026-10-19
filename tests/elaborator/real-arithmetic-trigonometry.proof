@@ -67,6 +67,14 @@ theorem a-cosine-of-zero
 1.  cos(0) = 1
     real arithmetic
 
+theorem one-over-a-cosine
+  note        cos(π) holds no atom, being −1, so a power of it to an exponent
+              below 0 is taken.
+  then cos(π)^(−1) = −1
+
+1.  cos(π)^(−1) = −1
+    real arithmetic
+
 theorem a-sine-said-once
   note        sin(π/6) is a real number, said once, so algebra takes it as an
               atom with no line saying so.

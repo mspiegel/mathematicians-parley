@@ -445,7 +445,21 @@ pub fn closed_value(term: &Term) -> Route<Value> {
                                 "is a power real arithmetic works out only with a whole exponent",
                             ))
                         }
-                        Some(k) if k < 0 => return Built(Value::Unworked(DIVIDES_BY_ATOM)),
+                        // A power to an exponent below 0 is one over the power,
+                        // taken only of a value with no atom, as a sine's is.
+                        Some(k) if k < 0 => match left.as_surd() {
+                            None => return Built(Value::Unworked(DIVIDES_BY_ATOM)),
+                            Some(s) if s.is_zero() => {
+                                return Built(Value::Unworked("divides by zero"))
+                            }
+                            Some(s) => {
+                                let m = k.unsigned_abs();
+                                if m * left.part_count() > 64 {
+                                    return Built(Value::Unworked(surds::TOO_LARGE));
+                                }
+                                Real::surd(s.power(m).recip())
+                            }
+                        },
                         Some(k) if k as u64 * left.part_count() > 64 => {
                             return Built(Value::Unworked(surds::TOO_LARGE))
                         }
@@ -726,8 +740,19 @@ fn estimate(term: &Term) -> Result<Estimate, &'static str> {
                         .value
                         .as_surd()
                         .and_then(|s| s.as_rational())
-                        .and_then(|k| k.to_integer().to_u64())
+                        .and_then(|k| k.to_integer().to_i64())
                         .ok_or(surds::TOO_LARGE)?;
+                    if k < 0 {
+                        let base = x.value.as_surd().ok_or(DIVIDES_BY_ATOM)?;
+                        return Ok(Estimate {
+                            value,
+                            cost: x
+                                .cost
+                                .saturating_add(y.cost)
+                                .saturating_add(surds::power_cost(&base, k)?),
+                        });
+                    }
+                    let k = k as u64;
                     let mut cost = 0u64;
                     let mut at = x.value.clone();
                     for _ in 1..k {

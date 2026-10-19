@@ -1165,7 +1165,9 @@ the claims are drawn so (`tests/oracle/atoms.rs`), and on three seeds of
 Sines and cosines of angles written in radians and in degrees are judged
 from a table of their own, sin(n·π/12) for each n from 0 to 23 written out
 as a value of roots, and not by the reduction above; the values are then
-held to the method's answers as any value of roots is.
+held to the method's answers as any value of roots is. A sine or cosine is
+drawn into a claim over √2 and √3 only, which keeps the claim within the
+limits; on three seeds of 1500 the answers agree with the judge's.
 
 ---
 

@@ -194,6 +194,8 @@ import mundane definition stdlib/divisibility/congruent-mod
             imports: "\
 import mundane definition stdlib/logarithms/ln
 import mundane definition stdlib/logarithms/exp
+import mundane definition stdlib/trigonometry/sin
+import mundane definition stdlib/trigonometry/cos
 ",
             false_said: "which is false",
         },
