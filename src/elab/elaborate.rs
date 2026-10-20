@@ -1178,13 +1178,24 @@ impl<'a> Elaborator<'a> {
                         .and_then(|f| f.added.clone())
                         .expect("a member fixed in its own frame");
                     let fixed = me.rpn(&me.to_term(&member).children()[0]);
+                    let within = me.rpn(&me.to_term(&member).children()[1]);
                     let kept = me.member.replace(member);
-                    let made = me.names_kept(|me| {
+                    let kept_sorts = me.sorts_now.clone();
+                    // The member is introduced in its set as its block's let
+                    // would introduce it (`introduced_in`), and its letter is
+                    // a name the page introduces, so an i is not read as the
+                    // imaginary unit.
+                    let made = me.names_and_sets_kept(|me| {
                         if let Some((page, _)) = &letter {
                             me.names.insert(page.clone(), fixed.clone());
+                            me.sets.insert(page.clone(), within.clone());
+                            if !me.sorts_now.introduces(page) {
+                                me.sorts_now.unsettled.insert(page.clone());
+                            }
                         }
                         me.with_requires(how, step, node, &at, inner, lifted, lines)
                     });
+                    me.sorts_now = kept_sorts;
                     me.member = kept;
                     Ok(match made? {
                         Built(Some(p)) => Built(p),
@@ -2210,6 +2221,7 @@ impl<'a> Elaborator<'a> {
             );
             let supplied = self.supplied(Some(step), scope, facts)?;
             let held = self.with_cited(Some(step), scope, &supplied, None);
+            self.with_implied(Some(step), scope, &held)?;
             let alike = take!(self.same(
                 &self.to_term(&instance),
                 &self.to_term(term),
@@ -2236,6 +2248,7 @@ impl<'a> Elaborator<'a> {
         // its requires lines included, as where a definition unfolds.
         let supplied = self.supplied(Some(step), scope, facts)?;
         let known = self.with_cited(Some(step), scope, &supplied, None);
+        self.with_implied(Some(step), scope, &known)?;
         let (says, right) = take!(self.unfolding(
             step,
             lemma,
@@ -5373,8 +5386,11 @@ impl<'a> Elaborator<'a> {
         // `requires` instead, or settled as a side condition. What the step
         // cites is laid over the scope, as `apply_lemma` lays it: a line and
         // a hypothesis may state one claim, and the step names the line.
+        // What a cited line says beyond itself is read as `apply_lemma`
+        // reads it: `let j ∈ ℕ` also says j ≥ 1 (`with_implied`).
         let supplied = self.supplied(Some(step), scope, facts)?;
         let known = self.with_cited(Some(step), scope, &supplied, None);
+        self.with_implied(Some(step), scope, &known)?;
         for one in &wanted {
             // A membership the page says once is taken from where it says
             // it, and not from the scope's copy of a line the step does not
@@ -5389,7 +5405,9 @@ impl<'a> Elaborator<'a> {
             if self.holds(&self.restable(&known), one) {
                 continue;
             }
-            match self.settle(&self.to_term(one), scope, &known, 3, None, None)? {
+            // A hypothesis that is an identity once its identity elements
+            // are dropped, 1 = 0 + 1 at i := 0, needs no line (`SYNTAX.md`).
+            match self.settle_or_bare(&self.to_term(one), scope, &known, None, None)? {
                 Built(p) => self.know(&known, one.clone(), p),
                 Declined(_) => {
                     return Err(self.defect(

@@ -32,6 +32,11 @@ use crate::outcome::{Built, Checked, Declined, Route};
 use crate::rules::{self, lookup, numeral_label, System};
 use crate::{pf, t, take};
 
+/// Why `built` takes a term no further: it is no operation the closure
+/// tables walk, and so an atom of the walk.
+const NOT_BUILT: &str =
+    "not a sum, difference, product, power, negation or value by cases";
+
 /// One kind of difference the walk in `congruence` closes where two terms
 /// are both known and differ in places.
 #[derive(Clone, Debug)]
@@ -1814,9 +1819,7 @@ impl<'a> Elaborator<'a> {
                 &[&pa, &pb],
             )));
         }
-        Ok(Route::no(
-            "not a sum, difference, product, power, negation or value by cases",
-        ))
+        Ok(Route::no(NOT_BUILT))
     }
 
     /// A compound's membership of a number system, from its parts': there is
@@ -2275,6 +2278,11 @@ impl<'a> Elaborator<'a> {
         }
         if let Some(p) = self.equated_part(said, system, scope, facts)? {
             return Ok(Built(p));
+        }
+        // A term the walk took apart names the part nothing says, as the
+        // checker names the first part not said; an atom names itself.
+        if matches!(&made, Declined(d) if d.reason() != NOT_BUILT) {
+            return Ok(made);
         }
         Ok(self.no("nothing written says {}", &[&want]))
     }

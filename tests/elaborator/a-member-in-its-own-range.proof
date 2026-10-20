@@ -1,0 +1,30 @@
+theorem a-member-is-a-number
+  note        The member a step said of every member speaks of is in its
+              range, as its block's let would put it there.
+  let n ∈ ℕ    (H1)
+  then For all k ∈ {1, …, n}, k ∈ ℝ.
+
+1.  For all k ∈ {1, …, n}, k ∈ ℝ.
+    membership
+
+theorem a-term-of-the-member-is-a-number
+  let n ∈ ℕ    (H1)
+  then For all k ∈ {1, …, n}, k·2 + n ∈ ℝ.
+
+1.  For all k ∈ {1, …, n}, k·2 + n ∈ ℝ.
+    membership
+
+theorem a-power-of-the-member-is-a-number
+  let n ∈ ℕ₀    (H1)
+  then For all k ∈ {0, …, n}, 2^k·k ∈ ℝ.
+
+1.  For all k ∈ {0, …, n}, 2^k·k ∈ ℝ.
+    membership
+
+theorem a-member-named-i
+  note        A member named i is a letter, not the imaginary unit.
+  let n ∈ ℕ₀    (H1)
+  then For all i ∈ {0, …, n}, i ∈ ℝ.
+
+1.  For all i ∈ {0, …, n}, i ∈ ℝ.
+    membership
