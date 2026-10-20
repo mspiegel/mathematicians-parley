@@ -145,9 +145,17 @@ reason names, and the last row is the claim:
 |---|---|
 | `adding t` | t added to both sides |
 | `multiplying by c` | both sides multiplied by c, a number other than 0; for c negative the relation turned round |
-| `symmetry` | an equation's two sides swapped |
+| `symmetry` | an equation's two sides swapped, or a `≠` or an order turned round: `a > 0` to `0 < a` |
 | `weakening` | `<` or `=` weakened to `≤`, `>` or `=` to `≥`, or `<` or `>` to `≠` |
 | `algebra` | a side written as the same number another way |
+
+Each row keeps its sides where its manipulation leaves them: the first row
+is the cited line as it is written, and the last row is the claim as it is
+written. Turning a relation round is a `symmetry` row of its own, never
+part of another row; `multiplying by` a negative number turns the relation
+round, its sides staying where they are. Outside rows a relation is read
+either way round without a word (transitivity, an item's hypothesis, a
+requires line citing a line).
 
 A row that adds or multiplies may write what it makes as the same number
 another way: `multiplying by 1/2` takes `2·A < A + B` to `A < (A + B)/2`,
@@ -157,7 +165,9 @@ multiplying by a term other than a numeral is no row: the method is linear.
 
 A requires line has no rows, and names its one manipulation as its reason
 instead: `requires q ≠ 0: weakening, from 2.1`, where 2.1 says `q > 0`, is
-2.1 with `q > 0` weakened, as a row would be, and of a line saying several
+2.1 with `q > 0` weakened, as a row would be, written the way the
+manipulation leaves it: from `0 < q` it is `requires 0 ≠ q: weakening,
+from 2.1`. Of a line saying several
 things it is one of them. That is how a divisor's
 `≠ 0` is most often said. A side condition needing more than one
 manipulation is a numbered step with rows, which the requires line cites.
