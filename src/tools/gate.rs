@@ -193,16 +193,10 @@ pub fn run(root: &Path) -> Said {
         ),
     ];
 
-    // No stage reads what another writes, so they run side by side and are
-    // printed in the order above.
-    let results: Vec<Said> = std::thread::scope(|scope| {
-        let running: Vec<_> =
-            stages.iter().map(|(_, stage)| scope.spawn(stage)).collect();
-        running
-            .into_iter()
-            .map(|handle| handle.join().expect("a gate stage panicked"))
-            .collect()
-    });
+    // No stage reads what another writes, so they run side by side, on as
+    // many threads as `threads()` gives, and are printed in the order above.
+    let results: Vec<Said> =
+        crate::threads::in_order(&stages, || (), |_, (_, stage)| stage());
     let mut out = Said::default();
     let mut failed = Vec::new();
     for ((what, _), said) in stages.iter().zip(results) {

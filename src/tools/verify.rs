@@ -33,6 +33,7 @@ use regex::Regex;
 
 use crate::said::Said;
 use crate::source::Source;
+use crate::threads::threads;
 use crate::tools::build::Libraries;
 
 static INCLUDE: LazyLock<Regex> =
@@ -361,11 +362,11 @@ impl Verifier {
     pub fn of(setmm: &str) -> Verifier {
         // metamath-rs works segment by segment, and set.mm read whole is one
         // segment on one thread: split at its chapters, it is checked on
-        // every core at once.
+        // `threads()` threads at once.
         let options = DbOptions {
             autosplit: true,
             incremental: true,
-            jobs: std::thread::available_parallelism().map_or(1, |n| n.get()),
+            jobs: threads(),
             ..DbOptions::default()
         };
         let mut base = Database::new(options);
@@ -407,11 +408,11 @@ impl Verifier {
 /// verified for this run alone.
 fn verified_afresh(setmm: &str, joined: &str) -> Vec<String> {
     // metamath-rs works segment by segment, and set.mm read whole is one
-    // segment on one thread: split at its chapters, it is checked on every
-    // core at once.
+    // segment on one thread: split at its chapters, it is checked on
+    // `threads()` threads at once.
     let options = DbOptions {
         autosplit: true,
-        jobs: std::thread::available_parallelism().map_or(1, |n| n.get()),
+        jobs: threads(),
         ..DbOptions::default()
     };
     let mut db = Database::new(options);

@@ -25,6 +25,7 @@ use crate::corpus::skeleton::step_line;
 use crate::corpus::{item_kind, proof_files};
 use crate::said::Said;
 use crate::source::{Memory, Source};
+use crate::threads::threads;
 
 /// Where the item a line cites ends, the first word that opens with an
 /// item's prefix, `mun:abs`; None for a line that cites none.
@@ -358,9 +359,7 @@ pub fn run_over(source: &dyn Source, files: &[String]) -> Said {
             return said;
         }
     };
-    let workers = std::thread::available_parallelism()
-        .map_or(1, |n| n.get())
-        .clamp(1, 8);
+    let workers = threads().clamp(1, 8);
     let shares: Vec<Vec<&Taken>> = (0..workers)
         .map(|w| taken.iter().skip(w).step_by(workers).collect())
         .collect();
