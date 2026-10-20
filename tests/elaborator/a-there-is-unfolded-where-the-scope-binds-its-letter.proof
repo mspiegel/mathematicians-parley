@@ -1,0 +1,17 @@
+import mundane definition stdlib/divisibility/divides
+
+theorem a-there-is-unfolded-where-the-scope-binds-its-letter
+  note        divides unfolds to there is n ∈ ℤ with n·3 = p, and the page
+              writes there is s ∈ ℤ with p = 3s under a supposition that
+              binds s too. The two are compared over a letter the scope
+              does not spell, and that letter is bound as s was.
+  let p ∈ ℤ    (H1)
+  assume 3 divides p    (H2)
+  then not (not (there is s ∈ ℤ with p = 3s))
+
+1.  not (not (there is s ∈ ℤ with p = 3s))
+    contradiction
+    suppose not (there is s ∈ ℤ with p = 3s)    (S)
+
+    1.1.  there is s ∈ ℤ with p = 3s
+          mun:divides d := 3, n := p, from H2, contradicting S

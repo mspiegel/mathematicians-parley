@@ -280,8 +280,22 @@ impl<'a> Elaborator<'a> {
             term.substitute(&put)
         };
         let (moved, moved_want) = (moved_to(given), moved_to(want));
-        let walked =
-            take!(self.congruence(&moved, &moved_want, scope, facts, step, leaf)?);
+        // The new letter is bound where the old one was, and a standard form
+        // reads a bound letter as a blank (`order_key`): the walk puts a
+        // pair in the order it would have under the old letter.
+        let added = fresh.variable_symbol().filter(|_| {
+            [given, want].iter().any(|t| {
+                t.children()[place]
+                    .variable_symbol()
+                    .is_some_and(|v| self.binding.contains(&v))
+            })
+        });
+        let fresh_bound = added.is_some_and(|v| self.binding.insert(v));
+        let walked = self.congruence(&moved, &moved_want, scope, facts, step, leaf);
+        if let (true, Some(v)) = (fresh_bound, added) {
+            self.binding.remove(&v);
+        }
+        let walked = take!(walked?);
         let wff = self.is_wff(given);
         let (there, back) = if wff {
             (

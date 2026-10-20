@@ -3636,7 +3636,7 @@ impl<'a> Elaborator<'a> {
         }
         // The witnesses are as many as the checker read, from the outermost
         // quantifier in (`witnesses_read`).
-        let found = self.witnesses_read(step, wanted, &layers)?;
+        let found = take!(self.witnesses_read(step, wanted, &layers)?);
         let layers = &layers[..found.len()];
         self.witnessed_at(step, wanted, layers, &found, scope, facts, lines, &sources)
     }
@@ -3679,18 +3679,17 @@ impl<'a> Elaborator<'a> {
     /// among the item's by how many letters it binds. A "there is" inside
     /// the body that a line says whole, the "there is f" of "n ∈ ℕ₀ and
     /// there is f with …", has no witness read, and the witnesses are of
-    /// the quantifiers outside it.
+    /// the quantifiers outside it. Declined where the checker read no
+    /// witness for it: a step whose citation proves its "there is" another
+    /// way, unfolding a definition, asks it as a side condition first.
     fn witnesses_read(
         &mut self,
         step: &Step,
         wanted: &Term,
         layers: &[(Term, Rpn, Rpn)],
-    ) -> Checked<IndexMap<Rpn, Rpn>> {
+    ) -> Checked<Route<IndexMap<Rpn, Rpn>>> {
         let Some(cited) = self.citation_read(step).cloned() else {
-            return Err(self.unreached(
-                step.line,
-                "the checker reads no citation that names a witness on this line",
-            ));
+            return Ok(Route::no("the checker reads no citation on this line"));
         };
         let library = self.item_library();
         let groups = library.groups(&cited.item).unwrap_or_default();
@@ -3745,13 +3744,10 @@ impl<'a> Elaborator<'a> {
         let values = match read.as_slice() {
             [one] => one.clone(),
             [] => {
-                return Err(self.unreached(
-                    step.line,
-                    format!(
-                        "the checker reads no witness for {}",
-                        self.render(&self.rpn(wanted))
-                    ),
-                ))
+                return Ok(Route::no(format!(
+                    "the checker reads no witness for {}",
+                    self.render(&self.rpn(wanted))
+                )))
             }
             _ => {
                 return Err(self.unreached(
@@ -3767,7 +3763,7 @@ impl<'a> Elaborator<'a> {
         for ((_, variable, _), value) in layers.iter().zip(&values) {
             found.insert(t!(variable, "cv"), self.term(value)?);
         }
-        Ok(found)
+        Ok(Built(found))
     }
 
     /// The letters a nest of "there is" binds, from the outermost in; none
