@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.elaborator.real-arithmetic-order.a-root-at-most-its-value $p |- ( sqrt ` 4 ) <_ 2 $=
-    ( c4 csqrt cfv c2 cle wbr wtru cr cexp co wceq eqid oveq12i c1 2nn0 1nn0 1p1e2 cmul numexp1 oveq1i 2t2e4 eqtri numexpp1 eqtr4i a1i fveq2d wcel 2re cc0 clt 2pos wi 0re ltle syl2anc mpd sqrtsqd eqtrd eqidd eqeltrd eqtr4d eqled mptru ) ABCZDEFGVDDGVDDHGVDDDGVDDDIJZBCZDGAVEBAVEKZGAAVEALZVEVEADDDDIDLZVIMZDANDOPQDNIJZDRJZDDRJZAVKDDRDOSZTZUAUBZUCZUBZUDZUEZUFZGDDHUGZGUHUEZGUIDUJFZUIDEFZWDGUKUEZGUIHUGZWBWDWEULZWGGUMUEZWCUIDUNZUOZUPZUQZURZGDUSZURZWCUTGVDDDWPWOVAVBVC $.
+    ( c4 csqrt cfv c2 cle wbr wtru cr cexp co eqidd wceq eqid oveq12i c1 2nn0 1nn0 1p1e2 cmul numexp1 oveq1i 2t2e4 eqtri numexpp1 eqtr4i a1i eqtrd fveq2d wcel 2re cc0 clt 2pos wi 0re ltle syl2anc mpd sqrtsqd eqeltrd eqtr4d eqled mptru ) ABCZDEFGVDDGVDDHGVDDDGVDDDIJZBCZDGAVEBGAAVEGAKZAVELZGAAVEAMZVEVEADDDDIDMZVJNZDAODPQRDOIJZDSJZDDSJZAVLDDSDPTZUAZUBUCZUDZUCZUEZUFZUGZUHZGDDHUIZGUJUFZGUKDULFZUKDEFZWFGUMUFZGUKHUIZWDWFWGUNZWIGUOUFZWEUKDUPZUQZURZUSZUGZGDKZUGZWEUTGVDDDWRWQVAVBVC $.
 $}

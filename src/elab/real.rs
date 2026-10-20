@@ -1688,8 +1688,17 @@ impl<'a> Elaborator<'a> {
             None => square.clone(),
             Some(m) => t!(&square, m, "cmul", "co"),
         };
+        // The radicand may hold roots of its own, √(√4), so it is valued as
+        // any closed term is, and its canon, a numeral, is the product.
         let sx = self.rpn(x);
-        let is = self.numeral_fact(&t!(&sx, &radicand, "wceq"), scope, facts)?;
+        let inner = take!(self.valued(x, scope, facts)?);
+        let product =
+            self.numeral_fact(&t!(&inner.canon, &radicand, "wceq"), scope, facts)?;
+        let is = self.b.ap(
+            "eqtrd",
+            &binds! {"ph" => scope, "A" => &sx, "B" => &inner.canon, "C" => &radicand},
+            &[&inner.proof, &product],
+        );
         let carried = self.b.ap(
             "fveq2d",
             &binds! {"ph" => scope, "A" => &sx, "B" => &radicand, "F" => "csqrt"},

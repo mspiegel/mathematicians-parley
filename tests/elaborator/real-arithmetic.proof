@@ -131,3 +131,33 @@ theorem a-quotient-of-roots-that-is-not-whole
 
 1.  not (√2/√8 ∈ ℤ)
     real arithmetic
+
+theorem a-root-of-a-root
+  then √(√4) = √2
+
+1.  √(√4) = √2
+    real arithmetic
+
+theorem a-root-of-a-root-that-is-whole
+  then √(√16) = 2
+
+1.  √(√16) = 2
+    real arithmetic
+
+theorem a-root-of-a-root-above-a-numeral
+  then √(√16) > 1
+
+1.  √(√16) > 1
+    real arithmetic
+
+theorem a-root-of-a-sum-with-a-root
+  then √(1 + √9) = 2
+
+1.  √(1 + √9) = 2
+    real arithmetic
+
+theorem a-root-of-a-squared-root
+  then √((√2)²) = √2
+
+1.  √((√2)²) = √2
+    real arithmetic
