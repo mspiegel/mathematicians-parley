@@ -9,7 +9,7 @@ theorem a-case-ending-on-its-claim-turned
   then y ≠ x
 
 1.  x ≥ 0 or x < 0
-    mun:nonneg-or-neg x := x
+    mun:nonneg-or-neg
 
 2.  y ≠ x
     cases, from 1
