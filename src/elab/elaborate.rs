@@ -1526,6 +1526,36 @@ impl<'a> Elaborator<'a> {
     /// that `step` makes (`CheckedTheorem::cited`): a step's own, or a
     /// requires line's read as the step it would be. The build refuses what
     /// the checker refuses, so a citation it builds is one the checker read.
+    /// The values the checker read an exhibit as showing, for the sentence
+    /// the build proves, its last: what each letter of its "there is" is
+    /// put to, by the variable the letter stands for
+    /// (`CheckedTheorem::exhibited`).
+    pub(super) fn exhibited_here(
+        &mut self,
+        step: &Step,
+    ) -> Checked<IndexMap<Rpn, Rpn>> {
+        let values = self
+            .checked
+            .exhibited
+            .get(&step.line)
+            .and_then(|v| v.last())
+            .cloned()
+            .flatten();
+        let Some(values) = values else {
+            return Err(self.unreached(
+                step.line,
+                "the checker reads no value this exhibit shows",
+            ));
+        };
+        let mut out = IndexMap::new();
+        for (letter, value) in &values {
+            let mark = t!(self.binder_var(letter)?, "cv");
+            let value = self.term(value)?;
+            out.insert(mark, value);
+        }
+        Ok(out)
+    }
+
     fn cited_here(&self, step: &Step, item: &str) -> Checked<Cited> {
         let read = match self.thm.steps.iter().position(|s| s.line == step.line) {
             Some(i) => self.checked.cited[i].as_ref(),
@@ -4321,47 +4351,6 @@ impl<'a> Elaborator<'a> {
         Built(self.b.ap(label, &binds, &asked.iter().collect::<Vec<_>>()))
     }
 
-    /// The witness a line the step cites names for `asked`, where `stands`
-    /// is the claim's bound variable; with `bare`, each with its identity
-    /// elements dropped. Each sentence of a cited line is read on its own,
-    /// as `witnessed` reads them: a line saying two things names a witness
-    /// in either. An equation names its witness whichever way round it is
-    /// written, `(f(b) − f(a))/(b − a) = f′(c)` as well as `f′(c) = …`.
-    fn witness_cited(
-        &mut self,
-        step: &Step,
-        lines: &Lines,
-        asked: &Term,
-        stands: &Rpn,
-        bare: bool,
-    ) -> Option<Rpn> {
-        let asked = if bare {
-            self.without_identities(asked)
-        } else {
-            asked.clone()
-        };
-        for r in &step.just.refs {
-            let line = lines.get(r).unwrap_or_else(|| panic!("no line {r} cited"));
-            for part in self.parts(&line.term) {
-                let mut ways = vec![part.clone()];
-                ways.extend(self.turned_claim(&part).map(|(t, _)| t));
-                for way in ways {
-                    let mut actual = self.applications_read(&self.to_term(&way));
-                    if bare {
-                        actual = self.without_identities(&actual);
-                    }
-                    if let Some(w) = self.witness_in(&asked, &actual, stands) {
-                        return Some(w);
-                    }
-                }
-            }
-        }
-        None
-    }
-
-    /// An existence claim shown by naming something that answers it: the
-    /// witness is read off a line the step cites, by walking that line
-    /// against the shape the claim quantifies.
     /// Each part of every line `step` cites, known apart in `known`: "A. B"
     /// and "A and B" are one claim, and a cited line supplies each of its
     /// parts separately (`SYNTAX.md`, the conventions at every citation).
@@ -4384,6 +4373,9 @@ impl<'a> Elaborator<'a> {
         Ok(())
     }
 
+    /// An existence claim shown by naming something that answers it: the
+    /// witness is the value the checker read the step as showing, and the
+    /// lines the step cites say the claim's body of it.
     fn exhibit(
         &mut self,
         step: &Step,
@@ -4399,12 +4391,12 @@ impl<'a> Elaborator<'a> {
                 self.unreached(step.line, "an exhibit that claims no existence")
             );
         }
-        // A claim may quantify over more than one name, and reading several
-        // witnesses off the lines a step cites is what `witnessed` does.
+        // A claim may quantify over more than one name, and exhibiting a
+        // witness for each is what `exhibited` does.
         if whole.children()[0].label() == Some("wrex") {
             let supplied = self.supplied(Some(step), scope, facts)?;
             self.cited_parts(step, scope, &supplied, lines)?;
-            return self.witnessed(step, &whole, scope, &supplied, lines);
+            return self.exhibited(step, &whole, scope, &supplied, lines);
         }
         let (mut body, domain) =
             (whole.children()[0].clone(), whole.children()[2].clone());
@@ -4412,29 +4404,13 @@ impl<'a> Elaborator<'a> {
         // are two different things.
         let said = node.children[0].text;
         let mut stands = t!(self.binder_var(&said)?, "cv");
-        // The witness stands where the claim's name does in a cited line,
-        // read against the whole of what the claim asks of it: what it says
-        // of the witness first, and then that the witness lies in the
-        // domain. `k ∈ ℕ` fits any line saying some term is a natural
-        // number, so a line saying `a/k ∈ ℕ` names k by the body's `a/k ∈ ℕ`
-        // and never a/k by the domain; a line saying only `g ∈ G` still
-        // names g, where the body is nothing a line says.
-        let asked_shape = self.to_term(&t!(
-            self.rpn(&body),
-            t!(stands, self.rpn(&domain), "wcel"),
-            "wa"
-        ));
-        let asked = self.applications_read(&asked_shape);
-        // A line that leaves out an identity element the body has, or has
-        // one the body leaves out, names the same witness (`SYNTAX.md`, "An
-        // identity element goes without saying"): k·N = A names k for
-        // q·N + 0 = A. Each is read as written first.
-        let witness = match self.witness_cited(step, lines, &asked, &stands, false) {
-            Some(w) => Some(w),
-            None => self.witness_cited(step, lines, &asked, &stands, true),
-        };
-        let Some(witness) = witness else {
-            return Err(self.defect(step.line, "no cited line names a witness"));
+        // The witness is the value the checker read the step as showing.
+        let values = self.exhibited_here(step)?;
+        let Some(witness) = values.get(&stands).cloned() else {
+            return Err(self.unreached(
+                step.line,
+                "the checker reads no value for the letter this exhibit binds",
+            ));
         };
         // The witness may be the very letter the claim binds, so the claim is
         // exhibited under a letter nothing holds and renamed back.
@@ -4535,13 +4511,6 @@ impl<'a> Elaborator<'a> {
             &binds! {"ph" => scope, "ps" => &claimed, "ch" => term},
             &[&made, &back],
         )))
-    }
-
-    /// What stands where `mark` does, in a line shaped like the pattern.
-    fn witness_in(&self, pattern: &Term, actual: &Term, mark: &Rpn) -> Option<Rpn> {
-        let marks: BTreeSet<Rpn> = std::iter::once(mark.clone()).collect();
-        self.witnesses_in(pattern, actual, &marks)
-            .map(|found| found[mark].clone())
     }
 
     /// What stands where each of `marks` does, or nothing unless all do: the

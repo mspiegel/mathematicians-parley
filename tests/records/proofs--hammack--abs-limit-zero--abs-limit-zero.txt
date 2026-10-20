@@ -8,3 +8,4 @@ step 1.4.3 cites stdlib/numbers/abs-nonneg group 0; x := a(n); concludes 0 AsWri
 step 1.4.4 cites stdlib/numbers/abs-real group 0; x := a(n); concludes 0 AsWritten; from no line
 step 1.4.5 cites stdlib/numbers/abs group 0; x := |a(n)|; concludes 0 Forward; from 1.4.3 sentence 0
 step 2 cites stdlib/calculus/tends-to group 0; L := 0, x := a; concludes 0 Backward; from 1 sentence 0
+step 1.5 exhibits in sentence 0 N := N

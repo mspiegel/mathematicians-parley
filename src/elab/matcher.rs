@@ -3621,42 +3621,12 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         lines: &Lines,
     ) -> Checked<Route<Proof>> {
-        let mut layers: Vec<(Term, Rpn, Rpn)> = Vec::new();
-        let mut rest = wanted.clone();
-        while rest.label() == Some("wrex") {
-            let kids = rest.children().to_vec();
-            layers.push((kids[0].clone(), self.rpn(&kids[1]), self.rpn(&kids[2])));
-            rest = kids[0].clone();
+        let layers = self.layers_of(wanted);
+        let mut sources = self.witness_sources(step, scope, facts, lines)?;
+        if let Some(p) = self.claim_cited(&sources, wanted, scope, facts)? {
+            return Ok(Built(p));
         }
-        // A line proved before a block opened holds inside it too, and the
-        // scope's own copy is what says so where the step sits.
-        let mut sources: Vec<(Rpn, Proof)> = Vec::new();
-        for cited in step.just.refs.iter().filter_map(|r| lines.get(r)) {
-            let proof = match self.held(facts, &cited.term, scope)? {
-                Some(p) => p,
-                None => cited.proof.clone(),
-            };
-            sources.push((cited.term, proof));
-        }
-        for r in &step.requires {
-            let said = self.claim_of(&r.fact)?;
-            if let Some(proof) = self.held(facts, &said, scope)? {
-                sources.push((said, proof));
-            }
-        }
-        // A cited line that is the claim once identity elements are dropped
-        // and bound letters renamed names no witness: it is the claim
-        // (`reached`), as "there is q ∈ ℤ with q·N = A" is "there is z ∈ ℤ
-        // with z·N + 0 = A".
-        let want = self.rpn(wanted);
-        for (said, proof) in &sources {
-            if self.to_term(said).label() != Some("wrex") {
-                continue;
-            }
-            if let Some(p) = self.reached(proof, said, &want, scope, facts)? {
-                return Ok(Built(p));
-            }
-        }
+        let rest = layers[layers.len() - 1].0.clone();
         // An equation the body asks whose one side names no witness is the
         // same on both sides once the witnesses are read off the other, and
         // needs no line (`SYNTAX.md`, the literal-instance rule): a·x + b·y =
@@ -3699,7 +3669,7 @@ impl<'a> Elaborator<'a> {
                 // says.
                 let silent = here.len() == 1
                     && !here[0].1.alone().is_some_and(|v| self.rpn(&rest).has(v));
-                for (said, proof) in &sources {
+                for (said, _) in &sources {
                     for part in self.parts(said) {
                         let mut held = self.to_term(&part);
                         if bare {
@@ -3708,12 +3678,7 @@ impl<'a> Elaborator<'a> {
                         for shape in &shapes {
                             let found = self.witnesses_in(shape, &held, &marks);
                             if let Some(found) = found.filter(|f| !f.is_empty()) {
-                                chosen = Some((
-                                    part.clone(),
-                                    said.clone(),
-                                    proof.clone(),
-                                    found,
-                                ));
+                                chosen = Some(found);
                                 layers = here;
                                 break 'depths;
                             }
@@ -3721,12 +3686,7 @@ impl<'a> Elaborator<'a> {
                     }
                     if silent {
                         if let Some(found) = self.member_named(said, &here[0]) {
-                            chosen = Some((
-                                said.clone(),
-                                said.clone(),
-                                proof.clone(),
-                                found,
-                            ));
+                            chosen = Some(found);
                             layers = here;
                             break 'depths;
                         }
@@ -3734,7 +3694,7 @@ impl<'a> Elaborator<'a> {
                 }
             }
         }
-        let Some((part, said, whole, found)) = chosen else {
+        let Some(found) = chosen else {
             return Err(self.defect(
                 step.line,
                 format!(
@@ -3743,6 +3703,117 @@ impl<'a> Elaborator<'a> {
                 ),
             ));
         };
+        self.witnessed_at(step, wanted, &layers, &found, scope, facts, lines, &sources)
+    }
+
+    /// What an `exhibit` step of several letters proves: `witnessed`, with
+    /// the witnesses the values the checker read the step as showing
+    /// (`exhibited_here`), not searched for among the lines.
+    pub fn exhibited(
+        &mut self,
+        step: &Step,
+        wanted: &Term,
+        scope: &Rpn,
+        facts: &Facts,
+        lines: &Lines,
+    ) -> Checked<Route<Proof>> {
+        let layers = self.layers_of(wanted);
+        let sources = self.witness_sources(step, scope, facts, lines)?;
+        if let Some(p) = self.claim_cited(&sources, wanted, scope, facts)? {
+            return Ok(Built(p));
+        }
+        let found = self.exhibited_here(step)?;
+        if layers
+            .iter()
+            .any(|(_, v, _)| !found.contains_key(&t!(v, "cv")))
+        {
+            return Err(self.unreached(
+                step.line,
+                "the checker reads no value for a letter this exhibit binds",
+            ));
+        }
+        self.witnessed_at(step, wanted, &layers, &found, scope, facts, lines, &sources)
+    }
+
+    /// The quantifiers of a nest of "there is", from the outermost in: the
+    /// body each binds over, its variable, and its domain.
+    fn layers_of(&self, wanted: &Term) -> Vec<(Term, Rpn, Rpn)> {
+        let mut layers = Vec::new();
+        let mut rest = wanted.clone();
+        while rest.label() == Some("wrex") {
+            let kids = rest.children().to_vec();
+            layers.push((kids[0].clone(), self.rpn(&kids[1]), self.rpn(&kids[2])));
+            rest = kids[0].clone();
+        }
+        layers
+    }
+
+    /// The lines a step cites and its requires lines, with their proofs:
+    /// where witnesses are read. A line proved before a block opened holds
+    /// inside it too, and the scope's own copy is what says so where the
+    /// step sits.
+    fn witness_sources(
+        &mut self,
+        step: &Step,
+        scope: &Rpn,
+        facts: &Facts,
+        lines: &Lines,
+    ) -> Checked<Vec<(Rpn, Proof)>> {
+        let mut sources: Vec<(Rpn, Proof)> = Vec::new();
+        for cited in step.just.refs.iter().filter_map(|r| lines.get(r)) {
+            let proof = match self.held(facts, &cited.term, scope)? {
+                Some(p) => p,
+                None => cited.proof.clone(),
+            };
+            sources.push((cited.term, proof));
+        }
+        for r in &step.requires {
+            let said = self.claim_of(&r.fact)?;
+            if let Some(proof) = self.held(facts, &said, scope)? {
+                sources.push((said, proof));
+            }
+        }
+        Ok(sources)
+    }
+
+    /// A cited line that is the claim once identity elements are dropped
+    /// and bound letters renamed names no witness: it is the claim
+    /// (`reached`), as "there is q ∈ ℤ with q·N = A" is "there is z ∈ ℤ
+    /// with z·N + 0 = A".
+    fn claim_cited(
+        &mut self,
+        sources: &[(Rpn, Proof)],
+        wanted: &Term,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        let want = self.rpn(wanted);
+        for (said, proof) in sources {
+            if self.to_term(said).label() != Some("wrex") {
+                continue;
+            }
+            if let Some(p) = self.reached(proof, said, &want, scope, facts)? {
+                return Ok(Some(p));
+            }
+        }
+        Ok(None)
+    }
+
+    /// `witnessed` with the witnesses `found` for the claim's letters, by
+    /// the variable each stands for, and the lines the step cites and
+    /// requires, with their proofs.
+    #[allow(clippy::too_many_arguments)]
+    fn witnessed_at(
+        &mut self,
+        step: &Step,
+        wanted: &Term,
+        layers: &[(Term, Rpn, Rpn)],
+        found: &IndexMap<Rpn, Rpn>,
+        scope: &Rpn,
+        facts: &Facts,
+        lines: &Lines,
+        sources: &[(Rpn, Proof)],
+    ) -> Checked<Route<Proof>> {
         // A witness may spell a letter the claim binds, as the n obtained
         // for "there are m, n ∈ ℕ with …" does, and `rspcev` keeps its
         // letter apart from what the body says. So the claim is shown under
@@ -3768,7 +3839,18 @@ impl<'a> Elaborator<'a> {
                 );
             };
             let renamed = wanted.substitute(&moved);
-            let made = take!(self.witnessed(step, &renamed, scope, facts, lines)?);
+            // The same witnesses, for the letters the claim is renamed to.
+            let apart = self.layers_of(&renamed);
+            let carried: IndexMap<Rpn, Rpn> = layers
+                .iter()
+                .zip(&apart)
+                .map(|((_, was, _), (_, now, _))| {
+                    (t!(now, "cv"), found[&t!(was, "cv")].clone())
+                })
+                .collect();
+            let made = take!(self.witnessed_at(
+                step, &renamed, &apart, &carried, scope, facts, lines, sources
+            )?);
             let Some(back) = self.renaming(&renamed, wanted)? else {
                 return Err(self.defect(
                     step.line,
@@ -3781,35 +3863,37 @@ impl<'a> Elaborator<'a> {
                 &[&made, &back],
             )));
         }
-        // Where the line naming the witnesses is all the claim says of them,
+        // Where a line the step cites is all the claim says of the witnesses,
         // its own proof is taken, turned where it faces the other way.
-        let mut proof = whole;
         let mut innermost = layers[layers.len() - 1].0.clone();
-        for (_, v, _) in &layers {
+        for (_, v, _) in layers {
             let mark = t!(v, "cv");
             innermost = self.restated(&innermost, &mark, &found[&mark]);
         }
         let inner_rpn = self.rpn(&innermost);
         let turned = turned_equation(&innermost).map(|t| self.rpn(&t));
-        if inner_rpn.alone() == Some("wtru") {
+        let said = |want: &Rpn| sources.iter().find(|(s, _)| s == want).map(|(_, p)| p);
+        let mut proof = if inner_rpn.alone() == Some("wtru") {
             // A body that says nothing of its variable holds outright, by
             // the one lemma that states truth.
-            proof = pf!(self.b; "wtru", scope, "tru", "a1i");
-        } else if part == said && turned.as_ref() == Some(&said) {
+            pf!(self.b; "wtru", scope, "tru", "a1i")
+        } else if let Some(p) = said(&inner_rpn) {
+            p.clone()
+        } else if let Some(p) = turned.as_ref().and_then(said) {
             let (a, b) = (
                 self.rpn(&innermost.children()[0]),
                 self.rpn(&innermost.children()[1]),
             );
-            proof = pf!(self.b; scope, b, a, proof, "eqcomd");
-        } else if inner_rpn != said {
-            proof = take!(self.settle_or_bare(
+            pf!(self.b; scope, b, a, p, "eqcomd")
+        } else {
+            take!(self.settle_or_bare(
                 &innermost,
                 scope,
                 facts,
                 Some(step),
                 Some(lines)
-            )?);
-        }
+            )?)
+        };
         for i in (0..layers.len()).rev() {
             let (body, var, over) = layers[i].clone();
             let mark = t!(var, "cv");
@@ -5514,24 +5598,6 @@ impl<'a> Elaborator<'a> {
             })
             .collect();
         Term::apply(term.label().unwrap_or(""), kids)
-    }
-
-    /// A term with each defined function applied to a value read as its rule
-    /// there, parts first, and nothing else rewritten.
-    pub fn applications_read(&mut self, term: &Term) -> Term {
-        if term.variable().is_some() || term.children().is_empty() {
-            return term.clone();
-        }
-        let kids: Vec<Term> = term
-            .children()
-            .iter()
-            .map(|c| self.applications_read(c))
-            .collect();
-        let term = Term::apply(term.label().unwrap_or(""), kids);
-        match self.applied_body(&term) {
-            None => term,
-            Some(applied) => self.applications_read(&applied),
-        }
     }
 
     /// `fit_respelt` of a hypothesis to a line, where a letter the binding

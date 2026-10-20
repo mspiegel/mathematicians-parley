@@ -157,6 +157,7 @@ pub fn checked_where(
             record.cited_requires =
                 citations::requires_cited(thm, c.library, &c.known[i]);
             record.links = formulas::transitivity_links(thm, &c.known[i]);
+            record.exhibited = citations::exhibit_values(thm, c.library, &c.known[i]);
             // A block whose goals are a defect owes nothing here: the defect
             // is among the record's problems (`check_block_ends`), and the
             // build builds no theorem with one.

@@ -1,0 +1,2 @@
+theorem tests/elaborator/an-exhibit-from-an-and/two-witnesses-beside-an-equation
+step 3 exhibits in sentence 0 x := 0, y := 2

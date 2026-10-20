@@ -30,3 +30,4 @@ step 5.3 says once Σ(k = 1 to n) (2 / k − 2 / (k + 1)) is a number
 step 6.2.5 chains 1 / (n + 1) ≤ 1 / N | 1 / N < ε / 2
 step 6.2.7 chains 2 − ε < 2 − 2 / (n + 1) | Σ(k = 1 to n) 1 / T(k) = 2 − 2 / (n + 1)
 step 6.2.10 chains Σ(k = 1 to n) 1 / T(k) = 2 − 2 / (n + 1) | 2 − 2 / (n + 1) < 2 + ε
+step 6.3 exhibits in sentence 0 N := N
