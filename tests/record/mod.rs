@@ -125,6 +125,15 @@ fn citation(cited: &Cited, g: &Grammar) -> String {
         .map(|(k, v)| format!("{k} := {}", g.print(v)))
         .collect();
     binding.sort();
+    let mut bound: Vec<String> = cited
+        .bound
+        .iter()
+        .map(|(k, v)| format!("{k} := {}", g.print(v)))
+        .collect();
+    bound.sort();
+    if !bound.is_empty() {
+        binding.push(format!("bound {}", bound.join(", ")));
+    }
     let concluded: Vec<String> = cited
         .concluded
         .iter()

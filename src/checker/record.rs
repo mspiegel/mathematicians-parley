@@ -108,6 +108,10 @@ pub struct Cited {
     pub item: String,
     pub group: usize,
     pub binding: Binding,
+    /// What the reading gave each letter a binder of the item holds
+    /// (`Taken::bound`): for a "there is" the citation asks, or a definition
+    /// folds, the witness a line names, which the build exhibits.
+    pub bound: Binding,
     /// The sentences of the item's conclusions the claim takes, and which
     /// way each is read, each sentence by its place among them all, counted
     /// across the groups in order: the place of the lemma that proves it in

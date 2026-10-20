@@ -245,6 +245,7 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
         concluded: across_groups(taken, before),
         firsts,
         binding: taken.binding.clone(),
+        bound: taken.bound.clone(),
         written: parts.seed.clone(),
     })
 }
@@ -315,6 +316,7 @@ pub fn cited_requires(
         concluded: across_groups(&taken, before),
         firsts,
         binding: taken.binding,
+        bound: taken.bound,
         written: parts.seed,
     })
 }

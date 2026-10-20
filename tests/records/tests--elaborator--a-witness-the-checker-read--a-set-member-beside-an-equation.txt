@@ -1,0 +1,2 @@
+theorem tests/elaborator/a-witness-the-checker-read/a-set-member-beside-an-equation
+step 1 cites stdlib/sets/set-builder group 0; P := property-of(there is x ∈ ℤ with (there is y ∈ ℤ with x ≠ y and u = x + y)), X := ℤ, u := c, bound x := a, y := b; concludes 0 Backward; from H4 sentence 0

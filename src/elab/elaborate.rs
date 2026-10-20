@@ -84,17 +84,6 @@ struct Pushed {
     floats: Vec<(Symbol, Symbol)>,
 }
 
-/// Where a class that binds a name keeps it among its parts: a map and an
-/// indexed union first, a set built from a property second, a sum third.
-fn binder_at(label: &str) -> Option<usize> {
-    match label {
-        "cmpt" | "ciun" => Some(0),
-        "crab" => Some(1),
-        "csu" => Some(2),
-        _ => None,
-    }
-}
-
 /// Which of the three ways a biconditional definition reaches a claim.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Way {
@@ -1556,12 +1545,18 @@ impl<'a> Elaborator<'a> {
         Ok(out)
     }
 
-    fn cited_here(&self, step: &Step, item: &str) -> Checked<Cited> {
-        let read = match self.thm.steps.iter().position(|s| s.line == step.line) {
+    /// The checker's reading of the citation `step` makes, whatever it
+    /// cites: a step's own, or a requires line's read as the step it would
+    /// be. None where it cites no item.
+    pub(super) fn citation_read(&self, step: &Step) -> Option<&Cited> {
+        match self.thm.steps.iter().position(|s| s.line == step.line) {
             Some(i) => self.checked.cited[i].as_ref(),
             None => self.checked.cited_requires.get(&step.line),
-        };
-        match read {
+        }
+    }
+
+    fn cited_here(&self, step: &Step, item: &str) -> Checked<Cited> {
+        match self.citation_read(step) {
             Some(cited) if cited.item == item => Ok(cited.clone()),
             _ => Err(self.defect(
                 step.line,
@@ -4513,84 +4508,6 @@ impl<'a> Elaborator<'a> {
         )))
     }
 
-    /// What stands where each of `marks` does, or nothing unless all do: the
-    /// search runs over the claim's parts, aligning each against the whole
-    /// of the line, starting only at a part built the same way the line is.
-    pub fn witnesses_in(
-        &self,
-        pattern: &Term,
-        actual: &Term,
-        marks: &BTreeSet<Rpn>,
-    ) -> Option<IndexMap<Rpn, Rpn>> {
-        let mut found = IndexMap::new();
-        if pattern.label() == actual.label()
-            && self.aligned(pattern, actual, marks, &mut found, &IndexMap::new())
-            && found.len() == marks.len()
-        {
-            return Some(found);
-        }
-        for child in pattern.children() {
-            if let Some(got) = self
-                .witnesses_in(child, actual, marks)
-                .filter(|g| !g.is_empty())
-            {
-                return Some(got);
-            }
-        }
-        None
-    }
-
-    /// Whether these agree everywhere but the marked places. A letter each
-    /// binds at the same place may differ, and is the same letter below it.
-    fn aligned(
-        &self,
-        pattern: &Term,
-        actual: &Term,
-        marks: &BTreeSet<Rpn>,
-        found: &mut IndexMap<Rpn, Rpn>,
-        paired: &IndexMap<String, String>,
-    ) -> bool {
-        let here = self.rpn(pattern);
-        if marks.contains(&here) {
-            let was = self.rpn(actual);
-            return *found.entry(here).or_insert_with(|| was.clone()) == was;
-        }
-        if pattern.variable().is_some() || actual.variable().is_some() {
-            let p = pattern
-                .variable()
-                .map(|v| paired.get(v).map(String::as_str).unwrap_or(v));
-            return p == actual.variable();
-        }
-        if pattern.label() != actual.label()
-            || pattern.children().len() != actual.children().len()
-        {
-            return false;
-        }
-        // A class binds too.
-        let label = pattern.label().unwrap_or("");
-        let at = if lookup(rules::BOUND, label).is_some() {
-            Some(1)
-        } else {
-            binder_at(label)
-        };
-        let mut inner = paired.clone();
-        if let Some(at) = at {
-            if pattern.children().len() > at {
-                if let (Some(p), Some(a)) = (
-                    pattern.children()[at].variable(),
-                    actual.children()[at].variable(),
-                ) {
-                    inner.insert(p.to_string(), a.to_string());
-                }
-            }
-        }
-        pattern
-            .children()
-            .iter()
-            .zip(actual.children())
-            .all(|(a, b)| self.aligned(a, b, marks, found, &inner))
-    }
-
     /// An existence claim with the equation under its quantifiers turned
     /// round, where a definition's lemma writes it the other way from the
     /// page (`targets::unfolding`).
@@ -4645,8 +4562,12 @@ impl<'a> Elaborator<'a> {
                 matched.push((name, self.term(&node)?));
             }
         }
-        let (lemma, flipped, right) =
-            self.names_kept(|me| -> Checked<(String, bool, Rpn)> {
+        let read_as: IndexMap<String, Rpn> = matched
+            .iter()
+            .map(|(name, term)| (name.to_string(), term.clone()))
+            .collect();
+        let (lemma, flipped, right, letter) =
+            self.names_kept(|me| -> Checked<(String, bool, Rpn, String)> {
                 for (name, term) in matched {
                     me.names.insert(name.to_string(), term);
                 }
@@ -4699,7 +4620,7 @@ impl<'a> Elaborator<'a> {
                 }
                 let read = me.term(&right);
                 me.bound_as = kept;
-                Ok((lemma, flipped, read?))
+                Ok((lemma, flipped, read?, left.leftmost().text.to_string()))
             })?;
         // Its equation faces the way the lemma writes it.
         let mut whole = self.to_term(&right);
@@ -4707,6 +4628,19 @@ impl<'a> Elaborator<'a> {
             whole = Self::body_turned(&whole);
         }
         let ex = self.rpn(&whole);
+        // The witnesses are the checker's, read of what its citation makes
+        // the subject; folded of another, no line the step cites names one.
+        if let Some(was) = read_as.get(&letter).filter(|was| **was != subject) {
+            return Err(self.defect(
+                step.line,
+                format!(
+                    "no cited line names a witness for {}: {head} is folded of {}, and the lines say it of {}",
+                    self.render(&ex),
+                    self.render(&subject),
+                    self.render(was)
+                ),
+            ));
+        }
         let (var, over) = (
             self.rpn(&whole.children()[1]).to_string(),
             self.rpn(&whole.children()[2]),

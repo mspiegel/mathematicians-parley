@@ -31,8 +31,9 @@ use super::tables::{Leaf, Row};
 use super::{Facts, Lines, WrittenFact};
 use crate::binds;
 use crate::corpus::Step;
+use crate::formula::notation_id::NotationId;
 use crate::formula::symbol::Symbol;
-use crate::formula::Node;
+use crate::formula::{ByShape, Node};
 use crate::mm::kernel::Term;
 use crate::mm::spell::Proof;
 use crate::mm::{Rpn, Signature};
@@ -3603,16 +3604,11 @@ impl<'a> Elaborator<'a> {
         }
     }
 
-    /// A restricted existential, with as many witnesses as it quantifies
-    /// over, from the lines a step names for it: what `exhibit` proves, and
-    /// the right side a definition concludes from (`conclude`).
-    ///
-    /// The text never writes the witness as a witness: it writes a line that
-    /// happens to name one. Taken from the lines the step cites and its
-    /// `requires` lines, in that order, and never searched for among the
-    /// facts in scope. Each sentence of a line is read, and an equation
-    /// facing either way. Built from the innermost quantifier out, which is
-    /// the order the witnesses go in.
+    /// A restricted existential a citation asks, or the right side a
+    /// definition concludes from (`conclude`), proved at the witnesses the
+    /// checker read the citation as naming (`witnesses_read`), from the
+    /// lines the step cites and its `requires` lines. Built from the
+    /// innermost quantifier out, which is the order the witnesses go in.
     pub fn witnessed(
         &mut self,
         step: &Step,
@@ -3638,72 +3634,11 @@ impl<'a> Elaborator<'a> {
                 .ap("eqidd", &binds! {"ph" => scope, "A" => &sides}, &[]);
             sources.push((said, proof));
         }
-        // The witnesses are as many as a line names, from the outermost
-        // quantifier in: a line saying "n ∈ ℕ₀ and there is f with …" names
-        // n, and the "there is f" is what the claim says of it. The deepest
-        // the cited lines reach is the one taken.
-        let quantified = layers;
-        let mut layers = Vec::new();
-        let mut chosen = None;
-        // A line that leaves out an identity element the body has, or has
-        // one the body leaves out, names the same witnesses (`SYNTAX.md`, "An
-        // identity element goes without saying"); each line is read as
-        // written first.
-        for bare in [false, true] {
-            if chosen.is_some() {
-                break;
-            }
-            'depths: for depth in (1..=quantified.len()).rev() {
-                let here = quantified[..depth].to_vec();
-                let mut rest = here[depth - 1].0.clone();
-                if bare {
-                    rest = self.without_identities(&rest);
-                }
-                let marks: BTreeSet<Rpn> =
-                    here.iter().map(|(_, v, _)| t!(v, "cv")).collect();
-                let shapes: Vec<Term> = std::iter::once(rest.clone())
-                    .chain(turned_equation(&rest))
-                    .collect();
-                // A body saying nothing of its one variable takes any member of
-                // the domain a line names; one that says something takes what it
-                // says.
-                let silent = here.len() == 1
-                    && !here[0].1.alone().is_some_and(|v| self.rpn(&rest).has(v));
-                for (said, _) in &sources {
-                    for part in self.parts(said) {
-                        let mut held = self.to_term(&part);
-                        if bare {
-                            held = self.without_identities(&held);
-                        }
-                        for shape in &shapes {
-                            let found = self.witnesses_in(shape, &held, &marks);
-                            if let Some(found) = found.filter(|f| !f.is_empty()) {
-                                chosen = Some(found);
-                                layers = here;
-                                break 'depths;
-                            }
-                        }
-                    }
-                    if silent {
-                        if let Some(found) = self.member_named(said, &here[0]) {
-                            chosen = Some(found);
-                            layers = here;
-                            break 'depths;
-                        }
-                    }
-                }
-            }
-        }
-        let Some(found) = chosen else {
-            return Err(self.defect(
-                step.line,
-                format!(
-                    "no cited line names a witness for {}",
-                    self.render(&self.rpn(wanted))
-                ),
-            ));
-        };
-        self.witnessed_at(step, wanted, &layers, &found, scope, facts, lines, &sources)
+        // The witnesses are as many as the checker read, from the outermost
+        // quantifier in (`witnesses_read`).
+        let found = self.witnesses_read(step, wanted, &layers)?;
+        let layers = &layers[..found.len()];
+        self.witnessed_at(step, wanted, layers, &found, scope, facts, lines, &sources)
     }
 
     /// What an `exhibit` step of several letters proves: `witnessed`, with
@@ -3733,6 +3668,124 @@ impl<'a> Elaborator<'a> {
             ));
         }
         self.witnessed_at(step, wanted, &layers, &found, scope, facts, lines, &sources)
+    }
+
+    /// The witnesses the checker read the citation `step` makes as naming
+    /// for `wanted`, a "there is" the cited item asks or a definition it
+    /// folds says (`Cited::bound`): what each of its letters is put to,
+    /// from the outermost in, by the variable the letter stands for in
+    /// `layers`, the quantifiers of `wanted`. The item writes the "there is"
+    /// in its own letters, which the build may have renamed, so it is found
+    /// among the item's by how many letters it binds. A "there is" inside
+    /// the body that a line says whole, the "there is f" of "n ∈ ℕ₀ and
+    /// there is f with …", has no witness read, and the witnesses are of
+    /// the quantifiers outside it.
+    fn witnesses_read(
+        &mut self,
+        step: &Step,
+        wanted: &Term,
+        layers: &[(Term, Rpn, Rpn)],
+    ) -> Checked<IndexMap<Rpn, Rpn>> {
+        let Some(cited) = self.citation_read(step).cloned() else {
+            return Err(self.unreached(
+                step.line,
+                "the checker reads no citation that names a witness on this line",
+            ));
+        };
+        let library = self.item_library();
+        let groups = library.groups(&cited.item).unwrap_or_default();
+        let Some(group) = groups.get(cited.group) else {
+            return Err(
+                self.unreached(step.line, "the checker reads a group the item has not")
+            );
+        };
+        // A "there is" is read in the letters the checker matched it in: the
+        // item's own, and where a letter standing for a rule is applied, the
+        // rule's at what it is applied to (`citing::filled`), which may keep
+        // its letter apart from a value. Nothing else is filled in, so a
+        // value that spells an item's letter does not rename it.
+        let ctx = &library.ctx;
+        let applied = |node: &Node| {
+            ctx.props.contains_key(&node.notation())
+                && node.children.len() == 2
+                && node.children[0].is_name()
+                && cited
+                    .binding
+                    .get(&node.children[0].text)
+                    .is_some_and(|v| v.notation() == crate::notations::PROPERTY_OF)
+        };
+        let mut nodes = Vec::new();
+        for s in group.wants.iter().map(|(_, w)| w).chain(&group.gives) {
+            for node in s.walk() {
+                if applied(&node) {
+                    nodes.extend(
+                        crate::citing::filled(&node, &cited.binding, ctx).walk(),
+                    );
+                }
+                nodes.push(node);
+            }
+        }
+        let mut read: Vec<Vec<Node>> = Vec::new();
+        let mut shapes: IndexSet<Vec<ByShape>> = IndexSet::new();
+        for node in nodes {
+            let letters = Self::existential_letters(&node, &library.exists);
+            if letters.len() != layers.len() {
+                continue;
+            }
+            let values: Vec<Node> = letters
+                .iter()
+                .map_while(|l| cited.bound.get(l).cloned())
+                .collect();
+            if !values.is_empty()
+                && shapes.insert(values.iter().map(Node::by_shape).collect())
+            {
+                read.push(values);
+            }
+        }
+        let values = match read.as_slice() {
+            [one] => one.clone(),
+            [] => {
+                return Err(self.unreached(
+                    step.line,
+                    format!(
+                        "the checker reads no witness for {}",
+                        self.render(&self.rpn(wanted))
+                    ),
+                ))
+            }
+            _ => {
+                return Err(self.unreached(
+                    step.line,
+                    format!(
+                        "the checker reads witnesses for more than one \"there is\" like {}",
+                        self.render(&self.rpn(wanted))
+                    ),
+                ))
+            }
+        };
+        let mut found = IndexMap::new();
+        for ((_, variable, _), value) in layers.iter().zip(&values) {
+            found.insert(t!(variable, "cv"), self.term(value)?);
+        }
+        Ok(found)
+    }
+
+    /// The letters a nest of "there is" binds, from the outermost in; none
+    /// where `node` is no "there is".
+    fn existential_letters(
+        node: &Node,
+        exists: &crate::matching::FxIndexSet<NotationId>,
+    ) -> Vec<Symbol> {
+        let mut letters = Vec::new();
+        let mut at = node;
+        while exists.contains(&at.notation()) && at.children.len() >= 2 {
+            letters.push(at.children[0].text);
+            match at.children.get(2) {
+                Some(body) => at = body,
+                None => break,
+            }
+        }
+        letters
     }
 
     /// The quantifiers of a nest of "there is", from the outermost in: the
@@ -3931,28 +3984,6 @@ impl<'a> Elaborator<'a> {
                 ph, ps, var, witness, over, instance, "rspcev", "syl");
         }
         Ok(Built(proof))
-    }
-
-    /// The witness a line gives by putting something in the domain, for a
-    /// "there is s ∈ S" whose body says nothing of s.
-    fn member_named(
-        &self,
-        said: &Rpn,
-        layer: &(Term, Rpn, Rpn),
-    ) -> Option<IndexMap<Rpn, Rpn>> {
-        let (_, var, over) = layer;
-        for part in self.parts(said) {
-            let node = self.to_term(&part);
-            if node.variable().is_none()
-                && node.label() == Some("wcel")
-                && self.rpn(&node.children()[1]) == *over
-            {
-                let mut out = IndexMap::new();
-                out.insert(t!(var, "cv"), self.rpn(&node.children()[0]));
-                return Some(out);
-            }
-        }
-        None
     }
 
     /// `term` with every occurrence of the subterm `was` reading `now`, both
