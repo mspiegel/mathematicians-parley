@@ -91,3 +91,10 @@ theorem a-sine-not-zero-on-a-requires-line
 1.  a·sin(π/3)/sin(π/3) = a
     algebra
     requires sin(π/3) ≠ 0: real arithmetic
+
+theorem the-cosine-and-sine-of-a-right-angle
+  note        Each sentence is worked out on its own.
+  then cos(π/2) = 0. sin(π/2) = 1.
+
+1.  cos(π/2) = 0. sin(π/2) = 1.
+    real arithmetic

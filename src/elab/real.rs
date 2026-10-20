@@ -127,6 +127,15 @@ impl<'a> Elaborator<'a> {
         what: &str,
     ) -> Checked<Proof> {
         let goal = self.to_term(term);
+        // A claim of several sentences, `cos(π/2) = 0. sin(π/2) = 1.`, is
+        // each of them worked out, as the checker decides each.
+        let parts = self.conjoined(&goal, scope, &mut |me, one| {
+            let one = me.rpn(one);
+            me.real_fact(&one, scope, facts, what).map(Built)
+        })?;
+        if let Some(Built(p)) = parts {
+            return Ok(p);
+        }
         match reals::decide_closed(&goal) {
             Built(Verdict::Holds(true)) => {}
             other => return Err(self.real_unshown(other, what)),

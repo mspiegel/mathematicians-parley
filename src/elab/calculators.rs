@@ -1948,6 +1948,15 @@ impl<'a> Elaborator<'a> {
         step: Option<&Step>,
     ) -> Checked<Proof> {
         let said = self.to_term(term);
+        // A claim of several sentences, `2 + 2 = 4. 3 + 3 = 6.`, is each of
+        // them worked out, as the checker decides each.
+        let parts = self.conjoined(&said, scope, &mut |me, one| {
+            let one = me.rpn(one);
+            me.closed_fact(&one, scope, facts, what, step).map(Built)
+        })?;
+        if let Some(Built(p)) = parts {
+            return Ok(p);
+        }
         if let Built(p) = self.prove_numeral(term, scope, facts)? {
             return Ok(p);
         }
