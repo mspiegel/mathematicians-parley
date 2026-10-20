@@ -3064,6 +3064,21 @@ fn row_is(
 }
 
 /// What a row names, said in a message: `with 2·A added to both sides`.
+/// Whether a `symmetry` row turns an order round, `a ≥ 0` to `0 ≤ a`.
+/// Symmetry swaps an equation's sides; an order reads either way round and
+/// needs no row to turn it (`METHODS.md`, Rows), so "is not the row above
+/// with its sides swapped" would deny what the row does.
+fn order_turned(
+    above: &Related,
+    row: &Related,
+    reason: &RowReason,
+    known: &Known,
+) -> bool {
+    matches!(reason, RowReason::Symmetry)
+        && !matches!(above.rel, Rel::Eq | Rel::Ne)
+        && row.says(above, known)
+}
+
 fn row_said(reason: &RowReason) -> String {
     match reason {
         RowReason::Cited(r) => format!("as {r} says it"),
@@ -3169,14 +3184,18 @@ pub fn check_inequality_rows(
                 known,
                 targets,
             ) {
-                report.say(
-                    &thm.path,
-                    row.line,
+                let said = if order_turned(&read[i - 1], &read[i], &row.reason, known) {
+                    format!(
+                        "a row of step {number} turns an order round by symmetry, which swaps an equation's sides; an order reads either way round, so write the row above as {}",
+                        str::trim(row.formula.text())
+                    )
+                } else {
                     format!(
                         "a row of step {number} is not the row above {}",
                         row_said(&row.reason)
-                    ),
-                );
+                    )
+                };
+                report.say(&thm.path, row.line, said);
                 held = false;
                 break;
             }
@@ -3266,16 +3285,25 @@ pub fn check_requires_manipulations(
                     .cloned()
             });
             if line.is_none() {
-                report.say(
-                    &thm.path,
-                    req.line,
+                let turned = fact.as_ref().is_some_and(|fact| {
+                    said.iter()
+                        .any(|line| order_turned(line, fact, &reason, known))
+                });
+                let message = if turned {
+                    format!(
+                        "the requires line {} of step {} turns an order round by symmetry, which swaps an equation's sides; an order reads either way round, so cite {cited} with no manipulation",
+                        str::trim(req.fact.text()),
+                        step.number,
+                    )
+                } else {
                     format!(
                         "the requires line {} of step {} is not {cited} {}",
                         str::trim(req.fact.text()),
                         step.number,
                         row_said(&reason)
-                    ),
-                );
+                    )
+                };
+                report.say(&thm.path, req.line, message);
                 continue;
             }
             let (Some(line), Some(fact)) = (line, fact) else {

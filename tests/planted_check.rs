@@ -767,6 +767,27 @@ fn cases() -> Vec<Case> {
             )],
             "the requires line q ≠ 1 of step 1 is not H3 with its relation weakened",
         ),
+        // Symmetry swaps an equation's sides; an order turned round is the
+        // same order, and the message says so rather than that the row is
+        // not the one above swapped.
+        case(
+            "turn an order round by a symmetry row",
+            vec![edit(
+                "tests/elaborator/inequality-rows.proof",
+                Some("      −x > 0               multiplying by −1\n".to_string()),
+                "      −x > 0               multiplying by −1\n      0 < −x               symmetry\n".to_string(),
+            )],
+            "a row of step 1 turns an order round by symmetry, which swaps an equation's sides; an order reads either way round, so write the row above as 0 < −x",
+        ),
+        case(
+            "turn an order round by a symmetry requires line",
+            vec![edit(
+                "tests/elaborator/inequality-rows.proof",
+                Some("    requires q ≠ 0: weakening, from H3\n".to_string()),
+                "    requires 0 < q: symmetry, from H3\n".to_string(),
+            )],
+            "the requires line 0 < q of step 1 turns an order round by symmetry, which swaps an equation's sides; an order reads either way round, so cite H3 with no manipulation",
+        ),
         // A transitivity step chains relations, each line's right side the
         // next one's left, and claims the ends by the chain's relation;
         // antisymmetry takes an order and its converse to an equation.
