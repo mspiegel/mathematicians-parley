@@ -779,6 +779,27 @@ fn cases() -> Vec<Case> {
             )],
             "a row of step 1 turns an order round by symmetry, which swaps an equation's sides; an order reads either way round, so write the row above as 0 < −x",
         ),
+        // A requires line by a manipulation takes an atom's membership from
+        // a requires line above it; with none it is told so, and with one
+        // below it is told to move that one above.
+        case(
+            "leave out the membership a requires-line weakening needs",
+            vec![edit(
+                "tests/elaborator/a-requires-weakening-with-its-membership.proof",
+                Some("    requires √(x + 1) ∈ ℝ: from 2\n    requires √x ∈ ℝ: from 3\n    requires √(x + 1) + √x ≠ 0: weakening, from 8\n".to_string()),
+                "    requires √(x + 1) + √x ≠ 0: weakening, from 8\n".to_string(),
+            )],
+            "nothing says √(x + 1) ∈ ℝ, which this step needs; a requires line by weakening takes a membership from a requires line above it",
+        ),
+        case(
+            "write the membership a requires-line weakening needs below it",
+            vec![edit(
+                "tests/elaborator/a-requires-weakening-with-its-membership.proof",
+                Some("    requires √(x + 1) ∈ ℝ: from 2\n    requires √x ∈ ℝ: from 3\n    requires √(x + 1) + √x ≠ 0: weakening, from 8\n".to_string()),
+                "    requires √(x + 1) + √x ≠ 0: weakening, from 8\n    requires √(x + 1) ∈ ℝ: from 2\n    requires √x ∈ ℝ: from 3\n".to_string(),
+            )],
+            "nothing above says √(x + 1) ∈ ℝ, which this step needs; the requires line √(x + 1) ∈ ℝ below says it, and a requires line takes only what the lines above it state: move it above",
+        ),
         case(
             "turn an order round by a symmetry requires line",
             vec![edit(

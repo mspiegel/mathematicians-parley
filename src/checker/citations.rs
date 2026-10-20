@@ -1950,9 +1950,14 @@ fn built_on(req: &crate::corpus::Requires, step: &Step, known: &Known) -> bool {
         .skip(1)
         .filter(|r| {
             let how = str::trim(&r.how);
-            asking
-                .iter()
-                .any(|m| how == *m || how.starts_with(&format!("{m},")))
+            // A manipulation, `weakening, from 8`, is a row of `inequalities`
+            // and asks its atoms real as that method does.
+            let manipulated = asking.contains(&"inequalities")
+                && matches!(&r.by, Ok(by) if matches!(by.head, Head::Manipulation(_)));
+            manipulated
+                || asking
+                    .iter()
+                    .any(|m| how == *m || how.starts_with(&format!("{m},")))
         })
         .filter_map(|r| known.whole(step, &r.fact).map(|n| (r, n)))
         .any(|(r, n)| {

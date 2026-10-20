@@ -2412,6 +2412,54 @@ fn real_unsaid(
     known: &Known,
     targets: &Targets,
 ) -> Option<String> {
+    unsaid_of(at, read, relations, known, targets).map(|u| u.said(known))
+}
+
+/// What an order's relations need of a term that nothing says.
+enum Unsaid {
+    /// An atom of a side, which has to be a real number.
+    Real(Node),
+    /// A divisor, or the part of one, which has to be other than 0.
+    Nonzero(Node),
+}
+
+impl Unsaid {
+    fn said(&self, known: &Known) -> String {
+        self.told(known, "nothing says")
+    }
+
+    /// The message, opening with `nothing`: "nothing says", or "nothing
+    /// above says" where a line below says it.
+    fn told(&self, known: &Known, nothing: &str) -> String {
+        match self {
+            Unsaid::Real(atom) => {
+                format!("{nothing} {} ∈ ℝ, which this step needs", known.print(atom))
+            }
+            Unsaid::Nonzero(part) => format!(
+                "{nothing} {} ≠ 0, which this step needs to divide by it",
+                known.print(part)
+            ),
+        }
+    }
+
+    /// Whether the two ask the same of the same term.
+    fn same(&self, other: &Unsaid, known: &Known) -> bool {
+        match (self, other) {
+            (Unsaid::Real(a), Unsaid::Real(b))
+            | (Unsaid::Nonzero(a), Unsaid::Nonzero(b)) => known.alike(a, b),
+            _ => false,
+        }
+    }
+}
+
+/// `real_unsaid`, naming the term and what it needs.
+fn unsaid_of(
+    at: &ClosureClaim,
+    read: &ClosureRead,
+    relations: &[Node],
+    known: &Known,
+    targets: &Targets,
+) -> Option<Unsaid> {
     let held = MembershipIn::of(at, read, known);
     let given = held.given(targets, known);
     for relation in relations {
@@ -2422,20 +2470,14 @@ fn real_unsaid(
                 .iter()
                 .find(|a| !methods_membership::atom_held(a, System::R, &given))
             {
-                return Some(format!(
-                    "nothing says {} ∈ ℝ, which this step needs",
-                    known.print(atom)
-                ));
+                return Some(Unsaid::Real(atom.clone()));
             }
             if let Some(unsaid) = parts
                 .divisors
                 .iter()
                 .find_map(|d| methods_membership::unsaid_part(d, &given))
             {
-                return Some(format!(
-                    "nothing says {} ≠ 0, which this step needs to divide by it",
-                    known.print(&unsaid)
-                ));
+                return Some(Unsaid::Nonzero(unsaid));
             }
         }
     }
@@ -3314,9 +3356,38 @@ pub fn check_requires_manipulations(
             let Some(read) = at.read(known, targets, false) else {
                 continue;
             };
-            if let Some(said) = real_unsaid(&at, &read, &relations, known, targets) {
-                report.say(&thm.path, req.line, said);
-            }
+            let Some(unsaid) = unsaid_of(&at, &read, &relations, known, targets) else {
+                continue;
+            };
+            // A requires line takes what the lines above it state (`SYNTAX.md`),
+            // so a line below that would say it is named, read as if above.
+            let below = step
+                .requires
+                .iter()
+                .skip_while(|o| o.line != req.line)
+                .skip(1)
+                .find(|o| {
+                    let mut with = ClosureClaim::requires(step, req);
+                    with.above.push(o);
+                    with.read(known, targets, false).is_some_and(|read| {
+                        unsaid_of(&with, &read, &relations, known, targets)
+                            .is_none_or(|still| !still.same(&unsaid, known))
+                    })
+                });
+            let said = unsaid.said(known);
+            let message = match (below, &unsaid) {
+                (Some(o), _) => format!(
+                    "{}; the requires line {} below says it, and a requires line takes only what the lines above it state: move it above",
+                    unsaid.told(known, "nothing above says"),
+                    str::trim(o.fact.text())
+                ),
+                (None, Unsaid::Real(_)) => format!(
+                    "{said}; a requires line by {} takes a membership from a requires line above it",
+                    by.head
+                ),
+                (None, Unsaid::Nonzero(_)) => said,
+            };
+            report.say(&thm.path, req.line, message);
         }
     }
 }
