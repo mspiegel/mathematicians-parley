@@ -41,8 +41,8 @@ theorem four-over-product
 
 9.  x·(4 − x)/(x·(4 − x)) = 1
     algebra
-    requires x·(4 − x) ≠ 0: weakening, from 3
+    requires 0 ≠ x·(4 − x): weakening, from 3
 
 10. 4/(x·(4 − x)) ≥ 1
     transitivity, from 9, 8
-    requires x·(4 − x) ≠ 0: weakening, from 3
+    requires 0 ≠ x·(4 − x): weakening, from 3

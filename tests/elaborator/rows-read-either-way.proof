@@ -1,7 +1,7 @@
 theorem a-row-multiplied-by-a-negative-number-read-from-its-other-side
-  note        Multiplying 4·x − 5 ≤ 0 by −2 turns it round, to
-              −8·x + 10 ≥ 0, which the row writes as 0 ≤ −8·x + 10: the same
-              order read from its other side.
+  note        Multiplying 4·x − 5 ≤ 0 by −2 turns the relation round, to
+              −8·x + 10 ≥ 0, and a symmetry row reads that order from its
+              other side, 0 ≤ −8·x + 10.
   let x ∈ ℝ                                                           (H1)
   assume 4·x − 5 ≤ 0                                                  (H2)
   then 0 ≤ −8·x + 10
@@ -9,4 +9,5 @@ theorem a-row-multiplied-by-a-negative-number-read-from-its-other-side
 1.  0 ≤ −8·x + 10
     inequalities
       4·x − 5 ≤ 0        H2
-      0 ≤ −8·x + 10      multiplying by −2
+      −8·x + 10 ≥ 0      multiplying by −2
+      0 ≤ −8·x + 10      symmetry

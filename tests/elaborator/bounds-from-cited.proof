@@ -10,6 +10,7 @@ theorem an-equation-from-a-difference-with-a-bound-uncited
     inequalities
       b − a = 0      H4
       b = a          adding a
+      a = b          symmetry
 
 theorem positive-from-a-natural-with-a-bound-uncited
   note        n > 0 follows from n ∈ ℕ alone, with an uncited line saying 1 ≤ n.

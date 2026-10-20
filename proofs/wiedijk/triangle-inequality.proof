@@ -54,6 +54,7 @@ theorem abs-bounds
           inequalities
             x < 0            C2
             −x > 0           multiplying by −1
+            0 < −x           symmetry
 
     2.9.  x < |x|
           transitivity, from C2, 2.8, 2.6

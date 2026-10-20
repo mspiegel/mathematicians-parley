@@ -22,6 +22,7 @@ theorem abs-nonneg
     inequalities
       0 ≤ 2·|x|        2
       0 ≤ |x|          multiplying by 1/2
+      |x| ≥ 0          symmetry
     requires |x| ∈ ℝ: mun:abs-real
 
 theorem quotient-positive
@@ -114,6 +115,7 @@ let d = |C| + 1, a real number                                        (D1)
     inequalities
       |u| ≥ 0                      10
       |C|·|u| + |u| ≥ |C|·|u|      adding |C|·|u|
+      |C|·|u| ≤ |C|·|u| + |u|      symmetry
     requires |C| ∈ ℝ: from 1
     requires |u| ∈ ℝ: mun:abs-real x := u
 
@@ -131,6 +133,7 @@ let d = |C| + 1, a real number                                        (D1)
       ε > 0            H4
       ε/2 > 0          multiplying by 1/2
       ε > ε/2          adding ε/2
+      ε/2 < ε          symmetry
 
 15. |C·u| < ε
     transitivity, from 13, 12, 14

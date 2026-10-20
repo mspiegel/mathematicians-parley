@@ -36,6 +36,7 @@ theorem four-times-between
           inequalities
             r < 4j           2.2
             r ≠ 4j           weakening
+            4j ≠ r           symmetry
 
     case
     assume j − 1 < 0                                                  (C2)

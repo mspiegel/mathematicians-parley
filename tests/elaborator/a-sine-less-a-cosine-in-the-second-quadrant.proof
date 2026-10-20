@@ -107,7 +107,8 @@ theorem a-sine-less-a-cosine-in-the-second-quadrant
       sin(x)·sin(x − π/2) ≥ 0                    21
       2·(sin(x)·sin(x − π/2)) ≥ 2·0              multiplying by 2
       2·(sin(x)·sin(x − π/2)) + 1 ≥ 2·0 + 1      adding 1
-      1² ≤ 1 + 2·sin(x)·sin(x − π/2)             algebra
+      1 + 2·sin(x)·sin(x − π/2) ≥ 1²             algebra
+      1² ≤ 1 + 2·sin(x)·sin(x − π/2)             symmetry
     requires sin(x) ∈ ℝ: mun:sin-real a := x
     requires sin(x − π/2) ∈ ℝ: mun:sin-real a := x − π/2
 

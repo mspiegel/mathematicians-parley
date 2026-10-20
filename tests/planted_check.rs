@@ -740,7 +740,7 @@ fn cases() -> Vec<Case> {
             "inequality rows ending other than on the claim",
             vec![edit(
                 "tests/elaborator/inequality-rows.proof",
-                Some("      0 < x                H2\n      0 ≠ x                weakening\n".to_string()),
+                Some("      0 < x                H2\n      0 ≠ x                weakening\n      x ≠ 0                symmetry\n".to_string()),
                 "      0 < x                H2\n      0 ≤ x                weakening\n".to_string(),
             )],
             "the last row of step 1 is not its claim",
@@ -767,17 +767,45 @@ fn cases() -> Vec<Case> {
             )],
             "the requires line q ≠ 1 of step 1 is not H3 with its relation weakened",
         ),
-        // Symmetry swaps an equation's sides; an order turned round is the
-        // same order, and the message says so rather than that the row is
-        // not the one above swapped.
+        // In rows, turning a relation round is a symmetry row of its own: the
+        // first row is the cited line as written, each row keeps its sides
+        // where its manipulation leaves them, and the last row is the claim
+        // as written. A row that turns as well as manipulates is told which.
         case(
-            "turn an order round by a symmetry row",
+            "write the first row as the line it cites turned round",
             vec![edit(
                 "tests/elaborator/inequality-rows.proof",
-                Some("      −x > 0               multiplying by −1\n".to_string()),
-                "      −x > 0               multiplying by −1\n      0 < −x               symmetry\n".to_string(),
+                Some("      A < B                H3\n".to_string()),
+                "      B > A                H3\n".to_string(),
             )],
-            "a row of step 1 turns an order round by symmetry, which swaps an equation's sides; an order reads either way round, so write the row above as 0 < −x",
+            "the first row of step 1 is the line it cites turned round; write the line as it is written, and turn it with a symmetry row",
+        ),
+        case(
+            "turn a row round as well as multiplying it",
+            vec![edit(
+                "tests/elaborator/inequality-rows.proof",
+                Some("      −x > 0               multiplying by −1\n      0 < −x               symmetry\n".to_string()),
+                "      0 < −x               multiplying by −1\n".to_string(),
+            )],
+            "a row of step 1 is the row above with both sides multiplied by −1, a numeral other than 0, turned round; turning it round is a symmetry row of its own",
+        ),
+        case(
+            "end the rows on the claim turned round",
+            vec![edit(
+                "tests/elaborator/inequality-rows.proof",
+                Some("      0 ≠ x                weakening\n      x ≠ 0                symmetry\n".to_string()),
+                "      0 ≠ x                weakening\n".to_string(),
+            )],
+            "the last row of step 1 is its claim turned round; end with a symmetry row that writes the claim as it is written",
+        ),
+        case(
+            "turn a requires line round as well as weakening it",
+            vec![edit(
+                "tests/elaborator/inequality-rows.proof",
+                Some("    requires 0 ≠ q: weakening, from H3\n".to_string()),
+                "    requires q ≠ 0: weakening, from H3\n".to_string(),
+            )],
+            "the requires line q ≠ 0 of step 2 is H3 with its relation weakened, turned round; a requires line names one manipulation, so write it as the manipulation leaves it: 0 ≠ q",
         ),
         // A requires line by a manipulation takes an atom's membership from
         // a requires line above it; with none it is told so, and with one
@@ -799,15 +827,6 @@ fn cases() -> Vec<Case> {
                 "    requires √(x + 1) + √x ≠ 0: weakening, from 8\n    requires √(x + 1) ∈ ℝ: from 2\n    requires √x ∈ ℝ: from 3\n".to_string(),
             )],
             "nothing above says √(x + 1) ∈ ℝ, which this step needs; the requires line √(x + 1) ∈ ℝ below says it, and a requires line takes only what the lines above it state: move it above",
-        ),
-        case(
-            "turn an order round by a symmetry requires line",
-            vec![edit(
-                "tests/elaborator/inequality-rows.proof",
-                Some("    requires q ≠ 0: weakening, from H3\n".to_string()),
-                "    requires 0 < q: symmetry, from H3\n".to_string(),
-            )],
-            "the requires line 0 < q of step 1 turns an order round by symmetry, which swaps an equation's sides; an order reads either way round, so cite H3 with no manipulation",
         ),
         // A transitivity step chains relations, each line's right side the
         // next one's left, and claims the ends by the chain's relation;

@@ -34,6 +34,7 @@ theorem order-apart
       a < b            H3
       0 < b − a        adding −a
       0 ≠ b − a        weakening
+      b − a ≠ 0        symmetry
 
 theorem bracketed-formula
   let a ∈ ℝ                                                           (H1)

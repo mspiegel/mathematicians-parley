@@ -177,6 +177,7 @@ theorem scaled-gcd-bound
           inequalities
             c < 0          C2
             −c > 0         multiplying by −1
+            0 < −c         symmetry
 
     11.6. 0 < gcd(a, b)
           inequalities, from 1
@@ -195,7 +196,8 @@ theorem scaled-gcd-bound
     11.10. c·gcd(a, b) < 0
            inequalities
              0 < −(c·gcd(a, b))      11.9
-             c·gcd(a, b) < 0         multiplying by −1
+             0 > c·gcd(a, b)         multiplying by −1
+             c·gcd(a, b) < 0         symmetry
            requires gcd(a, b) ∈ ℝ: from 1
 
     11.11. c·gcd(a, b) < gcd(c·a, c·b)

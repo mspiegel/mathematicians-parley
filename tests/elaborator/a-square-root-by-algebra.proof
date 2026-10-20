@@ -37,5 +37,6 @@ theorem a-root-halved-by-inequalities
 
 2.  0 ≤ √2/2
     inequalities
-      0 ≤ √2        1
+      √2 ≥ 0        1
+      0 ≤ √2        symmetry
       0 ≤ √2/2      multiplying by 1/2

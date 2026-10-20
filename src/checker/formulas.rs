@@ -2584,6 +2584,15 @@ impl Related {
         };
         same(self, other) || same(self, &other.turned())
     }
+
+    /// Whether this says what `other` says, written the same way round: a
+    /// row's relation as it stands (`METHODS.md`, inequalities, Rows), where
+    /// turning an order round is a `symmetry` row of its own.
+    fn says_as_written(&self, other: &Related, known: &Known) -> bool {
+        self.rel == other.rel
+            && known.alike(&self.left, &other.left)
+            && known.alike(&self.right, &other.right)
+    }
 }
 
 /// The relation a chain of these links gives (`METHODS.md`, transitivity),
@@ -3057,12 +3066,9 @@ fn row_follows(
             let times = |side: &Node| made(g, TIMES, vec![c.clone(), side.clone()]);
             sides(rel, &times(&above.left), &times(&above.right))
         }
-        (RowReason::Symmetry, _) => {
-            matches!(above.rel, Rel::Eq | Rel::Ne)
-                && row.rel == above.rel
-                && known.alike(&row.left, &above.right)
-                && known.alike(&row.right, &above.left)
-        }
+        // An equation's sides swapped, or an order turned round: `a > 0` to
+        // `0 < a`.
+        (RowReason::Symmetry, _) => row.says_as_written(&above.turned(), known),
         (RowReason::Weakening, _) => {
             let weaker = matches!(
                 (above.rel, row.rel),
@@ -3083,9 +3089,9 @@ fn row_follows(
 }
 
 /// Whether `row` relates by `rel` two sides that are `left` and `right`,
-/// each as one number (`one_number`). An order is the same fact read from
-/// either side, `b ≥ a` as `a ≤ b` (`METHODS.md`, transitivity); an
-/// equation's sides swapped is a `symmetry` row of its own.
+/// each as one number (`one_number`), written that way round: an
+/// equation's sides swapped, or an order turned round, is a `symmetry` row
+/// of its own.
 fn row_is(
     row: &Related,
     rel: Rel,
@@ -3094,33 +3100,12 @@ fn row_is(
     known: &Known,
     targets: &Targets,
 ) -> bool {
-    let as_written = row.rel == rel
+    row.rel == rel
         && one_number(&row.left, left, known, targets)
-        && one_number(&row.right, right, known, targets);
-    let order = !matches!(rel, Rel::Eq | Rel::Ne);
-    as_written
-        || (order
-            && row.rel == rel.converse()
-            && one_number(&row.left, right, known, targets)
-            && one_number(&row.right, left, known, targets))
+        && one_number(&row.right, right, known, targets)
 }
 
 /// What a row names, said in a message: `with 2·A added to both sides`.
-/// Whether a `symmetry` row turns an order round, `a ≥ 0` to `0 ≤ a`.
-/// Symmetry swaps an equation's sides; an order reads either way round and
-/// needs no row to turn it (`METHODS.md`, Rows), so "is not the row above
-/// with its sides swapped" would deny what the row does.
-fn order_turned(
-    above: &Related,
-    row: &Related,
-    reason: &RowReason,
-    known: &Known,
-) -> bool {
-    matches!(reason, RowReason::Symmetry)
-        && !matches!(above.rel, Rel::Eq | Rel::Ne)
-        && row.says(above, known)
-}
-
 fn row_said(reason: &RowReason) -> String {
     match reason {
         RowReason::Cited(r) => format!("as {r} says it"),
@@ -3183,20 +3168,27 @@ pub fn check_inequality_rows(
         }
         // The first row writes out the line it cites, the step's only one,
         // or one of the relations a line saying several says.
-        let first_says = match &written[0].reason {
-            RowReason::Cited(r) => line_relations(step, r, known)
-                .iter()
-                .any(|line| line.says(&read[0], known)),
-            _ => false,
+        let cited_lines = match &written[0].reason {
+            RowReason::Cited(r) => line_relations(step, r, known),
+            _ => Vec::new(),
         };
-        if !first_says {
-            report.say(
-                &thm.path,
-                written[0].line,
+        if !cited_lines
+            .iter()
+            .any(|line| line.says_as_written(&read[0], known))
+        {
+            // The line turned round is a symmetry row after it, not the
+            // first row (`METHODS.md`, inequalities, Rows).
+            let turned = cited_lines.iter().any(|line| line.says(&read[0], known));
+            let said = if turned {
+                format!(
+                    "the first row of step {number} is the line it cites turned round; write the line as it is written, and turn it with a symmetry row"
+                )
+            } else {
                 format!(
                     "the first row of step {number} is not a line the step cites, written out with its label as its reason"
-                ),
-            );
+                )
+            };
+            report.say(&thm.path, written[0].line, said);
             continue;
         }
         let whole_cited: Vec<Node> = match &written[0].reason {
@@ -3226,10 +3218,21 @@ pub fn check_inequality_rows(
                 known,
                 targets,
             ) {
-                let said = if order_turned(&read[i - 1], &read[i], &row.reason, known) {
+                // The manipulation and a turn are two rows, the turn a
+                // symmetry row of its own.
+                let turned = !matches!(row.reason, RowReason::Symmetry)
+                    && row_follows(
+                        &read[i - 1],
+                        &read[i].turned(),
+                        &row.reason,
+                        term.as_ref(),
+                        known,
+                        targets,
+                    );
+                let said = if turned {
                     format!(
-                        "a row of step {number} turns an order round by symmetry, which swaps an equation's sides; an order reads either way round, so write the row above as {}",
-                        str::trim(row.formula.text())
+                        "a row of step {number} is the row above {}, turned round; turning it round is a symmetry row of its own",
+                        row_said(&row.reason)
                     )
                 } else {
                     format!(
@@ -3264,12 +3267,20 @@ pub fn check_inequality_rows(
             continue; // `check_formulas` says it does not read
         };
         let last = read.last().expect("a step's rows");
-        if held && !Related::of(&claim).is_some_and(|c| c.says(last, known)) {
-            report.say(
-                &thm.path,
-                written[written.len() - 1].line,
-                format!("the last row of step {number} is not its claim"),
-            );
+        let claimed = Related::of(&claim);
+        if held
+            && !claimed
+                .as_ref()
+                .is_some_and(|c| c.says_as_written(last, known))
+        {
+            let said = if claimed.is_some_and(|c| c.says(last, known)) {
+                format!(
+                    "the last row of step {number} is its claim turned round; end with a symmetry row that writes the claim as it is written"
+                )
+            } else {
+                format!("the last row of step {number} is not its claim")
+            };
+            report.say(&thm.path, written[written.len() - 1].line, said);
         }
     }
 }
@@ -3314,28 +3325,41 @@ pub fn check_requires_manipulations(
                 }
                 _ => None,
             };
-            // The fact may be written either way round, as a step's last
-            // row may: `0 < ε/7` is `ε/7 > 0`. Of a line saying several
+            // The fact is the line with the one manipulation, written the way
+            // round the manipulation leaves it. Of a line saying several
             // relations, it is one of them manipulated.
             let line = fact.as_ref().and_then(|fact| {
                 said.iter()
                     .find(|line| {
-                        [fact.clone(), fact.turned()].iter().any(|f| {
-                            row_follows(line, f, &reason, term.as_ref(), known, targets)
-                        })
+                        row_follows(line, fact, &reason, term.as_ref(), known, targets)
                     })
                     .cloned()
             });
             if line.is_none() {
-                let turned = fact.as_ref().is_some_and(|fact| {
-                    said.iter()
-                        .any(|line| order_turned(line, fact, &reason, known))
+                // The manipulation and a turn are two, and a requires line
+                // names one (`METHODS.md`, inequalities, Rows).
+                let turned = fact.as_ref().map(Related::turned).filter(|turned| {
+                    !matches!(reason, RowReason::Symmetry)
+                        && said.iter().any(|line| {
+                            row_follows(
+                                line,
+                                turned,
+                                &reason,
+                                term.as_ref(),
+                                known,
+                                targets,
+                            )
+                        })
                 });
-                let message = if turned {
+                let message = if let Some(t) = turned {
                     format!(
-                        "the requires line {} of step {} turns an order round by symmetry, which swaps an equation's sides; an order reads either way round, so cite {cited} with no manipulation",
+                        "the requires line {} of step {} is {cited} {}, turned round; a requires line names one manipulation, so write it as the manipulation leaves it: {} {} {}",
                         str::trim(req.fact.text()),
                         step.number,
+                        row_said(&reason),
+                        known.print(&t.left),
+                        sign(t.rel),
+                        known.print(&t.right)
                     )
                 } else {
                     format!(
