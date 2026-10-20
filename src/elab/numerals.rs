@@ -20,7 +20,7 @@ use num_bigint::BigUint;
 use num_traits::{One, ToPrimitive, Zero};
 
 use crate::binds;
-pub use crate::methods::numerals::{at_number, spell, value};
+pub use crate::methods::numerals::{at_number, spell, spell_integer, value};
 use crate::methods::numerals::{
     digit, is_letter, last_off, numeral_term, one_digit, put, spelt,
 };

@@ -17,7 +17,6 @@ use std::collections::BTreeSet;
 
 use indexmap::IndexMap;
 use num_bigint::{BigInt, BigUint};
-use num_integer::Integer;
 use num_traits::{One, Signed, ToPrimitive, Zero};
 
 use super::elaborate::Sides;
@@ -335,22 +334,6 @@ pub fn multiplier(times: &Poly) -> Option<Rpn> {
         });
     }
     out
-}
-
-/// A rational number as a term: a whole number as a numeral, negated where
-/// it is negative, and any other as the quotient of two, `1 / 2`.
-fn spelt_rational(value: &Q) -> Rpn {
-    if let Some(whole) = field::spell_coefficient(value) {
-        return whole;
-    }
-    let top = numerals::spell(value.numer().magnitude().clone());
-    let below = numerals::spell(value.denom().magnitude().clone());
-    let quotient = t!(top, below, "cdiv", "co");
-    if value.is_negative() {
-        t!(quotient, "cneg")
-    } else {
-        quotient
-    }
 }
 
 /// Whether a term raises something to an exponent whose value is below 0,
@@ -717,7 +700,7 @@ impl<'a> Elaborator<'a> {
                     // Any other rational multiple (`METHODS.md`): the scale is
                     // a closed number other than 0, k(k + 1)/2 ≠ 0 from
                     // k(k + 1) ≠ 0 at 1/2.
-                    let times = spelt_rational(&scale);
+                    let times = field::spell_rational(&scale);
                     let what = format!(
                         "the scale {} of step {}",
                         self.render(&times),
@@ -1487,10 +1470,9 @@ impl<'a> Elaborator<'a> {
         // one, which the sum then shows the claim's sides each multiplied
         // by, and which is cancelled at the end: s = t is half of
         // 2·s + 1 = 2·t + 1, and the proof doubles s = t instead.
-        let common = multipliers
-            .iter()
-            .flat_map(|p| p.terms.values())
-            .fold(BigInt::one(), |d, weight| d.lcm(weight.denom()));
+        let common = field::common_denominator(
+            multipliers.iter().flat_map(|p| p.terms.values()),
+        );
         let Some(common) = common.to_i64() else {
             return Ok(Route::no("a common denominator past what a numeral writes"));
         };
@@ -2047,12 +2029,7 @@ impl<'a> Elaborator<'a> {
             _ => return Ok(Route::no("a non-membership of a system a fraction is in")),
         };
         let floor = v.floor().to_integer();
-        let low = numerals::spell(floor.magnitude().clone());
-        let low = if floor.is_negative() {
-            t!(low, "cneg")
-        } else {
-            low
-        };
+        let low = numerals::spell_integer(&floor);
         let sm = self.rpn(member);
         let next = t!(&low, "c1", "caddc", "co");
         let closed = |me: &mut Self, claim: Rpn| -> Checked<Route<Proof>> {
@@ -4563,10 +4540,9 @@ impl<'a> Elaborator<'a> {
                 &[&real],
             )));
         }
-        let mut whole = spare.denom().clone();
-        for Part { times, .. } in parts {
-            whole = whole.lcm(times.denom());
-        }
+        let whole = field::common_denominator(
+            std::iter::once(spare).chain(parts.iter().map(|p| &p.times)),
+        );
         let whole_q = Q::from_integer(whole.clone());
         // A reciprocal atom's divisor not being zero is the page's to say, in
         // its own spelling, which `written_nonzero` reads as a polynomial.

@@ -1040,7 +1040,7 @@ impl Elaborator<'_> {
         let Some(elements) = range_elements(&from, &to) else {
             return Ok(None);
         };
-        let (sf, st) = (spelt_integer(&from), spelt_integer(&to));
+        let (sf, st) = (numerals::spell_integer(&from), numerals::spell_integer(&to));
         let of_numerals = t!(sf, st, "cfz", "co");
         let (union, listed) = if elements.is_empty() {
             (t!("c0"), self.empty_range(&from, &to)?)
@@ -1076,7 +1076,7 @@ impl Elaborator<'_> {
             return Ok(None);
         };
         let said = self.rpn(end);
-        let spelt = spelt_integer(&value);
+        let spelt = numerals::spell_integer(&value);
         if said == spelt {
             let same = self.b.ap("eqid", &binds! {"A" => &said}, &[]);
             return Ok(Some((value, same)));
@@ -1101,7 +1101,7 @@ impl Elaborator<'_> {
     /// of the integers, that each is one, their order and the sum, is a
     /// closed fact of numerals (`closed`).
     fn integer_range(&mut self, from: &BigInt, to: &BigInt) -> Checked<Proof> {
-        let (sf, st) = (spelt_integer(from), spelt_integer(to));
+        let (sf, st) = (numerals::spell_integer(from), numerals::spell_integer(to));
         let what = "a range is listed";
         let range_to = |top: &Rpn| t!(&sf, top, "cfz", "co");
         if to == from {
@@ -1116,7 +1116,7 @@ impl Elaborator<'_> {
             ));
         }
         let less = to - 1u32;
-        let sl = spelt_integer(&less);
+        let sl = numerals::spell_integer(&less);
         let next = t!(&sl, "c1", "caddc", "co");
         let split = t!(range_to(&sl), t!(&next, "csn"), "cun");
         let law = self.b.ap("fzsuc", &binds! {"M" => &sf, "N" => &sl}, &[]);
@@ -1182,7 +1182,7 @@ impl Elaborator<'_> {
     /// |- ( from ... to ) = (/), for `to` below `from` (`fzn`), each an
     /// integer and their order closed facts of numerals (`closed`).
     fn empty_range(&mut self, from: &BigInt, to: &BigInt) -> Checked<Proof> {
-        let (sf, st) = (spelt_integer(from), spelt_integer(to));
+        let (sf, st) = (numerals::spell_integer(from), numerals::spell_integer(to));
         let what = "a range is listed";
         let below = t!(&st, &sf, "clt", "wbr");
         let empty = t!(t!(&sf, &st, "cfz", "co"), "c0", "wceq");
@@ -2060,19 +2060,13 @@ impl Elaborator<'_> {
     }
 }
 
-/// An integer as set.mm spells it, as `arithmetic` writes a value
-/// (`field::spell_coefficient`): its numeral, negated where it is below 0.
-fn spelt_integer(n: &BigInt) -> Rpn {
-    field::spell_coefficient(&field::Q::from_integer(n.clone())).expect("an integer")
-}
-
 /// The singletons of the integers from `from` to `to`, joined from the
 /// left: `( ( { -u 1 } u. { 0 } ) u. { 1 } )`.
 fn singletons(from: &BigInt, to: &BigInt) -> Rpn {
-    let mut out = t!(spelt_integer(from), "csn");
+    let mut out = t!(numerals::spell_integer(from), "csn");
     let mut k = from + 1u32;
     while k <= *to {
-        out = t!(out, t!(spelt_integer(&k), "csn"), "cun");
+        out = t!(out, t!(numerals::spell_integer(&k), "csn"), "cun");
         k += 1u32;
     }
     out

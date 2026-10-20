@@ -30,6 +30,15 @@ pub fn spell(value: impl Into<BigUint>) -> Rpn {
     spelt(&value.into())
 }
 
+/// An integer as set.mm spells it: its numeral, negated where it is below 0.
+pub fn spell_integer(value: &num_bigint::BigInt) -> Rpn {
+    let numeral = spelt(value.magnitude());
+    match value.sign() {
+        num_bigint::Sign::Minus => t!(numeral, "cneg"),
+        _ => numeral,
+    }
+}
+
 pub(crate) fn spelt(value: &BigUint) -> Rpn {
     thread_local! {
         /// Each number spelt so far, which a proof about numbers asks for
@@ -90,7 +99,7 @@ pub(crate) fn numeral_term(value: &BigUint) -> Term {
 }
 
 /// The integer `value` as a term: its numeral, negated where it is below 0,
-/// as `field::spell_coefficient` spells one.
+/// as `spell_integer` spells one.
 pub(crate) fn integer_term(value: &num_bigint::BigInt) -> Term {
     let numeral = numeral_term(value.magnitude());
     match value.sign() {

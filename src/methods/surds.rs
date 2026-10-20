@@ -16,7 +16,6 @@
 use std::collections::BTreeMap;
 
 use num_bigint::{BigInt, BigUint};
-use num_integer::Integer;
 use num_traits::{One, Signed, ToPrimitive, Zero};
 
 use super::field::{self, q, ADD, DIV, EXP, MUL, NEG, Q, SUB};
@@ -58,7 +57,7 @@ pub const BELOW_ZERO: &str =
 pub const NOT_RATIONAL: &str =
     "takes the square root of a number that is not rational, and real arithmetic takes roots of rationals only";
 
-pub const TOO_LARGE: &str = "is too large to work out";
+pub use field::TOO_LARGE;
 
 /// Why a membership of ℕ, ℕ₀, ℤ or ℚ is not decided.
 pub const MEMBERSHIP_UNDECIDED: &str =
@@ -170,11 +169,7 @@ impl Surd {
 
     /// The largest coefficient, in bits.
     fn size(&self) -> u64 {
-        self.parts
-            .values()
-            .map(|v| v.numer().bits().max(v.denom().bits()))
-            .max()
-            .unwrap_or(0)
+        field::widest(self.parts.values())
     }
 }
 
@@ -265,6 +260,24 @@ pub struct Root {
     pub primes: Basis,
 }
 
+/// A whole number's primes in order, each with its exponent, by trial
+/// division; none for 0 or 1.
+pub fn prime_powers(mut left: u64) -> BTreeMap<u64, u32> {
+    let mut out = BTreeMap::new();
+    let mut p = 2u64;
+    while p * p <= left {
+        while left.is_multiple_of(p) {
+            left /= p;
+            *out.entry(p).or_insert(0) += 1;
+        }
+        p += 1;
+    }
+    if left > 1 {
+        *out.entry(left).or_insert(0) += 1;
+    }
+    out
+}
+
 /// The root of a rational of at least 0, or why it is refused.
 pub fn root_of(value: &Q) -> Result<Root, &'static str> {
     if value.is_negative() {
@@ -274,23 +287,13 @@ pub fn root_of(value: &Q) -> Result<Root, &'static str> {
     if whole.bits() > RADICAND_BITS {
         return Err(TOO_LARGE);
     }
-    let mut left = whole.to_u64().expect("a radicand within RADICAND_BITS");
+    let whole = whole.to_u64().expect("a radicand within RADICAND_BITS");
     let (mut square, mut primes) = (1u64, Vec::new());
-    let mut p = 2u64;
-    while p * p <= left {
-        let mut times = 0;
-        while left.is_multiple_of(p) {
-            left /= p;
-            times += 1;
-        }
+    for (p, times) in prime_powers(whole) {
         square *= p.pow(times / 2);
         if times % 2 == 1 {
             primes.push(p);
         }
-        p += 1;
-    }
-    if left > 1 {
-        primes.push(left);
     }
     let coefficient =
         Q::from_integer(BigInt::from(square)) / Q::from_integer(value.denom().clone());
@@ -331,12 +334,17 @@ pub enum Value {
     Unworked(&'static str),
 }
 
-/// Whether a term is set.mm's square root of something, `( sqrt ` A )`.
-pub fn is_root(term: &Term) -> bool {
+/// Whether a term is set.mm's function `label` applied, `( A label cfv )`.
+pub fn applies(term: &Term, label: &str) -> bool {
     term.variable().is_none()
         && term.label() == Some("cfv")
         && term.children().len() == 2
-        && term.children()[1].label() == Some("csqrt")
+        && term.children()[1].label() == Some(label)
+}
+
+/// Whether a term is set.mm's square root of something, `( sqrt ` A )`.
+pub fn is_root(term: &Term) -> bool {
+    applies(term, "csqrt")
 }
 
 /// Whether a term takes a square root anywhere in it.
@@ -410,9 +418,15 @@ pub fn closed_value(term: &Term) -> Route<Value> {
     held(value)
 }
 
+/// Whether a value with roots of this many primes and a coefficient this
+/// many bits wide is past what real arithmetic works out.
+pub(crate) fn too_large(primes: usize, widest: u64) -> bool {
+    primes > PRIMES || widest > field::BITS
+}
+
 /// A value within the limits, or refused as too large.
 fn held(value: Surd) -> Route<Value> {
-    if value.primes().len() > PRIMES || value.size() > field::BITS {
+    if too_large(value.primes().len(), value.size()) {
         return Built(Value::Unworked(TOO_LARGE));
     }
     Built(Value::Exact(value))
@@ -459,13 +473,14 @@ pub enum Verdict {
     Undecided(&'static str),
 }
 
-/// The number systems a rational value is tested for membership of.
-pub(crate) fn system_test(system: System) -> fn(&Q) -> bool {
-    match system {
-        System::N => |v: &Q| v.is_integer() && v.is_positive(),
-        System::N0 => |v: &Q| v.is_integer() && !v.is_negative(),
-        System::Z => |v: &Q| v.is_integer(),
-        System::Q | System::R | System::C => |_: &Q| true,
+/// Whether a closed value is a member of a number system: every value is in
+/// ℝ and ℂ, and ℕ, ℕ₀, ℤ and ℚ are decided of a rational value alone, its
+/// `rational`.
+pub(crate) fn membership_verdict(system: System, rational: Option<Q>) -> Verdict {
+    match (system, rational) {
+        (System::R | System::C, _) => Verdict::Holds(true),
+        (_, Some(v)) => Verdict::Holds(system.admits(&v)),
+        (_, None) => Verdict::Undecided(MEMBERSHIP_UNDECIDED),
     }
 }
 
@@ -483,28 +498,23 @@ pub fn decide_closed(claim: &Term) -> Route<Verdict> {
         Built(Value::Unworked(why)) => Err(Built(Verdict::Unworked(why))),
         Declined(d) => Err(Declined(d)),
     };
-    let holds = match claim.label() {
-        Some("wceq" | "wne") if kids.len() == 2 => {
+    let system = kids.get(1).and_then(field::named_system);
+    let holds = match (claim.label(), system) {
+        (Some("wceq" | "wne"), _) if kids.len() == 2 => {
             let (a, b) = match (side(&kids[0]), side(&kids[1])) {
                 (Ok(a), Ok(b)) => (a, b),
                 (Err(stop), _) | (_, Err(stop)) => return stop,
             };
             (a == b) == (claim.label() == Some("wceq"))
         }
-        Some("wcel")
-            if kids.len() == 2
-                && kids[1].children().is_empty()
-                && kids[1].label().and_then(System::of_label).is_some() =>
-        {
-            let system = System::of_label(kids[1].label().unwrap()).unwrap();
+        (Some("wcel"), Some(system)) if kids.len() == 2 => {
             let v = match side(&kids[0]) {
                 Ok(v) => v,
                 Err(stop) => return stop,
             };
-            match (system, v.as_rational()) {
-                (System::R | System::C, _) => true,
-                (_, Some(v)) => system_test(system)(&v),
-                (_, None) => return Built(Verdict::Undecided(MEMBERSHIP_UNDECIDED)),
+            match membership_verdict(system, v.as_rational()) {
+                Verdict::Holds(holds) => holds,
+                other => return Built(other),
             }
         }
         _ => return Route::no("not a relation real arithmetic decides"),
@@ -614,21 +624,13 @@ pub(crate) fn cube(n: u64) -> u64 {
 /// The longest numeral a canon writes whose coefficients are `weights`, in
 /// bits: the least common denominator, and each coefficient times it.
 pub(crate) fn weights_bits<'q>(weights: impl Iterator<Item = &'q Q> + Clone) -> u64 {
-    let common = weights.clone().fold(BigInt::one(), |d, v| d.lcm(v.denom()));
+    let common = field::common_denominator(weights.clone());
     let scale = Q::from_integer(common.clone());
     weights
         .map(|v| (v * &scale).numer().bits())
         .max()
         .unwrap_or(0)
         .max(common.bits())
-}
-
-/// The least common denominator of a value's coefficients.
-pub fn common_denominator(value: &Surd) -> BigUint {
-    value
-        .parts
-        .values()
-        .fold(BigUint::one(), |d, v| d.lcm(v.denom().magnitude()))
 }
 
 /// The longest numeral a value's canon writes, in bits: a rational's
@@ -694,10 +696,7 @@ pub(crate) fn product_widest<K: Ord + Clone>(
             *monomials.entry(key).or_insert_with(Q::zero) += &x.weight * &y.weight;
         }
     }
-    let scale = monomials
-        .values()
-        .chain(product)
-        .fold(BigInt::one(), |d, v| d.lcm(v.denom()));
+    let scale = field::common_denominator(monomials.values().chain(product));
     let scale = Q::from_integer(scale);
     monomials
         .iter()

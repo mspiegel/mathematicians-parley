@@ -18,14 +18,12 @@
 use std::collections::BTreeMap;
 
 use num_bigint::{BigInt, BigUint};
-use num_integer::Integer;
 use num_traits::{One, Signed, ToPrimitive, Zero};
 
-use super::field::{q, ADD, DIV, EXP, MUL, NEG, Q, SUB};
+use super::field::{self, q, ADD, DIV, EXP, MUL, NEG, Q, SUB};
 use super::surds::{self, Bracket, Piece, Surd, Verdict};
 use crate::mm::kernel::Term;
 use crate::outcome::{Built, Declined, Route};
-use crate::rules::System;
 
 /// Why a logarithm is refused: set.mm's log is taken in ℂ.
 pub const LN_NOT_POSITIVE: &str =
@@ -247,13 +245,7 @@ pub enum Value {
     Unworked(&'static str),
 }
 
-/// Whether a term is set.mm's function `label` applied, `( A label cfv )`.
-pub fn applies(term: &Term, label: &str) -> bool {
-    term.variable().is_none()
-        && term.label() == Some("cfv")
-        && term.children().len() == 2
-        && term.children()[1].label() == Some(label)
-}
+pub use surds::applies;
 
 /// Whether a term holds π, e, a logarithm or an exponential anywhere.
 pub fn holds_atom(term: &Term) -> bool {
@@ -478,13 +470,7 @@ pub fn closed_value(term: &Term) -> Route<Value> {
 
 /// A value within the limits, or refused as too large.
 fn held(value: Real) -> Route<Value> {
-    let size = value
-        .weights()
-        .iter()
-        .map(|v| v.numer().bits().max(v.denom().bits()))
-        .max()
-        .unwrap_or(0);
-    if value.primes().len() > surds::PRIMES || size > super::field::BITS {
+    if surds::too_large(value.primes().len(), field::widest(&value.weights())) {
         return Built(Value::Unworked(surds::TOO_LARGE));
     }
     Built(Value::Exact(value))
@@ -515,17 +501,9 @@ pub fn factored(ratio: &Q) -> Result<BTreeMap<u64, i64>, &'static str> {
         if whole.bits() > surds::RADICAND_BITS {
             return Err(surds::TOO_LARGE);
         }
-        let mut left = whole.to_u64().expect("within RADICAND_BITS");
-        let mut p = 2u64;
-        while p * p <= left {
-            while left.is_multiple_of(p) {
-                left /= p;
-                *out.entry(p).or_insert(0) += sign;
-            }
-            p += 1;
-        }
-        if left > 1 {
-            *out.entry(left).or_insert(0) += sign;
+        let whole = whole.to_u64().expect("within RADICAND_BITS");
+        for (p, n) in surds::prime_powers(whole) {
+            *out.entry(p).or_insert(0) += sign * i64::from(n);
         }
     }
     Ok(out)
@@ -641,7 +619,7 @@ pub struct LogarithmRatio {
 pub fn logarithm_ratio(
     logs: &BTreeMap<u64, Q>,
 ) -> Result<LogarithmRatio, &'static str> {
-    let scale = logs.values().fold(BigInt::one(), |d, v| d.lcm(v.denom()));
+    let scale = field::common_denominator(logs.values());
     let mut size = 0u64;
     let mut powers = Vec::new();
     for (p, weight) in logs {
@@ -825,8 +803,9 @@ pub fn decide_closed(claim: &Term) -> Route<Verdict> {
         Built(Value::Unworked(why)) => Err(Built(Verdict::Unworked(why))),
         Declined(d) => Err(Declined(d)),
     };
-    let holds = match claim.label() {
-        Some("wceq" | "wne") if kids.len() == 2 => {
+    let system = kids.get(1).and_then(field::named_system);
+    let holds = match (claim.label(), system) {
+        (Some("wceq" | "wne"), _) if kids.len() == 2 => {
             let (a, b) = match (side(&kids[0]), side(&kids[1])) {
                 (Ok(a), Ok(b)) => (a, b),
                 (Err(stop), _) | (_, Err(stop)) => return stop,
@@ -837,7 +816,7 @@ pub fn decide_closed(claim: &Term) -> Route<Verdict> {
             }
             gap.is_zero() == (claim.label() == Some("wceq"))
         }
-        Some("wbr")
+        (Some("wbr"), _)
             if kids.len() == 3 && matches!(kids[2].label(), Some("clt" | "cle")) =>
         {
             let (a, b) = match (side(&kids[0]), side(&kids[1])) {
@@ -859,22 +838,17 @@ pub fn decide_closed(claim: &Term) -> Route<Verdict> {
                 }
             }
         }
-        Some("wcel")
-            if kids.len() == 2
-                && kids[1].children().is_empty()
-                && kids[1].label().and_then(System::of_label).is_some() =>
-        {
-            let system = System::of_label(kids[1].label().unwrap()).unwrap();
+        (Some("wcel"), Some(system)) if kids.len() == 2 => {
             let v = match side(&kids[0]) {
                 Ok(v) => v,
                 Err(stop) => return stop,
             };
-            match (system, v.as_surd().and_then(|s| s.as_rational())) {
-                (System::R | System::C, _) => true,
-                (_, Some(v)) => surds::system_test(system)(&v),
-                (_, None) => {
-                    return Built(Verdict::Undecided(surds::MEMBERSHIP_UNDECIDED))
-                }
+            match surds::membership_verdict(
+                system,
+                v.as_surd().and_then(|s| s.as_rational()),
+            ) {
+                Verdict::Holds(holds) => holds,
+                other => return Built(other),
             }
         }
         _ => return Route::no("not a relation real arithmetic decides"),
@@ -1023,7 +997,7 @@ fn estimate(term: &Term) -> Result<Estimate, &'static str> {
 /// `surds::COEFFICIENT_BITS`.
 fn written(value: &Real) -> Result<(), &'static str> {
     let bits = match value.as_surd().and_then(|s| s.as_rational()) {
-        Some(r) => r.numer().bits().max(r.denom().bits()),
+        Some(r) => field::size(&r),
         None => surds::weights_bits(value.weights().iter()),
     };
     if bits > surds::COEFFICIENT_BITS {

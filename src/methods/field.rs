@@ -21,8 +21,9 @@ use std::cmp::Reverse;
 
 use indexmap::IndexMap;
 use num_bigint::BigInt;
+use num_integer::Integer;
 use num_rational::BigRational;
-use num_traits::{Signed, ToPrimitive, Zero};
+use num_traits::{One, Signed, ToPrimitive, Zero};
 
 use crate::formula::symbol::Symbol;
 use crate::mm::kernel::{FloatLabels, Term};
@@ -282,16 +283,42 @@ pub fn spell_monomial(monomial: &Monomial) -> Rpn {
 /// A rational coefficient as a numeral, negated where it is negative; None
 /// where it is not a whole number.
 pub fn spell_coefficient(weight: &Q) -> Option<Rpn> {
-    if !weight.is_integer() {
+    weight
+        .is_integer()
+        .then(|| super::numerals::spell_integer(&weight.to_integer()))
+}
+
+/// The number system a set is, where it is one written as set.mm's
+/// constant, `cr`.
+pub(crate) fn named_system(set: &Term) -> Option<System> {
+    if !set.children().is_empty() {
         return None;
     }
-    let whole = weight.to_integer();
-    let said = super::numerals::spell(whole.magnitude().clone());
-    Some(if whole.is_negative() {
-        t!(said, "cneg")
+    set.label().and_then(System::of_label)
+}
+
+/// The least common denominator of rational values; 1 for none.
+pub fn common_denominator<'q>(values: impl IntoIterator<Item = &'q Q>) -> BigInt {
+    values
+        .into_iter()
+        .fold(BigInt::one(), |d, v| d.lcm(v.denom()))
+}
+
+/// A rational number as a term: a whole number as a numeral, and any other
+/// as the quotient of two, each negated where it is negative; as
+/// `arithmetic` writes a value.
+pub fn spell_rational(value: &Q) -> Rpn {
+    if let Some(whole) = spell_coefficient(value) {
+        return whole;
+    }
+    let top = super::numerals::spell(value.numer().magnitude().clone());
+    let below = super::numerals::spell(value.denom().magnitude().clone());
+    let quotient = t!(top, below, "cdiv", "co");
+    if value.is_negative() {
+        t!(quotient, "cneg")
     } else {
-        said
-    })
+        quotient
+    }
 }
 
 /// A polynomial over a polynomial, which is what a term reads as.
@@ -938,6 +965,9 @@ fn solved(columns: &[Poly], wanted: &Poly) -> Option<Vec<Q>> {
 /// bits is some three thousand digits.
 pub const BITS: u64 = 10_000;
 
+/// Why a value past `BITS` is not worked out.
+pub const TOO_LARGE: &str = "is too large to work out";
+
 /// What a closed term comes to: its exact value, or why it has none — it
 /// divides by zero, it is too large to work out, or it is not rational.
 #[derive(Clone, Debug, PartialEq)]
@@ -954,8 +984,14 @@ pub enum Verdict {
     Unworked(&'static str),
 }
 
-fn size(value: &Q) -> u64 {
+/// The longer of a value's numerator and denominator, in bits.
+pub(crate) fn size(value: &Q) -> u64 {
     value.numer().bits().max(value.denom().bits())
+}
+
+/// The largest `size` among values; 0 for none.
+pub(crate) fn widest<'q>(values: impl IntoIterator<Item = &'q Q>) -> u64 {
+    values.into_iter().map(size).max().unwrap_or(0)
 }
 
 /// The exact value of a term built from numerals alone.
@@ -1032,7 +1068,7 @@ pub fn closed_value(term: &Term) -> Route<Value> {
                 let bits = size(&left);
                 let magnitude = power.magnitude().to_u64().unwrap_or(u64::MAX);
                 if bits.saturating_mul(magnitude) > BITS {
-                    return Built(Value::Unworked("is too large to work out"));
+                    return Built(Value::Unworked(TOO_LARGE));
                 }
                 let raised = num_traits::pow(left.clone(), magnitude as usize);
                 if power.is_negative() {
@@ -1067,7 +1103,7 @@ pub fn closed_value(term: &Term) -> Route<Value> {
         return Route::no("not built from numerals");
     };
     if size(&value) > BITS {
-        return Built(Value::Unworked("is too large to work out"));
+        return Built(Value::Unworked(TOO_LARGE));
     }
     Built(Value::Exact(value))
 }
@@ -1110,7 +1146,7 @@ fn range_product(term: &Term) -> Route<Value> {
     };
     // A range of more factors than a value may have bits.
     if to > from && &to - &from > BITS.into() {
-        return Built(Value::Unworked("is too large to work out"));
+        return Built(Value::Unworked(TOO_LARGE));
     }
     let mut total = q(1);
     let mut at = from;
@@ -1120,7 +1156,7 @@ fn range_product(term: &Term) -> Route<Value> {
             other => return other,
         }
         if size(&total) > BITS {
-            return Built(Value::Unworked("is too large to work out"));
+            return Built(Value::Unworked(TOO_LARGE));
         }
         at += 1u32;
     }
@@ -1153,17 +1189,6 @@ fn stopped(parts: Vec<Route<Value>>) -> Stop {
             })
             .collect(),
     )
-}
-
-/// The number systems a closed number is tested for membership of, by
-/// `METHODS.md`'s tests on its value.
-fn system_test(system: &str) -> Option<fn(&Q) -> bool> {
-    Some(match System::of_label(system)? {
-        System::N => |v: &Q| v.is_integer() && v.is_positive(),
-        System::N0 => |v: &Q| v.is_integer() && !v.is_negative(),
-        System::Z => |v: &Q| v.is_integer(),
-        System::Q | System::R | System::C => |_: &Q| true,
-    })
 }
 
 /// The two sides of a divisibility worked out, each an integer and the
@@ -1215,26 +1240,20 @@ pub fn decide_closed(claim: &Term) -> Route<Verdict> {
     }
     enum Test {
         Two(fn(&Q, &Q) -> bool),
-        One(fn(&Q) -> bool),
+        One(System),
     }
-    let (sides, test): (&[Term], Test) = match claim.label() {
-        Some("wceq") if kids.len() == 2 => (kids, Test::Two(|a, b| a == b)),
-        Some("wne") if kids.len() == 2 => (kids, Test::Two(|a, b| a != b)),
-        Some("wbr") if kids.len() == 3 && kids[2].label() == Some("clt") => {
+    let system = kids.get(1).and_then(named_system);
+    let (sides, test): (&[Term], Test) = match (claim.label(), system) {
+        (Some("wceq"), _) if kids.len() == 2 => (kids, Test::Two(|a, b| a == b)),
+        (Some("wne"), _) if kids.len() == 2 => (kids, Test::Two(|a, b| a != b)),
+        (Some("wbr"), _) if kids.len() == 3 && kids[2].label() == Some("clt") => {
             (&kids[..2], Test::Two(|a, b| a < b))
         }
-        Some("wbr") if kids.len() == 3 && kids[2].label() == Some("cle") => {
+        (Some("wbr"), _) if kids.len() == 3 && kids[2].label() == Some("cle") => {
             (&kids[..2], Test::Two(|a, b| a <= b))
         }
-        Some("wcel")
-            if kids.len() == 2
-                && kids[1].children().is_empty()
-                && kids[1].label().and_then(system_test).is_some() =>
-        {
-            (
-                &kids[..1],
-                Test::One(system_test(kids[1].label().unwrap()).unwrap()),
-            )
+        (Some("wcel"), Some(system)) if kids.len() == 2 => {
+            (&kids[..1], Test::One(system))
         }
         _ => return Route::no("not a relation arithmetic decides"),
     };
@@ -1246,7 +1265,7 @@ pub fn decide_closed(claim: &Term) -> Route<Verdict> {
     };
     let holds = match test {
         Test::Two(f) => f(&values[0], &values[1]),
-        Test::One(f) => f(&values[0]),
+        Test::One(system) => system.admits(&values[0]),
     };
     Built(Verdict::Holds(holds != negated))
 }

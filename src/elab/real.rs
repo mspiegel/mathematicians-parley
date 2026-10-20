@@ -24,7 +24,6 @@
 
 use indexmap::IndexMap;
 use num_bigint::{BigInt, BigUint};
-use num_integer::Integer;
 use num_traits::{One, Signed, ToPrimitive, Zero};
 
 use super::calculators::Work;
@@ -646,7 +645,7 @@ impl<'a> Elaborator<'a> {
                 .numeral_fact(&t!("cc0", canon_of, "clt", "wbr"), scope, facts)
                 .map(Built);
         }
-        let common = common_denominator(value);
+        let common = field::common_denominator(&value.weights());
         let whole = value.times(&Real::rational(Q::from_integer(common.clone())));
         let said = whole_canon(&whole);
         let above = match how {
@@ -1082,7 +1081,8 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
     ) -> Checked<Bounded> {
         let surds::Bracket { below, above } = surds::root_bracket(p, precision);
-        let (low, high) = (spelt_rational(&below), spelt_rational(&above));
+        let (low, high) =
+            (field::spell_rational(&below), field::spell_rational(&above));
         let prime = numerals::spell(p);
         let root = root_of_prime(p);
         let squared = |x: &Rpn| t!(x, "c2", "cexp", "co");
@@ -1552,7 +1552,7 @@ impl<'a> Elaborator<'a> {
         }
         let surds::Cofactor { times, norm } = surds::cofactor(value);
         let cofactor = canon(&Real::surd(times));
-        let norm = spelt_rational(&norm);
+        let norm = field::spell_rational(&norm);
         let product = t!(canon_of, &cofactor, "cmul", "co");
         let is_norm = take!(self.identity(&product, &norm, scope, facts)?);
         let norm_apart = self.numeral_fact(&t!(&norm, "cc0", "wne"), scope, facts)?;
@@ -1773,7 +1773,7 @@ impl<'a> Elaborator<'a> {
         let Ok(root) = surds::root_of(&r) else {
             return Ok(Route::no("a root real arithmetic does not take"));
         };
-        let c = spelt_rational(&root.coefficient);
+        let c = field::spell_rational(&root.coefficient);
         let square = t!(&c, numeral(2), "cexp", "co");
         let primes = product_of_primes(&root.primes);
         let radicand = match &primes {
@@ -1867,14 +1867,17 @@ impl<'a> Elaborator<'a> {
         scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Route<Logarithm>> {
-        let spelt = spelt_rational(ratio);
+        let spelt = field::spell_rational(ratio);
         let Ok(factors) = reals::factored(ratio) else {
             return Ok(Route::no("a ratio too large to factor"));
         };
         let powers: Vec<Rpn> = factors
             .iter()
             .filter(|(_, n)| **n != 0)
-            .map(|(p, n)| t!(numerals::spell(*p), spelt_whole(*n), "cexp", "co"))
+            .map(|(p, n)| {
+                let exponent = numerals::spell_integer(&BigInt::from(*n));
+                t!(numerals::spell(*p), exponent, "cexp", "co")
+            })
             .collect();
         if powers.is_empty() {
             let proof = self.closed_law(
@@ -1922,7 +1925,7 @@ impl<'a> Elaborator<'a> {
         let mut out: Option<LoggedProduct> = None;
         for (p, n) in factors.iter().filter(|(_, n)| **n != 0) {
             let prime = numerals::spell(*p);
-            let exponent = spelt_whole(*n);
+            let exponent = numerals::spell_integer(&BigInt::from(*n));
             let power = t!(&prime, &exponent, "cexp", "co");
             let prime_rp = self.positive(&prime, scope, facts)?;
             let exponent_z =
@@ -2453,7 +2456,7 @@ impl<'a> Elaborator<'a> {
             t!(
                 &base,
                 t!(
-                    spelt_whole(turns),
+                    numerals::spell_integer(&BigInt::from(turns)),
                     t!("c2", "cpi", "cmul", "co"),
                     "cmul",
                     "co"
@@ -2484,7 +2487,7 @@ impl<'a> Elaborator<'a> {
             carried
         } else {
             let base_cc = take!(self.in_cc(&base, scope, facts)?);
-            let k = spelt_whole(turns);
+            let k = numerals::spell_integer(&BigInt::from(turns));
             let k_z = self.numeral_fact(&t!(&k, "cz", "wcel"), scope, facts)?;
             let periodic = match f {
                 reals::Trig::Sine => "sinper",
@@ -2711,10 +2714,7 @@ impl<'a> Elaborator<'a> {
             return Ok(Route::no("a divisor that is not a number"));
         };
         let exact = difference.over.scaled(&under.recip());
-        let scale = exact
-            .terms
-            .values()
-            .fold(BigInt::one(), |d, v| d.lcm(v.denom()));
+        let scale = field::common_denominator(exact.terms.values());
         let mut rest = exact.scaled(&Q::from_integer(scale.clone()));
         let mut by: IndexMap<Rpn, Multiplier> = IndexMap::new();
         while let Some(found) = reducible(&rest, self) {
@@ -2944,9 +2944,9 @@ fn product_of_primes(primes: &[u64]) -> Option<Rpn> {
 /// read over N⁸, and one over N is read over N.
 fn canon(value: &Real) -> Rpn {
     if let Some(rational) = value.as_surd().and_then(|s| s.as_rational()) {
-        return spelt_rational(&rational);
+        return field::spell_rational(&rational);
     }
-    let common = common_denominator(value);
+    let common = field::common_denominator(&value.weights());
     if common.is_one() {
         return whole_canon(value);
     }
@@ -2957,14 +2957,6 @@ fn canon(value: &Real) -> Rpn {
         "cdiv",
         "co"
     )
-}
-
-/// The least common denominator of a value's coefficients.
-fn common_denominator(value: &Real) -> BigInt {
-    value
-        .weights()
-        .iter()
-        .fold(BigInt::one(), |d, v| d.lcm(v.denom()))
 }
 
 /// The canon of a value with whole coefficients.
@@ -3001,7 +2993,7 @@ fn canon_parts(value: &Real) -> Vec<CanonPart> {
         });
         for (basis, weight) in parts {
             let factors = reals::part_factors(basis, monomial);
-            let coefficient = spelt_rational(weight);
+            let coefficient = field::spell_rational(weight);
             let said = match right_product(factors.iter().map(factor_said).collect()) {
                 None => coefficient,
                 Some(rest) => t!(coefficient, rest, "cmul", "co"),
@@ -3026,16 +3018,6 @@ fn factor_said(&(factor, k): &(reals::Factor, u32)) -> Rpn {
     match k {
         1 => base,
         _ => t!(base, numeral(k), "cexp", "co"),
-    }
-}
-
-/// A whole number as a term: a numeral, negated where it is below 0.
-fn spelt_whole(n: i64) -> Rpn {
-    let size = numerals::spell(n.unsigned_abs());
-    if n < 0 {
-        t!(size, "cneg")
-    } else {
-        size
     }
 }
 
@@ -3114,23 +3096,6 @@ fn collect_atoms(term: &Term, out: &mut Vec<Atom>) {
     }
 }
 
-/// A rational number as a term: a whole number as a numeral, and any other
-/// as the quotient of two, each negated where it is negative; as
-/// `arithmetic` writes a value (`closed_valued`).
-fn spelt_rational(value: &Q) -> Rpn {
-    if let Some(whole) = field::spell_coefficient(value) {
-        return whole;
-    }
-    let top = numerals::spell(value.numer().magnitude().clone());
-    let below = numerals::spell(value.denom().magnitude().clone());
-    let quotient = t!(top, below, "cdiv", "co");
-    if value.is_negative() {
-        t!(quotient, "cneg")
-    } else {
-        quotient
-    }
-}
-
 /// A polynomial as a sum of its terms, each a rational times a product of
 /// powers of its atoms.
 fn spelt_poly(p: &Poly) -> Rpn {
@@ -3145,7 +3110,7 @@ fn spelt_poly(p: &Poly) -> Rpn {
                 _ => t!(atom, numeral(*power), "cexp", "co"),
             })
             .reduce(|acc, f| t!(acc, f, "cmul", "co"));
-        let coefficient = spelt_rational(weight);
+        let coefficient = field::spell_rational(weight);
         let term = match factors {
             None => coefficient,
             Some(f) => t!(coefficient, f, "cmul", "co"),

@@ -600,6 +600,18 @@ impl System {
         }
     }
 
+    /// Whether a rational value is a member, by `METHODS.md`'s tests on a
+    /// closed number's value.
+    pub fn admits(self, value: &num_rational::BigRational) -> bool {
+        use num_traits::Signed;
+        match self {
+            System::N => value.is_integer() && value.is_positive(),
+            System::N0 => value.is_integer() && !value.is_negative(),
+            System::Z => value.is_integer(),
+            System::Q | System::R | System::C => true,
+        }
+    }
+
     /// The system set.mm's label names; None for any other label.
     pub fn of_label(label: &str) -> Option<System> {
         match label {
