@@ -580,13 +580,13 @@ The membership those lines carry is exactly `rspcev`'s side condition.
 from a line binding the same name is that letter; the claim is then exhibited
 over a letter nothing holds and renamed to the claim's own.
 
-One reader recovers the witnesses for both (`witnessed`), however many the
-claim quantifies over: a definition concluded is its right side proved as
-`exhibit` proves one and folded, its bound names given letters nothing holds
-and the subject does not spell (`unheld`) before it is read. The body is
-matched against each sentence of the lines the step cites and then of its
-`requires` lines, taking all the marked places together, and a body that
-says nothing of its one variable takes a member of the domain a line names.
+The witnesses for both are the values the checker's reading of the step gave
+the letters the claim binds (`CheckedTheorem::exhibited` for an exhibit,
+`Cited::bound` for a definition concluded or a "there is" a cited item asks),
+however many the claim quantifies over; the build searches for none. A
+definition concluded is its right side proved as `exhibit` proves one and
+folded, its bound names given letters nothing holds and the subject does not
+spell (`unheld`) before it is read.
 The introduction is built from the innermost quantifier out. The witness is read against the whole of what the
 claim asks of it, the body and then that it is in the domain, with a defined
 function applied read as its rule on both sides alike, so a line saying
@@ -1722,8 +1722,8 @@ The orders follow five rules, and each search below is one of them applied.
    hypotheses come in statement order, and then the conjuncts of each; a
    block's opener comes after what held outside it; a proved step comes
    after everything before it. A lemma's open antecedent takes the first
-   fact that fits. A witness (`witnessed`) is read from the cited lines and
-   then the `requires` lines, and never from the scope. An inequality's
+   fact that fits. A witness is the checker's reading of the cited lines
+   and the `requires` lines, never of the scope (`witnessed`). An inequality's
    certificate (`linear::certificate`) eliminates atoms in the order the
    cited facts first name them, and of the combinations that contradict
    takes the one resting on the most cited lines, since every line a step

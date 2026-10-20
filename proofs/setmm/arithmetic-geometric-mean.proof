@@ -41,6 +41,7 @@ theorem arithmetic-geometric-mean
     inequalities
       ((A − B)/2)² ≥ 0                   7
       A·B + ((A − B)/2)² ≥ A·B           adding A·B
+      A·B ≤ A·B + ((A − B)/2)²           symmetry
 
 9.  (√(A·B))² ≤ ((A + B)/2)²
     transitivity, from 2, 8, 6

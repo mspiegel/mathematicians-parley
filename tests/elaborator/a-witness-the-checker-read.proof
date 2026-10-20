@@ -1,0 +1,16 @@
+import mundane definition stdlib/sets/set-builder
+
+theorem a-set-member-beside-an-equation
+  note        c is in S at x := a, y := b, which H4 says. Its equation also
+              has the shape of the x = y inside x ≠ y, read as x := c,
+              y := a + b; the witnesses are the ones the checker read.
+  let a ∈ ℤ    (H1)
+  let b ∈ ℤ    (H2)
+  let c ∈ ℤ    (H3)
+  assume a ≠ b and c = a + b    (H4)
+  let S = {u ∈ ℤ : there are x, y ∈ ℤ with x ≠ y and u = x + y}        (D1)
+      reads the integers that are a sum of two different integers
+  then c ∈ S
+
+1.  c ∈ S
+    mun:set-builder u := c, from D1, H4

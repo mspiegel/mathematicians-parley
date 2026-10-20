@@ -1948,6 +1948,15 @@ impl<'a> Elaborator<'a> {
         step: Option<&Step>,
     ) -> Checked<Proof> {
         let said = self.to_term(term);
+        // A claim of several sentences, `2 + 2 = 4. 3 + 3 = 6.`, is each of
+        // them worked out, as the checker decides each.
+        let parts = self.conjoined(&said, scope, &mut |me, one| {
+            let one = me.rpn(one);
+            me.closed_fact(&one, scope, facts, what, step).map(Built)
+        })?;
+        if let Some(Built(p)) = parts {
+            return Ok(p);
+        }
         if let Built(p) = self.prove_numeral(term, scope, facts)? {
             return Ok(p);
         }
@@ -3533,13 +3542,18 @@ impl<'a> Elaborator<'a> {
         let kept = std::mem::replace(&mut self.adding_only, plain);
         let found = self.writing(scope, &known, false, |me| {
             let rewritten = me.algebra_rows(step, refs, scope, facts_out, lines_out)?;
+            let skip = if plain {
+                me.not_combined(&rewritten.refs, term_out, facts_out, &rewritten.lines)?
+            } else {
+                Vec::new()
+            };
             me.prove_order(
                 &rewritten.refs,
                 term_out,
                 scope,
                 facts_out,
                 &rewritten.lines,
-                &[],
+                &skip,
             )
         });
         self.adding_only = kept;
@@ -3780,6 +3794,59 @@ impl<'a> Elaborator<'a> {
             facts: facts_out,
             lines: lines_out,
         }))
+    }
+
+    /// The parts of the cited lines a plain step leaves out: those outside
+    /// the combination the checker decided it by (`inequalities::combined`),
+    /// whose facts added as they stand are the claim. Another combination
+    /// that contradicts the claim denied may rest on more lines and ask more
+    /// of its atoms, as `2/p < m` with `0 < 2/p` asks p ≠ 0 where `m ∈ ℕ`
+    /// gives `0 < m` alone.
+    fn not_combined(
+        &mut self,
+        refs: &[String],
+        term: &Rpn,
+        facts: &Facts,
+        lines: &Lines,
+    ) -> Checked<Vec<Rpn>> {
+        let labels = self.b.flabel.clone();
+        let mut parts: Vec<Rpn> = Vec::new();
+        let mut cited: Vec<Term> = Vec::new();
+        let mut line_of: Vec<usize> = Vec::new();
+        let mut implied: Vec<Term> = Vec::new();
+        for (at, r) in refs.iter().enumerate() {
+            let Some(held) = lines.get(r) else {
+                continue;
+            };
+            for said in self.parts(&held.term) {
+                let one = self.to_term(&said);
+                if linear::fact(&one, &labels).is_some() {
+                    parts.push(said);
+                    cited.push(one);
+                    line_of.push(at);
+                }
+            }
+            for said in &self.stated_claims(r, facts, lines) {
+                for (extra, _lemmas) in self.implied_terms(said) {
+                    implied.push(self.to_term(&extra));
+                }
+            }
+        }
+        let goal = self.to_term(term);
+        let Some(used) = crate::methods::inequalities::combined(
+            &goal, &cited, &line_of, &implied, &labels,
+        ) else {
+            return Err(self.unreached(
+                self.at,
+                "the checker took this step as adding its facts, and no combination of them adds to its claim",
+            ));
+        };
+        Ok(parts
+            .into_iter()
+            .enumerate()
+            .filter(|(i, _)| !used.contains(i))
+            .map(|(_, p)| p)
+            .collect())
     }
 
     /// An `inequalities` claim, by whichever route reaches it. `skip` names

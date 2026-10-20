@@ -1,0 +1,128 @@
+import mundane theorem    stdlib/numbers/exponent-step
+import mundane theorem    stdlib/numbers/power-real
+
+theorem power-recurrence
+  note        If x² = x + 1 then x^(k + 2) = x^k·x² = x^k·(x + 1), which is
+              x^(k + 1) + x^k.
+  let x ∈ ℝ                                                           (H1)
+  assume x² = x + 1                                                   (H2)
+  let k ∈ ℕ₀                                                          (H3)
+  then x^((k + 1) + 1) = x^(k + 1) + x^k
+
+1.  x^(k + 1) = x^k·x
+    mun:exponent-step a := x, m := k
+
+2.  x^((k + 1) + 1) = x^(k + 1)·x
+    mun:exponent-step a := x, m := k + 1
+
+3.  x^((k + 1) + 1) = x^k·x·x
+    algebra, from 1, 2
+
+4.  x^k·x·x = x^k·(x + 1)
+    algebra, from H2
+
+5.  x^k·(x + 1) = x^(k + 1) + x^k
+    algebra, from 1
+
+6.  x^((k + 1) + 1) = x^(k + 1) + x^k
+    calculation
+      x^((k + 1) + 1) = x^k·x·x           3
+                      = x^k·(x + 1)       4
+                      = x^(k + 1) + x^k   5
+
+theorem binet-formula
+  note        By induction on j, carrying F and G together: F(j) and G(j) are
+              the formula at j and j + 1. The step adds the two, and both
+              roots x of x² = x + 1, namely (1 + √5)/2 and (1 − √5)/2,
+              satisfy x^(j + 2) = x^(j + 1) + x^j.
+  let n ∈ ℕ                                                           (H1)
+  let F(0) = 0,  G(0) = 1,
+      F(k + 1) = G(k),  G(k + 1) = F(k) + G(k),  for k ∈ ℕ₀           (D1)
+         reads the Fibonacci numbers, F(k) the kth and G(k) the next
+  then F(n) = (((1 + √5)/2)^n − ((1 − √5)/2)^n)/√5
+
+1.  √5 ≠ 0
+    real arithmetic
+
+2.  ((1 + √5)/2)² = (1 + √5)/2 + 1
+    real arithmetic
+
+3.  ((1 − √5)/2)² = (1 − √5)/2 + 1
+    real arithmetic
+
+4.  For all j ∈ ℕ₀, F(j) = (((1 + √5)/2)^j − ((1 − √5)/2)^j)/√5 and G(j) = (((1 + √5)/2)^(j + 1) − ((1 − √5)/2)^(j + 1))/√5.
+    induction on j starting at 0
+
+    base
+    4.1.  F(0) = 0
+          D1
+
+    4.2.  G(0) = 1
+          D1
+
+    4.3.  0 = (((1 + √5)/2)^0 − ((1 − √5)/2)^0)/√5
+          real arithmetic
+
+    4.4.  1 = (((1 + √5)/2)^(0 + 1) − ((1 − √5)/2)^(0 + 1))/√5
+          real arithmetic
+
+    4.5.  F(0) = (((1 + √5)/2)^0 − ((1 − √5)/2)^0)/√5
+          calculation
+            F(0) = 0                                                  4.1
+                 = (((1 + √5)/2)^0 − ((1 − √5)/2)^0)/√5               4.3
+
+    4.6.  G(0) = (((1 + √5)/2)^(0 + 1) − ((1 − √5)/2)^(0 + 1))/√5
+          calculation
+            G(0) = 1                                                          4.2
+                 = (((1 + √5)/2)^(0 + 1) − ((1 − √5)/2)^(0 + 1))/√5           4.4
+
+    4.7.  F(0) = (((1 + √5)/2)^0 − ((1 − √5)/2)^0)/√5. G(0) = (((1 + √5)/2)^(0 + 1) − ((1 − √5)/2)^(0 + 1))/√5.
+          join 4.5, 4.6
+
+    step
+    let j ∈ ℕ₀                                                        (K)
+    assume step 4 is true for j, the induction hypothesis             (IH)
+
+    4.8.  F(j + 1) = G(j)
+          D1
+
+    4.9.  G(j + 1) = F(j) + G(j)
+          D1
+
+    4.10. F(j + 1) = (((1 + √5)/2)^(j + 1) − ((1 − √5)/2)^(j + 1))/√5
+          substitute G(j) = (((1 + √5)/2)^(j + 1) − ((1 − √5)/2)^(j + 1))/√5 (IH) into line 4.8
+
+    4.11. F(j) + G(j) = (((1 + √5)/2)^j − ((1 − √5)/2)^j)/√5 + G(j)
+          substitute F(j) = (((1 + √5)/2)^j − ((1 − √5)/2)^j)/√5 (IH)
+
+    4.12. (((1 + √5)/2)^j − ((1 − √5)/2)^j)/√5 + G(j) = (((1 + √5)/2)^j − ((1 − √5)/2)^j)/√5 + (((1 + √5)/2)^(j + 1) − ((1 − √5)/2)^(j + 1))/√5
+          substitute G(j) = (((1 + √5)/2)^(j + 1) − ((1 − √5)/2)^(j + 1))/√5 (IH)
+
+    4.13. ((1 + √5)/2)^((j + 1) + 1) = ((1 + √5)/2)^(j + 1) + ((1 + √5)/2)^j
+          thm:power-recurrence x := (1 + √5)/2, k := j, from 2
+
+    4.14. ((1 − √5)/2)^((j + 1) + 1) = ((1 − √5)/2)^(j + 1) + ((1 − √5)/2)^j
+          thm:power-recurrence x := (1 − √5)/2, k := j, from 3
+
+    4.15. (((1 + √5)/2)^j − ((1 − √5)/2)^j)/√5 + (((1 + √5)/2)^(j + 1) − ((1 − √5)/2)^(j + 1))/√5 = (((1 + √5)/2)^((j + 1) + 1) − ((1 − √5)/2)^((j + 1) + 1))/√5
+          algebra, from 4.13, 4.14
+          requires √5 ≠ 0: from 1
+          requires ((1 + √5)/2)^(j + 1) ∈ ℝ: mun:power-real a := (1 + √5)/2, m := j + 1
+          requires ((1 − √5)/2)^(j + 1) ∈ ℝ: mun:power-real a := (1 − √5)/2, m := j + 1
+
+    4.16. G(j + 1) = (((1 + √5)/2)^((j + 1) + 1) − ((1 − √5)/2)^((j + 1) + 1))/√5
+          calculation
+            G(j + 1) = F(j) + G(j)                                                                                          4.9
+                     = (((1 + √5)/2)^j − ((1 − √5)/2)^j)/√5 + G(j)                                                          4.11
+                     = (((1 + √5)/2)^j − ((1 − √5)/2)^j)/√5 + (((1 + √5)/2)^(j + 1) − ((1 − √5)/2)^(j + 1))/√5              4.12
+                     = (((1 + √5)/2)^((j + 1) + 1) − ((1 − √5)/2)^((j + 1) + 1))/√5                                         4.15
+
+    4.17. F(j + 1) = (((1 + √5)/2)^(j + 1) − ((1 − √5)/2)^(j + 1))/√5. G(j + 1) = (((1 + √5)/2)^((j + 1) + 1) − ((1 − √5)/2)^((j + 1) + 1))/√5.
+          join 4.10, 4.16
+
+5.  F(n) = (((1 + √5)/2)^n − ((1 − √5)/2)^n)/√5 and G(n) = (((1 + √5)/2)^(n + 1) − ((1 − √5)/2)^(n + 1))/√5
+    instantiate j := n in line 4
+
+6.  F(n) = (((1 + √5)/2)^n − ((1 − √5)/2)^n)/√5
+    calculation
+      F(n) = (((1 + √5)/2)^n − ((1 − √5)/2)^n)/√5     5

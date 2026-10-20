@@ -36,6 +36,7 @@ theorem product-step-bound
     inequalities
       0 < t      H3
       0 ≤ t      weakening
+      t ≥ 0      symmetry
 
 7.  t·(1/4 − t) ≥ 0
     mun:product-nonneg x := t, y := 1/4 − t, from 5, 6

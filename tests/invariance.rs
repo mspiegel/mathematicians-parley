@@ -240,6 +240,9 @@ fn one_relation<'f>(
 /// `x ≥ 0` as `0 ≤ x`, and `a < b` as `b > a`.
 fn order_turned(line: &str) -> Option<String> {
     let (head, fact, reason) = requires_parts(line)?;
+    if names_manipulation(reason) {
+        return None;
+    }
     let (left, sign, right) = one_relation(fact, &["≤", "≥", "<", ">"])?;
     let turned = match sign {
         "≤" => "≥",
@@ -253,8 +256,21 @@ fn order_turned(line: &str) -> Option<String> {
 /// `a = b` as `b = a`, and `a ≠ b` as `b ≠ a`.
 fn equation_turned(line: &str) -> Option<String> {
     let (head, fact, reason) = requires_parts(line)?;
+    if names_manipulation(reason) {
+        return None;
+    }
     let (left, sign, right) = one_relation(fact, &["=", "≠"])?;
     Some(format!("{head}{right} {sign} {left}{reason}"))
+}
+
+/// Whether a requires line's reason, `: weakening, from 2.4`, names a
+/// manipulation: its fact is the line with that manipulation as written,
+/// and turning it round is a second manipulation, so the turning rewrites
+/// leave it alone (`METHODS.md`, inequalities, Rows).
+fn names_manipulation(reason: &str) -> bool {
+    let reason = reason.strip_prefix(": ").unwrap_or(reason);
+    parley::corpus::skeleton::cut_reason(reason, "", 0)
+        .is_ok_and(|slots| matches!(slots.head, parley::corpus::Head::Manipulation(_)))
 }
 
 /// The corpus with one change made to every proof file.

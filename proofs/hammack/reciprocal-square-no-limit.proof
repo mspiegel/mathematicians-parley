@@ -1,0 +1,178 @@
+import definition         stdlib/calculus/limit-at
+import mundane theorem    stdlib/sets/difference-subset
+import mundane theorem    stdlib/sets/remove-member
+import mundane definition stdlib/numbers/abs
+import mundane theorem    stdlib/numbers/abs-difference-lt
+import theorem            stdlib/numbers/archimedean-natural
+import mundane definition stdlib/numbers/max
+import mundane theorem    stdlib/numbers/max-real
+import mundane theorem    stdlib/numbers/le-max
+import mundane theorem    stdlib/numbers/multiply-le
+import mundane theorem    stdlib/numbers/quotient-real
+import mundane theorem    stdlib/numbers/reciprocal-order-strict
+import mundane theorem    stdlib/numbers/reciprocal-positive
+import mundane theorem    stdlib/numbers/square-positive
+import mundane theorem    stdlib/functions/function-value
+
+theorem reciprocal-square-no-limit
+  note        Near 1 the function is 1/(x − 1)², which is N² at 1 + 1/N. A
+              limit L would be within 1 of f at 1 + 1/N for every N large
+              enough to bring 1/N within δ of 0, so N² < L + 1; but N can
+              also be taken above L + 1, and N² ≥ N.
+  ε, δ range over ℝ
+  let f : ℝ ∖ {1} → ℝ                                                 (H1)
+  assume for all x ∈ ℝ ∖ {1}, f(x) = 1/(x² − 2x + 1)                 (H2)
+  then not (there is L ∈ ℝ with f tends to L at 1)
+
+1.  not (there is L ∈ ℝ with f tends to L at 1)
+    contradiction
+    suppose there is L ∈ ℝ with f tends to L at 1                     (S)
+
+    1.1.  L ∈ ℝ. f tends to L at 1.
+          obtain L from S
+
+    1.2.  For all ε > 0, there exists δ > 0 such that |f(x) − L| < ε for all x ∈ ℝ ∖ {1} with (x ≠ 1 and |x − 1| < δ).
+          def:limit-at D := ℝ ∖ {1}, c := 1, from 1.1
+          requires ℝ ∖ {1} ⊆ ℝ: mun:difference-subset X := ℝ, Y := {1}
+
+    1.3.  There exists δ > 0 such that |f(x) − L| < 1 for all x ∈ ℝ ∖ {1} with (x ≠ 1 and |x − 1| < δ).
+          instantiate ε := 1 in line 1.2
+          requires 0 < 1: arithmetic
+
+    1.4.  p ∈ ℝ. p > 0. For all x ∈ ℝ ∖ {1} with (x ≠ 1 and |x − 1| < p), |f(x) − L| < 1.
+          obtain p from line 1.3
+
+    1.5.  p ≠ 0
+          inequalities
+            p > 0          1.4
+            p ≠ 0          weakening
+
+    1.6.  1/p > 0
+          mun:reciprocal-positive x := p, from 1.4
+
+    1.7.  1/p ∈ ℝ
+          mun:quotient-real x := 1, y := p, from 1.5
+
+    1.8.  max(1/p, L + 1) ∈ ℝ
+          mun:max-real x := 1/p, y := L + 1, from 1.7
+
+    1.9.  N ∈ ℕ. N > max(1/p, L + 1).
+          obtain N: thm:archimedean-natural x := max(1/p, L + 1), from 1.8
+
+    1.10. 1/p ≤ max(1/p, L + 1)
+          mun:le-max x := 1/p, y := L + 1, from 1.7
+
+    1.11. L + 1 ≤ max(1/p, L + 1)
+          mun:le-max x := 1/p, y := L + 1, from 1.7
+
+    1.12. 1/p < N
+          transitivity, from 1.10, 1.9
+          requires p ≠ 0: from 1.5
+          requires max(1/p, L + 1) ∈ ℝ: from 1.8
+
+    1.13. L + 1 < N
+          transitivity, from 1.11, 1.9
+          requires max(1/p, L + 1) ∈ ℝ: from 1.8
+
+    1.14. N > 0
+          inequalities, from 1.9
+
+    1.15. 1/N > 0
+          mun:reciprocal-positive x := N, from 1.14
+
+    1.16. 1 + 1/N ≠ 1
+          inequalities
+            1/N > 0          1.15
+            1 + 1/N > 1      adding 1
+            1 + 1/N ≠ 1      weakening
+
+    1.17. 1 + 1/N ∈ ℝ ∖ {1}
+          mun:remove-member u := 1 + 1/N, from 1.16
+
+    1.18. 1/N < 1/(1/p)
+          mun:reciprocal-order-strict x := 1/p, y := N, from 1.6, 1.7, 1.12, 1.14
+
+    1.19. 1/(1/p) = p
+          algebra
+          requires p ≠ 0: from 1.5
+
+    1.20. 1/N < p
+          substitute 1/(1/p) = p (line 1.19) into line 1.18
+
+    1.21. 1 + 1/N − 1 = 1/N
+          algebra
+
+    1.22. |1/N| = 1/N
+          mun:abs x := 1/N
+          requires 1/N ≥ 0: weakening, from 1.15
+
+    1.23. |1 + 1/N − 1| = |1/N|
+          substitute 1 + 1/N − 1 = 1/N (line 1.21)
+
+    1.24. |1 + 1/N − 1| < p
+          calculation
+            |1 + 1/N − 1| = |1/N|      1.23
+                          = 1/N        1.22
+                          < p          1.20
+
+    1.25. 1 + 1/N ≠ 1 and |1 + 1/N − 1| < p
+          join 1.16, 1.24
+
+    1.26. |f(1 + 1/N) − L| < 1
+          instantiate x := 1 + 1/N in line 1.4, from 1.17, 1.25
+
+    1.27. f(1 + 1/N) = 1/((1 + 1/N)² − 2(1 + 1/N) + 1)
+          instantiate x := 1 + 1/N in H2, from 1.17
+
+    1.28. (1 + 1/N)² − 2(1 + 1/N) + 1 = (1/N)²
+          algebra
+
+    1.29. 1/N ≠ 0
+          inequalities
+            1/N > 0        1.15
+            1/N ≠ 0        weakening
+
+    1.30. (1/N)² > 0
+          mun:square-positive x := 1/N, from 1.29
+
+    1.31. (1 + 1/N)² − 2(1 + 1/N) + 1 > 0
+          substitute (1 + 1/N)² − 2(1 + 1/N) + 1 = (1/N)² (line 1.28) into line 1.30
+
+    1.32. (1 + 1/N)² − 2(1 + 1/N) + 1 ≠ 0
+          inequalities
+            (1 + 1/N)² − 2(1 + 1/N) + 1 > 0        1.31
+            (1 + 1/N)² − 2(1 + 1/N) + 1 ≠ 0        weakening
+
+    1.33. 1/((1 + 1/N)² − 2(1 + 1/N) + 1) = N²
+          algebra, from 1.32
+
+    1.34. f(1 + 1/N) = N²
+          calculation
+            f(1 + 1/N) = 1/((1 + 1/N)² − 2(1 + 1/N) + 1)    1.27
+                       = N²                                  1.33
+
+    1.35. L − 1 < f(1 + 1/N) and f(1 + 1/N) < L + 1
+          mun:abs-difference-lt x := f(1 + 1/N), c := L, δ := 1, from 1.26
+          requires f(1 + 1/N) ∈ ℝ: mun:function-value, from H1, 1.17
+
+    1.36. N² < L + 1
+          substitute f(1 + 1/N) = N² (line 1.34) into line 1.35
+
+    1.37. N·1 ≤ N·N
+          mun:multiply-le x := 1, y := N, c := N, from 1.9
+
+    1.38. N ≤ N²
+          inequalities
+            N·1 ≤ N·N      1.37
+            N ≤ N²         algebra
+
+    1.39. L + 1 < N²
+          transitivity, from 1.13, 1.38
+
+    1.40. L + 1 ≤ N²
+          inequalities
+            L + 1 < N²     1.39
+            L + 1 ≤ N²     weakening
+
+    1.41. not N² < L + 1
+          inequalities, from 1.40, contradicting 1.36

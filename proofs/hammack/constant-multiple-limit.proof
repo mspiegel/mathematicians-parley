@@ -98,6 +98,7 @@ theorem constant-multiple-limit
                   inequalities
                     |a(n) − L| ≥ 0                                  6.6.4
                     |c|·|a(n) − L| + |a(n) − L| ≥ |c|·|a(n) − L|    adding |c|·|a(n) − L|
+                    |c|·|a(n) − L| ≤ |c|·|a(n) − L| + |a(n) − L|    symmetry
                   requires |c| ∈ ℝ: from 1
                   requires |a(n) − L| ∈ ℝ: from 6.6.2
 

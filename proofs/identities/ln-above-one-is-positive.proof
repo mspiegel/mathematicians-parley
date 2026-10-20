@@ -1,0 +1,21 @@
+import mundane definition stdlib/logarithms/ln
+import theorem            stdlib/logarithms/ln-order
+
+theorem ln-above-one-is-positive
+  note        ln is increasing and ln(1) = 0.
+  let x ∈ ℝ                                                           (H1)
+  assume x > 1                                                        (H2)
+  then ln(x) > 0
+
+1.  x > 0
+    inequalities, from H2
+
+2.  ln(1) < ln(x)
+    thm:ln-order x := 1, y := x, from H2, 1
+    requires 1 > 0: arithmetic
+
+3.  ln(1) = 0
+    real arithmetic
+
+4.  ln(x) > 0
+    substitute ln(1) = 0 (line 3) into line 2

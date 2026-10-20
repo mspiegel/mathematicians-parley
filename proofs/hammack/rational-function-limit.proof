@@ -1,0 +1,183 @@
+import definition         stdlib/calculus/tends-to
+import theorem            stdlib/numbers/archimedean
+import mundane theorem    stdlib/numbers/abs-difference-lt
+import mundane theorem    stdlib/numbers/multiply-le
+import mundane theorem    stdlib/numbers/product-positive
+import mundane theorem    stdlib/numbers/quotient-positive
+import mundane theorem    stdlib/numbers/reciprocal-order
+import mundane theorem    stdlib/numbers/square-positive
+
+theorem rational-function-limit
+  note        a(n) − 5/4 is (2n − 3)/(8n² + 4), and both 1/n minus it and
+              1/n plus it are quotients of positive numbers, so it lies
+              strictly between −1/n and 1/n. Choose N with 1/N below ε:
+              from N on, 1/n ≤ 1/N < ε.
+  ε ranges over ℝ
+  n ranges over ℕ
+  let a : ℕ → ℝ                                                       (H1)
+  assume for all n ∈ ℕ, a(n) = (5n² + n + 1)/(4n² + 2)               (H2)
+  then a(n) → 5/4 as n → ∞
+
+1.  For all ε > 0, there exists N ∈ ℕ such that |a(n) − 5/4| < ε for all n ≥ N.
+    proof
+    let ε ∈ ℝ                                                         (K1)
+    assume ε > 0                                                      (A1)
+
+    1.1.  N ∈ ℕ. 1/N < ε.
+          obtain N: thm:archimedean x := ε, from A1
+
+    1.2.  For all n ≥ N, |a(n) − 5/4| < ε.
+          proof
+          let n ∈ ℕ                                                   (K2)
+          assume n ≥ N                                                (A2)
+
+          1.2.1.  n > 0
+                  inequalities, from K2
+
+          1.2.2.  n ≥ 1
+                  inequalities, from K2
+
+          1.2.3.  n² > 0
+                  mun:square-positive x := n
+                  requires n ≠ 0: weakening, from 1.2.1
+
+          1.2.4.  4n² > 0
+                  inequalities
+                    n² > 0       1.2.3
+                    4n² > 0      multiplying by 4
+
+          1.2.5.  4n² + 2 > 0
+                  inequalities, from 1.2.4
+
+          1.2.6.  8n² + 4 > 0
+                  inequalities
+                    4n² + 2 > 0         1.2.5
+                    2(4n² + 2) > 0      multiplying by 2
+                    8n² + 4 > 0         algebra
+
+          1.2.7.  n·(8n² + 4) > 0
+                  mun:product-positive x := n, y := 8n² + 4, from 1.2.1, 1.2.6
+
+          1.2.8.  a(n) = (5n² + n + 1)/(4n² + 2)
+                  instantiate n := n in H2
+
+          1.2.9.  a(n) − 5/4 = (2n − 3)/(8n² + 4)
+                  algebra, from 1.2.8
+
+          1.2.10. 1/n − (2n − 3)/(8n² + 4) = (6n² + 3n + 4)/(n·(8n² + 4))
+                  algebra
+
+          1.2.11. 6n² > 0
+                  inequalities
+                    n² > 0       1.2.3
+                    6n² > 0      multiplying by 6
+
+          1.2.12. 3n > 0
+                  inequalities
+                    n > 0        1.2.1
+                    3n > 0       multiplying by 3
+
+          1.2.13. 6n² + 3n + 4 > 0
+                  inequalities, from 1.2.11, 1.2.12
+
+          1.2.14. (6n² + 3n + 4)/(n·(8n² + 4)) > 0
+                  mun:quotient-positive x := 6n² + 3n + 4, y := n·(8n² + 4), from 1.2.7, 1.2.13
+
+          1.2.15. 0 < 1/n − (2n − 3)/(8n² + 4)
+                  transitivity, from 1.2.14, 1.2.10
+
+          1.2.16. (2n − 3)/(8n² + 4) < 1/n
+                  inequalities
+                    0 < 1/n − (2n − 3)/(8n² + 4)                                  1.2.15
+                    (2n − 3)/(8n² + 4) < (2n − 3)/(8n² + 4) + (1/n − (2n − 3)/(8n² + 4))   adding (2n − 3)/(8n² + 4)
+                    (2n − 3)/(8n² + 4) < 1/n                                      algebra
+
+          1.2.17. 1/n + (2n − 3)/(8n² + 4) = (10n² − 3n + 4)/(n·(8n² + 4))
+                  algebra
+
+          1.2.18. n·1 ≤ n·n
+                  mun:multiply-le x := 1, y := n, c := n, from 1.2.2
+                  requires n > 0: from 1.2.1
+
+          1.2.19. n·n = n²
+                  algebra
+
+          1.2.20. n ≤ n²
+                  transitivity, from 1.2.18, 1.2.19
+
+          1.2.21. 7n² ≤ 10n² − 3n
+                  inequalities
+                    n ≤ n²                       1.2.20
+                    3n ≤ 3n²                     multiplying by 3
+                    −3n ≥ −3n²                   multiplying by −1
+                    −3n² ≤ −3n                   symmetry
+                    10n² − 3n² ≤ 10n² − 3n       adding 10n²
+                    7n² ≤ 10n² − 3n              algebra
+
+          1.2.22. 7n² > 0
+                  inequalities
+                    n² > 0           1.2.3
+                    7n² > 0          multiplying by 7
+
+          1.2.23. 0 < 10n² − 3n
+                  transitivity, from 1.2.22, 1.2.21
+
+          1.2.24. (10n² − 3n + 4)/(n·(8n² + 4)) > 0
+                  mun:quotient-positive x := 10n² − 3n + 4, y := n·(8n² + 4), from 1.2.7
+                  requires 10n² − 3n + 4 > 0: inequalities, from 1.2.23
+
+          1.2.25. 0 < 1/n + (2n − 3)/(8n² + 4)
+                  transitivity, from 1.2.24, 1.2.17
+
+          1.2.26. −1/n < (2n − 3)/(8n² + 4)
+                  inequalities
+                    0 < 1/n + (2n − 3)/(8n² + 4)                                       1.2.25
+                    −1/n < −1/n + (1/n + (2n − 3)/(8n² + 4))                           adding −1/n
+                    −1/n < (2n − 3)/(8n² + 4)                                          algebra
+
+          1.2.27. 1/n ≤ 1/N
+                  mun:reciprocal-order x := N, y := n, from A2
+                  requires N > 0: inequalities, from 1.1
+                  requires n > 0: from 1.2.1
+
+          1.2.28. 1/n < ε
+                  transitivity, from 1.2.27, 1.1
+
+          1.2.29. a(n) − 5/4 < ε
+                  transitivity, from 1.2.9, 1.2.16, 1.2.28
+                  requires a(n) ∈ ℝ: from H1
+
+          1.2.30. a(n) < 5/4 + ε
+                  inequalities
+                    a(n) − 5/4 < ε           1.2.29
+                    a(n) < 5/4 + ε           adding 5/4
+                  requires a(n) ∈ ℝ: from H1
+
+          1.2.31. −ε < −1/n
+                  inequalities
+                    1/n < ε          1.2.28
+                    −1/n > −ε        multiplying by −1
+                    −ε < −1/n        symmetry
+
+          1.2.32. −ε < a(n) − 5/4
+                  transitivity, from 1.2.31, 1.2.26, 1.2.9
+                  requires a(n) ∈ ℝ: from H1
+
+          1.2.33. 5/4 − ε < a(n)
+                  inequalities
+                    −ε < a(n) − 5/4         1.2.32
+                    5/4 − ε < a(n)          adding 5/4
+                  requires a(n) ∈ ℝ: from H1
+
+          1.2.34. 5/4 − ε < a(n) and a(n) < 5/4 + ε
+                  join 1.2.33, 1.2.30
+
+          1.2.35. |a(n) − 5/4| < ε
+                  mun:abs-difference-lt x := a(n), c := 5/4, δ := ε, from 1.2.34
+                  requires a(n) ∈ ℝ: from H1
+
+    1.3.  There exists N ∈ ℕ such that |a(n) − 5/4| < ε for all n ≥ N.
+          exhibit, from 1.2
+
+2.  a(n) → 5/4 as n → ∞
+    def:tends-to L := 5/4, from 1

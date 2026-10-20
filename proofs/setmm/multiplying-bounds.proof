@@ -19,6 +19,7 @@ theorem multiplying-bounds
       A < B              H6
       0 < B − A          adding −A
       0 ≤ B − A          weakening
+      B − A ≥ 0          symmetry
 
 2.  (B − A)·C ≥ 0
     mun:product-nonneg x := B − A, y := C, from H7, 1
@@ -28,6 +29,7 @@ theorem multiplying-bounds
       (B − A)·C ≥ 0      2
       B·C − A·C ≥ 0      algebra
       B·C ≥ A·C          adding A·C
+      A·C ≤ B·C          symmetry
 
 4.  B > 0
     transitivity, from H5, H6
@@ -74,6 +76,7 @@ theorem square-order
                   inequalities
                     B ≤ A              1.2.1
                     0 ≤ A − B          adding −B
+                    A − B ≥ 0          symmetry
 
           1.2.3.  (A − B)·B ≥ 0
                   mun:product-nonneg x := A − B, y := B, from H4, 1.2.2
@@ -98,6 +101,7 @@ theorem square-order
                   inequalities
                     A·A − B·B ≥ 0      1.2.7
                     A·A ≥ B·B          adding B·B
+                    B·B ≤ A·A          symmetry
 
           1.2.9.  not A·A < B·B
                   inequalities, from 1.2.8, contradicting D2

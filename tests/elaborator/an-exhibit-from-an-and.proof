@@ -1,4 +1,5 @@
 import mundane theorem stdlib/sets/remove-member
+import mundane definition stdlib/trigonometry/cos
 
 theorem two-witnesses-from-an-and
   note        A line written "A and B" supplies each part, as "A. B." does, to an exhibit of two names.
@@ -25,3 +26,37 @@ theorem one-witness-from-an-and
 
 2.  There is x ∈ V with x ≠ b.
     exhibit, from 1
+
+theorem two-witnesses-beside-an-equation
+  note        The values are the ones a line states the whole of a part of:
+              0 ≠ 2 names x := 0, y := 2. The equation 0 + 1 = 2 + 1 − 2 is
+              no reading of x ≠ y, though x = y sits inside it.
+  then there are x, y ∈ ℝ with x ≠ y and x + 1 = y + 1 − 2
+
+1.  0 + 1 = 2 + 1 − 2
+    arithmetic
+
+2.  0 ≠ 2
+    arithmetic
+
+3.  there are x, y ∈ ℝ with x ≠ y and x + 1 = y + 1 − 2
+    exhibit, from 1, 2
+
+theorem cosine-is-not-one-to-one
+  note        The same with the equation's sides a function's values: cos(0)
+              = cos(2·π) is no reading of x ≠ y.
+  then there are x, y ∈ ℝ with x ≠ y and cos(x) = cos(y)
+
+1.  cos(0) = cos(2·π)
+    real arithmetic
+
+2.  0 < 2·π
+    real arithmetic
+
+3.  0 ≠ 2·π
+    inequalities
+      0 < 2·π       2
+      0 ≠ 2·π       weakening
+
+4.  there are x, y ∈ ℝ with x ≠ y and cos(x) = cos(y)
+    exhibit, from 1, 3

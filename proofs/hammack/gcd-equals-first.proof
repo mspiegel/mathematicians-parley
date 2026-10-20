@@ -1,0 +1,47 @@
+import mundane definition stdlib/divisibility/gcd
+import mundane theorem    stdlib/divisibility/divides-le
+import mundane theorem    stdlib/divisibility/divides-self
+import mundane theorem    stdlib/reasoning/modus-ponens
+
+theorem gcd-equals-first
+  note        If a is the gcd it divides b. If a divides b it is a common
+              divisor, so a ≤ gcd(a, b); and gcd(a, b) divides a, so
+              gcd(a, b) ≤ a.
+  let a ∈ ℕ                                                           (H1)
+  let b ∈ ℕ                                                           (H2)
+  then a = gcd(a, b) ↔ a divides b
+
+1.  gcd(a, b) ∈ ℕ. gcd(a, b) divides a. gcd(a, b) divides b.
+    For all e ∈ ℕ, if e divides a and e divides b then e ≤ gcd(a, b).
+    mun:gcd
+
+2.  a = gcd(a, b) ↔ a divides b
+    both directions
+
+    direction
+    assume a = gcd(a, b)                                              (D1)
+
+    2.1.  a divides b
+          substitute a = gcd(a, b) (D1) into line 1
+
+    direction
+    assume a divides b                                                (D2)
+
+    2.2.  a divides a
+          mun:divides-self n := a
+
+    2.3.  a divides a and a divides b
+          join 2.2, D2
+
+    2.4.  if a divides a and a divides b then a ≤ gcd(a, b)
+          instantiate e := a in line 1
+
+    2.5.  a ≤ gcd(a, b)
+          mun:modus-ponens P := a divides a and a divides b, Q := a ≤ gcd(a, b), from 2.3, 2.4
+
+    2.6.  gcd(a, b) ≤ a
+          mun:divides-le e := gcd(a, b), m := a, from 1
+
+    2.7.  a = gcd(a, b)
+          antisymmetry, from 2.5, 2.6
+          requires gcd(a, b) ∈ ℝ: from 1

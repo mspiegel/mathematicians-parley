@@ -245,6 +245,7 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
         concluded: across_groups(taken, before),
         firsts,
         binding: taken.binding.clone(),
+        bound: taken.bound.clone(),
         written: parts.seed.clone(),
     })
 }
@@ -315,6 +316,7 @@ pub fn cited_requires(
         concluded: across_groups(&taken, before),
         firsts,
         binding: taken.binding,
+        bound: taken.bound,
         written: parts.seed,
     })
 }
@@ -1950,9 +1952,14 @@ fn built_on(req: &crate::corpus::Requires, step: &Step, known: &Known) -> bool {
         .skip(1)
         .filter(|r| {
             let how = str::trim(&r.how);
-            asking
-                .iter()
-                .any(|m| how == *m || how.starts_with(&format!("{m},")))
+            // A manipulation, `weakening, from 8`, is a row of `inequalities`
+            // and asks its atoms real as that method does.
+            let manipulated = asking.contains(&"inequalities")
+                && matches!(&r.by, Ok(by) if matches!(by.head, Head::Manipulation(_)));
+            manipulated
+                || asking
+                    .iter()
+                    .any(|m| how == *m || how.starts_with(&format!("{m},")))
         })
         .filter_map(|r| known.whole(step, &r.fact).map(|n| (r, n)))
         .any(|(r, n)| {
@@ -3118,10 +3125,11 @@ fn check_exhibit(
         .iter()
         .filter_map(|s| known.read_as_written(s))
         .collect();
+    let facts = exhibit_facts(&parts.facts, library);
     for (claim, as_written) in parts.claims.iter().zip(&written) {
         // An exhibit claims a "there is" and shows a value for it
         // (`SYNTAX.md`, `exhibit`).
-        let Some(Exhibited { wants, letters }) = exhibited(claim, library) else {
+        let Some(ex) = exhibited(claim, library) else {
             if library.ctx.existences.contains(&claim.notation()) {
                 continue;
             }
@@ -3136,16 +3144,11 @@ fn check_exhibit(
                 );
             continue;
         };
-        let mut sites = Sites::new();
-        for t in &wants {
-            binding_sites(t, &library.ctx, &[], &mut sites);
+        if exhibit_value(&ex, &facts, library, known).is_some() {
+            continue;
         }
-        let mut facts = with_parts(&parts.facts, library);
-        let typed: Vec<Node> = facts
-            .iter()
-            .filter_map(|f| type_said_otherwise(f, library))
-            .collect();
-        facts.extend(typed);
+        let Exhibited { wants, letters } = ex;
+        let sites = exhibit_sites(&wants, library);
         let stated = |wants: &[Node]| {
             supply(
                 wants,
@@ -3157,27 +3160,7 @@ fn check_exhibit(
                 true,
             )
         };
-        // A term equals itself, which no line need write: gH = aH at
-        // a = g is stated by nothing and needs nothing.
-        let itself = |w: &Node| {
-            w.notation() == EQUALITY
-                && w.children.len() == 2
-                && known.alike(&w.children[0], &w.children[1])
-        };
-        let (equations, rest): (Vec<Node>, Vec<Node>) = wants
-            .iter()
-            .cloned()
-            .partition(|w| w.notation() == EQUALITY && w.children.len() == 2);
-        let said = stated(&wants).is_some()
-            || (!equations.is_empty()
-                && stated(&rest).is_some_and(|at| {
-                    equations
-                        .iter()
-                        .all(|e| itself(&substitute_apart(e, &at, &library.ctx)))
-                }));
-        if said {
-            continue;
-        }
+        let itself = |w: &Node| equal_to_itself(w, known);
         // The value is the one the most parts are said of, each part's
         // own line suggesting one; what is not said of it is what the
         // step needs.
@@ -3250,6 +3233,103 @@ fn check_exhibit(
                 );
         }
     }
+}
+
+/// What an exhibit reads its values from: what the step cites and
+/// requires, with the parts of each and the types said otherwise.
+fn exhibit_facts(cited: &[Node], library: &Library) -> Vec<Node> {
+    let mut facts = with_parts(cited, library);
+    let typed: Vec<Node> = facts
+        .iter()
+        .filter_map(|f| type_said_otherwise(f, library))
+        .collect();
+    facts.extend(typed);
+    facts
+}
+
+/// Where each property in what an exhibit asks may decide what it stands
+/// for (`binding_sites`).
+fn exhibit_sites(wants: &[Node], library: &Library) -> Sites {
+    let mut sites = Sites::new();
+    for t in wants {
+        binding_sites(t, &library.ctx, &[], &mut sites);
+    }
+    sites
+}
+
+/// A term equals itself, which no line need write: gH = aH at a = g is
+/// stated by nothing and needs nothing.
+fn equal_to_itself(w: &Node, known: &Known) -> bool {
+    w.notation() == EQUALITY
+        && w.children.len() == 2
+        && known.alike(&w.children[0], &w.children[1])
+}
+
+/// The value an exhibit shows, each letter bound: one under which the facts
+/// state every part of what it asks, or every part but the equations, each
+/// of which is then a term equal to itself. None where no value is shown,
+/// which `check_exhibit` reports.
+fn exhibit_value(
+    ex: &Exhibited,
+    facts: &[Node],
+    library: &Library,
+    known: &Known,
+) -> Option<Binding> {
+    let sites = exhibit_sites(&ex.wants, library);
+    let stated = |wants: &[Node]| {
+        supply(
+            wants,
+            facts,
+            &Binding::new(),
+            &ex.letters,
+            library,
+            &sites,
+            true,
+        )
+    };
+    let (equations, rest): (Vec<Node>, Vec<Node>) = ex
+        .wants
+        .iter()
+        .cloned()
+        .partition(|w| w.notation() == EQUALITY && w.children.len() == 2);
+    stated(&ex.wants).or_else(|| {
+        if equations.is_empty() {
+            return None;
+        }
+        stated(&rest).filter(|at| {
+            equations
+                .iter()
+                .all(|e| equal_to_itself(&substitute_apart(e, at, &library.ctx), known))
+        })
+    })
+}
+
+/// The values each exhibit step shows, by the line the step is on: for each
+/// sentence of its claim, the value each letter of its "there is" stands
+/// for, as `check_exhibit` reads it; None for a sentence that is no "there
+/// is" the step gives a value of. The build exhibits these values.
+pub fn exhibit_values(
+    thm: &Theorem,
+    library: &Library,
+    known: &Known,
+) -> IndexMap<usize, Vec<Option<Binding>>> {
+    thm.steps
+        .iter()
+        .filter(|s| s.just.head.is(Method::Exhibit))
+        .map(|step| {
+            let parts = known.parts(step, library);
+            let facts = exhibit_facts(&parts.facts, library);
+            let values = parts
+                .claims
+                .iter()
+                .map(|claim| {
+                    exhibited(claim, library)
+                        .and_then(|ex| exhibit_value(&ex, &facts, library, known))
+                })
+                .collect();
+            (step.line, values)
+        })
+        .collect()
 }
 
 /// What a "there is" asks of the value exhibited for it: each letter in its

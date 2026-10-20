@@ -1,0 +1,19 @@
+theorem linear-function-inverse
+  note        Book of Proof 12.5.5. The inverse of f(x) = πx − e is
+              g(x) = (x + e)/π; the two compositions are the identity.
+  let x ∈ ℝ                                                           (H1)
+  then (π·x − e + e)/π = x and π·((x + e)/π) − e = x
+
+1.  0 < π
+    real arithmetic
+
+2.  (π·x − e + e)/π = x
+    algebra
+    requires 0 ≠ π: weakening, from 1
+
+3.  π·((x + e)/π) − e = x
+    algebra
+    requires 0 ≠ π: weakening, from 1
+
+4.  (π·x − e + e)/π = x. π·((x + e)/π) − e = x.
+    join 2, 3

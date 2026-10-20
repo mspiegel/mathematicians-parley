@@ -2083,32 +2083,47 @@ fn check_shown_by(
 
 /// Each step giving `algebra` or `inequalities` for a claim, and each
 /// requires line giving one of them for a fact, that `method` works out
-/// (`worked_out`): such a claim cites `method`. A line marked impossible
-/// states a false fact its method reaches from the lines it cites, which
-/// `method` would refuse (`METHODS.md`, arithmetic, Boundary).
+/// (`worked_out`, true or false where it decides every sentence): a true
+/// one cites `method`, and a false one is stated only by a line marked
+/// impossible, which states a false fact its method reaches from the lines
+/// it cites and which `method` would refuse (`METHODS.md`, arithmetic,
+/// Boundary).
 fn check_closed_by(
     report: &mut Report,
     thm: &Theorem,
     method: Method,
-    worked_out: &dyn Fn(&Written) -> bool,
+    worked_out: &dyn Fn(&Written) -> Option<bool>,
 ) {
     let name = method.as_str();
+    let why = |holds: bool, what: &str| {
+        if holds {
+            format!(
+                "which {name} can work out; a {what} {name} can work out cites {name}"
+            )
+        } else {
+            format!(
+                "which {name} finds false; a false {what} with no letter is stated only by the last line of a contradiction, marked impossible"
+            )
+        }
+    };
     for step in &thm.steps {
         let just = &step.just;
         if (just.head.is(Method::Algebra) || just.head.is(Method::Inequalities))
             && !step.impossible
-            && worked_out(&step.claim)
         {
-            report.say(
-                &thm.path,
-                just.line,
-                format!(
-                    "step {} gives {} for {}, which {name} can work out; a claim {name} can work out cites {name}",
-                    step.number,
-                    just.head,
-                    step.claim_text()
-                ),
-            );
+            if let Some(holds) = worked_out(&step.claim) {
+                report.say(
+                    &thm.path,
+                    just.line,
+                    format!(
+                        "step {} gives {} for {}, {}",
+                        step.number,
+                        just.head,
+                        step.claim_text(),
+                        why(holds, "claim")
+                    ),
+                );
+            }
         }
         for req in &step.requires {
             let Some(given) = [Method::Algebra, Method::Inequalities]
@@ -2117,15 +2132,16 @@ fn check_closed_by(
             else {
                 continue;
             };
-            if worked_out(&req.fact) {
+            if let Some(holds) = worked_out(&req.fact) {
                 report.say(
                     &thm.path,
                     req.line,
                     format!(
-                        "the requires line of step {} gives {} for {}, which {name} can work out; a fact {name} can work out cites {name}",
+                        "the requires line of step {} gives {} for {}, {}",
                         step.number,
                         given.as_str(),
-                        req.fact
+                        req.fact,
+                        why(holds, "fact")
                     ),
                 );
             }
@@ -2412,6 +2428,54 @@ fn real_unsaid(
     known: &Known,
     targets: &Targets,
 ) -> Option<String> {
+    unsaid_of(at, read, relations, known, targets).map(|u| u.said(known))
+}
+
+/// What an order's relations need of a term that nothing says.
+enum Unsaid {
+    /// An atom of a side, which has to be a real number.
+    Real(Node),
+    /// A divisor, or the part of one, which has to be other than 0.
+    Nonzero(Node),
+}
+
+impl Unsaid {
+    fn said(&self, known: &Known) -> String {
+        self.told(known, "nothing says")
+    }
+
+    /// The message, opening with `nothing`: "nothing says", or "nothing
+    /// above says" where a line below says it.
+    fn told(&self, known: &Known, nothing: &str) -> String {
+        match self {
+            Unsaid::Real(atom) => {
+                format!("{nothing} {} ∈ ℝ, which this step needs", known.print(atom))
+            }
+            Unsaid::Nonzero(part) => format!(
+                "{nothing} {} ≠ 0, which this step needs to divide by it",
+                known.print(part)
+            ),
+        }
+    }
+
+    /// Whether the two ask the same of the same term.
+    fn same(&self, other: &Unsaid, known: &Known) -> bool {
+        match (self, other) {
+            (Unsaid::Real(a), Unsaid::Real(b))
+            | (Unsaid::Nonzero(a), Unsaid::Nonzero(b)) => known.alike(a, b),
+            _ => false,
+        }
+    }
+}
+
+/// `real_unsaid`, naming the term and what it needs.
+fn unsaid_of(
+    at: &ClosureClaim,
+    read: &ClosureRead,
+    relations: &[Node],
+    known: &Known,
+    targets: &Targets,
+) -> Option<Unsaid> {
     let held = MembershipIn::of(at, read, known);
     let given = held.given(targets, known);
     for relation in relations {
@@ -2422,20 +2486,14 @@ fn real_unsaid(
                 .iter()
                 .find(|a| !methods_membership::atom_held(a, System::R, &given))
             {
-                return Some(format!(
-                    "nothing says {} ∈ ℝ, which this step needs",
-                    known.print(atom)
-                ));
+                return Some(Unsaid::Real(atom.clone()));
             }
             if let Some(unsaid) = parts
                 .divisors
                 .iter()
                 .find_map(|d| methods_membership::unsaid_part(d, &given))
             {
-                return Some(format!(
-                    "nothing says {} ≠ 0, which this step needs to divide by it",
-                    known.print(&unsaid)
-                ));
+                return Some(Unsaid::Nonzero(unsaid));
             }
         }
     }
@@ -2541,6 +2599,15 @@ impl Related {
                 && known.alike(&a.right, &b.right)
         };
         same(self, other) || same(self, &other.turned())
+    }
+
+    /// Whether this says what `other` says, written the same way round: a
+    /// row's relation as it stands (`METHODS.md`, inequalities, Rows), where
+    /// turning an order round is a `symmetry` row of its own.
+    fn says_as_written(&self, other: &Related, known: &Known) -> bool {
+        self.rel == other.rel
+            && known.alike(&self.left, &other.left)
+            && known.alike(&self.right, &other.right)
     }
 }
 
@@ -3015,12 +3082,9 @@ fn row_follows(
             let times = |side: &Node| made(g, TIMES, vec![c.clone(), side.clone()]);
             sides(rel, &times(&above.left), &times(&above.right))
         }
-        (RowReason::Symmetry, _) => {
-            matches!(above.rel, Rel::Eq | Rel::Ne)
-                && row.rel == above.rel
-                && known.alike(&row.left, &above.right)
-                && known.alike(&row.right, &above.left)
-        }
+        // An equation's sides swapped, or an order turned round: `a > 0` to
+        // `0 < a`.
+        (RowReason::Symmetry, _) => row.says_as_written(&above.turned(), known),
         (RowReason::Weakening, _) => {
             let weaker = matches!(
                 (above.rel, row.rel),
@@ -3041,9 +3105,9 @@ fn row_follows(
 }
 
 /// Whether `row` relates by `rel` two sides that are `left` and `right`,
-/// each as one number (`one_number`). An order is the same fact read from
-/// either side, `b ≥ a` as `a ≤ b` (`METHODS.md`, transitivity); an
-/// equation's sides swapped is a `symmetry` row of its own.
+/// each as one number (`one_number`), written that way round: an
+/// equation's sides swapped, or an order turned round, is a `symmetry` row
+/// of its own.
 fn row_is(
     row: &Related,
     rel: Rel,
@@ -3052,15 +3116,9 @@ fn row_is(
     known: &Known,
     targets: &Targets,
 ) -> bool {
-    let as_written = row.rel == rel
+    row.rel == rel
         && one_number(&row.left, left, known, targets)
-        && one_number(&row.right, right, known, targets);
-    let order = !matches!(rel, Rel::Eq | Rel::Ne);
-    as_written
-        || (order
-            && row.rel == rel.converse()
-            && one_number(&row.left, right, known, targets)
-            && one_number(&row.right, left, known, targets))
+        && one_number(&row.right, right, known, targets)
 }
 
 /// What a row names, said in a message: `with 2·A added to both sides`.
@@ -3126,20 +3184,27 @@ pub fn check_inequality_rows(
         }
         // The first row writes out the line it cites, the step's only one,
         // or one of the relations a line saying several says.
-        let first_says = match &written[0].reason {
-            RowReason::Cited(r) => line_relations(step, r, known)
-                .iter()
-                .any(|line| line.says(&read[0], known)),
-            _ => false,
+        let cited_lines = match &written[0].reason {
+            RowReason::Cited(r) => line_relations(step, r, known),
+            _ => Vec::new(),
         };
-        if !first_says {
-            report.say(
-                &thm.path,
-                written[0].line,
+        if !cited_lines
+            .iter()
+            .any(|line| line.says_as_written(&read[0], known))
+        {
+            // The line turned round is a symmetry row after it, not the
+            // first row (`METHODS.md`, inequalities, Rows).
+            let turned = cited_lines.iter().any(|line| line.says(&read[0], known));
+            let said = if turned {
+                format!(
+                    "the first row of step {number} is the line it cites turned round; write the line as it is written, and turn it with a symmetry row"
+                )
+            } else {
                 format!(
                     "the first row of step {number} is not a line the step cites, written out with its label as its reason"
-                ),
-            );
+                )
+            };
+            report.say(&thm.path, written[0].line, said);
             continue;
         }
         let whole_cited: Vec<Node> = match &written[0].reason {
@@ -3169,14 +3234,29 @@ pub fn check_inequality_rows(
                 known,
                 targets,
             ) {
-                report.say(
-                    &thm.path,
-                    row.line,
+                // The manipulation and a turn are two rows, the turn a
+                // symmetry row of its own.
+                let turned = !matches!(row.reason, RowReason::Symmetry)
+                    && row_follows(
+                        &read[i - 1],
+                        &read[i].turned(),
+                        &row.reason,
+                        term.as_ref(),
+                        known,
+                        targets,
+                    );
+                let said = if turned {
+                    format!(
+                        "a row of step {number} is the row above {}, turned round; turning it round is a symmetry row of its own",
+                        row_said(&row.reason)
+                    )
+                } else {
                     format!(
                         "a row of step {number} is not the row above {}",
                         row_said(&row.reason)
-                    ),
-                );
+                    )
+                };
+                report.say(&thm.path, row.line, said);
                 held = false;
                 break;
             }
@@ -3203,12 +3283,20 @@ pub fn check_inequality_rows(
             continue; // `check_formulas` says it does not read
         };
         let last = read.last().expect("a step's rows");
-        if held && !Related::of(&claim).is_some_and(|c| c.says(last, known)) {
-            report.say(
-                &thm.path,
-                written[written.len() - 1].line,
-                format!("the last row of step {number} is not its claim"),
-            );
+        let claimed = Related::of(&claim);
+        if held
+            && !claimed
+                .as_ref()
+                .is_some_and(|c| c.says_as_written(last, known))
+        {
+            let said = if claimed.is_some_and(|c| c.says(last, known)) {
+                format!(
+                    "the last row of step {number} is its claim turned round; end with a symmetry row that writes the claim as it is written"
+                )
+            } else {
+                format!("the last row of step {number} is not its claim")
+            };
+            report.say(&thm.path, written[written.len() - 1].line, said);
         }
     }
 }
@@ -3253,29 +3341,51 @@ pub fn check_requires_manipulations(
                 }
                 _ => None,
             };
-            // The fact may be written either way round, as a step's last
-            // row may: `0 < ε/7` is `ε/7 > 0`. Of a line saying several
+            // The fact is the line with the one manipulation, written the way
+            // round the manipulation leaves it. Of a line saying several
             // relations, it is one of them manipulated.
             let line = fact.as_ref().and_then(|fact| {
                 said.iter()
                     .find(|line| {
-                        [fact.clone(), fact.turned()].iter().any(|f| {
-                            row_follows(line, f, &reason, term.as_ref(), known, targets)
-                        })
+                        row_follows(line, fact, &reason, term.as_ref(), known, targets)
                     })
                     .cloned()
             });
             if line.is_none() {
-                report.say(
-                    &thm.path,
-                    req.line,
+                // The manipulation and a turn are two, and a requires line
+                // names one (`METHODS.md`, inequalities, Rows).
+                let turned = fact.as_ref().map(Related::turned).filter(|turned| {
+                    !matches!(reason, RowReason::Symmetry)
+                        && said.iter().any(|line| {
+                            row_follows(
+                                line,
+                                turned,
+                                &reason,
+                                term.as_ref(),
+                                known,
+                                targets,
+                            )
+                        })
+                });
+                let message = if let Some(t) = turned {
+                    format!(
+                        "the requires line {} of step {} is {cited} {}, turned round; a requires line names one manipulation, so write it as the manipulation leaves it: {} {} {}",
+                        str::trim(req.fact.text()),
+                        step.number,
+                        row_said(&reason),
+                        known.print(&t.left),
+                        sign(t.rel),
+                        known.print(&t.right)
+                    )
+                } else {
                     format!(
                         "the requires line {} of step {} is not {cited} {}",
                         str::trim(req.fact.text()),
                         step.number,
                         row_said(&reason)
-                    ),
-                );
+                    )
+                };
+                report.say(&thm.path, req.line, message);
                 continue;
             }
             let (Some(line), Some(fact)) = (line, fact) else {
@@ -3286,9 +3396,38 @@ pub fn check_requires_manipulations(
             let Some(read) = at.read(known, targets, false) else {
                 continue;
             };
-            if let Some(said) = real_unsaid(&at, &read, &relations, known, targets) {
-                report.say(&thm.path, req.line, said);
-            }
+            let Some(unsaid) = unsaid_of(&at, &read, &relations, known, targets) else {
+                continue;
+            };
+            // A requires line takes what the lines above it state (`SYNTAX.md`),
+            // so a line below that would say it is named, read as if above.
+            let below = step
+                .requires
+                .iter()
+                .skip_while(|o| o.line != req.line)
+                .skip(1)
+                .find(|o| {
+                    let mut with = ClosureClaim::requires(step, req);
+                    with.above.push(o);
+                    with.read(known, targets, false).is_some_and(|read| {
+                        unsaid_of(&with, &read, &relations, known, targets)
+                            .is_none_or(|still| !still.same(&unsaid, known))
+                    })
+                });
+            let said = unsaid.said(known);
+            let message = match (below, &unsaid) {
+                (Some(o), _) => format!(
+                    "{}; the requires line {} below says it, and a requires line takes only what the lines above it state: move it above",
+                    unsaid.told(known, "nothing above says"),
+                    str::trim(o.fact.text())
+                ),
+                (None, Unsaid::Real(_)) => format!(
+                    "{said}; a requires line by {} takes a membership from a requires line above it",
+                    by.head
+                ),
+                (None, Unsaid::Nonzero(_)) => said,
+            };
+            report.say(&thm.path, req.line, message);
         }
     }
 }
@@ -4446,13 +4585,20 @@ pub fn check_closed_by_real_arithmetic(
 ) {
     use crate::methods::surds::Verdict as Surd;
     let decided = |written: &Written| {
-        real_terms(written, known, targets).is_some_and(|terms| {
-            terms.iter().any(reals::beyond_arithmetic)
-                && !terms.iter().any(reals::is_order)
-                && terms
-                    .iter()
-                    .all(|t| matches!(reals::decide_closed(t), Built(Surd::Holds(_))))
-        })
+        let terms = real_terms(written, known, targets)?;
+        if !terms.iter().any(reals::beyond_arithmetic)
+            || terms.iter().any(reals::is_order)
+        {
+            return None;
+        }
+        let mut holds = true;
+        for t in &terms {
+            let Built(Surd::Holds(this)) = reals::decide_closed(t) else {
+                return None;
+            };
+            holds &= this;
+        }
+        Some(holds)
     };
     check_closed_by(report, thm, Method::RealArithmetic, &decided);
 }
@@ -4573,18 +4719,26 @@ pub fn check_closed_arithmetic(report: &mut Report, thm: &Theorem, known: &Known
     }
 }
 
-/// Whether `arithmetic` works out each sentence of `written`, true or false
-/// (`methods::field::decide_closed`): built from numerals by the operations
-/// it reads, and a relation it decides. √2·√2 = 2 has no letter and is not
-/// one, nor is 1 + i·0 = 1, nor |{1, …, 23}| = 23. A sentence that does not
-/// read is `check_formulas`'s to report, and is none.
-fn arithmetic_works_out(written: &Written, known: &Known, targets: &Targets) -> bool {
-    written.sentences().iter().all(|s| {
-        known.read_as_written(s).is_some_and(|n| {
-            let term = term_of_node(&written_out(&n, known), targets);
-            matches!(decide_closed(&term), Built(Verdict::Holds(_)))
-        })
-    })
+/// Whether `written` holds, where `arithmetic` works out each of its
+/// sentences (`methods::field::decide_closed`): built from numerals by the
+/// operations it reads, and a relation it decides. √2·√2 = 2 has no letter
+/// and is not one, nor is 1 + i·0 = 1, nor |{1, …, 23}| = 23. A sentence
+/// that does not read is `check_formulas`'s to report, and is none.
+fn arithmetic_works_out(
+    written: &Written,
+    known: &Known,
+    targets: &Targets,
+) -> Option<bool> {
+    let mut holds = true;
+    for s in written.sentences().iter() {
+        let n = known.read_as_written(s)?;
+        let term = term_of_node(&written_out(&n, known), targets);
+        let Built(Verdict::Holds(this)) = decide_closed(&term) else {
+            return None;
+        };
+        holds &= this;
+    }
+    Some(holds)
 }
 
 /// A claim `arithmetic` can work out cites it, whatever relation it states:

@@ -1,0 +1,68 @@
+import mundane definition stdlib/functions/image
+import mundane definition stdlib/functions/set-image
+import mundane theorem    stdlib/functions/value-in-image
+import mundane theorem    stdlib/sets/subset-self
+import mundane definition stdlib/sets/subset
+import mundane theorem    stdlib/sets/subset-antisymmetric
+
+theorem image-of-affine-map
+  note        f(s) = 4s + 5 = 4(s + 1) + 1, and 4k + 1 = f(k − 1).
+  let f : ℤ → ℤ                                                       (H1)
+  assume for all x ∈ ℤ, f(x) = 4x + 5                                (H2)
+  then f[ℤ] = {4k + 1 : k ∈ ℤ}
+
+1.  ℤ ⊆ ℤ
+    mun:subset-self
+
+2.  For all y ∈ f[ℤ], y ∈ {4k + 1 : k ∈ ℤ}.
+    proof
+    let y ∈ f[ℤ]                                                      (K1)
+
+    2.1.  There is s ∈ ℤ with y = f(s).
+          mun:image u := y, Y := ℤ, from K1, 1
+
+    2.2.  s ∈ ℤ. y = f(s).
+          obtain s from line 2.1
+
+    2.3.  f(s) = 4s + 5
+          instantiate x := s in H2
+
+    2.4.  y = 4·(s + 1) + 1
+          algebra, from 2.2, 2.3
+
+    2.5.  There is k ∈ ℤ with y = 4k + 1.
+          exhibit, from 2.4
+
+    2.6.  y ∈ {4k + 1 : k ∈ ℤ}
+          mun:set-image u := y, from 2.5
+
+3.  f[ℤ] ⊆ {4k + 1 : k ∈ ℤ}
+    mun:subset, from 2
+
+4.  For all y ∈ {4k + 1 : k ∈ ℤ}, y ∈ f[ℤ].
+    proof
+    let y ∈ {4k + 1 : k ∈ ℤ}                                          (K2)
+
+    4.1.  There is k ∈ ℤ with y = 4k + 1.
+          mun:set-image u := y, from K2
+
+    4.2.  m ∈ ℤ. y = 4m + 1.
+          obtain m from line 4.1
+
+    4.3.  f(m − 1) = 4·(m − 1) + 5
+          instantiate x := m − 1 in H2
+
+    4.4.  y = f(m − 1)
+          algebra, from 4.2, 4.3
+
+    4.5.  f(m − 1) ∈ f[ℤ]
+          mun:value-in-image Y := ℤ, s := m − 1, from 1
+
+    4.6.  y ∈ f[ℤ]
+          substitute y = f(m − 1) (line 4.4) into line 4.5
+
+5.  {4k + 1 : k ∈ ℤ} ⊆ f[ℤ]
+    mun:subset, from 4
+
+6.  f[ℤ] = {4k + 1 : k ∈ ℤ}
+    mun:subset-antisymmetric, from 3, 5

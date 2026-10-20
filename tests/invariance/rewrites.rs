@@ -15,7 +15,7 @@ use std::rc::Rc;
 use indexmap::IndexSet;
 use parley::checker::{statements_in_scope, BoundThere, CheckedTheorem, ObtainedThere};
 use parley::corpus::proof::{
-    chain, chain_cited, parse_proof, Head, Intro, Method, Theorem,
+    chain, chain_cited, parse_proof, rows, Head, Intro, Method, RowReason, Theorem,
 };
 use parley::corpus::{define_parts, Corpus, DefineParts, Values};
 use parley::formula::grammar::{Grammar, Sorts};
@@ -1578,9 +1578,15 @@ pub fn relations_turned(ctx: &Context, path: &str, text: &str) -> Rewritten {
     for (thm, end) in theorems_of(ctx, path, lines.len()) {
         let lay = layout(thm, &lines, end);
         let cited = ctx.cited.contains(&thm.qualified());
+        let written = written_out_by_rows(thm);
         let mut spans: Vec<Region> = Vec::new();
         for claim in &lay.claims {
-            if claim.lines.len() == 1 && !thm.steps[claim.step].impossible {
+            let step = &thm.steps[claim.step];
+            if claim.lines.len() == 1
+                && !step.impossible
+                && !written.contains(&step.number.to_string())
+                && rows(&step.just, &thm.path).is_none()
+            {
                 if let Some(r) = lay
                     .regions
                     .iter()
@@ -1594,11 +1600,13 @@ pub fn relations_turned(ctx: &Context, path: &str, text: &str) -> Rewritten {
             .hypotheses
             .iter()
             .filter(|h| h.kind != Intro::Let && !cited)
+            .filter(|h| h.label.as_ref().is_none_or(|l| !written.contains(l)))
             .map(|h| h.line - 1)
             .chain(thm.steps.iter().flat_map(|s| {
                 s.openers
                     .iter()
                     .filter(|o| o.kind != Intro::Let && !o.is_hypothesis && !o.is_claim)
+                    .filter(|o| !written.contains(&o.label))
                     .map(|o| o.line - 1)
             }))
             .collect();
@@ -1642,6 +1650,30 @@ pub fn relations_turned(ctx: &Context, path: &str, text: &str) -> Rewritten {
         theorems,
         declined: Vec::new(),
     }
+}
+
+/// The lines a step's rows write out as their first row, and the lines a
+/// requires line names a manipulation of, by label or step number. Rows and
+/// manipulations keep each relation the way round it is written, a turn
+/// being a symmetry row of its own (`METHODS.md`, inequalities, Rows), so
+/// such a line, and a claim a step's rows end on, are not spelt otherwise
+/// by turning them round alone.
+fn written_out_by_rows(thm: &Theorem) -> BTreeSet<String> {
+    let first_rows = thm
+        .steps
+        .iter()
+        .filter_map(|s| rows(&s.just, &thm.path)?.ok())
+        .filter_map(|written| match written.first().map(|r| &r.reason) {
+            Some(RowReason::Cited(r)) => Some(r.clone()),
+            _ => None,
+        });
+    let manipulated = thm
+        .steps
+        .iter()
+        .flat_map(|s| &s.requires)
+        .filter(|r| matches!(&r.by, Ok(by) if matches!(by.head, Head::Manipulation(_))))
+        .flat_map(|r| r.lines().to_vec());
+    first_rows.chain(manipulated).collect()
 }
 
 /// The lines a step's citation is written on, from 0: its justification and

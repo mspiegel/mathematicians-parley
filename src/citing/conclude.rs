@@ -252,10 +252,11 @@ pub fn substitution_unsaid(
 /// finds the places, is `was` only once an identity element is dropped:
 /// what is put there is then what is left of the place.
 fn dropped_at_sites(start: &Node, was: &Node, ctx: &Context) -> bool {
-    if alike_top(start, was, ctx) {
-        return !identities_dropped(start, was, ctx).is_empty();
+    let inside = |c: &Node| crate::matching::put_places(c, was, was, ctx).is_some();
+    if start.children.iter().any(inside) {
+        return start.children.iter().any(|c| dropped_at_sites(c, was, ctx));
     }
-    start.children.iter().any(|c| dropped_at_sites(c, was, ctx))
+    alike_top(start, was, ctx) && !identities_dropped(start, was, ctx).is_empty()
 }
 
 /// What a calculation link leaves unsaid to be a number, where it is what
@@ -466,6 +467,9 @@ pub struct Taken {
     /// value that gave it, and that letter stands for nothing at the
     /// citation: the s of `there is s ∈ S` is still the conclusion's own s.
     pub binding: Binding,
+    /// The letters `binding` leaves out, each with the value the search gave
+    /// it: where a "there is" was supplied, the witness a line names for it.
+    pub bound: Binding,
     /// The conclusion of the group each sentence of the claim takes, in the
     /// claim's order; none for an obtain, which takes the group's "there
     /// is" whole.
@@ -493,10 +497,13 @@ impl Taken {
         library: &Library,
     ) -> Taken {
         let free = of.free_names(&library.ctx.binders);
+        let mut bound = binding.clone();
+        bound.retain(|name, _| !free.contains(name.as_str()));
         binding.retain(|name, _| free.contains(name.as_str()));
         Taken {
             group,
             binding,
+            bound,
             concluded,
             asks_first: Vec::new(),
         }

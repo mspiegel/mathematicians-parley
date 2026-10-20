@@ -93,6 +93,10 @@ pub struct CheckedTheorem {
     /// in the order cited, by the line the step is on: the line's own, or
     /// of a line saying several, the one that meets the chain.
     pub links: IndexMap<usize, Vec<Node>>,
+    /// The values each `exhibit` step shows, by the line the step is on: for
+    /// each sentence of its claim, what each letter of its "there is" stands
+    /// for (`citations::exhibit_values`).
+    pub exhibited: IndexMap<usize, Vec<Option<Binding>>>,
 }
 
 /// A step's citation of an item as the checker reads it (`citing::taken`,
@@ -104,6 +108,10 @@ pub struct Cited {
     pub item: String,
     pub group: usize,
     pub binding: Binding,
+    /// What the reading gave each letter a binder of the item holds
+    /// (`Taken::bound`): for a "there is" the citation asks, or a definition
+    /// folds, the witness a line names, which the build exhibits.
+    pub bound: Binding,
     /// The sentences of the item's conclusions the claim takes, and which
     /// way each is read, each sentence by its place among them all, counted
     /// across the groups in order: the place of the lemma that proves it in

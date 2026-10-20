@@ -83,6 +83,24 @@ pub fn printed_but(
         let links: Vec<String> = links.iter().map(|l| g.print(l)).collect();
         writeln!(out, "{at} chains {}", links.join(" | ")).unwrap();
     }
+    for (line, values) in &record.exhibited {
+        let at = thm
+            .steps
+            .iter()
+            .find(|s| s.line == *line)
+            .map_or_else(|| format!("line {line}"), |s| format!("step {}", s.number));
+        for (i, value) in values.iter().enumerate() {
+            let shown = match value {
+                Some(at) => at
+                    .iter()
+                    .map(|(letter, v)| format!("{letter} := {}", g.print(v)))
+                    .collect::<Vec<_>>()
+                    .join(", "),
+                None => "no value".to_string(),
+            };
+            writeln!(out, "{at} exhibits in sentence {i} {shown}").unwrap();
+        }
+    }
     out
 }
 
@@ -107,6 +125,15 @@ fn citation(cited: &Cited, g: &Grammar) -> String {
         .map(|(k, v)| format!("{k} := {}", g.print(v)))
         .collect();
     binding.sort();
+    let mut bound: Vec<String> = cited
+        .bound
+        .iter()
+        .map(|(k, v)| format!("{k} := {}", g.print(v)))
+        .collect();
+    bound.sort();
+    if !bound.is_empty() {
+        binding.push(format!("bound {}", bound.join(", ")));
+    }
     let concluded: Vec<String> = cited
         .concluded
         .iter()

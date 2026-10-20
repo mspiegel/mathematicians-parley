@@ -10,17 +10,17 @@ block of 4: 4.1
 block of 5: 5.1, 5.2, 5.3
   the block owes Σ(k = 1 to n) 1 / T(k) = 2 − 2 / (n + 1)
 block of 6: 6.1, 6.2, 6.3
-  the block owes there is N ∈ ℕ with (for all n ∈ ℕ, if N ≤ n then |Σ(k = 1 to n) 1 / T(k) − 2| < ε)
+  the block owes there is N ∈ ℕ with (for all n ∈ ℕ, N ≤ n → |Σ(k = 1 to n) 1 / T(k) − 2| < ε)
 block of 6.2: 6.2.1, 6.2.2, 6.2.3, 6.2.4, 6.2.5, 6.2.6, 6.2.7, 6.2.8, 6.2.9, 6.2.10, 6.2.11
   the block owes |Σ(k = 1 to n) 1 / T(k) − 2| < ε
-step 5.1 cites stdlib/sums/sum-termwise group 0; a := 1, b := n, t := property-of(1 / T(k)), u := property-of(2 / k − 2 / (k + 1)); concludes 0 AsWritten; from no line
+step 5.1 cites stdlib/sums/sum-termwise group 0; a := 1, b := n, t := property-of(1 / T(k)), u := property-of(2 / k − 2 / (k + 1)), bound k := k; concludes 0 AsWritten; from no line
 step 5.2 cites stdlib/sums/sum-telescopes group 0; a := 1, b := n, t := property-of(2 / k); concludes 0 AsWritten; from no line
 step 6.1 cites stdlib/numbers/archimedean group 0; x := ε / 2; concludes ; from no line
 step 6.2.3 cites stdlib/numbers/reciprocal-order group 0; x := N, y := n + 1; concludes 0 Forward; from 6.2.2 sentence 0
 step 6.2.4 cites stdlib/numbers/reciprocal-positive group 0; x := n + 1; concludes 0 AsWritten; from no line
 step 6.2.11 cites stdlib/numbers/abs-difference-lt group 0; c := 2, x := Σ(k = 1 to n) 1 / T(k), δ := ε; concludes 0 Backward; from 6.2.7 sentence 0, 6.2.10 sentence 0
-step 7 cites stdlib/calculus/tends-to group 0; L := 2, x := property-of(Σ(k = 1 to n) 1 / T(k)); concludes 0 Backward; from 6 sentence 0
-step 8 cites stdlib/calculus/series-sum group 0; L := 2, t := property-of(1 / T(k)); concludes 0 AsWritten; from no line
+step 7 cites stdlib/calculus/tends-to group 0; L := 2, x := property-of(Σ(k = 1 to n) 1 / T(k)), bound N := N, n := n, ε := ε; concludes 0 Backward; from 6 sentence 0
+step 8 cites stdlib/calculus/series-sum group 0; L := 2, t := property-of(1 / T(k)), bound k := k, n := n; concludes 0 AsWritten; from no line
 requires line 1 of step 6.2.11 cites stdlib/sums/sum-real group 0; a := 1, b := n, t := property-of(1 / T(k)); concludes 0 AsWritten; from no line
 requires line 1 of step 7 cites stdlib/sums/sum-real group 0; a := 1, b := n, t := property-of(1 / T(k)); concludes 0 AsWritten; from no line
 step 5.1 says once Σ(k = 1 to n) (2 / k − 2 / (k + 1)) is a number
@@ -30,3 +30,4 @@ step 5.3 says once Σ(k = 1 to n) (2 / k − 2 / (k + 1)) is a number
 step 6.2.5 chains 1 / (n + 1) ≤ 1 / N | 1 / N < ε / 2
 step 6.2.7 chains 2 − ε < 2 − 2 / (n + 1) | Σ(k = 1 to n) 1 / T(k) = 2 − 2 / (n + 1)
 step 6.2.10 chains Σ(k = 1 to n) 1 / T(k) = 2 − 2 / (n + 1) | 2 − 2 / (n + 1) < 2 + ε
+step 6.3 exhibits in sentence 0 N := N

@@ -1,0 +1,56 @@
+import mundane definition stdlib/logarithms/ln
+import mundane definition stdlib/numbers/sqrt
+import mundane theorem    stdlib/numbers/product-positive
+import mundane theorem    stdlib/numbers/factor-positive
+import theorem            stdlib/logarithms/ln-product
+import theorem            stdlib/logarithms/ln-power
+import mundane theorem    stdlib/logarithms/ln-real
+
+theorem ln-of-geometric-mean
+  note        With s = √(x·y), s² = x·y, so 2·ln(s) = ln(s²) = ln(x·y)
+              = ln(x) + ln(y).
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume x > 0                                                        (H3)
+  assume y > 0                                                        (H4)
+  then ln(√(x·y)) = (ln(x) + ln(y))/2
+
+1.  x·y > 0
+    mun:product-positive, from H3, H4
+
+2.  √(x·y) ∈ ℝ. √(x·y) ≥ 0. (√(x·y))² = x·y.
+    mun:sqrt x := x·y
+    requires x·y ≥ 0: weakening, from 1
+
+3.  √(x·y)·√(x·y) = x·y
+    algebra, from 2
+
+4.  √(x·y)·√(x·y) > 0
+    substitute x·y = √(x·y)·√(x·y) (line 3) into line 1
+
+5.  √(x·y) > 0
+    mun:factor-positive a := √(x·y), b := √(x·y), from 2, 4
+
+6.  (√(x·y))^2 = x·y
+    algebra, from 2
+
+7.  ln((√(x·y))^2) = 2·ln(√(x·y))
+    thm:ln-power x := √(x·y), n := 2, from 2, 5
+
+8.  ln((√(x·y))^2) = ln(x·y)
+    substitute (√(x·y))^2 = x·y (line 6)
+
+9.  ln(x·y) = ln(x) + ln(y)
+    thm:ln-product, from H3, H4
+
+10. 2·ln(√(x·y)) = ln(x) + ln(y)
+    calculation
+      2·ln(√(x·y)) = ln((√(x·y))^2)    7
+                   = ln(x·y)           8
+                   = ln(x) + ln(y)     9
+
+11. ln(√(x·y)) = (ln(x) + ln(y))/2
+    algebra, from 10
+    requires ln(√(x·y)) ∈ ℝ: mun:ln-real x := √(x·y), from 2, 5
+    requires ln(x) ∈ ℝ: mun:ln-real, from H3
+    requires ln(y) ∈ ℝ: mun:ln-real x := y, from H4

@@ -1,0 +1,35 @@
+import mundane definition stdlib/numbers/sqrt
+import mundane theorem    stdlib/numbers/abs-nonneg
+import mundane theorem    stdlib/numbers/abs-real
+import mundane theorem    stdlib/numbers/abs-square
+import mundane theorem    stdlib/numbers/square-equal
+import mundane theorem    stdlib/numbers/square-nonneg
+
+theorem sqrt-of-square
+  note        Both √(x²) and |x| are at least 0 and have square x², and two
+              numbers at least 0 with the same square are equal.
+  let x ∈ ℝ                                                           (H1)
+  then √(x²) = |x|
+
+1.  x² ≥ 0
+    mun:square-nonneg
+
+2.  √(x²) ∈ ℝ. √(x²) ≥ 0. (√(x²))² = x².
+    mun:sqrt x := x², from 1
+
+3.  |x| ∈ ℝ
+    mun:abs-real
+
+4.  |x| ≥ 0
+    mun:abs-nonneg
+
+5.  |x|² = x²
+    mun:abs-square
+
+6.  (√(x²))² = |x|²
+    calculation
+      (√(x²))² = x²      2
+               = |x|²    5
+
+7.  √(x²) = |x|
+    mun:square-equal x := √(x²), y := |x|, from 2, 3, 4, 6

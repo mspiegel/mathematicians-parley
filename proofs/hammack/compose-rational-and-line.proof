@@ -1,0 +1,72 @@
+import mundane theorem    stdlib/functions/composition-value
+import mundane theorem    stdlib/functions/function-value
+import mundane theorem    stdlib/numbers/square-nonneg
+
+theorem compose-rational-and-line
+  note        (g ∘ f)(x) is g(f(x)) = 3·f(x) + 2, and (f ∘ g)(x) is f(g(x)) =
+              1/(g(x)² + 1). The divisor x² + 1 is at least 1.
+  let f : ℝ → ℝ                                                       (H1)
+  let g : ℝ → ℝ                                                       (H2)
+  assume for all x ∈ ℝ, f(x) = 1/(x² + 1)                            (H3)
+  assume for all x ∈ ℝ, g(x) = 3x + 2                                (H4)
+  then for all x ∈ ℝ, (g ∘ f)(x) = 3/(x² + 1) + 2 and (f ∘ g)(x) = 1/((3x + 2)² + 1)
+
+1.  For all x ∈ ℝ, (g ∘ f)(x) = 3/(x² + 1) + 2 and (f ∘ g)(x) = 1/((3x + 2)² + 1).
+    proof
+    let x ∈ ℝ                                                         (K1)
+
+    1.1.  (g ∘ f)(x) = g(f(x))
+          mun:composition-value
+
+    1.2.  f(x) ∈ ℝ
+          mun:function-value
+
+    1.3.  g(f(x)) = 3·f(x) + 2
+          instantiate x := f(x) in H4, from 1.2
+
+    1.4.  f(x) = 1/(x² + 1)
+          instantiate x := x in H3
+
+    1.5.  x² ≥ 0
+          mun:square-nonneg
+
+    1.6.  x² + 1 > 0
+          inequalities, from 1.5
+
+    1.7.  3·f(x) + 2 = 3·(1/(x² + 1)) + 2
+          substitute f(x) = 1/(x² + 1) (line 1.4)
+
+    1.8.  3·(1/(x² + 1)) + 2 = 3/(x² + 1) + 2
+          algebra
+          requires x² + 1 ≠ 0: weakening, from 1.6
+
+    1.9.  (g ∘ f)(x) = 3/(x² + 1) + 2
+          calculation
+            (g ∘ f)(x) = g(f(x))                 1.1
+                       = 3·f(x) + 2              1.3
+                       = 3·(1/(x² + 1)) + 2      1.7
+                       = 3/(x² + 1) + 2          1.8
+
+    1.10. (f ∘ g)(x) = f(g(x))
+          mun:composition-value f := g, g := f
+
+    1.11. g(x) ∈ ℝ
+          mun:function-value f := g
+
+    1.12. f(g(x)) = 1/(g(x)² + 1)
+          instantiate x := g(x) in H3, from 1.11
+
+    1.13. g(x) = 3x + 2
+          instantiate x := x in H4
+
+    1.14. 1/(g(x)² + 1) = 1/((3x + 2)² + 1)
+          substitute g(x) = 3x + 2 (line 1.13)
+
+    1.15. (f ∘ g)(x) = 1/((3x + 2)² + 1)
+          calculation
+            (f ∘ g)(x) = f(g(x))                 1.10
+                       = 1/(g(x)² + 1)           1.12
+                       = 1/((3x + 2)² + 1)       1.14
+
+    1.16. (g ∘ f)(x) = 3/(x² + 1) + 2. (f ∘ g)(x) = 1/((3x + 2)² + 1).
+          join 1.9, 1.15

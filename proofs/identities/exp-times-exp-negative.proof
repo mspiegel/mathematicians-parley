@@ -1,0 +1,25 @@
+import mundane definition stdlib/logarithms/exp
+import theorem            stdlib/logarithms/exp-sum
+
+theorem exp-times-exp-negative
+  note        exp(x)·exp(−x) = exp(x + (−x)) = exp(0) = 1.
+  let x ∈ ℝ                                                           (H1)
+  then exp(x)·exp(−x) = 1
+
+1.  exp(x + −x) = exp(x)·exp(−x)
+    thm:exp-sum a := x, b := −x
+
+2.  x + −x = 0
+    algebra
+
+3.  exp(x + −x) = exp(0)
+    substitute x + −x = 0 (line 2)
+
+4.  exp(0) = 1
+    real arithmetic
+
+5.  exp(x)·exp(−x) = 1
+    calculation
+      exp(x)·exp(−x) = exp(x + −x)    1
+                     = exp(0)         3
+                     = 1              4

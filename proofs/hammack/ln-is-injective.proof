@@ -1,0 +1,28 @@
+import mundane definition stdlib/logarithms/ln
+import mundane definition stdlib/logarithms/exp
+import theorem            stdlib/logarithms/exp-ln
+
+theorem ln-is-injective
+  note        Book of Proof 12.2.2. If ln(x) = ln(y), then applying exp to
+              both sides gives x = y, since exp undoes ln at a positive number.
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume x > 0                                                        (H3)
+  assume y > 0                                                        (H4)
+  assume ln(x) = ln(y)                                                (H5)
+  then x = y
+
+1.  exp(ln(x)) = x
+    thm:exp-ln, from H3
+
+2.  exp(ln(y)) = y
+    thm:exp-ln x := y, from H4
+
+3.  exp(ln(x)) = exp(ln(y))
+    substitute ln(x) = ln(y) (H5)
+
+4.  x = y
+    calculation
+      x = exp(ln(x))    1
+        = exp(ln(y))    3
+        = y             2

@@ -14,7 +14,8 @@ theorem halfway-above
       A < (A + B)/2        multiplying by 1/2
 
 theorem a-negative-turned
-  note        Multiplying by −1 turns the relation round.
+  note        Multiplying by −1 turns the relation round, and a symmetry row
+              turns the order round to the claim as written.
   let x ∈ ℝ    (H1)
   assume x < 0    (H2)
   then 0 < −x
@@ -23,6 +24,7 @@ theorem a-negative-turned
     inequalities
       x < 0                H2
       −x > 0               multiplying by −1
+      0 < −x               symmetry
 
 theorem an-equation-read-as-an-order
   note        An equation's sides swapped, then the equation weakened to ≤.
@@ -64,14 +66,14 @@ theorem rows-from-one-sentence-of-a-line
 
 2.  p/q·q = p
     algebra
-    requires q ≠ 0: weakening, from H3
+    requires 0 ≠ q: weakening, from H3
 
 3.  2·q < 2. p/q·q = p.
     join 1, 2
 
 theorem positive-so-not-zero
-  note        A strict order weakened to ≠, the claim written from its other
-              side.
+  note        A strict order weakened to ≠, then turned round to the claim
+              by symmetry.
   let x ∈ ℝ    (H1)
   assume 0 < x    (H2)
   then x ≠ 0
@@ -80,3 +82,4 @@ theorem positive-so-not-zero
     inequalities
       0 < x                H2
       0 ≠ x                weakening
+      x ≠ 0                symmetry

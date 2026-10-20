@@ -1,0 +1,44 @@
+import mundane definition stdlib/divisibility/even
+import mundane theorem    stdlib/divisibility/even-or-odd
+import mundane theorem    stdlib/divisibility/not-both
+import mundane definition stdlib/divisibility/odd
+
+theorem cube-minus-one-even-gives-odd
+  note        An integer is even or odd. If x is even, x = 2k and x³ − 1 is
+              8k³ − 1, twice 4k³ − 1, plus 1, which is odd and so not
+              even, against the hypothesis.
+  let x ∈ ℤ                                                           (H1)
+  assume x³ − 1 is even                                               (H2)
+  then x is odd
+
+1.  x is even or x is odd
+    mun:even-or-odd n := x
+
+2.  x is odd
+    cases, from 1
+
+    case
+    assume x is even                                                  (C1)
+
+    2.1.  k ∈ ℤ. x = 2k.
+          obtain k: mun:even, from C1
+
+    2.2.  x³ − 1 = (2k)³ − 1
+          substitute x = 2k (line 2.1)
+
+    2.3.  (2k)³ − 1 = 2(4k³ − 1) + 1
+          algebra
+
+    2.4.  x³ − 1 = 2(4k³ − 1) + 1
+          calculation
+            x³ − 1 = (2k)³ − 1        2.2
+                   = 2(4k³ − 1) + 1   2.3
+
+    2.5.  x³ − 1 is odd
+          mun:odd n := x³ − 1, from 2.4
+
+    2.6.  x³ − 1 is not odd
+          mun:not-both n := x³ − 1, from H2, contradicting 2.5
+
+    case
+    assume x is odd, which is the claim                               (C2)

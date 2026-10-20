@@ -1,0 +1,218 @@
+import mundane theorem    stdlib/numbers/pos-int-nat
+import mundane theorem    stdlib/sums/sum-single
+import mundane theorem    stdlib/sums/sum-extended
+
+theorem fibonacci-odd-sum
+  note        By induction on n: the sum to 1 is F(1) = 1 = F(2), and adding
+              F(2n + 1) to F(2n) gives F(2n + 2), since each Fibonacci
+              number is the sum of the two before it.
+  let n ∈ ℕ                                                           (H1)
+  let F(0) = 0,  G(0) = 1,
+      F(k + 1) = G(k),  G(k + 1) = F(k) + G(k),  for k ∈ ℕ₀           (D1)
+         reads the Fibonacci numbers, F(k) the kth and G(k) the next
+  then Σ(k = 1 to n) F(2k − 1) = F(2n)
+
+1.  For all k ∈ ℕ₀, F(k) ∈ ℕ₀ and G(k) ∈ ℕ₀.
+    induction on k starting at 0
+
+    base
+    1.1.  F(0) = 0
+          D1
+
+    1.2.  G(0) = 1
+          D1
+
+    1.3.  F(0) ∈ ℕ₀
+          membership, from 1.1
+
+    1.4.  G(0) ∈ ℕ₀
+          membership, from 1.2
+
+    1.5.  F(0) ∈ ℕ₀ and G(0) ∈ ℕ₀
+          join 1.3, 1.4
+
+    step
+    let k ∈ ℕ₀                                                        (K)
+    assume step 1 is true for k, the induction hypothesis             (IH)
+
+    1.6.  F(k + 1) = G(k)
+          D1
+
+    1.7.  G(k + 1) = F(k) + G(k)
+          D1
+
+    1.8.  F(k + 1) ∈ ℕ₀
+          membership, from IH, 1.6
+
+    1.9.  G(k + 1) ∈ ℕ₀
+          membership, from IH, 1.7
+
+    1.10. F(k + 1) ∈ ℕ₀ and G(k + 1) ∈ ℕ₀
+          join 1.8, 1.9
+
+2.  For all k ∈ ℕ₀, F(k) ∈ ℝ.
+    proof
+    let k ∈ ℕ₀                                                        (K1)
+
+    2.1.  F(k) ∈ ℕ₀ and G(k) ∈ ℕ₀
+          instantiate k := k in line 1
+
+    2.2.  F(k) ∈ ℝ
+          membership, from 2.1
+
+3.  For all k ∈ ℕ, 2k − 1 ∈ ℕ.
+    proof
+    let k ∈ ℕ                                                         (K2)
+
+    3.1.  0 < 2k − 1
+          inequalities, from K2
+
+    3.2.  2k − 1 ∈ ℕ
+          mun:pos-int-nat m := 2k − 1, from 3.1
+
+let q(k) = F(2k − 1), for k ∈ ℕ                                       (D2)
+       reads the odd-numbered Fibonacci number F(2k − 1)
+
+4.  For all k ∈ ℕ₀, F(k + 2) = F(k) + F(k + 1).
+    proof
+    let k ∈ ℕ₀                                                        (K3)
+
+    4.1.  k + 2 = (k + 1) + 1
+          algebra
+
+    4.2.  F((k + 1) + 1) = G(k + 1)
+          D1
+
+    4.3.  G(k + 1) = F(k) + G(k)
+          D1
+
+    4.4.  F(k + 1) = G(k)
+          D1
+
+    4.5.  F((k + 1) + 1) = F(k) + G(k)
+          transitivity, from 4.2, 4.3
+
+    4.6.  F((k + 1) + 1) = F(k) + F(k + 1)
+          substitute F(k + 1) = G(k) (line 4.4) into line 4.5
+
+    4.7.  F(k + 2) = F(k) + F(k + 1)
+          substitute k + 2 = (k + 1) + 1 (line 4.1) into line 4.6
+
+5.  For all m ∈ ℕ, Σ(j = 1 to m) q(j) = F(2m).
+    induction on m starting at 1
+
+    base
+    5.1.  For all i ∈ {1, …, 1}, q(i) ∈ ℝ.
+          proof
+          let i ∈ {1, …, 1}                                           (J1)
+
+          5.1.1.  2i − 1 ∈ ℕ
+                  instantiate k := i in line 3
+
+          5.1.2.  F(2i − 1) ∈ ℝ
+                  instantiate k := 2i − 1 in line 2, from 5.1.1
+
+          5.1.3.  q(i) ∈ ℝ
+                  membership, from D2, 5.1.2
+
+    5.2.  Σ(j = 1 to 1) q(j) = q(1)
+          mun:sum-single a := 1
+          requires for all i ∈ {1, …, 1}, q(i) ∈ ℝ: from 5.1
+
+    5.3.  F(0 + 1) = G(0)
+          D1
+
+    5.4.  G(0) = 1
+          D1
+
+    5.5.  F(0) = 0
+          D1
+
+    5.6.  F(0 + 1) = 1
+          calculation
+            F(0 + 1) = G(0)    5.3
+                     = 1       5.4
+
+    5.7.  F(1) = 1
+          calculation
+            F(1) = F(0 + 1)    arithmetic
+                 = 1           5.6
+
+    5.8.  F(0 + 2) = F(0) + F(0 + 1)
+          instantiate k := 0 in line 4
+
+    5.9.  F(0 + 2) = 1
+          algebra, from 5.5, 5.6, 5.8
+
+    5.10. F(1 + 1) = 1
+          calculation
+            F(1 + 1) = F(0 + 2)    arithmetic
+                     = 1           5.9
+
+    5.11. q(1) = F(2·1 − 1)
+          D2
+
+    5.12. Σ(j = 1 to 1) q(j) = F(2·1)
+          calculation
+            Σ(j = 1 to 1) q(j) = q(1)           5.2
+                               = F(2·1 − 1)     5.11
+                               = F(1)           arithmetic
+                               = 1              5.7
+                               = F(1 + 1)       5.10
+                               = F(2·1)         arithmetic
+
+    step
+    let m ∈ ℕ                                                         (K4)
+    assume step 5 is true for m, the induction hypothesis             (IH2)
+
+    5.13. For all i ∈ {1, …, m + 1}, q(i) ∈ ℝ.
+          proof
+          let i ∈ {1, …, m + 1}                                       (J2)
+
+          5.13.1. 2i − 1 ∈ ℕ
+                  instantiate k := i in line 3
+
+          5.13.2. F(2i − 1) ∈ ℝ
+                  instantiate k := 2i − 1 in line 2, from 5.13.1
+
+          5.13.3. q(i) ∈ ℝ
+                  membership, from D2, 5.13.2
+
+    5.14. Σ(j = 1 to m + 1) q(j) = Σ(j = 1 to m) q(j) + q(m + 1)
+          mun:sum-extended a := 1, n := m
+          requires m ≥ 1: from K4
+          requires for all i ∈ {1, …, m + 1}, q(i) ∈ ℝ: from 5.13
+
+    5.15. q(m + 1) = F(2(m + 1) − 1)
+          D2
+
+    5.16. 2(m + 1) − 1 = 2m + 1
+          algebra
+
+    5.17. q(m + 1) = F(2m + 1)
+          substitute 2(m + 1) − 1 = 2m + 1 (line 5.16) into line 5.15
+
+    5.18. F(2m + 2) = F(2m) + F(2m + 1)
+          instantiate k := 2m in line 4
+
+    5.19. 2(m + 1) = 2m + 2
+          algebra
+
+    5.20. F(2(m + 1)) = F(2m) + F(2m + 1)
+          substitute 2(m + 1) = 2m + 2 (line 5.19) into line 5.18
+
+    5.21. Σ(j = 1 to m) q(j) + q(m + 1) = F(2m) + q(m + 1)
+          substitute Σ(j = 1 to m) q(j) = F(2m) (IH2)
+
+    5.22. F(2m) + q(m + 1) = F(2m) + F(2m + 1)
+          substitute q(m + 1) = F(2m + 1) (line 5.17)
+
+    5.23. Σ(j = 1 to m + 1) q(j) = F(2(m + 1))
+          calculation
+            Σ(j = 1 to m + 1) q(j) = Σ(j = 1 to m) q(j) + q(m + 1)    5.14
+                                   = F(2m) + q(m + 1)                 5.21
+                                   = F(2m) + F(2m + 1)                5.22
+                                   = F(2(m + 1))                      5.20
+
+6.  Σ(k = 1 to n) F(2k − 1) = F(2n)
+    instantiate m := n in line 5, from D2

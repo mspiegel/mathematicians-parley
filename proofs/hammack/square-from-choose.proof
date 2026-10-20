@@ -1,0 +1,101 @@
+import definition         stdlib/counting/C
+import theorem            stdlib/counting/pascal
+import mundane theorem    stdlib/counting/binomial-nat0
+import mundane theorem    stdlib/counting/binomial-zero-index
+
+theorem choose-one
+  note        C(1, 1) is C(0, 1) + C(0, 0) = 0 + 1 by Pascal's rule, and
+              C(k + 1, 1) is C(k, 1) + C(k, 0) = k + 1.
+  let n ∈ ℕ                                                           (H1)
+  then C(n, 1) = n
+
+1.  For all k ∈ ℕ, C(k, 1) = k.
+    induction on k starting at 1
+
+    base
+    1.1.  C(0, 1) + C(0, 1 − 1) = C(0 + 1, 1)
+          thm:pascal n := 0, k := 1
+
+    1.2.  C(0, 1) + C(0, 0) = C(0 + 1, 1)
+          substitute 1 − 1 = 0 (arithmetic) into line 1.1
+
+    1.3.  C(0, 1) + C(0, 0) = C(1, 1)
+          substitute 0 + 1 = 1 (arithmetic) into line 1.2
+
+    1.4.  0 < 1
+          arithmetic
+
+    1.5.  C(0, 1) = 0
+          def:C n := 0, k := 1, from 1.4
+
+    1.6.  C(0, 0) = 1
+          mun:binomial-zero-index n := 0
+
+    1.7.  C(1, 1) = 1
+          algebra, from 1.3, 1.5, 1.6
+
+    step
+    let k ∈ ℕ                                                         (K)
+    assume step 1 is true for k, the induction hypothesis             (IH)
+
+    1.8.  C(k, 1) + C(k, 1 − 1) = C(k + 1, 1)
+          thm:pascal n := k, k := 1
+
+    1.9.  C(k, 1) + C(k, 0) = C(k + 1, 1)
+          substitute 1 − 1 = 0 (arithmetic) into line 1.8
+
+    1.10. C(k, 0) = 1
+          mun:binomial-zero-index n := k
+
+    1.11. C(k + 1, 1) = k + 1
+          algebra, from IH, 1.9, 1.10
+
+2.  C(n, 1) = n
+    instantiate k := n in line 1
+
+theorem square-from-choose
+  note        By induction on n. For n = 1, C(1, 2) is 0 and C(1, 1) is 1.
+              Going from m to m + 1, Pascal's rule gives C(m + 1, 2) =
+              C(m, 2) + C(m, 1), and C(m, 1) is m, so (m + 1)² = m² + 2m + 1
+              is 2·C(m + 1, 2) + (m + 1).
+  let n ∈ ℕ                                                           (H1)
+  then n² = 2·C(n, 2) + C(n, 1)
+
+1.  For all m ∈ ℕ, m² = 2·C(m, 2) + C(m, 1).
+    induction on m starting at 1
+
+    base
+    1.1.  1 < 2
+          arithmetic
+
+    1.2.  C(1, 2) = 0
+          def:C n := 1, k := 2, from 1.1
+
+    1.3.  C(1, 1) = 1
+          thm:choose-one n := 1
+
+    1.4.  1² = 2·C(1, 2) + C(1, 1)
+          algebra, from 1.2, 1.3
+
+    step
+    let m ∈ ℕ                                                         (K)
+    assume step 1 is true for m, the induction hypothesis             (IH)
+
+    1.5.  C(m, 2) + C(m, 2 − 1) = C(m + 1, 2)
+          thm:pascal n := m, k := 2
+
+    1.6.  C(m, 2) + C(m, 1) = C(m + 1, 2)
+          substitute 2 − 1 = 1 (arithmetic) into line 1.5
+
+    1.7.  C(m, 1) = m
+          thm:choose-one n := m
+
+    1.8.  C(m + 1, 1) = m + 1
+          thm:choose-one n := m + 1
+
+    1.9.  (m + 1)² = 2·C(m + 1, 2) + C(m + 1, 1)
+          algebra, from IH, 1.6, 1.7, 1.8
+          requires C(m, 2) ∈ ℕ₀: mun:binomial-nat0
+
+2.  n² = 2·C(n, 2) + C(n, 1)
+    instantiate m := n in line 1

@@ -127,6 +127,15 @@ impl<'a> Elaborator<'a> {
         what: &str,
     ) -> Checked<Proof> {
         let goal = self.to_term(term);
+        // A claim of several sentences, `cos(π/2) = 0. sin(π/2) = 1.`, is
+        // each of them worked out, as the checker decides each.
+        let parts = self.conjoined(&goal, scope, &mut |me, one| {
+            let one = me.rpn(one);
+            me.real_fact(&one, scope, facts, what).map(Built)
+        })?;
+        if let Some(Built(p)) = parts {
+            return Ok(p);
+        }
         match reals::decide_closed(&goal) {
             Built(Verdict::Holds(true)) => {}
             other => return Err(self.real_unshown(other, what)),
@@ -1688,8 +1697,17 @@ impl<'a> Elaborator<'a> {
             None => square.clone(),
             Some(m) => t!(&square, m, "cmul", "co"),
         };
+        // The radicand may hold roots of its own, √(√4), so it is valued as
+        // any closed term is, and its canon, a numeral, is the product.
         let sx = self.rpn(x);
-        let is = self.numeral_fact(&t!(&sx, &radicand, "wceq"), scope, facts)?;
+        let inner = take!(self.valued(x, scope, facts)?);
+        let product =
+            self.numeral_fact(&t!(&inner.canon, &radicand, "wceq"), scope, facts)?;
+        let is = self.b.ap(
+            "eqtrd",
+            &binds! {"ph" => scope, "A" => &sx, "B" => &inner.canon, "C" => &radicand},
+            &[&inner.proof, &product],
+        );
         let carried = self.b.ap(
             "fveq2d",
             &binds! {"ph" => scope, "A" => &sx, "B" => &radicand, "F" => "csqrt"},

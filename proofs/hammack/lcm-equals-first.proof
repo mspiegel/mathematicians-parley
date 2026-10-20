@@ -1,0 +1,81 @@
+import mundane theorem    stdlib/divisibility/divides-le
+import mundane theorem    stdlib/divisibility/divides-self
+import mundane definition stdlib/divisibility/lcm
+import mundane theorem    stdlib/divisibility/zero-divides
+import mundane theorem    stdlib/numbers/pos-int-nat
+import mundane theorem    stdlib/reasoning/modus-ponens
+
+theorem lcm-equals-first
+  note        If a = lcm(a, b) then b divides lcm(a, b), which is a. If b
+              divides a, then a is a common multiple of a and b, so lcm(a, b)
+              divides a; it is not 0, since 0 does not divide a, so it is at
+              most a, and it is at least a because a divides it.
+  let a ∈ ℕ                                                           (H1)
+  let b ∈ ℕ                                                           (H2)
+  then a = lcm(a, b) ↔ b divides a
+
+1.  b divides lcm(a, b)
+    mun:lcm
+
+2.  a divides lcm(a, b)
+    mun:lcm
+
+3.  lcm(a, b) ∈ ℕ₀
+    mun:lcm
+
+4.  For all k ∈ ℤ, if a divides k and b divides k then lcm(a, b) divides k.
+    mun:lcm
+
+5.  a = lcm(a, b) ↔ b divides a
+    both directions
+
+    direction
+    assume a = lcm(a, b)                                              (D1)
+
+    5.1.  b divides a
+          substitute a = lcm(a, b) (D1) into line 1
+
+    direction
+    assume b divides a                                                (D2)
+
+    5.2.  a divides a
+          mun:divides-self n := a
+
+    5.3.  a divides a. b divides a.
+          join 5.2, D2
+
+    5.4.  If a divides a and b divides a then lcm(a, b) divides a.
+          instantiate k := a in line 4
+
+    5.5.  lcm(a, b) divides a
+          mun:modus-ponens P := a divides a and b divides a, from 5.3, 5.4
+
+    5.6.  lcm(a, b) ≠ 0
+          contradiction
+          suppose lcm(a, b) = 0                                       (S)
+
+          5.6.1.  0 divides a
+                  substitute lcm(a, b) = 0 (S) into line 5.5
+
+          5.6.2.  a = 0
+                  mun:zero-divides n := a, from 5.6.1
+
+          5.6.3.  a ≠ 0
+                  inequalities, from H1, contradicting 5.6.2
+
+    5.7.  0 < lcm(a, b)
+          inequalities, from 3, 5.6
+
+    5.8.  lcm(a, b) ∈ ℕ
+          mun:pos-int-nat m := lcm(a, b), from 5.7
+          requires lcm(a, b) ∈ ℤ: from 3
+
+    5.9.  lcm(a, b) ≤ a
+          mun:divides-le e := lcm(a, b), m := a, from 5.5, 5.8
+
+    5.10. a ≤ lcm(a, b)
+          mun:divides-le e := a, m := lcm(a, b), from 2, 5.8
+
+    5.11. a = lcm(a, b)
+          antisymmetry, from 5.9, 5.10
+          requires lcm(a, b) ∈ ℝ: from 3

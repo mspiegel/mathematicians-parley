@@ -740,7 +740,7 @@ fn cases() -> Vec<Case> {
             "inequality rows ending other than on the claim",
             vec![edit(
                 "tests/elaborator/inequality-rows.proof",
-                Some("      0 < x                H2\n      0 ≠ x                weakening\n".to_string()),
+                Some("      0 < x                H2\n      0 ≠ x                weakening\n      x ≠ 0                symmetry\n".to_string()),
                 "      0 < x                H2\n      0 ≤ x                weakening\n".to_string(),
             )],
             "the last row of step 1 is not its claim",
@@ -766,6 +766,67 @@ fn cases() -> Vec<Case> {
                 "    requires q ≠ 1: weakening, from H3\n".to_string(),
             )],
             "the requires line q ≠ 1 of step 1 is not H3 with its relation weakened",
+        ),
+        // In rows, turning a relation round is a symmetry row of its own: the
+        // first row is the cited line as written, each row keeps its sides
+        // where its manipulation leaves them, and the last row is the claim
+        // as written. A row that turns as well as manipulates is told which.
+        case(
+            "write the first row as the line it cites turned round",
+            vec![edit(
+                "tests/elaborator/inequality-rows.proof",
+                Some("      A < B                H3\n".to_string()),
+                "      B > A                H3\n".to_string(),
+            )],
+            "the first row of step 1 is the line it cites turned round; write the line as it is written, and turn it with a symmetry row",
+        ),
+        case(
+            "turn a row round as well as multiplying it",
+            vec![edit(
+                "tests/elaborator/inequality-rows.proof",
+                Some("      −x > 0               multiplying by −1\n      0 < −x               symmetry\n".to_string()),
+                "      0 < −x               multiplying by −1\n".to_string(),
+            )],
+            "a row of step 1 is the row above with both sides multiplied by −1, a numeral other than 0, turned round; turning it round is a symmetry row of its own",
+        ),
+        case(
+            "end the rows on the claim turned round",
+            vec![edit(
+                "tests/elaborator/inequality-rows.proof",
+                Some("      0 ≠ x                weakening\n      x ≠ 0                symmetry\n".to_string()),
+                "      0 ≠ x                weakening\n".to_string(),
+            )],
+            "the last row of step 1 is its claim turned round; end with a symmetry row that writes the claim as it is written",
+        ),
+        case(
+            "turn a requires line round as well as weakening it",
+            vec![edit(
+                "tests/elaborator/inequality-rows.proof",
+                Some("    requires 0 ≠ q: weakening, from H3\n".to_string()),
+                "    requires q ≠ 0: weakening, from H3\n".to_string(),
+            )],
+            "the requires line q ≠ 0 of step 2 is H3 with its relation weakened, turned round; a requires line names one manipulation, so write it as the manipulation leaves it: 0 ≠ q",
+        ),
+        // A requires line by a manipulation takes an atom's membership from
+        // a requires line above it; with none it is told so, and with one
+        // below it is told to move that one above.
+        case(
+            "leave out the membership a requires-line weakening needs",
+            vec![edit(
+                "tests/elaborator/a-requires-weakening-with-its-membership.proof",
+                Some("    requires √(x + 1) ∈ ℝ: from 2\n    requires √x ∈ ℝ: from 3\n    requires √(x + 1) + √x ≠ 0: weakening, from 8\n".to_string()),
+                "    requires √(x + 1) + √x ≠ 0: weakening, from 8\n".to_string(),
+            )],
+            "nothing says √(x + 1) ∈ ℝ, which this step needs; a requires line by weakening takes a membership from a requires line above it",
+        ),
+        case(
+            "write the membership a requires-line weakening needs below it",
+            vec![edit(
+                "tests/elaborator/a-requires-weakening-with-its-membership.proof",
+                Some("    requires √(x + 1) ∈ ℝ: from 2\n    requires √x ∈ ℝ: from 3\n    requires √(x + 1) + √x ≠ 0: weakening, from 8\n".to_string()),
+                "    requires √(x + 1) + √x ≠ 0: weakening, from 8\n    requires √(x + 1) ∈ ℝ: from 2\n    requires √x ∈ ℝ: from 3\n".to_string(),
+            )],
+            "nothing above says √(x + 1) ∈ ℝ, which this step needs; the requires line √(x + 1) ∈ ℝ below says it, and a requires line takes only what the lines above it state: move it above",
         ),
         // A transitivity step chains relations, each line's right side the
         // next one's left, and claims the ends by the chain's relation;
@@ -3349,6 +3410,23 @@ fn cases() -> Vec<Case> {
             ],
             "the requires line of step 1 gives algebra for √2 − 1 ≠ 0, which real arithmetic can work out; a fact real arithmetic can work out cites real arithmetic",
         ),
+        // A false closed claim reached under a supposition is stated only by
+        // the line marked impossible; the method that works it out would
+        // refuse it, so the message does not send the writer there.
+        case(
+            "give algebra for a false claim of numerals not marked impossible",
+            vec![
+                edit("tests/elaborator/an-impossible-line-by-algebra.proof", Some("    1.1.  5 = 0, which is impossible".to_string()), "    1.1.  5 = 0".to_string()),
+            ],
+            "step 1.1 gives algebra for 5 = 0, which arithmetic finds false; a false claim with no letter is stated only by the last line of a contradiction, marked impossible",
+        ),
+        case(
+            "give algebra for a false claim with a square root not marked impossible",
+            vec![
+                edit("tests/elaborator/an-impossible-line-by-algebra.proof", Some("    1.1.  √2 = 1, which is impossible".to_string()), "    1.1.  √2 = 1".to_string()),
+            ],
+            "step 1.1 gives algebra for √2 = 1, which real arithmetic finds false; a false claim with no letter is stated only by the last line of a contradiction, marked impossible",
+        ),
         // A divisor of numerals alone is said once to be other than zero
         // only where its value is.
         case(
@@ -5211,7 +5289,7 @@ fn cases() -> Vec<Case> {
                 Some("    mun:divides d := 3, n := p² + q², from H2, 1\n".to_string()),
                 "    mun:divides d := 3, n := p² + q², from 1\n".to_string(),
             )],
-            "step 2 reads what mun:divides concludes from a \"there is\", and nothing it names says m² ∈ ℤ",
+            "step 2 reads what mun:divides concludes from a \"there is\", and nothing it names says m^2 ∈ ℤ",
         ),
         // Antisymmetry's cited lines are its two orders, so the membership
         // it owes is taken by a requires line, which the message says.
@@ -5341,7 +5419,7 @@ fn cases() -> Vec<Case> {
                 Some("    mun:sum-single a := 1, from H1\n".to_string()),
                 "    mun:sum-single a := 1\n".to_string(),
             )],
-            "step 1 cites mun:sum-single, which asks that every term F(j)² is in ℝ, and it is no number by what the page says once",
+            "step 1 cites mun:sum-single, which asks that every term F(j)^2 is in ℝ, and it is no number by what the page says once",
         ),
         // The sequence itself, untyped, is told where its values are said.
         case(

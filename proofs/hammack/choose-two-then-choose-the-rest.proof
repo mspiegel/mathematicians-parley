@@ -1,0 +1,105 @@
+import definition         stdlib/counting/C
+import mundane theorem    stdlib/counting/factorial-nat
+import mundane definition stdlib/sums/range-between
+import mundane theorem    stdlib/sums/range-difference
+
+theorem choose-two-then-choose-the-rest
+  note        Both sides are n! over (n − k)!, (k − 2)! and 2!: in the factorial
+              formulas, (n − 2)! cancels on the left and k! on the right.
+  let n ∈ ℕ                                                           (H1)
+  let k ∈ ℕ                                                           (H2)
+  assume 2 ≤ k                                                        (H3)
+  assume k ≤ n                                                        (H4)
+  then C(n, 2)·C(n − 2, k − 2) = C(n, k)·C(k, 2)
+
+1.  2 ≤ n
+    transitivity, from H3, H4
+
+2.  0 ≤ 2. 2 ≤ n.
+    inequalities, from 1
+
+3.  0 ≤ 2. 2 ≤ k.
+    inequalities, from H3
+
+4.  0 ≤ k. k ≤ n.
+    inequalities, from H2, H4
+
+5.  0 ≤ k − 2
+    inequalities
+      2 ≤ k        H3
+      0 ≤ k − 2    adding −2
+
+6.  k − 2 ≤ n − 2
+    inequalities
+      k ≤ n            H4
+      k − 2 ≤ n − 2    adding −2
+
+7.  2 ∈ {0, …, n}
+    mun:range-between k := 2, a := 0, b := n, from 2
+
+8.  2 ∈ {0, …, k}
+    mun:range-between k := 2, a := 0, b := k, from 3
+
+9.  k ∈ {0, …, n}
+    mun:range-between a := 0, b := n, from 4
+
+10. k − 2 ∈ {0, …, n − 2}
+    mun:range-between k := k − 2, a := 0, b := n − 2, from 5, 6
+
+11. n − 2 ∈ ℕ₀
+    mun:range-difference a := 0, k := 2, from 7
+
+12. k − 2 ∈ ℕ₀
+    mun:range-difference a := 0, n := k, k := 2, from 8
+
+13. n − k ∈ ℕ₀
+    mun:range-difference a := 0, from 9
+
+14. C(n, 2) = n!/((n − 2)!·2!)
+    def:C k := 2, from 7
+
+15. C(n − 2, k − 2) = (n − 2)!/(((n − 2) − (k − 2))!·(k − 2)!)
+    def:C n := n − 2, k := k − 2, from 10, 11
+
+16. C(n, k) = n!/((n − k)!·k!)
+    def:C, from 9
+
+17. C(k, 2) = k!/((k − 2)!·2!)
+    def:C n := k, k := 2, from 8
+
+18. (n − 2) − (k − 2) = n − k
+    algebra
+
+19. ((n − 2) − (k − 2))! = (n − k)!
+    substitute (n − 2) − (k − 2) = n − k (line 18)
+
+20. C(n − 2, k − 2) = (n − 2)!/((n − k)!·(k − 2)!)
+    substitute ((n − 2) − (k − 2))! = (n − k)! (line 19) into line 15
+
+21. C(n, 2)·C(n − 2, k − 2) = (n!/((n − 2)!·2!))·C(n − 2, k − 2)
+    substitute C(n, 2) = n!/((n − 2)!·2!) (line 14)
+
+22. (n!/((n − 2)!·2!))·C(n − 2, k − 2) = (n!/((n − 2)!·2!))·((n − 2)!/((n − k)!·(k − 2)!))
+    substitute C(n − 2, k − 2) = (n − 2)!/((n − k)!·(k − 2)!) (line 20)
+
+23. C(n, k)·C(k, 2) = (n!/((n − k)!·k!))·C(k, 2)
+    substitute C(n, k) = n!/((n − k)!·k!) (line 16)
+
+24. (n!/((n − k)!·k!))·C(k, 2) = (n!/((n − k)!·k!))·(k!/((k − 2)!·2!))
+    substitute C(k, 2) = k!/((k − 2)!·2!) (line 17)
+
+25. (n!/((n − 2)!·2!))·((n − 2)!/((n − k)!·(k − 2)!)) = (n!/((n − k)!·k!))·(k!/((k − 2)!·2!))
+    algebra
+    requires n! ∈ ℕ: mun:factorial-nat
+    requires (n − 2)! ∈ ℕ: mun:factorial-nat n := n − 2, from 11
+    requires (n − k)! ∈ ℕ: mun:factorial-nat n := n − k, from 13
+    requires (k − 2)! ∈ ℕ: mun:factorial-nat n := k − 2, from 12
+    requires k! ∈ ℕ: mun:factorial-nat n := k
+
+26. C(n, 2)·C(n − 2, k − 2) = C(n, k)·C(k, 2)
+    calculation
+      C(n, 2)·C(n − 2, k − 2) = (n!/((n − 2)!·2!))·C(n − 2, k − 2)                                        21
+                              = (n!/((n − 2)!·2!))·((n − 2)!/((n − k)!·(k − 2)!))                         22
+                              = (n!/((n − k)!·k!))·(k!/((k − 2)!·2!))                                     25
+                              = (n!/((n − k)!·k!))·C(k, 2)                                                24
+                              = C(n, k)·C(k, 2)                                                           23

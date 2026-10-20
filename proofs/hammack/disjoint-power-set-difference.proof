@@ -1,0 +1,45 @@
+import mundane definition stdlib/sets/difference
+import mundane definition stdlib/sets/powerset
+import mundane definition stdlib/sets/subset
+import mundane theorem    stdlib/sets/disjoint-member
+import mundane theorem    stdlib/sets/in-subset
+
+theorem disjoint-power-set-difference
+  note        A part of A is a part of A ∖ B when A and B share nothing:
+              each of its elements is in A, and so not in B.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  assume A ∩ B = ∅                                                    (H3)
+  then 𝒫A ∖ 𝒫B ⊆ 𝒫(A ∖ B)
+
+1.  For all t ∈ 𝒫A ∖ 𝒫B, t ∈ 𝒫(A ∖ B).
+    proof
+    let t ∈ 𝒫A ∖ 𝒫B                                                   (K1)
+
+    1.1.  t ∈ 𝒫A. t ∉ 𝒫B.
+          mun:difference u := t, Y := 𝒫A, Z := 𝒫B, from K1
+
+    1.2.  t ⊆ A
+          mun:powerset S := t, from 1.1
+
+    1.3.  For all x ∈ t, x ∈ A ∖ B.
+          proof
+          let x ∈ t                                                   (K2)
+
+          1.3.1.  x ∈ A
+                  mun:in-subset X := t, Y := A, u := x, from K2, 1.2
+
+          1.3.2.  x ∉ B
+                  mun:disjoint-member Y := A, Z := B, u := x, from H3, 1.3.1
+
+          1.3.3.  x ∈ A ∖ B
+                  mun:difference u := x, Y := A, Z := B, from 1.3.1, 1.3.2
+
+    1.4.  t ⊆ A ∖ B
+          mun:subset, from 1.3
+
+    1.5.  t ∈ 𝒫(A ∖ B)
+          mun:powerset S := t, A := A ∖ B, from 1.4
+
+2.  𝒫A ∖ 𝒫B ⊆ 𝒫(A ∖ B)
+    mun:subset, from 1

@@ -49,6 +49,7 @@ let e = ⌊A + 1/2⌋ − A, a real number                                  (D1)
       −1/2 < e                     7
       1/2 > −e                     multiplying by −1
       1/2 ≥ −e                     weakening
+      −e ≤ 1/2                     symmetry
 
 9.  e ≥ 0 or e < 0
     mun:nonneg-or-neg x := e, from D1

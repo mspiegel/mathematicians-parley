@@ -1,0 +1,55 @@
+import theorem            proofs/hammack/weighted-binomial-sum/weighted-term
+import definition         stdlib/counting/C
+import mundane theorem    stdlib/counting/binomial-nat0
+import mundane definition stdlib/divisibility/even
+import mundane theorem    stdlib/numbers/multiply-cancel
+import mundane theorem    stdlib/numbers/nat-minus-one
+import mundane definition stdlib/sums/range-between
+
+theorem central-binomial-even
+  note        n·C(2n, n) is 2n·C(2n − 1, n − 1), so cancelling n,
+              C(2n, n) is twice the whole number C(2n − 1, n − 1).
+  let n ∈ ℕ                                                           (H1)
+  then C(2n, n) is even
+
+1.  2n − 1 ∈ ℕ₀
+    mun:nat-minus-one n := 2n
+
+2.  1 ≤ n
+    inequalities, from H1
+
+3.  n ≤ (2n − 1) + 1
+    inequalities, from H1
+
+4.  n ∈ {1, …, (2n − 1) + 1}
+    mun:range-between k := n, a := 1, b := (2n − 1) + 1, from 2, 3
+
+5.  n·C((2n − 1) + 1, n) = ((2n − 1) + 1)·C(2n − 1, n − 1)
+    thm:weighted-term m := 2n − 1, k := n, from 1, 4
+
+6.  (2n − 1) + 1 = 2n
+    algebra
+
+7.  n·C(2n, n) = 2n·C(2n − 1, n − 1)
+    substitute (2n − 1) + 1 = 2n (line 6) into line 5
+
+8.  C(2n, n) ∈ ℕ₀
+    mun:binomial-nat0 n := 2n, k := n
+
+9.  C(2n − 1, n − 1) ∈ ℕ₀
+    mun:binomial-nat0 n := 2n − 1, k := n − 1, from 1
+
+10. C(2n, n)·n = 2·C(2n − 1, n − 1)·n
+    algebra, from 7
+    requires C(2n, n) ∈ ℝ: from 8
+    requires C(2n − 1, n − 1) ∈ ℝ: from 9
+
+11. C(2n, n) = 2·C(2n − 1, n − 1)
+    mun:multiply-cancel a := C(2n, n), b := 2·C(2n − 1, n − 1), c := n, from H1, 10
+    requires C(2n, n) ∈ ℝ: from 8
+    requires 2·C(2n − 1, n − 1) ∈ ℝ: from 9
+
+12. C(2n, n) is even
+    mun:even n := C(2n, n), from 11
+    requires C(2n, n) ∈ ℤ: from 8
+    requires C(2n − 1, n − 1) ∈ ℤ: from 9

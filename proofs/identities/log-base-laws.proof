@@ -1,0 +1,120 @@
+import mundane definition stdlib/logarithms/ln
+import theorem            stdlib/logarithms/ln-product
+import theorem            stdlib/logarithms/ln-quotient
+import theorem            stdlib/logarithms/ln-power
+import mundane theorem    stdlib/logarithms/ln-nonzero
+import mundane theorem    stdlib/logarithms/ln-real
+
+theorem log-two-of-a-power-of-two
+  note        ln(2^n) is n·ln(2), so dividing by ln(2) leaves n.
+  let n ∈ ℕ                                                           (H1)
+  then ln(2^n)/ln(2) = n
+
+1.  ln(2^n) = n·ln(2)
+    thm:ln-power x := 2
+    requires 2 > 0: arithmetic
+
+2.  ln(2^n)/ln(2) = n·ln(2)/ln(2)
+    substitute ln(2^n) = n·ln(2) (line 1)
+
+3.  n·ln(2)/ln(2) = n
+    algebra
+    requires ln(2) ≠ 0: real arithmetic
+
+4.  ln(2^n)/ln(2) = n
+    calculation
+      ln(2^n)/ln(2) = n·ln(2)/ln(2)    2
+                    = n                3
+
+
+theorem log-of-a-product
+  note        ln(x·y) is ln(x) + ln(y); divide both by ln(b), which is not 0
+              since b is positive and not 1.
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  let b ∈ ℝ                                                           (H3)
+  assume x > 0                                                        (H4)
+  assume y > 0                                                        (H5)
+  assume b > 0                                                        (H6)
+  assume b ≠ 1                                                        (H7)
+  then ln(x·y)/ln(b) = ln(x)/ln(b) + ln(y)/ln(b)
+
+1.  ln(x·y) = ln(x) + ln(y)
+    thm:ln-product, from H4, H5
+
+2.  ln(b) ≠ 0
+    mun:ln-nonzero x := b, from H6, H7
+
+3.  ln(x·y)/ln(b) = (ln(x) + ln(y))/ln(b)
+    substitute ln(x·y) = ln(x) + ln(y) (line 1)
+
+4.  (ln(x) + ln(y))/ln(b) = ln(x)/ln(b) + ln(y)/ln(b)
+    algebra, from 2
+    requires ln(x) ∈ ℝ: mun:ln-real, from H4
+    requires ln(y) ∈ ℝ: mun:ln-real x := y, from H5
+    requires ln(b) ∈ ℝ: mun:ln-real x := b, from H6
+
+5.  ln(x·y)/ln(b) = ln(x)/ln(b) + ln(y)/ln(b)
+    calculation
+      ln(x·y)/ln(b) = (ln(x) + ln(y))/ln(b)        3
+                    = ln(x)/ln(b) + ln(y)/ln(b)    4
+
+
+theorem log-of-a-reciprocal
+  note        ln(1/x) is ln(1) − ln(x), which is −ln(x) since ln(1) is 0;
+              divide by ln(b).
+  let x ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume x > 0                                                        (H3)
+  assume b > 0                                                        (H4)
+  assume b ≠ 1                                                        (H5)
+  then ln(1/x)/ln(b) = −(ln(x)/ln(b))
+
+1.  ln(1/x) = ln(1) − ln(x)
+    thm:ln-quotient x := 1, y := x, from H3
+    requires 1 > 0: arithmetic
+
+2.  ln(1/x) = 0 − ln(x)
+    substitute ln(1) = 0 (real arithmetic) into line 1
+
+3.  ln(b) ≠ 0
+    mun:ln-nonzero x := b, from H4, H5
+
+4.  ln(1/x)/ln(b) = (0 − ln(x))/ln(b)
+    substitute ln(1/x) = 0 − ln(x) (line 2)
+
+5.  (0 − ln(x))/ln(b) = −(ln(x)/ln(b))
+    algebra, from 3
+    requires ln(x) ∈ ℝ: mun:ln-real, from H3
+    requires ln(b) ∈ ℝ: mun:ln-real x := b, from H4
+
+6.  ln(1/x)/ln(b) = −(ln(x)/ln(b))
+    calculation
+      ln(1/x)/ln(b) = (0 − ln(x))/ln(b)    4
+                    = −(ln(x)/ln(b))       5
+
+
+theorem change-of-base
+  note        Both logarithms to base c carry the factor 1/ln(c), which
+              cancels in the quotient.
+  let x ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let c ∈ ℝ                                                           (H3)
+  assume x > 0                                                        (H4)
+  assume b > 0                                                        (H5)
+  assume b ≠ 1                                                        (H6)
+  assume c > 0                                                        (H7)
+  assume c ≠ 1                                                        (H8)
+  then (ln(x)/ln(c))/(ln(b)/ln(c)) = ln(x)/ln(b)
+
+1.  ln(b) ≠ 0
+    mun:ln-nonzero x := b, from H5, H6
+
+2.  ln(c) ≠ 0
+    mun:ln-nonzero x := c, from H7, H8
+
+3.  (ln(x)/ln(c))/(ln(b)/ln(c)) = ln(x)/ln(b)
+    algebra, from 1, 2
+    requires ln(x) ∈ ℝ: mun:ln-real, from H4
+    requires ln(b) ∈ ℝ: mun:ln-real x := b, from H5
+    requires ln(c) ∈ ℝ: mun:ln-real x := c, from H7

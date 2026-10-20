@@ -1,0 +1,51 @@
+import mundane definition stdlib/numbers/sqrt
+import mundane theorem    stdlib/numbers/product-nonneg
+import mundane theorem    stdlib/numbers/square-equal
+
+theorem sqrt-of-product
+  note        √a·√b is at least 0 and its square is (√a)²(√b)² = a·b, as
+              is the square of √(a·b); two numbers at least 0 with the
+              same square are equal.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a ≥ 0                                                        (H3)
+  assume b ≥ 0                                                        (H4)
+  then √(a·b) = √a·√b
+
+1.  √a ∈ ℝ. √a ≥ 0. (√a)² = a.
+    mun:sqrt x := a, from H3
+
+2.  √b ∈ ℝ. √b ≥ 0. (√b)² = b.
+    mun:sqrt x := b, from H4
+
+3.  a·b ≥ 0
+    mun:product-nonneg x := a, y := b, from H3, H4
+
+4.  √(a·b) ∈ ℝ. √(a·b) ≥ 0. (√(a·b))² = a·b.
+    mun:sqrt x := a·b, from 3
+
+5.  √a·√b ≥ 0
+    mun:product-nonneg x := √a, y := √b, from 1, 2
+
+6.  (√a·√b)² = (√a)²·(√b)²
+    algebra, from 1, 2
+
+7.  (√a)²·(√b)² = a·(√b)²
+    substitute (√a)² = a (line 1)
+
+8.  a·(√b)² = a·b
+    substitute (√b)² = b (line 2)
+
+9.  (√a·√b)² = a·b
+    calculation
+      (√a·√b)² = (√a)²·(√b)²    6
+               = a·(√b)²        7
+               = a·b            8
+
+10. (√(a·b))² = (√a·√b)²
+    calculation
+      (√(a·b))² = a·b           4
+                = (√a·√b)²     9
+
+11. √(a·b) = √a·√b
+    mun:square-equal x := √(a·b), y := √a·√b, from 1, 2, 4, 5, 10

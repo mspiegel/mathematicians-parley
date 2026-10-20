@@ -1,0 +1,58 @@
+import mundane theorem    stdlib/numbers/less-scaled
+import mundane theorem    stdlib/numbers/product-positive
+import theorem            proofs/setmm/rational-closure/irrational-product
+import theorem            proofs/setmm/rational-closure/irrational-sum
+import theorem            proofs/wiedijk/sqrt2-irrational/sqrt2-irrational
+
+theorem irrational-between-rationals
+  note        With d = (s − r)/2, a rational above 0, the number r + d·√2
+              is irrational, since √2 is. It is above r because √2 is
+              above 0, and below r + 2d = s because √2 is below 2.
+  let r ∈ ℚ                                                           (H1)
+  let s ∈ ℚ                                                           (H2)
+  assume r < s                                                        (H3)
+  then there is u ∈ ℝ with u is irrational and r < u and u < s
+
+1.  (s − r)/2 > 0
+    inequalities
+      r < s              H3
+      0 < s − r          adding −r
+      0 < (s − r)/2      multiplying by 1/2
+      (s − r)/2 > 0      symmetry
+
+2.  √2 is irrational
+    thm:sqrt2-irrational
+
+3.  √2·((s − r)/2) is irrational
+    thm:irrational-product A := √2, B := (s − r)/2, from 2
+    requires (s − r)/2 ≠ 0: weakening, from 1
+
+4.  √2·((s − r)/2) + r is irrational
+    thm:irrational-sum A := √2·((s − r)/2), B := r, from 3
+
+5.  0 < √2
+    real arithmetic
+
+6.  √2 < 2
+    real arithmetic
+
+7.  √2·((s − r)/2) > 0
+    mun:product-positive x := √2, y := (s − r)/2, from 1, 5
+
+8.  (s − r)/2·√2 < (s − r)/2·2
+    mun:less-scaled x := √2, y := 2, c := (s − r)/2, from 1, 6
+
+9.  r < √2·((s − r)/2) + r
+    inequalities
+      √2·((s − r)/2) > 0                7
+      0 < √2·((s − r)/2)                symmetry
+      r < √2·((s − r)/2) + r            adding r
+
+10. √2·((s − r)/2) + r < s
+    inequalities
+      (s − r)/2·√2 < (s − r)/2·2        8
+      √2·((s − r)/2) < s − r            algebra
+      √2·((s − r)/2) + r < s            adding r
+
+11. There is u ∈ ℝ with u is irrational and r < u and u < s.
+    exhibit, from 4, 9, 10

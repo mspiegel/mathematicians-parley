@@ -9,7 +9,7 @@ theorem square-root-positive
 
 1.  √a ∈ ℝ. √a ≥ 0. (√a)² = a.
     mun:sqrt x := a
-    requires a ≥ 0: weakening, from H2
+    requires 0 ≤ a: weakening, from H2
 
 2.  0 < √a
     contradiction

@@ -366,14 +366,47 @@ pub fn equations(records: &[Record]) -> IndexSet<String> {
         .collect()
 }
 
-/// Each pattern whose target is another pattern's of the same record with
-/// the holes in another order, and how its holes stand in that one: `_ > _`
-/// targets `_2 _1 clt wbr`, which is `_ < _`'s `_1 _2 clt wbr` with the two
-/// holes exchanged, so x > 0 and 0 < x are one term in the kernel. The
-/// pattern whose holes stand in order is the standard one, and is taken from
-/// what the database targets rather than named here.
+/// A target with its holes blanked, and the hole each blank held:
+/// `_2 _1 clt wbr` is `_ _ clt wbr` with holes 2 and 1.
+fn blanked(target: &str) -> (String, Vec<usize>) {
+    let mut holes = Vec::new();
+    let shape: Vec<&str> = target
+        .split_whitespace()
+        .map(|t| match t.strip_prefix('_').and_then(|n| n.parse().ok()) {
+            Some(n) => {
+                holes.push(n);
+                "_"
+            }
+            None => t,
+        })
+        .collect();
+    (shape.join(" "), holes)
+}
+
+/// Whether a target's holes stand in order, `_1 _2 …`.
+fn in_order(holes: &[usize]) -> bool {
+    holes.iter().enumerate().all(|(at, &h)| h == at + 1)
+}
+
+/// Each pattern whose target is another pattern's with the holes in another
+/// order, or in the same order, and how its holes stand in that one. Two
+/// such patterns are one term in the kernel, and so one term to compare.
+///
+/// Within a record: `_ > _` targets `_2 _1 clt wbr`, which is `_ < _`'s
+/// `_1 _2 clt wbr` with the two holes exchanged, so x > 0 and 0 < x are one.
+/// The pattern whose holes stand in order is the standard one.
+///
+/// Across records: `x²` (superscript) and `x^2` (power) both target
+/// `_1 _2 cexp co`, and `if A then B` and `A → B` both `_1 _2 wi`, so a
+/// record stating xⁿ is cited at x², and one stating A → B at a conditional.
+/// The record first in the database is the standard one.
+///
+/// Which is standard is taken from what the database targets rather than
+/// named here.
 fn turned(notations: &[Notation], records: &[Record]) -> FxIndexMap<Spelling, Turned> {
     let mut out = FxIndexMap::default();
+    // The first in-order pattern of each target shape, across records.
+    let mut first_of: FxIndexMap<String, Spelling> = FxIndexMap::default();
     for r in records.iter().filter(|r| r.kind == RecordKind::Notation) {
         let targets: Vec<&str> = r
             .field_or_empty("target")
@@ -385,31 +418,36 @@ fn turned(notations: &[Notation], records: &[Record]) -> FxIndexMap<Spelling, Tu
         if targets.len() != patterns.len() {
             continue;
         }
-        // A target with its holes blanked, and the hole each blank held.
-        let read = |target: &str| -> (String, Vec<usize>) {
-            let mut holes = Vec::new();
-            let blanked: Vec<&str> = target
-                .split_whitespace()
-                .map(|t| match t.strip_prefix('_').and_then(|n| n.parse().ok()) {
-                    Some(n) => {
-                        holes.push(n);
-                        "_"
-                    }
-                    None => t,
-                })
-                .collect();
-            (blanked.join(" "), holes)
-        };
-        let read: Vec<(String, Vec<usize>)> = targets.iter().map(|t| read(t)).collect();
+        let read: Vec<(String, Vec<usize>)> =
+            targets.iter().map(|t| blanked(t)).collect();
         for (i, (shape, holes)) in read.iter().enumerate() {
-            let in_order = holes.iter().enumerate().all(|(at, &h)| h == at + 1);
-            if holes.is_empty() || in_order {
+            if holes.is_empty() || !in_order(holes) {
+                continue;
+            }
+            match first_of.get(shape) {
+                Some(standard)
+                    if standard.notation != patterns[i].spelling().notation =>
+                {
+                    out.insert(
+                        patterns[i].spelling(),
+                        Turned {
+                            spelling: *standard,
+                            places: holes.clone(),
+                        },
+                    );
+                }
+                Some(_) => {}
+                None => {
+                    first_of.insert(shape.clone(), patterns[i].spelling());
+                }
+            }
+        }
+        for (i, (shape, holes)) in read.iter().enumerate() {
+            if holes.is_empty() || in_order(holes) {
                 continue;
             }
             let standard = read.iter().enumerate().find(|(j, (other, theirs))| {
-                *j != i
-                    && other == shape
-                    && theirs.iter().enumerate().all(|(at, &h)| h == at + 1)
+                *j != i && other == shape && in_order(theirs)
             });
             if let Some((j, _)) = standard {
                 out.insert(
@@ -422,12 +460,24 @@ fn turned(notations: &[Notation], records: &[Record]) -> FxIndexMap<Spelling, Tu
             }
         }
     }
+    // A pattern turned to its record's standard, where that standard is
+    // itself another record's pattern, goes to the other's standard at once.
+    let across: FxIndexMap<Spelling, Spelling> = out
+        .iter()
+        .filter(|(_, t)| in_order(&t.places))
+        .map(|(from, t)| (*from, t.spelling))
+        .collect();
+    for t in out.values_mut() {
+        if let Some(standard) = across.get(&t.spelling) {
+            t.spelling = *standard;
+        }
+    }
     out
 }
 
-/// The tree with each spelling put in its notation's standard order
-/// (`Context::turned`), as two trees are compared: `x > 0` read as `0 < x`.
-/// What a tree prints as is the page's, and only comparing reads it so.
+/// The tree with each spelling put in its standard one (`Context::turned`),
+/// as two trees are compared: `x > 0` read as `0 < x`, x² as x^2. A message
+/// that prints a tree read so prints the standard spelling.
 pub fn standard(node: &Node, ctx: &Context) -> Node {
     if ctx.turned.is_empty() {
         return node.clone();
@@ -954,15 +1004,35 @@ pub fn substituted_in(
 
 /// `start` with `now` put at every place `was` stands.
 pub fn put_everywhere(start: &Node, was: &Node, now: &Node, ctx: &Context) -> Node {
-    if alike_top(start, was, ctx) {
-        return now.clone();
-    }
-    let kids = start
+    put_places(start, was, now, ctx).unwrap_or_else(|| start.clone())
+}
+
+/// `put_everywhere`, or None where `was` stands nowhere in `start`. A part
+/// is a place before the whole is: `0 + 1` holds 1 as its second part, and
+/// is 1 itself only with its 0 dropped, which a part standing there needs
+/// no one to say.
+pub(crate) fn put_places(
+    start: &Node,
+    was: &Node,
+    now: &Node,
+    ctx: &Context,
+) -> Option<Node> {
+    let mut any = false;
+    let kids: Vec<Node> = start
         .children
         .iter()
-        .map(|c| put_everywhere(c, was, now, ctx))
+        .map(|c| match put_places(c, was, now, ctx) {
+            Some(put) => {
+                any = true;
+                put
+            }
+            None => c.clone(),
+        })
         .collect();
-    start.with_children(kids)
+    if any {
+        return Some(start.with_children(kids));
+    }
+    alike_top(start, was, ctx).then(|| now.clone())
 }
 
 /// `substituted_in` put at some of the places, each part compared with its

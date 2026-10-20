@@ -1,0 +1,267 @@
+import mundane definition stdlib/calculus/interval
+import mundane definition stdlib/functions/preimage
+import mundane theorem    stdlib/numbers/nonneg-or-neg
+import mundane theorem    stdlib/numbers/square-le
+import mundane definition stdlib/sets/subset
+import mundane theorem    stdlib/sets/subset-antisymmetric
+import mundane definition stdlib/sets/union
+import mundane theorem    stdlib/sets/in-union-left
+import mundane theorem    stdlib/sets/in-union-right
+
+theorem square-window-in
+  note        Squaring keeps the order of numbers that are not negative, so t
+              between 3 and 4 has t² between 9 and 16.
+  let t ∈ ℝ                                                           (H1)
+  assume 3 ≤ t                                                        (H2)
+  assume t ≤ 4                                                        (H3)
+  then 12 ≤ t² + 3. t² + 3 ≤ 19.
+
+1.  t ≥ 0
+    inequalities, from H2
+
+2.  3² ≤ t²
+    mun:square-le x := 3, y := t, from H2, 1
+    requires 3 ≥ 0: arithmetic
+
+3.  t² ≤ 4²
+    mun:square-le x := t, y := 4, from H3, 1
+    requires 4 ≥ 0: arithmetic
+
+4.  12 ≤ t² + 3
+    inequalities
+      3² ≤ t²          2
+      3² + 3 ≤ t² + 3  adding 3
+      12 ≤ t² + 3      algebra
+
+5.  t² + 3 ≤ 19
+    inequalities
+      t² ≤ 4²          3
+      t² + 3 ≤ 4² + 3  adding 3
+      t² + 3 ≤ 19      algebra
+
+6.  12 ≤ t² + 3. t² + 3 ≤ 19.
+    join 4, 5
+
+theorem square-window-out
+  note        t ≥ 0 and 9 ≤ t² ≤ 16 give 3 ≤ t ≤ 4, because squaring is
+              order-preserving on numbers that are not negative.
+  let t ∈ ℝ                                                           (H1)
+  assume t ≥ 0                                                        (H2)
+  assume 12 ≤ t² + 3                                                  (H3)
+  assume t² + 3 ≤ 19                                                  (H4)
+  then 3 ≤ t. t ≤ 4.
+
+1.  3² ≤ t²
+    inequalities
+      12 ≤ t² + 3      H3
+      12 + −3 ≤ t² + 3 + −3  adding −3
+      3² ≤ t²          algebra
+
+2.  t² ≤ 4²
+    inequalities
+      t² + 3 ≤ 19      H4
+      t² ≤ 19 + −3     adding −3
+      t² ≤ 4²          algebra
+
+3.  3 ≤ t
+    mun:square-le x := 3, y := t, from H2, 1
+    requires 3 ≥ 0: arithmetic
+
+4.  t ≤ 4
+    mun:square-le x := t, y := 4, from H2, 2
+    requires 4 ≥ 0: arithmetic
+
+5.  3 ≤ t. t ≤ 4.
+    join 3, 4
+
+theorem preimage-of-parabola
+  note        f(u) = u² + 3 lies in [12, 19] exactly when u² lies in [9, 16],
+              that is, when |u| lies in [3, 4].
+  let f : ℝ → ℝ                                                       (H1)
+  assume for all x ∈ ℝ, f(x) = x² + 3                                (H2)
+  then f⁻¹[[12, 19]] = [−4, −3] ∪ [3, 4]
+
+1.  For all u ∈ f⁻¹[[12, 19]], u ∈ [−4, −3] ∪ [3, 4].
+    proof
+    let u ∈ f⁻¹[[12, 19]]                                             (K1)
+
+    1.1.  u ∈ ℝ. f(u) ∈ [12, 19].
+          mun:preimage Z := [12, 19], from K1
+
+    1.2.  f(u) ∈ ℝ. 12 ≤ f(u). f(u) ≤ 19.
+          mun:interval a := 12, b := 19, x := f(u), from 1.1
+
+    1.3.  f(u) = u² + 3
+          instantiate x := u in H2, from 1.1
+
+    1.4.  12 ≤ u² + 3
+          calculation
+            12 ≤ f(u)      1.2
+               = u² + 3    1.3
+
+    1.5.  u² + 3 ≤ 19
+          calculation
+            u² + 3 = f(u)  1.3
+                   ≤ 19    1.2
+
+    1.6.  u ≥ 0 or u < 0
+          mun:nonneg-or-neg x := u, from 1.1
+
+    1.7.  u ∈ [−4, −3] ∪ [3, 4]
+          cases, from 1.6
+
+          case
+          assume u ≥ 0                                                (C1)
+
+          1.7.1.  3 ≤ u. u ≤ 4.
+                  thm:square-window-out t := u, from C1, 1.1, 1.4, 1.5
+
+          1.7.2.  u ∈ [3, 4]
+                  mun:interval a := 3, b := 4, x := u, from 1.1, 1.7.1
+
+          1.7.3.  u ∈ [−4, −3] ∪ [3, 4]
+                  mun:in-union-right Y := [−4, −3], Z := [3, 4], from 1.7.2
+
+          case
+          assume u < 0                                                (C2)
+
+          1.7.4.  −u ≥ 0
+                  inequalities
+                    u < 0         C2
+                    −u > 0        multiplying by −1
+                    −u ≥ 0        weakening
+                  requires u ∈ ℝ: from 1.1
+
+          1.7.5.  (−u)² + 3 = u² + 3
+                  algebra, from 1.1
+
+          1.7.6.  12 ≤ (−u)² + 3
+                  calculation
+                    12 ≤ u² + 3          1.4
+                       = (−u)² + 3       1.7.5
+
+          1.7.7.  (−u)² + 3 ≤ 19
+                  calculation
+                    (−u)² + 3 = u² + 3   1.7.5
+                              ≤ 19       1.5
+
+          1.7.8.  3 ≤ −u. −u ≤ 4.
+                  thm:square-window-out t := −u, from 1.1, 1.7.4, 1.7.6, 1.7.7
+
+          1.7.9.  −4 ≤ u
+                  inequalities
+                    −u ≤ 4        1.7.8
+                    u ≥ −4        multiplying by −1
+                    −4 ≤ u        symmetry
+                  requires u ∈ ℝ: from 1.1
+
+          1.7.10. u ≤ −3
+                  inequalities
+                    3 ≤ −u        1.7.8
+                    −3 ≥ u        multiplying by −1
+                    u ≤ −3        symmetry
+                  requires u ∈ ℝ: from 1.1
+
+          1.7.11. u ∈ [−4, −3]
+                  mun:interval a := −4, b := −3, x := u, from 1.1, 1.7.9, 1.7.10
+
+          1.7.12. u ∈ [−4, −3] ∪ [3, 4]
+                  mun:in-union-left Y := [−4, −3], Z := [3, 4], from 1.7.11
+
+2.  f⁻¹[[12, 19]] ⊆ [−4, −3] ∪ [3, 4]
+    mun:subset, from 1
+
+3.  For all u ∈ [−4, −3] ∪ [3, 4], u ∈ f⁻¹[[12, 19]].
+    proof
+    let u ∈ [−4, −3] ∪ [3, 4]                                         (K2)
+
+    3.1.  u ∈ [−4, −3] or u ∈ [3, 4].
+          mun:union, from K2
+
+    3.2.  u ∈ f⁻¹[[12, 19]]
+          cases, from 3.1
+
+          case
+          assume u ∈ [−4, −3]                                         (C3)
+
+          3.2.1.  u ∈ ℝ. −4 ≤ u. u ≤ −3.
+                  mun:interval a := −4, b := −3, x := u, from C3
+
+          3.2.2.  3 ≤ −u
+                  inequalities
+                    u ≤ −3        3.2.1
+                    −u ≥ 3        multiplying by −1
+                    3 ≤ −u        symmetry
+
+          3.2.3.  −u ≤ 4
+                  inequalities
+                    −4 ≤ u        3.2.1
+                    4 ≥ −u        multiplying by −1
+                    −u ≤ 4        symmetry
+
+          3.2.4.  12 ≤ (−u)² + 3. (−u)² + 3 ≤ 19.
+                  thm:square-window-in t := −u, from 3.2.1, 3.2.2, 3.2.3
+
+          3.2.5.  (−u)² + 3 = u² + 3
+                  algebra, from 3.2.1
+
+          3.2.6.  f(u) = u² + 3
+                  instantiate x := u in H2, from 3.2.1
+
+          3.2.7.  12 ≤ f(u)
+                  calculation
+                    12 ≤ (−u)² + 3   3.2.4
+                       = u² + 3      3.2.5
+                       = f(u)        3.2.6
+
+          3.2.8.  f(u) ≤ 19
+                  calculation
+                    f(u) = u² + 3        3.2.6
+                         = (−u)² + 3     3.2.5
+                         ≤ 19            3.2.4
+
+          3.2.9.  f(u) ∈ ℝ
+                  membership, from 3.2.1, 3.2.6
+
+          3.2.10. f(u) ∈ [12, 19]
+                  mun:interval a := 12, b := 19, x := f(u), from 3.2.7, 3.2.8, 3.2.9
+
+          3.2.11. u ∈ f⁻¹[[12, 19]]
+                  mun:preimage Z := [12, 19], from 3.2.1, 3.2.10
+
+          case
+          assume u ∈ [3, 4]                                           (C4)
+
+          3.2.12. u ∈ ℝ. 3 ≤ u. u ≤ 4.
+                  mun:interval a := 3, b := 4, x := u, from C4
+
+          3.2.13. 12 ≤ u² + 3. u² + 3 ≤ 19.
+                  thm:square-window-in t := u, from 3.2.12
+
+          3.2.14. f(u) = u² + 3
+                  instantiate x := u in H2, from 3.2.12
+
+          3.2.15. 12 ≤ f(u)
+                  calculation
+                    12 ≤ u² + 3    3.2.13
+                       = f(u)      3.2.14
+
+          3.2.16. f(u) ≤ 19
+                  calculation
+                    f(u) = u² + 3  3.2.14
+                         ≤ 19      3.2.13
+
+          3.2.17. f(u) ∈ ℝ
+                  membership, from 3.2.12, 3.2.14
+
+          3.2.18. f(u) ∈ [12, 19]
+                  mun:interval a := 12, b := 19, x := f(u), from 3.2.15, 3.2.16, 3.2.17
+
+          3.2.19. u ∈ f⁻¹[[12, 19]]
+                  mun:preimage Z := [12, 19], from 3.2.12, 3.2.18
+
+4.  [−4, −3] ∪ [3, 4] ⊆ f⁻¹[[12, 19]]
+    mun:subset, from 3
+
+5.  f⁻¹[[12, 19]] = [−4, −3] ∪ [3, 4]
+    mun:subset-antisymmetric, from 2, 4

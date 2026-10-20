@@ -1,0 +1,322 @@
+import definition         stdlib/calculus/tends-to
+import theorem            proofs/wiedijk/triangle-inequality/triangle-inequality
+import mundane theorem    stdlib/numbers/abs-nonneg
+import mundane theorem    stdlib/numbers/abs-product
+import mundane theorem    stdlib/numbers/abs-real
+import mundane definition stdlib/numbers/min
+import mundane theorem    stdlib/numbers/less-scaled
+import mundane theorem    stdlib/numbers/lt-min
+import mundane theorem    stdlib/numbers/min-real
+import mundane theorem    stdlib/numbers/product-nonneg
+import mundane theorem    stdlib/numbers/quotient-positive
+import mundane theorem    stdlib/numbers/quotient-real
+import mundane theorem    stdlib/numbers/real-closure
+
+theorem bounded-times-small
+  note        If |C| is below K and |u| is below d, then |C·u| = |C|·|u| is
+              at most K·|u|, since K − |C| and |u| are not negative, and
+              K·|u| is below K·d.
+  let C ∈ ℝ                                                           (H1)
+  let u ∈ ℝ                                                           (H2)
+  let K ∈ ℝ                                                           (H3)
+  let d ∈ ℝ                                                           (H4)
+  assume K > 0                                                        (H5)
+  assume |C| < K                                                      (H6)
+  assume |u| < d                                                      (H7)
+  then |C·u| < K·d
+
+1.  |C·u| = |C|·|u|
+    mun:abs-product x := C, y := u
+
+2.  |u| ≥ 0
+    mun:abs-nonneg x := u
+
+3.  K − |C| > 0
+    inequalities
+      |C| < K              H6
+      0 < K − |C|          adding −|C|
+      K − |C| > 0          symmetry
+    requires |C| ∈ ℝ: mun:abs-real x := C
+
+4.  K − |C| ≥ 0
+    inequalities
+      K − |C| > 0          3
+      K − |C| ≥ 0          weakening
+    requires |C| ∈ ℝ: mun:abs-real x := C
+
+5.  (K − |C|)·|u| ≥ 0
+    mun:product-nonneg x := K − |C|, y := |u|, from 2, 4
+    requires |C| ∈ ℝ: mun:abs-real x := C
+    requires |u| ∈ ℝ: mun:abs-real x := u
+
+6.  (K − |C|)·|u| = K·|u| − |C|·|u|
+    algebra
+    requires |C| ∈ ℝ: mun:abs-real x := C
+    requires |u| ∈ ℝ: mun:abs-real x := u
+
+7.  K·|u| − |C|·|u| ≥ 0
+    substitute (K − |C|)·|u| = K·|u| − |C|·|u| (line 6) into line 5
+
+8.  |C|·|u| ≤ K·|u|
+    inequalities
+      K·|u| − |C|·|u| ≥ 0    7
+      K·|u| ≥ |C|·|u|        adding |C|·|u|
+      |C|·|u| ≤ K·|u|        symmetry
+    requires |C| ∈ ℝ: mun:abs-real x := C
+    requires |u| ∈ ℝ: mun:abs-real x := u
+
+9.  K·|u| < K·d
+    mun:less-scaled x := |u|, y := d, c := K, from H5, H7
+    requires |u| ∈ ℝ: mun:abs-real x := u
+
+10. |C·u| < K·d
+    calculation
+      |C·u| = |C|·|u|     1
+            ≤ K·|u|       8
+            < K·d         9
+
+
+theorem product-of-sequence-limits
+  note        Write a(n)·b(n) − L·M as a(n)·(b(n) − M) + M·(a(n) − L). Once
+              a(n) is within 1 of L, |a(n)| is below s = |L| + 1; so with
+              b(n) within ε/(2s) of M the first term is below ε/2, and with
+              a(n) within ε/(2t) of L, where t = |M| + 1, the second is.
+  ε ranges over ℝ
+  n ranges over ℕ
+  let a : ℕ → ℝ                                                       (H1)
+  let b : ℕ → ℝ                                                       (H2)
+  let L ∈ ℝ                                                           (H3)
+  let M ∈ ℝ                                                           (H4)
+  assume a(n) → L as n → ∞                                            (H5)
+  assume b(n) → M as n → ∞                                            (H6)
+  then a(n)·b(n) → L·M as n → ∞
+
+1.  |L| ∈ ℝ
+    mun:abs-real x := L
+
+2.  |L| ≥ 0
+    mun:abs-nonneg x := L
+
+let s = |L| + 1, a real number                                        (D1)
+    mun:real-closure x := |L|, y := 1, from 1
+    reads one more than the size of L
+
+3.  s > 0
+    inequalities, from D1, 1, 2
+
+4.  |M| ∈ ℝ
+    mun:abs-real x := M
+
+5.  |M| ≥ 0
+    mun:abs-nonneg x := M
+
+let t = |M| + 1, a real number                                        (D2)
+    mun:real-closure x := |M|, y := 1, from 4
+    reads one more than the size of M
+
+6.  t > 0
+    inequalities, from D2, 4, 5
+
+7.  |M| < |M| + 1
+    inequalities
+    requires |M| ∈ ℝ: from 4
+
+8.  |M| < t
+    substitute t = |M| + 1 (D2) into line 7
+
+9.  For all ε > 0, there exists N ∈ ℕ such that |a(n)·b(n) − L·M| < ε for all n ≥ N.
+    proof
+    let ε ∈ ℝ                                                         (K1)
+    assume ε > 0                                                      (A1)
+
+    9.1.  2·s > 0
+          inequalities
+            s > 0              3
+            2·s > 0            multiplying by 2
+
+    9.2.  2·s ≠ 0
+          inequalities
+            2·s > 0            9.1
+            2·s ≠ 0            weakening
+
+    9.3.  ε/(2·s) > 0
+          mun:quotient-positive x := ε, y := 2·s, from A1, 9.1
+
+    9.4.  2·t > 0
+          inequalities
+            t > 0              6
+            2·t > 0            multiplying by 2
+
+    9.5.  2·t ≠ 0
+          inequalities
+            2·t > 0            9.4
+            2·t ≠ 0            weakening
+
+    9.6.  ε/(2·t) > 0
+          mun:quotient-positive x := ε, y := 2·t, from A1, 9.4
+
+    9.7.  ε/(2·t) ∈ ℝ
+          mun:quotient-real x := ε, y := 2·t, from 9.5
+
+    let m = min(1, ε/(2·t)), a real number                            (D3)
+           mun:min-real x := 1, y := ε/(2·t), from 9.7
+           reads the smaller of 1 and ε/(2·t)
+
+    9.8.  0 < min(1, ε/(2·t))
+          mun:lt-min z := 0, x := 1, y := ε/(2·t), from 9.6, 9.7
+          requires 0 < 1: arithmetic
+
+    9.9.  m > 0
+          inequalities, from D3, 9.8
+
+    9.10. For all ε > 0, there exists N ∈ ℕ such that |a(n) − L| < ε for all n ≥ N.
+          def:tends-to x := a, from H5
+
+    9.11. For all ε > 0, there exists N ∈ ℕ such that |b(n) − M| < ε for all n ≥ N.
+          def:tends-to x := b, L := M, from H6
+
+    9.12. There exists N ∈ ℕ such that |a(n) − L| < m for all n ≥ N.
+          instantiate ε := m in line 9.10, from 9.9
+
+    9.13. There exists N ∈ ℕ such that |b(n) − M| < ε/(2·s) for all n ≥ N.
+          instantiate ε := ε/(2·s) in line 9.11, from 9.3
+          requires ε/(2·s) ∈ ℝ: mun:quotient-real x := ε, y := 2·s, from 9.2
+
+    9.14. P ∈ ℕ. |a(n) − L| < m for all n ≥ P.
+          obtain P from line 9.12
+
+    9.15. Q ∈ ℕ. |b(n) − M| < ε/(2·s) for all n ≥ Q.
+          obtain Q from line 9.13
+
+    9.16. Q > 0
+          inequalities, from 9.15
+
+    9.17. P + Q ≥ P
+          inequalities
+            Q > 0              9.16
+            P + Q > P          adding P
+            P + Q ≥ P          weakening
+
+    9.18. P > 0
+          inequalities, from 9.14
+
+    9.19. P + Q ≥ Q
+          inequalities
+            P > 0              9.18
+            P + Q > Q          adding Q
+            P + Q ≥ Q          weakening
+
+    9.20. For all n ≥ P + Q, |a(n)·b(n) − L·M| < ε.
+          proof
+          let n ∈ ℕ                                                   (K2)
+          assume n ≥ P + Q                                            (A2)
+
+          9.20.1.  n ≥ P
+                   transitivity, from A2, 9.17
+
+          9.20.2.  n ≥ Q
+                   transitivity, from A2, 9.19
+
+          9.20.3.  |a(n) − L| < m
+                   instantiate n := n in line 9.14, from 9.20.1
+
+          9.20.4.  |b(n) − M| < ε/(2·s)
+                   instantiate n := n in line 9.15, from 9.20.2
+
+          9.20.5.  |a(n) − L| < 1 and |a(n) − L| < ε/(2·t)
+                   mun:lt-min z := |a(n) − L|, x := 1, y := ε/(2·t), from D3, 9.20.3
+                   requires ε/(2·t) ∈ ℝ: from 9.7
+                   requires |a(n) − L| ∈ ℝ: mun:abs-real x := a(n) − L, from H1
+
+          9.20.6.  a(n) − L + L = a(n)
+                   algebra
+                   requires a(n) ∈ ℝ: from H1
+
+          9.20.7.  |a(n) − L + L| = |a(n)|
+                   substitute a(n) − L + L = a(n) (line 9.20.6)
+
+          9.20.8.  |a(n) − L + L| ≤ |a(n) − L| + |L|
+                   thm:triangle-inequality a := a(n) − L, b := L
+                   requires a(n) − L ∈ ℝ: from H1
+
+          9.20.9.  |a(n)| ≤ |a(n) − L| + |L|
+                   calculation
+                     |a(n)| = |a(n) − L + L|              9.20.7
+                            ≤ |a(n) − L| + |L|            9.20.8
+
+          9.20.10. |a(n) − L| + |L| < |L| + 1
+                   inequalities
+                     |a(n) − L| < 1                       9.20.5
+                     |a(n) − L| + |L| < |L| + 1           adding |L|
+                   requires |a(n) − L| ∈ ℝ: mun:abs-real x := a(n) − L, from H1
+                   requires |L| ∈ ℝ: from 1
+
+          9.20.11. |a(n)| < |L| + 1
+                   transitivity, from 9.20.9, 9.20.10
+                   requires |a(n)| ∈ ℝ: mun:abs-real x := a(n), from H1
+                   requires |a(n) − L| ∈ ℝ: mun:abs-real x := a(n) − L, from H1
+                   requires |L| ∈ ℝ: from 1
+
+          9.20.12. |a(n)| < s
+                   substitute s = |L| + 1 (D1) into line 9.20.11
+
+          9.20.13. |a(n)·(b(n) − M)| < s·(ε/(2·s))
+                   thm:bounded-times-small C := a(n), u := b(n) − M, K := s, d := ε/(2·s), from 3, 9.20.4, 9.20.12
+                   requires a(n) ∈ ℝ: from H1
+                   requires b(n) − M ∈ ℝ: from H2
+
+          9.20.14. s·(ε/(2·s)) = ε/2
+                   algebra
+                   requires 2·s ≠ 0: from 9.2
+
+          9.20.15. |a(n)·(b(n) − M)| < ε/2
+                   calculation
+                     |a(n)·(b(n) − M)| < s·(ε/(2·s))      9.20.13
+                                       = ε/2              9.20.14
+
+          9.20.16. |M·(a(n) − L)| < t·(ε/(2·t))
+                   thm:bounded-times-small C := M, u := a(n) − L, K := t, d := ε/(2·t), from 6, 8, 9.20.5
+                   requires a(n) − L ∈ ℝ: from H1
+
+          9.20.17. t·(ε/(2·t)) = ε/2
+                   algebra
+                   requires 2·t ≠ 0: from 9.5
+
+          9.20.18. |M·(a(n) − L)| < ε/2
+                   calculation
+                     |M·(a(n) − L)| < t·(ε/(2·t))         9.20.16
+                                    = ε/2                 9.20.17
+
+          9.20.19. a(n)·b(n) − L·M = a(n)·(b(n) − M) + M·(a(n) − L)
+                   algebra
+                   requires a(n) ∈ ℝ: from H1
+                   requires b(n) ∈ ℝ: from H2
+
+          9.20.20. |a(n)·b(n) − L·M| = |a(n)·(b(n) − M) + M·(a(n) − L)|
+                   substitute a(n)·b(n) − L·M = a(n)·(b(n) − M) + M·(a(n) − L) (line 9.20.19)
+
+          9.20.21. |a(n)·(b(n) − M) + M·(a(n) − L)| ≤ |a(n)·(b(n) − M)| + |M·(a(n) − L)|
+                   thm:triangle-inequality a := a(n)·(b(n) − M), b := M·(a(n) − L)
+                   requires a(n)·(b(n) − M) ∈ ℝ: membership, from H1, H2, K2
+                   requires M·(a(n) − L) ∈ ℝ: membership, from H1, K2
+
+          9.20.22. |a(n)·(b(n) − M)| + |M·(a(n) − L)| < ε/2 + ε/2
+                   inequalities, from 9.20.15, 9.20.18
+                   requires |a(n)·(b(n) − M)| ∈ ℝ: mun:abs-real x := a(n)·(b(n) − M), from H1, H2
+                   requires |M·(a(n) − L)| ∈ ℝ: mun:abs-real x := M·(a(n) − L), from H1
+
+          9.20.23. ε/2 + ε/2 = ε
+                   algebra
+
+          9.20.24. |a(n)·b(n) − L·M| < ε
+                   calculation
+                     |a(n)·b(n) − L·M| = |a(n)·(b(n) − M) + M·(a(n) − L)|                      9.20.20
+                                       ≤ |a(n)·(b(n) − M)| + |M·(a(n) − L)|                    9.20.21
+                                       < ε/2 + ε/2                                              9.20.22
+                                       = ε                                                      9.20.23
+
+    9.21. There exists N ∈ ℕ such that |a(n)·b(n) − L·M| < ε for all n ≥ N.
+          exhibit, from 9.20
+
+10. a(n)·b(n) → L·M as n → ∞
+    def:tends-to L := L·M, from 9

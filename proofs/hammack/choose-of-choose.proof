@@ -1,0 +1,139 @@
+import definition         stdlib/counting/C
+import mundane theorem    stdlib/counting/factorial-nat
+import mundane definition stdlib/sums/range-between
+import mundane theorem    stdlib/numbers/nat0-as-int
+
+theorem choose-of-choose
+  note        In factorials, C(a, b)·C(b, c) is a!/((a − b)!·b!) times
+              b!/((b − c)!·c!), and C(a, b − c)·C(a − b + c, c) is
+              a!/((a − b + c)!·(b − c)!) times (a − b + c)!/((a − b)!·c!).
+              Both are a!/((a − b)!·(b − c)!·c!).
+  let a ∈ ℕ                                                           (H1)
+  let b ∈ ℕ                                                           (H2)
+  let c ∈ ℕ                                                           (H3)
+  assume c ≤ b                                                        (H4)
+  assume b ≤ a                                                        (H5)
+  then C(a, b)·C(b, c) = C(a, b − c)·C(a − b + c, c)
+
+1.  0 ≤ b
+    inequalities, from H2
+
+2.  b ∈ {0, …, a}
+    mun:range-between k := b, a := 0, b := a, from H5, 1
+
+3.  C(a, b) = a!/((a − b)!·b!)
+    def:C n := a, k := b, from 2
+
+4.  0 ≤ c
+    inequalities, from H3
+
+5.  c ∈ {0, …, b}
+    mun:range-between k := c, a := 0, from H4, 4
+
+6.  C(b, c) = b!/((b − c)!·c!)
+    def:C n := b, k := c, from 5
+
+7.  0 ≤ b − c
+    inequalities
+      c ≤ b         H4
+      0 ≤ b − c     adding −c
+
+8.  −c ≤ 0
+    inequalities
+      0 ≤ c         4
+      0 ≥ −c        multiplying by −1
+      −c ≤ 0        symmetry
+
+9.  b − c ≤ a
+    inequalities, from H5, 8
+
+10. b − c ∈ {0, …, a}
+    mun:range-between k := b − c, a := 0, b := a, from 7, 9
+
+11. C(a, b − c) = a!/((a − (b − c))!·(b − c)!)
+    def:C n := a, k := b − c, from 10
+
+12. a − (b − c) = a − b + c
+    algebra
+
+13. C(a, b − c) = a!/((a − b + c)!·(b − c)!)
+    substitute a − (b − c) = a − b + c (line 12) into line 11
+
+14. 0 ≤ a − b
+    inequalities
+      b ≤ a         H5
+      0 ≤ a − b     adding −b
+
+15. 0 ≤ a − b + c
+    inequalities, from 4, 14
+
+16. c ≤ a − b + c
+    inequalities
+      0 ≤ a − b         14
+      c ≤ a − b + c     adding c
+
+17. c ∈ {0, …, a − b + c}
+    mun:range-between k := c, a := 0, b := a − b + c, from 4, 16
+
+18. a − b + c ∈ ℕ₀
+    mun:nat0-as-int
+    requires 0 ≤ a − b + c: from 15
+
+19. C(a − b + c, c) = (a − b + c)!/(((a − b + c) − c)!·c!)
+    def:C n := a − b + c, k := c, from 17
+    requires a − b + c ∈ ℕ₀: from 18
+
+20. (a − b + c) − c = a − b
+    algebra
+
+21. C(a − b + c, c) = (a − b + c)!/((a − b)!·c!)
+    substitute (a − b + c) − c = a − b (line 20) into line 19
+
+22. a − b ∈ ℕ₀
+    mun:nat0-as-int
+    requires 0 ≤ a − b: from 14
+
+23. b − c ∈ ℕ₀
+    mun:nat0-as-int
+    requires 0 ≤ b − c: from 7
+
+24. a! ∈ ℕ
+    mun:factorial-nat n := a
+
+25. b! ∈ ℕ
+    mun:factorial-nat n := b
+
+26. c! ∈ ℕ
+    mun:factorial-nat n := c
+
+27. (a − b)! ∈ ℕ
+    mun:factorial-nat n := a − b, from 22
+
+28. (b − c)! ∈ ℕ
+    mun:factorial-nat n := b − c, from 23
+
+29. (a − b + c)! ∈ ℕ
+    mun:factorial-nat n := a − b + c, from 18
+
+30. C(a, b)·C(b, c) = a!/((a − b)!·b!)·C(b, c)
+    substitute C(a, b) = a!/((a − b)!·b!) (line 3)
+
+31. a!/((a − b)!·b!)·C(b, c) = a!/((a − b)!·b!)·(b!/((b − c)!·c!))
+    substitute C(b, c) = b!/((b − c)!·c!) (line 6)
+
+32. C(a, b − c)·C(a − b + c, c) = a!/((a − b + c)!·(b − c)!)·C(a − b + c, c)
+    substitute C(a, b − c) = a!/((a − b + c)!·(b − c)!) (line 13)
+
+33. a!/((a − b + c)!·(b − c)!)·C(a − b + c, c) = a!/((a − b + c)!·(b − c)!)·((a − b + c)!/((a − b)!·c!))
+    substitute C(a − b + c, c) = (a − b + c)!/((a − b)!·c!) (line 21)
+
+34. a!/((a − b)!·b!)·(b!/((b − c)!·c!)) = a!/((a − b + c)!·(b − c)!)·((a − b + c)!/((a − b)!·c!))
+    algebra, from 24, 25, 26, 27, 28, 29
+
+35. C(a, b)·C(b, c) = C(a, b − c)·C(a − b + c, c)
+    calculation
+      C(a, b)·C(b, c) = a!/((a − b)!·b!)·C(b, c)                                   30
+                      = a!/((a − b)!·b!)·(b!/((b − c)!·c!))                        31
+                      = a!/((a − b + c)!·(b − c)!)·((a − b + c)!/((a − b)!·c!))    34
+                      = a!/((a − b + c)!·(b − c)!)·C(a − b + c, c)                 33
+                      = C(a, b − c)·C(a − b + c, c)                                32

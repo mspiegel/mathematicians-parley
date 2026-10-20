@@ -60,3 +60,4 @@ theorem factorial-plus-one
           inequalities, contradicting 1.11
             1 < N            H3
             1 ≠ N            weakening
+            N ≠ 1            symmetry

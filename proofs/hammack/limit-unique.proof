@@ -47,6 +47,7 @@ theorem limit-order
             L < M              1.1
             0 < M − L          adding −L
             0 < (M − L)/3      multiplying by 1/3
+            (M − L)/3 > 0      symmetry
 
     1.3.  For all ε > 0, there exists δ > 0 such that |f(x) − L| < ε for all x ∈ ℝ with (x ≠ c and |x − c| < δ).
           thm:limit-unfolded D := ℝ, from H5
@@ -130,12 +131,14 @@ theorem limit-order
 
     1.22. c − p < c
           inequalities
-            0 < p              1.7
+            p > 0              1.7
+            0 < p              symmetry
             c − p < c          adding c − p
 
     1.23. c − q < c
           inequalities
-            0 < q              1.8
+            q > 0              1.8
+            0 < q              symmetry
             c − q < c          adding c − q
 
     1.24. c − p < c + m/2

@@ -1,10 +1,11 @@
 theorem proofs/hammack/abs-limit-zero/abs-limit-zero
 block of 1: 1.1, 1.2, 1.3, 1.4, 1.5
-  the block owes there is N ∈ ℕ with (for all n ∈ ℕ, if N ≤ n then |a(n) − 0| < ε)
+  the block owes there is N ∈ ℕ with (for all n ∈ ℕ, N ≤ n → |a(n) − 0| < ε)
 block of 1.4: 1.4.1, 1.4.2, 1.4.3, 1.4.4, 1.4.5, 1.4.6
   the block owes |a(n) − 0| < ε
-step 1.1 cites stdlib/calculus/tends-to group 0; L := 0, x := property-of(|a(n)|); concludes 0 Forward; from H2 sentence 0
+step 1.1 cites stdlib/calculus/tends-to group 0; L := 0, x := property-of(|a(n)|), bound n := n; concludes 0 Forward; from H2 sentence 0
 step 1.4.3 cites stdlib/numbers/abs-nonneg group 0; x := a(n); concludes 0 AsWritten; from no line
 step 1.4.4 cites stdlib/numbers/abs-real group 0; x := a(n); concludes 0 AsWritten; from no line
 step 1.4.5 cites stdlib/numbers/abs group 0; x := |a(n)|; concludes 0 Forward; from 1.4.3 sentence 0
-step 2 cites stdlib/calculus/tends-to group 0; L := 0, x := a; concludes 0 Backward; from 1 sentence 0
+step 2 cites stdlib/calculus/tends-to group 0; L := 0, x := a, bound N := N, n := n, ε := ε; concludes 0 Backward; from 1 sentence 0
+step 1.5 exhibits in sentence 0 N := N

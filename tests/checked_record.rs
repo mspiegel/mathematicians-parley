@@ -10,7 +10,8 @@
 //!
 //! The theorems are chosen for the decisions they hold between them: an
 //! induction and its parts, cases, both directions, citations read
-//! forwards and backwards, a sum said once, and a chain.
+//! forwards and backwards, a sum said once, a chain, an exhibit's values,
+//! and the witnesses of a "there is" a citation asks.
 
 use std::path::Path;
 
@@ -20,12 +21,14 @@ use parley::source::Disk;
 mod record;
 
 /// The theorems whose records are kept, by full name.
-const KEPT: [&str; 5] = [
+const KEPT: [&str; 7] = [
     "proofs/wiedijk/euclid/euclid",
     "proofs/setmm/floor-quotient-zero/floor-quotient-zero",
     "proofs/wiedijk/triangular-reciprocals/triangular-reciprocals",
     "tests/docs/syntax/triangle-by-cases",
     "proofs/hammack/abs-limit-zero/abs-limit-zero",
+    "tests/elaborator/an-exhibit-from-an-and/two-witnesses-beside-an-equation",
+    "tests/elaborator/a-witness-the-checker-read/a-set-member-beside-an-equation",
 ];
 
 /// Where a theorem's kept record is.

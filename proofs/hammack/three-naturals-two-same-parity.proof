@@ -1,0 +1,87 @@
+import mundane definition stdlib/divisibility/even
+import mundane theorem    stdlib/divisibility/even-or-odd
+import mundane theorem    stdlib/divisibility/not-both
+import mundane definition stdlib/divisibility/odd
+import mundane theorem    stdlib/reasoning/or-left
+import mundane theorem    stdlib/reasoning/or-right
+
+theorem three-naturals-two-same-parity
+  note        The three numbers a − b, a + c and b − c add to 2a, which is
+              even. If all three were odd, 2p + 1, 2q + 1 and 2r + 1 would
+              add to 2(p + q + r) + 3, which is odd.
+  let a ∈ ℕ                                                           (H1)
+  let b ∈ ℕ                                                           (H2)
+  let c ∈ ℕ                                                           (H3)
+  then a − b is even or a + c is even or b − c is even
+
+1.  a − b is even or a − b is odd
+    mun:even-or-odd n := a − b
+
+2.  a − b is even or a + c is even or b − c is even
+    cases, from 1
+
+    case
+    assume a − b is even                                              (C1)
+
+    2.1.  a − b is even or a + c is even
+          mun:or-left P := a − b is even, Q := a + c is even, from C1
+
+    2.2.  a − b is even or a + c is even or b − c is even
+          mun:or-left P := a − b is even or a + c is even, Q := b − c is even, from 2.1
+
+    case
+    assume a − b is odd                                               (C2)
+
+    2.3.  a + c is even or a + c is odd
+          mun:even-or-odd n := a + c
+
+    2.4.  a − b is even or a + c is even or b − c is even
+          cases, from 2.3
+
+          case
+          assume a + c is even                                        (C3)
+
+          2.4.1.  a − b is even or a + c is even
+                  mun:or-right P := a − b is even, Q := a + c is even, from C3
+
+          2.4.2.  a − b is even or a + c is even or b − c is even
+                  mun:or-left P := a − b is even or a + c is even, Q := b − c is even, from 2.4.1
+
+          case
+          assume a + c is odd                                         (C4)
+
+          2.4.3.  b − c is even or b − c is odd
+                  mun:even-or-odd n := b − c
+
+          2.4.4.  a − b is even or a + c is even or b − c is even
+                  cases, from 2.4.3
+
+                  case
+                  assume b − c is even                                (C5)
+
+                  2.4.4.1.  a − b is even or a + c is even or b − c is even
+                            mun:or-right P := a − b is even or a + c is even, Q := b − c is even, from C5
+
+                  case
+                  assume b − c is odd                                 (C6)
+
+                  2.4.4.2.  p ∈ ℤ. a − b = 2p + 1.
+                            obtain p: mun:odd n := a − b, from C2
+
+                  2.4.4.3.  q ∈ ℤ. a + c = 2q + 1.
+                            obtain q: mun:odd n := a + c, from C4
+
+                  2.4.4.4.  r ∈ ℤ. b − c = 2r + 1.
+                            obtain r: mun:odd n := b − c, from C6
+
+                  2.4.4.5.  1 = 2(a − p − q − r − 1)
+                            algebra, from 2.4.4.2, 2.4.4.3, 2.4.4.4
+
+                  2.4.4.6.  1 is even
+                            mun:even n := 1, from 2.4.4.5
+
+                  2.4.4.7.  1 is not odd
+                            mun:not-both n := 1, from 2.4.4.6
+
+                  2.4.4.8.  1 is odd
+                            arithmetic, contradicting 2.4.4.7

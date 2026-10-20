@@ -1,0 +1,21 @@
+import mundane definition stdlib/trigonometry/cos
+
+theorem cosine-is-not-injective
+  then there are x, y ∈ ℝ with x ≠ y and cos(x) = cos(y)
+
+1.  cos(0) = cos(2·π)
+    real arithmetic
+
+2.  0 < 2·π
+    real arithmetic
+
+3.  0 ≠ 2·π
+    inequalities
+      0 < 2·π       2
+      0 ≠ 2·π       weakening
+
+4.  0 ≠ 2·π. cos(0) = cos(2·π)
+    join 1, 3
+
+5.  there are x, y ∈ ℝ with x ≠ y and cos(x) = cos(y)
+    exhibit, from 4

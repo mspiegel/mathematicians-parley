@@ -1,0 +1,30 @@
+import theorem            stdlib/trigonometry/cos-add
+import mundane definition stdlib/trigonometry/cos
+import mundane theorem    stdlib/trigonometry/cos-real
+import mundane definition stdlib/trigonometry/sin
+import mundane theorem    stdlib/trigonometry/sin-real
+
+theorem cosine-plus-pi
+  let x ∈ ℝ                                                           (H1)
+  then cos(x + π) = −cos(x)
+
+1.  cos(x + π) = cos(x)·cos(π) − sin(x)·sin(π)
+    thm:cos-add a := x, b := π
+
+2.  cos(x)·cos(π) − sin(x)·sin(π) = cos(x)·(−1) − sin(x)·sin(π)
+    substitute cos(π) = −1 (real arithmetic)
+
+3.  cos(x)·(−1) − sin(x)·sin(π) = cos(x)·(−1) − sin(x)·0
+    substitute sin(π) = 0 (real arithmetic)
+
+4.  cos(x)·(−1) − sin(x)·0 = −cos(x)
+    algebra
+    requires cos(x) ∈ ℝ: mun:cos-real a := x
+    requires sin(x) ∈ ℝ: mun:sin-real a := x
+
+5.  cos(x + π) = −cos(x)
+    calculation
+      cos(x + π) = cos(x)·cos(π) − sin(x)·sin(π)      1
+                 = cos(x)·(−1) − sin(x)·sin(π)        2
+                 = cos(x)·(−1) − sin(x)·0             3
+                 = −cos(x)                            4
