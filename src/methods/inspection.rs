@@ -7,11 +7,11 @@
 //! proof the build writes of what is decided here is `crate::elab::
 //! inspection`.
 
-use num_bigint::BigUint;
+use num_bigint::{BigInt, BigUint};
 use num_traits::{One, Signed, Zero};
 
 use super::field::{closed_value, decide_closed, Value, Verdict, Q};
-use super::numerals::numeral_term;
+use super::numerals::{integer_term, numeral_term};
 use crate::mm::kernel::{same, Term};
 use crate::outcome::Built;
 
@@ -244,27 +244,24 @@ impl Facts {
                 out.extend(self.elements(b, depth)?);
                 return Some(out);
             }
-            // {a, …, b} lists the numerals from a to b, none where b is
+            // {a, …, b} lists the integers from a to b, none where b is
             // below a, its ends worked out where they are closed terms.
             (Some("co"), [from, to, how]) if how.label() == Some("cfz") => {
-                let (low, high) = (whole_value(from)?, whole_value(to)?);
-                if high < low {
-                    return Some(Vec::new());
-                }
-                let length = &high - &low + 1u32;
-                if length > BigUint::from(RANGE_LISTED) {
+                let (Some(low), Some(high)) = (integer_value(from), integer_value(to))
+                else {
+                    *self.past.borrow_mut() = Some(
+                        "inspection lists a range whose ends work out to integers, as arithmetic works one out".to_string(),
+                    );
+                    return None;
+                };
+                let listed = range_elements(&low, &high);
+                if listed.is_none() {
+                    let length = &high - &low + 1u32;
                     *self.past.borrow_mut() = Some(format!(
                         "inspection lists a range of at most {RANGE_LISTED} numerals, and the one from {low} to {high} holds {length}"
                     ));
-                    return None;
                 }
-                let mut out = Vec::new();
-                let mut k = low;
-                while k <= high {
-                    out.push(numeral_term(&k));
-                    k += 1u32;
-                }
-                return Some(out);
+                return listed;
             }
             (Some("crab"), [property, letter, over]) => {
                 let mut kept = Vec::new();
@@ -436,25 +433,40 @@ pub enum Inspected {
     Undecided,
 }
 
-/// Whether a term is a set written by listing, the empty set, or a range of
-/// numerals whose ends are whole numbers.
+/// Whether a term is a set written by listing, the empty set, or a range
+/// whose ends are integers.
 fn listing(term: &Term) -> bool {
     match (term.label(), term.children()) {
         (Some("c0" | "csn" | "cpr" | "ctp" | "cun"), _) => true,
         (Some("co"), [from, to, how]) => {
             how.label() == Some("cfz")
-                && whole_value(from).is_some()
-                && whole_value(to).is_some()
+                && integer_value(from).is_some()
+                && integer_value(to).is_some()
         }
         _ => false,
     }
 }
 
-/// The value of a term of numerals alone, where it is a whole number not
-/// below zero: a range's end as both tools read it.
-pub fn whole_value(term: &Term) -> Option<BigUint> {
+/// The integers from `low` to `high` as terms, none where `high` is below
+/// `low`: a range as both tools list it. None past `RANGE_LISTED` of them.
+pub fn range_elements(low: &BigInt, high: &BigInt) -> Option<Vec<Term>> {
+    if high - low + 1u32 > BigInt::from(RANGE_LISTED) {
+        return None;
+    }
+    let mut out = Vec::new();
+    let mut k = low.clone();
+    while k <= *high {
+        out.push(integer_term(&k));
+        k += 1u32;
+    }
+    Some(out)
+}
+
+/// The value of a term of numerals alone, where it is an integer: a range's
+/// end as both tools read it.
+pub fn integer_value(term: &Term) -> Option<BigInt> {
     match closed_value(term) {
-        Built(Value::Exact(v)) => whole(&v),
+        Built(Value::Exact(v)) if v.is_integer() => Some(v.to_integer()),
         _ => None,
     }
 }

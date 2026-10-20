@@ -153,6 +153,7 @@ fn accepted(
             .collect()
     } else {
         linear::alike_combinations(&all, &all_lines)
+            .found
             .into_iter()
             .map(|weights| weights.keys().copied().collect())
             .collect()
@@ -316,9 +317,28 @@ pub fn refusal(
             "{shown} follows from an order step {number} cites by a `weakening` row, and a plain inequalities step only adds its lines as they stand; write the line, then the claim with `weakening` as its reason"
         );
     }
+    if claims
+        .iter()
+        .any(|part| !searched_whole(&part.fact, &given))
+    {
+        return format!(
+            "{shown} may follow from what step {number} cites by adding its lines as they stand, but they give more facts than a plain inequalities step tries every way of adding; cite fewer lines, or add them in steps of their own"
+        );
+    }
     format!(
         "{shown} follows from what step {number} cites by a move other than adding its lines as they stand, which is all a plain inequalities step does; write the move as a row that names it, or a chain of lines as `transitivity`"
     )
+}
+
+/// Whether the search for the facts of `given` that add to `claim` as they
+/// stand (`accepted`) reached its end, which one over too many facts does
+/// not (`linear::Alike`).
+fn searched_whole(claim: &linear::Fact, given: &Given) -> bool {
+    let mut all = given.facts.clone();
+    all.push(linear::opposite(claim));
+    let mut lines = given.term_of.clone();
+    lines.resize(all.len(), None);
+    linear::alike_combinations(&all, &lines).whole
 }
 
 /// Whether `claim` follows from what is given by any combination linear

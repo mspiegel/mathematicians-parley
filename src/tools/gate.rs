@@ -188,7 +188,7 @@ pub fn run(root: &Path) -> Said {
             Box::new(|| restated::run(&source, libraries)),
         ),
         (
-            "every requires line is needed",
+            "every requires line and every pair naming a variable for itself is needed",
             Box::new(|| needed::run(&source)),
         ),
     ];

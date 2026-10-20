@@ -5169,6 +5169,17 @@ fn cases() -> Vec<Case> {
             )],
             "is not built from what step 9 cites",
         ),
+        // A range is listed only where its ends are integers, and a refusal
+        // says so.
+        case(
+            "ask inspection to list a range whose end is no integer",
+            vec![edit(
+                "tests/elaborator/inspection-of-a-range-below-zero.proof",
+                Some("  assume n ∈ {−1, …, 1}    (H2)\n".to_string()),
+                "  assume n ∈ {1/2, …, 1}    (H2)\n".to_string(),
+            )],
+            "inspection lists a range whose ends work out to integers",
+        ),
         // A membership a cited equation would carry names the part of the
         // equation's other side that nothing says, not the term itself.
         case(

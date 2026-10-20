@@ -1,0 +1,29 @@
+theorem a-sum-of-seven-naturals
+  note        Each letter is at least 1, and the seven bounds added as they
+              stand give a sum above 0.
+  let a ∈ ℕ    (H1)
+  let b ∈ ℕ    (H2)
+  let c ∈ ℕ    (H3)
+  let d ∈ ℕ    (H4)
+  let e ∈ ℕ    (H5)
+  let f ∈ ℕ    (H6)
+  let g ∈ ℕ    (H7)
+  then a + b + c + d + e + f + g > 0
+
+1.  a + b + c + d + e + f + g > 0
+    inequalities, from H1, H2, H3, H4, H5, H6, H7
+
+theorem a-sum-of-three-bounds-of-two-sentences
+  note        Each line says two bounds, and three of the six add to the
+              claim.
+  let P ∈ ℝ    (H1)
+  let Q ∈ ℝ    (H2)
+  let R ∈ ℝ    (H3)
+  let M ∈ ℝ    (H4)
+  assume P > 0 and P > M    (H5)
+  assume Q > 0 and Q ≥ 0    (H6)
+  assume R > 0 and R ≥ 0    (H7)
+  then P + Q + R > M
+
+1.  P + Q + R > M
+    inequalities, from H5, H6, H7

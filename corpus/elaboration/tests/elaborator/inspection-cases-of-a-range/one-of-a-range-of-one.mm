@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.elaborator.inspection-cases-of-a-range.one-of-a-range-of-one $p |- ( A e. ( 2 ... 2 ) -> 2 = A ) $=
-    ( c2 cfz co wcel csn wceq id cz 2nn0 nn0zi fzsn ax-mp a1i eleqtrd wi elsni wb eqcom sylibd syld mpd ) ABBCDZEZABFZEZBAGZUDAUCUEUDHUCUEGZUDBIEUHBJKBLMNOUDUFUGUGUDUFABGZUGUFUIPUDABQNUIUGRUDABSNTUGUGPUDUGHNUAUB $.
+    ( c2 cfz co wcel csn wceq id cz wtru 2z a1i mptru fzsn ax-mp eleqtrd wi elsni wb eqcom sylibd syld mpd ) ABBCDZEZABFZEZBAGZUEAUDUFUEHUDUFGZUEBIEZUIUJUJJKLMBNOLPUEUGUHUHUEUGABGZUHUGUKQUEABRLUKUHSUEABTLUAUHUHQUEUHHLUBUC $.
 $}

@@ -1414,12 +1414,12 @@ is something the facts let the reader work out. What a term works out to:
 
 - a set the facts list, or a set-builder `{x ∈ S : P(x)}` over one, is the
   list of its elements: those of S of which P holds, and ∅ lists none;
-- a range `{a, …, b}` whose ends work out to whole numbers, as `arithmetic`
+- a range `{a, …, b}` whose ends work out to integers, as `arithmetic`
   works one out, is the list of
-  the numerals from a to b, and none where b is below a: `{0, …, 3 − 1}`
-  lists 0, 1 and 2, and `{1, …, 0}` nothing. A range is read so only up to
-  64 numerals, past which a list of its elements is not one a reader runs
-  down;
+  the integers from a to b, and none where b is below a: `{0, …, 3 − 1}`
+  lists 0, 1 and 2, `{−2, …, 0}` lists −2, −1 and 0, and `{1, …, 0}`
+  nothing. A range is read so only up to 64 numerals, past which a list of
+  its elements is not one a reader runs down;
 - the size `|S|` of such a set, once the facts say its names are distinct,
   is the numeral that counts them, a name written twice counted once:
   `|{2, 3, 2}| = 2`;
@@ -1496,8 +1496,9 @@ says no more than that.
 
 - **A set not listed in full**, by a cited line, or a range or a set-builder
   the facts do not list: `inspection` checks a finite list a reader can see,
-  and nothing it has to find. A range whose ends are not whole numbers
-  worked out from numerals, `{0, …, n}`, is not listed.
+  and nothing it has to find. A range whose ends are not integers worked
+  out from numerals, `{0, …, n}` or `{1/2, …, 1}`, is not listed, and the
+  refusal says so.
 - **A range of more than 64 numerals.** `{1, …, 100}` is a list of a
   hundred, which no reader runs down by eye.
 - **A line of "or"s that is not the listing:** one that leaves out an
@@ -1540,12 +1541,14 @@ the term as written by `eleq1i`, or `eleq1d` where a cited line gives it. A "for
 at its element by `rspcdva`. The two sides are joined by `eqtrd` and
 `eqtr4d`, two listings in different orders by `eqssd`.
 
-A range of numerals is its ends worked out, each an equation `arithmetic`
-proves (`closed_fact`), carried in (`oveq12i`), and then built up a
-numeral at a time: the range of one numeral is its singleton (`fzsn`), and
+A range of integers is its ends worked out, each an equation `arithmetic`
+proves (`closed_fact`), carried in (`oveq12i`), and then built up an
+integer at a time: the range of one integer is its singleton (`fzsn`), and
 a longer one the range below its top joined with the top's singleton
 (`fzsuc`, the top ≥ the bottom by `eluz2`); a range whose top is below its
-bottom is empty (`fzn`). A line of "or"s puts t in the union of the
+bottom is empty (`fzn`). What each asks of the integers, that each is one,
+their order, and that one less plus one is the top, is a closed fact of
+numerals `arithmetic` proves, −2 + 1 = −1 as 1 + 1 = 2. A line of "or"s puts t in the union of the
 singletons (`eleqtrd`) and follows from each: t ∈ {s} gives t = s
 (`elsni`), turned to the equation as the line writes it (`eqeq2d` with a
 closed numeral fact, `eqcom`), and the equation widens to the whole line

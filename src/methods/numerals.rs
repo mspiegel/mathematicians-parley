@@ -89,6 +89,16 @@ pub(crate) fn numeral_term(value: &BigUint) -> Term {
     }
 }
 
+/// The integer `value` as a term: its numeral, negated where it is below 0,
+/// as `field::spell_coefficient` spells one.
+pub(crate) fn integer_term(value: &num_bigint::BigInt) -> Term {
+    let numeral = numeral_term(value.magnitude());
+    match value.sign() {
+        num_bigint::Sign::Minus => Term::apply("cneg", vec![numeral]),
+        _ => numeral,
+    }
+}
+
 /// The term with the numeral `value` written for the letter k.
 pub fn at_number(term: &Term, k: &str, value: &BigUint) -> Term {
     put(term, k, &numeral_term(value))
