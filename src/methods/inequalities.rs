@@ -129,6 +129,27 @@ fn added(
     accepted(part, claim, given, &given.term_of, labels).is_some()
 }
 
+/// The facts and the claim denied, last, which together contradict where
+/// the claim follows; and the line each is of, None for the denial.
+struct Denied {
+    all: Vec<linear::Fact>,
+    all_lines: Vec<Option<usize>>,
+}
+
+/// `facts` with `claim` denied after them (`Denied`), `lines` saying the
+/// line each fact is of.
+fn with_denial(
+    facts: &[linear::Fact],
+    claim: &linear::Fact,
+    lines: &[Option<usize>],
+) -> Denied {
+    let mut all = facts.to_vec();
+    all.push(linear::opposite(claim));
+    let mut all_lines = lines.to_vec();
+    all_lines.resize(all.len(), None);
+    Denied { all, all_lines }
+}
+
 /// The facts of `given` a claim that is no disequality adds, by their
 /// place: the first combination of them that adds as they stand
 /// (`linear::alike_combinations`, resting on the most of the lines
@@ -143,10 +164,7 @@ fn accepted(
     lines: &[Option<usize>],
     labels: &FloatLabels,
 ) -> Option<BTreeSet<usize>> {
-    let mut all = given.facts.to_vec();
-    all.push(linear::opposite(claim));
-    let mut all_lines = lines.to_vec();
-    all_lines.resize(all.len(), None);
+    let Denied { all, all_lines } = with_denial(&given.facts, claim, lines);
     let combinations: Vec<BTreeSet<usize>> = if all.iter().any(|f| f.how == How::Ne) {
         linear::used_facts(&all, &all_lines, true)
             .into_iter()
@@ -334,11 +352,8 @@ pub fn refusal(
 /// stand (`accepted`) reached its end, which one over too many facts does
 /// not (`linear::Alike`).
 fn searched_whole(claim: &linear::Fact, given: &Given) -> bool {
-    let mut all = given.facts.clone();
-    all.push(linear::opposite(claim));
-    let mut lines = given.term_of.clone();
-    lines.resize(all.len(), None);
-    linear::alike_combinations(&all, &lines).whole
+    let Denied { all, all_lines } = with_denial(&given.facts, claim, &given.term_of);
+    linear::alike_combinations(&all, &all_lines).whole
 }
 
 /// Whether `claim` follows from what is given by any combination linear
@@ -350,8 +365,6 @@ fn follows_linearly(claim: &linear::Fact, given: &Given) -> bool {
         let above = linear::Fact::new(claim.side.scaled(&q(-1)), How::Lt);
         return follows_linearly(&below, given) || follows_linearly(&above, given);
     }
-    let mut all = given.facts.clone();
-    all.push(linear::opposite(claim));
-    let lines = vec![None; all.len()];
-    linear::used_facts(&all, &lines, false).is_some()
+    let Denied { all, all_lines } = with_denial(&given.facts, claim, &[]);
+    linear::used_facts(&all, &all_lines, false).is_some()
 }

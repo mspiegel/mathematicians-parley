@@ -378,6 +378,17 @@ impl<'a> Known<'a> {
             .map(|n| standard(&expand(&n, defined), self.ctx))
     }
 
+    /// The membership a step said of every member in one line gives its
+    /// member, k ∈ X of "for all k ∈ X, P", read as its citations are
+    /// (`citing::claimed_member`); "for all X ⊆ A" gives X ⊆ A. None for a
+    /// claim of another form or of more than one sentence.
+    pub fn step_member(&self, step: &Step) -> Option<Node> {
+        let defined = self.citing_step(step);
+        let [sentence] = step.claim.sentences().try_into().ok()?;
+        let whole = self.read_citing(&sentence, &defined)?;
+        crate::citing::claimed_member(&whole, self.env.g).map(|(member, _)| member)
+    }
+
     /// A part that is one formula, read with what `defined` writes out;
     /// None where it is not one formula that reads, which the elaborator
     /// reports.

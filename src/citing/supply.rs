@@ -376,15 +376,9 @@ fn fits(
         // is bound by the claim, and its "there is s ∈ Y" binds it anew.
         let mut inside = binding.clone();
         if library.exists.contains(&first.notation()) && first.children.len() > 2 {
-            let (pairs, body) = existential_levels(&first, library);
-            let mut seen = open_names.as_ref().clone();
-            for (name, _) in pairs {
-                if name.is_name() {
-                    seen.insert(name.text.to_string());
-                    inside.shift_remove(&name.text);
-                }
-            }
-            body_form = Some((body.clone(), seen));
+            let read = body_reading(&first, binding, open_names.as_ref(), library);
+            inside = read.inside;
+            body_form = Some((read.body.clone(), read.seen));
         }
         let forms = std::iter::once((&first, open_names.as_ref()))
             .chain(body_form.iter().map(|(n, s)| (n, s)));
@@ -615,7 +609,7 @@ fn narrowed(
 /// variable and domain before it; one whose body is a "there is" again, as
 /// "there are m, n ∈ ℤ with …" builds, binds each in turn, so a "there is"
 /// of several names is read the same way as one of one.
-pub(super) fn existential_levels<'n>(
+fn existential_levels<'n>(
     exists: &'n Node,
     library: &Library,
 ) -> (Vec<(&'n Node, &'n Node)>, &'n Node) {
@@ -659,8 +653,8 @@ fn typed_into(
 }
 
 /// Whether one of the facts puts each value a "there is" was given in the
-/// domain it ranges over.
-pub(super) fn witnessed_in(
+/// domain it ranges over (`unwitnessed`).
+fn witnessed_in(
     exists: &Node,
     binding: &Binding,
     facts: &[Node],
@@ -668,32 +662,79 @@ pub(super) fn witnessed_in(
     library: &Library,
     sites: &Sites,
 ) -> bool {
+    unwitnessed(exists, binding, facts, variables, library, sites).is_empty()
+}
+
+/// A letter a "there is" binds, and the domain it ranges over.
+pub(super) struct Unwitnessed<'n> {
+    pub(super) name: &'n Node,
+    pub(super) domain: &'n Node,
+}
+
+/// Each letter a "there is" binds whose value none of the facts puts in
+/// the domain it ranges over, or that was given no value.
+pub(super) fn unwitnessed<'n>(
+    exists: &'n Node,
+    binding: &Binding,
+    facts: &[Node],
+    variables: &BTreeSet<String>,
+    library: &Library,
+    sites: &Sites,
+) -> Vec<Unwitnessed<'n>> {
     let (pairs, _) = existential_levels(exists, library);
-    for (name, domain) in pairs {
-        if !name.is_name() {
-            continue;
-        }
-        let Some(value) = binding.get(&name.text) else {
-            return false;
-        };
-        let witnessed = facts.iter().any(|f| {
-            let member = library.members.contains(&f.notation())
-                && f.children.len() == 2
-                && f.children[0].same_shape(value)
-                && match_tree(
-                    domain,
-                    &f.children[1],
-                    binding,
-                    variables,
-                    sites,
-                    &library.ctx,
-                )
-                .is_some();
-            member || typed_into(f, value, domain, binding, variables, library, sites)
-        });
-        if !witnessed {
-            return false;
+    pairs
+        .into_iter()
+        .filter(|(name, _)| name.is_name())
+        .filter(|(name, domain)| {
+            let Some(value) = binding.get(&name.text) else {
+                return true;
+            };
+            !facts.iter().any(|f| {
+                let member = library.members.contains(&f.notation())
+                    && f.children.len() == 2
+                    && f.children[0].same_shape(value)
+                    && match_tree(
+                        domain,
+                        &f.children[1],
+                        binding,
+                        variables,
+                        sites,
+                        &library.ctx,
+                    )
+                    .is_some();
+                member
+                    || typed_into(f, value, domain, binding, variables, library, sites)
+            })
+        })
+        .map(|(name, domain)| Unwitnessed { name, domain })
+        .collect()
+}
+
+/// A "there is"'s body, to be matched against a fact, and the binding and
+/// the open letters to match it under: those the "there is" binds are its
+/// own, taken out of the binding and open in the body.
+pub(super) struct BodyReading<'n> {
+    pub(super) body: &'n Node,
+    pub(super) inside: Binding,
+    pub(super) seen: BTreeSet<String>,
+}
+
+/// `exists`'s body read under `binding`, its own letters open beside
+/// `open` (`BodyReading`).
+pub(super) fn body_reading<'n>(
+    exists: &'n Node,
+    binding: &Binding,
+    open: &BTreeSet<String>,
+    library: &Library,
+) -> BodyReading<'n> {
+    let (pairs, body) = existential_levels(exists, library);
+    let mut inside = binding.clone();
+    let mut seen = open.clone();
+    for (name, _) in pairs {
+        if name.is_name() {
+            seen.insert(name.text.to_string());
+            inside.shift_remove(&name.text);
         }
     }
-    true
+    BodyReading { body, inside, seen }
 }

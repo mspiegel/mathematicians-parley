@@ -150,13 +150,11 @@ impl<'a> Elaborator<'a> {
     /// The defect for a claim real arithmetic did not find true.
     fn real_unshown(&self, verdict: Route<Verdict>, what: &str) -> Problem {
         let message = match verdict {
-            Declined(_) => format!(
-                "{what}, which is not a fact about numerals, square roots, π, e and logarithms alone, and real arithmetic decides nothing else"
-            ),
+            Declined(_) => format!("{what}, which {}", reals::UNREAD),
             Built(Verdict::Holds(false)) => format!("{what}, which is false"),
             Built(Verdict::Unworked(why)) => format!("{what}, which {why}"),
             Built(Verdict::Undecided(why)) => {
-                format!("{what}, which {why}; real arithmetic does not decide it")
+                format!("{what}, which {why}{}", reals::NOT_DECIDED_HERE)
             }
             Built(Verdict::Holds(true)) => unreachable!("a true claim is proved"),
         };

@@ -20,7 +20,9 @@ use super::state::Elaborator;
 use super::Facts;
 use crate::binds;
 use crate::corpus::{fmt, Step};
-use crate::methods::inspection::{disjuncts, integer_value, range_elements};
+use crate::methods::inspection::{
+    disjuncts, integer_value, is_prime, least_factor, range_elements,
+};
 use crate::mm::kernel::Term;
 use crate::mm::spell::Proof;
 use crate::mm::Rpn;
@@ -49,23 +51,6 @@ fn conjuncts(line: &Term) -> Vec<Term> {
         Some("wa" | "w3a") => line.children().iter().flat_map(conjuncts).collect(),
         _ => vec![line.clone()],
     }
-}
-
-/// The least factor of n above 1, n itself where n is prime; n at least 2.
-fn least_factor(n: &BigUint) -> BigUint {
-    let mut d = BigUint::from(2u32);
-    while &d * &d <= *n {
-        if (n % &d) == BigUint::ZERO {
-            return d;
-        }
-        d += 1u32;
-    }
-    n.clone()
-}
-
-/// Whether n is prime.
-fn is_prime(n: &BigUint) -> bool {
-    *n >= BigUint::from(2u32) && least_factor(n) == *n
 }
 
 /// What the cited lines settle of a property at one element.

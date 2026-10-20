@@ -150,20 +150,27 @@ impl Targets {
     /// The operation `node` applies where its target, a notation's or a
     /// library function's, is set.mm's form of one, `_1 _2 OP co`: a mod b
     /// is `cmo` of a and b. None for any other term.
-    pub fn operation<'n>(&self, node: &'n Node) -> Option<Operation<'n>> {
-        // A library function's value is what its `builds` line makes; any
-        // other term is what its notation's target makes.
+    /// The name a function application applies, and its arguments, where
+    /// the head is a name, as a library function's value is written: f(x).
+    fn library_head<'n>(&self, node: &'n Node) -> Option<(&'n str, &'n [Node])> {
         let applied = matches!(
             node.notation(),
             crate::notations::APPLICATION | crate::notations::APPLICATION_TO_TWO
         );
-        let library = match node.children.as_slice() {
-            [head, args @ ..] if applied && head.is_name() => self
-                .builds
-                .get(head.text.as_str())
-                .map(|b| (b.as_str(), args)),
+        match node.children.as_slice() {
+            [head, args @ ..] if applied && head.is_name() => {
+                Some((head.text.as_str(), args))
+            }
             _ => None,
-        };
+        }
+    }
+
+    pub fn operation<'n>(&self, node: &'n Node) -> Option<Operation<'n>> {
+        // A library function's value is what its `builds` line makes; any
+        // other term is what its notation's target makes.
+        let library = self
+            .library_head(node)
+            .and_then(|(head, args)| self.builds.get(head).map(|b| (b.as_str(), args)));
         let (pattern, holes): (&str, &'n [Node]) = match library {
             Some(found) => found,
             None => (self.pattern(node)?, &node.children),
@@ -298,15 +305,11 @@ fn library_builds<'t>(
     targets: &'t Targets,
     library: &dyn Fn(&str) -> bool,
 ) -> Option<&'t str> {
-    let applied = matches!(
-        node.notation(),
-        crate::notations::APPLICATION | crate::notations::APPLICATION_TO_TWO
-    );
-    let head = node.children.first().filter(|h| applied && h.is_name())?;
-    if !library(head.text.as_str()) {
+    let (head, _) = targets.library_head(node)?;
+    if !library(head) {
         return None;
     }
-    targets.builds.get(head.text.as_str()).map(String::as_str)
+    targets.builds.get(head).map(String::as_str)
 }
 
 /// What a repeated hole's `building` makes of the term built so far and

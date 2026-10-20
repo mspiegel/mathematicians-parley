@@ -3708,19 +3708,7 @@ pub fn check_repeated(
             if repeated {
                 // A membership the page says once is said where its letters
                 // are introduced, and the step's lines may say nothing.
-                let letters = super::library::introduced(known, step);
-                let once = match (said.notation(), said.children.as_slice()) {
-                    (MEMBERSHIP, [term, set]) => {
-                        member_in(term, set, &letters, step, known).then(|| {
-                            term.names()
-                                .into_iter()
-                                .filter(|n| letters.contains_key(n.as_str()))
-                                .collect::<Vec<_>>()
-                        })
-                    }
-                    _ => None,
-                };
-                let why = match once {
+                let why = match membership_said_once(&said, step, known) {
                     Some(named) if named.is_empty() => {
                         "which the page says once".to_string()
                     }
@@ -3961,11 +3949,31 @@ fn from_lines_give(
     })
 }
 
+/// Where `fact` is a membership the page says once at `step` (`member_in`),
+/// the letters of its term the page introduces, where it says so; None for
+/// any other fact.
+pub(super) fn membership_said_once(
+    fact: &Node,
+    step: &Step,
+    known: &Known,
+) -> Option<Vec<String>> {
+    let (MEMBERSHIP, [term, set]) = (fact.notation(), fact.children.as_slice()) else {
+        return None;
+    };
+    let letters = super::library::introduced(known, step);
+    member_in(term, set, &letters, step, known).then(|| {
+        term.names()
+            .into_iter()
+            .filter(|n| letters.contains_key(n.as_str()))
+            .collect()
+    })
+}
+
 /// Whether `member` is in `set` as the page says it: by the membership it
 /// says once, in a number system; or as the member of a step said of every
 /// member of a set inside `set`, which its requires lines speak of
 /// (`SYNTAX.md`, a step said of every member).
-pub(super) fn member_in(
+fn member_in(
     member: &Node,
     set: &Node,
     letters: &crate::citing::Introduced,
@@ -3985,17 +3993,12 @@ pub(super) fn member_in(
     if said_once {
         return true;
     }
-    let defined = known.citing_step(step);
-    let sentences = step.claim.sentences();
-    let [sentence] = sentences.as_slice() else {
-        return false;
-    };
-    let Some(whole) = known.read_citing(sentence, &defined) else {
+    let Some(claimed) = known.step_member(step) else {
         return false;
     };
     matches!(
-        (whole.notation(), whole.children.as_slice()),
-        (FOR_ALL, [bound, over, _])
+        (claimed.notation(), claimed.children.as_slice()),
+        (MEMBERSHIP, [bound, over])
             if bound.is_name()
                 && member.is_name()
                 && bound.text == member.text

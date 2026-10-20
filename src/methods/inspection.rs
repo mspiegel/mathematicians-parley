@@ -539,18 +539,20 @@ fn whole(value: &Q) -> Option<BigUint> {
         .flatten()
 }
 
-/// Whether `n` is prime: at least 2, and no number from 2 to its square
-/// root divides it.
-fn is_prime(n: &BigUint) -> bool {
-    if *n < BigUint::from(2u32) {
-        return false;
-    }
+/// The least factor of n above 1, n itself where n is prime; n at least 2.
+pub(crate) fn least_factor(n: &BigUint) -> BigUint {
     let mut d = BigUint::from(2u32);
     while &d * &d <= *n {
         if (n % &d).is_zero() {
-            return false;
+            return d;
         }
         d += BigUint::one();
     }
-    true
+    n.clone()
+}
+
+/// Whether `n` is prime: at least 2, and no number from 2 to its square
+/// root divides it.
+pub(crate) fn is_prime(n: &BigUint) -> bool {
+    *n >= BigUint::from(2u32) && least_factor(n) == *n
 }

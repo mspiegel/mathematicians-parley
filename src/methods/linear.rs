@@ -524,8 +524,7 @@ pub fn certificate(
             .map(|&i| line_of.get(i).copied().flatten())
             .collect();
         if let Some(Certificate::Farkas(weights)) = certificate(&fewer, &lines, alike) {
-            let back = weights.into_iter().map(|(i, w)| (kept[i], w)).collect();
-            return Some(Certificate::Farkas(back));
+            return Some(Certificate::Farkas(placed_back(&weights, &kept)));
         }
         // Both readings must fail, each by a certificate of its own; the
         // proof finds each again where it writes that side.
@@ -702,11 +701,10 @@ pub fn alike_combinations(facts: &[Fact], line_of: &[Option<usize>]) -> Alike {
     };
     search.from(0, &Linear::default(), false, &mut Weights::new());
     let whole = search.steps <= ALIKE_SEARCHED;
-    // Each combination by the places the facts were given at.
     let found: Vec<Weights> = search
         .found
         .iter()
-        .map(|w| w.iter().map(|(at, x)| (order[*at], x.clone())).collect())
+        .map(|w| placed_back(w, &order))
         .collect();
     let inside = |small: &Weights, large: &Weights| {
         small.len() < large.len() && small.iter().all(|(i, w)| large.get(i) == Some(w))
@@ -789,6 +787,15 @@ impl AlikeSearch<'_> {
         }
         self.from(at + 1, sum, strict, weights);
     }
+}
+
+/// Weights of facts taken out of a longer list, `taken[i]` the place of the
+/// i-th among them, by the places they were given at.
+fn placed_back(weights: &Weights, taken: &[usize]) -> Weights {
+    weights
+        .iter()
+        .map(|(i, w)| (taken[*i], w.clone()))
+        .collect()
 }
 
 /// Whether the claim follows from the given facts.

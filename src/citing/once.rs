@@ -121,11 +121,15 @@ pub fn said_once(
     // codomain as at a point a line says (`SYNTAX.md`, a function's type
     // and a point of its domain): the type line is cited, the point said
     // once. A domain that is no number system, a range, asks its line.
+    let types: Vec<Node> = parts
+        .facts
+        .iter()
+        .filter(|f| f.notation() == FUNCTION_TYPE)
+        .cloned()
+        .collect();
     let mut points: Vec<Node> = Vec::new();
-    for typed in &parts.facts {
-        let (FUNCTION_TYPE, [_, domain, _]) =
-            (typed.notation(), typed.children.as_slice())
-        else {
+    for typed in &types {
+        let [_, domain, _] = typed.children.as_slice() else {
             continue;
         };
         let within = (domain.notation() == NUMBER_SYSTEMS)
@@ -142,14 +146,8 @@ pub fn said_once(
         }
     }
     if !points.is_empty() {
-        let types: Vec<Node> = parts
-            .facts
-            .iter()
-            .filter(|f| f.notation() == FUNCTION_TYPE)
-            .cloned()
-            .chain(points)
-            .collect();
-        for value in function_values(&types, library.env, sorts) {
+        let typed_at: Vec<Node> = types.into_iter().chain(points).collect();
+        for value in function_values(&typed_at, library.env, sorts) {
             if parts
                 .facts
                 .iter()

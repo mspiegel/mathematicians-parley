@@ -20,7 +20,7 @@ use crate::formula::symbol::Symbol;
 use crate::formula::Node;
 use crate::matching::{alike, substitute_apart, Binding, Context};
 use crate::notations::{
-    ADDITIVE, APPLICATION, BY_CASES, DIVIDED, EQUALITY, EQUALS, FOR_ALL, GREATER,
+    ADDITIVE, APPLICATION, BY_CASES, DIVIDED, EQUALITY, FOR_ALL, GREATER,
     INTEGER_RANGE, JUXTAPOSITION, LESS, LOGICAL_NOT, MEMBERSHIP, MULTIPLICATIVE,
     NUMBER_SYSTEMS, NUMERAL, POWER, SUM, SUPERSCRIPT, UNARY_MINUS,
 };
@@ -80,15 +80,34 @@ pub fn said(term: &Node, system: System, facts: &Facts) -> bool {
     let nonzero = |d: &Node| nonzero(d, facts);
     let stated = |t: &Node, s: System| {
         sum_said_once(t, s, &facts.letters, facts.in_sums, facts.ctx)
-            || facts.facts.iter().any(|f| {
-                f.notation() == MEMBERSHIP
-                    && matches!(f.children.as_slice(), [held, set]
-                        if set.notation() == NUMBER_SYSTEMS
-                            && same(held, t, facts.ctx)
-                            && System::of_sign(&set.text).is_some_and(|k| k.within(s)))
-            })
+            || stated_in(t, s, facts)
     };
     within(term, system, &facts.letters, &nonzero, &stated)
+}
+
+/// Whether a fact states `term` is in a number system inside `system`.
+fn stated_in(term: &Node, system: System, facts: &Facts) -> bool {
+    facts.facts.iter().any(|f| {
+        f.notation() == MEMBERSHIP
+            && matches!(f.children.as_slice(), [held, set]
+                if set.notation() == NUMBER_SYSTEMS
+                    && same(held, term, facts.ctx)
+                    && System::of_sign(&set.text).is_some_and(|k| k.within(system)))
+    })
+}
+
+/// The terms the equations among the facts put `term` beside: b of a = b
+/// where a is `term`, and a where b is.
+fn besides<'f>(term: &Node, facts: &'f Facts) -> Vec<&'f Node> {
+    facts
+        .facts
+        .iter()
+        .filter_map(|f| match (f.notation(), f.children.as_slice()) {
+            (EQUALITY, [a, b]) if same(a, term, facts.ctx) => Some(b),
+            (EQUALITY, [a, b]) if same(b, term, facts.ctx) => Some(a),
+            _ => None,
+        })
+        .collect()
 }
 
 /// Whether an atom of an `algebra` or `inequalities` step is in `system`
@@ -97,12 +116,9 @@ pub fn said(term: &Node, system: System, facts: &Facts) -> bool {
 /// beside a term in `system`, as citing a(0) = 0 says a(0) is a number.
 pub fn atom_held(term: &Node, system: System, facts: &Facts) -> bool {
     said(term, system, facts)
-        || facts.facts.iter().any(|f| {
-            f.spelling() == EQUALS
-                && matches!(f.children.as_slice(), [a, b]
-                    if (same(a, term, facts.ctx) && holds(b, system, facts))
-                        || (same(b, term, facts.ctx) && holds(a, system, facts)))
-        })
+        || besides(term, facts)
+            .into_iter()
+            .any(|other| holds(other, system, facts))
 }
 
 /// Whether a bare `from` line reads `term ∈ system` off its facts
@@ -173,22 +189,13 @@ fn unsaid_carried(
     let atom = Parts::of(term)
         .atoms
         .into_iter()
-        .find(|a| !holds(a, system, facts))?;
+        .find(|a| !member(a, system, facts, depth))?;
     if depth > 0 {
-        for f in facts.facts {
-            let (true, [a, b]) = (f.spelling() == EQUALS, f.children.as_slice()) else {
-                continue;
-            };
-            let beside = if same(a, &atom, facts.ctx) {
-                b
-            } else if same(b, &atom, facts.ctx) {
-                a
-            } else {
-                continue;
-            };
-            if let Some(inner) = unsaid_carried(beside, system, facts, depth - 1) {
-                return Some(inner);
-            }
+        if let Some(inner) = besides(&atom, facts)
+            .into_iter()
+            .find_map(|other| unsaid_carried(other, system, facts, depth - 1))
+        {
+            return Some(inner);
         }
     }
     Some(atom)
@@ -225,26 +232,15 @@ pub fn unsaid_part(divisor: &Node, facts: &Facts) -> Option<Node> {
 /// that is; or the closure table puts it there, by its operation, as a sum
 /// over a range, a power, a function's value or a term by cases.
 fn said_otherwise(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
-    let stated = facts.facts.iter().any(|f| {
-        f.notation() == MEMBERSHIP
-            && matches!(f.children.as_slice(), [t, set]
-                if set.notation() == NUMBER_SYSTEMS
-                    && same(t, term, facts.ctx)
-                    && System::of_sign(&set.text).is_some_and(|s| s.within(system)))
-    });
-    if stated {
+    if stated_in(term, system, facts) {
         return true;
     }
-    if depth > 0 {
-        let carried = facts.facts.iter().any(|f| {
-            f.notation() == EQUALITY
-                && matches!(f.children.as_slice(), [a, b]
-                    if (same(a, term, facts.ctx) && member(b, system, facts, depth - 1))
-                        || (same(b, term, facts.ctx) && member(a, system, facts, depth - 1)))
-        });
-        if carried {
-            return true;
-        }
+    if depth > 0
+        && besides(term, facts)
+            .into_iter()
+            .any(|other| member(other, system, facts, depth - 1))
+    {
+        return true;
     }
     whole(term, system, facts, depth)
         || summed(term, system, facts, depth)

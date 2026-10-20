@@ -45,6 +45,15 @@ pub const DIVIDES_BY_ATOM: &str =
 pub const NOT_DECIDED: &str =
     "relates numbers whose difference holds π, e or a logarithm otherwise than as multiples of logarithms of primes";
 
+/// Why a claim real arithmetic does not read is not shown by it, to the
+/// checker and the build alike.
+pub const UNREAD: &str =
+    "is not a fact about numerals, square roots, π, e and logarithms alone, and real arithmetic decides nothing else";
+
+/// What follows why a claim is undecided, to the checker and the build
+/// alike.
+pub const NOT_DECIDED_HERE: &str = "; real arithmetic does not decide it";
+
 /// An atom of a value.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Atom {

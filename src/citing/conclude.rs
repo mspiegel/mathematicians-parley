@@ -7,8 +7,8 @@ use crate::formula::{walk, ByShape, Node};
 use indexmap::IndexMap;
 
 use crate::matching::{
-    alike, alike_top, binding_sites, free_names, identities_dropped, match_tree,
-    put_everywhere, substitute_apart, Binding, Context, FxIndexSet,
+    alike, alike_top, binding_sites, identities_dropped, match_tree, put_everywhere,
+    substitute_apart, Binding, Context, FxIndexSet,
 };
 use crate::notations::PROPERTY_OF;
 use crate::outcome::{Built, Route};
@@ -18,7 +18,7 @@ use super::library::{conjuncts, either_way, readings, Group, Library, Way};
 use super::once::{a_number_said_once, Introduced};
 use super::parts::{bound_in, Bound};
 use super::supply::{
-    existential_levels, search, supplier, supply, witnessed_in, Sites, Ways,
+    body_reading, search, supplier, supply, unwitnessed, Sites, Unwitnessed, Ways,
 };
 use crate::rules;
 
@@ -305,13 +305,39 @@ pub fn identities_unsaid(
     seed: &Binding,
     library: &Library,
 ) -> Vec<Node> {
+    each_match(groups, claims, seed, library, &mut |at| {
+        unnumbered(at.candidate, at.claim, &at.found, facts, library)
+    })
+}
+
+/// A claim matched against a conclusion an item offers (`each_match`).
+struct Matched<'m> {
+    offer: &'m Offer,
+    /// The conclusion, as one candidate of the offer.
+    candidate: &'m Node,
+    /// What the reading of the conclusion asks first.
+    first: &'m [Node],
+    claim: &'m Node,
+    found: Binding,
+}
+
+/// Each claim matched against each conclusion the groups offer under the
+/// seed, and the first thing `left` finds left unsaid at a match; empty
+/// where it finds nothing at any.
+fn each_match(
+    groups: &[Group],
+    claims: &[Node],
+    seed: &Binding,
+    library: &Library,
+    left: &mut dyn FnMut(Matched) -> Vec<Node>,
+) -> Vec<Node> {
     let (whole, split) = (whole_claim(claims, library), split_claims(claims, library));
     for of in groups {
         let offer = Offer::of(of, library);
         for claim in offer.claims_read(&whole, &split) {
-            for (cand, _) in &offer.candidates {
+            for (candidate, first) in &offer.candidates {
                 let Some(found) = match_tree(
-                    cand,
+                    candidate,
                     claim,
                     seed,
                     &offer.variables,
@@ -320,9 +346,15 @@ pub fn identities_unsaid(
                 ) else {
                     continue;
                 };
-                let left = unnumbered(cand, claim, &found, facts, library);
-                if !left.is_empty() {
-                    return left;
+                let unsaid = left(Matched {
+                    offer: &offer,
+                    candidate,
+                    first,
+                    claim,
+                    found,
+                });
+                if !unsaid.is_empty() {
+                    return unsaid;
                 }
             }
         }
@@ -335,7 +367,7 @@ pub fn identities_unsaid(
 /// each conclusion the groups offer under the seed, the "there is" its
 /// reading asks first matched by its body against each fact, as `supply`
 /// matches it, and the witness's membership of its set where no fact says
-/// it (`witnessed_in`), `m² ∈ ℤ` for `3 divides p² + q²` from `p² + q² =
+/// it (`unwitnessed`), `m² ∈ ℤ` for `3 divides p² + q²` from `p² + q² =
 /// 3m²`. Empty where no such reading leaves one.
 pub fn witnesses_unsaid(
     groups: &[Group],
@@ -344,75 +376,40 @@ pub fn witnesses_unsaid(
     seed: &Binding,
     library: &Library,
 ) -> Vec<Node> {
-    let (whole, split) = (whole_claim(claims, library), split_claims(claims, library));
-    for of in groups {
-        let offer = Offer::of(of, library);
-        for claim in offer.claims_read(&whole, &split) {
-            for (cand, first) in &offer.candidates {
-                let Some(found) = match_tree(
-                    cand,
-                    claim,
-                    seed,
-                    &offer.variables,
-                    &offer.sites,
+    each_match(groups, claims, seed, library, &mut |at| {
+        let sites = &at.offer.sites;
+        for exists in at.first {
+            if !library.exists.contains(&exists.notation()) {
+                continue;
+            }
+            let read = body_reading(exists, &at.found, &at.offer.variables, library);
+            for fact in facts {
+                let Some(got) = match_tree(
+                    read.body,
+                    fact,
+                    &read.inside,
+                    &read.seen,
+                    sites,
                     &library.ctx,
                 ) else {
                     continue;
                 };
-                for exists in first {
-                    if !library.exists.contains(&exists.notation()) {
-                        continue;
-                    }
-                    let (pairs, body) = existential_levels(exists, library);
-                    let mut inside = found.clone();
-                    let mut seen = offer.variables.clone();
-                    for (name, _) in &pairs {
-                        inside.shift_remove(&name.text);
-                        seen.insert(name.text.to_string());
-                    }
-                    for fact in facts {
-                        let Some(got) = match_tree(
-                            body,
-                            fact,
-                            &inside,
-                            &seen,
-                            &offer.sites,
-                            &library.ctx,
-                        ) else {
-                            continue;
-                        };
-                        if witnessed_in(
-                            exists,
-                            &got,
-                            facts,
-                            &seen,
-                            library,
-                            &offer.sites,
-                        ) {
-                            continue;
-                        }
-                        let unsaid: Vec<Node> = pairs
-                            .iter()
-                            .filter_map(|(name, domain)| {
-                                let value = got.get(&name.text)?;
-                                let set = substitute_apart(domain, &got, &library.ctx);
-                                Some(bound_in(
-                                    Bound::Member,
-                                    value,
-                                    &set,
-                                    library.env.g,
-                                ))
-                            })
-                            .collect();
-                        if !unsaid.is_empty() {
-                            return unsaid;
-                        }
-                    }
+                let unsaid: Vec<Node> =
+                    unwitnessed(exists, &got, facts, &read.seen, library, sites)
+                        .into_iter()
+                        .filter_map(|Unwitnessed { name, domain }| {
+                            let value = got.get(&name.text)?;
+                            let set = substitute_apart(domain, &got, &library.ctx);
+                            Some(bound_in(Bound::Member, value, &set, library.env.g))
+                        })
+                        .collect();
+                if !unsaid.is_empty() {
+                    return unsaid;
                 }
             }
         }
-    }
-    Vec::new()
+        Vec::new()
+    })
 }
 
 /// A binding to match a claim under: one way of supplying what a reading
@@ -495,10 +492,7 @@ impl Taken {
         of: &Group,
         library: &Library,
     ) -> Taken {
-        let mut free = BTreeSet::new();
-        for t in of.gives.iter().chain(of.wants.iter().map(|(_, t)| t)) {
-            free.extend(free_names(t, &library.ctx.binders));
-        }
+        let free = of.free_names(&library.ctx.binders);
         binding.retain(|name, _| free.contains(name.as_str()));
         Taken {
             group,
@@ -750,10 +744,7 @@ impl Offer {
         let mut trees = gives.clone();
         trees.extend(want.iter().map(|(_, t)| t.clone()));
         let variables = group.letters(&trees);
-        let free = trees
-            .iter()
-            .flat_map(|t| free_names(t, &library.ctx.binders))
-            .collect();
+        let free = group.free_names(&library.ctx.binders);
         // A conclusion is a sentence, so one that is a bare letter of the
         // item's is a statement letter.
         let letter = matches!(gives.as_slice(), [one]
