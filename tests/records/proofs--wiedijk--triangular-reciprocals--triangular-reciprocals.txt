@@ -10,7 +10,7 @@ block of 4: 4.1
 block of 5: 5.1, 5.2, 5.3
   the block owes Σ(k = 1 to n) 1 / T(k) = 2 − 2 / (n + 1)
 block of 6: 6.1, 6.2, 6.3
-  the block owes there is N ∈ ℕ with (for all n ∈ ℕ, if N ≤ n then |Σ(k = 1 to n) 1 / T(k) − 2| < ε)
+  the block owes there is N ∈ ℕ with (for all n ∈ ℕ, N ≤ n → |Σ(k = 1 to n) 1 / T(k) − 2| < ε)
 block of 6.2: 6.2.1, 6.2.2, 6.2.3, 6.2.4, 6.2.5, 6.2.6, 6.2.7, 6.2.8, 6.2.9, 6.2.10, 6.2.11
   the block owes |Σ(k = 1 to n) 1 / T(k) − 2| < ε
 step 5.1 cites stdlib/sums/sum-termwise group 0; a := 1, b := n, t := property-of(1 / T(k)), u := property-of(2 / k − 2 / (k + 1)); concludes 0 AsWritten; from no line

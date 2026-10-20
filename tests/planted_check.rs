@@ -5211,7 +5211,7 @@ fn cases() -> Vec<Case> {
                 Some("    mun:divides d := 3, n := p² + q², from H2, 1\n".to_string()),
                 "    mun:divides d := 3, n := p² + q², from 1\n".to_string(),
             )],
-            "step 2 reads what mun:divides concludes from a \"there is\", and nothing it names says m² ∈ ℤ",
+            "step 2 reads what mun:divides concludes from a \"there is\", and nothing it names says m^2 ∈ ℤ",
         ),
         // Antisymmetry's cited lines are its two orders, so the membership
         // it owes is taken by a requires line, which the message says.
@@ -5341,7 +5341,7 @@ fn cases() -> Vec<Case> {
                 Some("    mun:sum-single a := 1, from H1\n".to_string()),
                 "    mun:sum-single a := 1\n".to_string(),
             )],
-            "step 1 cites mun:sum-single, which asks that every term F(j)² is in ℝ, and it is no number by what the page says once",
+            "step 1 cites mun:sum-single, which asks that every term F(j)^2 is in ℝ, and it is no number by what the page says once",
         ),
         // The sequence itself, untyped, is told where its values are said.
         case(

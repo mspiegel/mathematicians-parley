@@ -1,0 +1,33 @@
+import mundane definition stdlib/logarithms/ln
+import theorem            stdlib/logarithms/ln-power
+import mundane theorem    stdlib/numbers/power-of-product
+import mundane theorem    stdlib/reasoning/modus-ponens
+
+theorem a-logarithm-of-a-square
+  note        ln-power states ln(xⁿ) for any integer n; at n := 2 its claim
+              is the page's ln(s²), the power written raised.
+  let s ∈ ℝ                                                           (H1)
+  assume s > 0                                                        (H2)
+  then ln(s²) = 2·ln(s)
+
+1.  ln(s²) = 2·ln(s)
+    thm:ln-power x := s, n := 2, from H2
+
+theorem a-square-of-a-product
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  then (a·b)² = a²·b²
+
+1.  (a·b)² = a²·b²
+    mun:power-of-product n := 2
+
+theorem an-implication-used-as-a-conditional
+  note        modus-ponens assumes "if P then Q"; the page writes P → Q,
+              which is the same statement.
+  let x ∈ ℝ                                                           (H1)
+  assume x > 1 → x > 0                                                (H2)
+  assume x > 1                                                        (H3)
+  then x > 0
+
+1.  x > 0
+    mun:modus-ponens, from H2, H3
