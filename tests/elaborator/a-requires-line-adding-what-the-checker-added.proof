@@ -1,0 +1,34 @@
+import mundane theorem stdlib/numbers/quotient-positive
+import mundane theorem stdlib/numbers/reciprocal-order
+
+theorem a-requires-line-adding-what-the-checker-added
+  note        The requires line m > 0 adds what line 2 says as the checker
+              does, 0 < m from m ∈ ℕ. Adding 0 < 2/p, the line above it, to
+              2/p < m reaches it as well, and would ask p ≠ 0, which only a
+              line below says.
+  let p ∈ ℝ    (H1)
+  assume p > 0    (H2)
+  assume there is n ∈ ℕ with n > 2/p    (H3)
+  then there is n ∈ ℕ with 1/n ≤ 1/(2/p)
+
+1.  2/p > 0
+    mun:quotient-positive x := 2, y := p, from H2
+    requires 2 > 0: arithmetic
+
+2.  m ∈ ℕ. m > 2/p.
+    obtain m from H3
+
+3.  m ≥ 2/p
+    inequalities
+      m > 2/p        2
+      m ≥ 2/p        weakening
+    requires p ≠ 0: weakening, from H2
+
+4.  1/m ≤ 1/(2/p)
+    mun:reciprocal-order x := 2/p, y := m, from 3
+    requires 2/p > 0: from 1
+    requires m > 0: inequalities, from 2
+    requires p ≠ 0: weakening, from H2
+
+5.  there is n ∈ ℕ with 1/n ≤ 1/(2/p)
+    exhibit, from 4
