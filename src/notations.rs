@@ -76,4 +76,8 @@ notations! {
     FUNCTION_ON = 44, "function-on";
     PRODUCT_OVER = 45, "product-over";
     DISJUNCTION = 46, "disjunction", [OR = 1, "or"];
+    SQUARE_ROOT = 47, "square-root";
+    PI = 48, "pi";
+    EULER = 49, "euler";
+    DEGREES = 50, "degrees";
 }

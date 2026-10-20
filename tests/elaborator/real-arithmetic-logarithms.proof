@@ -1,0 +1,101 @@
+import mundane definition stdlib/logarithms/ln
+import mundane definition stdlib/logarithms/exp
+
+theorem a-logarithm-of-a-power
+  then ln(8) = 3·ln(2)
+
+1.  ln(8) = 3·ln(2)
+    real arithmetic
+
+theorem a-logarithm-of-a-half
+  then ln(1/2) = −ln(2)
+
+1.  ln(1/2) = −ln(2)
+    real arithmetic
+
+theorem an-exponential-of-a-logarithm
+  then exp(ln(5)) = 5
+
+1.  exp(ln(5)) = 5
+    real arithmetic
+
+theorem a-logarithm-of-a-power-of-e
+  then ln(e³) = 3
+
+1.  ln(e³) = 3
+    real arithmetic
+
+theorem a-square-of-pi-and-e
+  then (π + e)² = π² + 2·π·e + e²
+
+1.  (π + e)² = π² + 2·π·e + e²
+    real arithmetic
+
+theorem two-logarithms-that-differ
+  then ln(2) ≠ ln(3)
+
+1.  ln(2) ≠ ln(3)
+    real arithmetic
+
+theorem pi-is-real
+  then π ∈ ℝ
+
+1.  π ∈ ℝ
+    real arithmetic
+
+theorem half-a-turn-in-degrees
+  then 180° = π
+
+1.  180° = π
+    real arithmetic
+
+theorem e-times-the-logarithm-of-one
+  then e·ln(1) = 0
+
+1.  e·ln(1) = 0
+    real arithmetic
+
+theorem an-exponential-of-a-whole-number-and-a-logarithm
+  then exp(2 + ln(3)) = 3·e²
+
+1.  exp(2 + ln(3)) = 3·e²
+    real arithmetic
+
+theorem a-logarithm-of-a-product
+  then ln(6) − ln(2) = ln(3)
+
+1.  ln(6) − ln(2) = ln(3)
+    real arithmetic
+
+theorem pi-and-a-logarithm-said-once
+  note        π and ln(2) are real numbers, said once, so algebra takes them as
+              atoms with no line saying so.
+  let a ∈ ℝ    (H1)
+  then a·π + ln(2)·a = (π + ln(2))·a
+
+1.  a·π + ln(2)·a = (π + ln(2))·a
+    algebra
+
+theorem a-logarithm-not-zero-on-a-requires-line
+  let a ∈ ℝ    (H1)
+  then a·ln(2)/ln(2) = a
+
+1.  a·ln(2)/ln(2) = a
+    algebra
+    requires ln(2) ≠ 0: real arithmetic
+
+theorem a-logarithm-substituted
+  let a ∈ ℝ    (H1)
+  assume a = ln(8)    (H2)
+  then a = 3·ln(2)
+
+1.  a = 3·ln(2)
+    substitute ln(8) = 3·ln(2) (real arithmetic) into H2
+
+theorem a-chain-through-logarithms
+  then ln(4) + ln(2) = 3·ln(2)
+
+1.  ln(4) + ln(2) = 3·ln(2)
+    calculation
+      ln(4) + ln(2) = 2·ln(2) + ln(2)    real arithmetic
+                    = 3·ln(2)            real arithmetic

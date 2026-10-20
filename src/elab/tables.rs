@@ -14,6 +14,7 @@ use std::collections::BTreeSet;
 use indexmap::IndexMap;
 use num_traits::{ToPrimitive, Zero};
 
+use super::calculators::Revalued;
 use super::field::{self, Value};
 use super::linear;
 use super::matcher::ChainLink;
@@ -31,6 +32,11 @@ use crate::mm::Rpn;
 use crate::outcome::{Built, Checked, Declined, Route};
 use crate::rules::{self, lookup, numeral_label, System};
 use crate::{pf, t, take};
+
+/// Why `built` takes a term no further: it is no operation the closure
+/// tables walk, and so an atom of the walk.
+const NOT_BUILT: &str =
+    "not a sum, difference, product, power, negation or value by cases";
 
 /// One kind of difference the walk in `congruence` closes where two terms
 /// are both known and differ in places.
@@ -142,6 +148,33 @@ impl crate::citing::OnceAsk for BuildOnce<'_, '_> {
                     "cmul" => Shape::Operation("cmul", &kids[0], &kids[1]),
                     "cdiv" => Shape::Operation("cdiv", &kids[0], &kids[1]),
                     "cexp" => Shape::Power(&kids[0], &kids[1]),
+                    _ => Shape::Other,
+                }
+            }
+            (Some("cpi" | "ceu"), 0) => Shape::Real,
+            _ if crate::methods::surds::is_root(term) => {
+                match crate::methods::field::closed_value(&kids[0]) {
+                    Built(crate::methods::field::Value::Exact(v))
+                        if crate::citing::root_taken(&v) =>
+                    {
+                        Shape::Real
+                    }
+                    _ => Shape::Other,
+                }
+            }
+            _ if crate::methods::reals::Trig::of(term).is_some() => {
+                match crate::methods::reals::closed_value(term) {
+                    Built(crate::methods::reals::Value::Exact(_)) => Shape::Real,
+                    _ => Shape::Other,
+                }
+            }
+            _ if crate::methods::reals::applies(term, "clog") => {
+                match crate::methods::field::closed_value(&kids[0]) {
+                    Built(crate::methods::field::Value::Exact(v))
+                        if crate::citing::log_taken(&v) =>
+                    {
+                        Shape::Real
+                    }
                     _ => Shape::Other,
                 }
             }
@@ -821,6 +854,11 @@ impl<'a> Elaborator<'a> {
         }
         self.numbering.insert(want.clone());
         let found = (|| -> Checked<Route<Proof>> {
+            // A power to an exponent below 0 is no atom the closure lemmas
+            // reach, and is worked to its value.
+            if super::calculators::negative_power(&goal.children()[0]) {
+                return self.within_by_value(goal, scope, facts);
+            }
             let found = self.settle(goal, scope, &Facts::new(), 4, None, None)?;
             if !found.is_declined() {
                 return Ok(found);
@@ -864,11 +902,12 @@ impl<'a> Elaborator<'a> {
                 &binds! {"ph" => scope, "A" => &sx, "B" => &canon, "C" => &system},
                 &[&is],
             );
-            return Ok(Built(self.b.ap(
-                "mpbird",
-                &binds! {"ph" => scope, "ps" => t!(&sx, &system, "wcel"), "ch" => t!(&canon, &system, "wcel")},
-                &[&held, &iff],
-            )));
+            let at = Revalued {
+                said: t!(&sx, &system, "wcel"),
+                valued: t!(&canon, &system, "wcel"),
+                iff,
+            };
+            return Ok(Built(self.carried_back(&at, &held, scope)));
         }
         let law = match goal.children()[1].label() {
             Some("cr") => "qre",
@@ -1457,6 +1496,21 @@ impl<'a> Elaborator<'a> {
         Ok(out)
     }
 
+    /// What a step citing a theorem or lemma may use: what it supplies
+    /// (`supplied`), the lines it cites laid over that (`with_cited`), and
+    /// what they imply (`with_implied`), as `apply_lemma` reads them.
+    pub fn known_implied(
+        &mut self,
+        step: Option<&Step>,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Facts> {
+        let supplied = self.supplied(step, scope, facts)?;
+        let known = self.with_cited(step, scope, &supplied, None);
+        self.with_implied(step, scope, &known)?;
+        Ok(known)
+    }
+
     /// `known` with what the lines the step names imply laid in where it
     /// does not hold the claim already (`implied_by_named`), or holds it only
     /// from a line the step may not rest on: 1.3.2 above says V ∖ {a} ∈
@@ -1782,9 +1836,7 @@ impl<'a> Elaborator<'a> {
                 &[&pa, &pb],
             )));
         }
-        Ok(Route::no(
-            "not a sum, difference, product, power, negation or value by cases",
-        ))
+        Ok(Route::no(NOT_BUILT))
     }
 
     /// A compound's membership of a number system, from its parts': there is
@@ -1841,9 +1893,9 @@ impl<'a> Elaborator<'a> {
 
     /// ( scope -> d =/= 0 ) from what the step wrote, or a decline: the
     /// divisor not being zero is the page's to say, in a requires line or a
-    /// line the step cites, unless the page says once it is a positive
-    /// integer, and is not searched for, nor worked out as a closed value
-    /// (`divisor_apart`, stages 1 to 3).
+    /// line the step cites, unless the page says it once, of a term of
+    /// numerals alone whose value is not zero or of a positive integer, and
+    /// is not searched for (`divisor_apart`, stages 1 to 3).
     pub fn divisor_written(
         &mut self,
         divisor: &Rpn,
@@ -1851,7 +1903,6 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
     ) -> Checked<Route<Proof>> {
         let reach = super::calculators::Reach {
-            closed: false,
             in_scope: None,
             search: false,
         };
@@ -1911,6 +1962,7 @@ impl<'a> Elaborator<'a> {
                     .expect("a letter the walk found introduced");
                 self.letter_within(said, &letter, &set, system, scope, facts)
             }
+            OnceReason::Real => self.real_within(&term, system, scope, facts),
             // A part that a line the step names puts in a number system is
             // a number there, carried up to `system`: N(n) + 1 ∈ ℝ where a
             // line says N(n) ∈ ℝ.
@@ -2243,6 +2295,11 @@ impl<'a> Elaborator<'a> {
         }
         if let Some(p) = self.equated_part(said, system, scope, facts)? {
             return Ok(Built(p));
+        }
+        // A term the walk took apart names the part nothing says, as the
+        // checker names the first part not said; an atom names itself.
+        if matches!(&made, Declined(d) if d.reason() != NOT_BUILT) {
+            return Ok(made);
         }
         Ok(self.no("nothing written says {}", &[&want]))
     }

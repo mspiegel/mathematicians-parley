@@ -325,8 +325,11 @@ notation square-root
   sort        number → number
   level       power
   reads       the square root of
+  decided     real arithmetic
   metamath    csqrt
   target      _1 csqrt cfv
+  note        `real arithmetic` works out the square root of a rational of at
+              least 0; `arithmetic` takes no root.
 
 notation logical-not
   pattern     not _
@@ -520,16 +523,32 @@ notation pi
   pattern     π
   sort        → number
   reads       pi
+  decided     real arithmetic
   metamath    cpi
   target      cpi
   note        Half a turn, measured in radians. A geometry text writes 180°,
-              which is this; see the degrees notation.
+              which is this; see the degrees notation. Real arithmetic holds
+              it as an atom (METHODS.md).
+
+notation euler
+  pattern     e
+  sort        → number
+  reads       e
+  shadowed    by a name the text introduces
+  decided     real arithmetic
+  metamath    ceu
+  target      ceu
+  note        Euler's number, exp(1) (df-e). A line that introduces an e of its
+              own, a group's identity, a walk `let e : {1, …, n} → E` or a
+              define, makes e that name in its scope, as a reader takes it;
+              elsewhere e is this, as i is the imaginary unit.
 
 notation degrees
   pattern     _°
   sort        number → number
   level       power
   reads       degrees
+  decided     real arithmetic
   metamath    multiplied by π and divided by 180
   target      _1 cpi cmul co c1 c8 cdc cc0 cdc cdiv co
   note        An angle is a number of radians, from 0 to π, as

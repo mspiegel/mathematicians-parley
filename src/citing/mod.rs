@@ -19,13 +19,14 @@ mod supply;
 pub use asked::{asked, asks_of, filled, Asked};
 pub use conclude::{
     concludes, derives, identities_unsaid, link_unsaid, not_numbers, obtained, obtains,
-    substitution_unsaid, taken, taken_ways, Concluded, Taken,
+    substitution_unsaid, taken, taken_ways, witnesses_unsaid, Concluded, Taken,
 };
 pub use library::{conjuncts, readings, with_parts, Group, Library, Proved, Way};
 pub use once::{
-    a_number_said_once, index_system, introduction, nonzero_by_parts,
-    nonzero_said_once, numeral_nonzero, range_system, reason, reason_within, said_once,
-    sum_said_once, within, Introduced, OnceAsk, OnceReason, Shape,
+    a_number_said_once, closed_nonzero, index_system, introduction, log_taken,
+    nonzero_by_parts, nonzero_said_once, range_system, reason, reason_within,
+    root_taken, said_once, sum_said_once, within, Introduced, OnceAsk, OnceReason,
+    Shape,
 };
 pub use parts::{
     at_a_member, bound_in, claimed_member, finished, function_values, implied_facts,

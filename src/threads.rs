@@ -1,8 +1,10 @@
 //! Work shared out among threads and given back in order.
 //!
 //! A test that runs many cases independent of each other runs them side by
-//! side. It uses as many threads as `PARLEY_THREADS` says where that is
-//! set, so that a profile shows one thread doing all of the work, and one
+//! side, and `parley gate` verifies set.mm's chapters and `parley needed`
+//! tries its cuts the same way. Each uses as many threads as
+//! `PARLEY_THREADS` says where that is set, so that a profile shows one
+//! thread doing all of the work, or several runs share a machine, and one
 //! for each core otherwise.
 
 use std::sync::atomic::{AtomicUsize, Ordering};

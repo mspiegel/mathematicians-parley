@@ -96,8 +96,6 @@ theorem sqrt-four
 
 3.  √4 = 2
     mun:square-equal x := √4, y := 2, from 2
-    requires 4 ≥ 0: arithmetic
-    requires √4 ∈ ℝ: mun:sqrt x := 4
     requires √4 ≥ 0: from 1
     requires 2 ≥ 0: arithmetic
 

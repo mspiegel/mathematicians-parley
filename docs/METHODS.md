@@ -19,9 +19,9 @@ The expansion language of open question 4 in `GOALS.md` is not designed, so
 part 6 names the set.mm lemma families rather than giving the expansion.
 Everything else is fixed here.
 
-Seven methods are specified below: the four closure methods (`inequalities`,
-`algebra`, `arithmetic`, `membership`), `inspection`, `join`, and
-`contradiction`. The rest
+Eight methods are specified below: the five closure methods (`inequalities`,
+`algebra`, `arithmetic`, `real arithmetic`, `membership`), `inspection`,
+`join`, and `contradiction`. The rest
 are not yet: the citation form, the block methods `proof`, `cases`,
 `both directions` and `induction`, and `substitute`, `instantiate`, `obtain`
 and `exhibit`. None is
@@ -252,8 +252,9 @@ A reciprocal atom brings its divisor's hypothesis with it: `1/(n + 1)` is a
 real number when `n + 1` is one and is not zero. That `n + 1` is real is said
 once, with n; that it is not zero is said once too where n ∈ ℕ₀, since
 n + 1 is then a positive integer, and is the page's to write where n ∈ ℤ. A
-divisor that is a numeral other than zero needs no line either: that 2 is not zero is a closed numeral
-fact, so `δ/2` is real because `δ` is.
+divisor of numerals alone whose value is not zero needs no line either: that
+2 or 1 − 3 is not zero is a closed numeral fact, so `δ/2` and `δ/(1 − 3)` are
+real because `δ` is.
 
 An atom is one of the claim or of the facts the step combines — not of every
 sentence a cited line says. Line 1 of `least-combination-divides` says
@@ -265,8 +266,11 @@ hypothesis, and one that discharges nothing is a line doing no work.
 
 The memberships a step still writes are those the page does not say once:
 the absolute value of a real number (`mun:stdlib/numbers/abs-real`), a power to
-a letter (`mun:stdlib/numbers/power-real`), a function's value from its type, a
-finite sum from its terms. Every natural bridge is direct rather than through
+a letter that is not in ℕ or ℕ₀, 2^k with k ∈ ℤ
+(`mun:stdlib/numbers/power-real-integer`, from a base other than 0;
+`mun:stdlib/numbers/power-real` takes ℕ₀, and a power to a letter in ℕ or
+ℕ₀ is said once, `SYNTAX.md`), a
+function's value from its type, a finite sum from its terms. Every natural bridge is direct rather than through
 ℤ, for a reason the rule forces: a requires line carries one citation, so a
 two-step chain would make every natural atom need a numbered step of its own.
 
@@ -539,7 +543,8 @@ Two kinds.
 
 Every denominator the step's claim and the cited lines it combines write is
 nonzero, and a step that divides writes the condition or cites a line
-saying it, unless the page says once the denominator is a positive integer
+saying it, unless the page says once that the denominator is not zero, as
+of a term of numerals alone whose value is not zero or of a positive integer
 (`SYNTAX.md`), or it is a product, a quotient, a negation or a power to a
 numeral whose parts are each not zero so: `(x·2 − 1)/(x·2)` asks only for
 `x ≠ 0`, and
@@ -693,7 +698,8 @@ divides 9.
   refusing it exposed that the claim smuggled in an exponent law. The geometric
   series now pays four steps for that one fact.
 - **Anything that does not evaluate to a rational.** `√2 ∈ ℝ` is not
-  arithmetic, and the corpus does not treat it as such; it cites `mun:stdlib/numbers/sqrt`.
+  arithmetic; a square root of a rational is `real arithmetic`'s, which is
+  kept apart so that what arithmetic decides stays small enough to read.
   Nor is `4^(1/2)`: a power is taken only with a whole exponent, and no root
   is taken, because a fractional power is in general irrational and could
   only be held as a float, and a float may be inexact, infinite or zero
@@ -741,13 +747,17 @@ nothing to check but working it out. So a claim arithmetic can work out
 cites `arithmetic`, whatever relation it states: one built from numerals by
 the operations under *Fact out*, stating a relation it decides. The checker
 refuses `algebra` or `inequalities` for one, in a step or a requires line.
+A step marked impossible is the exception: `5 = 0, which is impossible`,
+the last line of a contradiction, states a false fact that its method
+reaches from the lines it cites, `algebra, from H2, S`, and arithmetic,
+which finds it false, could not give it. The same holds of `real
+arithmetic` and a line like `√2 = 1, which is impossible`.
 
 A claim with no letter that arithmetic cannot work out is not arithmetic's.
-`1 + i·0 = 1` holds a constant it has no value for, and `√2·√2 = 2` an
-operation it does not take. Such a claim is `algebra`'s or `inequalities'`,
-which take √2 as an atom, as they take a letter, and cite what they use of
-it as they would of a letter: `√2·√2 = 2` by `algebra, from` a line citing
-`mun:sqrt x := 2`, which says (√2)² = 2 and √2 ∈ ℝ.
+`√2·√2 = 2` takes a square root, which is `real arithmetic`'s (below).
+`1 + i·0 = 1` holds a constant neither method has a value for, and is
+`algebra`'s, which takes i as an atom, as it takes a letter, and cites what
+it uses of it as it would of a letter.
 
 Denials of an order are `arithmetic`'s with the rest: not a ≤ b is b < a, and
 not a < b is b ≤ a, each turned by the law that says so (`ltnled`, `lenltd`).
@@ -812,8 +822,11 @@ or the negation of one. The normaliser works a side whole where it reaches
 it. Otherwise the side is worked part by part from the inside out: a
 remainder or a product over a range by the steps above, the rest by the
 normaliser, each part's equation carried up through the operation above it
-(`oveq12d`, `negeqd`), and a division by a value below 0 as the negation of
-one by its opposite (`divneg2d`). The claim is proved of the values and
+(`oveq12d`, `negeqd`), a division by a value below 0 as the negation of
+one by its opposite (`divneg2d`), and a power to an exponent below 0 as
+one over the power (`expnegd`), which the normaliser would hold as an atom
+it has no membership for. A membership of a term holding such a power is
+its value's, carried back by `eleq1d`. The claim is proved of the values and
 carried back to the sides as written (`breq12d`, `eqeq12d`, `eleq1d`).
 
 Between values, two that differ are apart because the lower is below the
@@ -828,10 +841,420 @@ closed numeral fact is taken anywhere.
 ### Held to an oracle
 
 `tests/oracle.rs` draws relations, memberships, divisibilities, parities
-and congruences of numeral terms up to three deep, of every operation, and
-works each out in exact rationals of its own. Each refusal above is drawn
+and congruences of numeral terms up to three deep, of every operation,
+powers to exponents from −2 to 3 among them, and works each out in exact
+rationals of its own. Each refusal above is drawn
 and expected in its own words; a claim with several parts refused may be
 refused for any of them.
+
+---
+
+## real arithmetic
+
+`real arithmetic` decides **closed facts about square roots of rationals,
+π, e, and logarithms of rationals**: `√8 = 2·√2`, `(1 + √2)² = 3 + 2·√2`,
+`1/(√3 − 1) = (√3 + 1)/2`, `√2 − 1 ≠ 0`, `ln 8 = 3·ln 2`, `exp(ln 5) = 5`,
+`(π + e)² = π² + 2·π·e + e²`, `ln 2 ≠ ln 3`, `180° = π`, `√2 < 3/2`,
+`0 < ln 2`, `e < π`. It stands where
+`arithmetic` stands, and for the same reason:
+a claim it works out gives a reader nothing to check but working it out. So
+it justifies a requires line, `requires √2 − 1 ≠ 0: real arithmetic`; it is
+the source of a substitution, `substitute √8 = 2·√2 (real arithmetic)`; it
+is the reason on a chain line of closed terms, `= 2·√2    real arithmetic`;
+and it justifies a numbered step only where the proof's shape asks a line
+there. Like `arithmetic` it is marked mundane, and the checker refuses it
+for a fact with a letter in it.
+
+It is a method of its own, and not more of `arithmetic`, so that what
+`arithmetic` decides stays small enough to read and its procedure and
+expansion stay as they are. `real arithmetic` reads a part with no root in
+it by `arithmetic`'s procedure; `arithmetic` reads nothing of this one.
+
+### Facts in
+
+None. It cites nothing.
+
+### Fact out
+
+A relation between **closed real expressions**, where a closed real
+expression is built from decimal numerals by the operations `arithmetic`
+works out, and by:
+
+- `√`, the square root, taken of a closed real expression whose value is a
+  rational of at least 0;
+- the constants π and e, Euler's number, which a letter the text names e
+  shadows, as it shadows i;
+- `ln`, the natural logarithm, taken of a closed real expression whose
+  value is a positive rational, or a positive rational times a whole power
+  of e: `ln(1/2)`, `ln(e³)`;
+- `exp`, taken of a closed real expression whose value is a whole number of
+  at least 0 plus whole multiples of logarithms of primes: `exp(ln 5)`,
+  `exp(2)`, `exp(1 + ln 3)`;
+- `sin` and `cos`, taken of a closed real expression whose value is 0 or a
+  rational multiple of π whose denominator divides 4 or 6: `sin(π/6)`,
+  `cos(3·π/4)`, `sin(210°)`, `cos(0)`;
+- `°`, the degrees notation, x° being x·π/180.
+
+None of these is worked out by the method's nature. Each record says
+`decided real arithmetic` (`DATABASE.md`): the notation records of `√`, π, e
+and `°`, and the function records of `ln`, `exp`, `sin` and `cos`, which a
+proof imports. An operation, a constant or a function whose record does not
+name the method is refused, as `gcd(4, 6)` is, and as i always is.
+
+The relations, and their denials:
+
+| relation | decided |
+|---|---|
+| `=`, `≠` | where neither side holds π, e or a logarithm; otherwise where the two values are equal, or where they differ by a surd or by rational multiples of logarithms of primes (The procedure) |
+| `<`, `≤`, `>`, `≥` | where the two values are equal, or their difference is rational, holds no π, e or logarithm, or is rational multiples of logarithms of primes; otherwise where the bounds on π, e and logarithms decide it (Order) |
+| membership of ℝ or ℂ | always |
+| membership of ℕ, ℕ₀, ℤ or ℚ | where the value is rational, `√(9/4) ∈ ℚ`, `exp(ln 4) ∈ ℕ` |
+
+No word is decided: `√4 is even` is refused, as a word whose record does not
+name the method is.
+
+### The procedure
+
+Evaluate each side to a **value**: a sum of rational multiples of square
+roots of distinct squarefree whole numbers, Σ qₘ·√m, where m = 1 is the
+rational part and no qₘ is 0. Each root is held as the primes whose product
+it is the root of.
+
+- A rational r = a/b of at least 0, in lowest terms, has a·b = s²·m for one
+  whole s and one squarefree m, and √r is s/b·√m: √8 is 2·√2, and √(1/2) is
+  1/2·√2.
+- Sums and differences add the coefficients of each root.
+- √m·√n is the product of the primes m and n share, times the root of the
+  primes only one of them holds: √6·√10 is 2·√15.
+- A value holding √p, read as a + b·√p with a and b free of √p, times its
+  **conjugate** a − b·√p is a² − p·b², which holds √p no more. Multiplied by
+  its conjugate in each of its primes in turn, a value becomes a rational,
+  its **norm**, and the product of the conjugates is its **cofactor**. A
+  value is not 0 exactly where its norm is not, and one over it is its
+  cofactor over its norm: 1/(√3 − 1) is (√3 + 1)/2.
+- A power is taken only with a whole exponent, and a negative one is the
+  power of one over the base.
+
+Two values are equal exactly where their coefficients are. The square roots
+of distinct squarefree whole numbers are linearly independent over ℚ, so a
+value has one spelling; that theorem is what makes `=` and `≠` decided
+always, and nothing proved here leans on it, since a proof shows each
+equation it states.
+
+An order is decided by the sign of the difference of its sides (Order,
+below), and a membership of ℕ, ℕ₀, ℤ or ℚ where the value is rational, by
+`arithmetic`'s tests. Every value is real.
+
+**π, e and logarithms.** A value is then a polynomial in the atoms π, e and
+ln p for primes p, its coefficients values of the square-root kind above:
+Σ sₘ·M, M a product of whole powers of atoms.
+
+- A logarithm of a positive rational r = Π p^nₚ, its numerator and
+  denominator factored, is Σ nₚ·ln p: ln 8 is 3·ln 2, ln(1/2) is −ln 2, and
+  ln 1 is 0. A logarithm of r·eᵏ is that plus k: ln(e³) is 3.
+- exp(k + Σ nₚ·ln p), k and each nₚ whole and k at least 0, is eᵏ·Π p^nₚ:
+  exp(ln 5) is 5 and exp(2) is e².
+- Sums, differences, products and whole powers are those of polynomials.
+  A division is taken only by a value with no atom.
+
+Two such values are equal where their coefficients are, and that is proved.
+Where they are not, the claim is decided only where their difference D is
+one the method can show is not zero:
+
+- D holds no atom: it is a value of the square-root kind, and decided as
+  above;
+- D is Σ qₚ·ln p, rational multiples of logarithms of primes and nothing
+  else: Σ nₚ·ln p = 0, with whole nₚ, would make Π p^nₚ = 1, which unique
+  factorisation forbids unless every nₚ is 0, so ln 2 ≠ ln 3 and
+  ln 8 ≠ 2·ln 2 hold.
+
+Any other difference is **not decided**: π = e, π² = 10, ln 2 = 1,
+√2·ln 2 = ln 3. Each is false, but showing it asks more than the method
+proves: that π is irrational, which set.mm does not prove; that e is
+transcendental, which a mathbox does and the method does not use; or that
+logarithms of primes stay independent over the roots, which is Baker's
+theorem. Such a claim is reported as not decided, never as false.
+
+**sin and cos.** An angle of value q·π, q rational with a denominator that
+divides 4 or 6, is reduced to r·π with r = q less a whole multiple of 2, so
+0 ≤ r < 2, since sin and cos repeat every 2π. Then, for r of at least 1,
+sin(t + π) = −sin t and cos(t + π) = −cos t take π away; for r of at least
+1/2, sin(π/2 + t) = cos t and cos(π/2 + t) = −sin t take π/2 away; and what
+is left is 0, π/6, π/4 or π/3, whose sines and cosines are 0 and 1, 1/2 and
+√3/2, √2/2 and √2/2, √3/2 and 1/2. So every value is 0, ±1/2, ±√2/2, ±√3/2
+or ±1, a value of the square-root kind, and holds no atom: sin(7·π/6) is
+−1/2, cos(3·π/4) is −√2/2, and sin(30°) is 1/2.
+
+**Order.** L < R and L ≤ R are decided by the sign of D = R − L, worked
+out as a value:
+
+- D is 0: L ≤ R holds and L < R fails.
+- D is rational: its sign is `arithmetic`'s.
+- D is Σ qₚ·ln p, rational multiples of logarithms of primes and nothing
+  else: with n the least whole number making each n·qₚ whole, n·D is
+  ln r, r = Π p^(n·qₚ), and D is above 0 exactly where r is above 1:
+  `ln 3 < 2·ln 2`, since 3 < 4.
+- Otherwise D's sign is read from **brackets**. Each factor of a part of
+  D, a root √p, π, e or ln p, lies strictly between two rationals l < u,
+  and l is above 0:
+  - √p between ⌊2ʲ·√p⌋/2ʲ and that plus 2⁻ʲ, for a precision j of 4,
+    8, 16, 32 or 64 bits, the least that decides;
+  - π between 3 and 4, set.mm's `pigt3` and `pigt2lt4`;
+  - e between 2 and 3, set.mm's `egt2lt3`;
+  - ln p between a/b, the greatest with b at most 8 and 3ᵃ ≤ pᵇ, and
+    a′/b′, the least with b′ at most 8 and pᵇ′ ≤ 2ᵃ′, since eᵃ < 3ᵃ and
+    2ᵃ′ < eᵃ′: ln 2 between 5/8 and 1, ln 3 between 1 and 8/5.
+
+  A product of factors lies between the products of their ends, a power
+  as a product of its factor; a part c·X between c·l and c·u, the other
+  way round where c is below 0; and a sum between the sums of its parts'
+  ends. D is above 0 where the lower end of the sum is at least 0, and
+  below 0 where its upper end is at most 0, strictly in each case, since
+  each factor's bracket is strict.
+
+A difference holding no π, e or logarithm is not 0, which is decided
+exactly, so some precision decides its sign; it is only too large where
+64 bits do not (Refusals). A difference holding one may lie in a bracket
+that holds 0 however fine its roots: π² < 10 holds, but π² lies between
+9 and 16 by set.mm's bounds, and no tighter bound on π is proved there.
+Such an order is reported as not decided, never as false.
+
+### Refusals
+
+- **Anything containing a variable.** As for `arithmetic`.
+- **A claim holding nothing beyond what `arithmetic` works out,** no root,
+  π, e, logarithm, exponential, sine, cosine or degree. That is
+  `arithmetic`'s, and cites it (Boundary, below).
+- **An operation, constant or function whose record does not name the
+  method:** `gcd(4, 6) = 2`, `i·i = −1`.
+- **A sine or cosine of an angle that is not a rational multiple of π,**
+  `sin(1)`, `cos(π + 1)`, or **of one whose denominator divides neither 4
+  nor 6,** `sin(π/12)`, `cos(π/5)`. Each is a value the method has no
+  spelling for.
+- **A logarithm of a number not above 0.** set.mm's `log` is taken in ℂ,
+  and ln(−1) is i·π there, which is not a real number; ln 0 is no number.
+- **A logarithm of a number that is neither a positive rational nor one
+  times a whole power of e,** `ln 2^(1/2)`, `ln π`.
+- **An exponential of a number not of the form above,** `exp(1/2)`,
+  `exp(−1)`, `exp(π)`: √e and 1/e are no values of the method.
+- **A division by a value holding π, e or a logarithm,** `1/π`, `2/ln 2`.
+- **An equation or a disequality whose difference holds π, e or a
+  logarithm otherwise than as rational multiples of logarithms of primes,**
+  `π = e`. It is reported as not decided, never as false.
+- **A square root of a number below 0.** set.mm's `√` is taken in ℂ, and
+  √(−4) is 2·i there, which is not a real number.
+- **A square root of a number that is not rational,** √(1 + √2). Whether a
+  nested root comes apart is a question of its own, and is not asked.
+- **A power with an exponent that is not whole,** `2^(1/2)`. The square root
+  is written `√`, and it is the only root taken.
+- **A division by zero,** `1/(√2 − √2)`, worked out as its divisor's value.
+- **An order the bounds on π, e and logarithms do not decide,** `π² < 10`
+  (Order). It is reported as not decided, never as false.
+- **A membership of ℕ, ℕ₀, ℤ or ℚ of a value that is not rational, or its
+  denial.** That √2 is not in ℚ is the theorem `sqrt2-irrational` proves,
+  and a method that worked it out would make that proof one line.
+- **A number too large to work out.** A radicand whose numerator times
+  denominator passes 40 bits is refused, since its squarefree part is found
+  by trial division. A claim holding more than four distinct primes under its
+  roots is refused, since each prime doubles how many parts a value may have.
+  A true claim's proof is estimated before it is built: each product of two
+  values of P and B parts it writes is an identity whose proof restates the
+  product at every move, and costs (P·B)³, and a claim costing more than
+  100 000 is refused. Measured, (√2 + √3 + √5 + √7)⁴ costs some 59 000 and
+  peaks at 1.0 GB, 1/(1 + √2 + √3 + √5) ≠ 0 some 99 000 and 0.8 GB, and
+  (√2 + √3 + √5 + √7)⁸ some 190 000 and 2.7 GB of the 2 GB a build allows.
+  A claim whose proof would write a numeral past 62 bits is refused too,
+  since the normaliser reads a numeral as a number only within 64 bits:
+  (1 + √2)⁴⁰ is proved, and (1 + √2)⁸⁰ is refused. An order whose sign
+  roots bracketed to 64 bits do not decide is refused, where finer roots
+  would decide it.
+- **Anything false.** The claim is worked out before a proof is attempted,
+  so a false one is reported as false.
+
+What it finds true and cannot prove is reported with the instruction to cite
+a theorem that states it; nothing is taken as stated.
+
+### Hypotheses
+
+None. That a radicand is at least 0, a logarithm's argument above 0 and a
+divisor not 0 are closed facts of their own, which the procedure works out
+with the claim, and which the expansion proves (below).
+
+### Boundary with arithmetic, algebra and inequalities
+
+The line against `arithmetic` is on the text: a closed claim that writes `√`,
+π, e, `ln`, `exp`, `sin`, `cos` or `°` is this method's, and one that writes
+none of them is `arithmetic`'s. `√4 = 2` writes a root, so it cites
+`real arithmetic` though both its values are rational, and so do
+`exp(ln 4) = 4` and `cos(0) = 1`. The
+checker refuses `real arithmetic` for a claim that writes none of them ("a
+claim of numerals alone cites arithmetic").
+
+As against `algebra` and `inequalities`, the rule for an equation, a
+disequality and a membership is `arithmetic`'s: a closed one this method
+decides cites it, and the checker refuses `algebra` or `inequalities` for
+it. `√2·√2 = 2` cites `real arithmetic`. An order is not held to that rule:
+`0 ≤ √2/2` may cite `real arithmetic`, or `inequalities`, which takes √2 as
+an atom and cites what it uses of it from a line citing `mun:sqrt x := 2`.
+A closed order this method's bounds do not reach, `π² < 10`, asks a bound
+on π tighter than set.mm proves, and is a theorem to cite. `inequalities`
+does not reach it from set.mm's bounds either, since it reads π² as an atom
+of its own and knows of it only what a cited line says.
+
+A square root, π, e, a logarithm, a sine or a cosine this method works out
+is in ℝ, and so is what the field's operations build from them; that is said
+once (`READERS.md`), as a numeral's membership is: `requires √2 ∈ ℝ`,
+`requires π + ln 2 ∈ ℝ` and `requires sin(π/6) ∈ ℝ` are not written.
+
+### Expansion
+
+The claim is worked out first, and the proof follows what the procedure
+found. Each term is proved equal to the **canon** of its value: an
+expression in roots of primes, its parts added from the left, the rational
+part first and then by the product under the root, each part a whole
+coefficient times a product of roots of primes, and the whole over the
+least common denominator of the coefficients where they are not whole. Two
+terms of one value have one canon, so an equation is each side proved
+equal to it. The normaliser adds fractions without cancelling, so a canon
+of eight parts each over N would be read over N⁸; written over N once, it
+is read over N.
+
+- **A root.** For √x with x of value r = c²·(p₁·(p₂·…)), `arithmetic` proves
+  x equals that product, `fveq2d` carries the equation under the root, the
+  root of a product is the product of the roots (`sqrtmuld`, its four side
+  conditions facts of numerals), and the root of c² is c (`sqrtsqd`). So √x
+  is c·(√p₁·(√p₂·…)).
+- **An operation.** Each operand is proved equal to its expression, and the
+  equations are carried up through the operation (`oveq12d`, `negeqd`). A
+  part with no root is left as written, except a remainder, a factorial or a
+  product over a range, which `arithmetic` works to its value first.
+- **A power** is built a step at a time, each step the base times one power
+  less (`expp1d`) and each product brought back to an expression of the
+  value's parts before the next, so a power never expands whole. A negative
+  exponent is one over the power (`expnegd`).
+- **An identity.** Two expressions with one value, times d, the least
+  whole number that makes the coefficients of their difference whole,
+  differ by a sum of whole multiples of (√p)² − p, one for each prime: the
+  procedure reduces the difference by (√p)² = p, and the multiples are what
+  it takes away. Each (√p)² = p is `sqsqrtd`, each multiple of a difference
+  that is 0 is 0 (`subeq0ad`, `mul01d`), and the normaliser proves the sum of
+  the multiples is the difference itself; `subeq0ad` again, and d is
+  cancelled (`mulcanad`). The normaliser is the one `algebra` uses, given
+  √p ∈ ℂ for each prime (`sqrtcld`).
+- **A value not zero.** For a value D with cofactor C and norm N, the
+  identity D·C = N is proved as above, N ≠ 0 by `arithmetic`, and D ≠ 0
+  follows (`mulne0bad`). A disequality L ≠ R is L − R not zero (`subne0ad`).
+- **A division** A/B is a quotient Q where B·Q = A and B ≠ 0 (`divmuld`).
+- **A membership** of a rational value is proved of the value by
+  `arithmetic` and carried back to the term as written (`eleq1d`). A
+  membership of ℝ is the expression's, built from √p ∈ ℝ
+  (`resqrtcld`), π ∈ ℝ (`pire`), e ∈ ℝ (`ere`), ln p ∈ ℝ (`relogcld`) and
+  the field's closure (`remulcld`, `readdcld`).
+
+With π, e and logarithms, a canon's part is its coefficient times its roots
+times its atoms' powers, the parts in the order of their atoms, π first,
+then e, then ln 2, ln 3 and on. The identity above is unchanged: it reduces
+(√p)² = p and nothing else, and to the normaliser π, e and each ln p are
+atoms like √p, given π ∈ ℂ (`picn`), e ∈ ℂ and ln p ∈ ℂ.
+
+- **A logarithm.** For ln x with x of value Π p^nₚ·eᵏ, x is proved equal to
+  that product, by `arithmetic` where k is 0 and by an identity where it is
+  not, and `fveq2d` carries the equation under the logarithm. The logarithm
+  of a product of positive reals is the sum of the logarithms (`relogmul`,
+  each factor in ℝ⁺ by `elrpd` or `rpexpcld`), of a power to a whole
+  exponent the exponent times the logarithm (`relogexp`), of e is 1
+  (`loge`), and of 1 is 0 (`log1`).
+- **An exponential.** For exp x with x of value k + Σ nₚ·ln p, x is proved
+  equal to k + ln r, r = Π p^nₚ, by an identity and the logarithm above;
+  exp(k + ln r) is exp k · exp(ln r) (`efadd`), exp(ln r) is r (`reeflog`),
+  and exp k is (exp 1)ᵏ (`efexp`), which is eᵏ by `df-e`.
+- **Degrees.** x° is (x·π)/180 by its notation's target, an operation like
+  any other.
+- **A sine or a cosine.** For sin x with x of value q·π, q = 2k + r and
+  0 ≤ r < 2, x is proved equal to a(r) + k·(2·π), or to a(r) where k is 0,
+  by an identity, a(r) being 0, π/6, π/4 or π/3 below π/2, (π/2) + a(r − 1/2)
+  from π/2 to π, and a(r − 1) + π from π to 2π; `fveq2d` carries it under
+  the sine. sin(t + k·(2·π)) = sin t (`sinper`, `cosper`); sin(t + π) =
+  −sin t (`sinppi`, `cosppi`); sin(π/2 + t) = cos t and cos(π/2 + t) =
+  −sin t (`sinhalfpip`, `coshalfpip`); and the values at 0, π/6, π/4, π/3
+  and π/2 are set.mm's (`sin0`, `cos0`, `sincos6thpi`, `sincos4thpi`,
+  `sincos3rdpi`, `sinhalfpi`, `coshalfpi`). What a value lemma says,
+  1/√2 for sin(π/4), is brought to the canon as any term is.
+- **A logarithm difference not zero.** For D = Σ qₚ·ln p, N·D = ln P − ln Q,
+  N the least whole number making each N·qₚ whole and P and Q whole
+  numbers, is an identity; ln P − ln Q is ln(P/Q) (`relogdiv`), which is not
+  zero because P/Q is not 1 (`logne0`, P/Q ≠ 1 by `arithmetic`); and D is
+  not zero because N·D is not (`mulne0bad`).
+- **An order.** L < R is 0 < R − L (`posdifd`, each side in ℝ as said
+  once), and R − L is proved equal to the canon of D, its value, as for a
+  disequality. 0 < D is then shown as the procedure found it:
+  - D rational: by `arithmetic`.
+  - D logarithms of primes: n·D = ln r is an identity and the logarithm
+    above, ln r is above 0 because r is above 1 (`loggt0b`, r > 1 by
+    `arithmetic`), and so is D, n being above 0.
+  - D by brackets: each factor's bracket is proved. l < √p is l² < p by
+    `arithmetic`, then √(l²) < √p (`sqrtltd`) and √(l²) = l (`sqrtsqd`),
+    and √p < u likewise; 3 < π < 4 is `pigt3` and `pigt2lt4`, 2 < e < 3
+    `egt2lt3`; and a/b < ln p is a < ln(pᵇ), ln(pᵇ) = b·ln p by the
+    logarithm above, from eᵃ < 3ᵃ (`ltexp1dd`), 3ᵃ ≤ pᵇ by `arithmetic`,
+    ln(eᵃ) = a, and `logltb`, and ln p < a′/b′ likewise. A product's
+    bracket is its factors' (`ltmul12ad`), a power's its base's
+    (`ltexp1dd`), a part's its coefficient's times its product's
+    (`ltmul2dd`, and `ltnegd` where the coefficient is below 0), and the
+    sum's its parts' added (`lt2addd`, `leltaddd`, `leidd` for the
+    rational part). The sum of the lower ends is at least 0 by
+    `arithmetic`, so D's whole part is above 0 (`lelttrd`), and D, over a
+    denominator above 0, is too (`divgt0d`).
+
+  L ≤ R is L < R weakened (`ltled`), or L = R where D is 0 (`eqled`); the
+  denial of L < R is R ≤ L (`lenltd`), and of L ≤ R is R < L (`ltnled`).
+
+### Held to an oracle
+
+`tests/oracle.rs` draws claims of every form above, true by construction
+and one coefficient away: √(s²·m) and s·√m, a value and its conjugate, one
+over a + √p, products of roots, squares of sums of roots; equations,
+disequalities and orders of terms three deep over the roots of two primes;
+memberships of rational values and of values that are not; and each
+refusal. It judges them with an evaluator of its own that shares nothing
+with the procedure: exact rationals where there is no root, and otherwise
+intervals with rational ends 1024 bits fine around each value, a value
+being 0 where its interval holds 0 and is narrower than 2⁻⁵¹², and
+rational where a fraction of denominator at most 10¹² lies inside it.
+Each true claim must be proved and verified, and each refusal given in its
+own words. The terms drawn stay inside the method's limits, and a claim
+past them is drawn on purpose; on three seeds of 1500 claims it finds no
+answer that differs from the judge's.
+
+For π, e and logarithms the judge works by construction rather than by
+intervals, since an interval cannot tell a false claim from one the method
+does not decide. It draws polynomials in π, e and logarithms of primes and
+expands them with polynomial arithmetic of its own, so an equation of a
+polynomial and its expansion is true; logarithms and exponentials of
+rationals whose values it knows from its own factoring; and each one moved
+by a known amount, which is false where the move is rational or rational
+multiples of logarithms, and not decided where it holds π or e. A third of
+the claims are drawn so (`tests/oracle/atoms.rs`), and on three seeds of
+1500 it finds no answer that differs from the judge's.
+
+Sines and cosines of angles written in radians and in degrees are judged
+from a table of their own, sin(n·π/12) for each n from 0 to 23 written out
+as a value of roots, and not by the reduction above; the values are then
+held to the method's answers as any value of roots is. A sine or cosine is
+drawn into a claim over √2 and √3 only, which keeps the claim within the
+limits; on three seeds of 1500 the answers agree with the judge's.
+
+An order of values of roots is judged by the sign of the interval around
+the difference of its sides, a gap narrower than 2⁻⁴⁰ taken as too large to
+work out. An order holding π, e or a logarithm is judged by the rule of
+Order written again over the judge's own polynomials: equal sides, a
+rational difference, logarithms of primes by their ratio, and otherwise
+the brackets above, set.mm's bounds on π and e and the logarithms' from
+e's; and each sign the rule finds is held to the value worked out from π,
+e and the logarithms to 35 digits. π and e are drawn against rationals near
+their bounds, against each other, and logarithms against rationals and
+against multiples of each other; on three seeds of 1500 the answers agree
+with the judge's.
 
 ---
 
@@ -994,12 +1417,12 @@ is something the facts let the reader work out. What a term works out to:
 
 - a set the facts list, or a set-builder `{x ∈ S : P(x)}` over one, is the
   list of its elements: those of S of which P holds, and ∅ lists none;
-- a range `{a, …, b}` whose ends work out to whole numbers, as `arithmetic`
+- a range `{a, …, b}` whose ends work out to integers, as `arithmetic`
   works one out, is the list of
-  the numerals from a to b, and none where b is below a: `{0, …, 3 − 1}`
-  lists 0, 1 and 2, and `{1, …, 0}` nothing. A range is read so only up to
-  64 numerals, past which a list of its elements is not one a reader runs
-  down;
+  the integers from a to b, and none where b is below a: `{0, …, 3 − 1}`
+  lists 0, 1 and 2, `{−2, …, 0}` lists −2, −1 and 0, and `{1, …, 0}`
+  nothing. A range is read so only up to 64 numerals, past which a list of
+  its elements is not one a reader runs down;
 - the size `|S|` of such a set, once the facts say its names are distinct,
   is the numeral that counts them, a name written twice counted once:
   `|{2, 3, 2}| = 2`;
@@ -1076,8 +1499,9 @@ says no more than that.
 
 - **A set not listed in full**, by a cited line, or a range or a set-builder
   the facts do not list: `inspection` checks a finite list a reader can see,
-  and nothing it has to find. A range whose ends are not whole numbers
-  worked out from numerals, `{0, …, n}`, is not listed.
+  and nothing it has to find. A range whose ends are not integers worked
+  out from numerals, `{0, …, n}` or `{1/2, …, 1}`, is not listed, and the
+  refusal says so.
 - **A range of more than 64 numerals.** `{1, …, 100}` is a list of a
   hundred, which no reader runs down by eye.
 - **A line of "or"s that is not the listing:** one that leaves out an
@@ -1120,12 +1544,14 @@ the term as written by `eleq1i`, or `eleq1d` where a cited line gives it. A "for
 at its element by `rspcdva`. The two sides are joined by `eqtrd` and
 `eqtr4d`, two listings in different orders by `eqssd`.
 
-A range of numerals is its ends worked out, each an equation `arithmetic`
-proves (`closed_fact`), carried in (`oveq12i`), and then built up a
-numeral at a time: the range of one numeral is its singleton (`fzsn`), and
+A range of integers is its ends worked out, each an equation `arithmetic`
+proves (`closed_fact`), carried in (`oveq12i`), and then built up an
+integer at a time: the range of one integer is its singleton (`fzsn`), and
 a longer one the range below its top joined with the top's singleton
 (`fzsuc`, the top ≥ the bottom by `eluz2`); a range whose top is below its
-bottom is empty (`fzn`). A line of "or"s puts t in the union of the
+bottom is empty (`fzn`). What each asks of the integers, that each is one,
+their order, and that one less plus one is the top, is a closed fact of
+numerals `arithmetic` proves, −2 + 1 = −1 as 1 + 1 = 2. A line of "or"s puts t in the union of the
 singletons (`eleqtrd`) and follows from each: t ∈ {s} gives t = s
 (`elsni`), turned to the equation as the line writes it (`eqeq2d` with a
 closed numeral fact, `eqcom`), and the equation widens to the whole line
@@ -1220,8 +1646,8 @@ plays no part in that; it is refused.
 
 The block's supposition, which asserts nothing outside the block, and the
 block's last step, which reaches the opposite of an earlier line and names it,
-`contradicting 3.6`, or reaches a fact of numerals alone that cannot hold and
-says so, `2 ≤ 1, which is impossible`. The second is how a reader ends the
+`contradicting 3.6`, or reaches a closed fact that cannot hold and says
+so, `2 ≤ 1, which is impossible`, or `√2 = 1, which is impossible`. The second is how a reader ends the
 argument "so 10 divides 1, which is impossible": nothing earlier says 2 > 1,
 and writing a step to say it only so that the last step had a line to
 contradict is not a proof anyone writes.
@@ -1247,11 +1673,13 @@ reading is never in doubt. A folded negation counts as a negation: the
 Then check that the last step closes: its claim and the line it names, or one
 sentence of that line, are a formula and that formula negated, by the same
 comparison. A last step that says it is impossible names no line: its claim
-is worked out by `arithmetic`, and its denial, which `arithmetic` proves,
-stands in for the line. The claim must name nothing, as `arithmetic`'s must,
-and `arithmetic` must decide it false; one it finds true, cannot work out,
-or does not decide (10 divides 1, a relation it does not have) is refused,
-and the step names a line it contradicts instead. A case that cannot occur
+is worked out, by `real arithmetic` where it holds a square root, π, e, a
+logarithm or an exponential and by `arithmetic` otherwise, and its denial,
+which that method proves, stands in for the line. The claim must name
+nothing but a library function, ln in ln 2, as those methods' claims must,
+and the method must decide it false; one it finds true, cannot work out,
+or does not decide (10 divides 1, a relation `arithmetic` does not have)
+is refused, and the step names a line it contradicts instead. A case that cannot occur
 may end the same way.
 
 ### Refusals

@@ -115,7 +115,7 @@ fn drawn(r: &mut Random, depth: u32) -> Expr {
         1 | 2 => Expr::Add(sub(r), sub(r)),
         3 => Expr::Sub(sub(r), sub(r)),
         4 => Expr::Mul(sub(r), sub(r)),
-        5 => Expr::Pow(sub(r), 2 + r.below(2) as u32),
+        5 => Expr::Pow(sub(r), 2 + r.below(2) as i32),
         _ => Expr::Div(sub(r), Box::new(Expr::Num(small(r, false) + 1))),
     }
 }
@@ -155,7 +155,7 @@ pub fn written_out(p: &Poly) -> Expr {
             let factor = if *k == 1 {
                 Expr::Letter(x)
             } else {
-                Expr::Pow(Box::new(Expr::Letter(x)), *k)
+                Expr::Pow(Box::new(Expr::Letter(x)), *k as i32)
             };
             product = Some(match product {
                 None => factor,

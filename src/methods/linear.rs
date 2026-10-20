@@ -524,8 +524,7 @@ pub fn certificate(
             .map(|&i| line_of.get(i).copied().flatten())
             .collect();
         if let Some(Certificate::Farkas(weights)) = certificate(&fewer, &lines, alike) {
-            let back = weights.into_iter().map(|(i, w)| (kept[i], w)).collect();
-            return Some(Certificate::Farkas(back));
+            return Some(Certificate::Farkas(placed_back(&weights, &kept)));
         }
         // Both readings must fail, each by a certificate of its own; the
         // proof finds each again where it writes that side.
@@ -625,10 +624,19 @@ pub fn certificate(
     best.map(|(_, weights)| Certificate::Farkas(weights))
 }
 
-/// The most facts `alike_certificate` takes one at a time: each is left
-/// out, added, or for an equation added turned round, so the search is
-/// three ways a fact. Past anything a plain step cites in the corpus.
-const ALIKE_MOST: usize = 14;
+/// The most steps the search for a combination of facts taken as they
+/// stand makes (`alike_combinations`): each fact is left out, added, or for
+/// an equation added turned round, three ways a fact, and a step past this
+/// many is one no plain step is worth.
+const ALIKE_SEARCHED: usize = 1_000_000;
+
+/// The combinations of facts that contradict, taken as they stand
+/// (`alike_combinations`), and whether the search reached its end, which
+/// one past `ALIKE_SEARCHED` steps does not.
+pub struct Alike {
+    pub found: Vec<Weights>,
+    pub whole: bool,
+}
 
 /// A combination of `facts`, each it uses taken once as it stands, an
 /// equation either way round, that contradicts: the facts a plain
@@ -640,6 +648,7 @@ const ALIKE_MOST: usize = 14;
 /// in the order the facts are given.
 fn alike_certificate(facts: &[Fact], line_of: &[Option<usize>]) -> Option<Certificate> {
     alike_combinations(facts, line_of)
+        .found
         .into_iter()
         .next()
         .map(Certificate::Farkas)
@@ -650,48 +659,92 @@ fn alike_certificate(facts: &[Fact], line_of: &[Option<usize>]) -> Option<Certif
 /// with none inside it that contradicts as well: one with a smaller inside
 /// only adds facts that cancel, an equation taken each way round, which do
 /// no work however many lines they are of. Those resting on the most lines
-/// first, and of those the first in the order the facts are given; none for
-/// more facts than `ALIKE_MOST`.
-pub fn alike_combinations(facts: &[Fact], line_of: &[Option<usize>]) -> Vec<Weights> {
-    if facts.len() > ALIKE_MOST {
-        return Vec::new();
+/// first, and of those the first in the order the facts are given.
+///
+/// A fact a line gives twice, as a sentence and again in the sentences'
+/// conjunction, is taken once. The last fact, the claim denied where a
+/// step asks, holds every atom the sum must cancel, and is searched first,
+/// so that a sum no later facts can cancel is given up at once.
+pub fn alike_combinations(facts: &[Fact], line_of: &[Option<usize>]) -> Alike {
+    let same = |a: &Fact, b: &Fact| a.how == b.how && a.side.minus(&b.side).is_zero();
+    let mut order: Vec<usize> = Vec::new();
+    for i in facts
+        .len()
+        .checked_sub(1)
+        .into_iter()
+        .chain(0..facts.len().saturating_sub(1))
+    {
+        let line = line_of.get(i).copied().flatten();
+        let repeated = order.iter().any(|&j| {
+            same(&facts[i], &facts[j]) && line_of.get(j).copied().flatten() == line
+        });
+        if !repeated {
+            order.push(i);
+        }
     }
+    let searched: Vec<&Fact> = order.iter().map(|&i| &facts[i]).collect();
     // How much of each atom the facts from each place on can take away, so
     // that a sum holding more of one than that is given up at once.
-    let mut later: Vec<IndexMap<Rpn, Q>> = vec![IndexMap::new(); facts.len() + 1];
-    for at in (0..facts.len()).rev() {
+    let mut later: Vec<IndexMap<Rpn, Q>> = vec![IndexMap::new(); searched.len() + 1];
+    for at in (0..searched.len()).rev() {
         let mut room = later[at + 1].clone();
-        for (atom, w) in &facts[at].side.weight {
+        for (atom, w) in &searched[at].side.weight {
             *room.entry(atom.clone()).or_insert_with(Q::zero) += w.abs();
         }
         later[at] = room;
     }
     let mut search = AlikeSearch {
-        facts,
+        facts: &searched,
         later,
         found: Vec::new(),
+        steps: 0,
     };
     search.from(0, &Linear::default(), false, &mut Weights::new());
-    let found = &search.found;
+    let whole = search.steps <= ALIKE_SEARCHED;
+    let found: Vec<Weights> = search
+        .found
+        .iter()
+        .map(|w| placed_back(w, &order))
+        .collect();
     let inside = |small: &Weights, large: &Weights| {
         small.len() < large.len() && small.iter().all(|(i, w)| large.get(i) == Some(w))
     };
-    let mut kept: Vec<(usize, Weights)> = found
+    let mut kept: Vec<Weights> = found
         .iter()
         .filter(|one| !found.iter().any(|other| inside(other, one)))
-        .map(|one| (lines_used(one, line_of), one.clone()))
+        .cloned()
         .collect();
-    kept.sort_by_key(|(used, _)| std::cmp::Reverse(*used));
-    kept.into_iter().map(|(_, weights)| weights).collect()
+    // In the order the facts are given: of two combinations, the one taking
+    // the first fact the other does not, and an equation as it stands before
+    // turned round.
+    let rank = |w: &Weights, i: usize| match w.get(&i) {
+        Some(x) if x.is_positive() => 0,
+        Some(_) => 1,
+        None => 2,
+    };
+    kept.sort_by(|a, b| {
+        lines_used(b, line_of)
+            .cmp(&lines_used(a, line_of))
+            .then_with(|| {
+                (0..facts.len())
+                    .map(|i| rank(a, i).cmp(&rank(b, i)))
+                    .find(|o| o.is_ne())
+                    .unwrap_or(std::cmp::Ordering::Equal)
+            })
+    });
+    Alike { found: kept, whole }
 }
 
 /// The search `alike_combinations` makes, and each combination it has
 /// found that contradicts.
 struct AlikeSearch<'f> {
-    facts: &'f [Fact],
+    facts: &'f [&'f Fact],
     /// How much of each atom the facts from each place on can take away.
     later: Vec<IndexMap<Rpn, Q>>,
     found: Vec<Weights>,
+    /// How many steps the search has made, which past `ALIKE_SEARCHED`
+    /// ends it.
+    steps: usize,
 }
 
 impl AlikeSearch<'_> {
@@ -699,6 +752,10 @@ impl AlikeSearch<'_> {
     /// those taken, strict where one of them is, and `weights`, which they
     /// are.
     fn from(&mut self, at: usize, sum: &Linear, strict: bool, weights: &mut Weights) {
+        self.steps += 1;
+        if self.steps > ALIKE_SEARCHED {
+            return;
+        }
         let stranded = sum.weight.iter().any(|(a, w)| {
             !w.is_zero() && self.later[at].get(a).is_none_or(|room| w.abs() > *room)
         });
@@ -730,6 +787,15 @@ impl AlikeSearch<'_> {
         }
         self.from(at + 1, sum, strict, weights);
     }
+}
+
+/// Weights of facts taken out of a longer list, `taken[i]` the place of the
+/// i-th among them, by the places they were given at.
+fn placed_back(weights: &Weights, taken: &[usize]) -> Weights {
+    weights
+        .iter()
+        .map(|(i, w)| (taken[*i], w.clone()))
+        .collect()
 }
 
 /// Whether the claim follows from the given facts.

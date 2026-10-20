@@ -1,0 +1,27 @@
+theorem a-range-below-zero
+  note        A range whose ends are integers below 0 is the list of the
+              integers from one end to the other.
+  let n ∈ ℤ    (H1)
+  assume n ∈ {−2, …, 0}    (H2)
+  then n = −2 or n = −1 or n = 0
+
+1.  n = −2 or n = −1 or n = 0
+    inspection, from H2
+
+theorem a-range-about-zero
+  let n ∈ ℤ    (H1)
+  assume n ∈ {−1, …, 1}    (H2)
+  then n = −1 or n = 0 or n = 1
+
+1.  n = −1 or n = 0 or n = 1
+    inspection, from H2
+
+theorem a-range-from-a-negative-end-worked-out
+  note        The end 0 − 4 is worked out to −4, as arithmetic works one
+              out.
+  let n ∈ ℤ    (H1)
+  assume n ∈ {0 − 4, …, 0}    (H2)
+  then n = −4 or n = −3 or n = −2 or n = −1 or n = 0
+
+1.  n = −4 or n = −3 or n = −2 or n = −1 or n = 0
+    inspection, from H2

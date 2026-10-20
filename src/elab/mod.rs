@@ -28,6 +28,7 @@ pub(crate) mod normal;
 pub mod numerals;
 pub(crate) mod provenance;
 pub(crate) mod reading;
+pub(crate) mod real;
 pub(crate) mod scopes;
 mod spoken;
 pub(crate) mod state;

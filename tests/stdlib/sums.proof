@@ -5,6 +5,7 @@ import mundane theorem    stdlib/sums/range-nat as sums-range-nat
 import mundane theorem    stdlib/sums/range-nat0 as sums-range-nat0
 import mundane theorem    stdlib/sums/range-single as sums-range-single
 import mundane theorem    stdlib/sums/range-split as sums-range-split
+import mundane theorem    stdlib/sums/range-extended as sums-range-extended
 import mundane definition stdlib/sums/range0 as sums-range0
 import mundane theorem    stdlib/sums/sum-empty-range as sums-sum-empty-range
 import mundane theorem    stdlib/sums/sum-empty-set as sums-sum-empty-set
@@ -88,3 +89,12 @@ theorem range-split
 
 1.  {m, …, n} = {m, …, k} ∪ {k + 1, …, n}
     mun:sums-range-split, from H3
+
+theorem range-extended
+  let m ∈ ℤ                                                           (H1)
+  let n ∈ ℤ                                                           (H2)
+  let j ∈ {m, …, n}                                                   (H3)
+  then j ∈ {m, …, n + 1}
+
+1.  j ∈ {m, …, n + 1}
+    mun:sums-range-extended k := j, a := m, b := n, from H3

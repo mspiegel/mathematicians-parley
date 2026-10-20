@@ -21,14 +21,14 @@ use crate::formula::symbol::Symbol;
 use crate::formula::{ByShape, Node, Sort, Sorts};
 use crate::matching::{alike_top, standard, substitute_apart, Binding, FxIndexSet};
 use crate::notations::{
-    APPLICATION, DIVIDED, FACTORIAL, IN, INTEGER_RANGE, JUXTAPOSITION, MEMBERSHIP,
-    MINUS, MOD, MULTIPLICATIVE, NUMBER_SYSTEMS, NUMERAL, PLUS, POWER, SUM, SUPERSCRIPT,
-    TIMES, UNARY_MINUS,
+    APPLICATION, DEGREES, DIVIDED, EULER, FACTORIAL, FUNCTION_TYPE, IN, INTEGER_RANGE,
+    JUXTAPOSITION, MEMBERSHIP, MINUS, MOD, MULTIPLICATIVE, NUMBER_SYSTEMS, NUMERAL, PI,
+    PLUS, POWER, SQUARE_ROOT, SUM, SUPERSCRIPT, TIMES, UNARY_MINUS,
 };
 use crate::rules::{self, lookup, System};
 
 use super::library::Library;
-use super::parts::Parts;
+use super::parts::{bound_in, function_values, Bound, Parts};
 
 /// The number system each letter is introduced in, by the letter as the
 /// page writes it.
@@ -115,6 +115,54 @@ pub fn said_once(
                 }
             })
             .or_insert(system);
+    }
+    // A function's value at a point the page puts in the function's domain
+    // once, a(n) with `let a : ℕ → ℝ` cited and `let n ∈ ℕ`, is in the
+    // codomain as at a point a line says (`SYNTAX.md`, a function's type
+    // and a point of its domain): the type line is cited, the point said
+    // once. A domain that is no number system, a range, asks its line.
+    let types: Vec<Node> = parts
+        .facts
+        .iter()
+        .filter(|f| f.notation() == FUNCTION_TYPE)
+        .cloned()
+        .collect();
+    let mut points: Vec<Node> = Vec::new();
+    for typed in &types {
+        let [_, domain, _] = typed.children.as_slice() else {
+            continue;
+        };
+        let within = (domain.notation() == NUMBER_SYSTEMS)
+            .then(|| System::of_sign(&domain.text))
+            .flatten();
+        let Some(within) = within else {
+            continue;
+        };
+        for (letter, system) in &letters {
+            if system.within(within) {
+                let point = Node::name(Sort::none(), letter);
+                points.push(bound_in(Bound::Member, &point, domain, library.env.g));
+            }
+        }
+    }
+    if !points.is_empty() {
+        let typed_at: Vec<Node> = types.into_iter().chain(points).collect();
+        for value in function_values(&typed_at, library.env, sorts) {
+            if parts
+                .facts
+                .iter()
+                .any(|f| alike_top(f, &value, &library.ctx))
+            {
+                continue;
+            }
+            if let (Some(system), [term, _]) = (
+                value.children.get(1).and_then(|s| System::of_sign(&s.text)),
+                value.children.as_slice(),
+            ) {
+                atoms.push((term.clone(), system));
+            }
+            parts.facts.push(value);
+        }
     }
     let ctx = &library.ctx;
     let mut local = sorts.clone();
@@ -266,6 +314,9 @@ pub enum OnceReason {
     Numeral,
     /// A letter introduced in the system or one inside it.
     Letter,
+    /// A square root, π, e or a logarithm `real arithmetic` works out, which
+    /// is in ℝ and ℂ.
+    Real,
     /// The term's operation applied to parts each in the system, the
     /// reasons given in the order the term writes its parts; a power's
     /// exponent is no part, being a numeral or a letter in ℕ or ℕ₀, and a
@@ -316,6 +367,10 @@ pub enum Shape<'t, T> {
     Operation(&'static str, &'t T, &'t T),
     /// A base to an exponent.
     Power(&'t T, &'t T),
+    /// What `real arithmetic` works out and the walk takes whole: the square
+    /// root of numerals whose value is a rational of at least 0, π, e, and
+    /// the logarithm of numerals whose value is a positive rational.
+    Real,
     /// Anything the walk does not take apart.
     Other,
 }
@@ -389,8 +444,80 @@ pub fn reason<A: OnceAsk>(
             rules::closed("cexp", label)?;
             Some(OnceReason::Built(vec![reason(ask, a, system)?]))
         }
+        Shape::Real => {
+            matches!(system, System::R | System::C).then_some(OnceReason::Real)
+        }
         Shape::Other => None,
     }
+}
+
+/// Whether `real arithmetic` takes the square root of a rational: one of at
+/// least 0, within its limits (`methods::surds::root_of`).
+pub fn root_taken(value: &BigRational) -> bool {
+    crate::methods::surds::root_of(value).is_ok()
+}
+
+/// Whether `real arithmetic` takes the logarithm of a rational: a positive
+/// one, within its limits (`methods::reals::factored`).
+pub fn log_taken(value: &BigRational) -> bool {
+    value.is_positive() && crate::methods::reals::factored(value).is_ok()
+}
+
+/// Whether `real arithmetic` takes the sine and cosine of q·π: q's
+/// denominator divides 4 or 6 (`methods::reals::trig_value`).
+pub fn angle_taken(multiple: &BigRational) -> bool {
+    use crate::methods::reals::{trig_value, Trig};
+    trig_value(Trig::Sine, multiple).is_ok()
+}
+
+/// The q of a closed angle written as q·π, in radians or degrees: π, a
+/// numeral, and what +, −, ·, / and negation build from them where the
+/// result is a multiple of π, or x° for a numeral x. None for any other.
+fn pi_multiple(term: &Node) -> Option<BigRational> {
+    let (rational, of_pi) = pi_parts(term)?;
+    rational.is_zero().then_some(of_pi)
+}
+
+/// A closed term as a + b·π, its rational part and its multiple of π.
+fn pi_parts(term: &Node) -> Option<(BigRational, BigRational)> {
+    if let Some(v) = value(term) {
+        return Some((v, BigRational::zero()));
+    }
+    let kids = term.children.as_slice();
+    Some(match (term.notation(), term.spelling(), kids) {
+        (PI, _, []) => (BigRational::zero(), BigRational::one()),
+        (DEGREES, _, [x]) => (
+            BigRational::zero(),
+            value(x)? / BigRational::from_integer(180.into()),
+        ),
+        (UNARY_MINUS, _, [a]) => {
+            let (r, p) = pi_parts(a)?;
+            (-r, -p)
+        }
+        (_, PLUS, [a, b]) => {
+            let ((r, p), (s, q)) = (pi_parts(a)?, pi_parts(b)?);
+            (r + s, p + q)
+        }
+        (_, MINUS, [a, b]) => {
+            let ((r, p), (s, q)) = (pi_parts(a)?, pi_parts(b)?);
+            (r - s, p - q)
+        }
+        (_, TIMES, [a, b]) | (JUXTAPOSITION, _, [a, b]) => {
+            let ((r, p), (s, q)) = (pi_parts(a)?, pi_parts(b)?);
+            if !p.is_zero() && !q.is_zero() {
+                return None;
+            }
+            (&r * &s, r * q + p * s)
+        }
+        (_, DIVIDED, [a, b]) => {
+            let ((r, p), (s, q)) = (pi_parts(a)?, pi_parts(b)?);
+            if !q.is_zero() || s.is_zero() {
+                return None;
+            }
+            (r / &s, p / s)
+        }
+        _ => return None,
+    })
 }
 
 /// Whether a power's exponent makes it a product of copies of its base:
@@ -434,6 +561,28 @@ impl OnceAsk for PageOnce<'_> {
             }
             (_, DIVIDED, [a, b]) => Shape::Operation("cdiv", a, b),
             (POWER | SUPERSCRIPT, _, [a, e]) => Shape::Power(a, e),
+            (SQUARE_ROOT, _, [a]) if value(a).is_some_and(|v| root_taken(&v)) => {
+                Shape::Real
+            }
+            (PI | EULER, _, []) => Shape::Real,
+            // The library's ln, sin and cos: one the theorem introduces as a
+            // letter of its own is not it.
+            (APPLICATION, _, [head, a])
+                if head.is_name()
+                    && head.text == "ln"
+                    && !self.letters.contains_key("ln")
+                    && value(a).is_some_and(|v| log_taken(&v)) =>
+            {
+                Shape::Real
+            }
+            (APPLICATION, _, [head, a])
+                if head.is_name()
+                    && matches!(head.text.as_str(), "sin" | "cos")
+                    && !self.letters.contains_key(head.text.as_str())
+                    && pi_multiple(a).is_some_and(|q| angle_taken(&q)) =>
+            {
+                Shape::Real
+            }
             _ => Shape::Other,
         }
     }
@@ -594,19 +743,19 @@ pub fn nonzero_by_parts(divisor: &Node, said: &dyn Fn(&Node) -> bool) -> bool {
     }
 }
 
-/// Whether a divisor is a numeral other than zero: 10^0 is worked out to 1,
-/// and is no numeral.
-pub fn numeral_nonzero(divisor: &Node) -> bool {
-    divisor.notation() == NUMERAL && value(divisor).is_some_and(|v| !v.is_zero())
+/// Whether a divisor is a term of numerals alone whose value, as
+/// `arithmetic` works it out, is not zero: 3, 2 − 5 and 10^0.
+pub fn closed_nonzero(divisor: &Node) -> bool {
+    value(divisor).is_some_and(|v| !v.is_zero())
 }
 
-/// Whether a divisor goes without its `≠ 0` (`SYNTAX.md`): a numeral other
-/// than zero, or a term the page says once is in ℕ by `letters`, a positive
-/// integer, as k, j·(j + 1), 2^n and (k + 1)! are where k, j and n are
-/// letters in ℕ.
+/// Whether a divisor goes without its `≠ 0` (`SYNTAX.md`): a term of
+/// numerals alone whose value is not zero, or a term the page says once is
+/// in ℕ by `letters`, a positive integer, as k, j·(j + 1), 2^n and (k + 1)!
+/// are where k, j and n are letters in ℕ.
 pub fn nonzero_said_once(divisor: &Node, letters: &Introduced) -> bool {
-    numeral_nonzero(divisor)
-        || within(divisor, System::N, letters, &numeral_nonzero, &|_, _| false)
+    closed_nonzero(divisor)
+        || within(divisor, System::N, letters, &closed_nonzero, &|_, _| false)
 }
 
 /// The value of a term built from numerals alone, worked out exactly; None

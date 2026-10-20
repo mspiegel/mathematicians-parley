@@ -35,7 +35,6 @@ const UNWRITTEN: &[&str] = &[
     "notation holds-of ()",
     "notation map themapsending∈to",
     "notation map-of-two themapsending∈,∈to",
-    "notation pi π",
     "notation supremum sup",
 ];
 

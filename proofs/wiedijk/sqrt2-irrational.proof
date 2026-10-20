@@ -177,5 +177,3 @@ theorem sqrt2-irrational
 
 3.  √2 is irrational
     mun:irrational x := √2, from 2
-    requires 2 ≥ 0: arithmetic
-    requires √2 ∈ ℝ: mun:sqrt x := 2

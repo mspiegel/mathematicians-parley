@@ -7,5 +7,5 @@ $[ tests/elaborator/textbook-exercise-shapes/product-nonzero.mm $]
 
 ${
   tests.elaborator.textbook-exercise-shapes.a-hypothesis-from-the-line-cited $p |- ( A e. NN -> ( -. ( ! ` A ) = 0 /\ -. ( ( ! ` A ) x. A ) = 0 ) ) $=
-    ( cn wcel cfa cfv cc0 wceq wn cmul co wne cn0 id nnnn0 syl facne0 wb df-ne a1i mpbid cr wa faccl nnre jca nnne0 sylib tests.elaborator.textbook-exercise-shapes.product-nonzero ) ABCZADEZFGZHZUJAIJZFGZHZUIUJFKZULUIALCZUPUIUIUQUIMZANZOZAPOUPULQUIUJFRZSTUIUJUACZAUACZUBZULUBZAFGZHZUBUOUIVEVGUIVDULUIVBVCUIUJBCZVBUIUQVHUTAUCZOZUJUDOUIUIVCURAUDOUEUIUPULUIVHUPVJUJUFOVAUGUEUIAFKZVGUIUIVKURAUFOAFRUGUEUJAUHOUE $.
+    ( cn wcel cfa cfv cc0 wceq wn cmul co wne cn0 id nnnn0 syl facne0 wb df-ne a1i mpbid cr wa faccl nnre jca nnne0 neneqd tests.elaborator.textbook-exercise-shapes.product-nonzero ) ABCZADEZFGZHZUJAIJZFGZHZUIUJFKZULUIALCZUPUIUIUQUIMZANZOZAPOUPULQUIUJFRSTUIUJUACZAUACZUBZULUBZAFGZHZUBUOUIVDVFUIVCULUIVAVBUIUJBCZVAUIUQVGUTAUCZOZUJUDOUIUIVBURAUDOUEUIUJFUIVGUPVIUJUFOUGUEUIAFUIUIAFKURAUFOUGUEUJAUHOUE $.
 $}

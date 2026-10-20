@@ -110,6 +110,23 @@ mundane method arithmetic
               proof's shape asks a line, as an induction's base case does.
               The mark is for the reader and changes nothing a tool does.
 
+mundane method real-arithmetic
+  form        real arithmetic
+  block       none
+  checks      a fact about closed terms with square roots of rationals:
+              value, disequality, membership in ℝ, and order or membership
+              in ℕ ℕ₀ ℤ ℚ where the values are rational.
+  decides     relations between closed expressions in square roots of
+              rationals, by writing each side as a sum of rational multiples
+              of square roots of squarefree whole numbers
+  hypotheses  none, and it cites nothing, as arithmetic
+  specified-in METHODS.md
+  metamath    sqrtmuld, sqrtsqd, sqsqrtd, sqrtcld, resqrtcld, subeq0ad,
+              mulcanad, mulne0bad, subne0ad, divmuld, expp1d, expnegd
+  note        Kept apart from arithmetic so that what arithmetic decides stays
+              small enough to read. A claim with no square root cites
+              arithmetic. Marked mundane, as arithmetic is.
+
 method membership
   form        membership, from L
   block       none

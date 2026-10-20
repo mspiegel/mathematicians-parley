@@ -1,0 +1,20 @@
+import mundane theorem stdlib/sums/sum-termwise
+
+theorem a-sum-termwise-over-another-letter
+  note        The cited lines say the terms agree over i, and the claim's
+              sums run over j: one fact over two spellings of a bound
+              letter.
+  let n ∈ ℕ    (H1)
+  then Σ(j = 1 to n) (j + j) = Σ(j = 1 to n) 2·j
+
+1.  For all i ∈ {1, …, n}, i + i = 2·i.
+    algebra
+
+2.  For all i ∈ {1, …, n}, i + i ∈ ℝ.
+    membership
+
+3.  For all i ∈ {1, …, n}, 2·i ∈ ℝ.
+    membership
+
+4.  Σ(j = 1 to n) (j + j) = Σ(j = 1 to n) 2·j
+    mun:sum-termwise a := 1, b := n, from 1, 2, 3

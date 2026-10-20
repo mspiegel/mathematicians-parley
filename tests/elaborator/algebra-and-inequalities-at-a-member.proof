@@ -1,0 +1,16 @@
+theorem algebra-at-a-member
+  note        A step said of every member is read at a member by algebra,
+              as by membership: i + i = 2·i at i.
+  let n ∈ ℕ    (H1)
+  then For all i ∈ {1, …, n}, i + i = 2·i.
+
+1.  For all i ∈ {1, …, n}, i + i = 2·i.
+    algebra
+
+theorem inequalities-at-a-member
+  note        And by inequalities, which takes what the member's membership
+              implies, i ≥ 1 of i ∈ ℕ.
+  then For all i ∈ ℕ, i + 1 > 1.
+
+1.  For all i ∈ ℕ, i + 1 > 1.
+    inequalities

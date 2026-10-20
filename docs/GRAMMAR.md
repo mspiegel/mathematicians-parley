@@ -822,11 +822,13 @@ one may be any name.
 
 A constant the page writes as a letter is that constant until a line
 introduces a name with the same letter, if its notation is marked
-`shadowed`; then, in that line's scope, the letter is the name. Only the
-imaginary unit i is marked: a proof may write `obtain i` or `Σ(i = 1 to n)`
-and mean its own i, as a reader does. Which constants yield is decided one
-at a time, since a letter a reader would not reuse is one the page should
-not let them reuse.
+`shadowed`; then, in that line's scope, the letter is the name. Two
+constants are marked, the imaginary unit i and Euler's number e: a proof may
+write `obtain i` or `Σ(i = 1 to n)` and mean its own i, and a group's
+identity e, a walk `let e : {1, …, n} → E` or `let e = ⌊A + 1/2⌋ − A` is
+the proof's own e, as a reader takes it. Which constants yield is decided
+one at a time, since a letter a reader would not reuse is one the page
+should not let them reuse.
 
 **Each of these is a defect:** an item cited or applied and not imported; an
 import that nothing cites or applies; an item imported twice; an import whose
@@ -896,11 +898,11 @@ A justification is a head and a set of optional slots. The slots are:
 | names | `<name> { , <name> } :` , only after `obtain` |
 | target | `in line <number>` \| `in <label>` |
 | destination | `into line <number>` \| `into <label>` |
-| source | `(line <number>)` \| `(<label>)` \| `(arithmetic)`, for an equation of numerals alone |
+| source | `(line <number>)` \| `(<label>)` \| `(arithmetic)`, for an equation of numerals alone \| `(real arithmetic)`, for a closed equation with a square root |
 | from | `from <ref> { , <ref> }` \| `from line <number>` |
 | start | `starting at <term>` |
 
-The seventeen heads and the slots each admits:
+The eighteen heads and the slots each admits:
 
 ```grammar
 <justification> ::=
@@ -912,6 +914,7 @@ The seventeen heads and the slots each admits:
   | `instantiate` <instantiation> <target> [ `,` <from> ]
   | `algebra` [ `,` <from> ]
   | `arithmetic`
+  | `real arithmetic`
   | `inequalities` [ `,` <from> ]                  -- with no `from`, rows may follow
   | `transitivity` `,` <from>
   | `antisymmetry` `,` <from>
@@ -992,7 +995,7 @@ the letter that claim binds.
 <chain line> ::= <rel> <term> [ <modulus> ] <citation>
 <rel>        ::= `=` | `≤` | `<` | `≥` | `>` | `≡`
 <modulus>    ::= `(mod` <term> `)`
-<citation>   ::= <ref> | `arithmetic`
+<citation>   ::= <ref> | `arithmetic` | `real arithmetic`
 ```
 
 A line whose relation is `≡` says its modulus, `≡ 1·10 (mod 3)`, and no other
@@ -1005,11 +1008,15 @@ the chain had become an equation again.
 
 The citation is separated from the term by two or more spaces in every chain
 line. A parser should not rely on that. Read the citation from the right end
-of the line instead, since it is the last word, and treat the whitespace as
-layout. A cited equation may face either way; the line says nothing about
+of the line instead, since it is the last word, or the last two where they
+are `real arithmetic`, and treat the whitespace as layout: a line ending
+`real arithmetic` cites that method, and its term does not end in "real". A
+cited equation may face either way; the line says nothing about
 which. `arithmetic` stands in
 for a reference only on a line whose relation is between numerals alone, and
 cites nothing: the fact is worked out where it stands (`SYNTAX.md`).
+`real arithmetic` stands in the same way on a line whose terms are closed
+and take a square root.
 
 A chain goes one way. Its orders are all `≤` and `<`, going up, or all `≥`
 and `>`, going down, with `=` anywhere among either: a ≤ b ≥ c says nothing

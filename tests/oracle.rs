@@ -23,8 +23,8 @@
 //! Any other answer is a fault, printed with the seed that draws it again,
 //! and each class found is pinned as a theorem the build elaborates
 //! (in `tests/elaborator/`: `closed-values`, `combinations`, `powers`,
-//! `divisors`, `orders`, `rationals`, `listed-numerals` and
-//! `signed-divisibility`). The test draws `ORACLE_COUNT`
+//! `divisors`, `orders`, `rationals`, `listed-numerals`,
+//! `signed-divisibility` and `divisors-not-zero-by-their-factors`). The test draws `ORACLE_COUNT`
 //! claims of each method (1500 where it is not set) from `ORACLE_SEED`, of
 //! the methods whose names hold `ORACLE_ONLY` where it is set, and reads
 //! set.mm, so it is not run with the others:
@@ -73,6 +73,12 @@ mod said;
 
 #[path = "oracle/rows.rs"]
 mod rows;
+
+#[path = "oracle/real.rs"]
+mod real;
+
+#[path = "oracle/atoms.rs"]
+mod atoms;
 
 use gen::Drawn;
 use judge::Verdict;
@@ -179,6 +185,19 @@ import mundane definition stdlib/divisibility/congruent-mod
             draw: rows::antisymmetry,
             imports: "",
             false_said: "by antisymmetry what is not two lines",
+        },
+        Method {
+            name: "real-arithmetic",
+            draw: real::claim,
+            // The functions a claim holding a logarithm applies, imported as
+            // a proof applying them would.
+            imports: "\
+import mundane definition stdlib/logarithms/ln
+import mundane definition stdlib/logarithms/exp
+import mundane definition stdlib/trigonometry/sin
+import mundane definition stdlib/trigonometry/cos
+",
+            false_said: "which is false",
         },
     ]
 }

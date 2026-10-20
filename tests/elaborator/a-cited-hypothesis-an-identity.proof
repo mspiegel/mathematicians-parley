@@ -1,0 +1,16 @@
+theorem successor-sum
+  let i ∈ ℕ₀    (H1)
+  let j ∈ ℕ    (H2)
+  assume j = i + 1    (H3)
+  then 2·j = 2·i + 2
+
+1.  2·j = 2·i + 2
+    algebra, from H3
+
+theorem successor-at-zero
+  note        At i := 0 and j := 1 the hypothesis is 1 = 0 + 1, which is
+              1 = 1 once the 0 is dropped, and needs no line.
+  then 2·1 = 2·0 + 2
+
+1.  2·1 = 2·0 + 2
+    thm:successor-sum i := 0, j := 1

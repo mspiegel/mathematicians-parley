@@ -1,0 +1,93 @@
+import mundane definition stdlib/trigonometry/cos
+import mundane definition stdlib/trigonometry/sin
+
+theorem a-sine-of-a-sixth-of-pi
+  then sin(π/6) = 1/2
+
+1.  sin(π/6) = 1/2
+    real arithmetic
+
+theorem a-cosine-of-a-quarter-of-pi
+  then cos(π/4) = √2/2
+
+1.  cos(π/4) = √2/2
+    real arithmetic
+
+theorem a-sine-in-the-second-quadrant
+  then sin(2·π/3) = √3/2
+
+1.  sin(2·π/3) = √3/2
+    real arithmetic
+
+theorem a-cosine-of-pi
+  then cos(π) = −1
+
+1.  cos(π) = −1
+    real arithmetic
+
+theorem a-sine-in-the-third-quadrant
+  then sin(7·π/6) = −1/2
+
+1.  sin(7·π/6) = −1/2
+    real arithmetic
+
+theorem a-cosine-of-a-negative-angle
+  then cos(−π/3) = 1/2
+
+1.  cos(−π/3) = 1/2
+    real arithmetic
+
+theorem a-sine-in-degrees
+  then sin(30°) = 1/2
+
+1.  sin(30°) = 1/2
+    real arithmetic
+
+theorem a-sine-a-turn-on
+  then sin(9·π/4) = √2/2
+
+1.  sin(9·π/4) = √2/2
+    real arithmetic
+
+theorem the-squares-of-a-sine-and-a-cosine
+  then sin(π/6)² + cos(π/6)² = 1
+
+1.  sin(π/6)² + cos(π/6)² = 1
+    real arithmetic
+
+theorem a-sine-times-a-root
+  then sin(π/4)·√2 = 1
+
+1.  sin(π/4)·√2 = 1
+    real arithmetic
+
+theorem a-cosine-of-zero
+  then cos(0) = 1
+
+1.  cos(0) = 1
+    real arithmetic
+
+theorem one-over-a-cosine
+  note        cos(π) holds no atom, being −1, so a power of it to an exponent
+              below 0 is taken.
+  then cos(π)^(−1) = −1
+
+1.  cos(π)^(−1) = −1
+    real arithmetic
+
+theorem a-sine-said-once
+  note        sin(π/6) is a real number, said once, so algebra takes it as an
+              atom with no line saying so.
+  let a ∈ ℝ    (H1)
+  then a·sin(π/6) = sin(π/6)·a
+
+1.  a·sin(π/6) = sin(π/6)·a
+    algebra
+
+theorem a-sine-not-zero-on-a-requires-line
+  let a ∈ ℝ    (H1)
+  then a·sin(π/3)/sin(π/3) = a
+
+1.  a·sin(π/3)/sin(π/3) = a
+    algebra
+    requires sin(π/3) ≠ 0: real arithmetic

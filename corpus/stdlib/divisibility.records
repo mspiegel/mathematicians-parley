@@ -154,6 +154,16 @@ theorem prime-divides-product
   note        Euclid's lemma. `proofs/setmm/prime-divides-product.proof`
               proves it as its own exercise (DATABASE.md).
 
+theorem prime-divides-power
+  let p ∈ ℕ                                                           (H1)
+  assume p is prime                                                   (H2)
+  let a ∈ ℤ                                                           (H3)
+  let n ∈ ℕ                                                           (H4)
+  then        p divides a^n ↔ p divides a
+  metamath    prmdvdsexp
+  target      prmdvdsexp
+  note        Euclid's lemma over the n factors of a^n.
+
 theorem divides-gcd
   let d ∈ ℤ                                                           (H1)
   let a ∈ ℤ                                                           (H2)

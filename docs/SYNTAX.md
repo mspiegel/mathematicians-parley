@@ -441,12 +441,13 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
 | `instantiate v := t in line L, from L2` | line L claims "for all v ∈ X, B"; the claim is B with t in place of v, and L2 supplies t ∈ X, or says what t is built from as a cited item's lines do: L2 saying q ∈ ℕ₀ supplies 3q + 1 ∈ ℕ₀, though a `let` put q in ℤ (below, "A term that a line the step names"). Several variables may be given at once. L may also be a hypothesis or supposition label. L is never an item: a definition whose sentence is a "for all" is first claimed by a numbered step citing it, and that number is instantiated. This is the rule that keeps an item out of `from` applied to the other slot that says where a fact comes from, and for the same reason, that a reader can look at everything a step names |
 | `algebra, from L` | ring and field identities, starting from the equations in L |
 | `arithmetic` | a fact about closed numerals: value, order, or membership in ℕ ℤ ℚ ℝ |
+| `real arithmetic` | a fact about closed terms with square roots of rationals, π, e, logarithms and exponentials of rationals, and sines and cosines of multiples of π/4 and π/6: value, disequality and order where `METHODS.md` says they are decided, membership in ℝ, and membership in ℕ ℤ ℚ where the value is rational |
 | `inequalities, from L` | the lines L added side by side, as they stand, with the bounds a membership gives, closed numeral facts, a disequality taken both ways and a negation turned round taken without being written (`METHODS.md`, inequalities); with nothing in L to add, those alone |
 | `inequalities`, then rows | the manipulations of one line written out, a row to each. The first row is a line the step cites, written out, with its label as reason; each row after it is the row above with the manipulation its reason names, `adding t`, `multiplying by c`, `symmetry`, `weakening` or `algebra` (`METHODS.md`); the last row is the claim |
 | `transitivity, from L` | the lines L, in the order cited, make a chain: where one line ends the next begins, the term they share written the same way in both, each line read from whichever side meets the one before; the claim relates the chain's first term to its last, by the relation a calculation's chain would have |
 | `antisymmetry, from L` | L is two lines, `a ≤ b` and `b ≤ a`; the claim is `a = b` |
 | `join L` | the claim is the sentences of the lines L put together; with one cited line it is that line. It infers nothing. A propositional law that does infer something, such as eliminating a double negation, is a cited theorem instead |
-| `contradiction`, then `suppose B (S)` | C is the step's claim; the block supposes B, labelled S, and its last step reaches the opposite of an earlier line and names it after its reasons, `inequalities, from 3.1, contradicting 3.4`, or reaches a fact of numerals alone that `arithmetic` finds false and says so after its claim, `2 ≤ 1, which is impossible`. Some step of the block cites S. B is either "not C", which is reductio, or the thing C negates, which is how a negation is proved directly; no formula is its own double negation, so which one it is never has to be guessed. Any rewriting of B, such as p ≤ n for "not p > n", is a step inside the block. `METHODS.md` says what each shape expands to and which of them needs the classical step |
+| `contradiction`, then `suppose B (S)` | C is the step's claim; the block supposes B, labelled S, and its last step reaches the opposite of an earlier line and names it after its reasons, `inequalities, from 3.1, contradicting 3.4`, or reaches a closed fact that `arithmetic`, or `real arithmetic` where it holds a square root, π, e or a logarithm, finds false and says so after its claim, `2 ≤ 1, which is impossible`. Some step of the block cites S. B is either "not C", which is reductio, or the thing C negates, which is how a negation is proved directly; no formula is its own double negation, so which one it is never has to be guessed. Any rewriting of B, such as p ≤ n for "not p > n", is a step inside the block. `METHODS.md` says what each shape expands to and which of them needs the classical step |
 | `proof`, then `let x ∈ S (K)` and `assume A (H)` | the claim is "for all x ∈ S, if A then B", or "if A then B" where the block opens with `assume` alone; the block opens with the claim's `let` and `assume` lines, each labelled, and its last step is B, or, where A cannot hold, a step reaching the opposite of an earlier line that names it after its reasons, as a case that cannot occur does. The claim is one sentence: the block proves one statement, and each other sentence is a step of its own |
 | `induction on k starting at m`, with parts `base` and `step` | the claim is "for all k ∈ X, P(k)", X being ℕ or ℕ₀ and m its first element; the `base` part's last step claims P(m); the `step` part opens with `let k ∈ X (K)` and `assume step N is true for k, the induction hypothesis (IH)`, those two lines in that order and no other, N being the induction's number, and its last step claims P(k + 1), with P read off the claim. A claim about only some k, "for all k ∈ ℕ₀ with k ≤ n, S", is the formula "for all k ∈ ℕ₀, if k ≤ n then S", so P(k) is "if k ≤ n then S": the base claims "if 0 ≤ n then …", and each part proves its "if" by a `proof` block opening `assume`. The starting point is written even when the set fixes it, so that every induction reads the same way and inductions from 2 or 4 need no new form. k is a letter of the induction's own: one the theorem or a block around the induction has already introduced would be two things at once, and a reader could not tell which a line means. P(k) mentions k: a statement that does not is no induction, and is a step of its own. The claim is one sentence |
 | `cases, from L`, with one `case` part per disjunct, two or more: one case is no case split, and is a plain step | L claims "P or Q"; each part opens with `assume` of its disjunct, labelled, in the order of L, and its last step claims the same formula as the step above the block |
@@ -504,6 +505,12 @@ of
 - a numeral, or a term of numerals alone that `arithmetic` works out, in
   each number system its value is in: `3 ∈ ℤ`, `10 − 1 ∈ ℕ`, `0! ∈ ℕ`,
   `7 mod 3 ∈ ℕ₀`;
+- a square root, π, e, a logarithm, a sine or a cosine that
+  `real arithmetic` works out, in ℝ and ℂ, and what the operations below
+  build from them: `√2 ∈ ℝ`, `sin(π/6) ∈ ℝ`,
+  `1 + √2 ∈ ℝ`, `π + ln 2 ∈ ℝ`. Its membership of ℕ, ℕ₀, ℤ or ℚ is not said
+  once, even where its value is rational: `√4 ∈ ℕ` is a requires line
+  `real arithmetic` justifies;
 - a letter, in the set the line introducing it names and every number system
   containing that one: a `let` of the theorem or of a block around the
   step, an induction's `let k ∈ X`, or an `obtain`'s sentence `p ∈ ℤ`, which
@@ -517,14 +524,13 @@ of
   closed under what builds it (the table of closure
   lemmas in `src/rules.rs`): a·x + b·y ∈ ℤ where a, b, x and y are integers.
   A quotient's divisor not being zero is the step's to write or cite, unless
-  the page says once that it is a positive integer: a numeral other than
-  zero, or a term these rules put in ℕ, as k, k + 1, j·(j + 1) and 2^n are
-  where k, j ∈ ℕ and n ∈ ℕ₀; or unless it is a product, a quotient, a
+  the page says it once: of a term of numerals alone that `arithmetic`
+  works out to a value other than zero, `3`, `1 − 2` and `10^0`; of a
+  positive integer, a term these rules put in ℕ, as k, k + 1, j·(j + 1)
+  and 2^n are where k, j ∈ ℕ and n ∈ ℕ₀; or of a product, a quotient, a
   negation or a power to a numeral, 0 included, whose parts are each not
   zero by this same rule: `x·2`, `−x` and `x⁰` are not zero where a line
-  says `x ≠ 0`, or `x > 0`. `10^0` is a power of a
-  numeral and so not zero, but `1 − 2` is no numeral, and `requires 1 − 2 ≠
-  0: arithmetic` says it. A sum's term that divides by something holding the
+  says `x ≠ 0`, or `x > 0`. A sum's term that divides by something holding the
   sum's own letter, `1/T(k)` in `Σ(k = 1 to n)`, or `1/k` in `Σ(k = 0 to
   n)`, has a divisor no line outside the sum can speak of, so the citation
   names a line saying the term at every point of a set holding the range,
@@ -852,6 +858,14 @@ and as a `requires` line an item's hypothesis reads, `requires 9 = 3·3:
 arithmetic` under `3 divides 9`. The checker refuses `arithmetic` in any of
 these places for a fact with a letter in it, and the elaborator works each
 fact out before proving it, as it does a step's.
+
+A closed fact that takes a square root, or writes π, e, `ln`, `exp`, `sin`,
+`cos` or `°`,
+names `real arithmetic` in the same
+places, and for the same reason: `substitute √8 = 2·√2 (real arithmetic)`,
+`= 2·√2    real arithmetic` on a chain line, `requires √2 − 1 ≠ 0: real
+arithmetic`. What each of the two decides, and the line between them, is in
+`METHODS.md`.
 
 Where none of those places can carry it, the fact is a numbered step after
 all, justified by `arithmetic`: where the proof's shape asks a line and not a

@@ -20,7 +20,7 @@ use num_bigint::BigUint;
 use num_traits::{One, ToPrimitive, Zero};
 
 use crate::binds;
-pub use crate::methods::numerals::{at_number, spell, value};
+pub use crate::methods::numerals::{at_number, spell, spell_integer, value};
 use crate::methods::numerals::{
     digit, is_letter, last_off, numeral_term, one_digit, put, spelt,
 };
@@ -891,139 +891,64 @@ fn product_up_to(
 /// (`eluz2`), m ≤ n being `leidi` where they are one and the order weakened
 /// (`ltlei`) where m is below.
 fn reaches(b: &Builder, m: &BigUint, n: &BigUint) -> Proof {
+    in_upper_integers(
+        b,
+        &spelt(m),
+        &spelt(n),
+        &integer(b, m),
+        &integer(b, n),
+        &at_most_of(b, m, n),
+    )
+}
+
+/// |- m <_ n, for m at most n: `leidi` where they are one, and the order
+/// weakened (`ltlei`) where m is below.
+pub(crate) fn at_most_of(b: &Builder, m: &BigUint, n: &BigUint) -> Proof {
     let (sm, sn) = (spelt(m), spelt(n));
-    let ordered = if m == n {
-        b.ap("leidi", &binds! {"A" => &sm}, &[&re(b, m.clone())])
-    } else {
-        let law = b.ap(
-            "ltlei",
-            &binds! {"A" => &sm, "B" => &sn},
-            &[&re(b, m.clone()), &re(b, n.clone())],
-        );
-        b.ap(
-            "ax-mp",
-            &binds! {"ph" => t!(&sm, &sn, "clt", "wbr"), "ps" => t!(&sm, &sn, "cle", "wbr")},
-            &[&below_of(b, m, n), &law],
-        )
-    };
+    if m == n {
+        return b.ap("leidi", &binds! {"A" => &sm}, &[&re(b, m.clone())]);
+    }
+    let law = b.ap(
+        "ltlei",
+        &binds! {"A" => &sm, "B" => &sn},
+        &[&re(b, m.clone()), &re(b, n.clone())],
+    );
+    b.ap(
+        "ax-mp",
+        &binds! {"ph" => t!(&sm, &sn, "clt", "wbr"), "ps" => t!(&sm, &sn, "cle", "wbr")},
+        &[&below_of(b, m, n), &law],
+    )
+}
+
+/// |- n e. ( ZZ>= ` m ) from |- m e. ZZ, |- n e. ZZ and |- m <_ n
+/// (`eluz2`).
+pub(crate) fn in_upper_integers(
+    b: &Builder,
+    sm: &Rpn,
+    sn: &Rpn,
+    m_z: &Proof,
+    n_z: &Proof,
+    ordered: &Proof,
+) -> Proof {
     b.ap(
         "mpbir3an",
         &binds! {
-            "ph" => t!(&sn, t!(&sm, "cuz", "cfv"), "wcel"),
-            "ps" => t!(&sm, "cz", "wcel"), "ch" => t!(&sn, "cz", "wcel"),
-            "th" => t!(&sm, &sn, "cle", "wbr"),
+            "ph" => t!(sn, t!(sm, "cuz", "cfv"), "wcel"),
+            "ps" => t!(sm, "cz", "wcel"), "ch" => t!(sn, "cz", "wcel"),
+            "th" => t!(sm, sn, "cle", "wbr"),
         },
         &[
-            &integer(b, m),
-            &integer(b, n),
-            &ordered,
-            &b.ap("eluz2", &binds! {"M" => &sm, "N" => &sn}, &[]),
+            m_z,
+            n_z,
+            ordered,
+            &b.ap("eluz2", &binds! {"M" => sm, "N" => sn}, &[]),
         ],
     )
 }
 
 /// |- n e. ZZ
-fn integer(b: &Builder, n: &BigUint) -> Proof {
+pub(crate) fn integer(b: &Builder, n: &BigUint) -> Proof {
     b.ap("nn0zi", &binds! {"N" => spelt(n)}, &[&nn0_of(b, n)])
-}
-
-/// The singletons of the numerals from `from` to `to`, joined from the
-/// left: `( ( { 0 } u. { 1 } ) u. { 2 } )`.
-pub fn singletons(from: &BigUint, to: &BigUint) -> Rpn {
-    let mut out = t!(spelt(from), "csn");
-    let mut k = from + 1u32;
-    while k <= *to {
-        out = t!(out, t!(spelt(&k), "csn"), "cun");
-        k += 1u32;
-    }
-    out
-}
-
-/// |- ( from ... to ) = the singletons of the numerals from `from` to
-/// `to`, joined from the left (`singletons`), for `from` at most `to`: the
-/// range of one numeral is its singleton (`fzsn`), and a longer one is the
-/// range below its top joined with the top's singleton (`fzsuc`), the top
-/// spelt as one less, plus one, and worked out.
-pub fn range(b: &Builder, from: &BigUint, to: &BigUint) -> Proof {
-    let (sf, st) = (spelt(from), spelt(to));
-    let range_to = |top: &Rpn| op(&sf, top, "cfz");
-    if to == from {
-        return b.ap(
-            "ax-mp",
-            &binds! {
-                "ph" => t!(&sf, "cz", "wcel"),
-                "ps" => t!(range_to(&sf), t!(&sf, "csn"), "wceq"),
-            },
-            &[&integer(b, from), &b.ap("fzsn", &binds! {"M" => &sf}, &[])],
-        );
-    }
-    let less = to - 1u32;
-    let sl = spelt(&less);
-    let next = op(&sl, &spelt(&BigUint::one()), ADD);
-    let split = t!(range_to(&sl), t!(&next, "csn"), "cun");
-    let law = b.ap("fzsuc", &binds! {"M" => &sf, "N" => &sl}, &[]);
-    // ( from ... ( less + 1 ) ) = ( ( from ... less ) u. { ( less + 1 ) } )
-    let step = b.ap(
-        "ax-mp",
-        &binds! {
-            "ph" => t!(&sl, t!(&sf, "cuz", "cfv"), "wcel"),
-            "ps" => t!(range_to(&next), &split, "wceq"),
-        },
-        &[&reaches(b, from, &less), &law],
-    );
-    let added = sum_of(b, &less, &BigUint::one());
-    let ends = b.ap(
-        "oveq2i",
-        &binds! {"A" => &next, "B" => &st, "C" => &sf, "F" => "cfz"},
-        &[&added],
-    );
-    let peeled = b.ap(
-        "eqtr3i",
-        &binds! {"A" => range_to(&next), "B" => range_to(&st), "C" => &split},
-        &[&ends, &step],
-    );
-    let below = singletons(from, &less);
-    let top = b.ap("sneqi", &binds! {"A" => &next, "B" => &st}, &[&added]);
-    let joined = b.ap(
-        "uneq12i",
-        &binds! {
-            "A" => range_to(&sl), "B" => &below,
-            "C" => t!(&next, "csn"), "D" => t!(&st, "csn"),
-        },
-        &[&range(b, from, &less), &top],
-    );
-    chain(
-        b,
-        &peeled,
-        &joined,
-        &range_to(&st),
-        &split,
-        &singletons(from, to),
-    )
-}
-
-/// |- ( from ... to ) = (/), for `to` below `from` (`fzn`).
-pub fn empty_range(b: &Builder, from: &BigUint, to: &BigUint) -> Proof {
-    let (sf, st) = (spelt(from), spelt(to));
-    let below = t!(&st, &sf, "clt", "wbr");
-    let empty = t!(op(&sf, &st, "cfz"), "c0", "wceq");
-    let law = b.ap(
-        "mp2an",
-        &binds! {
-            "ph" => t!(&sf, "cz", "wcel"), "ps" => t!(&st, "cz", "wcel"),
-            "ch" => t!(&below, &empty, "wb"),
-        },
-        &[
-            &integer(b, from),
-            &integer(b, to),
-            &b.ap("fzn", &binds! {"M" => &sf, "N" => &st}, &[]),
-        ],
-    );
-    b.ap(
-        "mpbi",
-        &binds! {"ph" => &below, "ps" => &empty},
-        &[&below_of(b, to, from), &law],
-    )
 }
 
 /// |- b = a from |- a = b.

@@ -124,7 +124,6 @@ theorem euclid-perfect
 
 15. (1 − 2^p)/(1 − 2) = 2^p − 1
     algebra
-    requires 1 − 2 ≠ 0: arithmetic
 
 16. σ(2^(p − 1)) = 2^p − 1
     calculation

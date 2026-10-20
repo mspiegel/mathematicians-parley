@@ -163,11 +163,16 @@ method demands it, and it is written once: on the line that introduces p,
 `let p ∈ ℝ`, the sentence `p ∈ ℤ` that an `obtain` states of each name it
 introduces, or the kind of number a naming line says its name is, `let m =
 gcd(s, w), a positive integer` (`SYNTAX.md`). A step does not write it again,
-and does not cite that line for it. The same holds of four kinds of term,
+and does not cite that line for it. The same holds of five kinds of term,
 and of nothing else:
 
 - **a numeral**, or a term of numerals alone that `arithmetic` works out,
   `3 ∈ ℤ`, `10 − 1 ∈ ℕ` or `0! ∈ ℕ`, which the page shows whole;
+- **a square root, π, e, a logarithm, a sine or a cosine that
+  `real arithmetic` works out**, in ℝ and ℂ: `√2 ∈ ℝ`, `π ∈ ℝ`,
+  `ln 2 ∈ ℝ`, `sin(π/6) ∈ ℝ`, which the page shows whole as
+  it shows a numeral, and so `1 + √2`, `√8/2` and `π + ln 2` by the rule for
+  terms built from these, below;
 - **a letter**, in the set its introducing line names and every number system
   containing that one, ℕ ⊆ ℕ₀ ⊆ ℤ ⊆ ℚ ⊆ ℝ ⊆ ℂ;
 - **a term built from those** by +, −, ·, a power whose exponent is a
@@ -178,7 +183,7 @@ and of nothing else:
   in the system its range starts in, and a function's value is one at a
   point of its domain by the function's type, `Σ(k = 1 to n) a(k)²` where
   `let a : {1, …, n} → ℝ`. A term that divides by anything the page does
-  not say once is a positive integer (`SYNTAX.md`), or takes a value at a
+  not say once is not zero (`SYNTAX.md`), or takes a value at a
   point the type does not cover, as `Σ(k = 0 to n) a(k)` does, is not said
   once this way.
 
@@ -191,8 +196,9 @@ Writing it at each use cost 990 of the corpus's 1,195 requires lines, eleven
 on one step, and those lines buried the ones that can fail.
 
 What a quotient demands is still written: its divisor's `≠ 0`, which can fail,
-unless the page says once the divisor is a positive integer, a numeral other
-than zero or a term such as k, k + 1 or 2^n with k ∈ ℕ and n ∈ ℕ₀. So is every membership the four kinds do
+unless the page says once the divisor is not zero: a term of numerals alone
+whose value is not zero, as 2 and 1 − 3 are, or a positive integer such as
+k, k + 1 or 2^n with k ∈ ℕ and n ∈ ℕ₀. So is every membership the four kinds do
 not reach: a defined name whose naming line says no kind of number, a
 function's value outside a sum, a sum whose term divides or leaves its
 function's domain, |x|, n!, a power whose exponent is any other term,

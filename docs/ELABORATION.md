@@ -984,7 +984,8 @@ negation or a power in the claim or a line the step cites, of a
 denominator's atoms, of a quotient a membership is built for, and of what
 `not_zero` is asked.
 
-1. A numeral other than zero, or a positive integer the page says once
+1. A term of numerals alone whose value is not zero, worked out as
+   `arithmetic` works one out, or a positive integer the page says once
    (`SYNTAX.md`), which rests on no line.
 2. A line the step may rest on saying so: as `≠`, either way round, as the
    denial of an equation, as the divisor above zero or below it
@@ -1276,7 +1277,8 @@ in Bezout, whose a·1 is now a wherever a line is compared.
 #### A membership said once
 
 `READERS.md` has a membership in a number system said once, where a letter is
-introduced, and the step writes nothing for a numeral, a letter, or a term
+introduced, and the step writes nothing for a numeral, a closed term with a
+square root `real arithmetic` works out, in ℝ or ℂ, a letter, or a term
 built from them by +, −, ·, negation, a power to a numeral or to a letter
 introduced in ℕ or ℕ₀, and /, or a sum whose term is such a number at
 every index (`SYNTAX.md`). Whether a membership is said once, and why, is
@@ -1290,6 +1292,12 @@ nothing:
 - a term a line the step names puts in a number system is a number there,
   carried up `rules.WITHIN` (`stated_within`);
 - a numeral is worked out, as `settle` works one out (`numeral_within`);
+- a square root of a rational of at least 0 is in ℝ (`resqrtcld`) and ℂ
+  (`sqrtcld`), π by `pire` and `picn`, e by `ere`, a logarithm of a
+  positive rational by `relogcld`, and a sine or cosine of an angle the
+  method takes by `resincld` or `recoscld` from the angle in ℝ, each from
+  facts of numerals and of π (`real_within`); what the operations build
+  from them is the compound case below;
 - a letter is in the set its introducing line names, and in each number
   system containing that one, carried up `rules.WITHIN` a lemma at a time.
   Where a letter is let into a number system, by a `let` of the theorem, of
@@ -1428,6 +1436,12 @@ was given (`closed_under`, from the `CLOSED` table `part` also uses). The
 binomial theorem's summand C(m, k)·x^(m − k)·y^k is two products, a power and
 a coefficient complex through ℕ₀, and searched for, each product was a lemma
 spent before the atoms were reached.
+
+A membership of ℝ⁺, which set.mm's laws of the logarithm ask of each
+argument (`relogmul`, `logltb`), is searched for by `elrp`, a declared
+lemma (`rules::MEMBERSHIP`): read from right to left it asks the term in ℝ
+and above 0, each settled in turn. The page says x ∈ ℝ and x > 0, as
+`mun:stdlib/logarithms/ln-product` does, and never ℝ⁺ itself.
 
 A sum's lemmas ask things of each index: `fsumdvds` that N divide the term
 for k in the range it sums over, `fsumzcl` that the term be an integer. The

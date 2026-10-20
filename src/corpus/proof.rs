@@ -519,6 +519,7 @@ pub enum Method {
     Instantiate,
     Algebra,
     Arithmetic,
+    RealArithmetic,
     Inequalities,
     Transitivity,
     Antisymmetry,
@@ -533,13 +534,14 @@ pub enum Method {
     Calculation,
 }
 
-pub const METHODS: [Method; 18] = [
+pub const METHODS: [Method; 19] = [
     Method::Obtain,
     Method::Exhibit,
     Method::Substitute,
     Method::Instantiate,
     Method::Algebra,
     Method::Arithmetic,
+    Method::RealArithmetic,
     Method::Inequalities,
     Method::Transitivity,
     Method::Antisymmetry,
@@ -563,6 +565,7 @@ impl Method {
             Method::Instantiate => "instantiate",
             Method::Algebra => "algebra",
             Method::Arithmetic => "arithmetic",
+            Method::RealArithmetic => "real arithmetic",
             Method::Inequalities => "inequalities",
             Method::Transitivity => "transitivity",
             Method::Antisymmetry => "antisymmetry",
@@ -1271,17 +1274,18 @@ fn chain_citation(path: &str, line: &Line) -> Checked<Vec<String>> {
         return Err(Problem::new(
             path,
             line.no,
-            "chain line names no line or label; a chain only joins, so every line must cite a numbered step, a label, or `arithmetic` for a link of numerals alone",
+            "chain line names no line or label; a chain only joins, so every line must cite a numbered step, a label, `arithmetic` for a link of numerals alone, or `real arithmetic` for a closed link with a square root",
         ));
     }
     Ok(chain_cited(&line.text).into_iter().collect())
 }
 
 /// The line or label a chain line cites, read from its right end; None for
-/// a link of numerals that names `arithmetic`, or a line that names nothing.
+/// a link that names `arithmetic` or `real arithmetic`, or a line that
+/// names nothing.
 pub fn chain_cited(text: &str) -> Option<String> {
     skeleton::chain_cite(text)
-        .filter(|cite| *cite != "arithmetic")
+        .filter(|cite| !matches!(*cite, "arithmetic" | "real arithmetic"))
         .map(String::from)
 }
 
@@ -1300,7 +1304,8 @@ pub struct ChainLine {
     pub relation: String,
     pub term: Written,
     pub modulus: Option<Written>,
-    /// The line, label or `arithmetic` it cites, the line's last word.
+    /// The line, label, `arithmetic` or `real arithmetic` it cites, the
+    /// line's last word or, for `real arithmetic`, its last two.
     pub cite: String,
     pub line: usize,
 }
@@ -1459,9 +1464,14 @@ pub fn chain(just: &Justification, path: &str) -> Option<Checked<Chain>> {
     let mut lines = Vec::new();
     for (i, (text, no)) in just.chain.iter().enumerate() {
         let whole = str::trim(text);
-        let (body, cite) = match whole.rfind(char::is_whitespace) {
-            Some(at) => (str::trim(&whole[..at]), str::trim(&whole[at..])),
-            None => ("", whole),
+        // The citation is read off the right end, so that `real arithmetic`
+        // is cut whole and the term does not end in "real".
+        let (body, cite) = match skeleton::chain_cite(whole) {
+            Some(cite) => (str::trim(&whole[..whole.len() - cite.len()]), cite),
+            None => match whole.rfind(char::is_whitespace) {
+                Some(at) => (str::trim(&whole[..at]), str::trim(&whole[at..])),
+                None => ("", whole),
+            },
         };
         let words: Vec<&str> = body.split_whitespace().collect();
         // A link cites one line (`SYNTAX.md`), so one written `1, 2` has its

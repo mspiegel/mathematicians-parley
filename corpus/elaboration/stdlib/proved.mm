@@ -491,8 +491,9 @@ $}
 ${
 $( Numbers: a remainder is less than its divisor, a multiple of the
    divisor added leaves it as it was, a real's remainder on dividing by a
-   positive real is what is left after its whole multiples, and a real
-   below the divisor is its own remainder. $)
+   positive real is what is left after its whole multiples, a real below
+   the divisor is its own remainder, and an integer or its negative is a
+   whole number. $)
 
   gzmodlt $p |- ( ( A e. ZZ /\ B e. NN ) -> ( A mod B ) < B ) $=
     ( cz wcel cr crp cmo co clt wbr cn zre nnrp modlt syl2an )
@@ -515,6 +516,9 @@ $( Numbers: a remainder is less than its divisor, a multiple of the
     ( cr wcel wa cc0 cle wbr clt crp cmo co wceq simpll simplr 0red simprl
     simprr lelttrd elrpd simpr modid syl21anc )
     ACDZBCDZEZFAGHZABIHZEZEZUDBJDUIABKLAMUDUEUINZUJBUDUEUIOZUJFABUJPUKULUFUGUHQUFUGUHRSTUFUIUAABUBUC $.
+
+  gznn0neg $p |- ( N e. ZZ -> ( N e. NN0 \/ -u N e. NN0 ) ) $=
+    ( cz wcel cr cn0 cneg wo elznn0 simprbi ) ABCADCAECAFECGAHI $.
 
 $}
 
@@ -1210,7 +1214,8 @@ $d w A $.  $d w C $.  $d w F $.  $d w N $.  $d w X $.
 $}
 
 ${
-$( Bounds: a sequence with a limit is bounded above. $)
+$( Bounds: a sequence with a limit is bounded, in absolute value and
+   above. $)
 $( The map binds n and the bound counts by m, each kept out of what the
    other names; the bound x is apart from all three classes and from the
    hypotheses. $)
@@ -1219,15 +1224,25 @@ $d m B $.  $d n C $.
 $d x A $.  $d x B $.  $d x C $.
 $d m ph $.  $d x ph $.
   ${
+    gclimbddabs.1 $e |- ( ( ph /\ m e. NN ) -> C e. RR ) $.
+    gclimbddabs.2 $e |- ( ph -> ( n e. NN |-> B ) ~~> A ) $.
+    gclimbddabs.3 $e |- ( n = m -> B = C ) $.
+  gclimbddabs $p |- ( ph -> E. x e. RR A. m e. NN ( abs ` C ) <_ x ) $=
+    ( cv cn cmpt cfv cabs cle wbr wral cr wrex c1 cz wcel cli cdm cc 1z a1i
+    climrel releldmi syl wa wceq simpr eqid fvmptg syl2anc recnd eqeltrd
+    ralrimiva nnuz climbdd syl3anc adantlr fveq2d breq1d ralbidva rexbidva
+    mpbid )
+    AFKZGLDMZNZONZBKZPQZFLRZBSTZEONZVNPQZFLRZBSTAUAUBUCZVKUDUEZUCZVLUFUCZFLRVQWAAUGUHAVKCUDQWCIVKCUDUIUJUKAWDFLAVJLUCZULZVLEUFWFWEESUCZVLEUMZAWEUNZHGVJDELSVKJVKUOZUPZUQZWFEHURUSUTBFVKUALVAVBVCAVPVTBSAVNSUCZULZVOVSFLWNWEULZVMVRVNPWOVLEOAWEWHWMWLVDVEVFVGVHVI $.
+  $}
+
+  ${
     gclimbdd.1 $e |- ( ( ph /\ m e. NN ) -> C e. RR ) $.
     gclimbdd.2 $e |- ( ph -> ( n e. NN |-> B ) ~~> A ) $.
     gclimbdd.3 $e |- ( n = m -> B = C ) $.
   gclimbdd $p |- ( ph -> E. x e. RR A. m e. NN C <_ x ) $=
-    ( cv cn cmpt cfv cabs cle wbr wral cr wrex c1 cz wcel cli cdm cc 1z a1i
-    climrel releldmi syl wa wceq simpr eqid fvmptg syl2anc recnd eqeltrd
-    ralrimiva nnuz climbdd syl3anc adantlr adantr abscld simplr leabs fveq2d
-    eqbrtrrd letrd ex ralimdva reximdva mpd )
-    AFKZGLDMZNZONZBKZPQZFLRZBSTZEVTPQZFLRZBSTAUAUBUCZVQUDUEZUCZVRUFUCZFLRWCWFAUGUHAVQCUDQWHIVQCUDUIUJUKAWIFLAVPLUCZULZVREUFWKWJESUCZVREUMZAWJUNZHGVPDELSVQJVQUOZUPZUQZWKEHURUSUTBFVQUALVAVBVCAWBWEBSAVTSUCZULZWAWDFLWSWJULZWAWDWTWAULZEEONZVTWTWLWAAWJWLWRHVDZVEZXAEXAEXDURVFWTWRWAAWRWJVGVEXAWLEXBPQXDEVHUKXAVSXBVTPWTVSXBUMWAWTVREOAWJWMWRWQVDVIVEWTWAUNVJVKVLVMVNVO $.
+    ( cabs cfv cv cle wbr cn wral cr wrex gclimbddabs wcel wa adantlr leabs
+    syl wi recnd abscld simplr letr syl3anc mpand ralimdva reximdva mpd )
+    AEKLZBMZNOZFPQZBRSEUQNOZFPQZBRSABCDEFGHIJTAUSVABRAUQRUAZUBZURUTFPVCFMZPUAZUBZEUPNOZURUTVFERUAZVGAVEVHVBHUCZEUDUEVFVHUPRUAVBVGURUBUTUFVIVFEVFEVIUGUHAVBVEUIEUPUQUJUKULUMUNUO $.
   $}
 
 $}

@@ -1,0 +1,11 @@
+theorem a-membership-carried-by-an-equation
+  note        x is real because the equation puts it beside a(0) + b(0),
+              each real by its function's type.
+  let a : ℕ₀ → ℝ    (H1)
+  let b : ℕ₀ → ℝ    (H2)
+  let x ∈ ℂ    (H3)
+  assume x = a(0) + b(0)    (H4)
+  then x ∈ ℝ
+
+1.  x ∈ ℝ
+    membership, from H1, H2, H4

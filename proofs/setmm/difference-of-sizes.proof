@@ -1,4 +1,4 @@
-import theorem            proofs/wiedijk/triangle-inequality/triangle-inequality
+import theorem            stdlib/numbers/triangle-inequality
 import mundane theorem    stdlib/numbers/abs-real
 
 theorem difference-of-sizes

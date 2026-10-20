@@ -1,0 +1,29 @@
+theorem a-square-of-five-is-not-zero
+  note        The last line of the contradiction is false and reached by
+              algebra from the lines it cites; arithmetic would call it
+              false, so it is no claim for arithmetic.
+  let x ∈ ℝ    (H1)
+  assume x² = 5    (H2)
+  then x ≠ 0
+
+1.  x ≠ 0
+    contradiction
+    suppose x = 0    (S)
+
+    1.1.  5 = 0, which is impossible
+          algebra, from H2, S
+
+theorem a-number-equal-to-a-root-is-not-one
+  note        The last line of the contradiction holds a square root, and
+              real arithmetic works it out false, as arithmetic works out a
+              claim of numerals alone.
+  let x ∈ ℝ    (H1)
+  assume x = √2    (H2)
+  then x ≠ 1
+
+1.  x ≠ 1
+    contradiction
+    suppose x = 1    (S)
+
+    1.1.  √2 = 1, which is impossible
+          algebra, from H2, S

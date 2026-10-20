@@ -39,23 +39,34 @@ pub struct Group {
 }
 
 impl Group {
+    /// The letters free in what the group asks for and concludes: the
+    /// item's own, which a citation gives values for, and not those a
+    /// binder in it holds.
+    pub fn free_names(
+        &self,
+        binders: &FxIndexMap<NotationId, Binds>,
+    ) -> BTreeSet<String> {
+        self.wants
+            .iter()
+            .map(|(_, t)| t)
+            .chain(&self.gives)
+            .flat_map(|t| free_names(t, binders))
+            .collect()
+    }
+
     /// The group with each letter a binder in it holds, where the letter is
     /// free elsewhere in the group, spelt apart (`matching::bound_apart`):
     /// the item's free n and the n of its own "for all n ∈ ℕ, f(n) > 0" are
     /// two letters, and a citation puts its value for the free one only.
     fn bound_apart(self, binders: &FxIndexMap<NotationId, Binds>) -> Group {
-        let trees: Vec<&Node> = self
+        let free = self.free_names(binders);
+        let used: BTreeSet<String> = self
             .wants
             .iter()
             .map(|(_, t)| t)
             .chain(&self.gives)
+            .flat_map(|t| t.names())
             .collect();
-        let mut free = BTreeSet::new();
-        let mut used = BTreeSet::new();
-        for t in &trees {
-            free.extend(free_names(t, binders));
-            used.extend(t.names());
-        }
         let apart = |t: &Node| crate::matching::bound_apart(t, &free, &used, binders);
         let wants = self
             .wants

@@ -37,8 +37,8 @@ pub enum Expr {
     Sub(Box<Expr>, Box<Expr>),
     Mul(Box<Expr>, Box<Expr>),
     Div(Box<Expr>, Box<Expr>),
-    /// A power to a whole numeral.
-    Pow(Box<Expr>, u32),
+    /// A power to a whole exponent, which `arithmetic` takes below 0 too.
+    Pow(Box<Expr>, i32),
     Mod(Box<Expr>, Box<Expr>),
 }
 
@@ -145,10 +145,11 @@ pub fn expr(r: &mut Random, depth: u32) -> Expr {
         3 => Expr::Mul(sub(r), sub(r)),
         4 => Expr::Div(sub(r), sub(r)),
         // A small base and exponent, so that no power is past what
-        // `arithmetic` works out.
+        // `arithmetic` works out; an exponent of −1 or −2 is one over a
+        // power, and is refused as a division by zero where the base is 0.
         5 => Expr::Pow(
             Box::new(Expr::Num(BigInt::from(r.below(7)) - 2)),
-            r.below(4) as u32,
+            r.below(6) as i32 - 2,
         ),
         6 => Expr::Mod(sub(r), sub(r)),
         _ => Expr::Num(numeral_drawn(r)),
@@ -220,7 +221,15 @@ pub fn term(g: &Grammar, e: &Expr) -> Node {
         Expr::Sub(a, b) => two(a, b, "_ − _"),
         Expr::Mul(a, b) => two(a, b, "_ · _"),
         Expr::Div(a, b) => two(a, b, "_ / _"),
-        Expr::Pow(a, k) => made(g, "_^_", vec![term(g, a), numeral(&k.to_string())]),
+        Expr::Pow(a, k) => {
+            let exponent = numeral(&k.unsigned_abs().to_string());
+            let exponent = if *k < 0 {
+                made(g, "−_", vec![exponent])
+            } else {
+                exponent
+            };
+            made(g, "_^_", vec![term(g, a), exponent])
+        }
         Expr::Mod(a, b) => two(a, b, "_ mod _"),
     }
 }

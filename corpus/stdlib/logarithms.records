@@ -1,0 +1,127 @@
+# Standard library: logarithms
+#
+# The natural logarithm and the exponential function: their laws, that each
+# undoes the other, the order of logarithms, and their signs.
+#
+# One record per item. A record begins at column 0 with its kind, axiom,
+# theorem or definition, and its name; `mundane` before the kind marks an
+# item a proof takes for granted. A proof imports each item it cites,
+# `import <header> stdlib/logarithms/<name>`, where the header is the
+# record's own before its name, as `mundane theorem` or `axiom`. Format is described in DATABASE.md.
+#
+# An item's statement is written in the theorem form of SYNTAX.md: let and
+# assume lines with labels, then a `then` line.
+#
+# Every item carries at least one of:
+#   metamath    a set.mm label or labels supply it
+#   open        it is cited but unproved and unbridged
+#
+# Other fields: target, note, and for a function, sort, builds, reads and
+# decided.
+
+
+mundane definition ln
+  sort        number → number
+  builds      _1 clog cfv
+  reads       the natural logarithm of
+  decided     real arithmetic
+  metamath    df-log, the inverse of the exponential function
+  note        set.mm's log is taken in ℂ, its value at a negative number having
+              an imaginary part; real arithmetic takes it only of a positive
+              rational, or one times a whole power of e (METHODS.md), where it
+              is the logarithm a reader knows. As for cos, this definition
+              states nothing but what ln(x) builds.
+
+mundane definition exp
+  sort        number → number
+  builds      _1 ce cfv
+  reads       the exponential of
+  decided     real arithmetic
+  metamath    df-ef, by its power series
+  note        exp(x) is eˣ, which set.mm defines the other way round, e being
+              exp(1) (df-e). Real arithmetic takes it of a whole number of at
+              least 0 plus whole multiples of logarithms of primes.
+
+theorem ln-product
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume x > 0                                                        (H3)
+  assume y > 0                                                        (H4)
+  then        ln(x·y) = ln(x) + ln(y)
+  metamath    relogmul
+  target      relogmul
+
+theorem ln-quotient
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume x > 0                                                        (H3)
+  assume y > 0                                                        (H4)
+  then        ln(x/y) = ln(x) − ln(y)
+  metamath    relogdiv
+  target      relogdiv
+
+theorem ln-power
+  let x ∈ ℝ                                                           (H1)
+  let n ∈ ℤ                                                           (H2)
+  assume x > 0                                                        (H3)
+  then        ln(x^n) = n·ln(x)
+  metamath    relogexp
+  target      relogexp
+
+theorem exp-ln
+  let x ∈ ℝ                                                           (H1)
+  assume x > 0                                                        (H2)
+  then        exp(ln(x)) = x
+  metamath    reeflog
+  target      reeflog
+  note        With ln-exp, the logarithm and the exponential undo each other:
+              each is one-to-one where the other is defined.
+
+theorem ln-exp
+  let x ∈ ℝ                                                           (H1)
+  then        ln(exp(x)) = x
+  metamath    relogef
+  target      relogef
+
+theorem exp-sum
+  let a ∈ ℂ                                                           (H1)
+  let b ∈ ℂ                                                           (H2)
+  then        exp(a + b) = exp(a)·exp(b)
+  metamath    efadd
+  target      efadd
+
+theorem ln-order
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume x > 0                                                        (H3)
+  assume y > 0                                                        (H4)
+  then        x < y ↔ ln(x) < ln(y)
+  metamath    logltb
+  target      logltb with A := x, B := y
+
+mundane theorem ln-real
+  let x ∈ ℝ                                                           (H1)
+  assume x > 0                                                        (H2)
+  then        ln(x) ∈ ℝ
+  metamath    relogcl
+  target      relogcl
+
+mundane theorem ln-nonzero
+  let x ∈ ℝ                                                           (H1)
+  assume x > 0                                                        (H2)
+  assume x ≠ 1                                                        (H3)
+  then        ln(x) ≠ 0
+  metamath    logne0
+  target      logne0
+
+mundane theorem exp-real
+  let x ∈ ℝ                                                           (H1)
+  then        exp(x) ∈ ℝ
+  metamath    reefcl
+  target      reefcl
+
+mundane theorem exp-positive
+  let x ∈ ℝ                                                           (H1)
+  then        exp(x) > 0
+  metamath    efgt0
+  target      efgt0

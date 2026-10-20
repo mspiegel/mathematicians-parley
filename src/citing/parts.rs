@@ -1,6 +1,7 @@
 //! What a citation supplies and claims, as the search reads them.
 
 use crate::corpus::{Head, Step};
+use crate::formula::grammar::Grammar;
 use crate::formula::page;
 use crate::formula::symbol::Symbol;
 use crate::formula::{Node, Sort, Sorts, Whole};
@@ -42,7 +43,7 @@ pub fn at_a_member(
             return None;
         }
     }
-    claimed_member(claim, library)
+    claimed_member(claim, library.env.g)
 }
 
 /// The citation's seed with what the citing proof says a function of the
@@ -167,7 +168,7 @@ pub fn finished(
 /// What a claim "for all k ∈ X, P" gives a step that proves it in one line:
 /// the membership k ∈ X, and P. "for all X ⊆ A" gives X ⊆ A. None for any
 /// other claim.
-pub fn claimed_member(claim: &Node, library: &Library) -> Option<(Node, Node)> {
+pub fn claimed_member(claim: &Node, g: &Grammar) -> Option<(Node, Node)> {
     // "for all X ⊆ A" ranges over the parts of A, and a member is one.
     let how = match claim.notation() {
         FOR_ALL => Bound::Member,
@@ -177,21 +178,17 @@ pub fn claimed_member(claim: &Node, library: &Library) -> Option<(Node, Node)> {
     let [letter, domain, body] = claim.children.as_slice() else {
         return None;
     };
-    Some((bound_in(how, letter, domain, library), body.clone()))
+    Some((bound_in(how, letter, domain, g), body.clone()))
 }
 
 /// What a binder says of the letter it binds, `x ∈ S` or `x ⊆ S` as `how`
 /// has it, at the letter and the domain.
-pub fn bound_in(how: Bound, letter: &Node, domain: &Node, library: &Library) -> Node {
+pub fn bound_in(how: Bound, letter: &Node, domain: &Node, g: &Grammar) -> Node {
     let spelling = match how {
         Bound::Member => IN,
         Bound::Part => SUBSET_OF,
     };
-    page::made(
-        library.env.g,
-        spelling,
-        vec![letter.clone(), domain.clone()],
-    )
+    page::made(g, spelling, vec![letter.clone(), domain.clone()])
 }
 
 /// How a binder says a value is in its domain: as a member, `x ∈ S`, or
@@ -298,7 +295,7 @@ pub fn type_said_otherwise(fact: &Node, library: &Library) -> Option<Node> {
         vec![from.clone(), to.clone()],
     )
     .expect("the database declares the functions from _ to _");
-    Some(bound_in(Bound::Member, f, &set, library))
+    Some(bound_in(Bound::Member, f, &set, library.env.g))
 }
 
 /// What a fact the page writes as a part of a set, `C ⊆ A`, or as a member

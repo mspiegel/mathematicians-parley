@@ -69,16 +69,17 @@ has, and a subject is one file:
 | file | holds | items |
 |---|---|---|
 | `corpus/stdlib/reasoning.records` | the laws of logic a proof cites by name | 13 |
-| `corpus/stdlib/numbers.records` | the number systems, closure, order, powers, roots, absolute value | 91 |
-| `corpus/stdlib/divisibility.records` | even and odd, divisors, primes, gcd, division, congruence, Euler's φ | 70 |
-| `corpus/stdlib/sums.records` | sums over a range, and the ranges; products over a finite set | 40 |
+| `corpus/stdlib/numbers.records` | the number systems, closure, order, powers, roots, absolute value | 100 |
+| `corpus/stdlib/divisibility.records` | even and odd, divisors, primes, gcd, division, congruence, Euler's φ | 71 |
+| `corpus/stdlib/sums.records` | sums over a range, and the ranges; products over a finite set | 41 |
 | `corpus/stdlib/sets.records` | subsets, set-builder, union, intersection, difference, power set | 60 |
 | `corpus/stdlib/functions.records` | functions, their values, images, and inverses | 23 |
-| `corpus/stdlib/counting.records` | the size of a set, factorials, binomial coefficients, counting by parts | 38 |
-| `corpus/stdlib/calculus.records` | intervals, bounds and completeness, continuity, derivatives, bounded sequences | 26 |
+| `corpus/stdlib/counting.records` | the size of a set, factorials, binomial coefficients, counting by parts | 41 |
+| `corpus/stdlib/calculus.records` | intervals, bounds and completeness, continuity, derivatives, bounded sequences | 27 |
 | `corpus/stdlib/geometry.records` | points, distance, angles, triangles, congruence, parallels and sides of a line, the law of sines | 23 |
 | `corpus/stdlib/groups.records` | groups, their laws, subgroups, cosets | 12 |
 | `corpus/stdlib/trigonometry.records` | cos and sin, and their addition formulas | 13 |
+| `corpus/stdlib/logarithms.records` | the natural logarithm and the exponential function, their laws, order and signs | 13 |
 | `corpus/stdlib/polynomials.records` | polynomials with complex coefficients, their values, and division by x − a | 2 |
 | `corpus/stdlib/graphs.records` | walks, Euler paths, traversable graphs, degree | 10 |
 
@@ -124,7 +125,7 @@ Every item in the standard library carries a field saying where it comes from:
 
 | field | meaning | count |
 |---|---|---|
-| `metamath` | a set.mm label or labels supply it | 417 |
+| `metamath` | a set.mm label or labels supply it | 445 |
 | `open` | it is cited but unproved and unbridged | 4 |
 
 A theorem this corpus proves has no
@@ -183,7 +184,14 @@ the factorial carry `decided arithmetic`, so `arithmetic` works out
 `arithmetic` works out by its nature, +, −, ·, /, powers and a product over a
 range, carry none, as the relations it decides by its nature do not; any
 other is worked out only where its record says so, and both tools refuse a
-closed fact holding one that does not.
+closed fact holding one that does not. `real arithmetic` reads the same
+field for what it adds, on three kinds of record: the notations of the
+operations `square-root` and `degrees`, of the constants `pi` and `euler`,
+and the function definitions `ln` and `exp` (`stdlib/logarithms`) and `sin`
+and `cos` (`stdlib/trigonometry`). So it works out √8, π, e, 180°, ln 8,
+exp(ln 5) and cos(π/3). A function record carries the field only for
+`real arithmetic`; `gcd` carries none, so `real arithmetic` refuses
+gcd(4, 6). No word names `real arithmetic`.
 
 **A `target` that never fires is an error, not a shrug.** An item with no
 `target` builds nothing, and a step citing it stops the build, except a
@@ -600,7 +608,7 @@ this table is mundane.
 | side-angle-side | `axiom` | "by SAS", isosceles step 5 |
 | pascal, division-algorithm, prime-factor, gcd-mod, divides-gcd, group-cancel, archimedean, sum-telescopes | `theorem` | "by Pascal's rule", "by the division algorithm" |
 | sigma-multiplicative, sigma-prime, sigma-prime-power | `theorem` | "σ is multiplicative", "the divisor sum of a prime", perfect-numbers steps 8, 9 and 12 |
-| cos-add, sin-add | `theorem` | "by the angle-addition formulas", de-moivre steps 2.15 and 2.16 |
+| cos-add, sin-add | `theorem` | "by the angle-addition formulas", de-moivre steps 2.13 and 2.14 |
 | rolle | `theorem` | "by Rolle's theorem", mean-value step 24 |
 | remainder | `theorem` | "by the remainder theorem", factor step 1 |
 | convergent-bounded, archimedean-natural | `theorem` | "a convergent sequence is bounded", harmonic step 1.2; "by the Archimedean property, choose N > 2M", harmonic-unbounded step 2 |

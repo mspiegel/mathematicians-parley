@@ -72,5 +72,3 @@ theorem sqrt6-irrational
 
 3.  √6 is irrational
     mun:irrational x := √6, from 2
-    requires 6 ≥ 0: arithmetic
-    requires √6 ∈ ℝ: mun:sqrt x := 6

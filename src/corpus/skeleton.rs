@@ -41,21 +41,24 @@ impl Place {
     }
 }
 
-/// Where a substitute takes its equation from: a line or a label, or
-/// `(arithmetic)` for an equation of numerals alone.
+/// Where a substitute takes its equation from: a line or a label,
+/// `(arithmetic)` for an equation of numerals alone, or `(real arithmetic)`
+/// for a closed equation with a square root.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Source {
     At(Place),
     Arithmetic,
+    RealArithmetic,
 }
 
 impl Source {
     /// The line or label the equation comes from, as the line writes it;
-    /// `arithmetic` for an equation worked out where it stands.
+    /// the method's name for an equation worked out where it stands.
     pub fn named(&self) -> &str {
         match self {
             Source::At(place) => place.named(),
             Source::Arithmetic => "arithmetic",
+            Source::RealArithmetic => "real arithmetic",
         }
     }
 }
@@ -528,8 +531,16 @@ pub fn without_label(text: &str) -> &str {
 
 /// What a calculation's line cites, its last word (`GRAMMAR.md`,
 /// calculation chains): a line or a label, or `arithmetic` for a link of
-/// numerals alone; None where the last word is neither.
+/// numerals alone; or its last two where they are `real arithmetic`, which
+/// is the method and not `arithmetic` after a term ending in "real". None
+/// where the line ends in none of these.
 pub fn chain_cite(text: &str) -> Option<&str> {
+    let body = text.trim_end();
+    if let Some(before) = body.strip_suffix("real arithmetic") {
+        if before.ends_with(char::is_whitespace) {
+            return Some(&body[before.len()..]);
+        }
+    }
     let last = text.split_whitespace().last()?;
     (is_ref(last) || last == "arithmetic").then_some(last)
 }
@@ -853,6 +864,7 @@ fn method_slots(
         }
         // A method that takes nothing.
         Method::Arithmetic
+        | Method::RealArithmetic
         | Method::Contradiction
         | Method::Proof
         | Method::BothDirections
@@ -1001,6 +1013,8 @@ fn substitute(rest: &str, path: &str, line: usize, slots: &mut Slots) {
     let group = str::trim(&rest[open + 1..close]);
     slots.source = if group == "arithmetic" {
         Some(Source::Arithmetic)
+    } else if group == "real arithmetic" {
+        Some(Source::RealArithmetic)
     } else if let Some(number) = after_word(group, "line") {
         if is_number(number) {
             Some(Source::At(Place::Line(number.to_string())))
@@ -1025,6 +1039,7 @@ fn substitute(rest: &str, path: &str, line: usize, slots: &mut Slots) {
     // A substitute takes one equation from one source: a second would be
     // read as part of the equation, which no formula writes.
     let sources = slots.text.matches("(arithmetic)").count()
+        + slots.text.matches("(real arithmetic)").count()
         + slots
             .text
             .match_indices("(line ")

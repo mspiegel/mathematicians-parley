@@ -1,0 +1,106 @@
+import mundane definition stdlib/logarithms/ln
+import mundane definition stdlib/logarithms/exp
+import theorem            stdlib/logarithms/ln-product as logarithms-ln-product
+import theorem            stdlib/logarithms/ln-quotient as logarithms-ln-quotient
+import theorem            stdlib/logarithms/ln-power as logarithms-ln-power
+import theorem            stdlib/logarithms/exp-ln as logarithms-exp-ln
+import theorem            stdlib/logarithms/ln-exp as logarithms-ln-exp
+import theorem            stdlib/logarithms/exp-sum as logarithms-exp-sum
+import theorem            stdlib/logarithms/ln-order as logarithms-ln-order
+import mundane theorem    stdlib/logarithms/ln-real as logarithms-ln-real
+import mundane theorem    stdlib/logarithms/ln-nonzero as logarithms-ln-nonzero
+import mundane theorem    stdlib/logarithms/exp-real as logarithms-exp-real
+import mundane theorem    stdlib/logarithms/exp-positive as logarithms-exp-positive
+
+theorem ln-product
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume x > 0                                                        (H3)
+  assume y > 0                                                        (H4)
+  then ln(x·y) = ln(x) + ln(y)
+
+1.  ln(x·y) = ln(x) + ln(y)
+    thm:logarithms-ln-product, from H3, H4
+
+theorem ln-quotient
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume x > 0                                                        (H3)
+  assume y > 0                                                        (H4)
+  then ln(x/y) = ln(x) − ln(y)
+
+1.  ln(x/y) = ln(x) − ln(y)
+    thm:logarithms-ln-quotient, from H3, H4
+
+theorem ln-power
+  let x ∈ ℝ                                                           (H1)
+  let n ∈ ℤ                                                           (H2)
+  assume x > 0                                                        (H3)
+  then ln(x^n) = n·ln(x)
+
+1.  ln(x^n) = n·ln(x)
+    thm:logarithms-ln-power, from H3
+
+theorem exp-ln
+  let x ∈ ℝ                                                           (H1)
+  assume x > 0                                                        (H2)
+  then exp(ln(x)) = x
+
+1.  exp(ln(x)) = x
+    thm:logarithms-exp-ln, from H2
+
+theorem ln-exp
+  let x ∈ ℝ                                                           (H1)
+  then ln(exp(x)) = x
+
+1.  ln(exp(x)) = x
+    thm:logarithms-ln-exp
+
+theorem exp-sum
+  let a ∈ ℂ                                                           (H1)
+  let b ∈ ℂ                                                           (H2)
+  then exp(a + b) = exp(a)·exp(b)
+
+1.  exp(a + b) = exp(a)·exp(b)
+    thm:logarithms-exp-sum
+
+theorem ln-order
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume x > 0                                                        (H3)
+  assume y > 0                                                        (H4)
+  then x < y ↔ ln(x) < ln(y)
+
+1.  x < y ↔ ln(x) < ln(y)
+    thm:logarithms-ln-order, from H3, H4
+
+theorem ln-real
+  let x ∈ ℝ                                                           (H1)
+  assume x > 0                                                        (H2)
+  then ln(x) ∈ ℝ
+
+1.  ln(x) ∈ ℝ
+    mun:logarithms-ln-real, from H2
+
+theorem ln-nonzero
+  let x ∈ ℝ                                                           (H1)
+  assume x > 0                                                        (H2)
+  assume x ≠ 1                                                        (H3)
+  then ln(x) ≠ 0
+
+1.  ln(x) ≠ 0
+    mun:logarithms-ln-nonzero, from H2, H3
+
+theorem exp-real
+  let x ∈ ℝ                                                           (H1)
+  then exp(x) ∈ ℝ
+
+1.  exp(x) ∈ ℝ
+    mun:logarithms-exp-real
+
+theorem exp-positive
+  let x ∈ ℝ                                                           (H1)
+  then exp(x) > 0
+
+1.  exp(x) > 0
+    mun:logarithms-exp-positive

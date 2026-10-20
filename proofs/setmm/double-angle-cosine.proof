@@ -1,5 +1,4 @@
 import theorem            stdlib/trigonometry/cos-add
-import mundane theorem    stdlib/trigonometry/cos-zero
 import mundane theorem    stdlib/trigonometry/cos-negative
 import mundane theorem    stdlib/trigonometry/sin-negative
 import mundane theorem    stdlib/trigonometry/cos-complex
@@ -30,28 +29,25 @@ theorem sine-squared-plus-cosine-squared
 5.  cos(A + (−A)) = cos(0)
     substitute A + (−A) = 0 (line 4)
 
-6.  cos(0) = 1
-    mun:cos-zero
-
-7.  cos(A)·cos(−A) − sin(A)·sin(−A) = cos(A)·cos(A) − sin(A)·sin(−A)
+6.  cos(A)·cos(−A) − sin(A)·sin(−A) = cos(A)·cos(A) − sin(A)·sin(−A)
     substitute cos(−A) = cos(A) (line 2)
 
-8.  cos(A)·cos(A) − sin(A)·sin(−A) = cos(A)·cos(A) − sin(A)·(−sin(A))
+7.  cos(A)·cos(A) − sin(A)·sin(−A) = cos(A)·cos(A) − sin(A)·(−sin(A))
     substitute sin(−A) = −sin(A) (line 3)
 
-9.  cos(A)·cos(A) − sin(A)·(−sin(A)) = sin(A)² + cos(A)²
+8.  cos(A)·cos(A) − sin(A)·(−sin(A)) = sin(A)² + cos(A)²
     algebra
     requires sin(A) ∈ ℂ: mun:sin-complex a := A
     requires cos(A) ∈ ℂ: mun:cos-complex a := A
 
-10. sin(A)² + cos(A)² = 1
+9.  sin(A)² + cos(A)² = 1
     calculation
-      sin(A)² + cos(A)² = cos(A)·cos(A) − sin(A)·(−sin(A))      9
-                        = cos(A)·cos(A) − sin(A)·sin(−A)        8
-                        = cos(A)·cos(−A) − sin(A)·sin(−A)       7
+      sin(A)² + cos(A)² = cos(A)·cos(A) − sin(A)·(−sin(A))      8
+                        = cos(A)·cos(A) − sin(A)·sin(−A)        7
+                        = cos(A)·cos(−A) − sin(A)·sin(−A)       6
                         = cos(A + (−A))                         1
                         = cos(0)                                5
-                        = 1                                     6
+                        = 1                                     real arithmetic
 
 theorem cosine-of-double
   metamath    cos2t

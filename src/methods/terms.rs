@@ -57,6 +57,13 @@ pub const VOCABULARY: &[(&str, usize)] = &[
     ("wral", 3),
     ("cfv", 2),
     ("cfa", 0),
+    ("csqrt", 0),
+    ("cpi", 0),
+    ("ceu", 0),
+    ("ce", 0),
+    ("clog", 0),
+    ("csin", 0),
+    ("ccos", 0),
     ("chash", 0),
     ("cprime", 0),
     ("cc0", 0),
@@ -143,20 +150,27 @@ impl Targets {
     /// The operation `node` applies where its target, a notation's or a
     /// library function's, is set.mm's form of one, `_1 _2 OP co`: a mod b
     /// is `cmo` of a and b. None for any other term.
-    pub fn operation<'n>(&self, node: &'n Node) -> Option<Operation<'n>> {
-        // A library function's value is what its `builds` line makes; any
-        // other term is what its notation's target makes.
+    /// The name a function application applies, and its arguments, where
+    /// the head is a name, as a library function's value is written: f(x).
+    fn library_head<'n>(&self, node: &'n Node) -> Option<(&'n str, &'n [Node])> {
         let applied = matches!(
             node.notation(),
             crate::notations::APPLICATION | crate::notations::APPLICATION_TO_TWO
         );
-        let library = match node.children.as_slice() {
-            [head, args @ ..] if applied && head.is_name() => self
-                .builds
-                .get(head.text.as_str())
-                .map(|b| (b.as_str(), args)),
+        match node.children.as_slice() {
+            [head, args @ ..] if applied && head.is_name() => {
+                Some((head.text.as_str(), args))
+            }
             _ => None,
-        };
+        }
+    }
+
+    pub fn operation<'n>(&self, node: &'n Node) -> Option<Operation<'n>> {
+        // A library function's value is what its `builds` line makes; any
+        // other term is what its notation's target makes.
+        let library = self
+            .library_head(node)
+            .and_then(|(head, args)| self.builds.get(head).map(|b| (b.as_str(), args)));
         let (pattern, holes): (&str, &'n [Node]) = match library {
             Some(found) => found,
             None => (self.pattern(node)?, &node.children),
@@ -206,7 +220,20 @@ impl Targets {
 /// built out, and every other part, a letter included, one atom named by
 /// how the page writes it.
 pub fn term_of_node(node: &Node, targets: &Targets) -> Term {
-    term_under(node, targets, &[])
+    term_under(node, targets, &[], &|_| false)
+}
+
+/// `term_of_node`, with an application of a library function built out of
+/// what the function's record `builds`, as the build reads it
+/// (`elab::reading`), where `library` says the name is the library's in the
+/// theorem: imported, and not a name the theorem gives a meaning of its own.
+/// ln(8) is then `( 8 clog cfv )`, which `real arithmetic` works out.
+pub fn term_of_node_reading(
+    node: &Node,
+    targets: &Targets,
+    library: &dyn Fn(&str) -> bool,
+) -> Term {
+    term_under(node, targets, &[], library)
 }
 
 /// `term_of_node` inside the finite sums that bind `indices`: an atom
@@ -214,7 +241,12 @@ pub fn term_of_node(node: &Node, targets: &Targets) -> Term {
 /// as set.mm's term holds the index's variable. So the summand a(k)·t of
 /// Σ(k = 1 to n) is read as a part that holds k times one that does not,
 /// which reading a sum as linear asks (`field::linear_sum`).
-fn term_under(node: &Node, targets: &Targets, indices: &[&Node]) -> Term {
+fn term_under(
+    node: &Node,
+    targets: &Targets,
+    indices: &[&Node],
+    library: &dyn Fn(&str) -> bool,
+) -> Term {
     if node.notation() == crate::notations::NUMERAL {
         if let Ok(value) = node.text.parse::<BigUint>() {
             return numeral_term(&value);
@@ -222,6 +254,13 @@ fn term_under(node: &Node, targets: &Targets, indices: &[&Node]) -> Term {
     }
     if node.is_name() || node.rpn.is_some() {
         return atom(node, indices);
+    }
+    if let Some(builds) = library_builds(node, targets, library) {
+        let args: Vec<Term> = node.children[1..]
+            .iter()
+            .map(|c| term_under(c, targets, indices, library))
+            .collect();
+        return built(builds, &args).unwrap_or_else(|| atom(node, indices));
     }
     let Some(pattern) = targets.pattern(node) else {
         return atom(node, indices);
@@ -236,7 +275,7 @@ fn term_under(node: &Node, targets: &Targets, indices: &[&Node]) -> Term {
     let holes: Vec<Term> = node
         .children
         .iter()
-        .map(|c| term_under(c, targets, &inside))
+        .map(|c| term_under(c, targets, &inside, library))
         .collect();
     // A list longer than its pattern: the pattern's holes built, and each
     // further child added as the record's `repeats` says.
@@ -256,6 +295,21 @@ fn term_under(node: &Node, targets: &Targets, indices: &[&Node]) -> Term {
         None => built(pattern, &holes),
     };
     made.unwrap_or_else(|| atom(node, indices))
+}
+
+/// What a library function's application builds, where `library` says its
+/// name is the library's: its record's `builds`, `_1` for the first
+/// argument.
+fn library_builds<'t>(
+    node: &Node,
+    targets: &'t Targets,
+    library: &dyn Fn(&str) -> bool,
+) -> Option<&'t str> {
+    let (head, _) = targets.library_head(node)?;
+    if !library(head) {
+        return None;
+    }
+    targets.builds.get(head).map(String::as_str)
 }
 
 /// What a repeated hole's `building` makes of the term built so far and

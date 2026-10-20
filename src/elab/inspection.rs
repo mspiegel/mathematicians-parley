@@ -11,7 +11,7 @@
 //! membership, as the listing of the set it names (`one_of`). Every proof
 //! here is in deduction form under the step's scope.
 
-use num_bigint::BigUint;
+use num_bigint::{BigInt, BigUint};
 use num_traits::ToPrimitive;
 
 use super::field::{self, Verdict};
@@ -20,14 +20,19 @@ use super::state::Elaborator;
 use super::Facts;
 use crate::binds;
 use crate::corpus::{fmt, Step};
-use crate::methods::inspection::{disjuncts, whole_value, RANGE_LISTED};
-use crate::methods::numerals::numeral_term;
+use crate::methods::inspection::{
+    disjuncts, integer_value, is_prime, least_factor, range_elements,
+};
 use crate::mm::kernel::Term;
 use crate::mm::spell::Proof;
 use crate::mm::Rpn;
 use crate::outcome::{Built, Checked, Declined, Route};
 use crate::rules;
 use crate::{pf, t, take};
+
+/// Where a closed fact a range's listing asks of a negative integer is
+/// said to be asked, should arithmetic not show it.
+const RANGE_LISTED_AS: &str = "a range is listed";
 
 /// A set read in the standard form: its elements in order, and a proof
 /// that the set is the union of their singletons.
@@ -46,23 +51,6 @@ fn conjuncts(line: &Term) -> Vec<Term> {
         Some("wa" | "w3a") => line.children().iter().flat_map(conjuncts).collect(),
         _ => vec![line.clone()],
     }
-}
-
-/// The least factor of n above 1, n itself where n is prime; n at least 2.
-fn least_factor(n: &BigUint) -> BigUint {
-    let mut d = BigUint::from(2u32);
-    while &d * &d <= *n {
-        if (n % &d) == BigUint::ZERO {
-            return d;
-        }
-        d += 1u32;
-    }
-    n.clone()
-}
-
-/// Whether n is prime.
-fn is_prime(n: &BigUint) -> bool {
-    *n >= BigUint::from(2u32) && least_factor(n) == *n
 }
 
 /// What the cited lines settle of a property at one element.
@@ -1022,14 +1010,14 @@ impl Elaborator<'_> {
         })
     }
 
-    /// A range `{a, …, b}` whose ends work out to whole numbers, as the
-    /// numerals from a to b, and the closed proof that it is the union of
-    /// their singletons, or the empty set where b is below a: the ends
-    /// worked out (`range_end`, carried in by `oveq12i`) where they are not
-    /// numerals already, and the range of numerals built up a numeral at a
-    /// time (`numerals::range`, `numerals::empty_range`). None for an end
-    /// that is no whole number, or a range longer than `RANGE_LISTED`, which
-    /// the checker refuses.
+    /// A range `{a, …, b}` whose ends work out to integers, as the integers
+    /// from a to b, and the closed proof that it is the union of their
+    /// singletons, or the empty set where b is below a: the ends worked out
+    /// (`range_end`, carried in by `oveq12i`) where they are not spelt so
+    /// already, and the range built up an integer at a time
+    /// (`integer_range`, `empty_range`). None for an end that is no
+    /// integer, or a range longer than `RANGE_LISTED`, which the checker
+    /// refuses.
     fn range_listing(&mut self, set: &Term) -> Checked<Option<(Vec<Term>, Proof)>> {
         let kids = set.children().to_vec();
         let Some((from, from_is)) = self.range_end(&kids[0])? else {
@@ -1038,24 +1026,15 @@ impl Elaborator<'_> {
         let Some((to, to_is)) = self.range_end(&kids[1])? else {
             return Ok(None);
         };
-        let mut elements = Vec::new();
-        let mut k = from.clone();
-        while k <= to {
-            if elements.len() >= RANGE_LISTED as usize {
-                return Ok(None);
-            }
-            elements.push(numeral_term(&k));
-            k += 1u32;
-        }
-        let (sf, st) = (numerals::spell(from.clone()), numerals::spell(to.clone()));
+        let Some(elements) = range_elements(&from, &to) else {
+            return Ok(None);
+        };
+        let (sf, st) = (numerals::spell_integer(&from), numerals::spell_integer(&to));
         let of_numerals = t!(sf, st, "cfz", "co");
         let (union, listed) = if elements.is_empty() {
-            (t!("c0"), numerals::empty_range(&self.b, &from, &to))
+            (t!("c0"), self.empty_range(&from, &to)?)
         } else {
-            (
-                numerals::singletons(&from, &to),
-                numerals::range(&self.b, &from, &to),
-            )
+            (singletons(&from, &to), self.integer_range(&from, &to)?)
         };
         let written = self.rpn(set);
         if written == of_numerals {
@@ -1077,25 +1056,168 @@ impl Elaborator<'_> {
         )))
     }
 
-    /// A range's end, the whole number it works out to as the checker reads
-    /// it (`whole_value`), and |- end = that numeral: `eqid` where the end is
-    /// the numeral, and otherwise the equation proved as `arithmetic` proves
-    /// one of numerals (`closed_fact`), under truth and taken out of it
-    /// (`mptru`). None for an end that is no whole number.
-    fn range_end(&mut self, end: &Term) -> Checked<Option<(BigUint, Proof)>> {
-        let Some(value) = whole_value(end) else {
+    /// A range's end, the integer it works out to as the checker reads it
+    /// (`integer_value`), and |- end = that integer: `eqid` where the end is
+    /// spelt so, and otherwise the equation proved as `arithmetic` proves one
+    /// of numerals (`closed`). None for an end that is no integer.
+    fn range_end(&mut self, end: &Term) -> Checked<Option<(BigInt, Proof)>> {
+        let Some(value) = integer_value(end) else {
             return Ok(None);
         };
         let said = self.rpn(end);
-        let numeral = numerals::spell(value.clone());
-        if said == numeral {
+        let spelt = numerals::spell_integer(&value);
+        if said == spelt {
             let same = self.b.ap("eqid", &binds! {"A" => &said}, &[]);
             return Ok(Some((value, same)));
         }
-        let goal = t!(&said, &numeral, "wceq");
         let what = format!("a range ends at {}", self.render(&said));
-        let p = self.closed_fact(&goal, &t!("wtru"), &Facts::new(), &what, None)?;
-        Ok(Some((value, pf!(self.b; goal, p, "mptru"))))
+        let p = self.closed(&t!(&said, &spelt, "wceq"), &what)?;
+        Ok(Some((value, p)))
+    }
+
+    /// |- claim, a closed fact of numerals proved as `arithmetic` proves one
+    /// (`closed_fact`), under truth and taken out of it (`mptru`).
+    fn closed(&mut self, claim: &Rpn, what: &str) -> Checked<Proof> {
+        let p = self.closed_fact(claim, &t!("wtru"), &Facts::new(), what, None)?;
+        Ok(pf!(self.b; claim, p, "mptru"))
+    }
+
+    /// |- n e. ZZ: a numeral's by `nn0zi`, and a negative integer's as
+    /// `arithmetic` proves a closed fact (`closed`).
+    fn integer_fact(&mut self, n: &BigInt) -> Checked<Proof> {
+        match n.to_biguint() {
+            Some(whole) => Ok(numerals::integer(&self.b, &whole)),
+            None => {
+                let claim = t!(numerals::spell_integer(n), "cz", "wcel");
+                self.closed(&claim, RANGE_LISTED_AS)
+            }
+        }
+    }
+
+    /// |- a < c where `strict`, and |- a <_ c otherwise, for integers in
+    /// that order: of numerals by their digits (`numerals::below`,
+    /// `at_most_of`), and with a negative one as `arithmetic` proves a
+    /// closed fact.
+    fn order_fact(&mut self, a: &BigInt, c: &BigInt, strict: bool) -> Checked<Proof> {
+        match (a.to_biguint(), c.to_biguint()) {
+            (Some(a), Some(c)) if strict => Ok(numerals::below(&self.b, a, c)),
+            (Some(a), Some(c)) => Ok(numerals::at_most_of(&self.b, &a, &c)),
+            _ => {
+                let relation = if strict { "clt" } else { "cle" };
+                let (sa, sc) = (numerals::spell_integer(a), numerals::spell_integer(c));
+                self.closed(&t!(sa, sc, relation, "wbr"), RANGE_LISTED_AS)
+            }
+        }
+    }
+
+    /// |- ( n + 1 ) = m, m the integer after n: of numerals as `sum` adds
+    /// them, and of a negative n as `arithmetic` proves a closed fact.
+    fn successor_fact(&mut self, n: &BigInt) -> Checked<Proof> {
+        match n.to_biguint() {
+            Some(whole) => Ok(numerals::sum(&self.b, whole, 1u32)),
+            None => {
+                let next = t!(numerals::spell_integer(n), "c1", "caddc", "co");
+                let claim = t!(next, numerals::spell_integer(&(n + 1u32)), "wceq");
+                self.closed(&claim, RANGE_LISTED_AS)
+            }
+        }
+    }
+
+    /// |- ( from ... to ) = the singletons of the integers from `from` to
+    /// `to`, joined from the left (`singletons`), for `from` at most `to`: the
+    /// range of one integer is its singleton (`fzsn`), and a longer one is
+    /// the range below its top joined with the top's singleton (`fzsuc`), the
+    /// top spelt as one less, plus one, and worked out.
+    fn integer_range(&mut self, from: &BigInt, to: &BigInt) -> Checked<Proof> {
+        let (sf, st) = (numerals::spell_integer(from), numerals::spell_integer(to));
+        let range_to = |top: &Rpn| t!(&sf, top, "cfz", "co");
+        if to == from {
+            let integer = self.integer_fact(from)?;
+            return Ok(self.b.ap(
+                "ax-mp",
+                &binds! {
+                    "ph" => t!(&sf, "cz", "wcel"),
+                    "ps" => t!(range_to(&sf), t!(&sf, "csn"), "wceq"),
+                },
+                &[&integer, &self.b.ap("fzsn", &binds! {"M" => &sf}, &[])],
+            ));
+        }
+        let less = to - 1u32;
+        let sl = numerals::spell_integer(&less);
+        let next = t!(&sl, "c1", "caddc", "co");
+        let split = t!(range_to(&sl), t!(&next, "csn"), "cun");
+        let law = self.b.ap("fzsuc", &binds! {"M" => &sf, "N" => &sl}, &[]);
+        // less e. ( ZZ>= ` from ): both integers, and from ≤ less.
+        let upper = t!(&sl, t!(&sf, "cuz", "cfv"), "wcel");
+        let from_z = self.integer_fact(from)?;
+        let less_z = self.integer_fact(&less)?;
+        let ordered = self.order_fact(from, &less, false)?;
+        let reaches =
+            numerals::in_upper_integers(&self.b, &sf, &sl, &from_z, &less_z, &ordered);
+        // ( from ... ( less + 1 ) ) = ( ( from ... less ) u. { ( less + 1 ) } )
+        let step = self.b.ap(
+            "ax-mp",
+            &binds! {"ph" => &upper, "ps" => t!(range_to(&next), &split, "wceq")},
+            &[&reaches, &law],
+        );
+        let added = self.successor_fact(&less)?;
+        let ends = self.b.ap(
+            "oveq2i",
+            &binds! {"A" => &next, "B" => &st, "C" => &sf, "F" => "cfz"},
+            &[&added],
+        );
+        let peeled = self.b.ap(
+            "eqtr3i",
+            &binds! {"A" => range_to(&next), "B" => range_to(&st), "C" => &split},
+            &[&ends, &step],
+        );
+        let below = singletons(from, &less);
+        let top = self
+            .b
+            .ap("sneqi", &binds! {"A" => &next, "B" => &st}, &[&added]);
+        let lower = self.integer_range(from, &less)?;
+        let joined = self.b.ap(
+            "uneq12i",
+            &binds! {
+                "A" => range_to(&sl), "B" => &below,
+                "C" => t!(&next, "csn"), "D" => t!(&st, "csn"),
+            },
+            &[&lower, &top],
+        );
+        let split_listed = t!(&below, t!(&st, "csn"), "cun");
+        let first = self.b.ap(
+            "eqtri",
+            &binds! {"A" => range_to(&st), "B" => &split, "C" => &split_listed},
+            &[&peeled, &joined],
+        );
+        Ok(first)
+    }
+
+    /// |- ( from ... to ) = (/), for `to` below `from` (`fzn`).
+    fn empty_range(&mut self, from: &BigInt, to: &BigInt) -> Checked<Proof> {
+        let (sf, st) = (numerals::spell_integer(from), numerals::spell_integer(to));
+        let below = t!(&st, &sf, "clt", "wbr");
+        let empty = t!(t!(&sf, &st, "cfz", "co"), "c0", "wceq");
+        let from_z = self.integer_fact(from)?;
+        let to_z = self.integer_fact(to)?;
+        let law = self.b.ap(
+            "mp2an",
+            &binds! {
+                "ph" => t!(&sf, "cz", "wcel"), "ps" => t!(&st, "cz", "wcel"),
+                "ch" => t!(&below, &empty, "wb"),
+            },
+            &[
+                &from_z,
+                &to_z,
+                &self.b.ap("fzn", &binds! {"M" => &sf, "N" => &st}, &[]),
+            ],
+        );
+        let ordered = self.order_fact(to, from, true)?;
+        Ok(self.b.ap(
+            "mpbi",
+            &binds! {"ph" => &below, "ps" => &empty},
+            &[&ordered, &law],
+        ))
     }
 
     /// ( scope -> t ∈ the union of `elements`' singletons ), t being the
@@ -1948,4 +2070,16 @@ impl Elaborator<'_> {
         }
         proof
     }
+}
+
+/// The singletons of the integers from `from` to `to`, joined from the
+/// left: `( ( { -u 1 } u. { 0 } ) u. { 1 } )`.
+fn singletons(from: &BigInt, to: &BigInt) -> Rpn {
+    let mut out = t!(numerals::spell_integer(from), "csn");
+    let mut k = from + 1u32;
+    while k <= *to {
+        out = t!(out, t!(numerals::spell_integer(&k), "csn"), "cun");
+        k += 1u32;
+    }
+    out
 }

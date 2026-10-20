@@ -601,17 +601,6 @@ fn cases() -> Vec<Case> {
             )],
             "1/k ∈ ℝ is not built from what step 10.3 cites: nothing says k ≠ 0, which it needs to divide by it",
         ),
-        // A difference of numerals is no numeral, so a step dividing by one
-        // writes its `≠ 0`.
-        case(
-            "divide by a difference of numerals without saying it is not zero",
-            vec![edit(
-                "proofs/wiedijk/perfect-numbers.proof",
-                Some("    requires 1 − 2 ≠ 0: arithmetic\n".to_string()),
-                String::new(),
-            )],
-            "nothing says 1 − 2 ≠ 0, which this step needs to divide by it",
-        ),
         // Where the proof has no letter of the subject's name in scope, the
         // pair is the only thing that says what the definition is about:
         // even-leg has no d, and its step claims an impossible fold.
@@ -1207,7 +1196,7 @@ fn cases() -> Vec<Case> {
                 Some("    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2\n          algebra\n".to_string()),
                 "    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2\n          algebra\n          requires 2 ∈ ℝ: arithmetic\n".to_string(),
             )],
-            "the requires line of step 1.6 says 2 ∈ ℝ, which the step's other lines already say",
+            "the requires line of step 1.6 says 2 ∈ ℝ, which the page says once",
         ),
         // A claim of numerals said to be impossible, given to `inequalities`:
         // a claim arithmetic can work out is arithmetic's, and is refused
@@ -1219,7 +1208,18 @@ fn cases() -> Vec<Case> {
                 Some("    2.3.  10 divides 1, which is impossible\n          substitute (t + 1) − t = 1 (line 2.2) into line 2.1\n".to_string()),
                 "    2.3.  10 divides 1\n          substitute (t + 1) − t = 1 (line 2.2) into line 2.1\n\n    2.4.  1 ≤ 10, which is impossible\n          inequalities\n".to_string(),
             )],
-            "step 2.4 gives inequalities for 1 ≤ 10, which arithmetic can work out; a claim arithmetic can work out cites arithmetic",
+            "step 2.4 says 1 ≤ 10 is impossible, and it holds",
+        ),
+        // A claim holding a square root said to be impossible is worked out
+        // by `real arithmetic`, which finds this one true.
+        case(
+            "say a true claim with a root is impossible",
+            vec![edit(
+                "tests/elaborator/an-impossible-line-by-algebra.proof",
+                Some("    1.1.  √2 = 1, which is impossible\n".to_string()),
+                "    1.1.  (√2)² = 2, which is impossible\n".to_string(),
+            )],
+            "step 1.1 says (√2)² = 2 is impossible, and it holds",
         ),
         // A claim of `algebra` that is not an identity, and one asking a
         // power past what algebra may multiply out: the checker decides
@@ -2154,7 +2154,7 @@ fn cases() -> Vec<Case> {
                 Some("    requires C(N, k) ∈ ℕ₀: mun:binomial-nat0\n".to_string()),
                 "    requires k ∈ ℤ: membership\n    requires C(N, k) ∈ ℕ₀: mun:binomial-nat0\n".to_string(),
             )],
-            "the requires line of step 1 says k ∈ ℤ, which the step's other lines already say",
+            "the requires line of step 1 says k ∈ ℤ, which the page says once, where k is introduced",
         ),
         // No function is typed over {0, …, N}, so H2 is cited for k ∈ ℤ, which
         // the range says once, and binomial-nat0 asks nothing more of it.
@@ -3186,18 +3186,19 @@ fn cases() -> Vec<Case> {
         case(
             "point a requires line at an item that does not cover it",
             vec![
-                edit("proofs/wiedijk/sqrt2-irrational.proof", Some("theorem odd-square\n".to_string()), "import mundane theorem stdlib/numbers/int-real\n\ntheorem odd-square\n".to_string()),
-                edit("proofs/wiedijk/sqrt2-irrational.proof", Some("    requires √2 ∈ ℝ: mun:sqrt x := 2".to_string()), "    requires √2 ∈ ℝ: mun:int-real m := 2".to_string()),
+                edit("tests/elaborator/a-root-said-real.proof", Some("theorem a-root-said-real\n".to_string()), "import mundane theorem stdlib/numbers/square-nonneg\n\ntheorem a-root-said-real\n".to_string()),
+                edit("tests/elaborator/a-root-said-real.proof", Some("    requires √A ∈ ℝ: mun:sqrt x := A, from H2".to_string()), "    requires √A ∈ ℝ: mun:square-nonneg x := A".to_string()),
             ],
             "does not conclude",
         ),
-        // `requires √2 ∈ ℝ: mun:sqrt x := 2` rests on 2 ≥ 0 written above it.
+        // `requires √A ∈ ℝ: mun:sqrt x := A, from H2` rests on A ≥ 0, which
+        // H2 says.
         case(
             "drop the dull fact a requires line leans on",
             vec![
-                edit("proofs/wiedijk/sqrt2-irrational.proof", Some("    mun:irrational x := √2, from 2\n    requires 2 ≥ 0: arithmetic\n".to_string()), "    mun:irrational x := √2, from 2\n".to_string()),
+                edit("tests/elaborator/a-root-said-real.proof", Some("    requires √A ∈ ℝ: mun:sqrt x := A, from H2".to_string()), "    requires √A ∈ ℝ: mun:sqrt x := A".to_string()),
             ],
-            "the requires line of step 3 cites mun:sqrt, which asks for 0 ≤ 2, and what it cites does not supply it",
+            "the requires line of step 3 cites mun:sqrt, which asks for 0 ≤ A, and what it cites does not supply it",
         ),
         case(
             "claim something the cited item does not conclude",
@@ -3331,6 +3332,71 @@ fn cases() -> Vec<Case> {
                 edit("proofs/wiedijk/pythagorean-triples.proof", Some("    requires 2 ≠ 0: arithmetic\n".to_string()), "    requires 2 ≠ 0: inequalities\n".to_string()),
             ],
             "gives inequalities for 2 ≠ 0, which arithmetic can work out",
+        ),
+        // A closed claim with a square root that real arithmetic decides
+        // cites it, as one of numerals alone cites arithmetic.
+        case(
+            "give algebra for a closed claim with a square root",
+            vec![
+                edit("tests/elaborator/real-arithmetic.proof", Some("1.  √2·√2 = 2\n    real arithmetic".to_string()), "1.  √2·√2 = 2\n    algebra".to_string()),
+            ],
+            "step 1 gives algebra for √2·√2 = 2, which real arithmetic can work out; a claim real arithmetic can work out cites real arithmetic",
+        ),
+        case(
+            "give algebra for a closed fact with a square root on a requires line",
+            vec![
+                edit("tests/elaborator/real-arithmetic-in-place.proof", Some("    requires √2 − 1 ≠ 0: real arithmetic".to_string()), "    requires √2 − 1 ≠ 0: algebra".to_string()),
+            ],
+            "the requires line of step 1 gives algebra for √2 − 1 ≠ 0, which real arithmetic can work out; a fact real arithmetic can work out cites real arithmetic",
+        ),
+        // A divisor of numerals alone is said once to be other than zero
+        // only where its value is.
+        case(
+            "divide by a difference of numerals whose value is zero",
+            vec![edit(
+                "tests/elaborator/divisors-not-zero-by-their-factors.proof",
+                Some("1.  x · ((c − c) / (2 − 5)) = (c − c) / (2 − 5) · x\n".to_string()),
+                "1.  x · ((c − c) / (5 − 5)) = (c − c) / (5 − 5) · x\n".to_string(),
+            )],
+            "nothing says 5 − 5 ≠ 0, which this step needs to divide by it",
+        ),
+        // An order set.mm's bounds on π do not reach is not decided, and
+        // not false.
+        case(
+            "ask real arithmetic for an order past the bounds on π",
+            vec![edit(
+                "tests/elaborator/real-arithmetic-order.proof",
+                Some("  then π² < 16\n\n1.  π² < 16\n".to_string()),
+                "  then π² < 10\n\n1.  π² < 10\n".to_string(),
+            )],
+            "is an order that the bounds on π, e and logarithms do not decide; real arithmetic does not decide it",
+        ),
+        // Real arithmetic takes a root only because the square root's
+        // record says it decides it.
+        case(
+            "a square root real arithmetic takes with its record not naming it",
+            vec![
+                edit("corpus/db/notation.records", Some("  decided     real arithmetic\n".to_string()), String::new()),
+            ],
+            "works out square-root, and real arithmetic works out an operation beyond arithmetic's only where the notation's record says so in a `decided` field",
+        ),
+        case(
+            "a logarithm real arithmetic takes with its record not naming it",
+            vec![edit(
+                "corpus/stdlib/logarithms.records",
+                Some("  reads       the natural logarithm of\n  decided     real arithmetic\n".to_string()),
+                "  reads       the natural logarithm of\n".to_string(),
+            )],
+            "works out ln, and real arithmetic works out a function only where its record says so in a `decided` field",
+        ),
+        case(
+            "ask real arithmetic to decide a word",
+            vec![edit(
+                "proofs/wiedijk/divisibility-by-three.proof",
+                Some("          thm:congruent-times a := 10^m, b := 1, c := 10, n := 3, from IH\n".to_string()),
+                "          thm:congruent-times a := 10^m, b := 1, c := 10, n := 3, from IH\n          requires √9 is prime: real arithmetic\n".to_string(),
+            )],
+            "is a word prime defines, and real arithmetic decides no word",
         ),
         case(
             "say a step is impossible and contradict a line as well",
@@ -3845,7 +3911,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/wiedijk/binomial.proof", Some("          requires m − k ∈ ℕ₀: mun:range-difference a := 0, n := m, from J\n          requires x^(m − k) ∈ ℝ: mun:power-real, from H1\n".to_string()), "          requires m − k ∈ ℕ₀: mun:range-difference a := 0, n := m, from J\n          requires m − k ∈ ℝ: membership\n          requires x^(m − k) ∈ ℝ: mun:power-real, from H1\n".to_string()),
             ],
-            "the requires line of step 10.6 says m − k ∈ ℝ, which the step's other lines already say",
+            "the requires line of step 10.6 says m − k ∈ ℝ, which the page says once, where k and m are introduced",
         ),
         // A line saying a term is not zero is asked for by a line below that
         // divides by it, and only by such a line: nothing in step 12 divides
@@ -4811,6 +4877,17 @@ fn cases() -> Vec<Case> {
             )],
             "the requires line of step 1.4 cites K, and d(k) ∈ ℝ needs nothing it says",
         ),
+        // An item's hypothesis at a function's value reads the point as a
+        // requires line does: said once, and a citation of it surplus.
+        case(
+            "an item at a function's value naming the let of its point",
+            vec![edit(
+                "tests/elaborator/a-value-at-a-point-said-once.proof",
+                Some("    mun:abs-real x := a(n), from H1\n".to_string()),
+                "    mun:abs-real x := a(n), from H1, H2\n".to_string(),
+            )],
+            "step 1 cites H2, and mun:abs-real asks for nothing it says",
+        ),
         // A requires line's manipulation is of the one line it names.
         case(
             "a requires line naming a manipulation and no line",
@@ -5102,6 +5179,50 @@ fn cases() -> Vec<Case> {
                 String::new(),
             )],
             "is not built from what step 9 cites",
+        ),
+        // A range is listed only where its ends are integers, and a refusal
+        // says so.
+        case(
+            "ask inspection to list a range whose end is no integer",
+            vec![edit(
+                "tests/elaborator/inspection-of-a-range-below-zero.proof",
+                Some("  assume n ∈ {−1, …, 1}    (H2)\n".to_string()),
+                "  assume n ∈ {1/2, …, 1}    (H2)\n".to_string(),
+            )],
+            "inspection lists a range whose ends work out to integers",
+        ),
+        // A membership a cited equation would carry names the part of the
+        // equation's other side that nothing says, not the term itself.
+        case(
+            "leave out the type of a value an equation's other side holds",
+            vec![edit(
+                "tests/elaborator/a-membership-carried-by-an-equation.proof",
+                Some("    membership, from H1, H2, H4\n".to_string()),
+                "    membership, from H1, H4\n".to_string(),
+            )],
+            "nothing says b(0) ∈ ℝ, which it needs",
+        ),
+        // A claim the item concludes from a "there is" whose witness nothing
+        // named puts in its set is told which membership is owed.
+        case(
+            "fold divides from an equation whose witness nothing says is an integer",
+            vec![edit(
+                "tests/elaborator/a-divides-fold-with-its-witness.proof",
+                Some("    mun:divides d := 3, n := p² + q², from H2, 1\n".to_string()),
+                "    mun:divides d := 3, n := p² + q², from 1\n".to_string(),
+            )],
+            "step 2 reads what mun:divides concludes from a \"there is\", and nothing it names says m² ∈ ℤ",
+        ),
+        // Antisymmetry's cited lines are its two orders, so the membership
+        // it owes is taken by a requires line, which the message says.
+        case(
+            "leave out the requires line an antisymmetry step's atom needs",
+            vec![edit(
+                "proofs/setmm/square-root-positive.proof",
+                Some("          antisymmetry, from 2.1, 2.2\n          requires √a ∈ ℝ: from 1\n".to_string()),
+                "          antisymmetry, from 2.1, 2.2\n".to_string(),
+            )],
+            "nothing says √a ∈ ℝ, which this step needs; antisymmetry takes a membership from a requires line",
         ),
         // 2·√a is a number once √a is, so it is √a whose membership is owed.
         case(
