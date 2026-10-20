@@ -1433,9 +1433,10 @@ impl<'a> Elaborator<'a> {
         Ok((claim, proof))
     }
 
-    /// The proof a direction ends on, of the side `want` it does not
-    /// assume: its own where it says the side as written, and otherwise
-    /// carried there (`reached`); None where it says something else.
+    /// The proof a part ends on, of what `want` says: a direction's side it
+    /// does not assume, or a case's claim. Its own where it says `want` as
+    /// written, and otherwise carried there (`reached`); None where it says
+    /// something else.
     fn direction_reached(
         &mut self,
         end: &PartEnd,
@@ -1464,8 +1465,16 @@ impl<'a> Elaborator<'a> {
             let node = block.assumed[p].0.clone();
             assumed.push(self.term(&node)?);
         }
-        let said: Vec<Proof> =
-            order.iter().map(|p| block.parts[p].proof.clone()).collect();
+        // A case may end on the claim written another way, `x ≠ y` for
+        // `y ≠ x`, as the checker reads it; it is carried to the claim.
+        let mut said: Vec<Proof> = Vec::new();
+        for p in &order {
+            let Some(shown) = self.direction_reached(&block.parts[p], &claim)? else {
+                return Err(self
+                    .unreached(step.line, "a case does not end on the block's claim"));
+            };
+            said.push(shown);
+        }
         let mut which = assumed[0].clone();
         let mut proof = said[0].clone();
         let last = assumed.len() - 1;

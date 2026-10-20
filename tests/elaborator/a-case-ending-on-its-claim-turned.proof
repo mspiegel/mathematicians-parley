@@ -1,0 +1,32 @@
+import mundane theorem stdlib/numbers/nonneg-or-neg
+
+theorem a-case-ending-on-its-claim-turned
+  note        The first case ends on x ≠ y, the block's claim y ≠ x written
+              the other way round, which a case's last line may be.
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume x < y                                                        (H3)
+  then y ≠ x
+
+1.  x ≥ 0 or x < 0
+    mun:nonneg-or-neg x := x
+
+2.  y ≠ x
+    cases, from 1
+
+    case
+    assume x ≥ 0                                                      (C1)
+
+    2.1.  x ≠ y
+          inequalities
+            x < y            H3
+            x ≠ y            weakening
+
+    case
+    assume x < 0                                                      (C2)
+
+    2.2.  y ≠ x
+          inequalities
+            x < y            H3
+            x ≠ y            weakening
+            y ≠ x            symmetry
