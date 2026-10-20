@@ -1,0 +1,128 @@
+import definition         stdlib/calculus/tends-to
+import theorem            stdlib/numbers/archimedean-natural
+import mundane theorem    stdlib/numbers/abs-difference-lt
+
+theorem squeeze-for-sequences
+  note        Beyond M the term b(n) lies between a(n) and c(n), which are
+              within ε of L from some P and Q on. A natural number R above M
+              puts n above M too, so from P + Q + R on, b(n) is within ε
+              of L.
+  ε ranges over ℝ
+  n ranges over ℕ
+  let a : ℕ → ℝ                                                       (H1)
+  let b : ℕ → ℝ                                                       (H2)
+  let c : ℕ → ℝ                                                       (H3)
+  let L ∈ ℝ                                                           (H4)
+  assume there is M ∈ ℤ with (a(n) ≤ b(n) and b(n) ≤ c(n)) for all n > M   (H5)
+  assume a(n) → L as n → ∞                                            (H6)
+  assume c(n) → L as n → ∞                                            (H7)
+  then b(n) → L as n → ∞
+
+1.  For all ε > 0, there exists N ∈ ℕ such that |b(n) − L| < ε for all n ≥ N.
+    proof
+    let ε ∈ ℝ                                                         (K1)
+    assume ε > 0                                                      (A1)
+
+    1.1.  For all ε > 0, there exists N ∈ ℕ such that |a(n) − L| < ε for all n ≥ N.
+          def:tends-to x := a, from H6
+
+    1.2.  For all ε > 0, there exists N ∈ ℕ such that |c(n) − L| < ε for all n ≥ N.
+          def:tends-to x := c, from H7
+
+    1.3.  There exists N ∈ ℕ such that |a(n) − L| < ε for all n ≥ N.
+          instantiate ε := ε in line 1.1, from A1
+
+    1.4.  There exists N ∈ ℕ such that |c(n) − L| < ε for all n ≥ N.
+          instantiate ε := ε in line 1.2, from A1
+
+    1.5.  P ∈ ℕ. |a(n) − L| < ε for all n ≥ P.
+          obtain P from line 1.3
+
+    1.6.  Q ∈ ℕ. |c(n) − L| < ε for all n ≥ Q.
+          obtain Q from line 1.4
+
+    1.7.  M ∈ ℤ. (a(n) ≤ b(n) and b(n) ≤ c(n)) for all n > M.
+          obtain M from H5
+
+    1.8.  R ∈ ℕ. R > M.
+          obtain R: thm:archimedean-natural x := M
+
+    1.9.  Q + R > 0
+          inequalities, from 1.6, 1.8
+
+    1.10. P + Q + R ≥ P
+          inequalities
+            Q + R > 0          1.9
+            P + Q + R > P      adding P
+            P + Q + R ≥ P      weakening
+
+    1.11. P + R > 0
+          inequalities, from 1.5, 1.8
+
+    1.12. P + Q + R ≥ Q
+          inequalities
+            P + R > 0          1.11
+            P + Q + R > Q      adding Q
+            P + Q + R ≥ Q      weakening
+
+    1.13. P + Q > 0
+          inequalities, from 1.5, 1.6
+
+    1.14. P + Q + R > R
+          inequalities
+            P + Q > 0          1.13
+            P + Q + R > R      adding R
+
+    1.15. For all n ≥ P + Q + R, |b(n) − L| < ε.
+          proof
+          let n ∈ ℕ                                                   (K2)
+          assume n ≥ P + Q + R                                        (A2)
+
+          1.15.1.  n ≥ P
+                   transitivity, from A2, 1.10
+
+          1.15.2.  n ≥ Q
+                   transitivity, from A2, 1.12
+
+          1.15.3.  n > M
+                   transitivity, from A2, 1.14, 1.8
+
+          1.15.4.  |a(n) − L| < ε
+                   instantiate n := n in line 1.5, from 1.15.1
+
+          1.15.5.  |c(n) − L| < ε
+                   instantiate n := n in line 1.6, from 1.15.2
+
+          1.15.6.  a(n) ≤ b(n) and b(n) ≤ c(n)
+                   instantiate n := n in line 1.7, from 1.15.3
+
+          1.15.7.  L − ε < a(n)
+                   mun:abs-difference-lt x := a(n), c := L, δ := ε, from 1.15.4
+                   requires a(n) ∈ ℝ: from H1
+
+          1.15.8.  c(n) < L + ε
+                   mun:abs-difference-lt x := c(n), c := L, δ := ε, from 1.15.5
+                   requires c(n) ∈ ℝ: from H3
+
+          1.15.9.  L − ε < b(n)
+                   transitivity, from 1.15.7, 1.15.6
+                   requires a(n) ∈ ℝ: from H1
+                   requires b(n) ∈ ℝ: from H2
+
+          1.15.10. b(n) < L + ε
+                   transitivity, from 1.15.6, 1.15.8
+                   requires b(n) ∈ ℝ: from H2
+                   requires c(n) ∈ ℝ: from H3
+
+          1.15.11. L − ε < b(n) and b(n) < L + ε
+                   join 1.15.9, 1.15.10
+
+          1.15.12. |b(n) − L| < ε
+                   mun:abs-difference-lt x := b(n), c := L, δ := ε, from 1.15.11
+                   requires b(n) ∈ ℝ: from H2
+
+    1.16. There exists N ∈ ℕ such that |b(n) − L| < ε for all n ≥ N.
+          exhibit, from 1.15
+
+2.  b(n) → L as n → ∞
+    def:tends-to x := b, from 1

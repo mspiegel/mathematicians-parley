@@ -1,0 +1,260 @@
+import theorem            proofs/hammack/weighted-binomial-sum/weighted-term
+import definition         stdlib/counting/C
+import mundane theorem    stdlib/counting/binomial-nat0
+import mundane theorem    stdlib/counting/binomial-zero-index
+import mundane definition stdlib/divisibility/divides
+import mundane theorem    stdlib/divisibility/divides-multiple
+import mundane theorem    stdlib/numbers/integer-step
+import mundane theorem    stdlib/numbers/nat-minus-one
+import mundane theorem    stdlib/numbers/nonneg-or-neg
+import mundane theorem    stdlib/numbers/pos-int-nat
+import mundane definition stdlib/sums/range-between
+
+theorem scaled-binomial-step
+  note        j·C(m + j, j) = (m + j)·C(m + i, i) when j − 1 = i: this is
+              k·C(M + 1, k) = (M + 1)·C(M, k − 1) at M = m + i and k = j.
+  let m ∈ ℕ₀                                                          (H1)
+  let i ∈ ℕ₀                                                          (H2)
+  let j ∈ ℕ                                                           (H3)
+  assume j − 1 = i                                                    (H4)
+  then j·C(m + j, j) = (m + j)·C(m + i, i)
+
+1.  j = i + 1
+    inequalities
+      j − 1 = i         H4
+      j − 1 + 1 = i + 1 adding 1
+      j = i + 1         algebra
+
+2.  i + 1 ≤ (m + i) + 1
+    inequalities, from H1
+
+3.  j ≤ (m + i) + 1
+    transitivity, from 1, 2
+
+4.  j ∈ {1, …, (m + i) + 1}
+    mun:range-between k := j, a := 1, b := (m + i) + 1, from 3
+    requires 1 ≤ j: inequalities, from H3
+
+5.  j·C((m + i) + 1, j) = ((m + i) + 1)·C(m + i, j − 1)
+    thm:weighted-term m := m + i, k := j, from 4
+
+6.  j·C((m + i) + 1, j) = ((m + i) + 1)·C(m + i, i)
+    substitute j − 1 = i (H4) into line 5
+
+7.  (m + i) + 1 = m + j
+    algebra, from 1
+
+8.  j·C(m + j, j) = (m + j)·C(m + i, i)
+    substitute (m + i) + 1 = m + j (line 7) into line 6
+
+
+theorem five-consecutive-natural
+  note        With c(j) = C(m + j, j), j·c(j) = (m + j)·c(j − 1). So
+              c(1) = m + 1, 2·c(2) = (m + 2)(m + 1), and so on up to
+              120·c(5) = (m + 1)(m + 2)(m + 3)(m + 4)(m + 5).
+  let m ∈ ℕ₀                                                          (H1)
+  then 120 divides (m + 1)·(m + 2)·(m + 3)·(m + 4)·(m + 5)
+
+1.  C(m, 0) = 1
+    mun:binomial-zero-index n := m
+
+2.  C(m + 2, 2) ∈ ℕ₀
+    mun:binomial-nat0 n := m + 2, k := 2
+
+3.  C(m + 3, 3) ∈ ℕ₀
+    mun:binomial-nat0 n := m + 3, k := 3
+
+4.  C(m + 4, 4) ∈ ℕ₀
+    mun:binomial-nat0 n := m + 4, k := 4
+
+5.  C(m + 5, 5) ∈ ℕ₀
+    mun:binomial-nat0 n := m + 5, k := 5
+
+6.  1·C(m + 1, 1) = (m + 1)·C(m, 0)
+    thm:scaled-binomial-step i := 0, j := 1
+    requires 1 − 1 = 0: arithmetic
+
+7.  2·C(m + 2, 2) = (m + 2)·C(m + 1, 1)
+    thm:scaled-binomial-step i := 1, j := 2
+    requires 2 − 1 = 1: arithmetic
+
+8.  3·C(m + 3, 3) = (m + 3)·C(m + 2, 2)
+    thm:scaled-binomial-step i := 2, j := 3
+    requires 3 − 1 = 2: arithmetic
+
+9.  4·C(m + 4, 4) = (m + 4)·C(m + 3, 3)
+    thm:scaled-binomial-step i := 3, j := 4
+    requires 4 − 1 = 3: arithmetic
+
+10. 5·C(m + 5, 5) = (m + 5)·C(m + 4, 4)
+    thm:scaled-binomial-step i := 4, j := 5
+    requires 5 − 1 = 4: arithmetic
+
+11. C(m + 1, 1) = m + 1
+    algebra, from 1, 6
+
+12. 2·C(m + 2, 2) = (m + 2)·(m + 1)
+    algebra, from 7, 11
+    requires C(m + 2, 2) ∈ ℝ: from 2
+
+13. 6·C(m + 3, 3) = (m + 3)·(m + 2)·(m + 1)
+    algebra, from 8, 12
+    requires C(m + 2, 2) ∈ ℝ: from 2
+    requires C(m + 3, 3) ∈ ℝ: from 3
+
+14. 24·C(m + 4, 4) = (m + 4)·(m + 3)·(m + 2)·(m + 1)
+    algebra, from 9, 13
+    requires C(m + 3, 3) ∈ ℝ: from 3
+    requires C(m + 4, 4) ∈ ℝ: from 4
+
+15. (m + 1)·(m + 2)·(m + 3)·(m + 4)·(m + 5) = 120·C(m + 5, 5)
+    algebra, from 10, 14
+    requires C(m + 4, 4) ∈ ℝ: from 4
+    requires C(m + 5, 5) ∈ ℝ: from 5
+
+16. 120 divides (m + 1)·(m + 2)·(m + 3)·(m + 4)·(m + 5)
+    mun:divides d := 120, n := (m + 1)·(m + 2)·(m + 3)·(m + 4)·(m + 5), from 15
+    requires C(m + 5, 5) ∈ ℤ: from 5
+
+
+theorem five-consecutive-divisible
+  note        For n ≥ 1 the product is the lemma at m = n − 1. For −4 ≤ n ≤ 0
+              one factor is 0. For n ≤ −5 the product is minus the lemma's
+              product at m = −n − 5.
+  let n ∈ ℤ                                                           (H1)
+  then 120 divides n·(n + 1)·(n + 2)·(n + 3)·(n + 4)
+
+1.  n − 1 ≥ 0 or n − 1 < 0
+    mun:nonneg-or-neg x := n − 1
+
+2.  120 divides n·(n + 1)·(n + 2)·(n + 3)·(n + 4)
+    cases, from 1
+
+    case
+    assume n − 1 ≥ 0                                                  (C1)
+
+    2.1.  0 < n
+          inequalities, from C1
+
+    2.2.  n ∈ ℕ
+          mun:pos-int-nat m := n, from 2.1
+
+    2.3.  n − 1 ∈ ℕ₀
+          mun:nat-minus-one, from 2.2
+
+    2.4.  120 divides ((n − 1) + 1)·((n − 1) + 2)·((n − 1) + 3)·((n − 1) + 4)·((n − 1) + 5)
+          thm:five-consecutive-natural m := n − 1, from 2.3
+
+    2.5.  ((n − 1) + 1)·((n − 1) + 2)·((n − 1) + 3)·((n − 1) + 4)·((n − 1) + 5) = n·(n + 1)·(n + 2)·(n + 3)·(n + 4)
+          algebra
+
+    2.6.  120 divides n·(n + 1)·(n + 2)·(n + 3)·(n + 4)
+          substitute ((n − 1) + 1)·((n − 1) + 2)·((n − 1) + 3)·((n − 1) + 4)·((n − 1) + 5) = n·(n + 1)·(n + 2)·(n + 3)·(n + 4) (line 2.5) into line 2.4
+
+    case
+    assume n − 1 < 0                                                  (C2)
+
+    2.7.  n + 4 ≥ 0 or n + 4 < 0
+          mun:nonneg-or-neg x := n + 4
+
+    2.8.  120 divides n·(n + 1)·(n + 2)·(n + 3)·(n + 4)
+          cases, from 2.7
+
+          case
+          assume n + 4 ≥ 0                                            (C3)
+
+          2.8.1.  n < 1
+                  inequalities, from C2
+
+          2.8.2.  n + 1 ≤ 1
+                  mun:integer-step m := n, n := 1, from 2.8.1
+
+          2.8.3.  n + 4 ≤ 4
+                  inequalities, from 2.8.2
+
+          2.8.4.  n + 4 ∈ {0, …, 4}
+                  mun:range-between k := n + 4, a := 0, b := 4, from C3, 2.8.3
+
+          2.8.5.  n + 4 = 0 or n + 4 = 1 or n + 4 = 2 or n + 4 = 3 or n + 4 = 4
+                  inspection, from 2.8.4
+
+          2.8.6.  120 divides n·(n + 1)·(n + 2)·(n + 3)·(n + 4)
+                  cases, from 2.8.5
+
+                  case
+                  assume n + 4 = 0                                    (C4)
+
+                  2.8.6.1.  n·(n + 1)·(n + 2)·(n + 3)·(n + 4) = 120·0
+                            algebra, from C4
+
+                  2.8.6.2.  120 divides n·(n + 1)·(n + 2)·(n + 3)·(n + 4)
+                            mun:divides d := 120, n := n·(n + 1)·(n + 2)·(n + 3)·(n + 4), from 2.8.6.1
+
+                  case
+                  assume n + 4 = 1                                    (C5)
+
+                  2.8.6.3.  n·(n + 1)·(n + 2)·(n + 3)·(n + 4) = 120·0
+                            algebra, from C5
+
+                  2.8.6.4.  120 divides n·(n + 1)·(n + 2)·(n + 3)·(n + 4)
+                            mun:divides d := 120, n := n·(n + 1)·(n + 2)·(n + 3)·(n + 4), from 2.8.6.3
+
+                  case
+                  assume n + 4 = 2                                    (C6)
+
+                  2.8.6.5.  n·(n + 1)·(n + 2)·(n + 3)·(n + 4) = 120·0
+                            algebra, from C6
+
+                  2.8.6.6.  120 divides n·(n + 1)·(n + 2)·(n + 3)·(n + 4)
+                            mun:divides d := 120, n := n·(n + 1)·(n + 2)·(n + 3)·(n + 4), from 2.8.6.5
+
+                  case
+                  assume n + 4 = 3                                    (C7)
+
+                  2.8.6.7.  n·(n + 1)·(n + 2)·(n + 3)·(n + 4) = 120·0
+                            algebra, from C7
+
+                  2.8.6.8.  120 divides n·(n + 1)·(n + 2)·(n + 3)·(n + 4)
+                            mun:divides d := 120, n := n·(n + 1)·(n + 2)·(n + 3)·(n + 4), from 2.8.6.7
+
+                  case
+                  assume n + 4 = 4                                    (C8)
+
+                  2.8.6.9.  n·(n + 1)·(n + 2)·(n + 3)·(n + 4) = 120·0
+                            algebra, from C8
+
+                  2.8.6.10. 120 divides n·(n + 1)·(n + 2)·(n + 3)·(n + 4)
+                            mun:divides d := 120, n := n·(n + 1)·(n + 2)·(n + 3)·(n + 4), from 2.8.6.9
+
+          case
+          assume n + 4 < 0                                            (C9)
+
+          2.8.7.  (n + 4) + 1 ≤ 0
+                  mun:integer-step m := n + 4, n := 0, from C9
+
+          2.8.8.  1 ≤ −n − 4
+                  inequalities
+                    (n + 4) + 1 ≤ 0      2.8.7
+                    1 ≤ −n − 4           adding −n − 4
+
+          2.8.9.  0 < −n − 4
+                  inequalities, from 2.8.8
+
+          let k = −n − 4, a positive integer                          (D1)
+              mun:pos-int-nat m := −n − 4, from 2.8.9
+              reads the number of steps from n + 4 up to 0
+
+          2.8.10. k − 1 ∈ ℕ₀
+                  mun:nat-minus-one n := k
+
+          2.8.11. 120 divides ((k − 1) + 1)·((k − 1) + 2)·((k − 1) + 3)·((k − 1) + 4)·((k − 1) + 5)
+                  thm:five-consecutive-natural m := k − 1, from 2.8.10
+
+          2.8.12. 120 divides ((k − 1) + 1)·((k − 1) + 2)·((k − 1) + 3)·((k − 1) + 4)·((k − 1) + 5)·(−1)
+                  mun:divides-multiple e := 120, a := ((k − 1) + 1)·((k − 1) + 2)·((k − 1) + 3)·((k − 1) + 4)·((k − 1) + 5), x := −1, from 2.8.11
+
+          2.8.13. ((k − 1) + 1)·((k − 1) + 2)·((k − 1) + 3)·((k − 1) + 4)·((k − 1) + 5)·(−1) = n·(n + 1)·(n + 2)·(n + 3)·(n + 4)
+                  algebra, from D1
+
+          2.8.14. 120 divides n·(n + 1)·(n + 2)·(n + 3)·(n + 4)
+                  substitute ((k − 1) + 1)·((k − 1) + 2)·((k − 1) + 3)·((k − 1) + 4)·((k − 1) + 5)·(−1) = n·(n + 1)·(n + 2)·(n + 3)·(n + 4) (line 2.8.13) into line 2.8.12

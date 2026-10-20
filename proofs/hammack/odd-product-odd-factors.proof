@@ -1,0 +1,63 @@
+import mundane definition stdlib/divisibility/even
+import mundane theorem    stdlib/divisibility/even-or-odd
+import mundane theorem    stdlib/divisibility/not-both
+
+theorem odd-product-odd-factors
+  note        If a were even, a = 2m and the product is twice 2m²(b² − 2b);
+              if b were even, b = 2m and the product is twice
+              a²(2m² − 2m). Either way the product is even, not odd.
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  assume a²·(b² − 2b) is odd                                           (H3)
+  then a is odd and b is odd
+
+1.  a is even or a is odd
+    mun:even-or-odd n := a
+
+2.  a is odd
+    cases, from 1
+
+    case
+    assume a is even                                                  (C1)
+
+    2.1.  m ∈ ℤ. a = 2m.
+          obtain m: mun:even n := a, from C1
+
+    2.2.  a²·(b² − 2b) = 2(2m²·(b² − 2b))
+          algebra, from 2.1
+
+    2.3.  a²·(b² − 2b) is even
+          mun:even n := a²·(b² − 2b), from 2.2
+
+    2.4.  a²·(b² − 2b) is not odd
+          mun:not-both n := a²·(b² − 2b), from 2.3, contradicting H3
+
+    case
+    assume a is odd, which is the claim                               (C2)
+
+3.  b is even or b is odd
+    mun:even-or-odd n := b
+
+4.  b is odd
+    cases, from 3
+
+    case
+    assume b is even                                                  (C3)
+
+    4.1.  m ∈ ℤ. b = 2m.
+          obtain m: mun:even n := b, from C3
+
+    4.2.  a²·(b² − 2b) = 2(a²·(2m² − 2m))
+          algebra, from 4.1
+
+    4.3.  a²·(b² − 2b) is even
+          mun:even n := a²·(b² − 2b), from 4.2
+
+    4.4.  a²·(b² − 2b) is not odd
+          mun:not-both n := a²·(b² − 2b), from 4.3, contradicting H3
+
+    case
+    assume b is odd, which is the claim                               (C4)
+
+5.  a is odd and b is odd
+    join 2, 4

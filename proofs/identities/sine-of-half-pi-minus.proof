@@ -1,0 +1,54 @@
+import mundane definition stdlib/trigonometry/cos
+import mundane theorem    stdlib/trigonometry/cos-negative
+import mundane theorem    stdlib/trigonometry/cos-real
+import mundane definition stdlib/trigonometry/sin
+import theorem            stdlib/trigonometry/sin-add
+import mundane theorem    stdlib/trigonometry/sin-negative
+import mundane theorem    stdlib/trigonometry/sin-real
+
+theorem sine-of-half-pi-minus
+  let x ∈ ℝ                                                           (H1)
+  then sin(π/2 − x) = cos(x)
+
+1.  sin(π/2 + (−x)) = sin(π/2)·cos(−x) + cos(π/2)·sin(−x)
+    thm:sin-add a := π/2, b := −x
+
+2.  π/2 − x = π/2 + (−x)
+    algebra
+
+3.  sin(π/2 − x) = sin(π/2 + (−x))
+    substitute π/2 − x = π/2 + (−x) (line 2)
+
+4.  sin(π/2)·cos(−x) + cos(π/2)·sin(−x) = 1·cos(−x) + cos(π/2)·sin(−x)
+    substitute sin(π/2) = 1 (real arithmetic)
+
+5.  1·cos(−x) + cos(π/2)·sin(−x) = 1·cos(−x) + 0·sin(−x)
+    substitute cos(π/2) = 0 (real arithmetic)
+
+6.  cos(−x) = cos(x)
+    mun:cos-negative a := x
+
+7.  sin(−x) = −sin(x)
+    mun:sin-negative a := x
+
+8.  1·cos(−x) + 0·sin(−x) = 1·cos(x) + 0·sin(−x)
+    substitute cos(−x) = cos(x) (line 6)
+    requires cos(x) ∈ ℝ: mun:cos-real a := x
+
+9.  1·cos(x) + 0·sin(−x) = 1·cos(x) + 0·(−sin(x))
+    substitute sin(−x) = −sin(x) (line 7)
+
+10. 1·cos(x) + 0·(−sin(x)) = cos(x)
+    algebra
+    requires cos(x) ∈ ℝ: mun:cos-real a := x
+    requires sin(x) ∈ ℝ: mun:sin-real a := x
+
+11. sin(π/2 − x) = cos(x)
+    calculation
+      sin(π/2 − x) = sin(π/2 + (−x))                                    3
+                   = sin(π/2)·cos(−x) + cos(π/2)·sin(−x)                1
+                   = 1·cos(−x) + cos(π/2)·sin(−x)                       4
+                   = 1·cos(−x) + 0·sin(−x)                              5
+                   = 1·cos(x) + 0·sin(−x)                               8
+                   = 1·cos(x) + 0·(−sin(x))                             9
+                   = cos(x)                                             10

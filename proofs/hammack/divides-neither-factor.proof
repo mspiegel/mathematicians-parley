@@ -1,0 +1,40 @@
+import mundane theorem    stdlib/divisibility/divides-multiple
+
+theorem divides-neither-factor
+  note        If x divided y it would divide y·z, and if it divided z it
+              would divide z·y, which is y·z.
+  let x ∈ ℤ                                                           (H1)
+  let y ∈ ℤ                                                           (H2)
+  let z ∈ ℤ                                                           (H3)
+  assume x ≠ 0                                                        (H4)
+  assume not (x divides y·z)                                          (H5)
+  then not (x divides y) and not (x divides z)
+
+1.  not (x divides y)
+    contradiction
+    suppose x divides y                                               (S1)
+
+    1.1.  x divides y·z
+          mun:divides-multiple e := x, a := y, x := z, from S1
+
+    1.2.  not (x divides y·z)
+          join H5, contradicting 1.1
+
+2.  not (x divides z)
+    contradiction
+    suppose x divides z                                               (S2)
+
+    2.1.  x divides z·y
+          mun:divides-multiple e := x, a := z, x := y, from S2
+
+    2.2.  z·y = y·z
+          algebra
+
+    2.3.  x divides y·z
+          substitute z·y = y·z (line 2.2) into line 2.1
+
+    2.4.  not (x divides y·z)
+          join H5, contradicting 2.3
+
+3.  not (x divides y) and not (x divides z)
+    join 1, 2

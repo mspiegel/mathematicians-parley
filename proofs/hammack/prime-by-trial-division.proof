@@ -1,0 +1,184 @@
+import mundane definition stdlib/divisibility/divides
+import mundane theorem    stdlib/divisibility/divides-quotient
+import mundane definition stdlib/divisibility/prime
+import mundane axiom      stdlib/reasoning/excluded-middle
+import mundane theorem    stdlib/reasoning/modus-ponens
+import mundane theorem    stdlib/reasoning/or-left
+import mundane theorem    stdlib/reasoning/or-right
+import mundane theorem    stdlib/numbers/integer-step
+import mundane theorem    stdlib/numbers/multiply-le
+import mundane theorem    stdlib/numbers/nonneg-or-neg
+import mundane definition stdlib/numbers/sqrt
+import mundane theorem    stdlib/numbers/square-le
+
+theorem divisor-exceeds-root
+  note        If d·d ≤ p then d ≤ √p, by squaring, and then d, being at
+              least 2 and at most √p, does not divide p.
+  let p ∈ ℕ                                                           (H1)
+  let d ∈ ℕ                                                           (H2)
+  assume 2 ≤ d                                                        (H3)
+  assume d divides p                                                  (H4)
+  assume for all n ∈ ℕ with 2 ≤ n and n ≤ √p, not (n divides p)       (H5)
+  then p < d·d
+
+1.  √p ∈ ℝ. √p ≥ 0. (√p)² = p.
+    mun:sqrt x := p
+    requires p ≥ 0: inequalities, from H1
+
+2.  p < d·d
+    contradiction
+    suppose not (p < d·d)                                             (S)
+
+    2.1.  d·d ≤ p
+          inequalities, from S
+
+    2.2.  d² = d·d
+          algebra
+
+    2.3.  d² ≤ (√p)²
+          calculation
+            d² = d·d              2.2
+               ≤ p                2.1
+               = (√p)²            1
+
+    2.4.  d ≤ √p
+          mun:square-le x := d, y := √p, from 1, 2.3
+          requires d ≥ 0: inequalities, from H2
+
+    2.5.  2 ≤ d. d ≤ √p.
+          join H3, 2.4
+
+    2.6.  If 2 ≤ d and d ≤ √p then not (d divides p).
+          instantiate n := d in H5, from H2
+
+    2.7.  not (d divides p)
+          mun:modus-ponens P := 2 ≤ d and d ≤ √p, from 2.5, 2.6, contradicting H4
+
+
+theorem prime-by-trial-division
+  note        Let d divide p, p = d·e. If d is neither 1 nor p then d and e
+              are both at least 2, and the smaller of them has its square
+              at most d·e = p, so it divides p and lies between 2 and √p,
+              against the hypothesis.
+  let p ∈ ℕ                                                           (H1)
+  assume p > 1                                                        (H2)
+  assume for all n ∈ ℕ with 2 ≤ n and n ≤ √p, not (n divides p)       (H3)
+  then p is prime
+
+1.  For all d ∈ ℕ, if d divides p then d = 1 or d = p.
+    proof
+    let d ∈ ℕ                                                         (K)
+    assume d divides p                                                (C)
+
+    let e = p/d, a positive integer                                   (D1)
+        mun:divides-quotient n := p, from C
+        reads the number that d must be multiplied by to give p
+
+    1.1.  p = d·e
+          algebra, from D1
+
+    1.2.  d = 1 or not (d = 1)
+          mun:excluded-middle P := d = 1
+
+    1.3.  d = 1 or d = p
+          cases, from 1.2
+
+          case
+          assume d = 1                                                (C1)
+
+          1.3.1.  d = 1 or d = p
+                  mun:or-left Q := d = p, from C1
+
+          case
+          assume not (d = 1)                                          (C2)
+
+          1.3.2.  d = p
+                  contradiction
+                  suppose not (d = p)                                 (S)
+
+                  1.3.2.1.  1 < d
+                            inequalities, from C2, K
+
+                  1.3.2.2.  1 + 1 ≤ d
+                            mun:integer-step m := 1, n := d, from 1.3.2.1
+
+                  1.3.2.3.  2 ≤ d
+                            inequalities, from 1.3.2.2
+
+                  1.3.2.4.  not (e = 1)
+                            contradiction
+                            suppose e = 1                             (S2)
+
+                            1.3.2.4.1.  p = d
+                                        substitute e = 1 (S2) into line 1.1, contradicting S
+
+                  1.3.2.5.  1 < e
+                            inequalities, from D1, 1.3.2.4
+
+                  1.3.2.6.  1 + 1 ≤ e
+                            mun:integer-step m := 1, n := e, from 1.3.2.5
+
+                  1.3.2.7.  2 ≤ e
+                            inequalities, from 1.3.2.6
+
+                  1.3.2.8.  e − d ≥ 0 or e − d < 0
+                            mun:nonneg-or-neg x := e − d
+
+                  1.3.2.9.  d = p
+                            cases, from 1.3.2.8, contradicting S
+
+                            case
+                            assume e − d ≥ 0                          (C3)
+
+                            1.3.2.9.1.  e ≥ d
+                                        inequalities
+                                          e − d ≥ 0       C3
+                                          e ≥ d           adding d
+
+                            1.3.2.9.2.  d·d ≤ d·e
+                                        mun:multiply-le x := d, y := e, c := d, from K, 1.3.2.9.1
+
+                            1.3.2.9.3.  p < d·d
+                                        thm:divisor-exceeds-root, from C, H3, 1.3.2.3
+
+                            1.3.2.9.4.  d·d ≤ p
+                                        transitivity, from 1.3.2.9.2, 1.1
+
+                            1.3.2.9.5.  not (p < d·d)
+                                        inequalities, from 1.3.2.9.4, contradicting 1.3.2.9.3
+
+                            case
+                            assume e − d < 0                          (C4)
+
+                            1.3.2.9.6.  e ≤ d
+                                        inequalities
+                                          e − d < 0       C4
+                                          e < d           adding d
+                                          e ≤ d           weakening
+
+                            1.3.2.9.7.  e·e ≤ e·d
+                                        mun:multiply-le x := e, y := d, c := e, from D1, 1.3.2.9.6
+
+                            1.3.2.9.8.  p = e·d
+                                        algebra, from 1.1
+
+                            1.3.2.9.9.  e divides p
+                                        mun:divides d := e, n := p, from 1.3.2.9.8
+
+                            1.3.2.9.10. p < e·e
+                                        thm:divisor-exceeds-root d := e, from H3, 1.3.2.7, 1.3.2.9.9
+
+                            1.3.2.9.11. e·e ≤ p
+                                        transitivity, from 1.3.2.9.7, 1.3.2.9.8
+
+                            1.3.2.9.12. not (p < e·e)
+                                        inequalities, from 1.3.2.9.11, contradicting 1.3.2.9.10
+
+          1.3.3.  d = 1 or d = p
+                  mun:or-right P := d = 1, from 1.3.2
+
+2.  p > 1. For all d ∈ ℕ, if d divides p then d = 1 or d = p.
+    join H2, 1
+
+3.  p is prime
+    mun:prime, from 2

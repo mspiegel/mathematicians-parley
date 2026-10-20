@@ -1,0 +1,28 @@
+import theorem            proofs/setmm/rational-closure/irrational-product
+import theorem            proofs/wiedijk/sqrt2-irrational/sqrt2-irrational
+
+theorem rational-as-irrational-product
+  note        √2 is irrational, and so is √2·(r/2), a rational not 0 times
+              an irrational. Their product is (√2)²·(r/2) = 2·(r/2) = r.
+  let r ∈ ℚ                                                           (H1)
+  assume r ≠ 0                                                        (H2)
+  then there are x, y ∈ ℝ with x is irrational, y is irrational and r = x·y
+
+1.  √2 is irrational
+    thm:sqrt2-irrational
+
+2.  r/2 ≠ 0
+    algebra, from H2
+
+3.  √2·(r/2) is irrational
+    thm:irrational-product A := √2, B := r/2, from 1
+    requires r/2 ≠ 0: from 2
+
+4.  √2·√2 = 2
+    real arithmetic
+
+5.  r = √2·(√2·(r/2))
+    algebra, from 4
+
+6.  There are x, y ∈ ℝ with x is irrational, y is irrational and r = x·y.
+    exhibit, from 1, 3, 5

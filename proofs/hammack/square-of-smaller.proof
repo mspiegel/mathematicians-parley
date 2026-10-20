@@ -1,0 +1,29 @@
+import mundane theorem    stdlib/numbers/less-scaled
+
+theorem square-of-smaller
+  note        Multiplying x < y by x and by y, both positive, gives x·x <
+              x·y and y·x < y·y.
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume x > 0                                                        (H3)
+  assume y > 0                                                        (H4)
+  assume x < y                                                        (H5)
+  then x² < y²
+
+1.  x·x < x·y
+    mun:less-scaled c := x, from H3, H5
+
+2.  y·x < y·y
+    mun:less-scaled c := y, from H4, H5
+
+3.  x² = x·x
+    algebra
+
+4.  x·y = y·x
+    algebra
+
+5.  y·y = y²
+    algebra
+
+6.  x² < y²
+    transitivity, from 3, 1, 4, 2, 5

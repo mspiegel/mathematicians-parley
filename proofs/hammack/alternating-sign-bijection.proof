@@ -1,0 +1,456 @@
+import mundane definition stdlib/divisibility/even
+import mundane definition stdlib/divisibility/odd
+import mundane theorem    stdlib/divisibility/even-or-odd
+import mundane definition stdlib/functions/one-to-one
+import mundane definition stdlib/functions/onto
+import mundane definition stdlib/functions/one-to-one-onto
+import mundane theorem    stdlib/functions/inverse-value
+import mundane theorem    stdlib/numbers/exponent-sum
+import mundane theorem    stdlib/numbers/exponent-step
+import mundane theorem    stdlib/numbers/nat0-as-int
+import mundane theorem    stdlib/numbers/nonneg-or-neg
+import mundane theorem    stdlib/numbers/pos-int-nat
+
+theorem even-power-of-minus-one
+  note        Each step of 2 in the exponent multiplies by (−1)² = 1.
+  let k ∈ ℕ₀                                                          (H1)
+  then (−1)^(2·k) = 1
+
+1.  For all j ∈ ℕ₀, (−1)^(2·j) = 1.
+    induction on j starting at 0
+
+    base
+    1.1.  (−1)^(2·0) = 1
+          arithmetic
+
+    step
+    let j ∈ ℕ₀                                                        (K1)
+    assume step 1 is true for j, the induction hypothesis             (IH)
+
+    1.2.  2·(j + 1) = 2·j + 2
+          algebra
+
+    1.3.  (−1)^(2·(j + 1)) = (−1)^(2·j + 2)
+          substitute 2·(j + 1) = 2·j + 2 (line 1.2)
+
+    1.4.  (−1)^(2·j + 2) = (−1)^(2·j)·(−1)^2
+          mun:exponent-sum a := −1, m := 2·j, n := 2
+
+    1.5.  (−1)^(2·j)·(−1)^2 = 1·(−1)^2
+          substitute (−1)^(2·j) = 1 (IH)
+
+    1.6.  (−1)^(2·(j + 1)) = 1
+          calculation
+            (−1)^(2·(j + 1)) = (−1)^(2·j + 2)    1.3
+                             = (−1)^(2·j)·(−1)^2 1.4
+                             = 1·(−1)^2          1.5
+                             = 1                 arithmetic
+
+2.  (−1)^(2·k) = 1
+    instantiate j := k in line 1
+
+theorem odd-power-of-minus-one
+  note        (−1)^(2k + 1) is (−1)^(2k) times −1, which is −1.
+  let k ∈ ℕ₀                                                          (H1)
+  then (−1)^(2·k + 1) = −1
+
+1.  (−1)^(2·k) = 1
+    thm:even-power-of-minus-one
+
+2.  (−1)^(2·k + 1) = (−1)^(2·k)·(−1)
+    mun:exponent-step a := −1, m := 2·k
+
+3.  (−1)^(2·k)·(−1) = 1·(−1)
+    substitute (−1)^(2·k) = 1 (line 1)
+
+4.  (−1)^(2·k + 1) = −1
+    calculation
+      (−1)^(2·k + 1) = (−1)^(2·k)·(−1)    2
+                     = 1·(−1)             3
+                     = −1                 arithmetic
+
+theorem sign-of-even
+  note        An even natural number is 2k with k a natural number.
+  let n ∈ ℕ                                                           (H1)
+  assume n is even                                                    (H2)
+  then (−1)^n = 1
+
+1.  There is k ∈ ℤ with n = 2k.
+    mun:even, from H2
+
+2.  k ∈ ℤ. n = 2·k.
+    obtain k from line 1
+
+3.  n ≥ 1
+    inequalities, from H1
+
+4.  2·k ≥ 1
+    substitute n = 2·k (line 2) into line 3
+
+5.  2·k > 0
+    inequalities, from 4
+
+6.  k > 0
+    inequalities
+      2·k > 0       5
+      k > 0         multiplying by 1/2
+
+7.  k ∈ ℕ
+    mun:pos-int-nat m := k, from 6
+
+8.  (−1)^(2·k) = 1
+    thm:even-power-of-minus-one, from 7
+
+9.  (−1)^n = 1
+    substitute 2·k = n (line 2) into line 8
+
+theorem sign-of-odd
+  note        An odd natural number is 2k + 1 with k a natural number or 0.
+  let n ∈ ℕ                                                           (H1)
+  assume n is odd                                                     (H2)
+  then (−1)^n = −1
+
+1.  There is k ∈ ℤ with n = 2k + 1.
+    mun:odd, from H2
+
+2.  k ∈ ℤ. n = 2·k + 1.
+    obtain k from line 1
+
+3.  n ≥ 1
+    inequalities, from H1
+
+4.  2·k + 1 ≥ 1
+    substitute n = 2·k + 1 (line 2) into line 3
+
+5.  k ≥ 0
+    inequalities
+      2·k + 1 ≥ 1       4
+      2·k ≥ 0           adding −1
+      k ≥ 0             multiplying by 1/2
+
+6.  k ∈ ℕ₀
+    mun:nat0-as-int n := k, from 5
+
+7.  (−1)^(2·k + 1) = −1
+    thm:odd-power-of-minus-one, from 6
+
+8.  (−1)^n = −1
+    substitute 2·k + 1 = n (line 2) into line 7
+
+theorem alternating-value-even
+  note        When m is even, (−1)^m = 1 and (2m − 1 + 1)/4 = m/2.
+  let f : ℕ → ℤ                                                       (H1)
+  assume for all n ∈ ℕ, f(n) = ((−1)^n·(2n − 1) + 1)/4               (H2)
+  let m ∈ ℕ                                                           (H3)
+  assume m is even                                                    (H4)
+  then f(m) = m/2
+
+1.  (−1)^m = 1
+    thm:sign-of-even n := m, from H4
+
+2.  f(m) = ((−1)^m·(2·m − 1) + 1)/4
+    instantiate n := m in H2
+
+3.  ((−1)^m·(2·m − 1) + 1)/4 = (1·(2·m − 1) + 1)/4
+    substitute (−1)^m = 1 (line 1)
+
+4.  (1·(2·m − 1) + 1)/4 = m/2
+    algebra
+
+5.  f(m) = m/2
+    calculation
+      f(m) = ((−1)^m·(2·m − 1) + 1)/4    2
+           = (1·(2·m − 1) + 1)/4         3
+           = m/2                         4
+
+theorem alternating-value-odd
+  note        When m is odd, (−1)^m = −1 and (−(2m − 1) + 1)/4 = (1 − m)/2.
+  let f : ℕ → ℤ                                                       (H1)
+  assume for all n ∈ ℕ, f(n) = ((−1)^n·(2n − 1) + 1)/4               (H2)
+  let m ∈ ℕ                                                           (H3)
+  assume m is odd                                                     (H4)
+  then f(m) = (1 − m)/2
+
+1.  (−1)^m = −1
+    thm:sign-of-odd n := m, from H4
+
+2.  f(m) = ((−1)^m·(2·m − 1) + 1)/4
+    instantiate n := m in H2
+
+3.  ((−1)^m·(2·m − 1) + 1)/4 = ((−1)·(2·m − 1) + 1)/4
+    substitute (−1)^m = −1 (line 1)
+
+4.  ((−1)·(2·m − 1) + 1)/4 = (1 − m)/2
+    algebra
+
+5.  f(m) = (1 − m)/2
+    calculation
+      f(m) = ((−1)^m·(2·m − 1) + 1)/4    2
+           = ((−1)·(2·m − 1) + 1)/4      3
+           = (1 − m)/2                   4
+
+theorem alternating-bijection
+  note        Even n goes to n/2 and odd n to (1 − n)/2. Two natural numbers
+              of the same parity with equal values are equal, and of opposite
+              parity they would add to 1. Every y > 0 is f(2y), and every y ≤
+              0 is f(1 − 2y).
+  let f : ℕ → ℤ                                                       (H1)
+  assume for all n ∈ ℕ, f(n) = ((−1)^n·(2n − 1) + 1)/4               (H2)
+  then f : ℕ → ℤ is one-to-one and onto
+
+1.  For all s, t ∈ ℕ, if f(s) = f(t) then s = t.
+    proof
+    let s ∈ ℕ                                                         (K1)
+    let t ∈ ℕ                                                         (K2)
+    assume f(s) = f(t)                                                (A1)
+
+    1.1.  s is even or s is odd
+          mun:even-or-odd n := s
+
+    1.2.  t is even or t is odd
+          mun:even-or-odd n := t
+
+    1.3.  s = t
+          cases, from 1.1
+
+          case
+          assume s is even                                            (C1)
+
+          1.3.1.  f(s) = s/2
+                  thm:alternating-value-even m := s, from C1, H2
+
+          1.3.2.  s = t
+                  cases, from 1.2
+
+                  case
+                  assume t is even                                    (C3)
+
+                  1.3.2.1.  f(t) = t/2
+                            thm:alternating-value-even m := t, from C3, H2
+
+                  1.3.2.2.  s/2 = t/2
+                            calculation
+                              s/2 = f(s)    1.3.1
+                                  = f(t)    A1
+                                  = t/2     1.3.2.1
+
+                  1.3.2.3.  s = t
+                            algebra, from 1.3.2.2
+
+                  case
+                  assume t is odd                                     (C4)
+
+                  1.3.2.4.  f(t) = (1 − t)/2
+                            thm:alternating-value-odd m := t, from C4, H2
+
+                  1.3.2.5.  s/2 = (1 − t)/2
+                            calculation
+                              s/2 = f(s)          1.3.1
+                                  = f(t)          A1
+                                  = (1 − t)/2     1.3.2.4
+
+                  1.3.2.6.  s + t = 1
+                            algebra, from 1.3.2.5
+
+                  1.3.2.7.  s + t > 1
+                            inequalities, from K1, K2
+
+                  1.3.2.8.  s + t ≠ 1
+                            inequalities, contradicting 1.3.2.6
+                              s + t > 1       1.3.2.7
+                              s + t ≠ 1       weakening
+
+          case
+          assume s is odd                                             (C2)
+
+          1.3.3.  f(s) = (1 − s)/2
+                  thm:alternating-value-odd m := s, from C2, H2
+
+          1.3.4.  s = t
+                  cases, from 1.2
+
+                  case
+                  assume t is even                                    (C5)
+
+                  1.3.4.1.  f(t) = t/2
+                            thm:alternating-value-even m := t, from C5, H2
+
+                  1.3.4.2.  (1 − s)/2 = t/2
+                            calculation
+                              (1 − s)/2 = f(s)    1.3.3
+                                        = f(t)    A1
+                                        = t/2     1.3.4.1
+
+                  1.3.4.3.  s + t = 1
+                            algebra, from 1.3.4.2
+
+                  1.3.4.4.  s + t > 1
+                            inequalities, from K1, K2
+
+                  1.3.4.5.  s + t ≠ 1
+                            inequalities, contradicting 1.3.4.3
+                              s + t > 1       1.3.4.4
+                              s + t ≠ 1       weakening
+
+                  case
+                  assume t is odd                                     (C6)
+
+                  1.3.4.6.  f(t) = (1 − t)/2
+                            thm:alternating-value-odd m := t, from C6, H2
+
+                  1.3.4.7.  (1 − s)/2 = (1 − t)/2
+                            calculation
+                              (1 − s)/2 = f(s)          1.3.3
+                                        = f(t)          A1
+                                        = (1 − t)/2     1.3.4.6
+
+                  1.3.4.8.  s = t
+                            algebra, from 1.3.4.7
+
+2.  f : ℕ → ℤ is one-to-one
+    mun:one-to-one, from H1, 1
+
+3.  For all y ∈ ℤ, there is x ∈ ℕ with y = f(x).
+    proof
+    let y ∈ ℤ                                                         (K3)
+
+    3.1.  −y ≥ 0 or −y < 0
+          mun:nonneg-or-neg x := −y
+
+    3.2.  There is x ∈ ℕ with y = f(x).
+          cases, from 3.1
+
+          case
+          assume −y ≥ 0                                               (C7)
+
+          3.2.1.  1 − 2·y ≥ 1
+                  inequalities
+                    −y ≥ 0              C7
+                    −2·y ≥ 0            multiplying by 2
+                    1 − 2·y ≥ 1         adding 1
+
+          3.2.2.  1 − 2·y > 0
+                  inequalities, from 3.2.1
+
+          3.2.3.  1 − 2·y ∈ ℕ
+                  mun:pos-int-nat m := 1 − 2·y, from 3.2.2
+
+          3.2.4.  1 − 2·y = 2·(−y) + 1
+                  algebra
+
+          3.2.5.  1 − 2·y is odd
+                  mun:odd n := 1 − 2·y, from 3.2.4
+
+          3.2.6.  f(1 − 2·y) = (1 − (1 − 2·y))/2
+                  thm:alternating-value-odd m := 1 − 2·y, from H2, 3.2.3, 3.2.5
+
+          3.2.7.  y = f(1 − 2·y)
+                  algebra, from 3.2.6
+
+          3.2.8.  There is x ∈ ℕ with y = f(x).
+                  exhibit, from 3.2.3, 3.2.7
+
+          case
+          assume −y < 0                                               (C8)
+
+          3.2.9.  2·y > 0
+                  inequalities
+                    −y < 0              C8
+                    2·y > 0             multiplying by −2
+
+          3.2.10. 2·y ∈ ℕ
+                  mun:pos-int-nat m := 2·y, from 3.2.9
+
+          3.2.11. 2·y is even
+                  mun:even n := 2·y
+
+          3.2.12. f(2·y) = (2·y)/2
+                  thm:alternating-value-even m := 2·y, from H2, 3.2.10, 3.2.11
+
+          3.2.13. y = f(2·y)
+                  algebra, from 3.2.12
+
+          3.2.14. There is x ∈ ℕ with y = f(x).
+                  exhibit, from 3.2.10, 3.2.13
+
+4.  f : ℕ → ℤ is onto
+    mun:onto, from H1, 3
+
+5.  f : ℕ → ℤ is one-to-one and onto
+    mun:one-to-one-onto, from 2, 4
+
+theorem alternating-inverse
+  note        f(2m) = m for m > 0 and f(1 − 2m) = m for m ≤ 0, so applying the
+              inverse to f(2m) or f(1 − 2m) gives back 2m or 1 − 2m.
+  let f : ℕ → ℤ be one-to-one and onto                                (H1)
+  assume for all n ∈ ℕ, f(n) = ((−1)^n·(2n − 1) + 1)/4               (H2)
+  then for all m ∈ ℤ with m > 0, f⁻¹(m) = 2·m. for all m ∈ ℤ with m ≤ 0, f⁻¹(m) = 1 − 2·m.
+
+1.  f : ℕ → ℤ is one-to-one
+    mun:one-to-one-onto, from H1
+
+2.  For all m ∈ ℤ with m > 0, f⁻¹(m) = 2·m.
+    proof
+    let m ∈ ℤ                                                         (K1)
+    assume m > 0                                                      (A1)
+
+    2.1.  2·m > 0
+          inequalities
+            m > 0         A1
+            2·m > 0       multiplying by 2
+
+    2.2.  2·m ∈ ℕ
+          mun:pos-int-nat m := 2·m, from 2.1
+
+    2.3.  2·m is even
+          mun:even n := 2·m
+
+    2.4.  f(2·m) = (2·m)/2
+          thm:alternating-value-even m := 2·m, from H2, 2.2, 2.3
+
+    2.5.  f(2·m) = m
+          algebra, from 2.4
+
+    2.6.  f⁻¹(f(2·m)) = 2·m
+          mun:inverse-value g := f, y := 2·m, from 1, 2.2
+
+    2.7.  f⁻¹(m) = 2·m
+          substitute f(2·m) = m (line 2.5) into line 2.6
+
+3.  For all m ∈ ℤ with m ≤ 0, f⁻¹(m) = 1 − 2·m.
+    proof
+    let m ∈ ℤ                                                         (K2)
+    assume m ≤ 0                                                      (A2)
+
+    3.1.  1 − 2·m ≥ 1
+          inequalities
+            m ≤ 0               A2
+            −2·m ≥ 0            multiplying by −2
+            1 − 2·m ≥ 1         adding 1
+
+    3.2.  1 − 2·m > 0
+          inequalities, from 3.1
+
+    3.3.  1 − 2·m ∈ ℕ
+          mun:pos-int-nat m := 1 − 2·m, from 3.2
+
+    3.4.  1 − 2·m = 2·(−m) + 1
+          algebra
+
+    3.5.  1 − 2·m is odd
+          mun:odd n := 1 − 2·m, from 3.4
+
+    3.6.  f(1 − 2·m) = (1 − (1 − 2·m))/2
+          thm:alternating-value-odd m := 1 − 2·m, from H2, 3.3, 3.5
+
+    3.7.  f(1 − 2·m) = m
+          algebra, from 3.6
+
+    3.8.  f⁻¹(f(1 − 2·m)) = 1 − 2·m
+          mun:inverse-value g := f, y := 1 − 2·m, from 1, 3.3
+
+    3.9.  f⁻¹(m) = 1 − 2·m
+          substitute f(1 − 2·m) = m (line 3.7) into line 3.8
+
+4.  For all m ∈ ℤ with m > 0, f⁻¹(m) = 2·m. For all m ∈ ℤ with m ≤ 0, f⁻¹(m) = 1 − 2·m.
+    join 2, 3

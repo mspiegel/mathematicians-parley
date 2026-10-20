@@ -1,0 +1,129 @@
+import definition         stdlib/counting/C
+import theorem            stdlib/counting/pascal
+import theorem            proofs/hammack/binomial-on-the-diagonal/binomial-on-the-diagonal
+import theorem            proofs/hammack/sum-of-first-naturals-is-a-binomial/sum-of-first-naturals-is-a-binomial
+import mundane theorem    stdlib/sums/sum-add
+import mundane theorem    stdlib/sums/sum-extended
+import mundane theorem    stdlib/sums/sum-single
+import mundane theorem    stdlib/sums/sum-termwise
+
+theorem weighted-sum-is-a-binomial
+  note        By induction on n: the sum for n + 1 has terms k·(n − k + 1) + k,
+              so it is the sum for n, plus a last term that is 0, plus
+              1 + 2 + … + (n + 1) = C(n + 2, 2), and C(n + 2, 3) + C(n + 2, 2)
+              is C(n + 3, 3) by Pascal's rule.
+  let n ∈ ℕ                                                           (H1)
+  then Σ(k = 1 to n) k·(n − k + 1) = C(n + 2, 3)
+
+let T(m) = Σ(i = 1 to m) i·(m − i + 1), for m ∈ ℕ                     (D1)
+       reads the sum of i·(m − i + 1) for i from 1 to m
+
+1.  For all j ∈ ℕ, T(j) = C(j + 2, 3).
+    induction on j starting at 1
+
+    base
+    1.1.  Σ(i = 1 to 1) i·(1 − i + 1) = 1·(1 − 1 + 1)
+          mun:sum-single a := 1
+
+    1.2.  C(3, 3) = 1
+          thm:binomial-on-the-diagonal m := 3
+
+    1.3.  T(1) = C(1 + 2, 3)
+          calculation
+            T(1) = Σ(i = 1 to 1) i·(1 − i + 1)    D1
+                 = 1·(1 − 1 + 1)                  1.1
+                 = 1                              arithmetic
+                 = C(3, 3)                        1.2
+                 = C(1 + 2, 3)                    arithmetic
+
+    step
+    let j ∈ ℕ                                                         (K)
+    assume step 1 is true for j, the induction hypothesis             (IH)
+
+    1.4.  For all i ∈ {1, …, j + 1}, i·((j + 1) − i + 1) = i·(j − i + 1) + i.
+          proof
+          let i ∈ {1, …, j + 1}                                       (L)
+
+          1.4.1.  i·((j + 1) − i + 1) = i·(j − i + 1) + i
+                  algebra
+
+    1.5.  For all i ∈ {1, …, j + 1}, i·((j + 1) − i + 1) ∈ ℝ.
+          membership
+
+    1.6.  For all i ∈ {1, …, j + 1}, i·(j − i + 1) + i ∈ ℝ.
+          membership
+
+    1.7.  Σ(i = 1 to j + 1) i·((j + 1) − i + 1) = Σ(i = 1 to j + 1) (i·(j − i + 1) + i)
+          mun:sum-termwise a := 1, b := j + 1, from 1.4, 1.5, 1.6
+
+    1.8.  For all i ∈ {1, …, j + 1}, i·(j − i + 1) ∈ ℝ.
+          membership
+
+    1.9.  For all i ∈ {1, …, j + 1}, i ∈ ℝ.
+          membership
+
+    1.10. Σ(i = 1 to j + 1) (i·(j − i + 1) + i) = Σ(i = 1 to j + 1) i·(j − i + 1) + Σ(i = 1 to j + 1) i
+          mun:sum-add a := 1, b := j + 1, from 1.8, 1.9
+
+    1.11. Σ(i = 1 to j + 1) i·(j − i + 1) = Σ(i = 1 to j) i·(j − i + 1) + (j + 1)·(j − (j + 1) + 1)
+          mun:sum-extended a := 1, n := j, from 1.8
+          requires j ≥ 1: from K
+
+    1.12. (j + 1)·(j − (j + 1) + 1) = 0
+          algebra
+
+    1.13. Σ(i = 1 to j + 1) i = C((j + 1) + 1, 2)
+          thm:sum-of-first-naturals-is-a-binomial n := j + 1
+
+    1.14. C(j + 2, 3) + C(j + 2, 3 − 1) = C((j + 2) + 1, 3)
+          thm:pascal n := j + 2, k := 3
+
+    1.15. (j + 1) + 1 = j + 2
+          algebra
+
+    1.16. (j + 2) + 1 = (j + 1) + 2
+          algebra
+
+    1.17. C(j + 2, 3) + C(j + 2, 2) = C((j + 2) + 1, 3)
+          substitute 3 − 1 = 2 (arithmetic) into line 1.14
+
+    1.18. C(j + 2, 3) + C(j + 2, 2) = C((j + 1) + 2, 3)
+          substitute (j + 2) + 1 = (j + 1) + 2 (line 1.16) into line 1.17
+
+    1.19. Σ(i = 1 to j + 1) i = C(j + 2, 2)
+          substitute (j + 1) + 1 = j + 2 (line 1.15) into line 1.13
+
+    1.20. Σ(i = 1 to j + 1) i·(j − i + 1) = Σ(i = 1 to j) i·(j − i + 1)
+          substitute (j + 1)·(j − (j + 1) + 1) = 0 (line 1.12) into line 1.11
+
+    1.21. Σ(i = 1 to j + 1) i·(j − i + 1) = T(j)
+          calculation
+            Σ(i = 1 to j + 1) i·(j − i + 1) = Σ(i = 1 to j) i·(j − i + 1)     1.20
+                                            = T(j)                            D1
+
+    1.22. Σ(i = 1 to j + 1) i·(j − i + 1) + Σ(i = 1 to j + 1) i = T(j) + Σ(i = 1 to j + 1) i
+          substitute Σ(i = 1 to j + 1) i·(j − i + 1) = T(j) (line 1.21)
+
+    1.23. T(j) + Σ(i = 1 to j + 1) i = T(j) + C(j + 2, 2)
+          substitute Σ(i = 1 to j + 1) i = C(j + 2, 2) (line 1.19)
+
+    1.24. T(j) + C(j + 2, 2) = C(j + 2, 3) + C(j + 2, 2)
+          substitute T(j) = C(j + 2, 3) (IH)
+
+    1.25. T(j + 1) = C((j + 1) + 2, 3)
+          calculation
+            T(j + 1) = Σ(i = 1 to j + 1) i·((j + 1) − i + 1)                                D1
+                     = Σ(i = 1 to j + 1) (i·(j − i + 1) + i)                                1.7
+                     = Σ(i = 1 to j + 1) i·(j − i + 1) + Σ(i = 1 to j + 1) i                1.10
+                     = T(j) + Σ(i = 1 to j + 1) i                                           1.22
+                     = T(j) + C(j + 2, 2)                                                   1.23
+                     = C(j + 2, 3) + C(j + 2, 2)                                            1.24
+                     = C((j + 1) + 2, 3)                                                    1.18
+
+2.  T(n) = C(n + 2, 3)
+    instantiate j := n in line 1
+
+3.  Σ(k = 1 to n) k·(n − k + 1) = C(n + 2, 3)
+    calculation
+      Σ(k = 1 to n) k·(n − k + 1) = T(n)            D1
+                                  = C(n + 2, 3)     2

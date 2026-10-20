@@ -1,0 +1,57 @@
+import definition         stdlib/calculus/limit-at
+import mundane theorem    stdlib/sets/subset-self
+import mundane theorem    stdlib/numbers/abs-difference-lt
+import mundane theorem    stdlib/functions/function-value
+
+theorem identity-plus-two-limit
+  note        x + 2 is within ε of 2 wherever x is within ε of 0.
+  ε, δ range over ℝ
+  let f : ℝ → ℝ                                                       (H1)
+  assume for all x ∈ ℝ, f(x) = x + 2                                 (H2)
+  then f tends to 2 at 0
+
+1.  For all ε > 0, there exists δ > 0 such that |f(x) − 2| < ε for all x ∈ ℝ with (x ≠ 0 and |x − 0| < δ).
+    proof
+    let ε ∈ ℝ                                                         (K1)
+    assume ε > 0                                                      (A1)
+
+    1.1.  For all x ∈ ℝ with (x ≠ 0 and |x − 0| < ε), |f(x) − 2| < ε.
+          proof
+          let x ∈ ℝ                                                   (K2)
+          assume x ≠ 0 and |x − 0| < ε                                (A2)
+
+          1.1.1.  f(x) = x + 2
+                  instantiate x := x in H2
+
+          1.1.2.  0 − ε < x and x < 0 + ε
+                  mun:abs-difference-lt c := 0, δ := ε, from A2
+
+          1.1.3.  2 − ε < x + 2
+                  inequalities
+                    0 − ε < x          1.1.2
+                    2 − ε < x + 2      adding 2
+
+          1.1.4.  2 − ε < f(x)
+                  transitivity, from 1.1.3, 1.1.1
+
+          1.1.5.  x + 2 < 2 + ε
+                  inequalities
+                    x < 0 + ε          1.1.2
+                    x + 2 < 2 + ε      adding 2
+
+          1.1.6.  f(x) < 2 + ε
+                  transitivity, from 1.1.1, 1.1.5
+
+          1.1.7.  2 − ε < f(x) and f(x) < 2 + ε
+                  join 1.1.4, 1.1.6
+
+          1.1.8.  |f(x) − 2| < ε
+                  mun:abs-difference-lt x := f(x), c := 2, δ := ε, from 1.1.7
+                  requires f(x) ∈ ℝ: mun:function-value
+
+    1.2.  There exists δ > 0 such that |f(x) − 2| < ε for all x ∈ ℝ with (x ≠ 0 and |x − 0| < δ).
+          exhibit, from A1, 1.1
+
+2.  f tends to 2 at 0
+    def:limit-at D := ℝ, c := 0, L := 2, from 1
+    requires ℝ ⊆ ℝ: mun:subset-self

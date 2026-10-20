@@ -1,0 +1,49 @@
+import mundane definition stdlib/numbers/irrational
+import theorem            proofs/hammack/sqrt6-irrational/sqrt6-irrational
+import theorem            proofs/setmm/rational-closure/irrational-product
+import theorem            proofs/setmm/rational-closure/irrational-sum
+import theorem            proofs/setmm/rational-closure/rational-product
+
+theorem sqrt-two-plus-sqrt-three
+  note        The square of √2 + √3 is 5 + 2·√6, which is irrational because
+              √6 is. A rational number has a rational square, so √2 + √3
+              is not rational.
+  then √2 + √3 is irrational
+
+1.  √6 is irrational
+    thm:sqrt6-irrational
+
+2.  √6·2 is irrational
+    thm:irrational-product A := √6, B := 2, from 1
+    requires 2 ≠ 0: arithmetic
+
+3.  √6·2 + 5 is irrational
+    thm:irrational-sum A := √6·2, B := 5, from 2
+
+4.  (√2 + √3)² = √6·2 + 5
+    real arithmetic
+
+5.  √2 + √3 ∉ ℚ
+    contradiction
+    suppose √2 + √3 ∈ ℚ                                               (S)
+
+    5.1.  (√2 + √3)·(√2 + √3) ∈ ℚ
+          thm:rational-product A := √2 + √3, B := √2 + √3, from S
+
+    5.2.  (√2 + √3)² = (√2 + √3)·(√2 + √3)
+          real arithmetic
+
+    5.3.  (√2 + √3)² ∈ ℚ
+          substitute (√2 + √3)² = (√2 + √3)·(√2 + √3) (line 5.2) into line 5.1
+
+    5.4.  √6·2 + 5 ∈ ℚ
+          substitute (√2 + √3)² = √6·2 + 5 (line 4) into line 5.3
+
+    5.5.  √6·2 + 5 ∈ ℝ. √6·2 + 5 ∉ ℚ.
+          mun:irrational x := √6·2 + 5, from 3
+
+    5.6.  √6·2 + 5 ∉ ℚ
+          join 5.5, contradicting 5.4
+
+6.  √2 + √3 is irrational
+    mun:irrational x := √2 + √3, from 5

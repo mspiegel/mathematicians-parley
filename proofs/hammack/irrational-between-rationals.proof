@@ -1,0 +1,165 @@
+import theorem            proofs/wiedijk/sqrt2-irrational/sqrt2-irrational
+import mundane definition stdlib/numbers/rational
+import mundane definition stdlib/numbers/irrational
+import mundane definition stdlib/numbers/sqrt
+import mundane theorem    stdlib/numbers/square-less
+import mundane theorem    stdlib/numbers/product-positive
+import mundane theorem    stdlib/numbers/less-scaled
+import mundane theorem    stdlib/numbers/pos-int-nat
+
+theorem irrational-between-rationals
+  note        Take u = r + (s − r)·((1/2)·√2). Since 0 < (1/2)·√2 < 1, u lies between
+              r and s. If u were rational, solving for √2 would write it as
+              a quotient of integers with positive denominator, and √2 is
+              not rational.
+  let r ∈ ℚ                                                           (H1)
+  let s ∈ ℚ                                                           (H2)
+  assume r < s                                                        (H3)
+  then there exists u ∈ ℝ such that u is irrational and r < u and u < s
+
+1.  √2 ∈ ℝ. √2 ≥ 0. (√2)² = 2.
+    mun:sqrt x := 2
+    requires 2 ≥ 0: arithmetic
+
+2.  √2 is irrational
+    thm:sqrt2-irrational
+
+3.  0² < (√2)²
+    calculation
+      0² = 0          arithmetic
+         < 2          arithmetic
+         = (√2)²      1
+
+4.  0 < √2
+    mun:square-less x := 0, y := √2, from 1, 3
+    requires 0 ≥ 0: arithmetic
+
+5.  (√2)² < 2²
+    calculation
+      (√2)² = 2       1
+            < 2²      arithmetic
+
+6.  √2 < 2
+    mun:square-less x := √2, y := 2, from 1, 5
+    requires 2 ≥ 0: arithmetic
+
+7.  0 < (1/2)·√2
+    mun:product-positive x := 1/2, y := √2, from 4
+    requires 1/2 > 0: arithmetic
+
+8.  (1/2)·√2 < (1/2)·2
+    mun:less-scaled x := √2, y := 2, c := 1/2, from 6
+    requires 1/2 > 0: arithmetic
+
+9.  (1/2)·√2 < 1
+    calculation
+      (1/2)·√2 < (1/2)·2      8
+               = 1            arithmetic
+
+10. 0 < s − r
+    inequalities
+      r < s           H3
+      0 < s − r       adding −r
+
+let u = r + (s − r)·((1/2)·√2), a real number                             (D1)
+    membership, from 1
+    reads the point half of √2 of the way from r to s
+
+11. (s − r)·((1/2)·√2) > 0
+    mun:product-positive x := s − r, y := (1/2)·√2, from 7, 10
+
+12. r + (s − r)·((1/2)·√2) > r
+    inequalities
+      (s − r)·((1/2)·√2) > 0          11
+      r + (s − r)·((1/2)·√2) > r      adding r
+
+13. r < u
+    transitivity, from 12, D1
+
+14. (s − r)·((1/2)·√2) < (s − r)·1
+    mun:less-scaled x := (1/2)·√2, y := 1, c := s − r, from 9, 10
+
+15. r + (s − r)·((1/2)·√2) < r + (s − r)
+    inequalities
+      (s − r)·((1/2)·√2) < (s − r)·1          14
+      r + (s − r)·((1/2)·√2) < r + (s − r)    adding r
+
+16. r + (s − r) = s
+    algebra
+
+17. u < s
+    transitivity, from D1, 15, 16
+
+18. u ∉ ℚ
+    contradiction
+    suppose u ∈ ℚ                                                     (S)
+
+    18.1.  a ∈ ℤ. b ∈ ℕ. u = a/b.
+           obtain a, b: mun:rational x := u, from S
+
+    18.2.  p ∈ ℤ. q ∈ ℕ. r = p/q.
+           obtain p, q: mun:rational x := r
+
+    18.3.  c ∈ ℤ. d ∈ ℕ. s = c/d.
+           obtain c, d: mun:rational x := s
+
+    18.4.  s − r = c/d − r
+           substitute s = c/d (line 18.3)
+
+    18.5.  c/d − r = c/d − p/q
+           substitute r = p/q (line 18.2)
+
+    18.6.  s − r = c/d − p/q
+           transitivity, from 18.4, 18.5
+
+    18.7.  q·d > 0
+           mun:product-positive x := q, y := d, from 18.2, 18.3
+
+    18.8.  (s − r)·(q·d) > 0
+           mun:product-positive x := s − r, y := q·d, from 10, 18.7
+
+    18.9.  (c/d − p/q)·(q·d) > 0
+           substitute s − r = c/d − p/q (line 18.6) into line 18.8
+
+    18.10. (c/d − p/q)·(q·d) = c·q − p·d
+           algebra
+
+    18.11. 0 < c·q − p·d
+           transitivity, from 18.9, 18.10
+
+    let m = c·q − p·d, a positive integer                             (D2)
+           mun:pos-int-nat m := c·q − p·d, from 18.11
+           reads the numerator of s − r over the common denominator q·d
+
+    18.12. u − r = (s − r)·((1/2)·√2)
+           algebra, from D1
+
+    18.13. a/b − r = (s − r)·((1/2)·√2)
+           substitute u = a/b (line 18.1) into line 18.12
+
+    18.14. a/b − p/q = (s − p/q)·((1/2)·√2)
+           substitute r = p/q (line 18.2) into line 18.13
+
+    18.15. a/b − p/q = (c/d − p/q)·((1/2)·√2)
+           substitute s = c/d (line 18.3) into line 18.14
+
+    18.16. (b·(c·q − p·d))·√2 = 2·d·(a·q − p·b)
+           algebra, from 18.15
+
+    18.17. (b·m)·√2 = 2·d·(a·q − p·b)
+           substitute c·q − p·d = m (D2) into line 18.16
+
+    18.18. √2 = (2·d·(a·q − p·b))/(b·m)
+           algebra, from 18.17
+
+    18.19. √2 ∈ ℚ
+           mun:rational x := √2, from 18.18
+
+    18.20. √2 ∉ ℚ
+           mun:irrational x := √2, from 2, contradicting 18.19
+
+19. u is irrational
+    mun:irrational x := u, from 18
+
+20. there exists u ∈ ℝ such that u is irrational and r < u and u < s
+    exhibit, from 13, 17, 19

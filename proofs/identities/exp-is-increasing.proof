@@ -1,0 +1,37 @@
+import mundane definition stdlib/logarithms/ln
+import mundane definition stdlib/logarithms/exp
+import theorem            stdlib/logarithms/ln-order
+import theorem            stdlib/logarithms/ln-exp
+import mundane theorem    stdlib/logarithms/exp-positive
+import mundane theorem    stdlib/logarithms/exp-real
+
+theorem exp-is-increasing
+  note        If exp(a) were compared through ln, ln(exp(a)) = a < b = ln(exp(b)),
+              and ln-order turns that back into exp(a) < exp(b).
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a < b                                                        (H3)
+  then exp(a) < exp(b)
+
+1.  exp(a) > 0
+    mun:exp-positive x := a
+
+2.  exp(b) > 0
+    mun:exp-positive x := b
+
+3.  ln(exp(a)) = a
+    thm:ln-exp x := a
+
+4.  ln(exp(b)) = b
+    thm:ln-exp x := b
+
+5.  ln(exp(a)) < ln(exp(b))
+    calculation
+      ln(exp(a)) = a             3
+                 < b             H3
+                 = ln(exp(b))    4
+
+6.  exp(a) < exp(b)
+    thm:ln-order x := exp(a), y := exp(b), from 1, 2, 5
+    requires exp(a) ∈ ℝ: mun:exp-real x := a
+    requires exp(b) ∈ ℝ: mun:exp-real x := b

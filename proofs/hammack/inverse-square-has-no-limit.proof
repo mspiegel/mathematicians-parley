@@ -1,0 +1,190 @@
+import definition         stdlib/calculus/limit-at
+import theorem            stdlib/numbers/archimedean-natural
+import mundane theorem    stdlib/sets/difference-subset
+import mundane theorem    stdlib/sets/remove-member
+import mundane definition stdlib/numbers/abs
+import mundane theorem    stdlib/numbers/abs-difference-lt
+import mundane theorem    stdlib/numbers/quotient-positive
+import mundane theorem    stdlib/numbers/reciprocal-order
+import mundane theorem    stdlib/numbers/reciprocal-positive
+import mundane theorem    stdlib/numbers/square-positive
+
+theorem inverse-square-has-no-limit
+  note        Within any δ of 0 the function takes the values m² and
+              (m + 1)² for a natural number m with 2/m below δ. A limit L
+              would be within 1 of both, so their difference 2m + 1 would be
+              below 2, which no natural number m allows.
+  ε, δ range over ℝ
+  let f : ℝ ∖ {0} → ℝ                                                 (H1)
+  assume for all x ∈ ℝ ∖ {0}, f(x) = 1/x²                            (H2)
+  then not (there is L ∈ ℝ with f tends to L at 0)
+
+1.  not (there is L ∈ ℝ with f tends to L at 0)
+    contradiction
+    suppose there is L ∈ ℝ with f tends to L at 0                     (S)
+
+    1.1.  L ∈ ℝ. f tends to L at 0.
+          obtain L from S
+
+    1.2.  For all ε > 0, there exists δ > 0 such that |f(x) − L| < ε for all x ∈ ℝ ∖ {0} with (x ≠ 0 and |x − 0| < δ).
+          def:limit-at D := ℝ ∖ {0}, c := 0, from 1.1
+          requires ℝ ∖ {0} ⊆ ℝ: mun:difference-subset X := ℝ, Y := {0}
+
+    1.3.  There exists δ > 0 such that |f(x) − L| < 1 for all x ∈ ℝ ∖ {0} with (x ≠ 0 and |x − 0| < δ).
+          instantiate ε := 1 in line 1.2
+          requires 0 < 1: arithmetic
+
+    1.4.  p ∈ ℝ. p > 0. For all x ∈ ℝ ∖ {0} with (x ≠ 0 and |x − 0| < p), |f(x) − L| < 1.
+          obtain p from line 1.3
+
+    1.5.  p ≠ 0
+          inequalities
+            p > 0          1.4
+            p ≠ 0          weakening
+
+    1.6.  2/p > 0
+          mun:quotient-positive x := 2, y := p, from 1.4
+          requires 2 > 0: arithmetic
+
+    1.7.  m ∈ ℕ. m > 2/p.
+          obtain m: thm:archimedean-natural x := 2/p, from 1.5
+
+    1.8.  p > p/2
+          inequalities
+            p > 0                  1.4
+            p/2 > 0                multiplying by 1/2
+            p/2 + p/2 > p/2        adding p/2
+            p > p/2                algebra
+
+    1.9.  m ≥ 1
+          inequalities, from 1.7
+
+    1.10. For all j ∈ ℕ with j ≥ m, |j² − L| < 1.
+          proof
+          let j ∈ ℕ                                                   (K1)
+          assume j ≥ m                                                (A1)
+
+          1.10.1.  j > 0
+                   inequalities, from K1
+
+          1.10.2.  m > 0
+                   inequalities, from 1.7
+
+          1.10.3.  1/j ≤ 1/m
+                   mun:reciprocal-order x := m, y := j, from A1
+                   requires m > 0: from 1.10.2
+                   requires j > 0: from 1.10.1
+
+          1.10.4.  m ≥ 2/p
+                   inequalities
+                     m > 2/p        1.7
+                     m ≥ 2/p        weakening
+                   requires p ≠ 0: from 1.5
+
+          1.10.5.  1/m ≤ 1/(2/p)
+                   mun:reciprocal-order x := 2/p, y := m, from 1.10.4
+                   requires 2/p > 0: from 1.6
+                   requires m > 0: from 1.10.2
+                   requires p ≠ 0: from 1.5
+
+          1.10.6.  1/(2/p) = p/2
+                   algebra
+                   requires p ≠ 0: from 1.5
+
+          1.10.7.  1/j < p
+                   transitivity, from 1.10.3, 1.10.5, 1.10.6, 1.8
+                   requires p ≠ 0: from 1.5
+
+          let t = 1/j, a real number                                  (D1)
+                   membership
+                   reads the point 1/j, which lies within p of 0
+
+          1.10.8.  t > 0
+                   mun:reciprocal-positive x := j, from D1, 1.10.1
+
+          1.10.9.  t ≠ 0
+                   inequalities
+                     t > 0        1.10.8
+                     t ≠ 0        weakening
+
+          1.10.10. t ∈ ℝ ∖ {0}
+                   mun:remove-member u := t, from 1.10.9
+
+          1.10.11. |t| = t
+                   mun:abs x := t
+                   requires t ≥ 0: weakening, from 1.10.8
+
+          1.10.12. t < p
+                   transitivity, from D1, 1.10.7
+
+          1.10.13. |t − 0| < p
+                   transitivity, from 1.10.11, 1.10.12
+
+          1.10.14. |f(t) − L| < 1
+                   instantiate x := t in line 1.4, from 1.10.9, 1.10.10, 1.10.13
+
+          1.10.15. f(t) = 1/t²
+                   instantiate x := t in H2, from 1.10.10
+
+          1.10.16. t·j = 1
+                   algebra, from D1
+
+          let T = t², a real number                                   (D2)
+                   membership
+                   reads the square of t
+
+          1.10.17. T > 0
+                   mun:square-positive x := t, from D2, 1.10.9
+
+          1.10.18. j²·T = 1
+                   algebra, from D2, 1.10.16
+
+          1.10.19. 1/T = j²
+                   algebra, from 1.10.18
+                   requires T ≠ 0: weakening, from 1.10.17
+
+          1.10.20. f(t) = 1/T
+                   substitute t² = T (D2) into line 1.10.15
+
+          1.10.21. f(t) = j²
+                   transitivity, from 1.10.20, 1.10.19
+
+          1.10.22. |j² − L| < 1
+                   substitute f(t) = j² (line 1.10.21) into line 1.10.14
+
+    1.11. |m² − L| < 1
+          instantiate j := m in line 1.10
+          requires m ≥ m: inequalities
+
+    1.12. |(m + 1)² − L| < 1
+          instantiate j := m + 1 in line 1.10
+          requires m + 1 ≥ m: inequalities
+
+    1.13. L − 1 < m² and m² < L + 1
+          mun:abs-difference-lt x := m², c := L, δ := 1, from 1.11
+
+    1.14. L − 1 < (m + 1)² and (m + 1)² < L + 1
+          mun:abs-difference-lt x := (m + 1)², c := L, δ := 1, from 1.12
+
+    1.15. L − 1 + (m + 1)² < m² + (L + 1)
+          inequalities, from 1.13, 1.14
+
+    1.16. (m + 1)² − m² < 2
+          inequalities
+            L − 1 + (m + 1)² < m² + (L + 1)     1.15
+            (m + 1)² − m² < 2                   adding 1 − L − m²
+
+    1.17. (m + 1)² − m² = 2m + 1
+          algebra
+
+    1.18. 2m + 1 ≥ 3
+          inequalities
+            m ≥ 1          1.9
+            2m ≥ 2         multiplying by 2
+            2m + 1 ≥ 3     adding 1
+
+    1.19. (m + 1)² − m² ≥ 3
+          transitivity, from 1.17, 1.18
+
+    1.20. not (m + 1)² − m² < 2
+          inequalities, from 1.19, contradicting 1.16

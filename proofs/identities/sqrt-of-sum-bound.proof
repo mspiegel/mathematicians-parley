@@ -1,0 +1,52 @@
+import mundane definition stdlib/numbers/sqrt
+import mundane theorem    stdlib/numbers/product-nonneg
+import mundane theorem    stdlib/numbers/square-le
+
+theorem sqrt-of-sum-bound
+  note        Both sides are at least 0, so they compare as their squares do.
+              The square of √a + √b is a + b + 2·√a·√b, which is at least
+              a + b, the square of √(a + b).
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a ≥ 0                                                        (H3)
+  assume b ≥ 0                                                        (H4)
+  then √(a + b) ≤ √a + √b
+
+1.  √a ∈ ℝ. √a ≥ 0. (√a)² = a.
+    mun:sqrt x := a, from H3
+
+2.  √b ∈ ℝ. √b ≥ 0. (√b)² = b.
+    mun:sqrt x := b, from H4
+
+3.  a + b ≥ 0
+    inequalities, from H3, H4
+
+4.  √(a + b) ∈ ℝ. √(a + b) ≥ 0. (√(a + b))² = a + b.
+    mun:sqrt x := a + b, from 3
+
+5.  √a + √b ≥ 0
+    inequalities, from 1, 2
+
+6.  √a·√b ≥ 0
+    mun:product-nonneg x := √a, y := √b, from 1, 2
+
+7.  (√a + √b)² = a + b + 2·(√a·√b)
+    algebra, from 1, 2
+
+8.  a + b ≤ a + b + 2·(√a·√b)
+    inequalities
+      √a·√b ≥ 0                          6
+      0 ≤ √a·√b                          symmetry
+      0 ≤ 2·(√a·√b)                      multiplying by 2
+      a + b ≤ a + b + 2·(√a·√b)          adding a + b
+    requires √a ∈ ℝ: from 1
+    requires √b ∈ ℝ: from 2
+
+9.  (√(a + b))² ≤ (√a + √b)²
+    calculation
+      (√(a + b))² = a + b                 4
+                  ≤ a + b + 2·(√a·√b)    8
+                  = (√a + √b)²            7
+
+10. √(a + b) ≤ √a + √b
+    mun:square-le x := √(a + b), y := √a + √b, from 1, 2, 4, 5, 9

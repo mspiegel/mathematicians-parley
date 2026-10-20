@@ -1,0 +1,155 @@
+import mundane definition stdlib/calculus/interval
+import mundane theorem    stdlib/calculus/interval-real
+import mundane definition stdlib/functions/image
+import mundane theorem    stdlib/functions/value-in-image
+import mundane definition stdlib/numbers/sqrt
+import mundane theorem    stdlib/numbers/square-nonneg
+import mundane theorem    stdlib/numbers/product-nonneg
+import mundane theorem    stdlib/numbers/square-le
+import mundane definition stdlib/sets/subset
+import mundane theorem    stdlib/sets/subset-antisymmetric
+
+theorem image-of-parabola
+  note        For s in [−3, 5], s² + 3 is at least 3, and at most 28 because
+              (s + 3)(5 − s) ≥ 0 gives s² ≤ 2s + 15 ≤ 25. Every y in [3, 28]
+              is s² + 3 at s = √(y − 3), which lies in [0, 5].
+  let f : ℝ → ℝ                                                       (H1)
+  assume for all x ∈ ℝ, f(x) = x² + 3                                (H2)
+  then f[[−3, 5]] = [3, 28]
+
+1.  [−3, 5] ⊆ ℝ
+    mun:interval-real a := −3, b := 5
+
+2.  For all y ∈ f[[−3, 5]], y ∈ [3, 28].
+    proof
+    let y ∈ f[[−3, 5]]                                                (K1)
+
+    2.1.  There is s ∈ [−3, 5] with y = f(s).
+          mun:image u := y, Y := [−3, 5], from K1, 1
+
+    2.2.  s ∈ [−3, 5]. y = f(s).
+          obtain s from line 2.1
+
+    2.3.  s ∈ ℝ. −3 ≤ s. s ≤ 5.
+          mun:interval a := −3, b := 5, x := s, from 2.2
+
+    2.4.  f(s) = s² + 3
+          instantiate x := s in H2, from 2.3
+
+    2.5.  y = s² + 3
+          calculation
+            y = f(s)       2.2
+              = s² + 3     2.4
+
+    2.6.  s² ≥ 0
+          mun:square-nonneg x := s, from 2.3
+
+    2.7.  s² + 3 ≥ 3
+          inequalities
+            s² ≥ 0          2.6
+            s² + 3 ≥ 3      adding 3
+          requires s ∈ ℝ: from 2.3
+
+    2.8.  y ≥ 3
+          calculation
+            y = s² + 3      2.5
+              ≥ 3           2.7
+
+    2.9.  s + 3 ≥ 0
+          inequalities
+            −3 ≤ s          2.3
+            0 ≤ s + 3       adding 3
+            s + 3 ≥ 0       symmetry
+
+    2.10. 5 − s ≥ 0
+          inequalities
+            s ≤ 5           2.3
+            0 ≤ 5 − s       adding −s
+            5 − s ≥ 0       symmetry
+
+    2.11. (s + 3)·(5 − s) ≥ 0
+          mun:product-nonneg x := s + 3, y := 5 − s, from 2.3, 2.9, 2.10
+
+    2.12. s² + 3 ≤ 2·s + 18
+          inequalities
+            (s + 3)·(5 − s) ≥ 0                  2.11
+            −((s + 3)·(5 − s)) ≤ 0               multiplying by −1
+            s² − 2·s − 15 ≤ 0                    algebra
+            s² + 3 ≤ 2·s + 18                    adding 2·s + 18
+          requires s ∈ ℝ: from 2.3
+
+    2.13. 2·s + 18 ≤ 28
+          inequalities
+            s ≤ 5                                2.3
+            2·s ≤ 10                             multiplying by 2
+            2·s + 18 ≤ 28                        adding 18
+
+    2.14. y ≤ 28
+          calculation
+            y = s² + 3      2.5
+              ≤ 2·s + 18    2.12
+              ≤ 28          2.13
+
+    2.15. y ∈ ℝ
+          membership, from 2.3, 2.5
+
+    2.16. y ∈ [3, 28]
+          mun:interval a := 3, b := 28, x := y, from 2.8, 2.14, 2.15
+
+3.  f[[−3, 5]] ⊆ [3, 28]
+    mun:subset, from 2
+
+4.  For all y ∈ [3, 28], y ∈ f[[−3, 5]].
+    proof
+    let y ∈ [3, 28]                                                   (K2)
+
+    4.1.  y ∈ ℝ. 3 ≤ y. y ≤ 28.
+          mun:interval a := 3, b := 28, x := y, from K2
+
+    4.2.  y − 3 ≥ 0
+          inequalities
+            3 ≤ y           4.1
+            0 ≤ y − 3       adding −3
+            y − 3 ≥ 0       symmetry
+
+    4.3.  √(y − 3) ∈ ℝ. √(y − 3) ≥ 0. (√(y − 3))² = y − 3.
+          mun:sqrt x := y − 3, from 4.1, 4.2
+
+    4.4.  y − 3 ≤ 25
+          inequalities
+            y ≤ 28          4.1
+            y − 3 ≤ 25      adding −3
+
+    4.5.  (√(y − 3))² ≤ 5²
+          calculation
+            (√(y − 3))² = y − 3     4.3
+                        ≤ 25        4.4
+                        = 5²        arithmetic
+
+    4.6.  √(y − 3) ≤ 5
+          mun:square-le x := √(y − 3), y := 5, from 4.3, 4.5
+          requires 0 ≤ 5: arithmetic
+
+    4.7.  −3 ≤ √(y − 3)
+          inequalities, from 4.3
+
+    4.8.  √(y − 3) ∈ [−3, 5]
+          mun:interval a := −3, b := 5, x := √(y − 3), from 4.3, 4.6, 4.7
+
+    4.9.  f(√(y − 3)) = (√(y − 3))² + 3
+          instantiate x := √(y − 3) in H2, from 4.3
+
+    4.10. f(√(y − 3)) = y
+          algebra, from 4.1, 4.3, 4.9
+
+    4.11. f(√(y − 3)) ∈ f[[−3, 5]]
+          mun:value-in-image Y := [−3, 5], s := √(y − 3), from 1, 4.8
+
+    4.12. y ∈ f[[−3, 5]]
+          substitute f(√(y − 3)) = y (line 4.10) into line 4.11
+
+5.  [3, 28] ⊆ f[[−3, 5]]
+    mun:subset, from 4
+
+6.  f[[−3, 5]] = [3, 28]
+    mun:subset-antisymmetric, from 3, 5

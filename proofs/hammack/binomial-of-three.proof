@@ -1,0 +1,50 @@
+import definition         stdlib/counting/C
+import theorem            stdlib/counting/pascal
+import theorem            proofs/hammack/binomial-of-two/binomial-of-two
+import mundane theorem    stdlib/counting/binomial-nat0
+
+theorem binomial-of-three
+  note        By induction on j: C(0, 3) is 0, and Pascal's rule gives
+              C(j + 1, 3) = C(j, 3) + C(j, 2), so six times it is
+              j·(j − 1)·(j − 2) + 3·j·(j − 1) = (j + 1)·j·(j − 1).
+  let m ∈ ℕ₀                                                          (H1)
+  then 6·C(m, 3) = m·(m − 1)·(m − 2)
+
+1.  For all j ∈ ℕ₀, 6·C(j, 3) = j·(j − 1)·(j − 2).
+    induction on j starting at 0
+
+    base
+    1.1.  0 < 3
+          arithmetic
+
+    1.2.  C(0, 3) = 0
+          def:C n := 0, k := 3, from 1.1
+
+    1.3.  6·C(0, 3) = 6·0
+          substitute C(0, 3) = 0 (line 1.2)
+
+    1.4.  6·C(0, 3) = 0·(0 − 1)·(0 − 2)
+          calculation
+            6·C(0, 3) = 6·0                 1.3
+                      = 0·(0 − 1)·(0 − 2)   arithmetic
+
+    step
+    let j ∈ ℕ₀                                                        (K)
+    assume step 1 is true for j, the induction hypothesis             (IH)
+
+    1.5.  C(j, 3) + C(j, 3 − 1) = C(j + 1, 3)
+          thm:pascal n := j, k := 3
+
+    1.6.  C(j, 3) + C(j, 2) = C(j + 1, 3)
+          substitute 3 − 1 = 2 (arithmetic) into line 1.5
+
+    1.7.  2·C(j, 2) = j·(j − 1)
+          thm:binomial-of-two m := j
+
+    1.8.  6·C(j + 1, 3) = (j + 1)·((j + 1) − 1)·((j + 1) − 2)
+          algebra, from IH, 1.6, 1.7
+          requires C(j, 3) ∈ ℕ₀: mun:binomial-nat0 n := j, k := 3
+          requires C(j, 2) ∈ ℕ₀: mun:binomial-nat0 n := j, k := 2
+
+2.  6·C(m, 3) = m·(m − 1)·(m − 2)
+    instantiate j := m in line 1

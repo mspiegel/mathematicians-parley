@@ -1,0 +1,94 @@
+import theorem            proofs/setmm/choose-two-pairs/choose-two-pairs
+import definition         stdlib/counting/C
+import mundane theorem    stdlib/counting/binomial-nat0
+import mundane definition stdlib/divisibility/congruent-mod
+import mundane definition stdlib/divisibility/divides
+import mundane definition stdlib/divisibility/even
+
+theorem choose-two-formula
+  note        Choosing 2 of 0 things is 0 ways, and choosing 2 of k + 1
+              is k ways with the new one plus the C(k, 2) ways without it.
+  let n ∈ ℕ₀                                                          (H1)
+  then C(n, 2) = n·(n − 1)/2
+
+1.  For all k ∈ ℕ₀, C(k, 2) = k·(k − 1)/2.
+    induction on k starting at 0
+
+    base
+    1.1.  0 < 2
+          arithmetic
+
+    1.2.  C(0, 2) = 0
+          def:C n := 0, k := 2, from 1.1
+
+    1.3.  C(0, 2) = 0·(0 − 1)/2
+          calculation
+            C(0, 2) = 0               1.2
+                    = 0·(0 − 1)/2     arithmetic
+
+    step
+    let k ∈ ℕ₀                                                        (K)
+    assume step 1 is true for k, the induction hypothesis             (IH)
+
+    1.4.  k + C(k, 2) = C(k + 1, 2)
+          thm:choose-two-pairs n := k
+
+    1.5.  k + C(k, 2) = k + k·(k − 1)/2
+          substitute C(k, 2) = k·(k − 1)/2 (IH)
+
+    1.6.  k + k·(k − 1)/2 = (k + 1)·((k + 1) − 1)/2
+          algebra
+
+    1.7.  C(k + 1, 2) = (k + 1)·((k + 1) − 1)/2
+          calculation
+            C(k + 1, 2) = k + C(k, 2)                     1.4
+                        = k + k·(k − 1)/2                 1.5
+                        = (k + 1)·((k + 1) − 1)/2         1.6
+
+2.  C(n, 2) = n·(n − 1)/2
+    instantiate k := n in line 1
+
+theorem choose-two-even
+  note        C(a, 2) = a(a − 1)/2. If a = 4k this is 2k(4k − 1); if
+              a = 4k + 1 it is 2k(4k + 1).
+  let a ∈ ℕ₀                                                          (H1)
+  assume a ≡ 0 (mod 4) or a ≡ 1 (mod 4)                               (H2)
+  then C(a, 2) is even
+
+1.  C(a, 2) = a·(a − 1)/2
+    thm:choose-two-formula n := a
+
+2.  C(a, 2) is even
+    cases, from H2
+
+    case
+    assume a ≡ 0 (mod 4)                                              (C1)
+
+    2.1.  4 divides a − 0
+          mun:congruent-mod, from C1
+
+    2.2.  k ∈ ℤ. a − 0 = 4k.
+          obtain k: mun:divides d := 4, n := a − 0, from 2.1
+
+    2.3.  C(a, 2) = 2·(k·(4k − 1))
+          algebra, from 1, 2.2
+
+    2.4.  C(a, 2) is even
+          mun:even n := C(a, 2), from 2.3
+          requires C(a, 2) ∈ ℕ₀: mun:binomial-nat0
+
+    case
+    assume a ≡ 1 (mod 4)                                              (C2)
+
+    2.5.  4 divides a − 1
+          mun:congruent-mod, from C2
+
+    2.6.  k ∈ ℤ. a − 1 = 4k.
+          obtain k: mun:divides d := 4, n := a − 1, from 2.5
+
+    2.7.  C(a, 2) = 2·(k·(4k + 1))
+          algebra, from 1, 2.6
+
+    2.8.  C(a, 2) is even
+          mun:even n := C(a, 2), from 2.7
+          requires C(a, 2) ∈ ℕ₀: mun:binomial-nat0

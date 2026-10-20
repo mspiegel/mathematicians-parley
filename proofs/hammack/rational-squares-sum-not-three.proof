@@ -1,0 +1,309 @@
+import theorem            proofs/hammack/cube-congruent-mod-three/residue-mod-three
+import theorem            proofs/hammack/sqrt3-irrational/three-divides-square
+import mundane definition stdlib/divisibility/divides
+import mundane theorem    stdlib/divisibility/divides-difference
+import mundane theorem    stdlib/divisibility/divides-le
+import mundane theorem    stdlib/divisibility/divides-sum
+import mundane definition stdlib/divisibility/gcd
+import mundane theorem    stdlib/divisibility/mod-less
+import mundane theorem    stdlib/divisibility/mod-natural
+import mundane theorem    stdlib/divisibility/mod-remainder
+import mundane theorem    stdlib/reasoning/or-left
+import mundane theorem    stdlib/reasoning/or-right
+import axiom              stdlib/numbers/well-ordering
+import mundane theorem    stdlib/numbers/pos-int-nat
+import mundane theorem    stdlib/numbers/rational-coprime
+import mundane definition stdlib/sets/set-builder
+import mundane theorem    stdlib/sets/set-builder-subset
+
+theorem three-divides-no-small
+  note        A multiple of 3 that is a natural number is at least 3.
+  let r ∈ ℕ                                                           (H1)
+  assume r < 3                                                        (H2)
+  then not (3 divides r)
+
+1.  not (3 divides r)
+    contradiction
+    suppose 3 divides r                                               (S)
+
+    1.1.  3 ≤ r
+          mun:divides-le e := 3, m := r, from S
+
+    1.2.  not 3 ≤ r
+          inequalities, from H2, contradicting 1.1
+
+
+theorem square-mod-three
+  note        Divide n by 3: n = 3q + r with r = 0, 1 or 2. Then n² is
+              3·3q², or n² − 1 is 3(3q² + 2q), or 3(3q² + 4q + 1).
+  let n ∈ ℤ                                                           (H1)
+  then 3 divides n² or 3 divides n² − 1
+
+1.  n mod 3 ∈ ℕ₀
+    mun:mod-natural a := n, b := 3
+
+2.  n mod 3 < 3
+    mun:mod-less a := n, b := 3
+
+3.  n mod 3 = 0 or n mod 3 = 1 or n mod 3 = 2
+    thm:residue-mod-three r := n mod 3, from 1, 2
+
+4.  There is q ∈ ℤ with q·3 + n mod 3 = n.
+    mun:mod-remainder a := n, m := 3, r := n mod 3, from 1, 2
+
+5.  q ∈ ℤ. q·3 + n mod 3 = n.
+    obtain q from line 4
+
+6.  3 divides n² or 3 divides n² − 1
+    cases, from 3
+
+    case
+    assume n mod 3 = 0                                                (C1)
+
+    6.1.  q·3 = n
+          substitute n mod 3 = 0 (C1) into line 5
+
+    6.2.  n² = 3·(3·q²)
+          algebra, from 6.1
+
+    6.3.  3 divides n²
+          mun:divides d := 3, n := n², from 6.2
+
+    6.4.  3 divides n² or 3 divides n² − 1
+          mun:or-left, from 6.3
+
+    case
+    assume n mod 3 = 1                                                (C2)
+
+    6.5.  q·3 + 1 = n
+          substitute n mod 3 = 1 (C2) into line 5
+
+    6.6.  n² − 1 = 3·(3·q² + 2·q)
+          algebra, from 6.5
+
+    6.7.  3 divides n² − 1
+          mun:divides d := 3, n := n² − 1, from 6.6
+
+    6.8.  3 divides n² or 3 divides n² − 1
+          mun:or-right, from 6.7
+
+    case
+    assume n mod 3 = 2                                                (C3)
+
+    6.9.  q·3 + 2 = n
+          substitute n mod 3 = 2 (C3) into line 5
+
+    6.10. n² − 1 = 3·(3·q² + 4·q + 1)
+          algebra, from 6.9
+
+    6.11. 3 divides n² − 1
+          mun:divides d := 3, n := n² − 1, from 6.10
+
+    6.12. 3 divides n² or 3 divides n² − 1
+          mun:or-right, from 6.11
+
+
+theorem three-divides-sum-of-squares
+  note        If 3 does not divide p, then p² leaves remainder 1, and q²
+              leaves 0 or 1, so p² + q² leaves 1 or 2; a multiple of 3 is
+              neither.
+  let p ∈ ℤ                                                           (H1)
+  let q ∈ ℤ                                                           (H2)
+  assume 3 divides p² + q²                                            (H3)
+  then 3 divides p
+
+1.  3 divides p
+    contradiction
+    suppose not (3 divides p)                                         (S)
+
+    1.1.  3 divides p² or 3 divides p² − 1
+          thm:square-mod-three n := p
+
+    1.2.  3 divides p² − 1
+          cases, from 1.1
+
+          case
+          assume 3 divides p²                                         (C1)
+
+          1.2.1.  3 divides p
+                  thm:three-divides-square n := p, from C1, contradicting S
+
+          case
+          assume 3 divides p² − 1, which is the claim                 (C2)
+
+    1.3.  3 divides q² or 3 divides q² − 1
+          thm:square-mod-three n := q
+
+    1.4.  3 divides p
+          cases, from 1.3, contradicting S
+
+          case
+          assume 3 divides q²                                         (C3)
+
+          1.4.1.  3 divides p² − 1 + q²
+                  mun:divides-sum d := 3, a := p² − 1, b := q², from C3, 1.2
+
+          1.4.2.  3 divides p² + q² − (p² − 1 + q²)
+                  mun:divides-difference d := 3, a := p² + q², b := p² − 1 + q², from H3, 1.4.1
+
+          1.4.3.  p² + q² − (p² − 1 + q²) = 1
+                  algebra
+
+          1.4.4.  3 divides 1
+                  substitute p² + q² − (p² − 1 + q²) = 1 (line 1.4.3) into line 1.4.2
+
+          1.4.5.  not (3 divides 1)
+                  thm:three-divides-no-small r := 1, contradicting 1.4.4
+                  requires 1 < 3: arithmetic
+
+          case
+          assume 3 divides q² − 1                                     (C4)
+
+          1.4.6.  3 divides p² − 1 + (q² − 1)
+                  mun:divides-sum d := 3, a := p² − 1, b := q² − 1, from C4, 1.2
+
+          1.4.7.  3 divides p² + q² − (p² − 1 + (q² − 1))
+                  mun:divides-difference d := 3, a := p² + q², b := p² − 1 + (q² − 1), from H3, 1.4.6
+
+          1.4.8.  p² + q² − (p² − 1 + (q² − 1)) = 2
+                  algebra
+
+          1.4.9.  3 divides 2
+                  substitute p² + q² − (p² − 1 + (q² − 1)) = 2 (line 1.4.8) into line 1.4.7
+
+          1.4.10. not (3 divides 2)
+                  thm:three-divides-no-small r := 2, contradicting 1.4.9
+                  requires 2 < 3: arithmetic
+
+
+theorem rational-squares-sum-not-three
+  note        Clear denominators: x = a/b and y = c/d give
+              (ad)² + (cb)² = 3(bd)². Take the least natural number m for
+              which p² + q² = 3m² has integer solutions. Then 3 divides p
+              and q, so p = 3s and q = 3t; then m² = 3(s² + t²), so 3
+              divides m, and m = 3u gives s² + t² = 3u² with u below m.
+  then not (there are x, y ∈ ℚ with x² + y² − 3 = 0)
+
+let T = {r ∈ ℕ : there are j, k ∈ ℤ with j² + k² = 3r²}              (D1)
+       reads the natural numbers r for which j² + k² = 3r² has integer solutions
+
+1.  not (there are x, y ∈ ℚ with x² + y² − 3 = 0)
+    contradiction
+    suppose there are x, y ∈ ℚ with x² + y² − 3 = 0                   (S)
+
+    1.1.  x ∈ ℚ. y ∈ ℚ. x² + y² − 3 = 0.
+          obtain x, y from S
+
+    1.2.  a ∈ ℤ. b ∈ ℕ. x = a/b. gcd(a, b) = 1.
+          obtain a, b: mun:rational-coprime
+
+    1.3.  c ∈ ℤ. d ∈ ℕ. y = c/d. gcd(c, d) = 1.
+          obtain c, d: mun:rational-coprime x := y
+
+    1.4.  (a/b)² + y² − 3 = 0
+          substitute x = a/b (line 1.2) into line 1.1
+
+    1.5.  (a/b)² + (c/d)² − 3 = 0
+          substitute y = c/d (line 1.3) into line 1.4
+
+    1.6.  (a·d)² + (c·b)² = 3(b·d)²
+          algebra, from 1.5
+
+    1.7.  There are j, k ∈ ℤ with j² + k² = 3(b·d)².
+          exhibit, from 1.6
+
+    1.8.  b·d ∈ T
+          mun:set-builder u := b·d, from D1, 1.7
+
+    1.9.  T ⊆ ℕ
+          mun:set-builder-subset, from D1
+
+    1.10. m ∈ T. For all t ∈ T, m ≤ t.
+          obtain m: axi:well-ordering, from 1.8, 1.9
+
+    1.11. m ∈ ℕ. There are j, k ∈ ℤ with j² + k² = 3m².
+          mun:set-builder u := m, from D1, 1.10
+
+    1.12. p ∈ ℤ. q ∈ ℤ. p² + q² = 3m².
+          obtain p, q from line 1.11
+
+    1.13. 3 divides p² + q²
+          mun:divides d := 3, n := p² + q², from 1.11, 1.12
+
+    1.14. 3 divides p
+          thm:three-divides-sum-of-squares, from 1.13
+
+    1.15. q² + p² = p² + q²
+          algebra
+
+    1.16. 3 divides q² + p²
+          substitute q² + p² = p² + q² (line 1.15) into line 1.13
+
+    1.17. 3 divides q
+          thm:three-divides-sum-of-squares p := q, q := p, from 1.16
+
+    1.18. s ∈ ℤ. p = 3s.
+          obtain s: mun:divides d := 3, n := p, from 1.14
+
+    1.19. t ∈ ℤ. q = 3t.
+          obtain t: mun:divides d := 3, n := q, from 1.17
+
+    1.20. (3s)² + q² = 3m²
+          substitute p = 3s (line 1.18) into line 1.12
+
+    1.21. (3s)² + (3t)² = 3m²
+          substitute q = 3t (line 1.19) into line 1.20
+
+    1.22. m² = 3(s² + t²)
+          algebra, from 1.11, 1.21
+
+    1.23. 3 divides m²
+          mun:divides d := 3, n := m², from 1.11, 1.22
+
+    1.24. 3 divides m
+          thm:three-divides-square n := m, from 1.11, 1.23
+
+    1.25. u ∈ ℤ. m = 3u.
+          obtain u: mun:divides d := 3, n := m, from 1.11, 1.24
+
+    1.26. (3u)² = 3(s² + t²)
+          substitute m = 3u (line 1.25) into line 1.22
+
+    1.27. s² + t² = 3u²
+          algebra, from 1.26
+
+    1.28. m > 0
+          inequalities, from 1.11
+
+    1.29. 3u > 0
+          substitute m = 3u (line 1.25) into line 1.28
+
+    1.30. u > 0
+          inequalities
+            3u > 0         1.29
+            u > 0          multiplying by 1/3
+
+    1.31. u ∈ ℕ
+          mun:pos-int-nat m := u, from 1.30
+
+    1.32. There are j, k ∈ ℤ with j² + k² = 3u².
+          exhibit, from 1.27
+
+    1.33. u ∈ T
+          mun:set-builder, from D1, 1.31, 1.32
+
+    1.34. m ≤ u
+          instantiate t := u in line 1.10, from 1.33
+
+    1.35. 3u > u
+          inequalities
+            u > 0          1.30
+            2u > 0         multiplying by 2
+            2u + u > u     adding u
+            3u > u         algebra
+
+    1.36. m > u
+          substitute m = 3u (line 1.25) into line 1.35
+
+    1.37. not m ≤ u
+          inequalities, from 1.11, 1.36, contradicting 1.34

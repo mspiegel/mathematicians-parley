@@ -1,0 +1,260 @@
+import definition         stdlib/counting/C
+import theorem            proofs/hammack/fibonacci-binomial-step/fibonacci-binomial-step
+import mundane theorem    stdlib/counting/binomial-zero-index
+import mundane theorem    stdlib/numbers/nat0-successor
+import mundane theorem    stdlib/sums/range-difference
+import mundane theorem    stdlib/sums/sum-last
+import mundane theorem    stdlib/sums/sum-single
+
+theorem binomial-diagonal-sum-is-fibonacci
+  note        Write S(m) for the sum. S(0) = 1 and S(1) = 1, and S(m + 2) is
+              S(m + 1) + S(m), so by induction on j, carrying S(j) and
+              S(j + 1) together as the F and G of the recursion, S(j) = G(j),
+              which is F(j + 1).
+  let n ∈ ℕ₀                                                          (H1)
+  let F(0) = 0,  G(0) = 1,
+      F(k + 1) = G(k),  G(k + 1) = F(k) + G(k),  for k ∈ ℕ₀           (D1)
+         reads the Fibonacci numbers, F(k) the kth and G(k) the next
+  then Σ(k = 0 to n) C(n − k, k) = F(n + 1)
+
+let S(m) = Σ(k = 0 to m) C(m − k, k), for m ∈ ℕ₀                      (D2)
+       reads the sum of C(m − k, k) for k from 0 to m
+
+1.  For all i ∈ ℕ₀, F(i) ∈ ℕ₀ and G(i) ∈ ℕ₀.
+    induction on i starting at 0
+    note the two numbers stay whole: G(i + 1) is a sum of whole numbers
+
+    base
+    1.1.  F(0) = 0
+          D1
+
+    1.2.  G(0) = 1
+          D1
+
+    1.3.  F(0) ∈ ℕ₀
+          membership, from 1.1
+
+    1.4.  G(0) ∈ ℕ₀
+          membership, from 1.2
+
+    1.5.  F(0) ∈ ℕ₀ and G(0) ∈ ℕ₀
+          join 1.3, 1.4
+
+    step
+    let i ∈ ℕ₀                                                        (K)
+    assume step 1 is true for i, the induction hypothesis             (IH)
+
+    1.6.  F(i + 1) = G(i)
+          D1
+
+    1.7.  G(i + 1) = F(i) + G(i)
+          D1
+
+    1.8.  F(i + 1) ∈ ℕ₀
+          substitute F(i + 1) = G(i) (line 1.6) into IH
+
+    1.9.  G(i + 1) ∈ ℕ₀
+          membership, from IH, 1.7
+
+    1.10. F(i + 1) ∈ ℕ₀ and G(i + 1) ∈ ℕ₀
+          join 1.8, 1.9
+
+2.  For all j ∈ ℕ₀, S(j) = G(j) and S(j + 1) = G(j + 1).
+    induction on j starting at 0
+
+    base
+    2.1.  For all k ∈ {0, …, 0}, C(0 − k, k) ∈ ℝ.
+          proof
+          let k ∈ {0, …, 0}                                           (L)
+
+          2.1.1.  0 − k ∈ ℕ₀
+                  mun:range-difference a := 0, n := 0, from L
+
+          2.1.2.  C(0 − k, k) ∈ ℝ
+                  membership
+                  requires 0 − k ∈ ℕ₀: from 2.1.1
+
+    2.2.  Σ(k = 0 to 0) C(0 − k, k) = C(0, 0)
+          mun:sum-single a := 0, from 2.1
+
+    2.3.  C(0, 0) = 1
+          mun:binomial-zero-index n := 0
+
+    2.4.  G(0) = 1
+          D1
+
+    2.5.  S(0) = G(0)
+          calculation
+            S(0) = Σ(k = 0 to 0) C(0 − k, k)     D2
+                 = C(0, 0)                       2.2
+                 = 1                             2.3
+                 = G(0)                          2.4
+
+    2.6.  For all k ∈ {0, …, 0 + 1}, C((0 + 1) − k, k) ∈ ℝ.
+          proof
+          let k ∈ {0, …, 0 + 1}                                       (L)
+
+          2.6.1.  (0 + 1) − k ∈ ℕ₀
+                  mun:range-difference a := 0, n := 0 + 1, from L
+
+          2.6.2.  C((0 + 1) − k, k) ∈ ℝ
+                  membership
+                  requires (0 + 1) − k ∈ ℕ₀: from 2.6.1
+
+    2.7.  Σ(k = 0 to 0 + 1) C((0 + 1) − k, k) = Σ(k = 0 to 0) C((0 + 1) − k, k) + C((0 + 1) − (0 + 1), 0 + 1)
+          mun:sum-last n := 0, from 2.6
+
+    2.8.  For all k ∈ {0, …, 0}, C((0 + 1) − k, k) ∈ ℝ.
+          proof
+          let k ∈ {0, …, 0}                                           (L)
+
+          2.8.1.  0 − k ∈ ℕ₀
+                  mun:range-difference a := 0, n := 0, from L
+
+          2.8.2.  (0 − k) + 1 ∈ ℕ
+                  mun:nat0-successor k := 0 − k, from 2.8.1
+
+          2.8.3.  (0 − k) + 1 = (0 + 1) − k
+                  algebra
+
+          2.8.4.  (0 + 1) − k ∈ ℕ
+                  substitute (0 − k) + 1 = (0 + 1) − k (line 2.8.3) into line 2.8.2
+
+          2.8.5.  C((0 + 1) − k, k) ∈ ℝ
+                  membership
+                  requires (0 + 1) − k ∈ ℕ₀: from 2.8.4
+
+    2.9.  Σ(k = 0 to 0) C((0 + 1) − k, k) = C(0 + 1, 0)
+          mun:sum-single a := 0, from 2.8
+
+    2.10. C(0 + 1, 0) = 1
+          mun:binomial-zero-index n := 0 + 1
+
+    2.11. (0 + 1) − (0 + 1) = 0
+          arithmetic
+
+    2.12. C((0 + 1) − (0 + 1), 0 + 1) = C(0, 0 + 1)
+          substitute (0 + 1) − (0 + 1) = 0 (line 2.11)
+
+    2.13. 0 < 0 + 1
+          arithmetic
+
+    2.14. C(0, 0 + 1) = 0
+          def:C n := 0, k := 0 + 1, from 2.13
+
+    2.15. C((0 + 1) − (0 + 1), 0 + 1) = 0
+          calculation
+            C((0 + 1) − (0 + 1), 0 + 1) = C(0, 0 + 1)     2.12
+                                        = 0               2.14
+
+    2.16. Σ(k = 0 to 0) C((0 + 1) − k, k) + C((0 + 1) − (0 + 1), 0 + 1) = C(0 + 1, 0) + C((0 + 1) − (0 + 1), 0 + 1)
+          substitute Σ(k = 0 to 0) C((0 + 1) − k, k) = C(0 + 1, 0) (line 2.9)
+
+    2.17. C(0 + 1, 0) + C((0 + 1) − (0 + 1), 0 + 1) = 1 + C((0 + 1) − (0 + 1), 0 + 1)
+          substitute C(0 + 1, 0) = 1 (line 2.10)
+
+    2.18. 1 + C((0 + 1) − (0 + 1), 0 + 1) = 1
+          substitute C((0 + 1) − (0 + 1), 0 + 1) = 0 (line 2.15)
+
+    2.19. Σ(k = 0 to 0 + 1) C((0 + 1) − k, k) = 1
+          calculation
+            Σ(k = 0 to 0 + 1) C((0 + 1) − k, k) = Σ(k = 0 to 0) C((0 + 1) − k, k) + C((0 + 1) − (0 + 1), 0 + 1)     2.7
+                                                = C(0 + 1, 0) + C((0 + 1) − (0 + 1), 0 + 1)                         2.16
+                                                = 1 + C((0 + 1) − (0 + 1), 0 + 1)                                   2.17
+                                                = 1                                                                 2.18
+
+    2.20. G(0 + 1) = F(0) + G(0)
+          D1
+
+    2.21. F(0) = 0
+          D1
+
+    2.22. F(0) + G(0) = 0 + G(0)
+          substitute F(0) = 0 (line 2.21)
+
+    2.23. 0 + G(0) = 0 + 1
+          substitute G(0) = 1 (line 2.4)
+
+    2.24. S(0 + 1) = G(0 + 1)
+          calculation
+            S(0 + 1) = Σ(k = 0 to 0 + 1) C((0 + 1) − k, k)     D2
+                     = 1                                       2.19
+                     = 0 + 1                                   arithmetic
+                     = 0 + G(0)                                2.23
+                     = F(0) + G(0)                             2.22
+                     = G(0 + 1)                                2.20
+
+    2.25. S(0) = G(0). S(0 + 1) = G(0 + 1).
+          join 2.5, 2.24
+
+    step
+    let j ∈ ℕ₀                                                        (K)
+    assume step 2 is true for j, the induction hypothesis             (IH)
+
+    2.26. S(j + 1) = G(j + 1)
+          calculation
+            S(j + 1) = G(j + 1)     IH
+
+    2.27. Σ(k = 0 to (j + 1) + 1) C(((j + 1) + 1) − k, k) = Σ(k = 0 to j + 1) C((j + 1) − k, k) + Σ(k = 0 to j) C(j − k, k)
+          thm:fibonacci-binomial-step m := j
+
+    2.28. S((j + 1) + 1) = S(j + 1) + S(j)
+          calculation
+            S((j + 1) + 1) = Σ(k = 0 to (j + 1) + 1) C(((j + 1) + 1) − k, k)                                      D2
+                           = Σ(k = 0 to j + 1) C((j + 1) − k, k) + Σ(k = 0 to j) C(j − k, k)                       2.27
+                           = S(j + 1) + Σ(k = 0 to j) C(j − k, k)                                                  D2
+                           = S(j + 1) + S(j)                                                                       D2
+
+    2.29. S(j + 1) + S(j) = G(j + 1) + S(j)
+          substitute S(j + 1) = G(j + 1) (IH)
+
+    2.30. G(j + 1) + S(j) = G(j + 1) + G(j)
+          substitute S(j) = G(j) (IH)
+
+    2.31. F(j + 1) ∈ ℕ₀ and G(j + 1) ∈ ℕ₀
+          instantiate i := j + 1 in line 1
+
+    2.32. F(j) ∈ ℕ₀ and G(j) ∈ ℕ₀
+          instantiate i := j in line 1
+
+    2.33. G((j + 1) + 1) = F(j + 1) + G(j + 1)
+          D1
+
+    2.34. F(j + 1) = G(j)
+          D1
+
+    2.35. F(j + 1) + G(j + 1) = G(j) + G(j + 1)
+          substitute F(j + 1) = G(j) (line 2.34)
+
+    2.36. G(j + 1) + G(j) = G(j) + G(j + 1)
+          algebra
+          requires G(j + 1) ∈ ℕ₀: from 2.31
+          requires G(j) ∈ ℕ₀: from 2.32
+
+    2.37. S((j + 1) + 1) = G((j + 1) + 1)
+          calculation
+            S((j + 1) + 1) = S(j + 1) + S(j)               2.28
+                           = G(j + 1) + S(j)               2.29
+                           = G(j + 1) + G(j)               2.30
+                           = G(j) + G(j + 1)               2.36
+                           = F(j + 1) + G(j + 1)           2.35
+                           = G((j + 1) + 1)                2.33
+
+    2.38. S(j + 1) = G(j + 1). S((j + 1) + 1) = G((j + 1) + 1).
+          join 2.26, 2.37
+
+3.  S(n) = G(n) and S(n + 1) = G(n + 1)
+    instantiate j := n in line 2
+
+4.  S(n) = G(n)
+    calculation
+      S(n) = G(n)     3
+
+5.  F(n + 1) = G(n)
+    D1
+
+6.  Σ(k = 0 to n) C(n − k, k) = F(n + 1)
+    calculation
+      Σ(k = 0 to n) C(n − k, k) = S(n)         D2
+                                = G(n)         4
+                                = F(n + 1)     5

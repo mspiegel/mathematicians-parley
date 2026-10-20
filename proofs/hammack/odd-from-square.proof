@@ -1,0 +1,34 @@
+import mundane definition stdlib/divisibility/divides
+import mundane definition stdlib/divisibility/even
+import mundane theorem    stdlib/divisibility/even-or-odd
+
+theorem odd-from-square
+  note        If a were even, a = 2k and a² = 4k², which 4 divides. So a is
+              not even, and an integer that is not even is odd.
+  let a ∈ ℤ                                                           (H1)
+  assume not (4 divides a²)                                           (H2)
+  then a is odd
+
+1.  a is even or a is odd
+    mun:even-or-odd
+
+2.  a is odd
+    cases, from 1
+
+    case
+    assume a is even                                                  (C1)
+
+    2.1.  There is k ∈ ℤ with a = 2k.
+          mun:even, from C1
+
+    2.2.  k ∈ ℤ. a = 2k.
+          obtain k from line 2.1
+
+    2.3.  a² = 4·k²
+          algebra, from 2.2
+
+    2.4.  4 divides a²
+          mun:divides d := 4, n := a², from 2.3, contradicting H2
+
+    case
+    assume a is odd, which is the claim                               (C2)
