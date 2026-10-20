@@ -3410,6 +3410,23 @@ fn cases() -> Vec<Case> {
             ],
             "the requires line of step 1 gives algebra for √2 − 1 ≠ 0, which real arithmetic can work out; a fact real arithmetic can work out cites real arithmetic",
         ),
+        // A false closed claim reached under a supposition is stated only by
+        // the line marked impossible; the method that works it out would
+        // refuse it, so the message does not send the writer there.
+        case(
+            "give algebra for a false claim of numerals not marked impossible",
+            vec![
+                edit("tests/elaborator/an-impossible-line-by-algebra.proof", Some("    1.1.  5 = 0, which is impossible".to_string()), "    1.1.  5 = 0".to_string()),
+            ],
+            "step 1.1 gives algebra for 5 = 0, which arithmetic finds false; a false claim with no letter is stated only by the last line of a contradiction, marked impossible",
+        ),
+        case(
+            "give algebra for a false claim with a square root not marked impossible",
+            vec![
+                edit("tests/elaborator/an-impossible-line-by-algebra.proof", Some("    1.1.  √2 = 1, which is impossible".to_string()), "    1.1.  √2 = 1".to_string()),
+            ],
+            "step 1.1 gives algebra for √2 = 1, which real arithmetic finds false; a false claim with no letter is stated only by the last line of a contradiction, marked impossible",
+        ),
         // A divisor of numerals alone is said once to be other than zero
         // only where its value is.
         case(

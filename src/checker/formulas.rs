@@ -2083,32 +2083,47 @@ fn check_shown_by(
 
 /// Each step giving `algebra` or `inequalities` for a claim, and each
 /// requires line giving one of them for a fact, that `method` works out
-/// (`worked_out`): such a claim cites `method`. A line marked impossible
-/// states a false fact its method reaches from the lines it cites, which
-/// `method` would refuse (`METHODS.md`, arithmetic, Boundary).
+/// (`worked_out`, true or false where it decides every sentence): a true
+/// one cites `method`, and a false one is stated only by a line marked
+/// impossible, which states a false fact its method reaches from the lines
+/// it cites and which `method` would refuse (`METHODS.md`, arithmetic,
+/// Boundary).
 fn check_closed_by(
     report: &mut Report,
     thm: &Theorem,
     method: Method,
-    worked_out: &dyn Fn(&Written) -> bool,
+    worked_out: &dyn Fn(&Written) -> Option<bool>,
 ) {
     let name = method.as_str();
+    let why = |holds: bool, what: &str| {
+        if holds {
+            format!(
+                "which {name} can work out; a {what} {name} can work out cites {name}"
+            )
+        } else {
+            format!(
+                "which {name} finds false; a false {what} with no letter is stated only by the last line of a contradiction, marked impossible"
+            )
+        }
+    };
     for step in &thm.steps {
         let just = &step.just;
         if (just.head.is(Method::Algebra) || just.head.is(Method::Inequalities))
             && !step.impossible
-            && worked_out(&step.claim)
         {
-            report.say(
-                &thm.path,
-                just.line,
-                format!(
-                    "step {} gives {} for {}, which {name} can work out; a claim {name} can work out cites {name}",
-                    step.number,
-                    just.head,
-                    step.claim_text()
-                ),
-            );
+            if let Some(holds) = worked_out(&step.claim) {
+                report.say(
+                    &thm.path,
+                    just.line,
+                    format!(
+                        "step {} gives {} for {}, {}",
+                        step.number,
+                        just.head,
+                        step.claim_text(),
+                        why(holds, "claim")
+                    ),
+                );
+            }
         }
         for req in &step.requires {
             let Some(given) = [Method::Algebra, Method::Inequalities]
@@ -2117,15 +2132,16 @@ fn check_closed_by(
             else {
                 continue;
             };
-            if worked_out(&req.fact) {
+            if let Some(holds) = worked_out(&req.fact) {
                 report.say(
                     &thm.path,
                     req.line,
                     format!(
-                        "the requires line of step {} gives {} for {}, which {name} can work out; a fact {name} can work out cites {name}",
+                        "the requires line of step {} gives {} for {}, {}",
                         step.number,
                         given.as_str(),
-                        req.fact
+                        req.fact,
+                        why(holds, "fact")
                     ),
                 );
             }
@@ -4569,13 +4585,20 @@ pub fn check_closed_by_real_arithmetic(
 ) {
     use crate::methods::surds::Verdict as Surd;
     let decided = |written: &Written| {
-        real_terms(written, known, targets).is_some_and(|terms| {
-            terms.iter().any(reals::beyond_arithmetic)
-                && !terms.iter().any(reals::is_order)
-                && terms
-                    .iter()
-                    .all(|t| matches!(reals::decide_closed(t), Built(Surd::Holds(_))))
-        })
+        let terms = real_terms(written, known, targets)?;
+        if !terms.iter().any(reals::beyond_arithmetic)
+            || terms.iter().any(reals::is_order)
+        {
+            return None;
+        }
+        let mut holds = true;
+        for t in &terms {
+            let Built(Surd::Holds(this)) = reals::decide_closed(t) else {
+                return None;
+            };
+            holds &= this;
+        }
+        Some(holds)
     };
     check_closed_by(report, thm, Method::RealArithmetic, &decided);
 }
@@ -4696,18 +4719,26 @@ pub fn check_closed_arithmetic(report: &mut Report, thm: &Theorem, known: &Known
     }
 }
 
-/// Whether `arithmetic` works out each sentence of `written`, true or false
-/// (`methods::field::decide_closed`): built from numerals by the operations
-/// it reads, and a relation it decides. √2·√2 = 2 has no letter and is not
-/// one, nor is 1 + i·0 = 1, nor |{1, …, 23}| = 23. A sentence that does not
-/// read is `check_formulas`'s to report, and is none.
-fn arithmetic_works_out(written: &Written, known: &Known, targets: &Targets) -> bool {
-    written.sentences().iter().all(|s| {
-        known.read_as_written(s).is_some_and(|n| {
-            let term = term_of_node(&written_out(&n, known), targets);
-            matches!(decide_closed(&term), Built(Verdict::Holds(_)))
-        })
-    })
+/// Whether `written` holds, where `arithmetic` works out each of its
+/// sentences (`methods::field::decide_closed`): built from numerals by the
+/// operations it reads, and a relation it decides. √2·√2 = 2 has no letter
+/// and is not one, nor is 1 + i·0 = 1, nor |{1, …, 23}| = 23. A sentence
+/// that does not read is `check_formulas`'s to report, and is none.
+fn arithmetic_works_out(
+    written: &Written,
+    known: &Known,
+    targets: &Targets,
+) -> Option<bool> {
+    let mut holds = true;
+    for s in written.sentences().iter() {
+        let n = known.read_as_written(s)?;
+        let term = term_of_node(&written_out(&n, known), targets);
+        let Built(Verdict::Holds(this)) = decide_closed(&term) else {
+            return None;
+        };
+        holds &= this;
+    }
+    Some(holds)
 }
 
 /// A claim `arithmetic` can work out cites it, whatever relation it states:
