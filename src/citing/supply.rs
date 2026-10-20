@@ -615,7 +615,7 @@ fn narrowed(
 /// variable and domain before it; one whose body is a "there is" again, as
 /// "there are m, n ∈ ℤ with …" builds, binds each in turn, so a "there is"
 /// of several names is read the same way as one of one.
-fn existential_levels<'n>(
+pub(super) fn existential_levels<'n>(
     exists: &'n Node,
     library: &Library,
 ) -> (Vec<(&'n Node, &'n Node)>, &'n Node) {
@@ -660,7 +660,7 @@ fn typed_into(
 
 /// Whether one of the facts puts each value a "there is" was given in the
 /// domain it ranges over.
-fn witnessed_in(
+pub(super) fn witnessed_in(
     exists: &Node,
     binding: &Binding,
     facts: &[Node],

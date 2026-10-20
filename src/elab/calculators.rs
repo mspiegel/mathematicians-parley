@@ -42,6 +42,11 @@ use crate::outcome::{Built, Checked, Declined, Problem, Route};
 use crate::rules::{self, lookup};
 use crate::{pf, t, take};
 
+/// The key the member a step said of every member speaks of is cited under
+/// by `inequalities`: the membership its claim's "for all" gives, which no
+/// label names, and a label never holds a space.
+const MEMBER_LINE: &str = "the member";
+
 /// What an emitter asks of the elaborator: the scope, the facts a
 /// membership is answered from, whether it may search for a term not being
 /// zero, and what the page says of that.
@@ -3426,7 +3431,22 @@ impl<'a> Elaborator<'a> {
             facts,
             lines
         )?);
-        let (term_out, lines_out) = (&out.term, &out.lines);
+        let (term_out, lines_out) = (&out.term, &out.lines.copy());
+        // A step said of every member has the membership its claim's "for
+        // all" gives the member as a cited line (`SYNTAX.md`), with what it
+        // implies, `i ≥ 1` of i ∈ ℕ, as the checker reads it.
+        let mut refs = step.just.refs.clone();
+        if let Some(member) = self.member.clone() {
+            if let Some(proof) = self.held(facts, &member, scope)? {
+                let line = Line {
+                    term: member,
+                    proof,
+                    sentences: Vec::new(),
+                };
+                lines_out.set(MEMBER_LINE.to_string(), line);
+                refs.push(MEMBER_LINE.to_string());
+            }
+        }
         // A cited line says each of its parts, a membership among them, as
         // the checker and R3 read it (`READERS.md`, what a membership says).
         // Only what the step may rest on is offered, so that a bound the
@@ -3443,7 +3463,6 @@ impl<'a> Elaborator<'a> {
         // the step writes that; offered to the membership lookup and to
         // nothing else.
         let known = self.supplied(Some(step), scope, facts)?;
-        let refs = step.just.refs.clone();
         let kept = std::mem::replace(&mut self.adding_only, plain);
         let found = self.writing(scope, &known, false, |me| {
             let rewritten = me.algebra_rows(step, refs, scope, facts_out, lines_out)?;

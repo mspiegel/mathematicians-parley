@@ -11,7 +11,7 @@ use super::record::CheckedTheorem;
 use super::structure::{defined_below, introduced, letters_in_scope};
 use super::Report;
 use crate::citing::{
-    implied_facts, link_unsaid, not_numbers, said_once, Library, Parts,
+    claimed_member, implied_facts, link_unsaid, not_numbers, said_once, Library, Parts,
 };
 use crate::corpus::proof::{chain, rows, visible, ChainLine, RowReason};
 use crate::corpus::{
@@ -1816,6 +1816,7 @@ pub fn check_congruence_integers(
             claimed,
             lines,
             line_of,
+            member: None,
         };
         let held = MembershipIn::of(&ClosureClaim::step(step), &read, known);
         let given = held.given(targets, known);
@@ -2171,9 +2172,10 @@ fn algebra_holds(
     known: &Known,
     targets: &Targets,
 ) -> bool {
-    let Some(read) = at.read(known, targets, false) else {
+    let Some(mut read) = at.read(known, targets, false) else {
         return false;
     };
+    read.at_a_member(known);
     let labels = FloatLabels::new(IndexMap::new());
     // The cited lines fact by fact, so that a line saying several things,
     // in sentences or joined by "and", asks only of the ones combined.
@@ -2284,6 +2286,7 @@ fn inequalities_unsaid(
     let implied: Vec<Term> = facts
         .iter()
         .flat_map(|part| implied_facts(part, known.env, &known.sorts))
+        .chain(read.member_implies(known))
         .map(|n| term_of_node(&n, targets))
         .collect();
     let terms: Vec<Term> = facts.iter().map(|n| term_of_node(n, targets)).collect();
@@ -2596,11 +2599,25 @@ fn cited_links(
                 .and_then(Related::of),
         );
         if said.is_empty() {
+            // A membership is what a requires line takes from a line, where
+            // the page does not say it once.
+            let letters = super::library::introduced(known, step);
+            let membership = cited_whole(step, r, known).is_some_and(|whole| {
+                conjuncts(&whole).iter().any(|c| {
+                    matches!((c.notation(), c.children.as_slice()), (MEMBERSHIP, [term, set])
+                        if !super::citations::member_in(term, set, &letters, step, known))
+                })
+            });
+            let instead = if membership {
+                ", and a membership it states is taken by a requires line"
+            } else {
+                ""
+            };
             return Err(Problem::new(
                 &thm.path,
                 step.just.line,
                 format!(
-                    "step {number} cites {r} by {method}, and {r} states no relation of =, <, ≤, > or ≥"
+                    "step {number} cites {r} by {method}, and {r} states no relation of =, <, ≤, > or ≥{instead}"
                 ),
             ));
         }
@@ -3070,6 +3087,7 @@ pub fn check_inequality_rows(
                 claimed: relations[0].clone(),
                 line_of: vec![0; lines.len()],
                 lines,
+                member: None,
             };
             if let Some(said) = real_unsaid(
                 &ClosureClaim::step(step),
@@ -3217,11 +3235,21 @@ fn report_unreal(
         claimed: claim.clone(),
         lines,
         line_of,
+        member: None,
     };
+    // The cited lines are the orders the step links, so a membership is
+    // taken from a requires line (`METHODS.md`, transitivity, antisymmetry).
     if let Some(said) =
         real_unsaid(&ClosureClaim::step(step), &read, &relations, known, targets)
     {
-        report.say(&thm.path, step.just.line, said);
+        report.say(
+            &thm.path,
+            step.just.line,
+            format!(
+                "{said}; {} takes a membership from a requires line",
+                step.just.head
+            ),
+        );
     }
 }
 
@@ -3580,15 +3608,17 @@ fn inequalities_hold(
     known: &Known,
     targets: &Targets,
 ) -> bool {
-    let Some(read) = at.read(known, targets, false) else {
+    let Some(mut read) = at.read(known, targets, false) else {
         return false;
     };
+    read.at_a_member(known);
     let labels = FloatLabels::new(IndexMap::new());
     let implied: Vec<Term> = read
         .lines
         .iter()
         .flat_map(conjuncts)
         .flat_map(|part| implied_facts(&part, known.env, &known.sorts))
+        .chain(read.member_implies(known))
         .map(|n| term_of_node(&n, targets))
         .collect();
     let cited: Vec<Term> = read
@@ -3752,16 +3782,14 @@ fn membership_holds(
     if !methods_membership::holds(term, system, &given) {
         let number = at.step.number.to_string();
         // The first part the claim is built from that nothing held says is
-        // a number there, or a divisor nothing says is not zero.
+        // a number there, through a cited equation where one carries it, or
+        // a divisor nothing says is not zero.
         let parts = methods_membership::Parts::of(term);
-        let unsaid = parts
-            .atoms
-            .iter()
-            .find(|a| !methods_membership::holds(a, system, &given))
+        let unsaid = methods_membership::unsaid_atom(term, system, &given)
             .map(|a| {
                 format!(
                     ": nothing says {} ∈ {}, which it needs",
-                    known.print(a),
+                    known.print(&a),
                     known.print(set)
                 )
             })
@@ -3818,10 +3846,11 @@ impl MembershipIn {
                 );
             }
         }
-        // A requires line of a step said of every member in one line speaks
-        // of the member (`SYNTAX.md`), which the step's claim puts in its set.
+        // A step said of every member in one line, and its requires lines,
+        // speak of the member (`SYNTAX.md`), which the step's claim puts in
+        // its set.
         let mut ranged = IndexMap::new();
-        if at.requires.is_some() && at.step.openers.is_empty() {
+        if at.step.openers.is_empty() {
             let defined = known.citing_step(at.step);
             if let [sentence] = at.step.claim.sentences().as_slice() {
                 if let Some(whole) = known.read_citing(sentence, &defined) {
@@ -3942,6 +3971,32 @@ struct ClosureRead {
     /// among the references, and a requires line above after them, by its
     /// place among those.
     line_of: Vec<usize>,
+    /// Where the claim is read at a member (`at_a_member`), the membership
+    /// its "for all" gives the member.
+    member: Option<Node>,
+}
+
+impl ClosureRead {
+    /// A claim said of every member, read at a member (`SYNTAX.md`, a step
+    /// said of every member), as a citation's is (`claimed_member`): the
+    /// body in the claim's place, and the membership its "for all" gives
+    /// the member, kept as `member`. The claim as it stands where it says
+    /// no "for all".
+    fn at_a_member(&mut self, known: &Known) {
+        if let Some((member, body)) = claimed_member(&self.claimed, known.env.g) {
+            self.member = Some(member);
+            self.claimed = body;
+        }
+    }
+
+    /// What the member's membership implies, `i ≥ 1` of i ∈ ℕ, where the
+    /// claim is read at a member.
+    fn member_implies(&self, known: &Known) -> Vec<Node> {
+        self.member
+            .iter()
+            .flat_map(|m| implied_facts(m, known.env, &known.sorts))
+            .collect()
+    }
 }
 
 impl<'s> ClosureClaim<'s> {
@@ -4029,6 +4084,7 @@ impl<'s> ClosureClaim<'s> {
             claimed,
             lines,
             line_of,
+            member: None,
         })
     }
 
@@ -4503,7 +4559,11 @@ pub fn check_closed_by_arithmetic(
     let worked = |written: &Written| arithmetic_works_out(written, known, targets);
     for step in &thm.steps {
         let just = &step.just;
+        // A line marked impossible states a false fact its method reaches
+        // from the lines it cites, which arithmetic would refuse
+        // (`METHODS.md`, arithmetic, Boundary).
         if (just.head.is(Method::Algebra) || just.head.is(Method::Inequalities))
+            && !step.impossible
             && worked(&step.claim)
         {
             report.say(

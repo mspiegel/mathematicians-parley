@@ -1,0 +1,23 @@
+import mundane theorem    stdlib/numbers/abs-real
+
+theorem an-item-at-a-value
+  note        a(n) ∈ ℝ is read from the type line, which the step cites,
+              and n ∈ ℕ, which the page says once where n is introduced.
+  let a : ℕ → ℝ    (H1)
+  let n ∈ ℕ    (H2)
+  then |a(n)| ∈ ℝ
+
+1.  |a(n)| ∈ ℝ
+    mun:abs-real x := a(n), from H1
+
+theorem a-requires-line-at-a-value
+  note        The same membership on a requires line cites the type line
+              alone, as the item does.
+  let a : ℕ → ℝ    (H1)
+  let n ∈ ℕ    (H2)
+  let L ∈ ℝ    (H3)
+  then |a(n) − L| ∈ ℝ
+
+1.  |a(n) − L| ∈ ℝ
+    mun:abs-real x := a(n) − L
+    requires a(n) − L ∈ ℝ: from H1

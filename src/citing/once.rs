@@ -21,14 +21,14 @@ use crate::formula::symbol::Symbol;
 use crate::formula::{ByShape, Node, Sort, Sorts};
 use crate::matching::{alike_top, standard, substitute_apart, Binding, FxIndexSet};
 use crate::notations::{
-    APPLICATION, DEGREES, DIVIDED, EULER, FACTORIAL, IN, INTEGER_RANGE, JUXTAPOSITION,
-    MEMBERSHIP, MINUS, MOD, MULTIPLICATIVE, NUMBER_SYSTEMS, NUMERAL, PI, PLUS, POWER,
-    SQUARE_ROOT, SUM, SUPERSCRIPT, TIMES, UNARY_MINUS,
+    APPLICATION, DEGREES, DIVIDED, EULER, FACTORIAL, FUNCTION_TYPE, IN, INTEGER_RANGE,
+    JUXTAPOSITION, MEMBERSHIP, MINUS, MOD, MULTIPLICATIVE, NUMBER_SYSTEMS, NUMERAL, PI,
+    PLUS, POWER, SQUARE_ROOT, SUM, SUPERSCRIPT, TIMES, UNARY_MINUS,
 };
 use crate::rules::{self, lookup, System};
 
 use super::library::Library;
-use super::parts::Parts;
+use super::parts::{bound_in, function_values, Bound, Parts};
 
 /// The number system each letter is introduced in, by the letter as the
 /// page writes it.
@@ -115,6 +115,56 @@ pub fn said_once(
                 }
             })
             .or_insert(system);
+    }
+    // A function's value at a point the page puts in the function's domain
+    // once, a(n) with `let a : ℕ → ℝ` cited and `let n ∈ ℕ`, is in the
+    // codomain as at a point a line says (`SYNTAX.md`, a function's type
+    // and a point of its domain): the type line is cited, the point said
+    // once. A domain that is no number system, a range, asks its line.
+    let mut points: Vec<Node> = Vec::new();
+    for typed in &parts.facts {
+        let (FUNCTION_TYPE, [_, domain, _]) =
+            (typed.notation(), typed.children.as_slice())
+        else {
+            continue;
+        };
+        let within = (domain.notation() == NUMBER_SYSTEMS)
+            .then(|| System::of_sign(&domain.text))
+            .flatten();
+        let Some(within) = within else {
+            continue;
+        };
+        for (letter, system) in &letters {
+            if system.within(within) {
+                let point = Node::name(Sort::none(), letter);
+                points.push(bound_in(Bound::Member, &point, domain, library.env.g));
+            }
+        }
+    }
+    if !points.is_empty() {
+        let types: Vec<Node> = parts
+            .facts
+            .iter()
+            .filter(|f| f.notation() == FUNCTION_TYPE)
+            .cloned()
+            .chain(points)
+            .collect();
+        for value in function_values(&types, library.env, sorts) {
+            if parts
+                .facts
+                .iter()
+                .any(|f| alike_top(f, &value, &library.ctx))
+            {
+                continue;
+            }
+            if let (Some(system), [term, _]) = (
+                value.children.get(1).and_then(|s| System::of_sign(&s.text)),
+                value.children.as_slice(),
+            ) {
+                atoms.push((term.clone(), system));
+            }
+            parts.facts.push(value);
+        }
     }
     let ctx = &library.ctx;
     let mut local = sorts.clone();

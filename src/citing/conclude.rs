@@ -16,7 +16,10 @@ use crate::outcome::{Built, Route};
 use super::asked::filled;
 use super::library::{conjuncts, either_way, readings, Group, Library, Way};
 use super::once::{a_number_said_once, Introduced};
-use super::supply::{search, supplier, supply, Sites, Ways};
+use super::parts::{bound_in, Bound};
+use super::supply::{
+    existential_levels, search, supplier, supply, witnessed_in, Sites, Ways,
+};
 use crate::rules;
 
 /// Every sentence of the claim takes a reading of the conclusion, and what
@@ -42,6 +45,7 @@ fn take(
     need: &[Node],
     given: &[Node],
     variables: &BTreeSet<String>,
+    free: &BTreeSet<String>,
     library: &Library,
     sites: &Sites,
     mut ways: Option<&mut Ways>,
@@ -79,6 +83,11 @@ fn take(
             if !identities_on_numbers(cand, claim, &found, given, library) {
                 continue;
             }
+            // A letter the item binds, the k of Σ(k = a to b), is matched
+            // afresh in each hypothesis, which may say the same over another
+            // letter (`ELABORATION.md`), as `Taken::of` keeps only the free.
+            let mut found = found;
+            found.retain(|name, _| free.contains(name.as_str()));
             let seen: FxIndexSet<ByShape> = used.iter().map(Node::by_shape).collect();
             let mut more = used.to_vec();
             more.extend(
@@ -100,6 +109,7 @@ fn take(
                 need,
                 given,
                 variables,
+                free,
                 library,
                 sites,
                 ways.as_deref_mut(),
@@ -320,6 +330,91 @@ pub fn identities_unsaid(
     Vec::new()
 }
 
+/// What a claim the item concludes from a "there is" leaves unsaid of the
+/// witness, where that is why no group takes it: each claim matched against
+/// each conclusion the groups offer under the seed, the "there is" its
+/// reading asks first matched by its body against each fact, as `supply`
+/// matches it, and the witness's membership of its set where no fact says
+/// it (`witnessed_in`), `m² ∈ ℤ` for `3 divides p² + q²` from `p² + q² =
+/// 3m²`. Empty where no such reading leaves one.
+pub fn witnesses_unsaid(
+    groups: &[Group],
+    claims: &[Node],
+    facts: &[Node],
+    seed: &Binding,
+    library: &Library,
+) -> Vec<Node> {
+    let (whole, split) = (whole_claim(claims, library), split_claims(claims, library));
+    for of in groups {
+        let offer = Offer::of(of, library);
+        for claim in offer.claims_read(&whole, &split) {
+            for (cand, first) in &offer.candidates {
+                let Some(found) = match_tree(
+                    cand,
+                    claim,
+                    seed,
+                    &offer.variables,
+                    &offer.sites,
+                    &library.ctx,
+                ) else {
+                    continue;
+                };
+                for exists in first {
+                    if !library.exists.contains(&exists.notation()) {
+                        continue;
+                    }
+                    let (pairs, body) = existential_levels(exists, library);
+                    let mut inside = found.clone();
+                    let mut seen = offer.variables.clone();
+                    for (name, _) in &pairs {
+                        inside.shift_remove(&name.text);
+                        seen.insert(name.text.to_string());
+                    }
+                    for fact in facts {
+                        let Some(got) = match_tree(
+                            body,
+                            fact,
+                            &inside,
+                            &seen,
+                            &offer.sites,
+                            &library.ctx,
+                        ) else {
+                            continue;
+                        };
+                        if witnessed_in(
+                            exists,
+                            &got,
+                            facts,
+                            &seen,
+                            library,
+                            &offer.sites,
+                        ) {
+                            continue;
+                        }
+                        let unsaid: Vec<Node> = pairs
+                            .iter()
+                            .filter_map(|(name, domain)| {
+                                let value = got.get(&name.text)?;
+                                let set = substitute_apart(domain, &got, &library.ctx);
+                                Some(bound_in(
+                                    Bound::Member,
+                                    value,
+                                    &set,
+                                    library.env.g,
+                                ))
+                            })
+                            .collect();
+                        if !unsaid.is_empty() {
+                            return unsaid;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    Vec::new()
+}
+
 /// A binding to match a claim under: one way of supplying what a reading
 /// asks first, and the facts that way took.
 struct Start {
@@ -502,6 +597,7 @@ pub fn taken(
             &offer.need,
             facts,
             &offer.variables,
+            &offer.free,
             library,
             &offer.sites,
             None,
@@ -556,6 +652,7 @@ pub fn taken_ways(
             &offer.need,
             facts,
             &offer.variables,
+            &offer.free,
             library,
             &offer.sites,
             Some(&mut ways),
@@ -612,6 +709,9 @@ struct Offer {
     need: Vec<Node>,
     /// The item's letters, which the claim and the facts bind.
     variables: BTreeSet<String>,
+    /// Of those, the ones free in the item's statements: a letter it binds,
+    /// a sum's index, is matched afresh wherever it is bound.
+    free: BTreeSet<String>,
     /// Where a property or function the item binds is applied.
     sites: Sites,
 }
@@ -650,6 +750,10 @@ impl Offer {
         let mut trees = gives.clone();
         trees.extend(want.iter().map(|(_, t)| t.clone()));
         let variables = group.letters(&trees);
+        let free = trees
+            .iter()
+            .flat_map(|t| free_names(t, &library.ctx.binders))
+            .collect();
         // A conclusion is a sentence, so one that is a bare letter of the
         // item's is a statement letter.
         let letter = matches!(gives.as_slice(), [one]
@@ -661,6 +765,7 @@ impl Offer {
             ways,
             need,
             variables,
+            free,
             sites,
         }
     }

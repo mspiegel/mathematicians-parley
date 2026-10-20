@@ -1,0 +1,13 @@
+$( tests/elaborator/a-divides-fold-with-its-witness/a-divides-fold-with-its-witness, elaborated from tests/elaborator/a-divides-fold-with-its-witness.proof by parley build.
+   Nothing here is assumed.
+   Checked against a set.mm of 51,256 assertions, sha256
+   0d7fb3e59afff60f4cec2287cbb616bf651bbfbf2356a611a43a5c98b5e0462d. $)
+
+$[ stdlib/definitions.mm $]
+
+${
+  $d i j k r u $.
+  $d A i j k r u $.
+  tests.elaborator.a-divides-fold-with-its-witness.a-divides-fold-with-its-witness $p |- ( ( ( A e. RR /\ A e. NN ) /\ E. j e. ZZ E. k e. ZZ ( ( j ^ 2 ) + ( k ^ 2 ) ) = ( 3 x. ( A ^ 2 ) ) ) -> 3 || ( 3 x. ( A ^ 2 ) ) ) $=
+    ( cr wcel cn wa cv c2 cexp co caddc c3 cmul wceq cz wrex vi vr cdvds wbr simpr wb id oveq1d oveq2d eqeq1d cbvrexvw rexbii simpl syl rexbidva bitri a1i mpbid vu nnz cn0 2nn0 zexpcld eqcomd jca rspcev 3z zaddcld divides cc 3cn zcn mulcom bitrd mpbird breq2d ex rexlimdvva mpd ) ADEZAFEZGZBHZIJKZCHZIJKZLKZMAIJKZNKZOZCPQZBPQZGZRHZIJKZSHZIJKZLKZWFOZSPQZRPQZMWFTUAZWJWIWRVSWIUBWIWRUCWJWIWAWNLKZWFOZSPQZBPQWRWHXBBPWGXACSPWBWMOZWDWTWFXCWCWNWALXCWBWMIJXCUDUEUFUGUHUIXBWQBRPVTWKOZXAWPSPXDWMPEZGZWTWOWFXFWAWLWNLXFVTWKIJXFXDXDXDXEUJXDUDUKUEUEUGULUHUMUNUOWJWPWSRSPPWJWKPEZXEGZGZWPWSXIWPGZMWOTUAZWSXJXKMUPHZNKZWOOZUPPQZXJWEPEZWFWOOZGXOXJXPXQXJAIXJVRAPEXJXIVRXIWPUJZXIWJVRWJXHUJWJVSVRVSWIUJVQVRUBUKUKUKAUQUKIUREZXJUSUNZUTXJWOWFXIWPUBZVAVBXNXQUPWEPXLWEOZXMWFWOYBXLWEMNYBUDUFUGVCUKXJXKXLMNKZWOOZUPPQZXOXJMPEZWOPEZGXKYEUCXJYFYGYFXJVDUNXJWLWNXJWKIXJXIXGXRXIXHXGWJXHUBZXGXEUJUKUKXTUTXJWMIXJXIXEXRXIXHXEYHXGXEUBUKUKXTUTVEVBUPMWOVFUKXJYDXNUPPXJXLPEZGZYCXMWOYJXMYCYJMVGEZXLVGEZGXMYCOYJYKYLYKYJVHUNYJYIYLXJYIUBXLVIUKVBMXLVJUKVAUGULVKVLXJWOWFMTYAVMUOVNVOVP $.
+$}

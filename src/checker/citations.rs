@@ -17,8 +17,8 @@ use crate::citing::{
     asked, bound_in, claimed_member, concludes, conjuncts, derives, filled, finished,
     function_values, identities_unsaid, index_system, obtained, obtains, range_system,
     readings, said_once, search, stood_for, substitution_unsaid, supply, taken,
-    taken_ways, type_said_otherwise, with_parts, Bound, Concluded, Group, Introduced,
-    Library, Parts, Sites, Taken, Ways,
+    taken_ways, type_said_otherwise, with_parts, witnesses_unsaid, Bound, Concluded,
+    Group, Introduced, Library, Parts, Sites, Taken, Ways,
 };
 use crate::corpus::proof::{reason_as_step, Requires};
 use crate::corpus::skeleton::Source;
@@ -130,7 +130,7 @@ fn requires_parts(
         .is_some_and(|i| !i.says_for_all());
     if at_member {
         if let [claim] = claims.as_slice() {
-            if let Some((member, body)) = claimed_member(claim, library) {
+            if let Some((member, body)) = claimed_member(claim, library.env.g) {
                 read.push(member);
                 claims = vec![body];
             }
@@ -151,7 +151,7 @@ fn requires_parts(
     // of the member, whose membership the claim gives (`SYNTAX.md`).
     if step.openers.is_empty() {
         if let [claim] = read_all(&step.claim).as_slice() {
-            if let Some((member, _)) = claimed_member(claim, library) {
+            if let Some((member, _)) = claimed_member(claim, library.env.g) {
                 read.push(member);
             }
         }
@@ -791,16 +791,34 @@ pub fn check_conclusion(
                 &parts.seed,
                 library,
             );
+            // A claim the item concludes from a "there is" whose witness
+            // nothing named puts in its set is told which membership.
+            let witnesses = || {
+                witnesses_unsaid(
+                    &groups,
+                    &parts.claims,
+                    &parts.facts,
+                    &parts.seed,
+                    library,
+                )
+            };
             let said = match unsaid.first() {
                 Some(left) => format!(
                     "step {} drops an identity element from what {head} concludes, and nothing says {} is a number; a requires line says it",
                     step.number,
                     known.print(left)
                 ),
-                None => format!(
-                    "step {} claims something that {head} does not conclude",
-                    step.number
-                ),
+                None => match witnesses().first() {
+                    Some(member) => format!(
+                        "step {} reads what {head} concludes from a \"there is\", and nothing it names says {}",
+                        step.number,
+                        known.print(member)
+                    ),
+                    None => format!(
+                        "step {} claims something that {head} does not conclude",
+                        step.number
+                    ),
+                },
             };
             report.say(&thm.path, just.line, said);
         }
@@ -1716,9 +1734,9 @@ pub fn check_obtained_claims(
         for ((letter, domain), claimed) in order.iter().zip(&said) {
             let member = match (claimed.notation(), domain.notation()) {
                 (SUBSET, POWERSET) if domain.children.len() == 1 => {
-                    bound_in(Bound::Part, letter, &domain.children[0], library)
+                    bound_in(Bound::Part, letter, &domain.children[0], library.env.g)
                 }
-                _ => bound_in(Bound::Member, letter, domain, library),
+                _ => bound_in(Bound::Member, letter, domain, library.env.g),
             };
             let member = substitute_apart(&member, &put, &library.ctx);
             if claimed.notation() == member.notation() && !known.alike(claimed, &member)
@@ -2607,7 +2625,7 @@ fn values_said(typed: &Node, facts: &[Node], library: &Library) -> bool {
     let Some(value) = page::made_as(g, "_(_)", vec![f.clone(), k.clone()]) else {
         return false;
     };
-    let member = bound_in(Bound::Member, &value, codomain, library);
+    let member = bound_in(Bound::Member, &value, codomain, library.env.g);
     let Some(every) =
         page::made_as(g, "for all _ ∈ _, _", vec![k, domain.clone(), member])
     else {
@@ -2951,7 +2969,7 @@ pub(super) fn domains_unsaid(
         parts
             .claims
             .iter()
-            .filter_map(|c| claimed_member(c, library))
+            .filter_map(|c| claimed_member(c, library.env.g))
             .map(|(member, _)| member),
     );
     let facts =
@@ -3266,7 +3284,7 @@ fn exhibited(claim: &Node, library: &Library) -> Option<Exhibited> {
     }
     let mut wants: Vec<Node> = bound
         .iter()
-        .map(|(letter, domain)| bound_in(Bound::Member, letter, domain, library))
+        .map(|(letter, domain)| bound_in(Bound::Member, letter, domain, library.env.g))
         .collect();
     if let Some(body) = body {
         wants.extend(conjuncts(body, library));
@@ -3349,7 +3367,7 @@ pub fn check_instantiated(
                 };
                 let domain = substitute_apart(&b.domain, &outer, &library.ctx);
                 outer.insert(b.letter.text, value.clone());
-                let want = bound_in(b.how, value, &domain, library);
+                let want = bound_in(b.how, value, &domain, library.env.g);
                 let value_written = written
                     .get(b.letter.text.as_str())
                     .cloned()
@@ -3362,7 +3380,8 @@ pub fn check_instantiated(
                     continue;
                 }
                 judged = false;
-                let needed = bound_in(b.how, &value_written, &domain_written, library);
+                let needed =
+                    bound_in(b.how, &value_written, &domain_written, library.env.g);
                 report.say(
                     &thm.path,
                     step.just.line,
@@ -3687,11 +3706,36 @@ pub fn check_repeated(
                     && !bounded
                     && !needed_below(step, i, &said, known, library));
             if repeated {
+                // A membership the page says once is said where its letters
+                // are introduced, and the step's lines may say nothing.
+                let letters = super::library::introduced(known, step);
+                let once = match (said.notation(), said.children.as_slice()) {
+                    (MEMBERSHIP, [term, set]) => {
+                        member_in(term, set, &letters, step, known).then(|| {
+                            term.names()
+                                .into_iter()
+                                .filter(|n| letters.contains_key(n.as_str()))
+                                .collect::<Vec<_>>()
+                        })
+                    }
+                    _ => None,
+                };
+                let why = match once {
+                    Some(named) if named.is_empty() => {
+                        "which the page says once".to_string()
+                    }
+                    Some(named) => format!(
+                        "which the page says once, where {} {} introduced",
+                        named.join(" and "),
+                        if named.len() == 1 { "is" } else { "are" }
+                    ),
+                    None => "which the step's other lines already say".to_string(),
+                };
                 report.say(
                     &thm.path,
                     req.line,
                     format!(
-                        "the requires line of step {} says {}, which the step's other lines already say",
+                        "the requires line of step {} says {}, {why}",
                         step.number,
                         str::trim(req.fact.text())
                     ),
@@ -3921,7 +3965,7 @@ fn from_lines_give(
 /// says once, in a number system; or as the member of a step said of every
 /// member of a set inside `set`, which its requires lines speak of
 /// (`SYNTAX.md`, a step said of every member).
-fn member_in(
+pub(super) fn member_in(
     member: &Node,
     set: &Node,
     letters: &crate::citing::Introduced,

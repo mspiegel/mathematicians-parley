@@ -155,6 +155,45 @@ fn said_nonzero(divisor: &Node, facts: &Facts) -> bool {
     })
 }
 
+/// The first part of `term` nothing in `facts` says is in `system`, as a
+/// refusal names it: an atom of the term (`Parts`), or where a cited
+/// equation puts that atom beside another term, the first part of that
+/// term not said, which is why the equation did not carry it. None where
+/// every atom holds.
+pub fn unsaid_atom(term: &Node, system: System, facts: &Facts) -> Option<Node> {
+    unsaid_carried(term, system, facts, CARRIED)
+}
+
+fn unsaid_carried(
+    term: &Node,
+    system: System,
+    facts: &Facts,
+    depth: usize,
+) -> Option<Node> {
+    let atom = Parts::of(term)
+        .atoms
+        .into_iter()
+        .find(|a| !holds(a, system, facts))?;
+    if depth > 0 {
+        for f in facts.facts {
+            let (true, [a, b]) = (f.spelling() == EQUALS, f.children.as_slice()) else {
+                continue;
+            };
+            let beside = if same(a, &atom, facts.ctx) {
+                b
+            } else if same(b, &atom, facts.ctx) {
+                a
+            } else {
+                continue;
+            };
+            if let Some(inner) = unsaid_carried(beside, system, facts, depth - 1) {
+                return Some(inner);
+            }
+        }
+    }
+    Some(atom)
+}
+
 /// The part of a divisor `nonzero` finds nothing saying is not zero: the
 /// divisor itself, or where it is a product, a quotient, a negation or a
 /// power to a numeral, the first of its parts that is not. None where it is

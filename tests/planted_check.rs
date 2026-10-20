@@ -1196,7 +1196,7 @@ fn cases() -> Vec<Case> {
                 Some("    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2\n          algebra\n".to_string()),
                 "    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2\n          algebra\n          requires 2 ∈ ℝ: arithmetic\n".to_string(),
             )],
-            "the requires line of step 1.6 says 2 ∈ ℝ, which the step's other lines already say",
+            "the requires line of step 1.6 says 2 ∈ ℝ, which the page says once",
         ),
         // A claim of numerals said to be impossible, given to `inequalities`:
         // a claim arithmetic can work out is arithmetic's, and is refused
@@ -1208,7 +1208,7 @@ fn cases() -> Vec<Case> {
                 Some("    2.3.  10 divides 1, which is impossible\n          substitute (t + 1) − t = 1 (line 2.2) into line 2.1\n".to_string()),
                 "    2.3.  10 divides 1\n          substitute (t + 1) − t = 1 (line 2.2) into line 2.1\n\n    2.4.  1 ≤ 10, which is impossible\n          inequalities\n".to_string(),
             )],
-            "step 2.4 gives inequalities for 1 ≤ 10, which arithmetic can work out; a claim arithmetic can work out cites arithmetic",
+            "step 2.4 says 1 ≤ 10 is impossible, and it holds",
         ),
         // A claim of `algebra` that is not an identity, and one asking a
         // power past what algebra may multiply out: the checker decides
@@ -2143,7 +2143,7 @@ fn cases() -> Vec<Case> {
                 Some("    requires C(N, k) ∈ ℕ₀: mun:binomial-nat0\n".to_string()),
                 "    requires k ∈ ℤ: membership\n    requires C(N, k) ∈ ℕ₀: mun:binomial-nat0\n".to_string(),
             )],
-            "the requires line of step 1 says k ∈ ℤ, which the step's other lines already say",
+            "the requires line of step 1 says k ∈ ℤ, which the page says once, where k is introduced",
         ),
         // No function is typed over {0, …, N}, so H2 is cited for k ∈ ℤ, which
         // the range says once, and binomial-nat0 asks nothing more of it.
@@ -3900,7 +3900,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/wiedijk/binomial.proof", Some("          requires m − k ∈ ℕ₀: mun:range-difference a := 0, n := m, from J\n          requires x^(m − k) ∈ ℝ: mun:power-real, from H1\n".to_string()), "          requires m − k ∈ ℕ₀: mun:range-difference a := 0, n := m, from J\n          requires m − k ∈ ℝ: membership\n          requires x^(m − k) ∈ ℝ: mun:power-real, from H1\n".to_string()),
             ],
-            "the requires line of step 10.6 says m − k ∈ ℝ, which the step's other lines already say",
+            "the requires line of step 10.6 says m − k ∈ ℝ, which the page says once, where k and m are introduced",
         ),
         // A line saying a term is not zero is asked for by a line below that
         // divides by it, and only by such a line: nothing in step 12 divides
@@ -4866,6 +4866,17 @@ fn cases() -> Vec<Case> {
             )],
             "the requires line of step 1.4 cites K, and d(k) ∈ ℝ needs nothing it says",
         ),
+        // An item's hypothesis at a function's value reads the point as a
+        // requires line does: said once, and a citation of it surplus.
+        case(
+            "an item at a function's value naming the let of its point",
+            vec![edit(
+                "tests/elaborator/a-value-at-a-point-said-once.proof",
+                Some("    mun:abs-real x := a(n), from H1\n".to_string()),
+                "    mun:abs-real x := a(n), from H1, H2\n".to_string(),
+            )],
+            "step 1 cites H2, and mun:abs-real asks for nothing it says",
+        ),
         // A requires line's manipulation is of the one line it names.
         case(
             "a requires line naming a manipulation and no line",
@@ -5157,6 +5168,39 @@ fn cases() -> Vec<Case> {
                 String::new(),
             )],
             "is not built from what step 9 cites",
+        ),
+        // A membership a cited equation would carry names the part of the
+        // equation's other side that nothing says, not the term itself.
+        case(
+            "leave out the type of a value an equation's other side holds",
+            vec![edit(
+                "tests/elaborator/a-membership-carried-by-an-equation.proof",
+                Some("    membership, from H1, H2, H4\n".to_string()),
+                "    membership, from H1, H4\n".to_string(),
+            )],
+            "nothing says b(0) ∈ ℝ, which it needs",
+        ),
+        // A claim the item concludes from a "there is" whose witness nothing
+        // named puts in its set is told which membership is owed.
+        case(
+            "fold divides from an equation whose witness nothing says is an integer",
+            vec![edit(
+                "tests/elaborator/a-divides-fold-with-its-witness.proof",
+                Some("    mun:divides d := 3, n := p² + q², from H2, 1\n".to_string()),
+                "    mun:divides d := 3, n := p² + q², from 1\n".to_string(),
+            )],
+            "step 2 reads what mun:divides concludes from a \"there is\", and nothing it names says m² ∈ ℤ",
+        ),
+        // Antisymmetry's cited lines are its two orders, so the membership
+        // it owes is taken by a requires line, which the message says.
+        case(
+            "leave out the requires line an antisymmetry step's atom needs",
+            vec![edit(
+                "proofs/setmm/square-root-positive.proof",
+                Some("          antisymmetry, from 2.1, 2.2\n          requires √a ∈ ℝ: from 1\n".to_string()),
+                "          antisymmetry, from 2.1, 2.2\n".to_string(),
+            )],
+            "nothing says √a ∈ ℝ, which this step needs; antisymmetry takes a membership from a requires line",
         ),
         // 2·√a is a number once √a is, so it is √a whose membership is owed.
         case(
