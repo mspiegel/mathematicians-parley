@@ -14,6 +14,7 @@ use std::collections::BTreeSet;
 use indexmap::IndexMap;
 use num_traits::{ToPrimitive, Zero};
 
+use super::calculators::Revalued;
 use super::field::{self, Value};
 use super::linear;
 use super::matcher::ChainLink;
@@ -901,11 +902,12 @@ impl<'a> Elaborator<'a> {
                 &binds! {"ph" => scope, "A" => &sx, "B" => &canon, "C" => &system},
                 &[&is],
             );
-            return Ok(Built(self.b.ap(
-                "mpbird",
-                &binds! {"ph" => scope, "ps" => t!(&sx, &system, "wcel"), "ch" => t!(&canon, &system, "wcel")},
-                &[&held, &iff],
-            )));
+            let at = Revalued {
+                said: t!(&sx, &system, "wcel"),
+                valued: t!(&canon, &system, "wcel"),
+                iff,
+            };
+            return Ok(Built(self.carried_back(&at, &held, scope)));
         }
         let law = match goal.children()[1].label() {
             Some("cr") => "qre",
@@ -1492,6 +1494,21 @@ impl<'a> Elaborator<'a> {
             }
         }
         Ok(out)
+    }
+
+    /// What a step citing a theorem or lemma may use: what it supplies
+    /// (`supplied`), the lines it cites laid over that (`with_cited`), and
+    /// what they imply (`with_implied`), as `apply_lemma` reads them.
+    pub fn known_implied(
+        &mut self,
+        step: Option<&Step>,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Facts> {
+        let supplied = self.supplied(step, scope, facts)?;
+        let known = self.with_cited(step, scope, &supplied, None);
+        self.with_implied(step, scope, &known)?;
+        Ok(known)
     }
 
     /// `known` with what the lines the step names imply laid in where it

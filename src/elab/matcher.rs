@@ -5984,9 +5984,7 @@ impl<'a> Elaborator<'a> {
         };
         let frame = frame.expect("the frame of an allowed scope");
         let at_frame = self.frames_facts(frame, facts);
-        let supplied = self.supplied(step, &where_, &at_frame)?;
-        let known = self.with_cited(step, &where_, &supplied, None);
-        self.with_implied(step, &where_, &known)?;
+        let known = self.known_implied(step, &where_, &at_frame)?;
         // A bare `Z e. B` with Z open is answered by any line putting
         // anything in B, so every such conjunct is matched after the rest.
         let loose: Vec<Term> = antecedents
@@ -6179,9 +6177,7 @@ impl<'a> Elaborator<'a> {
                 proof = self.carry(under_frame, &remaining, frame);
                 frame = self.frames.len() - 1;
                 where_ = self.frames[frame].scope.clone();
-                let supplied = self.supplied(step, &where_, facts)?;
-                known = self.with_cited(step, &where_, &supplied, None);
-                self.with_implied(step, &where_, &known)?;
+                known = self.known_implied(step, &where_, facts)?;
                 carried = true;
                 first = false;
                 (x, y) = if joins[i] == Join::Turned {

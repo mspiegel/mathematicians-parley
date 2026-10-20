@@ -28,6 +28,10 @@ use crate::outcome::{Built, Checked, Declined, Route};
 use crate::rules;
 use crate::{pf, t, take};
 
+/// Where a closed fact a range's listing asks of a negative integer is
+/// said to be asked, should arithmetic not show it.
+const RANGE_LISTED_AS: &str = "a range is listed";
+
 /// A set read in the standard form: its elements in order, and a proof
 /// that the set is the union of their singletons.
 struct Listing {
@@ -1093,19 +1097,57 @@ impl Elaborator<'_> {
         Ok(pf!(self.b; claim, p, "mptru"))
     }
 
+    /// |- n e. ZZ: a numeral's by `nn0zi`, and a negative integer's as
+    /// `arithmetic` proves a closed fact (`closed`).
+    fn integer_fact(&mut self, n: &BigInt) -> Checked<Proof> {
+        match n.to_biguint() {
+            Some(whole) => Ok(numerals::integer(&self.b, &whole)),
+            None => {
+                let claim = t!(numerals::spell_integer(n), "cz", "wcel");
+                self.closed(&claim, RANGE_LISTED_AS)
+            }
+        }
+    }
+
+    /// |- a < c where `strict`, and |- a <_ c otherwise, for integers in
+    /// that order: of numerals by their digits (`numerals::below`,
+    /// `at_most_of`), and with a negative one as `arithmetic` proves a
+    /// closed fact.
+    fn order_fact(&mut self, a: &BigInt, c: &BigInt, strict: bool) -> Checked<Proof> {
+        match (a.to_biguint(), c.to_biguint()) {
+            (Some(a), Some(c)) if strict => Ok(numerals::below(&self.b, a, c)),
+            (Some(a), Some(c)) => Ok(numerals::at_most_of(&self.b, &a, &c)),
+            _ => {
+                let relation = if strict { "clt" } else { "cle" };
+                let (sa, sc) = (numerals::spell_integer(a), numerals::spell_integer(c));
+                self.closed(&t!(sa, sc, relation, "wbr"), RANGE_LISTED_AS)
+            }
+        }
+    }
+
+    /// |- ( n + 1 ) = m, m the integer after n: of numerals as `sum` adds
+    /// them, and of a negative n as `arithmetic` proves a closed fact.
+    fn successor_fact(&mut self, n: &BigInt) -> Checked<Proof> {
+        match n.to_biguint() {
+            Some(whole) => Ok(numerals::sum(&self.b, whole, 1u32)),
+            None => {
+                let next = t!(numerals::spell_integer(n), "c1", "caddc", "co");
+                let claim = t!(next, numerals::spell_integer(&(n + 1u32)), "wceq");
+                self.closed(&claim, RANGE_LISTED_AS)
+            }
+        }
+    }
+
     /// |- ( from ... to ) = the singletons of the integers from `from` to
     /// `to`, joined from the left (`singletons`), for `from` at most `to`: the
     /// range of one integer is its singleton (`fzsn`), and a longer one is
     /// the range below its top joined with the top's singleton (`fzsuc`), the
-    /// top spelt as one less, plus one, and worked out. What each step asks
-    /// of the integers, that each is one, their order and the sum, is a
-    /// closed fact of numerals (`closed`).
+    /// top spelt as one less, plus one, and worked out.
     fn integer_range(&mut self, from: &BigInt, to: &BigInt) -> Checked<Proof> {
         let (sf, st) = (numerals::spell_integer(from), numerals::spell_integer(to));
-        let what = "a range is listed";
         let range_to = |top: &Rpn| t!(&sf, top, "cfz", "co");
         if to == from {
-            let integer = self.closed(&t!(&sf, "cz", "wcel"), what)?;
+            let integer = self.integer_fact(from)?;
             return Ok(self.b.ap(
                 "ax-mp",
                 &binds! {
@@ -1120,33 +1162,20 @@ impl Elaborator<'_> {
         let next = t!(&sl, "c1", "caddc", "co");
         let split = t!(range_to(&sl), t!(&next, "csn"), "cun");
         let law = self.b.ap("fzsuc", &binds! {"M" => &sf, "N" => &sl}, &[]);
-        // less e. ( ZZ>= ` from ): both integers, and from ≤ less (`eluz2`).
+        // less e. ( ZZ>= ` from ): both integers, and from ≤ less.
         let upper = t!(&sl, t!(&sf, "cuz", "cfv"), "wcel");
-        let (from_z, less_z) = (
-            self.closed(&t!(&sf, "cz", "wcel"), what)?,
-            self.closed(&t!(&sl, "cz", "wcel"), what)?,
-        );
-        let ordered = self.closed(&t!(&sf, &sl, "cle", "wbr"), what)?;
-        let reaches = self.b.ap(
-            "mpbir3an",
-            &binds! {
-                "ph" => &upper, "ps" => t!(&sf, "cz", "wcel"), "ch" => t!(&sl, "cz", "wcel"),
-                "th" => t!(&sf, &sl, "cle", "wbr"),
-            },
-            &[
-                &from_z,
-                &less_z,
-                &ordered,
-                &self.b.ap("eluz2", &binds! {"M" => &sf, "N" => &sl}, &[]),
-            ],
-        );
+        let from_z = self.integer_fact(from)?;
+        let less_z = self.integer_fact(&less)?;
+        let ordered = self.order_fact(from, &less, false)?;
+        let reaches =
+            numerals::in_upper_integers(&self.b, &sf, &sl, &from_z, &less_z, &ordered);
         // ( from ... ( less + 1 ) ) = ( ( from ... less ) u. { ( less + 1 ) } )
         let step = self.b.ap(
             "ax-mp",
             &binds! {"ph" => &upper, "ps" => t!(range_to(&next), &split, "wceq")},
             &[&reaches, &law],
         );
-        let added = self.closed(&t!(&next, &st, "wceq"), what)?;
+        let added = self.successor_fact(&less)?;
         let ends = self.b.ap(
             "oveq2i",
             &binds! {"A" => &next, "B" => &st, "C" => &sf, "F" => "cfz"},
@@ -1179,15 +1208,13 @@ impl Elaborator<'_> {
         Ok(first)
     }
 
-    /// |- ( from ... to ) = (/), for `to` below `from` (`fzn`), each an
-    /// integer and their order closed facts of numerals (`closed`).
+    /// |- ( from ... to ) = (/), for `to` below `from` (`fzn`).
     fn empty_range(&mut self, from: &BigInt, to: &BigInt) -> Checked<Proof> {
         let (sf, st) = (numerals::spell_integer(from), numerals::spell_integer(to));
-        let what = "a range is listed";
         let below = t!(&st, &sf, "clt", "wbr");
         let empty = t!(t!(&sf, &st, "cfz", "co"), "c0", "wceq");
-        let from_z = self.closed(&t!(&sf, "cz", "wcel"), what)?;
-        let to_z = self.closed(&t!(&st, "cz", "wcel"), what)?;
+        let from_z = self.integer_fact(from)?;
+        let to_z = self.integer_fact(to)?;
         let law = self.b.ap(
             "mp2an",
             &binds! {
@@ -1200,7 +1227,7 @@ impl Elaborator<'_> {
                 &self.b.ap("fzn", &binds! {"M" => &sf, "N" => &st}, &[]),
             ],
         );
-        let ordered = self.closed(&below, what)?;
+        let ordered = self.order_fact(to, from, true)?;
         Ok(self.b.ap(
             "mpbi",
             &binds! {"ph" => &below, "ps" => &empty},

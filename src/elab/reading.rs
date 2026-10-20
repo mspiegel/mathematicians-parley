@@ -121,15 +121,18 @@ impl<'a> Elaborator<'a> {
         out
     }
 
-    /// `names_kept`, giving back what each name was let into as well.
+    /// `names_kept`, giving back what each name was let into, and the sorts
+    /// of the names, as well.
     pub fn names_and_sets_kept<T>(&mut self, f: impl FnOnce(&mut Self) -> T) -> T {
         let saved = self.names.clone();
         let kept = self.sets.clone();
         let introduced = self.introduced.clone();
+        let sorts = self.sorts_now.clone();
         let out = f(self);
         self.names = saved;
         self.sets = kept;
         self.introduced = introduced;
+        self.sorts_now = sorts;
         out
     }
 

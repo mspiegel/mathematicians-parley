@@ -26,7 +26,7 @@ use indexmap::IndexMap;
 use num_bigint::{BigInt, BigUint};
 use num_traits::{One, Signed, ToPrimitive, Zero};
 
-use super::calculators::Work;
+use super::calculators::{Ordered, Revalued, Vanishing, Work};
 use super::field::{self, numeral, Monomial, Poly, Q};
 use super::numerals;
 use super::state::Elaborator;
@@ -39,6 +39,7 @@ use crate::mm::kernel::Term;
 use crate::mm::spell::Proof;
 use crate::mm::Rpn;
 use crate::outcome::{Built, Checked, Declined, Problem, Route};
+use crate::rules;
 use crate::{t, take};
 
 /// A term proved equal to the canon of its value: ( scope -> term = canon ).
@@ -54,16 +55,6 @@ struct Difference {
     left: Valued,
     right: Valued,
     gap: Valued,
-}
-
-/// An order of two closed terms, ( scope -> a R b ), with each side in ℝ,
-/// as the laws that turn an order round ask.
-struct Ordered {
-    proof: Proof,
-    /// ( scope -> a e. RR )
-    left_real: Proof,
-    /// ( scope -> b e. RR )
-    right_real: Proof,
 }
 
 /// A term between two closed numeral terms: ( scope -> low < said ) and
@@ -140,8 +131,11 @@ impl<'a> Elaborator<'a> {
             Built(Verdict::Holds(true)) => {}
             other => return Err(self.real_unshown(other, what)),
         }
-        let known = self.roots_known(&goal, scope, facts)?;
-        match self.real_proved(&goal, scope, &known)? {
+        let proved = match self.roots_known(&goal, scope, facts)? {
+            Built(known) => self.real_proved(&goal, scope, &known)?,
+            Declined(d) => Declined(d),
+        };
+        match proved {
             Built(p) => Ok(p),
             Declined(d) => Err(self.defect(
                 self.at,
@@ -177,56 +171,19 @@ impl<'a> Elaborator<'a> {
         goal: &Term,
         scope: &Rpn,
         facts: &Facts,
-    ) -> Checked<Facts> {
+    ) -> Checked<Route<Facts>> {
         let known = facts.copy();
-        for atom in atoms_under(goal) {
-            let (said, real) = match atom {
-                Atom::Pi => (
-                    t!("cpi"),
-                    self.closed_law(&t!("cpi", "cr", "wcel"), "pire", scope),
-                ),
-                Atom::E => (
-                    t!("ceu"),
-                    self.closed_law(&t!("ceu", "cr", "wcel"), "ere", scope),
-                ),
-                Atom::Ln(p) => {
-                    let prime = numerals::spell(p);
-                    let positive = self.positive(&prime, scope, facts)?;
-                    let real = self.b.ap(
-                        "relogcld",
-                        &binds! {"ph" => scope, "A" => &prime},
-                        &[&positive],
-                    );
-                    (spelt_atom(atom), real)
-                }
-            };
-            let complex =
-                self.b
-                    .ap("recnd", &binds! {"ph" => scope, "A" => &said}, &[&real]);
-            self.know(&known, t!(&said, "cr", "wcel"), real);
-            self.know(&known, t!(&said, "cc", "wcel"), complex);
+        let atoms = atoms_under(goal).into_iter().map(spelt_atom);
+        let roots = primes_under(goal).into_iter().map(root_of_prime);
+        for said in atoms.chain(roots).collect::<Vec<Rpn>>() {
+            let term = self.to_term(&said);
+            for system in ["cr", "cc"] {
+                let within =
+                    take!(self.real_within(&term, &t!(system), scope, facts)?);
+                self.know(&known, t!(&said, system, "wcel"), within);
+            }
         }
-        for p in primes_under(goal) {
-            let prime = numerals::spell(p);
-            let root = root_of_prime(p);
-            let complex = self.numeral_fact(&t!(&prime, "cc", "wcel"), scope, facts)?;
-            let in_cc = self.b.ap(
-                "sqrtcld",
-                &binds! {"ph" => scope, "A" => &prime},
-                &[&complex],
-            );
-            self.know(&known, t!(&root, "cc", "wcel"), in_cc);
-            let real = self.numeral_fact(&t!(&prime, "cr", "wcel"), scope, facts)?;
-            let above =
-                self.numeral_fact(&t!("cc0", &prime, "cle", "wbr"), scope, facts)?;
-            let in_r = self.b.ap(
-                "resqrtcld",
-                &binds! {"ph" => scope, "A" => &prime},
-                &[&real, &above],
-            );
-            self.know(&known, t!(&root, "cr", "wcel"), in_r);
-        }
-        Ok(known)
+        Ok(Built(known))
     }
 
     /// ( scope -> t e. system ) for a square root, π, e or a logarithm that
@@ -317,7 +274,7 @@ impl<'a> Elaborator<'a> {
 
     /// ( scope -> claim ) for a theorem of set.mm stating `claim` with no
     /// hypothesis, as `pire` states π ∈ ℝ.
-    fn closed_law(&self, claim: &Rpn, label: &str, scope: &Rpn) -> Proof {
+    pub(super) fn closed_law(&self, claim: &Rpn, label: &str, scope: &Rpn) -> Proof {
         self.b.ap(
             "a1i",
             &binds! {"ph" => claim, "ps" => scope},
@@ -409,8 +366,8 @@ impl<'a> Elaborator<'a> {
             &binds! {"ph" => scope, "A" => &difference, "B" => &gap.canon, "C" => "cc0"},
             &[&gap.proof, &canon_apart],
         );
-        let a_cc = take!(self.carried_cc(&sa, &left, scope, facts)?);
-        let b_cc = take!(self.carried_cc(&sb, &right, scope, facts)?);
+        let a_cc = take!(self.valued_within(&sa, &left, "cc", scope, facts)?);
+        let b_cc = take!(self.valued_within(&sb, &right, "cc", scope, facts)?);
         Ok(Built(self.b.ap(
             "subne0ad",
             &binds! {"ph" => scope, "A" => &sa, "B" => &sb},
@@ -455,20 +412,24 @@ impl<'a> Elaborator<'a> {
         }))
     }
 
-    /// ( scope -> said e. CC ) for a term proved equal to its canon, which
-    /// is a number by the roots it is built from.
-    fn carried_cc(
+    /// ( scope -> said e. system ) for a term proved equal to its canon,
+    /// which is in ℂ, or real, by the roots and atoms it is built from.
+    fn valued_within(
         &mut self,
         said: &Rpn,
         valued: &Valued,
+        system: &str,
         scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Route<Proof>> {
-        let canon_cc = take!(self.in_cc(&valued.canon, scope, facts)?);
+        let canon_in = match system {
+            "cc" => take!(self.in_cc(&valued.canon, scope, facts)?),
+            _ => self.membership(&valued.canon, system, scope, facts)?,
+        };
         Ok(Built(self.b.ap(
             "eqeltrd",
-            &binds! {"ph" => scope, "A" => said, "B" => &valued.canon, "C" => "cc"},
-            &[&valued.proof, &canon_cc],
+            &binds! {"ph" => scope, "A" => said, "B" => &valued.canon, "C" => system},
+            &[&valued.proof, &canon_in],
         )))
     }
 
@@ -491,34 +452,13 @@ impl<'a> Elaborator<'a> {
             };
             return Ok(Built(held.proof));
         }
-        let (sa, sb) = (self.rpn(a), self.rpn(b));
-        let (held, law, turned, order) = if strict {
-            let held = take!(self.real_at_most(b, a, scope, facts)?);
-            (
-                held,
-                "lenltd",
-                t!(&sb, &sa, "cle", "wbr"),
-                t!(&sa, &sb, "clt", "wbr"),
-            )
-        } else {
-            let held = take!(self.real_below(b, a, scope, facts)?);
-            (
-                held,
-                "ltnled",
-                t!(&sb, &sa, "clt", "wbr"),
-                t!(&sa, &sb, "cle", "wbr"),
-            )
+        // not a < b is b ≤ a, and not a ≤ b is b < a.
+        let held = match strict {
+            true => take!(self.real_at_most(b, a, scope, facts)?),
+            false => take!(self.real_below(b, a, scope, facts)?),
         };
-        let iff = self.b.ap(
-            law,
-            &binds! {"ph" => scope, "A" => &sb, "B" => &sa},
-            &[&held.left_real, &held.right_real],
-        );
-        Ok(Built(self.b.ap(
-            "mpbid",
-            &binds! {"ph" => scope, "ps" => &turned, "ch" => t!(&order, "wn")},
-            &[&held.proof, &iff],
-        )))
+        let (sa, sb) = (self.rpn(a), self.rpn(b));
+        Ok(Built(self.denied(scope, &sb, &sa, &held, !strict)))
     }
 
     /// ( scope -> a <_ b ): a = b where the values are equal (`eqled`), and
@@ -546,8 +486,8 @@ impl<'a> Elaborator<'a> {
         }
         let left = take!(self.valued(a, scope, facts)?);
         let right = take!(self.valued(b, scope, facts)?);
-        let left_real = take!(self.carried_real(&sa, &left, scope, facts)?);
-        let right_real = take!(self.carried_real(&sb, &right, scope, facts)?);
+        let left_real = take!(self.valued_within(&sa, &left, "cr", scope, facts)?);
+        let right_real = take!(self.valued_within(&sb, &right, "cr", scope, facts)?);
         let same = self.b.ap(
             "eqtr4d",
             &binds! {"ph" => scope, "A" => &sa, "B" => &left.canon, "C" => &sb},
@@ -586,8 +526,8 @@ impl<'a> Elaborator<'a> {
             &[&above, &gap.proof],
         );
         // The difference was taken as b − a, so its left side is b.
-        let a_real = take!(self.carried_real(&sa, &right, scope, facts)?);
-        let b_real = take!(self.carried_real(&sb, &left, scope, facts)?);
+        let a_real = take!(self.valued_within(&sa, &right, "cr", scope, facts)?);
+        let b_real = take!(self.valued_within(&sb, &left, "cr", scope, facts)?);
         let iff = self.b.ap(
             "posdifd",
             &binds! {"ph" => scope, "A" => &sa, "B" => &sb},
@@ -603,23 +543,6 @@ impl<'a> Elaborator<'a> {
             left_real: a_real,
             right_real: b_real,
         }))
-    }
-
-    /// ( scope -> said e. RR ) for a term proved equal to its canon, which
-    /// is real by the roots and atoms it is built from.
-    fn carried_real(
-        &mut self,
-        said: &Rpn,
-        valued: &Valued,
-        scope: &Rpn,
-        facts: &Facts,
-    ) -> Checked<Route<Proof>> {
-        let canon_real = self.membership(&valued.canon, "cr", scope, facts)?;
-        Ok(Built(self.b.ap(
-            "eqeltrd",
-            &binds! {"ph" => scope, "A" => said, "B" => &valued.canon, "C" => "cr"},
-            &[&valued.proof, &canon_real],
-        )))
     }
 
     /// ( scope -> 0 < canon ) for the canon of a value above 0, shown as the
@@ -743,7 +666,7 @@ impl<'a> Elaborator<'a> {
                 None => next,
                 Some(held) => {
                     debug_assert!(next.strict, "a rational part comes first");
-                    let law = if held.strict { "lt2addd" } else { "leltaddd" };
+                    let law = rules::adding(held.strict, next.strict).deduction;
                     let a = self.membership(&held.low, "cr", scope, facts)?;
                     let b = self.membership(&next.low, "cr", scope, facts)?;
                     let c = self.membership(&held.said, "cr", scope, facts)?;
@@ -772,7 +695,7 @@ impl<'a> Elaborator<'a> {
         let at_least =
             self.numeral_fact(&t!("cc0", &sum.low, "cle", "wbr"), scope, facts)?;
         Ok(Built(self.b.ap(
-            "lelttrd",
+            transitivity("cle", "clt"),
             &binds! {"ph" => scope, "A" => "cc0", "B" => &sum.low, "C" => said},
             &[&zero_real, &low_real, &said_real, &at_least, &sum.proof],
         )))
@@ -1059,7 +982,7 @@ impl<'a> Elaborator<'a> {
         let low_above =
             self.numeral_fact(&t!("cc0", low, "clt", "wbr"), scope, facts)?;
         let above = self.b.ap(
-            "lttrd",
+            transitivity("clt", "clt"),
             &binds! {"ph" => scope, "A" => "cc0", "B" => low, "C" => x},
             &[&zero_real, &low_real, &x_real, &low_above, low_below_x],
         );
@@ -1219,7 +1142,7 @@ impl<'a> Elaborator<'a> {
             held.push(self.membership(x, "cr", scope, facts)?);
         }
         let chained = self.b.ap(
-            "ltletrd",
+            transitivity("clt", "cle"),
             &binds! {"ph" => scope, "A" => &e_a, "B" => &three_a, "C" => &p_b},
             &[&held[0], &held[1], &held[2], &first, &second],
         );
@@ -1273,7 +1196,7 @@ impl<'a> Elaborator<'a> {
             held.push(self.membership(x, "cr", scope, facts)?);
         }
         let chained = self.b.ap(
-            "lelttrd",
+            transitivity("cle", "clt"),
             &binds! {"ph" => scope, "A" => &p_b, "B" => &two_a, "C" => &e_a},
             &[&held[0], &held[1], &held[2], &first, &second],
         );
@@ -1381,29 +1304,16 @@ impl<'a> Elaborator<'a> {
         );
         let valued = t!(&side.canon, &ss, "wcel");
         let said = self.rpn(inner);
-        let (said, valued, iff) = if negated {
-            let turned = self.b.ap(
-                "notbid",
-                &binds! {"ph" => scope, "ps" => &said, "ch" => &valued},
-                &[&iff],
-            );
-            (t!(&said, "wn"), t!(&valued, "wn"), turned)
-        } else {
-            (said, valued, iff)
-        };
+        let at = self.denied_if(Revalued { said, valued, iff }, negated, scope);
         let held = if atoms_in {
-            let goal = self.to_term(&valued);
+            let goal = self.to_term(&at.valued);
             let system = goal.children()[1].label().unwrap_or("").to_string();
             let canon = self.rpn(&goal.children()[0]);
             self.membership(&canon, &system, scope, facts)?
         } else {
-            self.numeral_fact(&valued, scope, facts)?
+            self.numeral_fact(&at.valued, scope, facts)?
         };
-        Ok(Built(self.b.ap(
-            "mpbird",
-            &binds! {"ph" => scope, "ps" => &said, "ch" => &valued},
-            &[&held, &iff],
-        )))
+        Ok(Built(self.carried_back(&at, &held, scope)))
     }
 
     /// ( scope -> t = canon ) for a closed term t.
@@ -2627,18 +2537,11 @@ impl<'a> Elaborator<'a> {
         };
         let first = t!(apply(Sine, &angle), &sine, "wceq");
         let second = t!(apply(Cosine, &angle), &cosine, "wceq");
-        let (half, value, claim) = match f {
-            Sine => ("simpli", sine, first.clone()),
-            Cosine => ("simpri", cosine, second.clone()),
+        let value = match f {
+            Sine => sine,
+            Cosine => cosine,
         };
-        let taken = self.b.ap(
-            half,
-            &binds! {"ph" => &first, "ps" => &second},
-            &[&self.step(label)],
-        );
-        let proof =
-            self.b
-                .ap("a1i", &binds! {"ph" => &claim, "ps" => scope}, &[&taken]);
+        let proof = self.closed_half([first, second], label, f == Cosine, scope);
         (value, proof)
     }
 
@@ -2736,7 +2639,7 @@ impl<'a> Elaborator<'a> {
         if by.is_empty() {
             return self.same_polynomial(&mut w, left, right);
         }
-        let mut pieces: Vec<(Rpn, Proof)> = Vec::new();
+        let mut pieces: Vec<Vanishing> = Vec::new();
         for m in by.values() {
             let prime = numerals::spell(m.prime);
             let squared = t!(&m.root, numeral(2), "cexp", "co");
@@ -2760,46 +2663,15 @@ impl<'a> Elaborator<'a> {
                 &[&squares, &turn],
             );
             let times = spelt_poly(&m.times);
-            let moved = self.b.ap(
-                "oveq2d",
-                &binds! {"ph" => scope, "A" => &gap, "B" => "cc0", "C" => &times, "F" => "cmul"},
-                &[&vanishes],
-            );
             let times_cc = self.membership(&times, "cc", scope, facts)?;
-            let zero = self.b.ap(
-                "mul01d",
-                &binds! {"ph" => scope, "A" => &times},
-                &[&times_cc],
+            pieces.push(
+                self.multiple_vanishing(&gap, &vanishes, &times, &times_cc, scope),
             );
-            let piece = t!(&times, &gap, "cmul", "co");
-            let proof = self.b.ap(
-                "eqtrd",
-                &binds! {"ph" => scope, "A" => &piece, "B" => t!(&times, "cc0", "cmul", "co"), "C" => "cc0"},
-                &[&moved, &zero],
-            );
-            pieces.push((piece, proof));
         }
-        let (mut total, mut sums) = pieces[0].clone();
-        let naught = t!("cc0", "cc0", "caddc", "co");
-        for (piece, proof) in &pieces[1..] {
-            let joined = t!(&total, piece, "caddc", "co");
-            let both = self.b.ap(
-                "oveq12d",
-                &binds! {"ph" => scope, "A" => &total, "B" => "cc0", "C" => piece, "D" => "cc0", "F" => "caddc"},
-                &[&sums, proof],
-            );
-            let zero = self.b.ap(
-                "a1i",
-                &binds! {"ph" => t!(&naught, "cc0", "wceq"), "ps" => scope},
-                &[&self.step("00id")],
-            );
-            sums = self.b.ap(
-                "eqtrd",
-                &binds! {"ph" => scope, "A" => &joined, "B" => &naught, "C" => "cc0"},
-                &[&both, &zero],
-            );
-            total = joined;
-        }
+        let Vanishing {
+            term: total,
+            proof: sums,
+        } = self.vanishing_sum(&pieces, scope);
         let scaled =
             (!scale.is_one()).then(|| numerals::spell(scale.magnitude().clone()));
         let (l, r) = match &scaled {
@@ -2897,25 +2769,34 @@ fn prime_under(term: &Term) -> Option<u64> {
 
 /// Every prime under a root of the term, as its value finds them.
 fn primes_under(term: &Term) -> Vec<u64> {
-    let mut out = Vec::new();
-    collect_primes(term, &mut out);
-    out.sort_unstable();
-    out.dedup();
-    out
+    gathered(term, &|t| {
+        if !surds::is_root(t) {
+            return Vec::new();
+        }
+        match surds::closed_value(t) {
+            Built(surds::Value::Exact(v)) => v.primes(),
+            _ => Vec::new(),
+        }
+    })
 }
 
-fn collect_primes(term: &Term, out: &mut Vec<u64>) {
-    if term.variable().is_some() {
-        return;
-    }
-    if surds::is_root(term) {
-        if let Built(surds::Value::Exact(v)) = surds::closed_value(term) {
-            out.extend(v.primes());
+/// What `found` finds at each closed part of a term, in order, each once.
+/// A part `found` gives nothing for is still searched within.
+fn gathered<T: Ord>(term: &Term, found: &dyn Fn(&Term) -> Vec<T>) -> Vec<T> {
+    fn walk<T>(term: &Term, found: &dyn Fn(&Term) -> Vec<T>, out: &mut Vec<T>) {
+        if term.variable().is_some() {
+            return;
+        }
+        out.extend(found(term));
+        for kid in term.children() {
+            walk(kid, found, out);
         }
     }
-    for kid in term.children() {
-        collect_primes(kid, out);
-    }
+    let mut out = Vec::new();
+    walk(term, found, &mut out);
+    out.sort();
+    out.dedup();
+    out
 }
 
 /// √p, as set.mm spells it.
@@ -2923,14 +2804,17 @@ fn root_of_prime(p: u64) -> Rpn {
     t!(numerals::spell(p), "csqrt", "cfv")
 }
 
+/// The transitivity lemma taking a < b or a ≤ b, by `first`, and b < c or
+/// b ≤ c, by `second`, to a < c or a ≤ c (`rules::ORDER_FOLDING`).
+fn transitivity(first: &str, second: &str) -> &'static str {
+    rules::order_folding(first, second)
+        .expect("every two orders fold")
+        .lemma
+}
+
 /// p₁·(p₂·…), or None for no primes.
 fn product_of_primes(primes: &[u64]) -> Option<Rpn> {
-    let (last, before) = primes.split_last()?;
-    let mut out = numerals::spell(*last);
-    for p in before.iter().rev() {
-        out = t!(numerals::spell(*p), out, "cmul", "co");
-    }
-    Some(out)
+    right_product(primes.iter().map(|p| numerals::spell(*p)).collect())
 }
 
 /// The canon of a value: a rational as `arithmetic` writes it, and any
@@ -3072,28 +2956,21 @@ fn spelt_atom(atom: Atom) -> Rpn {
 /// Every atom a value of the term or of a part of it holds, and π and e
 /// wherever the term writes them.
 fn atoms_under(term: &Term) -> Vec<Atom> {
-    let mut out = Vec::new();
-    collect_atoms(term, &mut out);
-    out.sort();
-    out.dedup();
-    out
-}
-
-fn collect_atoms(term: &Term, out: &mut Vec<Atom>) {
-    if term.variable().is_some() || !reals::holds_atom(term) {
-        return;
-    }
-    if let Built(reals::Value::Exact(v)) = reals::closed_value(term) {
-        out.extend(v.atoms());
-    }
-    match term.label() {
-        Some("cpi") => out.push(Atom::Pi),
-        Some("ceu") => out.push(Atom::E),
-        _ => {}
-    }
-    for kid in term.children() {
-        collect_atoms(kid, out);
-    }
+    gathered(term, &|t| {
+        if !reals::holds_atom(t) {
+            return Vec::new();
+        }
+        let mut out = match reals::closed_value(t) {
+            Built(reals::Value::Exact(v)) => v.atoms(),
+            _ => Vec::new(),
+        };
+        match t.label() {
+            Some("cpi") => out.push(Atom::Pi),
+            Some("ceu") => out.push(Atom::E),
+            _ => {}
+        }
+        out
+    })
 }
 
 /// A polynomial as a sum of its terms, each a rational times a product of

@@ -1180,7 +1180,6 @@ impl<'a> Elaborator<'a> {
                     let fixed = me.rpn(&me.to_term(&member).children()[0]);
                     let within = me.rpn(&me.to_term(&member).children()[1]);
                     let kept = me.member.replace(member);
-                    let kept_sorts = me.sorts_now.clone();
                     // The member is introduced in its set as its block's let
                     // would introduce it (`introduced_in`), and its letter is
                     // a name the page introduces, so an i is not read as the
@@ -1195,7 +1194,6 @@ impl<'a> Elaborator<'a> {
                         }
                         me.with_requires(how, step, node, &at, inner, lifted, lines)
                     });
-                    me.sorts_now = kept_sorts;
                     me.member = kept;
                     Ok(match made? {
                         Built(Some(p)) => Built(p),
@@ -2219,9 +2217,7 @@ impl<'a> Elaborator<'a> {
             let made = take!(
                 self.one_equivalent(lemma, step, &instance, scope, facts, lines)?
             );
-            let supplied = self.supplied(Some(step), scope, facts)?;
-            let held = self.with_cited(Some(step), scope, &supplied, None);
-            self.with_implied(Some(step), scope, &held)?;
+            let held = self.known_implied(Some(step), scope, facts)?;
             let alike = take!(self.same(
                 &self.to_term(&instance),
                 &self.to_term(term),
@@ -2246,9 +2242,7 @@ impl<'a> Elaborator<'a> {
         // The right side is what the step supplies, and not whatever the
         // scope would give; and what the lemma asks is asked of the same,
         // its requires lines included, as where a definition unfolds.
-        let supplied = self.supplied(Some(step), scope, facts)?;
-        let known = self.with_cited(Some(step), scope, &supplied, None);
-        self.with_implied(Some(step), scope, &known)?;
+        let known = self.known_implied(Some(step), scope, facts)?;
         let (says, right) = take!(self.unfolding(
             step,
             lemma,
@@ -5388,9 +5382,7 @@ impl<'a> Elaborator<'a> {
         // a hypothesis may state one claim, and the step names the line.
         // What a cited line says beyond itself is read as `apply_lemma`
         // reads it: `let j ∈ ℕ` also says j ≥ 1 (`with_implied`).
-        let supplied = self.supplied(Some(step), scope, facts)?;
-        let known = self.with_cited(Some(step), scope, &supplied, None);
-        self.with_implied(Some(step), scope, &known)?;
+        let known = self.known_implied(Some(step), scope, facts)?;
         for one in &wanted {
             // A membership the page says once is taken from where it says
             // it, and not from the scope's copy of a line the step does not

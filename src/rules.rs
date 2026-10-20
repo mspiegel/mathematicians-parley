@@ -816,13 +816,51 @@ pub const CLOSED_SETHOOD: &[(&str, &str)] = &[
     ("c3", "3ex"),
 ];
 
-// Two differences against zero added, by which of the two is strictly below
-// it: the lemma that adds them and keeps the strictness.
-pub const ADDING: &[((bool, bool), &str)] = &[
-    ((true, false), "ltleadd"),
-    ((false, true), "leltadd"),
-    ((true, true), "lt2add"),
+/// The lemma adding two orders a ≤ c and b ≤ d, or either strict, to
+/// a + b ≤ c + d, strict where either is.
+pub struct Adding {
+    pub first_strict: bool,
+    pub second_strict: bool,
+    /// The closed form, its hypotheses conjoined: `ltleadd`.
+    pub closed: &'static str,
+    /// The deduction form, each hypothesis under a scope: `ltleaddd`.
+    pub deduction: &'static str,
+}
+
+pub const ADDING: &[Adding] = &[
+    Adding {
+        first_strict: false,
+        second_strict: false,
+        closed: "le2add",
+        deduction: "le2addd",
+    },
+    Adding {
+        first_strict: true,
+        second_strict: false,
+        closed: "ltleadd",
+        deduction: "ltleaddd",
+    },
+    Adding {
+        first_strict: false,
+        second_strict: true,
+        closed: "leltadd",
+        deduction: "leltaddd",
+    },
+    Adding {
+        first_strict: true,
+        second_strict: true,
+        closed: "lt2add",
+        deduction: "lt2addd",
+    },
 ];
+
+/// The lemma adding two orders, by which of them is strict.
+pub fn adding(first_strict: bool, second_strict: bool) -> &'static Adding {
+    ADDING
+        .iter()
+        .find(|a| a.first_strict == first_strict && a.second_strict == second_strict)
+        .expect("every pair of strictnesses has a lemma")
+}
 
 // A denied `<` or `≤` said the other way round, by the relation denied:
 // that relation's label, the one that holds instead, and the lemma saying
@@ -1079,8 +1117,8 @@ pub fn every_label() -> Vec<(&'static str, &'static str)> {
     let mut put = |table: &'static str, items: &[&'static str]| {
         out.extend(items.iter().map(|s| (table, *s)));
     };
-    for (_, lemma) in ADDING {
-        put("ADDING", &[lemma]);
+    for row in ADDING {
+        put("ADDING", &[row.closed, row.deduction]);
     }
     put("ARITHMETIC", &ARITHMETIC);
     for (k, (a, b)) in BOUND {

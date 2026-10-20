@@ -891,39 +891,63 @@ fn product_up_to(
 /// (`eluz2`), m ≤ n being `leidi` where they are one and the order weakened
 /// (`ltlei`) where m is below.
 fn reaches(b: &Builder, m: &BigUint, n: &BigUint) -> Proof {
+    in_upper_integers(
+        b,
+        &spelt(m),
+        &spelt(n),
+        &integer(b, m),
+        &integer(b, n),
+        &at_most_of(b, m, n),
+    )
+}
+
+/// |- m <_ n, for m at most n: `leidi` where they are one, and the order
+/// weakened (`ltlei`) where m is below.
+pub(crate) fn at_most_of(b: &Builder, m: &BigUint, n: &BigUint) -> Proof {
     let (sm, sn) = (spelt(m), spelt(n));
-    let ordered = if m == n {
-        b.ap("leidi", &binds! {"A" => &sm}, &[&re(b, m.clone())])
-    } else {
-        let law = b.ap(
-            "ltlei",
-            &binds! {"A" => &sm, "B" => &sn},
-            &[&re(b, m.clone()), &re(b, n.clone())],
-        );
-        b.ap(
-            "ax-mp",
-            &binds! {"ph" => t!(&sm, &sn, "clt", "wbr"), "ps" => t!(&sm, &sn, "cle", "wbr")},
-            &[&below_of(b, m, n), &law],
-        )
-    };
+    if m == n {
+        return b.ap("leidi", &binds! {"A" => &sm}, &[&re(b, m.clone())]);
+    }
+    let law = b.ap(
+        "ltlei",
+        &binds! {"A" => &sm, "B" => &sn},
+        &[&re(b, m.clone()), &re(b, n.clone())],
+    );
+    b.ap(
+        "ax-mp",
+        &binds! {"ph" => t!(&sm, &sn, "clt", "wbr"), "ps" => t!(&sm, &sn, "cle", "wbr")},
+        &[&below_of(b, m, n), &law],
+    )
+}
+
+/// |- n e. ( ZZ>= ` m ) from |- m e. ZZ, |- n e. ZZ and |- m <_ n
+/// (`eluz2`).
+pub(crate) fn in_upper_integers(
+    b: &Builder,
+    sm: &Rpn,
+    sn: &Rpn,
+    m_z: &Proof,
+    n_z: &Proof,
+    ordered: &Proof,
+) -> Proof {
     b.ap(
         "mpbir3an",
         &binds! {
-            "ph" => t!(&sn, t!(&sm, "cuz", "cfv"), "wcel"),
-            "ps" => t!(&sm, "cz", "wcel"), "ch" => t!(&sn, "cz", "wcel"),
-            "th" => t!(&sm, &sn, "cle", "wbr"),
+            "ph" => t!(sn, t!(sm, "cuz", "cfv"), "wcel"),
+            "ps" => t!(sm, "cz", "wcel"), "ch" => t!(sn, "cz", "wcel"),
+            "th" => t!(sm, sn, "cle", "wbr"),
         },
         &[
-            &integer(b, m),
-            &integer(b, n),
-            &ordered,
-            &b.ap("eluz2", &binds! {"M" => &sm, "N" => &sn}, &[]),
+            m_z,
+            n_z,
+            ordered,
+            &b.ap("eluz2", &binds! {"M" => sm, "N" => sn}, &[]),
         ],
     )
 }
 
 /// |- n e. ZZ
-fn integer(b: &Builder, n: &BigUint) -> Proof {
+pub(crate) fn integer(b: &Builder, n: &BigUint) -> Proof {
     b.ap("nn0zi", &binds! {"N" => spelt(n)}, &[&nn0_of(b, n)])
 }
 

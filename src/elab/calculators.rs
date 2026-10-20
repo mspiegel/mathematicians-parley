@@ -41,11 +41,6 @@ use crate::outcome::{Built, Checked, Declined, Problem, Route};
 use crate::rules::{self, lookup};
 use crate::{pf, t, take};
 
-/// The key the member a step said of every member speaks of is cited under
-/// by `inequalities`: the membership its claim's "for all" gives, which no
-/// label names, and a label never holds a space.
-const MEMBER_LINE: &str = "the member";
-
 /// What an emitter asks of the elaborator: the scope, the facts a
 /// membership is answered from, whether it may search for a term not being
 /// zero, and what the page says of that.
@@ -372,6 +367,33 @@ struct NegatedQuotient {
     top: Rpn,
     /// e.
     below: Rpn,
+}
+
+/// An order of two terms, ( scope -> a R b ), with each side in ℝ, as the
+/// laws that turn an order round ask (`denied`).
+pub(super) struct Ordered {
+    pub(super) proof: Proof,
+    /// ( scope -> a e. RR )
+    pub(super) left_real: Proof,
+    /// ( scope -> b e. RR )
+    pub(super) right_real: Proof,
+}
+
+/// A claim of closed terms and the same claim of their values, with
+/// ( scope -> ( said <-> valued ) ), which a proof of the second carries
+/// back to the first (`carried_back`).
+pub(super) struct Revalued {
+    pub(super) said: Rpn,
+    pub(super) valued: Rpn,
+    pub(super) iff: Proof,
+}
+
+/// A term shown to be 0 (`multiple_vanishing`, `vanishing_sum`).
+#[derive(Clone)]
+pub(super) struct Vanishing {
+    pub(super) term: Rpn,
+    /// ( scope -> term = 0 ).
+    pub(super) proof: Proof,
 }
 
 /// One fact a combination uses, and its weight.
@@ -1365,6 +1387,59 @@ impl<'a> Elaborator<'a> {
         )))
     }
 
+    /// ( scope -> times · gap = 0 ) from ( scope -> gap = 0 ), `vanishes`:
+    /// a multiple of 0 is 0 (`mul01d`), `times` a complex number by
+    /// `times_cc`.
+    pub(super) fn multiple_vanishing(
+        &self,
+        gap: &Rpn,
+        vanishes: &Proof,
+        times: &Rpn,
+        times_cc: &Proof,
+        scope: &Rpn,
+    ) -> Vanishing {
+        let moved = self.b.ap(
+            "oveq2d",
+            &binds! {"ph" => scope, "A" => gap, "B" => "cc0", "C" => times, "F" => "cmul"},
+            &[vanishes],
+        );
+        let zero =
+            self.b
+                .ap("mul01d", &binds! {"ph" => scope, "A" => times}, &[times_cc]);
+        let term = t!(times, gap, "cmul", "co");
+        let proof = self.b.ap(
+            "eqtrd",
+            &binds! {"ph" => scope, "A" => &term, "B" => t!(times, "cc0", "cmul", "co"), "C" => "cc0"},
+            &[&moved, &zero],
+        );
+        Vanishing { term, proof }
+    }
+
+    /// ( scope -> t₁ + … + tₙ = 0 ), the terms added from the left, from
+    /// each of them 0: 0 + 0 is 0 (`00id`). At least one term.
+    pub(super) fn vanishing_sum(&self, terms: &[Vanishing], scope: &Rpn) -> Vanishing {
+        let naught = t!("cc0", "cc0", "caddc", "co");
+        let mut sum = terms[0].clone();
+        for one in &terms[1..] {
+            let joined = t!(&sum.term, &one.term, "caddc", "co");
+            let both = self.b.ap(
+                "oveq12d",
+                &binds! {"ph" => scope, "A" => &sum.term, "B" => "cc0", "C" => &one.term, "D" => "cc0", "F" => "caddc"},
+                &[&sum.proof, &one.proof],
+            );
+            let zero = self.closed_law(&t!(&naught, "cc0", "wceq"), "00id", scope);
+            sum = Vanishing {
+                proof: self.b.ap(
+                    "eqtrd",
+                    &binds! {"ph" => scope, "A" => &joined, "B" => &naught, "C" => "cc0"},
+                    &[&both, &zero],
+                ),
+                term: joined,
+            };
+        }
+        sum
+    }
+
     /// A claim the cited equations add up to: each cited equation is a
     /// difference that is zero, multiplied by what the combination says and
     /// still zero; the sum of them is zero, and that sum is the claim's own
@@ -1476,7 +1551,7 @@ impl<'a> Elaborator<'a> {
         let Some(common) = common.to_i64() else {
             return Ok(Route::no("a common denominator past what a numeral writes"));
         };
-        let mut pieces: Vec<(Rpn, Proof)> = Vec::new();
+        let mut pieces: Vec<Vanishing> = Vec::new();
         for (taken, by) in how.iter().zip(&multipliers) {
             let (r, node) = where_[taken.which].clone();
             let (a, b) = (self.rpn(&node.children()[0]), self.rpn(&node.children()[1]));
@@ -1515,49 +1590,18 @@ impl<'a> Elaborator<'a> {
                 &binds! {"ph" => scope, "ps" => t!(gap, "cc0", "wceq"), "ch" => t!(a, b, "wceq")},
                 &[&cited, &turn],
             );
-            let piece = t!(times, gap, "cmul", "co");
-            let moved = self.b.ap(
-                "oveq2d",
-                &binds! {"ph" => scope, "A" => &gap, "B" => "cc0", "C" => &times, "F" => "cmul"},
-                &[&vanishes],
-            );
             let atom = self.membership(
                 &times,
                 "cc",
                 &w.spec.scope.clone(),
                 &w.spec.facts.clone(),
             )?;
-            let zero =
-                self.b
-                    .ap("mul01d", &binds! {"ph" => scope, "A" => &times}, &[&atom]);
-            let proof = self.b.ap(
-                "eqtrd",
-                &binds! {"ph" => scope, "A" => &piece, "B" => t!(times, "cc0", "cmul", "co"), "C" => "cc0"},
-                &[&moved, &zero],
-            );
-            pieces.push((piece, proof));
+            pieces.push(self.multiple_vanishing(&gap, &vanishes, &times, &atom, scope));
         }
-        let (mut total, mut sums) = pieces[0].clone();
-        let naught = t!("cc0", "cc0", "caddc", "co");
-        for (piece, proof) in &pieces[1..] {
-            let joined = t!(total, piece, "caddc", "co");
-            let both = self.b.ap(
-                "oveq12d",
-                &binds! {"ph" => scope, "A" => &total, "B" => "cc0", "C" => piece, "D" => "cc0", "F" => "caddc"},
-                &[&sums, proof],
-            );
-            let zero = self.b.ap(
-                "a1i",
-                &binds! {"ph" => t!(naught, "cc0", "wceq"), "ps" => scope},
-                &[&self.step("00id")],
-            );
-            sums = self.b.ap(
-                "eqtrd",
-                &binds! {"ph" => scope, "A" => &joined, "B" => &naught, "C" => "cc0"},
-                &[&both, &zero],
-            );
-            total = joined;
-        }
+        let Vanishing {
+            term: total,
+            proof: sums,
+        } = self.vanishing_sum(&pieces, scope);
         // What the claim's sides are multiplied by: the common denominator of
         // the weights, then each divisor the claim writes.
         let mut spelt: Vec<Rpn> = factors.iter().map(|f| self.rpn(f.term())).collect();
@@ -1987,27 +2031,56 @@ impl<'a> Elaborator<'a> {
         if valued == said {
             return Ok(Route::no("its sides are their values already"));
         }
-        let (said, valued, iff) = if negated {
-            let turned = self.b.ap(
-                "notbid",
-                &binds! {"ph" => scope, "ps" => &said, "ch" => &valued},
-                &[&iff],
-            );
-            (t!(&said, "wn"), t!(&valued, "wn"), turned)
-        } else {
-            (said, valued, iff)
-        };
-        let held = match self.prove_numeral(&valued, scope, facts)? {
+        let at = self.denied_if(Revalued { said, valued, iff }, negated, scope);
+        let held = match self.prove_numeral(&at.valued, scope, facts)? {
             Built(p) => p,
             Declined(_) => {
-                take!(self.prove_field(None, &valued, scope, facts, &Lines::new())?)
+                take!(self.prove_field(
+                    None,
+                    &at.valued,
+                    scope,
+                    facts,
+                    &Lines::new()
+                )?)
             }
         };
-        Ok(Built(self.b.ap(
+        Ok(Built(self.carried_back(&at, &held, scope)))
+    }
+
+    /// The same of the two claims' denials, where `negated` (`notbid`).
+    pub(super) fn denied_if(
+        &self,
+        at: Revalued,
+        negated: bool,
+        scope: &Rpn,
+    ) -> Revalued {
+        if !negated {
+            return at;
+        }
+        let iff = self.b.ap(
+            "notbid",
+            &binds! {"ph" => scope, "ps" => &at.said, "ch" => &at.valued},
+            &[&at.iff],
+        );
+        Revalued {
+            said: t!(&at.said, "wn"),
+            valued: t!(&at.valued, "wn"),
+            iff,
+        }
+    }
+
+    /// ( scope -> said ) from ( scope -> valued ), `held` (`mpbird`).
+    pub(super) fn carried_back(
+        &self,
+        at: &Revalued,
+        held: &Proof,
+        scope: &Rpn,
+    ) -> Proof {
+        self.b.ap(
             "mpbird",
-            &binds! {"ph" => scope, "ps" => &said, "ch" => &valued},
-            &[&held, &iff],
-        )))
+            &binds! {"ph" => scope, "ps" => &at.said, "ch" => &at.valued},
+            &[held, &at.iff],
+        )
     }
 
     /// ( scope -> -. x e. S ) for a closed x whose value v is no whole
@@ -2437,7 +2510,8 @@ impl<'a> Elaborator<'a> {
                 // the law that says so (`ltnled`, `lenltd`).
                 "<=" if b < a => {
                     let below = self.numeral_below(scope, &b, &a);
-                    Built(self.denied(scope, nb, na, below, "clt", "cle", "ltnled"))
+                    let below = self.numerals_ordered(scope, nb, na, below);
+                    Built(self.denied(scope, nb, na, &below, true))
                 }
                 "<" if b <= a => {
                     let held = take!(self.prove_numeral(
@@ -2445,7 +2519,8 @@ impl<'a> Elaborator<'a> {
                         scope,
                         facts
                     )?);
-                    Built(self.denied(scope, nb, na, held, "cle", "clt", "lenltd"))
+                    let held = self.numerals_ordered(scope, nb, na, held);
+                    Built(self.denied(scope, nb, na, &held, false))
                 }
                 _ => Route::no("a denial of what holds"),
             });
@@ -3294,32 +3369,44 @@ impl<'a> Elaborator<'a> {
         )))
     }
 
-    /// ( scope -> -. y R' x ) from ( scope -> x R y ), for numerals x and y,
-    /// by `law`, which says ( x R y <-> -. y R' x ) of two reals.
-    #[allow(clippy::too_many_arguments)]
-    fn denied(
+    /// ( scope -> -. y <_ x ) from ( scope -> x < y ), where `strict`, and
+    /// ( scope -> -. y < x ) from ( scope -> x <_ y ) otherwise: an order
+    /// turned round is the denial of the other (`ltnled`, `lenltd`).
+    pub(super) fn denied(
         &self,
         scope: &Rpn,
         x: &Rpn,
         y: &Rpn,
-        held: Proof,
-        relation: &str,
-        other: &str,
-        law: &str,
+        held: &Ordered,
+        strict: bool,
     ) -> Proof {
-        let real = |n: &Rpn| {
-            let value =
-                linear::numeral(&self.to_term(n), &self.b.flabel).unwrap_or_default();
-            self.real_numeral(scope, &value)
+        let (relation, other, law) = if strict {
+            ("clt", "cle", "ltnled")
+        } else {
+            ("cle", "clt", "lenltd")
         };
         let said = t!(x, y, relation, "wbr");
         let denial = t!(t!(y, x, other, "wbr"), "wn");
         let turned = self.b.ap(
             law,
             &binds! {"ph" => scope, "A" => x, "B" => y},
-            &[&real(x), &real(y)],
+            &[&held.left_real, &held.right_real],
         );
-        pf!(self.b; scope, said, denial, held, turned, "mpbid")
+        pf!(self.b; scope, said, denial, held.proof.clone(), turned, "mpbid")
+    }
+
+    /// An order of two numerals, with each side real (`real_numeral`).
+    fn numerals_ordered(&self, scope: &Rpn, x: &Rpn, y: &Rpn, proof: Proof) -> Ordered {
+        let real = |n: &Rpn| {
+            let value =
+                linear::numeral(&self.to_term(n), &self.b.flabel).unwrap_or_default();
+            self.real_numeral(scope, &value)
+        };
+        Ordered {
+            proof,
+            left_real: real(x),
+            right_real: real(y),
+        }
     }
 
     /// ( scope -> n e. RR ) for a whole multiplier.
@@ -3411,7 +3498,9 @@ impl<'a> Elaborator<'a> {
         let (term_out, lines_out) = (&out.term, &out.lines.copy());
         // A step said of every member has the membership its claim's "for
         // all" gives the member as a cited line (`SYNTAX.md`), with what it
-        // implies, `i ≥ 1` of i ∈ ℕ, as the checker reads it.
+        // implies, `i ≥ 1` of i ∈ ℕ, as the checker reads it. The step's own
+        // claim says it, so it is cited under the step's number, which names
+        // no line while the step is proved.
         let mut refs = step.just.refs.clone();
         if let Some(member) = self.member.clone() {
             if let Some(proof) = self.held(facts, &member, scope)? {
@@ -3420,8 +3509,9 @@ impl<'a> Elaborator<'a> {
                     proof,
                     sentences: Vec::new(),
                 };
-                lines_out.set(MEMBER_LINE.to_string(), line);
-                refs.push(MEMBER_LINE.to_string());
+                let own = fmt(&step.number);
+                lines_out.set(own.clone(), line);
+                refs.push(own);
             }
         }
         // A cited line says each of its parts, a membership among them, as
@@ -4589,16 +4679,8 @@ impl<'a> Elaborator<'a> {
         // claim's difference is zero as a polynomial, and zero is at most
         // zero.
         if terms.is_empty() && how == "<=" {
-            let below = self.b.ap(
-                "a1i",
-                &binds! {"ph" => t!("cc0", "cc0", "cle", "wbr"), "ps" => scope},
-                &[&self.step("0le0")],
-            );
-            let real = self.b.ap(
-                "a1i",
-                &binds! {"ph" => t!("cc0", "cr", "wcel"), "ps" => scope},
-                &[&self.step("0re")],
-            );
+            let below = self.closed_law(&t!("cc0", "cc0", "cle", "wbr"), "0le0", scope);
+            let real = self.closed_law(&t!("cc0", "cr", "wcel"), "0re", scope);
             terms.push(Against {
                 term: t!("cc0"),
                 strict: false,
@@ -4649,11 +4731,7 @@ impl<'a> Elaborator<'a> {
             &[&alike, &below],
         );
         if strict && how == "<=" {
-            let zero = self.b.ap(
-                "a1i",
-                &binds! {"ph" => t!("cc0", "cr", "wcel"), "ps" => scope},
-                &[&self.step("0re")],
-            );
+            let zero = self.closed_law(&t!("cc0", "cr", "wcel"), "0re", scope);
             reached = self.b.ap(
                 "ltled",
                 &binds! {"ph" => scope, "A" => &times_span, "B" => "cc0"},
@@ -4817,11 +4895,7 @@ impl<'a> Elaborator<'a> {
             &binds! {"ph" => &scope, "ps" => t!(numeral, "cr", "wcel"), "ch" => t!("cc0", numeral, "clt", "wbr")},
             &[&rn, &pos],
         );
-        let zero = self.b.ap(
-            "a1i",
-            &binds! {"ph" => t!("cc0", "cr", "wcel"), "ps" => &scope},
-            &[&self.step("0re")],
-        );
+        let zero = self.closed_law(&t!("cc0", "cr", "wcel"), "0re", &scope);
         let law = self.b.ap(
             lemma,
             &binds! {"A" => gap, "B" => "cc0", "C" => numeral},
@@ -4893,11 +4967,7 @@ impl<'a> Elaborator<'a> {
             &binds! {"ph" => &scope, "A" => &scaled, "B" => "cc0", "C" => &at_zero, "R" => rel},
             &[reached, &zeroed],
         );
-        let zero = self.b.ap(
-            "a1i",
-            &binds! {"ph" => t!("cc0", "cr", "wcel"), "ps" => &scope},
-            &[&self.step("0re")],
-        );
+        let zero = self.closed_law(&t!("cc0", "cr", "wcel"), "0re", &scope);
         let law = self.b.ap(
             lemma,
             &binds! {"A" => span, "B" => "cc0", "C" => numeral},
@@ -4965,19 +5035,11 @@ impl<'a> Elaborator<'a> {
         let (b, sb, pb, rb) = (&other.term, &other.strict, &other.below, &other.real);
         let rel_a = if *sa { "clt" } else { "cle" };
         let rel_b = if *sb { "clt" } else { "cle" };
-        let lemma = rules::ADDING
-            .iter()
-            .find(|(k, _)| *k == (*sa, *sb))
-            .map(|(_, l)| *l)
-            .unwrap_or("le2add");
+        let lemma = rules::adding(*sa, *sb).closed;
         let rel = if *sa || *sb { "clt" } else { "cle" };
         let total = t!(a, b, "caddc", "co");
         let sum_zero = t!("cc0", "cc0", "caddc", "co");
-        let zero = self.b.ap(
-            "a1i",
-            &binds! {"ph" => t!("cc0", "cr", "wcel"), "ps" => scope},
-            &[&self.step("0re")],
-        );
+        let zero = self.closed_law(&t!("cc0", "cr", "wcel"), "0re", scope);
         let each = t!(t!(a, "cc0", rel_a, "wbr"), t!(b, "cc0", rel_b, "wbr"), "wa");
         let reals = t!(t!(a, "cr", "wcel"), t!(b, "cr", "wcel"), "wa");
         let zeros = t!(t!("cc0", "cr", "wcel"), t!("cc0", "cr", "wcel"), "wa");
@@ -5016,11 +5078,7 @@ impl<'a> Elaborator<'a> {
             &binds! {"ph" => scope, "ps" => &each, "ch" => t!(total, sum_zero, rel, "wbr")},
             &[&both, &lifted],
         );
-        let naught = self.b.ap(
-            "a1i",
-            &binds! {"ph" => t!(sum_zero, "cc0", "wceq"), "ps" => scope},
-            &[&self.step("00id")],
-        );
+        let naught = self.closed_law(&t!(sum_zero, "cc0", "wceq"), "00id", scope);
         let below = self.b.ap(
             "breqtrd",
             &binds! {"ph" => scope, "A" => &total, "B" => &sum_zero, "C" => "cc0", "R" => rel},
@@ -5504,11 +5562,7 @@ impl<'a> Elaborator<'a> {
         if !times.is_positive() {
             return Ok(Route::no("a bound may only be scaled upward"));
         }
-        let zero = self.b.ap(
-            "a1i",
-            &binds! {"ph" => t!("cc0", "cr", "wcel"), "ps" => &scope},
-            &[&self.step("0re")],
-        );
+        let zero = self.closed_law(&t!("cc0", "cr", "wcel"), "0re", &scope);
         let rn = self.real_numeral(&scope, times);
         let pos = self.b.ap(
             "a1i",
