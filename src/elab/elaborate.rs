@@ -47,6 +47,7 @@ use crate::formula::page::{related, Written};
 use crate::formula::symbol::Symbol;
 use crate::formula::{Grammar, Node, Sorts};
 use crate::matching::{Binding as NodeBinding, Defined};
+use crate::methods::{reals, surds};
 use crate::mm::compress::{compressed, labels as compress_labels, shapes_of};
 use crate::mm::kernel::{Syntax, Term};
 use crate::mm::library::thousands;
@@ -672,9 +673,10 @@ impl<'a> Elaborator<'a> {
             // two of them, as its last pair.
             self.contradicted_at(&step, &facts);
             // A step that says its claim is impossible is its own opposite:
-            // `arithmetic` works the claim out, refuses one it does not find
-            // false, and proves its denial, which stands as the line it
-            // contradicts.
+            // the claim is worked out, by `real arithmetic` where it holds a
+            // square root, π, e, a logarithm or an exponential and by
+            // `arithmetic` otherwise; one not found false is refused, and the
+            // denial is proved, which stands as the line it contradicts.
             let denied = if step.impossible {
                 let last = self.last.clone().expect("a step's number");
                 let held = self.lines.get(&last).expect("the step's line");
@@ -684,18 +686,41 @@ impl<'a> Elaborator<'a> {
                     fmt(&step.number),
                     step.claim_text()
                 );
-                let why = match field::decide_closed(&self.to_term(&negated)) {
-                    Built(Verdict::Holds(true)) => None,
-                    Built(Verdict::Holds(false)) => Some("which is true".to_string()),
-                    Built(Verdict::Unworked(why)) => Some(format!("which {why}")),
-                    Declined(_) => {
-                        Some("which is not a fact about numerals alone that arithmetic decides".into())
+                let goal = self.to_term(&negated);
+                let real = reals::beyond_arithmetic(&goal);
+                let why = if real {
+                    match reals::decide_closed(&goal) {
+                        Built(surds::Verdict::Holds(true)) => None,
+                        Built(surds::Verdict::Holds(false)) => {
+                            Some("which is true".to_string())
+                        }
+                        Built(surds::Verdict::Unworked(why)) => {
+                            Some(format!("which {why}"))
+                        }
+                        Built(surds::Verdict::Undecided(why)) => {
+                            Some(format!("which {why}{}", reals::NOT_DECIDED_HERE))
+                        }
+                        Declined(_) => Some(format!("which {}", reals::UNREAD)),
+                    }
+                } else {
+                    match field::decide_closed(&goal) {
+                        Built(Verdict::Holds(true)) => None,
+                        Built(Verdict::Holds(false)) => Some("which is true".to_string()),
+                        Built(Verdict::Unworked(why)) => Some(format!("which {why}")),
+                        Declined(_) => Some(
+                            "which is not a fact about numerals alone that arithmetic decides"
+                                .into(),
+                        ),
                     }
                 };
                 if let Some(why) = why {
                     return Err(self.defect(step.line, format!("{what}, {why}")));
                 }
-                let proof = self.closed_fact(&negated, &scope, &facts, &what, None)?;
+                let proof = if real {
+                    self.real_fact(&negated, &scope, &facts, &what)?
+                } else {
+                    self.closed_fact(&negated, &scope, &facts, &what, None)?
+                };
                 self.know(&facts, negated.clone(), proof.clone());
                 if self.in_contradiction {
                     self.contradicted = Some(Contradicted {

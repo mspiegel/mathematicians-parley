@@ -750,7 +750,8 @@ refuses `algebra` or `inequalities` for one, in a step or a requires line.
 A step marked impossible is the exception: `5 = 0, which is impossible`,
 the last line of a contradiction, states a false fact that its method
 reaches from the lines it cites, `algebra, from H2, S`, and arithmetic,
-which finds it false, could not give it.
+which finds it false, could not give it. The same holds of `real
+arithmetic` and a line like `√2 = 1, which is impossible`.
 
 A claim with no letter that arithmetic cannot work out is not arithmetic's.
 `√2·√2 = 2` takes a square root, which is `real arithmetic`'s (below).
@@ -1645,8 +1646,8 @@ plays no part in that; it is refused.
 
 The block's supposition, which asserts nothing outside the block, and the
 block's last step, which reaches the opposite of an earlier line and names it,
-`contradicting 3.6`, or reaches a fact of numerals alone that cannot hold and
-says so, `2 ≤ 1, which is impossible`. The second is how a reader ends the
+`contradicting 3.6`, or reaches a closed fact that cannot hold and says
+so, `2 ≤ 1, which is impossible`, or `√2 = 1, which is impossible`. The second is how a reader ends the
 argument "so 10 divides 1, which is impossible": nothing earlier says 2 > 1,
 and writing a step to say it only so that the last step had a line to
 contradict is not a proof anyone writes.
@@ -1672,11 +1673,13 @@ reading is never in doubt. A folded negation counts as a negation: the
 Then check that the last step closes: its claim and the line it names, or one
 sentence of that line, are a formula and that formula negated, by the same
 comparison. A last step that says it is impossible names no line: its claim
-is worked out by `arithmetic`, and its denial, which `arithmetic` proves,
-stands in for the line. The claim must name nothing, as `arithmetic`'s must,
-and `arithmetic` must decide it false; one it finds true, cannot work out,
-or does not decide (10 divides 1, a relation it does not have) is refused,
-and the step names a line it contradicts instead. A case that cannot occur
+is worked out, by `real arithmetic` where it holds a square root, π, e, a
+logarithm or an exponential and by `arithmetic` otherwise, and its denial,
+which that method proves, stands in for the line. The claim must name
+nothing but a library function, ln in ln 2, as those methods' claims must,
+and the method must decide it false; one it finds true, cannot work out,
+or does not decide (10 divides 1, a relation `arithmetic` does not have)
+is refused, and the step names a line it contradicts instead. A case that cannot occur
 may end the same way.
 
 ### Refusals

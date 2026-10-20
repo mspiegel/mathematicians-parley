@@ -1062,7 +1062,14 @@ fn check_passes(
     formulas::check_contradiction(report, thm, env, k);
     formulas::check_contradicting(report, thm, env, k);
     formulas::check_impossible(report, thm, k, &library.targets);
-    formulas::check_decided_words(report, thm, k, c.defined, c.operations);
+    formulas::check_decided_words(
+        report,
+        thm,
+        k,
+        c.defined,
+        c.operations,
+        &library.targets,
+    );
     formulas::check_real_decided_words(
         report,
         thm,
@@ -1070,6 +1077,7 @@ fn check_passes(
         c.defined,
         c.real_operations,
         c.real_functions,
+        &library.targets,
     );
     formulas::check_chain_congruences(report, thm);
     formulas::check_congruence_integers(report, thm, k, &library.targets);

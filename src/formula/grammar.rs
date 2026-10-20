@@ -468,7 +468,7 @@ fn read(
         // told where that is said.
         if let Some(word) = word_at(text, tokens[p.i].at) {
             let hint = match word.as_str() {
-                "contradicting" | "which" => "; a step reaching the opposite of an earlier line names it after its reasons on its method line, as `inequalities, from 3.1, contradicting 3.4`, and `, which is impossible` follows only a claim of numerals alone",
+                "contradicting" | "which" => "; a step reaching the opposite of an earlier line names it after its reasons on its method line, as `inequalities, from 3.1, contradicting 3.4`, and `, which is impossible` follows only a closed claim",
                 _ => "",
             };
             return Err(Stop::Defect(Problem::new(

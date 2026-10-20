@@ -440,6 +440,7 @@ pub fn check_decided_words(
     known: &Known,
     words: &IndexMap<Spelling, DefinedWord>,
     operations: &IndexMap<NotationId, bool>,
+    targets: &Targets,
 ) {
     for step in &thm.steps {
         if step.just.head.is(Method::Inspection) {
@@ -474,7 +475,11 @@ pub fn check_decided_words(
             }
         }
         let mut asked: Vec<(usize, &Written)> = Vec::new();
-        if step.just.head.is(Method::Arithmetic) || step.impossible {
+        // A claim said to be impossible is `arithmetic`'s where it holds
+        // nothing `real arithmetic` works out beyond it.
+        let impossible =
+            step.impossible && !beyond_arithmetic(&step.claim, known, targets);
+        if step.just.head.is(Method::Arithmetic) || impossible {
             asked.push((step.line, &step.claim));
         }
         for r in &step.requires {
@@ -564,10 +569,15 @@ pub fn check_real_decided_words(
     words: &IndexMap<Spelling, DefinedWord>,
     operations: &IndexMap<NotationId, bool>,
     functions: &IndexMap<String, bool>,
+    targets: &Targets,
 ) {
     for step in &thm.steps {
         let mut asked: Vec<(usize, &Written)> = Vec::new();
-        if step.just.head.is(Method::RealArithmetic) {
+        // A claim said to be impossible is `real arithmetic`'s where it
+        // holds what it works out beyond `arithmetic`.
+        let impossible =
+            step.impossible && beyond_arithmetic(&step.claim, known, targets);
+        if step.just.head.is(Method::RealArithmetic) || impossible {
             asked.push((step.line, &step.claim));
         }
         for r in &step.requires {
@@ -1049,10 +1059,11 @@ pub fn check_impossible(
             );
         }
         if let Some(node) = known.whole(step, &step.claim) {
+            // A library function's name, ln in ln(2), is no letter.
             let named: Vec<String> = node
                 .walk()
                 .iter()
-                .filter(|n| n.is_name())
+                .filter(|n| n.is_name() && !library_named(&n.text, known))
                 .map(|n| n.text.to_string())
                 .collect();
             if !named.is_empty() {
@@ -1060,18 +1071,28 @@ pub fn check_impossible(
                     &thm.path,
                     step.line,
                     format!(
-                        "step {} says it is impossible and names {}: only a claim of numerals alone is shown false by working it out, and one naming anything contradicts a line",
+                        "step {} says it is impossible and names {}: only a closed claim is shown false by working it out, and one naming anything contradicts a line",
                         step.number,
                         named.join(", ")
                     ),
                 );
             } else {
-                // A claim of numerals alone said to be impossible is one that
-                // works out false, as `arithmetic` works one out.
-                let why = match arithmetic_worked(&step.claim, known, targets) {
-                    Worked::Fails(_) => None,
-                    Worked::Holds => Some("it holds"),
-                    Worked::Undecided => Some("arithmetic does not work it out"),
+                // A closed claim said to be impossible is one that works out
+                // false: by `real arithmetic` where it holds a square root,
+                // π, e, a logarithm or an exponential, and by `arithmetic`
+                // otherwise.
+                let why = if beyond_arithmetic(&step.claim, known, targets) {
+                    match real_worked(&step.claim, known, targets) {
+                        RealWorked::Fails(_) => None,
+                        RealWorked::Holds => Some("it holds"),
+                        _ => Some("real arithmetic does not work it out"),
+                    }
+                } else {
+                    match arithmetic_worked(&step.claim, known, targets) {
+                        Worked::Fails(_) => None,
+                        Worked::Holds => Some("it holds"),
+                        Worked::Undecided => Some("arithmetic does not work it out"),
+                    }
                 };
                 if let Some(why) = why {
                     report.say(
@@ -4277,6 +4298,32 @@ fn library_named(name: &str, known: &Known) -> bool {
     known.sorts.imported.contains(name) && !introduced(known.thm).contains(name)
 }
 
+/// Each sentence of a fact as `real arithmetic` reads it (`real_term`);
+/// None where one does not read.
+fn real_terms(
+    written: &Written,
+    known: &Known,
+    targets: &Targets,
+) -> Option<Vec<Term>> {
+    written
+        .sentences()
+        .iter()
+        .map(|s| {
+            known
+                .read_as_written(s)
+                .map(|n| real_term(&n, known, targets))
+        })
+        .collect()
+}
+
+/// Whether a fact holds a square root, π, e, a logarithm or an
+/// exponential, which `real arithmetic` works out and `arithmetic` does not
+/// (`reals::beyond_arithmetic`).
+fn beyond_arithmetic(written: &Written, known: &Known, targets: &Targets) -> bool {
+    real_terms(written, known, targets)
+        .is_some_and(|terms| terms.iter().any(reals::beyond_arithmetic))
+}
+
 /// `real_worked` of sentences already read.
 fn real_worked_of(nodes: &[Node], known: &Known, targets: &Targets) -> RealWorked {
     use crate::methods::surds::Verdict as Surd;
@@ -4399,16 +4446,7 @@ pub fn check_closed_by_real_arithmetic(
 ) {
     use crate::methods::surds::Verdict as Surd;
     let decided = |written: &Written| {
-        let terms: Option<Vec<Term>> = written
-            .sentences()
-            .iter()
-            .map(|s| {
-                known
-                    .read_as_written(s)
-                    .map(|n| real_term(&n, known, targets))
-            })
-            .collect();
-        terms.is_some_and(|terms| {
+        real_terms(written, known, targets).is_some_and(|terms| {
             terms.iter().any(reals::beyond_arithmetic)
                 && !terms.iter().any(reals::is_order)
                 && terms

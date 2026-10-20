@@ -1210,6 +1210,17 @@ fn cases() -> Vec<Case> {
             )],
             "step 2.4 says 1 ≤ 10 is impossible, and it holds",
         ),
+        // A claim holding a square root said to be impossible is worked out
+        // by `real arithmetic`, which finds this one true.
+        case(
+            "say a true claim with a root is impossible",
+            vec![edit(
+                "tests/elaborator/an-impossible-line-by-algebra.proof",
+                Some("    1.1.  √2 = 1, which is impossible\n".to_string()),
+                "    1.1.  (√2)² = 2, which is impossible\n".to_string(),
+            )],
+            "step 1.1 says (√2)² = 2 is impossible, and it holds",
+        ),
         // A claim of `algebra` that is not an identity, and one asking a
         // power past what algebra may multiply out: the checker decides
         // algebra (`check_algebra_holds`).
