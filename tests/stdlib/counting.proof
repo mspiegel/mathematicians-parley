@@ -7,6 +7,9 @@ import theorem            stdlib/counting/count-one-to-one
 import mundane theorem    stdlib/counting/union-finite as counting-union-finite
 import mundane theorem    stdlib/counting/factorial-nonzero as counting-factorial-nonzero
 import theorem            stdlib/counting/absorption as counting-absorption
+import mundane theorem    stdlib/counting/binomial-one as counting-binomial-one
+import mundane theorem    stdlib/counting/binomial-all as counting-binomial-all
+import mundane theorem    stdlib/counting/binomial-two as counting-binomial-two
 
 theorem absorption
   let n ∈ ℕ₀                                                          (H1)
@@ -15,6 +18,27 @@ theorem absorption
 
 1.  C(n + 1, k + 1) = C(n, k)·((n + 1)/(k + 1))
     thm:counting-absorption, from H2
+
+theorem binomial-one
+  let m ∈ ℕ₀                                                          (H1)
+  then C(m + 1, 1) = m + 1
+
+1.  C(m + 1, 1) = m + 1
+    mun:counting-binomial-one n := m + 1
+
+theorem binomial-all
+  let m ∈ ℕ₀                                                          (H1)
+  then C(m, m) = 1
+
+1.  C(m, m) = 1
+    mun:counting-binomial-all n := m
+
+theorem binomial-two
+  let m ∈ ℕ₀                                                          (H1)
+  then C(m, 2) = m·(m − 1)/2
+
+1.  C(m, 2) = m·(m − 1)/2
+    mun:counting-binomial-two n := m
 
 theorem factorial-nonzero
   let n ∈ ℕ₀                                                          (H1)

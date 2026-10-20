@@ -123,6 +123,17 @@ theorem convergent-bounded
               terms are near the limit, and before that there are finitely
               many of them.
 
+theorem convergent-abs-bounded
+  let x : ℕ → ℝ                                                       (H1)
+  let L ∈ ℝ                                                           (H2)
+  assume x(n) → L as n → ∞                                            (H3)
+  then        there exists B ∈ ℝ such that for all m ∈ ℕ, |x(m)| ≤ B
+  metamath    climbdd, which this corpus takes in
+              elaboration/stdlib/proved.mm
+  target      gclimbddabs with A := L
+  note        convergent-bounded on both sides: no term is further than B
+              from 0.
+
 mundane definition upper-bound
   then        u is an upper bound of S ↔ for all s ∈ S, s ≤ u
   metamath    ub as in df-sup

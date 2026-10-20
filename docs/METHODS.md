@@ -266,8 +266,10 @@ hypothesis, and one that discharges nothing is a line doing no work.
 
 The memberships a step still writes are those the page does not say once:
 the absolute value of a real number (`mun:stdlib/numbers/abs-real`), a power to
-a letter that is not in ℕ or ℕ₀, 2^k with k ∈ ℤ (`mun:stdlib/numbers/power-real`
-takes ℕ₀; a power to a letter in ℕ or ℕ₀ is said once, `SYNTAX.md`), a
+a letter that is not in ℕ or ℕ₀, 2^k with k ∈ ℤ
+(`mun:stdlib/numbers/power-real-integer`, from a base other than 0;
+`mun:stdlib/numbers/power-real` takes ℕ₀, and a power to a letter in ℕ or
+ℕ₀ is said once, `SYNTAX.md`), a
 function's value from its type, a finite sum from its terms. Every natural bridge is direct rather than through
 ℤ, for a reason the rule forces: a requires line carries one citation, so a
 two-step chain would make every natural atom need a numbered step of its own.

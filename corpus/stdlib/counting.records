@@ -147,6 +147,30 @@ mundane theorem binomial-zero-index
   metamath    bcn0
   target      bcn0
 
+mundane theorem binomial-one
+  let n ∈ ℕ₀                                                          (H1)
+  then        C(n, 1) = n
+  metamath    bcn1
+  target      bcn1
+  note        `proofs/setmm/binomial-basics.proof` proves it as its own
+              exercise, choose-one (DATABASE.md).
+
+mundane theorem binomial-all
+  let n ∈ ℕ₀                                                          (H1)
+  then        C(n, n) = 1
+  metamath    bcnn
+  target      bcnn
+  note        `proofs/setmm/binomial-basics.proof` proves it as its own
+              exercise, choose-all (DATABASE.md).
+
+mundane theorem binomial-two
+  let n ∈ ℕ₀                                                          (H1)
+  then        C(n, 2) = n·(n − 1)/2
+  metamath    bcn2
+  target      bcn2
+  note        `proofs/setmm/binomial-basics.proof` proves it as its own
+              exercise, choose-two (DATABASE.md).
+
 mundane theorem binomial-outside
   let n ∈ ℕ₀                                                          (H1)
   let k ∈ ℤ                                                           (H2)

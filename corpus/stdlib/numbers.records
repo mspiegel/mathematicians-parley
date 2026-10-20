@@ -213,6 +213,45 @@ mundane theorem exponent-negative
   metamath    expnegz
   target      expnegz
 
+mundane theorem power-of-power
+  let a ∈ ℂ                                                           (H1)
+  let m ∈ ℕ₀                                                          (H2)
+  let n ∈ ℕ₀                                                          (H3)
+  then        a^(m·n) = (a^m)^n
+  metamath    expmul
+  target      expmul
+
+mundane theorem power-of-power-integer
+  let a ∈ ℂ                                                           (H1)
+  assume a ≠ 0                                                        (H2)
+  let m ∈ ℤ                                                           (H3)
+  let n ∈ ℤ                                                           (H4)
+  then        a^(m·n) = (a^m)^n
+  metamath    expmulz
+  target      expmulz
+  note        power-of-power over the integers, where a power to a negative
+              exponent asks a base other than 0.
+
+mundane theorem power-of-product
+  let a ∈ ℂ                                                           (H1)
+  let b ∈ ℂ                                                           (H2)
+  let n ∈ ℕ₀                                                          (H3)
+  then        (a·b)^n = a^n·b^n
+  metamath    mulexp
+  target      mulexp
+
+mundane theorem power-of-product-integer
+  let a ∈ ℂ                                                           (H1)
+  assume a ≠ 0                                                        (H2)
+  let b ∈ ℂ                                                           (H3)
+  assume b ≠ 0                                                        (H4)
+  let n ∈ ℤ                                                           (H5)
+  then        (a·b)^n = a^n·b^n
+  metamath    mulexpz
+  target      mulexpz
+  note        power-of-product over the integers, where a power to a
+              negative exponent asks each base to be other than 0.
+
 mundane theorem power-cancel
   let a ∈ ℝ                                                           (H1)
   let m ∈ ℤ                                                           (H2)
@@ -275,6 +314,16 @@ mundane theorem power-real
               says the power is real once; for any other exponent, 2^(m + 1),
               it is cited for that.
 
+mundane theorem power-real-integer
+  let a ∈ ℝ                                                           (H1)
+  assume a ≠ 0                                                        (H2)
+  let m ∈ ℤ                                                           (H3)
+  then        a^m ∈ ℝ
+  metamath    reexpclz
+  target      reexpclz
+  note        power-real over the integers, where a power to a negative
+              exponent asks a base other than 0.
+
 mundane theorem power-nat0
   let a ∈ ℕ₀                                                          (H1)
   let m ∈ ℕ₀                                                          (H2)
@@ -289,6 +338,22 @@ mundane theorem nat-minus-one
   then        n − 1 ∈ ℕ₀
   metamath    nnm1nn0
   target      nnm1nn0
+
+mundane theorem difference-nat0
+  let m ∈ ℕ₀                                                          (H1)
+  let n ∈ ℕ₀                                                          (H2)
+  assume m ≤ n                                                        (H3)
+  then        n − m ∈ ℕ₀
+  metamath    nn0sub2
+  target      nn0sub2
+
+mundane theorem integer-sign
+  let n ∈ ℤ                                                           (H1)
+  then        n ∈ ℕ₀ or −n ∈ ℕ₀
+  metamath    elznn0, its second part, which this corpus takes in
+              elaboration/stdlib/proved.mm
+  target      gznn0neg
+  note        An integer is a whole number or the negative of one.
 
 mundane theorem power-nat
   let a ∈ ℕ                                                           (H1)
@@ -514,6 +579,17 @@ mundane theorem product-positive
   metamath    mulgt0
   target      mulgt0
   note        As product-nonneg, strictly.
+
+mundane theorem factor-positive
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a ≥ 0                                                        (H3)
+  assume a·b > 0                                                      (H4)
+  then        b > 0
+  metamath    prodgt0
+  target      prodgt0
+  note        A positive product of a factor at least 0 and another has the
+              other positive.
 
 mundane theorem power-positive
   let a ∈ ℝ                                                           (H1)
@@ -765,6 +841,15 @@ mundane theorem abs-power
   then        |x^n| = |x|^n
   metamath    absexp
   target      absexp
+
+theorem triangle-inequality
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  then        |a + b| ≤ |a| + |b|
+  metamath    abstri
+  target      abstri
+  note        `proofs/wiedijk/triangle-inequality.proof` proves it as its
+              own exercise (DATABASE.md).
 
 mundane definition nat0
   then        n ∈ ℕ₀ ↔ n ∈ ℕ or n = 0

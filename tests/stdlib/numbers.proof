@@ -42,6 +42,15 @@ import mundane theorem    stdlib/numbers/minus-one-even-power as numbers-minus-o
 import mundane theorem    stdlib/numbers/minus-one-odd-power as numbers-minus-one-odd-power
 import mundane theorem    stdlib/numbers/reciprocal-order-strict as numbers-reciprocal-order-strict
 import mundane theorem    stdlib/numbers/cross-multiplied-order as numbers-cross-multiplied-order
+import mundane theorem    stdlib/numbers/power-real-integer as numbers-power-real-integer
+import mundane theorem    stdlib/numbers/power-of-power as numbers-power-of-power
+import mundane theorem    stdlib/numbers/power-of-power-integer as numbers-power-of-power-integer
+import mundane theorem    stdlib/numbers/power-of-product as numbers-power-of-product
+import mundane theorem    stdlib/numbers/power-of-product-integer as numbers-power-of-product-integer
+import mundane theorem    stdlib/numbers/difference-nat0 as numbers-difference-nat0
+import mundane theorem    stdlib/numbers/integer-sign as numbers-integer-sign
+import mundane theorem    stdlib/numbers/factor-positive as numbers-factor-positive
+import theorem            stdlib/numbers/triangle-inequality as numbers-triangle-inequality
 
 theorem quotient-positive
   let x ∈ ℝ                                                           (H1)
@@ -413,3 +422,85 @@ theorem power-nat0
 
 1.  a^(m + 1) ∈ ℕ₀
     mun:numbers-power-nat0 m := m + 1
+
+theorem power-real-integer
+  let x ∈ ℝ                                                           (H1)
+  assume x ≠ 0                                                        (H2)
+  let k ∈ ℤ                                                           (H3)
+  then x^(k − 1) ∈ ℝ
+
+1.  x^(k − 1) ∈ ℝ
+    mun:numbers-power-real-integer a := x, m := k − 1, from H2
+
+theorem power-of-power
+  let z ∈ ℂ                                                           (H1)
+  let j ∈ ℕ₀                                                          (H2)
+  let k ∈ ℕ₀                                                          (H3)
+  then z^(j·k) = (z^j)^k
+
+1.  z^(j·k) = (z^j)^k
+    mun:numbers-power-of-power a := z, m := j, n := k
+
+theorem power-of-power-integer
+  let z ∈ ℂ                                                           (H1)
+  assume z ≠ 0                                                        (H2)
+  let j ∈ ℤ                                                           (H3)
+  let k ∈ ℤ                                                           (H4)
+  then z^(j·k) = (z^j)^k
+
+1.  z^(j·k) = (z^j)^k
+    mun:numbers-power-of-power-integer a := z, m := j, n := k, from H2
+
+theorem power-of-product
+  let y ∈ ℂ                                                           (H1)
+  let z ∈ ℂ                                                           (H2)
+  let k ∈ ℕ₀                                                          (H3)
+  then (y·z)^k = y^k·z^k
+
+1.  (y·z)^k = y^k·z^k
+    mun:numbers-power-of-product a := y, b := z, n := k
+
+theorem power-of-product-integer
+  let y ∈ ℂ                                                           (H1)
+  assume y ≠ 0                                                        (H2)
+  let z ∈ ℂ                                                           (H3)
+  assume z ≠ 0                                                        (H4)
+  let k ∈ ℤ                                                           (H5)
+  then (y·z)^k = y^k·z^k
+
+1.  (y·z)^k = y^k·z^k
+    mun:numbers-power-of-product-integer a := y, b := z, n := k, from H2, H4
+
+theorem difference-nat0
+  let j ∈ ℕ₀                                                          (H1)
+  let k ∈ ℕ₀                                                          (H2)
+  assume j ≤ k                                                        (H3)
+  then k − j ∈ ℕ₀
+
+1.  k − j ∈ ℕ₀
+    mun:numbers-difference-nat0 m := j, n := k, from H3
+
+theorem integer-sign
+  let m ∈ ℤ                                                           (H1)
+  then m ∈ ℕ₀ or −m ∈ ℕ₀
+
+1.  m ∈ ℕ₀ or −m ∈ ℕ₀
+    mun:numbers-integer-sign n := m
+
+theorem factor-positive
+  let u ∈ ℝ                                                           (H1)
+  let v ∈ ℝ                                                           (H2)
+  assume u ≥ 0                                                        (H3)
+  assume u·v > 0                                                      (H4)
+  then v > 0
+
+1.  v > 0
+    mun:numbers-factor-positive a := u, b := v, from H3, H4
+
+theorem triangle-inequality
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  then |x + y| ≤ |x| + |y|
+
+1.  |x + y| ≤ |x| + |y|
+    thm:numbers-triangle-inequality a := x, b := y

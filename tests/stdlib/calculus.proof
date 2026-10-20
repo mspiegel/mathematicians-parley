@@ -8,6 +8,7 @@ import theorem            stdlib/calculus/continuous-difference
 import mundane theorem    stdlib/calculus/reals-open
 import mundane theorem    stdlib/sets/subset-self
 import definition         stdlib/calculus/limit-at
+import theorem            stdlib/calculus/convergent-abs-bounded
 
 theorem limit-unfolded
   ε, δ range over ℝ
@@ -158,3 +159,12 @@ theorem integral-over-a-point
 
 1.  ∫(c to c) g(s) ds = 0
     mun:integral-point a := c, f := g
+
+theorem a-convergent-bounded-on-both-sides
+  let y : ℕ → ℝ                                                       (H1)
+  let M ∈ ℝ                                                           (H2)
+  assume y(n) → M as n → ∞                                            (H3)
+  then there exists B ∈ ℝ such that for all m ∈ ℕ, |y(m)| ≤ B
+
+1.  there exists B ∈ ℝ such that for all m ∈ ℕ, |y(m)| ≤ B
+    thm:convergent-abs-bounded x := y, L := M, from H3

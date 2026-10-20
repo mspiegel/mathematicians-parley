@@ -1,4 +1,4 @@
-import theorem proofs/wiedijk/triangle-inequality/triangle-inequality
+import theorem stdlib/numbers/triangle-inequality
 
 theorem distance-triangle
   metamath    abs3dif, over ℝ

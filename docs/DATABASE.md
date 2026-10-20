@@ -69,13 +69,13 @@ has, and a subject is one file:
 | file | holds | items |
 |---|---|---|
 | `corpus/stdlib/reasoning.records` | the laws of logic a proof cites by name | 13 |
-| `corpus/stdlib/numbers.records` | the number systems, closure, order, powers, roots, absolute value | 91 |
-| `corpus/stdlib/divisibility.records` | even and odd, divisors, primes, gcd, division, congruence, Euler's φ | 70 |
-| `corpus/stdlib/sums.records` | sums over a range, and the ranges; products over a finite set | 40 |
+| `corpus/stdlib/numbers.records` | the number systems, closure, order, powers, roots, absolute value | 100 |
+| `corpus/stdlib/divisibility.records` | even and odd, divisors, primes, gcd, division, congruence, Euler's φ | 71 |
+| `corpus/stdlib/sums.records` | sums over a range, and the ranges; products over a finite set | 41 |
 | `corpus/stdlib/sets.records` | subsets, set-builder, union, intersection, difference, power set | 60 |
 | `corpus/stdlib/functions.records` | functions, their values, images, and inverses | 23 |
-| `corpus/stdlib/counting.records` | the size of a set, factorials, binomial coefficients, counting by parts | 38 |
-| `corpus/stdlib/calculus.records` | intervals, bounds and completeness, continuity, derivatives, bounded sequences | 26 |
+| `corpus/stdlib/counting.records` | the size of a set, factorials, binomial coefficients, counting by parts | 41 |
+| `corpus/stdlib/calculus.records` | intervals, bounds and completeness, continuity, derivatives, bounded sequences | 27 |
 | `corpus/stdlib/geometry.records` | points, distance, angles, triangles, congruence, parallels and sides of a line, the law of sines | 23 |
 | `corpus/stdlib/groups.records` | groups, their laws, subgroups, cosets | 12 |
 | `corpus/stdlib/trigonometry.records` | cos and sin, and their addition formulas | 13 |
@@ -125,7 +125,7 @@ Every item in the standard library carries a field saying where it comes from:
 
 | field | meaning | count |
 |---|---|---|
-| `metamath` | a set.mm label or labels supply it | 430 |
+| `metamath` | a set.mm label or labels supply it | 445 |
 | `open` | it is cited but unproved and unbridged | 4 |
 
 A theorem this corpus proves has no

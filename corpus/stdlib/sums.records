@@ -233,6 +233,12 @@ mundane theorem range-split
   metamath    fzsplit
   target      fzsplit
 
+mundane theorem range-extended
+  let k ∈ {a, …, b}                                                   (H1)
+  then        k ∈ {a, …, b + 1}
+  metamath    fzelp1
+  target      fzelp1
+
 mundane definition range-between
   let k ∈ ℤ                                                           (H1)
   let a ∈ ℤ                                                           (H2)

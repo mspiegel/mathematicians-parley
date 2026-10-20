@@ -22,6 +22,7 @@ import mundane theorem    stdlib/divisibility/even-product as divisibility-even-
 import mundane theorem    stdlib/divisibility/even-product-factor as divisibility-even-product-factor
 import theorem            stdlib/divisibility/prime-divides-product as divisibility-prime-divides-product
 import mundane theorem    stdlib/divisibility/odd-not-even as divisibility-odd-not-even
+import theorem            stdlib/divisibility/prime-divides-power as divisibility-prime-divides-power
 
 theorem odd-not-even
   let n ∈ ℤ                                                           (H1)
@@ -225,3 +226,13 @@ theorem zero-divides
 
 1.  0 divides n ↔ n = 0
     mun:divisibility-zero-divides
+
+theorem prime-divides-power
+  let q ∈ ℕ                                                           (H1)
+  assume q is prime                                                   (H2)
+  let x ∈ ℤ                                                           (H3)
+  let k ∈ ℕ                                                           (H4)
+  then q divides x^k ↔ q divides x
+
+1.  q divides x^k ↔ q divides x
+    thm:divisibility-prime-divides-power p := q, a := x, n := k, from H2

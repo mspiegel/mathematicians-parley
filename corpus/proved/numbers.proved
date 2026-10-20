@@ -10,12 +10,15 @@
 # `elrpd`: the remainder's value (`modval`, for
 # `mun:stdlib/divisibility/mod-value`), that it is real (`modcl`, for
 # `mun:stdlib/divisibility/mod-real`), and a real below the divisor its own
-# remainder (`modid`, for `mun:stdlib/divisibility/mod-below`).
+# remainder (`modid`, for `mun:stdlib/divisibility/mod-below`). And an
+# integer's sign, the half of `elznn0` a proof reaches for (for
+# `mun:stdlib/numbers/integer-sign`).
 
 $( Numbers: a remainder is less than its divisor, a multiple of the
    divisor added leaves it as it was, a real's remainder on dividing by a
-   positive real is what is left after its whole multiples, and a real
-   below the divisor is its own remainder. $)
+   positive real is what is left after its whole multiples, a real below
+   the divisor is its own remainder, and an integer or its negative is a
+   whole number. $)
 
 # ( ( A e. ZZ /\ B e. NN ) -> ( A mod B ) < B )
 lemma gzmodlt
@@ -71,4 +74,10 @@ lemma gmodid
   8 simpr |- ( ( ( A e. RR /\ B e. RR ) /\ ( 0 <_ A /\ A < B ) ) -> ( 0 <_ A /\ A < B ) )
   9 modid |- ( ( ( A e. RR /\ B e. RR+ ) /\ ( 0 <_ A /\ A < B ) ) -> ( A mod B ) = A )
   10 syl21anc 1 7 8 9 |- ( ( ( A e. RR /\ B e. RR ) /\ ( 0 <_ A /\ A < B ) ) -> ( A mod B ) = A )
+
+# ( N e. ZZ -> ( N e. NN0 \/ -u N e. NN0 ) ), the second part of `elznn0`.
+lemma gznn0neg
+  |- ( N e. ZZ -> ( N e. NN0 \/ -u N e. NN0 ) )
+  1 elznn0 |- ( N e. ZZ <-> ( N e. RR /\ ( N e. NN0 \/ -u N e. NN0 ) ) )
+  2 simprbi 1 |- ( N e. ZZ -> ( N e. NN0 \/ -u N e. NN0 ) )
 
