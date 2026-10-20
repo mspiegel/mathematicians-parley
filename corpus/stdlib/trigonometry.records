@@ -115,3 +115,46 @@ mundane theorem sin-cos-squares
   note        A school reader takes it from the unit circle. From cos-add
               alone it is cos(a + (−a)) = cos(0), which asks the two items
               above.
+
+mundane theorem sin-nonneg
+  let a ∈ [0, π]                                                      (H1)
+  then        0 ≤ sin(a)
+  metamath    sinq12ge0
+  target      sinq12ge0
+  note        The sine is at least 0 over the upper half of the unit circle.
+              With cos(a) = −sin(a − π/2) it gives the sign of the cosine
+              on [π/2, 3π/2].
+
+mundane theorem sin-positive
+  let a ∈ (0, π)                                                      (H1)
+  then        0 < sin(a)
+  metamath    sinq12gt0
+  target      sinq12gt0
+
+mundane theorem cos-nonneg
+  let a ∈ [−π/2, π/2]                                                 (H1)
+  then        0 ≤ cos(a)
+  metamath    cosq14ge0
+  target      cosq14ge0
+  note        The cosine is at least 0 over the right half of the unit
+              circle.
+
+mundane theorem cos-positive
+  let a ∈ (−π/2, π/2)                                                 (H1)
+  then        0 < cos(a)
+  metamath    cosq14gt0
+  target      cosq14gt0
+
+mundane theorem sin-bounded
+  let a ∈ ℝ                                                           (H1)
+  then        −1 ≤ sin(a). sin(a) ≤ 1.
+  metamath    sinbnd
+  target      sinbnd
+  note        A point of the unit circle is at most 1 from its centre in
+              each direction.
+
+mundane theorem cos-bounded
+  let a ∈ ℝ                                                           (H1)
+  then        −1 ≤ cos(a). cos(a) ≤ 1.
+  metamath    cosbnd
+  target      cosbnd

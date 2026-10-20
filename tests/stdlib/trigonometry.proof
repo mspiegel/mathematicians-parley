@@ -5,6 +5,12 @@ import mundane theorem    stdlib/trigonometry/sin-complex as trigonometry-sin-co
 import mundane theorem    stdlib/trigonometry/cos-negative as trigonometry-cos-negative
 import mundane theorem    stdlib/trigonometry/sin-negative as trigonometry-sin-negative
 import mundane theorem    stdlib/trigonometry/sin-cos-squares as trigonometry-sin-cos-squares
+import mundane theorem    stdlib/trigonometry/sin-nonneg as trigonometry-sin-nonneg
+import mundane theorem    stdlib/trigonometry/sin-positive as trigonometry-sin-positive
+import mundane theorem    stdlib/trigonometry/cos-nonneg as trigonometry-cos-nonneg
+import mundane theorem    stdlib/trigonometry/cos-positive as trigonometry-cos-positive
+import mundane theorem    stdlib/trigonometry/sin-bounded as trigonometry-sin-bounded
+import mundane theorem    stdlib/trigonometry/cos-bounded as trigonometry-cos-bounded
 
 theorem cos-complex
   let a ∈ ℂ                                                           (H1)
@@ -40,3 +46,45 @@ theorem sin-cos-squares
 
 1.  sin(a)² + cos(a)² = 1
     mun:trigonometry-sin-cos-squares
+
+theorem sin-nonneg
+  let a ∈ [0, π]                                                      (H1)
+  then 0 ≤ sin(a)
+
+1.  0 ≤ sin(a)
+    mun:trigonometry-sin-nonneg, from H1
+
+theorem sin-positive
+  let a ∈ (0, π)                                                      (H1)
+  then 0 < sin(a)
+
+1.  0 < sin(a)
+    mun:trigonometry-sin-positive, from H1
+
+theorem cos-nonneg
+  let a ∈ [−π/2, π/2]                                                 (H1)
+  then 0 ≤ cos(a)
+
+1.  0 ≤ cos(a)
+    mun:trigonometry-cos-nonneg, from H1
+
+theorem cos-positive
+  let a ∈ (−π/2, π/2)                                                 (H1)
+  then 0 < cos(a)
+
+1.  0 < cos(a)
+    mun:trigonometry-cos-positive, from H1
+
+theorem sin-bounded
+  let a ∈ ℝ                                                           (H1)
+  then −1 ≤ sin(a). sin(a) ≤ 1.
+
+1.  −1 ≤ sin(a). sin(a) ≤ 1.
+    mun:trigonometry-sin-bounded
+
+theorem cos-bounded
+  let a ∈ ℝ                                                           (H1)
+  then −1 ≤ cos(a). cos(a) ≤ 1.
+
+1.  −1 ≤ cos(a). cos(a) ≤ 1.
+    mun:trigonometry-cos-bounded
