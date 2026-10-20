@@ -252,10 +252,11 @@ pub fn substitution_unsaid(
 /// finds the places, is `was` only once an identity element is dropped:
 /// what is put there is then what is left of the place.
 fn dropped_at_sites(start: &Node, was: &Node, ctx: &Context) -> bool {
-    if alike_top(start, was, ctx) {
-        return !identities_dropped(start, was, ctx).is_empty();
+    let inside = |c: &Node| crate::matching::put_places(c, was, was, ctx).is_some();
+    if start.children.iter().any(inside) {
+        return start.children.iter().any(|c| dropped_at_sites(c, was, ctx));
     }
-    start.children.iter().any(|c| dropped_at_sites(c, was, ctx))
+    alike_top(start, was, ctx) && !identities_dropped(start, was, ctx).is_empty()
 }
 
 /// What a calculation link leaves unsaid to be a number, where it is what

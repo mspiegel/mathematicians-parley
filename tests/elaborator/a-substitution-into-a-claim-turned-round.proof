@@ -1,0 +1,20 @@
+theorem a-substitution-into-a-claim
+  note        G(0) put for 1 at the second part of 0 + 1, which drops
+              nothing.
+  let G : ℕ₀ → ℕ    (H1)
+  assume G(0) = 1    (H2)
+  then 0 + G(0) = 0 + 1
+
+1.  0 + G(0) = 0 + 1
+    substitute G(0) = 1 (H2)
+
+theorem a-substitution-into-a-claim-turned-round
+  note        The same claim turned round: 1 stands as the second part of
+              0 + 1 before 0 + 1 is 1 with its 0 dropped, so the putting
+              drops nothing and asks nothing of G(0).
+  let G : ℕ₀ → ℕ    (H1)
+  assume G(0) = 1    (H2)
+  then 0 + 1 = 0 + G(0)
+
+1.  0 + 1 = 0 + G(0)
+    substitute G(0) = 1 (H2)

@@ -33,7 +33,6 @@ theorem sine-of-half-pi-minus
 
 8.  1·cos(−x) + 0·sin(−x) = 1·cos(x) + 0·sin(−x)
     substitute cos(−x) = cos(x) (line 6)
-    requires cos(x) ∈ ℝ: mun:cos-real a := x
 
 9.  1·cos(x) + 0·sin(−x) = 1·cos(x) + 0·(−sin(x))
     substitute sin(−x) = −sin(x) (line 7)

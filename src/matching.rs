@@ -1004,15 +1004,35 @@ pub fn substituted_in(
 
 /// `start` with `now` put at every place `was` stands.
 pub fn put_everywhere(start: &Node, was: &Node, now: &Node, ctx: &Context) -> Node {
-    if alike_top(start, was, ctx) {
-        return now.clone();
-    }
-    let kids = start
+    put_places(start, was, now, ctx).unwrap_or_else(|| start.clone())
+}
+
+/// `put_everywhere`, or None where `was` stands nowhere in `start`. A part
+/// is a place before the whole is: `0 + 1` holds 1 as its second part, and
+/// is 1 itself only with its 0 dropped, which a part standing there needs
+/// no one to say.
+pub(crate) fn put_places(
+    start: &Node,
+    was: &Node,
+    now: &Node,
+    ctx: &Context,
+) -> Option<Node> {
+    let mut any = false;
+    let kids: Vec<Node> = start
         .children
         .iter()
-        .map(|c| put_everywhere(c, was, now, ctx))
+        .map(|c| match put_places(c, was, now, ctx) {
+            Some(put) => {
+                any = true;
+                put
+            }
+            None => c.clone(),
+        })
         .collect();
-    start.with_children(kids)
+    if any {
+        return Some(start.with_children(kids));
+    }
+    alike_top(start, was, ctx).then(|| now.clone())
 }
 
 /// `substituted_in` put at some of the places, each part compared with its
