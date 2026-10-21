@@ -410,7 +410,7 @@ theorem triangle-equality-between
   let Q be a point                                                    (H2)
   let R be a point                                                    (H3)
   assume P ≠ Q                                                        (H4)
-  assume R ≠ Q                                                        (H5)
+  assume Q ≠ R                                                        (H5)
   assume |PQ| + |QR| = |PR|                                           (H6)
   then        Q is between P and R
   metamath    gtrieq, which this corpus proves in elaboration/stdlib/proved.mm:
