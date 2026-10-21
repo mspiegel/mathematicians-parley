@@ -14,6 +14,7 @@ pub(crate) mod values;
 
 pub use define::{
     define_parts, for_pieces, step_index, Define, DefineParts, Param, Recursion,
+    RuleText, Within,
 };
 pub use lines::{read_lines, Line};
 pub use load::{

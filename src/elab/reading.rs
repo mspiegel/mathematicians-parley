@@ -825,7 +825,7 @@ impl<'a> Elaborator<'a> {
         }
         let mut starts = Vec::new();
         for name in &said.names {
-            let rule = Written::new(&said.start[name], &self.thm.path, line);
+            let rule = said.start[name].written(&self.thm.path, line);
             let node = self.read_one(&rule)?;
             starts.push(self.term(&node)?);
         }
@@ -909,7 +909,7 @@ impl<'a> Elaborator<'a> {
         let steps = (|| -> Checked<Vec<Rpn>> {
             let mut steps = Vec::new();
             for name in &said.names {
-                let rule = Written::new(&said.step[name], &self.thm.path, line);
+                let rule = said.step[name].written(&self.thm.path, line);
                 let node = self.read_one(&rule)?;
                 steps.push(self.term(&node)?);
             }

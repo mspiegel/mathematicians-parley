@@ -174,16 +174,11 @@ pub fn record_formulas(r: &Record) -> Vec<Written> {
 /// recursion's rules and the set its index runs over.
 pub fn define_formulas(d: &DefineLine) -> Vec<Written> {
     match define_parts(&d.text) {
-        Built(DefineParts::One(one)) => std::iter::once(d.formula(&one.body))
-            .chain(one.params.iter().map(|p| d.formula(&p.domain)))
+        Built(DefineParts::One(one)) => std::iter::once(d.rule(&one.body))
+            .chain(one.params.iter().map(|p| d.domain(p)))
             .collect(),
         Built(DefineParts::Recursion(r)) => std::iter::once(d.formula(&r.domain))
-            .chain(
-                r.start
-                    .values()
-                    .chain(r.step.values())
-                    .map(|v| d.formula(v)),
-            )
+            .chain(r.start.values().chain(r.step.values()).map(|v| d.rule(v)))
             .collect(),
         Declined(_) => Vec::new(),
     }
@@ -344,7 +339,7 @@ fn defines_into<'d>(
         };
         let local = define_sorts(&said, sorts);
         // A rule that does not read is `check_formulas`'s to report.
-        let read = d.formula(&said.body).formula();
+        let read = d.rule(&said.body).formula();
         let Ok((body, params)) = read
             .and_then(|s| s.read(env.g, &local))
             .and_then(|body| Ok((body, params_read(d, &said, &local, sorts, env)?)))
@@ -517,7 +512,7 @@ fn written_definition(
     let inner = written_definitions(src, d.line, env, seen);
     let outer = definition_sorts(&inner);
     let local = define_sorts(said, &outer);
-    let read = d.formula(&said.body).formula();
+    let read = d.rule(&said.body).formula();
     let (body, params) = read
         .and_then(|s| s.read(env.g, &local))
         .and_then(|body| Ok((body, params_read(d, said, &local, &outer, env)?)))
@@ -545,14 +540,13 @@ pub fn params_read(
     outer: &Sorts,
     env: Env,
 ) -> Checked<Vec<ParamRead>> {
-    let read =
-        |text: &str, sorts: &Sorts| d.formula(text).formula()?.read(env.g, sorts);
+    let read = |part: Written, sorts: &Sorts| part.formula()?.read(env.g, sorts);
     said.params
         .iter()
         .map(|p| {
             Ok(ParamRead {
-                name: read(&p.name, local)?,
-                domain: read(&p.domain, outer)?,
+                name: read(d.formula(&p.name), local)?,
+                domain: read(d.domain(p), outer)?,
             })
         })
         .collect()
@@ -582,7 +576,7 @@ pub fn definition_sorts(definitions: &Definitions) -> Sorts {
 /// and not to a pair.
 fn rule_sort(rule: &Rule) -> Sort {
     let whole = rule.params.iter().rev().fold(Whole::Open, |value, p| {
-        let argument = if NUMBER_SYSTEMS.contains(&str::trim(&p.domain)) {
+        let argument = if p.member_of().is_some_and(|d| NUMBER_SYSTEMS.contains(&d)) {
             Whole::Number
         } else {
             Whole::Open
@@ -608,7 +602,10 @@ pub fn element_sort(domain: &str, sorts: &Sorts) -> Sort {
 pub fn define_sorts(said: &crate::corpus::Define, sorts: &Sorts) -> Sorts {
     let mut out = sorts.clone();
     for p in &said.params {
-        let held = element_sort(&p.domain, sorts);
+        let held = p
+            .member_of()
+            .map(|d| element_sort(d, sorts))
+            .unwrap_or_default();
         out.insert(p.name.clone(), held);
     }
     out

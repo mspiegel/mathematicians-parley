@@ -73,7 +73,7 @@ fn formulas(thm: &Theorem, g: &Grammar, sorts: &Sorts) -> Vec<Node> {
             Declined(_) => Vec::new(),
         };
         for rule in rules {
-            out.extend(read(d.formula(&rule)));
+            out.extend(read(d.rule(&rule)));
         }
     }
     for step in &thm.steps {

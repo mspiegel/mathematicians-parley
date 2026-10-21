@@ -1202,7 +1202,7 @@ fn recursion_sorts(
     at_step.insert(said.index.clone(), NUMBER);
     for (rules, local) in [(&said.start, IndexMap::new()), (&said.step, at_step)] {
         for (name, rule) in rules {
-            let rule = Written::new(rule, &reader.path, line.line);
+            let rule = rule.written(&reader.path, line.line);
             let Ok(tree) = rule.formula().and_then(|s| s.read(env.g, &local_sorts))
             else {
                 continue; // `check_recursions` says it does not read
@@ -1332,12 +1332,12 @@ pub fn read_theorem(
                 let sorts = reader.sorts(store);
                 // A part that does not read is `check_formulas`'s to report.
                 let path = reader.path.clone();
-                let part = |text: &str, sorts: &Sorts| {
-                    let written = Written::new(text, &path, no.line);
+                let part = |written: Written, sorts: &Sorts| {
                     written.formula().and_then(|s| s.read(env.g, sorts))
                 };
+                let body = said.body.written(&path, no.line);
                 if said.params.is_empty() {
-                    let Ok(tree) = part(&said.body, &sorts) else {
+                    let Ok(tree) = part(body, &sorts) else {
                         continue;
                     };
                     let k = reader.sort_of(&tree, no, &IndexMap::new(), store);
@@ -1352,7 +1352,9 @@ pub fn read_theorem(
                 let mut taken = Vec::new();
                 let mut read = true;
                 for p in &said.params {
-                    let Ok(over_tree) = part(&p.domain, &local_sorts) else {
+                    let Ok(over_tree) =
+                        part(p.domain_written(&path, no.line), &local_sorts)
+                    else {
                         read = false;
                         break;
                     };
@@ -1369,7 +1371,7 @@ pub fn read_theorem(
                 if !read {
                     continue;
                 }
-                let Ok(body_tree) = part(&said.body, &local_sorts) else {
+                let Ok(body_tree) = part(body, &local_sorts) else {
                     continue;
                 };
                 let gives = reader.sort_of(&body_tree, no, &local, store);

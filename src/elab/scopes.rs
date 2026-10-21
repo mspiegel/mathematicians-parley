@@ -2457,11 +2457,11 @@ impl<'a> Elaborator<'a> {
                     // its domain, to its rule, as the checker read them: the
                     // rule and the names with what the domains say the
                     // parameters are (`define_sorts`).
-                    let rule = self.read_one(&d.formula(&one.body))?;
+                    let rule = self.read_one(&d.rule(&one.body))?;
                     let mut held = Vec::new();
                     for p in &one.params {
                         held.push(self.read_one(&d.formula(&p.name))?);
-                        held.push(self.read_one(&d.formula(&p.domain))?);
+                        held.push(self.read_one(&d.domain(p))?);
                     }
                     let pattern = match one.params.len() {
                         0 => None,
@@ -2493,7 +2493,8 @@ impl<'a> Elaborator<'a> {
                             d.line,
                             format!(
                                 "define {}: {} is a statement, and a define names a thing",
-                                d.label, one.body
+                                d.label,
+                                one.body.text()
                             ),
                         ));
                     }

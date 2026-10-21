@@ -16,7 +16,8 @@ use crate::citing::{
 use crate::corpus::proof::{chain, rows, visible, ChainLine, RowReason};
 use crate::corpus::{
     define_parts, DefineParts, FileScope, Head, Intro, Item, Justification, Method,
-    Record, RecordKind, Recursion, Requires, Source, Step, Theorem, Value, Values,
+    Record, RecordKind, Recursion, Requires, RuleText, Source, Step, Theorem, Value,
+    Values,
 };
 use crate::formula::notation_id::{NotationId, Spelling};
 use crate::formula::page::{
@@ -240,7 +241,7 @@ pub fn check_formulas(report: &mut Report, thm: &Theorem, env: Env, known: &Know
             continue;
         };
         let local = define_sorts(&said, &known.sorts);
-        let body = Written::new(&said.body, &thm.path, d.line);
+        let body = d.rule(&said.body);
         if let Err(p) = body.formula().and_then(|s| known.keep_read(&s, &local)) {
             report.say(
                 &thm.path,
@@ -400,8 +401,7 @@ fn one_formula_parts(thm: &Theorem) -> Vec<FormulaPart> {
     for d in &thm.defines {
         if let Built(DefineParts::One(said)) = define_parts(&d.text) {
             for p in &said.params {
-                let domain = Written::new(&p.domain, &thm.path, d.line);
-                add(d.line, format!("define {}", d.label), &domain);
+                add(d.line, format!("define {}", d.label), &d.domain(p));
             }
         }
     }
@@ -5085,7 +5085,7 @@ fn recursion_value(
     said: &Recursion,
     name: &str,
     at: &Node,
-    written: impl Fn(&str) -> Written,
+    written: impl Fn(&RuleText) -> Written,
     env: Env,
     sorts: &Sorts,
 ) -> Checked<Option<(Node, Option<Node>)>> {
@@ -5191,7 +5191,7 @@ fn recursion_equation(
         }
         why = None;
         let name = &one.children[0].text;
-        let rule = |text: &str| Written::new(text, &known.thm.path, line);
+        let rule = |text: &RuleText| text.written(&known.thm.path, line);
         let Ok(found) =
             recursion_value(said, name, &one.children[1], rule, known.env, sorts)
         else {
@@ -5262,7 +5262,7 @@ pub fn check_recursions(report: &mut Report, thm: &Theorem, known: &Known) {
                     None => format!("{name}(0)"),
                     Some(at) => format!("{name}({at} + 1)"),
                 };
-                let rule = Written::new(rule, &thm.path, d.line);
+                let rule = d.rule(rule);
                 let tree = match rule
                     .formula()
                     .and_then(|s| known.keep_read(&s, &local))

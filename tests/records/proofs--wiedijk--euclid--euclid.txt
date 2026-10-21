@@ -55,10 +55,10 @@ step 5.5.13 chains b(k + 1) + (k + 1) ≤ b(k) + k | b(k) + k ≤ N
 read 16: a(N) = gcd(M, N)  as  equality:=(application:()(name:a, name:N), application-to-two:(,)(name:gcd, name:M, name:N))  a statement
 read 22: M ∈ ℕ₀  as  membership:∈(name:M, number-systems:ℕ₀)  a statement
 read 23: N ∈ ℕ₀  as  membership:∈(name:N, number-systems:ℕ₀)  a statement
-read 24: 0 if b(k) = 0, a(k) mod b(k) otherwise  as  by-cases:if,otherwise(numeral:0, equality:=(application:()(name:b, name:k), numeral:0), mod:mod(application:()(name:a, name:k), application:()(name:b, name:k)))  a term
+read 24: 0                if b(k) = 0 a(k) mod b(k)    otherwise  as  by-cases:if,otherwise(numeral:0, equality:=(application:()(name:b, name:k), numeral:0), mod:mod(application:()(name:a, name:k), application:()(name:b, name:k)))  a term
 read 24: M  as  name:M  a number
 read 24: N  as  name:N  a number
-read 24: a(k) if b(k) = 0, b(k) otherwise  as  by-cases:if,otherwise(application:()(name:a, name:k), equality:=(application:()(name:b, name:k), numeral:0), application:()(name:b, name:k))  a number
+read 24: a(k)             if b(k) = 0 b(k)             otherwise  as  by-cases:if,otherwise(application:()(name:a, name:k), equality:=(application:()(name:b, name:k), numeral:0), application:()(name:b, name:k))  a number
 read 24: ℕ₀  as  number-systems:ℕ₀  a set
 read 30: a(N) = gcd(M, N)  as  equality:=(application:()(name:a, name:N), application-to-two:(,)(name:gcd, name:M, name:N))  a statement
 read 32: a(0) = M  as  equality:=(application:()(name:a, numeral:0), name:M)  a statement

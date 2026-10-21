@@ -4051,7 +4051,6 @@ struct Movable {
 fn movable(
     ctx: &Context,
     sorts: &Sorts,
-    thm: &Theorem,
     d: &parley::corpus::proof::DefineLine,
     lines: &[String],
 ) -> Result<Movable, String> {
@@ -4071,11 +4070,10 @@ fn movable(
         return Err(format!("{} is written over several lines", d.label));
     }
     let binders = ctx.g.binders();
-    let mut uses: BTreeSet<String> =
-        read_all(ctx, sorts, &Written::new(&one.body, &thm.path, d.line))?
-            .iter()
-            .flat_map(|t| free_names(t, &binders))
-            .collect();
+    let mut uses: BTreeSet<String> = read_all(ctx, sorts, &d.rule(&one.body))?
+        .iter()
+        .flat_map(|t| free_names(t, &binders))
+        .collect();
     for p in &one.params {
         uses.remove(&p.name);
     }
@@ -4205,7 +4203,7 @@ pub fn header_defines_raised(ctx: &Context, path: &str, text: &str) -> Rewritten
         let mut moved: Vec<(Movable, String)> = Vec::new();
         let mut why = Vec::new();
         for d in header {
-            let m = match movable(ctx, &sorts, thm, d, &lines) {
+            let m = match movable(ctx, &sorts, d, &lines) {
                 Ok(m) => m,
                 Err(e) => {
                     why.push(e);
@@ -4662,7 +4660,7 @@ pub fn defines_lowered(ctx: &Context, path: &str, text: &str) -> Rewritten {
         let mut moved: Vec<Movable> = Vec::new();
         let mut why = Vec::new();
         for d in proof {
-            let m = match movable(ctx, &sorts, thm, d, &lines) {
+            let m = match movable(ctx, &sorts, d, &lines) {
                 Ok(m) => m,
                 Err(e) => {
                     why.push(e);

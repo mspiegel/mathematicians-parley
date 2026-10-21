@@ -950,15 +950,12 @@ fn recursion_differs(
             };
             // A rule that does not read is `check_recursions`'s to report, in
             // the theorem that writes it.
-            let read =
-                |text: &str, path: &str, line: usize, local: &crate::formula::Sorts| {
-                    Written::new(text, path, line)
-                        .formula()
-                        .and_then(|s| s.read(g, local))
-                };
+            let read = |rule: Written, local: &crate::formula::Sorts| {
+                rule.formula().and_then(|s| s.read(g, local))
+            };
             let (Ok(a_tree), Ok(b_tree)) = (
-                read(a, &other.path, theirs_line, &theirs_local),
-                read(b, &thm.path, define.line, &ours_local),
+                read(a.written(&other.path, theirs_line), &theirs_local),
+                read(b.written(&thm.path, define.line), &ours_local),
             ) else {
                 continue;
             };
@@ -975,7 +972,7 @@ fn recursion_differs(
                 return Some(format!(
                     "there {place} is {}, and {label} here says it is {}",
                     known.print(&a_tree),
-                    str::trim(b)
+                    str::trim(b.text())
                 ));
             }
         }
@@ -2511,8 +2508,8 @@ impl DefinedRule {
             return None;
         };
         let local = crate::sorts::define_sorts(&one, &known.sorts);
-        let rule = d.formula(&one.body).formula().ok()?;
-        let domain = d.formula(&param.domain).formula().ok()?;
+        let rule = d.rule(&one.body).formula().ok()?;
+        let domain = d.domain(param).formula().ok()?;
         Some(DefinedRule {
             name: one.name.clone(),
             letter: param.name.clone(),
@@ -2670,7 +2667,7 @@ pub(super) fn defined_functions<'d>(
                 functions.push(Defined {
                     name: one.name.clone(),
                     label: d.label.clone(),
-                    domains: one.params.iter().map(|p| d.formula(&p.domain)).collect(),
+                    domains: one.params.iter().map(|p| d.domain(p)).collect(),
                     recursive: false,
                 });
             }
