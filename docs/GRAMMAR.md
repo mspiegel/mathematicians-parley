@@ -32,6 +32,13 @@ each done once:
 3. The **parser** reads each sentence into a tree, by the declared
    notations and the sorts in scope.
 
+A part is one of two kinds. A claim (a step's claim, an `assume` or
+`suppose` line, a `then` line) may be several sentences, which mean their
+conjunction. Every other part, a `let` line's introduction, a requires
+line's fact, a substitute's equation, a value, a chain term or row, an
+induction's start, is one formula (`Written::formula`), and two sentences
+there are a defect.
+
 The splitter and the parser are in `src/formula/page.rs`, and no other code
 reaches the parser. The skeleton reader reads its productions word by word,
 never by pattern: `src/corpus/skeleton.rs` cuts a justification into its

@@ -132,6 +132,14 @@ cannot prove is a fault in the build. It is reported as one ("the build
 cannot yet prove this, which the checker accepts") and fixed in the build.
 No theorem of the corpus is one.
 
+The record holds the trees as well as the decisions. Every sentence of a
+theorem's page the checker read is in `CheckedTheorem::page`, by line and
+text, and every sentence of every item a citation may name is in
+`CheckedTheorem::items`, read once with the item's own sorts. The build
+takes each sentence from there and parses nothing; one the checker did not
+read is a fault of the build. Clippy denies the parser's entry points
+inside `src/elab` (`clippy.toml`).
+
 **Growth goes into the tables first.** A pilot that meets a new difference
 between the page and set.mm adds a rule or a table entry. A new part is for a
 new kind of reasoning that no part covers, and a special case written into a
