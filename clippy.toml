@@ -3,6 +3,17 @@
 # A std hash map iterates in an order that changes from run to run, so none is
 # used: an insertion-ordered map where Python kept insertion order, a BTree
 # where the order is sorted.
+# The ways text becomes a tree. The checker reads the page and what it cites
+# once, and the build takes those trees from its record and parses nothing
+# (`ELABORATION.md`, "The checker reads the page"), so `src/elab` denies
+# these and the rest of the crate allows them (`Cargo.toml`).
+disallowed-methods = [
+    { path = "parley::formula::page::Sentence::read", reason = "the build takes a tree from the checker's record (`Elaborator::read`)" },
+    { path = "parley::formula::page::Sentence::read_so_far", reason = "the build takes a tree from the checker's record (`Elaborator::read`)" },
+    { path = "parley::corpus::values::Values::read", reason = "the build reads values by `Values::read_by` with its own reader" },
+    { path = "parley::corpus::values::Values::read_wanted", reason = "the build reads values by `Values::read_wanted_by` with its own reader" },
+    { path = "parley::sorts::introduction::Introduction::asserted", reason = "the build reads a let line by `Introduction::asserted_by` with its own reader" },
+]
 disallowed-types = [
     { path = "std::collections::HashMap", reason = "iteration order changes between runs; use indexmap::IndexMap or BTreeMap" },
     { path = "std::collections::HashSet", reason = "iteration order changes between runs; use indexmap::IndexSet or BTreeSet" },

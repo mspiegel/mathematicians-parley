@@ -16,7 +16,7 @@
 use indexmap::IndexMap;
 
 use crate::formula::notation_id::Spelling;
-use crate::formula::page::{Sentence, Written};
+use crate::formula::page::{read_back, Sentence};
 use crate::formula::{wanted_reading, Node, Sort};
 use crate::mm::kernel::Term;
 use crate::mm::Rpn;
@@ -141,12 +141,13 @@ impl Elaborator<'_> {
         for sentence in sentences {
             let node = self.read(sentence)?;
             let kernel = self.term(&node)?;
-            let again = match self.spoken(&kernel) {
+            let again = match self.page_node(&self.to_term(&kernel)) {
                 Some(said) => {
                     // What the page would write, read as the page is read.
-                    let back =
-                        self.read_printed(&said).and_then(|n| self.term(&n)).ok();
-                    (back.as_ref() != Some(&kernel)).then_some(said)
+                    let back = read_back(self.g, &said, &self.sorts_now)
+                        .and_then(|n| self.term(&n))
+                        .ok();
+                    (back.as_ref() != Some(&kernel)).then(|| self.g.print(&said))
                 }
                 None => Some("(no page reading)".to_string()),
             };
@@ -383,22 +384,15 @@ impl Elaborator<'_> {
             // A reading is the page's only where the page reads it back as
             // itself: |xc| is a distance between points, and of two numbers
             // the page reads nothing, so |x − c| is the reading.
-            let printed = self.g.print(&node);
-            let back = if bound.is_empty() {
-                self.read_printed(&printed)
-            } else {
-                let mut sorts = self.sorts_now.clone();
-                for (letter, sort) in bound {
-                    if sort.name().is_some() {
-                        sorts.insert(letter.clone(), sort.clone());
-                    } else if !sorts.introduces(letter) {
-                        sorts.unsettled.insert(letter.clone());
-                    }
+            let mut sorts = self.sorts_now.clone();
+            for (letter, sort) in bound {
+                if sort.name().is_some() {
+                    sorts.insert(letter.clone(), sort.clone());
+                } else if !sorts.introduces(letter) {
+                    sorts.unsettled.insert(letter.clone());
                 }
-                Written::new(printed, "", self.at)
-                    .formula()
-                    .and_then(|s| s.read(self.g, &sorts))
-            };
+            }
+            let back = read_back(self.g, &node, &sorts);
             // A reading the page gives only where a hole wants it, the open
             // interval of `(a, b)`, is read back as that hole reads it.
             let back = back.map(|b| match wanted {

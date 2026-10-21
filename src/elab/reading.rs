@@ -28,8 +28,8 @@ use crate::outcome::Checked;
 use crate::rules::NUMERALS;
 use crate::sorts::introduction::{Form, Introduction};
 use crate::sorts::{
-    sorts_of_cited, sorts_of_record, sorts_of_statement, statement_definitions,
-    unlabel, Env, GraphLine,
+    sorts_of_cited, sorts_of_record, sorts_of_statement, statement_definitions, Env,
+    GraphLine,
 };
 use crate::t;
 use crate::targets;
@@ -205,8 +205,7 @@ impl<'a> Elaborator<'a> {
     /// the two read one proof one way: a sentence of this theorem's own page
     /// (`CheckedTheorem::page`), or of an item it cites
     /// (`CheckedTheorem::items`). One the checker did not read is a fault of
-    /// the build. What the printer wrote is the one text read here, where
-    /// the elaborator has got to.
+    /// the build, which parses nothing.
     pub fn read(&self, sentence: &Sentence) -> Checked<Node> {
         if sentence.path() == self.thm.path && self.thm.owns_line(sentence.line()) {
             return match self.checked.page.get(sentence) {
@@ -219,10 +218,6 @@ impl<'a> Elaborator<'a> {
                     ),
                 )),
             };
-        }
-        // What the printer wrote is written in no file.
-        if sentence.path().is_empty() {
-            return sentence.read(self.g, &self.sorts_now);
         }
         match self.checked.items.get(sentence) {
             Some(read) => read.clone(),
@@ -255,14 +250,6 @@ impl<'a> Elaborator<'a> {
     /// value, read (`read`); a defect where it is several sentences.
     pub fn read_one(&self, written: &Written) -> Checked<Node> {
         self.read(&written.formula()?)
-    }
-
-    /// Text the build printed from a tree it holds, read back as the page
-    /// would read it with the sorts where the elaborator has got to: a
-    /// question about the printer and the notations, not a sentence of the
-    /// page, so it is written in no file.
-    pub fn read_printed(&self, text: &str) -> Checked<Node> {
-        self.read_one(&Written::new(unlabel(text), "", self.at))
     }
 
     /// A library function applied to its arguments, where the proof gives the

@@ -56,3 +56,6 @@ unused_must_use = "deny"
 
 [lints.clippy]
 all = { level = "warn", priority = -1 }
+# Only `src/elab` denies the methods `clippy.toml` lists: everything else may
+# read text into trees.
+disallowed_methods = "allow"

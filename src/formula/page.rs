@@ -241,6 +241,16 @@ pub fn tokens(written: &Written, g: &Grammar) -> Checked<Vec<Token>> {
         .map(|all| all.iter().flat_map(|t| t.iter().cloned()).collect())
 }
 
+/// What the page reads `node` as, printed: a tree a tool built, read back
+/// as the page would read its printed form with `sorts`. It answers a
+/// question about the printer and the notations, whether a tree is one the
+/// page writes as itself (`|x − c|` is, of two numbers, and `|xc|` is a
+/// distance between points); the printed text is no page's, and is read
+/// nowhere else.
+pub fn read_back(g: &Grammar, node: &Node, sorts: &Sorts) -> Checked<Node> {
+    Written::new(g.print(node), "", 0).formula()?.read(g, sorts)
+}
+
 /// A formula the code writes with letters to fill, `x ≠ 0`, read as the
 /// page's are, by the one parser; the letters are then filled with trees
 /// (`matching::substitute_apart`). The text is the code's own, fixed when it is
