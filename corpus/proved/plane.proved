@@ -23,6 +23,8 @@ $d x M $.  $d y M $.
 $d x P $.  $d y P $.
 $d x Q $.  $d y Q $.
 $d x R $.  $d y R $.
+$d x X $.  $d y X $.
+$d x Y $.  $d y Y $.
 
 # A distance is the absolute value of a difference, so it is at least 0,
 # and more than 0 where the two points differ.

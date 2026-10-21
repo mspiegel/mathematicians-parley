@@ -469,6 +469,8 @@ $d x M $.  $d y M $.
 $d x P $.  $d y P $.
 $d x Q $.  $d y Q $.
 $d x R $.  $d y R $.
+$d x X $.  $d y X $.
+$d x Y $.  $d y Y $.
 
   gdistnn $p |- ( P e. CC -> ( Q e. CC -> 0 <_ ( abs ` ( P - Q ) ) ) ) $=
     ( cc wcel cc0 cmin co cabs cfv cle wbr wa id adantr simpr subcld absge0d
