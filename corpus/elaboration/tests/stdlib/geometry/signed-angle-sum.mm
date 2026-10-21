@@ -1,0 +1,11 @@
+$( tests/stdlib/geometry/signed-angle-sum, elaborated from tests/stdlib/geometry.proof by parley build.
+   Nothing here is assumed.
+   Checked against a set.mm of 51,256 assertions, sha256
+   0d7fb3e59afff60f4cec2287cbb616bf651bbfbf2356a611a43a5c98b5e0462d. $)
+
+$[ stdlib/proved.mm $]
+
+${
+  tests.stdlib.geometry.signed-angle-sum $p |- ( ( ( ( ( ( A e. CC /\ B e. CC ) /\ C e. CC ) /\ -. A = B ) /\ -. B = C ) /\ -. A = C ) -> ( ( ( ( C - B ) ang ( A - B ) ) + ( ( A - C ) ang ( B - C ) ) ) + ( ( B - A ) ang ( C - A ) ) ) e. { -u _pi , _pi } ) $=
+    ( cc wcel wa wceq wn w3a wne cmin co cang caddc cpi cneg cpr simpl id syl simpr 3jca neqcomd wb df-ne a1i eqcom bicomd notbid bitrd mpbid jca gang180 ) ADEZBDEZFZCDEZFZABGZHZFZBCGZHZFZACGZHZFZUNUOUQIZABJZBCJZACJZIZFCBKLABKLMLACKLBCKLMLNLBAKLCAKLMLNLOPOQEVGVHVLVGUNUOUQVGVDUNVDVFRZVDVAUNVAVCRZVAURUNURUTRZURUPUNUPUQRZUPUNUNUNUORUNSTTTTTVGVDUOVMVDVAUOVNVAURUOVOURUPUOVPUNUOUATTTTVGVDUQVMVDVAUQVNVAURUQVOUPUQUATTTUBVGVIVJVKVGBAGZHZVIVGABVGVDUTVMVDVAUTVNURUTUATTUCVGVIVRVGVIUTVRVIUTUDVGABUEUFVGUSVQVGVQUSVQUSUDVGBAUGUFUHUIUJUHUKVGCBGZHZVJVGBCVGVDVCVMVAVCUATUCVGVJVTVGVJVCVTVJVCUDVGBCUEUFVGVBVSVGVSVBVSVBUDVGCBUGUFUHUIUJUHUKVGCAGZHZVKVGACVDVFUAUCVGVKWBVGVKVFWBVKVFUDVGACUEUFVGVEWAVGWAVEWAVEUDVGCAUGUFUHUIUJUHUKUBULABCUMT $.
+$}

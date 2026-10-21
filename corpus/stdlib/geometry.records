@@ -58,6 +58,53 @@ mundane theorem angle-real
               makes that a proof is that ang of the two differences is a
               number, which gangrange gives by putting ∠PQR in [0, π].
 
+mundane theorem signed-angle-size
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  then        |∡PQR| = ∠PQR
+  metamath    eqid, since ∠PQR is built as the absolute value of ∡PQR
+  target      eqid
+  note        The angle is the signed angle's size, whichever way it turns.
+
+mundane theorem signed-angle-real
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P ≠ Q                                                        (H4)
+  assume R ≠ Q                                                        (H5)
+  then        ∡PQR ∈ ℝ. −π < ∡PQR. ∡PQR ≤ π.
+  metamath    gsangcl, from angcld
+  target      gsangcl
+
+theorem signed-angle-reverse
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P ≠ Q                                                        (H4)
+  assume R ≠ Q                                                        (H5)
+  assume ∡PQR ≠ π                                                     (H6)
+  then        ∡RQP = −∡PQR
+  metamath    gsangrev, from logrec
+  target      gsangrev
+  note        Turned the other way, the signed angle changes sign; at π, a
+              straight angle, it is π both ways.
+
+theorem signed-angle-sum
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P ≠ Q                                                        (H4)
+  assume Q ≠ R                                                        (H5)
+  assume P ≠ R                                                        (H6)
+  then        ∡RQP + ∡PRQ + ∡QPR ∈ {−π, π}
+  metamath    gang180, from ang180
+  target      gang180
+  note        The signed angles of a triangle, each turned the same way
+              around it, add to π or to −π as the triangle runs
+              counterclockwise or clockwise. The three points need only be
+              apart: on one line the angles are 0, 0 and π.
+
 mundane theorem triangle-angle-real
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)

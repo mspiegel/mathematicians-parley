@@ -1006,6 +1006,17 @@ notation angle
               corpus introduces; see mun:stdlib/geometry/angle. The absolute value is what
               makes ∠PQR = ∠RQP true, which the signed function does not.
 
+notation signed-angle
+  pattern     ∡___
+  sort        point, point, point → number
+  reads       the signed angle at the second from the first to the third
+  metamath    ang applied to the two differences
+  target      _1 _2 cmin co _3 _2 cmin co cang co
+  note        The angle turned through from the ray toward the first point to
+              the ray toward the third, counterclockwise positive, in
+              (−180°, 180°]. ∡RQP is −∡PQR except at 180°, and |∡PQR| is
+              ∠PQR. See mun:stdlib/geometry/signed-angle-size.
+
 notation congruent
   pattern     triangle ___ ≅ triangle ___
   sort        point, point, point, point, point, point → formula

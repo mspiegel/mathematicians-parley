@@ -18,6 +18,10 @@ import mundane definition stdlib/geometry/on-line as geometry-on-line
 import theorem            stdlib/geometry/perpendicular-by-right-angle as geometry-perpendicular-by-right-angle
 import theorem            stdlib/geometry/intersecting-chords as geometry-intersecting-chords
 import theorem            stdlib/geometry/chord-midpoint-right-angle as geometry-chord-midpoint-right-angle
+import mundane theorem    stdlib/geometry/signed-angle-size as geometry-signed-angle-size
+import mundane theorem    stdlib/geometry/signed-angle-real as geometry-signed-angle-real
+import theorem            stdlib/geometry/signed-angle-reverse as geometry-signed-angle-reverse
+import theorem            stdlib/geometry/signed-angle-sum as geometry-signed-angle-sum
 import mundane definition stdlib/sets/set-builder
 
 theorem point
@@ -254,3 +258,47 @@ theorem chord-midpoint-right-angle
 
 1.  ∠OMB = 90°
     thm:geometry-chord-midpoint-right-angle, from H5, H6, H7
+
+theorem signed-angle-size
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  then |∡PQR| = ∠PQR
+
+1.  |∡PQR| = ∠PQR
+    mun:geometry-signed-angle-size
+
+theorem signed-angle-real
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P ≠ Q                                                        (H4)
+  assume R ≠ Q                                                        (H5)
+  then ∡PQR ≤ π
+
+1.  ∡PQR ≤ π
+    mun:geometry-signed-angle-real, from H4, H5
+
+theorem signed-angle-reverse
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P ≠ Q                                                        (H4)
+  assume R ≠ Q                                                        (H5)
+  assume ∡PQR ≠ π                                                     (H6)
+  then ∡RQP = −∡PQR
+
+1.  ∡RQP = −∡PQR
+    thm:geometry-signed-angle-reverse, from H4, H5, H6
+
+theorem signed-angle-sum
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P ≠ Q                                                        (H4)
+  assume Q ≠ R                                                        (H5)
+  assume P ≠ R                                                        (H6)
+  then ∡RQP + ∡PRQ + ∡QPR ∈ {−π, π}
+
+1.  ∡RQP + ∡PRQ + ∡QPR ∈ {−π, π}
+    thm:geometry-signed-angle-sum, from H4, H5, H6

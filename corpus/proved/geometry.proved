@@ -3228,3 +3228,84 @@ lemma gmidval
   72 3jca 71 58 54 |- ( ( ( A e. CC /\ B e. CC /\ S e. CC ) /\ ( ( A =/= S /\ ( ( B - S ) / ( A - S ) ) e. RR /\ ( ( B - S ) / ( A - S ) ) < 0 ) /\ ( abs ` ( A - S ) ) = ( abs ` ( S - B ) ) ) ) -> ( A =/= B /\ ( B - S ) =/= 0 /\ S = ( ( A + B ) / 2 ) ) )
   73 ex 72 |- ( ( A e. CC /\ B e. CC /\ S e. CC ) -> ( ( ( A =/= S /\ ( ( B - S ) / ( A - S ) ) e. RR /\ ( ( B - S ) / ( A - S ) ) < 0 ) /\ ( abs ` ( A - S ) ) = ( abs ` ( S - B ) ) ) -> ( A =/= B /\ ( B - S ) =/= 0 /\ S = ( ( A + B ) / 2 ) ) ) )
 
+# The signed angle, as `angcld` places it: a real number above -pi and at
+# most pi.
+lemma gsangcl
+  |- ( ( P e. CC /\ Q e. CC /\ R e. CC ) -> ( ( P =/= Q /\ R =/= Q ) -> ( ( ( P - Q ) ang ( R - Q ) ) e. RR /\ -u _pi < ( ( P - Q ) ang ( R - Q ) ) /\ ( ( P - Q ) ang ( R - Q ) ) <_ _pi ) ) )
+  1 simp1 |- ( ( P e. CC /\ Q e. CC /\ R e. CC ) -> P e. CC )
+  2 adantr 1 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q ) ) -> P e. CC )
+  3 simp2 |- ( ( P e. CC /\ Q e. CC /\ R e. CC ) -> Q e. CC )
+  4 adantr 3 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q ) ) -> Q e. CC )
+  5 simp3 |- ( ( P e. CC /\ Q e. CC /\ R e. CC ) -> R e. CC )
+  6 adantr 5 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q ) ) -> R e. CC )
+  7 simpr |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q ) ) -> ( P =/= Q /\ R =/= Q ) )
+  8 simpld 7 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q ) ) -> P =/= Q )
+  9 simprd 7 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q ) ) -> R =/= Q )
+  10 subcld 2 4 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q ) ) -> ( P - Q ) e. CC )
+  11 subne0d 2 4 8 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q ) ) -> ( P - Q ) =/= 0 )
+  12 subcld 6 4 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q ) ) -> ( R - Q ) e. CC )
+  13 subne0d 6 4 9 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q ) ) -> ( R - Q ) =/= 0 )
+  14 df-ang |- ang = ( x e. ( CC \ { 0 } ) , y e. ( CC \ { 0 } ) |-> ( Im ` ( log ` ( y / x ) ) ) )
+  15 angcld 14 10 11 12 13 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q ) ) -> ( ( P - Q ) ang ( R - Q ) ) e. ( -u _pi (,] _pi ) )
+  16 pire |- _pi e. RR
+  17 renegcli 16 |- -u _pi e. RR
+  18 rexri 17 |- -u _pi e. RR*
+  19 elioc2 |- ( ( -u _pi e. RR* /\ _pi e. RR ) -> ( ( ( P - Q ) ang ( R - Q ) ) e. ( -u _pi (,] _pi ) <-> ( ( ( P - Q ) ang ( R - Q ) ) e. RR /\ -u _pi < ( ( P - Q ) ang ( R - Q ) ) /\ ( ( P - Q ) ang ( R - Q ) ) <_ _pi ) ) )
+  20 mp2an 18 16 19 |- ( ( ( P - Q ) ang ( R - Q ) ) e. ( -u _pi (,] _pi ) <-> ( ( ( P - Q ) ang ( R - Q ) ) e. RR /\ -u _pi < ( ( P - Q ) ang ( R - Q ) ) /\ ( ( P - Q ) ang ( R - Q ) ) <_ _pi ) )
+  21 sylib 15 20 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q ) ) -> ( ( ( P - Q ) ang ( R - Q ) ) e. RR /\ -u _pi < ( ( P - Q ) ang ( R - Q ) ) /\ ( ( P - Q ) ang ( R - Q ) ) <_ _pi ) )
+  22 ex 21 |- ( ( P e. CC /\ Q e. CC /\ R e. CC ) -> ( ( P =/= Q /\ R =/= Q ) -> ( ( ( P - Q ) ang ( R - Q ) ) e. RR /\ -u _pi < ( ( P - Q ) ang ( R - Q ) ) /\ ( ( P - Q ) ang ( R - Q ) ) <_ _pi ) ) )
+
+# Turned the other way, the signed angle changes sign. `logrec` gives it
+# off the branch cut; on the cut the angle is pi, its own reverse, which is
+# why the angle is asked not to be pi.
+lemma gsangrev
+  |- ( ( P e. CC /\ Q e. CC /\ R e. CC ) -> ( ( P =/= Q /\ R =/= Q /\ ( ( P - Q ) ang ( R - Q ) ) =/= _pi ) -> ( ( R - Q ) ang ( P - Q ) ) = -u ( ( P - Q ) ang ( R - Q ) ) ) )
+  1 simp1 |- ( ( P e. CC /\ Q e. CC /\ R e. CC ) -> P e. CC )
+  2 adantr 1 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q /\ ( ( P - Q ) ang ( R - Q ) ) =/= _pi ) ) -> P e. CC )
+  3 simp2 |- ( ( P e. CC /\ Q e. CC /\ R e. CC ) -> Q e. CC )
+  4 adantr 3 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q /\ ( ( P - Q ) ang ( R - Q ) ) =/= _pi ) ) -> Q e. CC )
+  5 simp3 |- ( ( P e. CC /\ Q e. CC /\ R e. CC ) -> R e. CC )
+  6 adantr 5 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q /\ ( ( P - Q ) ang ( R - Q ) ) =/= _pi ) ) -> R e. CC )
+  7 simpr |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q /\ ( ( P - Q ) ang ( R - Q ) ) =/= _pi ) ) -> ( P =/= Q /\ R =/= Q /\ ( ( P - Q ) ang ( R - Q ) ) =/= _pi ) )
+  8 simp1d 7 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q /\ ( ( P - Q ) ang ( R - Q ) ) =/= _pi ) ) -> P =/= Q )
+  9 simp2d 7 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q /\ ( ( P - Q ) ang ( R - Q ) ) =/= _pi ) ) -> R =/= Q )
+  10 simp3d 7 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q /\ ( ( P - Q ) ang ( R - Q ) ) =/= _pi ) ) -> ( ( P - Q ) ang ( R - Q ) ) =/= _pi )
+  11 subcld 2 4 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q /\ ( ( P - Q ) ang ( R - Q ) ) =/= _pi ) ) -> ( P - Q ) e. CC )
+  12 subne0d 2 4 8 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q /\ ( ( P - Q ) ang ( R - Q ) ) =/= _pi ) ) -> ( P - Q ) =/= 0 )
+  13 subcld 6 4 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q /\ ( ( P - Q ) ang ( R - Q ) ) =/= _pi ) ) -> ( R - Q ) e. CC )
+  14 subne0d 6 4 9 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q /\ ( ( P - Q ) ang ( R - Q ) ) =/= _pi ) ) -> ( R - Q ) =/= 0 )
+  15 jca 11 12 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q /\ ( ( P - Q ) ang ( R - Q ) ) =/= _pi ) ) -> ( ( P - Q ) e. CC /\ ( P - Q ) =/= 0 ) )
+  16 jca 13 14 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q /\ ( ( P - Q ) ang ( R - Q ) ) =/= _pi ) ) -> ( ( R - Q ) e. CC /\ ( R - Q ) =/= 0 ) )
+  17 jca 15 16 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q /\ ( ( P - Q ) ang ( R - Q ) ) =/= _pi ) ) -> ( ( ( P - Q ) e. CC /\ ( P - Q ) =/= 0 ) /\ ( ( R - Q ) e. CC /\ ( R - Q ) =/= 0 ) ) )
+  18 gangval |- ( ( ( ( P - Q ) e. CC /\ ( P - Q ) =/= 0 ) /\ ( ( R - Q ) e. CC /\ ( R - Q ) =/= 0 ) ) -> ( ( P - Q ) ang ( R - Q ) ) = ( Im ` ( log ` ( ( R - Q ) / ( P - Q ) ) ) ) )
+  19 syl 17 18 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q /\ ( ( P - Q ) ang ( R - Q ) ) =/= _pi ) ) -> ( ( P - Q ) ang ( R - Q ) ) = ( Im ` ( log ` ( ( R - Q ) / ( P - Q ) ) ) ) )
+  20 gangrec |- ( ( ( ( P - Q ) e. CC /\ ( P - Q ) =/= 0 ) /\ ( ( R - Q ) e. CC /\ ( R - Q ) =/= 0 ) ) -> ( ( R - Q ) ang ( P - Q ) ) = ( Im ` ( log ` ( 1 / ( ( R - Q ) / ( P - Q ) ) ) ) ) )
+  21 syl 17 20 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q /\ ( ( P - Q ) ang ( R - Q ) ) =/= _pi ) ) -> ( ( R - Q ) ang ( P - Q ) ) = ( Im ` ( log ` ( 1 / ( ( R - Q ) / ( P - Q ) ) ) ) ) )
+  22 divcld 13 11 12 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q /\ ( ( P - Q ) ang ( R - Q ) ) =/= _pi ) ) -> ( ( R - Q ) / ( P - Q ) ) e. CC )
+  23 divne0d 13 11 14 12 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q /\ ( ( P - Q ) ang ( R - Q ) ) =/= _pi ) ) -> ( ( R - Q ) / ( P - Q ) ) =/= 0 )
+  24 neeq1d 19 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q /\ ( ( P - Q ) ang ( R - Q ) ) =/= _pi ) ) -> ( ( ( P - Q ) ang ( R - Q ) ) =/= _pi <-> ( Im ` ( log ` ( ( R - Q ) / ( P - Q ) ) ) ) =/= _pi ) )
+  25 mpbid 10 24 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q /\ ( ( P - Q ) ang ( R - Q ) ) =/= _pi ) ) -> ( Im ` ( log ` ( ( R - Q ) / ( P - Q ) ) ) ) =/= _pi )
+  26 logrec |- ( ( ( ( R - Q ) / ( P - Q ) ) e. CC /\ ( ( R - Q ) / ( P - Q ) ) =/= 0 /\ ( Im ` ( log ` ( ( R - Q ) / ( P - Q ) ) ) ) =/= _pi ) -> ( log ` ( ( R - Q ) / ( P - Q ) ) ) = -u ( log ` ( 1 / ( ( R - Q ) / ( P - Q ) ) ) ) )
+  27 syl3anc 22 23 25 26 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q /\ ( ( P - Q ) ang ( R - Q ) ) =/= _pi ) ) -> ( log ` ( ( R - Q ) / ( P - Q ) ) ) = -u ( log ` ( 1 / ( ( R - Q ) / ( P - Q ) ) ) ) )
+  28 negeqd 27 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q /\ ( ( P - Q ) ang ( R - Q ) ) =/= _pi ) ) -> -u ( log ` ( ( R - Q ) / ( P - Q ) ) ) = -u -u ( log ` ( 1 / ( ( R - Q ) / ( P - Q ) ) ) ) )
+  29 reccld 22 23 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q /\ ( ( P - Q ) ang ( R - Q ) ) =/= _pi ) ) -> ( 1 / ( ( R - Q ) / ( P - Q ) ) ) e. CC )
+  30 recne0d 22 23 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q /\ ( ( P - Q ) ang ( R - Q ) ) =/= _pi ) ) -> ( 1 / ( ( R - Q ) / ( P - Q ) ) ) =/= 0 )
+  31 logcld 29 30 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q /\ ( ( P - Q ) ang ( R - Q ) ) =/= _pi ) ) -> ( log ` ( 1 / ( ( R - Q ) / ( P - Q ) ) ) ) e. CC )
+  32 negnegd 31 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q /\ ( ( P - Q ) ang ( R - Q ) ) =/= _pi ) ) -> -u -u ( log ` ( 1 / ( ( R - Q ) / ( P - Q ) ) ) ) = ( log ` ( 1 / ( ( R - Q ) / ( P - Q ) ) ) ) )
+  33 eqtrd 28 32 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q /\ ( ( P - Q ) ang ( R - Q ) ) =/= _pi ) ) -> -u ( log ` ( ( R - Q ) / ( P - Q ) ) ) = ( log ` ( 1 / ( ( R - Q ) / ( P - Q ) ) ) ) )
+  34 fveq2d 33 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q /\ ( ( P - Q ) ang ( R - Q ) ) =/= _pi ) ) -> ( Im ` -u ( log ` ( ( R - Q ) / ( P - Q ) ) ) ) = ( Im ` ( log ` ( 1 / ( ( R - Q ) / ( P - Q ) ) ) ) ) )
+  35 logcld 22 23 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q /\ ( ( P - Q ) ang ( R - Q ) ) =/= _pi ) ) -> ( log ` ( ( R - Q ) / ( P - Q ) ) ) e. CC )
+  36 imnegd 35 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q /\ ( ( P - Q ) ang ( R - Q ) ) =/= _pi ) ) -> ( Im ` -u ( log ` ( ( R - Q ) / ( P - Q ) ) ) ) = -u ( Im ` ( log ` ( ( R - Q ) / ( P - Q ) ) ) ) )
+  37 eqtr3d 34 36 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q /\ ( ( P - Q ) ang ( R - Q ) ) =/= _pi ) ) -> ( Im ` ( log ` ( 1 / ( ( R - Q ) / ( P - Q ) ) ) ) ) = -u ( Im ` ( log ` ( ( R - Q ) / ( P - Q ) ) ) ) )
+  38 negeqd 19 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q /\ ( ( P - Q ) ang ( R - Q ) ) =/= _pi ) ) -> -u ( ( P - Q ) ang ( R - Q ) ) = -u ( Im ` ( log ` ( ( R - Q ) / ( P - Q ) ) ) ) )
+  39 eqtr4d 37 38 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q /\ ( ( P - Q ) ang ( R - Q ) ) =/= _pi ) ) -> ( Im ` ( log ` ( 1 / ( ( R - Q ) / ( P - Q ) ) ) ) ) = -u ( ( P - Q ) ang ( R - Q ) ) )
+  40 eqtrd 21 39 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= Q /\ R =/= Q /\ ( ( P - Q ) ang ( R - Q ) ) =/= _pi ) ) -> ( ( R - Q ) ang ( P - Q ) ) = -u ( ( P - Q ) ang ( R - Q ) ) )
+  41 ex 40 |- ( ( P e. CC /\ Q e. CC /\ R e. CC ) -> ( ( P =/= Q /\ R =/= Q /\ ( ( P - Q ) ang ( R - Q ) ) =/= _pi ) -> ( ( R - Q ) ang ( P - Q ) ) = -u ( ( P - Q ) ang ( R - Q ) ) ) )
+
+# The signed angles of a triangle add to pi or -pi, by its orientation:
+# `ang180`, with the corpus's `ang` for its F.
+lemma gang180
+  |- ( ( ( A e. CC /\ B e. CC /\ C e. CC ) /\ ( A =/= B /\ B =/= C /\ A =/= C ) ) -> ( ( ( ( C - B ) ang ( A - B ) ) + ( ( A - C ) ang ( B - C ) ) ) + ( ( B - A ) ang ( C - A ) ) ) e. { -u _pi , _pi } )
+  1 df-ang |- ang = ( x e. ( CC \ { 0 } ) , y e. ( CC \ { 0 } ) |-> ( Im ` ( log ` ( y / x ) ) ) )
+  2 ang180 1 |- ( ( ( A e. CC /\ B e. CC /\ C e. CC ) /\ ( A =/= B /\ B =/= C /\ A =/= C ) ) -> ( ( ( ( C - B ) ang ( A - B ) ) + ( ( A - C ) ang ( B - C ) ) ) + ( ( B - A ) ang ( C - A ) ) ) e. { -u _pi , _pi } )
+
