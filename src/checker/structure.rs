@@ -17,7 +17,7 @@ use crate::corpus::{
 };
 use crate::formula::library::Function;
 use crate::formula::notation_id::NotationId;
-use crate::formula::page::Written;
+use crate::formula::page::{numeral, Written};
 use crate::formula::token::{Token, TokenKind};
 use crate::formula::{holds, Node, Sorts};
 use crate::notations::{
@@ -649,8 +649,17 @@ fn check_induction_runs(
         );
         return;
     };
+    // The start is a formula (`check_formulas` reads it), and is the
+    // numeral the set begins at where it reads as that numeral.
     let written = step.just.start.as_deref().map(str::trim);
-    if written != Some(begins.as_str()) {
+    let read = written.map(|w| {
+        Written::new(w, &thm.path, step.just.line)
+            .formula()
+            .and_then(|s| known.parse(&s))
+    });
+    let starts = matches!(&read, Some(Ok(n)) if known.alike(n, &numeral(&begins)));
+    let unread = matches!(&read, Some(Err(_)));
+    if !starts && !unread {
         let said = match written {
             Some(w) => format!("the text says {w}"),
             None => "the text says no start".to_string(),
@@ -690,11 +699,8 @@ pub fn check_chain(report: &mut Report, thm: &Theorem, step: &Step) {
         );
     }
     // A chain the skeleton cannot cut is refused as the build refuses it.
-    let uncut = match crate::corpus::proof::chain(&step.just, &thm.path) {
-        Some(Err(problem)) => Some(problem),
-        _ => None,
-    };
-    if let Some(problem) = &uncut {
+    let cut = crate::corpus::proof::chain(&step.just, &thm.path);
+    if let Some(Err(problem)) = &cut {
         report.say(&problem.path, problem.line, problem.message.clone());
     }
     for (text, no) in &step.just.chain {
@@ -705,11 +711,14 @@ pub fn check_chain(report: &mut Report, thm: &Theorem, step: &Step) {
                 "a chain line carries a justification; a calculation only joins, so each line cites a numbered step or a label and the reasoning lives in that step",
             );
         }
-        let related = RELATIONS.iter().any(|r| {
-            text.trim_start().starts_with(r) || text.contains(&format!(" {r} "))
-        });
-        if !related && uncut.is_none() {
-            report.say(&thm.path, *no, "chain line carries no relation");
+    }
+    // Each line joins by the relation the cut finds where a relation
+    // stands: first in the line, after the first line's start.
+    if let Some(Ok(chain)) = &cut {
+        for line in &chain.lines {
+            if !RELATIONS.contains(&line.relation.as_str()) {
+                report.say(&thm.path, line.line, "chain line carries no relation");
+            }
         }
     }
 }

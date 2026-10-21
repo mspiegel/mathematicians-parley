@@ -41,7 +41,6 @@ use crate::notations::{
 use crate::outcome::{Built, Declined, Route};
 use crate::rules::{self, System};
 use crate::sorts::TYPING;
-use crate::text::squash;
 
 /// A requires line whose cited item does not give its fact.
 struct Unconcluded {
@@ -3778,7 +3777,7 @@ pub fn check_repeated(
                     *j < i
                         || (*j > i
                             && str::trim(&o.how).starts_with("from ")
-                            && squash(o.fact.text()) != squash(req.fact.text()))
+                            && !same_fact(known, &o.fact, &req.fact))
                 })
                 .map(|(_, o)| o.clone())
                 .collect();
@@ -3816,6 +3815,16 @@ pub fn check_repeated(
                 );
             }
         }
+    }
+}
+
+/// Whether two requires lines state one fact, compared as formulas
+/// (`Known::alike`). One that does not read states nothing another does,
+/// and is `check_formulas`'s to report.
+fn same_fact(known: &Known, a: &Written, b: &Written) -> bool {
+    match (known.whole_as_written(a), known.whole_as_written(b)) {
+        (Some(a), Some(b)) => known.alike(&a, &b),
+        _ => false,
     }
 }
 

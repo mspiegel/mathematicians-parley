@@ -326,10 +326,9 @@ fn claim_parts(thm: &Theorem) -> Vec<FormulaPart> {
 
 /// Every part of a theorem that is one formula: a `let` line's parts, a
 /// requires line's fact (one per hypothesis of the item, `SYNTAX.md`), each
-/// value `x := t`,
-/// a substitute's equation, a calculation's terms and moduli, an
-/// `inequalities` step's rows and the terms they add or multiply by, and a
-/// define's parameter domains. A `let` line of none of the forms is
+/// value `x := t`, a substitute's equation, an induction's start, a
+/// calculation's terms and moduli, an `inequalities` step's rows and the
+/// terms they add or multiply by, and a define's parameter domains. A `let` line of none of the forms is
 /// `check_introductions`'s to report, and a chain or rows that do not cut
 /// `check_structure`'s.
 fn one_formula_parts(thm: &Theorem) -> Vec<FormulaPart> {
@@ -372,6 +371,11 @@ fn one_formula_parts(thm: &Theorem) -> Vec<FormulaPart> {
         }
         if let Some(e) = &s.just.equation {
             add(s.just.line, format!("the equation of step {}", s.number), e);
+        }
+        if let Some(start) = &s.just.start {
+            let start = Written::new(start.trim(), &thm.path, s.just.line);
+            let what = format!("the start of step {}", s.number);
+            add(s.just.line, what, &start);
         }
         if let Some(Ok(chain)) = chain(&s.just, &thm.path) {
             let what = || format!("the calculation of step {}", s.number);
