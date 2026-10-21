@@ -18,6 +18,8 @@ import mundane theorem    stdlib/geometry/distance-real as geometry-distance-rea
 import mundane theorem    stdlib/geometry/distance-nonneg as geometry-distance-nonneg
 import mundane theorem    stdlib/geometry/distance-positive as geometry-distance-positive
 import mundane theorem    stdlib/geometry/distance-by-coordinates as geometry-distance-by-coordinates
+import mundane theorem    stdlib/geometry/angle-at-most-straight as geometry-angle-at-most-straight
+import mundane theorem    stdlib/geometry/angle-by-cosine as geometry-angle-by-cosine
 import mundane definition stdlib/geometry/on-line as geometry-on-line
 import theorem            stdlib/geometry/perpendicular-by-right-angle as geometry-perpendicular-by-right-angle
 import theorem            stdlib/geometry/intersecting-chords as geometry-intersecting-chords
@@ -380,3 +382,28 @@ theorem distance-by-coordinates
 
 1.  |(a, b)(c, d)| = √((a − c)² + (b − d)²)
     mun:geometry-distance-by-coordinates
+
+theorem angle-at-most-straight
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P ≠ Q                                                        (H4)
+  assume R ≠ Q                                                        (H5)
+  then ∠PQR ≤ 180°
+
+1.  ∠PQR ≤ 180°
+    mun:geometry-angle-at-most-straight, from H4, H5
+
+theorem angle-by-cosine
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let x ∈ ℝ                                                           (H4)
+  assume P ≠ Q                                                        (H5)
+  assume R ≠ Q                                                        (H6)
+  assume 0 ≤ x                                                        (H7)
+  assume x ≤ 180°                                                     (H8)
+  then ∠PQR = x ↔ cos(∠PQR) = cos(x)
+
+1.  ∠PQR = x ↔ cos(∠PQR) = cos(x)
+    mun:geometry-angle-by-cosine, from H5, H6, H7, H8

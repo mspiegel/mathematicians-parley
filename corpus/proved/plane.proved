@@ -85,3 +85,208 @@ lemma gdistco
       C ) + ( _i x. ( B - D ) ) ) ) = ( sqrt ` ( ( ( A - C ) ^ 2 ) + ( ( B - D ) ^ 2 ) ) ) )
   23 eqtrd 18 22 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( abs ` ( ( A + ( _i
       x. B ) ) - ( C + ( _i x. D ) ) ) ) = ( sqrt ` ( ( ( A - C ) ^ 2 ) + ( ( B - D ) ^ 2 ) ) ) )
+
+# Degrees as set.mm's fractions of pi: 60 degrees is pi/3, 30 degrees is
+# pi/6, 180 degrees is pi. `g90` in the triangles group is 90 degrees. Each
+# writes 180 as ten times a product of two digits and cancels.
+lemma g60
+  |- ( ( ; 6 0 x. _pi ) / ; ; 1 8 0 ) = ( _pi / 3 )
+  1 1nn0 |- 1 e. NN0
+  2 8nn0 |- 8 e. NN0
+  3 deccl 1 2 |- ; 1 8 e. NN0
+  4 dec0u 3 |- ( ; 1 0 x. ; 1 8 ) = ; ; 1 8 0
+  5 a1i 4 |- ( T. -> ( ; 1 0 x. ; 1 8 ) = ; ; 1 8 0 )
+  6 eqcomd 5 |- ( T. -> ; ; 1 8 0 = ( ; 1 0 x. ; 1 8 ) )
+  7 6t3e18 |- ( 6 x. 3 ) = ; 1 8
+  8 a1i 7 |- ( T. -> ( 6 x. 3 ) = ; 1 8 )
+  9 eqcomd 8 |- ( T. -> ; 1 8 = ( 6 x. 3 ) )
+  10 oveq2d 9 |- ( T. -> ( ; 1 0 x. ; 1 8 ) = ( ; 1 0 x. ( 6 x. 3 ) ) )
+  11 eqtrd 6 10 |- ( T. -> ; ; 1 8 0 = ( ; 1 0 x. ( 6 x. 3 ) ) )
+  12 0nn0 |- 0 e. NN0
+  13 deccl 1 12 |- ; 1 0 e. NN0
+  14 a1i 13 |- ( T. -> ; 1 0 e. NN0 )
+  15 nn0cnd 14 |- ( T. -> ; 1 0 e. CC )
+  16 6cn |- 6 e. CC
+  17 a1i 16 |- ( T. -> 6 e. CC )
+  18 3cn |- 3 e. CC
+  19 a1i 18 |- ( T. -> 3 e. CC )
+  20 mulassd 15 17 19 |- ( T. -> ( ( ; 1 0 x. 6 ) x. 3 ) = ( ; 1 0 x. ( 6 x. 3 ) ) )
+  21 eqcomd 20 |- ( T. -> ( ; 1 0 x. ( 6 x. 3 ) ) = ( ( ; 1 0 x. 6 ) x. 3 ) )
+  22 6nn0 |- 6 e. NN0
+  23 dec0u 22 |- ( ; 1 0 x. 6 ) = ; 6 0
+  24 a1i 23 |- ( T. -> ( ; 1 0 x. 6 ) = ; 6 0 )
+  25 oveq1d 24 |- ( T. -> ( ( ; 1 0 x. 6 ) x. 3 ) = ( ; 6 0 x. 3 ) )
+  26 eqtrd 21 25 |- ( T. -> ( ; 1 0 x. ( 6 x. 3 ) ) = ( ; 6 0 x. 3 ) )
+  27 eqtrd 11 26 |- ( T. -> ; ; 1 8 0 = ( ; 6 0 x. 3 ) )
+  28 oveq2d 27 |- ( T. -> ( ( ; 6 0 x. _pi ) / ; ; 1 8 0 ) = ( ( ; 6 0 x. _pi ) / ( ; 6 0 x. 3 ) ) )
+  29 picn |- _pi e. CC
+  30 a1i 29 |- ( T. -> _pi e. CC )
+  31 6nn |- 6 e. NN
+  32 decnncl2 31 |- ; 6 0 e. NN
+  33 a1i 32 |- ( T. -> ; 6 0 e. NN )
+  34 nncnd 33 |- ( T. -> ; 6 0 e. CC )
+  35 3ne0 |- 3 =/= 0
+  36 a1i 35 |- ( T. -> 3 =/= 0 )
+  37 nnne0d 33 |- ( T. -> ; 6 0 =/= 0 )
+  38 divcan5d 30 19 34 36 37 |- ( T. -> ( ( ; 6 0 x. _pi ) / ( ; 6 0 x. 3 ) ) = ( _pi / 3 ) )
+  39 eqtrd 28 38 |- ( T. -> ( ( ; 6 0 x. _pi ) / ; ; 1 8 0 ) = ( _pi / 3 ) )
+  40 mptru 39 |- ( ( ; 6 0 x. _pi ) / ; ; 1 8 0 ) = ( _pi / 3 )
+
+lemma g30
+  |- ( ( ; 3 0 x. _pi ) / ; ; 1 8 0 ) = ( _pi / 6 )
+  1 1nn0 |- 1 e. NN0
+  2 8nn0 |- 8 e. NN0
+  3 deccl 1 2 |- ; 1 8 e. NN0
+  4 dec0u 3 |- ( ; 1 0 x. ; 1 8 ) = ; ; 1 8 0
+  5 a1i 4 |- ( T. -> ( ; 1 0 x. ; 1 8 ) = ; ; 1 8 0 )
+  6 eqcomd 5 |- ( T. -> ; ; 1 8 0 = ( ; 1 0 x. ; 1 8 ) )
+  7 3cn |- 3 e. CC
+  8 6cn |- 6 e. CC
+  9 mulcomi 7 8 |- ( 3 x. 6 ) = ( 6 x. 3 )
+  10 6t3e18 |- ( 6 x. 3 ) = ; 1 8
+  11 eqtri 9 10 |- ( 3 x. 6 ) = ; 1 8
+  12 a1i 11 |- ( T. -> ( 3 x. 6 ) = ; 1 8 )
+  13 eqcomd 12 |- ( T. -> ; 1 8 = ( 3 x. 6 ) )
+  14 oveq2d 13 |- ( T. -> ( ; 1 0 x. ; 1 8 ) = ( ; 1 0 x. ( 3 x. 6 ) ) )
+  15 eqtrd 6 14 |- ( T. -> ; ; 1 8 0 = ( ; 1 0 x. ( 3 x. 6 ) ) )
+  16 0nn0 |- 0 e. NN0
+  17 deccl 1 16 |- ; 1 0 e. NN0
+  18 a1i 17 |- ( T. -> ; 1 0 e. NN0 )
+  19 nn0cnd 18 |- ( T. -> ; 1 0 e. CC )
+  20 a1i 7 |- ( T. -> 3 e. CC )
+  21 a1i 8 |- ( T. -> 6 e. CC )
+  22 mulassd 19 20 21 |- ( T. -> ( ( ; 1 0 x. 3 ) x. 6 ) = ( ; 1 0 x. ( 3 x. 6 ) ) )
+  23 eqcomd 22 |- ( T. -> ( ; 1 0 x. ( 3 x. 6 ) ) = ( ( ; 1 0 x. 3 ) x. 6 ) )
+  24 3nn0 |- 3 e. NN0
+  25 dec0u 24 |- ( ; 1 0 x. 3 ) = ; 3 0
+  26 a1i 25 |- ( T. -> ( ; 1 0 x. 3 ) = ; 3 0 )
+  27 oveq1d 26 |- ( T. -> ( ( ; 1 0 x. 3 ) x. 6 ) = ( ; 3 0 x. 6 ) )
+  28 eqtrd 23 27 |- ( T. -> ( ; 1 0 x. ( 3 x. 6 ) ) = ( ; 3 0 x. 6 ) )
+  29 eqtrd 15 28 |- ( T. -> ; ; 1 8 0 = ( ; 3 0 x. 6 ) )
+  30 oveq2d 29 |- ( T. -> ( ( ; 3 0 x. _pi ) / ; ; 1 8 0 ) = ( ( ; 3 0 x. _pi ) / ( ; 3 0 x. 6 ) ) )
+  31 picn |- _pi e. CC
+  32 a1i 31 |- ( T. -> _pi e. CC )
+  33 3nn |- 3 e. NN
+  34 decnncl2 33 |- ; 3 0 e. NN
+  35 a1i 34 |- ( T. -> ; 3 0 e. NN )
+  36 nncnd 35 |- ( T. -> ; 3 0 e. CC )
+  37 6ne0 |- 6 =/= 0
+  38 a1i 37 |- ( T. -> 6 =/= 0 )
+  39 nnne0d 35 |- ( T. -> ; 3 0 =/= 0 )
+  40 divcan5d 32 21 36 38 39 |- ( T. -> ( ( ; 3 0 x. _pi ) / ( ; 3 0 x. 6 ) ) = ( _pi / 6 ) )
+  41 eqtrd 30 40 |- ( T. -> ( ( ; 3 0 x. _pi ) / ; ; 1 8 0 ) = ( _pi / 6 ) )
+  42 mptru 41 |- ( ( ; 3 0 x. _pi ) / ; ; 1 8 0 ) = ( _pi / 6 )
+
+lemma g180
+  |- ( ( ; ; 1 8 0 x. _pi ) / ; ; 1 8 0 ) = _pi
+  1 picn |- _pi e. CC
+  2 1nn0 |- 1 e. NN0
+  3 8nn |- 8 e. NN
+  4 decnncl 2 3 |- ; 1 8 e. NN
+  5 decnncl2 4 |- ; ; 1 8 0 e. NN
+  6 nncni 5 |- ; ; 1 8 0 e. CC
+  7 nnne0i 5 |- ; ; 1 8 0 =/= 0
+  8 divcan3i 1 6 7 |- ( ( ; ; 1 8 0 x. _pi ) / ; ; 1 8 0 ) = _pi
+
+# The special angles' values, which a school reader takes from the unit
+# circle: set.mm states them at pi/2, pi/3 and pi/6.
+lemma gcos90
+  |- ( cos ` ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) = 0
+  1 g90 |- ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) = ( _pi / 2 )
+  2 fveq2i 1 |- ( cos ` ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) = ( cos ` ( _pi / 2 ) )
+  3 coshalfpi |- ( cos ` ( _pi / 2 ) ) = 0
+  4 eqtri 2 3 |- ( cos ` ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) = 0
+
+lemma gsin90
+  |- ( sin ` ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) = 1
+  1 g90 |- ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) = ( _pi / 2 )
+  2 fveq2i 1 |- ( sin ` ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) = ( sin ` ( _pi / 2 ) )
+  3 sinhalfpi |- ( sin ` ( _pi / 2 ) ) = 1
+  4 eqtri 2 3 |- ( sin ` ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) = 1
+
+lemma gcos60
+  |- ( cos ` ( ( ; 6 0 x. _pi ) / ; ; 1 8 0 ) ) = ( 1 / 2 )
+  1 g60 |- ( ( ; 6 0 x. _pi ) / ; ; 1 8 0 ) = ( _pi / 3 )
+  2 fveq2i 1 |- ( cos ` ( ( ; 6 0 x. _pi ) / ; ; 1 8 0 ) ) = ( cos ` ( _pi / 3 ) )
+  3 sincos3rdpi |- ( ( sin ` ( _pi / 3 ) ) = ( ( sqrt ` 3 ) / 2 ) /\ ( cos ` ( _pi / 3 ) ) = ( 1 / 2
+      ) )
+  4 simpri 3 |- ( cos ` ( _pi / 3 ) ) = ( 1 / 2 )
+  5 eqtri 2 4 |- ( cos ` ( ( ; 6 0 x. _pi ) / ; ; 1 8 0 ) ) = ( 1 / 2 )
+
+lemma gsin30
+  |- ( sin ` ( ( ; 3 0 x. _pi ) / ; ; 1 8 0 ) ) = ( 1 / 2 )
+  1 g30 |- ( ( ; 3 0 x. _pi ) / ; ; 1 8 0 ) = ( _pi / 6 )
+  2 fveq2i 1 |- ( sin ` ( ( ; 3 0 x. _pi ) / ; ; 1 8 0 ) ) = ( sin ` ( _pi / 6 ) )
+  3 sincos6thpi |- ( ( sin ` ( _pi / 6 ) ) = ( 1 / 2 ) /\ ( cos ` ( _pi / 6 ) ) = ( ( sqrt ` 3 ) /
+      2 ) )
+  4 simpli 3 |- ( sin ` ( _pi / 6 ) ) = ( 1 / 2 )
+  5 eqtri 2 4 |- ( sin ` ( ( ; 3 0 x. _pi ) / ; ; 1 8 0 ) ) = ( 1 / 2 )
+
+# An angle is at most a straight angle, and is read from its cosine: on
+# [0, pi] the cosine takes each value once (`cos11`).
+lemma gangle180
+  |- ( ( P e. CC /\ Q e. CC /\ R e. CC ) -> ( ( -. P = Q /\ -. R = Q ) -> ( abs ` ( ( P - Q ) ang
+      ( R - Q ) ) ) <_ ( ( ; ; 1 8 0 x. _pi ) / ; ; 1 8 0 ) ) )
+  1 gangicc3 |- ( ( P e. CC /\ Q e. CC /\ R e. CC ) -> ( ( -. P = Q /\ -. R = Q ) -> ( abs ` ( ( P
+      - Q ) ang ( R - Q ) ) ) e. ( 0 [,] _pi ) ) )
+  2 imp 1 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( -. P = Q /\ -. R = Q ) ) -> ( abs ` ( ( P -
+      Q ) ang ( R - Q ) ) ) e. ( 0 [,] _pi ) )
+  3 0xr |- 0 e. RR*
+  4 a1i 3 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( -. P = Q /\ -. R = Q ) ) -> 0 e. RR* )
+  5 pire |- _pi e. RR
+  6 rexri 5 |- _pi e. RR*
+  7 a1i 6 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( -. P = Q /\ -. R = Q ) ) -> _pi e. RR* )
+  8 iccleub |- ( ( 0 e. RR* /\ _pi e. RR* /\ ( abs ` ( ( P - Q ) ang ( R - Q ) ) ) e. ( 0 [,] _pi ) )
+      -> ( abs ` ( ( P - Q ) ang ( R - Q ) ) ) <_ _pi )
+  9 syl3anc 4 7 2 8 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( -. P = Q /\ -. R = Q ) ) -> ( abs
+      ` ( ( P - Q ) ang ( R - Q ) ) ) <_ _pi )
+  10 g180 |- ( ( ; ; 1 8 0 x. _pi ) / ; ; 1 8 0 ) = _pi
+  11 breqtrrdi 9 10 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( -. P = Q /\ -. R = Q ) ) -> ( abs
+      ` ( ( P - Q ) ang ( R - Q ) ) ) <_ ( ( ; ; 1 8 0 x. _pi ) / ; ; 1 8 0 ) )
+  12 ex 11 |- ( ( P e. CC /\ Q e. CC /\ R e. CC ) -> ( ( -. P = Q /\ -. R = Q ) -> ( abs ` ( ( P - Q
+      ) ang ( R - Q ) ) ) <_ ( ( ; ; 1 8 0 x. _pi ) / ; ; 1 8 0 ) ) )
+
+lemma gangcos
+  |- ( ( P e. CC /\ Q e. CC /\ R e. CC ) -> ( ( -. P = Q /\ -. R = Q ) -> ( ( X e. RR /\ 0 <_ X /\ X
+      <_ ( ( ; ; 1 8 0 x. _pi ) / ; ; 1 8 0 ) ) -> ( ( abs ` ( ( P - Q ) ang ( R - Q ) ) ) = X <-> (
+      cos ` ( abs ` ( ( P - Q ) ang ( R - Q ) ) ) ) = ( cos ` X ) ) ) ) )
+  1 gangicc3 |- ( ( P e. CC /\ Q e. CC /\ R e. CC ) -> ( ( -. P = Q /\ -. R = Q ) -> ( abs ` ( ( P
+      - Q ) ang ( R - Q ) ) ) e. ( 0 [,] _pi ) ) )
+  2 imp 1 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( -. P = Q /\ -. R = Q ) ) -> ( abs ` ( ( P -
+      Q ) ang ( R - Q ) ) ) e. ( 0 [,] _pi ) )
+  3 adantr 2 |- ( ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( -. P = Q /\ -. R = Q ) ) /\ ( X e. RR
+      /\ 0 <_ X /\ X <_ ( ( ; ; 1 8 0 x. _pi ) / ; ; 1 8 0 ) ) ) -> ( abs ` ( ( P - Q ) ang ( R - Q
+      ) ) ) e. ( 0 [,] _pi ) )
+  4 simpr |- ( ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( -. P = Q /\ -. R = Q ) ) /\ ( X e. RR /\
+      0 <_ X /\ X <_ ( ( ; ; 1 8 0 x. _pi ) / ; ; 1 8 0 ) ) ) -> ( X e. RR /\ 0 <_ X /\ X <_ ( ( ; ;
+      1 8 0 x. _pi ) / ; ; 1 8 0 ) ) )
+  5 simp1d 4 |- ( ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( -. P = Q /\ -. R = Q ) ) /\ ( X e. RR
+      /\ 0 <_ X /\ X <_ ( ( ; ; 1 8 0 x. _pi ) / ; ; 1 8 0 ) ) ) -> X e. RR )
+  6 simp2d 4 |- ( ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( -. P = Q /\ -. R = Q ) ) /\ ( X e. RR
+      /\ 0 <_ X /\ X <_ ( ( ; ; 1 8 0 x. _pi ) / ; ; 1 8 0 ) ) ) -> 0 <_ X )
+  7 simp3d 4 |- ( ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( -. P = Q /\ -. R = Q ) ) /\ ( X e. RR
+      /\ 0 <_ X /\ X <_ ( ( ; ; 1 8 0 x. _pi ) / ; ; 1 8 0 ) ) ) -> X <_ ( ( ; ; 1 8 0 x. _pi ) / ; ;
+      1 8 0 ) )
+  8 g180 |- ( ( ; ; 1 8 0 x. _pi ) / ; ; 1 8 0 ) = _pi
+  9 breqtrdi 7 8 |- ( ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( -. P = Q /\ -. R = Q ) ) /\ ( X e.
+      RR /\ 0 <_ X /\ X <_ ( ( ; ; 1 8 0 x. _pi ) / ; ; 1 8 0 ) ) ) -> X <_ _pi )
+  10 3jca 5 6 9 |- ( ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( -. P = Q /\ -. R = Q ) ) /\ ( X e.
+      RR /\ 0 <_ X /\ X <_ ( ( ; ; 1 8 0 x. _pi ) / ; ; 1 8 0 ) ) ) -> ( X e. RR /\ 0 <_ X /\ X <_
+      _pi ) )
+  11 0re |- 0 e. RR
+  12 pire |- _pi e. RR
+  13 elicc2i 11 12 |- ( X e. ( 0 [,] _pi ) <-> ( X e. RR /\ 0 <_ X /\ X <_ _pi ) )
+  14 sylibr 10 13 |- ( ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( -. P = Q /\ -. R = Q ) ) /\ ( X e.
+      RR /\ 0 <_ X /\ X <_ ( ( ; ; 1 8 0 x. _pi ) / ; ; 1 8 0 ) ) ) -> X e. ( 0 [,] _pi ) )
+  15 cos11 |- ( ( ( abs ` ( ( P - Q ) ang ( R - Q ) ) ) e. ( 0 [,] _pi ) /\ X e. ( 0 [,] _pi ) ) ->
+      ( ( abs ` ( ( P - Q ) ang ( R - Q ) ) ) = X <-> ( cos ` ( abs ` ( ( P - Q ) ang ( R - Q ) ) ) )
+      = ( cos ` X ) ) )
+  16 syl2anc 3 14 15 |- ( ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( -. P = Q /\ -. R = Q ) ) /\ (
+      X e. RR /\ 0 <_ X /\ X <_ ( ( ; ; 1 8 0 x. _pi ) / ; ; 1 8 0 ) ) ) -> ( ( abs ` ( ( P - Q ) ang
+      ( R - Q ) ) ) = X <-> ( cos ` ( abs ` ( ( P - Q ) ang ( R - Q ) ) ) ) = ( cos ` X ) ) )
+  17 ex 16 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( -. P = Q /\ -. R = Q ) ) -> ( ( X e. RR /\
+      0 <_ X /\ X <_ ( ( ; ; 1 8 0 x. _pi ) / ; ; 1 8 0 ) ) -> ( ( abs ` ( ( P - Q ) ang ( R - Q ) )
+      ) = X <-> ( cos ` ( abs ` ( ( P - Q ) ang ( R - Q ) ) ) ) = ( cos ` X ) ) ) )
+  18 ex 17 |- ( ( P e. CC /\ Q e. CC /\ R e. CC ) -> ( ( -. P = Q /\ -. R = Q ) -> ( ( X e. RR /\ 0
+      <_ X /\ X <_ ( ( ; ; 1 8 0 x. _pi ) / ; ; 1 8 0 ) ) -> ( ( abs ` ( ( P - Q ) ang ( R - Q ) ) )
+      = X <-> ( cos ` ( abs ` ( ( P - Q ) ang ( R - Q ) ) ) ) = ( cos ` X ) ) ) ) )

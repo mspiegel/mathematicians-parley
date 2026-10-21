@@ -577,6 +577,34 @@ mundane theorem right-angle-by-cosine
   metamath    gright3, from coseq00topi
   target      gright3
 
+mundane theorem angle-at-most-straight
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P ≠ Q                                                        (H4)
+  assume R ≠ Q                                                        (H5)
+  then        ∠PQR ≤ 180°
+  metamath    gangle180, which this corpus proves in
+              elaboration/stdlib/proved.mm from gangicc3
+  target      gangle180
+
+mundane theorem angle-by-cosine
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let x ∈ ℝ                                                           (H4)
+  assume P ≠ Q                                                        (H5)
+  assume R ≠ Q                                                        (H6)
+  assume 0 ≤ x                                                        (H7)
+  assume x ≤ 180°                                                     (H8)
+  then        ∠PQR = x ↔ cos(∠PQR) = cos(x)
+  metamath    gangcos, which this corpus proves in elaboration/stdlib/proved.mm
+              from gangicc3 and cos11
+  target      gangcos
+  note        An angle is read from its cosine, as right-angle-by-cosine
+              reads a right angle: on [0°, 180°] the cosine takes each value
+              once.
+
 theorem altitude-foot
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)

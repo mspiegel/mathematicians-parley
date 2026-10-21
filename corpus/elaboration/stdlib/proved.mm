@@ -485,6 +485,53 @@ $d x R $.  $d y R $.
     eqtrd fveq2d wceq resubcld absreim syl2anc )
     AEFZBEFZGZCEFZDEFZGZGZAHBIJZKJZCHDIJZKJZLJZMNACLJZHBDLJZIJZKJZMNZVIOPJZVJOPJZKJZQNZVCVHVLMVCVHVIVDVFLJZKJVLVCAVDCVFVCAUQURVBRZSVCHBHTFZVCUAUBZVCBUQURVBUCZSZUDVCCUSUTVAUEZSVCHDWAVCDUSUTVAUFZSZUDUGVCVRVKVIKVCVKVRVCHBDWAWCWFUHUIUJUKULVCVIEFVJEFVMVQUMVCACVSWDUNVCBDWBWEUNVIVJUOUPUK $.
 
+  g60 $p |- ( ( ; 6 0 x. _pi ) / ; ; 1 8 0 ) = ( _pi / 3 ) $=
+    ( c6 cc0 cdc cpi cmul co c1 c8 cdiv c3 wceq wtru 1nn0 8nn0 deccl dec0u
+    a1i eqcomd 6t3e18 oveq2d eqtrd cn0 wcel 0nn0 nn0cnd cc 6cn 3cn mulassd
+    6nn0 oveq1d picn cn 6nn decnncl2 nncnd wne 3ne0 nnne0d divcan5d mptru )
+    ABCZDEFZGHCZBCZIFZDJIFZKLVFVCVBJEFZIFVGLVEVHVCILVEGBCZAJEFZEFZVHLVEVIVDEFZVKLVLVEVLVEKLVDGHMNOPQRLVDVJVIELVJVDVJVDKLSQRTUALVKVIAEFZJEFZVHLVNVKLVIAJLVIVIUBUCLGBMUDOQUEAUFUCLUGQJUFUCZLUHQZUIRLVMVBJEVMVBKLAUJPQUKUAUATLDJVBDUFUCLULQVPLVBVBUMUCZLAUNUOZQZUPJBUQLURQLVBVSUSUTUAVA $.
+
+  g30 $p |- ( ( ; 3 0 x. _pi ) / ; ; 1 8 0 ) = ( _pi / 6 ) $=
+    ( c3 cc0 cdc cpi cmul co c1 c8 cdiv c6 wceq wtru 1nn0 8nn0 deccl dec0u
+    a1i eqcomd 3cn 6cn mulcomi 6t3e18 eqtri oveq2d eqtrd cn0 wcel 0nn0 nn0cnd
+    cc mulassd 3nn0 oveq1d picn cn 3nn decnncl2 nncnd wne 6ne0 nnne0d
+    divcan5d mptru )
+    ABCZDEFZGHCZBCZIFZDJIFZKLVHVEVDJEFZIFVILVGVJVEILVGGBCZAJEFZEFZVJLVGVKVFEFZVMLVNVGVNVGKLVFGHMNOPQRLVFVLVKELVLVFVLVFKLVLJAEFVFAJSTUAUBUCQRUDUELVMVKAEFZJEFZVJLVPVMLVKAJLVKVKUFUGLGBMUHOQUIAUJUGLSQJUJUGZLTQZUKRLVOVDJEVOVDKLAULPQUMUEUEUDLDJVDDUJUGLUNQVRLVDVDUOUGZLAUPUQZQZURJBUSLUTQLVDWAVAVBUEVC $.
+
+  g180 $p |- ( ( ; ; 1 8 0 x. _pi ) / ; ; 1 8 0 ) = _pi $=
+    ( cpi c1 c8 cdc cc0 picn 1nn0 8nn decnncl decnncl2 nncni nnne0i divcan3i
+    ) ABCDZEDZFONBCGHIZJZKOQLM $.
+
+  gcos90 $p |- ( cos ` ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) = 0 $=
+    ( c9 cc0 cdc cpi cmul co c1 c8 cdiv ccos cfv c2 g90 fveq2i coshalfpi
+    eqtri ) ABCZDEFZGHCZBCZIFZJKDLIFZJKBUAUBJMNOP $.
+
+  gsin90 $p |- ( sin ` ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) = 1 $=
+    ( c9 cc0 cdc cpi cmul co c1 c8 cdiv csin cfv c2 g90 fveq2i sinhalfpi
+    eqtri ) ABCZDEFZGHCZBCZIFZJKDLIFZJKGUAUBJMNOP $.
+
+  gcos60 $p |- ( cos ` ( ( ; 6 0 x. _pi ) / ; ; 1 8 0 ) ) = ( 1 / 2 ) $=
+    ( c6 cc0 cdc cpi cmul co c1 c8 cdiv ccos cfv c3 c2 g60 fveq2i csin csqrt
+    wceq sincos3rdpi simpri eqtri )
+    ABCZDEFZGHCZBCZIFZJKDLIFZJKZGMIFZUFUGJNOUGPKLQKMIFRUHUIRSTUA $.
+
+  gsin30 $p |- ( sin ` ( ( ; 3 0 x. _pi ) / ; ; 1 8 0 ) ) = ( 1 / 2 ) $=
+    ( c3 cc0 cdc cpi cmul co c1 c8 cdiv csin cfv c6 c2 g30 fveq2i wceq ccos
+    csqrt sincos6thpi simpli eqtri )
+    ABCZDEFZGHCZBCZIFZJKDLIFZJKZGMIFZUFUGJNOUHUIPUGQKARKMIFPSTUA $.
+
+  gangle180 $p |- ( ( P e. CC /\ Q e. CC /\ R e. CC ) -> ( ( -. P = Q /\ -. R = Q ) -> ( abs ` ( ( P - Q ) ang ( R - Q ) ) ) <_ ( ( ; ; 1 8 0 x. _pi ) / ; ; 1 8 0 ) ) ) $=
+    ( cc wcel w3a wceq wn wa cmin co cang cabs cfv c1 c8 cdc cc0 cpi cmul
+    cdiv cle wbr cxr cicc 0xr a1i pire rexri gangicc3 imp iccleub syl3anc
+    g180 breqtrrdi ex )
+    ADEZBDEZCDEZFZABGZHZCBGZHZIZABJKZCBJKZLKZMNZOPQZRQZSTKZVKUAKZUBUCUTVEIZVISVMUBVNRUDEZSUDEZVIRSUEKZEZVISUBUCVOVNUFUGVPVNSUHUIUGUTVEVRABCUJUKRSVIULUMUNUOUP $.
+
+  gangcos $p |- ( ( P e. CC /\ Q e. CC /\ R e. CC ) -> ( ( -. P = Q /\ -. R = Q ) -> ( ( X e. RR /\ 0 <_ X /\ X <_ ( ( ; ; 1 8 0 x. _pi ) / ; ; 1 8 0 ) ) -> ( ( abs ` ( ( P - Q ) ang ( R - Q ) ) ) = X <-> ( cos ` ( abs ` ( ( P - Q ) ang ( R - Q ) ) ) ) = ( cos ` X ) ) ) ) ) $=
+    ( cc wcel w3a wceq wn wa cr cc0 cle wbr c1 c8 cdc cpi cmul co cdiv cmin
+    cang cabs cfv ccos wb wi cicc gangicc3 imp adantr simpr simp1d simp2d
+    simp3d g180 breqtrdi 3jca 0re pire elicc2i sylibr cos11 syl2anc ex )
+    AEFZBEFZCEFZGZABHZIZCBHZIZJZDKFZLDMNZDOPQZLQZRSTZVSUATZMNZGZABUBTZCBUBTZUCTZUDUEZDHZWGUFUEZDUFUEZHZUGZUHVJVOJZWCWLWMWCJZWGLRUITZFZDWOFZWLWMWPWCVJVOWPABCUJUKULWNVPVQDRMNZGWQWNVPVQWRWNVPVQWBWMWCUMZUNWNVPVQWBWSUOWNDWARMWNVPVQWBWSUPUQURUSLRDUTVAVBVCWGDVDVEVFVF $.
+
 $}
 
 ${

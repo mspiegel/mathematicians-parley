@@ -1,0 +1,11 @@
+$( tests/stdlib/geometry/angle-by-cosine, elaborated from tests/stdlib/geometry.proof by parley build.
+   Nothing here is assumed.
+   Checked against a set.mm of 51,256 assertions, sha256
+   0d7fb3e59afff60f4cec2287cbb616bf651bbfbf2356a611a43a5c98b5e0462d. $)
+
+$[ stdlib/proved.mm $]
+
+${
+  tests.stdlib.geometry.angle-by-cosine $p |- ( ( ( ( ( ( ( ( A e. CC /\ B e. CC ) /\ C e. CC ) /\ D e. RR ) /\ -. A = B ) /\ -. C = B ) /\ 0 <_ D ) /\ D <_ ( ( ; ; 1 8 0 x. _pi ) / ; ; 1 8 0 ) ) -> ( ( abs ` ( ( A - B ) ang ( C - B ) ) ) = D <-> ( cos ` ( abs ` ( ( A - B ) ang ( C - B ) ) ) ) = ( cos ` D ) ) ) $=
+    ( cc wcel wa cr wceq wn cc0 cle wbr c1 c8 cdc cpi cmul co cdiv w3a cmin cang cabs cfv ccos wb simpl simpr syl 3jca wi jca id gangcos mpd ) AEFZBEFZGZCEFZGZDHFZGZABIZJZGZCBIZJZGZKDLMZGZDNOPZKPZQRSZVMTSZLMZGZVBVJVPUAZABUBSZCBUBSZUCSZUDUEZDIZWBUFUEZDUFUEZIZUGZVQVBVJVPVQVKVBVKVPUHZVKVIVBVIVJUHZVIVFVBVFVHUHZVFVCVBVCVEUHZVAVBUIUJUJUJUJVQVKVJWHVIVJUIUJVKVPUIUKVQVEVHGZVRWGULZVQVEVHVQVKVEWHVKVIVEWIVIVFVEWJVCVEUIUJUJUJVQVKVHWHVKVIVHWIVFVHUIUJUJUMVQUQURUTUAWLWMULVQUQURUTVQVKUQWHVKVIUQWIVIVFUQWJVFVCUQWKVCVAUQVAVBUHZVAUSUQUSUTUHZUSUQUQUQURUHUQUNUJUJUJUJUJUJUJVQVKURWHVKVIURWIVIVFURWJVFVCURWKVCVAURWNVAUSURWOUQURUIUJUJUJUJUJUJVQVKUTWHVKVIUTWIVIVFUTWJVFVCUTWKVCVAUTWNUSUTUIUJUJUJUJUJUKABCDUOUJUPUP $.
+$}

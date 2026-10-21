@@ -12,6 +12,7 @@ import mundane theorem    stdlib/trigonometry/cos-positive as trigonometry-cos-p
 import mundane theorem    stdlib/trigonometry/sin-bounded as trigonometry-sin-bounded
 import mundane theorem    stdlib/trigonometry/cos-bounded as trigonometry-cos-bounded
 import mundane theorem    stdlib/trigonometry/cos-decreasing as trigonometry-cos-decreasing
+import mundane theorem    stdlib/trigonometry/special-angles as trigonometry-special-angles
 
 theorem cos-complex
   let a ∈ ℂ                                                           (H1)
@@ -97,3 +98,9 @@ theorem cos-decreasing
 
 1.  a < b ↔ cos(b) < cos(a)
     mun:trigonometry-cos-decreasing, from H1, H2
+
+theorem special-angles
+  then cos(90°) = 0. sin(90°) = 1. cos(60°) = 1/2. sin(30°) = 1/2.
+
+1.  cos(90°) = 0. sin(90°) = 1. cos(60°) = 1/2. sin(30°) = 1/2.
+    mun:trigonometry-special-angles
