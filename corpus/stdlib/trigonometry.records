@@ -158,3 +158,12 @@ mundane theorem cos-bounded
   then        −1 ≤ cos(a). cos(a) ≤ 1.
   metamath    cosbnd
   target      cosbnd
+
+mundane theorem cos-decreasing
+  let a ∈ [0, π]                                                      (H1)
+  let b ∈ [0, π]                                                      (H2)
+  then        a < b ↔ cos(b) < cos(a)
+  metamath    cosord
+  target      cosord
+  note        The cosine falls from 1 to −1 as its argument runs from 0 to π,
+              so on that interval a larger argument has a smaller cosine.

@@ -327,6 +327,64 @@ theorem law-of-sines
               PR is opposite Q and PQ opposite R, so |PR|/sin(∠PQR) =
               |PQ|/sin(∠QRP), written without division.
 
+theorem law-of-cosines
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P ≠ Q                                                        (H4)
+  assume R ≠ Q                                                        (H5)
+  then        |RP|² = |PQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠PQR))
+  metamath    glawcos, which this corpus proves in elaboration/stdlib/proved.mm
+              from lawcos
+  target      glawcos
+  note        The side opposite Q, from the two sides at Q and the angle
+              between them; at a right angle the last term is 0 and it is
+              Pythagoras.
+
+mundane theorem angle-equal-by-cosine
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let P′ be a point                                                   (H4)
+  let Q′ be a point                                                   (H5)
+  let R′ be a point                                                   (H6)
+  assume P ≠ Q                                                        (H7)
+  assume R ≠ Q                                                        (H8)
+  assume P′ ≠ Q′                                                      (H9)
+  assume R′ ≠ Q′                                                      (H10)
+  assume cos(∠PQR) = cos(∠P′Q′R′)                                     (H11)
+  then        ∠PQR = ∠P′Q′R′
+  metamath    gangeq3, from cos11
+  target      gangeq3
+  note        An angle is between 0° and 180°, where the cosine is one-to-one.
+
+mundane theorem angle-order-by-cosine
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let P′ be a point                                                   (H4)
+  let Q′ be a point                                                   (H5)
+  let R′ be a point                                                   (H6)
+  assume P ≠ Q                                                        (H7)
+  assume R ≠ Q                                                        (H8)
+  assume P′ ≠ Q′                                                      (H9)
+  assume R′ ≠ Q′                                                      (H10)
+  then        ∠PQR < ∠P′Q′R′ ↔ cos(∠P′Q′R′) < cos(∠PQR)
+  metamath    gangord3, from cosord
+  target      gangord3
+  note        An angle is between 0° and 180°, where the cosine falls: the
+              larger angle has the smaller cosine.
+
+mundane theorem right-angle-by-cosine
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P ≠ Q                                                        (H4)
+  assume R ≠ Q                                                        (H5)
+  then        ∠PQR = 90° ↔ cos(∠PQR) = 0
+  metamath    gright3, from coseq00topi
+  target      gright3
+
 theorem altitude-foot
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)

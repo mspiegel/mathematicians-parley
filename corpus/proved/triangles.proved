@@ -3749,3 +3749,33 @@ lemma galtfoot
       ( ( ( -. P = x /\ -. x = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( x - P ) ) e. RR ) ) /\ ( ( (
       -. Q = x /\ -. x = R ) /\ -. Q = R ) /\ -. ( ( R - Q ) / ( x - Q ) ) e. RR ) ) ) ) ) ) )
 
+# An angle is right when its cosine is 0.
+#
+# The angle is in [0, π] (`gangicc3`), where `coseq00topi` says the cosine
+# is 0 at π/2 alone, and 90° is π/2 (`g90`).
+lemma gright3
+  |- ( ( A e. CC /\ B e. CC /\ C e. CC ) -> ( ( -. A = B /\ -. C = B ) -> ( ( abs ` ( ( A - B ) ang
+      ( C - B ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) <-> ( cos ` ( abs ` ( ( A - B ) ang ( C - B ) )
+      ) ) = 0 ) ) )
+  1 gangicc3 |- ( ( A e. CC /\ B e. CC /\ C e. CC ) -> ( ( -. A = B /\ -. C = B ) -> ( abs ` ( ( A -
+      B ) ang ( C - B ) ) ) e. ( 0 [,] _pi ) ) )
+  2 imp 1 |- ( ( ( A e. CC /\ B e. CC /\ C e. CC ) /\ ( -. A = B /\ -. C = B ) ) -> ( abs ` ( ( A -
+      B ) ang ( C - B ) ) ) e. ( 0 [,] _pi ) )
+  3 coseq00topi |- ( ( abs ` ( ( A - B ) ang ( C - B ) ) ) e. ( 0 [,] _pi ) -> ( ( cos ` ( abs ` ( (
+      A - B ) ang ( C - B ) ) ) ) = 0 <-> ( abs ` ( ( A - B ) ang ( C - B ) ) ) = ( _pi / 2 ) ) )
+  4 syl 2 3 |- ( ( ( A e. CC /\ B e. CC /\ C e. CC ) /\ ( -. A = B /\ -. C = B ) ) -> ( ( cos ` (
+      abs ` ( ( A - B ) ang ( C - B ) ) ) ) = 0 <-> ( abs ` ( ( A - B ) ang ( C - B ) ) ) = ( _pi / 2
+      ) ) )
+  5 g90 |- ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) = ( _pi / 2 )
+  6 eqeq2i 5 |- ( ( abs ` ( ( A - B ) ang ( C - B ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) <-> ( abs
+      ` ( ( A - B ) ang ( C - B ) ) ) = ( _pi / 2 ) )
+  7 bitr4di 4 6 |- ( ( ( A e. CC /\ B e. CC /\ C e. CC ) /\ ( -. A = B /\ -. C = B ) ) -> ( ( cos `
+      ( abs ` ( ( A - B ) ang ( C - B ) ) ) ) = 0 <-> ( abs ` ( ( A - B ) ang ( C - B ) ) ) = ( ( ; 9
+      0 x. _pi ) / ; ; 1 8 0 ) ) )
+  8 bicomd 7 |- ( ( ( A e. CC /\ B e. CC /\ C e. CC ) /\ ( -. A = B /\ -. C = B ) ) -> ( ( abs ` ( (
+      A - B ) ang ( C - B ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) <-> ( cos ` ( abs ` ( ( A - B ) ang
+      ( C - B ) ) ) ) = 0 ) )
+  9 ex 8 |- ( ( A e. CC /\ B e. CC /\ C e. CC ) -> ( ( -. A = B /\ -. C = B ) -> ( ( abs ` ( ( A - B
+      ) ang ( C - B ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) <-> ( cos ` ( abs ` ( ( A - B ) ang ( C -
+      B ) ) ) ) = 0 ) ) )
+

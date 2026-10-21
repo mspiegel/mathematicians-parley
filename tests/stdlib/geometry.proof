@@ -6,6 +6,11 @@ import mundane definition stdlib/geometry/right-angled as geometry-right-angled
 import mundane theorem    stdlib/geometry/right-angled-at-vertex as geometry-right-angled-at-vertex
 import definition         stdlib/geometry/congruent as geometry-congruent
 import mundane theorem    stdlib/reasoning/or-left
+import theorem            stdlib/geometry/law-of-cosines as geometry-law-of-cosines
+import mundane theorem    stdlib/geometry/angle-equal-by-cosine as geometry-angle-equal-by-cosine
+import mundane theorem    stdlib/geometry/angle-order-by-cosine as geometry-angle-order-by-cosine
+import mundane theorem    stdlib/geometry/right-angle-by-cosine as geometry-right-angle-by-cosine
+import mundane definition stdlib/trigonometry/cos
 
 theorem point
   let A ∈ 𝔼²                                                          (H1)
@@ -87,3 +92,58 @@ theorem congruent-by-symbol
 
 1.  |PQ| = |P′Q′|
     def:geometry-congruent, from H7
+
+theorem law-of-cosines
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P ≠ Q                                                        (H4)
+  assume R ≠ Q                                                        (H5)
+  then |RP|² = |PQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠PQR))
+
+1.  |RP|² = |PQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠PQR))
+    thm:geometry-law-of-cosines, from H4, H5
+
+theorem angle-equal-by-cosine
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let P′ be a point                                                   (H4)
+  let Q′ be a point                                                   (H5)
+  let R′ be a point                                                   (H6)
+  assume P ≠ Q                                                        (H7)
+  assume R ≠ Q                                                        (H8)
+  assume P′ ≠ Q′                                                      (H9)
+  assume R′ ≠ Q′                                                      (H10)
+  assume cos(∠PQR) = cos(∠P′Q′R′)                                     (H11)
+  then ∠PQR = ∠P′Q′R′
+
+1.  ∠PQR = ∠P′Q′R′
+    mun:geometry-angle-equal-by-cosine, from H7, H8, H9, H10, H11
+
+theorem angle-order-by-cosine
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let P′ be a point                                                   (H4)
+  let Q′ be a point                                                   (H5)
+  let R′ be a point                                                   (H6)
+  assume P ≠ Q                                                        (H7)
+  assume R ≠ Q                                                        (H8)
+  assume P′ ≠ Q′                                                      (H9)
+  assume R′ ≠ Q′                                                      (H10)
+  then ∠PQR < ∠P′Q′R′ ↔ cos(∠P′Q′R′) < cos(∠PQR)
+
+1.  ∠PQR < ∠P′Q′R′ ↔ cos(∠P′Q′R′) < cos(∠PQR)
+    mun:geometry-angle-order-by-cosine, from H7, H8, H9, H10
+
+theorem right-angle-by-cosine
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P ≠ Q                                                        (H4)
+  assume R ≠ Q                                                        (H5)
+  then ∠PQR = 90° ↔ cos(∠PQR) = 0
+
+1.  ∠PQR = 90° ↔ cos(∠PQR) = 0
+    mun:geometry-right-angle-by-cosine, from H4, H5
