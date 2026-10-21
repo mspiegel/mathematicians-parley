@@ -31,7 +31,6 @@ use parley::source::Disk;
 /// The methods and notations no proof writes yet, by the record a pattern
 /// stands under and the literal it writes.
 const UNWRITTEN: &[&str] = &[
-    "notation collinear ,,arecollinear",
     "notation holds-of ()",
     "notation map themapsending∈to",
     "notation map-of-two themapsending∈,∈to",
