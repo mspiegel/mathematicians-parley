@@ -1,5 +1,11 @@
 import mundane theorem    stdlib/geometry/angle-real as geometry-angle-real
 import mundane definition stdlib/geometry/point as geometry-point
+import mundane definition stdlib/geometry/isosceles as geometry-isosceles
+import mundane definition stdlib/geometry/equilateral as geometry-equilateral
+import mundane definition stdlib/geometry/right-angled as geometry-right-angled
+import mundane theorem    stdlib/geometry/right-angled-at-vertex as geometry-right-angled-at-vertex
+import definition         stdlib/geometry/congruent as geometry-congruent
+import mundane theorem    stdlib/reasoning/or-left
 
 theorem point
   let A ∈ 𝔼²                                                          (H1)
@@ -18,3 +24,66 @@ theorem angle-real
 
 1.  ∠PQR ∈ ℝ. ∠PQR ≥ 0.
     mun:geometry-angle-real, from H4, H5
+
+theorem isosceles
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P, Q, R form a triangle                                      (H4)
+  assume |PQ| = |PR|                                                  (H5)
+  then △PQR is isosceles
+
+1.  |PQ| = |PR| or |QP| = |QR|
+    mun:or-left, from H5
+
+2.  |PQ| = |PR| or |QP| = |QR| or |RP| = |RQ|
+    mun:or-left, from 1
+
+3.  △PQR is isosceles
+    mun:geometry-isosceles, from H4, 2
+
+theorem equilateral
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P, Q, R form a triangle                                      (H4)
+  assume |PQ| = |QR|                                                  (H5)
+  assume |QR| = |RP|                                                  (H6)
+  then △PQR is equilateral
+
+1.  △PQR is equilateral
+    mun:geometry-equilateral, from H4, H5, H6
+
+theorem right-angled
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume △PQR is right-angled at R                                    (H4)
+  then P, Q, R form a triangle
+
+1.  P, Q, R form a triangle
+    mun:geometry-right-angled, from H4
+
+theorem right-angled-at-vertex
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P, Q, R form a triangle                                      (H4)
+  assume ∠PRQ = 90°                                                   (H5)
+  then △PQR is right-angled at R
+
+1.  △PQR is right-angled at R
+    mun:geometry-right-angled-at-vertex, from H4, H5
+
+theorem congruent-by-symbol
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let P′ be a point                                                   (H4)
+  let Q′ be a point                                                   (H5)
+  let R′ be a point                                                   (H6)
+  assume △PQR ≅ △P′Q′R′                                               (H7)
+  then |PQ| = |P′Q′|
+
+1.  |PQ| = |P′Q′|
+    def:geometry-congruent, from H7

@@ -2792,3 +2792,71 @@ lemma gsas
       T ) ) ) ) /\ ( abs ` ( ( Q - R ) ang ( P - R ) ) ) = ( abs ` ( ( T - U ) ang ( S - U ) ) ) )
       /\ ( abs ` ( ( R - P ) ang ( Q - P ) ) ) = ( abs ` ( ( U - S ) ang ( T - S ) ) ) ) ) ) ) ) ) )
 
+# A triangle right-angled at a vertex it names last.
+#
+# "△ABC is right-angled at V" says V is one of the three vertices and the
+# angle there is 90°, whichever V is. Named at C, the triangle's C ≠ A and
+# C ≠ B rule out the first two cases and C = C holds, so what is left is
+# the angle at C.
+lemma grightat3
+  |- ( ( ( ( ( -. A = B /\ -. B = C ) /\ -. A = C ) /\ -. ( ( C - A ) / ( B - A ) ) e. RR ) /\ ( ( (
+      C = A /\ ( abs ` ( ( B - A ) ang ( C - A ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) \/ ( C = B
+      /\ ( abs ` ( ( A - B ) ang ( C - B ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) ) \/ ( C = C /\ (
+      abs ` ( ( A - C ) ang ( B - C ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) ) ) <-> ( ( ( ( -. A =
+      B /\ -. B = C ) /\ -. A = C ) /\ -. ( ( C - A ) / ( B - A ) ) e. RR ) /\ ( abs ` ( ( A - C )
+      ang ( B - C ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) )
+  1 simplr |- ( ( ( ( -. A = B /\ -. B = C ) /\ -. A = C ) /\ -. ( ( C - A ) / ( B - A ) ) e. RR ) ->
+      -. A = C )
+  2 eqcom |- ( C = A <-> A = C )
+  3 sylnibr 1 2 |- ( ( ( ( -. A = B /\ -. B = C ) /\ -. A = C ) /\ -. ( ( C - A ) / ( B - A ) ) e. RR
+      ) -> -. C = A )
+  4 intnanrd 3 |- ( ( ( ( -. A = B /\ -. B = C ) /\ -. A = C ) /\ -. ( ( C - A ) / ( B - A ) ) e. RR
+      ) -> -. ( C = A /\ ( abs ` ( ( B - A ) ang ( C - A ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) )
+  5 simpllr |- ( ( ( ( -. A = B /\ -. B = C ) /\ -. A = C ) /\ -. ( ( C - A ) / ( B - A ) ) e. RR )
+      -> -. B = C )
+  6 eqcom |- ( C = B <-> B = C )
+  7 sylnibr 5 6 |- ( ( ( ( -. A = B /\ -. B = C ) /\ -. A = C ) /\ -. ( ( C - A ) / ( B - A ) ) e. RR
+      ) -> -. C = B )
+  8 intnanrd 7 |- ( ( ( ( -. A = B /\ -. B = C ) /\ -. A = C ) /\ -. ( ( C - A ) / ( B - A ) ) e. RR
+      ) -> -. ( C = B /\ ( abs ` ( ( A - B ) ang ( C - B ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) )
+  9 jca 4 8 |- ( ( ( ( -. A = B /\ -. B = C ) /\ -. A = C ) /\ -. ( ( C - A ) / ( B - A ) ) e. RR )
+      -> ( -. ( C = A /\ ( abs ` ( ( B - A ) ang ( C - A ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) /\
+      -. ( C = B /\ ( abs ` ( ( A - B ) ang ( C - B ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) ) )
+  10 ioran |- ( -. ( ( C = A /\ ( abs ` ( ( B - A ) ang ( C - A ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8
+      0 ) ) \/ ( C = B /\ ( abs ` ( ( A - B ) ang ( C - B ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) )
+      <-> ( -. ( C = A /\ ( abs ` ( ( B - A ) ang ( C - A ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) )
+      /\ -. ( C = B /\ ( abs ` ( ( A - B ) ang ( C - B ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) ) )
+  11 sylibr 9 10 |- ( ( ( ( -. A = B /\ -. B = C ) /\ -. A = C ) /\ -. ( ( C - A ) / ( B - A ) ) e.
+      RR ) -> -. ( ( C = A /\ ( abs ` ( ( B - A ) ang ( C - A ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0
+      ) ) \/ ( C = B /\ ( abs ` ( ( A - B ) ang ( C - B ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) ) )
+  12 biorf |- ( -. ( ( C = A /\ ( abs ` ( ( B - A ) ang ( C - A ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8
+      0 ) ) \/ ( C = B /\ ( abs ` ( ( A - B ) ang ( C - B ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) )
+      -> ( ( C = C /\ ( abs ` ( ( A - C ) ang ( B - C ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) <-> (
+      ( ( C = A /\ ( abs ` ( ( B - A ) ang ( C - A ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) \/ ( C =
+      B /\ ( abs ` ( ( A - B ) ang ( C - B ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) ) \/ ( C = C /\ (
+      abs ` ( ( A - C ) ang ( B - C ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) ) ) )
+  13 syl 11 12 |- ( ( ( ( -. A = B /\ -. B = C ) /\ -. A = C ) /\ -. ( ( C - A ) / ( B - A ) ) e.
+      RR ) -> ( ( C = C /\ ( abs ` ( ( A - C ) ang ( B - C ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) )
+      <-> ( ( ( C = A /\ ( abs ` ( ( B - A ) ang ( C - A ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) \/
+      ( C = B /\ ( abs ` ( ( A - B ) ang ( C - B ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) ) \/ ( C =
+      C /\ ( abs ` ( ( A - C ) ang ( B - C ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) ) ) )
+  14 bicomd 13 |- ( ( ( ( -. A = B /\ -. B = C ) /\ -. A = C ) /\ -. ( ( C - A ) / ( B - A ) ) e. RR
+      ) -> ( ( ( ( C = A /\ ( abs ` ( ( B - A ) ang ( C - A ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) )
+      \/ ( C = B /\ ( abs ` ( ( A - B ) ang ( C - B ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) ) \/ (
+      C = C /\ ( abs ` ( ( A - C ) ang ( B - C ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) ) <-> ( C =
+      C /\ ( abs ` ( ( A - C ) ang ( B - C ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) ) )
+  15 eqid |- C = C
+  16 biantrur 15 |- ( ( abs ` ( ( A - C ) ang ( B - C ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) <-> (
+      C = C /\ ( abs ` ( ( A - C ) ang ( B - C ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) )
+  17 bitr4di 14 16 |- ( ( ( ( -. A = B /\ -. B = C ) /\ -. A = C ) /\ -. ( ( C - A ) / ( B - A ) )
+      e. RR ) -> ( ( ( ( C = A /\ ( abs ` ( ( B - A ) ang ( C - A ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8
+      0 ) ) \/ ( C = B /\ ( abs ` ( ( A - B ) ang ( C - B ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) )
+      \/ ( C = C /\ ( abs ` ( ( A - C ) ang ( B - C ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) ) <-> (
+      abs ` ( ( A - C ) ang ( B - C ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) )
+  18 pm5.32i 17 |- ( ( ( ( ( -. A = B /\ -. B = C ) /\ -. A = C ) /\ -. ( ( C - A ) / ( B - A ) ) e.
+      RR ) /\ ( ( ( C = A /\ ( abs ` ( ( B - A ) ang ( C - A ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) )
+      \/ ( C = B /\ ( abs ` ( ( A - B ) ang ( C - B ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) ) \/ (
+      C = C /\ ( abs ` ( ( A - C ) ang ( B - C ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) ) ) <-> ( ( (
+      ( -. A = B /\ -. B = C ) /\ -. A = C ) /\ -. ( ( C - A ) / ( B - A ) ) e. RR ) /\ ( abs ` ( ( A
+      - C ) ang ( B - C ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) )
+

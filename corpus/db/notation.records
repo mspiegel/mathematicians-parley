@@ -1021,6 +1021,63 @@ notation congruent
               co cabs cfv wceq wa _3 _1 cmin co _2 _1 cmin co cang co cabs cfv _6
               _4 cmin co _5 _4 cmin co cang co cabs cfv wceq wa
 
+notation congruent-by-symbol
+  pattern     △___ ≅ △___
+  sort        point, point, point, point, point, point → formula
+  level       predicate
+  reads       is congruent to
+  metamath    the three sides and the three angles equal
+  target      folded
+  note        △PQR ≅ △P′Q′R′ is triangle PQR ≅ triangle P′Q′R′ as a school
+              book writes it, and builds the same formula.
+  spells      congruent triangle≅triangle
+
+notation isosceles
+  pattern     △___ is isosceles
+  sort        point, point, point → formula
+  level       predicate
+  reads       is isosceles
+  metamath    the three points form a triangle and two of its sides are equal,
+              as def:stdlib/geometry/isosceles states it
+  target      _1 _2 wceq wn _2 _3 wceq wn wa _1 _3 wceq wn wa _3 _1 cmin co _2
+              _1 cmin co cdiv co cr wcel wn wa _1 _2 cmin co cabs cfv _1 _3
+              cmin co cabs cfv wceq _2 _1 cmin co cabs cfv _2 _3 cmin co cabs
+              cfv wceq wo _3 _1 cmin co cabs cfv _3 _2 cmin co cabs cfv wceq wo
+              wa
+  note        Two sides equal, any two: the triangle is named by its three
+              points, and which vertex is the apex is not part of the word.
+
+notation equilateral
+  pattern     △___ is equilateral
+  sort        point, point, point → formula
+  level       predicate
+  reads       is equilateral
+  metamath    the three points form a triangle and its three sides are equal,
+              as def:stdlib/geometry/equilateral states it
+  target      _1 _2 wceq wn _2 _3 wceq wn wa _1 _3 wceq wn wa _3 _1 cmin co _2
+              _1 cmin co cdiv co cr wcel wn wa _1 _2 cmin co cabs cfv _2 _3
+              cmin co cabs cfv wceq wa _2 _3 cmin co cabs cfv _3 _1 cmin co cabs
+              cfv wceq wa
+
+notation right-angled
+  pattern     △___ is right-angled at _
+  sort        point, point, point, point → formula
+  level       predicate
+  reads       is right-angled at
+  metamath    the three points form a triangle and the angle at the named
+              vertex is 90°, as def:stdlib/geometry/right-angled states it
+  target      _1 _2 wceq wn _2 _3 wceq wn wa _1 _3 wceq wn wa _3 _1 cmin co _2
+              _1 cmin co cdiv co cr wcel wn wa _4 _1 wceq _2 _1 cmin co _3 _1
+              cmin co cang co cabs cfv c9 cc0 cdc cpi cmul co c1 c8 cdc cc0 cdc
+              cdiv co wceq wa _4 _2 wceq _1 _2 cmin co _3 _2 cmin co cang co cabs
+              cfv c9 cc0 cdc cpi cmul co c1 c8 cdc cc0 cdc cdiv co wceq wa wo _4
+              _3 wceq _1 _3 cmin co _2 _3 cmin co cang co cabs cfv c9 cc0 cdc
+              cpi cmul co c1 c8 cdc cc0 cdc cdiv co wceq wa wo wa
+  note        The named point is one of the three vertices and the angle there
+              is right: △PQR is right-angled at R says ∠PRQ = 90°. Which
+              vertex it is, is the named point's to say, so the word reads
+              the same whichever is named.
+
 
 # Binders. A hole marked by `binds` introduces a variable that scopes over
 # another hole. SYNTAX.md writes these as words rather than as ∀ and ∃.

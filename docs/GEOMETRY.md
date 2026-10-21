@@ -166,6 +166,16 @@ is the point with those coordinates, which the kernel holds as x + i·y
 (`point-coordinates`); `A = (1, 2)` and `|(0, 0)(3, 4)|` say nothing of ℂ, as
 the rest of the page does not.
 
+**A triangle is a phrase, △PQR, and not an object.** Notations write it as a
+school book does: `△PQR is isosceles`, `△PQR is equilateral`, `△PQR is
+right-angled at R`, and `△PQR ≅ △P′Q′R′` beside `triangle PQR ≅ triangle
+P′Q′R′`. Each stands for a formula of its three points that includes their
+forming a triangle, and its definition is `biid`. "Right-angled at V" says V
+is one of the vertices and the angle there is 90°, whichever V is;
+`mun:stdlib/geometry/right-angled-at-vertex` reads it at the vertex written
+last, which is how a proof names it. No sort holds triangles, so a statement
+about every triangle quantifies over its three points.
+
 ### What it costs, honestly
 
 **Non-degeneracy, and criterion 4 writes all of it.** `angval` wants both

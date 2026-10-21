@@ -115,6 +115,52 @@ definition congruent
               for the six equations themselves, so the two sides are one
               formula.
 
+mundane definition isosceles
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  then        △PQR is isosceles ↔ P, Q, R form a triangle and
+              (|PQ| = |PR| or |QP| = |QR| or |RP| = |RQ|)
+  metamath    biid, since the notation's target is the triangle and the
+              three equalities it chooses among
+  target      biid
+  note        Two sides equal, whichever two: a triangle named by its three
+              points has no apex until a proof says which equality holds.
+
+mundane definition equilateral
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  then        △PQR is equilateral ↔ P, Q, R form a triangle and |PQ| = |QR|
+              and |QR| = |RP|
+  metamath    biid, since the notation's target is the triangle and the two
+              equalities
+  target      biid
+
+mundane definition right-angled
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let V be a point                                                    (H4)
+  then        △PQR is right-angled at V ↔ P, Q, R form a triangle and
+              ((V = P and ∠QPR = 90°) or (V = Q and ∠PQR = 90°) or
+              (V = R and ∠PRQ = 90°))
+  metamath    biid, since the notation's target is the triangle and the
+              right angle at whichever vertex V is
+  target      biid
+  note        V is one of the three vertices and the angle there is right.
+
+mundane theorem right-angled-at-vertex
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  then        △PQR is right-angled at R ↔ P, Q, R form a triangle and
+              ∠PRQ = 90°
+  metamath    grightat3
+  target      grightat3
+  note        Named at the vertex it writes last, a right angle is the angle
+              there: the triangle's R ≠ P and R ≠ Q rule out the other two.
+
 mundane theorem distance-symmetric
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)
