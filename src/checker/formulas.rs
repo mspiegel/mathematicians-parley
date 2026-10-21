@@ -1661,7 +1661,16 @@ fn proof_owes(owner: &Step, claim: &Node, known: &Known) -> Checked<Owed> {
             {
                 // What the block assumes is what the claim supposes, its
                 // letters the block's (`SYNTAX.md`, `proof`).
-                let assumed = known.parse(&o.body(path).sentence()?)?;
+                // "A. B" and "A and B" are one claim (`SYNTAX.md`).
+                let body = o.body(path);
+                let mut said = Vec::new();
+                for s in body.sentences() {
+                    said.push(known.parse(&s)?);
+                }
+                let assumed = match conjoined(known.env.g, said) {
+                    Some(whole) => whole,
+                    None => known.parse(&body.sentence()?)?,
+                };
                 if !known.alike(&assumed, &rest.children[0]) {
                     return Err(Problem::new(
                         path,

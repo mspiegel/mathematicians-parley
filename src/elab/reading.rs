@@ -15,7 +15,9 @@ use super::state::Elaborator;
 use crate::corpus::proof::visible;
 use crate::corpus::{DefineLine, Intro, Item, Recursion, ScopeId, Step, Theorem};
 use crate::formula::grammar::Sorts;
-use crate::formula::page::{filled, made, made_as, template, Sentence, Written};
+use crate::formula::page::{
+    conjoined, filled, made, made_as, template, Sentence, Written,
+};
 use crate::formula::symbol::Symbol;
 use crate::formula::{fits, Node, Sort};
 use crate::matching::{substitute_apart_by, Binding};
@@ -50,6 +52,20 @@ pub fn literal(rpn: &Rpn) -> Node {
 }
 
 impl<'a> Elaborator<'a> {
+    /// Formula text of one or more sentences, read as their conjunction
+    /// joined from the left: "A. B" and "A and B" are one claim (`SYNTAX.md`).
+    fn conjunction_of(&self, written: &Written) -> Checked<Node> {
+        let mut said = Vec::new();
+        for s in written.sentences() {
+            said.push(self.read(&s)?);
+        }
+        match conjoined(self.g, said) {
+            Some(whole) => Ok(whole),
+            // No sentence at all: `read_one` says so.
+            None => self.read_one(written),
+        }
+    }
+
     /// What a hypothesis line claims, its introduction read as one, as a
     /// tree read where the elaborator has got to.
     ///
@@ -68,7 +84,7 @@ impl<'a> Elaborator<'a> {
     /// (`Introduction::asserted`).
     pub fn hypothesis_node(&self, kind: Intro, body: &Written) -> Checked<Node> {
         if kind != Intro::Let {
-            return self.read_one(body);
+            return self.conjunction_of(body);
         }
         let (g, sorts) = (self.g, &self.sorts_now);
         let introduced = Introduction::read(body.clone());
