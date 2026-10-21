@@ -17,6 +17,7 @@ import theorem            stdlib/geometry/segment-addition as geometry-segment-a
 import mundane theorem    stdlib/geometry/distance-real as geometry-distance-real
 import mundane theorem    stdlib/geometry/distance-nonneg as geometry-distance-nonneg
 import mundane theorem    stdlib/geometry/distance-positive as geometry-distance-positive
+import mundane theorem    stdlib/geometry/distance-by-coordinates as geometry-distance-by-coordinates
 import mundane definition stdlib/geometry/on-line as geometry-on-line
 import theorem            stdlib/geometry/perpendicular-by-right-angle as geometry-perpendicular-by-right-angle
 import theorem            stdlib/geometry/intersecting-chords as geometry-intersecting-chords
@@ -369,3 +370,13 @@ theorem distance-positive
 
 1.  |PQ| > 0
     mun:geometry-distance-positive, from H3
+
+theorem distance-by-coordinates
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let c ∈ ℝ                                                           (H3)
+  let d ∈ ℝ                                                           (H4)
+  then |(a, b)(c, d)| = √((a − c)² + (b − d)²)
+
+1.  |(a, b)(c, d)| = √((a − c)² + (b − d)²)
+    mun:geometry-distance-by-coordinates

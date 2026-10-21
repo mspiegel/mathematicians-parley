@@ -479,6 +479,12 @@ $d x R $.  $d y R $.
     simpr subne0d absrpcld rpgt0d ex )
     ACDZBCDZABEZFABGHZIJZKLZMUCUDNZUEUHUIUENZUGUJUFUJABUCUDUEOZUCUDUEPZQUJABUKULUIUERSTUAUBUB $.
 
+  gdistco $p |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( abs ` ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) = ( sqrt ` ( ( ( A - C ) ^ 2 ) + ( ( B - D ) ^ 2 ) ) ) ) $=
+    ( cr wcel wa ci cmul co caddc cmin cabs cfv c2 cexp csqrt simpll recnd cc
+    ax-icn a1i simplr mulcld simprl simprr addsub4d subdid eqcomd oveq2d
+    eqtrd fveq2d wceq resubcld absreim syl2anc )
+    AEFZBEFZGZCEFZDEFZGZGZAHBIJZKJZCHDIJZKJZLJZMNACLJZHBDLJZIJZKJZMNZVIOPJZVJOPJZKJZQNZVCVHVLMVCVHVIVDVFLJZKJVLVCAVDCVFVCAUQURVBRZSVCHBHTFZVCUAUBZVCBUQURVBUCZSZUDVCCUSUTVAUEZSVCHDWAVCDUSUTVAUFZSZUDUGVCVRVKVIKVCVKVRVCHBDWAWCWFUHUIUJUKULVCVIEFVJEFVMVQUMVCACVSWDUNVCBDWBWEUNVIVJUOUPUK $.
+
 $}
 
 ${

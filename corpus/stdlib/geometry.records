@@ -408,6 +408,16 @@ mundane theorem distance-positive
               from absgt0
   target      gdistpos
 
+mundane theorem distance-by-coordinates
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let c ∈ ℝ                                                           (H3)
+  let d ∈ ℝ                                                           (H4)
+  then        |(a, b)(c, d)| = √((a − c)² + (b − d)²)
+  metamath    gdistco, which this corpus proves in elaboration/stdlib/proved.mm
+              from absreim
+  target      gdistco
+
 mundane theorem between-symmetric
   let R be a point                                                    (H1)
   let S be a point                                                    (H2)

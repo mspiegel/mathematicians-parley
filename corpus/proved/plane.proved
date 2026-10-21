@@ -46,3 +46,42 @@ lemma gdistpos
   7 rpgt0d 6 |- ( ( ( P e. CC /\ Q e. CC ) /\ P =/= Q ) -> 0 < ( abs ` ( P - Q ) ) )
   8 ex 7 |- ( ( P e. CC /\ Q e. CC ) -> ( P =/= Q -> 0 < ( abs ` ( P - Q ) ) ) )
   9 ex 8 |- ( P e. CC -> ( Q e. CC -> ( P =/= Q -> 0 < ( abs ` ( P - Q ) ) ) ) )
+
+# The distance between two points given by their coordinates. The point
+# (a, b) is a + i·b, so the difference of two is (a − c) + i·(b − d), and
+# set.mm's `absreim` gives its absolute value.
+lemma gdistco
+  |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( abs ` ( ( A + ( _i x. B ) ) - ( C
+      + ( _i x. D ) ) ) ) = ( sqrt ` ( ( ( A - C ) ^ 2 ) + ( ( B - D ) ^ 2 ) ) ) )
+  1 simpll |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> A e. RR )
+  2 simplr |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> B e. RR )
+  3 simprl |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> C e. RR )
+  4 simprr |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> D e. RR )
+  5 recnd 1 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> A e. CC )
+  6 recnd 2 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> B e. CC )
+  7 recnd 3 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> C e. CC )
+  8 recnd 4 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> D e. CC )
+  9 ax-icn |- _i e. CC
+  10 a1i 9 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> _i e. CC )
+  11 mulcld 10 6 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( _i x. B ) e. CC )
+  12 mulcld 10 8 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( _i x. D ) e. CC )
+  13 addsub4d 5 11 7 12 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( ( A + ( _i
+      x. B ) ) - ( C + ( _i x. D ) ) ) = ( ( A - C ) + ( ( _i x. B ) - ( _i x. D ) ) ) )
+  14 subdid 10 6 8 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( _i x. ( B - D ) )
+      = ( ( _i x. B ) - ( _i x. D ) ) )
+  15 eqcomd 14 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( ( _i x. B ) - ( _i x.
+      D ) ) = ( _i x. ( B - D ) ) )
+  16 oveq2d 15 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( ( A - C ) + ( ( _i x.
+      B ) - ( _i x. D ) ) ) = ( ( A - C ) + ( _i x. ( B - D ) ) ) )
+  17 eqtrd 13 16 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( ( A + ( _i x. B ) )
+      - ( C + ( _i x. D ) ) ) = ( ( A - C ) + ( _i x. ( B - D ) ) ) )
+  18 fveq2d 17 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( abs ` ( ( A + ( _i x.
+      B ) ) - ( C + ( _i x. D ) ) ) ) = ( abs ` ( ( A - C ) + ( _i x. ( B - D ) ) ) ) )
+  19 resubcld 1 3 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( A - C ) e. RR )
+  20 resubcld 2 4 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( B - D ) e. RR )
+  21 absreim |- ( ( ( A - C ) e. RR /\ ( B - D ) e. RR ) -> ( abs ` ( ( A - C ) + ( _i x. ( B - D )
+      ) ) ) = ( sqrt ` ( ( ( A - C ) ^ 2 ) + ( ( B - D ) ^ 2 ) ) ) )
+  22 syl2anc 19 20 21 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( abs ` ( ( A -
+      C ) + ( _i x. ( B - D ) ) ) ) = ( sqrt ` ( ( ( A - C ) ^ 2 ) + ( ( B - D ) ^ 2 ) ) ) )
+  23 eqtrd 18 22 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( abs ` ( ( A + ( _i
+      x. B ) ) - ( C + ( _i x. D ) ) ) ) = ( sqrt ` ( ( ( A - C ) ^ 2 ) + ( ( B - D ) ^ 2 ) ) ) )
