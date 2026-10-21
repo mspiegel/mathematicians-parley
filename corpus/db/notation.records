@@ -1768,6 +1768,19 @@ notation between
               segment from S to T and is neither end. See
               mun:stdlib/geometry/between.
 
+notation midpoint
+  pattern     _ is the midpoint of __
+  sort        point, point, point → formula
+  level       predicate
+  reads       is the midpoint of
+  metamath    between the two ends and equally far from each, as
+              def:stdlib/geometry/midpoint states it
+  target      _2 _1 wne _3 _1 cmin co _2 _1 cmin co cdiv co cr wcel _3 _1 cmin co
+              _2 _1 cmin co cdiv co cc0 clt wbr w3a _2 _1 cmin co cabs cfv _1 _3
+              cmin co cabs cfv wceq wa
+  note        The two ends are juxtaposed, as `line __` writes them: M is the
+              midpoint of AB.
+
 notation same-side
   pattern     _ and _ are on the same side of line __
   sort        point, point, point, point → formula

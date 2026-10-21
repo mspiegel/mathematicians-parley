@@ -197,6 +197,17 @@ mundane definition between
               the same line. The readable layer cannot state it, as for
               mun:stdlib/geometry/collinear.
 
+mundane definition midpoint
+  let M be a point                                                    (H1)
+  let A be a point                                                    (H2)
+  let B be a point                                                    (H3)
+  then        M is the midpoint of AB ↔ M is between A and B and |AM| = |MB|
+  metamath    biid, since the notation's target is the betweenness and the
+              equal halves
+  target      biid
+  note        In the plane the midpoint is (A + B)/2, which the page does not
+              write: it adds points.
+
 mundane definition same-side
   open        Which side of the line through P and Q a point X is on is the
               sign of the imaginary part of (X − P)/(Q − P): positive on one
