@@ -33,14 +33,6 @@ use crate::sorts::introduction::{Form, Introduction};
 use crate::source::{Memory, Overlay, Source};
 use crate::Checked;
 
-/// The name a `let` line introduces: what stands before its `∈`, `∉`, `:`,
-/// `⊆` or `be`.
-fn introduced_name(body: &str) -> Option<&str> {
-    body.split(|c: char| c.is_whitespace() || "∈∉:⊆".contains(c))
-        .next()
-        .filter(|name| !name.is_empty())
-}
-
 /// The shapes a restatement asks about, read off a sentence's tree by what
 /// the notation at its root builds in the kernel — `wb`, `wi`, `wrex` —
 /// never by how it is spelt, and cut from the sentence where the parser read
@@ -433,19 +425,11 @@ fn says_of_statements(r: &Record, g: &Grammar) -> bool {
 
 /// The names a record's `let` lines introduce, in order.
 fn let_names(r: &Record) -> Vec<String> {
-    let mut out: Vec<String> = Vec::new();
-    for h in r.hypotheses.iter().filter(|h| h.kind == Intro::Let) {
-        let body = crate::sorts::unlabel(&h.text);
-        let body = str::trim(&body);
-        match Introduction::read(Written::new(body, &r.path, h.line)).form {
-            Form::Group {
-                group, identity, ..
-            } => out.extend([group, identity]),
-            Form::Graph(line) => out.extend([line.graph, line.vertices, line.edges]),
-            _ => out.extend(introduced_name(body).map(String::from)),
-        }
-    }
-    out
+    r.hypotheses
+        .iter()
+        .filter(|h| h.kind == Intro::Let)
+        .flat_map(|h| Introduction::read(h.body(&r.path)).names())
+        .collect()
 }
 
 /// The library functions a record's statement applies, which a proof

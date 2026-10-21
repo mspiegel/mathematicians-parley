@@ -68,6 +68,11 @@ const ALLOWED: &[(&str, &str, &str)] = &[
         "a pair spelt the same has no identity element dropped between them",
     ),
     (
+        "src/checker/structure.rs",
+        "!set.same_shape(&over)",
+        "a let puts a letter in the very set its range line writes, as written",
+    ),
+    (
         "src/citing/library.rs",
         "!part.same_shape(x)",
         "a part already listed is not listed twice",

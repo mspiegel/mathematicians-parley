@@ -215,7 +215,7 @@ fn cited_sorts(
 /// block binds, the trees an item states — skip a formula they cannot read and
 /// carry on: it has been reported here, once, with the line it is on.
 pub fn check_formulas(report: &mut Report, thm: &Theorem, env: Env, known: &Known) {
-    let own = introduced(thm);
+    let own = introduced(thm, known);
     for part in claim_parts(thm) {
         // Each of these places says something: a `.` alone is no sentence.
         if part.written.sentences().is_empty() {
@@ -820,9 +820,8 @@ pub fn check_letters_introduced(
                 let Ok(node) = known.parse(&sentence) else {
                     continue;
                 };
-                let scope = in_scope.get_or_insert_with(|| {
-                    letters_in_scope(thm, &shape, s, env.scopes, &known.sorts)
-                });
+                let scope = in_scope
+                    .get_or_insert_with(|| letters_in_scope(thm, &shape, s, known));
                 for name in free_names(&node, &binders) {
                     let bound = under_claim && claimed.contains(&name);
                     if !scope.contains(&name) && !bound {
@@ -848,9 +847,8 @@ pub fn check_letters_introduced(
             continue; // `check_formulas` says a value does not read
         };
         for v in &values {
-            let scope = in_scope.get_or_insert_with(|| {
-                letters_in_scope(thm, &shape, s, env.scopes, &known.sorts)
-            });
+            let scope =
+                in_scope.get_or_insert_with(|| letters_in_scope(thm, &shape, s, known));
             for name in free_names(&v.value, &binders) {
                 if !scope.contains(&name) && !claimed.contains(&name) {
                     report.say(
@@ -879,7 +877,7 @@ fn header_letters_introduced(
     known: &Known,
 ) {
     let binders = env.g.binders();
-    let mut scope = super::structure::hypotheses_introduce(thm);
+    let mut scope = super::structure::hypotheses_introduce(thm, known);
     scope.extend(
         visible(env.scopes, thm.scope, thm.line)
             .into_iter()
@@ -2785,7 +2783,7 @@ pub fn check_define_names(
     known: &Known,
     scopes: &[FileScope],
 ) {
-    let letters = introduced(thm);
+    let letters = introduced(thm, known);
     let mut named: IndexMap<String, usize> = IndexMap::new();
     for d in &thm.defines {
         let Built(said) = define_parts(&d.text) else {
@@ -4565,7 +4563,7 @@ fn real_term(node: &Node, known: &Known, targets: &Targets) -> Term {
 /// they do not tell the two apart; a define's name is one letter, which no
 /// library function's is.
 fn library_named(name: &str, known: &Known) -> bool {
-    known.sorts.imported.contains(name) && !introduced(known.thm).contains(name)
+    known.sorts.imported.contains(name) && !introduced(known.thm, known).contains(name)
 }
 
 /// Each sentence of a fact as `real arithmetic` reads it (`real_term`);

@@ -290,6 +290,31 @@ impl Introduction {
         Form::Other
     }
 
+    /// Every name the line introduces: a group and its identity; a graph,
+    /// its vertex set and its edge set, and of a graph given in full each
+    /// vertex and edge it lists; otherwise the one name, or none where the
+    /// line takes none of the forms.
+    pub fn names(&self) -> Vec<String> {
+        match &self.form {
+            Form::Group {
+                group, identity, ..
+            } => vec![group.clone(), identity.clone()],
+            Form::GraphListed(line) | Form::Graph(line) => {
+                let mut out = vec![
+                    line.graph.clone(),
+                    line.vertices.clone(),
+                    line.edges.clone(),
+                ];
+                if let Some(listing) = &line.listed {
+                    out.extend(listing.vertices.iter().cloned());
+                    out.extend(listing.edges.iter().cloned());
+                }
+                out
+            }
+            _ => self.name().map(String::from).into_iter().collect(),
+        }
+    }
+
     /// The name the line introduces, which every form writes first; None
     /// where the line takes none of the forms.
     pub fn name(&self) -> Option<&str> {

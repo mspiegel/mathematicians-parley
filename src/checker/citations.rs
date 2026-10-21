@@ -1041,8 +1041,7 @@ pub fn check_subjects(
         }
         // The proof's letter of the same name is one in scope at the step,
         // which is the letter the build gives the subject.
-        let in_scope =
-            letters_in_scope(thm, &shape, step, known.env.scopes, &known.sorts);
+        let in_scope = letters_in_scope(thm, &shape, step, known);
         if !in_scope.contains(letter.as_str()) {
             report.say(
                 &thm.path,

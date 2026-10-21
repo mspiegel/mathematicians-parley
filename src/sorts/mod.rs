@@ -32,7 +32,7 @@ use crate::matching::{expand, Defined, Definitions, ParamRead, Rule};
 use crate::notations::{FUNCTION_TYPE, ONE_TO_ONE, ONE_TO_ONE_ONTO, ONTO};
 use crate::outcome::{Built, Checked, Declined};
 pub use introduction::graph_line;
-use introduction::{Form, Introduction};
+use introduction::Introduction;
 
 pub const NUMBER_SYSTEMS: [&str; 5] = ["ℕ", "ℕ₀", "ℤ", "ℚ", "ℝ"];
 
@@ -245,68 +245,6 @@ pub fn bound_written(tokens: &[Vec<Token>]) -> BTreeSet<String> {
 pub fn body_of(text: &str, head: &str) -> String {
     let rest = str::trim(&text[head.len().min(text.len())..]);
     str::trim(&unlabel(rest)).to_string()
-}
-
-/// The (name, sort) pairs a `let` body or a sentence states: none, one, or,
-/// for a group, the group and its identity. `known` is the sorts found so
-/// far, since a member of a group's set is a group element.
-fn introduced(body: &str, known: &Sorts) -> Vec<(String, &'static str)> {
-    let said = Introduction::read(Written::new(body, "", 0));
-    let name = said.name().map(String::from);
-    match (&said.form, name) {
-        (
-            Form::Group {
-                group, identity, ..
-            },
-            _,
-        ) => vec![
-            (group.clone(), "group-set"),
-            (identity.clone(), "group-element"),
-        ],
-        (Form::Graph(line) | Form::GraphListed(line), _) => vec![
-            (line.graph.clone(), "set"),
-            (line.vertices.clone(), "set"),
-            (line.edges.clone(), "set"),
-        ],
-        (Form::Set(name), _) => vec![(name.clone(), "set")],
-        (Form::Point(name), _) => vec![(name.clone(), "point")],
-        (Form::Property { name, .. }, _) => vec![(name.clone(), "property")],
-        (
-            Form::Function
-            | Form::FunctionBeing { .. }
-            | Form::FunctionOn { .. }
-            | Form::Polynomial(_),
-            Some(name),
-        ) => vec![(name, "function")],
-        // `n ∈ ℕ`: a membership whose set is one name, which may say the
-        // sort.
-        (Form::Member, Some(name)) => {
-            let set = body.split_once('∈').map_or("", |(_, set)| set.trim());
-            let set = set.trim_end_matches('.');
-            if set.contains(char::is_whitespace) {
-                Vec::new()
-            } else if NUMBER_SYSTEMS.contains(&set) {
-                vec![(name, "number")]
-            } else if known.get(set).is_some_and(|s| s.is("group-set")) {
-                vec![(name, "group-element")]
-            } else {
-                Vec::new()
-            }
-        }
-        // `H is a subgroup of G`, which a sentence says: a set of the
-        // group's elements.
-        (Form::Other, _) => match body.split_whitespace().collect::<Vec<_>>()[..] {
-            [subgroup, "is", "a", "subgroup", "of", _] => {
-                vec![(subgroup.to_string(), "group-set")]
-            }
-            _ => Vec::new(),
-        },
-        _ => Vec::new(),
-    }
-}
-
-fn set_default(out: &mut Sorts, name: String, sort: Sort) {
-    out.entry(name).or_insert(sort);
 }
 
 /// What the `define` lines a citation names by label stand for, and only
@@ -636,22 +574,6 @@ pub fn sorts_of_records(
         .filter(|(_, r)| r.kind.is_item())
         .map(|(i, r)| (i, sorts_of_record(r, env)))
         .collect()
-}
-
-/// The names a theorem's hypotheses introduce in so many words: `n ∈ ℕ`, a
-/// group and its identity, a set, a point, a property or a function.
-///
-/// Which names a theorem introduces itself is a question about its text,
-/// and `check_defined_below` asks it; what their sorts are is the reading's
-/// (`sorts_of_statement`), which also reaches a name the file defines.
-pub fn named_by_hypotheses(thm: &Theorem) -> BTreeSet<String> {
-    let mut out = Sorts::new();
-    for h in &thm.hypotheses {
-        for (name, sort) in introduced(&body_of(&h.text, h.kind.as_str()), &out) {
-            set_default(&mut out, name, Sort::of(sort));
-        }
-    }
-    out.keys().cloned().collect()
 }
 
 /// The sort of every name a proved theorem's statement settles: what a

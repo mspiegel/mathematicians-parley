@@ -876,11 +876,11 @@ fn prepared_in<T>(
         .enumerate()
         .filter(|(_, r)| !r.ranges.is_empty())
     {
-        let lets: Vec<(&str, usize)> = r
+        let lets: Vec<Written> = r
             .hypotheses
             .iter()
             .filter(|h| h.kind == Intro::Let)
-            .map(|h| (h.text.as_str(), h.line))
+            .map(|h| h.body(&r.path))
             .collect();
         let parts = crate::sorts::record_formulas(r);
         structure::check_ranges(
@@ -1069,7 +1069,7 @@ fn check_passes(
     formulas::check_letters_introduced(report, thm, env, k);
     formulas::check_statement_names(report, thm, env, k);
     formulas::check_structure_parts(report, thm, k, &library.targets);
-    structure::check_defined_below(report, thm, scopes, env.g);
+    structure::check_defined_below(report, thm, k);
     formulas::check_clashes(report, thm, clashes);
     formulas::check_contradiction(report, thm, env, k);
     formulas::check_contradicting(report, thm, env, k);
@@ -1145,16 +1145,16 @@ fn check_passes(
     database::check_introductions(report, thm, env, k);
     formulas::check_recursions(report, thm, k);
     structure::check_sorts(report, thm, k);
-    let lets: Vec<(&str, usize)> = thm
+    let lets: Vec<Written> = thm
         .hypotheses
         .iter()
         .filter(|h| h.kind == Intro::Let)
-        .map(|h| (h.text.as_str(), h.line))
+        .map(|h| h.body(&thm.path))
         .chain(thm.steps.iter().flat_map(|s| {
             s.openers
                 .iter()
                 .filter(|o| o.kind == Intro::Let)
-                .map(|o| (o.text.as_str(), o.line))
+                .map(|o| o.body(&thm.path))
         }))
         .collect();
     structure::check_ranges(
