@@ -1768,6 +1768,29 @@ notation between
               segment from S to T and is neither end. See
               mun:stdlib/geometry/between.
 
+notation on-line
+  pattern     _ is on line __
+  sort        point, point, point → formula
+  level       predicate
+  reads       is on the line through
+  metamath    the three are collinear, as def:stdlib/geometry/on-line states it
+  target      _1 _2 cmin co _3 _2 cmin co cdiv co cr wcel
+  note        P is on line AB says what A, B, P are collinear says, with the
+              point first, as a book writes a point on a line.
+
+notation perpendicular
+  pattern     line __ ⊥ line __
+  sort        point, point, point, point → formula
+  level       predicate
+  reads       is perpendicular to
+  metamath    the two directions are apart and their quotient is imaginary
+  target      _1 _2 wne _3 _4 wne _4 _3 cmin co _2 _1 cmin co cdiv co cre cfv
+              cc0 wceq w3a
+  note        line AB ⊥ line CD says A ≠ B, C ≠ D, and the line through C
+              and D runs at a right angle to the one through A and B: the
+              quotient of their directions has real part 0. Written as
+              `parallel` writes its lines. See mun:stdlib/geometry/perpendicular.
+
 notation midpoint
   pattern     _ is the midpoint of __
   sort        point, point, point → formula

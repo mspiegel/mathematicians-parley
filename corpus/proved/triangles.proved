@@ -3779,3 +3779,13 @@ lemma gright3
       ) ang ( C - B ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) <-> ( cos ` ( abs ` ( ( A - B ) ang ( C -
       B ) ) ) ) = 0 ) ) )
 
+# `gperp` with the right angle written in degrees, as the page writes it.
+lemma gperp90
+  |- ( ( A e. CC /\ B e. CC /\ C e. CC ) -> ( ( -. A = B /\ -. C = B ) -> ( ( B =/= A /\ B =/= C /\ ( Re ` ( ( C - B ) / ( A - B ) ) ) = 0 ) <-> ( abs ` ( ( A - B ) ang ( C - B ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) ) )
+  1 gperp |- ( ( A e. CC /\ B e. CC /\ C e. CC ) -> ( ( -. A = B /\ -. C = B ) -> ( ( B =/= A /\ B =/= C /\ ( Re ` ( ( C - B ) / ( A - B ) ) ) = 0 ) <-> ( abs ` ( ( A - B ) ang ( C - B ) ) ) = ( _pi / 2 ) ) ) )
+  2 imp 1 |- ( ( ( A e. CC /\ B e. CC /\ C e. CC ) /\ ( -. A = B /\ -. C = B ) ) -> ( ( B =/= A /\ B =/= C /\ ( Re ` ( ( C - B ) / ( A - B ) ) ) = 0 ) <-> ( abs ` ( ( A - B ) ang ( C - B ) ) ) = ( _pi / 2 ) ) )
+  3 g90 |- ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) = ( _pi / 2 )
+  4 eqeq2i 3 |- ( ( abs ` ( ( A - B ) ang ( C - B ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) <-> ( abs ` ( ( A - B ) ang ( C - B ) ) ) = ( _pi / 2 ) )
+  5 bitr4di 2 4 |- ( ( ( A e. CC /\ B e. CC /\ C e. CC ) /\ ( -. A = B /\ -. C = B ) ) -> ( ( B =/= A /\ B =/= C /\ ( Re ` ( ( C - B ) / ( A - B ) ) ) = 0 ) <-> ( abs ` ( ( A - B ) ang ( C - B ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) )
+  6 ex 5 |- ( ( A e. CC /\ B e. CC /\ C e. CC ) -> ( ( -. A = B /\ -. C = B ) -> ( ( B =/= A /\ B =/= C /\ ( Re ` ( ( C - B ) / ( A - B ) ) ) = 0 ) <-> ( abs ` ( ( A - B ) ang ( C - B ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) ) )
+

@@ -14,6 +14,8 @@ import mundane definition stdlib/trigonometry/cos
 import mundane definition stdlib/geometry/midpoint as geometry-midpoint
 import theorem            stdlib/geometry/segment-addition as geometry-segment-addition
 import mundane theorem    stdlib/geometry/distance-real as geometry-distance-real
+import mundane definition stdlib/geometry/on-line as geometry-on-line
+import theorem            stdlib/geometry/perpendicular-by-right-angle as geometry-perpendicular-by-right-angle
 
 theorem point
   let A ∈ 𝔼²                                                          (H1)
@@ -170,3 +172,25 @@ theorem midpoint-halves
 3.  |AM| = |AB|/2
     algebra, from 1, 2
     requires |MB| ∈ ℝ: mun:geometry-distance-real
+
+theorem on-line
+  let P be a point                                                    (H1)
+  let A be a point                                                    (H2)
+  let B be a point                                                    (H3)
+  assume P is on line AB                                              (H4)
+  then A, B, P are collinear
+
+1.  A, B, P are collinear
+    mun:geometry-on-line, from H4
+
+theorem perpendicular-by-right-angle
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P ≠ Q                                                        (H4)
+  assume R ≠ Q                                                        (H5)
+  assume ∠PQR = 90°                                                   (H6)
+  then line QP ⊥ line QR
+
+1.  line QP ⊥ line QR
+    thm:geometry-perpendicular-by-right-angle, from H4, H5, H6

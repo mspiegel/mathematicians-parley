@@ -197,6 +197,34 @@ mundane definition between
               the same line. The readable layer cannot state it, as for
               mun:stdlib/geometry/collinear.
 
+mundane definition on-line
+  let P be a point                                                    (H1)
+  let A be a point                                                    (H2)
+  let B be a point                                                    (H3)
+  then        P is on line AB ↔ A, B, P are collinear
+  metamath    biid, since both notations' targets are the one quotient
+  target      biid
+
+mundane definition perpendicular
+  open        In the plane line AB ⊥ line CD says A ≠ B, C ≠ D and
+              (D − C)/(B − A) has real part 0: the two directions are at a
+              right angle. The readable layer cannot state it, as for
+              mun:stdlib/geometry/parallel; where the lines meet,
+              mun:stdlib/geometry/perpendicular-by-right-angle reads it as
+              an angle.
+
+theorem perpendicular-by-right-angle
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P ≠ Q                                                        (H4)
+  assume R ≠ Q                                                        (H5)
+  then        line QP ⊥ line QR ↔ ∠PQR = 90°
+  metamath    gperp90, from angrteqvd
+  target      gperp90
+  note        Two lines through Q are perpendicular when the angle between
+              them at Q is a right angle.
+
 mundane definition midpoint
   let M be a point                                                    (H1)
   let A be a point                                                    (H2)
