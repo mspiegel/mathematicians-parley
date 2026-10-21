@@ -1006,11 +1006,17 @@ fn check_requires_work(
             continue;
         }
         let found = found_alone(c, thm, step, k, clashes);
-        for (r, req) in step.requires.iter().enumerate() {
-            let mut lighter = step.clone();
-            lighter.requires.remove(r);
+        // Each line is asked of the step without the lines already found to
+        // do no work: two lines either of which would do, |AM| ∈ ℝ and
+        // |MB| ∈ ℝ beside |AM| = |MB|, are not both surplus, and only the
+        // first is said to be.
+        let mut kept = step.clone();
+        for req in &step.requires {
+            let mut lighter = kept.clone();
+            lighter.requires.retain(|r| r.line != req.line);
             let without = found_alone(c, thm, &lighter, k, clashes);
             if without.is_subset(&found) {
+                kept = lighter;
                 report.say(
                     &thm.path,
                     req.line,
