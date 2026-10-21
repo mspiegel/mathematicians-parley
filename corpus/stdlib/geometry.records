@@ -397,6 +397,42 @@ theorem supplementary-angles
   note        Two angles on a line, Euclid I.13: with B on the segment AC,
               the angles ABD and DBC make a straight angle wherever D is.
 
+theorem triangle-inequality-points
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  then        |PR| ≤ |PQ| + |QR|
+  metamath    abs3dif
+  target      abs3dif
+
+theorem triangle-equality-between
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P ≠ Q                                                        (H4)
+  assume R ≠ Q                                                        (H5)
+  assume |PQ| + |QR| = |PR|                                           (H6)
+  then        Q is between P and R
+  metamath    gtrieq, which this corpus proves in elaboration/stdlib/proved.mm:
+              set.mm has no equality case of the triangle inequality
+  target      gtrieq
+  note        Where the way through Q is no longer than the straight way,
+              Q lies on the segment PR. Squared, the equality says the
+              product of the differences from Q with one conjugated has its
+              real part equal to minus its size, so it is a negative real.
+
+theorem triangle-inequality-strict
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P, Q, R form a triangle                                      (H4)
+  then        |PR| < |PQ| + |QR|
+  metamath    gtristrict, which this corpus proves in
+              elaboration/stdlib/proved.mm from gtrieq and abs3dif
+  target      gtristrict
+  note        Euclid I.20: equality would put Q between P and R, and the
+              three would be collinear.
+
 mundane theorem distance-real
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)

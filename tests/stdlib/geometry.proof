@@ -23,6 +23,9 @@ import mundane theorem    stdlib/geometry/between-by-coordinates as geometry-bet
 import mundane theorem    stdlib/geometry/angle-at-most-straight as geometry-angle-at-most-straight
 import mundane theorem    stdlib/geometry/angle-by-cosine as geometry-angle-by-cosine
 import theorem            stdlib/geometry/supplementary-angles as geometry-supplementary-angles
+import theorem            stdlib/geometry/triangle-inequality-points as geometry-triangle-inequality-points
+import theorem            stdlib/geometry/triangle-equality-between as geometry-triangle-equality-between
+import theorem            stdlib/geometry/triangle-inequality-strict as geometry-triangle-inequality-strict
 import mundane definition stdlib/geometry/on-line as geometry-on-line
 import theorem            stdlib/geometry/perpendicular-by-right-angle as geometry-perpendicular-by-right-angle
 import theorem            stdlib/geometry/intersecting-chords as geometry-intersecting-chords
@@ -448,3 +451,34 @@ theorem supplementary-angles
 
 1.  ∠ABD + ∠DBC = 180°
     thm:geometry-supplementary-angles, from H5, H6
+
+theorem triangle-inequality-points
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  then |PR| ≤ |PQ| + |QR|
+
+1.  |PR| ≤ |PQ| + |QR|
+    thm:geometry-triangle-inequality-points
+
+theorem triangle-equality-between
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P ≠ Q                                                        (H4)
+  assume R ≠ Q                                                        (H5)
+  assume |PQ| + |QR| = |PR|                                           (H6)
+  then Q is between P and R
+
+1.  Q is between P and R
+    thm:geometry-triangle-equality-between, from H4, H5, H6
+
+theorem triangle-inequality-strict
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P, Q, R form a triangle                                      (H4)
+  then |PR| < |PQ| + |QR|
+
+1.  |PR| < |PQ| + |QR|
+    thm:geometry-triangle-inequality-strict, from H4
