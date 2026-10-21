@@ -137,8 +137,12 @@ theorem's page the checker read is in `CheckedTheorem::page`, by line and
 text, and every sentence of every item a citation may name is in
 `CheckedTheorem::items`, read once with the item's own sorts. The build
 takes each sentence from there and parses nothing; one the checker did not
-read is a fault of the build. Clippy denies the parser's entry points
-inside `src/elab` (`clippy.toml`).
+read is a fault of the build. The checker also hands it, with the corpus,
+every item's groups, the records' sorts and each proved theorem's statement
+as a citation reads it (`LibraryReading`), and with each theorem the
+definitions from outside it and those its statement is read with. Clippy
+denies the parser's entry points, and the sort and library readers built on
+them, inside `src/elab` (`clippy.toml`).
 
 **Growth goes into the tables first.** A pilot that meets a new difference
 between the page and set.mm adds a rule or a table entry. A new part is for a
