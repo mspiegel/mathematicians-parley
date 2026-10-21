@@ -9,7 +9,7 @@ use super::library::Known;
 use super::record::CheckedTheorem;
 use super::{Report, RELATIONS};
 use crate::corpus::proof::visible;
-use crate::corpus::skeleton::{let_name, let_names, letter_in, listed};
+use crate::corpus::skeleton::{let_name, let_names, letter_in};
 use crate::corpus::{
     cited_items, define_parts, fmt, is_label, item_kind, names_an_item, FileScope,
     Head, Intro, Item, Justification, Method, Range, Record, RecordKind, Requires,
@@ -2040,8 +2040,9 @@ pub fn letters_in_scope(
 }
 
 /// The letters a theorem's hypotheses introduce: each `let`'s names, and of
-/// a `let … be` line the things in the sets it lists, as a graph's vertices
-/// and edges are named.
+/// a graph given in full the vertices and edges it lists. A set listed
+/// anywhere else names things introduced elsewhere: `let x ∈ {a, b}`
+/// introduces x alone.
 pub fn hypotheses_introduce(thm: &Theorem) -> BTreeSet<String> {
     let mut out: BTreeSet<String> = named_by_hypotheses(thm);
     for h in &thm.hypotheses {
@@ -2049,8 +2050,12 @@ pub fn hypotheses_introduce(thm: &Theorem) -> BTreeSet<String> {
             out.extend(names_listed(names));
         }
         if h.kind == Intro::Let {
-            for list in listed(&h.text) {
-                out.extend(names_listed(list));
+            let introduced = Introduction::read(h.body(&thm.path));
+            if let Form::GraphListed(line) = introduced.form {
+                if let Some(listing) = line.listed {
+                    out.extend(listing.vertices);
+                    out.extend(listing.edges);
+                }
             }
         }
     }

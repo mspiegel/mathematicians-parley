@@ -754,6 +754,19 @@ pub fn check_introductions(
             .filter(|r| r.starts_with(char::is_whitespace))
             .unwrap_or(body);
         let body = Written::new(str::trim(&unlabel(body)), &thm.path, no);
+        // A library item may introduce a property; a theorem may not, as
+        // the build cannot state a theorem over one (`SYNTAX.md`).
+        if let Form::Property { .. } = Introduction::read(body.clone()).form {
+            report.say(
+                &thm.path,
+                no,
+                format!(
+                    "`let {}` introduces a property, which only a library item may",
+                    prefix(body.text(), 40)
+                ),
+            );
+            continue;
+        }
         if let Some(said) = introduction_problem(&body, env, &known.sorts) {
             report.say(&thm.path, no, said);
         }

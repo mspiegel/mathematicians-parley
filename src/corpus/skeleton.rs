@@ -307,26 +307,6 @@ pub fn let_name(text: &str) -> Option<&str> {
     (end > 0).then_some(&rest[..end])
 }
 
-/// What each pair of braces in a line lists that is a list of names: no
-/// brace inside it, no colon and no `…`, as `{A, B, C, D}` lists a graph's
-/// vertices and `{x ∈ ℕ : x > 1}` lists none.
-pub fn listed(text: &str) -> Vec<&str> {
-    let mut out = Vec::new();
-    let mut rest = text;
-    while let Some(open) = rest.find('{') {
-        let inside = &rest[open + 1..];
-        let Some(close) = inside.find(['{', '}']) else {
-            break;
-        };
-        let list = &inside[..close];
-        if inside[close..].starts_with('}') && !list.contains([':', '…']) {
-            out.push(list);
-        }
-        rest = &inside[close..];
-    }
-    out
-}
-
 /// Whether a word is one letter, Latin or Greek, with any subscript or
 /// prime: what a range line ranges and a `let` may put in a set.
 pub fn is_letter_name(word: &str) -> bool {

@@ -55,6 +55,11 @@ impl Values {
         self.given.is_empty()
     }
 
+    /// Each value as written, in order.
+    pub fn written(&self) -> impl Iterator<Item = &Written> {
+        self.given.iter().map(|g| &g.value)
+    }
+
     /// The cited item's letters the values are given for, in order.
     pub fn names(&self) -> impl Iterator<Item = &str> {
         self.given.iter().map(|g| g.name.as_str())

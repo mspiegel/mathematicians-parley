@@ -2655,6 +2655,60 @@ fn cases() -> Vec<Case> {
             "the `assume` line says nothing",
         ),
         case(
+            "a let line of two sentences",
+            vec![edit(
+                "proofs/zz/let-two.proof",
+                None,
+                "theorem let-two\n  let x ∈ ℝ. x > 0.                                                   (H1)\n  then x = x\n\n1.  x = x\n    algebra\n".to_string(),
+            )],
+            "the `let` line: \"x ∈ ℝ. x > 0.\" is 2 sentences where one formula is written",
+        ),
+        case(
+            "a let in a set listing names nothing introduces",
+            vec![edit(
+                "proofs/zz/let-listed.proof",
+                None,
+                "theorem let-listed\n  let x ∈ {a, b}                                                      (H1)\n  then x = x\n\n1.  x = x\n    algebra\n".to_string(),
+            )],
+            "the statement writes a, which it does not introduce",
+        ),
+        case(
+            "a theorem introducing a property",
+            vec![edit(
+                "proofs/zz/let-property.proof",
+                None,
+                "theorem let-property\n  let A be a set                                                      (H1)\n  let P be a property of the elements of A                            (H2)\n  then A = A\n\n1.  A = A\n    algebra\n".to_string(),
+            )],
+            "`let P be a property of the elements of A` introduces a property, which only a library item may",
+        ),
+        case(
+            "a value that does not read",
+            vec![edit(
+                "proofs/zz/value-unread.proof",
+                None,
+                "theorem value-unread\n  let x ∈ ℝ                                                           (H1)\n  assume for all y ∈ ℝ, y = y                                         (H2)\n  then x = x\n\n1.  x = x\n    instantiate y := x + + in line H2, from H1\n".to_string(),
+            )],
+            "a value step 1 gives: 'x + +' has 2 token(s) left over",
+        ),
+        case(
+            "a substitute equation that does not read",
+            vec![edit(
+                "proofs/zz/equation-unread.proof",
+                None,
+                "theorem equation-unread\n  let x ∈ ℝ                                                           (H1)\n  assume x = 0                                                        (H2)\n  then x + 1 = 0 + 1\n\n1.  x + 1 = 0 + 1\n    substitute x = + (H2)\n".to_string(),
+            )],
+            "the equation of step 1: ",
+        ),
+        case(
+            "a calculation term that does not read",
+            vec![edit(
+                "proofs/zz/chain-unread.proof",
+                None,
+                "theorem chain-unread\n  let x ∈ ℝ                                                           (H1)\n  then x + 0 = x\n\n1.  x + 0 = x\n    calculation\n      x + 0 = x + +     H1\n            = x         H1\n".to_string(),
+            )],
+            "the calculation of step 1: ",
+        ),
+        case(
             "a proof block claiming two sentences",
             vec![edit(
                 "proofs/zz/proof-two.proof",

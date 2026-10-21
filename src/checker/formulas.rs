@@ -215,59 +215,21 @@ fn cited_sorts(
 /// carry on: it has been reported here, once, with the line it is on.
 pub fn check_formulas(report: &mut Report, thm: &Theorem, env: Env, known: &Known) {
     let own = introduced(thm);
-    let mut places: Vec<(usize, String, Written)> = thm
-        .steps
-        .iter()
-        .map(|s| (s.line, format!("step {}", s.number), s.claim.clone()))
-        .collect();
-    for s in &thm.steps {
-        for r in &s.requires {
-            places.push((
-                r.line,
-                format!("the requires line of step {}", s.number),
-                r.fact.clone(),
-            ));
-        }
-    }
-    let assumed = |kind| matches!(kind, Intro::Assume | Intro::Suppose);
-    for h in thm.hypotheses.iter().filter(|h| assumed(h.kind)) {
-        places.push((h.line, format!("the `{}` line", h.kind), h.body(&thm.path)));
-    }
-    // An induction hypothesis writes no formula: it assumes what its
-    // induction's claim says.
-    for s in &thm.steps {
-        for o in &s.openers {
-            if assumed(o.kind) && !o.is_hypothesis {
-                places.push((
-                    o.line,
-                    format!("the `{}` line", o.kind),
-                    o.body(&thm.path),
-                ));
-            }
-        }
-    }
-    places.push((
-        thm.line,
-        format!("the statement of {}", thm.name),
-        Written::new(&thm.conclusion, &thm.path, thm.line),
-    ));
-    for (line, what, written) in places {
+    for part in claim_parts(thm) {
         // Each of these places says something: a `.` alone is no sentence.
-        if written.sentences().is_empty() {
-            report.say(&thm.path, line, format!("{what} says nothing"));
+        if part.written.sentences().is_empty() {
+            report.say(&thm.path, part.line, format!("{} says nothing", part.what));
             continue;
         }
-        for sentence in written.sentences() {
+        for sentence in part.written.sentences() {
             if let Err(p) = known.parse(&sentence) {
-                // A name the file defines only further down is why, and
-                // `check_defined_below` says so: above its define it names
-                // nothing, and `U(0)` then reads several ways because
-                // nothing says U is a function.
-                let lexed = written_tokens(std::slice::from_ref(&written), env.g);
-                if defined_below(thm, &lexed, &own, env.scopes).is_empty() {
-                    report.say(&thm.path, line, format!("{what}: {}", p.message));
-                }
+                say_unread(report, thm, env, &own, &part, p);
             }
+        }
+    }
+    for part in one_formula_parts(thm) {
+        if let Err(p) = part.written.sentence().and_then(|s| known.parse(&s)) {
+            say_unread(report, thm, env, &own, &part, p);
         }
     }
     // A define's rule is a formula too, read with its argument's sort; one
@@ -287,6 +249,151 @@ pub fn check_formulas(report: &mut Report, thm: &Theorem, env: Env, known: &Know
             );
         }
     }
+}
+
+/// A part of a line that is formula text, and what a message calls it.
+struct FormulaPart {
+    line: usize,
+    what: String,
+    written: Written,
+}
+
+impl FormulaPart {
+    fn new(line: usize, what: String, written: &Written) -> FormulaPart {
+        FormulaPart {
+            line,
+            what,
+            written: written.clone(),
+        }
+    }
+}
+
+/// A part that does not read, reported, unless a name the file defines only
+/// further down is why: `check_defined_below` says so, since above its
+/// define it names nothing, and `U(0)` then reads several ways because
+/// nothing says U is a function.
+fn say_unread(
+    report: &mut Report,
+    thm: &Theorem,
+    env: Env,
+    own: &BTreeSet<String>,
+    part: &FormulaPart,
+    p: Problem,
+) {
+    let lexed = written_tokens(std::slice::from_ref(&part.written), env.g);
+    if defined_below(thm, &lexed, own, env.scopes).is_empty() {
+        let said = format!("{}: {}", part.what, p.message);
+        report.say(&thm.path, part.line, said);
+    }
+}
+
+/// Every part of a theorem that is a claim, of one sentence or several:
+/// each step's claim and requires fact, each `assume` and `suppose` line,
+/// and the statement. An induction hypothesis writes no formula: it assumes
+/// what its induction's claim says.
+fn claim_parts(thm: &Theorem) -> Vec<FormulaPart> {
+    let mut out = Vec::new();
+    for s in &thm.steps {
+        let what = format!("step {}", s.number);
+        out.push(FormulaPart::new(s.line, what, &s.claim));
+    }
+    for s in &thm.steps {
+        for r in &s.requires {
+            let what = format!("the requires line of step {}", s.number);
+            out.push(FormulaPart::new(r.line, what, &r.fact));
+        }
+    }
+    let assumed = |kind| matches!(kind, Intro::Assume | Intro::Suppose);
+    for h in thm.hypotheses.iter().filter(|h| assumed(h.kind)) {
+        let what = format!("the `{}` line", h.kind);
+        out.push(FormulaPart::new(h.line, what, &h.body(&thm.path)));
+    }
+    let opened = thm.steps.iter().flat_map(|s| &s.openers);
+    for o in opened.filter(|o| assumed(o.kind) && !o.is_hypothesis) {
+        let what = format!("the `{}` line", o.kind);
+        out.push(FormulaPart::new(o.line, what, &o.body(&thm.path)));
+    }
+    let stated = Written::new(&thm.conclusion, &thm.path, thm.line);
+    let what = format!("the statement of {}", thm.name);
+    out.push(FormulaPart::new(thm.line, what, &stated));
+    out
+}
+
+/// Every part of a theorem that is one formula and is read by the checker
+/// nowhere else that reports it: a `let` line's parts, each value `x := t`,
+/// a substitute's equation, a calculation's terms and moduli, an
+/// `inequalities` step's rows and the terms they add or multiply by, and a
+/// define's parameter domains. A `let` line of none of the forms is
+/// `check_introductions`'s to report, and a chain or rows that do not cut
+/// `check_structure`'s.
+fn one_formula_parts(thm: &Theorem) -> Vec<FormulaPart> {
+    let mut out = Vec::new();
+    let mut add =
+        |line, what, written: &Written| out.push(FormulaPart::new(line, what, written));
+    let lets = thm
+        .hypotheses
+        .iter()
+        .filter(|h| h.kind == Intro::Let)
+        .map(|h| h.body(&thm.path));
+    let opened = thm
+        .steps
+        .iter()
+        .flat_map(|s| &s.openers)
+        .filter(|o| o.kind == Intro::Let)
+        .map(|o| o.body(&thm.path));
+    for body in lets.chain(opened) {
+        let line = body.line();
+        let introduced = Introduction::read(body);
+        if let Form::Other = introduced.form {
+            continue;
+        }
+        for part in introduced.parts() {
+            add(line, "the `let` line".to_string(), &part);
+        }
+    }
+    for s in &thm.steps {
+        for v in s.just.values.written() {
+            add(s.just.line, format!("a value step {} gives", s.number), v);
+        }
+        for r in &s.requires {
+            for v in r.values().written() {
+                let what =
+                    format!("a value the requires line of step {} gives", s.number);
+                add(r.line, what, v);
+            }
+        }
+        if let Some(e) = &s.just.equation {
+            add(s.just.line, format!("the equation of step {}", s.number), e);
+        }
+        if let Some(Ok(chain)) = chain(&s.just, &thm.path) {
+            let what = || format!("the calculation of step {}", s.number);
+            add(chain.start.line(), what(), &chain.start);
+            for l in &chain.lines {
+                add(l.line, what(), &l.term);
+                if let Some(m) = &l.modulus {
+                    add(l.line, what(), m);
+                }
+            }
+        }
+        if let Some(Ok(rows)) = rows(&s.just, &thm.path) {
+            for row in &rows {
+                let what = format!("a row of step {}", s.number);
+                add(row.line, what.clone(), &row.formula);
+                if let RowReason::Adding(t) | RowReason::Multiplying(t) = &row.reason {
+                    add(row.line, what, t);
+                }
+            }
+        }
+    }
+    for d in &thm.defines {
+        if let Built(DefineParts::One(said)) = define_parts(&d.text) {
+            for p in &said.params {
+                let domain = Written::new(&p.domain, &thm.path, d.line);
+                add(d.line, format!("define {}", d.label), &domain);
+            }
+        }
+    }
+    out
 }
 
 /// A word a definition defines, and the methods its record's `decided` field
