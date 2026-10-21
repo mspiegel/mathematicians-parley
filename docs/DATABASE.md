@@ -76,9 +76,9 @@ has, and a subject is one file:
 | `corpus/stdlib/functions.records` | functions, their values, images, and inverses | 23 |
 | `corpus/stdlib/counting.records` | the size of a set, factorials, binomial coefficients, counting by parts | 41 |
 | `corpus/stdlib/calculus.records` | intervals, bounds and completeness, continuity, derivatives, bounded sequences | 27 |
-| `corpus/stdlib/geometry.records` | points, distance, angles, triangles and their kinds (isosceles, equilateral, right-angled), congruence, parallels and sides of a line, the law of sines | 27 |
+| `corpus/stdlib/geometry.records` | points, distance, angles and signed angles, triangles and their kinds (isosceles, equilateral, right-angled), congruence, parallels and sides of a line, lines and perpendiculars, midpoints, chords of a circle, area, the laws of sines and cosines | 45 |
 | `corpus/stdlib/groups.records` | groups, their laws, subgroups, cosets | 12 |
-| `corpus/stdlib/trigonometry.records` | cos and sin, their addition formulas, signs and bounds | 19 |
+| `corpus/stdlib/trigonometry.records` | cos and sin, their addition formulas, signs, bounds and order | 20 |
 | `corpus/stdlib/logarithms.records` | the natural logarithm and the exponential function, their laws, order and signs | 13 |
 | `corpus/stdlib/polynomials.records` | polynomials with complex coefficients, their values, and division by x − a | 2 |
 | `corpus/stdlib/graphs.records` | walks, Euler paths, traversable graphs, degree | 10 |
@@ -125,8 +125,8 @@ Every item in the standard library carries a field saying where it comes from:
 
 | field | meaning | count |
 |---|---|---|
-| `metamath` | a set.mm label or labels supply it | 457 |
-| `open` | it is cited but unproved and unbridged | 4 |
+| `metamath` | a set.mm label or labels supply it | 475 |
+| `open` | it is cited but unproved and unbridged | 5 |
 
 A theorem this corpus proves has no
 record: it is its proof, and its statement is the head of the proof file, so

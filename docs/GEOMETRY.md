@@ -176,6 +176,26 @@ is one of the vertices and the angle there is 90°, whichever V is;
 last, which is how a proof names it. No sort holds triangles, so a statement
 about every triangle quantifies over its three points.
 
+**Lines, midpoints and circles are said of points.** `P is on line AB` is
+`A, B, P are collinear` with the point first. `line AB ⊥ line CD` says A ≠ B,
+C ≠ D and that the quotient of the two directions has real part 0. Like
+`parallel`, it is an `open` definition, read as a right angle by
+`perpendicular-by-right-angle` where the lines meet. `M is the midpoint of AB`
+says M is between A and B and |AM| = |MB|, a `biid` definition. The kernel's
+(A + B)/2 is reached inside `gmidval` and never written. A circle is a set of
+points named once, `let ω = {X ∈ 𝔼² : |XO| = r}`, and "A is on ω" is A ∈ ω.
+The chord theorems state the circle by distances to its centre.
+
+**The signed angle is a second notation, ∡PQR, beside ∠PQR.** It is `ang`
+itself, in (−π, π] and positive counterclockwise. ∠PQR stays unsigned, and
+|∡PQR| = ∠PQR is one kernel term. The angle sum by orientation (`ang180`) and
+the area need it.
+
+**The area of △PQR is set.mm's own term.** `heron` writes the area as
+(1/2)·(|QR|·|PR|)·|sin(∡QRP)|, which is the notation's target, so Heron's
+formula is cited as set.mm states it. `area-by-sine` gives the school form,
+with ∠QRP.
+
 ### What it costs, honestly
 
 **Non-degeneracy, and criterion 4 writes all of it.** `angval` wants both
