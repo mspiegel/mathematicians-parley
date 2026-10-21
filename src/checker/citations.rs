@@ -2436,7 +2436,10 @@ pub fn check_defined_types(
             .map(|d| (d.name, None))
             .collect();
     for d in &defines {
-        if let Some(rule) = DefinedRule::of(d, known) {
+        // A define that does not read is said where it is written, by
+        // `check_formulas` of a theorem's and `check_file_defines` of a
+        // file's.
+        if let Ok(Some(rule)) = DefinedRule::of(d, known) {
             defined.insert(rule.name.clone(), Some(rule));
         }
     }
@@ -2497,24 +2500,27 @@ struct DefinedRule {
 
 impl DefinedRule {
     /// The define's function of one argument, read with its argument's
-    /// sort; None for a define of anything else, or one that does not
-    /// read, which `check_formulas` reports.
-    fn of(d: &crate::corpus::DefineLine, known: &Known) -> Option<DefinedRule> {
+    /// sort; None for a define of anything else. A part that does not read
+    /// is a defect.
+    fn of(
+        d: &crate::corpus::DefineLine,
+        known: &Known,
+    ) -> crate::Checked<Option<DefinedRule>> {
         let Built(DefineParts::One(one)) = define_parts(&d.text) else {
-            return None;
+            return Ok(None);
         };
         let [param] = one.params.as_slice() else {
-            return None;
+            return Ok(None);
         };
         let local = crate::sorts::define_sorts(&one, &known.sorts);
-        let rule = d.rule(&one.body).formula().ok()?;
-        let domain = d.domain(param).formula().ok()?;
-        Some(DefinedRule {
+        let rule = d.rule(&one.body).formula()?.read(known.env.g, &local)?;
+        let domain = known.parse(&d.domain(param).formula()?)?;
+        Ok(Some(DefinedRule {
             name: one.name.clone(),
             letter: param.name.clone(),
-            domain: known.read_as_written(&domain)?,
-            rule: rule.read(known.env.g, &local).ok()?,
-        })
+            domain,
+            rule,
+        }))
     }
 
     /// Whether the type `f : D → E` asked of this function is said once

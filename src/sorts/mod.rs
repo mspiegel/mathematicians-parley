@@ -428,35 +428,43 @@ fn written_definitions(
         }
         let mut deeper = seen.clone();
         deeper.insert(key);
-        if let Some(made) = written_definition(&d, src, env, &deeper) {
+        // A define that does not read is `check_file_defines`'s to report.
+        if let Ok(Some(made)) = written_definition(&d, src, env, &deeper) {
             out.insert(name, made);
         }
     }
     out
 }
 
-/// One definition, read and written out in the file that wrote it; None
-/// where its rule does not parse, which `check_formulas` reports.
+/// A define a file writes outside its theorems, read and written out there:
+/// its rule and its arguments' domains, with the sorts of the definitions
+/// above it. None for a recursion or a line that is no define, which other
+/// checks read; a part that does not read is a defect.
+pub fn file_define(d: &DefineLine, src: ScopeId, env: Env) -> Checked<Option<Defined>> {
+    written_definition(d, src, env, &BTreeSet::new())
+}
+
+/// `file_define`, with the definitions already being read on the way to it,
+/// which an import cycle would read again.
 fn written_definition(
     d: &DefineLine,
     src: ScopeId,
     env: Env,
     seen: &BTreeSet<(String, usize)>,
-) -> Option<Defined> {
+) -> Checked<Option<Defined>> {
     let Built(parts) = define_parts(&d.text) else {
-        return None;
+        return Ok(None);
     };
-    let said = parts.one()?;
+    let Some(said) = parts.one() else {
+        return Ok(None);
+    };
     let inner = written_definitions(src, d.line, env, seen);
     let outer = definition_sorts(&inner);
     let local = define_sorts(said, &outer);
-    let read = d.rule(&said.body).formula();
-    let (body, params) = read
-        .and_then(|s| s.read(env.g, &local))
-        .and_then(|body| Ok((body, params_read(d, said, &local, &outer, env)?)))
-        .ok()?;
+    let body = d.rule(&said.body).formula()?.read(env.g, &local)?;
+    let params = params_read(d, said, &local, &outer, env)?;
     let body = expand(&body, &inner);
-    Some(if said.params.is_empty() {
+    Ok(Some(if said.params.is_empty() {
         Defined::Term(body)
     } else {
         Defined::Rule(Rule {
@@ -465,7 +473,7 @@ fn written_definition(
             body,
             binders: env.g.binders(),
         })
-    })
+    }))
 }
 
 /// A define's arguments read where it is written: each name with the sort

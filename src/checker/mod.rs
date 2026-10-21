@@ -850,6 +850,7 @@ fn prepared_in<T>(
     // grammar lexes.
     let files_tokens = structure::files_tokens(theorems, scopes, &grammar);
     structure::check_definitions(&mut report, theorems, scopes, &files_tokens);
+    structure::check_file_defines(&mut report, env);
     structure::check_function_imports(&mut report, scopes, &files_tokens);
     database::check_functions(&mut report, &grammar);
     // A library function's name of several letters reads as one, as a word

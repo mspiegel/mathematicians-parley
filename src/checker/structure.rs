@@ -1683,6 +1683,24 @@ pub fn check_function_names(
     }
 }
 
+/// Every define a file writes outside its theorems reads: its rule and its
+/// arguments' domains, with the sorts the definitions above it give. One
+/// that does not read is said here, at its line, whether or not a theorem
+/// uses it, and the passes that gather definitions leave it out.
+pub fn check_file_defines(report: &mut Report, env: crate::sorts::Env) {
+    for (src, scope) in env.scopes.iter().enumerate() {
+        for d in &scope.defines {
+            if let Err(p) = crate::sorts::file_define(d, src, env) {
+                report.say(
+                    &scope.path,
+                    d.line,
+                    format!("define {}: {}", d.label, p.message),
+                );
+            }
+        }
+    }
+}
+
 pub fn check_definitions(
     report: &mut Report,
     theorems: &[Theorem],

@@ -1502,6 +1502,17 @@ fn cases() -> Vec<Case> {
             )],
             "step 1.2 cites D1 at k, so it needs k ∈ ℕ, and nothing it cites or requires says it",
         ),
+        // A define a file writes outside its theorems is read whether or not
+        // a theorem uses it.
+        case(
+            "a file's define whose rule does not read",
+            vec![edit(
+                "tests/planted-file-define.proof",
+                None,
+                "define T(k) := k + + 1, for k ∈ ℕ                                    (D1)\n       reads one more than k\n\ntheorem planted-file-define\n  then 1 = 1\n\n1.  1 = 1\n    arithmetic\n".to_string(),
+            )],
+            "define D1: 'k + + 1' has 3 token(s) left over",
+        ),
         case(
             "a membership read into a smaller number system",
             vec![edit(
