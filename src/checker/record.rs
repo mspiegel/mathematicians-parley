@@ -6,14 +6,17 @@
 //! The build is handed this rather than working it out again as it walks
 //! the proof, so the two cannot read one proof two ways.
 
+use std::rc::Rc;
+
 use indexmap::IndexMap;
 
-use crate::citing::Concluded;
+use crate::citing::{Concluded, Group};
 use crate::corpus::{Step, StepNo, Theorem};
 use crate::formula::page::Sentence;
 use crate::formula::{Node, Sorts};
-use crate::matching::Binding;
+use crate::matching::{Binding, Definitions};
 use crate::outcome::{Checked, Problem};
+use crate::sorts::CitedStatement;
 
 /// Where a step or a define stands: directly in a block, and in which part
 /// of it where the block has parts.
@@ -142,6 +145,21 @@ impl ItemReading {
     }
 }
 
+/// What the checker read of every item a citation may name, once for the
+/// corpus, which the build cites from and never reads again.
+#[derive(Default)]
+pub struct LibraryReading {
+    /// The sorts of every item record, by its place in the records
+    /// (`sorts::sorts_of_records`).
+    pub record_sorts: IndexMap<usize, Sorts>,
+    /// How a citation reads each proved theorem's statement, by its full
+    /// name (`sorts::cited_statement`).
+    pub cited: IndexMap<String, CitedStatement>,
+    /// Each item's groups, by its full name, a record's and a proved
+    /// theorem's (`citing::Library::groups`).
+    pub groups: IndexMap<String, Option<Rc<Vec<Group>>>>,
+}
+
 /// A theorem as the checker reads it.
 #[derive(Clone, Debug, Default)]
 pub struct CheckedTheorem {
@@ -150,6 +168,13 @@ pub struct CheckedTheorem {
     /// Every sentence of every item the corpus may cite, read: one reading
     /// for the corpus, shared by each theorem's record.
     pub items: std::rc::Rc<ItemReading>,
+    /// What each definition the theorem sees from outside it stands for,
+    /// written out where it was defined (`sorts::file_definitions`).
+    pub outside: Definitions,
+    /// What the theorem's statement is read with, written out: the
+    /// definitions from outside it and those of its header, read with its
+    /// sorts (`sorts::statement_definitions`).
+    pub statement_definitions: Definitions,
     pub blocks: Vec<Block>,
     /// Where each step stands, by its index in the theorem's steps; None at
     /// the outermost level.

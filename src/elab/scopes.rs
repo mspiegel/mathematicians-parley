@@ -35,7 +35,6 @@ use crate::mm::{Rpn, Signature};
 use crate::notations::{FUNCTION_TYPE, IN};
 use crate::outcome::{Built, Checked, Declined, Route};
 use crate::rules::{self, lookup};
-use crate::sorts::file_definitions;
 use crate::{pf, t, take};
 
 /// One opener of a `proof` block, as its claim says it: a name fixed over a
@@ -2403,7 +2402,7 @@ impl<'a> Elaborator<'a> {
         // name like any the theorem defines itself.
         if !self.file_given {
             self.file_given = true;
-            let written = file_definitions(self.thm, self.env());
+            let written = self.checked.outside.clone();
             for (name, d, src) in self.visible_outside() {
                 let Some(made) = written.get(&name) else {
                     continue;

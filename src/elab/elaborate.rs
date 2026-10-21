@@ -35,7 +35,7 @@ use super::state::{
 use super::tables::Leaf;
 use super::{Facts, Line, Lines};
 use crate::binds;
-use crate::checker::record::{CheckedTheorem, Cited, FirstAt};
+use crate::checker::record::{CheckedTheorem, Cited, FirstAt, LibraryReading};
 use crate::citing::{self, filled};
 use crate::corpus::proof::{
     chain, requires_as_step, ChainLine, Head, Justification, Requires,
@@ -47,7 +47,7 @@ use crate::corpus::{
 };
 use crate::formula::page::{related, Written};
 use crate::formula::symbol::Symbol;
-use crate::formula::{Grammar, Node, Sorts};
+use crate::formula::{Grammar, Node};
 use crate::matching::{Binding as NodeBinding, Defined};
 use crate::methods::{reals, surds};
 use crate::mm::compress::{compressed, labels as compress_labels, shapes_of};
@@ -60,7 +60,6 @@ use crate::notations::{CONJUNCTION, FUNCTION_TYPE, IS_A_POINT, IS_A_SET, MEMBERS
 use crate::outcome::{Built, Checked, Declined, Problem, Route};
 use crate::rules::{self, lookup};
 use crate::sorts::introduction::{Form, Introduction};
-use crate::sorts::statement_definitions;
 use crate::targets;
 use crate::text::repr;
 use crate::{pf, t, take};
@@ -450,8 +449,7 @@ impl<'a> Elaborator<'a> {
         // The statement is read with the definitions the theorem sees from
         // outside it, and those of its header, written out, which is what
         // set.mm states.
-        self.from_outside =
-            statement_definitions(self.thm, self.env(), &self.sorts_now);
+        self.from_outside = self.checked.statement_definitions.clone();
         let nodes = self.hypotheses()?;
         // A sort is stated once, like a declared type, and a step may rest on
         // it without naming it. A define is not one: a step that uses what it
@@ -5952,8 +5950,8 @@ fn rested_first(cited: &[String], corpus: &Corpus) -> Vec<String> {
 /// Elaborate one theorem of the corpus into its file.
 ///
 /// `statements` gives the statement a cited theorem's file proves, where it
-/// is known, and `record_sorts` the sorts of every item record
-/// (`sorts::sorts_of_records`).
+/// is known, and `library_read` every item a citation may name, as the
+/// checker read it.
 #[allow(clippy::too_many_arguments)]
 pub fn elaborate(
     corpus: &Corpus,
@@ -5962,7 +5960,7 @@ pub fn elaborate(
     thm: &Theorem,
     checked: &CheckedTheorem,
     library: &Library,
-    record_sorts: &IndexMap<usize, Sorts>,
+    library_read: &LibraryReading,
     statements: &dyn Fn(&str) -> Option<String>,
     options: Options,
 ) -> Checked<Elaborated> {
@@ -5981,7 +5979,7 @@ pub fn elaborate(
         items,
         sigs,
         &corpus.records,
-        record_sorts,
+        library_read,
         &corpus.scopes,
         statements,
     );

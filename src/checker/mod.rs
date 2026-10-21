@@ -31,12 +31,14 @@ use crate::formula::Sorts;
 use crate::matching::Context;
 use crate::outcome::{At, Checked, Problem, Route};
 use crate::sorts::infer;
-use crate::sorts::{settled, sorts_of_cited, Env};
+use crate::sorts::{
+    cited_statement, settled, statement_definitions, CitedStatement, Env,
+};
 use crate::source::Source;
 use crate::text::check_encoding;
 
 pub use library::{statements_in_scope, Known};
-pub use record::CheckedTheorem;
+pub use record::{CheckedTheorem, LibraryReading};
 pub use structure::{cited_in_order, out_of_reach, unresolved};
 
 /// A variable may be a Greek letter and may carry a subscript or a prime.
@@ -112,6 +114,8 @@ pub struct CheckedCorpus {
     /// The grammar the corpus's records declare, which the checker read with.
     pub grammar: std::rc::Rc<Grammar>,
     pub theorems: IndexMap<String, CheckedTheorem>,
+    /// Every item a citation may name, as the checker read it.
+    pub library: LibraryReading,
 }
 
 /// `checked` of the theorems whose full name `wanted` holds, and of no
@@ -175,11 +179,19 @@ pub fn checked_where(
             }
             record.page = c.known[i].page_reading();
             record.items = std::rc::Rc::clone(&items);
+            record.outside = c.known[i].outside_definitions().clone();
+            record.statement_definitions =
+                statement_definitions(thm, c.env, &c.known[i].sorts);
             out.insert(thm.qualified(), record);
         }
-        out
+        let library = LibraryReading {
+            record_sorts: c.record_sorts.clone(),
+            cited: c.cited.clone(),
+            groups: c.library.all_groups(),
+        };
+        (out, library)
     });
-    let (_, _, theorems) = checked?;
+    let (_, _, (theorems, library)) = checked?;
     // The grammar the checks read with: a grammar is kept for the records it
     // was loaded from (`Grammar::load`), and `prepared_in` loaded it.
     let grammar = Grammar::load(&read.corpus.records).map_err(|p| {
@@ -191,6 +203,7 @@ pub fn checked_where(
         corpus: read.corpus,
         grammar,
         theorems,
+        library,
     })
 }
 
@@ -321,6 +334,8 @@ pub struct Checking<'a> {
     statements: &'a IndexMap<String, infer::Reader>,
     /// Each item record's sorts, by its place among the records.
     record_sorts: &'a IndexMap<usize, Sorts>,
+    /// How a citation reads each proved theorem's statement.
+    cited: &'a IndexMap<String, CitedStatement>,
     store: infer::Store,
 }
 
@@ -929,13 +944,17 @@ fn prepared_in<T>(
         clashes.push(clashed);
     }
     // A theorem is cited by its statement, which is all a proof citing it
-    // sees, read as the build reads it (`sorts_of_cited`).
+    // sees, read once for the checker and the build (`cited_statement`).
+    let cited: IndexMap<String, CitedStatement> = theorems
+        .iter()
+        .map(|thm| (thm.qualified(), cited_statement(thm, env)))
+        .collect();
     let proved = theorems
         .iter()
         .map(|thm| {
             let at = Proved {
                 thm,
-                sorts: std::borrow::Cow::Owned(sorts_of_cited(thm, env)),
+                sorts: Cow::Borrowed(&cited[&thm.qualified()].sorts),
             };
             (thm.qualified(), at)
         })
@@ -963,6 +982,7 @@ fn prepared_in<T>(
         items: &items,
         statements: &statements,
         record_sorts: &record_sorts,
+        cited: &cited,
         store,
     };
     let out = then(&mut report, &mut checking);

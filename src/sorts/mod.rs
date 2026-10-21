@@ -592,10 +592,24 @@ pub fn sorts_of_statement(thm: &Theorem, env: Env) -> Sorts {
 /// the statement says: a letter it leaves open is not the citing proof's
 /// letter of that name.
 pub fn sorts_of_cited(thm: &Theorem, env: Env) -> Sorts {
+    cited_statement(thm, env).sorts
+}
+
+/// How a citation of a proved theorem reads its statement: the definitions
+/// it is read in, written out (`statement_definitions`), and its sorts
+/// (`sorts_of_cited`).
+#[derive(Clone, Debug)]
+pub struct CitedStatement {
+    pub definitions: Definitions,
+    pub sorts: Sorts,
+}
+
+/// `CitedStatement` of `thm`, read once for the checker and the build.
+pub fn cited_statement(thm: &Theorem, env: Env) -> CitedStatement {
     let own = sorts_of_statement(thm, env);
-    let written = statement_definitions(thm, env, &own);
+    let definitions = statement_definitions(thm, env, &own);
     let mut sorts = Sorts::new();
-    for (k, v) in &definition_sorts(&written) {
+    for (k, v) in &definition_sorts(&definitions) {
         sorts.insert(k.clone(), v.clone());
     }
     for (k, v) in &own {
@@ -603,7 +617,7 @@ pub fn sorts_of_cited(thm: &Theorem, env: Env) -> Sorts {
     }
     sorts.ranges = own.ranges;
     sorts.imported = own.imported;
-    sorts
+    CitedStatement { definitions, sorts }
 }
 
 /// The sort of every name the theorem's lines settle, read without its

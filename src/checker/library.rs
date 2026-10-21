@@ -147,6 +147,12 @@ impl<'a> Known<'a> {
         PageReading::new(self.page.borrow().clone())
     }
 
+    /// What each definition the theorem sees from outside it stands for,
+    /// written out (`sorts::file_definitions`).
+    pub fn outside_definitions(&self) -> &crate::matching::Definitions {
+        &self.outside.outside
+    }
+
     /// A sentence of the page read, kept for the build: by `parse`, and by
     /// the checks that read a define's rule with its own letters' sorts.
     /// The first reading of a sentence is the one kept.

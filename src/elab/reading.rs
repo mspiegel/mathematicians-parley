@@ -27,10 +27,7 @@ use crate::notations::{APPLICATION, APPLICATION_TO_TWO};
 use crate::outcome::Checked;
 use crate::rules::NUMERALS;
 use crate::sorts::introduction::{Form, Introduction};
-use crate::sorts::{
-    sorts_of_cited, sorts_of_record, sorts_of_statement, statement_definitions, Env,
-    GraphLine,
-};
+use crate::sorts::GraphLine;
 use crate::t;
 use crate::targets;
 use crate::text::repr;
@@ -119,13 +116,6 @@ impl<'a> Elaborator<'a> {
         }
     }
 
-    pub fn env(&self) -> Env<'a> {
-        Env {
-            g: self.g,
-            scopes: self.scopes,
-        }
-    }
-
     /// Run `f` with what each name stands for given back afterwards.
     ///
     /// Reading a binder's body, a definition's right side, or an item cited
@@ -168,8 +158,10 @@ impl<'a> Elaborator<'a> {
         let kept_written = self.from_outside.clone();
         let (written, sorts) = match item {
             Item::Theorem(t) => {
-                let own = sorts_of_statement(t, self.env());
-                let mut written = statement_definitions(t, self.env(), &own);
+                let Some(cited) = self.library_read.cited.get(&t.qualified()) else {
+                    unreachable!("the checker reads every theorem's statement");
+                };
+                let mut written = cited.definitions.clone();
                 // A sequence the statement defines by recursion is the
                 // proof's sequence of that name, as the proof writes it out.
                 // That the two are one recursion is the checker's to say, and
@@ -186,9 +178,17 @@ impl<'a> Elaborator<'a> {
                         }
                     }
                 }
-                (written, sorts_of_cited(t, self.env()))
+                (written, cited.sorts.clone())
             }
-            Item::Record(r) => (Definitions::new(), sorts_of_record(r, self.env())),
+            Item::Record(r) => {
+                let at = self.records.iter().position(|x| std::ptr::eq(x, r));
+                let Some(sorts) =
+                    at.and_then(|i| self.library_read.record_sorts.get(&i))
+                else {
+                    unreachable!("the checker reads every item record's sorts");
+                };
+                (Definitions::new(), sorts.clone())
+            }
         };
         // Only what the item says: a letter it leaves open is not the proof's
         // letter of that name, as the k a definition binds is not the

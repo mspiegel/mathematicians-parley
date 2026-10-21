@@ -27,18 +27,17 @@ use std::sync::{Arc, Mutex, OnceLock};
 
 use indexmap::IndexMap;
 
-use crate::checker::{CheckedCorpus, CheckedTheorem};
+use crate::checker::{CheckedCorpus, CheckedTheorem, LibraryReading};
 use crate::corpus::{cited_items, in_stdlib, index, Corpus, Item};
 use crate::elab::definitions::write_definitions;
 use crate::elab::elaborate::Options;
 use crate::elab::{elaborate, statement_of, Elaborated, Library, ReadLibrary};
-use crate::formula::{Grammar, Sorts};
+use crate::formula::Grammar;
 use crate::mm::library::where_set_mm;
 use crate::mm::read_texts;
 use crate::outcome::{Checked, Problem};
 use crate::proofs::comparison::COMPARISONS;
 use crate::said::Said;
-use crate::sorts::{sorts_of_records, Env};
 use crate::source::{Disk, Source};
 
 use super::path_of;
@@ -291,9 +290,8 @@ pub struct Maker<'a> {
     /// Every theorem as the checker reads it (`checker::checked`), which the
     /// build is handed: one it refuses is not built.
     checked: &'a IndexMap<String, CheckedTheorem>,
-    /// The sorts of every item record, read once for every theorem built
-    /// (`sorts::sorts_of_records`).
-    record_sorts: IndexMap<usize, Sorts>,
+    /// Every item a citation may name, as the checker read it.
+    library_read: &'a LibraryReading,
 }
 
 impl<'a> Maker<'a> {
@@ -312,7 +310,7 @@ impl<'a> Maker<'a> {
             library: None,
             made: IndexMap::new(),
             checked: &checked.theorems,
-            record_sorts: record_sorts(checked),
+            library_read: &checked.library,
         }
     }
 
@@ -399,21 +397,11 @@ impl<'a> Maker<'a> {
             thm,
             checked,
             library,
-            &self.record_sorts,
+            self.library_read,
             &statements,
             Options::default(),
         )
     }
-}
-
-/// The sorts of every item record of the corpus `checked` read
-/// (`sorts::sorts_of_records`).
-fn record_sorts(checked: &CheckedCorpus) -> IndexMap<usize, Sorts> {
-    let env = Env {
-        g: &checked.grammar,
-        scopes: &checked.corpus.scopes,
-    };
-    sorts_of_records(&checked.corpus.records, env)
 }
 
 /// The process's peak memory so far, in bytes.
@@ -579,8 +567,6 @@ pub fn library(root: &Path, setmm: Option<&str>) -> Checked<Library> {
 pub struct Loaded<'s> {
     source: &'s dyn Source,
     checked: CheckedCorpus,
-    /// The sorts of every item record, read once (`record_sorts`).
-    record_sorts: IndexMap<usize, Sorts>,
 }
 
 impl<'s> Loaded<'s> {
@@ -596,12 +582,7 @@ impl<'s> Loaded<'s> {
     /// theorems once, since the checker reads proofs and records and no
     /// built file.
     pub fn with_checked(source: &'s dyn Source, checked: CheckedCorpus) -> Loaded<'s> {
-        let record_sorts = record_sorts(&checked);
-        Loaded {
-            source,
-            checked,
-            record_sorts,
-        }
+        Loaded { source, checked }
     }
 
     /// Elaborate the theorem `name`.
@@ -637,7 +618,7 @@ impl<'s> Loaded<'s> {
             thm,
             checked,
             library,
-            &self.record_sorts,
+            &self.checked.library,
             &statements,
             options,
         )

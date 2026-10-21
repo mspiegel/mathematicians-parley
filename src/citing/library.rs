@@ -169,6 +169,9 @@ pub struct Library<'a> {
     items: IndexMap<String, usize>,
     proved: IndexMap<String, Proved<'a>>,
     cache: RefCell<IndexMap<String, Option<Rc<Vec<Group>>>>>,
+    /// Every item's groups as the checker read them, where this library is
+    /// the build's: it then reads no item itself (`read_by_checker`).
+    read_by_checker: Option<&'a IndexMap<String, Option<Rc<Vec<Group>>>>>,
     /// Which notations are an existential, a universal, a membership, a
     /// conjunction, a biconditional, an implication and a negation, taken
     /// from what they target in the kernel rather than named here.
@@ -212,6 +215,7 @@ impl<'a> Library<'a> {
             items,
             proved,
             cache: RefCell::new(IndexMap::new()),
+            read_by_checker: None,
             exists: FxIndexSet::default(),
             every: FxIndexSet::default(),
             members: FxIndexSet::default(),
@@ -247,6 +251,21 @@ impl<'a> Library<'a> {
         lib
     }
 
+    /// The build's library: `new`, with every item's groups as the checker
+    /// read them (`all_groups`), so that it reads no item again.
+    pub fn read_by_checker(
+        records: &'a [Record],
+        record_sorts: Cow<'a, IndexMap<usize, Sorts>>,
+        proved: IndexMap<String, Proved<'a>>,
+        env: Env<'a>,
+        groups: &'a IndexMap<String, Option<Rc<Vec<Group>>>>,
+    ) -> Library<'a> {
+        Library {
+            read_by_checker: Some(groups),
+            ..Library::new(records, record_sorts, proved, env)
+        }
+    }
+
     /// The item of that full name, a record or a theorem this corpus proves.
     pub fn item(&self, name: &str) -> Option<crate::corpus::Item<'a>> {
         if let Some(&i) = self.items.get(name) {
@@ -275,6 +294,9 @@ impl<'a> Library<'a> {
     /// The groups of the item of that full name, or None where no item has
     /// it.
     pub fn groups(&self, name: &str) -> Option<Rc<Vec<Group>>> {
+        if let Some(read) = self.read_by_checker {
+            return read.get(name).cloned().flatten();
+        }
         if let Some(found) = self.cache.borrow().get(name) {
             return found.clone();
         }
@@ -351,6 +373,17 @@ impl<'a> Library<'a> {
             })
             .collect();
         self.trees(&lines, sorts)
+    }
+
+    /// The groups of every item a citation may name, a record's and a
+    /// proved theorem's, by its full name, for the build to cite from
+    /// (`LibraryReading`).
+    pub fn all_groups(&self) -> IndexMap<String, Option<Rc<Vec<Group>>>> {
+        self.items
+            .keys()
+            .chain(self.proved.keys())
+            .map(|name| (name.clone(), self.groups(name)))
+            .collect()
     }
 
     /// Every sentence of every item a citation may name, read with the
