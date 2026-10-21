@@ -433,6 +433,24 @@ theorem triangle-inequality-strict
   note        Euclid I.20: equality would put Q between P and R, and the
               three would be collinear.
 
+theorem angle-addition
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let M be a point                                                    (H4)
+  assume A, B, C form a triangle                                      (H5)
+  assume M is between A and B                                         (H6)
+  then        ∠ACM + ∠MCB = ∠ACB
+  metamath    gangadd, which this corpus proves in
+              elaboration/stdlib/proved.mm: set.mm adds no two angles
+  target      gangadd
+  note        A point of the side AB splits the angle at C in two. With T
+              the point beyond C from A, angles-on-a-line makes ACM, MCB
+              and BCT a straight angle, and supplementary-angles makes ACB
+              and BCT one: M and B lie on one side of line CA, and A and B
+              on two sides of line CM, which is what the line through M
+              does.
+
 mundane theorem distance-real
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)

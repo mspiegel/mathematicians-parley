@@ -26,6 +26,7 @@ import theorem            stdlib/geometry/supplementary-angles as geometry-suppl
 import theorem            stdlib/geometry/triangle-inequality-points as geometry-triangle-inequality-points
 import theorem            stdlib/geometry/triangle-equality-between as geometry-triangle-equality-between
 import theorem            stdlib/geometry/triangle-inequality-strict as geometry-triangle-inequality-strict
+import theorem            stdlib/geometry/angle-addition as geometry-angle-addition
 import mundane definition stdlib/geometry/on-line as geometry-on-line
 import theorem            stdlib/geometry/perpendicular-by-right-angle as geometry-perpendicular-by-right-angle
 import theorem            stdlib/geometry/intersecting-chords as geometry-intersecting-chords
@@ -482,3 +483,15 @@ theorem triangle-inequality-strict
 
 1.  |PR| < |PQ| + |QR|
     thm:geometry-triangle-inequality-strict, from H4
+
+theorem angle-addition
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let M be a point                                                    (H4)
+  assume A, B, C form a triangle                                      (H5)
+  assume M is between A and B                                         (H6)
+  then ∠ACM + ∠MCB = ∠ACB
+
+1.  ∠ACM + ∠MCB = ∠ACB
+    thm:geometry-angle-addition, from H5, H6
