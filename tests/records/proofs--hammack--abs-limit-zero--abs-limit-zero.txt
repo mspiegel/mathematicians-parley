@@ -9,3 +9,35 @@ step 1.4.4 cites stdlib/numbers/abs-real group 0; x := a(n); concludes 0 AsWritt
 step 1.4.5 cites stdlib/numbers/abs group 0; x := |a(n)|; concludes 0 Forward; from 1.4.3 sentence 0
 step 2 cites stdlib/calculus/tends-to group 0; L := 0, x := a, bound N := N, n := n, ε := ε; concludes 0 Backward; from 1 sentence 0
 step 1.5 exhibits in sentence 0 N := N
+read 6: a(n) → 0 as n → ∞  as  tends-to:→as→∞(application:()(name:a, name:n), numeral:0, name:n)  a statement
+read 11: a : ℕ → ℝ  as  function-type::→(name:a, number-systems:ℕ, number-systems:ℝ)  a statement
+read 12: |a(n)| → 0 as n → ∞  as  tends-to:→as→∞(absolute-value:||(application:()(name:a, name:n)), numeral:0, name:n)  a statement
+read 13: a(n) → 0 as n → ∞  as  tends-to:→as→∞(application:()(name:a, name:n), numeral:0, name:n)  a statement
+read 15: For all ε > 0, there exists N ∈ ℕ such that |a(n) − 0| < ε for all n ≥ N  as  for-all:forall∈,(name:ε, number-systems:ℝ, conditional:ifthen(order:>(name:ε, numeral:0), there-is:thereis∈with(name:N, number-systems:ℕ, for-all:forall∈,(name:n, number-systems:ℕ, conditional:ifthen(order:≥(name:n, name:N), order:<(absolute-value:||(additive:−(application:()(name:a, name:n), numeral:0)), name:ε))))))  a statement
+read 17: ε ∈ ℝ  as  membership:∈(name:ε, number-systems:ℝ)  a statement
+read 18: ε > 0  as  order:>(name:ε, numeral:0)  a statement
+read 20: For all ε > 0, there exists N ∈ ℕ such that ||a(n)| − 0| < ε for all n ≥ N  as  for-all:forall∈,(name:ε, number-systems:ℝ, conditional:ifthen(order:>(name:ε, numeral:0), there-is:thereis∈with(name:N, number-systems:ℕ, for-all:forall∈,(name:n, number-systems:ℕ, conditional:ifthen(order:≥(name:n, name:N), order:<(absolute-value:||(additive:−(absolute-value:||(application:()(name:a, name:n)), numeral:0)), name:ε))))))  a statement
+read 21: 0  as  numeral:0  a number
+read 23: There exists N ∈ ℕ such that ||a(n)| − 0| < ε for all n ≥ N  as  there-is:thereis∈with(name:N, number-systems:ℕ, for-all:forall∈,(name:n, number-systems:ℕ, conditional:ifthen(order:≥(name:n, name:N), order:<(absolute-value:||(additive:−(absolute-value:||(application:()(name:a, name:n)), numeral:0)), name:ε))))  a statement
+read 24: ε  as  name:ε  a number
+read 26: N ∈ ℕ  as  membership:∈(name:N, number-systems:ℕ)  a statement
+read 26: ||a(n)| − 0| < ε for all n ≥ N  as  for-all:forall∈,(name:n, number-systems:ℕ, conditional:ifthen(order:≥(name:n, name:N), order:<(absolute-value:||(additive:−(absolute-value:||(application:()(name:a, name:n)), numeral:0)), name:ε)))  a statement
+read 29: For all n ≥ N, |a(n) − 0| < ε  as  for-all:forall∈,(name:n, number-systems:ℕ, conditional:ifthen(order:≥(name:n, name:N), order:<(absolute-value:||(additive:−(application:()(name:a, name:n), numeral:0)), name:ε)))  a statement
+read 31: n ∈ ℕ  as  membership:∈(name:n, number-systems:ℕ)  a statement
+read 32: n ≥ N  as  order:≥(name:n, name:N)  a statement
+read 34: ||a(n)| − 0| < ε  as  order:<(absolute-value:||(additive:−(absolute-value:||(application:()(name:a, name:n)), numeral:0)), name:ε)  a statement
+read 35: n  as  name:n  a number
+read 37: a(n) ∈ ℝ  as  membership:∈(application:()(name:a, name:n), number-systems:ℝ)  a statement
+read 40: |a(n)| ≥ 0  as  order:≥(absolute-value:||(application:()(name:a, name:n)), numeral:0)  a statement
+read 41: a(n)  as  application:()(name:a, name:n)  a number
+read 43: |a(n)| ∈ ℝ  as  membership:∈(absolute-value:||(application:()(name:a, name:n)), number-systems:ℝ)  a statement
+read 44: a(n)  as  application:()(name:a, name:n)  a number
+read 46: ||a(n)|| = |a(n)|  as  equality:=(absolute-value:||(absolute-value:||(application:()(name:a, name:n))), absolute-value:||(application:()(name:a, name:n)))  a statement
+read 47: |a(n)|  as  absolute-value:||(application:()(name:a, name:n))  a number
+read 49: |a(n) − 0| < ε  as  order:<(absolute-value:||(additive:−(application:()(name:a, name:n), numeral:0)), name:ε)  a statement
+read 50: ||a(n)|| = |a(n)|  as  equality:=(absolute-value:||(absolute-value:||(application:()(name:a, name:n))), absolute-value:||(application:()(name:a, name:n)))  a statement
+read 51: a(n) ∈ ℝ  as  membership:∈(application:()(name:a, name:n), number-systems:ℝ)  a statement
+read 52: |a(n)| ∈ ℝ  as  membership:∈(absolute-value:||(application:()(name:a, name:n)), number-systems:ℝ)  a statement
+read 54: There exists N ∈ ℕ such that |a(n) − 0| < ε for all n ≥ N  as  there-is:thereis∈with(name:N, number-systems:ℕ, for-all:forall∈,(name:n, number-systems:ℕ, conditional:ifthen(order:≥(name:n, name:N), order:<(absolute-value:||(additive:−(application:()(name:a, name:n), numeral:0)), name:ε))))  a statement
+read 57: a(n) → 0 as n → ∞  as  tends-to:→as→∞(application:()(name:a, name:n), numeral:0, name:n)  a statement
+read 58: 0  as  numeral:0  a number

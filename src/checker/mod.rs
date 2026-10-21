@@ -172,6 +172,7 @@ pub fn checked_where(
                     })
                     .collect();
             }
+            record.page = c.known[i].page_reading();
             out.insert(thm.qualified(), record);
         }
         out
@@ -1138,7 +1139,7 @@ fn check_passes(
     structure::check_steps_used(report, thm);
     structure::check_readings(report, thm);
     database::check_introductions(report, thm, env, k);
-    formulas::check_recursions(report, thm, env, k);
+    formulas::check_recursions(report, thm, k);
     structure::check_sorts(report, thm, k);
     let lets: Vec<(&str, usize)> = thm
         .hypotheses

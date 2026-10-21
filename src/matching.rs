@@ -1165,10 +1165,20 @@ pub struct Rule {
     /// The arguments, in the order the name takes them, each with its
     /// domain.
     pub params: Vec<crate::corpus::Param>,
+    /// The same arguments read where the define is written: each name with
+    /// the sort its domain gives it, and the domain.
+    pub read: Vec<ParamRead>,
     pub body: Node,
     /// What binds, from the grammar the body was read with
     /// (`Grammar::binders`).
     pub binders: Rc<FxIndexMap<NotationId, Binds>>,
+}
+
+/// One argument of a define, read: its name and its domain.
+#[derive(Clone, Debug)]
+pub struct ParamRead {
+    pub name: Node,
+    pub domain: Node,
 }
 
 impl Rule {

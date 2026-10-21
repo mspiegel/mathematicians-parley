@@ -509,7 +509,7 @@ impl<'a> Elaborator<'a> {
             if first.is_some_and(|f| d.line >= f) {
                 continue;
             }
-            for (name, made) in self.recursion_terms(&d.label, &given)? {
+            for (name, made) in self.recursion_terms(&d.label, d.line, &given)? {
                 self.from_outside
                     .insert(name, Defined::Term(Node::literal(&made)));
             }
@@ -1197,16 +1197,11 @@ impl<'a> Elaborator<'a> {
                     let within = me.rpn(&me.to_term(&member).children()[1]);
                     let kept = me.member.replace(member);
                     // The member is introduced in its set as its block's let
-                    // would introduce it (`introduced_in`), and its letter is
-                    // a name the page introduces, so an i is not read as the
-                    // imaginary unit.
+                    // would introduce it (`introduced_in`).
                     let made = me.names_and_sets_kept(|me| {
                         if let Some((page, _)) = &letter {
                             me.names.insert(page.clone(), fixed.clone());
                             me.sets.insert(page.clone(), within.clone());
-                            if !me.sorts_now.introduces(page) {
-                                me.sorts_now.unsettled.insert(page.clone());
-                            }
                         }
                         me.with_requires(how, step, node, &at, inner, lifted, lines)
                     });
@@ -1615,7 +1610,8 @@ impl<'a> Elaborator<'a> {
         let letters = just
             .cited_item()
             .and_then(|item| library.item_sorts(&just.item(&item)));
-        just.values.read_wanted(self.g, &self.sorts_now, letters)
+        let reader = |value: &Written| self.read_one(value);
+        just.values.read_wanted_by(&reader, self.g, letters)
     }
 
     /// How many conditions the universal `said`, at the values written for

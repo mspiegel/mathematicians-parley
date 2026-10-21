@@ -52,3 +52,156 @@ requires line 2 of step 5.5.12 cites stdlib/numbers/nat0-real group 0; m := b(k)
 requires line 1 of step 5.5.13 cites stdlib/numbers/nat0-real group 0; m := b(k + 1); concludes 0 AsWritten; from no line
 requires line 2 of step 5.5.13 cites stdlib/numbers/nat0-real group 0; m := b(k); concludes 0 AsWritten; from no line
 step 5.5.13 chains b(k + 1) + (k + 1) ≤ b(k) + k | b(k) + k ≤ N
+read 16: a(N) = gcd(M, N)  as  equality:=(application:()(name:a, name:N), application-to-two:(,)(name:gcd, name:M, name:N))  a statement
+read 22: M ∈ ℕ₀  as  membership:∈(name:M, number-systems:ℕ₀)  a statement
+read 23: N ∈ ℕ₀  as  membership:∈(name:N, number-systems:ℕ₀)  a statement
+read 24: 0 if b(k) = 0, a(k) mod b(k) otherwise  as  by-cases:if,otherwise(numeral:0, equality:=(application:()(name:b, name:k), numeral:0), mod:mod(application:()(name:a, name:k), application:()(name:b, name:k)))  a term
+read 24: M  as  name:M  a number
+read 24: N  as  name:N  a number
+read 24: a(k) if b(k) = 0, b(k) otherwise  as  by-cases:if,otherwise(application:()(name:a, name:k), equality:=(application:()(name:b, name:k), numeral:0), application:()(name:b, name:k))  a number
+read 24: ℕ₀  as  number-systems:ℕ₀  a set
+read 30: a(N) = gcd(M, N)  as  equality:=(application:()(name:a, name:N), application-to-two:(,)(name:gcd, name:M, name:N))  a statement
+read 32: a(0) = M  as  equality:=(application:()(name:a, numeral:0), name:M)  a statement
+read 35: b(0) = N  as  equality:=(application:()(name:b, numeral:0), name:N)  a statement
+read 38: For all k ∈ ℕ₀, a(k) ∈ ℕ₀ and b(k) ∈ ℕ₀  as  for-all:forall∈,(name:k, number-systems:ℕ₀, conjunction:and(membership:∈(application:()(name:a, name:k), number-systems:ℕ₀), membership:∈(application:()(name:b, name:k), number-systems:ℕ₀)))  a statement
+read 39: 0  as  numeral:0  a number
+read 43: a(0) ∈ ℕ₀  as  membership:∈(application:()(name:a, numeral:0), number-systems:ℕ₀)  a statement
+read 44: a(0) = M  as  equality:=(application:()(name:a, numeral:0), name:M)  a statement
+read 46: b(0) ∈ ℕ₀  as  membership:∈(application:()(name:b, numeral:0), number-systems:ℕ₀)  a statement
+read 47: b(0) = N  as  equality:=(application:()(name:b, numeral:0), name:N)  a statement
+read 49: a(0) ∈ ℕ₀ and b(0) ∈ ℕ₀  as  conjunction:and(membership:∈(application:()(name:a, numeral:0), number-systems:ℕ₀), membership:∈(application:()(name:b, numeral:0), number-systems:ℕ₀))  a statement
+read 53: k ∈ ℕ₀  as  membership:∈(name:k, number-systems:ℕ₀)  a statement
+read 56: b(k) = 0 or b(k) ≠ 0  as  disjunction:or(equality:=(application:()(name:b, name:k), numeral:0), logical-not:not(equality:=(application:()(name:b, name:k), numeral:0)))  a statement
+read 57: b(k) = 0  as  equality:=(application:()(name:b, name:k), numeral:0)  a statement
+read 59: a(k + 1) ∈ ℕ₀ and b(k + 1) ∈ ℕ₀  as  conjunction:and(membership:∈(application:()(name:a, additive:+(name:k, numeral:1)), number-systems:ℕ₀), membership:∈(application:()(name:b, additive:+(name:k, numeral:1)), number-systems:ℕ₀))  a statement
+read 63: b(k) = 0  as  equality:=(application:()(name:b, name:k), numeral:0)  a statement
+read 65: a(k + 1) = a(k)  as  equality:=(application:()(name:a, additive:+(name:k, numeral:1)), application:()(name:a, name:k))  a statement
+read 68: b(k + 1) = 0  as  equality:=(application:()(name:b, additive:+(name:k, numeral:1)), numeral:0)  a statement
+read 71: a(k + 1) ∈ ℕ₀  as  membership:∈(application:()(name:a, additive:+(name:k, numeral:1)), number-systems:ℕ₀)  a statement
+read 72: a(k + 1) = a(k)  as  equality:=(application:()(name:a, additive:+(name:k, numeral:1)), application:()(name:a, name:k))  a statement
+read 74: b(k + 1) ∈ ℕ₀  as  membership:∈(application:()(name:b, additive:+(name:k, numeral:1)), number-systems:ℕ₀)  a statement
+read 77: a(k + 1) ∈ ℕ₀ and b(k + 1) ∈ ℕ₀  as  conjunction:and(membership:∈(application:()(name:a, additive:+(name:k, numeral:1)), number-systems:ℕ₀), membership:∈(application:()(name:b, additive:+(name:k, numeral:1)), number-systems:ℕ₀))  a statement
+read 81: b(k) ≠ 0  as  logical-not:not(equality:=(application:()(name:b, name:k), numeral:0))  a statement
+read 83: a(k + 1) = b(k)  as  equality:=(application:()(name:a, additive:+(name:k, numeral:1)), application:()(name:b, name:k))  a statement
+read 86: b(k + 1) = a(k) mod b(k)  as  equality:=(application:()(name:b, additive:+(name:k, numeral:1)), mod:mod(application:()(name:a, name:k), application:()(name:b, name:k)))  a statement
+read 89: b(k) ∈ ℕ  as  membership:∈(application:()(name:b, name:k), number-systems:ℕ)  a statement
+read 92: a(k) mod b(k) ∈ ℕ₀  as  membership:∈(mod:mod(application:()(name:a, name:k), application:()(name:b, name:k)), number-systems:ℕ₀)  a statement
+read 94: a(k) ∈ ℤ  as  membership:∈(application:()(name:a, name:k), number-systems:ℤ)  a statement
+read 96: a(k + 1) ∈ ℕ₀  as  membership:∈(application:()(name:a, additive:+(name:k, numeral:1)), number-systems:ℕ₀)  a statement
+read 97: a(k + 1) = b(k)  as  equality:=(application:()(name:a, additive:+(name:k, numeral:1)), application:()(name:b, name:k))  a statement
+read 99: b(k + 1) ∈ ℕ₀  as  membership:∈(application:()(name:b, additive:+(name:k, numeral:1)), number-systems:ℕ₀)  a statement
+read 100: b(k + 1) = a(k) mod b(k)  as  equality:=(application:()(name:b, additive:+(name:k, numeral:1)), mod:mod(application:()(name:a, name:k), application:()(name:b, name:k)))  a statement
+read 102: a(k + 1) ∈ ℕ₀ and b(k + 1) ∈ ℕ₀  as  conjunction:and(membership:∈(application:()(name:a, additive:+(name:k, numeral:1)), number-systems:ℕ₀), membership:∈(application:()(name:b, additive:+(name:k, numeral:1)), number-systems:ℕ₀))  a statement
+read 105: For all k ∈ ℕ₀, gcd(a(k), b(k)) = gcd(M, N)  as  for-all:forall∈,(name:k, number-systems:ℕ₀, equality:=(application-to-two:(,)(name:gcd, application:()(name:a, name:k), application:()(name:b, name:k)), application-to-two:(,)(name:gcd, name:M, name:N)))  a statement
+read 106: 0  as  numeral:0  a number
+read 110: gcd(a(0), b(0)) = gcd(M, b(0))  as  equality:=(application-to-two:(,)(name:gcd, application:()(name:a, numeral:0), application:()(name:b, numeral:0)), application-to-two:(,)(name:gcd, name:M, application:()(name:b, numeral:0)))  a statement
+read 111: a(0) = M  as  equality:=(application:()(name:a, numeral:0), name:M)  a statement
+read 113: gcd(M, b(0)) = gcd(M, N)  as  equality:=(application-to-two:(,)(name:gcd, name:M, application:()(name:b, numeral:0)), application-to-two:(,)(name:gcd, name:M, name:N))  a statement
+read 114: b(0) = N  as  equality:=(application:()(name:b, numeral:0), name:N)  a statement
+read 116: gcd(a(0), b(0)) = gcd(M, N)  as  equality:=(application-to-two:(,)(name:gcd, application:()(name:a, numeral:0), application:()(name:b, numeral:0)), application-to-two:(,)(name:gcd, name:M, name:N))  a statement
+read 118: gcd(M, b(0))  as  application-to-two:(,)(name:gcd, name:M, application:()(name:b, numeral:0))  a number
+read 118: gcd(a(0), b(0))  as  application-to-two:(,)(name:gcd, application:()(name:a, numeral:0), application:()(name:b, numeral:0))  a number
+read 119: gcd(M, N)  as  application-to-two:(,)(name:gcd, name:M, name:N)  a number
+read 122: k ∈ ℕ₀  as  membership:∈(name:k, number-systems:ℕ₀)  a statement
+read 125: a(k) ∈ ℕ₀ and b(k) ∈ ℕ₀  as  conjunction:and(membership:∈(application:()(name:a, name:k), number-systems:ℕ₀), membership:∈(application:()(name:b, name:k), number-systems:ℕ₀))  a statement
+read 126: k  as  name:k  a number
+read 128: b(k) = 0 or b(k) ≠ 0  as  disjunction:or(equality:=(application:()(name:b, name:k), numeral:0), logical-not:not(equality:=(application:()(name:b, name:k), numeral:0)))  a statement
+read 129: b(k) = 0  as  equality:=(application:()(name:b, name:k), numeral:0)  a statement
+read 131: gcd(a(k + 1), b(k + 1)) = gcd(M, N)  as  equality:=(application-to-two:(,)(name:gcd, application:()(name:a, additive:+(name:k, numeral:1)), application:()(name:b, additive:+(name:k, numeral:1))), application-to-two:(,)(name:gcd, name:M, name:N))  a statement
+read 135: b(k) = 0  as  equality:=(application:()(name:b, name:k), numeral:0)  a statement
+read 137: a(k + 1) = a(k)  as  equality:=(application:()(name:a, additive:+(name:k, numeral:1)), application:()(name:a, name:k))  a statement
+read 140: b(k + 1) = 0  as  equality:=(application:()(name:b, additive:+(name:k, numeral:1)), numeral:0)  a statement
+read 143: gcd(a(k + 1), b(k + 1)) = gcd(a(k), b(k + 1))  as  equality:=(application-to-two:(,)(name:gcd, application:()(name:a, additive:+(name:k, numeral:1)), application:()(name:b, additive:+(name:k, numeral:1))), application-to-two:(,)(name:gcd, application:()(name:a, name:k), application:()(name:b, additive:+(name:k, numeral:1))))  a statement
+read 144: a(k + 1) = a(k)  as  equality:=(application:()(name:a, additive:+(name:k, numeral:1)), application:()(name:a, name:k))  a statement
+read 146: gcd(a(k), b(k + 1)) = gcd(a(k), 0)  as  equality:=(application-to-two:(,)(name:gcd, application:()(name:a, name:k), application:()(name:b, additive:+(name:k, numeral:1))), application-to-two:(,)(name:gcd, application:()(name:a, name:k), numeral:0))  a statement
+read 147: b(k + 1) = 0  as  equality:=(application:()(name:b, additive:+(name:k, numeral:1)), numeral:0)  a statement
+read 149: gcd(a(k), 0) = gcd(a(k), b(k))  as  equality:=(application-to-two:(,)(name:gcd, application:()(name:a, name:k), numeral:0), application-to-two:(,)(name:gcd, application:()(name:a, name:k), application:()(name:b, name:k)))  a statement
+read 150: b(k) = 0  as  equality:=(application:()(name:b, name:k), numeral:0)  a statement
+read 152: gcd(a(k + 1), b(k + 1)) = gcd(M, N)  as  equality:=(application-to-two:(,)(name:gcd, application:()(name:a, additive:+(name:k, numeral:1)), application:()(name:b, additive:+(name:k, numeral:1))), application-to-two:(,)(name:gcd, name:M, name:N))  a statement
+read 154: gcd(a(k + 1), b(k + 1))  as  application-to-two:(,)(name:gcd, application:()(name:a, additive:+(name:k, numeral:1)), application:()(name:b, additive:+(name:k, numeral:1)))  a number
+read 154: gcd(a(k), b(k + 1))  as  application-to-two:(,)(name:gcd, application:()(name:a, name:k), application:()(name:b, additive:+(name:k, numeral:1)))  a number
+read 155: gcd(a(k), 0)  as  application-to-two:(,)(name:gcd, application:()(name:a, name:k), numeral:0)  a number
+read 156: gcd(a(k), b(k))  as  application-to-two:(,)(name:gcd, application:()(name:a, name:k), application:()(name:b, name:k))  a number
+read 157: gcd(M, N)  as  application-to-two:(,)(name:gcd, name:M, name:N)  a number
+read 160: b(k) ≠ 0  as  logical-not:not(equality:=(application:()(name:b, name:k), numeral:0))  a statement
+read 162: a(k + 1) = b(k)  as  equality:=(application:()(name:a, additive:+(name:k, numeral:1)), application:()(name:b, name:k))  a statement
+read 165: b(k + 1) = a(k) mod b(k)  as  equality:=(application:()(name:b, additive:+(name:k, numeral:1)), mod:mod(application:()(name:a, name:k), application:()(name:b, name:k)))  a statement
+read 168: b(k) ∈ ℕ  as  membership:∈(application:()(name:b, name:k), number-systems:ℕ)  a statement
+read 171: a(k) ∈ ℤ  as  membership:∈(application:()(name:a, name:k), number-systems:ℤ)  a statement
+read 174: gcd(a(k) mod b(k), b(k)) = gcd(a(k), b(k))  as  equality:=(application-to-two:(,)(name:gcd, mod:mod(application:()(name:a, name:k), application:()(name:b, name:k)), application:()(name:b, name:k)), application-to-two:(,)(name:gcd, application:()(name:a, name:k), application:()(name:b, name:k)))  a statement
+read 177: gcd(b(k), a(k) mod b(k)) = gcd(a(k) mod b(k), b(k))  as  equality:=(application-to-two:(,)(name:gcd, application:()(name:b, name:k), mod:mod(application:()(name:a, name:k), application:()(name:b, name:k))), application-to-two:(,)(name:gcd, mod:mod(application:()(name:a, name:k), application:()(name:b, name:k)), application:()(name:b, name:k)))  a statement
+read 179: b(k) ∈ ℤ  as  membership:∈(application:()(name:b, name:k), number-systems:ℤ)  a statement
+read 180: a(k) mod b(k) ∈ ℕ₀  as  membership:∈(mod:mod(application:()(name:a, name:k), application:()(name:b, name:k)), number-systems:ℕ₀)  a statement
+read 182: gcd(a(k + 1), b(k + 1)) = gcd(b(k), b(k + 1))  as  equality:=(application-to-two:(,)(name:gcd, application:()(name:a, additive:+(name:k, numeral:1)), application:()(name:b, additive:+(name:k, numeral:1))), application-to-two:(,)(name:gcd, application:()(name:b, name:k), application:()(name:b, additive:+(name:k, numeral:1))))  a statement
+read 183: a(k + 1) = b(k)  as  equality:=(application:()(name:a, additive:+(name:k, numeral:1)), application:()(name:b, name:k))  a statement
+read 185: gcd(b(k), b(k + 1)) = gcd(b(k), a(k) mod b(k))  as  equality:=(application-to-two:(,)(name:gcd, application:()(name:b, name:k), application:()(name:b, additive:+(name:k, numeral:1))), application-to-two:(,)(name:gcd, application:()(name:b, name:k), mod:mod(application:()(name:a, name:k), application:()(name:b, name:k))))  a statement
+read 186: b(k + 1) = a(k) mod b(k)  as  equality:=(application:()(name:b, additive:+(name:k, numeral:1)), mod:mod(application:()(name:a, name:k), application:()(name:b, name:k)))  a statement
+read 188: gcd(a(k + 1), b(k + 1)) = gcd(M, N)  as  equality:=(application-to-two:(,)(name:gcd, application:()(name:a, additive:+(name:k, numeral:1)), application:()(name:b, additive:+(name:k, numeral:1))), application-to-two:(,)(name:gcd, name:M, name:N))  a statement
+read 190: gcd(a(k + 1), b(k + 1))  as  application-to-two:(,)(name:gcd, application:()(name:a, additive:+(name:k, numeral:1)), application:()(name:b, additive:+(name:k, numeral:1)))  a number
+read 190: gcd(b(k), b(k + 1))  as  application-to-two:(,)(name:gcd, application:()(name:b, name:k), application:()(name:b, additive:+(name:k, numeral:1)))  a number
+read 191: gcd(b(k), a(k) mod b(k))  as  application-to-two:(,)(name:gcd, application:()(name:b, name:k), mod:mod(application:()(name:a, name:k), application:()(name:b, name:k)))  a number
+read 192: gcd(a(k) mod b(k), b(k))  as  application-to-two:(,)(name:gcd, mod:mod(application:()(name:a, name:k), application:()(name:b, name:k)), application:()(name:b, name:k))  a number
+read 193: gcd(a(k), b(k))  as  application-to-two:(,)(name:gcd, application:()(name:a, name:k), application:()(name:b, name:k))  a number
+read 194: gcd(M, N)  as  application-to-two:(,)(name:gcd, name:M, name:N)  a number
+read 196: For all k ∈ ℕ₀, b(k) + k ≤ N or b(k) = 0  as  for-all:forall∈,(name:k, number-systems:ℕ₀, disjunction:or(order:≤(additive:+(application:()(name:b, name:k), name:k), name:N), equality:=(application:()(name:b, name:k), numeral:0)))  a statement
+read 197: 0  as  numeral:0  a number
+read 201: b(0) ≤ N  as  order:≤(application:()(name:b, numeral:0), name:N)  a statement
+read 203: b(0) = N  as  equality:=(application:()(name:b, numeral:0), name:N)  a statement
+read 204: b(0) ≤ N  as  order:≤(application:()(name:b, numeral:0), name:N)  a statement
+read 206: b(0) ≤ N or b(0) = 0  as  disjunction:or(order:≤(application:()(name:b, numeral:0), name:N), equality:=(application:()(name:b, numeral:0), numeral:0))  a statement
+read 208: b(0) ∈ ℝ  as  membership:∈(application:()(name:b, numeral:0), number-systems:ℝ)  a statement
+read 211: k ∈ ℕ₀  as  membership:∈(name:k, number-systems:ℕ₀)  a statement
+read 214: a(k) ∈ ℕ₀ and b(k) ∈ ℕ₀  as  conjunction:and(membership:∈(application:()(name:a, name:k), number-systems:ℕ₀), membership:∈(application:()(name:b, name:k), number-systems:ℕ₀))  a statement
+read 215: k  as  name:k  a number
+read 217: b(k) = 0 or b(k) ≠ 0  as  disjunction:or(equality:=(application:()(name:b, name:k), numeral:0), logical-not:not(equality:=(application:()(name:b, name:k), numeral:0)))  a statement
+read 218: b(k) = 0  as  equality:=(application:()(name:b, name:k), numeral:0)  a statement
+read 220: b(k + 1) + (k + 1) ≤ N or b(k + 1) = 0  as  disjunction:or(order:≤(additive:+(application:()(name:b, additive:+(name:k, numeral:1)), additive:+(name:k, numeral:1)), name:N), equality:=(application:()(name:b, additive:+(name:k, numeral:1)), numeral:0))  a statement
+read 224: b(k) = 0  as  equality:=(application:()(name:b, name:k), numeral:0)  a statement
+read 226: b(k + 1) = 0  as  equality:=(application:()(name:b, additive:+(name:k, numeral:1)), numeral:0)  a statement
+read 229: b(k + 1) + (k + 1) ≤ N or b(k + 1) = 0  as  disjunction:or(order:≤(additive:+(application:()(name:b, additive:+(name:k, numeral:1)), additive:+(name:k, numeral:1)), name:N), equality:=(application:()(name:b, additive:+(name:k, numeral:1)), numeral:0))  a statement
+read 233: b(k) ≠ 0  as  logical-not:not(equality:=(application:()(name:b, name:k), numeral:0))  a statement
+read 235: b(k + 1) = a(k) mod b(k)  as  equality:=(application:()(name:b, additive:+(name:k, numeral:1)), mod:mod(application:()(name:a, name:k), application:()(name:b, name:k)))  a statement
+read 238: b(k) ∈ ℕ  as  membership:∈(application:()(name:b, name:k), number-systems:ℕ)  a statement
+read 241: a(k) ∈ ℤ  as  membership:∈(application:()(name:a, name:k), number-systems:ℤ)  a statement
+read 244: a(k) mod b(k) < b(k)  as  order:<(mod:mod(application:()(name:a, name:k), application:()(name:b, name:k)), application:()(name:b, name:k))  a statement
+read 247: a(k) mod b(k) ∈ ℕ₀  as  membership:∈(mod:mod(application:()(name:a, name:k), application:()(name:b, name:k)), number-systems:ℕ₀)  a statement
+read 250: b(k + 1) < b(k)  as  order:<(application:()(name:b, additive:+(name:k, numeral:1)), application:()(name:b, name:k))  a statement
+read 251: b(k + 1) = a(k) mod b(k)  as  equality:=(application:()(name:b, additive:+(name:k, numeral:1)), mod:mod(application:()(name:a, name:k), application:()(name:b, name:k)))  a statement
+read 253: b(k + 1) ∈ ℕ₀  as  membership:∈(application:()(name:b, additive:+(name:k, numeral:1)), number-systems:ℕ₀)  a statement
+read 254: b(k + 1) = a(k) mod b(k)  as  equality:=(application:()(name:b, additive:+(name:k, numeral:1)), mod:mod(application:()(name:a, name:k), application:()(name:b, name:k)))  a statement
+read 256: b(k + 1) + 1 ≤ b(k)  as  order:≤(additive:+(application:()(name:b, additive:+(name:k, numeral:1)), numeral:1), application:()(name:b, name:k))  a statement
+read 258: b(k + 1) ∈ ℤ  as  membership:∈(application:()(name:b, additive:+(name:k, numeral:1)), number-systems:ℤ)  a statement
+read 259: b(k) ∈ ℤ  as  membership:∈(application:()(name:b, name:k), number-systems:ℤ)  a statement
+read 261: b(k) + k ≤ N  as  order:≤(additive:+(application:()(name:b, name:k), name:k), name:N)  a statement
+read 264: b(k + 1) + (k + 1) ≤ b(k) + k  as  order:≤(additive:+(application:()(name:b, additive:+(name:k, numeral:1)), additive:+(name:k, numeral:1)), additive:+(application:()(name:b, name:k), name:k))  a statement
+read 266: b(k + 1) + 1 ≤ b(k)  as  order:≤(additive:+(application:()(name:b, additive:+(name:k, numeral:1)), numeral:1), application:()(name:b, name:k))  a statement
+read 267: b(k + 1) + (k + 1) ≤ b(k) + k  as  order:≤(additive:+(application:()(name:b, additive:+(name:k, numeral:1)), additive:+(name:k, numeral:1)), additive:+(application:()(name:b, name:k), name:k))  a statement
+read 267: k  as  name:k  a number
+read 268: b(k + 1) ∈ ℝ  as  membership:∈(application:()(name:b, additive:+(name:k, numeral:1)), number-systems:ℝ)  a statement
+read 269: b(k) ∈ ℝ  as  membership:∈(application:()(name:b, name:k), number-systems:ℝ)  a statement
+read 271: b(k + 1) + (k + 1) ≤ N  as  order:≤(additive:+(application:()(name:b, additive:+(name:k, numeral:1)), additive:+(name:k, numeral:1)), name:N)  a statement
+read 273: b(k + 1) ∈ ℝ  as  membership:∈(application:()(name:b, additive:+(name:k, numeral:1)), number-systems:ℝ)  a statement
+read 274: b(k) ∈ ℝ  as  membership:∈(application:()(name:b, name:k), number-systems:ℝ)  a statement
+read 276: b(k + 1) + (k + 1) ≤ N or b(k + 1) = 0  as  disjunction:or(order:≤(additive:+(application:()(name:b, additive:+(name:k, numeral:1)), additive:+(name:k, numeral:1)), name:N), equality:=(application:()(name:b, additive:+(name:k, numeral:1)), numeral:0))  a statement
+read 279: a(N) ∈ ℕ₀ and b(N) ∈ ℕ₀  as  conjunction:and(membership:∈(application:()(name:a, name:N), number-systems:ℕ₀), membership:∈(application:()(name:b, name:N), number-systems:ℕ₀))  a statement
+read 280: N  as  name:N  a number
+read 282: gcd(a(N), b(N)) = gcd(M, N)  as  equality:=(application-to-two:(,)(name:gcd, application:()(name:a, name:N), application:()(name:b, name:N)), application-to-two:(,)(name:gcd, name:M, name:N))  a statement
+read 283: N  as  name:N  a number
+read 285: b(N) + N ≤ N or b(N) = 0  as  disjunction:or(order:≤(additive:+(application:()(name:b, name:N), name:N), name:N), equality:=(application:()(name:b, name:N), numeral:0))  a statement
+read 286: N  as  name:N  a number
+read 288: b(N) = 0 or b(N) ≠ 0  as  disjunction:or(equality:=(application:()(name:b, name:N), numeral:0), logical-not:not(equality:=(application:()(name:b, name:N), numeral:0)))  a statement
+read 289: b(N) = 0  as  equality:=(application:()(name:b, name:N), numeral:0)  a statement
+read 291: b(N) = 0  as  equality:=(application:()(name:b, name:N), numeral:0)  a statement
+read 295: b(N) = 0  as  equality:=(application:()(name:b, name:N), numeral:0)  a statement
+read 298: b(N) ≠ 0  as  logical-not:not(equality:=(application:()(name:b, name:N), numeral:0))  a statement
+read 300: b(N) + N ≤ N  as  order:≤(additive:+(application:()(name:b, name:N), name:N), name:N)  a statement
+read 303: b(N) ∈ ℕ  as  membership:∈(application:()(name:b, name:N), number-systems:ℕ)  a statement
+read 306: not b(N) + N ≤ N  as  logical-not:not(order:≤(additive:+(application:()(name:b, name:N), name:N), name:N))  a statement
+read 309: gcd(a(N), 0) = a(N)  as  equality:=(application-to-two:(,)(name:gcd, application:()(name:a, name:N), numeral:0), application:()(name:a, name:N))  a statement
+read 312: gcd(a(N), 0) = gcd(a(N), b(N))  as  equality:=(application-to-two:(,)(name:gcd, application:()(name:a, name:N), numeral:0), application-to-two:(,)(name:gcd, application:()(name:a, name:N), application:()(name:b, name:N)))  a statement
+read 313: b(N) = 0  as  equality:=(application:()(name:b, name:N), numeral:0)  a statement
+read 315: a(N) = gcd(M, N)  as  equality:=(application:()(name:a, name:N), application-to-two:(,)(name:gcd, name:M, name:N))  a statement
+read 317: a(N)  as  application:()(name:a, name:N)  a number
+read 317: gcd(a(N), 0)  as  application-to-two:(,)(name:gcd, application:()(name:a, name:N), numeral:0)  a number
+read 318: gcd(a(N), b(N))  as  application-to-two:(,)(name:gcd, application:()(name:a, name:N), application:()(name:b, name:N))  a number
+read 319: gcd(M, N)  as  application-to-two:(,)(name:gcd, name:M, name:N)  a number

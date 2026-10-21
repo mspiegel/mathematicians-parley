@@ -241,12 +241,24 @@ pub fn check_formulas(report: &mut Report, thm: &Theorem, env: Env, known: &Know
         };
         let local = define_sorts(&said, &known.sorts);
         let body = Written::new(&said.body, &thm.path, d.line);
-        if let Err(p) = body.formula().and_then(|s| s.read(env.g, &local)) {
+        if let Err(p) = body.formula().and_then(|s| known.keep_read(&s, &local)) {
             report.say(
                 &thm.path,
                 d.line,
                 format!("define {}: {}", d.label, p.message),
             );
+        }
+        // Each argument's name, with the sort its domain gives it, as the
+        // build writes the map sending it to the rule.
+        for p in &said.params {
+            let name = Written::new(&p.name, &thm.path, d.line);
+            if let Err(p) = name.formula().and_then(|s| known.keep_read(&s, &local)) {
+                report.say(
+                    &thm.path,
+                    d.line,
+                    format!("define {}: {}", d.label, p.message),
+                );
+            }
         }
     }
 }
@@ -5232,7 +5244,7 @@ fn recursion_equation(
 ///
 /// A rule at k + 1 may name k itself, as `c(k + 1) := c(k) + k` does; a
 /// value at 0 has no k to name.
-pub fn check_recursions(report: &mut Report, thm: &Theorem, env: Env, known: &Known) {
+pub fn check_recursions(report: &mut Report, thm: &Theorem, known: &Known) {
     for d in &thm.defines {
         let Built(DefineParts::Recursion(said)) = define_parts(&d.text) else {
             continue;
@@ -5247,7 +5259,10 @@ pub fn check_recursions(report: &mut Report, thm: &Theorem, env: Env, known: &Kn
                     Some(at) => format!("{name}({at} + 1)"),
                 };
                 let rule = Written::new(rule, &thm.path, d.line);
-                let tree = match rule.formula().and_then(|s| s.read(env.g, &local)) {
+                let tree = match rule
+                    .formula()
+                    .and_then(|s| known.keep_read(&s, &local))
+                {
                     Ok(tree) => tree,
                     Err(p) => {
                         report.say(

@@ -1017,6 +1017,37 @@ impl Theorem {
         format!("{}/{}", self.module(), self.name)
     }
 
+    /// Whether `line` of the theorem's file is one of its own: from its
+    /// header to the last line anything in it is written on. A file's
+    /// theorems never interleave, so no other theorem's line is among them.
+    pub fn owns_line(&self, line: usize) -> bool {
+        (self.line..=self.last_line()).contains(&line)
+    }
+
+    /// The last line anything in the theorem is written on.
+    fn last_line(&self) -> usize {
+        let steps = self.steps.iter().flat_map(|s| {
+            let just = &s.just;
+            [s.line, just.line]
+                .into_iter()
+                .chain(s.requires.iter().map(|r| r.line))
+                .chain(s.openers.iter().map(|o| o.line))
+                .chain(s.parts.iter().map(|(_, l)| *l))
+                .chain(just.chain.iter().map(|(_, l)| *l))
+                .chain(just.rows.iter().map(|(_, l)| *l))
+        });
+        let heads = self
+            .hypotheses
+            .iter()
+            .map(|h| h.line)
+            .chain(self.defines.iter().map(|d| d.line));
+        steps
+            .chain(heads)
+            .chain([self.line, self.conclusion_line])
+            .max()
+            .unwrap_or(self.line)
+    }
+
     /// Each define by recursion above the `then`, which the statement is
     /// read with, and its line. One that does not read is left out, and is
     /// `check_recursions`'s to report.

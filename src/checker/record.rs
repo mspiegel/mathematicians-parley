@@ -10,6 +10,7 @@ use indexmap::IndexMap;
 
 use crate::citing::Concluded;
 use crate::corpus::{Step, StepNo, Theorem};
+use crate::formula::page::Sentence;
 use crate::formula::{Node, Sorts};
 use crate::matching::Binding;
 use crate::outcome::Problem;
@@ -56,9 +57,54 @@ impl Block {
     }
 }
 
+/// Where a sentence is written and what it says: the line, and the text.
+/// A theorem's lines are its own, so within one theorem this names one
+/// sentence of its page.
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct PartKey {
+    pub line: usize,
+    pub text: String,
+}
+
+impl PartKey {
+    pub fn of(sentence: &Sentence) -> PartKey {
+        PartKey {
+            line: sentence.line(),
+            text: sentence.text().to_string(),
+        }
+    }
+}
+
+/// Every formula on a theorem's page as the checker read it: each
+/// sentence's tree, by where it is written. The build takes a sentence of
+/// the page from here and never parses one again, so the two read one
+/// proof one way.
+#[derive(Clone, Debug, Default)]
+pub struct PageReading {
+    read: rustc_hash::FxHashMap<PartKey, Node>,
+}
+
+impl PageReading {
+    pub fn new(read: rustc_hash::FxHashMap<PartKey, Node>) -> PageReading {
+        PageReading { read }
+    }
+
+    /// The tree of a sentence of the page, as the checker read it.
+    pub fn get(&self, sentence: &Sentence) -> Option<&Node> {
+        self.read.get(&PartKey::of(sentence))
+    }
+
+    /// Every sentence read, in no order, for a record printed in review.
+    pub fn entries(&self) -> impl Iterator<Item = (&PartKey, &Node)> {
+        self.read.iter()
+    }
+}
+
 /// A theorem as the checker reads it.
 #[derive(Clone, Debug, Default)]
 pub struct CheckedTheorem {
+    /// Every formula on the page, read.
+    pub page: PageReading,
     pub blocks: Vec<Block>,
     /// Where each step stands, by its index in the theorem's steps; None at
     /// the outermost level.

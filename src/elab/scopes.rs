@@ -28,7 +28,7 @@ use crate::corpus::{
 };
 use crate::formula::page::{made_as, Written};
 use crate::formula::symbol::Symbol;
-use crate::formula::{Node, Sorts};
+use crate::formula::Node;
 use crate::mm::kernel::Term;
 use crate::mm::spell::Proof;
 use crate::mm::{Rpn, Signature};
@@ -2442,7 +2442,7 @@ impl<'a> Elaborator<'a> {
                 // Sequences by recursion are one define giving several names,
                 // each the map to its part of the one recursion.
                 DefineParts::Recursion(r) => {
-                    let maps = self.recursion_terms(&d.label, r)?;
+                    let maps = self.recursion_terms(&d.label, d.line, r)?;
                     for (name, made) in maps {
                         (scope, facts, closers) = self.one_define(
                             &d.label, d.line, &name, &made, &scope, &facts, closers,
@@ -2451,19 +2451,14 @@ impl<'a> Elaborator<'a> {
                 }
                 DefineParts::One(one) => {
                     // A function is the map sending its parameters, each in
-                    // its domain, to its rule, read with what the domains
-                    // say the parameters are (`define_sorts`).
-                    let local = crate::sorts::define_sorts(one, &self.sorts_now);
-                    let read = |text: &str, sorts: &Sorts| {
-                        d.formula(text)
-                            .formula()
-                            .and_then(|s| s.read(self.g, sorts))
-                    };
-                    let rule = read(&one.body, &local)?;
+                    // its domain, to its rule, as the checker read them: the
+                    // rule and the names with what the domains say the
+                    // parameters are (`define_sorts`).
+                    let rule = self.read_one(&d.formula(&one.body))?;
                     let mut held = Vec::new();
                     for p in &one.params {
-                        held.push(read(&p.name, &local)?);
-                        held.push(read(&p.domain, &self.sorts_now)?);
+                        held.push(self.read_one(&d.formula(&p.name))?);
+                        held.push(self.read_one(&d.formula(&p.domain))?);
                     }
                     let pattern = match one.params.len() {
                         0 => None,

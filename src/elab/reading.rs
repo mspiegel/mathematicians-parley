@@ -19,7 +19,7 @@ use crate::formula::page::{
     conjoined, filled, made, made_as, template, Sentence, Written,
 };
 use crate::formula::symbol::Symbol;
-use crate::formula::{fits, Node, Sort};
+use crate::formula::{fits, Node};
 use crate::matching::{substitute_apart_by, Binding};
 use crate::matching::{Defined, Definitions};
 use crate::mm::Rpn;
@@ -88,9 +88,10 @@ impl<'a> Elaborator<'a> {
         }
         let (g, sorts) = (self.g, &self.sorts_now);
         let introduced = Introduction::read(body.clone());
-        let named = |name: &str| introduced.read_part(name, g, sorts);
+        let named = |name: &str| self.read_one(&introduced.part(name));
         let is_a = |form: &'static str, x: &Node| filled(form, g, sorts, &[("x", x)]);
         let both = |a: Node, b: Node| made(g, crate::notations::AND, vec![a, b]);
+        let asserted = || introduced.asserted_by(&|part| self.read_one(part), g, sorts);
         match &introduced.form {
             Form::Element(name) => {
                 let x = named(name)?;
@@ -105,12 +106,12 @@ impl<'a> Elaborator<'a> {
                 Ok(both(is_a("x is a set", &x)?, self.read_one(body)?))
             }
             Form::FunctionBeing { typed, .. } => {
-                let typed = introduced.read_part(typed, g, sorts)?;
-                let mut being = introduced.asserted(g, sorts)?;
+                let typed = named(typed)?;
+                let mut being = asserted()?;
                 Ok(both(typed, being.remove(0)))
             }
             Form::Part { .. } | Form::FunctionOn { .. } | Form::Polynomial(_) => {
-                Ok(introduced.asserted(g, sorts)?.remove(0))
+                Ok(asserted()?.remove(0))
             }
             Form::Set(name) => is_a("x is a set", &named(name)?),
             Form::Point(name) => is_a("x is a point", &named(name)?),
@@ -210,10 +211,25 @@ impl<'a> Elaborator<'a> {
         out
     }
 
-    /// One sentence of the readable layer, as a tree, read where the
-    /// elaborator has got to: a formula that does not parse is a defect,
-    /// pointing where the sentence is written.
+    /// One sentence as a tree. A sentence of this theorem's own page is the
+    /// checker's reading of it (`CheckedTheorem::page`), never read again,
+    /// so the two read the page one way; one the checker did not read is a
+    /// fault of the build. Text from elsewhere, a cited item's or what the
+    /// printer wrote, is read where the elaborator has got to: a formula
+    /// that does not parse is a defect, pointing where it is written.
     pub fn read(&self, sentence: &Sentence) -> Checked<Node> {
+        if sentence.path() == self.thm.path && self.thm.owns_line(sentence.line()) {
+            return match self.checked.page.get(sentence) {
+                Some(node) => Ok(node.clone()),
+                None => Err(self.unreached(
+                    sentence.line(),
+                    format!(
+                        "{}, which the checker did not read",
+                        repr(sentence.text())
+                    ),
+                )),
+            };
+        }
         sentence.read(self.g, &self.sorts_now)
     }
 
@@ -237,10 +253,12 @@ impl<'a> Elaborator<'a> {
         self.read(&written.formula()?)
     }
 
-    /// Formula text written on this theorem's page where the elaborator has
-    /// got to, read as one formula.
-    pub fn read_here(&self, text: &str) -> Checked<Node> {
-        self.read_one(&Written::new(unlabel(text), &self.thm.path, self.at))
+    /// Text the build printed from a tree it holds, read back as the page
+    /// would read it with the sorts where the elaborator has got to: a
+    /// question about the printer and the notations, not a sentence of the
+    /// page, so it is written in no file.
+    pub fn read_printed(&self, text: &str) -> Checked<Node> {
+        self.read_one(&Written::new(unlabel(text), "", self.at))
     }
 
     /// A library function applied to its arguments, where the proof gives the
@@ -324,9 +342,9 @@ impl<'a> Elaborator<'a> {
                     }
                 };
                 let mut held = Vec::new();
-                for p in &rule.params {
-                    held.push(self.read_here(&p.name)?);
-                    held.push(self.read_here(&p.domain)?);
+                for p in &rule.read {
+                    held.push(p.name.clone());
+                    held.push(p.domain.clone());
                 }
                 held.push(rule.body.clone());
                 let map = made_as(self.g, pattern, held).expect("the map notations");
@@ -662,7 +680,8 @@ impl<'a> Elaborator<'a> {
                 });
             };
             let mut parts = Vec::new();
-            for node in introduced.asserted(self.g, &self.sorts_now)? {
+            let reader = |part: &Written| self.read_one(part);
+            for node in introduced.asserted_by(&reader, self.g, &self.sorts_now)? {
                 parts.push(self.term(&node)?);
             }
             // Each listed thing is a set, in the kernel's sense, which the
@@ -725,9 +744,8 @@ impl<'a> Elaborator<'a> {
             }
             let body = me.term(&rule.body)?;
             let mut overs = Vec::new();
-            for p in &rule.params {
-                let domain = me.read_here(&p.domain)?;
-                overs.push(me.term(&domain)?);
+            for p in &rule.read {
+                overs.push(me.term(&p.domain)?);
             }
             Ok((body, overs))
         })?;
@@ -789,6 +807,7 @@ impl<'a> Elaborator<'a> {
     pub fn recursion_terms(
         &mut self,
         label: &str,
+        line: usize,
         said: &Recursion,
     ) -> Checked<IndexMap<String, Rpn>> {
         if let Some(maps) = self.recursion_maps.get(label) {
@@ -815,7 +834,8 @@ impl<'a> Elaborator<'a> {
         }
         let mut starts = Vec::new();
         for name in &said.names {
-            let node = self.read_here(&said.start[name])?;
+            let rule = Written::new(&said.start[name], &self.thm.path, line);
+            let node = self.read_one(&rule)?;
             starts.push(self.term(&node)?);
         }
         // Read once with k standing for a mark no term holds: where the mark
@@ -823,7 +843,7 @@ impl<'a> Elaborator<'a> {
         // indexed state.
         const MARK: &str = "§k";
         let whole = t!(state, "cv");
-        let steps = self.rules_read(said, parts(whole.clone()), &t!(MARK))?;
+        let steps = self.rules_read(said, line, parts(whole.clone()), &t!(MARK))?;
         let names_k = steps.iter().any(|s| s.has(MARK));
         let start = tuple_of(&starts);
         let (recursion, at_k, made) = if names_k {
@@ -833,7 +853,7 @@ impl<'a> Elaborator<'a> {
             let given = t!(input, "cv");
             let index_less_one = t!(t!(given, "c1st", "cfv"), "c1", "cmin", "co");
             let values = parts(t!(whole, "c2nd", "cfv"));
-            let steps = self.rules_read(said, values, &index_less_one)?;
+            let steps = self.rules_read(said, line, values, &index_less_one)?;
             let step = t!(
                 state,
                 input,
@@ -883,29 +903,28 @@ impl<'a> Elaborator<'a> {
 
     /// Each name's rule at k + 1 as a term, with each name at k read as its
     /// part of the state, `parts` in the names' order, and k itself as `k`.
+    /// The rules are written on the define's `line`.
     fn rules_read(
         &mut self,
         said: &Recursion,
+        line: usize,
         parts: Vec<Rpn>,
         k: &Rpn,
     ) -> Checked<Vec<Rpn>> {
         let kept = self.recurring.clone();
-        let kept_sorts = self.sorts_now.clone();
         let kept_k = self.names.get(&said.index).cloned();
         self.recurring = said.names.iter().cloned().zip(parts).collect();
-        self.sorts_now
-            .insert(said.index.clone(), Sort::of("number"));
         self.names.insert(said.index.clone(), k.clone());
         let steps = (|| -> Checked<Vec<Rpn>> {
             let mut steps = Vec::new();
             for name in &said.names {
-                let node = self.read_here(&said.step[name])?;
+                let rule = Written::new(&said.step[name], &self.thm.path, line);
+                let node = self.read_one(&rule)?;
                 steps.push(self.term(&node)?);
             }
             Ok(steps)
         })();
         self.recurring = kept;
-        self.sorts_now = kept_sorts;
         match kept_k {
             Some(t) => self.names.insert(said.index.clone(), t),
             None => self.names.shift_remove(&said.index),

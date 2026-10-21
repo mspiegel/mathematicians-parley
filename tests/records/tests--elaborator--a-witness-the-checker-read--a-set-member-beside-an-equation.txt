@@ -1,2 +1,11 @@
 theorem tests/elaborator/a-witness-the-checker-read/a-set-member-beside-an-equation
 step 1 cites stdlib/sets/set-builder group 0; P := property-of(there is x ∈ ℤ with (there is y ∈ ℤ with x ≠ y and u = x + y)), X := ℤ, u := c, bound x := a, y := b; concludes 0 Backward; from H4 sentence 0
+read 3: c ∈ S  as  membership:∈(name:c, name:S)  a statement
+read 7: a ∈ ℤ  as  membership:∈(name:a, number-systems:ℤ)  a statement
+read 8: b ∈ ℤ  as  membership:∈(name:b, number-systems:ℤ)  a statement
+read 9: c ∈ ℤ  as  membership:∈(name:c, number-systems:ℤ)  a statement
+read 10: a ≠ b and c = a + b  as  conjunction:and(logical-not:not(equality:=(name:a, name:b)), equality:=(name:c, additive:+(name:a, name:b)))  a statement
+read 11: {u ∈ ℤ : there are x, y ∈ ℤ with x ≠ y and u = x + y}  as  set-builder:{∈:}(name:u, number-systems:ℤ, there-is:thereis∈with(name:x, number-systems:ℤ, there-is:thereis∈with(name:y, number-systems:ℤ, conjunction:and(logical-not:not(equality:=(name:x, name:y)), equality:=(name:u, additive:+(name:x, name:y))))))  a set
+read 13: c ∈ S  as  membership:∈(name:c, name:S)  a statement
+read 15: c ∈ S  as  membership:∈(name:c, name:S)  a statement
+read 16: c  as  name:c  a number

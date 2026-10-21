@@ -68,12 +68,21 @@ impl Values {
     /// Every value, each read as one formula with the same grammar and
     /// sorts; a defect where one is not a formula that reads.
     pub fn read(&self, g: &Grammar, sorts: &Sorts) -> Checked<Vec<Value>> {
+        self.read_by(&|value: &Written| value.formula()?.read(g, sorts))
+    }
+
+    /// `read`, each value read by `reader`: the build's reader takes a value
+    /// on its own page as the checker read it.
+    pub fn read_by(
+        &self,
+        reader: &dyn Fn(&Written) -> Checked<Node>,
+    ) -> Checked<Vec<Value>> {
         self.given
             .iter()
             .map(|given| {
                 Ok(Value {
                     name: given.name.clone(),
-                    value: given.value.formula()?.read(g, sorts)?,
+                    value: reader(&given.value)?,
                     shown: given.value.text().to_string(),
                 })
             })
@@ -90,7 +99,18 @@ impl Values {
         sorts: &Sorts,
         letters: Option<&Sorts>,
     ) -> Checked<Vec<Value>> {
-        let mut read = self.read(g, sorts)?;
+        let reader = |value: &Written| value.formula()?.read(g, sorts);
+        self.read_wanted_by(&reader, g, letters)
+    }
+
+    /// `read_wanted`, each value read by `reader`.
+    pub fn read_wanted_by(
+        &self,
+        reader: &dyn Fn(&Written) -> Checked<Node>,
+        g: &Grammar,
+        letters: Option<&Sorts>,
+    ) -> Checked<Vec<Value>> {
+        let mut read = self.read_by(reader)?;
         let Some(letters) = letters else {
             return Ok(read);
         };

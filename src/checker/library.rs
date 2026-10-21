@@ -6,7 +6,7 @@ use std::rc::Rc;
 
 use indexmap::IndexMap;
 
-use super::record::CheckedTheorem;
+use super::record::{CheckedTheorem, PageReading, PartKey};
 use super::structure::{labels_in_scope, Declared};
 use crate::citing::{
     self, at_a_member, finished, introduction, said_once, with_parts, Introduced,
@@ -112,6 +112,9 @@ pub struct Known<'a> {
     shape: std::cell::OnceCell<CheckedTheorem>,
     /// Each sentence read, by its text (`Known::parse`).
     parsed: RefCell<rustc_hash::FxHashMap<String, Node>>,
+    /// Each sentence of the page read, by where it is written and its text,
+    /// for the build (`CheckedTheorem::page`).
+    page: RefCell<rustc_hash::FxHashMap<PartKey, Node>>,
 }
 
 impl<'a> Known<'a> {
@@ -134,7 +137,40 @@ impl<'a> Known<'a> {
             searches: RefCell::new(FxIndexMap::default()),
             shape: std::cell::OnceCell::new(),
             parsed: RefCell::new(rustc_hash::FxHashMap::default()),
+            page: RefCell::new(rustc_hash::FxHashMap::default()),
         }
+    }
+
+    /// Every sentence of the page read so far, for the record the build is
+    /// handed (`CheckedTheorem::page`).
+    pub fn page_reading(&self) -> PageReading {
+        PageReading::new(self.page.borrow().clone())
+    }
+
+    /// A sentence of the page read, kept for the build: by `parse`, and by
+    /// the checks that read a define's rule with its own letters' sorts.
+    /// The first reading of a sentence is the one kept.
+    fn keep(&self, sentence: &Sentence, node: &Node) {
+        let key = PartKey::of(sentence);
+        self.page
+            .borrow_mut()
+            .entry(key)
+            .or_insert_with(|| node.clone());
+    }
+
+    /// A sentence of the page read with sorts of its own, a define's rule
+    /// with its argument's sort or its index a number, and kept for the
+    /// build in place of any reading with the theorem's sorts, as this is
+    /// how the line means it.
+    pub fn keep_read(
+        &self,
+        sentence: &Sentence,
+        sorts: &Sorts,
+    ) -> crate::Checked<Node> {
+        let node = sentence.read(self.env.g, sorts)?;
+        let key = PartKey::of(sentence);
+        self.page.borrow_mut().insert(key, node.clone());
+        Ok(node)
     }
 
     /// The blocks of `thm`, the theorem this knows, and where each of its
@@ -294,15 +330,22 @@ impl<'a> Known<'a> {
     /// is not kept, as its problem says where the sentence is written.
     pub fn parse(&self, sentence: &Sentence) -> crate::Checked<Node> {
         let Some(text) = sentence.deciding_text() else {
-            return sentence.read(self.env.g, &self.sorts);
+            let node = sentence.read(self.env.g, &self.sorts)?;
+            self.keep(sentence, &node);
+            return Ok(node);
         };
-        if let Some(node) = self.parsed.borrow().get(text) {
-            return Ok(node.clone());
-        }
-        let node = sentence.read(self.env.g, &self.sorts)?;
-        self.parsed
-            .borrow_mut()
-            .insert(text.to_string(), node.clone());
+        let cached = self.parsed.borrow().get(text).cloned();
+        let node = match cached {
+            Some(node) => node,
+            None => {
+                let node = sentence.read(self.env.g, &self.sorts)?;
+                self.parsed
+                    .borrow_mut()
+                    .insert(text.to_string(), node.clone());
+                node
+            }
+        };
+        self.keep(sentence, &node);
         Ok(node)
     }
 

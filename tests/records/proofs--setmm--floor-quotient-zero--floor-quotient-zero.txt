@@ -7,3 +7,30 @@ step 3.4 cites stdlib/numbers/floor-between group 0; k := 0, x := A / B; conclud
 step 3.5 cites stdlib/numbers/less-scaled group 0; c := B, x := A / B, y := 1; concludes 0 Forward; from 3.4 sentence 0 part 1
 step 3.1 chains B · (A / B) = A | A < B
 step 3.6 chains B · (A / B) = A | B · (A / B) < B
+read 5: A < B ↔ ⌊A/B⌋ = 0  as  biconditional:↔(order:<(name:A, name:B), equality:=(floor:⌊⌋(multiplicative:/(name:A, name:B)), numeral:0))  a statement
+read 10: A ∈ ℕ₀  as  membership:∈(name:A, number-systems:ℕ₀)  a statement
+read 11: B ∈ ℕ  as  membership:∈(name:B, number-systems:ℕ)  a statement
+read 12: A < B ↔ ⌊A/B⌋ = 0  as  biconditional:↔(order:<(name:A, name:B), equality:=(floor:⌊⌋(multiplicative:/(name:A, name:B)), numeral:0))  a statement
+read 14: B·(A/B) = A  as  equality:=(multiplicative:·(name:B, multiplicative:/(name:A, name:B)), name:A)  a statement
+read 17: 0 ≤ A/B  as  order:≤(numeral:0, multiplicative:/(name:A, name:B))  a statement
+read 18: A  as  name:A  a number
+read 18: B  as  name:B  a number
+read 20: A < B ↔ ⌊A/B⌋ = 0  as  biconditional:↔(order:<(name:A, name:B), equality:=(floor:⌊⌋(multiplicative:/(name:A, name:B)), numeral:0))  a statement
+read 24: A < B  as  order:<(name:A, name:B)  a statement
+read 26: B·(A/B) < B  as  order:<(multiplicative:·(name:B, multiplicative:/(name:A, name:B)), name:B)  a statement
+read 29: A/B < 1  as  order:<(multiplicative:/(name:A, name:B), numeral:1)  a statement
+read 30: 1  as  numeral:1  a number
+read 30: A/B  as  multiplicative:/(name:A, name:B)  a number
+read 30: B  as  name:B  a number
+read 32: ⌊A/B⌋ = 0  as  equality:=(floor:⌊⌋(multiplicative:/(name:A, name:B)), numeral:0)  a statement
+read 33: 0  as  numeral:0  a number
+read 33: A/B  as  multiplicative:/(name:A, name:B)  a number
+read 36: ⌊A/B⌋ = 0  as  equality:=(floor:⌊⌋(multiplicative:/(name:A, name:B)), numeral:0)  a statement
+read 38: 0 ≤ A/B and A/B < 0 + 1  as  conjunction:and(order:≤(numeral:0, multiplicative:/(name:A, name:B)), order:<(multiplicative:/(name:A, name:B), additive:+(numeral:0, numeral:1)))  a statement
+read 39: 0  as  numeral:0  a number
+read 39: A/B  as  multiplicative:/(name:A, name:B)  a number
+read 41: B·(A/B) < B  as  order:<(multiplicative:·(name:B, multiplicative:/(name:A, name:B)), name:B)  a statement
+read 42: 1  as  numeral:1  a number
+read 42: A/B  as  multiplicative:/(name:A, name:B)  a number
+read 42: B  as  name:B  a number
+read 44: A < B  as  order:<(name:A, name:B)  a statement

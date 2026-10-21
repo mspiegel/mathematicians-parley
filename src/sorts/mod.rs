@@ -18,7 +18,8 @@ use std::rc::Rc;
 
 use crate::corpus::proof::{chain, visible};
 use crate::corpus::{
-    define_parts, DefineLine, DefineParts, FileScope, Intro, Record, ScopeId, Theorem,
+    define_parts, Define, DefineLine, DefineParts, FileScope, Intro, Record, ScopeId,
+    Theorem,
 };
 pub(crate) mod infer;
 pub mod introduction;
@@ -27,9 +28,9 @@ use crate::formula::notation_id::NotationId;
 use crate::formula::page::{tokens, Written};
 use crate::formula::token::{Token, TokenKind};
 use crate::formula::{holds, Grammar, Sort, Sorts, Whole};
-use crate::matching::{expand, Defined, Definitions, Rule};
+use crate::matching::{expand, Defined, Definitions, ParamRead, Rule};
 use crate::notations::{FUNCTION_TYPE, ONE_TO_ONE, ONE_TO_ONE_ONTO, ONTO};
-use crate::outcome::{Built, Declined};
+use crate::outcome::{Built, Checked, Declined};
 pub use introduction::graph_line;
 use introduction::{Form, Introduction};
 
@@ -344,7 +345,10 @@ fn defines_into<'d>(
         let local = define_sorts(&said, sorts);
         // A rule that does not read is `check_formulas`'s to report.
         let read = d.formula(&said.body).formula();
-        let Ok(body) = read.and_then(|s| s.read(env.g, &local)) else {
+        let Ok((body, params)) = read
+            .and_then(|s| s.read(env.g, &local))
+            .and_then(|body| Ok((body, params_read(d, &said, &local, sorts, env)?)))
+        else {
             continue;
         };
         let made = if said.params.is_empty() {
@@ -352,6 +356,7 @@ fn defines_into<'d>(
         } else {
             Defined::Rule(Rule {
                 params: said.params.clone(),
+                read: params,
                 body,
                 binders: env.g.binders(),
             })
@@ -510,19 +515,47 @@ fn written_definition(
     };
     let said = parts.one()?;
     let inner = written_definitions(src, d.line, env, seen);
-    let local = define_sorts(said, &definition_sorts(&inner));
+    let outer = definition_sorts(&inner);
+    let local = define_sorts(said, &outer);
     let read = d.formula(&said.body).formula();
-    let body = read.and_then(|s| s.read(env.g, &local)).ok()?;
+    let (body, params) = read
+        .and_then(|s| s.read(env.g, &local))
+        .and_then(|body| Ok((body, params_read(d, said, &local, &outer, env)?)))
+        .ok()?;
     let body = expand(&body, &inner);
     Some(if said.params.is_empty() {
         Defined::Term(body)
     } else {
         Defined::Rule(Rule {
             params: said.params.clone(),
+            read: params,
             body,
             binders: env.g.binders(),
         })
     })
+}
+
+/// A define's arguments read where it is written: each name with the sort
+/// its domain gives it (`local`), and each domain with the sorts around the
+/// define (`outer`).
+pub fn params_read(
+    d: &DefineLine,
+    said: &Define,
+    local: &Sorts,
+    outer: &Sorts,
+    env: Env,
+) -> Checked<Vec<ParamRead>> {
+    let read =
+        |text: &str, sorts: &Sorts| d.formula(text).formula()?.read(env.g, sorts);
+    said.params
+        .iter()
+        .map(|p| {
+            Ok(ParamRead {
+                name: read(&p.name, local)?,
+                domain: read(&p.domain, outer)?,
+            })
+        })
+        .collect()
 }
 
 /// The sort each definition gives its name: a function takes arguments, and

@@ -144,7 +144,8 @@ impl Elaborator<'_> {
             let again = match self.spoken(&kernel) {
                 Some(said) => {
                     // What the page would write, read as the page is read.
-                    let back = self.read_here(&said).and_then(|n| self.term(&n)).ok();
+                    let back =
+                        self.read_printed(&said).and_then(|n| self.term(&n)).ok();
                     (back.as_ref() != Some(&kernel)).then_some(said)
                 }
                 None => Some("(no page reading)".to_string()),
@@ -384,7 +385,7 @@ impl Elaborator<'_> {
             // the page reads nothing, so |x − c| is the reading.
             let printed = self.g.print(&node);
             let back = if bound.is_empty() {
-                self.read_here(&printed)
+                self.read_printed(&printed)
             } else {
                 let mut sorts = self.sorts_now.clone();
                 for (letter, sort) in bound {
@@ -394,7 +395,7 @@ impl Elaborator<'_> {
                         sorts.unsettled.insert(letter.clone());
                     }
                 }
-                Written::new(printed, &self.thm.path, self.at)
+                Written::new(printed, "", self.at)
                     .formula()
                     .and_then(|s| s.read(self.g, &sorts))
             };
