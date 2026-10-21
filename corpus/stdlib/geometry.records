@@ -383,6 +383,20 @@ theorem angles-on-a-line
               the order. Over ℂ the three angles turn the same way, and their
               signed sum is half a turn.
 
+theorem supplementary-angles
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  assume B is between A and C                                         (H5)
+  assume D ≠ B                                                        (H6)
+  then        ∠ABD + ∠DBC = 180°
+  metamath    gsupp, which this corpus proves in elaboration/stdlib/proved.mm
+              from cosangneg2d, cospim and cos11
+  target      gsupp
+  note        Two angles on a line, Euclid I.13: with B on the segment AC,
+              the angles ABD and DBC make a straight angle wherever D is.
+
 mundane theorem distance-real
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)

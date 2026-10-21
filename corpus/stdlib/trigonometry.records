@@ -177,3 +177,10 @@ mundane theorem special-angles
   note        The values a school reader takes from the unit circle. set.mm
               states them at π/2, π/3 and π/6; each lemma first writes the
               degrees as that fraction of π.
+
+mundane theorem cos-supplement
+  let x ∈ ℝ                                                           (H1)
+  then        cos(180° − x) = −cos(x)
+  metamath    gcossupp, which this corpus proves in
+              elaboration/stdlib/proved.mm from cospim
+  target      gcossupp

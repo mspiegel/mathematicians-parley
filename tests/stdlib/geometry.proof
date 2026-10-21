@@ -22,6 +22,7 @@ import mundane theorem    stdlib/geometry/collinear-by-coordinates as geometry-c
 import mundane theorem    stdlib/geometry/between-by-coordinates as geometry-between-by-coordinates
 import mundane theorem    stdlib/geometry/angle-at-most-straight as geometry-angle-at-most-straight
 import mundane theorem    stdlib/geometry/angle-by-cosine as geometry-angle-by-cosine
+import theorem            stdlib/geometry/supplementary-angles as geometry-supplementary-angles
 import mundane definition stdlib/geometry/on-line as geometry-on-line
 import theorem            stdlib/geometry/perpendicular-by-right-angle as geometry-perpendicular-by-right-angle
 import theorem            stdlib/geometry/intersecting-chords as geometry-intersecting-chords
@@ -435,3 +436,15 @@ theorem angle-by-cosine
 
 1.  ∠PQR = x ↔ cos(∠PQR) = cos(x)
     mun:geometry-angle-by-cosine, from H5, H6, H7, H8
+
+theorem supplementary-angles
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  assume B is between A and C                                         (H5)
+  assume D ≠ B                                                        (H6)
+  then ∠ABD + ∠DBC = 180°
+
+1.  ∠ABD + ∠DBC = 180°
+    thm:geometry-supplementary-angles, from H5, H6
