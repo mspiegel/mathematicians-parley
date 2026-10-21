@@ -1911,7 +1911,7 @@ impl<'a> Elaborator<'a> {
                     // letters, which the values name, read in the proof's
                     // names as they stand, before anything is obtained.
                     let values = match item {
-                        Item::Theorem(_) => me.instantiated(&step.just.values)?,
+                        Item::Theorem(_) => me.instantiated(&step.just)?,
                         Item::Record(_) => Vec::new(),
                     };
                     // A name is a variable of the kernel whatever it is

@@ -398,10 +398,16 @@ impl<'a> Known<'a> {
     }
 
     /// What a citation's values `v := t` say each letter stands for, all
-    /// read together and with what `defined` writes out; nothing where one
-    /// is not a formula that reads, which the elaborator reports.
-    pub fn seed(&self, values: &Values, defined: &Definitions) -> Binding {
-        let Ok(read) = values.read(self.env.g, &self.sorts) else {
+    /// read together, each as its place in the cited item wants it
+    /// (`letters`, its sorts), and with what `defined` writes out; nothing
+    /// where one is not a formula that reads, which the elaborator reports.
+    pub fn seed(
+        &self,
+        values: &Values,
+        defined: &Definitions,
+        letters: Option<&Sorts>,
+    ) -> Binding {
+        let Ok(read) = values.read_wanted(self.env.g, &self.sorts, letters) else {
             return Binding::new();
         };
         read.into_iter()
@@ -608,7 +614,11 @@ fn citation_parts(step: &Step, library: &Library, known: &Known) -> Parts {
         facts.extend(r.fact.sentences().iter().filter_map(read));
     }
     let claims: Vec<Node> = step.claim.sentences().iter().filter_map(read).collect();
-    let mut seed = known.seed(&step.just.values, &defined);
+    let letters = step
+        .just
+        .cited_item()
+        .and_then(|item| library.item_sorts(&step.just.item(&item)));
+    let mut seed = known.seed(&step.just.values, &defined, letters);
     if let Some(item) = step.just.cited_item() {
         listed_seed(
             &mut seed,

@@ -15,7 +15,7 @@ mod print;
 pub mod symbol;
 pub mod token;
 
-pub use grammar::{fits, holds, Grammar, Sorts, TERM_SORTS};
+pub use grammar::{fits, holds, wanted_reading, Grammar, Sorts, TERM_SORTS};
 pub use node::{walk, ByShape, Node, NodeId, Sort, Whole};
 pub use notation::{
     binds_tighter, categories_of, holes_in, patterns_of, Binds, Notation, Part,

@@ -307,10 +307,11 @@ fn reading(text: &str, tokens: &[Token], sorts: &Sorts) -> ReadingKey {
 }
 
 /// The sorts a term may have to fill any hole: every sort of a term.
-pub const TERM_SORTS: [&str; 7] = [
+pub const TERM_SORTS: [&str; 8] = [
     "number",
     "set",
     "point",
+    "pair",
     "group-element",
     "group-set",
     "set-of-sets",
@@ -347,6 +348,36 @@ pub fn fits(hole: &str, sort: &Sort) -> bool {
         return true;
     }
     hole == name
+}
+
+/// `node` read as the notation of its pattern that a place wanting `want`
+/// reads it as (`wanted`), with the same parts: `(a, b)` is a pair, and
+/// where a set is wanted the open interval between its ends. None where no
+/// such notation shares its pattern, or its parts do not fit it.
+pub fn wanted_reading(g: &Grammar, node: &Node, want: &str) -> Option<Node> {
+    let pattern = &g
+        .notations
+        .iter()
+        .find(|m| m.wanted.is_none() && m.spelling() == node.spelling())?
+        .pattern;
+    let other = g.notations.iter().find(|m| {
+        m.wanted.as_deref() == Some(want)
+            && m.pattern == *pattern
+            && m.holes.len() == node.children.len()
+            && m.holes
+                .iter()
+                .zip(&node.children)
+                .all(|(h, c)| fits(h, &c.sort))
+    })?;
+    let read = Node::of(
+        other.spelling(),
+        Sort::of(&other.yields),
+        node.children.clone(),
+    );
+    if let Some((from, to)) = node.span() {
+        read.set_span(from, to);
+    }
+    Some(read)
 }
 
 /// Parse one sentence.
@@ -1139,7 +1170,10 @@ impl<'a> Parser<'a> {
                 }
             }
             let want = n.holes.first().map_or("", String::as_str);
-            if !fits(want, &left.sort) {
+            // What stands before is read as the hole wants it where its
+            // pattern has such a reading (`wanted_reading`), as `(0, 1) ⊆ ℝ`
+            // reads the interval.
+            if !fits(want, &left.sort) && self.wanted_reading(left, want).is_none() {
                 // The tokens after it are the pattern's own, so the text
                 // writes this notation and only the sort of what stands
                 // before it turns it away: say so, in case nothing reads.
@@ -1244,6 +1278,14 @@ impl<'a> Parser<'a> {
     /// Try each candidate. Exactly one must fit, or none does and this is no
     /// reading; two do and the text is ambiguous, which is a defect.
     fn apply(&mut self, cands: &[&Notation], left: Option<&Node>) -> Reading {
+        // A notation read only where a hole wants it is reached from the
+        // hole (`wanted_reading`), never on its own.
+        let cands: Vec<&Notation> = cands
+            .iter()
+            .filter(|n| n.wanted.is_none())
+            .copied()
+            .collect();
+        let cands = cands.as_slice();
         if cands.is_empty() {
             let (tok, src) = (self.here(), self.src);
             return self.no(|| {
@@ -1268,8 +1310,28 @@ impl<'a> Parser<'a> {
             });
         }
         let best = results.iter().map(|r| r.1).max().unwrap();
-        let winners: Vec<&(Node, usize)> =
+        let mut winners: Vec<&(Node, usize)> =
             results.iter().filter(|r| r.1 == best).collect();
+        // Readings the categories leave open are told apart by the full
+        // sorts of what fills them, where those are settled: f(x, y) applies
+        // a function on pairs or one taking two arguments by what f is.
+        if winners.len() > 1 {
+            let sorts = self.g.notation_sorts();
+            let admitted: Vec<&(Node, usize)> = winners
+                .iter()
+                .copied()
+                .filter(|(node, _)| {
+                    let filled: Vec<&Sort> =
+                        node.children.iter().map(|c| &c.sort).collect();
+                    sorts
+                        .signature(node.notation())
+                        .is_none_or(|s| s.admits(&filled))
+                })
+                .collect();
+            if !admitted.is_empty() {
+                winners = admitted;
+            }
+        }
         if winners.len() > 1 {
             let readings: std::collections::BTreeSet<String> = winners
                 .iter()
@@ -1410,10 +1472,17 @@ impl<'a> Parser<'a> {
         // record check reports; here the extra holes simply go unchecked. A
         // hole read again takes the category of the hole that repeats.
         let repeated = n.repeat.as_ref().and_then(|r| n.holes.get(r.hole - 1));
-        for (i, (kid, span)) in kids.iter().zip(&took).enumerate() {
+        for (i, span) in took.iter().enumerate() {
             let Some(want) = n.holes.get(i).or(repeated) else {
                 continue;
             };
+            if !fits(want, &kids[i].sort) {
+                if let Some(read) = self.wanted_reading(&kids[i], want) {
+                    kids[i] = read;
+                    continue;
+                }
+            }
+            let kid = &kids[i];
             if !fits(want, &kid.sort) {
                 let what = match span {
                     _ if kid.is_name() => kid.text.to_string(),
@@ -1660,6 +1729,10 @@ impl<'a> Parser<'a> {
             body.with_children(vec![first, body.children[1].clone()]),
             body,
         )
+    }
+
+    fn wanted_reading(&self, kid: &Node, want: &str) -> Option<Node> {
+        wanted_reading(self.g, kid, want)
     }
 
     /// A `variable` hole takes a bare name; any other takes an expression,

@@ -17,7 +17,7 @@ use indexmap::IndexMap;
 
 use crate::formula::notation_id::Spelling;
 use crate::formula::page::{Sentence, Written};
-use crate::formula::{Node, Sort};
+use crate::formula::{wanted_reading, Node, Sort};
 use crate::mm::kernel::Term;
 use crate::mm::Rpn;
 use crate::notations::{APPLICATION, APPLICATION_TO_TWO, SUPERSCRIPT};
@@ -376,6 +376,13 @@ impl Elaborator<'_> {
                     .sentence()
                     .and_then(|s| s.read(self.g, &sorts))
             };
+            // A reading the page gives only where a hole wants it, the open
+            // interval of `(a, b)`, is read back as that hole reads it.
+            let wanted = self.g.written_by(r.spelling).and_then(|n| n.wanted.clone());
+            let back = back.map(|b| match &wanted {
+                Some(want) => wanted_reading(self.g, &b, want).unwrap_or(b),
+                None => b,
+            });
             if back.is_ok_and(|b| b.same_shape(&node)) {
                 return Some(node);
             }

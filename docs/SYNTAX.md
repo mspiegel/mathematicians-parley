@@ -426,6 +426,14 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
   "there is s ∈ Y with u = E(s)". Each is a definition with a pointer,
   mun:stdlib/sets/set-builder and mun:stdlib/functions/set-image, used in both directions by the ↔
   convention. Both are kept because a school reader has met both.
+- `(a, b)` is the pair of a and b, and `A × B` is the set of pairs whose
+  first part is in A and whose second is in B. Where the place it fills
+  wants a set (the right of ∈, the set a "for all" or "there is" ranges
+  over, a function's domain or codomain, a side of ⊆, ∪, ∩ or ∖), the pair
+  of ends names the open interval between them: `x ∈ (0, π)` and
+  `f : (0, 1) → ℝ` are intervals, and `(a, b) = (c, d)` and `f((1, 2))` are
+  pairs. The interval asks nothing of its ends: (3, 1) is the empty set, as
+  set.mm has it.
 
 ## Justification forms
 

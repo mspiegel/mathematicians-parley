@@ -14,6 +14,7 @@
 //! names a theorem introduces, and what a `define`'s domain holds.
 
 use std::collections::BTreeSet;
+use std::rc::Rc;
 
 use crate::corpus::proof::{chain, visible};
 use crate::corpus::{
@@ -25,7 +26,7 @@ pub mod introduction;
 use crate::formula::notation_id::NotationId;
 use crate::formula::page::{tokens, Written};
 use crate::formula::token::{Token, TokenKind};
-use crate::formula::{holds, Grammar, Sort, Sorts};
+use crate::formula::{holds, Grammar, Sort, Sorts, Whole};
 use crate::matching::{expand, Defined, Definitions, Rule};
 use crate::notations::{FUNCTION_TYPE, ONE_TO_ONE, ONE_TO_ONE_ONTO, ONTO};
 use crate::outcome::{Built, Declined};
@@ -530,7 +531,7 @@ pub fn definition_sorts(definitions: &Definitions) -> Sorts {
     let mut out = Sorts::new();
     for (name, made) in definitions {
         let sort = match made {
-            Defined::Rule(_) => Sort::of("function"),
+            Defined::Rule(rule) => rule_sort(rule),
             Defined::Term(t) => t.sort.clone(),
         };
         if !sort.is_unsorted() {
@@ -538,6 +539,24 @@ pub fn definition_sorts(definitions: &Definitions) -> Sorts {
         }
     }
     out
+}
+
+/// The sort a function defined by a rule has: a function from its first
+/// argument to a function from the next, and so on to its value, as a
+/// library function's is (`infer::function_signature`), each argument a
+/// number where its domain is a number system and open otherwise, and the
+/// value open. So G(a, n) for a ∈ ℝ, n ∈ ℕ₀ is applied to two arguments
+/// and not to a pair.
+fn rule_sort(rule: &Rule) -> Sort {
+    let whole = rule.params.iter().rev().fold(Whole::Open, |value, p| {
+        let argument = if NUMBER_SYSTEMS.contains(&str::trim(&p.domain)) {
+            Whole::Number
+        } else {
+            Whole::Open
+        };
+        Whole::Function(Rc::new(argument), Rc::new(value))
+    });
+    Sort::whole(whole).unwrap_or_else(|| Sort::of("function"))
 }
 
 /// The sort of what a define's domain holds: a number where the domain is a

@@ -99,6 +99,8 @@ pub enum Whole {
     Set(Rc<Whole>),
     Property(Rc<Whole>),
     Function(Rc<Whole>, Rc<Whole>),
+    /// A pair, of the sorts of its first and second parts.
+    Pair(Rc<Whole>, Rc<Whole>),
     /// A sort the lines leave open.
     Open,
 }
@@ -120,6 +122,13 @@ impl Whole {
             return Some(Whole::Function(
                 Rc::new(Whole::read(from)?),
                 Rc::new(Whole::read(to)?),
+            ));
+        }
+        if let Some(rest) = text.strip_prefix("pair of ") {
+            let (first, second) = rest.split_once(" and ")?;
+            return Some(Whole::Pair(
+                Rc::new(Whole::read(first)?),
+                Rc::new(Whole::read(second)?),
             ));
         }
         Some(match text {
@@ -145,6 +154,9 @@ impl Whole {
                 plural(&a.describe()),
                 plural(&b.describe())
             ),
+            Whole::Pair(a, b) => {
+                format!("a pair of {} and {}", a.describe(), b.describe())
+            }
             Whole::Open => "a thing of a sort not yet settled".into(),
         }
     }
@@ -163,6 +175,7 @@ impl Whole {
             },
             Whole::Property(_) => "property",
             Whole::Function(..) => "function",
+            Whole::Pair(..) => "pair",
             Whole::Formula | Whole::Open => return None,
         })
     }
@@ -179,6 +192,7 @@ pub fn plural(one: &str) -> String {
         ("a set of", "sets of"),
         ("a property of", "properties of"),
         ("a function from", "functions from"),
+        ("a pair of", "pairs of"),
         ("a thing of", "things of"),
         ("a name", "names"),
         ("a term", "terms"),
@@ -201,6 +215,7 @@ pub fn describe_category(category: &str) -> String {
         "group-set" => "a set of group elements",
         "set-of-sets" => "a set of sets",
         "function" => "a function",
+        "pair" => "a pair",
         "property" => "a property",
         "variable" => "a name",
         _ => "a term",

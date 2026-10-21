@@ -12,7 +12,7 @@
 
 use crate::formula::page::{tokens, Written};
 use crate::formula::token::Token;
-use crate::formula::{Grammar, Node, Sorts};
+use crate::formula::{fits, wanted_reading, Grammar, Node, Sorts};
 use crate::outcome::Checked;
 
 /// The `v := t` a line writes, in order, as the skeleton reader cut them.
@@ -73,6 +73,33 @@ impl Values {
                 })
             })
             .collect()
+    }
+
+    /// `read`, each value as the place its letter stands in the cited item
+    /// wants it (`formula::wanted_reading`): `U := (0, 1)`, where the item
+    /// says U is a set, is the open interval. `letters` are the cited item's
+    /// sorts, None where the item is not known.
+    pub fn read_wanted(
+        &self,
+        g: &Grammar,
+        sorts: &Sorts,
+        letters: Option<&Sorts>,
+    ) -> Checked<Vec<Value>> {
+        let mut read = self.read(g, sorts)?;
+        let Some(letters) = letters else {
+            return Ok(read);
+        };
+        for v in &mut read {
+            let Some(want) = letters.get(&v.name).and_then(|s| s.name()) else {
+                continue;
+            };
+            if !fits(want, &v.value.sort) {
+                if let Some(wanted) = wanted_reading(g, &v.value, want) {
+                    v.value = wanted;
+                }
+            }
+        }
+        Ok(read)
     }
 
     /// The tokens each value is written in, for a question about how the

@@ -140,9 +140,12 @@ fn cited_sorts(
             continue;
         };
         // Every value is read with the sorts as they stand before fitting
-        // any of them settles one. A value that does not read is the
-        // elaborator's to report.
-        let Ok(values) = values.read(env.g, &reader.sorts(store)) else {
+        // any of them settles one, and as its letter's place wants it. A
+        // value that does not read is the elaborator's to report.
+        let letters = stated.sorts(store);
+        let Ok(values) =
+            values.read_wanted(env.g, &reader.sorts(store), Some(&letters))
+        else {
             continue;
         };
         let mut seen = IndexMap::new();

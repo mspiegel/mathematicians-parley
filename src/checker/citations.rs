@@ -156,7 +156,10 @@ fn requires_parts(
             }
         }
     }
-    let mut seed = known.seed(req.values(), &defined);
+    let letters = req
+        .cited_item()
+        .and_then(|(named, _)| library.item_sorts(&step.just.item(&named)));
+    let mut seed = known.seed(req.values(), &defined, letters);
     if let Some((named, _)) = req.cited_item() {
         listed_seed(
             &mut seed,

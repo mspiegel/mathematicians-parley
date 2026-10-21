@@ -256,6 +256,15 @@ impl<'a> Library<'a> {
             .map(|k| crate::corpus::Item::Theorem(k.thm))
     }
 
+    /// The sorts the item of that full name is read with, a record's or a
+    /// theorem's this corpus proves: what each of its letters is.
+    pub fn item_sorts(&self, name: &str) -> Option<&Sorts> {
+        match self.items.get(name) {
+            Some(i) => self.record_sorts.get(i),
+            None => self.proved_sorts(name),
+        }
+    }
+
     /// The sorts a theorem this corpus proves, of that full name, is read
     /// with (`Proved`).
     pub fn proved_sorts(&self, name: &str) -> Option<&Sorts> {

@@ -173,6 +173,10 @@ pub struct Notation {
     /// that name instead (`shadowed`): i is the imaginary unit until a line
     /// introduces an i of its own.
     pub shadowed: bool,
+    /// The category a hole must want for this pattern to be read there
+    /// (`wanted`): the open interval is a reading of `(a, b)` only where a
+    /// set is wanted, and the pair everywhere else.
+    pub wanted: Option<String>,
 }
 
 impl Notation {
@@ -658,6 +662,7 @@ pub fn compile_notations(
                     .map(|f| Wrap::new(f[1].parse().unwrap(), &f[2])),
                 repeat: repeat.clone(),
                 shadowed: r.field("shadowed").is_some(),
+                wanted: r.field("wanted").map(|w| str::trim(w).to_string()),
             });
         }
     }

@@ -37,11 +37,13 @@ use super::{Facts, Line, Lines};
 use crate::binds;
 use crate::checker::record::{CheckedTheorem, Cited, FirstAt};
 use crate::citing::{self, filled};
-use crate::corpus::proof::{chain, requires_as_step, ChainLine, Head, Requires};
+use crate::corpus::proof::{
+    chain, requires_as_step, ChainLine, Head, Justification, Requires,
+};
 use crate::corpus::Method;
 use crate::corpus::{
     define_parts, fmt, Corpus, DefineParts, Hypothesis, Intro, Item, Record, Step,
-    Theorem, Value, Values,
+    Theorem, Value,
 };
 use crate::formula::page::{related, Written};
 use crate::formula::symbol::Symbol;
@@ -1592,10 +1594,10 @@ impl<'a> Elaborator<'a> {
     /// given (`instantiated_nodes`).
     pub(crate) fn instantiated(
         &mut self,
-        values: &Values,
+        just: &Justification,
     ) -> Checked<Vec<(String, Rpn)>> {
         let mut out = Vec::new();
-        for v in self.instantiated_nodes(values)? {
+        for v in self.instantiated_nodes(just)? {
             out.push((v.name, self.term(&v.value)?));
         }
         Ok(out)
@@ -1603,9 +1605,17 @@ impl<'a> Elaborator<'a> {
 
     /// The values a citation gives, as trees in the page's notation, read
     /// together where the elaborator has got to: values are simultaneous,
-    /// so `a := b/k, b := a/k` swaps the two (`Values`).
-    pub(crate) fn instantiated_nodes(&self, values: &Values) -> Checked<Vec<Value>> {
-        values.read(self.g, &self.sorts_now)
+    /// so `a := b/k, b := a/k` swaps the two (`Values`). Each is read as
+    /// its letter's place in the cited item wants it (`Values::read_wanted`).
+    pub(crate) fn instantiated_nodes(
+        &self,
+        just: &Justification,
+    ) -> Checked<Vec<Value>> {
+        let library = self.item_library();
+        let letters = just
+            .cited_item()
+            .and_then(|item| library.item_sorts(&just.item(&item)));
+        just.values.read_wanted(self.g, &self.sorts_now, letters)
     }
 
     /// How many conditions the universal `said`, at the values written for
@@ -1681,7 +1691,7 @@ impl<'a> Elaborator<'a> {
             .filter(|p| matches!(self.to_term(p).label(), Some("wral") | Some("wal")))
             .collect();
         // The universal is the one binding the name the step instantiates.
-        let pairs = self.instantiated_nodes(&step.just.values)?;
+        let pairs = self.instantiated_nodes(&step.just)?;
         let bound: BTreeSet<Option<String>> = pairs
             .iter()
             .map(|v| {
@@ -4542,7 +4552,7 @@ impl<'a> Elaborator<'a> {
         // The values are read in the proof's names, before any letter of
         // the definition is given one: `n := d, d := a` gives n the proof's
         // d, not the definition's.
-        let values = self.instantiated(&step.just.values)?;
+        let values = self.instantiated(&step.just)?;
         let subject = self.subject_given(&head, &values, step.line)?;
         let Item::Record(cited) = self.item_cited(&head)? else {
             panic!("{head} is a definition of the database");
@@ -4953,7 +4963,7 @@ impl<'a> Elaborator<'a> {
         // that value as the step writes it, and any other is what the
         // citation makes it (`matched_here`), never what the proof calls by
         // the same letter.
-        let given = self.instantiated_nodes(&step.just.values)?;
+        let given = self.instantiated_nodes(&step.just)?;
         let mut bound: NodeBinding = self
             .matched_here(step, item)?
             .into_iter()
@@ -5052,7 +5062,7 @@ impl<'a> Elaborator<'a> {
         // name the match gives itself, as a library function's C in C(m, k)
         // is, stands as it already does.
         let written: BTreeSet<String> = self
-            .instantiated_nodes(&step.just.values)?
+            .instantiated_nodes(&step.just)?
             .into_iter()
             .map(|v| v.name)
             .collect();
@@ -5114,7 +5124,7 @@ impl<'a> Elaborator<'a> {
                 // swaps the two, and reading the second after the first is
                 // given would read a/k as (b/k)/k.
                 let values: IndexMap<String, Rpn> =
-                    me.instantiated(&step.just.values)?.into_iter().collect();
+                    me.instantiated(&step.just)?.into_iter().collect();
                 // What the citation does not write is found by matching the
                 // theorem against what the step claims and cites, as the
                 // checker finds it (`citing::taken`, SYNTAX.md "No pair says

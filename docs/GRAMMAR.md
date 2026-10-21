@@ -100,7 +100,9 @@ what `x` is.
 
 They are **sorts** in the sense of many-sorted logic, and they nest: a set's
 sort says what it holds, so *number*, *set of numbers*, *set of points* and *set
-of sets of numbers* are four sorts. That is `READERS.md`'s reader, who thinks of
+of sets of numbers* are four sorts. A pair's sort is the sorts of its two
+parts, *pair of a number and a point*, and `A × B` holds the pairs of what A
+and B hold. That is `READERS.md`'s reader, who thinks of
 a set as holding one sort of thing. What a name is declared is written down; how
 the sorts of names relate is read off the text, as below; and a statement about
 every set is about a set of one unknown sort, not a set of anything at all.
@@ -407,10 +409,9 @@ notation's record leaves what it yields to a sort variable, as application's
 `function from α to β, α → β` does, the sorts of what fills its holes settle
 it.
 
-A notation may still open with a bracket, as the open interval `(a, b)` does.
-It is tried as a notation opening with a name is, and what no such notation
-reads is a group: the interval's comma between two holes is what tells it
-from `(e)`.
+A notation may still open with a bracket, as the pair `(a, b)` does. It is
+tried as a notation opening with a name is, and what no such notation reads is
+a group: the pair's comma between two holes is what tells it from `(e)`.
 
 A prime always belongs to a name to the lexer, and what a primed name means is
 the parser's to say, by the sort of its stem. Where nothing declares `f′` and
@@ -449,11 +450,12 @@ would let the name `s` match the declared word `S`.
 ```
 
 A pattern is a candidate at a position when its leading token matches, a hole
-being a token that matches anything. Three things then narrow the candidates, in
+being a token that matches anything. Four things then narrow the candidates, in
 this order:
 
 1. **The literal tokens.** Most patterns are settled here alone. Of the 80
-   declared patterns two shapes are shared outright, `|_|` and `_(_)`; others
+   declared patterns three shapes are shared outright, `|_|`, `_(_)` and
+   `(_, _)`; others
    open the same way as some other pattern and are separated by a token further
    on, as `_, _` and `_, and _` are, as the two universals are by the `with`
    that one of them carries, and as `{_}` and `{_, …, _}` are by the comma.
@@ -461,7 +463,14 @@ this order:
    is absolute value, cardinality or distance according to what is inside, and
    `_(_)` is a function applied to an argument, a number times a bracketed one,
    or a property holding of something, according to what is on the left.
-3. **Nothing else.** Where two candidates survive, the formula is ambiguous and
+3. **The place it fills.** This decides `(_, _)`, whose holes cannot tell its
+   readings apart. A pair of numbers names
+   - where the hole it fills wants a set, the open interval between its ends;
+   - anywhere else, the pair.
+
+   A hole admits one of these at most, so this chooses nothing the sorts leave
+   open.
+4. **Nothing else.** Where two candidates survive, the formula is ambiguous and
    the parser reports it rather than choosing. It reads correctly or it stops.
 
 Once a pattern is chosen its holes are checked against their declared sorts, a
@@ -1104,11 +1113,15 @@ and a field outside them is refused:
 
 | kind | fields |
 |---|---|
-| `notation` | `pattern`, `sort`, `level`, `assoc`, `commutes`, `identity`, `negates`, `spells`, `places`, `nests`, `bounds`, `joins`, `wraps`, `fills`, `repeats`, `shadowed`, `binds`, `reads`, `member`, `target`, `metamath`, `decided`, `note` |
+| `notation` | `pattern`, `sort`, `level`, `assoc`, `commutes`, `identity`, `negates`, `spells`, `places`, `nests`, `bounds`, `joins`, `wraps`, `fills`, `repeats`, `shadowed`, `wanted`, `binds`, `reads`, `member`, `target`, `metamath`, `decided`, `note` |
 | `method` | `form`, `block`, `parts`, `parts-repeat`, `part-opens`, `checks`, `decides`, `hypotheses`, `specified-in`, `metamath`, `note` |
 | `axiom`, `theorem` | `metamath`, `target`, `open`, `note` |
 | `definition` | `sort`, `builds`, `reads`, `metamath`, `target`, `open`, `symbol`, `defines`, `note` |
 | `precedence` | the levels it declares |
+
+`wanted` names the category a hole must want for the pattern to be read
+there: the open interval is `(_, _)` read where a set is wanted, and nowhere
+else.
 
 The three kinds `axiom`, `theorem` and `definition` are the library's items,
 and `DATABASE.md`, "Record kinds", says what each is to a reader and what the

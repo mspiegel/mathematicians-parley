@@ -813,6 +813,18 @@ notation application-to-two
               line says what an application of it stands for instead
               (`corpus/stdlib`, `definition gcd`).
 
+notation application-to-pair
+  pattern     _(_, _)
+  sort        function from pair of α and β to γ, α, β → γ
+  reads       applied to the pair of, and
+  metamath    co
+  target      _2 _3 _1 co
+  note        A function on pairs applied to one, written as a textbook
+              writes it: f(x, y) for f : X × Y → Z. set.mm's ( x F y ) is F
+              applied to the pair <. x , y >., which is the target; the sort
+              of the function in the first hole tells it from a function of
+              two arguments taken one at a time (`application-to-two`).
+
 notation inverse
   pattern     _⁻¹
   sort        function from α to β → function from β to α
@@ -904,15 +916,38 @@ notation closed-interval
   metamath    cicc
   target      _1 _2 cicc co
 
+notation pair
+  pattern     (_, _)
+  sort        α, β → pair of α and β
+  reads       the pair of, and
+  metamath    cop
+  target      _1 _2 cop
+  note        Told apart from a bracketed term by its comma, and from a
+              function applied to two arguments, f(a, b), by having no name
+              before it. Where a set is wanted the same brackets name the
+              open interval between the two ends (`open-interval`).
+
 notation open-interval
   pattern     (_, _)
   sort        number, number → set of number
+  wanted      set
   reads       the open interval from, to
   metamath    cioo
   target      _1 _2 cioo co
-  note        Told apart from a bracketed term by its comma, and from a
-              function applied to two arguments, f(a, b), by having no name
-              before it.
+  note        The pair of its ends, read where a set is wanted: x ∈ (a, b),
+              for all x ∈ (0, π), f : (0, 1) → ℝ. It asks nothing of its
+              ends, and (3, 1) is the empty set, as set.mm has it.
+
+notation product-set
+  pattern     _ × _
+  sort        set of α, set of β → set of pair of α and β
+  level       multiplicative
+  assoc       left
+  reads       the pairs from, and
+  metamath    cxp
+  target      _1 _2 cxp
+  note        A × B holds the pairs whose first part is in A and whose
+              second is in B.
 
 notation integer-range
   pattern     {_, …, _}
