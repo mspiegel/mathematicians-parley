@@ -234,7 +234,7 @@ impl<'a> Elaborator<'a> {
     /// A part of a line that is one formula, a requires line's fact or a
     /// value, read (`read`); a defect where it is several sentences.
     pub fn read_one(&self, written: &Written) -> Checked<Node> {
-        self.read(&written.sentence()?)
+        self.read(&written.formula()?)
     }
 
     /// Formula text written on this theorem's page where the elaborator has

@@ -90,7 +90,10 @@ impl Written {
         self.line
     }
 
-    /// The sentences, in the order written.
+    /// The sentences of a part that is a claim, in the order written:
+    /// a step's claim, an `assume` or `suppose` line, a statement. Several
+    /// mean their conjunction (`conjoined`). Every other part is one formula
+    /// and is read with `formula`.
     ///
     /// A sentence ends at a full stop followed by any space, a line break
     /// included, so a claim written across two lines splits where it would
@@ -115,9 +118,10 @@ impl Written {
             .collect()
     }
 
-    /// The one sentence of a part that is one formula: a term, a set, a
-    /// value; a defect where it is not one.
-    pub fn sentence(&self) -> Checked<Sentence> {
+    /// The one sentence of a part that is one formula: a `let` line's
+    /// introduction, a requires line's fact, a substitute's equation, a
+    /// value, a term, a set; a defect where it is not one.
+    pub fn formula(&self) -> Checked<Sentence> {
         let mut all = self.sentences();
         if all.len() != 1 {
             return Err(Problem::new(
@@ -178,11 +182,11 @@ impl Sentence {
     pub fn read_so_far(&self, g: &Grammar, sorts: &Sorts) -> Checked<Route<Node>> {
         match &self.member {
             Some(m) => {
-                let term = match m.term.sentence()?.read_so_far(g, sorts)? {
+                let term = match m.term.formula()?.read_so_far(g, sorts)? {
                     Built(term) => term,
                     waits => return Ok(waits),
                 };
-                let set = match m.set.sentence()?.read_so_far(g, sorts)? {
+                let set = match m.set.formula()?.read_so_far(g, sorts)? {
                     Built(set) => set,
                     waits => return Ok(waits),
                 };
@@ -243,7 +247,7 @@ pub fn tokens(written: &Written, g: &Grammar) -> Checked<Vec<Token>> {
 /// compiled, so no formula is put together as text and read: what fills it
 /// is a tree.
 pub fn template(text: &'static str, g: &Grammar, sorts: &Sorts) -> Checked<Node> {
-    Written::new(text, "", 0).sentence()?.read(g, sorts)
+    Written::new(text, "", 0).formula()?.read(g, sorts)
 }
 
 /// A template filled: each letter it writes read with the sort of the tree

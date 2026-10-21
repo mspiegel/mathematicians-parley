@@ -214,7 +214,7 @@ impl<'a> Known<'a> {
                 Err(_) => vec![None],
             },
             Stated::Kind { name, set } => {
-                let read = |w: &Written| self.read_as_written(&w.sentence().ok()?);
+                let read = |w: &Written| self.read_as_written(&w.formula().ok()?);
                 let member = match (read(name), read(set)) {
                     (Some(x), Some(s)) => {
                         let fills = [("x", &x), ("S", &s)];
@@ -226,7 +226,7 @@ impl<'a> Known<'a> {
             }
             Stated::Hypothesis(claim) => {
                 let statement = claim
-                    .sentence()
+                    .formula()
                     .ok()
                     .and_then(|s| self.read_as_written(&s))
                     .and_then(|c| match (c.notation(), c.children.as_slice()) {
@@ -394,7 +394,7 @@ impl<'a> Known<'a> {
     /// None where it is not one formula that reads, which the elaborator
     /// reports.
     pub fn read_value(&self, value: &Written, defined: &Definitions) -> Option<Node> {
-        let sentence = value.sentence().ok()?;
+        let sentence = value.formula().ok()?;
         self.read_citing(&sentence, defined)
     }
 

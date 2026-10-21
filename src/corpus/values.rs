@@ -73,7 +73,7 @@ impl Values {
             .map(|given| {
                 Ok(Value {
                     name: given.name.clone(),
-                    value: given.value.sentence()?.read(g, sorts)?,
+                    value: given.value.formula()?.read(g, sorts)?,
                     shown: given.value.text().to_string(),
                 })
             })

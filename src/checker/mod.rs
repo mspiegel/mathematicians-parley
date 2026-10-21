@@ -514,7 +514,7 @@ pub fn printed_back(source: &dyn Source) -> Result<(usize, Vec<String>), Outcome
                     let printed = c.env.g.print(&node);
                     let again =
                         Written::new(&printed, sentence.path(), sentence.line());
-                    let again = again.sentence().ok();
+                    let again = again.formula().ok();
                     let again = again.as_ref().and_then(read);
                     if !again.as_ref().is_some_and(|a| a.same_shape(&node)) {
                         out.push(format!(

@@ -395,7 +395,7 @@ impl Elaborator<'_> {
                     }
                 }
                 Written::new(printed, &self.thm.path, self.at)
-                    .sentence()
+                    .formula()
                     .and_then(|s| s.read(self.g, &sorts))
             };
             // A reading the page gives only where a hole wants it, the open

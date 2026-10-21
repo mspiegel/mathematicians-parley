@@ -2700,6 +2700,24 @@ fn cases() -> Vec<Case> {
             "the equation of step 1: ",
         ),
         case(
+            "a substitute equation of two sentences",
+            vec![edit(
+                "proofs/zz/equation-two.proof",
+                None,
+                "theorem equation-two\n  let x ∈ ℝ                                                           (H1)\n  assume x = 0                                                        (H2)\n  then x + 1 = 0 + 1\n\n1.  x + 1 = 0 + 1\n    substitute x = 0. x = 0 (H2)\n".to_string(),
+            )],
+            "the equation of step 1: \"x = 0. x = 0\" is 2 sentences where one formula is written",
+        ),
+        case(
+            "a requires fact of two sentences",
+            vec![edit(
+                "proofs/zz/requires-two.proof",
+                None,
+                "import mundane theorem stdlib/numbers/square-nonneg\n\ntheorem requires-two\n  let x ∈ ℝ                                                           (H1)\n  then x² ≥ 0\n\n1.  x² ≥ 0\n    mun:square-nonneg x := x\n    requires x ∈ ℝ. x = x: from H1\n".to_string(),
+            )],
+            "the requires line of step 1: \"x ∈ ℝ. x = x\" is 2 sentences where one formula is written",
+        ),
+        case(
             "a calculation term that does not read",
             vec![edit(
                 "proofs/zz/chain-unread.proof",

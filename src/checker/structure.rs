@@ -1231,7 +1231,7 @@ pub fn check_ranges(
     let mut said: IndexMap<&str, &Range> = IndexMap::new();
     for range in ranges {
         let set = Written::new(&range.set, path, range.line);
-        match set.sentence().and_then(|s| s.read(env.g, sorts)) {
+        match set.formula().and_then(|s| s.read(env.g, sorts)) {
             Err(p) => report.say(path, range.line, p.message),
             Ok(set) if holds(&set.sort).is_none() && !set.sort.is("set") => report.say(
                 path,

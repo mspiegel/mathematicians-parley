@@ -952,7 +952,7 @@ fn recursion_differs(
             let read =
                 |text: &str, path: &str, line: usize, local: &crate::formula::Sorts| {
                     Written::new(text, path, line)
-                        .sentence()
+                        .formula()
                         .and_then(|s| s.read(g, local))
                 };
             let (Ok(a_tree), Ok(b_tree)) = (
@@ -1716,7 +1716,7 @@ pub fn check_obtained_claims(
             if letter.text != *name {
                 let written = Written::new(*name, &thm.path, just.line);
                 let Some(named) = written
-                    .sentence()
+                    .formula()
                     .ok()
                     .and_then(|s| known.read_as_written(&s))
                 else {
@@ -2510,8 +2510,8 @@ impl DefinedRule {
             return None;
         };
         let local = crate::sorts::define_sorts(&one, &known.sorts);
-        let rule = d.formula(&one.body).sentence().ok()?;
-        let domain = d.formula(&param.domain).sentence().ok()?;
+        let rule = d.formula(&one.body).formula().ok()?;
+        let domain = d.formula(&param.domain).formula().ok()?;
         Some(DefinedRule {
             name: one.name.clone(),
             letter: param.name.clone(),
@@ -2716,7 +2716,7 @@ fn function_on_unshown(
             given.domains.len()
         ));
     };
-    let domain = known.read_as_written(&domain.sentence().ok()?)?;
+    let domain = known.read_as_written(&domain.formula().ok()?)?;
     (!known.alike(&domain, on)).then(|| {
         format!(
             "{} gives {} on {}",
@@ -2787,7 +2787,7 @@ fn applied(
         claim.walk()
     };
     // A domain that does not read is `check_formulas`'s to report.
-    let read = |w: &Written| known.read_as_written(&w.sentence().ok()?);
+    let read = |w: &Written| known.read_as_written(&w.formula().ok()?);
     let (g, sorts) = (known.env.g, &known.sorts);
     let mut out = Vec::new();
     for Defined {

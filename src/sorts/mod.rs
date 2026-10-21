@@ -343,7 +343,7 @@ fn defines_into<'d>(
         };
         let local = define_sorts(&said, sorts);
         // A rule that does not read is `check_formulas`'s to report.
-        let read = d.formula(&said.body).sentence();
+        let read = d.formula(&said.body).formula();
         let Ok(body) = read.and_then(|s| s.read(env.g, &local)) else {
             continue;
         };
@@ -511,7 +511,7 @@ fn written_definition(
     let said = parts.one()?;
     let inner = written_definitions(src, d.line, env, seen);
     let local = define_sorts(said, &definition_sorts(&inner));
-    let read = d.formula(&said.body).sentence();
+    let read = d.formula(&said.body).formula();
     let body = read.and_then(|s| s.read(env.g, &local)).ok()?;
     let body = expand(&body, &inner);
     Some(if said.params.is_empty() {

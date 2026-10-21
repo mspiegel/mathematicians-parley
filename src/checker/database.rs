@@ -678,8 +678,7 @@ pub fn introduction_problem(
     sorts: &Sorts,
 ) -> Option<String> {
     let body = introduction.text();
-    let read =
-        |written: &Written| written.sentence().and_then(|s| s.read(env.g, sorts));
+    let read = |written: &Written| written.formula().and_then(|s| s.read(env.g, sorts));
     let introduced = Introduction::read(introduction.clone());
     if let Form::Other = introduced.form {
         return Some(format!(

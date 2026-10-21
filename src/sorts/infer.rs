@@ -876,7 +876,7 @@ impl Reader {
         let mut out = IndexMap::new();
         let written = Written::new(claimed, &self.path, line);
         let sorts = self.sorts(store);
-        let Ok(tree) = written.sentence().and_then(|s| s.read(env.g, &sorts)) else {
+        let Ok(tree) = written.formula().and_then(|s| s.read(env.g, &sorts)) else {
             return out;
         };
         let [letter, domain, _] = tree.children.as_slice() else {
@@ -1203,7 +1203,7 @@ fn recursion_sorts(
     for (rules, local) in [(&said.start, IndexMap::new()), (&said.step, at_step)] {
         for (name, rule) in rules {
             let rule = Written::new(rule, &reader.path, line.line);
-            let Ok(tree) = rule.sentence().and_then(|s| s.read(env.g, &local_sorts))
+            let Ok(tree) = rule.formula().and_then(|s| s.read(env.g, &local_sorts))
             else {
                 continue; // `check_recursions` says it does not read
             };
@@ -1334,7 +1334,7 @@ pub fn read_theorem(
                 let path = reader.path.clone();
                 let part = |text: &str, sorts: &Sorts| {
                     let written = Written::new(text, &path, no.line);
-                    written.sentence().and_then(|s| s.read(env.g, sorts))
+                    written.formula().and_then(|s| s.read(env.g, sorts))
                 };
                 if said.params.is_empty() {
                     let Ok(tree) = part(&said.body, &sorts) else {

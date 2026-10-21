@@ -101,7 +101,7 @@ impl<'a> Shapes<'a> {
         said: &Written,
         sorts: &Sorts,
     ) -> Option<(Vec<Witness>, String)> {
-        let sentence = said.sentence().ok()?;
+        let sentence = said.formula().ok()?;
         let (mut tree, built) = self.root(&sentence, sorts)?;
         let sentence = sentence.text();
         if built != "wrex" {
@@ -495,7 +495,7 @@ fn unasked(r: &Record, h: &Hypothesis, g: &Grammar, sorts: &Sorts) -> bool {
     if matches!(introduced.form, Form::Function) {
         return true;
     }
-    let Ok(said) = introduced.body.sentence().and_then(|s| s.read(g, sorts)) else {
+    let Ok(said) = introduced.body.formula().and_then(|s| s.read(g, sorts)) else {
         return false;
     };
     said.notation() == crate::notations::MEMBERSHIP

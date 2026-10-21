@@ -355,7 +355,7 @@ impl Introduction {
 
     /// One part of the line read as one formula.
     pub fn read_part(&self, text: &str, g: &Grammar, sorts: &Sorts) -> Checked<Node> {
-        self.part(text).sentence()?.read(g, sorts)
+        self.part(text).formula()?.read(g, sorts)
     }
 
     /// What the line asserts, which a citation of it supplies: a membership

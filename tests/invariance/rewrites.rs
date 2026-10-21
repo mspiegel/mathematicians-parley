@@ -75,7 +75,7 @@ fn read_one(
     sorts: &Sorts,
 ) -> parley::outcome::Checked<Node> {
     Written::new(sentence, "rewritten", 0)
-        .sentence()?
+        .formula()?
         .read(g, sorts)
 }
 

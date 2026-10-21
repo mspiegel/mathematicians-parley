@@ -2456,7 +2456,7 @@ impl<'a> Elaborator<'a> {
                     let local = crate::sorts::define_sorts(one, &self.sorts_now);
                     let read = |text: &str, sorts: &Sorts| {
                         d.formula(text)
-                            .sentence()
+                            .formula()
                             .and_then(|s| s.read(self.g, sorts))
                     };
                     let rule = read(&one.body, &local)?;
