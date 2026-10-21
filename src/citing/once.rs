@@ -233,7 +233,35 @@ pub fn said_once(
             }
         }
     }
+    out.extend(points_in_plane(parts, &seeded, library));
     parts.facts.extend(out);
+}
+
+/// A ∈ 𝔼² for each letter of sort point the step names: `let A be a point`
+/// says it once, as a sort (`READERS.md`, a sort is stated once), and the
+/// kernel builds the sort and the membership as the one A ∈ ℂ. A point built
+/// from parts, (x, y), rests on what its parts are and is not given.
+fn points_in_plane(parts: &Parts, seeded: &[Node], library: &Library) -> Vec<Node> {
+    let ctx = &library.ctx;
+    let mut local = Sorts::new();
+    local.insert("x".into(), Sort::of("point"));
+    let Ok(made) = template("x ∈ 𝔼²", library.env.g, &local) else {
+        return Vec::new();
+    };
+    let mut seen: FxIndexSet<ByShape> = FxIndexSet::default();
+    parts
+        .facts
+        .iter()
+        .chain(&parts.claims)
+        .chain(seeded)
+        .flat_map(|n| n.walk())
+        .filter(|node| node.is_name() && node.sort.is("point"))
+        .filter(|node| seen.insert(node.by_shape()))
+        .map(|node| {
+            let put = Binding::from([(Symbol::of("x"), node.clone())]);
+            standard(&substitute_apart(&made, &put, ctx), ctx)
+        })
+        .collect()
 }
 
 /// What the said-once walk takes as it stands, where it does not take a
