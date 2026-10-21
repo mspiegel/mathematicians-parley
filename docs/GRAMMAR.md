@@ -466,10 +466,12 @@ this order:
 3. **The place it fills.** This decides `(_, _)`, whose holes cannot tell its
    readings apart. A pair of numbers names
    - where the hole it fills wants a set, the open interval between its ends;
+   - where it wants a point, the point with those coordinates;
    - anywhere else, the pair.
 
-   A hole admits one of these at most, so this chooses nothing the sorts leave
-   open.
+   A hole that takes any term wants what the notation's other parts make it:
+   in `A = (1, 2)`, with A a point, the pair is a point. A hole admits one of
+   these at most, so this chooses nothing the sorts leave open.
 4. **Nothing else.** Where two candidates survive, the formula is ambiguous and
    the parser reports it rather than choosing. It reads correctly or it stops.
 

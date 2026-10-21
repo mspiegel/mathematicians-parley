@@ -161,6 +161,11 @@ it is the sort system — `point` and `number` are different sorts — and the
 `distance` record already leans on exactly that to keep `|CA|` from parsing
 as a product. The guard exists and has to cover the new notation too.
 
+A point may be written by its coordinates. Where a point is wanted, `(x, y)`
+is the point with those coordinates, which the kernel holds as x + i·y
+(`point-coordinates`); `A = (1, 2)` and `|(0, 0)(3, 4)|` say nothing of ℂ, as
+the rest of the page does not.
+
 ### What it costs, honestly
 
 **Non-degeneracy, and criterion 4 writes all of it.** `angval` wants both

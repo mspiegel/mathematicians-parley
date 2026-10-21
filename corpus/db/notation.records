@@ -938,6 +938,18 @@ notation open-interval
               for all x ∈ (0, π), f : (0, 1) → ℝ. It asks nothing of its
               ends, and (3, 1) is the empty set, as set.mm has it.
 
+notation point-coordinates
+  pattern     (_, _)
+  sort        number, number → point
+  wanted      point
+  reads       the point with coordinates, and
+  metamath    cc, the complex numbers read as the plane
+  target      _1 ci _2 cmul co caddc co
+  note        The pair of a point's coordinates, read where a point is
+              wanted: A = (1, 2), |(0, 0)(3, 4)|. The plane is ℂ in the
+              kernel (GEOMETRY.md), so the point with coordinates x and y is
+              x + i·y, which the page never writes.
+
 notation product-set
   pattern     _ × _
   sort        set of α, set of β → set of pair of α and β

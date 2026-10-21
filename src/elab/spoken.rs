@@ -230,7 +230,7 @@ impl Elaborator<'_> {
     }
 
     pub(super) fn page_node(&self, term: &Term) -> Option<Node> {
-        self.page_node_under(term, &IndexMap::new())
+        self.page_node_under(term, &IndexMap::new(), None)
     }
 
     /// `page_node` of a part of a term, inside binders that introduce the
@@ -239,11 +239,16 @@ impl Elaborator<'_> {
     /// not the imaginary unit. Each letter has the sort of what its binder's
     /// domain holds where the domain says, as the page reads it: the k of
     /// "there is k ∈ H" is an element of the group H is a set of, and g·k
-    /// reads as the group's product.
+    /// reads as the group's product. `want` is the category the place the
+    /// part fills wants, where a notation's hole says: a reading the page
+    /// gives only where a hole wants it (`wanted`) is taken only there, so
+    /// x + i·y is the point (x, y) where a point is wanted and a sum
+    /// anywhere else.
     fn page_node_under(
         &self,
         term: &Term,
         bound: &IndexMap<String, Sort>,
+        want: Option<&str>,
     ) -> Option<Node> {
         let rpn = self.rpn(term);
         // A name the proof gave this term; a part of a structure is held
@@ -271,7 +276,7 @@ impl Elaborator<'_> {
         let kids = term.children();
         // A letter a binder introduced, used as a class.
         if label == "cv" && kids.len() == 1 {
-            return self.page_node_under(&kids[0], bound);
+            return self.page_node_under(&kids[0], bound, want);
         }
         if let Some(digits) = numeral(term) {
             return Some(Node::numeral(&digits));
@@ -316,9 +321,24 @@ impl Elaborator<'_> {
             all.into_iter().map(|(_, r)| r).collect()
         };
         for r in readings {
+            let written = self.g.written_by(r.spelling);
+            let wanted = written.and_then(|n| n.wanted.as_deref());
+            if wanted.is_some() && wanted != want {
+                continue;
+            }
             let Some(holes) = self.matched(&r.target, term) else {
                 continue;
             };
+            // What each part's place wants, from the notation's holes; a
+            // function applied has its name in the first.
+            let skip = usize::from(r.applies.is_some());
+            let hole_wants: Vec<Option<&str>> = (0..holes.len())
+                .map(|i| {
+                    written
+                        .and_then(|n| n.holes.get(i + skip))
+                        .map(String::as_str)
+                })
+                .collect();
             // The letters this reading binds are names in its parts, of the
             // sort its domain's elements have where a hole holds one.
             let binding_at: Vec<usize> = self
@@ -332,14 +352,15 @@ impl Elaborator<'_> {
                 .iter()
                 .enumerate()
                 .filter(|(at, _)| !binding_at.contains(at))
-                .filter_map(|(_, h)| self.page_node_under(h, bound))
+                .filter_map(|(_, h)| self.page_node_under(h, bound, None))
                 .filter(Node::is_name)
                 .find_map(|n| self.sorts_now.get(n.text.as_str()).and_then(Sort::held))
                 .unwrap_or_else(Sort::none);
             let mut inner = bound.clone();
             for at in &binding_at {
-                if let Some(letter) =
-                    holes.get(*at).and_then(|h| self.page_node_under(h, bound))
+                if let Some(letter) = holes
+                    .get(*at)
+                    .and_then(|h| self.page_node_under(h, bound, None))
                 {
                     if letter.is_name() {
                         inner.insert(letter.text.to_string(), domain_holds.clone());
@@ -348,7 +369,8 @@ impl Elaborator<'_> {
             }
             let Some(mut children) = holes
                 .iter()
-                .map(|h| self.page_node_under(h, &inner))
+                .zip(&hole_wants)
+                .map(|(h, w)| self.page_node_under(h, &inner, *w))
                 .collect::<Option<Vec<Node>>>()
             else {
                 continue;
@@ -378,8 +400,7 @@ impl Elaborator<'_> {
             };
             // A reading the page gives only where a hole wants it, the open
             // interval of `(a, b)`, is read back as that hole reads it.
-            let wanted = self.g.written_by(r.spelling).and_then(|n| n.wanted.clone());
-            let back = back.map(|b| match &wanted {
+            let back = back.map(|b| match wanted {
                 Some(want) => wanted_reading(self.g, &b, want).unwrap_or(b),
                 None => b,
             });
@@ -394,7 +415,11 @@ impl Elaborator<'_> {
         for rule in plain {
             if let Some(found) = fit(&rule.given, term, &Binding::new(), &rule.names) {
                 if rule.gives.names().iter().all(|n| found.contains_key(&**n)) {
-                    return self.page_node_under(&rule.gives.substitute(&found), bound);
+                    return self.page_node_under(
+                        &rule.gives.substitute(&found),
+                        bound,
+                        want,
+                    );
                 }
             }
         }

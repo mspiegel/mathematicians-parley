@@ -1499,6 +1499,10 @@ impl<'a> Parser<'a> {
                 return self.no(|| why);
             }
         }
+        // A part the hole takes as any term is read as its sort calls for
+        // where the other parts settle that: in A = (1, 2), with A a point,
+        // the pair is the point with those coordinates.
+        self.read_as_related(n, &mut kids);
         // What it yields, where its record leaves that to what fills it:
         // f(x) is of the sort f maps to.
         let mut yields = Sort::of(&n.yields);
@@ -1733,6 +1737,43 @@ impl<'a> Parser<'a> {
 
     fn wanted_reading(&self, kid: &Node, want: &str) -> Option<Node> {
         wanted_reading(self.g, kid, want)
+    }
+
+    /// `kids`, where the notation's full sort does not admit them as read,
+    /// with one part read as a notation of its pattern given only where a
+    /// hole wants it (`wanted`), the first such reading that the sort then
+    /// admits: `=` asks its two sides to be of one sort, so beside a point
+    /// the pair (1, 2) is the point with those coordinates.
+    fn read_as_related(&self, n: &Notation, kids: &mut [Node]) {
+        let sorts = self.g.notation_sorts();
+        let Some(signature) = sorts.signature(n.key_id) else {
+            return;
+        };
+        let admits = |kids: &[Node]| {
+            let filled: Vec<&Sort> = kids.iter().map(|k| &k.sort).collect();
+            signature.admits(&filled)
+        };
+        if admits(kids) {
+            return;
+        }
+        let wants: Vec<&str> = self
+            .g
+            .notations
+            .iter()
+            .filter_map(|m| m.wanted.as_deref())
+            .collect();
+        for i in 0..kids.len() {
+            for want in &wants {
+                let Some(read) = wanted_reading(self.g, &kids[i], want) else {
+                    continue;
+                };
+                let was = std::mem::replace(&mut kids[i], read);
+                if admits(kids) {
+                    return;
+                }
+                kids[i] = was;
+            }
+        }
     }
 
     /// A `variable` hole takes a bare name; any other takes an expression,

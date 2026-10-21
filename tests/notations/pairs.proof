@@ -28,3 +28,16 @@ theorem an-interval-and-a-pair
 
 2.  x = 1
     join 1
+
+theorem a-point-by-its-coordinates
+  note        Where a point is wanted the same brackets name the point with
+              those coordinates: beside the point A, and as an end of a
+              distance.
+  let A ∈ 𝔼²                                                          (H1)
+  let B ∈ 𝔼²                                                          (H2)
+  assume A = (1, 2)                                                   (H3)
+  assume |AB| = 3                                                     (H4)
+  then |(1, 2)B| = 3
+
+1.  |(1, 2)B| = 3
+    substitute A = (1, 2) (H3) into H4

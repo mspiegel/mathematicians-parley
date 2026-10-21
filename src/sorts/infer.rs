@@ -449,10 +449,9 @@ impl Signature {
         let mut store = Store::default();
         let (holes, _) = self.fresh(&mut store);
         holes.iter().zip(filled).all(|(hole, sort)| {
-            let Some(whole) = sort.full() else {
+            let Some(said) = term_of_sort(sort, &mut store) else {
                 return true;
             };
-            let said = term_of(whole, &mut store);
             !store.unify(hole, &said).is_declined()
         })
     }
@@ -477,6 +476,24 @@ impl Signature {
         }
         sort(&store, &result)
     }
+}
+
+/// A sort as a term: in full where the reading settled it, and otherwise
+/// the most a category says, `pair` a pair of things of any sort and `set`
+/// a set of them; None for a category that says nothing.
+fn term_of_sort(sort: &Sort, store: &mut Store) -> Option<SortTerm> {
+    if let Some(whole) = sort.full() {
+        return Some(term_of(whole, store));
+    }
+    Some(match sort.name()? {
+        "number" => NUMBER,
+        "point" => POINT,
+        "group-element" => GROUP_ELEMENT,
+        "set" => SortTerm::set(store.var()),
+        "pair" => SortTerm::Pair(Box::new(store.var()), Box::new(store.var())),
+        "function" => SortTerm::Function(Box::new(store.var()), Box::new(store.var())),
+        _ => return None,
+    })
 }
 
 /// A sort in full as a term, its open parts fresh variables.

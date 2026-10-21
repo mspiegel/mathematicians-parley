@@ -433,7 +433,8 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
   of ends names the open interval between them: `x ∈ (0, π)` and
   `f : (0, 1) → ℝ` are intervals, and `(a, b) = (c, d)` and `f((1, 2))` are
   pairs. The interval asks nothing of its ends: (3, 1) is the empty set, as
-  set.mm has it.
+  set.mm has it. Where a point is wanted it names the point with those
+  coordinates: `A = (1, 2)` with A a point, and `|(0, 0)(3, 4)|`.
 
 ## Justification forms
 
