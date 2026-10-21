@@ -1929,16 +1929,19 @@ impl<'a> Elaborator<'a> {
                         me.names.insert(name, term);
                     }
                     // A library item says its existential in its own names,
-                    // and the step's lines say what those stand for.
+                    // and the step's lines say what those stand for. The
+                    // sentence is the one the checker obtains from.
+                    let cited = me.citation_read(step).cloned().ok_or_else(|| {
+                        me.unreached(step.line, "the checker reads no citation here")
+                    })?;
+                    let said = me.obtained_from(item, &cited, step.line)?;
                     let node = match item {
-                        Item::Record(r) => {
-                            me.item_sentence_here(step, r, &Self::claimed_by(item))?
-                        }
+                        Item::Record(r) => me.item_sentence_here(step, r, &said)?,
                         // Parsed with the theorem's own sorts, which say what
                         // its letters are, and made a term in the step's names.
-                        Item::Theorem(_) => me.in_its_names(item, |me| {
-                            me.read_one(&Self::claimed_by(item))
-                        })?,
+                        Item::Theorem(_) => {
+                            me.in_its_names(item, |me| me.read_one(&said))?
+                        }
                     };
                     me.term(&node)
                 })?;

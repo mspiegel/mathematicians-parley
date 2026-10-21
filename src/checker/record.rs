@@ -13,7 +13,7 @@ use crate::corpus::{Step, StepNo, Theorem};
 use crate::formula::page::Sentence;
 use crate::formula::{Node, Sorts};
 use crate::matching::Binding;
-use crate::outcome::Problem;
+use crate::outcome::{Checked, Problem};
 
 /// Where a step or a define stands: directly in a block, and in which part
 /// of it where the block has parts.
@@ -100,11 +100,56 @@ impl PageReading {
     }
 }
 
+/// Where a sentence of an item is written and what it says: its file, its
+/// line and its text.
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct ItemKey {
+    pub path: String,
+    pub line: usize,
+    pub text: String,
+}
+
+impl ItemKey {
+    pub fn of(sentence: &Sentence) -> ItemKey {
+        ItemKey {
+            path: sentence.path().to_string(),
+            line: sentence.line(),
+            text: sentence.text().to_string(),
+        }
+    }
+}
+
+/// Every sentence of every item a citation may name, a record of the
+/// library or a theorem of the corpus, read once as the item means it, with
+/// its own sorts (`citing::Library::item_readings`), by where it is
+/// written. The build takes an item's sentence from here, so it reads what
+/// it cites as the checker does. A sentence that does not read keeps its
+/// problem, which the build reports where it asks for it.
+#[derive(Clone, Debug, Default)]
+pub struct ItemReading {
+    read: rustc_hash::FxHashMap<ItemKey, Checked<Node>>,
+}
+
+impl ItemReading {
+    /// A sentence of an item, read, kept.
+    pub fn keep(&mut self, sentence: &Sentence, read: Checked<Node>) {
+        self.read.entry(ItemKey::of(sentence)).or_insert(read);
+    }
+
+    /// The reading of a sentence of an item, where the checker read one.
+    pub fn get(&self, sentence: &Sentence) -> Option<&Checked<Node>> {
+        self.read.get(&ItemKey::of(sentence))
+    }
+}
+
 /// A theorem as the checker reads it.
 #[derive(Clone, Debug, Default)]
 pub struct CheckedTheorem {
     /// Every formula on the page, read.
     pub page: PageReading,
+    /// Every sentence of every item the corpus may cite, read: one reading
+    /// for the corpus, shared by each theorem's record.
+    pub items: std::rc::Rc<ItemReading>,
     pub blocks: Vec<Block>,
     /// Where each step stands, by its index in the theorem's steps; None at
     /// the outermost level.
@@ -153,6 +198,9 @@ pub struct Cited {
     /// The item, by its full name.
     pub item: String,
     pub group: usize,
+    /// For an obtain, the sentence of the group that says the "there is",
+    /// by its place among the group's sentences (`Taken::obtained`).
+    pub obtained: Option<usize>,
     pub binding: Binding,
     /// What the reading gave each letter a binder of the item holds
     /// (`Taken::bound`): for a "there is" the citation asks, or a definition

@@ -31,7 +31,7 @@ use crate::formula::Sorts;
 use crate::matching::Context;
 use crate::outcome::{At, Checked, Problem, Route};
 use crate::sorts::infer;
-use crate::sorts::{settled, Env};
+use crate::sorts::{settled, sorts_of_cited, Env};
 use crate::source::Source;
 use crate::text::check_encoding;
 
@@ -130,6 +130,7 @@ pub fn checked_where(
     }
     let checked = prepared_in(&read.corpus, read.report, None, |_, c| {
         let mut out = IndexMap::new();
+        let items = std::rc::Rc::new(c.library.item_readings());
         for (i, thm) in c.theorems.iter().enumerate() {
             if !wanted(&thm.qualified()) {
                 continue;
@@ -173,6 +174,7 @@ pub fn checked_where(
                     .collect();
             }
             record.page = c.known[i].page_reading();
+            record.items = std::rc::Rc::clone(&items);
             out.insert(thm.qualified(), record);
         }
         out
@@ -926,14 +928,16 @@ fn prepared_in<T>(
         known.push(Known::new(thm, env, sorts, &ctx));
         clashes.push(clashed);
     }
-    let proved = known
+    // A theorem is cited by its statement, which is all a proof citing it
+    // sees, read as the build reads it (`sorts_of_cited`).
+    let proved = theorems
         .iter()
-        .map(|k| {
+        .map(|thm| {
             let at = Proved {
-                thm: k.thm,
-                sorts: std::borrow::Cow::Borrowed(&k.sorts),
+                thm,
+                sorts: std::borrow::Cow::Owned(sorts_of_cited(thm, env)),
             };
-            (k.thm.qualified(), at)
+            (thm.qualified(), at)
         })
         .collect();
     let library = Library::new(records, Cow::Borrowed(&record_sorts), proved, env);

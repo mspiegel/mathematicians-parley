@@ -12,9 +12,9 @@
 use indexmap::IndexMap;
 
 use super::state::Elaborator;
+use crate::checker::record::Cited;
 use crate::corpus::proof::visible;
 use crate::corpus::{DefineLine, Intro, Item, Recursion, ScopeId, Step, Theorem};
-use crate::formula::grammar::Sorts;
 use crate::formula::page::{
     conjoined, filled, made, made_as, template, Sentence, Written,
 };
@@ -28,7 +28,7 @@ use crate::outcome::Checked;
 use crate::rules::NUMERALS;
 use crate::sorts::introduction::{Form, Introduction};
 use crate::sorts::{
-    definition_sorts, sorts_of_record, sorts_of_statement, statement_definitions,
+    sorts_of_cited, sorts_of_record, sorts_of_statement, statement_definitions,
     unlabel, Env, GraphLine,
 };
 use crate::t;
@@ -166,7 +166,7 @@ impl<'a> Elaborator<'a> {
     ) -> T {
         let kept = self.sorts_now.clone();
         let kept_written = self.from_outside.clone();
-        let (written, own) = match item {
+        let (written, sorts) = match item {
             Item::Theorem(t) => {
                 let own = sorts_of_statement(t, self.env());
                 let mut written = statement_definitions(t, self.env(), &own);
@@ -186,23 +186,13 @@ impl<'a> Elaborator<'a> {
                         }
                     }
                 }
-                (written, own)
+                (written, sorts_of_cited(t, self.env()))
             }
             Item::Record(r) => (Definitions::new(), sorts_of_record(r, self.env())),
         };
         // Only what the item says: a letter it leaves open is not the proof's
         // letter of that name, as the k a definition binds is not the
         // proof's k.
-        let mut sorts = Sorts::new();
-        for (k, v) in &definition_sorts(&written) {
-            sorts.insert(k.clone(), v.clone());
-        }
-        for (k, v) in &own {
-            sorts.insert(k.clone(), v.clone());
-        }
-        // An item's ranges are its own statement's, as its names are.
-        sorts.ranges = own.ranges;
-        sorts.imported = own.imported;
         self.sorts_now = sorts;
         self.from_outside = written;
         let out = f(self);
@@ -211,12 +201,12 @@ impl<'a> Elaborator<'a> {
         out
     }
 
-    /// One sentence as a tree. A sentence of this theorem's own page is the
-    /// checker's reading of it (`CheckedTheorem::page`), never read again,
-    /// so the two read the page one way; one the checker did not read is a
-    /// fault of the build. Text from elsewhere, a cited item's or what the
-    /// printer wrote, is read where the elaborator has got to: a formula
-    /// that does not parse is a defect, pointing where it is written.
+    /// One sentence as a tree, as the checker read it, never read again, so
+    /// the two read one proof one way: a sentence of this theorem's own page
+    /// (`CheckedTheorem::page`), or of an item it cites
+    /// (`CheckedTheorem::items`). One the checker did not read is a fault of
+    /// the build. What the printer wrote is the one text read here, where
+    /// the elaborator has got to.
     pub fn read(&self, sentence: &Sentence) -> Checked<Node> {
         if sentence.path() == self.thm.path && self.thm.owns_line(sentence.line()) {
             return match self.checked.page.get(sentence) {
@@ -230,7 +220,21 @@ impl<'a> Elaborator<'a> {
                 )),
             };
         }
-        sentence.read(self.g, &self.sorts_now)
+        // What the printer wrote is written in no file.
+        if sentence.path().is_empty() {
+            return sentence.read(self.g, &self.sorts_now);
+        }
+        match self.checked.items.get(sentence) {
+            Some(read) => read.clone(),
+            None => Err(self.unreached(
+                sentence.line(),
+                format!(
+                    "{} of {}, which the checker did not read",
+                    repr(sentence.text()),
+                    sentence.path()
+                ),
+            )),
+        }
     }
 
     /// The set of the functions from one set to another, as the page writes
@@ -963,11 +967,29 @@ impl<'a> Elaborator<'a> {
             .collect()
     }
 
-    /// What an item claims, from wherever its statement lives.
-    pub fn claimed_by(item: Item) -> Written {
-        match item {
-            Item::Theorem(t) => Written::new(&t.conclusion, &t.path, t.conclusion_line),
-            Item::Record(r) => r.stated().remove(0),
+    /// The sentence of an item an obtain at `line` takes its "there is"
+    /// from: the one the checker found it in (`Cited::obtained`), of the
+    /// group its citation takes, from wherever the item's statement lives.
+    pub fn obtained_from(
+        &self,
+        item: Item,
+        cited: &Cited,
+        line: usize,
+    ) -> Checked<Written> {
+        let stated = match item {
+            Item::Theorem(t) => Some(t.stated()),
+            Item::Record(r) => r.stated().get(cited.group).cloned(),
+        };
+        let sentences = stated.map(|s| s.sentences()).unwrap_or_default();
+        match cited.obtained.and_then(|i| sentences.get(i)) {
+            Some(s) => Ok(Written::new(s.text(), s.path(), s.line())),
+            None => Err(self.unreached(
+                line,
+                format!(
+                    "the checker found no \"there is\" in {} to obtain from",
+                    cited.item
+                ),
+            )),
         }
     }
 

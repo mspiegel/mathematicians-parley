@@ -20,6 +20,7 @@ use crate::sorts::introduction::{Form, Introduction};
 use crate::sorts::{sorts_of_statement, statement_definitions, Env};
 
 use super::supply::names_of;
+use crate::checker::record::ItemReading;
 
 /// One `then` group of an item.
 pub struct Group {
@@ -352,6 +353,42 @@ impl<'a> Library<'a> {
         self.trees(&lines, sorts)
     }
 
+    /// Every sentence of every item a citation may name, read with the
+    /// item's own sorts, by where it is written: each hypothesis, a `let`
+    /// line part by part (`Introduction::parts`), each conclusion, and each
+    /// formula a record's target fills its lemma's letters with. The build
+    /// reads an item from here, never again (`ItemReading`).
+    pub fn item_readings(&self) -> ItemReading {
+        let mut out = ItemReading::default();
+        for (i, r) in self.records.iter().enumerate() {
+            let Some(sorts) = self.record_sorts.get(&i) else {
+                continue;
+            };
+            let lines = r.hypotheses.iter().map(|h| (h.kind, h.body(&r.path)));
+            let mut said: Vec<Written> = hypothesis_parts(lines);
+            said.extend(r.stated());
+            let (_, fills) = crate::targets::lemma(r);
+            said.extend(fills.values().map(|f| Written::new(f, &r.path, r.line)));
+            self.read_into(&mut out, &said, sorts);
+        }
+        for k in self.proved.values() {
+            let thm = k.thm;
+            let lines = thm.hypotheses.iter().map(|h| (h.kind, h.body(&thm.path)));
+            let mut said: Vec<Written> = hypothesis_parts(lines);
+            said.push(thm.stated());
+            self.read_into(&mut out, &said, &k.sorts);
+        }
+        out
+    }
+
+    /// Each sentence of `said`, read with `sorts`, kept in `out`.
+    fn read_into(&self, out: &mut ItemReading, said: &[Written], sorts: &Sorts) {
+        for sentence in said.iter().flat_map(Written::sentences) {
+            let read = sentence.read(self.env.g, sorts);
+            out.keep(&sentence, read);
+        }
+    }
+
     /// One (hypotheses, conclusion sentences) pair per `then` group.
     fn read(&self, name: &str) -> Option<Vec<Group>> {
         if let Some(k) = self.proved.get(name) {
@@ -500,6 +537,19 @@ impl<'a> Library<'a> {
         }
         out
     }
+}
+
+/// The parts of hypothesis lines that are formula text: a `let` line's
+/// parts (`Introduction::parts`), and an `assume` line whole.
+fn hypothesis_parts(lines: impl Iterator<Item = (Intro, Written)>) -> Vec<Written> {
+    let mut out = Vec::new();
+    for (kind, body) in lines {
+        match kind {
+            Intro::Let => out.extend(Introduction::read(body).parts()),
+            _ => out.push(body),
+        }
+    }
+    out
 }
 
 /// The facts, and each part of one that is a conjunction.

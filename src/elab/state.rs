@@ -26,7 +26,7 @@ use crate::mm::library::{render, Layered, Signature};
 use crate::mm::spell::{Binds, Builder, Proof};
 use crate::mm::Rpn;
 use crate::outcome::{Decline, Problem, Route};
-use crate::sorts::{sorts_of_statement, Env};
+use crate::sorts::{sorts_of_cited, Env};
 use crate::targets::{self, Commuting, Identity};
 
 /// Variables for a name the proof does not spell: what a `define` renames
@@ -540,14 +540,14 @@ impl<'a> Elaborator<'a> {
                 scopes: self.scopes,
             };
             // The corpus theorems this theorem cites, which a citation
-            // matches as it matches a record: each with the sorts its
-            // statement settles, all a citation reads of it.
+            // matches as it matches a record: each with the sorts the
+            // checker reads its statement with (`sorts_of_cited`).
             let mut proved = IndexMap::new();
             for (name, _) in crate::corpus::proof::cited_items(self.thm) {
                 if let Some(Item::Theorem(t)) = self.items.get(&name) {
                     proved.entry(name).or_insert_with(|| citing::Proved {
                         thm: t,
-                        sorts: std::borrow::Cow::Owned(sorts_of_statement(t, env)),
+                        sorts: std::borrow::Cow::Owned(sorts_of_cited(t, env)),
                     });
                 }
             }

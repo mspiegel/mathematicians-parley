@@ -666,6 +666,27 @@ pub fn sorts_of_statement(thm: &Theorem, env: Env) -> Sorts {
     settled(&reader, &store)
 }
 
+/// The sorts a citation of a proved theorem reads its statement with, in
+/// the checker and the build alike: what its statement settles, over the
+/// sorts of the definitions it is read with (`statement_definitions`), so
+/// that a function its file defines, s(t), is a function there. Only what
+/// the statement says: a letter it leaves open is not the citing proof's
+/// letter of that name.
+pub fn sorts_of_cited(thm: &Theorem, env: Env) -> Sorts {
+    let own = sorts_of_statement(thm, env);
+    let written = statement_definitions(thm, env, &own);
+    let mut sorts = Sorts::new();
+    for (k, v) in &definition_sorts(&written) {
+        sorts.insert(k.clone(), v.clone());
+    }
+    for (k, v) in &own {
+        sorts.insert(k.clone(), v.clone());
+    }
+    sorts.ranges = own.ranges;
+    sorts.imported = own.imported;
+    sorts
+}
+
 /// The sort of every name the theorem's lines settle, read without its
 /// citations: what the elaborator reads a theorem with. The checker reads
 /// each theorem once, citations and all, and settles the same way
