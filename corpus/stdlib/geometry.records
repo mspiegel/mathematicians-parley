@@ -418,6 +418,38 @@ mundane theorem distance-by-coordinates
               from absreim
   target      gdistco
 
+mundane theorem collinear-by-coordinates
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let c ∈ ℝ                                                           (H3)
+  let d ∈ ℝ                                                           (H4)
+  let e ∈ ℝ                                                           (H5)
+  let f ∈ ℝ                                                           (H6)
+  assume a ≠ c or b ≠ d                                               (H7)
+  then        (a, b), (c, d), (e, f) are collinear ↔ (c − a)·(f − b) = (e − a)·(d − b)
+  metamath    gcolco, which this corpus proves in elaboration/stdlib/proved.mm
+              from gdivre: a quotient is real just where the first times
+              the conjugate of the second has imaginary part 0
+  target      gcolco
+
+mundane theorem between-by-coordinates
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let c ∈ ℝ                                                           (H3)
+  let d ∈ ℝ                                                           (H4)
+  let e ∈ ℝ                                                           (H5)
+  let f ∈ ℝ                                                           (H6)
+  assume a ≠ c or b ≠ d                                               (H7)
+  then        (c, d) is between (a, b) and (e, f) ↔ (a − c)·(f − d) = (e − c)·(b − d) and (a − c)·(e − c) + (b − d)·(f − d) < 0
+  metamath    gbetco, which this corpus proves in elaboration/stdlib/proved.mm
+              from gdivneg: a quotient is a negative real just where the
+              first times the conjugate of the second has imaginary part 0
+              and negative real part
+  target      gbetco
+  note        The three points are collinear, and the two ends lie on
+              opposite sides of the middle one: the differences from it
+              point opposite ways, so their dot product is negative.
+
 mundane theorem between-symmetric
   let R be a point                                                    (H1)
   let S be a point                                                    (H2)

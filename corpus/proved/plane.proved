@@ -290,3 +290,475 @@ lemma gangcos
   18 ex 17 |- ( ( P e. CC /\ Q e. CC /\ R e. CC ) -> ( ( -. P = Q /\ -. R = Q ) -> ( ( X e. RR /\ 0
       <_ X /\ X <_ ( ( ; ; 1 8 0 x. _pi ) / ; ; 1 8 0 ) ) -> ( ( abs ` ( ( P - Q ) ang ( R - Q ) ) )
       = X <-> ( cos ` ( abs ` ( ( P - Q ) ang ( R - Q ) ) ) ) = ( cos ` X ) ) ) ) )
+
+# Points given by coordinates. The difference of two is the difference of
+# their coordinates; and for z = p + iq, w = r + is, z times the conjugate
+# of w has imaginary part qr - ps and real part pr + qs.
+lemma gptsub
+  |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( ( A + ( _i x. B ) ) - ( C + ( _i
+      x. D ) ) ) = ( ( A - C ) + ( _i x. ( B - D ) ) ) )
+  1 simpll |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> A e. RR )
+  2 simplr |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> B e. RR )
+  3 simprl |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> C e. RR )
+  4 simprr |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> D e. RR )
+  5 recnd 1 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> A e. CC )
+  6 recnd 2 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> B e. CC )
+  7 recnd 3 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> C e. CC )
+  8 recnd 4 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> D e. CC )
+  9 ax-icn |- _i e. CC
+  10 a1i 9 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> _i e. CC )
+  11 mulcld 10 6 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( _i x. B ) e. CC )
+  12 mulcld 10 8 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( _i x. D ) e. CC )
+  13 addsub4d 5 11 7 12 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( ( A + ( _i
+      x. B ) ) - ( C + ( _i x. D ) ) ) = ( ( A - C ) + ( ( _i x. B ) - ( _i x. D ) ) ) )
+  14 subdid 10 6 8 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( _i x. ( B - D ) )
+      = ( ( _i x. B ) - ( _i x. D ) ) )
+  15 eqcomd 14 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( ( _i x. B ) - ( _i x.
+      D ) ) = ( _i x. ( B - D ) ) )
+  16 oveq2d 15 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( ( A - C ) + ( ( _i x.
+      B ) - ( _i x. D ) ) ) = ( ( A - C ) + ( _i x. ( B - D ) ) ) )
+  17 eqtrd 13 16 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( ( A + ( _i x. B ) )
+      - ( C + ( _i x. D ) ) ) = ( ( A - C ) + ( _i x. ( B - D ) ) ) )
+
+lemma gimcj
+  |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( Im ` ( ( A + ( _i x. B ) ) x. ( * `
+      ( C + ( _i x. D ) ) ) ) ) = ( ( B x. C ) - ( A x. D ) ) )
+  1 simpll |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> A e. RR )
+  2 simplr |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> B e. RR )
+  3 simprl |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> C e. RR )
+  4 simprr |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> D e. RR )
+  5 recnd 1 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> A e. CC )
+  6 recnd 2 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> B e. CC )
+  7 recnd 3 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> C e. CC )
+  8 recnd 4 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> D e. CC )
+  9 ax-icn |- _i e. CC
+  10 a1i 9 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> _i e. CC )
+  11 mulcld 10 6 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( _i x. B ) e. CC )
+  12 addcld 5 11 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( A + ( _i x. B ) ) e.
+      CC )
+  13 mulcld 10 8 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( _i x. D ) e. CC )
+  14 addcld 7 13 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( C + ( _i x. D ) ) e.
+      CC )
+  15 cjcld 14 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( * ` ( C + ( _i x. D ) ) )
+      e. CC )
+  16 immuld 12 15 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( Im ` ( ( A + ( _i x.
+      B ) ) x. ( * ` ( C + ( _i x. D ) ) ) ) ) = ( ( ( Re ` ( A + ( _i x. B ) ) ) x. ( Im ` ( * ` ( C
+      + ( _i x. D ) ) ) ) ) + ( ( Im ` ( A + ( _i x. B ) ) ) x. ( Re ` ( * ` ( C + ( _i x. D ) ) ) ) )
+      ) )
+  17 crred 1 2 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( Re ` ( A + ( _i x. B )
+      ) ) = A )
+  18 crimd 1 2 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( Im ` ( A + ( _i x. B )
+      ) ) = B )
+  19 imcjd 14 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( Im ` ( * ` ( C + ( _i x.
+      D ) ) ) ) = -u ( Im ` ( C + ( _i x. D ) ) ) )
+  20 crimd 3 4 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( Im ` ( C + ( _i x. D )
+      ) ) = D )
+  21 negeqd 20 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> -u ( Im ` ( C + ( _i x. D
+      ) ) ) = -u D )
+  22 eqtrd 19 21 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( Im ` ( * ` ( C + ( _i
+      x. D ) ) ) ) = -u D )
+  23 recjd 14 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( Re ` ( * ` ( C + ( _i x.
+      D ) ) ) ) = ( Re ` ( C + ( _i x. D ) ) ) )
+  24 crred 3 4 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( Re ` ( C + ( _i x. D )
+      ) ) = C )
+  25 eqtrd 23 24 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( Re ` ( * ` ( C + ( _i
+      x. D ) ) ) ) = C )
+  26 oveq12d 17 22 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( ( Re ` ( A + ( _i
+      x. B ) ) ) x. ( Im ` ( * ` ( C + ( _i x. D ) ) ) ) ) = ( A x. -u D ) )
+  27 oveq12d 18 25 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( ( Im ` ( A + ( _i
+      x. B ) ) ) x. ( Re ` ( * ` ( C + ( _i x. D ) ) ) ) ) = ( B x. C ) )
+  28 oveq12d 26 27 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( ( ( Re ` ( A + (
+      _i x. B ) ) ) x. ( Im ` ( * ` ( C + ( _i x. D ) ) ) ) ) + ( ( Im ` ( A + ( _i x. B ) ) ) x. (
+      Re ` ( * ` ( C + ( _i x. D ) ) ) ) ) ) = ( ( A x. -u D ) + ( B x. C ) ) )
+  29 eqtrd 16 28 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( Im ` ( ( A + ( _i x.
+      B ) ) x. ( * ` ( C + ( _i x. D ) ) ) ) ) = ( ( A x. -u D ) + ( B x. C ) ) )
+  30 mulneg2d 5 8 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( A x. -u D ) = -u (
+      A x. D ) )
+  31 oveq1d 30 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( ( A x. -u D ) + ( B x.
+      C ) ) = ( -u ( A x. D ) + ( B x. C ) ) )
+  32 mulcld 5 8 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( A x. D ) e. CC )
+  33 negcld 32 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> -u ( A x. D ) e. CC )
+  34 mulcld 6 7 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( B x. C ) e. CC )
+  35 addcomd 33 34 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( -u ( A x. D ) + (
+      B x. C ) ) = ( ( B x. C ) + -u ( A x. D ) ) )
+  36 negsubd 34 32 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( ( B x. C ) + -u (
+      A x. D ) ) = ( ( B x. C ) - ( A x. D ) ) )
+  37 eqtrd 31 35 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( ( A x. -u D ) + ( B
+      x. C ) ) = ( ( B x. C ) + -u ( A x. D ) ) )
+  38 eqtrd 37 36 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( ( A x. -u D ) + ( B
+      x. C ) ) = ( ( B x. C ) - ( A x. D ) ) )
+  39 eqtrd 29 38 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( Im ` ( ( A + ( _i x.
+      B ) ) x. ( * ` ( C + ( _i x. D ) ) ) ) ) = ( ( B x. C ) - ( A x. D ) ) )
+
+lemma gremcj
+  |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( Re ` ( ( A + ( _i x. B ) ) x. ( * `
+      ( C + ( _i x. D ) ) ) ) ) = ( ( A x. C ) + ( B x. D ) ) )
+  1 simpll |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> A e. RR )
+  2 simplr |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> B e. RR )
+  3 simprl |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> C e. RR )
+  4 simprr |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> D e. RR )
+  5 recnd 1 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> A e. CC )
+  6 recnd 2 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> B e. CC )
+  7 recnd 3 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> C e. CC )
+  8 recnd 4 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> D e. CC )
+  9 ax-icn |- _i e. CC
+  10 a1i 9 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> _i e. CC )
+  11 mulcld 10 6 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( _i x. B ) e. CC )
+  12 addcld 5 11 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( A + ( _i x. B ) ) e.
+      CC )
+  13 mulcld 10 8 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( _i x. D ) e. CC )
+  14 addcld 7 13 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( C + ( _i x. D ) ) e.
+      CC )
+  15 cjcld 14 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( * ` ( C + ( _i x. D ) ) )
+      e. CC )
+  16 remuld 12 15 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( Re ` ( ( A + ( _i x.
+      B ) ) x. ( * ` ( C + ( _i x. D ) ) ) ) ) = ( ( ( Re ` ( A + ( _i x. B ) ) ) x. ( Re ` ( * ` ( C
+      + ( _i x. D ) ) ) ) ) - ( ( Im ` ( A + ( _i x. B ) ) ) x. ( Im ` ( * ` ( C + ( _i x. D ) ) ) ) )
+      ) )
+  17 crred 1 2 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( Re ` ( A + ( _i x. B )
+      ) ) = A )
+  18 crimd 1 2 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( Im ` ( A + ( _i x. B )
+      ) ) = B )
+  19 imcjd 14 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( Im ` ( * ` ( C + ( _i x.
+      D ) ) ) ) = -u ( Im ` ( C + ( _i x. D ) ) ) )
+  20 crimd 3 4 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( Im ` ( C + ( _i x. D )
+      ) ) = D )
+  21 negeqd 20 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> -u ( Im ` ( C + ( _i x. D
+      ) ) ) = -u D )
+  22 eqtrd 19 21 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( Im ` ( * ` ( C + ( _i
+      x. D ) ) ) ) = -u D )
+  23 recjd 14 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( Re ` ( * ` ( C + ( _i x.
+      D ) ) ) ) = ( Re ` ( C + ( _i x. D ) ) ) )
+  24 crred 3 4 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( Re ` ( C + ( _i x. D )
+      ) ) = C )
+  25 eqtrd 23 24 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( Re ` ( * ` ( C + ( _i
+      x. D ) ) ) ) = C )
+  26 oveq12d 17 25 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( ( Re ` ( A + ( _i
+      x. B ) ) ) x. ( Re ` ( * ` ( C + ( _i x. D ) ) ) ) ) = ( A x. C ) )
+  27 oveq12d 18 22 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( ( Im ` ( A + ( _i
+      x. B ) ) ) x. ( Im ` ( * ` ( C + ( _i x. D ) ) ) ) ) = ( B x. -u D ) )
+  28 oveq12d 26 27 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( ( ( Re ` ( A + (
+      _i x. B ) ) ) x. ( Re ` ( * ` ( C + ( _i x. D ) ) ) ) ) - ( ( Im ` ( A + ( _i x. B ) ) ) x. (
+      Im ` ( * ` ( C + ( _i x. D ) ) ) ) ) ) = ( ( A x. C ) - ( B x. -u D ) ) )
+  29 eqtrd 16 28 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( Re ` ( ( A + ( _i x.
+      B ) ) x. ( * ` ( C + ( _i x. D ) ) ) ) ) = ( ( A x. C ) - ( B x. -u D ) ) )
+  30 mulneg2d 6 8 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( B x. -u D ) = -u (
+      B x. D ) )
+  31 oveq2d 30 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( ( A x. C ) - ( B x. -u
+      D ) ) = ( ( A x. C ) - -u ( B x. D ) ) )
+  32 mulcld 5 7 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( A x. C ) e. CC )
+  33 mulcld 6 8 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( B x. D ) e. CC )
+  34 subnegd 32 33 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( ( A x. C ) - -u (
+      B x. D ) ) = ( ( A x. C ) + ( B x. D ) ) )
+  35 eqtrd 31 34 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( ( A x. C ) - ( B x.
+      -u D ) ) = ( ( A x. C ) + ( B x. D ) ) )
+  36 eqtrd 29 35 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( Re ` ( ( A + ( _i x.
+      B ) ) x. ( * ` ( C + ( _i x. D ) ) ) ) ) = ( ( A x. C ) + ( B x. D ) ) )
+
+# |w|^2 times z/w is z conj(w), and |w|^2 is a positive real; so z/w is
+# real just where z conj(w) is, and negative just where z conj(w) is real
+# and negative.
+lemma gdivcj
+  |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( ( ( abs ` W ) ^ 2 ) x. ( Z / W ) ) = ( Z x. ( * ` W ) )
+      )
+  1 simp1 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> Z e. CC )
+  2 simp2 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> W e. CC )
+  3 simp3 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> W =/= 0 )
+  4 divcld 1 2 3 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( Z / W ) e. CC )
+  5 absvalsqd 2 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( ( abs ` W ) ^ 2 ) = ( W x. ( * ` W ) ) )
+  6 oveq1d 5 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( ( ( abs ` W ) ^ 2 ) x. ( Z / W ) ) = ( ( W
+      x. ( * ` W ) ) x. ( Z / W ) ) )
+  7 cjcld 2 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( * ` W ) e. CC )
+  8 mulcld 2 7 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( W x. ( * ` W ) ) e. CC )
+  9 mulcomd 8 4 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( ( W x. ( * ` W ) ) x. ( Z / W ) ) = ( (
+      Z / W ) x. ( W x. ( * ` W ) ) ) )
+  10 mulassd 4 2 7 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( ( ( Z / W ) x. W ) x. ( * ` W ) ) = (
+      ( Z / W ) x. ( W x. ( * ` W ) ) ) )
+  11 eqtr4d 9 10 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( ( W x. ( * ` W ) ) x. ( Z / W ) ) = ( (
+      ( Z / W ) x. W ) x. ( * ` W ) ) )
+  12 divcan1d 1 2 3 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( ( Z / W ) x. W ) = Z )
+  13 oveq1d 12 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( ( ( Z / W ) x. W ) x. ( * ` W ) ) = ( Z
+      x. ( * ` W ) ) )
+  14 eqtrd 6 11 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( ( ( abs ` W ) ^ 2 ) x. ( Z / W ) ) = ( (
+      ( Z / W ) x. W ) x. ( * ` W ) ) )
+  15 eqtrd 14 13 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( ( ( abs ` W ) ^ 2 ) x. ( Z / W ) ) = ( Z
+      x. ( * ` W ) ) )
+
+lemma gdivre
+  |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( ( Z / W ) e. RR <-> ( Im ` ( Z x. ( * ` W ) ) ) = 0 )
+      )
+  1 simp1 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> Z e. CC )
+  2 simp2 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> W e. CC )
+  3 simp3 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> W =/= 0 )
+  4 divcld 1 2 3 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( Z / W ) e. CC )
+  5 abscld 2 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( abs ` W ) e. RR )
+  6 resqcld 5 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( ( abs ` W ) ^ 2 ) e. RR )
+  7 absne0d 2 3 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( abs ` W ) =/= 0 )
+  8 sqgt0d 5 7 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> 0 < ( ( abs ` W ) ^ 2 ) )
+  9 gt0ne0d 8 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( ( abs ` W ) ^ 2 ) =/= 0 )
+  10 mulre |- ( ( ( Z / W ) e. CC /\ ( ( abs ` W ) ^ 2 ) e. RR /\ ( ( abs ` W ) ^ 2 ) =/= 0 ) -> ( (
+      Z / W ) e. RR <-> ( ( ( abs ` W ) ^ 2 ) x. ( Z / W ) ) e. RR ) )
+  11 syl3anc 4 6 9 10 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( ( Z / W ) e. RR <-> ( ( ( abs ` W
+      ) ^ 2 ) x. ( Z / W ) ) e. RR ) )
+  12 gdivcj |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( ( ( abs ` W ) ^ 2 ) x. ( Z / W ) ) = ( Z x. (
+      * ` W ) ) )
+  13 eleq1d 12 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( ( ( ( abs ` W ) ^ 2 ) x. ( Z / W ) ) e. RR
+      <-> ( Z x. ( * ` W ) ) e. RR ) )
+  14 bitrd 11 13 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( ( Z / W ) e. RR <-> ( Z x. ( * ` W ) )
+      e. RR ) )
+  15 cjcld 2 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( * ` W ) e. CC )
+  16 mulcld 1 15 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( Z x. ( * ` W ) ) e. CC )
+  17 reim0b |- ( ( Z x. ( * ` W ) ) e. CC -> ( ( Z x. ( * ` W ) ) e. RR <-> ( Im ` ( Z x. ( * ` W ) )
+      ) = 0 ) )
+  18 syl 16 17 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( ( Z x. ( * ` W ) ) e. RR <-> ( Im ` ( Z x.
+      ( * ` W ) ) ) = 0 ) )
+  19 bitrd 14 18 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( ( Z / W ) e. RR <-> ( Im ` ( Z x. ( * `
+      W ) ) ) = 0 ) )
+
+lemma gdivneg
+  |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( ( ( Z / W ) e. RR /\ ( Z / W ) < 0 ) <-> ( ( Im ` ( Z
+      x. ( * ` W ) ) ) = 0 /\ ( Re ` ( Z x. ( * ` W ) ) ) < 0 ) ) )
+  1 simp1 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> Z e. CC )
+  2 simp2 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> W e. CC )
+  3 simp3 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> W =/= 0 )
+  4 abscld 2 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( abs ` W ) e. RR )
+  5 resqcld 4 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( ( abs ` W ) ^ 2 ) e. RR )
+  6 absne0d 2 3 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( abs ` W ) =/= 0 )
+  7 sqgt0d 4 6 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> 0 < ( ( abs ` W ) ^ 2 ) )
+  8 elrpd 5 7 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( ( abs ` W ) ^ 2 ) e. RR+ )
+  9 gdivcj |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( ( ( abs ` W ) ^ 2 ) x. ( Z / W ) ) = ( Z x. (
+      * ` W ) ) )
+  10 simpr |- ( ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) /\ ( Z / W ) e. RR ) -> ( Z / W ) e. RR )
+  11 0re |- 0 e. RR
+  12 a1i 11 |- ( ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) /\ ( Z / W ) e. RR ) -> 0 e. RR )
+  13 adantr 8 |- ( ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) /\ ( Z / W ) e. RR ) -> ( ( abs ` W ) ^ 2 ) e.
+      RR+ )
+  14 ltmul2d 10 12 13 |- ( ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) /\ ( Z / W ) e. RR ) -> ( ( Z / W ) <
+      0 <-> ( ( ( abs ` W ) ^ 2 ) x. ( Z / W ) ) < ( ( ( abs ` W ) ^ 2 ) x. 0 ) ) )
+  15 adantr 9 |- ( ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) /\ ( Z / W ) e. RR ) -> ( ( ( abs ` W ) ^ 2 )
+      x. ( Z / W ) ) = ( Z x. ( * ` W ) ) )
+  16 adantr 5 |- ( ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) /\ ( Z / W ) e. RR ) -> ( ( abs ` W ) ^ 2 ) e.
+      RR )
+  17 recnd 16 |- ( ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) /\ ( Z / W ) e. RR ) -> ( ( abs ` W ) ^ 2 ) e.
+      CC )
+  18 mul01d 17 |- ( ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) /\ ( Z / W ) e. RR ) -> ( ( ( abs ` W ) ^ 2 )
+      x. 0 ) = 0 )
+  19 breq12d 15 18 |- ( ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) /\ ( Z / W ) e. RR ) -> ( ( ( ( abs ` W
+      ) ^ 2 ) x. ( Z / W ) ) < ( ( ( abs ` W ) ^ 2 ) x. 0 ) <-> ( Z x. ( * ` W ) ) < 0 ) )
+  20 bitrd 14 19 |- ( ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) /\ ( Z / W ) e. RR ) -> ( ( Z / W ) < 0
+      <-> ( Z x. ( * ` W ) ) < 0 ) )
+  21 ex 20 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( ( Z / W ) e. RR -> ( ( Z / W ) < 0 <-> ( Z x.
+      ( * ` W ) ) < 0 ) ) )
+  22 pm5.32d 21 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( ( ( Z / W ) e. RR /\ ( Z / W ) < 0 ) <->
+      ( ( Z / W ) e. RR /\ ( Z x. ( * ` W ) ) < 0 ) ) )
+  23 gdivre |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( ( Z / W ) e. RR <-> ( Im ` ( Z x. ( * ` W ) )
+      ) = 0 ) )
+  24 anbi1d 23 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( ( ( Z / W ) e. RR /\ ( Z x. ( * ` W ) ) <
+      0 ) <-> ( ( Im ` ( Z x. ( * ` W ) ) ) = 0 /\ ( Z x. ( * ` W ) ) < 0 ) ) )
+  25 bitrd 22 24 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( ( ( Z / W ) e. RR /\ ( Z / W ) < 0 )
+      <-> ( ( Im ` ( Z x. ( * ` W ) ) ) = 0 /\ ( Z x. ( * ` W ) ) < 0 ) ) )
+  26 cjcld 2 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( * ` W ) e. CC )
+  27 mulcld 1 26 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( Z x. ( * ` W ) ) e. CC )
+  28 reim0b |- ( ( Z x. ( * ` W ) ) e. CC -> ( ( Z x. ( * ` W ) ) e. RR <-> ( Im ` ( Z x. ( * ` W ) )
+      ) = 0 ) )
+  29 syl 27 28 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( ( Z x. ( * ` W ) ) e. RR <-> ( Im ` ( Z x.
+      ( * ` W ) ) ) = 0 ) )
+  30 biimpar 29 |- ( ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) /\ ( Im ` ( Z x. ( * ` W ) ) ) = 0 ) -> ( Z
+      x. ( * ` W ) ) e. RR )
+  31 rered 30 |- ( ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) /\ ( Im ` ( Z x. ( * ` W ) ) ) = 0 ) -> ( Re `
+      ( Z x. ( * ` W ) ) ) = ( Z x. ( * ` W ) ) )
+  32 breq1d 31 |- ( ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) /\ ( Im ` ( Z x. ( * ` W ) ) ) = 0 ) -> ( (
+      Re ` ( Z x. ( * ` W ) ) ) < 0 <-> ( Z x. ( * ` W ) ) < 0 ) )
+  33 bicomd 32 |- ( ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) /\ ( Im ` ( Z x. ( * ` W ) ) ) = 0 ) -> ( (
+      Z x. ( * ` W ) ) < 0 <-> ( Re ` ( Z x. ( * ` W ) ) ) < 0 ) )
+  34 ex 33 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( ( Im ` ( Z x. ( * ` W ) ) ) = 0 -> ( ( Z x. (
+      * ` W ) ) < 0 <-> ( Re ` ( Z x. ( * ` W ) ) ) < 0 ) ) )
+  35 pm5.32d 34 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( ( ( Im ` ( Z x. ( * ` W ) ) ) = 0 /\ ( Z
+      x. ( * ` W ) ) < 0 ) <-> ( ( Im ` ( Z x. ( * ` W ) ) ) = 0 /\ ( Re ` ( Z x. ( * ` W ) ) ) < 0 )
+      ) )
+  36 bitrd 25 35 |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( ( ( Z / W ) e. RR /\ ( Z / W ) < 0 )
+      <-> ( ( Im ` ( Z x. ( * ` W ) ) ) = 0 /\ ( Re ` ( Z x. ( * ` W ) ) ) < 0 ) ) )
+
+# Three points given by coordinates are collinear just where the cross
+# product of their differences from the first is 0: for P = (a, b),
+# Q = (c, d), R = (e, f), (R - P)/(Q - P) is real just where
+# (c - a)(f - b) = (e - a)(d - b).
+lemma gcolne
+  |- ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) -> ( ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) -> ( ( ( ( E + ( _i x. F ) ) - ( A + ( _i x. B ) ) ) / ( ( C + ( _i x. D ) ) - ( A + ( _i x. B ) ) ) ) e. RR <-> ( ( C - A ) x. ( F - B ) ) = ( ( E - A ) x. ( D - B ) ) ) ) )
+  1 simplll |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( A e. RR /\ B e. RR ) )
+  2 simpllr |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( C e. RR /\ D e. RR ) )
+  3 simplr |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( E e. RR /\ F e. RR ) )
+  4 simpr |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) )
+  5 simpld 1 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> A e. RR )
+  6 simprd 1 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> B e. RR )
+  7 simpld 2 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> C e. RR )
+  8 simprd 2 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> D e. RR )
+  9 simpld 3 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> E e. RR )
+  10 simprd 3 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> F e. RR )
+  11 recnd 5 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> A e. CC )
+  12 recnd 6 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> B e. CC )
+  13 recnd 7 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> C e. CC )
+  14 recnd 8 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> D e. CC )
+  15 recnd 9 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> E e. CC )
+  16 recnd 10 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> F e. CC )
+  17 ax-icn |- _i e. CC
+  18 a1i 17 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> _i e. CC )
+  19 mulcld 18 12 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( _i x. B ) e. CC )
+  20 addcld 11 19 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( A + ( _i x. B ) ) e. CC )
+  21 mulcld 18 14 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( _i x. D ) e. CC )
+  22 addcld 13 21 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( C + ( _i x. D ) ) e. CC )
+  23 mulcld 18 16 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( _i x. F ) e. CC )
+  24 addcld 15 23 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( E + ( _i x. F ) ) e. CC )
+  25 subcld 24 20 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( E + ( _i x. F ) ) - ( A + ( _i x. B ) ) ) e. CC )
+  26 subcld 22 20 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( C + ( _i x. D ) ) - ( A + ( _i x. B ) ) ) e. CC )
+  27 necomd 4 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( C + ( _i x. D ) ) =/= ( A + ( _i x. B ) ) )
+  28 subne0d 22 20 27 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( C + ( _i x. D ) ) - ( A + ( _i x. B ) ) ) =/= 0 )
+  29 gdivre |- ( ( ( ( E + ( _i x. F ) ) - ( A + ( _i x. B ) ) ) e. CC /\ ( ( C + ( _i x. D ) ) - ( A + ( _i x. B ) ) ) e. CC /\ ( ( C + ( _i x. D ) ) - ( A + ( _i x. B ) ) ) =/= 0 ) -> ( ( ( ( E + ( _i x. F ) ) - ( A + ( _i x. B ) ) ) / ( ( C + ( _i x. D ) ) - ( A + ( _i x. B ) ) ) ) e. RR <-> ( Im ` ( ( ( E + ( _i x. F ) ) - ( A + ( _i x. B ) ) ) x. ( * ` ( ( C + ( _i x. D ) ) - ( A + ( _i x. B ) ) ) ) ) ) = 0 ) )
+  30 syl3anc 25 26 28 29 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( ( ( E + ( _i x. F ) ) - ( A + ( _i x. B ) ) ) / ( ( C + ( _i x. D ) ) - ( A + ( _i x. B ) ) ) ) e. RR <-> ( Im ` ( ( ( E + ( _i x. F ) ) - ( A + ( _i x. B ) ) ) x. ( * ` ( ( C + ( _i x. D ) ) - ( A + ( _i x. B ) ) ) ) ) ) = 0 ) )
+  31 jca 3 1 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( E e. RR /\ F e. RR ) /\ ( A e. RR /\ B e. RR ) ) )
+  32 gptsub |- ( ( ( E e. RR /\ F e. RR ) /\ ( A e. RR /\ B e. RR ) ) -> ( ( E + ( _i x. F ) ) - ( A + ( _i x. B ) ) ) = ( ( E - A ) + ( _i x. ( F - B ) ) ) )
+  33 syl 31 32 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( E + ( _i x. F ) ) - ( A + ( _i x. B ) ) ) = ( ( E - A ) + ( _i x. ( F - B ) ) ) )
+  34 jca 2 1 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( C e. RR /\ D e. RR ) /\ ( A e. RR /\ B e. RR ) ) )
+  35 gptsub |- ( ( ( C e. RR /\ D e. RR ) /\ ( A e. RR /\ B e. RR ) ) -> ( ( C + ( _i x. D ) ) - ( A + ( _i x. B ) ) ) = ( ( C - A ) + ( _i x. ( D - B ) ) ) )
+  36 syl 34 35 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( C + ( _i x. D ) ) - ( A + ( _i x. B ) ) ) = ( ( C - A ) + ( _i x. ( D - B ) ) ) )
+  37 fveq2d 36 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( * ` ( ( C + ( _i x. D ) ) - ( A + ( _i x. B ) ) ) ) = ( * ` ( ( C - A ) + ( _i x. ( D - B ) ) ) ) )
+  38 oveq12d 33 37 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( ( E + ( _i x. F ) ) - ( A + ( _i x. B ) ) ) x. ( * ` ( ( C + ( _i x. D ) ) - ( A + ( _i x. B ) ) ) ) ) = ( ( ( E - A ) + ( _i x. ( F - B ) ) ) x. ( * ` ( ( C - A ) + ( _i x. ( D - B ) ) ) ) ) )
+  39 fveq2d 38 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( Im ` ( ( ( E + ( _i x. F ) ) - ( A + ( _i x. B ) ) ) x. ( * ` ( ( C + ( _i x. D ) ) - ( A + ( _i x. B ) ) ) ) ) ) = ( Im ` ( ( ( E - A ) + ( _i x. ( F - B ) ) ) x. ( * ` ( ( C - A ) + ( _i x. ( D - B ) ) ) ) ) ) )
+  40 resubcld 9 5 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( E - A ) e. RR )
+  41 resubcld 10 6 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( F - B ) e. RR )
+  42 resubcld 7 5 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( C - A ) e. RR )
+  43 resubcld 8 6 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( D - B ) e. RR )
+  44 jca 40 41 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( E - A ) e. RR /\ ( F - B ) e. RR ) )
+  45 jca 42 43 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( C - A ) e. RR /\ ( D - B ) e. RR ) )
+  46 jca 44 45 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( ( E - A ) e. RR /\ ( F - B ) e. RR ) /\ ( ( C - A ) e. RR /\ ( D - B ) e. RR ) ) )
+  47 gimcj |- ( ( ( ( E - A ) e. RR /\ ( F - B ) e. RR ) /\ ( ( C - A ) e. RR /\ ( D - B ) e. RR ) ) -> ( Im ` ( ( ( E - A ) + ( _i x. ( F - B ) ) ) x. ( * ` ( ( C - A ) + ( _i x. ( D - B ) ) ) ) ) ) = ( ( ( F - B ) x. ( C - A ) ) - ( ( E - A ) x. ( D - B ) ) ) )
+  48 syl 46 47 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( Im ` ( ( ( E - A ) + ( _i x. ( F - B ) ) ) x. ( * ` ( ( C - A ) + ( _i x. ( D - B ) ) ) ) ) ) = ( ( ( F - B ) x. ( C - A ) ) - ( ( E - A ) x. ( D - B ) ) ) )
+  49 eqtrd 39 48 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( Im ` ( ( ( E + ( _i x. F ) ) - ( A + ( _i x. B ) ) ) x. ( * ` ( ( C + ( _i x. D ) ) - ( A + ( _i x. B ) ) ) ) ) ) = ( ( ( F - B ) x. ( C - A ) ) - ( ( E - A ) x. ( D - B ) ) ) )
+  50 eqeq1d 49 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( Im ` ( ( ( E + ( _i x. F ) ) - ( A + ( _i x. B ) ) ) x. ( * ` ( ( C + ( _i x. D ) ) - ( A + ( _i x. B ) ) ) ) ) ) = 0 <-> ( ( ( F - B ) x. ( C - A ) ) - ( ( E - A ) x. ( D - B ) ) ) = 0 ) )
+  51 recnd 41 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( F - B ) e. CC )
+  52 recnd 42 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( C - A ) e. CC )
+  53 mulcld 51 52 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( F - B ) x. ( C - A ) ) e. CC )
+  54 recnd 40 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( E - A ) e. CC )
+  55 recnd 43 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( D - B ) e. CC )
+  56 mulcld 54 55 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( E - A ) x. ( D - B ) ) e. CC )
+  57 subeq0ad 53 56 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( ( ( F - B ) x. ( C - A ) ) - ( ( E - A ) x. ( D - B ) ) ) = 0 <-> ( ( F - B ) x. ( C - A ) ) = ( ( E - A ) x. ( D - B ) ) ) )
+  58 mulcomd 51 52 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( F - B ) x. ( C - A ) ) = ( ( C - A ) x. ( F - B ) ) )
+  59 eqeq1d 58 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( ( F - B ) x. ( C - A ) ) = ( ( E - A ) x. ( D - B ) ) <-> ( ( C - A ) x. ( F - B ) ) = ( ( E - A ) x. ( D - B ) ) ) )
+  60 bitrd 30 50 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( ( ( E + ( _i x. F ) ) - ( A + ( _i x. B ) ) ) / ( ( C + ( _i x. D ) ) - ( A + ( _i x. B ) ) ) ) e. RR <-> ( ( ( F - B ) x. ( C - A ) ) - ( ( E - A ) x. ( D - B ) ) ) = 0 ) )
+  61 bitrd 60 57 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( ( ( E + ( _i x. F ) ) - ( A + ( _i x. B ) ) ) / ( ( C + ( _i x. D ) ) - ( A + ( _i x. B ) ) ) ) e. RR <-> ( ( F - B ) x. ( C - A ) ) = ( ( E - A ) x. ( D - B ) ) ) )
+  62 bitrd 61 59 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( ( ( E + ( _i x. F ) ) - ( A + ( _i x. B ) ) ) / ( ( C + ( _i x. D ) ) - ( A + ( _i x. B ) ) ) ) e. RR <-> ( ( C - A ) x. ( F - B ) ) = ( ( E - A ) x. ( D - B ) ) ) )
+  63 ex 62 |- ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) -> ( ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) -> ( ( ( ( E + ( _i x. F ) ) - ( A + ( _i x. B ) ) ) / ( ( C + ( _i x. D ) ) - ( A + ( _i x. B ) ) ) ) e. RR <-> ( ( C - A ) x. ( F - B ) ) = ( ( E - A ) x. ( D - B ) ) ) ) )
+
+# A point given by coordinates is between two others just where the three
+# are collinear and the two ends lie on opposite sides of it: for P = (a, b),
+# Q = (c, d), R = (e, f), (R - Q)/(P - Q) is a negative real just where
+# (a - c)(f - d) = (e - c)(b - d) and the dot product
+# (a - c)(e - c) + (b - d)(f - d) is negative.
+lemma gbetne
+  |- ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) -> ( ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) -> ( ( ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) /\ ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) e. RR /\ ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) < 0 ) <-> ( ( ( A - C ) x. ( F - D ) ) = ( ( E - C ) x. ( B - D ) ) /\ ( ( ( A - C ) x. ( E - C ) ) + ( ( B - D ) x. ( F - D ) ) ) < 0 ) ) ) )
+  1 simplll |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( A e. RR /\ B e. RR ) )
+  2 simpllr |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( C e. RR /\ D e. RR ) )
+  3 simplr |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( E e. RR /\ F e. RR ) )
+  4 simpr |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) )
+  5 simpld 1 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> A e. RR )
+  6 simprd 1 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> B e. RR )
+  7 simpld 2 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> C e. RR )
+  8 simprd 2 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> D e. RR )
+  9 simpld 3 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> E e. RR )
+  10 simprd 3 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> F e. RR )
+  11 recnd 5 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> A e. CC )
+  12 recnd 6 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> B e. CC )
+  13 recnd 7 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> C e. CC )
+  14 recnd 8 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> D e. CC )
+  15 recnd 9 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> E e. CC )
+  16 recnd 10 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> F e. CC )
+  17 ax-icn |- _i e. CC
+  18 a1i 17 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> _i e. CC )
+  19 mulcld 18 12 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( _i x. B ) e. CC )
+  20 addcld 11 19 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( A + ( _i x. B ) ) e. CC )
+  21 mulcld 18 14 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( _i x. D ) e. CC )
+  22 addcld 13 21 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( C + ( _i x. D ) ) e. CC )
+  23 mulcld 18 16 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( _i x. F ) e. CC )
+  24 addcld 15 23 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( E + ( _i x. F ) ) e. CC )
+  25 subcld 24 22 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) e. CC )
+  26 subcld 20 22 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) e. CC )
+  27 subne0d 20 22 4 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) =/= 0 )
+  28 gdivneg |- ( ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) e. CC /\ ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) e. CC /\ ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) =/= 0 ) -> ( ( ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) e. RR /\ ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) < 0 ) <-> ( ( Im ` ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) x. ( * ` ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) ) ) = 0 /\ ( Re ` ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) x. ( * ` ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) ) ) < 0 ) ) )
+  29 syl3anc 25 26 27 28 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) e. RR /\ ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) < 0 ) <-> ( ( Im ` ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) x. ( * ` ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) ) ) = 0 /\ ( Re ` ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) x. ( * ` ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) ) ) < 0 ) ) )
+  30 jca 3 2 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( E e. RR /\ F e. RR ) /\ ( C e. RR /\ D e. RR ) ) )
+  31 gptsub |- ( ( ( E e. RR /\ F e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) = ( ( E - C ) + ( _i x. ( F - D ) ) ) )
+  32 syl 30 31 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) = ( ( E - C ) + ( _i x. ( F - D ) ) ) )
+  33 jca 1 2 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) )
+  34 gptsub |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) = ( ( A - C ) + ( _i x. ( B - D ) ) ) )
+  35 syl 33 34 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) = ( ( A - C ) + ( _i x. ( B - D ) ) ) )
+  36 fveq2d 35 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( * ` ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) = ( * ` ( ( A - C ) + ( _i x. ( B - D ) ) ) ) )
+  37 oveq12d 32 36 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) x. ( * ` ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) ) = ( ( ( E - C ) + ( _i x. ( F - D ) ) ) x. ( * ` ( ( A - C ) + ( _i x. ( B - D ) ) ) ) ) )
+  38 fveq2d 37 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( Im ` ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) x. ( * ` ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) ) ) = ( Im ` ( ( ( E - C ) + ( _i x. ( F - D ) ) ) x. ( * ` ( ( A - C ) + ( _i x. ( B - D ) ) ) ) ) ) )
+  39 fveq2d 37 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( Re ` ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) x. ( * ` ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) ) ) = ( Re ` ( ( ( E - C ) + ( _i x. ( F - D ) ) ) x. ( * ` ( ( A - C ) + ( _i x. ( B - D ) ) ) ) ) ) )
+  40 resubcld 9 7 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( E - C ) e. RR )
+  41 resubcld 10 8 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( F - D ) e. RR )
+  42 resubcld 5 7 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( A - C ) e. RR )
+  43 resubcld 6 8 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( B - D ) e. RR )
+  44 jca 40 41 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( E - C ) e. RR /\ ( F - D ) e. RR ) )
+  45 jca 42 43 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( A - C ) e. RR /\ ( B - D ) e. RR ) )
+  46 jca 44 45 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( ( E - C ) e. RR /\ ( F - D ) e. RR ) /\ ( ( A - C ) e. RR /\ ( B - D ) e. RR ) ) )
+  47 gimcj |- ( ( ( ( E - C ) e. RR /\ ( F - D ) e. RR ) /\ ( ( A - C ) e. RR /\ ( B - D ) e. RR ) ) -> ( Im ` ( ( ( E - C ) + ( _i x. ( F - D ) ) ) x. ( * ` ( ( A - C ) + ( _i x. ( B - D ) ) ) ) ) ) = ( ( ( F - D ) x. ( A - C ) ) - ( ( E - C ) x. ( B - D ) ) ) )
+  48 syl 46 47 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( Im ` ( ( ( E - C ) + ( _i x. ( F - D ) ) ) x. ( * ` ( ( A - C ) + ( _i x. ( B - D ) ) ) ) ) ) = ( ( ( F - D ) x. ( A - C ) ) - ( ( E - C ) x. ( B - D ) ) ) )
+  49 eqtrd 38 48 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( Im ` ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) x. ( * ` ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) ) ) = ( ( ( F - D ) x. ( A - C ) ) - ( ( E - C ) x. ( B - D ) ) ) )
+  50 gremcj |- ( ( ( ( E - C ) e. RR /\ ( F - D ) e. RR ) /\ ( ( A - C ) e. RR /\ ( B - D ) e. RR ) ) -> ( Re ` ( ( ( E - C ) + ( _i x. ( F - D ) ) ) x. ( * ` ( ( A - C ) + ( _i x. ( B - D ) ) ) ) ) ) = ( ( ( E - C ) x. ( A - C ) ) + ( ( F - D ) x. ( B - D ) ) ) )
+  51 syl 46 50 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( Re ` ( ( ( E - C ) + ( _i x. ( F - D ) ) ) x. ( * ` ( ( A - C ) + ( _i x. ( B - D ) ) ) ) ) ) = ( ( ( E - C ) x. ( A - C ) ) + ( ( F - D ) x. ( B - D ) ) ) )
+  52 eqtrd 39 51 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( Re ` ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) x. ( * ` ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) ) ) = ( ( ( E - C ) x. ( A - C ) ) + ( ( F - D ) x. ( B - D ) ) ) )
+  53 eqeq1d 49 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( Im ` ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) x. ( * ` ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) ) ) = 0 <-> ( ( ( F - D ) x. ( A - C ) ) - ( ( E - C ) x. ( B - D ) ) ) = 0 ) )
+  54 recnd 41 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( F - D ) e. CC )
+  55 recnd 42 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( A - C ) e. CC )
+  56 mulcld 54 55 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( F - D ) x. ( A - C ) ) e. CC )
+  57 recnd 40 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( E - C ) e. CC )
+  58 recnd 43 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( B - D ) e. CC )
+  59 mulcld 57 58 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( E - C ) x. ( B - D ) ) e. CC )
+  60 subeq0ad 56 59 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( ( ( F - D ) x. ( A - C ) ) - ( ( E - C ) x. ( B - D ) ) ) = 0 <-> ( ( F - D ) x. ( A - C ) ) = ( ( E - C ) x. ( B - D ) ) ) )
+  61 mulcomd 54 55 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( F - D ) x. ( A - C ) ) = ( ( A - C ) x. ( F - D ) ) )
+  62 eqeq1d 61 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( ( F - D ) x. ( A - C ) ) = ( ( E - C ) x. ( B - D ) ) <-> ( ( A - C ) x. ( F - D ) ) = ( ( E - C ) x. ( B - D ) ) ) )
+  63 bitrd 53 60 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( Im ` ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) x. ( * ` ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) ) ) = 0 <-> ( ( F - D ) x. ( A - C ) ) = ( ( E - C ) x. ( B - D ) ) ) )
+  64 bitrd 63 62 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( Im ` ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) x. ( * ` ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) ) ) = 0 <-> ( ( A - C ) x. ( F - D ) ) = ( ( E - C ) x. ( B - D ) ) ) )
+  65 breq1d 52 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( Re ` ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) x. ( * ` ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) ) ) < 0 <-> ( ( ( E - C ) x. ( A - C ) ) + ( ( F - D ) x. ( B - D ) ) ) < 0 ) )
+  66 mulcomd 57 55 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( E - C ) x. ( A - C ) ) = ( ( A - C ) x. ( E - C ) ) )
+  67 mulcomd 54 58 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( F - D ) x. ( B - D ) ) = ( ( B - D ) x. ( F - D ) ) )
+  68 oveq12d 66 67 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( ( E - C ) x. ( A - C ) ) + ( ( F - D ) x. ( B - D ) ) ) = ( ( ( A - C ) x. ( E - C ) ) + ( ( B - D ) x. ( F - D ) ) ) )
+  69 breq1d 68 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( ( ( E - C ) x. ( A - C ) ) + ( ( F - D ) x. ( B - D ) ) ) < 0 <-> ( ( ( A - C ) x. ( E - C ) ) + ( ( B - D ) x. ( F - D ) ) ) < 0 ) )
+  70 bitrd 65 69 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( Re ` ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) x. ( * ` ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) ) ) < 0 <-> ( ( ( A - C ) x. ( E - C ) ) + ( ( B - D ) x. ( F - D ) ) ) < 0 ) )
+  71 anbi12d 64 70 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( ( Im ` ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) x. ( * ` ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) ) ) = 0 /\ ( Re ` ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) x. ( * ` ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) ) ) < 0 ) <-> ( ( ( A - C ) x. ( F - D ) ) = ( ( E - C ) x. ( B - D ) ) /\ ( ( ( A - C ) x. ( E - C ) ) + ( ( B - D ) x. ( F - D ) ) ) < 0 ) ) )
+  72 bitrd 29 71 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) e. RR /\ ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) < 0 ) <-> ( ( ( A - C ) x. ( F - D ) ) = ( ( E - C ) x. ( B - D ) ) /\ ( ( ( A - C ) x. ( E - C ) ) + ( ( B - D ) x. ( F - D ) ) ) < 0 ) ) )
+  73 biantrurd 4 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) e. RR /\ ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) < 0 ) <-> ( ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) /\ ( ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) e. RR /\ ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) < 0 ) ) ) )
+  74 3anass |- ( ( ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) /\ ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) e. RR /\ ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) < 0 ) <-> ( ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) /\ ( ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) e. RR /\ ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) < 0 ) ) )
+  75 bitr4di 73 74 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) e. RR /\ ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) < 0 ) <-> ( ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) /\ ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) e. RR /\ ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) < 0 ) ) )
+  76 bicomd 75 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) /\ ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) e. RR /\ ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) < 0 ) <-> ( ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) e. RR /\ ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) < 0 ) ) )
+  77 bitrd 76 72 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) /\ ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) e. RR /\ ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) < 0 ) <-> ( ( ( A - C ) x. ( F - D ) ) = ( ( E - C ) x. ( B - D ) ) /\ ( ( ( A - C ) x. ( E - C ) ) + ( ( B - D ) x. ( F - D ) ) ) < 0 ) ) )
+  78 ex 77 |- ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) -> ( ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) -> ( ( ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) /\ ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) e. RR /\ ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) < 0 ) <-> ( ( ( A - C ) x. ( F - D ) ) = ( ( E - C ) x. ( B - D ) ) /\ ( ( ( A - C ) x. ( E - C ) ) + ( ( B - D ) x. ( F - D ) ) ) < 0 ) ) ) )
+
+# Two points given by coordinates differ where a coordinate does (`cru`),
+# which is how the page says it: a ≠ c or b ≠ d.
+lemma gptne
+  |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( ( A =/= C \/ B =/= D ) -> ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) )
+  1 cru |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( ( A + ( _i x. B ) ) = ( C + ( _i x. D ) ) <-> ( A = C /\ B = D ) ) )
+  2 necon3abid 1 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) <-> -. ( A = C /\ B = D ) ) )
+  3 neorian |- ( ( A =/= C \/ B =/= D ) <-> -. ( A = C /\ B = D ) )
+  4 bitr4di 2 3 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) <-> ( A =/= C \/ B =/= D ) ) )
+  5 biimprd 4 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( ( A =/= C \/ B =/= D ) -> ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) )
+
+# `gcolne` and `gbetne` with the first two points apart as the page says
+# it, by their coordinates.
+lemma gcolco
+  |- ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) -> ( ( A =/= C \/ B =/= D ) -> ( ( ( ( E + ( _i x. F ) ) - ( A + ( _i x. B ) ) ) / ( ( C + ( _i x. D ) ) - ( A + ( _i x. B ) ) ) ) e. RR <-> ( ( C - A ) x. ( F - B ) ) = ( ( E - A ) x. ( D - B ) ) ) ) )
+  1 simpl |- ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) -> ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) )
+  2 gptne |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( ( A =/= C \/ B =/= D ) -> ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) )
+  3 syl 1 2 |- ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) -> ( ( A =/= C \/ B =/= D ) -> ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) )
+  4 gcolne |- ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) -> ( ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) -> ( ( ( ( E + ( _i x. F ) ) - ( A + ( _i x. B ) ) ) / ( ( C + ( _i x. D ) ) - ( A + ( _i x. B ) ) ) ) e. RR <-> ( ( C - A ) x. ( F - B ) ) = ( ( E - A ) x. ( D - B ) ) ) ) )
+  5 syld 3 4 |- ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) -> ( ( A =/= C \/ B =/= D ) -> ( ( ( ( E + ( _i x. F ) ) - ( A + ( _i x. B ) ) ) / ( ( C + ( _i x. D ) ) - ( A + ( _i x. B ) ) ) ) e. RR <-> ( ( C - A ) x. ( F - B ) ) = ( ( E - A ) x. ( D - B ) ) ) ) )
+
+lemma gbetco
+  |- ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) -> ( ( A =/= C \/ B =/= D ) -> ( ( ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) /\ ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) e. RR /\ ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) < 0 ) <-> ( ( ( A - C ) x. ( F - D ) ) = ( ( E - C ) x. ( B - D ) ) /\ ( ( ( A - C ) x. ( E - C ) ) + ( ( B - D ) x. ( F - D ) ) ) < 0 ) ) ) )
+  1 simpl |- ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) -> ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) )
+  2 gptne |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( ( A =/= C \/ B =/= D ) -> ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) )
+  3 syl 1 2 |- ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) -> ( ( A =/= C \/ B =/= D ) -> ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) )
+  4 gbetne |- ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) -> ( ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) -> ( ( ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) /\ ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) e. RR /\ ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) < 0 ) <-> ( ( ( A - C ) x. ( F - D ) ) = ( ( E - C ) x. ( B - D ) ) /\ ( ( ( A - C ) x. ( E - C ) ) + ( ( B - D ) x. ( F - D ) ) ) < 0 ) ) ) )
+  5 syld 3 4 |- ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) -> ( ( A =/= C \/ B =/= D ) -> ( ( ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) /\ ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) e. RR /\ ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) < 0 ) <-> ( ( ( A - C ) x. ( F - D ) ) = ( ( E - C ) x. ( B - D ) ) /\ ( ( ( A - C ) x. ( E - C ) ) + ( ( B - D ) x. ( F - D ) ) ) < 0 ) ) ) )

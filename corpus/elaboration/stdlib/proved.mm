@@ -532,6 +532,72 @@ $d x R $.  $d y R $.
     simp3d g180 breqtrdi 3jca 0re pire elicc2i sylibr cos11 syl2anc ex )
     AEFZBEFZCEFZGZABHZIZCBHZIZJZDKFZLDMNZDOPQZLQZRSTZVSUATZMNZGZABUBTZCBUBTZUCTZUDUEZDHZWGUFUEZDUFUEZHZUGZUHVJVOJZWCWLWMWCJZWGLRUITZFZDWOFZWLWMWPWCVJVOWPABCUJUKULWNVPVQDRMNZGWQWNVPVQWRWNVPVQWBWMWCUMZUNWNVPVQWBWSUOWNDWARMWNVPVQWBWSUPUQURUSLRDUTVAVBVCWGDVDVEVFVF $.
 
+  gptsub $p |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) = ( ( A - C ) + ( _i x. ( B - D ) ) ) ) $=
+    ( cr wcel wa ci cmul co caddc cmin simpll recnd cc ax-icn a1i simplr
+    mulcld simprl simprr addsub4d subdid eqcomd oveq2d eqtrd )
+    AEFZBEFZGZCEFZDEFZGZGZAHBIJZKJCHDIJZKJLJACLJZUNUOLJZKJUPHBDLJZIJZKJUMAUNCUOUMAUGUHULMNUMHBHOFZUMPQZUMBUGUHULRZNZSUMCUIUJUKTNUMHDVAUMDUIUJUKUAZNZSUBUMUQUSUPKUMUSUQUMHBDVAVCVEUCUDUEUF $.
+
+  gimcj $p |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( Im ` ( ( A + ( _i x. B ) ) x. ( * ` ( C + ( _i x. D ) ) ) ) ) = ( ( B x. C ) - ( A x. D ) ) ) $=
+    ( cr wcel wa ci cmul co caddc ccj cfv cim cneg cmin cre simpll recnd cc
+    ax-icn a1i simplr mulcld addcld simprl simprr cjcld immuld crred imcjd
+    crimd negeqd eqtrd oveq12d recjd mulneg2d oveq1d negcld addcomd negsubd )
+    AEFZBEFZGZCEFZDEFZGZGZAHBIJZKJZCHDIJZKJZLMZIJZNMZADOZIJZBCIJZKJZVRADIJZPJZVHVOVJQMZVMNMZIJZVJNMZVMQMZIJZKJVSVHVJVMVHAVIVHAVBVCVGRZSZVHHBHTFZVHUAUBZVHBVBVCVGUCZSZUDUEVHVLVHCVKVHCVDVEVFUFZSZVHHDWKVHDVDVEVFUGZSZUDZUEZUHUIVHWDVQWGVRKVHWBAWCVPIVHABWHWLUJVHWCVLNMZOVPVHVLWSUKVHWTDVHCDWNWPULUMUNUOVHWEBWFCIVHABWHWLULVHWFVLQMCVHVLWSUPVHCDWNWPUJUNUOUOUNVHVSVRVTOZKJZWAVHVSXAVRKJXBVHVQXAVRKVHADWIWQUQURVHXAVRVHVTVHADWIWQUDZUSVHBCWMWOUDZUTUNVHVRVTXDXCVAUNUN $.
+
+  gremcj $p |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( Re ` ( ( A + ( _i x. B ) ) x. ( * ` ( C + ( _i x. D ) ) ) ) ) = ( ( A x. C ) + ( B x. D ) ) ) $=
+    ( cr wcel wa ci cmul co caddc ccj cfv cre cneg cmin cim simpll recnd cc
+    ax-icn a1i simplr mulcld addcld simprl simprr cjcld remuld crred recjd
+    eqtrd oveq12d crimd imcjd negeqd mulneg2d oveq2d subnegd )
+    AEFZBEFZGZCEFZDEFZGZGZAHBIJZKJZCHDIJZKJZLMZIJZNMZACIJZBDOZIJZPJZVNBDIJZKJZVFVMVHNMZVKNMZIJZVHQMZVKQMZIJZPJVQVFVHVKVFAVGVFAUTVAVERZSZVFHBHTFZVFUAUBZVFBUTVAVEUCZSZUDUEVFVJVFCVIVFCVBVCVDUFZSZVFHDWIVFDVBVCVDUGZSZUDZUEZUHUIVFWBVNWEVPPVFVTAWACIVFABWFWJUJVFWAVJNMCVFVJWQUKVFCDWLWNUJULUMVFWCBWDVOIVFABWFWJUNVFWDVJQMZOVOVFVJWQUOVFWRDVFCDWLWNUNUPULUMUMULVFVQVNVROZPJVSVFVPWSVNPVFBDWKWOUQURVFVNVRVFACWGWMUDVFBDWKWOUDUSULUL $.
+
+  gdivcj $p |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( ( ( abs ` W ) ^ 2 ) x. ( Z / W ) ) = ( Z x. ( * ` W ) ) ) $=
+    ( cc wcel cc0 wne w3a cabs cfv c2 cexp co cdiv cmul ccj simp2 absvalsqd
+    oveq1d cjcld mulcld simp1 simp3 divcld mulcomd mulassd eqtr4d eqtrd
+    divcan1d )
+    BCDZACDZAEFZGZAHIZJKLZBAMLZNLZUOANLZAOIZNLZBURNLULUPAURNLZUONLZUSULUNUTUONULAUIUJUKPZQRULVAUOUTNLUSULUTUOULAURVBULAVBSZTULBAUIUJUKUAZVBUIUJUKUBZUCZUDULUOAURVFVBVCUEUFUGULUQBURNULBAVDVBVEUHRUG $.
+
+  gdivre $p |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( ( Z / W ) e. RR <-> ( Im ` ( Z x. ( * ` W ) ) ) = 0 ) ) $=
+    ( cc wcel cc0 wne w3a cdiv co cr ccj cfv cmul cim wceq cabs c2 cexp wb
+    simp1 simp2 simp3 divcld abscld resqcld absne0d sqgt0d gt0ne0d mulre
+    syl3anc gdivcj eleq1d bitrd cjcld mulcld reim0b syl )
+    BCDZACDZAEFZGZBAHIZJDZBAKLZMIZJDZVENLZEOZVAVCAPLZQRIZVBMIZJDZVFVAVBCDVJJDVJEFVCVLSVABAURUSUTTZURUSUTUAZURUSUTUBZUCVAVIVAAVNUDZUEVAVJVAVIVPVAAVNVOUFUGUHVBVJUIUJVAVKVEJABUKULUMVAVECDVFVHSVABVDVMVAAVNUNUOVEUPUQUM $.
+
+  gdivneg $p |- ( ( Z e. CC /\ W e. CC /\ W =/= 0 ) -> ( ( ( Z / W ) e. RR /\ ( Z / W ) < 0 ) <-> ( ( Im ` ( Z x. ( * ` W ) ) ) = 0 /\ ( Re ` ( Z x. ( * ` W ) ) ) < 0 ) ) ) $=
+    ( cc wcel cc0 wne w3a cdiv co cr clt wbr wa ccj cfv cmul cim wceq cre wb
+    cabs c2 cexp simpr 0re a1i crp simp2 abscld resqcld simp3 absne0d sqgt0d
+    elrpd adantr ltmul2d gdivcj recnd mul01d breq12d bitrd ex pm5.32d gdivre
+    anbi1d simp1 cjcld mulcld reim0b syl biimpar rered breq1d bicomd )
+    BCDZACDZAEFZGZBAHIZJDZVSEKLZMZBANOZPIZQOZERZWDEKLZMZWFWDSOZEKLZMVRWBVTWGMWHVRVTWAWGVRVTWAWGTVRVTMZWAAUAOZUBUCIZVSPIZWMEPIZKLWGWKVSEWMVRVTUDEJDWKUEUFVRWMUGDVTVRWMVRWLVRAVOVPVQUHZUIZUJZVRWLWQVRAWPVOVPVQUKULUMUNUOUPWKWNWDWOEKVRWNWDRVTABUQUOWKWMWKWMVRWMJDVTWRUOURUSUTVAVBVCVRVTWFWGABVDVEVAVRWFWGWJVRWFWGWJTVRWFMZWJWGWSWIWDEKWSWDVRWDJDZWFVRWDCDWTWFTVRBWCVOVPVQVFVRAWPVGVHWDVIVJVKVLVMVNVBVCVA $.
+
+  gcolne $p |- ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) -> ( ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) -> ( ( ( ( E + ( _i x. F ) ) - ( A + ( _i x. B ) ) ) / ( ( C + ( _i x. D ) ) - ( A + ( _i x. B ) ) ) ) e. RR <-> ( ( C - A ) x. ( F - B ) ) = ( ( E - A ) x. ( D - B ) ) ) ) ) $=
+    ( cr wcel wa ci cmul co caddc wne cmin cdiv wceq wb cc0 ccj cfv cim cc
+    simplr simpld recnd ax-icn a1i simprd mulcld addcld simplll subcld
+    simpllr simpr necomd subne0d gdivre syl3anc jca gptsub syl fveq2d oveq12d
+    resubcld gimcj eqtrd eqeq1d bitrd subeq0ad mulcomd ex )
+    AGHZBGHZIZCGHZDGHZIZIZEGHZFGHZIZIZAJBKLZMLZCJDKLZMLZNZEJFKLZMLZWEOLZWGWEOLZPLZGHZCAOLZFBOLZKLZEAOLZDBOLZKLZQZRWCWHIZWNWPWOKLZWTQZXAXBWNXCWTOLZSQZXDXBWNWKWLTUAZKLZUBUAZSQZXFXBWKUCHWLUCHWLSNWNXJRXBWJWEXBEWIXBEXBVTWAVSWBWHUDZUEZUFXBJFJUCHZXBUGUHZXBFXBVTWAXKUIZUFUJUKXBAWDXBAXBVMVNVOVRWBWHULZUEZUFZXBJBXNXBBXBVMVNXPUIZUFZUJZUKZUMXBWGWEXBCWFXBCXBVPVQVOVRWBWHUNZUEZUFZXBJDXNXBDXBVPVQYCUIZUFZUJZUKZYBUMXBWGWEYIYBXBWEWGWCWHUOUPUQWLWKURUSXBXIXESXBXIWRJWPKLZMLZWOJWSKLZMLZTUAZKLZUBUAZXEXBXHYOUBXBWKYKXGYNKXBWBVOIWKYKQXBWBVOXKXPUTEFABVAVBXBWLYMTXBVRVOIWLYMQXBVRVOYCXPUTCDABVAVBVCVDVCXBWRGHZWPGHZIZWOGHZWSGHZIZIYPXEQXBYSUUBXBYQYRXBEAXLXQVEZXBFBXOXSVEZUTXBYTUUAXBCAYDXQVEZXBDBYFXSVEZUTUTWRWPWOWSVFVBVGVHVIXBXCWTXBWPWOXBWPUUDUFZXBWOUUEUFZUJXBWRWSXBWRUUCUFXBWSUUFUFUJVJVIXBXCWQWTXBWPWOUUGUUHVKVHVIVL $.
+
+  gbetne $p |- ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) -> ( ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) -> ( ( ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) /\ ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) e. RR /\ ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) < 0 ) <-> ( ( ( A - C ) x. ( F - D ) ) = ( ( E - C ) x. ( B - D ) ) /\ ( ( ( A - C ) x. ( E - C ) ) + ( ( B - D ) x. ( F - D ) ) ) < 0 ) ) ) ) $=
+    ( cr wcel wa ci cmul co caddc wne cmin cdiv cc0 clt wbr w3a wceq wb simpr
+    biantrurd 3anass bitr4di bicomd ccj cfv cim cre cc simplr simpld recnd
+    ax-icn a1i simprd mulcld addcld simpllr subcld simplll subne0d gdivneg
+    syl3anc jca gptsub syl fveq2d oveq12d resubcld gimcj eqtrd eqeq1d
+    subeq0ad bitrd mulcomd gremcj breq1d anbi12d ex )
+    AGHZBGHZIZCGHZDGHZIZIZEGHZFGHZIZIZAJBKLZMLZCJDKLZMLZNZWREJFKLZMLZWQOLZWOWQOLZPLZGHZXCQRSZTZACOLZFDOLZKLZECOLZBDOLZKLZUAZXGXJKLZXKXHKLZMLZQRSZIZUBWMWRIZXFXDXEIZXRXSXTXFXSXTWRXTIXFXSWRXTWMWRUCZUDWRXDXEUEUFUGXSXTXAXBUHUIZKLZUJUIZQUAZYCUKUIZQRSZIZXRXSXAULHXBULHXBQNXTYHUBXSWTWQXSEWSXSEXSWJWKWIWLWRUMZUNZUOXSJFJULHZXSUPUQZXSFXSWJWKYIURZUOUSUTXSCWPXSCXSWFWGWEWHWLWRVAZUNZUOZXSJDYLXSDXSWFWGYNURZUOZUSZUTZVBXSWOWQXSAWNXSAXSWCWDWEWHWLWRVCZUNZUOZXSJBYLXSBXSWCWDUUAURZUOZUSZUTZYTVBXSWOWQUUGYTYAVDXBXAVEVFXSYEXMYGXQXSYEXHXGKLZXLUAZXMXSYEUUHXLOLZQUAUUIXSYDUUJQXSYDXJJXHKLZMLZXGJXKKLZMLZUHUIZKLZUJUIZUUJXSYCUUPUJXSXAUULYBUUOKXSWLWHIZXAUULUAZXSWLWHYIYNVGZEFCDVHZVIZXSXBUUNUHXSWIXBUUNUAZXSWEWHUUAYNVGZABCDVHZVIZVJZVKZVJXSXJGHZXHGHZIZXGGHZXKGHZIZIZUUQUUJUAXSUVKUVNXSUVIUVJXSECYJYOVLZXSFDYMYQVLZVGZXSUVLUVMXSACUUBYOVLZXSBDUUDYQVLZVGZVGZXJXHXGXKVMVIVNVOXSUUHXLXSXHXGXSXHUVQUOZXSXGUVSUOZUSXSXJXKXSXJUVPUOZXSXKUVTUOZUSVPVQXSUUHXIXLXSXHXGUWCUWDVRVOVQXSYGXJXGKLZXHXKKLZMLZQRSXQXSYFUWIQRXSYFUUPUKUIZUWIXSYCUUPUKUVHVJXSUVOUWJUWIUAUWBXJXHXGXKVSVIVNVTXSUWIXPQRXSUWGXNUWHXOMXSXJXGUWEUWDVRXSXHXKUWCUWFVRVKVTVQWAVQVQWB $.
+
+  gptne $p |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( ( A =/= C \/ B =/= D ) -> ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) ) $=
+    ( cr wcel wa ci cmul co caddc wne wo wceq wn cru necon3abid neorian
+    bitr4di biimprd )
+    AEFZBEFZGZCEFZDEFZGZGZAHBIJZKJZCHDIJZKJZLZACLZBDLZMZUGULACNZBDNZGZOUOUGURUIUKABCDPQACBDRST $.
+
+  gcolco $p |- ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) -> ( ( A =/= C \/ B =/= D ) -> ( ( ( ( E + ( _i x. F ) ) - ( A + ( _i x. B ) ) ) / ( ( C + ( _i x. D ) ) - ( A + ( _i x. B ) ) ) ) e. RR <-> ( ( C - A ) x. ( F - B ) ) = ( ( E - A ) x. ( D - B ) ) ) ) ) $=
+    ( cr wcel wa wne wo ci cmul co caddc cmin cdiv wceq wb wi simpl gptne syl
+    gcolne syld )
+    AGHZBGHZIZCGHZDGHZIZIZEGHZFGHZIZIZACJZBDJZKZALBMNZONZCLDMNZONZJZELFMNONVAPNVCVAPNQNGHCAPNFBPNMNEAPNDBPNMNRSUPULUSVDTULUOUAABCDUBUCABCDEFUDUE $.
+
+  gbetco $p |- ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) -> ( ( A =/= C \/ B =/= D ) -> ( ( ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) /\ ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) e. RR /\ ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) < 0 ) <-> ( ( ( A - C ) x. ( F - D ) ) = ( ( E - C ) x. ( B - D ) ) /\ ( ( ( A - C ) x. ( E - C ) ) + ( ( B - D ) x. ( F - D ) ) ) < 0 ) ) ) ) $=
+    ( cr wcel wa wne wo ci cmul co caddc cmin cdiv cc0 clt wbr w3a wceq wb wi
+    simpl gptne syl gbetne syld )
+    AGHZBGHZIZCGHZDGHZIZIZEGHZFGHZIZIZACJZBDJZKZALBMNZONZCLDMNZONZJZVHELFMNZONZVGPNZVEVGPNZQNZGHVMRSTUAACPNZFDPNZMNECPNZBDPNZMNUBVNVPMNVQVOMNONRSTIUCUTUPVCVHUDUPUSUEABCDUFUGABCDEFUHUI $.
+
 $}
 
 ${
