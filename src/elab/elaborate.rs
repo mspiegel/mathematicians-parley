@@ -25,7 +25,7 @@ use indexmap::IndexMap;
 
 use super::field::{self, Verdict};
 use super::linear;
-use super::matcher::ChainLink;
+use super::matcher::{conjuncts_of, ChainLink};
 use super::provenance::requirement;
 use super::reading::{is_subgroup, CLASS_NAMES};
 use super::state::{
@@ -4929,6 +4929,11 @@ impl<'a> Elaborator<'a> {
                 built => return Ok(built),
             }
         }
+        for label in labels {
+            if let Built(p) = self.by_conjunct(label, term, scope, facts, step, seed)? {
+                return Ok(Built(p));
+            }
+        }
         let node = self.to_term(term);
         if node.label() != Some("wa") {
             return Ok(Route::no(why.join("; ")));
@@ -4949,6 +4954,61 @@ impl<'a> Elaborator<'a> {
         Ok(Built(
             pf!(self.b; scope, halves[0], halves[1], proofs[0], proofs[1], "jca"),
         ))
+    }
+
+    /// One of the things a lemma concludes together, as a record of several
+    /// sentences states them: the claim fixes the lemma's variables by the
+    /// conjunct it is, the lemma is applied at that instance of its whole
+    /// conclusion, and the conjunct taken out of it. `∡PQR ≤ π` from a lemma
+    /// concluding ∡PQR ∈ ℝ, −π < ∡PQR and ∡PQR ≤ π.
+    fn by_conjunct(
+        &mut self,
+        label: &str,
+        term: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+        step: &Step,
+        seed: Option<&Binding>,
+    ) -> Checked<Route<Proof>> {
+        let statement = self.statement(label);
+        let variables = names_of(&statement);
+        let mut concluded = statement;
+        while concluded.label() == Some("wi") {
+            concluded = concluded.children()[1].clone();
+        }
+        if !matches!(concluded.label(), Some("wa") | Some("w3a")) {
+            return Ok(Route::no(format!("{label} concludes one thing")));
+        }
+        let goal = self.to_term(term);
+        let start = seed.cloned().unwrap_or_default();
+        for piece in conjuncts_of(&concluded) {
+            let Some(binding) = fit(&piece, &goal, &start, &variables) else {
+                continue;
+            };
+            let instance = concluded.substitute(&binding);
+            let Built(proof) = self.apply_lemma(
+                label,
+                &instance,
+                scope,
+                facts,
+                Some(step),
+                true,
+                seed,
+            )?
+            else {
+                continue;
+            };
+            let whole = self.rpn(&instance);
+            let parts = Facts::new();
+            self.know(&parts, whole.clone(), proof.clone());
+            self.unpack_all(&whole, &proof, scope, &parts);
+            if let Some(p) = self.held(&parts, term, scope)? {
+                return Ok(Built(p));
+            }
+        }
+        Ok(Route::no(format!(
+            "no conjunct of what {label} concludes is the claim"
+        )))
     }
 
     /// What a `with` target says the lemma's variables stand for, read under
