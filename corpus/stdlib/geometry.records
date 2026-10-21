@@ -448,6 +448,50 @@ theorem law-of-sines
               PR is opposite Q and PQ opposite R, so |PR|/sin(∠PQR) =
               |PQ|/sin(∠QRP), written without division.
 
+mundane definition area
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  then        the area of △PQR = (1/2)·(|QR|·|PR|)·|sin(∡QRP)|
+  metamath    eqid, since the notation's target is the right side
+  target      eqid
+  note        Half of two sides times the sine of the angle between them,
+              the sine's size taken so that the area does not depend on which
+              way the triangle runs.
+
+theorem area-by-sine
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P ≠ R                                                        (H4)
+  assume Q ≠ R                                                        (H5)
+  then        the area of △PQR = (1/2)·(|QR|·|PR|)·sin(∠QRP)
+  metamath    garea, from gsinabs
+  target      garea
+
+mundane theorem area-positive
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P, Q, R form a triangle                                      (H4)
+  then        the area of △PQR > 0
+  metamath    gareapos, from gsinpos
+  target      gareapos
+
+theorem heron
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let s ∈ ℝ                                                           (H4)
+  assume P ≠ R                                                        (H5)
+  assume Q ≠ R                                                        (H6)
+  assume s = (|QR| + |PR| + |PQ|)/2                                   (H7)
+  then        the area of △PQR = √(s·(s − |QR|)·((s − |PR|)·(s − |PQ|)))
+  metamath    gheron, from heron
+  target      gheron
+  note        Heron's formula: the area from the three sides alone, s being
+              half the perimeter.
+
 theorem law-of-cosines
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)

@@ -11,6 +11,7 @@ import mundane theorem    stdlib/geometry/angle-equal-by-cosine as geometry-angl
 import mundane theorem    stdlib/geometry/angle-order-by-cosine as geometry-angle-order-by-cosine
 import mundane theorem    stdlib/geometry/right-angle-by-cosine as geometry-right-angle-by-cosine
 import mundane definition stdlib/trigonometry/cos
+import mundane definition stdlib/trigonometry/sin
 import mundane definition stdlib/geometry/midpoint as geometry-midpoint
 import theorem            stdlib/geometry/segment-addition as geometry-segment-addition
 import mundane theorem    stdlib/geometry/distance-real as geometry-distance-real
@@ -22,6 +23,10 @@ import mundane theorem    stdlib/geometry/signed-angle-size as geometry-signed-a
 import mundane theorem    stdlib/geometry/signed-angle-real as geometry-signed-angle-real
 import theorem            stdlib/geometry/signed-angle-reverse as geometry-signed-angle-reverse
 import theorem            stdlib/geometry/signed-angle-sum as geometry-signed-angle-sum
+import mundane definition stdlib/geometry/area as geometry-area
+import theorem            stdlib/geometry/area-by-sine as geometry-area-by-sine
+import mundane theorem    stdlib/geometry/area-positive as geometry-area-positive
+import theorem            stdlib/geometry/heron as geometry-heron
 import mundane definition stdlib/sets/set-builder
 
 theorem point
@@ -302,3 +307,46 @@ theorem signed-angle-sum
 
 1.  ∡RQP + ∡PRQ + ∡QPR ∈ {−π, π}
     thm:geometry-signed-angle-sum, from H4, H5, H6
+
+theorem area
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  then the area of △PQR = (1/2)·(|QR|·|PR|)·|sin(∡QRP)|
+
+1.  the area of △PQR = (1/2)·(|QR|·|PR|)·|sin(∡QRP)|
+    mun:geometry-area
+
+theorem area-by-sine
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P ≠ R                                                        (H4)
+  assume Q ≠ R                                                        (H5)
+  then the area of △PQR = (1/2)·(|QR|·|PR|)·sin(∠QRP)
+
+1.  the area of △PQR = (1/2)·(|QR|·|PR|)·sin(∠QRP)
+    thm:geometry-area-by-sine, from H4, H5
+
+theorem area-positive
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P, Q, R form a triangle                                      (H4)
+  then the area of △PQR > 0
+
+1.  the area of △PQR > 0
+    mun:geometry-area-positive, from H4
+
+theorem heron
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let s ∈ ℝ                                                           (H4)
+  assume P ≠ R                                                        (H5)
+  assume Q ≠ R                                                        (H6)
+  assume s = (|QR| + |PR| + |PQ|)/2                                   (H7)
+  then the area of △PQR = √(s·(s − |QR|)·((s − |PR|)·(s − |PQ|)))
+
+1.  the area of △PQR = √(s·(s − |QR|)·((s − |PR|)·(s − |PQ|)))
+    thm:geometry-heron, from H5, H6, H7

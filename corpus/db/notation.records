@@ -1017,6 +1017,19 @@ notation signed-angle
               (−180°, 180°]. ∡RQP is −∡PQR except at 180°, and |∡PQR| is
               ∠PQR. See mun:stdlib/geometry/signed-angle-size.
 
+notation area
+  pattern     the area of △___
+  sort        point, point, point → number
+  reads       the area of the triangle
+  metamath    half the product of the sides at the third point and the size
+              of the sine of the signed angle between them, as set.mm's heron
+              writes the area
+  target      c1 c2 cdiv co _2 _3 cmin co cabs cfv _1 _3 cmin co cabs cfv cmul co
+              cmul co _2 _3 cmin co _1 _3 cmin co cang co csin cfv cabs cfv cmul co
+  note        The area of △PQR is (1/2)·(|QR|·|PR|)·|sin(∡QRP)|, which is 0
+              where the three are on one line. The words leave room for the
+              area of a set of points. See mun:stdlib/geometry/area.
+
 notation congruent
   pattern     triangle ___ ≅ triangle ___
   sort        point, point, point, point, point, point → formula
