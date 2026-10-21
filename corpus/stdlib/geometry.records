@@ -528,6 +528,20 @@ mundane theorem between-symmetric
               the quotient read the other way is its reciprocal
   target      gbetsym
 
+mundane theorem between-apart
+  let R be a point                                                    (H1)
+  let S be a point                                                    (H2)
+  let T be a point                                                    (H3)
+  assume R is between S and T                                         (H4)
+  then        S ≠ R. T ≠ R.
+  metamath    gbetne0, which this corpus proves in
+              elaboration/stdlib/proved.mm: the first is part of what
+              between says, and T = R would make the quotient 0, which
+              is not negative
+  target      gbetne0
+  note        A point between two others is apart from both, so the
+              angles and triangles at it are defined.
+
 mundane theorem angle-along-segment
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)

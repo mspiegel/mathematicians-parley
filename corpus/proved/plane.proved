@@ -1441,3 +1441,24 @@ lemma gangadd
   161 mpbid 116 160 |- ( ( ( ( ( A e. CC /\ B e. CC ) /\ ( C e. CC /\ M e. CC ) ) /\ ( ( ( -. A = B /\ -. B = C ) /\ -. A = C ) /\ -. ( ( C - A ) / ( B - A ) ) e. RR ) ) /\ ( A =/= M /\ ( ( B - M ) / ( A - M ) ) e. RR /\ ( ( B - M ) / ( A - M ) ) < 0 ) ) -> ( ( abs ` ( ( A - C ) ang ( M - C ) ) ) + ( abs ` ( ( M - C ) ang ( B - C ) ) ) ) = ( abs ` ( ( A - C ) ang ( B - C ) ) ) )
   162 ex 161 |- ( ( ( ( A e. CC /\ B e. CC ) /\ ( C e. CC /\ M e. CC ) ) /\ ( ( ( -. A = B /\ -. B = C ) /\ -. A = C ) /\ -. ( ( C - A ) / ( B - A ) ) e. RR ) ) -> ( ( A =/= M /\ ( ( B - M ) / ( A - M ) ) e. RR /\ ( ( B - M ) / ( A - M ) ) < 0 ) -> ( ( abs ` ( ( A - C ) ang ( M - C ) ) ) + ( abs ` ( ( M - C ) ang ( B - C ) ) ) ) = ( abs ` ( ( A - C ) ang ( B - C ) ) ) ) )
   163 ex 162 |- ( ( ( A e. CC /\ B e. CC ) /\ ( C e. CC /\ M e. CC ) ) -> ( ( ( ( -. A = B /\ -. B = C ) /\ -. A = C ) /\ -. ( ( C - A ) / ( B - A ) ) e. RR ) -> ( ( A =/= M /\ ( ( B - M ) / ( A - M ) ) e. RR /\ ( ( B - M ) / ( A - M ) ) < 0 ) -> ( ( abs ` ( ( A - C ) ang ( M - C ) ) ) + ( abs ` ( ( M - C ) ang ( B - C ) ) ) ) = ( abs ` ( ( A - C ) ang ( B - C ) ) ) ) ) )
+
+# A point between two others is apart from both. S =/= R is part of what
+# between says; T = R would make the quotient 0, which is not negative.
+lemma gbetne0
+  |- ( ( R e. CC /\ S e. CC /\ T e. CC ) -> ( ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) -> ( S =/= R /\ T =/= R ) ) )
+  1 simpr |- ( ( ( R e. CC /\ S e. CC /\ T e. CC ) /\ ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) ) -> ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) )
+  2 simp1d 1 |- ( ( ( R e. CC /\ S e. CC /\ T e. CC ) /\ ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) ) -> S =/= R )
+  3 simp3d 1 |- ( ( ( R e. CC /\ S e. CC /\ T e. CC ) /\ ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) ) -> ( ( T - R ) / ( S - R ) ) < 0 )
+  4 lt0ne0d 3 |- ( ( ( R e. CC /\ S e. CC /\ T e. CC ) /\ ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) ) -> ( ( T - R ) / ( S - R ) ) =/= 0 )
+  5 simpl |- ( ( ( R e. CC /\ S e. CC /\ T e. CC ) /\ ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) ) -> ( R e. CC /\ S e. CC /\ T e. CC ) )
+  6 simp3d 5 |- ( ( ( R e. CC /\ S e. CC /\ T e. CC ) /\ ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) ) -> T e. CC )
+  7 simp1d 5 |- ( ( ( R e. CC /\ S e. CC /\ T e. CC ) /\ ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) ) -> R e. CC )
+  8 simp2d 5 |- ( ( ( R e. CC /\ S e. CC /\ T e. CC ) /\ ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) ) -> S e. CC )
+  9 subcld 6 7 |- ( ( ( R e. CC /\ S e. CC /\ T e. CC ) /\ ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) ) -> ( T - R ) e. CC )
+  10 subcld 8 7 |- ( ( ( R e. CC /\ S e. CC /\ T e. CC ) /\ ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) ) -> ( S - R ) e. CC )
+  11 subne0d 8 7 2 |- ( ( ( R e. CC /\ S e. CC /\ T e. CC ) /\ ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) ) -> ( S - R ) =/= 0 )
+  12 divne0bd 9 10 11 |- ( ( ( R e. CC /\ S e. CC /\ T e. CC ) /\ ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) ) -> ( ( T - R ) =/= 0 <-> ( ( T - R ) / ( S - R ) ) =/= 0 ) )
+  13 mpbird 4 12 |- ( ( ( R e. CC /\ S e. CC /\ T e. CC ) /\ ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) ) -> ( T - R ) =/= 0 )
+  14 subne0ad 6 7 13 |- ( ( ( R e. CC /\ S e. CC /\ T e. CC ) /\ ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) ) -> T =/= R )
+  15 jca 2 14 |- ( ( ( R e. CC /\ S e. CC /\ T e. CC ) /\ ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) ) -> ( S =/= R /\ T =/= R ) )
+  16 ex 15 |- ( ( R e. CC /\ S e. CC /\ T e. CC ) -> ( ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) -> ( S =/= R /\ T =/= R ) ) )
