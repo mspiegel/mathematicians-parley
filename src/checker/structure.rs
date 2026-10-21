@@ -9,7 +9,6 @@ use super::library::Known;
 use super::record::CheckedTheorem;
 use super::{Report, RELATIONS};
 use crate::corpus::proof::visible;
-use crate::corpus::skeleton::{let_name, let_names, letter_in, listed};
 use crate::corpus::{
     cited_items, define_parts, fmt, is_label, item_kind, names_an_item, FileScope,
     Head, Intro, Item, Justification, Method, Range, Record, RecordKind, Requires,
@@ -17,19 +16,19 @@ use crate::corpus::{
 };
 use crate::formula::library::Function;
 use crate::formula::notation_id::NotationId;
-use crate::formula::page::Written;
+use crate::formula::page::{numeral, Written};
 use crate::formula::token::{Token, TokenKind};
 use crate::formula::{holds, Node, Sorts};
 use crate::notations::{
-    FOR_ALL, FUNCTION_TYPE, IS_A_POINT, IS_A_POLYNOMIAL, IS_A_SET, MEMBERSHIP, SUBSET,
+    FOR_ALL, FUNCTION_TYPE, IS_A_POINT, IS_A_POLYNOMIAL, IS_A_SET, MEMBERSHIP,
+    NUMBER_SYSTEMS, SUBGROUP, SUBSET,
 };
 use crate::outcome::{Built, Declined};
 use crate::regex;
 use crate::rules;
 use crate::sorts::introduction::{Form, Introduction};
 use crate::sorts::{
-    bound_written, define_formulas, named_by_hypotheses, names_written, theorem_tokens,
-    written_tokens,
+    bound_written, define_formulas, names_written, theorem_tokens, written_tokens,
 };
 use crate::text::{prefix, repr};
 
@@ -530,7 +529,7 @@ fn check_step_part(report: &mut Report, thm: &Theorem, step: &Step, known: &Know
     check_induction_runs(report, thm, step, set, known);
     // The letter an induction runs over is its own: one the page has
     // introduced where the induction stands would be two things at once.
-    if letters_introduced(thm, &CheckedTheorem::of(thm), step)
+    if letters_introduced(thm, &CheckedTheorem::of(thm), step, known)
         .contains(letter.text.as_str())
     {
         report.say(
@@ -649,8 +648,17 @@ fn check_induction_runs(
         );
         return;
     };
+    // The start is a formula (`check_formulas` reads it), and is the
+    // numeral the set begins at where it reads as that numeral.
     let written = step.just.start.as_deref().map(str::trim);
-    if written != Some(begins.as_str()) {
+    let read = written.map(|w| {
+        Written::new(w, &thm.path, step.just.line)
+            .formula()
+            .and_then(|s| known.parse(&s))
+    });
+    let starts = matches!(&read, Some(Ok(n)) if known.alike(n, &numeral(&begins)));
+    let unread = matches!(&read, Some(Err(_)));
+    if !starts && !unread {
         let said = match written {
             Some(w) => format!("the text says {w}"),
             None => "the text says no start".to_string(),
@@ -690,11 +698,8 @@ pub fn check_chain(report: &mut Report, thm: &Theorem, step: &Step) {
         );
     }
     // A chain the skeleton cannot cut is refused as the build refuses it.
-    let uncut = match crate::corpus::proof::chain(&step.just, &thm.path) {
-        Some(Err(problem)) => Some(problem),
-        _ => None,
-    };
-    if let Some(problem) = &uncut {
+    let cut = crate::corpus::proof::chain(&step.just, &thm.path);
+    if let Some(Err(problem)) = &cut {
         report.say(&problem.path, problem.line, problem.message.clone());
     }
     for (text, no) in &step.just.chain {
@@ -705,11 +710,14 @@ pub fn check_chain(report: &mut Report, thm: &Theorem, step: &Step) {
                 "a chain line carries a justification; a calculation only joins, so each line cites a numbered step or a label and the reasoning lives in that step",
             );
         }
-        let related = RELATIONS.iter().any(|r| {
-            text.trim_start().starts_with(r) || text.contains(&format!(" {r} "))
-        });
-        if !related && uncut.is_none() {
-            report.say(&thm.path, *no, "chain line carries no relation");
+    }
+    // Each line joins by the relation the cut finds where a relation
+    // stands: first in the line, after the first line's start.
+    if let Some(Ok(chain)) = &cut {
+        for line in &chain.lines {
+            if !RELATIONS.contains(&line.relation.as_str()) {
+                report.say(&thm.path, line.line, "chain line carries no relation");
+            }
         }
     }
 }
@@ -1223,7 +1231,7 @@ pub fn check_ranges(
     report: &mut Report,
     path: &str,
     ranges: &[Range],
-    lets: &[(&str, usize)],
+    lets: &[Written],
     tokens: &[Vec<Token>],
     env: crate::sorts::Env,
     sorts: &Sorts,
@@ -1231,7 +1239,7 @@ pub fn check_ranges(
     let mut said: IndexMap<&str, &Range> = IndexMap::new();
     for range in ranges {
         let set = Written::new(&range.set, path, range.line);
-        match set.sentence().and_then(|s| s.read(env.g, sorts)) {
+        match set.formula().and_then(|s| s.read(env.g, sorts)) {
             Err(p) => report.say(path, range.line, p.message),
             Ok(set) if holds(&set.sort).is_none() && !set.sort.is("set") => report.say(
                 path,
@@ -1280,21 +1288,34 @@ pub fn check_ranges(
             }
         }
     }
-    for (line, no) in lets {
-        let body = crate::sorts::unlabel(line);
-        let Some(put) = letter_in(&body) else {
+    for body in lets {
+        let introduced = Introduction::read(body.clone());
+        let (Form::Member, Some(letter)) = (&introduced.form, introduced.name()) else {
             continue;
         };
-        let Some(range) = said.get(put.letter) else {
+        let Some(range) = said.get(letter) else {
             continue;
         };
-        if put.set.split_whitespace().ne(range.set.split_whitespace()) {
+        // A part that does not read is `check_formulas`'s to report.
+        let range_set = Written::new(&range.set, path, range.line);
+        let (Ok(put), Ok(over)) = (
+            introduced.asserted(env.g, sorts),
+            range_set.formula().and_then(|s| s.read(env.g, sorts)),
+        ) else {
+            continue;
+        };
+        let [membership] = put.as_slice() else {
+            continue;
+        };
+        let set = &membership.children[1];
+        if !set.same_shape(&over) {
             report.say(
                 path,
-                *no,
+                body.line(),
                 format!(
-                    "the statement says {} ranges over {}, and this line puts it in {}",
-                    put.letter, range.set, put.set
+                    "the statement says {letter} ranges over {}, and this line puts it in {}",
+                    range.set,
+                    env.g.print(set)
                 ),
             );
         }
@@ -1662,6 +1683,24 @@ pub fn check_function_names(
     }
 }
 
+/// Every define a file writes outside its theorems reads: its rule and its
+/// arguments' domains, with the sorts the definitions above it give. One
+/// that does not read is said here, at its line, whether or not a theorem
+/// uses it, and the passes that gather definitions leave it out.
+pub fn check_file_defines(report: &mut Report, env: crate::sorts::Env) {
+    for (src, scope) in env.scopes.iter().enumerate() {
+        for d in &scope.defines {
+            if let Err(p) = crate::sorts::file_define(d, src, env) {
+                report.say(
+                    &scope.path,
+                    d.line,
+                    format!("define {}: {}", d.label, p.message),
+                );
+            }
+        }
+    }
+}
+
 pub fn check_definitions(
     report: &mut Report,
     theorems: &[Theorem],
@@ -1985,23 +2024,15 @@ pub fn check_imports(
     }
 }
 
-/// The names in a list a binder writes, `x` or `x, y`.
-fn names_listed(list: &str) -> Vec<String> {
-    list.split(',').map(|n| str::trim(n).to_string()).collect()
-}
-
 /// The names a theorem introduces itself: its `let` lines, a block's, and
 /// what its `obtain` steps obtain. Not every name it gives a sort: `c = 5`
 /// gives c one, and introduces nothing.
-pub fn introduced(thm: &Theorem) -> BTreeSet<String> {
-    let mut out: BTreeSet<String> = named_by_hypotheses(thm);
-    for h in &thm.hypotheses {
-        out.extend(let_name(&h.text).map(String::from));
-    }
+pub fn introduced(thm: &Theorem, known: &Known) -> BTreeSet<String> {
+    let mut out = hypotheses_introduce(thm, known);
     for s in &thm.steps {
         for o in &s.openers {
             if o.kind == Intro::Let {
-                out.extend(let_name(&o.text).map(String::from));
+                out.extend(Introduction::read(o.body(&thm.path)).names());
             }
         }
         if s.just.head.is(Method::Obtain) {
@@ -2019,16 +2050,15 @@ pub fn letters_in_scope(
     thm: &Theorem,
     shape: &CheckedTheorem,
     step: &Step,
-    scopes: &[FileScope],
-    sorts: &Sorts,
+    known: &Known,
 ) -> BTreeSet<String> {
-    let mut out = letters_introduced(thm, shape, step);
+    let mut out = letters_introduced(thm, shape, step, known);
     out.extend(
-        visible(scopes, thm.scope, thm.line)
+        visible(known.env.scopes, thm.scope, thm.line)
             .into_iter()
             .map(|(n, _, _)| n),
     );
-    out.extend(sorts.imported.iter().cloned());
+    out.extend(known.sorts.imported.iter().cloned());
     for (i, d) in thm.defines.iter().enumerate() {
         if shape.define_in_scope(thm, i, step) {
             if let Built(said) = define_parts(&d.text) {
@@ -2039,22 +2069,47 @@ pub fn letters_in_scope(
     out
 }
 
-/// The letters a theorem's hypotheses introduce: each `let`'s names, and of
-/// a `let … be` line the things in the sets it lists, as a graph's vertices
-/// and edges are named.
-pub fn hypotheses_introduce(thm: &Theorem) -> BTreeSet<String> {
-    let mut out: BTreeSet<String> = named_by_hypotheses(thm);
+/// The letters a theorem's hypotheses introduce: each `let`'s names
+/// (`Introduction::names`), of a graph given in full the vertices and
+/// edges it lists among them, and the name an `assume` line says is in a
+/// number system or a group's set, `n ∈ ℕ`, or is a subgroup, `H is a
+/// subgroup of G`. A set listed anywhere else names things introduced
+/// elsewhere: `let x ∈ {a, b}` introduces x alone.
+pub fn hypotheses_introduce(thm: &Theorem, known: &Known) -> BTreeSet<String> {
+    let mut out = BTreeSet::new();
     for h in &thm.hypotheses {
-        if let Some(names) = let_names(&h.text) {
-            out.extend(names_listed(names));
-        }
+        let body = h.body(&thm.path);
         if h.kind == Intro::Let {
-            for list in listed(&h.text) {
-                out.extend(names_listed(list));
+            out.extend(Introduction::read(body).names());
+            continue;
+        }
+        for sentence in body.sentences() {
+            // One that does not read is `check_formulas`'s to report.
+            if let Ok(said) = known.parse(&sentence) {
+                out.extend(assumed_name(&said, &known.sorts));
             }
         }
     }
     out
+}
+
+/// The name an assumption introduces in so many words: one it says is in
+/// a number system or a group's set, or is a subgroup; None for any other
+/// assumption.
+fn assumed_name(said: &Node, sorts: &Sorts) -> Option<String> {
+    let [name, of] = said.children.as_slice() else {
+        return None;
+    };
+    let group_set = sorts
+        .get(of.text.as_str())
+        .is_some_and(|s| s.is("group-set"));
+    let in_a_group = of.is_name() && group_set;
+    let introduces = match said.notation() {
+        SUBGROUP => true,
+        MEMBERSHIP => of.notation() == NUMBER_SYSTEMS || in_a_group,
+        _ => false,
+    };
+    (introduces && name.is_name()).then(|| name.text.to_string())
 }
 
 /// The letters the page introduces that are in scope at `step`: the
@@ -2065,8 +2120,9 @@ pub fn letters_introduced(
     thm: &Theorem,
     shape: &CheckedTheorem,
     step: &Step,
+    known: &Known,
 ) -> BTreeSet<String> {
-    let mut out = hypotheses_introduce(thm);
+    let mut out = hypotheses_introduce(thm, known);
     for other in &thm.steps {
         let k = other.number.len();
         let encloses =
@@ -2077,9 +2133,7 @@ pub fn letters_introduced(
                 let own_part =
                     o.part.is_none() || child.is_some_and(|c| c.part == o.part);
                 if o.kind == Intro::Let && own_part {
-                    if let Some(names) = let_names(&o.text) {
-                        out.extend(names_listed(names));
-                    }
+                    out.extend(Introduction::read(o.body(&thm.path)).names());
                 }
             }
         }
@@ -2131,14 +2185,10 @@ pub fn defined_below(
 /// several ways because nothing says U is a function. So a name the file
 /// defines outside its theorems only further down, used in a theorem that
 /// does not introduce it itself, is said once, at the theorem.
-pub fn check_defined_below(
-    report: &mut Report,
-    thm: &Theorem,
-    scopes: &[FileScope],
-    g: &crate::formula::Grammar,
-) {
-    let tokens = theorem_tokens(thm, g);
-    for (name, at) in defined_below(thm, &tokens, &introduced(thm), scopes) {
+pub fn check_defined_below(report: &mut Report, thm: &Theorem, known: &Known) {
+    let tokens = theorem_tokens(thm, known.env.g);
+    let introduced = introduced(thm, known);
+    for (name, at) in defined_below(thm, &tokens, &introduced, known.env.scopes) {
         report.say(
             &thm.path,
             thm.line,

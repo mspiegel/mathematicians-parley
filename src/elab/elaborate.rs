@@ -25,7 +25,7 @@ use indexmap::IndexMap;
 
 use super::field::{self, Verdict};
 use super::linear;
-use super::matcher::ChainLink;
+use super::matcher::{conjuncts_of, ChainLink};
 use super::provenance::requirement;
 use super::reading::{is_subgroup, CLASS_NAMES};
 use super::state::{
@@ -35,17 +35,19 @@ use super::state::{
 use super::tables::Leaf;
 use super::{Facts, Line, Lines};
 use crate::binds;
-use crate::checker::record::{CheckedTheorem, Cited, FirstAt};
+use crate::checker::record::{CheckedTheorem, Cited, FirstAt, LibraryReading};
 use crate::citing::{self, filled};
-use crate::corpus::proof::{chain, requires_as_step, ChainLine, Head, Requires};
+use crate::corpus::proof::{
+    chain, requires_as_step, ChainLine, Head, Justification, Requires,
+};
 use crate::corpus::Method;
 use crate::corpus::{
     define_parts, fmt, Corpus, DefineParts, Hypothesis, Intro, Item, Record, Step,
-    Theorem, Value, Values,
+    Theorem, Value,
 };
 use crate::formula::page::{related, Written};
 use crate::formula::symbol::Symbol;
-use crate::formula::{Grammar, Node, Sorts};
+use crate::formula::{Grammar, Node};
 use crate::matching::{Binding as NodeBinding, Defined};
 use crate::methods::{reals, surds};
 use crate::mm::compress::{compressed, labels as compress_labels, shapes_of};
@@ -58,7 +60,6 @@ use crate::notations::{CONJUNCTION, FUNCTION_TYPE, IS_A_POINT, IS_A_SET, MEMBERS
 use crate::outcome::{Built, Checked, Declined, Problem, Route};
 use crate::rules::{self, lookup};
 use crate::sorts::introduction::{Form, Introduction};
-use crate::sorts::statement_definitions;
 use crate::targets;
 use crate::text::repr;
 use crate::{pf, t, take};
@@ -448,8 +449,7 @@ impl<'a> Elaborator<'a> {
         // The statement is read with the definitions the theorem sees from
         // outside it, and those of its header, written out, which is what
         // set.mm states.
-        self.from_outside =
-            statement_definitions(self.thm, self.env(), &self.sorts_now);
+        self.from_outside = self.checked.statement_definitions.clone();
         let nodes = self.hypotheses()?;
         // A sort is stated once, like a declared type, and a step may rest on
         // it without naming it. A define is not one: a step that uses what it
@@ -507,7 +507,7 @@ impl<'a> Elaborator<'a> {
             if first.is_some_and(|f| d.line >= f) {
                 continue;
             }
-            for (name, made) in self.recursion_terms(&d.label, &given)? {
+            for (name, made) in self.recursion_terms(&d.label, d.line, &given)? {
                 self.from_outside
                     .insert(name, Defined::Term(Node::literal(&made)));
             }
@@ -1195,16 +1195,11 @@ impl<'a> Elaborator<'a> {
                     let within = me.rpn(&me.to_term(&member).children()[1]);
                     let kept = me.member.replace(member);
                     // The member is introduced in its set as its block's let
-                    // would introduce it (`introduced_in`), and its letter is
-                    // a name the page introduces, so an i is not read as the
-                    // imaginary unit.
+                    // would introduce it (`introduced_in`).
                     let made = me.names_and_sets_kept(|me| {
                         if let Some((page, _)) = &letter {
                             me.names.insert(page.clone(), fixed.clone());
                             me.sets.insert(page.clone(), within.clone());
-                            if !me.sorts_now.introduces(page) {
-                                me.sorts_now.unsettled.insert(page.clone());
-                            }
                         }
                         me.with_requires(how, step, node, &at, inner, lifted, lines)
                     });
@@ -1592,10 +1587,10 @@ impl<'a> Elaborator<'a> {
     /// given (`instantiated_nodes`).
     pub(crate) fn instantiated(
         &mut self,
-        values: &Values,
+        just: &Justification,
     ) -> Checked<Vec<(String, Rpn)>> {
         let mut out = Vec::new();
-        for v in self.instantiated_nodes(values)? {
+        for v in self.instantiated_nodes(just)? {
             out.push((v.name, self.term(&v.value)?));
         }
         Ok(out)
@@ -1603,9 +1598,18 @@ impl<'a> Elaborator<'a> {
 
     /// The values a citation gives, as trees in the page's notation, read
     /// together where the elaborator has got to: values are simultaneous,
-    /// so `a := b/k, b := a/k` swaps the two (`Values`).
-    pub(crate) fn instantiated_nodes(&self, values: &Values) -> Checked<Vec<Value>> {
-        values.read(self.g, &self.sorts_now)
+    /// so `a := b/k, b := a/k` swaps the two (`Values`). Each is read as
+    /// its letter's place in the cited item wants it (`Values::read_wanted`).
+    pub(crate) fn instantiated_nodes(
+        &self,
+        just: &Justification,
+    ) -> Checked<Vec<Value>> {
+        let library = self.item_library();
+        let letters = just
+            .cited_item()
+            .and_then(|item| library.item_sorts(&just.item(&item)));
+        let reader = |value: &Written| self.read_one(value);
+        just.values.read_wanted_by(&reader, self.g, letters)
     }
 
     /// How many conditions the universal `said`, at the values written for
@@ -1681,7 +1685,7 @@ impl<'a> Elaborator<'a> {
             .filter(|p| matches!(self.to_term(p).label(), Some("wral") | Some("wal")))
             .collect();
         // The universal is the one binding the name the step instantiates.
-        let pairs = self.instantiated_nodes(&step.just.values)?;
+        let pairs = self.instantiated_nodes(&step.just)?;
         let bound: BTreeSet<Option<String>> = pairs
             .iter()
             .map(|v| {
@@ -4542,7 +4546,7 @@ impl<'a> Elaborator<'a> {
         // The values are read in the proof's names, before any letter of
         // the definition is given one: `n := d, d := a` gives n the proof's
         // d, not the definition's.
-        let values = self.instantiated(&step.just.values)?;
+        let values = self.instantiated(&step.just)?;
         let subject = self.subject_given(&head, &values, step.line)?;
         let Item::Record(cited) = self.item_cited(&head)? else {
             panic!("{head} is a definition of the database");
@@ -4919,6 +4923,11 @@ impl<'a> Elaborator<'a> {
                 built => return Ok(built),
             }
         }
+        for label in labels {
+            if let Built(p) = self.by_conjunct(label, term, scope, facts, step, seed)? {
+                return Ok(Built(p));
+            }
+        }
         let node = self.to_term(term);
         if node.label() != Some("wa") {
             return Ok(Route::no(why.join("; ")));
@@ -4941,6 +4950,61 @@ impl<'a> Elaborator<'a> {
         ))
     }
 
+    /// One of the things a lemma concludes together, as a record of several
+    /// sentences states them: the claim fixes the lemma's variables by the
+    /// conjunct it is, the lemma is applied at that instance of its whole
+    /// conclusion, and the conjunct taken out of it. `∡PQR ≤ π` from a lemma
+    /// concluding ∡PQR ∈ ℝ, −π < ∡PQR and ∡PQR ≤ π.
+    fn by_conjunct(
+        &mut self,
+        label: &str,
+        term: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+        step: &Step,
+        seed: Option<&Binding>,
+    ) -> Checked<Route<Proof>> {
+        let statement = self.statement(label);
+        let variables = names_of(&statement);
+        let mut concluded = statement;
+        while concluded.label() == Some("wi") {
+            concluded = concluded.children()[1].clone();
+        }
+        if !matches!(concluded.label(), Some("wa") | Some("w3a")) {
+            return Ok(Route::no(format!("{label} concludes one thing")));
+        }
+        let goal = self.to_term(term);
+        let start = seed.cloned().unwrap_or_default();
+        for piece in conjuncts_of(&concluded) {
+            let Some(binding) = fit(&piece, &goal, &start, &variables) else {
+                continue;
+            };
+            let instance = concluded.substitute(&binding);
+            let Built(proof) = self.apply_lemma(
+                label,
+                &instance,
+                scope,
+                facts,
+                Some(step),
+                true,
+                seed,
+            )?
+            else {
+                continue;
+            };
+            let whole = self.rpn(&instance);
+            let parts = Facts::new();
+            self.know(&parts, whole.clone(), proof.clone());
+            self.unpack_all(&whole, &proof, scope, &parts);
+            if let Some(p) = self.held(&parts, term, scope)? {
+                return Ok(Built(p));
+            }
+        }
+        Ok(Route::no(format!(
+            "no conjunct of what {label} concludes is the claim"
+        )))
+    }
+
     /// What a `with` target says the lemma's variables stand for, read under
     /// the citation's instantiation.
     fn filling(&mut self, step: &Step, item: &'a Record) -> Checked<Binding> {
@@ -4953,7 +5017,7 @@ impl<'a> Elaborator<'a> {
         // that value as the step writes it, and any other is what the
         // citation makes it (`matched_here`), never what the proof calls by
         // the same letter.
-        let given = self.instantiated_nodes(&step.just.values)?;
+        let given = self.instantiated_nodes(&step.just)?;
         let mut bound: NodeBinding = self
             .matched_here(step, item)?
             .into_iter()
@@ -5052,7 +5116,7 @@ impl<'a> Elaborator<'a> {
         // name the match gives itself, as a library function's C in C(m, k)
         // is, stands as it already does.
         let written: BTreeSet<String> = self
-            .instantiated_nodes(&step.just.values)?
+            .instantiated_nodes(&step.just)?
             .into_iter()
             .map(|v| v.name)
             .collect();
@@ -5114,7 +5178,7 @@ impl<'a> Elaborator<'a> {
                 // swaps the two, and reading the second after the first is
                 // given would read a/k as (b/k)/k.
                 let values: IndexMap<String, Rpn> =
-                    me.instantiated(&step.just.values)?.into_iter().collect();
+                    me.instantiated(&step.just)?.into_iter().collect();
                 // What the citation does not write is found by matching the
                 // theorem against what the step claims and cites, as the
                 // checker finds it (`citing::taken`, SYNTAX.md "No pair says
@@ -5886,8 +5950,8 @@ fn rested_first(cited: &[String], corpus: &Corpus) -> Vec<String> {
 /// Elaborate one theorem of the corpus into its file.
 ///
 /// `statements` gives the statement a cited theorem's file proves, where it
-/// is known, and `record_sorts` the sorts of every item record
-/// (`sorts::sorts_of_records`).
+/// is known, and `library_read` every item a citation may name, as the
+/// checker read it.
 #[allow(clippy::too_many_arguments)]
 pub fn elaborate(
     corpus: &Corpus,
@@ -5896,7 +5960,7 @@ pub fn elaborate(
     thm: &Theorem,
     checked: &CheckedTheorem,
     library: &Library,
-    record_sorts: &IndexMap<usize, Sorts>,
+    library_read: &LibraryReading,
     statements: &dyn Fn(&str) -> Option<String>,
     options: Options,
 ) -> Checked<Elaborated> {
@@ -5915,7 +5979,7 @@ pub fn elaborate(
         items,
         sigs,
         &corpus.records,
-        record_sorts,
+        library_read,
         &corpus.scopes,
         statements,
     );

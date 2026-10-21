@@ -25,17 +25,35 @@ pub struct Written {
     /// Shared by the sentences cut from it, which each say where they are.
     path: Arc<str>,
     line: usize,
-    /// Where the formula is a membership the page says in words, `let A =
-    /// …, a real number`, its two parts, from which its tree is made.
-    member: Option<Box<Member>>,
+    /// Where the formula is one the page says in parts, the parts, from
+    /// which its tree is made (`Made`).
+    made: Option<Box<Made>>,
 }
 
-/// A membership a line says without writing it, made from two parts the
-/// page does write: the term, and the set a kind of number names.
+/// A formula a line says in parts it writes, whose tree is made from the
+/// parts' trees and never from text.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-struct Member {
-    term: Written,
-    set: Written,
+enum Made {
+    /// A membership said in words, `let A = …, a real number`: the term,
+    /// and the set a kind of number names.
+    Member { term: Written, set: Written },
+    /// A define by cases: each value and the condition it is taken under,
+    /// and the value `otherwise`, nested from the right into `_ if _, _
+    /// otherwise` (`SYNTAX.md`).
+    Cases {
+        cases: Vec<Case>,
+        otherwise: Written,
+    },
+    /// The domain of `for X ⊆ A`, the parts of A: 𝒫A.
+    Parts { of: Written },
+}
+
+/// One line of a define by cases: its value, and the condition it is
+/// taken under.
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct Case {
+    pub value: Written,
+    pub condition: Written,
 }
 
 /// One sentence of a `Written`, without its full stop, and where it was
@@ -45,7 +63,7 @@ pub struct Sentence {
     text: String,
     path: Arc<str>,
     line: usize,
-    member: Option<Box<Member>>,
+    made: Option<Box<Made>>,
 }
 
 impl Written {
@@ -54,7 +72,7 @@ impl Written {
             text: text.into(),
             path: Arc::from(path),
             line,
-            member: None,
+            made: None,
         }
     }
 
@@ -66,7 +84,41 @@ impl Written {
             text: format!("{term} ∈ {set}"),
             path: Arc::from(path),
             line,
-            member: Some(Box::new(Member { term, set })),
+            made: Some(Box::new(Made::Member { term, set })),
+        }
+    }
+
+    /// A define by cases, its lines as `text` writes them: each case's value
+    /// and condition, and the value `otherwise`. It reads as `_ if _, _
+    /// otherwise` nested from the right, made from the parts' trees.
+    pub fn cases(
+        text: impl Into<String>,
+        cases: Vec<Case>,
+        otherwise: Written,
+        path: &str,
+        line: usize,
+    ) -> Written {
+        Written {
+            text: text.into(),
+            path: Arc::from(path),
+            line,
+            made: Some(Box::new(Made::Cases { cases, otherwise })),
+        }
+    }
+
+    /// The domain `for X ⊆ A` gives X, as `text` writes it: the parts of
+    /// A, read as the tree of 𝒫A made from the tree of A.
+    pub fn parts(
+        text: impl Into<String>,
+        of: Written,
+        path: &str,
+        line: usize,
+    ) -> Written {
+        Written {
+            text: text.into(),
+            path: Arc::from(path),
+            line,
+            made: Some(Box::new(Made::Parts { of })),
         }
     }
 
@@ -90,18 +142,21 @@ impl Written {
         self.line
     }
 
-    /// The sentences, in the order written.
+    /// The sentences of a part that is a claim, in the order written:
+    /// a step's claim, an `assume` or `suppose` line, a statement. Several
+    /// mean their conjunction (`conjoined`). Every other part is one formula
+    /// and is read with `formula`.
     ///
     /// A sentence ends at a full stop followed by any space, a line break
     /// included, so a claim written across two lines splits where it would
     /// written on one. The full stop is dropped, the last one included.
     pub fn sentences(&self) -> Vec<Sentence> {
-        if self.member.is_some() {
+        if self.made.is_some() {
             return vec![Sentence {
                 text: self.text.to_string(),
                 path: self.path.clone(),
                 line: self.line,
-                member: self.member.clone(),
+                made: self.made.clone(),
             }];
         }
         split(&self.text)
@@ -110,14 +165,15 @@ impl Written {
                 text,
                 path: self.path.clone(),
                 line: self.line,
-                member: None,
+                made: None,
             })
             .collect()
     }
 
-    /// The one sentence of a part that is one formula: a term, a set, a
-    /// value; a defect where it is not one.
-    pub fn sentence(&self) -> Checked<Sentence> {
+    /// The one sentence of a part that is one formula: a `let` line's
+    /// introduction, a requires line's fact, a substitute's equation, a
+    /// value, a term, a set; a defect where it is not one.
+    pub fn formula(&self) -> Checked<Sentence> {
         let mut all = self.sentences();
         if all.len() != 1 {
             return Err(Problem::new(
@@ -147,10 +203,10 @@ impl Sentence {
     }
 
     /// The text that alone decides what the sentence reads as, with given
-    /// sorts: its own, where it is no membership made from parts (`Member`);
-    /// None for one that is.
+    /// sorts: its own, where it is not made from parts (`Made`); None for
+    /// one that is.
     pub fn deciding_text(&self) -> Option<&str> {
-        self.member.is_none().then_some(self.text.as_str())
+        self.made.is_none().then_some(self.text.as_str())
     }
 
     pub fn path(&self) -> &str {
@@ -176,19 +232,59 @@ impl Sentence {
     /// reading waits on the sort of a letter nothing has given one yet,
     /// `s(t)` before anything says whether s is a function or a number.
     pub fn read_so_far(&self, g: &Grammar, sorts: &Sorts) -> Checked<Route<Node>> {
-        match &self.member {
-            Some(m) => {
-                let term = match m.term.sentence()?.read_so_far(g, sorts)? {
-                    Built(term) => term,
-                    waits => return Ok(waits),
-                };
-                let set = match m.set.sentence()?.read_so_far(g, sorts)? {
-                    Built(set) => set,
-                    waits => return Ok(waits),
-                };
-                filled("x ∈ S", g, sorts, &[("x", &term), ("S", &set)]).map(Built)
+        let Some(made) = self.made.as_deref() else {
+            return parse(&self.text, g, sorts, &self.path, self.line);
+        };
+        let mut read = Vec::new();
+        for part in parts_of(made) {
+            match part.formula()?.read_so_far(g, sorts)? {
+                Built(node) => read.push(node),
+                waits => return Ok(waits),
             }
-            None => parse(&self.text, g, sorts, &self.path, self.line),
+        }
+        made_of(made, read, g, sorts).map(Built)
+    }
+}
+
+/// The parts a formula said in parts is read from, each one formula the
+/// page writes, in the order `made_of` takes their trees.
+fn parts_of(made: &Made) -> Vec<&Written> {
+    match made {
+        Made::Member { term, set } => vec![term, set],
+        Made::Cases { cases, otherwise } => cases
+            .iter()
+            .flat_map(|c| [&c.value, &c.condition])
+            .chain([otherwise])
+            .collect(),
+        Made::Parts { of } => vec![of],
+    }
+}
+
+/// The tree of a formula said in parts, from the parts' trees in the order
+/// `parts_of` gives them.
+fn made_of(
+    made: &Made,
+    mut read: Vec<Node>,
+    g: &Grammar,
+    sorts: &Sorts,
+) -> Checked<Node> {
+    match made {
+        Made::Member { .. } => {
+            let [term, set] = <[Node; 2]>::try_from(read).expect("a term and a set");
+            filled("x ∈ S", g, sorts, &[("x", &term), ("S", &set)])
+        }
+        Made::Parts { .. } => filled("𝒫A", g, sorts, &[("A", &read[0])]),
+        Made::Cases { .. } => {
+            let mut term = read.pop().expect("the value otherwise");
+            while let (Some(condition), Some(value)) = (read.pop(), read.pop()) {
+                term = filled(
+                    "a if c, b otherwise",
+                    g,
+                    sorts,
+                    &[("a", &value), ("c", &condition), ("b", &term)],
+                )?;
+            }
+            Ok(term)
         }
     }
 }
@@ -229,6 +325,13 @@ pub fn made(g: &Grammar, spelling: Spelling, children: Vec<Node>) -> Node {
 /// the same tree as the long form. Lexing is the parser's first stage, so
 /// this is the same reading, stopped before the tree.
 pub fn tokens(written: &Written, g: &Grammar) -> Checked<Vec<Token>> {
+    if let Some(made) = written.made.as_deref() {
+        return parts_of(made)
+            .into_iter()
+            .map(|part| tokens(part, g))
+            .collect::<Checked<Vec<_>>>()
+            .map(|all| all.into_iter().flatten().collect());
+    }
     written
         .sentences()
         .iter()
@@ -237,13 +340,23 @@ pub fn tokens(written: &Written, g: &Grammar) -> Checked<Vec<Token>> {
         .map(|all| all.iter().flat_map(|t| t.iter().cloned()).collect())
 }
 
+/// What the page reads `node` as, printed: a tree a tool built, read back
+/// as the page would read its printed form with `sorts`. It answers a
+/// question about the printer and the notations, whether a tree is one the
+/// page writes as itself (`|x − c|` is, of two numbers, and `|xc|` is a
+/// distance between points); the printed text is no page's, and is read
+/// nowhere else.
+pub fn read_back(g: &Grammar, node: &Node, sorts: &Sorts) -> Checked<Node> {
+    Written::new(g.print(node), "", 0).formula()?.read(g, sorts)
+}
+
 /// A formula the code writes with letters to fill, `x ≠ 0`, read as the
 /// page's are, by the one parser; the letters are then filled with trees
 /// (`matching::substitute_apart`). The text is the code's own, fixed when it is
 /// compiled, so no formula is put together as text and read: what fills it
 /// is a tree.
 pub fn template(text: &'static str, g: &Grammar, sorts: &Sorts) -> Checked<Node> {
-    Written::new(text, "", 0).sentence()?.read(g, sorts)
+    Written::new(text, "", 0).formula()?.read(g, sorts)
 }
 
 /// A template filled: each letter it writes read with the sort of the tree

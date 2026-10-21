@@ -813,6 +813,18 @@ notation application-to-two
               line says what an application of it stands for instead
               (`corpus/stdlib`, `definition gcd`).
 
+notation application-to-pair
+  pattern     _(_, _)
+  sort        function from pair of α and β to γ, α, β → γ
+  reads       applied to the pair of, and
+  metamath    co
+  target      _2 _3 _1 co
+  note        A function on pairs applied to one, written as a textbook
+              writes it: f(x, y) for f : X × Y → Z. set.mm's ( x F y ) is F
+              applied to the pair <. x , y >., which is the target; the sort
+              of the function in the first hole tells it from a function of
+              two arguments taken one at a time (`application-to-two`).
+
 notation inverse
   pattern     _⁻¹
   sort        function from α to β → function from β to α
@@ -904,15 +916,50 @@ notation closed-interval
   metamath    cicc
   target      _1 _2 cicc co
 
+notation pair
+  pattern     (_, _)
+  sort        α, β → pair of α and β
+  reads       the pair of, and
+  metamath    cop
+  target      _1 _2 cop
+  note        Told apart from a bracketed term by its comma, and from a
+              function applied to two arguments, f(a, b), by having no name
+              before it. Where a set is wanted the same brackets name the
+              open interval between the two ends (`open-interval`).
+
 notation open-interval
   pattern     (_, _)
   sort        number, number → set of number
+  wanted      set
   reads       the open interval from, to
   metamath    cioo
   target      _1 _2 cioo co
-  note        Told apart from a bracketed term by its comma, and from a
-              function applied to two arguments, f(a, b), by having no name
-              before it.
+  note        The pair of its ends, read where a set is wanted: x ∈ (a, b),
+              for all x ∈ (0, π), f : (0, 1) → ℝ. It asks nothing of its
+              ends, and (3, 1) is the empty set, as set.mm has it.
+
+notation point-coordinates
+  pattern     (_, _)
+  sort        number, number → point
+  wanted      point
+  reads       the point with coordinates, and
+  metamath    cc, the complex numbers read as the plane
+  target      _1 ci _2 cmul co caddc co
+  note        The pair of a point's coordinates, read where a point is
+              wanted: A = (1, 2), |(0, 0)(3, 4)|. The plane is ℂ in the
+              kernel (GEOMETRY.md), so the point with coordinates x and y is
+              x + i·y, which the page never writes.
+
+notation product-set
+  pattern     _ × _
+  sort        set of α, set of β → set of pair of α and β
+  level       multiplicative
+  assoc       left
+  reads       the pairs from, and
+  metamath    cxp
+  target      _1 _2 cxp
+  note        A × B holds the pairs whose first part is in A and whose
+              second is in B.
 
 notation integer-range
   pattern     {_, …, _}
@@ -959,6 +1006,30 @@ notation angle
               corpus introduces; see mun:stdlib/geometry/angle. The absolute value is what
               makes ∠PQR = ∠RQP true, which the signed function does not.
 
+notation signed-angle
+  pattern     ∡___
+  sort        point, point, point → number
+  reads       the signed angle at the second from the first to the third
+  metamath    ang applied to the two differences
+  target      _1 _2 cmin co _3 _2 cmin co cang co
+  note        The angle turned through from the ray toward the first point to
+              the ray toward the third, counterclockwise positive, in
+              (−180°, 180°]. ∡RQP is −∡PQR except at 180°, and |∡PQR| is
+              ∠PQR. See mun:stdlib/geometry/signed-angle-size.
+
+notation area
+  pattern     the area of △___
+  sort        point, point, point → number
+  reads       the area of the triangle
+  metamath    half the product of the sides at the third point and the size
+              of the sine of the signed angle between them, as set.mm's heron
+              writes the area
+  target      c1 c2 cdiv co _2 _3 cmin co cabs cfv _1 _3 cmin co cabs cfv cmul co
+              cmul co _2 _3 cmin co _1 _3 cmin co cang co csin cfv cabs cfv cmul co
+  note        The area of △PQR is (1/2)·(|QR|·|PR|)·|sin(∡QRP)|, which is 0
+              where the three are on one line. The words leave room for the
+              area of a set of points. See mun:stdlib/geometry/area.
+
 notation congruent
   pattern     triangle ___ ≅ triangle ___
   sort        point, point, point, point, point, point → formula
@@ -973,6 +1044,63 @@ notation congruent
               co _1 _3 cmin co cang co cabs cfv _5 _6 cmin co _4 _6 cmin co cang
               co cabs cfv wceq wa _3 _1 cmin co _2 _1 cmin co cang co cabs cfv _6
               _4 cmin co _5 _4 cmin co cang co cabs cfv wceq wa
+
+notation congruent-by-symbol
+  pattern     △___ ≅ △___
+  sort        point, point, point, point, point, point → formula
+  level       predicate
+  reads       is congruent to
+  metamath    the three sides and the three angles equal
+  target      folded
+  note        △PQR ≅ △P′Q′R′ is triangle PQR ≅ triangle P′Q′R′ as a school
+              book writes it, and builds the same formula.
+  spells      congruent triangle≅triangle
+
+notation isosceles
+  pattern     △___ is isosceles
+  sort        point, point, point → formula
+  level       predicate
+  reads       is isosceles
+  metamath    the three points form a triangle and two of its sides are equal,
+              as def:stdlib/geometry/isosceles states it
+  target      _1 _2 wceq wn _2 _3 wceq wn wa _1 _3 wceq wn wa _3 _1 cmin co _2
+              _1 cmin co cdiv co cr wcel wn wa _1 _2 cmin co cabs cfv _1 _3
+              cmin co cabs cfv wceq _2 _1 cmin co cabs cfv _2 _3 cmin co cabs
+              cfv wceq wo _3 _1 cmin co cabs cfv _3 _2 cmin co cabs cfv wceq wo
+              wa
+  note        Two sides equal, any two: the triangle is named by its three
+              points, and which vertex is the apex is not part of the word.
+
+notation equilateral
+  pattern     △___ is equilateral
+  sort        point, point, point → formula
+  level       predicate
+  reads       is equilateral
+  metamath    the three points form a triangle and its three sides are equal,
+              as def:stdlib/geometry/equilateral states it
+  target      _1 _2 wceq wn _2 _3 wceq wn wa _1 _3 wceq wn wa _3 _1 cmin co _2
+              _1 cmin co cdiv co cr wcel wn wa _1 _2 cmin co cabs cfv _2 _3
+              cmin co cabs cfv wceq wa _2 _3 cmin co cabs cfv _3 _1 cmin co cabs
+              cfv wceq wa
+
+notation right-angled
+  pattern     △___ is right-angled at _
+  sort        point, point, point, point → formula
+  level       predicate
+  reads       is right-angled at
+  metamath    the three points form a triangle and the angle at the named
+              vertex is 90°, as def:stdlib/geometry/right-angled states it
+  target      _1 _2 wceq wn _2 _3 wceq wn wa _1 _3 wceq wn wa _3 _1 cmin co _2
+              _1 cmin co cdiv co cr wcel wn wa _4 _1 wceq _2 _1 cmin co _3 _1
+              cmin co cang co cabs cfv c9 cc0 cdc cpi cmul co c1 c8 cdc cc0 cdc
+              cdiv co wceq wa _4 _2 wceq _1 _2 cmin co _3 _2 cmin co cang co cabs
+              cfv c9 cc0 cdc cpi cmul co c1 c8 cdc cc0 cdc cdiv co wceq wa wo _4
+              _3 wceq _1 _3 cmin co _2 _3 cmin co cang co cabs cfv c9 cc0 cdc
+              cpi cmul co c1 c8 cdc cc0 cdc cdiv co wceq wa wo wa
+  note        The named point is one of the three vertices and the angle there
+              is right: △PQR is right-angled at R says ∠PRQ = 90°. Which
+              vertex it is, is the named point's to say, so the word reads
+              the same whichever is named.
 
 
 # Binders. A hole marked by `binds` introduces a variable that scopes over
@@ -1663,6 +1791,42 @@ notation between
   note        Strictly between: R is between S and T says R lies on the
               segment from S to T and is neither end. See
               mun:stdlib/geometry/between.
+
+notation on-line
+  pattern     _ is on line __
+  sort        point, point, point → formula
+  level       predicate
+  reads       is on the line through
+  metamath    the three are collinear, as def:stdlib/geometry/on-line states it
+  target      _1 _2 cmin co _3 _2 cmin co cdiv co cr wcel
+  note        P is on line AB says what A, B, P are collinear says, with the
+              point first, as a book writes a point on a line.
+
+notation perpendicular
+  pattern     line __ ⊥ line __
+  sort        point, point, point, point → formula
+  level       predicate
+  reads       is perpendicular to
+  metamath    the two directions are apart and their quotient is imaginary
+  target      _1 _2 wne _3 _4 wne _4 _3 cmin co _2 _1 cmin co cdiv co cre cfv
+              cc0 wceq w3a
+  note        line AB ⊥ line CD says A ≠ B, C ≠ D, and the line through C
+              and D runs at a right angle to the one through A and B: the
+              quotient of their directions has real part 0. Written as
+              `parallel` writes its lines. See mun:stdlib/geometry/perpendicular.
+
+notation midpoint
+  pattern     _ is the midpoint of __
+  sort        point, point, point → formula
+  level       predicate
+  reads       is the midpoint of
+  metamath    between the two ends and equally far from each, as
+              def:stdlib/geometry/midpoint states it
+  target      _2 _1 wne _3 _1 cmin co _2 _1 cmin co cdiv co cr wcel _3 _1 cmin co
+              _2 _1 cmin co cdiv co cc0 clt wbr w3a _2 _1 cmin co cabs cfv _1 _3
+              cmin co cabs cfv wceq wa
+  note        The two ends are juxtaposed, as `line __` writes them: M is the
+              midpoint of AB.
 
 notation same-side
   pattern     _ and _ are on the same side of line __

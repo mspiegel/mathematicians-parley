@@ -290,6 +290,31 @@ impl Introduction {
         Form::Other
     }
 
+    /// Every name the line introduces: a group and its identity; a graph,
+    /// its vertex set and its edge set, and of a graph given in full each
+    /// vertex and edge it lists; otherwise the one name, or none where the
+    /// line takes none of the forms.
+    pub fn names(&self) -> Vec<String> {
+        match &self.form {
+            Form::Group {
+                group, identity, ..
+            } => vec![group.clone(), identity.clone()],
+            Form::GraphListed(line) | Form::Graph(line) => {
+                let mut out = vec![
+                    line.graph.clone(),
+                    line.vertices.clone(),
+                    line.edges.clone(),
+                ];
+                if let Some(listing) = &line.listed {
+                    out.extend(listing.vertices.iter().cloned());
+                    out.extend(listing.edges.iter().cloned());
+                }
+                out
+            }
+            _ => self.name().map(String::from).into_iter().collect(),
+        }
+    }
+
     /// The name the line introduces, which every form writes first; None
     /// where the line takes none of the forms.
     pub fn name(&self) -> Option<&str> {
@@ -314,17 +339,22 @@ impl Introduction {
     /// The parts of the line that are formula text, each as written: the
     /// whole of a membership, a thing not in a set and a function's type;
     /// otherwise the names it introduces and the sets and types it names,
-    /// and none of its words.
+    /// and none of its words. These are all a reading of the line reads
+    /// (`asserted_by`), so the checker reads each once and the build looks
+    /// each up.
     pub fn parts(&self) -> Vec<Written> {
         let texts: Vec<&str> = match &self.form {
-            Form::Member | Form::NotIn(_) | Form::Function | Form::Other => {
+            Form::Member | Form::Function | Form::Other => {
                 return vec![self.body.clone()];
             }
+            Form::NotIn(name) => return vec![self.body.clone(), self.part(name)],
             Form::GraphListed(line) | Form::Graph(line) => {
                 let mut out = vec![line.graph.as_str()];
                 match &line.listed {
                     Some(l) => {
                         out.extend([l.vertex_set.as_str(), l.edge_set.as_str()]);
+                        out.extend(l.vertices.iter().map(String::as_str));
+                        out.extend(l.edges.iter().map(String::as_str));
                         out.extend(l.joins.iter().map(|j| j.said.as_str()));
                     }
                     None => out.extend([line.vertices.as_str(), line.edges.as_str()]),
@@ -353,11 +383,6 @@ impl Introduction {
         Written::new(text, self.body.path(), self.body.line())
     }
 
-    /// One part of the line read as one formula.
-    pub fn read_part(&self, text: &str, g: &Grammar, sorts: &Sorts) -> Checked<Node> {
-        self.part(text).sentence()?.read(g, sorts)
-    }
-
     /// What the line asserts, which a citation of it supplies: a membership
     /// and a function's type as written; `X ∈ 𝒫A` of a part, which is what
     /// `for all X ⊆ A` ranges over; what `be` says of a function, `f : A → B
@@ -367,14 +392,22 @@ impl Introduction {
     /// thing named of a sort, an element, a set, a point, a property, a
     /// group or a graph named and no more, asserts nothing.
     pub fn asserted(&self, g: &Grammar, sorts: &Sorts) -> Checked<Vec<Node>> {
-        let read = |text: &str| self.read_part(text, g, sorts);
+        self.asserted_by(&|part: &Written| part.formula()?.read(g, sorts), g, sorts)
+    }
+
+    /// `asserted`, each part of the line read by `reader`: the build's
+    /// reader takes a part of its own page as the checker read it.
+    pub fn asserted_by(
+        &self,
+        reader: &dyn Fn(&Written) -> Checked<Node>,
+        g: &Grammar,
+        sorts: &Sorts,
+    ) -> Checked<Vec<Node>> {
+        let read = |text: &str| reader(&self.part(text));
         Ok(match &self.form {
-            Form::Member | Form::NotIn(_) | Form::Function | Form::Other => self
-                .body
-                .sentences()
-                .iter()
-                .map(|s| s.read(g, sorts))
-                .collect::<Checked<Vec<Node>>>()?,
+            Form::Member | Form::NotIn(_) | Form::Function | Form::Other => {
+                vec![reader(&self.body)?]
+            }
             Form::Part { name, whole } => {
                 let (x, s) = (read(name)?, read(whole)?);
                 vec![filled("x ∈ 𝒫S", g, sorts, &[("x", &x), ("S", &s)])?]
@@ -393,7 +426,7 @@ impl Introduction {
                 vec![filled("p is a polynomial", g, sorts, &[("p", &p)])?]
             }
             Form::FunctionBeing { typed, being } => {
-                vec![self.being(typed, being, g, sorts)?]
+                vec![self.being(read(typed)?, being, g)?]
             }
             Form::Group {
                 group,
@@ -436,16 +469,10 @@ impl Introduction {
         })
     }
 
-    /// What `be` says of a function with the type `typed`: the notation
-    /// whose pattern is the type's with `is` and the words after `be`.
-    fn being(
-        &self,
-        typed: &str,
-        being: &str,
-        g: &Grammar,
-        sorts: &Sorts,
-    ) -> Checked<Node> {
-        let typed = self.read_part(typed, g, sorts)?;
+    /// What `be` says of a function with the type `typed`, read: the
+    /// notation whose pattern is the type's with `is` and the words after
+    /// `be`.
+    fn being(&self, typed: Node, being: &str, g: &Grammar) -> Checked<Node> {
         let pattern = format!("_ : _ → _ is {being}");
         made_as(g, &pattern, typed.children.clone()).ok_or_else(|| {
             crate::outcome::Problem::new(

@@ -24,21 +24,14 @@ use crate::corpus::{
     corpus, link_functions, parse_proof, Corpus, Hypothesis, Intro, ItemKind, Record,
 };
 use crate::formula::notation_id::NotationId;
-use crate::formula::page::{Sentence, Written};
+use crate::formula::page::{made_as, Sentence, Written};
 use crate::formula::{Grammar, Node, Sorts};
 use crate::regex;
 use crate::said::Said;
 use crate::sorts::infer;
 use crate::sorts::introduction::{Form, Introduction};
 use crate::source::{Memory, Overlay, Source};
-
-/// The name a `let` line introduces: what stands before its `∈`, `∉`, `:`,
-/// `⊆` or `be`.
-fn introduced_name(body: &str) -> Option<&str> {
-    body.split(|c: char| c.is_whitespace() || "∈∉:⊆".contains(c))
-        .next()
-        .filter(|name| !name.is_empty())
-}
+use crate::Checked;
 
 /// The shapes a restatement asks about, read off a sentence's tree by what
 /// the notation at its root builds in the kernel — `wb`, `wi`, `wrex` —
@@ -66,28 +59,34 @@ impl<'a> Shapes<'a> {
         Shapes { g, builds }
     }
 
-    /// The sentence's tree, where it reads, and what its root builds.
-    fn root(&self, sentence: &Sentence, sorts: &Sorts) -> Option<(Node, &str)> {
-        let tree = sentence.read(self.g, sorts).ok()?;
-        let head = self.builds.get(&tree.notation())?.as_str();
-        Some((tree, head))
+    /// The sentence's tree, and what its root builds where it builds
+    /// anything.
+    fn root(
+        &self,
+        sentence: &Sentence,
+        sorts: &Sorts,
+    ) -> Checked<(Node, Option<&str>)> {
+        let tree = sentence.read(self.g, sorts)?;
+        let head = self.builds.get(&tree.notation()).map(String::as_str);
+        Ok((tree, head))
     }
 
-    /// The two parts of a sentence whose root builds `head`, as written.
+    /// The two parts of a sentence whose root builds `head`, as written;
+    /// None for a sentence whose root builds anything else.
     fn parts(
         &self,
         sentence: &Sentence,
         sorts: &Sorts,
         head: &str,
-    ) -> Option<(String, String)> {
+    ) -> Checked<Option<Sides>> {
         let (tree, built) = self.root(sentence, sorts)?;
-        if built != head || tree.children.len() != 2 {
-            return None;
+        if built != Some(head) || tree.children.len() != 2 {
+            return Ok(None);
         }
-        Some((
-            tree.children[0].written(sentence.text())?,
-            tree.children[1].written(sentence.text())?,
-        ))
+        Ok(tree.children[0]
+            .written(sentence.text())
+            .zip(tree.children[1].written(sentence.text()))
+            .map(|(left, right)| Sides { left, right }))
     }
 
     /// `there is k ∈ ℤ with …`, `there are m ∈ ℤ and n ∈ ℤ with …`: each
@@ -96,17 +95,24 @@ impl<'a> Shapes<'a> {
     /// says it introduces, and each one's set the hole its `sort` says holds
     /// it. A name among the functions from X to Y is said to be one as `let`
     /// says it, `f : X → Y`.
-    fn witnesses(
-        &self,
-        said: &Written,
-        sorts: &Sorts,
-    ) -> Option<(Vec<Witness>, String)> {
-        let sentence = said.sentence().ok()?;
-        let (mut tree, built) = self.root(&sentence, sorts)?;
-        let sentence = sentence.text();
-        if built != "wrex" {
-            return None;
+    fn witnesses(&self, said: &Written, sorts: &Sorts) -> Checked<Option<Witnessed>> {
+        // A claim of several sentences is their conjunction, and no "there
+        // is".
+        let sentences = said.sentences();
+        let [sentence] = sentences.as_slice() else {
+            return Ok(None);
+        };
+        let (tree, built) = self.root(sentence, sorts)?;
+        if built != Some("wrex") {
+            return Ok(None);
         }
+        Ok(self.named(tree, sentence.text()))
+    }
+
+    /// The names a "there is" introduces, level by level, and what is said
+    /// of them; None where its notation declares no names, or a part was
+    /// not written in `sentence`.
+    fn named(&self, mut tree: Node, sentence: &str) -> Option<Witnessed> {
         // A "there is" whose body is a "there is" again, as "there are m, n
         // ∈ ℤ with …" builds, names each of its levels' names in turn.
         let mut names = Vec::new();
@@ -124,26 +130,38 @@ impl<'a> Shapes<'a> {
             let members = sig.members();
             for &held in &binds.held {
                 let (_, set) = members.iter().find(|(element, _)| *element == held)?;
-                let name = tree.children.get(held)?.written(sentence)?;
+                let name_node = tree.children.get(held)?;
                 let set_node = tree.children.get(*set)?;
-                let written = set_node.written(sentence)?;
-                let membership =
-                    if set_node.notation() == crate::notations::FUNCTIONS_FROM {
-                        format!("{name} : {written}")
-                    } else {
-                        format!("{name} ∈ {written}")
-                    };
-                names.push(Witness { name, membership });
+                names.push(Witness {
+                    name: name_node.written(sentence)?,
+                    membership: self.g.print(&self.membership(name_node, set_node)),
+                });
             }
             let [body] = binds.body.as_slice() else {
                 return None;
             };
             let body = tree.children.get(*body)?.clone();
             if self.builds.get(&body.notation()).map(String::as_str) != Some("wrex") {
-                return Some((names, body.written(sentence)?));
+                return Some(Witnessed {
+                    names,
+                    said: body.written(sentence)?,
+                });
             }
             tree = body;
         }
+    }
+
+    /// The sentence saying a name a "there is" introduces is in its set:
+    /// `k ∈ ℤ`, or for a function `f : X → Y`, as `let` says it.
+    fn membership(&self, name: &Node, set: &Node) -> Node {
+        let made = if set.notation() == crate::notations::FUNCTIONS_FROM {
+            let mut held = vec![name.clone()];
+            held.extend(set.children.iter().cloned());
+            made_as(self.g, "_ : _ → _", held)
+        } else {
+            made_as(self.g, "_ ∈ _", vec![name.clone(), set.clone()])
+        };
+        made.expect("the membership notations")
     }
 }
 
@@ -154,13 +172,29 @@ struct Witness {
     membership: String,
 }
 
+/// What a "there is" says: the names it introduces, and what it says of
+/// them, as written.
+struct Witnessed {
+    names: Vec<Witness>,
+    said: String,
+}
+
+/// The two sides of a sentence whose root joins two, as written.
+struct Sides {
+    left: String,
+    right: String,
+}
+
 /// The steps naming what `there is` says there is: its sentences, the
 /// membership of each name and then what is said of them, obtained by `how`.
-fn obtaining(number: usize, names: &[Witness], said: &str, how: &str) -> String {
-    let mut claim: Vec<String> =
-        names.iter().map(|w| format!("{}.", w.membership)).collect();
-    claim.push(format!("{said}."));
-    let named: Vec<&str> = names.iter().map(|w| w.name.as_str()).collect();
+fn obtaining(number: usize, there: &Witnessed, how: &str) -> String {
+    let mut claim: Vec<String> = there
+        .names
+        .iter()
+        .map(|w| format!("{}.", w.membership))
+        .collect();
+    claim.push(format!("{}.", there.said));
+    let named: Vec<&str> = there.names.iter().map(|w| w.name.as_str()).collect();
     format!(
         "{number}.  {}\n    obtain {}{how}\n",
         claim.join(" "),
@@ -175,7 +209,7 @@ use super::{path_of, verify};
 pub const RESTATED: &str = "tests/restated";
 
 /// A proof file per library file, restating each of its items that has a
-/// target: (path, text).
+/// target. A sentence of an item that does not read is a defect.
 ///
 /// A record may use a name no line of it introduces, as `nat0-as-int` says
 /// `n ∈ ℕ₀ ↔ …` of every n, and a proof introduces every name it uses. So
@@ -192,10 +226,7 @@ pub const RESTATED: &str = "tests/restated";
 /// A definition says `A ↔ B`, and a step unfolds it one way from a line
 /// saying the other, so each way is restated: from `assume A`, `B`, and from
 /// `assume B`, `A`.
-pub fn restatements(
-    records: &[Record],
-    g: &Grammar,
-) -> (Vec<(String, String)>, Vec<String>) {
+pub fn restatements(records: &[Record], g: &Grammar) -> Checked<Restatements> {
     let mut files: IndexMap<String, String> = IndexMap::new();
     // What each file imports: the items it cites, and the library functions
     // they apply or it unfolds.
@@ -210,7 +241,7 @@ pub fn restatements(
             schemas.push(r.qualified());
             continue;
         }
-        let free = free_names(r, g);
+        let free = free_names(r, g)?;
         let file = r.module().rsplit('/').next().unwrap_or("");
         // Each file restates the items of one library file, and cites them,
         // so it imports each as any proof citing it does, and each library
@@ -242,13 +273,13 @@ pub fn restatements(
         // say them, but for a membership in a number system, which is said
         // once, and a function's type, which declares the function and is
         // asked for by nothing (`unasked`).
-        let from: Vec<String> = r
-            .hypotheses
-            .iter()
-            .filter(|h| h.kind == Intro::Assume || is_claim(&h.text))
-            .filter(|h| !unasked(r, h, g, &sorts))
-            .filter_map(|h| h.label.clone())
-            .collect();
+        let mut from: Vec<String> = Vec::new();
+        for h in &r.hypotheses {
+            let claims = h.kind == Intro::Assume || is_claim(&h.text);
+            if claims && !unasked(r, h, g, &sorts)? {
+                from.extend(h.label.clone());
+            }
+        }
         // A step citing an item says what each of its names stands for,
         // which here is itself.
         let about = {
@@ -269,22 +300,22 @@ pub fn restatements(
             let claim = conclusion.split_whitespace().collect::<Vec<_>>().join(" ");
             let said = Written::new(&claim, &r.path, r.line).sentences();
             let sides = match said.as_slice() {
-                [one] => shapes.parts(one, &sorts, "wb"),
+                [one] => shapes.parts(one, &sorts, "wb")?,
                 _ => None,
             };
-            let cases: Vec<(String, String)> = said
-                .iter()
-                .filter_map(|s| shapes.parts(s, &sorts, "wi"))
-                .collect();
-            if let (true, Some((left, right))) = (r.kind.unfolds(), sides) {
-                ways.push((Some(left.clone()), right.clone()));
-                ways.push((Some(right), left));
+            let mut cases: Vec<Sides> = Vec::new();
+            for s in &said {
+                cases.extend(shapes.parts(s, &sorts, "wi")?);
+            }
+            if let (true, Some(sides)) = (r.kind.unfolds(), sides) {
+                ways.push((Some(sides.left.clone()), sides.right.clone()));
+                ways.push((Some(sides.right), sides.left));
             } else if r.kind.unfolds() && !cases.is_empty() && cases.len() == said.len()
             {
                 // A definition by cases is unfolded one case at a time, from
                 // a line saying its condition.
-                for (condition, then) in cases {
-                    ways.push((Some(condition), then));
+                for case in cases {
+                    ways.push((Some(case.left), case.right));
                 }
             } else {
                 ways.push((None, claim));
@@ -312,14 +343,9 @@ pub fn restatements(
                 text.push_str(&format!("  assume {side}    (R1)\n"));
                 // What a line says there is, a step names before it is used,
                 // as a proof reads a "there is" it was given.
-                match shapes.witnesses(&Written::new(side, &r.path, r.line), &sorts) {
-                    Some((names, said)) => {
-                        steps.push(obtaining(
-                            steps.len() + 1,
-                            &names,
-                            &said,
-                            " from R1",
-                        ));
+                match shapes.witnesses(&Written::new(side, &r.path, r.line), &sorts)? {
+                    Some(there) => {
+                        steps.push(obtaining(steps.len() + 1, &there, " from R1"));
                         from.push(steps.len().to_string());
                     }
                     None => from.push("R1".to_string()),
@@ -334,11 +360,11 @@ pub fn restatements(
             text.push_str(&format!("  then {claim}\n\n"));
             // A claim that there is something is obtained from the item,
             // named, and exhibited, as a proof citing it does.
-            match shapes.witnesses(&Written::new(claim, &r.path, r.line), &sorts) {
-                Some((names, said)) => {
+            match shapes.witnesses(&Written::new(claim, &r.path, r.line), &sorts)? {
+                Some(there) => {
                     let n = steps.len() + 1;
                     let how = format!(": {item}{from_text}\n");
-                    let got = obtaining(n, &names, &said, &how);
+                    let got = obtaining(n, &there, &how);
                     steps.push(got.trim_end_matches('\n').to_string() + "\n");
                     steps.push(format!("{}.  {claim}\n    exhibit, from {n}\n", n + 1));
                 }
@@ -371,7 +397,15 @@ pub fn restatements(
             (key, format!("{head}\n{body}"))
         })
         .collect();
-    (files, schemas)
+    Ok(Restatements { files, schemas })
+}
+
+/// What `restatements` makes of the library.
+pub struct Restatements {
+    /// A proof file per library file: (path, text).
+    pub files: Vec<(String, String)>,
+    /// The items that state a schema, which no proof restates, by name.
+    pub schemas: Vec<String>,
 }
 
 /// Whether the reading of a record's lines makes one of its names a
@@ -391,19 +425,11 @@ fn says_of_statements(r: &Record, g: &Grammar) -> bool {
 
 /// The names a record's `let` lines introduce, in order.
 fn let_names(r: &Record) -> Vec<String> {
-    let mut out: Vec<String> = Vec::new();
-    for h in r.hypotheses.iter().filter(|h| h.kind == Intro::Let) {
-        let body = crate::sorts::unlabel(&h.text);
-        let body = str::trim(&body);
-        match Introduction::read(Written::new(body, &r.path, h.line)).form {
-            Form::Group {
-                group, identity, ..
-            } => out.extend([group, identity]),
-            Form::Graph(line) => out.extend([line.graph, line.vertices, line.edges]),
-            _ => out.extend(introduced_name(body).map(String::from)),
-        }
-    }
-    out
+    r.hypotheses
+        .iter()
+        .filter(|h| h.kind == Intro::Let)
+        .flat_map(|h| Introduction::read(h.body(&r.path)).names())
+        .collect()
 }
 
 /// The library functions a record's statement applies, which a proof
@@ -426,31 +452,19 @@ fn applied_functions(r: &Record, g: &Grammar) -> Vec<String> {
 
 /// The names a record's formulas use that none of its `let` lines
 /// introduces and no binder in them binds, in the order they first appear.
-fn free_names(r: &Record, g: &Grammar) -> Vec<String> {
+fn free_names(r: &Record, g: &Grammar) -> Checked<Vec<String>> {
     let introduced: BTreeSet<String> = let_names(r).into_iter().collect();
     let sorts = crate::sorts::sorts_of_record(r, crate::sorts::Env { g, scopes: &[] });
-    // What each line says, read; what does not read the checker reports.
-    let read = |written: &Written| -> Vec<Node> {
-        written
-            .sentences()
-            .iter()
-            .filter_map(|s| s.read(g, &sorts).ok())
-            .collect()
-    };
     let mut trees: Vec<Node> = Vec::new();
     for h in &r.hypotheses {
         let body = h.body(&r.path);
         match h.kind {
-            Intro::Let => trees.extend(
-                Introduction::read(body)
-                    .asserted(g, &sorts)
-                    .unwrap_or_default(),
-            ),
-            _ => trees.extend(read(&body)),
+            Intro::Let => trees.extend(Introduction::read(body).asserted(g, &sorts)?),
+            _ => trees.extend(read_all(&body, g, &sorts)?),
         }
     }
     for said in r.stated() {
-        trees.extend(read(&said));
+        trees.extend(read_all(&said, g, &sorts)?);
     }
     let mut out: Vec<String> = Vec::new();
     for tree in trees {
@@ -475,7 +489,16 @@ fn free_names(r: &Record, g: &Grammar) -> Vec<String> {
             }
         }
     }
-    out
+    Ok(out)
+}
+
+/// Each sentence of a claim, read.
+fn read_all(written: &Written, g: &Grammar, sorts: &Sorts) -> Checked<Vec<Node>> {
+    written
+        .sentences()
+        .iter()
+        .map(|s| s.read(g, sorts))
+        .collect()
 }
 
 /// Whether a `let` line claims something a step may cite, as `let k ∈ ℕ₀`
@@ -487,22 +510,23 @@ fn free_names(r: &Record, g: &Grammar) -> Vec<String> {
 /// for nothing. `let E be a function on X` says what an item asks, and is
 /// cited. A membership of a range says more than the range's
 /// integers, and is asked for.
-fn unasked(r: &Record, h: &Hypothesis, g: &Grammar, sorts: &Sorts) -> bool {
+fn unasked(r: &Record, h: &Hypothesis, g: &Grammar, sorts: &Sorts) -> Checked<bool> {
     if h.kind != Intro::Let {
-        return false;
+        return Ok(false);
     }
     let introduced = Introduction::read(h.body(&r.path));
     if matches!(introduced.form, Form::Function) {
-        return true;
+        return Ok(true);
     }
-    let Ok(said) = introduced.body.sentence().and_then(|s| s.read(g, sorts)) else {
-        return false;
+    let asserted = introduced.asserted(g, sorts)?;
+    let [said] = asserted.as_slice() else {
+        return Ok(false);
     };
-    said.notation() == crate::notations::MEMBERSHIP
+    Ok(said.notation() == crate::notations::MEMBERSHIP
         && said
             .children
             .get(1)
-            .is_some_and(|set| set.notation() == crate::notations::NUMBER_SYSTEMS)
+            .is_some_and(|set| set.notation() == crate::notations::NUMBER_SYSTEMS))
 }
 
 /// Whether a record's line claims something: any but a thing named of a
@@ -633,7 +657,10 @@ fn restated(source: &dyn Source, libraries: Option<&Libraries>, build: bool) -> 
         records: found.records.clone(),
         ..Corpus::default()
     };
-    let (files, schemas) = restatements(&found.records, &g);
+    let Restatements { files, schemas } = match restatements(&found.records, &g) {
+        Ok(made) => made,
+        Err(problem) => return fail(problem.to_string()),
+    };
     for (path, text) in &files {
         match parse_proof(path, text, all.scopes.len()) {
             Ok((scope, theorems)) => {

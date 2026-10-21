@@ -31,12 +31,14 @@ use crate::formula::Sorts;
 use crate::matching::Context;
 use crate::outcome::{At, Checked, Problem, Route};
 use crate::sorts::infer;
-use crate::sorts::{settled, Env};
+use crate::sorts::{
+    cited_statement, settled, statement_definitions, CitedStatement, Env,
+};
 use crate::source::Source;
 use crate::text::check_encoding;
 
 pub use library::{statements_in_scope, Known};
-pub use record::CheckedTheorem;
+pub use record::{CheckedTheorem, LibraryReading};
 pub use structure::{cited_in_order, out_of_reach, unresolved};
 
 /// A variable may be a Greek letter and may carry a subscript or a prime.
@@ -112,6 +114,8 @@ pub struct CheckedCorpus {
     /// The grammar the corpus's records declare, which the checker read with.
     pub grammar: std::rc::Rc<Grammar>,
     pub theorems: IndexMap<String, CheckedTheorem>,
+    /// Every item a citation may name, as the checker read it.
+    pub library: LibraryReading,
 }
 
 /// `checked` of the theorems whose full name `wanted` holds, and of no
@@ -130,6 +134,7 @@ pub fn checked_where(
     }
     let checked = prepared_in(&read.corpus, read.report, None, |_, c| {
         let mut out = IndexMap::new();
+        let items = std::rc::Rc::new(c.library.item_readings());
         for (i, thm) in c.theorems.iter().enumerate() {
             if !wanted(&thm.qualified()) {
                 continue;
@@ -172,11 +177,21 @@ pub fn checked_where(
                     })
                     .collect();
             }
+            record.page = c.known[i].page_reading();
+            record.items = std::rc::Rc::clone(&items);
+            record.outside = c.known[i].outside_definitions().clone();
+            record.statement_definitions =
+                statement_definitions(thm, c.env, &c.known[i].sorts);
             out.insert(thm.qualified(), record);
         }
-        out
+        let library = LibraryReading {
+            record_sorts: c.record_sorts.clone(),
+            cited: c.cited.clone(),
+            groups: c.library.all_groups(),
+        };
+        (out, library)
     });
-    let (_, _, theorems) = checked?;
+    let (_, _, (theorems, library)) = checked?;
     // The grammar the checks read with: a grammar is kept for the records it
     // was loaded from (`Grammar::load`), and `prepared_in` loaded it.
     let grammar = Grammar::load(&read.corpus.records).map_err(|p| {
@@ -188,6 +203,7 @@ pub fn checked_where(
         corpus: read.corpus,
         grammar,
         theorems,
+        library,
     })
 }
 
@@ -318,6 +334,8 @@ pub struct Checking<'a> {
     statements: &'a IndexMap<String, infer::Reader>,
     /// Each item record's sorts, by its place among the records.
     record_sorts: &'a IndexMap<usize, Sorts>,
+    /// How a citation reads each proved theorem's statement.
+    cited: &'a IndexMap<String, CitedStatement>,
     store: infer::Store,
 }
 
@@ -514,7 +532,7 @@ pub fn printed_back(source: &dyn Source) -> Result<(usize, Vec<String>), Outcome
                     let printed = c.env.g.print(&node);
                     let again =
                         Written::new(&printed, sentence.path(), sentence.line());
-                    let again = again.sentence().ok();
+                    let again = again.formula().ok();
                     let again = again.as_ref().and_then(read);
                     if !again.as_ref().is_some_and(|a| a.same_shape(&node)) {
                         out.push(format!(
@@ -832,6 +850,7 @@ fn prepared_in<T>(
     // grammar lexes.
     let files_tokens = structure::files_tokens(theorems, scopes, &grammar);
     structure::check_definitions(&mut report, theorems, scopes, &files_tokens);
+    structure::check_file_defines(&mut report, env);
     structure::check_function_imports(&mut report, scopes, &files_tokens);
     database::check_functions(&mut report, &grammar);
     // A library function's name of several letters reads as one, as a word
@@ -873,11 +892,11 @@ fn prepared_in<T>(
         .enumerate()
         .filter(|(_, r)| !r.ranges.is_empty())
     {
-        let lets: Vec<(&str, usize)> = r
+        let lets: Vec<Written> = r
             .hypotheses
             .iter()
             .filter(|h| h.kind == Intro::Let)
-            .map(|h| (h.text.as_str(), h.line))
+            .map(|h| h.body(&r.path))
             .collect();
         let parts = crate::sorts::record_formulas(r);
         structure::check_ranges(
@@ -925,14 +944,20 @@ fn prepared_in<T>(
         known.push(Known::new(thm, env, sorts, &ctx));
         clashes.push(clashed);
     }
-    let proved = known
+    // A theorem is cited by its statement, which is all a proof citing it
+    // sees, read once for the checker and the build (`cited_statement`).
+    let cited: IndexMap<String, CitedStatement> = theorems
         .iter()
-        .map(|k| {
+        .map(|thm| (thm.qualified(), cited_statement(thm, env)))
+        .collect();
+    let proved = theorems
+        .iter()
+        .map(|thm| {
             let at = Proved {
-                thm: k.thm,
-                sorts: std::borrow::Cow::Borrowed(&k.sorts),
+                thm,
+                sorts: Cow::Borrowed(&cited[&thm.qualified()].sorts),
             };
-            (k.thm.qualified(), at)
+            (thm.qualified(), at)
         })
         .collect();
     let library = Library::new(records, Cow::Borrowed(&record_sorts), proved, env);
@@ -958,6 +983,7 @@ fn prepared_in<T>(
         items: &items,
         statements: &statements,
         record_sorts: &record_sorts,
+        cited: &cited,
         store,
     };
     let out = then(&mut report, &mut checking);
@@ -1006,11 +1032,17 @@ fn check_requires_work(
             continue;
         }
         let found = found_alone(c, thm, step, k, clashes);
-        for (r, req) in step.requires.iter().enumerate() {
-            let mut lighter = step.clone();
-            lighter.requires.remove(r);
+        // Each line is asked of the step without the lines already found to
+        // do no work: two lines either of which would do, |AM| ∈ ℝ and
+        // |MB| ∈ ℝ beside |AM| = |MB|, are not both surplus, and only the
+        // first is said to be.
+        let mut kept = step.clone();
+        for req in &step.requires {
+            let mut lighter = kept.clone();
+            lighter.requires.retain(|r| r.line != req.line);
             let without = found_alone(c, thm, &lighter, k, clashes);
             if without.is_subset(&found) {
+                kept = lighter;
                 report.say(
                     &thm.path,
                     req.line,
@@ -1058,7 +1090,7 @@ fn check_passes(
     formulas::check_letters_introduced(report, thm, env, k);
     formulas::check_statement_names(report, thm, env, k);
     formulas::check_structure_parts(report, thm, k, &library.targets);
-    structure::check_defined_below(report, thm, scopes, env.g);
+    structure::check_defined_below(report, thm, k);
     formulas::check_clashes(report, thm, clashes);
     formulas::check_contradiction(report, thm, env, k);
     formulas::check_contradicting(report, thm, env, k);
@@ -1132,18 +1164,18 @@ fn check_passes(
     structure::check_steps_used(report, thm);
     structure::check_readings(report, thm);
     database::check_introductions(report, thm, env, k);
-    formulas::check_recursions(report, thm, env, k);
+    formulas::check_recursions(report, thm, k);
     structure::check_sorts(report, thm, k);
-    let lets: Vec<(&str, usize)> = thm
+    let lets: Vec<Written> = thm
         .hypotheses
         .iter()
         .filter(|h| h.kind == Intro::Let)
-        .map(|h| (h.text.as_str(), h.line))
+        .map(|h| h.body(&thm.path))
         .chain(thm.steps.iter().flat_map(|s| {
             s.openers
                 .iter()
                 .filter(|o| o.kind == Intro::Let)
-                .map(|o| (o.text.as_str(), o.line))
+                .map(|o| o.body(&thm.path))
         }))
         .collect();
     structure::check_ranges(

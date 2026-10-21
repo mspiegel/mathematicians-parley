@@ -28,14 +28,13 @@ use crate::corpus::{
 };
 use crate::formula::page::{made_as, Written};
 use crate::formula::symbol::Symbol;
-use crate::formula::{Node, Sorts};
+use crate::formula::Node;
 use crate::mm::kernel::Term;
 use crate::mm::spell::Proof;
 use crate::mm::{Rpn, Signature};
 use crate::notations::{FUNCTION_TYPE, IN};
 use crate::outcome::{Built, Checked, Declined, Route};
 use crate::rules::{self, lookup};
-use crate::sorts::file_definitions;
 use crate::{pf, t, take};
 
 /// One opener of a `proof` block, as its claim says it: a name fixed over a
@@ -1911,7 +1910,7 @@ impl<'a> Elaborator<'a> {
                     // letters, which the values name, read in the proof's
                     // names as they stand, before anything is obtained.
                     let values = match item {
-                        Item::Theorem(_) => me.instantiated(&step.just.values)?,
+                        Item::Theorem(_) => me.instantiated(&step.just)?,
                         Item::Record(_) => Vec::new(),
                     };
                     // A name is a variable of the kernel whatever it is
@@ -1929,16 +1928,19 @@ impl<'a> Elaborator<'a> {
                         me.names.insert(name, term);
                     }
                     // A library item says its existential in its own names,
-                    // and the step's lines say what those stand for.
+                    // and the step's lines say what those stand for. The
+                    // sentence is the one the checker obtains from.
+                    let cited = me.citation_read(step).cloned().ok_or_else(|| {
+                        me.unreached(step.line, "the checker reads no citation here")
+                    })?;
+                    let said = me.obtained_from(item, &cited, step.line)?;
                     let node = match item {
-                        Item::Record(r) => {
-                            me.item_sentence_here(step, r, &Self::claimed_by(item))?
-                        }
+                        Item::Record(r) => me.item_sentence_here(step, r, &said)?,
                         // Parsed with the theorem's own sorts, which say what
                         // its letters are, and made a term in the step's names.
-                        Item::Theorem(_) => me.in_its_names(item, |me| {
-                            me.read_one(&Self::claimed_by(item))
-                        })?,
+                        Item::Theorem(_) => {
+                            me.in_its_names(item, |me| me.read_one(&said))?
+                        }
                     };
                     me.term(&node)
                 })?;
@@ -2400,7 +2402,7 @@ impl<'a> Elaborator<'a> {
         // name like any the theorem defines itself.
         if !self.file_given {
             self.file_given = true;
-            let written = file_definitions(self.thm, self.env());
+            let written = self.checked.outside.clone();
             for (name, d, src) in self.visible_outside() {
                 let Some(made) = written.get(&name) else {
                     continue;
@@ -2442,7 +2444,7 @@ impl<'a> Elaborator<'a> {
                 // Sequences by recursion are one define giving several names,
                 // each the map to its part of the one recursion.
                 DefineParts::Recursion(r) => {
-                    let maps = self.recursion_terms(&d.label, r)?;
+                    let maps = self.recursion_terms(&d.label, d.line, r)?;
                     for (name, made) in maps {
                         (scope, facts, closers) = self.one_define(
                             &d.label, d.line, &name, &made, &scope, &facts, closers,
@@ -2451,19 +2453,14 @@ impl<'a> Elaborator<'a> {
                 }
                 DefineParts::One(one) => {
                     // A function is the map sending its parameters, each in
-                    // its domain, to its rule, read with what the domains
-                    // say the parameters are (`define_sorts`).
-                    let local = crate::sorts::define_sorts(one, &self.sorts_now);
-                    let read = |text: &str, sorts: &Sorts| {
-                        d.formula(text)
-                            .sentence()
-                            .and_then(|s| s.read(self.g, sorts))
-                    };
-                    let rule = read(&one.body, &local)?;
+                    // its domain, to its rule, as the checker read them: the
+                    // rule and the names with what the domains say the
+                    // parameters are (`define_sorts`).
+                    let rule = self.read_one(&d.rule(&one.body))?;
                     let mut held = Vec::new();
                     for p in &one.params {
-                        held.push(read(&p.name, &local)?);
-                        held.push(read(&p.domain, &self.sorts_now)?);
+                        held.push(self.read_one(&d.formula(&p.name))?);
+                        held.push(self.read_one(&d.domain(p))?);
                     }
                     let pattern = match one.params.len() {
                         0 => None,
@@ -2495,7 +2492,8 @@ impl<'a> Elaborator<'a> {
                             d.line,
                             format!(
                                 "define {}: {} is a statement, and a define names a thing",
-                                d.label, one.body
+                                d.label,
+                                one.body.text()
                             ),
                         ));
                     }

@@ -1,0 +1,17 @@
+import mundane definition stdlib/sets/set-builder
+
+theorem a-define-whose-body-the-reading-rewrites
+  note        The set C is named, and its property holds |x|, which the
+              standard form's reading takes to x where x ≥ 0. Fitting the
+              membership to what set-builder unfolds reads C's body; the
+              property it fills is the one C's define writes, |x| = r, and
+              not the reading's x = r.
+  let r ∈ ℝ                                                           (H1)
+  let a ∈ ℝ                                                           (H2)
+  let C = {x ∈ ℝ : |x| = r}                                           (D1)
+      reads the numbers of size r
+  assume |a| = r                                                      (H3)
+  then a ∈ C
+
+1.  a ∈ C
+    mun:set-builder u := a, from D1, H3

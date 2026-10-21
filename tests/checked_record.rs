@@ -15,7 +15,7 @@
 
 use std::path::Path;
 
-use parley::checker::checked;
+use parley::checker::{checked, CheckedCorpus};
 use parley::source::Disk;
 
 mod record;
@@ -30,6 +30,28 @@ const KEPT: [&str; 7] = [
     "tests/elaborator/an-exhibit-from-an-and/two-witnesses-beside-an-equation",
     "tests/elaborator/a-witness-the-checker-read/a-set-member-beside-an-equation",
 ];
+
+/// Every sentence of the theorem's page as the checker read it and the build
+/// takes it (`CheckedTheorem::page`): by line and text, the tree's shape and
+/// its sort. Kept apart from `record::printed_but`, which a rewrite of the
+/// page must leave as it was, since a rewrite changes the page's text.
+fn page_printed(read: &CheckedCorpus, name: &str) -> String {
+    let record = &read.theorems[name];
+    let mut read: Vec<_> = record.page.entries().collect();
+    read.sort_by(|a, b| (a.0.line, &a.0.text).cmp(&(b.0.line, &b.0.text)));
+    let mut out = String::new();
+    for (at, node) in read {
+        let line = format!(
+            "read {}: {}  as  {}  {}\n",
+            at.line,
+            at.text,
+            node.shape(),
+            node.sort.describe()
+        );
+        out.push_str(&line);
+    }
+    out
+}
 
 /// Where a theorem's kept record is.
 fn kept_at(root: &Path, name: &str) -> std::path::PathBuf {
@@ -47,7 +69,8 @@ fn the_record_the_build_is_handed_is_the_one_kept() {
     let write = std::env::var("PARLEY_RECORD_WRITE").is_ok();
     let mut differ = Vec::new();
     for name in KEPT {
-        let now = record::printed_but(&read, name, &|_| false);
+        let now =
+            record::printed_but(&read, name, &|_| false) + &page_printed(&read, name);
         let at = kept_at(root, name);
         if write {
             std::fs::create_dir_all(at.parent().unwrap()).unwrap();

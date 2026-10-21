@@ -15,6 +15,7 @@ use indexmap::{IndexMap, IndexSet};
 
 use super::{Facts, Lines, Written};
 use crate::checker::record::CheckedTheorem;
+use crate::checker::LibraryReading;
 use crate::citing;
 use crate::corpus::{written_text, FileScope, Item, Record, Step, Theorem};
 use crate::formula::notation_id::{LiteralId, NotationId, Spelling};
@@ -26,7 +27,7 @@ use crate::mm::library::{render, Layered, Signature};
 use crate::mm::spell::{Binds, Builder, Proof};
 use crate::mm::Rpn;
 use crate::outcome::{Decline, Problem, Route};
-use crate::sorts::{sorts_of_statement, Env};
+use crate::sorts::Env;
 use crate::targets::{self, Commuting, Identity};
 
 /// Variables for a name the proof does not spell: what a `define` renames
@@ -390,9 +391,8 @@ pub struct Elaborator<'a> {
     /// What each record asks a citation and concludes, read as the checker
     /// reads it (`citing`), the first time a citation asks.
     pub item_library: OnceCell<Rc<citing::Library<'a>>>,
-    /// The sorts of every item record, read once for the build
-    /// (`sorts::sorts_of_records`).
-    pub record_sorts: &'a IndexMap<usize, Sorts>,
+    /// Every item a citation may name, as the checker read it.
+    pub library_read: &'a LibraryReading,
     /// Every reading the grammar has, in the order a term is read back to
     /// the page by (`reading_table`), made the first time one is.
     pub(super) readings: OnceCell<Vec<super::spoken::Ranked>>,
@@ -407,7 +407,7 @@ impl<'a> Elaborator<'a> {
         items: &'a IndexMap<String, Item<'a>>,
         sigs: Layered,
         records: &'a [Record],
-        record_sorts: &'a IndexMap<usize, Sorts>,
+        library_read: &'a LibraryReading,
         scopes: &'a [FileScope],
         statements: &'a dyn Fn(&str) -> Option<String>,
     ) -> Elaborator<'a> {
@@ -526,7 +526,7 @@ impl<'a> Elaborator<'a> {
             whole_scope: false,
             map_types_off: false,
             item_library: OnceCell::new(),
-            record_sorts,
+            library_read,
             readings: OnceCell::new(),
         }
     }
@@ -540,22 +540,25 @@ impl<'a> Elaborator<'a> {
                 scopes: self.scopes,
             };
             // The corpus theorems this theorem cites, which a citation
-            // matches as it matches a record: each with the sorts its
-            // statement settles, all a citation reads of it.
+            // matches as it matches a record: each with the sorts the
+            // checker read its statement with (`cited_statement`).
             let mut proved = IndexMap::new();
             for (name, _) in crate::corpus::proof::cited_items(self.thm) {
-                if let Some(Item::Theorem(t)) = self.items.get(&name) {
+                if let (Some(Item::Theorem(t)), Some(cited)) =
+                    (self.items.get(&name), self.library_read.cited.get(&name))
+                {
                     proved.entry(name).or_insert_with(|| citing::Proved {
                         thm: t,
-                        sorts: std::borrow::Cow::Owned(sorts_of_statement(t, env)),
+                        sorts: std::borrow::Cow::Borrowed(&cited.sorts),
                     });
                 }
             }
-            Rc::new(citing::Library::new(
+            Rc::new(citing::Library::read_by_checker(
                 self.records,
-                std::borrow::Cow::Borrowed(self.record_sorts),
+                std::borrow::Cow::Borrowed(&self.library_read.record_sorts),
                 proved,
                 env,
+                &self.library_read.groups,
             ))
         });
         library.clone()

@@ -11,6 +11,7 @@ import mundane theorem    stdlib/trigonometry/cos-nonneg as trigonometry-cos-non
 import mundane theorem    stdlib/trigonometry/cos-positive as trigonometry-cos-positive
 import mundane theorem    stdlib/trigonometry/sin-bounded as trigonometry-sin-bounded
 import mundane theorem    stdlib/trigonometry/cos-bounded as trigonometry-cos-bounded
+import mundane theorem    stdlib/trigonometry/cos-decreasing as trigonometry-cos-decreasing
 
 theorem cos-complex
   let a ∈ ℂ                                                           (H1)
@@ -88,3 +89,11 @@ theorem cos-bounded
 
 1.  −1 ≤ cos(a). cos(a) ≤ 1.
     mun:trigonometry-cos-bounded
+
+theorem cos-decreasing
+  let a ∈ [0, π]                                                      (H1)
+  let b ∈ [0, π]                                                      (H2)
+  then a < b ↔ cos(b) < cos(a)
+
+1.  a < b ↔ cos(b) < cos(a)
+    mun:trigonometry-cos-decreasing, from H1, H2

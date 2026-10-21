@@ -6,6 +6,11 @@
 //! the rule tables (`tables`), the calculators (`calculators`, over `field`,
 //! `linear` and `normal`), and what a step's proof may rest on
 //! (`provenance`). `elaborate` is the main loop and the file it writes.
+//!
+//! The elaborator reads no text: every sentence it takes is a tree the
+//! checker read (`Elaborator::read`), and the ways text becomes a tree are
+//! denied here (`clippy.toml`, `disallowed-methods`).
+#![deny(clippy::disallowed_methods)]
 
 use std::cell::RefCell;
 use std::hash::Hash;

@@ -12,7 +12,7 @@ use parley::outcome::Checked;
 
 /// One sentence, read by the front end every tool reads by.
 fn read(text: &str, g: &Grammar, sorts: &Sorts) -> Checked<Node> {
-    Written::new(text, "bounded", 0).sentence()?.read(g, sorts)
+    Written::new(text, "bounded", 0).formula()?.read(g, sorts)
 }
 
 fn grammar() -> Rc<Grammar> {

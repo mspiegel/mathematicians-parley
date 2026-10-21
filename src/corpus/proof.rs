@@ -5,7 +5,7 @@ use std::sync::Arc;
 
 use indexmap::{IndexMap, IndexSet};
 
-use super::define::{define_parts, naming, DefineParts, Naming};
+use super::define::{define_parts, naming, DefineParts, Naming, Param, RuleText};
 use super::lines::{read_lines, Line};
 use super::records::{Record, RecordKind};
 use super::skeleton::{
@@ -224,6 +224,18 @@ impl DefineLine {
         Written::new(part, &self.path, self.line)
     }
 
+    /// A rule of the line, one term or a term by cases, as the formula it
+    /// is: a rule by cases is made from each case's value and condition.
+    pub fn rule(&self, rule: &RuleText) -> Written {
+        rule.written(&self.path, self.line)
+    }
+
+    /// The set an argument of the line runs over, as the formula it is:
+    /// the set written, or for `X ⊆ A` the parts of A, made from A.
+    pub fn domain(&self, p: &Param) -> Written {
+        p.domain_written(&self.path, self.line)
+    }
+
     /// The let read with its kind of number, where it says one; None where
     /// it says none. A kind no record names a member of is a defect.
     pub fn kinded(
@@ -255,7 +267,7 @@ impl DefineLine {
             name: one.name.clone(),
             set: set.clone(),
             shown: reason.shown(Written::member(
-                Written::new(&one.body, path, self.line),
+                self.rule(&one.body),
                 Written::new(set, path, self.line),
                 path,
                 reason.line,
@@ -1015,6 +1027,37 @@ impl Theorem {
 
     pub fn qualified(&self) -> String {
         format!("{}/{}", self.module(), self.name)
+    }
+
+    /// Whether `line` of the theorem's file is one of its own: from its
+    /// header to the last line anything in it is written on. A file's
+    /// theorems never interleave, so no other theorem's line is among them.
+    pub fn owns_line(&self, line: usize) -> bool {
+        (self.line..=self.last_line()).contains(&line)
+    }
+
+    /// The last line anything in the theorem is written on.
+    fn last_line(&self) -> usize {
+        let steps = self.steps.iter().flat_map(|s| {
+            let just = &s.just;
+            [s.line, just.line]
+                .into_iter()
+                .chain(s.requires.iter().map(|r| r.line))
+                .chain(s.openers.iter().map(|o| o.line))
+                .chain(s.parts.iter().map(|(_, l)| *l))
+                .chain(just.chain.iter().map(|(_, l)| *l))
+                .chain(just.rows.iter().map(|(_, l)| *l))
+        });
+        let heads = self
+            .hypotheses
+            .iter()
+            .map(|h| h.line)
+            .chain(self.defines.iter().map(|d| d.line));
+        steps
+            .chain(heads)
+            .chain([self.line, self.conclusion_line])
+            .max()
+            .unwrap_or(self.line)
     }
 
     /// Each define by recursion above the `then`, which the statement is

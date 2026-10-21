@@ -56,6 +56,21 @@ fn a_claim_of_several_sentences_is_their_conjunction_from_the_left() {
     assert_eq!(made.shape(), written.shape());
 }
 
+/// A part that is one formula is one sentence; two is a defect, where a
+/// claim of two is their conjunction.
+#[test]
+fn a_part_that_is_one_formula_refuses_two_sentences() {
+    let one = Written::new("x = 1.", "front-end", 0);
+    assert!(one.formula().is_ok());
+    let two = Written::new("x = 1. y = 2", "front-end", 0);
+    let refused = two
+        .formula()
+        .expect_err("two sentences are not one formula");
+    let said = "is 2 sentences where one formula is written";
+    assert!(refused.message.contains(said));
+    assert_eq!(two.sentences().len(), 2);
+}
+
 /// A membership a `let` says in words, `let A = x + 1, a real number`, is
 /// made from its term and its set, and is the tree of the membership
 /// written out.
@@ -68,7 +83,7 @@ fn a_membership_made_from_its_parts_is_the_one_written() {
         "front-end",
         0,
     )
-    .sentence()
+    .formula()
     .unwrap()
     .read(&g, &Sorts::new())
     .unwrap();
@@ -82,7 +97,7 @@ fn a_membership_made_from_its_parts_is_the_one_written() {
 #[test]
 fn a_reading_that_waits_on_a_sort_declines() {
     let g = grammar();
-    let sentence = Written::new("s(t) ≠ t", "front-end", 0).sentence().unwrap();
+    let sentence = Written::new("s(t) ≠ t", "front-end", 0).formula().unwrap();
     let Declined(why) = sentence.read_so_far(&g, &Sorts::new()).unwrap() else {
         panic!("s(t) read with nothing saying what s is");
     };
@@ -105,7 +120,7 @@ fn a_set_reads_with_the_sort_of_a_letter_bound_before_it() {
     .into_iter()
     .collect();
     Written::new("For all a ∈ G, for all x ∈ aH, xH ⊆ aH", "front-end", 0)
-        .sentence()
+        .formula()
         .unwrap()
         .read(&g, &sorts)
         .unwrap();

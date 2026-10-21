@@ -477,6 +477,9 @@ pub struct Taken {
     /// What the readings taken ask a fact to state first, in the item's
     /// letters (`readings`); the facts that state it are `first_facts`.
     pub asks_first: Vec<Node>,
+    /// For an obtain, the sentence of the group that says the "there is",
+    /// by its place among the group's sentences.
+    pub obtained: Option<usize>,
 }
 
 /// One conclusion of an item a sentence of a claim takes.
@@ -506,6 +509,7 @@ impl Taken {
             bound,
             concluded,
             asks_first: Vec::new(),
+            obtained: None,
         }
     }
 
@@ -802,7 +806,7 @@ pub fn obtained(
             .iter()
             .flat_map(|(_, t)| conjuncts(t, library))
             .collect();
-        for concl in gives {
+        for (sentence, concl) in gives.iter().enumerate() {
             let mut sites = Sites::new();
             binding_sites(concl, &library.ctx, &[], &mut sites);
             for t in &asked {
@@ -836,6 +840,7 @@ pub fn obtained(
                             library,
                         );
                         taken.asks_first = first;
+                        taken.obtained = Some(sentence);
                         return Built(taken);
                     }
                 }

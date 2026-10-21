@@ -100,6 +100,29 @@ mundane theorem pair-equal
   note        Two sets of two listed things are one set when they list the
               same two, in either order.
 
+mundane theorem pair-parts-equal
+  let a be an element                                                 (H1)
+  let b be an element                                                 (H2)
+  let c be an element                                                 (H3)
+  let d be an element                                                 (H4)
+  then        (a, b) = (c, d) ↔ a = c and b = d
+  metamath    opthg
+  target      opthg
+  note        Two pairs are one pair when their first parts are equal and
+              their second parts are, the order counting, as it does not
+              for {a, b} (`pair-equal`).
+
+mundane theorem pair-in-product
+  let X be a set                                                      (H1)
+  let Y be a set                                                      (H2)
+  let a be an element                                                 (H3)
+  let b be an element                                                 (H4)
+  then        (a, b) ∈ X × Y ↔ a ∈ X and b ∈ Y
+  metamath    opelxp
+  target      opelxp
+  note        A pair is in X × Y when its first part is in X and its second
+              in Y.
+
 mundane definition singleton
   let x be an element                                                 (H1)
   then        x ∈ {a} ↔ x = a

@@ -20,6 +20,7 @@ use crate::sorts::introduction::{Form, Introduction};
 use crate::sorts::{sorts_of_statement, statement_definitions, Env};
 
 use super::supply::names_of;
+use crate::checker::record::ItemReading;
 
 /// One `then` group of an item.
 pub struct Group {
@@ -168,6 +169,9 @@ pub struct Library<'a> {
     items: IndexMap<String, usize>,
     proved: IndexMap<String, Proved<'a>>,
     cache: RefCell<IndexMap<String, Option<Rc<Vec<Group>>>>>,
+    /// Every item's groups as the checker read them, where this library is
+    /// the build's: it then reads no item itself (`read_by_checker`).
+    read_by_checker: Option<&'a IndexMap<String, Option<Rc<Vec<Group>>>>>,
     /// Which notations are an existential, a universal, a membership, a
     /// conjunction, a biconditional, an implication and a negation, taken
     /// from what they target in the kernel rather than named here.
@@ -211,6 +215,7 @@ impl<'a> Library<'a> {
             items,
             proved,
             cache: RefCell::new(IndexMap::new()),
+            read_by_checker: None,
             exists: FxIndexSet::default(),
             every: FxIndexSet::default(),
             members: FxIndexSet::default(),
@@ -246,6 +251,21 @@ impl<'a> Library<'a> {
         lib
     }
 
+    /// The build's library: `new`, with every item's groups as the checker
+    /// read them (`all_groups`), so that it reads no item again.
+    pub fn read_by_checker(
+        records: &'a [Record],
+        record_sorts: Cow<'a, IndexMap<usize, Sorts>>,
+        proved: IndexMap<String, Proved<'a>>,
+        env: Env<'a>,
+        groups: &'a IndexMap<String, Option<Rc<Vec<Group>>>>,
+    ) -> Library<'a> {
+        Library {
+            read_by_checker: Some(groups),
+            ..Library::new(records, record_sorts, proved, env)
+        }
+    }
+
     /// The item of that full name, a record or a theorem this corpus proves.
     pub fn item(&self, name: &str) -> Option<crate::corpus::Item<'a>> {
         if let Some(&i) = self.items.get(name) {
@@ -254,6 +274,15 @@ impl<'a> Library<'a> {
         self.proved
             .get(name)
             .map(|k| crate::corpus::Item::Theorem(k.thm))
+    }
+
+    /// The sorts the item of that full name is read with, a record's or a
+    /// theorem's this corpus proves: what each of its letters is.
+    pub fn item_sorts(&self, name: &str) -> Option<&Sorts> {
+        match self.items.get(name) {
+            Some(i) => self.record_sorts.get(i),
+            None => self.proved_sorts(name),
+        }
     }
 
     /// The sorts a theorem this corpus proves, of that full name, is read
@@ -265,6 +294,9 @@ impl<'a> Library<'a> {
     /// The groups of the item of that full name, or None where no item has
     /// it.
     pub fn groups(&self, name: &str) -> Option<Rc<Vec<Group>>> {
+        if let Some(read) = self.read_by_checker {
+            return read.get(name).cloned().flatten();
+        }
         if let Some(found) = self.cache.borrow().get(name) {
             return found.clone();
         }
@@ -341,6 +373,53 @@ impl<'a> Library<'a> {
             })
             .collect();
         self.trees(&lines, sorts)
+    }
+
+    /// The groups of every item a citation may name, a record's and a
+    /// proved theorem's, by its full name, for the build to cite from
+    /// (`LibraryReading`).
+    pub fn all_groups(&self) -> IndexMap<String, Option<Rc<Vec<Group>>>> {
+        self.items
+            .keys()
+            .chain(self.proved.keys())
+            .map(|name| (name.clone(), self.groups(name)))
+            .collect()
+    }
+
+    /// Every sentence of every item a citation may name, read with the
+    /// item's own sorts, by where it is written: each hypothesis, a `let`
+    /// line part by part (`Introduction::parts`), each conclusion, and each
+    /// formula a record's target fills its lemma's letters with. The build
+    /// reads an item from here, never again (`ItemReading`).
+    pub fn item_readings(&self) -> ItemReading {
+        let mut out = ItemReading::default();
+        for (i, r) in self.records.iter().enumerate() {
+            let Some(sorts) = self.record_sorts.get(&i) else {
+                continue;
+            };
+            let lines = r.hypotheses.iter().map(|h| (h.kind, h.body(&r.path)));
+            let mut said: Vec<Written> = hypothesis_parts(lines);
+            said.extend(r.stated());
+            let (_, fills) = crate::targets::lemma(r);
+            said.extend(fills.values().map(|f| Written::new(f, &r.path, r.line)));
+            self.read_into(&mut out, &said, sorts);
+        }
+        for k in self.proved.values() {
+            let thm = k.thm;
+            let lines = thm.hypotheses.iter().map(|h| (h.kind, h.body(&thm.path)));
+            let mut said: Vec<Written> = hypothesis_parts(lines);
+            said.push(thm.stated());
+            self.read_into(&mut out, &said, &k.sorts);
+        }
+        out
+    }
+
+    /// Each sentence of `said`, read with `sorts`, kept in `out`.
+    fn read_into(&self, out: &mut ItemReading, said: &[Written], sorts: &Sorts) {
+        for sentence in said.iter().flat_map(Written::sentences) {
+            let read = sentence.read(self.env.g, sorts);
+            out.keep(&sentence, read);
+        }
     }
 
     /// One (hypotheses, conclusion sentences) pair per `then` group.
@@ -491,6 +570,19 @@ impl<'a> Library<'a> {
         }
         out
     }
+}
+
+/// The parts of hypothesis lines that are formula text: a `let` line's
+/// parts (`Introduction::parts`), and an `assume` line whole.
+fn hypothesis_parts(lines: impl Iterator<Item = (Intro, Written)>) -> Vec<Written> {
+    let mut out = Vec::new();
+    for (kind, body) in lines {
+        match kind {
+            Intro::Let => out.extend(Introduction::read(body).parts()),
+            _ => out.push(body),
+        }
+    }
+    out
 }
 
 /// The facts, and each part of one that is a conjunction.

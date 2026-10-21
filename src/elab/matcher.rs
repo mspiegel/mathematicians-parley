@@ -5512,8 +5512,12 @@ impl<'a> Elaborator<'a> {
             }
             binds.insert(name.to_string(), out);
         }
+        // A part behind a defined name is written as the define writes it:
+        // a ∈ C, C the set {m ∈ ℝ : |m| = r}, has |m| = r as a part, and the
+        // reading's conditional rules take it to m = r.
+        let named = self.names_read(term, None);
         let mut written: IndexMap<Rpn, Term> = IndexMap::new();
-        for sub in subterms(term) {
+        for sub in subterms(term).into_iter().chain(subterms(&named)) {
             let read = self.read_through(&sub, true, None);
             written.entry(self.rpn(&read)).or_insert(sub);
         }

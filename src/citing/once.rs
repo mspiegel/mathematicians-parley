@@ -11,6 +11,8 @@
 //! answers. So the two tools agree on which memberships a step need not
 //! write.
 
+use std::collections::BTreeSet;
+
 use indexmap::IndexMap;
 use num_bigint::BigInt;
 use num_rational::BigRational;
@@ -72,7 +74,8 @@ pub fn range_system(range: &Node) -> Option<System> {
 }
 
 /// The memberships the page says once of the terms `parts` names, in every
-/// number system each is in, laid onto its facts. A letter is introduced by
+/// number system each is in, and in the plane for the letters `in_plane`
+/// introduces as points, laid onto its facts. A letter is introduced by
 /// `introduced` or by a fact of `parts` saying it is in a number system.
 /// They are added after what a membership implies is read (`finished`), so
 /// that `let k ∈ ℕ` gives k ∈ ℝ here and never k ≥ 1. A sum is said once
@@ -81,6 +84,7 @@ pub fn range_system(range: &Node) -> Option<System> {
 pub fn said_once(
     parts: &mut Parts,
     introduced: &Introduced,
+    in_plane: &BTreeSet<String>,
     typed: &[Node],
     library: &Library,
     sorts: &Sorts,
@@ -233,7 +237,40 @@ pub fn said_once(
             }
         }
     }
+    out.extend(points_in_plane(parts, &seeded, in_plane, library));
     parts.facts.extend(out);
+}
+
+/// A ∈ 𝔼² for each letter in `points` the step names: `let A be a point`
+/// says it once, as a sort (`READERS.md`, a sort is stated once), and the
+/// kernel builds the sort and the membership as the one A ∈ ℂ. A point built
+/// from parts, (x, y), rests on what its parts are and is not given.
+fn points_in_plane(
+    parts: &Parts,
+    seeded: &[Node],
+    points: &BTreeSet<String>,
+    library: &Library,
+) -> Vec<Node> {
+    let ctx = &library.ctx;
+    let mut local = Sorts::new();
+    local.insert("x".into(), Sort::of("point"));
+    let Ok(made) = template("x ∈ 𝔼²", library.env.g, &local) else {
+        return Vec::new();
+    };
+    let mut seen: FxIndexSet<ByShape> = FxIndexSet::default();
+    parts
+        .facts
+        .iter()
+        .chain(&parts.claims)
+        .chain(seeded)
+        .flat_map(|n| n.walk())
+        .filter(|node| node.is_name() && points.contains(node.text.as_str()))
+        .filter(|node| seen.insert(node.by_shape()))
+        .map(|node| {
+            let put = Binding::from([(Symbol::of("x"), node.clone())]);
+            standard(&substitute_apart(&made, &put, ctx), ctx)
+        })
+        .collect()
 }
 
 /// What the said-once walk takes as it stands, where it does not take a

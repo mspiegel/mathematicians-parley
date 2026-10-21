@@ -6,13 +6,17 @@
 //! The build is handed this rather than working it out again as it walks
 //! the proof, so the two cannot read one proof two ways.
 
+use std::rc::Rc;
+
 use indexmap::IndexMap;
 
-use crate::citing::Concluded;
+use crate::citing::{Concluded, Group};
 use crate::corpus::{Step, StepNo, Theorem};
+use crate::formula::page::Sentence;
 use crate::formula::{Node, Sorts};
-use crate::matching::Binding;
-use crate::outcome::Problem;
+use crate::matching::{Binding, Definitions};
+use crate::outcome::{Checked, Problem};
+use crate::sorts::CitedStatement;
 
 /// Where a step or a define stands: directly in a block, and in which part
 /// of it where the block has parts.
@@ -56,9 +60,121 @@ impl Block {
     }
 }
 
+/// Where a sentence is written and what it says: the line, and the text.
+/// A theorem's lines are its own, so within one theorem this names one
+/// sentence of its page.
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct PartKey {
+    pub line: usize,
+    pub text: String,
+}
+
+impl PartKey {
+    pub fn of(sentence: &Sentence) -> PartKey {
+        PartKey {
+            line: sentence.line(),
+            text: sentence.text().to_string(),
+        }
+    }
+}
+
+/// Every formula on a theorem's page as the checker read it: each
+/// sentence's tree, by where it is written. The build takes a sentence of
+/// the page from here and never parses one again, so the two read one
+/// proof one way.
+#[derive(Clone, Debug, Default)]
+pub struct PageReading {
+    read: rustc_hash::FxHashMap<PartKey, Node>,
+}
+
+impl PageReading {
+    pub fn new(read: rustc_hash::FxHashMap<PartKey, Node>) -> PageReading {
+        PageReading { read }
+    }
+
+    /// The tree of a sentence of the page, as the checker read it.
+    pub fn get(&self, sentence: &Sentence) -> Option<&Node> {
+        self.read.get(&PartKey::of(sentence))
+    }
+
+    /// Every sentence read, in no order, for a record printed in review.
+    pub fn entries(&self) -> impl Iterator<Item = (&PartKey, &Node)> {
+        self.read.iter()
+    }
+}
+
+/// Where a sentence of an item is written and what it says: its file, its
+/// line and its text.
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct ItemKey {
+    pub path: String,
+    pub line: usize,
+    pub text: String,
+}
+
+impl ItemKey {
+    pub fn of(sentence: &Sentence) -> ItemKey {
+        ItemKey {
+            path: sentence.path().to_string(),
+            line: sentence.line(),
+            text: sentence.text().to_string(),
+        }
+    }
+}
+
+/// Every sentence of every item a citation may name, a record of the
+/// library or a theorem of the corpus, read once as the item means it, with
+/// its own sorts (`citing::Library::item_readings`), by where it is
+/// written. The build takes an item's sentence from here, so it reads what
+/// it cites as the checker does. A sentence that does not read keeps its
+/// problem, which the build reports where it asks for it.
+#[derive(Clone, Debug, Default)]
+pub struct ItemReading {
+    read: rustc_hash::FxHashMap<ItemKey, Checked<Node>>,
+}
+
+impl ItemReading {
+    /// A sentence of an item, read, kept.
+    pub fn keep(&mut self, sentence: &Sentence, read: Checked<Node>) {
+        self.read.entry(ItemKey::of(sentence)).or_insert(read);
+    }
+
+    /// The reading of a sentence of an item, where the checker read one.
+    pub fn get(&self, sentence: &Sentence) -> Option<&Checked<Node>> {
+        self.read.get(&ItemKey::of(sentence))
+    }
+}
+
+/// What the checker read of every item a citation may name, once for the
+/// corpus, which the build cites from and never reads again.
+#[derive(Default)]
+pub struct LibraryReading {
+    /// The sorts of every item record, by its place in the records
+    /// (`sorts::sorts_of_records`).
+    pub record_sorts: IndexMap<usize, Sorts>,
+    /// How a citation reads each proved theorem's statement, by its full
+    /// name (`sorts::cited_statement`).
+    pub cited: IndexMap<String, CitedStatement>,
+    /// Each item's groups, by its full name, a record's and a proved
+    /// theorem's (`citing::Library::groups`).
+    pub groups: IndexMap<String, Option<Rc<Vec<Group>>>>,
+}
+
 /// A theorem as the checker reads it.
 #[derive(Clone, Debug, Default)]
 pub struct CheckedTheorem {
+    /// Every formula on the page, read.
+    pub page: PageReading,
+    /// Every sentence of every item the corpus may cite, read: one reading
+    /// for the corpus, shared by each theorem's record.
+    pub items: std::rc::Rc<ItemReading>,
+    /// What each definition the theorem sees from outside it stands for,
+    /// written out where it was defined (`sorts::file_definitions`).
+    pub outside: Definitions,
+    /// What the theorem's statement is read with, written out: the
+    /// definitions from outside it and those of its header, read with its
+    /// sorts (`sorts::statement_definitions`).
+    pub statement_definitions: Definitions,
     pub blocks: Vec<Block>,
     /// Where each step stands, by its index in the theorem's steps; None at
     /// the outermost level.
@@ -107,6 +223,9 @@ pub struct Cited {
     /// The item, by its full name.
     pub item: String,
     pub group: usize,
+    /// For an obtain, the sentence of the group that says the "there is",
+    /// by its place among the group's sentences (`Taken::obtained`).
+    pub obtained: Option<usize>,
     pub binding: Binding,
     /// What the reading gave each letter a binder of the item holds
     /// (`Taken::bound`): for a "there is" the citation asks, or a definition

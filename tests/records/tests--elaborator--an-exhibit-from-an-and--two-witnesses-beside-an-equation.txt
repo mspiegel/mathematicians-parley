@@ -1,2 +1,7 @@
 theorem tests/elaborator/an-exhibit-from-an-and/two-witnesses-beside-an-equation
 step 3 exhibits in sentence 0 x := 0, y := 2
+read 30: there are x, y ∈ ℝ with x ≠ y and x + 1 = y + 1 − 2  as  there-is:thereis∈with(name:x, number-systems:ℝ, there-is:thereis∈with(name:y, number-systems:ℝ, conjunction:and(logical-not:not(equality:=(name:x, name:y)), equality:=(additive:+(name:x, numeral:1), additive:−(additive:+(name:y, numeral:1), numeral:2)))))  a statement
+read 34: there are x, y ∈ ℝ with x ≠ y and x + 1 = y + 1 − 2  as  there-is:thereis∈with(name:x, number-systems:ℝ, there-is:thereis∈with(name:y, number-systems:ℝ, conjunction:and(logical-not:not(equality:=(name:x, name:y)), equality:=(additive:+(name:x, numeral:1), additive:−(additive:+(name:y, numeral:1), numeral:2)))))  a statement
+read 36: 0 + 1 = 2 + 1 − 2  as  equality:=(additive:+(numeral:0, numeral:1), additive:−(additive:+(numeral:2, numeral:1), numeral:2))  a statement
+read 39: 0 ≠ 2  as  logical-not:not(equality:=(numeral:0, numeral:2))  a statement
+read 42: there are x, y ∈ ℝ with x ≠ y and x + 1 = y + 1 − 2  as  there-is:thereis∈with(name:x, number-systems:ℝ, there-is:thereis∈with(name:y, number-systems:ℝ, conjunction:and(logical-not:not(equality:=(name:x, name:y)), equality:=(additive:+(name:x, numeral:1), additive:−(additive:+(name:y, numeral:1), numeral:2)))))  a statement

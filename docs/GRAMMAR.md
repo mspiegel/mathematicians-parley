@@ -32,6 +32,13 @@ each done once:
 3. The **parser** reads each sentence into a tree, by the declared
    notations and the sorts in scope.
 
+A part is one of two kinds. A claim (a step's claim, an `assume` or
+`suppose` line, a `then` line) may be several sentences, which mean their
+conjunction. Every other part, a `let` line's introduction, a requires
+line's fact, a substitute's equation, a value, a chain term or row, an
+induction's start, is one formula (`Written::formula`), and two sentences
+there are a defect.
+
 The splitter and the parser are in `src/formula/page.rs`, and no other code
 reaches the parser. The skeleton reader reads its productions word by word,
 never by pattern: `src/corpus/skeleton.rs` cuts a justification into its
@@ -100,7 +107,9 @@ what `x` is.
 
 They are **sorts** in the sense of many-sorted logic, and they nest: a set's
 sort says what it holds, so *number*, *set of numbers*, *set of points* and *set
-of sets of numbers* are four sorts. That is `READERS.md`'s reader, who thinks of
+of sets of numbers* are four sorts. A pair's sort is the sorts of its two
+parts, *pair of a number and a point*, and `A × B` holds the pairs of what A
+and B hold. That is `READERS.md`'s reader, who thinks of
 a set as holding one sort of thing. What a name is declared is written down; how
 the sorts of names relate is read off the text, as below; and a statement about
 every set is about a set of one unknown sort, not a set of anything at all.
@@ -407,10 +416,9 @@ notation's record leaves what it yields to a sort variable, as application's
 `function from α to β, α → β` does, the sorts of what fills its holes settle
 it.
 
-A notation may still open with a bracket, as the open interval `(a, b)` does.
-It is tried as a notation opening with a name is, and what no such notation
-reads is a group: the interval's comma between two holes is what tells it
-from `(e)`.
+A notation may still open with a bracket, as the pair `(a, b)` does. It is
+tried as a notation opening with a name is, and what no such notation reads is
+a group: the pair's comma between two holes is what tells it from `(e)`.
 
 A prime always belongs to a name to the lexer, and what a primed name means is
 the parser's to say, by the sort of its stem. Where nothing declares `f′` and
@@ -449,11 +457,12 @@ would let the name `s` match the declared word `S`.
 ```
 
 A pattern is a candidate at a position when its leading token matches, a hole
-being a token that matches anything. Three things then narrow the candidates, in
+being a token that matches anything. Four things then narrow the candidates, in
 this order:
 
 1. **The literal tokens.** Most patterns are settled here alone. Of the 80
-   declared patterns two shapes are shared outright, `|_|` and `_(_)`; others
+   declared patterns three shapes are shared outright, `|_|`, `_(_)` and
+   `(_, _)`; others
    open the same way as some other pattern and are separated by a token further
    on, as `_, _` and `_, and _` are, as the two universals are by the `with`
    that one of them carries, and as `{_}` and `{_, …, _}` are by the comma.
@@ -461,7 +470,16 @@ this order:
    is absolute value, cardinality or distance according to what is inside, and
    `_(_)` is a function applied to an argument, a number times a bracketed one,
    or a property holding of something, according to what is on the left.
-3. **Nothing else.** Where two candidates survive, the formula is ambiguous and
+3. **The place it fills.** This decides `(_, _)`, whose holes cannot tell its
+   readings apart. A pair of numbers names
+   - where the hole it fills wants a set, the open interval between its ends;
+   - where it wants a point, the point with those coordinates;
+   - anywhere else, the pair.
+
+   A hole that takes any term wants what the notation's other parts make it:
+   in `A = (1, 2)`, with A a point, the pair is a point. A hole admits one of
+   these at most, so this chooses nothing the sorts leave open.
+4. **Nothing else.** Where two candidates survive, the formula is ambiguous and
    the parser reports it rather than choosing. It reads correctly or it stops.
 
 Once a pattern is chosen its holes are checked against their declared sorts, a
@@ -1104,11 +1122,15 @@ and a field outside them is refused:
 
 | kind | fields |
 |---|---|
-| `notation` | `pattern`, `sort`, `level`, `assoc`, `commutes`, `identity`, `negates`, `spells`, `places`, `nests`, `bounds`, `joins`, `wraps`, `fills`, `repeats`, `shadowed`, `binds`, `reads`, `member`, `target`, `metamath`, `decided`, `note` |
+| `notation` | `pattern`, `sort`, `level`, `assoc`, `commutes`, `identity`, `negates`, `spells`, `places`, `nests`, `bounds`, `joins`, `wraps`, `fills`, `repeats`, `shadowed`, `wanted`, `binds`, `reads`, `member`, `target`, `metamath`, `decided`, `note` |
 | `method` | `form`, `block`, `parts`, `parts-repeat`, `part-opens`, `checks`, `decides`, `hypotheses`, `specified-in`, `metamath`, `note` |
 | `axiom`, `theorem` | `metamath`, `target`, `open`, `note` |
 | `definition` | `sort`, `builds`, `reads`, `metamath`, `target`, `open`, `symbol`, `defines`, `note` |
 | `precedence` | the levels it declares |
+
+`wanted` names the category a hole must want for the pattern to be read
+there: the open interval is `(_, _)` read where a set is wanted, and nowhere
+else.
 
 The three kinds `axiom`, `theorem` and `definition` are the library's items,
 and `DATABASE.md`, "Record kinds", says what each is to a reader and what the
@@ -1196,3 +1218,21 @@ that letter is no function and may be written anywhere.
   as one citable unit.
 - **Everything inside a formula.** Notation, precedence, and the three
   different meanings of the vertical bar.
+- **A `let … be the …` line, proposed and not built.** A theorem could name a
+  thing by describing it, as a book does: `let D be the foot of the
+  perpendicular from C to line AB`, `let c be the least upper bound of S`,
+  `let ⊙O be the circle with centre O and radius r`. Each description would
+  be a notation of its own, a term written in words (`the least upper bound
+  of _`, whose target is `sup`), and the line would read as the naming `let`
+  that takes the term, `let c = the least upper bound of S`. It adds nothing
+  the page cannot say: a description with a term is a naming `let` today,
+  and one without is an `obtain`, or a `let` with `assume` lines giving the
+  facts that fix the thing. What it adds is readability, and one obligation:
+  "the" says there is exactly one, so each description needs a record
+  saying it names one thing where an `obtain` asks only that one exists.
+  In `proofs/` it would change three steps, the foot of the altitude in
+  `wiedijk/pythagoras` and the least upper bound in
+  `wiedijk/intermediate-value` and `wiedijk/reals-uncountable`, and could
+  reword about seventeen lines that name ⌊A/B⌋, a gcd or a min.
+  `wiedijk/konigsberg`'s `let G be the undirected multigraph with …` is a
+  special case of it already.

@@ -281,52 +281,6 @@ pub fn which_is_the_claim(text: &str) -> Option<&str> {
     Some(str::trim(before.strip_suffix(',').unwrap_or(before)))
 }
 
-/// What a `let` line names before it says what they are: the text between
-/// `let` and the first ∈, ∉, ⊆, colon or word `be`, `x, y` of `let x, y ∈
-/// ℝ`; None for any other line.
-pub fn let_names(text: &str) -> Option<&str> {
-    let rest = after_word(text.trim_start(), "let")?;
-    let sign = rest.find(['∈', '∉', '⊆', ':']);
-    let be = rest
-        .split_whitespace()
-        .skip(1)
-        .find(|w| *w == "be")
-        .map(|w| offset(rest, w));
-    let end = [sign, be].into_iter().flatten().min()?;
-    let names = rest[..end].trim_end();
-    (!names.is_empty()).then_some(names)
-}
-
-/// The one name a `let` line opens with: what stands after `let` up to a
-/// space, ∈, ∉ or colon; None for any other line.
-pub fn let_name(text: &str) -> Option<&str> {
-    let rest = after_word(text.trim_start(), "let")?;
-    let end = rest
-        .find(|c: char| c.is_whitespace() || matches!(c, '∈' | '∉' | ':'))
-        .unwrap_or(rest.len());
-    (end > 0).then_some(&rest[..end])
-}
-
-/// What each pair of braces in a line lists that is a list of names: no
-/// brace inside it, no colon and no `…`, as `{A, B, C, D}` lists a graph's
-/// vertices and `{x ∈ ℕ : x > 1}` lists none.
-pub fn listed(text: &str) -> Vec<&str> {
-    let mut out = Vec::new();
-    let mut rest = text;
-    while let Some(open) = rest.find('{') {
-        let inside = &rest[open + 1..];
-        let Some(close) = inside.find(['{', '}']) else {
-            break;
-        };
-        let list = &inside[..close];
-        if inside[close..].starts_with('}') && !list.contains([':', '…']) {
-            out.push(list);
-        }
-        rest = &inside[close..];
-    }
-    out
-}
-
 /// Whether a word is one letter, Latin or Greek, with any subscript or
 /// prime: what a range line ranges and a `let` may put in a set.
 pub fn is_letter_name(word: &str) -> bool {
@@ -443,23 +397,6 @@ fn imported_path(full: &str) -> bool {
             || c == '-'
     });
     opens && rest && modules.is_none_or(|m| m.split('/').all(is_name))
-}
-
-/// A `let` putting one letter in a set, `let ε ∈ ℚ`.
-pub struct LetterIn<'t> {
-    /// The letter, with any subscript or prime.
-    pub letter: &'t str,
-    pub set: &'t str,
-}
-
-/// The line read as a letter put in a set; None for any other line. The
-/// `let` may be left off.
-pub fn letter_in(text: &str) -> Option<LetterIn<'_>> {
-    let text = text.trim();
-    let text = after_word(text, "let").unwrap_or(text);
-    let (letter, set) = text.split_once('∈')?;
-    let (letter, set) = (letter.trim(), set.trim());
-    (is_letter_name(letter) && !set.is_empty()).then_some(LetterIn { letter, set })
 }
 
 /// A step's first line, `3.1.  x = 2`: its number, and its claim as far as

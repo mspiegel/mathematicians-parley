@@ -2,6 +2,7 @@
 
 use indexmap::IndexMap;
 
+use crate::formula::page::{Case, Written};
 use crate::outcome::{Built, Declined, Route};
 use crate::text::{repr, squash};
 
@@ -16,7 +17,7 @@ use crate::text::{repr, squash};
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Define {
     pub name: String,
-    pub body: String,
+    pub body: RuleText,
     /// The arguments, in the order the name takes them; none for a name
     /// that stands for a term.
     pub params: Vec<Param>,
@@ -30,7 +31,101 @@ pub struct Define {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Param {
     pub name: String,
+    /// The set written after `∈` or `⊆`.
     pub domain: String,
+    /// Whether the argument is a member of the set written, or one of its
+    /// parts: `for X ⊆ A` runs X over 𝒫A.
+    pub within: Within,
+    /// The `for` piece as written, `X ⊆ A`.
+    pub said: String,
+}
+
+/// How a define's argument runs over the set its `for` piece writes.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Within {
+    /// `for x ∈ A`: over the members of A.
+    Members,
+    /// `for X ⊆ A`: over the parts of A, the members of 𝒫A.
+    Parts,
+}
+
+impl Param {
+    /// The set written, where the argument runs over its members; None
+    /// where it runs over its parts.
+    pub fn member_of(&self) -> Option<&str> {
+        (self.within == Within::Members).then_some(self.domain.as_str())
+    }
+
+    /// The set the argument runs over, as the formula it is, written at
+    /// `line` of `path`: the set written, or for `X ⊆ A` the parts of A,
+    /// made from the tree of A.
+    pub fn domain_written(&self, path: &str, line: usize) -> Written {
+        let set = Written::new(self.domain.as_str(), path, line);
+        match self.within {
+            Within::Members => set,
+            Within::Parts => Written::parts(self.said.as_str(), set, path, line),
+        }
+    }
+}
+
+/// A define's rule as written: one term, or a term by cases.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum RuleText {
+    /// One term, its lines joined where the comma rule wraps it.
+    Term(String),
+    /// A term by cases, one case to a line and the last taken `otherwise`
+    /// (`SYNTAX.md`).
+    Cases(Cases),
+}
+
+/// The lines of a define by cases.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Cases {
+    /// The lines as written, joined, for a message.
+    pub written: String,
+    /// Each case before the last, in order.
+    pub cases: Vec<CaseText>,
+    /// The value taken otherwise.
+    pub otherwise: String,
+}
+
+/// One case of a define by cases, `value if condition`.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct CaseText {
+    pub value: String,
+    pub condition: String,
+}
+
+impl RuleText {
+    /// The rule as written, for a message.
+    pub fn text(&self) -> &str {
+        match self {
+            RuleText::Term(t) => t,
+            RuleText::Cases(c) => &c.written,
+        }
+    }
+
+    /// The rule as the formula it is, written at `line` of `path`: a rule
+    /// by cases is made from each case's value and condition.
+    pub fn written(&self, path: &str, line: usize) -> Written {
+        let at = |text: &str| Written::new(text, path, line);
+        match self {
+            RuleText::Term(t) => at(t),
+            RuleText::Cases(c) => Written::cases(
+                c.written.as_str(),
+                c.cases
+                    .iter()
+                    .map(|case| Case {
+                        value: at(&case.value),
+                        condition: at(&case.condition),
+                    })
+                    .collect(),
+                at(&c.otherwise),
+                path,
+                line,
+            ),
+        }
+    }
 }
 
 /// What a `define` of sequences by recursion says: each name's value at 0,
@@ -39,15 +134,15 @@ pub struct Param {
 /// `define a(0) := M, b(0) := N, a(k + 1) := b(k), b(k + 1) := a(k) mod
 /// b(k), for k ∈ ℕ₀` defines two sequences together, as a textbook writes
 /// Euclid's algorithm; one name alone is the same form with one sequence.
-/// `start` and `step` hold each name's rule as written, a rule by cases
-/// already folded into `_ if _, _ otherwise` as a `Define` folds one.
+/// `start` and `step` hold each name's rule as written, a term or by cases
+/// as a `Define`'s is.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Recursion {
     pub names: Vec<String>,
     pub index: String,
     pub domain: String,
-    pub start: IndexMap<String, String>,
-    pub step: IndexMap<String, String>,
+    pub start: IndexMap<String, RuleText>,
+    pub step: IndexMap<String, RuleText>,
 }
 
 /// A define read into its parts: one name, or sequences by recursion.
@@ -169,18 +264,19 @@ fn for_one(piece: &str) -> Option<ForOne<'_>> {
 }
 
 /// A case of a define by cases, `value if condition`.
-struct Case<'t> {
+struct CaseLine<'t> {
     value: &'t str,
     condition: &'t str,
 }
 
 /// A line read as a case, at its first word `if`; None for any other line.
-fn case_of(line: &str) -> Option<Case<'_>> {
+fn case_of(line: &str) -> Option<CaseLine<'_>> {
     let word = line.split_whitespace().skip(1).find(|w| *w == "if")?;
     let at = word.as_ptr() as usize - line.as_ptr() as usize;
     let value = line[..at].trim_end();
     let condition = line[at + 2..].trim_start();
-    (!value.is_empty() && !condition.is_empty()).then_some(Case { value, condition })
+    (!value.is_empty() && !condition.is_empty())
+        .then_some(CaseLine { value, condition })
 }
 
 /// The value of a define's last case, the one taken `otherwise`; None for
@@ -390,40 +486,43 @@ pub fn for_pieces(text: &str) -> Vec<String> {
     out.push(str::trim(&piece).to_string());
     out
 }
-/// The lines of a define by cases as one term: each value and its
-/// condition, nested from the right into `_ if _, _ otherwise`; or a decline
-/// saying which line is not a case.
-fn by_cases(lines: &[&str]) -> Route<String> {
+/// The lines of a define by cases: each value and its condition, and the
+/// value otherwise; or a decline saying which line is not a case.
+fn by_cases(lines: &[&str]) -> Route<RuleText> {
     let Some(last) = otherwise_of(lines[lines.len() - 1]) else {
         return Route::no(
             "the last line of a define by cases is its value `otherwise`",
         );
     };
-    let mut term = last.to_string();
-    let mut nested = false;
-    for line in lines[..lines.len() - 1].iter().rev() {
+    let mut cases = Vec::new();
+    for line in &lines[..lines.len() - 1] {
         let Some(case) = case_of(line) else {
             return Route::no(format!(
                 "{} is not a case: write the value, then `if` and the condition it is taken under",
                 repr(line)
             ));
         };
-        let rest = if nested { format!("({term})") } else { term };
-        term = format!("{} if {}, {rest} otherwise", case.value, case.condition);
-        nested = true;
+        cases.push(CaseText {
+            value: case.value.to_string(),
+            condition: case.condition.to_string(),
+        });
     }
-    Built(term)
+    Built(RuleText::Cases(Cases {
+        written: lines.join(" "),
+        cases,
+        otherwise: last.to_string(),
+    }))
 }
 
-/// One rule's text as a term: its lines joined, or folded by cases where its
-/// last line is taken `otherwise`.
-fn rule_term(text: &str) -> Route<String> {
+/// One rule as written: its lines joined, or by cases where its last line
+/// is taken `otherwise`.
+fn rule_term(text: &str) -> Route<RuleText> {
     let trimmed = str::trim(text).trim_end_matches(',');
     let pieces: Vec<&str> = trimmed.split('\n').map(str::trim).collect();
     if pieces.len() > 1 && otherwise_of(pieces[pieces.len() - 1]).is_some() {
         return by_cases(&pieces);
     }
-    Built(pieces.join(" "))
+    Built(RuleText::Term(pieces.join(" ")))
 }
 
 /// The index value at which an argument is a recursion's step: `a(m + 1)`
@@ -455,8 +554,8 @@ fn recursion_parts(said: &str) -> Route<DefineParts> {
     let body = &said[word.len()..closing.start];
     let heads = rule_heads(body);
     let mut names: Vec<String> = Vec::new();
-    let mut start: IndexMap<String, String> = IndexMap::new();
-    let mut step: IndexMap<String, String> = IndexMap::new();
+    let mut start: IndexMap<String, RuleText> = IndexMap::new();
+    let mut step: IndexMap<String, RuleText> = IndexMap::new();
     for (i, head) in heads.iter().enumerate() {
         let name = head.name.to_string();
         let at = squash(head.at);
@@ -573,11 +672,11 @@ pub fn define_parts(text: &str) -> Route<DefineParts> {
     let pieces: Vec<&str> = body.split('\n').map(str::trim).collect();
     let body = if pieces.len() > 1 && otherwise_of(pieces[pieces.len() - 1]).is_some() {
         match by_cases(&pieces) {
-            Built(term) => term,
+            Built(rule) => rule,
             Declined(d) => return Declined(d),
         }
     } else {
-        pieces.join(" ")
+        RuleText::Term(pieces.join(" "))
     };
     let said = names.join(", ");
     if let Some(bad) = names.iter().find(|n| !is_one_name(n)) {
@@ -611,19 +710,16 @@ pub fn define_parts(text: &str) -> Route<DefineParts> {
             ));
         }
         // `for X ⊆ A` is `for X ∈ 𝒫A`: X runs over the parts of A.
-        let domain = squash(f.domain);
-        let domain = if f.how == '⊆' {
-            if domain.contains(' ') {
-                format!("𝒫({domain})")
-            } else {
-                format!("𝒫{domain}")
-            }
+        let within = if f.how == '⊆' {
+            Within::Parts
         } else {
-            domain
+            Within::Members
         };
         params.push(Param {
             name: f.over.to_string(),
-            domain,
+            domain: squash(f.domain),
+            within,
+            said: piece.clone(),
         });
     }
     if params.len() != names.len() {

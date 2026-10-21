@@ -69,6 +69,7 @@ pub enum SortTerm {
     Set(Box<SortTerm>),
     Property(Box<SortTerm>),
     Function(Box<SortTerm>, Box<SortTerm>),
+    Pair(Box<SortTerm>, Box<SortTerm>),
     Var(VarId),
 }
 
@@ -150,6 +151,9 @@ impl Store {
             SortTerm::Function(a, b) => {
                 format!("a function from {} to {}", self.plural(&a), self.plural(&b))
             }
+            SortTerm::Pair(a, b) => {
+                format!("a pair of {} and {}", self.show(&a), self.show(&b))
+            }
         }
     }
 
@@ -163,6 +167,7 @@ impl Store {
             ("a set of", "sets of"),
             ("a property of", "properties of"),
             ("a function from", "functions from"),
+            ("a pair of", "pairs of"),
         ] {
             if let Some(rest) = said.strip_prefix(one) {
                 return format!("{many}{rest}");
@@ -176,7 +181,9 @@ impl Store {
             SortTerm::Var(w) => w == v,
             SortTerm::Atom(_) => false,
             SortTerm::Set(c) | SortTerm::Property(c) => self.occurs(v, &c),
-            SortTerm::Function(a, b) => self.occurs(v, &a) || self.occurs(v, &b),
+            SortTerm::Function(a, b) | SortTerm::Pair(a, b) => {
+                self.occurs(v, &a) || self.occurs(v, &b)
+            }
         }
     }
 
@@ -223,7 +230,8 @@ impl Store {
             | (SortTerm::Property(x), SortTerm::Property(y)) => {
                 vec![((**x).clone(), (**y).clone())]
             }
-            (SortTerm::Function(x1, x2), SortTerm::Function(y1, y2)) => vec![
+            (SortTerm::Function(x1, x2), SortTerm::Function(y1, y2))
+            | (SortTerm::Pair(x1, x2), SortTerm::Pair(y1, y2)) => vec![
                 ((**x1).clone(), (**y1).clone()),
                 ((**x2).clone(), (**y2).clone()),
             ],
@@ -273,6 +281,11 @@ impl Store {
                 let b = self.copy(&b, seen);
                 SortTerm::Function(Box::new(a), Box::new(b))
             }
+            SortTerm::Pair(a, b) => {
+                let a = self.copy(&a, seen);
+                let b = self.copy(&b, seen);
+                SortTerm::Pair(Box::new(a), Box::new(b))
+            }
         }
     }
 
@@ -286,7 +299,7 @@ impl Store {
             }
             SortTerm::Atom(_) => {}
             SortTerm::Set(c) | SortTerm::Property(c) => self.make_rigid(&c, name),
-            SortTerm::Function(a, b) => {
+            SortTerm::Function(a, b) | SortTerm::Pair(a, b) => {
                 self.make_rigid(&a, name);
                 self.make_rigid(&b, name);
             }
@@ -309,6 +322,9 @@ pub fn sort(store: &Store, k: &SortTerm) -> Option<Sort> {
             SortTerm::Function(a, b) => {
                 Whole::Function(Rc::new(whole(store, &a)), Rc::new(whole(store, &b)))
             }
+            SortTerm::Pair(a, b) => {
+                Whole::Pair(Rc::new(whole(store, &a)), Rc::new(whole(store, &b)))
+            }
         }
     }
     Sort::whole(whole(store, k))
@@ -324,6 +340,7 @@ enum Template {
     Set(Box<Template>),
     Property(Box<Template>),
     Function(Box<Template>, Box<Template>),
+    Pair(Box<Template>, Box<Template>),
     Var(String),
 }
 
@@ -343,6 +360,7 @@ impl Template {
             },
             Template::Property(_) => "property",
             Template::Function(..) => "function",
+            Template::Pair(..) => "pair",
             Template::Var(_) => "any",
         }
     }
@@ -423,6 +441,21 @@ impl Signature {
         (holes, result)
     }
 
+    /// Whether what fills the holes, in the sorts the reading settled, fits
+    /// the signature: `C(n, 1)` with C a function taking its arguments one
+    /// at a time does not fit a function on pairs. A part of no settled sort
+    /// fits.
+    pub fn admits(&self, filled: &[&Sort]) -> bool {
+        let mut store = Store::default();
+        let (holes, _) = self.fresh(&mut store);
+        holes.iter().zip(filled).all(|(hole, sort)| {
+            let Some(said) = term_of_sort(sort, &mut store) else {
+                return true;
+            };
+            !store.unify(hole, &said).is_declined()
+        })
+    }
+
     /// What a node of this signature produces, where the sorts of what fills
     /// its holes settle a result the signature leaves to a variable:
     /// application's β, from the function in its first hole, so cos(x) is a
@@ -445,6 +478,24 @@ impl Signature {
     }
 }
 
+/// A sort as a term: in full where the reading settled it, and otherwise
+/// the most a category says, `pair` a pair of things of any sort and `set`
+/// a set of them; None for a category that says nothing.
+fn term_of_sort(sort: &Sort, store: &mut Store) -> Option<SortTerm> {
+    if let Some(whole) = sort.full() {
+        return Some(term_of(whole, store));
+    }
+    Some(match sort.name()? {
+        "number" => NUMBER,
+        "point" => POINT,
+        "group-element" => GROUP_ELEMENT,
+        "set" => SortTerm::set(store.var()),
+        "pair" => SortTerm::Pair(Box::new(store.var()), Box::new(store.var())),
+        "function" => SortTerm::Function(Box::new(store.var()), Box::new(store.var())),
+        _ => return None,
+    })
+}
+
 /// A sort in full as a term, its open parts fresh variables.
 fn term_of(whole: &Whole, store: &mut Store) -> SortTerm {
     match whole {
@@ -458,6 +509,11 @@ fn term_of(whole: &Whole, store: &mut Store) -> SortTerm {
             let a = term_of(a, store);
             let b = term_of(b, store);
             SortTerm::Function(Box::new(a), Box::new(b))
+        }
+        Whole::Pair(a, b) => {
+            let a = term_of(a, store);
+            let b = term_of(b, store);
+            SortTerm::Pair(Box::new(a), Box::new(b))
         }
         Whole::Open => store.var(),
     }
@@ -487,12 +543,17 @@ fn instance(
             let b = instance(b, names, store);
             SortTerm::Function(Box::new(a), Box::new(b))
         }
+        Template::Pair(a, b) => {
+            let a = instance(a, names, store);
+            let b = instance(b, names, store);
+            SortTerm::Pair(Box::new(a), Box::new(b))
+        }
     }
 }
 
 regex!(
     TOKEN,
-    r"group-element|set of|property of|function from|to|number|point|formula|[α-ω]"
+    r"group-element|set of|property of|function from|pair of|to|and|number|point|formula|[α-ω]"
 );
 
 /// A `sort` field, or a decline saying what in it does not read.
@@ -606,8 +667,25 @@ fn term<'t>(tokens: &'t [&'t str]) -> Route<(Template, &'t [&'t str])> {
         };
         return Built((Template::Function(Box::new(a), Box::new(b)), rest));
     }
+    if head == "pair of" {
+        let (a, rest) = match term(rest) {
+            Built(got) => got,
+            Declined(d) => return Declined(d),
+        };
+        if rest.first() != Some(&"and") {
+            return Route::no("`pair of` wants `and`");
+        }
+        let (b, rest) = match term(&rest[1..]) {
+            Built(got) => got,
+            Declined(d) => return Declined(d),
+        };
+        return Built((Template::Pair(Box::new(a), Box::new(b)), rest));
+    }
     if head == "to" {
         return Route::no("`to` stands without `function from`");
+    }
+    if head == "and" {
+        return Route::no("`and` stands without `pair of`");
     }
     Built((Template::Var(head.to_string()), rest))
 }
@@ -798,7 +876,7 @@ impl Reader {
         let mut out = IndexMap::new();
         let written = Written::new(claimed, &self.path, line);
         let sorts = self.sorts(store);
-        let Ok(tree) = written.sentence().and_then(|s| s.read(env.g, &sorts)) else {
+        let Ok(tree) = written.formula().and_then(|s| s.read(env.g, &sorts)) else {
             return out;
         };
         let [letter, domain, _] = tree.children.as_slice() else {
@@ -1124,8 +1202,8 @@ fn recursion_sorts(
     at_step.insert(said.index.clone(), NUMBER);
     for (rules, local) in [(&said.start, IndexMap::new()), (&said.step, at_step)] {
         for (name, rule) in rules {
-            let rule = Written::new(rule, &reader.path, line.line);
-            let Ok(tree) = rule.sentence().and_then(|s| s.read(env.g, &local_sorts))
+            let rule = rule.written(&reader.path, line.line);
+            let Ok(tree) = rule.formula().and_then(|s| s.read(env.g, &local_sorts))
             else {
                 continue; // `check_recursions` says it does not read
             };
@@ -1254,12 +1332,12 @@ pub fn read_theorem(
                 let sorts = reader.sorts(store);
                 // A part that does not read is `check_formulas`'s to report.
                 let path = reader.path.clone();
-                let part = |text: &str, sorts: &Sorts| {
-                    let written = Written::new(text, &path, no.line);
-                    written.sentence().and_then(|s| s.read(env.g, sorts))
+                let part = |written: Written, sorts: &Sorts| {
+                    written.formula().and_then(|s| s.read(env.g, sorts))
                 };
+                let body = said.body.written(&path, no.line);
                 if said.params.is_empty() {
-                    let Ok(tree) = part(&said.body, &sorts) else {
+                    let Ok(tree) = part(body, &sorts) else {
                         continue;
                     };
                     let k = reader.sort_of(&tree, no, &IndexMap::new(), store);
@@ -1274,7 +1352,9 @@ pub fn read_theorem(
                 let mut taken = Vec::new();
                 let mut read = true;
                 for p in &said.params {
-                    let Ok(over_tree) = part(&p.domain, &local_sorts) else {
+                    let Ok(over_tree) =
+                        part(p.domain_written(&path, no.line), &local_sorts)
+                    else {
                         read = false;
                         break;
                     };
@@ -1291,7 +1371,7 @@ pub fn read_theorem(
                 if !read {
                     continue;
                 }
-                let Ok(body_tree) = part(&said.body, &local_sorts) else {
+                let Ok(body_tree) = part(body, &local_sorts) else {
                     continue;
                 };
                 let gives = reader.sort_of(&body_tree, no, &local, store);

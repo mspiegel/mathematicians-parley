@@ -16,7 +16,8 @@ use crate::citing::{
 use crate::corpus::proof::{chain, rows, visible, ChainLine, RowReason};
 use crate::corpus::{
     define_parts, DefineParts, FileScope, Head, Intro, Item, Justification, Method,
-    Record, RecordKind, Recursion, Requires, Source, Step, Theorem, Value, Values,
+    Record, RecordKind, Recursion, Requires, RuleText, Source, Step, Theorem, Value,
+    Values,
 };
 use crate::formula::notation_id::{NotationId, Spelling};
 use crate::formula::page::{
@@ -140,9 +141,12 @@ fn cited_sorts(
             continue;
         };
         // Every value is read with the sorts as they stand before fitting
-        // any of them settles one. A value that does not read is the
-        // elaborator's to report.
-        let Ok(values) = values.read(env.g, &reader.sorts(store)) else {
+        // any of them settles one, and as its letter's place wants it. A
+        // value that does not read is the elaborator's to report.
+        let letters = stated.sorts(store);
+        let Ok(values) =
+            values.read_wanted(env.g, &reader.sorts(store), Some(&letters))
+        else {
             continue;
         };
         let mut seen = IndexMap::new();
@@ -211,60 +215,22 @@ fn cited_sorts(
 /// block binds, the trees an item states — skip a formula they cannot read and
 /// carry on: it has been reported here, once, with the line it is on.
 pub fn check_formulas(report: &mut Report, thm: &Theorem, env: Env, known: &Known) {
-    let own = introduced(thm);
-    let mut places: Vec<(usize, String, Written)> = thm
-        .steps
-        .iter()
-        .map(|s| (s.line, format!("step {}", s.number), s.claim.clone()))
-        .collect();
-    for s in &thm.steps {
-        for r in &s.requires {
-            places.push((
-                r.line,
-                format!("the requires line of step {}", s.number),
-                r.fact.clone(),
-            ));
-        }
-    }
-    let assumed = |kind| matches!(kind, Intro::Assume | Intro::Suppose);
-    for h in thm.hypotheses.iter().filter(|h| assumed(h.kind)) {
-        places.push((h.line, format!("the `{}` line", h.kind), h.body(&thm.path)));
-    }
-    // An induction hypothesis writes no formula: it assumes what its
-    // induction's claim says.
-    for s in &thm.steps {
-        for o in &s.openers {
-            if assumed(o.kind) && !o.is_hypothesis {
-                places.push((
-                    o.line,
-                    format!("the `{}` line", o.kind),
-                    o.body(&thm.path),
-                ));
-            }
-        }
-    }
-    places.push((
-        thm.line,
-        format!("the statement of {}", thm.name),
-        Written::new(&thm.conclusion, &thm.path, thm.line),
-    ));
-    for (line, what, written) in places {
+    let own = introduced(thm, known);
+    for part in claim_parts(thm) {
         // Each of these places says something: a `.` alone is no sentence.
-        if written.sentences().is_empty() {
-            report.say(&thm.path, line, format!("{what} says nothing"));
+        if part.written.sentences().is_empty() {
+            report.say(&thm.path, part.line, format!("{} says nothing", part.what));
             continue;
         }
-        for sentence in written.sentences() {
+        for sentence in part.written.sentences() {
             if let Err(p) = known.parse(&sentence) {
-                // A name the file defines only further down is why, and
-                // `check_defined_below` says so: above its define it names
-                // nothing, and `U(0)` then reads several ways because
-                // nothing says U is a function.
-                let lexed = written_tokens(std::slice::from_ref(&written), env.g);
-                if defined_below(thm, &lexed, &own, env.scopes).is_empty() {
-                    report.say(&thm.path, line, format!("{what}: {}", p.message));
-                }
+                say_unread(report, thm, env, &own, &part, p);
             }
+        }
+    }
+    for part in one_formula_parts(thm) {
+        if let Err(p) = part.written.formula().and_then(|s| known.parse(&s)) {
+            say_unread(report, thm, env, &own, &part, p);
         }
     }
     // A define's rule is a formula too, read with its argument's sort; one
@@ -275,15 +241,171 @@ pub fn check_formulas(report: &mut Report, thm: &Theorem, env: Env, known: &Know
             continue;
         };
         let local = define_sorts(&said, &known.sorts);
-        let body = Written::new(&said.body, &thm.path, d.line);
-        if let Err(p) = body.sentence().and_then(|s| s.read(env.g, &local)) {
+        let body = d.rule(&said.body);
+        if let Err(p) = body.formula().and_then(|s| known.keep_read(&s, &local)) {
             report.say(
                 &thm.path,
                 d.line,
                 format!("define {}: {}", d.label, p.message),
             );
         }
+        // Each argument's name, with the sort its domain gives it, as the
+        // build writes the map sending it to the rule.
+        for p in &said.params {
+            let name = Written::new(&p.name, &thm.path, d.line);
+            if let Err(p) = name.formula().and_then(|s| known.keep_read(&s, &local)) {
+                report.say(
+                    &thm.path,
+                    d.line,
+                    format!("define {}: {}", d.label, p.message),
+                );
+            }
+        }
     }
+}
+
+/// A part of a line that is formula text, and what a message calls it.
+struct FormulaPart {
+    line: usize,
+    what: String,
+    written: Written,
+}
+
+impl FormulaPart {
+    fn new(line: usize, what: String, written: &Written) -> FormulaPart {
+        FormulaPart {
+            line,
+            what,
+            written: written.clone(),
+        }
+    }
+}
+
+/// A part that does not read, reported, unless a name the file defines only
+/// further down is why: `check_defined_below` says so, since above its
+/// define it names nothing, and `U(0)` then reads several ways because
+/// nothing says U is a function.
+fn say_unread(
+    report: &mut Report,
+    thm: &Theorem,
+    env: Env,
+    own: &BTreeSet<String>,
+    part: &FormulaPart,
+    p: Problem,
+) {
+    let lexed = written_tokens(std::slice::from_ref(&part.written), env.g);
+    if defined_below(thm, &lexed, own, env.scopes).is_empty() {
+        let said = format!("{}: {}", part.what, p.message);
+        report.say(&thm.path, part.line, said);
+    }
+}
+
+/// Every part of a theorem that is a claim, of one sentence or several:
+/// each step's claim, each `assume` and `suppose` line, and the statement. An induction hypothesis writes no formula: it assumes
+/// what its induction's claim says.
+fn claim_parts(thm: &Theorem) -> Vec<FormulaPart> {
+    let mut out = Vec::new();
+    for s in &thm.steps {
+        let what = format!("step {}", s.number);
+        out.push(FormulaPart::new(s.line, what, &s.claim));
+    }
+    let assumed = |kind| matches!(kind, Intro::Assume | Intro::Suppose);
+    for h in thm.hypotheses.iter().filter(|h| assumed(h.kind)) {
+        let what = format!("the `{}` line", h.kind);
+        out.push(FormulaPart::new(h.line, what, &h.body(&thm.path)));
+    }
+    let opened = thm.steps.iter().flat_map(|s| &s.openers);
+    for o in opened.filter(|o| assumed(o.kind) && !o.is_hypothesis) {
+        let what = format!("the `{}` line", o.kind);
+        out.push(FormulaPart::new(o.line, what, &o.body(&thm.path)));
+    }
+    let stated = Written::new(&thm.conclusion, &thm.path, thm.line);
+    let what = format!("the statement of {}", thm.name);
+    out.push(FormulaPart::new(thm.line, what, &stated));
+    out
+}
+
+/// Every part of a theorem that is one formula: a `let` line's parts, a
+/// requires line's fact (one per hypothesis of the item, `SYNTAX.md`), each
+/// value `x := t`, a substitute's equation, an induction's start, a
+/// calculation's terms and moduli, an `inequalities` step's rows and the
+/// terms they add or multiply by, and a define's parameter domains. A `let` line of none of the forms is
+/// `check_introductions`'s to report, and a chain or rows that do not cut
+/// `check_structure`'s.
+fn one_formula_parts(thm: &Theorem) -> Vec<FormulaPart> {
+    let mut out = Vec::new();
+    let mut add =
+        |line, what, written: &Written| out.push(FormulaPart::new(line, what, written));
+    let lets = thm
+        .hypotheses
+        .iter()
+        .filter(|h| h.kind == Intro::Let)
+        .map(|h| h.body(&thm.path));
+    let opened = thm
+        .steps
+        .iter()
+        .flat_map(|s| &s.openers)
+        .filter(|o| o.kind == Intro::Let)
+        .map(|o| o.body(&thm.path));
+    for body in lets.chain(opened) {
+        let line = body.line();
+        let introduced = Introduction::read(body);
+        if let Form::Other = introduced.form {
+            continue;
+        }
+        for part in introduced.parts() {
+            add(line, "the `let` line".to_string(), &part);
+        }
+    }
+    for s in &thm.steps {
+        for v in s.just.values.written() {
+            add(s.just.line, format!("a value step {} gives", s.number), v);
+        }
+        for r in &s.requires {
+            let what = format!("the requires line of step {}", s.number);
+            add(r.line, what, &r.fact);
+            for v in r.values().written() {
+                let what =
+                    format!("a value the requires line of step {} gives", s.number);
+                add(r.line, what, v);
+            }
+        }
+        if let Some(e) = &s.just.equation {
+            add(s.just.line, format!("the equation of step {}", s.number), e);
+        }
+        if let Some(start) = &s.just.start {
+            let start = Written::new(start.trim(), &thm.path, s.just.line);
+            let what = format!("the start of step {}", s.number);
+            add(s.just.line, what, &start);
+        }
+        if let Some(Ok(chain)) = chain(&s.just, &thm.path) {
+            let what = || format!("the calculation of step {}", s.number);
+            add(chain.start.line(), what(), &chain.start);
+            for l in &chain.lines {
+                add(l.line, what(), &l.term);
+                if let Some(m) = &l.modulus {
+                    add(l.line, what(), m);
+                }
+            }
+        }
+        if let Some(Ok(rows)) = rows(&s.just, &thm.path) {
+            for row in &rows {
+                let what = format!("a row of step {}", s.number);
+                add(row.line, what.clone(), &row.formula);
+                if let RowReason::Adding(t) | RowReason::Multiplying(t) = &row.reason {
+                    add(row.line, what, t);
+                }
+            }
+        }
+    }
+    for d in &thm.defines {
+        if let Built(DefineParts::One(said)) = define_parts(&d.text) {
+            for p in &said.params {
+                add(d.line, format!("define {}", d.label), &d.domain(p));
+            }
+        }
+    }
+    out
 }
 
 /// A word a definition defines, and the methods its record's `decided` field
@@ -351,7 +473,7 @@ pub fn defined_words(
         else {
             continue;
         };
-        let stated = Written::new(text, &r.path, *line).sentence();
+        let stated = Written::new(text, &r.path, *line).formula();
         let Ok(node) = stated.and_then(|s| s.read(env.g, record_sorts)) else {
             continue;
         };
@@ -698,9 +820,8 @@ pub fn check_letters_introduced(
                 let Ok(node) = known.parse(&sentence) else {
                     continue;
                 };
-                let scope = in_scope.get_or_insert_with(|| {
-                    letters_in_scope(thm, &shape, s, env.scopes, &known.sorts)
-                });
+                let scope = in_scope
+                    .get_or_insert_with(|| letters_in_scope(thm, &shape, s, known));
                 for name in free_names(&node, &binders) {
                     let bound = under_claim && claimed.contains(&name);
                     if !scope.contains(&name) && !bound {
@@ -726,9 +847,8 @@ pub fn check_letters_introduced(
             continue; // `check_formulas` says a value does not read
         };
         for v in &values {
-            let scope = in_scope.get_or_insert_with(|| {
-                letters_in_scope(thm, &shape, s, env.scopes, &known.sorts)
-            });
+            let scope =
+                in_scope.get_or_insert_with(|| letters_in_scope(thm, &shape, s, known));
             for name in free_names(&v.value, &binders) {
                 if !scope.contains(&name) && !claimed.contains(&name) {
                     report.say(
@@ -757,7 +877,7 @@ fn header_letters_introduced(
     known: &Known,
 ) {
     let binders = env.g.binders();
-    let mut scope = super::structure::hypotheses_introduce(thm);
+    let mut scope = super::structure::hypotheses_introduce(thm, known);
     scope.extend(
         visible(env.scopes, thm.scope, thm.line)
             .into_iter()
@@ -1601,7 +1721,7 @@ fn induction_owes(owner: &Step, claim: &Node, known: &Known) -> Vec<Owed> {
     // does not read is the elaborator's to report.
     let start = owner.just.start.as_deref().and_then(|v| {
         let written = Written::new(v, &known.thm.path, owner.just.line);
-        known.read_as_written(&written.sentence().ok()?)
+        known.read_as_written(&written.formula().ok()?)
     });
     let next = made(known.env.g, PLUS, vec![letter.clone(), numeral("1")]);
     let mut owed = Vec::new();
@@ -1642,7 +1762,7 @@ fn proof_owes(owner: &Step, claim: &Node, known: &Known) -> Checked<Owed> {
                 match fixed {
                     Some(name) if name != rest.children[0].text => {
                         let named = Written::new(name, path, o.line)
-                            .sentence()
+                            .formula()
                             .and_then(|s| known.parse(&s))?;
                         put.insert(rest.children[0].text, named);
                         substitute_apart_by(&body, &put, &known.env.g.binders())
@@ -1658,7 +1778,16 @@ fn proof_owes(owner: &Step, claim: &Node, known: &Known) -> Checked<Owed> {
             {
                 // What the block assumes is what the claim supposes, its
                 // letters the block's (`SYNTAX.md`, `proof`).
-                let assumed = known.parse(&o.body(path).sentence()?)?;
+                // "A. B" and "A and B" are one claim (`SYNTAX.md`).
+                let body = o.body(path);
+                let mut said = Vec::new();
+                for s in body.sentences() {
+                    said.push(known.parse(&s)?);
+                }
+                let assumed = match conjoined(known.env.g, said) {
+                    Some(whole) => whole,
+                    None => known.parse(&body.formula()?)?,
+                };
                 if !known.alike(&assumed, &rest.children[0]) {
                     return Err(Problem::new(
                         path,
@@ -1774,7 +1903,7 @@ impl Link {
     /// not read, or the line's relation and modulus do not make a link,
     /// which the elaborator reports.
     pub fn claim(&self, known: &Known) -> Option<Node> {
-        let read = |w: &Written| known.read_as_written(&w.sentence().ok()?);
+        let read = |w: &Written| known.read_as_written(&w.formula().ok()?);
         let (from, to) = (read(&self.from)?, read(&self.line.term)?);
         let modulus = match &self.line.modulus {
             Some(n) => Some(read(n)?),
@@ -1816,7 +1945,7 @@ pub fn check_congruence_integers(
         if !links.iter().any(|l| l.line.relation == "≡") {
             continue;
         }
-        let read = |w: &Written| known.read_as_written(&w.sentence().ok()?);
+        let read = |w: &Written| known.read_as_written(&w.formula().ok()?);
         let Some(first) = links.first().and_then(|l| read(&l.from)) else {
             continue; // `check_formulas` says it does not read
         };
@@ -1940,7 +2069,7 @@ pub fn chain_links(just: &Justification, path: &str) -> Vec<Link> {
 /// chain link between them uses that fact and no other. The terms are walked
 /// in step; where they part, both pieces must be numerals alone.
 fn changed_closed(link: &Link, known: &Known) -> bool {
-    let read = |term: &Written| known.read_as_written(&term.sentence().ok()?);
+    let read = |term: &Written| known.read_as_written(&term.formula().ok()?);
     let (Some(one), Some(other)) = (read(&link.from), read(&link.line.term)) else {
         return false;
     };
@@ -2654,7 +2783,7 @@ pub fn check_define_names(
     known: &Known,
     scopes: &[FileScope],
 ) {
-    let letters = introduced(thm);
+    let letters = introduced(thm, known);
     let mut named: IndexMap<String, usize> = IndexMap::new();
     for d in &thm.defines {
         let Built(said) = define_parts(&d.text) else {
@@ -2730,7 +2859,7 @@ pub(super) fn define_equation(
         return None;
     };
     let named = Written::new(&name, &thm.path, step.just.line)
-        .sentence()
+        .formula()
         .ok()?;
     let named = known.read_as_written(&named)?;
     Some(made(known.env.g, EQUALS, vec![named, term.clone()]))
@@ -3041,7 +3170,7 @@ fn one_number(a: &Node, b: &Node, known: &Known, targets: &Targets) -> bool {
 /// A term written in a row's reason, `adding 2·A` or `multiplying by 1/2`,
 /// read through the tree reader.
 fn reason_term(written: &Written, known: &Known) -> Checked<Node> {
-    known.parse(&written.sentence()?)
+    known.parse(&written.formula()?)
 }
 
 /// Whether `row` is `above` with the manipulation `reason` names
@@ -3162,7 +3291,7 @@ pub fn check_inequality_rows(
         };
         let mut read: Vec<Related> = Vec::new();
         for row in &written {
-            let node = match row.formula.sentence().and_then(|s| known.parse(&s)) {
+            let node = match row.formula.formula().and_then(|s| known.parse(&s)) {
                 Ok(node) => node,
                 Err(problem) => {
                     report.problems.push(problem);
@@ -4434,7 +4563,7 @@ fn real_term(node: &Node, known: &Known, targets: &Targets) -> Term {
 /// they do not tell the two apart; a define's name is one letter, which no
 /// library function's is.
 fn library_named(name: &str, known: &Known) -> bool {
-    known.sorts.imported.contains(name) && !introduced(known.thm).contains(name)
+    known.sorts.imported.contains(name) && !introduced(known.thm, known).contains(name)
 }
 
 /// Each sentence of a fact as `real arithmetic` reads it (`real_term`);
@@ -4891,7 +5020,15 @@ pub fn check_chain_links(
             };
             let introduced = super::library::introduced(known, step);
             let typed = super::library::typed_in_scope(known, step);
-            said_once(&mut parts, &introduced, &typed, library, &known.sorts);
+            let points = super::library::points_introduced(known, step);
+            said_once(
+                &mut parts,
+                &introduced,
+                &points,
+                &typed,
+                library,
+                &known.sorts,
+            );
             if let Some(left) =
                 link_unsaid(&said, &lines, &parts.facts, library).first()
             {
@@ -4946,7 +5083,7 @@ fn recursion_value(
     said: &Recursion,
     name: &str,
     at: &Node,
-    written: impl Fn(&str) -> Written,
+    written: impl Fn(&RuleText) -> Written,
     env: Env,
     sorts: &Sorts,
 ) -> Checked<Option<(Node, Option<Node>)>> {
@@ -4963,7 +5100,7 @@ fn recursion_value(
     };
     let mut local = sorts.clone();
     local.insert(said.index.clone(), Sort::of("number"));
-    let mut term = written(rule).sentence()?.read(env.g, &local)?;
+    let mut term = written(rule).formula()?.read(env.g, &local)?;
     if let Some(index) = &index {
         let mut put = Binding::new();
         put.insert(Symbol::of(&said.index), index.clone());
@@ -5052,7 +5189,7 @@ fn recursion_equation(
         }
         why = None;
         let name = &one.children[0].text;
-        let rule = |text: &str| Written::new(text, &known.thm.path, line);
+        let rule = |text: &RuleText| text.written(&known.thm.path, line);
         let Ok(found) =
             recursion_value(said, name, &one.children[1], rule, known.env, sorts)
         else {
@@ -5109,7 +5246,7 @@ fn recursion_equation(
 ///
 /// A rule at k + 1 may name k itself, as `c(k + 1) := c(k) + k` does; a
 /// value at 0 has no k to name.
-pub fn check_recursions(report: &mut Report, thm: &Theorem, env: Env, known: &Known) {
+pub fn check_recursions(report: &mut Report, thm: &Theorem, known: &Known) {
     for d in &thm.defines {
         let Built(DefineParts::Recursion(said)) = define_parts(&d.text) else {
             continue;
@@ -5123,8 +5260,11 @@ pub fn check_recursions(report: &mut Report, thm: &Theorem, env: Env, known: &Kn
                     None => format!("{name}(0)"),
                     Some(at) => format!("{name}({at} + 1)"),
                 };
-                let rule = Written::new(rule, &thm.path, d.line);
-                let tree = match rule.sentence().and_then(|s| s.read(env.g, &local)) {
+                let rule = d.rule(rule);
+                let tree = match rule
+                    .formula()
+                    .and_then(|s| known.keep_read(&s, &local))
+                {
                     Ok(tree) => tree,
                     Err(p) => {
                         report.say(

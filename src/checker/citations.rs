@@ -41,7 +41,6 @@ use crate::notations::{
 use crate::outcome::{Built, Declined, Route};
 use crate::rules::{self, System};
 use crate::sorts::TYPING;
-use crate::text::squash;
 
 /// A requires line whose cited item does not give its fact.
 struct Unconcluded {
@@ -156,7 +155,10 @@ fn requires_parts(
             }
         }
     }
-    let mut seed = known.seed(req.values(), &defined);
+    let letters = req
+        .cited_item()
+        .and_then(|(named, _)| library.item_sorts(&step.just.item(&named)));
+    let mut seed = known.seed(req.values(), &defined, letters);
     if let Some((named, _)) = req.cited_item() {
         listed_seed(
             &mut seed,
@@ -175,6 +177,7 @@ fn requires_parts(
     said_once(
         &mut parts,
         &introduced(known, step),
+        &super::library::points_introduced(known, step),
         &typed,
         library,
         &known.sorts,
@@ -242,6 +245,7 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
     Some(Cited {
         item,
         group: taken.group,
+        obtained: taken.obtained,
         concluded: across_groups(taken, before),
         firsts,
         binding: taken.binding.clone(),
@@ -313,6 +317,7 @@ pub fn cited_requires(
     Some(Cited {
         item,
         group: taken.group,
+        obtained: taken.obtained,
         concluded: across_groups(&taken, before),
         firsts,
         binding: taken.binding,
@@ -945,15 +950,12 @@ fn recursion_differs(
             };
             // A rule that does not read is `check_recursions`'s to report, in
             // the theorem that writes it.
-            let read =
-                |text: &str, path: &str, line: usize, local: &crate::formula::Sorts| {
-                    Written::new(text, path, line)
-                        .sentence()
-                        .and_then(|s| s.read(g, local))
-                };
+            let read = |rule: Written, local: &crate::formula::Sorts| {
+                rule.formula().and_then(|s| s.read(g, local))
+            };
             let (Ok(a_tree), Ok(b_tree)) = (
-                read(a, &other.path, theirs_line, &theirs_local),
-                read(b, &thm.path, define.line, &ours_local),
+                read(a.written(&other.path, theirs_line), &theirs_local),
+                read(b.written(&thm.path, define.line), &ours_local),
             ) else {
                 continue;
             };
@@ -970,7 +972,7 @@ fn recursion_differs(
                 return Some(format!(
                     "there {place} is {}, and {label} here says it is {}",
                     known.print(&a_tree),
-                    str::trim(b)
+                    str::trim(b.text())
                 ));
             }
         }
@@ -1039,8 +1041,7 @@ pub fn check_subjects(
         }
         // The proof's letter of the same name is one in scope at the step,
         // which is the letter the build gives the subject.
-        let in_scope =
-            letters_in_scope(thm, &shape, step, known.env.scopes, &known.sorts);
+        let in_scope = letters_in_scope(thm, &shape, step, known);
         if !in_scope.contains(letter.as_str()) {
             report.say(
                 &thm.path,
@@ -1712,7 +1713,7 @@ pub fn check_obtained_claims(
             if letter.text != *name {
                 let written = Written::new(*name, &thm.path, just.line);
                 let Some(named) = written
-                    .sentence()
+                    .formula()
                     .ok()
                     .and_then(|s| known.read_as_written(&s))
                 else {
@@ -2435,7 +2436,10 @@ pub fn check_defined_types(
             .map(|d| (d.name, None))
             .collect();
     for d in &defines {
-        if let Some(rule) = DefinedRule::of(d, known) {
+        // A define that does not read is said where it is written, by
+        // `check_formulas` of a theorem's and `check_file_defines` of a
+        // file's.
+        if let Ok(Some(rule)) = DefinedRule::of(d, known) {
             defined.insert(rule.name.clone(), Some(rule));
         }
     }
@@ -2496,24 +2500,27 @@ struct DefinedRule {
 
 impl DefinedRule {
     /// The define's function of one argument, read with its argument's
-    /// sort; None for a define of anything else, or one that does not
-    /// read, which `check_formulas` reports.
-    fn of(d: &crate::corpus::DefineLine, known: &Known) -> Option<DefinedRule> {
+    /// sort; None for a define of anything else. A part that does not read
+    /// is a defect.
+    fn of(
+        d: &crate::corpus::DefineLine,
+        known: &Known,
+    ) -> crate::Checked<Option<DefinedRule>> {
         let Built(DefineParts::One(one)) = define_parts(&d.text) else {
-            return None;
+            return Ok(None);
         };
         let [param] = one.params.as_slice() else {
-            return None;
+            return Ok(None);
         };
         let local = crate::sorts::define_sorts(&one, &known.sorts);
-        let rule = d.formula(&one.body).sentence().ok()?;
-        let domain = d.formula(&param.domain).sentence().ok()?;
-        Some(DefinedRule {
+        let rule = d.rule(&one.body).formula()?.read(known.env.g, &local)?;
+        let domain = known.parse(&d.domain(param).formula()?)?;
+        Ok(Some(DefinedRule {
             name: one.name.clone(),
             letter: param.name.clone(),
-            domain: known.read_as_written(&domain)?,
-            rule: rule.read(known.env.g, &local).ok()?,
-        })
+            domain,
+            rule,
+        }))
     }
 
     /// Whether the type `f : D → E` asked of this function is said once
@@ -2665,7 +2672,7 @@ pub(super) fn defined_functions<'d>(
                 functions.push(Defined {
                     name: one.name.clone(),
                     label: d.label.clone(),
-                    domains: one.params.iter().map(|p| d.formula(&p.domain)).collect(),
+                    domains: one.params.iter().map(|p| d.domain(p)).collect(),
                     recursive: false,
                 });
             }
@@ -2712,7 +2719,7 @@ fn function_on_unshown(
             given.domains.len()
         ));
     };
-    let domain = known.read_as_written(&domain.sentence().ok()?)?;
+    let domain = known.read_as_written(&domain.formula().ok()?)?;
     (!known.alike(&domain, on)).then(|| {
         format!(
             "{} gives {} on {}",
@@ -2783,7 +2790,7 @@ fn applied(
         claim.walk()
     };
     // A domain that does not read is `check_formulas`'s to report.
-    let read = |w: &Written| known.read_as_written(&w.sentence().ok()?);
+    let read = |w: &Written| known.read_as_written(&w.formula().ok()?);
     let (g, sorts) = (known.env.g, &known.sorts);
     let mut out = Vec::new();
     for Defined {
@@ -3772,7 +3779,7 @@ pub fn check_repeated(
                     *j < i
                         || (*j > i
                             && str::trim(&o.how).starts_with("from ")
-                            && squash(o.fact.text()) != squash(req.fact.text()))
+                            && !same_fact(known, &o.fact, &req.fact))
                 })
                 .map(|(_, o)| o.clone())
                 .collect();
@@ -3810,6 +3817,16 @@ pub fn check_repeated(
                 );
             }
         }
+    }
+}
+
+/// Whether two requires lines state one fact, compared as formulas
+/// (`Known::alike`). One that does not read states nothing another does,
+/// and is `check_formulas`'s to report.
+fn same_fact(known: &Known, a: &Written, b: &Written) -> bool {
+    match (known.whole_as_written(a), known.whole_as_written(b)) {
+        (Some(a), Some(b)) => known.alike(&a, &b),
+        _ => false,
     }
 }
 

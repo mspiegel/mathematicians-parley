@@ -14,10 +14,12 @@
 //! names a theorem introduces, and what a `define`'s domain holds.
 
 use std::collections::BTreeSet;
+use std::rc::Rc;
 
 use crate::corpus::proof::{chain, visible};
 use crate::corpus::{
-    define_parts, DefineLine, DefineParts, FileScope, Intro, Record, ScopeId, Theorem,
+    define_parts, Define, DefineLine, DefineParts, FileScope, Intro, Record, ScopeId,
+    Theorem,
 };
 pub(crate) mod infer;
 pub mod introduction;
@@ -25,12 +27,12 @@ pub mod introduction;
 use crate::formula::notation_id::NotationId;
 use crate::formula::page::{tokens, Written};
 use crate::formula::token::{Token, TokenKind};
-use crate::formula::{holds, Grammar, Sort, Sorts};
-use crate::matching::{expand, Defined, Definitions, Rule};
+use crate::formula::{holds, Grammar, Sort, Sorts, Whole};
+use crate::matching::{expand, Defined, Definitions, ParamRead, Rule};
 use crate::notations::{FUNCTION_TYPE, ONE_TO_ONE, ONE_TO_ONE_ONTO, ONTO};
-use crate::outcome::{Built, Declined};
+use crate::outcome::{Built, Checked, Declined};
 pub use introduction::graph_line;
-use introduction::{Form, Introduction};
+use introduction::Introduction;
 
 pub const NUMBER_SYSTEMS: [&str; 5] = ["ℕ", "ℕ₀", "ℤ", "ℚ", "ℝ"];
 
@@ -172,16 +174,11 @@ pub fn record_formulas(r: &Record) -> Vec<Written> {
 /// recursion's rules and the set its index runs over.
 pub fn define_formulas(d: &DefineLine) -> Vec<Written> {
     match define_parts(&d.text) {
-        Built(DefineParts::One(one)) => std::iter::once(d.formula(&one.body))
-            .chain(one.params.iter().map(|p| d.formula(&p.domain)))
+        Built(DefineParts::One(one)) => std::iter::once(d.rule(&one.body))
+            .chain(one.params.iter().map(|p| d.domain(p)))
             .collect(),
         Built(DefineParts::Recursion(r)) => std::iter::once(d.formula(&r.domain))
-            .chain(
-                r.start
-                    .values()
-                    .chain(r.step.values())
-                    .map(|v| d.formula(v)),
-            )
+            .chain(r.start.values().chain(r.step.values()).map(|v| d.rule(v)))
             .collect(),
         Declined(_) => Vec::new(),
     }
@@ -250,68 +247,6 @@ pub fn body_of(text: &str, head: &str) -> String {
     str::trim(&unlabel(rest)).to_string()
 }
 
-/// The (name, sort) pairs a `let` body or a sentence states: none, one, or,
-/// for a group, the group and its identity. `known` is the sorts found so
-/// far, since a member of a group's set is a group element.
-fn introduced(body: &str, known: &Sorts) -> Vec<(String, &'static str)> {
-    let said = Introduction::read(Written::new(body, "", 0));
-    let name = said.name().map(String::from);
-    match (&said.form, name) {
-        (
-            Form::Group {
-                group, identity, ..
-            },
-            _,
-        ) => vec![
-            (group.clone(), "group-set"),
-            (identity.clone(), "group-element"),
-        ],
-        (Form::Graph(line) | Form::GraphListed(line), _) => vec![
-            (line.graph.clone(), "set"),
-            (line.vertices.clone(), "set"),
-            (line.edges.clone(), "set"),
-        ],
-        (Form::Set(name), _) => vec![(name.clone(), "set")],
-        (Form::Point(name), _) => vec![(name.clone(), "point")],
-        (Form::Property { name, .. }, _) => vec![(name.clone(), "property")],
-        (
-            Form::Function
-            | Form::FunctionBeing { .. }
-            | Form::FunctionOn { .. }
-            | Form::Polynomial(_),
-            Some(name),
-        ) => vec![(name, "function")],
-        // `n ∈ ℕ`: a membership whose set is one name, which may say the
-        // sort.
-        (Form::Member, Some(name)) => {
-            let set = body.split_once('∈').map_or("", |(_, set)| set.trim());
-            let set = set.trim_end_matches('.');
-            if set.contains(char::is_whitespace) {
-                Vec::new()
-            } else if NUMBER_SYSTEMS.contains(&set) {
-                vec![(name, "number")]
-            } else if known.get(set).is_some_and(|s| s.is("group-set")) {
-                vec![(name, "group-element")]
-            } else {
-                Vec::new()
-            }
-        }
-        // `H is a subgroup of G`, which a sentence says: a set of the
-        // group's elements.
-        (Form::Other, _) => match body.split_whitespace().collect::<Vec<_>>()[..] {
-            [subgroup, "is", "a", "subgroup", "of", _] => {
-                vec![(subgroup.to_string(), "group-set")]
-            }
-            _ => Vec::new(),
-        },
-        _ => Vec::new(),
-    }
-}
-
-fn set_default(out: &mut Sorts, name: String, sort: Sort) {
-    out.entry(name).or_insert(sort);
-}
-
 /// What the `define` lines a citation names by label stand for, and only
 /// those: a defined name and the term it names are one formula in a step
 /// that cites the define (`SYNTAX.md`), and a name whose define the step
@@ -342,8 +277,11 @@ fn defines_into<'d>(
         };
         let local = define_sorts(&said, sorts);
         // A rule that does not read is `check_formulas`'s to report.
-        let read = d.formula(&said.body).sentence();
-        let Ok(body) = read.and_then(|s| s.read(env.g, &local)) else {
+        let read = d.rule(&said.body).formula();
+        let Ok((body, params)) = read
+            .and_then(|s| s.read(env.g, &local))
+            .and_then(|body| Ok((body, params_read(d, &said, &local, sorts, env)?)))
+        else {
             continue;
         };
         let made = if said.params.is_empty() {
@@ -351,6 +289,7 @@ fn defines_into<'d>(
         } else {
             Defined::Rule(Rule {
                 params: said.params.clone(),
+                read: params,
                 body,
                 binders: env.g.binders(),
             })
@@ -489,39 +428,74 @@ fn written_definitions(
         }
         let mut deeper = seen.clone();
         deeper.insert(key);
-        if let Some(made) = written_definition(&d, src, env, &deeper) {
+        // A define that does not read is `check_file_defines`'s to report.
+        if let Ok(Some(made)) = written_definition(&d, src, env, &deeper) {
             out.insert(name, made);
         }
     }
     out
 }
 
-/// One definition, read and written out in the file that wrote it; None
-/// where its rule does not parse, which `check_formulas` reports.
+/// A define a file writes outside its theorems, read and written out there:
+/// its rule and its arguments' domains, with the sorts of the definitions
+/// above it. None for a recursion or a line that is no define, which other
+/// checks read; a part that does not read is a defect.
+pub fn file_define(d: &DefineLine, src: ScopeId, env: Env) -> Checked<Option<Defined>> {
+    written_definition(d, src, env, &BTreeSet::new())
+}
+
+/// `file_define`, with the definitions already being read on the way to it,
+/// which an import cycle would read again.
 fn written_definition(
     d: &DefineLine,
     src: ScopeId,
     env: Env,
     seen: &BTreeSet<(String, usize)>,
-) -> Option<Defined> {
+) -> Checked<Option<Defined>> {
     let Built(parts) = define_parts(&d.text) else {
-        return None;
+        return Ok(None);
     };
-    let said = parts.one()?;
+    let Some(said) = parts.one() else {
+        return Ok(None);
+    };
     let inner = written_definitions(src, d.line, env, seen);
-    let local = define_sorts(said, &definition_sorts(&inner));
-    let read = d.formula(&said.body).sentence();
-    let body = read.and_then(|s| s.read(env.g, &local)).ok()?;
+    let outer = definition_sorts(&inner);
+    let local = define_sorts(said, &outer);
+    let body = d.rule(&said.body).formula()?.read(env.g, &local)?;
+    let params = params_read(d, said, &local, &outer, env)?;
     let body = expand(&body, &inner);
-    Some(if said.params.is_empty() {
+    Ok(Some(if said.params.is_empty() {
         Defined::Term(body)
     } else {
         Defined::Rule(Rule {
             params: said.params.clone(),
+            read: params,
             body,
             binders: env.g.binders(),
         })
-    })
+    }))
+}
+
+/// A define's arguments read where it is written: each name with the sort
+/// its domain gives it (`local`), and each domain with the sorts around the
+/// define (`outer`).
+pub fn params_read(
+    d: &DefineLine,
+    said: &Define,
+    local: &Sorts,
+    outer: &Sorts,
+    env: Env,
+) -> Checked<Vec<ParamRead>> {
+    let read = |part: Written, sorts: &Sorts| part.formula()?.read(env.g, sorts);
+    said.params
+        .iter()
+        .map(|p| {
+            Ok(ParamRead {
+                name: read(d.formula(&p.name), local)?,
+                domain: read(d.domain(p), outer)?,
+            })
+        })
+        .collect()
 }
 
 /// The sort each definition gives its name: a function takes arguments, and
@@ -530,7 +504,7 @@ pub fn definition_sorts(definitions: &Definitions) -> Sorts {
     let mut out = Sorts::new();
     for (name, made) in definitions {
         let sort = match made {
-            Defined::Rule(_) => Sort::of("function"),
+            Defined::Rule(rule) => rule_sort(rule),
             Defined::Term(t) => t.sort.clone(),
         };
         if !sort.is_unsorted() {
@@ -538,6 +512,24 @@ pub fn definition_sorts(definitions: &Definitions) -> Sorts {
         }
     }
     out
+}
+
+/// The sort a function defined by a rule has: a function from its first
+/// argument to a function from the next, and so on to its value, as a
+/// library function's is (`infer::function_signature`), each argument a
+/// number where its domain is a number system and open otherwise, and the
+/// value open. So G(a, n) for a ∈ ℝ, n ∈ ℕ₀ is applied to two arguments
+/// and not to a pair.
+fn rule_sort(rule: &Rule) -> Sort {
+    let whole = rule.params.iter().rev().fold(Whole::Open, |value, p| {
+        let argument = if p.member_of().is_some_and(|d| NUMBER_SYSTEMS.contains(&d)) {
+            Whole::Number
+        } else {
+            Whole::Open
+        };
+        Whole::Function(Rc::new(argument), Rc::new(value))
+    });
+    Sort::whole(whole).unwrap_or_else(|| Sort::of("function"))
 }
 
 /// The sort of what a define's domain holds: a number where the domain is a
@@ -556,7 +548,10 @@ pub fn element_sort(domain: &str, sorts: &Sorts) -> Sort {
 pub fn define_sorts(said: &crate::corpus::Define, sorts: &Sorts) -> Sorts {
     let mut out = sorts.clone();
     for p in &said.params {
-        let held = element_sort(&p.domain, sorts);
+        let held = p
+            .member_of()
+            .map(|d| element_sort(d, sorts))
+            .unwrap_or_default();
         out.insert(p.name.clone(), held);
     }
     out
@@ -589,22 +584,6 @@ pub fn sorts_of_records(
         .collect()
 }
 
-/// The names a theorem's hypotheses introduce in so many words: `n ∈ ℕ`, a
-/// group and its identity, a set, a point, a property or a function.
-///
-/// Which names a theorem introduces itself is a question about its text,
-/// and `check_defined_below` asks it; what their sorts are is the reading's
-/// (`sorts_of_statement`), which also reaches a name the file defines.
-pub fn named_by_hypotheses(thm: &Theorem) -> BTreeSet<String> {
-    let mut out = Sorts::new();
-    for h in &thm.hypotheses {
-        for (name, sort) in introduced(&body_of(&h.text, h.kind.as_str()), &out) {
-            set_default(&mut out, name, Sort::of(sort));
-        }
-    }
-    out.keys().cloned().collect()
-}
-
 /// The sort of every name a proved theorem's statement settles: what a
 /// citation of it reads, the statement and not the proof beneath
 /// (`infer::read_statement`).
@@ -612,6 +591,41 @@ pub fn sorts_of_statement(thm: &Theorem, env: Env) -> Sorts {
     let mut store = infer::Store::default();
     let reader = infer::read_statement(thm, env, &mut store);
     settled(&reader, &store)
+}
+
+/// The sorts a citation of a proved theorem reads its statement with, in
+/// the checker and the build alike: what its statement settles, over the
+/// sorts of the definitions it is read with (`statement_definitions`), so
+/// that a function its file defines, s(t), is a function there. Only what
+/// the statement says: a letter it leaves open is not the citing proof's
+/// letter of that name.
+pub fn sorts_of_cited(thm: &Theorem, env: Env) -> Sorts {
+    cited_statement(thm, env).sorts
+}
+
+/// How a citation of a proved theorem reads its statement: the definitions
+/// it is read in, written out (`statement_definitions`), and its sorts
+/// (`sorts_of_cited`).
+#[derive(Clone, Debug)]
+pub struct CitedStatement {
+    pub definitions: Definitions,
+    pub sorts: Sorts,
+}
+
+/// `CitedStatement` of `thm`, read once for the checker and the build.
+pub fn cited_statement(thm: &Theorem, env: Env) -> CitedStatement {
+    let own = sorts_of_statement(thm, env);
+    let definitions = statement_definitions(thm, env, &own);
+    let mut sorts = Sorts::new();
+    for (k, v) in &definition_sorts(&definitions) {
+        sorts.insert(k.clone(), v.clone());
+    }
+    for (k, v) in &own {
+        sorts.insert(k.clone(), v.clone());
+    }
+    sorts.ranges = own.ranges;
+    sorts.imported = own.imported;
+    CitedStatement { definitions, sorts }
 }
 
 /// The sort of every name the theorem's lines settle, read without its

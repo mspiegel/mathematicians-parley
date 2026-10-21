@@ -12,12 +12,14 @@
 use indexmap::IndexMap;
 
 use super::state::Elaborator;
+use crate::checker::record::Cited;
 use crate::corpus::proof::visible;
 use crate::corpus::{DefineLine, Intro, Item, Recursion, ScopeId, Step, Theorem};
-use crate::formula::grammar::Sorts;
-use crate::formula::page::{filled, made, made_as, template, Sentence, Written};
+use crate::formula::page::{
+    conjoined, filled, made, made_as, template, Sentence, Written,
+};
 use crate::formula::symbol::Symbol;
-use crate::formula::{fits, Node, Sort};
+use crate::formula::{fits, Node};
 use crate::matching::{substitute_apart_by, Binding};
 use crate::matching::{Defined, Definitions};
 use crate::mm::Rpn;
@@ -25,10 +27,7 @@ use crate::notations::{APPLICATION, APPLICATION_TO_TWO};
 use crate::outcome::Checked;
 use crate::rules::NUMERALS;
 use crate::sorts::introduction::{Form, Introduction};
-use crate::sorts::{
-    definition_sorts, sorts_of_record, sorts_of_statement, statement_definitions,
-    unlabel, Env, GraphLine,
-};
+use crate::sorts::GraphLine;
 use crate::t;
 use crate::targets;
 use crate::text::repr;
@@ -50,6 +49,20 @@ pub fn literal(rpn: &Rpn) -> Node {
 }
 
 impl<'a> Elaborator<'a> {
+    /// Formula text of one or more sentences, read as their conjunction
+    /// joined from the left: "A. B" and "A and B" are one claim (`SYNTAX.md`).
+    fn conjunction_of(&self, written: &Written) -> Checked<Node> {
+        let mut said = Vec::new();
+        for s in written.sentences() {
+            said.push(self.read(&s)?);
+        }
+        match conjoined(self.g, said) {
+            Some(whole) => Ok(whole),
+            // No sentence at all: `read_one` says so.
+            None => self.read_one(written),
+        }
+    }
+
     /// What a hypothesis line claims, its introduction read as one, as a
     /// tree read where the elaborator has got to.
     ///
@@ -68,13 +81,14 @@ impl<'a> Elaborator<'a> {
     /// (`Introduction::asserted`).
     pub fn hypothesis_node(&self, kind: Intro, body: &Written) -> Checked<Node> {
         if kind != Intro::Let {
-            return self.read_one(body);
+            return self.conjunction_of(body);
         }
         let (g, sorts) = (self.g, &self.sorts_now);
         let introduced = Introduction::read(body.clone());
-        let named = |name: &str| introduced.read_part(name, g, sorts);
+        let named = |name: &str| self.read_one(&introduced.part(name));
         let is_a = |form: &'static str, x: &Node| filled(form, g, sorts, &[("x", x)]);
         let both = |a: Node, b: Node| made(g, crate::notations::AND, vec![a, b]);
+        let asserted = || introduced.asserted_by(&|part| self.read_one(part), g, sorts);
         match &introduced.form {
             Form::Element(name) => {
                 let x = named(name)?;
@@ -89,23 +103,16 @@ impl<'a> Elaborator<'a> {
                 Ok(both(is_a("x is a set", &x)?, self.read_one(body)?))
             }
             Form::FunctionBeing { typed, .. } => {
-                let typed = introduced.read_part(typed, g, sorts)?;
-                let mut being = introduced.asserted(g, sorts)?;
+                let typed = named(typed)?;
+                let mut being = asserted()?;
                 Ok(both(typed, being.remove(0)))
             }
             Form::Part { .. } | Form::FunctionOn { .. } | Form::Polynomial(_) => {
-                Ok(introduced.asserted(g, sorts)?.remove(0))
+                Ok(asserted()?.remove(0))
             }
             Form::Set(name) => is_a("x is a set", &named(name)?),
             Form::Point(name) => is_a("x is a point", &named(name)?),
             _ => self.read_one(body),
-        }
-    }
-
-    pub fn env(&self) -> Env<'a> {
-        Env {
-            g: self.g,
-            scopes: self.scopes,
         }
     }
 
@@ -149,10 +156,12 @@ impl<'a> Elaborator<'a> {
     ) -> T {
         let kept = self.sorts_now.clone();
         let kept_written = self.from_outside.clone();
-        let (written, own) = match item {
+        let (written, sorts) = match item {
             Item::Theorem(t) => {
-                let own = sorts_of_statement(t, self.env());
-                let mut written = statement_definitions(t, self.env(), &own);
+                let Some(cited) = self.library_read.cited.get(&t.qualified()) else {
+                    unreachable!("the checker reads every theorem's statement");
+                };
+                let mut written = cited.definitions.clone();
                 // A sequence the statement defines by recursion is the
                 // proof's sequence of that name, as the proof writes it out.
                 // That the two are one recursion is the checker's to say, and
@@ -169,23 +178,21 @@ impl<'a> Elaborator<'a> {
                         }
                     }
                 }
-                (written, own)
+                (written, cited.sorts.clone())
             }
-            Item::Record(r) => (Definitions::new(), sorts_of_record(r, self.env())),
+            Item::Record(r) => {
+                let at = self.records.iter().position(|x| std::ptr::eq(x, r));
+                let Some(sorts) =
+                    at.and_then(|i| self.library_read.record_sorts.get(&i))
+                else {
+                    unreachable!("the checker reads every item record's sorts");
+                };
+                (Definitions::new(), sorts.clone())
+            }
         };
         // Only what the item says: a letter it leaves open is not the proof's
         // letter of that name, as the k a definition binds is not the
         // proof's k.
-        let mut sorts = Sorts::new();
-        for (k, v) in &definition_sorts(&written) {
-            sorts.insert(k.clone(), v.clone());
-        }
-        for (k, v) in &own {
-            sorts.insert(k.clone(), v.clone());
-        }
-        // An item's ranges are its own statement's, as its names are.
-        sorts.ranges = own.ranges;
-        sorts.imported = own.imported;
         self.sorts_now = sorts;
         self.from_outside = written;
         let out = f(self);
@@ -194,11 +201,35 @@ impl<'a> Elaborator<'a> {
         out
     }
 
-    /// One sentence of the readable layer, as a tree, read where the
-    /// elaborator has got to: a formula that does not parse is a defect,
-    /// pointing where the sentence is written.
+    /// One sentence as a tree, as the checker read it, never read again, so
+    /// the two read one proof one way: a sentence of this theorem's own page
+    /// (`CheckedTheorem::page`), or of an item it cites
+    /// (`CheckedTheorem::items`). One the checker did not read is a fault of
+    /// the build, which parses nothing.
     pub fn read(&self, sentence: &Sentence) -> Checked<Node> {
-        sentence.read(self.g, &self.sorts_now)
+        if sentence.path() == self.thm.path && self.thm.owns_line(sentence.line()) {
+            return match self.checked.page.get(sentence) {
+                Some(node) => Ok(node.clone()),
+                None => Err(self.unreached(
+                    sentence.line(),
+                    format!(
+                        "{}, which the checker did not read",
+                        repr(sentence.text())
+                    ),
+                )),
+            };
+        }
+        match self.checked.items.get(sentence) {
+            Some(read) => read.clone(),
+            None => Err(self.unreached(
+                sentence.line(),
+                format!(
+                    "{} of {}, which the checker did not read",
+                    repr(sentence.text()),
+                    sentence.path()
+                ),
+            )),
+        }
     }
 
     /// The set of the functions from one set to another, as the page writes
@@ -218,13 +249,7 @@ impl<'a> Elaborator<'a> {
     /// A part of a line that is one formula, a requires line's fact or a
     /// value, read (`read`); a defect where it is several sentences.
     pub fn read_one(&self, written: &Written) -> Checked<Node> {
-        self.read(&written.sentence()?)
-    }
-
-    /// Formula text written on this theorem's page where the elaborator has
-    /// got to, read as one formula.
-    pub fn read_here(&self, text: &str) -> Checked<Node> {
-        self.read_one(&Written::new(unlabel(text), &self.thm.path, self.at))
+        self.read(&written.formula()?)
     }
 
     /// A library function applied to its arguments, where the proof gives the
@@ -308,9 +333,9 @@ impl<'a> Elaborator<'a> {
                     }
                 };
                 let mut held = Vec::new();
-                for p in &rule.params {
-                    held.push(self.read_here(&p.name)?);
-                    held.push(self.read_here(&p.domain)?);
+                for p in &rule.read {
+                    held.push(p.name.clone());
+                    held.push(p.domain.clone());
                 }
                 held.push(rule.body.clone());
                 let map = made_as(self.g, pattern, held).expect("the map notations");
@@ -646,7 +671,8 @@ impl<'a> Elaborator<'a> {
                 });
             };
             let mut parts = Vec::new();
-            for node in introduced.asserted(self.g, &self.sorts_now)? {
+            let reader = |part: &Written| self.read_one(part);
+            for node in introduced.asserted_by(&reader, self.g, &self.sorts_now)? {
                 parts.push(self.term(&node)?);
             }
             // Each listed thing is a set, in the kernel's sense, which the
@@ -709,9 +735,8 @@ impl<'a> Elaborator<'a> {
             }
             let body = me.term(&rule.body)?;
             let mut overs = Vec::new();
-            for p in &rule.params {
-                let domain = me.read_here(&p.domain)?;
-                overs.push(me.term(&domain)?);
+            for p in &rule.read {
+                overs.push(me.term(&p.domain)?);
             }
             Ok((body, overs))
         })?;
@@ -773,6 +798,7 @@ impl<'a> Elaborator<'a> {
     pub fn recursion_terms(
         &mut self,
         label: &str,
+        line: usize,
         said: &Recursion,
     ) -> Checked<IndexMap<String, Rpn>> {
         if let Some(maps) = self.recursion_maps.get(label) {
@@ -799,7 +825,8 @@ impl<'a> Elaborator<'a> {
         }
         let mut starts = Vec::new();
         for name in &said.names {
-            let node = self.read_here(&said.start[name])?;
+            let rule = said.start[name].written(&self.thm.path, line);
+            let node = self.read_one(&rule)?;
             starts.push(self.term(&node)?);
         }
         // Read once with k standing for a mark no term holds: where the mark
@@ -807,7 +834,7 @@ impl<'a> Elaborator<'a> {
         // indexed state.
         const MARK: &str = "§k";
         let whole = t!(state, "cv");
-        let steps = self.rules_read(said, parts(whole.clone()), &t!(MARK))?;
+        let steps = self.rules_read(said, line, parts(whole.clone()), &t!(MARK))?;
         let names_k = steps.iter().any(|s| s.has(MARK));
         let start = tuple_of(&starts);
         let (recursion, at_k, made) = if names_k {
@@ -817,7 +844,7 @@ impl<'a> Elaborator<'a> {
             let given = t!(input, "cv");
             let index_less_one = t!(t!(given, "c1st", "cfv"), "c1", "cmin", "co");
             let values = parts(t!(whole, "c2nd", "cfv"));
-            let steps = self.rules_read(said, values, &index_less_one)?;
+            let steps = self.rules_read(said, line, values, &index_less_one)?;
             let step = t!(
                 state,
                 input,
@@ -867,29 +894,28 @@ impl<'a> Elaborator<'a> {
 
     /// Each name's rule at k + 1 as a term, with each name at k read as its
     /// part of the state, `parts` in the names' order, and k itself as `k`.
+    /// The rules are written on the define's `line`.
     fn rules_read(
         &mut self,
         said: &Recursion,
+        line: usize,
         parts: Vec<Rpn>,
         k: &Rpn,
     ) -> Checked<Vec<Rpn>> {
         let kept = self.recurring.clone();
-        let kept_sorts = self.sorts_now.clone();
         let kept_k = self.names.get(&said.index).cloned();
         self.recurring = said.names.iter().cloned().zip(parts).collect();
-        self.sorts_now
-            .insert(said.index.clone(), Sort::of("number"));
         self.names.insert(said.index.clone(), k.clone());
         let steps = (|| -> Checked<Vec<Rpn>> {
             let mut steps = Vec::new();
             for name in &said.names {
-                let node = self.read_here(&said.step[name])?;
+                let rule = said.step[name].written(&self.thm.path, line);
+                let node = self.read_one(&rule)?;
                 steps.push(self.term(&node)?);
             }
             Ok(steps)
         })();
         self.recurring = kept;
-        self.sorts_now = kept_sorts;
         match kept_k {
             Some(t) => self.names.insert(said.index.clone(), t),
             None => self.names.shift_remove(&said.index),
@@ -928,11 +954,29 @@ impl<'a> Elaborator<'a> {
             .collect()
     }
 
-    /// What an item claims, from wherever its statement lives.
-    pub fn claimed_by(item: Item) -> Written {
-        match item {
-            Item::Theorem(t) => Written::new(&t.conclusion, &t.path, t.conclusion_line),
-            Item::Record(r) => r.stated().remove(0),
+    /// The sentence of an item an obtain at `line` takes its "there is"
+    /// from: the one the checker found it in (`Cited::obtained`), of the
+    /// group its citation takes, from wherever the item's statement lives.
+    pub fn obtained_from(
+        &self,
+        item: Item,
+        cited: &Cited,
+        line: usize,
+    ) -> Checked<Written> {
+        let stated = match item {
+            Item::Theorem(t) => Some(t.stated()),
+            Item::Record(r) => r.stated().get(cited.group).cloned(),
+        };
+        let sentences = stated.map(|s| s.sentences()).unwrap_or_default();
+        match cited.obtained.and_then(|i| sentences.get(i)) {
+            Some(s) => Ok(Written::new(s.text(), s.path(), s.line())),
+            None => Err(self.unreached(
+                line,
+                format!(
+                    "the checker found no \"there is\" in {} to obtain from",
+                    cited.item
+                ),
+            )),
         }
     }
 

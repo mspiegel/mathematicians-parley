@@ -14,6 +14,8 @@ import mundane theorem    stdlib/sets/union-empty as sets-union-empty
 import mundane theorem    stdlib/sets/union-self as sets-union-self
 import mundane theorem    stdlib/sets/union-difference as sets-union-difference
 import mundane theorem    stdlib/sets/nonempty-member as sets-nonempty-member
+import mundane theorem    stdlib/sets/pair-parts-equal as sets-pair-parts-equal
+import mundane theorem    stdlib/sets/pair-in-product as sets-pair-in-product
 
 theorem union-difference
   let Y be a set                                                      (H1)
@@ -141,3 +143,22 @@ theorem subset-empty
 
 1.  Y ⊆ ∅ ↔ Y = ∅
     mun:sets-subset-empty
+
+theorem pair-parts-equal
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let c ∈ ℝ                                                           (H3)
+  let d ∈ ℝ                                                           (H4)
+  assume (a, b) = (c, d)                                              (H5)
+  then a = c and b = d
+
+1.  a = c and b = d
+    mun:sets-pair-parts-equal, from H5
+
+theorem pair-in-product
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  then (a, b) ∈ ℝ × ℝ
+
+1.  (a, b) ∈ ℝ × ℝ
+    mun:sets-pair-in-product

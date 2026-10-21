@@ -1502,6 +1502,17 @@ fn cases() -> Vec<Case> {
             )],
             "step 1.2 cites D1 at k, so it needs k ∈ ℕ, and nothing it cites or requires says it",
         ),
+        // A define a file writes outside its theorems is read whether or not
+        // a theorem uses it.
+        case(
+            "a file's define whose rule does not read",
+            vec![edit(
+                "tests/planted-file-define.proof",
+                None,
+                "define T(k) := k + + 1, for k ∈ ℕ                                    (D1)\n       reads one more than k\n\ntheorem planted-file-define\n  then 1 = 1\n\n1.  1 = 1\n    arithmetic\n".to_string(),
+            )],
+            "define D1: 'k + + 1' has 3 token(s) left over",
+        ),
         case(
             "a membership read into a smaller number system",
             vec![edit(
@@ -2653,6 +2664,78 @@ fn cases() -> Vec<Case> {
                 "theorem assume-stop\n  let x ∈ ℝ                                                           (H1)\n  assume .                                                            (H2)\n  then x = x\n\n1.  x = x\n    algebra\n".to_string(),
             )],
             "the `assume` line says nothing",
+        ),
+        case(
+            "a let line of two sentences",
+            vec![edit(
+                "proofs/zz/let-two.proof",
+                None,
+                "theorem let-two\n  let x ∈ ℝ. x > 0.                                                   (H1)\n  then x = x\n\n1.  x = x\n    algebra\n".to_string(),
+            )],
+            "the `let` line: \"x ∈ ℝ. x > 0.\" is 2 sentences where one formula is written",
+        ),
+        case(
+            "a let in a set listing names nothing introduces",
+            vec![edit(
+                "proofs/zz/let-listed.proof",
+                None,
+                "theorem let-listed\n  let x ∈ {a, b}                                                      (H1)\n  then x = x\n\n1.  x = x\n    algebra\n".to_string(),
+            )],
+            "the statement writes a, which it does not introduce",
+        ),
+        case(
+            "a theorem introducing a property",
+            vec![edit(
+                "proofs/zz/let-property.proof",
+                None,
+                "theorem let-property\n  let A be a set                                                      (H1)\n  let P be a property of the elements of A                            (H2)\n  then A = A\n\n1.  A = A\n    algebra\n".to_string(),
+            )],
+            "`let P be a property of the elements of A` introduces a property, which only a library item may",
+        ),
+        case(
+            "a value that does not read",
+            vec![edit(
+                "proofs/zz/value-unread.proof",
+                None,
+                "theorem value-unread\n  let x ∈ ℝ                                                           (H1)\n  assume for all y ∈ ℝ, y = y                                         (H2)\n  then x = x\n\n1.  x = x\n    instantiate y := x + + in line H2, from H1\n".to_string(),
+            )],
+            "a value step 1 gives: 'x + +' has 2 token(s) left over",
+        ),
+        case(
+            "a substitute equation that does not read",
+            vec![edit(
+                "proofs/zz/equation-unread.proof",
+                None,
+                "theorem equation-unread\n  let x ∈ ℝ                                                           (H1)\n  assume x = 0                                                        (H2)\n  then x + 1 = 0 + 1\n\n1.  x + 1 = 0 + 1\n    substitute x = + (H2)\n".to_string(),
+            )],
+            "the equation of step 1: ",
+        ),
+        case(
+            "a substitute equation of two sentences",
+            vec![edit(
+                "proofs/zz/equation-two.proof",
+                None,
+                "theorem equation-two\n  let x ∈ ℝ                                                           (H1)\n  assume x = 0                                                        (H2)\n  then x + 1 = 0 + 1\n\n1.  x + 1 = 0 + 1\n    substitute x = 0. x = 0 (H2)\n".to_string(),
+            )],
+            "the equation of step 1: \"x = 0. x = 0\" is 2 sentences where one formula is written",
+        ),
+        case(
+            "a requires fact of two sentences",
+            vec![edit(
+                "proofs/zz/requires-two.proof",
+                None,
+                "import mundane theorem stdlib/numbers/square-nonneg\n\ntheorem requires-two\n  let x ∈ ℝ                                                           (H1)\n  then x² ≥ 0\n\n1.  x² ≥ 0\n    mun:square-nonneg x := x\n    requires x ∈ ℝ. x = x: from H1\n".to_string(),
+            )],
+            "the requires line of step 1: \"x ∈ ℝ. x = x\" is 2 sentences where one formula is written",
+        ),
+        case(
+            "a calculation term that does not read",
+            vec![edit(
+                "proofs/zz/chain-unread.proof",
+                None,
+                "theorem chain-unread\n  let x ∈ ℝ                                                           (H1)\n  then x + 0 = x\n\n1.  x + 0 = x\n    calculation\n      x + 0 = x + +     H1\n            = x         H1\n".to_string(),
+            )],
+            "the calculation of step 1: ",
         ),
         case(
             "a proof block claiming two sentences",
