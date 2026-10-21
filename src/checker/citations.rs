@@ -178,6 +178,7 @@ fn requires_parts(
     said_once(
         &mut parts,
         &introduced(known, step),
+        &super::library::points_introduced(known, step),
         &typed,
         library,
         &known.sorts,

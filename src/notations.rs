@@ -80,4 +80,5 @@ notations! {
     PI = 48, "pi";
     EULER = 49, "euler";
     DEGREES = 50, "degrees";
+    PLANE = 51, "plane";
 }

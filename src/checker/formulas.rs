@@ -4894,7 +4894,15 @@ pub fn check_chain_links(
             };
             let introduced = super::library::introduced(known, step);
             let typed = super::library::typed_in_scope(known, step);
-            said_once(&mut parts, &introduced, &typed, library, &known.sorts);
+            let points = super::library::points_introduced(known, step);
+            said_once(
+                &mut parts,
+                &introduced,
+                &points,
+                &typed,
+                library,
+                &known.sorts,
+            );
             if let Some(left) =
                 link_unsaid(&said, &lines, &parts.facts, library).first()
             {

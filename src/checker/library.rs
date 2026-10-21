@@ -19,8 +19,9 @@ use crate::formula::{Node, Sorts};
 use crate::matching::{
     alike, expand, standard, substituted_in, Binding, Context, Definitions, FxIndexMap,
 };
+use crate::notations::{MEMBERSHIP, PLANE};
 use crate::outcome::Route;
-use crate::sorts::introduction::Introduction;
+use crate::sorts::introduction::{Form, Introduction};
 use crate::sorts::{citing_labels, Env, OutsideDefines, TYPING};
 
 type PartsKey = (StepNo, String, String, Vec<String>, Vec<String>);
@@ -645,7 +646,8 @@ fn citation_parts(step: &Step, library: &Library, known: &Known) -> Parts {
         None => finished(facts, claims, seed, library, &known.sorts),
     };
     let typed = typed_in_scope(known, step);
-    said_once(&mut parts, &letters, &typed, library, &known.sorts);
+    let points = points_introduced(known, step);
+    said_once(&mut parts, &letters, &points, &typed, library, &known.sorts);
     if let Some(item) = step.just.cited_item() {
         typed_seed(&mut parts, &step.just.item(&item), step, known, library);
     }
@@ -663,6 +665,33 @@ pub fn introduced(known: &Known, step: &Step) -> Introduced {
         for node in known.said_parts(stated, None).into_iter().flatten() {
             if let Some((letter, system)) = introduction(&node) {
                 out.insert(letter, system);
+            }
+        }
+    }
+    out
+}
+
+/// The letters in scope at `step` that the page introduces as points, by
+/// the line introducing each: `let A be a point`, or a line saying A ∈ 𝔼²,
+/// as `let A ∈ 𝔼²` or an `obtain` does. Each is in the plane by that line,
+/// said once (`citing::said_once`); a letter whose sort only its use gives
+/// is not.
+pub fn points_introduced(known: &Known, step: &Step) -> BTreeSet<String> {
+    let mut out = BTreeSet::new();
+    for stated in &introducing(known, step) {
+        if let Stated::Introduced(i) = stated {
+            if let Form::Point(name) = &i.form {
+                out.insert(name.clone());
+            }
+        }
+        for node in known.said_parts(stated, None).into_iter().flatten() {
+            if let [letter, set] = node.children.as_slice() {
+                if node.notation() == MEMBERSHIP
+                    && set.notation() == PLANE
+                    && letter.is_name()
+                {
+                    out.insert(letter.text.to_string());
+                }
             }
         }
     }
