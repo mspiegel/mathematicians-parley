@@ -1218,3 +1218,21 @@ that letter is no function and may be written anywhere.
   as one citable unit.
 - **Everything inside a formula.** Notation, precedence, and the three
   different meanings of the vertical bar.
+- **A `let … be the …` line, proposed and not built.** A theorem could name a
+  thing by describing it, as a book does: `let D be the foot of the
+  perpendicular from C to line AB`, `let c be the least upper bound of S`,
+  `let ⊙O be the circle with centre O and radius r`. Each description would
+  be a notation of its own, a term written in words (`the least upper bound
+  of _`, whose target is `sup`), and the line would read as the naming `let`
+  that takes the term, `let c = the least upper bound of S`. It adds nothing
+  the page cannot say: a description with a term is a naming `let` today,
+  and one without is an `obtain`, or a `let` with `assume` lines giving the
+  facts that fix the thing. What it adds is readability, and one obligation:
+  "the" says there is exactly one, so each description needs a record
+  saying it names one thing where an `obtain` asks only that one exists.
+  In `proofs/` it would change three steps, the foot of the altitude in
+  `wiedijk/pythagoras` and the least upper bound in
+  `wiedijk/intermediate-value` and `wiedijk/reals-uncountable`, and could
+  reword about seventeen lines that name ⌊A/B⌋, a gcd or a min.
+  `wiedijk/konigsberg`'s `let G be the undirected multigraph with …` is a
+  special case of it already.
