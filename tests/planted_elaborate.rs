@@ -221,6 +221,62 @@ fn a_step_the_build_cannot_prove_is_a_gap() {
     );
 }
 
+/// An obtain takes its "there is" from the group of the cited record the
+/// checker found it in. No library record says one in a second group, so
+/// this one is planted: a first group that is `subset-self`, and a second
+/// that is `card-nonempty`, which a proof obtains from.
+#[test]
+fn an_obtain_from_a_records_second_group_builds() {
+    const RECORD: &str = "
+mundane theorem subset-self-then-nonempty
+  let X be a set                                                      (H1)
+  then        X ⊆ X
+  let k ∈ ℕ₀                                                          (H2)
+  assume |X| = k + 1                                                  (H3)
+  then        there is a ∈ X
+  metamath    ssid, hashgt0elex
+  target      ssid, hashgt0elex with V := X
+";
+    const PROOF: &str =
+        "import mundane theorem    stdlib/counting/subset-self-then-nonempty
+
+theorem an-obtain-from-a-second-group
+  let A be a set                                                      (H1)
+  assume |A| = 1                                                      (H2)
+  then there is a ∈ A
+
+1.  |A| = 0 + 1
+    calculation
+      |A| = 1         H2
+          = 0 + 1     arithmetic
+
+2.  a ∈ A
+    obtain a: mun:subset-self-then-nonempty X := A, k := 0, from 1
+
+3.  There is a ∈ A.
+    exhibit, from 2
+";
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let library = library(root, None).expect(
+        "set.mm is found: say where it is with SET_MM, or leave a copy at the root",
+    );
+    let clean = clean();
+    let mut tree = Overlay::new(&clean);
+    let records = "corpus/stdlib/counting.records";
+    let text = tree.read_text(records).unwrap() + RECORD;
+    tree.write(records, text.into_bytes());
+    tree.write(
+        "tests/elaborator/an-obtain-from-a-second-group.proof",
+        PROOF.as_bytes().to_vec(),
+    );
+    let name =
+        "tests/elaborator/an-obtain-from-a-second-group/an-obtain-from-a-second-group";
+    match elaborate_one(&tree, name, &library, Options::default()) {
+        Ok(built) => assert!(built.text.contains("hashgt0elex"), "{}", built.text),
+        Err(problem) => panic!("{name} does not build: {problem}"),
+    }
+}
+
 fn cases() -> Vec<Case> {
     vec![
         // A gap in the database rather than in the text, reported at the line
