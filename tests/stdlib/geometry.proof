@@ -15,6 +15,8 @@ import mundane definition stdlib/trigonometry/sin
 import mundane definition stdlib/geometry/midpoint as geometry-midpoint
 import theorem            stdlib/geometry/segment-addition as geometry-segment-addition
 import mundane theorem    stdlib/geometry/distance-real as geometry-distance-real
+import mundane theorem    stdlib/geometry/distance-nonneg as geometry-distance-nonneg
+import mundane theorem    stdlib/geometry/distance-positive as geometry-distance-positive
 import mundane definition stdlib/geometry/on-line as geometry-on-line
 import theorem            stdlib/geometry/perpendicular-by-right-angle as geometry-perpendicular-by-right-angle
 import theorem            stdlib/geometry/intersecting-chords as geometry-intersecting-chords
@@ -350,3 +352,20 @@ theorem heron
 
 1.  the area of △PQR = √(s·(s − |QR|)·((s − |PR|)·(s − |PQ|)))
     thm:geometry-heron, from H5, H6, H7
+
+theorem distance-nonneg
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  then |PQ| ≥ 0
+
+1.  |PQ| ≥ 0
+    mun:geometry-distance-nonneg
+
+theorem distance-positive
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  assume P ≠ Q                                                        (H3)
+  then |PQ| > 0
+
+1.  |PQ| > 0
+    mun:geometry-distance-positive, from H3

@@ -1,0 +1,48 @@
+# What trial 13's exercises ask of the plane, for `proved.mm`.
+#
+# A distance is never negative and is positive between two points; the
+# distance, collinearity and betweenness of points given by coordinates;
+# the special angles, and an angle read from its cosine; supplementary
+# angles; the triangle inequality for points, its strict form and its
+# equality case; and the addition of angles. set.mm states none of them in
+# the form the page reads, so each is proved here, after the groups whose
+# lemmas it uses.
+
+$( The plane: distances, coordinates, special angles, supplementary
+   angles, the triangle inequality for points and the addition of angles,
+   as the exercises of plane geometry ask them. $)
+
+$( `angval` reads a value of the angle by substituting for the two names
+   `df-ang` binds, and asks that they be free of what is substituted. $)
+$d x y $.
+$d x A $.  $d y A $.
+$d x B $.  $d y B $.
+$d x C $.  $d y C $.
+$d x D $.  $d y D $.
+$d x M $.  $d y M $.
+$d x P $.  $d y P $.
+$d x Q $.  $d y Q $.
+$d x R $.  $d y R $.
+
+# A distance is the absolute value of a difference, so it is at least 0,
+# and more than 0 where the two points differ.
+lemma gdistnn
+  |- ( P e. CC -> ( Q e. CC -> 0 <_ ( abs ` ( P - Q ) ) ) )
+  1 id |- ( P e. CC -> P e. CC )
+  2 adantr 1 |- ( ( P e. CC /\ Q e. CC ) -> P e. CC )
+  3 simpr |- ( ( P e. CC /\ Q e. CC ) -> Q e. CC )
+  4 subcld 2 3 |- ( ( P e. CC /\ Q e. CC ) -> ( P - Q ) e. CC )
+  5 absge0d 4 |- ( ( P e. CC /\ Q e. CC ) -> 0 <_ ( abs ` ( P - Q ) ) )
+  6 ex 5 |- ( P e. CC -> ( Q e. CC -> 0 <_ ( abs ` ( P - Q ) ) ) )
+
+lemma gdistpos
+  |- ( P e. CC -> ( Q e. CC -> ( P =/= Q -> 0 < ( abs ` ( P - Q ) ) ) ) )
+  1 simpll |- ( ( ( P e. CC /\ Q e. CC ) /\ P =/= Q ) -> P e. CC )
+  2 simplr |- ( ( ( P e. CC /\ Q e. CC ) /\ P =/= Q ) -> Q e. CC )
+  3 subcld 1 2 |- ( ( ( P e. CC /\ Q e. CC ) /\ P =/= Q ) -> ( P - Q ) e. CC )
+  4 simpr |- ( ( ( P e. CC /\ Q e. CC ) /\ P =/= Q ) -> P =/= Q )
+  5 subne0d 1 2 4 |- ( ( ( P e. CC /\ Q e. CC ) /\ P =/= Q ) -> ( P - Q ) =/= 0 )
+  6 absrpcld 3 5 |- ( ( ( P e. CC /\ Q e. CC ) /\ P =/= Q ) -> ( abs ` ( P - Q ) ) e. RR+ )
+  7 rpgt0d 6 |- ( ( ( P e. CC /\ Q e. CC ) /\ P =/= Q ) -> 0 < ( abs ` ( P - Q ) ) )
+  8 ex 7 |- ( ( P e. CC /\ Q e. CC ) -> ( P =/= Q -> 0 < ( abs ` ( P - Q ) ) ) )
+  9 ex 8 |- ( P e. CC -> ( Q e. CC -> ( P =/= Q -> 0 < ( abs ` ( P - Q ) ) ) ) )

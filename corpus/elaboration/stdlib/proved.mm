@@ -454,6 +454,34 @@ $d x T $.  $d y T $.
 $}
 
 ${
+$( The plane: distances, coordinates, special angles, supplementary
+   angles, the triangle inequality for points and the addition of angles,
+   as the exercises of plane geometry ask them. $)
+
+$( `angval` reads a value of the angle by substituting for the two names
+   `df-ang` binds, and asks that they be free of what is substituted. $)
+$d x y $.
+$d x A $.  $d y A $.
+$d x B $.  $d y B $.
+$d x C $.  $d y C $.
+$d x D $.  $d y D $.
+$d x M $.  $d y M $.
+$d x P $.  $d y P $.
+$d x Q $.  $d y Q $.
+$d x R $.  $d y R $.
+
+  gdistnn $p |- ( P e. CC -> ( Q e. CC -> 0 <_ ( abs ` ( P - Q ) ) ) ) $=
+    ( cc wcel cc0 cmin co cabs cfv cle wbr wa id adantr simpr subcld absge0d
+    ex ) ACDZBCDZEABFGZHIJKSTLZUAUBABSSTSMNSTOPQR $.
+
+  gdistpos $p |- ( P e. CC -> ( Q e. CC -> ( P =/= Q -> 0 < ( abs ` ( P - Q ) ) ) ) ) $=
+    ( cc wcel wne cc0 cmin co cabs cfv clt wbr wi wa simpll simplr subcld
+    simpr subne0d absrpcld rpgt0d ex )
+    ACDZBCDZABEZFABGHZIJZKLZMUCUDNZUEUHUIUENZUGUJUFUJABUCUDUEOZUCUDUEPZQUJABUKULUIUERSTUAUBUB $.
+
+$}
+
+${
 $( Series: the limit of a sequence as the page defines it, and the value
    of a series as the limit of its partial sums. $)
 $d j k n $.

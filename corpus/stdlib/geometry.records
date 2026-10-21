@@ -391,6 +391,23 @@ mundane theorem distance-real
               from subcl and abscl
   target      gdistre
 
+mundane theorem distance-nonneg
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  then        |PQ| ≥ 0
+  metamath    gdistnn, which this corpus proves in elaboration/stdlib/proved.mm
+              from absge0
+  target      gdistnn
+
+mundane theorem distance-positive
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  assume P ≠ Q                                                        (H3)
+  then        |PQ| > 0
+  metamath    gdistpos, which this corpus proves in elaboration/stdlib/proved.mm
+              from absgt0
+  target      gdistpos
+
 mundane theorem between-symmetric
   let R be a point                                                    (H1)
   let S be a point                                                    (H2)
