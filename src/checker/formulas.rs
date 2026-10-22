@@ -2180,6 +2180,19 @@ fn check_shown_by(
         match shown(&step.claim) {
             Shown::Holds => {}
             Shown::Unread(_) => report.undecided(&thm.path, method, step),
+            // A line marked impossible is reached by its reasons from the
+            // lines they cite, and the marker is what finds it false
+            // (`SYNTAX.md`, contradiction): the method as its reason proves
+            // only what is true, and cites nothing to reach it from.
+            Shown::Unshown(_) if step.impossible => report.say(
+                &thm.path,
+                step.just.line,
+                format!(
+                    "step {} is marked impossible and gives {} as its reason, which proves only what is true; a line marked impossible is reached by its reasons from the lines they cite",
+                    step.number,
+                    method.as_str()
+                ),
+            ),
             Shown::Unshown(why) => report.say(
                 &thm.path,
                 step.just.line,

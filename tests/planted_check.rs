@@ -610,6 +610,19 @@ fn cases() -> Vec<Case> {
             )],
             "nothing says ∠QRP ∈ ℝ or ∈ ℂ, which this step needs",
         ),
+        // A line marked impossible is reached by its reasons from the lines
+        // they cite (`SYNTAX.md`, contradiction); `arithmetic` as its reason
+        // cites nothing and proves only what is true, and the step is told
+        // so rather than only that its claim is false.
+        case(
+            "give a line marked impossible arithmetic as its reason",
+            vec![edit(
+                "proofs/wiedijk/impossible-by-arithmetic.proof",
+                None,
+                "theorem impossible-by-arithmetic\n  let a ∈ ℝ                                                           (H1)\n  assume a > 0                                                        (H2)\n  then a ≠ 0\n\n1.  a ≠ 0\n    contradiction\n    suppose a = 0                                                     (S)\n\n    1.1.  0 > 0\n          substitute a = 0 (S) into H2\n\n    1.2.  0 > 0, which is impossible\n          arithmetic\n".to_string(),
+            )],
+            "proofs/wiedijk/impossible-by-arithmetic.proof:14  step 1.2 is marked impossible and gives arithmetic as its reason, which proves only what is true; a line marked impossible is reached by its reasons from the lines they cite",
+        ),
         // A row's atoms are real numbers (`METHODS.md`, Rows), and a point
         // is none, which no line can say: the step is told it treats the
         // point as a number, not that nothing says it is one.
