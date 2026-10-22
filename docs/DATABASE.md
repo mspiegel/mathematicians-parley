@@ -76,7 +76,7 @@ has, and a subject is one file:
 | `corpus/stdlib/functions.records` | functions, their values, images, and inverses | 23 |
 | `corpus/stdlib/counting.records` | the size of a set, factorials, binomial coefficients, counting by parts | 41 |
 | `corpus/stdlib/calculus.records` | intervals, bounds and completeness, continuity, derivatives, bounded sequences | 27 |
-| `corpus/stdlib/geometry.records` | points, distance, angles and signed angles, triangles and their kinds (isosceles, equilateral, right-angled), congruence, parallels and sides of a line, lines and perpendiculars, midpoints, chords of a circle, area, the laws of sines and cosines, coordinates, supplementary angles, the triangle inequality, the addition of angles | 58 |
+| `corpus/stdlib/geometry.records` | points, distance, angles and signed angles, triangles and their kinds (isosceles, equilateral, right-angled), congruence, parallels and sides of a line, lines and perpendiculars, midpoints, chords of a circle, area, the laws of sines and cosines, coordinates, supplementary angles, the triangle inequality, the addition of angles | 63 |
 | `corpus/stdlib/groups.records` | groups, their laws, subgroups, cosets | 12 |
 | `corpus/stdlib/trigonometry.records` | cos and sin, their addition formulas, signs, bounds and order, the special angles, the supplement | 22 |
 | `corpus/stdlib/logarithms.records` | the natural logarithm and the exponential function, their laws, order and signs | 13 |
@@ -125,7 +125,7 @@ Every item in the standard library carries a field saying where it comes from:
 
 | field | meaning | count |
 |---|---|---|
-| `metamath` | a set.mm label or labels supply it | 490 |
+| `metamath` | a set.mm label or labels supply it | 495 |
 | `open` | it is cited but unproved and unbridged | 5 |
 
 A theorem this corpus proves has no
@@ -405,11 +405,13 @@ is trivial and the database is not. None is cited, and a claim of any of
 them elaborates by its notation's target; what is open is the readable
 statement of the equivalence.
 
-`def:stdlib/geometry/congruent`, `mun:stdlib/geometry/triangle` and
-`mun:stdlib/geometry/point` are `biid`: each notation's target is the formula
-its definition's other side builds, the six equations for a congruence, the
-three inequalities and the collinearity denied for a triangle, and A ∈ ℂ for
-"A is a point", so the definition says one formula twice. A step takes a
+`def:stdlib/geometry/congruent` and `mun:stdlib/geometry/point` are `biid`:
+each notation's target is the formula its definition's other side builds,
+the six equations for a congruence and A ∈ ℂ for "A is a point", so the
+definition says one formula twice. `mun:stdlib/geometry/triangle` says three
+inequalities and the collinearity denied, and its target denies only the
+quotient being real, since the points are already distinct; `gtridef`
+carries one to the other. A step takes a
 conjunct of one from a line that says it, as it does of a definition with
 no target (`ELABORATION.md`). The counting lemmas the subsets pilot
 leaned on are theorems of its proof file, and
@@ -438,7 +440,7 @@ hand proof is what is left when neither is worth its price.
 
 The four are open for a reason rather than for want of work. Incidence is a
 primitive, and `mun:stdlib/geometry/collinear` says so: in
-the plane collinearity is (R − P)/(Q − P) being real, and subtraction takes
+the plane collinearity is P = Q, or (R − P)/(Q − P) being real, and subtraction takes
 numbers while P, Q and R are points, so the sorts that stop |CA| reading as a
 product stop this too. The notation carries a target, so a claim of
 collinearity elaborates; what has no readable statement is the equivalence.
@@ -450,7 +452,7 @@ becoming numbers: nothing divides one vector by another or multiplies two
 points, so |CA| still cannot read as a product. Each definition is then
 the textbook's:
 
-- collinear: there is t ∈ ℝ with R − P = t·(Q − P);
+- collinear: P = Q, or there is t ∈ ℝ with R − P = t·(Q − P);
 - parallel: there is t ∈ ℝ with S − R = t·(Q − P);
 - between: there is t with 0 < t < 1 and R − S = t·(T − S);
 - same side: no point X + t·(Y − X) with 0 ≤ t ≤ 1 is collinear with P and
