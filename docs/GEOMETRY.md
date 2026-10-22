@@ -349,7 +349,6 @@ sines; these are what it and the proof cite:
 | `gangseg` | `angle-along-segment`: a point between P and Q is on the ray from P through Q |
 | `gsegadd` | `segment-addition`: the parts of a segment add to it |
 | `gbetsym` | `between-symmetric` |
-| `gdistre` | `distance-real` |
 | `gsinabs` | the sine of an angle's size is the size of its sine, between −π and π |
 | `g90` | 90° is π/2 |
 

@@ -1290,7 +1290,8 @@ in Bezout, whose a·1 is now a wherever a line is compared.
 
 `READERS.md` has a membership in a number system said once, where a letter is
 introduced, and the step writes nothing for a numeral, a closed term with a
-square root `real arithmetic` works out, in ℝ or ℂ, a letter, or a term
+square root `real arithmetic` works out, in ℝ or ℂ, a letter, a distance
+between two points, or a term
 built from them by +, −, ·, negation, a power to a numeral or to a letter
 introduced in ℕ or ℕ₀, and /, or a sum whose term is such a number at
 every index (`SYNTAX.md`). Whether a membership is said once, and why, is
@@ -1318,6 +1319,10 @@ nothing:
   and carried to any scope inside it (`lifted_to`). A letter introduced
   twice, as a δ obtained in each of two cases, keeps both, and the one whose
   scope holds where the step is is taken;
+- a distance |PQ| between two letters introduced as points is in ℝ: each
+  point is in ℂ by its sort, their difference too (`subcld`), and its
+  absolute value is real (`abscld`); a real one is complex (`recnd`,
+  `distance_within`);
 - a compound is built by the closure table, as `built` builds one, its parts
   by the same walk and its divisor's `≠ 0` from what the step names
   (`divisor_written`), and only for the operations listed: a remainder, a
