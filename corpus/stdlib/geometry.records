@@ -318,6 +318,35 @@ mundane definition midpoint
   note        In the plane the midpoint is (A + B)/2, which the page does not
               write: it adds points.
 
+mundane theorem midpoint-unique
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let M be a point                                                    (H3)
+  let N be a point                                                    (H4)
+  assume M is the midpoint of AB                                      (H5)
+  assume N is the midpoint of AB                                      (H6)
+  then        M = N
+  metamath    gmiduniq, which this corpus proves in
+              elaboration/stdlib/proved.mm from gmidval: each is (A + B)/2
+  target      gmiduniq
+  note        A segment has one midpoint, which is what "the midpoint of AB"
+              takes for granted.
+
+mundane theorem midpoint-determines-end
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let M be a point                                                    (H4)
+  assume M is the midpoint of AB                                      (H5)
+  assume M is the midpoint of AC                                      (H6)
+  then        B = C
+  metamath    gmidend, which this corpus proves in
+              elaboration/stdlib/proved.mm from gmidval: (A + B)/2 =
+              (A + C)/2 cancels to B = C
+  target      gmidend
+  note        The reflection of a point through another is one point: B is
+              the point beyond M from A at the distance |AM|.
+
 mundane definition same-side
   open        Which side of the line through P and Q a point X is on is the
               sign of the imaginary part of (X − P)/(Q − P): positive on one
