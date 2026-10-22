@@ -589,6 +589,19 @@ fn cases() -> Vec<Case> {
             )],
             "nothing says ∠QRP ∈ ℝ or ∈ ℂ, which this step needs",
         ),
+        // A requires line's reason shows its fact as a step's reason shows
+        // its claim, so a method that does not decide the fact is refused
+        // there as it is for a step: `algebra` decides equations, and a
+        // membership is `membership`'s.
+        case(
+            "give a requires line's membership a method that does not decide it",
+            vec![edit(
+                "proofs/wiedijk/pythagoras.proof",
+                Some("    requires |AC| ∈ ℝ: mun:distance-real P := A, Q := C\n".to_string()),
+                "    requires |AC| ∈ ℝ: algebra\n".to_string(),
+            )],
+            "proofs/wiedijk/pythagoras.proof:192  the requires line |AC| ∈ ℝ of step 19 names algebra, which does not decide what it says",
+        ),
         // A letter of a range not starting at 1 or 0 is said once to be an
         // integer, and its being no zero is not: a divisor's `≠ 0` is written
         // where the page does not say once it is a positive integer.

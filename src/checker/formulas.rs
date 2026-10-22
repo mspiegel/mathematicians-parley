@@ -2399,13 +2399,16 @@ pub fn check_algebra_holds(
             }
         }
         for req in step.requires.iter().filter(|r| r.is(Method::Algebra)) {
-            algebra_holds(
+            let decided = algebra_holds(
                 report,
                 thm,
                 &ClosureClaim::requires(step, req),
                 known,
                 targets,
             );
+            if !decided {
+                report.undecided_requires(&thm.path, Method::Algebra, step, req);
+            }
         }
     }
 }
@@ -3664,7 +3667,9 @@ pub fn check_inequalities_holds(
         }
         for req in step.requires.iter().filter(|r| r.is(Method::Inequalities)) {
             let at = ClosureClaim::requires(step, req);
-            inequalities_hold(report, thm, &at, known, targets);
+            if !inequalities_hold(report, thm, &at, known, targets) {
+                report.undecided_requires(&thm.path, Method::Inequalities, step, req);
+            }
         }
     }
 }
@@ -4102,7 +4107,9 @@ pub fn check_membership_holds(
         }
         for req in step.requires.iter().filter(|r| r.is(Method::Membership)) {
             let at = ClosureClaim::requires(step, req);
-            membership_holds(report, thm, &at, known, targets);
+            if !membership_holds(report, thm, &at, known, targets) {
+                report.undecided_requires(&thm.path, Method::Membership, step, req);
+            }
         }
     }
 }
