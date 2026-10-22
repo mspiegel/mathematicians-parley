@@ -276,6 +276,27 @@ fn a_line_saying_a_divisor_is_not_zero_does_work() {
     assert!(out.contains("\n0 problem(s)\n"), "{out}");
 }
 
+/// A substitute justification that matches no production has no reading,
+/// so it is told that alone: what a substitution makes is not asked of the
+/// parts the reader cut from it (`Justification::unproduced`).
+#[test]
+fn an_unread_substitute_is_told_only_that_it_does_not_read() {
+    let clean = clean();
+    let case = case(
+        "end a substitute justification with a marker it cannot carry",
+        vec![edit(
+            "proofs/wiedijk/unread-substitute.proof",
+            None,
+            "theorem unread-substitute\n  let x ∈ ℝ                                                           (H1)\n  assume x > 1                                                        (H2)\n  then x ≠ 0\n\n1.  x ≠ 0\n    contradiction\n    suppose x = 0                                                     (S)\n\n    1.1.  0 > 1\n          substitute x = 0 (S) into H2, which is impossible\n".to_string(),
+        )],
+        "",
+    );
+    let tree = plant(&case, &clean).unwrap();
+    let out = parley::checker::run(&tree).printed;
+    assert!(out.contains("justification matches no production"), "{out}");
+    assert!(!out.contains("which putting one side of"), "{out}");
+}
+
 /// A citation whose claim is what the item concludes, with one hypothesis
 /// not supplied, is reported once, naming that hypothesis: here
 /// divides-difference without line 5.2, which says p divides n!. The other

@@ -1367,7 +1367,10 @@ pub fn check_substitutes(
     known: &Known,
 ) {
     for step in &thm.steps {
-        if !step.just.head.is(Method::Substitute) {
+        // A justification matching no production has no reading, and
+        // `check_justification_form` says so; what the substitution makes
+        // is asked only of one that reads.
+        if !step.just.head.is(Method::Substitute) || step.just.unproduced.is_some() {
             continue;
         }
         let equation = step
