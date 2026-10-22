@@ -1976,6 +1976,15 @@ impl<'a> Elaborator<'a> {
     /// The operand an identity element leaves, where `term` is an operation
     /// with its identity in a hole the notation record allows it: x for
     /// x + 0, 0 + x, x − 0, x·1, 1·x, x/1 and x^1. None otherwise.
+    /// Whether a term is the identity element of some operation's identity
+    /// law: 0 or 1 as the notation records have them.
+    fn is_identity_element(&self, term: &Term) -> bool {
+        let spelt = self.rpn(term);
+        self.identities
+            .iter()
+            .any(|law| super::field::numeral(law.element) == spelt)
+    }
+
     fn identity_dropped(&self, term: &Term) -> Option<Term> {
         if term.variable().is_some() {
             return None;
@@ -5121,10 +5130,9 @@ impl<'a> Elaborator<'a> {
     }
 
     /// One half of what a lemma concludes: the half the claim is fixes the
-    /// lemma, and `simpld` or `simprd` takes it. A disequality is fitted in
-    /// each of its spellings (`spellings`), since a lemma may write
-    /// `T =/= R` where the page reads `-. T = R`, or the two the other way
-    /// round.
+    /// lemma, and `simpld` or `simprd` takes it. A half and the claim are
+    /// compared in the page's spelling of a disequality (`page_spelling`),
+    /// since a lemma may write `T =/= R` where the page reads `-. T = R`.
     #[allow(clippy::too_many_arguments)]
     fn as_conjunct(
         &mut self,
@@ -5153,11 +5161,9 @@ impl<'a> Elaborator<'a> {
         let variables = names_of(whole);
         let keys = facts.keys();
         let start = seed.cloned().unwrap_or_default();
-        let wants = spellings(goal);
+        let want = page_spelling(goal);
         for (i, part) in reads.children().iter().enumerate() {
-            let Some(mut bound) = wants
-                .iter()
-                .find_map(|want| fit(part, want, &start, &variables))
+            let Some(mut bound) = fit(&page_spelling(part), &want, &start, &variables)
             else {
                 continue;
             };
@@ -5199,8 +5205,8 @@ impl<'a> Elaborator<'a> {
             if taken == wanted {
                 return Ok(Built(half));
             }
-            // The half is the claim in its other spelling or turned round:
-            // it is carried across.
+            // The half is the claim in set.mm's spelling: it is carried
+            // across.
             let Built(back) =
                 self.same(&said.children()[i], goal, scope, facts, step)?
             else {
@@ -6036,9 +6042,23 @@ impl<'a> Elaborator<'a> {
             }
             let mut vars = variables.clone();
             vars.extend(said.names().iter().cloned());
+            // The hypothesis and each cited line are fitted as the checker
+            // reads them, with their identity elements dropped: `2·k·x = x`
+            // and `2·k·x = 1·x` both answer ( A x. C ) = ( B x. C ) at
+            // B := 1 (SYNTAX.md, "An identity element goes without
+            // saying"). Only a letter bound to an identity element is put in
+            // the hypothesis, since a letter of the proof may share a name
+            // with one of the lemma's.
+            let at_identity: Binding = binding
+                .iter()
+                .filter(|(_, v)| self.is_identity_element(v))
+                .map(|(k, v)| (*k, v.clone()))
+                .collect();
+            let said = self.without_identities(&said.substitute(&at_identity));
             for held in &cited {
+                let held = self.without_identities(held);
                 if let Some(filled) =
-                    self.fit_over_bound(&said, held, &binding, &vars, &fresh)
+                    self.fit_over_bound(&said, &held, &binding, &vars, &fresh)
                 {
                     binding = filled;
                     break;
@@ -6608,24 +6628,13 @@ fn constructors(pattern: &Term) -> usize {
     1 + pattern.children().iter().map(constructors).sum::<usize>()
 }
 
-/// The claim, and where it is a disequality its other spellings: set.mm's
-/// `A =/= B` and the page's `-. A = B`, each either way round. Anything
-/// else is only itself.
-fn spellings(goal: &Term) -> Vec<Term> {
-    let sides = match goal.label() {
-        Some("wne") => goal.children().to_vec(),
-        Some("wn") if goal.children()[0].label() == Some("wceq") => {
-            goal.children()[0].children().to_vec()
-        }
-        _ => return vec![goal.clone()],
-    };
-    let mut out = vec![goal.clone()];
-    for (x, y) in [(&sides[0], &sides[1]), (&sides[1], &sides[0])] {
-        let pair = vec![x.clone(), y.clone()];
-        out.push(Term::apply("wne", pair.clone()));
-        out.push(Term::apply("wn", vec![Term::apply("wceq", pair)]));
+/// A disequality in the page's spelling: set.mm's `A =/= B` as `-. A = B`.
+/// Anything else is itself.
+fn page_spelling(term: &Term) -> Term {
+    if term.label() != Some("wne") {
+        return term.clone();
     }
-    out
+    Term::apply("wn", vec![Term::apply("wceq", term.children().to_vec())])
 }
 
 /// Whether a shape holds the hole numbered `wanted`.
