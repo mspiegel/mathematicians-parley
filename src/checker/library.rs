@@ -1,6 +1,6 @@
 //! What each theorem's lines give the checks that read them.
 
-use std::cell::RefCell;
+use std::cell::{OnceCell, RefCell};
 use std::collections::BTreeSet;
 use std::rc::Rc;
 
@@ -102,6 +102,10 @@ pub struct Known<'a> {
     outside: OutsideDefines,
     cited: RefCell<FxIndexMap<Vec<String>, Rc<Definitions>>>,
     scopes: RefCell<FxIndexMap<(StepNo, usize), Rc<Statements>>>,
+    /// What is in scope at each place a step stands, read once for the
+    /// place: a step's copies with a line taken away stand there too
+    /// (`Known::in_scope`).
+    in_scope: RefCell<FxIndexMap<(StepNo, usize), Rc<InScope>>>,
     parts: RefCell<FxIndexMap<PartsKey, Rc<Parts>>>,
     /// Each search a check has asked of a step's citation, which several
     /// checks ask alike: the parts and the groups are kept for the run
@@ -133,6 +137,7 @@ impl<'a> Known<'a> {
             outside: OutsideDefines::of(thm, env),
             cited: RefCell::new(FxIndexMap::default()),
             scopes: RefCell::new(FxIndexMap::default()),
+            in_scope: RefCell::new(FxIndexMap::default()),
             parts: RefCell::new(FxIndexMap::default()),
             searches: RefCell::new(FxIndexMap::default()),
             shape: std::cell::OnceCell::new(),
@@ -528,6 +533,24 @@ impl<'a> Known<'a> {
         made
     }
 
+    /// What is in scope where `step` stands: the lines introducing it, and
+    /// what is read off them as it is first asked for. Which lines a step
+    /// names does not change what is in scope at its place.
+    pub fn in_scope(&self, step: &Step) -> Rc<InScope> {
+        let key = (step.number.clone(), step.line);
+        if let Some(found) = self.in_scope.borrow().get(&key) {
+            return found.clone();
+        }
+        let made = Rc::new(InScope {
+            introducing: introducing(self, step),
+            introduced: OnceCell::new(),
+            points: OnceCell::new(),
+            typed: OnceCell::new(),
+        });
+        self.in_scope.borrow_mut().insert(key, made.clone());
+        made
+    }
+
     /// What a step's justification supplies and claims.
     pub fn parts(&self, step: &Step, library: &Library) -> Rc<Parts> {
         // A requires line read as a step has its step's number and its own
@@ -717,8 +740,16 @@ fn citation_parts(step: &Step, library: &Library, known: &Known) -> Parts {
 /// each name's membership (`SYNTAX.md`). A later introduction of a letter
 /// stands over an earlier one.
 pub fn introduced(known: &Known, step: &Step) -> Introduced {
+    let here = known.in_scope(step);
+    here.introduced
+        .get_or_init(|| introduced_by(known, &here.introducing))
+        .clone()
+}
+
+/// `introduced`, from the introducing lines in scope.
+fn introduced_by(known: &Known, introducing: &[Stated]) -> Introduced {
     let mut out = Introduced::new();
-    for stated in &introducing(known, step) {
+    for stated in introducing {
         for node in known.said_parts(stated, None).into_iter().flatten() {
             if let Some((letter, system)) = introduction(&node) {
                 out.insert(letter, system);
@@ -734,8 +765,16 @@ pub fn introduced(known: &Known, step: &Step) -> Introduced {
 /// said once (`citing::said_once`); a letter whose sort only its use gives
 /// is not.
 pub fn points_introduced(known: &Known, step: &Step) -> BTreeSet<String> {
+    let here = known.in_scope(step);
+    here.points
+        .get_or_init(|| points_by(known, &here.introducing))
+        .clone()
+}
+
+/// `points_introduced`, from the introducing lines in scope.
+fn points_by(known: &Known, introducing: &[Stated]) -> BTreeSet<String> {
     let mut out = BTreeSet::new();
-    for stated in &introducing(known, step) {
+    for stated in introducing {
         if let Stated::Introduced(i) = stated {
             if let Form::Point(name) = &i.form {
                 out.insert(name.clone());
@@ -825,7 +864,15 @@ pub fn sums_said_once(known: &Known, step: &Step) -> Vec<Node> {
 /// The function types the lines in scope at `step` say, `v : {0, …, n} →
 /// V`, read off the same introducing lines as `introduced`.
 pub fn typed_in_scope(known: &Known, step: &Step) -> Vec<Node> {
-    introducing(known, step)
+    let here = known.in_scope(step);
+    here.typed
+        .get_or_init(|| typed_by(known, &here.introducing))
+        .clone()
+}
+
+/// `typed_in_scope`, from the introducing lines in scope.
+fn typed_by(known: &Known, introducing: &[Stated]) -> Vec<Node> {
+    introducing
         .iter()
         .flat_map(|stated| known.said_parts(stated, None).into_iter().flatten())
         .filter(|n| TYPING.contains(&n.notation()))
@@ -844,6 +891,16 @@ pub fn typed_seed(
     library: &Library,
 ) {
     citing::typed_seed(parts, name, &typed_in_scope(known, step), library);
+}
+
+/// What is in scope at one place a step stands (`Known::in_scope`): the
+/// introducing lines, and what `introduced`, `points_introduced` and
+/// `typed_in_scope` read off them, each read when first asked for.
+pub struct InScope {
+    introducing: Vec<Stated>,
+    introduced: OnceCell<Introduced>,
+    points: OnceCell<BTreeSet<String>>,
+    typed: OnceCell<Vec<Node>>,
 }
 
 /// The lines introducing what is in scope at `step`, in the order they are
