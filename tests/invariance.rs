@@ -40,6 +40,12 @@ use parley::tools::{path_of, verify};
 #[path = "invariance/rewrites.rs"]
 mod rewrites;
 
+#[path = "invariance/sampled.rs"]
+mod sampled;
+
+#[path = "shared/mod.rs"]
+mod shared;
+
 mod record;
 
 use rewrites::{Context, Declined, Rewritten};
@@ -57,6 +63,9 @@ enum Rewrite {
     Line(fn(&str) -> Option<String>),
     /// The file at once, theorem by theorem.
     File(fn(&Context, &str, &str) -> Rewritten),
+    /// The file at once, each line it changes keeping its meaning alone, so
+    /// that any of them may be changed and the others left (`sampled`).
+    Lines(fn(&Context, &str, &str) -> Rewritten),
     /// Every proof file at once: a change to one theorem that every theorem
     /// citing it must follow.
     Corpus(EveryFile),
@@ -116,7 +125,7 @@ fn changes() -> Vec<Change> {
         },
         Change {
             name: "a relation in a claim or an assumption turned around",
-            rewrite: Rewrite::File(rewrites::relations_turned),
+            rewrite: Rewrite::Lines(rewrites::relations_turned),
         },
         Change {
             name: "a cited theorem's letters renamed, and its citations with them",
@@ -327,18 +336,13 @@ fn round_checked(tree: &Memory, i: usize, jobs: &[(usize, String)]) -> CheckedCo
     checked_in(tree, |n| wanted.contains(n)).expect("the changed corpus reads")
 }
 
-fn changed(clean: &Memory, context: &Context, change: &Change) -> Changed {
-    let mut tree = Overlay::new(clean);
-    let mut files = Vec::new();
-    let mut lines = 0;
-    let mut theorems = Vec::new();
-    let mut declined = Vec::new();
-    // The corpus's proofs, the elaborator's test proofs, which are where a
-    // method or notation no theorem uses yet is written first, the
-    // library's, which prove what each item says at one instance, each
-    // notation's textbook examples, and the proofs the syntax documents'
-    // examples stand in. The corpus's proofs are in a directory for each
-    // collection under `proofs/`.
+/// The proof files the changes rewrite, in order: the corpus's proofs, the
+/// elaborator's test proofs, which are where a method or notation no
+/// theorem uses yet is written first, the library's, which prove what each
+/// item says at one instance, each notation's textbook examples, and the
+/// proofs the syntax documents' examples stand in. The corpus's proofs are
+/// in a directory for each collection under `proofs/`.
+fn proof_paths(clean: &Memory) -> Vec<String> {
     const DIRS: [&str; 5] = [
         "proofs/",
         "tests/elaborator/",
@@ -352,7 +356,16 @@ fn changed(clean: &Memory, context: &Context, change: &Change) -> Changed {
         .filter(|p| DIRS.iter().any(|d| p.starts_with(d)))
         .collect();
     paths.sort();
-    let texts: Vec<(String, String)> = paths
+    paths
+}
+
+fn changed(clean: &Memory, context: &Context, change: &Change) -> Changed {
+    let mut tree = Overlay::new(clean);
+    let mut files = Vec::new();
+    let mut lines = 0;
+    let mut theorems = Vec::new();
+    let mut declined = Vec::new();
+    let texts: Vec<(String, String)> = proof_paths(clean)
         .into_iter()
         .map(|p| {
             let text = clean.read_text(&p).expect("a proof file reads");
@@ -364,7 +377,7 @@ fn changed(clean: &Memory, context: &Context, change: &Change) -> Changed {
             .iter()
             .map(|(p, t)| (p.clone(), each_line(t, line)))
             .collect(),
-        Rewrite::File(file) => texts
+        Rewrite::File(file) | Rewrite::Lines(file) => texts
             .iter()
             .map(|(p, t)| (p.clone(), file(context, p, t)))
             .collect(),
