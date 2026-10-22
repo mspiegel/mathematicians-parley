@@ -1,0 +1,29 @@
+theorem a-degree-in-an-order
+  note        60° is 60·π/180, built from π and numerals by · and /, so the
+              page says once that it is real (SYNTAX.md, a membership is
+              said once).
+  let x ∈ ℝ                                                           (H1)
+  assume x > 0                                                        (H2)
+  then 60° − x < 60°
+
+1.  60° − x < 60°
+    inequalities
+      x > 0            H2
+      0 < x            symmetry
+      60° − x < 60°    adding 60° − x
+
+theorem a-degree-in-an-equation
+  let x ∈ ℝ                                                           (H1)
+  assume 2·x = 90°                                                    (H2)
+  then x = 45°
+
+1.  x = 45°
+    algebra, from H2
+
+theorem a-degree-of-a-letter
+  note        x° is x·π/180, real where x is.
+  let x ∈ ℝ                                                           (H1)
+  then x° + 180° = 180° + x°
+
+1.  x° + 180° = 180° + x°
+    algebra

@@ -404,6 +404,9 @@ pub enum Shape<'t, T> {
     Operation(&'static str, &'t T, &'t T),
     /// A base to an exponent.
     Power(&'t T, &'t T),
+    /// x° for this x: x·π/180, which is in ℝ or ℂ where x is. Only the
+    /// page writes it; the kernel's x·π/180 is an operation of its parts.
+    Degrees(&'t T),
     /// What `real arithmetic` works out and the walk takes whole: the square
     /// root of numerals whose value is a rational of at least 0, π, e, and
     /// the logarithm of numerals whose value is a positive rational.
@@ -432,8 +435,9 @@ pub trait OnceAsk {
 /// Why the page says once that `term` is in `system` (`READERS.md`,
 /// membership said once): what a line says of it, a numeral, a letter in
 /// the system its introducing line names or one inside it, or +, −, ·,
-/// negation, a power to a numeral or to a letter in ℕ or ℕ₀, and a quotient
-/// whose divisor is not zero, of parts that are; None where it is not.
+/// negation, a power to a numeral or to a letter in ℕ or ℕ₀, a quotient
+/// whose divisor is not zero, and x° in ℝ or ℂ, of parts that are; None
+/// where it is not.
 pub fn reason<A: OnceAsk>(
     ask: &mut A,
     term: &A::T,
@@ -480,6 +484,12 @@ pub fn reason<A: OnceAsk>(
             }
             rules::closed("cexp", label)?;
             Some(OnceReason::Built(vec![reason(ask, a, system)?]))
+        }
+        Shape::Degrees(x) => {
+            if !matches!(system, System::R | System::C) {
+                return None;
+            }
+            Some(OnceReason::Built(vec![reason(ask, x, system)?]))
         }
         Shape::Real => {
             matches!(system, System::R | System::C).then_some(OnceReason::Real)
@@ -602,6 +612,7 @@ impl OnceAsk for PageOnce<'_> {
                 Shape::Real
             }
             (PI | EULER, _, []) => Shape::Real,
+            (DEGREES, _, [x]) => Shape::Degrees(x),
             // The library's ln, sin and cos: one the theorem introduces as a
             // letter of its own is not it.
             (APPLICATION, _, [head, a])
