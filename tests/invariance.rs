@@ -91,6 +91,10 @@ fn changes() -> Vec<Change> {
             rewrite: Rewrite::Line(rewrites::values_reversed),
         },
         Change {
+            name: "the values of a citation bracketed",
+            rewrite: Rewrite::Line(rewrites::values_bracketed),
+        },
+        Change {
             name: "two letters of a theorem swapped",
             rewrite: Rewrite::File(rewrites::letters_swapped),
         },

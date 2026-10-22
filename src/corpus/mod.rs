@@ -28,8 +28,8 @@ pub use proof::{
 };
 pub use records::{parse_database, Record, RecordKind, FIELDS};
 pub use skeleton::{
-    is_label, is_number, is_ref, item_kind, names_an_item, starts_with_head, Place,
-    Source,
+    is_label, is_number, is_ref, item_kind, names_an_item, naming_pieces,
+    starts_with_head, Place, Source,
 };
 pub use values::{Value, Values};
 

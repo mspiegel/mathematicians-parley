@@ -1162,6 +1162,19 @@ fn cases() -> Vec<Case> {
         // Pairs): equal pairs said to differ are false by arithmetic, a
         // difference by algebra rescales one a step cites, and inspection
         // finds a pair among listed ones by its coordinates.
+        // A value runs to the comma that opens the next naming or the
+        // `from` list (`GRAMMAR.md`, Justifications), so a naming written
+        // without its `:=` is read as more of the value before it, and the
+        // message shows the value as it was cut.
+        case(
+            "a naming written without its :=",
+            vec![edit(
+                "tests/elaborator/a-value-with-a-comma.proof",
+                Some("Q := x = 1, from H5, H6".to_string()),
+                "Q = x = 1, from H5, H6".to_string(),
+            )],
+            "a value step 1 gives: 'A, B, C are collinear, Q = x = 1': what stands before `_ = _` is a statement, and `_ = _` wants a term",
+        ),
         case(
             "claim by arithmetic that a pair differs from itself",
             vec![edit(
