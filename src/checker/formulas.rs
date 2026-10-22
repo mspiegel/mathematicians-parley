@@ -2503,7 +2503,10 @@ fn algebra_unsaid(
             .cloned(),
     );
     for relation in &relations {
-        for side in sides_of(relation) {
+        let sides = sides_of(relation)
+            .into_iter()
+            .flat_map(|side| coordinates_of(side, targets));
+        for side in sides {
             let parts = methods_membership::Parts::of(side);
             if let Some(atom) = parts
                 .atoms
@@ -3688,6 +3691,16 @@ fn algebra_relation(node: &Node) -> bool {
         (EQUALITY, [_, _]) => true,
         (LOGICAL_NOT, [inner]) => inner.notation() == EQUALITY,
         _ => false,
+    }
+}
+
+/// What a side of a relation `algebra` asks to be numbers: a pair's two
+/// coordinates (`METHODS.md`, Pairs), or the side itself.
+fn coordinates_of<'n>(side: &'n Node, targets: &Targets) -> Vec<&'n Node> {
+    if term_of_node(side, targets).label() == Some("cop") {
+        side.children.iter().collect()
+    } else {
+        vec![side]
     }
 }
 

@@ -1158,6 +1158,41 @@ fn cases() -> Vec<Case> {
             )],
             "a link of step 1.2 names arithmetic for 1 = 1(1 + 1)/3, which is false",
         ),
+        // Two pairs are compared coordinate by coordinate (`METHODS.md`,
+        // Pairs): equal pairs said to differ are false by arithmetic, a
+        // difference by algebra rescales one a step cites, and inspection
+        // finds a pair among listed ones by its coordinates.
+        case(
+            "claim by arithmetic that a pair differs from itself",
+            vec![edit(
+                "tests/elaborator/pairs-compared.proof",
+                Some("  then (1, 1) ≠ (2, 3)\n\n1.  (1, 1) ≠ (2, 3)".to_string()),
+                "  then (1, 1) ≠ (1, 1)\n\n1.  (1, 1) ≠ (1, 1)".to_string(),
+            )],
+            "step 1 claims (1, 1) ≠ (1, 1), which is false",
+        ),
+        case(
+            "claim by algebra that two pairs differ, citing nothing",
+            vec![edit(
+                "tests/elaborator/pairs-compared.proof",
+                Some("    algebra, from H5".to_string()),
+                "    algebra".to_string(),
+            )],
+            "(a, b) ≠ (c, d) is not a rescaling of any disequality step 1 cites",
+        ),
+        case(
+            "claim by inspection that a listed pair is not in its list",
+            vec![edit(
+                "tests/elaborator/pairs-compared.proof",
+                Some(
+                    "  then (1, 2) ∉ {(3, 4), (1, 5)}\n\n1.  (1, 2) ∉ {(3, 4), (1, 5)}"
+                        .to_string(),
+                ),
+                "  then (1, 5) ∉ {(3, 4), (1, 5)}\n\n1.  (1, 5) ∉ {(3, 4), (1, 5)}"
+                    .to_string(),
+            )],
+            "step 1 claims (1, 5) ∉ {(3, 4), (1, 5)}, which inspection of what it cites shows false",
+        ),
         // Inspection decides "is prime" by the number: a composite at any
         // size by its least factor, and a prime only below 29², past which
         // trial division by the primes up to 23 settles nothing.

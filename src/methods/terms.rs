@@ -52,6 +52,7 @@ pub const VOCABULARY: &[(&str, usize)] = &[
     ("ctp", 3),
     ("csn", 1),
     ("cun", 2),
+    ("cop", 2),
     ("c0", 0),
     ("crab", 3),
     ("wral", 3),

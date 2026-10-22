@@ -1225,6 +1225,9 @@ pub fn integer_division(
 /// "is odd" are too, denials of any of them, and membership of ℕ, ℕ₀, ℤ, ℚ,
 /// ℝ and ℂ. A decline where the claim is none of these or holds a letter.
 pub fn decide_closed(claim: &Term) -> Route<Verdict> {
+    if let Some(pairs) = super::pairs::relation(claim) {
+        return pairs_decided(&pairs);
+    }
     let negated = claim.label() == Some("wn") && claim.children().len() == 1;
     let claim = if negated { &claim.children()[0] } else { claim };
     let kids = claim.children();
@@ -1268,6 +1271,19 @@ pub fn decide_closed(claim: &Term) -> Route<Verdict> {
         Test::One(system) => system.admits(&values[0]),
     };
     Built(Verdict::Holds(holds != negated))
+}
+
+/// A relation between two pairs, decided of the equations of their
+/// coordinates (`super::pairs`); a coordinate not worked out stops it.
+fn pairs_decided(pairs: &super::pairs::PairRelation) -> Route<Verdict> {
+    let mut each = [false; 2];
+    for (i, at) in super::pairs::Coordinate::BOTH.into_iter().enumerate() {
+        match decide_closed(&pairs.equation(at)) {
+            Built(Verdict::Holds(h)) => each[i] = h,
+            other => return other,
+        }
+    }
+    Built(Verdict::Holds(pairs.holds(each[0], each[1])))
 }
 
 #[cfg(test)]

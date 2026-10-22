@@ -33,6 +33,7 @@ use super::state::Elaborator;
 use super::Facts;
 use crate::binds;
 use crate::corpus::{fmt, Step};
+use crate::methods::pairs::{self, Coordinate, PairRelation};
 use crate::methods::reals::{self, Atom, Real};
 use crate::methods::surds::{self, Surd, Verdict};
 use crate::mm::kernel::Term;
@@ -136,6 +137,9 @@ impl<'a> Elaborator<'a> {
         if let Some(Built(p)) = parts {
             return Ok(p);
         }
+        if let Some(pairs) = pairs::relation(&goal) {
+            return self.real_pairs(&pairs, &goal, scope, facts, what);
+        }
         match reals::decide_closed(&goal) {
             Built(Verdict::Holds(true)) => {}
             other => return Err(self.real_unshown(other, what)),
@@ -154,6 +158,34 @@ impl<'a> Elaborator<'a> {
                 ),
             )),
         }
+    }
+
+    /// Two pairs of closed real terms, compared coordinate by coordinate
+    /// (`METHODS.md`, Pairs): both coordinates' equations, or the
+    /// difference at the first coordinate whose equation is false.
+    fn real_pairs(
+        &mut self,
+        pairs: &PairRelation,
+        goal: &Term,
+        scope: &Rpn,
+        facts: &Facts,
+        what: &str,
+    ) -> Checked<Proof> {
+        if !pairs.apart {
+            let mut proved = Vec::new();
+            for at in Coordinate::BOTH {
+                let equation = self.rpn(&pairs.equation(at));
+                proved.push(self.real_fact(&equation, scope, facts, what)?);
+            }
+            return Ok(self.pairs_equal(pairs, scope, &proved[0], &proved[1]));
+        }
+        let Some(at) = pairs.apart_at(&mut real_equal) else {
+            return Err(self.real_unshown(reals::decide_closed(goal), what));
+        };
+        let denial = self.rpn(&pairs.denial(at));
+        let apart = self.real_fact(&denial, scope, facts, what)?;
+        let members = self.number_members(pairs, scope, facts)?;
+        Ok(self.pairs_apart(pairs, scope, at, &apart, &members))
     }
 
     /// The defect for a claim real arithmetic did not find true.
@@ -2736,6 +2768,15 @@ struct Reducible {
     /// √p.
     root: Rpn,
     prime: u64,
+}
+
+/// Whether an equation of closed real terms holds, as `real arithmetic`
+/// decides it; None where it does not decide it.
+fn real_equal(equation: &Term) -> Option<bool> {
+    match reals::decide_closed(equation) {
+        Built(Verdict::Holds(holds)) => Some(holds),
+        _ => None,
+    }
 }
 
 /// The first monomial of `p`, in the order the polynomial holds them,

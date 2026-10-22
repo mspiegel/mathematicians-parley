@@ -920,12 +920,16 @@ notation pair
   pattern     (_, _)
   sort        α, β → pair of α and β
   reads       the pair of, and
+  decided     arithmetic, real arithmetic
   metamath    cop
   target      _1 _2 cop
   note        Told apart from a bracketed term by its comma, and from a
               function applied to two arguments, f(a, b), by having no name
               before it. Where a set is wanted the same brackets name the
               open interval between the two ends (`open-interval`).
+              `arithmetic` and `real arithmetic` work out a pair as its two
+              coordinates: two pairs are equal where both coordinates are,
+              and differ where one does (`METHODS.md`, Pairs).
 
 notation open-interval
   pattern     (_, _)

@@ -16,6 +16,7 @@ use num_traits::ToPrimitive;
 
 use super::field::{self, Verdict};
 use super::numerals;
+use super::pairs::InClass;
 use super::state::Elaborator;
 use super::Facts;
 use crate::binds;
@@ -23,6 +24,7 @@ use crate::corpus::{fmt, Step};
 use crate::methods::inspection::{
     disjuncts, integer_value, is_prime, least_factor, range_elements,
 };
+use crate::methods::pairs::{self, Coordinate, PairRelation};
 use crate::mm::kernel::Term;
 use crate::mm::spell::Proof;
 use crate::mm::Rpn;
@@ -180,6 +182,9 @@ impl Elaborator<'_> {
             if self.decided_by("inspection", claim)? {
                 return self.prime_decided(&element, negated, scope, known);
             }
+        }
+        if let Some(pairs) = pairs::relation(claim) {
+            return self.pairs_inspected(&pairs, scope, known);
         }
         match claim.label() {
             Some("wcel") if claim.variable().is_none() => {
@@ -821,10 +826,17 @@ impl Elaborator<'_> {
     }
 
     /// Whether two elements are one: the same term, or two terms of
-    /// numerals alone of one value.
+    /// numerals alone of one value, or two pairs whose coordinates are.
     fn one_value(&self, a: &Term, b: &Term) -> bool {
         if self.rpn(a) == self.rpn(b) {
             return true;
+        }
+        if let Some(pairs) =
+            pairs::relation(&Term::apply("wceq", vec![a.clone(), b.clone()]))
+        {
+            return Coordinate::BOTH
+                .into_iter()
+                .all(|at| self.one_value(pairs.left_at(at), pairs.right_at(at)));
         }
         matches!(
             (field::closed_value(a), field::closed_value(b)),
@@ -1354,6 +1366,10 @@ impl Elaborator<'_> {
         known: &Facts,
     ) -> Checked<Route<Proof>> {
         let (a, b) = (self.rpn(one), self.rpn(other));
+        let apart = Term::apply("wne", vec![one.clone(), other.clone()]);
+        if let Some(pairs) = pairs::relation(&apart) {
+            return self.pairs_differ(&pairs, scope, known);
+        }
         let valued =
             |t: &Term| matches!(field::closed_value(t), Built(field::Value::Exact(_)));
         if valued(one) && valued(other) {
@@ -1400,6 +1416,91 @@ impl Elaborator<'_> {
             "nothing cited says {} and {} differ",
             self.render(&a),
             self.render(&b)
+        )))
+    }
+
+    /// A claim relating two pairs, seen coordinate by coordinate
+    /// (`METHODS.md`, Pairs): equal where both coordinates are, as
+    /// `equation` sees each, and apart as `pairs_differ` shows it.
+    fn pairs_inspected(
+        &mut self,
+        pairs: &PairRelation,
+        scope: &Rpn,
+        known: &Facts,
+    ) -> Checked<Route<Proof>> {
+        if pairs.apart {
+            let differ = take!(self.pairs_differ(pairs, scope, known)?);
+            if pairs.spelt_ne {
+                return Ok(Built(differ));
+            }
+            let one = self.rpn(&Term::apply("cop", pairs.left.to_vec()));
+            let other = self.rpn(&Term::apply("cop", pairs.right.to_vec()));
+            return Ok(Built(self.b.ap(
+                "neneqd",
+                &binds! {"ph" => scope, "A" => &one, "B" => &other},
+                &[&differ],
+            )));
+        }
+        let mut proved = Vec::new();
+        for at in Coordinate::BOTH {
+            proved.push(take!(self.equation(
+                pairs.left_at(at),
+                pairs.right_at(at),
+                scope,
+                known
+            )?));
+        }
+        Ok(Built(
+            self.pairs_equal(pairs, scope, &proved[0], &proved[1]),
+        ))
+    }
+
+    /// ( scope -> <. a , b >. ≠ <. c , d >. ): two pairs differ where a
+    /// coordinate does, by `differs`, at the first coordinate it shows
+    /// apart (`METHODS.md`, Pairs).
+    fn pairs_differ(
+        &mut self,
+        pairs: &PairRelation,
+        scope: &Rpn,
+        known: &Facts,
+    ) -> Checked<Route<Proof>> {
+        let mut shown = None;
+        for at in Coordinate::BOTH {
+            if let Built(p) =
+                self.differs(pairs.left_at(at), pairs.right_at(at), scope, known)?
+            {
+                shown = Some((at, p));
+                break;
+            }
+        }
+        let Some((at, differ)) = shown else {
+            return Ok(Route::no(format!(
+                "nothing cited says a coordinate of {} differs from that of {}",
+                self.render(&self.rpn(&Term::apply("cop", pairs.left.to_vec()))),
+                self.render(&self.rpn(&Term::apply("cop", pairs.right.to_vec())))
+            )));
+        };
+        let (x, y) = (self.rpn(pairs.left_at(at)), self.rpn(pairs.right_at(at)));
+        let apart = self.b.ap(
+            "neneqd",
+            &binds! {"ph" => scope, "A" => &x, "B" => &y},
+            &[&differ],
+        );
+        let mut members = Vec::new();
+        for coordinate in &pairs.left {
+            members.push(InClass {
+                proof: take!(self.a_set(coordinate, scope, known)?),
+                class: t!("cvv"),
+            });
+        }
+        let [first, second]: [InClass; 2] =
+            members.try_into().ok().expect("two coordinates");
+        Ok(Built(self.pairs_apart(
+            pairs,
+            scope,
+            at,
+            &apart,
+            &[first, second],
         )))
     }
 
