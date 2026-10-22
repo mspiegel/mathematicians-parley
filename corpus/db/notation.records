@@ -113,7 +113,10 @@
 #               the term: `repeats hole 4 after , building _ csn cun` makes
 #               {_, _, _, _} take {a, b, c, d, e} and beyond, every element
 #               of the hole's sort, the fifth adding `_5 csn cun` to the
-#               target and so on. Only the last hole repeats.
+#               target and so on. `_′` in what it builds is the term before:
+#               `building _′ _ wceq wa` joins each further term of a chain
+#               of equations to the one before it. Only the last hole
+#               repeats.
 #   shadowed    that a name the text introduces with the same letter is read
 #               as that name and not as this notation, in the scope of the
 #               line introducing it. Marked case by case: only the imaginary
@@ -235,6 +238,22 @@ notation equality
   reads       equals, is not equal to
   metamath    wceq, wne
   target      _1 _2 wceq, folded
+
+notation equal-chain
+  pattern     _ = _ = _
+  sort        α, α, α → formula
+  level       relational
+  repeats     hole 3 after = building _′ _ wceq wa
+  reads       equals, which equals
+  metamath    wceq joined by wa: each term equal to the next
+  target      _1 _2 wceq _2 _3 wceq wa
+  note        A chain of equations, a = b = c = d, says that all its terms
+              are equal (`SYNTAX.md`). What it states is the equations
+              between neighbouring terms, joined from the left, so it is the
+              claim `a = b. b = c. c = d.` and `join` gives it from those
+              lines; a line claiming it supplies the equation between any
+              two of its terms. It is a whole sentence, never part of
+              another formula.
 
 notation order
   pattern     _ < _        _ > _        _ ≤ _        _ ≥ _

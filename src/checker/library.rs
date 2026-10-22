@@ -13,7 +13,7 @@ use crate::citing::{
     Library, Parts, Taken,
 };
 use crate::corpus::{Intro, Kinded, Method, Step, StepNo, Theorem, Values};
-use crate::formula::page::{conjoined, filled, Sentence, Written};
+use crate::formula::page::{chain_pairs, conjoined, filled, Sentence, Written};
 use crate::formula::symbol::Symbol;
 use crate::formula::{Node, Sorts};
 use crate::matching::{
@@ -482,6 +482,14 @@ impl<'a> Known<'a> {
         if all > 1 && said.len() == all {
             said.extend(conjoined(self.env.g, said.clone()));
         }
+        // A chain of equations supplies the equation between any two of its
+        // terms (`SYNTAX.md`).
+        let pairs: Vec<Node> = said
+            .iter()
+            .filter_map(|s| chain_pairs(self.env.g, s))
+            .flatten()
+            .collect();
+        said.extend(pairs);
         said
     }
 

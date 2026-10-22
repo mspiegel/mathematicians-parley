@@ -36,9 +36,9 @@ use crate::methods::{algebra, inequalities, linear, reals};
 use crate::mm::kernel::{FloatLabels, Term};
 use crate::notations::{
     APPLICATION, APPLICATION_TO_TWO, AT_LEAST, AT_MOST, BICONDITIONAL, BY_CASES,
-    CONDITIONAL, CONJUNCTION, EQUALITY, EQUALS, FOR_ALL, FOR_ALL_SETS, FUNCTION_TYPE,
-    GREATER, IMPLICATION, INTEGER_RANGE, LESS, LOGICAL_NOT, MEMBERSHIP, NUMBER_SYSTEMS,
-    NUMERAL, ORDER, PLUS, PRODUCT_OVER, SUM, TIMES,
+    CONDITIONAL, CONJUNCTION, EQUALITY, EQUALS, EQUAL_CHAIN, FOR_ALL, FOR_ALL_SETS,
+    FUNCTION_TYPE, GREATER, IMPLICATION, INTEGER_RANGE, LESS, LOGICAL_NOT, MEMBERSHIP,
+    NUMBER_SYSTEMS, NUMERAL, ORDER, PLUS, PRODUCT_OVER, SUM, TIMES,
 };
 use crate::outcome::{Built, Checked, Declined, Problem};
 use crate::rules::System;
@@ -223,14 +223,16 @@ pub fn check_formulas(report: &mut Report, thm: &Theorem, env: Env, known: &Know
             continue;
         }
         for sentence in part.written.sentences() {
-            if let Err(p) = known.parse(&sentence) {
-                say_unread(report, thm, env, &own, &part, p);
+            match known.parse(&sentence) {
+                Ok(node) => say_chain_inside(report, thm, &part, &node, known),
+                Err(p) => say_unread(report, thm, env, &own, &part, p),
             }
         }
     }
     for part in one_formula_parts(thm) {
-        if let Err(p) = part.written.formula().and_then(|s| known.parse(&s)) {
-            say_unread(report, thm, env, &own, &part, p);
+        match part.written.formula().and_then(|s| known.parse(&s)) {
+            Ok(node) => say_chain_inside(report, thm, &part, &node, known),
+            Err(p) => say_unread(report, thm, env, &own, &part, p),
         }
     }
     // A define's rule is a formula too, read with its argument's sort; one
@@ -285,6 +287,33 @@ impl FormulaPart {
 /// further down is why: `check_defined_below` says so, since above its
 /// define it names nothing, and `U(0)` then reads several ways because
 /// nothing says U is a function.
+fn say_chain_inside(
+    report: &mut Report,
+    thm: &Theorem,
+    part: &FormulaPart,
+    node: &Node,
+    known: &Known,
+) {
+    // A chain of equations is a whole sentence (`SYNTAX.md`): one standing
+    // inside another formula is said once, at the outermost.
+    let inside = node
+        .children
+        .iter()
+        .flat_map(|c| c.walk())
+        .find(|n| n.notation() == EQUAL_CHAIN);
+    if let Some(chain) = inside {
+        report.say(
+            &thm.path,
+            part.line,
+            format!(
+                "{}: the chain of equations {} stands inside another formula, and a chain is a whole sentence",
+                part.what,
+                known.print(&chain)
+            ),
+        );
+    }
+}
+
 fn say_unread(
     report: &mut Report,
     thm: &Theorem,

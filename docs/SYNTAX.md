@@ -124,7 +124,11 @@ the order it is written, with no gaps: a reader meeting 3 after 1 looks for
 the 2 that is not there, and the checker reports it. A step is:
 
 1. Its number and its **claim**: one or more sentences, each a formula.
-   Several sentences mean their conjunction. A claim may end on a full stop
+   Several sentences mean their conjunction. A sentence may be a chain of
+   equations, `|QA| = |QB| = |QC| = |QD|`, which says that all its terms
+   are equal. A chain is a whole sentence: not part of another formula, as
+   in `for all x, f(x) = g(x) = h(x)` or after `if`. Its relation is `=`.
+   A claim may end on a full stop
    or not, alike. The sentences are cut once, by the rule in `GRAMMAR.md`
    ("One front end"), and every tool reads the same ones.
 2. Its **justification**, on the next line: a method or a cited item, its
@@ -455,7 +459,7 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
 | `inequalities`, then rows | the manipulations of one line written out, a row to each. The first row is a line the step cites, written out, with its label as reason; each row after it is the row above with the manipulation its reason names, `adding t`, `multiplying by c`, `symmetry`, `weakening` or `algebra` (`METHODS.md`); the last row is the claim |
 | `transitivity, from L` | the lines L, in the order cited, make a chain: where one line ends the next begins, the term they share written the same way in both, each line read from whichever side meets the one before; the claim relates the chain's first term to its last, by the relation a calculation's chain would have |
 | `antisymmetry, from L` | L is two lines, `a ≤ b` and `b ≤ a`; the claim is `a = b` |
-| `join L` | the claim is the sentences of the lines L put together; with one cited line it is that line. It infers nothing. A propositional law that does infer something, such as eliminating a double negation, is a cited theorem instead |
+| `join L` | the claim is the sentences of the lines L put together; with one cited line it is that line; a chain of equations is the equations between its neighbouring terms. It infers nothing. A propositional law that does infer something, such as eliminating a double negation, is a cited theorem instead |
 | `contradiction`, then `suppose B (S)` | C is the step's claim; the block supposes B, labelled S, and its last step reaches the opposite of an earlier line and names it after its reasons, `inequalities, from 3.1, contradicting 3.4`, or reaches a closed fact that `arithmetic`, or `real arithmetic` where it holds a square root, π, e or a logarithm, finds false and says so after its claim, `2 ≤ 1, which is impossible`. Some step of the block cites S. B is either "not C", which is reductio, or the thing C negates, which is how a negation is proved directly; no formula is its own double negation, so which one it is never has to be guessed. Any rewriting of B, such as p ≤ n for "not p > n", is a step inside the block. `METHODS.md` says what each shape expands to and which of them needs the classical step |
 | `proof`, then `let x ∈ S (K)` and `assume A (H)` | the claim is "for all x ∈ S, if A then B", or "if A then B" where the block opens with `assume` alone; the block opens with the claim's `let` and `assume` lines, each labelled, and its last step is B, or, where A cannot hold, a step reaching the opposite of an earlier line that names it after its reasons, as a case that cannot occur does. The claim is one sentence: the block proves one statement, and each other sentence is a step of its own |
 | `induction on k starting at m`, with parts `base` and `step` | the claim is "for all k ∈ X, P(k)", X being ℕ or ℕ₀ and m its first element; the `base` part's last step claims P(m); the `step` part opens with `let k ∈ X (K)` and `assume step N is true for k, the induction hypothesis (IH)`, those two lines in that order and no other, N being the induction's number, and its last step claims P(k + 1), with P read off the claim. A claim about only some k, "for all k ∈ ℕ₀ with k ≤ n, S", is the formula "for all k ∈ ℕ₀, if k ≤ n then S", so P(k) is "if k ≤ n then S": the base claims "if 0 ≤ n then …", and each part proves its "if" by a `proof` block opening `assume`. The starting point is written even when the set fixes it, so that every induction reads the same way and inductions from 2 or 4 need no new form. k is a letter of the induction's own: one the theorem or a block around the induction has already introduced would be two things at once, and a reader could not tell which a line means. P(k) mentions k: a statement that does not is no induction, and is a step of its own. The claim is one sentence |
@@ -1014,6 +1018,22 @@ are not hidden steps:
   `substitute`, or as an item's hypothesis — and nothing is written to say
   which: an equation says the same thing both ways, and the reader sees
   which side the line uses.
+- Where a cited line claims a chain of equations, it supplies the equation
+  between any two of its terms, either way round: `|QA| = |QB| = |QC| =
+  |QD|` gives `|QA| = |QD|` as well as `|QA| = |QB|`. A step claiming a
+  chain shows each equation between neighbouring terms, and the rest follow
+  from those. `join` gives the chain from lines saying the neighbouring
+  equations, and infers nothing, as it never does. From lines saying other
+  pairs, a neighbouring equation is a deduction, made by a method such as
+  `algebra`:
+
+  ```
+  4.  |QA| = |QB| = |QC| = |QD|
+      join 1, 2, 3
+  ```
+
+  where lines 1, 2 and 3 say `|QA| = |QB|`, `|QB| = |QC|` and
+  `|QC| = |QD|`.
 
 Each method is a database item with a specified expansion, as `READERS.md`
 requires. The expansions are not yet written; the table above says what a

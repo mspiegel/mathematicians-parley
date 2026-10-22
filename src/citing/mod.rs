@@ -21,7 +21,9 @@ pub use conclude::{
     concludes, derives, identities_unsaid, link_unsaid, not_numbers, obtained, obtains,
     substitution_unsaid, taken, taken_ways, witnesses_unsaid, Concluded, Taken,
 };
-pub use library::{conjuncts, readings, with_parts, Group, Library, Proved, Way};
+pub use library::{
+    conjuncts, readings, supplies, with_parts, Group, Library, Proved, Way,
+};
 pub use once::{
     a_number_said_once, closed_nonzero, index_system, introduction, log_taken,
     nonzero_by_parts, nonzero_said_once, range_system, reason, reason_within,

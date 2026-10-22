@@ -28,6 +28,7 @@ use super::linear;
 use super::matcher::{conjuncts_of, ChainLink};
 use super::provenance::requirement;
 use super::reading::{is_subgroup, CLASS_NAMES};
+use super::scopes::written_parts;
 use super::state::{
     fit, names_of, number_of, Binding, Block, Closer, Contradicted, Elaborator,
     PartEnd, Vars,
@@ -552,6 +553,17 @@ impl<'a> Elaborator<'a> {
                 self.unpack_all(extra, &held, &scope, &facts);
             }
         }
+        for (node, term) in nodes.iter().zip(&terms) {
+            if let Some(held) = self.held(&facts, term, &scope)? {
+                self.know_chains(
+                    std::slice::from_ref(node),
+                    term,
+                    &held,
+                    &scope,
+                    &facts,
+                )?;
+            }
+        }
         let more = self.sethoods(&nodes, &terms, &scope, &facts)?;
         self.sorts.extend(more);
         self.introduced = IndexMap::new();
@@ -977,10 +989,14 @@ impl<'a> Elaborator<'a> {
         self.know(facts, term.clone(), proof.clone());
         self.know_turned(facts, &term, &proof, scope);
         // A line saying several things says each of them, only as deep as
-        // the sentences the text wrote.
-        if said.len() > 1 {
-            self.unpack(&term, &proof, scope, facts, said.len() - 1);
+        // the sentences the text wrote, a chain of equations being the
+        // equations between its neighbouring terms; and a chain says the
+        // equation between any two of its terms.
+        let parts = written_parts(&said);
+        if parts > 1 {
+            self.unpack(&term, &proof, scope, facts, parts - 1);
         }
+        self.know_chains(&said, &term, &proof, scope, facts)?;
         Ok((scope.clone(), facts.clone(), closers))
     }
 

@@ -306,16 +306,18 @@ pub fn fill(pattern: &str, holes: &[Rpn]) -> Rpn {
 /// A repeating notation's target for a node of `count` children: its own
 /// target, which takes the holes the pattern writes, and then, for each
 /// child after those, `building` with that child's hole in place of `_`:
-/// `_1 _2 _3 ctp _4 csn cun` and `_5 csn cun` for {a, b, c, d, e}.
+/// `_1 _2 _3 ctp _4 csn cun` and `_5 csn cun` for {a, b, c, d, e}. `_′` is
+/// the hole of the child before, as a chain's link joins each term to the
+/// one before it: `_3 _4 wceq wa` for the fourth term of a = b = c = d.
 pub fn repeated(target: &str, building: &str, written: usize, count: usize) -> String {
     let mut out = target.to_string();
     for k in written + 1..=count {
         for token in building.split_whitespace() {
             out.push(' ');
-            if token == "_" {
-                out.push_str(&format!("_{k}"));
-            } else {
-                out.push_str(token);
+            match token {
+                "_" => out.push_str(&format!("_{k}")),
+                "_′" => out.push_str(&format!("_{}", k - 1)),
+                _ => out.push_str(token),
             }
         }
     }

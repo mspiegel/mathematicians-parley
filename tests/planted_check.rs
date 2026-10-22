@@ -1165,7 +1165,8 @@ fn cases() -> Vec<Case> {
         // A value runs to the comma that opens the next naming or the
         // `from` list (`GRAMMAR.md`, Justifications), so a naming written
         // without its `:=` is read as more of the value before it, and the
-        // message shows the value as it was cut.
+        // message names what was taken into it: here a chain of equations,
+        // which stands inside the value's formula.
         case(
             "a naming written without its :=",
             vec![edit(
@@ -1173,7 +1174,7 @@ fn cases() -> Vec<Case> {
                 Some("Q := x = 1, from H5, H6".to_string()),
                 "Q = x = 1, from H5, H6".to_string(),
             )],
-            "a value step 1 gives: 'A, B, C are collinear, Q = x = 1': what stands before `_ = _` is a statement, and `_ = _` wants a term",
+            "a value step 1 gives: the chain of equations Q = x = 1 stands inside another formula, and a chain is a whole sentence",
         ),
         case(
             "claim by arithmetic that a pair differs from itself",
@@ -1442,6 +1443,40 @@ fn cases() -> Vec<Case> {
                 "    algebra, from 6, 14, 18\n    requires |AC| ∈ ℝ: membership\n".to_string(),
             )],
             "the requires line of step 19 says |AC| ∈ ℝ, which the page says once",
+        ),
+        // A chain of equations is a whole sentence (`SYNTAX.md`), never a
+        // part of another formula.
+        case(
+            "a chain of equations inside another formula",
+            vec![edit(
+                "tests/elaborator/chains.proof",
+                Some("  assume x = y = z                                                    (H4)\n  then y + 1 = z + 1".to_string()),
+                "  assume if x = 1 then x = y = z                                      (H4)\n  then y + 1 = z + 1".to_string(),
+            )],
+            "the chain of equations x = y = z stands inside another formula, and a chain is a whole sentence",
+        ),
+        // `join` infers nothing: a chain is the equations between its
+        // neighbouring terms, and from x = y and x = z the neighbour y = z
+        // is a deduction.
+        case(
+            "join a chain from equations that are not its links",
+            vec![edit(
+                "tests/elaborator/chains.proof",
+                Some("  assume x = y                                                        (H5)\n  assume y = z                                                        (H6)\n  assume z = w                                                        (H7)".to_string()),
+                "  assume x = y                                                        (H5)\n  assume x = z                                                        (H6)\n  assume z = w                                                        (H7)".to_string(),
+            )],
+            "step 1 joins H5, H6, H7 and claims y = z, which no line it joins says",
+        ),
+        // Only a chain supplies the equation between terms that are not
+        // neighbours: two sentences saying x = y and y = z supply those two.
+        case(
+            "take a pair from two sentences that are not a chain",
+            vec![edit(
+                "tests/elaborator/chains.proof",
+                Some("  assume x = y = z. x + 1 = 5.                                        (H4)".to_string()),
+                "  assume x = y. y = z. x + 1 = 5.                                     (H4)".to_string(),
+            )],
+            "step 1 takes x = z from H4, which does not say it",
         ),
         // A claim of numerals said to be impossible, given to `inequalities`:
         // a claim arithmetic can work out is arithmetic's, and is refused

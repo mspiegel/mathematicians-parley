@@ -307,7 +307,8 @@ pub struct Repeat {
     /// The token written before each further one.
     pub after: String,
     /// What each further one adds to the term the node stands for, `_` being
-    /// that one's term, applied to what the holes before it built.
+    /// that one's term and `_′` the term of the one before it, applied to
+    /// what the holes before it built.
     pub building: String,
 }
 

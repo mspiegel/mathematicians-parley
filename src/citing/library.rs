@@ -9,7 +9,7 @@ use indexmap::IndexMap;
 
 use crate::corpus::{Intro, Record, RecordKind, Theorem};
 use crate::formula::notation_id::NotationId;
-use crate::formula::page::Written;
+use crate::formula::page::{chain_links, chain_pairs, Written};
 use crate::formula::Binds;
 use crate::formula::{Node, Sorts};
 use crate::matching::{expand, free_names, standard, Context, FxIndexMap, FxIndexSet};
@@ -593,7 +593,7 @@ fn hypothesis_parts(lines: impl Iterator<Item = (Intro, Written)>) -> Vec<Writte
 pub fn with_parts(facts: &[Node], library: &Library) -> Vec<Node> {
     let mut out: Vec<Node> = facts.to_vec();
     for fact in facts {
-        for part in conjuncts(fact, library) {
+        for part in supplies(fact, library) {
             if out.iter().all(|x| !part.same_shape(x)) {
                 out.push(part);
             }
@@ -602,11 +602,40 @@ pub fn with_parts(facts: &[Node], library: &Library) -> Vec<Node> {
     out
 }
 
-/// A conjunction taken apart. A claim may take one part of what it gets,
+/// What a cited line saying `node` supplies besides `node` itself: its parts
+/// (`conjuncts`), and of a chain of equations the equation between any two
+/// of its terms (`SYNTAX.md`).
+pub fn supplies(node: &Node, library: &Library) -> Vec<Node> {
+    let mut out = conjuncts(node, library);
+    out.extend(pairs_within(node, library));
+    out
+}
+
+/// The pairs of every chain of equations a line says, as a sentence of it
+/// or as a part of the conjunction its sentences read as.
+fn pairs_within(node: &Node, library: &Library) -> Vec<Node> {
+    if let Some(pairs) = chain_pairs(library.env.g, node) {
+        return pairs;
+    }
+    if library.conj.contains(&node.notation()) && node.children.len() == 2 {
+        return node
+            .children
+            .iter()
+            .flat_map(|c| pairs_within(c, library))
+            .collect();
+    }
+    Vec::new()
+}
+
+/// A conjunction taken apart, and a chain of equations into the equations
+/// between neighbouring terms it states. A claim may take one part of what it gets,
 /// and a fact may supply one part of what is asked, because a line is a
 /// conjunction at kernel level either way and the projection lives in the
 /// method's expansion.
 pub fn conjuncts(node: &Node, library: &Library) -> Vec<Node> {
+    if let Some(links) = chain_links(library.env.g, node) {
+        return links;
+    }
     if library.conj.contains(&node.notation()) && node.children.len() == 2 {
         let mut out = conjuncts(&node.children[0], library);
         out.extend(conjuncts(&node.children[1], library));

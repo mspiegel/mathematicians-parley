@@ -111,12 +111,12 @@ impl Grammar {
                     at += 1;
                 }
                 // The hole that repeats takes every child from here on, each
-                // after the separator, as the page lists them.
+                // after the separator spaced as the pattern writes it before
+                // that hole: `, ` in {_, _, _, _}, ` = ` in _ = _ = _.
                 Part::Hole if n.repeat.as_ref().is_some_and(|r| r.hole == at + 1) => {
-                    let sep = n.repeat.as_ref().map_or(",", |r| r.after.as_str());
                     let each: Vec<String> =
                         children[at..].iter().map(|c| self.print(c)).collect();
-                    written.push(each.join(&format!("{sep} ")));
+                    written.push(each.join(before_last_hole(&n.pattern)));
                     at = children.len();
                 }
                 Part::Hole => {
@@ -216,4 +216,12 @@ enum Edge {
 
 fn holes(n: &Notation) -> usize {
     n.parts.iter().filter(|p| p.fills()).count()
+}
+
+/// What a pattern writes between its last two holes, spacing included:
+/// what stands between the children its last hole repeats over.
+fn before_last_hole(pattern: &str) -> &str {
+    let last = pattern.rfind('_').unwrap_or(pattern.len());
+    let start = pattern[..last].rfind('_').map_or(0, |at| at + 1);
+    &pattern[start..last]
 }

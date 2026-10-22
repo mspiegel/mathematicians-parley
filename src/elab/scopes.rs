@@ -32,7 +32,7 @@ use crate::formula::Node;
 use crate::mm::kernel::Term;
 use crate::mm::spell::Proof;
 use crate::mm::{Rpn, Signature};
-use crate::notations::{FUNCTION_TYPE, IN};
+use crate::notations::{AND, EQUAL_CHAIN, FUNCTION_TYPE, IN};
 use crate::outcome::{Built, Checked, Declined, Route};
 use crate::rules::{self, lookup};
 use crate::{pf, t, take};
@@ -349,6 +349,128 @@ impl<'a> Elaborator<'a> {
         self.know(facts, pair[0].clone(), left);
         self.know_conjuncts(facts, &pair[1], &right, scope);
         self.know(facts, pair[1].clone(), right);
+    }
+
+    /// The equation between any two terms of each chain of equations the
+    /// sentences `said` write, known with its proof, as a line claiming a
+    /// chain supplies them (`SYNTAX.md`). `term` is the sentences joined
+    /// from the left, as a claim of several reads, and `proof` proves it:
+    /// each pair is taken from that proof, so a step naming the line rests
+    /// on the line.
+    pub fn know_chains(
+        &mut self,
+        said: &[Node],
+        term: &Rpn,
+        proof: &Proof,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<()> {
+        let Some((last, rest)) = said.split_last() else {
+            return Ok(());
+        };
+        if rest.is_empty() {
+            return self.know_chain(last, term, proof, scope, facts);
+        }
+        let Some(Halves {
+            left,
+            right,
+            first,
+            second,
+        }) = self.halves(term, proof, scope)
+        else {
+            return Ok(());
+        };
+        self.know_chains(rest, &left, &first, scope, facts)?;
+        self.know_chain(last, &right, &second, scope, facts)
+    }
+
+    /// `know_chains` of one sentence: a chain of equations, or a
+    /// conjunction with chains in it.
+    fn know_chain(
+        &mut self,
+        said: &Node,
+        term: &Rpn,
+        proof: &Proof,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<()> {
+        if said.spelling() == AND {
+            let Some(Halves {
+                left,
+                right,
+                first,
+                second,
+            }) = self.halves(term, proof, scope)
+            else {
+                return Ok(());
+            };
+            self.know_chain(&said.children[0], &left, &first, scope, facts)?;
+            return self.know_chain(&said.children[1], &right, &second, scope, facts);
+        }
+        if said.notation() != EQUAL_CHAIN {
+            return Ok(());
+        }
+        let mut terms = Vec::new();
+        for child in &said.children {
+            terms.push(self.term(child)?);
+        }
+        // The links joined from the left, ((t0 = t1 ∧ t1 = t2) ∧ t2 = t3),
+        // each proved by taking the last off what remains.
+        let mut links: Vec<Proof> = Vec::new();
+        let (mut held, mut whole) = (term.clone(), proof.clone());
+        for _ in 2..terms.len() {
+            let Some(Halves {
+                left,
+                first,
+                second,
+                ..
+            }) = self.halves(&held, &whole, scope)
+            else {
+                return Ok(());
+            };
+            links.push(second);
+            (held, whole) = (left, first);
+        }
+        links.push(whole);
+        links.reverse();
+        for i in 0..links.len() {
+            let mut joined = links[i].clone();
+            for j in i + 2..terms.len() {
+                joined = self.b.ap(
+                    "eqtrd",
+                    &binds! {
+                        "ph" => scope,
+                        "A" => &terms[i],
+                        "B" => &terms[j - 1],
+                        "C" => &terms[j]
+                    },
+                    &[&joined, &links[j - 1]],
+                );
+                let pair = t!(terms[i], terms[j], "wceq");
+                self.know(facts, pair.clone(), joined.clone());
+                self.know_turned(facts, &pair, &joined, scope);
+            }
+        }
+        Ok(())
+    }
+
+    /// A conjunction's two sides with their proofs, `simpld` and `simprd`
+    /// taking it apart; None for a term that is no conjunction.
+    fn halves(&self, term: &Rpn, proof: &Proof, scope: &Rpn) -> Option<Halves> {
+        let node = self.to_term(term);
+        if node.label() != Some("wa") {
+            return None;
+        }
+        let left = self.rpn(&node.children()[0]);
+        let right = self.rpn(&node.children()[1]);
+        let first = pf!(self.b; scope, left, right, proof.clone(), "simpld");
+        let second = pf!(self.b; scope, left, right, proof.clone(), "simprd");
+        Some(Halves {
+            left,
+            right,
+            first,
+            second,
+        })
     }
 
     /// How deep `term` is a conjunction: 0 for anything else, and one more
@@ -3107,4 +3229,26 @@ pub fn assumption(block: &Block, label: &str) -> String {
         return label.to_string();
     }
     format!("{} assumes", number_of(&block.owner))
+}
+
+/// A conjunction's two sides, each with its proof under one scope.
+struct Halves {
+    left: Rpn,
+    right: Rpn,
+    /// Proves `left`.
+    first: Proof,
+    /// Proves `right`.
+    second: Proof,
+}
+
+/// How many things the sentences `said` write, joined by "and" at kernel
+/// level: one for a sentence, and for a chain of equations one for each
+/// equation between neighbouring terms.
+pub fn written_parts(said: &[Node]) -> usize {
+    said.iter()
+        .map(|s| match s.notation() {
+            EQUAL_CHAIN => s.children.len().saturating_sub(1),
+            _ => 1,
+        })
+        .sum()
 }

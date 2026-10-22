@@ -16,9 +16,9 @@ use super::Report;
 use crate::citing::{
     asked, bound_in, claimed_member, concludes, conjuncts, derives, filled, finished,
     function_values, identities_unsaid, index_system, obtained, obtains, range_system,
-    readings, said_once, search, stood_for, substitution_unsaid, supply, taken,
-    taken_ways, type_said_otherwise, with_parts, witnesses_unsaid, Bound, Concluded,
-    Group, Introduced, Library, Parts, Sites, Taken, Ways,
+    readings, said_once, search, stood_for, substitution_unsaid, supplies, supply,
+    taken, taken_ways, type_said_otherwise, with_parts, witnesses_unsaid, Bound,
+    Concluded, Group, Introduced, Library, Parts, Sites, Taken, Ways,
 };
 use crate::corpus::proof::{reason_as_step, Requires};
 use crate::corpus::skeleton::Source;
@@ -1424,7 +1424,7 @@ pub fn check_substitutes(
             if let Some(said) = said {
                 let turned = equation.with_children(vec![right.clone(), left.clone()]);
                 let mut parts = vec![said.clone()];
-                parts.extend(conjuncts(&said, library));
+                parts.extend(supplies(&said, library));
                 let there = parts
                     .iter()
                     .any(|p| known.alike(p, &equation) || known.alike(p, &turned));
@@ -3563,7 +3563,7 @@ pub fn check_instance_claimed(
             .flatten()
             .flat_map(|said| {
                 let mut all = vec![said.clone()];
-                all.extend(conjuncts(&said, library));
+                all.extend(supplies(&said, library));
                 all
             })
             .collect();

@@ -1,0 +1,94 @@
+theorem chain-by-join
+  note        A chain of equations states the equations between its
+              neighbouring terms, so `join` gives it from lines saying those.
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  let z ∈ ℝ                                                           (H3)
+  let w ∈ ℝ                                                           (H4)
+  assume x = y                                                        (H5)
+  assume y = z                                                        (H6)
+  assume z = w                                                        (H7)
+  then x = y = z = w
+
+1.  x = y = z = w
+    join H5, H6, H7
+
+theorem chain-cited-for-a-link
+  note        A line claiming a chain supplies each equation between
+              neighbouring terms.
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  let z ∈ ℝ                                                           (H3)
+  assume x = y = z                                                    (H4)
+  then y + 1 = z + 1
+
+1.  y + 1 = z + 1
+    algebra, from H4
+
+theorem chain-cited-for-a-pair
+  note        A line claiming a chain supplies the equation between any two
+              of its terms, either way round.
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  let z ∈ ℝ                                                           (H3)
+  let w ∈ ℝ                                                           (H4)
+  assume x = y = z = w                                                (H5)
+  assume x + 1 = 5                                                    (H6)
+  assume w·2 = 6                                                      (H7)
+  then w + 1 = 5. x·2 = 6.
+
+1.  w + 1 = 5
+    substitute x = w (H5) into H6
+
+2.  x·2 = 6
+    substitute w = x (H5) into H7
+
+3.  w + 1 = 5. x·2 = 6.
+    join 1, 2
+
+theorem a-step-claiming-a-chain
+  note        A step's chain is cited as a hypothesis's is.
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  let z ∈ ℝ                                                           (H3)
+  assume x = y                                                        (H4)
+  assume y = z                                                        (H5)
+  assume x + 1 = 5                                                    (H6)
+  then z + 1 = 5
+
+1.  x = y = z
+    join H4, H5
+
+2.  z + 1 = 5
+    substitute x = z (line 1) into H6
+
+theorem distances-equal
+  note        The four points on a circle about Q, as a textbook says it.
+  let Q be a point                                                    (H1)
+  let A be a point                                                    (H2)
+  let B be a point                                                    (H3)
+  let C be a point                                                    (H4)
+  let D be a point                                                    (H5)
+  assume |QA| = |QB| = |QC| = |QD|                                    (H6)
+  assume |QA| > 1                                                     (H7)
+  then |QB| + |QD| = 2·|QA|. |QD| > 1.
+
+1.  |QB| + |QD| = 2·|QA|
+    algebra, from H6
+
+2.  |QD| > 1
+    substitute |QA| = |QD| (H6) into H7
+
+3.  |QB| + |QD| = 2·|QA|. |QD| > 1.
+    join 1, 2
+
+theorem a-chain-beside-a-sentence
+  note        A chain is one sentence of a line that may say others.
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  let z ∈ ℝ                                                           (H3)
+  assume x = y = z. x + 1 = 5.                                        (H4)
+  then z + 1 = 5
+
+1.  z + 1 = 5
+    substitute x = z (H4) into H4
