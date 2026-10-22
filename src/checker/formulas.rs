@@ -4507,10 +4507,15 @@ pub(super) fn arithmetic_worked(
     targets: &Targets,
 ) -> Worked {
     let mut out = Worked::Holds;
-    for sentence in written.sentences() {
-        let Some(node) = known.read_as_written(&sentence) else {
-            continue;
-        };
+    // "A. B." and "A and B" are one claim (SYNTAX.md), so each sentence is
+    // taken apart at its "and"s and every fact worked out alone.
+    let facts = written
+        .sentences()
+        .iter()
+        .filter_map(|s| known.read_as_written(s))
+        .flat_map(|n| conjuncts(&n))
+        .collect::<Vec<_>>();
+    for node in facts {
         let node = written_out(&node, known);
         match decide_closed(&term_of_node(&node, targets)) {
             Built(Verdict::Holds(false)) => {
@@ -4548,10 +4553,12 @@ pub(super) fn real_worked(
     known: &Known,
     targets: &Targets,
 ) -> RealWorked {
+    // Each sentence taken apart at its "and"s, as `arithmetic_worked` does.
     let nodes: Vec<Node> = written
         .sentences()
         .iter()
         .filter_map(|s| known.read_as_written(s))
+        .flat_map(|n| conjuncts(&n))
         .collect();
     real_worked_of(&nodes, known, targets)
 }
@@ -4573,22 +4580,26 @@ fn library_named(name: &str, known: &Known) -> bool {
     known.sorts.imported.contains(name) && !introduced(known.thm, known).contains(name)
 }
 
-/// Each sentence of a fact as `real arithmetic` reads it (`real_term`);
-/// None where one does not read.
+/// Each sentence of a fact as `real arithmetic` reads it (`real_term`),
+/// taken apart at its "and"s as `arithmetic_worked` does; None where one
+/// does not read.
 fn real_terms(
     written: &Written,
     known: &Known,
     targets: &Targets,
 ) -> Option<Vec<Term>> {
-    written
+    let read: Option<Vec<Node>> = written
         .sentences()
         .iter()
-        .map(|s| {
-            known
-                .read_as_written(s)
-                .map(|n| real_term(&n, known, targets))
-        })
-        .collect()
+        .map(|s| known.read_as_written(s))
+        .collect();
+    Some(
+        read?
+            .iter()
+            .flat_map(conjuncts)
+            .map(|n| real_term(&n, known, targets))
+            .collect(),
+    )
 }
 
 /// Whether a fact holds a square root, π, e, a logarithm or an
