@@ -83,9 +83,9 @@ pub struct Slots {
     /// The `from` slot's lines and labels, in order: the one line of `from
     /// line N`, or the list.
     pub from: Vec<String>,
-    /// The first entry of the `from` list that is neither a line nor a
-    /// label.
-    pub bad_ref: Option<String>,
+    /// What is wrong with a line that matches no production, where the
+    /// reader can say: the `from` entry that is neither a line nor a label.
+    hint: Option<String>,
     /// A substitute's equation, as written.
     pub equation: Option<Written>,
     /// Where a substitute takes its equation from.
@@ -118,7 +118,7 @@ impl Slots {
             obtained_from: None,
             values: Vec::new(),
             from: Vec::new(),
-            bad_ref: None,
+            hint: None,
             equation: None,
             source: None,
             into: None,
@@ -157,6 +157,7 @@ impl Slots {
         if self.unproduced.is_some() {
             return;
         }
+        self.hint.clone_from(&hint);
         let text = repr(prefix(&self.text, 64));
         self.unproduced = Some(match hint {
             Some(hint) => {
@@ -232,8 +233,11 @@ pub fn starts_with_head(text: &str) -> bool {
     let Some(first) = words.next() else {
         return false;
     };
+    // A comma may end a head's last word, `real arithmetic, from 2`, as it
+    // may end a head of one word.
     let first = first.trim_end_matches(',');
-    item_kind(first).is_some() || method_of(first, words.next()).is_some()
+    let second = words.next().map(|w| w.trim_end_matches(','));
+    item_kind(first).is_some() || method_of(first, second).is_some()
 }
 
 /// An induction's hypothesis as its line writes it, `assume step N is true
@@ -656,25 +660,56 @@ fn item(text: &str, path: &str, line: usize, slots: &mut Slots) -> Option<Head> 
     if cited.len() != name.len() {
         slots.unproduced(None);
     }
-    let after = str::trim(&first[word.len()..]);
     let from_at = pieces
         .iter()
         .position(|p| after_word(p, "from").is_some())
-        .unwrap_or(pieces.len());
-    let mut given: Vec<&str> = Vec::new();
-    if !after.is_empty() {
-        given.push(after);
-    }
-    given.extend(pieces[1..from_at.max(1)].iter().copied());
-    namings(&given, path, line, slots);
-    from_slot(&pieces[from_at.max(1)..], slots);
+        .unwrap_or(pieces.len())
+        .max(1);
+    let values_start = offset_in(text, word) + word.len();
+    let values_end = pieces
+        .get(from_at)
+        .map_or(text.len(), |p| offset_in(text, p));
+    let values = text[values_start..values_end].trim().trim_end_matches(',');
+    namings(values, path, line, slots);
+    from_slot(&pieces[from_at..], slots);
     Some(Head::Item { kind, cited })
+}
+
+/// Where `part`, a slice of `base`, starts in it.
+fn offset_in(base: &str, part: &str) -> usize {
+    part.as_ptr() as usize - base.as_ptr() as usize
+}
+
+/// Whether a piece of a justification opens a naming, `v := …`: a name
+/// and nothing else before `:=`.
+fn opens_naming(piece: &str) -> bool {
+    piece.split_once(":=").is_some_and(|(name, _)| {
+        let name = name.trim();
+        !name.is_empty() && !name.contains(char::is_whitespace)
+    })
+}
+
+/// `values` cut into its namings, at each comma outside brackets that opens
+/// the next one: a comma that does not belongs to the value before it, so
+/// `P := A, B, C are collinear, Q := x = 1` is two namings (`GRAMMAR.md`,
+/// Justifications).
+pub fn naming_pieces(values: &str) -> Vec<&str> {
+    let mut spans: Vec<std::ops::Range<usize>> = Vec::new();
+    for piece in split_commas(values) {
+        let start = offset_in(values, piece);
+        let end = start + piece.len();
+        match spans.last_mut() {
+            Some(span) if !opens_naming(piece) => span.end = end,
+            _ => spans.push(start..end),
+        }
+    }
+    spans.into_iter().map(|span| values[span].trim()).collect()
 }
 
 /// The values a line gives, each `v := t`; a piece of another shape is
 /// left out, and the line matches no production.
-fn namings(given: &[&str], path: &str, line: usize, slots: &mut Slots) {
-    for piece in given {
+fn namings(values: &str, path: &str, line: usize, slots: &mut Slots) {
+    for piece in naming_pieces(values) {
         match piece.split_once(":=") {
             Some((name, value))
                 if !str::trim(name).is_empty()
@@ -712,8 +747,10 @@ fn from_slot(pieces: &[&str], slots: &mut Slots) {
         if is_ref(entry) {
             slots.from.push(entry.to_string());
         } else {
-            slots.bad_ref = Some(entry.to_string());
-            slots.unproduced(None);
+            slots.unproduced(Some(format!(
+                "`from` names {}, which is neither a line nor a label",
+                repr(entry)
+            )));
             return;
         }
     }
@@ -866,9 +903,8 @@ fn obtain(rest: &str, path: &str, line: usize, slots: &mut Slots) {
                 slots.obtained_from = Some(head.to_string());
                 slots.values = inner.values;
                 slots.from = inner.from;
-                slots.bad_ref = inner.bad_ref;
                 if inner.unproduced.is_some() {
-                    slots.unproduced(None);
+                    slots.unproduced(inner.hint);
                 }
             }
             None => slots.unproduced(None),
@@ -1026,8 +1062,7 @@ fn instantiate(
         Some((i, after)) => (region[..i].trim_end(), Some(after)),
         None => (region, None),
     };
-    let given: Vec<&str> = split_commas(values).into_iter().map(str::trim).collect();
-    namings(&given, path, line, slots);
+    namings(values, path, line, slots);
     if slots.values.is_empty() {
         slots.unproduced(None);
     }

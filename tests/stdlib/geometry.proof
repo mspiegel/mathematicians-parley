@@ -14,7 +14,26 @@ import mundane definition stdlib/trigonometry/cos
 import mundane definition stdlib/trigonometry/sin
 import mundane definition stdlib/geometry/midpoint as geometry-midpoint
 import theorem            stdlib/geometry/segment-addition as geometry-segment-addition
-import mundane theorem    stdlib/geometry/distance-real as geometry-distance-real
+import mundane theorem    stdlib/geometry/distance-nonneg as geometry-distance-nonneg
+import mundane theorem    stdlib/geometry/distance-positive as geometry-distance-positive
+import mundane theorem    stdlib/geometry/distance-zero as geometry-distance-zero
+import mundane theorem    stdlib/geometry/distance-by-coordinates as geometry-distance-by-coordinates
+import mundane theorem    stdlib/geometry/collinear-by-coordinates as geometry-collinear-by-coordinates
+import mundane theorem    stdlib/geometry/between-by-coordinates as geometry-between-by-coordinates
+import mundane theorem    stdlib/geometry/points-apart-by-coordinates as geometry-points-apart-by-coordinates
+import mundane theorem    stdlib/geometry/distance-of-points-by-coordinates as geometry-distance-of-points-by-coordinates
+import mundane theorem    stdlib/geometry/angle-at-most-straight as geometry-angle-at-most-straight
+import mundane theorem    stdlib/geometry/angle-by-cosine as geometry-angle-by-cosine
+import theorem            stdlib/geometry/supplementary-angles as geometry-supplementary-angles
+import theorem            stdlib/geometry/triangle-inequality-points as geometry-triangle-inequality-points
+import theorem            stdlib/geometry/triangle-equality-between as geometry-triangle-equality-between
+import theorem            stdlib/geometry/triangle-inequality-strict as geometry-triangle-inequality-strict
+import theorem            stdlib/geometry/angle-addition as geometry-angle-addition
+import mundane theorem    stdlib/geometry/between-apart as geometry-between-apart
+import mundane theorem    stdlib/geometry/between-collinear as geometry-between-collinear
+import mundane theorem    stdlib/geometry/midpoint-unique as geometry-midpoint-unique
+import mundane theorem    stdlib/geometry/midpoint-determines-end as geometry-midpoint-determines-end
+import mundane theorem    stdlib/geometry/angle-turned as geometry-angle-turned
 import mundane definition stdlib/geometry/on-line as geometry-on-line
 import theorem            stdlib/geometry/perpendicular-by-right-angle as geometry-perpendicular-by-right-angle
 import theorem            stdlib/geometry/intersecting-chords as geometry-intersecting-chords
@@ -183,7 +202,6 @@ theorem midpoint-halves
 
 3.  |AM| = |AB|/2
     algebra, from 1, 2
-    requires |MB| ∈ ℝ: mun:geometry-distance-real
 
 theorem on-line
   let P be a point                                                    (H1)
@@ -350,3 +368,225 @@ theorem heron
 
 1.  the area of △PQR = √(s·(s − |QR|)·((s − |PR|)·(s − |PQ|)))
     thm:geometry-heron, from H5, H6, H7
+
+theorem distance-nonneg
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  then |PQ| ≥ 0
+
+1.  |PQ| ≥ 0
+    mun:geometry-distance-nonneg
+
+theorem distance-positive
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  assume P ≠ Q                                                        (H3)
+  then |PQ| > 0
+
+1.  |PQ| > 0
+    mun:geometry-distance-positive, from H3
+
+theorem distance-zero
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  then |PQ| = 0 ↔ P = Q
+
+1.  |PQ| = 0 ↔ P = Q
+    mun:geometry-distance-zero
+
+theorem distance-by-coordinates
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let c ∈ ℝ                                                           (H3)
+  let d ∈ ℝ                                                           (H4)
+  then |(a, b)(c, d)| = √((a − c)² + (b − d)²)
+
+1.  |(a, b)(c, d)| = √((a − c)² + (b − d)²)
+    mun:geometry-distance-by-coordinates
+
+theorem collinear-by-coordinates
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let c ∈ ℝ                                                           (H3)
+  let d ∈ ℝ                                                           (H4)
+  let e ∈ ℝ                                                           (H5)
+  let f ∈ ℝ                                                           (H6)
+  then (a, b), (c, d), (e, f) are collinear ↔ (c − a)·(f − b) = (e − a)·(d − b)
+
+1.  (a, b), (c, d), (e, f) are collinear ↔ (c − a)·(f − b) = (e − a)·(d − b)
+    mun:geometry-collinear-by-coordinates
+
+theorem between-by-coordinates
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let c ∈ ℝ                                                           (H3)
+  let d ∈ ℝ                                                           (H4)
+  let e ∈ ℝ                                                           (H5)
+  let f ∈ ℝ                                                           (H6)
+  then (c, d) is between (a, b) and (e, f) ↔ (a − c)·(f − d) = (e − c)·(b − d) and (a − c)·(e − c) + (b − d)·(f − d) < 0
+
+1.  (c, d) is between (a, b) and (e, f) ↔ (a − c)·(f − d) = (e − c)·(b − d) and (a − c)·(e − c) + (b − d)·(f − d) < 0
+    mun:geometry-between-by-coordinates
+
+theorem points-apart-by-coordinates
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let a ∈ ℝ                                                           (H3)
+  let b ∈ ℝ                                                           (H4)
+  let c ∈ ℝ                                                           (H5)
+  let d ∈ ℝ                                                           (H6)
+  assume A = (a, b)                                                   (H7)
+  assume B = (c, d)                                                   (H8)
+  then A ≠ B ↔ (a, b) ≠ (c, d)
+
+1.  A ≠ B ↔ (a, b) ≠ (c, d)
+    mun:geometry-points-apart-by-coordinates, from H7, H8
+
+theorem distance-of-points-by-coordinates
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let a ∈ ℝ                                                           (H3)
+  let b ∈ ℝ                                                           (H4)
+  let c ∈ ℝ                                                           (H5)
+  let d ∈ ℝ                                                           (H6)
+  assume A = (a, b)                                                   (H7)
+  assume B = (c, d)                                                   (H8)
+  then |AB| = √((a − c)² + (b − d)²)
+
+1.  |AB| = √((a − c)² + (b − d)²)
+    mun:geometry-distance-of-points-by-coordinates, from H7, H8
+
+theorem angle-at-most-straight
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P ≠ Q                                                        (H4)
+  assume R ≠ Q                                                        (H5)
+  then ∠PQR ≤ 180°
+
+1.  ∠PQR ≤ 180°
+    mun:geometry-angle-at-most-straight, from H4, H5
+
+theorem angle-by-cosine
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let x ∈ ℝ                                                           (H4)
+  assume P ≠ Q                                                        (H5)
+  assume R ≠ Q                                                        (H6)
+  assume 0 ≤ x                                                        (H7)
+  assume x ≤ 180°                                                     (H8)
+  then ∠PQR = x ↔ cos(∠PQR) = cos(x)
+
+1.  ∠PQR = x ↔ cos(∠PQR) = cos(x)
+    mun:geometry-angle-by-cosine, from H5, H6, H7, H8
+
+theorem supplementary-angles
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  assume B is between A and C                                         (H5)
+  assume D ≠ B                                                        (H6)
+  then ∠ABD + ∠DBC = 180°
+
+1.  ∠ABD + ∠DBC = 180°
+    thm:geometry-supplementary-angles, from H5, H6
+
+theorem triangle-inequality-points
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  then |PR| ≤ |PQ| + |QR|
+
+1.  |PR| ≤ |PQ| + |QR|
+    thm:geometry-triangle-inequality-points
+
+theorem triangle-equality-between
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P ≠ Q                                                        (H4)
+  assume Q ≠ R                                                        (H5)
+  assume |PQ| + |QR| = |PR|                                           (H6)
+  then Q is between P and R
+
+1.  Q is between P and R
+    thm:geometry-triangle-equality-between, from H4, H5, H6
+
+theorem triangle-inequality-strict
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P, Q, R form a triangle                                      (H4)
+  then |PR| < |PQ| + |QR|
+
+1.  |PR| < |PQ| + |QR|
+    thm:geometry-triangle-inequality-strict, from H4
+
+theorem angle-addition
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let M be a point                                                    (H4)
+  assume A, B, C form a triangle                                      (H5)
+  assume M is between A and B                                         (H6)
+  then ∠ACM + ∠MCB = ∠ACB
+
+1.  ∠ACM + ∠MCB = ∠ACB
+    thm:geometry-angle-addition, from H5, H6
+
+theorem between-apart
+  let R be a point                                                    (H1)
+  let S be a point                                                    (H2)
+  let T be a point                                                    (H3)
+  assume R is between S and T                                         (H4)
+  then S ≠ R. T ≠ R.
+
+1.  S ≠ R. T ≠ R.
+    mun:geometry-between-apart, from H4
+
+theorem between-collinear
+  let R be a point                                                    (H1)
+  let S be a point                                                    (H2)
+  let T be a point                                                    (H3)
+  assume R is between S and T                                         (H4)
+  then T, R, S are collinear
+
+1.  T, R, S are collinear
+    mun:geometry-between-collinear, from H4
+
+theorem midpoint-unique
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let M be a point                                                    (H3)
+  let N be a point                                                    (H4)
+  assume M is the midpoint of AB                                      (H5)
+  assume N is the midpoint of AB                                      (H6)
+  then M = N
+
+1.  M = N
+    mun:geometry-midpoint-unique, from H5, H6
+
+theorem midpoint-determines-end
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let M be a point                                                    (H4)
+  assume M is the midpoint of AB                                      (H5)
+  assume M is the midpoint of AC                                      (H6)
+  then B = C
+
+1.  B = C
+    mun:geometry-midpoint-determines-end, from H5, H6
+
+theorem angle-turned
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P ≠ Q                                                        (H4)
+  assume R ≠ Q                                                        (H5)
+  then ∠PQR = ∠RQP
+
+1.  ∠PQR = ∠RQP
+    mun:geometry-angle-turned, from H4, H5

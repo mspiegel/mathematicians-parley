@@ -1,0 +1,14 @@
+import mundane theorem    stdlib/reasoning/iff-not-from-right
+
+theorem an-equation-turned-inside
+  note        An equation is read from either side wherever it stands, and an
+              identity element written or left out changes nothing: H3's
+              y + 0 = 2 and H4's 2 ≠ y give the record one Q.
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume x = 1 ↔ y + 0 = 2                                            (H3)
+  assume 2 ≠ y                                                        (H4)
+  then not (x = 1)
+
+1.  not (x = 1)
+    mun:iff-not-from-right, from H3, H4

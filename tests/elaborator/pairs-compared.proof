@@ -1,0 +1,77 @@
+import mundane theorem    stdlib/geometry/points-apart-by-coordinates
+
+theorem points-apart-by-their-coordinates
+  note        The pairs differ by arithmetic, and the points with those
+              coordinates differ as they do.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  assume A = (1, 1)                                                   (H3)
+  assume B = (2, 3)                                                   (H4)
+  then A ≠ B
+
+1.  (1, 1) ≠ (2, 3)
+    arithmetic
+
+2.  A ≠ B
+    mun:points-apart-by-coordinates, from H3, H4, 1
+
+theorem pairs-apart-at-the-first
+  note        Two pairs differ where a coordinate does: 1 ≠ 2.
+  then (1, 1) ≠ (2, 3)
+
+1.  (1, 1) ≠ (2, 3)
+    arithmetic
+
+theorem pairs-apart-at-the-second
+  note        The first coordinates agree, and the second differ.
+  then (1, 1) ≠ (1, 2)
+
+1.  (1, 1) ≠ (1, 2)
+    arithmetic
+
+theorem pairs-equal-by-arithmetic
+  note        Two pairs are equal where both coordinates are.
+  then (1 + 1, 3) = (2, 3)
+
+1.  (1 + 1, 3) = (2, 3)
+    arithmetic
+
+theorem pairs-apart-by-real-arithmetic
+  note        √3 is not 0, so the pairs differ at the second coordinate.
+  then (0, √3) ≠ (0, 0)
+
+1.  (0, √3) ≠ (0, 0)
+    real arithmetic
+
+theorem pairs-equal-by-real-arithmetic
+  then (√4, 1) = (2, 1)
+
+1.  (√4, 1) = (2, 1)
+    real arithmetic
+
+theorem pairs-apart-by-algebra
+  note        A cited difference of first coordinates is the pairs' difference.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let c ∈ ℝ                                                           (H3)
+  let d ∈ ℝ                                                           (H4)
+  assume a ≠ c                                                        (H5)
+  then (a, b) ≠ (c, d)
+
+1.  (a, b) ≠ (c, d)
+    algebra, from H5
+
+theorem pairs-equal-by-algebra
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  then (a + b, a·b) = (b + a, b·a)
+
+1.  (a + b, a·b) = (b + a, b·a)
+    algebra
+
+theorem a-pair-outside-a-list-of-pairs
+  note        Inspection compares listed pairs coordinate by coordinate.
+  then (1, 2) ∉ {(3, 4), (1, 5)}
+
+1.  (1, 2) ∉ {(3, 4), (1, 5)}
+    inspection

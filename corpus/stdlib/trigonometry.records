@@ -167,3 +167,20 @@ mundane theorem cos-decreasing
   target      cosord
   note        The cosine falls from 1 to −1 as its argument runs from 0 to π,
               so on that interval a larger argument has a smaller cosine.
+
+mundane theorem special-angles
+  then        cos(90°) = 0. sin(90°) = 1. cos(60°) = 1/2. sin(30°) = 1/2.
+  metamath    gcos90, gsin90, gcos60, gsin30, which this corpus proves in
+              elaboration/stdlib/proved.mm from coshalfpi, sinhalfpi,
+              sincos3rdpi and sincos6thpi
+  target      gcos90, gsin90, gcos60, gsin30
+  note        The values a school reader takes from the unit circle. set.mm
+              states them at π/2, π/3 and π/6; each lemma first writes the
+              degrees as that fraction of π.
+
+mundane theorem cos-supplement
+  let x ∈ ℝ                                                           (H1)
+  then        cos(180° − x) = −cos(x)
+  metamath    gcossupp, which this corpus proves in
+              elaboration/stdlib/proved.mm from cospim
+  target      gcossupp

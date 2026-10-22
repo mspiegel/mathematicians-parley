@@ -122,8 +122,10 @@ mundane theorem triangle-angle-real
 
 mundane definition collinear
   open        Incidence is a primitive of the geometry, and the readable layer
-              cannot state what it is. In the plane it says (R − P)/(Q − P) is
-              real, and subtraction takes numbers while P, Q and R are points:
+              cannot state what it is. In the plane it says P = Q or
+              (R − P)/(Q − P) is real, which is true in any order of the three
+              points, so the notation's points stand in no order; and
+              subtraction takes numbers while P, Q and R are points:
               the sorts that stop |CA| reading as a product stop this too. The
               notation carries a target, so a claim of collinearity elaborates;
               what has no readable statement is the equivalence.
@@ -136,9 +138,12 @@ mundane definition triangle
   let R be a point                                                    (H3)
   then        P, Q, R form a triangle ↔ P ≠ Q and Q ≠ R and P ≠ R and
               not (P, Q, R are collinear)
-  metamath    biid, since the notation's target is the three inequalities
-              and the collinearity it denies
-  target      biid
+  metamath    gtridef, which this corpus proves in
+              elaboration/stdlib/proved.mm: the notation's target is the three
+              inequalities and the quotient it denies, and collinearity is the
+              first two one point or the quotient real, which with the points
+              distinct is the quotient
+  target      gtridef
   note        set.mm has no single notion. "Form a triangle" and "are
               collinear" are notations whose targets make the two sides one
               formula; what collinearity is in words is
@@ -229,6 +234,18 @@ mundane theorem angle-symmetric
               and the absolute values agree either way.
   target      gangsym3
 
+mundane theorem angle-turned
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P ≠ Q                                                        (H4)
+  assume R ≠ Q                                                        (H5)
+  then        ∠PQR = ∠RQP
+  metamath    gangsym3, which this corpus proves in elaboration/stdlib/proved.mm
+  target      gangsym3
+  note        As angle-symmetric, for points that may lie on a line: the
+              angle between two arms does not depend on which is named first.
+
 mundane definition parallel
   open        As mun:stdlib/geometry/collinear is: in the plane PQ ∥ RS says
               (Q − P)/(S − R) is real, and the readable layer cannot subtract
@@ -318,6 +335,35 @@ mundane definition midpoint
   note        In the plane the midpoint is (A + B)/2, which the page does not
               write: it adds points.
 
+mundane theorem midpoint-unique
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let M be a point                                                    (H3)
+  let N be a point                                                    (H4)
+  assume M is the midpoint of AB                                      (H5)
+  assume N is the midpoint of AB                                      (H6)
+  then        M = N
+  metamath    gmiduniq, which this corpus proves in
+              elaboration/stdlib/proved.mm from gmidval: each is (A + B)/2
+  target      gmiduniq
+  note        A segment has one midpoint, which is what "the midpoint of AB"
+              takes for granted.
+
+mundane theorem midpoint-determines-end
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let M be a point                                                    (H4)
+  assume M is the midpoint of AB                                      (H5)
+  assume M is the midpoint of AC                                      (H6)
+  then        B = C
+  metamath    gmidend, which this corpus proves in
+              elaboration/stdlib/proved.mm from gmidval: (A + B)/2 =
+              (A + C)/2 cancels to B = C
+  target      gmidend
+  note        The reflection of a point through another is one point: B is
+              the point beyond M from A at the distance |AM|.
+
 mundane definition same-side
   open        Which side of the line through P and Q a point X is on is the
               sign of the imaginary part of (X − P)/(Q − P): positive on one
@@ -383,13 +429,175 @@ theorem angles-on-a-line
               the order. Over ℂ the three angles turn the same way, and their
               signed sum is half a turn.
 
-mundane theorem distance-real
+theorem supplementary-angles
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  assume B is between A and C                                         (H5)
+  assume D ≠ B                                                        (H6)
+  then        ∠ABD + ∠DBC = 180°
+  metamath    gsupp, which this corpus proves in elaboration/stdlib/proved.mm
+              from cosangneg2d, cospim and cos11
+  target      gsupp
+  note        Two angles on a line, Euclid I.13: with B on the segment AC,
+              the angles ABD and DBC make a straight angle wherever D is.
+
+theorem triangle-inequality-points
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)
-  then        |PQ| ∈ ℝ
-  metamath    gdistre, which this corpus proves in elaboration/stdlib/proved.mm
-              from subcl and abscl
-  target      gdistre
+  let R be a point                                                    (H3)
+  then        |PR| ≤ |PQ| + |QR|
+  metamath    abs3dif
+  target      abs3dif
+
+theorem triangle-equality-between
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P ≠ Q                                                        (H4)
+  assume Q ≠ R                                                        (H5)
+  assume |PQ| + |QR| = |PR|                                           (H6)
+  then        Q is between P and R
+  metamath    gtrieq, which this corpus proves in elaboration/stdlib/proved.mm:
+              set.mm has no equality case of the triangle inequality
+  target      gtrieq
+  note        Where the way through Q is no longer than the straight way,
+              Q lies on the segment PR. Squared, the equality says the
+              product of the differences from Q with one conjugated has its
+              real part equal to minus its size, so it is a negative real.
+
+theorem triangle-inequality-strict
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P, Q, R form a triangle                                      (H4)
+  then        |PR| < |PQ| + |QR|
+  metamath    gtristrict, which this corpus proves in
+              elaboration/stdlib/proved.mm from gtrieq and abs3dif
+  target      gtristrict
+  note        Euclid I.20: equality would put Q between P and R, and the
+              three would be collinear.
+
+theorem angle-addition
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let M be a point                                                    (H4)
+  assume A, B, C form a triangle                                      (H5)
+  assume M is between A and B                                         (H6)
+  then        ∠ACM + ∠MCB = ∠ACB
+  metamath    gangadd, which this corpus proves in
+              elaboration/stdlib/proved.mm: set.mm adds no two angles
+  target      gangadd
+  note        A point of the side AB splits the angle at C in two. With T
+              the point beyond C from A, angles-on-a-line makes ACM, MCB
+              and BCT a straight angle, and supplementary-angles makes ACB
+              and BCT one: M and B lie on one side of line CA, and A and B
+              on two sides of line CM, which is what the line through M
+              does.
+
+mundane theorem distance-nonneg
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  then        |PQ| ≥ 0
+  metamath    gdistnn, which this corpus proves in elaboration/stdlib/proved.mm
+              from absge0
+  target      gdistnn
+
+mundane theorem distance-positive
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  assume P ≠ Q                                                        (H3)
+  then        |PQ| > 0
+  metamath    gdistpos, which this corpus proves in elaboration/stdlib/proved.mm
+              from absgt0
+  target      gdistpos
+
+mundane theorem distance-zero
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  then        |PQ| = 0 ↔ P = Q
+  metamath    gdist0, which this corpus proves in elaboration/stdlib/proved.mm
+              from abs00 and subeq0
+  target      gdist0
+  note        A point is at distance 0 from itself and from no other point.
+
+mundane theorem distance-by-coordinates
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let c ∈ ℝ                                                           (H3)
+  let d ∈ ℝ                                                           (H4)
+  then        |(a, b)(c, d)| = √((a − c)² + (b − d)²)
+  metamath    gdistco, which this corpus proves in elaboration/stdlib/proved.mm
+              from absreim
+  target      gdistco
+
+mundane theorem collinear-by-coordinates
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let c ∈ ℝ                                                           (H3)
+  let d ∈ ℝ                                                           (H4)
+  let e ∈ ℝ                                                           (H5)
+  let f ∈ ℝ                                                           (H6)
+  then        (a, b), (c, d), (e, f) are collinear ↔ (c − a)·(f − b) = (e − a)·(d − b)
+  metamath    gcolco, which this corpus proves in elaboration/stdlib/proved.mm
+              from gdivre: a quotient is real just where the first times
+              the conjugate of the second has imaginary part 0
+  target      gcolco
+
+mundane theorem between-by-coordinates
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let c ∈ ℝ                                                           (H3)
+  let d ∈ ℝ                                                           (H4)
+  let e ∈ ℝ                                                           (H5)
+  let f ∈ ℝ                                                           (H6)
+  then        (c, d) is between (a, b) and (e, f) ↔ (a − c)·(f − d) = (e − c)·(b − d) and (a − c)·(e − c) + (b − d)·(f − d) < 0
+  metamath    gbetco, which this corpus proves in elaboration/stdlib/proved.mm
+              from gdivneg: a quotient is a negative real just where the
+              first times the conjugate of the second has imaginary part 0
+              and negative real part
+  target      gbetco
+  note        The three points are collinear, and the two ends lie on
+              opposite sides of the middle one: the differences from it
+              point opposite ways, so their dot product is negative.
+
+mundane theorem points-apart-by-coordinates
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let a ∈ ℝ                                                           (H3)
+  let b ∈ ℝ                                                           (H4)
+  let c ∈ ℝ                                                           (H5)
+  let d ∈ ℝ                                                           (H6)
+  assume A = (a, b)                                                   (H7)
+  assume B = (c, d)                                                   (H8)
+  then        A ≠ B ↔ (a, b) ≠ (c, d)
+  metamath    gptapart, which this corpus proves in
+              elaboration/stdlib/proved.mm from cru and opthneg: each
+              differs just where a coordinate does
+  target      gptapart
+  note        On the left (a, b) and (c, d) are points, as A and B are;
+              on the right they are pairs, which `arithmetic` compares
+              coordinate by coordinate (`METHODS.md`, Pairs).
+
+mundane theorem distance-of-points-by-coordinates
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let a ∈ ℝ                                                           (H3)
+  let b ∈ ℝ                                                           (H4)
+  let c ∈ ℝ                                                           (H5)
+  let d ∈ ℝ                                                           (H6)
+  assume A = (a, b)                                                   (H7)
+  assume B = (c, d)                                                   (H8)
+  then        |AB| = √((a − c)² + (b − d)²)
+  metamath    gptdist, which this corpus proves in
+              elaboration/stdlib/proved.mm from gdistco, the points put for
+              their coordinates
+  target      gptdist
+  note        distance-by-coordinates for two points named by letters, so a
+              proof that gives its points coordinates reads each distance
+              off in one step.
 
 mundane theorem between-symmetric
   let R be a point                                                    (H1)
@@ -400,6 +608,31 @@ mundane theorem between-symmetric
   metamath    gbetsym, which this corpus proves in elaboration/stdlib/proved.mm:
               the quotient read the other way is its reciprocal
   target      gbetsym
+
+mundane theorem between-apart
+  let R be a point                                                    (H1)
+  let S be a point                                                    (H2)
+  let T be a point                                                    (H3)
+  assume R is between S and T                                         (H4)
+  then        S ≠ R. T ≠ R.
+  metamath    gbetne0, which this corpus proves in
+              elaboration/stdlib/proved.mm: the first is part of what
+              between says, and T = R would make the quotient 0, which
+              is not negative
+  target      gbetne0
+  note        A point between two others is apart from both, so the
+              angles and triangles at it are defined.
+
+mundane theorem between-collinear
+  let R be a point                                                    (H1)
+  let S be a point                                                    (H2)
+  let T be a point                                                    (H3)
+  assume R is between S and T                                         (H4)
+  then        T, R, S are collinear
+  metamath    gbetcol, which this corpus proves in
+              elaboration/stdlib/proved.mm from gtricol
+  target      gbetcol
+  note        A point between two others is on their line.
 
 mundane theorem angle-along-segment
   let P be a point                                                    (H1)
@@ -549,6 +782,34 @@ mundane theorem right-angle-by-cosine
   then        ∠PQR = 90° ↔ cos(∠PQR) = 0
   metamath    gright3, from coseq00topi
   target      gright3
+
+mundane theorem angle-at-most-straight
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P ≠ Q                                                        (H4)
+  assume R ≠ Q                                                        (H5)
+  then        ∠PQR ≤ 180°
+  metamath    gangle180, which this corpus proves in
+              elaboration/stdlib/proved.mm from gangicc3
+  target      gangle180
+
+mundane theorem angle-by-cosine
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let x ∈ ℝ                                                           (H4)
+  assume P ≠ Q                                                        (H5)
+  assume R ≠ Q                                                        (H6)
+  assume 0 ≤ x                                                        (H7)
+  assume x ≤ 180°                                                     (H8)
+  then        ∠PQR = x ↔ cos(∠PQR) = cos(x)
+  metamath    gangcos, which this corpus proves in elaboration/stdlib/proved.mm
+              from gangicc3 and cos11
+  target      gangcos
+  note        An angle is read from its cosine, as right-angle-by-cosine
+              reads a right angle: on [0°, 180°] the cosine takes each value
+              once.
 
 theorem altitude-foot
   let P be a point                                                    (H1)

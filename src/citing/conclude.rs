@@ -8,7 +8,7 @@ use indexmap::IndexMap;
 
 use crate::matching::{
     alike, alike_top, binding_sites, identities_dropped, match_tree, put_everywhere,
-    substitute_apart, Binding, Context, FxIndexSet,
+    readings_in_any_order, substitute_apart, Binding, Context, FxIndexSet,
 };
 use crate::notations::PROPERTY_OF;
 use crate::outcome::{Built, Route};
@@ -74,13 +74,25 @@ fn take(
                 binding: binding.clone(),
             }]
         };
-        for start in starts {
-            let Some(found) =
-                match_tree(cand, claim, &start.binding, variables, sites, &library.ctx)
-            else {
+        // A claim whose parts stand in no order is fitted in each order, so
+        // that the facts decide which way it is the conclusion.
+        let readings = readings_in_any_order(claim, &library.ctx);
+        let tries: Vec<(&Start, &Node)> = starts
+            .iter()
+            .flat_map(|s| readings.iter().map(move |r| (s, r)))
+            .collect();
+        for (start, reading) in tries {
+            let Some(found) = match_tree(
+                cand,
+                reading,
+                &start.binding,
+                variables,
+                sites,
+                &library.ctx,
+            ) else {
                 continue;
             };
-            if !identities_on_numbers(cand, claim, &found, given, library) {
+            if !identities_on_numbers(cand, reading, &found, given, library) {
                 continue;
             }
             // A letter the item binds, the k of Σ(k = a to b), is matched

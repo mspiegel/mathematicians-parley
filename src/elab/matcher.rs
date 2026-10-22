@@ -224,24 +224,177 @@ impl<'a> Elaborator<'a> {
         }
     }
 
-    /// A triangle held with its points named in another order: three points
-    /// form a triangle in any order (`forms-a-triangle`, `commutes yes`), and
-    /// the one held is carried to the order wanted by as few swaps and
-    /// rotations as reach it (`gtriswap`, `gtrirotate`). None where `wanted`
-    /// is no triangle, or no order of its points is held.
+    /// A claim about three points in no order held with its points named in
+    /// another order: three points form a triangle, or are collinear, in any
+    /// order (`commutes yes`). Which claim `wanted` is decides the pair of
+    /// lemmas that carry it (`REORDERS`).
     fn held_reordered(
         &mut self,
         facts: &Facts,
         wanted: &Rpn,
         scope: &Rpn,
     ) -> Checked<Option<Proof>> {
-        const SWAP: &str = "gtriswap";
-        const ROTATE: &str = "gtrirotate";
-        if !self.b.sigs.contains_key(SWAP) || !self.b.sigs.contains_key(ROTATE) {
+        for by in &REORDERS {
+            if let Some(proof) = self.held_reordered_by(facts, wanted, scope, by)? {
+                return Ok(Some(proof));
+            }
+        }
+        self.denial_reordered(facts, wanted, scope)
+    }
+
+    /// `not X` from a denial held of the same claim about the same three
+    /// points named in another order, `not Y`: X implies Y by the swaps and
+    /// rotations `held_reordered` makes, each lemma an implication once its
+    /// points are numbers, and `mtod` turns that against `not Y`. None
+    /// where `wanted` is no such denial or none is held.
+    fn denial_reordered(
+        &mut self,
+        facts: &Facts,
+        wanted: &Rpn,
+        scope: &Rpn,
+    ) -> Checked<Option<Proof>> {
+        let denied = self.to_term(wanted);
+        if denied.label() != Some("wn") {
             return Ok(None);
         }
-        // ( the points are numbers -> ( P, Q, R form a triangle -> … ) ).
-        let whole = self.statement(SWAP);
+        let claim = self.rpn(&denied.children()[0]);
+        for (said, proof) in facts.entries() {
+            let said_term = self.to_term(&said);
+            if said_term.label() != Some("wn") {
+                continue;
+            }
+            let other = self.rpn(&said_term.children()[0]);
+            if other == claim || !self.reorders(&claim, &other) {
+                continue;
+            }
+            for by in &REORDERS {
+                let Some(implied) =
+                    self.reorder_implied(&claim, &other, scope, facts, by)?
+                else {
+                    continue;
+                };
+                return Ok(Some(self.b.ap(
+                    "mtod",
+                    &binds! {"ph" => scope, "ps" => &claim, "ch" => &other},
+                    &[&proof, &implied],
+                )));
+            }
+        }
+        Ok(None)
+    }
+
+    /// ( scope -> ( from -> to ) ), where `to` is `from` with its three
+    /// points named in another order, by as few of `by`'s swaps and
+    /// rotations as reach it; None where the two are not `by`'s claim.
+    fn reorder_implied(
+        &mut self,
+        from: &Rpn,
+        to: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+        by: &Reorder,
+    ) -> Checked<Option<Proof>> {
+        let Some(ThreePoints {
+            shape,
+            letters,
+            points,
+        }) = self.three_points(by, &self.to_term(from))
+        else {
+            return Ok(None);
+        };
+        let named = |me: &Self, order: &[usize]| -> Rpn {
+            let mut put = Binding::new();
+            for (&letter, &i) in letters.iter().zip(order) {
+                put.insert(letter, points[i].clone());
+            }
+            me.rpn(&shape.substitute(&put))
+        };
+        let swap = |o: &[usize]| vec![o[0], o[2], o[1]];
+        let rotate = |o: &[usize]| vec![o[1], o[2], o[0]];
+        let start = vec![0, 1, 2];
+        let mut paths: Vec<(Vec<usize>, Vec<&str>)> = vec![(start.clone(), Vec::new())];
+        let moves = loop {
+            let Some((order, path)) = paths.first().cloned() else {
+                return Ok(None);
+            };
+            paths.remove(0);
+            if named(self, &order) == *to {
+                break path;
+            }
+            if path.len() < 3 {
+                for (label, next) in
+                    [(by.swap, swap(&order)), (by.rotate, rotate(&order))]
+                {
+                    let mut longer = path.clone();
+                    longer.push(label);
+                    paths.push((next, longer));
+                }
+            }
+        };
+        let mut members = Vec::new();
+        // A point is in ℂ by its sort, which a step rests on held.
+        for point in &points {
+            let member = t!(self.rpn(point), "cc", "wcel");
+            let Some(proof) = self.held(facts, &member, scope)? else {
+                return Ok(None);
+            };
+            members.push((member, proof));
+        }
+        let mut order = start;
+        let mut chained: Option<Proof> = None;
+        for label in moves {
+            // The lemma's letters are the points as they stand before the
+            // move, which it takes to the order after.
+            let prior = order.clone();
+            let before = named(self, &prior);
+            order = if label == by.swap {
+                swap(&order)
+            } else {
+                rotate(&order)
+            };
+            let after = named(self, &order);
+            let mut put = Binding::new();
+            for (&letter, &i) in letters.iter().zip(&prior) {
+                put.insert(letter, points[i].clone());
+            }
+            let law = self.b.ap(label, &self.spelt(&put), &[]);
+            // Its points are numbers, in the order its letters take them.
+            let [a, b, c] =
+                [&members[prior[0]], &members[prior[1]], &members[prior[2]]];
+            let all = t!(a.0, b.0, c.0, "w3a");
+            let numbers = self.b.ap(
+                "3jca",
+                &binds! {"ph" => scope, "ps" => &a.0, "ch" => &b.0, "th" => &c.0},
+                &[&a.1, &b.1, &c.1],
+            );
+            let step = t!(before, after, "wi");
+            let one = self.b.ap(
+                "syl",
+                &binds! {"ph" => scope, "ps" => &all, "ch" => &step},
+                &[&numbers, &law],
+            );
+            chained = Some(match chained {
+                None => one,
+                Some(so_far) => self.b.ap(
+                    "syld",
+                    &binds! {"ph" => scope, "ps" => from, "ch" => &before, "th" => &after},
+                    &[&so_far, &one],
+                ),
+            });
+        }
+        Ok(chained)
+    }
+
+    /// The claim `by` is about, read off `term`: the shape the pair's swap
+    /// lemma takes, its three letters in order, and the points `term` puts
+    /// at them. None where `term` is no such claim, or the pair is not in
+    /// the database.
+    fn three_points(&mut self, by: &Reorder, term: &Term) -> Option<ThreePoints> {
+        if !self.b.sigs.contains_key(by.swap) || !self.b.sigs.contains_key(by.rotate) {
+            return None;
+        }
+        // ( the points are numbers -> ( the claim of P, Q, R -> … ) ).
+        let whole = self.statement(by.swap);
         let shape = whole.children()[1].children()[0].clone();
         let mut letters: Vec<Symbol> = Vec::new();
         let mut rest = vec![shape.clone()];
@@ -255,17 +408,63 @@ impl<'a> Elaborator<'a> {
             rest.extend(node.children().iter().rev().cloned());
         }
         if letters.len() != 3 {
-            return Ok(None);
+            return None;
         }
-        let Some(at) =
-            self.fits_as(&shape, &self.to_term(wanted), &names_of(&shape), None)
-        else {
-            return Ok(None);
-        };
-        let Some(points) = letters
+        let at = self.fits_as(&shape, term, &names_of(&shape), None)?;
+        let points = letters
             .iter()
             .map(|l| at.get(l.as_str()).cloned())
-            .collect::<Option<Vec<Term>>>()
+            .collect::<Option<Vec<Term>>>()?;
+        Some(ThreePoints {
+            shape,
+            letters,
+            points,
+        })
+    }
+
+    /// Whether `want` is `said` with its points named in another order: a
+    /// triangle or a collinearity of the same three points (`REORDERS`).
+    pub fn reorders(&mut self, said: &Rpn, want: &Rpn) -> bool {
+        let (said, want) = (self.to_term(said), self.to_term(want));
+        for by in &REORDERS {
+            let Some(one) = self.three_points(by, &said) else {
+                continue;
+            };
+            let Some(other) = self.three_points(by, &want) else {
+                continue;
+            };
+            if self.sorted_points(&one) == self.sorted_points(&other) {
+                return true;
+            }
+        }
+        false
+    }
+
+    /// The points of a claim about three points, spelt and sorted, so that
+    /// two orders of the same three compare equal.
+    fn sorted_points(&self, claim: &ThreePoints) -> Vec<Rpn> {
+        let mut spelt: Vec<Rpn> = claim.points.iter().map(|t| self.rpn(t)).collect();
+        spelt.sort();
+        spelt
+    }
+
+    /// `held_reordered` by one pair of lemmas: the one held is carried to
+    /// the order wanted by as few swaps and rotations as reach it. None
+    /// where `wanted` is not the claim the pair is about, or no order of its
+    /// points is held.
+    fn held_reordered_by(
+        &mut self,
+        facts: &Facts,
+        wanted: &Rpn,
+        scope: &Rpn,
+        by: &Reorder,
+    ) -> Checked<Option<Proof>> {
+        let (swap_label, rotate_label) = (by.swap, by.rotate);
+        let Some(ThreePoints {
+            shape,
+            letters,
+            points,
+        }) = self.three_points(by, &self.to_term(wanted))
         else {
             return Ok(None);
         };
@@ -300,7 +499,7 @@ impl<'a> Elaborator<'a> {
                 }
                 if path.len() < 3 {
                     for (label, next) in
-                        [(SWAP, swap(&order)), (ROTATE, rotate(&order))]
+                        [(swap_label, swap(&order)), (rotate_label, rotate(&order))]
                     {
                         let mut longer = path.clone();
                         longer.push(label);
@@ -315,7 +514,7 @@ impl<'a> Elaborator<'a> {
             let mut order = start.to_vec();
             for label in moves {
                 self.know(&known, named(self, &order), proof);
-                order = if label == SWAP {
+                order = if label == swap_label {
                     swap(&order)
                 } else {
                     rotate(&order)
@@ -670,7 +869,77 @@ impl<'a> Elaborator<'a> {
                 return Ok(Built(found));
             }
         }
+        if let Some(found) = self.held_turned_inside(&rpn, scope, &facts)? {
+            return Ok(Built(found));
+        }
         Ok(self.no("cannot settle {}", &[&rpn]))
+    }
+
+    /// `wanted` from a fact that says it with an equation inside it written
+    /// the other way round, `P ↔ b = a` for `P ↔ a = b`, as the checker reads
+    /// an equation from either side wherever it stands: the two are one
+    /// claim by `same`, and `mpbid` carries the fact across. Only a fact
+    /// that is `wanted` once every equation in both faces one way is tried.
+    fn held_turned_inside(
+        &mut self,
+        wanted: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        let goal = self.to_term(wanted);
+        let faced = self.equations_faced(&goal);
+        for (said, proof) in facts.entries() {
+            if said == *wanted {
+                continue;
+            }
+            let held = self.to_term(&said);
+            if self.equations_faced(&held) != faced {
+                continue;
+            }
+            // Each carried to its spelling without identity elements, where
+            // the two differ only in which way their equations face.
+            let held_bare = self.without_identities(&held);
+            let goal_bare = self.without_identities(&goal);
+            let (said_bare, wanted_bare) = (self.rpn(&held_bare), self.rpn(&goal_bare));
+            let Some(bare) = self.tidied(&proof, &said, &said_bare, scope, facts)?
+            else {
+                continue;
+            };
+            let Built(alike) = self.same(&held_bare, &goal_bare, scope, facts, None)?
+            else {
+                continue;
+            };
+            let turned =
+                pf!(self.b; scope, said_bare, wanted_bare, bare, alike, "mpbid");
+            if let Some(found) =
+                self.tidied(&turned, &wanted_bare, wanted, scope, facts)?
+            {
+                return Ok(Some(found));
+            }
+        }
+        Ok(None)
+    }
+
+    /// `term` spelt with each equation in it facing one way, its sides in
+    /// the order of their spelling, and without the identity elements it
+    /// writes: two claims that differ only in which way their equations face
+    /// and in an identity written or left out (`SYNTAX.md`) are spelt alike.
+    fn equations_faced(&self, term: &Term) -> Rpn {
+        let term = self.without_identities(term);
+        fn faced(me: &Elaborator<'_>, term: &Term) -> Term {
+            let kids: Vec<Term> =
+                term.children().iter().map(|k| faced(me, k)).collect();
+            let Some(label) = term.label() else {
+                return term.clone();
+            };
+            let mut kids = kids;
+            if label == "wceq" && kids.len() == 2 && me.rpn(&kids[1]) < me.rpn(&kids[0])
+            {
+                kids.swap(0, 1);
+            }
+            Term::apply(label, kids)
+        }
+        self.rpn(&faced(self, &term))
     }
 
     /// ( scope -> F : A ⟶ C ), F the name a define gives the map ( x ∈ A ↦
@@ -1976,6 +2245,15 @@ impl<'a> Elaborator<'a> {
     /// The operand an identity element leaves, where `term` is an operation
     /// with its identity in a hole the notation record allows it: x for
     /// x + 0, 0 + x, x − 0, x·1, 1·x, x/1 and x^1. None otherwise.
+    /// Whether a term is the identity element of some operation's identity
+    /// law: 0 or 1 as the notation records have them.
+    fn is_identity_element(&self, term: &Term) -> bool {
+        let spelt = self.rpn(term);
+        self.identities
+            .iter()
+            .any(|law| super::field::numeral(law.element) == spelt)
+    }
+
     fn identity_dropped(&self, term: &Term) -> Option<Term> {
         if term.variable().is_some() {
             return None;
@@ -4356,6 +4634,13 @@ impl<'a> Elaborator<'a> {
         if let Some(p) = self.respelt(proof, said, want, scope)? {
             return Ok(Some(p));
         }
+        // A claim about three points in no order, its points named in
+        // another order than the instance's, is the instance reordered.
+        if self.reorders(said, want) {
+            let known = facts.copy();
+            self.know(&known, said.clone(), proof.clone());
+            return self.held_reordered(&known, want, scope);
+        }
         // Each line the part may rest on is read in its parts as well, as a
         // cited line is: "a(0) ∈ ℕ₀ and b(0) ∈ ℕ₀" says b(0) ∈ ℕ₀. What it may
         // not rest on is left out first, so that a copy of a part proved
@@ -5121,7 +5406,9 @@ impl<'a> Elaborator<'a> {
     }
 
     /// One half of what a lemma concludes: the half the claim is fixes the
-    /// lemma, and `simpld` or `simprd` takes it.
+    /// lemma, and `simpld` or `simprd` takes it. A half and the claim are
+    /// compared in the page's spelling of a disequality (`page_spelling`),
+    /// since a lemma may write `T =/= R` where the page reads `-. T = R`.
     #[allow(clippy::too_many_arguments)]
     fn as_conjunct(
         &mut self,
@@ -5149,9 +5436,10 @@ impl<'a> Elaborator<'a> {
         }
         let variables = names_of(whole);
         let keys = facts.keys();
+        let start = seed.cloned().unwrap_or_default();
+        let want = page_spelling(goal);
         for (i, part) in reads.children().iter().enumerate() {
-            let Some(mut bound) =
-                fit(part, goal, &seed.cloned().unwrap_or_default(), &variables)
+            let Some(mut bound) = fit(&page_spelling(part), &want, &start, &variables)
             else {
                 continue;
             };
@@ -5188,7 +5476,21 @@ impl<'a> Elaborator<'a> {
             };
             let (a, b) = (self.rpn(&said.children()[0]), self.rpn(&said.children()[1]));
             let pick = if i == 0 { "simpld" } else { "simprd" };
-            return Ok(Built(pf!(self.b; scope, a, b, proof, pick)));
+            let half = pf!(self.b; scope, a, b, proof, pick);
+            let (taken, wanted) = (self.rpn(&said.children()[i]), self.rpn(goal));
+            if taken == wanted {
+                return Ok(Built(half));
+            }
+            // The half is the claim in set.mm's spelling: it is carried
+            // across.
+            let Built(back) =
+                self.same(&said.children()[i], goal, scope, facts, step)?
+            else {
+                continue;
+            };
+            return Ok(Built(
+                pf!(self.b; scope, taken, wanted, half, back, "mpbid"),
+            ));
         }
         Ok(Route::no(format!(
             "neither half of what {label} concludes is the claim"
@@ -6016,9 +6318,23 @@ impl<'a> Elaborator<'a> {
             }
             let mut vars = variables.clone();
             vars.extend(said.names().iter().cloned());
+            // The hypothesis and each cited line are fitted as the checker
+            // reads them, with their identity elements dropped: `2·k·x = x`
+            // and `2·k·x = 1·x` both answer ( A x. C ) = ( B x. C ) at
+            // B := 1 (SYNTAX.md, "An identity element goes without
+            // saying"). Only a letter bound to an identity element is put in
+            // the hypothesis, since a letter of the proof may share a name
+            // with one of the lemma's.
+            let at_identity: Binding = binding
+                .iter()
+                .filter(|(_, v)| self.is_identity_element(v))
+                .map(|(k, v)| (*k, v.clone()))
+                .collect();
+            let said = self.without_identities(&said.substitute(&at_identity));
             for held in &cited {
+                let held = self.without_identities(held);
                 if let Some(filled) =
-                    self.fit_over_bound(&said, held, &binding, &vars, &fresh)
+                    self.fit_over_bound(&said, &held, &binding, &vars, &fresh)
                 {
                     binding = filled;
                     break;
@@ -6580,12 +6896,55 @@ fn join_token(join: Join) -> &'static str {
     }
 }
 
+/// The two lemmas that carry a claim about three points in no order from
+/// one order of them to another (`held_reordered`). Each is ( the points are
+/// numbers -> ( the claim of A, B, C -> the claim of the new order ) ).
+struct Reorder {
+    /// A, C, B from A, B, C.
+    swap: &'static str,
+    /// B, C, A from A, B, C.
+    rotate: &'static str,
+}
+
+/// A claim about three points as a pair of `REORDERS` reads it.
+struct ThreePoints {
+    /// The claim of A, B, C, as the pair's swap lemma takes it.
+    shape: Term,
+    /// The shape's three letters, in the order it names them.
+    letters: Vec<Symbol>,
+    /// The points the claim puts at those letters, in the same order.
+    points: Vec<Term>,
+}
+
+/// The claims about three points that `commutes yes` says are one in any
+/// order, by the lemmas that reorder them: a triangle (`forms-a-triangle`)
+/// and collinearity (`collinear`).
+const REORDERS: [Reorder; 2] = [
+    Reorder {
+        swap: "gtriswap",
+        rotate: "gtrirotate",
+    },
+    Reorder {
+        swap: "gcolswap",
+        rotate: "gcolrotate",
+    },
+];
+
 /// How many constructors a pattern fixes: the nodes that are not variables.
 fn constructors(pattern: &Term) -> usize {
     if pattern.variable().is_some() {
         return 0;
     }
     1 + pattern.children().iter().map(constructors).sum::<usize>()
+}
+
+/// A disequality in the page's spelling: set.mm's `A =/= B` as `-. A = B`.
+/// Anything else is itself.
+fn page_spelling(term: &Term) -> Term {
+    if term.label() != Some("wne") {
+        return term.clone();
+    }
+    Term::apply("wn", vec![Term::apply("wceq", term.children().to_vec())])
 }
 
 /// Whether a shape holds the hole numbered `wanted`.

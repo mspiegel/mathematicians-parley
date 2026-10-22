@@ -1,7 +1,8 @@
 //! A membership in a number system that the page says once, where a letter
 //! is introduced, and no step writes again (`READERS.md`, membership said
 //! once): a numeral, a letter in the set its introducing line names and the
-//! number systems containing that one, and a term built from those by +, −,
+//! number systems containing that one, a distance between two points in ℝ
+//! and ℂ, and a term built from those by +, −,
 //! ·, negation, a power to a numeral or to a letter in ℕ or ℕ₀, and a
 //! quotient whose divisor a fact says is not zero.
 //!
@@ -23,9 +24,10 @@ use crate::formula::symbol::Symbol;
 use crate::formula::{ByShape, Node, Sort, Sorts};
 use crate::matching::{alike_top, standard, substitute_apart, Binding, FxIndexSet};
 use crate::notations::{
-    APPLICATION, DEGREES, DIVIDED, EULER, FACTORIAL, FUNCTION_TYPE, IN, INTEGER_RANGE,
-    JUXTAPOSITION, MEMBERSHIP, MINUS, MOD, MULTIPLICATIVE, NUMBER_SYSTEMS, NUMERAL, PI,
-    PLUS, POWER, SQUARE_ROOT, SUM, SUPERSCRIPT, TIMES, UNARY_MINUS,
+    APPLICATION, DEGREES, DISTANCE, DIVIDED, EULER, FACTORIAL, FUNCTION_TYPE, IN,
+    INTEGER_RANGE, JUXTAPOSITION, MEMBERSHIP, MINUS, MOD, MULTIPLICATIVE,
+    NUMBER_SYSTEMS, NUMERAL, PI, PLUS, POWER, SQUARE_ROOT, SUM, SUPERSCRIPT, TIMES,
+    UNARY_MINUS,
 };
 use crate::rules::{self, lookup, System};
 
@@ -354,6 +356,9 @@ pub enum OnceReason {
     /// A square root, π, e or a logarithm `real arithmetic` works out, which
     /// is in ℝ and ℂ.
     Real,
+    /// The distance |PQ| between two points introduced as points, which is
+    /// in ℝ and ℂ.
+    Distance,
     /// The term's operation applied to parts each in the system, the
     /// reasons given in the order the term writes its parts; a power's
     /// exponent is no part, being a numeral or a letter in ℕ or ℕ₀, and a
@@ -404,10 +409,15 @@ pub enum Shape<'t, T> {
     Operation(&'static str, &'t T, &'t T),
     /// A base to an exponent.
     Power(&'t T, &'t T),
+    /// x° for this x: x·π/180, which is in ℝ or ℂ where x is. Only the
+    /// page writes it; the kernel's x·π/180 is an operation of its parts.
+    Degrees(&'t T),
     /// What `real arithmetic` works out and the walk takes whole: the square
     /// root of numerals whose value is a rational of at least 0, π, e, and
     /// the logarithm of numerals whose value is a positive rational.
     Real,
+    /// The distance |PQ| from the first point to the second.
+    Distance(&'t T, &'t T),
     /// Anything the walk does not take apart.
     Other,
 }
@@ -422,6 +432,8 @@ pub trait OnceAsk {
     /// The number system a letter is introduced in; None for one that is
     /// not.
     fn letter(&mut self, term: &Self::T) -> Option<System>;
+    /// Whether a term is a letter introduced as a point.
+    fn point(&mut self, term: &Self::T) -> bool;
     /// Whether a divisor is not zero by what the page says.
     fn nonzero(&mut self, divisor: &Self::T) -> bool;
     /// Why a part the walk does not take apart is in `system`: a line
@@ -431,9 +443,11 @@ pub trait OnceAsk {
 
 /// Why the page says once that `term` is in `system` (`READERS.md`,
 /// membership said once): what a line says of it, a numeral, a letter in
-/// the system its introducing line names or one inside it, or +, −, ·,
-/// negation, a power to a numeral or to a letter in ℕ or ℕ₀, and a quotient
-/// whose divisor is not zero, of parts that are; None where it is not.
+/// the system its introducing line names or one inside it, a distance
+/// between two letters introduced as points in ℝ or ℂ, or +, −, ·,
+/// negation, a power to a numeral or to a letter in ℕ or ℕ₀, a quotient
+/// whose divisor is not zero, and x° in ℝ or ℂ, of parts that are; None
+/// where it is not.
 pub fn reason<A: OnceAsk>(
     ask: &mut A,
     term: &A::T,
@@ -481,8 +495,18 @@ pub fn reason<A: OnceAsk>(
             rules::closed("cexp", label)?;
             Some(OnceReason::Built(vec![reason(ask, a, system)?]))
         }
+        Shape::Degrees(x) => {
+            if !matches!(system, System::R | System::C) {
+                return None;
+            }
+            Some(OnceReason::Built(vec![reason(ask, x, system)?]))
+        }
         Shape::Real => {
             matches!(system, System::R | System::C).then_some(OnceReason::Real)
+        }
+        Shape::Distance(p, q) => {
+            (matches!(system, System::R | System::C) && ask.point(p) && ask.point(q))
+                .then_some(OnceReason::Distance)
         }
         Shape::Other => None,
     }
@@ -602,6 +626,8 @@ impl OnceAsk for PageOnce<'_> {
                 Shape::Real
             }
             (PI | EULER, _, []) => Shape::Real,
+            (DEGREES, _, [x]) => Shape::Degrees(x),
+            (DISTANCE, _, [p, q]) => Shape::Distance(p, q),
             // The library's ln, sin and cos: one the theorem introduces as a
             // letter of its own is not it.
             (APPLICATION, _, [head, a])
@@ -626,6 +652,12 @@ impl OnceAsk for PageOnce<'_> {
 
     fn letter(&mut self, term: &Node) -> Option<System> {
         self.letters.get(term.text.as_str()).copied()
+    }
+
+    /// A name of the point sort: `let A be a point` or an obtain gives it
+    /// the sort, and a step rests on that without naming the line.
+    fn point(&mut self, term: &Node) -> bool {
+        term.is_name() && term.sort.is("point")
     }
 
     fn nonzero(&mut self, divisor: &Node) -> bool {

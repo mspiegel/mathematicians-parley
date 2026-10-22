@@ -31,6 +31,7 @@ pub(crate) use crate::methods::linear;
 pub(crate) mod matcher;
 pub(crate) mod normal;
 pub mod numerals;
+pub(crate) mod pairs;
 pub(crate) mod provenance;
 pub(crate) mod reading;
 pub(crate) mod real;

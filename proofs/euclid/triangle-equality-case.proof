@@ -1,0 +1,13 @@
+import theorem            stdlib/geometry/triangle-equality-between
+
+theorem triangle-equality-case
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  assume |AC| + |CB| = |AB|                                           (H4)
+  assume C ≠ A                                                        (H5)
+  assume C ≠ B                                                        (H6)
+  then C is between A and B
+
+1.  C is between A and B
+    thm:triangle-equality-between, from H4, H5, H6

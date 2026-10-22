@@ -1,0 +1,83 @@
+import theorem            proofs/euclid/apollonius/apollonius
+import mundane definition stdlib/geometry/midpoint
+import theorem            stdlib/geometry/segment-addition
+import mundane theorem    stdlib/geometry/distance-nonneg
+import mundane theorem    stdlib/geometry/distance-symmetric
+import mundane theorem    stdlib/numbers/square-equal
+
+theorem midline
+  note        Apollonius for the median BN of triangle BAC and for the
+              median NM of triangle NAB, added with |AM| = |AB|/2, leaves
+              |NM|² = (|BC|/2)².
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let M be a point                                                    (H4)
+  let N be a point                                                    (H5)
+  assume M is the midpoint of AB                                      (H6)
+  assume N is the midpoint of AC                                      (H7)
+  then |MN| = |BC|/2
+
+1.  M is between A and B. |AM| = |MB|.
+    mun:midpoint, from H6
+
+2.  N is between A and C. |AN| = |NC|.
+    mun:midpoint M := N, B := C, from H7
+
+3.  |AM| + |MB| = |AB|
+    thm:segment-addition P := A, Q := B, S := M, from 1
+
+4.  |AM| = |AB|/2
+    algebra, from 1, 3
+
+5.  |BA|² + |BC|² = 2·|BN|² + 2·|AN|²
+    thm:apollonius A := B, B := A, M := N, from 2
+
+6.  |NA|² + |NB|² = 2·|NM|² + 2·|AM|²
+    thm:apollonius A := N, B := A, C := B, from 1
+
+7.  |BA| = |AB|
+    mun:distance-symmetric P := B, Q := A
+
+8.  |NA| = |AN|
+    mun:distance-symmetric P := N, Q := A
+
+9.  |NB| = |BN|
+    mun:distance-symmetric P := N, Q := B
+
+10. |AB|² + |BC|² = 2·|BN|² + 2·|AN|²
+    substitute |BA| = |AB| (line 7) into line 5
+
+11. |AN|² + |NB|² = 2·|NM|² + 2·|AM|²
+    substitute |NA| = |AN| (line 8) into line 6
+
+12. |AN|² + |BN|² = 2·|NM|² + 2·|AM|²
+    substitute |NB| = |BN| (line 9) into line 11
+
+13. |AN|² + |BN|² = 2·|NM|² + 2·(|AB|/2)²
+    substitute |AM| = |AB|/2 (line 4) into line 12
+
+14. |NM|² = (|BC|/2)²
+    algebra, from 10, 13
+
+15. |NM| ≥ 0
+    mun:distance-nonneg P := N, Q := M
+
+16. |BC| ≥ 0
+    mun:distance-nonneg P := B, Q := C
+
+17. |BC|/2 ≥ 0
+    inequalities
+      |BC| ≥ 0       16
+      |BC|/2 ≥ 0     multiplying by 1/2
+
+18. |NM| = |BC|/2
+    mun:square-equal x := |NM|, y := |BC|/2, from 14, 15, 17
+
+19. |MN| = |NM|
+    mun:distance-symmetric P := M, Q := N
+
+20. |MN| = |BC|/2
+    calculation
+      |MN| = |NM|      19
+           = |BC|/2    18

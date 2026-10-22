@@ -1,0 +1,12 @@
+import theorem            stdlib/geometry/triangle-inequality-strict
+
+theorem two-sides-exceed-third
+  note        Euclid I.20, cited as the library records it.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  assume A, B, C form a triangle                                      (H4)
+  then |AC| < |AB| + |BC|
+
+1.  |AC| < |AB| + |BC|
+    thm:triangle-inequality-strict P := A, Q := B, R := C, from H4

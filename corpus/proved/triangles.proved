@@ -30,15 +30,6 @@ $d x R $.  $d y R $.
 $d x S $.  $d y S $.
 $d x T $.  $d y T $.
 
-lemma gdistre
-  |- ( P e. CC -> ( Q e. CC -> ( abs ` ( P - Q ) ) e. RR ) )
-  1 id |- ( P e. CC -> P e. CC )
-  2 adantr 1 |- ( ( P e. CC /\ Q e. CC ) -> P e. CC )
-  3 simpr |- ( ( P e. CC /\ Q e. CC ) -> Q e. CC )
-  4 subcld 2 3 |- ( ( P e. CC /\ Q e. CC ) -> ( P - Q ) e. CC )
-  5 abscld 4 |- ( ( P e. CC /\ Q e. CC ) -> ( abs ` ( P - Q ) ) e. RR )
-  6 ex 5 |- ( P e. CC -> ( Q e. CC -> ( abs ` ( P - Q ) ) e. RR ) )
-
 lemma gbetsym
   |- ( R e. CC -> ( S e. CC -> ( T e. CC -> ( ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T
       - R ) / ( S - R ) ) < 0 ) -> ( T =/= R /\ ( ( S - R ) / ( T - R ) ) e. RR /\ ( ( S - R ) / ( T

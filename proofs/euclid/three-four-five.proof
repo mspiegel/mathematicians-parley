@@ -1,0 +1,46 @@
+import theorem            proofs/euclid/converse-of-pythagoras/converse-of-pythagoras
+import mundane theorem    stdlib/geometry/angle-symmetric
+import mundane theorem    stdlib/geometry/distance-symmetric
+
+theorem three-four-five
+  note        3² + 4² = 5², so the converse of Pythagoras makes the angle at
+              C a right angle.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  assume A, B, C form a triangle                                      (H4)
+  assume |BC| = 3                                                     (H5)
+  assume |CA| = 4                                                     (H6)
+  assume |AB| = 5                                                     (H7)
+  then ∠BCA = 90°
+
+1.  |AC| = |CA|
+    mun:distance-symmetric P := A, Q := C
+
+2.  |AC| = 4
+    calculation
+      |AC| = |CA|      1
+           = 4         H6
+
+3.  |AB|² = 5²
+    substitute |AB| = 5 (H7)
+
+4.  |AC|² = 4²
+    substitute |AC| = 4 (line 2)
+
+5.  |BC|² = 3²
+    substitute |BC| = 3 (H5)
+
+6.  |AB|² = |AC|² + |BC|²
+    algebra, from 3, 4, 5
+
+7.  ∠ACB = 90°
+    thm:converse-of-pythagoras, from H4, 6
+
+8.  ∠ACB = ∠BCA
+    mun:angle-symmetric P := A, Q := C, R := B, from H4
+
+9.  ∠BCA = 90°
+    calculation
+      ∠BCA = ∠ACB      8
+           = 90°       7

@@ -457,6 +457,7 @@ fn read(
         src: text,
         i: 0,
         stopped: None,
+        stopped_ran_out: false,
         refused: None,
         refused_order: false,
     };
@@ -800,6 +801,11 @@ struct Parser<'a> {
     src: &'a str,
     i: usize,
     stopped: Option<(usize, String)>,
+    /// Whether what `stopped` says is that the text ended where a pattern
+    /// wanted its next token: any other reason at the same place is said
+    /// over it, as `_ = _ = _` runs out where `for all η > 0, η = η` has a
+    /// reason of its own to give.
+    stopped_ran_out: bool,
     refused: Option<(usize, String)>,
     /// Whether what `refused` says is about the precedence order.
     refused_order: bool,
@@ -880,12 +886,27 @@ impl<'a> Parser<'a> {
     /// reading got further than any before it, the one `why` would say, and
     /// a parse tries and drops many readings on its way to the one it takes.
     fn no(&mut self, message: impl FnOnce() -> String) -> Reading {
+        let over = match &self.stopped {
+            None => true,
+            Some((at, _)) => self.i > *at || (self.i == *at && self.stopped_ran_out),
+        };
+        if over {
+            self.stopped = Some((self.i, message()));
+            self.stopped_ran_out = false;
+        }
+        Ok(None)
+    }
+
+    /// `no`, where the text ended before a pattern's next token: said only
+    /// where no reading got as far.
+    fn ran_out(&mut self) -> Reading {
         let further = match &self.stopped {
             None => true,
             Some((at, _)) => self.i > *at,
         };
         if further {
-            self.stopped = Some((self.i, message()));
+            self.stopped = Some((self.i, format!("{} ends early", repr(self.src))));
+            self.stopped_ran_out = true;
         }
         Ok(None)
     }
@@ -1453,15 +1474,17 @@ impl<'a> Parser<'a> {
                 }
                 Part::Lit(lit) => {
                     let (tok, src) = (self.here(), self.src);
-                    if !tok.is_some_and(|t| t.text == *lit) {
-                        return self.no(|| match tok {
-                            Some(tok) => format!(
+                    let Some(tok) = tok else {
+                        return self.ran_out();
+                    };
+                    if tok.text != *lit {
+                        return self.no(|| {
+                            format!(
                                 "{} does not fit at {} in {}",
                                 n.name,
                                 repr(&tok.text),
                                 repr(src)
-                            ),
-                            None => format!("{} ends early", repr(src)),
+                            )
                         });
                     }
                     self.i += 1;
@@ -1556,6 +1579,7 @@ impl<'a> Parser<'a> {
                 src: self.src,
                 i: from,
                 stopped: None,
+                stopped_ran_out: false,
                 refused: None,
                 refused_order: false,
             };

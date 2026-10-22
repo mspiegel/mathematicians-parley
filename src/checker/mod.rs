@@ -79,6 +79,28 @@ impl Report {
             ),
         );
     }
+
+    /// A requires line resting on `method` that its decider settles neither
+    /// way, as `undecided` is for a step: a requires line's reason shows its
+    /// fact as a step's shows its claim.
+    pub fn undecided_requires(
+        &mut self,
+        path: &str,
+        method: Method,
+        step: &crate::corpus::Step,
+        req: &crate::corpus::Requires,
+    ) {
+        self.say(
+            path,
+            req.line,
+            format!(
+                "the requires line {} of step {} names {}, which does not decide what it says",
+                req.fact,
+                crate::corpus::fmt(&step.number),
+                method.as_str()
+            ),
+        );
+    }
 }
 
 /// What the check printed, and the status it exits with.

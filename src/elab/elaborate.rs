@@ -28,6 +28,7 @@ use super::linear;
 use super::matcher::{conjuncts_of, ChainLink};
 use super::provenance::requirement;
 use super::reading::{is_subgroup, CLASS_NAMES};
+use super::scopes::written_parts;
 use super::state::{
     fit, names_of, number_of, Binding, Block, Closer, Contradicted, Elaborator,
     PartEnd, Vars,
@@ -552,6 +553,17 @@ impl<'a> Elaborator<'a> {
                 self.unpack_all(extra, &held, &scope, &facts);
             }
         }
+        for (node, term) in nodes.iter().zip(&terms) {
+            if let Some(held) = self.held(&facts, term, &scope)? {
+                self.know_chains(
+                    std::slice::from_ref(node),
+                    term,
+                    &held,
+                    &scope,
+                    &facts,
+                );
+            }
+        }
         let more = self.sethoods(&nodes, &terms, &scope, &facts)?;
         self.sorts.extend(more);
         self.introduced = IndexMap::new();
@@ -610,7 +622,7 @@ impl<'a> Elaborator<'a> {
                 (scope, facts, closers) =
                     self.close_block(&mut done, &facts, closers, &scope)?;
                 self.line_built_as_stated(done.owner.line)?;
-                self.contradicted_at(&done.owner, &facts);
+                self.contradicted_at(&done.owner, &scope, &facts)?;
                 Self::hand_up(&done, &mut blocks);
             }
             // A step in a case sits under the case's assumption, and one in
@@ -660,7 +672,7 @@ impl<'a> Elaborator<'a> {
             self.line_built_as_stated(step.line)?;
             // A step contradicting a line closes a contradiction block on the
             // two of them, as its last pair.
-            self.contradicted_at(&step, &facts);
+            self.contradicted_at(&step, &scope, &facts)?;
             // A step that says its claim is impossible is its own opposite:
             // the claim is worked out, by `real arithmetic` where it holds a
             // square root, π, e, a logarithm or an exponential and by
@@ -715,6 +727,7 @@ impl<'a> Elaborator<'a> {
                     self.contradicted = Some(Contradicted {
                         claim: negated.clone(),
                         proof: proof.clone(),
+                        reordered: None,
                     });
                 }
                 Some(proof)
@@ -790,7 +803,7 @@ impl<'a> Elaborator<'a> {
             (scope, facts, closers) =
                 self.close_block(&mut done, &facts, closers, &scope)?;
             self.line_built_as_stated(done.owner.line)?;
-            self.contradicted_at(&done.owner, &facts);
+            self.contradicted_at(&done.owner, &scope, &facts)?;
             Self::hand_up(&done, &mut blocks);
         }
 
@@ -977,10 +990,14 @@ impl<'a> Elaborator<'a> {
         self.know(facts, term.clone(), proof.clone());
         self.know_turned(facts, &term, &proof, scope);
         // A line saying several things says each of them, only as deep as
-        // the sentences the text wrote.
-        if said.len() > 1 {
-            self.unpack(&term, &proof, scope, facts, said.len() - 1);
+        // the sentences the text wrote, a chain of equations being the
+        // equations between its neighbouring terms; and a chain says the
+        // equation between any two of its terms.
+        let parts = written_parts(&said);
+        if parts > 1 {
+            self.unpack(&term, &proof, scope, facts, parts - 1);
         }
+        self.know_chains(&said, &term, &proof, scope, facts);
         Ok((scope.clone(), facts.clone(), closers))
     }
 
@@ -1678,7 +1695,7 @@ impl<'a> Elaborator<'a> {
         let known = Facts::new();
         let whole_proof = self.carried(&where_, facts, lines);
         self.know(&known, held.term.clone(), whole_proof.clone());
-        self.unpack_all(&held.term, &whole_proof, scope, &known);
+        self.unpack_line(&held, &whole_proof, scope, &known);
         let universals: Vec<Rpn> = self
             .parts(&held.term)
             .into_iter()
@@ -2045,7 +2062,7 @@ impl<'a> Elaborator<'a> {
         let held = self.carried(&where_, facts, lines);
         let known = Facts::new();
         self.know(&known, into.term.clone(), held.clone());
-        self.unpack_all(&into.term, &held, scope, &known);
+        self.unpack_line(&into, &held, scope, &known);
         // A sentence joined by `and` is its parts as surely as a line of two
         // sentences is, so each is offered.
         let mut offered = Vec::new();
@@ -2753,7 +2770,7 @@ impl<'a> Elaborator<'a> {
             let parts = Facts::new();
             let whole = self.carried(r, facts, lines);
             self.know(&parts, cited.term.clone(), whole.clone());
-            self.unpack_all(&cited.term, &whole, scope, &parts);
+            self.unpack_line(&cited, &whole, scope, &parts);
             for (said, proof) in parts.entries() {
                 // A part that is the claim leaves `same` nothing to carry.
                 if said == *term {
@@ -2931,7 +2948,7 @@ impl<'a> Elaborator<'a> {
                         (part, carried)
                     } else {
                         let apart = facts.copy();
-                        self.unpack_all(&held.term, &carried, scope, &apart);
+                        self.unpack_line(&held, &carried, scope, &apart);
                         let Some(proof) = self.held(&apart, &part, scope)? else {
                             return Err(self.defect(
                                 step.line,
@@ -3577,7 +3594,7 @@ impl<'a> Elaborator<'a> {
         // A line may say several things, and the link be one of them.
         let known = Facts::new();
         self.know(&known, line.term.clone(), proof.clone());
-        self.unpack_all(&line.term, &proof, scope, &known);
+        self.unpack_line(&line, &proof, scope, &known);
         for (said_as, held) in known.entries() {
             if said_as == wanted {
                 return Ok(held);
@@ -4739,7 +4756,9 @@ impl<'a> Elaborator<'a> {
         for instance in instances {
             let bare_instance = bare(self, &instance);
             if instance == *term
-                || (bare_instance != goal && !self.rebound(&bare_instance, &goal))
+                || (bare_instance != goal
+                    && !self.rebound(&bare_instance, &goal)
+                    && !self.reorders(&instance, term))
             {
                 continue;
             }

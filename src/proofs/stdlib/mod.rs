@@ -16,10 +16,11 @@ use super::Lemma;
 
 /// The groups, in the order they are written: a later group may take a
 /// label an earlier one proved. Each is `corpus/proved/<name>.proved`.
-const NAMES: [&str; 18] = [
+const NAMES: [&str; 19] = [
     "geometry",
     "parallels",
     "triangles",
+    "plane",
     "series",
     "functions",
     "sets",

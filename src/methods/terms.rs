@@ -52,6 +52,7 @@ pub const VOCABULARY: &[(&str, usize)] = &[
     ("ctp", 3),
     ("csn", 1),
     ("cun", 2),
+    ("cop", 2),
     ("c0", 0),
     ("crab", 3),
     ("wral", 3),
@@ -284,14 +285,11 @@ fn term_under(
         .get(&node.spelling())
         .filter(|r| holes.len() > r.holes);
     let made = match repeats {
-        Some(r) => {
-            let (written, further) = holes.split_at(r.holes);
-            built(pattern, written).and_then(|start| {
-                further
-                    .iter()
-                    .try_fold(start, |acc, child| built_onto(&r.building, &acc, child))
+        Some(r) => built(pattern, &holes[..r.holes]).and_then(|start| {
+            (r.holes..holes.len()).try_fold(start, |acc, k| {
+                built_onto(&r.building, &acc, &holes[k - 1], &holes[k])
             })
-        }
+        }),
         None => built(pattern, &holes),
     };
     made.unwrap_or_else(|| atom(node, indices))
@@ -313,13 +311,27 @@ fn library_builds<'t>(
 }
 
 /// What a repeated hole's `building` makes of the term built so far and
-/// one further child: `_ csn cun` joins `so_far` with the child's singleton.
-fn built_onto(building: &str, so_far: &Term, child: &Term) -> Option<Term> {
+/// one further child: `_ csn cun` joins `so_far` with the child's singleton,
+/// and `_′ _ wceq wa` joins it with the child's equation to the one
+/// `before` it.
+fn built_onto(
+    building: &str,
+    so_far: &Term,
+    before: &Term,
+    child: &Term,
+) -> Option<Term> {
     let mut stack = vec![so_far.clone()];
     for token in building.split_whitespace() {
-        if token == "_" {
-            stack.push(child.clone());
-            continue;
+        match token {
+            "_" => {
+                stack.push(child.clone());
+                continue;
+            }
+            "_′" => {
+                stack.push(before.clone());
+                continue;
+            }
+            _ => {}
         }
         let (_, arity) = VOCABULARY.iter().find(|(label, _)| *label == token)?;
         if stack.len() < *arity {

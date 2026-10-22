@@ -566,6 +566,22 @@ pub fn universals(records: &[Record]) -> IndexSet<String> {
         .collect()
 }
 
+/// A claim whose notation says its parts stand in no order (`commutes
+/// yes`), read in each order of its parts; any other claim as it stands. A
+/// pattern fitted to each reading is fitted every way the claim allows,
+/// where `match_tree` alone stops at the first: "S, R, T are collinear"
+/// fits "T, R, S" with T := S as well as with T := T, and only one of the two
+/// may be what the facts supply.
+pub fn readings_in_any_order(node: &Node, ctx: &Context) -> Vec<Node> {
+    if !ctx.unordered.contains(&node.notation()) {
+        return vec![node.clone()];
+    }
+    permutations(&node.children)
+        .into_iter()
+        .map(|kids| node.with_children(kids))
+        .collect()
+}
+
 /// The ways b's parts may stand against a's: as written, turned round where
 /// a is an equation, and in every order where a's notation is unordered.
 pub fn orders(a: &Node, b: &Node, ctx: &Context) -> Vec<Vec<Node>> {

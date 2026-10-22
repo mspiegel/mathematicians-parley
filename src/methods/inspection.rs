@@ -12,6 +12,7 @@ use num_traits::{One, Signed, Zero};
 
 use super::field::{closed_value, decide_closed, Value, Verdict, Q};
 use super::numerals::{integer_term, numeral_term};
+use super::pairs;
 use crate::mm::kernel::{same, Term};
 use crate::outcome::Built;
 
@@ -203,6 +204,9 @@ impl Facts {
                 }
             }
             (Some("wceq"), [a, b]) => {
+                if pairs::relation(claim).is_some() {
+                    return self.equal(a, b);
+                }
                 if let (Some(one), Some(other)) =
                     (self.elements(a, depth), self.elements(b, depth))
                 {
@@ -364,10 +368,22 @@ impl Facts {
 
     /// Whether two elements are one: the same term, or two numbers of one
     /// value; Some(false) where they are numbers of two values, or the
-    /// facts say they differ.
+    /// facts say they differ. Two pairs are compared coordinate by
+    /// coordinate (`super::pairs`).
     fn equal(&self, a: &Term, b: &Term) -> Option<bool> {
         if same(a, b) {
             return Some(true);
+        }
+        if let Some(pairs) =
+            pairs::relation(&Term::apply("wceq", vec![a.clone(), b.clone()]))
+        {
+            let first = self.equal(&pairs.left[0], &pairs.right[0]);
+            let second = self.equal(&pairs.left[1], &pairs.right[1]);
+            return match (first, second) {
+                (Some(false), _) | (_, Some(false)) => Some(false),
+                (Some(true), Some(true)) => Some(true),
+                _ => None,
+            };
         }
         if let (Built(Value::Exact(x)), Built(Value::Exact(y))) =
             (closed_value(a), closed_value(b))

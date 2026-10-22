@@ -1,0 +1,105 @@
+import theorem            proofs/euclid/apollonius/apollonius
+import mundane definition stdlib/geometry/triangle
+import theorem            stdlib/geometry/segment-addition
+import theorem            stdlib/geometry/law-of-cosines
+import mundane theorem    stdlib/geometry/right-angle-by-cosine
+import mundane theorem    stdlib/geometry/angle-real
+import mundane theorem    stdlib/geometry/distance-positive
+import mundane theorem    stdlib/geometry/distance-symmetric
+import mundane theorem    stdlib/numbers/product-positive
+import mundane theorem    stdlib/numbers/multiply-cancel
+import mundane theorem    stdlib/trigonometry/cos-real
+import mundane definition stdlib/trigonometry/cos
+
+theorem thales
+  note        M is half way along AB and as far from C as from A and B. The
+              median CM of triangle CAB then gives |CA|² + |CB|² = |AB|²
+              (Apollonius), and the law of cosines at C turns that into
+              cos(∠ACB) = 0.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let M be a point                                                    (H4)
+  assume A, B, C form a triangle                                      (H5)
+  assume M is between A and B                                         (H6)
+  assume |MA| = |MC| = |MB|                                           (H7)
+  then ∠ACB = 90°
+
+1.  |AM| = |MA|
+    mun:distance-symmetric P := A, Q := M
+
+2.  |AM| = |MB|
+    calculation
+      |AM| = |MA|      1
+           = |MB|      H7
+
+3.  |CA|² + |CB|² = 2·|CM|² + 2·|AM|²
+    thm:apollonius A := C, B := A, C := B, from H6, 2
+
+4.  |CM| = |MC|
+    mun:distance-symmetric P := C, Q := M
+
+5.  |CM| = |AM|
+    calculation
+      |CM| = |MC|      4
+           = |MA|      H7
+           = |AM|      1
+
+6.  |CA|² + |CB|² = 2·|AM|² + 2·|AM|²
+    substitute |CM| = |AM| (line 5) into line 3
+
+7.  |AM| + |MB| = |AB|
+    thm:segment-addition P := A, Q := B, S := M, from H6
+
+8.  |AB| = 2·|AM|
+    algebra, from 2, 7
+
+9.  |AB|² = (2·|AM|)²
+    substitute |AB| = 2·|AM| (line 8)
+
+10. |AB|² = |CA|² + |CB|²
+    algebra, from 6, 9
+
+11. A ≠ C. B ≠ C.
+    mun:triangle P := A, Q := B, R := C, from H5
+
+12. |BA|² = |AC|² + |CB|² − 2·(|AC|·|CB|·cos(∠ACB))
+    thm:law-of-cosines P := A, Q := C, R := B, from 11
+
+13. |BA| = |AB|
+    mun:distance-symmetric P := B, Q := A
+
+14. |AC| = |CA|
+    mun:distance-symmetric P := A, Q := C
+
+15. |AB|² = |AC|² + |CB|² − 2·(|AC|·|CB|·cos(∠ACB))
+    substitute |BA| = |AB| (line 13) into line 12
+
+16. |AB|² = |CA|² + |CB|² − 2·(|CA|·|CB|·cos(∠ACB))
+    substitute |AC| = |CA| (line 14) into line 15
+
+17. ∠ACB ∈ ℝ
+    mun:angle-real P := A, Q := C, R := B, from 11
+
+18. cos(∠ACB)·(|CA|·|CB|) = 0·(|CA|·|CB|)
+    algebra, from 10, 16
+    requires ∠ACB ∈ ℝ: from 17
+    requires cos(∠ACB) ∈ ℝ: mun:cos-real a := ∠ACB
+
+19. |CA| > 0
+    mun:distance-positive P := C, Q := A, from 11
+
+20. |CB| > 0
+    mun:distance-positive P := C, Q := B, from 11
+
+21. |CA|·|CB| > 0
+    mun:product-positive x := |CA|, y := |CB|, from 19, 20
+
+22. cos(∠ACB) = 0
+    mun:multiply-cancel a := cos(∠ACB), b := 0, c := |CA|·|CB|, from 18
+    requires |CA|·|CB| ≠ 0: weakening, from 21
+    requires ∠ACB ∈ ℝ: from 17
+    requires cos(∠ACB) ∈ ℝ: mun:cos-real a := ∠ACB
+
+23. ∠ACB = 90°
+    mun:right-angle-by-cosine P := A, Q := C, R := B, from 11, 22

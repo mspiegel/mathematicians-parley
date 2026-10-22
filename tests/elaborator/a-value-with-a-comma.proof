@@ -1,0 +1,42 @@
+import mundane theorem    stdlib/reasoning/iff-not-from-right
+
+theorem a-value-with-a-comma
+  note        A value runs to the comma that opens the next naming or the
+              `from` list, so a formula with a comma of its own is written
+              bare.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let x ∈ ℝ                                                           (H4)
+  assume A, B, C are collinear ↔ x = 1                                (H5)
+  assume not (x = 1)                                                  (H6)
+  then not (A, B, C are collinear)
+
+1.  not (A, B, C are collinear)
+    mun:iff-not-from-right P := A, B, C are collinear, Q := x = 1, from H5, H6
+
+theorem a-value-with-a-comma-bracketed
+  note        Brackets around a value group it and change nothing.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let x ∈ ℝ                                                           (H4)
+  assume A, B, C are collinear ↔ x = 1                                (H5)
+  assume not (x = 1)                                                  (H6)
+  then not (A, B, C are collinear)
+
+1.  not (A, B, C are collinear)
+    mun:iff-not-from-right P := (A, B, C are collinear), Q := x = 1, from H5, H6
+
+theorem a-value-with-a-comma-last
+  note        The last value runs to the `from` list.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let x ∈ ℝ                                                           (H4)
+  assume x = 1 ↔ A, B, C are collinear                                (H5)
+  assume not (A, B, C are collinear)                                  (H6)
+  then not (x = 1)
+
+1.  not (x = 1)
+    mun:iff-not-from-right P := x = 1, Q := A, B, C are collinear, from H5, H6

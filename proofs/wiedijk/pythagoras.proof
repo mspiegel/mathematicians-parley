@@ -5,7 +5,6 @@ import theorem            stdlib/geometry/segment-addition
 import mundane theorem    stdlib/geometry/angle-along-segment
 import mundane theorem    stdlib/geometry/angle-symmetric
 import mundane theorem    stdlib/geometry/between-symmetric
-import mundane theorem    stdlib/geometry/distance-real
 import mundane theorem    stdlib/geometry/distance-symmetric
 import mundane theorem    stdlib/geometry/sine-positive
 import mundane definition stdlib/geometry/triangle
@@ -62,9 +61,6 @@ theorem similar-triangles
 
 9.  |PQ|·|P′R′|·sin(∠PQR) = |PR|·|P′R′|·sin(∠QRP)
     algebra, from 5
-    requires |PQ| ∈ ℝ: mun:distance-real
-    requires |PR| ∈ ℝ: mun:distance-real Q := R
-    requires |P′R′| ∈ ℝ: mun:distance-real P := P′, Q := R′
     requires ∠PQR ∈ ℝ: mun:triangle-angle-real, from H7
     requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR
     requires ∠QRP ∈ ℝ: mun:triangle-angle-real, from H7
@@ -72,9 +68,6 @@ theorem similar-triangles
 
 10. |P′Q′|·|PR|·sin(∠PQR) = |PR|·|P′R′|·sin(∠QRP)
     algebra, from 8
-    requires |PR| ∈ ℝ: mun:distance-real Q := R
-    requires |P′Q′| ∈ ℝ: mun:distance-real P := P′, Q := Q′
-    requires |P′R′| ∈ ℝ: mun:distance-real P := P′, Q := R′
     requires ∠PQR ∈ ℝ: mun:triangle-angle-real, from H7
     requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR
     requires ∠QRP ∈ ℝ: mun:triangle-angle-real, from H7
@@ -98,10 +91,6 @@ theorem similar-triangles
 14. |PQ|·|P′R′| = |P′Q′|·|PR|
     mun:multiply-cancel a := |PQ|·|P′R′|, b := |P′Q′|·|PR|, c := sin(∠PQR),
       from 11
-    requires |PQ| ∈ ℝ: mun:distance-real
-    requires |PR| ∈ ℝ: mun:distance-real Q := R
-    requires |P′Q′| ∈ ℝ: mun:distance-real P := P′, Q := Q′
-    requires |P′R′| ∈ ℝ: mun:distance-real P := P′, Q := R′
     requires ∠PQR ∈ ℝ: mun:triangle-angle-real, from H7
     requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR
     requires sin(∠PQR) ≠ 0: from 13
@@ -189,7 +178,3 @@ theorem pythagoras
 
 19. |AB|² = |AC|² + |BC|²
     algebra, from 6, 14, 18
-    requires |AC| ∈ ℝ: mun:distance-real P := A, Q := C
-    requires |BC| ∈ ℝ: mun:distance-real P := B, Q := C
-    requires |AD| ∈ ℝ: mun:distance-real P := A, Q := D
-    requires |DB| ∈ ℝ: mun:distance-real P := D, Q := B

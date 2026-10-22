@@ -17,12 +17,12 @@ use parley::checker::{statements_in_scope, BoundThere, CheckedTheorem, ObtainedT
 use parley::corpus::proof::{
     chain, chain_cited, parse_proof, rows, Head, Intro, Method, RowReason, Theorem,
 };
-use parley::corpus::{define_parts, Corpus, DefineParts, Values};
+use parley::corpus::{define_parts, naming_pieces, Corpus, DefineParts, Values};
 use parley::formula::grammar::{Grammar, Sorts};
 use parley::formula::node::Node;
 use parley::formula::page::{conjoined, made_as, Written};
 use parley::formula::token::{is_letter, is_mark, tokenise, Token, TokenKind};
-use parley::matching::{free_names, split_commas};
+use parley::matching::free_names;
 use parley::outcome::{Built, Route};
 use parley::sorts::introduction::Introduction;
 use parley::sorts::{sorts_in_scope, Env};
@@ -397,7 +397,7 @@ fn justification(line: &[char], start: usize) -> Vec<(usize, usize)> {
         let tail_end = values_end(&text, first.start()).unwrap_or(text.len());
         let tail = &text[first.start()..tail_end];
         let own = instantiates_own(&text);
-        for piece in split_commas(tail) {
+        for piece in naming_pieces(tail) {
             let offset = piece.as_ptr() as usize - text.as_ptr() as usize;
             if let Some(m) = re(r"^\s*([^\s,]+)\s*:=\s*(.+?)\s*$").captures(piece) {
                 let g = m.get(2).unwrap();
@@ -412,10 +412,11 @@ fn justification(line: &[char], start: usize) -> Vec<(usize, usize)> {
     out
 }
 
-/// Where the values of a citation end, after `from`: at its `, from`, or at
-/// an `instantiate`'s `in line L` or `in H3`, as `corpus::Values` cuts them.
+/// Where the values of a citation end, after `from`: at its `, from` or
+/// `, contradicting`, or at an `instantiate`'s `in line L` or `in H3`, as
+/// `corpus::Values` cuts them.
 fn values_end(text: &str, from: usize) -> Option<usize> {
-    re(r",\s*from\b|\s+in\s+(?:line\b|[A-Z][A-Za-z]*[0-9]*′?\b)")
+    re(r",\s*(?:from|contradicting)\b|\s+in\s+(?:line\b|[A-Z][A-Za-z]*[0-9]*′?\b)")
         .find_at(text, from)
         .map(|m| m.start())
 }
@@ -1345,7 +1346,7 @@ pub fn values_reversed(line: &str) -> Option<String> {
     let first = re(r"[^\s,:]+\s*:=").find(line)?;
     let tail_end = values_end(line, first.start()).unwrap_or(line.trim_end().len());
     let tail = &line[first.start()..tail_end];
-    let pieces: Vec<&str> = split_commas(tail).into_iter().map(str::trim).collect();
+    let pieces: Vec<&str> = naming_pieces(tail);
     let assign = re(r"^[^\s,]+\s*:=\s*\S");
     if pieces.len() < 2 || !pieces.iter().all(|p| assign.is_match(p)) {
         return None;
@@ -1355,6 +1356,35 @@ pub fn values_reversed(line: &str) -> Option<String> {
         "{}{}{}",
         &line[..first.start()],
         reversed.join(", "),
+        &line[tail_end..]
+    ))
+}
+
+/// `a := x, b := y` as `a := (x), b := (y)`: brackets around a value group
+/// it and say nothing more.
+///
+/// Only a citation written on one line is bracketed, as `values_reversed`
+/// turns only one; a `define` line's `:=` gives no value.
+pub fn values_bracketed(line: &str) -> Option<String> {
+    if line.trim_end().ends_with(',')
+        || re(r"^\s*[^\s,:]+\s*:=").is_match(line)
+        || re(r"^\s*define\b").is_match(line)
+    {
+        return None;
+    }
+    let first = re(r"[^\s,:]+\s*:=").find(line)?;
+    let tail_end = values_end(line, first.start()).unwrap_or(line.trim_end().len());
+    let tail = &line[first.start()..tail_end];
+    let assign = re(r"^([^\s,]+)\s*:=\s*(\S.*)$");
+    let mut bracketed = Vec::new();
+    for piece in naming_pieces(tail) {
+        let m = assign.captures(piece)?;
+        bracketed.push(format!("{} := ({})", &m[1], &m[2]));
+    }
+    Some(format!(
+        "{}{}{}",
+        &line[..first.start()],
+        bracketed.join(", "),
         &line[tail_end..]
     ))
 }
@@ -2826,7 +2856,7 @@ fn dull_step_moved(
             // A requires line has one reason and no rows under it.
             || !step.just.rows.is_empty()
             || step.just.contradicting.is_some()
-            || step.just.bad_ref.is_some()
+            || step.just.unproduced.is_some()
             || !step.parts.is_empty()
             || !step.openers.is_empty()
             || step.note.is_some()

@@ -58,6 +58,29 @@ principle: set.mm defines its ternary conjunction as the left-nested binary
 one, so the common three-sentence case maps onto it directly and the
 projection lemmas are the ones the library already has.
 
+## Pairs
+
+Two pairs are compared coordinate by coordinate, by whichever method the
+step names: (a, b) = (c, d) holds where a = c and b = d, and (a, b) ≠ (c, d)
+where a ≠ c or b ≠ d. `arithmetic`, `real arithmetic`, `algebra` and
+`inspection` each decide the coordinates' equations as they decide any of
+their own, so `(1, 1) ≠ (2, 3)` is `arithmetic` because 1 ≠ 2,
+`(0, √3) ≠ (0, 0)` is `real arithmetic`, `(a, b) ≠ (c, d)` is `algebra`
+from a cited a ≠ c, and `(1, 2) ∉ {(3, 4), (1, 5)}` is `inspection`. A
+difference is shown at the first coordinate the method shows apart: by its
+value for the two calculating methods, by a cited disequality rescaled for
+`algebra`, and by values or a cited line for `inspection`. A coordinate is
+asked what any term the method reads is asked: `algebra` wants each
+coordinate a number, as it wants each atom.
+
+The expansion proves the coordinates by the method, and `opeq12d` carries
+two equations to the pairs; for a difference, `opthg` reads two pairs as
+equal just where both coordinates are, and the coordinate shown apart
+denies that.
+
+Points written as coordinates are not pairs (`GEOMETRY.md`), and a method
+compares them as it compares any two points: not at all.
+
 ---
 
 ## inequalities
@@ -1781,5 +1804,5 @@ Two library items no proof needed once, `half-real` and `nat0-closure`, were
 removed.
 
 The memberships still written are those the page does not say once: a power
-to a letter (`2^p − 1 ∈ ℤ`), a function's value, a distance or an angle in
-the geometry proofs, a sum, |x|, a remainder, C(n, k) and a defined name.
+to a letter (`2^p − 1 ∈ ℤ`), a function's value, an angle in the geometry
+proofs, a sum, |x|, a remainder, C(n, k) and a defined name.

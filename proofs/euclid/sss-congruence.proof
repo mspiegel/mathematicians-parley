@@ -1,0 +1,116 @@
+import theorem            stdlib/geometry/law-of-cosines
+import mundane definition stdlib/geometry/triangle
+import mundane theorem    stdlib/geometry/angle-equal-by-cosine
+import mundane theorem    stdlib/geometry/angle-real
+import mundane theorem    stdlib/geometry/distance-positive
+import mundane theorem    stdlib/trigonometry/cos-real
+import mundane theorem    stdlib/numbers/multiply-cancel
+import mundane theorem    stdlib/numbers/product-positive
+import mundane definition stdlib/trigonometry/cos
+import definition         stdlib/geometry/congruent
+
+theorem angle-from-sides
+  note        The law of cosines at Q gives the cosine of the angle from
+              the three sides, so equal sides give equal cosines, and the
+              cosine is one-to-one on the angles. Only that the corners
+              differ from the ends is used: the points may lie on a line.
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let P′ be a point                                                   (H4)
+  let Q′ be a point                                                   (H5)
+  let R′ be a point                                                   (H6)
+  assume P ≠ Q                                                        (H7)
+  assume R ≠ Q                                                        (H8)
+  assume P′ ≠ Q′                                                      (H9)
+  assume R′ ≠ Q′                                                      (H10)
+  assume |PQ| = |P′Q′|                                                (H11)
+  assume |QR| = |Q′R′|                                                (H12)
+  assume |RP| = |R′P′|                                                (H13)
+  then ∠PQR = ∠P′Q′R′
+
+1.  |RP|² = |PQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠PQR))
+    thm:law-of-cosines, from H7, H8
+
+2.  |R′P′|² = |P′Q′|² + |Q′R′|² − 2·(|P′Q′|·|Q′R′|·cos(∠P′Q′R′))
+    thm:law-of-cosines P := P′, Q := Q′, R := R′, from H9, H10
+
+3.  |RP|² = |P′Q′|² + |Q′R′|² − 2·(|P′Q′|·|Q′R′|·cos(∠P′Q′R′))
+    substitute |R′P′| = |RP| (H13) into line 2
+
+4.  |RP|² = |PQ|² + |Q′R′|² − 2·(|PQ|·|Q′R′|·cos(∠P′Q′R′))
+    substitute |P′Q′| = |PQ| (H11) into line 3
+
+5.  |RP|² = |PQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠P′Q′R′))
+    substitute |Q′R′| = |QR| (H12) into line 4
+
+6.  ∠PQR ∈ ℝ
+    mun:angle-real, from H7, H8
+
+7.  ∠P′Q′R′ ∈ ℝ
+    mun:angle-real P := P′, Q := Q′, R := R′, from H9, H10
+
+8.  cos(∠PQR)·(|PQ|·|QR|) = cos(∠P′Q′R′)·(|PQ|·|QR|)
+    algebra, from 1, 5
+    requires ∠PQR ∈ ℝ: from 6
+    requires cos(∠PQR) ∈ ℝ: mun:cos-real a := ∠PQR
+    requires ∠P′Q′R′ ∈ ℝ: from 7
+    requires cos(∠P′Q′R′) ∈ ℝ: mun:cos-real a := ∠P′Q′R′
+
+9.  |PQ| > 0
+    mun:distance-positive, from H7
+
+10. |QR| > 0
+    mun:distance-positive P := Q, Q := R, from H8
+
+11. |PQ|·|QR| > 0
+    mun:product-positive x := |PQ|, y := |QR|, from 9, 10
+
+12. cos(∠PQR) = cos(∠P′Q′R′)
+    mun:multiply-cancel a := cos(∠PQR), b := cos(∠P′Q′R′), c := |PQ|·|QR|, from 8
+    requires |PQ|·|QR| ≠ 0: weakening, from 11
+    requires ∠PQR ∈ ℝ: from 6
+    requires cos(∠PQR) ∈ ℝ: mun:cos-real a := ∠PQR
+    requires ∠P′Q′R′ ∈ ℝ: from 7
+    requires cos(∠P′Q′R′) ∈ ℝ: mun:cos-real a := ∠P′Q′R′
+
+13. ∠PQR = ∠P′Q′R′
+    mun:angle-equal-by-cosine, from H7, H8, H9, H10, 12
+
+theorem sss
+  note        Equal sides give equal angles, one corner at a time
+              (angle-from-sides), and the six equations are congruence.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  let E be a point                                                    (H5)
+  let F be a point                                                    (H6)
+  assume A, B, C form a triangle                                      (H7)
+  assume D, E, F form a triangle                                      (H8)
+  assume |AB| = |DE|                                                  (H9)
+  assume |BC| = |EF|                                                  (H10)
+  assume |CA| = |FD|                                                  (H11)
+  then triangle ABC ≅ triangle DEF
+
+1.  A ≠ B. B ≠ C. A ≠ C.
+    mun:triangle P := A, Q := B, R := C, from H7
+
+2.  D ≠ E. E ≠ F. D ≠ F.
+    mun:triangle P := D, Q := E, R := F, from H8
+
+3.  ∠ABC = ∠DEF
+    thm:angle-from-sides P := A, Q := B, R := C, P′ := D, Q′ := E, R′ := F,
+      from H9, H10, H11, 1, 2
+
+4.  ∠BCA = ∠EFD
+    thm:angle-from-sides P := B, Q := C, R := A, P′ := E, Q′ := F, R′ := D,
+      from H9, H10, H11, 1, 2
+
+5.  ∠CAB = ∠FDE
+    thm:angle-from-sides P := C, Q := A, R := B, P′ := F, Q′ := D, R′ := E,
+      from H9, H10, H11, 1, 2
+
+6.  triangle ABC ≅ triangle DEF
+    def:congruent P := A, Q := B, R := C, P′ := D, Q′ := E, R′ := F,
+      from H9, H10, H11, 3, 4, 5

@@ -15,7 +15,7 @@ use super::node::{Node, Sort};
 use super::notation_id::Spelling;
 use super::symbol::Symbol;
 use super::token::Token;
-use crate::notations::{AND, OR};
+use crate::notations::{AND, EQUALS, EQUAL_CHAIN, OR};
 use crate::outcome::{Built, Checked, Declined, Problem, Route};
 
 /// Formula text as the skeleton reader cut it out of a line, and where.
@@ -451,6 +451,35 @@ pub fn numeral(digits: &str) -> Node {
 /// there is one.
 pub fn conjoined(g: &Grammar, said: Vec<Node>) -> Option<Node> {
     joined(g, AND, said)
+}
+
+/// What a chain of equations states: the equation between each term and
+/// the next, `a = b` and `b = c` of `a = b = c` (`SYNTAX.md`). None for any
+/// other node.
+pub fn chain_links(g: &Grammar, node: &Node) -> Option<Vec<Node>> {
+    (node.notation() == EQUAL_CHAIN).then(|| {
+        node.children
+            .windows(2)
+            .map(|two| made(g, EQUALS, two.to_vec()))
+            .collect()
+    })
+}
+
+/// What a line claiming a chain of equations supplies: the equation between
+/// any two of its terms, `a = c` of `a = b = c` as well as its links
+/// (`SYNTAX.md`). None for any other node.
+pub fn chain_pairs(g: &Grammar, node: &Node) -> Option<Vec<Node>> {
+    if node.notation() != EQUAL_CHAIN {
+        return None;
+    }
+    let terms = &node.children;
+    let mut pairs = Vec::new();
+    for (i, first) in terms.iter().enumerate() {
+        for second in &terms[i + 1..] {
+            pairs.push(made(g, EQUALS, vec![first.clone(), second.clone()]));
+        }
+    }
+    Some(pairs)
 }
 
 /// Several formulas joined by "or", from the left, as `A or B or C` reads.

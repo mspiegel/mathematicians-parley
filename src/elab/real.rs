@@ -33,6 +33,7 @@ use super::state::Elaborator;
 use super::Facts;
 use crate::binds;
 use crate::corpus::{fmt, Step};
+use crate::methods::pairs::{self, Coordinate, PairRelation};
 use crate::methods::reals::{self, Atom, Real};
 use crate::methods::surds::{self, Surd, Verdict};
 use crate::mm::kernel::Term;
@@ -136,6 +137,9 @@ impl<'a> Elaborator<'a> {
         if let Some(Built(p)) = parts {
             return Ok(p);
         }
+        if let Some(pairs) = pairs::relation(&goal) {
+            return self.real_pairs(&pairs, &goal, scope, facts, what);
+        }
         match reals::decide_closed(&goal) {
             Built(Verdict::Holds(true)) => {}
             other => return Err(self.real_unshown(other, what)),
@@ -154,6 +158,34 @@ impl<'a> Elaborator<'a> {
                 ),
             )),
         }
+    }
+
+    /// Two pairs of closed real terms, compared coordinate by coordinate
+    /// (`METHODS.md`, Pairs): both coordinates' equations, or the
+    /// difference at the first coordinate whose equation is false.
+    fn real_pairs(
+        &mut self,
+        pairs: &PairRelation,
+        goal: &Term,
+        scope: &Rpn,
+        facts: &Facts,
+        what: &str,
+    ) -> Checked<Proof> {
+        if !pairs.apart {
+            let mut proved = Vec::new();
+            for at in Coordinate::BOTH {
+                let equation = self.rpn(&pairs.equation(at));
+                proved.push(self.real_fact(&equation, scope, facts, what)?);
+            }
+            return Ok(self.pairs_equal(pairs, scope, &proved[0], &proved[1]));
+        }
+        let Some(at) = pairs.apart_at(&mut real_equal) else {
+            return Err(self.real_unshown(reals::decide_closed(goal), what));
+        };
+        let denial = self.rpn(&pairs.denial(at));
+        let apart = self.real_fact(&denial, scope, facts, what)?;
+        let members = self.number_members(pairs, scope, facts)?;
+        Ok(self.pairs_apart(pairs, scope, at, &apart, &members))
     }
 
     /// The defect for a claim real arithmetic did not find true.
@@ -233,6 +265,46 @@ impl<'a> Elaborator<'a> {
                     .ap("relogcld", &binds! {"ph" => scope, "A" => &x}, &[&positive])
             }
         };
+        match system.alone() {
+            Some("cr") => Ok(Built(real)),
+            Some("cc") => Ok(Built(self.b.ap(
+                "recnd",
+                &binds! {"ph" => scope, "A" => &said},
+                &[&real],
+            ))),
+            _ => Ok(Route::no("said once only in ℝ and ℂ")),
+        }
+    }
+
+    /// ( scope -> |PQ| e. system ) for the distance between two points, in
+    /// ℝ or ℂ: its membership said once (`READERS.md`). Each point is in ℂ
+    /// by its sort, their difference too (`subcld`), and its absolute value
+    /// is real (`abscld`); a real one is complex (`recnd`).
+    pub(super) fn distance_within(
+        &mut self,
+        t: &Term,
+        system: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Route<Proof>> {
+        let said = self.rpn(t);
+        let difference = &t.children()[0];
+        let [p, q, _] = difference.children() else {
+            return Ok(Route::no("not the absolute value of a difference"));
+        };
+        let (p, q) = (self.rpn(p), self.rpn(q));
+        let first = self.membership(&p, "cc", scope, facts)?;
+        let second = self.membership(&q, "cc", scope, facts)?;
+        let apart = self.b.ap(
+            "subcld",
+            &binds! {"ph" => scope, "A" => &p, "B" => &q},
+            &[&first, &second],
+        );
+        let real = self.b.ap(
+            "abscld",
+            &binds! {"ph" => scope, "A" => self.rpn(difference)},
+            &[&apart],
+        );
         match system.alone() {
             Some("cr") => Ok(Built(real)),
             Some("cc") => Ok(Built(self.b.ap(
@@ -2736,6 +2808,15 @@ struct Reducible {
     /// √p.
     root: Rpn,
     prime: u64,
+}
+
+/// Whether an equation of closed real terms holds, as `real arithmetic`
+/// decides it; None where it does not decide it.
+fn real_equal(equation: &Term) -> Option<bool> {
+    match reals::decide_closed(equation) {
+        Built(Verdict::Holds(holds)) => Some(holds),
+        _ => None,
+    }
 }
 
 /// The first monomial of `p`, in the order the polynomial holds them,

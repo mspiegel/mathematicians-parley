@@ -1,0 +1,52 @@
+import mundane theorem    stdlib/geometry/distance-of-points-by-coordinates
+
+theorem right-isosceles-triangle
+  note        Each side is read off the coordinates. The long side squared is
+              50, and so is the sum of the squares of the two short ones.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  assume A = (−2, −1)                                                 (H4)
+  assume B = (2, 2)                                                   (H5)
+  assume C = (5, −2)                                                  (H6)
+  then |AB| = 5. |BC| = 5. |AC|² = |AB|² + |BC|².
+
+1.  |AB| = √((−2 − 2)² + (−1 − 2)²)
+    mun:distance-of-points-by-coordinates, from H4, H5
+
+2.  |AB| = 5
+    calculation
+      |AB| = √((−2 − 2)² + (−1 − 2)²)     1
+           = √25                          arithmetic
+           = 5                            real arithmetic
+
+3.  |BC| = √((2 − 5)² + (2 − (−2))²)
+    mun:distance-of-points-by-coordinates, from H5, H6
+
+4.  |BC| = 5
+    calculation
+      |BC| = √((2 − 5)² + (2 − (−2))²)    3
+           = √25                          arithmetic
+           = 5                            real arithmetic
+
+5.  |AC| = √((−2 − 5)² + (−1 − (−2))²)
+    mun:distance-of-points-by-coordinates, from H4, H6
+
+6.  |AC|² = (√((−2 − 5)² + (−1 − (−2))²))²
+    substitute |AC| = √((−2 − 5)² + (−1 − (−2))²) (line 5)
+
+7.  |AB|² + |BC|² = 5² + |BC|²
+    substitute |AB| = 5 (line 2)
+
+8.  |AB|² + |BC|² = 5² + 5²
+    substitute |BC| = 5 (line 4) into line 7
+
+9.  |AC|² = |AB|² + |BC|²
+    calculation
+      |AC|² = (√((−2 − 5)² + (−1 − (−2))²))²     6
+            = 50                                 real arithmetic
+            = 5² + 5²                            arithmetic
+            = |AB|² + |BC|²                      8
+
+10. |AB| = 5. |BC| = 5. |AC|² = |AB|² + |BC|².
+    join 2, 4, 9

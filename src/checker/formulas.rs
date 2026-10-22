@@ -36,9 +36,9 @@ use crate::methods::{algebra, inequalities, linear, reals};
 use crate::mm::kernel::{FloatLabels, Term};
 use crate::notations::{
     APPLICATION, APPLICATION_TO_TWO, AT_LEAST, AT_MOST, BICONDITIONAL, BY_CASES,
-    CONDITIONAL, CONJUNCTION, EQUALITY, EQUALS, FOR_ALL, FOR_ALL_SETS, FUNCTION_TYPE,
-    GREATER, IMPLICATION, INTEGER_RANGE, LESS, LOGICAL_NOT, MEMBERSHIP, NUMBER_SYSTEMS,
-    NUMERAL, ORDER, PLUS, PRODUCT_OVER, SUM, TIMES,
+    CONDITIONAL, CONJUNCTION, EQUALITY, EQUALS, EQUAL_CHAIN, FOR_ALL, FOR_ALL_SETS,
+    FUNCTION_TYPE, GREATER, IMPLICATION, INTEGER_RANGE, LESS, LOGICAL_NOT, MEMBERSHIP,
+    NUMBER_SYSTEMS, NUMERAL, ORDER, PLUS, PRODUCT_OVER, SUM, TIMES,
 };
 use crate::outcome::{Built, Checked, Declined, Problem};
 use crate::rules::System;
@@ -223,14 +223,16 @@ pub fn check_formulas(report: &mut Report, thm: &Theorem, env: Env, known: &Know
             continue;
         }
         for sentence in part.written.sentences() {
-            if let Err(p) = known.parse(&sentence) {
-                say_unread(report, thm, env, &own, &part, p);
+            match known.parse(&sentence) {
+                Ok(node) => say_chain_inside(report, thm, &part, &node, known),
+                Err(p) => say_unread(report, thm, env, &own, &part, p),
             }
         }
     }
     for part in one_formula_parts(thm) {
-        if let Err(p) = part.written.formula().and_then(|s| known.parse(&s)) {
-            say_unread(report, thm, env, &own, &part, p);
+        match part.written.formula().and_then(|s| known.parse(&s)) {
+            Ok(node) => say_chain_inside(report, thm, &part, &node, known),
+            Err(p) => say_unread(report, thm, env, &own, &part, p),
         }
     }
     // A define's rule is a formula too, read with its argument's sort; one
@@ -285,6 +287,33 @@ impl FormulaPart {
 /// further down is why: `check_defined_below` says so, since above its
 /// define it names nothing, and `U(0)` then reads several ways because
 /// nothing says U is a function.
+fn say_chain_inside(
+    report: &mut Report,
+    thm: &Theorem,
+    part: &FormulaPart,
+    node: &Node,
+    known: &Known,
+) {
+    // A chain of equations is a whole sentence (`SYNTAX.md`): one standing
+    // inside another formula is said once, at the outermost.
+    let inside = node
+        .children
+        .iter()
+        .flat_map(|c| c.walk())
+        .find(|n| n.notation() == EQUAL_CHAIN);
+    if let Some(chain) = inside {
+        report.say(
+            &thm.path,
+            part.line,
+            format!(
+                "{}: the chain of equations {} stands inside another formula, and a chain is a whole sentence",
+                part.what,
+                known.print(&chain)
+            ),
+        );
+    }
+}
+
 fn say_unread(
     report: &mut Report,
     thm: &Theorem,
@@ -1521,6 +1550,13 @@ pub fn check_block_ends(report: &mut Report, thm: &Theorem, known: &Known) {
             if contradicts && (last.just.contradicting.is_some() || last.impossible) {
                 continue;
             }
+            // A last step whose reason matches no production may end its
+            // part by a contradiction the reader did not take from it, so
+            // what it ends on is not asked: it is told only that it does
+            // not read.
+            if last.just.unproduced.is_some() {
+                continue;
+            }
             let Some(ends) = read(&last.claim) else {
                 continue;
             };
@@ -2180,6 +2216,19 @@ fn check_shown_by(
         match shown(&step.claim) {
             Shown::Holds => {}
             Shown::Unread(_) => report.undecided(&thm.path, method, step),
+            // A line marked impossible is reached by its reasons from the
+            // lines they cite, and the marker is what finds it false
+            // (`SYNTAX.md`, contradiction): the method as its reason proves
+            // only what is true, and cites nothing to reach it from.
+            Shown::Unshown(_) if step.impossible => report.say(
+                &thm.path,
+                step.just.line,
+                format!(
+                    "step {} is marked impossible and gives {} as its reason, which proves only what is true; a line marked impossible is reached by its reasons from the lines they cite",
+                    step.number,
+                    method.as_str()
+                ),
+            ),
             Shown::Unshown(why) => report.say(
                 &thm.path,
                 step.just.line,
@@ -2399,13 +2448,16 @@ pub fn check_algebra_holds(
             }
         }
         for req in step.requires.iter().filter(|r| r.is(Method::Algebra)) {
-            algebra_holds(
+            let decided = algebra_holds(
                 report,
                 thm,
                 &ClosureClaim::requires(step, req),
                 known,
                 targets,
             );
+            if !decided {
+                report.undecided_requires(&thm.path, Method::Algebra, step, req);
+            }
         }
     }
 }
@@ -2480,16 +2532,22 @@ fn algebra_unsaid(
             .cloned(),
     );
     for relation in &relations {
-        for side in sides_of(relation) {
+        let sides = sides_of(relation)
+            .into_iter()
+            .flat_map(|side| coordinates_of(side, targets));
+        for side in sides {
             let parts = methods_membership::Parts::of(side);
             if let Some(atom) = parts
                 .atoms
                 .iter()
                 .find(|a| !methods_membership::atom_held(a, System::C, &given))
             {
-                return Some(format!(
-                    "nothing says {} ∈ ℝ or ∈ ℂ, which this step needs",
-                    known.print(atom)
+                return Some(unsaid_number(
+                    atom,
+                    at,
+                    known,
+                    "∈ ℝ or ∈ ℂ",
+                    "nothing says",
                 ));
             }
             if let Some(unsaid) = parts
@@ -2557,7 +2615,38 @@ fn real_unsaid(
     known: &Known,
     targets: &Targets,
 ) -> Option<String> {
-    unsaid_of(at, read, relations, known, targets).map(|u| u.said(known))
+    unsaid_of(at, read, relations, known, targets).map(|u| match &u {
+        Unsaid::Real(atom) => unsaid_number(atom, at, known, "∈ ℝ", "nothing says"),
+        Unsaid::Nonzero(_) => u.said(known),
+    })
+}
+
+/// The message for an atom a method needs to be a number and nothing says
+/// is one: a point is never one, which no line can say, so a point is told
+/// that the step treats it as a number (`METHODS.md`, Rows: each row's atoms
+/// are real); any other atom is told what is not said of it, `systems`
+/// being "∈ ℝ" or "∈ ℝ or ∈ ℂ" and `nothing` how the message opens.
+fn unsaid_number(
+    atom: &Node,
+    at: &ClosureClaim,
+    known: &Known,
+    systems: &str,
+    nothing: &str,
+) -> String {
+    let point = atom.is_name()
+        && super::library::points_introduced(known, at.step)
+            .contains(atom.text.as_str());
+    if point {
+        format!(
+            "this step treats {} as a number, and it is a point",
+            known.print(atom)
+        )
+    } else {
+        format!(
+            "{nothing} {} {systems}, which this step needs",
+            known.print(atom)
+        )
+    }
 }
 
 /// What an order's relations need of a term that nothing says.
@@ -3634,6 +3723,16 @@ fn algebra_relation(node: &Node) -> bool {
     }
 }
 
+/// What a side of a relation `algebra` asks to be numbers: a pair's two
+/// coordinates (`METHODS.md`, Pairs), or the side itself.
+fn coordinates_of<'n>(side: &'n Node, targets: &Targets) -> Vec<&'n Node> {
+    if term_of_node(side, targets).label() == Some("cop") {
+        side.children.iter().collect()
+    } else {
+        vec![side]
+    }
+}
+
 /// The two sides of an equation or a disequality; none for anything else.
 fn sides_of(node: &Node) -> Vec<&Node> {
     match (node.notation(), node.children.as_slice()) {
@@ -3664,7 +3763,9 @@ pub fn check_inequalities_holds(
         }
         for req in step.requires.iter().filter(|r| r.is(Method::Inequalities)) {
             let at = ClosureClaim::requires(step, req);
-            inequalities_hold(report, thm, &at, known, targets);
+            if !inequalities_hold(report, thm, &at, known, targets) {
+                report.undecided_requires(&thm.path, Method::Inequalities, step, req);
+            }
         }
     }
 }
@@ -4102,7 +4203,9 @@ pub fn check_membership_holds(
         }
         for req in step.requires.iter().filter(|r| r.is(Method::Membership)) {
             let at = ClosureClaim::requires(step, req);
-            membership_holds(report, thm, &at, known, targets);
+            if !membership_holds(report, thm, &at, known, targets) {
+                report.undecided_requires(&thm.path, Method::Membership, step, req);
+            }
         }
     }
 }
@@ -4500,10 +4603,15 @@ pub(super) fn arithmetic_worked(
     targets: &Targets,
 ) -> Worked {
     let mut out = Worked::Holds;
-    for sentence in written.sentences() {
-        let Some(node) = known.read_as_written(&sentence) else {
-            continue;
-        };
+    // "A. B." and "A and B" are one claim (SYNTAX.md), so each sentence is
+    // taken apart at its "and"s and every fact worked out alone.
+    let facts = written
+        .sentences()
+        .iter()
+        .filter_map(|s| known.read_as_written(s))
+        .flat_map(|n| conjuncts(&n))
+        .collect::<Vec<_>>();
+    for node in facts {
         let node = written_out(&node, known);
         match decide_closed(&term_of_node(&node, targets)) {
             Built(Verdict::Holds(false)) => {
@@ -4541,10 +4649,12 @@ pub(super) fn real_worked(
     known: &Known,
     targets: &Targets,
 ) -> RealWorked {
+    // Each sentence taken apart at its "and"s, as `arithmetic_worked` does.
     let nodes: Vec<Node> = written
         .sentences()
         .iter()
         .filter_map(|s| known.read_as_written(s))
+        .flat_map(|n| conjuncts(&n))
         .collect();
     real_worked_of(&nodes, known, targets)
 }
@@ -4566,22 +4676,26 @@ fn library_named(name: &str, known: &Known) -> bool {
     known.sorts.imported.contains(name) && !introduced(known.thm, known).contains(name)
 }
 
-/// Each sentence of a fact as `real arithmetic` reads it (`real_term`);
-/// None where one does not read.
+/// Each sentence of a fact as `real arithmetic` reads it (`real_term`),
+/// taken apart at its "and"s as `arithmetic_worked` does; None where one
+/// does not read.
 fn real_terms(
     written: &Written,
     known: &Known,
     targets: &Targets,
 ) -> Option<Vec<Term>> {
-    written
+    let read: Option<Vec<Node>> = written
         .sentences()
         .iter()
-        .map(|s| {
-            known
-                .read_as_written(s)
-                .map(|n| real_term(&n, known, targets))
-        })
-        .collect()
+        .map(|s| known.read_as_written(s))
+        .collect();
+    Some(
+        read?
+            .iter()
+            .flat_map(conjuncts)
+            .map(|n| real_term(&n, known, targets))
+            .collect(),
+    )
 }
 
 /// Whether a fact holds a square root, π, e, a logarithm or an

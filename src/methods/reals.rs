@@ -801,6 +801,9 @@ pub fn is_order(claim: &Term) -> bool {
 /// shown (`sign_of`); a membership of ℝ or ℂ always, and one of ℕ, ℕ₀, ℤ
 /// or ℚ where the value is rational.
 pub fn decide_closed(claim: &Term) -> Route<Verdict> {
+    if let Some(pairs) = super::pairs::relation(claim) {
+        return pairs_decided(&pairs);
+    }
     if !holds_atom(claim) && !is_order(claim) {
         return surds::decide_closed(claim);
     }
@@ -869,6 +872,19 @@ pub fn decide_closed(claim: &Term) -> Route<Verdict> {
         }
     }
     Built(Verdict::Holds(holds))
+}
+
+/// A relation between two pairs, decided of the equations of their
+/// coordinates (`super::pairs`); a coordinate not decided stops it.
+fn pairs_decided(pairs: &super::pairs::PairRelation) -> Route<Verdict> {
+    let mut each = [false; 2];
+    for (i, at) in super::pairs::Coordinate::BOTH.into_iter().enumerate() {
+        match decide_closed(&pairs.equation(at)) {
+            Built(Verdict::Holds(h)) => each[i] = h,
+            other => return other,
+        }
+    }
+    Built(Verdict::Holds(pairs.holds(each[0], each[1])))
 }
 
 // --- what a proof costs ------------------------------------------------------

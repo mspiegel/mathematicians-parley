@@ -276,6 +276,93 @@ fn a_line_saying_a_divisor_is_not_zero_does_work() {
     assert!(out.contains("\n0 problem(s)\n"), "{out}");
 }
 
+/// A substitute justification that matches no production has no reading,
+/// so it is told that alone: what a substitution makes is not asked of the
+/// parts the reader cut from it (`Justification::unproduced`).
+#[test]
+fn an_unread_substitute_is_told_only_that_it_does_not_read() {
+    let clean = clean();
+    let case = case(
+        "end a substitute justification with a marker it cannot carry",
+        vec![edit(
+            "proofs/wiedijk/unread-substitute.proof",
+            None,
+            "theorem unread-substitute\n  let x ∈ ℝ                                                           (H1)\n  assume x > 1                                                        (H2)\n  then x ≠ 0\n\n1.  x ≠ 0\n    contradiction\n    suppose x = 0                                                     (S)\n\n    1.1.  0 > 1\n          substitute x = 0 (S) into H2, which is impossible\n".to_string(),
+        )],
+        "",
+    );
+    let tree = plant(&case, &clean).unwrap();
+    let out = parley::checker::run(&tree).printed;
+    assert!(out.contains("justification matches no production"), "{out}");
+    assert!(!out.contains("which putting one side of"), "{out}");
+}
+
+/// One reason line of the corpus headed by each method, and one citing an
+/// item: the method as `Method::as_str` spells it, the file, and the line
+/// as written.
+const READ_REASONS: &[(&str, &str, &str)] = &[
+    ("obtain", "proofs/setmm/halves-series.proof", "          obtain N: thm:archimedean x := ε, from A1"),
+    ("exhibit", "proofs/setmm/limit-constant-multiple.proof", "          exhibit, from 5.6"),
+    ("substitute", "proofs/setmm/limit-constant-multiple.proof", "                  substitute C·x(n) − C·L = C·(x(n) − L) (line 5.6.4) into line 5.6.3"),
+    ("instantiate", "proofs/setmm/limit-constant-multiple.proof", "          instantiate ε := ε/(2·(|C| + 1)) in line 5.3, from 5.1, 5.2"),
+    ("algebra", "proofs/setmm/limit-constant-multiple.proof", "                  algebra"),
+    ("arithmetic", "proofs/setmm/halves-series.proof", "          arithmetic"),
+    ("real arithmetic", "proofs/identities/sqrt-two-plus-sqrt-three.proof", "    real arithmetic"),
+    ("inequalities", "proofs/setmm/floor-below-non-integer.proof", "    inequalities, from 1, 3"),
+    ("transitivity", "proofs/setmm/halves-series.proof", "                  transitivity, from A2, 3.2.2"),
+    ("antisymmetry", "proofs/setmm/limit-unique.proof", "    antisymmetry, from 1, 2"),
+    ("membership", "proofs/setmm/limit-constant-multiple.proof", "          membership"),
+    ("inspection", "proofs/setmm/image-empty.proof", "                  inspection, contradicting 1.1.2"),
+    ("join", "proofs/setmm/halves-series.proof", "                  join 3.2.8, 3.2.11"),
+    ("contradiction", "proofs/setmm/floor-below-non-integer.proof", "    contradiction"),
+    ("proof", "proofs/setmm/halves-series.proof", "    proof"),
+    ("induction", "proofs/setmm/halves-series.proof", "    induction on k starting at 1"),
+    ("cases", "proofs/setmm/joined-functions.proof", "          cases, from 1.1"),
+    ("both directions", "proofs/setmm/multiplying-bounds.proof", "    both directions"),
+    ("calculation", "proofs/setmm/halves-series.proof", "          calculation"),
+    ("an item", "proofs/wiedijk/pythagoras.proof", "    mun:angle-along-segment P := A, Q := B, R := C, S := D, from 1"),
+];
+
+/// A reason that matches no production has no reading, and is told that
+/// alone: no other check asks anything of the parts the reader cut from it,
+/// or of the lines it may cite (`Justification::unproduced`). Each reason
+/// line of `READ_REASONS` is broken by a marker it cannot carry, the
+/// mistake trial 13 met, and its file must report that one problem. Every
+/// method has a line, so a check keyed on a method added later is asked too.
+#[test]
+fn a_reason_that_does_not_read_is_told_only_that() {
+    for method in parley::corpus::proof::METHODS {
+        assert!(
+            READ_REASONS.iter().any(|(m, _, _)| *m == method.as_str()),
+            "no reason line of {} in READ_REASONS",
+            method.as_str()
+        );
+    }
+    let clean = clean();
+    for &(method, file, line) in READ_REASONS {
+        let case = case(
+            "end a reason line with a marker it cannot carry",
+            vec![edit(
+                file,
+                Some(format!("\n{line}\n")),
+                format!("\n{line}, which is impossible\n"),
+            )],
+            "",
+        );
+        let tree = plant(&case, &clean).unwrap();
+        let out = parley::checker::run(&tree).printed;
+        let problems: Vec<&str> = out
+            .lines()
+            .filter(|l| l.starts_with(&format!("{file}:")))
+            .collect();
+        assert!(
+            problems.len() == 1
+                && problems[0].contains("justification matches no production"),
+            "{method}: {problems:#?}"
+        );
+    }
+}
+
 /// A citation whose claim is what the item concludes, with one hypothesis
 /// not supplied, is reported once, naming that hypothesis: here
 /// divides-difference without line 5.2, which says p divides n!. The other
@@ -588,6 +675,44 @@ fn cases() -> Vec<Case> {
                 String::new(),
             )],
             "nothing says ∠QRP ∈ ℝ or ∈ ℂ, which this step needs",
+        ),
+        // A line marked impossible is reached by its reasons from the lines
+        // they cite (`SYNTAX.md`, contradiction); `arithmetic` as its reason
+        // cites nothing and proves only what is true, and the step is told
+        // so rather than only that its claim is false.
+        case(
+            "give a line marked impossible arithmetic as its reason",
+            vec![edit(
+                "proofs/wiedijk/impossible-by-arithmetic.proof",
+                None,
+                "theorem impossible-by-arithmetic\n  let a ∈ ℝ                                                           (H1)\n  assume a > 0                                                        (H2)\n  then a ≠ 0\n\n1.  a ≠ 0\n    contradiction\n    suppose a = 0                                                     (S)\n\n    1.1.  0 > 0\n          substitute a = 0 (S) into H2\n\n    1.2.  0 > 0, which is impossible\n          arithmetic\n".to_string(),
+            )],
+            "proofs/wiedijk/impossible-by-arithmetic.proof:14  step 1.2 is marked impossible and gives arithmetic as its reason, which proves only what is true; a line marked impossible is reached by its reasons from the lines they cite",
+        ),
+        // A row's atoms are real numbers (`METHODS.md`, Rows), and a point
+        // is none, which no line can say: the step is told it treats the
+        // point as a number, not that nothing says it is one.
+        case(
+            "turn a disequality of points round in an inequalities row",
+            vec![edit(
+                "proofs/wiedijk/point-row.proof",
+                None,
+                "theorem point-row\n  let A be a point                                                    (H1)\n  let C be a point                                                    (H2)\n  assume C ≠ A                                                        (H3)\n  then A ≠ C\n\n1.  A ≠ C\n    inequalities\n      C ≠ A            H3\n      A ≠ C            symmetry\n".to_string(),
+            )],
+            "proofs/wiedijk/point-row.proof:10  this step treats A as a number, and it is a point",
+        ),
+        // A requires line's reason shows its fact as a step's reason shows
+        // its claim, so a method that does not decide the fact is refused
+        // there as it is for a step: `algebra` decides equations, and a
+        // membership is `membership`'s.
+        case(
+            "give a requires line's membership a method that does not decide it",
+            vec![edit(
+                "proofs/wiedijk/pythagoras.proof",
+                Some("    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR\n\n14.".to_string()),
+                "    requires sin(∠PQR) ∈ ℝ: algebra\n\n14.".to_string(),
+            )],
+            "proofs/wiedijk/pythagoras.proof:89  the requires line sin(∠PQR) ∈ ℝ of step 13 names algebra, which does not decide what it says",
         ),
         // A letter of a range not starting at 1 or 0 is said once to be an
         // integer, and its being no zero is not: a divisor's `≠ 0` is written
@@ -1033,6 +1158,55 @@ fn cases() -> Vec<Case> {
             )],
             "a link of step 1.2 names arithmetic for 1 = 1(1 + 1)/3, which is false",
         ),
+        // Two pairs are compared coordinate by coordinate (`METHODS.md`,
+        // Pairs): equal pairs said to differ are false by arithmetic, a
+        // difference by algebra rescales one a step cites, and inspection
+        // finds a pair among listed ones by its coordinates.
+        // A value runs to the comma that opens the next naming or the
+        // `from` list (`GRAMMAR.md`, Justifications), so a naming written
+        // without its `:=` is read as more of the value before it, and the
+        // message names what was taken into it: here a chain of equations,
+        // which stands inside the value's formula.
+        case(
+            "a naming written without its :=",
+            vec![edit(
+                "tests/elaborator/a-value-with-a-comma.proof",
+                Some("Q := x = 1, from H5, H6".to_string()),
+                "Q = x = 1, from H5, H6".to_string(),
+            )],
+            "a value step 1 gives: the chain of equations Q = x = 1 stands inside another formula, and a chain is a whole sentence",
+        ),
+        case(
+            "claim by arithmetic that a pair differs from itself",
+            vec![edit(
+                "tests/elaborator/pairs-compared.proof",
+                Some("  then (1, 1) ≠ (2, 3)\n\n1.  (1, 1) ≠ (2, 3)".to_string()),
+                "  then (1, 1) ≠ (1, 1)\n\n1.  (1, 1) ≠ (1, 1)".to_string(),
+            )],
+            "step 1 claims (1, 1) ≠ (1, 1), which is false",
+        ),
+        case(
+            "claim by algebra that two pairs differ, citing nothing",
+            vec![edit(
+                "tests/elaborator/pairs-compared.proof",
+                Some("    algebra, from H5".to_string()),
+                "    algebra".to_string(),
+            )],
+            "(a, b) ≠ (c, d) is not a rescaling of any disequality step 1 cites",
+        ),
+        case(
+            "claim by inspection that a listed pair is not in its list",
+            vec![edit(
+                "tests/elaborator/pairs-compared.proof",
+                Some(
+                    "  then (1, 2) ∉ {(3, 4), (1, 5)}\n\n1.  (1, 2) ∉ {(3, 4), (1, 5)}"
+                        .to_string(),
+                ),
+                "  then (1, 5) ∉ {(3, 4), (1, 5)}\n\n1.  (1, 5) ∉ {(3, 4), (1, 5)}"
+                    .to_string(),
+            )],
+            "step 1 claims (1, 5) ∉ {(3, 4), (1, 5)}, which inspection of what it cites shows false",
+        ),
         // Inspection decides "is prime" by the number: a composite at any
         // size by its least factor, and a prime only below 29², past which
         // trial division by the primes up to 23 settles nothing.
@@ -1258,6 +1432,51 @@ fn cases() -> Vec<Case> {
                 "    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2\n          algebra\n          requires 2 ∈ ℝ: arithmetic\n".to_string(),
             )],
             "the requires line of step 1.6 says 2 ∈ ℝ, which the page says once",
+        ),
+        // A distance between two points is real, said once where the points
+        // are introduced (`READERS.md`), so a line writing it does nothing.
+        case(
+            "write a distance's membership",
+            vec![edit(
+                "proofs/wiedijk/pythagoras.proof",
+                Some("    algebra, from 6, 14, 18\n".to_string()),
+                "    algebra, from 6, 14, 18\n    requires |AC| ∈ ℝ: membership\n".to_string(),
+            )],
+            "the requires line of step 19 says |AC| ∈ ℝ, which the page says once",
+        ),
+        // A chain of equations is a whole sentence (`SYNTAX.md`), never a
+        // part of another formula.
+        case(
+            "a chain of equations inside another formula",
+            vec![edit(
+                "tests/elaborator/chains.proof",
+                Some("  assume x = y = z                                                    (H4)\n  then y + 1 = z + 1".to_string()),
+                "  assume if x = 1 then x = y = z                                      (H4)\n  then y + 1 = z + 1".to_string(),
+            )],
+            "the chain of equations x = y = z stands inside another formula, and a chain is a whole sentence",
+        ),
+        // `join` infers nothing: a chain is the equations between its
+        // neighbouring terms, and from x = y and x = z the neighbour y = z
+        // is a deduction.
+        case(
+            "join a chain from equations that are not its links",
+            vec![edit(
+                "tests/elaborator/chains.proof",
+                Some("  assume x = y                                                        (H5)\n  assume y = z                                                        (H6)\n  assume z = w                                                        (H7)".to_string()),
+                "  assume x = y                                                        (H5)\n  assume x = z                                                        (H6)\n  assume z = w                                                        (H7)".to_string(),
+            )],
+            "step 1 joins H5, H6, H7 and claims y = z, which no line it joins says",
+        ),
+        // Only a chain supplies the equation between terms that are not
+        // neighbours: two sentences saying x = y and y = z supply those two.
+        case(
+            "take a pair from two sentences that are not a chain",
+            vec![edit(
+                "tests/elaborator/chains.proof",
+                Some("  assume x = y = z. x + 1 = 5.                                        (H4)".to_string()),
+                "  assume x = y. y = z. x + 1 = 5.                                     (H4)".to_string(),
+            )],
+            "step 1 takes x = z from H4, which does not say it",
         ),
         // A claim of numerals said to be impossible, given to `inequalities`:
         // a claim arithmetic can work out is arithmetic's, and is refused
@@ -5102,7 +5321,7 @@ fn cases() -> Vec<Case> {
             vec![edit(
                 "proofs/wiedijk/pythagoras.proof",
                 Some("    calculation\n      |PQ|·|P′R′|·sin(∠PQR) = |PR|·|P′R′|·sin(∠QRP)       9\n                            = |P′Q′|·|PR|·sin(∠PQR)       10".to_string()),
-                "    algebra, from 5, 8\n    requires |PQ| ∈ ℝ: mun:distance-real P := P, Q := Q\n    requires |PR| ∈ ℝ: mun:distance-real P := P, Q := R\n    requires |P′Q′| ∈ ℝ: mun:distance-real P := P′, Q := Q′\n    requires |P′R′| ∈ ℝ: mun:distance-real P := P′, Q := R′\n    requires ∠PQR ∈ ℝ: mun:triangle-angle-real, from H7\n    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR\n    requires ∠QRP ∈ ℝ: mun:triangle-angle-real, from H7\n    requires sin(∠QRP) ∈ ℝ: mun:sin-real a := ∠QRP".to_string(),
+                "    algebra, from 5, 8\n    requires ∠PQR ∈ ℝ: mun:triangle-angle-real, from H7\n    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR\n    requires ∠QRP ∈ ℝ: mun:triangle-angle-real, from H7\n    requires sin(∠QRP) ∈ ℝ: mun:sin-real a := ∠QRP".to_string(),
             )],
             "at most one equation multiplied by a term",
         ),

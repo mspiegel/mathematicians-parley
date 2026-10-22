@@ -1,0 +1,23 @@
+import mundane theorem    stdlib/numbers/multiply-cancel
+
+theorem the-one-dropped-on-the-right
+  note        H4 is a·c = b·c at b := 1 with the 1 left out, as an identity
+              element goes without saying (SYNTAX.md).
+  let x ∈ ℝ                                                           (H1)
+  let k ∈ ℝ                                                           (H2)
+  assume x ≠ 0                                                        (H3)
+  assume 2·k·x = x                                                    (H4)
+  then 2·k = 1
+
+1.  2·k = 1
+    mun:multiply-cancel a := 2·k, b := 1, c := x, from H3, H4
+
+theorem the-one-dropped-on-the-left
+  let x ∈ ℝ                                                           (H1)
+  let k ∈ ℝ                                                           (H2)
+  assume x ≠ 0                                                        (H3)
+  assume x = k·x                                                      (H4)
+  then 1 = k
+
+1.  1 = k
+    mun:multiply-cancel a := 1, b := k, c := x, from H3, H4

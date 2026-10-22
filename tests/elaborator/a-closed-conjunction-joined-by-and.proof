@@ -1,0 +1,13 @@
+theorem two-numeral-facts-joined-by-and
+  note        "A. B." and "A and B" are one claim (SYNTAX.md), and
+              arithmetic works out each part.
+  then 2·3 = 6 and 1 < 2
+
+1.  2·3 = 6 and 1 < 2
+    arithmetic
+
+theorem two-real-facts-joined-by-and
+  then √4 = 2 and π > 3
+
+1.  √4 = 2 and π > 3
+    real arithmetic

@@ -491,6 +491,12 @@ matters because a value of no known sort fits every hole: in `d divides p, and
 d divides q` the name `p` is an admissible first point of a triangle, and the
 comma after it must be free to end the clause it belongs to.
 
+A sentence that does not read is told why where a reading got furthest.
+That the text ended before a pattern's next token is the weakest reason,
+said only where no reading gave another at the same place: `_ = _ = _` runs
+out at the end of `for all η > 0, η = η`, where the binder's own reason is
+the one worth saying.
+
 A hole between literals ends where the literals after it follow, all of them
 and not only the first. The middle hole of `_ ≡ _ (mod _)` ends at `( mod`,
 so the bracket of f(x) in `a ≡ f(x) (mod n)` is f's and not the start of
@@ -556,6 +562,17 @@ the word-phrase relations sit at their own precedence level, unrelated to
 negation. `not n is odd` does not parse, because a reader cannot tell it from
 "(not n) is odd"; the brackets in `not (n is odd)` are required. A symbolic
 relation needs none, since nobody reads `not p = 1` as negating the p.
+
+### A chain of equations
+
+`a = b = c = d` is one notation, `equal-chain`, whose pattern `_ = _ = _`
+repeats its last hole after each `=`, as a listed set repeats after each
+comma. It opens as `_ = _` does, and the parser takes the reading that goes
+further, so `a = b` alone is an equation and `a = b = c` a chain. What it
+stands for is the equations between neighbouring terms, joined from the
+left: the record's `repeats` line builds each further one with `_′`, the
+term before it. A chain is a whole sentence (`SYNTAX.md`); one inside
+another formula reads, and the checker reports it.
 
 ### What a parser needs besides this
 
@@ -912,7 +929,7 @@ A justification is a head and a set of optional slots. The slots are:
 
 | slot | written | 
 |---|---|
-| instantiation | `<name> := <term>` , comma-separated |
+| instantiation | `<name> := <term>` , comma-separated; a value runs to the comma that opens the next naming or the `from`, so it may hold commas of its own: `P := A, B, C are collinear, Q := x = 1` |
 | names | `<name> { , <name> } :` , only after `obtain` |
 | target | `in line <number>` \| `in <label>` |
 | destination | `into line <number>` \| `into <label>` |

@@ -1,0 +1,177 @@
+import theorem            proofs/euclid/sss-congruence/angle-from-sides
+import mundane definition stdlib/geometry/midpoint
+import mundane definition stdlib/geometry/triangle
+import mundane theorem    stdlib/geometry/between-apart
+import mundane theorem    stdlib/geometry/between-collinear
+import mundane theorem    stdlib/geometry/between-symmetric
+import theorem            stdlib/geometry/law-of-cosines
+import theorem            stdlib/geometry/supplementary-angles
+import mundane theorem    stdlib/geometry/angle-real
+import mundane theorem    stdlib/geometry/angle-turned
+import mundane theorem    stdlib/geometry/right-angle-by-cosine
+import mundane theorem    stdlib/geometry/distance-positive
+import mundane theorem    stdlib/geometry/distance-symmetric
+import mundane theorem    stdlib/trigonometry/cos-supplement
+import mundane theorem    stdlib/trigonometry/cos-real
+import mundane definition stdlib/trigonometry/cos
+import mundane theorem    stdlib/numbers/multiply-cancel
+import mundane theorem    stdlib/numbers/product-positive
+
+theorem isosceles-median
+  note        The law of cosines at M in the triangles ABM and ACM, whose
+              angles at M are supplementary, gives cos(∠AMB) = 0. The
+              triangles ABM and ACM have their three sides equal, so the
+              angles at A are equal.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let M be a point                                                    (H4)
+  assume A, B, C form a triangle                                      (H5)
+  assume |AB| = |AC|                                                  (H6)
+  assume M is the midpoint of BC                                      (H7)
+  then ∠AMB = 90°. ∠BAM = ∠MAC.
+
+1.  M is between B and C. |BM| = |MC|.
+    mun:midpoint A := B, B := C, from H7
+
+2.  B ≠ M. C ≠ M.
+    mun:between-apart R := M, S := B, T := C, from 1
+
+3.  C, M, B are collinear
+    mun:between-collinear R := M, S := B, T := C, from 1
+
+4.  A ≠ M
+    contradiction
+    suppose A = M                                                     (S)
+
+    4.1.  C, A, B are collinear
+          substitute M = A (S) into line 3
+
+    4.2.  not (A, B, C are collinear)
+          mun:triangle P := A, Q := B, R := C, from H5, contradicting 4.1
+
+5.  A ≠ B. A ≠ C.
+    mun:triangle P := A, Q := B, R := C, from H5
+
+6.  M is between C and B
+    mun:between-symmetric R := M, S := B, T := C, from 1
+
+7.  |BA|² = |AM|² + |MB|² − 2·(|AM|·|MB|·cos(∠AMB))
+    thm:law-of-cosines P := A, Q := M, R := B, from 2, 4
+
+8.  |AC|² = |CM|² + |MA|² − 2·(|CM|·|MA|·cos(∠CMA))
+    thm:law-of-cosines P := C, Q := M, R := A, from 2, 4
+
+9.  ∠CMA + ∠AMB = 180°
+    thm:supplementary-angles A := C, B := M, C := B, D := A, from 4, 6
+
+10. ∠AMB ∈ ℝ
+    mun:angle-real P := A, Q := M, R := B, from 2, 4
+
+11. ∠CMA ∈ ℝ
+    mun:angle-real P := C, Q := M, R := A, from 2, 4
+
+12. ∠CMA = 180° − ∠AMB
+    algebra, from 9
+    requires ∠AMB ∈ ℝ: from 10
+    requires ∠CMA ∈ ℝ: from 11
+
+13. cos(∠CMA) = cos(180° − ∠AMB)
+    substitute ∠CMA = 180° − ∠AMB (line 12)
+
+14. cos(180° − ∠AMB) = −cos(∠AMB)
+    mun:cos-supplement x := ∠AMB
+    requires ∠AMB ∈ ℝ: from 10
+
+15. cos(∠CMA) = −cos(∠AMB)
+    calculation
+      cos(∠CMA) = cos(180° − ∠AMB)      13
+                = −cos(∠AMB)            14
+
+16. |MB| = |BM|
+    mun:distance-symmetric P := M, Q := B
+
+17. |CM| = |MC|
+    mun:distance-symmetric P := C, Q := M
+
+18. |MA| = |AM|
+    mun:distance-symmetric P := M, Q := A
+
+19. |BA| = |AB|
+    mun:distance-symmetric P := B, Q := A
+
+20. |CM| = |BM|
+    calculation
+      |CM| = |MC|      17
+           = |BM|      1
+
+21. |BA| = |AC|
+    calculation
+      |BA| = |AB|      19
+           = |AC|      H6
+
+22. |AC|² = |AM|² + |MB|² − 2·(|AM|·|MB|·cos(∠AMB))
+    substitute |BA| = |AC| (line 21) into line 7
+
+23. |AC|² = |AM|² + |BM|² − 2·(|AM|·|BM|·cos(∠AMB))
+    substitute |MB| = |BM| (line 16) into line 22
+
+24. |AC|² = |BM|² + |MA|² − 2·(|BM|·|MA|·cos(∠CMA))
+    substitute |CM| = |BM| (line 20) into line 8
+
+25. |AC|² = |BM|² + |AM|² − 2·(|BM|·|AM|·cos(∠CMA))
+    substitute |MA| = |AM| (line 18) into line 24
+
+26. |AC|² = |BM|² + |AM|² − 2·(|BM|·|AM|·−cos(∠AMB))
+    substitute cos(∠CMA) = −cos(∠AMB) (line 15) into line 25
+
+27. cos(∠AMB)·(|AM|·|BM|) = 0·(|AM|·|BM|)
+    algebra, from 23, 26
+    requires ∠AMB ∈ ℝ: from 10
+    requires cos(∠AMB) ∈ ℝ: mun:cos-real a := ∠AMB
+
+28. |AM| > 0
+    mun:distance-positive P := A, Q := M, from 4
+
+29. |BM| > 0
+    mun:distance-positive P := B, Q := M, from 2
+
+30. |AM|·|BM| > 0
+    mun:product-positive x := |AM|, y := |BM|, from 28, 29
+
+31. cos(∠AMB) = 0
+    mun:multiply-cancel a := cos(∠AMB), b := 0, c := |AM|·|BM|, from 27
+    requires |AM|·|BM| ≠ 0: weakening, from 30
+    requires ∠AMB ∈ ℝ: from 10
+    requires cos(∠AMB) ∈ ℝ: mun:cos-real a := ∠AMB
+
+32. ∠AMB = 90°
+    mun:right-angle-by-cosine P := A, Q := M, R := B, from 2, 4, 31
+
+33. |AC| = |CA|
+    mun:distance-symmetric P := A, Q := C
+
+34. |BA| = |CA|
+    calculation
+      |BA| = |AC|      21
+           = |CA|      33
+
+35. |MB| = |MC|
+    calculation
+      |MB| = |BM|      16
+           = |MC|      1
+
+36. ∠BAM = ∠CAM
+    thm:angle-from-sides P := B, Q := A, R := M, P′ := C, Q′ := A, R′ := M,
+      from 4, 5, 34, 35
+
+37. ∠CAM = ∠MAC
+    mun:angle-turned P := C, Q := A, R := M, from 4, 5
+
+38. ∠BAM = ∠MAC
+    calculation
+      ∠BAM = ∠CAM      36
+           = ∠MAC      37
+
+39. ∠AMB = 90°. ∠BAM = ∠MAC.
+    join 32, 38

@@ -34,6 +34,7 @@ pub use crate::methods::algebra::rescales;
 use crate::methods::algebra::{
     claim_says, combination, denominators, readings, Factor,
 };
+use crate::methods::pairs::{self, Coordinate, PairRelation};
 use crate::mm::kernel::Term;
 use crate::mm::spell::{Builder, Proof};
 use crate::mm::Rpn;
@@ -226,6 +227,15 @@ impl Oracle for Ask<'_, '_> {
 
     fn shown(&self, said: &Rpn) -> String {
         self.el.render(said)
+    }
+}
+
+/// Whether an equation of closed terms holds, as `arithmetic` works it
+/// out; None where it does not work it out.
+fn closed_equal(equation: &Term) -> Option<bool> {
+    match field::decide_closed(equation) {
+        Built(Verdict::Holds(holds)) => Some(holds),
+        _ => None,
     }
 }
 
@@ -455,6 +465,9 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         lines: &Lines,
     ) -> Checked<Route<Proof>> {
+        if let Some(pairs) = pairs::relation(&self.to_term(term)) {
+            return self.algebra_pairs(step, &pairs, scope, facts, lines);
+        }
         // A defined name is read as what it names, as `inequalities` reads
         // it: the claim and each cited line are taken with their defined
         // names written out, decided so, and the proof is carried back to
@@ -480,6 +493,46 @@ impl<'a> Elaborator<'a> {
         Ok(Built(
             pf!(self.b; scope, out.term, term, proof, back, "mpbid"),
         ))
+    }
+
+    /// Two pairs compared coordinate by coordinate by `algebra`
+    /// (`METHODS.md`, Pairs): both coordinates' equations, or the
+    /// difference at the first coordinate whose difference rescales one
+    /// the step cites (`methods::algebra::apart_at`).
+    fn algebra_pairs(
+        &mut self,
+        step: &Step,
+        pairs: &PairRelation,
+        scope: &Rpn,
+        facts: &Facts,
+        lines: &Lines,
+    ) -> Checked<Route<Proof>> {
+        if !pairs.apart {
+            let mut proved = Vec::new();
+            for at in Coordinate::BOTH {
+                let equation = self.rpn(&pairs.equation(at));
+                proved.push(take!(self.algebra(step, &equation, scope, facts, lines)?));
+            }
+            return Ok(Built(
+                self.pairs_equal(pairs, scope, &proved[0], &proved[1]),
+            ));
+        }
+        let cited: Vec<Term> = step
+            .just
+            .refs
+            .iter()
+            .filter_map(|r| lines.get(r).map(|held| self.to_term(&held.term)))
+            .collect();
+        let labels = self.b.flabel.clone();
+        let Some(at) = crate::methods::algebra::apart_at(pairs, &cited, &labels) else {
+            return Ok(Route::no(
+                "no coordinate's difference is a disequality the step cites, rescaled",
+            ));
+        };
+        let denial = self.rpn(&pairs.denial(at));
+        let apart = take!(self.algebra(step, &denial, scope, facts, lines)?);
+        let members = self.number_members(pairs, scope, facts)?;
+        Ok(Built(self.pairs_apart(pairs, scope, at, &apart, &members)))
     }
 
     /// `algebra` over a claim and lines whose defined names are written out.
@@ -1957,6 +2010,9 @@ impl<'a> Elaborator<'a> {
         if let Some(Built(p)) = parts {
             return Ok(p);
         }
+        if let Some(pairs) = pairs::relation(&said) {
+            return self.closed_pairs(&pairs, term, scope, facts, what, step);
+        }
         if let Built(p) = self.prove_numeral(term, scope, facts)? {
             return Ok(p);
         }
@@ -1973,6 +2029,35 @@ impl<'a> Elaborator<'a> {
             return Ok(p);
         }
         Err(self.unshown(term, what))
+    }
+
+    /// Two pairs of closed terms, compared coordinate by coordinate
+    /// (`METHODS.md`, Pairs): both coordinates' equations, or the
+    /// difference at the first coordinate whose equation is false.
+    fn closed_pairs(
+        &mut self,
+        pairs: &PairRelation,
+        term: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+        what: &str,
+        step: Option<&Step>,
+    ) -> Checked<Proof> {
+        if !pairs.apart {
+            let mut proved = Vec::new();
+            for at in Coordinate::BOTH {
+                let equation = self.rpn(&pairs.equation(at));
+                proved.push(self.closed_fact(&equation, scope, facts, what, step)?);
+            }
+            return Ok(self.pairs_equal(pairs, scope, &proved[0], &proved[1]));
+        }
+        let Some(at) = pairs.apart_at(&mut closed_equal) else {
+            return Err(self.unshown(term, what));
+        };
+        let denial = self.rpn(&pairs.denial(at));
+        let apart = self.closed_fact(&denial, scope, facts, what, step)?;
+        let members = self.number_members(pairs, scope, facts)?;
+        Ok(self.pairs_apart(pairs, scope, at, &apart, &members))
     }
 
     /// Whether a term holds what the normaliser holds as an atom where

@@ -186,6 +186,22 @@ says M is between A and B and |AM| = |MB|, a `biid` definition. The kernel's
 points named once, `let ω = {X ∈ 𝔼² : |XO| = r}`, and "A is on ω" is A ∈ ω.
 The chord theorems state the circle by distances to its centre.
 
+**Coordinates, the special angles and the triangle's elementary facts are
+records.** The distance between points given by coordinates is
+distance-by-coordinates, or distance-of-points-by-coordinates where the
+points are named by letters, A = (a, b) and B = (c, d); three such points
+are collinear, or one between
+the others, by collinear-by-coordinates and between-by-coordinates. Two such
+points differ just where their pairs of coordinates do
+(points-apart-by-coordinates), and `arithmetic` compares the pairs
+(`METHODS.md`, Pairs). A distance is never negative, and positive between two
+points; a point between two others is apart from both (between-apart). cos 90°,
+sin 90°, cos 60° and sin 30° are one record, and angle-by-cosine reads an angle
+from its cosine on [0°, 180°]. The triangle inequality for points is set.mm's
+`abs3dif`. Its equality case and strict form, supplementary angles and the
+addition of angles are proved in `corpus/proved/plane.proved`, since set.mm
+states none of them over ℂ.
+
 **The signed angle is a second notation, ∡PQR, beside ∠PQR.** It is `ang`
 itself, in (−π, π] and positive counterclockwise. ∠PQR stays unsigned, and
 |∡PQR| = ∠PQR is one kernel term. The angle sum by orientation (`ang180`) and
@@ -207,11 +223,16 @@ angle, which `isosceles` would do about sixteen times across twelve steps.
 That is an ordinary dull-fact load and not a reason against ℂ: about 1.3
 lines a step, each a fact that can fail where the points coincide.
 
-**A triangle is its three points, in no order.** "A, B, C form a triangle"
-and "C, A, B form a triangle" are one claim: the three are distinct and not
-on one line, whichever is named first. The notation record says so
-(`commutes yes`), the checker matches its holes in any order, and the
-elaborator carries one order to another by `gtriswap` and `gtrirotate`. So
+**A triangle is its three points, in no order, and so is a line through
+three points.** "A, B, C form a triangle" and "C, A, B form a triangle" are
+one claim: the three are distinct and not on one line, whichever is named
+first. "A, B, C are collinear" is likewise one claim in any order. It means
+A = B, or (C − A)/(B − A) is real, which is true just where the three lie on
+one line, two of them coinciding included. Both notation records say
+`commutes yes`, and the checker matches their holes in any order. The
+elaborator carries a triangle from one order to another by `gtriswap` and
+`gtrirotate`, and a collinearity by `gcolswap` and `gcolrotate`, whether the
+line is one a proof holds or a record's conclusion. So
 an item that needs its three points to form a triangle says so in that
 phrase, `mun:stdlib/geometry/angle-symmetric` among them, and a proof cites
 its own triangle line for it in whatever order it names the points. Order
@@ -292,6 +313,9 @@ an item alongside a set.mm label and a proof file:
 | --- | --- |
 | `gtriswap` | swapping two vertices inverts the collinearity quotient |
 | `gtrirotate` | rotating them takes it to `1 − (C−B)/(A−B)` |
+| `gcolswap` | collinearity holds with the last two points swapped |
+| `gcolrotate` | collinearity holds with the points rotated |
+| `gtridef` | a triangle is three distinct points not collinear |
 | `gangsym3` | the two directions of an angle have one size |
 | `gsas` | side-angle-side |
 
@@ -327,7 +351,6 @@ sines; these are what it and the proof cite:
 | `gangseg` | `angle-along-segment`: a point between P and Q is on the ray from P through Q |
 | `gsegadd` | `segment-addition`: the parts of a segment add to it |
 | `gbetsym` | `between-symmetric` |
-| `gdistre` | `distance-real` |
 | `gsinabs` | the sine of an angle's size is the size of its sine, between −π and π |
 | `g90` | 90° is π/2 |
 

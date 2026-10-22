@@ -10,6 +10,7 @@ use crate::mm::kernel::{FloatLabels, Term};
 use crate::rules::{self, lookup};
 
 use super::field::{self, Op, Poly, DIV, Q};
+use super::pairs::{self, Coordinate, PairRelation};
 
 /// What `decide` finds of an `algebra` step.
 pub enum Verdict {
@@ -59,6 +60,9 @@ pub fn refusal(
 /// Whether the claim follows by `algebra` from the lines the step cites,
 /// each as one term, its parts read as `parts` reads them.
 pub fn decide(claimed: &Term, cited: &[Term], labels: &FloatLabels) -> Verdict {
+    if let Some(pairs) = pairs::relation(claimed) {
+        return pairs_decided(&pairs, cited, labels);
+    }
     let mut read = vec![claimed.clone()];
     for held in cited {
         read.extend(parts(held));
@@ -101,6 +105,47 @@ pub fn decide(claimed: &Term, cited: &[Term], labels: &FloatLabels) -> Verdict {
         }
         None => Verdict::NoCombination,
     }
+}
+
+/// A relation between two pairs (`super::pairs`): an equation holds where
+/// both coordinates' equations do, combining what each combines, and a
+/// difference where one coordinate's difference rescales a cited one.
+fn pairs_decided(
+    pairs: &PairRelation,
+    cited: &[Term],
+    labels: &FloatLabels,
+) -> Verdict {
+    if pairs.apart {
+        return match apart_at(pairs, cited, labels) {
+            Some(at) => decide_apart(&pairs.denial(at), cited, labels),
+            None => Verdict::NoRescaling,
+        };
+    }
+    let mut combined = Vec::new();
+    for at in Coordinate::BOTH {
+        match decide(&pairs.equation(at), cited, labels) {
+            Verdict::Holds { combined: each } => combined.extend(each),
+            other => return other,
+        }
+    }
+    combined.sort();
+    combined.dedup();
+    Verdict::Holds { combined }
+}
+
+/// The coordinate an `algebra` step shows two pairs differ at: the first
+/// whose difference is a disequality the step cites, rescaled.
+pub fn apart_at(
+    pairs: &PairRelation,
+    cited: &[Term],
+    labels: &FloatLabels,
+) -> Option<Coordinate> {
+    Coordinate::BOTH.into_iter().find(|&at| {
+        matches!(
+            decide_apart(&pairs.denial(at), cited, labels),
+            Verdict::Holds { .. }
+        )
+    })
 }
 
 /// A disequality claim, which holds where it is one the step cites rescaled:

@@ -1,0 +1,54 @@
+import theorem            proofs/wiedijk/angle-sum/angle-sum
+import mundane theorem    stdlib/geometry/triangle-angle-real
+import mundane theorem    stdlib/geometry/angle-real
+import mundane theorem    stdlib/geometry/sine-positive
+import mundane definition stdlib/geometry/triangle
+import mundane definition stdlib/trigonometry/sin
+
+theorem two-angles-under-straight
+  note        Euclid I.17. The three angles of a triangle make 180° and the
+              third is positive, since its sine is.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  assume A, B, C form a triangle                                      (H4)
+  then ∠BAC + ∠ABC < 180°
+
+1.  ∠BAC + ∠ABC + ∠BCA = 180°
+    thm:angle-sum, from H4
+
+2.  ∠BCA ∈ ℝ. ∠BCA ≥ 0.
+    mun:angle-real P := B, Q := C, R := A
+    requires B ≠ C: mun:triangle, from H4
+    requires A ≠ C: mun:triangle, from H4
+
+3.  sin(∠BCA) > 0
+    mun:sine-positive P := B, Q := C, R := A, from H4
+
+4.  ∠BCA > 0
+    contradiction
+    suppose not (∠BCA > 0)                                            (S)
+
+    4.1.  ∠BCA ≤ 0
+          inequalities, from S
+          requires ∠BCA ∈ ℝ: from 2
+
+    4.2.  ∠BCA = 0
+          antisymmetry, from 2, 4.1
+
+    4.3.  sin(0) > 0, which is impossible
+          substitute ∠BCA = 0 (line 4.2) into line 3
+
+5.  ∠BAC + ∠ABC < ∠BAC + ∠ABC + ∠BCA
+    inequalities
+      ∠BCA > 0                                    4
+      0 < ∠BCA                                    symmetry
+      ∠BAC + ∠ABC < ∠BAC + ∠ABC + ∠BCA            adding ∠BAC + ∠ABC
+    requires ∠BAC ∈ ℝ: mun:triangle-angle-real, from H4
+    requires ∠ABC ∈ ℝ: mun:triangle-angle-real, from H4
+    requires ∠BCA ∈ ℝ: from 2
+
+6.  ∠BAC + ∠ABC < 180°
+    calculation
+      ∠BAC + ∠ABC < ∠BAC + ∠ABC + ∠BCA      5
+                  = 180°                    1

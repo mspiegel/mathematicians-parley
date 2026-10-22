@@ -575,6 +575,14 @@ needs.
 than by the order the line lists them, because the readable order is the order
 they were derived and the conclusion's order is the theorem's.
 
+**A chain of equations** is its links joined from the left, the claim
+`a = b. b = c.`, and a line claiming one is taken apart as deep as its
+links, each counted as a sentence (`written_parts`). The equation between
+terms that are not neighbours is proved from the line's own proof: `simpld`
+and `simprd` take out the links and `eqtrd` joins them (`know_chains`). So a
+step citing the line for a = c rests on that line and not on the lines that
+gave its links.
+
 **A step `contradicting` a line** is what closes a `contradiction`:
 `pm2.21dd` takes the step's line and the line it names to the block's claim,
 and `pm2.65d` drops the supposition. Ending a case, it takes the two to the
@@ -1290,7 +1298,8 @@ in Bezout, whose a·1 is now a wherever a line is compared.
 
 `READERS.md` has a membership in a number system said once, where a letter is
 introduced, and the step writes nothing for a numeral, a closed term with a
-square root `real arithmetic` works out, in ℝ or ℂ, a letter, or a term
+square root `real arithmetic` works out, in ℝ or ℂ, a letter, a distance
+between two points, or a term
 built from them by +, −, ·, negation, a power to a numeral or to a letter
 introduced in ℕ or ℕ₀, and /, or a sum whose term is such a number at
 every index (`SYNTAX.md`). Whether a membership is said once, and why, is
@@ -1318,6 +1327,10 @@ nothing:
   and carried to any scope inside it (`lifted_to`). A letter introduced
   twice, as a δ obtained in each of two cases, keeps both, and the one whose
   scope holds where the step is is taken;
+- a distance |PQ| between two letters introduced as points is in ℝ: each
+  point is in ℂ by its sort, their difference too (`subcld`), and its
+  absolute value is real (`abscld`); a real one is complex (`recnd`,
+  `distance_within`);
 - a compound is built by the closure table, as `built` builds one, its parts
   by the same walk and its divisor's `≠ 0` from what the step names
   (`divisor_written`), and only for the operations listed: a remainder, a
