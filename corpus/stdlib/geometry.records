@@ -551,6 +551,17 @@ mundane theorem between-apart
   note        A point between two others is apart from both, so the
               angles and triangles at it are defined.
 
+mundane theorem between-collinear
+  let R be a point                                                    (H1)
+  let S be a point                                                    (H2)
+  let T be a point                                                    (H3)
+  assume R is between S and T                                         (H4)
+  then        T, R, S are collinear
+  metamath    gbetcol, which this corpus proves in
+              elaboration/stdlib/proved.mm from gtricol
+  target      gbetcol
+  note        A point between two others is on their line.
+
 mundane theorem angle-along-segment
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)

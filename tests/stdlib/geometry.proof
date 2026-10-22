@@ -29,6 +29,7 @@ import theorem            stdlib/geometry/triangle-equality-between as geometry-
 import theorem            stdlib/geometry/triangle-inequality-strict as geometry-triangle-inequality-strict
 import theorem            stdlib/geometry/angle-addition as geometry-angle-addition
 import mundane theorem    stdlib/geometry/between-apart as geometry-between-apart
+import mundane theorem    stdlib/geometry/between-collinear as geometry-between-collinear
 import mundane definition stdlib/geometry/on-line as geometry-on-line
 import theorem            stdlib/geometry/perpendicular-by-right-angle as geometry-perpendicular-by-right-angle
 import theorem            stdlib/geometry/intersecting-chords as geometry-intersecting-chords
@@ -515,3 +516,13 @@ theorem between-apart
 
 1.  S ≠ R. T ≠ R.
     mun:geometry-between-apart, from H4
+
+theorem between-collinear
+  let R be a point                                                    (H1)
+  let S be a point                                                    (H2)
+  let T be a point                                                    (H3)
+  assume R is between S and T                                         (H4)
+  then T, R, S are collinear
+
+1.  T, R, S are collinear
+    mun:geometry-between-collinear, from H4

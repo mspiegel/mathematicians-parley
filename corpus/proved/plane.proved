@@ -1475,3 +1475,28 @@ lemma gbetne0
   14 subne0ad 6 7 13 |- ( ( ( R e. CC /\ S e. CC /\ T e. CC ) /\ ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) ) -> T =/= R )
   15 jca 2 14 |- ( ( ( R e. CC /\ S e. CC /\ T e. CC ) /\ ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) ) -> ( S =/= R /\ T =/= R ) )
   16 ex 15 |- ( ( R e. CC /\ S e. CC /\ T e. CC ) -> ( ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) -> ( S =/= R /\ T =/= R ) ) )
+
+# A point between two others is on their line: between says the quotient
+# of the differences from R is real, which is T, R, S collinear read from
+# R, and `gtricol` reads it from T.
+lemma gbetcol
+  |- ( ( R e. CC /\ S e. CC /\ T e. CC ) -> ( ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) -> ( ( S - T ) / ( R - T ) ) e. RR ) )
+  1 simpl |- ( ( ( R e. CC /\ S e. CC /\ T e. CC ) /\ ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) ) -> ( R e. CC /\ S e. CC /\ T e. CC ) )
+  2 simp1d 1 |- ( ( ( R e. CC /\ S e. CC /\ T e. CC ) /\ ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) ) -> R e. CC )
+  3 simp2d 1 |- ( ( ( R e. CC /\ S e. CC /\ T e. CC ) /\ ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) ) -> S e. CC )
+  4 simp3d 1 |- ( ( ( R e. CC /\ S e. CC /\ T e. CC ) /\ ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) ) -> T e. CC )
+  5 simpr |- ( ( ( R e. CC /\ S e. CC /\ T e. CC ) /\ ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) ) -> ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) )
+  6 gbetne0 |- ( ( R e. CC /\ S e. CC /\ T e. CC ) -> ( ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) -> ( S =/= R /\ T =/= R ) ) )
+  7 sylc 1 5 6 |- ( ( ( R e. CC /\ S e. CC /\ T e. CC ) /\ ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) ) -> ( S =/= R /\ T =/= R ) )
+  8 simpld 7 |- ( ( ( R e. CC /\ S e. CC /\ T e. CC ) /\ ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) ) -> S =/= R )
+  9 simprd 7 |- ( ( ( R e. CC /\ S e. CC /\ T e. CC ) /\ ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) ) -> T =/= R )
+  10 subne0d 4 2 9 |- ( ( ( R e. CC /\ S e. CC /\ T e. CC ) /\ ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) ) -> ( T - R ) =/= 0 )
+  11 subne0d 3 2 8 |- ( ( ( R e. CC /\ S e. CC /\ T e. CC ) /\ ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) ) -> ( S - R ) =/= 0 )
+  12 3jca 4 2 3 |- ( ( ( R e. CC /\ S e. CC /\ T e. CC ) /\ ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) ) -> ( T e. CC /\ R e. CC /\ S e. CC ) )
+  13 jca 10 11 |- ( ( ( R e. CC /\ S e. CC /\ T e. CC ) /\ ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) ) -> ( ( T - R ) =/= 0 /\ ( S - R ) =/= 0 ) )
+  14 jca 12 13 |- ( ( ( R e. CC /\ S e. CC /\ T e. CC ) /\ ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) ) -> ( ( T e. CC /\ R e. CC /\ S e. CC ) /\ ( ( T - R ) =/= 0 /\ ( S - R ) =/= 0 ) ) )
+  15 gtricol |- ( ( ( T e. CC /\ R e. CC /\ S e. CC ) /\ ( ( T - R ) =/= 0 /\ ( S - R ) =/= 0 ) ) -> ( ( ( T - R ) / ( S - R ) ) e. RR -> ( ( S - T ) / ( R - T ) ) e. RR ) )
+  16 syl 14 15 |- ( ( ( R e. CC /\ S e. CC /\ T e. CC ) /\ ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) ) -> ( ( ( T - R ) / ( S - R ) ) e. RR -> ( ( S - T ) / ( R - T ) ) e. RR ) )
+  17 simp2d 5 |- ( ( ( R e. CC /\ S e. CC /\ T e. CC ) /\ ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) ) -> ( ( T - R ) / ( S - R ) ) e. RR )
+  18 mpd 17 16 |- ( ( ( R e. CC /\ S e. CC /\ T e. CC ) /\ ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) ) -> ( ( S - T ) / ( R - T ) ) e. RR )
+  19 ex 18 |- ( ( R e. CC /\ S e. CC /\ T e. CC ) -> ( ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) -> ( ( S - T ) / ( R - T ) ) e. RR ) )
