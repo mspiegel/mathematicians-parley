@@ -32,6 +32,7 @@ import mundane theorem    stdlib/geometry/between-apart as geometry-between-apar
 import mundane theorem    stdlib/geometry/between-collinear as geometry-between-collinear
 import mundane theorem    stdlib/geometry/midpoint-unique as geometry-midpoint-unique
 import mundane theorem    stdlib/geometry/midpoint-determines-end as geometry-midpoint-determines-end
+import mundane theorem    stdlib/geometry/angle-turned as geometry-angle-turned
 import mundane definition stdlib/geometry/on-line as geometry-on-line
 import theorem            stdlib/geometry/perpendicular-by-right-angle as geometry-perpendicular-by-right-angle
 import theorem            stdlib/geometry/intersecting-chords as geometry-intersecting-chords
@@ -552,3 +553,14 @@ theorem midpoint-determines-end
 
 1.  B = C
     mun:geometry-midpoint-determines-end, from H5, H6
+
+theorem angle-turned
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P ≠ Q                                                        (H4)
+  assume R ≠ Q                                                        (H5)
+  then ∠PQR = ∠RQP
+
+1.  ∠PQR = ∠RQP
+    mun:geometry-angle-turned, from H4, H5

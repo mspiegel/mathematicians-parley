@@ -229,6 +229,18 @@ mundane theorem angle-symmetric
               and the absolute values agree either way.
   target      gangsym3
 
+mundane theorem angle-turned
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P ≠ Q                                                        (H4)
+  assume R ≠ Q                                                        (H5)
+  then        ∠PQR = ∠RQP
+  metamath    gangsym3, which this corpus proves in elaboration/stdlib/proved.mm
+  target      gangsym3
+  note        As angle-symmetric, for points that may lie on a line: the
+              angle between two arms does not depend on which is named first.
+
 mundane definition parallel
   open        As mun:stdlib/geometry/collinear is: in the plane PQ ∥ RS says
               (Q − P)/(S − R) is real, and the readable layer cannot subtract
