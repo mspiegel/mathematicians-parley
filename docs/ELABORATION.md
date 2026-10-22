@@ -575,6 +575,14 @@ needs.
 than by the order the line lists them, because the readable order is the order
 they were derived and the conclusion's order is the theorem's.
 
+**A chain of equations** is its links joined from the left, the claim
+`a = b. b = c.`, and a line claiming one is taken apart as deep as its
+links, each counted as a sentence (`written_parts`). The equation between
+terms that are not neighbours is proved from the line's own proof: `simpld`
+and `simprd` take out the links and `eqtrd` joins them (`know_chains`). So a
+step citing the line for a = c rests on that line and not on the lines that
+gave its links.
+
 **A step `contradicting` a line** is what closes a `contradiction`:
 `pm2.21dd` takes the step's line and the line it names to the block's claim,
 and `pm2.65d` drops the supposition. Ending a case, it takes the two to the
