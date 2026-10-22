@@ -189,7 +189,10 @@ The chord theorems state the circle by distances to its centre.
 **Coordinates, the special angles and the triangle's elementary facts are
 records.** The distance between points given by coordinates is
 distance-by-coordinates, and three such points are collinear, or one between
-the others, by collinear-by-coordinates and between-by-coordinates. A distance is never negative, and positive between two
+the others, by collinear-by-coordinates and between-by-coordinates. Two such
+points differ just where their pairs of coordinates do
+(points-apart-by-coordinates), and `arithmetic` compares the pairs
+(`METHODS.md`, Pairs). A distance is never negative, and positive between two
 points; a point between two others is apart from both (between-apart). cos 90°,
 sin 90°, cos 60° and sin 30° are one record, and angle-by-cosine reads an angle
 from its cosine on [0°, 180°]. The triangle inequality for points is set.mm's

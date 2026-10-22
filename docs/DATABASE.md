@@ -76,7 +76,7 @@ has, and a subject is one file:
 | `corpus/stdlib/functions.records` | functions, their values, images, and inverses | 23 |
 | `corpus/stdlib/counting.records` | the size of a set, factorials, binomial coefficients, counting by parts | 41 |
 | `corpus/stdlib/calculus.records` | intervals, bounds and completeness, continuity, derivatives, bounded sequences | 27 |
-| `corpus/stdlib/geometry.records` | points, distance, angles and signed angles, triangles and their kinds (isosceles, equilateral, right-angled), congruence, parallels and sides of a line, lines and perpendiculars, midpoints, chords of a circle, area, the laws of sines and cosines, coordinates, supplementary angles, the triangle inequality, the addition of angles | 63 |
+| `corpus/stdlib/geometry.records` | points, distance, angles and signed angles, triangles and their kinds (isosceles, equilateral, right-angled), congruence, parallels and sides of a line, lines and perpendiculars, midpoints, chords of a circle, area, the laws of sines and cosines, coordinates, supplementary angles, the triangle inequality, the addition of angles | 64 |
 | `corpus/stdlib/groups.records` | groups, their laws, subgroups, cosets | 12 |
 | `corpus/stdlib/trigonometry.records` | cos and sin, their addition formulas, signs, bounds and order, the special angles, the supplement | 22 |
 | `corpus/stdlib/logarithms.records` | the natural logarithm and the exponential function, their laws, order and signs | 13 |
@@ -125,7 +125,7 @@ Every item in the standard library carries a field saying where it comes from:
 
 | field | meaning | count |
 |---|---|---|
-| `metamath` | a set.mm label or labels supply it | 495 |
+| `metamath` | a set.mm label or labels supply it | 496 |
 | `open` | it is cited but unproved and unbridged | 5 |
 
 A theorem this corpus proves has no
