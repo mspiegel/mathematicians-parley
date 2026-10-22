@@ -912,7 +912,7 @@ A justification is a head and a set of optional slots. The slots are:
 
 | slot | written | 
 |---|---|
-| instantiation | `<name> := <term>` , comma-separated |
+| instantiation | `<name> := <term>` , comma-separated; a value runs to the comma that opens the next naming or the `from`, so it may hold commas of its own: `P := A, B, C are collinear, Q := x = 1` |
 | names | `<name> { , <name> } :` , only after `obtain` |
 | target | `in line <number>` \| `in <label>` |
 | destination | `into line <number>` \| `into <label>` |
