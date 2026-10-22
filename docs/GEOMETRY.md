@@ -188,7 +188,9 @@ The chord theorems state the circle by distances to its centre.
 
 **Coordinates, the special angles and the triangle's elementary facts are
 records.** The distance between points given by coordinates is
-distance-by-coordinates, and three such points are collinear, or one between
+distance-by-coordinates, or distance-of-points-by-coordinates where the
+points are named by letters, A = (a, b) and B = (c, d); three such points
+are collinear, or one between
 the others, by collinear-by-coordinates and between-by-coordinates. Two such
 points differ just where their pairs of coordinates do
 (points-apart-by-coordinates), and `arithmetic` compares the pairs
