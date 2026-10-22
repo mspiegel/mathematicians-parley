@@ -2490,9 +2490,12 @@ fn algebra_unsaid(
                 .iter()
                 .find(|a| !methods_membership::atom_held(a, System::C, &given))
             {
-                return Some(format!(
-                    "nothing says {} ∈ ℝ or ∈ ℂ, which this step needs",
-                    known.print(atom)
+                return Some(unsaid_number(
+                    atom,
+                    at,
+                    known,
+                    "∈ ℝ or ∈ ℂ",
+                    "nothing says",
                 ));
             }
             if let Some(unsaid) = parts
@@ -2560,7 +2563,38 @@ fn real_unsaid(
     known: &Known,
     targets: &Targets,
 ) -> Option<String> {
-    unsaid_of(at, read, relations, known, targets).map(|u| u.said(known))
+    unsaid_of(at, read, relations, known, targets).map(|u| match &u {
+        Unsaid::Real(atom) => unsaid_number(atom, at, known, "∈ ℝ", "nothing says"),
+        Unsaid::Nonzero(_) => u.said(known),
+    })
+}
+
+/// The message for an atom a method needs to be a number and nothing says
+/// is one: a point is never one, which no line can say, so a point is told
+/// that the step treats it as a number (`METHODS.md`, Rows: each row's atoms
+/// are real); any other atom is told what is not said of it, `systems`
+/// being "∈ ℝ" or "∈ ℝ or ∈ ℂ" and `nothing` how the message opens.
+fn unsaid_number(
+    atom: &Node,
+    at: &ClosureClaim,
+    known: &Known,
+    systems: &str,
+    nothing: &str,
+) -> String {
+    let point = atom.is_name()
+        && super::library::points_introduced(known, at.step)
+            .contains(atom.text.as_str());
+    if point {
+        format!(
+            "this step treats {} as a number, and it is a point",
+            known.print(atom)
+        )
+    } else {
+        format!(
+            "{nothing} {} {systems}, which this step needs",
+            known.print(atom)
+        )
+    }
 }
 
 /// What an order's relations need of a term that nothing says.

@@ -589,6 +589,18 @@ fn cases() -> Vec<Case> {
             )],
             "nothing says ∠QRP ∈ ℝ or ∈ ℂ, which this step needs",
         ),
+        // A row's atoms are real numbers (`METHODS.md`, Rows), and a point
+        // is none, which no line can say: the step is told it treats the
+        // point as a number, not that nothing says it is one.
+        case(
+            "turn a disequality of points round in an inequalities row",
+            vec![edit(
+                "proofs/wiedijk/point-row.proof",
+                None,
+                "theorem point-row\n  let A be a point                                                    (H1)\n  let C be a point                                                    (H2)\n  assume C ≠ A                                                        (H3)\n  then A ≠ C\n\n1.  A ≠ C\n    inequalities\n      C ≠ A            H3\n      A ≠ C            symmetry\n".to_string(),
+            )],
+            "proofs/wiedijk/point-row.proof:10  this step treats A as a number, and it is a point",
+        ),
         // A requires line's reason shows its fact as a step's reason shows
         // its claim, so a method that does not decide the fact is refused
         // there as it is for a step: `algebra` decides equations, and a
