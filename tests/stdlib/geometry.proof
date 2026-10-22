@@ -21,6 +21,7 @@ import mundane theorem    stdlib/geometry/distance-by-coordinates as geometry-di
 import mundane theorem    stdlib/geometry/collinear-by-coordinates as geometry-collinear-by-coordinates
 import mundane theorem    stdlib/geometry/between-by-coordinates as geometry-between-by-coordinates
 import mundane theorem    stdlib/geometry/points-apart-by-coordinates as geometry-points-apart-by-coordinates
+import mundane theorem    stdlib/geometry/distance-of-points-by-coordinates as geometry-distance-of-points-by-coordinates
 import mundane theorem    stdlib/geometry/angle-at-most-straight as geometry-angle-at-most-straight
 import mundane theorem    stdlib/geometry/angle-by-cosine as geometry-angle-by-cosine
 import theorem            stdlib/geometry/supplementary-angles as geometry-supplementary-angles
@@ -440,6 +441,20 @@ theorem points-apart-by-coordinates
 
 1.  A ≠ B ↔ (a, b) ≠ (c, d)
     mun:geometry-points-apart-by-coordinates, from H7, H8
+
+theorem distance-of-points-by-coordinates
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let a ∈ ℝ                                                           (H3)
+  let b ∈ ℝ                                                           (H4)
+  let c ∈ ℝ                                                           (H5)
+  let d ∈ ℝ                                                           (H6)
+  assume A = (a, b)                                                   (H7)
+  assume B = (c, d)                                                   (H8)
+  then |AB| = √((a − c)² + (b − d)²)
+
+1.  |AB| = √((a − c)² + (b − d)²)
+    mun:geometry-distance-of-points-by-coordinates, from H7, H8
 
 theorem angle-at-most-straight
   let P be a point                                                    (H1)

@@ -596,6 +596,11 @@ $d x Y $.  $d y Y $.
     gptne syl bitrd ex )
     CGHZDGHZIZEGHZFGHZIZIZACJDKLZMLZNZBEJFKLZMLZNZIZABOZCDPZEFPZOZQULUSIZUTUNUQOZVCVDAUNBUQULUOURRULUOURSTVDULVEVCQULUSUACDEFUBUCUDUE $.
 
+  gptdist $p |- ( ( ( C e. RR /\ D e. RR ) /\ ( E e. RR /\ F e. RR ) ) -> ( ( A = ( C + ( _i x. D ) ) /\ B = ( E + ( _i x. F ) ) ) -> ( abs ` ( A - B ) ) = ( sqrt ` ( ( ( C - E ) ^ 2 ) + ( ( D - F ) ^ 2 ) ) ) ) ) $=
+    ( cr wcel wa ci cmul co caddc wceq cmin cabs cfv c2 cexp csqrt simprl
+    simprr oveq12d fveq2d simpl gdistco syl eqtrd ex )
+    CGHZDGHZIZEGHZFGHZIZIZACJDKLZMLZNZBEJFKLZMLZNZIZABOLZPQZCEOLZRSLZDFOLZRSLZMLZTQZNUPVCIZVEURVAOLZPQZVKVLVDVMPVLAURBVAOUPUSVBUAUPUSVBUBUCUDVLUPVNVKNUPVCUECDEFUFUGUHUI $.
+
   gcolco $p |- ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) -> ( ( ( A + ( _i x. B ) ) = ( C + ( _i x. D ) ) \/ ( ( ( E + ( _i x. F ) ) - ( A + ( _i x. B ) ) ) / ( ( C + ( _i x. D ) ) - ( A + ( _i x. B ) ) ) ) e. RR ) <-> ( ( C - A ) x. ( F - B ) ) = ( ( E - A ) x. ( D - B ) ) ) ) $=
     ( cr wcel wa ci cmul co caddc wceq cmin cdiv wo wb simpr orcd cc0 simpll
     cru syl mpbid simpld oveq2d simprd recnd subidd eqtrd oveq1d simplr

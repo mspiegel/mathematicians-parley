@@ -1,4 +1,4 @@
-import mundane theorem    stdlib/geometry/distance-by-coordinates
+import mundane theorem    stdlib/geometry/distance-of-points-by-coordinates
 import mundane theorem    stdlib/geometry/between-by-coordinates
 
 theorem a-midpoint-by-coordinates
@@ -13,45 +13,36 @@ theorem a-midpoint-by-coordinates
   assume M = (3, −3/2)                                                (H6)
   then |AM| = |MB|. M is between A and B.
 
-1.  |(−1, 1)(3, −3/2)| = √((−1 − 3)² + (1 − (−3/2))²)
-    mun:distance-by-coordinates
+1.  |AM| = √((−1 − 3)² + (1 − (−3/2))²)
+    mun:distance-of-points-by-coordinates, from H4, H6
 
-2.  |(3, −3/2)(7, −4)| = √((3 − 7)² + (−3/2 − (−4))²)
-    mun:distance-by-coordinates
+2.  |MB| = √((3 − 7)² + (−3/2 − (−4))²)
+    mun:distance-of-points-by-coordinates, from H5, H6
 
-3.  |(−1, 1)(3, −3/2)| = |(3, −3/2)(7, −4)|
+3.  |AM| = |MB|
     calculation
-      |(−1, 1)(3, −3/2)| = √((−1 − 3)² + (1 − (−3/2))²)      1
-                         = √(89/4)                           arithmetic
-                         = √((3 − 7)² + (−3/2 − (−4))²)      arithmetic
-                         = |(3, −3/2)(7, −4)|                2
+      |AM| = √((−1 − 3)² + (1 − (−3/2))²)      1
+           = √(89/4)                           arithmetic
+           = √((3 − 7)² + (−3/2 − (−4))²)      arithmetic
+           = |MB|                              2
 
-4.  |A(3, −3/2)| = |(3, −3/2)(7, −4)|
-    substitute A = (−1, 1) (H4) into line 3
-
-5.  |AM| = |M(7, −4)|
-    substitute M = (3, −3/2) (H6) into line 4
-
-6.  |AM| = |MB|
-    substitute B = (7, −4) (H5) into line 5
-
-7.  (−1 − 3)·(−4 − (−3/2)) = (7 − 3)·(1 − (−3/2))
+4.  (−1 − 3)·(−4 − (−3/2)) = (7 − 3)·(1 − (−3/2))
     arithmetic
 
-8.  (−1 − 3)·(7 − 3) + (1 − (−3/2))·(−4 − (−3/2)) < 0
+5.  (−1 − 3)·(7 − 3) + (1 − (−3/2))·(−4 − (−3/2)) < 0
     arithmetic
 
-9.  (3, −3/2) is between (−1, 1) and (7, −4)
-    mun:between-by-coordinates, from 7, 8
+6.  (3, −3/2) is between (−1, 1) and (7, −4)
+    mun:between-by-coordinates, from 4, 5
 
-10. (3, −3/2) is between A and (7, −4)
-    substitute A = (−1, 1) (H4) into line 9
+7.  (3, −3/2) is between A and (7, −4)
+    substitute A = (−1, 1) (H4) into line 6
 
-11. M is between A and (7, −4)
-    substitute M = (3, −3/2) (H6) into line 10
+8.  M is between A and (7, −4)
+    substitute M = (3, −3/2) (H6) into line 7
 
-12. M is between A and B
-    substitute B = (7, −4) (H5) into line 11
+9.  M is between A and B
+    substitute B = (7, −4) (H5) into line 8
 
-13. |AM| = |MB|. M is between A and B.
-    join 6, 12
+10. |AM| = |MB|. M is between A and B.
+    join 3, 9

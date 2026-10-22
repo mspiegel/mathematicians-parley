@@ -581,6 +581,24 @@ mundane theorem points-apart-by-coordinates
               on the right they are pairs, which `arithmetic` compares
               coordinate by coordinate (`METHODS.md`, Pairs).
 
+mundane theorem distance-of-points-by-coordinates
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let a ∈ ℝ                                                           (H3)
+  let b ∈ ℝ                                                           (H4)
+  let c ∈ ℝ                                                           (H5)
+  let d ∈ ℝ                                                           (H6)
+  assume A = (a, b)                                                   (H7)
+  assume B = (c, d)                                                   (H8)
+  then        |AB| = √((a − c)² + (b − d)²)
+  metamath    gptdist, which this corpus proves in
+              elaboration/stdlib/proved.mm from gdistco, the points put for
+              their coordinates
+  target      gptdist
+  note        distance-by-coordinates for two points named by letters, so a
+              proof that gives its points coordinates reads each distance
+              off in one step.
+
 mundane theorem between-symmetric
   let R be a point                                                    (H1)
   let S be a point                                                    (H2)

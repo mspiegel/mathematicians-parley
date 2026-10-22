@@ -776,6 +776,20 @@ lemma gptapart
   7 bitrd 6 3 |- ( ( ( ( C e. RR /\ D e. RR ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A = ( C + ( _i x. D ) ) /\ B = ( E + ( _i x. F ) ) ) ) -> ( A =/= B <-> <. C , D >. =/= <. E , F >. ) )
   8 ex 7 |- ( ( ( C e. RR /\ D e. RR ) /\ ( E e. RR /\ F e. RR ) ) -> ( ( A = ( C + ( _i x. D ) ) /\ B = ( E + ( _i x. F ) ) ) -> ( A =/= B <-> <. C , D >. =/= <. E , F >. ) ) )
 
+# The distance between two points given by their coordinates: `gdistco`
+# with the points put for their coordinates.
+lemma gptdist
+  |- ( ( ( C e. RR /\ D e. RR ) /\ ( E e. RR /\ F e. RR ) ) -> ( ( A = ( C + ( _i x. D ) ) /\ B = ( E + ( _i x. F ) ) ) -> ( abs ` ( A - B ) ) = ( sqrt ` ( ( ( C - E ) ^ 2 ) + ( ( D - F ) ^ 2 ) ) ) ) )
+  1 simpl |- ( ( ( ( C e. RR /\ D e. RR ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A = ( C + ( _i x. D ) ) /\ B = ( E + ( _i x. F ) ) ) ) -> ( ( C e. RR /\ D e. RR ) /\ ( E e. RR /\ F e. RR ) ) )
+  2 gdistco |- ( ( ( C e. RR /\ D e. RR ) /\ ( E e. RR /\ F e. RR ) ) -> ( abs ` ( ( C + ( _i x. D ) ) - ( E + ( _i x. F ) ) ) ) = ( sqrt ` ( ( ( C - E ) ^ 2 ) + ( ( D - F ) ^ 2 ) ) ) )
+  3 syl 1 2 |- ( ( ( ( C e. RR /\ D e. RR ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A = ( C + ( _i x. D ) ) /\ B = ( E + ( _i x. F ) ) ) ) -> ( abs ` ( ( C + ( _i x. D ) ) - ( E + ( _i x. F ) ) ) ) = ( sqrt ` ( ( ( C - E ) ^ 2 ) + ( ( D - F ) ^ 2 ) ) ) )
+  4 simprl |- ( ( ( ( C e. RR /\ D e. RR ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A = ( C + ( _i x. D ) ) /\ B = ( E + ( _i x. F ) ) ) ) -> A = ( C + ( _i x. D ) ) )
+  5 simprr |- ( ( ( ( C e. RR /\ D e. RR ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A = ( C + ( _i x. D ) ) /\ B = ( E + ( _i x. F ) ) ) ) -> B = ( E + ( _i x. F ) ) )
+  6 oveq12d 4 5 |- ( ( ( ( C e. RR /\ D e. RR ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A = ( C + ( _i x. D ) ) /\ B = ( E + ( _i x. F ) ) ) ) -> ( A - B ) = ( ( C + ( _i x. D ) ) - ( E + ( _i x. F ) ) ) )
+  7 fveq2d 6 |- ( ( ( ( C e. RR /\ D e. RR ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A = ( C + ( _i x. D ) ) /\ B = ( E + ( _i x. F ) ) ) ) -> ( abs ` ( A - B ) ) = ( abs ` ( ( C + ( _i x. D ) ) - ( E + ( _i x. F ) ) ) ) )
+  8 eqtrd 7 3 |- ( ( ( ( C e. RR /\ D e. RR ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A = ( C + ( _i x. D ) ) /\ B = ( E + ( _i x. F ) ) ) ) -> ( abs ` ( A - B ) ) = ( sqrt ` ( ( ( C - E ) ^ 2 ) + ( ( D - F ) ^ 2 ) ) ) )
+  9 ex 8 |- ( ( ( C e. RR /\ D e. RR ) /\ ( E e. RR /\ F e. RR ) ) -> ( ( A = ( C + ( _i x. D ) ) /\ B = ( E + ( _i x. F ) ) ) -> ( abs ` ( A - B ) ) = ( sqrt ` ( ( ( C - E ) ^ 2 ) + ( ( D - F ) ^ 2 ) ) ) ) )
+
 # `gcolne` with the first two points allowed to coincide: then both sides
 # hold, the points being collinear and both products 0.
 lemma gcolco
