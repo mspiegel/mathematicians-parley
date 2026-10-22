@@ -224,24 +224,34 @@ impl<'a> Elaborator<'a> {
         }
     }
 
-    /// A triangle held with its points named in another order: three points
-    /// form a triangle in any order (`forms-a-triangle`, `commutes yes`), and
-    /// the one held is carried to the order wanted by as few swaps and
-    /// rotations as reach it (`gtriswap`, `gtrirotate`). None where `wanted`
-    /// is no triangle, or no order of its points is held.
+    /// A claim about three points in no order held with its points named in
+    /// another order: three points form a triangle, or are collinear, in any
+    /// order (`commutes yes`). Which claim `wanted` is decides the pair of
+    /// lemmas that carry it (`REORDERS`).
     fn held_reordered(
         &mut self,
         facts: &Facts,
         wanted: &Rpn,
         scope: &Rpn,
     ) -> Checked<Option<Proof>> {
-        const SWAP: &str = "gtriswap";
-        const ROTATE: &str = "gtrirotate";
-        if !self.b.sigs.contains_key(SWAP) || !self.b.sigs.contains_key(ROTATE) {
-            return Ok(None);
+        for by in &REORDERS {
+            if let Some(proof) = self.held_reordered_by(facts, wanted, scope, by)? {
+                return Ok(Some(proof));
+            }
         }
-        // ( the points are numbers -> ( P, Q, R form a triangle -> … ) ).
-        let whole = self.statement(SWAP);
+        Ok(None)
+    }
+
+    /// The claim `by` is about, read off `term`: the shape the pair's swap
+    /// lemma takes, its three letters in order, and the points `term` puts
+    /// at them. None where `term` is no such claim, or the pair is not in
+    /// the database.
+    fn three_points(&mut self, by: &Reorder, term: &Term) -> Option<ThreePoints> {
+        if !self.b.sigs.contains_key(by.swap) || !self.b.sigs.contains_key(by.rotate) {
+            return None;
+        }
+        // ( the points are numbers -> ( the claim of P, Q, R -> … ) ).
+        let whole = self.statement(by.swap);
         let shape = whole.children()[1].children()[0].clone();
         let mut letters: Vec<Symbol> = Vec::new();
         let mut rest = vec![shape.clone()];
@@ -255,17 +265,63 @@ impl<'a> Elaborator<'a> {
             rest.extend(node.children().iter().rev().cloned());
         }
         if letters.len() != 3 {
-            return Ok(None);
+            return None;
         }
-        let Some(at) =
-            self.fits_as(&shape, &self.to_term(wanted), &names_of(&shape), None)
-        else {
-            return Ok(None);
-        };
-        let Some(points) = letters
+        let at = self.fits_as(&shape, term, &names_of(&shape), None)?;
+        let points = letters
             .iter()
             .map(|l| at.get(l.as_str()).cloned())
-            .collect::<Option<Vec<Term>>>()
+            .collect::<Option<Vec<Term>>>()?;
+        Some(ThreePoints {
+            shape,
+            letters,
+            points,
+        })
+    }
+
+    /// Whether `want` is `said` with its points named in another order: a
+    /// triangle or a collinearity of the same three points (`REORDERS`).
+    pub fn reorders(&mut self, said: &Rpn, want: &Rpn) -> bool {
+        let (said, want) = (self.to_term(said), self.to_term(want));
+        for by in &REORDERS {
+            let Some(one) = self.three_points(by, &said) else {
+                continue;
+            };
+            let Some(other) = self.three_points(by, &want) else {
+                continue;
+            };
+            if self.sorted_points(&one) == self.sorted_points(&other) {
+                return true;
+            }
+        }
+        false
+    }
+
+    /// The points of a claim about three points, spelt and sorted, so that
+    /// two orders of the same three compare equal.
+    fn sorted_points(&self, claim: &ThreePoints) -> Vec<Rpn> {
+        let mut spelt: Vec<Rpn> = claim.points.iter().map(|t| self.rpn(t)).collect();
+        spelt.sort();
+        spelt
+    }
+
+    /// `held_reordered` by one pair of lemmas: the one held is carried to
+    /// the order wanted by as few swaps and rotations as reach it. None
+    /// where `wanted` is not the claim the pair is about, or no order of its
+    /// points is held.
+    fn held_reordered_by(
+        &mut self,
+        facts: &Facts,
+        wanted: &Rpn,
+        scope: &Rpn,
+        by: &Reorder,
+    ) -> Checked<Option<Proof>> {
+        let (swap_label, rotate_label) = (by.swap, by.rotate);
+        let Some(ThreePoints {
+            shape,
+            letters,
+            points,
+        }) = self.three_points(by, &self.to_term(wanted))
         else {
             return Ok(None);
         };
@@ -300,7 +356,7 @@ impl<'a> Elaborator<'a> {
                 }
                 if path.len() < 3 {
                     for (label, next) in
-                        [(SWAP, swap(&order)), (ROTATE, rotate(&order))]
+                        [(swap_label, swap(&order)), (rotate_label, rotate(&order))]
                     {
                         let mut longer = path.clone();
                         longer.push(label);
@@ -315,7 +371,7 @@ impl<'a> Elaborator<'a> {
             let mut order = start.to_vec();
             for label in moves {
                 self.know(&known, named(self, &order), proof);
-                order = if label == SWAP {
+                order = if label == swap_label {
                     swap(&order)
                 } else {
                     rotate(&order)
@@ -4365,6 +4421,13 @@ impl<'a> Elaborator<'a> {
         if let Some(p) = self.respelt(proof, said, want, scope)? {
             return Ok(Some(p));
         }
+        // A claim about three points in no order, its points named in
+        // another order than the instance's, is the instance reordered.
+        if self.reorders(said, want) {
+            let known = facts.copy();
+            self.know(&known, said.clone(), proof.clone());
+            return self.held_reordered(&known, want, scope);
+        }
         // Each line the part may rest on is read in its parts as well, as a
         // cited line is: "a(0) ∈ ℕ₀ and b(0) ∈ ℕ₀" says b(0) ∈ ℕ₀. What it may
         // not rest on is left out first, so that a copy of a part proved
@@ -6619,6 +6682,40 @@ fn join_token(join: Join) -> &'static str {
         Join::Iff | Join::Turned => "wb",
     }
 }
+
+/// The two lemmas that carry a claim about three points in no order from
+/// one order of them to another (`held_reordered`). Each is ( the points are
+/// numbers -> ( the claim of A, B, C -> the claim of the new order ) ).
+struct Reorder {
+    /// A, C, B from A, B, C.
+    swap: &'static str,
+    /// B, C, A from A, B, C.
+    rotate: &'static str,
+}
+
+/// A claim about three points as a pair of `REORDERS` reads it.
+struct ThreePoints {
+    /// The claim of A, B, C, as the pair's swap lemma takes it.
+    shape: Term,
+    /// The shape's three letters, in the order it names them.
+    letters: Vec<Symbol>,
+    /// The points the claim puts at those letters, in the same order.
+    points: Vec<Term>,
+}
+
+/// The claims about three points that `commutes yes` says are one in any
+/// order, by the lemmas that reorder them: a triangle (`forms-a-triangle`)
+/// and collinearity (`collinear`).
+const REORDERS: [Reorder; 2] = [
+    Reorder {
+        swap: "gtriswap",
+        rotate: "gtrirotate",
+    },
+    Reorder {
+        swap: "gcolswap",
+        rotate: "gcolrotate",
+    },
+];
 
 /// How many constructors a pattern fixes: the nodes that are not variables.
 fn constructors(pattern: &Term) -> usize {

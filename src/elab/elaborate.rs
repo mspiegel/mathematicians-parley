@@ -4739,7 +4739,9 @@ impl<'a> Elaborator<'a> {
         for instance in instances {
             let bare_instance = bare(self, &instance);
             if instance == *term
-                || (bare_instance != goal && !self.rebound(&bare_instance, &goal))
+                || (bare_instance != goal
+                    && !self.rebound(&bare_instance, &goal)
+                    && !self.reorders(&instance, term))
             {
                 continue;
             }

@@ -122,8 +122,10 @@ mundane theorem triangle-angle-real
 
 mundane definition collinear
   open        Incidence is a primitive of the geometry, and the readable layer
-              cannot state what it is. In the plane it says (R − P)/(Q − P) is
-              real, and subtraction takes numbers while P, Q and R are points:
+              cannot state what it is. In the plane it says P = Q or
+              (R − P)/(Q − P) is real, which is true in any order of the three
+              points, so the notation's points stand in no order; and
+              subtraction takes numbers while P, Q and R are points:
               the sorts that stop |CA| reading as a product stop this too. The
               notation carries a target, so a claim of collinearity elaborates;
               what has no readable statement is the equivalence.
@@ -136,9 +138,12 @@ mundane definition triangle
   let R be a point                                                    (H3)
   then        P, Q, R form a triangle ↔ P ≠ Q and Q ≠ R and P ≠ R and
               not (P, Q, R are collinear)
-  metamath    biid, since the notation's target is the three inequalities
-              and the collinearity it denies
-  target      biid
+  metamath    gtridef, which this corpus proves in
+              elaboration/stdlib/proved.mm: the notation's target is the three
+              inequalities and the quotient it denies, and collinearity is the
+              first two one point or the quotient real, which with the points
+              distinct is the quotient
+  target      gtridef
   note        set.mm has no single notion. "Form a triangle" and "are
               collinear" are notations whose targets make the two sides one
               formula; what collinearity is in words is

@@ -1,0 +1,26 @@
+import mundane definition stdlib/geometry/on-line
+import mundane theorem    stdlib/geometry/between-collinear
+
+theorem a-collinearity-held-in-another-order
+  note        Three points are collinear in any order (`commutes yes`), so
+              the line H4 says answers on-line's A, B, P.
+  let P be a point                                                    (H1)
+  let A be a point                                                    (H2)
+  let B be a point                                                    (H3)
+  assume B, P, A are collinear                                        (H4)
+  then P is on line AB
+
+1.  P is on line AB
+    mun:on-line, from H4
+
+theorem the-middle-point-in-the-middle
+  note        between-collinear concludes T, R, S are collinear, and the
+              step claims the points in their order along the line.
+  let R be a point                                                    (H1)
+  let S be a point                                                    (H2)
+  let T be a point                                                    (H3)
+  assume R is between S and T                                         (H4)
+  then S, R, T are collinear
+
+1.  S, R, T are collinear
+    mun:between-collinear, from H4

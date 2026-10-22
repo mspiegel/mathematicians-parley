@@ -1734,9 +1734,11 @@ notation collinear
   pattern     _, _, _ are collinear
   sort        point, point, point → formula
   level       predicate
+  commutes    yes
   reads       are collinear
-  metamath    the ratio of the two differences is real
-  target      _3 _1 cmin co _2 _1 cmin co cdiv co cr wcel
+  metamath    the first two are one point, or the ratio of the two
+              differences is real
+  target      _1 _2 wceq _3 _1 cmin co _2 _1 cmin co cdiv co cr wcel wo
   note        Three points on one line, which mun:stdlib/geometry/triangle needs to say that a
               triangle's are not. Its definition is open, as mun:stdlib/geometry/angle is while
               the ∠ notation stands declared: incidence is a primitive of the
@@ -1798,7 +1800,7 @@ notation on-line
   level       predicate
   reads       is on the line through
   metamath    the three are collinear, as def:stdlib/geometry/on-line states it
-  target      _1 _2 cmin co _3 _2 cmin co cdiv co cr wcel
+  target      _2 _3 wceq _1 _2 cmin co _3 _2 cmin co cdiv co cr wcel wo
   note        P is on line AB says what A, B, P are collinear says, with the
               point first, as a book writes a point on a line.
 

@@ -6,6 +6,6 @@ $( tests/stdlib/geometry/between-collinear, elaborated from tests/stdlib/geometr
 $[ stdlib/proved.mm $]
 
 ${
-  tests.stdlib.geometry.between-collinear $p |- ( ( ( ( A e. CC /\ B e. CC ) /\ C e. CC ) /\ ( B =/= A /\ ( ( C - A ) / ( B - A ) ) e. RR /\ ( ( C - A ) / ( B - A ) ) < 0 ) ) -> ( ( B - C ) / ( A - C ) ) e. RR ) $=
-    ( cc wcel wa wne cmin co cdiv cr cc0 clt wbr w3a simpr wi simpl id syl 3jca gbetcol mpd ) ADEZBDEZFZCDEZFZBAGZCAHIZBAHIZJIZKEZULLMNZOZFZUOBCHIZACHIZJIZKEZUHUOPUPUDUEUGOUOUTQUPUDUEUGUPUHUDUHUORZUHUFUDUFUGRZUFUDUDUDUERUDSTTTUPUHUEVAUHUFUEVBUDUEPTTUPUHUGVAUFUGPTUAABCUBTUC $.
+  tests.stdlib.geometry.between-collinear $p |- ( ( ( ( A e. CC /\ B e. CC ) /\ C e. CC ) /\ ( B =/= A /\ ( ( C - A ) / ( B - A ) ) e. RR /\ ( ( C - A ) / ( B - A ) ) < 0 ) ) -> ( C = A \/ ( ( B - C ) / ( A - C ) ) e. RR ) ) $=
+    ( cc wcel wa wne cmin co cdiv cr cc0 clt wbr w3a wceq wo simpr wi simpl id syl 3jca gbetcol mpd ) ADEZBDEZFZCDEZFZBAGZCAHIZBAHIZJIZKEZUNLMNZOZFZUQCAPZBCHIZACHIZJIZKEZQZUJUQRURUFUGUIOUQVDSURUFUGUIURUJUFUJUQTZUJUHUFUHUITZUHUFUFUFUGTUFUAUBUBUBURUJUGVEUJUHUGVFUFUGRUBUBURUJUIVEUHUIRUBUCABCUDUBUE $.
 $}
