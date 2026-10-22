@@ -186,6 +186,18 @@ says M is between A and B and |AM| = |MB|, a `biid` definition. The kernel's
 points named once, `let ω = {X ∈ 𝔼² : |XO| = r}`, and "A is on ω" is A ∈ ω.
 The chord theorems state the circle by distances to its centre.
 
+**Coordinates, the special angles and the triangle's elementary facts are
+records.** The distance between points given by coordinates is
+distance-by-coordinates, and three such points are collinear, or one between
+the others, by collinear-by-coordinates and between-by-coordinates, which
+assume (a, b) ≠ (c, d). A distance is never negative, and positive between two
+points; a point between two others is apart from both (between-apart). cos 90°,
+sin 90°, cos 60° and sin 30° are one record, and angle-by-cosine reads an angle
+from its cosine on [0°, 180°]. The triangle inequality for points is set.mm's
+`abs3dif`. Its equality case and strict form, supplementary angles and the
+addition of angles are proved in `corpus/proved/plane.proved`, since set.mm
+states none of them over ℂ.
+
 **The signed angle is a second notation, ∡PQR, beside ∠PQR.** It is `ang`
 itself, in (−π, π] and positive counterclockwise. ∠PQR stays unsigned, and
 |∡PQR| = ∠PQR is one kernel term. The angle sum by orientation (`ang180`) and
