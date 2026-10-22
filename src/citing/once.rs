@@ -173,25 +173,21 @@ pub fn said_once(
     let ctx = &library.ctx;
     let mut local = sorts.clone();
     local.insert("x".into(), Sort::of("number"));
-    // The code's own forms read, each filled with the term at x and the set
-    // at S. A notation database that does not declare what one writes says
-    // nothing here, and its own checks report what it lacks.
-    let form = |said: &'static str, term: &Node| -> Option<Node> {
-        let made = template(said, library.env.g, &local).ok()?;
-        let put = Binding::from([(Symbol::of("x"), term.clone())]);
-        Some(standard(&substitute_apart(&made, &put, ctx), ctx))
-    };
+    // The code's own forms, read once here and filled with each term at x
+    // and the set at S. A notation database that does not declare what one
+    // writes says nothing here, and its own checks report what it lacks.
+    let fill =
+        |made: &Node, put: Binding| standard(&substitute_apart(made, &put, ctx), ctx);
+    let signs: Vec<Option<Node>> = ["x ≠ 0", "x > 0", "x < 0"]
+        .iter()
+        .map(|said| template(said, library.env.g, &local).ok())
+        .collect();
     // S is read as the number system that fills it, whatever the page's S
-    // is.
-    let member = |sign: &'static str, term: &Node| -> Option<Node> {
-        let set = template(sign, library.env.g, &local).ok()?;
-        let mut sets = local.clone();
-        sets.insert("S".into(), set.sort.clone());
-        let made = template("x ∈ S", library.env.g, &sets).ok()?;
-        let put =
-            Binding::from([(Symbol::of("x"), term.clone()), (Symbol::of("S"), set)]);
-        Some(standard(&substitute_apart(&made, &put, ctx), ctx))
-    };
+    // is: each system's set and the membership in it, read once.
+    let systems: Vec<Option<SystemForm>> = rules::SYSTEM_OF
+        .iter()
+        .map(|(sign, _)| system_form(sign, &local, library))
+        .collect();
     // A divisor is not zero where the page says once it is a positive
     // integer, where a fact says so, as `≠ 0` or as a sign, or by its parts
     // (`nonzero_by_parts`).
@@ -199,10 +195,9 @@ pub fn said_once(
         if nonzero_said_once(d, &letters) {
             return true;
         }
-        ["x ≠ 0", "x > 0", "x < 0"].iter().any(|said| {
-            form(said, d).is_some_and(|want| {
-                parts.facts.iter().any(|f| alike_top(f, &want, ctx))
-            })
+        signs.iter().flatten().any(|made| {
+            let want = fill(made, Binding::from([(Symbol::of("x"), d.clone())]));
+            parts.facts.iter().any(|f| alike_top(f, &want, ctx))
         })
     };
     let nonzero = |d: &Node| nonzero_by_parts(d, &said_nonzero);
@@ -223,7 +218,7 @@ pub fn said_once(
         if !number || !seen.insert(node.by_shape()) {
             continue;
         }
-        for (sign, label) in rules::SYSTEM_OF {
+        for ((_, label), form) in rules::SYSTEM_OF.iter().zip(&systems) {
             let Some(system) = System::of_label(label) else {
                 continue;
             };
@@ -235,12 +230,42 @@ pub fn said_once(
             };
             let said = |t: &Node, s: System| given.says(t, s);
             if reason_within(&node, system, &letters, &nonzero, &said).is_some() {
-                out.extend(member(sign, &node));
+                if let Some(SystemForm { set, member }) = form {
+                    out.push(fill(
+                        member,
+                        Binding::from([
+                            (Symbol::of("x"), node.clone()),
+                            (Symbol::of("S"), set.clone()),
+                        ]),
+                    ));
+                }
             }
         }
     }
     out.extend(points_in_plane(parts, &seeded, in_plane, library));
     parts.facts.extend(out);
+}
+
+/// A number system's set as the code writes it, `ℝ`, and the membership
+/// `x ∈ S` read with S of that set's sort, to be filled with a term and the
+/// set (`said_once`).
+struct SystemForm {
+    set: Node,
+    member: Node,
+}
+
+/// The `SystemForm` of the number system `sign` writes, read with `local`;
+/// None where the notation database does not declare what it writes.
+fn system_form(
+    sign: &'static str,
+    local: &Sorts,
+    library: &Library,
+) -> Option<SystemForm> {
+    let set = template(sign, library.env.g, local).ok()?;
+    let mut sets = local.clone();
+    sets.insert("S".into(), set.sort.clone());
+    let member = template("x ∈ S", library.env.g, &sets).ok()?;
+    Some(SystemForm { set, member })
 }
 
 /// A ∈ 𝔼² for each letter in `points` the step names: `let A be a point`

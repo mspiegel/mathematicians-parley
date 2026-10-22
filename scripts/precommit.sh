@@ -17,7 +17,8 @@
 #   test:     cargo nextest run --release            (target/release)
 #
 # With --branch the gate gives way to `parley check`, and the test lane
-# leaves out invariance, planted_elaborate, planted_gate and coverage.
+# leaves out invariance's sweep, planted_elaborate, planted_gate and
+# coverage.
 # What the branch level still holds is formatting, lints, every artifact
 # built and kernel-checked as it is built (and committed, below), the
 # checker over the corpus, and the remaining tests, the planted checks among
@@ -67,10 +68,11 @@ case "${1:-}" in
         ;;
 esac
 
-# The tests the branch level leaves out, the slowest: four binaries, and
-# the test that checks every planted case twice, against the clean corpus
-# read once and read afresh.
-slow='binary(invariance) | binary(planted_elaborate) | binary(planted_gate) | binary(coverage) | test(=a_clean_reading_kept_reports_what_a_fresh_one_does)'
+# The tests the branch level leaves out, the slowest: invariance's sweep of
+# every change at every line (its sampled mixes, at the fixed seed, stay),
+# three binaries, and the test that checks every planted case twice,
+# against the clean corpus read once and read afresh.
+slow='(binary(invariance) & not test(in_any_mix_of_spellings)) | binary(planted_elaborate) | binary(planted_gate) | binary(coverage) | test(=a_clean_reading_kept_reports_what_a_fresh_one_does)'
 
 logs=$(mktemp -d)
 trap 'rm -rf "$logs"' EXIT
