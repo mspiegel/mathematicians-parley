@@ -817,16 +817,6 @@ pub fn check_citations(
     for step in &thm.steps {
         let just = &step.just;
         let scope = labels_in_scope(thm, &shape, step, scopes);
-        if let Some(bad) = &just.bad_ref {
-            report.say(
-                &thm.path,
-                just.line,
-                format!(
-                    "`from` names {}, which is neither a line nor a label",
-                    repr(bad)
-                ),
-            );
-        }
         // The step's own `from` list: a calculation gathers its links'
         // citations, and two links may cite one line.
         let own = &just.from;
@@ -1029,16 +1019,6 @@ impl Cited<'_> {
                 ),
                 Some(_) => {}
             }
-        }
-        if let Some(bad) = req.by.as_ref().map_or(&None, |by| &by.bad_ref) {
-            report.say(
-                &thm.path,
-                no,
-                format!(
-                    "`from` names {}, which is neither a line nor a label",
-                    repr(bad)
-                ),
-            );
         }
         let refs = req.lines();
         for r in named_twice(refs) {
@@ -1438,6 +1418,18 @@ pub fn check_steps_used(report: &mut Report, thm: &Theorem) {
                 && s.part == step.part
         });
         if !followed {
+            continue;
+        }
+        // What a reason matching no production cites is not known, so no
+        // step it may cite, one above it, is said to be cited by nothing:
+        // the line is told only that it does not read.
+        let unread_below = thm.steps[i + 1..].iter().any(|s| {
+            s.just.unproduced.is_some()
+                || s.requires
+                    .iter()
+                    .any(|r| r.by.as_ref().map_or(true, |by| by.unproduced.is_some()))
+        });
+        if unread_below {
             continue;
         }
         report.say(

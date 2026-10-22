@@ -753,8 +753,6 @@ pub struct Justification {
     /// Each row of an `inequalities` step with no `from`, with the line it
     /// is on (`GRAMMAR.md`, inequality rows).
     pub rows: Vec<(String, usize)>,
-    /// A `from` entry that is neither a line nor a label.
-    pub bad_ref: Option<String>,
     /// What the names its file cites stand for.
     pub names: Arc<Names>,
     /// The define's label, where the head is a define.
@@ -797,7 +795,6 @@ impl Justification {
             target: slots.target,
             chain: Vec::new(),
             rows: Vec::new(),
-            bad_ref: slots.bad_ref,
             names: names.clone(),
             defined: slots.defined,
             contradicting: slots.contradicting,

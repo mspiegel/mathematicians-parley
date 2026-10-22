@@ -297,6 +297,72 @@ fn an_unread_substitute_is_told_only_that_it_does_not_read() {
     assert!(!out.contains("which putting one side of"), "{out}");
 }
 
+/// One reason line of the corpus headed by each method, and one citing an
+/// item: the method as `Method::as_str` spells it, the file, and the line
+/// as written.
+const READ_REASONS: &[(&str, &str, &str)] = &[
+    ("obtain", "proofs/setmm/halves-series.proof", "          obtain N: thm:archimedean x := ε, from A1"),
+    ("exhibit", "proofs/setmm/limit-constant-multiple.proof", "          exhibit, from 5.6"),
+    ("substitute", "proofs/setmm/limit-constant-multiple.proof", "                  substitute C·x(n) − C·L = C·(x(n) − L) (line 5.6.4) into line 5.6.3"),
+    ("instantiate", "proofs/setmm/limit-constant-multiple.proof", "          instantiate ε := ε/(2·(|C| + 1)) in line 5.3, from 5.1, 5.2"),
+    ("algebra", "proofs/setmm/limit-constant-multiple.proof", "                  algebra"),
+    ("arithmetic", "proofs/setmm/halves-series.proof", "          arithmetic"),
+    ("real arithmetic", "proofs/identities/sqrt-two-plus-sqrt-three.proof", "    real arithmetic"),
+    ("inequalities", "proofs/setmm/floor-below-non-integer.proof", "    inequalities, from 1, 3"),
+    ("transitivity", "proofs/setmm/halves-series.proof", "                  transitivity, from A2, 3.2.2"),
+    ("antisymmetry", "proofs/setmm/limit-unique.proof", "    antisymmetry, from 1, 2"),
+    ("membership", "proofs/setmm/limit-constant-multiple.proof", "          membership"),
+    ("inspection", "proofs/setmm/image-empty.proof", "                  inspection, contradicting 1.1.2"),
+    ("join", "proofs/setmm/halves-series.proof", "                  join 3.2.8, 3.2.11"),
+    ("contradiction", "proofs/setmm/floor-below-non-integer.proof", "    contradiction"),
+    ("proof", "proofs/setmm/halves-series.proof", "    proof"),
+    ("induction", "proofs/setmm/halves-series.proof", "    induction on k starting at 1"),
+    ("cases", "proofs/setmm/joined-functions.proof", "          cases, from 1.1"),
+    ("both directions", "proofs/setmm/multiplying-bounds.proof", "    both directions"),
+    ("calculation", "proofs/setmm/halves-series.proof", "          calculation"),
+    ("an item", "proofs/wiedijk/pythagoras.proof", "    mun:angle-along-segment P := A, Q := B, R := C, S := D, from 1"),
+];
+
+/// A reason that matches no production has no reading, and is told that
+/// alone: no other check asks anything of the parts the reader cut from it,
+/// or of the lines it may cite (`Justification::unproduced`). Each reason
+/// line of `READ_REASONS` is broken by a marker it cannot carry, the
+/// mistake trial 13 met, and its file must report that one problem. Every
+/// method has a line, so a check keyed on a method added later is asked too.
+#[test]
+fn a_reason_that_does_not_read_is_told_only_that() {
+    for method in parley::corpus::proof::METHODS {
+        assert!(
+            READ_REASONS.iter().any(|(m, _, _)| *m == method.as_str()),
+            "no reason line of {} in READ_REASONS",
+            method.as_str()
+        );
+    }
+    let clean = clean();
+    for &(method, file, line) in READ_REASONS {
+        let case = case(
+            "end a reason line with a marker it cannot carry",
+            vec![edit(
+                file,
+                Some(format!("\n{line}\n")),
+                format!("\n{line}, which is impossible\n"),
+            )],
+            "",
+        );
+        let tree = plant(&case, &clean).unwrap();
+        let out = parley::checker::run(&tree).printed;
+        let problems: Vec<&str> = out
+            .lines()
+            .filter(|l| l.starts_with(&format!("{file}:")))
+            .collect();
+        assert!(
+            problems.len() == 1
+                && problems[0].contains("justification matches no production"),
+            "{method}: {problems:#?}"
+        );
+    }
+}
+
 /// A citation whose claim is what the item concludes, with one hypothesis
 /// not supplied, is reported once, naming that hypothesis: here
 /// divides-difference without line 5.2, which says p divides n!. The other

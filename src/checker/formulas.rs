@@ -1521,6 +1521,13 @@ pub fn check_block_ends(report: &mut Report, thm: &Theorem, known: &Known) {
             if contradicts && (last.just.contradicting.is_some() || last.impossible) {
                 continue;
             }
+            // A last step whose reason matches no production may end its
+            // part by a contradiction the reader did not take from it, so
+            // what it ends on is not asked: it is told only that it does
+            // not read.
+            if last.just.unproduced.is_some() {
+                continue;
+            }
             let Some(ends) = read(&last.claim) else {
                 continue;
             };

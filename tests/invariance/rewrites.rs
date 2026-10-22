@@ -2826,7 +2826,7 @@ fn dull_step_moved(
             // A requires line has one reason and no rows under it.
             || !step.just.rows.is_empty()
             || step.just.contradicting.is_some()
-            || step.just.bad_ref.is_some()
+            || step.just.unproduced.is_some()
             || !step.parts.is_empty()
             || !step.openers.is_empty()
             || step.note.is_some()

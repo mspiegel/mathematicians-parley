@@ -83,9 +83,9 @@ pub struct Slots {
     /// The `from` slot's lines and labels, in order: the one line of `from
     /// line N`, or the list.
     pub from: Vec<String>,
-    /// The first entry of the `from` list that is neither a line nor a
-    /// label.
-    pub bad_ref: Option<String>,
+    /// What is wrong with a line that matches no production, where the
+    /// reader can say: the `from` entry that is neither a line nor a label.
+    hint: Option<String>,
     /// A substitute's equation, as written.
     pub equation: Option<Written>,
     /// Where a substitute takes its equation from.
@@ -118,7 +118,7 @@ impl Slots {
             obtained_from: None,
             values: Vec::new(),
             from: Vec::new(),
-            bad_ref: None,
+            hint: None,
             equation: None,
             source: None,
             into: None,
@@ -157,6 +157,7 @@ impl Slots {
         if self.unproduced.is_some() {
             return;
         }
+        self.hint.clone_from(&hint);
         let text = repr(prefix(&self.text, 64));
         self.unproduced = Some(match hint {
             Some(hint) => {
@@ -232,8 +233,11 @@ pub fn starts_with_head(text: &str) -> bool {
     let Some(first) = words.next() else {
         return false;
     };
+    // A comma may end a head's last word, `real arithmetic, from 2`, as it
+    // may end a head of one word.
     let first = first.trim_end_matches(',');
-    item_kind(first).is_some() || method_of(first, words.next()).is_some()
+    let second = words.next().map(|w| w.trim_end_matches(','));
+    item_kind(first).is_some() || method_of(first, second).is_some()
 }
 
 /// An induction's hypothesis as its line writes it, `assume step N is true
@@ -712,8 +716,10 @@ fn from_slot(pieces: &[&str], slots: &mut Slots) {
         if is_ref(entry) {
             slots.from.push(entry.to_string());
         } else {
-            slots.bad_ref = Some(entry.to_string());
-            slots.unproduced(None);
+            slots.unproduced(Some(format!(
+                "`from` names {}, which is neither a line nor a label",
+                repr(entry)
+            )));
             return;
         }
     }
@@ -866,9 +872,8 @@ fn obtain(rest: &str, path: &str, line: usize, slots: &mut Slots) {
                 slots.obtained_from = Some(head.to_string());
                 slots.values = inner.values;
                 slots.from = inner.from;
-                slots.bad_ref = inner.bad_ref;
                 if inner.unproduced.is_some() {
-                    slots.unproduced(None);
+                    slots.unproduced(inner.hint);
                 }
             }
             None => slots.unproduced(None),
