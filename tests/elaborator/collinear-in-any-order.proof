@@ -1,4 +1,5 @@
 import mundane definition stdlib/geometry/on-line
+import mundane definition stdlib/geometry/triangle
 import mundane theorem    stdlib/geometry/between-collinear
 
 theorem a-collinearity-held-in-another-order
@@ -24,3 +25,57 @@ theorem the-middle-point-in-the-middle
 
 1.  S, R, T are collinear
     mun:between-collinear, from H4
+
+theorem a-denial-in-another-order
+  note        A line denying the collinearity of three points contradicts
+              one saying it of them in another order.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let M be a point                                                    (H4)
+  assume A, B, C form a triangle                                      (H5)
+  assume C, M, B are collinear                                        (H6)
+  then A ≠ M
+
+1.  A ≠ M
+    contradiction
+    suppose A = M                                                     (S)
+
+    1.1.  C, A, B are collinear
+          substitute M = A (S) into H6
+
+    1.2.  not (A, B, C are collinear)
+          mun:triangle P := A, Q := B, R := C, from H5, contradicting 1.1
+
+theorem a-denial-first
+  note        The same, with the denial written first and the collinearity
+              contradicting it.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let M be a point                                                    (H4)
+  assume A, B, C form a triangle                                      (H5)
+  assume C, M, B are collinear                                        (H6)
+  then A ≠ M
+
+1.  A ≠ M
+    contradiction
+    suppose A = M                                                     (S)
+
+    1.1.  not (A, B, C are collinear)
+          mun:triangle P := A, Q := B, R := C, from H5
+
+    1.2.  C, A, B are collinear
+          substitute M = A (S) into H6, contradicting 1.1
+
+theorem a-definition-concluding-in-another-order
+  note        The triangle's definition denies the collinearity of its
+              points, and a step may claim it of them in any order.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  assume A, B, C form a triangle                                      (H4)
+  then not (B, C, A are collinear)
+
+1.  not (B, C, A are collinear)
+    mun:triangle P := A, Q := B, R := C, from H4

@@ -239,7 +239,150 @@ impl<'a> Elaborator<'a> {
                 return Ok(Some(proof));
             }
         }
+        self.denial_reordered(facts, wanted, scope)
+    }
+
+    /// `not X` from a denial held of the same claim about the same three
+    /// points named in another order, `not Y`: X implies Y by the swaps and
+    /// rotations `held_reordered` makes, each lemma an implication once its
+    /// points are numbers, and `mtod` turns that against `not Y`. None
+    /// where `wanted` is no such denial or none is held.
+    fn denial_reordered(
+        &mut self,
+        facts: &Facts,
+        wanted: &Rpn,
+        scope: &Rpn,
+    ) -> Checked<Option<Proof>> {
+        let denied = self.to_term(wanted);
+        if denied.label() != Some("wn") {
+            return Ok(None);
+        }
+        let claim = self.rpn(&denied.children()[0]);
+        for (said, proof) in facts.entries() {
+            let said_term = self.to_term(&said);
+            if said_term.label() != Some("wn") {
+                continue;
+            }
+            let other = self.rpn(&said_term.children()[0]);
+            if other == claim || !self.reorders(&claim, &other) {
+                continue;
+            }
+            for by in &REORDERS {
+                let Some(implied) =
+                    self.reorder_implied(&claim, &other, scope, facts, by)?
+                else {
+                    continue;
+                };
+                return Ok(Some(self.b.ap(
+                    "mtod",
+                    &binds! {"ph" => scope, "ps" => &claim, "ch" => &other},
+                    &[&proof, &implied],
+                )));
+            }
+        }
         Ok(None)
+    }
+
+    /// ( scope -> ( from -> to ) ), where `to` is `from` with its three
+    /// points named in another order, by as few of `by`'s swaps and
+    /// rotations as reach it; None where the two are not `by`'s claim.
+    fn reorder_implied(
+        &mut self,
+        from: &Rpn,
+        to: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+        by: &Reorder,
+    ) -> Checked<Option<Proof>> {
+        let Some(ThreePoints {
+            shape,
+            letters,
+            points,
+        }) = self.three_points(by, &self.to_term(from))
+        else {
+            return Ok(None);
+        };
+        let named = |me: &Self, order: &[usize]| -> Rpn {
+            let mut put = Binding::new();
+            for (&letter, &i) in letters.iter().zip(order) {
+                put.insert(letter, points[i].clone());
+            }
+            me.rpn(&shape.substitute(&put))
+        };
+        let swap = |o: &[usize]| vec![o[0], o[2], o[1]];
+        let rotate = |o: &[usize]| vec![o[1], o[2], o[0]];
+        let start = vec![0, 1, 2];
+        let mut paths: Vec<(Vec<usize>, Vec<&str>)> = vec![(start.clone(), Vec::new())];
+        let moves = loop {
+            let Some((order, path)) = paths.first().cloned() else {
+                return Ok(None);
+            };
+            paths.remove(0);
+            if named(self, &order) == *to {
+                break path;
+            }
+            if path.len() < 3 {
+                for (label, next) in
+                    [(by.swap, swap(&order)), (by.rotate, rotate(&order))]
+                {
+                    let mut longer = path.clone();
+                    longer.push(label);
+                    paths.push((next, longer));
+                }
+            }
+        };
+        let mut members = Vec::new();
+        // A point is in ℂ by its sort, which a step rests on held.
+        for point in &points {
+            let member = t!(self.rpn(point), "cc", "wcel");
+            let Some(proof) = self.held(facts, &member, scope)? else {
+                return Ok(None);
+            };
+            members.push((member, proof));
+        }
+        let mut order = start;
+        let mut chained: Option<Proof> = None;
+        for label in moves {
+            // The lemma's letters are the points as they stand before the
+            // move, which it takes to the order after.
+            let prior = order.clone();
+            let before = named(self, &prior);
+            order = if label == by.swap {
+                swap(&order)
+            } else {
+                rotate(&order)
+            };
+            let after = named(self, &order);
+            let mut put = Binding::new();
+            for (&letter, &i) in letters.iter().zip(&prior) {
+                put.insert(letter, points[i].clone());
+            }
+            let law = self.b.ap(label, &self.spelt(&put), &[]);
+            // Its points are numbers, in the order its letters take them.
+            let [a, b, c] =
+                [&members[prior[0]], &members[prior[1]], &members[prior[2]]];
+            let all = t!(a.0, b.0, c.0, "w3a");
+            let numbers = self.b.ap(
+                "3jca",
+                &binds! {"ph" => scope, "ps" => &a.0, "ch" => &b.0, "th" => &c.0},
+                &[&a.1, &b.1, &c.1],
+            );
+            let step = t!(before, after, "wi");
+            let one = self.b.ap(
+                "syl",
+                &binds! {"ph" => scope, "ps" => &all, "ch" => &step},
+                &[&numbers, &law],
+            );
+            chained = Some(match chained {
+                None => one,
+                Some(so_far) => self.b.ap(
+                    "syld",
+                    &binds! {"ph" => scope, "ps" => from, "ch" => &before, "th" => &after},
+                    &[&so_far, &one],
+                ),
+            });
+        }
+        Ok(chained)
     }
 
     /// The claim `by` is about, read off `term`: the shape the pair's swap
@@ -726,7 +869,77 @@ impl<'a> Elaborator<'a> {
                 return Ok(Built(found));
             }
         }
+        if let Some(found) = self.held_turned_inside(&rpn, scope, &facts)? {
+            return Ok(Built(found));
+        }
         Ok(self.no("cannot settle {}", &[&rpn]))
+    }
+
+    /// `wanted` from a fact that says it with an equation inside it written
+    /// the other way round, `P ↔ b = a` for `P ↔ a = b`, as the checker reads
+    /// an equation from either side wherever it stands: the two are one
+    /// claim by `same`, and `mpbid` carries the fact across. Only a fact
+    /// that is `wanted` once every equation in both faces one way is tried.
+    fn held_turned_inside(
+        &mut self,
+        wanted: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        let goal = self.to_term(wanted);
+        let faced = self.equations_faced(&goal);
+        for (said, proof) in facts.entries() {
+            if said == *wanted {
+                continue;
+            }
+            let held = self.to_term(&said);
+            if self.equations_faced(&held) != faced {
+                continue;
+            }
+            // Each carried to its spelling without identity elements, where
+            // the two differ only in which way their equations face.
+            let held_bare = self.without_identities(&held);
+            let goal_bare = self.without_identities(&goal);
+            let (said_bare, wanted_bare) = (self.rpn(&held_bare), self.rpn(&goal_bare));
+            let Some(bare) = self.tidied(&proof, &said, &said_bare, scope, facts)?
+            else {
+                continue;
+            };
+            let Built(alike) = self.same(&held_bare, &goal_bare, scope, facts, None)?
+            else {
+                continue;
+            };
+            let turned =
+                pf!(self.b; scope, said_bare, wanted_bare, bare, alike, "mpbid");
+            if let Some(found) =
+                self.tidied(&turned, &wanted_bare, wanted, scope, facts)?
+            {
+                return Ok(Some(found));
+            }
+        }
+        Ok(None)
+    }
+
+    /// `term` spelt with each equation in it facing one way, its sides in
+    /// the order of their spelling, and without the identity elements it
+    /// writes: two claims that differ only in which way their equations face
+    /// and in an identity written or left out (`SYNTAX.md`) are spelt alike.
+    fn equations_faced(&self, term: &Term) -> Rpn {
+        let term = self.without_identities(term);
+        fn faced(me: &Elaborator<'_>, term: &Term) -> Term {
+            let kids: Vec<Term> =
+                term.children().iter().map(|k| faced(me, k)).collect();
+            let Some(label) = term.label() else {
+                return term.clone();
+            };
+            let mut kids = kids;
+            if label == "wceq" && kids.len() == 2 && me.rpn(&kids[1]) < me.rpn(&kids[0])
+            {
+                kids.swap(0, 1);
+            }
+            Term::apply(label, kids)
+        }
+        self.rpn(&faced(self, &term))
     }
 
     /// ( scope -> F : A ⟶ C ), F the name a define gives the map ( x ∈ A ↦

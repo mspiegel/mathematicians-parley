@@ -184,6 +184,18 @@ pub struct PartEnd {
 pub struct Contradicted {
     pub claim: Rpn,
     pub proof: Proof,
+    /// Where one of the two denies the other with its points named in
+    /// another order, as `not (A, B, C are collinear)` does `C, A, B are
+    /// collinear`: the one that asserts, carried to the order its denial
+    /// names, while the block's scope still holds.
+    pub reordered: Option<ProvedClaim>,
+}
+
+/// A claim and its proof under the scope it was proved in.
+#[derive(Clone)]
+pub struct ProvedClaim {
+    pub claim: Rpn,
+    pub proof: Proof,
 }
 
 /// How a define by recursion is built in set.mm (`recursion_terms`).

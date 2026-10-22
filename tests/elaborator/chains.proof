@@ -46,6 +46,22 @@ theorem chain-cited-for-a-pair
 3.  w + 1 = 5. x·2 = 6.
     join 1, 2
 
+theorem a-pair-on-a-calculation-line
+  note        A calculation line may cite a chain for the equation between
+              terms that are not neighbours.
+  let w ∈ ℝ                                                           (H1)
+  let x ∈ ℝ                                                           (H2)
+  let y ∈ ℝ                                                           (H3)
+  let z ∈ ℝ                                                           (H4)
+  assume x = y = z                                                    (H5)
+  assume w = x                                                        (H6)
+  then w = z
+
+1.  w = z
+    calculation
+      w = x      H6
+        = z      H5
+
 theorem a-step-claiming-a-chain
   note        A step's chain is cited as a hypothesis's is.
   let x ∈ ℝ                                                           (H1)

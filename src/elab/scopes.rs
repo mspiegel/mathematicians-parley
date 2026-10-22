@@ -18,7 +18,7 @@ use indexmap::IndexMap;
 use super::elaborate::Sides;
 use super::state::{
     number_of, Binding, Block, Closer, Contradicted, DefineCloser, Elaborator, Frame,
-    ObtainCloser, PartEnd,
+    ObtainCloser, PartEnd, ProvedClaim,
 };
 use super::{Facts, Line, Lines};
 use crate::binds;
@@ -364,9 +364,9 @@ impl<'a> Elaborator<'a> {
         proof: &Proof,
         scope: &Rpn,
         facts: &Facts,
-    ) -> Checked<()> {
+    ) {
         let Some((last, rest)) = said.split_last() else {
-            return Ok(());
+            return;
         };
         if rest.is_empty() {
             return self.know_chain(last, term, proof, scope, facts);
@@ -378,10 +378,10 @@ impl<'a> Elaborator<'a> {
             second,
         }) = self.halves(term, proof, scope)
         else {
-            return Ok(());
+            return;
         };
-        self.know_chains(rest, &left, &first, scope, facts)?;
-        self.know_chain(last, &right, &second, scope, facts)
+        self.know_chains(rest, &left, &first, scope, facts);
+        self.know_chain(last, &right, &second, scope, facts);
     }
 
     /// `know_chains` of one sentence: a chain of equations, or a
@@ -393,7 +393,7 @@ impl<'a> Elaborator<'a> {
         proof: &Proof,
         scope: &Rpn,
         facts: &Facts,
-    ) -> Checked<()> {
+    ) {
         if said.spelling() == AND {
             let Some(Halves {
                 left,
@@ -402,37 +402,49 @@ impl<'a> Elaborator<'a> {
                 second,
             }) = self.halves(term, proof, scope)
             else {
-                return Ok(());
+                return;
             };
-            self.know_chain(&said.children[0], &left, &first, scope, facts)?;
+            self.know_chain(&said.children[0], &left, &first, scope, facts);
             return self.know_chain(&said.children[1], &right, &second, scope, facts);
         }
         if said.notation() != EQUAL_CHAIN {
-            return Ok(());
-        }
-        let mut terms = Vec::new();
-        for child in &said.children {
-            terms.push(self.term(child)?);
+            return;
         }
         // The links joined from the left, ((t0 = t1 ∧ t1 = t2) ∧ t2 = t3),
-        // each proved by taking the last off what remains.
-        let mut links: Vec<Proof> = Vec::new();
+        // each proved by taking the last off what remains; the terms are
+        // read off the links, the kernel's own.
+        let mut links: Vec<(Rpn, Proof)> = Vec::new();
         let (mut held, mut whole) = (term.clone(), proof.clone());
-        for _ in 2..terms.len() {
+        for _ in 2..said.children.len() {
             let Some(Halves {
                 left,
+                right,
                 first,
                 second,
-                ..
             }) = self.halves(&held, &whole, scope)
             else {
-                return Ok(());
+                return;
             };
-            links.push(second);
+            links.push((right, second));
             (held, whole) = (left, first);
         }
-        links.push(whole);
+        links.push((held, whole));
         links.reverse();
+        let mut terms: Vec<Rpn> = Vec::new();
+        for (link, _) in &links {
+            let equation = self.to_term(link);
+            let [first, second] = equation.children() else {
+                return;
+            };
+            if equation.label() != Some("wceq") {
+                return;
+            }
+            if terms.is_empty() {
+                terms.push(self.rpn(first));
+            }
+            terms.push(self.rpn(second));
+        }
+        let links: Vec<Proof> = links.into_iter().map(|(_, proof)| proof).collect();
         for i in 0..links.len() {
             let mut joined = links[i].clone();
             for j in i + 2..terms.len() {
@@ -451,7 +463,6 @@ impl<'a> Elaborator<'a> {
                 self.know_turned(facts, &pair, &joined, scope);
             }
         }
-        Ok(())
     }
 
     /// A conjunction's two sides with their proofs, `simpld` and `simprd`
@@ -497,6 +508,20 @@ impl<'a> Elaborator<'a> {
     ) {
         let depth = self.conjunction_depth(term) + 1;
         self.unpack(term, proof, scope, facts, depth);
+    }
+
+    /// What a line says, each part a fact of its own (`unpack_all`), and the
+    /// equation between any two terms of each chain of equations it writes
+    /// (`know_chains`): what a step citing the line may take from it.
+    pub fn unpack_line(
+        &mut self,
+        line: &Line,
+        proof: &Proof,
+        scope: &Rpn,
+        facts: &Facts,
+    ) {
+        self.unpack_all(&line.term, proof, scope, facts);
+        self.know_chains(&line.sentences, &line.term, proof, scope, facts);
     }
 
     /// Record each conjunct of a fact as a fact of its own.
@@ -951,12 +976,17 @@ impl<'a> Elaborator<'a> {
     /// names a line it contradicts: a step taken alone, or one owning a
     /// block, `1.1. x > 0, cases, from H2, contradicting S`, its claim shown
     /// by its cases. Any other step's `contradicting` closes nothing here.
-    pub fn contradicted_at(&mut self, step: &Step, facts: &Facts) {
+    pub fn contradicted_at(
+        &mut self,
+        step: &Step,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<()> {
         let Some(other) = &step.just.contradicting else {
-            return;
+            return Ok(());
         };
         let Some(at) = CheckedTheorem::index_of(self.thm, step) else {
-            return;
+            return Ok(());
         };
         let ends = self.checked.places[at].is_some_and(|p| {
             let block = &self.checked.blocks[p.block];
@@ -967,16 +997,63 @@ impl<'a> Elaborator<'a> {
                     .is(Method::Contradiction)
         });
         if !ends {
-            return;
+            return Ok(());
         }
         let lines = self.lines.clone();
-        if let Some(line) = lines.get(other) {
-            let proof = self.carried(other, facts, &lines);
-            self.contradicted = Some(Contradicted {
-                claim: line.term,
-                proof,
-            });
+        let Some(line) = lines.get(other) else {
+            return Ok(());
+        };
+        let proof = self.carried(other, facts, &lines);
+        let mine = lines.get(&number_of(step));
+        let reordered = match &mine {
+            Some(mine) => {
+                let theirs = ProvedClaim {
+                    claim: line.term.clone(),
+                    proof: proof.clone(),
+                };
+                let own = ProvedClaim {
+                    claim: mine.term.clone(),
+                    proof: mine.proof.clone(),
+                };
+                match self.reordered_against(&theirs, &own, scope, facts)? {
+                    Some(found) => Some(found),
+                    None => self.reordered_against(&own, &theirs, scope, facts)?,
+                }
+            }
+            None => None,
+        };
+        self.contradicted = Some(Contradicted {
+            claim: line.term,
+            proof,
+            reordered,
+        });
+        Ok(())
+    }
+
+    /// `said` carried to the order of its points that `denial` denies, where
+    /// `denial` is the negation of the same claim about the same three
+    /// points named otherwise; None for any other pair.
+    fn reordered_against(
+        &mut self,
+        said: &ProvedClaim,
+        denial: &ProvedClaim,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<ProvedClaim>> {
+        let denied = self.to_term(&denial.claim);
+        if denied.label() != Some("wn") {
+            return Ok(None);
         }
+        let inner = self.rpn(&denied.children()[0]);
+        if inner == said.claim || !self.reorders(&said.claim, &inner) {
+            return Ok(None);
+        }
+        let known = facts.copy();
+        self.know(&known, said.claim.clone(), said.proof.clone());
+        Ok(self.held(&known, &inner, scope)?.map(|proof| ProvedClaim {
+            claim: inner,
+            proof,
+        }))
     }
 
     /// What a block gives back, by the lemma its kind closes with.
@@ -1083,6 +1160,12 @@ impl<'a> Elaborator<'a> {
         let mut offered = vec![other.claim];
         if let Some(h) = &held {
             offered.push(h.term.clone());
+        }
+        // One of the two carried to the order of points its denial names,
+        // while the block's scope held (`contradicted_at`).
+        if let Some(carried) = other.reordered {
+            self.know(&facts, carried.claim.clone(), carried.proof);
+            offered.push(carried.claim);
         }
         let Some((first, second, known)) = self.opposing(&offered, &facts, deep)?
         else {
@@ -3049,7 +3132,7 @@ impl<'a> Elaborator<'a> {
             let parts = Facts::new();
             let whole = self.carried(r, known, &lines);
             self.know(&parts, line.term.clone(), whole.clone());
-            self.unpack_all(&line.term, &whole, scope, &parts);
+            self.unpack_line(&line, &whole, scope, &parts);
             for (k, v) in parts.entries() {
                 self.know(&cited, k, v);
             }
