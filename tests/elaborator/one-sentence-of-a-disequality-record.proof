@@ -1,0 +1,35 @@
+import mundane theorem    stdlib/geometry/between-apart
+
+theorem the-second-end-apart
+  note        between-apart concludes two disequalities, which its lemma
+              writes with set.mm's =/= and the page with not; the step
+              claims the second alone.
+  let R be a point                                                    (H1)
+  let S be a point                                                    (H2)
+  let T be a point                                                    (H3)
+  assume R is between S and T                                         (H4)
+  then T ≠ R
+
+1.  T ≠ R
+    mun:between-apart, from H4
+
+theorem the-first-end-apart
+  let R be a point                                                    (H1)
+  let S be a point                                                    (H2)
+  let T be a point                                                    (H3)
+  assume R is between S and T                                         (H4)
+  then S ≠ R
+
+1.  S ≠ R
+    mun:between-apart, from H4
+
+theorem the-second-end-apart-turned
+  note        The claim is the conjunct turned round, which reads the same.
+  let R be a point                                                    (H1)
+  let S be a point                                                    (H2)
+  let T be a point                                                    (H3)
+  assume R is between S and T                                         (H4)
+  then R ≠ T
+
+1.  R ≠ T
+    mun:between-apart, from H4

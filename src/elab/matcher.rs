@@ -5121,7 +5121,10 @@ impl<'a> Elaborator<'a> {
     }
 
     /// One half of what a lemma concludes: the half the claim is fixes the
-    /// lemma, and `simpld` or `simprd` takes it.
+    /// lemma, and `simpld` or `simprd` takes it. A disequality is fitted in
+    /// each of its spellings (`spellings`), since a lemma may write
+    /// `T =/= R` where the page reads `-. T = R`, or the two the other way
+    /// round.
     #[allow(clippy::too_many_arguments)]
     fn as_conjunct(
         &mut self,
@@ -5149,9 +5152,12 @@ impl<'a> Elaborator<'a> {
         }
         let variables = names_of(whole);
         let keys = facts.keys();
+        let start = seed.cloned().unwrap_or_default();
+        let wants = spellings(goal);
         for (i, part) in reads.children().iter().enumerate() {
-            let Some(mut bound) =
-                fit(part, goal, &seed.cloned().unwrap_or_default(), &variables)
+            let Some(mut bound) = wants
+                .iter()
+                .find_map(|want| fit(part, want, &start, &variables))
             else {
                 continue;
             };
@@ -5188,7 +5194,21 @@ impl<'a> Elaborator<'a> {
             };
             let (a, b) = (self.rpn(&said.children()[0]), self.rpn(&said.children()[1]));
             let pick = if i == 0 { "simpld" } else { "simprd" };
-            return Ok(Built(pf!(self.b; scope, a, b, proof, pick)));
+            let half = pf!(self.b; scope, a, b, proof, pick);
+            let (taken, wanted) = (self.rpn(&said.children()[i]), self.rpn(goal));
+            if taken == wanted {
+                return Ok(Built(half));
+            }
+            // The half is the claim in its other spelling or turned round:
+            // it is carried across.
+            let Built(back) =
+                self.same(&said.children()[i], goal, scope, facts, step)?
+            else {
+                continue;
+            };
+            return Ok(Built(
+                pf!(self.b; scope, taken, wanted, half, back, "mpbid"),
+            ));
         }
         Ok(Route::no(format!(
             "neither half of what {label} concludes is the claim"
@@ -6586,6 +6606,26 @@ fn constructors(pattern: &Term) -> usize {
         return 0;
     }
     1 + pattern.children().iter().map(constructors).sum::<usize>()
+}
+
+/// The claim, and where it is a disequality its other spellings: set.mm's
+/// `A =/= B` and the page's `-. A = B`, each either way round. Anything
+/// else is only itself.
+fn spellings(goal: &Term) -> Vec<Term> {
+    let sides = match goal.label() {
+        Some("wne") => goal.children().to_vec(),
+        Some("wn") if goal.children()[0].label() == Some("wceq") => {
+            goal.children()[0].children().to_vec()
+        }
+        _ => return vec![goal.clone()],
+    };
+    let mut out = vec![goal.clone()];
+    for (x, y) in [(&sides[0], &sides[1]), (&sides[1], &sides[0])] {
+        let pair = vec![x.clone(), y.clone()];
+        out.push(Term::apply("wne", pair.clone()));
+        out.push(Term::apply("wn", vec![Term::apply("wceq", pair)]));
+    }
+    out
 }
 
 /// Whether a shape holds the hole numbered `wanted`.
