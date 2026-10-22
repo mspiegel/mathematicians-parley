@@ -49,6 +49,19 @@ lemma gdistpos
   8 ex 7 |- ( ( P e. CC /\ Q e. CC ) -> ( P =/= Q -> 0 < ( abs ` ( P - Q ) ) ) )
   9 ex 8 |- ( P e. CC -> ( Q e. CC -> ( P =/= Q -> 0 < ( abs ` ( P - Q ) ) ) ) )
 
+# A distance is 0 just where the two points are one: the absolute value of
+# the difference is 0 just where the difference is.
+lemma gdist0
+  |- ( P e. CC -> ( Q e. CC -> ( ( abs ` ( P - Q ) ) = 0 <-> P = Q ) ) )
+  1 id |- ( P e. CC -> P e. CC )
+  2 adantr 1 |- ( ( P e. CC /\ Q e. CC ) -> P e. CC )
+  3 simpr |- ( ( P e. CC /\ Q e. CC ) -> Q e. CC )
+  4 subcld 2 3 |- ( ( P e. CC /\ Q e. CC ) -> ( P - Q ) e. CC )
+  5 abs00ad 4 |- ( ( P e. CC /\ Q e. CC ) -> ( ( abs ` ( P - Q ) ) = 0 <-> ( P - Q ) = 0 ) )
+  6 subeq0ad 2 3 |- ( ( P e. CC /\ Q e. CC ) -> ( ( P - Q ) = 0 <-> P = Q ) )
+  7 bitrd 5 6 |- ( ( P e. CC /\ Q e. CC ) -> ( ( abs ` ( P - Q ) ) = 0 <-> P = Q ) )
+  8 ex 7 |- ( P e. CC -> ( Q e. CC -> ( ( abs ` ( P - Q ) ) = 0 <-> P = Q ) ) )
+
 # The distance between two points given by their coordinates. The point
 # (a, b) is a + i·b, so the difference of two is (a − c) + i·(b − d), and
 # set.mm's `absreim` gives its absolute value.

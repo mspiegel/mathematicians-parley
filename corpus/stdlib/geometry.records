@@ -476,6 +476,15 @@ mundane theorem distance-positive
               from absgt0
   target      gdistpos
 
+mundane theorem distance-zero
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  then        |PQ| = 0 ↔ P = Q
+  metamath    gdist0, which this corpus proves in elaboration/stdlib/proved.mm
+              from abs00 and subeq0
+  target      gdist0
+  note        A point is at distance 0 from itself and from no other point.
+
 mundane theorem distance-by-coordinates
   let a ∈ ℝ                                                           (H1)
   let b ∈ ℝ                                                           (H2)

@@ -481,6 +481,11 @@ $d x Y $.  $d y Y $.
     simpr subne0d absrpcld rpgt0d ex )
     ACDZBCDZABEZFABGHZIJZKLZMUCUDNZUEUHUIUENZUGUJUFUJABUCUDUEOZUCUDUEPZQUJABUKULUIUERSTUAUBUB $.
 
+  gdist0 $p |- ( P e. CC -> ( Q e. CC -> ( ( abs ` ( P - Q ) ) = 0 <-> P = Q ) ) ) $=
+    ( cc wcel cmin co cabs cfv cc0 wceq wb wa id adantr simpr subcld abs00ad
+    subeq0ad bitrd ex )
+    ACDZBCDZABEFZGHZIJZABJZKUAUBLZUEUCIJUFUGUCUGABUAUAUBUAMZNZUAUBOZPQUGABUIUJRST $.
+
   gdistco $p |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( abs ` ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) = ( sqrt ` ( ( ( A - C ) ^ 2 ) + ( ( B - D ) ^ 2 ) ) ) ) $=
     ( cr wcel wa ci cmul co caddc cmin cabs cfv c2 cexp csqrt simpll recnd cc
     ax-icn a1i simplr mulcld simprl simprr addsub4d subdid eqcomd oveq2d
