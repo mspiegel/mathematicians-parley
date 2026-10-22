@@ -125,3 +125,49 @@ fn a_set_reads_with_the_sort_of_a_letter_bound_before_it() {
         .read(&g, &sorts)
         .unwrap();
 }
+
+/// A letter a binder names takes its sort from what the binder says it
+/// ranges over, with nothing above saying what it is: a part of A, or a
+/// member of 𝒫A, is a set of A's sort, and so is a letter `for all sets`
+/// names; so `|S|` is S's size, and `|x|` for x in a set of numbers its
+/// absolute value.
+#[test]
+fn a_bound_letter_takes_its_sort_from_its_binder() {
+    let g = grammar();
+    let numbers = Whole::read("set of number").and_then(Sort::whole).unwrap();
+    let sorts: Sorts = [
+        ("A".to_string(), Sort::of("set")),
+        ("R".to_string(), numbers),
+    ]
+    .into_iter()
+    .collect();
+    let sized = [
+        "|{S ∈ 𝒫A : |S| = 1}| = 0",
+        "|{S ⊆ A : |S| = 1}| = 0",
+        "for all S ⊆ A, |S| ≤ |A|",
+        "there is Y ⊆ A with |Y| ≤ |A|",
+        "for all sets X, if |X| = 1 then X ≠ ∅",
+    ];
+    for text in sized {
+        let tree = Written::new(text, "front-end", 0)
+            .formula()
+            .unwrap()
+            .read(&g, &sorts)
+            .unwrap();
+        let shape = tree.shape().to_string();
+        assert!(
+            shape.contains("cardinality") && !shape.contains("absolute-value"),
+            "{text}: {shape}"
+        );
+    }
+    let tree = Written::new("for all x ∈ R, |x| ≥ 0", "front-end", 0)
+        .formula()
+        .unwrap()
+        .read(&g, &sorts)
+        .unwrap();
+    let shape = tree.shape().to_string();
+    assert!(
+        shape.contains("absolute-value") && !shape.contains("cardinality"),
+        "{shape}"
+    );
+}

@@ -334,7 +334,7 @@ pub fn sort(store: &Store, k: &SortTerm) -> Option<Sort> {
 
 /// A sort as a notation's `sort` field writes it, with its variables still
 /// named.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 enum Template {
     Atom(Atom),
     Set(Box<Template>),
@@ -384,6 +384,17 @@ impl Signature {
     pub fn categories(&self) -> (Vec<&'static str>, &'static str) {
         let holes = self.parts.iter().map(Template::category).collect();
         (holes, self.result.category())
+    }
+
+    /// The category of one hole, as `categories` gives it.
+    pub fn hole_category(&self, hole: usize) -> Option<&'static str> {
+        self.parts.get(hole).map(Template::category)
+    }
+
+    /// Whether two holes are of one sort, as a part and the set it is a
+    /// part of are in `for all _ ⊆ _, _`.
+    pub fn same_sort(&self, a: usize, b: usize) -> bool {
+        matches!((self.parts.get(a), self.parts.get(b)), (Some(x), Some(y)) if x == y)
     }
 
     /// Each (element, set) pair of holes the signature relates as a thing

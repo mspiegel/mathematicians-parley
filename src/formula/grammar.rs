@@ -17,7 +17,7 @@ use super::notation_id::NotationId;
 use super::token::{lowered, tokenise, Token, TokenKind};
 use crate::corpus::Record;
 use crate::outcome::{Built, Checked, Decline, Declined, Problem, Route};
-use crate::sorts::infer::{function_sort, NotationSorts};
+use crate::sorts::infer::{function_sort, signature, NotationSorts};
 use crate::sorts::NUMBER_SYSTEMS;
 use crate::text::repr;
 
@@ -642,13 +642,107 @@ fn bound_here(tokens: &[Token], g: &Grammar) -> Vec<String> {
     out
 }
 
+/// Whether a sort is a set's: one that says what it holds, or a set, a
+/// group's set or a set of sets by its category alone.
+fn is_set(sort: &Sort) -> bool {
+    sort.held().is_some()
+        || matches!(sort.name(), Some("set" | "group-set" | "set-of-sets"))
+}
+
+/// What the binders' own `sort` fields say of the names they bind, by the
+/// literals beside a bound hole: which literal after one makes the name a
+/// part of the set that follows, of that set's sort (`⊆` in `for all _ ⊆ _,
+/// _` and `{_ ⊆ _ : _}`), and which literal before one makes the name a set
+/// (`sets` in `for all sets _, _`). A literal two binders read otherwise
+/// says nothing, as `all` does, which `for all _ ∈ _` and `for all _ ⊆ _`
+/// both write before their name.
+struct BinderSides<'a> {
+    part_of: IndexMap<&'a str, bool>,
+    named_set: IndexMap<&'a str, Option<&'static str>>,
+}
+
+fn binder_sides(g: &Grammar) -> BinderSides<'_> {
+    let mut part_of: IndexMap<&str, bool> = IndexMap::new();
+    let mut named_set: IndexMap<&str, Option<&'static str>> = IndexMap::new();
+    for n in &g.notations {
+        // A pattern laying out another notation's holes in its own order
+        // is read by that notation's field, not by its own.
+        let (Some(binds), Some(said), None, None) =
+            (&n.binds, &n.sort, &n.places, &n.nests)
+        else {
+            continue;
+        };
+        let Built(sig) = signature(said) else {
+            continue;
+        };
+        let mut seen = 0;
+        for (k, part) in n.parts.iter().enumerate() {
+            if !part.is_hole() {
+                continue;
+            }
+            if binds.held.contains(&seen) && k > 0 {
+                let category = sig
+                    .hole_category(seen)
+                    .filter(|c| matches!(*c, "set" | "group-set" | "set-of-sets"));
+                if let Some(before) = n.parts[k - 1].literal() {
+                    let entry = named_set.entry(before).or_insert(category);
+                    if *entry != category {
+                        *entry = None;
+                    }
+                }
+                let next_is_set = n.parts.get(k + 2).is_some_and(Part::is_hole)
+                    && !binds.held.contains(&(seen + 1));
+                if let (Some(after), true) =
+                    (n.parts.get(k + 1).and_then(Part::literal), next_is_set)
+                {
+                    let same = category.is_some() && sig.same_sort(seen, seen + 1);
+                    let entry = part_of.entry(after).or_insert(same);
+                    if *entry != same {
+                        *entry = false;
+                    }
+                }
+            }
+            seen += 1;
+        }
+    }
+    BinderSides { part_of, named_set }
+}
+
+/// The sort of the set the tokens from `at` write, where it is one name, or
+/// a notation of one literal and one hole applied to a name, `𝒫A`; None
+/// where that is not a set's sort.
+fn set_written(
+    tokens: &[Token],
+    at: usize,
+    g: &Grammar,
+    of_set: &dyn Fn(&str) -> Sort,
+) -> Option<Sort> {
+    let first = tokens.get(at)?;
+    if first.kind == TokenKind::Name {
+        return Some(of_set(&first.text)).filter(is_set);
+    }
+    let name = tokens.get(at + 1).filter(|t| t.kind == TokenKind::Name)?;
+    let sorts = g.notation_sorts();
+    let made = g.notations.iter().find_map(|n| {
+        let [Part::Lit(lit), Part::Hole] = n.parts.as_slice() else {
+            return None;
+        };
+        if *lit != first.text {
+            return None;
+        }
+        sorts.signature(n.key_id)?.settled(&[&of_set(&name.text)])
+    })?;
+    Some(made).filter(is_set)
+}
+
 /// The sort of each letter the tokens put in a set that says what it holds,
-/// `x ∈ S`, or in a coset of one, `x ∈ gH`, or that a binder filling its set
-/// names right after its words, `there is a polynomial q`. Only for letters
-/// of no sort already.
+/// `x ∈ S` or `x ∈ 𝒫A`, or in a coset of one, `x ∈ gH`, or make a part of a
+/// set, `S ⊆ A`, or that a binder names right after its words, `there is a
+/// polynomial q`, `for all sets X`. Only for letters of no sort already.
 fn bound_sorts(tokens: &[Token], g: &Grammar, sorts: &Sorts) -> Vec<(String, Sort)> {
     let mut out: IndexMap<String, Sort> = IndexMap::new();
     let sort_of = |name: &str| sorts.get(name).cloned().unwrap_or_default();
+    let sides = binder_sides(g);
     // The literal standing just before a filling binder's name, and what the
     // set it fills holds.
     let mut named_after: IndexMap<&str, Sort> = IndexMap::new();
@@ -682,28 +776,37 @@ fn bound_sorts(tokens: &[Token], g: &Grammar, sorts: &Sorts) -> Vec<(String, Sor
         }
         if let Some(held) = named_after.get(word.text.as_str()) {
             out.entry(x.text.to_string()).or_insert(held.clone());
+        } else if let Some(Some(category)) = sides.named_set.get(word.text.as_str()) {
+            out.entry(x.text.to_string()).or_insert(Sort::of(category));
         }
     }
     for i in 0..tokens.len().saturating_sub(2) {
         let (x, sign, s) = (&tokens[i], &tokens[i + 1], &tokens[i + 2]);
-        // A number system holds numbers, as a `let` line in one says
-        // (`sorts::NUMBER_SYSTEMS`), and ℂ does too.
-        let numbers = NUMBER_SYSTEMS.contains(&s.text.as_str()) || s.text == "ℂ";
-        if x.kind != TokenKind::Name
-            || sign.text != "∈"
-            || (s.kind != TokenKind::Name && !numbers)
-            || !sort_of(&x.text).is_unknown()
-        {
+        if x.kind != TokenKind::Name || !sort_of(&x.text).is_unknown() {
             continue;
         }
         // A letter of the set may be bound earlier in the same sentence, as a
         // is in `for all a ∈ G, for all x ∈ aH`, and has the sort found there.
         let of_set =
             |name: &str| out.get(name).cloned().unwrap_or_else(|| sort_of(name));
+        if sides.part_of.get(sign.text.as_str()) == Some(&true) {
+            if let Some(set) = set_written(tokens, i + 2, g, &of_set) {
+                out.entry(x.text.to_string()).or_insert(set);
+            }
+            continue;
+        }
+        if sign.text != "∈" {
+            continue;
+        }
+        // A number system holds numbers, as a `let` line in one says
+        // (`sorts::NUMBER_SYSTEMS`), and ℂ does too.
+        let numbers = NUMBER_SYSTEMS.contains(&s.text.as_str()) || s.text == "ℂ";
         let mut held = if numbers {
             Some(Sort::of("number"))
-        } else {
+        } else if s.kind == TokenKind::Name {
             holds(&of_set(&s.text))
+        } else {
+            set_written(tokens, i + 2, g, &of_set).and_then(|set| holds(&set))
         };
         if held.is_none()
             && i + 3 < tokens.len()
