@@ -411,11 +411,10 @@ theorem collinear-by-coordinates
   let d ∈ ℝ                                                           (H4)
   let e ∈ ℝ                                                           (H5)
   let f ∈ ℝ                                                           (H6)
-  assume (a, b) ≠ (c, d)                                              (H7)
   then (a, b), (c, d), (e, f) are collinear ↔ (c − a)·(f − b) = (e − a)·(d − b)
 
 1.  (a, b), (c, d), (e, f) are collinear ↔ (c − a)·(f − b) = (e − a)·(d − b)
-    mun:geometry-collinear-by-coordinates, from H7
+    mun:geometry-collinear-by-coordinates
 
 theorem between-by-coordinates
   let a ∈ ℝ                                                           (H1)
@@ -424,11 +423,10 @@ theorem between-by-coordinates
   let d ∈ ℝ                                                           (H4)
   let e ∈ ℝ                                                           (H5)
   let f ∈ ℝ                                                           (H6)
-  assume (a, b) ≠ (c, d)                                              (H7)
   then (c, d) is between (a, b) and (e, f) ↔ (a − c)·(f − d) = (e − c)·(b − d) and (a − c)·(e − c) + (b − d)·(f − d) < 0
 
 1.  (c, d) is between (a, b) and (e, f) ↔ (a − c)·(f − d) = (e − c)·(b − d) and (a − c)·(e − c) + (b − d)·(f − d) < 0
-    mun:geometry-between-by-coordinates, from H7
+    mun:geometry-between-by-coordinates
 
 theorem angle-at-most-straight
   let P be a point                                                    (H1)

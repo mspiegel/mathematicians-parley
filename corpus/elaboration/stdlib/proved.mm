@@ -595,15 +595,19 @@ $d x Y $.  $d y Y $.
     bitr4di wb simpl opthneg syl bitr4d biimprd )
     AEFZBEFZGZCEFZDEFZGZGZAHBIJZKJZCHDIJZKJZLZABMZCDMZLZUMURACLZBDLZNZVAUMURACOZBDOZGZPVDUMVGUOUQABCDQRACBDSTUMUIVAVDUAUIULUBABCDEEUCUDUEUF $.
 
-  gcolco $p |- ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) -> ( <. A , B >. =/= <. C , D >. -> ( ( ( A + ( _i x. B ) ) = ( C + ( _i x. D ) ) \/ ( ( ( E + ( _i x. F ) ) - ( A + ( _i x. B ) ) ) / ( ( C + ( _i x. D ) ) - ( A + ( _i x. B ) ) ) ) e. RR ) <-> ( ( C - A ) x. ( F - B ) ) = ( ( E - A ) x. ( D - B ) ) ) ) ) $=
-    ( cr wcel wa cop wne ci cmul co caddc wceq cmin cdiv wo wb wn wi simpl
-    gptne syl imp neneqd biorf gcolne syld bitr3d ex )
-    AGHZBGHZIZCGHZDGHZIZIZEGHZFGHZIZIZABJZCDJZKZALBMNZONZCLDMNZONZPZELFMNZONZVHQNZVJVHQNZRNZGHZSZCAQNZFBQNZMNZEAQNZDBQNZMNZPZTVCVFIZVQVRWEWFVKUAVQVRTWFVHVJVCVFVHVJKZVCUSVFWGUBZUSVBUCZABCDUDZUEZUFUGVKVQUHUEVCVFVQWETZVCVFWGWLWKABCDEFUIUJUFUKUL $.
+  gcolco $p |- ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) -> ( ( ( A + ( _i x. B ) ) = ( C + ( _i x. D ) ) \/ ( ( ( E + ( _i x. F ) ) - ( A + ( _i x. B ) ) ) / ( ( C + ( _i x. D ) ) - ( A + ( _i x. B ) ) ) ) e. RR ) <-> ( ( C - A ) x. ( F - B ) ) = ( ( E - A ) x. ( D - B ) ) ) ) $=
+    ( cr wcel wa ci cmul co caddc wceq cmin cdiv wo wb simpr orcd cc0 simpll
+    cru syl mpbid simpld oveq2d simprd recnd subidd eqtrd oveq1d simplr
+    resubcld mul02d mul01d eqtr4d 2thd wne wn neneqd biorf gcolne imp bitr3d
+    pm2.61dane )
+    AGHZBGHZIZCGHZDGHZIZIZEGHZFGHZIZIZAJBKLZMLZCJDKLZMLZNZEJFKLZMLZVSOLZWAVSOLZPLZGHZQZCAOLZFBOLZKLZEAOLZDBOLZKLZNZRVSWAVQWBIZWIWPWQWBWHVQWBSZTWQWLUAWOWQWLUAWKKLUAWQWJUAWKKWQWJCCOLUAWQACCOWQACNZBDNZWQWBWSWTIZWRWQVMWBXARZVMVPWBUBZABCDUCZUDZUEZUFUGWQCWQCWQVJVKWQVIVLXCUHZUFUIUJUKULWQWKWQWKWQFBWQVNVOVMVPWBUMZUHWQVGVHWQVIVLXCUFZUHUNUIUOUKWQWOWMUAKLUAWQWNUAWMKWQWNDDOLUAWQBDDOWQWSWTXFUHUGWQDWQDWQVJVKXGUHUIUJUKUGWQWMWQWMWQEAWQVNVOXHUFWQVGVHXIUFUNUIUPUKUQURVQVSWAUSZIZWHWIWPXKWBUTWHWIRXKVSWAVQXJSVAWBWHVBUDVQXJWHWPRABCDEFVCVDVEVF $.
 
-  gbetco $p |- ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) -> ( <. A , B >. =/= <. C , D >. -> ( ( ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) /\ ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) e. RR /\ ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) < 0 ) <-> ( ( ( A - C ) x. ( F - D ) ) = ( ( E - C ) x. ( B - D ) ) /\ ( ( ( A - C ) x. ( E - C ) ) + ( ( B - D ) x. ( F - D ) ) ) < 0 ) ) ) ) $=
-    ( cr wcel wa cop wne ci cmul co caddc cmin cdiv cc0 clt wbr w3a wceq wb
-    wi simpl gptne syl gbetne syld )
-    AGHZBGHZIZCGHZDGHZIZIZEGHZFGHZIZIZABJZCDJZKZALBMNZONZCLDMNZONZKZVHELFMNZONZVGPNZVEVGPNZQNZGHVMRSTUAACPNZFDPNZMNECPNZBDPNZMNUBVNVPMNVQVOMNONRSTIUCUTUPVCVHUDUPUSUEABCDUFUGABCDEFUHUI $.
+  gbetco $p |- ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) -> ( ( ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) /\ ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) e. RR /\ ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) < 0 ) <-> ( ( ( A - C ) x. ( F - D ) ) = ( ( E - C ) x. ( B - D ) ) /\ ( ( ( A - C ) x. ( E - C ) ) + ( ( B - D ) x. ( F - D ) ) ) < 0 ) ) ) $=
+    ( cr wcel wa ci cmul co caddc wne cmin cdiv cc0 clt wbr w3a wceq wb wn
+    simpr nne sylibr simp1 con3i syl 0re ltnri a1i simpll cru mpbid simpld
+    oveq1d simprd recnd subidd eqtrd simplr resubcld mul02d oveq12d 00id
+    eqtrdi breq1d mtbird intnand 2falsed gbetne imp pm2.61dane )
+    AGHZBGHZIZCGHZDGHZIZIZEGHZFGHZIZIZAJBKLZMLZCJDKLZMLZNZEJFKLZMLZWIOLZWGWIOLZPLZGHZWOQRSZTZACOLZFDOLZKLZECOLZBDOLZKLZUAZWSXBKLZXCWTKLZMLZQRSZIZUBZWGWIWEWGWIUAZIZWRXJXMWJUCZWRUCXMXLXNWEXLUDZWGWIUEUFWRWJWJWPWQUGUHUIXMXIXEXMXIQQRSZXPUCXMQUJUKULXMXHQQRXMXHQQMLQXMXFQXGQMXMXFQXBKLQXMWSQXBKXMWSCCOLQXMACCOXMACUAZBDUAZXMXLXQXRIZXOXMWAXLXSUBZWAWDXLUMZABCDUNZUIZUOZUPUQXMCXMCXMVRVSXMVQVTYAURZUPZUSUTVAUQXMXBXMXBXMECXMWBWCWAWDXLVBZUPYFVCUSVDVAXMXGQWTKLQXMXCQWTKXMXCDDOLQXMBDDOXMXQXRYDURUQXMDXMDXMVRVSYEURZUSUTVAUQXMWTXMWTXMFDXMWBWCYGURYHVCUSVDVAVEVFVGVHVIVJVKWEWJXKABCDEFVLVMVN $.
 
   gangre $p |- ( ( ( X e. CC /\ X =/= 0 ) /\ ( Y e. CC /\ Y =/= 0 ) ) -> ( X ang Y ) e. RR ) $=
     ( cc wcel cc0 wne wa cpi cneg cioc co cr cang cxr wss pire renegcli rexri
