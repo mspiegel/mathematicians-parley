@@ -571,6 +571,24 @@ mundane theorem between-by-coordinates
               opposite sides of the middle one: the differences from it
               point opposite ways, so their dot product is negative.
 
+mundane theorem points-apart-by-coordinates
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let a ∈ ℝ                                                           (H3)
+  let b ∈ ℝ                                                           (H4)
+  let c ∈ ℝ                                                           (H5)
+  let d ∈ ℝ                                                           (H6)
+  assume A = (a, b)                                                   (H7)
+  assume B = (c, d)                                                   (H8)
+  then        A ≠ B ↔ (a, b) ≠ (c, d)
+  metamath    gptapart, which this corpus proves in
+              elaboration/stdlib/proved.mm from cru and opthneg: each
+              differs just where a coordinate does
+  target      gptapart
+  note        On the left (a, b) and (c, d) are points, as A and B are;
+              on the right they are pairs, which `arithmetic` compares
+              coordinate by coordinate (`METHODS.md`, Pairs).
+
 mundane theorem between-symmetric
   let R be a point                                                    (H1)
   let S be a point                                                    (H2)

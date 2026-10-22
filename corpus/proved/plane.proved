@@ -750,10 +750,10 @@ lemma gbetne
   77 bitrd 76 72 |- ( ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) -> ( ( ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) /\ ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) e. RR /\ ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) < 0 ) <-> ( ( ( A - C ) x. ( F - D ) ) = ( ( E - C ) x. ( B - D ) ) /\ ( ( ( A - C ) x. ( E - C ) ) + ( ( B - D ) x. ( F - D ) ) ) < 0 ) ) )
   78 ex 77 |- ( ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) /\ ( E e. RR /\ F e. RR ) ) -> ( ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) -> ( ( ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) /\ ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) e. RR /\ ( ( ( E + ( _i x. F ) ) - ( C + ( _i x. D ) ) ) / ( ( A + ( _i x. B ) ) - ( C + ( _i x. D ) ) ) ) < 0 ) <-> ( ( ( A - C ) x. ( F - D ) ) = ( ( E - C ) x. ( B - D ) ) /\ ( ( ( A - C ) x. ( E - C ) ) + ( ( B - D ) x. ( F - D ) ) ) < 0 ) ) ) )
 
-# Two points given by coordinates differ where a coordinate does (`cru`),
-# which is how the page says it: a ≠ c or b ≠ d.
+# Two points given by coordinates differ just where their pairs do: each
+# differs where a coordinate does (`cru`, `opthneg`).
 lemma gptne
-  |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( <. A , B >. =/= <. C , D >. -> ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) )
+  |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) <-> <. A , B >. =/= <. C , D >. ) )
   1 cru |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( ( A + ( _i x. B ) ) = ( C + ( _i x. D ) ) <-> ( A = C /\ B = D ) ) )
   2 necon3abid 1 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) <-> -. ( A = C /\ B = D ) ) )
   3 neorian |- ( ( A =/= C \/ B =/= D ) <-> -. ( A = C /\ B = D ) )
@@ -762,7 +762,19 @@ lemma gptne
   6 opthneg |- ( ( A e. RR /\ B e. RR ) -> ( <. A , B >. =/= <. C , D >. <-> ( A =/= C \/ B =/= D ) ) )
   7 syl 5 6 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( <. A , B >. =/= <. C , D >. <-> ( A =/= C \/ B =/= D ) ) )
   8 bitr4d 4 7 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) <-> <. A , B >. =/= <. C , D >. ) )
-  9 biimprd 8 |- ( ( ( A e. RR /\ B e. RR ) /\ ( C e. RR /\ D e. RR ) ) -> ( <. A , B >. =/= <. C , D >. -> ( A + ( _i x. B ) ) =/= ( C + ( _i x. D ) ) ) )
+
+# Two points named by their coordinates differ just where the pairs of
+# coordinates do (`gptne`), carried to the points' names.
+lemma gptapart
+  |- ( ( ( C e. RR /\ D e. RR ) /\ ( E e. RR /\ F e. RR ) ) -> ( ( A = ( C + ( _i x. D ) ) /\ B = ( E + ( _i x. F ) ) ) -> ( A =/= B <-> <. C , D >. =/= <. E , F >. ) ) )
+  1 simpl |- ( ( ( ( C e. RR /\ D e. RR ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A = ( C + ( _i x. D ) ) /\ B = ( E + ( _i x. F ) ) ) ) -> ( ( C e. RR /\ D e. RR ) /\ ( E e. RR /\ F e. RR ) ) )
+  2 gptne |- ( ( ( C e. RR /\ D e. RR ) /\ ( E e. RR /\ F e. RR ) ) -> ( ( C + ( _i x. D ) ) =/= ( E + ( _i x. F ) ) <-> <. C , D >. =/= <. E , F >. ) )
+  3 syl 1 2 |- ( ( ( ( C e. RR /\ D e. RR ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A = ( C + ( _i x. D ) ) /\ B = ( E + ( _i x. F ) ) ) ) -> ( ( C + ( _i x. D ) ) =/= ( E + ( _i x. F ) ) <-> <. C , D >. =/= <. E , F >. ) )
+  4 simprl |- ( ( ( ( C e. RR /\ D e. RR ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A = ( C + ( _i x. D ) ) /\ B = ( E + ( _i x. F ) ) ) ) -> A = ( C + ( _i x. D ) ) )
+  5 simprr |- ( ( ( ( C e. RR /\ D e. RR ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A = ( C + ( _i x. D ) ) /\ B = ( E + ( _i x. F ) ) ) ) -> B = ( E + ( _i x. F ) ) )
+  6 neeq12d 4 5 |- ( ( ( ( C e. RR /\ D e. RR ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A = ( C + ( _i x. D ) ) /\ B = ( E + ( _i x. F ) ) ) ) -> ( A =/= B <-> ( C + ( _i x. D ) ) =/= ( E + ( _i x. F ) ) ) )
+  7 bitrd 6 3 |- ( ( ( ( C e. RR /\ D e. RR ) /\ ( E e. RR /\ F e. RR ) ) /\ ( A = ( C + ( _i x. D ) ) /\ B = ( E + ( _i x. F ) ) ) ) -> ( A =/= B <-> <. C , D >. =/= <. E , F >. ) )
+  8 ex 7 |- ( ( ( C e. RR /\ D e. RR ) /\ ( E e. RR /\ F e. RR ) ) -> ( ( A = ( C + ( _i x. D ) ) /\ B = ( E + ( _i x. F ) ) ) -> ( A =/= B <-> <. C , D >. =/= <. E , F >. ) ) )
 
 # `gcolne` with the first two points allowed to coincide: then both sides
 # hold, the points being collinear and both products 0.

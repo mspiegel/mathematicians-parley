@@ -1,3 +1,20 @@
+import mundane theorem    stdlib/geometry/points-apart-by-coordinates
+
+theorem points-apart-by-their-coordinates
+  note        The pairs differ by arithmetic, and the points with those
+              coordinates differ as they do.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  assume A = (1, 1)                                                   (H3)
+  assume B = (2, 3)                                                   (H4)
+  then A ≠ B
+
+1.  (1, 1) ≠ (2, 3)
+    arithmetic
+
+2.  A ≠ B
+    mun:points-apart-by-coordinates, from H3, H4, 1
+
 theorem pairs-apart-at-the-first
   note        Two pairs differ where a coordinate does: 1 ≠ 2.
   then (1, 1) ≠ (2, 3)
