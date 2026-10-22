@@ -152,6 +152,17 @@ impl crate::citing::OnceAsk for BuildOnce<'_, '_> {
                 }
             }
             (Some("cpi" | "ceu"), 0) => Shape::Real,
+            (Some("cfv"), 2) if self.me.rpn(&kids[1]).alone() == Some("cabs") => {
+                match kids[0].children() {
+                    [p, q, op]
+                        if kids[0].label() == Some("co")
+                            && self.me.rpn(op).alone() == Some("cmin") =>
+                    {
+                        Shape::Distance(p, q)
+                    }
+                    _ => Shape::Other,
+                }
+            }
             _ if crate::methods::surds::is_root(term) => {
                 match crate::methods::field::closed_value(&kids[0]) {
                     Built(crate::methods::field::Value::Exact(v))
@@ -189,6 +200,19 @@ impl crate::citing::OnceAsk for BuildOnce<'_, '_> {
             None => set.alone()?,
         };
         System::of_label(system)
+    }
+
+    /// A letter the page gives the point sort, as `let A be a point` does.
+    fn point(&mut self, term: &Term) -> bool {
+        let said = self.me.rpn(term);
+        self.me.names.iter().any(|(name, kernel)| {
+            *kernel == said
+                && self
+                    .me
+                    .sorts_now
+                    .get(name)
+                    .is_some_and(|sort| sort.is("point"))
+        })
     }
 
     fn nonzero(&mut self, divisor: &Term) -> bool {
@@ -1927,7 +1951,8 @@ impl<'a> Elaborator<'a> {
     /// once), or a decline. Whether and why is `citing::reason`'s, the rule
     /// the checker reads too: a line the step names stating it; a numeral; a
     /// letter in the number system its introducing line names, carried up
-    /// `WITHIN`; a sum said once; or a term built from those by +, −, ·,
+    /// `WITHIN`; a sum said once; a distance between two points, in ℝ or ℂ;
+    /// or a term built from those by +, −, ·,
     /// negation, a power to a numeral or to a letter in ℕ or ℕ₀, and a
     /// quotient whose divisor's `≠ 0` the step writes. What is built here is
     /// the proof of the reason it gives. A letter's membership is sealed as
@@ -1977,6 +2002,7 @@ impl<'a> Elaborator<'a> {
                 self.letter_within(said, &letter, &set, system, scope, facts)
             }
             OnceReason::Real => self.real_within(&term, system, scope, facts),
+            OnceReason::Distance => self.distance_within(&term, system, scope, facts),
             // A part that a line the step names puts in a number system is
             // a number there, carried up to `system`: N(n) + 1 ∈ ℝ where a
             // line says N(n) ∈ ℝ.

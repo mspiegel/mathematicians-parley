@@ -327,10 +327,6 @@ $d x R $.  $d y R $.
 $d x S $.  $d y S $.
 $d x T $.  $d y T $.
 
-  gdistre $p |- ( P e. CC -> ( Q e. CC -> ( abs ` ( P - Q ) ) e. RR ) ) $=
-    ( cc wcel cmin co cabs cfv cr wa id adantr simpr subcld abscld ex )
-    ACDZBCDZABEFZGHIDQRJZSTABQQRQKLQRMNOP $.
-
   gbetsym $p |- ( R e. CC -> ( S e. CC -> ( T e. CC -> ( ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) -> ( T =/= R /\ ( ( S - R ) / ( T - R ) ) e. RR /\ ( ( S - R ) / ( T - R ) ) < 0 ) ) ) ) ) $=
     ( cc wcel wne cmin co cdiv cr cc0 clt wbr w3a wi wa simpr adantr id
     simp3d lt0ne0d subcld simp1d subne0d divne0bd mpbird subne0ad c1 recdivd

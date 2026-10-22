@@ -1804,5 +1804,5 @@ Two library items no proof needed once, `half-real` and `nat0-closure`, were
 removed.
 
 The memberships still written are those the page does not say once: a power
-to a letter (`2^p − 1 ∈ ℤ`), a function's value, a distance or an angle in
-the geometry proofs, a sum, |x|, a remainder, C(n, k) and a defined name.
+to a letter (`2^p − 1 ∈ ℤ`), a function's value, an angle in the geometry
+proofs, a sum, |x|, a remainder, C(n, k) and a defined name.

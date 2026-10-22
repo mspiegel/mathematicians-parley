@@ -1,17 +1,23 @@
-import mundane theorem    stdlib/geometry/distance-real
-
 theorem distances-out-of-order
+  note        A distance between two points is a real number said once, where
+              the points are introduced, and so is a product of two.
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)
   let R be a point                                                    (H3)
   let S be a point                                                    (H4)
-  then |RS|·|PQ| ∈ ℝ
+  then |RS|·|PQ| = |PQ|·|RS|
 
-1.  |PQ| ∈ ℝ
-    mun:distance-real
+1.  |RS|·|PQ| = |PQ|·|RS|
+    algebra
 
-2.  |RS| ∈ ℝ
-    mun:distance-real P := R, Q := S
+theorem distances-cancelled
+  note        A distance said once is a number `algebra` combines with
+              letters, as in a cited line it scales.
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let x ∈ ℝ                                                           (H3)
+  assume |PQ|·x = |PQ| + x                                            (H4)
+  then |PQ|·x − x = |PQ|
 
-3.  |RS|·|PQ| ∈ ℝ
-    membership, from 1, 2
+1.  |PQ|·x − x = |PQ|
+    algebra, from H4

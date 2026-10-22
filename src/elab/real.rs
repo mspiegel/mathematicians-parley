@@ -276,6 +276,46 @@ impl<'a> Elaborator<'a> {
         }
     }
 
+    /// ( scope -> |PQ| e. system ) for the distance between two points, in
+    /// ℝ or ℂ: its membership said once (`READERS.md`). Each point is in ℂ
+    /// by its sort, their difference too (`subcld`), and its absolute value
+    /// is real (`abscld`); a real one is complex (`recnd`).
+    pub(super) fn distance_within(
+        &mut self,
+        t: &Term,
+        system: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Route<Proof>> {
+        let said = self.rpn(t);
+        let difference = &t.children()[0];
+        let [p, q, _] = difference.children() else {
+            return Ok(Route::no("not the absolute value of a difference"));
+        };
+        let (p, q) = (self.rpn(p), self.rpn(q));
+        let first = self.membership(&p, "cc", scope, facts)?;
+        let second = self.membership(&q, "cc", scope, facts)?;
+        let apart = self.b.ap(
+            "subcld",
+            &binds! {"ph" => scope, "A" => &p, "B" => &q},
+            &[&first, &second],
+        );
+        let real = self.b.ap(
+            "abscld",
+            &binds! {"ph" => scope, "A" => self.rpn(difference)},
+            &[&apart],
+        );
+        match system.alone() {
+            Some("cr") => Ok(Built(real)),
+            Some("cc") => Ok(Built(self.b.ap(
+                "recnd",
+                &binds! {"ph" => scope, "A" => &said},
+                &[&real],
+            ))),
+            _ => Ok(Route::no("said once only in ℝ and ℂ")),
+        }
+    }
+
     /// ( scope -> √x e. system ) for a root `real arithmetic` takes, in ℝ
     /// or ℂ: its membership said once (`READERS.md`). x is a rational of at
     /// least 0, which `arithmetic` says, and its root is real (`resqrtcld`),

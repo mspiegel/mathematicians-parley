@@ -709,10 +709,10 @@ fn cases() -> Vec<Case> {
             "give a requires line's membership a method that does not decide it",
             vec![edit(
                 "proofs/wiedijk/pythagoras.proof",
-                Some("    requires |AC| ∈ ℝ: mun:distance-real P := A, Q := C\n".to_string()),
-                "    requires |AC| ∈ ℝ: algebra\n".to_string(),
+                Some("    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR\n\n14.".to_string()),
+                "    requires sin(∠PQR) ∈ ℝ: algebra\n\n14.".to_string(),
             )],
-            "proofs/wiedijk/pythagoras.proof:192  the requires line |AC| ∈ ℝ of step 19 names algebra, which does not decide what it says",
+            "proofs/wiedijk/pythagoras.proof:89  the requires line sin(∠PQR) ∈ ℝ of step 13 names algebra, which does not decide what it says",
         ),
         // A letter of a range not starting at 1 or 0 is said once to be an
         // integer, and its being no zero is not: a divisor's `≠ 0` is written
@@ -1431,6 +1431,17 @@ fn cases() -> Vec<Case> {
                 "    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2\n          algebra\n          requires 2 ∈ ℝ: arithmetic\n".to_string(),
             )],
             "the requires line of step 1.6 says 2 ∈ ℝ, which the page says once",
+        ),
+        // A distance between two points is real, said once where the points
+        // are introduced (`READERS.md`), so a line writing it does nothing.
+        case(
+            "write a distance's membership",
+            vec![edit(
+                "proofs/wiedijk/pythagoras.proof",
+                Some("    algebra, from 6, 14, 18\n".to_string()),
+                "    algebra, from 6, 14, 18\n    requires |AC| ∈ ℝ: membership\n".to_string(),
+            )],
+            "the requires line of step 19 says |AC| ∈ ℝ, which the page says once",
         ),
         // A claim of numerals said to be impossible, given to `inequalities`:
         // a claim arithmetic can work out is arithmetic's, and is refused
@@ -5275,7 +5286,7 @@ fn cases() -> Vec<Case> {
             vec![edit(
                 "proofs/wiedijk/pythagoras.proof",
                 Some("    calculation\n      |PQ|·|P′R′|·sin(∠PQR) = |PR|·|P′R′|·sin(∠QRP)       9\n                            = |P′Q′|·|PR|·sin(∠PQR)       10".to_string()),
-                "    algebra, from 5, 8\n    requires |PQ| ∈ ℝ: mun:distance-real P := P, Q := Q\n    requires |PR| ∈ ℝ: mun:distance-real P := P, Q := R\n    requires |P′Q′| ∈ ℝ: mun:distance-real P := P′, Q := Q′\n    requires |P′R′| ∈ ℝ: mun:distance-real P := P′, Q := R′\n    requires ∠PQR ∈ ℝ: mun:triangle-angle-real, from H7\n    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR\n    requires ∠QRP ∈ ℝ: mun:triangle-angle-real, from H7\n    requires sin(∠QRP) ∈ ℝ: mun:sin-real a := ∠QRP".to_string(),
+                "    algebra, from 5, 8\n    requires ∠PQR ∈ ℝ: mun:triangle-angle-real, from H7\n    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR\n    requires ∠QRP ∈ ℝ: mun:triangle-angle-real, from H7\n    requires sin(∠QRP) ∈ ℝ: mun:sin-real a := ∠QRP".to_string(),
             )],
             "at most one equation multiplied by a term",
         ),

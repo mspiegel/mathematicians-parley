@@ -14,7 +14,6 @@ import mundane definition stdlib/trigonometry/cos
 import mundane definition stdlib/trigonometry/sin
 import mundane definition stdlib/geometry/midpoint as geometry-midpoint
 import theorem            stdlib/geometry/segment-addition as geometry-segment-addition
-import mundane theorem    stdlib/geometry/distance-real as geometry-distance-real
 import mundane theorem    stdlib/geometry/distance-nonneg as geometry-distance-nonneg
 import mundane theorem    stdlib/geometry/distance-positive as geometry-distance-positive
 import mundane theorem    stdlib/geometry/distance-zero as geometry-distance-zero
@@ -202,7 +201,6 @@ theorem midpoint-halves
 
 3.  |AM| = |AB|/2
     algebra, from 1, 2
-    requires |MB| ∈ ℝ: mun:geometry-distance-real
 
 theorem on-line
   let P be a point                                                    (H1)

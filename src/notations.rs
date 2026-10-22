@@ -81,4 +81,5 @@ notations! {
     EULER = 49, "euler";
     DEGREES = 50, "degrees";
     PLANE = 51, "plane";
+    DISTANCE = 52, "distance";
 }

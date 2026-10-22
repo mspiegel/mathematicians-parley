@@ -497,14 +497,6 @@ theorem angle-addition
               on two sides of line CM, which is what the line through M
               does.
 
-mundane theorem distance-real
-  let P be a point                                                    (H1)
-  let Q be a point                                                    (H2)
-  then        |PQ| ∈ ℝ
-  metamath    gdistre, which this corpus proves in elaboration/stdlib/proved.mm
-              from subcl and abscl
-  target      gdistre
-
 mundane theorem distance-nonneg
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)
