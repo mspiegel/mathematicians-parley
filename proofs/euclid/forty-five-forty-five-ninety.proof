@@ -1,0 +1,79 @@
+import theorem            proofs/wiedijk/pythagoras/pythagoras
+import theorem            proofs/wiedijk/isosceles/isosceles
+import theorem            proofs/wiedijk/angle-sum/angle-sum
+import mundane theorem    stdlib/geometry/triangle-angle-real
+import mundane theorem    stdlib/geometry/distance-nonneg
+import mundane theorem    stdlib/geometry/distance-symmetric
+import mundane theorem    stdlib/numbers/square-equal
+import mundane theorem    stdlib/numbers/product-nonneg
+
+theorem forty-five-forty-five-ninety
+  note        Pythagoras at the right angle gives |AB|² = 2·|CA|². The
+              triangle is isosceles, so the angles at A and B agree, and
+              the three angles add to 180°.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  assume A, B, C form a triangle                                      (H4)
+  assume ∠ACB = 90°                                                   (H5)
+  assume |CA| = |CB|                                                  (H6)
+  then |AB| = √2·|CA|. ∠CAB = 45°.
+
+1.  |AB|² = |AC|² + |BC|²
+    thm:pythagoras, from H4, H5
+
+2.  |AC| = |CA|
+    mun:distance-symmetric P := A, Q := C
+
+3.  |BC| = |CB|
+    mun:distance-symmetric P := B, Q := C
+
+4.  |AB|² = |CA|² + |BC|²
+    substitute |AC| = |CA| (line 2) into line 1
+
+5.  |AB|² = |CA|² + |CB|²
+    substitute |BC| = |CB| (line 3) into line 4
+
+6.  |AB|² = |CA|² + |CA|²
+    substitute |CB| = |CA| (H6) into line 5
+
+7.  |AB|² = 2·|CA|²
+    algebra, from 6
+
+8.  (√2)²·|CA|² = 2·|CA|²
+    substitute (√2)² = 2 (real arithmetic)
+
+9.  (√2)²·|CA|² = (√2·|CA|)²
+    algebra
+
+10. |AB|² = (√2·|CA|)²
+    calculation
+      |AB|² = 2·|CA|²               7
+            = (√2)²·|CA|²           8
+            = (√2·|CA|)²            9
+
+11. |AB| ≥ 0
+    mun:distance-nonneg P := A, Q := B
+
+12. |CA| ≥ 0
+    mun:distance-nonneg P := C, Q := A
+
+13. √2·|CA| ≥ 0
+    mun:product-nonneg x := √2, y := |CA|, from 12
+    requires √2 ≥ 0: real arithmetic
+
+14. |AB| = √2·|CA|
+    mun:square-equal x := |AB|, y := √2·|CA|, from 10, 11, 13
+
+15. ∠CAB = ∠CBA
+    thm:isosceles, from H4, H6
+
+16. ∠CAB + ∠ACB + ∠CBA = 180°
+    thm:angle-sum B := C, C := B, from H4
+
+17. ∠CAB = 45°
+    algebra, from H5, 15, 16
+    requires ∠CBA ∈ ℝ: mun:triangle-angle-real P := C, Q := B, R := A, from H4
+
+18. |AB| = √2·|CA|. ∠CAB = 45°.
+    join 14, 17

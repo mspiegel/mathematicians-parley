@@ -1,0 +1,39 @@
+import theorem            stdlib/geometry/law-of-sines
+import mundane theorem    stdlib/geometry/angle-symmetric
+import mundane theorem    stdlib/geometry/sine-positive
+import mundane theorem    stdlib/geometry/triangle-angle-real
+import mundane theorem    stdlib/numbers/multiply-cancel
+import mundane definition stdlib/trigonometry/sin
+import mundane theorem    stdlib/trigonometry/sin-real
+
+theorem equal-angles-equal-sides
+  note        Euclid I.6. The law of sines gives |CA|·sin ∠CAB = |CB|·sin ∠ABC;
+              the two angles are equal and their sine is positive, so it
+              cancels.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  assume A, B, C form a triangle                                      (H4)
+  assume ∠CAB = ∠CBA                                                  (H5)
+  then |CA| = |CB|
+
+1.  |CA|·sin(∠CAB) = |CB|·sin(∠ABC)
+    thm:law-of-sines P := C, Q := A, R := B, from H4
+
+2.  ∠ABC = ∠CBA
+    mun:angle-symmetric P := A, Q := B, R := C, from H4
+
+3.  |CA|·sin(∠CAB) = |CB|·sin(∠CBA)
+    substitute ∠ABC = ∠CBA (line 2) into line 1
+
+4.  |CA|·sin(∠CAB) = |CB|·sin(∠CAB)
+    substitute ∠CBA = ∠CAB (H5) into line 3
+
+5.  sin(∠CAB) > 0
+    mun:sine-positive P := C, Q := A, R := B, from H4
+
+6.  |CA| = |CB|
+    mun:multiply-cancel a := |CA|, b := |CB|, c := sin(∠CAB), from 4
+    requires ∠CAB ∈ ℝ: mun:triangle-angle-real P := C, Q := A, R := B, from H4
+    requires sin(∠CAB) ∈ ℝ: mun:sin-real a := ∠CAB
+    requires sin(∠CAB) ≠ 0: weakening, from 5

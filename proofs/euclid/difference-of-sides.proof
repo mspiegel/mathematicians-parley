@@ -1,0 +1,35 @@
+import theorem            stdlib/geometry/triangle-inequality-points
+import mundane theorem    stdlib/geometry/distance-symmetric
+
+theorem difference-of-sides
+  note        Each difference is the triangle inequality with the other side
+              taken across.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  then |AB| − |AC| ≤ |BC|. |AC| − |AB| ≤ |BC|.
+
+1.  |AB| ≤ |AC| + |CB|
+    thm:triangle-inequality-points P := A, Q := C, R := B
+
+2.  |CB| = |BC|
+    mun:distance-symmetric P := C, Q := B
+
+3.  |AB| ≤ |AC| + |BC|
+    substitute |CB| = |BC| (line 2) into line 1
+
+4.  |AB| − |AC| ≤ |BC|
+    inequalities
+      |AB| ≤ |AC| + |BC|        3
+      |AB| − |AC| ≤ |BC|        adding −|AC|
+
+5.  |AC| ≤ |AB| + |BC|
+    thm:triangle-inequality-points P := A, Q := B, R := C
+
+6.  |AC| − |AB| ≤ |BC|
+    inequalities
+      |AC| ≤ |AB| + |BC|        5
+      |AC| − |AB| ≤ |BC|        adding −|AB|
+
+7.  |AB| − |AC| ≤ |BC|. |AC| − |AB| ≤ |BC|.
+    join 4, 6

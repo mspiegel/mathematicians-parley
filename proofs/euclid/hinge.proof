@@ -1,0 +1,124 @@
+import theorem            stdlib/geometry/law-of-cosines
+import mundane theorem    stdlib/geometry/angle-order-by-cosine
+import mundane theorem    stdlib/geometry/angle-real
+import mundane theorem    stdlib/geometry/angle-turned
+import mundane theorem    stdlib/geometry/distance-nonneg
+import mundane theorem    stdlib/geometry/distance-positive
+import mundane theorem    stdlib/geometry/distance-symmetric
+import mundane theorem    stdlib/geometry/triangle-angle-real
+import mundane definition stdlib/geometry/triangle
+import mundane definition stdlib/trigonometry/cos
+import mundane theorem    stdlib/trigonometry/cos-real
+import mundane theorem    stdlib/numbers/product-positive
+import mundane theorem    stdlib/numbers/square-less
+
+theorem hinge
+  note        Euclid I.24. The law of cosines at A and at D, with the two
+              sides at each vertex equal, gives |BC|² − |EF|² =
+              2·|CA|·|AB|·(cos ∠FDE − cos ∠CAB). The larger angle has the
+              smaller cosine, so this is positive, and so is the difference
+              of the lengths.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  let E be a point                                                    (H5)
+  let F be a point                                                    (H6)
+  assume A, B, C form a triangle                                      (H7)
+  assume D, E, F form a triangle                                      (H8)
+  assume |AB| = |DE|                                                  (H9)
+  assume |AC| = |DF|                                                  (H10)
+  assume ∠BAC > ∠EDF                                                  (H11)
+  then |BC| > |EF|
+
+1.  A ≠ B. A ≠ C.
+    mun:triangle, from H7
+
+2.  D ≠ E. D ≠ F.
+    mun:triangle, from H8
+
+3.  ∠CAB ∈ ℝ. ∠CAB ≥ 0.
+    mun:angle-real P := C, Q := A, R := B, from 1
+
+4.  ∠FDE ∈ ℝ. ∠FDE ≥ 0.
+    mun:angle-real P := F, Q := D, R := E, from 2
+
+5.  ∠CAB = ∠BAC
+    mun:angle-turned P := C, Q := A, R := B, from 1
+
+6.  ∠FDE = ∠EDF
+    mun:angle-turned P := F, Q := D, R := E, from 2
+
+7.  ∠FDE < ∠CAB
+    transitivity, from 6, H11, 5
+    requires ∠EDF ∈ ℝ: mun:triangle-angle-real P := D, Q := E, R := F, from H8
+    requires ∠CAB ∈ ℝ: from 3
+
+8.  cos(∠CAB) < cos(∠FDE)
+    mun:angle-order-by-cosine P := F, Q := D, R := E, P′ := C, Q′ := A, R′ := B, from 1, 2, 7
+
+9.  |BC|² = |CA|² + |AB|² − 2·(|CA|·|AB|·cos(∠CAB))
+    thm:law-of-cosines P := C, Q := A, R := B, from 1
+
+10. |EF|² = |FD|² + |DE|² − 2·(|FD|·|DE|·cos(∠FDE))
+    thm:law-of-cosines P := F, Q := D, R := E, from 2
+
+11. |FD| = |DF|
+    mun:distance-symmetric P := F, Q := D
+
+12. |AC| = |CA|
+    mun:distance-symmetric P := A, Q := C
+
+13. |FD| = |DF| = |AC| = |CA|
+    join 11, H10, 12
+
+14. |EF|² = |CA|² + |DE|² − 2·(|CA|·|DE|·cos(∠FDE))
+    substitute |FD| = |CA| (line 13) into line 10
+
+15. |EF|² = |CA|² + |AB|² − 2·(|CA|·|AB|·cos(∠FDE))
+    substitute |DE| = |AB| (H9) into line 14
+
+16. |CA| > 0
+    mun:distance-positive P := C, Q := A, from 1
+
+17. |AB| > 0
+    mun:distance-positive P := A, Q := B, from 1
+
+18. |CA|·|AB| > 0
+    mun:product-positive x := |CA|, y := |AB|, from 16, 17
+
+19. 0 < cos(∠FDE) − cos(∠CAB)
+    inequalities
+      cos(∠CAB) < cos(∠FDE)                  8
+      0 < cos(∠FDE) − cos(∠CAB)              adding −cos(∠CAB)
+    requires cos(∠CAB) ∈ ℝ: mun:cos-real a := ∠CAB, from 3
+    requires cos(∠FDE) ∈ ℝ: mun:cos-real a := ∠FDE, from 4
+
+20. |CA|·|AB|·(cos(∠FDE) − cos(∠CAB)) > 0
+    mun:product-positive x := |CA|·|AB|, y := cos(∠FDE) − cos(∠CAB), from 18, 19
+    requires cos(∠CAB) ∈ ℝ: mun:cos-real a := ∠CAB, from 3
+    requires cos(∠FDE) ∈ ℝ: mun:cos-real a := ∠FDE, from 4
+
+21. |EF|² = |BC|² − 2·(|CA|·|AB|·(cos(∠FDE) − cos(∠CAB)))
+    algebra, from 9, 15
+    requires cos(∠CAB) ∈ ℝ: mun:cos-real a := ∠CAB, from 3
+    requires cos(∠FDE) ∈ ℝ: mun:cos-real a := ∠FDE, from 4
+
+22. |BC|² − 2·(|CA|·|AB|·(cos(∠FDE) − cos(∠CAB))) < |BC|²
+    inequalities
+      |CA|·|AB|·(cos(∠FDE) − cos(∠CAB)) > 0              20
+      0 < |CA|·|AB|·(cos(∠FDE) − cos(∠CAB))              symmetry
+      0 < 2·(|CA|·|AB|·(cos(∠FDE) − cos(∠CAB)))          multiplying by 2
+      |BC|² − 2·(|CA|·|AB|·(cos(∠FDE) − cos(∠CAB))) < |BC|²   adding |BC|² − 2·(|CA|·|AB|·(cos(∠FDE) − cos(∠CAB)))
+    requires cos(∠CAB) ∈ ℝ: mun:cos-real a := ∠CAB, from 3
+    requires cos(∠FDE) ∈ ℝ: mun:cos-real a := ∠FDE, from 4
+
+23. |EF|² < |BC|²
+    calculation
+      |EF|² = |BC|² − 2·(|CA|·|AB|·(cos(∠FDE) − cos(∠CAB)))     21
+            < |BC|²                                              22
+
+24. |BC| > |EF|
+    mun:square-less x := |EF|, y := |BC|, from 23
+    requires |EF| ≥ 0: mun:distance-nonneg P := E, Q := F
+    requires |BC| ≥ 0: mun:distance-nonneg P := B, Q := C

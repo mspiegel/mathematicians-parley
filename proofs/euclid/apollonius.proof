@@ -1,0 +1,111 @@
+import mundane theorem    stdlib/geometry/between-apart
+import theorem            stdlib/geometry/law-of-cosines
+import theorem            stdlib/geometry/supplementary-angles
+import mundane theorem    stdlib/geometry/angle-real
+import mundane theorem    stdlib/geometry/distance-symmetric
+import mundane theorem    stdlib/geometry/distance-zero
+import mundane theorem    stdlib/trigonometry/cos-supplement
+import mundane theorem    stdlib/trigonometry/cos-real
+import mundane definition stdlib/trigonometry/cos
+import mundane axiom      stdlib/reasoning/excluded-middle
+
+theorem apollonius
+  note        The law of cosines at M in the triangles ABM and ACM. The
+              angles at M are supplementary, so their cosines are opposite,
+              and the terms in the cosines cancel when the two are added.
+              Where A is M there are no angles at M, and |AM| = 0.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let M be a point                                                    (H4)
+  assume M is between B and C                                         (H5)
+  assume |BM| = |MC|                                                  (H6)
+  then |AB|² + |AC|² = 2·|AM|² + 2·|BM|²
+
+1.  A = M or A ≠ M
+    mun:excluded-middle P := A = M
+
+2.  |AB|² + |AC|² = 2·|AM|² + 2·|BM|²
+    cases, from 1
+
+    case
+    assume A = M                                                      (C1)
+
+    2.1.  |AM| = 0
+          mun:distance-zero P := A, Q := M, from C1
+
+    2.2.  |AB|² + |AC|² = |MB|² + |MC|²
+          substitute A = M (C1)
+
+    2.3.  |MB| = |BM|
+          mun:distance-symmetric P := M, Q := B
+
+    2.4.  |AB|² + |AC|² = |BM|² + |MC|²
+          substitute |MB| = |BM| (line 2.3) into line 2.2
+
+    2.5.  |AB|² + |AC|² = |BM|² + |BM|²
+          substitute |MC| = |BM| (H6) into line 2.4
+
+    2.6.  |AB|² + |AC|² = 2·|AM|² + 2·|BM|²
+          algebra, from 2.1, 2.5
+
+    case
+    assume A ≠ M                                                      (C2)
+
+    2.7.  B ≠ M. C ≠ M.
+          mun:between-apart R := M, S := B, T := C, from H5
+
+    2.8.  |AB|² = |BM|² + |MA|² − 2·(|BM|·|MA|·cos(∠BMA))
+          thm:law-of-cosines P := B, Q := M, R := A, from C2, 2.7
+
+    2.9.  |CA|² = |AM|² + |MC|² − 2·(|AM|·|MC|·cos(∠AMC))
+          thm:law-of-cosines P := A, Q := M, R := C, from C2, 2.7
+
+    2.10. ∠BMA + ∠AMC = 180°
+          thm:supplementary-angles A := B, B := M, D := A, from C2, H5
+
+    2.11. ∠BMA ∈ ℝ
+          mun:angle-real P := B, Q := M, R := A, from C2, 2.7
+
+    2.12. ∠AMC ∈ ℝ
+          mun:angle-real P := A, Q := M, R := C, from C2, 2.7
+
+    2.13. ∠AMC = 180° − ∠BMA
+          algebra, from 2.10
+          requires ∠BMA ∈ ℝ: from 2.11
+          requires ∠AMC ∈ ℝ: from 2.12
+
+    2.14. cos(∠AMC) = cos(180° − ∠BMA)
+          substitute ∠AMC = 180° − ∠BMA (line 2.13)
+
+    2.15. cos(180° − ∠BMA) = −cos(∠BMA)
+          mun:cos-supplement x := ∠BMA
+          requires ∠BMA ∈ ℝ: from 2.11
+
+    2.16. cos(∠AMC) = −cos(∠BMA)
+          calculation
+            cos(∠AMC) = cos(180° − ∠BMA)      2.14
+                      = −cos(∠BMA)            2.15
+
+    2.17. |MA| = |AM|
+          mun:distance-symmetric P := M, Q := A
+
+    2.18. |CA| = |AC|
+          mun:distance-symmetric P := C, Q := A
+
+    2.19. |AB|² = |BM|² + |AM|² − 2·(|BM|·|AM|·cos(∠BMA))
+          substitute |MA| = |AM| (line 2.17) into line 2.8
+
+    2.20. |AC|² = |AM|² + |MC|² − 2·(|AM|·|MC|·cos(∠AMC))
+          substitute |CA| = |AC| (line 2.18) into line 2.9
+
+    2.21. |AC|² = |AM|² + |BM|² − 2·(|AM|·|BM|·cos(∠AMC))
+          substitute |MC| = |BM| (H6) into line 2.20
+
+    2.22. |AC|² = |AM|² + |BM|² − 2·(|AM|·|BM|·−cos(∠BMA))
+          substitute cos(∠AMC) = −cos(∠BMA) (line 2.16) into line 2.21
+
+    2.23. |AB|² + |AC|² = 2·|AM|² + 2·|BM|²
+          algebra, from 2.19, 2.22
+          requires ∠BMA ∈ ℝ: from 2.11
+          requires cos(∠BMA) ∈ ℝ: mun:cos-real a := ∠BMA

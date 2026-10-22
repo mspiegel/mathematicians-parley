@@ -1,0 +1,54 @@
+import mundane theorem    stdlib/geometry/points-apart-by-coordinates
+import mundane theorem    stdlib/geometry/collinear-by-coordinates
+import mundane theorem    stdlib/reasoning/iff-not-from-right
+import mundane definition stdlib/geometry/triangle
+
+theorem triangle-from-coordinates
+  note        The three points are apart, and the cross product of AB and AC,
+              6 against −4, is not 0, so they are not on one line.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  assume A = (4, 1)                                                   (H4)
+  assume B = (−2, −3)                                                 (H5)
+  assume C = (5, 0)                                                   (H6)
+  then A, B, C form a triangle
+
+1.  (4, 1) ≠ (−2, −3)
+    arithmetic
+
+2.  A ≠ B
+    mun:points-apart-by-coordinates, from H4, H5, 1
+
+3.  (−2, −3) ≠ (5, 0)
+    arithmetic
+
+4.  B ≠ C
+    mun:points-apart-by-coordinates, from H5, H6, 3
+
+5.  (4, 1) ≠ (5, 0)
+    arithmetic
+
+6.  A ≠ C
+    mun:points-apart-by-coordinates, from H4, H6, 5
+
+7.  (4, 1), (−2, −3), (5, 0) are collinear ↔ (−2 − 4)·(0 − 1) = (5 − 4)·(−3 − 1)
+    mun:collinear-by-coordinates
+
+8.  A, (−2, −3), (5, 0) are collinear ↔ (−2 − 4)·(0 − 1) = (5 − 4)·(−3 − 1)
+    substitute A = (4, 1) (H4) into line 7
+
+9.  A, B, (5, 0) are collinear ↔ (−2 − 4)·(0 − 1) = (5 − 4)·(−3 − 1)
+    substitute B = (−2, −3) (H5) into line 8
+
+10. A, B, C are collinear ↔ (−2 − 4)·(0 − 1) = (5 − 4)·(−3 − 1)
+    substitute C = (5, 0) (H6) into line 9
+
+11. (−2 − 4)·(0 − 1) ≠ (5 − 4)·(−3 − 1)
+    arithmetic
+
+12. not (A, B, C are collinear)
+    mun:iff-not-from-right, from 10, 11
+
+13. A, B, C form a triangle
+    mun:triangle, from 2, 4, 6, 12

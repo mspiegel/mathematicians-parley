@@ -1,0 +1,40 @@
+import theorem            proofs/wiedijk/angle-sum/angle-sum
+import theorem            stdlib/geometry/supplementary-angles
+import mundane theorem    stdlib/geometry/between-apart
+import mundane theorem    stdlib/geometry/angle-real
+import mundane theorem    stdlib/geometry/angle-symmetric
+import mundane theorem    stdlib/geometry/triangle-angle-real
+import mundane definition stdlib/geometry/triangle
+
+theorem exterior-angle
+  note        Euclid I.32. The exterior angle ∠ABD and the interior angle at
+              B make 180°, and so do the three angles of the triangle.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  assume A, B, C form a triangle                                      (H5)
+  assume B is between C and D                                         (H6)
+  then ∠ABD = ∠BAC + ∠BCA
+
+1.  D ≠ B
+    mun:between-apart R := B, S := C, T := D, from H6
+
+2.  A ≠ B
+    mun:triangle, from H5
+
+3.  ∠CBA + ∠ABD = 180°
+    thm:supplementary-angles A := C, C := D, D := A, from H6, 2
+
+4.  ∠BAC + ∠ABC + ∠BCA = 180°
+    thm:angle-sum, from H5
+
+5.  ∠CBA = ∠ABC
+    mun:angle-symmetric P := C, Q := B, R := A, from H5
+
+6.  ∠ABD = ∠BAC + ∠BCA
+    algebra, from 3, 4, 5
+    requires ∠ABD ∈ ℝ: mun:angle-real P := A, Q := B, R := D, from 1, 2
+    requires ∠BAC ∈ ℝ: mun:triangle-angle-real, from H5
+    requires ∠ABC ∈ ℝ: mun:triangle-angle-real, from H5
+    requires ∠BCA ∈ ℝ: mun:triangle-angle-real, from H5

@@ -1,0 +1,53 @@
+import theorem            proofs/euclid/apollonius/apollonius
+import mundane definition stdlib/geometry/midpoint
+import theorem            stdlib/geometry/segment-addition
+import mundane theorem    stdlib/geometry/distance-symmetric
+
+theorem parallelogram-law
+  note        M is the midpoint of both diagonals. Apollonius applied to the
+              median BM of the triangle BAC gives the sum of |BA|² and |BC|²
+              in terms of |BM| and |AM|, and each diagonal is twice its half.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  let M be a point                                                    (H5)
+  assume M is the midpoint of AC                                      (H6)
+  assume M is the midpoint of BD                                      (H7)
+  then |AC|² + |BD|² = 2·|AB|² + 2·|BC|²
+
+1.  M is between A and C. |AM| = |MC|.
+    mun:midpoint B := C, from H6
+
+2.  M is between B and D. |BM| = |MD|.
+    mun:midpoint A := B, B := D, from H7
+
+3.  |BA|² + |BC|² = 2·|BM|² + 2·|AM|²
+    thm:apollonius A := B, B := A, from 1
+
+4.  |BA| = |AB|
+    mun:distance-symmetric P := B, Q := A
+
+5.  |AB|² + |BC|² = 2·|BM|² + 2·|AM|²
+    substitute |BA| = |AB| (line 4) into line 3
+
+6.  |AM| + |MC| = |AC|
+    thm:segment-addition P := A, Q := C, S := M, from 1
+
+7.  |BM| + |MD| = |BD|
+    thm:segment-addition P := B, Q := D, S := M, from 2
+
+8.  |AC| = 2·|AM|
+    algebra, from 1, 6
+
+9.  |BD| = 2·|BM|
+    algebra, from 2, 7
+
+10. |AC|² = (2·|AM|)²
+    substitute |AC| = 2·|AM| (line 8)
+
+11. |BD|² = (2·|BM|)²
+    substitute |BD| = 2·|BM| (line 9)
+
+12. |AC|² + |BD|² = 2·|AB|² + 2·|BC|²
+    algebra, from 5, 10, 11
