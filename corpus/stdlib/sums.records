@@ -191,6 +191,20 @@ mundane theorem product-extended
   target      fprodp1
   note        As sum-extended, for a product: the last factor split off.
 
+mundane theorem product-termwise
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  let t : X → Z                                                       (H3)
+  let u : Y → W                                                       (H4)
+  assume for all k ∈ {a, …, b}, t(k) = u(k)                           (H5)
+  then        ∏(k ∈ {a, …, b}) t(k) = ∏(k ∈ {a, …, b}) u(k)
+  metamath    prodeq2dv
+  target      prodeq2dv
+  note        As sum-termwise, for a product: two products over one range
+              are equal when their factors are, index by index. The two
+              functions need agree only on the range, and either may be
+              defined beyond it, as a list extended by one place is.
+
 mundane theorem range-difference
   let a ∈ ℤ                                                           (H1)
   let n ∈ ℤ                                                           (H2)
@@ -337,6 +351,19 @@ mundane theorem sum-empty-set
   metamath    sum0
   target      sum0
   note        A sum over a set with no members is 0.
+
+mundane theorem sum-of-three
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let c ∈ ℝ                                                           (H3)
+  assume a ≠ b                                                        (H4)
+  assume a ≠ c                                                        (H5)
+  assume b ≠ c                                                        (H6)
+  then        Σ(d ∈ {a, b, c}) d = a + b + c
+  metamath    sumtp
+  target      sumtp with V := ℝ, W := ℝ, X := ℝ
+  note        Three different numbers listed, summed. sumtp asks each
+              number to lie in some set, and ℝ is the one they lie in.
 
 mundane theorem sum-nonneg
   let a ∈ ℤ                                                           (H1)

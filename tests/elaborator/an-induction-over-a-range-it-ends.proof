@@ -1,0 +1,37 @@
+import mundane theorem    stdlib/sums/range-bounds
+
+theorem an-induction-over-a-range-it-ends
+  note        The claim at N runs over {1, …, N}, so closing the induction rewrites the set a "for all" runs over, not only what it says.
+  let n ∈ ℕ₀    (H1)
+  then for all j ∈ {1, …, n}, j ≥ 1
+
+1.  For all N ∈ ℕ₀, for all j ∈ {1, …, N}, j ≥ 1.
+    induction on N starting at 0
+
+    base
+    1.1.  For all j ∈ {1, …, 0}, j ≥ 1.
+          proof
+          let j ∈ {1, …, 0}    (K1)
+
+          1.1.1.  1 ≤ j
+                  mun:range-bounds a := 1, b := 0, k := j, from K1
+
+          1.1.2.  j ≥ 1
+                  inequalities, from 1.1.1
+
+    step
+    let N ∈ ℕ₀    (K2)
+    assume step 1 is true for N, the induction hypothesis    (IH)
+
+    1.2.  For all j ∈ {1, …, N + 1}, j ≥ 1.
+          proof
+          let j ∈ {1, …, N + 1}    (K3)
+
+          1.2.1.  1 ≤ j
+                  mun:range-bounds a := 1, b := N + 1, k := j, from K3
+
+          1.2.2.  j ≥ 1
+                  inequalities, from 1.2.1
+
+2.  For all j ∈ {1, …, n}, j ≥ 1.
+    instantiate N := n in line 1

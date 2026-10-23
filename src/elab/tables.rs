@@ -2452,9 +2452,12 @@ impl<'a> Elaborator<'a> {
             }
             // A type the step names, by a line it cites or one of its own
             // requires lines; one only in scope is a reason the page does
-            // not give, whether a `let` or a numbered step says it.
+            // not give, whether a `let` or a numbered step says it. A
+            // define's type the page says once is named as a letter's
+            // membership is, by the line that says it once (`map_into`).
             let unnamed = !held.origin.is_empty()
                 && !held.origin.iter().all(|o| self.citing.contains(o))
+                && !held.origin.iter().all(|o| o.starts_with(MEMBERSHIP))
                 && !from_requires(&held);
             if unnamed && self.in_family == 0 {
                 continue;

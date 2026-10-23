@@ -1,0 +1,51 @@
+import mundane theorem    stdlib/functions/function-into
+import mundane theorem    stdlib/sums/product-single
+
+theorem a-product-of-a-define-said-once
+  note        product-single asks e : {1, …, 1} → ℝ, which the page says once since e's rule p is a number, and the lemma's own hypothesis e(1) ∈ ℂ is read from that type.
+  let p ∈ ℕ    (H1)
+  then there is f : {1, …, 1} → ℕ with p = ∏(i ∈ {1, …, 1}) f(i)
+
+let e(i) = p, for i ∈ {1, …, 1}    (D1)
+    reads p at the one place
+
+1.  ∏(i ∈ {1, …, 1}) e(i) = e(1)
+    mun:product-single a := 1, t := e
+
+2.  e(1) = p
+    D1
+    requires 1 ∈ {1, …, 1}: inspection
+
+3.  p = ∏(i ∈ {1, …, 1}) e(i)
+    calculation
+      p = e(1)                       2
+        = ∏(i ∈ {1, …, 1}) e(i)      1
+
+4.  For all i ∈ {1, …, 1}, e(i) ∈ ℕ.
+    membership, from D1
+
+5.  e : {1, …, 1} → ℕ
+    mun:function-into, from 4
+    requires e is a function on {1, …, 1}: from D1
+
+6.  There is f : {1, …, 1} → ℕ with p = ∏(i ∈ {1, …, 1}) f(i).
+    exhibit, from 3, 5
+
+theorem a-product-of-a-define-in-the-header
+  note        The statement is the define written out, inside the product, and the last step is carried to it there.
+  let p ∈ ℕ    (H1)
+  let e(i) = p, for i ∈ {1, …, 1}    (D1)
+      reads p at the one place
+  then ∏(i ∈ {1, …, 1}) e(i) = p
+
+1.  ∏(i ∈ {1, …, 1}) e(i) = e(1)
+    mun:product-single a := 1, t := e
+
+2.  e(1) = p
+    D1
+    requires 1 ∈ {1, …, 1}: inspection
+
+3.  ∏(i ∈ {1, …, 1}) e(i) = p
+    calculation
+      ∏(i ∈ {1, …, 1}) e(i) = e(1)    1
+                             = p       2

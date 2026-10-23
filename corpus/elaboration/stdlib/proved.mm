@@ -943,10 +943,12 @@ $}
 
 ${
 $( Divisors: the sum of the divisors of a number, and of a prime's powers,
-   and coprime factors of a square. $)
+   coprime factors of a square, and a sum of some divisors. $)
 $d k p B $.
-$d k N $.
+$d k p N $.
 $d k P $.
+$d k Y $.
+$d k ph $.
 
   g1sgmval $p |- ( B e. NN -> ( 1 sigma B ) = sum_ k e. { p e. NN | p || B } k ) $=
     ( cn wcel c1 csgm co cv cdvds wbr crab cexp csu cz wceq 1z sgmval2 mpan
@@ -967,6 +969,16 @@ $d k P $.
     ( cz wcel cn0 w3a cgcd co c1 wceq wa c2 cexp cmul wi simpl simpr oveq1d
     simp3 nn0z syl 1gcd eqtrd jca coprimeprodsq2 )
     ADEZBFEZCFEZGZABHIZJKZLZUJUKCHIZJKZLCMNIABOIKBBCHIMNIKPUMUJUOUJULQZUMUNJCHIZJUMUKJCHUJULRSUMCDEZUQJKUMUJURUPUJUIURUGUHUITCUAUBUBCUCUBUDUEABCUFUB $.
+
+  ${
+    g1sgmpart.1 $e |- ( ph -> N e. NN ) $.
+    g1sgmpart.2 $e |- ( ph -> Y e. ~P { p e. NN | p || N } ) $.
+  g1sgmpart $p |- ( ph -> sum_ k e. Y k <_ ( 1 sigma N ) ) $=
+    ( cv csu cdvds wbr cn crab c1 csgm co cle wcel cfn dvdsfi syl wa elrabi
+    adantl nnred nnnn0d nn0ge0d cpw wss elpwi fsumless wceq g1sgmval breqtrrd
+    )
+    ADBHZBIEHZCJKZELMZUOBIZNCOPZQAURUODBACLRZURSRFECTUAAUOURRZUBZUOVBUOLRZAUQEUOLUCZUDZUEVCUOVCUOVFUFUGADURUHRDURUIGDURUJUAUKAVAUTUSULFCBEUMUAUN $.
+  $}
 
 $}
 

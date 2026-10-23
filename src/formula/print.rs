@@ -53,6 +53,12 @@ impl Grammar {
                 return self.fill(n, &rest);
             }
         }
+        // A set the page never writes alone, joined from two holes by the
+        // spelling that writes it: "there is f ∈ (the functions from X to
+        // Y) with …" is `there is f : X → Y with …`.
+        if let Some((n, parts)) = self.joined_set(node) {
+            return self.fill(n, &parts);
+        }
         match self.plain(node) {
             Some(n) => self.fill(n, &node.children),
             None => {
@@ -61,6 +67,29 @@ impl Grammar {
                 format!("{}({})", node.notation_name(), inner.join(", "))
             }
         }
+    }
+
+    /// The spelling that joins two of its holes into a set where `node`
+    /// holds that set, and the children it is filled with: the node's own,
+    /// the set taken apart into the two it was joined from. None where no
+    /// spelling joins a set the node holds.
+    fn joined_set(&self, node: &Node) -> Option<(&Notation, Vec<Node>)> {
+        self.notations.iter().find_map(|n| {
+            let j = n.joins.as_ref()?;
+            let at = j.first - 1;
+            let set = node.children.get(at)?;
+            let fits = n.spelling() == node.spelling()
+                && joins_a_set(n)
+                && holes(n) == node.children.len() + 1
+                && set.spelling() == j.by.spelling
+                && set.children.len() == 2;
+            if !fits {
+                return None;
+            }
+            let mut parts = node.children.clone();
+            parts.splice(at..=at, set.children.iter().cloned());
+            Some((n, parts))
+        })
     }
 
     /// The plain pattern a node of this notation and literal is written by,
@@ -76,6 +105,16 @@ impl Grammar {
                 && n.joins.is_none()
                 && n.wrap.is_none()
                 && n.fill.is_none()
+        })
+    }
+
+    /// The pattern of this record and literal that joins two neighbouring
+    /// holes into a set the page never writes alone, `there is _ : _ → _
+    /// with _`, where it has one.
+    pub fn joined_by(&self, spelling: Spelling) -> Option<&Notation> {
+        let literal = spelling.text();
+        self.notations.iter().find(|n| {
+            n.record_id == spelling.notation && *n.literal == *literal && joins_a_set(n)
         })
     }
 
@@ -212,6 +251,21 @@ impl Grammar {
 enum Edge {
     Left,
     Right,
+}
+
+/// Whether a pattern joins two neighbouring holes into a set, and adds no
+/// other rule: "there is f : X → Y with …" joins X and Y into the functions
+/// from X to Y. A join into a formula, "for all x ∈ S with A, B", is a
+/// second spelling of what the plain pattern writes, and is not one.
+fn joins_a_set(n: &Notation) -> bool {
+    n.joins
+        .as_ref()
+        .is_some_and(|j| j.by.yields.starts_with("set") && j.then == j.first + 1)
+        && n.places.is_none()
+        && n.nests.is_none()
+        && n.bounds.is_none()
+        && n.wrap.is_none()
+        && n.fill.is_none()
 }
 
 fn holes(n: &Notation) -> usize {

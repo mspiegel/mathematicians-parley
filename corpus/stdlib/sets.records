@@ -289,6 +289,14 @@ mundane theorem pair-subset
   metamath    prssi
   target      prssi
 
+mundane theorem triple-subset
+  let a ∈ X                                                           (H1)
+  let b ∈ X                                                           (H2)
+  let c ∈ X                                                           (H3)
+  then        {a, b, c} ⊆ X
+  metamath    tpssi
+  target      tpssi
+
 mundane theorem powerset-monotone
   assume Y ⊆ X                                                        (H1)
   then        𝒫Y ⊆ 𝒫X

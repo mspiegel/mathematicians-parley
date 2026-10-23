@@ -1137,6 +1137,19 @@ fn cases() -> Vec<Case> {
             )],
             "from 3 does not reach f(b) ∈ ℝ, which this line claims it supplies",
         ),
+        // A define gives its function on its domain and nothing more: the
+        // type p : X → ℝ is a step citing `function-into`, and a requires
+        // line naming the define and the values' line in its place is not
+        // read as that step.
+        case(
+            "a function's type from its define and its values, in place of the step proving it",
+            vec![edit(
+                "proofs/wiedijk/binomial.proof",
+                Some("    mun:sum-termwise a := 0, b := m + 1, t := p, from 23\n    requires p : {0, …, m + 1} → ℝ: from 4\n".to_string()),
+                "    mun:sum-termwise a := 0, b := m + 1, t := p, from 23\n    requires p : {0, …, m + 1} → ℝ: from D2, 3\n".to_string(),
+            )],
+            "from D2, 3 does not reach p : {0, …, m + 1} → ℝ, which this line claims it supplies",
+        ),
         // A claim the method named does not decide, a membership said by
         // `inequalities`: no closure step is taken without examining it.
         case(
