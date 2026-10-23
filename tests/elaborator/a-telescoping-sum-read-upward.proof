@@ -1,0 +1,20 @@
+import definition stdlib/polynomials/B
+import theorem    stdlib/sums/sum-telescopes-up
+
+theorem a-telescoping-sum-read-upward
+  note        The item writes t(k + 1) before t(k), and t is read off t(k), the occurrence at the letter the sum binds.
+  let m ∈ ℕ₀    (H1)
+  then Σ(n = 0 to m) ((n + 1)^2 − n^2) = (m + 1)^2 − 0^2
+
+1.  Σ(n = 0 to m) ((n + 1)^2 − n^2) = (m + 1)^2 − 0^2
+    thm:sum-telescopes-up a := 0, b := m
+    requires m + 1 ≥ 0: inequalities, from H1
+
+theorem a-telescoping-sum-of-bernoulli-values
+  note        Each term of the sum is a value of B at an integer, a complex number by bpolycl.
+  let m ∈ ℕ₀    (H1)
+  then Σ(n = 0 to m) (B(2, n + 1) − B(2, n)) = B(2, m + 1) − B(2, 0)
+
+1.  Σ(n = 0 to m) (B(2, n + 1) − B(2, n)) = B(2, m + 1) − B(2, 0)
+    thm:sum-telescopes-up a := 0, b := m
+    requires m + 1 ≥ 0: inequalities, from H1

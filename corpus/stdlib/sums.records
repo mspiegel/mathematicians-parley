@@ -83,6 +83,18 @@ theorem sum-telescopes
   note        A telescoping sum: each term's second half cancels the next
               term's first, and what is left is the first and the last.
 
+theorem sum-telescopes-up
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  assume b + 1 ≥ a                                                    (H3)
+  let t : {a, …, b + 1} → ℂ                                           (H4)
+  then        Σ(k = a to b) (t(k + 1) − t(k)) = t(b + 1) − t(a)
+  metamath    telfsum2
+  target      telfsum2
+  note        The telescoping sum with each term's differences taken the
+              other way, each value less the one before, over ℂ as set.mm
+              states it: what is left is the last less the first.
+
 mundane theorem sum-first
   let n ∈ ℕ₀                                                          (H1)
   let t : {0, …, n} → ℝ                                               (H2)
@@ -134,6 +146,17 @@ mundane theorem sum-termwise
               by index. The terms need agree only where the sum takes them,
               which is what lets a term be rewritten by a fact that holds on
               the range and nowhere else.
+
+mundane theorem sum-termwise-complex
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  let t : {a, …, b} → ℂ                                               (H3)
+  let u : {a, …, b} → ℂ                                               (H4)
+  assume for all k ∈ {a, …, b}, t(k) = u(k)                           (H5)
+  then        Σ(k = a to b) t(k) = Σ(k = a to b) u(k)
+  metamath    sumeq2dv
+  target      sumeq2dv
+  note        `sum-termwise` for terms that are complex numbers.
 
 mundane theorem sum-real
   let a ∈ ℤ                                                           (H1)

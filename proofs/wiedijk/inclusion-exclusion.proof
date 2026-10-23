@@ -1,0 +1,152 @@
+import mundane theorem    stdlib/counting/card-disjoint-union
+import mundane theorem    stdlib/counting/card-nat0
+import mundane theorem    stdlib/counting/finite-part
+import mundane theorem    stdlib/counting/union-finite
+import mundane theorem    stdlib/sets/difference-subset
+import mundane theorem    stdlib/sets/disjoint-difference
+import mundane theorem    stdlib/sets/intersection-and-difference
+import mundane theorem    stdlib/sets/intersection-and-difference-disjoint
+import mundane theorem    stdlib/sets/intersection-commutes
+import mundane theorem    stdlib/sets/intersection-distributes-over-intersection
+import mundane theorem    stdlib/sets/intersection-distributes-right
+import mundane theorem    stdlib/sets/intersection-subset
+import mundane theorem    stdlib/sets/union-difference
+
+theorem inclusion-exclusion-two
+  note        A ∪ B is A together with what B has outside A, and B is what
+              it shares with A together with that same part, so |A ∪ B| and
+              |B| exceed |A| and |A ∩ B| by the same number.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  assume A is finite                                                  (H3)
+  assume B is finite                                                  (H4)
+  then |A ∪ B| = |A| + |B| − |A ∩ B|
+
+1.  B ∖ A ⊆ B
+    mun:difference-subset X := B, Y := A
+
+2.  B ∖ A is finite
+    mun:finite-part X := B, Y := B ∖ A, from H4, 1
+
+3.  A ∩ B ⊆ A
+    mun:intersection-subset Y := A, Z := B
+
+4.  A ∩ B is finite
+    mun:finite-part X := A, Y := A ∩ B, from H3, 3
+
+5.  |A| ∈ ℕ₀
+    mun:card-nat0 X := A, from H3
+
+6.  |B ∖ A| ∈ ℕ₀
+    mun:card-nat0 X := B ∖ A, from 2
+
+7.  |A ∩ B| ∈ ℕ₀
+    mun:card-nat0 X := A ∩ B, from 4
+
+8.  A ∩ (B ∖ A) = ∅
+    mun:disjoint-difference Y := A, Z := B
+
+9.  |A ∪ (B ∖ A)| = |A| + |B ∖ A|
+    mun:card-disjoint-union X := A, Y := B ∖ A, m := |A|, n := |B ∖ A|,
+      from 5, 6, 8
+
+10. A ∪ (B ∖ A) = A ∪ B
+    mun:union-difference Y := A, Z := B
+
+11. |A ∪ B| = |A| + |B ∖ A|
+    substitute A ∪ (B ∖ A) = A ∪ B (line 10) into line 9
+
+12. B ∩ A = A ∩ B
+    mun:intersection-commutes Y := B, Z := A
+
+13. (B ∩ A) ∩ (B ∖ A) = ∅
+    mun:intersection-and-difference-disjoint Y := B, Z := A
+
+14. (A ∩ B) ∩ (B ∖ A) = ∅
+    substitute B ∩ A = A ∩ B (line 12) into line 13
+
+15. (B ∩ A) ∪ (B ∖ A) = B
+    mun:intersection-and-difference Y := B, Z := A
+
+16. (A ∩ B) ∪ (B ∖ A) = B
+    substitute B ∩ A = A ∩ B (line 12) into line 15
+
+17. |(A ∩ B) ∪ (B ∖ A)| = |A ∩ B| + |B ∖ A|
+    mun:card-disjoint-union X := A ∩ B, Y := B ∖ A, m := |A ∩ B|,
+      n := |B ∖ A|, from 6, 7, 14
+
+18. |B| = |A ∩ B| + |B ∖ A|
+    substitute (A ∩ B) ∪ (B ∖ A) = B (line 16) into line 17
+
+19. |A ∪ B| = |A| + |B| − |A ∩ B|
+    algebra, from 5, 6, 7, 11, 18
+
+theorem inclusion-exclusion-three
+  note        Count A ∪ B and C as two sets, then A ∪ B as two, and the part
+              of C in A ∪ B, which is A ∩ C together with B ∩ C, as two.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  let C be a set                                                      (H3)
+  assume A is finite                                                  (H4)
+  assume B is finite                                                  (H5)
+  assume C is finite                                                  (H6)
+  then |A ∪ B ∪ C| = |A| + |B| + |C| − |A ∩ B| − |A ∩ C| − |B ∩ C| + |A ∩ B ∩ C|
+
+1.  A ∪ B is finite
+    mun:union-finite X := A, Y := B, from H4, H5
+
+2.  |A ∪ B ∪ C| = |A ∪ B| + |C| − |(A ∪ B) ∩ C|
+    thm:inclusion-exclusion-two A := A ∪ B, B := C, from H6, 1
+
+3.  |A ∪ B| = |A| + |B| − |A ∩ B|
+    thm:inclusion-exclusion-two, from H4, H5
+
+4.  A ∩ C ⊆ A
+    mun:intersection-subset Y := A, Z := C
+
+5.  A ∩ C is finite
+    mun:finite-part X := A, Y := A ∩ C, from H4, 4
+
+6.  B ∩ C ⊆ B
+    mun:intersection-subset Y := B, Z := C
+
+7.  B ∩ C is finite
+    mun:finite-part X := B, Y := B ∩ C, from H5, 6
+
+8.  |(A ∩ C) ∪ (B ∩ C)| = |A ∩ C| + |B ∩ C| − |(A ∩ C) ∩ (B ∩ C)|
+    thm:inclusion-exclusion-two A := A ∩ C, B := B ∩ C, from 5, 7
+
+9.  (A ∪ B) ∩ C = (A ∩ C) ∪ (B ∩ C)
+    mun:intersection-distributes-right X := A, Y := B, Z := C
+
+10. A ∩ B ∩ C = (A ∩ C) ∩ (B ∩ C)
+    mun:intersection-distributes-over-intersection X := A, Y := B, Z := C
+
+11. |(A ∪ B) ∩ C| = |A ∩ C| + |B ∩ C| − |(A ∩ C) ∩ (B ∩ C)|
+    substitute (A ∪ B) ∩ C = (A ∩ C) ∪ (B ∩ C) (line 9) into line 8
+
+12. |(A ∪ B) ∩ C| = |A ∩ C| + |B ∩ C| − |A ∩ B ∩ C|
+    substitute A ∩ B ∩ C = (A ∩ C) ∩ (B ∩ C) (line 10) into line 11
+
+13. A ∩ B ⊆ A
+    mun:intersection-subset Y := A, Z := B
+
+14. A ∩ B is finite
+    mun:finite-part X := A, Y := A ∩ B, from H4, 13
+
+15. A ∩ B ∩ C ⊆ A ∩ B
+    mun:intersection-subset Y := A ∩ B, Z := C
+
+16. A ∩ B ∩ C is finite
+    mun:finite-part X := A ∩ B, Y := A ∩ B ∩ C, from 14, 15
+
+17. |A ∪ B ∪ C| = |A| + |B| + |C| − |A ∩ B| − |A ∩ C| − |B ∩ C|
+                  + |A ∩ B ∩ C|
+    algebra, from 2, 3, 12
+    requires |A| ∈ ℕ₀: mun:card-nat0, from H4
+    requires |B| ∈ ℕ₀: mun:card-nat0, from H5
+    requires |C| ∈ ℕ₀: mun:card-nat0, from H6
+    requires |A ∩ B| ∈ ℕ₀: mun:card-nat0, from 14
+    requires |A ∩ C| ∈ ℕ₀: mun:card-nat0, from 5
+    requires |B ∩ C| ∈ ℕ₀: mun:card-nat0, from 7
+    requires |A ∩ B ∩ C| ∈ ℕ₀: mun:card-nat0, from 16

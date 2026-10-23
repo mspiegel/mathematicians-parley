@@ -766,6 +766,7 @@ pub const FROM_NN0: &[(&str, Option<&str>)] = &[
 pub const SETHOOD: &[(&str, &str)] = &[
     ("cpw", "pwexg"),
     ("cdif", "difexg"),
+    ("cin", "inex1g"),
     ("cun", "unexg"),
     ("csn", "snex"),
     ("cpr", "prex"),
@@ -1021,6 +1022,9 @@ pub const MEMBERSHIP: &[&str] = &[
     // power's exponent n − k is a whole number when k is in 0 … n.
     "bccl",
     "fznn0sub",
+    // A Bernoulli polynomial's value at a complex number is one, which a
+    // sum of its values asks of each term.
+    "bpolycl",
     // and an index of a sum to m is in the range to m + 1.
     "fzelp1",
     // An index of a sum from 1 is a natural number, where a power wants it.
