@@ -19,8 +19,8 @@ statement's variables.
 
 ## State
 
-All thirty-eight are written and elaborate from set.mm with nothing assumed;
-none is chosen and not yet started. Each of the thirty-eight has its proof in
+All forty-two are written and elaborate from set.mm with nothing assumed;
+none is chosen and not yet started. Each of the forty-two has its proof in
 `proofs/wiedijk/` and its design record in `docs/pilot/`, under the same name:
 
 | # | proof | # | proof |
@@ -44,10 +44,13 @@ none is chosen and not yet started. Each of the thirty-eight has its proof in
 | 33 | ptolemy | 34 | inclusion-exclusion |
 | 35 | sum-of-powers | 36 | cubic |
 | 37 | quartic | 38 | prime-factorisation |
+| 39 | combinations | 40 | ballot |
+| 41 | erdos-szekeres | 42 | ramsey |
 
 Theorem 17 holds both halves of the Euclid–Euler theorem. Theorem 38 is the
 existence half of the fundamental theorem of arithmetic only; uniqueness is
-not proved. The informal
+not proved. Theorem 42, Ramsey's theorem, is the two-colour graph form with
+the binomial bound, not set.mm's form for any number of colours. The informal
 sources of 3, 6, 7, 10, 14 and 20 were written from memory and checked
 against the book after their pilots: only 6 follows Hammack's proof, and
 14 and 20 are ProofWiki's arguments, not his.

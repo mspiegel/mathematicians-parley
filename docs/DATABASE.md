@@ -68,14 +68,14 @@ has, and a subject is one file:
 
 | file | holds | items |
 |---|---|---|
-| `corpus/stdlib/reasoning.records` | the laws of logic a proof cites by name | 13 |
-| `corpus/stdlib/numbers.records` | the number systems, closure, order, powers, roots, absolute value | 100 |
+| `corpus/stdlib/reasoning.records` | the laws of logic a proof cites by name | 14 |
+| `corpus/stdlib/numbers.records` | the number systems, closure, order, powers, roots, absolute value | 101 |
 | `corpus/stdlib/divisibility.records` | even and odd, divisors, primes, gcd, division, congruence, Euler's φ, the sum of divisors σ | 76 |
-| `corpus/stdlib/sums.records` | sums over a range, and the ranges; products over a finite set | 45 |
-| `corpus/stdlib/sets.records` | subsets, set-builder, union, intersection, difference, power set, listed sets | 70 |
+| `corpus/stdlib/sums.records` | sums over a range, and the ranges; products over a finite set | 48 |
+| `corpus/stdlib/sets.records` | subsets, set-builder, union, intersection, difference, power set, listed sets | 79 |
 | `corpus/stdlib/functions.records` | functions, their values, images, and inverses | 23 |
-| `corpus/stdlib/counting.records` | the size of a set, factorials, binomial coefficients, counting by parts | 41 |
-| `corpus/stdlib/calculus.records` | intervals, bounds and completeness, continuity, derivatives, bounded sequences | 28 |
+| `corpus/stdlib/counting.records` | the size of a set, factorials, binomial coefficients, counting by parts, the pigeonhole principle | 50 |
+| `corpus/stdlib/calculus.records` | intervals, bounds and completeness, continuity, derivatives, bounded sequences | 30 |
 | `corpus/stdlib/geometry.records` | points, distance, angles and signed angles, triangles and their kinds (isosceles, equilateral, right-angled), congruence, parallels and sides of a line, lines and perpendiculars, midpoints, chords of a circle, area, the laws of sines and cosines, coordinates, supplementary angles, the triangle inequality, the addition of angles | 65 |
 | `corpus/stdlib/groups.records` | groups, their laws, subgroups, cosets | 12 |
 | `corpus/stdlib/trigonometry.records` | cos and sin, their addition formulas, signs, bounds and order, the special angles, the supplement | 22 |
@@ -125,7 +125,7 @@ Every item in the standard library carries a field saying where it comes from:
 
 | field | meaning | count |
 |---|---|---|
-| `metamath` | a set.mm label or labels supply it | 518 |
+| `metamath` | a set.mm label or labels supply it | 543 |
 | `open` | it is cited but unproved and unbridged | 5 |
 
 A theorem this corpus proves has no
@@ -140,7 +140,7 @@ the record; every other proof cites the record. The two are one fact in two
 roles, each checked on its own: the record against its set.mm lemma, the
 theorem by its proof. What a record would say beside the statement,
 the set.mm theorem it answers to and a note, the proof says in `metamath` and
-`note` lines under its `theorem` line; 74 of the 432 name a set.mm
+`note` lines under its `theorem` line; 79 of the 653 name a set.mm
 counterpart.
 
 A definition may also carry a `target`, which says which set.mm theorem
@@ -494,8 +494,8 @@ mundane definition difference
 |---|---|
 | `axiom` | 4 |
 | `mundane axiom` | 8 |
-| `theorem` | 70 |
-| `mundane theorem` | 366 |
+| `theorem` | 71 |
+| `mundane theorem` | 390 |
 | `definition` | 12 |
 | `mundane definition` | 63 |
 
@@ -617,6 +617,7 @@ this table is mundane.
 | remainder | `theorem` | "by the remainder theorem", factor step 1 |
 | convergent-bounded, archimedean-natural | `theorem` | "a convergent sequence is bounded", harmonic step 1.2; "by the Archimedean property, choose N > 2M", harmonic-unbounded step 2 |
 | prime-powers-unique | `theorem` | "by unique factorisation", rationals-countable step 7.8 |
+| pigeonhole | `theorem` | "by the pigeonhole principle", erdos-szekeres step 1.13 |
 | continuous-sum, continuous-linear, derivative-sum, derivative-linear | `theorem` | "a sum of continuous functions is continuous", "the derivative of a sum is the sum of the derivatives", mean-value steps 10 to 15 |
 | congruent-cancel, product-reorder, product-congruent, product-factor, product-coprime, coprime-divides | `theorem` | "cancel a, which is coprime to n", "the same remainders in another order", "congruences multiply", "a comes out once per factor", "a product of numbers coprime to n is coprime to n", "n divides the product and is coprime to one factor", euler steps 7.7, 10, 12, 13, 19 and 23 |
 | continuous-on | `definition` | "by the continuity of f at c", intermediate-value step 15 |
