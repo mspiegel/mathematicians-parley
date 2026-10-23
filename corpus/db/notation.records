@@ -32,19 +32,23 @@
 #               what the pattern produces fits those holes, so it can nest in itself;
 #               absent otherwise, since a token at an edge or a sort mismatch
 #               already settles the reading.
-#   commutes    that the pattern's two holes may be exchanged without changing
-#               what it denotes, so 2k and k·2 are the same number. One entry
-#               per pattern, `yes` or `no`; absent where no pattern commutes.
-#               For a pattern of more than two holes, `yes` says they may
-#               stand in any order: "A, B, C form a triangle" and "C, A, B
-#               form a triangle" are one claim about three points.
+#   commutes    whether the pattern's holes may stand in another order
+#               without changing what it denotes. One entry per pattern,
+#               `yes`, `any order` or `no`; absent where no pattern commutes.
 #
-#               Unlike `spells` and `negates`, the two are not the same
-#               formula. The kernel writes one of them, a proof offering the
-#               other has to be carried across, and the entry is what says
-#               the crossing is sound. Without it a corpus that writes 2k
-#               could not cite a set.mm theorem that writes k · 2, which is
-#               what `divides` writes.
+#               `yes` says two holes may be exchanged, so 2k and k·2 are the
+#               same number. Unlike `spells` and `negates`, the two are not
+#               the same formula. The kernel writes one of them, a proof
+#               offering the other has to be carried across, and the entry
+#               is what says the crossing is sound. Without it a corpus that
+#               writes 2k could not cite a set.mm theorem that writes k · 2,
+#               which is what `divides` writes.
+#
+#               `any order` says the holes stand in no order on the page:
+#               {u, w} and {w, u} are one set, and "A, B, C form a triangle"
+#               and "C, A, B form a triangle" one claim. The checker reads
+#               them in every order, and the elaborator carries one order to
+#               another, so a proof never cites a reordering.
 #   identity    the element that leaves the other hole unchanged, and on
 #               which side it does: `0 on either side` for +, `0 on the
 #               right` for −, so x − 0 is x and 0 − x is not. One entry per
@@ -592,7 +596,7 @@ notation singleton
 notation listed-two
   pattern     {_, _}
   sort        α, α → set of α
-  commutes    yes
+  commutes    any order
   reads       the set whose elements are, and
   metamath    cpr
   target      _1 _2 cpr
@@ -604,6 +608,7 @@ notation listed-two
 notation listed-three
   pattern     {_, _, _}
   sort        α, α, α → set of α
+  commutes    any order
   reads       the set whose elements are, and
   metamath    ctp
   target      _1 _2 _3 ctp
@@ -612,6 +617,7 @@ notation listed-three
 notation listed-four
   pattern     {_, _, _, _}
   sort        α, α, α, α → set of α
+  commutes    any order
   repeats     hole 4 after , building _ csn cun
   reads       the set whose elements are, and
   metamath    ctp and csn joined by cun: the first three with the rest
@@ -1760,7 +1766,7 @@ notation collinear
   pattern     _, _, _ are collinear
   sort        point, point, point → formula
   level       predicate
-  commutes    yes
+  commutes    any order
   reads       are collinear
   metamath    the first two are one point, or the ratio of the two
               differences is real
@@ -1775,7 +1781,7 @@ notation forms-a-triangle
   pattern     _, _, _ form a triangle
   sort        point, point, point → formula
   level       predicate
-  commutes    yes
+  commutes    any order
   reads       form a triangle
   metamath    the three vertices distinct and not on one line
   target      _1 _2 wceq wn _2 _3 wceq wn wa _1 _3 wceq wn wa

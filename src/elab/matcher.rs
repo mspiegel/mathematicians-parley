@@ -64,6 +64,9 @@ pub enum How {
     Eqcom,
     /// A symmetric pair put in order.
     Commuted,
+    /// Two elements of a listed set of three or more exchanged, by the
+    /// lemma of `rules::LISTED` named.
+    Listed(&'static str),
 }
 
 /// A link of a chain of equalities or equivalences: ( scope -> from = to ),
@@ -226,7 +229,7 @@ impl<'a> Elaborator<'a> {
 
     /// A claim about three points in no order held with its points named in
     /// another order: three points form a triangle, or are collinear, in any
-    /// order (`commutes yes`). Which claim `wanted` is decides the pair of
+    /// order (`commutes any order`). Which claim `wanted` is decides the pair of
     /// lemmas that carry it (`REORDERS`).
     fn held_reordered(
         &mut self,
@@ -2580,7 +2583,60 @@ impl<'a> Elaborator<'a> {
                 return Some((How::Commuted, Term::apply(&c.constructor, kids)));
             }
         }
-        None
+        self.listing_step(term)
+    }
+
+    /// Two elements of a listed set of three or more, next to each other
+    /// and out of order, exchanged at the head of `term`; None where the
+    /// head is no listing or its elements there are in order. The page
+    /// lists a set's elements in no order (`commutes any order`), so a
+    /// listing's standard form is its elements in order, as a symmetric
+    /// pair's is. The parts are put in order first (`written_form`,
+    /// `standard`), so at the head only the last element is out of place,
+    /// and each exchange moves it one place toward the front.
+    ///
+    /// A listing of four or more is a triple joined with a singleton of
+    /// each further element, ( ( {a, b, c} ∪ {d} ) ∪ {e} ), and only a
+    /// union of that shape is read as one: a union the page writes of
+    /// another set is left as it is.
+    fn listing_step(&self, term: &Term) -> Option<(How, Term)> {
+        match term.label() {
+            Some("ctp") if term.children().len() == 3 => {
+                let kids = term.children();
+                let (places, lemma) =
+                    if self.order_key(&kids[1]) < self.order_key(&kids[0]) {
+                        ((0, 1), rules::LISTED.triple_first)
+                    } else if self.order_key(&kids[2]) < self.order_key(&kids[1]) {
+                        ((1, 2), rules::LISTED.triple_last)
+                    } else {
+                        return None;
+                    };
+                let mut kids = kids.to_vec();
+                kids.swap(places.0, places.1);
+                Some((How::Listed(lemma), Term::apply("ctp", kids)))
+            }
+            Some("cun") if term.children().len() == 2 => {
+                let (before, added) = (&term.children()[0], &term.children()[1]);
+                let element = singleton_element(added)?;
+                let ListingEnd { rest, last } = listing_end(before)?;
+                if self.order_key(element) >= self.order_key(&last) {
+                    return None;
+                }
+                let (how, before) = match rest {
+                    ListingRest::Triple(first, second) => (
+                        rules::LISTED.into_triple,
+                        Term::apply("ctp", vec![first, second, element.clone()]),
+                    ),
+                    ListingRest::Union(inner) => (
+                        rules::LISTED.singletons,
+                        Term::apply("cun", vec![inner, added.clone()]),
+                    ),
+                };
+                let moved = Term::apply("csn", vec![last.clone()]);
+                Some((How::Listed(how), Term::apply("cun", vec![before, moved])))
+            }
+            _ => None,
+        }
     }
 
     /// What a name a `define` introduced names, where `term` is that name
@@ -2921,6 +2977,10 @@ impl<'a> Elaborator<'a> {
             How::Commuted => {
                 let goal = self.to_term(&t!(a, b, "wceq"));
                 self.settle(&goal, where_, held, 3, None, None)
+            }
+            How::Listed(label) => {
+                let goal = self.to_term(&t!(a, b, "wceq"));
+                self.apply_lemma(label, &goal, where_, held, None, false, None)
             }
             How::Rule(label) => {
                 let wff = self.is_wff(cur);
@@ -7238,7 +7298,7 @@ struct ThreePoints {
     points: Vec<Term>,
 }
 
-/// The claims about three points that `commutes yes` says are one in any
+/// The claims about three points that `commutes any order` says are one in any
 /// order, by the lemmas that reorder them: a triangle (`forms-a-triangle`)
 /// and collinearity (`collinear`).
 const REORDERS: [Reorder; 2] = [
@@ -7251,6 +7311,54 @@ const REORDERS: [Reorder; 2] = [
         rotate: "gcolrotate",
     },
 ];
+
+/// A listed set of three or more elements taken apart at its last element
+/// (`listing_step`).
+struct ListingEnd {
+    /// What stands before the last element.
+    rest: ListingRest,
+    /// The last element listed.
+    last: Term,
+}
+
+/// What stands before a listing's last element.
+enum ListingRest {
+    /// The first two of a triple, {a, b, c} with c the last.
+    Triple(Term, Term),
+    /// A listing of three or more, joined with the last element's
+    /// singleton: ( {a, b, c} ∪ {d} ) with d the last.
+    Union(Term),
+}
+
+/// The element of a singleton, {a}; None for any other term.
+fn singleton_element(term: &Term) -> Option<&Term> {
+    match term.label() {
+        Some("csn") if term.children().len() == 1 => Some(&term.children()[0]),
+        _ => None,
+    }
+}
+
+/// A listed set of three or more taken apart at its last element: a
+/// triple, or a listing joined with a singleton (`listing_step`); None for
+/// any other term.
+fn listing_end(term: &Term) -> Option<ListingEnd> {
+    let kids = term.children();
+    match term.label() {
+        Some("ctp") if kids.len() == 3 => Some(ListingEnd {
+            rest: ListingRest::Triple(kids[0].clone(), kids[1].clone()),
+            last: kids[2].clone(),
+        }),
+        Some("cun") if kids.len() == 2 => {
+            let last = singleton_element(&kids[1])?;
+            listing_end(&kids[0])?;
+            Some(ListingEnd {
+                rest: ListingRest::Union(kids[0].clone()),
+                last: last.clone(),
+            })
+        }
+        _ => None,
+    }
+}
 
 /// How many constructors a pattern fixes: the nodes that are not variables.
 fn constructors(pattern: &Term) -> usize {
@@ -7475,6 +7583,9 @@ fn either_way(
     {
         return None;
     }
+    if let (Some(ours), Some(theirs)) = (listed(&pattern), listed(&ground)) {
+        return listed_either_way(&left, &ours, &theirs, &binding, variables);
+    }
     let paired = |turn: bool| {
         let mut more = left.clone();
         let theirs: Vec<Term> = if turn {
@@ -7499,6 +7610,57 @@ fn either_way(
             .then(|| either_way(paired(true), binding, variables))
             .flatten()
     })
+}
+
+/// `either_way` at a listed set of the pattern's and one of the term's: the
+/// pattern's elements fitted to the term's in any order, since `same`
+/// carries a listing to any order of it (`listing_step`). The orders tried
+/// are those of the pattern's own listing, which the lemma writes, and
+/// each is cut off at the first element that does not fit.
+fn listed_either_way(
+    left: &[ToFit],
+    ours: &[Term],
+    theirs: &[Term],
+    binding: &Binding,
+    variables: &Vars,
+) -> Option<Binding> {
+    if ours.len() != theirs.len() {
+        return None;
+    }
+    let Some((first, rest)) = ours.split_first() else {
+        return either_way(left.to_vec(), binding.clone(), variables);
+    };
+    for (at, ground) in theirs.iter().enumerate() {
+        let one = ToFit {
+            pattern: first.clone(),
+            ground: ground.clone(),
+        };
+        let Some(fitted) = either_way(vec![one], binding.clone(), variables) else {
+            continue;
+        };
+        let mut others = theirs.to_vec();
+        others.remove(at);
+        if let Some(done) = listed_either_way(left, rest, &others, &fitted, variables) {
+            return Some(done);
+        }
+    }
+    None
+}
+
+/// The elements of a listed set of two or more, in the order listed: a
+/// pair, a triple, or a listing of four or more (`listing_end`); None for
+/// any other term.
+fn listed(term: &Term) -> Option<Vec<Term>> {
+    if term.label() == Some("cpr") && term.children().len() == 2 {
+        return Some(term.children().to_vec());
+    }
+    let ListingEnd { rest, last } = listing_end(term)?;
+    let mut elements = match rest {
+        ListingRest::Triple(first, second) => vec![first, second],
+        ListingRest::Union(before) => listed(&before)?,
+    };
+    elements.push(last);
+    Some(elements)
 }
 
 /// The lemma carrying a class's equality up through one place of a term.

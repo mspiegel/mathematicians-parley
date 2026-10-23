@@ -1,0 +1,120 @@
+import mundane theorem stdlib/counting/card-two
+import mundane theorem stdlib/sets/pair-subset
+import mundane theorem stdlib/sets/triple-subset
+import mundane theorem stdlib/sets/subset-antisymmetric
+import mundane theorem stdlib/sets/subset-transitive
+
+theorem a-pair-cited-in-the-other-order
+  note        card-two with a := w, b := v concludes Y = {w, v}, and the
+              step claims the same set listed the other way.
+  let Y be a set                                                      (H1)
+  assume |Y| = 2                                                      (H2)
+  let v ∈ Y                                                           (H3)
+  let w ∈ Y                                                           (H4)
+  assume v ≠ w                                                        (H5)
+  then Y = {v, w}
+
+1.  Y = {v, w}
+    mun:card-two a := w, b := v, from H2, H3, H4, H5
+
+theorem a-pair-inside-a-subset
+  note        pair-subset concludes {a, b} ⊆ X of the two in the order
+              given, and the step lists them the other way.
+  let X be a set                                                      (H1)
+  let u ∈ X                                                           (H2)
+  let w ∈ X                                                           (H3)
+  then {w, u} ⊆ X
+
+1.  {w, u} ⊆ X
+    mun:pair-subset a := u, b := w, from H2, H3
+
+theorem a-pair-from-lines
+  note        Lines list the pair one way and the claim the other, so the
+              build carries the set across rather than fitting the item
+              again.
+  let X be a set                                                      (H1)
+  let u be an element                                                 (H2)
+  let w be an element                                                 (H3)
+  assume {u, w} ⊆ X                                                   (H4)
+  assume X ⊆ {u, w}                                                   (H5)
+  then X = {w, u}
+
+1.  X = {w, u}
+    mun:subset-antisymmetric Y := {u, w}, from H4, H5
+
+theorem a-triple-inside-a-subset
+  note        Line 1 lists the triple in one order, and line 2 cites it
+              for the subset-transitive's X ⊆ Y of the triple in another.
+  let X be a set                                                      (H1)
+  let Y be a set                                                      (H2)
+  let a ∈ X                                                           (H3)
+  let b ∈ X                                                           (H4)
+  let c ∈ X                                                           (H5)
+  assume X ⊆ Y                                                        (H6)
+  then {c, a, b} ⊆ Y
+
+1.  {a, b, c} ⊆ X
+    mun:triple-subset, from H3, H4, H5
+
+2.  {c, a, b} ⊆ Y
+    mun:subset-transitive, from H6, 1
+
+theorem a-triple-reversed
+  note        The same, each element in the other's place.
+  let X be a set                                                      (H1)
+  let Y be a set                                                      (H2)
+  let a ∈ X                                                           (H3)
+  let b ∈ X                                                           (H4)
+  let c ∈ X                                                           (H5)
+  assume X ⊆ Y                                                        (H6)
+  then {c, b, a} ⊆ Y
+
+1.  {a, b, c} ⊆ X
+    mun:triple-subset, from H3, H4, H5
+
+2.  {c, b, a} ⊆ Y
+    mun:subset-transitive, from H6, 1
+
+theorem a-triple-in-an-equation
+  note        Two subsets each way make an equation, cited of the triple
+              in one order and claimed of it in another.
+  let X be a set                                                      (H1)
+  let a be an element                                                 (H2)
+  let b be an element                                                 (H3)
+  let c be an element                                                 (H4)
+  assume {a, b, c} ⊆ X                                                (H5)
+  assume X ⊆ {a, b, c}                                                (H6)
+  then {b, c, a} = X
+
+1.  {b, c, a} = X
+    mun:subset-antisymmetric X := {a, b, c}, Y := X, from H5, H6
+
+theorem four-in-an-equation
+  note        The same of four elements, listed in another order.
+  let X be a set                                                      (H1)
+  let a be an element                                                 (H2)
+  let b be an element                                                 (H3)
+  let c be an element                                                 (H4)
+  let d be an element                                                 (H5)
+  assume {a, b, c, d} ⊆ X                                             (H6)
+  assume X ⊆ {a, b, c, d}                                             (H7)
+  then X = {d, b, a, c}
+
+1.  X = {d, b, a, c}
+    mun:subset-antisymmetric Y := {a, b, c, d}, from H6, H7
+
+theorem five-substituted
+  note        A set of five, put into a line, claimed in another order.
+  let X be a set                                                      (H1)
+  let Y be a set                                                      (H2)
+  let a be an element                                                 (H3)
+  let b be an element                                                 (H4)
+  let c be an element                                                 (H5)
+  let d be an element                                                 (H6)
+  let e be an element                                                 (H7)
+  assume Y = {a, b, c, d, e}                                          (H8)
+  assume Y ⊆ X                                                        (H9)
+  then {e, c, a, d, b} ⊆ X
+
+1.  {e, c, a, d, b} ⊆ X
+    substitute Y = {a, b, c, d, e} (H8) into H9

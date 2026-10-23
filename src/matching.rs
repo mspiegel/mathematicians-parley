@@ -69,9 +69,9 @@ pub struct Context {
     /// Each spelling that is another of its notation's with the holes in
     /// another order: `x > 0` is `0 < x` (`turned`).
     pub turned: FxIndexMap<Spelling, Turned>,
-    /// The notations whose holes stand in any order, more than two of them
-    /// and `commutes yes`: "A, B, C form a triangle" is "C, A, B form a
-    /// triangle".
+    /// The notations whose holes stand in any order, `commutes any order`:
+    /// "A, B, C form a triangle" is "C, A, B form a triangle", and {v, w} is
+    /// {w, v}.
     pub unordered: FxIndexSet<NotationId>,
     /// Each operation's identity element, by its spelling, from the
     /// records' `identity` field. It goes without saying wherever it
@@ -139,17 +139,16 @@ fn identities(
     out
 }
 
-/// The notations of more than two holes whose record says `commutes yes`.
+/// The notations whose record says `commutes any order`. A notation whose
+/// two holes may only be exchanged, as `·`'s, is not one: k · 2 and 2k are
+/// one number to the elaborator, and the page writes the one it cites.
 fn unordered(records: &[Record]) -> IndexSet<String> {
     records
         .iter()
         .filter(|r| r.kind == RecordKind::Notation)
         .filter(|r| {
-            let says: Vec<&str> = r.field_or_empty("commutes").split(',').collect();
-            crate::formula::notation::patterns_of(r.field_or_empty("pattern"))
-                .into_iter()
-                .zip(says.iter().map(|s| s.trim()))
-                .any(|(p, yes)| yes == "yes" && p.matches('_').count() > 2)
+            crate::targets::commutes_said(r)
+                .contains(&Some(crate::targets::Commutes::AnyOrder))
         })
         .map(|r| r.name.clone())
         .collect()
@@ -566,12 +565,14 @@ pub fn universals(records: &[Record]) -> IndexSet<String> {
         .collect()
 }
 
-/// A claim whose notation says its parts stand in no order (`commutes
-/// yes`), read in each order of its parts; any other claim as it stands. A
-/// pattern fitted to each reading is fitted every way the claim allows,
+/// A claim whose notation says its parts stand in no order (`commutes any
+/// order`), read in each order of its parts; any other claim as it stands.
+/// A pattern fitted to each reading is fitted every way the claim allows,
 /// where `match_tree` alone stops at the first: "S, R, T are collinear"
 /// fits "T, R, S" with T := S as well as with T := T, and only one of the two
-/// may be what the facts supply.
+/// may be what the facts supply. Only the claim's own head is read so: a
+/// claim is a formula, and the formulas in no order are about three points,
+/// where a listing inside a claim, a term, holds any number of elements.
 pub fn readings_in_any_order(node: &Node, ctx: &Context) -> Vec<Node> {
     if !ctx.unordered.contains(&node.notation()) {
         return vec![node.clone()];
@@ -582,16 +583,14 @@ pub fn readings_in_any_order(node: &Node, ctx: &Context) -> Vec<Node> {
         .collect()
 }
 
-/// The ways b's parts may stand against a's: as written, turned round where
-/// a is an equation, and in every order where a's notation is unordered.
-pub fn orders(a: &Node, b: &Node, ctx: &Context) -> Vec<Vec<Node>> {
+/// The ways b's parts may stand against a's: as written, and turned round
+/// where a is an equation. Where a's notation is unordered its parts are
+/// paired in any order instead (`fit_in_any_order`, `parts_related`).
+fn orders(a: &Node, b: &Node, ctx: &Context) -> Vec<Vec<Node>> {
     if ctx.equations.contains(&a.notation()) && b.children.len() == 2 {
         let mut turned = b.children.clone();
         turned.reverse();
         return vec![b.children.clone(), turned];
-    }
-    if ctx.unordered.contains(&a.notation()) {
-        return permutations(&b.children);
     }
     vec![b.children.clone()]
 }
@@ -735,21 +734,33 @@ fn fit(
             .partition(|&i| holds_site(&pattern.children[i], sites));
         first.extend(deciding);
         first.extend(checking);
-        for children in orders(&pattern, ground, ctx) {
-            let all = first.iter().all(|&i| {
-                fit(
-                    &pattern.children[i],
-                    &children[i],
-                    binding,
-                    variables,
-                    sites,
-                    ctx,
-                )
-            });
-            if all {
+        if ctx.unordered.contains(&pattern.notation()) {
+            let mut pairing = Pairing {
+                pattern: &pattern.children,
+                ground: &ground.children,
+                order: &first,
+                taken: vec![false; ground.children.len()],
+            };
+            if fit_in_any_order(&mut pairing, 0, binding, variables, sites, ctx) {
                 return true;
             }
-            binding.truncate(before);
+        } else {
+            for children in orders(&pattern, ground, ctx) {
+                let all = first.iter().all(|&i| {
+                    fit(
+                        &pattern.children[i],
+                        &children[i],
+                        binding,
+                        variables,
+                        sites,
+                        ctx,
+                    )
+                });
+                if all {
+                    return true;
+                }
+                binding.truncate(before);
+            }
         }
     }
     // x + 0 is x wherever it stands (`Context::identities`): in the pattern,
@@ -761,6 +772,121 @@ fn fit(
         Some(kept) => fit(pattern, &kept, binding, variables, sites, ctx),
         None => false,
     }
+}
+
+/// A pattern's parts being paired with the ground's where the notation
+/// says they stand in any order: the pattern's parts in the order they are
+/// paired (`fit`'s), and which of the ground's parts are taken.
+struct Pairing<'n> {
+    pattern: &'n [Node],
+    ground: &'n [Node],
+    /// The pattern's parts by place, in the order they are paired.
+    order: &'n [usize],
+    /// Whether the ground's part at each place is paired already.
+    taken: Vec<bool>,
+}
+
+/// `fit` of the pattern's parts from `at` on in `pairing.order`, each with
+/// one of the ground's parts not yet taken. A part is tried against each
+/// ground part in turn and the rest paired after it, so the orders tried
+/// are only those whose first parts fit, and a list of any length is not
+/// written out in every order. When this gives back false, the binding is
+/// as it was.
+fn fit_in_any_order(
+    pairing: &mut Pairing,
+    at: usize,
+    binding: &mut Binding,
+    variables: &BTreeSet<String>,
+    sites: &IndexSet<NodeId>,
+    ctx: &Context,
+) -> bool {
+    let Some(&part) = pairing.order.get(at) else {
+        return true;
+    };
+    let before = binding.len();
+    for place in 0..pairing.ground.len() {
+        if pairing.taken[place] {
+            continue;
+        }
+        if fit(
+            &pairing.pattern[part],
+            &pairing.ground[place],
+            binding,
+            variables,
+            sites,
+            ctx,
+        ) {
+            pairing.taken[place] = true;
+            if fit_in_any_order(pairing, at + 1, binding, variables, sites, ctx) {
+                return true;
+            }
+            pairing.taken[place] = false;
+        }
+        binding.truncate(before);
+    }
+    false
+}
+
+/// Whether each of `a`'s parts is paired with one of `b`'s, every one of
+/// `b`'s used once, where `related` says which two may pair: a matching
+/// found by augmenting paths, so that a listing of any length is compared
+/// in every order without each order written out.
+fn paired_in_some_order(
+    a: &[Node],
+    b: &[Node],
+    related: &dyn Fn(&Node, &Node) -> bool,
+) -> bool {
+    if a.len() != b.len() {
+        return false;
+    }
+    let pairs: Vec<Vec<bool>> = a
+        .iter()
+        .map(|x| b.iter().map(|y| related(x, y)).collect())
+        .collect();
+    let mut partner: Vec<Option<usize>> = vec![None; b.len()];
+    (0..a.len()).all(|i| augmented(i, &pairs, &mut partner, &mut vec![false; b.len()]))
+}
+
+/// Whether `a`'s part `i` is given a partner, taking a free one of `b`'s
+/// it may pair with or moving the part that holds one to another
+/// (`paired_in_some_order`).
+fn augmented(
+    i: usize,
+    pairs: &[Vec<bool>],
+    partner: &mut [Option<usize>],
+    seen: &mut [bool],
+) -> bool {
+    for j in 0..pairs[i].len() {
+        if !pairs[i][j] || seen[j] {
+            continue;
+        }
+        seen[j] = true;
+        if partner[j].is_none_or(|k| augmented(k, pairs, partner, seen)) {
+            partner[j] = Some(i);
+            return true;
+        }
+    }
+    false
+}
+
+/// Whether each of a's parts is `related` to the part of b's that stands
+/// against it (`orders`), or, where a's notation says its parts stand in
+/// any order, to one of b's parts each.
+fn parts_related(
+    a: &Node,
+    b: &Node,
+    ctx: &Context,
+    related: &dyn Fn(&Node, &Node) -> bool,
+) -> bool {
+    if ctx.unordered.contains(&a.notation()) {
+        return paired_in_some_order(&a.children, &b.children, related);
+    }
+    orders(a, b, ctx).iter().any(|kids| {
+        a.children
+            .iter()
+            .zip(kids.iter())
+            .all(|(x, y)| related(x, y))
+    })
 }
 
 /// Whether one of `sites`, the occurrences that may decide a property or
@@ -973,12 +1099,7 @@ fn alike_as_written(
         return false;
     }
     let Some(shape) = ctx.binders.get(&a.notation()) else {
-        return orders(a, b, ctx).iter().any(|kids| {
-            a.children
-                .iter()
-                .zip(kids.iter())
-                .all(|(x, y)| alike(x, y, ctx, ours, theirs))
-        });
+        return parts_related(a, b, ctx, &|x, y| alike(x, y, ctx, ours, theirs));
     };
     let pairs: Vec<(&Node, &Node)> = shape
         .held
@@ -1088,12 +1209,8 @@ pub fn put_at_some(
         && start.text == aim.text
         && !start.children.is_empty()
         && start.children.len() == aim.children.len()
-        && orders(start, aim, ctx).iter().any(|kids| {
-            start
-                .children
-                .iter()
-                .zip(kids.iter())
-                .all(|(a, b)| substituted_in(a, b, left, right, ctx))
+        && parts_related(start, aim, ctx, &|a, b| {
+            substituted_in(a, b, left, right, ctx)
         })
     {
         return true;

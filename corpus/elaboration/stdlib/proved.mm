@@ -837,7 +837,8 @@ $}
 
 ${
 $( Sets: the parts of a set with a property, a set counted by the equal
-   parts it splits into, and what is in a set of three. $)
+   parts it splits into, what is in a set of three, and a listing of four
+   in another order. $)
 $d x ps $.
 $d x A $.
 $d x B $.
@@ -893,6 +894,10 @@ $d x y z $.
   geltpg $p |- ( A e. V -> ( A e. { B , C , D } <-> ( ( A = B \/ A = C ) \/ A = D ) ) ) $=
     ( wcel ctp wceq w3o wo eltpg df-3or bitrdi )
     AEFABCDGFABHZACHZADHZINOJPJABCDEKNOPLM $.
+
+  gtpsnswap $p |- ( { A , B , C } u. { D } ) = ( { A , B , D } u. { C } ) $=
+    ( cpr cun ctp csn prcom uneq2i qdass 3eqtr3i )
+    ABEZCDEZFMDCEZFABCGDHFABDGCHFNOMCDIJABCDKABDCKL $.
 
 $}
 
