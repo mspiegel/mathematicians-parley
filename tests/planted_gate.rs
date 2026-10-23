@@ -206,7 +206,7 @@ fn cases() -> Vec<Case> {
             file: "corpus/elaboration/proofs/wiedijk/intermediate-value/intermediate-value.mm",
             old: "$[ stdlib/proved.mm $]\n",
             new: "",
-            expect: "uses gdivcanx, which nothing the file includes declares",
+            expect: "uses gcncfre, gdivcanx, which nothing the file includes declares",
         },
         Case {
             name: "an item no proof restates that ELABORATION.md does not list",
