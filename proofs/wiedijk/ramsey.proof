@@ -1,0 +1,703 @@
+import definition         stdlib/counting/C
+import theorem            stdlib/counting/pascal
+import mundane theorem    stdlib/counting/binomial-all
+import mundane theorem    stdlib/counting/binomial-nat
+import mundane theorem    stdlib/counting/binomial-nat0
+import mundane theorem    stdlib/counting/binomial-zero-index
+import mundane theorem    stdlib/counting/card-add-one
+import mundane theorem    stdlib/counting/card-disjoint-union
+import mundane theorem    stdlib/counting/card-nat0
+import mundane theorem    stdlib/counting/card-nonempty
+import mundane theorem    stdlib/counting/card-pair-distinct
+import mundane theorem    stdlib/counting/card-positive
+import mundane theorem    stdlib/counting/card-remove
+import mundane theorem    stdlib/counting/card-singleton
+import mundane theorem    stdlib/counting/card-subset
+import mundane theorem    stdlib/counting/card-two
+import mundane theorem    stdlib/counting/finite-part
+import mundane theorem    stdlib/numbers/integer-step
+import mundane theorem    stdlib/numbers/nat-minus-one
+import mundane axiom      stdlib/reasoning/excluded-middle
+import mundane theorem    stdlib/reasoning/disjunctive-syllogism-left
+import mundane theorem    stdlib/reasoning/or-left
+import mundane theorem    stdlib/reasoning/or-right
+import mundane theorem    stdlib/reasoning/or-swap
+import mundane theorem    stdlib/sets/difference-absent
+import mundane theorem    stdlib/sets/difference-of-union
+import mundane theorem    stdlib/sets/difference-shrinks
+import mundane theorem    stdlib/sets/difference-subset
+import mundane theorem    stdlib/sets/in-subset
+import mundane theorem    stdlib/sets/nonempty-member
+import mundane theorem    stdlib/sets/not-in-difference
+import mundane theorem    stdlib/sets/pair-subset
+import mundane theorem    stdlib/sets/remove-and-restore
+import mundane theorem    stdlib/sets/remove-member
+import mundane definition stdlib/sets/set-builder
+import mundane theorem    stdlib/sets/set-builder-split
+import mundane theorem    stdlib/sets/set-builder-split-disjoint
+import mundane theorem    stdlib/sets/set-builder-subset
+import mundane theorem    stdlib/sets/singleton-subset
+import mundane theorem    stdlib/sets/subset-into-difference
+import mundane theorem    stdlib/sets/subset-of-difference
+import mundane theorem    stdlib/sets/subset-self
+import mundane theorem    stdlib/sets/subset-transitive
+import mundane theorem    stdlib/sets/union-subset
+import mundane definition stdlib/sums/range0
+
+theorem one-point-part
+  note        One point of X is a part of one element, and a part of one
+              element has no part of two, so whatever is said of every part
+              of two holds of it.
+  let X be a set                                                      (H1)
+  assume X is finite                                                  (H2)
+  assume 1 ≤ |X|                                                      (H3)
+  let G be a set                                                      (H4)
+  then there is W ⊆ X with 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ G
+
+1.  0 < |X|
+    inequalities, from H3
+    requires |X| ∈ ℕ₀: mun:card-nat0, from H2
+
+2.  X ≠ ∅
+    mun:card-positive, from 1
+
+3.  v ∈ X
+    obtain v: mun:nonempty-member, from 2
+
+4.  {v} ⊆ X
+    mun:singleton-subset, from 3
+
+5.  |{v}| = 1
+    mun:card-singleton x := v
+
+6.  For all Y ⊆ {v}, if |Y| = 2 then Y ∈ G.
+    proof
+    let Y ⊆ {v}                                                       (K1)
+    assume |Y| = 2                                                    (K2)
+
+    6.1.  |Y| ≤ |{v}|
+          mun:card-subset A := Y, B := {v}, from K1
+
+    6.2.  |Y| ≤ 1
+          substitute |{v}| = 1 (line 5) into line 6.1
+
+    6.3.  2 ≤ 1, which is impossible
+          substitute |Y| = 2 (K2) into line 6.2
+
+7.  1 ≤ |{v}|
+    inequalities
+      |{v}| = 1          5
+      1 = |{v}|          symmetry
+      1 ≤ |{v}|          weakening
+
+8.  1 ≤ |{v}| and for all Y ⊆ {v}, if |Y| = 2 then Y ∈ G
+    join 6, 7
+
+9.  There is W ⊆ X with 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ G.
+    exhibit, from 4, 8
+
+theorem two-point-parts
+  note        A part of two points of W ∪ {v}, where v is not in W, either
+              leaves v out and lies in W, or holds v and one point of W.
+  let W be a set                                                      (H1)
+  let v ∉ W                                                           (H2)
+  let Y ⊆ W ∪ {v}                                                     (H3)
+  assume |Y| = 2                                                      (H4)
+  then Y ⊆ W or there is w ∈ W with Y = {v, w}
+
+1.  (W ∪ {v}) ∖ {v} = W ∖ {v}
+    mun:difference-of-union
+
+2.  W ∖ {v} = W
+    mun:difference-absent, from H2
+
+3.  (W ∪ {v}) ∖ {v} = W
+    calculation
+      (W ∪ {v}) ∖ {v} = W ∖ {v}      1
+                      = W            2
+
+4.  Y ∖ {v} ⊆ (W ∪ {v}) ∖ {v}
+    mun:difference-shrinks, from H3
+
+5.  Y ∖ {v} ⊆ W
+    substitute (W ∪ {v}) ∖ {v} = W (line 3) into line 4
+
+6.  v ∈ Y or v ∉ Y
+    mun:excluded-middle P := v ∈ Y
+
+7.  Y ⊆ W or there is w ∈ W with Y = {v, w}
+    cases, from 6
+
+    case
+    note Y holds v, and the one other point of Y lies in W
+    assume v ∈ Y                                                      (C1)
+
+    7.1.  |Y| = 1 + 1
+          calculation
+            |Y| = 2          H4
+                = 1 + 1      arithmetic
+
+    7.2.  |Y ∖ {v}| = 1
+          mun:card-remove X := Y, a := v, k := 1, from C1, 7.1
+
+    7.3.  |Y ∖ {v}| = 0 + 1
+          calculation
+            |Y ∖ {v}| = 1        7.2
+                      = 0 + 1    arithmetic
+
+    7.4.  w ∈ Y ∖ {v}
+          obtain w: mun:card-nonempty X := Y ∖ {v}, k := 0, from 7.3
+
+    7.5.  w ∈ Y. w ≠ v.
+          mun:remove-member u := w, a := v, from 7.4
+
+    7.6.  w ∈ W
+          mun:in-subset, from 5, 7.4
+
+    7.7.  Y = {v, w}
+          mun:card-two a := v, b := w, from C1, H4, 7.5
+
+    7.8.  There is w ∈ W with Y = {v, w}.
+          exhibit, from 7.6, 7.7
+
+    7.9.  Y ⊆ W or there is w ∈ W with Y = {v, w}
+          mun:or-right, from 7.8
+
+    case
+    note Y leaves v out, so it lies in W
+    assume v ∉ Y                                                      (C2)
+
+    7.10. Y ⊆ (W ∪ {v}) ∖ {v}
+          mun:subset-into-difference, from C2, H3
+
+    7.11. Y ⊆ W
+          substitute (W ∪ {v}) ∖ {v} = W (line 3) into line 7.10
+
+    7.12. Y ⊆ W or there is w ∈ W with Y = {v, w}
+          mun:or-left, from 7.11
+
+theorem grow-by-one
+  note        If every point of N is joined to v by a pair in E, a part of N
+              whose pairs are all in E keeps them all in E when v is added,
+              and is one larger. A part whose pairs are all in F is already
+              a part of X.
+  let X be a set                                                      (H1)
+  assume X is finite                                                  (H2)
+  let E be a set                                                      (H3)
+  let F be a set                                                      (H4)
+  let k ∈ ℕ                                                           (H5)
+  let j ∈ ℕ                                                           (H6)
+  let v ∈ X                                                           (H7)
+  let N ⊆ X ∖ {v}                                                     (H8)
+  assume for all w ∈ N, {v, w} ∈ E                                    (H9)
+  let W ⊆ N                                                           (H10)
+  assume (k ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F)  (H11)
+  then there is U ⊆ X with (k + 1 ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ E) or (j ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ F)
+
+1.  X ∖ {v} ⊆ X
+    mun:difference-subset
+
+2.  W ⊆ X ∖ {v}
+    mun:subset-transitive, from H8, H10
+
+3.  W ⊆ X
+    mun:subset-transitive, from 1, 2
+
+4.  There is U ⊆ X with (k + 1 ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ E) or (j ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ F).
+    cases, from H11
+
+    case
+    note v joins W, which grows by one
+    assume k ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E           (C1)
+
+    4.1.  v ∉ W
+          mun:subset-of-difference, from 2
+
+    4.2.  W is finite
+          mun:finite-part, from H2, 3
+
+    4.3.  |W ∪ {v}| = |W| + 1
+          mun:card-add-one, from 4.1, 4.2
+
+    4.4.  k + 1 ≤ |W| + 1
+          inequalities
+            k ≤ |W|            C1
+            k + 1 ≤ |W| + 1    adding 1
+          requires |W| ∈ ℕ₀: mun:card-nat0, from 4.2
+
+    4.5.  k + 1 ≤ |W ∪ {v}|
+          calculation
+            k + 1 ≤ |W| + 1      4.4
+                  = |W ∪ {v}|    4.3
+
+    4.6.  For all Y ⊆ W ∪ {v}, if |Y| = 2 then Y ∈ E.
+          proof
+          let Y ⊆ W ∪ {v}                                             (K1)
+          assume |Y| = 2                                              (K2)
+
+          4.6.1.  Y ⊆ W or there is w ∈ W with Y = {v, w}
+                  thm:two-point-parts, from K1, K2, 4.1
+
+          4.6.2.  Y ∈ E
+                  cases, from 4.6.1
+
+                  case
+                  assume Y ⊆ W                                        (C2)
+
+                  4.6.2.1.  Y ∈ E
+                            instantiate Y := Y in C1, from C2, K2
+
+                  case
+                  assume there is w ∈ W with Y = {v, w}               (C3)
+
+                  4.6.2.2.  There is w ∈ W with Y = {v, w}.
+                            join C3
+
+                  4.6.2.3.  w ∈ W. Y = {v, w}.
+                            obtain w from line 4.6.2.2
+
+                  4.6.2.4.  w ∈ N
+                            mun:in-subset, from H10, 4.6.2.3
+
+                  4.6.2.5.  {v, w} ∈ E
+                            instantiate w := w in H9, from 4.6.2.4
+
+                  4.6.2.6.  Y ∈ E
+                            substitute Y = {v, w} (line 4.6.2.3) into line 4.6.2.5
+
+    4.7.  {v} ⊆ X
+          mun:singleton-subset, from H7
+
+    4.8.  W ∪ {v} ⊆ X
+          mun:union-subset, from 3, 4.7
+
+    4.9.  k + 1 ≤ |W ∪ {v}| and for all Y ⊆ W ∪ {v}, if |Y| = 2 then Y ∈ E
+          join 4.5, 4.6
+
+    4.10. (k + 1 ≤ |W ∪ {v}| and for all Y ⊆ W ∪ {v}, if |Y| = 2 then Y ∈ E) or (j ≤ |W ∪ {v}| and for all Y ⊆ W ∪ {v}, if |Y| = 2 then Y ∈ F)
+          mun:or-left, from 4.9
+
+    4.11. There is U ⊆ X with (k + 1 ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ E) or (j ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ F).
+          exhibit, from 4.8, 4.10
+
+    case
+    note W is a part of X as it is
+    assume j ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F           (C4)
+
+    4.12. (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F)
+          mun:or-right, from C4
+
+    4.13. There is U ⊆ X with (k + 1 ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ E) or (j ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ F).
+          exhibit, from 3, 4.12
+
+theorem ramsey-step
+  note        Pick a point v of X. Every other point w is joined to v by a
+              pair in E or by one outside it: R holds the first kind and B
+              the second. |R| + |B| = |X| − 1, and by Pascal's rule
+              |X| ≥ C(k + j − 1, k − 1) + C(k + j − 1, k), so R reaches the
+              first bound or B the second. Inside R, a part found for k and
+              j + 1 grows by v; inside B, where every pair with v is in F, a
+              part found for k + 1 and j grows by v the same way.
+  let k ∈ ℕ                                                           (H1)
+  let j ∈ ℕ                                                           (H2)
+  let V be a set                                                      (H3)
+  assume V is finite                                                  (H4)
+  let E be a set                                                      (H5)
+  let F be a set                                                      (H6)
+  assume for all Y ⊆ V, if |Y| = 2 then Y ∈ E or Y ∈ F               (H7)
+  let X ⊆ V                                                           (H8)
+  assume C(k + j, k) ≤ |X|                                            (H9)
+  assume for all Z ⊆ V, if C(k + j − 1, k − 1) ≤ |Z| then there is W ⊆ Z with (k ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F)  (H10)
+  assume for all Z ⊆ V, if C(k + j − 1, k) ≤ |Z| then there is W ⊆ Z with (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F)  (H11)
+  then there is W ⊆ X with (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F)
+
+1.  X is finite
+    mun:finite-part, from H4, H8
+
+2.  k ≤ k + j
+    inequalities, from H2
+
+3.  k ∈ {0, …, k + j}
+    mun:range0 n := k + j, from 2
+
+4.  C(k + j, k) ∈ ℕ
+    mun:binomial-nat, from 3
+
+5.  1 ≤ C(k + j, k)
+    inequalities, from 4
+
+6.  1 ≤ |X|
+    transitivity, from 5, H9
+    requires C(k + j, k) ∈ ℕ: from 4
+    requires |X| ∈ ℕ₀: mun:card-nat0, from 1
+
+7.  0 < |X|
+    inequalities, from 6
+    requires |X| ∈ ℕ₀: mun:card-nat0, from 1
+
+8.  X ≠ ∅
+    mun:card-positive, from 7
+
+9.  v ∈ X
+    obtain v: mun:nonempty-member, from 8
+
+let R = {w ∈ X ∖ {v} : {v, w} ∈ E}                                    (D1)
+    reads the other points, joined to v by a pair in E
+
+let B = {w ∈ X ∖ {v} : {v, w} ∉ E}                                    (D2)
+    reads the other points, joined to v by a pair outside E
+
+10. X ∖ {v} = R ∪ B
+    mun:set-builder-split, from D1, D2
+
+11. R ∩ B = ∅
+    mun:set-builder-split-disjoint, from D1, D2
+
+12. X ∖ {v} ⊆ X
+    mun:difference-subset
+
+13. X ∖ {v} is finite
+    mun:finite-part, from 1, 12
+
+14. R ⊆ X ∖ {v}
+    mun:set-builder-subset, from D1
+
+15. B ⊆ X ∖ {v}
+    mun:set-builder-subset, from D2
+
+16. R is finite
+    mun:finite-part, from 13, 14
+
+17. B is finite
+    mun:finite-part, from 13, 15
+
+18. |R| ∈ ℕ₀
+    mun:card-nat0, from 16
+
+19. |B| ∈ ℕ₀
+    mun:card-nat0, from 17
+
+20. |R ∪ B| = |R| + |B|
+    mun:card-disjoint-union X := R, Y := B, m := |R|, n := |B|, from 11, 18, 19
+
+21. |X ∖ {v}| = |R| + |B|
+    substitute X ∖ {v} = R ∪ B (line 10) into line 20
+
+22. |(X ∖ {v}) ∪ {v}| = |X ∖ {v}| + 1
+    mun:card-add-one, from 13
+    requires v ∉ X ∖ {v}: mun:not-in-difference
+
+23. (X ∖ {v}) ∪ {v} = X
+    mun:remove-and-restore, from 9
+
+24. |X| = |X ∖ {v}| + 1
+    substitute (X ∖ {v}) ∪ {v} = X (line 23) into line 22
+
+25. |X| = |R| + |B| + 1
+    substitute |X ∖ {v}| = |R| + |B| (line 21) into line 24
+
+26. k + j − 1 ∈ ℕ₀
+    mun:nat-minus-one n := k + j
+
+27. C(k + j − 1, k − 1) ∈ ℕ₀
+    mun:binomial-nat0, from 26
+
+28. C(k + j − 1, k) ∈ ℕ₀
+    mun:binomial-nat0, from 26
+
+29. C(k + j − 1, k) + C(k + j − 1, k − 1) = C(k + j − 1 + 1, k)
+    thm:pascal n := k + j − 1, from 26
+
+30. k + j − 1 + 1 = k + j
+    algebra
+
+31. C(k + j − 1 + 1, k) = C(k + j, k)
+    substitute k + j − 1 + 1 = k + j (line 30)
+
+32. C(k + j − 1, k) + C(k + j − 1, k − 1) ≤ |R| + |B| + 1
+    calculation
+      C(k + j − 1, k) + C(k + j − 1, k − 1) = C(k + j − 1 + 1, k)    29
+                                            = C(k + j, k)            31
+                                            ≤ |X|                    H9
+                                            = |R| + |B| + 1          25
+
+33. C(k + j − 1, k − 1) ≤ |R| or not C(k + j − 1, k − 1) ≤ |R|
+    mun:excluded-middle P := C(k + j − 1, k − 1) ≤ |R|
+
+34. C(k + j − 1, k − 1) ≤ |R| or C(k + j − 1, k) ≤ |B|
+    cases, from 33
+
+    case
+    assume C(k + j − 1, k − 1) ≤ |R|                                  (C1)
+
+    34.1. C(k + j − 1, k − 1) ≤ |R| or C(k + j − 1, k) ≤ |B|
+          mun:or-left, from C1
+
+    case
+    note R falls short of its bound, so B reaches its own
+    assume not C(k + j − 1, k − 1) ≤ |R|                              (C2)
+
+    34.2. |R| < C(k + j − 1, k − 1)
+          inequalities, from C2, 18, 27
+
+    34.3. |R| + 1 ≤ C(k + j − 1, k − 1)
+          mun:integer-step, from 18, 27, 34.2
+
+    34.4. C(k + j − 1, k) + (|R| + 1) ≤ C(k + j − 1, k) + C(k + j − 1, k − 1)
+          inequalities
+            |R| + 1 ≤ C(k + j − 1, k − 1)                                          34.3
+            C(k + j − 1, k) + (|R| + 1) ≤ C(k + j − 1, k) + C(k + j − 1, k − 1)    adding C(k + j − 1, k)
+          requires |R| ∈ ℕ₀: from 18
+          requires C(k + j − 1, k − 1) ∈ ℕ₀: from 27
+          requires C(k + j − 1, k) ∈ ℕ₀: from 28
+
+    34.5. C(k + j − 1, k) + (|R| + 1) ≤ |R| + |B| + 1
+          transitivity, from 34.4, 32
+          requires |R| ∈ ℕ₀: from 18
+          requires |B| ∈ ℕ₀: from 19
+          requires C(k + j − 1, k − 1) ∈ ℕ₀: from 27
+          requires C(k + j − 1, k) ∈ ℕ₀: from 28
+
+    34.6. C(k + j − 1, k) ≤ |B|
+          inequalities
+            C(k + j − 1, k) + (|R| + 1) ≤ |R| + |B| + 1    34.5
+            C(k + j − 1, k) ≤ |B|                          adding −(|R| + 1)
+          requires |R| ∈ ℕ₀: from 18
+          requires |B| ∈ ℕ₀: from 19
+          requires C(k + j − 1, k) ∈ ℕ₀: from 28
+
+    34.7. C(k + j − 1, k − 1) ≤ |R| or C(k + j − 1, k) ≤ |B|
+          mun:or-right, from 34.6
+
+35. X ∖ {v} ⊆ V
+    mun:subset-transitive, from H8, 12
+
+36. There is W ⊆ X with (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+    cases, from 34
+
+    case
+    note R is large enough: a part of R found for k and j + 1 grows by v
+    assume C(k + j − 1, k − 1) ≤ |R|                                  (C3)
+
+    36.1. R ⊆ V
+          mun:subset-transitive, from 14, 35
+
+    36.2. There is W ⊆ R with (k ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+          instantiate Z := R in H10, from C3, 36.1
+
+    36.3. W ⊆ R. (k ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+          obtain W from line 36.2
+
+    36.4. For all w ∈ R, {v, w} ∈ E.
+          mun:set-builder, from D1
+
+    36.5. There is W ⊆ X with (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+          thm:grow-by-one N := R, j := j + 1, from 1, 9, 14, 36.3, 36.4
+
+    case
+    note B is large enough: a part of B found for k + 1 and j grows by v
+    assume C(k + j − 1, k) ≤ |B|                                      (C4)
+
+    36.6. B ⊆ V
+          mun:subset-transitive, from 15, 35
+
+    36.7. There is W ⊆ B with (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+          instantiate Z := B in H11, from C4, 36.6
+
+    36.8. W ⊆ B. (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+          obtain W from line 36.7
+
+    36.9. (j ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F) or (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E)
+          mun:or-swap, from 36.8
+
+    36.10. For all w ∈ B, {v, w} ∈ F.
+           proof
+           let w ∈ B                                                  (K1)
+
+           36.10.1. w ∈ X ∖ {v}. {v, w} ∉ E.
+                    mun:set-builder u := w, from D2, K1
+
+           36.10.2. w ∈ X. w ≠ v.
+                    mun:remove-member u := w, Y := X, a := v, from 36.10.1
+
+           36.10.3. {v, w} ⊆ X
+                    mun:pair-subset a := v, b := w, from 9, 36.10.2
+
+           36.10.4. {v, w} ⊆ V
+                    mun:subset-transitive, from H8, 36.10.3
+
+           36.10.5. |{v, w}| = 2
+                    mun:card-pair-distinct u := v, from 36.10.2
+
+           36.10.6. {v, w} ∈ E or {v, w} ∈ F
+                    instantiate Y := {v, w} in H7, from 36.10.4, 36.10.5
+
+           36.10.7. {v, w} ∈ F
+                    mun:disjunctive-syllogism-left, from 36.10.1, 36.10.6
+
+    36.11. There is U ⊆ X with (j + 1 ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ F) or (k + 1 ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ E).
+           thm:grow-by-one N := B, E := F, F := E, k := j, j := k + 1, from 1, 9, 15, 36.8, 36.9, 36.10
+
+    36.12. U ⊆ X. (j + 1 ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ F) or (k + 1 ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ E).
+           obtain U from line 36.11
+
+    36.13. (k + 1 ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ E) or (j + 1 ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ F)
+           mun:or-swap, from 36.12
+
+    36.14. There is W ⊆ X with (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+           exhibit, from 36.12, 36.13
+
+theorem ramsey
+  note        Ramsey's theorem for two colours. Colour every pair of points
+              of V red, in E, or blue, in F. If V has at least
+              C(r + s − 2, r − 1) points, some r of them have all their
+              pairs red, or some s of them have all their pairs blue. By
+              induction on r and then on s, with ramsey-step for the step.
+  let r ∈ ℕ                                                           (H1)
+  let s ∈ ℕ                                                           (H2)
+  let V be a set                                                      (H3)
+  assume V is finite                                                  (H4)
+  let E be a set                                                      (H5)
+  let F be a set                                                      (H6)
+  assume for all Y ⊆ V, if |Y| = 2 then Y ∈ E or Y ∈ F               (H7)
+  assume C(r + s − 2, r − 1) ≤ |V|                                    (H8)
+  then there is W ⊆ V with (r ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (s ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F)
+
+1.  For all k ∈ ℕ, for all j ∈ ℕ, for all X ⊆ V, if C(k + j − 2, k − 1) ≤ |X| then there is W ⊆ X with (k ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+    induction on k starting at 1
+
+    base
+    1.1.  For all j ∈ ℕ, for all X ⊆ V, if C(1 + j − 2, 1 − 1) ≤ |X| then there is W ⊆ X with (1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+          proof
+          note one point is enough: it has all its pairs red
+          let j ∈ ℕ                                                   (K1)
+          let X ⊆ V                                                   (K2)
+          assume C(1 + j − 2, 1 − 1) ≤ |X|                            (C1)
+
+          1.1.1.  1 + j − 2 = j − 1
+                  algebra
+
+          1.1.2.  C(1 + j − 2, 1 − 1) = C(j − 1, 1 − 1)
+                  substitute 1 + j − 2 = j − 1 (line 1.1.1)
+
+          1.1.3.  C(j − 1, 0) = 1
+                  mun:binomial-zero-index n := j − 1
+                  requires j − 1 ∈ ℕ₀: mun:nat-minus-one n := j
+
+          1.1.4.  X is finite
+                  mun:finite-part, from H4, K2
+
+          1.1.5.  1 ≤ |X|
+                  calculation
+                    1 = C(j − 1, 0)             1.1.3
+                      = C(j − 1, 1 − 1)         arithmetic
+                      = C(1 + j − 2, 1 − 1)     1.1.2
+                      ≤ |X|                     C1
+
+          1.1.6.  W ⊆ X. 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E.
+                  obtain W: thm:one-point-part G := E, from 1.1.4, 1.1.5
+
+          1.1.7.  (1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F)
+                  mun:or-left, from 1.1.6
+
+          1.1.8.  There is W ⊆ X with (1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+                  exhibit, from 1.1.6, 1.1.7
+
+    step
+    let k ∈ ℕ                                                         (K3)
+    assume step 1 is true for k, the induction hypothesis             (IH1)
+
+    1.2.  k + 1 − 1 = k
+          algebra
+
+    1.3.  For all j ∈ ℕ, for all X ⊆ V, if C(k + 1 + j − 2, k + 1 − 1) ≤ |X| then there is W ⊆ X with (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+          induction on j starting at 1
+
+          base
+          1.3.1.  For all X ⊆ V, if C(k + 1 + 1 − 2, k + 1 − 1) ≤ |X| then there is W ⊆ X with (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+                  proof
+                  note one point is enough: it has all its pairs blue
+                  let X ⊆ V                                           (K4)
+                  assume C(k + 1 + 1 − 2, k + 1 − 1) ≤ |X|            (C2)
+
+                  1.3.1.1.  k + 1 + 1 − 2 = k
+                            algebra
+
+                  1.3.1.2.  C(k + 1 + 1 − 2, k + 1 − 1) = C(k, k + 1 − 1)
+                            substitute k + 1 + 1 − 2 = k (line 1.3.1.1)
+
+                  1.3.1.3.  C(k, k + 1 − 1) = C(k, k)
+                            substitute k + 1 − 1 = k (line 1.2)
+
+                  1.3.1.4.  C(k, k) = 1
+                            mun:binomial-all n := k
+
+                  1.3.1.5.  X is finite
+                            mun:finite-part, from H4, K4
+
+                  1.3.1.6.  1 ≤ |X|
+                            calculation
+                              1 = C(k, k)                            1.3.1.4
+                                = C(k, k + 1 − 1)                    1.3.1.3
+                                = C(k + 1 + 1 − 2, k + 1 − 1)        1.3.1.2
+                                ≤ |X|                                C2
+
+                  1.3.1.7.  W ⊆ X. 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F.
+                            obtain W: thm:one-point-part G := F, from 1.3.1.5, 1.3.1.6
+
+                  1.3.1.8.  (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F)
+                            mun:or-right, from 1.3.1.7
+
+                  1.3.1.9.  There is W ⊆ X with (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+                            exhibit, from 1.3.1.7, 1.3.1.8
+
+          step
+          let j ∈ ℕ                                                   (K5)
+          assume step 1.3 is true for j, the induction hypothesis     (IH2)
+
+          1.3.2.  For all X ⊆ V, if C(k + (j + 1) − 2, k − 1) ≤ |X| then there is W ⊆ X with (k ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+                  instantiate j := j + 1 in IH1
+
+          1.3.3.  k + (j + 1) − 2 = k + j − 1
+                  algebra
+
+          1.3.4.  For all X ⊆ V, if C(k + j − 1, k − 1) ≤ |X| then there is W ⊆ X with (k ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+                  substitute k + (j + 1) − 2 = k + j − 1 (line 1.3.3) into line 1.3.2
+
+          1.3.5.  k + 1 + j − 2 = k + j − 1
+                  algebra
+
+          1.3.6.  For all X ⊆ V, if C(k + j − 1, k + 1 − 1) ≤ |X| then there is W ⊆ X with (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+                  substitute k + 1 + j − 2 = k + j − 1 (line 1.3.5) into IH2
+
+          1.3.7.  For all X ⊆ V, if C(k + j − 1, k) ≤ |X| then there is W ⊆ X with (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+                  substitute k + 1 − 1 = k (line 1.2) into line 1.3.6
+
+          1.3.8.  k + 1 + (j + 1) − 2 = k + j
+                  algebra
+
+          1.3.9.  For all X ⊆ V, if C(k + 1 + (j + 1) − 2, k + 1 − 1) ≤ |X| then there is W ⊆ X with (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+                  proof
+                  let X ⊆ V                                           (K6)
+                  assume C(k + 1 + (j + 1) − 2, k + 1 − 1) ≤ |X|      (C3)
+
+                  1.3.9.1.  C(k + 1 + (j + 1) − 2, k + 1 − 1) = C(k + j, k + 1 − 1)
+                            substitute k + 1 + (j + 1) − 2 = k + j (line 1.3.8)
+
+                  1.3.9.2.  C(k + j, k + 1 − 1) = C(k + j, k)
+                            substitute k + 1 − 1 = k (line 1.2)
+
+                  1.3.9.3.  C(k + j, k) ≤ |X|
+                            calculation
+                              C(k + j, k) = C(k + j, k + 1 − 1)                  1.3.9.2
+                                          = C(k + 1 + (j + 1) − 2, k + 1 − 1)    1.3.9.1
+                                          ≤ |X|                                  C3
+
+                  1.3.9.4.  There is W ⊆ X with (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+                            thm:ramsey-step, from H4, H7, K6, 1.3.4, 1.3.7, 1.3.9.3
+
+2.  V ⊆ V
+    mun:subset-self
+
+3.  There is W ⊆ V with (r ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (s ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+    instantiate k := r, j := s, X := V in line 1, from H8, 2

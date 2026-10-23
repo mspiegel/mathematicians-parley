@@ -59,6 +59,22 @@ mundane theorem set-builder-subset
   metamath    ssrab2
   target      ssrab2
 
+mundane theorem set-builder-split
+  let X be a set                                                      (H1)
+  let P be a property of the elements of X                            (H2)
+  then        X = {t ∈ X : P(t)} ∪ {t ∈ X : not P(t)}
+  metamath    rabxm
+  target      rabxm
+  note        Every element of X has the property or does not.
+
+mundane theorem set-builder-split-disjoint
+  let X be a set                                                      (H1)
+  let P be a property of the elements of X                            (H2)
+  then        {t ∈ X : P(t)} ∩ {t ∈ X : not P(t)} = ∅
+  metamath    rabnc
+  target      rabnc
+  note        No element both has the property and does not.
+
 mundane theorem subset-transitive
   assume X ⊆ Y                                                        (H1)
   assume Y ⊆ Z                                                        (H2)

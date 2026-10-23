@@ -73,6 +73,13 @@ mundane theorem or-right
   target      olc
   note        The same, from a line saying the second holds.
 
+mundane theorem or-swap
+  assume P or Q                                                       (H1)
+  then        Q or P
+  metamath    pm1.4
+  target      pm1.4
+  note        One of two things holds, said in the other order.
+
 mundane theorem not-either
   then        not (P or Q) ↔ not P and not Q
   metamath    ioran
