@@ -1,0 +1,23 @@
+import mundane theorem stdlib/numbers/nat-minus-one
+
+define K(m, n) := {d ⊆ {1, …, m + n} : |d| = m}, for m ∈ ℕ₀, n ∈ ℕ₀   (D1)
+       reads the parts of the first m + n numbers with m elements
+
+theorem a-hypothesis-substituted-into
+  note        A hypothesis applying K at m − 1, which the statement writes
+              out, is substituted into as the proof's steps speak of it,
+              by the name.
+  let m ∈ ℕ                                                           (H1)
+  let n ∈ ℕ                                                           (H2)
+  assume |K(m − 1, n)|·((m − 1) + n) = 0                              (H3)
+  then |K(m − 1, n)|·(m + (n − 1)) = 0
+
+1.  m − 1 ∈ ℕ₀
+    mun:nat-minus-one n := m
+
+2.  (m − 1) + n = m + (n − 1)
+    algebra
+
+3.  |K(m − 1, n)|·(m + (n − 1)) = 0
+    substitute (m − 1) + n = m + (n − 1) (line 2) into H3
+    requires m − 1 ∈ ℕ₀: from 1

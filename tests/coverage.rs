@@ -34,7 +34,6 @@ const UNWRITTEN: &[&str] = &[
     "notation holds-of ()",
     "notation map themapsending∈to",
     "notation map-of-two themapsending∈,∈to",
-    "notation supremum sup",
 ];
 
 /// Everything a theorem writes as a formula, read: its statement, its

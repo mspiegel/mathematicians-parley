@@ -83,4 +83,5 @@ notations! {
     PLANE = 51, "plane";
     DISTANCE = 52, "distance";
     EQUAL_CHAIN = 53, "equal-chain";
+    SET_OPERATIONS = 54, "set-operations", [UNION = 1, "∪", WITHOUT = 2, "∖", INTERSECTION = 3, "∩"];
 }

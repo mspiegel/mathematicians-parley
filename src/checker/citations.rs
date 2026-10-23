@@ -35,9 +35,9 @@ use crate::matching::{
 };
 use crate::notations::{
     APPLICATION, APPLICATION_TO_TWO, BICONDITIONAL, CONDITIONAL, EQUALITY, FOR_ALL,
-    FOR_ALL_PART, FOR_ALL_SETS, FUNCTION_ON, FUNCTION_TYPE, IMPLICATION, INTEGER_RANGE,
-    LOGICAL_NOT, MEMBERSHIP, NUMBER_SYSTEMS, NUMERAL, ORDER, PLUS, POWERSET,
-    PROPERTY_OF, SUBSET, THERE_IS, THERE_IS_SOME,
+    FOR_ALL_PART, FOR_ALL_SETS, FUNCTION_ON, FUNCTION_TYPE, IMPLICATION, IN,
+    INTEGER_RANGE, LOGICAL_NOT, MEMBERSHIP, NUMBER_SYSTEMS, NUMERAL, ORDER, PLUS,
+    POWERSET, PROPERTY_OF, SUBSET, THERE_IS, THERE_IS_SOME, WITHOUT,
 };
 use crate::outcome::{Built, Declined, Route};
 use crate::rules::{self, System};
@@ -2409,7 +2409,8 @@ fn domains_asked(
         .collect();
     applied(&functions, &claim, false, known)
         .into_iter()
-        .chain(lines_applied(step, &cited, known, known.ctx))
+        .chain(applied_in_cited(step, &cited, known, known.ctx))
+        .chain(read_over_cited_theorem(thm, step, scopes, known))
         .flat_map(|a| a.says)
         .map(ByShape)
         .collect()
@@ -2793,7 +2794,7 @@ fn evaluated(
             .flat_map(|side| applied(used, side, true, known))
             .collect()
     };
-    out.extend(applied_in_cited(step, used, known, library));
+    out.extend(applied_in_cited(step, used, known, &library.ctx));
     out
 }
 
@@ -2808,7 +2809,7 @@ fn applied_in_cited(
     step: &Step,
     used: &[Defined],
     known: &Known,
-    library: &Library,
+    ctx: &Context,
 ) -> Vec<Applied> {
     let scope = known.scope(step);
     let mut out = Vec::new();
@@ -2821,7 +2822,7 @@ fn applied_in_cited(
         };
         for part in known.said_parts(stated, None).into_iter().flatten() {
             let mut bound = BTreeSet::new();
-            letters_bound(&part, &library.ctx, &mut bound);
+            letters_bound(&part, ctx, &mut bound);
             out.extend(
                 applied(used, &part, false, known)
                     .into_iter()
@@ -3003,6 +3004,201 @@ pub fn check_define_domains(
     }
 }
 
+/// A member of a difference is a member of the set taken from: `x ∈ V ∖
+/// {v(0)}` says x ∈ V, as the build reads it (`eldifi`, among its membership
+/// lemmas). None for any other fact.
+fn member_taken_from(fact: &Node, library: &Library) -> Option<Node> {
+    let (MEMBERSHIP, [member, set]) = (fact.notation(), fact.children.as_slice())
+    else {
+        return None;
+    };
+    let ([from, _], true) = (set.children.as_slice(), set.spelling() == WITHOUT) else {
+        return None;
+    };
+    Some(page::made(
+        library.env.g,
+        IN,
+        vec![member.clone(), from.clone()],
+    ))
+}
+
+/// Each application of a define in what a theorem states, sentence by
+/// sentence, with what says its argument is in the define's domain. An
+/// argument holding a letter the statement binds is left out: its binder
+/// says where it lies. A sequence by recursion is not written out by a rule
+/// (`sorts::statement_definitions`), and asks nothing here. A sentence that
+/// does not read is `check_formulas`'s to report.
+fn stated_applications(
+    functions: &[Defined],
+    written: &Written,
+    known: &Known,
+    library: &Library,
+) -> Vec<Applied> {
+    let functions: Vec<Defined> =
+        functions.iter().filter(|f| !f.recursive).cloned().collect();
+    let mut out = Vec::new();
+    for stated in written
+        .sentences()
+        .iter()
+        .filter_map(|s| known.read_as_written(s))
+    {
+        let mut bound = BTreeSet::new();
+        letters_bound(&stated, &library.ctx, &mut bound);
+        out.extend(
+            applied(&functions, &stated, false, known)
+                .into_iter()
+                .filter(|a| a.arg.names().is_disjoint(&bound)),
+        );
+    }
+    out
+}
+
+/// The applications a step citing a theorem of its own file may read with
+/// the defines that theorem is stated over (`sorts::stated_over`): the
+/// theorem speaks of them by name, as the step's claim and the lines it
+/// cites do, and its statement is the rules written out at the step's
+/// arguments, which holds where each is in its define's domain. A line
+/// saying one of those domains does work: `ballot-recurrence` cited from a
+/// line applying G at m − 1 is read there where m − 1 ∈ ℕ₀. Not every
+/// application is read so, D(f(n), n) passed whole as the argument of a
+/// theorem stated over s asks nothing of f(n), so none is demanded here.
+/// None for a step citing no such theorem.
+fn read_over_cited_theorem(
+    thm: &Theorem,
+    step: &Step,
+    scopes: &[FileScope],
+    known: &Known,
+) -> Vec<Applied> {
+    let Some(item) = step.just.cited_item() else {
+        return Vec::new();
+    };
+    let over = crate::sorts::stated_over(thm, scopes, &step.just.item(&item));
+    if over.is_empty() {
+        return Vec::new();
+    }
+    let functions: Vec<Defined> =
+        defined_functions(thm.defines.iter().chain(&scopes[thm.scope].defines))
+            .into_iter()
+            .filter(|f| !f.recursive && over.contains(&f.label))
+            .collect();
+    let Some(claim) = known.whole_as_written(&step.claim) else {
+        return Vec::new(); // `check_formulas` says it does not read
+    };
+    let mut out = applied(&functions, &claim, false, known);
+    out.extend(applied_in_cited(step, &functions, known, known.ctx));
+    out
+}
+
+/// Where a theorem's statement applies a define it is written out
+/// (`ELABORATION.md`, a definition from outside the theorem), and the steps
+/// speak of the name. A step naming a hypothesis, in its `from` or as the
+/// line a substitute is put into, reads it with the name, as its rule at the
+/// arguments the hypothesis applies it to, and that holds only where each is
+/// in the define's domain. So the step asks it of what it cites or requires,
+/// as a step citing the define does (`check_define_domains`): a step naming
+/// `|G(m − 1, n)|·x = y`, with G on ℕ₀, asks m − 1 ∈ ℕ₀.
+pub fn check_stated_domains(
+    report: &mut Report,
+    thm: &Theorem,
+    library: &Library,
+    known: &Known,
+    scopes: &[FileScope],
+) {
+    let functions =
+        defined_functions(thm.defines.iter().chain(&scopes[thm.scope].defines));
+    if functions.is_empty() {
+        return;
+    }
+    for step in &thm.steps {
+        let into = step.just.into.as_ref().map(|p| p.named().to_string());
+        let mut asked: Vec<Applied> = Vec::new();
+        for label in step.just.refs.iter().chain(into.as_ref()) {
+            let hypothesis = thm
+                .hypotheses
+                .iter()
+                .find(|h| h.label.as_deref() == Some(label.as_str()));
+            if let Some(h) = hypothesis {
+                asked.extend(stated_applications(
+                    &functions,
+                    &h.body(&thm.path),
+                    known,
+                    library,
+                ));
+            }
+        }
+        for asked in unsaid_by(step, asked, known, library) {
+            report.say(
+                &thm.path,
+                step.just.line,
+                format!(
+                    "step {} reads a hypothesis applying the define {} at {}, which the statement writes out, so it needs {}, and nothing it cites or requires says it",
+                    step.number,
+                    asked.label,
+                    known.print(&asked.arg),
+                    known.print(&asked.says[0])
+                ),
+            );
+        }
+    }
+}
+
+/// The last step's claim speaks of a define's name where the statement
+/// writes the define out (`check_stated_domains`), and the theorem is the
+/// last step carried to its statement, which reads the name as its rule at
+/// each argument the conclusion applies it to. That holds only where each
+/// argument is in the define's domain, and the carrying is the theorem's,
+/// not a step's: it reads what the proof holds at its outermost level, its
+/// hypotheses, its unnumbered steps' claims and what the page says once.
+/// So one of those says it: add-last-place states G(m − 1, n), with G on
+/// ℕ₀, and a line of its proof says m − 1 ∈ ℕ₀. A requires line is no such
+/// line: it holds for its own step only.
+pub fn check_conclusion_domains(
+    report: &mut Report,
+    thm: &Theorem,
+    library: &Library,
+    known: &Known,
+    scopes: &[FileScope],
+) {
+    let functions =
+        defined_functions(thm.defines.iter().chain(&scopes[thm.scope].defines));
+    if functions.is_empty() {
+        return;
+    }
+    let Some(last) = thm.steps.iter().rev().find(|s| s.number.len() == 1) else {
+        return; // `check_last_step` says there is none
+    };
+    let asked = stated_applications(&functions, &thm.stated(), known, library);
+    if asked.is_empty() {
+        return;
+    }
+    let mut outermost = last.clone();
+    outermost.requires = Vec::new();
+    outermost.just.refs = thm
+        .hypotheses
+        .iter()
+        .filter_map(|h| h.label.clone().filter(|l| !l.is_empty()))
+        .chain(
+            thm.steps
+                .iter()
+                .filter(|s| s.number.len() == 1)
+                .map(|s| s.number.to_string()),
+        )
+        .collect();
+    for asked in unsaid_by(&outermost, asked, known, library) {
+        report.say(
+            &thm.path,
+            thm.conclusion_line,
+            format!(
+                "the conclusion of {} applies the define {} at {} and is written out, so it needs {}, and neither a hypothesis nor a line of its proof outside a block says it",
+                thm.name,
+                asked.label,
+                known.print(&asked.arg),
+                known.print(&asked.says[0])
+            ),
+        );
+    }
+}
+
 /// A requires line whose reason is a method or an item, read as the step it
 /// would be (`requires_as_step`), with the requires lines above it as its
 /// own, since it rests on them (`ELABORATION.md`, R2); None for a reason
@@ -3045,6 +3241,18 @@ pub(super) fn domains_unsaid(
     if used.is_empty() {
         return Vec::new();
     }
+    unsaid_by(step, evaluated(step, &used, known, library), known, library)
+}
+
+/// Of the applications `asked`, each whose domain nothing `step` cites or
+/// requires says, with what each of those implies: each application once.
+fn unsaid_by(
+    step: &Step,
+    asked: Vec<Applied>,
+    known: &Known,
+    library: &Library,
+) -> Vec<Applied> {
+    let links = chain_links(&step.just, &known.thm.path);
     let parts = known.parts(step, library);
     let mut facts = parts.facts.clone();
     let from_links: Vec<String> = links
@@ -3062,6 +3270,11 @@ pub(super) fn domains_unsaid(
             .filter_map(|c| claimed_member(c, library.env.g))
             .map(|(member, _)| member),
     );
+    let taken: Vec<Node> = facts
+        .iter()
+        .filter_map(|f| member_taken_from(f, library))
+        .collect();
+    facts.extend(taken);
     let facts =
         finished(facts, Vec::new(), Binding::new(), library, &known.sorts).facts;
     // A sum's index is in the range the sum runs over, and what holds it is a
@@ -3074,7 +3287,7 @@ pub(super) fn domains_unsaid(
     let defined = known.citing_step(step);
     let mut seen: FxIndexSet<ByShape> = FxIndexSet::default();
     let mut out = Vec::new();
-    for asked in evaluated(step, &used, known, library) {
+    for asked in asked {
         if !asked.arg.names().is_disjoint(&indices) {
             continue;
         }

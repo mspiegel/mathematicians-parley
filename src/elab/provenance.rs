@@ -120,6 +120,16 @@ impl<'a> Elaborator<'a> {
         out.extend(step.just.contradicting.iter().cloned());
         out.extend(self.sorts.iter().cloned());
         out.extend(step.requires.iter().map(|r| requirement(r.line)));
+        // A hypothesis of the theorem the step names, in its `from` or as
+        // the line a substitute is put into, is read with the defines whose
+        // names it writes, as the statement reads it
+        // (`hypotheses_by_their_names`).
+        let into = step.just.into.as_ref().map(|p| p.named().to_string());
+        for r in step.just.refs.iter().chain(into.as_ref()) {
+            if self.is_hypothesis(r) {
+                out.extend(self.hypothesis_defines(r));
+            }
+        }
         // A theorem of this file stated over the file's defines is read with
         // them, and the step rests on them through it (`sorts::stated_over`).
         if let Some(cited) = step.just.cited_item() {

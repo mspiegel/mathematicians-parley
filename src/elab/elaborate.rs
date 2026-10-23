@@ -1297,8 +1297,45 @@ impl<'a> Elaborator<'a> {
             }
         }
         self.writing(scope, &known, true, |me| {
-            me.by_method(how, step, node, term, scope, facts, lines)
+            let lines = me.hypotheses_by_their_names(step, scope, facts, lines)?;
+            me.by_method(how, step, node, term, scope, facts, &lines)
         })
+    }
+
+    /// The lines a step reads, each hypothesis of the theorem it names, in
+    /// its `from` or as the line a substitute is put into, as it reads in
+    /// the proof (`hypothesis_by_its_names`): the steps speak of a define's
+    /// name where the statement writes the define out. A hypothesis the
+    /// facts do not carry so is offered as it is held.
+    fn hypotheses_by_their_names(
+        &mut self,
+        step: &Step,
+        scope: &Rpn,
+        facts: &Facts,
+        lines: &Lines,
+    ) -> Checked<Lines> {
+        let into = step.just.into.as_ref().map(|p| p.named().to_string());
+        let named: Vec<String> = step
+            .just
+            .refs
+            .iter()
+            .cloned()
+            .chain(into)
+            .filter(|r| self.is_hypothesis(r) && !self.hypothesis_defines(r).is_empty())
+            .collect();
+        let mut out: Option<Lines> = None;
+        for r in named {
+            let Some(line) = lines.get(&r) else {
+                continue;
+            };
+            let held = self.carried(&r, facts, lines);
+            if let Built(carried) =
+                self.hypothesis_by_its_names(&r, &line, &held, scope, facts, step)?
+            {
+                out.get_or_insert_with(|| lines.copy()).set(r, carried);
+            }
+        }
+        Ok(out.unwrap_or_else(|| lines.clone()))
     }
 
     /// A step's proof by the method its justification names.
@@ -2180,6 +2217,64 @@ impl<'a> Elaborator<'a> {
             }
         }
         Err(self.defect(step.line, "the substitution misses the claim"))
+    }
+
+    /// A hypothesis of the theorem as its one sentence reads in the proof,
+    /// carried from the hypothesis as it is held. Where the theorem is
+    /// stated over a define, the hypothesis is held written out, as the
+    /// statement says it, while the steps speak of the name (`ELABORATION.md`,
+    /// a definition from outside the theorem); `same` carries one to the
+    /// other, reading the name as its rule where the facts put each argument
+    /// in the define's domain. The step reads the defines the hypothesis
+    /// names without citing them, as a step citing a theorem stated over them
+    /// does (`sorts::stated_over`), and rests on them so (`named`). A decline
+    /// where the two are one term, the line says several sentences, or the
+    /// facts do not carry it.
+    fn hypothesis_by_its_names(
+        &mut self,
+        label: &str,
+        line: &Line,
+        held: &Proof,
+        scope: &Rpn,
+        facts: &Facts,
+        step: &Step,
+    ) -> Checked<Route<Line>> {
+        let [sentence] = line.sentences.as_slice() else {
+            return Ok(Route::no("the line says several sentences"));
+        };
+        let named = self.term(sentence)?;
+        if named == line.term {
+            return Ok(Route::no("the line is held as it reads"));
+        }
+        // The domains are the step's requires lines' to say, laid over the
+        // scope's facts as an identity law's operand is (`identity_law`).
+        let written = Facts::new();
+        for (k, w) in self.written.entries() {
+            if let Some(lifted) = self.lifted_to(&k, &w.proof, &w.at, scope) {
+                self.know(&written, k, lifted);
+            }
+        }
+        let offered = facts.with(&written);
+        let kept = self.resting.clone();
+        let over = self.hypothesis_defines(label);
+        if let Some(allowed) = &mut self.resting {
+            allowed.extend(over);
+        }
+        let alike = self.same(
+            &self.to_term(&line.term),
+            &self.to_term(&named),
+            scope,
+            &offered,
+            Some(step),
+        );
+        self.resting = kept;
+        let alike = take!(alike?);
+        let proof = pf!(self.b; scope, line.term, named, held, alike, "mpbid");
+        Ok(Built(Line {
+            term: named,
+            proof,
+            sentences: line.sentences.clone(),
+        }))
     }
 
     /// ( scope -> start = other ), where `other` is `start` with the

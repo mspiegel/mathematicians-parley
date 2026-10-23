@@ -793,15 +793,19 @@ let F = {c ∈ G(m, n) : m + n ∉ c}                                     (D2)
     mun:subset-antisymmetric, from D2, 7, 9
 
 
-theorem ballot-split
+theorem ballot-recurrence
   note        A good counting's last vote is for A or for B. Taken away, it
               leaves a good counting with one vote fewer for A, or one with
               one vote fewer for B, and each of those comes from one good
-              counting in this way.
+              counting in this way. Given the counts of those two by the
+              formula, Pascal's rule and the absorption identity give it for
+              m and n.
   let m ∈ ℕ                                                           (H1)
   let n ∈ ℕ                                                           (H2)
   assume n < m                                                        (H3)
-  then |G(m, n)| = |G(m − 1, n)| + |G(m, n − 1)|
+  assume |G(m − 1, n)|·((m − 1) + n) = ((m − 1) − n)·C((m − 1) + n, m − 1)   (H4)
+  assume |G(m, n − 1)|·(m + (n − 1)) = (m − (n − 1))·C(m + (n − 1), m)        (H5)
+  then |G(m, n)|·(m + n) = (m − n)·C(m + n, m)
 
 let U = {c ∈ G(m, n) : m + n ∈ c}                                     (D2)
        reads the good countings whose last vote is for A
@@ -862,103 +866,89 @@ let V = {c ∈ G(m, n) : m + n ∉ c}                                     (D3)
 17. |G(m, n)| = |G(m − 1, n)| + |G(m, n − 1)|
     substitute G(m, n) = U ∪ V (line 3) into line 16
 
+18. G(m, n) is finite
+    thm:good-finite
 
-theorem ballot-arithmetic
-  note        The count of good countings with m votes for A and n for B is
-              the sum of the counts with one vote fewer for A and one vote
-              fewer for B; given those two by the formula, Pascal's rule and
-              the absorption identity give it for m and n.
-  let m ∈ ℕ                                                           (H1)
-  let n ∈ ℕ                                                           (H2)
-  let x ∈ ℝ                                                           (H3)
-  let y ∈ ℝ                                                           (H4)
-  let z ∈ ℝ                                                           (H5)
-  assume z = x + y                                                    (H6)
-  assume x·((m − 1) + n) = ((m − 1) − n)·C((m − 1) + n, m − 1)        (H7)
-  assume y·(m + (n − 1)) = (m − (n − 1))·C(m + (n − 1), m)            (H8)
-  then z·(m + n) = (m − n)·C(m + n, m)
+19. |G(m, n)| ∈ ℕ₀
+    mun:card-nat0 X := G(m, n), from 18
 
-1.  m − 1 ∈ ℕ₀
-    mun:nat-minus-one n := m
-
-2.  n − 1 ∈ ℕ₀
-    mun:nat-minus-one
-
-3.  (m − 1) + n = m + (n − 1)
+20. (m − 1) + n = m + (n − 1)
     algebra
 
-4.  x·(m + (n − 1)) = ((m − 1) − n)·C(m + (n − 1), m − 1)
-    substitute (m − 1) + n = m + (n − 1) (line 3) into H7
+21. |G(m − 1, n)|·(m + (n − 1)) = ((m − 1) − n)·C(m + (n − 1), m − 1)
+    substitute (m − 1) + n = m + (n − 1) (line 20) into H4
+    requires m − 1 ∈ ℕ₀: from 1
 
-5.  m − 1 ≤ m + (n − 1)
+22. m − 1 ≤ m + (n − 1)
     inequalities, from H2
 
-6.  m − 1 ∈ {0, …, m + (n − 1)}
-    mun:range0 k := m − 1, n := m + (n − 1), from 1, 2, 5
+23. m − 1 ∈ {0, …, m + (n − 1)}
+    mun:range0 k := m − 1, n := m + (n − 1), from 1, 2, 22
 
-7.  C((m + (n − 1)) + 1, (m − 1) + 1) = C(m + (n − 1), m − 1)·(((m + (n − 1)) + 1)/((m − 1) + 1))
-    thm:absorption n := m + (n − 1), k := m − 1, from 2, 6
+24. C((m + (n − 1)) + 1, (m − 1) + 1) = C(m + (n − 1), m − 1)·(((m + (n − 1)) + 1)/((m − 1) + 1))
+    thm:absorption n := m + (n − 1), k := m − 1, from 2, 23
 
-8.  (m + (n − 1)) + 1 = m + n
+25. (m + (n − 1)) + 1 = m + n
     algebra
 
-9.  (m − 1) + 1 = m
+26. (m − 1) + 1 = m
     algebra
 
-10. C(m + n, (m − 1) + 1) = C(m + (n − 1), m − 1)·((m + n)/((m − 1) + 1))
-    substitute (m + (n − 1)) + 1 = m + n (line 8) into line 7
+27. C(m + n, (m − 1) + 1) = C(m + (n − 1), m − 1)·((m + n)/((m − 1) + 1))
+    substitute (m + (n − 1)) + 1 = m + n (line 25) into line 24
 
-11. C(m + n, m) = C(m + (n − 1), m − 1)·((m + n)/m)
-    substitute (m − 1) + 1 = m (line 9) into line 10
+28. C(m + n, m) = C(m + (n − 1), m − 1)·((m + n)/m)
+    substitute (m − 1) + 1 = m (line 26) into line 27
 
-12. C(m + (n − 1), m) + C(m + (n − 1), m − 1) = C((m + (n − 1)) + 1, m)
+29. C(m + (n − 1), m) + C(m + (n − 1), m − 1) = C((m + (n − 1)) + 1, m)
     thm:pascal n := m + (n − 1), k := m, from 2
 
-13. C(m + (n − 1), m) + C(m + (n − 1), m − 1) = C(m + n, m)
-    substitute (m + (n − 1)) + 1 = m + n (line 8) into line 12
+30. C(m + (n − 1), m) + C(m + (n − 1), m − 1) = C(m + n, m)
+    substitute (m + (n − 1)) + 1 = m + n (line 25) into line 29
 
-14. C(m + n, m) ∈ ℕ₀
+31. C(m + n, m) ∈ ℕ₀
     mun:binomial-nat0 n := m + n, k := m
 
-15. C(m + (n − 1), m − 1) ∈ ℕ₀
+32. C(m + (n − 1), m − 1) ∈ ℕ₀
     mun:binomial-nat0 n := m + (n − 1), k := m − 1, from 2
 
-16. C(m + (n − 1), m) ∈ ℕ₀
+33. C(m + (n − 1), m) ∈ ℕ₀
     mun:binomial-nat0 n := m + (n − 1), k := m, from 2
 
-17. C(m + (n − 1), m − 1)·(m + n) = m·C(m + n, m)
-    algebra, from 11, 15
+34. C(m + (n − 1), m − 1)·(m + n) = m·C(m + n, m)
+    algebra, from 28, 32
 
-18. C(m + (n − 1), m)·(m + n) = n·C(m + n, m)
-    algebra, from 13, 15, 16, 17
+35. C(m + (n − 1), m)·(m + n) = n·C(m + n, m)
+    algebra, from 30, 32, 33, 34
 
-19. z·(m + (n − 1)) = ((m − 1) − n)·C(m + (n − 1), m − 1) + (m − (n − 1))·C(m + (n − 1), m)
-    algebra, from H6, H8, 4, 15, 16
+36. |G(m, n)|·(m + (n − 1)) = ((m − 1) − n)·C(m + (n − 1), m − 1) + (m − (n − 1))·C(m + (n − 1), m)
+    algebra, from H5, 14, 15, 17, 21, 32, 33
+    requires n − 1 ∈ ℕ₀: from 2
 
-20. ((m − 1) − n)·C(m + (n − 1), m − 1)·(m + n) = ((m − 1) − n)·m·C(m + n, m)
-    algebra, from 14, 15, 17
+37. ((m − 1) − n)·C(m + (n − 1), m − 1)·(m + n) = ((m − 1) − n)·m·C(m + n, m)
+    algebra, from 31, 32, 34
 
-21. (m − (n − 1))·C(m + (n − 1), m)·(m + n) = (m − (n − 1))·n·C(m + n, m)
-    algebra, from 14, 16, 18
+38. (m − (n − 1))·C(m + (n − 1), m)·(m + n) = (m − (n − 1))·n·C(m + n, m)
+    algebra, from 31, 33, 35
 
-22. z·(m + (n − 1))·(m + n) = ((m − 1) − n)·m·C(m + n, m) + (m − (n − 1))·n·C(m + n, m)
-    algebra, from 14, 15, 16, 19, 20, 21
+39. |G(m, n)|·(m + (n − 1))·(m + n) = ((m − 1) − n)·m·C(m + n, m) + (m − (n − 1))·n·C(m + n, m)
+    algebra, from 19, 31, 32, 33, 36, 37, 38
 
-23. 0 < m + (n − 1)
+40. 0 < m + (n − 1)
     inequalities, from H1, H2
 
-24. z·(m + n) = (((m − 1) − n)·m·C(m + n, m) + (m − (n − 1))·n·C(m + n, m))/(m + (n − 1))
-    algebra, from 14, 22
-    requires 0 ≠ m + (n − 1): weakening, from 23
+41. |G(m, n)|·(m + n) = (((m − 1) − n)·m·C(m + n, m) + (m − (n − 1))·n·C(m + n, m))/(m + (n − 1))
+    algebra, from 19, 31, 39
+    requires 0 ≠ m + (n − 1): weakening, from 40
 
-25. (((m − 1) − n)·m·C(m + n, m) + (m − (n − 1))·n·C(m + n, m))/(m + (n − 1)) = (m − n)·C(m + n, m)
-    algebra, from 14
-    requires 0 ≠ m + (n − 1): weakening, from 23
+42. (((m − 1) − n)·m·C(m + n, m) + (m − (n − 1))·n·C(m + n, m))/(m + (n − 1)) = (m − n)·C(m + n, m)
+    algebra, from 31
+    requires 0 ≠ m + (n − 1): weakening, from 40
 
-26. z·(m + n) = (m − n)·C(m + n, m)
+43. |G(m, n)|·(m + n) = (m − n)·C(m + n, m)
     calculation
-      z·(m + n) = (((m − 1) − n)·m·C(m + n, m) + (m − (n − 1))·n·C(m + n, m))/(m + (n − 1))    24
-                = (m − n)·C(m + n, m)                                                              25
+      |G(m, n)|·(m + n) = (((m − 1) − n)·m·C(m + n, m) + (m − (n − 1))·n·C(m + n, m))/(m + (n − 1))    41
+                        = (m − n)·C(m + n, m)                                                              42
 
 
 theorem ballot-count
@@ -1148,31 +1138,9 @@ theorem ballot-count
                             1.2.3.4.21. |G(m, n − 1)|·(m + (n − 1)) = (m − (n − 1))·C(m + (n − 1), m)
                                         instantiate m := m, n := n − 1 in IH, from 1.2.3.4.12, 1.2.3.4.17, 1.2.3.4.20
 
-                            1.2.3.4.22. |G(m, n)| = |G(m − 1, n)| + |G(m, n − 1)|
-                                        thm:ballot-split, from C3, 1.2.3.2, 1.2.3.4.10, 1.2.3.4.11, 1.2.3.4.12
-
-                            1.2.3.4.23. G(m − 1, n) is finite
-                                        thm:good-finite m := m − 1, from 1.2.3.4.11
-
-                            1.2.3.4.24. G(m, n − 1) is finite
-                                        thm:good-finite n := n − 1, from 1.2.3.4.12
-
-                            1.2.3.4.25. G(m, n) is finite
-                                        thm:good-finite
-
-                            1.2.3.4.26. |G(m − 1, n)| ∈ ℕ₀
-                                        mun:card-nat0 X := G(m − 1, n), from 1.2.3.4.23
-
-                            1.2.3.4.27. |G(m, n − 1)| ∈ ℕ₀
-                                        mun:card-nat0 X := G(m, n − 1), from 1.2.3.4.24
-
-                            1.2.3.4.28. |G(m, n)| ∈ ℕ₀
-                                        mun:card-nat0 X := G(m, n), from 1.2.3.4.25
-
-                            1.2.3.4.29. |G(m, n)|·(m + n) = (m − n)·C(m + n, m)
-                                        thm:ballot-arithmetic x := |G(m − 1, n)|, y := |G(m, n − 1)|, z := |G(m, n)|,
-                                          from 1.2.3.2, 1.2.3.4.10, 1.2.3.4.16, 1.2.3.4.21, 1.2.3.4.22,
-                                          1.2.3.4.26, 1.2.3.4.27, 1.2.3.4.28
+                            1.2.3.4.22. |G(m, n)|·(m + n) = (m − n)·C(m + n, m)
+                                        thm:ballot-recurrence, from C3, 1.2.3.2, 1.2.3.4.10, 1.2.3.4.11, 1.2.3.4.12,
+                                          1.2.3.4.16, 1.2.3.4.21
 
                   case
                   note A and B end level, so no counting keeps A ahead
