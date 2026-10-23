@@ -60,16 +60,16 @@ theorem ptolemy
     thm:sin-add a := a + b, b := c
 
 11. sin(a + b) = sin(a)·cos(b) + cos(a)·sin(b)
-    thm:sin-add a := a, b := b
+    thm:sin-add
 
 12. cos(a + b) = cos(a)·cos(b) − sin(a)·sin(b)
-    thm:cos-add a := a, b := b
+    thm:cos-add
 
 13. sin(b + c) = sin(b)·cos(c) + cos(b)·sin(c)
     thm:sin-add a := b, b := c
 
 14. sin(a + c) = sin(a)·cos(c) + cos(a)·sin(c)
-    thm:sin-add a := a, b := c
+    thm:sin-add b := c
 
 15. sin(c)² + cos(c)² = 1
     mun:sin-cos-squares a := c
@@ -88,8 +88,8 @@ theorem ptolemy
 
 20. sin(a)·sin(b) + sin(c)·((sin(a)·cos(b) + cos(a)·sin(b))·cos(c) + (cos(a)·cos(b) − sin(a)·sin(b))·sin(c)) = (sin(b)·cos(c) + cos(b)·sin(c))·(sin(a)·cos(c) + cos(a)·sin(c))
     algebra, from 15
-    requires sin(a) ∈ ℝ: mun:sin-real a := a
-    requires cos(a) ∈ ℝ: mun:cos-real a := a
+    requires sin(a) ∈ ℝ: mun:sin-real
+    requires cos(a) ∈ ℝ: mun:cos-real
     requires sin(b) ∈ ℝ: mun:sin-real a := b
     requires cos(b) ∈ ℝ: mun:cos-real a := b
     requires sin(c) ∈ ℝ: mun:sin-real a := c
