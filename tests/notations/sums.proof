@@ -2,6 +2,8 @@ import mundane theorem    stdlib/sums/sum-constant
 import mundane theorem    stdlib/sums/sum-single
 import mundane theorem    stdlib/sums/sum-extended
 import theorem            stdlib/sums/product-factor
+import mundane theorem    stdlib/sums/product-extended
+import mundane theorem    stdlib/sums/product-real
 
 theorem a-constant-summed
   then Σ(k = 1 to 3) 5 = 15
@@ -91,3 +93,39 @@ theorem a-product-scaled-cited
 
 1.  ∏(k ∈ Y) k·3 = 3^|Y|·∏(k ∈ Y) k
     thm:a-product-scaled X := Y, from H1, H2
+
+theorem a-product-over-a-range-worked-out
+  then ∏(k = 1 to 4) k = 24
+
+1.  ∏(k = 1 to 4) k = 24
+    arithmetic
+
+theorem a-product-over-a-range-split-at-its-last
+  note        product-extended is stated over {a, …, n + 1}, and the range
+              written from 1 to n + 1 is the same product.
+  let n ∈ ℕ                                                           (H1)
+  let t : {1, …, n + 1} → ℝ                                           (H2)
+  then ∏(k = 1 to n + 1) t(k) = (∏(k = 1 to n) t(k))·t(n + 1)
+
+1.  ∏(k = 1 to n + 1) t(k) = (∏(k = 1 to n) t(k))·t(n + 1)
+    mun:product-extended a := 1
+    requires n ≥ 1: from H1
+
+theorem a-product-over-a-range-is-real
+  let n ∈ ℕ                                                           (H1)
+  let t : {1, …, n} → ℝ                                               (H2)
+  then ∏(k = 1 to n) t(k) ∈ ℝ
+
+1.  ∏(k = 1 to n) t(k) ∈ ℝ
+    mun:product-real a := 1, b := n
+
+theorem a-sum-over-a-range-written-as-a-set
+  note        sum-extended is stated from a to n + 1, and the sum over the
+              set {1, …, n + 1} is the same sum.
+  let n ∈ ℕ                                                           (H1)
+  let t : {1, …, n + 1} → ℝ                                           (H2)
+  then Σ(k ∈ {1, …, n + 1}) t(k) = Σ(k ∈ {1, …, n}) t(k) + t(n + 1)
+
+1.  Σ(k ∈ {1, …, n + 1}) t(k) = Σ(k ∈ {1, …, n}) t(k) + t(n + 1)
+    mun:sum-extended a := 1
+    requires n ≥ 1: from H1

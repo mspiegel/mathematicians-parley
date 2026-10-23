@@ -1540,6 +1540,20 @@ notation sum
               Σ(k = 0 to n) d(k)·10^k − Σ(k = 0 to n) d(k) is one sum less
               another, and a sum of a sum or a difference writes its brackets.
 
+notation product
+  pattern     ∏(_ = _ to _) _
+  sort        number, number, number, number → number
+  level       summation
+  binds       hole 1 over hole 4
+  reads       the product, from, to, of
+  metamath    cprod over ( M ... N )
+  target      _2 _3 cfz co _4 _1 cprod
+  note        The product of the fourth hole for each whole number from the
+              second to the third, as Σ(_ = _ to _) is its sum, and at its
+              level: ∏(k = 1 to n) 2·k is the product of the doubles, and a
+              product of a sum or a difference writes its brackets. Over a
+              range with no whole number in it the product is 1.
+
 notation series
   pattern     Σ(_ = _ to ∞) _
   sort        number, number, number → number

@@ -2109,7 +2109,14 @@ proved (`discharged_by`).
     compared in one standard order (`matching::standard`), as the
     elaborator's terms are: a spelling whose target is another's with the
     holes exchanged is read as that one, so `x > 0` is `0 < x`, taken from
-    the notation's `target` line and not named in the code. Only comparing
+    the notation's `target` line and not named in the code. A spelling
+    that, holding another in one hole, is a third's target is read as the
+    third, where the third binds a letter: `∏(k ∈ {a, …, b}) t` is
+    `∏(k = a to b) t`, and `Σ(k ∈ {a, …, b}) t` is `Σ(k = a to b) t`, so an
+    item stated either way is cited at either. A divisibility of a
+    difference is a congruence in the kernel too, and `|P − Q|` a distance,
+    but the page says each as its own claim, and they are compared as
+    written. Only comparing
     reads it so; a tree prints as the page wrote it. An equation, or its
     denial, is searched either way round (`either_way`), since which way a
     pattern is read is decided by what is matched after it.

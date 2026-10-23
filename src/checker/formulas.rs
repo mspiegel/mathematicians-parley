@@ -38,7 +38,7 @@ use crate::notations::{
     APPLICATION, APPLICATION_TO_TWO, AT_LEAST, AT_MOST, BICONDITIONAL, BY_CASES,
     CONDITIONAL, CONJUNCTION, EQUALITY, EQUALS, EQUAL_CHAIN, FOR_ALL, FOR_ALL_SETS,
     GREATER, IMPLICATION, INTEGER_RANGE, LESS, LOGICAL_NOT, MEMBERSHIP, NUMBER_SYSTEMS,
-    NUMERAL, ORDER, PLUS, PRODUCT_OVER, SUM, TIMES,
+    NUMERAL, ORDER, PLUS, PRODUCT, PRODUCT_OVER, SUM, TIMES,
 };
 use crate::outcome::{Built, Checked, Declined, Problem};
 use crate::rules::System;
@@ -4870,6 +4870,7 @@ fn written_out(node: &Node, known: &Known) -> Node {
                 _ => return here,
             },
             (SUM, [index, start, end, body]) => (index, start, end, body, PLUS),
+            (PRODUCT, [index, start, end, body]) => (index, start, end, body, TIMES),
             _ => return here,
         };
     let bound = |n: &Node| {

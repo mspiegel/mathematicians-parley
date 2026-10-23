@@ -41,10 +41,11 @@ pub const MOD: &str = "cmo";
 pub const NEG: &str = "cneg";
 
 /// The notations of the operations `arithmetic` works out of its own
-/// nature, which carry no `decided` field (`DATABASE.md`); and the range a
-/// product over a range runs over, `{0, …, 22}`, which it reads with the
+/// nature, which carry no `decided` field (`DATABASE.md`); a product over a
+/// range, written over the range as a set or from one end to the other; and
+/// the range such a product runs over, `{0, …, 22}`, which it reads with the
 /// product.
-pub const NATIVE_OPERATIONS: [&str; 8] = [
+pub const NATIVE_OPERATIONS: [&str; 9] = [
     "additive",
     "multiplicative",
     "unary-minus",
@@ -52,6 +53,7 @@ pub const NATIVE_OPERATIONS: [&str; 8] = [
     "superscript",
     "juxtaposition",
     "product-over",
+    "product",
     "integer-range",
 ];
 

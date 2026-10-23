@@ -3610,6 +3610,18 @@ fn cases() -> Vec<Case> {
             )],
             "proofs/wiedijk/product-turned.proof:10  step 1 claims something that mun:even-product does not conclude",
         ),
+        // A product over a range is compared as the one over the set of its
+        // whole numbers, and only that one: the item split at a := 1 gives
+        // the product from 1 to n, and the step claims it from 0.
+        case(
+            "claim a product over a range the item does not give",
+            vec![edit(
+                "tests/notations/sums.proof",
+                Some("1.  ∏(k = 1 to n + 1) t(k) = (∏(k = 1 to n) t(k))·t(n + 1)\n".to_string()),
+                "1.  ∏(k = 1 to n + 1) t(k) = (∏(k ∈ {0, …, n}) t(k))·t(n + 1)\n".to_string(),
+            )],
+            "step 1 claims something that mun:product-extended does not conclude",
+        ),
         // The same of a sum: the item gives a·x + b·y.
         case(
             "claim a sum with its terms the other way round from the item",

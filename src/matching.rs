@@ -69,6 +69,9 @@ pub struct Context {
     /// Each spelling that is another of its notation's with the holes in
     /// another order: `x > 0` is `0 < x` (`turned`).
     pub turned: FxIndexMap<Spelling, Turned>,
+    /// Each spelling that, holding another in one hole, is a third: a
+    /// product over the set {a, …, b} is the product from a to b (`filled`).
+    pub filled: FxIndexMap<Spelling, Vec<Filled>>,
     /// The notations whose holes stand in any order, `commutes any order`:
     /// "A, B, C form a triangle" is "C, A, B form a triangle", and {v, w} is
     /// {w, v}.
@@ -166,6 +169,7 @@ pub struct Turned {
 impl Context {
     pub fn new(notations: &[Notation], records: &[Record]) -> Context {
         let (binders, props) = binding_context(notations);
+        let filled = filled(notations, records, &binders);
         Context {
             binders,
             props,
@@ -175,6 +179,7 @@ impl Context {
             existences: ids_of(existences(records)),
             universals: ids_of(universals(records)),
             turned: turned(notations, records),
+            filled,
             unordered: ids_of(unordered(records)),
             identities: identities(notations, records),
         }
@@ -457,14 +462,199 @@ fn turned(notations: &[Notation], records: &[Record]) -> FxIndexMap<Spelling, Tu
     out
 }
 
-/// The tree with each spelling put in its standard one (`Context::turned`),
-/// as two trees are compared: `x > 0` read as `0 < x`, x² as x^2. A message
-/// that prints a tree read so prints the standard spelling.
+/// Where a part of the standard pattern comes from, in a tree of a pattern
+/// that holds another in one hole (`Filled`): a part of the outer pattern
+/// or of the inner one, by its hole counted from 1.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Source {
+    Outer(usize),
+    Inner(usize),
+}
+
+/// A pattern that, holding a second one in one hole, is a third pattern's
+/// term: `∏(k ∈ {a, …, b}) t`, product-over holding a range, is
+/// `∏(k = a to b) t`.
+#[derive(Clone, Debug)]
+pub struct Filled {
+    /// The outer pattern's hole, counted from 1, that the inner one fills.
+    pub hole: usize,
+    /// The inner pattern.
+    pub inner: Spelling,
+    /// The pattern the two are, which is the one they are compared in.
+    pub standard: Spelling,
+    /// The part each hole of the standard pattern takes, in its order.
+    pub places: Vec<Source>,
+}
+
+/// One token of a target: a word of set.mm's, or a hole by its number.
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Token<'t> {
+    Word(&'t str),
+    Hole(usize),
+}
+
+/// A pattern with its target read as tokens, where each hole stands once.
+struct Targeted<'t> {
+    spelling: Spelling,
+    tokens: Vec<Token<'t>>,
+    holes: usize,
+}
+
+/// The target's tokens, where it writes each of its holes once.
+fn tokens_of(target: &str) -> Option<(Vec<Token<'_>>, usize)> {
+    let tokens: Vec<Token> = target
+        .split_whitespace()
+        .map(|t| match t.strip_prefix('_').and_then(|n| n.parse().ok()) {
+            Some(n) => Token::Hole(n),
+            None => Token::Word(t),
+        })
+        .collect();
+    let mut holes: Vec<usize> = tokens
+        .iter()
+        .filter_map(|t| match t {
+            Token::Hole(n) => Some(*n),
+            Token::Word(_) => None,
+        })
+        .collect();
+    let count = holes.len();
+    holes.sort_unstable();
+    holes.dedup();
+    (holes.len() == count && holes.iter().enumerate().all(|(at, &h)| h == at + 1))
+        .then_some((tokens, count))
+}
+
+/// The words of a target with every hole blanked, as `blanked` writes them.
+fn shape_of<'t>(tokens: impl Iterator<Item = Token<'t>>) -> String {
+    tokens
+        .map(|t| match t {
+            Token::Word(w) => w,
+            Token::Hole(_) => "_",
+        })
+        .collect::<Vec<&str>>()
+        .join(" ")
+}
+
+/// Each pattern that, with another pattern in one of its holes, is a third
+/// pattern's target, the holes read in that one's order. The two trees are
+/// one term in the kernel, and so one term to compare, in the third
+/// pattern: product-over targets `_2 _3 _1 cprod`, a range `_1 _2 cfz co`,
+/// and the range in the set's hole is `_2 _3 cfz co _4 _1 cprod`, which is
+/// product's target, so `∏(k ∈ {a, …, b}) t` is `∏(k = a to b) t`.
+///
+/// Which is standard is taken from what the database targets rather than
+/// named here: the pattern whose target is the whole, since the outer one
+/// may hold any set and is the whole only where it holds the inner.
+///
+/// Only a whole that binds a letter is read so: a sum or a product written
+/// over a set and over a range, two ways a reader writes where its letter
+/// runs. A divisibility of a difference is a congruence in the kernel too,
+/// and |P − Q| a distance, but the page says each as its own claim, and
+/// they are compared as written.
+fn filled(
+    notations: &[Notation],
+    records: &[Record],
+    binders: &FxIndexMap<NotationId, Binds>,
+) -> FxIndexMap<Spelling, Vec<Filled>> {
+    let mut all: Vec<Targeted> = Vec::new();
+    for r in records.iter().filter(|r| r.kind == RecordKind::Notation) {
+        let targets: Vec<&str> = r
+            .field_or_empty("target")
+            .split(", ")
+            .map(str::trim)
+            .collect();
+        let patterns: Vec<&Notation> =
+            notations.iter().filter(|n| n.name == r.name).collect();
+        if targets.len() != patterns.len() {
+            continue;
+        }
+        for (target, pattern) in targets.iter().zip(patterns) {
+            if let Some((tokens, holes)) = tokens_of(target) {
+                if holes > 0 {
+                    all.push(Targeted {
+                        spelling: pattern.spelling(),
+                        tokens,
+                        holes,
+                    });
+                }
+            }
+        }
+    }
+    let mut by_shape: FxIndexMap<String, Vec<usize>> = FxIndexMap::default();
+    for (at, t) in all.iter().enumerate() {
+        by_shape
+            .entry(shape_of(t.tokens.iter().copied()))
+            .or_default()
+            .push(at);
+    }
+    let mut out: FxIndexMap<Spelling, Vec<Filled>> = FxIndexMap::default();
+    for outer in &all {
+        for hole in 1..=outer.holes {
+            for inner in &all {
+                if inner.spelling.notation == outer.spelling.notation {
+                    continue;
+                }
+                // The tokens with the inner target in the hole, each hole
+                // with the part it is.
+                let mut spliced: Vec<(Token, Option<Source>)> = Vec::new();
+                for &t in &outer.tokens {
+                    match t {
+                        Token::Hole(n) if n == hole => {
+                            spliced.extend(inner.tokens.iter().map(|&i| match i {
+                                Token::Hole(m) => (i, Some(Source::Inner(m))),
+                                Token::Word(_) => (i, None),
+                            }))
+                        }
+                        Token::Hole(n) => spliced.push((t, Some(Source::Outer(n)))),
+                        Token::Word(_) => spliced.push((t, None)),
+                    }
+                }
+                let shape = shape_of(spliced.iter().map(|(t, _)| *t));
+                for &at in by_shape.get(&shape).into_iter().flatten() {
+                    let standard = &all[at];
+                    if standard.spelling.notation == outer.spelling.notation
+                        || standard.spelling.notation == inner.spelling.notation
+                        || !binders.contains_key(&standard.spelling.notation)
+                    {
+                        continue;
+                    }
+                    let mut places = vec![Source::Outer(0); standard.holes];
+                    let pairs = standard.tokens.iter().zip(&spliced).filter_map(
+                        |(t, (_, from))| match (t, from) {
+                            (Token::Hole(n), Some(from)) => Some((*n, *from)),
+                            _ => None,
+                        },
+                    );
+                    for (n, from) in pairs {
+                        places[n - 1] = from;
+                    }
+                    out.entry(outer.spelling).or_default().push(Filled {
+                        hole,
+                        inner: inner.spelling,
+                        standard: standard.spelling,
+                        places,
+                    });
+                }
+            }
+        }
+    }
+    out
+}
+
+/// The tree with each spelling put in its standard one (`Context::turned`,
+/// `Context::filled`), as two trees are compared: `x > 0` read as `0 < x`,
+/// x² as x^2, `∏(k ∈ {1, …, n}) k` as `∏(k = 1 to n) k`. A message that
+/// prints a tree read so prints the standard spelling.
 pub fn standard(node: &Node, ctx: &Context) -> Node {
-    if ctx.turned.is_empty() {
+    if ctx.turned.is_empty() && ctx.filled.is_empty() {
         return node.clone();
     }
     turned_to_standard(node, ctx).unwrap_or_else(|| node.clone())
+}
+
+/// What a node is in its standard spelling, where it is another's.
+enum Standard<'c> {
+    Turned(&'c Turned),
+    Filled(&'c Filled),
 }
 
 /// `standard` of a tree that has a spelling to turn somewhere in it; None
@@ -475,10 +665,21 @@ fn turned_to_standard(node: &Node, ctx: &Context) -> Option<Node> {
         .iter()
         .map(|c| turned_to_standard(c, ctx))
         .collect();
-    let here = ctx
-        .turned
-        .get(&node.spelling())
-        .filter(|t| t.places.len() == node.children.len());
+    let filled = ctx.filled.get(&node.spelling()).and_then(|all| {
+        all.iter().find(|f| {
+            node.children
+                .get(f.hole - 1)
+                .is_some_and(|c| c.spelling() == f.inner)
+        })
+    });
+    let here = match filled {
+        Some(f) => Some(Standard::Filled(f)),
+        None => ctx
+            .turned
+            .get(&node.spelling())
+            .filter(|t| t.places.len() == node.children.len())
+            .map(Standard::Turned),
+    };
     if here.is_none() && turned.iter().all(Option::is_none) {
         return None;
     }
@@ -488,9 +689,21 @@ fn turned_to_standard(node: &Node, ctx: &Context) -> Option<Node> {
         .map(|(t, c)| t.unwrap_or_else(|| c.clone()))
         .collect();
     Some(match here {
-        Some(t) => {
+        Some(Standard::Turned(t)) => {
             let placed = t.places.iter().map(|&p| children[p - 1].clone()).collect();
             Node::of(t.spelling, node.sort.clone(), placed)
+        }
+        Some(Standard::Filled(f)) => {
+            let inner = &children[f.hole - 1];
+            let placed = f
+                .places
+                .iter()
+                .map(|p| match *p {
+                    Source::Outer(n) => children[n - 1].clone(),
+                    Source::Inner(n) => inner.children[n - 1].clone(),
+                })
+                .collect();
+            Node::of(f.standard, node.sort.clone(), placed)
         }
         None => node.with_children(children),
     })

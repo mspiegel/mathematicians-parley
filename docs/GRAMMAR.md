@@ -526,8 +526,10 @@ A sum, `Σ(k = 0 to n) t`, holds its summand at its right edge, and its level,
 tighter, so `Σ(k = 0 to n) d(k)·10^k` sums the product, and addition looser,
 so `Σ(k = 0 to n) d(k)·10^k − Σ(k = 0 to n) d(k)` is one sum less another.
 A sum of a sum or a difference writes its brackets, `Σ(k = 0 to n) (t(k) −
-u(k))`, as a reader expects. It is a binder, like `for all`: the `k` it
-names is bound in the summand. A congruence, `a ≡ b (mod n)`, is a relation,
+u(k))`, as a reader expects. A product, `∏(k = 1 to n) t`, is read the
+same way at the same level: `∏(k = 1 to n) 2·k` multiplies the doubles, and
+`∏(k = 1 to n) (k + 1)` writes its brackets. It is a binder, like `for
+all`: the `k` it names is bound in the summand. A congruence, `a ≡ b (mod n)`, is a relation,
 and its brackets are part of its pattern, not a grouping.
 
 The range a sum runs over is written as a set, `{0, …, n}`, where a line says
