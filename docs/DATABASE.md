@@ -328,7 +328,7 @@ repaired.
   because every other geometry item names its points P, Q and R.
 - **`thm:triangle-permute`'s conclusion was not a formula.** "Any ordering of P,
   Q, R forms a triangle" is no item: the `forms-a-triangle` notation says
-  `commutes yes`, so a triangle is one claim in any order of its points, and
+  `commutes any order`, so a triangle is one claim in any order of its points, and
   the elaborator reaches each order by the lemmas `gtriswap` and `gtrirotate`
   (`GEOMETRY.md`).
 - **Set-existence hypotheses are inconsistent.** `axi:stdlib/numbers/well-ordering` and

@@ -229,7 +229,7 @@ one claim: the three are distinct and not on one line, whichever is named
 first. "A, B, C are collinear" is likewise one claim in any order. It means
 A = B, or (C − A)/(B − A) is real, which is true just where the three lie on
 one line, two of them coinciding included. Both notation records say
-`commutes yes`, and the checker matches their holes in any order. The
+`commutes any order`, and the checker matches their holes in any order. The
 elaborator carries a triangle from one order to another by `gtriswap` and
 `gtrirotate`, and a collinearity by `gcolswap` and `gcolrotate`, whether the
 line is one a proof holds or a record's conclusion. So
