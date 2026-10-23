@@ -3584,6 +3584,43 @@ fn cases() -> Vec<Case> {
             "target entr",
         ),
         case(
+            "give a notation fewer commutes entries than it has patterns",
+            vec![
+                edit("corpus/db/notation.records", Some("  commutes    yes, no".to_string()), "  commutes    yes".to_string()),
+            ],
+            "commutes entr",
+        ),
+        case(
+            "say a notation commutes in a word the field does not have",
+            vec![
+                edit("corpus/db/notation.records", Some("  sort        α, α → set of α\n  commutes    any order".to_string()), "  sort        α, α → set of α\n  commutes    unordered".to_string()),
+            ],
+            "where each entry is `yes`, `any order` or `no`",
+        ),
+        // A product's two factors may be exchanged (`commutes yes`), and the
+        // elaborator carries one order to the other; the page still writes
+        // the one the item gives, since `yes` is not `any order`. The item
+        // gives n·k, and the step claims k·n.
+        case(
+            "claim a product with its factors the other way round from the item",
+            vec![edit(
+                "proofs/wiedijk/product-turned.proof",
+                None,
+                "import mundane theorem stdlib/divisibility/even-product\n\ntheorem product-turned\n  let k ∈ ℤ                                                           (H1)\n  let n ∈ ℤ                                                           (H2)\n  assume n is even                                                    (H3)\n  then k·n is even\n\n1.  k·n is even\n    mun:even-product a := n, x := k, from H3\n".to_string(),
+            )],
+            "proofs/wiedijk/product-turned.proof:10  step 1 claims something that mun:even-product does not conclude",
+        ),
+        // The same of a sum: the item gives a·x + b·y.
+        case(
+            "claim a sum with its terms the other way round from the item",
+            vec![edit(
+                "proofs/wiedijk/sum-turned.proof",
+                None,
+                "import mundane theorem stdlib/divisibility/divides-combination\n\ntheorem sum-turned\n  let e ∈ ℤ                                                           (H1)\n  let a ∈ ℤ                                                           (H2)\n  let b ∈ ℤ                                                           (H3)\n  let x ∈ ℤ                                                           (H4)\n  let y ∈ ℤ                                                           (H5)\n  assume e divides a                                                  (H6)\n  assume e divides b                                                  (H7)\n  then e divides b·y + a·x\n\n1.  e divides b·y + a·x\n    mun:divides-combination e := e, a := a, b := b, x := x, y := y, from H6, H7\n".to_string(),
+            )],
+            "proofs/wiedijk/sum-turned.proof:14  step 1 claims something that mun:divides-combination does not conclude",
+        ),
+        case(
             "point a requires line at an item that does not cover it",
             vec![
                 edit("tests/elaborator/a-root-said-real.proof", Some("theorem a-root-said-real\n".to_string()), "import mundane theorem stdlib/numbers/square-nonneg\n\ntheorem a-root-said-real\n".to_string()),

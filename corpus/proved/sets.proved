@@ -16,10 +16,13 @@
 # - a one-to-one function into a set has a domain no larger than the set,
 #   for `thm:stdlib/counting/pigeonhole`;
 # - what is in a set of three listed things, its three cases joined by
-#   "or" two at a time, for `mun:stdlib/sets/triple`.
+#   "or" two at a time, for `mun:stdlib/sets/triple`;
+# - a listing of four elements with its third and fourth exchanged, one of
+#   the exchanges the elaborator puts a listing's elements in order by.
 
 $( Sets: the parts of a set with a property, a set counted by the equal
-   parts it splits into, and what is in a set of three. $)
+   parts it splits into, what is in a set of three, and a listing of four
+   in another order. $)
 $d x ps $.
 $d x A $.
 $d x B $.
@@ -170,4 +173,17 @@ lemma geltpg
   1 eltpg |- ( A e. V -> ( A e. { B , C , D } <-> ( A = B \/ A = C \/ A = D ) ) )
   2 df-3or |- ( ( A = B \/ A = C \/ A = D ) <-> ( ( A = B \/ A = C ) \/ A = D ) )
   3 bitrdi 1 2 |- ( A e. V -> ( A e. { B , C , D } <-> ( ( A = B \/ A = C ) \/ A = D ) ) )
+
+# ( { A , B , C } u. { D } ) = ( { A , B , D } u. { C } )
+#
+# A listing of four elements exchanges its third and fourth: both sides are
+# { A , B } joined with the pair of the two (`qdass`), and the pair is the
+# same either way round (`prcom`).
+lemma gtpsnswap
+  |- ( { A , B , C } u. { D } ) = ( { A , B , D } u. { C } )
+  1 qdass |- ( { A , B } u. { C , D } ) = ( { A , B , C } u. { D } )
+  2 prcom |- { C , D } = { D , C }
+  3 uneq2i 2 |- ( { A , B } u. { C , D } ) = ( { A , B } u. { D , C } )
+  4 qdass |- ( { A , B } u. { D , C } ) = ( { A , B , D } u. { C } )
+  5 3eqtr3i 3 1 4 |- ( { A , B , C } u. { D } ) = ( { A , B , D } u. { C } )
 

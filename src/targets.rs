@@ -152,6 +152,47 @@ pub struct Commuting {
     pub fixed: IndexMap<usize, String>,
 }
 
+/// What a notation's `commutes` field says of one pattern's holes.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Commutes {
+    /// `yes`: the two holes may be exchanged, so 2k and k · 2 are one
+    /// number, though the kernel writes them apart.
+    Exchanged,
+    /// `any order`: the holes stand in no order on the page, so {u, w} and
+    /// {w, u} are one set.
+    AnyOrder,
+    /// `no`: the holes stand where they are written.
+    Kept,
+}
+
+impl Commutes {
+    /// One entry of the field read; None for a word that is none of the
+    /// three, which `checker::database` reports.
+    pub fn of(entry: &str) -> Option<Commutes> {
+        match entry {
+            "yes" => Some(Commutes::Exchanged),
+            "any order" => Some(Commutes::AnyOrder),
+            "no" => Some(Commutes::Kept),
+            _ => None,
+        }
+    }
+
+    /// Whether two holes may stand either way round: a pattern of two
+    /// holes in no order is one whose two may be exchanged.
+    pub fn exchanges(self) -> bool {
+        matches!(self, Commutes::Exchanged | Commutes::AnyOrder)
+    }
+}
+
+/// A notation record's `commutes` field read, one entry per pattern in the
+/// order the patterns are written; empty where the record has none.
+pub fn commutes_said(r: &Record) -> Vec<Option<Commutes>> {
+    split_entries(r.field_or_empty("commutes"))
+        .into_iter()
+        .map(Commutes::of)
+        .collect()
+}
+
 /// The terms whose two operands may be exchanged, from `commutes`.
 ///
 /// Each entry is the constructor, the two positions the holes occupy, and
@@ -164,14 +205,14 @@ pub fn commuting(records: &[Record]) -> Vec<Commuting> {
         if r.kind != RecordKind::Notation {
             continue;
         }
-        let Some(commutes) = r.field("commutes") else {
-            continue;
-        };
-        let says = split_entries(commutes);
+        let says = commutes_said(r);
         let patterns = split_entries(r.field_or_empty("target"));
-        for (pattern, yes) in patterns.iter().zip(says.iter()) {
+        for (pattern, said) in patterns.iter().zip(says.iter()) {
             let places = slots(pattern);
-            if *yes != "yes" || *pattern == FOLDED || places.len() != 2 {
+            if !said.is_some_and(Commutes::exchanges)
+                || *pattern == FOLDED
+                || places.len() != 2
+            {
                 continue;
             }
             let tokens: Vec<&str> = pattern.split_whitespace().collect();

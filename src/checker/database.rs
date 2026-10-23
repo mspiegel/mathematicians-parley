@@ -276,6 +276,35 @@ pub fn check_notation(report: &mut Report, records: &[Record]) {
             }
         }
 
+        // `commutes` says of each pattern, in order, whether its holes may
+        // stand in another order, in one of the field's three words.
+        if r.fields.contains_key("commutes") {
+            let said = crate::targets::commutes_said(r);
+            if said.len() != patterns.len() {
+                report.say(
+                    &r.path,
+                    r.line,
+                    format!(
+                        "notation {} has {} pattern(s) but {} commutes entr(ies)",
+                        r.name,
+                        patterns.len(),
+                        said.len()
+                    ),
+                );
+            }
+            if said.contains(&None) {
+                report.say(
+                    &r.path,
+                    r.line,
+                    format!(
+                        "notation {}: commutes says {}, where each entry is `yes`, `any order` or `no`",
+                        r.name,
+                        repr(r.field_or_empty("commutes"))
+                    ),
+                );
+            }
+        }
+
         // Associativity is needed exactly when the pattern can nest in
         // itself: both edges are holes, and what it yields fits those holes.
         for p in &patterns {

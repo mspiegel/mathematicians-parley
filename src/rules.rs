@@ -951,6 +951,32 @@ pub const IDENTITY: [&str; 7] = [
 // among them, since their sides are not interchangeable.
 pub const SYMMETRIC: [&str; 3] = ["eqcom", "addcom", "mulcom"];
 
+/// The lemmas that exchange two elements next to each other in a listed
+/// set, by which the standard form puts a listing's elements in order: the
+/// page lists them in no order (`commutes any order`). Each says the set
+/// before the exchange is the set after it, and needs nothing. A pair's two
+/// are exchanged by `prcom`, in `MEMBERSHIP`, as every two holes that
+/// commute are.
+pub struct Listed {
+    /// {A, B, C} = {B, A, C}.
+    pub triple_first: &'static str,
+    /// {A, B, C} = {A, C, B}.
+    pub triple_last: &'static str,
+    /// ({A, B, C} ∪ {D}) = ({A, B, D} ∪ {C}): a listing of four's third
+    /// and fourth, the triple's last and the singleton after it.
+    pub into_triple: &'static str,
+    /// ((A ∪ B) ∪ C) = ((A ∪ C) ∪ B): two singletons next to each other
+    /// after the triple, B and C, exchanged.
+    pub singletons: &'static str,
+}
+
+pub const LISTED: Listed = Listed {
+    triple_first: "tpcoma",
+    triple_last: "tpcomb",
+    into_triple: "gtpsnswap",
+    singletons: "un23",
+};
+
 // Every lemma the elaborator may lean on for a fact the text does not
 // write, tried by matching its conclusion against what is wanted. A closed
 // one settles it outright, one with an antecedent leaves that antecedent to
@@ -1069,7 +1095,7 @@ pub const MEMBERSHIP: &[&str] = &[
     // subgroup of G", as the reader does, answers a lemma asking H ⊆ G.
     "subgss",
     // Three points form a triangle, or are collinear, in any order
-    // (`forms-a-triangle`, `collinear`, `commutes yes`): a swap and a
+    // (`forms-a-triangle`, `collinear`, `commutes any order`): a swap and a
     // rotation reach every order.
     "gtriswap",
     "gtrirotate",
@@ -1233,6 +1259,15 @@ pub fn every_label() -> Vec<(&'static str, &'static str)> {
     for (k, v) in JOIN {
         put("JOIN", &[k, v]);
     }
+    put(
+        "LISTED",
+        &[
+            LISTED.triple_first,
+            LISTED.triple_last,
+            LISTED.into_triple,
+            LISTED.singletons,
+        ],
+    );
     put("MEMBERSHIP", MEMBERSHIP);
     for (k, v) in NEGATED {
         put("NEGATED", &[k, v]);
