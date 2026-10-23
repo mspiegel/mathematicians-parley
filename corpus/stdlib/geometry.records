@@ -702,6 +702,17 @@ theorem area-by-sine
   metamath    garea, from gsinabs
   target      garea
 
+mundane theorem area-real
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P ≠ R                                                        (H4)
+  assume Q ≠ R                                                        (H5)
+  then        the area of △PQR ∈ ℝ
+  metamath    gareacl, which this corpus proves in
+              elaboration/stdlib/proved.mm from gsangcl
+  target      gareacl
+
 mundane theorem area-positive
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)

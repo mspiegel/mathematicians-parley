@@ -1,0 +1,24 @@
+import mundane theorem    stdlib/geometry/area-real
+import mundane theorem    stdlib/numbers/square-equal
+
+theorem an-area-weakened
+  note        The area above 0 is at least 0, by weakening the line that says
+              so: the area is a number by area-real, as one term, though
+              nothing says the size of the sine inside it is.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  assume A ≠ C                                                        (H4)
+  assume B ≠ C                                                        (H5)
+  assume the area of △ABC > 0                                         (H6)
+  assume (the area of △ABC)² = 1²                                     (H7)
+  then the area of △ABC = 1
+
+1.  the area of △ABC ∈ ℝ
+    mun:area-real P := A, Q := B, R := C, from H4, H5
+
+2.  the area of △ABC = 1
+    mun:square-equal x := the area of △ABC, y := 1, from H7
+    requires the area of △ABC ∈ ℝ: from 1
+    requires the area of △ABC ≥ 0: weakening, from H6
+    requires 1 ≥ 0: arithmetic

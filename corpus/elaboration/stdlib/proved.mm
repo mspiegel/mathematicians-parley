@@ -439,6 +439,12 @@ $d x T $.  $d y T $.
     jca gsangcl sylc pire renegcli a1i ltled gsinabs syl oveq2d eqcomd ex )
     ADEZBDEZCDEZFZACGZBCGZHZIJKLZBCMLZNOZACMLZNOZPLZPLZVNVPQLZROZNOZPLZVSVTNOZROZPLZSVIVLHZWFWCWGWEWBVSPWGVTTEZUAUBZVTUCUDZHZVTUAUCUDZHWEWBSWGWKWLWGWHWJWGWHWIVTUEUDZWLWGVGVHVFFZVKVJHZWHWMWLFZWGVGVHVFWGVFVGVHVIVLUFZUGZWGVFVGVHWQUHZWGVFVGVHWQUIZUJZWGVKVJWGVJVKVIVLUKZULZWGVJVKXBUMZUNZBCAUOZUPZUIZWGWIVTWITEWGUAUQURUSXHWGWHWMWLXGUGUTUNWGWHWMWLXGUHUNVTVAVBVCVDVE $.
 
+  gareacl $p |- ( ( P e. CC /\ Q e. CC /\ R e. CC ) -> ( ( P =/= R /\ Q =/= R ) -> ( ( ( 1 / 2 ) x. ( ( abs ` ( Q - R ) ) x. ( abs ` ( P - R ) ) ) ) x. ( abs ` ( sin ` ( ( Q - R ) ang ( P - R ) ) ) ) ) e. RR ) ) $=
+    ( cc wcel w3a wne wa c1 c2 cdiv co cmin cabs cfv cmul cang csin cr halfre
+    a1i simpl simp2d simp3d subcld abscld simp1d remulcld cpi cneg clt wbr
+    cle 3jca simpr simprd simpld jca gsangcl sylc resincld recnd ex )
+    ADEZBDEZCDEZFZACGZBCGZHZIJKLZBCMLZNOZACMLZNOZPLZPLZVLVNQLZROZNOZPLSEVGVJHZVQVTWAVKVPVKSEWATUAWAVMVOWAVLWABCWAVDVEVFVGVJUBZUCZWAVDVEVFWBUDZUEUFWAVNWAACWAVDVEVFWBUGZWDUEUFUHUHWAVSWAVSWAVRWAVRSEZUIUJZVRUKULZVRUIUMULZWAVEVFVDFVIVHHWFWHWIFWAVEVFVDWCWDWEUNWAVIVHWAVHVIVGVJUOZUPWAVHVIWJUQURBCAUSUTUGVAVBUFUHVC $.
+
   gareapos $p |- ( ( P e. CC /\ Q e. CC /\ R e. CC ) -> ( ( ( ( -. P = Q /\ -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) -> 0 < ( ( ( 1 / 2 ) x. ( ( abs ` ( Q - R ) ) x. ( abs ` ( P - R ) ) ) ) x. ( abs ` ( sin ` ( ( Q - R ) ang ( P - R ) ) ) ) ) ) ) $=
     ( cc wcel w3a wceq wn wa cmin co cdiv cr cc0 c1 c2 cabs cfv cmul cang
     csin clt wbr crp 1rp rphalfcl ax-mp a1i simpl simp2d simp3d subcld simpr

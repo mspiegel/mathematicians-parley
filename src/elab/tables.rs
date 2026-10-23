@@ -2035,7 +2035,16 @@ impl<'a> Elaborator<'a> {
     /// membership as `facts` hold it under `scope`, the scope its line opens:
     /// what `introduced_membership` carries to any scope inside it.
     pub fn note_introduced(&mut self, scope: &Rpn, facts: &Facts) -> Checked<()> {
-        for (letter, set) in self.sets.clone() {
+        // A point is a complex number in set.mm, which its `let` line says;
+        // a distance between two points is real by that (`distance_within`).
+        let points = self
+            .sorts_now
+            .iter()
+            .filter(|(_, sort)| sort.is("point"))
+            .map(|(letter, _)| (letter.clone(), t!("cc")));
+        let letters: Vec<(String, Rpn)> =
+            self.sets.clone().into_iter().chain(points).collect();
+        for (letter, set) in letters {
             if set
                 .alone()
                 .and_then(|s| lookup(rules::SYSTEMS, s))

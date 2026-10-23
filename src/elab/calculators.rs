@@ -3578,6 +3578,9 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         lines: &Lines,
     ) -> Checked<Route<Proof>> {
+        if let Some(proof) = self.weakened_line(step, term, scope, facts, lines)? {
+            return Ok(Built(proof));
+        }
         // A defined name is read as what it names, as `membership` and the
         // comparison of two spellings read it: the claim and each cited line
         // are taken with their defined names written out.
@@ -3665,6 +3668,52 @@ impl<'a> Elaborator<'a> {
         Ok(Built(
             pf!(self.b; scope, term_out, term, proof, back, "mpbid"),
         ))
+    }
+
+    /// `a ≤ b` from a line the step cites saying `a < b` of the same two
+    /// terms, by `ltled`; None where no cited line does. The terms are not
+    /// taken apart, so each needs only what the step's lines say of it
+    /// whole: the area of a triangle is a number by `area-real`, though
+    /// nothing says the size of the sine inside it is.
+    fn weakened_line(
+        &mut self,
+        step: &Step,
+        term: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+        lines: &Lines,
+    ) -> Checked<Option<Proof>> {
+        let claim = self.to_term(term);
+        let kids = claim.children();
+        if claim.variable().is_some()
+            || claim.label() != Some("wbr")
+            || kids.len() != 3
+            || self.rpn(&kids[2]) != t!("cle")
+        {
+            return Ok(None);
+        }
+        let (a, b) = (self.rpn(&kids[0]), self.rpn(&kids[1]));
+        let strict = t!(&a, &b, "clt", "wbr");
+        for r in &step.just.refs {
+            let Some(held) = lines.get(r) else {
+                continue;
+            };
+            if !self.parts(&held.term).contains(&strict) {
+                continue;
+            }
+            let node = self.to_term(&strict);
+            let Built(given) = self.cited_fact(r, &node, scope, facts, lines)? else {
+                continue;
+            };
+            let ra = self.membership(&a, "cr", scope, facts)?;
+            let rb = self.membership(&b, "cr", scope, facts)?;
+            return Ok(Some(self.b.ap(
+                "ltled",
+                &binds! {"ph" => scope, "A" => &a, "B" => &b},
+                &[&ra, &rb, &given],
+            )));
+        }
+        Ok(None)
     }
 
     /// What an inequalities step with rows is proved from: the lines it

@@ -29,6 +29,7 @@ use num_traits::{One, Signed, ToPrimitive, Zero};
 use super::calculators::{Ordered, Revalued, Vanishing, Work};
 use super::field::{self, numeral, Monomial, Poly, Q};
 use super::numerals;
+use super::provenance::MEMBERSHIP;
 use super::state::Elaborator;
 use super::Facts;
 use crate::binds;
@@ -293,8 +294,8 @@ impl<'a> Elaborator<'a> {
             return Ok(Route::no("not the absolute value of a difference"));
         };
         let (p, q) = (self.rpn(p), self.rpn(q));
-        let first = self.membership(&p, "cc", scope, facts)?;
-        let second = self.membership(&q, "cc", scope, facts)?;
+        let first = self.point_membership(&p, scope, facts)?;
+        let second = self.point_membership(&q, scope, facts)?;
         let apart = self.b.ap(
             "subcld",
             &binds! {"ph" => scope, "A" => &p, "B" => &q},
@@ -314,6 +315,42 @@ impl<'a> Elaborator<'a> {
             ))),
             _ => Ok(Route::no("said once only in ℝ and ℂ")),
         }
+    }
+
+    /// ( scope -> P e. CC ) for an end of a distance: as the facts hold it,
+    /// or, for a point a `let` line introduced, as its line said it, carried
+    /// to `scope` and sealed as a membership said once, which a step rests on
+    /// without naming its line; a proof of a standard form, which has no
+    /// facts, reaches it only this way.
+    fn point_membership(
+        &mut self,
+        p: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Proof> {
+        let claim = t!(p, "cc", "wcel");
+        if let Some(held) = self.held(facts, &claim, scope)? {
+            return Ok(held);
+        }
+        let letter = self
+            .names
+            .iter()
+            .find(|(name, kernel)| {
+                *kernel == p && self.sorts_now.get(*name).is_some_and(|s| s.is("point"))
+            })
+            .map(|(name, _)| name.clone());
+        if let Some(letter) = letter {
+            let kept = self.introduced.get(&letter).cloned().unwrap_or_default();
+            let lifted = kept
+                .iter()
+                .rev()
+                .filter(|(said, _, _)| *said == claim)
+                .find_map(|(_, proof, at)| self.lifted_to(&claim, proof, at, scope));
+            if let Some(lifted) = lifted {
+                return Ok(self.seal(lifted, &format!("{MEMBERSHIP}{letter}")));
+            }
+        }
+        self.membership(p, "cc", scope, facts)
     }
 
     /// ( scope -> √x e. system ) for a root `real arithmetic` takes, in ℝ

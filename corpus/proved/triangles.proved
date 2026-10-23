@@ -3933,6 +3933,36 @@ lemma garea
   24 eqcomd 23 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= R /\ Q =/= R ) ) -> ( ( ( 1 / 2 ) x. ( ( abs ` ( Q - R ) ) x. ( abs ` ( P - R ) ) ) ) x. ( abs ` ( sin ` ( ( Q - R ) ang ( P - R ) ) ) ) ) = ( ( ( 1 / 2 ) x. ( ( abs ` ( Q - R ) ) x. ( abs ` ( P - R ) ) ) ) x. ( sin ` ( abs ` ( ( Q - R ) ang ( P - R ) ) ) ) ) )
   25 ex 24 |- ( ( P e. CC /\ Q e. CC /\ R e. CC ) -> ( ( P =/= R /\ Q =/= R ) -> ( ( ( 1 / 2 ) x. ( ( abs ` ( Q - R ) ) x. ( abs ` ( P - R ) ) ) ) x. ( abs ` ( sin ` ( ( Q - R ) ang ( P - R ) ) ) ) ) = ( ( ( 1 / 2 ) x. ( ( abs ` ( Q - R ) ) x. ( abs ` ( P - R ) ) ) ) x. ( sin ` ( abs ` ( ( Q - R ) ang ( P - R ) ) ) ) ) ) )
 
+# The area is a real number: half of two distances times the size of a
+# sine of a real angle (`gsangcl`).
+lemma gareacl
+  |- ( ( P e. CC /\ Q e. CC /\ R e. CC ) -> ( ( P =/= R /\ Q =/= R ) -> ( ( ( 1 / 2 ) x. ( ( abs ` ( Q - R ) ) x. ( abs ` ( P - R ) ) ) ) x. ( abs ` ( sin ` ( ( Q - R ) ang ( P - R ) ) ) ) ) e. RR ) )
+  1 simpl |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= R /\ Q =/= R ) ) -> ( P e. CC /\ Q e. CC /\ R e. CC ) )
+  2 simp1d 1 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= R /\ Q =/= R ) ) -> P e. CC )
+  3 simp2d 1 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= R /\ Q =/= R ) ) -> Q e. CC )
+  4 simp3d 1 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= R /\ Q =/= R ) ) -> R e. CC )
+  5 simpr |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= R /\ Q =/= R ) ) -> ( P =/= R /\ Q =/= R ) )
+  6 simpld 5 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= R /\ Q =/= R ) ) -> P =/= R )
+  7 simprd 5 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= R /\ Q =/= R ) ) -> Q =/= R )
+  8 3jca 3 4 2 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= R /\ Q =/= R ) ) -> ( Q e. CC /\ R e. CC /\ P e. CC ) )
+  9 jca 7 6 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= R /\ Q =/= R ) ) -> ( Q =/= R /\ P =/= R ) )
+  10 gsangcl |- ( ( Q e. CC /\ R e. CC /\ P e. CC ) -> ( ( Q =/= R /\ P =/= R ) -> ( ( ( Q - R ) ang ( P - R ) ) e. RR /\ -u _pi < ( ( Q - R ) ang ( P - R ) ) /\ ( ( Q - R ) ang ( P - R ) ) <_ _pi ) ) )
+  11 sylc 8 9 10 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= R /\ Q =/= R ) ) -> ( ( ( Q - R ) ang ( P - R ) ) e. RR /\ -u _pi < ( ( Q - R ) ang ( P - R ) ) /\ ( ( Q - R ) ang ( P - R ) ) <_ _pi ) )
+  12 simp1d 11 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= R /\ Q =/= R ) ) -> ( ( Q - R ) ang ( P - R ) ) e. RR )
+  13 resincld 12 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= R /\ Q =/= R ) ) -> ( sin ` ( ( Q - R ) ang ( P - R ) ) ) e. RR )
+  14 recnd 13 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= R /\ Q =/= R ) ) -> ( sin ` ( ( Q - R ) ang ( P - R ) ) ) e. CC )
+  15 abscld 14 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= R /\ Q =/= R ) ) -> ( abs ` ( sin ` ( ( Q - R ) ang ( P - R ) ) ) ) e. RR )
+  16 subcld 3 4 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= R /\ Q =/= R ) ) -> ( Q - R ) e. CC )
+  17 abscld 16 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= R /\ Q =/= R ) ) -> ( abs ` ( Q - R ) ) e. RR )
+  18 subcld 2 4 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= R /\ Q =/= R ) ) -> ( P - R ) e. CC )
+  19 abscld 18 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= R /\ Q =/= R ) ) -> ( abs ` ( P - R ) ) e. RR )
+  20 remulcld 17 19 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= R /\ Q =/= R ) ) -> ( ( abs ` ( Q - R ) ) x. ( abs ` ( P - R ) ) ) e. RR )
+  21 halfre |- ( 1 / 2 ) e. RR
+  22 a1i 21 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= R /\ Q =/= R ) ) -> ( 1 / 2 ) e. RR )
+  23 remulcld 22 20 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= R /\ Q =/= R ) ) -> ( ( 1 / 2 ) x. ( ( abs ` ( Q - R ) ) x. ( abs ` ( P - R ) ) ) ) e. RR )
+  24 remulcld 23 15 |- ( ( ( P e. CC /\ Q e. CC /\ R e. CC ) /\ ( P =/= R /\ Q =/= R ) ) -> ( ( ( 1 / 2 ) x. ( ( abs ` ( Q - R ) ) x. ( abs ` ( P - R ) ) ) ) x. ( abs ` ( sin ` ( ( Q - R ) ang ( P - R ) ) ) ) ) e. RR )
+  25 ex 24 |- ( ( P e. CC /\ Q e. CC /\ R e. CC ) -> ( ( P =/= R /\ Q =/= R ) -> ( ( ( 1 / 2 ) x. ( ( abs ` ( Q - R ) ) x. ( abs ` ( P - R ) ) ) ) x. ( abs ` ( sin ` ( ( Q - R ) ang ( P - R ) ) ) ) ) e. RR ) )
+
 # A triangle has positive area: each factor is a positive real, the sine
 # by `gsinpos` at the vertex R, which `gtrirotate` brings to the middle.
 lemma gareapos
