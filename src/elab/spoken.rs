@@ -290,6 +290,18 @@ impl Elaborator<'_> {
         table
     }
 
+    /// What the set a page node writes holds, where it says: a name by its
+    /// sort, and a set written otherwise, 𝒫{1, …, n}, by its sort as the
+    /// page reads it.
+    fn holds_of(&self, node: &Node) -> Option<Sort> {
+        if node.is_name() {
+            return self.sorts_now.get(node.text.as_str()).and_then(Sort::held);
+        }
+        read_back(self.g, node, &self.sorts_now)
+            .ok()
+            .and_then(|read| read.sort.held())
+    }
+
     pub(super) fn page_node(&self, term: &Term) -> Option<Node> {
         self.page_node_under(term, &IndexMap::new(), None)
     }
@@ -417,10 +429,7 @@ impl Elaborator<'_> {
                     .enumerate()
                     .filter(|(at, _)| !binding_at.contains(at))
                     .filter_map(|(_, h)| self.page_node_under(h, bound, None))
-                    .filter(Node::is_name)
-                    .find_map(|n| {
-                        self.sorts_now.get(n.text.as_str()).and_then(Sort::held)
-                    })
+                    .find_map(|n| self.holds_of(&n))
                     .unwrap_or_else(Sort::none),
             };
             let mut inner = bound.clone();

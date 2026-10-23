@@ -276,6 +276,30 @@ mundane theorem range-extended
   metamath    fzelp1
   target      fzelp1
 
+mundane theorem range-without-last
+  let n ∈ ℕ                                                           (H1)
+  then        {1, …, n} = {1, …, n + 1} ∖ {n + 1}
+  metamath    fzdifsuc
+  target      fzdifsuc with M := 1, N := n
+  note        The numbers up to n are the numbers up to n + 1 but the last.
+
+mundane theorem range-end
+  let n ∈ ℕ                                                           (H1)
+  then        n ∈ {1, …, n}
+  metamath    elfz1end
+  target      elfz1end
+  note        The last of the numbers from 1 to n is n.
+
+mundane theorem range-within
+  let a ∈ ℤ                                                           (H1)
+  let k ∈ ℤ                                                           (H2)
+  let n ∈ ℤ                                                           (H3)
+  assume k ≤ n                                                        (H4)
+  then        {a, …, k} ⊆ {a, …, n}
+  metamath    fzss2
+  target      fzss2 with M := a, K := k, N := n
+  note        A range that stops sooner lies inside one that stops later.
+
 mundane definition range-between
   let k ∈ ℤ                                                           (H1)
   let a ∈ ℤ                                                           (H2)

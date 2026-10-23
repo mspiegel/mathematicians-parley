@@ -1,0 +1,10 @@
+theorem a-part-substituted-into
+  note        A `let R ⊆ X` holds R ∈ 𝒫X, and putting X = ∅ into it gives
+              R ⊆ ∅, which is how a reader writes what it makes.
+  let X be a set                                                      (H1)
+  let R ⊆ X                                                           (H2)
+  assume X = ∅                                                        (H3)
+  then R ⊆ ∅
+
+1.  R ⊆ ∅
+    substitute X = ∅ (H3) into H2

@@ -1991,6 +1991,15 @@ impl<'a> Elaborator<'a> {
             facing =
                 Some(self.real_fact(&t!(old, new, "wceq"), scope, facts, &what)?);
         }
+        // A define says the equation between its name and what it names
+        // (`SYNTAX.md`, substitute), which no line in scope holds.
+        let by_define = source.named().to_string();
+        if facing.is_none() && self.defined_by.values().any(|l| *l == by_define) {
+            let (a, b) = (self.to_term(&old), self.to_term(&new));
+            if let Built(p) = self.equation_by_define(step, &a, &b, scope, facts)? {
+                facing = Some(p);
+            }
+        }
         let facing = match facing {
             Some(f) => f,
             None => {
@@ -2089,6 +2098,28 @@ impl<'a> Elaborator<'a> {
                 if let Some(p) = self.held(facts, start, scope)? {
                     self.know(&known, start.clone(), p);
                 }
+            }
+        }
+        // A part of a set is said as `X ⊆ A` or as `X ∈ 𝒫A`, and a `let
+        // X ⊆ A` holds the second: either form is the line put into, as the
+        // checker reads it (`rules::PARTS`).
+        let mut otherwise = Vec::new();
+        for start in &starts {
+            if !self.part_shaped(start) {
+                continue;
+            }
+            let Some(given) = self.held(&known, start, scope)? else {
+                continue;
+            };
+            let said = self.implied(start, &given, scope, facts)?;
+            for (other, proof) in said.entries() {
+                self.know(&known, other.clone(), proof);
+                otherwise.push(other);
+            }
+        }
+        for other in otherwise {
+            if !starts.contains(&other) {
+                starts.push(other);
             }
         }
         // The claim as written, and an equation's the other way round: what
@@ -2289,12 +2320,12 @@ impl<'a> Elaborator<'a> {
                 self.one_equivalent(lemma, step, &instance, scope, facts, lines)?
             );
             let held = self.known_implied(Some(step), scope, facts)?;
-            let alike = take!(self.same(
+            let alike = take!(self.same_through_names(
                 &self.to_term(&instance),
                 &self.to_term(term),
                 scope,
                 &held,
-                None
+                None,
             )?);
             return Ok(Built(
                 pf!(self.b; scope, instance, term, made, alike, "mpbid"),
@@ -2399,6 +2430,28 @@ impl<'a> Elaborator<'a> {
                 )));
             }
         }
+        // Then with a defined function applied read as its rule at what it
+        // is applied to, as `c ∈ G(m, n)` is a member of G's rule at m, n.
+        for (said, shown) in &entries {
+            let read = self.read_out(&self.to_term(said));
+            let read_rpn = self.rpn(&read);
+            if read_rpn == *said {
+                continue;
+            }
+            let Some(binding) =
+                fit(left, &read, &Binding::new(), variables).filter(|b| !b.is_empty())
+            else {
+                continue;
+            };
+            if let Built(alike) =
+                self.same(&self.to_term(said), &read, scope, facts, None)?
+            {
+                return Ok(Built((
+                    binding,
+                    pf!(self.b; scope, said, read_rpn, shown, alike, "mpbid"),
+                )));
+            }
+        }
         Ok(Route::no("nothing the line says is what the lemma unfolds"))
     }
 
@@ -2481,6 +2534,11 @@ impl<'a> Elaborator<'a> {
         if reads.label() != Some("wb") {
             return Ok(Route::no(format!("{lemma} states no biconditional")));
         }
+        // What the step names, requires lines included: what the unfolding
+        // asks, as a defined function's argument in its domain where a
+        // cited line applies one, comes from these.
+        let supplied = self.supplied(Some(step), scope, facts)?;
+        let named = self.with_cited(Some(step), scope, &supplied, None);
         // A line may say several things at once, and what the definition
         // unfolds is the one the checker took the reading from (`firsts_here`).
         let mut chosen = None;
@@ -2491,7 +2549,7 @@ impl<'a> Elaborator<'a> {
                 &held,
                 &variables,
                 scope,
-                facts,
+                &named,
             )? {
                 chosen = Some(found);
                 break;
@@ -2565,8 +2623,48 @@ impl<'a> Elaborator<'a> {
         // then as the standard form reads the two, as `unfolding` fits its
         // hint (the page's ε > 0 is set.mm's ε ∈ ℝ⁺).
         let target = self.to_term(term);
+        // A claim of the whole right side, its bound letters spelt apart, is
+        // what the left side and the lemma's own hypotheses fix, and no part
+        // of it is fitted to the claim alone.
+        let mut whole_fixed = binding.clone();
+        for essential in &sig.essentials {
+            let asked = self.essential(essential);
+            if let Some(more) = self.substituted_slot(&asked, &whole_fixed) {
+                whole_fixed.extend(more);
+            }
+        }
+        let right_side = &reads.children()[1];
+        let whole_claimed = names_of(right_side)
+            .iter()
+            .all(|v| whole_fixed.contains_key(v))
+            && !self
+                .same(
+                    &right_side.substitute(&whole_fixed),
+                    &target,
+                    scope,
+                    &named,
+                    None,
+                )?
+                .is_declined();
+        if whole_claimed {
+            binding = whole_fixed;
+        }
         for part in self.parts(&self.rpn(&reads.children()[1])) {
+            if whole_claimed {
+                break;
+            }
             let part = self.to_term(&part);
+            // A part the left side has already fixed whole is the claim
+            // where the two are one claim, its bound letters spelt apart:
+            // the rest of the right side is then left to the lemma's own
+            // hypothesis, and fitted to nothing.
+            if names_of(&part).iter().all(|v| binding.contains_key(v))
+                && !self
+                    .same(&part.substitute(&binding), &target, scope, facts, None)?
+                    .is_declined()
+            {
+                break;
+            }
             let filled = fit(&part, &target, &binding, &variables)
                 .or_else(|| self.fits_as(&part, &target, &variables, Some(&binding)));
             if let Some(filled) = filled {
@@ -2616,8 +2714,7 @@ impl<'a> Elaborator<'a> {
         let right = self.rpn(&reads.children()[1].substitute(&binding));
         // What carries the unfolding to the claim asks from what the step
         // names, requires lines included.
-        let supplied = self.supplied(Some(step), scope, facts)?;
-        let facts = self.with_cited(Some(step), scope, &supplied, None);
+        let facts = named;
         let (made, _) = take!(self.unfolding(
             step,
             lemma,
@@ -3662,10 +3759,24 @@ impl<'a> Elaborator<'a> {
         }
         let supplied = self.supplied(Some(step), scope, facts)?;
         let held = self.with_cited(Some(step), scope, &supplied, None);
-        let mut why: Option<crate::outcome::Decline> = None;
         let (a, b) = (whole.children()[0].clone(), whole.children()[1].clone());
-        for (one, other, turned) in [(&a, &b, false), (&b, &a, true)] {
-            let reached = self.define_value(one, scope, &held)?;
+        self.equation_by_define(step, &a, &b, scope, &held)
+    }
+
+    /// ( scope -> a = b ) where one side is a defined name, applied or not,
+    /// and the other its value, as the define says it; a decline where
+    /// neither side names a define whose value is the other.
+    fn equation_by_define(
+        &mut self,
+        step: &Step,
+        a: &Term,
+        b: &Term,
+        scope: &Rpn,
+        held: &Facts,
+    ) -> Checked<Route<Proof>> {
+        let mut why: Option<crate::outcome::Decline> = None;
+        for (one, other, turned) in [(a, b, false), (b, a, true)] {
+            let reached = self.define_value(one, scope, held)?;
             let (value, mut proof) = match reached {
                 Built(r) => r,
                 Declined(d) => {
@@ -3677,7 +3788,7 @@ impl<'a> Elaborator<'a> {
                 }
             };
             if self.rpn(&value) != self.rpn(other) {
-                match self.same(&value, other, scope, &held, Some(step))? {
+                match self.same(&value, other, scope, held, Some(step))? {
                     Declined(d) => {
                         why = Some(d);
                         continue;
@@ -5081,13 +5192,23 @@ impl<'a> Elaborator<'a> {
         // citation makes it (`matched_here`), never what the proof calls by
         // the same letter.
         let given = self.instantiated_nodes(&step.just)?;
-        let mut bound: NodeBinding = self
-            .matched_here(step, item)?
-            .into_iter()
-            .filter(|(name, _)| !given.iter().any(|v| &v.name == name))
+        let matched: NodeBinding = self.matched_here(step, item)?.into_iter().collect();
+        let mut bound: NodeBinding = matched
+            .iter()
+            .filter(|(name, _)| !given.iter().any(|v| v.name == name.as_str()))
+            .map(|(name, value)| (*name, value.clone()))
             .collect();
+        // A value the step gives as a name its citation reads as what the
+        // name names, a define the step cites, is that, as the checker
+        // matched it (`SYNTAX.md`, a defined name and the term it names are
+        // one formula), so a map the fill builds over it runs over the set
+        // the claim writes out.
         for v in given {
-            bound.insert(Symbol::of(&v.name), v.value);
+            let value = match matched.get(&Symbol::of(&v.name)) {
+                Some(m) if v.value.is_name() && !m.is_name() => m.clone(),
+                _ => v.value,
+            };
+            bound.insert(Symbol::of(&v.name), value);
         }
         let library = self.item_library();
         let mut out = Binding::new();

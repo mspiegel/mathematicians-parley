@@ -171,3 +171,36 @@ fn a_bound_letter_takes_its_sort_from_its_binder() {
         "{shape}"
     );
 }
+
+/// A part of a set written in braces, a range {1, …, n}, is a set of
+/// numbers as surely as a set named by one letter: the letter a binder
+/// makes a part of it is a set, so `|d|` is d's size. So is a member of the
+/// power set of one, or of a set in brackets, as a printed claim writes it.
+#[test]
+fn a_part_of_a_range_is_a_set() {
+    let g = grammar();
+    let sorts: Sorts = [
+        ("n".to_string(), Sort::of("number")),
+        ("X".to_string(), Sort::of("set")),
+        ("a".to_string(), Sort::of("number")),
+    ]
+    .into_iter()
+    .collect();
+    for text in [
+        "|{d ⊆ {1, …, n} : |d| = 1}| = 0",
+        "for all d ⊆ {1, …, n + 1}, |d| ≤ n + 1",
+        "|{d ∈ 𝒫{1, …, n} : |d| = 1}| = 0",
+        "|{S ∈ 𝒫(X ∖ {a}) : |S| = 1}| = 0",
+    ] {
+        let tree = Written::new(text, "front-end", 0)
+            .formula()
+            .unwrap()
+            .read(&g, &sorts)
+            .unwrap();
+        let shape = tree.shape().to_string();
+        assert!(
+            shape.contains("cardinality") && !shape.contains("absolute-value"),
+            "{text}: {shape}"
+        );
+    }
+}

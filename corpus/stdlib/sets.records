@@ -52,12 +52,51 @@ mundane definition part-builder
   note        The parts of X with a property: `mun:stdlib/sets/set-builder`
               over 𝒫X, with being in 𝒫X said as being a part of X.
 
+mundane theorem part-builder-empty
+  let X be a set                                                      (H1)
+  let P be a property of the elements of 𝒫X                           (H2)
+  then        {t ⊆ X : P(t)} = ∅ ↔ for all t ⊆ X, not P(t)
+  metamath    rabeq0
+  target      rabeq0
+  note        No part of X has the property exactly when the parts of X
+              with it make up the empty set.
+
+mundane theorem empty-subset
+  then        ∅ ⊆ X
+  metamath    0ss
+  target      0ss
+
 mundane theorem set-builder-subset
   let X be a set                                                      (H1)
   let P be a property of the elements of X                            (H2)
   then        {t ∈ X : P(t)} ⊆ X
   metamath    ssrab2
   target      ssrab2
+
+mundane theorem set-builder-split
+  let X be a set                                                      (H1)
+  let P be a property of the elements of X                            (H2)
+  then        X = {t ∈ X : P(t)} ∪ {t ∈ X : not P(t)}
+  metamath    rabxm
+  target      rabxm
+  note        Every member of X has the property or lacks it.
+
+mundane theorem set-builder-split-disjoint
+  let X be a set                                                      (H1)
+  let P be a property of the elements of X                            (H2)
+  then        {t ∈ X : P(t)} ∩ {t ∈ X : not P(t)} = ∅
+  metamath    rabnc
+  target      rabnc
+  note        Nothing both has the property and lacks it.
+
+mundane theorem set-builder-empty
+  let X be a set                                                      (H1)
+  let P be a property of the elements of X                            (H2)
+  then        {t ∈ X : P(t)} = ∅ ↔ for all t ∈ X, not P(t)
+  metamath    rabeq0
+  target      rabeq0
+  note        `mun:stdlib/sets/part-builder-empty` is the same over the parts
+              of a set.
 
 mundane theorem subset-transitive
   assume X ⊆ Y                                                        (H1)
@@ -182,6 +221,33 @@ mundane theorem difference-absent
   then        Y ∖ {a} = Y
   metamath    difsn
   target      difsn
+
+mundane theorem singleton-outside
+  let a ∉ Y                                                           (H1)
+  then        Y ∩ {a} = ∅
+  metamath    disjsn
+  target      disjsn
+  note        What is not in Y shares nothing with Y.
+
+mundane theorem difference-by-union
+  then        X ∖ (Y ∪ Z) = (X ∖ Y) ∖ Z
+  metamath    difun1
+  target      difun1
+  note        Taking away a union is taking away its parts one after the
+              other.
+
+mundane theorem nothing-left-outside
+  then        Y ⊆ X ↔ Y ∖ X = ∅
+  metamath    ssdif0
+  target      ssdif0
+  note        Nothing of Y is left outside X exactly when Y lies inside X.
+
+mundane theorem intersection-of-part
+  assume Y ⊆ X                                                        (H1)
+  then        X ∩ Y = Y
+  metamath    sseqin2
+  target      sseqin2
+  note        A part of X shares all of itself with X.
 
 mundane theorem not-in-subset
   let a ∉ Z                                                           (H1)

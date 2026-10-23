@@ -1,0 +1,1282 @@
+import theorem            proofs/wiedijk/combinations/combinations
+import theorem            stdlib/counting/absorption
+import theorem            stdlib/counting/pascal
+import mundane theorem    stdlib/counting/binomial-all
+import mundane theorem    stdlib/counting/binomial-nat0
+import mundane theorem    stdlib/counting/binomial-natural
+import mundane theorem    stdlib/counting/card-add-element
+import mundane theorem    stdlib/counting/card-difference
+import mundane theorem    stdlib/counting/card-disjoint-union
+import mundane theorem    stdlib/counting/card-empty
+import mundane theorem    stdlib/counting/card-equal
+import mundane theorem    stdlib/counting/card-nat0
+import mundane theorem    stdlib/counting/card-remove
+import mundane theorem    stdlib/counting/card-zero
+import mundane theorem    stdlib/counting/finite-part
+import mundane theorem    stdlib/counting/parts-finite
+import mundane theorem    stdlib/counting/range-size
+import mundane theorem    stdlib/functions/added-element-in-image
+import mundane theorem    stdlib/functions/added-elements-stay-inside
+import mundane theorem    stdlib/functions/image-of-injection
+import mundane theorem    stdlib/numbers/integer-step
+import mundane theorem    stdlib/numbers/le-cases
+import mundane theorem    stdlib/numbers/nat-minus-one
+import mundane theorem    stdlib/numbers/nat0-nonzero
+import mundane theorem    stdlib/numbers/pos-int-nat
+import mundane axiom      stdlib/reasoning/excluded-middle
+import mundane theorem    stdlib/sets/difference-absent
+import mundane theorem    stdlib/sets/difference-by-union
+import mundane theorem    stdlib/sets/difference-of-union
+import mundane theorem    stdlib/sets/difference-shrinks
+import mundane theorem    stdlib/sets/difference-subset
+import mundane theorem    stdlib/sets/in-subset
+import mundane theorem    stdlib/sets/in-union-singleton
+import mundane theorem    stdlib/sets/intersection-commutes
+import mundane theorem    stdlib/sets/intersection-distributes
+import mundane theorem    stdlib/sets/intersection-of-part
+import mundane theorem    stdlib/sets/not-in-subset
+import mundane theorem    stdlib/sets/nothing-left-outside
+import mundane definition stdlib/sets/part-builder
+import mundane theorem    stdlib/sets/remove-and-restore
+import mundane definition stdlib/sets/set-builder
+import mundane theorem    stdlib/sets/set-builder-empty
+import mundane theorem    stdlib/sets/set-builder-subset
+import mundane theorem    stdlib/sets/set-builder-split
+import mundane theorem    stdlib/sets/set-builder-split-disjoint
+import mundane theorem    stdlib/sets/singleton-outside
+import mundane theorem    stdlib/sets/singleton-subset
+import mundane definition stdlib/sets/subset
+import mundane theorem    stdlib/sets/subset-antisymmetric
+import mundane theorem    stdlib/sets/subset-into-difference
+import mundane theorem    stdlib/sets/subset-of-difference
+import mundane theorem    stdlib/sets/subset-transitive
+import mundane theorem    stdlib/sets/union-empty
+import mundane theorem    stdlib/sets/union-subset
+import mundane definition stdlib/sums/range-between
+import mundane theorem    stdlib/sums/range-bounds
+import mundane theorem    stdlib/sums/range-end
+import mundane theorem    stdlib/sums/range-finite
+import mundane theorem    stdlib/sums/range-within
+import mundane theorem    stdlib/sums/range-without-last
+import mundane definition stdlib/sums/range0
+import definition         stdlib/counting/C
+
+define G(m, n) := {c ∈ {d ⊆ {1, …, m + n} : |d| = m} : for all i ∈ {1, …, m + n}, |{1, …, i} ∖ c| < |{1, …, i} ∩ c|}, for m ∈ ℕ₀, n ∈ ℕ₀   (D1)
+       reads the countings of m votes for A and n for B, each given by the places of A's votes, in which A is ahead after every vote
+
+
+theorem good-finite
+  note        The good countings are among the parts of the places, of
+              which there are finitely many.
+  let m ∈ ℕ₀                                                          (H1)
+  let n ∈ ℕ₀                                                          (H2)
+  then G(m, n) is finite
+
+1.  {1, …, m + n} is finite
+    mun:range-finite a := 1, b := m + n
+
+2.  For all c ∈ G(m, n), c ⊆ {1, …, m + n}.
+    proof
+    let c ∈ G(m, n)                                                   (K1)
+
+    2.1.  c ∈ {d ⊆ {1, …, m + n} : |d| = m}
+          mun:set-builder u := c, from D1, K1
+
+    2.2.  c ⊆ {1, …, m + n}
+          mun:part-builder u := c, from 2.1
+
+3.  G(m, n) is finite
+    mun:parts-finite A := {1, …, m + n}, K := G(m, n), from 1, 2
+
+
+theorem last-place
+  note        Once every vote is counted, A has its m and B the rest, n.
+  let m ∈ ℕ₀                                                          (H1)
+  let n ∈ ℕ₀                                                          (H2)
+  let c ⊆ {1, …, m + n}                                               (H3)
+  assume |c| = m                                                      (H4)
+  then |{1, …, m + n} ∖ c| = n. |{1, …, m + n} ∩ c| = m.
+
+1.  {1, …, m + n} is finite
+    mun:range-finite a := 1, b := m + n
+
+2.  |{1, …, m + n} ∖ c| = |{1, …, m + n}| − |c|
+    mun:card-difference X := {1, …, m + n}, Y := c, from H3, 1
+
+3.  |{1, …, m + n}| = m + n
+    mun:range-size n := m + n
+
+4.  |{1, …, m + n} ∖ c| = n
+    algebra, from H4, 2, 3
+
+5.  {1, …, m + n} ∩ c = c
+    mun:intersection-of-part X := {1, …, m + n}, Y := c, from H3
+
+6.  |{1, …, m + n} ∩ c| = |c|
+    substitute {1, …, m + n} ∩ c = c (line 5)
+
+7.  |{1, …, m + n} ∩ c| = m
+    calculation
+      |{1, …, m + n} ∩ c| = |c|    6
+                          = m      H4
+
+8.  |{1, …, m + n} ∖ c| = n. |{1, …, m + n} ∩ c| = m.
+    join 4, 7
+
+
+theorem lead-to-the-end
+  note        A counting that keeps A ahead before the last place keeps A
+              ahead at it too, where A has m votes and B has n < m.
+  let m ∈ ℕ₀                                                          (H1)
+  let n ∈ ℕ₀                                                          (H2)
+  let c ⊆ {1, …, m + n}                                               (H3)
+  assume n < m                                                        (H4)
+  assume |c| = m                                                      (H5)
+  assume for all i ∈ {1, …, (m + n) − 1}, |{1, …, i} ∖ c| < |{1, …, i} ∩ c|   (H6)
+  then for all i ∈ {1, …, m + n}, |{1, …, i} ∖ c| < |{1, …, i} ∩ c|
+
+1.  For all i ∈ {1, …, m + n}, |{1, …, i} ∖ c| < |{1, …, i} ∩ c|.
+    proof
+    let i ∈ {1, …, m + n}                                             (K1)
+
+    1.1.  i = m + n or i ≠ m + n
+          mun:excluded-middle P := i = m + n
+
+    1.2.  |{1, …, i} ∖ c| < |{1, …, i} ∩ c|
+          cases, from 1.1
+
+          case
+          note the last place, where every vote has been counted
+          assume i = m + n                                            (C1)
+
+          1.2.1.  |{1, …, m + n} ∖ c| = n. |{1, …, m + n} ∩ c| = m.
+                  thm:last-place, from H3, H5
+
+          1.2.2.  |{1, …, m + n} ∖ c| < |{1, …, m + n} ∩ c|
+                  calculation
+                    |{1, …, m + n} ∖ c| = n                        1.2.1
+                                        < m                        H4
+                                        = |{1, …, m + n} ∩ c|      1.2.1
+
+          1.2.3.  |{1, …, i} ∖ c| < |{1, …, i} ∩ c|
+                  substitute i = m + n (C1) into line 1.2.2
+
+          case
+          note a place before the last, where the assumption says it
+          assume i ≠ m + n                                            (C2)
+
+          1.2.4.  1 ≤ i. i ≤ m + n.
+                  mun:range-bounds a := 1, b := m + n, k := i, from K1
+
+          1.2.5.  i < m + n
+                  inequalities, from C2, 1.2.4
+
+          1.2.6.  i + 1 ≤ m + n
+                  mun:integer-step m := i, n := m + n, from 1.2.5
+
+          1.2.7.  i ≤ (m + n) − 1
+                  inequalities, from 1.2.6
+
+          1.2.8.  i ∈ {1, …, (m + n) − 1}
+                  mun:range-between k := i, a := 1, b := (m + n) − 1, from 1.2.4, 1.2.7
+
+          1.2.9.  |{1, …, i} ∖ c| < |{1, …, i} ∩ c|
+                  instantiate i := i in H6, from 1.2.8
+
+
+theorem prefix-unchanged
+  note        A vote at a place after the first i changes nothing among the
+              first i places.
+  let T be a set                                                      (H1)
+  let i ∈ ℤ                                                           (H2)
+  let p ∈ ℤ                                                           (H3)
+  assume i < p                                                        (H4)
+  then {1, …, i} ∩ (T ∪ {p}) = {1, …, i} ∩ T. {1, …, i} ∖ (T ∪ {p}) = {1, …, i} ∖ T.
+
+1.  p ∉ {1, …, i}
+    contradiction
+    suppose p ∈ {1, …, i}                                             (S1)
+
+    1.1.  p ≤ i
+          mun:range-bounds a := 1, b := i, k := p, from S1
+
+    1.2.  not p ≤ i
+          inequalities, from H4, contradicting 1.1
+
+2.  {1, …, i} ∩ {p} = ∅
+    mun:singleton-outside a := p, Y := {1, …, i}, from 1
+
+3.  {1, …, i} ∩ (T ∪ {p}) = ({1, …, i} ∩ T) ∪ ({1, …, i} ∩ {p})
+    mun:intersection-distributes X := {1, …, i}, Y := T, Z := {p}
+
+4.  ({1, …, i} ∩ T) ∪ ({1, …, i} ∩ {p}) = ({1, …, i} ∩ T) ∪ ∅
+    substitute {1, …, i} ∩ {p} = ∅ (line 2)
+
+5.  ({1, …, i} ∩ T) ∪ ∅ = {1, …, i} ∩ T
+    mun:union-empty Y := {1, …, i} ∩ T
+
+6.  {1, …, i} ∩ (T ∪ {p}) = {1, …, i} ∩ T
+    calculation
+      {1, …, i} ∩ (T ∪ {p}) = ({1, …, i} ∩ T) ∪ ({1, …, i} ∩ {p})    3
+                            = ({1, …, i} ∩ T) ∪ ∅                    4
+                            = {1, …, i} ∩ T                          5
+
+7.  {1, …, i} ∖ (T ∪ {p}) = ({1, …, i} ∖ T) ∖ {p}
+    mun:difference-by-union X := {1, …, i}, Y := T, Z := {p}
+
+8.  {1, …, i} ∖ T ⊆ {1, …, i}
+    mun:difference-subset X := {1, …, i}, Y := T
+
+9.  p ∉ {1, …, i} ∖ T
+    mun:not-in-subset a := p, Y := {1, …, i} ∖ T, Z := {1, …, i}, from 1, 8
+
+10. ({1, …, i} ∖ T) ∖ {p} = {1, …, i} ∖ T
+    mun:difference-absent a := p, Y := {1, …, i} ∖ T, from 9
+
+11. {1, …, i} ∖ (T ∪ {p}) = {1, …, i} ∖ T
+    calculation
+      {1, …, i} ∖ (T ∪ {p}) = ({1, …, i} ∖ T) ∖ {p}    7
+                            = {1, …, i} ∖ T            10
+
+12. {1, …, i} ∩ (T ∪ {p}) = {1, …, i} ∩ T. {1, …, i} ∖ (T ∪ {p}) = {1, …, i} ∖ T.
+    join 6, 11
+
+
+theorem places-before-last
+  note        The places before the last are all the places but the last.
+  let p ∈ ℤ                                                           (H1)
+  let N ∈ ℤ                                                           (H2)
+  assume 1 ≤ p                                                        (H3)
+  assume p + 1 = N                                                    (H4)
+  then {1, …, p} = {1, …, N} ∖ {N}
+
+1.  0 < p
+    inequalities, from H3
+
+2.  p ∈ ℕ
+    mun:pos-int-nat m := p, from 1
+
+3.  {1, …, p} = {1, …, p + 1} ∖ {p + 1}
+    mun:range-without-last n := p, from 2
+
+4.  {1, …, p} = {1, …, N} ∖ {N}
+    substitute p + 1 = N (H4) into line 3
+
+
+theorem tie-at-the-end
+  note        With as many votes for B as for A, the two are level once
+              every vote is counted, so A is not ahead after every vote.
+  let m ∈ ℕ                                                           (H1)
+  then G(m, m) = ∅
+
+let O = {d ⊆ {1, …, m + m} : |d| = m}                                 (D2)
+       reads the countings of m votes for each
+
+1.  m + m ∈ {1, …, m + m}
+    mun:range-end n := m + m
+
+2.  For all c ∈ O, not (for all i ∈ {1, …, m + m}, |{1, …, i} ∖ c| < |{1, …, i} ∩ c|).
+    proof
+    let c ∈ O                                                         (K1)
+
+    2.1.  c ⊆ {1, …, m + m}. |c| = m.
+          mun:part-builder u := c, from D2, K1
+
+    2.2.  |{1, …, m + m} ∖ c| = m. |{1, …, m + m} ∩ c| = m.
+          thm:last-place n := m, from 2.1
+
+    2.3.  not (for all i ∈ {1, …, m + m}, |{1, …, i} ∖ c| < |{1, …, i} ∩ c|)
+          contradiction
+          suppose for all i ∈ {1, …, m + m}, |{1, …, i} ∖ c| < |{1, …, i} ∩ c|   (S1)
+
+          2.3.1.  |{1, …, m + m} ∖ c| < |{1, …, m + m} ∩ c|
+                  instantiate i := m + m in S1, from 1
+
+          2.3.2.  m < m
+                  calculation
+                    m = |{1, …, m + m} ∖ c|      2.2
+                      < |{1, …, m + m} ∩ c|      2.3.1
+                      = m                        2.2
+
+          2.3.3.  not m < m
+                  inequalities, contradicting 2.3.2
+
+3.  G(m, m) = ∅
+    mun:set-builder-empty X := O, from D1, D2, 2
+
+
+theorem no-votes-for-b
+  note        With no votes for B, A has every place, and is ahead after
+              every vote: the one counting there is is a good one.
+  let m ∈ ℕ                                                           (H1)
+  then |G(m, 0)| = 1
+
+let O = {d ⊆ {1, …, m} : |d| = m}                                     (D2)
+       reads the countings of m votes for A and none for B
+
+1.  For all c ∈ O, c ∈ G(m, 0).
+    proof
+    let c ∈ O                                                         (K1)
+
+    1.1.  c ⊆ {1, …, m}. |c| = m.
+          mun:part-builder u := c, from D2, K1
+
+    1.2.  |{1, …, m} ∖ c| = 0
+          thm:last-place n := 0, from 1.1
+
+    1.3.  {1, …, m} ∖ c = ∅
+          mun:card-zero X := {1, …, m} ∖ c, from 1.2
+
+    1.4.  {1, …, m} ⊆ c
+          mun:nothing-left-outside Y := {1, …, m}, X := c, from 1.3
+
+    1.5.  c = {1, …, m}
+          mun:subset-antisymmetric X := c, Y := {1, …, m}, from 1.1, 1.4
+
+    1.6.  For all i ∈ {1, …, m}, |{1, …, i} ∖ c| < |{1, …, i} ∩ c|.
+          proof
+          let i ∈ {1, …, m}                                           (K2)
+
+          1.6.1.  1 ≤ i. i ≤ m.
+                  mun:range-bounds a := 1, b := m, k := i, from K2
+
+          1.6.2.  {1, …, i} ⊆ {1, …, m}
+                  mun:range-within a := 1, k := i, n := m, from 1.6.1
+
+          1.6.3.  {1, …, i} ∖ {1, …, m} = ∅
+                  mun:nothing-left-outside Y := {1, …, i}, X := {1, …, m}, from 1.6.2
+
+          1.6.4.  {1, …, m} ∩ {1, …, i} = {1, …, i}
+                  mun:intersection-of-part X := {1, …, m}, Y := {1, …, i}, from 1.6.2
+
+          1.6.5.  {1, …, i} ∩ {1, …, m} = {1, …, m} ∩ {1, …, i}
+                  mun:intersection-commutes Y := {1, …, i}, Z := {1, …, m}
+
+          1.6.6.  {1, …, i} ∩ {1, …, m} = {1, …, i}
+                  calculation
+                    {1, …, i} ∩ {1, …, m} = {1, …, m} ∩ {1, …, i}    1.6.5
+                                          = {1, …, i}                1.6.4
+
+          1.6.7.  |{1, …, i} ∖ {1, …, m}| = |∅|
+                  substitute {1, …, i} ∖ {1, …, m} = ∅ (line 1.6.3)
+
+          1.6.8.  |∅| = 0
+                  mun:card-empty
+
+          1.6.9.  |{1, …, i} ∩ {1, …, m}| = |{1, …, i}|
+                  substitute {1, …, i} ∩ {1, …, m} = {1, …, i} (line 1.6.6)
+
+          1.6.10. |{1, …, i}| = i
+                  mun:range-size n := i
+
+          1.6.11. 0 < i
+                  inequalities, from 1.6.1
+
+          1.6.12. |{1, …, i} ∖ {1, …, m}| < |{1, …, i} ∩ {1, …, m}|
+                  calculation
+                    |{1, …, i} ∖ {1, …, m}| = |∅|                      1.6.7
+                                            = 0                        1.6.8
+                                            < i                        1.6.11
+                                            = |{1, …, i}|              1.6.10
+                                            = |{1, …, i} ∩ {1, …, m}|  1.6.9
+
+          1.6.13. |{1, …, i} ∖ c| < |{1, …, i} ∩ c|
+                  substitute c = {1, …, m} (line 1.5) into line 1.6.12
+
+    1.7.  c ∈ G(m, 0)
+          mun:set-builder u := c, from D1, D2, K1, 1.6
+
+2.  O ⊆ G(m, 0)
+    mun:subset, from 1
+
+3.  G(m, 0) ⊆ O
+    mun:set-builder-subset X := O, from D1, D2
+
+4.  G(m, 0) = O
+    mun:subset-antisymmetric, from 2, 3
+
+5.  |{1, …, m}| = m
+    mun:range-size n := m
+
+6.  |O| = C(m, m)
+    thm:combinations n := m, k := m, A := {1, …, m}, from D2, 5
+
+7.  C(m, m) = 1
+    mun:binomial-all n := m
+
+8.  |G(m, 0)| = |O|
+    substitute G(m, 0) = O (line 4)
+
+9.  |G(m, 0)| = 1
+    calculation
+      |G(m, 0)| = |O|          8
+                = C(m, m)      6
+                = 1            7
+
+
+theorem add-last-place
+  note        Putting a vote for A at the last place matches the good
+              countings of one vote fewer for A one to one with the sets
+              made so: the last place is in none of them, so taking it
+              away again gives back the counting it was added to.
+  let m ∈ ℕ                                                           (H1)
+  let n ∈ ℕ                                                           (H2)
+  then there is a bijection from G(m − 1, n) to {T ∪ {m + n} : T ∈ G(m − 1, n)}
+
+1.  {1, …, (m − 1) + n} = {1, …, m + n} ∖ {m + n}
+    thm:places-before-last p := (m − 1) + n, N := m + n
+    requires 1 ≤ (m − 1) + n: inequalities, from H1, H2
+    requires ((m − 1) + n) + 1 = m + n: algebra
+
+2.  For all S, T ∈ G(m − 1, n), if S ∪ {m + n} = T ∪ {m + n} then S = T.
+    proof
+    note the last place can be taken away again, so nothing is sent twice
+    let S ∈ G(m − 1, n)                                               (K1)
+    let T ∈ G(m − 1, n)                                               (K2)
+    assume S ∪ {m + n} = T ∪ {m + n}                                  (K3)
+
+    2.1.  S ∈ {d ⊆ {1, …, (m − 1) + n} : |d| = m − 1}
+          mun:set-builder u := S, from D1, K1
+          requires m − 1 ∈ ℕ₀: mun:nat-minus-one n := m
+
+    2.2.  T ∈ {d ⊆ {1, …, (m − 1) + n} : |d| = m − 1}
+          mun:set-builder u := T, from D1, K2
+          requires m − 1 ∈ ℕ₀: mun:nat-minus-one n := m
+
+    2.3.  S ⊆ {1, …, (m − 1) + n}
+          mun:part-builder u := S, from 2.1
+
+    2.4.  T ⊆ {1, …, (m − 1) + n}
+          mun:part-builder u := T, from 2.2
+
+    2.5.  S ⊆ {1, …, m + n} ∖ {m + n}
+          substitute {1, …, (m − 1) + n} = {1, …, m + n} ∖ {m + n} (line 1) into line 2.3
+
+    2.6.  T ⊆ {1, …, m + n} ∖ {m + n}
+          substitute {1, …, (m − 1) + n} = {1, …, m + n} ∖ {m + n} (line 1) into line 2.4
+
+    2.7.  m + n ∉ S
+          mun:subset-of-difference, from 2.5
+
+    2.8.  m + n ∉ T
+          mun:subset-of-difference, from 2.6
+
+    2.9.  (S ∪ {m + n}) ∖ {m + n} = S ∖ {m + n}
+          mun:difference-of-union
+
+    2.10. (T ∪ {m + n}) ∖ {m + n} = T ∖ {m + n}
+          mun:difference-of-union
+
+    2.11. S ∖ {m + n} = S
+          mun:difference-absent, from 2.7
+
+    2.12. T ∖ {m + n} = T
+          mun:difference-absent, from 2.8
+
+    2.13. (T ∪ {m + n}) ∖ {m + n} = S ∖ {m + n}
+          substitute S ∪ {m + n} = T ∪ {m + n} (K3) into line 2.9
+
+    2.14. S = T
+          calculation
+            S = S ∖ {m + n}                  2.11
+              = (T ∪ {m + n}) ∖ {m + n}      2.13
+              = T ∖ {m + n}                  2.10
+              = T                            2.12
+
+3.  m − 1 ∈ ℕ₀
+    mun:nat-minus-one n := m
+
+4.  There is a bijection from G(m − 1, n) to {T ∪ {m + n} : T ∈ G(m − 1, n)}.
+    mun:image-of-injection, from 2, 3
+
+
+theorem last-vote-for-a
+  note        The good countings whose last vote is for A are the good
+              countings with one vote fewer for A and that vote put last:
+              the last vote changes no count before the last place, and at
+              the last place A is ahead since n < m.
+  let m ∈ ℕ                                                           (H1)
+  let n ∈ ℕ                                                           (H2)
+  assume n < m                                                        (H3)
+  then {c ∈ G(m, n) : m + n ∈ c} = {T ∪ {m + n} : T ∈ G(m − 1, n)}
+
+let F = {c ∈ G(m, n) : m + n ∈ c}                                     (D2)
+       reads the good countings whose last vote is for A
+
+1.  m − 1 ∈ ℕ₀
+    mun:nat-minus-one n := m
+
+2.  {1, …, (m − 1) + n} = {1, …, m + n} ∖ {m + n}
+    thm:places-before-last p := (m − 1) + n, N := m + n
+    requires 1 ≤ (m − 1) + n: inequalities, from H1, H2
+    requires ((m − 1) + n) + 1 = m + n: algebra
+
+3.  {1, …, m + n} ∖ {m + n} ⊆ {1, …, m + n}
+    mun:difference-subset X := {1, …, m + n}, Y := {m + n}
+
+4.  {1, …, (m − 1) + n} ⊆ {1, …, m + n}
+    substitute {1, …, (m − 1) + n} = {1, …, m + n} ∖ {m + n} (line 2) into line 3
+
+5.  (m + n) − 1 = (m − 1) + n
+    algebra
+
+6.  For all c ∈ F, c ∈ {T ∪ {m + n} : T ∈ G(m − 1, n)}.
+    proof
+    note take the last vote away
+    let c ∈ F                                                         (K1)
+
+    6.1.  c ∈ G(m, n). m + n ∈ c.
+          mun:set-builder u := c, from D2, K1
+
+    6.2.  c ∈ {d ⊆ {1, …, m + n} : |d| = m}. For all i ∈ {1, …, m + n}, |{1, …, i} ∖ c| < |{1, …, i} ∩ c|.
+          mun:set-builder u := c, from D1, 6.1
+
+    6.3.  c ⊆ {1, …, m + n}. |c| = m.
+          mun:part-builder u := c, from 6.2
+
+    6.4.  c ∖ {m + n} ⊆ {1, …, m + n} ∖ {m + n}
+          mun:difference-shrinks, from 6.3
+
+    6.5.  c ∖ {m + n} ⊆ {1, …, (m − 1) + n}
+          substitute {1, …, (m − 1) + n} = {1, …, m + n} ∖ {m + n} (line 2) into line 6.4
+
+    6.6.  |c| = (m − 1) + 1
+          algebra, from 6.3
+
+    6.7.  |c ∖ {m + n}| = m − 1
+          mun:card-remove X := c, a := m + n, k := m − 1, from 1, 6.1, 6.6
+
+    6.8.  (c ∖ {m + n}) ∪ {m + n} = c
+          mun:remove-and-restore, from 6.1
+
+    6.9.  For all i ∈ {1, …, (m − 1) + n}, |{1, …, i} ∖ (c ∖ {m + n})| < |{1, …, i} ∩ (c ∖ {m + n})|.
+          proof
+          let i ∈ {1, …, (m − 1) + n}                                 (K2)
+
+          6.9.1.  i ≤ (m − 1) + n
+                  mun:range-bounds a := 1, b := (m − 1) + n, k := i, from K2
+
+          6.9.2.  i < m + n
+                  inequalities, from 6.9.1
+
+          6.9.3.  i ∈ {1, …, m + n}
+                  mun:in-subset X := {1, …, (m − 1) + n}, Y := {1, …, m + n}, u := i, from K2, 4
+
+          6.9.4.  |{1, …, i} ∖ c| < |{1, …, i} ∩ c|
+                  instantiate i := i in line 6.2, from 6.9.3
+
+          6.9.5.  {1, …, i} ∩ ((c ∖ {m + n}) ∪ {m + n}) = {1, …, i} ∩ (c ∖ {m + n}). {1, …, i} ∖ ((c ∖ {m + n}) ∪ {m + n}) = {1, …, i} ∖ (c ∖ {m + n}).
+                  thm:prefix-unchanged T := c ∖ {m + n}, p := m + n, from 6.9.2
+
+          6.9.6.  {1, …, i} ∩ c = {1, …, i} ∩ (c ∖ {m + n})
+                  substitute (c ∖ {m + n}) ∪ {m + n} = c (line 6.8) into line 6.9.5
+
+          6.9.7.  {1, …, i} ∖ c = {1, …, i} ∖ (c ∖ {m + n})
+                  substitute (c ∖ {m + n}) ∪ {m + n} = c (line 6.8) into line 6.9.5
+
+          6.9.8.  |{1, …, i} ∖ c| < |{1, …, i} ∩ (c ∖ {m + n})|
+                  substitute {1, …, i} ∩ c = {1, …, i} ∩ (c ∖ {m + n}) (line 6.9.6) into line 6.9.4
+
+          6.9.9.  |{1, …, i} ∖ (c ∖ {m + n})| < |{1, …, i} ∩ (c ∖ {m + n})|
+                  substitute {1, …, i} ∖ c = {1, …, i} ∖ (c ∖ {m + n}) (line 6.9.7) into line 6.9.8
+
+    6.10. c ∖ {m + n} ∈ {d ⊆ {1, …, (m − 1) + n} : |d| = m − 1}
+          mun:part-builder u := c ∖ {m + n}, X := {1, …, (m − 1) + n}, from 6.5, 6.7
+
+    6.11. c ∖ {m + n} ∈ G(m − 1, n)
+          mun:set-builder u := c ∖ {m + n}, from D1, 1, 6.9, 6.10
+
+    6.12. (c ∖ {m + n}) ∪ {m + n} ∈ {T ∪ {m + n} : T ∈ G(m − 1, n)}
+          mun:added-element-in-image Y := G(m − 1, n), a := m + n, s := c ∖ {m + n}, from 6.11
+
+    6.13. c ∈ {T ∪ {m + n} : T ∈ G(m − 1, n)}
+          substitute (c ∖ {m + n}) ∪ {m + n} = c (line 6.8) into line 6.12
+
+7.  F ⊆ {T ∪ {m + n} : T ∈ G(m − 1, n)}
+    mun:subset, from 6
+
+8.  For all T ∈ G(m − 1, n), T ∪ {m + n} ∈ F.
+    proof
+    note put a vote for A last
+    let T ∈ G(m − 1, n)                                               (K3)
+
+    8.1.  T ∈ {d ⊆ {1, …, (m − 1) + n} : |d| = m − 1}. For all i ∈ {1, …, (m − 1) + n}, |{1, …, i} ∖ T| < |{1, …, i} ∩ T|.
+          mun:set-builder u := T, from D1, K3, 1
+
+    8.2.  T ⊆ {1, …, (m − 1) + n}. |T| = m − 1.
+          mun:part-builder u := T, from 8.1
+
+    8.3.  T ⊆ {1, …, m + n} ∖ {m + n}
+          substitute {1, …, (m − 1) + n} = {1, …, m + n} ∖ {m + n} (line 2) into line 8.2
+
+    8.4.  m + n ∉ T
+          mun:subset-of-difference, from 8.3
+
+    8.5.  T ⊆ {1, …, m + n}
+          mun:subset-transitive, from 4, 8.2
+
+    8.6.  m + n ∈ {1, …, m + n}
+          mun:range-end n := m + n
+
+    8.7.  {m + n} ⊆ {1, …, m + n}
+          mun:singleton-subset, from 8.6
+
+    8.8.  T ∪ {m + n} ⊆ {1, …, m + n}
+          mun:union-subset, from 8.5, 8.7
+
+    8.9.  {1, …, (m − 1) + n} is finite
+          mun:range-finite a := 1, b := (m − 1) + n
+
+    8.10. T is finite
+          mun:finite-part X := {1, …, (m − 1) + n}, Y := T, from 8.2, 8.9
+
+    8.11. |T ∪ {m + n}| = |T| + 1
+          mun:card-add-element, from 8.4, 8.10
+
+    8.12. |T ∪ {m + n}| = m
+          algebra, from 8.2, 8.11
+
+    8.13. For all i ∈ {1, …, (m + n) − 1}, |{1, …, i} ∖ (T ∪ {m + n})| < |{1, …, i} ∩ (T ∪ {m + n})|.
+          proof
+          let i ∈ {1, …, (m + n) − 1}                                 (K4)
+
+          8.13.1. i ≤ (m + n) − 1
+                  mun:range-bounds a := 1, b := (m + n) − 1, k := i, from K4
+
+          8.13.2. i < m + n
+                  inequalities, from 8.13.1
+
+          8.13.3. i ∈ {1, …, (m − 1) + n}
+                  substitute (m + n) − 1 = (m − 1) + n (line 5) into K4
+
+          8.13.4. |{1, …, i} ∖ T| < |{1, …, i} ∩ T|
+                  instantiate i := i in line 8.1, from 8.13.3
+
+          8.13.5. {1, …, i} ∩ (T ∪ {m + n}) = {1, …, i} ∩ T. {1, …, i} ∖ (T ∪ {m + n}) = {1, …, i} ∖ T.
+                  thm:prefix-unchanged p := m + n, from 8.13.2
+
+          8.13.6. |{1, …, i} ∖ T| < |{1, …, i} ∩ (T ∪ {m + n})|
+                  substitute {1, …, i} ∩ (T ∪ {m + n}) = {1, …, i} ∩ T (line 8.13.5) into line 8.13.4
+
+          8.13.7. |{1, …, i} ∖ (T ∪ {m + n})| < |{1, …, i} ∩ (T ∪ {m + n})|
+                  substitute {1, …, i} ∖ (T ∪ {m + n}) = {1, …, i} ∖ T (line 8.13.5) into line 8.13.6
+
+    8.14. For all i ∈ {1, …, m + n}, |{1, …, i} ∖ (T ∪ {m + n})| < |{1, …, i} ∩ (T ∪ {m + n})|.
+          thm:lead-to-the-end c := T ∪ {m + n}, from H3, 8.8, 8.12, 8.13
+
+    8.15. T ∪ {m + n} ∈ {d ⊆ {1, …, m + n} : |d| = m}
+          mun:part-builder u := T ∪ {m + n}, X := {1, …, m + n}, from 8.8, 8.12
+
+    8.16. T ∪ {m + n} ∈ G(m, n)
+          mun:set-builder u := T ∪ {m + n}, from D1, 8.14, 8.15
+
+    8.17. m + n ∈ T ∪ {m + n}
+          mun:in-union-singleton
+
+    8.18. T ∪ {m + n} ∈ F
+          mun:set-builder u := T ∪ {m + n}, from D2, 8.16, 8.17
+
+9.  {T ∪ {m + n} : T ∈ G(m − 1, n)} ⊆ F
+    mun:added-elements-stay-inside Y := G(m − 1, n), a := m + n, Z := F, from 8
+
+10. {c ∈ G(m, n) : m + n ∈ c} = {T ∪ {m + n} : T ∈ G(m − 1, n)}
+    mun:subset-antisymmetric, from D2, 7, 9
+
+
+theorem last-vote-for-b
+  note        The good countings whose last vote is for B are the good
+              countings with one vote fewer for B: they never use the last
+              place, and at the last place A is ahead since n < m.
+  let m ∈ ℕ                                                           (H1)
+  let n ∈ ℕ                                                           (H2)
+  assume n < m                                                        (H3)
+  then {c ∈ G(m, n) : m + n ∉ c} = G(m, n − 1)
+
+let F = {c ∈ G(m, n) : m + n ∉ c}                                     (D2)
+       reads the good countings whose last vote is for B
+
+1.  n − 1 ∈ ℕ₀
+    mun:nat-minus-one
+
+2.  {1, …, m + (n − 1)} = {1, …, m + n} ∖ {m + n}
+    thm:places-before-last p := m + (n − 1), N := m + n
+    requires 1 ≤ m + (n − 1): inequalities, from H1, H2
+    requires (m + (n − 1)) + 1 = m + n: algebra
+
+3.  {1, …, m + n} ∖ {m + n} ⊆ {1, …, m + n}
+    mun:difference-subset X := {1, …, m + n}, Y := {m + n}
+
+4.  {1, …, m + (n − 1)} ⊆ {1, …, m + n}
+    substitute {1, …, m + (n − 1)} = {1, …, m + n} ∖ {m + n} (line 2) into line 3
+
+5.  (m + n) − 1 = m + (n − 1)
+    algebra
+
+6.  For all c ∈ F, c ∈ G(m, n − 1).
+    proof
+    note the last place is not A's, so the counting stops a place sooner
+    let c ∈ F                                                         (K1)
+
+    6.1.  c ∈ G(m, n). m + n ∉ c.
+          mun:set-builder u := c, from D2, K1
+
+    6.2.  c ∈ {d ⊆ {1, …, m + n} : |d| = m}. For all i ∈ {1, …, m + n}, |{1, …, i} ∖ c| < |{1, …, i} ∩ c|.
+          mun:set-builder u := c, from D1, 6.1
+
+    6.3.  c ⊆ {1, …, m + n}. |c| = m.
+          mun:part-builder u := c, from 6.2
+
+    6.4.  c ⊆ {1, …, m + n} ∖ {m + n}
+          mun:subset-into-difference, from 6.1, 6.3
+
+    6.5.  c ⊆ {1, …, m + (n − 1)}
+          substitute {1, …, m + (n − 1)} = {1, …, m + n} ∖ {m + n} (line 2) into line 6.4
+
+    6.6.  For all i ∈ {1, …, m + (n − 1)}, |{1, …, i} ∖ c| < |{1, …, i} ∩ c|.
+          proof
+          let i ∈ {1, …, m + (n − 1)}                                 (K2)
+
+          6.6.1.  i ∈ {1, …, m + n}
+                  mun:in-subset X := {1, …, m + (n − 1)}, Y := {1, …, m + n}, u := i, from K2, 4
+
+          6.6.2.  |{1, …, i} ∖ c| < |{1, …, i} ∩ c|
+                  instantiate i := i in line 6.2, from 6.6.1
+
+    6.7.  c ∈ {d ⊆ {1, …, m + (n − 1)} : |d| = m}
+          mun:part-builder u := c, X := {1, …, m + (n − 1)}, from 6.3, 6.5
+
+    6.8.  c ∈ G(m, n − 1)
+          mun:set-builder u := c, from D1, 1, 6.6, 6.7
+
+7.  F ⊆ G(m, n − 1)
+    mun:subset, from 6
+
+8.  For all c ∈ G(m, n − 1), c ∈ F.
+    proof
+    note a counting of one vote fewer for B, with that vote put last
+    let c ∈ G(m, n − 1)                                               (K3)
+
+    8.1.  c ∈ {d ⊆ {1, …, m + (n − 1)} : |d| = m}. For all i ∈ {1, …, m + (n − 1)}, |{1, …, i} ∖ c| < |{1, …, i} ∩ c|.
+          mun:set-builder u := c, from D1, K3, 1
+
+    8.2.  c ⊆ {1, …, m + (n − 1)}. |c| = m.
+          mun:part-builder u := c, from 8.1
+
+    8.3.  c ⊆ {1, …, m + n}
+          mun:subset-transitive, from 4, 8.2
+
+    8.4.  c ⊆ {1, …, m + n} ∖ {m + n}
+          substitute {1, …, m + (n − 1)} = {1, …, m + n} ∖ {m + n} (line 2) into line 8.2
+
+    8.5.  m + n ∉ c
+          mun:subset-of-difference, from 8.4
+
+    8.6.  For all i ∈ {1, …, (m + n) − 1}, |{1, …, i} ∖ c| < |{1, …, i} ∩ c|.
+          substitute (m + n) − 1 = m + (n − 1) (line 5) into line 8.1
+
+    8.7.  For all i ∈ {1, …, m + n}, |{1, …, i} ∖ c| < |{1, …, i} ∩ c|.
+          thm:lead-to-the-end, from H3, 8.2, 8.3, 8.6
+
+    8.8.  c ∈ {d ⊆ {1, …, m + n} : |d| = m}
+          mun:part-builder u := c, X := {1, …, m + n}, from 8.2, 8.3
+
+    8.9.  c ∈ G(m, n)
+          mun:set-builder u := c, from D1, 8.7, 8.8
+
+    8.10. c ∈ F
+          mun:set-builder u := c, from D2, 8.5, 8.9
+
+9.  G(m, n − 1) ⊆ F
+    mun:subset, from 8
+
+10. {c ∈ G(m, n) : m + n ∉ c} = G(m, n − 1)
+    mun:subset-antisymmetric, from D2, 7, 9
+
+
+theorem ballot-split
+  note        A good counting's last vote is for A or for B. Taken away, it
+              leaves a good counting with one vote fewer for A, or one with
+              one vote fewer for B, and each of those comes from one good
+              counting in this way.
+  let m ∈ ℕ                                                           (H1)
+  let n ∈ ℕ                                                           (H2)
+  assume n < m                                                        (H3)
+  then |G(m, n)| = |G(m − 1, n)| + |G(m, n − 1)|
+
+let U = {c ∈ G(m, n) : m + n ∈ c}                                     (D2)
+       reads the good countings whose last vote is for A
+let V = {c ∈ G(m, n) : m + n ∉ c}                                     (D3)
+       reads the good countings whose last vote is for B
+
+1.  m − 1 ∈ ℕ₀
+    mun:nat-minus-one n := m
+
+2.  n − 1 ∈ ℕ₀
+    mun:nat-minus-one
+
+3.  G(m, n) = U ∪ V
+    mun:set-builder-split X := G(m, n), from D2, D3
+
+4.  U ∩ V = ∅
+    mun:set-builder-split-disjoint X := G(m, n), from D2, D3
+
+5.  U = {T ∪ {m + n} : T ∈ G(m − 1, n)}
+    thm:last-vote-for-a, from D2, H3, 1
+
+6.  V = G(m, n − 1)
+    thm:last-vote-for-b, from D3, H3, 2
+
+7.  There is a bijection from G(m − 1, n) to {T ∪ {m + n} : T ∈ G(m − 1, n)}.
+    thm:add-last-place, from 1
+
+8.  G(m − 1, n) is finite
+    thm:good-finite m := m − 1, from 1
+
+9.  G(m, n − 1) is finite
+    thm:good-finite n := n − 1, from 2
+
+10. |G(m − 1, n)| = |{T ∪ {m + n} : T ∈ G(m − 1, n)}|
+    mun:card-equal X := G(m − 1, n), Y := {T ∪ {m + n} : T ∈ G(m − 1, n)}, from 7, 8
+
+11. |U| = |{T ∪ {m + n} : T ∈ G(m − 1, n)}|
+    substitute U = {T ∪ {m + n} : T ∈ G(m − 1, n)} (line 5)
+
+12. |U| = |G(m − 1, n)|
+    calculation
+      |U| = |{T ∪ {m + n} : T ∈ G(m − 1, n)}|    11
+          = |G(m − 1, n)|                        10
+
+13. |V| = |G(m, n − 1)|
+    substitute V = G(m, n − 1) (line 6)
+
+14. |G(m − 1, n)| ∈ ℕ₀
+    mun:card-nat0 X := G(m − 1, n), from 8
+
+15. |G(m, n − 1)| ∈ ℕ₀
+    mun:card-nat0 X := G(m, n − 1), from 9
+
+16. |U ∪ V| = |G(m − 1, n)| + |G(m, n − 1)|
+    mun:card-disjoint-union X := U, Y := V, m := |G(m − 1, n)|, n := |G(m, n − 1)|,
+      from 4, 12, 13, 14, 15
+
+17. |G(m, n)| = |G(m − 1, n)| + |G(m, n − 1)|
+    substitute G(m, n) = U ∪ V (line 3) into line 16
+
+
+theorem ballot-arithmetic
+  note        The count of good countings with m votes for A and n for B is
+              the sum of the counts with one vote fewer for A and one vote
+              fewer for B; given those two by the formula, Pascal's rule and
+              the absorption identity give it for m and n.
+  let m ∈ ℕ                                                           (H1)
+  let n ∈ ℕ                                                           (H2)
+  let x ∈ ℝ                                                           (H3)
+  let y ∈ ℝ                                                           (H4)
+  let z ∈ ℝ                                                           (H5)
+  assume z = x + y                                                    (H6)
+  assume x·((m − 1) + n) = ((m − 1) − n)·C((m − 1) + n, m − 1)        (H7)
+  assume y·(m + (n − 1)) = (m − (n − 1))·C(m + (n − 1), m)            (H8)
+  then z·(m + n) = (m − n)·C(m + n, m)
+
+1.  m − 1 ∈ ℕ₀
+    mun:nat-minus-one n := m
+
+2.  n − 1 ∈ ℕ₀
+    mun:nat-minus-one
+
+3.  (m − 1) + n = m + (n − 1)
+    algebra
+
+4.  x·(m + (n − 1)) = ((m − 1) − n)·C(m + (n − 1), m − 1)
+    substitute (m − 1) + n = m + (n − 1) (line 3) into H7
+
+5.  m − 1 ≤ m + (n − 1)
+    inequalities, from H2
+
+6.  m − 1 ∈ {0, …, m + (n − 1)}
+    mun:range0 k := m − 1, n := m + (n − 1), from 1, 2, 5
+
+7.  C((m + (n − 1)) + 1, (m − 1) + 1) = C(m + (n − 1), m − 1)·(((m + (n − 1)) + 1)/((m − 1) + 1))
+    thm:absorption n := m + (n − 1), k := m − 1, from 2, 6
+
+8.  (m + (n − 1)) + 1 = m + n
+    algebra
+
+9.  (m − 1) + 1 = m
+    algebra
+
+10. C(m + n, (m − 1) + 1) = C(m + (n − 1), m − 1)·((m + n)/((m − 1) + 1))
+    substitute (m + (n − 1)) + 1 = m + n (line 8) into line 7
+
+11. C(m + n, m) = C(m + (n − 1), m − 1)·((m + n)/m)
+    substitute (m − 1) + 1 = m (line 9) into line 10
+
+12. C(m + (n − 1), m) + C(m + (n − 1), m − 1) = C((m + (n − 1)) + 1, m)
+    thm:pascal n := m + (n − 1), k := m, from 2
+
+13. C(m + (n − 1), m) + C(m + (n − 1), m − 1) = C(m + n, m)
+    substitute (m + (n − 1)) + 1 = m + n (line 8) into line 12
+
+14. C(m + n, m) ∈ ℕ₀
+    mun:binomial-nat0 n := m + n, k := m
+
+15. C(m + (n − 1), m − 1) ∈ ℕ₀
+    mun:binomial-nat0 n := m + (n − 1), k := m − 1, from 2
+
+16. C(m + (n − 1), m) ∈ ℕ₀
+    mun:binomial-nat0 n := m + (n − 1), k := m, from 2
+
+17. C(m + (n − 1), m − 1)·(m + n) = m·C(m + n, m)
+    algebra, from 11, 15
+
+18. C(m + (n − 1), m)·(m + n) = n·C(m + n, m)
+    algebra, from 13, 15, 16, 17
+
+19. z·(m + (n − 1)) = ((m − 1) − n)·C(m + (n − 1), m − 1) + (m − (n − 1))·C(m + (n − 1), m)
+    algebra, from H6, H8, 4, 15, 16
+
+20. ((m − 1) − n)·C(m + (n − 1), m − 1)·(m + n) = ((m − 1) − n)·m·C(m + n, m)
+    algebra, from 14, 15, 17
+
+21. (m − (n − 1))·C(m + (n − 1), m)·(m + n) = (m − (n − 1))·n·C(m + n, m)
+    algebra, from 14, 16, 18
+
+22. z·(m + (n − 1))·(m + n) = ((m − 1) − n)·m·C(m + n, m) + (m − (n − 1))·n·C(m + n, m)
+    algebra, from 14, 15, 16, 19, 20, 21
+
+23. 0 < m + (n − 1)
+    inequalities, from H1, H2
+
+24. z·(m + n) = (((m − 1) − n)·m·C(m + n, m) + (m − (n − 1))·n·C(m + n, m))/(m + (n − 1))
+    algebra, from 14, 22
+    requires 0 ≠ m + (n − 1): weakening, from 23
+
+25. (((m − 1) − n)·m·C(m + n, m) + (m − (n − 1))·n·C(m + n, m))/(m + (n − 1)) = (m − n)·C(m + n, m)
+    algebra, from 14
+    requires 0 ≠ m + (n − 1): weakening, from 23
+
+26. z·(m + n) = (m − n)·C(m + n, m)
+    calculation
+      z·(m + n) = (((m − 1) − n)·m·C(m + n, m) + (m − (n − 1))·n·C(m + n, m))/(m + (n − 1))    24
+                = (m − n)·C(m + n, m)                                                              25
+
+
+theorem ballot-count
+  note        By induction on the number of votes. A good counting ends
+              with a vote for A or for B, and taking that vote away leaves
+              a good counting of one vote fewer; Pascal's rule and the
+              absorption identity add the two counts up.
+  let a ∈ ℕ₀                                                          (H1)
+  let b ∈ ℕ₀                                                          (H2)
+  assume b ≤ a                                                        (H3)
+  then |G(a, b)|·(a + b) = (a − b)·C(a + b, a)
+
+1.  For all k ∈ ℕ₀, for all m, n ∈ ℕ₀, if m + n = k and n ≤ m then |G(m, n)|·(m + n) = (m − n)·C(m + n, m).
+    induction on k starting at 0
+
+    base
+    1.1.  For all m, n ∈ ℕ₀, if m + n = 0 and n ≤ m then |G(m, n)|·(m + n) = (m − n)·C(m + n, m).
+          proof
+          note with no votes both sides are 0
+          let m ∈ ℕ₀                                                  (K1)
+          let n ∈ ℕ₀                                                  (K2)
+          assume m + n = 0 and n ≤ m                                  (C1)
+
+          1.1.1.  m + n = 0
+                  algebra, from C1
+
+          1.1.2.  m ≤ m + n
+                  inequalities, from K2
+
+          1.1.3.  n ≤ m + n
+                  inequalities, from K1
+
+          1.1.4.  m ≤ 0
+                  transitivity, from 1.1.2, 1.1.1
+
+          1.1.5.  n ≤ 0
+                  transitivity, from 1.1.3, 1.1.1
+
+          1.1.6.  0 ≤ m
+                  inequalities, from K1
+
+          1.1.7.  0 ≤ n
+                  inequalities, from K2
+
+          1.1.8.  m = 0
+                  antisymmetry, from 1.1.4, 1.1.6
+
+          1.1.9.  n = 0
+                  antisymmetry, from 1.1.5, 1.1.7
+
+          1.1.10. m − n = 0
+                  algebra, from 1.1.8, 1.1.9
+
+          1.1.11. G(m, n) is finite
+                  thm:good-finite
+
+          1.1.12. |G(m, n)| ∈ ℕ₀
+                  mun:card-nat0 X := G(m, n), from 1.1.11
+
+          1.1.13. |G(m, n)|·(m + n) = 0
+                  algebra, from 1.1.1, 1.1.12
+
+          1.1.14. C(m + n, m) ∈ ℕ₀
+                  mun:binomial-nat0 n := m + n, k := m
+
+          1.1.15. (m − n)·C(m + n, m) = 0
+                  algebra, from 1.1.10, 1.1.14
+
+          1.1.16. |G(m, n)|·(m + n) = (m − n)·C(m + n, m)
+                  calculation
+                    |G(m, n)|·(m + n) = 0                      1.1.13
+                                      = (m − n)·C(m + n, m)    1.1.15
+
+    step
+    let k ∈ ℕ₀                                                        (K3)
+    assume step 1 is true for k, the induction hypothesis             (IH)
+
+    1.2.  For all m, n ∈ ℕ₀, if m + n = k + 1 and n ≤ m then |G(m, n)|·(m + n) = (m − n)·C(m + n, m).
+          proof
+          note split by the last vote
+          let m ∈ ℕ₀                                                  (K4)
+          let n ∈ ℕ₀                                                  (K5)
+          assume m + n = k + 1 and n ≤ m                              (C2)
+
+          1.2.1.  n < m or n = m
+                  mun:le-cases x := n, y := m, from C2
+
+          1.2.2.  0 ≤ n
+                  inequalities, from K5
+
+          1.2.3.  |G(m, n)|·(m + n) = (m − n)·C(m + n, m)
+                  cases, from 1.2.1
+
+                  case
+                  note A ends ahead
+                  assume n < m                                        (C3)
+
+                  1.2.3.1.  0 < m
+                            transitivity, from 1.2.2, C3
+
+                  1.2.3.2.  m ∈ ℕ
+                            mun:pos-int-nat, from 1.2.3.1
+
+                  1.2.3.3.  n = 0 or n ≠ 0
+                            mun:excluded-middle P := n = 0
+
+                  1.2.3.4.  |G(m, n)|·(m + n) = (m − n)·C(m + n, m)
+                            cases, from 1.2.3.3
+
+                            case
+                            note no votes for B, so A has every place
+                            assume n = 0                              (C4)
+
+                            1.2.3.4.1.  |G(m, 0)| = 1
+                                        thm:no-votes-for-b, from 1.2.3.2
+
+                            1.2.3.4.2.  |G(m, n)| = 1
+                                        substitute n = 0 (C4) into line 1.2.3.4.1
+
+                            1.2.3.4.3.  C(m, m) = 1
+                                        mun:binomial-all n := m
+
+                            1.2.3.4.4.  C(m + n, m) = C(m, m)
+                                        substitute n = 0 (C4)
+
+                            1.2.3.4.5.  C(m + n, m) = 1
+                                        calculation
+                                          C(m + n, m) = C(m, m)    1.2.3.4.4
+                                                      = 1          1.2.3.4.3
+
+                            1.2.3.4.6.  (m − n)·C(m + n, m) = m − n
+                                        algebra, from 1.2.3.4.5
+
+                            1.2.3.4.7.  m + n = m − n
+                                        algebra, from C4
+
+                            1.2.3.4.8.  |G(m, n)|·(m + n) = m + n
+                                        substitute |G(m, n)| = 1 (line 1.2.3.4.2)
+
+                            1.2.3.4.9.  |G(m, n)|·(m + n) = (m − n)·C(m + n, m)
+                                        calculation
+                                          |G(m, n)|·(m + n) = m + n                  1.2.3.4.8
+                                                            = m − n                  1.2.3.4.7
+                                                            = (m − n)·C(m + n, m)    1.2.3.4.6
+
+                            case
+                            note the last vote is for A or for B
+                            assume n ≠ 0                              (C5)
+
+                            1.2.3.4.10. n ∈ ℕ
+                                        mun:nat0-nonzero m := n, from C5
+
+                            1.2.3.4.11. m − 1 ∈ ℕ₀
+                                        mun:nat-minus-one n := m, from 1.2.3.2
+
+                            1.2.3.4.12. n − 1 ∈ ℕ₀
+                                        mun:nat-minus-one, from 1.2.3.4.10
+
+                            1.2.3.4.13. (m − 1) + n = k
+                                        algebra, from C2
+
+                            1.2.3.4.14. n + 1 ≤ m
+                                        mun:integer-step m := n, n := m, from C3
+
+                            1.2.3.4.15. n ≤ m − 1
+                                        inequalities
+                                          n + 1 ≤ m      1.2.3.4.14
+                                          n ≤ m − 1      adding −1
+
+                            1.2.3.4.16. |G(m − 1, n)|·((m − 1) + n) = ((m − 1) − n)·C((m − 1) + n, m − 1)
+                                        instantiate m := m − 1, n := n in IH, from 1.2.3.4.11, 1.2.3.4.13, 1.2.3.4.15
+
+                            1.2.3.4.17. m + (n − 1) = k
+                                        algebra, from C2
+
+                            1.2.3.4.18. n − 1 ≤ n
+                                        inequalities
+
+                            1.2.3.4.19. n ≤ m
+                                        inequalities
+                                          n < m          C3
+                                          n ≤ m          weakening
+
+                            1.2.3.4.20. n − 1 ≤ m
+                                        transitivity, from 1.2.3.4.18, 1.2.3.4.19
+
+                            1.2.3.4.21. |G(m, n − 1)|·(m + (n − 1)) = (m − (n − 1))·C(m + (n − 1), m)
+                                        instantiate m := m, n := n − 1 in IH, from 1.2.3.4.12, 1.2.3.4.17, 1.2.3.4.20
+
+                            1.2.3.4.22. |G(m, n)| = |G(m − 1, n)| + |G(m, n − 1)|
+                                        thm:ballot-split, from C3, 1.2.3.2, 1.2.3.4.10, 1.2.3.4.11, 1.2.3.4.12
+
+                            1.2.3.4.23. G(m − 1, n) is finite
+                                        thm:good-finite m := m − 1, from 1.2.3.4.11
+
+                            1.2.3.4.24. G(m, n − 1) is finite
+                                        thm:good-finite n := n − 1, from 1.2.3.4.12
+
+                            1.2.3.4.25. G(m, n) is finite
+                                        thm:good-finite
+
+                            1.2.3.4.26. |G(m − 1, n)| ∈ ℕ₀
+                                        mun:card-nat0 X := G(m − 1, n), from 1.2.3.4.23
+
+                            1.2.3.4.27. |G(m, n − 1)| ∈ ℕ₀
+                                        mun:card-nat0 X := G(m, n − 1), from 1.2.3.4.24
+
+                            1.2.3.4.28. |G(m, n)| ∈ ℕ₀
+                                        mun:card-nat0 X := G(m, n), from 1.2.3.4.25
+
+                            1.2.3.4.29. |G(m, n)|·(m + n) = (m − n)·C(m + n, m)
+                                        thm:ballot-arithmetic x := |G(m − 1, n)|, y := |G(m, n − 1)|, z := |G(m, n)|,
+                                          from 1.2.3.2, 1.2.3.4.10, 1.2.3.4.16, 1.2.3.4.21, 1.2.3.4.22,
+                                          1.2.3.4.26, 1.2.3.4.27, 1.2.3.4.28
+
+                  case
+                  note A and B end level, so no counting keeps A ahead
+                  assume n = m                                        (C6)
+
+                  1.2.3.5.  m + m = k + 1
+                            substitute n = m (C6) into C2
+
+                  1.2.3.6.  1 ≤ k + 1
+                            inequalities, from K3
+
+                  1.2.3.7.  1 ≤ m + m
+                            transitivity, from 1.2.3.6, 1.2.3.5
+
+                  1.2.3.8.  1/2 ≤ m
+                            inequalities
+                              1 ≤ m + m      1.2.3.7
+                              1/2 ≤ m        multiplying by 1/2
+
+                  1.2.3.9.  0 < 1/2
+                            arithmetic
+
+                  1.2.3.10. 0 < m
+                            transitivity, from 1.2.3.9, 1.2.3.8
+
+                  1.2.3.11. m ∈ ℕ
+                            mun:pos-int-nat, from 1.2.3.10
+
+                  1.2.3.12. G(m, m) = ∅
+                            thm:tie-at-the-end, from 1.2.3.11
+
+                  1.2.3.13. G(m, n) = ∅
+                            substitute n = m (C6) into line 1.2.3.12
+
+                  1.2.3.14. |G(m, n)| = |∅|
+                            substitute G(m, n) = ∅ (line 1.2.3.13)
+
+                  1.2.3.15. |∅| = 0
+                            mun:card-empty
+
+                  1.2.3.16. |G(m, n)| = 0
+                            calculation
+                              |G(m, n)| = |∅|    1.2.3.14
+                                        = 0      1.2.3.15
+
+                  1.2.3.17. |G(m, n)|·(m + n) = 0
+                            algebra, from 1.2.3.16
+
+                  1.2.3.18. C(m + n, m) ∈ ℕ₀
+                            mun:binomial-nat0 n := m + n, k := m
+
+                  1.2.3.19. (m − n)·C(m + n, m) = 0
+                            algebra, from C6, 1.2.3.18
+
+                  1.2.3.20. |G(m, n)|·(m + n) = (m − n)·C(m + n, m)
+                            calculation
+                              |G(m, n)|·(m + n) = 0                      1.2.3.17
+                                                = (m − n)·C(m + n, m)    1.2.3.19
+
+2.  |G(a, b)|·(a + b) = (a − b)·C(a + b, a)
+    instantiate k := a + b, m := a, n := b in line 1, from H3
+
+
+theorem ballot
+  metamath    ballotth
+  note        In an election A gets m votes and B gets n < m. Counted in a
+              random order, all orders alike, the chance that A is ahead
+              after every vote is (m − n)/(m + n). A counting is given by
+              the places among the first m + n at which A's votes come.
+  let m ∈ ℕ                                                           (H1)
+  let n ∈ ℕ                                                           (H2)
+  assume n < m                                                        (H3)
+  let O = {c ⊆ {1, …, m + n} : |c| = m}                               (D2)
+      reads the countings, each given by the places of A's votes
+  let E = {c ∈ O : for all i ∈ {1, …, m + n}, |{1, …, i} ∖ c| < |{1, …, i} ∩ c|}   (D3)
+      reads the countings in which A is ahead after every vote
+  then |E|/|O| = (m − n)/(m + n)
+
+1.  |E|·(m + n) = (m − n)·C(m + n, m)
+    thm:ballot-count a := m, b := n, from D2, D3
+    requires n ≤ m: weakening, from H3
+
+2.  E is finite
+    thm:good-finite, from D2, D3
+
+3.  |E| ∈ ℕ₀
+    mun:card-nat0 X := E, from 2
+
+4.  |{1, …, m + n}| = m + n
+    mun:range-size n := m + n
+
+5.  |O| = C(m + n, m)
+    thm:combinations n := m + n, k := m, A := {1, …, m + n}, from D2, 4
+
+6.  m ≤ m + n
+    inequalities, from H2
+
+7.  C(m + n, m) ∈ ℕ
+    mun:binomial-natural n := m + n, k := m
+    requires m ∈ {0, …, m + n}: mun:range0 k := m, n := m + n, from 6
+
+8.  |O| ∈ ℕ
+    substitute |O| = C(m + n, m) (line 5) into line 7
+
+9.  |E|/|O| = (m − n)/(m + n)
+    algebra, from 1, 3, 5
+    requires |O| ≠ 0: from 8

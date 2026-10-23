@@ -15,10 +15,11 @@ use super::structure::letters_in_scope;
 use super::Report;
 use crate::citing::{
     asked, bound_in, claimed_member, concludes, conjuncts, derives, filled, finished,
-    function_values, identities_unsaid, index_system, obtained, obtains, range_system,
-    readings, said_once, search, stood_for, substitution_unsaid, supplies, supply,
-    taken, taken_ways, type_said_otherwise, with_parts, witnesses_unsaid, Bound,
-    Concluded, Group, Introduced, Library, Parts, Sites, Taken, Ways,
+    function_values, identities_unsaid, index_system, obtained, obtains,
+    part_said_otherwise, range_system, readings, said_once, search, stood_for,
+    substitution_unsaid, supplies, supply, taken, taken_ways, type_said_otherwise,
+    with_parts, witnesses_unsaid, Bound, Concluded, Group, Introduced, Library, Parts,
+    Sites, Taken, Ways,
 };
 use crate::corpus::proof::{reason_as_step, Requires};
 use crate::corpus::skeleton::Source;
@@ -1470,6 +1471,14 @@ pub fn check_substitutes(
                 };
                 let mut starts = vec![said.clone()];
                 starts.extend(conjuncts(&said, library));
+                // A part of a set is said as `X ⊆ A` or as `X ∈ 𝒫A`, and a
+                // `let X ⊆ A` holds the second: either form is the line put
+                // into, as a reader puts X = ∅ into it to make X ⊆ ∅.
+                let otherwise: Vec<Node> = starts
+                    .iter()
+                    .filter_map(|s| part_said_otherwise(s, library.env, &known.sorts))
+                    .collect();
+                starts.extend(otherwise);
                 vec![(starts, claim.clone())]
             }
             None => match claim.children.as_slice() {
@@ -2383,7 +2392,10 @@ impl FamilyAsks {
 /// them to: `define M(X) := …, for X ∈ 𝒫A` and a claim holding M(X) ask
 /// `X ∈ 𝒫A`, since M(X) is M's rule only there. The checker reads the name
 /// as its rule without asking, and the kernel does not (`SYNTAX.md`: a
-/// define may name a function).
+/// define may name a function). A line the step cites that applies one is
+/// read as its rule too where the step cites the define, as `S ∈ G(m − 1,
+/// n)` is unfolded by citing G's define, and asks the same of what it is
+/// applied to.
 fn domains_asked(
     thm: &Theorem,
     step: &Step,
@@ -2395,8 +2407,14 @@ fn domains_asked(
     let Some(claim) = known.whole_as_written(&step.claim) else {
         return FxIndexSet::default(); // `check_formulas` says it does not read
     };
+    let cited: Vec<Defined> = functions
+        .iter()
+        .filter(|d| step.just.refs.contains(&d.label))
+        .cloned()
+        .collect();
     applied(&functions, &claim, false, known)
         .into_iter()
+        .chain(lines_applied(step, &cited, known, known.ctx))
         .flat_map(|a| a.says)
         .map(ByShape)
         .collect()
@@ -2768,17 +2786,65 @@ fn evaluated(
     let Some(claim) = known.whole_as_written(&step.claim) else {
         return Vec::new(); // `check_formulas` says it does not read
     };
+    let mut out = lines_applied(step, used, known, &library.ctx);
     if !(direct
         && claim.children.len() == 2
         && library.ctx.equations.contains(&claim.notation()))
     {
-        return applied(used, &claim, false, known);
+        out.splice(0..0, applied(used, &claim, false, known));
+        return out;
     }
-    claim
+    let sides: Vec<Applied> = claim
         .children
         .iter()
         .flat_map(|side| applied(used, side, true, known))
-        .collect()
+        .collect();
+    out.splice(0..0, sides);
+    out
+}
+
+/// The applications of `used` in the lines the step cites. A line is read
+/// with a define's name as its rule where the step cites the define, as
+/// `S ∈ G(m − 1, n)` is unfolded by citing G's define, and asks what the
+/// claim would of what it applies the function to. At a letter the line
+/// binds, a sum's index or a limit's, it is applied at each value the
+/// binder takes, which the line itself answers for, and asks nothing here.
+fn lines_applied(
+    step: &Step,
+    used: &[Defined],
+    known: &Known,
+    ctx: &Context,
+) -> Vec<Applied> {
+    let scope = known.scope(step);
+    let mut out = Vec::new();
+    for line in step
+        .just
+        .refs
+        .iter()
+        .filter_map(|r| scope.get(r).and_then(|s| known.stated_as_written(s)))
+    {
+        let mut bound = BTreeSet::new();
+        letters_bound_in(&line, ctx, &mut bound);
+        out.extend(
+            applied(used, &line, false, known)
+                .into_iter()
+                .filter(|a| a.arg.names().is_disjoint(&bound)),
+        );
+    }
+    out
+}
+
+/// Each letter a binder in `node` binds, into `out`.
+fn letters_bound_in(node: &Node, ctx: &Context, out: &mut BTreeSet<String>) {
+    let (held, _) = ctx.held_body(node.notation());
+    for at in held {
+        if let Some(letter) = node.children.get(at).filter(|c| c.is_name()) {
+            out.insert(letter.text.to_string());
+        }
+    }
+    for child in &node.children {
+        letters_bound_in(child, ctx, out);
+    }
 }
 
 /// Every application of the functions in `claim`, a tree as written, each
@@ -3567,6 +3633,16 @@ pub fn check_instantiated(
     }
 }
 
+/// Whether `part` is an equation whose two sides are one term.
+fn sides_alike(part: &Node, known: &Known) -> bool {
+    match part.children.as_slice() {
+        [left, right] if known.ctx.equations.contains(&part.notation()) => {
+            known.alike(left, right)
+        }
+        _ => false,
+    }
+}
+
 /// One binder of a "for all": the letter, the domain, and how a value is
 /// said to be in it, `x ∈ S`, or `x ⊆ S` for a part.
 struct Binder {
@@ -3648,11 +3724,15 @@ pub fn check_instance_claimed(
             .filter_map(|i| concludes_claim(i, &claim, known))
             .collect();
         if let Some(conditions) = reached.iter().min_by_key(|c| c.len()) {
-            // A condition of several parts is met where each part is.
+            // A condition of several parts is met where each part is. An
+            // equation whose two sides are then the same needs no line
+            // (`SYNTAX.md`, an identity element goes without saying), as
+            // k = a + b is at k := a + b.
             let unmet = conditions.iter().find(|c| {
-                !conjuncts(c, library)
-                    .iter()
-                    .all(|part| named.facts.iter().any(|f| known.alike(f, part)))
+                !conjuncts(c, library).iter().all(|part| {
+                    sides_alike(part, known)
+                        || named.facts.iter().any(|f| known.alike(f, part))
+                })
             });
             if let Some(unmet) = unmet {
                 report.say(
@@ -4379,6 +4459,8 @@ pub fn check_surplus(
         };
         let asks = family_asks(step, known, library);
         let scope = known.scope(step);
+        // Compared as formulas, so that `x∈ℤ` is `x ∈ ℤ`.
+        let in_domain = domains_asked(thm, step, scopes, known);
         // Each line the step does without, taken away alone: a cited line,
         // and a requires line by its index.
         let mut spare_refs: Vec<&String> = Vec::new();
@@ -4388,12 +4470,16 @@ pub fn check_surplus(
                 continue;
             }
             // A line stating a function type the item asks for does work,
-            // and so does one saying a sum's term at every point.
-            let says_type = scope
-                .get(r)
-                .and_then(|s| known.stated_as_written(s))
-                .is_some_and(|n| asks.states(&n, known));
-            if says_type {
+            // and so does one saying a sum's term at every point, and one
+            // saying a defined function is applied inside its domain.
+            let stated = scope.get(r).and_then(|s| known.stated_as_written(s));
+            let says_type = stated.as_ref().is_some_and(|n| asks.states(n, known));
+            let says_domain = stated.as_ref().is_some_and(|n| {
+                conjuncts(n, library)
+                    .iter()
+                    .any(|part| in_domain.contains(&part.by_shape()))
+            });
+            if says_type || says_domain {
                 continue;
             }
             let mut lighter = step.clone();
@@ -4402,8 +4488,6 @@ pub fn check_surplus(
                 spare_refs.push(r);
             }
         }
-        // Compared as formulas, so that `x∈ℤ` is `x ∈ ℤ`.
-        let in_domain = domains_asked(thm, step, scopes, known);
         // What the step ends on by dropping an identity element asks to be
         // a number (`formulas::ends_asking`).
         let ends = super::formulas::ends_asking(thm, step, known, library, &[]);

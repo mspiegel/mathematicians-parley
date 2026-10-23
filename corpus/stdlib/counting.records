@@ -218,6 +218,48 @@ mundane theorem card-nat0
   metamath    hashcl
   target      hashcl
 
+mundane theorem card-finite
+  let X be a set                                                      (H1)
+  let m ∈ ℕ₀                                                          (H2)
+  assume |X| = m                                                      (H3)
+  then        X is finite
+  metamath    hashvnfin
+  target      hashvnfin with S := X, N := m
+  note        A set whose size is a whole number is finite: an infinite
+              set's size is +∞ in set.mm, which is no whole number.
+
+mundane theorem card-add-element
+  let a be an element                                                 (H1)
+  assume X is finite                                                  (H2)
+  assume a ∉ X                                                        (H3)
+  then        |X ∪ {a}| = |X| + 1
+  metamath    hashunsng
+  target      hashunsng
+
+mundane theorem card-difference
+  assume X is finite                                                  (H1)
+  assume Y ⊆ X                                                        (H2)
+  then        |X ∖ Y| = |X| − |Y|
+  metamath    hashssdif
+  target      hashssdif
+
+mundane theorem binomial-natural
+  let n ∈ ℕ₀                                                          (H1)
+  let k ∈ {0, …, n}                                                   (H2)
+  then        C(n, k) ∈ ℕ
+  metamath    bccl2
+  target      bccl2
+  note        Inside 0 … n a binomial coefficient counts at least one way.
+
+mundane theorem card-at-least-one
+  let X be a set                                                      (H1)
+  assume X ≠ ∅                                                        (H2)
+  then        |X| ≥ 1
+  metamath    hashge1
+  target      hashge1
+  note        A set with something in it has at least one element. set.mm
+              says it of every set, finite or not, since +∞ ≥ 1 too.
+
 mundane theorem parts-finite
   assume A is finite                                                  (H1)
   assume for all Y ∈ K, Y ⊆ A                                         (H2)

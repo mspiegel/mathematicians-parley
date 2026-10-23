@@ -708,20 +708,34 @@ fn binder_sides(g: &Grammar) -> BinderSides<'_> {
     BinderSides { part_of, named_set }
 }
 
-/// The sort of the set the tokens from `at` write, where it is one name, or
-/// a notation of one literal and one hole applied to a name, `𝒫A`; None
-/// where that is not a set's sort.
+/// The sort of the set the tokens from `at` write, where it is one name, a
+/// notation of one literal and one hole applied to a name, `𝒫A`, or a set
+/// written in braces, `{1, …, m + n}`, read as the parser reads it with the
+/// sorts `known` gives; None where that is not a set's sort.
 fn set_written(
     tokens: &[Token],
     at: usize,
     g: &Grammar,
     of_set: &dyn Fn(&str) -> Sort,
+    known: &dyn Fn() -> Sorts,
 ) -> Option<Sort> {
     let first = tokens.get(at)?;
     if first.kind == TokenKind::Name {
         return Some(of_set(&first.text)).filter(is_set);
     }
-    let name = tokens.get(at + 1).filter(|t| t.kind == TokenKind::Name)?;
+    if first.text == "{" {
+        return braced_set(tokens, at, g, &known());
+    }
+    // What the one hole holds: a name, or a set in braces or brackets,
+    // 𝒫{1, …, n} and 𝒫(X ∖ {a}).
+    let next = tokens.get(at + 1)?;
+    let inner = match next.kind {
+        TokenKind::Name => of_set(&next.text),
+        _ if next.text == "{" || next.text == "(" => {
+            braced_set(tokens, at + 1, g, &known())?
+        }
+        _ => return None,
+    };
     let sorts = g.notation_sorts();
     let made = g.notations.iter().find_map(|n| {
         let [Part::Lit(lit), Part::Hole] = n.parts.as_slice() else {
@@ -730,9 +744,59 @@ fn set_written(
         if *lit != first.text {
             return None;
         }
-        sorts.signature(n.key_id)?.settled(&[&of_set(&name.text)])
+        sorts.signature(n.key_id)?.settled(&[&inner])
     })?;
     Some(made).filter(is_set)
+}
+
+/// The sort of the set written in braces or brackets from token `at` to the
+/// one that closes it, read alone with the sorts `known`; None where it does
+/// not read as one set, or what it reads as is no set.
+fn braced_set(tokens: &[Token], at: usize, g: &Grammar, known: &Sorts) -> Option<Sort> {
+    let mut depth = 0i32;
+    let mut close = None;
+    for (j, t) in tokens.iter().enumerate().skip(at) {
+        match t.text.as_str() {
+            "(" | "{" | "[" => depth += 1,
+            ")" | "}" | "]" => {
+                depth -= 1;
+                if depth == 0 {
+                    close = Some(j);
+                    break;
+                }
+            }
+            _ => {}
+        }
+    }
+    let span = &tokens[at..=close?];
+    let mut p = Parser {
+        t: span,
+        g,
+        sorts: known,
+        path: "",
+        line: 0,
+        src: "",
+        i: 0,
+        stopped: None,
+        stopped_ran_out: false,
+        refused: None,
+        refused_order: false,
+    };
+    let Ok(Some(node)) = p.expression(None, &[]) else {
+        return None;
+    };
+    (p.i == span.len())
+        .then(|| node.sort.clone())
+        .filter(is_set)
+}
+
+/// The sentence's sorts with what its own binders have given letters so far.
+fn sorts_with(sorts: &Sorts, found: &IndexMap<String, Sort>) -> Sorts {
+    let mut all = sorts.clone();
+    for (name, sort) in found {
+        all.insert(name.clone(), sort.clone());
+    }
+    all
 }
 
 /// The sort of each letter the tokens put in a set that says what it holds,
@@ -790,7 +854,8 @@ fn bound_sorts(tokens: &[Token], g: &Grammar, sorts: &Sorts) -> Vec<(String, Sor
         let of_set =
             |name: &str| out.get(name).cloned().unwrap_or_else(|| sort_of(name));
         if sides.part_of.get(sign.text.as_str()) == Some(&true) {
-            if let Some(set) = set_written(tokens, i + 2, g, &of_set) {
+            let known = || sorts_with(sorts, &out);
+            if let Some(set) = set_written(tokens, i + 2, g, &of_set, &known) {
                 out.entry(x.text.to_string()).or_insert(set);
             }
             continue;
@@ -806,7 +871,8 @@ fn bound_sorts(tokens: &[Token], g: &Grammar, sorts: &Sorts) -> Vec<(String, Sor
         } else if s.kind == TokenKind::Name {
             holds(&of_set(&s.text))
         } else {
-            set_written(tokens, i + 2, g, &of_set).and_then(|set| holds(&set))
+            set_written(tokens, i + 2, g, &of_set, &|| sorts_with(sorts, &out))
+                .and_then(|set| holds(&set))
         };
         if held.is_none()
             && i + 3 < tokens.len()

@@ -142,6 +142,7 @@ pub const CONGRUENCE: &[(&str, &[usize], &str)] = &[
     ("wrex", &[0, 2], "rexeqbidv"),
     ("crab", &[0], "rabbidva"),
     ("crab", &[2], "rabeqdv"),
+    ("crab", &[0, 2], "rabeqbidv"),
     ("cmpt", &[1], "mpteq1d"),
     ("ciun", &[1], "iuneq1d"),
     // A function against the map its define names, and a rule by cases in
@@ -303,8 +304,12 @@ pub const CLASS_LIFT: &[(&str, usize, &str)] = &[
 ];
 
 // A binder's domain changed, its body kept, closed.
-pub const DOMAIN: &[(&str, &str)] =
-    &[("wral", "raleqi"), ("wrex", "rexeqi"), ("cmpt", "mpteq1i")];
+pub const DOMAIN: &[(&str, &str)] = &[
+    ("wral", "raleqi"),
+    ("wrex", "rexeqi"),
+    ("cmpt", "mpteq1i"),
+    ("crab", "rabeqi"),
+];
 
 /// Look a label up in a table of pairs.
 pub fn lookup<V: Copy>(table: &[(&str, V)], key: &str) -> Option<V> {
@@ -918,6 +923,9 @@ pub const STANDARD: &[(&str, Side)] = &[
     ("nn0absid", Side::Right),
     ("rexss", Side::Left),
     ("rextru", Side::Right),
+    // A sum with 0 added is the number, where it is one: G(m, 0) read as its
+    // rule writes {1, …, m + 0}, which a line about {1, …, m} says.
+    ("addrid", Side::Right),
     // A member of a power set is a part of the set, as the page writes it:
     // `let X ⊆ A` holds X ∈ 𝒫A, and a lemma asks X ⊆ A.
     ("elpwg", Side::Right),
