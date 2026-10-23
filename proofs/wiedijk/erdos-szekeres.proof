@@ -1,0 +1,767 @@
+import theorem            stdlib/counting/pigeonhole
+import mundane theorem    stdlib/counting/card-add-one
+import mundane theorem    stdlib/counting/card-nat0
+import mundane theorem    stdlib/counting/card-product
+import mundane theorem    stdlib/counting/card-singleton
+import mundane theorem    stdlib/counting/finite-part
+import mundane theorem    stdlib/counting/range-size
+import mundane theorem    stdlib/calculus/integer-sup-above
+import mundane theorem    stdlib/calculus/integer-sup-member
+import mundane definition stdlib/calculus/upper-bound
+import mundane theorem    stdlib/functions/function-into
+import mundane theorem    stdlib/functions/function-value
+import mundane definition stdlib/functions/one-to-one
+import mundane definition stdlib/functions/set-image
+import mundane theorem    stdlib/numbers/integer-step
+import mundane theorem    stdlib/numbers/le-cases
+import mundane theorem    stdlib/numbers/nat-minus-one
+import mundane theorem    stdlib/numbers/unequal-cases
+import mundane axiom      stdlib/reasoning/excluded-middle
+import mundane theorem    stdlib/reasoning/or-left
+import mundane theorem    stdlib/reasoning/or-right
+import mundane theorem    stdlib/sets/in-subset
+import mundane theorem    stdlib/sets/in-union-singleton
+import mundane theorem    stdlib/sets/pair-in-product
+import mundane theorem    stdlib/sets/pair-parts-equal
+import mundane definition stdlib/sets/part-builder
+import mundane definition stdlib/sets/singleton
+import mundane theorem    stdlib/sets/singleton-subset
+import mundane definition stdlib/sets/subset
+import mundane theorem    stdlib/sets/subset-transitive
+import mundane definition stdlib/sets/union
+import mundane theorem    stdlib/sets/union-subset
+import mundane definition stdlib/sums/range-between
+import mundane theorem    stdlib/sums/range-bounds
+import mundane theorem    stdlib/sums/range-finite
+import mundane theorem    stdlib/sums/range-integer
+import mundane theorem    stdlib/sums/range-within
+
+theorem longest-runs
+  note        Label each place k with the length L(k) of the longest run
+              that rises to k. A run rising to i grows by j wherever i < j
+              and c(i) < c(j), so the label grows there too; and no run is
+              as long as r, so every label is below r.
+  let N ∈ ℕ                                                           (H1)
+  let r ∈ ℕ                                                           (H2)
+  let c : {1, …, N} → ℝ                                               (H3)
+  assume not (there is S ⊆ {1, …, N} with r ≤ |S| and for all i, j ∈ S, if i < j then c(i) < c(j))   (H4)
+  then there is L : {1, …, N} → {1, …, r − 1} with for all i, j ∈ {1, …, N}, if i < j and c(i) < c(j) then L(i) < L(j)
+
+let U(k) = {S ⊆ {1, …, k} : k ∈ S and for all p, q ∈ S, if p < q then c(p) < c(q)}, for k ∈ {1, …, N}   (D1)
+    reads the runs among the first k places that rise and end at k
+let I(k) = {|S| : S ∈ U(k)}, for k ∈ {1, …, N}                       (D2)
+    reads the lengths of those runs
+let L(k) = sup I(k), for k ∈ {1, …, N}                                (D3)
+    reads the length of the longest run that rises to k
+
+1.  For all k ∈ {1, …, N}, L(k) ∈ I(k) and L(k) is an upper bound of I(k) and L(k) ∈ ℤ and L(k) ∈ {1, …, r − 1}.
+    proof
+    note the runs rising to k include k alone, and none is as long as r
+    let k ∈ {1, …, N}                                                 (K1)
+
+    1.1.  1 ≤ k. k ≤ N.
+          mun:range-bounds a := 1, b := N, from K1
+
+    1.2.  k ∈ {1, …, k}
+          mun:range-between a := 1, b := k, from 1.1
+          requires k ≤ k: inequalities
+
+    1.3.  {k} ⊆ {1, …, k}
+          mun:singleton-subset, from 1.2
+
+    1.4.  k ∈ {k}
+          mun:singleton x := k, a := k
+
+    1.5.  For all p, q ∈ {k}, if p < q then c(p) < c(q).
+          proof
+          let p ∈ {k}                                                 (K2)
+          let q ∈ {k}                                                 (K3)
+          assume p < q                                                (K4)
+
+          1.5.1.  p = k
+                  mun:singleton x := p, a := k, from K2
+
+          1.5.2.  q = k
+                  mun:singleton x := q, a := k, from K3
+
+          1.5.3.  k < q
+                  substitute p = k (line 1.5.1) into K4
+
+          1.5.4.  k < k
+                  substitute q = k (line 1.5.2) into line 1.5.3
+
+          1.5.5.  not k < k
+                  inequalities, contradicting 1.5.4
+
+    1.6.  k ∈ {k} and for all p, q ∈ {k}, if p < q then c(p) < c(q)
+          join 1.4, 1.5
+
+    1.7.  {k} ∈ U(k)
+          mun:part-builder u := {k}, from D1, K1, 1.3, 1.6
+
+    1.8.  There is S ∈ U(k) with |{k}| = |S|.
+          exhibit, from 1.7
+
+    1.9.  |{k}| ∈ I(k)
+          mun:set-image u := |{k}|, from D2, K1, 1.8
+
+    1.10. For all u ∈ I(k), u ∈ ℤ and u ≤ r − 1.
+          proof
+          note a run longer than r − 1 would be a run as long as r
+          let u ∈ I(k)                                                (K5)
+
+          1.10.1. There is S ∈ U(k) with u = |S|.
+                  mun:set-image, from D2, K1, K5
+
+          1.10.2. T ∈ U(k). u = |T|.
+                  obtain T from line 1.10.1
+
+          1.10.3. T ⊆ {1, …, k}. For all p, q ∈ T, if p < q then c(p) < c(q).
+                  mun:part-builder u := T, from D1, K1, 1.10.2
+
+          1.10.4. {1, …, k} is finite
+                  mun:range-finite a := 1, b := k
+
+          1.10.5. T is finite
+                  mun:finite-part, from 1.10.3, 1.10.4
+
+          1.10.6. |T| ∈ ℕ₀
+                  mun:card-nat0, from 1.10.5
+
+          1.10.7. {1, …, k} ⊆ {1, …, N}
+                  mun:range-within, from 1.1
+
+          1.10.8. T ⊆ {1, …, N}
+                  mun:subset-transitive, from 1.10.3, 1.10.7
+
+          1.10.9. not r ≤ |T|
+                  contradiction
+                  suppose r ≤ |T|                                     (S1)
+
+                  1.10.9.1.  There is S ⊆ {1, …, N} with r ≤ |S| and for all i, j ∈ S, if i < j then c(i) < c(j).
+                             exhibit, from S1, 1.10.3, 1.10.8, contradicting H4
+
+          1.10.10. |T| < r
+                   inequalities, from 1.10.6, 1.10.9
+
+          1.10.11. |T| + 1 ≤ r
+                   mun:integer-step m := |T|, n := r, from 1.10.6, 1.10.10
+
+          1.10.12. |T| ≤ r − 1
+                   inequalities, from 1.10.6, 1.10.11
+
+          1.10.13. u ∈ ℕ₀
+                   substitute u = |T| (line 1.10.2) into line 1.10.6
+
+          1.10.14. u ∈ ℤ
+                   membership, from 1.10.13
+
+          1.10.15. u ≤ r − 1
+                   substitute u = |T| (line 1.10.2) into line 1.10.12
+
+          1.10.16. u ∈ ℤ and u ≤ r − 1
+                   join 1.10.14, 1.10.15
+
+    1.11. For all u ∈ I(k), u ∈ ℤ.
+          proof
+          let u ∈ I(k)                                                (K6)
+
+          1.11.1. u ∈ ℤ. u ≤ r − 1.
+                  instantiate u := u in line 1.10, from K6
+
+          1.11.2. u ∈ ℤ
+                  join 1.11.1
+
+    1.12. For all u ∈ I(k), u ≤ r − 1.
+          proof
+          let u ∈ I(k)                                                (K7)
+
+          1.12.1. u ∈ ℤ. u ≤ r − 1.
+                  instantiate u := u in line 1.10, from K7
+
+          1.12.2. u ≤ r − 1
+                  join 1.12.1
+
+    1.13. I(k) ⊆ ℤ
+          mun:subset, from 1.11
+
+    1.14. r − 1 is an upper bound of I(k)
+          mun:upper-bound, from 1.12
+
+    1.15. There is u ∈ ℤ with u is an upper bound of I(k).
+          exhibit, from 1.14
+
+    1.16. There is s ∈ I(k).
+          exhibit, from 1.9
+
+    1.17. L(k) ∈ I(k)
+          mun:integer-sup-member, from D3, K1, 1.13, 1.15, 1.16
+
+    1.18. For all x ∈ I(k), x ≤ L(k).
+          mun:integer-sup-above, from D3, K1, 1.13, 1.15
+
+    1.19. L(k) is an upper bound of I(k)
+          mun:upper-bound, from 1.18
+
+    1.20. |{k}| ≤ L(k)
+          instantiate x := |{k}| in line 1.18, from 1.9
+
+    1.21. |{k}| = 1
+          mun:card-singleton x := k
+
+    1.22. 1 ≤ L(k)
+          substitute |{k}| = 1 (line 1.21) into line 1.20
+
+    1.23. L(k) ∈ ℤ. L(k) ≤ r − 1.
+          instantiate u := L(k) in line 1.10, from 1.17
+
+    1.24. L(k) ∈ {1, …, r − 1}
+          mun:range-between k := L(k), a := 1, b := r − 1, from 1.22, 1.23
+
+    1.25. L(k) ∈ I(k) and L(k) is an upper bound of I(k) and L(k) ∈ ℤ and L(k) ∈ {1, …, r − 1}
+          join 1.17, 1.19, 1.23, 1.24
+
+2.  For all i, j ∈ {1, …, N}, if i < j and c(i) < c(j) then L(i) < L(j).
+    proof
+    note a longest run rising to i, with j put after it, is a run rising to j
+    let i ∈ {1, …, N}                                                 (K8)
+    let j ∈ {1, …, N}                                                 (K9)
+    assume i < j and c(i) < c(j)                                      (K10)
+
+    2.1.  L(i) ∈ I(i). L(i) is an upper bound of I(i). L(i) ∈ ℤ. L(i) ∈ {1, …, r − 1}.
+          instantiate k := i in line 1, from K8
+
+    2.2.  L(j) ∈ I(j). L(j) is an upper bound of I(j). L(j) ∈ ℤ. L(j) ∈ {1, …, r − 1}.
+          instantiate k := j in line 1, from K9
+
+    2.3.  There is S ∈ U(i) with L(i) = |S|.
+          mun:set-image u := L(i), from D2, K8, 2.1
+
+    2.4.  T ∈ U(i). L(i) = |T|.
+          obtain T from line 2.3
+
+    2.5.  T ⊆ {1, …, i}. i ∈ T. For all p, q ∈ T, if p < q then c(p) < c(q).
+          mun:part-builder u := T, from D1, K8, 2.4
+
+    2.6.  For all p, q ∈ T, if p < q then c(p) < c(q).
+          join 2.5
+
+    2.7.  i < j. c(i) < c(j).
+          join K10
+
+    2.8.  j ∉ T
+          contradiction
+          suppose j ∈ T                                               (S2)
+
+          2.8.1.  j ∈ {1, …, i}
+                  mun:in-subset, from S2, 2.5
+
+          2.8.2.  j ≤ i
+                  mun:range-bounds a := 1, b := i, k := j, from 2.8.1
+
+          2.8.3.  not j ≤ i
+                  inequalities, from 2.7, contradicting 2.8.2
+
+    2.9.  {1, …, i} is finite
+          mun:range-finite a := 1, b := i
+
+    2.10. T is finite
+          mun:finite-part, from 2.5, 2.9
+
+    2.11. 1 ≤ i. i ≤ N.
+          mun:range-bounds a := 1, b := N, k := i, from K8
+
+    2.12. {1, …, i} ⊆ {1, …, N}
+          mun:range-within, from 2.11
+
+    2.13. T ⊆ {1, …, N}
+          mun:subset-transitive, from 2.5, 2.12
+
+    2.14. i ≤ j
+          inequalities
+            i < j      2.7
+            i ≤ j      weakening
+
+    2.15. {1, …, i} ⊆ {1, …, j}
+          mun:range-within, from 2.14
+
+    2.16. T ⊆ {1, …, j}
+          mun:subset-transitive, from 2.5, 2.15
+
+    2.17. 1 ≤ j. j ≤ N.
+          mun:range-bounds a := 1, b := N, k := j, from K9
+
+    2.18. j ∈ {1, …, j}
+          mun:range-between k := j, a := 1, b := j, from 2.17
+          requires j ≤ j: inequalities
+
+    2.19. {j} ⊆ {1, …, j}
+          mun:singleton-subset, from 2.18
+
+    2.20. T ∪ {j} ⊆ {1, …, j}
+          mun:union-subset, from 2.16, 2.19
+
+    2.21. j ∈ T ∪ {j}
+          mun:in-union-singleton
+
+    2.22. For all p, q ∈ T ∪ {j}, if p < q then c(p) < c(q).
+          proof
+          let p ∈ T ∪ {j}                                             (K11)
+          let q ∈ T ∪ {j}                                             (K12)
+          assume p < q                                                (K13)
+
+          2.22.1. q ∈ T or q ∈ {j}
+                  mun:union, from K12
+
+          2.22.2. p ∈ T or p ∈ {j}
+                  mun:union, from K11
+
+          2.22.3. c(p) < c(q)
+                  cases, from 2.22.1
+
+                  case
+                  note q is in T, so it is at most i, and p, below it, is in T too
+                  assume q ∈ T                                        (C1)
+
+                  2.22.3.1.  q ∈ {1, …, i}
+                             mun:in-subset, from C1, 2.5
+
+                  2.22.3.2.  q ≤ i
+                             mun:range-bounds a := 1, b := i, k := q, from 2.22.3.1
+
+                  2.22.3.3.  c(p) < c(q)
+                             cases, from 2.22.2
+
+                             case
+                             assume p ∈ T                             (C2)
+
+                             2.22.3.3.1.  c(p) < c(q)
+                                          instantiate p := p, q := q in line 2.6, from C1, C2, K13
+
+                             case
+                             assume p ∈ {j}                           (C3)
+
+                             2.22.3.3.2.  p = j
+                                          mun:singleton x := p, a := j, from C3
+
+                             2.22.3.3.3.  j < q
+                                          substitute p = j (line 2.22.3.3.2) into K13
+
+                             2.22.3.3.4.  j < j
+                                          transitivity, from 2.22.3.3.3, 2.22.3.2, 2.7
+                                          requires q ∈ ℤ: mun:range-integer a := 1, b := i, k := q, from 2.22.3.1
+
+                             2.22.3.3.5.  not j < j
+                                          inequalities, contradicting 2.22.3.3.4
+
+                  case
+                  note q is j, and p is i or comes before i in T
+                  assume q ∈ {j}                                      (C4)
+
+                  2.22.3.4.  q = j
+                             mun:singleton x := q, a := j, from C4
+
+                  2.22.3.5.  c(p) < c(j)
+                             cases, from 2.22.2
+
+                             case
+                             assume p ∈ T                             (C5)
+
+                             2.22.3.5.1.  p ∈ {1, …, i}
+                                          mun:in-subset, from C5, 2.5
+
+                             2.22.3.5.2.  p ∈ {1, …, N}
+                                          mun:in-subset, from C5, 2.13
+
+                             2.22.3.5.3.  p ≤ i
+                                          mun:range-bounds a := 1, b := i, k := p, from 2.22.3.5.1
+
+                             2.22.3.5.4.  p < i or p = i
+                                          mun:le-cases x := p, y := i, from 2.22.3.5.3
+                                          requires p ∈ ℤ: mun:range-integer a := 1, b := i, k := p, from 2.22.3.5.1
+
+                             2.22.3.5.5.  c(p) < c(j)
+                                          cases, from 2.22.3.5.4
+
+                                          case
+                                          assume p < i                (C6)
+
+                                          2.22.3.5.5.1.  c(p) < c(i)
+                                                         instantiate p := p, q := i in line 2.6, from C5, C6, 2.5
+
+                                          2.22.3.5.5.2.  c(p) < c(j)
+                                                         transitivity, from 2.22.3.5.5.1, 2.7
+                                                         requires c(p) ∈ ℝ: from H3, 2.22.3.5.2
+                                                         requires c(i) ∈ ℝ: from H3, K8
+                                                         requires c(j) ∈ ℝ: from H3, K9
+
+                                          case
+                                          assume p = i                (C7)
+
+                                          2.22.3.5.5.3.  c(p) < c(j)
+                                                         substitute p = i (C7) into line 2.7
+
+                             case
+                             assume p ∈ {j}                           (C8)
+
+                             2.22.3.5.6.  p = j
+                                          mun:singleton x := p, a := j, from C8
+
+                             2.22.3.5.7.  j < q
+                                          substitute p = j (line 2.22.3.5.6) into K13
+
+                             2.22.3.5.8.  j < j
+                                          substitute q = j (line 2.22.3.4) into line 2.22.3.5.7
+
+                             2.22.3.5.9.  not j < j
+                                          inequalities, contradicting 2.22.3.5.8
+
+                  2.22.3.6.  c(p) < c(q)
+                             substitute q = j (line 2.22.3.4) into line 2.22.3.5
+
+    2.23. j ∈ T ∪ {j} and for all p, q ∈ T ∪ {j}, if p < q then c(p) < c(q)
+          join 2.21, 2.22
+
+    2.24. T ∪ {j} ∈ U(j)
+          mun:part-builder u := T ∪ {j}, from D1, K9, 2.20, 2.23
+
+    2.25. |T ∪ {j}| = |T| + 1
+          mun:card-add-one, from 2.8, 2.10
+
+    2.26. There is S ∈ U(j) with |T| + 1 = |S|.
+          exhibit, from 2.24, 2.25
+
+    2.27. |T| + 1 ∈ I(j)
+          mun:set-image u := |T| + 1, from D2, K9, 2.26
+
+    2.28. For all s ∈ I(j), s ≤ L(j).
+          mun:upper-bound, from 2.2
+
+    2.29. |T| + 1 ≤ L(j)
+          instantiate s := |T| + 1 in line 2.28, from 2.27
+
+    2.30. L(i) + 1 ≤ L(j)
+          substitute L(i) = |T| (line 2.4) into line 2.29
+
+    2.31. L(i) < L(j)
+          inequalities, from 2.1, 2.2, 2.30
+
+3.  For all k ∈ {1, …, N}, L(k) ∈ {1, …, r − 1}.
+    proof
+    let k ∈ {1, …, N}                                                 (K14)
+
+    3.1.  L(k) ∈ I(k). L(k) is an upper bound of I(k). L(k) ∈ ℤ. L(k) ∈ {1, …, r − 1}.
+          instantiate k := k in line 1, from K14
+
+    3.2.  L(k) ∈ {1, …, r − 1}
+          join 3.1
+
+4.  L : {1, …, N} → {1, …, r − 1}
+    mun:function-into, from 3
+    requires L is a function on {1, …, N}: from D3
+
+5.  There is L : {1, …, N} → {1, …, r − 1} with for all i, j ∈ {1, …, N}, if i < j and c(i) < c(j) then L(i) < L(j).
+    exhibit, from 2, 4
+
+
+theorem erdos-szekeres
+  metamath    erdsze
+  note        Every sequence of N different numbers, with N greater than
+              (r − 1)(s − 1), has a rising run of r of them or a falling run
+              of s. Label each place with the lengths of the longest rising
+              and falling runs that end there: two places never share both
+              labels, and without long runs there are only (r − 1)(s − 1)
+              labels to go round.
+  let r ∈ ℕ                                                           (H1)
+  let s ∈ ℕ                                                           (H2)
+  let N ∈ ℕ                                                           (H3)
+  let a : {1, …, N} → ℝ be one-to-one                                 (H4)
+  assume (r − 1)·(s − 1) < N                                          (H5)
+  then there is S ⊆ {1, …, N} with (r ≤ |S| and for all i, j ∈ S, if i < j then a(i) < a(j)) or (s ≤ |S| and for all i, j ∈ S, if i < j then a(i) > a(j))
+
+1.  There is S ⊆ {1, …, N} with (r ≤ |S| and for all i, j ∈ S, if i < j then a(i) < a(j)) or (s ≤ |S| and for all i, j ∈ S, if i < j then a(i) > a(j)).
+    contradiction
+    suppose not (there is S ⊆ {1, …, N} with (r ≤ |S| and for all i, j ∈ S, if i < j then a(i) < a(j)) or (s ≤ |S| and for all i, j ∈ S, if i < j then a(i) > a(j)))   (S1)
+
+    1.1.  not (there is S ⊆ {1, …, N} with r ≤ |S| and for all i, j ∈ S, if i < j then a(i) < a(j))
+          contradiction
+          suppose there is S ⊆ {1, …, N} with r ≤ |S| and for all i, j ∈ S, if i < j then a(i) < a(j)   (S2)
+
+          1.1.1.  T ⊆ {1, …, N}. r ≤ |T| and for all i, j ∈ T, if i < j then a(i) < a(j).
+                  obtain T from S2
+
+          1.1.2.  (r ≤ |T| and for all i, j ∈ T, if i < j then a(i) < a(j)) or (s ≤ |T| and for all i, j ∈ T, if i < j then a(i) > a(j))
+                  mun:or-left, from 1.1.1
+
+          1.1.3.  There is S ⊆ {1, …, N} with (r ≤ |S| and for all i, j ∈ S, if i < j then a(i) < a(j)) or (s ≤ |S| and for all i, j ∈ S, if i < j then a(i) > a(j)).
+                  exhibit, from 1.1.1, 1.1.2, contradicting S1
+
+    let b(i) = −a(i), for i ∈ {1, …, N}                               (D1)
+        reads a with each value's sign changed, so that a fall in a is a rise in b
+
+    1.2.  For all i ∈ {1, …, N}, b(i) ∈ ℝ.
+          membership, from D1
+          requires a(i) ∈ ℝ: from H4
+
+    1.3.  b : {1, …, N} → ℝ
+          mun:function-into, from 1.2
+          requires b is a function on {1, …, N}: from D1
+
+    1.4.  not (there is S ⊆ {1, …, N} with s ≤ |S| and for all i, j ∈ S, if i < j then b(i) < b(j))
+          contradiction
+          suppose there is S ⊆ {1, …, N} with s ≤ |S| and for all i, j ∈ S, if i < j then b(i) < b(j)   (S3)
+
+          1.4.1.  T ⊆ {1, …, N}. s ≤ |T| and for all i, j ∈ T, if i < j then b(i) < b(j).
+                  obtain T from S3
+
+          1.4.2.  For all i, j ∈ T, if i < j then a(i) > a(j).
+                  proof
+                  let i ∈ T                                           (K1)
+                  let j ∈ T                                           (K2)
+                  assume i < j                                        (K3)
+
+                  1.4.2.1.  b(i) < b(j)
+                            instantiate i := i, j := j in line 1.4.1, from K1, K2, K3
+
+                  1.4.2.2.  i ∈ {1, …, N}
+                            mun:in-subset, from K1, 1.4.1
+
+                  1.4.2.3.  j ∈ {1, …, N}
+                            mun:in-subset, from K2, 1.4.1
+
+                  1.4.2.4.  b(i) = −a(i)
+                            D1, from 1.4.2.2
+
+                  1.4.2.5.  b(j) = −a(j)
+                            D1, from 1.4.2.3
+
+                  1.4.2.6.  −a(i) < −a(j)
+                            calculation
+                              −a(i) = b(i)      1.4.2.4
+                                    < b(j)      1.4.2.1
+                                    = −a(j)     1.4.2.5
+
+                  1.4.2.7.  a(i) > a(j)
+                            inequalities
+                              −a(i) < −a(j)     1.4.2.6
+                              a(i) > a(j)       multiplying by −1
+                            requires a(i) ∈ ℝ: from H4, 1.4.2.2
+                            requires a(j) ∈ ℝ: from H4, 1.4.2.3
+
+          1.4.3.  s ≤ |T| and for all i, j ∈ T, if i < j then a(i) > a(j)
+                  join 1.4.1, 1.4.2
+
+          1.4.4.  (r ≤ |T| and for all i, j ∈ T, if i < j then a(i) < a(j)) or (s ≤ |T| and for all i, j ∈ T, if i < j then a(i) > a(j))
+                  mun:or-right, from 1.4.3
+
+          1.4.5.  There is S ⊆ {1, …, N} with (r ≤ |S| and for all i, j ∈ S, if i < j then a(i) < a(j)) or (s ≤ |S| and for all i, j ∈ S, if i < j then a(i) > a(j)).
+                  exhibit, from 1.4.1, 1.4.4, contradicting S1
+
+    1.5.  L : {1, …, N} → {1, …, r − 1}. For all i, j ∈ {1, …, N}, if i < j and a(i) < a(j) then L(i) < L(j).
+          obtain L: thm:longest-runs c := a, from 1.1
+
+    1.6.  M : {1, …, N} → {1, …, s − 1}. For all i, j ∈ {1, …, N}, if i < j and b(i) < b(j) then M(i) < M(j).
+          obtain M: thm:longest-runs c := b, r := s, from 1.3, 1.4
+
+    let f(i) = (L(i), M(i)), for i ∈ {1, …, N}                       (D2)
+        reads the lengths of the longest rising and falling runs ending at i
+
+    1.7.  For all i ∈ {1, …, N}, f(i) ∈ {1, …, r − 1} × {1, …, s − 1}.
+          proof
+          let i ∈ {1, …, N}                                           (K4)
+
+          1.7.1.  L(i) ∈ {1, …, r − 1}
+                  mun:function-value f := L, from K4
+
+          1.7.2.  M(i) ∈ {1, …, s − 1}
+                  mun:function-value f := M, from K4
+
+          1.7.3.  (L(i), M(i)) ∈ {1, …, r − 1} × {1, …, s − 1}
+                  mun:pair-in-product, from 1.7.1, 1.7.2
+
+          1.7.4.  f(i) = (L(i), M(i))
+                  D2, from K4
+
+          1.7.5.  f(i) ∈ {1, …, r − 1} × {1, …, s − 1}
+                  substitute f(i) = (L(i), M(i)) (line 1.7.4) into line 1.7.3
+
+    1.8.  f : {1, …, N} → {1, …, r − 1} × {1, …, s − 1}
+          mun:function-into, from 1.7
+          requires f is a function on {1, …, N}: from D2
+
+    1.9.  For all x, y ∈ {1, …, N}, if a(x) = a(y) then x = y.
+          mun:one-to-one, from H4
+
+    1.10. For all i, j ∈ {1, …, N}, if i < j then f(i) ≠ f(j).
+          proof
+          note a rise from i to j lengthens the longest rising run, and a fall the longest falling run
+          let i ∈ {1, …, N}                                           (K5)
+          let j ∈ {1, …, N}                                           (K6)
+          assume i < j                                                (K7)
+
+          1.10.1. i ≠ j
+                  inequalities
+                    i < j      K7
+                    i ≠ j      weakening
+
+          1.10.2. a(i) ≠ a(j)
+                  contradiction
+                  suppose a(i) = a(j)                                 (S4)
+
+                  1.10.2.1.  i = j
+                             instantiate x := i, y := j in line 1.9, from K5, K6, S4, contradicting 1.10.1
+
+          1.10.3. a(i) < a(j) or a(j) < a(i)
+                  mun:unequal-cases x := a(i), y := a(j), from 1.10.2
+                  requires a(i) ∈ ℝ: from H4, K5
+                  requires a(j) ∈ ℝ: from H4, K6
+
+          1.10.4. f(i) ≠ f(j)
+                  cases, from 1.10.3
+
+                  case
+                  note a rise: the longest rising run grows from i to j
+                  assume a(i) < a(j)                                  (C1)
+
+                  1.10.4.1.  L(i) < L(j)
+                             instantiate i := i, j := j in line 1.5, from C1, K5, K6, K7
+
+                  1.10.4.2.  L(i) ≠ L(j)
+                             inequalities
+                               L(i) < L(j)      1.10.4.1
+                               L(i) ≠ L(j)      weakening
+                             requires L(i) ∈ ℝ: from K5, 1.5
+                             requires L(j) ∈ ℝ: from K6, 1.5
+
+                  1.10.4.3.  f(i) ≠ f(j)
+                             contradiction
+                             suppose f(i) = f(j)                      (S5)
+
+                             1.10.4.3.1.  L(i) = L(j) and M(i) = M(j)
+                                          mun:pair-parts-equal, from D2, K5, K6, S5
+
+                             1.10.4.3.2.  L(i) = L(j)
+                                          join 1.10.4.3.1, contradicting 1.10.4.2
+
+                  case
+                  note a fall: the longest falling run grows from i to j
+                  assume a(j) < a(i)                                  (C2)
+
+                  1.10.4.4.  b(i) = −a(i)
+                             D1, from K5
+
+                  1.10.4.5.  b(j) = −a(j)
+                             D1, from K6
+
+                  1.10.4.6.  −a(i) < −a(j)
+                             inequalities
+                               a(j) < a(i)       C2
+                               −a(j) > −a(i)     multiplying by −1
+                               −a(i) < −a(j)     symmetry
+                             requires a(i) ∈ ℝ: from H4, K5
+                             requires a(j) ∈ ℝ: from H4, K6
+
+                  1.10.4.7.  b(i) < b(j)
+                             calculation
+                               b(i) = −a(i)      1.10.4.4
+                                    < −a(j)      1.10.4.6
+                                    = b(j)       1.10.4.5
+
+                  1.10.4.8.  M(i) < M(j)
+                             instantiate i := i, j := j in line 1.6, from K5, K6, K7, 1.10.4.7
+
+                  1.10.4.9.  M(i) ≠ M(j)
+                             inequalities
+                               M(i) < M(j)      1.10.4.8
+                               M(i) ≠ M(j)      weakening
+                             requires M(i) ∈ ℝ: from K5, 1.6
+                             requires M(j) ∈ ℝ: from K6, 1.6
+
+                  1.10.4.10. f(i) ≠ f(j)
+                             contradiction
+                             suppose f(i) = f(j)                      (S6)
+
+                             1.10.4.10.1. L(i) = L(j) and M(i) = M(j)
+                                          mun:pair-parts-equal, from D2, K5, K6, S6
+
+                             1.10.4.10.2. M(i) = M(j)
+                                          join 1.10.4.10.1, contradicting 1.10.4.9
+
+    1.11. For all i, j ∈ {1, …, N}, if f(i) = f(j) then i = j.
+          proof
+          let i ∈ {1, …, N}                                           (K8)
+          let j ∈ {1, …, N}                                           (K9)
+          assume f(i) = f(j)                                          (K10)
+
+          1.11.1. i = j or not i = j
+                  mun:excluded-middle P := i = j
+
+          1.11.2. i = j
+                  cases, from 1.11.1
+
+                  case
+                  assume i = j, which is the claim                    (C3)
+
+                  case
+                  assume not i = j                                    (C4)
+
+                  1.11.2.1.  i < j or j < i
+                             mun:unequal-cases x := i, y := j, from C4
+
+                  1.11.2.2.  i = j
+                             cases, from 1.11.2.1
+
+                             case
+                             assume i < j                             (C5)
+
+                             1.11.2.2.1.  f(i) ≠ f(j)
+                                          instantiate i := i, j := j in line 1.10, from C5, K8, K9, contradicting K10
+
+                             case
+                             assume j < i                             (C6)
+
+                             1.11.2.2.2.  f(j) ≠ f(i)
+                                          instantiate i := j, j := i in line 1.10, from C6, K8, K9, contradicting K10
+
+    1.12. f : {1, …, N} → {1, …, r − 1} × {1, …, s − 1} is one-to-one
+          mun:one-to-one, from 1.8, 1.11
+
+    1.13. |{1, …, N}| ≤ |{1, …, r − 1} × {1, …, s − 1}|
+          thm:pigeonhole, from 1.12
+
+    1.14. {1, …, r − 1} is finite
+          mun:range-finite a := 1, b := r − 1
+
+    1.15. {1, …, s − 1} is finite
+          mun:range-finite a := 1, b := s − 1
+
+    1.16. |{1, …, r − 1} × {1, …, s − 1}| = |{1, …, r − 1}|·|{1, …, s − 1}|
+          mun:card-product, from 1.14, 1.15
+
+    1.17. |{1, …, N}| = N
+          mun:range-size n := N
+
+    1.18. |{1, …, r − 1}| = r − 1
+          mun:range-size n := r − 1
+          requires r − 1 ∈ ℕ₀: mun:nat-minus-one n := r
+
+    1.19. |{1, …, s − 1}| = s − 1
+          mun:range-size n := s − 1
+          requires s − 1 ∈ ℕ₀: mun:nat-minus-one n := s
+
+    1.20. |{1, …, r − 1}|·|{1, …, s − 1}| = (r − 1)·|{1, …, s − 1}|
+          substitute |{1, …, r − 1}| = r − 1 (line 1.18)
+
+    1.21. (r − 1)·|{1, …, s − 1}| = (r − 1)·(s − 1)
+          substitute |{1, …, s − 1}| = s − 1 (line 1.19)
+
+    1.22. N ≤ (r − 1)·(s − 1)
+          calculation
+            N = |{1, …, N}|                                   1.17
+              ≤ |{1, …, r − 1} × {1, …, s − 1}|               1.13
+              = |{1, …, r − 1}|·|{1, …, s − 1}|               1.16
+              = (r − 1)·|{1, …, s − 1}|                       1.20
+              = (r − 1)·(s − 1)                               1.21
+
+    1.23. not (r − 1)·(s − 1) < N
+          inequalities, from 1.22, contradicting H5

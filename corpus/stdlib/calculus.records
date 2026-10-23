@@ -157,6 +157,27 @@ axiom completeness
               above. The `with` names what the claim binds, so it is the
               witness rather than what a lemma's variable stands for.
 
+mundane theorem integer-sup-member
+  let S ⊆ ℤ                                                           (H1)
+  assume there is s ∈ S                                               (H2)
+  assume there is u ∈ ℤ with u is an upper bound of S                 (H3)
+  then        sup S ∈ S
+  metamath    suprzcl2
+  target      suprzcl2
+  note        A set of whole numbers with an element and an upper bound has
+              a largest element, and it is the least upper bound: below the
+              bound there are only finitely many whole numbers to pass.
+
+mundane theorem integer-sup-above
+  let S ⊆ ℤ                                                           (H1)
+  assume there is u ∈ ℤ with u is an upper bound of S                 (H2)
+  let x ∈ S                                                           (H3)
+  then        x ≤ sup S
+  metamath    suprzub
+  target      suprzub
+  note        No element of a set of whole numbers bounded above is above
+              its least upper bound.
+
 theorem rolle
   let a ∈ ℝ                                                           (H1)
   let b ∈ ℝ                                                           (H2)

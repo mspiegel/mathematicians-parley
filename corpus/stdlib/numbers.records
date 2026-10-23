@@ -684,6 +684,15 @@ mundane theorem le-cases
   note        A bound is a strict one or an equation: what a proof by cases
               on x ≤ y takes its two cases from.
 
+mundane theorem unequal-cases
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  then        x ≠ y ↔ x < y or y < x
+  metamath    lttri2
+  target      lttri2
+  note        Two different numbers are in one order or the other: what a
+              proof by cases on x ≠ y takes its two cases from.
+
 mundane theorem divide-le
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)

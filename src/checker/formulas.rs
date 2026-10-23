@@ -37,14 +37,14 @@ use crate::mm::kernel::{FloatLabels, Term};
 use crate::notations::{
     APPLICATION, APPLICATION_TO_TWO, AT_LEAST, AT_MOST, BICONDITIONAL, BY_CASES,
     CONDITIONAL, CONJUNCTION, EQUALITY, EQUALS, EQUAL_CHAIN, FOR_ALL, FOR_ALL_SETS,
-    FUNCTION_TYPE, GREATER, IMPLICATION, INTEGER_RANGE, LESS, LOGICAL_NOT, MEMBERSHIP,
-    NUMBER_SYSTEMS, NUMERAL, ORDER, PLUS, PRODUCT_OVER, SUM, TIMES,
+    GREATER, IMPLICATION, INTEGER_RANGE, LESS, LOGICAL_NOT, MEMBERSHIP, NUMBER_SYSTEMS,
+    NUMERAL, ORDER, PLUS, PRODUCT_OVER, SUM, TIMES,
 };
 use crate::outcome::{Built, Checked, Declined, Problem};
 use crate::rules::System;
 use crate::sorts::infer::{self, Reader, Store};
 use crate::sorts::introduction::{Form, Introduction};
-use crate::sorts::{define_sorts, unlabel, written_tokens, Env};
+use crate::sorts::{define_sorts, types_a_function, unlabel, written_tokens, Env};
 use crate::targets::split_entries;
 
 /// The sorts an item's statement relates fit, as its reading found.
@@ -4342,7 +4342,7 @@ impl MembershipIn {
         // types among what the claim rests on, and none merely in scope.
         let typed: Vec<Node> = facts
             .iter()
-            .filter(|f| f.notation() == FUNCTION_TYPE)
+            .filter(|f| types_a_function(f))
             .cloned()
             .collect();
         MembershipIn {

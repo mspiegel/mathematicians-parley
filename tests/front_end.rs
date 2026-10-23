@@ -171,3 +171,46 @@ fn a_bound_letter_takes_its_sort_from_its_binder() {
         "{shape}"
     );
 }
+
+/// A letter a binder names takes its sort from the set it ranges over
+/// however that set is written: the parts of a range, `𝒫{1, …, n}`, and the
+/// value of a function that gives sets of sets, `U(k)`, are read as terms,
+/// so `|S|` is S's size.
+#[test]
+fn a_bound_letter_takes_its_sort_from_a_set_written_out() {
+    let g = grammar();
+    let parts = Whole::read("set of set of number")
+        .and_then(Sort::whole)
+        .unwrap();
+    let runs = Whole::Function(
+        Rc::new(Whole::read("number").unwrap()),
+        Rc::new(Whole::read("set of set of number").unwrap()),
+    );
+    let sorts: Sorts = [
+        ("n".to_string(), Sort::of("number")),
+        ("k".to_string(), Sort::of("number")),
+        ("P".to_string(), parts),
+        ("U".to_string(), Sort::whole(runs).unwrap()),
+    ]
+    .into_iter()
+    .collect();
+    let sized = [
+        "for all S ∈ 𝒫{1, …, n}, |S| ≤ n",
+        "3 ∈ {|S| : S ∈ 𝒫{1, …, n}}",
+        "3 ∈ {|S| : S ∈ U(k)}",
+        "there is S ∈ U(k) with 3 = |S|",
+        "for all S ∈ P ∪ U(k), |S| ≤ n",
+    ];
+    for text in sized {
+        let tree = Written::new(text, "front-end", 0)
+            .formula()
+            .unwrap()
+            .read(&g, &sorts)
+            .unwrap();
+        let shape = tree.shape().to_string();
+        assert!(
+            shape.contains("cardinality") && !shape.contains("absolute-value"),
+            "{text}: {shape}"
+        );
+    }
+}

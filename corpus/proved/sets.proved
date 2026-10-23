@@ -13,6 +13,8 @@
 #   `mun:stdlib/counting/parts-finite`;
 # - a finite set and one in bijection with it have one size, for
 #   `mun:stdlib/counting/card-equal`;
+# - a one-to-one function into a set has a domain no larger than the set,
+#   for `thm:stdlib/counting/pigeonhole`;
 # - what is in a set of three listed things, its three cases joined by
 #   "or" two at a time, for `mun:stdlib/sets/triple`.
 
@@ -147,6 +149,18 @@ lemma gcardeq
   6 hashen |- ( ( A e. Fin /\ B e. Fin ) -> ( ( # ` A ) = ( # ` B ) <-> A ~~ B ) )
   7 syl2anc 2 5 6 |- ( ( A e. Fin /\ A ~~ B ) -> ( ( # ` A ) = ( # ` B ) <-> A ~~ B ) )
   8 mpbird 1 7 |- ( ( A e. Fin /\ A ~~ B ) -> ( # ` A ) = ( # ` B ) )
+
+# ( ( B e. V /\ F : A -1-1-> B ) -> ( # ` A ) <_ ( # ` B ) )
+#
+# A one-to-one function from A into the set B makes A dominated by B
+# (`f1domg`), and a set dominated by another has at most its size
+# (`hashdomi`).
+lemma gf1hashle
+  |- ( ( B e. V /\ F : A -1-1-> B ) -> ( # ` A ) <_ ( # ` B ) )
+  1 f1domg |- ( B e. V -> ( F : A -1-1-> B -> A ~<_ B ) )
+  2 imp 1 |- ( ( B e. V /\ F : A -1-1-> B ) -> A ~<_ B )
+  3 hashdomi |- ( A ~<_ B -> ( # ` A ) <_ ( # ` B ) )
+  4 syl 2 3 |- ( ( B e. V /\ F : A -1-1-> B ) -> ( # ` A ) <_ ( # ` B ) )
 
 # ( A e. V -> ( A e. { B , C , D } <-> ( ( A = B \/ A = C ) \/ A = D ) ) )
 #

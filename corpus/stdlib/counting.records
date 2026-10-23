@@ -392,14 +392,6 @@ mundane theorem card-two
   note        A set of two elements is any two different elements of it,
               listed.
 
-mundane theorem card-add-one
-  let a ∉ T                                                           (H1)
-  assume T is finite                                                  (H2)
-  then        |T ∪ {a}| = |T| + 1
-  metamath    hashunsng
-  target      hashunsng
-  note        Adding one new element to a finite set adds one to its size.
-
 mundane theorem card-positive
   let X be a set                                                      (H1)
   assume 0 < |X|                                                      (H2)
@@ -414,6 +406,35 @@ mundane theorem range-size
   then        |{1, …, n}| = n
   metamath    hashfz1
   target      hashfz1
+
+mundane theorem card-add-one
+  assume X is finite                                                  (H1)
+  let a ∉ X                                                           (H2)
+  then        |X ∪ {a}| = |X| + 1
+  metamath    hashunsng
+  target      hashunsng
+  note        One element more, which was not there already, counts once
+              more.
+
+mundane theorem card-product
+  assume X is finite                                                  (H1)
+  assume Y is finite                                                  (H2)
+  then        |X × Y| = |X|·|Y|
+  metamath    hashxp
+  target      hashxp
+  note        Each of the |X| first parts goes with each of the |Y| second
+              parts.
+
+theorem pigeonhole
+  let Y be a set                                                      (H1)
+  let f : X → Y be one-to-one                                         (H2)
+  then        |X| ≤ |Y|
+  metamath    f1domg and hashdomi, which this corpus proves together in
+              elaboration/stdlib/proved.mm
+  target      gf1hashle
+  note        A function that sends no two points of X to one place needs
+              as many places as X has points: put more than |Y| things into
+              Y and two of them share a place.
 
 theorem count-functions
   let X be a set                                                     (H1)

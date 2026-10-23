@@ -20,7 +20,7 @@ use crate::formula::page::{read_back, Sentence};
 use crate::formula::{wanted_reading, Grammar, Node, Notation, Sort, Whole};
 use crate::mm::kernel::Term;
 use crate::mm::Rpn;
-use crate::notations::{APPLICATION, APPLICATION_TO_TWO, POWERSET, SUPERSCRIPT};
+use crate::notations::{APPLICATION, APPLICATION_TO_TWO, SUPERSCRIPT};
 use crate::outcome::Checked;
 use crate::rules::NUMERALS;
 use crate::targets::{is_context, is_hole, repeated};
@@ -294,15 +294,21 @@ impl Elaborator<'_> {
         self.page_node_under(term, &IndexMap::new(), None)
     }
 
-    /// The sort of what the set the page writes as `set` holds, where it
-    /// says: a name's members by the name's sort, and a power set's members
-    /// are sets, so the W of "there is W ⊆ X" or "there is W ∈ 𝒫X" is a set
-    /// and |W| its size, as the parser reads it.
-    fn members_of(&self, set: &Node) -> Option<Sort> {
-        if set.is_name() {
-            return self.sorts_now.get(set.text.as_str()).and_then(Sort::held);
+    /// What a set the page writes as a term holds, read back with the sorts
+    /// in scope and those of the letters `bound`; None where it reads as no
+    /// set, or does not read.
+    fn read_set_holds(
+        &self,
+        node: &Node,
+        bound: &IndexMap<String, Sort>,
+    ) -> Option<Sort> {
+        let mut sorts = self.sorts_now.clone();
+        for (letter, sort) in bound {
+            if sort.name().is_some() {
+                sorts.insert(letter.clone(), sort.clone());
+            }
         }
-        (set.notation() == POWERSET).then(|| Sort::of("set"))
+        read_back(self.g, node, &sorts).ok()?.sort.held()
     }
 
     /// `page_node` of a part of a term, inside binders that introduce the
@@ -420,16 +426,33 @@ impl Elaborator<'_> {
                 .flatten()
                 .copied()
                 .collect();
-            // Over a set two holes join, the letter is a member of it.
+            // Over a set two holes join, the letter is a member of it. A
+            // domain written as more than a name, 𝒫{1, …, n} or U(k), holds
+            // what the page reads it as holding, as the page's own reading of
+            // the binder gives its letter (`grammar::set_written`).
             let domain_holds = match &r.joined {
                 Some(j) => j.member.clone(),
-                None => holes
-                    .iter()
-                    .enumerate()
-                    .filter(|(at, _)| !binding_at.contains(at))
-                    .filter_map(|(_, h)| self.page_node_under(h, bound, None))
-                    .find_map(|n| self.members_of(&n))
-                    .unwrap_or_else(Sort::none),
+                None => {
+                    let domains: Vec<Node> = holes
+                        .iter()
+                        .enumerate()
+                        .filter(|(at, _)| !binding_at.contains(at))
+                        .filter_map(|(_, h)| self.page_node_under(h, bound, None))
+                        .collect();
+                    domains
+                        .iter()
+                        .filter(|n| n.is_name())
+                        .find_map(|n| {
+                            self.sorts_now.get(n.text.as_str()).and_then(Sort::held)
+                        })
+                        .or_else(|| {
+                            domains
+                                .iter()
+                                .filter(|n| !n.is_name())
+                                .find_map(|n| self.read_set_holds(n, bound))
+                        })
+                        .unwrap_or_else(Sort::none)
+                }
             };
             let mut inner = bound.clone();
             for at in &binding_at {

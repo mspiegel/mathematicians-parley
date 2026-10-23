@@ -1694,6 +1694,19 @@ fn cases() -> Vec<Case> {
             )],
             "step 18 cites D1 at a, so it needs a ∈ [a, b], and nothing it cites or requires says it",
         ),
+        // A cited line read through a define is the define's rule at the
+        // argument the line writes, and holds only where that argument is in
+        // the domain: u ∈ I(k) says u is a size of a run ending at k only
+        // for k ∈ {1, …, N}, which K1 says.
+        case(
+            "read a defined function in a cited line at a value nothing puts in its domain",
+            vec![edit(
+                "proofs/wiedijk/erdos-szekeres.proof",
+                Some("mun:set-image, from D2, K1, K5\n".to_string()),
+                "mun:set-image, from D2, K5\n".to_string(),
+            )],
+            "step 1.10.1 cites D2 at k, so it needs k ∈ {1, …, N}, and nothing it cites or requires says it",
+        ),
         // a ∈ S because S is the points of [a, b] where f is below zero; the
         // item speaks of a set written by its condition, and without the
         // define S is only a name.

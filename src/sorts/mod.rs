@@ -27,7 +27,7 @@ pub mod introduction;
 use crate::formula::notation_id::NotationId;
 use crate::formula::page::{tokens, Written};
 use crate::formula::token::{Token, TokenKind};
-use crate::formula::{holds, Grammar, Sort, Sorts, Whole};
+use crate::formula::{holds, Grammar, Node, Sort, Sorts, Whole};
 use crate::matching::{expand, Defined, Definitions, ParamRead, Rule};
 use crate::notations::{FUNCTION_TYPE, ONE_TO_ONE, ONE_TO_ONE_ONTO, ONTO};
 use crate::outcome::{Built, Checked, Declined};
@@ -41,6 +41,13 @@ pub const NUMBER_SYSTEMS: [&str; 5] = ["ℕ", "ℕ₀", "ℤ", "ℚ", "ℝ"];
 /// one-to-one`, `is onto` and `is one-to-one and onto`, which say the type
 /// and a property.
 pub const TYPING: [NotationId; 4] = [FUNCTION_TYPE, ONE_TO_ONE, ONTO, ONE_TO_ONE_ONTO];
+
+/// Whether a sentence says a function's type, with or without a property:
+/// `let a : {1, …, n} → ℝ be one-to-one` types a as `let a : {1, …, n} → ℝ`
+/// does, and is cited for a's values the same way (`READERS.md`).
+pub fn types_a_function(node: &Node) -> bool {
+    TYPING.contains(&node.notation()) && node.children.len() == 3
+}
 
 /// What the tools read a text against: the grammar, and every proof file's
 /// scope, which is where a definition a theorem sees from outside it is
