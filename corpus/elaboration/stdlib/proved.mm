@@ -836,8 +836,8 @@ $d x S $.
 $}
 
 ${
-$( Sets: the parts of a set with a property, and a set counted by the
-   equal parts it splits into. $)
+$( Sets: the parts of a set with a property, a set counted by the equal
+   parts it splits into, and what is in a set of three. $)
 $d x ps $.
 $d x A $.
 $d x B $.
@@ -885,6 +885,10 @@ $d x y z $.
     ( cfn wcel cen wbr wa chash cfv wceq simpr wb simpl enfi syl mpbid hashen
     syl2anc mpbird )
     ACDZABEFZGZAHIZBHIZJZUATUAKZUBTBCDZUEUALTUAMZUBTUGUHUBUATUGLUFABNOPABQRS $.
+
+  geltpg $p |- ( A e. V -> ( A e. { B , C , D } <-> ( ( A = B \/ A = C ) \/ A = D ) ) ) $=
+    ( wcel ctp wceq w3o wo eltpg df-3or bitrdi )
+    AEFABCDGFABHZACHZADHZINOJPJABCDEKNOPLM $.
 
 $}
 

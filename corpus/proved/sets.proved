@@ -12,10 +12,12 @@
 # - a set of parts of a finite set is finite, for
 #   `mun:stdlib/counting/parts-finite`;
 # - a finite set and one in bijection with it have one size, for
-#   `mun:stdlib/counting/card-equal`.
+#   `mun:stdlib/counting/card-equal`;
+# - what is in a set of three listed things, its three cases joined by
+#   "or" two at a time, for `mun:stdlib/sets/triple`.
 
-$( Sets: the parts of a set with a property, and a set counted by the
-   equal parts it splits into. $)
+$( Sets: the parts of a set with a property, a set counted by the equal
+   parts it splits into, and what is in a set of three. $)
 $d x ps $.
 $d x A $.
 $d x B $.
@@ -145,4 +147,13 @@ lemma gcardeq
   6 hashen |- ( ( A e. Fin /\ B e. Fin ) -> ( ( # ` A ) = ( # ` B ) <-> A ~~ B ) )
   7 syl2anc 2 5 6 |- ( ( A e. Fin /\ A ~~ B ) -> ( ( # ` A ) = ( # ` B ) <-> A ~~ B ) )
   8 mpbird 1 7 |- ( ( A e. Fin /\ A ~~ B ) -> ( # ` A ) = ( # ` B ) )
+
+# ( A e. V -> ( A e. { B , C , D } <-> ( ( A = B \/ A = C ) \/ A = D ) ) )
+#
+# `eltpg` with its three-way "or" read as two, by `df-3or`.
+lemma geltpg
+  |- ( A e. V -> ( A e. { B , C , D } <-> ( ( A = B \/ A = C ) \/ A = D ) ) )
+  1 eltpg |- ( A e. V -> ( A e. { B , C , D } <-> ( A = B \/ A = C \/ A = D ) ) )
+  2 df-3or |- ( ( A = B \/ A = C \/ A = D ) <-> ( ( A = B \/ A = C ) \/ A = D ) )
+  3 bitrdi 1 2 |- ( A e. V -> ( A e. { B , C , D } <-> ( ( A = B \/ A = C ) \/ A = D ) ) )
 

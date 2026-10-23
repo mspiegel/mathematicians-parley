@@ -1733,41 +1733,7 @@ impl<'a> Elaborator<'a> {
         for f in factors {
             let said = self.rpn(f.term());
             let held = take!(self.in_cc(&said, scope, facts)?);
-            let apart = match f {
-                Factor::Divisor(_) => self.not_zero(scope, facts, &said)?,
-                Factor::Numerator { divisor, below, .. } => {
-                    let (whole, under) = (self.rpn(divisor), self.rpn(below));
-                    let whole_apart = self.not_zero(scope, facts, &whole)?;
-                    let under_apart = self.not_zero(scope, facts, &under)?;
-                    let under_cc = take!(self.in_cc(&under, scope, facts)?);
-                    let iff = self.b.ap(
-                        "divne0bd",
-                        &binds! {"ph" => scope, "A" => &said, "B" => &under},
-                        &[&held, &under_cc, &under_apart],
-                    );
-                    self.b.ap(
-                        "mpbird",
-                        &binds! {"ph" => scope, "ps" => t!(said, "cc0", "wne"),
-                        "ch" => t!(whole, "cc0", "wne")},
-                        &[&whole_apart, &iff],
-                    )
-                }
-                Factor::NegatedNumerator {
-                    divisor,
-                    quotient,
-                    top,
-                    below,
-                    ..
-                } => {
-                    let parts = NegatedQuotient {
-                        divisor: self.rpn(divisor),
-                        quotient: self.rpn(quotient),
-                        top: self.rpn(top),
-                        below: self.rpn(below),
-                    };
-                    take!(self.negated_top_apart(&parts, scope, facts)?)
-                }
-            };
+            let apart = take!(self.factor_apart(f, &said, &held, scope, facts)?);
             each.push((said, held, apart));
         }
         let mut parts = each.into_iter();
@@ -1786,6 +1752,69 @@ impl<'a> Elaborator<'a> {
             &binds! {"ph" => scope, "ps" => t!(so_far, "cc", "wcel"), "ch" => t!(so_far, "cc0", "wne")},
             &[&held, &apart],
         )))
+    }
+
+    /// ( scope -> said =/= 0 ) for `said`, what the factor `f` multiplies a
+    /// claim's sides by, held in ℂ by `held`: a divisor by what the page
+    /// says of it; the numerator c of a divisor c/e by what the page says of
+    /// c/e, carried to c by `divne0bd`; the −c of a divisor −(c/e) by
+    /// `negated_top_apart`; and the product of a divisor X·Y's two parts'
+    /// by each part's, joined by `mulne0d`.
+    fn factor_apart(
+        &mut self,
+        f: &Factor,
+        said: &Rpn,
+        held: &Proof,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Route<Proof>> {
+        Ok(Built(match f {
+            Factor::Divisor(_) => self.not_zero(scope, facts, said)?,
+            Factor::Numerator { divisor, below, .. } => {
+                let (whole, under) = (self.rpn(divisor), self.rpn(below));
+                let whole_apart = self.not_zero(scope, facts, &whole)?;
+                let under_apart = self.not_zero(scope, facts, &under)?;
+                let under_cc = take!(self.in_cc(&under, scope, facts)?);
+                let iff = self.b.ap(
+                    "divne0bd",
+                    &binds! {"ph" => scope, "A" => said, "B" => &under},
+                    &[held, &under_cc, &under_apart],
+                );
+                self.b.ap(
+                    "mpbird",
+                    &binds! {"ph" => scope, "ps" => t!(said, "cc0", "wne"),
+                    "ch" => t!(whole, "cc0", "wne")},
+                    &[&whole_apart, &iff],
+                )
+            }
+            Factor::NegatedNumerator {
+                divisor,
+                quotient,
+                top,
+                below,
+                ..
+            } => {
+                let parts = NegatedQuotient {
+                    divisor: self.rpn(divisor),
+                    quotient: self.rpn(quotient),
+                    top: self.rpn(top),
+                    below: self.rpn(below),
+                };
+                take!(self.negated_top_apart(&parts, scope, facts)?)
+            }
+            Factor::Product { left, right, .. } => {
+                let (x, y) = (self.rpn(left.term()), self.rpn(right.term()));
+                let x_cc = take!(self.in_cc(&x, scope, facts)?);
+                let y_cc = take!(self.in_cc(&y, scope, facts)?);
+                let x_apart = take!(self.factor_apart(left, &x, &x_cc, scope, facts)?);
+                let y_apart = take!(self.factor_apart(right, &y, &y_cc, scope, facts)?);
+                self.b.ap(
+                    "mulne0d",
+                    &binds! {"ph" => scope, "A" => &x, "B" => &y},
+                    &[&x_cc, &y_cc, &x_apart, &y_apart],
+                )
+            }
+        }))
     }
 
     /// ( scope -> -u c =/= 0 ) for a divisor −(c/e) the page says is not 0:

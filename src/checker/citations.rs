@@ -3154,58 +3154,10 @@ fn check_exhibit(
                 );
             continue;
         };
-        if exhibit_value(&ex, &facts, library, known).is_some() {
+        if shown_value(&ex, &facts, library, known).is_some() {
             continue;
         }
-        let Exhibited { wants, letters } = ex;
-        let sites = exhibit_sites(&wants, library);
-        let stated = |wants: &[Node]| {
-            supply(
-                wants,
-                &facts,
-                &Binding::new(),
-                &letters,
-                library,
-                &sites,
-                true,
-            )
-        };
-        let itself = |w: &Node| equal_to_itself(w, known);
-        // The value is the one the most parts are said of, each part's
-        // own line suggesting one; what is not said of it is what the
-        // step needs.
-        let holds = |w: &Node, at: &Binding| {
-            let w = substitute_apart(w, at, &library.ctx);
-            itself(&w) || facts.iter().any(|f| known.alike(f, &w))
-        };
-        // A letter's bare membership, n ∈ ℕ, fits every number in ℕ, and
-        // a numeral's membership is said once (`said_once`), so the value
-        // it suggests is no reading of the claim: what the body says is
-        // asked first, and wins where as many parts are said of each.
-        let bare = |w: &Node| {
-            w.notation() == MEMBERSHIP
-                && w.children
-                    .first()
-                    .is_some_and(|t| letters.contains(t.text.as_str()))
-        };
-        let mut best: Option<(usize, Binding)> = None;
-        for w in wants
-            .iter()
-            .filter(|w| !bare(w))
-            .chain(wants.iter().filter(|w| bare(w)))
-        {
-            let Some(at) = stated(std::slice::from_ref(w)) else {
-                continue;
-            };
-            if !letters.iter().all(|l| at.contains_key(l.as_str())) {
-                continue;
-            }
-            let count = wants.iter().filter(|w| holds(w, &at)).count();
-            if best.as_ref().is_none_or(|(most, _)| count > *most) {
-                best = Some((count, at));
-            }
-        }
-        let Some((_, at)) = best else {
+        let Some(at) = most_said_value(&ex, &facts, library, known) else {
             report.say(
                     &thm.path,
                     step.just.line,
@@ -3216,6 +3168,7 @@ fn check_exhibit(
                 );
             continue;
         };
+        let Exhibited { wants, letters } = ex;
         let shown = exhibited(as_written, library)
             .map(|e| e.wants)
             .filter(|w| w.len() == wants.len())
@@ -3228,7 +3181,7 @@ fn check_exhibit(
             })
             .collect();
         for (want, show) in wants.iter().zip(&shown) {
-            if holds(want, &at) {
+            if holds_at(want, &at, &facts, library, known) {
                 continue;
             }
             report.say(
@@ -3314,6 +3267,92 @@ fn exhibit_value(
     })
 }
 
+/// Whether a part `w` of what an exhibit asks holds at the value `at`: it is
+/// then an equation of a term with itself, or a fact says it, alike but for
+/// what goes without saying (`Known::alike`), as x = −(b + T)/3 says
+/// x = −(b + 1·T)/3.
+fn holds_at(
+    w: &Node,
+    at: &Binding,
+    facts: &[Node],
+    library: &Library,
+    known: &Known,
+) -> bool {
+    let w = substitute_apart(w, at, &library.ctx);
+    equal_to_itself(&w, known) || facts.iter().any(|f| known.alike(f, &w))
+}
+
+/// The value the most parts of what an exhibit asks are said of, each
+/// part's own line suggesting one, every letter bound; None where no part
+/// suggests one.
+fn most_said_value(
+    ex: &Exhibited,
+    facts: &[Node],
+    library: &Library,
+    known: &Known,
+) -> Option<Binding> {
+    let Exhibited { wants, letters } = ex;
+    let sites = exhibit_sites(wants, library);
+    // A letter's bare membership, n ∈ ℕ, fits every number in ℕ, and
+    // a numeral's membership is said once (`said_once`), so the value
+    // it suggests is no reading of the claim: what the body says is
+    // asked first, and wins where as many parts are said of each.
+    let bare = |w: &Node| {
+        w.notation() == MEMBERSHIP
+            && w.children
+                .first()
+                .is_some_and(|t| letters.contains(t.text.as_str()))
+    };
+    let mut best: Option<(usize, Binding)> = None;
+    for w in wants
+        .iter()
+        .filter(|w| !bare(w))
+        .chain(wants.iter().filter(|w| bare(w)))
+    {
+        let Some(at) = supply(
+            std::slice::from_ref(w),
+            facts,
+            &Binding::new(),
+            letters,
+            library,
+            &sites,
+            true,
+        ) else {
+            continue;
+        };
+        if !letters.iter().all(|l| at.contains_key(l.as_str())) {
+            continue;
+        }
+        let count = wants
+            .iter()
+            .filter(|w| holds_at(w, &at, facts, library, known))
+            .count();
+        if best.as_ref().is_none_or(|(most, _)| count > *most) {
+            best = Some((count, at));
+        }
+    }
+    best.map(|(_, at)| at)
+}
+
+/// The value an exhibit shows, as `check_exhibit` accepts one: the value
+/// `exhibit_value` reads, where the facts state each part, and otherwise
+/// the value the most parts are said of where every part holds there
+/// (`holds_at`). None where the exhibit shows no value.
+fn shown_value(
+    ex: &Exhibited,
+    facts: &[Node],
+    library: &Library,
+    known: &Known,
+) -> Option<Binding> {
+    exhibit_value(ex, facts, library, known).or_else(|| {
+        most_said_value(ex, facts, library, known).filter(|at| {
+            ex.wants
+                .iter()
+                .all(|w| holds_at(w, at, facts, library, known))
+        })
+    })
+}
+
 /// The values each exhibit step shows, by the line the step is on: for each
 /// sentence of its claim, the value each letter of its "there is" stands
 /// for, as `check_exhibit` reads it; None for a sentence that is no "there
@@ -3334,7 +3373,7 @@ pub fn exhibit_values(
                 .iter()
                 .map(|claim| {
                     exhibited(claim, library)
-                        .and_then(|ex| exhibit_value(&ex, &facts, library, known))
+                        .and_then(|ex| shown_value(&ex, &facts, library, known))
                 })
                 .collect();
             (step.line, values)

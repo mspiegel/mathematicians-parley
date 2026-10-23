@@ -1,0 +1,17 @@
+import mundane theorem    stdlib/sets/triple-members
+
+theorem an-exhibit-at-an-identity-element
+  note        The value 1 is shown by a line that leaves it out, b + T being
+              b + 1·T: the checker reads the value so, and the build exhibits
+              the value the checker read.
+  let b ∈ ℂ                                                           (H1)
+  let T ∈ ℂ                                                           (H2)
+  let x ∈ ℂ                                                           (H3)
+  assume x = b + T                                                    (H4)
+  then there is r ∈ {1, 2, 3} with x = b + r·T
+
+1.  1 ∈ {1, 2, 3}
+    mun:triple-members
+
+2.  there is r ∈ {1, 2, 3} with x = b + r·T
+    exhibit, from H4, 1
