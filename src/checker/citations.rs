@@ -2685,6 +2685,14 @@ pub(super) fn defined_functions<'d>(
     functions
 }
 
+/// Whether a requires line claims `f is a function on A`, the one fact a
+/// define it names gives without a line saying it.
+fn claims_function_on(req: &Requires, known: &Known) -> bool {
+    known
+        .whole_as_written(&req.fact)
+        .is_some_and(|claim| claim.notation() == FUNCTION_ON)
+}
+
 /// Why a requires line `f is a function on A`, from a define it names, is
 /// not given by it: a define gives a function on the one domain it writes,
 /// as a map of one argument, which the build proves it on (`define_on`), so
@@ -3880,11 +3888,14 @@ pub fn check_from_lines(
             // it, or as the build proves the line from them alone
             // (`from_lines_give`, `ELABORATION.md`, R2): never from a type
             // in scope the line does not name. A define giving its function
-            // is read apart, by `check_function_types`.
-            let names_a_define =
-                req.lines().iter().any(|r| defines.contains(r.as_str()));
+            // on its domain is read apart, by `function_on_unshown`; any
+            // other fact a line naming a define claims is read from its
+            // lines, as the build reads it.
+            let define_gives_function_on =
+                req.lines().iter().any(|r| defines.contains(r.as_str()))
+                    && claims_function_on(req, known);
             if !read_off(&[]) {
-                if names_a_define {
+                if define_gives_function_on {
                     if let Some(why) = function_on_unshown(thm, req, known, scopes) {
                         report.say(
                             &thm.path,

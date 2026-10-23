@@ -950,7 +950,7 @@ impl<'a> Elaborator<'a> {
     ///
     /// `facts` are the scope's whole, which holds its copy of the define's
     /// line; `settle` keeps of them what the step may rest on.
-    fn map_into(
+    pub(super) fn map_into(
         &mut self,
         wanted: &Term,
         scope: &Rpn,
@@ -1758,11 +1758,20 @@ impl<'a> Elaborator<'a> {
                 return Ok(None);
             };
             let first = proof.last() == label;
-            let mut fold = discharge(joins[i], first);
-            if joins[i] == Join::Iff && backwards {
-                fold = if first { "sylibr" } else { "mpbird" };
-            }
-            proof = pf!(self.b; scope, self.rpn(&asks), rest, under, proof, fold);
+            let asked = self.rpn(&asks);
+            proof = match (joins[i] == Join::Iff && backwards, first) {
+                // `sylibr` takes what is asked before what is concluded, as
+                // the forward discharges do.
+                (true, true) => pf!(self.b; scope, asked, rest, under, proof, "sylibr"),
+                // `mpbird` concludes its first letter from its second.
+                (true, false) => {
+                    pf!(self.b; scope, rest, asked, under, proof, "mpbird")
+                }
+                (false, _) => {
+                    let fold = discharge(joins[i], first);
+                    pf!(self.b; scope, asked, rest, under, proof, fold)
+                }
+            };
         }
         Ok(Some(proof))
     }
@@ -1922,11 +1931,11 @@ impl<'a> Elaborator<'a> {
         // is not. What changed comes first, old beside new, then the rest.
         let head = wrap.clone().unwrap_or_else(|| label.clone());
         let spelt_now = applied(&now, label, wrap.as_deref());
-        if head == "csu" && slots.contains(&1) {
+        if (head == "csu" || head == "cprod") && slots.contains(&1) {
             let by_slot: IndexMap<usize, Proof> =
                 slots.iter().copied().zip(deeper.iter().cloned()).collect();
             return self
-                .summand_changed(scope, &was, &now, &by_slot)
+                .summand_changed(&head, scope, &was, &now, &by_slot)
                 .map(|p| (spelt_now, p));
         }
         // A map or an indexed union over another domain: `mpteq1d` and
@@ -1948,6 +1957,34 @@ impl<'a> Elaborator<'a> {
                     lemma,
                     &binds! {"ph" => scope, "x" => &was[0], "A" => &was[1], "B" => &now[1], "C" => &was[2]},
                     &deeper.iter().collect::<Vec<_>>(),
+                ),
+            ));
+        }
+        // A "for all", a "there is" or a set-builder over another domain, its
+        // body maybe changing too: the lemmas take the body and the letter
+        // before the domains, so their parts are given by name, as
+        // `congruence` gives them.
+        if matches!(head.as_str(), "wral" | "wrex" | "crab") && slots == [2] {
+            let lemma =
+                rules::congruence(&head, &[2]).expect("a congruence for a domain");
+            return Built((
+                spelt_now,
+                self.b.ap(
+                    lemma,
+                    &binds! {"ph" => scope, "ps" => &was[0], "x" => &was[1], "A" => &was[2], "B" => &now[2]},
+                    &[&deeper[0]],
+                ),
+            ));
+        }
+        if matches!(head.as_str(), "wral" | "wrex") && slots == [0, 2] {
+            let lemma = rules::congruence(&head, &[0, 2])
+                .expect("a congruence for a domain and a body");
+            return Built((
+                spelt_now,
+                self.b.ap(
+                    lemma,
+                    &binds! {"ph" => scope, "ps" => &was[0], "ch" => &now[0], "x" => &was[1], "A" => &was[2], "B" => &now[2]},
+                    &[&deeper[1], &deeper[0]],
                 ),
             ));
         }
@@ -1997,25 +2034,32 @@ impl<'a> Elaborator<'a> {
         Built((spelt_now, self.b.proof(&all)))
     }
 
-    /// A sum rewritten where its summand changes, and its range maybe.
+    /// A sum or a product rewritten where its term changes, and its range
+    /// maybe; `head` is `csu` or `cprod`.
     ///
     /// `sumeq2sdv` rewrites the summand from an equation with no index in
     /// it, which set.mm lets it do only where the scope does not mention the
     /// index. The range, where it changes too, is rewritten first by
-    /// `sumeq1d`, and `eqtrd` joins the two.
+    /// `sumeq1d`, and `eqtrd` joins the two. A product is rewritten the same
+    /// way by `prodeq2sdv` and `prodeq1d`.
     fn summand_changed(
         &self,
+        head: &str,
         scope: &Rpn,
         was: &[Rpn],
         now: &[Rpn],
         proofs: &IndexMap<usize, Proof>,
     ) -> Route<Proof> {
+        let (term_law, range_law) = match head {
+            "cprod" => ("prodeq2sdv", "prodeq1d"),
+            _ => ("sumeq2sdv", "sumeq1d"),
+        };
         let (limits, summand, index) = (&was[0], &was[1], &was[2]);
         if index.alone().is_some_and(|i| scope.has(i)) {
             return Route::no("the scope mentions the index the sum binds");
         }
         let rewritten = self.b.ap(
-            "sumeq2sdv",
+            term_law,
             &binds! {"ph" => scope, "A" => &now[0], "B" => summand, "C" => &now[1], "k" => index},
             &[&proofs[&1]],
         );
@@ -2023,14 +2067,14 @@ impl<'a> Elaborator<'a> {
             return Built(rewritten);
         };
         let moved = self.b.ap(
-            "sumeq1d",
+            range_law,
             &binds! {"ph" => scope, "A" => limits, "B" => &now[0], "C" => summand, "k" => index},
             &[first],
         );
         Built(self.b.ap(
             "eqtrd",
-            &binds! {"ph" => scope, "A" => t!(limits, summand, index, "csu"),
-            "B" => t!(now[0], summand, index, "csu"), "C" => t!(now[0], now[1], index, "csu")},
+            &binds! {"ph" => scope, "A" => t!(limits, summand, index, head),
+            "B" => t!(now[0], summand, index, head), "C" => t!(now[0], now[1], index, head)},
             &[&moved, &rewritten],
         ))
     }
@@ -3094,7 +3138,9 @@ impl<'a> Elaborator<'a> {
         if label == "wrex" && spelt[1] != theirs[1] {
             return false;
         }
-        if label == "csu" && spelt[1] != theirs[1] {
+        // A sum's term, or a product's factor, is carried under its index
+        // as `congruence` carries it.
+        if (label == "csu" || label == "cprod") && spelt[1] != theirs[1] {
             return spelt[0] == theirs[0] && spelt[2] == theirs[2];
         }
         let mut places = spelt.len();

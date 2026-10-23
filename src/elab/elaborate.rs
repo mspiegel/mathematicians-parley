@@ -4848,6 +4848,7 @@ impl<'a> Elaborator<'a> {
         let labels = self.cited_labels(step, item)?;
         let seed = self.filling(step, item)?;
         let facts = &self.with_reflexive(step, item, scope, facts)?;
+        let facts = &self.with_defined_types(step, item, scope, facts)?;
         match self
             .by_clause_or_instance(item, &labels, term, scope, facts, step, &seed)?
         {
@@ -4908,6 +4909,49 @@ impl<'a> Elaborator<'a> {
                     self.b
                         .ap("eqidd", &binds! {"ph" => scope, "A" => &side}, &[]);
                 self.know(&out, equation, proof);
+            }
+        }
+        Ok(out)
+    }
+
+    /// `facts` with each type `f : X → Y` that `item` asks of a function
+    /// the citation fills with a define's, where the page says it once: the
+    /// define's rule is in Y at every point of X (`map_into`, `SYNTAX.md`, "A
+    /// define with a parameter also states what its function is on"). It is
+    /// proved here, where the define's line is in hand, so that the lemma's
+    /// own hypotheses, a value f(a) ∈ ℂ, may be settled from it as from a
+    /// line.
+    fn with_defined_types(
+        &mut self,
+        step: &Step,
+        item: &'a Record,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Facts> {
+        let out = facts.copy();
+        let written: NodeBinding = self
+            .cited_here(step, &item.qualified())?
+            .written
+            .into_iter()
+            .collect();
+        let library = self.item_library();
+        for tree in library.function_types(&item.qualified()) {
+            // A type whose sets the citation leaves to the match, as
+            // `product-termwise` leaves its functions' domains, names no
+            // define's domain to prove it over.
+            let unfilled = tree
+                .walk()
+                .iter()
+                .any(|n| n.is_name() && !written.contains_key(&n.text));
+            if unfilled {
+                continue;
+            }
+            let said = filled(&tree, &written, &library.ctx);
+            let typed = self.in_its_names(Item::Record(item), |me| me.term(&said))?;
+            if let Some(proof) =
+                self.map_into(&self.to_term(&typed), scope, facts, 3)?
+            {
+                self.know(&out, typed, proof);
             }
         }
         Ok(out)

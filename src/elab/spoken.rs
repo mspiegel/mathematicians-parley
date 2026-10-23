@@ -17,7 +17,7 @@ use indexmap::IndexMap;
 
 use crate::formula::notation_id::Spelling;
 use crate::formula::page::{read_back, Sentence};
-use crate::formula::{wanted_reading, Node, Sort};
+use crate::formula::{wanted_reading, Grammar, Node, Notation, Sort, Whole};
 use crate::mm::kernel::Term;
 use crate::mm::Rpn;
 use crate::notations::{APPLICATION, APPLICATION_TO_TWO, SUPERSCRIPT};
@@ -34,6 +34,25 @@ enum Pattern {
     Hole(usize),
     Apply(String, Vec<Pattern>),
     Fixed(Rpn),
+}
+
+/// The sort the pattern's `sort` line gives the letter it binds: in full
+/// where it names no sort variable, and otherwise by its category alone, as
+/// the page reads the f "there is f : X → Y" binds where X and Y say
+/// nothing of their members: a function.
+fn bound_sort(n: &Notation) -> Sort {
+    let held = n.binds.as_ref().and_then(|b| b.held.first().copied());
+    let said = n.sort.as_deref().and_then(|line| {
+        let holes = line.split('→').next()?;
+        holes.split(',').nth(held?).map(str::trim)
+    });
+    let Some(said) = said else {
+        return Sort::none();
+    };
+    Whole::read(said)
+        .and_then(Sort::whole)
+        .or_else(|| said.split_whitespace().next().map(Sort::of))
+        .unwrap_or_else(Sort::none)
 }
 
 /// The digits of a numeral as set.mm writes it: a digit's label, or
@@ -60,6 +79,35 @@ struct Reading {
     /// of.
     spelling: Spelling,
     applies: Option<String>,
+    /// Where the pattern joins two neighbouring holes into a set the page
+    /// never writes alone (`Grammar::joined_by`).
+    joined: Option<Joined>,
+}
+
+/// Two neighbouring holes a pattern joins into one set: the first of them,
+/// counted from 0, the set's notation, the notation of the node the pattern
+/// builds, which is the one it spells, and the sort of the set's members,
+/// which a letter running over it has.
+#[derive(Clone)]
+struct Joined {
+    first: usize,
+    by: Spelling,
+    node: Spelling,
+    member: Sort,
+}
+
+impl Reading {
+    /// The pattern this reading is written by: the plain one of its
+    /// spelling, or the one joining a set.
+    fn pattern<'g>(&self, g: &'g Grammar) -> Option<&'g Notation> {
+        g.written_by(self.spelling)
+            .or_else(|| g.joined_by(self.spelling))
+    }
+
+    /// The spelling of the node this reading builds.
+    fn node_spelling(&self) -> Spelling {
+        self.joined.as_ref().map_or(self.spelling, |j| j.node)
+    }
 }
 
 /// A reading of the grammar's, with where it stands among them, the order
@@ -184,6 +232,7 @@ impl Elaborator<'_> {
                     target: f.builds.clone(),
                     spelling,
                     applies: Some(f.name.clone()),
+                    joined: None,
                 },
                 place: table.len(),
                 list: None,
@@ -197,7 +246,21 @@ impl Elaborator<'_> {
                 else {
                     continue;
                 };
-                let Some(written) = self.g.written_by(spelling) else {
+                let reading = Reading {
+                    target: target.clone(),
+                    spelling,
+                    applies: None,
+                    joined: self.g.joined_by(spelling).and_then(|n| {
+                        let j = n.joins.as_ref()?;
+                        Some(Joined {
+                            first: j.first - 1,
+                            by: j.by.spelling,
+                            node: n.spelling(),
+                            member: bound_sort(n),
+                        })
+                    }),
+                };
+                let Some(written) = reading.pattern(self.g) else {
                     continue;
                 };
                 let list = written.repeat.as_ref().and_then(|r| {
@@ -209,11 +272,7 @@ impl Elaborator<'_> {
                     })
                 });
                 table.push(Ranked {
-                    reading: Reading {
-                        target: target.clone(),
-                        spelling,
-                        applies: None,
-                    },
+                    reading,
                     place: table.len(),
                     list,
                 });
@@ -323,7 +382,7 @@ impl Elaborator<'_> {
             all.into_iter().map(|(_, r)| r).collect()
         };
         for r in readings {
-            let written = self.g.written_by(r.spelling);
+            let written = r.pattern(self.g);
             let wanted = written.and_then(|n| n.wanted.as_deref());
             if wanted.is_some() && wanted != want {
                 continue;
@@ -345,19 +404,25 @@ impl Elaborator<'_> {
             // sort its domain's elements have where a hole holds one.
             let binding_at: Vec<usize> = self
                 .binders
-                .get(&r.spelling.notation)
+                .get(&r.node_spelling().notation)
                 .into_iter()
                 .flatten()
                 .copied()
                 .collect();
-            let domain_holds = holes
-                .iter()
-                .enumerate()
-                .filter(|(at, _)| !binding_at.contains(at))
-                .filter_map(|(_, h)| self.page_node_under(h, bound, None))
-                .filter(Node::is_name)
-                .find_map(|n| self.sorts_now.get(n.text.as_str()).and_then(Sort::held))
-                .unwrap_or_else(Sort::none);
+            // Over a set two holes join, the letter is a member of it.
+            let domain_holds = match &r.joined {
+                Some(j) => j.member.clone(),
+                None => holes
+                    .iter()
+                    .enumerate()
+                    .filter(|(at, _)| !binding_at.contains(at))
+                    .filter_map(|(_, h)| self.page_node_under(h, bound, None))
+                    .filter(Node::is_name)
+                    .find_map(|n| {
+                        self.sorts_now.get(n.text.as_str()).and_then(Sort::held)
+                    })
+                    .unwrap_or_else(Sort::none),
+            };
             let mut inner = bound.clone();
             for at in &binding_at {
                 if let Some(letter) = holes
@@ -380,7 +445,13 @@ impl Elaborator<'_> {
             if let Some(name) = &r.applies {
                 children.insert(0, Node::name(Sort::none(), name));
             }
-            let node = Node::of(r.spelling, Sort::none(), children);
+            // Two holes the pattern joins are one set in the node, where the
+            // first of them stood, as the page reads them.
+            if let Some(j) = &r.joined {
+                let parts: Vec<Node> = children.drain(j.first..j.first + 2).collect();
+                children.insert(j.first, Node::of(j.by, Sort::none(), parts));
+            }
+            let node = Node::of(r.node_spelling(), Sort::none(), children);
             // A reading is the page's only where the page reads it back as
             // itself: |xc| is a distance between points, and of two numbers
             // the page reads nothing, so |x − c| is the reading.

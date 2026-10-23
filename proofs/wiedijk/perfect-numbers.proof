@@ -1,20 +1,48 @@
 import theorem            stdlib/divisibility/sigma-multiplicative
 import theorem            stdlib/divisibility/sigma-prime
 import theorem            stdlib/divisibility/sigma-prime-power
+import theorem            stdlib/divisibility/sigma-part
 import theorem            proofs/wiedijk/geometric-series/geometric-sum
+import theorem            stdlib/divisibility/coprime-divides
+import mundane theorem    stdlib/divisibility/coprime-power
+import mundane definition stdlib/divisibility/divides
 import mundane theorem    stdlib/divisibility/divides-difference
+import mundane theorem    stdlib/divisibility/divides-le
 import mundane theorem    stdlib/divisibility/divides-multiple
 import mundane theorem    stdlib/divisibility/divides-one
+import mundane theorem    stdlib/divisibility/divides-quotient
 import mundane theorem    stdlib/divisibility/divides-self
+import mundane definition stdlib/divisibility/even
+import mundane theorem    stdlib/divisibility/even-or-odd
 import mundane definition stdlib/divisibility/gcd
 import mundane theorem    stdlib/divisibility/gcd-commutes
+import mundane theorem    stdlib/divisibility/not-both
+import mundane theorem    stdlib/divisibility/odd-not-divisible
+import mundane theorem    stdlib/divisibility/one-divides
 import mundane definition stdlib/divisibility/prime
 import mundane theorem    stdlib/divisibility/prime-coprime
 import mundane theorem    stdlib/divisibility/prime-nat
+import mundane theorem    stdlib/divisibility/sigma-nat
 import mundane theorem    stdlib/divisibility/two-prime
 import mundane theorem    stdlib/numbers/exponent-step
+import mundane theorem    stdlib/numbers/factor-positive
+import mundane theorem    stdlib/numbers/integer-step
+import mundane theorem    stdlib/numbers/multiply-cancel
 import mundane theorem    stdlib/numbers/nat-minus-one
+import mundane theorem    stdlib/numbers/nat0-nonzero
+import mundane theorem    stdlib/numbers/nat0-successor
+import mundane theorem    stdlib/numbers/pos-int-nat
 import mundane theorem    stdlib/numbers/power-nat
+import mundane theorem    stdlib/numbers/power-order
+import mundane theorem    stdlib/numbers/product-positive
+import mundane axiom      stdlib/reasoning/excluded-middle
+import mundane theorem    stdlib/reasoning/or-left
+import mundane theorem    stdlib/reasoning/or-right
+import mundane definition stdlib/sets/set-builder
+import mundane theorem    stdlib/sets/triple-subset
+import mundane theorem    stdlib/sums/range-bounds
+import mundane definition stdlib/sums/range-between
+import mundane theorem    stdlib/sums/sum-of-three
 import definition         stdlib/divisibility/perfect
 import definition         stdlib/divisibility/σ
 
@@ -155,3 +183,486 @@ theorem euclid-perfect
     requires p − 1 ∈ ℕ₀: mun:nat-minus-one n := p
     requires 2^(p − 1) ∈ ℕ: mun:power-nat a := 2, m := p − 1
     requires 2^p − 1 ∈ ℕ: mun:prime-nat p := 2^p − 1, from H2
+
+theorem odd-part
+  note        Every natural number is a power of 2 times an odd number. An
+              odd number is 2^0 times itself, and an even number is twice a
+              smaller one, which is a power of 2 times an odd number by
+              induction, with the power one higher.
+  let n ∈ ℕ                                                           (H1)
+  then there is k ∈ ℕ₀ with there is m ∈ ℕ with m is odd and n = 2^k·m
+
+1.  For all N ∈ ℕ₀, for all j ∈ {1, …, N}, there is k ∈ ℕ₀ with there is m ∈ ℕ with m is odd and j = 2^k·m.
+    induction on N starting at 0
+
+    base
+    1.1.  For all j ∈ {1, …, 0}, there is k ∈ ℕ₀ with there is m ∈ ℕ with m is odd and j = 2^k·m.
+          proof
+          let j ∈ {1, …, 0}                                           (K1)
+
+          1.1.1.  1 ≤ j
+                  mun:range-bounds a := 1, b := 0, k := j, from K1
+
+          1.1.2.  j ≤ 0
+                  mun:range-bounds a := 1, b := 0, k := j, from K1
+
+          1.1.3.  not j ≤ 0
+                  inequalities, from 1.1.1, contradicting 1.1.2
+
+    step
+    let N ∈ ℕ₀                                                        (K2)
+    assume step 1 is true for N, the induction hypothesis             (IH)
+
+    1.2.  For all j ∈ {1, …, N + 1}, there is k ∈ ℕ₀ with there is m ∈ ℕ with m is odd and j = 2^k·m.
+          proof
+          let j ∈ {1, …, N + 1}                                       (K3)
+
+          1.2.1.  1 ≤ j
+                  mun:range-bounds a := 1, b := N + 1, k := j, from K3
+
+          1.2.2.  j ≤ N + 1
+                  mun:range-bounds a := 1, b := N + 1, k := j, from K3
+
+          1.2.3.  j is even or j is odd
+                  mun:even-or-odd n := j
+
+          1.2.4.  There is k ∈ ℕ₀ with there is m ∈ ℕ with m is odd and j = 2^k·m.
+                  cases, from 1.2.3
+
+                  case
+                  note j is twice a smaller number, which has the form already
+                  assume j is even                                    (C1)
+
+                  1.2.4.1.   i ∈ ℤ. j = 2i.
+                             obtain i: mun:even n := j, from C1
+
+                  1.2.4.2.   1 ≤ 2i
+                             substitute j = 2i (line 1.2.4.1) into line 1.2.1
+
+                  1.2.4.3.   0 < i
+                             mun:factor-positive a := 2, b := i
+                             requires 2 ≥ 0: arithmetic
+                             requires 2·i > 0: inequalities, from 1.2.4.2
+
+                  1.2.4.4.   i ∈ ℕ
+                             mun:pos-int-nat m := i, from 1.2.4.3
+
+                  1.2.4.5.   i < 2i
+                             inequalities
+                               0 < i                1.2.4.3
+                               i < i + i            adding i
+                               i < 2i               algebra
+
+                  1.2.4.6.   i < N + 1
+                             transitivity, from 1.2.4.5, 1.2.4.1, 1.2.2
+
+                  1.2.4.7.   i + 1 ≤ N + 1
+                             mun:integer-step m := i, n := N + 1, from 1.2.4.6
+
+                  1.2.4.8.   i ≤ N
+                             inequalities
+                               i + 1 ≤ N + 1        1.2.4.7
+                               i ≤ N                adding −1
+
+                  1.2.4.9.   i ∈ {1, …, N}
+                             mun:range-between k := i, a := 1, b := N, from 1.2.4.8
+                             requires 1 ≤ i: inequalities, from 1.2.4.4
+
+                  1.2.4.10.  There is k ∈ ℕ₀ with there is m ∈ ℕ with m is odd and i = 2^k·m.
+                             instantiate j := i in IH, from 1.2.4.9
+
+                  1.2.4.11.  k ∈ ℕ₀. m ∈ ℕ. m is odd. i = 2^k·m.
+                             obtain k, m from line 1.2.4.10
+
+                  1.2.4.12.  2^(k + 1) = 2^k·2
+                             mun:exponent-step a := 2, m := k
+
+                  1.2.4.13.  j = 2^(k + 1)·m
+                             algebra, from 1.2.4.1, 1.2.4.11, 1.2.4.12
+
+                  1.2.4.14.  There is k ∈ ℕ₀ with there is m ∈ ℕ with m is odd and j = 2^k·m.
+                             exhibit, from 1.2.4.11, 1.2.4.13
+
+                  case
+                  note j is 2^0 times itself
+                  assume j is odd                                     (C2)
+
+                  1.2.4.15.  j = 2^0·j
+                             algebra
+
+                  1.2.4.16.  There is k ∈ ℕ₀ with there is m ∈ ℕ with m is odd and j = 2^k·m.
+                             exhibit, from C2, 1.2.4.15
+
+2.  For all j ∈ {1, …, n}, there is k ∈ ℕ₀ with there is m ∈ ℕ with m is odd and j = 2^k·m.
+    instantiate N := n in line 1
+
+3.  n ∈ {1, …, n}
+    mun:range-between k := n, a := 1, b := n
+    requires 1 ≤ n: inequalities, from H1
+    requires n ≤ n: inequalities
+
+4.  There is k ∈ ℕ₀ with there is m ∈ ℕ with m is odd and n = 2^k·m.
+    instantiate j := n in line 2, from 3
+
+theorem three-divisors
+  note        1, e and m are three different divisors of m, and σ(m) sums
+              all of them, so it is at least their sum.
+  let m ∈ ℕ                                                           (H1)
+  let e ∈ ℕ                                                           (H2)
+  assume e divides m                                                  (H3)
+  assume 1 < e                                                        (H4)
+  assume e < m                                                        (H5)
+  then σ(m) ≥ 1 + e + m
+
+1.  1 divides m
+    mun:one-divides n := m
+
+2.  m divides m
+    mun:divides-self n := m
+
+3.  1 ∈ {d ∈ ℕ : d divides m}
+    mun:set-builder u := 1, from 1
+
+4.  e ∈ {d ∈ ℕ : d divides m}
+    mun:set-builder u := e, from H3
+
+5.  m ∈ {d ∈ ℕ : d divides m}
+    mun:set-builder u := m, from 2
+
+6.  {1, e, m} ⊆ {d ∈ ℕ : d divides m}
+    mun:triple-subset, from 3, 4, 5
+
+7.  Σ(d ∈ {1, e, m}) d ≤ σ(m)
+    thm:sigma-part n := m, Y := {1, e, m}, from 6
+
+8.  1 < m
+    transitivity, from H4, H5
+
+9.  Σ(d ∈ {1, e, m}) d = 1 + e + m
+    mun:sum-of-three a := 1, b := e, c := m
+    requires 1 ≠ e: weakening, from H4
+    requires 1 ≠ m: weakening, from 8
+    requires e ≠ m: weakening, from H5
+
+10. σ(m) ≥ 1 + e + m
+    calculation
+      σ(m) ≥ Σ(d ∈ {1, e, m}) d            7
+           = 1 + e + m                      9
+
+theorem euler-perfect
+  metamath    perfect
+  note        Write the number as 2^k·m with m odd. σ multiplies, so
+              (2^(k + 1) − 1)·σ(m) = 2^(k + 1)·m, and 2^(k + 1) − 1 divides
+              m, say m = (2^(k + 1) − 1)·c. Then σ(m) = m + c, and m has no
+              divisor beyond 1, c and m; so c = 1, and m = 2^(k + 1) − 1 has
+              no divisor but 1 and itself.
+  let n ∈ ℕ                                                           (H1)
+  assume n is even                                                    (H2)
+  assume n is perfect                                                 (H3)
+  then there is p ∈ ℕ with 2^p − 1 is prime and n = 2^(p − 1)·(2^p − 1)
+
+1.  k ∈ ℕ₀. m ∈ ℕ. m is odd. n = 2^k·m.
+    obtain k, m: thm:odd-part
+
+2.  k ≠ 0
+    contradiction
+    suppose k = 0                                                     (S1)
+
+    2.1.  n = 2^0·m
+          substitute k = 0 (S1) into line 1
+
+    2.2.  2^0·m = m
+          algebra
+
+    2.3.  n = m
+          calculation
+            n = 2^0·m       2.1
+              = m           2.2
+
+    2.4.  n is odd
+          substitute n = m (line 2.3) into line 1
+
+    2.5.  n is not odd
+          mun:not-both, from H2, contradicting 2.4
+
+3.  k ∈ ℕ
+    mun:nat0-nonzero m := k, from 2
+
+let p = k + 1, a positive integer                                     (D1)
+    mun:nat0-successor
+    reads the exponent of 2 in the prime 2^p − 1
+
+4.  1 < p
+    inequalities, from D1, 3
+
+5.  2^1 < 2^p
+    mun:power-order a := 2, m := 1, n := p, from 4
+    requires 2 > 1: arithmetic
+
+6.  2^p − 1 > 1
+    inequalities, from 5
+
+7.  2^p − 1 ∈ ℕ
+    mun:pos-int-nat
+    requires 0 < 2^p − 1: inequalities, from 6
+
+8.  2^p = 2^k·2
+    mun:exponent-step a := 2, m := k, from D1
+
+9.  not (2 divides 2^p − 1)
+    contradiction
+    suppose 2 divides 2^p − 1                                         (S2)
+
+    9.1.  2 divides 2
+          mun:divides-self n := 2
+
+    9.2.  2 divides 2·2^k
+          mun:divides-multiple e := 2, a := 2, x := 2^k, from 9.1
+
+    9.3.  2·2^k = 2^p
+          algebra, from 8
+
+    9.4.  2 divides 2^p
+          substitute 2·2^k = 2^p (line 9.3) into line 9.2
+
+    9.5.  2 divides 2^p − (2^p − 1)
+          mun:divides-difference d := 2, a := 2^p, b := 2^p − 1, from S2, 9.4
+
+    9.6.  2^p − (2^p − 1) = 1
+          algebra
+
+    9.7.  2 divides 1
+          substitute 2^p − (2^p − 1) = 1 (line 9.6) into line 9.5
+
+    9.8.  2 = 1, which is impossible
+          mun:divides-one d := 2, from 9.7
+
+10. gcd(2, 2^p − 1) = 1
+    mun:prime-coprime p := 2, a := 2^p − 1, from 9
+    requires 2 is prime: mun:two-prime
+
+11. gcd(2^p, 2^p − 1) = 1
+    mun:coprime-power a := 2, b := 2^p − 1, k := p, from 10
+
+12. gcd(2, m) = 1
+    mun:prime-coprime p := 2, a := m
+    requires 2 is prime: mun:two-prime
+    requires not (2 divides m): mun:odd-not-divisible n := m, from 1
+
+13. gcd(2^k, m) = 1
+    mun:coprime-power a := 2, b := m, from 12
+
+14. σ(2^k·m) = σ(2^k)·σ(m)
+    thm:sigma-multiplicative m := 2^k, n := m, from 13
+
+15. σ(2^k) = Σ(j = 0 to k) 2^j
+    thm:sigma-prime-power p := 2
+    requires 2 is prime: mun:two-prime
+
+16. Σ(j = 0 to k) 2^j = (1 − 2^(k + 1))/(1 − 2)
+    thm:geometric-sum a := 2, n := k
+    requires 2 ≠ 1: arithmetic
+
+17. (1 − 2^(k + 1))/(1 − 2) = 2^p − 1
+    algebra, from D1
+    requires 2^(k + 1) ∈ ℕ: mun:power-nat a := 2, m := k + 1
+
+18. σ(2^k) = 2^p − 1
+    calculation
+      σ(2^k) = Σ(j = 0 to k) 2^j               15
+             = (1 − 2^(k + 1))/(1 − 2)         16
+             = 2^p − 1                         17
+
+19. σ(n) = 2n
+    def:perfect, from H3
+
+20. σ(n) = σ(2^k·m)
+    substitute n = 2^k·m (line 1)
+
+21. σ(2^k)·σ(m) = (2^p − 1)·σ(m)
+    substitute σ(2^k) = 2^p − 1 (line 18)
+
+22. 2n = 2^p·m
+    algebra, from 1, 8
+
+23. (2^p − 1)·σ(m) = 2^p·m
+    calculation
+      (2^p − 1)·σ(m) = σ(2^k)·σ(m)       21
+                     = σ(2^k·m)           14
+                     = σ(n)               20
+                     = 2n                 19
+                     = 2^p·m              22
+
+24. σ(m) ∈ ℕ
+    mun:sigma-nat n := m
+
+25. m·2^p = (2^p − 1)·σ(m)
+    algebra, from 23
+    requires σ(m) ∈ ℝ: from 24
+
+26. 2^p − 1 divides m·2^p
+    mun:divides d := 2^p − 1, n := m·2^p, from 24, 25
+
+27. 2^p − 1 divides m
+    thm:coprime-divides x := m, c := 2^p, n := 2^p − 1, from 7, 11, 26
+
+let c = m/(2^p − 1), a positive integer                               (D2)
+    mun:divides-quotient n := m, d := 2^p − 1, from 7, 27
+    reads m with the factor 2^p − 1 taken out
+
+28. m = (2^p − 1)·c
+    algebra, from D2
+    requires 2^p − 1 ≠ 0: from 7
+
+29. σ(m)·(2^p − 1) = (2^p·c)·(2^p − 1)
+    algebra, from 23, 28
+    requires σ(m) ∈ ℝ: from 24
+
+30. σ(m) = 2^p·c
+    mun:multiply-cancel a := σ(m), b := 2^p·c, c := 2^p − 1, from 29
+    requires σ(m) ∈ ℝ: from 24
+    requires 2^p − 1 ≠ 0: from 7
+
+31. 2^p·c = m + c
+    algebra, from 28
+
+32. σ(m) = m + c
+    calculation
+      σ(m) = 2^p·c       30
+           = m + c       31
+
+33. c = 1
+    contradiction
+    note were c more than 1, m would have the three divisors 1, c and m
+    suppose c ≠ 1                                                     (S3)
+
+    33.1.  2^p − 1 − 1 > 0
+           inequalities, from 6
+
+    33.2.  (2^p − 1 − 1)·c > 0
+           mun:product-positive x := 2^p − 1 − 1, y := c, from D2, 33.1
+
+    33.3.  (2^p − 1 − 1)·c = m − c
+           algebra, from 28
+
+    33.4.  m − c > 0
+           substitute (2^p − 1 − 1)·c = m − c (line 33.3) into line 33.2
+
+    33.5.  c < m
+           inequalities
+             m − c > 0        33.4
+             m > c            adding c
+             c < m            symmetry
+
+    33.6.  1 < c
+           inequalities, from D2, S3
+           requires 2^p − 1 ≠ 0: from 7
+
+    33.7.  m = c·(2^p − 1)
+           algebra, from 28
+
+    33.8.  c divides m
+           mun:divides d := c, n := m, from 33.7
+
+    33.9.  σ(m) ≥ 1 + c + m
+           thm:three-divisors e := c, from 33.5, 33.6, 33.8
+
+    33.10. 1 + c + m ≤ m + c
+           transitivity, from 33.9, 32
+
+    33.11. 1 ≤ 0, which is impossible
+           inequalities
+             1 + c + m ≤ m + c        33.10
+             1 ≤ 0                    adding −c − m
+
+34. m = 2^p − 1
+    substitute c = 1 (line 33) into line 28
+
+35. σ(m) = m + 1
+    substitute c = 1 (line 33) into line 32
+
+36. For all d ∈ ℕ, if d divides m then d = 1 or d = m.
+    proof
+    note a divisor other than 1 and m would make σ(m) more than m + 1
+    let d ∈ ℕ                                                         (K1)
+    assume d divides m                                                (A1)
+
+    36.1.  d = 1 or d ≠ 1
+           mun:excluded-middle P := d = 1
+
+    36.2.  d = 1 or d = m
+           cases, from 36.1
+
+           case
+           assume d = 1                                               (C1)
+
+           36.2.1.  d = 1 or d = m
+                    mun:or-left, from C1
+
+           case
+           assume d ≠ 1                                               (C2)
+
+           36.2.2.  d = m or d ≠ m
+                    mun:excluded-middle P := d = m
+
+           36.2.3.  d = 1 or d = m
+                    cases, from 36.2.2
+
+                    case
+                    assume d = m                                      (C3)
+
+                    36.2.3.1.  d = 1 or d = m
+                               mun:or-right, from C3
+
+                    case
+                    assume d ≠ m                                      (C4)
+
+                    36.2.3.2.  d ≤ m
+                               mun:divides-le e := d, from A1
+
+                    36.2.3.3.  1 < d
+                               inequalities, from C2, K1
+
+                    36.2.3.4.  d < m
+                               inequalities, from C4, 36.2.3.2
+
+                    36.2.3.5.  σ(m) ≥ 1 + d + m
+                               thm:three-divisors e := d, from A1, 36.2.3.3, 36.2.3.4
+
+                    36.2.3.6.  1 + d + m ≤ m + 1
+                               transitivity, from 36.2.3.5, 35
+
+                    36.2.3.7.  d ≤ 0
+                               inequalities
+                                 1 + d + m ≤ m + 1        36.2.3.6
+                                 d ≤ 0                    adding −1 − m
+
+                    36.2.3.8.  not 1 < d
+                               inequalities, from 36.2.3.7, contradicting 36.2.3.3
+
+37. m > 1
+    substitute m = 2^p − 1 (line 34) into line 6
+
+38. m is prime
+    mun:prime p := m, from 36, 37
+
+39. 2^p − 1 is prime
+    substitute m = 2^p − 1 (line 34) into line 38
+
+40. p − 1 = k
+    algebra, from D1
+
+41. 2^k·m = 2^(p − 1)·m
+    substitute p − 1 = k (line 40)
+
+42. 2^(p − 1)·m = 2^(p − 1)·(2^p − 1)
+    substitute m = 2^p − 1 (line 34)
+
+43. n = 2^(p − 1)·(2^p − 1)
+    calculation
+      n = 2^k·m                       1
+        = 2^(p − 1)·m                 41
+        = 2^(p − 1)·(2^p − 1)         42
+
+44. There is p ∈ ℕ with 2^p − 1 is prime and n = 2^(p − 1)·(2^p − 1).
+    exhibit, from 39, 43

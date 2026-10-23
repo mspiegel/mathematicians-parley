@@ -1,0 +1,43 @@
+import mundane theorem    stdlib/functions/function-into
+
+theorem a-function-exhibited-by-its-type
+  note        A "there is f : X → Y" is exhibited from a line giving the witness's type, which is its membership of the functions from X to Y.
+  let n ∈ ℕ    (H1)
+  then there is f : {1, …, n} → ℕ with for all i ∈ {1, …, n}, f(i) = 1
+
+let g(i) = 1, for i ∈ {1, …, n}    (D1)
+    reads 1 at every place
+
+1.  For all i ∈ {1, …, n}, g(i) = 1.
+    D1
+
+2.  For all i ∈ {1, …, n}, g(i) ∈ ℕ.
+    membership, from D1
+
+3.  g : {1, …, n} → ℕ
+    mun:function-into, from 2
+    requires g is a function on {1, …, n}: from D1
+
+4.  There is f : {1, …, n} → ℕ with for all i ∈ {1, …, n}, f(i) = 1.
+    exhibit, from 1, 3
+
+theorem a-function-and-its-length-exhibited
+  note        The same under a "there is" of the length, both witnesses read off the lines.
+  let n ∈ ℕ    (H1)
+  then there is k ∈ ℕ with there is f : {1, …, k} → ℕ with for all i ∈ {1, …, k}, f(i) = 1
+
+let g(i) = 1, for i ∈ {1, …, n}    (D1)
+    reads 1 at every place
+
+1.  For all i ∈ {1, …, n}, g(i) = 1.
+    D1
+
+2.  For all i ∈ {1, …, n}, g(i) ∈ ℕ.
+    membership, from D1
+
+3.  g : {1, …, n} → ℕ
+    mun:function-into, from 2
+    requires g is a function on {1, …, n}: from D1
+
+4.  There is k ∈ ℕ with there is f : {1, …, k} → ℕ with for all i ∈ {1, …, k}, f(i) = 1.
+    exhibit, from 1, 3

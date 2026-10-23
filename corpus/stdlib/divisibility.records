@@ -82,6 +82,16 @@ mundane theorem odd-not-even
               is odd" the denial of "n is even", so this statement is
               ( ph -> ph ), and the expansion never uses H1.
 
+mundane theorem odd-not-divisible
+  let n ∈ ℤ                                                           (H1)
+  assume n is odd                                                     (H2)
+  then        not (2 divides n)
+  metamath    id
+  target      id
+  note        "n is odd" is the denial of "2 divides n", as it is of "n is
+              even", so this statement is ( ph -> ph ), and the expansion
+              never uses H1.
+
 mundane theorem odd-plus-odd
   let a ∈ ℤ                                                           (H1)
   assume a is odd                                                     (H2)
@@ -559,6 +569,41 @@ theorem sigma-prime-power
   target      g1sgmppw
   note        The divisors of p^k are 1, p, …, p^k, so their sum is a
               geometric series.
+
+mundane theorem sigma-nat
+  let n ∈ ℕ                                                           (H1)
+  then        σ(n) ∈ ℕ
+  metamath    sgmnncl
+  target      sgmnncl with A := 1
+
+theorem sigma-part
+  let n ∈ ℕ                                                           (H1)
+  let Y ⊆ {d ∈ ℕ : d divides n}                                       (H2)
+  then        Σ(d ∈ Y) d ≤ σ(n)
+  metamath    fsumless over the divisors of n, a finite set by dvdsfi, with
+              sgmval2 at power 1, which this corpus proves in
+              elaboration/stdlib/proved.mm
+  target      g1sgmpart
+  note        A sum of some of the divisors of n is at most the sum of all
+              of them: leaving out numbers none of which is below 0 cannot
+              make a sum larger.
+
+mundane theorem one-divides
+  let n ∈ ℤ                                                           (H1)
+  then        1 divides n
+  metamath    1dvds
+  target      1dvds
+
+mundane theorem coprime-power
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  let k ∈ ℕ₀                                                          (H3)
+  assume gcd(a, b) = 1                                                (H4)
+  then        gcd(a^k, b) = 1
+  metamath    rpexp1i
+  target      rpexp1i
+  note        A number sharing no factor with b shares none with b in any
+              of its powers.
 
 theorem prime-powers-unique
   let a ∈ ℕ₀                                                          (H1)

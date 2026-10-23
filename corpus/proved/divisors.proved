@@ -16,12 +16,19 @@
 # and `coprimeprodsq2` ask that the two factors and the root share no
 # factor all three, which follows from the two sharing none, since
 # gcd(1, w) = 1 (`1gcd`), for `thm:stdlib/divisibility/coprime-square`.
+#
+# And a sum of some of the divisors of N is at most σ(N): `fsumless`, over
+# the divisors, a finite set by `dvdsfi`, whose members are in ℕ and so at
+# least 0, and σ(N) their sum by `g1sgmval`, for
+# `thm:stdlib/divisibility/sigma-part`.
 
 $( Divisors: the sum of the divisors of a number, and of a prime's powers,
-   and coprime factors of a square. $)
+   coprime factors of a square, and a sum of some divisors. $)
 $d k p B $.
-$d k N $.
+$d k p N $.
 $d k P $.
+$d k Y $.
+$d k ph $.
 
 # ( B e. NN -> ( 1 sigma B ) = sum_ k e. { p e. NN | p || B } k )
 lemma g1sgmval
@@ -110,4 +117,22 @@ lemma gcoprimesq2
       C ^ 2 ) = ( A x. B ) -> B = ( ( B gcd C ) ^ 2 ) ) )
   13 syl 11 12 |- ( ( ( A e. ZZ /\ B e. NN0 /\ C e. NN0 ) /\ ( A gcd B ) = 1 ) -> ( ( C ^ 2 ) = ( A
       x. B ) -> B = ( ( B gcd C ) ^ 2 ) ) )
+
+lemma g1sgmpart
+  hypothesis g1sgmpart.1 |- ( ph -> N e. NN )
+  hypothesis g1sgmpart.2 |- ( ph -> Y e. ~P { p e. NN | p || N } )
+  |- ( ph -> sum_ k e. Y k <_ ( 1 sigma N ) )
+  1 dvdsfi |- ( N e. NN -> { p e. NN | p || N } e. Fin )
+  2 syl g1sgmpart.1 1 |- ( ph -> { p e. NN | p || N } e. Fin )
+  3 elrabi |- ( k e. { p e. NN | p || N } -> k e. NN )
+  4 adantl 3 |- ( ( ph /\ k e. { p e. NN | p || N } ) -> k e. NN )
+  5 nnred 4 |- ( ( ph /\ k e. { p e. NN | p || N } ) -> k e. RR )
+  6 nnnn0d 4 |- ( ( ph /\ k e. { p e. NN | p || N } ) -> k e. NN0 )
+  7 nn0ge0d 6 |- ( ( ph /\ k e. { p e. NN | p || N } ) -> 0 <_ k )
+  8 elpwi |- ( Y e. ~P { p e. NN | p || N } -> Y C_ { p e. NN | p || N } )
+  9 syl g1sgmpart.2 8 |- ( ph -> Y C_ { p e. NN | p || N } )
+  10 fsumless 2 5 7 9 |- ( ph -> sum_ k e. Y k <_ sum_ k e. { p e. NN | p || N } k )
+  11 g1sgmval |- ( N e. NN -> ( 1 sigma N ) = sum_ k e. { p e. NN | p || N } k )
+  12 syl g1sgmpart.1 11 |- ( ph -> ( 1 sigma N ) = sum_ k e. { p e. NN | p || N } k )
+  13 breqtrrd 10 12 |- ( ph -> sum_ k e. Y k <_ ( 1 sigma N ) )
 
