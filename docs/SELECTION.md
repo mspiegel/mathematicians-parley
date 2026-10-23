@@ -19,8 +19,8 @@ statement's variables.
 
 ## State
 
-All thirty-one are written and elaborate from set.mm with nothing assumed;
-none is chosen and not yet started. Each of the thirty-one has its proof in
+All thirty-three are written and elaborate from set.mm with nothing assumed;
+none is chosen and not yet started. Each of the thirty-three has its proof in
 `proofs/wiedijk/` and its design record in `docs/pilot/`, under the same name:
 
 | # | proof | # | proof |
@@ -40,7 +40,8 @@ none is chosen and not yet started. Each of the thirty-one has its proof in
 | 25 | factor | 26 | cauchy-schwarz |
 | 27 | reals-uncountable | 28 | pythagorean-triples |
 | 29 | konigsberg | 30 | fundamental-calculus |
-| 31 | birthday | | |
+| 31 | birthday | 32 | heron |
+| 33 | ptolemy | | |
 
 Theorem 17 is Euclid's half of the Euclid–Euler theorem only; Euler's half,
 that every even perfect number has that form, is not proved. The informal
