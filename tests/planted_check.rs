@@ -5848,5 +5848,29 @@ fn cases() -> Vec<Case> {
             )],
             "cites D1 at m − 1, so it needs m − 1 ∈ ℕ₀, and nothing it cites or requires says it",
         ),
+        // A hypothesis applying a define is written out in the statement,
+        // and a step reading it reads the name as its rule, which holds only
+        // inside the domain: K(m − 1, n) asks m − 1 ∈ ℕ₀ of the step.
+        case(
+            "substitute into a hypothesis applying a define without its domain",
+            vec![edit(
+                "tests/elaborator/a-define-applied-in-a-hypothesis.proof",
+                Some("into H3\n    requires m − 1 ∈ ℕ₀: from 1\n".to_string()),
+                "into H3\n".to_string(),
+            )],
+            "step 3 reads a hypothesis applying the define D1 at m − 1, which the statement writes out, so it needs m − 1 ∈ ℕ₀, and nothing it cites or requires says it",
+        ),
+        // The conclusion applying a define is written out, and the last
+        // step's claim is carried to it with what the proof holds at its
+        // outermost level: G(m − 1, n) asks a line saying m − 1 ∈ ℕ₀ there.
+        case(
+            "state a define at a term no line of the proof puts in its domain",
+            vec![edit(
+                "proofs/wiedijk/ballot.proof",
+                Some("3.  m − 1 ∈ ℕ₀\n    mun:nat-minus-one n := m\n\n4.  There is a bijection from G(m − 1, n) to {T ∪ {m + n} : T ∈ G(m − 1, n)}.\n    mun:image-of-injection, from 2, 3\n".to_string()),
+                "3.  There is a bijection from G(m − 1, n) to {T ∪ {m + n} : T ∈ G(m − 1, n)}.\n    mun:image-of-injection, from 2\n".to_string(),
+            )],
+            "the conclusion of add-last-place applies the define D1 at m − 1 and is written out, so it needs m − 1 ∈ ℕ₀, and neither a hypothesis nor a line of its proof outside a block says it",
+        ),
     ]
 }

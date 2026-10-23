@@ -715,6 +715,42 @@ impl<'a> Elaborator<'a> {
         }
     }
 
+    /// The labels of the defines whose names a hypothesis of the theorem
+    /// writes, which the statement writes out by their rules
+    /// (`sorts::statement_definitions`): each such name its sentence holds,
+    /// by its define's label. A sequence by recursion is written out another
+    /// way (`recursion_terms`), and is not among them.
+    pub fn hypothesis_defines(&self, label: &str) -> Vec<String> {
+        let Some(line) = self.lines.get(label) else {
+            return Vec::new();
+        };
+        let stated = &self.checked.statement_definitions;
+        line.sentences
+            .iter()
+            .flat_map(Node::names)
+            .filter(|name| stated.contains_key(name))
+            .filter_map(|name| {
+                let term = self.names.get(&name)?;
+                let [var, cv] = term.tokens() else {
+                    return None;
+                };
+                if *cv != "cv" {
+                    return None;
+                }
+                self.defined_by.get(var.as_str()).cloned()
+            })
+            .collect()
+    }
+
+    /// Whether `label` is one of the theorem's own hypotheses, which the
+    /// statement says, and the kernel holds, with its defines written out.
+    pub fn is_hypothesis(&self, label: &str) -> bool {
+        self.thm
+            .hypotheses
+            .iter()
+            .any(|h| h.label.as_deref() == Some(label))
+    }
+
     /// A definition from outside the theorem, written out, as a term: its
     /// rule, or for a function the map from its domain to its rule.
     pub fn outside_term(&mut self, made: &Defined) -> Checked<Rpn> {

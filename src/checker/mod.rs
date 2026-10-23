@@ -1022,6 +1022,7 @@ fn check_theorem(
 ) {
     check_passes(report, c, thm, k, clashes);
     formulas::check_ends_numbered(report, thm, k, c.library);
+    citations::check_conclusion_domains(report, thm, c.library, k, c.scopes);
     check_requires_work(report, c, thm, k, clashes);
 }
 
@@ -1180,6 +1181,7 @@ fn check_passes(
     citations::check_instantiated(report, thm, library, k);
     citations::check_instance_claimed(report, thm, library, k);
     citations::check_define_domains(report, thm, library, k, scopes);
+    citations::check_stated_domains(report, thm, library, k, scopes);
     formulas::check_method_cites_used(report, thm, library, k, scopes);
     formulas::check_chain_links(report, thm, library, k, scopes);
     structure::check_last_step(report, thm, k);
