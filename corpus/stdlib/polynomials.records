@@ -36,3 +36,32 @@ mundane theorem polynomial-value
   metamath    plyf and ffvelcdm, which this corpus proves together in
               elaboration/stdlib/proved.mm
   target      gplyval
+
+definition B
+  sort        number, number → number
+  builds      _1 _2 cbp co
+  reads       the Bernoulli polynomial
+  let n ∈ ℕ₀                                                          (H1)
+  let x ∈ ℂ                                                           (H2)
+  then        B(n, x) = x^n − Σ(k = 0 to n − 1) C(n, k)·(B(k, x)/((n − k) + 1))
+  metamath    bpolyval
+  target      bpolyval
+  note        B(n, x) is the n-th Bernoulli polynomial at x, defined by
+              recursion on n: each is x^n less a weighted sum of the ones
+              before it.
+
+mundane theorem bernoulli-complex
+  let n ∈ ℕ₀                                                          (H1)
+  let x ∈ ℂ                                                           (H2)
+  then        B(n, x) ∈ ℂ
+  metamath    bpolycl
+  target      bpolycl
+
+theorem bernoulli-difference
+  let n ∈ ℕ                                                           (H1)
+  let x ∈ ℂ                                                           (H2)
+  then        B(n, x + 1) − B(n, x) = n·x^(n − 1)
+  metamath    bpolydif
+  target      bpolydif
+  note        The property the Bernoulli polynomials are made for: a step
+              of 1 in x changes B(n, x) by n·x^(n − 1).

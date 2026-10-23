@@ -1,0 +1,10 @@
+import definition         stdlib/counting/C
+import definition         stdlib/polynomials/B
+
+theorem bernoulli-value
+  let n ∈ ℕ₀                                                          (H1)
+  let x ∈ ℂ                                                           (H2)
+  then B(n, x) = x^n − Σ(k = 0 to n − 1) C(n, k)·(B(k, x)/((n − k) + 1))
+
+1.  B(n, x) = x^n − Σ(k = 0 to n − 1) C(n, k)·(B(k, x)/((n − k) + 1))
+    def:B

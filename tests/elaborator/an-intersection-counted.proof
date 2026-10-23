@@ -1,0 +1,16 @@
+import mundane theorem stdlib/counting/card-disjoint-union
+
+theorem an-intersection-counted
+  note        Counting A ∩ B asks that it be finite, which its size being a whole number says once A ∩ B is a set.
+  let A be a set    (H1)
+  let B be a set    (H2)
+  let D be a set    (H3)
+  let m ∈ ℕ₀    (H4)
+  let n ∈ ℕ₀    (H5)
+  assume |A ∩ B| = m    (H6)
+  assume |D| = n    (H7)
+  assume (A ∩ B) ∩ D = ∅    (H8)
+  then |(A ∩ B) ∪ D| = m + n
+
+1.  |(A ∩ B) ∪ D| = m + n
+    mun:card-disjoint-union X := A ∩ B, Y := D, from H6, H7, H8

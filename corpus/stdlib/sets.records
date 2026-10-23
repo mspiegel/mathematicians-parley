@@ -360,6 +360,32 @@ mundane theorem intersection-distributes
   metamath    indi
   target      indi
 
+mundane theorem intersection-distributes-right
+  then        (X ∪ Y) ∩ Z = (X ∩ Z) ∪ (Y ∩ Z)
+  metamath    indir
+  target      indir
+
+mundane theorem intersection-distributes-over-intersection
+  then        X ∩ Y ∩ Z = (X ∩ Z) ∩ (Y ∩ Z)
+  metamath    inindir
+  target      inindir
+
+mundane theorem intersection-subset
+  then        Y ∩ Z ⊆ Y
+  metamath    inss1
+  target      inss1
+
+mundane theorem intersection-and-difference
+  then        (Y ∩ Z) ∪ (Y ∖ Z) = Y
+  metamath    inundif
+  target      inundif
+  note        What Y shares with Z, and what Y has outside Z, make up Y.
+
+mundane theorem intersection-and-difference-disjoint
+  then        (Y ∩ Z) ∩ (Y ∖ Z) = ∅
+  metamath    inindif
+  target      inindif
+
 mundane theorem subset-empty
   then        Y ⊆ ∅ ↔ Y = ∅
   metamath    ss0b

@@ -724,7 +724,17 @@ fn fit(
         // a function of a letter it does not mention.
         let (held, _) = ctx.held_body(pattern.notation());
         let mut first: Vec<usize> = held.clone();
-        first.extend((0..pattern.children.len()).filter(|i| !held.contains(i)));
+        // A part holding an occurrence that decides what a function letter
+        // stands for is paired before the parts that only check it:
+        // t(k + 1) − t(k) reads t off t(k), wherever t(k) is written.
+        let rest: Vec<usize> = (0..pattern.children.len())
+            .filter(|i| !held.contains(i))
+            .collect();
+        let (deciding, checking): (Vec<usize>, Vec<usize>) = rest
+            .into_iter()
+            .partition(|&i| holds_site(&pattern.children[i], sites));
+        first.extend(deciding);
+        first.extend(checking);
         for children in orders(&pattern, ground, ctx) {
             let all = first.iter().all(|&i| {
                 fit(
@@ -751,6 +761,14 @@ fn fit(
         Some(kept) => fit(pattern, &kept, binding, variables, sites, ctx),
         None => false,
     }
+}
+
+/// Whether one of `sites`, the occurrences that may decide a property or
+/// function (`binding_sites`), stands in `node`.
+fn holds_site(node: &Node, sites: &IndexSet<NodeId>) -> bool {
+    !sites.is_empty()
+        && (sites.contains(&node.id())
+            || node.children.iter().any(|c| holds_site(c, sites)))
 }
 
 /// A pattern's operation read with its identity element in one hole, the
