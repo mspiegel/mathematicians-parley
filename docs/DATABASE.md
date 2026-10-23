@@ -70,9 +70,9 @@ has, and a subject is one file:
 |---|---|---|
 | `corpus/stdlib/reasoning.records` | the laws of logic a proof cites by name | 13 |
 | `corpus/stdlib/numbers.records` | the number systems, closure, order, powers, roots, absolute value | 100 |
-| `corpus/stdlib/divisibility.records` | even and odd, divisors, primes, gcd, division, congruence, Euler's φ | 71 |
-| `corpus/stdlib/sums.records` | sums over a range, and the ranges; products over a finite set | 41 |
-| `corpus/stdlib/sets.records` | subsets, set-builder, union, intersection, difference, power set | 62 |
+| `corpus/stdlib/divisibility.records` | even and odd, divisors, primes, gcd, division, congruence, Euler's φ, the sum of divisors σ | 76 |
+| `corpus/stdlib/sums.records` | sums over a range, and the ranges; products over a finite set | 45 |
+| `corpus/stdlib/sets.records` | subsets, set-builder, union, intersection, difference, power set, listed sets | 70 |
 | `corpus/stdlib/functions.records` | functions, their values, images, and inverses | 23 |
 | `corpus/stdlib/counting.records` | the size of a set, factorials, binomial coefficients, counting by parts | 41 |
 | `corpus/stdlib/calculus.records` | intervals, bounds and completeness, continuity, derivatives, bounded sequences | 28 |
@@ -80,7 +80,7 @@ has, and a subject is one file:
 | `corpus/stdlib/groups.records` | groups, their laws, subgroups, cosets | 12 |
 | `corpus/stdlib/trigonometry.records` | cos and sin, their addition formulas, signs, bounds and order, the special angles, the supplement | 22 |
 | `corpus/stdlib/logarithms.records` | the natural logarithm and the exponential function, their laws, order and signs | 13 |
-| `corpus/stdlib/polynomials.records` | polynomials with complex coefficients, their values, and division by x − a | 2 |
+| `corpus/stdlib/polynomials.records` | polynomials with complex coefficients, their values, division by x − a, the Bernoulli polynomials | 5 |
 | `corpus/stdlib/graphs.records` | walks, Euler paths, traversable graphs, degree | 10 |
 
 A proof imports each library item it cites, as it imports each theorem of
@@ -125,7 +125,7 @@ Every item in the standard library carries a field saying where it comes from:
 
 | field | meaning | count |
 |---|---|---|
-| `metamath` | a set.mm label or labels supply it | 496 |
+| `metamath` | a set.mm label or labels supply it | 518 |
 | `open` | it is cited but unproved and unbridged | 5 |
 
 A theorem this corpus proves has no
@@ -494,10 +494,10 @@ mundane definition difference
 |---|---|
 | `axiom` | 4 |
 | `mundane axiom` | 8 |
-| `theorem` | 43 |
-| `mundane theorem` | 302 |
-| `definition` | 11 |
-| `mundane definition` | 53 |
+| `theorem` | 70 |
+| `mundane theorem` | 366 |
+| `definition` | 12 |
+| `mundane definition` | 63 |
 
 The two questions are independent, so no rule is needed to say which wins:
 trichotomy is an axiom and is taken for granted, and its header says both.

@@ -1,7 +1,7 @@
 # Pilot: perfect numbers
 
-Theorem 17 of `SELECTION.md`, Euclid's half of the Euclid–Euler theorem,
-set.mm's `perfect1`, Wiedijk #70:
+Theorem 17 of `SELECTION.md`, the Euclid–Euler theorem, Wiedijk #70.
+Euclid's half, set.mm's `perfect1`:
 
   if 2^p − 1 is prime, then 2^(p − 1)·(2^p − 1) is perfect.
 
@@ -14,7 +14,7 @@ power of 2 is a geometric series. It follows `perfect1` step for step.
 
 ## Theorem euclid-perfect
 
-The proof is `proofs/wiedijk/perfect-numbers.proof`, one theorem. It elaborates to
+The proof is the first theorem of `proofs/wiedijk/perfect-numbers.proof`. It elaborates to
 `corpus/elaboration/proofs/wiedijk/perfect-numbers/euclid-perfect.mm`, assumes
 nothing, and verifies.
 
@@ -103,6 +103,37 @@ and 2^(p − 1)·q is perfect, by definition. ∎
    `nat-minus-one` (`nnm1nn0`). The other new mundane items are what the
    proof cites in passing: `power-nat`, `prime-nat`, `two-prime`,
    `divides-self` and `prime-coprime`.
+
+---
+
+## Theorem euler-perfect
+
+Euler's half, set.mm's `perfect`: every even perfect number is
+2^(p − 1)·(2^p − 1) with 2^p − 1 prime. It is the second theorem of
+`proofs/wiedijk/perfect-numbers.proof`, with two of its own:
+- `odd-part`, every n ∈ ℕ is 2^k·m with m odd, by induction on a bound as
+  the factorisation pilot does;
+- `three-divisors`, σ(m) ≥ 1 + e + m for three different divisors
+  1 < e < m, used twice, since there is no "similarly".
+
+The argument is `perfectlem1` and `perfectlem2`'s:
+- Write n = 2^k·m with k ≥ 1, and put p = k + 1.
+- Then (2^p − 1)·σ(m) = 2^p·m, and 2^p − 1, prime to 2^p, divides m, say
+  m = (2^p − 1)·c.
+- So σ(m) = m + c. If c > 1, then 1, c and m are three divisors and
+  σ(m) ≥ 1 + c + m, which is impossible; so c = 1.
+- Then σ(m) = m + 1 leaves m no divisor but 1 and itself.
+
+New items:
+- `sigma-part`, a sum of some of n's divisors is at most σ(n), proved in
+  `proved.mm` as `g1sgmpart` from `fsumless`, `dvdsfi` and `g1sgmval`;
+- `sigma-nat`, `one-divides`, `coprime-power` (`rpexp1i`),
+  `odd-not-divisible`, `sum-of-three` (`sumtp` at ℝ) and `triple-subset`
+  (`tpssi`).
+
+"m is odd" and "not (2 divides m)" are one kernel formula and two page
+formulas, so `odd-not-divisible` carries one to the other, as `odd-not-even`
+does for "even".
 
 ---
 

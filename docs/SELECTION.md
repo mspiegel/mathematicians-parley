@@ -19,8 +19,8 @@ statement's variables.
 
 ## State
 
-All thirty-three are written and elaborate from set.mm with nothing assumed;
-none is chosen and not yet started. Each of the thirty-three has its proof in
+All thirty-eight are written and elaborate from set.mm with nothing assumed;
+none is chosen and not yet started. Each of the thirty-eight has its proof in
 `proofs/wiedijk/` and its design record in `docs/pilot/`, under the same name:
 
 | # | proof | # | proof |
@@ -41,10 +41,13 @@ none is chosen and not yet started. Each of the thirty-three has its proof in
 | 27 | reals-uncountable | 28 | pythagorean-triples |
 | 29 | konigsberg | 30 | fundamental-calculus |
 | 31 | birthday | 32 | heron |
-| 33 | ptolemy | | |
+| 33 | ptolemy | 34 | inclusion-exclusion |
+| 35 | sum-of-powers | 36 | cubic |
+| 37 | quartic | 38 | prime-factorisation |
 
-Theorem 17 is Euclid's half of the Euclid–Euler theorem only; Euler's half,
-that every even perfect number has that form, is not proved. The informal
+Theorem 17 holds both halves of the Euclid–Euler theorem. Theorem 38 is the
+existence half of the fundamental theorem of arithmetic only; uniqueness is
+not proved. The informal
 sources of 3, 6, 7, 10, 14 and 20 were written from memory and checked
 against the book after their pilots: only 6 follows Hammack's proof, and
 14 and 20 are ProofWiki's arguments, not his.
