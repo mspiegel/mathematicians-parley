@@ -276,7 +276,14 @@ pub struct Builder {
     faults: RefCell<Vec<String>>,
     /// Each token's print, worked out once (`Print::token`).
     prints: RefCell<rustc_hash::FxHashMap<Symbol, Print>>,
+    /// Each step that builds a term, by its label and its parts (`shared`).
+    terms: RefCell<rustc_hash::FxHashMap<TermKey, StepRef>>,
 }
+
+/// A term step's label and the address of each part. The parts are
+/// themselves shared and held by the step the key finds, so an address
+/// stands for one term for as long as the builder lives.
+type TermKey = (Symbol, Box<[usize]>);
 
 /// What one step says, kept by the step it was worked out for; the step is
 /// held weakly, so a step dropped and its address reused is not taken for
@@ -374,6 +381,7 @@ impl Builder {
             said: RefCell::new(FxIndexMap::default()),
             faults: RefCell::new(Vec::new()),
             prints: RefCell::new(rustc_hash::FxHashMap::default()),
+            terms: RefCell::new(rustc_hash::FxHashMap::default()),
         }
     }
 
@@ -803,13 +811,37 @@ impl Builder {
                 }
             }
             low = low.min(stack.len());
-            stack.push(Rc::new(Step {
-                label: taking.label,
-                kids,
-                typecode: taking.typecode,
-            }));
+            stack.push(self.shared(taking.label, kids, taking.typecode));
         }
         low
+    }
+
+    /// A step applying `label` to `kids`. A step that builds a term is made
+    /// once and shared wherever the same term is built again: a term is
+    /// written many times over in a proof, and a step per writing held the
+    /// cubic's 217,000 distinct steps as 4.1 million, 1.7GB at the build's
+    /// peak. A proof step is made each time, since a route may build one and
+    /// drop it.
+    fn shared(&self, label: Symbol, kids: Vec<StepRef>, typecode: Symbol) -> StepRef {
+        if typecode == Symbol::of("|-") {
+            return Rc::new(Step {
+                label,
+                kids,
+                typecode,
+            });
+        }
+        let key: TermKey =
+            (label, kids.iter().map(|k| Rc::as_ptr(k) as usize).collect());
+        if let Some(found) = self.terms.borrow().get(&key) {
+            return found.clone();
+        }
+        let made = Rc::new(Step {
+            label,
+            kids,
+            typecode,
+        });
+        self.terms.borrow_mut().insert(key, made.clone());
+        made
     }
 
     fn taking(&self, label: &str) -> Taking {
@@ -923,6 +955,16 @@ mod tests {
             b.fault(&proof).as_deref(),
             Some("ax-mp asks in its hypothesis 2 for |- ( ph -> ps ) and is handed a proof of |- ( ps -> ph )")
         );
+    }
+
+    #[test]
+    fn a_term_built_twice_is_one_step() {
+        let b = builder();
+        let alone = b.ap("a1", &binds! {"ph" => "wph wps wi"}, &[]);
+        let inside = b.ap("a1", &binds! {"ph" => "wph wps wi wps wi"}, &[]);
+        let first = &alone.items.last().unwrap().kids[0];
+        let again = &inside.items.last().unwrap().kids[0].kids[0];
+        assert!(Rc::ptr_eq(first, again));
     }
 
     #[test]
