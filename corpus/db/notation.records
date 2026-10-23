@@ -1703,15 +1703,18 @@ notation continuous
   sort        function from number to number, set of number → formula
   level       predicate
   reads       is continuous on
-  metamath    ccncf
-  target      _1 _2 cr ccncf co wcel
+  metamath    ccncf, of f restricted to the set, cres
+  target      _1 _2 cres _2 cr ccncf co wcel
   note        set.mm has no predicate for continuity at all: `-cn->` takes a
               domain and a codomain and gives the set of continuous functions
               between them, so continuity is membership of that set. The
               codomain is the operand no hole fills. The readable pattern
               names only the domain because `def:stdlib/calculus/continuous-on` takes
               `f : D → ℝ` as its hypothesis, so the codomain is ℝ wherever
-              this pattern may be written.
+              this pattern may be written. It is said of f restricted to the
+              set, as a textbook means it: f on (a, b) is continuous on
+              [c, x] inside it, though its domain is not [c, x]. Where the set
+              is f's whole domain the restriction is f (`fnresdm`).
 
 notation function-limit
   pattern     _ tends to _ at _

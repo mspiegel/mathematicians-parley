@@ -8,6 +8,6 @@ $[ stdlib/proved.mm $]
 ${
   $d j k x $.
   $d A j k x $.
-  tests.notations.calculus.a-line-is-continuous $p |- ( ( A : ( 0 [,] 1 ) --> RR /\ A. x e. ( 0 [,] 1 ) ( A ` x ) = ( 2 x. x ) ) -> A e. ( ( 0 [,] 1 ) -cn-> RR ) ) $=
-    ( cc0 c1 cicc co cr wf cv cfv c2 cmul wceq wral wa vk wcel wss 0re a1i 1re jca iccssre syl 2re simpl id simpr wb vj fveq2d oveq2d eqeq12d cbvralvw bitri mpbid gcncflin ) CDEFZGBHZAIZBJZKUTLFZMZAURNZOZPURBKVECGQZDGQZOURGRVEVFVGVFVESTVGVEUATUBCDUCUDKGQVEUETVEUSUSUSVDUFUSUGUDVEVDPIZBJZKVHLFZMZPURNZUSVDUHVDVLUIVEVDUJIZBJZKVMLFZMZUJURNVLVCVPAUJURUTVMMZVAVNVBVOVQUTVMBVQUGZUKVQUTVMKLVRULUMUNVPVKUJPURVMVHMZVNVIVOVJVSVMVHBVSUGZUKVSVMVHKLVTULUMUNUOTUPUQ $.
+  tests.notations.calculus.a-line-is-continuous $p |- ( ( A : ( 0 [,] 1 ) --> RR /\ A. x e. ( 0 [,] 1 ) ( A ` x ) = ( 2 x. x ) ) -> ( A |` ( 0 [,] 1 ) ) e. ( ( 0 [,] 1 ) -cn-> RR ) ) $=
+    ( cc0 c1 cicc co cr wf cv cfv c2 cmul wceq wral wa vk wcel wss 0re a1i 1re jca iccssre syl 2re simpl id simpr wb vj fveq2d oveq2d eqeq12d cbvralvw bitri mpbid gcncflinres ) CDEFZGBHZAIZBJZKUTLFZMZAURNZOZPURBKVECGQZDGQZOURGRVEVFVGVFVESTVGVEUATUBCDUCUDKGQVEUETVEUSUSUSVDUFUSUGUDVEVDPIZBJZKVHLFZMZPURNZUSVDUHVDVLUIVEVDUJIZBJZKVMLFZMZUJURNVLVCVPAUJURUTVMMZVAVNVBVOVQUTVMBVQUGZUKVQUTVMKLVRULUMUNVPVKUJPURVMVHMZVNVIVOVJVSVMVHBVSUGZUKVSVMVHKLVTULUMUNUOTUPUQ $.
 $}

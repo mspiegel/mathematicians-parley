@@ -1094,6 +1094,7 @@ $d y F $.
 $d t x $.
 $d t y $.
 $d t ph $.
+$d t z $.
 $d t A $.
 $d t B $.
 $d t C $.
@@ -1528,6 +1529,140 @@ $d z F $.
     cc wss ax-resscn a1i fssd sstrd recnd ellimc3 biantrurd bitr4d rexrp
     ralbii ralrp bitri bitrdi )
     AGHFMNZOZDPZFQZVGFRNZSTZCPZUAUBZUCZVGHTZGRNZSTZBPZUAUBZUDZDEUEZCUFUGZBUFUEZUHVQUAUBZUHVKUAUBZVTUCZCUIUGZUDZBUIUEZAVFGUJOZWBUCWBABCDEFGHAEUIUJHJUIUJUKZAULUMZUNAEUIUJIWKUOAFKUPUQAWIWBAGLUPURUSWBWFBUFUEWHWAWFBUFVTCUTVAWFBVBVCVD $.
+  $}
+
+  ${
+    gcncfres.1 $e |- ( ph -> F : A --> RR ) $.
+  gcncfres $p |- ( ph -> ( ( F |` A ) e. ( A -cn-> RR ) <-> F e. ( A -cn-> RR ) ) ) $=
+    ( cres cr ccncf co wfn wceq ffnd fnresdm syl eleq1d )
+    ACBEZCBFGHACBIOCJABFCDKBCLMN $.
+  $}
+
+  ${
+    gcncfre.1 $e |- ( ph -> A C_ RR ) $.
+    gcncfre.2 $e |- ( ph -> F : A --> RR ) $.
+  gcncfre $p |- ( ph -> ( ( F |` A ) e. ( A -cn-> RR ) <-> ( F : A --> RR /\ A. x e. A A. y e. RR+ E. z e. RR+ A. t e. A ( ( abs ` ( t - x ) ) < z -> ( abs ` ( ( F ` t ) - ( F ` x ) ) ) < y ) ) ) ) $=
+    ( cres cr ccncf co wcel wf cv cmin cabs cfv clt wbr wi wral crp wrex wa
+    gcncfres cc wss wb ax-resscn a1i sstrd elcncf2 syl2anc bitrd )
+    AGFJFKLMZNGUQNZFKGOZEPZBPZQMZRSZDPZTUAZUTGSZVAGSZQMZRSZCPZTUAZUBZEFUCZDUDUEZCUDUCZBFUCZUFZAFGIUGAFUHUIKUHUIZURVQUJAFKUHHVRAUKULZUMVSBCDEFKGUNUOUP $.
+  $}
+
+  ${
+    grolleres.1 $e |- ( ph -> A e. RR ) $.
+    grolleres.2 $e |- ( ph -> B e. RR ) $.
+    grolleres.3 $e |- ( ph -> A < B ) $.
+    grolleres.4 $e |- ( ph -> F : ( A [,] B ) --> RR ) $.
+    grolleres.5 $e |- ( ph -> ( F |` ( A [,] B ) ) e. ( ( A [,] B ) -cn-> RR ) ) $.
+    grolleres.6 $e |- ( ph -> ( A (,) B ) C_ dom ( RR _D F ) ) $.
+    grolleres.7 $e |- ( ph -> ( F ` A ) = ( F ` B ) ) $.
+  grolleres $p |- ( ph -> E. x e. ( A (,) B ) ( ( RR _D F ) ` x ) = 0 ) $=
+    ( cicc co cres cr ccncf wcel gcncfres mpbid grolle )
+    ABCDEFGHAECDMNZOUBPQNZREUCRJAUBEISTKLUA $.
+  $}
+
+  ${
+    gcncfaddres.1 $e |- ( ph -> D C_ RR ) $.
+    gcncfaddres.2 $e |- ( ph -> H : D --> RR ) $.
+    gcncfaddres.3 $e |- ( ph -> F : D --> RR ) $.
+    gcncfaddres.4 $e |- ( ph -> G : D --> RR ) $.
+    gcncfaddres.5 $e |- ( ph -> A. x e. D ( H ` x ) = ( ( F ` x ) + ( G ` x ) ) ) $.
+    gcncfaddres.6 $e |- ( ph -> ( F |` D ) e. ( D -cn-> RR ) ) $.
+    gcncfaddres.7 $e |- ( ph -> ( G |` D ) e. ( D -cn-> RR ) ) $.
+  gcncfaddres $p |- ( ph -> ( H |` D ) e. ( D -cn-> RR ) ) $=
+    ( cres cr ccncf co wcel gcncfres mpbid gcncfadd mpbird )
+    AFCNCOPQZRFUCRABCDEFGHIJKADCNUCRDUCRLACDISTAECNUCREUCRMACEJSTUAACFHSUB $.
+  $}
+
+  ${
+    gcncfsubres.1 $e |- ( ph -> D C_ RR ) $.
+    gcncfsubres.2 $e |- ( ph -> H : D --> RR ) $.
+    gcncfsubres.3 $e |- ( ph -> F : D --> RR ) $.
+    gcncfsubres.4 $e |- ( ph -> G : D --> RR ) $.
+    gcncfsubres.5 $e |- ( ph -> A. x e. D ( H ` x ) = ( ( F ` x ) - ( G ` x ) ) ) $.
+    gcncfsubres.6 $e |- ( ph -> ( F |` D ) e. ( D -cn-> RR ) ) $.
+    gcncfsubres.7 $e |- ( ph -> ( G |` D ) e. ( D -cn-> RR ) ) $.
+  gcncfsubres $p |- ( ph -> ( H |` D ) e. ( D -cn-> RR ) ) $=
+    ( cres cr ccncf co wcel gcncfres mpbid gcncfsub mpbird )
+    AFCNCOPQZRFUCRABCDEFGHIJKADCNUCRDUCRLACDISTAECNUCREUCRMACEJSTUAACFHSUB $.
+  $}
+
+  ${
+    gcncflinres.1 $e |- ( ph -> D C_ RR ) $.
+    gcncflinres.2 $e |- ( ph -> M e. RR ) $.
+    gcncflinres.3 $e |- ( ph -> G : D --> RR ) $.
+    gcncflinres.4 $e |- ( ph -> A. x e. D ( G ` x ) = ( M x. x ) ) $.
+  gcncflinres $p |- ( ph -> ( G |` D ) e. ( D -cn-> RR ) ) $=
+    ( cres cr ccncf co wcel gcncflin gcncfres mpbird )
+    ADCJCKLMZNDRNABCDEFGHIOACDHPQ $.
+  $}
+
+  ${
+    gcncfsqres.1 $e |- ( ph -> D C_ RR ) $.
+    gcncfsqres.2 $e |- ( ph -> G : D --> RR ) $.
+    gcncfsqres.3 $e |- ( ph -> A. x e. D ( G ` x ) = ( x ^ 2 ) ) $.
+  gcncfsqres $p |- ( ph -> ( G |` D ) e. ( D -cn-> RR ) ) $=
+    ( cres cr ccncf co wcel gcncfsq gcncfres mpbird )
+    ADCHCIJKZLDPLABCDEFGMACDFNO $.
+  $}
+
+  ${
+    gcncfpart.1 $e |- ( ph -> F : D --> RR ) $.
+    gcncfpart.2 $e |- ( ph -> S C_ D ) $.
+    gcncfpart.3 $e |- ( ph -> ( F |` D ) e. ( D -cn-> RR ) ) $.
+  gcncfpart $p |- ( ph -> ( F |` S ) e. ( S -cn-> RR ) ) $=
+    ( wss cr ccncf co wcel cres gcncfres mpbid rescncf sylc )
+    ACBHDBIJKZLZDCMCIJKLFADBMRLSGABDENOBICDPQ $.
+  $}
+
+  ${
+    gftc1cres.1 $e |- ( ph -> A e. RR ) $.
+    gftc1cres.2 $e |- ( ph -> B e. RR ) $.
+    gftc1cres.3 $e |- ( ph -> A < B ) $.
+    gftc1cres.4 $e |- ( ph -> F : ( A [,] B ) --> RR ) $.
+    gftc1cres.5 $e |- ( ph -> ( F |` ( A [,] B ) ) e. ( ( A [,] B ) -cn-> RR ) ) $.
+    gftc1cres.6 $e |- ( ph -> G : ( A [,] B ) --> RR ) $.
+    gftc1cres.7 $e |- ( ph -> A. x e. ( A [,] B ) ( G ` x ) = S_ [ A -> x ] ( F ` t ) _d t ) $.
+  gftc1cres $p |- ( ph -> ( G |` ( A [,] B ) ) e. ( ( A [,] B ) -cn-> RR ) ) $=
+    ( cicc co cres cr ccncf wcel gcncfres mpbid gftc1c mpbird )
+    AGDEOPZQUERSPZTGUFTABCDEFGHIJKAFUEQUFTFUFTLAUEFKUAUBMNUCAUEGMUAUD $.
+  $}
+
+  ${
+    gftc1res.1 $e |- ( ph -> A e. RR ) $.
+    gftc1res.2 $e |- ( ph -> B e. RR ) $.
+    gftc1res.3 $e |- ( ph -> A < B ) $.
+    gftc1res.4 $e |- ( ph -> F : ( A [,] B ) --> RR ) $.
+    gftc1res.5 $e |- ( ph -> ( F |` ( A [,] B ) ) e. ( ( A [,] B ) -cn-> RR ) ) $.
+    gftc1res.6 $e |- ( ph -> G : ( A [,] B ) --> RR ) $.
+    gftc1res.7 $e |- ( ph -> A. x e. ( A [,] B ) ( G ` x ) = S_ [ A -> x ] ( F ` t ) _d t ) $.
+  gftc1res $p |- ( ph -> ( A (,) B ) C_ dom ( RR _D G ) ) $=
+    ( cicc co cres cr ccncf wcel gcncfres mpbid gftc1 )
+    ABCDEFGHIJKAFDEOPZQUDRSPZTFUETLAUDFKUAUBMNUC $.
+  $}
+
+  ${
+    gftc1vres.1 $e |- ( ph -> A e. RR ) $.
+    gftc1vres.2 $e |- ( ph -> B e. RR ) $.
+    gftc1vres.3 $e |- ( ph -> A < B ) $.
+    gftc1vres.4 $e |- ( ph -> F : ( A [,] B ) --> RR ) $.
+    gftc1vres.5 $e |- ( ph -> ( F |` ( A [,] B ) ) e. ( ( A [,] B ) -cn-> RR ) ) $.
+    gftc1vres.6 $e |- ( ph -> G : ( A [,] B ) --> RR ) $.
+    gftc1vres.7 $e |- ( ph -> A. x e. ( A [,] B ) ( G ` x ) = S_ [ A -> x ] ( F ` t ) _d t ) $.
+  gftc1vres $p |- ( ph -> A. x e. ( A (,) B ) ( ( RR _D G ) ` x ) = ( F ` x ) ) $=
+    ( cicc co cres cr ccncf wcel gcncfres mpbid gftc1v )
+    ABCDEFGHIJKAFDEOPZQUDRSPZTFUETLAUDFKUAUBMNUC $.
+  $}
+
+  ${
+    gditgreres.1 $e |- ( ph -> A e. RR ) $.
+    gditgreres.2 $e |- ( ph -> B e. RR ) $.
+    gditgreres.3 $e |- ( ph -> A < B ) $.
+    gditgreres.4 $e |- ( ph -> F : ( A [,] B ) --> RR ) $.
+    gditgreres.5 $e |- ( ph -> ( F |` ( A [,] B ) ) e. ( ( A [,] B ) -cn-> RR ) ) $.
+    gditgreres.6 $e |- ( ph -> C e. ( A [,] B ) ) $.
+  gditgreres $p |- ( ph -> S_ [ A -> C ] ( F ` t ) _d t e. RR ) $=
+    ( cicc co cres cr ccncf wcel gcncfres mpbid gditgre )
+    ABCDEFGHIJAFCDMNZOUBPQNZRFUCRKAUBFJSTLUA $.
   $}
 
 $}

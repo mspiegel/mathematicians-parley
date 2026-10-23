@@ -152,6 +152,11 @@ pub const CONGRUENCE: &[(&str, &[usize], &str)] = &[
     ("cima", &[0], "imaeq1d"),
     ("cima", &[1], "imaeq2d"),
     ("cima", &[0, 1], "imaeq12d"),
+    // A restriction, in its function, its set, or both, as "f is continuous
+    // on D" holds f.
+    ("cres", &[0], "reseq1d"),
+    ("cres", &[1], "reseq2d"),
+    ("cres", &[0, 1], "reseq12d"),
     ("cif", &[0], "ifbieq12d"),
     ("cif", &[1], "ifbieq12d"),
     ("cif", &[2], "ifbieq12d"),
@@ -293,6 +298,8 @@ pub const CLASS_LIFT: &[(&str, usize, &str)] = &[
     ("csn", 0, "sneqi"),
     ("cima", 0, "imaeq1i"),
     ("cima", 1, "imaeq2i"),
+    ("cres", 0, "reseq1i"),
+    ("cres", 1, "reseq2i"),
 ];
 
 // A binder's domain changed, its body kept, closed.

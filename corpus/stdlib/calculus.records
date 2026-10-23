@@ -59,8 +59,9 @@ definition continuous-on
   then        f is continuous on D ↔ for all c ∈ D, for all ε > 0, there
               exists δ > 0 such that |f(x) − f(c)| < ε for all x ∈ D with
               |x − c| < δ
-  metamath    elcncf2
-  target      elcncf2
+  metamath    elcncf2, said of f restricted to D, which this corpus proves
+              in elaboration/stdlib/proved.mm
+  target      gcncfre
   note        `elcncf2` quantifies over ℝ⁺ where the page says ε > 0 with ε
               ranging over ℝ, and `rules.STANDARD` reads the one as the other. It
               also says f : D → ℝ on its right side, where the page puts it
@@ -167,7 +168,7 @@ theorem rolle
   then        there is c ∈ (a, b) with f′(c) = 0
   metamath    rolle, through grolle, which this corpus proves in
               elaboration/stdlib/proved.mm
-  target      grolle
+  target      grolleres
   note        rolle asks that f′ be defined on exactly (a, b); the page says
               on (a, b), and for f on [a, b] the two agree (gdvdmicc).
 
@@ -196,7 +197,7 @@ theorem continuous-sum
   then        F is continuous on D
   metamath    gcncfadd, which this corpus proves in
               elaboration/stdlib/proved.mm from addcncf
-  target      gcncfadd with F := f, G := g
+  target      gcncfaddres with F := f, G := g
 
 theorem continuous-difference
   let D ⊆ ℝ                                                           (H1)
@@ -209,7 +210,7 @@ theorem continuous-difference
   then        F is continuous on D
   metamath    gcncfsub, which this corpus proves in
               elaboration/stdlib/proved.mm from subcncf
-  target      gcncfsub with F := f, G := g
+  target      gcncfsubres with F := f, G := g
 
 theorem continuous-linear
   let D ⊆ ℝ                                                           (H1)
@@ -219,7 +220,7 @@ theorem continuous-linear
   then        g is continuous on D
   metamath    gcncflin, which this corpus proves in
               elaboration/stdlib/proved.mm from mulcncf
-  target      gcncflin with M := m
+  target      gcncflinres with M := m
 
 theorem continuous-square
   let D ⊆ ℝ                                                           (H1)
@@ -228,7 +229,20 @@ theorem continuous-square
   then        g is continuous on D
   metamath    gcncfsq, which this corpus proves in
               elaboration/stdlib/proved.mm from mulcncf, x² being x·x
-  target      gcncfsq
+  target      gcncfsqres
+
+theorem continuous-on-part
+  let D ⊆ ℝ                                                           (H1)
+  let f : D → ℝ                                                       (H2)
+  let S ⊆ D                                                           (H3)
+  assume f is continuous on D                                         (H4)
+  then        f is continuous on S
+  metamath    rescncf, which this corpus proves in
+              elaboration/stdlib/proved.mm of f restricted to D
+  target      gcncfpart
+  note        A function continuous on a set is continuous on any part of
+              it, as the mean value theorem asks of f on [c, x] inside its
+              domain.
 
 theorem derivative-sum
   let D ⊆ ℝ                                                           (H1)
@@ -312,7 +326,7 @@ theorem area-function
   metamath    gftc1c, gftc1, gftc1v, which this corpus proves in
               elaboration/stdlib/proved.mm from ftc1a, ftc1, ditgpos and
               cniccibl
-  target      gftc1c, gftc1, gftc1v with A := a, B := b, F := f, G := G
+  target      gftc1cres, gftc1res, gftc1vres with A := a, B := b, F := f, G := G
   note        The fundamental theorem of calculus, part one: the integral
               of f from a up to x, as x moves, has derivative f. set.mm's
               ftc1 asks f be integrable, which a function continuous on
@@ -330,7 +344,7 @@ mundane theorem integral-real
   then        ∫(a to x) f(t) dt ∈ ℝ
   metamath    gditgre, which this corpus proves in
               elaboration/stdlib/proved.mm from itgrecl and ditgpos
-  target      gditgre with A := a, B := b, F := f, C := x
+  target      gditgreres with A := a, B := b, F := f, C := x
   note        The integral of a real function continuous on [a, b], from a
               to a point of [a, b], is a real number: f is integrable there
               because it is continuous (cniccibl), and real where it is

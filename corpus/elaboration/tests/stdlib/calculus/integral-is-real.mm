@@ -10,6 +10,6 @@ ${
   $d B s $.
   $d C s $.
   $d D s $.
-  tests.stdlib.calculus.integral-is-real $p |- ( ( ( ( ( ( A e. RR /\ B e. RR ) /\ A < B ) /\ C : ( A [,] B ) --> RR ) /\ C e. ( ( A [,] B ) -cn-> RR ) ) /\ D e. ( A [,] B ) ) -> S_ [ A -> D ] ( C ` s ) _d s e. RR ) $=
-    ( cr wcel wa clt wbr cicc co wf ccncf simpl id syl simpr gditgre ) AFGZBFGZHZABIJZHZABKLZFCMZHZCUEFNLZGZHZDUEGZHZEABDCULUJTUJUKOZUJUGTUGUIOZUGUDTUDUFOZUDUBTUBUCOZUBTTTUAOTPQQQQQULUJUAUMUJUGUAUNUGUDUAUOUDUBUAUPTUARQQQQULUJUCUMUJUGUCUNUGUDUCUOUBUCRQQQULUJUFUMUJUGUFUNUDUFRQQULUJUIUMUGUIRQUJUKRS $.
+  tests.stdlib.calculus.integral-is-real $p |- ( ( ( ( ( ( A e. RR /\ B e. RR ) /\ A < B ) /\ C : ( A [,] B ) --> RR ) /\ ( C |` ( A [,] B ) ) e. ( ( A [,] B ) -cn-> RR ) ) /\ D e. ( A [,] B ) ) -> S_ [ A -> D ] ( C ` s ) _d s e. RR ) $=
+    ( cr wcel wa clt wbr cicc co wf cres ccncf simpl id syl simpr gditgreres ) AFGZBFGZHZABIJZHZABKLZFCMZHZCUFNZUFFOLZGZHZDUFGZHZEABDCUNULUAULUMPZULUHUAUHUKPZUHUEUAUEUGPZUEUCUAUCUDPZUCUAUAUAUBPUAQRRRRRUNULUBUOULUHUBUPUHUEUBUQUEUCUBURUAUBSRRRRUNULUDUOULUHUDUPUHUEUDUQUCUDSRRRUNULUGUOULUHUGUPUEUGSRRUNULUKUOUHUKSRULUMST $.
 $}

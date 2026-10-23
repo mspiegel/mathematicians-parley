@@ -61,6 +61,7 @@ $d y F $.
 $d t x $.
 $d t y $.
 $d t ph $.
+$d t z $.
 $d t A $.
 $d t B $.
 $d t C $.
@@ -1112,4 +1113,159 @@ lemma glimcre
   12 ralrp |- ( A. x e. RR+ E. y e. RR ( 0 < y /\ A. z e. A ( ( z =/= B /\ ( abs ` ( z - B ) ) < y ) -> ( abs ` ( ( F ` z ) - C ) ) < x ) ) <-> A. x e. RR ( 0 < x -> E. y e. RR ( 0 < y /\ A. z e. A ( ( z =/= B /\ ( abs ` ( z - B ) ) < y ) -> ( abs ` ( ( F ` z ) - C ) ) < x ) ) ) )
   13 bitri 11 12 |- ( A. x e. RR+ E. y e. RR+ A. z e. A ( ( z =/= B /\ ( abs ` ( z - B ) ) < y ) -> ( abs ` ( ( F ` z ) - C ) ) < x ) <-> A. x e. RR ( 0 < x -> E. y e. RR ( 0 < y /\ A. z e. A ( ( z =/= B /\ ( abs ` ( z - B ) ) < y ) -> ( abs ` ( ( F ` z ) - C ) ) < x ) ) ) )
   14 bitrdi 9 13 |- ( ph -> ( C e. ( F limCC B ) <-> A. x e. RR ( 0 < x -> E. y e. RR ( 0 < y /\ A. z e. A ( ( z =/= B /\ ( abs ` ( z - B ) ) < y ) -> ( abs ` ( ( F ` z ) - C ) ) < x ) ) ) ) )
+
+# The page's "f is continuous on S" says it of f restricted to S, `( F |` S
+# ) e. ( S -cn-> RR )`, so that S may be a part of f's domain: the mean
+# value theorem on [c, x] inside f's (a, b). Where S is the whole domain,
+# f restricted to it is f (`fnresdm`), and the rules above, said of F
+# itself, are said here of the restriction.
+lemma gcncfres
+  hypothesis gcncfres.1 |- ( ph -> F : A --> RR )
+  |- ( ph -> ( ( F |` A ) e. ( A -cn-> RR ) <-> F e. ( A -cn-> RR ) ) )
+  1 ffnd gcncfres.1 |- ( ph -> F Fn A )
+  2 fnresdm |- ( F Fn A -> ( F |` A ) = F )
+  3 syl 1 2 |- ( ph -> ( F |` A ) = F )
+  4 eleq1d 3 |- ( ph -> ( ( F |` A ) e. ( A -cn-> RR ) <-> F e. ( A -cn-> RR ) ) )
+
+# The ε–δ condition of `elcncf2`, said of the restriction to the domain.
+lemma gcncfre
+  hypothesis gcncfre.1 |- ( ph -> A C_ RR )
+  hypothesis gcncfre.2 |- ( ph -> F : A --> RR )
+  |- ( ph -> ( ( F |` A ) e. ( A -cn-> RR ) <-> ( F : A --> RR /\ A. x e. A A. y e. RR+ E. z e. RR+ A. t e. A ( ( abs ` ( t - x ) ) < z -> ( abs ` ( ( F ` t ) - ( F ` x ) ) ) < y ) ) ) )
+  1 ax-resscn |- RR C_ CC
+  2 a1i 1 |- ( ph -> RR C_ CC )
+  3 sstrd gcncfre.1 2 |- ( ph -> A C_ CC )
+  4 elcncf2 |- ( ( A C_ CC /\ RR C_ CC ) -> ( F e. ( A -cn-> RR ) <-> ( F : A --> RR /\ A. x e. A A. y e. RR+ E. z e. RR+ A. t e. A ( ( abs ` ( t - x ) ) < z -> ( abs ` ( ( F ` t ) - ( F ` x ) ) ) < y ) ) ) )
+  5 syl2anc 3 2 4 |- ( ph -> ( F e. ( A -cn-> RR ) <-> ( F : A --> RR /\ A. x e. A A. y e. RR+ E. z e. RR+ A. t e. A ( ( abs ` ( t - x ) ) < z -> ( abs ` ( ( F ` t ) - ( F ` x ) ) ) < y ) ) ) )
+  6 gcncfres gcncfre.2 |- ( ph -> ( ( F |` A ) e. ( A -cn-> RR ) <-> F e. ( A -cn-> RR ) ) )
+  7 bitrd 6 5 |- ( ph -> ( ( F |` A ) e. ( A -cn-> RR ) <-> ( F : A --> RR /\ A. x e. A A. y e. RR+ E. z e. RR+ A. t e. A ( ( abs ` ( t - x ) ) < z -> ( abs ` ( ( F ` t ) - ( F ` x ) ) ) < y ) ) ) )
+
+lemma grolleres
+  hypothesis grolleres.1 |- ( ph -> A e. RR )
+  hypothesis grolleres.2 |- ( ph -> B e. RR )
+  hypothesis grolleres.3 |- ( ph -> A < B )
+  hypothesis grolleres.4 |- ( ph -> F : ( A [,] B ) --> RR )
+  hypothesis grolleres.5 |- ( ph -> ( F |` ( A [,] B ) ) e. ( ( A [,] B ) -cn-> RR ) )
+  hypothesis grolleres.6 |- ( ph -> ( A (,) B ) C_ dom ( RR _D F ) )
+  hypothesis grolleres.7 |- ( ph -> ( F ` A ) = ( F ` B ) )
+  |- ( ph -> E. x e. ( A (,) B ) ( ( RR _D F ) ` x ) = 0 )
+  1 gcncfres grolleres.4 |- ( ph -> ( ( F |` ( A [,] B ) ) e. ( ( A [,] B ) -cn-> RR ) <-> F e. ( ( A [,] B ) -cn-> RR ) ) )
+  2 mpbid grolleres.5 1 |- ( ph -> F e. ( ( A [,] B ) -cn-> RR ) )
+  3 grolle grolleres.1 grolleres.2 grolleres.3 2 grolleres.6 grolleres.7 |- ( ph -> E. x e. ( A (,) B ) ( ( RR _D F ) ` x ) = 0 )
+
+lemma gcncfaddres
+  hypothesis gcncfaddres.1 |- ( ph -> D C_ RR )
+  hypothesis gcncfaddres.2 |- ( ph -> H : D --> RR )
+  hypothesis gcncfaddres.3 |- ( ph -> F : D --> RR )
+  hypothesis gcncfaddres.4 |- ( ph -> G : D --> RR )
+  hypothesis gcncfaddres.5 |- ( ph -> A. x e. D ( H ` x ) = ( ( F ` x ) + ( G ` x ) ) )
+  hypothesis gcncfaddres.6 |- ( ph -> ( F |` D ) e. ( D -cn-> RR ) )
+  hypothesis gcncfaddres.7 |- ( ph -> ( G |` D ) e. ( D -cn-> RR ) )
+  |- ( ph -> ( H |` D ) e. ( D -cn-> RR ) )
+  1 gcncfres gcncfaddres.3 |- ( ph -> ( ( F |` D ) e. ( D -cn-> RR ) <-> F e. ( D -cn-> RR ) ) )
+  2 mpbid gcncfaddres.6 1 |- ( ph -> F e. ( D -cn-> RR ) )
+  3 gcncfres gcncfaddres.4 |- ( ph -> ( ( G |` D ) e. ( D -cn-> RR ) <-> G e. ( D -cn-> RR ) ) )
+  4 mpbid gcncfaddres.7 3 |- ( ph -> G e. ( D -cn-> RR ) )
+  5 gcncfadd gcncfaddres.1 gcncfaddres.2 gcncfaddres.3 gcncfaddres.4 gcncfaddres.5 2 4 |- ( ph -> H e. ( D -cn-> RR ) )
+  6 gcncfres gcncfaddres.2 |- ( ph -> ( ( H |` D ) e. ( D -cn-> RR ) <-> H e. ( D -cn-> RR ) ) )
+  7 mpbird 5 6 |- ( ph -> ( H |` D ) e. ( D -cn-> RR ) )
+
+lemma gcncfsubres
+  hypothesis gcncfsubres.1 |- ( ph -> D C_ RR )
+  hypothesis gcncfsubres.2 |- ( ph -> H : D --> RR )
+  hypothesis gcncfsubres.3 |- ( ph -> F : D --> RR )
+  hypothesis gcncfsubres.4 |- ( ph -> G : D --> RR )
+  hypothesis gcncfsubres.5 |- ( ph -> A. x e. D ( H ` x ) = ( ( F ` x ) - ( G ` x ) ) )
+  hypothesis gcncfsubres.6 |- ( ph -> ( F |` D ) e. ( D -cn-> RR ) )
+  hypothesis gcncfsubres.7 |- ( ph -> ( G |` D ) e. ( D -cn-> RR ) )
+  |- ( ph -> ( H |` D ) e. ( D -cn-> RR ) )
+  1 gcncfres gcncfsubres.3 |- ( ph -> ( ( F |` D ) e. ( D -cn-> RR ) <-> F e. ( D -cn-> RR ) ) )
+  2 mpbid gcncfsubres.6 1 |- ( ph -> F e. ( D -cn-> RR ) )
+  3 gcncfres gcncfsubres.4 |- ( ph -> ( ( G |` D ) e. ( D -cn-> RR ) <-> G e. ( D -cn-> RR ) ) )
+  4 mpbid gcncfsubres.7 3 |- ( ph -> G e. ( D -cn-> RR ) )
+  5 gcncfsub gcncfsubres.1 gcncfsubres.2 gcncfsubres.3 gcncfsubres.4 gcncfsubres.5 2 4 |- ( ph -> H e. ( D -cn-> RR ) )
+  6 gcncfres gcncfsubres.2 |- ( ph -> ( ( H |` D ) e. ( D -cn-> RR ) <-> H e. ( D -cn-> RR ) ) )
+  7 mpbird 5 6 |- ( ph -> ( H |` D ) e. ( D -cn-> RR ) )
+
+lemma gcncflinres
+  hypothesis gcncflinres.1 |- ( ph -> D C_ RR )
+  hypothesis gcncflinres.2 |- ( ph -> M e. RR )
+  hypothesis gcncflinres.3 |- ( ph -> G : D --> RR )
+  hypothesis gcncflinres.4 |- ( ph -> A. x e. D ( G ` x ) = ( M x. x ) )
+  |- ( ph -> ( G |` D ) e. ( D -cn-> RR ) )
+  1 gcncflin gcncflinres.1 gcncflinres.2 gcncflinres.3 gcncflinres.4 |- ( ph -> G e. ( D -cn-> RR ) )
+  2 gcncfres gcncflinres.3 |- ( ph -> ( ( G |` D ) e. ( D -cn-> RR ) <-> G e. ( D -cn-> RR ) ) )
+  3 mpbird 1 2 |- ( ph -> ( G |` D ) e. ( D -cn-> RR ) )
+
+lemma gcncfsqres
+  hypothesis gcncfsqres.1 |- ( ph -> D C_ RR )
+  hypothesis gcncfsqres.2 |- ( ph -> G : D --> RR )
+  hypothesis gcncfsqres.3 |- ( ph -> A. x e. D ( G ` x ) = ( x ^ 2 ) )
+  |- ( ph -> ( G |` D ) e. ( D -cn-> RR ) )
+  1 gcncfsq gcncfsqres.1 gcncfsqres.2 gcncfsqres.3 |- ( ph -> G e. ( D -cn-> RR ) )
+  2 gcncfres gcncfsqres.2 |- ( ph -> ( ( G |` D ) e. ( D -cn-> RR ) <-> G e. ( D -cn-> RR ) ) )
+  3 mpbird 1 2 |- ( ph -> ( G |` D ) e. ( D -cn-> RR ) )
+
+lemma gcncfpart
+  hypothesis gcncfpart.1 |- ( ph -> F : D --> RR )
+  hypothesis gcncfpart.2 |- ( ph -> S C_ D )
+  hypothesis gcncfpart.3 |- ( ph -> ( F |` D ) e. ( D -cn-> RR ) )
+  |- ( ph -> ( F |` S ) e. ( S -cn-> RR ) )
+  1 gcncfres gcncfpart.1 |- ( ph -> ( ( F |` D ) e. ( D -cn-> RR ) <-> F e. ( D -cn-> RR ) ) )
+  2 mpbid gcncfpart.3 1 |- ( ph -> F e. ( D -cn-> RR ) )
+  3 rescncf |- ( S C_ D -> ( F e. ( D -cn-> RR ) -> ( F |` S ) e. ( S -cn-> RR ) ) )
+  4 sylc gcncfpart.2 2 3 |- ( ph -> ( F |` S ) e. ( S -cn-> RR ) )
+
+lemma gftc1cres
+  hypothesis gftc1cres.1 |- ( ph -> A e. RR )
+  hypothesis gftc1cres.2 |- ( ph -> B e. RR )
+  hypothesis gftc1cres.3 |- ( ph -> A < B )
+  hypothesis gftc1cres.4 |- ( ph -> F : ( A [,] B ) --> RR )
+  hypothesis gftc1cres.5 |- ( ph -> ( F |` ( A [,] B ) ) e. ( ( A [,] B ) -cn-> RR ) )
+  hypothesis gftc1cres.6 |- ( ph -> G : ( A [,] B ) --> RR )
+  hypothesis gftc1cres.7 |- ( ph -> A. x e. ( A [,] B ) ( G ` x ) = S_ [ A -> x ] ( F ` t ) _d t )
+  |- ( ph -> ( G |` ( A [,] B ) ) e. ( ( A [,] B ) -cn-> RR ) )
+  1 gcncfres gftc1cres.4 |- ( ph -> ( ( F |` ( A [,] B ) ) e. ( ( A [,] B ) -cn-> RR ) <-> F e. ( ( A [,] B ) -cn-> RR ) ) )
+  2 mpbid gftc1cres.5 1 |- ( ph -> F e. ( ( A [,] B ) -cn-> RR ) )
+  3 gftc1c gftc1cres.1 gftc1cres.2 gftc1cres.3 gftc1cres.4 2 gftc1cres.6 gftc1cres.7 |- ( ph -> G e. ( ( A [,] B ) -cn-> RR ) )
+  4 gcncfres gftc1cres.6 |- ( ph -> ( ( G |` ( A [,] B ) ) e. ( ( A [,] B ) -cn-> RR ) <-> G e. ( ( A [,] B ) -cn-> RR ) ) )
+  5 mpbird 3 4 |- ( ph -> ( G |` ( A [,] B ) ) e. ( ( A [,] B ) -cn-> RR ) )
+
+lemma gftc1res
+  hypothesis gftc1res.1 |- ( ph -> A e. RR )
+  hypothesis gftc1res.2 |- ( ph -> B e. RR )
+  hypothesis gftc1res.3 |- ( ph -> A < B )
+  hypothesis gftc1res.4 |- ( ph -> F : ( A [,] B ) --> RR )
+  hypothesis gftc1res.5 |- ( ph -> ( F |` ( A [,] B ) ) e. ( ( A [,] B ) -cn-> RR ) )
+  hypothesis gftc1res.6 |- ( ph -> G : ( A [,] B ) --> RR )
+  hypothesis gftc1res.7 |- ( ph -> A. x e. ( A [,] B ) ( G ` x ) = S_ [ A -> x ] ( F ` t ) _d t )
+  |- ( ph -> ( A (,) B ) C_ dom ( RR _D G ) )
+  1 gcncfres gftc1res.4 |- ( ph -> ( ( F |` ( A [,] B ) ) e. ( ( A [,] B ) -cn-> RR ) <-> F e. ( ( A [,] B ) -cn-> RR ) ) )
+  2 mpbid gftc1res.5 1 |- ( ph -> F e. ( ( A [,] B ) -cn-> RR ) )
+  3 gftc1 gftc1res.1 gftc1res.2 gftc1res.3 gftc1res.4 2 gftc1res.6 gftc1res.7 |- ( ph -> ( A (,) B ) C_ dom ( RR _D G ) )
+
+lemma gftc1vres
+  hypothesis gftc1vres.1 |- ( ph -> A e. RR )
+  hypothesis gftc1vres.2 |- ( ph -> B e. RR )
+  hypothesis gftc1vres.3 |- ( ph -> A < B )
+  hypothesis gftc1vres.4 |- ( ph -> F : ( A [,] B ) --> RR )
+  hypothesis gftc1vres.5 |- ( ph -> ( F |` ( A [,] B ) ) e. ( ( A [,] B ) -cn-> RR ) )
+  hypothesis gftc1vres.6 |- ( ph -> G : ( A [,] B ) --> RR )
+  hypothesis gftc1vres.7 |- ( ph -> A. x e. ( A [,] B ) ( G ` x ) = S_ [ A -> x ] ( F ` t ) _d t )
+  |- ( ph -> A. x e. ( A (,) B ) ( ( RR _D G ) ` x ) = ( F ` x ) )
+  1 gcncfres gftc1vres.4 |- ( ph -> ( ( F |` ( A [,] B ) ) e. ( ( A [,] B ) -cn-> RR ) <-> F e. ( ( A [,] B ) -cn-> RR ) ) )
+  2 mpbid gftc1vres.5 1 |- ( ph -> F e. ( ( A [,] B ) -cn-> RR ) )
+  3 gftc1v gftc1vres.1 gftc1vres.2 gftc1vres.3 gftc1vres.4 2 gftc1vres.6 gftc1vres.7 |- ( ph -> A. x e. ( A (,) B ) ( ( RR _D G ) ` x ) = ( F ` x ) )
+
+lemma gditgreres
+  hypothesis gditgreres.1 |- ( ph -> A e. RR )
+  hypothesis gditgreres.2 |- ( ph -> B e. RR )
+  hypothesis gditgreres.3 |- ( ph -> A < B )
+  hypothesis gditgreres.4 |- ( ph -> F : ( A [,] B ) --> RR )
+  hypothesis gditgreres.5 |- ( ph -> ( F |` ( A [,] B ) ) e. ( ( A [,] B ) -cn-> RR ) )
+  hypothesis gditgreres.6 |- ( ph -> C e. ( A [,] B ) )
+  |- ( ph -> S_ [ A -> C ] ( F ` t ) _d t e. RR )
+  1 gcncfres gditgreres.4 |- ( ph -> ( ( F |` ( A [,] B ) ) e. ( ( A [,] B ) -cn-> RR ) <-> F e. ( ( A [,] B ) -cn-> RR ) ) )
+  2 mpbid gditgreres.5 1 |- ( ph -> F e. ( ( A [,] B ) -cn-> RR ) )
+  3 gditgre gditgreres.1 gditgreres.2 gditgreres.3 gditgreres.4 2 gditgreres.6 |- ( ph -> S_ [ A -> C ] ( F ` t ) _d t e. RR )
 
