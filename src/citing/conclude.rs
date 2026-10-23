@@ -7,9 +7,8 @@ use crate::formula::{walk, ByShape, Node};
 use indexmap::IndexMap;
 
 use crate::matching::{
-    alike, alike_top, binding_sites, identities_dropped, match_tree, property_said,
-    put_everywhere, readings_in_any_order, substitute_apart, Binding, Context,
-    FxIndexSet,
+    alike, alike_top, binding_sites, identities_dropped, match_every_way, match_tree,
+    property_said, put_everywhere, substitute_apart, Binding, Context, FxIndexSet,
 };
 use crate::notations::{PROPERTY_OF, THERE_IS};
 use crate::outcome::{Built, Route};
@@ -75,20 +74,18 @@ fn take(
                 binding: binding.clone(),
             }]
         };
-        // A claim whose parts stand in no order is fitted in each order, so
-        // that the facts decide which way it is the conclusion.
-        let readings = readings_in_any_order(claim, &library.ctx);
-        let tries: Vec<(&Start, &Node)> = starts
+        // The claim is fitted every way it fits, so that the facts decide
+        // which way it is the conclusion (`claim_matched`).
+        let tries: Vec<(&Start, Binding)> = starts
             .iter()
-            .flat_map(|s| readings.iter().map(move |r| (s, r)))
+            .flat_map(|s| {
+                claim_matched(cand, claim, &s.binding, variables, sites, library)
+                    .into_iter()
+                    .map(move |found| (s, found))
+            })
             .collect();
-        for (start, reading) in tries {
-            let Some(found) =
-                claim_matched(cand, reading, &start.binding, variables, sites, library)
-            else {
-                continue;
-            };
-            if !identities_on_numbers(cand, reading, &found, given, library) {
+        for (start, found) in tries {
+            if !identities_on_numbers(cand, claim, &found, given, library) {
                 continue;
             }
             // A letter the item binds, the k of Σ(k = a to b), is matched
@@ -135,8 +132,13 @@ fn take(
     None
 }
 
-/// The binding under which one conjunct of the claim is the candidate, a
-/// conjunct of the item's conclusion; None where it is not.
+/// Every binding under which one conjunct of the claim is the candidate, a
+/// conjunct of the item's conclusion; none where it is not.
+///
+/// Every way and not the first, since the claim may fit more than one way
+/// and the facts decide which: "S, R, T are collinear" fits "T, R, S" with
+/// T := S as well as with T := T, and `{a, b} ⊆ S` fits `{v, w} ⊆ S` with
+/// a := v and with a := w.
 ///
 /// A candidate applying a property the binding already holds, `P(u)` with P
 /// decided inside the braces, says the property's body, and where that body
@@ -149,15 +151,18 @@ fn claim_matched(
     variables: &BTreeSet<String>,
     sites: &Sites,
     library: &Library,
-) -> Option<Binding> {
+) -> Vec<Binding> {
     let ctx = &library.ctx;
-    if let Some(found) = match_tree(cand, claim, binding, variables, sites, ctx) {
-        return Some(found);
+    let found = match_every_way(cand, claim, binding, variables, sites, ctx);
+    if !found.is_empty() {
+        return found;
     }
-    let said = property_said(cand, binding, variables, ctx)?;
+    let Some(said) = property_said(cand, binding, variables, ctx) else {
+        return Vec::new();
+    };
     let parts = conjuncts(&said, library);
     if parts.len() < 2 {
-        return None;
+        return Vec::new();
     }
     // The body is the citing page's, and its letters are the page's even
     // where one is spelt as a letter of the item: only the item's letters
@@ -170,7 +175,8 @@ fn claim_matched(
         .collect();
     parts
         .iter()
-        .find_map(|part| match_tree(part, claim, binding, &applied_to, sites, ctx))
+        .flat_map(|part| match_every_way(part, claim, binding, &applied_to, sites, ctx))
+        .collect()
 }
 
 /// Whether every identity element the match of `cand` against `claim`

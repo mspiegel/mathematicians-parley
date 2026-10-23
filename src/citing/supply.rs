@@ -8,7 +8,9 @@ use indexmap::{IndexMap, IndexSet};
 
 use crate::formula::symbol::Symbol;
 use crate::formula::{ByShape, Node, NodeId};
-use crate::matching::{alike, match_tree, substitute_apart, Binding, Context};
+use crate::matching::{
+    alike, match_every_way, match_tree, substitute_apart, Binding, Context,
+};
 use crate::notations::{
     FOR_ALL, FUNCTIONS_FROM, FUNCTION_TYPE, INTEGER_RANGE, NUMBER_SYSTEMS, NUMERAL,
     PROPERTY_OF,
@@ -393,15 +395,18 @@ fn fits(
             for (which, (form, seen)) in forms.clone().enumerate() {
                 let is_first = which == 0;
                 let at = if is_first { binding } else { &inside };
-                let mut found = match_tree(form, fact, at, seen, sites, ctx);
-                if found.is_none()
+                // Every way the fact fits, since the hypotheses after this one
+                // may hold only under one of them: `{a, b} ⊆ X` fits
+                // `{v, w} ⊆ X` with a := v and with a := w.
+                let mut found = match_every_way(form, fact, at, seen, sites, ctx);
+                if found.is_empty()
                     && is_first
                     && library.exists.contains(&first.notation())
                     && first.children.len() == 2
                     && library.members.contains(&fact.notation())
                     && fact.children.len() == 2
                 {
-                    found = match_tree(
+                    found = match_every_way(
                         &first.children[1],
                         &fact.children[1],
                         binding,
@@ -412,41 +417,46 @@ fn fits(
                 }
                 // A "for all" said of a set is said of every set inside it
                 // (`SYNTAX.md`).
-                if found.is_none() && is_first {
+                if found.is_empty() && is_first {
                     if let Some(smaller) = narrowed(&first, fact, binding, ctx) {
-                        found = match_tree(form, &smaller, binding, seen, sites, ctx);
+                        found =
+                            match_every_way(form, &smaller, binding, seen, sites, ctx);
                     }
                 }
-                let Some(found) = found else { continue };
-                // A "there is" given by an instance is given only where the
-                // instance is in the domain: the step's requires lines are where
-                // `SYNTAX.md` has a witness named. Matching the body alone took
-                // any value at all.
-                if !is_first {
-                    let remaining: Vec<Node> = facts
-                        .iter()
-                        .zip(used.iter())
-                        .filter(|(_, u)| !**u)
-                        .map(|(f, _)| f.clone())
-                        .collect();
-                    if !witnessed_in(&first, &found, &remaining, seen, library, sites) {
-                        continue;
+                for found in found {
+                    // A "there is" given by an instance is given only where the
+                    // instance is in the domain: the step's requires lines are
+                    // where `SYNTAX.md` has a witness named. Matching the body
+                    // alone took any value at all.
+                    if !is_first {
+                        let remaining: Vec<Node> = facts
+                            .iter()
+                            .zip(used.iter())
+                            .filter(|(_, u)| !**u)
+                            .map(|(f, _)| f.clone())
+                            .collect();
+                        if !witnessed_in(
+                            &first, &found, &remaining, seen, library, sites,
+                        ) {
+                            continue;
+                        }
                     }
+                    // A fact is used once when nothing has pinned the binding
+                    // yet, or a variable free in two hypotheses binds to
+                    // whatever made the first of them match and the second is
+                    // then satisfied by the same line. Where the claim has
+                    // already pinned it, one line may legitimately answer two
+                    // requirements. A hypothesis whose every variable the
+                    // binding already fixed is a closed claim, and what goes
+                    // wrong above cannot: nothing is left for the line to bind.
+                    let pinned = *pinned
+                        .get_or_insert_with(|| all_bound(&first, variables, binding));
+                    out.push(Fit {
+                        fact: Some(i),
+                        binding: found,
+                        takes: !(reuse || pinned),
+                    });
                 }
-                // A fact is used once when nothing has pinned the binding yet, or
-                // a variable free in two hypotheses binds to whatever made the
-                // first of them match and the second is then satisfied by the
-                // same line. Where the claim has already pinned it, one line may
-                // legitimately answer two requirements. A hypothesis whose every
-                // variable the binding already fixed is a closed claim, and what
-                // goes wrong above cannot: nothing is left for the line to bind.
-                let pinned = *pinned
-                    .get_or_insert_with(|| all_bound(&first, variables, binding));
-                out.push(Fit {
-                    fact: Some(i),
-                    binding: found,
-                    takes: !(reuse || pinned),
-                });
             }
         }
         // An equation the body asks whose one side names no open letter is

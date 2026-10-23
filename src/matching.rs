@@ -19,7 +19,7 @@ use indexmap::{IndexMap, IndexSet};
 use crate::corpus::{Record, RecordKind};
 use crate::formula::notation_id::{NotationId, Spelling};
 use crate::formula::symbol::Symbol;
-use crate::formula::{Binds, Node, NodeId, Notation};
+use crate::formula::{Binds, ByShape, Node, NodeId, Notation};
 use crate::notations::{APPLICATION, APPLICATION_TO_TWO, NUMERAL, PROPERTY_OF};
 use crate::regex;
 
@@ -152,23 +152,6 @@ fn unordered(records: &[Record]) -> IndexSet<String> {
         })
         .map(|r| r.name.clone())
         .collect()
-}
-
-/// Every order of a node's parts.
-fn permutations(parts: &[Node]) -> Vec<Vec<Node>> {
-    if parts.len() <= 1 {
-        return vec![parts.to_vec()];
-    }
-    let mut out = Vec::new();
-    for i in 0..parts.len() {
-        let mut rest = parts.to_vec();
-        let first = rest.remove(i);
-        for mut tail in permutations(&rest) {
-            tail.insert(0, first.clone());
-            out.push(tail);
-        }
-    }
-    out
 }
 
 /// What a spelling is in its notation's standard order: the literal it is
@@ -567,22 +550,6 @@ pub fn universals(records: &[Record]) -> IndexSet<String> {
 
 /// A claim whose notation says its parts stand in no order (`commutes any
 /// order`), read in each order of its parts; any other claim as it stands.
-/// A pattern fitted to each reading is fitted every way the claim allows,
-/// where `match_tree` alone stops at the first: "S, R, T are collinear"
-/// fits "T, R, S" with T := S as well as with T := T, and only one of the two
-/// may be what the facts supply. Only the claim's own head is read so: a
-/// claim is a formula, and the formulas in no order are about three points,
-/// where a listing inside a claim, a term, holds any number of elements.
-pub fn readings_in_any_order(node: &Node, ctx: &Context) -> Vec<Node> {
-    if !ctx.unordered.contains(&node.notation()) {
-        return vec![node.clone()];
-    }
-    permutations(&node.children)
-        .into_iter()
-        .map(|kids| node.with_children(kids))
-        .collect()
-}
-
 /// The ways b's parts may stand against a's: as written, and turned round
 /// where a is an equation. Where a's notation is unordered its parts are
 /// paired in any order instead (`fit_in_any_order`, `parts_related`).
@@ -684,13 +651,45 @@ fn identity_of<'c>(node: &Node, ctx: &'c Context) -> Option<&'c IdentityElement>
     ctx.identities.get(&node.spelling())
 }
 
-/// `match_tree` into one binding, growing it in place.
-///
-/// Matching only ever adds a variable the binding does not have, and adds it
-/// at the end, so an attempt that fails is undone by cutting the binding
-/// back to the length it had before. Copying the binding at every node of
-/// every attempt instead measured at a quarter of a check. When this gives
-/// back false, the binding is as it was.
+/// Every binding under which the pattern fits the ground, each once: what
+/// `match_tree` gives back, and the others it would have found had it gone
+/// on. A listing whose elements stand in any order, or an equation, inside
+/// a claim may fit more than one way, and which way is the citation is
+/// decided by the rest of the claim and by the cited lines: `{a, b} ⊆ S`
+/// against `{v, w} ⊆ S` with a := v and with a := w.
+pub fn match_every_way(
+    pattern: &Node,
+    ground: &Node,
+    binding: &Binding,
+    variables: &BTreeSet<String>,
+    sites: &IndexSet<NodeId>,
+    ctx: &Context,
+) -> Vec<Binding> {
+    let mut found: Vec<Binding> = Vec::new();
+    if refused_at_root(pattern, ground, binding, variables, ctx) {
+        return found;
+    }
+    let mut keys: Vec<Vec<(Symbol, ByShape)>> = Vec::new();
+    let mut out = binding.clone();
+    let mut keep = |b: &mut Binding| {
+        let key: Vec<(Symbol, ByShape)> =
+            b.iter().map(|(k, v)| (*k, v.by_shape())).collect();
+        if !keys.contains(&key) {
+            keys.push(key);
+            found.push(b.clone());
+        }
+        false
+    };
+    fit_each(pattern, ground, &mut out, variables, sites, ctx, &mut keep);
+    found
+}
+
+/// What is done with a binding under which a pattern fits: true ends the
+/// search with it, false asks for the next way the pattern fits.
+type Then<'t> = dyn FnMut(&mut Binding) -> bool + 't;
+
+/// `match_tree` into one binding, growing it in place: the first way the
+/// pattern fits.
 fn fit(
     pattern: &Node,
     ground: &Node,
@@ -699,22 +698,49 @@ fn fit(
     sites: &IndexSet<NodeId>,
     ctx: &Context,
 ) -> bool {
+    fit_each(pattern, ground, binding, variables, sites, ctx, &mut |_| {
+        true
+    })
+}
+
+/// Each way the pattern fits the ground, handed to `then` in turn until it
+/// gives back true.
+///
+/// Matching only ever adds a variable the binding does not have, and adds it
+/// at the end, so an attempt that fails is undone by cutting the binding
+/// back to the length it had before. Copying the binding at every node of
+/// every attempt instead measured at a quarter of a check. When this gives
+/// back false, the binding is as it was.
+fn fit_each(
+    pattern: &Node,
+    ground: &Node,
+    binding: &mut Binding,
+    variables: &BTreeSet<String>,
+    sites: &IndexSet<NodeId>,
+    ctx: &Context,
+    then: &mut Then,
+) -> bool {
+    let before = binding.len();
     if is_variable(pattern, variables) {
         if let Some(seen) = binding.get(&pattern.text) {
-            return alike(seen, ground, ctx, &IndexMap::new(), &IndexMap::new());
+            return alike(seen, ground, ctx, &IndexMap::new(), &IndexMap::new())
+                && then(binding);
         }
         binding.insert(pattern.text, ground.clone());
-        return true;
+        return then_kept(true, before, binding, then);
     }
     if applies_variable(pattern, variables, ctx) {
         if ctx.props.get(&pattern.notation()).map(String::as_str) != Some("function") {
-            return property(pattern, ground, binding, sites, ctx);
+            let fits = property(pattern, ground, binding, sites, ctx);
+            return then_kept(fits, before, binding, then);
         }
         if let Some(fits) = family(pattern, ground, binding, variables, sites, ctx) {
-            return fits;
+            return then_kept(fits, before, binding, then);
         }
     }
-    let before = binding.len();
+    // Whether the pattern fitted as written, its parts against the ground's,
+    // in some way. An identity element is read away only where it did not.
+    let mut written = false;
     if !differs(pattern, ground) {
         let pattern = bound_as(pattern, ground, variables, ctx);
         // The letters a binder binds are paired before what it binds them
@@ -734,6 +760,10 @@ fn fit(
             .partition(|&i| holds_site(&pattern.children[i], sites));
         first.extend(deciding);
         first.extend(checking);
+        let mut marked = |b: &mut Binding| {
+            written = true;
+            then(b)
+        };
         if ctx.unordered.contains(&pattern.notation()) {
             let mut pairing = Pairing {
                 pattern: &pattern.children,
@@ -741,37 +771,92 @@ fn fit(
                 order: &first,
                 taken: vec![false; ground.children.len()],
             };
-            if fit_in_any_order(&mut pairing, 0, binding, variables, sites, ctx) {
+            if fit_in_any_order(
+                &mut pairing,
+                0,
+                binding,
+                variables,
+                sites,
+                ctx,
+                &mut marked,
+            ) {
                 return true;
             }
         } else {
             for children in orders(&pattern, ground, ctx) {
-                let all = first.iter().all(|&i| {
-                    fit(
-                        &pattern.children[i],
-                        &children[i],
-                        binding,
-                        variables,
-                        sites,
-                        ctx,
-                    )
-                });
-                if all {
+                let parts = Parts {
+                    pattern: &pattern.children,
+                    ground: &children,
+                    order: &first,
+                };
+                if fit_parts(&parts, 0, binding, variables, sites, ctx, &mut marked) {
                     return true;
                 }
-                binding.truncate(before);
             }
         }
     }
+    if written {
+        return false;
+    }
     // x + 0 is x wherever it stands (`Context::identities`): in the pattern,
     // or in the ground.
-    if without_identity(pattern, ground, binding, variables, sites, ctx) {
+    if without_identity(pattern, ground, binding, variables, sites, ctx, then) {
         return true;
     }
     match identity_kept(ground, ctx) {
-        Some(kept) => fit(pattern, &kept, binding, variables, sites, ctx),
+        Some(kept) => fit_each(pattern, &kept, binding, variables, sites, ctx, then),
         None => false,
     }
+}
+
+/// `then` of a binding a fit that takes one way only left, where it fitted;
+/// the binding cut back to `before` where it did not, or `then` asked on.
+fn then_kept(
+    fitted: bool,
+    before: usize,
+    binding: &mut Binding,
+    then: &mut Then,
+) -> bool {
+    if fitted && then(binding) {
+        return true;
+    }
+    binding.truncate(before);
+    false
+}
+
+/// A pattern's parts each against the ground's part in the same place, in
+/// the order they are paired (`fit_each`'s).
+struct Parts<'n> {
+    pattern: &'n [Node],
+    ground: &'n [Node],
+    /// The parts by place, in the order they are paired.
+    order: &'n [usize],
+}
+
+/// `fit_each` of the parts from `at` on in `parts.order`, every way each
+/// fits handed on to the parts after it, and `then` asked of each way they
+/// all fit. When this gives back false, the binding is as it was.
+fn fit_parts(
+    parts: &Parts,
+    at: usize,
+    binding: &mut Binding,
+    variables: &BTreeSet<String>,
+    sites: &IndexSet<NodeId>,
+    ctx: &Context,
+    then: &mut Then,
+) -> bool {
+    let Some(&i) = parts.order.get(at) else {
+        return then(binding);
+    };
+    fit_each(
+        &parts.pattern[i],
+        &parts.ground[i],
+        binding,
+        variables,
+        sites,
+        ctx,
+        &mut |b| fit_parts(parts, at + 1, b, variables, sites, ctx, then),
+    )
 }
 
 /// A pattern's parts being paired with the ground's where the notation
@@ -786,12 +871,12 @@ struct Pairing<'n> {
     taken: Vec<bool>,
 }
 
-/// `fit` of the pattern's parts from `at` on in `pairing.order`, each with
-/// one of the ground's parts not yet taken. A part is tried against each
-/// ground part in turn and the rest paired after it, so the orders tried
-/// are only those whose first parts fit, and a list of any length is not
-/// written out in every order. When this gives back false, the binding is
-/// as it was.
+/// `fit_each` of the pattern's parts from `at` on in `pairing.order`, each
+/// with one of the ground's parts not yet taken, and `then` asked of each
+/// pairing that fits whole. A part is tried against each ground part in
+/// turn and the rest paired after it, so the orders tried are only those
+/// whose first parts fit, and a list of any length is not written out in
+/// every order. When this gives back false, the binding is as it was.
 fn fit_in_any_order(
     pairing: &mut Pairing,
     at: usize,
@@ -799,30 +884,30 @@ fn fit_in_any_order(
     variables: &BTreeSet<String>,
     sites: &IndexSet<NodeId>,
     ctx: &Context,
+    then: &mut Then,
 ) -> bool {
     let Some(&part) = pairing.order.get(at) else {
-        return true;
+        return then(binding);
     };
-    let before = binding.len();
-    for place in 0..pairing.ground.len() {
+    let (pattern, ground) = (pairing.pattern, pairing.ground);
+    for (place, against) in ground.iter().enumerate() {
         if pairing.taken[place] {
             continue;
         }
-        if fit(
-            &pairing.pattern[part],
-            &pairing.ground[place],
+        pairing.taken[place] = true;
+        let done = fit_each(
+            &pattern[part],
+            against,
             binding,
             variables,
             sites,
             ctx,
-        ) {
-            pairing.taken[place] = true;
-            if fit_in_any_order(pairing, at + 1, binding, variables, sites, ctx) {
-                return true;
-            }
-            pairing.taken[place] = false;
+            &mut |b| fit_in_any_order(pairing, at + 1, b, variables, sites, ctx, then),
+        );
+        if done {
+            return true;
         }
-        binding.truncate(before);
+        pairing.taken[place] = false;
     }
     false
 }
@@ -906,11 +991,11 @@ fn without_identity(
     variables: &BTreeSet<String>,
     sites: &IndexSet<NodeId>,
     ctx: &Context,
+    then: &mut Then,
 ) -> bool {
     let Some(law) = identity_of(pattern, ctx) else {
         return false;
     };
-    let before = binding.len();
     for &hole in &law.holes {
         let (unit, kept) = (&pattern.children[hole], &pattern.children[1 - hole]);
         // The element is one the instance has, written or a variable already
@@ -918,10 +1003,9 @@ fn without_identity(
         let written = law.is(unit)
             || (is_variable(unit, variables)
                 && binding.get(&unit.text).is_some_and(|b| law.is(b)));
-        if written && fit(kept, ground, binding, variables, sites, ctx) {
+        if written && fit_each(kept, ground, binding, variables, sites, ctx, then) {
             return true;
         }
-        binding.truncate(before);
     }
     false
 }

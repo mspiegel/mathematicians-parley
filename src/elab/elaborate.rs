@@ -86,9 +86,12 @@ struct Pushed {
     floats: Vec<(Symbol, Symbol)>,
 }
 
-/// Which of the three ways a biconditional definition reaches a claim.
+/// Which of the four ways a biconditional definition reaches a claim.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Way {
+    /// The biconditional itself is what the step claims, and its lemma is
+    /// applied as it stands, as a theorem's is.
+    AsStated,
     /// It concludes an existence claim from a witness.
     Conclude,
     /// Its right side is what the step holds, read right to left.
@@ -1392,6 +1395,9 @@ impl<'a> Elaborator<'a> {
             How::Define => self.by_define(step, term, scope, facts)?,
             How::TakeDefinition => {
                 self.take_definition(step, term, scope, facts, lines)?
+            }
+            How::Reading(Way::AsStated) => {
+                self.cite(step, term, scope, facts, lines)?
             }
             How::Reading(Way::Conclude) => {
                 self.conclude(step, term, scope, facts, lines)?
@@ -2935,10 +2941,11 @@ impl<'a> Elaborator<'a> {
         Ok(Route::no(declines.join("; ")))
     }
 
-    /// Which of three ways a biconditional definition reaches a claim: the
-    /// way the checker read the citation (`Concluded::way`), with its right
-    /// side stated first unfolded from it and its left side stated first
-    /// read back to it. A lemma that is no biconditional is applied as it
+    /// Which of four ways a biconditional definition reaches a claim: the
+    /// way the checker read the citation (`Concluded::way`), with the whole
+    /// biconditional claimed as it stands, its right side stated first
+    /// unfolded from it and its left side stated first read back to it. A
+    /// lemma that is no biconditional is applied as it
     /// stands, and a left side whose right side is a "there is" no line the
     /// step cites says is shown from a witness.
     pub fn reading(&mut self, item: &'a Record, step: &Step) -> Checked<Way> {
@@ -2968,7 +2975,7 @@ impl<'a> Elaborator<'a> {
             }
         };
         Ok(match way {
-            citing::Way::AsWritten => Way::Conclude,
+            citing::Way::AsWritten => Way::AsStated,
             citing::Way::Forward => Way::Unfolded,
             citing::Way::Backward => {
                 let there_is = whole.children()[1].label() == Some("wrex");

@@ -1,3 +1,4 @@
+import mundane definition stdlib/sets/pair
 import mundane theorem stdlib/counting/card-two
 import mundane theorem stdlib/sets/pair-subset
 import mundane theorem stdlib/sets/triple-subset
@@ -16,6 +17,18 @@ theorem a-pair-cited-in-the-other-order
 
 1.  Y = {v, w}
     mun:card-two a := w, b := v, from H2, H3, H4, H5
+
+theorem a-pair-paired-by-the-rest-of-the-claim
+  note        pair says x ∈ {u, w} ↔ x = u or x = w. The pair alone fits
+              with u := v as well as u := w, and only the second makes the
+              disjunction the one claimed; no letter is named.
+  let x be an element                                                 (H1)
+  let v be an element                                                 (H2)
+  let w be an element                                                 (H3)
+  then x ∈ {v, w} ↔ x = w or x = v
+
+1.  x ∈ {v, w} ↔ x = w or x = v
+    mun:pair
 
 theorem a-pair-inside-a-subset
   note        pair-subset concludes {a, b} ⊆ X of the two in the order
