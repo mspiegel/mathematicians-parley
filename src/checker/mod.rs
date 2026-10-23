@@ -1055,12 +1055,21 @@ fn check_requires_work(
             continue;
         }
         let found = found_alone(c, thm, step, k, clashes);
+        // A line saying a defined function is applied inside its domain does
+        // work, as a cited line saying so does (`citations::domains_asked`).
+        let in_domain = citations::domains_asked(thm, step, c.scopes, k);
         // Each line is asked of the step without the lines already found to
         // do no work: two lines either of which would do, |AM| ∈ ℝ and
         // |MB| ∈ ℝ beside |AM| = |MB|, are not both surplus, and only the
         // first is said to be.
         let mut kept = step.clone();
         for req in &step.requires {
+            let says_domain = k
+                .whole_as_written(&req.fact)
+                .is_some_and(|n| in_domain.contains(&n.by_shape()));
+            if says_domain {
+                continue;
+            }
             let mut lighter = kept.clone();
             lighter.requires.retain(|r| r.line != req.line);
             let without = found_alone(c, thm, &lighter, k, clashes);

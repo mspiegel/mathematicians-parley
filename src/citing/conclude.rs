@@ -11,7 +11,7 @@ use crate::matching::{
     put_everywhere, readings_in_any_order, substitute_apart, Binding, Context,
     FxIndexSet,
 };
-use crate::notations::PROPERTY_OF;
+use crate::notations::{PROPERTY_OF, THERE_IS};
 use crate::outcome::{Built, Route};
 
 use super::asked::filled;
@@ -159,9 +159,18 @@ fn claim_matched(
     if parts.len() < 2 {
         return None;
     }
+    // The body is the citing page's, and its letters are the page's even
+    // where one is spelt as a letter of the item: only the item's letters
+    // the property is applied to are matched. The page's X in `X ∈ S`, with
+    // the item's X bound to {1, …, X}, is the page's X.
+    let applied_to: BTreeSet<String> = cand.children[1]
+        .names()
+        .into_iter()
+        .filter(|n| variables.contains(n))
+        .collect();
     parts
         .iter()
-        .find_map(|part| match_tree(part, claim, binding, variables, sites, ctx))
+        .find_map(|part| match_tree(part, claim, binding, &applied_to, sites, ctx))
 }
 
 /// Whether every identity element the match of `cand` against `claim`
@@ -819,10 +828,11 @@ impl Offer {
 pub fn obtains(
     groups: &[Group],
     facts: &[Node],
+    claims: &[Node],
     seed: &Binding,
     library: &Library,
 ) -> bool {
-    !obtained(groups, facts, seed, library).is_declined()
+    !obtained(groups, facts, claims, seed, library).is_declined()
 }
 
 /// The first group of an item that gives a "there is" from the facts, with
@@ -830,10 +840,15 @@ pub fn obtains(
 ///
 /// The facts supply the group's hypotheses as well as what the reading asks
 /// first, so that every letter the item says the "there is" of is bound: the
-/// x of `x(n) → L as n → ∞` is fixed by that hypothesis alone.
+/// x of `x(n) → L as n → ∞` is fixed by that hypothesis alone. A letter the
+/// citation gives no value and no line fixes, the n of odd-part's `let n ∈
+/// ℕ`, is fixed first by what the step claims of the names it obtains
+/// (`fixed_by_claim`): the facts put many things in ℕ, the page's 2 among
+/// them, and only the claim says which one the "there is" is of.
 pub fn obtained(
     groups: &[Group],
     facts: &[Node],
+    claims: &[Node],
     seed: &Binding,
     library: &Library,
 ) -> Route<Taken> {
@@ -862,8 +877,14 @@ pub fn obtained(
                 let mut need = first.clone();
                 need.extend(asked.iter().cloned());
                 let variables = of.letters(&need);
+                let mut start = seed.clone();
+                for (name, value) in
+                    fixed_by_claim(&target, claims, seed, &variables, library)
+                {
+                    start.entry(name).or_insert(value);
+                }
                 let found =
-                    supply(&need, facts, seed, &variables, library, &sites, false);
+                    supply(&need, facts, &start, &variables, library, &sites, false);
                 if let Some(binding) = found {
                     if conjuncts(&target, library)
                         .iter()
@@ -885,6 +906,57 @@ pub fn obtained(
         }
     }
     Route::no("no group of the item gives a \"there is\" from the facts named")
+}
+
+/// What an obtain's claim fixes of the item's letters: the claim says the
+/// body of the "there is" with the names obtained for its bound letters, so
+/// the parts of the body are supplied by the sentences of the claim, each
+/// by its own, the bound letters matched as the item's are, and what that
+/// gives the item's own letters is kept. Empty where the item gives no
+/// "there is" written as one, or the claim says something else, which
+/// `check_obtained_claims` reports.
+fn fixed_by_claim(
+    target: &Node,
+    claims: &[Node],
+    seed: &Binding,
+    variables: &BTreeSet<String>,
+    library: &Library,
+) -> Binding {
+    let said: Vec<Node> = claims.iter().flat_map(|c| conjuncts(c, library)).collect();
+    let mut fixed = Binding::new();
+    for part in conjuncts(target, library) {
+        // The letters each level binds, and the body under the last.
+        let mut bound: BTreeSet<String> = BTreeSet::new();
+        let mut body = &part;
+        while body.notation() == THERE_IS && body.children.len() == 3 {
+            let letter = &body.children[0];
+            if !letter.is_name() {
+                break;
+            }
+            bound.insert(letter.text.to_string());
+            body = &body.children[2];
+        }
+        if bound.is_empty() {
+            continue;
+        }
+        let mut open = variables.clone();
+        open.extend(bound.iter().cloned());
+        let pieces = conjuncts(body, library);
+        let Some(binding) =
+            supply(&pieces, &said, seed, &open, library, &Sites::new(), false)
+        else {
+            continue;
+        };
+        for (name, value) in binding {
+            if variables.contains(name.as_str())
+                && !bound.contains(name.as_str())
+                && !seed.contains_key(&name)
+            {
+                fixed.entry(name).or_insert(value);
+            }
+        }
+    }
+    fixed
 }
 
 /// Whether one part of what a definition says is a "there is", with a

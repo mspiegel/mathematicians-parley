@@ -316,7 +316,7 @@ theorem prime-exponent
                             requires 1 < d: inequalities, from C2, K1
 
                   4.2.3.8.  q ∈ ℕ. 2^(d·e) − 1 = (2^d − 1)·q. q ≥ e.
-                            obtain q: thm:power-multiple-quotient d := d, m := e, from 4.2.3.4
+                            obtain q: thm:power-multiple-quotient m := e, from 4.2.3.4
 
                   4.2.3.9.  2^n − 1 = 2^(d·e) − 1
                             substitute n = d·e (line 4.2.3.2)

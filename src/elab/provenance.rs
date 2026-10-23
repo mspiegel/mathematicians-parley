@@ -14,7 +14,7 @@ use std::collections::BTreeSet;
 
 use super::state::{number_of, Elaborator};
 use super::Facts;
-use crate::corpus::proof::Requires;
+use crate::corpus::proof::{Justification, Requires};
 use crate::corpus::{Head, Item, Method, Step};
 use crate::formula::Node;
 use crate::mm::kernel::{same, Term};
@@ -120,27 +120,7 @@ impl<'a> Elaborator<'a> {
         out.extend(step.just.contradicting.iter().cloned());
         out.extend(self.sorts.iter().cloned());
         out.extend(step.requires.iter().map(|r| requirement(r.line)));
-        // A hypothesis of the theorem the step names, in its `from` or as
-        // the line a substitute is put into, is read with the defines whose
-        // names it writes, as the statement reads it
-        // (`hypotheses_by_their_names`).
-        let into = step.just.into.as_ref().map(|p| p.named().to_string());
-        for r in step.just.refs.iter().chain(into.as_ref()) {
-            if self.is_hypothesis(r) {
-                out.extend(self.hypothesis_defines(r));
-            }
-        }
-        // A theorem of this file stated over the file's defines is read with
-        // them, and the step rests on them through it (`sorts::stated_over`).
-        if let Some(cited) = step.just.cited_item() {
-            let full = self.thm.names.full(&cited);
-            out.extend(crate::sorts::stated_over(self.thm, self.scopes, &full));
-            // A theorem stated over a sequence by recursion is read with this
-            // proof's define of it, which the step rests on the same way.
-            if let Some(Item::Theorem(other)) = self.items.get(&full) {
-                out.extend(self.recursions_read(other));
-            }
-        }
+        out.extend(self.read_with(&step.just));
         if block {
             let prefix = format!("{number}.");
             out.extend(
@@ -202,6 +182,35 @@ impl<'a> Elaborator<'a> {
         out
     }
 
+    /// The defines a reason reads with what it names, and so rests on: a
+    /// step's, or a requires line's, which is justified as a step is.
+    fn read_with(&self, just: &Justification) -> BTreeSet<String> {
+        let mut out = BTreeSet::new();
+        // A hypothesis of the theorem the reason names, in its `from` or as
+        // the line a substitute is put into, is read with the defines whose
+        // names it writes, as the statement reads it
+        // (`hypotheses_by_their_names`).
+        let into = just.into.as_ref().map(|p| p.named().to_string());
+        for r in just.refs.iter().chain(into.as_ref()) {
+            if self.is_hypothesis(r) {
+                out.extend(self.hypothesis_defines(r));
+            }
+        }
+        // A theorem of this file stated over the file's defines is read with
+        // them, and the reason rests on them through it
+        // (`sorts::stated_over`).
+        if let Some(cited) = just.cited_item() {
+            let full = self.thm.names.full(&cited);
+            out.extend(crate::sorts::stated_over(self.thm, self.scopes, &full));
+            // A theorem stated over a sequence by recursion is read with this
+            // proof's define of it, which the reason rests on the same way.
+            if let Some(Item::Theorem(other)) = self.items.get(&full) {
+                out.extend(self.recursions_read(other));
+            }
+        }
+        out
+    }
+
     /// What the lines `refs` name say, held as those lines proved it where
     /// the proof held rests on something outside `resting`: a step or a
     /// requires line rests only on what it names (`rests_on_named`), so a
@@ -240,10 +249,14 @@ impl<'a> Elaborator<'a> {
     }
 
     /// What the requires line `req` may rest on (R2): what its reason
-    /// cites, the sorts, and the requires lines above it; and itself, as a
-    /// line already proved and found again is sealed with its own name.
+    /// cites, and the defines it reads with it (`read_with`), the sorts, and
+    /// the requires lines above it; and itself, as a line already proved and
+    /// found again is sealed with its own name.
     pub fn reason_allows(&self, step: &Step, req: &Requires) -> BTreeSet<String> {
         let mut out: BTreeSet<String> = req.refs().iter().cloned().collect();
+        if let Ok(by) = &req.by {
+            out.extend(self.read_with(by));
+        }
         out.extend(self.sorts.iter().cloned());
         out.extend(step.requires_above(req.line).map(|r| requirement(r.line)));
         out.insert(requirement(req.line));

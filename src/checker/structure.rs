@@ -1680,13 +1680,54 @@ pub fn check_function_names(
 /// that does not read is said here, at its line, whether or not a theorem
 /// uses it, and the passes that gather definitions leave it out.
 pub fn check_file_defines(report: &mut Report, env: crate::sorts::Env) {
+    let binders = env.g.binders();
     for (src, scope) in env.scopes.iter().enumerate() {
         for d in &scope.defines {
-            if let Err(p) = crate::sorts::file_define(d, src, env) {
+            let defined = match crate::sorts::file_define(d, src, env) {
+                Ok(Some(defined)) => defined,
+                Ok(None) => continue,
+                Err(p) => {
+                    report.say(
+                        &scope.path,
+                        d.line,
+                        format!("define {}: {}", d.label, p.message),
+                    );
+                    continue;
+                }
+            };
+            // Outside the theorems no `let` introduces anything, so a letter
+            // the define writes is one of its arguments, or a name an import
+            // or a define above it gives: `for k ∈ {1, …, N}` written there
+            // names an N nothing gives.
+            let mut given: BTreeSet<String> =
+                scope.function_names().into_iter().collect();
+            given.extend(
+                visible(env.scopes, src, d.line)
+                    .into_iter()
+                    .map(|(n, _, _)| n),
+            );
+            let written: Vec<&Node> = match &defined {
+                crate::matching::Defined::Term(body) => vec![body],
+                crate::matching::Defined::Rule(rule) => {
+                    given.extend(rule.params.iter().map(|p| p.name.clone()));
+                    std::iter::once(&rule.body)
+                        .chain(rule.read.iter().map(|p| &p.domain))
+                        .collect()
+                }
+            };
+            let free: BTreeSet<String> = written
+                .into_iter()
+                .flat_map(|n| crate::matching::free_names(n, &binders))
+                .filter(|n| !given.contains(n))
+                .collect();
+            for name in free {
                 report.say(
                     &scope.path,
                     d.line,
-                    format!("define {}: {}", d.label, p.message),
+                    format!(
+                        "define {} writes {name}, which neither its arguments nor an import or a define above it gives",
+                        d.label
+                    ),
                 );
             }
         }

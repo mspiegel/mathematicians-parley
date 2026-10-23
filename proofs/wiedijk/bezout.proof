@@ -27,7 +27,7 @@ theorem least-combination-divides
   then d divides c
 
 1.  q ∈ ℤ. r ∈ ℤ. c = q·d + r. 0 ≤ r. r < d.
-    obtain q, r: thm:division-algorithm n := c, d := d
+    obtain q, r: thm:division-algorithm n := c
 
 2.  r = a·(u − q·x₀) + b·(v − q·y₀)
     algebra, from H9, H10, 1

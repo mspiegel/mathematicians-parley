@@ -566,7 +566,9 @@ pub fn searched(
         Search::Takes => {
             taken(&groups, &parts.claims, &parts.facts, &parts.seed, library)
         }
-        Search::Obtains => obtained(&groups, &parts.facts, &parts.seed, library),
+        Search::Obtains => {
+            obtained(&groups, &parts.facts, &parts.claims, &parts.seed, library)
+        }
         Search::Alone => concluded_alone(&groups, &parts, library),
     });
     known.searches.borrow_mut().insert(key, made.clone());
@@ -1552,7 +1554,7 @@ pub fn check_obtained(
         // A hypothesis nothing supplies is `check_hypotheses`'s to name; the
         // way to the "there is" fails for it, and saying so again would
         // point at the line the step does cite.
-        if !obtains(&groups, &parts.facts, &parts.seed, library)
+        if !obtains(&groups, &parts.facts, &parts.claims, &parts.seed, library)
             && unsupplied(step, known, library).is_none()
         {
             report.say(
@@ -2391,7 +2393,7 @@ impl FamilyAsks {
 /// read as its rule too where the step cites the define, as `S ∈ G(m − 1,
 /// n)` is unfolded by citing G's define, and asks the same of what it is
 /// applied to.
-fn domains_asked(
+pub(super) fn domains_asked(
     thm: &Theorem,
     step: &Step,
     scopes: &[FileScope],
@@ -4448,6 +4450,27 @@ fn member_in(
     )
 }
 
+/// Whether a cited line, as `stated` says it, does work the item's search
+/// does not see: it states a function type the item asks for, or a sum's
+/// term at every point (`asks`), or says a defined function is applied
+/// inside its domain (`in_domain`, from `domains_asked`). A requires line
+/// citing an item is the step it would be, so it is asked this as a step
+/// is.
+fn does_other_work(
+    stated: Option<&Node>,
+    asks: &FamilyAsks,
+    in_domain: &FxIndexSet<ByShape>,
+    known: &Known,
+    library: &Library,
+) -> bool {
+    stated.is_some_and(|n| {
+        asks.states(n, known)
+            || conjuncts(n, library)
+                .iter()
+                .any(|part| in_domain.contains(&part.by_shape()))
+    })
+}
+
 /// Whether the line `r` says a function's type, `H : [a, b] → ℝ`. A
 /// citation of a function's value or of an item about a function names it
 /// beside the function (`READERS.md`, a function's type cited for its
@@ -4617,18 +4640,14 @@ pub fn check_surplus(
             let mut named_refs: IndexSet<&String> = IndexSet::new();
             named_refs.extend(as_step.just.refs.iter());
             let asks = family_asks(&as_step, known, library);
+            let in_domain = domains_asked(thm, &as_step, scopes, known);
             let scope = known.scope(step);
             for r in named_refs {
                 if defines.contains(r.as_str()) || in_a_domain(step, r, known) {
                     continue;
                 }
-                // A line saying a sum's term at every point, or a type, the
-                // item's function hypothesis asks, does work.
-                let states = scope
-                    .get(r)
-                    .and_then(|s| known.stated_as_written(s))
-                    .is_some_and(|n| asks.states(&n, known));
-                if states {
+                let stated = scope.get(r).and_then(|s| known.stated_as_written(s));
+                if does_other_work(stated.as_ref(), &asks, &in_domain, known, library) {
                     continue;
                 }
                 let mut lighter = as_step.clone();
@@ -4681,17 +4700,8 @@ pub fn check_surplus(
             if defines.contains(r.as_str()) {
                 continue;
             }
-            // A line stating a function type the item asks for does work,
-            // and so does one saying a sum's term at every point, and one
-            // saying a defined function is applied inside its domain.
             let stated = scope.get(r).and_then(|s| known.stated_as_written(s));
-            let says_type = stated.as_ref().is_some_and(|n| asks.states(n, known));
-            let says_domain = stated.as_ref().is_some_and(|n| {
-                conjuncts(n, library)
-                    .iter()
-                    .any(|part| in_domain.contains(&part.by_shape()))
-            });
-            if says_type || says_domain {
+            if does_other_work(stated.as_ref(), &asks, &in_domain, known, library) {
                 continue;
             }
             let mut lighter = step.clone();

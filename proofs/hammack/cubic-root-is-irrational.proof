@@ -21,7 +21,7 @@ theorem cubic-root-is-irrational
 
     1.1.  p ∈ ℤ. q ∈ ℤ. q > 0. x = p/q.
           There is no d ∈ ℤ with d > 1, d divides p, and d divides q.
-          obtain p, q: thm:lowest-terms x := x, from S
+          obtain p, q: thm:lowest-terms, from S
 
     1.2.  (p/q)³ + p/q + 3 = 0
           substitute x = p/q (line 1.1) into H2
