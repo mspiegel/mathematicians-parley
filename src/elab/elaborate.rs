@@ -737,7 +737,7 @@ impl<'a> Elaborator<'a> {
             if let (Some(part), Some(block)) = (step.part, blocks.last_mut()) {
                 let last = self.last.clone().expect("a step's number");
                 let held = self.lines.get(&last).expect("the step's line");
-                let (term, proof) = match (&step.just.contradicting, denied) {
+                let (term, proof) = match (&step.just.contradicting, denied.clone()) {
                     // A case that cannot occur gives the block's claim from
                     // its line and the line it contradicts.
                     (Some(other), _) => {
@@ -773,21 +773,29 @@ impl<'a> Elaborator<'a> {
                 );
             }
             // A `proof` block whose assumption cannot hold ends on the step that
-            // reaches the opposite of an earlier line, as a case that cannot
-            // occur does: what the block claims of the name it fixes is
-            // reached from the two, and stands as the block's last line.
+            // reaches the opposite of an earlier line, or on a closed claim
+            // said to be impossible, as a case that cannot occur does: what
+            // the block claims of the name it fixes is reached from the two,
+            // and stands as the block's last line.
             let fixing = blocks
                 .last()
                 .filter(|b| b.owner.just.head.is(Method::Proof))
                 .map(|b| b.owner.clone());
-            if let (Some(other), Some(owner), None) =
-                (&step.just.contradicting, fixing, step.part)
-            {
+            let closes_fixing = step.just.contradicting.is_some() || denied.is_some();
+            if let (true, Some(owner), None) = (closes_fixing, fixing, step.part) {
                 let last = self.last.clone().expect("a step's number");
                 let held = self.lines.get(&last).expect("the step's line");
                 let body = self.owed_goal(&owner)?;
-                let made =
-                    self.by_opposites(&step, &held, other, &body, &scope, &facts)?;
+                let made = match (&step.just.contradicting, denied) {
+                    (Some(other), _) => {
+                        self.by_opposites(&step, &held, other, &body, &scope, &facts)?
+                    }
+                    // The step's line and its denial, worked out above.
+                    (None, Some(not)) => {
+                        pf!(self.b; scope, held.term, body, held.proof, not, "pm2.21dd")
+                    }
+                    (None, None) => continue,
+                };
                 self.lines.set(
                     &last,
                     Line {

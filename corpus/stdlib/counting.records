@@ -186,6 +186,16 @@ mundane theorem binomial-nat0
   metamath    bccl
   target      bccl
 
+mundane theorem binomial-nat
+  let n ∈ ℕ₀                                                          (H1)
+  let k ∈ {0, …, n}                                                   (H2)
+  then        C(n, k) ∈ ℕ
+  metamath    bccl2
+  target      bccl2
+  note        A coefficient inside 0 … n is a positive whole number: it
+              counts the parts of k elements of a set of n, and there is at
+              least one.
+
 mundane theorem card-empty
   then        |∅| = 0
   metamath    hash0
@@ -369,6 +379,35 @@ mundane theorem card-pair-distinct
   then        u ≠ w ↔ |{u, w}| = 2
   metamath    hashprg
   target      hashprg
+
+mundane theorem card-two
+  let Y be a set                                                      (H1)
+  assume |Y| = 2                                                      (H2)
+  let a ∈ Y                                                           (H3)
+  let b ∈ Y                                                           (H4)
+  assume a ≠ b                                                        (H5)
+  then        Y = {a, b}
+  metamath    hash2prd
+  target      hash2prd
+  note        A set of two elements is any two different elements of it,
+              listed.
+
+mundane theorem card-add-one
+  let a ∉ T                                                           (H1)
+  assume T is finite                                                  (H2)
+  then        |T ∪ {a}| = |T| + 1
+  metamath    hashunsng
+  target      hashunsng
+  note        Adding one new element to a finite set adds one to its size.
+
+mundane theorem card-positive
+  let X be a set                                                      (H1)
+  assume 0 < |X|                                                      (H2)
+  then        X ≠ ∅
+  metamath    hashgt0n0
+  target      hashgt0n0
+  note        A set whose size is above 0 is not empty, and
+              `mun:stdlib/sets/nonempty-member` names an element of it.
 
 mundane theorem range-size
   let n ∈ ℕ₀                                                          (H1)

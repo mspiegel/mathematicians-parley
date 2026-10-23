@@ -1,0 +1,16 @@
+theorem nothing-below-one-is-two
+  note        A proof block whose assumption cannot hold ends on a closed
+              claim said to be impossible, as a contradiction block may, and
+              the block then gives what it claims of the name it fixes.
+  then for all x ∈ ℝ, if x ≤ 1 and x = 2 then x = 5
+
+1.  For all x ∈ ℝ, if x ≤ 1 and x = 2 then x = 5.
+    proof
+    let x ∈ ℝ                                                         (K1)
+    assume x ≤ 1 and x = 2                                            (K2)
+
+    1.1.  x ≤ 1
+          join K2
+
+    1.2.  2 ≤ 1, which is impossible
+          substitute x = 2 (K2) into line 1.1
