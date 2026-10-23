@@ -1,0 +1,18 @@
+theorem a-part-with-a-size
+  note        A letter running over the parts of X is a set, so |W| is its
+              size, and a message says the claim back as the page writes it.
+  let X be a set                                                      (H1)
+  assume there is W ⊆ X with 1 ≤ |W|                                  (H2)
+  then there is W ⊆ X with 1 ≤ |W|
+
+1.  There is W ⊆ X with 1 ≤ |W|.
+    join H2
+
+theorem every-part-with-a-size
+  note        The same of a letter every part of X fills.
+  let X be a set                                                      (H1)
+  assume for all W ⊆ X, |W| ≤ 2                                       (H2)
+  then for all W ⊆ X, |W| ≤ 2
+
+1.  For all W ⊆ X, |W| ≤ 2.
+    join H2

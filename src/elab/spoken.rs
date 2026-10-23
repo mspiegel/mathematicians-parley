@@ -20,7 +20,7 @@ use crate::formula::page::{read_back, Sentence};
 use crate::formula::{wanted_reading, Grammar, Node, Notation, Sort, Whole};
 use crate::mm::kernel::Term;
 use crate::mm::Rpn;
-use crate::notations::{APPLICATION, APPLICATION_TO_TWO, SUPERSCRIPT};
+use crate::notations::{APPLICATION, APPLICATION_TO_TWO, POWERSET, SUPERSCRIPT};
 use crate::outcome::Checked;
 use crate::rules::NUMERALS;
 use crate::targets::{is_context, is_hole, repeated};
@@ -294,6 +294,17 @@ impl Elaborator<'_> {
         self.page_node_under(term, &IndexMap::new(), None)
     }
 
+    /// The sort of what the set the page writes as `set` holds, where it
+    /// says: a name's members by the name's sort, and a power set's members
+    /// are sets, so the W of "there is W ⊆ X" or "there is W ∈ 𝒫X" is a set
+    /// and |W| its size, as the parser reads it.
+    fn members_of(&self, set: &Node) -> Option<Sort> {
+        if set.is_name() {
+            return self.sorts_now.get(set.text.as_str()).and_then(Sort::held);
+        }
+        (set.notation() == POWERSET).then(|| Sort::of("set"))
+    }
+
     /// `page_node` of a part of a term, inside binders that introduce the
     /// letters `bound`: a part is read back with them as names, as the page
     /// reads it inside its binder, so the i of {i ∈ X : P(i)} is a letter and
@@ -417,10 +428,7 @@ impl Elaborator<'_> {
                     .enumerate()
                     .filter(|(at, _)| !binding_at.contains(at))
                     .filter_map(|(_, h)| self.page_node_under(h, bound, None))
-                    .filter(Node::is_name)
-                    .find_map(|n| {
-                        self.sorts_now.get(n.text.as_str()).and_then(Sort::held)
-                    })
+                    .find_map(|n| self.members_of(&n))
                     .unwrap_or_else(Sort::none),
             };
             let mut inner = bound.clone();
