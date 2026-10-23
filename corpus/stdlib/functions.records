@@ -32,16 +32,17 @@ mundane definition set-image
 mundane theorem added-elements-are-new
   let Y be a set                                                      (H1)
   let a be an element                                                 (H2)
-  assume for all s ∈ Y, s ∪ {a} ∉ Y                                   (H3)
-  then        for all u ∈ {s ∪ {a} : s ∈ Y}, u ∉ Y
+  assume for all s ∈ Y, s ∪ {a} ∉ Z                                   (H3)
+  then        for all u ∈ {s ∪ {a} : s ∈ Y}, u ∉ Z
   metamath    ralrnmpt
   target      ralrnmpt
   note        Running over the sets with a added is running over the sets and
               adding a, which `ralrnmpt` says of the range of any map written
               on the spot and of any property of its members. Both are
               narrowed here to the one map the corpus writes and the one
-              property it asks, because the language can name neither — the
-              same gap `notation bijection` records.
+              property it asks, being outside a set Z, because the language
+              can name neither — the same gap `notation bijection` records.
+              Z may be Y itself, as the subsets proof has it.
 
 mundane theorem function-value
   let f : D → E                                                       (H1)

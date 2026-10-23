@@ -1,0 +1,19 @@
+import mundane theorem stdlib/functions/image-of-injection
+
+theorem a-pair-naming-a-define
+  note        Y := F gives the item's Y as a name the step's define reads as
+              𝒫X, which the claim writes out: the map the target builds over
+              Y runs over 𝒫X.
+  let X be a set                                                      (H1)
+  let a be an element                                                 (H2)
+  assume for all S, T ∈ 𝒫X, if S ∪ {a} = T ∪ {a} then S = T          (H3)
+  then there is a bijection from 𝒫X to {S ∪ {a} : S ∈ 𝒫X}
+
+let F = 𝒫X                                                            (D1)
+       reads the parts of X
+
+1.  For all S, T ∈ F, if S ∪ {a} = T ∪ {a} then S = T.
+    substitute F = 𝒫X (D1) into H3
+
+2.  There is a bijection from 𝒫X to {S ∪ {a} : S ∈ 𝒫X}.
+    mun:image-of-injection Y := F, from D1, 1

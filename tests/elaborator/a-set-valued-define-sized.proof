@@ -1,0 +1,23 @@
+import mundane theorem stdlib/counting/range-size
+
+define H(m) := {1, …, m}, for m ∈ ℕ₀                                   (D1)
+       reads the first m numbers
+
+theorem first-numbers-counted
+  note        H(m) is a set by its rule, so |H(m)| is its size and not an
+              absolute value, here and where a theorem citing this one reads
+              its statement.
+  let m ∈ ℕ₀                                                          (H1)
+  then |H(m)| = m
+
+1.  |H(m)| = m
+    mun:range-size n := m, from D1
+
+theorem first-numbers-counted-again
+  note        The statement of a theorem of this file over H is read with H
+              a set, as the theorem's own lines read it.
+  let m ∈ ℕ₀                                                          (H1)
+  then |H(m)| = m
+
+1.  |H(m)| = m
+    thm:first-numbers-counted

@@ -295,14 +295,7 @@ impl<'a> Elaborator<'a> {
         let Some(fresh) = self.unheld(&[&self.to_term(scope), given, want]) else {
             return Ok(Route::no("no letter left to walk under this binder by"));
         };
-        let moved_to = |term: &Term| {
-            let mut put = Binding::new();
-            put.insert(
-                Symbol::of(term.children()[place].variable().unwrap_or("")),
-                fresh.clone(),
-            );
-            term.substitute(&put)
-        };
+        let moved_to = |term: &Term| moved_letter(term, place, &fresh);
         let (moved, moved_want) = (moved_to(given), moved_to(want));
         // The new letter is bound where the old one was, and a standard form
         // reads a bound letter as a blank (`order_key`): the walk puts a
@@ -504,6 +497,15 @@ impl<'a> Elaborator<'a> {
             && g[1] == w[1]
             && g[2] != w[2]
         {
+            // The lemma keeps its letter apart from both domains, which may
+            // spell it bound inside, as a defined set read as its rule does.
+            if g[1]
+                .alone()
+                .is_some_and(|n| scope.has(n) || g[2].has(n) || w[2].has(n))
+            {
+                return self
+                    .over_spare_letter(given, want, 1, scope, facts, step, leaf);
+            }
             let kids = given.children().to_vec();
             let moved = take!(self.congruence(
                 &kids[2],
@@ -529,7 +531,10 @@ impl<'a> Elaborator<'a> {
             && g[2] != w[2]
         {
             let kids = given.children().to_vec();
-            if g[1].alone().is_some_and(|n| scope.has(n)) {
+            if g[1]
+                .alone()
+                .is_some_and(|n| scope.has(n) || g[2].has(n) || w[2].has(n))
+            {
                 return self
                     .over_spare_letter(given, want, 1, scope, facts, step, leaf);
             }
@@ -1280,6 +1285,20 @@ impl<'a> Elaborator<'a> {
             .collect()
     }
 
+    /// Whether a claim has the shape of a part of a set, `x ⊆ S`, or of a
+    /// member of a power set, `x ∈ 𝒫S`. The page reads the first only from
+    /// `wss` and the second only from a `wcel` whose set is a `cpw`, their
+    /// notations' targets, so no other term is read back to the page to ask
+    /// whether it says a part (`rules::PARTS`).
+    pub fn part_shaped(&self, said: &Rpn) -> bool {
+        let node = self.to_term(said);
+        match (node.label(), node.children()) {
+            (Some("wss"), [_, _]) => true,
+            (Some("wcel"), [_, set]) => set.label() == Some("cpw"),
+            _ => false,
+        }
+    }
+
     /// `implied_terms` with each lemma's binding and what it reaches.
     fn implied_chains(&self, said: &Rpn) -> Vec<(Rpn, Vec<Link>)> {
         let node = self.to_term(said);
@@ -1292,15 +1311,7 @@ impl<'a> Elaborator<'a> {
             g: self.g,
             scopes: self.scopes,
         };
-        // The page reads `x ⊆ S` only from `wss` and `x ∈ 𝒫S` only from a
-        // `wcel` whose set is a `cpw`, their notations' targets, so no other
-        // term is read back to the page to ask.
-        let part_shaped = match (node.label(), node.children()) {
-            (Some("wss"), [_, _]) => true,
-            (Some("wcel"), [_, set]) => set.label() == Some("cpw"),
-            _ => false,
-        };
-        let written_as_part = part_shaped
+        let written_as_part = self.part_shaped(said)
             && self.page_node(&node).is_some_and(|page| {
                 part_said_otherwise(&page, env, &self.sorts_now).is_some()
             });
@@ -2609,4 +2620,28 @@ impl<'a> Elaborator<'a> {
         }
         Ok(out)
     }
+}
+
+/// `term`, a binder, with the letter at `place` moved to `fresh` wherever
+/// it binds. A "for all", a "there is" and a set-builder over a domain bind
+/// their letter in their body and not in the domain, which keeps any letter
+/// of its own spelt as it is; any other binder has the letter moved
+/// throughout.
+fn moved_letter(term: &Term, place: usize, fresh: &Term) -> Term {
+    let mut put = Binding::new();
+    put.insert(
+        Symbol::of(term.children()[place].variable().unwrap_or("")),
+        fresh.clone(),
+    );
+    let over_a_domain = matches!(term.label(), Some("wral" | "wrex" | "crab"))
+        && term.children().len() == 3
+        && place == 1;
+    if !over_a_domain {
+        return term.substitute(&put);
+    }
+    let kids = term.children();
+    Term::apply(
+        term.label().unwrap_or(""),
+        vec![kids[0].substitute(&put), fresh.clone(), kids[2].clone()],
+    )
 }

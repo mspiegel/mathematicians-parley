@@ -3421,17 +3421,27 @@ impl<'a> Elaborator<'a> {
     /// so the domain's own letter is moved to one neither map holds first
     /// (`mpteq1i`), the maps' letter renamed over the domain so spelt, and
     /// the other map carried back. g(x) = √x over D = {x ∈ ℝ : x > 0} is
-    /// such a map. None where the domain binds neither letter.
+    /// such a map. A set-builder is renamed the same way (`cbvrabv`,
+    /// `rabeqi`): {c ∈ G(m, n) : …} read with G's rule, which binds c too.
+    /// None where the domain binds neither letter.
     fn renamed_over_a_domain_apart(
         &mut self,
         one: &Term,
         other: &Term,
     ) -> Checked<Option<Proof>> {
-        let letters: Vars = [&one.children()[0], &other.children()[0]]
+        // A map holds its letter first and its domain after it, and a
+        // set-builder its condition, its letter and then its domain.
+        let label = one.label().unwrap_or("").to_string();
+        let (letter_at, domain_at) = if label == "crab" { (1, 2) } else { (0, 1) };
+        let Some(lemma) = lookup(rules::DOMAIN, &label) else {
+            return Ok(None);
+        };
+        let letters: Vars = [&one.children()[letter_at], &other.children()[letter_at]]
             .iter()
             .filter_map(|v| v.variable_symbol())
             .collect();
-        let (domain, there) = (&one.children()[1], &other.children()[1]);
+        let (domain, there) =
+            (&one.children()[domain_at], &other.children()[domain_at]);
         let clashing: Vec<Symbol> = self
             .letters_bound(domain)
             .union(&self.letters_bound(there))
@@ -3458,17 +3468,14 @@ impl<'a> Elaborator<'a> {
             return Ok(None);
         };
         let over = |map: &Term| {
-            let kids = vec![
-                map.children()[0].clone(),
-                apart.clone(),
-                map.children()[2].clone(),
-            ];
-            Term::apply("cmpt", kids)
+            let mut kids = map.children().to_vec();
+            kids[domain_at] = apart.clone();
+            Term::apply(&label, kids)
         };
         let (one_there, other_there) = (over(one), over(other));
         let (Some(first), Some(last)) = (
-            self.by_lemma("mpteq1i", one, &one_there, &[&from_one]),
-            self.by_lemma("mpteq1i", other, &other_there, &[&from_other]),
+            self.by_lemma(lemma, one, &one_there, &[&from_one]),
+            self.by_lemma(lemma, other, &other_there, &[&from_other]),
         ) else {
             return Ok(None);
         };
@@ -3555,7 +3562,7 @@ impl<'a> Elaborator<'a> {
             // asked only where the letters differ.
             let letters = label != "cmpt"
                 || self.rpn(&one.children()[0]) != self.rpn(&other.children()[0]);
-            if letters && label == "cmpt" {
+            if letters && (label == "cmpt" || label == "crab") {
                 if let Some(p) = self.renamed_over_a_domain_apart(one, other)? {
                     return Ok(Some(p));
                 }
@@ -3595,13 +3602,15 @@ impl<'a> Elaborator<'a> {
             }
             // The domain may differ too, in the letters it binds: the domain
             // is made the other's first, and the letter renamed over the
-            // domain the two then share.
-            let (x, y) = (&one.children()[1], &other.children()[1]);
+            // domain the two then share. A map holds its domain after its
+            // letter, and a set-builder after its condition and its letter.
+            let at = if label == "crab" { 2 } else { 1 };
+            let (x, y) = (&one.children()[at], &other.children()[at]);
             let Some(inner) = self.class_alpha(x, y)? else {
                 return Ok(None);
             };
             let mut kids = one.children().to_vec();
-            kids[1] = y.clone();
+            kids[at] = y.clone();
             let there = Term::apply(&label, kids);
             let lemma = lookup(rules::DOMAIN, &label).unwrap();
             let Some(moved) = self.by_lemma(lemma, one, &there, &[&inner]) else {
@@ -5687,9 +5696,22 @@ impl<'a> Elaborator<'a> {
             }
             seeds.push(read);
         }
-        for side in &sides {
+        // The claim read as it is, and with each letter it binds respelt by
+        // what its binder says, so that two parts the lemma asks be one, its
+        // A in {x ∈ A : φ} ⊆ A, are one where they differ only in the
+        // letters they bind.
+        let mut readings = vec![theirs.clone()];
+        if let Some(by_content) = self.letters_by_content(&theirs) {
+            if self.rpn(&by_content) != self.rpn(&theirs) {
+                readings.push(by_content);
+            }
+        }
+        for (side, theirs) in sides
+            .iter()
+            .flat_map(|s| readings.iter().map(move |r| (s, r)))
+        {
             for sown in &seeds {
-                let Some(binding) = self.fit_read(side, &theirs, sown, &variables)
+                let Some(binding) = self.fit_read(side, theirs, sown, &variables)
                 else {
                     continue;
                 };
@@ -5722,7 +5744,8 @@ impl<'a> Elaborator<'a> {
                         self.with_cited(Some(step), scope, &supplied, None)
                     }
                 };
-                let across = self.same(&instance, goal, scope, &held, step)?;
+                let across =
+                    self.same_through_names(&instance, goal, scope, &held, step)?;
                 let Built(across) = across else {
                     found = across;
                     continue;
@@ -5733,6 +5756,221 @@ impl<'a> Elaborator<'a> {
             }
         }
         Ok(found)
+    }
+
+    /// `same`, and where it declines, the two compared through `want` with
+    /// its defined names read as what they name (`read_out`): a lemma's
+    /// instance fitted as the standard form reads the claim differs from
+    /// the claim in a define's rule, which may hold more to close than the
+    /// rule alone, as G(m, 0) read as its rule writes m + 0.
+    pub fn same_through_names(
+        &mut self,
+        given: &Term,
+        want: &Term,
+        scope: &Rpn,
+        facts: &Facts,
+        step: Option<&Step>,
+    ) -> Checked<Route<Proof>> {
+        let direct = self.same(given, want, scope, facts, step)?;
+        if let Built(p) = direct {
+            return Ok(Built(p));
+        }
+        let read = self.read_out(want);
+        if self.rpn(&read) == self.rpn(want) {
+            return Ok(direct);
+        }
+        // The rule may bind other letters than `given` does at the same
+        // places: it is spelt with `given`'s letters first, so that what is
+        // left to close between the two is what is not a renaming.
+        let like = self
+            .respelt_like(&read, given)
+            .unwrap_or_else(|| read.clone());
+        let mut links = Vec::new();
+        let mut at = given.clone();
+        for next in [like, read, want.clone()] {
+            if self.rpn(&next) == self.rpn(&at) {
+                continue;
+            }
+            let proof = take!(self.same(&at, &next, scope, facts, step)?);
+            links.push(ChainLink {
+                from: at.clone(),
+                to: next.clone(),
+                proof,
+            });
+            at = next;
+        }
+        Ok(Built(self.chained(scope, &links)))
+    }
+
+    /// `term` with each letter a set-builder, a "for all", a "there is" or a
+    /// map binds respelt as `like` binds the letter in the same place, where
+    /// the two are built alike that far; None where a letter of `like` is
+    /// one `term` spells, which the respelling could capture.
+    fn respelt_like(&self, term: &Term, like: &Term) -> Option<Term> {
+        let spelt = self.rpn(term);
+        let mut out = term.clone();
+        self.respelt_into(&mut out, like, &spelt)?;
+        Some(out)
+    }
+
+    fn respelt_into(&self, term: &mut Term, like: &Term, spelt: &Rpn) -> Option<()> {
+        if term.variable().is_some()
+            || term.label() != like.label()
+            || term.children().len() != like.children().len()
+        {
+            return Some(());
+        }
+        let label = term.label().unwrap_or("").to_string();
+        let mut kids = term.children().to_vec();
+        let layout = match label.as_str() {
+            "crab" | "wral" | "wrex" => Some((1, 2)),
+            "cmpt" => Some((0, 1)),
+            _ => None,
+        };
+        if let Some((at, domain)) = layout {
+            let (ours, theirs) = (&kids[at], &like.children()[at]);
+            if let (Some(letter), Some(new)) =
+                (ours.variable_symbol(), theirs.variable())
+            {
+                if ours.variable() != theirs.variable() {
+                    if spelt.has(new) {
+                        return None;
+                    }
+                    let mut put = Binding::new();
+                    put.insert(letter, theirs.clone());
+                    for (i, k) in kids.iter_mut().enumerate() {
+                        if i != domain {
+                            *k = k.substitute(&put);
+                        }
+                    }
+                }
+            }
+        }
+        for (k, l) in kids.iter_mut().zip(like.children()) {
+            self.respelt_into(k, l, spelt)?;
+        }
+        *term = Term::apply(&label, kids);
+        Some(())
+    }
+
+    /// `term` with each letter a set-builder, a "for all", a "there is" or a
+    /// map binds respelt by what the binder says: two binders that say the
+    /// same, their letters apart, bind one letter wherever they stand, and
+    /// two that say different things bind different letters, so a binder
+    /// never shares its letter with one inside its domain. Two parts that
+    /// differ only in the letters they bind are then spelt alike. For
+    /// fitting a lemma alone (`in_other_words`), which `same` then carries
+    /// to the claim as written. None where too few letters are spare.
+    fn letters_by_content(&self, term: &Term) -> Option<Term> {
+        let mut given: IndexMap<Rpn, Term> = IndexMap::new();
+        self.respelt_by_content(term, term, &mut given)
+    }
+
+    /// `letters_by_content` of a part of `whole`, `given` the letter each
+    /// binder's content has been given so far, the content read with its
+    /// letters spelt by depth (`respelt_by_depth`).
+    fn respelt_by_content(
+        &self,
+        term: &Term,
+        whole: &Term,
+        given: &mut IndexMap<Rpn, Term>,
+    ) -> Option<Term> {
+        if term.variable().is_some() || term.children().is_empty() {
+            return Some(term.clone());
+        }
+        let label = term.label().unwrap_or("");
+        let kids = term.children();
+        let layout = match label {
+            "crab" | "wral" | "wrex" => Some((1, 2)),
+            "cmpt" => Some((0, 1)),
+            _ => None,
+        };
+        let letter = layout.and_then(|(at, _)| kids[at].variable_symbol());
+        let (Some((at, _)), Some(letter)) = (layout, letter) else {
+            let out: Option<Vec<Term>> = kids
+                .iter()
+                .map(|k| self.respelt_by_content(k, whole, given))
+                .collect();
+            return Some(Term::apply(label, out?));
+        };
+        let content = {
+            let mut letters: Vec<Term> = Vec::new();
+            self.rpn(&self.respelt_by_depth(term, 0, &mut letters, whole)?)
+        };
+        let fresh = match given.get(&content) {
+            Some(f) => f.clone(),
+            None => {
+                let mut seen: Vec<&Term> = vec![whole];
+                seen.extend(given.values());
+                let f = self.unheld(&seen)?;
+                given.insert(content, f.clone());
+                f
+            }
+        };
+        let mut put = Binding::new();
+        put.insert(letter, fresh.clone());
+        let domain_at = layout.map(|(_, d)| d);
+        let mut out = Vec::new();
+        for (i, k) in kids.iter().enumerate() {
+            out.push(if i == at {
+                fresh.clone()
+            } else if Some(i) == domain_at {
+                self.respelt_by_content(k, whole, given)?
+            } else {
+                self.respelt_by_content(&k.substitute(&put), whole, given)?
+            });
+        }
+        Some(Term::apply(label, out))
+    }
+
+    /// `letters_by_depth` of a part of `whole` standing under `depth`
+    /// binders, `letters` the letter of each depth so far.
+    fn respelt_by_depth(
+        &self,
+        term: &Term,
+        depth: usize,
+        letters: &mut Vec<Term>,
+        whole: &Term,
+    ) -> Option<Term> {
+        if term.variable().is_some() || term.children().is_empty() {
+            return Some(term.clone());
+        }
+        let label = term.label().unwrap_or("");
+        let kids = term.children();
+        // Where each binder holds its letter and its domain.
+        let layout = match label {
+            "crab" | "wral" | "wrex" => Some((1, 2)),
+            "cmpt" => Some((0, 1)),
+            _ => None,
+        };
+        let letter = layout.and_then(|(at, _)| kids[at].variable_symbol());
+        let (Some((at, domain)), Some(letter)) = (layout, letter) else {
+            let out: Option<Vec<Term>> = kids
+                .iter()
+                .map(|k| self.respelt_by_depth(k, depth, letters, whole))
+                .collect();
+            return Some(Term::apply(label, out?));
+        };
+        while letters.len() <= depth {
+            let mut seen: Vec<&Term> = vec![whole];
+            seen.extend(letters.iter());
+            let fresh = self.unheld(&seen)?;
+            letters.push(fresh);
+        }
+        let fresh = letters[depth].clone();
+        let mut put = Binding::new();
+        put.insert(letter, fresh.clone());
+        let mut out = Vec::new();
+        for (i, k) in kids.iter().enumerate() {
+            out.push(if i == at {
+                fresh.clone()
+            } else if i == domain {
+                self.respelt_by_depth(k, depth, letters, whole)?
+            } else {
+                self.respelt_by_depth(&k.substitute(&put), depth + 1, letters, whole)?
+            });
+        }
+        Some(Term::apply(label, out))
     }
 
     /// What a lemma's variables stand for where its `pattern` is `term`: as

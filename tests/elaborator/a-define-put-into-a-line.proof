@@ -1,0 +1,18 @@
+import mundane theorem stdlib/sets/intersection-subset
+
+theorem a-define-put-into-a-line
+  note        A define says the equation between its name and what it
+              names, and a substitute takes it from the define as it would
+              from a line saying it.
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  then A ∩ B ⊆ A
+
+let C = A ∩ B                                                         (D1)
+       reads what A and B share
+
+1.  C ⊆ A
+    mun:intersection-subset Y := A, Z := B, from D1
+
+2.  A ∩ B ⊆ A
+    substitute C = A ∩ B (D1) into line 1

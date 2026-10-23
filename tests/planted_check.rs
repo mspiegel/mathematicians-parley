@@ -5835,5 +5835,18 @@ fn cases() -> Vec<Case> {
             )],
             "step 2.6 is justified by cases, which needs a block, and has no sub-steps: the step below it is numbered 2.7, so what stands under it is read as part of step 2's block; a step of 2.6's block is numbered 2.6.1",
         ),
+        // A cited line that applies a defined function is read with the
+        // function's rule where the step cites its define, and the rule
+        // holds only inside the domain: T ∈ G(m − 1, n) unfolds only where
+        // m − 1 ∈ ℕ₀, which line 1 says.
+        case(
+            "unfold a define applied in a cited line without its domain",
+            vec![edit(
+                "proofs/wiedijk/ballot.proof",
+                Some("mun:set-builder u := T, from D1, K3, 1\n".to_string()),
+                "mun:set-builder u := T, from D1, K3\n".to_string(),
+            )],
+            "cites D1 at m − 1, so it needs m − 1 ∈ ℕ₀, and nothing it cites or requires says it",
+        ),
     ]
 }

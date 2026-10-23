@@ -161,6 +161,25 @@ impl Whole {
         }
     }
 
+    /// The sort a category says, with what it leaves open left open: `set`
+    /// is a set of things of an open sort. None for a name that is no
+    /// category of a term.
+    pub fn of_category(category: &str) -> Option<Whole> {
+        let open = || Rc::new(Whole::Open);
+        Some(match category {
+            "number" => Whole::Number,
+            "point" => Whole::Point,
+            "group-element" => Whole::GroupElement,
+            "set" => Whole::Set(open()),
+            "group-set" => Whole::Set(Rc::new(Whole::GroupElement)),
+            "set-of-sets" => Whole::Set(Rc::new(Whole::Set(open()))),
+            "property" => Whole::Property(open()),
+            "function" => Whole::Function(open(), open()),
+            "pair" => Whole::Pair(open(), open()),
+            _ => return None,
+        })
+    }
+
     /// The coarse class the parser tells readings apart by, or None for a
     /// sort that has none: a statement, or one left open.
     pub fn category(&self) -> Option<&'static str> {

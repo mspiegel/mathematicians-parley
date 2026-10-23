@@ -525,10 +525,18 @@ pub fn definition_sorts(definitions: &Definitions) -> Sorts {
 /// argument to a function from the next, and so on to its value, as a
 /// library function's is (`infer::function_signature`), each argument a
 /// number where its domain is a number system and open otherwise, and the
-/// value open. So G(a, n) for a ∈ ℝ, n ∈ ℕ₀ is applied to two arguments
-/// and not to a pair.
+/// value the sort the rule was read with, open where that is not settled.
+/// So G(a, n) for a ∈ ℝ, n ∈ ℕ₀ is applied to two arguments and not to a
+/// pair, and H(m) := {1, …, m} is a set, which `|H(m)|` asks of it to read
+/// as a size and not as an absolute value.
 fn rule_sort(rule: &Rule) -> Sort {
-    let whole = rule.params.iter().rev().fold(Whole::Open, |value, p| {
+    let read = &rule.body.sort;
+    let value = read
+        .full()
+        .cloned()
+        .or_else(|| read.name().and_then(Whole::of_category))
+        .unwrap_or(Whole::Open);
+    let whole = rule.params.iter().rev().fold(value, |value, p| {
         let argument = if p.member_of().is_some_and(|d| NUMBER_SYSTEMS.contains(&d)) {
             Whole::Number
         } else {
