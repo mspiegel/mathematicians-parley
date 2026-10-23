@@ -385,12 +385,20 @@ impl<'a> Elaborator<'a> {
         let label = given.label().unwrap_or("").to_string();
         let g: Vec<Rpn> = given.children().iter().map(|c| self.rpn(c)).collect();
         let w: Vec<Rpn> = want.children().iter().map(|c| self.rpn(c)).collect();
-        // Only the body is carried under the binder here; a domain that
-        // changes with the body kept is the branch for domains below.
-        if label == "wrex" && w[1..] == g[1..] {
+        // Only the body is carried under the binder here, with the letter's
+        // membership of the domain in hand: a defined name in the body read
+        // at the letter is its rule only inside the define's domain. A
+        // domain that changes with the body kept is the branch for domains
+        // below.
+        let under_member = match label.as_str() {
+            "wrex" => Some("rexbidva"),
+            "wral" => Some("ralbidva"),
+            _ => None,
+        };
+        if let Some(lemma) = under_member.filter(|_| w[1..] == g[1..]) {
             let kids = given.children();
             let (body, name, runs) = (&kids[0], g[1].clone(), g[2].clone());
-            // `rexbidva` keeps its letter apart from the scope it carries.
+            // The lemma keeps its letter apart from the scope it carries.
             if name.alone().is_some_and(|n| scope.has(n)) {
                 return self
                     .over_spare_letter(given, want, 1, scope, facts, step, leaf);
@@ -403,7 +411,7 @@ impl<'a> Elaborator<'a> {
             })?;
             let made = take!(made);
             return Ok(Built(
-                pf!(self.b; scope, self.rpn(body), self.rpn(&other), name, runs, made, "rexbidva"),
+                pf!(self.b; scope, self.rpn(body), self.rpn(&other), name, runs, made, lemma),
             ));
         }
         // A sum's summand, or a product's factor, is carried the same way,

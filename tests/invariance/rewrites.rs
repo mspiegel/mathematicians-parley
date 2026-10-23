@@ -2379,6 +2379,65 @@ fn renumbered_refs(text: &str, map: &BTreeMap<String, String>) -> String {
         .into_owned()
 }
 
+/// Whether line `l` goes on with a `from` or `join` list the line above it
+/// leaves open: the line above ends in a comma inside such a list, or is
+/// itself nothing but more of one. The proof reader joins the two, so the
+/// lines and labels on `l` are cited as surely as those before the break.
+fn goes_on_list(lines: &[String], l: usize) -> bool {
+    let Some(above) = l.checked_sub(1).map(|a| lines[a].trim()) else {
+        return false;
+    };
+    let Some(listed) = above.strip_suffix(',') else {
+        return false;
+    };
+    let opened = re(r"\b(?:from|join)\s+([A-Za-z0-9.′]+(?:\s*,\s*[A-Za-z0-9.′]+)*)$");
+    opened.is_match(listed)
+        || (listed.split(',').all(|item| is_cited_name(item.trim()))
+            && goes_on_list(lines, l - 1))
+}
+
+/// Whether `item` is written as a cited line or label is: a step number, `H1`,
+/// `IH`, `2′`.
+fn is_cited_name(item: &str) -> bool {
+    !item.is_empty()
+        && item
+            .chars()
+            .all(|c| c.is_alphanumeric() || c == '.' || c == '′')
+}
+
+/// Line `l` as a citation rewrite reads it: one going on with a list from
+/// the line above (`goes_on_list`) is given the `from` it continues, which
+/// `listed_back` takes away again.
+fn as_listed(lines: &[String], l: usize) -> (String, bool) {
+    let line = &lines[l];
+    if !goes_on_list(lines, l) {
+        return (line.clone(), false);
+    }
+    let lead = line.len() - line.trim_start().len();
+    (format!("{}from {}", &line[..lead], &line[lead..]), true)
+}
+
+/// A line `as_listed` gave a `from`, rewritten, with that `from` taken away.
+fn listed_back(text: String, given: bool) -> String {
+    if !given {
+        return text;
+    }
+    let lead = text.len() - text.trim_start().len();
+    let rest = text[lead..].strip_prefix("from ").unwrap_or(&text[lead..]);
+    format!("{}{rest}", &text[..lead])
+}
+
+/// Line `l`'s citations said as `map` says them, a line going on with a
+/// list from the line above read as more of that list.
+fn renumbered_line(
+    lines: &[String],
+    l: usize,
+    map: &BTreeMap<String, String>,
+) -> String {
+    let (text, given) = as_listed(lines, l);
+    listed_back(renumbered_refs(&text, map), given)
+}
+
 /// A step's induction hypothesis said as `map` says it: the hypothesis
 /// names the step it is the hypothesis of, `assume step 2 is true for m`.
 /// The lines changed.
@@ -2677,7 +2736,7 @@ fn renumbered(
             cited.extend(continued(lines, r.line - 1, end));
         }
         for l in cited {
-            let new = renumbered_refs(&lines[l], map);
+            let new = renumbered_line(lines, l, map);
             if new != lines[l] {
                 lines[l] = new;
                 changed += 1;
@@ -2700,7 +2759,7 @@ fn renumbered(
         let mut cited = vec![reason.line - 1];
         cited.extend(continued(lines, reason.line - 1, end));
         for l in cited {
-            let new = renumbered_refs(&lines[l], map);
+            let new = renumbered_line(lines, l, map);
             if new != lines[l] {
                 lines[l] = new;
                 changed += 1;
@@ -3014,7 +3073,7 @@ fn dull_step_moved(
                 cited.extend(continued(lines, r.line - 1, end));
             }
             for l in cited {
-                let new = renumbered_refs(&lines[l], &map);
+                let new = renumbered_line(lines, l, &map);
                 if new != lines[l] {
                     lines[l] = new;
                     changed += 1;
@@ -3678,7 +3737,8 @@ fn lemma_of(
         } else if links.contains(&at) {
             relabelled_link(line, &map)?
         } else if reasons.contains(&at) {
-            relabelled_refs(line, &map)?
+            let (text, given) = as_listed(lines, at);
+            listed_back(relabelled_refs(&text, &map)?, given)
         } else {
             line.clone()
         };
@@ -4104,6 +4164,15 @@ fn movable(
         .iter()
         .flat_map(|t| free_names(t, &binders))
         .collect();
+    // A domain names what it is over as the rule does: `for k ∈ {1, …, N}`
+    // names N.
+    for p in &one.params {
+        uses.extend(
+            read_all(ctx, sorts, &d.domain(p))?
+                .iter()
+                .flat_map(|t| free_names(t, &binders)),
+        );
+    }
     for p in &one.params {
         uses.remove(&p.name);
     }
@@ -4474,7 +4543,7 @@ pub fn cited_lines_restated(ctx: &Context, path: &str, text: &str) -> Rewritten 
         let mut reason = vec![step.just.line - 1];
         reason.extend(continued(&lines, step.just.line - 1, end));
         for l in reason {
-            lines[l] = renumbered_refs(&lines[l], &map);
+            lines[l] = renumbered_line(&lines, l, &map);
         }
         let claim = cited
             .claim
@@ -4543,7 +4612,18 @@ pub fn steps_as_requires(ctx: &Context, path: &str, text: &str) -> Rewritten {
             o.number.len() > x.number.len()
                 && o.number.0[..x.number.len()] == x.number.0[..]
         });
-        x.just.head.is_item()
+        // A requires line holds for its own step only, and a statement
+        // applying a define is carried to from the proof's outermost lines,
+        // one of which may say an argument is in the define's domain
+        // (`checker::citations::check_conclusion_domains`): such a line, a
+        // membership or a part, stays a line.
+        let says_domain = ctx
+            .tokens(x.claim.text())
+            .is_some_and(|t| t.iter().any(|t| t.text == "∈" || t.text == "⊆"));
+        let carried_from =
+            x.number.len() == 1 && says_domain && applies_a_define(ctx, thm);
+        !carried_from
+            && x.just.head.is_item()
             && asks(&x.just)
             && x.just.target.is_none()
             && x.just.contradicting.is_none()
@@ -4639,6 +4719,22 @@ pub fn steps_as_requires(ctx: &Context, path: &str, text: &str) -> Rewritten {
         theorems,
         declined: Vec::new(),
     }
+}
+
+/// Whether `thm`'s statement applies a define of its own or of its file,
+/// as `G(m − 1, n)` applies G: a name a define gives, written with a
+/// bracket after it, as the tokeniser cuts the statement.
+fn applies_a_define(ctx: &Context, thm: &Theorem) -> bool {
+    let mut names = file_names(ctx, thm);
+    for d in &thm.defines {
+        if let Built(parts) = define_parts(&d.text) {
+            names.extend(parts.names());
+        }
+    }
+    let tokens = ctx.tokens(thm.stated().text()).unwrap_or_default();
+    tokens
+        .windows(2)
+        .any(|w| names.contains(&w[0].text) && w[1].text == "(")
 }
 
 /// Each define in a proof over nothing but what the theorem's header gives

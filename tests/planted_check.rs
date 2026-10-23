@@ -1758,6 +1758,17 @@ fn cases() -> Vec<Case> {
             )],
             "define D1: 'k + + 1' has 3 token(s) left over",
         ),
+        // Outside the theorems no `let` introduces a letter, so a define
+        // there writes only its arguments and what is given above it.
+        case(
+            "a file's define whose domain names a letter nothing gives",
+            vec![edit(
+                "tests/planted-file-define.proof",
+                None,
+                "define T(k) := k + 1, for k ∈ {1, …, N}                              (D1)\n       reads one more than k\n\ntheorem planted-file-define\n  then 1 = 1\n\n1.  1 = 1\n    arithmetic\n".to_string(),
+            )],
+            "define D1 writes N, which neither its arguments nor an import or a define above it gives",
+        ),
         case(
             "a membership read into a smaller number system",
             vec![edit(

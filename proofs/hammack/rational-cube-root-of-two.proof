@@ -68,7 +68,7 @@ theorem rational-cube-root-of-two
 
     1.2.  p ∈ ℤ. q ∈ ℤ. q > 0. x = p/q.
           There is no d ∈ ℤ with d > 1, d divides p, and d divides q.
-          obtain p, q: thm:lowest-terms x := x
+          obtain p, q: thm:lowest-terms
 
     1.3.  (p/q)³ = 2
           substitute x = p/q (line 1.2) into line 1.1

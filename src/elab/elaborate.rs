@@ -288,20 +288,23 @@ impl<'a> Elaborator<'a> {
             }
         }
         let mut binding = self.instanced(&sig, binding);
-        // The scope is the innermost one the lemma's disjointness conditions
-        // allow, as for any lemma applied (`allowed`), and what it gives is
+        // The scope is the step's own, where what its requires lines say is
+        // held. Where the lemma's disjointness conditions keep a letter
+        // apart from it that the scope spells, a "for all t" a line in scope
+        // says binding the t the step's claim binds too, that letter is moved
+        // to one nothing holds, as a claim's are (`over_other_letters`), and
+        // the side the step holds is renamed to it below. Only where no
+        // letter can be moved so is the lemma applied at an outer scope, the
+        // innermost its conditions allow (`allowed`), and what it gives
         // carried in to the step's.
-        // Where no scope allows it, the letters it keeps apart from its scope
-        // and the scope spells are moved to letters nothing holds, as a
-        // claim's are (`over_other_letters`), and the side the step holds is
-        // renamed to them below.
         let (mut at, mut frame) = (scope.clone(), None);
         let mut moved = Binding::new();
         if let Some(v) = &deduced {
             let mut open = binding.clone();
             open.shift_remove(v);
             let (mut where_, mut index) = self.allowed(&sig, &open);
-            if where_.is_declined() {
+            let innermost = self.frames.len().checked_sub(1);
+            if where_.is_declined() || index != innermost {
                 let spelt: BTreeSet<&str> =
                     scope.tokens().iter().map(|t| t.as_str()).collect();
                 let letters: Vec<Symbol> = sig
@@ -319,15 +322,16 @@ impl<'a> Elaborator<'a> {
                     .into_iter()
                     .chain(open.values().cloned())
                     .collect();
-                if let Some(m) =
-                    self.unheld_for(letters, &avoid.iter().collect::<Vec<_>>())
+                if let Some(m) = self
+                    .unheld_for(letters, &avoid.iter().collect::<Vec<_>>())
+                    .filter(|m| !m.is_empty())
                 {
-                    moved = m;
-                    open = open
-                        .into_iter()
-                        .map(|(k, t)| (k, t.substitute(&moved)))
-                        .collect();
-                    (where_, index) = self.allowed(&sig, &open);
+                    let apart: Binding =
+                        open.iter().map(|(k, t)| (*k, t.substitute(&m))).collect();
+                    let (there, at_index) = self.allowed(&sig, &apart);
+                    if where_.is_declined() || at_index == innermost {
+                        (moved, open, where_, index) = (m, apart, there, at_index);
+                    }
                 }
             }
             at = take!(where_);
@@ -5008,7 +5012,8 @@ impl<'a> Elaborator<'a> {
             if instance == *term
                 || (bare_instance != goal
                     && !self.rebound(&bare_instance, &goal)
-                    && !self.reorders(&instance, term))
+                    && !self.reorders(&instance, term)
+                    && !self.one_with_names_read(&instance, term))
             {
                 continue;
             }
@@ -5589,9 +5594,14 @@ impl<'a> Elaborator<'a> {
                             .to_string();
                         // A letter neither the citation nor the match fixes
                         // stands for what the citing proof calls by the same
-                        // word, or for a class of its own.
-                        if let Some(term) =
-                            values.get(&name).or_else(|| matched.get(&name))
+                        // word, or for a class of its own. Each is given, so
+                        // that a letter the theorem binds is moved off what
+                        // it stands for (`apart_from_values`): grow-by-one's
+                        // v may be a point the citing proof holds as w.
+                        if let Some(term) = values
+                            .get(&name)
+                            .or_else(|| matched.get(&name))
+                            .or_else(|| saved.get(&name))
                         {
                             if apart.contains(&name) {
                                 me.names.insert(name.clone(), t!(theirs));
@@ -5603,7 +5613,7 @@ impl<'a> Elaborator<'a> {
                                 class: t!(theirs),
                                 term: term.clone(),
                             });
-                        } else if !saved.contains_key(&name) {
+                        } else {
                             me.names.insert(name.clone(), t!(theirs));
                         }
                     }

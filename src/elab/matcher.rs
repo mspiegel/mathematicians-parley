@@ -3406,14 +3406,21 @@ impl<'a> Elaborator<'a> {
     }
 
     /// Whether two parts come to one standard form, where the walk can close
-    /// them one by one below. Classes may also differ in the letters they
-    /// bind, which only `class_renamed` closes and only at the class itself.
+    /// them one by one below. Either may also differ in the letters it binds:
+    /// a class is closed at the class itself, by `class_renamed`, and a
+    /// statement is walked into, down to the classes and statements that
+    /// bind the letters, each closed there. A statement whose letters a
+    /// class inside it binds otherwise, `|G(m, n)|·(m + n) = …` beside the
+    /// same with G's set written out, is carried in place so: carried to its
+    /// standard form instead, it would be put in the order the bound letters
+    /// read as blanks give, which may need a product turned round, and that
+    /// asks of a size what nothing says, that it is a number.
     fn alike_in_place(&mut self, one: &Term, other: &Term) -> bool {
         let said = self.standard(one);
         let said = self.rpn(&said);
         let want = self.standard(other);
         let want = self.rpn(&want);
-        said == want || (!self.is_wff(one) && self.rebound(&said, &want))
+        said == want || self.rebound(&said, &want)
     }
 
     /// Two maps differing in their letter, over a domain that binds one of
@@ -4696,6 +4703,24 @@ impl<'a> Elaborator<'a> {
             self.know(&known, said.clone(), proof.clone());
             return self.held_reordered(&known, want, scope);
         }
+        // A claim naming a part of the instance by a define the step cites,
+        // `for all u ∈ H` where H names {s ∪ {a} : s ∈ V}, is the instance
+        // with the name read as what it names (`same`).
+        if self.one_with_names_read(said, want) {
+            let alike = self.same(
+                &self.to_term(said),
+                &self.to_term(want),
+                scope,
+                facts,
+                None,
+            )?;
+            return Ok(match alike {
+                Built(alike) => {
+                    Some(pf!(self.b; scope, said, want, proof, alike, "mpbid"))
+                }
+                Declined(_) => None,
+            });
+        }
         // Each line the part may rest on is read in its parts as well, as a
         // cited line is: "a(0) ∈ ℕ₀ and b(0) ∈ ℕ₀" says b(0) ∈ ℕ₀. What it may
         // not rest on is left out first, so that a copy of a part proved
@@ -4720,6 +4745,19 @@ impl<'a> Elaborator<'a> {
             return Ok(None);
         };
         self.tidied(&renamed, &want_bare, want, scope, facts)
+    }
+
+    /// Whether two claims that differ are one once each defined name the
+    /// proof may read is read as what it names (`names_read`), up to the
+    /// letters they bind.
+    pub fn one_with_names_read(&mut self, said: &Rpn, want: &Rpn) -> bool {
+        if said == want {
+            return false;
+        }
+        let one = self.names_read(&self.to_term(said), None);
+        let other = self.names_read(&self.to_term(want), None);
+        let (one, other) = (self.rpn(&one), self.rpn(&other));
+        one == other || self.rebound(&one, &other)
     }
 
     /// The term with every identity element dropped where it stands, parts
