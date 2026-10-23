@@ -1129,6 +1129,35 @@ fn property(
     alike_top(&filled, ground, ctx)
 }
 
+/// What a pattern applying a property says, where the property is one of
+/// the variables and the binding already holds it: its body with the
+/// pattern's argument in its hole, the argument still a pattern. None for
+/// any other pattern.
+///
+/// A conclusion `P(u)` is offered whole, since what P stands for is not
+/// known until the requirement holding the braces decides it; this is what
+/// it says once that is decided, so that a claim may take a conjunct of it
+/// as it takes a conjunct of any conclusion.
+pub fn property_said(
+    pattern: &Node,
+    binding: &Binding,
+    variables: &BTreeSet<String>,
+    ctx: &Context,
+) -> Option<Node> {
+    if !applies_variable(pattern, variables, ctx)
+        || ctx.props.get(&pattern.notation()).map(String::as_str) != Some("property")
+    {
+        return None;
+    }
+    let stands = binding.get(&pattern.children[0].text)?;
+    if stands.notation() != PROPERTY_OF {
+        return None;
+    }
+    let mut at = Binding::new();
+    at.insert(stands.text, pattern.children[1].clone());
+    Some(substitute_apart(&stands.children[0], &at, ctx))
+}
+
 /// What a property or a function is applied to, in the ground's terms.
 ///
 /// Every name in it the match has bound is what it was bound to: an item's

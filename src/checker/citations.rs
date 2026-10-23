@@ -40,7 +40,7 @@ use crate::notations::{
 };
 use crate::outcome::{Built, Declined, Route};
 use crate::rules::{self, System};
-use crate::sorts::TYPING;
+use crate::sorts::{types_a_function, TYPING};
 
 /// A requires line whose cited item does not give its fact.
 struct Unconcluded {
@@ -1337,12 +1337,7 @@ fn term_built(
         _ => return false,
     }
     let mut typed = typed_in_scope(known, step);
-    typed.extend(
-        facts
-            .iter()
-            .filter(|f| f.notation() == FUNCTION_TYPE)
-            .cloned(),
-    );
+    typed.extend(facts.iter().filter(|f| types_a_function(f)).cloned());
     let given = crate::methods::membership::Facts {
         facts,
         letters,
@@ -2768,17 +2763,69 @@ fn evaluated(
     let Some(claim) = known.whole_as_written(&step.claim) else {
         return Vec::new(); // `check_formulas` says it does not read
     };
-    if !(direct
+    let mut out = if !(direct
         && claim.children.len() == 2
         && library.ctx.equations.contains(&claim.notation()))
     {
-        return applied(used, &claim, false, known);
+        applied(used, &claim, false, known)
+    } else {
+        claim
+            .children
+            .iter()
+            .flat_map(|side| applied(used, side, true, known))
+            .collect()
+    };
+    out.extend(applied_in_cited(step, used, known, library));
+    out
+}
+
+/// The applications of the functions in the lines a step cites beside
+/// their define: a line saying u ∈ I(k), read through the define of I, says
+/// u is in what I's rule gives at k, which holds where k is in I's domain,
+/// as it does of an application the claim writes. An application at a
+/// letter the line binds, q(j) under a sum over j or S(n) in a limit as
+/// n → ∞, is said of every value the binder gives it, and asks nothing of
+/// one.
+fn applied_in_cited(
+    step: &Step,
+    used: &[Defined],
+    known: &Known,
+    library: &Library,
+) -> Vec<Applied> {
+    let scope = known.scope(step);
+    let mut out = Vec::new();
+    for r in &step.just.refs {
+        if used.iter().any(|f| &f.label == r) {
+            continue;
+        }
+        let Some(stated) = scope.get(r.as_str()) else {
+            continue;
+        };
+        for part in known.said_parts(stated, None).into_iter().flatten() {
+            let mut bound = BTreeSet::new();
+            letters_bound(&part, &library.ctx, &mut bound);
+            out.extend(
+                applied(used, &part, false, known)
+                    .into_iter()
+                    .filter(|asked| asked.arg.names().is_disjoint(&bound)),
+            );
+        }
     }
-    claim
-        .children
-        .iter()
-        .flat_map(|side| applied(used, side, true, known))
-        .collect()
+    out
+}
+
+/// Every letter a binder anywhere in a formula binds, by the places the
+/// notation database declares each binder holds its letters in.
+fn letters_bound(node: &Node, ctx: &Context, out: &mut BTreeSet<String>) {
+    let (held, _) = ctx.held_body(node.notation());
+    for at in held {
+        if let Some(letter) = node.children.get(at).filter(|c| c.is_name()) {
+            out.insert(letter.text.to_string());
+        }
+    }
+    for child in &node.children {
+        letters_bound(child, ctx, out);
+    }
 }
 
 /// Every application of the functions in `claim`, a tree as written, each
@@ -4050,7 +4097,7 @@ fn from_lines_give(
         {
             let typed: Vec<Node> = facts
                 .iter()
-                .filter(|f| f.notation() == FUNCTION_TYPE)
+                .filter(|f| types_a_function(f))
                 .cloned()
                 .collect();
             let given = crate::methods::membership::Facts {
@@ -4172,7 +4219,7 @@ fn in_a_domain(step: &Step, r: &str, known: &Known) -> bool {
         .said_parts(stated, None)
         .into_iter()
         .flatten()
-        .any(|n| n.notation() == FUNCTION_TYPE)
+        .any(|n| types_a_function(&n))
 }
 
 /// Whether `lighter`, `step` with a line taken away, is no longer supplied.

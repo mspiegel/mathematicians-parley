@@ -294,6 +294,23 @@ impl Elaborator<'_> {
         self.page_node_under(term, &IndexMap::new(), None)
     }
 
+    /// What a set the page writes as a term holds, read back with the sorts
+    /// in scope and those of the letters `bound`; None where it reads as no
+    /// set, or does not read.
+    fn read_set_holds(
+        &self,
+        node: &Node,
+        bound: &IndexMap<String, Sort>,
+    ) -> Option<Sort> {
+        let mut sorts = self.sorts_now.clone();
+        for (letter, sort) in bound {
+            if sort.name().is_some() {
+                sorts.insert(letter.clone(), sort.clone());
+            }
+        }
+        read_back(self.g, node, &sorts).ok()?.sort.held()
+    }
+
     /// `page_node` of a part of a term, inside binders that introduce the
     /// letters `bound`: a part is read back with them as names, as the page
     /// reads it inside its binder, so the i of {i ∈ X : P(i)} is a letter and
@@ -409,19 +426,33 @@ impl Elaborator<'_> {
                 .flatten()
                 .copied()
                 .collect();
-            // Over a set two holes join, the letter is a member of it.
+            // Over a set two holes join, the letter is a member of it. A
+            // domain written as more than a name, 𝒫{1, …, n} or U(k), holds
+            // what the page reads it as holding, as the page's own reading of
+            // the binder gives its letter (`grammar::set_written`).
             let domain_holds = match &r.joined {
                 Some(j) => j.member.clone(),
-                None => holes
-                    .iter()
-                    .enumerate()
-                    .filter(|(at, _)| !binding_at.contains(at))
-                    .filter_map(|(_, h)| self.page_node_under(h, bound, None))
-                    .filter(Node::is_name)
-                    .find_map(|n| {
-                        self.sorts_now.get(n.text.as_str()).and_then(Sort::held)
-                    })
-                    .unwrap_or_else(Sort::none),
+                None => {
+                    let domains: Vec<Node> = holes
+                        .iter()
+                        .enumerate()
+                        .filter(|(at, _)| !binding_at.contains(at))
+                        .filter_map(|(_, h)| self.page_node_under(h, bound, None))
+                        .collect();
+                    domains
+                        .iter()
+                        .filter(|n| n.is_name())
+                        .find_map(|n| {
+                            self.sorts_now.get(n.text.as_str()).and_then(Sort::held)
+                        })
+                        .or_else(|| {
+                            domains
+                                .iter()
+                                .filter(|n| !n.is_name())
+                                .find_map(|n| self.read_set_holds(n, bound))
+                        })
+                        .unwrap_or_else(Sort::none)
+                }
             };
             let mut inner = bound.clone();
             for at in &binding_at {

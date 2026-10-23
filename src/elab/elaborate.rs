@@ -205,17 +205,22 @@ impl<'a> Elaborator<'a> {
         // The fit is made as written and then as the standard form reads the
         // two, as `apply_lemma` fits an antecedent: the page's x ≠ c is
         // "not (x = c)" where a lemma writes `=/=`.
+        // What is offered may be the facts a step names joined, a define's
+        // equation among them, and then the right side is one of them.
         if let Some(offered) = hint.or(ex) {
             let offered = self.to_term(offered);
-            let filled = fit(&reads.children()[1], &offered, &binding, &variables)
-                .or_else(|| {
+            let mut pieces = vec![offered.clone()];
+            pieces.extend(super::matcher::conjuncts_of(&offered));
+            let filled = pieces.iter().find_map(|piece| {
+                fit(&reads.children()[1], piece, &binding, &variables).or_else(|| {
                     self.fits_as(
                         &reads.children()[1],
-                        &offered,
+                        piece,
                         &variables,
                         Some(&binding),
                     )
-                });
+                })
+            });
             if let Some(filled) = filled {
                 binding = filled;
             }
@@ -2360,20 +2365,30 @@ impl<'a> Elaborator<'a> {
                 }
             }
         }
-        // Then with only the defined names read as what they name.
+        // Then with only the defined names read as what they name, and then
+        // with a defined function read where it is applied as well: u ∈ I(k),
+        // I a define, says u is in what I's rule gives at k.
+        let mut readings: Vec<(Rpn, Proof, Term)> = Vec::new();
         for (said, shown) in &entries {
             let read = self.names_read(&self.to_term(said), None);
-            let read_rpn = self.rpn(&read);
+            readings.push((said.clone(), shown.clone(), read));
+        }
+        for (said, shown) in &entries {
+            let read = self.read_through(&self.to_term(said), true, None);
+            readings.push((said.clone(), shown.clone(), read));
+        }
+        for (said, shown, read) in &readings {
+            let read_rpn = self.rpn(read);
             if read_rpn == *said {
                 continue;
             }
             let Some(binding) =
-                fit(left, &read, &Binding::new(), variables).filter(|b| !b.is_empty())
+                fit(left, read, &Binding::new(), variables).filter(|b| !b.is_empty())
             else {
                 continue;
             };
             if let Built(alike) =
-                self.same(&self.to_term(said), &read, scope, facts, None)?
+                self.same(&self.to_term(said), read, scope, facts, None)?
             {
                 return Ok(Built((
                     binding,
@@ -2456,6 +2471,24 @@ impl<'a> Elaborator<'a> {
             self.know(&one, part, proof);
         }
         Ok(one)
+    }
+
+    /// What a substitution hypothesis says its property half is, where the
+    /// claim already put one of that half's conjuncts in the slot: `elrab`'s
+    /// ψ is the whole of "k ∈ S and for all p ∈ S, …" at the element, and a
+    /// claim taking "k ∈ T" from it took a part (`citing`, a claim taking a
+    /// conjunct of a property). None where the slot is empty, where the
+    /// hypothesis is no substitution, or where what it says is no
+    /// conjunction.
+    fn property_whole(&self, asked: &Term, binding: &Binding) -> Option<Binding> {
+        let iff = asked.children().get(1)?;
+        let slot = iff.children().get(1)?.variable_symbol()?;
+        binding.get(&slot)?;
+        let mut without = binding.clone();
+        without.shift_remove(&slot);
+        let more = self.substituted_slot(asked, &without)?;
+        let said = more.get(&slot)?;
+        (conjuncts_of(said).len() > 1).then_some(more)
     }
 
     /// A definition unfolded to reach one part of what it says: read left to
@@ -2579,7 +2612,10 @@ impl<'a> Elaborator<'a> {
         // says what that half is.
         for essential in &sig.essentials {
             let asked = self.essential(essential);
-            if let Some(more) = self.substituted_slot(&asked, &binding) {
+            let more = self
+                .substituted_slot(&asked, &binding)
+                .or_else(|| self.property_whole(&asked, &binding));
+            if let Some(more) = more {
                 for (k, v) in more {
                     binding.insert(k, v);
                 }

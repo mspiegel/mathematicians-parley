@@ -7,8 +7,9 @@ use crate::formula::{walk, ByShape, Node};
 use indexmap::IndexMap;
 
 use crate::matching::{
-    alike, alike_top, binding_sites, identities_dropped, match_tree, put_everywhere,
-    readings_in_any_order, substitute_apart, Binding, Context, FxIndexSet,
+    alike, alike_top, binding_sites, identities_dropped, match_tree, property_said,
+    put_everywhere, readings_in_any_order, substitute_apart, Binding, Context,
+    FxIndexSet,
 };
 use crate::notations::PROPERTY_OF;
 use crate::outcome::{Built, Route};
@@ -82,14 +83,9 @@ fn take(
             .flat_map(|s| readings.iter().map(move |r| (s, r)))
             .collect();
         for (start, reading) in tries {
-            let Some(found) = match_tree(
-                cand,
-                reading,
-                &start.binding,
-                variables,
-                sites,
-                &library.ctx,
-            ) else {
+            let Some(found) =
+                claim_matched(cand, reading, &start.binding, variables, sites, library)
+            else {
                 continue;
             };
             if !identities_on_numbers(cand, reading, &found, given, library) {
@@ -137,6 +133,35 @@ fn take(
         }
     }
     None
+}
+
+/// The binding under which one conjunct of the claim is the candidate, a
+/// conjunct of the item's conclusion; None where it is not.
+///
+/// A candidate applying a property the binding already holds, `P(u)` with P
+/// decided inside the braces, says the property's body, and where that body
+/// is a conjunction the claim may take any conjunct of it, as it may of a
+/// conclusion written out: `k ∈ T` from `u ∈ {S ⊆ X : k ∈ S and …}`.
+fn claim_matched(
+    cand: &Node,
+    claim: &Node,
+    binding: &Binding,
+    variables: &BTreeSet<String>,
+    sites: &Sites,
+    library: &Library,
+) -> Option<Binding> {
+    let ctx = &library.ctx;
+    if let Some(found) = match_tree(cand, claim, binding, variables, sites, ctx) {
+        return Some(found);
+    }
+    let said = property_said(cand, binding, variables, ctx)?;
+    let parts = conjuncts(&said, library);
+    if parts.len() < 2 {
+        return None;
+    }
+    parts
+        .iter()
+        .find_map(|part| match_tree(part, claim, binding, variables, sites, ctx))
 }
 
 /// Whether every identity element the match of `cand` against `claim`

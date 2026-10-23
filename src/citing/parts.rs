@@ -11,7 +11,7 @@ use crate::notations::{
 };
 use crate::outcome::Built;
 use crate::rules;
-use crate::sorts::{Env, TYPING};
+use crate::sorts::{types_a_function, Env, TYPING};
 
 use super::conclude::taken;
 use super::library::{with_parts, Library};
@@ -238,7 +238,7 @@ fn template(said: &'static str, env: Env, sorts: &Sorts) -> Node {
 pub fn function_values(facts: &[Node], env: Env, sorts: &Sorts) -> Vec<Node> {
     let mut out = Vec::new();
     for typed in facts {
-        if typed.notation() != FUNCTION_TYPE || typed.children.len() != 3 {
+        if !types_a_function(typed) {
             continue;
         }
         let (function, domain, codomain) =

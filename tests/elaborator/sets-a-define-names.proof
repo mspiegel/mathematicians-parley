@@ -1,0 +1,124 @@
+import mundane definition stdlib/functions/set-image
+import mundane definition stdlib/sets/part-builder
+import mundane definition stdlib/sets/powerset
+import mundane definition stdlib/sets/singleton
+import mundane theorem    stdlib/sets/singleton-subset
+import mundane definition stdlib/sums/range-between
+
+theorem a-conjunct-of-a-property
+  note        A set-builder's condition said of a member is several things
+              joined, and a step takes one of them, a "for all" among them,
+              as it takes one conjunct of anything an item concludes.
+  let N ∈ ℕ                                                           (H1)
+  let T be a set                                                      (H2)
+  assume T ∈ {S ⊆ {1, …, N} : N ∈ S and for all p ∈ S, p ≤ N}         (H3)
+  then for all p ∈ T, p ≤ N
+
+1.  T ⊆ {1, …, N}. For all p ∈ T, p ≤ N.
+    mun:part-builder u := T, from H3
+
+2.  For all p ∈ T, p ≤ N.
+    join 1
+
+theorem a-member-from-a-property
+  note        The other conjunct of the same condition, alone.
+  let N ∈ ℕ                                                           (H1)
+  let T be a set                                                      (H2)
+  assume T ∈ {S ⊆ {1, …, N} : N ∈ S and for all p ∈ S, p ≤ N}         (H3)
+  then N ∈ T
+
+1.  N ∈ T
+    mun:part-builder u := T, from H3
+
+theorem parts-a-define-gives
+  note        V(N) is the parts of {1, …, N} holding N: the define's argument
+              stands both in the set the parts are taken of and in their
+              condition, and the two change together.
+  let N ∈ ℕ                                                           (H1)
+  assume N ∈ {1, …, N}                                                (H2)
+  let V(k) = {S ⊆ {1, …, k} : k ∈ S}, for k ∈ {1, …, N}              (D1)
+      reads the parts of the first k numbers that hold k
+  then {N} ∈ V(N)
+
+1.  {N} ⊆ {1, …, N}
+    mun:singleton-subset, from H2
+
+2.  N ∈ {N}
+    mun:singleton x := N, a := N
+
+3.  {N} ∈ V(N)
+    mun:part-builder u := {N}, from D1, H2, 1, 2
+
+theorem sizes-a-define-gives
+  note        I(k) is the sizes of the parts of {1, …, k}. A size is in I(N)
+              where a part has it, and a member of I(N) is the size of a
+              part, each read through the define at N, which H2 puts in its
+              domain.
+  let N ∈ ℕ                                                           (H1)
+  assume N ∈ {1, …, N}                                                (H2)
+  then there is x ∈ 𝒫{1, …, N} with |{N}| = |x|
+
+let I(k) = {|x| : x ∈ 𝒫{1, …, k}}, for k ∈ {1, …, N}                 (D1)
+    reads the sizes of the parts of the first k numbers
+
+1.  {N} ⊆ {1, …, N}
+    mun:singleton-subset, from H2
+
+2.  {N} ∈ 𝒫{1, …, N}
+    mun:powerset S := {N}, from 1
+
+3.  There is x ∈ 𝒫{1, …, N} with |{N}| = |x|.
+    exhibit, from 2
+
+4.  |{N}| ∈ I(N)
+    mun:set-image u := |{N}|, from D1, H2, 3
+
+5.  There is x ∈ 𝒫{1, …, N} with |{N}| = |x|.
+    mun:set-image, from D1, H2, 4
+
+theorem values-of-a-one-to-one-function
+  note        A one-to-one function's type is its type, cited for its
+              values as any type is.
+  let n ∈ ℕ                                                           (H1)
+  let a : {1, …, n} → ℝ be one-to-one                                 (H2)
+  let k ∈ {1, …, n}                                                   (H3)
+  then a(k) ≤ a(k)
+
+1.  a(k) ≤ a(k)
+    inequalities
+    requires a(k) ∈ ℝ: from H2, H3
+
+theorem values-in-a-range
+  note        A value in a range {1, …, m} is a natural number by the table
+              a range lies in, and so a real one.
+  let n ∈ ℕ                                                           (H1)
+  let m ∈ ℕ                                                           (H2)
+  let f : {1, …, n} → {1, …, m}                                       (H3)
+  let k ∈ {1, …, n}                                                   (H4)
+  then f(k) ≤ f(k)
+
+1.  f(k) ≤ f(k)
+    inequalities
+    requires f(k) ∈ ℝ: from H3, H4
+
+theorem values-of-an-obtained-function
+  note        The same of a function an obtain names, whose type the obtain
+              states and a step cites.
+  let n ∈ ℕ                                                           (H1)
+  let m ∈ ℕ                                                           (H2)
+  assume there is f : {1, …, n} → {1, …, m} with f(1) = 1             (H3)
+  then there is f : {1, …, n} → {1, …, m} with f(1) ≤ f(1)
+
+1.  g : {1, …, n} → {1, …, m}. g(1) = 1.
+    obtain g from H3
+
+2.  1 ∈ {1, …, n}
+    mun:range-between k := 1, a := 1, b := n, from H1
+    requires 1 ≤ 1: arithmetic
+
+3.  g(1) ≤ g(1)
+    inequalities
+    requires g(1) ∈ ℝ: from 1, 2
+
+4.  There is f : {1, …, n} → {1, …, m} with f(1) ≤ f(1).
+    exhibit, from 1, 3

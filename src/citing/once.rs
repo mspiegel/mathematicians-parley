@@ -24,12 +24,12 @@ use crate::formula::symbol::Symbol;
 use crate::formula::{ByShape, Node, Sort, Sorts};
 use crate::matching::{alike_top, standard, substitute_apart, Binding, FxIndexSet};
 use crate::notations::{
-    APPLICATION, DEGREES, DISTANCE, DIVIDED, EULER, FACTORIAL, FUNCTION_TYPE, IN,
-    INTEGER_RANGE, JUXTAPOSITION, MEMBERSHIP, MINUS, MOD, MULTIPLICATIVE,
-    NUMBER_SYSTEMS, NUMERAL, PI, PLUS, POWER, SQUARE_ROOT, SUM, SUPERSCRIPT, TIMES,
-    UNARY_MINUS,
+    APPLICATION, DEGREES, DISTANCE, DIVIDED, EULER, FACTORIAL, IN, INTEGER_RANGE,
+    JUXTAPOSITION, MEMBERSHIP, MINUS, MOD, MULTIPLICATIVE, NUMBER_SYSTEMS, NUMERAL, PI,
+    PLUS, POWER, SQUARE_ROOT, SUM, SUPERSCRIPT, TIMES, UNARY_MINUS,
 };
 use crate::rules::{self, lookup, System};
+use crate::sorts::types_a_function;
 
 use super::library::Library;
 use super::parts::{bound_in, function_values, Bound, Parts};
@@ -130,7 +130,7 @@ pub fn said_once(
     let types: Vec<Node> = parts
         .facts
         .iter()
-        .filter(|f| f.notation() == FUNCTION_TYPE)
+        .filter(|f| types_a_function(f))
         .cloned()
         .collect();
     let mut points: Vec<Node> = Vec::new();

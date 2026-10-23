@@ -11,6 +11,9 @@
 # The map's letter and the bound's are two, so a scope holding the limit,
 # whose map binds n, never meets a condition on n. It is stated as a
 # deduction, as `climnnre` is.
+#
+# A least upper bound over the reals is a set, which a define naming one
+# asks of its value (`gsupex`).
 
 $( Bounds: a sequence with a limit is bounded, in absolute value and
    above. $)
@@ -78,4 +81,12 @@ lemma gclimbdd
   12 reximdva 11 |- ( ph -> ( E. x e. RR A. m e. NN ( abs ` C ) <_ x -> E. x e. RR A. m e. NN C <_ x
       ) )
   13 mpd 1 12 |- ( ph -> E. x e. RR A. m e. NN C <_ x )
+
+# `gsupex`: |- sup ( A , RR , < ) e. _V. A least upper bound in the reals is
+# a set, as any term is that the page writes (`rules::SETHOOD`): `supex`,
+# with `ltso` the order it is taken in.
+lemma gsupex
+  |- sup ( A , RR , < ) e. _V
+  1 ltso |- < Or RR
+  2 supex 1 |- sup ( A , RR , < ) e. _V
 

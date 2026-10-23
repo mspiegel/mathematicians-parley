@@ -13,8 +13,8 @@ use indexmap::IndexMap;
 
 use super::terms::Targets;
 use crate::citing::{
-    index_system, nonzero_by_parts, nonzero_said_once, sum_said_once, within,
-    Introduced,
+    index_system, nonzero_by_parts, nonzero_said_once, range_system, sum_said_once,
+    within, Introduced,
 };
 use crate::formula::symbol::Symbol;
 use crate::formula::Node;
@@ -284,10 +284,20 @@ fn valued(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
             return false;
         };
         same(g, f, facts.ctx)
-            && codomain.notation() == NUMBER_SYSTEMS
-            && System::of_sign(&codomain.text).is_some_and(|s| s.within(system))
+            && codomain_system(codomain).is_some_and(|s| s.within(system))
             && in_domain(at, domain, facts, depth)
     })
+}
+
+/// The number system a function's codomain puts its values in: the system
+/// itself, or the one a range lies in by the declared table, ℕ for
+/// {1, …, b} (`range_system`).
+fn codomain_system(codomain: &Node) -> Option<System> {
+    match codomain.notation() {
+        NUMBER_SYSTEMS => System::of_sign(&codomain.text),
+        INTEGER_RANGE => range_system(codomain),
+        _ => None,
+    }
 }
 
 /// Whether `x` is in the set `domain` a function is typed over.

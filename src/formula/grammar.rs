@@ -437,7 +437,14 @@ fn read(
     // `i ∈ ℂ` says something of the imaginary unit and gives no letter i a
     // sort.
     let bound = bound_here(tokens, g);
-    for (k, v) in bound_sorts(tokens, g, sorts) {
+    let sentence = Sentence {
+        text,
+        tokens,
+        g,
+        path,
+        line,
+    };
+    for (k, v) in bound_sorts(&sentence, sorts)? {
         if is_shadowed(&k, g) && !bound.contains(&k) && !sorts.introduces(&k) {
             continue;
         }
@@ -708,38 +715,133 @@ fn binder_sides(g: &Grammar) -> BinderSides<'_> {
     BinderSides { part_of, named_set }
 }
 
-/// The sort of the set the tokens from `at` write, where it is one name, or
-/// a notation of one literal and one hole applied to a name, `𝒫A`; None
-/// where that is not a set's sort.
-fn set_written(
-    tokens: &[Token],
-    at: usize,
-    g: &Grammar,
-    of_set: &dyn Fn(&str) -> Sort,
-) -> Option<Sort> {
-    let first = tokens.get(at)?;
-    if first.kind == TokenKind::Name {
-        return Some(of_set(&first.text)).filter(is_set);
-    }
-    let name = tokens.get(at + 1).filter(|t| t.kind == TokenKind::Name)?;
-    let sorts = g.notation_sorts();
-    let made = g.notations.iter().find_map(|n| {
-        let [Part::Lit(lit), Part::Hole] = n.parts.as_slice() else {
-            return None;
-        };
-        if *lit != first.text {
-            return None;
+/// A sentence's text and tokens, with where it was written, for reading a
+/// term inside it on its own.
+struct Sentence<'a> {
+    text: &'a str,
+    tokens: &'a [Token],
+    g: &'a Grammar,
+    path: &'a str,
+    line: usize,
+}
+
+/// The words and symbols that end a set written after `∈` or `⊆` outside
+/// any bracket opened after it: the comma or `with` that ends a binder's
+/// set, the colon of a set-builder, and the connectives of a formula the
+/// membership stands in.
+const SET_ENDS: [&str; 9] =
+    [",", "with", ":", "such", "and", "or", "if", "then", "for"];
+
+/// Where the set written from `at` ends: at a word of `SET_ENDS` outside
+/// every bracket opened after `at`, at a bracket closing one opened before
+/// it, or at the end of the sentence.
+fn set_end(tokens: &[Token], at: usize) -> usize {
+    let mut depth = 0usize;
+    for (j, t) in tokens.iter().enumerate().skip(at) {
+        match t.text.as_str() {
+            "(" | "{" | "[" => depth += 1,
+            ")" | "}" | "]" if depth == 0 => return j,
+            ")" | "}" | "]" => depth -= 1,
+            word if depth == 0 && SET_ENDS.contains(&word) => return j,
+            _ => {}
         }
-        sorts.signature(n.key_id)?.settled(&[&of_set(&name.text)])
-    })?;
-    Some(made).filter(is_set)
+    }
+    tokens.len()
+}
+
+/// The sort of the set the tokens from `at` write, where it is one name, or
+/// a notation of one literal and one hole applied to a name, `𝒫A`, or any
+/// other term that reads whole with the sorts known so far, `𝒫{1, …, n}` or
+/// `U(k)` with U a function a define gives sets of sets; None where that is
+/// not a set's sort, or where the term's reading waits on a sort nothing has
+/// given yet.
+fn set_written(
+    sentence: &Sentence,
+    at: usize,
+    of_set: &dyn Fn(&str) -> Sort,
+    found: &Found,
+) -> Result<Option<Sort>, Stop> {
+    let (tokens, g) = (sentence.tokens, sentence.g);
+    let Some(first) = tokens.get(at) else {
+        return Ok(None);
+    };
+    if first.kind == TokenKind::Name {
+        let named = of_set(&first.text);
+        if is_set(&named) {
+            return Ok(Some(named));
+        }
+    }
+    if let Some(name) = tokens.get(at + 1).filter(|t| t.kind == TokenKind::Name) {
+        let sorts = g.notation_sorts();
+        let made = g.notations.iter().find_map(|n| {
+            let [Part::Lit(lit), Part::Hole] = n.parts.as_slice() else {
+                return None;
+            };
+            if *lit != first.text {
+                return None;
+            }
+            sorts.signature(n.key_id)?.settled(&[&of_set(&name.text)])
+        });
+        if let Some(made) = made {
+            return Ok(Some(made).filter(is_set));
+        }
+    }
+    set_read(sentence, at, found)
+}
+
+/// The sorts a sentence is read with, and those `bound_sorts` has found so
+/// far for the letters the sentence binds.
+struct Found<'a> {
+    sorts: &'a Sorts,
+    bound: &'a IndexMap<String, Sort>,
+}
+
+/// The sort of the term written from `at`, read on its own as far as it
+/// reads before where the set ends (`set_end`); None where nothing reads
+/// there, or where its reading waits on a sort nothing has given yet.
+fn set_read(
+    sentence: &Sentence,
+    at: usize,
+    found: &Found,
+) -> Result<Option<Sort>, Stop> {
+    let end = set_end(sentence.tokens, at);
+    if end <= at {
+        return Ok(None);
+    }
+    let mut known = found.sorts.clone();
+    for (name, sort) in found.bound {
+        known.insert(name.clone(), sort.clone());
+    }
+    let mut p = Parser {
+        t: &sentence.tokens[..end],
+        g: sentence.g,
+        sorts: &known,
+        path: sentence.path,
+        line: sentence.line,
+        src: sentence.text,
+        i: at,
+        stopped: None,
+        stopped_ran_out: false,
+        refused: None,
+        refused_order: false,
+    };
+    let read = match p.expression(None, &[]) {
+        Ok(read) => read,
+        Err(Stop::Waits(_)) => return Ok(None),
+        Err(defect) => return Err(defect),
+    };
+    Ok(read.map(|node| node.sort.clone()).filter(is_set))
 }
 
 /// The sort of each letter the tokens put in a set that says what it holds,
 /// `x ∈ S` or `x ∈ 𝒫A`, or in a coset of one, `x ∈ gH`, or make a part of a
 /// set, `S ⊆ A`, or that a binder names right after its words, `there is a
 /// polynomial q`, `for all sets X`. Only for letters of no sort already.
-fn bound_sorts(tokens: &[Token], g: &Grammar, sorts: &Sorts) -> Vec<(String, Sort)> {
+fn bound_sorts(
+    sentence: &Sentence,
+    sorts: &Sorts,
+) -> Result<Vec<(String, Sort)>, Stop> {
+    let (tokens, g) = (sentence.tokens, sentence.g);
     let mut out: IndexMap<String, Sort> = IndexMap::new();
     let sort_of = |name: &str| sorts.get(name).cloned().unwrap_or_default();
     let sides = binder_sides(g);
@@ -789,8 +891,9 @@ fn bound_sorts(tokens: &[Token], g: &Grammar, sorts: &Sorts) -> Vec<(String, Sor
         // is in `for all a ∈ G, for all x ∈ aH`, and has the sort found there.
         let of_set =
             |name: &str| out.get(name).cloned().unwrap_or_else(|| sort_of(name));
+        let found = Found { sorts, bound: &out };
         if sides.part_of.get(sign.text.as_str()) == Some(&true) {
-            if let Some(set) = set_written(tokens, i + 2, g, &of_set) {
+            if let Some(set) = set_written(sentence, i + 2, &of_set, &found)? {
                 out.entry(x.text.to_string()).or_insert(set);
             }
             continue;
@@ -806,8 +909,12 @@ fn bound_sorts(tokens: &[Token], g: &Grammar, sorts: &Sorts) -> Vec<(String, Sor
         } else if s.kind == TokenKind::Name {
             holds(&of_set(&s.text))
         } else {
-            set_written(tokens, i + 2, g, &of_set).and_then(|set| holds(&set))
+            None
         };
+        if held.is_none() && !numbers {
+            held = set_written(sentence, i + 2, &of_set, &found)?
+                .and_then(|set| holds(&set));
+        }
         if held.is_none()
             && i + 3 < tokens.len()
             && tokens[i + 3].kind == TokenKind::Name
@@ -878,7 +985,7 @@ fn bound_sorts(tokens: &[Token], g: &Grammar, sorts: &Sorts) -> Vec<(String, Sor
         };
         out.entry(f.text.to_string()).or_insert(sort);
     }
-    out.into_iter().collect()
+    Ok(out.into_iter().collect())
 }
 
 /// One sentence being read.

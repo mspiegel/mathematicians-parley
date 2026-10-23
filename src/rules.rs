@@ -142,6 +142,9 @@ pub const CONGRUENCE: &[(&str, &[usize], &str)] = &[
     ("wrex", &[0, 2], "rexeqbidv"),
     ("crab", &[0], "rabbidva"),
     ("crab", &[2], "rabeqdv"),
+    ("crab", &[0, 2], "rabeqbidv"),
+    // A supremum of a set spelt another way, as a define's argument read.
+    ("csup", &[0], "supeq1d"),
     ("cmpt", &[1], "mpteq1d"),
     ("ciun", &[1], "iuneq1d"),
     // A function against the map its define names, and a rule by cases in
@@ -791,6 +794,8 @@ pub const SETHOOD: &[(&str, &str)] = &[
     ("cc", "cnex"),
     ("csu", "sumex"),
     ("cprod", "prodex"),
+    ("csup", "gsupex"),
+    ("cxp", "xpexg"),
     ("cdit", "ditgex"),
     ("cima", "imaexg"),
     ("cop", "opex"),

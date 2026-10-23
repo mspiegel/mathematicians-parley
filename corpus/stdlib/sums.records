@@ -400,6 +400,15 @@ mundane theorem range-in-integers
   metamath    fzssz
   target      fzssz
 
+mundane theorem range-within
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  let c ∈ ℤ                                                           (H3)
+  assume b ≤ c                                                        (H4)
+  then        {a, …, b} ⊆ {a, …, c}
+  metamath    fzss2, which asks b ≤ c as membership of ℤ≥b
+  target      fzss2
+
 mundane theorem range-from-bounds
   let m ∈ ℕ                                                           (H1)
   let x ∈ ℕ₀                                                          (H2)

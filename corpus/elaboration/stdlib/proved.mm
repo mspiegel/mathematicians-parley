@@ -886,6 +886,10 @@ $d x y z $.
     syl2anc mpbird )
     ACDZABEFZGZAHIZBHIZJZUATUAKZUBTBCDZUEUALTUAMZUBTUGUHUBUATUGLUFABNOPABQRS $.
 
+  gf1hashle $p |- ( ( B e. V /\ F : A -1-1-> B ) -> ( # ` A ) <_ ( # ` B ) ) $=
+    ( wcel wf1 wa cdom wbr chash cfv cle f1domg imp hashdomi syl )
+    BDEZABCFZGABHIZAJKBJKLIQRSABDCMNABOP $.
+
   geltpg $p |- ( A e. V -> ( A e. { B , C , D } <-> ( ( A = B \/ A = C ) \/ A = D ) ) ) $=
     ( wcel ctp wceq w3o wo eltpg df-3or bitrdi )
     AEFABCDGFABHZACHZADHZINOJPJABCDEKNOPLM $.
@@ -1810,6 +1814,9 @@ $d m ph $.  $d x ph $.
     syl wi recnd abscld simplr letr syl3anc mpand ralimdva reximdva mpd )
     AEKLZBMZNOZFPQZBRSEUQNOZFPQZBRSABCDEFGHIJTAUSVABRAUQRUAZUBZURUTFPVCFMZPUAZUBZEUPNOZURUTVFERUAZVGAVEVHVBHUCZEUDUEVFVHUPRUAVBVGURUBUTUFVIVFEVFEVIUGUHAVBVEUIEUPUQUJUKULUMUNUO $.
   $}
+
+  gsupex $p |- sup ( A , RR , < ) e. _V $=
+    ( cr clt ltso supex ) BACDE $.
 
 $}
 

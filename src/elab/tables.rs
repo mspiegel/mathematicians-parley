@@ -521,8 +521,9 @@ impl<'a> Elaborator<'a> {
                 &[&moved],
             )));
         }
-        // And its domain and body together.
-        if (label == "wral" || label == "wrex")
+        // And its domain and body together, as a set-builder's change
+        // together where a define's argument stands in both.
+        if (label == "wral" || label == "wrex" || label == "crab")
             && g[1] == w[1]
             && g[0] != w[0]
             && g[2] != w[2]
@@ -2455,8 +2456,14 @@ impl<'a> Elaborator<'a> {
             // not give, whether a `let` or a numbered step says it. A
             // define's type the page says once is named as a letter's
             // membership is, by the line that says it once (`map_into`).
+            // A function an obtain names has its type sealed as the obtain's
+            // sort, `5∈` for step 5, and the step names it by citing 5.
+            let named = |o: &String| {
+                self.citing.contains(o)
+                    || o.strip_suffix('∈').is_some_and(|n| self.citing.contains(n))
+            };
             let unnamed = !held.origin.is_empty()
-                && !held.origin.iter().all(|o| self.citing.contains(o))
+                && !held.origin.iter().all(named)
                 && !held.origin.iter().all(|o| o.starts_with(MEMBERSHIP))
                 && !from_requires(&held);
             if unnamed && self.in_family == 0 {
@@ -2482,6 +2489,17 @@ impl<'a> Elaborator<'a> {
             if codomain == *system {
                 return Ok(Some(made));
             }
+            // A codomain that is a range puts the value in the system the
+            // range lies in, as a letter let into the range is (`SYNTAX.md`,
+            // a function's type and a point of its domain).
+            if let Some((inside, lemma)) = self.range_system(&codomain) {
+                match self
+                    .out_of_range(said, &codomain, inside, lemma, made, system, scope)?
+                {
+                    Built(carried) => return Ok(Some(carried)),
+                    Declined(_) => continue,
+                }
+            }
             let (Some(from), Some(to)) = (codomain.alone(), system.alone()) else {
                 continue;
             };
@@ -2501,6 +2519,39 @@ impl<'a> Elaborator<'a> {
             )));
         }
         Ok(None)
+    }
+
+    /// ( scope -> said e. system ) from `held`, ( scope -> said e. range ):
+    /// the range's lemma (`rules::RANGE_WITHIN`) puts its member in the
+    /// system the range lies in, `inside`, and `carried_within` takes it on.
+    #[allow(clippy::too_many_arguments)]
+    fn out_of_range(
+        &mut self,
+        said: &Rpn,
+        range: &Rpn,
+        inside: &str,
+        lemma: &str,
+        held: Proof,
+        system: &Rpn,
+        scope: &Rpn,
+    ) -> Checked<Route<Proof>> {
+        let claim = t!(said, range, "wcel");
+        let says = self.statement(lemma);
+        let Some(binding) = fit(
+            &says.children()[0],
+            &self.to_term(&claim),
+            &Binding::new(),
+            &names_of(&says),
+        ) else {
+            return Ok(Route::no(format!("{lemma} does not take {claim}")));
+        };
+        let law = self.b.ap(lemma, &self.spelt(&binding), &[]);
+        let proof = self.b.ap(
+            "syl",
+            &binds! {"ph" => scope, "ps" => &claim, "ch" => t!(said, inside, "wcel")},
+            &[&held, &law],
+        );
+        self.carried_within(said, inside, system, proof, scope)
     }
 
     /// The lemmas `rules::MEMBERSHIP` declares that take a thing in one
