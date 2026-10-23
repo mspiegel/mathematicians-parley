@@ -242,8 +242,10 @@ fn divisors_into(term: &Term, labels: &FloatLabels, out: &mut Vec<Term>) {
 
 /// What a claim's sides are multiplied by for one divisor it writes, which
 /// is what `field::read` takes the divisor as: the divisor itself; where it
-/// is a quotient c/e, its numerator c; and where it is −(c/e), read as
-/// (−c)/e, the negated numerator −c.
+/// is a quotient c/e, its numerator c; where it is −(c/e), read as
+/// (−c)/e, the negated numerator −c; and where it is a product X·Y with
+/// something dividing in it, as ((−1 + i·√3)/2)·T is, what X is multiplied
+/// by times what Y is.
 #[derive(Clone)]
 pub enum Factor {
     Divisor(Term),
@@ -263,6 +265,15 @@ pub enum Factor {
         /// −c, what the sides are multiplied by.
         negated: Term,
     },
+    Product {
+        /// X, read as a divisor is.
+        left: Box<Factor>,
+        /// Y, read as a divisor is.
+        right: Box<Factor>,
+        /// The product of what X and Y are multiplied by, which the sides
+        /// are multiplied by.
+        product: Term,
+    },
 }
 
 impl Factor {
@@ -271,6 +282,7 @@ impl Factor {
             Factor::Divisor(t) => t,
             Factor::Numerator { top, .. } => top,
             Factor::NegatedNumerator { negated, .. } => negated,
+            Factor::Product { product, .. } => product,
         }
     }
 }
@@ -297,8 +309,9 @@ fn quotient_parts(d: &Term, labels: &FloatLabels) -> Option<QuotientParts> {
 }
 
 /// What a divisor of a claim's is read as: itself, where nothing in it
-/// divides, its numerator c where it is c/e, or −c where it is −(c/e);
-/// None for a divisor that divides deeper than that.
+/// divides, its numerator c where it is c/e, −c where it is −(c/e), and
+/// each part so where it is a product; None for a divisor that divides
+/// deeper than that.
 fn factor_of(d: Term, labels: &FloatLabels) -> Option<Factor> {
     if field::read(&d, labels).under == field::one() {
         return Some(Factor::Divisor(d));
@@ -308,6 +321,24 @@ fn factor_of(d: Term, labels: &FloatLabels) -> Option<Factor> {
             divisor: d,
             top,
             below,
+        });
+    }
+    if Op::applied(&d) == Some(Op::Mul) {
+        let kids = d.children();
+        let left = factor_of(kids[0].clone(), labels)?;
+        let right = factor_of(kids[1].clone(), labels)?;
+        let product = Term::apply(
+            "co",
+            vec![
+                left.term().clone(),
+                right.term().clone(),
+                Term::apply(field::MUL, vec![]),
+            ],
+        );
+        return Some(Factor::Product {
+            left: Box::new(left),
+            right: Box::new(right),
+            product,
         });
     }
     if d.variable().is_some() || d.label() != Some("cneg") {

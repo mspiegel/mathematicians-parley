@@ -1,0 +1,229 @@
+import mundane definition stdlib/numbers/i
+import mundane theorem    stdlib/numbers/i-complex
+import mundane theorem    stdlib/numbers/zero-product
+import mundane definition stdlib/sets/triple
+import mundane theorem    stdlib/sets/triple-members
+
+theorem cubic
+  note        With y = 3·a·x + b the cubic is (y³ − 3·M·y + N)/(27·a²), and
+              N = T³ + M³/T³. The cube roots of 1 are 1, (−1 + i·√3)/2 and
+              (−1 − i·√3)/2, and with them y³ − 3·M·y + N factors as the
+              product of y + r·T + M/(r·T) over the three; so the cubic is 0
+              just when one factor is.
+  let a ∈ ℂ                                                           (H1)
+  let b ∈ ℂ                                                           (H2)
+  let c ∈ ℂ                                                           (H3)
+  let d ∈ ℂ                                                           (H4)
+  let x ∈ ℂ                                                           (H5)
+  assume a ≠ 0                                                        (H6)
+  let M ∈ ℂ                                                           (H7)
+  assume M = b² − 3·a·c                                               (H8)
+  let N ∈ ℂ                                                           (H9)
+  assume N = 2·b³ − 9·a·b·c + 27·a²·d                                 (H10)
+  let G ∈ ℂ                                                           (H11)
+  assume G² = N² − 4·M³                                               (H12)
+  let T ∈ ℂ                                                           (H13)
+  assume T³ = (N + G)/2                                               (H14)
+  assume T ≠ 0                                                        (H15)
+  then a·x³ + b·x² + c·x + d = 0 ↔ there is r ∈ {1, (−1 + i·√3)/2, (−1 − i·√3)/2} with x = −(b + r·T + M/(r·T))/(3·a)
+
+1.  i ∈ ℂ
+    mun:i-complex
+
+2.  i·i = −1
+    mun:i
+
+3.  (√3)² = 3
+    real arithmetic
+
+4.  (i·√3)² = −3
+    algebra, from 1, 2, 3
+
+let ω₁ = (−1 + i·√3)/2, a complex number                             (D1)
+    membership, from 1
+    reads a cube root of 1 other than 1
+
+let ω₂ = (−1 − i·√3)/2, a complex number                             (D2)
+    membership, from 1
+    reads the third cube root of 1
+
+5.  ω₁·ω₂ = 1
+    algebra, from D1, D2, 1, 4
+
+6.  ω₁ ≠ 0
+    contradiction
+    suppose ω₁ = 0                                                    (S1)
+
+    6.1.  1 = 0, which is impossible
+          algebra, from S1, 5
+
+7.  ω₂ ≠ 0
+    contradiction
+    suppose ω₂ = 0                                                    (S2)
+
+    7.1.  1 = 0, which is impossible
+          algebra, from S2, 5
+
+8.  T³ + M³/T³ = N
+    algebra, from H12, H14, H15
+
+let y = 3·a·x + b, a complex number                                  (D3)
+    membership
+    reads the root moved so that the cubic has no square term
+
+9.  a·x³ + b·x² + c·x + d = (y³ − 3·M·y + N)/(27·a²)
+    algebra, from D3, H6, H8, H10
+
+10. (y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T)) = y² − (T + M/T)·y + T² − M + M²/T²
+    algebra, from D1, D2, H15, 1, 4, 6, 7
+
+11. (y + T + M/T)·(y² − (T + M/T)·y + T² − M + M²/T²) = y³ − 3·M·y + N
+    algebra, from H15, 8
+
+12. (y + T + M/T)·(y² − (T + M/T)·y + T² − M + M²/T²) = (y + T + M/T)·((y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T)))
+    substitute (y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T)) = y² − (T + M/T)·y + T² − M + M²/T² (line 10)
+
+13. y³ − 3·M·y + N = (y + T + M/T)·((y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T)))
+    calculation
+      y³ − 3·M·y + N = (y + T + M/T)·(y² − (T + M/T)·y + T² − M + M²/T²)              11
+                     = (y + T + M/T)·((y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T)))    12
+
+14. a·x³ + b·x² + c·x + d = 0 ↔ there is r ∈ {1, (−1 + i·√3)/2, (−1 − i·√3)/2} with x = −(b + r·T + M/(r·T))/(3·a)
+    both directions
+
+    direction
+    assume a·x³ + b·x² + c·x + d = 0                                  (A1)
+
+    14.1. y³ − 3·M·y + N = 0
+          algebra, from A1, H6, 9
+
+    14.2. (y + T + M/T)·((y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T))) = 0
+          calculation
+            (y + T + M/T)·((y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T))) = y³ − 3·M·y + N    13
+                = 0                                                                         14.1
+
+    14.3. y + T + M/T = 0 or (y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T)) = 0
+          mun:zero-product x := y + T + M/T, y := (y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T)), from 14.2
+          requires y + T + M/T ∈ ℂ: membership, from H15
+          requires (y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T)) ∈ ℂ: membership, from H15, 6, 7
+
+    14.4. there is r ∈ {1, (−1 + i·√3)/2, (−1 − i·√3)/2} with x = −(b + r·T + M/(r·T))/(3·a)
+          cases, from 14.3
+
+          case
+          assume y + T + M/T = 0                                      (C1)
+
+          14.4.1. x = −(b + T + M/T)/(3·a)
+                  algebra, from C1, D3, H6, H15
+
+          14.4.2. 1 ∈ {1, (−1 + i·√3)/2, (−1 − i·√3)/2}
+                  mun:triple-members
+
+          14.4.3. there is r ∈ {1, (−1 + i·√3)/2, (−1 − i·√3)/2} with x = −(b + r·T + M/(r·T))/(3·a)
+                  exhibit, from 14.4.1, 14.4.2
+
+          case
+          assume (y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T)) = 0      (C2)
+
+          14.4.4. y + ω₁·T + M/(ω₁·T) = 0 or y + ω₂·T + M/(ω₂·T) = 0
+                  mun:zero-product x := y + ω₁·T + M/(ω₁·T), y := y + ω₂·T + M/(ω₂·T), from C2
+                  requires y + ω₁·T + M/(ω₁·T) ∈ ℂ: membership, from H15, 6
+                  requires y + ω₂·T + M/(ω₂·T) ∈ ℂ: membership, from H15, 7
+
+          14.4.5. there is r ∈ {1, (−1 + i·√3)/2, (−1 − i·√3)/2} with x = −(b + r·T + M/(r·T))/(3·a)
+                  cases, from 14.4.4
+
+                  case
+                  assume y + ω₁·T + M/(ω₁·T) = 0                      (C3)
+
+                  14.4.5.1. x = −(b + ((−1 + i·√3)/2)·T + M/(((−1 + i·√3)/2)·T))/(3·a)
+                            algebra, from C3, D1, D3, H6, H15, 1, 6
+
+                  14.4.5.2. (−1 + i·√3)/2 ∈ {1, (−1 + i·√3)/2, (−1 − i·√3)/2}
+                            mun:triple-members
+
+                  14.4.5.3. there is r ∈ {1, (−1 + i·√3)/2, (−1 − i·√3)/2} with x = −(b + r·T + M/(r·T))/(3·a)
+                            exhibit, from 14.4.5.1, 14.4.5.2
+
+                  case
+                  assume y + ω₂·T + M/(ω₂·T) = 0                      (C4)
+
+                  14.4.5.4. x = −(b + ((−1 − i·√3)/2)·T + M/(((−1 − i·√3)/2)·T))/(3·a)
+                            algebra, from C4, D2, D3, H6, H15, 1, 7
+
+                  14.4.5.5. (−1 − i·√3)/2 ∈ {1, (−1 + i·√3)/2, (−1 − i·√3)/2}
+                            mun:triple-members
+
+                  14.4.5.6. there is r ∈ {1, (−1 + i·√3)/2, (−1 − i·√3)/2} with x = −(b + r·T + M/(r·T))/(3·a)
+                            exhibit, from 14.4.5.4, 14.4.5.5
+
+    direction
+    assume there is r ∈ {1, (−1 + i·√3)/2, (−1 − i·√3)/2} with x = −(b + r·T + M/(r·T))/(3·a)    (A2)
+
+    14.5. r ∈ {1, (−1 + i·√3)/2, (−1 − i·√3)/2}. x = −(b + r·T + M/(r·T))/(3·a).
+          obtain r from A2
+
+    14.6. r = 1 or r = (−1 + i·√3)/2 or r = (−1 − i·√3)/2
+          mun:triple x := r, from 14.5
+
+    14.7. (y + T + M/T)·((y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T))) = 0
+          cases, from 14.6
+
+          case
+          assume r = 1 or r = (−1 + i·√3)/2                           (C5)
+
+          14.7.1. (y + T + M/T)·((y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T))) = 0
+                  cases, from C5
+
+                  case
+                  assume r = 1                                        (C6)
+
+                  14.7.1.1. x = −(b + 1·T + M/(1·T))/(3·a)
+                            substitute r = 1 (C6) into line 14.5
+
+                  14.7.1.2. y + T + M/T = 0
+                            algebra, from D3, H6, H15, 14.7.1.1
+
+                  14.7.1.3. (y + T + M/T)·((y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T))) = 0
+                            algebra, from H15, 6, 7, 14.7.1.2
+
+                  case
+                  assume r = (−1 + i·√3)/2                            (C7)
+
+                  14.7.1.4. x = −(b + ((−1 + i·√3)/2)·T + M/(((−1 + i·√3)/2)·T))/(3·a)
+                            substitute r = (−1 + i·√3)/2 (C7) into line 14.5
+
+                  14.7.1.5. y + ω₁·T + M/(ω₁·T) = 0
+                            algebra, from D1, D3, H6, H15, 1, 6, 14.7.1.4
+
+                  14.7.1.6. (y + T + M/T)·((y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T))) = 0
+                            algebra, from H15, 6, 7, 14.7.1.5
+
+          case
+          assume r = (−1 − i·√3)/2                                    (C8)
+
+          14.7.2. x = −(b + ((−1 − i·√3)/2)·T + M/(((−1 − i·√3)/2)·T))/(3·a)
+                  substitute r = (−1 − i·√3)/2 (C8) into line 14.5
+
+          14.7.3. y + ω₂·T + M/(ω₂·T) = 0
+                  algebra, from D2, D3, H6, H15, 1, 7, 14.7.2
+
+          14.7.4. (y + T + M/T)·((y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T))) = 0
+                  algebra, from H15, 6, 7, 14.7.3
+
+    14.8. y³ − 3·M·y + N = 0
+          calculation
+            y³ − 3·M·y + N = (y + T + M/T)·((y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T)))    13
+                           = 0                                                                14.7
+
+    14.9. (y³ − 3·M·y + N)/(27·a²) = 0/(27·a²)
+          substitute y³ − 3·M·y + N = 0 (line 14.8)
+
+    14.10. 0/(27·a²) = 0
+           algebra, from H6
+
+    14.11. a·x³ + b·x² + c·x + d = 0
+           calculation
+             a·x³ + b·x² + c·x + d = (y³ − 3·M·y + N)/(27·a²)    9
+                                   = 0/(27·a²)                   14.9
+                                   = 0                           14.10

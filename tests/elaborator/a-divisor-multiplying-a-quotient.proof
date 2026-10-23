@@ -1,0 +1,13 @@
+theorem a-divisor-multiplying-a-quotient
+  note        algebra divides by (s/2)·T, a product with a quotient in it,
+              from a cited equation: the claim's sides are multiplied by s·T,
+              which is not zero because s and T are not.
+  let s ∈ ℂ                                                           (H1)
+  let T ∈ ℂ                                                           (H2)
+  assume s² = 4                                                       (H3)
+  assume s ≠ 0                                                        (H4)
+  assume T ≠ 0                                                        (H5)
+  then 1/((s/2)·T) = s/(2·T)
+
+1.  1/((s/2)·T) = s/(2·T)
+    algebra, from H3, H4, H5

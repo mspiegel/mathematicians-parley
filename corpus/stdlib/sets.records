@@ -131,6 +131,25 @@ mundane definition singleton
   note        What is in a set of one listed thing is that thing, as `pair`
               says of two.
 
+mundane definition triple
+  let x be an element                                                 (H1)
+  then        x ∈ {u, v, w} ↔ x = u or x = v or x = w
+  metamath    eltpg
+  target      geltpg
+  note        What is in a set of three listed things is one of the three,
+              as `pair` says of two. set.mm says the three cases as one
+              three-way "or"; the page's "or" pairs from the left, and the
+              lemma says it so.
+
+mundane theorem triple-members
+  let u be an element                                                 (H1)
+  let v be an element                                                 (H2)
+  let w be an element                                                 (H3)
+  then        u ∈ {u, v, w}. v ∈ {u, v, w}. w ∈ {u, v, w}.
+  metamath    tpid1g, tpid2g, tpid3g
+  target      tpid1g, tpid2g, tpid3g
+  note        Each thing a set lists is in it.
+
 mundane theorem pair-finite
   then        {u, w} is finite
   metamath    prfi
