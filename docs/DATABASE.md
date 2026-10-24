@@ -71,8 +71,8 @@ has, and a subject is one file:
 | `corpus/stdlib/reasoning.records` | the laws of logic a proof cites by name | 14 |
 | `corpus/stdlib/numbers.records` | the number systems, closure, order, powers and real powers, roots, absolute value | 113 |
 | `corpus/stdlib/divisibility.records` | even and odd, divisors, primes, gcd, division, congruence, Euler's φ, the sum of divisors σ | 76 |
-| `corpus/stdlib/sums.records` | sums over a range, and the ranges; products over a finite set | 48 |
-| `corpus/stdlib/sets.records` | subsets, set-builder, union, intersection, difference, power set, listed sets | 79 |
+| `corpus/stdlib/sums.records` | sums over a range, and the ranges; products over a finite set | 49 |
+| `corpus/stdlib/sets.records` | subsets, set-builder, union, intersection, difference, power set, listed sets | 80 |
 | `corpus/stdlib/functions.records` | functions, their values, images, and inverses | 23 |
 | `corpus/stdlib/counting.records` | the size of a set, factorials, binomial coefficients, counting by parts, the pigeonhole principle | 50 |
 | `corpus/stdlib/calculus.records` | intervals, bounds and completeness, continuity, derivatives, bounded sequences | 30 |
