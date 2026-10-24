@@ -61,6 +61,16 @@ pub fn typed_seed(parts: &mut Parts, name: &str, ours: &[Node], library: &Librar
     }
     let stands = stood_for(parts, name, library);
     let groups = library.groups(name);
+    // A letter the item's conclusions name is fixed by the claim; one only
+    // its hypotheses name may be met by a line with a set the let does not
+    // say, as `x ∈ D` by k ∈ ℤ, said once.
+    let concluded = |letter: &str| {
+        groups.iter().flat_map(|g| g.iter()).any(|g| {
+            g.gives
+                .iter()
+                .any(|n| n.walk().iter().any(|m| m.is_name() && m.text == letter))
+        })
+    };
     let typing = |node: &Node, f: &str| {
         TYPING.contains(&node.notation())
             && node.children.first().is_some_and(|g| g.text == f)
@@ -94,7 +104,22 @@ pub fn typed_seed(parts: &mut Parts, name: &str, ours: &[Node], library: &Librar
             continue;
         };
         for (letter, set) in [(d, &said.children[1]), (e, &said.children[2])] {
-            if letter.is_name() && !parts.seed.contains_key(&letter.text) {
+            // Where the citation already makes the item's set another, the
+            // function is not v over v's own domain but its rule over that
+            // set, a product over a part of the domain, and the let says
+            // nothing of the set.
+            let elsewhere = concluded(&letter.text)
+                && stands.get(&letter.text).is_some_and(|s| {
+                    !crate::matching::alike(
+                        s,
+                        set,
+                        &library.ctx,
+                        &indexmap::IndexMap::new(),
+                        &indexmap::IndexMap::new(),
+                    )
+                });
+            if letter.is_name() && !parts.seed.contains_key(&letter.text) && !elsewhere
+            {
                 parts.seed.insert(letter.text, standard(set, &library.ctx));
             }
         }

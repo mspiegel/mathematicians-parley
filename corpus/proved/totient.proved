@@ -28,7 +28,12 @@
 # - a product of numbers coprime to n is coprime to n. set.mm states this
 #   only of factors coprime to each other as well (`coprmprod`), so it is
 #   proved here by induction on the finite set (`findcard2d`), a factor at
-#   a time (`fprodsplitsn`).
+#   a time (`fprodsplitsn`);
+# - two products of integers congruent term by term are congruent
+#   (`fprodmodd`, with `moddvds` either way);
+# - a product is unchanged by a bijection of its index set onto another
+#   (`fprodf1o`), with each image written as F ` n so that the lemma asks
+#   no term the product does not show.
 
 $( Totient: Euler's phi, congruences, and products over a finite set. $)
 $( A product binds k, and a step of the induction binds w, y and z, apart
@@ -43,6 +48,9 @@ $d x A $.  $d x C $.  $d x F $.  $d x N $.  $d x X $.
 $d y A $.  $d y C $.  $d y F $.  $d y N $.  $d y X $.
 $d z A $.  $d z C $.  $d z F $.  $d z N $.  $d z X $.
 $d w A $.  $d w C $.  $d w F $.  $d w N $.  $d w X $.
+$( A deduction's products bind k and n apart from its hypothesis ph. Its
+   terms B and E name k and not n, and D names n and not k. $)
+$d k ph $.  $d n ph $.  $d n B $.  $d n E $.  $d k D $.
 lemma gphival
   |- ( N e. NN -> ( phi ` N ) = ( # ` { x e. ( 0 ... ( N - 1 ) ) | ( x gcd N ) = 1 } ) )
   1 dfphi2 |- ( N e. NN -> ( phi ` N ) = ( # ` { x e. ( 0 ..^ N ) | ( x gcd N ) = 1 } ) )
@@ -751,4 +759,43 @@ lemma gfprodrp
       e. X k gcd N ) = 1 ) ) )
   86 ex 85 |- ( X e. ~P ZZ -> ( X e. Fin -> ( N e. NN -> ( A. x e. X ( x gcd N ) = 1 -> ( prod_ k e.
       X k gcd N ) = 1 ) ) ) )
+
+# `gfprodcongt`: two products of integers over a finite set, congruent
+# term by term modulo N, are congruent: `moddvds` turns each congruence
+# into equal remainders, `fprodmodd` multiplies them, and `moddvds` turns
+# the result back.
+lemma gfprodcongt
+  hypothesis gfprodcongt.1 |- ( ph -> X e. Fin )
+  hypothesis gfprodcongt.2 |- ( ph -> N e. NN )
+  hypothesis gfprodcongt.3 |- ( ( ph /\ k e. X ) -> B e. ZZ )
+  hypothesis gfprodcongt.4 |- ( ( ph /\ k e. X ) -> E e. ZZ )
+  hypothesis gfprodcongt.5 |- ( ( ph /\ k e. X ) -> N || ( B - E ) )
+  |- ( ph -> N || ( prod_ k e. X B - prod_ k e. X E ) )
+  1 adantr gfprodcongt.2 |- ( ( ph /\ k e. X ) -> N e. NN )
+  2 moddvds |- ( ( N e. NN /\ B e. ZZ /\ E e. ZZ ) -> ( ( B mod N ) = ( E mod N ) <-> N || ( B - E
+      ) ) )
+  3 syl3anc 1 gfprodcongt.3 gfprodcongt.4 2 |- ( ( ph /\ k e. X ) -> ( ( B mod N ) = ( E mod N ) <->
+      N || ( B - E ) ) )
+  4 mpbird gfprodcongt.5 3 |- ( ( ph /\ k e. X ) -> ( B mod N ) = ( E mod N ) )
+  5 fprodmodd gfprodcongt.1 gfprodcongt.3 gfprodcongt.4 gfprodcongt.2 4 |- ( ph -> ( prod_ k e. X B
+      mod N ) = ( prod_ k e. X E mod N ) )
+  6 fprodzcl gfprodcongt.1 gfprodcongt.3 |- ( ph -> prod_ k e. X B e. ZZ )
+  7 fprodzcl gfprodcongt.1 gfprodcongt.4 |- ( ph -> prod_ k e. X E e. ZZ )
+  8 moddvds |- ( ( N e. NN /\ prod_ k e. X B e. ZZ /\ prod_ k e. X E e. ZZ ) -> ( ( prod_ k e. X B
+      mod N ) = ( prod_ k e. X E mod N ) <-> N || ( prod_ k e. X B - prod_ k e. X E ) ) )
+  9 syl3anc gfprodcongt.2 6 7 8 |- ( ph -> ( ( prod_ k e. X B mod N ) = ( prod_ k e. X E mod N ) <->
+      N || ( prod_ k e. X B - prod_ k e. X E ) ) )
+  10 mpbid 5 9 |- ( ph -> N || ( prod_ k e. X B - prod_ k e. X E ) )
+
+# `gfprodf1o`: `fprodf1o` with the image of each n under F written as
+# F ` n, so the lemma asks no term the product does not show.
+lemma gfprodf1o
+  hypothesis gfprodf1o.1 |- ( k = ( F ` n ) -> B = D )
+  hypothesis gfprodf1o.2 |- ( ph -> C e. Fin )
+  hypothesis gfprodf1o.3 |- ( ph -> F : C -1-1-onto-> A )
+  hypothesis gfprodf1o.4 |- ( ( ph /\ k e. A ) -> B e. CC )
+  |- ( ph -> prod_ k e. A B = prod_ n e. C D )
+  1 eqidd |- ( ( ph /\ n e. C ) -> ( F ` n ) = ( F ` n ) )
+  2 fprodf1o gfprodf1o.1 gfprodf1o.2 gfprodf1o.3 1 gfprodf1o.4 |- ( ph -> prod_ k e. A B = prod_ n
+      e. C D )
 

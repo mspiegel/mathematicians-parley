@@ -3454,6 +3454,7 @@ impl<'a> Elaborator<'a> {
         // A congruence joins the two terms whose difference its modulus
         // divides, and the chain goes on from the second.
         let mut modulus: Option<Rpn> = None;
+        let mut equated: Option<Equated> = None;
         let (left, mut right) = match self.congruence_sides(&whole) {
             Some(Congruence {
                 modulus: n,
@@ -3536,6 +3537,12 @@ impl<'a> Elaborator<'a> {
                     step, cite, &joined, &written, scope, facts, lines, &defines,
                 )?;
                 let m = modulus.clone().or(n.clone()).expect("a congruence");
+                if modulus.is_none() && said == "wceq" {
+                    equated = Some(Equated {
+                        term: right.clone(),
+                        proof: proof.clone(),
+                    });
+                }
                 proof = self.congruence_joined(
                     Joining {
                         modulus: &m,
@@ -3545,6 +3552,7 @@ impl<'a> Elaborator<'a> {
                         before: proof,
                         before_congruent: modulus.is_some(),
                         after: held,
+                        equated: equated.as_ref(),
                     },
                     scope,
                     facts,
@@ -3695,9 +3703,29 @@ impl<'a> Elaborator<'a> {
             before,
             before_congruent,
             after,
+            equated,
         } = j;
         let differ = |a: &Rpn, b: &Rpn| t!(a, b, "cmin", "co");
         let whole = differ(left, right);
+        // The first term an integer as the term its equations reach is, where
+        // the step's own lines say that one is: the line the chain names,
+        // and no other the scope holds for its parts.
+        let mut through: Option<(Proof, Proof)> = None;
+        if let (true, Some(e)) = (before_congruent, equated) {
+            if let Built(inside) = self.part(&e.term, &t!("cz"), scope, facts)? {
+                let integer = self.b.ap(
+                    "eqeltrd",
+                    &binds! {"ph" => scope, "A" => left, "B" => &e.term, "C" => "cz"},
+                    &[&e.proof, &inside],
+                );
+                let complex = self.b.ap(
+                    "zcnd",
+                    &binds! {"ph" => scope, "A" => left},
+                    &[&integer],
+                );
+                through = Some((integer, complex));
+            }
+        }
         Ok(if !before_congruent {
             // left = middle, and n divides middle − right.
             let moved = self.b.ap(
@@ -3713,9 +3741,20 @@ impl<'a> Elaborator<'a> {
             )
         } else {
             let (first, second) = (differ(left, middle), differ(middle, right));
+            let first_integer = match &through {
+                Some((integer, _)) => {
+                    let middle_integer = self.membership(middle, "cz", scope, facts)?;
+                    self.b.ap(
+                        "zsubcld",
+                        &binds! {"ph" => scope, "A" => left, "B" => middle},
+                        &[integer, &middle_integer],
+                    )
+                }
+                None => self.membership(&first, "cz", scope, facts)?,
+            };
             let integers = [
                 self.membership(n, "cz", scope, facts)?,
-                self.membership(&first, "cz", scope, facts)?,
+                first_integer,
                 self.membership(&second, "cz", scope, facts)?,
             ];
             let summed = self.b.ap(
@@ -3723,8 +3762,12 @@ impl<'a> Elaborator<'a> {
                 &binds! {"ph" => scope, "K" => n, "M" => &first, "N" => &second},
                 &[&integers[0], &integers[1], &integers[2], &before, &after],
             );
+            let left_complex = match &through {
+                Some((_, complex)) => complex.clone(),
+                None => self.membership(left, "cc", scope, facts)?,
+            };
             let numbers = [
-                self.membership(left, "cc", scope, facts)?,
+                left_complex,
                 self.membership(middle, "cc", scope, facts)?,
                 self.membership(right, "cc", scope, facts)?,
             ];
@@ -6481,6 +6524,19 @@ struct Joining<'s> {
     before_congruent: bool,
     /// ( scope -> middle ≡ right (mod modulus) ).
     after: Proof,
+    /// What the chain's equations made of `left` before its first
+    /// congruence, where it began with equations.
+    equated: Option<&'s Equated>,
+}
+
+/// The term a chain's opening equations reach from its first term, and
+/// ( scope -> first = term ): the chain says its first term is a number as
+/// that term is (`SYNTAX.md`, a chain that says ≡ relates integers, each
+/// one beside one in an equation a link cites).
+#[derive(Clone)]
+struct Equated {
+    term: Rpn,
+    proof: Proof,
 }
 
 /// A cited theorem read under what a citation gives its letters

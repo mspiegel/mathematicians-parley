@@ -4654,6 +4654,25 @@ fn cases() -> Vec<Case> {
             ],
             "step 10 cites thm:product-reorder, which asks for",
         ),
+        // A product over a set of anything puts its letter in no number
+        // system, so its term is a number by a line saying so, as one over
+        // a range is by the range.
+        case(
+            "split a product over a set of integers without a line saying its members are numbers",
+            vec![
+                edit("proofs/wiedijk/wilson.proof", Some("mun:product-split, from H2, 1, 2, 8".to_string()), "mun:product-split, from H2, 1, 2".to_string()),
+            ],
+            "step 9 cites mun:product-split, which asks that every term x is in ℝ, and it is no number by what the page says once",
+        ),
+        // A function declared on X says nothing of its values on a part of
+        // X written as no range or number system: they are said by a line.
+        case(
+            "multiply out a product over a part of a function's domain without its values there",
+            vec![
+                edit("tests/elaborator/a-product-over-a-part-of-a-domain.proof", Some("from H3, H5, H6".to_string()), "from H3, H5".to_string()),
+            ],
+            "asks that every term f(k) is in ℝ, and it is no number by what the page says once",
+        ),
         // `let p be a polynomial` says p is one, and an item asking that of
         // what it is cited at asks it of the lines the step names.
         case(

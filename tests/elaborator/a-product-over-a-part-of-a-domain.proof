@@ -1,0 +1,16 @@
+import mundane theorem    stdlib/sums/product-of-products
+
+theorem a-product-over-a-part-of-a-domain
+  note        f is declared on X and the product runs over a part L of X,
+              so the item's u is the rule k ↦ f(k) on L and not f itself,
+              and what f's values on L are is said by a line.
+  let X ⊆ ℤ                                                           (H1)
+  let L ⊆ X                                                           (H2)
+  assume L is finite                                                  (H3)
+  let f : X → ℤ                                                       (H4)
+  assume for all x ∈ L, x ∈ ℤ                                         (H5)
+  assume for all x ∈ L, f(x) ∈ ℤ                                      (H6)
+  then ∏(x ∈ L) x·f(x) = (∏(x ∈ L) x)·∏(x ∈ L) f(x)
+
+1.  ∏(x ∈ L) x·f(x) = (∏(x ∈ L) x)·∏(x ∈ L) f(x)
+    mun:product-of-products, from H3, H5, H6

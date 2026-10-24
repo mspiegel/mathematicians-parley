@@ -950,6 +950,107 @@ fn fit_each(
         if let Some(fits) = family(pattern, ground, binding, variables, sites, ctx) {
             return then_kept(fits, before, binding, then);
         }
+        if let Some(rule) = applied_as_rule(pattern, ground, binding, sites, ctx) {
+            // t is first the function the ground applies, and then the rule
+            // that applies it: f stands for t only where the item's other
+            // mentions of t say f's domain, and a product over a part of
+            // that domain takes the rule x ↦ f(x) over the part.
+            if fit_structure(pattern, ground, binding, variables, sites, ctx, then) {
+                return true;
+            }
+            binding.insert(pattern.children[0].text, rule);
+            return then_kept(true, before, binding, then);
+        }
+    }
+    fit_structure(pattern, ground, binding, variables, sites, ctx, then)
+}
+
+/// The rule `x ↦ g(x)` a function letter t of the pattern may stand for at
+/// `t(x)` under a binder of x, where the ground applies a function of the
+/// page, g, to the same x: the other way `family` leaves to the written
+/// match, which makes t g itself. None where t is bound already, x is not
+/// a letter a binder binds there, or the ground is no such application.
+fn applied_as_rule(
+    pattern: &Node,
+    ground: &Node,
+    binding: &Binding,
+    sites: &IndexSet<NodeId>,
+    ctx: &Context,
+) -> Option<Node> {
+    let name = &pattern.children[0].text;
+    let arg = read_at(&pattern.children[1], binding, ctx);
+    let plain = ground.notation() == pattern.notation()
+        && ground.children.len() == 2
+        && ground.children[1].same_shape(&arg);
+    (plain
+        && !binding.contains_key(name)
+        && sites.contains(&pattern.id())
+        && arg.is_name())
+    .then(|| Node::property(&arg.text, ground.clone()))
+}
+
+/// The ground written in the pattern's spelling, where the ground is the
+/// standard form of that spelling holding another in one hole and the
+/// pattern holds something else there: `∏(k = 2 to n) k` read as
+/// `∏(k ∈ {2, …, n}) k` for a pattern `∏(x ∈ X) x`, so that X is bound to
+/// the range. None where the pattern's spelling is the ground's, or the
+/// ground is no such standard form.
+fn unfilled(pattern: &Node, ground: &Node, ctx: &Context) -> Option<Node> {
+    if pattern.spelling() == ground.spelling() {
+        return None;
+    }
+    let f = ctx.filled.get(&pattern.spelling())?.iter().find(|f| {
+        f.standard == ground.spelling() && f.places.len() == ground.children.len()
+    })?;
+    let held = pattern.children.get(f.hole - 1)?;
+    if held.spelling() == f.inner {
+        return None;
+    }
+    let from = |wanted: Source| {
+        f.places
+            .iter()
+            .position(|&p| p == wanted)
+            .map(|at| ground.children[at].clone())
+    };
+    let inner_holes = f
+        .places
+        .iter()
+        .filter_map(|p| match p {
+            Source::Inner(n) => Some(*n),
+            Source::Outer(_) => None,
+        })
+        .max()?;
+    let inner_children: Vec<Node> = (1..=inner_holes)
+        .map(|n| from(Source::Inner(n)))
+        .collect::<Option<Vec<Node>>>()?;
+    let inner = Node::of(f.inner, held.sort.clone(), inner_children);
+    let mut children = Vec::new();
+    for n in 1..=pattern.children.len() {
+        if n == f.hole {
+            children.push(inner.clone());
+        } else {
+            children.push(from(Source::Outer(n))?);
+        }
+    }
+    Some(Node::of(pattern.spelling(), ground.sort.clone(), children))
+}
+
+/// Each way the pattern fits the ground part by part, as `fit_each` does
+/// once a variable at the root has had its turn, handed to `then` in turn.
+fn fit_structure(
+    pattern: &Node,
+    ground: &Node,
+    binding: &mut Binding,
+    variables: &BTreeSet<String>,
+    sites: &IndexSet<NodeId>,
+    ctx: &Context,
+    then: &mut Then,
+) -> bool {
+    // A product over a set whose set is still to be bound meets a product
+    // from a to b as the product over {a, …, b}, the form it is the
+    // standard of (`Context::filled`).
+    if let Some(open) = unfilled(pattern, ground, ctx) {
+        return fit_structure(pattern, &open, binding, variables, sites, ctx, then);
     }
     // Whether the pattern fitted as written, its parts against the ground's,
     // in some way. An identity element is read away only where it did not.

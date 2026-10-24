@@ -638,6 +638,15 @@ mundane theorem phi-natural
   metamath    phicl
   target      phicl
 
+theorem phi-prime
+  let p ∈ ℕ                                                           (H1)
+  assume p is prime                                                   (H2)
+  then        φ(p) = p − 1
+  metamath    phiprm
+  target      phiprm
+  note        Below a prime p, only 0 shares a factor with p, so p − 1 of
+              the p remainders are counted.
+
 mundane theorem coprime-product
   let x ∈ ℤ                                                           (H1)
   let y ∈ ℤ                                                           (H2)
@@ -732,6 +741,20 @@ theorem product-congruent
   target      gfprodcong
   note        Congruences multiply: the products of two lists of terms,
               congruent term by term, are congruent.
+
+theorem product-congruent-termwise
+  let X be a set                                                      (H1)
+  assume X is finite                                                  (H2)
+  let n ∈ ℕ                                                           (H3)
+  let t : X → ℤ                                                       (H4)
+  let u : X → ℤ                                                       (H5)
+  assume for all x ∈ X, t(x) ≡ u(x) (mod n)                           (H6)
+  then        ∏(x ∈ X) t(x) ≡ ∏(x ∈ X) u(x) (mod n)
+  metamath    fprodmodd and moddvds, which this corpus proves together in
+              elaboration/stdlib/proved.mm
+  target      gfprodcongt
+  note        product-congruent for any two lists of integer terms over a
+              finite set, congruent index by index.
 
 theorem coprime-square
   let s ∈ ℕ                                                           (H1)

@@ -203,6 +203,16 @@ mundane theorem product-extended
   target      fprodp1
   note        As sum-extended, for a product: the last factor split off.
 
+mundane theorem product-first
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  assume a ≤ b                                                        (H3)
+  let t : {a, …, b} → ℝ                                               (H4)
+  then        ∏(k = a to b) t(k) = t(a)·∏(k = a + 1 to b) t(k)
+  metamath    fprod1p
+  target      fprod1p
+  note        As sum-first, for a product: the first factor split off.
+
 mundane theorem product-termwise
   let a ∈ ℤ                                                           (H1)
   let b ∈ ℤ                                                           (H2)
@@ -484,3 +494,47 @@ mundane theorem product-integer
   metamath    fprodzcl, which this corpus proves in
               elaboration/stdlib/proved.mm from X ⊆ ℤ
   target      gfprodz
+
+mundane theorem product-split
+  let X be a set                                                      (H1)
+  assume X is finite                                                  (H2)
+  assume X = Y ∪ Z                                                    (H3)
+  assume Y ∩ Z = ∅                                                    (H4)
+  let t : X → ℝ                                                       (H5)
+  then        ∏(x ∈ X) t(x) = (∏(x ∈ Y) t(x))·∏(x ∈ Z) t(x)
+  metamath    fprodsplit
+  target      fprodsplit
+  note        A finite set made of two parts with nothing in common: the
+              product over it is the product over one part times the
+              product over the other.
+
+mundane theorem product-reindex
+  let Y be a set                                                      (H1)
+  assume Y is finite                                                  (H2)
+  let g : Y → Z be one-to-one and onto                                (H3)
+  let t : Z → ℝ                                                       (H4)
+  then        ∏(z ∈ Z) t(z) = ∏(y ∈ Y) t(g(y))
+  metamath    fprodf1o, with the image of each member of Y under g
+              written as g(y), which this corpus proves in
+              elaboration/stdlib/proved.mm
+  target      gfprodf1o
+  note        g pairs each member of Y with one of Z, so the factors over
+              Z are those over Y, counted through g.
+
+mundane theorem product-of-products
+  let X be a set                                                      (H1)
+  assume X is finite                                                  (H2)
+  let t : X → ℝ                                                       (H3)
+  let u : X → ℝ                                                       (H4)
+  then        ∏(x ∈ X) t(x)·u(x) = (∏(x ∈ X) t(x))·∏(x ∈ X) u(x)
+  metamath    fprodmul
+  target      fprodmul
+  note        Each factor a product of two: the two kinds of factor may be
+              multiplied out separately.
+
+mundane theorem product-of-ones
+  let X be a set                                                      (H1)
+  assume X is finite                                                  (H2)
+  then        ∏(x ∈ X) 1 = 1
+  metamath    prod1
+  target      prod1

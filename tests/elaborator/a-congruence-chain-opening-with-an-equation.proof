@@ -1,0 +1,23 @@
+theorem a-congruence-chain-opening-with-an-equation
+  note        The chain's first term a·f(a) is an integer beside f(a)·a in
+              the equation its first link cites, which the requires line
+              says is one; the build reads it so, and not from H4, which
+              the step does not name.
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  let n ∈ ℕ                                                           (H3)
+  let f : ℤ → ℝ                                                       (H4)
+  assume f(a) ∈ ℤ                                                     (H5)
+  assume f(a)·a ≡ b (mod n)                                           (H6)
+  assume b ≡ 1 (mod n)                                                (H7)
+  then a·f(a) ≡ 1 (mod n)
+
+1.  a·f(a) = f(a)·a
+    algebra, from H5
+
+2.  a·f(a) ≡ 1 (mod n)
+    calculation
+      a·f(a) = f(a)·a       1
+             ≡ b (mod n)    H6
+             ≡ 1 (mod n)    H7
+    requires f(a)·a ∈ ℤ: membership, from H5

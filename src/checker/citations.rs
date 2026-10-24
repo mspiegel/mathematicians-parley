@@ -1230,8 +1230,9 @@ fn types_unstated(
             continue;
         }
         // A function the citation leaves the item's own letter is not one
-        // of the page's.
-        if !t.filled {
+        // of the page's, and one asked on a part of its domain is asked at
+        // every point of the part (`terms_unsaid`).
+        if !t.filled || t.rule.is_some() {
             continue;
         }
         if parts.facts.iter().any(|f| t.stated_by(f, known))
@@ -1385,7 +1386,18 @@ fn terms_unsaid(
         let needs_saying = t.needs_saying(&asks.letters);
         let inner = !t.inner_sums(&asks.letters).is_empty();
         let untyped = applies_untyped(term, thm, &parts.facts, known);
-        if !needs_saying && !inner && !untyped {
+        let unplaced = !said_over_any_set(
+            &PointOfASet {
+                term,
+                letter,
+                domain,
+                codomain,
+            },
+            &asks.letters,
+            &typed_in_scope(known, step),
+            known,
+        );
+        if !needs_saying && !inner && !untyped && !unplaced {
             continue;
         }
         if parts
@@ -1439,6 +1451,87 @@ fn applies_untyped(term: &Node, thm: &Theorem, facts: &[Node], known: &Known) ->
                     && fact.children.first().is_some_and(|g| g.text == f.text)
             })
     })
+}
+
+/// The rule `k ↦ f(k)` an item's function type `f : D → E` asks of a
+/// function a let declares on another set than D, where D is neither a
+/// range nor a number system: a product over a part of f's domain takes f's
+/// values on the part, which the declaration says nothing of, so the type
+/// is asked at every point of D as a summand's is. None where f is no
+/// declared function, or D is its declared domain.
+fn on_a_part(asked: &Node, typed: &[Node], known: &Known) -> Option<Node> {
+    let [f, domain, _] = asked.children.as_slice() else {
+        return None;
+    };
+    if !f.is_name() || matches!(domain.notation(), INTEGER_RANGE | NUMBER_SYSTEMS) {
+        return None;
+    }
+    let declared = typed.iter().find(|t| t.children[0].text == f.text)?;
+    if known.alike(&declared.children[1], domain) {
+        return None;
+    }
+    let letter = Node::name(domain.sort.held().unwrap_or_else(Sort::none), "k");
+    let value = page::made_as(known.env.g, "_(_)", vec![f.clone(), letter])?;
+    Some(Node::property("k", value))
+}
+
+/// The term a function hypothesis `t : D → E` asks at every point of D,
+/// with the letter it is asked at.
+struct PointOfASet<'a> {
+    /// The term at a point, `x·f(x)` for `t := x ↦ x·f(x)`.
+    term: &'a Node,
+    /// The letter standing for the point.
+    letter: &'a str,
+    /// D.
+    domain: &'a Node,
+    /// E.
+    codomain: &'a Node,
+}
+
+/// Whether the term a function hypothesis asks at every point of a set is
+/// in its codomain by what the page says once. A range or a number system
+/// puts its letter in a system, and the other rules judge the term there;
+/// a set of anything else puts its letter in none (`SYNTAX.md`, a sum's
+/// term said once: the index is in the system its range starts in), so the
+/// term is said once only where it holds the letter in values of functions
+/// a type in scope gives on that very set, `f(x)` where `f : X → ℝ` and the
+/// product runs over X. `∏(x ∈ X) x` over `X ⊆ ℤ` asks a line saying every
+/// x is a number.
+fn said_over_any_set(
+    at: &PointOfASet,
+    letters: &Introduced,
+    typed: &[Node],
+    known: &Known,
+) -> bool {
+    if matches!(at.domain.notation(), INTEGER_RANGE | NUMBER_SYSTEMS) {
+        return true;
+    }
+    let Some(system) = system_named(at.codomain) else {
+        return true;
+    };
+    let mut letters = letters.clone();
+    letters.shift_remove(at.letter);
+    let value_typed = |t: &Node, s: System| {
+        let (APPLICATION, [f, x]) = (t.notation(), t.children.as_slice()) else {
+            return false;
+        };
+        x.is_name()
+            && x.text == at.letter
+            && typed.iter().any(|ty| {
+                matches!(ty.children.as_slice(), [g, dom, cod]
+                    if g.is_name()
+                        && g.text == f.text
+                        && known.alike(dom, at.domain)
+                        && system_named(cod).is_some_and(|c| c.within(s)))
+            })
+    };
+    crate::citing::within(
+        at.term,
+        system,
+        &letters,
+        &|d| crate::citing::nonzero_said_once(d, &letters),
+        &value_typed,
+    )
 }
 
 /// Whether the term a function hypothesis `t : D → E` asks at every point
@@ -2372,18 +2465,26 @@ fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
             }
         }
     }
+    let in_scope = typed_in_scope(known, step);
     let types = library
         .function_types(&just.item(&just.cited_item().expect("a cited item")))
         .iter()
-        .map(|t| AskedType {
-            asked: substitute_apart(t, &fixed, &library.ctx),
-            open: t.children[1..]
-                .iter()
-                .filter(|s| s.is_name() && !fixed.contains_key(&s.text))
-                .map(|s| s.text.to_string())
-                .collect(),
-            filled: fixed.contains_key(&t.children[0].text),
-            rule: rules.get(t.children[0].text.as_str()).cloned(),
+        .map(|t| {
+            let asked = substitute_apart(t, &fixed, &library.ctx);
+            let rule = rules
+                .get(t.children[0].text.as_str())
+                .cloned()
+                .or_else(|| on_a_part(&asked, &in_scope, known));
+            AskedType {
+                asked,
+                open: t.children[1..]
+                    .iter()
+                    .filter(|s| s.is_name() && !fixed.contains_key(&s.text))
+                    .map(|s| s.text.to_string())
+                    .collect(),
+                filled: fixed.contains_key(&t.children[0].text),
+                rule,
+            }
         })
         .collect::<Vec<AskedType>>();
     // A letter the citation leaves unfilled is the item's own, whatever the
@@ -2398,7 +2499,8 @@ fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
     let (types, declared_types): (Vec<AskedType>, Vec<AskedType>) =
         types.into_iter().partition(|t| {
             let function = &t.asked.children[0];
-            function.notation() == PROPERTY_OF
+            t.rule.is_some()
+                || function.notation() == PROPERTY_OF
                 || (function.is_name()
                     && (!t.filled
                         || !declared.contains(&function.text)
