@@ -1,0 +1,12 @@
+theorem an-order-claimed-with-an-identity
+  note        The claim writes y/1 to the power 1, which is y with its
+              identity elements dropped, and the rows end on x ≤ y.
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume x = y                                                        (H3)
+  then x ≤ (y/1)^1
+
+1.  x ≤ (y/1)^1
+    inequalities
+      x = y          H3
+      x ≤ y          weakening

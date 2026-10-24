@@ -1,0 +1,22 @@
+import mundane theorem    stdlib/numbers/square-nonneg
+
+theorem a-named-value-of-a-function
+  note        A naming let says its name is a real number by the lines that
+              say so, a function's type and a point of its domain, as a
+              requires line would.
+  let n ∈ ℕ                                                           (H1)
+  let a : {1, …, n} → ℝ                                               (H2)
+  let k ∈ {1, …, n}                                                   (H3)
+  then a(k)² ≥ 0
+
+let x = a(k), a real number                                           (D1)
+    from H2, H3
+    reads the value of a at k
+
+1.  x² ≥ 0
+    mun:square-nonneg
+
+2.  a(k)² ≥ 0
+    calculation
+      a(k)² = x²     D1
+            ≥ 0      1

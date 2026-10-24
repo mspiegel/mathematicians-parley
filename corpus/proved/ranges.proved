@@ -75,3 +75,15 @@ lemma gfsum0
   5 sum0 |- sum_ k e. (/) A = 0
   6 eqtrdi 4 5 |- ( ph -> sum_ k e. ( M ... N ) A = 0 )
 
+# `gfprodge0`: ∏(k = M to N) A ≥ 0 where each factor is. `fprodge0` asks
+# that k not be free in the context, `F/ k ph`, which `nfv` gives here by
+# `$d k ph` and which the elaborator does not build of a context that
+# names k bound.
+lemma gfprodge0
+  hypothesis gfprodge0.1 |- ( ( ph /\ k e. ( M ... N ) ) -> A e. RR )
+  hypothesis gfprodge0.2 |- ( ( ph /\ k e. ( M ... N ) ) -> 0 <_ A )
+  |- ( ph -> 0 <_ prod_ k e. ( M ... N ) A )
+  1 nfv |- F/ k ph
+  2 fzfid |- ( ph -> ( M ... N ) e. Fin )
+  3 fprodge0 1 2 gfprodge0.1 gfprodge0.2 |- ( ph -> 0 <_ prod_ k e. ( M ... N ) A )
+

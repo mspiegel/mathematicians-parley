@@ -1,0 +1,14 @@
+import mundane theorem    stdlib/sums/product-real
+
+theorem a-function-on-a-longer-range
+  note        product-real at b := m asks t's values from 1 to m, and t is
+              declared on {1, …, n}, whose type alone does not hold them: a
+              line the step cites says them.
+  let n ∈ ℕ                                                           (H1)
+  let t : {1, …, n} → ℝ                                               (H2)
+  let m ∈ ℕ                                                           (H3)
+  assume for all k ∈ {1, …, m}, t(k) ∈ ℝ                              (H4)
+  then ∏(k = 1 to m) t(k) ∈ ℝ
+
+1.  ∏(k = 1 to m) t(k) ∈ ℝ
+    mun:product-real a := 1, b := m, from H4

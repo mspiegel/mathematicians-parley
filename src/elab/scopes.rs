@@ -2795,7 +2795,15 @@ impl<'a> Elaborator<'a> {
         let shown = self.term(&node)?;
         let set = self.rpn(&self.to_term(&shown).children()[1]);
         let what = format!("the reason under let {}", kinded.label);
-        let in_set = match self.as_a_step(&after, &kinded.shown, &what, scope, facts)? {
+        // A reason that is the lines it cites, `from H2, 5` for a function's
+        // value at a point of its domain, is proved as a requires line with
+        // that reason is; any other is the step it would be.
+        let shown_by = if kinded.shown.is_lines() {
+            self.side(&node, &kinded.shown, scope, facts, Some(&after))?
+        } else {
+            self.as_a_step(&after, &kinded.shown, &what, scope, facts)?
+        };
+        let in_set = match shown_by {
             Built(proof) => proof,
             Declined(why) => {
                 return Err(self.defect(

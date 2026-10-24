@@ -1,0 +1,336 @@
+import mundane theorem    stdlib/sums/range-within
+import mundane definition stdlib/sets/subset
+import mundane definition stdlib/sums/range
+import mundane theorem    stdlib/sums/sum-extended
+import mundane theorem    stdlib/sums/sum-single
+import mundane theorem    stdlib/sums/sum-nonneg
+import mundane theorem    stdlib/sums/sum-real
+import mundane theorem    stdlib/sums/product-single
+import mundane theorem    stdlib/sums/product-extended
+import mundane theorem    stdlib/sums/product-real
+import mundane theorem    stdlib/sums/product-range-nonneg
+import mundane theorem    stdlib/reasoning/modus-ponens
+import theorem            stdlib/numbers/bernoulli-inequality
+import mundane theorem    stdlib/numbers/multiply-le
+import mundane theorem    stdlib/numbers/multiply-le-nonneg
+import mundane theorem    stdlib/numbers/power-nonneg
+import mundane theorem    stdlib/numbers/power-positive
+import mundane theorem    stdlib/numbers/zero-power
+import mundane theorem    stdlib/numbers/power-less
+import mundane theorem    stdlib/numbers/power-of-product
+import mundane theorem    stdlib/numbers/exponent-step
+import mundane theorem    stdlib/numbers/power-real
+import mundane theorem    stdlib/numbers/product-positive
+import mundane theorem    stdlib/numbers/quotient-nonneg
+import mundane theorem    stdlib/numbers/le-cases
+import mundane theorem    stdlib/numbers/real-power-real
+import mundane theorem    stdlib/numbers/root-power
+
+theorem first-terms
+  note        What is said of every a(k) up to n is said of every a(k) up to
+              any m ≤ n.
+  let n ∈ ℕ                                                           (H1)
+  let a : {1, …, n} → ℝ                                               (H2)
+  assume for all k ∈ {1, …, n}, a(k) ≥ 0                              (H3)
+  let m ∈ ℤ                                                           (H4)
+  assume m ≤ n                                                        (H5)
+  then for all k ∈ {1, …, m}, a(k) ∈ ℝ. for all k ∈ {1, …, m}, a(k) ≥ 0.
+
+1.  {1, …, m} ⊆ {1, …, n}
+    mun:range-within a := 1, from H5
+
+2.  For all k ∈ {1, …, m}, k ∈ {1, …, n}.
+    mun:subset, from 1
+
+3.  For all k ∈ {1, …, m}, a(k) ∈ ℝ.
+    proof
+    let k ∈ {1, …, m}                                                 (K1)
+
+    3.1.  k ∈ {1, …, n}
+          instantiate k := k in line 2, from K1
+
+    3.2.  a(k) ∈ ℝ
+          membership, from H2, 3.1
+
+4.  For all k ∈ {1, …, m}, a(k) ≥ 0.
+    proof
+    let k ∈ {1, …, m}                                                 (K2)
+
+    4.1.  k ∈ {1, …, n}
+          instantiate k := k in line 2, from K2
+
+    4.2.  a(k) ≥ 0
+          instantiate k := k in H3, from 4.1
+
+5.  For all k ∈ {1, …, m}, a(k) ∈ ℝ. For all k ∈ {1, …, m}, a(k) ≥ 0.
+    join 3, 4
+
+theorem am-gm-power
+  note        By induction on the number of terms. With A the mean of the
+              first j terms and B the mean of the first j + 1, the product
+              of the first j + 1 is at most A^j·a(j + 1), and Bernoulli's
+              inequality at B/A − 1 gives A^j·a(j + 1) ≤ B^(j + 1).
+  let n ∈ ℕ                                                           (H1)
+  let a : {1, …, n} → ℝ                                               (H2)
+  assume for all k ∈ {1, …, n}, a(k) ≥ 0                              (H3)
+  then ∏(k = 1 to n) a(k) ≤ ((Σ(k = 1 to n) a(k))/n)^n
+
+1.  For all j ∈ ℕ with j ≤ n, ∏(k = 1 to j) a(k) ≤ ((Σ(k = 1 to j) a(k))/j)^j.
+    induction on j starting at 1
+
+    base
+    1.1.  If 1 ≤ n then ∏(k = 1 to 1) a(k) ≤ ((Σ(k = 1 to 1) a(k))/1)^1.
+          proof
+          assume 1 ≤ n                                                (C1)
+
+          1.1.1.  For all k ∈ {1, …, 1}, a(k) ∈ ℝ. For all k ∈ {1, …, 1}, a(k) ≥ 0.
+                  thm:first-terms m := 1, from C1, H3
+
+          1.1.2.  ∏(k = 1 to 1) a(k) = a(1)
+                  mun:product-single a := 1, from 1.1.1
+
+          1.1.3.  Σ(k = 1 to 1) a(k) = a(1)
+                  mun:sum-single a := 1, from 1.1.1
+
+          1.1.4.  ∏(k = 1 to 1) a(k) = Σ(k = 1 to 1) a(k)
+                  transitivity, from 1.1.2, 1.1.3
+
+          1.1.5.  ∏(k = 1 to 1) a(k) ≤ ((Σ(k = 1 to 1) a(k))/1)^1
+                  inequalities
+                    ∏(k = 1 to 1) a(k) = Σ(k = 1 to 1) a(k)              1.1.4
+                    ∏(k = 1 to 1) a(k) ≤ Σ(k = 1 to 1) a(k)              weakening
+                  requires ∏(k = 1 to 1) a(k) ∈ ℝ: mun:product-real a := 1, b := 1, from 1.1.1
+
+    step
+    let j ∈ ℕ                                                         (K1)
+    assume step 1 is true for j, the induction hypothesis             (IH)
+
+    1.2.  If j + 1 ≤ n then ∏(k = 1 to j + 1) a(k) ≤ ((Σ(k = 1 to j + 1) a(k))/(j + 1))^(j + 1).
+          proof
+          assume j + 1 ≤ n                                            (C2)
+
+          1.2.1.  j ≤ n
+                  inequalities, from C2
+
+          1.2.2.  ∏(k = 1 to j) a(k) ≤ ((Σ(k = 1 to j) a(k))/j)^j
+                  mun:modus-ponens, from IH, 1.2.1
+
+          1.2.3.  For all k ∈ {1, …, j}, a(k) ∈ ℝ. For all k ∈ {1, …, j}, a(k) ≥ 0.
+                  thm:first-terms m := j, from H3, 1.2.1
+
+          1.2.4.  For all k ∈ {1, …, j + 1}, a(k) ∈ ℝ. For all k ∈ {1, …, j + 1}, a(k) ≥ 0.
+                  thm:first-terms m := j + 1, from C2, H3
+
+          1.2.5.  j + 1 ∈ {1, …, n}
+                  mun:range k := j + 1, from C2
+
+          1.2.6.  a(j + 1) ≥ 0
+                  instantiate k := j + 1 in H3, from 1.2.5
+
+          let x = a(j + 1), a real number                             (D1)
+              from H2, 1.2.5
+              reads the term the step adds
+
+          let A = (Σ(k = 1 to j) a(k))/j, a real number               (D2)
+              membership, from 1.2.3
+              reads the mean of the first j terms
+
+          let B = (Σ(k = 1 to j + 1) a(k))/(j + 1), a real number     (D3)
+              membership, from 1.2.4
+              reads the mean of the first j + 1 terms
+
+          1.2.7.  Σ(k = 1 to j + 1) a(k) = Σ(k = 1 to j) a(k) + a(j + 1)
+                  mun:sum-extended a := 1, n := j, from 1.2.4
+                  requires j ≥ 1: from K1
+
+          1.2.8.  B·(j + 1) = A·j + x
+                  algebra, from D1, D2, D3, 1.2.7
+                  requires Σ(k = 1 to j) a(k) ∈ ℝ: mun:sum-real a := 1, b := j, from 1.2.3
+
+          1.2.9.  ∏(k = 1 to j + 1) a(k) = (∏(k = 1 to j) a(k))·a(j + 1)
+                  mun:product-extended a := 1, n := j, from 1.2.4
+                  requires j ≥ 1: from K1
+
+          1.2.10. (∏(k = 1 to j) a(k))·x ≤ A^j·x
+                  mun:multiply-le-nonneg, from D1, D2, 1.2.2, 1.2.6
+                  requires ∏(k = 1 to j) a(k) ∈ ℝ: mun:product-real a := 1, b := j, from 1.2.3
+
+          1.2.11. Σ(k = 1 to j) a(k) ≥ 0
+                  mun:sum-nonneg a := 1, b := j, from 1.2.3
+
+          1.2.12. A ≥ 0
+                  mun:quotient-nonneg, from D2, K1, 1.2.11
+                  requires Σ(k = 1 to j) a(k) ∈ ℝ: mun:sum-real a := 1, b := j, from 1.2.3
+
+          1.2.13. Σ(k = 1 to j + 1) a(k) ≥ 0
+                  mun:sum-nonneg a := 1, b := j + 1, from 1.2.4
+
+          1.2.14. B ≥ 0
+                  mun:quotient-nonneg, from D3, 1.2.13
+                  requires Σ(k = 1 to j + 1) a(k) ∈ ℝ: mun:sum-real a := 1, b := j + 1, from 1.2.4
+                  requires 0 < j + 1: inequalities, from K1
+
+          1.2.15. 0 < A or 0 = A
+                  mun:le-cases, from 1.2.12
+
+          1.2.16. A^j·x ≤ B^(j + 1)
+                  cases, from 1.2.15
+
+                  case
+                  note Bernoulli's inequality at B/A − 1
+                  assume 0 < A                                        (C3)
+
+                  let r = B/A, a real number                          (D4)
+                      membership, from C3
+                      reads how many times A the new mean is
+
+                  1.2.16.1.  r ≥ 0
+                             mun:quotient-nonneg, from C3, D4, 1.2.14
+
+                  1.2.16.2.  r − 1 ≥ −1
+                             inequalities, from 1.2.16.1
+
+                  1.2.16.3.  1 + (r − 1)·(j + 1) ≤ (1 + (r − 1))^(j + 1)
+                             thm:bernoulli-inequality x := r − 1, n := j + 1, from 1.2.16.2
+
+                  1.2.16.4.  1 + (r − 1) = r
+                             algebra
+
+                  1.2.16.5.  1 + (r − 1)·(j + 1) ≤ r^(j + 1)
+                             substitute 1 + (r − 1) = r (line 1.2.16.4) into line 1.2.16.3
+
+                  1.2.16.6.  A^j > 0
+                             mun:power-positive, from C3
+
+                  1.2.16.7.  A^j·A > 0
+                             mun:product-positive, from C3, 1.2.16.6
+
+                  1.2.16.8.  (A^j·A)·(1 + (r − 1)·(j + 1)) ≤ (A^j·A)·r^(j + 1)
+                             mun:multiply-le, from 1.2.16.5, 1.2.16.7
+                             requires r^(j + 1) ∈ ℝ: mun:power-real
+
+                  1.2.16.9.  A·r = B
+                             algebra, from D4
+                             requires 0 ≠ A: weakening, from C3
+
+                  1.2.16.10. (A·r − A)·(j + 1) = x − A
+                             algebra, from 1.2.8, 1.2.16.9
+
+                  1.2.16.11. (A^j·A)·(1 + (r − 1)·(j + 1)) = A^j·x
+                             algebra, from 1.2.16.10
+
+                  1.2.16.12. A^(j + 1) = A^j·A
+                             mun:exponent-step
+
+                  1.2.16.13. (A^j·A)·r^(j + 1) = A^(j + 1)·r^(j + 1)
+                             substitute A^(j + 1) = A^j·A (line 1.2.16.12)
+
+                  1.2.16.14. (A·r)^(j + 1) = A^(j + 1)·r^(j + 1)
+                             mun:power-of-product
+
+                  1.2.16.15. (A·r)^(j + 1) = B^(j + 1)
+                             substitute A·r = B (line 1.2.16.9)
+
+                  1.2.16.16. A^j·x ≤ B^(j + 1)
+                             calculation
+                               A^j·x = (A^j·A)·(1 + (r − 1)·(j + 1))     1.2.16.11
+                                     ≤ (A^j·A)·r^(j + 1)                 1.2.16.8
+                                     = A^(j + 1)·r^(j + 1)               1.2.16.13
+                                     = (A·r)^(j + 1)                     1.2.16.14
+                                     = B^(j + 1)                         1.2.16.15
+
+                  case
+                  note A^j is 0, and B^(j + 1) is not negative
+                  assume 0 = A                                        (C4)
+
+                  1.2.16.17. A^j·x = 0^j·x
+                             substitute 0 = A (C4)
+
+                  1.2.16.18. 0^j = 0
+                             mun:zero-power n := j
+
+                  1.2.16.19. A^j·x = 0
+                             algebra, from 1.2.16.17, 1.2.16.18
+
+                  1.2.16.20. B^(j + 1) ≥ 0
+                             mun:power-nonneg, from 1.2.14
+
+                  1.2.16.21. A^j·x ≤ B^(j + 1)
+                             transitivity, from 1.2.16.19, 1.2.16.20
+                             requires B^(j + 1) ∈ ℝ: mun:power-real
+
+          1.2.17. ∏(k = 1 to j + 1) a(k) ≤ ((Σ(k = 1 to j + 1) a(k))/(j + 1))^(j + 1)
+                  calculation
+                    ∏(k = 1 to j + 1) a(k) = (∏(k = 1 to j) a(k))·a(j + 1)     1.2.9
+                                           = (∏(k = 1 to j) a(k))·x            D1
+                                           ≤ A^j·x                               1.2.10
+                                           ≤ B^(j + 1)                           1.2.16
+                                           = ((Σ(k = 1 to j + 1) a(k))/(j + 1))^(j + 1)    D3
+
+2.  If n ≤ n then ∏(k = 1 to n) a(k) ≤ ((Σ(k = 1 to n) a(k))/n)^n.
+    instantiate j := n in line 1
+
+3.  n ≤ n
+    inequalities
+
+4.  ∏(k = 1 to n) a(k) ≤ ((Σ(k = 1 to n) a(k))/n)^n
+    mun:modus-ponens, from 2, 3
+
+theorem am-gm
+  metamath    amgm
+  note        The geometric mean of n numbers none of them negative is at
+              most their arithmetic mean: take n-th roots in am-gm-power.
+  let n ∈ ℕ                                                           (H1)
+  let a : {1, …, n} → ℝ                                               (H2)
+  assume for all k ∈ {1, …, n}, a(k) ≥ 0                              (H3)
+  then (∏(k = 1 to n) a(k))^(1/n) ≤ (Σ(k = 1 to n) a(k))/n
+
+let P = ∏(k = 1 to n) a(k), a real number                             (D1)
+    mun:product-real a := 1, b := n
+    reads the product of the a's
+
+let M = (Σ(k = 1 to n) a(k))/n, a real number                         (D2)
+    membership
+    reads the mean of the a's
+
+1.  P ≤ M^n
+    thm:am-gm-power, from D1, D2, H3
+
+2.  P ≥ 0
+    mun:product-range-nonneg a := 1, b := n, from D1, H3
+
+3.  Σ(k = 1 to n) a(k) ≥ 0
+    mun:sum-nonneg a := 1, b := n, from H3
+
+4.  M ≥ 0
+    mun:quotient-nonneg, from D2, H1, 3
+
+let r = P^(1/n), a real number                                        (D3)
+    mun:real-power-real x := P, y := 1/n, from 2
+    reads the n-th root of P
+
+5.  r^n = P
+    mun:root-power x := P, from D3
+
+6.  r ≤ M
+    contradiction
+    suppose not r ≤ M                                                 (S)
+
+    6.1.  M < r
+          inequalities, from S
+
+    6.2.  M^n < r^n
+          mun:power-less, from 4, 6.1
+
+    6.3.  M^n < P
+          substitute r^n = P (line 5) into line 6.2
+
+    6.4.  not P ≤ M^n
+          inequalities, from 6.3, contradicting 1
+
+7.  (∏(k = 1 to n) a(k))^(1/n) ≤ (Σ(k = 1 to n) a(k))/n
+    calculation
+      (∏(k = 1 to n) a(k))^(1/n) = P^(1/n)                     D1
+                                 = r                           D3
+                                 ≤ M                           6
+                                 = (Σ(k = 1 to n) a(k))/n      D2

@@ -373,7 +373,7 @@ mundane theorem integral-real
 
 mundane theorem integral-point
   let a ∈ ℝ                                                           (H1)
-  let f : ℝ → ℝ                                                       (H2)
+  let f : X → ℝ                                                       (H2)
   then        ∫(a to a) f(t) dt = 0
   metamath    ditg0
   target      ditg0
