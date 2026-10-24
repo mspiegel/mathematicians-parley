@@ -3644,6 +3644,17 @@ fn cases() -> Vec<Case> {
             )],
             "step 2 puts g for f in line 1, so it needs g ∈ (the functions from X to Y), and nothing it cites or requires says it",
         ),
+        // A function's type is a declaration, and a codomain the item names
+        // is asked for: ℂ is not inside ℝ.
+        case(
+            "cite an item for a function declared into a wider codomain",
+            vec![edit(
+                "tests/elaborator/a-function-type-widened.proof",
+                Some("  let t : {1, …, n} → ℕ                                               (H2)\n".to_string()),
+                "  let t : {1, …, n} → ℂ                                               (H2)\n".to_string(),
+            )],
+            "step 1 cites mun:product-real, which asks t : {1, …, n} → ℝ, and t is declared t : {1, …, n} → ℂ, whose values need not be in ℝ",
+        ),
         // √ is the square root, and a raised index before it is 3 or more.
         case(
             "write a root of index 2",

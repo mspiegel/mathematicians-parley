@@ -1164,6 +1164,7 @@ pub fn check_function_types(
         }
         let asks = family_asks(step, known, library);
         let parts = known.parts(step, library);
+        codomains_unmet(report, thm, step, &item, &asks, known);
         for t in &asks.types {
             let function = &t.asked.children[0];
             if !function.is_name() || defines.contains(function.text.as_str()) {
@@ -1205,6 +1206,58 @@ pub fn check_function_types(
             terms_unsaid(report, thm, &as_step, req.line, &what, library, known);
         }
     }
+}
+
+/// An item's function type naming a number system for its codomain, asked
+/// of a function a `let` declares into a system not inside it: product-real
+/// asks `t : {a, …, b} → ℝ`, and `let t : {1, …, n} → ℂ` does not give
+/// that, where `let t : {1, …, n} → ℕ` does (`GRAMMAR.md`, the function's
+/// type is a declaration).
+fn codomains_unmet(
+    report: &mut Report,
+    thm: &Theorem,
+    step: &Step,
+    item: &str,
+    asks: &FamilyAsks,
+    known: &Known,
+) {
+    let declared = typed_in_scope(known, step);
+    for t in &asks.declared_types {
+        let [function, _, asked] = t.asked.children.as_slice() else {
+            continue;
+        };
+        let Some(wanted) = system_named(asked) else {
+            continue;
+        };
+        let typed = declared
+            .iter()
+            .filter(|d| d.children[0].text == function.text)
+            .filter_map(|d| d.children.get(2).and_then(system_named).map(|s| (d, s)));
+        for (line, given) in typed {
+            if given.within(wanted) {
+                continue;
+            }
+            report.say(
+                &thm.path,
+                step.just.line,
+                format!(
+                    "step {} cites {item}, which asks {}, and {} is declared {}, whose values need not be in {}",
+                    step.number,
+                    known.print(&t.asked),
+                    known.print(function),
+                    known.print(line),
+                    known.print(asked)
+                ),
+            );
+        }
+    }
+}
+
+/// The number system a set node is, where it is one.
+fn system_named(set: &Node) -> Option<System> {
+    (set.notation() == NUMBER_SYSTEMS)
+        .then(|| System::of_sign(&set.text))
+        .flatten()
 }
 
 /// A sum item's function hypothesis, `t : {a, …, b} → ℝ`, where the
@@ -2032,6 +2085,9 @@ struct FamilyAsks {
     held: BTreeSet<String>,
     values: Vec<Node>,
     types: Vec<AskedType>,
+    /// The item's function types the citation asks of functions a `let`
+    /// declares, whose types are not asked for and whose codomains are.
+    declared_types: Vec<AskedType>,
     /// The number systems the page says once its letters are in at the
     /// step, which say whether a term's divisor is a positive integer.
     letters: Introduced,
@@ -2238,15 +2294,22 @@ fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
             filled: fixed.contains_key(&t.children[0].text),
             rule: rules.get(t.children[0].text.as_str()).cloned(),
         })
-        // A letter the citation leaves unfilled is the item's own, whatever
-        // the page calls by the same name: sum-termwise's u, read as a rule,
-        // is no page's `let u : ℕ → ℝ`.
-        .filter(|t| {
+        .collect::<Vec<AskedType>>();
+    // A letter the citation leaves unfilled is the item's own, whatever the
+    // page calls by the same name: sum-termwise's u, read as a rule, is no
+    // page's `let u : ℕ → ℝ`. One the citation fills with a function a let
+    // declares is kept apart: its type is not asked for, its codomain is
+    // (`GRAMMAR.md`).
+    let (types, declared_types): (Vec<AskedType>, Vec<AskedType>) =
+        types.into_iter().partition(|t| {
             let function = &t.asked.children[0];
             function.notation() == PROPERTY_OF
                 || (function.is_name()
                     && (!t.filled || !declared.contains(&function.text)))
-        })
+        });
+    let declared_types = declared_types
+        .into_iter()
+        .filter(|t| t.asked.children[0].is_name())
         .collect();
     for group in groups.iter() {
         let (want, gives) = (&group.wants, &group.gives);
@@ -2301,6 +2364,7 @@ fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
         held,
         values,
         types,
+        declared_types,
         letters: super::library::introduced(known, step),
         ctx: library.ctx.clone(),
     }
