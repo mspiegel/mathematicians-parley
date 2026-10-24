@@ -57,9 +57,9 @@ theorem rational-cube-root-of-two
   note        Suppose x³ = 2 with x = p/q in lowest terms. Then p³ = 2q³,
               so p is even, p = 2r, and q³ = 4r³ makes q even too, so 2
               divides both p and q, which lowest terms rules out.
-  then not (there is x ∈ ℚ with x³ = 2)
+  then there is no x ∈ ℚ with x³ = 2
 
-1.  not (there is x ∈ ℚ with x³ = 2)
+1.  there is no x ∈ ℚ with x³ = 2
     contradiction
     suppose there is x ∈ ℚ with x³ = 2                                (S)
 

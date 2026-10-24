@@ -22,9 +22,9 @@ theorem reciprocal-square-no-limit
   ε, δ range over ℝ
   let f : ℝ ∖ {1} → ℝ                                                 (H1)
   assume for all x ∈ ℝ ∖ {1}, f(x) = 1/(x² − 2x + 1)                 (H2)
-  then not (there is L ∈ ℝ with f tends to L at 1)
+  then there is no L ∈ ℝ with f tends to L at 1
 
-1.  not (there is L ∈ ℝ with f tends to L at 1)
+1.  there is no L ∈ ℝ with f tends to L at 1
     contradiction
     suppose there is L ∈ ℝ with f tends to L at 1                     (S)
 

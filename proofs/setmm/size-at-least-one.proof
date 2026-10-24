@@ -14,7 +14,7 @@ theorem size-at-least-one
 
 1.  there is a ∈ A
     contradiction
-    suppose not (there is a ∈ A)                                      (S)
+    suppose there is no a ∈ A                                         (S)
 
     1.1.  For all s ∈ A, s ∉ A.
           proof
@@ -27,7 +27,7 @@ theorem size-at-least-one
                   1.1.1.1.  there is a ∈ A
                             exhibit, from S2
 
-                  1.1.1.2.  not (there is a ∈ A)
+                  1.1.1.2.  there is no a ∈ A
                             join S, contradicting 1.1.1.1
 
     1.2.  A ∩ A = ∅

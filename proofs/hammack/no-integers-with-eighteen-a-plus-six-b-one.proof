@@ -3,9 +3,9 @@ import mundane theorem    stdlib/divisibility/not-both
 
 theorem no-integers-with-eighteen-a-plus-six-b-one
   note        If 18a + 6b = 1 then 1 = 2(9a + 3b) is even, and it is odd.
-  then not (there exist a, b ∈ ℤ such that 18a + 6b = 1)
+  then there do not exist a, b ∈ ℤ such that 18a + 6b = 1
 
-1.  not (there exist a, b ∈ ℤ such that 18a + 6b = 1)
+1.  there do not exist a, b ∈ ℤ such that 18a + 6b = 1
     contradiction
     suppose there exist a, b ∈ ℤ such that 18a + 6b = 1               (S)
 

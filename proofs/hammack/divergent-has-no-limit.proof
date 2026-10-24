@@ -8,9 +8,9 @@ theorem divergent-has-no-limit
   n ranges over ℕ
   let a : ℕ → ℝ                                                       (H1)
   assume for all M ∈ ℝ, there exists N ∈ ℕ such that a(n) > M for all n > N   (H2)
-  then not (there is L ∈ ℝ with a(n) → L as n → ∞)
+  then there is no L ∈ ℝ with a(n) → L as n → ∞
 
-1.  not (there is L ∈ ℝ with a(n) → L as n → ∞)
+1.  there is no L ∈ ℝ with a(n) → L as n → ∞
     contradiction
     suppose there is L ∈ ℝ with a(n) → L as n → ∞                     (S)
 

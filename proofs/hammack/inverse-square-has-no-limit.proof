@@ -17,9 +17,9 @@ theorem inverse-square-has-no-limit
   ε, δ range over ℝ
   let f : ℝ ∖ {0} → ℝ                                                 (H1)
   assume for all x ∈ ℝ ∖ {0}, f(x) = 1/x²                            (H2)
-  then not (there is L ∈ ℝ with f tends to L at 0)
+  then there is no L ∈ ℝ with f tends to L at 0
 
-1.  not (there is L ∈ ℝ with f tends to L at 0)
+1.  there is no L ∈ ℝ with f tends to L at 0
     contradiction
     suppose there is L ∈ ℝ with f tends to L at 0                     (S)
 

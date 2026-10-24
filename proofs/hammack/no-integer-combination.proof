@@ -5,9 +5,9 @@ import mundane theorem    stdlib/divisibility/divides-one
 theorem no-integer-combination
   note        3 divides 21 and 30, so it divides 21a + 30b for any integers;
               if that were 1, 3 would divide 1 and be 1.
-  then not (there are a, b ∈ ℤ with 21a + 30b = 1)
+  then there are no a, b ∈ ℤ with 21a + 30b = 1
 
-1.  not (there are a, b ∈ ℤ with 21a + 30b = 1)
+1.  there are no a, b ∈ ℤ with 21a + 30b = 1
     contradiction
     suppose there are a, b ∈ ℤ with 21a + 30b = 1                     (S)
 

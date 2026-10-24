@@ -182,12 +182,12 @@ theorem rational-squares-sum-not-three
               which p² + q² = 3m² has integer solutions. Then 3 divides p
               and q, so p = 3s and q = 3t; then m² = 3(s² + t²), so 3
               divides m, and m = 3u gives s² + t² = 3u² with u below m.
-  then not (there are x, y ∈ ℚ with x² + y² − 3 = 0)
+  then there are no x, y ∈ ℚ with x² + y² − 3 = 0
 
 let T = {r ∈ ℕ : there are j, k ∈ ℤ with j² + k² = 3r²}              (D1)
        reads the natural numbers r for which j² + k² = 3r² has integer solutions
 
-1.  not (there are x, y ∈ ℚ with x² + y² − 3 = 0)
+1.  there are no x, y ∈ ℚ with x² + y² − 3 = 0
     contradiction
     suppose there are x, y ∈ ℚ with x² + y² − 3 = 0                   (S)
 
