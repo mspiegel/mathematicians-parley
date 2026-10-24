@@ -3599,7 +3599,47 @@ impl<'a> Elaborator<'a> {
     /// Decided by `linear`, and then taken where it cannot be emitted: what
     /// the method concludes is checked against what the step cites, so a
     /// step that does not follow is refused rather than assumed.
+    ///
+    /// A claim that writes an identity element is the claim without it
+    /// (`SYNTAX.md`, "An identity element goes without saying"), and is
+    /// proved so where the claim as written is not: `x^1` is an atom to the
+    /// method that `x` is not, so the base case `P ≤ (S/1)^1` of an
+    /// induction is the claim `P ≤ S` its rows end on, carried back.
     pub fn inequalities(
+        &mut self,
+        step: &Step,
+        term: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+        lines: &Lines,
+    ) -> Checked<Route<Proof>> {
+        let found = self.inequalities_as_written(step, term, scope, facts, lines)?;
+        let Declined(d) = &found else {
+            return Ok(found);
+        };
+        let bare = self.rpn(&self.without_identities(&self.to_term(term)));
+        if bare != *term {
+            let tidy =
+                self.inequalities_as_written(step, &bare, scope, facts, lines)?;
+            if let Built(p) = tidy {
+                if let Some(back) = self.tidied(&p, &bare, term, scope, facts)? {
+                    return Ok(Built(back));
+                }
+            }
+        }
+        Err(self.defect(
+            step.line,
+            format!(
+                "step {} follows from what it cites, and inequalities cannot write its proof: {}",
+                fmt(&step.number),
+                self.say(d)
+            ),
+        ))
+    }
+
+    /// `inequalities` of the claim as `term` writes it; declined where the
+    /// method cannot write its proof.
+    fn inequalities_as_written(
         &mut self,
         step: &Step,
         term: &Rpn,
@@ -3675,17 +3715,7 @@ impl<'a> Elaborator<'a> {
         });
         self.adding_only = kept;
         let found = found?;
-        if let Declined(d) = &found {
-            return Err(self.defect(
-                step.line,
-                format!(
-                    "step {} follows from what it cites, and inequalities cannot write its proof: {}",
-                    fmt(&step.number),
-                    self.say(d)
-                ),
-            ));
-        }
-        if term_out == term {
+        if found.is_declined() || term_out == term {
             return Ok(found);
         }
         // Back from the claim written out to the claim as the page writes it.

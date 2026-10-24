@@ -621,6 +621,18 @@ mundane theorem multiply-le
   note        `inequalities` multiplies a line only by a number, so a step
               multiplying both sides by a positive term cites this.
 
+mundane theorem multiply-le-nonneg
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  let c ∈ ℝ                                                           (H3)
+  assume x ≤ y                                                        (H4)
+  assume c ≥ 0                                                        (H5)
+  then        x·c ≤ y·c
+  metamath    lemul1a
+  target      lemul1a
+  note        As multiply-le, by a factor that may be 0, written on the
+              right.
+
 mundane theorem square-positive
   let x ∈ ℝ                                                           (H1)
   assume x ≠ 0                                                        (H2)
@@ -696,6 +708,35 @@ mundane theorem power-positive
   then        a^m > 0
   metamath    expgt0
   target      expgt0
+
+mundane theorem power-nonneg
+  let a ∈ ℝ                                                           (H1)
+  let m ∈ ℕ₀                                                          (H2)
+  assume a ≥ 0                                                        (H3)
+  then        a^m ≥ 0
+  metamath    expge0
+  target      expge0
+  note        As power-positive, for a base at least 0.
+
+mundane theorem zero-power
+  let n ∈ ℕ                                                           (H1)
+  then        0^n = 0
+  metamath    0exp
+  target      0exp
+  note        An exponent that is a letter makes the power an atom to
+              `algebra`, so 0^n = 0 is cited, as 1^m = 1 is.
+
+mundane theorem power-less
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  let n ∈ ℕ                                                           (H3)
+  assume 0 ≤ x                                                        (H4)
+  assume x < y                                                        (H5)
+  then        x^n < y^n
+  metamath    expmordi
+  target      expmordi
+  note        Of two numbers at least 0, the larger has the larger n-th
+              power.
 
 mundane theorem quotients-compared
   let x ∈ ℝ                                                           (H1)
@@ -857,6 +898,16 @@ mundane theorem cross-multiplied-order
   target      lt2mul2div
   note        Two quotients with positive denominators compare as their
               cross products do.
+
+theorem bernoulli-inequality
+  let x ∈ ℝ                                                           (H1)
+  let n ∈ ℕ₀                                                          (H2)
+  assume x ≥ −1                                                       (H3)
+  then        1 + x·n ≤ (1 + x)^n
+  metamath    bernneq
+  target      bernneq
+  note        Bernoulli's inequality: raising 1 + x to the n-th power gains
+              at least n times x.
 
 theorem archimedean
   let x ∈ ℝ                                                           (H1)

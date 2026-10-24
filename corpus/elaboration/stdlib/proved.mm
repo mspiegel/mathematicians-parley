@@ -1922,6 +1922,13 @@ $d k K $.  $d k M $.  $d k N $.  $d k B $.  $d k ph $.
     ADEIJZBCKLBCKMAUFLBCAEDNOZUFLPZHADQREQRUGUHSFGDETUAUBUCBCUDUE $.
   $}
 
+  ${
+    gfprodge0.1 $e |- ( ( ph /\ k e. ( M ... N ) ) -> A e. RR ) $.
+    gfprodge0.2 $e |- ( ( ph /\ k e. ( M ... N ) ) -> 0 <_ A ) $.
+  gfprodge0 $p |- ( ph -> 0 <_ prod_ k e. ( M ... N ) A ) $=
+    ( cfz co nfv fzfid fprodge0 ) ADEHIBCACJADEKFGL $.
+  $}
+
 $}
 
 ${

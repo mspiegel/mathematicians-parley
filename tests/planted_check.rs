@@ -3655,6 +3655,18 @@ fn cases() -> Vec<Case> {
             )],
             "step 1 cites mun:product-real, which asks t : {1, …, n} → ℝ, and t is declared t : {1, …, n} → ℂ, whose values need not be in ℝ",
         ),
+        // A function's type is a declaration over its own domain: an item
+        // asked over a range the domain does not hold asks the values
+        // there, which the build needs and the type does not give.
+        case(
+            "cite an item over a range a declared function's domain does not hold",
+            vec![edit(
+                "tests/elaborator/a-function-on-a-longer-range.proof",
+                Some("    mun:product-real a := 1, b := m, from H4\n".to_string()),
+                "    mun:product-real a := 1, b := m\n".to_string(),
+            )],
+            "step 1 cites mun:product-real, which asks t : {1, …, m} → ℝ, and t is declared t : {1, …, n} → ℝ, whose domain does not hold {1, …, m}; say its values there in a requires line, for all k ∈ {1, …, m}, t(k) ∈ ℝ, from a line saying them",
+        ),
         // √ is the square root, and a raised index before it is 3 or more.
         case(
             "write a root of index 2",

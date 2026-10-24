@@ -1163,33 +1163,14 @@ pub fn check_function_types(
             continue;
         }
         let asks = family_asks(step, known, library);
-        let parts = known.parts(step, library);
         codomains_unmet(report, thm, step, &item, &asks, known);
-        for t in &asks.types {
-            let function = &t.asked.children[0];
-            if !function.is_name() || defines.contains(function.text.as_str()) {
-                continue;
-            }
-            // A function the citation leaves the item's own letter is not
-            // one of the page's.
-            if !t.filled {
-                continue;
-            }
-            if parts.facts.iter().any(|f| t.stated_by(f, known)) {
-                continue;
-            }
-            report.say(
-                &thm.path,
-                step.just.line,
-                format!(
-                    "step {} cites {item}, which asks {}, and no line the step names gives {} a type; cite the line stating it, or say it in a requires line",
-                    step.number,
-                    known.print(&t.asked),
-                    known.print(function)
-                ),
-            );
-        }
         let what = format!("step {}", step.number);
+        let at = AskedAt {
+            step,
+            line: step.just.line,
+            what: &what,
+        };
+        types_unstated(report, thm, &at, &asks, &defines, library, known);
         terms_unsaid(report, thm, step, step.just.line, &what, library, known);
     }
     for step in &thm.steps {
@@ -1203,8 +1184,89 @@ pub fn check_function_types(
             }
             let what =
                 format!("the requires line {} of step {}", req.fact, step.number);
+            let asks = family_asks(&as_step, known, library);
+            let at = AskedAt {
+                step: &as_step,
+                line: req.line,
+                what: &what,
+            };
+            types_unstated(report, thm, &at, &asks, &defines, library, known);
             terms_unsaid(report, thm, &as_step, req.line, &what, library, known);
         }
+    }
+}
+
+/// Where a citation asks what `types_unstated` looks for: the step, or a
+/// requires line read as the step it would be, the line to report it on,
+/// and how the report names it.
+struct AskedAt<'a> {
+    step: &'a Step,
+    line: usize,
+    what: &'a str,
+}
+
+/// Each function type a citation asks (`FamilyAsks::types`) of one of the
+/// page's functions that no line it names states: of a function no `let`
+/// types, its type, and of one a `let` declares on a domain that does not
+/// hold the set the item asks it over, its values there. A function the
+/// proof defines is `check_defined_types`'s.
+fn types_unstated(
+    report: &mut Report,
+    thm: &Theorem,
+    at: &AskedAt,
+    asks: &FamilyAsks,
+    defines: &BTreeSet<String>,
+    library: &Library,
+    known: &Known,
+) {
+    let Some(item) = at.step.just.cited_item() else {
+        return;
+    };
+    let parts = known.parts(at.step, library);
+    let declared = typed_in_scope(known, at.step);
+    for t in &asks.types {
+        let function = &t.asked.children[0];
+        if !function.is_name() || defines.contains(function.text.as_str()) {
+            continue;
+        }
+        // A function the citation leaves the item's own letter is not one
+        // of the page's.
+        if !t.filled {
+            continue;
+        }
+        if parts.facts.iter().any(|f| t.stated_by(f, known))
+            || values_said(&t.asked, &parts.facts, library)
+        {
+            continue;
+        }
+        let what = at.what;
+        if let Some(line) = declared
+            .iter()
+            .find(|d| d.children[0].text == function.text)
+        {
+            report.say(
+                &thm.path,
+                at.line,
+                format!(
+                    "{what} cites {item}, which asks {}, and {} is declared {}, whose domain does not hold {}; say its values there in a requires line, {}, from a line saying them",
+                    known.print(&t.asked),
+                    known.print(function),
+                    known.print(line),
+                    known.print(&t.asked.children[1]),
+                    values_everywhere(&t.asked, known)
+                ),
+            );
+            continue;
+        }
+        report.say(
+            &thm.path,
+            at.line,
+            format!(
+                "{what} cites {item}, which asks {}, and no line the step names gives {} a type; cite the line stating it, or say it in a requires line",
+                known.print(&t.asked),
+                known.print(function)
+            ),
+        );
     }
 }
 
@@ -1251,6 +1313,36 @@ fn codomains_unmet(
             );
         }
     }
+}
+
+/// Whether every type `declared` gives the function of `asked` holds the
+/// domain the item asks it over: the same set, a set the citation leaves
+/// open, or a range the declared table puts inside a declared number
+/// system, {1, …, n} inside ℕ (`SYNTAX.md`, a line said of every member of
+/// a set). A function declared on {1, …, n} does not hold {1, …, 1} or
+/// {1, …, j + 1} by its type alone.
+fn declared_domain_holds(asked: &AskedType, declared: &[Node], known: &Known) -> bool {
+    let [function, domain, _] = asked.asked.children.as_slice() else {
+        return true;
+    };
+    if domain.is_name() && asked.open.contains(domain.text.as_str()) {
+        return true;
+    }
+    let inside = match domain.notation() {
+        INTEGER_RANGE => range_system(domain),
+        NUMBER_SYSTEMS => System::of_sign(&domain.text),
+        _ => None,
+    };
+    declared
+        .iter()
+        .filter(|d| d.children[0].text == function.text)
+        .all(|d| {
+            let own = &d.children[1];
+            known.alike(own, domain)
+                || system_named(own)
+                    .zip(inside)
+                    .is_some_and(|(own, asked)| asked.within(own))
+        })
 }
 
 /// The number system a set node is, where it is one.
@@ -2258,10 +2350,9 @@ fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
     // for (`GRAMMAR.md`, the function's type is a declaration). What the
     // step claims is no guide to the letters: an `obtain` claims the
     // witness, not the item's conclusion.
-    let declared: BTreeSet<Symbol> = typed_in_scope(known, step)
-        .iter()
-        .map(|t| t.children[0].text)
-        .collect();
+    let in_scope = typed_in_scope(known, step);
+    let declared: BTreeSet<Symbol> =
+        in_scope.iter().map(|t| t.children[0].text).collect();
     // What the citation writes, and what the match of the item against the
     // claim and the cited lines fixes beside it: `g is continuous on D`
     // claimed by `def:continuous-on` makes the item's f the page's g
@@ -2299,13 +2390,19 @@ fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
     // page calls by the same name: sum-termwise's u, read as a rule, is no
     // page's `let u : ℕ → ℝ`. One the citation fills with a function a let
     // declares is kept apart: its type is not asked for, its codomain is
-    // (`GRAMMAR.md`).
+    // (`GRAMMAR.md`). Its type is asked where the item asks it over a set
+    // its declared domain does not hold: product-single at a := 1 asks
+    // a : {1, …, 1} → ℝ of a function declared on {1, …, n}, and the kernel
+    // asks each a(k) to be a number where the page has not said that k is
+    // in a's domain.
     let (types, declared_types): (Vec<AskedType>, Vec<AskedType>) =
         types.into_iter().partition(|t| {
             let function = &t.asked.children[0];
             function.notation() == PROPERTY_OF
                 || (function.is_name()
-                    && (!t.filled || !declared.contains(&function.text)))
+                    && (!t.filled
+                        || !declared.contains(&function.text)
+                        || !declared_domain_holds(t, &in_scope, known)))
         });
     let declared_types = declared_types
         .into_iter()
@@ -2378,6 +2475,16 @@ impl FamilyAsks {
             t.stated_by(node, known)
                 || t.said_pointwise(node, known, &self.ctx)
                 || t.says_inner_term(node, &self.letters, &self.ctx)
+        })
+    }
+
+    /// Whether `node`, a line the citation names, says the values a function
+    /// hypothesis asks of one of the page's functions over the set the item
+    /// asks it on, `for all k ∈ {1, …, j}, a(k) ∈ ℝ` for `a : {1, …, j} → ℝ`
+    /// (`values_said`).
+    fn states_values(&self, node: &Node, library: &Library) -> bool {
+        self.types.iter().any(|t| {
+            t.filled && values_said(&t.asked, std::slice::from_ref(node), library)
         })
     }
 
@@ -4543,9 +4650,10 @@ fn does_other_work(
 ) -> bool {
     stated.is_some_and(|n| {
         asks.states(n, known)
-            || conjuncts(n, library)
-                .iter()
-                .any(|part| in_domain.contains(&part.by_shape()))
+            || conjuncts(n, library).iter().any(|part| {
+                in_domain.contains(&part.by_shape())
+                    || asks.states_values(part, library)
+            })
     })
 }
 
