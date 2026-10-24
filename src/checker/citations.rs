@@ -4801,7 +4801,8 @@ fn does_other_work(
     stated.is_some_and(|n| {
         asks.states(n, known)
             || conjuncts(n, library).iter().any(|part| {
-                in_domain.contains(&part.by_shape())
+                asks.states(part, known)
+                    || in_domain.contains(&part.by_shape())
                     || asks.states_values(part, library)
             })
     })

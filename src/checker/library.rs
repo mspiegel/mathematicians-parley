@@ -17,9 +17,10 @@ use crate::formula::page::{chain_pairs, conjoined, filled, Sentence, Written};
 use crate::formula::symbol::Symbol;
 use crate::formula::{Node, Sorts};
 use crate::matching::{
-    alike, expand, standard, substituted_in, Binding, Context, Definitions, FxIndexMap,
+    alike, expand, standard, substitute_apart, substituted_in, Binding, Context,
+    Definitions, FxIndexMap,
 };
-use crate::notations::{MEMBERSHIP, PLANE};
+use crate::notations::{FOR_ALL, MEMBERSHIP, PLANE};
 use crate::outcome::Route;
 use crate::sorts::introduction::{Form, Introduction};
 use crate::sorts::{citing_labels, Env, OutsideDefines, TYPING};
@@ -65,6 +66,13 @@ pub enum Stated {
     /// An induction hypothesis: what its induction's claim, "for all k ∈ X,
     /// …", says at its letter.
     Hypothesis(Written),
+    /// A line cited from inside blocks that opened with `let x ∈ X`, each
+    /// below the line: what it writes, and the lets, by which a sentence
+    /// "for all a ∈ X, P(a)" of it supplies P(x) as well (`SYNTAX.md`).
+    InBlocks {
+        line: Written,
+        lets: Rc<Vec<Introduction>>,
+    },
 }
 
 impl Stated {
@@ -75,6 +83,7 @@ impl Stated {
             Stated::Introduced(i) => i.body.text(),
             Stated::Kind { name, .. } => name.text(),
             Stated::Hypothesis(claim) => claim.text(),
+            Stated::InBlocks { line, .. } => line.text(),
         }
     }
 }
@@ -251,7 +260,7 @@ impl<'a> Known<'a> {
             None => n,
         };
         match stated {
-            Stated::Written(w) => w
+            Stated::Written(w) | Stated::InBlocks { line: w, .. } => w
                 .sentences()
                 .iter()
                 .map(|s| self.read_as_written(s).map(cited))
@@ -321,12 +330,16 @@ impl<'a> Known<'a> {
     }
 
     /// What a line says as one formula with its defined names kept: what it
-    /// says, or the conjunction of the several things; None where a part
+    /// says, or the conjunction of the several things, a "for all" read at
+    /// a block's letter among them (`at_block_letters`); None where a part
     /// does not read.
     pub fn stated_as_written(&self, stated: &Stated) -> Option<Node> {
         let read: Option<Vec<Node>> =
             self.said_parts(stated, None).into_iter().collect();
-        conjoined(self.env.g, read?)
+        let mut read = read?;
+        let at = self.at_block_letters(stated, &read, None);
+        read.extend(at);
+        conjoined(self.env.g, read)
     }
 
     /// The sentence read with its defined names kept, as a message prints
@@ -495,7 +508,55 @@ impl<'a> Known<'a> {
             .flatten()
             .collect();
         said.extend(pairs);
+        let at = self.at_block_letters(stated, &said, Some(defined));
+        said.extend(at);
         said
+    }
+
+    /// What the "for all" sentences `said` of a line say at the letter of a
+    /// block around the citing step (`SYNTAX.md`): "for all a ∈ X, P(a)" in a
+    /// block that opened with `let x ∈ X` supplies P(x). The lets are read
+    /// as `said` was, with `defined` written out or not; where two give
+    /// letters of X the citation says neither.
+    pub fn at_block_letters(
+        &self,
+        stated: &Stated,
+        said: &[Node],
+        defined: Option<&Definitions>,
+    ) -> Vec<Node> {
+        let Stated::InBlocks { lets, .. } = stated else {
+            return Vec::new();
+        };
+        let members: Vec<Node> = lets
+            .iter()
+            .flat_map(|i| {
+                let introduced = Stated::Introduced(i.clone());
+                self.said_parts(&introduced, defined)
+            })
+            .flatten()
+            .filter(|m| m.notation() == MEMBERSHIP && m.children.len() == 2)
+            .collect();
+        let mut out = Vec::new();
+        for sentence in said {
+            let [bound, domain, body] = sentence.children.as_slice() else {
+                continue;
+            };
+            if sentence.notation() != FOR_ALL {
+                continue;
+            }
+            let letters: Vec<&Node> = members
+                .iter()
+                .filter(|m| self.alike(&m.children[1], domain))
+                .map(|m| &m.children[0])
+                .collect();
+            let [letter] = letters.as_slice() else {
+                continue;
+            };
+            let mut put = Binding::new();
+            put.insert(bound.text, (*letter).clone());
+            out.push(substitute_apart(body, &put, self.ctx));
+        }
+        out
     }
 
     /// A tree as page text.
@@ -599,19 +660,24 @@ pub fn statements_in_scope(
     };
     // A number written twice is `check_numbering`'s to report; a citation
     // of it reads the one written nearest above the citing step.
+    let visible = labels_in_scope(thm, shape, step, env.scopes);
+    let lets = block_lets(thm, &visible);
     let mut out: Statements = Statements::new();
     for s in &thm.steps {
         let key = s.number.to_string();
         if s.line <= step.line || !out.contains_key(&key) {
-            out.insert(key, Stated::Written(s.claim.clone()));
+            out.insert(key, in_blocks(s.claim.clone(), s.line, &lets));
         }
     }
     for h in &thm.hypotheses {
         if let Some(label) = &h.label {
-            out.insert(label.clone(), said(h.kind, h.body(&thm.path)));
+            let stated = match h.kind {
+                Intro::Let => said(h.kind, h.body(&thm.path)),
+                _ => in_blocks(h.body(&thm.path), h.line, &lets),
+            };
+            out.insert(label.clone(), stated);
         }
     }
-    let visible = labels_in_scope(thm, shape, step, env.scopes);
     for other in &thm.steps {
         for o in &other.openers {
             if visible.get(&o.label) == Some(&Declared::Block(o.line)) {
@@ -632,6 +698,40 @@ pub fn statements_in_scope(
         );
     }
     out
+}
+
+/// The `let x ∈ X` lines opening the blocks around a step, by the line each
+/// stands on.
+fn block_lets(
+    thm: &Theorem,
+    visible: &IndexMap<String, Declared>,
+) -> Vec<(usize, Introduction)> {
+    thm.steps
+        .iter()
+        .flat_map(|s| &s.openers)
+        .filter(|o| o.kind == Intro::Let)
+        .filter(|o| visible.get(&o.label) == Some(&Declared::Block(o.line)))
+        .map(|o| (o.line, Introduction::read(o.body(&thm.path))))
+        .filter(|(_, i)| matches!(i.form, Form::Member))
+        .collect()
+}
+
+/// What a line written on `line` says to a citation: its text, read at the
+/// letters of the lets below it that open blocks around the citing step
+/// (`Stated::InBlocks`).
+fn in_blocks(written: Written, line: usize, lets: &[(usize, Introduction)]) -> Stated {
+    let below: Vec<Introduction> = lets
+        .iter()
+        .filter(|(at, _)| *at > line)
+        .map(|(_, i)| i.clone())
+        .collect();
+    if below.is_empty() {
+        return Stated::Written(written);
+    }
+    Stated::InBlocks {
+        line: written,
+        lets: Rc::new(below),
+    }
 }
 
 /// The lets above `step` that say what kind of number their names are, each

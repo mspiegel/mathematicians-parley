@@ -1570,7 +1570,7 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
     ) -> Checked<Facts> {
         let supplied = self.supplied(step, scope, facts)?;
-        let known = self.with_cited(step, scope, &supplied, None);
+        let known = self.with_cited(step, scope, &supplied, None)?;
         self.with_implied(step, scope, &known)?;
         Ok(known)
     }

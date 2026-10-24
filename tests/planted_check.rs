@@ -3813,6 +3813,23 @@ fn cases() -> Vec<Case> {
             ],
             "step 1.1 claims something that thm:ten-power-congruent does not conclude",
         ),
+        // A "for all" line cited inside a block is read at the block's
+        // letter only where the sets are written the same, and only where
+        // one block around the step lets a letter of the set.
+        case(
+            "cite a for-all line inside a block over another set",
+            vec![
+                edit("tests/elaborator/a-for-all-line-read-in-a-block.proof", Some("  assume for all x ∈ ℤ, x ≡ 1 (mod n)".to_string()), "  assume for all x ∈ ℕ, x ≡ 1 (mod n)".to_string()),
+            ],
+            "step 1.1 cites thm:congruent-times, which asks for y ≡ 1 (mod n), and what it cites does not supply it",
+        ),
+        case(
+            "cite a for-all line inside two blocks letting letters of its set",
+            vec![
+                edit("tests/elaborator/a-for-all-line-read-in-a-block.proof", Some("    2.1.  z·1 = z\n          join 1\n".to_string()), "    2.1.  For all w ∈ ℤ, z·1 = z.\n          proof\n          let w ∈ ℤ                                                   (K3)\n\n          2.1.1.  z·1 = z\n                  join 1\n\n    2.2.  z·1 = z\n          instantiate w := z in line 2.1\n".to_string()),
+            ],
+            "step 2.1.1 joins 1 and claims z · 1 = z, which no line it joins says",
+        ),
         case(
             "note a case part after its assumption",
             vec![

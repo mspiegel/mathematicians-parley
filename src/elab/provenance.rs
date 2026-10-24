@@ -717,7 +717,7 @@ impl<'a> Elaborator<'a> {
             let lines = self.lines.clone();
             let whole = self.carried(r, facts, &lines);
             self.know(&held, line.term.clone(), whole.clone());
-            self.unpack_line(&line, &whole, scope, &held);
+            self.unpack_line(&line, &whole, scope, &held)?;
             if let Some(p) = self.held(&held, term, scope)? {
                 return Ok(Built(p));
             }

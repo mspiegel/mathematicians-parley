@@ -17,8 +17,8 @@ use indexmap::IndexMap;
 
 use super::elaborate::Sides;
 use super::state::{
-    number_of, Binding, Block, Closer, Contradicted, DefineCloser, Elaborator, Frame,
-    ObtainCloser, PartEnd, ProvedClaim,
+    number_of, Binding, Block, BlockLetter, Closer, Contradicted, DefineCloser,
+    Elaborator, Frame, ObtainCloser, PartEnd, ProvedClaim,
 };
 use super::{Facts, Line, Lines};
 use crate::binds;
@@ -519,9 +519,129 @@ impl<'a> Elaborator<'a> {
         proof: &Proof,
         scope: &Rpn,
         facts: &Facts,
-    ) {
+    ) -> Checked<Vec<Rpn>> {
         self.unpack_all(&line.term, proof, scope, facts);
         self.know_chains(&line.sentences, &line.term, proof, scope, facts);
+        self.know_parts_at_letters(&line.term, scope, facts)
+    }
+
+    /// `know_at_letters` for each part of a line saying `term` that `facts`
+    /// holds: what the parts say at the block's letter.
+    fn know_parts_at_letters(
+        &mut self,
+        term: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Vec<Rpn>> {
+        let mut out = Vec::new();
+        for part in self.parts(term) {
+            if let Some(held) = self.held(facts, &part, scope)? {
+                out.extend(self.know_at_letters(&part, &held, scope, facts)?);
+            }
+        }
+        Ok(out)
+    }
+
+    /// Record a block's `let x ∈ X` as a letter the lines cited inside the
+    /// block are read at (`know_at_letters`). A `let` saying no membership
+    /// records none.
+    pub fn add_block_letter(&mut self, member: &Rpn, proof: &Proof, at: &Rpn) {
+        let node = self.to_term(member);
+        if node.label() != Some("wcel") || node.children().len() != 2 {
+            return;
+        }
+        let letter = BlockLetter {
+            letter: self.rpn(&node.children()[0]),
+            set: self.rpn(&node.children()[1]),
+            member: member.clone(),
+            proof: proof.clone(),
+            at: at.clone(),
+        };
+        self.block_letters.push(letter);
+    }
+
+    /// What a line's sentence "for all a ∈ X, P(a)" says inside a block that
+    /// opened with `let x ∈ X` (`SYNTAX.md`): P(x), known in `facts` with the
+    /// line's own origin, so that it is what a step citing the line has.
+    /// Where two blocks around the step let letters of X, the line is read
+    /// at neither, as the checker reads it. The instance known, if any.
+    pub fn know_at_letters(
+        &mut self,
+        term: &Rpn,
+        proof: &Proof,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<Rpn>> {
+        let whole = self.to_term(term);
+        if whole.label() != Some("wral") || whole.children().len() != 3 {
+            return Ok(None);
+        }
+        let body = whole.children()[0].clone();
+        let var = self.rpn(&whole.children()[1]).to_string();
+        let domain = self.rpn(&whole.children()[2]);
+        let fitting: Vec<BlockLetter> = self
+            .block_letters
+            .iter()
+            .filter(|l| l.set == domain)
+            .cloned()
+            .collect();
+        let [letter] = fitting.as_slice() else {
+            return Ok(None);
+        };
+        let Some(required) =
+            self.lifted_to(&letter.member, &letter.proof, &letter.at, scope)
+        else {
+            return Ok(None);
+        };
+        let at = letter.letter.clone();
+        let member = letter.member.clone();
+        let mark = t!(var, "cv");
+        // A body binding the block's letter itself would capture it.
+        let named = self.to_term(&at).names();
+        if at != mark && body.names().iter().any(|n| named.contains(n)) {
+            return Ok(None);
+        }
+        let ph = self.rpn(&body);
+        let (instance, made) = if at == mark {
+            // The block's letter is the line's bound letter in the kernel, so
+            // `rsp` reads the body as it stands.
+            let read = self.b.ap(
+                "rsp",
+                &binds! {"ph" => &ph, "x" => &var, "A" => &domain},
+                &[],
+            );
+            let turned = pf!(self.b; term, member, ph, read, "com12");
+            let carried =
+                pf!(self.b; scope, member, t!(term, ph, "wi"), required, turned, "syl");
+            (
+                ph.clone(),
+                pf!(self.b; scope, term, ph, proof, carried, "mpd"),
+            )
+        } else {
+            let Some((_, rule)) = rules::INSTANCES.iter().find(|(k, _)| *k == "wral")
+            else {
+                return Ok(None);
+            };
+            let ps = self.rpn(&self.restated(&body, &mark, &at));
+            let tie = self.to_term(&t!(t!(mark, at, "wceq"), t!(ph, ps, "wb"), "wi"));
+            let Built(asked) = self.prove_essential(&tie, scope, facts)? else {
+                return Ok(None);
+            };
+            let mut binds = binds! {"ph" => &ph, "ps" => &ps, "x" => &var, "A" => &at};
+            binds.insert(rule.domain_var.to_string(), domain.clone());
+            let applied = self.b.ap(rule.lemma, &binds, &[&asked]);
+            let carried = pf!(self.b; scope, member, t!(term, ps, "wi"), required, applied, "syl");
+            (
+                ps.clone(),
+                pf!(self.b; scope, term, ps, proof, carried, "mpd"),
+            )
+        };
+        let made = Proof {
+            items: made.items,
+            origin: proof.origin.clone(),
+        };
+        self.know(facts, instance.clone(), made);
+        Ok(Some(instance))
     }
 
     /// Record each conjunct of a fact as a fact of its own.
@@ -603,6 +723,7 @@ impl<'a> Elaborator<'a> {
             over: None,
             base: None,
             variable: None,
+            letters_at: self.block_letters.len(),
             opened: Vec::new(),
             // Taken before the block names anything, so that what it names is
             // what closing it gives back.
@@ -725,6 +846,9 @@ impl<'a> Elaborator<'a> {
                         }
                         None => held,
                     };
+                    if o.kind == Intro::Let && function.is_none() {
+                        self.add_block_letter(&added, &held, &block.scope.clone());
+                    }
                     if !o.label.is_empty() {
                         self.lines.set(
                             o.label.clone(),
@@ -851,6 +975,7 @@ impl<'a> Elaborator<'a> {
         self.frames.truncate(block.frame + 1);
         self.names = block.named.clone();
         self.bound_as = block.bound.clone();
+        self.block_letters.truncate(block.letters_at);
         block.scope = block.outer.clone();
         block.facts = block.outside.clone();
         block.entered = Some(part);
@@ -903,6 +1028,9 @@ impl<'a> Elaborator<'a> {
             let proof = self
                 .held(&block.facts.clone(), &added, &block.scope.clone())?
                 .expect("the assumption just laid down");
+            if o.kind == Intro::Let && !o.is_hypothesis {
+                self.add_block_letter(&added, &proof, &block.scope.clone());
+            }
             self.lines.set(
                 o.label.clone(),
                 Line {
@@ -1130,6 +1258,7 @@ impl<'a> Elaborator<'a> {
         self.frames.truncate(block.frame + 1);
         self.names = block.named.clone();
         self.bound_as = block.bound.clone();
+        self.block_letters.truncate(block.letters_at);
         let mut closers = closers;
         let (claim, proof) = match step.just.head.method() {
             Some(Method::Contradiction) => {
@@ -2221,7 +2350,7 @@ impl<'a> Elaborator<'a> {
                         }
                     };
                     let supplied = self.supplied(Some(step), scope, facts)?;
-                    let known = self.with_cited(Some(step), scope, &supplied, None);
+                    let known = self.with_cited(Some(step), scope, &supplied, None)?;
                     let p_given = match self.settle(
                         &self.to_term(&given),
                         scope,
@@ -3168,7 +3297,7 @@ impl<'a> Elaborator<'a> {
         scope: &Rpn,
         known: &Facts,
         refs: Option<&[String]>,
-    ) -> Facts {
+    ) -> Checked<Facts> {
         let outer = !self.frames.is_empty()
             && *scope != self.frames[self.frames.len() - 1].scope;
         let cited = Facts::new();
@@ -3187,7 +3316,7 @@ impl<'a> Elaborator<'a> {
             let parts = Facts::new();
             let whole = self.carried(r, known, &lines);
             self.know(&parts, line.term.clone(), whole.clone());
-            self.unpack_line(&line, &whole, scope, &parts);
+            self.unpack_line(&line, &whole, scope, &parts)?;
             for (k, v) in parts.entries() {
                 self.know(&cited, k, v);
             }
@@ -3198,7 +3327,7 @@ impl<'a> Elaborator<'a> {
                 self.know(&out, k, v);
             }
         }
-        out
+        Ok(out)
     }
 
     /// Two lines paired, `jca`, the lines paired by what they claim.
@@ -3218,6 +3347,7 @@ impl<'a> Elaborator<'a> {
             let proof = self.carried(r, facts, &lines);
             self.know_conjuncts(&held, &line.term, &proof, scope);
             self.know(&held, line.term.clone(), proof);
+            self.know_parts_at_letters(&line.term, scope, &held)?;
         }
         // A line joined is the claim, or a part of it, as it stands or over
         // other bound letters; and where the step cites a define, with the

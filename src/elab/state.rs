@@ -141,6 +141,9 @@ pub struct Block {
     pub base: Option<String>,
     /// The setvar a `proof` block's `let` introduced.
     pub variable: Option<String>,
+    /// How many block letters were in hand before it opened, which closing
+    /// it gives back (`Elaborator::block_letters`).
+    pub letters_at: usize,
     /// What each opener of a `proof` block laid down, as it is written, in
     /// order: the scope its steps are proved under.
     pub opened: Vec<Rpn>,
@@ -163,6 +166,18 @@ pub struct Block {
     pub proof: Option<Proof>,
     /// Part number -> the last fact in it.
     pub parts: IndexMap<usize, PartEnd>,
+}
+
+/// A letter a block's `let x ∈ X` introduces: the letter as a kernel term,
+/// the set, and its membership with the proof laid down for it and the
+/// scope that proof is under.
+#[derive(Clone)]
+pub struct BlockLetter {
+    pub letter: Rpn,
+    pub set: Rpn,
+    pub member: Rpn,
+    pub proof: Proof,
+    pub at: Rpn,
 }
 
 /// What a part of a block ends on.
@@ -283,6 +298,9 @@ pub struct Elaborator<'a> {
     pub names: IndexMap<String, Rpn>,
     /// Readable name -> the set it was let into.
     pub sets: IndexMap<String, Rpn>,
+    /// The letters the `let x ∈ X` lines opening the blocks around the
+    /// step introduce, outermost first (`know_at_letters`).
+    pub block_letters: Vec<BlockLetter>,
     /// Readable name -> its membership as each line introducing it says it:
     /// the claim, its proof, and the scope that proof is under, carried to
     /// any scope inside that one (`introduced_membership`). Two cases may
@@ -492,6 +510,7 @@ impl<'a> Elaborator<'a> {
             at: thm.line,
             names: IndexMap::new(),
             sets: IndexMap::new(),
+            block_letters: Vec::new(),
             introduced: IndexMap::new(),
             reserved: IndexSet::new(),
             rules_read: IndexMap::new(),

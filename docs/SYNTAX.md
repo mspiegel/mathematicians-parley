@@ -1054,6 +1054,16 @@ are not hidden steps:
 
   where lines 1, 2 and 3 say `|QA| = |QB|`, `|QB| = |QC|` and
   `|QC| = |QD|`.
+- Inside a block that opened with `let x ∈ X`, a cited line saying "for
+  all a ∈ X, P(a)" supplies P(x). The block is already about every member
+  of X, and x names the one it is about, so the line is read as the block
+  reads it: `5.8. For all a ∈ {2, …, p − 2}, a·f(a) ≡ 1 (mod p)`, cited in
+  a block opened by `let x ∈ {2, …, p − 2}`, supplies `x·f(x) ≡ 1
+  (mod p)`. The letters need not agree; the sets are written the same.
+  Where blocks around the step open with two letters of X, the citation
+  does not say which is meant, and the step is an `instantiate` instead.
+  The line at any other term, such as f(x), is an `instantiate` too: the
+  page says that the term is in X, which no `let` has said.
 
 Each method is a database item with a specified expansion, as `READERS.md`
 requires. The expansions are not yet written; the table above says what a

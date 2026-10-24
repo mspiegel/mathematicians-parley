@@ -126,7 +126,7 @@ impl Elaborator<'_> {
         facts: &Facts,
     ) -> Checked<Route<Proof>> {
         let supplied = self.supplied(Some(step), scope, facts)?;
-        let cited = self.with_cited(Some(step), scope, &supplied, None);
+        let cited = self.with_cited(Some(step), scope, &supplied, None)?;
         let known = facts.with(&cited);
         // A graph given in full says dozens of things in one line, and each
         // is a fact the inspection reads: the line is taken apart to the end.

@@ -1,0 +1,52 @@
+import theorem            proofs/wiedijk/divisibility-by-three/congruent-times
+
+theorem a-for-all-line-cited-in-a-block
+  note        Inside the block letting y ∈ ℤ, line H2 says y ≡ 1 (mod n),
+              which congruent-times takes as its hypothesis.
+  let n ∈ ℕ                                                           (H1)
+  assume for all x ∈ ℤ, x ≡ 1 (mod n)                                 (H2)
+  then for all y ∈ ℤ, y·2 ≡ 1·2 (mod n)
+
+1.  For all y ∈ ℤ, y·2 ≡ 1·2 (mod n).
+    proof
+    let y ∈ ℤ                                                         (K1)
+
+    1.1.  y·2 ≡ 1·2 (mod n)
+          thm:congruent-times a := y, b := 1, c := 2, from H2
+
+theorem a-for-all-line-in-a-calculation-link
+  note        The first link cites H4, which inside the block says
+              b ≡ c (mod n).
+  let n ∈ ℕ                                                           (H1)
+  let c ∈ ℤ                                                           (H2)
+  assume c ≡ 1 (mod n)                                                (H3)
+  assume for all x ∈ ℤ, x ≡ c (mod n)                                 (H4)
+  then for all b ∈ ℤ, b ≡ 1 (mod n)
+
+1.  For all b ∈ ℤ, b ≡ 1 (mod n).
+    proof
+    let b ∈ ℤ                                                         (K1)
+
+    1.1.  b ≡ 1 (mod n)
+          calculation
+            b ≡ c (mod n)     H4
+              ≡ 1 (mod n)     H3
+
+theorem a-for-all-line-joined-in-a-block
+  note        Line 1 says x·1 = x of every integer; inside the block
+              letting z ∈ ℤ it says z·1 = z.
+  then for all z ∈ ℤ, z·1 = z
+
+1.  For all x ∈ ℤ, x·1 = x.
+    proof
+    let x ∈ ℤ                                                         (K1)
+
+    1.1.  x·1 = x
+          algebra
+
+2.  For all z ∈ ℤ, z·1 = z.
+    proof
+    let z ∈ ℤ                                                         (K2)
+
+    2.1.  z·1 = z
+          join 1
