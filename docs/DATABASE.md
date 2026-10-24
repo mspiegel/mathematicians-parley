@@ -69,7 +69,7 @@ has, and a subject is one file:
 | file | holds | items |
 |---|---|---|
 | `corpus/stdlib/reasoning.records` | the laws of logic a proof cites by name | 14 |
-| `corpus/stdlib/numbers.records` | the number systems, closure, order, powers, roots, absolute value | 101 |
+| `corpus/stdlib/numbers.records` | the number systems, closure, order, powers and real powers, roots, absolute value | 113 |
 | `corpus/stdlib/divisibility.records` | even and odd, divisors, primes, gcd, division, congruence, Euler's φ, the sum of divisors σ | 76 |
 | `corpus/stdlib/sums.records` | sums over a range, and the ranges; products over a finite set | 48 |
 | `corpus/stdlib/sets.records` | subsets, set-builder, union, intersection, difference, power set, listed sets | 79 |
@@ -79,7 +79,7 @@ has, and a subject is one file:
 | `corpus/stdlib/geometry.records` | points, distance, angles and signed angles, triangles and their kinds (isosceles, equilateral, right-angled), congruence, parallels and sides of a line, lines and perpendiculars, midpoints, chords of a circle, area, the laws of sines and cosines, coordinates, supplementary angles, the triangle inequality, the addition of angles | 65 |
 | `corpus/stdlib/groups.records` | groups, their laws, subgroups, cosets | 12 |
 | `corpus/stdlib/trigonometry.records` | cos and sin, their addition formulas, signs, bounds and order, the special angles, the supplement | 22 |
-| `corpus/stdlib/logarithms.records` | the natural logarithm and the exponential function, their laws, order and signs | 13 |
+| `corpus/stdlib/logarithms.records` | the natural logarithm and the exponential function, their laws, order and signs | 14 |
 | `corpus/stdlib/polynomials.records` | polynomials with complex coefficients, their values, division by x − a, the Bernoulli polynomials | 5 |
 | `corpus/stdlib/graphs.records` | walks, Euler paths, traversable graphs, degree | 10 |
 
