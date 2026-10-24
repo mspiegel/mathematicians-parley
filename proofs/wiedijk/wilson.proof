@@ -10,6 +10,7 @@ import mundane definition stdlib/divisibility/congruent-mod
 import mundane definition stdlib/divisibility/prime
 import mundane theorem    stdlib/divisibility/below-not-divisible
 import mundane theorem    stdlib/divisibility/divides-self
+import mundane theorem    stdlib/divisibility/minus-one-congruent
 import mundane theorem    stdlib/divisibility/divides-multiple
 import mundane theorem    stdlib/divisibility/divides-difference
 import mundane theorem    stdlib/divisibility/prime-coprime
@@ -737,33 +738,24 @@ let f(a) = (a^(p − 2)) mod p, for a ∈ {2, …, p − 2}                   (D
     5.30. (∏(k = 2 to p − 2) k)·(p − 1) ≡ p − 1 (mod p)
           thm:congruent-times b := 1, c := p − 1, from 5.20, 5.27
 
-    5.31. p divides p
-          mun:divides-self n := p
+    5.31. p − 1 ≡ −1 (mod p)
+          mun:minus-one-congruent n := p
 
-    5.32. (p − 1) − (−1) = p
-          algebra
-
-    5.33. p divides (p − 1) − (−1)
-          substitute (p − 1) − (−1) = p (line 5.32) into line 5.31
-
-    5.34. p − 1 ≡ −1 (mod p)
-          mun:congruent-mod, from 5.33
-
-    5.35. (p − 1)! ≡ −1 (mod p)
+    5.32. (p − 1)! ≡ −1 (mod p)
           calculation
             (p − 1)! = ∏(k = 1 to p − 1) k                    5.22
                      = (∏(k = 1 to p − 2) k)·(p − 1)          5.25
                      = (∏(k = 2 to p − 2) k)·(p − 1)          5.29
                      ≡ p − 1 (mod p)                          5.30
-                     ≡ −1 (mod p)                             5.34
+                     ≡ −1 (mod p)                             5.31
           requires (∏(k = 2 to p − 2) k)·(p − 1) ∈ ℤ: membership, from 5.27
 
     case
     note for p = 2 the claim is worked out
     assume 2 = p                                                      (C2)
 
-    5.36. (2 − 1)! ≡ −1 (mod 2)
+    5.33. (2 − 1)! ≡ −1 (mod 2)
           arithmetic
 
-    5.37. (p − 1)! ≡ −1 (mod p)
-          substitute 2 = p (C2) into line 5.36
+    5.34. (p − 1)! ≡ −1 (mod p)
+          substitute 2 = p (C2) into line 5.33

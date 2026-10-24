@@ -1013,6 +1013,14 @@ $d k ph $.
     ACGHBICIJKZLKZHZCBMNODAUKBPHZIBQNZBCRNZSZAULUMUNABETABEUAFUBAIPHCPHUKUOUCAUDACDTBICUEUFUGCBUHUF $.
   $}
 
+  ${
+    gm1cong.1 $e |- ( ph -> N e. NN ) $.
+  gm1cong $p |- ( ph -> N || ( ( N - 1 ) - -u 1 ) ) $=
+    ( c1 cmin co cneg cdvds cz wcel wbr nnzd iddvds syl caddc nncnd 1cnd
+    subcld subnegd npcand eqtrd breqtrrd )
+    ABBBDEFZDGZEFZHABIJBBHKABCLBMNAUEUCDOFBAUCDABDABCPZAQZRUGSABDUFUGTUAUB $.
+  $}
+
 $}
 
 ${

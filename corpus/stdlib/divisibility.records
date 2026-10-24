@@ -714,6 +714,14 @@ mundane theorem mod-congruent
               elaboration/stdlib/proved.mm
   target      gmodcong
 
+mundane theorem minus-one-congruent
+  let n ∈ ℕ                                                           (H1)
+  then        n − 1 ≡ −1 (mod n)
+  metamath    iddvds, with (n − 1) − (−1) read as n, which this corpus
+              proves in elaboration/stdlib/proved.mm
+  target      gm1cong with N := n
+  note        The two sides differ by n.
+
 mundane theorem mod-equal-congruent
   let x ∈ ℤ                                                           (H1)
   let y ∈ ℤ                                                           (H2)

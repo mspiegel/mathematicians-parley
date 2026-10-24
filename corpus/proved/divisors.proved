@@ -173,3 +173,19 @@ lemma gnndvdslt
   9 fzm1ndvds |- ( ( N e. NN /\ K e. ( 1 ... ( N - 1 ) ) ) -> -. N || K )
   10 syl2anc gnndvdslt.1 8 9 |- ( ph -> -. N || K )
 
+# `gm1cong`: n − 1 ≡ −1 (mod n). The difference of the two sides is n, which
+# divides itself.
+lemma gm1cong
+  hypothesis gm1cong.1 |- ( ph -> N e. NN )
+  |- ( ph -> N || ( ( N - 1 ) - -u 1 ) )
+  1 nnzd gm1cong.1 |- ( ph -> N e. ZZ )
+  2 iddvds |- ( N e. ZZ -> N || N )
+  3 syl 1 2 |- ( ph -> N || N )
+  4 nncnd gm1cong.1 |- ( ph -> N e. CC )
+  5 1cnd |- ( ph -> 1 e. CC )
+  6 subcld 4 5 |- ( ph -> ( N - 1 ) e. CC )
+  7 subnegd 6 5 |- ( ph -> ( ( N - 1 ) - -u 1 ) = ( ( N - 1 ) + 1 ) )
+  8 npcand 4 5 |- ( ph -> ( ( N - 1 ) + 1 ) = N )
+  9 eqtrd 7 8 |- ( ph -> ( ( N - 1 ) - -u 1 ) = N )
+  10 breqtrrd 3 9 |- ( ph -> N || ( ( N - 1 ) - -u 1 ) )
+
