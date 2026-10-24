@@ -779,6 +779,10 @@ impl<'a> Elaborator<'a> {
                         return Ok(Built(found));
                     }
                 }
+            } else if let Some(found) =
+                self.function_value_by_map(&s, &sys, scope, &facts)?
+            {
+                return Ok(Built(found));
             }
         }
         // A sum, difference, product, power or negation is in a number
@@ -2695,7 +2699,7 @@ impl<'a> Elaborator<'a> {
     /// A letter the rule binds is kept apart from every letter the value
     /// spells, bound there or not; where they meet, the rule is read in its
     /// other spelling (`rule_apart`).
-    fn applied_body(&mut self, term: &Term) -> Option<Term> {
+    pub(crate) fn applied_body(&mut self, term: &Term) -> Option<Term> {
         if term.label() == Some("co") {
             return self.applied_body_of_two(term);
         }
@@ -3013,7 +3017,7 @@ impl<'a> Elaborator<'a> {
 
     /// The map a function application applies, written as a map or as the
     /// name a define gave it; else None.
-    fn applied_map(&self, term: &Term) -> Option<Term> {
+    pub(crate) fn applied_map(&self, term: &Term) -> Option<Term> {
         if term.variable().is_some()
             || term.label() != Some("cfv")
             || term.children().len() != 2
@@ -3035,7 +3039,7 @@ impl<'a> Elaborator<'a> {
 
     /// ( where -> ( F ` A ) = C ), C the rule of F's map at A; a decline
     /// where A is not shown to be in the map's domain.
-    fn applied_proof(
+    pub(crate) fn applied_proof(
         &mut self,
         cur: &Term,
         nxt: &Term,
@@ -4763,6 +4767,18 @@ impl<'a> Elaborator<'a> {
             self.know(&known, said.clone(), proof.clone());
             return self.held_reordered(&known, want, scope);
         }
+        // A claim writing a defined function's rule where the instance
+        // applies the function, ∏(x ∈ L) f(x) for ∏(y ∈ L) g(y), is the
+        // instance with the function read where it is applied, which asks
+        // the facts that each point is in the define's domain. Where they
+        // do not say so, the ways below are tried.
+        if self.one_read_through(said, want) {
+            if let Built(alike) =
+                self.same(&self.to_term(said), &self.to_term(want), scope, facts, None)?
+            {
+                return Ok(Some(pf!(self.b; scope, said, want, proof, alike, "mpbid")));
+            }
+        }
         // A claim naming a part of the instance by a define the step cites,
         // `for all u ∈ H` where H names {s ∪ {a} : s ∈ V}, is the instance
         // with the name read as what it names (`same`).
@@ -4816,6 +4832,27 @@ impl<'a> Elaborator<'a> {
         }
         let one = self.names_read(&self.to_term(said), None);
         let other = self.names_read(&self.to_term(want), None);
+        let (one, other) = (self.rpn(&one), self.rpn(&other));
+        one == other || self.rebound(&one, &other)
+    }
+
+    /// Whether two terms are one once each is read through, a defined
+    /// function read where it is applied as well as where it stands alone:
+    /// an instance ∏(y ∈ L) g(y), with g the map x ∈ L ↦ f(x) a define
+    /// makes, and a claim ∏(x ∈ L) f(x). `same` is what proves it, under
+    /// whatever it asks of the scope.
+    pub fn one_read_through(&mut self, said: &Rpn, want: &Rpn) -> bool {
+        if said == want {
+            return false;
+        }
+        // Only where the instance applies a defined function: without one
+        // there is nothing for this reading to add to the others.
+        let one = self.read_through(&self.to_term(said), true, None);
+        let plain = self.read_through(&self.to_term(said), false, None);
+        if self.rpn(&one) == self.rpn(&plain) {
+            return false;
+        }
+        let other = self.read_through(&self.to_term(want), true, None);
         let (one, other) = (self.rpn(&one), self.rpn(&other));
         one == other || self.rebound(&one, &other)
     }

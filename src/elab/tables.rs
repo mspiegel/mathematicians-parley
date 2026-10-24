@@ -2451,6 +2451,32 @@ impl<'a> Elaborator<'a> {
         scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Option<Proof>> {
+        self.function_value_from(said, system, scope, facts, false)
+    }
+
+    /// `function_value` into a set that is no number system, by a define's
+    /// map only: f(x) ∈ U from g : L → U, g the map x ∈ L ↦ f(x), where no
+    /// line says f(x) ∈ U itself. A value of a function typed into the set
+    /// is the lemma search's to find, as it always was.
+    pub(crate) fn function_value_by_map(
+        &mut self,
+        said: &Rpn,
+        set: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        self.function_value_from(said, set, scope, facts, true)
+    }
+
+    /// `function_value`, by a define's map only where `maps_only`.
+    fn function_value_from(
+        &mut self,
+        said: &Rpn,
+        system: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+        maps_only: bool,
+    ) -> Checked<Option<Proof>> {
         let term = self.to_term(said);
         if term.variable().is_some() || term.label() != Some("cfv") {
             return Ok(None);
@@ -2462,14 +2488,22 @@ impl<'a> Elaborator<'a> {
             if t.variable().is_some() || t.label() != Some("wf") {
                 continue;
             }
-            let (domain, codomain, named) = (
+            let (domain, codomain, typed_function) = (
                 self.rpn(&t.children()[0]),
                 self.rpn(&t.children()[1]),
                 self.rpn(&t.children()[2]),
             );
-            if named != function {
-                continue;
-            }
+            // A define's map whose rule at the point is the value: g, f on
+            // L, typed g : L → U, puts f(x) in U at x ∈ L, since g(x) is
+            // f(x) there (`applied_proof`).
+            let through = match typed_function == function {
+                true if maps_only => continue,
+                true => None,
+                false => match self.map_read_as(&point, &typed_function, said) {
+                    Some(at) => Some(at),
+                    None => continue,
+                },
+            };
             // A type the step names, by a line it cites or one of its own
             // requires lines; one only in scope is a reason the page does
             // not give, whether a `let` or a numbered step says it. A
@@ -2495,16 +2529,29 @@ impl<'a> Elaborator<'a> {
                 continue;
             };
             let value = t!(said, &codomain, "wcel");
+            let shown = through.clone().unwrap_or_else(|| said.clone());
             let law = self.b.ap(
                 "ffvelcdm",
-                &binds! {"F" => &function, "A" => &domain, "B" => &codomain, "C" => &point},
+                &binds! {"F" => &typed_function, "A" => &domain, "B" => &codomain, "C" => &point},
                 &[],
             );
-            let made = self.b.ap(
+            let mut made = self.b.ap(
                 "syl2anc",
-                &binds! {"ph" => scope, "ps" => &typed, "ch" => &inside, "th" => &value},
+                &binds! {"ph" => scope, "ps" => &typed, "ch" => &inside, "th" => t!(&shown, &codomain, "wcel")},
                 &[&held, &at, &law],
             );
+            if let Some(at_map) = &through {
+                let Built(equal) =
+                    self.applied_proof(&self.to_term(at_map), &term, scope, facts)?
+                else {
+                    continue;
+                };
+                made = self.b.ap(
+                    "eqeltrrd",
+                    &binds! {"ph" => scope, "A" => at_map, "B" => said, "C" => &codomain},
+                    &[&equal, &made],
+                );
+            }
             if codomain == *system {
                 return Ok(Some(made));
             }
@@ -2538,6 +2585,18 @@ impl<'a> Elaborator<'a> {
             )));
         }
         Ok(None)
+    }
+
+    /// The map `named` applied at `point`, where `named` is a define's map
+    /// and its rule there is `said`: g(x) for f(x), g the map x ∈ L ↦ f(x).
+    /// None where `named` is no map or its rule at the point is something
+    /// else.
+    fn map_read_as(&mut self, point: &Rpn, named: &Rpn, said: &Rpn) -> Option<Rpn> {
+        let at = t!(point, named, "cfv");
+        let at_term = self.to_term(&at);
+        self.applied_map(&at_term)?;
+        let body = self.applied_body(&at_term)?;
+        (self.rpn(&body) == *said).then_some(at)
     }
 
     /// ( scope -> said e. system ) from `held`, ( scope -> said e. range ):

@@ -1,0 +1,69 @@
+import mundane theorem    stdlib/sums/product-reindex
+import mundane theorem    stdlib/sets/in-subset
+import mundane theorem    stdlib/sets/subset-transitive
+import mundane theorem    stdlib/functions/function-into
+import mundane definition stdlib/functions/one-to-one
+import mundane definition stdlib/functions/onto
+import mundane definition stdlib/functions/one-to-one-onto
+
+theorem a-product-reindexed-through-a-define
+  note        g is f on L, so a step citing g's define reads g standing
+              alone as the rule x ↦ f(x): the item's g is that rule, and
+              the claim writes f(x) where the item writes g(x).
+  let X ⊆ ℤ                                                           (H1)
+  let f : X → X                                                       (H2)
+  let L ⊆ X                                                           (H3)
+  assume L is finite                                                  (H4)
+  let U ⊆ X                                                           (H5)
+  assume for all x ∈ L, f(x) ∈ U                                      (H6)
+  assume for all s, t ∈ L, if f(s) = f(t) then s = t                  (H7)
+  assume for all u ∈ U, there is x ∈ L with u = f(x)                  (H8)
+  then ∏(x ∈ U) x = ∏(x ∈ L) f(x)
+
+let g(x) = f(x), for x ∈ L                                            (D1)
+       reads f on L
+
+1.  g : L → U
+    mun:function-into, from D1, H6
+    requires g is a function on L: from D1
+
+2.  g : L → U is one-to-one
+    mun:one-to-one, from D1, H7, 1
+
+3.  g : L → U is onto
+    mun:onto, from D1, H8, 1
+
+4.  g : L → U is one-to-one and onto
+    mun:one-to-one-onto, from 2, 3
+
+5.  U ⊆ ℤ
+    mun:subset-transitive, from H1, H5
+
+6.  For all x ∈ U, x ∈ ℤ.
+    mun:in-subset, from 5
+
+7.  ∏(x ∈ U) x = ∏(x ∈ L) f(x)
+    mun:product-reindex, from D1, H4, 4, 6
+
+theorem a-value-through-a-define
+  note        g : L → U, with g f on L, says f(x) ∈ U at a point of L, to
+              a step citing g's define.
+  let X ⊆ ℤ                                                           (H1)
+  let f : X → X                                                       (H2)
+  let L ⊆ X                                                           (H3)
+  let U ⊆ X                                                           (H4)
+  assume for all x ∈ L, f(x) ∈ U                                      (H5)
+  then for all x ∈ L, f(x) ∈ ℤ
+
+let g(x) = f(x), for x ∈ L                                            (D1)
+       reads f on L
+
+1.  g : L → U
+    mun:function-into, from D1, H5
+    requires g is a function on L: from D1
+
+2.  U ⊆ ℤ
+    mun:subset-transitive, from H1, H4
+
+3.  For all x ∈ L, f(x) ∈ ℤ.
+    mun:in-subset, from D1, 1, 2

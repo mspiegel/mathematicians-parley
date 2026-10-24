@@ -234,21 +234,21 @@ let g(x) = f(x), for x ∈ L                                            (D3)
 17. For all x ∈ U, x ∈ ℤ.
     mun:in-subset, from 7
 
-18. ∏(x ∈ U) x = ∏(x ∈ L) g(x)
-    mun:product-reindex, from 5, 16, 17
+18. ∏(x ∈ U) x = ∏(x ∈ L) f(x)
+    mun:product-reindex, from D3, 5, 16, 17
 
 19. For all x ∈ L, x ∈ ℤ.
     mun:in-subset, from 6
 
-20. For all x ∈ L, g(x) ∈ ℝ.
-    mun:int-real m := g(x)
-    requires g(x) ∈ ℤ: mun:in-subset, from 7, 11
+20. For all x ∈ L, f(x) ∈ ℝ.
+    mun:int-real m := f(x)
+    requires f(x) ∈ ℤ: mun:in-subset, from D3, 7, 11
 
-21. ∏(x ∈ L) x·g(x) = (∏(x ∈ L) x)·∏(x ∈ L) g(x)
+21. ∏(x ∈ L) x·f(x) = (∏(x ∈ L) x)·∏(x ∈ L) f(x)
     mun:product-of-products, from 5, 19
-    requires for all x ∈ L, g(x) ∈ ℝ: from 20
+    requires for all x ∈ L, f(x) ∈ ℝ: from 20
 
-22. For all x ∈ L, x·g(x) ≡ 1 (mod n).
+22. For all x ∈ L, x·f(x) ≡ 1 (mod n).
     proof
     let x ∈ L                                                         (K6)
 
@@ -258,45 +258,39 @@ let g(x) = f(x), for x ∈ L                                            (D3)
     22.2. x·f(x) ≡ 1 (mod n)
           instantiate x := x in H7, from 22.1
 
-    22.3. g(x) = f(x)
-          D3, from K6
-
-    22.4. x·g(x) ≡ 1 (mod n)
-          substitute g(x) = f(x) (line 22.3) into line 22.2
-
-23. For all x ∈ L, x·g(x) ∈ ℤ.
+23. For all x ∈ L, x·f(x) ∈ ℤ.
     proof
     let x ∈ L                                                         (K7)
 
     23.1. x ∈ ℤ
           mun:in-subset, from K7, 6
 
-    23.2. g(x) ∈ ℤ
-          mun:in-subset, from K7, 7, 11
+    23.2. f(x) ∈ ℤ
+          mun:in-subset, from D3, K7, 7, 11
 
-    23.3. x·g(x) ∈ ℤ
+    23.3. x·f(x) ∈ ℤ
           membership, from 23.1, 23.2
 
-24. ∏(x ∈ L) x·g(x) ≡ ∏(x ∈ L) 1 (mod n)
+24. ∏(x ∈ L) x·f(x) ≡ ∏(x ∈ L) 1 (mod n)
     thm:product-congruent-termwise, from 5, 22, 23
 
 25. ∏(x ∈ L) 1 = 1
     mun:product-of-ones, from 5
 
-26. ∏(x ∈ L) x·g(x) ≡ 1 (mod n)
+26. ∏(x ∈ L) x·f(x) ≡ 1 (mod n)
     substitute ∏(x ∈ L) 1 = 1 (line 25) into line 24
 
-27. (∏(x ∈ L) x)·∏(x ∈ U) x = (∏(x ∈ L) x)·∏(x ∈ L) g(x)
-    substitute ∏(x ∈ U) x = ∏(x ∈ L) g(x) (line 18)
+27. (∏(x ∈ L) x)·∏(x ∈ U) x = (∏(x ∈ L) x)·∏(x ∈ L) f(x)
+    substitute ∏(x ∈ U) x = ∏(x ∈ L) f(x) (line 18)
 
-28. ∏(x ∈ X) x = ∏(x ∈ L) x·g(x)
+28. ∏(x ∈ X) x = ∏(x ∈ L) x·f(x)
     calculation
       ∏(x ∈ X) x = (∏(x ∈ L) x)·∏(x ∈ U) x         9
-                 = (∏(x ∈ L) x)·∏(x ∈ L) g(x)      27
-                 = ∏(x ∈ L) x·g(x)                 21
+                 = (∏(x ∈ L) x)·∏(x ∈ L) f(x)      27
+                 = ∏(x ∈ L) x·f(x)                 21
 
 29. ∏(x ∈ X) x ≡ 1 (mod n)
-    substitute ∏(x ∈ X) x = ∏(x ∈ L) x·g(x) (line 28) into line 26
+    substitute ∏(x ∈ X) x = ∏(x ∈ L) x·f(x) (line 28) into line 26
 
 theorem below-not-divisible
   let n ∈ ℕ                                                           (H1)

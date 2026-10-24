@@ -30,8 +30,8 @@ use crate::formula::page::{self, conjoined, Written};
 use crate::formula::symbol::Symbol;
 use crate::formula::{ByShape, Node, Sort};
 use crate::matching::{
-    alike, binding_sites, match_tree, standard, substitute_apart, Binding, Context,
-    FxIndexMap, FxIndexSet,
+    alike, binding_sites, expand, match_tree, standard, substitute_apart, Binding,
+    Context, FxIndexMap, FxIndexSet,
 };
 use crate::notations::{
     APPLICATION, APPLICATION_TO_TWO, BICONDITIONAL, CONDITIONAL, EQUALITY, FOR_ALL,
@@ -249,10 +249,58 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
         obtained: taken.obtained,
         concluded: across_groups(taken, before),
         firsts,
-        binding: taken.binding.clone(),
+        binding: rules_by_name(&taken.binding, step, known, library),
         bound: taken.bound.clone(),
         written: parts.seed.clone(),
     })
+}
+
+/// The binding with each value that is the rule of a define the step cites
+/// written as the define's name. A defined function standing alone is its
+/// rule where two formulas are compared (`matching::expand`), so the item's
+/// g of product-reindex is bound to x ↦ f(x) where the page's g is f on L.
+/// The build reads the name as the map its define makes, over the define's
+/// domain, which is the function the item needs; a rule alone has no
+/// domain to build one over.
+fn rules_by_name(
+    binding: &Binding,
+    step: &Step,
+    known: &Known,
+    library: &Library,
+) -> Binding {
+    let defined = known.citing_step(step);
+    let named = |value: &Node| {
+        defined.iter().find_map(|(name, d)| {
+            let crate::matching::Defined::Rule(rule) = d else {
+                return None;
+            };
+            let [param] = rule.params.as_slice() else {
+                return None;
+            };
+            let read = Node::property(&param.name, expand(&rule.body, &defined));
+            alike(
+                &read,
+                value,
+                &library.ctx,
+                &IndexMap::new(),
+                &IndexMap::new(),
+            )
+            .then(|| {
+                let sort = known.sorts.get(name.as_str()).cloned();
+                Node::name(sort.unwrap_or_else(Sort::none), name)
+            })
+        })
+    };
+    binding
+        .iter()
+        .map(|(letter, value)| {
+            let kept = match value.notation() == PROPERTY_OF {
+                true => named(value).unwrap_or_else(|| value.clone()),
+                false => value.clone(),
+            };
+            (*letter, kept)
+        })
+        .collect()
 }
 
 /// Each requires line's citation of an item, by the line it is on

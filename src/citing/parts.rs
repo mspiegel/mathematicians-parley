@@ -7,7 +7,8 @@ use crate::formula::symbol::Symbol;
 use crate::formula::{Node, Sort, Sorts, Whole};
 use crate::matching::{standard, substitute_apart_by, Binding};
 use crate::notations::{
-    FOR_ALL, FOR_ALL_PART, FUNCTION_TYPE, IN, MEMBERSHIP, NUMBER_SYSTEMS, SUBSET_OF,
+    FOR_ALL, FOR_ALL_PART, FUNCTION_TYPE, IN, MEMBERSHIP, NUMBER_SYSTEMS, PROPERTY_OF,
+    SUBSET_OF,
 };
 use crate::outcome::Built;
 use crate::rules;
@@ -276,6 +277,21 @@ pub fn function_values(facts: &[Node], env: Env, sorts: &Sorts) -> Vec<Node> {
                 continue;
             }
             let point = &member.children[0];
+            // A rule, as a defined function standing alone is read, takes
+            // the point into its hole: g = (x ↦ f(x)) on L gives f(k) ∈ U
+            // where g(k) ∈ U would be written.
+            if function.notation() == PROPERTY_OF {
+                let mut put = Binding::new();
+                put.insert(function.text, point.clone());
+                let value =
+                    substitute_apart_by(&function.children[0], &put, &env.g.binders());
+                if let Some(said) =
+                    page::made_as(env.g, "_ ∈ _", vec![value, codomain.clone()])
+                {
+                    out.push(said);
+                }
+                continue;
+            }
             // A letter a binder introduces has no sort of its own yet, and
             // takes what the function's domain holds.
             let from_type = match function.sort.full() {

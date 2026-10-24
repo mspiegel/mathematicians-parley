@@ -5063,7 +5063,8 @@ impl<'a> Elaborator<'a> {
                 || (bare_instance != goal
                     && !self.rebound(&bare_instance, &goal)
                     && !self.reorders(&instance, term)
-                    && !self.one_with_names_read(&instance, term))
+                    && !self.one_with_names_read(&instance, term)
+                    && !self.one_read_through(&instance, term))
             {
                 continue;
             }

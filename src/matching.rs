@@ -947,6 +947,9 @@ fn fit_each(
             let fits = property(pattern, ground, binding, sites, ctx);
             return then_kept(fits, before, binding, then);
         }
+        if let Some(filled) = rule_at_open_argument(pattern, binding, variables, ctx) {
+            return fit_each(&filled, ground, binding, variables, sites, ctx, then);
+        }
         if let Some(fits) = family(pattern, ground, binding, variables, sites, ctx) {
             return then_kept(fits, before, binding, then);
         }
@@ -963,6 +966,35 @@ fn fit_each(
         }
     }
     fit_structure(pattern, ground, binding, variables, sites, ctx, then)
+}
+
+/// t(u) where t is bound already to a rule and u holds a letter of the item
+/// still to be bound: the rule with u, as the pattern writes it, in its
+/// hole. Matching that binds u's letters, as they would be bound with t
+/// written out: `product-reindex` at ∏(x ∈ L) f(x), with t the rule z ↦ z,
+/// meets t(g(y)) as g(y), whose g is then the rule x ↦ f(x). The pattern's
+/// own u is put in, not a copy read through the binding, so that what is
+/// under a binder there is still known to be. None where t is bound to no
+/// rule or u has no such letter.
+fn rule_at_open_argument(
+    pattern: &Node,
+    binding: &Binding,
+    variables: &BTreeSet<String>,
+    ctx: &Context,
+) -> Option<Node> {
+    let stands = binding.get(&pattern.children[0].text)?;
+    let [arg] = &pattern.children[1..] else {
+        return None;
+    };
+    let open = free_names(arg, &ctx.binders)
+        .into_iter()
+        .any(|n| variables.contains(&n) && !binding.contains_key(&Symbol::of(&n)));
+    if stands.notation() != PROPERTY_OF || !open {
+        return None;
+    }
+    let mut put = Binding::new();
+    put.insert(stands.text, arg.clone());
+    Some(substitute_apart(&stands.children[0], &put, ctx))
 }
 
 /// The rule `x ↦ g(x)` a function letter t of the pattern may stand for at
