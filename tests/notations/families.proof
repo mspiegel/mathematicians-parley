@@ -1,0 +1,32 @@
+import mundane theorem    stdlib/sums/sum-constant-over
+import mundane theorem    stdlib/sets/intersection-within
+
+theorem a-sum-over-subsets
+  note        The index runs over sets, and the summand is a number.
+  let D be a set                                                      (H1)
+  let K ⊆ 𝒫D                                                          (H2)
+  assume K is finite                                                  (H3)
+  then Σ(s ∈ K) 1 = |K|·1
+
+1.  Σ(s ∈ K) 1 = |K|·1
+    mun:sum-constant-over X := K, c := 1, from H3
+
+theorem a-set-within-an-intersection
+  let D be a set                                                      (H1)
+  let Z be a set                                                      (H2)
+  assume for all X ∈ D, Z ⊆ X                                         (H3)
+  then Z ⊆ ⋂(X ∈ D) X
+
+1.  Z ⊆ ⋂(X ∈ D) X
+    mun:intersection-within, from H3
+
+theorem an-intersection-with-its-letter-renamed
+  note        The intersection's letter is its own: ⋂(Y ∈ D) Y is the set
+              above.
+  let D be a set                                                      (H1)
+  let Z be a set                                                      (H2)
+  assume for all X ∈ D, Z ⊆ X                                         (H3)
+  then Z ⊆ ⋂(Y ∈ D) Y
+
+1.  Z ⊆ ⋂(Y ∈ D) Y
+    mun:intersection-within, from H3

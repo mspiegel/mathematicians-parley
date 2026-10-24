@@ -741,6 +741,20 @@ notation indexed-union
               the set gathered is the index itself, ⋃(X ∈ D) X is set.mm's
               U. D, and `uniiun` says the two are one.
 
+notation indexed-intersection
+  pattern     ⋂(_ ∈ _) _
+  sort        α, set of α, set of β → set of β
+  level       summation
+  binds       hole 1 over hole 3
+  reads       the intersection, as the first runs over the second, of the third
+  metamath    ciin
+  target      _1 _2 _3 ciin
+  note        What is in the third hole for every member of the second.
+              ⋂(X ∈ D) X is the intersection of the sets in D, set.mm's |^| D
+              (`intiin`). Over an empty index it is everything there is, which
+              is not a set, so a fact about it assumes the index is not empty
+              (`GRAMMAR.md`).
+
 notation map-of-two
   pattern     the map sending _ ∈ _, _ ∈ _ to _
   sort        α, set of α, β, set of β, γ → function from α to function from β to γ
@@ -1622,30 +1636,31 @@ notation integral
 
 notation sum-over
   pattern     Σ(_ ∈ _) _
-  sort        number, set of number, number → number
+  sort        α, set of α, number → number
   level       summation
   binds       hole 1 over hole 3
   reads       the sum, as the first runs over the second, of the third
   metamath    csu over a finite set
   target      _2 _3 _1 csu
   note        The sum of the third hole for each member of the second, which is
-              finite. Σ(k = a to b) is this sum over {a, …, b}, and is kept
-              because a reader writes a range that way.
+              finite, whatever it holds: numbers, sets, points. Σ(k = a to b)
+              is this sum over {a, …, b}, and is kept because a reader writes
+              a range that way.
 
 notation product-over
   pattern     ∏(_ ∈ _) _
-  sort        number, set of number, number → number
+  sort        α, set of α, number → number
   level       summation
   binds       hole 1 over hole 3
   reads       the product, as the first runs over the second, of the third
   metamath    cprod over a finite set
   target      _2 _3 _1 cprod
   note        The product of the third hole for each member of the second,
-              which is finite, as Σ(_ ∈ _) is its sum.
+              which is finite, whatever it holds, as Σ(_ ∈ _) is its sum.
 
 notation sum-over-condition
   pattern     Σ(_ ∈ _ : _) _
-  sort        number, set of number, formula, number → number
+  sort        α, set of α, formula, number → number
   level       summation
   binds       hole 1 over holes 3 and 4
   reads       the sum, as the first runs over those in the second with the third, of the fourth

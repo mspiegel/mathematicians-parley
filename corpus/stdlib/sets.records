@@ -559,3 +559,11 @@ mundane theorem union-within
   then        ⋃(X ∈ D) X ⊆ Z
   metamath    iunss
   target      iunss
+
+mundane theorem intersection-within
+  assume for all X ∈ D, Z ⊆ X                                         (H1)
+  then        Z ⊆ ⋂(X ∈ D) X
+  metamath    ssiin
+  target      ssiin
+  note        A set within every set of D is within their intersection. It
+              holds for an empty D too, the intersection then being everything.

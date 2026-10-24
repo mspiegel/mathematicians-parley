@@ -533,6 +533,17 @@ same way at the same level: `∏(k = 1 to n) 2·k` multiplies the doubles, and
 all`: the `k` it names is bound in the summand. A congruence, `a ≡ b (mod n)`, is a relation,
 and its brackets are part of its pattern, not a grouping.
 
+A sum or a product over a set, `Σ(x ∈ X) t`, may run over a set of anything,
+as long as its summand is a number. For example, `Σ(s ∈ 𝒫D) |s|` adds the
+sizes of the subsets of D.
+
+`⋂(i ∈ I) A(i)` is the intersection of the sets A(i), one for each i in I:
+what is in every one of them. For example, `⋂(X ∈ D) X` is the intersection
+of the sets in D.
+
+When I is empty there are no sets to intersect, and the intersection is not a
+set. A fact about an intersection therefore assumes `I ≠ ∅`.
+
 The range a sum runs over is written as a set, `{0, …, n}`, where a line says
 something of every index in it: "for all k ∈ {0, …, m}, …" is the line a
 sum over 0 to m is rewritten term by term from. `C(n, k)`, n choose k, is the

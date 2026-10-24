@@ -356,6 +356,15 @@ mundane theorem sum-constant
   target      gfsumconst
   note        The same term b − a + 1 times.
 
+mundane theorem sum-constant-over
+  let X be a set                                                      (H1)
+  assume X is finite                                                  (H2)
+  let c ∈ ℂ                                                           (H3)
+  then        Σ(x ∈ X) c = |X|·c
+  metamath    fsumconst
+  target      fsumconst
+  note        The same term once for each member of X, whatever X holds.
+
 mundane theorem sum-empty-range
   let a ∈ ℤ                                                           (H1)
   let b ∈ ℤ                                                           (H2)
