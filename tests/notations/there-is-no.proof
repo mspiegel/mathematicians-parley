@@ -1,0 +1,98 @@
+import mundane definition stdlib/divisibility/even
+import mundane theorem    stdlib/divisibility/not-both
+
+theorem there-is-no-half-integer
+  note        "There is no x ∈ ℤ with …" is "not (there is x ∈ ℤ with …)",
+              so a contradiction supposing the "there is" proves it.
+  then there is no x ∈ ℤ with 2x = 1
+
+1.  There is no x ∈ ℤ with 2x = 1.
+    contradiction
+    suppose there is x ∈ ℤ with 2x = 1                                 (S)
+
+    1.1.  x ∈ ℤ. 2x = 1.
+          obtain x from S
+
+    1.2.  1 = 2x
+          algebra, from 1.1
+
+    1.3.  1 is even
+          mun:even n := 1, from 1.2
+
+    1.4.  1 is not odd
+          mun:not-both n := 1, from 1.3
+
+    1.5.  1 is odd
+          arithmetic, contradicting 1.4
+
+theorem there-does-not-exist-a-half-integer
+  note        "There does not exist x ∈ ℤ such that …" is "not (there
+              exists x ∈ ℤ such that …)".
+  then there does not exist x ∈ ℤ such that 2x = 1
+
+1.  There does not exist x ∈ ℤ such that 2x = 1.
+    contradiction
+    suppose there exists x ∈ ℤ such that 2x = 1                        (S)
+
+    1.1.  x ∈ ℤ. 2x = 1.
+          obtain x from S
+
+    1.2.  1 = 2x
+          algebra, from 1.1
+
+    1.3.  1 is even
+          mun:even n := 1, from 1.2
+
+    1.4.  1 is not odd
+          mun:not-both n := 1, from 1.3
+
+    1.5.  1 is odd
+          arithmetic, contradicting 1.4
+
+theorem there-are-no-integers-with-eighteen-a-plus-six-b-one
+  note        "There are no a, b ∈ ℤ with …" is "not (there are a, b ∈ ℤ
+              with …)".
+  then there are no a, b ∈ ℤ with 18a + 6b = 1
+
+1.  There are no a, b ∈ ℤ with 18a + 6b = 1.
+    contradiction
+    suppose there are a, b ∈ ℤ with 18a + 6b = 1                       (S)
+
+    1.1.  a ∈ ℤ. b ∈ ℤ. 18a + 6b = 1.
+          obtain a, b from S
+
+    1.2.  1 = 2(9a + 3b)
+          algebra, from 1.1
+
+    1.3.  1 is even
+          mun:even n := 1, from 1.2
+
+    1.4.  1 is not odd
+          mun:not-both n := 1, from 1.3
+
+    1.5.  1 is odd
+          arithmetic, contradicting 1.4
+
+theorem there-do-not-exist-integers-with-eighteen-a-plus-six-b-one
+  note        "There do not exist a, b ∈ ℤ such that …" is "not (there
+              exist a, b ∈ ℤ such that …)".
+  then there do not exist a, b ∈ ℤ such that 18a + 6b = 1
+
+1.  There do not exist a, b ∈ ℤ such that 18a + 6b = 1.
+    contradiction
+    suppose there exist a, b ∈ ℤ such that 18a + 6b = 1               (S)
+
+    1.1.  a ∈ ℤ. b ∈ ℤ. 18a + 6b = 1.
+          obtain a, b from S
+
+    1.2.  1 = 2(9a + 3b)
+          algebra, from 1.1
+
+    1.3.  1 is even
+          mun:even n := 1, from 1.2
+
+    1.4.  1 is not odd
+          mun:not-both n := 1, from 1.3
+
+    1.5.  1 is odd
+          arithmetic, contradicting 1.4

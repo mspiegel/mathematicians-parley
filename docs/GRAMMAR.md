@@ -561,10 +561,22 @@ one.
 ### A folded negation
 
 Four notations write a negation inside themselves: `≠`, `∉`, "is not odd" and
-"there is no … with …". Each record says so, in a `negates` line naming which of
-its patterns is the negation of which, and a parser builds the same tree for the
-folded spelling as for the `not`. So `n is not odd` and `not (n is odd)` are one
-formula, and the page writes whichever reads better.
+"is not incident with". Each record says so in a `negates` line, which names
+which of its patterns is the negation of which. A parser builds the same tree
+for the folded spelling as for the `not`. So `n is not odd` and `not (n is odd)`
+are one formula, and the page writes whichever reads better.
+
+Every "there is" and "there exists" folds a negation by one rule, so its record
+needs no `negates` line. "There is" and "there are" take "no" after them, and an
+"a" right after them gives way to the "no". "There exists" becomes "there does
+not exist", and "there exist" becomes "there do not exist". Each means the
+pattern negated. Examples:
+
+- `there is no S ⊆ A with P` is `not (there is S ⊆ A with P)`
+- `there is no bijection from A to B` is `not (there is a bijection from A to B)`
+- `there are no k, m ∈ ℕ with P` is `not (there are k, m ∈ ℕ with P)`
+- `there does not exist δ > 0 such that P` is `not (there exists δ > 0 such that P)`
+- `there do not exist x, y ∈ ℤ such that P` is `not (there exist x, y ∈ ℤ such that P)`
 
 Without that line each would be a second spelling of the same thing, which is
 the defect the "p is prime" rule was written to prevent. The √2 proof is where

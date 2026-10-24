@@ -493,6 +493,64 @@ pub fn patterns_of(raw: &str) -> Vec<&str> {
     WIDE_SPACE.split(raw).collect()
 }
 
+/// The openings a "there is" or "there exists" pattern may have, each with
+/// the words its negation opens with instead (`GRAMMAR.md`, "A folded
+/// negation"). "There is a" comes before "there is", so that its "a" gives
+/// way to the "no".
+const NEGATED_OPENINGS: [Opening; 5] = [
+    Opening {
+        says: &["there", "is", "a"],
+        denied: &["there", "is", "no"],
+    },
+    Opening {
+        says: &["there", "is"],
+        denied: &["there", "is", "no"],
+    },
+    Opening {
+        says: &["there", "are"],
+        denied: &["there", "are", "no"],
+    },
+    Opening {
+        says: &["there", "exists"],
+        denied: &["there", "does", "not", "exist"],
+    },
+    Opening {
+        says: &["there", "exist"],
+        denied: &["there", "do", "not", "exist"],
+    },
+];
+
+/// The words a pattern opens with, and the words its negation opens with.
+struct Opening {
+    says: &'static [&'static str],
+    denied: &'static [&'static str],
+}
+
+/// The negation of a pattern that opens with "there is", "there are",
+/// "there exists" or "there exist": the same pattern with its opening
+/// denied, building the same node wrapped in `not`. Every "there is" has
+/// one by this rule, so no record writes it out.
+fn there_is_none(n: &Notation) -> Option<Notation> {
+    let opens = |o: &&Opening| {
+        n.parts.len() > o.says.len()
+            && o.says
+                .iter()
+                .zip(&n.parts)
+                .all(|(word, part)| part.literal() == Some(*word))
+    };
+    let o = NEGATED_OPENINGS.iter().find(opens)?;
+    let rest = n.pattern.strip_prefix(&o.says.join(" "))?;
+    let mut parts: Vec<Part> =
+        o.denied.iter().map(|w| Part::Lit(w.to_string())).collect();
+    parts.extend(n.parts[o.says.len()..].iter().cloned());
+    Some(Notation {
+        pattern: format!("{}{rest}", o.denied.join(" ")),
+        parts,
+        folds: Some(crate::notations::LOGICAL_NOT.name().to_string()),
+        ..n.clone()
+    })
+}
+
 /// Turn notation records into patterns the parser can match, with the
 /// declared words and symbols, the symbols longest first.
 pub fn compile_notations(
@@ -681,7 +739,7 @@ pub fn compile_notations(
             };
             let key_id =
                 NotationId::of(if under.is_empty() { &r.name } else { &under });
-            out.push(Notation {
+            let made = Notation {
                 key_id,
                 record_id: NotationId::of(&r.name),
                 literal_id: LiteralId::of(key_id, &stands),
@@ -721,7 +779,20 @@ pub fn compile_notations(
                 wanted: r.field("wanted").map(|w| str::trim(w).to_string()),
                 instead,
                 decided: decided_of(r),
-            });
+            };
+            let negated = if folds_here {
+                None
+            } else {
+                there_is_none(&made)
+            };
+            out.push(made);
+            if let Some(negated) = negated {
+                let opening = negated.parts.iter().filter_map(Part::literal);
+                for word in opening.filter(|w| w.chars().all(is_letter)) {
+                    words.insert(word.to_string());
+                }
+                out.push(negated);
+            }
         }
     }
     // A folded pattern builds the notation that wraps it, so it needs that

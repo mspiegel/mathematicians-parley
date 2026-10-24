@@ -68,7 +68,9 @@
 #               page may write whichever reads better and anything comparing
 #               two formulas sees no difference. Four records fold a negation
 #               this way, and without the line each would be a second spelling
-#               nothing could match against a `not`.
+#               nothing could match against a `not`. A "there is" or "there
+#               exists" folds its negation by the rule `GRAMMAR.md` gives,
+#               and needs no line.
 #   spells      that this record's patterns are another notation written a
 #               different way, as "multiplicative ·" says that juxtaposition
 #               is the product written without its dot. Both build the same
@@ -1359,14 +1361,13 @@ notation for-all-after-with
               where a looser connective would swallow what follows.
 
 notation there-is
-  pattern     there is _ ∈ _ with _        there is no _ ∈ _ with _
+  pattern     there is _ ∈ _ with _
   sort        α, set of α, formula → formula
   level       binder
   binds       hole 1 over hole 3
-  negates     pattern 2 is logical-not of pattern 1
-  reads       there is, there is no
-  metamath    wrex, and wrex under wn
-  target      _3 _1 _2 wrex, folded
+  reads       there is
+  metamath    wrex
+  target      _3 _1 _2 wrex
 
 notation there-is-part
   pattern     there is _ ⊆ _ with _
@@ -1969,13 +1970,12 @@ notation opposite-sides
               See mun:stdlib/geometry/same-side.
 
 notation bijection
-  pattern     there is a bijection from _ to _        there is no bijection from _ to _
+  pattern     there is a bijection from _ to _
   sort        set of α, set of β → formula
   level       predicate
-  negates     pattern 2 is logical-not of pattern 1
-  reads       there is a bijection from, to, there is no bijection from, to
-  metamath    wbr with cen, and its negation
-  target      _1 _2 cen wbr, folded
+  reads       there is a bijection from, to
+  metamath    wbr with cen
+  target      _1 _2 cen wbr
   note        Not a binder despite the "there is": it names no variable, and
               the subsets pilot records that the language has no way to name a
               function built on the spot.

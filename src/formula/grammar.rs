@@ -668,6 +668,20 @@ fn is_set(sort: &Sort) -> bool {
         || matches!(sort.name(), Some("set" | "group-set" | "set-of-sets"))
 }
 
+/// The node a pattern built, wrapped in its negation where the pattern is
+/// the negation of another, so the folded spelling and the `not` spelling
+/// are one tree. The wrapper is named by the pattern, not known here.
+fn folded(n: &Notation, node: Node, begin: Option<usize>, end: Option<usize>) -> Node {
+    let Some(fold) = n.fold else {
+        return node;
+    };
+    let folded = Node::of(fold, Sort::of("formula"), vec![node]);
+    if let (Some(from), Some(to)) = (begin, end) {
+        folded.set_span(from, to);
+    }
+    folded
+}
+
 /// What the binders' own `sort` fields say of the names they bind, by the
 /// literals beside a bound hole: which literal after one makes the name a
 /// part of the set that follows, of that set's sort (`⊆` in `for all _ ⊆ _,
@@ -1908,7 +1922,7 @@ impl<'a> Parser<'a> {
                 }
                 body = level;
             }
-            return Ok(Some(body));
+            return Ok(Some(folded(n, body, begin, end)));
         }
         let node = Node::of(n.spelling(), yields, kids);
         if let (Some(from), Some(to)) = (begin, end) {
@@ -1919,19 +1933,7 @@ impl<'a> Parser<'a> {
                 }
             }
         }
-        // A pattern declared as the negation of another builds the other and
-        // wraps it, so the folded spelling and the `not` spelling are one
-        // tree. The wrapper is named by the record, not known here.
-        match n.fold {
-            None => Ok(Some(node)),
-            Some(fold) => {
-                let folded = Node::of(fold, Sort::of("formula"), vec![node]);
-                if let (Some(from), Some(to)) = (begin, end) {
-                    folded.set_span(from, to);
-                }
-                Ok(Some(folded))
-            }
-        }
+        Ok(Some(folded(n, node, begin, end)))
     }
 
     /// `condition` put in front of `body` as the long form writes it there,

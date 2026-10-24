@@ -44,7 +44,7 @@ theorem longest-runs
   let N ∈ ℕ                                                           (H1)
   let r ∈ ℕ                                                           (H2)
   let c : {1, …, N} → ℝ                                               (H3)
-  assume not (there is S ⊆ {1, …, N} with r ≤ |S| and for all i, j ∈ S, if i < j then c(i) < c(j))   (H4)
+  assume there is no S ⊆ {1, …, N} with r ≤ |S| and for all i, j ∈ S, if i < j then c(i) < c(j)   (H4)
   then there is L : {1, …, N} → {1, …, r − 1} with for all i, j ∈ {1, …, N}, if i < j and c(i) < c(j) then L(i) < L(j)
 
 let U(k) = {S ⊆ {1, …, k} : k ∈ S and for all p, q ∈ S, if p < q then c(p) < c(q)}, for k ∈ {1, …, N}   (D1)
@@ -481,9 +481,9 @@ theorem erdos-szekeres
 
 1.  There is S ⊆ {1, …, N} with (r ≤ |S| and for all i, j ∈ S, if i < j then a(i) < a(j)) or (s ≤ |S| and for all i, j ∈ S, if i < j then a(i) > a(j)).
     contradiction
-    suppose not (there is S ⊆ {1, …, N} with (r ≤ |S| and for all i, j ∈ S, if i < j then a(i) < a(j)) or (s ≤ |S| and for all i, j ∈ S, if i < j then a(i) > a(j)))   (S1)
+    suppose there is no S ⊆ {1, …, N} with (r ≤ |S| and for all i, j ∈ S, if i < j then a(i) < a(j)) or (s ≤ |S| and for all i, j ∈ S, if i < j then a(i) > a(j))   (S1)
 
-    1.1.  not (there is S ⊆ {1, …, N} with r ≤ |S| and for all i, j ∈ S, if i < j then a(i) < a(j))
+    1.1.  there is no S ⊆ {1, …, N} with r ≤ |S| and for all i, j ∈ S, if i < j then a(i) < a(j)
           contradiction
           suppose there is S ⊆ {1, …, N} with r ≤ |S| and for all i, j ∈ S, if i < j then a(i) < a(j)   (S2)
 
@@ -507,7 +507,7 @@ theorem erdos-szekeres
           mun:function-into, from 1.2
           requires b is a function on {1, …, N}: from D1
 
-    1.4.  not (there is S ⊆ {1, …, N} with s ≤ |S| and for all i, j ∈ S, if i < j then b(i) < b(j))
+    1.4.  there is no S ⊆ {1, …, N} with s ≤ |S| and for all i, j ∈ S, if i < j then b(i) < b(j)
           contradiction
           suppose there is S ⊆ {1, …, N} with s ≤ |S| and for all i, j ∈ S, if i < j then b(i) < b(j)   (S3)
 
