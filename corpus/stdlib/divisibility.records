@@ -313,6 +313,16 @@ mundane theorem divides-le
   metamath    dvdsle
   target      dvdsle
 
+mundane theorem below-not-divisible
+  let n ∈ ℕ                                                           (H1)
+  let x ∈ ℕ                                                           (H2)
+  assume x < n                                                        (H3)
+  then        not (n divides x)
+  metamath    fzm1ndvds, read over x ∈ ℕ below n, which this corpus proves
+              in elaboration/stdlib/proved.mm
+  target      gnndvdslt with N := n, K := x
+  note        A natural number below n is too small for n to divide it.
+
 mundane definition congruent-mod
   let n ∈ ℤ                                                           (H1)
   let a ∈ ℤ                                                           (H2)

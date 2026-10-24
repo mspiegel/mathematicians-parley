@@ -8,7 +8,7 @@ import theorem            stdlib/divisibility/prime-divides-product
 import mundane definition stdlib/divisibility/gcd
 import mundane definition stdlib/divisibility/congruent-mod
 import mundane definition stdlib/divisibility/prime
-import mundane theorem    stdlib/divisibility/divides-le
+import mundane theorem    stdlib/divisibility/below-not-divisible
 import mundane theorem    stdlib/divisibility/divides-self
 import mundane theorem    stdlib/divisibility/divides-multiple
 import mundane theorem    stdlib/divisibility/divides-difference
@@ -292,22 +292,6 @@ let g(x) = f(x), for x ∈ L                                            (D3)
 29. ∏(x ∈ X) x ≡ 1 (mod n)
     substitute ∏(x ∈ X) x = ∏(x ∈ L) x·f(x) (line 28) into line 26
 
-theorem below-not-divisible
-  let n ∈ ℕ                                                           (H1)
-  let x ∈ ℕ                                                           (H2)
-  assume x < n                                                        (H3)
-  then not (n divides x)
-
-1.  not (n divides x)
-    contradiction
-    suppose n divides x                                               (S)
-
-    1.1.  n ≤ x
-          mun:divides-le e := n, m := x, from S
-
-    1.2.  not x < n
-          inequalities, from 1.1, contradicting H3
-
 theorem coprime-below-prime
   note        A prime shares a factor with a number below it only by
               dividing it, and it divides no smaller natural number.
@@ -318,7 +302,7 @@ theorem coprime-below-prime
   then gcd(a, p) = 1
 
 1.  not (p divides a)
-    thm:below-not-divisible n := p, x := a, from H4
+    mun:below-not-divisible n := p, x := a, from H4
 
 2.  gcd(p, a) = 1
     mun:prime-coprime, from H2, 1
@@ -487,7 +471,7 @@ let f(a) = (a^(p − 2)) mod p, for a ∈ {2, …, p − 2}                   (D
                   requires 0 < a − 1: inequalities, from K5
 
           5.9.2.  not (p divides a − 1)
-                  thm:below-not-divisible n := p, x := a − 1, from 5.9.1
+                  mun:below-not-divisible n := p, x := a − 1, from 5.9.1
                   requires a − 1 < p: inequalities, from K5
 
     5.10. For all a ∈ {2, …, p − 2}, not (p divides a + 1).
@@ -499,7 +483,7 @@ let f(a) = (a^(p − 2)) mod p, for a ∈ {2, …, p − 2}                   (D
                   requires 0 < a + 1: inequalities, from K6
 
           5.10.2. not (p divides a + 1)
-                  thm:below-not-divisible n := p, x := a + 1, from 5.10.1
+                  mun:below-not-divisible n := p, x := a + 1, from 5.10.1
                   requires a + 1 < p: inequalities, from K6
 
     5.11. 0 ∈ {0, …, p − 1}

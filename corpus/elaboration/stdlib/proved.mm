@@ -1003,6 +1003,16 @@ $d k ph $.
     ADBCHIZJKZDUCLZJKZDCBHIZJKADMNUCMNUDUFOEABCFGPDUCQRAUEUGDJABCABFSACGSTUAUB $.
   $}
 
+  ${
+    gnndvdslt.1 $e |- ( ph -> N e. NN ) $.
+    gnndvdslt.2 $e |- ( ph -> K e. NN ) $.
+    gnndvdslt.3 $e |- ( ph -> K < N ) $.
+  gnndvdslt $p |- ( ph -> -. N || K ) $=
+    ( cn wcel c1 cmin co cfz cdvds wbr wn cz cle clt w3a nnzd nnge1d 3jca wb
+    1zzd elfzm11 syl2anc mpbird fzm1ndvds )
+    ACGHBICIJKZLKZHZCBMNODAUKBPHZIBQNZBCRNZSZAULUMUNABETABEUAFUBAIPHCPHUKUOUCAUDACDTBICUEUFUGCBUHUF $.
+  $}
+
 $}
 
 ${

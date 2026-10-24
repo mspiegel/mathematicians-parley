@@ -154,3 +154,22 @@ lemma gcongcomd
   7 breq2d 6 |- ( ph -> ( N || -u ( A - B ) <-> N || ( B - A ) ) )
   8 bitrd 3 7 |- ( ph -> ( N || ( A - B ) <-> N || ( B - A ) ) )
 
+# `gnndvdslt`: n does not divide a natural number below it. `fzm1ndvds`
+# says it of the range {1, …, n − 1}, which `elfzm11` reads as an integer at
+# least 1 and below n.
+lemma gnndvdslt
+  hypothesis gnndvdslt.1 |- ( ph -> N e. NN )
+  hypothesis gnndvdslt.2 |- ( ph -> K e. NN )
+  hypothesis gnndvdslt.3 |- ( ph -> K < N )
+  |- ( ph -> -. N || K )
+  1 nnzd gnndvdslt.2 |- ( ph -> K e. ZZ )
+  2 nnge1d gnndvdslt.2 |- ( ph -> 1 <_ K )
+  3 1zzd |- ( ph -> 1 e. ZZ )
+  4 nnzd gnndvdslt.1 |- ( ph -> N e. ZZ )
+  5 elfzm11 |- ( ( 1 e. ZZ /\ N e. ZZ ) -> ( K e. ( 1 ... ( N - 1 ) ) <-> ( K e. ZZ /\ 1 <_ K /\ K < N ) ) )
+  6 syl2anc 3 4 5 |- ( ph -> ( K e. ( 1 ... ( N - 1 ) ) <-> ( K e. ZZ /\ 1 <_ K /\ K < N ) ) )
+  7 3jca 1 2 gnndvdslt.3 |- ( ph -> ( K e. ZZ /\ 1 <_ K /\ K < N ) )
+  8 mpbird 7 6 |- ( ph -> K e. ( 1 ... ( N - 1 ) ) )
+  9 fzm1ndvds |- ( ( N e. NN /\ K e. ( 1 ... ( N - 1 ) ) ) -> -. N || K )
+  10 syl2anc gnndvdslt.1 8 9 |- ( ph -> -. N || K )
+
