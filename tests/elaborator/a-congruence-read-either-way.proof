@@ -1,0 +1,43 @@
+import theorem            proofs/wiedijk/divisibility-by-three/congruent-times
+
+theorem a-congruence-cited-the-other-way-round
+  note        congruent-times asks a ≡ b (mod n), and the line cited says
+              b ≡ a (mod n): a congruence's two sides stand in no order.
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  let c ∈ ℤ                                                           (H3)
+  let n ∈ ℕ                                                           (H4)
+  assume b ≡ a (mod n)                                                (H5)
+  then a·c ≡ b·c (mod n)
+
+1.  a·c ≡ b·c (mod n)
+    thm:congruent-times, from H5
+
+theorem a-calculation-reading-a-congruence-the-other-way
+  note        The second link cites c ≡ b (mod n) where the chain goes from
+              b to c.
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  let c ∈ ℤ                                                           (H3)
+  let n ∈ ℕ                                                           (H4)
+  assume a ≡ b (mod n)                                                (H5)
+  assume c ≡ b (mod n)                                                (H6)
+  then a ≡ c (mod n)
+
+1.  a ≡ c (mod n)
+    calculation
+      a ≡ b (mod n)      H5
+        ≡ c (mod n)      H6
+
+theorem a-congruence-claimed-the-other-way-round
+  note        congruent-times concludes a·c ≡ b·c (mod n), and the step
+              claims it with its sides the other way round.
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  let c ∈ ℤ                                                           (H3)
+  let n ∈ ℕ                                                           (H4)
+  assume a ≡ b (mod n)                                                (H5)
+  then b·c ≡ a·c (mod n)
+
+1.  b·c ≡ a·c (mod n)
+    thm:congruent-times, from H5

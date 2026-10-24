@@ -19,6 +19,8 @@ use crate::regex;
 
 regex!(HOLE, r"_(\d+)");
 regex!(HOLE_WHOLE, r"^_(\d+)$");
+// `any order of holes 1 and 2`, a `commutes` entry naming two holes.
+regex!(ANY_ORDER_OF, r"^any order of holes (\d+) and (\d+)$");
 // A part of a structure a `let` line introduced, which a target takes from
 // there: `@op` is the operation of the group the theorem lets, so `g·h` is
 // `g h ( +g ` W ) co` for that group's W, which nothing on the page names.
@@ -161,6 +163,10 @@ pub enum Commutes {
     /// `any order`: the holes stand in no order on the page, so {u, w} and
     /// {w, u} are one set.
     AnyOrder,
+    /// `any order of holes 1 and 2`: those two holes, counted from 0 here,
+    /// stand in no order and the rest where they are written, so a ≡ b
+    /// (mod n) and b ≡ a (mod n) are one claim.
+    AnyOrderOf(usize, usize),
     /// `no`: the holes stand where they are written.
     Kept,
 }
@@ -173,7 +179,12 @@ impl Commutes {
             "yes" => Some(Commutes::Exchanged),
             "any order" => Some(Commutes::AnyOrder),
             "no" => Some(Commutes::Kept),
-            _ => None,
+            _ => {
+                let m = ANY_ORDER_OF.captures(entry)?;
+                let hole = |at: usize| m[at].parse::<usize>().ok().filter(|&h| h >= 1);
+                let (i, j) = (hole(1)?, hole(2)?);
+                (i != j).then_some(Commutes::AnyOrderOf(i - 1, j - 1))
+            }
         }
     }
 
@@ -228,6 +239,45 @@ pub fn commuting(records: &[Record]) -> Vec<Commuting> {
                 constructor: tokens[tokens.len() - 1].to_string(),
                 places: (sorted[0], sorted[1]),
                 fixed,
+            });
+        }
+    }
+    out
+}
+
+/// Two holes of a notation's target that stand in no order, from `commutes
+/// any order of holes 1 and 2`: the target, the two holes counted from 1 as
+/// the target writes them, how many holes it has, and the lemma that
+/// exchanges them (`rules::PAIRS_EXCHANGED`).
+#[derive(Clone, Debug)]
+pub struct PairInAnyOrder {
+    pub target: String,
+    pub holes: (usize, usize),
+    pub count: usize,
+    pub lemma: &'static str,
+}
+
+/// Each `commutes any order of holes I and J` entry whose target has an
+/// exchanging lemma.
+pub fn pairs_in_any_order(records: &[Record]) -> Vec<PairInAnyOrder> {
+    let mut out = Vec::new();
+    for r in records.iter().filter(|r| r.kind == RecordKind::Notation) {
+        let patterns = split_entries(r.field_or_empty("target"));
+        for (pattern, said) in patterns.iter().zip(commutes_said(r)) {
+            let Some(Commutes::AnyOrderOf(i, j)) = said else {
+                continue;
+            };
+            let Some((_, lemma)) = crate::rules::PAIRS_EXCHANGED
+                .iter()
+                .find(|(t, _)| t == pattern)
+            else {
+                continue;
+            };
+            out.push(PairInAnyOrder {
+                target: pattern.to_string(),
+                holes: (i + 1, j + 1),
+                count: slots(pattern).len(),
+                lemma,
             });
         }
     }

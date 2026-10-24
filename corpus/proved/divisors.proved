@@ -136,3 +136,21 @@ lemma g1sgmpart
   12 syl g1sgmpart.1 11 |- ( ph -> ( 1 sigma N ) = sum_ k e. { p e. NN | p || N } k )
   13 breqtrrd 10 12 |- ( ph -> sum_ k e. Y k <_ ( 1 sigma N ) )
 
+# `gcongcomd`: a ≡ b (mod n) and b ≡ a (mod n) say the same, the page's
+# congruence standing in no order of its two sides (`notation
+# congruent-mod`). n divides a − b just when it divides its negation,
+# b − a. set.mm's `congsym` is in a mathbox.
+lemma gcongcomd
+  hypothesis gcongcomd.1 |- ( ph -> N e. ZZ )
+  hypothesis gcongcomd.2 |- ( ph -> A e. ZZ )
+  hypothesis gcongcomd.3 |- ( ph -> B e. ZZ )
+  |- ( ph -> ( N || ( A - B ) <-> N || ( B - A ) ) )
+  1 zsubcld gcongcomd.2 gcongcomd.3 |- ( ph -> ( A - B ) e. ZZ )
+  2 dvdsnegb |- ( ( N e. ZZ /\ ( A - B ) e. ZZ ) -> ( N || ( A - B ) <-> N || -u ( A - B ) ) )
+  3 syl2anc gcongcomd.1 1 2 |- ( ph -> ( N || ( A - B ) <-> N || -u ( A - B ) ) )
+  4 zcnd gcongcomd.2 |- ( ph -> A e. CC )
+  5 zcnd gcongcomd.3 |- ( ph -> B e. CC )
+  6 negsubdi2d 4 5 |- ( ph -> -u ( A - B ) = ( B - A ) )
+  7 breq2d 6 |- ( ph -> ( N || -u ( A - B ) <-> N || ( B - A ) ) )
+  8 bitrd 3 7 |- ( ph -> ( N || ( A - B ) <-> N || ( B - A ) ) )
+

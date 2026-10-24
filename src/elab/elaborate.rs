@@ -3920,6 +3920,23 @@ impl<'a> Elaborator<'a> {
                 }
             }
         }
+        // Or one of them with two sides its notation puts in no order the
+        // other way round: c ≡ b (mod n) for a link from b to c. The lemma
+        // that exchanges them asks that each side is a number, which the
+        // step's requires lines may be what say.
+        let offered = facts.with(&self.supplied(Some(step), scope, facts)?);
+        for (said_as, held) in known.entries() {
+            let alike = self.same(
+                &self.to_term(&said_as),
+                &self.to_term(&wanted),
+                scope,
+                &offered,
+                Some(step),
+            )?;
+            if let Built(alike) = alike {
+                return Ok(pf!(self.b; scope, said_as, wanted, held, alike, "mpbid"));
+            }
+        }
         Err(self.defect(step.line, format!("{cite} does not say {written}")))
     }
 

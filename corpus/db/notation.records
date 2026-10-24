@@ -48,7 +48,11 @@
 #               {u, w} and {w, u} are one set, and "A, B, C form a triangle"
 #               and "C, A, B form a triangle" one claim. The checker reads
 #               them in every order, and the elaborator carries one order to
-#               another, so a proof never cites a reordering.
+#               another, so a proof never cites a reordering. A pattern of
+#               more than two holes may name the ones that stand in no
+#               order, `any order of holes 1 and 2`: a ≡ b (mod n) and
+#               b ≡ a (mod n) are one claim, and the modulus stays where it
+#               is.
 #   identity    the element that leaves the other hole unchanged, and on
 #               which side it does: `0 on either side` for +, `0 on the
 #               right` for −, so x − 0 is x and 0 − x is not. One entry per
@@ -1587,6 +1591,7 @@ notation congruent-mod
   pattern     _ ≡ _ (mod _)
   sort        number, number, number → formula
   level       relational
+  commutes    any order of holes 1 and 2
   reads       is congruent to, modulo
   metamath    wbr with cdvds, of a difference
   target      _3 _1 _2 cmin co cdvds wbr

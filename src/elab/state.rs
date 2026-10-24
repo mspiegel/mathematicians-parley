@@ -258,6 +258,9 @@ pub struct Elaborator<'a> {
     pub taken: IndexSet<String>,
     pub spare: Vec<String>,
     pub commutes: Vec<Commuting>,
+    /// The notations' pairs of holes in no order, `commutes any order of
+    /// holes 1 and 2`, which the standard form puts in order.
+    pub pairs_in_any_order: Vec<targets::PairInAnyOrder>,
     /// The identity elements the notation records declare, which a literal
     /// instance is written without (`Row::Identity`).
     pub identities: Vec<Identity>,
@@ -479,6 +482,7 @@ impl<'a> Elaborator<'a> {
             taken,
             spare,
             commutes: targets::commuting(records),
+            pairs_in_any_order: targets::pairs_in_any_order(records),
             identities: targets::identities(records),
             decided: IndexMap::new(),
             cited: Vec::new(),

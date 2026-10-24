@@ -993,6 +993,16 @@ $d k ph $.
     ADBHZBIEHZCJKZELMZUOBIZNCOPZQAURUODBACLRZURSRFECTUAAUOURRZUBZUOVBUOLRZAUQEUOLUCZUDZUEVCUOVCUOVFUFUGADURUHRDURUIGDURUJUAUKAVAUTUSULFCBEUMUAUN $.
   $}
 
+  ${
+    gcongcomd.1 $e |- ( ph -> N e. ZZ ) $.
+    gcongcomd.2 $e |- ( ph -> A e. ZZ ) $.
+    gcongcomd.3 $e |- ( ph -> B e. ZZ ) $.
+  gcongcomd $p |- ( ph -> ( N || ( A - B ) <-> N || ( B - A ) ) ) $=
+    ( cmin co cdvds wbr cneg cz wcel wb zsubcld dvdsnegb syl2anc zcnd
+    negsubdi2d breq2d bitrd )
+    ADBCHIZJKZDUCLZJKZDCBHIZJKADMNUCMNUDUFOEABCFGPDUCQRAUEUGDJABCABFSACGSTUAUB $.
+  $}
+
 $}
 
 ${

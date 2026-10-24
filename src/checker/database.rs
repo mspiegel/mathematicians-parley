@@ -277,7 +277,8 @@ pub fn check_notation(report: &mut Report, records: &[Record]) {
         }
 
         // `commutes` says of each pattern, in order, whether its holes may
-        // stand in another order, in one of the field's three words.
+        // stand in another order: one of the field's three words, or two of
+        // the pattern's holes named.
         if r.fields.contains_key("commutes") {
             let said = crate::targets::commutes_said(r);
             if said.len() != patterns.len() {
@@ -297,11 +298,29 @@ pub fn check_notation(report: &mut Report, records: &[Record]) {
                     &r.path,
                     r.line,
                     format!(
-                        "notation {}: commutes says {}, where each entry is `yes`, `any order` or `no`",
+                        "notation {}: commutes says {}, where each entry is `yes`, `any order`, `any order of holes I and J` or `no`",
                         r.name,
                         repr(r.field_or_empty("commutes"))
                     ),
                 );
+            }
+            for (p, entry) in patterns.iter().zip(&said) {
+                let Some(crate::targets::Commutes::AnyOrderOf(i, j)) = entry else {
+                    continue;
+                };
+                if i.max(j) >= &holes_in(p) {
+                    report.say(
+                        &r.path,
+                        r.line,
+                        format!(
+                            "notation {}: commutes names hole {}, and the pattern {} has {}",
+                            r.name,
+                            i.max(j) + 1,
+                            repr(p),
+                            holes_in(p)
+                        ),
+                    );
+                }
             }
         }
 

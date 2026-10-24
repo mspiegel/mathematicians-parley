@@ -67,6 +67,9 @@ pub enum How {
     /// Two elements of a listed set of three or more exchanged, by the
     /// lemma of `rules::LISTED` named.
     Listed(&'static str),
+    /// Two holes in no order put in order, `commutes any order of holes 1
+    /// and 2`, by the lemma of `rules::PAIRS_EXCHANGED` named.
+    Exchanged(&'static str),
 }
 
 /// A link of a chain of equalities or equivalences: ( scope -> from = to ),
@@ -213,6 +216,14 @@ impl<'a> Elaborator<'a> {
             Declined(_) => {
                 if let Some(p) = self.tidied(&proof, stored, wanted, scope, facts)? {
                     return Ok(Some(p));
+                }
+                // Two holes in no order, a ≡ b (mod n) held as b ≡ a (mod n),
+                // are exchanged by a lemma asking that each is a number,
+                // which the facts say.
+                if let Built(across) = self.same(&was, &now, scope, facts, None)? {
+                    return Ok(Some(
+                        pf!(self.b; scope, stored, wanted, proof, across, "mpbid"),
+                    ));
                 }
                 let Some((turned, flip)) = self.turned_claim(wanted) else {
                     return Ok(None);
@@ -2587,7 +2598,48 @@ impl<'a> Elaborator<'a> {
                 return Some((How::Commuted, Term::apply(&c.constructor, kids)));
             }
         }
+        if let Some(step) = self.pair_step(term) {
+            return Some(step);
+        }
         self.listing_step(term)
+    }
+
+    /// `term` with two holes its notation puts in no order exchanged, where
+    /// they stand out of order: b ≡ a (mod n) for a ≡ b (mod n), the
+    /// target `_3 _1 _2 cmin co cdvds wbr` read with a letter of its own in
+    /// each hole and fitted to the term. None where no such notation built
+    /// it or its two are in order.
+    fn pair_step(&self, term: &Term) -> Option<(How, Term)> {
+        const LETTERS: [&str; 6] = ["A", "B", "C", "D", "E", "F"];
+        for p in &self.pairs_in_any_order {
+            let head = p.target.split_whitespace().last();
+            if term.label() != head || p.count > LETTERS.len() {
+                continue;
+            }
+            let holes: Vec<Rpn> = LETTERS[..p.count]
+                .iter()
+                .map(|l| Rpn::from(vec![Symbol::of(&format!("c{l}"))]))
+                .collect();
+            let pattern = self.to_term(&crate::targets::fill(&p.target, &holes));
+            let Some(bound) = fit(&pattern, term, &Binding::new(), &names_of(&pattern))
+            else {
+                continue;
+            };
+            let (i, j) = (
+                Symbol::of(LETTERS[p.holes.0 - 1]),
+                Symbol::of(LETTERS[p.holes.1 - 1]),
+            );
+            let (Some(a), Some(b)) = (bound.get(&i), bound.get(&j)) else {
+                continue;
+            };
+            if self.order_key(b) < self.order_key(a) {
+                let mut swapped = bound.clone();
+                swapped.insert(i, b.clone());
+                swapped.insert(j, a.clone());
+                return Some((How::Exchanged(p.lemma), pattern.substitute(&swapped)));
+            }
+        }
+        None
     }
 
     /// Two elements of a listed set of three or more, next to each other
@@ -2984,6 +3036,10 @@ impl<'a> Elaborator<'a> {
             }
             How::Listed(label) => {
                 let goal = self.to_term(&t!(a, b, "wceq"));
+                self.apply_lemma(label, &goal, where_, held, None, false, None)
+            }
+            How::Exchanged(label) => {
+                let goal = self.to_term(&t!(a, b, "wb"));
                 self.apply_lemma(label, &goal, where_, held, None, false, None)
             }
             How::Rule(label) => {

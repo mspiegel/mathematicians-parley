@@ -76,6 +76,10 @@ pub struct Context {
     /// "A, B, C form a triangle" is "C, A, B form a triangle", and {v, w} is
     /// {w, v}.
     pub unordered: FxIndexSet<NotationId>,
+    /// The notations two of whose holes stand in no order, by those two
+    /// places counted from 0, `commutes any order of holes 1 and 2`: a ≡ b
+    /// (mod n) is b ≡ a (mod n).
+    pub unordered_pairs: FxIndexMap<NotationId, (usize, usize)>,
     /// Each operation's identity element, by its spelling, from the
     /// records' `identity` field. It goes without saying wherever it
     /// stands, so every match and comparison reads x + 0 as x (`SYNTAX.md`).
@@ -157,6 +161,25 @@ fn unordered(records: &[Record]) -> IndexSet<String> {
         .collect()
 }
 
+/// The notations whose record names two holes that stand in no order,
+/// `commutes any order of holes 1 and 2`, with those two places. A record's
+/// patterns build one notation, so the first such entry stands for it.
+fn unordered_pairs(records: &[Record]) -> FxIndexMap<NotationId, (usize, usize)> {
+    let mut out = FxIndexMap::default();
+    for r in records.iter().filter(|r| r.kind == RecordKind::Notation) {
+        let pair = crate::targets::commutes_said(r)
+            .into_iter()
+            .find_map(|c| match c {
+                Some(crate::targets::Commutes::AnyOrderOf(i, j)) => Some((i, j)),
+                _ => None,
+            });
+        if let Some(pair) = pair {
+            out.insert(NotationId::of(&r.name), pair);
+        }
+    }
+    out
+}
+
 /// What a spelling is in its notation's standard order: the literal it is
 /// written with there, and which of its own holes, counted from 1, fills
 /// each hole of that one.
@@ -181,6 +204,7 @@ impl Context {
             turned: turned(notations, records),
             filled,
             unordered: ids_of(unordered(records)),
+            unordered_pairs: unordered_pairs(records),
             identities: identities(notations, records),
         }
     }
@@ -771,6 +795,13 @@ fn orders(a: &Node, b: &Node, ctx: &Context) -> Vec<Vec<Node>> {
         let mut turned = b.children.clone();
         turned.reverse();
         return vec![b.children.clone(), turned];
+    }
+    if let Some(&(i, j)) = ctx.unordered_pairs.get(&a.notation()) {
+        if i.max(j) < b.children.len() {
+            let mut turned = b.children.clone();
+            turned.swap(i, j);
+            return vec![b.children.clone(), turned];
+        }
     }
     vec![b.children.clone()]
 }

@@ -331,30 +331,6 @@ theorem coprime-below-prime
       gcd(a, p) = gcd(p, a)     3
                 = 1             2
 
-theorem congruent-turned
-  note        n divides a − b just when it divides b − a, the same number
-              negated.
-  let a ∈ ℤ                                                           (H1)
-  let b ∈ ℤ                                                           (H2)
-  let n ∈ ℕ                                                           (H3)
-  assume a ≡ b (mod n)                                                (H4)
-  then b ≡ a (mod n)
-
-1.  n divides a − b
-    mun:congruent-mod, from H4
-
-2.  n divides (a − b)·(−1)
-    mun:divides-multiple e := n, a := a − b, x := −1, from 1
-
-3.  (a − b)·(−1) = b − a
-    algebra
-
-4.  n divides b − a
-    substitute (a − b)·(−1) = b − a (line 3) into line 2
-
-5.  b ≡ a (mod n)
-    mun:congruent-mod, from 4
-
 theorem wilson
   metamath    wilthimp
   note        Each a from 2 to p − 2 has an inverse f(a) modulo p, by
@@ -482,28 +458,25 @@ let f(a) = (a^(p − 2)) mod p, for a ∈ {2, …, p − 2}                   (D
           5.8.11. f(a) ∈ ℤ
                   instantiate a := a in line 5.7, from K4
 
-          5.8.12. f(a) ≡ a^(p − 2) (mod p)
-                  thm:congruent-turned, from 5.8.7, 5.8.10, 5.8.11
+          5.8.12. f(a)·a ≡ a^(p − 2)·a (mod p)
+                  thm:congruent-times c := a, from 5.8.7, 5.8.10, 5.8.11
 
-          5.8.13. f(a)·a ≡ a^(p − 2)·a (mod p)
-                  thm:congruent-times c := a, from 5.8.7, 5.8.11, 5.8.12
+          5.8.13. f(a)·a ≡ a^(p − 1) (mod p)
+                  substitute a^(p − 1) = a^(p − 2)·a (line 5.8.6) into line 5.8.12
 
-          5.8.14. f(a)·a ≡ a^(p − 1) (mod p)
-                  substitute a^(p − 1) = a^(p − 2)·a (line 5.8.6) into line 5.8.13
-
-          5.8.15. a·f(a) = f(a)·a
+          5.8.14. a·f(a) = f(a)·a
                   algebra, from 5.8.11
 
-          5.8.16. a^(p − 1) ∈ ℤ
+          5.8.15. a^(p − 1) ∈ ℤ
                   membership, from 5.8.6, 5.8.7
 
-          5.8.17. a·f(a) ≡ 1 (mod p)
+          5.8.16. a·f(a) ≡ 1 (mod p)
                   calculation
-                    a·f(a) = f(a)·a            5.8.15
-                           ≡ a^(p − 1) (mod p)  5.8.14
+                    a·f(a) = f(a)·a            5.8.14
+                           ≡ a^(p − 1) (mod p)  5.8.13
                            ≡ 1 (mod p)          5.8.3
                   requires f(a)·a ∈ ℤ: membership, from 5.8.11
-                  requires a^(p − 1) ∈ ℤ: from 5.8.16
+                  requires a^(p − 1) ∈ ℤ: from 5.8.15
 
     5.9.  For all a ∈ {2, …, p − 2}, not (p divides a − 1).
           proof
@@ -710,32 +683,28 @@ let f(a) = (a^(p − 2)) mod p, for a ∈ {2, …, p − 2}                   (D
           5.16.6. f(f(a)) ∈ ℤ
                   mun:range-integer, from 5.16.5
 
-          5.16.7. 1 ≡ a·f(a) (mod p)
-                  thm:congruent-turned, from 5.16.3
-                  requires a·f(a) ∈ ℤ: membership, from 5.16.4
-
-          5.16.8. f(f(a))·f(a) = f(a)·f(f(a))
+          5.16.7. f(f(a))·f(a) = f(a)·f(f(a))
                   algebra, from 5.16.4, 5.16.6
 
-          5.16.9. f(f(a))·f(a) ≡ a·f(a) (mod p)
+          5.16.8. f(f(a))·f(a) ≡ a·f(a) (mod p)
                   calculation
-                    f(f(a))·f(a) = f(a)·f(f(a))     5.16.8
+                    f(f(a))·f(a) = f(a)·f(f(a))     5.16.7
                                  ≡ 1 (mod p)          5.16.2
-                                 ≡ a·f(a) (mod p)     5.16.7
+                                 ≡ a·f(a) (mod p)     5.16.3
                   requires f(a)·f(f(a)) ∈ ℤ: membership, from 5.16.4, 5.16.6
                   requires a·f(a) ∈ ℤ: membership, from 5.16.4
 
-          5.16.10. gcd(f(a), p) = 1
+          5.16.9. gcd(f(a), p) = 1
                   instantiate a := f(a) in line 5.5, from 5.16.1
 
-          5.16.11. f(f(a)) ≡ a (mod p)
-                  thm:congruent-cancel c := f(a), from 5.16.4, 5.16.6, 5.16.9, 5.16.10
+          5.16.10. f(f(a)) ≡ a (mod p)
+                  thm:congruent-cancel c := f(a), from 5.16.4, 5.16.6, 5.16.8, 5.16.9
 
-          5.16.12. a ∈ {0, …, p − 1}
+          5.16.11. a ∈ {0, …, p − 1}
                   mun:in-subset, from K9, 5.13
 
-          5.16.13. f(f(a)) = a
-                  mun:congruent-in-range, from 5.16.5, 5.16.11, 5.16.12
+          5.16.12. f(f(a)) = a
+                  mun:congruent-in-range, from 5.16.5, 5.16.10, 5.16.11
 
     5.17. f : {2, …, p − 2} → {2, …, p − 2}
           mun:function-into, from D1, 5.14

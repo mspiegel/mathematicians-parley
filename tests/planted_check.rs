@@ -3595,7 +3595,14 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("corpus/db/notation.records", Some("  sort        α, α → set of α\n  commutes    any order".to_string()), "  sort        α, α → set of α\n  commutes    unordered".to_string()),
             ],
-            "where each entry is `yes`, `any order` or `no`",
+            "where each entry is `yes`, `any order`, `any order of holes I and J` or `no`",
+        ),
+        case(
+            "name a hole in commutes that the pattern does not have",
+            vec![
+                edit("corpus/db/notation.records", Some("  commutes    any order of holes 1 and 2".to_string()), "  commutes    any order of holes 1 and 4".to_string()),
+            ],
+            "commutes names hole 4, and the pattern '_ ≡ _ (mod _)' has 3",
         ),
         // A product's two factors may be exchanged (`commutes yes`), and the
         // elaborator carries one order to the other; the page still writes
@@ -3797,12 +3804,12 @@ fn cases() -> Vec<Case> {
             ],
             "step 3 claims something that mun:sum-difference does not conclude",
         ),
-        // A congruence is a divisibility of a difference, and which way round
-        // the difference goes is part of what is said.
+        // A congruence's two sides stand in no order, and its modulus where
+        // it is written.
         case(
-            "turn a congruence round",
+            "claim a congruence modulo another number",
             vec![
-                edit("proofs/wiedijk/divisibility-by-three.proof", Some("    1.1.  10^k ≡ 1 (mod 3)\n          thm:ten-power-congruent".to_string()), "    1.1.  1 ≡ 10^k (mod 3)\n          thm:ten-power-congruent".to_string()),
+                edit("proofs/wiedijk/divisibility-by-three.proof", Some("    1.1.  10^k ≡ 1 (mod 3)\n          thm:ten-power-congruent".to_string()), "    1.1.  10^k ≡ 1 (mod 9)\n          thm:ten-power-congruent".to_string()),
             ],
             "step 1.1 claims something that thm:ten-power-congruent does not conclude",
         ),
