@@ -87,6 +87,12 @@ theorem even-square
   `fills`). In the same way "there is f : X → Y with …" is the "there is"
   of the functions from X to Y, which the page never writes either, and an
   obtain from it states f : X → Y as the membership of f.
+  In the same way "for all f : X → Y, …" is the "for all" of the
+  functions from X to Y. A proof of one is a block that opens with
+  `let f : X → Y`, and a step citing one for a function g needs
+  g : X → Y. For example, `for all g : X → Y, if g(a) = f(a) for all
+  a ∈ X then g = f` says that a function from X to Y is fixed by its
+  values.
   `let G be a finite group with operation · and identity e` asserts that G
   is finite, and a step citing the line has that.
   A group's line names its set, its operation and its identity. G is the set

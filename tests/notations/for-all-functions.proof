@@ -1,0 +1,31 @@
+import mundane theorem    stdlib/functions/function-value
+
+theorem every-function-takes-its-values-in-its-codomain
+  note        A "for all" over the functions from X to Y, proved by a block
+              that lets one of them.
+  let X be a set                                                      (H1)
+  let Y be a set                                                      (H2)
+  let a ∈ X                                                           (H3)
+  then for all f : X → Y, f(a) ∈ Y
+
+1.  For all f : X → Y, f(a) ∈ Y.
+    proof
+    let f : X → Y                                                     (K1)
+
+    1.1.  f(a) ∈ Y
+          mun:function-value x := a, from H3
+
+theorem one-function-takes-its-value-in-its-codomain
+  note        The theorem above, cited for one function, which asks that it
+              is a function from X to Y.
+  let X be a set                                                      (H1)
+  let Y be a set                                                      (H2)
+  let a ∈ X                                                           (H3)
+  let g : X → Y                                                       (H4)
+  then g(a) ∈ Y
+
+1.  For all f : X → Y, f(a) ∈ Y.
+    thm:every-function-takes-its-values-in-its-codomain, from H3
+
+2.  g(a) ∈ Y
+    instantiate f := g in line 1, from H4

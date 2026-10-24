@@ -3798,7 +3798,15 @@ pub fn check_instantiated(
                 let domain_written =
                     substitute_apart(&w.domain, &outer_written, &library.ctx);
                 outer_written.insert(w.letter.text, value_written.clone());
-                if parts.facts.iter().any(|f| known.alike(f, &want)) {
+                // A function's type is its membership of the functions
+                // between its sets (`type_said_otherwise`), so `g : X → Y`
+                // supplies g for "for all f : X → Y" (`SYNTAX.md`).
+                let supplied = parts.facts.iter().any(|f| {
+                    known.alike(f, &want)
+                        || type_said_otherwise(f, library)
+                            .is_some_and(|member| known.alike(&member, &want))
+                });
+                if supplied {
                     wants.push(want);
                     continue;
                 }

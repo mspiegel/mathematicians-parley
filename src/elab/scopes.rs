@@ -664,7 +664,35 @@ impl<'a> Elaborator<'a> {
                         }
                     }
                     let node = said;
-                    let added = self.term(&node)?;
+                    let written = self.term(&node)?;
+                    // `let f : X → Y` opens the block at a member of the
+                    // functions from X to Y, which "for all f : X → Y" runs
+                    // over and closing gives back; its type is read off the
+                    // membership, as an obtained function's is (`elmapi`).
+                    let function =
+                        match (o.kind, node.notation(), node.children.as_slice()) {
+                            (
+                                Intro::Let,
+                                crate::notations::FUNCTION_TYPE,
+                                [f, from, to],
+                            ) => {
+                                let set = FunctionSet {
+                                    domain: self.term(from)?,
+                                    codomain: self.term(to)?,
+                                };
+                                Some((self.term(f)?, set))
+                            }
+                            _ => None,
+                        };
+                    let added = match &function {
+                        Some((named, set)) => {
+                            let over = t!(&set.codomain, &set.domain, "cmap", "co");
+                            self.sets
+                                .insert(node.leftmost().text.to_string(), over.clone());
+                            t!(named, over, "wcel")
+                        }
+                        None => written.clone(),
+                    };
                     block.opened.push(added.clone());
                     let origin = assumption(&block, &o.label);
                     let (inner, lifted) = self.widen(
@@ -675,15 +703,34 @@ impl<'a> Elaborator<'a> {
                     );
                     block.scope = inner;
                     block.facts = lifted;
+                    let held = self
+                        .held(&block.facts.clone(), &added, &block.scope.clone())?
+                        .expect("the assumption just laid down");
+                    let held = match &function {
+                        Some((named, set)) => {
+                            let law = self.b.ap(
+                                "elmapi",
+                                &binds! {"A" => named, "B" => &set.codomain, "C" => &set.domain},
+                                &[],
+                            );
+                            let scope = block.scope.clone();
+                            let typed =
+                                pf!(self.b; &scope, added, written, held, law, "syl");
+                            self.know(
+                                &block.facts.clone(),
+                                written.clone(),
+                                typed.clone(),
+                            );
+                            typed
+                        }
+                        None => held,
+                    };
                     if !o.label.is_empty() {
-                        let proof = self
-                            .held(&block.facts.clone(), &added, &block.scope.clone())?
-                            .expect("the assumption just laid down");
                         self.lines.set(
                             o.label.clone(),
                             Line {
-                                term: added,
-                                proof,
+                                term: written,
+                                proof: held,
                                 sentences: vec![node],
                             },
                         );

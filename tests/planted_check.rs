@@ -3633,6 +3633,17 @@ fn cases() -> Vec<Case> {
             )],
             "step 1 claims something that mun:real-power-positive does not conclude",
         ),
+        // "for all f : X → Y" is said of the functions from X to Y, and a
+        // function put for f is one where a line gives it that type.
+        case(
+            "instantiate a for-all over functions without the function's type",
+            vec![edit(
+                "tests/notations/for-all-functions.proof",
+                Some("    instantiate f := g in line 1, from H4\n".to_string()),
+                "    instantiate f := g in line 1\n".to_string(),
+            )],
+            "step 2 puts g for f in line 1, so it needs g ∈ (the functions from X to Y), and nothing it cites or requires says it",
+        ),
         // √ is the square root, and a raised index before it is 3 or more.
         case(
             "write a root of index 2",

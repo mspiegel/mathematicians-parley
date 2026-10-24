@@ -1244,6 +1244,21 @@ notation for-all-part
               the line below.
   spells      for-all forall∈,
 
+notation for-all-function
+  pattern     for all _ : _ → _, _
+  sort        function from α to β, set of α, set of β, formula → formula
+  level       binder
+  binds       hole 1 over hole 4
+  joins       hole 2 to hole 3 by functions-from
+  reads       for all functions, from, to
+  metamath    wral over the functions from one set to another
+  target      _4 _1 _3 _2 cmap co wral
+  note        "For all f : X → Y, …" is "for all f ∈ (the functions from X
+              to Y), …", built as exactly that formula, as there-is-function
+              builds its "there is". `spells` comes last, as for-all-part's
+              does.
+  spells      for-all forall∈,
+
 notation for-all-with
   pattern     for all _ ∈ _ with _, _
   sort        α, set of α, formula, formula → formula
