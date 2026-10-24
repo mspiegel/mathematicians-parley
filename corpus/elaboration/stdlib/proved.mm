@@ -1768,6 +1768,9 @@ $d x A $.  $d x C $.  $d x F $.  $d x N $.  $d x X $.
 $d y A $.  $d y C $.  $d y F $.  $d y N $.  $d y X $.
 $d z A $.  $d z C $.  $d z F $.  $d z N $.  $d z X $.
 $d w A $.  $d w C $.  $d w F $.  $d w N $.  $d w X $.
+$( A deduction's products bind k and n apart from its hypothesis ph. Its
+   terms B and E name k and not n, and D names n and not k. $)
+$d k ph $.  $d n ph $.  $d n B $.  $d n E $.  $d k D $.
   gphival $p |- ( N e. NN -> ( phi ` N ) = ( # ` { x e. ( 0 ... ( N - 1 ) ) | ( x gcd N ) = 1 } ) ) $=
     ( cn wcel cphi cfv cv cgcd co c1 wceq cc0 cfzo crab chash cmin cfz dfphi2
     cz nnz fzoval syl rabeqdv fveq2d eqtrd )
@@ -1841,6 +1844,27 @@ $d w A $.  $d w C $.  $d w F $.  $d w N $.  $d w X $.
     eldifn sstrd sselda zcnd fprodsplitsn fprodzcl zmulcl gcdcom eqtr3d
     rspcdva jca rpmul syl3anc mpd ex findcard2d )
     DEFZGZDHGZCIGZAJZCKLZMNZADOZDBJZBPZCKLZMNZQZQWGWHRZWIWRWSWIRZWMWQWTWMRZSJZWNBPZCKLZMNTWNBPZCKLZMNUAJZWNBPZCKLZMNZXGUBJZUCZUDZWNBPZCKLZMNZWQSUAUBDXBTNZXDXFMXQXCXECKXBTWNBUEUFUGXBXGNZXDXIMXRXCXHCKXBXGWNBUEUFUGXBXMNZXDXOMXSXCXNCKXBXMWNBUEUFUGXBDNZXDWPMXTXCWOCKXBDWNBUEUFUGXAXFMCKLZMXAXEMCKXEMNXAWNBUHUIUFXACEGZYAMNXAWIYBWTWIWMWSWIUJZUKZCULZUMZCUNUMUOXAXGDUPZXKDXGUQZGZRZRZXJXPYKXJRZXOXHXKURLZCKLZMYLXNYMCKYKXNYMNXJYKXGXKWNXKBEYKBUSBXKUTYKWHYGXGHGZXAWHYJWTWHWMWSWHWIWGWHUJZUKZUKZUKZXAYGYIVAZDXGVBZVCZYKDEXKXADEUPZYJXAWGUUCWTWGWMWSWGWIWGWGWHWGVDZUKZUKZUKZDEVEZUMZUKZYKYIXKDGZXAYGYIVFZXKDXGVGZUMZVHZYKYIXKXGGVIUULXKDXGVJUMYKWNXGGRWNYKXGEWNYKXGDEYTUUJVKZVLZVMWNXKNVDYKXKUUOVMVNUKUFYLYNCYMKLZMYLYMEGZYBYNUURNYLXHEGZXKEGZUUSYKUUTXJYKXGWNBUUBUUQVOZUKZYKUVAXJUUOUKZXHXKVPVCYKYBXJXAYBYJYFUKZUKZYMCVQVCYLCXHKLZMNZCXKKLZMNZRZUURMNZYLUVHUVJYLXIUVGMYLUUTYBXIUVGNUVCUVFXHCVQVCYKXJUJVRYLXKCKLZUVIMYLUVAYBUVMUVINUVDUVFXKCVQVCYKUVMMNZXJYKWLUVNADXKWJXKNZWKUVMMUVOWJXKCKUVOVDUFUGXAWMYJWTWMUJUKUUNVSUKVRVTYLYBUUTUVAUVKUVLQUVFUVCUVDCXHXKWAWBWCUOUOWDYRWEWDWDWD $.
+
+  ${
+    gfprodcongt.1 $e |- ( ph -> X e. Fin ) $.
+    gfprodcongt.2 $e |- ( ph -> N e. NN ) $.
+    gfprodcongt.3 $e |- ( ( ph /\ k e. X ) -> B e. ZZ ) $.
+    gfprodcongt.4 $e |- ( ( ph /\ k e. X ) -> E e. ZZ ) $.
+    gfprodcongt.5 $e |- ( ( ph /\ k e. X ) -> N || ( B - E ) ) $.
+  gfprodcongt $p |- ( ph -> N || ( prod_ k e. X B - prod_ k e. X E ) ) $=
+    ( cprod cmo co wceq cmin cdvds wbr cv wcel wa cn cz wb adantr moddvds
+    syl3anc mpbird fprodmodd fprodzcl mpbid )
+    AFBCLZEMNZFDCLZEMNZOZEULUNPNZQRZAFBDCEGIJHACSZFTZUAZBEMNZDEMNZOZEBDPNZQRZKVAEUBTZBUCTDUCTVDVFUDAVGUTHUEIJBDEUFUGUHUIAVGULUCTUNUCTUPURUDHAFBCGIUJAFDCGJUJULUNEUFUGUK $.
+  $}
+
+  ${
+    gfprodf1o.1 $e |- ( k = ( F ` n ) -> B = D ) $.
+    gfprodf1o.2 $e |- ( ph -> C e. Fin ) $.
+    gfprodf1o.3 $e |- ( ph -> F : C -1-1-onto-> A ) $.
+    gfprodf1o.4 $e |- ( ( ph /\ k e. A ) -> B e. CC ) $.
+  gfprodf1o $p |- ( ph -> prod_ k e. A B = prod_ n e. C D ) $=
+    ( cv cfv wcel wa eqidd fprodf1o ) ABCDEFGHGMZHNZIJKASDOPTQLR $.
+  $}
 
 $}
 

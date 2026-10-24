@@ -34,6 +34,13 @@ mundane theorem factorial-nat
   metamath    faccl
   target      faccl
 
+mundane theorem factorial-product
+  let n ∈ ℕ₀                                                          (H1)
+  then        n! = ∏(k = 1 to n) k
+  metamath    fprodfac
+  target      fprodfac
+  note        n! is 1·2·…·n, and 0! the empty product.
+
 mundane theorem factorial-divisible
   let n ∈ ℕ                                                           (H1)
   let m ∈ ℕ                                                           (H2)

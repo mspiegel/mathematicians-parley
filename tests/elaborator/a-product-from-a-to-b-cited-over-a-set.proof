@@ -1,0 +1,18 @@
+import mundane theorem    stdlib/sums/product-integer
+import mundane theorem    stdlib/sums/range-finite
+import mundane theorem    stdlib/sums/range-in-integers
+
+theorem a-product-from-a-to-b-cited-over-a-set
+  note        product-integer is stated over a set X, and a product from 2
+              to n is the product over {2, …, n}, which X is.
+  let n ∈ ℤ                                                           (H1)
+  then ∏(k = 2 to n) k ∈ ℤ
+
+1.  {2, …, n} is finite
+    mun:range-finite
+
+2.  {2, …, n} ⊆ ℤ
+    mun:range-in-integers
+
+3.  ∏(k = 2 to n) k ∈ ℤ
+    mun:product-integer, from 1, 2
