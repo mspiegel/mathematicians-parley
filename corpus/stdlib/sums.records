@@ -322,6 +322,19 @@ mundane theorem range-within
   target      fzss2 with M := a, K := k, N := n
   note        A range that stops sooner lies inside one that stops later.
 
+mundane theorem range-inside
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  let c ∈ ℤ                                                           (H3)
+  let d ∈ ℤ                                                           (H4)
+  assume c ≤ a                                                        (H5)
+  assume b ≤ d                                                        (H6)
+  then        {a, …, b} ⊆ {c, …, d}
+  metamath    fzss1 and fzss2 joined, which this corpus proves in
+              elaboration/stdlib/proved.mm
+  target      gfzss with K := c, M := a, N := b, L := d
+  note        A range whose ends lie within another's lies inside it.
+
 mundane definition range-between
   let k ∈ ℤ                                                           (H1)
   let a ∈ ℤ                                                           (H2)

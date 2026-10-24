@@ -87,3 +87,24 @@ lemma gfprodge0
   2 fzfid |- ( ph -> ( M ... N ) e. Fin )
   3 fprodge0 1 2 gfprodge0.1 gfprodge0.2 |- ( ph -> 0 <_ prod_ k e. ( M ... N ) A )
 
+# `gfzss`: {M, …, N} ⊆ {K, …, L} where K ≤ M and N ≤ L. set.mm moves one
+# end at a time, `fzss2` the top and `fzss1` the bottom, and the two are
+# joined by `sstrd`.
+lemma gfzss
+  hypothesis gfzss.1 |- ( ph -> K e. ZZ )
+  hypothesis gfzss.2 |- ( ph -> M e. ZZ )
+  hypothesis gfzss.3 |- ( ph -> N e. ZZ )
+  hypothesis gfzss.4 |- ( ph -> L e. ZZ )
+  hypothesis gfzss.5 |- ( ph -> K <_ M )
+  hypothesis gfzss.6 |- ( ph -> N <_ L )
+  |- ( ph -> ( M ... N ) C_ ( K ... L ) )
+  1 eqid |- ( ZZ>= ` N ) = ( ZZ>= ` N )
+  2 eluzd 1 gfzss.3 gfzss.4 gfzss.6 |- ( ph -> L e. ( ZZ>= ` N ) )
+  3 fzss2 |- ( L e. ( ZZ>= ` N ) -> ( M ... N ) C_ ( M ... L ) )
+  4 syl 2 3 |- ( ph -> ( M ... N ) C_ ( M ... L ) )
+  5 eqid |- ( ZZ>= ` K ) = ( ZZ>= ` K )
+  6 eluzd 5 gfzss.1 gfzss.2 gfzss.5 |- ( ph -> M e. ( ZZ>= ` K ) )
+  7 fzss1 |- ( M e. ( ZZ>= ` K ) -> ( M ... L ) C_ ( K ... L ) )
+  8 syl 6 7 |- ( ph -> ( M ... L ) C_ ( K ... L ) )
+  9 sstrd 4 8 |- ( ph -> ( M ... N ) C_ ( K ... L ) )
+

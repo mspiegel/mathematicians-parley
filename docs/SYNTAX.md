@@ -518,6 +518,13 @@ from the line, so the fact still comes from a line the step names, and one
 written line counts for what it plainly says. Nothing past the table is
 read: that an integer above 0 is a natural number is the item `pos-int-nat`.
 
+**A line saying a term is in a range says its bounds.** `let k ∈ {a, …, b}
+(K1)` also says a ≤ k and k ≤ b, and a line saying `f(x) ∈ {0, …, n − 1}`
+says 0 ≤ f(x) and f(x) ≤ n − 1. Whatever reads the cited line reads them, as
+it reads k ≥ 1 in `k ∈ ℕ`. For example, `inequalities, from K1` has both
+bounds, and an item asking k ≤ b is answered by K1. No line restates them
+first.
+
 **A line giving a function's type gives every wider one.** A line saying
 `h : X → ℕ` also says `h : X → ℤ` and `h : X → ℝ`: every codomain the table
 above puts its own inside, as `k ∈ ℕ` says `k ∈ ℝ`. For example, where line 5
@@ -543,8 +550,8 @@ of
   every obtain states of each name it introduces;
 - a letter introduced in a range, `let k ∈ {a, …, b}`: k ∈ ℤ, and k ∈ ℕ
   where a is 1 and k ∈ ℕ₀ where a is 0, as a sum's index is, with every
-  number system containing that one. What else the range says, k ≥ a and
-  k ≤ b, is cited as before;
+  number system containing that one. What else the range says, a ≤ k and
+  k ≤ b, is cited, by the line that says the range;
 - a term built from those by +, −, ·, unary −, a power whose exponent is a
   numeral or a letter introduced in ℕ or ℕ₀, and /, in each number system
   closed under what builds it (the table of closure
@@ -582,7 +589,7 @@ a requires line says `N(n) ∈ ℝ`, `N(n) + 1`, `2·N(n)` and `N(n)²` are real
 too, and a line saying so does no work. A letter is such a term as well: a
 line the step names saying q ∈ ℕ₀ puts q there though a `let` or an
 `obtain` put it in ℤ, the narrower system standing. A line putting a letter
-in a range says nothing past itself, and that r ∈ {0, …, n − 1} is whole is
+in a range says its bounds and nothing past them, and that r ∈ {0, …, n − 1} is whole is
 `mun:range-integer`, cited; but a step said of every member of a range,
 "for all j ∈ {1, …, m}, …" justified as at a member, introduces j as its
 block's `let` would, in ℕ here. Everything else a step needs to be

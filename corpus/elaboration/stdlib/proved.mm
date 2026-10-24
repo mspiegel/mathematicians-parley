@@ -1953,6 +1953,18 @@ $d k K $.  $d k M $.  $d k N $.  $d k B $.  $d k ph $.
     ( cfz co nfv fzfid fprodge0 ) ADEHIBCACJADEKFGL $.
   $}
 
+  ${
+    gfzss.1 $e |- ( ph -> K e. ZZ ) $.
+    gfzss.2 $e |- ( ph -> M e. ZZ ) $.
+    gfzss.3 $e |- ( ph -> N e. ZZ ) $.
+    gfzss.4 $e |- ( ph -> L e. ZZ ) $.
+    gfzss.5 $e |- ( ph -> K <_ M ) $.
+    gfzss.6 $e |- ( ph -> N <_ L ) $.
+  gfzss $p |- ( ph -> ( M ... N ) C_ ( K ... L ) ) $=
+    ( cfz co cuz cfv wcel wss eqid eluzd fzss2 syl fzss1 sstrd )
+    ADELMZDCLMZBCLMZACENOZPUDUEQAECUGUGRHIKSEDCTUAADBNOZPUEUFQABDUHUHRFGJSDBCUBUAUC $.
+  $}
+
 $}
 
 ${

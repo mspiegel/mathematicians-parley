@@ -1341,16 +1341,22 @@ impl<'a> Elaborator<'a> {
         let mut system: &str =
             self.rpn(&node.children()[1]).alone().unwrap_or_default();
         let mut head: Vec<Link> = Vec::new();
+        let mut bounds: Vec<(Rpn, Vec<Link>)> = Vec::new();
         if lookup(rules::WITHIN, system).is_none()
             && lookup(rules::IMPLIED, system).is_none()
         {
             // A range is no number system, and a line saying a term is in
-            // one says nothing past itself (`SYNTAX.md`): `mun:range-integer`
-            // is how a page says its member is whole. A sum's index is in
-            // its range as the sum runs over it, and is a whole number there
-            // (`elfznn0`), as a family's values are read.
+            // one says its bounds and nothing past them (`SYNTAX.md`):
+            // `mun:range-integer` is how a page says its member is whole. A
+            // sum's index is in its range as the sum runs over it, and is a
+            // whole number there (`elfznn0`), as a family's values are read.
+            for (_page, lemma) in rules::RANGE_BOUNDS {
+                if let Some(made) = self.lemma_step(lemma, &node) {
+                    bounds.push((self.rpn(&made.reached), vec![made]));
+                }
+            }
             if self.in_family == 0 {
-                return Vec::new();
+                return bounds;
             }
             let where_ = &node.children()[1];
             if where_.variable().is_some()
@@ -1371,10 +1377,10 @@ impl<'a> Elaborator<'a> {
                 }
             }
             if head.is_empty() {
-                return Vec::new();
+                return bounds;
             }
         }
-        let mut out = Vec::new();
+        let mut out = bounds;
         if let Some(first) = head.first() {
             out.push((self.rpn(&first.reached), head.clone()));
         }

@@ -7,8 +7,8 @@ use crate::formula::symbol::Symbol;
 use crate::formula::{Node, Sort, Sorts, Whole};
 use crate::matching::{standard, substitute_apart_by, Binding};
 use crate::notations::{
-    FOR_ALL, FOR_ALL_PART, FUNCTION_TYPE, IN, MEMBERSHIP, NUMBER_SYSTEMS, PROPERTY_OF,
-    SUBSET_OF,
+    FOR_ALL, FOR_ALL_PART, FUNCTION_TYPE, IN, INTEGER_RANGE, MEMBERSHIP,
+    NUMBER_SYSTEMS, PROPERTY_OF, SUBSET_OF,
 };
 use crate::outcome::Built;
 use crate::rules;
@@ -395,6 +395,33 @@ fn wider_types(fact: &Node, env: Env) -> Option<Vec<Node>> {
     Some(wider)
 }
 
+/// What `x ∈ {a, …, b}` says of x besides itself: a ≤ x and x ≤ b
+/// (`rules::RANGE_BOUNDS`).
+fn range_bounds(fact: &Node, env: Env, sorts: &Sorts) -> Vec<Node> {
+    let [term, range] = fact.children.as_slice() else {
+        return Vec::new();
+    };
+    let [from, to] = range.children.as_slice() else {
+        return Vec::new();
+    };
+    let mut local = sorts.clone();
+    for letter in ["x", "a", "b"] {
+        local.insert(letter.into(), Sort::of("number"));
+    }
+    let put = Binding::from([
+        (Symbol::of("x"), term.clone()),
+        (Symbol::of("a"), from.clone()),
+        (Symbol::of("b"), to.clone()),
+    ]);
+    let binders = env.g.binders();
+    rules::RANGE_BOUNDS
+        .iter()
+        .map(|(form, _)| {
+            substitute_apart_by(&template(form, env, &local), &put, &binders)
+        })
+        .collect()
+}
+
 pub fn implied_facts(fact: &Node, env: Env, sorts: &Sorts) -> Vec<Node> {
     if let Some(other) = part_said_otherwise(fact, env, sorts) {
         return vec![other];
@@ -403,6 +430,12 @@ pub fn implied_facts(fact: &Node, env: Env, sorts: &Sorts) -> Vec<Node> {
         return wider;
     }
     let both = fact.children.len() == 2;
+    if fact.notation() == MEMBERSHIP
+        && both
+        && fact.children[1].notation() == INTEGER_RANGE
+    {
+        return range_bounds(fact, env, sorts);
+    }
     if fact.notation() != MEMBERSHIP
         || !both
         || fact.children[1].notation() != NUMBER_SYSTEMS

@@ -1,0 +1,21 @@
+import mundane theorem    stdlib/sums/range-within
+
+theorem a-method-reads-a-range-lines-bounds
+  note        `let k ∈ {2, …, n}` says 2 ≤ k and k ≤ n to a step citing
+              it, as `k ∈ ℕ` says k ≥ 1.
+  let n ∈ ℤ                                                           (H1)
+  let k ∈ {2, …, n}                                                   (H2)
+  then 0 < k
+
+1.  0 < k
+    inequalities, from H2
+
+theorem an-item-asks-a-range-lines-bound
+  note        range-within asks k ≤ n, which the line putting k in
+              {1, …, n} says.
+  let n ∈ ℤ                                                           (H1)
+  let k ∈ {1, …, n}                                                   (H2)
+  then {1, …, k} ⊆ {1, …, n}
+
+1.  {1, …, k} ⊆ {1, …, n}
+    mun:range-within a := 1, from H2

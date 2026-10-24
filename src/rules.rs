@@ -792,6 +792,11 @@ pub fn implied(system: Option<&str>) -> &'static [(&'static str, &'static str)] 
     system.and_then(|s| lookup(IMPLIED, s)).unwrap_or(&[])
 }
 
+// What a membership of a range {a, …, b} says of its term besides itself, as
+// the page writes it with x for the term, and the lemma that says it
+// (`SYNTAX.md`, a line saying a term is in a range says its bounds).
+pub const RANGE_BOUNDS: &[(&str, &str)] = &[("a ≤ x", "elfzle1"), ("x ≤ b", "elfzle2")];
+
 // A part of a set is a member of its power set and the other way round: what
 // a line of the first form also says, in the page's notation, and the lemma
 // that says it. `gsspw` asks that the set be a set, and the elaborator proves
