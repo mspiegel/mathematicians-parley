@@ -23,6 +23,7 @@ use crate::mm::Rpn;
 use crate::notations::{APPLICATION, APPLICATION_TO_TWO, SUPERSCRIPT};
 use crate::outcome::Checked;
 use crate::rules::NUMERALS;
+use crate::sorts::powers::needs_not_be_whole;
 use crate::targets::{is_context, is_hole, repeated};
 
 use super::state::{fit, Binding, Elaborator};
@@ -34,6 +35,27 @@ enum Pattern {
     Hole(usize),
     Apply(String, Vec<Pattern>),
     Fixed(Rpn),
+}
+
+/// What a binder around a part says of a letter it binds, as the page reads
+/// it inside that binder.
+#[derive(Clone)]
+struct BoundAs {
+    /// The sort of what the binder's domain holds, where it says.
+    sort: Sort,
+    /// Whether the domain holds numbers that need not be whole, which makes
+    /// a power to the letter a real power (`sorts::powers`).
+    real: bool,
+}
+
+/// `sorts` with a bound letter among numbers that need not be whole as its
+/// binder says, over what the lines say of a letter of that name.
+fn said_real(sorts: &mut crate::formula::Sorts, letter: &str, said: &BoundAs) {
+    if said.real {
+        sorts.reals.insert(letter.to_string());
+    } else {
+        sorts.reals.shift_remove(letter);
+    }
 }
 
 /// The sort the pattern's `sort` line gives the letter it binds: in full
@@ -300,13 +322,14 @@ impl Elaborator<'_> {
     fn read_set_holds(
         &self,
         node: &Node,
-        bound: &IndexMap<String, Sort>,
+        bound: &IndexMap<String, BoundAs>,
     ) -> Option<Sort> {
         let mut sorts = self.sorts_now.clone();
-        for (letter, sort) in bound {
-            if sort.name().is_some() {
-                sorts.insert(letter.clone(), sort.clone());
+        for (letter, said) in bound {
+            if said.sort.name().is_some() {
+                sorts.insert(letter.clone(), said.sort.clone());
             }
+            said_real(&mut sorts, letter, said);
         }
         read_back(self.g, node, &sorts).ok()?.sort.held()
     }
@@ -317,7 +340,9 @@ impl Elaborator<'_> {
     /// not the imaginary unit. Each letter has the sort of what its binder's
     /// domain holds where the domain says, as the page reads it: the k of
     /// "there is k ∈ H" is an element of the group H is a set of, and g·k
-    /// reads as the group's product. `want` is the category the place the
+    /// reads as the group's product. A letter whose domain holds numbers
+    /// that need not be whole is one, so 2^y over y ∈ ℝ reads back as the
+    /// real power it is. `want` is the category the place the
     /// part fills wants, where a notation's hole says: a reading the page
     /// gives only where a hole wants it (`wanted`) is taken only there, so
     /// x + i·y is the point (x, y) where a point is wanted and a sum
@@ -325,7 +350,7 @@ impl Elaborator<'_> {
     fn page_node_under(
         &self,
         term: &Term,
-        bound: &IndexMap<String, Sort>,
+        bound: &IndexMap<String, BoundAs>,
         want: Option<&str>,
     ) -> Option<Node> {
         let rpn = self.rpn(term);
@@ -430,30 +455,37 @@ impl Elaborator<'_> {
             // domain written as more than a name, 𝒫{1, …, n} or U(k), holds
             // what the page reads it as holding, as the page's own reading of
             // the binder gives its letter (`grammar::set_written`).
+            let domains: Vec<Node> = if binding_at.is_empty() {
+                Vec::new()
+            } else {
+                holes
+                    .iter()
+                    .enumerate()
+                    .filter(|(at, _)| !binding_at.contains(at))
+                    .filter_map(|(_, h)| self.page_node_under(h, bound, None))
+                    .collect()
+            };
             let domain_holds = match &r.joined {
                 Some(j) => j.member.clone(),
-                None => {
-                    let domains: Vec<Node> = holes
-                        .iter()
-                        .enumerate()
-                        .filter(|(at, _)| !binding_at.contains(at))
-                        .filter_map(|(_, h)| self.page_node_under(h, bound, None))
-                        .collect();
-                    domains
-                        .iter()
-                        .filter(|n| n.is_name())
-                        .find_map(|n| {
-                            self.sorts_now.get(n.text.as_str()).and_then(Sort::held)
-                        })
-                        .or_else(|| {
-                            domains
-                                .iter()
-                                .filter(|n| !n.is_name())
-                                .find_map(|n| self.read_set_holds(n, bound))
-                        })
-                        .unwrap_or_else(Sort::none)
-                }
+                None => domains
+                    .iter()
+                    .filter(|n| n.is_name())
+                    .find_map(|n| {
+                        self.sorts_now.get(n.text.as_str()).and_then(Sort::held)
+                    })
+                    .or_else(|| {
+                        domains
+                            .iter()
+                            .filter(|n| !n.is_name())
+                            .find_map(|n| self.read_set_holds(n, bound))
+                    })
+                    .unwrap_or_else(Sort::none),
             };
+            let real_name = |name: &str| match bound.get(name) {
+                Some(said) => said.real,
+                None => self.sorts_now.reals.contains(name),
+            };
+            let real = domains.iter().any(|d| needs_not_be_whole(d, &real_name));
             let mut inner = bound.clone();
             for at in &binding_at {
                 if let Some(letter) = holes
@@ -461,7 +493,13 @@ impl Elaborator<'_> {
                     .and_then(|h| self.page_node_under(h, bound, None))
                 {
                     if letter.is_name() {
-                        inner.insert(letter.text.to_string(), domain_holds.clone());
+                        inner.insert(
+                            letter.text.to_string(),
+                            BoundAs {
+                                sort: domain_holds.clone(),
+                                real,
+                            },
+                        );
                     }
                 }
             }
@@ -487,12 +525,13 @@ impl Elaborator<'_> {
             // itself: |xc| is a distance between points, and of two numbers
             // the page reads nothing, so |x − c| is the reading.
             let mut sorts = self.sorts_now.clone();
-            for (letter, sort) in bound {
-                if sort.name().is_some() {
-                    sorts.insert(letter.clone(), sort.clone());
+            for (letter, said) in bound {
+                if said.sort.name().is_some() {
+                    sorts.insert(letter.clone(), said.sort.clone());
                 } else if !sorts.introduces(letter) {
                     sorts.unsettled.insert(letter.clone());
                 }
+                said_real(&mut sorts, letter, said);
             }
             let back = read_back(self.g, &node, &sorts);
             // A reading the page gives only where a hole wants it, the open

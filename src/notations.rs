@@ -85,4 +85,11 @@ notations! {
     EQUAL_CHAIN = 53, "equal-chain";
     SET_OPERATIONS = 54, "set-operations", [UNION = 1, "∪", WITHOUT = 2, "∖", INTERSECTION = 3, "∩"];
     PRODUCT = 55, "product";
+    REAL_POWER = 56, "real-power";
+    ROOT = 57, "root";
+    IMAGINARY_UNIT = 58, "imaginary-unit";
+    ABSOLUTE_VALUE = 59, "absolute-value";
+    CLOSED_INTERVAL = 60, "closed-interval";
+    OPEN_INTERVAL = 61, "open-interval";
+    SET_BUILDER = 62, "set-builder";
 }

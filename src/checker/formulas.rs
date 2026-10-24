@@ -38,7 +38,7 @@ use crate::notations::{
     APPLICATION, APPLICATION_TO_TWO, AT_LEAST, AT_MOST, BICONDITIONAL, BY_CASES,
     CONDITIONAL, CONJUNCTION, EQUALITY, EQUALS, EQUAL_CHAIN, FOR_ALL, FOR_ALL_SETS,
     GREATER, IMPLICATION, INTEGER_RANGE, LESS, LOGICAL_NOT, MEMBERSHIP, NUMBER_SYSTEMS,
-    NUMERAL, ORDER, PLUS, PRODUCT, PRODUCT_OVER, SUM, TIMES,
+    NUMERAL, ORDER, PLUS, PRODUCT, PRODUCT_OVER, REAL_POWER, SUM, TIMES,
 };
 use crate::outcome::{Built, Checked, Declined, Problem};
 use crate::rules::System;
@@ -242,7 +242,18 @@ pub fn check_formulas(report: &mut Report, thm: &Theorem, env: Env, known: &Know
         let Built(DefineParts::One(said)) = define_parts(&d.text) else {
             continue;
         };
-        let local = define_sorts(&said, &known.sorts);
+        let local =
+            match define_sorts(&said, &known.sorts, known.env.g, &d.path, d.line) {
+                Ok(local) => local,
+                Err(p) => {
+                    report.say(
+                        &thm.path,
+                        d.line,
+                        format!("define {}: {}", d.label, p.message),
+                    );
+                    continue;
+                }
+            };
         let body = d.rule(&said.body);
         if let Err(p) = body.formula().and_then(|s| known.keep_read(&s, &local)) {
             report.say(
@@ -679,14 +690,21 @@ pub fn check_decided_words(
                 if operations.get(&part.notation()) == Some(&false)
                     && named.insert(part.notation_name().to_string())
                 {
-                    report.say(
-                        &thm.path,
-                        line,
+                    // A power whose exponent is not whole is no operation a
+                    // record could mark: its value is in general irrational
+                    // (`METHODS.md`).
+                    let why = if part.notation() == REAL_POWER {
+                        format!(
+                            "{text}: {} has an exponent that is not whole, and arithmetic takes a power only with a whole one",
+                            part.written(text).unwrap_or_else(|| "a power".to_string())
+                        )
+                    } else {
                         format!(
                             "{text} works out {}, and arithmetic works out an operation beyond its own only where the notation's record says so in a `decided` field",
                             part.notation_name()
-                        ),
-                    );
+                        )
+                    };
+                    report.say(&thm.path, line, why);
                 }
             }
             while node.notation() == LOGICAL_NOT && node.children.len() == 1 {

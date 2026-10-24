@@ -40,6 +40,9 @@ pub fn is_mark(c: char) -> bool {
 /// The raised digits ⁰ to ⁹, in order of their value.
 pub const RAISED: [char; 10] = ['⁰', '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹'];
 
+/// The roots Unicode writes as one character, each with its index raised.
+const ONE_CHARACTER_ROOTS: [(char, char); 2] = [('∛', '³'), ('∜', '⁴')];
+
 /// The value a raised digit writes, or None for any other character.
 pub fn raised_digit(c: char) -> Option<char> {
     let at = RAISED.iter().position(|r| *r == c)?;
@@ -129,6 +132,26 @@ pub fn tokenise(
                 chars[i..end].iter().collect(),
                 i,
             );
+            continue;
+        }
+        // ∛ and ∜ are ³√ and ⁴√ written as one character, as Unicode
+        // gives them: the root's index and its sign, both at that character.
+        if let Some(index) = ONE_CHARACTER_ROOTS
+            .iter()
+            .find(|(root, _)| *root == c)
+            .map(|(_, index)| *index)
+        {
+            out.push(Token {
+                kind: TokenKind::Raised,
+                text: index.to_string(),
+                at: i,
+            });
+            out.push(Token {
+                kind: TokenKind::Symbol,
+                text: "√".to_string(),
+                at: i,
+            });
+            i += 1;
             continue;
         }
         // A run of raised digits is one numeral, written raised: the

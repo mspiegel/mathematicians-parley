@@ -17,8 +17,8 @@
 $( Numbers: a remainder is less than its divisor, a multiple of the
    divisor added leaves it as it was, a real's remainder on dividing by a
    positive real is what is left after its whole multiples, a real below
-   the divisor is its own remainder, and an integer or its negative is a
-   whole number. $)
+   the divisor is its own remainder, an integer or its negative is a
+   whole number, and a positive real's real power is positive. $)
 
 # ( ( A e. ZZ /\ B e. NN ) -> ( A mod B ) < B )
 lemma gzmodlt
@@ -80,4 +80,15 @@ lemma gznn0neg
   |- ( N e. ZZ -> ( N e. NN0 \/ -u N e. NN0 ) )
   1 elznn0 |- ( N e. ZZ <-> ( N e. RR /\ ( N e. NN0 \/ -u N e. NN0 ) ) )
   2 simprbi 1 |- ( N e. ZZ -> ( N e. NN0 \/ -u N e. NN0 ) )
+
+# ( ( A e. RR /\ 0 < A /\ B e. RR ) -> 0 < ( A ^c B ) ), `cxpgt0d` said of
+# a real greater than 0, as `gmodval` is (for
+# `mun:stdlib/numbers/real-power-positive`).
+lemma gcxpgt0
+  |- ( ( A e. RR /\ 0 < A /\ B e. RR ) -> 0 < ( A ^c B ) )
+  1 simp1 |- ( ( A e. RR /\ 0 < A /\ B e. RR ) -> A e. RR )
+  2 simp2 |- ( ( A e. RR /\ 0 < A /\ B e. RR ) -> 0 < A )
+  3 simp3 |- ( ( A e. RR /\ 0 < A /\ B e. RR ) -> B e. RR )
+  4 elrpd 1 2 |- ( ( A e. RR /\ 0 < A /\ B e. RR ) -> A e. RR+ )
+  5 cxpgt0d 4 3 |- ( ( A e. RR /\ 0 < A /\ B e. RR ) -> 0 < ( A ^c B ) )
 

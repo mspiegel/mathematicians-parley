@@ -1660,7 +1660,7 @@ fn cases() -> Vec<Case> {
                 Some("          thm:congruent-times a := 10^m, b := 1, c := 10, n := 3, from IH\n".to_string()),
                 "          thm:congruent-times a := 10^m, b := 1, c := 10, n := 3, from IH\n          requires 4^(1/2) ∈ ℕ: arithmetic\n".to_string(),
             )],
-            "the requires line 4^(1/2) ∈ ℕ of step 1.3 is arithmetic, which is not a rational number: its exponent is not whole",
+            "4^(1/2) ∈ ℕ: 4^(1/2) has an exponent that is not whole, and arithmetic takes a power only with a whole one",
         ),
         case(
             "prove a false numeral fact by arithmetic",
@@ -3621,6 +3621,38 @@ fn cases() -> Vec<Case> {
                 "1.  ∏(k = 1 to n + 1) t(k) = (∏(k ∈ {0, …, n}) t(k))·t(n + 1)\n".to_string(),
             )],
             "step 1 claims something that mun:product-extended does not conclude",
+        ),
+        // A power whose exponent is whole is the product of copies, which
+        // the principal power's item does not conclude.
+        case(
+            "cite a real power's item for a whole power",
+            vec![edit(
+                "tests/notations/powers.proof",
+                Some("  let y ∈ ℝ                                                           (H3)\n  then x^y > 0\n".to_string()),
+                "  let y ∈ ℕ                                                           (H3)\n  then x^y > 0\n".to_string(),
+            )],
+            "step 1 claims something that mun:real-power-positive does not conclude",
+        ),
+        // √ is the square root, and a raised index before it is 3 or more.
+        case(
+            "write a root of index 2",
+            vec![edit(
+                "tests/notations/powers.proof",
+                Some("  then x^(1/2) = √x\n\n1.  x^(1/2) = √x\n".to_string()),
+                "  then x^(1/2) = ²√x\n\n1.  x^(1/2) = ²√x\n".to_string(),
+            )],
+            "a root's index is 3 or more, and this one is 2",
+        ),
+        // `arithmetic` takes a power only with a whole exponent, and a
+        // principal power is no value of its.
+        case(
+            "work out a principal power by arithmetic",
+            vec![edit(
+                "tests/notations/powers.proof",
+                Some("  then x^(1/2) = √x\n\n1.  x^(1/2) = √x\n    mun:half-power\n".to_string()),
+                "  then 4^(1/2) = 2\n\n1.  4^(1/2) = 2\n    arithmetic\n".to_string(),
+            )],
+            "4^(1/2) = 2: 4^(1/2) has an exponent that is not whole, and arithmetic takes a power only with a whole one",
         ),
         // The same of a sum: the item gives a·x + b·y.
         case(

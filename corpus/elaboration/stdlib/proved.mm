@@ -920,8 +920,8 @@ ${
 $( Numbers: a remainder is less than its divisor, a multiple of the
    divisor added leaves it as it was, a real's remainder on dividing by a
    positive real is what is left after its whole multiples, a real below
-   the divisor is its own remainder, and an integer or its negative is a
-   whole number. $)
+   the divisor is its own remainder, an integer or its negative is a
+   whole number, and a positive real's real power is positive. $)
 
   gzmodlt $p |- ( ( A e. ZZ /\ B e. NN ) -> ( A mod B ) < B ) $=
     ( cz wcel cr crp cmo co clt wbr cn zre nnrp modlt syl2an )
@@ -947,6 +947,10 @@ $( Numbers: a remainder is less than its divisor, a multiple of the
 
   gznn0neg $p |- ( N e. ZZ -> ( N e. NN0 \/ -u N e. NN0 ) ) $=
     ( cz wcel cr cn0 cneg wo elznn0 simprbi ) ABCADCAECAFECGAHI $.
+
+  gcxpgt0 $p |- ( ( A e. RR /\ 0 < A /\ B e. RR ) -> 0 < ( A ^c B ) ) $=
+    ( cr wcel cc0 clt wbr w3a simp1 simp2 elrpd simp3 cxpgt0d )
+    ACDZEAFGZBCDZHZABQANOPINOPJKNOPLM $.
 
 $}
 
@@ -1091,6 +1095,58 @@ $( Powers: the exponents of 2, 3 and 5 in 2^a 3^b 5^c are a, b and c. $)
     ( c5 c2 cexp co c3 cmul cpc oveq2d gpc5 3eqtr3d )
     AOPBQRZSCQRZTRZODQRZTRZUAROPEQRZSFQRZTRZOGQRZTRZUARDGAUIUNOUANUBABCDHIJUCAEFGKLMUCUD $.
   $}
+
+$}
+
+${
+$( Roots: the real N-th root of a real number, for an odd N, is real, is
+   the principal power ( 1 / N ) of a number at least 0, has N-th power
+   the number, and of an N-th power is the number; and so for the cube
+   root. $)
+
+  grootpw $p |- ( ( A e. RR /\ 0 <_ A ) -> if ( 0 <_ A , ( A ^c ( 1 / N ) ) , -u ( -u A ^c ( 1 / N ) ) ) = ( A ^c ( 1 / N ) ) ) $=
+    ( cr wcel cc0 cle wbr wa c1 cdiv co ccxp cneg simpr iftrued )
+    ACDZEAFGZHQAIBJKZLKAMRLKMPQNO $.
+
+  grootre $p |- ( ( A e. RR /\ N e. NN ) -> if ( 0 <_ A , ( A ^c ( 1 / N ) ) , -u ( -u A ^c ( 1 / N ) ) ) e. RR ) $=
+    ( cr wcel cn wa cc0 cle wbr c1 cdiv co ccxp cneg simpl adantr simpr
+    nnrecred recxpcld wn renegcld 0red clt ltnled mpbird lt0neg1d mpbid ltled
+    ifclda )
+    ACDZBEDZFZGAHIZAJBKLZMLANZUNMLZNCULUMFAUNULUJUMUJUKOZPULUMQULUNCDZUMULBUJUKQZRZPSULUMTZFZUPVBUOUNVBAULUJVAUQPZUAZVBGUOVBUBZVDVBAGUCIZGUOUCIVBVFVAULVAQVBAGVCVEUDUEVBAVCUFUGUHULURVAUTPSUAUI $.
+
+  grootexp $p |- ( ( A e. RR /\ N e. NN /\ -. 2 || N ) -> ( if ( 0 <_ A , ( A ^c ( 1 / N ) ) , -u ( -u A ^c ( 1 / N ) ) ) ^ N ) = A ) $=
+    ( cr wcel cn c2 cdvds wbr wn w3a cc0 cle c1 cdiv co ccxp cneg cif cexp
+    wceq wa simpr iftrued oveq1d cc simp1 recnd simp2 cxproot syl2anc adantr
+    eqtrd iffalsed negcld nnrecred cxpcld simp3 oexpneg syl3anc negeqd 3eqtrd
+    negnegd pm2.61dan )
+    ACDZBEDZFBGHZIZJZKALHZVIAMBNOZPOZAQZVJPOZQZRZBSOZATVHVIUAZVPVKBSOZAVQVOVKBSVQVIVKVNVHVIUBUCUDVHVRATZVIVHAUEDZVEVSVHAVDVEVGUFZUGZVDVEVGUHZABUIUJUKULVHVIIZUAZVPVLQZAWEVPVNBSOZVMBSOZQZWFWEVOVNBSWEVIVKVNVHWDUBUMUDWEVMUEDVEVGWGWITWEVLVJWEAVHVTWDWBUKZUNZWEVJWEBVHVEWDWCUKZUOUGUPWLVHVGWDVDVEVGUQUKVMBURUSWEWHVLWEVLUEDVEWHVLTWKWLVLBUIUJUTVAWEAWJVBULVC $.
+
+  grootexpr $p |- ( ( A e. RR /\ N e. NN /\ -. 2 || N ) -> if ( 0 <_ ( A ^ N ) , ( ( A ^ N ) ^c ( 1 / N ) ) , -u ( -u ( A ^ N ) ^c ( 1 / N ) ) ) = A ) $=
+    ( cr wcel cn c2 cdvds wbr wn w3a cc0 cle cexp co c1 cdiv ccxp cneg cif
+    wceq wa simp1 adantr cn0 simp2 nnnn0d simpr expge0d iftrued oveq1d 0expd
+    eqtrd cc nnrecred recnd wne clt nnrecgt0 syl gt0ne0d 0cxpd eqcomd 3eqtrd
+    ne0gt0d wi cmul elrpd nnred cxpmuld nncnd nnne0d recidd oveq2d eqtr3d
+    rpcnd cxpexp syl2anc cxp1d 3eqtr3d ex mpd pm2.61dane cz renegcld nnzd
+    0red ltnled mpbird lt0neg1d mpbid expgt0 syl3anc simp3 oexpneg breqtrd
+    reexpcld iffalsed negeqd negnegd pm2.61dan )
+    ACDZBEDZFBGHZIZJZKALHZKABMNZLHZXGOBPNZQNZXGRZXIQNZRZSZATXEXFUAZXNXJAXOXHXJXMXOABXEXAXFXAXBXDUBZUCZXEBUDDZXFXEBXAXBXDUEZUFZUCXEXFUGZUHUIXOXJATZAKXOAKTZUAZXJKXIQNKAYDXGKXIQYDXGKBMNKYDAKBMXOYCUGZUJYDBXOXBYCXEXBXFXSUCUCUKULUJYDXIXOXIUMDZYCXEYFXFXEXIXEBXSUNZUOZUCUCXOXIKUPZYCXEYIXFXEXIXEXBKXIUQHXSBURUSUTUCUCVAYDAKYEVBVCXOAKUPZUAZKAUQHZYBYKAXOXAYJXQUCXOXFYJYAUCXOYJUGVDXOYLYBVEZYJXEYMXFXEYLYBXEYLUAZABQNZXIQNZAOQNZXJAYNABXIVFNZQNYPYQYNABXIYNAXEXAYLXPUCZXEYLUGZVGZXEBCDZYLXEBXSVHZUCXEYFYLYHUCVIYNYROAQXEYROTZYLXEBXEBXSVJZXEBXSVKZVLZUCVMVNYNYOXGXIQYNAUMDZXRYOXGTYNAUUAVOZXEXRYLXTUCABVPVQUJYNAUUIVRVSVTUCUCWAWBULXEXFIZUAZXNXMARZRAUUKXHXJXMUUKXGKUQHZXHIUUKUUMKXKUQHUUKKUULBMNZXKUQUUKUULCDBWCDZKUULUQHZKUUNUQHUUKAXEXAUUJXPUCZWDZXEUUOUUJXEBXSWEUCUUKAKUQHZUUPUUKUUSUUJXEUUJUGZUUKAKUUQUUKWFZWGZWHZUUKAUUQWIZWJZUULBWKWLUUKUUHXBXDUUNXKTZUUKAUUQUOZXEXBUUJXSUCZXEXDUUJXAXBXDWMZUCZABWNZWLZWOUUKXGUUKABUUQXEXRUUJXTUCZWPZWIWHUUKXGKUVNUVAWGWJWQUUKXLUULUUKXLUUNXIQNZUULUUKXKUUNXIQUUKUUNXKUVLVBUJUUKUULBQNZXIQNZUULOQNZUVOUULUUKUULYRQNUVQUVRUUKUULBXIUUKUULUURUVEVGZXEUUBUUJUUCUCXEYFUUJYHUCVIUUKYROUULQXEUUDUUJUUGUCVMVNUUKUVPUUNXIQUUKUULUMDXRUVPUUNTUUKUULUVSVOZUVMUULBVPVQUJUUKUULUVTVRVSULWRUUKAUVGWSVCWT $.
+
+  gcbrtpw $p |- ( ( A e. RR /\ 0 <_ A ) -> if ( 0 <_ A , ( A ^c ( 1 / 3 ) ) , -u ( -u A ^c ( 1 / 3 ) ) ) = ( A ^c ( 1 / 3 ) ) ) $=
+    ( c3 grootpw ) ABC $.
+
+  gcbrtre $p |- ( A e. RR -> if ( 0 <_ A , ( A ^c ( 1 / 3 ) ) , -u ( -u A ^c ( 1 / 3 ) ) ) e. RR ) $=
+    ( cr wcel c3 cn cc0 cle wbr c1 cdiv co ccxp cneg cif 3nn grootre mpan2 )
+    ABCDECFAGHAIDJKZLKAMRLKMNBCOADPQ $.
+
+  gcbrtexp $p |- ( A e. RR -> ( if ( 0 <_ A , ( A ^c ( 1 / 3 ) ) , -u ( -u A ^c ( 1 / 3 ) ) ) ^ 3 ) = A ) $=
+    ( cr wcel c3 cn c2 cdvds wbr wn cc0 cle c1 cdiv co ccxp cneg cif cexp
+    wceq 3nn n2dvds3 grootexp mp3an23 )
+    ABCDECFDGHIJAKHALDMNZONAPUDONPQDRNASTUAADUBUC $.
+
+  gcbrtcube $p |- ( A e. RR -> if ( 0 <_ ( A ^ 3 ) , ( ( A ^ 3 ) ^c ( 1 / 3 ) ) , -u ( -u ( A ^ 3 ) ^c ( 1 / 3 ) ) ) = A ) $=
+    ( cr wcel c3 cn c2 cdvds wbr wn cc0 cexp co cle c1 cdiv ccxp cneg cif
+    wceq 3nn n2dvds3 grootexpr mp3an23 )
+    ABCDECFDGHIJADKLZMHUDNDOLZPLUDQUEPLQRASTUAADUBUC $.
 
 $}
 

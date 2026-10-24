@@ -403,7 +403,8 @@ pattern writes `ⁿ`: the superscript record's `_ⁿ` reads x², N³ and 2¹⁰ 
 powers whose exponent is the numeral 2, 3 or 10. One record serves every such
 exponent, as one `<numeral>` serves every number. An exponent with a letter in
 it is written with `^`, as in 2^n: raised letters are not a complete alphabet,
-and a power would then have two spellings.
+and a power would then have two spellings. A raised numeral before √ is a
+root's index (Powers and roots).
 
 A run of letters is a `<word>` if one is declared and a `<name>` otherwise, which
 is decidable because juxtaposition never joins two bare names. Round brackets
@@ -575,6 +576,30 @@ stands for is the equations between neighbouring terms, joined from the
 left: the record's `repeats` line builds each further one with `_′`, the
 term before it. A chain is a whole sentence (`SYNTAX.md`); one inside
 another formula reads, and the checker reports it.
+
+### Powers and roots
+
+`x^y` is the power a reader means, and its exponent decides which. A whole
+exponent makes it a product of copies, set.mm's `↑`: `2^n`, `x^(k + 1)`,
+`5^φ(n)`. Any other makes it the principal power e^(y·ln x), set.mm's `↑𝑐`:
+`x^(1/3)`, or `2^y` for y ∈ ℝ. For x > 0 this is the real power every reader
+means: `x^(1/2)` is √x and `e^y` is exp(y). For x < 0 it is complex, so a fact
+about a real power states x ≥ 0 or x > 0, and the real cube root of a negative
+number is written `∛x`. An exponent is whole unless it shows otherwise: it
+holds a division, π, e, i or a root, a letter the lines above put in ℚ, ℝ or ℂ
+or in a set within one, or a function whose values they say are such numbers
+(ln, exp, sin, cos, or `f : X → ℝ`). A binder says the same of the letter it
+binds, so `for all y ∈ ℝ, 2^y > 0` is a real power. A letter inside a
+function's argument does not count, so `5^s(x)` with x ∈ ℚ is whole. The
+reading is settled when the line is read, as a sort is, and a later line
+proving the exponent whole does not change it.
+
+A root is written with its index raised before √, as `⁵√x`, and `∛x` and `∜x`
+are `³√x` and `⁴√x` written as one character. The index is a numeral of 3 or
+more, √ alone being the square root. A raised numeral before √ is always an
+index, so `2·⁵√x` writes its dot. For an odd index the root is the real root of
+every real number, `∛(−8) = −2`; for an even one a fact about it states x ≥ 0.
+A root whose index is a letter is written `x^(1/n)`, for x ≥ 0.
 
 ### What a parser needs besides this
 

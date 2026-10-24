@@ -120,6 +120,14 @@ mundane theorem exp-real
   metamath    reefcl
   target      reefcl
 
+mundane theorem e-power
+  let y ∈ ℂ                                                           (H1)
+  then        e^y = exp(y)
+  metamath    ecxp
+  target      ecxp
+  note        e to a power that is not whole is the principal power
+              (`GRAMMAR.md`), which is exp of the exponent.
+
 mundane theorem exp-positive
   let x ∈ ℝ                                                           (H1)
   then        exp(x) > 0

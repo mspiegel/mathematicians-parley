@@ -177,6 +177,60 @@ pub struct Notation {
     /// (`wanted`): the open interval is a reading of `(a, b)` only where a
     /// set is wanted, and the pair everywhere else.
     pub wanted: Option<String>,
+    /// Whether its node stands in place of a power's whose exponent is not
+    /// whole (`instead`), as the real power's does. Never read of its own:
+    /// a power read is made this one after the sentence is read
+    /// (`grammar::real_powers`).
+    pub instead: bool,
+    /// The methods its `decided` field names, which work it out of
+    /// numerals.
+    pub decided: Vec<String>,
+}
+
+/// The methods a record's `decided` field names, in order.
+pub fn decided_of(r: &Record) -> Vec<String> {
+    r.field_or_empty("decided")
+        .split(',')
+        .map(str::trim)
+        .filter(|m| !m.is_empty())
+        .map(String::from)
+        .collect()
+}
+
+/// Whether what a record says decides it is `real arithmetic` alone: a
+/// value such as π, √2 or ln(3), which `arithmetic` does not work out
+/// because no rational need be one. A power whose exponent holds one is not
+/// a whole power (`grammar::real_powers`).
+pub fn real_arithmetic_only(decided: &[String]) -> bool {
+    decided.iter().any(|m| m == "real arithmetic")
+        && !decided.iter().any(|m| m == "arithmetic")
+}
+
+/// What an `instead` field says. A power's exponent is the one thing the
+/// reader tells a reading apart by after the sentence is read, so it is the
+/// one thing the field may say.
+const INSTEAD: &str = "of power, where the exponent is not whole";
+
+/// Whether a record says its node stands in for a power's, or the problem
+/// with what its `instead` field says.
+fn instead_of(r: &Record) -> Checked<bool> {
+    let Some(said) = r.field("instead") else {
+        return Ok(false);
+    };
+    let said = str::trim(said);
+    if said == INSTEAD {
+        return Ok(true);
+    }
+    Err(Problem::new(
+        &r.path,
+        r.lines.get("instead").copied().unwrap_or(r.line),
+        format!(
+            "notation {}: `instead` says {}, and it may say only {}",
+            r.name,
+            crate::text::repr(said),
+            crate::text::repr(INSTEAD)
+        ),
+    ))
 }
 
 impl Notation {
@@ -537,6 +591,7 @@ pub fn compile_notations(
         };
         let binds = binding(r)?;
         let repeat = repeat_of(r)?;
+        let instead = instead_of(r)?;
         let (holes, yields) = categories(r, raw, binds.as_ref());
         // Only the last hole repeats, so every hole before it is the one its
         // place says.
@@ -664,6 +719,8 @@ pub fn compile_notations(
                 repeat: repeat.clone(),
                 shadowed: r.field("shadowed").is_some(),
                 wanted: r.field("wanted").map(|w| str::trim(w).to_string()),
+                instead,
+                decided: decided_of(r),
             });
         }
     }

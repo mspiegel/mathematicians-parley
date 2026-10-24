@@ -1,0 +1,296 @@
+# Real roots of odd index, for `proved.mm`.
+#
+# The page's ⁿ√x is the real n-th root: x^(1/n) where x ≥ 0, and
+# −((−x)^(1/n)) where x < 0, which set.mm writes with `if`. set.mm's power
+# x^c(1/n) is the principal one, which for a negative x is not real, so
+# the root is built from it on each side of 0. Where x ≥ 0 the root is
+# that power (`iftrue`); it is real for every real x (`recxpcl` on x or
+# on −x); for an odd n its n-th power gives x back (`cxproot`, and
+# `oexpneg` for a negative x); and the root of xⁿ is x, since xⁿ has x's
+# sign when n is odd, and (xⁿ)^(1/n) = x^(n·(1/n)) = x for x > 0
+# (`cxpmul`, `cxpexp`, `cxp1`), and 0 for x = 0 (`0exp`, `0cxp`).
+#
+# Each is proved for a letter index N, then said of the cube root, N = 3,
+# with `3nn` and `n2dvds3`: `gcbrtpw` for
+# `mun:stdlib/numbers/cube-root-as-power`, `gcbrtre` for
+# `mun:stdlib/numbers/cube-root-real`, `gcbrtexp` for
+# `mun:stdlib/numbers/cube-root-cubed`, and `gcbrtcube` for
+# `mun:stdlib/numbers/cube-root-of-cube`.
+
+$( Roots: the real N-th root of a real number, for an odd N, is real, is
+   the principal power ( 1 / N ) of a number at least 0, has N-th power
+   the number, and of an N-th power is the number; and so for the cube
+   root. $)
+
+# ( ( A e. RR /\ 0 <_ A ) -> R = ( A ^c ( 1 / N ) ) ), the root of a number
+# at least 0 its principal power.
+lemma grootpw
+  |- ( ( A e. RR /\ 0 <_ A ) -> if ( 0 <_ A , ( A ^c ( 1 / N ) ) , -u ( -u A ^c ( 1 / N ) ) ) = ( A
+      ^c ( 1 / N ) ) )
+  1 simpr |- ( ( A e. RR /\ 0 <_ A ) -> 0 <_ A )
+  2 iftrued 1 |- ( ( A e. RR /\ 0 <_ A ) -> if ( 0 <_ A , ( A ^c ( 1 / N ) ) , -u ( -u A ^c ( 1 / N
+      ) ) ) = ( A ^c ( 1 / N ) ) )
+
+# ( ( A e. RR /\ N e. NN ) -> R e. RR ), on each side of 0 by `recxpcl`.
+lemma grootre
+  |- ( ( A e. RR /\ N e. NN ) -> if ( 0 <_ A , ( A ^c ( 1 / N ) ) , -u ( -u A ^c ( 1 / N ) ) ) e. RR
+      )
+  1 simpl |- ( ( A e. RR /\ N e. NN ) -> A e. RR )
+  2 simpr |- ( ( A e. RR /\ N e. NN ) -> N e. NN )
+  3 nnrecred 2 |- ( ( A e. RR /\ N e. NN ) -> ( 1 / N ) e. RR )
+  4 adantr 1 |- ( ( ( A e. RR /\ N e. NN ) /\ 0 <_ A ) -> A e. RR )
+  5 simpr |- ( ( ( A e. RR /\ N e. NN ) /\ 0 <_ A ) -> 0 <_ A )
+  6 adantr 3 |- ( ( ( A e. RR /\ N e. NN ) /\ 0 <_ A ) -> ( 1 / N ) e. RR )
+  7 recxpcld 4 5 6 |- ( ( ( A e. RR /\ N e. NN ) /\ 0 <_ A ) -> ( A ^c ( 1 / N ) ) e. RR )
+  8 adantr 1 |- ( ( ( A e. RR /\ N e. NN ) /\ -. 0 <_ A ) -> A e. RR )
+  9 renegcld 8 |- ( ( ( A e. RR /\ N e. NN ) /\ -. 0 <_ A ) -> -u A e. RR )
+  10 simpr |- ( ( ( A e. RR /\ N e. NN ) /\ -. 0 <_ A ) -> -. 0 <_ A )
+  11 0red |- ( ( ( A e. RR /\ N e. NN ) /\ -. 0 <_ A ) -> 0 e. RR )
+  12 ltnled 8 11 |- ( ( ( A e. RR /\ N e. NN ) /\ -. 0 <_ A ) -> ( A < 0 <-> -. 0 <_ A ) )
+  13 mpbird 10 12 |- ( ( ( A e. RR /\ N e. NN ) /\ -. 0 <_ A ) -> A < 0 )
+  14 lt0neg1d 8 |- ( ( ( A e. RR /\ N e. NN ) /\ -. 0 <_ A ) -> ( A < 0 <-> 0 < -u A ) )
+  15 mpbid 13 14 |- ( ( ( A e. RR /\ N e. NN ) /\ -. 0 <_ A ) -> 0 < -u A )
+  16 ltled 11 9 15 |- ( ( ( A e. RR /\ N e. NN ) /\ -. 0 <_ A ) -> 0 <_ -u A )
+  17 adantr 3 |- ( ( ( A e. RR /\ N e. NN ) /\ -. 0 <_ A ) -> ( 1 / N ) e. RR )
+  18 recxpcld 9 16 17 |- ( ( ( A e. RR /\ N e. NN ) /\ -. 0 <_ A ) -> ( -u A ^c ( 1 / N ) ) e. RR )
+  19 renegcld 18 |- ( ( ( A e. RR /\ N e. NN ) /\ -. 0 <_ A ) -> -u ( -u A ^c ( 1 / N ) ) e. RR )
+  20 ifclda 7 19 |- ( ( A e. RR /\ N e. NN ) -> if ( 0 <_ A , ( A ^c ( 1 / N ) ) , -u ( -u A ^c ( 1
+      / N ) ) ) e. RR )
+
+# ( ( A e. RR /\ N e. NN /\ -. 2 || N ) -> ( R ^ N ) = A ), by `cxproot`
+# on A or on -u A, and `oexpneg` to bring the sign out of an odd power.
+lemma grootexp
+  |- ( ( A e. RR /\ N e. NN /\ -. 2 || N ) -> ( if ( 0 <_ A , ( A ^c ( 1 / N ) ) , -u ( -u A ^c ( 1
+      / N ) ) ) ^ N ) = A )
+  1 simp1 |- ( ( A e. RR /\ N e. NN /\ -. 2 || N ) -> A e. RR )
+  2 simp2 |- ( ( A e. RR /\ N e. NN /\ -. 2 || N ) -> N e. NN )
+  3 simp3 |- ( ( A e. RR /\ N e. NN /\ -. 2 || N ) -> -. 2 || N )
+  4 simpr |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 <_ A ) -> 0 <_ A )
+  5 iftrued 4 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 <_ A ) -> if ( 0 <_ A , ( A ^c ( 1 / N
+      ) ) , -u ( -u A ^c ( 1 / N ) ) ) = ( A ^c ( 1 / N ) ) )
+  6 oveq1d 5 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 <_ A ) -> ( if ( 0 <_ A , ( A ^c ( 1 /
+      N ) ) , -u ( -u A ^c ( 1 / N ) ) ) ^ N ) = ( ( A ^c ( 1 / N ) ) ^ N ) )
+  7 recnd 1 |- ( ( A e. RR /\ N e. NN /\ -. 2 || N ) -> A e. CC )
+  8 cxproot |- ( ( A e. CC /\ N e. NN ) -> ( ( A ^c ( 1 / N ) ) ^ N ) = A )
+  9 syl2anc 7 2 8 |- ( ( A e. RR /\ N e. NN /\ -. 2 || N ) -> ( ( A ^c ( 1 / N ) ) ^ N ) = A )
+  10 adantr 9 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 <_ A ) -> ( ( A ^c ( 1 / N ) ) ^ N ) =
+      A )
+  11 eqtrd 6 10 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 <_ A ) -> ( if ( 0 <_ A , ( A ^c ( 1
+      / N ) ) , -u ( -u A ^c ( 1 / N ) ) ) ^ N ) = A )
+  12 simpr |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> -. 0 <_ A )
+  13 iffalsed 12 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> if ( 0 <_ A , ( A ^c (
+      1 / N ) ) , -u ( -u A ^c ( 1 / N ) ) ) = -u ( -u A ^c ( 1 / N ) ) )
+  14 oveq1d 13 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> ( if ( 0 <_ A , ( A ^c (
+      1 / N ) ) , -u ( -u A ^c ( 1 / N ) ) ) ^ N ) = ( -u ( -u A ^c ( 1 / N ) ) ^ N ) )
+  15 adantr 7 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> A e. CC )
+  16 negcld 15 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> -u A e. CC )
+  17 adantr 2 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> N e. NN )
+  18 nnrecred 17 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> ( 1 / N ) e. RR )
+  19 recnd 18 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> ( 1 / N ) e. CC )
+  20 cxpcld 16 19 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> ( -u A ^c ( 1 / N ) )
+      e. CC )
+  21 adantr 3 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> -. 2 || N )
+  22 oexpneg |- ( ( ( -u A ^c ( 1 / N ) ) e. CC /\ N e. NN /\ -. 2 || N ) -> ( -u ( -u A ^c ( 1 / N
+      ) ) ^ N ) = -u ( ( -u A ^c ( 1 / N ) ) ^ N ) )
+  23 syl3anc 20 17 21 22 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> ( -u ( -u A ^c
+      ( 1 / N ) ) ^ N ) = -u ( ( -u A ^c ( 1 / N ) ) ^ N ) )
+  24 cxproot |- ( ( -u A e. CC /\ N e. NN ) -> ( ( -u A ^c ( 1 / N ) ) ^ N ) = -u A )
+  25 syl2anc 16 17 24 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> ( ( -u A ^c ( 1 /
+      N ) ) ^ N ) = -u A )
+  26 negeqd 25 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> -u ( ( -u A ^c ( 1 / N )
+      ) ^ N ) = -u -u A )
+  27 negnegd 15 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> -u -u A = A )
+  28 3eqtrd 14 23 26 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> ( if ( 0 <_ A , (
+      A ^c ( 1 / N ) ) , -u ( -u A ^c ( 1 / N ) ) ) ^ N ) = -u -u A )
+  29 eqtrd 28 27 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> ( if ( 0 <_ A , ( A ^c
+      ( 1 / N ) ) , -u ( -u A ^c ( 1 / N ) ) ) ^ N ) = A )
+  30 pm2.61dan 11 29 |- ( ( A e. RR /\ N e. NN /\ -. 2 || N ) -> ( if ( 0 <_ A , ( A ^c ( 1 / N ) )
+      , -u ( -u A ^c ( 1 / N ) ) ) ^ N ) = A )
+
+# ( ( A e. RR /\ N e. NN /\ -. 2 || N ) -> R[ ( A ^ N ) ] = A ). Where
+# 0 <_ A, ( A ^ N ) is at least 0, and its power ( 1 / N ) is A: by
+# `cxpmul`, `cxpexp` and `cxp1` for A > 0, and `0exp` and `0cxp` for A = 0.
+# Where A < 0, ( A ^ N ) = -u ( -u A ^ N ) is below 0, and the same holds
+# of -u A > 0.
+lemma grootexpr
+  |- ( ( A e. RR /\ N e. NN /\ -. 2 || N ) -> if ( 0 <_ ( A ^ N ) , ( ( A ^ N ) ^c ( 1 / N ) ) , -u
+      ( -u ( A ^ N ) ^c ( 1 / N ) ) ) = A )
+  1 simp1 |- ( ( A e. RR /\ N e. NN /\ -. 2 || N ) -> A e. RR )
+  2 simp2 |- ( ( A e. RR /\ N e. NN /\ -. 2 || N ) -> N e. NN )
+  3 simp3 |- ( ( A e. RR /\ N e. NN /\ -. 2 || N ) -> -. 2 || N )
+  4 nnrecred 2 |- ( ( A e. RR /\ N e. NN /\ -. 2 || N ) -> ( 1 / N ) e. RR )
+  5 recnd 4 |- ( ( A e. RR /\ N e. NN /\ -. 2 || N ) -> ( 1 / N ) e. CC )
+  6 nnrecgt0 |- ( N e. NN -> 0 < ( 1 / N ) )
+  7 syl 2 6 |- ( ( A e. RR /\ N e. NN /\ -. 2 || N ) -> 0 < ( 1 / N ) )
+  8 gt0ne0d 7 |- ( ( A e. RR /\ N e. NN /\ -. 2 || N ) -> ( 1 / N ) =/= 0 )
+  9 nnnn0d 2 |- ( ( A e. RR /\ N e. NN /\ -. 2 || N ) -> N e. NN0 )
+  10 nnred 2 |- ( ( A e. RR /\ N e. NN /\ -. 2 || N ) -> N e. RR )
+  11 nncnd 2 |- ( ( A e. RR /\ N e. NN /\ -. 2 || N ) -> N e. CC )
+  12 nnne0d 2 |- ( ( A e. RR /\ N e. NN /\ -. 2 || N ) -> N =/= 0 )
+  13 recidd 11 12 |- ( ( A e. RR /\ N e. NN /\ -. 2 || N ) -> ( N x. ( 1 / N ) ) = 1 )
+  14 nnzd 2 |- ( ( A e. RR /\ N e. NN /\ -. 2 || N ) -> N e. ZZ )
+  15 simpr |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 <_ A ) -> 0 <_ A )
+  16 adantr 1 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 <_ A ) -> A e. RR )
+  17 adantr 9 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 <_ A ) -> N e. NN0 )
+  18 expge0d 16 17 15 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 <_ A ) -> 0 <_ ( A ^ N ) )
+  19 iftrued 18 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 <_ A ) -> if ( 0 <_ ( A ^ N ) , ( (
+      A ^ N ) ^c ( 1 / N ) ) , -u ( -u ( A ^ N ) ^c ( 1 / N ) ) ) = ( ( A ^ N ) ^c ( 1 / N ) ) )
+  20 simpr |- ( ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 <_ A ) /\ A = 0 ) -> A = 0 )
+  21 oveq1d 20 |- ( ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 <_ A ) /\ A = 0 ) -> ( A ^ N ) = (
+      0 ^ N ) )
+  22 adantr 2 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 <_ A ) -> N e. NN )
+  23 adantr 22 |- ( ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 <_ A ) /\ A = 0 ) -> N e. NN )
+  24 0expd 23 |- ( ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 <_ A ) /\ A = 0 ) -> ( 0 ^ N ) = 0 )
+  25 eqtrd 21 24 |- ( ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 <_ A ) /\ A = 0 ) -> ( A ^ N ) =
+      0 )
+  26 oveq1d 25 |- ( ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 <_ A ) /\ A = 0 ) -> ( ( A ^ N ) ^c
+      ( 1 / N ) ) = ( 0 ^c ( 1 / N ) ) )
+  27 adantr 5 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 <_ A ) -> ( 1 / N ) e. CC )
+  28 adantr 27 |- ( ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 <_ A ) /\ A = 0 ) -> ( 1 / N ) e.
+      CC )
+  29 adantr 8 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 <_ A ) -> ( 1 / N ) =/= 0 )
+  30 adantr 29 |- ( ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 <_ A ) /\ A = 0 ) -> ( 1 / N ) =/=
+      0 )
+  31 0cxpd 28 30 |- ( ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 <_ A ) /\ A = 0 ) -> ( 0 ^c ( 1 /
+      N ) ) = 0 )
+  32 eqcomd 20 |- ( ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 <_ A ) /\ A = 0 ) -> 0 = A )
+  33 3eqtrd 26 31 32 |- ( ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 <_ A ) /\ A = 0 ) -> ( ( A ^
+      N ) ^c ( 1 / N ) ) = A )
+  34 adantr 16 |- ( ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 <_ A ) /\ A =/= 0 ) -> A e. RR )
+  35 adantr 15 |- ( ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 <_ A ) /\ A =/= 0 ) -> 0 <_ A )
+  36 simpr |- ( ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 <_ A ) /\ A =/= 0 ) -> A =/= 0 )
+  37 ne0gt0d 34 35 36 |- ( ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 <_ A ) /\ A =/= 0 ) -> 0 < A
+      )
+  38 simpr |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 < A ) -> 0 < A )
+  39 adantr 1 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 < A ) -> A e. RR )
+  40 elrpd 39 38 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 < A ) -> A e. RR+ )
+  41 adantr 10 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 < A ) -> N e. RR )
+  42 adantr 5 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 < A ) -> ( 1 / N ) e. CC )
+  43 cxpmuld 40 41 42 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 < A ) -> ( A ^c ( N x. ( 1 / N
+      ) ) ) = ( ( A ^c N ) ^c ( 1 / N ) ) )
+  44 adantr 13 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 < A ) -> ( N x. ( 1 / N ) ) = 1 )
+  45 oveq2d 44 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 < A ) -> ( A ^c ( N x. ( 1 / N ) ) )
+      = ( A ^c 1 ) )
+  46 eqtr3d 43 45 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 < A ) -> ( ( A ^c N ) ^c ( 1 / N )
+      ) = ( A ^c 1 ) )
+  47 rpcnd 40 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 < A ) -> A e. CC )
+  48 adantr 9 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 < A ) -> N e. NN0 )
+  49 cxpexp |- ( ( A e. CC /\ N e. NN0 ) -> ( A ^c N ) = ( A ^ N ) )
+  50 syl2anc 47 48 49 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 < A ) -> ( A ^c N ) = ( A ^ N
+      ) )
+  51 oveq1d 50 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 < A ) -> ( ( A ^c N ) ^c ( 1 / N ) )
+      = ( ( A ^ N ) ^c ( 1 / N ) ) )
+  52 cxp1d 47 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 < A ) -> ( A ^c 1 ) = A )
+  53 3eqtr3d 46 51 52 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 < A ) -> ( ( A ^ N ) ^c ( 1 /
+      N ) ) = A )
+  54 ex 53 |- ( ( A e. RR /\ N e. NN /\ -. 2 || N ) -> ( 0 < A -> ( ( A ^ N ) ^c ( 1 / N ) ) = A ) )
+  55 adantr 54 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 <_ A ) -> ( 0 < A -> ( ( A ^ N ) ^c (
+      1 / N ) ) = A ) )
+  56 adantr 55 |- ( ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 <_ A ) /\ A =/= 0 ) -> ( 0 < A -> (
+      ( A ^ N ) ^c ( 1 / N ) ) = A ) )
+  57 mpd 37 56 |- ( ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 <_ A ) /\ A =/= 0 ) -> ( ( A ^ N )
+      ^c ( 1 / N ) ) = A )
+  58 pm2.61dane 33 57 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 <_ A ) -> ( ( A ^ N ) ^c ( 1 /
+      N ) ) = A )
+  59 eqtrd 19 58 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ 0 <_ A ) -> if ( 0 <_ ( A ^ N ) , ( (
+      A ^ N ) ^c ( 1 / N ) ) , -u ( -u ( A ^ N ) ^c ( 1 / N ) ) ) = A )
+  60 simpr |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> -. 0 <_ A )
+  61 adantr 1 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> A e. RR )
+  62 0red |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> 0 e. RR )
+  63 ltnled 61 62 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> ( A < 0 <-> -. 0 <_ A
+      ) )
+  64 mpbird 60 63 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> A < 0 )
+  65 lt0neg1d 61 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> ( A < 0 <-> 0 < -u A )
+      )
+  66 mpbid 64 65 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> 0 < -u A )
+  67 renegcld 61 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> -u A e. RR )
+  68 adantr 14 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> N e. ZZ )
+  69 expgt0 |- ( ( -u A e. RR /\ N e. ZZ /\ 0 < -u A ) -> 0 < ( -u A ^ N ) )
+  70 syl3anc 67 68 66 69 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> 0 < ( -u A ^ N
+      ) )
+  71 recnd 61 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> A e. CC )
+  72 adantr 2 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> N e. NN )
+  73 adantr 3 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> -. 2 || N )
+  74 oexpneg |- ( ( A e. CC /\ N e. NN /\ -. 2 || N ) -> ( -u A ^ N ) = -u ( A ^ N ) )
+  75 syl3anc 71 72 73 74 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> ( -u A ^ N ) =
+      -u ( A ^ N ) )
+  76 breqtrd 70 75 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> 0 < -u ( A ^ N ) )
+  77 adantr 9 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> N e. NN0 )
+  78 reexpcld 61 77 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> ( A ^ N ) e. RR )
+  79 lt0neg1d 78 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> ( ( A ^ N ) < 0 <-> 0
+      < -u ( A ^ N ) ) )
+  80 mpbird 76 79 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> ( A ^ N ) < 0 )
+  81 ltnled 78 62 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> ( ( A ^ N ) < 0 <->
+      -. 0 <_ ( A ^ N ) ) )
+  82 mpbid 80 81 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> -. 0 <_ ( A ^ N ) )
+  83 iffalsed 82 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> if ( 0 <_ ( A ^ N ) ,
+      ( ( A ^ N ) ^c ( 1 / N ) ) , -u ( -u ( A ^ N ) ^c ( 1 / N ) ) ) = -u ( -u ( A ^ N ) ^c ( 1 / N
+      ) ) )
+  84 eqcomd 75 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> -u ( A ^ N ) = ( -u A ^
+      N ) )
+  85 oveq1d 84 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> ( -u ( A ^ N ) ^c ( 1 /
+      N ) ) = ( ( -u A ^ N ) ^c ( 1 / N ) ) )
+  86 elrpd 67 66 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> -u A e. RR+ )
+  87 adantr 10 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> N e. RR )
+  88 adantr 5 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> ( 1 / N ) e. CC )
+  89 cxpmuld 86 87 88 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> ( -u A ^c ( N x.
+      ( 1 / N ) ) ) = ( ( -u A ^c N ) ^c ( 1 / N ) ) )
+  90 adantr 13 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> ( N x. ( 1 / N ) ) = 1 )
+  91 oveq2d 90 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> ( -u A ^c ( N x. ( 1 / N
+      ) ) ) = ( -u A ^c 1 ) )
+  92 eqtr3d 89 91 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> ( ( -u A ^c N ) ^c (
+      1 / N ) ) = ( -u A ^c 1 ) )
+  93 rpcnd 86 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> -u A e. CC )
+  94 cxpexp |- ( ( -u A e. CC /\ N e. NN0 ) -> ( -u A ^c N ) = ( -u A ^ N ) )
+  95 syl2anc 93 77 94 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> ( -u A ^c N ) = (
+      -u A ^ N ) )
+  96 oveq1d 95 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> ( ( -u A ^c N ) ^c ( 1 /
+      N ) ) = ( ( -u A ^ N ) ^c ( 1 / N ) ) )
+  97 cxp1d 93 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> ( -u A ^c 1 ) = -u A )
+  98 3eqtr3d 92 96 97 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> ( ( -u A ^ N ) ^c
+      ( 1 / N ) ) = -u A )
+  99 eqtrd 85 98 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> ( -u ( A ^ N ) ^c ( 1
+      / N ) ) = -u A )
+  100 negeqd 99 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> -u ( -u ( A ^ N ) ^c (
+      1 / N ) ) = -u -u A )
+  101 negnegd 71 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> -u -u A = A )
+  102 3eqtrd 83 100 101 |- ( ( ( A e. RR /\ N e. NN /\ -. 2 || N ) /\ -. 0 <_ A ) -> if ( 0 <_ ( A ^
+      N ) , ( ( A ^ N ) ^c ( 1 / N ) ) , -u ( -u ( A ^ N ) ^c ( 1 / N ) ) ) = A )
+  103 pm2.61dan 59 102 |- ( ( A e. RR /\ N e. NN /\ -. 2 || N ) -> if ( 0 <_ ( A ^ N ) , ( ( A ^ N )
+      ^c ( 1 / N ) ) , -u ( -u ( A ^ N ) ^c ( 1 / N ) ) ) = A )
+
+# `grootpw` of the cube root (for `mun:stdlib/numbers/cube-root-as-power`).
+lemma gcbrtpw
+  |- ( ( A e. RR /\ 0 <_ A ) -> if ( 0 <_ A , ( A ^c ( 1 / 3 ) ) , -u ( -u A ^c ( 1 / 3 ) ) ) = ( A
+      ^c ( 1 / 3 ) ) )
+  1 grootpw |- ( ( A e. RR /\ 0 <_ A ) -> if ( 0 <_ A , ( A ^c ( 1 / 3 ) ) , -u ( -u A ^c ( 1 / 3 )
+      ) ) = ( A ^c ( 1 / 3 ) ) )
+
+# `grootre` of the cube root (for `mun:stdlib/numbers/cube-root-real`).
+lemma gcbrtre
+  |- ( A e. RR -> if ( 0 <_ A , ( A ^c ( 1 / 3 ) ) , -u ( -u A ^c ( 1 / 3 ) ) ) e. RR )
+  1 3nn |- 3 e. NN
+  2 grootre |- ( ( A e. RR /\ 3 e. NN ) -> if ( 0 <_ A , ( A ^c ( 1 / 3 ) ) , -u ( -u A ^c ( 1 / 3 )
+      ) ) e. RR )
+  3 mpan2 1 2 |- ( A e. RR -> if ( 0 <_ A , ( A ^c ( 1 / 3 ) ) , -u ( -u A ^c ( 1 / 3 ) ) ) e. RR )
+
+# `grootexp` of the cube root (for `mun:stdlib/numbers/cube-root-cubed`).
+lemma gcbrtexp
+  |- ( A e. RR -> ( if ( 0 <_ A , ( A ^c ( 1 / 3 ) ) , -u ( -u A ^c ( 1 / 3 ) ) ) ^ 3 ) = A )
+  1 3nn |- 3 e. NN
+  2 n2dvds3 |- -. 2 || 3
+  3 grootexp |- ( ( A e. RR /\ 3 e. NN /\ -. 2 || 3 ) -> ( if ( 0 <_ A , ( A ^c ( 1 / 3 ) ) , -u (
+      -u A ^c ( 1 / 3 ) ) ) ^ 3 ) = A )
+  4 mp3an23 1 2 3 |- ( A e. RR -> ( if ( 0 <_ A , ( A ^c ( 1 / 3 ) ) , -u ( -u A ^c ( 1 / 3 ) ) ) ^
+      3 ) = A )
+
+# `grootexpr` of the cube root (for `mun:stdlib/numbers/cube-root-of-cube`).
+lemma gcbrtcube
+  |- ( A e. RR -> if ( 0 <_ ( A ^ 3 ) , ( ( A ^ 3 ) ^c ( 1 / 3 ) ) , -u ( -u ( A ^ 3 ) ^c ( 1 / 3 )
+      ) ) = A )
+  1 3nn |- 3 e. NN
+  2 n2dvds3 |- -. 2 || 3
+  3 grootexpr |- ( ( A e. RR /\ 3 e. NN /\ -. 2 || 3 ) -> if ( 0 <_ ( A ^ 3 ) , ( ( A ^ 3 ) ^c ( 1 /
+      3 ) ) , -u ( -u ( A ^ 3 ) ^c ( 1 / 3 ) ) ) = A )
+  4 mp3an23 1 2 3 |- ( A e. RR -> if ( 0 <_ ( A ^ 3 ) , ( ( A ^ 3 ) ^c ( 1 / 3 ) ) , -u ( -u ( A ^ 3
+      ) ^c ( 1 / 3 ) ) ) = A )

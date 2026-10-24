@@ -2531,7 +2531,13 @@ impl DefinedRule {
         let [param] = one.params.as_slice() else {
             return Ok(None);
         };
-        let local = crate::sorts::define_sorts(&one, &known.sorts);
+        let local = crate::sorts::define_sorts(
+            &one,
+            &known.sorts,
+            known.env.g,
+            &d.path,
+            d.line,
+        )?;
         let rule = d.rule(&one.body).formula()?.read(known.env.g, &local)?;
         let domain = known.parse(&d.domain(param).formula()?)?;
         Ok(Some(DefinedRule {

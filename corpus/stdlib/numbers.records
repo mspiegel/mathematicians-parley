@@ -362,6 +362,104 @@ mundane theorem power-nat
   metamath    nnexpcl
   target      nnexpcl
 
+mundane theorem real-power-complex
+  let x ∈ ℂ                                                           (H1)
+  let y ∈ ℂ                                                           (H2)
+  then        x^y ∈ ℂ
+  metamath    cxpcl
+  target      cxpcl
+  note        A power whose exponent is not whole is the principal power
+              (`GRAMMAR.md`), here and in the items after it.
+
+mundane theorem real-power-real
+  let x ∈ ℝ                                                           (H1)
+  assume x ≥ 0                                                        (H2)
+  let y ∈ ℝ                                                           (H3)
+  then        x^y ∈ ℝ
+  metamath    recxpcl
+  target      recxpcl
+
+mundane theorem real-power-nonneg
+  let x ∈ ℝ                                                           (H1)
+  assume x ≥ 0                                                        (H2)
+  let y ∈ ℝ                                                           (H3)
+  then        x^y ≥ 0
+  metamath    cxpge0
+  target      cxpge0
+
+mundane theorem real-power-positive
+  let x ∈ ℝ                                                           (H1)
+  assume x > 0                                                        (H2)
+  let y ∈ ℝ                                                           (H3)
+  then        x^y > 0
+  metamath    gcxpgt0, which this corpus proves in elaboration/stdlib/proved.mm
+              from cxpgt0d
+  target      gcxpgt0
+
+mundane theorem real-power-sum
+  let x ∈ ℂ                                                           (H1)
+  assume x ≠ 0                                                        (H2)
+  let a ∈ ℂ                                                           (H3)
+  let b ∈ ℂ                                                           (H4)
+  then        x^(a + b) = x^a·x^b
+  metamath    cxpadd
+  target      cxpadd
+
+mundane theorem real-power-of-power
+  let x ∈ ℝ                                                           (H1)
+  assume x > 0                                                        (H2)
+  let a ∈ ℝ                                                           (H3)
+  let b ∈ ℂ                                                           (H4)
+  then        x^(a·b) = (x^a)^b
+  metamath    cxpmul
+  target      cxpmul
+
+mundane theorem root-power
+  let x ∈ ℂ                                                           (H1)
+  let n ∈ ℕ                                                           (H2)
+  then        (x^(1/n))^n = x
+  metamath    cxproot
+  target      cxproot
+  note        The principal n-th root of x, raised to the n-th power, which
+              is a whole power.
+
+mundane theorem half-power
+  let x ∈ ℂ                                                           (H1)
+  then        x^(1/2) = √x
+  metamath    cxpsqrt
+  target      cxpsqrt
+
+mundane theorem cube-root-real
+  let x ∈ ℝ                                                           (H1)
+  then        ∛x ∈ ℝ
+  metamath    gcbrtre, which this corpus proves in elaboration/stdlib/proved.mm
+              from grootre, the real root of any odd index
+  target      gcbrtre
+
+mundane theorem cube-root-cubed
+  let x ∈ ℝ                                                           (H1)
+  then        (∛x)³ = x
+  metamath    gcbrtexp, which this corpus proves in elaboration/stdlib/proved.mm
+              from grootexp, by cxproot and oexpneg
+  target      gcbrtexp
+
+mundane theorem cube-root-of-cube
+  let x ∈ ℝ                                                           (H1)
+  then        ∛(x³) = x
+  metamath    gcbrtcube, which this corpus proves in elaboration/stdlib/proved.mm
+              from grootexpr
+  target      gcbrtcube
+
+mundane theorem cube-root-as-power
+  let x ∈ ℝ                                                           (H1)
+  assume x ≥ 0                                                        (H2)
+  then        ∛x = x^(1/3)
+  metamath    gcbrtpw, which this corpus proves in elaboration/stdlib/proved.mm
+              from grootpw
+  target      gcbrtpw
+  note        Where x ≥ 0 the real root and the principal power are one; below
+              0 they differ, ∛(−8) being −2 and (−8)^(1/3) not real.
+
 mundane axiom trichotomy
   let x ∈ ℝ                                                           (H1)
   then        x < 0 or x = 0 or 0 < x

@@ -18,6 +18,7 @@ use super::token::{lowered, tokenise, Token, TokenKind};
 use crate::corpus::Record;
 use crate::outcome::{Built, Checked, Decline, Declined, Problem, Route};
 use crate::sorts::infer::{function_sort, signature, NotationSorts};
+use crate::sorts::powers::ROOT_SIGN;
 use crate::sorts::NUMBER_SYSTEMS;
 use crate::text::repr;
 
@@ -41,6 +42,11 @@ pub struct Sorts {
     /// The library functions in scope: those the file imports, or every one
     /// in the library's own records.
     pub imported: IndexSet<String>,
+    /// Names the lines put among numbers that need not be whole: a number
+    /// in ℚ, ℝ or ℂ, or in a set within one of them; such a set; and a
+    /// function whose values are such numbers. A power whose exponent holds
+    /// one is a real power (`real_powers`).
+    pub reals: IndexSet<String>,
 }
 
 impl Sorts {
@@ -76,6 +82,7 @@ impl FromIterator<(String, Sort)> for Sorts {
             ranges: IndexMap::new(),
             unsettled: IndexSet::new(),
             imported: IndexSet::new(),
+            reals: IndexSet::new(),
         }
     }
 }
@@ -95,6 +102,7 @@ type ReadingKey = (
     String,
     Vec<Option<Sort>>,
     Vec<Option<String>>,
+    Vec<bool>,
     Vec<bool>,
     Vec<bool>,
 );
@@ -303,7 +311,11 @@ fn reading(text: &str, tokens: &[Token], sorts: &Sorts) -> ReadingKey {
         .iter()
         .map(|name| sorts.imported.contains(*name))
         .collect();
-    (text.to_string(), said, ranges, unsettled, imported)
+    let reals = seen
+        .iter()
+        .map(|name| sorts.reals.contains(*name))
+        .collect();
+    (text.to_string(), said, ranges, unsettled, imported, reals)
 }
 
 /// The sorts a term may have to fill any hole: every sort of a term.
@@ -531,7 +543,7 @@ fn read(
             ),
         )));
     }
-    Ok(node)
+    Ok(crate::sorts::powers::settled(&node, g, &local, path, line)?)
 }
 
 /// The word of three letters or more that the character at `at` of `text`
@@ -1048,6 +1060,12 @@ impl<'a> Parser<'a> {
 
     /// `peek` for as long as the tokens live, so that what a message says
     /// of the token may be said after the parser is borrowed again.
+    /// Whether the token here is a raised numeral standing before √, which
+    /// makes it a root's index.
+    fn indexes_a_root(&self) -> bool {
+        self.t.get(self.i + 1).is_some_and(|t| t.text == ROOT_SIGN)
+    }
+
     fn here(&self) -> Option<&'a Token> {
         self.t.get(self.i)
     }
@@ -1209,12 +1227,19 @@ impl<'a> Parser<'a> {
         let g = self.g;
         let introduced =
             tok.kind == TokenKind::Name && self.sorts.introduces(&tok.text);
+        // A raised numeral opens a pattern that starts with one: a root's
+        // index, the 5 of ⁵√x.
+        let raised = tok.kind == TokenKind::Raised;
         let cands: Vec<&Notation> = g
             .notations
             .iter()
             .filter(|n| {
-                n.parts.first().and_then(Part::literal) == Some(tok.text.as_str())
-                    && !(introduced && n.shadowed)
+                let opens = if raised {
+                    matches!(n.parts.first(), Some(Part::Raised))
+                } else {
+                    n.parts.first().and_then(Part::literal) == Some(tok.text.as_str())
+                };
+                opens && !(introduced && n.shadowed)
             })
             .collect();
         if tok.kind == TokenKind::Name {
@@ -1389,8 +1414,10 @@ impl<'a> Parser<'a> {
                         continue;
                     }
                 }
+                // A raised numeral before √ is the root's index and never an
+                // exponent: ⁵√x is the fifth root, and 2·⁵√x writes its dot.
                 Part::Raised => {
-                    if tok.kind != TokenKind::Raised {
+                    if tok.kind != TokenKind::Raised || self.indexes_a_root() {
                         continue;
                     }
                 }
@@ -1510,10 +1537,11 @@ impl<'a> Parser<'a> {
     /// reading; two do and the text is ambiguous, which is a defect.
     fn apply(&mut self, cands: &[&Notation], left: Option<&Node>) -> Reading {
         // A notation read only where a hole wants it is reached from the
-        // hole (`wanted_reading`), never on its own.
+        // hole (`wanted_reading`), never on its own, and one standing in for
+        // a power is made from the power read (`real_powers`).
         let cands: Vec<&Notation> = cands
             .iter()
-            .filter(|n| n.wanted.is_none())
+            .filter(|n| n.wanted.is_none() && !n.instead)
             .copied()
             .collect();
         let cands = cands.as_slice();

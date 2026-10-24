@@ -23,6 +23,7 @@ use crate::corpus::{
 };
 pub(crate) mod infer;
 pub mod introduction;
+pub mod powers;
 
 use crate::formula::notation_id::NotationId;
 use crate::formula::page::{tokens, Written};
@@ -282,8 +283,11 @@ fn defines_into<'d>(
         let Built(DefineParts::One(said)) = define_parts(&d.text) else {
             continue;
         };
-        let local = define_sorts(&said, sorts);
-        // A rule that does not read is `check_formulas`'s to report.
+        // A rule or a domain that does not read is `check_formulas`'s to
+        // report.
+        let Ok(local) = define_sorts(&said, sorts, env.g, &d.path, d.line) else {
+            continue;
+        };
         let read = d.rule(&said.body).formula();
         let Ok((body, params)) = read
             .and_then(|s| s.read(env.g, &local))
@@ -467,7 +471,7 @@ fn written_definition(
     };
     let inner = written_definitions(src, d.line, env, seen);
     let outer = definition_sorts(&inner);
-    let local = define_sorts(said, &outer);
+    let local = define_sorts(said, &outer, env.g, &d.path, d.line)?;
     let body = d.rule(&said.body).formula()?.read(env.g, &local)?;
     let params = params_read(d, said, &local, &outer, env)?;
     let body = expand(&body, &inner);
@@ -559,8 +563,16 @@ pub fn element_sort(domain: &str, sorts: &Sorts) -> Sort {
 }
 
 /// The sorts a define's rule is read with: `sorts`, and for a function each
-/// argument as what its domain holds.
-pub fn define_sorts(said: &crate::corpus::Define, sorts: &Sorts) -> Sorts {
+/// argument as what its domain holds, among numbers that need not be whole
+/// where its domain is (`Sorts::reals`). The define is the one at `line` of
+/// `path`, where a domain that does not read is a defect.
+pub fn define_sorts(
+    said: &crate::corpus::Define,
+    sorts: &Sorts,
+    g: &Grammar,
+    path: &str,
+    line: usize,
+) -> Checked<Sorts> {
     let mut out = sorts.clone();
     for p in &said.params {
         let held = p
@@ -568,8 +580,15 @@ pub fn define_sorts(said: &crate::corpus::Define, sorts: &Sorts) -> Sorts {
             .map(|d| element_sort(d, sorts))
             .unwrap_or_default();
         out.insert(p.name.clone(), held);
+        out.reals.shift_remove(&p.name);
+        if p.member_of().is_some() {
+            let domain = p.domain_written(path, line).formula()?.read(g, sorts)?;
+            if powers::needs_not_be_whole(&domain, &|name| sorts.reals.contains(name)) {
+                out.reals.insert(p.name.clone());
+            }
+        }
     }
-    out
+    Ok(out)
 }
 
 /// The sort of every name an item's own lines settle.
@@ -640,6 +659,7 @@ pub fn cited_statement(thm: &Theorem, env: Env) -> CitedStatement {
     }
     sorts.ranges = own.ranges;
     sorts.imported = own.imported;
+    sorts.reals = own.reals;
     CitedStatement { definitions, sorts }
 }
 
@@ -667,6 +687,7 @@ pub fn settled(reader: &infer::Reader, store: &infer::Store) -> Sorts {
     let mut out = Sorts::new();
     out.ranges = reader.ranges.clone();
     out.imported = reader.imported.clone();
+    out.reals = reader.reals.clone();
     for (name, term) in &reader.env {
         match infer::sort(store, term) {
             Some(sort) => {

@@ -731,6 +731,9 @@ pub struct Reader {
     /// The library functions in scope: those the file imports, or every one
     /// in a library record.
     pub imported: IndexSet<String>,
+    /// What the `let` and `assume` lines put among numbers that need not
+    /// be whole (`Sorts::reals`).
+    pub reals: IndexSet<String>,
 }
 
 /// The library functions in scope in a theorem: those its file imports.
@@ -836,6 +839,7 @@ impl Reader {
             notations: env.g.notation_sorts(),
             ranges: IndexMap::new(),
             imported: IndexSet::new(),
+            reals: IndexSet::new(),
         }
     }
 
@@ -1081,10 +1085,36 @@ pub fn introduce(
     }
     // What the line asserts is read as a claim; a part that does not read
     // is the elaborator's to report.
+    if let Some(name) = introduced.name() {
+        reader.reals.shift_remove(name);
+    }
     if let Ok(said) = introduced.asserted(env.g, &reader.sorts(store)) {
         for node in said {
             reader.claim(&node, line, store);
+            super::powers::said_of(&node, &mut reader.reals);
         }
+    }
+}
+
+/// An `assume` line or another line the statement or a block opens with,
+/// read as a claim, with what it puts among numbers that need not be whole
+/// (`Sorts::reals`). A step's claim, a requires line and a conclusion say
+/// nothing of that: they are about what the opening lines gave.
+pub fn assumed_text(
+    reader: &mut Reader,
+    text: &str,
+    line: At,
+    env: Env,
+    store: &mut Store,
+) {
+    for sentence in Written::new(text, &reader.path, line.line).sentences() {
+        let node = match sentence.read_so_far(env.g, &reader.sorts(store)) {
+            Ok(Built(node)) => node,
+            Ok(Declined(_)) => continue,
+            Err(_) => continue,
+        };
+        reader.claim(&node, line, store);
+        super::powers::said_of(&node, &mut reader.reals);
     }
 }
 
@@ -1123,7 +1153,7 @@ pub fn read_record(record: &Record, env: Env, store: &mut Store) -> Reader {
             introduce(&mut reader, &h.text, h.line.into(), env, store);
         } else {
             let text = str::trim(&unlabel(&h.text)).to_string();
-            claim_text(&mut reader, &text, h.line.into(), env, store);
+            assumed_text(&mut reader, &text, h.line.into(), env, store);
         }
     }
     for (text, no) in &record.conclusions {
@@ -1155,7 +1185,7 @@ pub fn read_statement(thm: &Theorem, env: Env, store: &mut Store) -> Reader {
         if h.kind == Intro::Let {
             introduce(&mut reader, &body, h.line.into(), env, store);
         } else {
-            claim_text(&mut reader, &body, h.line.into(), env, store);
+            assumed_text(&mut reader, &body, h.line.into(), env, store);
         }
     }
     for (line, r) in recursions {
@@ -1272,6 +1302,7 @@ pub fn read_theorem(
     enum Event<'t> {
         Let(&'t str),
         Said(String),
+        Assumed(String),
         Define(&'t str),
         Claim(&'t Step),
         Requires(&'t Step, &'t Requires),
@@ -1285,7 +1316,7 @@ pub fn read_theorem(
         if intro == Intro::Let {
             Event::Let(rest)
         } else {
-            Event::Said(str::trim(&unlabel(rest)).to_string())
+            Event::Assumed(str::trim(&unlabel(rest)).to_string())
         }
     }
     for h in &thm.hypotheses {
@@ -1329,6 +1360,7 @@ pub fn read_theorem(
         match event {
             Event::Let(text) => introduce(&mut reader, text, no, env, store),
             Event::Said(text) => claim_text(&mut reader, text, no, env, store),
+            Event::Assumed(text) => assumed_text(&mut reader, text, no, env, store),
             Event::Define(text) => {
                 let Built(said) = define_parts(text) else {
                     continue;
@@ -1358,7 +1390,11 @@ pub fn read_theorem(
                 // A function: what each domain holds goes in, one argument
                 // at a time, what its rule gives comes out, and the
                 // parameters are its rule's own names.
-                let local_sorts = define_sorts(&said, &sorts);
+                let Ok(local_sorts) =
+                    define_sorts(&said, &sorts, env.g, &path, no.line)
+                else {
+                    continue;
+                };
                 let mut local = IndexMap::new();
                 let mut taken = Vec::new();
                 let mut read = true;

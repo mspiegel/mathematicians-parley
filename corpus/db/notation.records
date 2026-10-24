@@ -121,6 +121,11 @@
 #               `building _′ _ wceq wa` joins each further term of a chain
 #               of equations to the one before it. Only the last hole
 #               repeats.
+#   instead     that the node stands in place of another notation's where what
+#               fills it says so, and the parser never reads it of its own:
+#               `of power, where the exponent is not whole` makes x^(1/3) the
+#               real power and x^3 the power (`GRAMMAR.md`). The power's
+#               exponent is the one thing it may say.
 #   shadowed    that a name the text introduces with the same letter is read
 #               as that name and not as this notation, in the scope of the
 #               line introducing it. Marked case by case: only the imaginary
@@ -327,7 +332,24 @@ notation power
   target      _1 _2 cexp co
   note        Right by universal convention. No tower occurs in the corpus.
               An exponent that is not a numeral makes the whole power an atom
-              to `algebra`; see METHODS.md.
+              to `algebra`; see METHODS.md. Its exponent decides between `↑`
+              and `↑𝑐` (`GRAMMAR.md`): one that is not whole makes the power
+              the real-power notation's.
+
+notation real-power
+  pattern     _^_
+  sort        number, number → number
+  level       power
+  assoc       right
+  instead     of power, where the exponent is not whole
+  reads       to the power
+  metamath    ccxp, the principal power, exp(y · log x) for x ≠ 0
+  target      _1 _2 ccxp co
+  note        x^(1/3), 2^y for y ∈ ℝ, e^(x³ + 1): written as a power is, and
+              read as this where the exponent is not whole (`GRAMMAR.md`), so
+              the parser never reads it of its own. For x > 0 it is the real
+              power a reader knows, x^(1/2) is √x and e^y is exp(y); for
+              x < 0 it is complex, so a fact about it states x ≥ 0 or x > 0.
 
 notation superscript
   pattern     _ⁿ
@@ -353,6 +375,22 @@ notation square-root
   target      _1 csqrt cfv
   note        `real arithmetic` works out the square root of a rational of at
               least 0; `arithmetic` takes no root.
+
+notation root
+  pattern     ⁿ√_
+  sort        number, number → number
+  level       power
+  reads       the root, of the index, of
+  metamath    the real root: x ↑𝑐 (1/n) for x ≥ 0, and −((−x) ↑𝑐 (1/n))
+              below, by if
+  target      cc0 _2 cle wbr _2 c1 _1 cdiv co ccxp co _2 cneg c1 _1 cdiv co ccxp co cneg cif
+  note        ⁵√x, the index a numeral written raised as an exponent is; ∛x
+              and ∜x are ³√x and ⁴√x written as one character. The index is 3
+              or more, √ being the square root. For an odd index it is the
+              real root of every real number, ∛(−8) = −2, where x^(1/3) is
+              the principal power; for an even one a fact about it states
+              x ≥ 0. A root with a letter for its index is x^(1/n), for
+              x ≥ 0.
 
 notation logical-not
   pattern     not _

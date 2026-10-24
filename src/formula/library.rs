@@ -38,6 +38,8 @@ pub struct Function {
     pub header: String,
     pub path: String,
     pub line: usize,
+    /// The methods its record's `decided` field names.
+    pub decided: Vec<String>,
 }
 
 impl Function {
@@ -124,6 +126,7 @@ pub fn library_functions(records: &[Record]) -> Checked<IndexMap<String, Functio
                 header: r.header(),
                 path: r.path.clone(),
                 line,
+                decided: super::notation::decided_of(r),
             },
         );
     }
