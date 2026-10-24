@@ -330,9 +330,36 @@ pub fn part_said_otherwise(fact: &Node, env: Env, sorts: &Sorts) -> Option<Node>
 /// which is what `for all X ⊆ A` ranges over (`rules::PARTS`). Anything
 /// else says only itself: a range is no number system, and the letter a
 /// range let introduces is whole as a membership said once (`once`).
+/// What a function's type into a number system says of every wider one:
+/// `h : X → ℕ` says `h : X → ℤ` and `h : X → ℝ`, as `rules::INSIDE` puts
+/// ℕ inside each (`SYNTAX.md`). None for any other fact.
+fn wider_types(fact: &Node, env: Env) -> Option<Vec<Node>> {
+    let (FUNCTION_TYPE, [f, from, to]) = (fact.notation(), fact.children.as_slice())
+    else {
+        return None;
+    };
+    if to.notation() != NUMBER_SYSTEMS {
+        return None;
+    }
+    let small = rules::system_of(&to.text)?;
+    let wider = rules::INSIDE
+        .iter()
+        .filter(|i| i.small == small)
+        .filter_map(|i| rules::SYSTEM_OF.iter().find(|(_, label)| *label == i.big))
+        .map(|(sign, _)| {
+            let set = template(sign, env, &Sorts::new());
+            page::made(env.g, fact.spelling(), vec![f.clone(), from.clone(), set])
+        })
+        .collect();
+    Some(wider)
+}
+
 pub fn implied_facts(fact: &Node, env: Env, sorts: &Sorts) -> Vec<Node> {
     if let Some(other) = part_said_otherwise(fact, env, sorts) {
         return vec![other];
+    }
+    if let Some(wider) = wider_types(fact, env) {
+        return wider;
     }
     let both = fact.children.len() == 2;
     if fact.notation() != MEMBERSHIP

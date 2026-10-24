@@ -811,6 +811,40 @@ impl<'a> Elaborator<'a> {
         out
     }
 
+    /// `F : A --> C` where the facts give F a number system inside C for its
+    /// codomain, F : A --> B: by `fssd` and the inclusion `rules::INSIDE`
+    /// says of B and C.
+    fn wider_type(
+        &mut self,
+        typed: &Term,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Route<Proof>> {
+        let kids = typed.children();
+        let (domain, codomain, f) =
+            (self.rpn(&kids[0]), self.rpn(&kids[1]), self.rpn(&kids[2]));
+        let Some(big) = codomain.alone() else {
+            return Ok(self.no("a codomain that is no number system", &[&codomain]));
+        };
+        for inside in rules::INSIDE.iter().filter(|i| i.big == big) {
+            let small = t!(inside.small);
+            let narrower = t!(&domain, &small, &f, "wf");
+            let Some(held) = self.held(facts, &narrower, scope)? else {
+                continue;
+            };
+            let closed = self.b.ap(inside.lemma, &crate::binds! {}, &[]);
+            let within =
+                pf!(self.b; t!(&small, &codomain, "wss"), scope, closed, "a1i");
+            let wider = self.b.ap(
+                rules::WIDER_TYPE,
+                &crate::binds! {"ph" => scope, "A" => &domain, "B" => &small, "C" => &codomain, "F" => &f},
+                &[&held, &within],
+            );
+            return Ok(Built(wider));
+        }
+        Ok(self.no("no line giving a narrower codomain", &[&self.rpn(typed)]))
+    }
+
     /// `side`, with what the line cites in hand.
     fn by_its_reason(
         &mut self,
@@ -868,6 +902,14 @@ impl<'a> Elaborator<'a> {
             // as giving: (k + 1)! ∈ ℝ from k! ∈ ℕ and (k + 1)! = k!·(k + 1),
             // c·gcd(a, b) ∈ ℤ from gcd(a, b) ∈ ℕ. What it may rest on is
             // the line's reason, as `side` offers it.
+            //
+            // A function's type is given with every wider codomain
+            // (`SYNTAX.md`): h : X → ℝ from a line saying h : X → ℕ.
+            if whole.variable().is_none() && whole.label() == Some("wf") {
+                if let Built(p) = self.wider_type(&whole, scope, facts)? {
+                    return Ok(Built(p));
+                }
+            }
             let in_system = whole.variable().is_none()
                 && whole.label() == Some("wcel")
                 && lookup(

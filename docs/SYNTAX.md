@@ -518,6 +518,13 @@ from the line, so the fact still comes from a line the step names, and one
 written line counts for what it plainly says. Nothing past the table is
 read: that an integer above 0 is a natural number is the item `pos-int-nat`.
 
+**A line giving a function's type gives every wider one.** A line saying
+`h : X → ℕ` also says `h : X → ℤ` and `h : X → ℝ`: every codomain the table
+above puts its own inside, as `k ∈ ℕ` says `k ∈ ℝ`. For example, where line 5
+says `h : {1, …, n} → ℕ`, a step citing an item that asks
+`t : {1, …, n} → ℝ` has it with `requires h : {1, …, n} → ℝ: from 5`, and no
+line proves the wider type first.
+
 **A membership in a number system is said once, where a letter is
 introduced** (`READERS.md`). A step neither writes nor cites the membership
 of

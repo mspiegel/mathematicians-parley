@@ -685,6 +685,98 @@ pub const WITHIN: &[(&str, &[(&str, &str)])] = &[
     ("cr", &[("cc", "recn")]),
 ];
 
+/// One number system inside another, said of the systems themselves: the
+/// smaller, the larger, and the lemma that says so.
+pub struct Inside {
+    pub small: &'static str,
+    pub big: &'static str,
+    pub lemma: &'static str,
+}
+
+// Every pair `WITHIN` reaches, directly or by way of another system, said
+// of the sets: what carries a function's type to a wider codomain, h : X →
+// ℝ from h : X → ℕ by `fssd` (`SYNTAX.md`, a line giving a function's type).
+pub const INSIDE: &[Inside] = &[
+    Inside {
+        small: "cn",
+        big: "cn0",
+        lemma: "nnssnn0",
+    },
+    Inside {
+        small: "cn",
+        big: "cz",
+        lemma: "nnssz",
+    },
+    Inside {
+        small: "cn",
+        big: "cq",
+        lemma: "nnssq",
+    },
+    Inside {
+        small: "cn",
+        big: "cr",
+        lemma: "nnssre",
+    },
+    Inside {
+        small: "cn",
+        big: "cc",
+        lemma: "nnsscn",
+    },
+    Inside {
+        small: "cn0",
+        big: "cz",
+        lemma: "nn0ssz",
+    },
+    Inside {
+        small: "cn0",
+        big: "cq",
+        lemma: "nn0ssq",
+    },
+    Inside {
+        small: "cn0",
+        big: "cr",
+        lemma: "nn0ssre",
+    },
+    Inside {
+        small: "cn0",
+        big: "cc",
+        lemma: "nn0sscn",
+    },
+    Inside {
+        small: "cz",
+        big: "cq",
+        lemma: "zssq",
+    },
+    Inside {
+        small: "cz",
+        big: "cr",
+        lemma: "zssre",
+    },
+    Inside {
+        small: "cz",
+        big: "cc",
+        lemma: "zsscn",
+    },
+    Inside {
+        small: "cq",
+        big: "cr",
+        lemma: "qssre",
+    },
+    Inside {
+        small: "cq",
+        big: "cc",
+        lemma: "qsscn",
+    },
+    Inside {
+        small: "cr",
+        big: "cc",
+        lemma: "ax-resscn",
+    },
+];
+
+/// What carries a function's type to a codomain its own is inside.
+pub const WIDER_TYPE: &str = "fssd";
+
 // What else a membership says of its term, as the page writes it with x for
 // the term, and the lemma that says it (`SYNTAX.md`, what a membership line
 // says).
@@ -1250,6 +1342,10 @@ pub fn every_label() -> Vec<(&'static str, &'static str)> {
     for (k, (a, b)) in INDUCTION {
         put("INDUCTION", &[k, a, b]);
     }
+    for i in INSIDE {
+        put("INSIDE", &[i.small, i.big, i.lemma]);
+    }
+    put("INSIDE", &[WIDER_TYPE]);
     for (k, i) in INSTANCES {
         put("INSTANCES", &[k, i.lemma]);
         if let Some(d) = i.domain {

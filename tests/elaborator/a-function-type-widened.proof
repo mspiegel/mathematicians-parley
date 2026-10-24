@@ -1,0 +1,11 @@
+import mundane theorem    stdlib/sums/product-real
+
+theorem a-function-type-widened
+  note        product-real asks for a function into ℝ, and H2 gives one into
+              ℕ, which it is too.
+  let n ∈ ℕ                                                           (H1)
+  let t : {1, …, n} → ℕ                                               (H2)
+  then ∏(k ∈ {1, …, n}) t(k) ∈ ℝ
+
+1.  ∏(k ∈ {1, …, n}) t(k) ∈ ℝ
+    mun:product-real a := 1, b := n

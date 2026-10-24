@@ -214,62 +214,48 @@ theorem prime-factorisation
                              mun:function-into, from 1.2.16.7
                              requires h is a function on {1, …, j + 1}: from D2
 
-                  1.2.16.9.  For all i ∈ {1, …, j + 1}, h(i) ∈ ℝ.
-                             proof
-                             let i ∈ {1, …, j + 1}                    (K8)
-
-                             1.2.16.9.1.  h(i) ∈ ℕ
-                                          instantiate i := i in line 1.2.16.7, from K8
-
-                             1.2.16.9.2.  h(i) ∈ ℝ
-                                          membership, from 1.2.16.9.1
-
-                  1.2.16.10. h : {1, …, j + 1} → ℝ
-                             mun:function-into, from 1.2.16.9
-                             requires h is a function on {1, …, j + 1}: from D2
-
-                  1.2.16.11. ∏(i ∈ {1, …, j + 1}) h(i) = (∏(i ∈ {1, …, j}) h(i))·h(j + 1)
+                  1.2.16.9.  ∏(i ∈ {1, …, j + 1}) h(i) = (∏(i ∈ {1, …, j}) h(i))·h(j + 1)
                              mun:product-extended a := 1, n := j, t := h
                              requires j ≥ 1: from 1.2.16.4
-                             requires h : {1, …, j + 1} → ℝ: from 1.2.16.10
+                             requires h : {1, …, j + 1} → ℝ: from 1.2.16.8
 
-                  1.2.16.12. ∏(i ∈ {1, …, j}) h(i) = ∏(i ∈ {1, …, j}) g(i)
+                  1.2.16.10. ∏(i ∈ {1, …, j}) h(i) = ∏(i ∈ {1, …, j}) g(i)
                              mun:product-termwise a := 1, b := j, t := h, u := g, from 1.2.16.5
                              requires h : {1, …, j + 1} → ℕ: from 1.2.16.8
 
-                  1.2.16.13. not j + 1 ≤ j
+                  1.2.16.11. not j + 1 ≤ j
                              inequalities
 
-                  1.2.16.14. j + 1 ∈ {1, …, j + 1}
+                  1.2.16.12. j + 1 ∈ {1, …, j + 1}
                              mun:range-between k := j + 1, a := 1, b := j + 1
                              requires 1 ≤ j + 1: inequalities, from 1.2.16.4
                              requires j + 1 ≤ j + 1: inequalities
 
-                  1.2.16.15. h(j + 1) = p
-                             D2, from 1.2.16.13, 1.2.16.14
+                  1.2.16.13. h(j + 1) = p
+                             D2, from 1.2.16.11, 1.2.16.12
 
-                  1.2.16.16. (∏(i ∈ {1, …, j}) h(i))·h(j + 1) = (∏(i ∈ {1, …, j}) g(i))·h(j + 1)
-                             substitute ∏(i ∈ {1, …, j}) h(i) = ∏(i ∈ {1, …, j}) g(i) (line 1.2.16.12)
+                  1.2.16.14. (∏(i ∈ {1, …, j}) h(i))·h(j + 1) = (∏(i ∈ {1, …, j}) g(i))·h(j + 1)
+                             substitute ∏(i ∈ {1, …, j}) h(i) = ∏(i ∈ {1, …, j}) g(i) (line 1.2.16.10)
 
-                  1.2.16.17. (∏(i ∈ {1, …, j}) g(i))·h(j + 1) = r·h(j + 1)
+                  1.2.16.15. (∏(i ∈ {1, …, j}) g(i))·h(j + 1) = r·h(j + 1)
                              substitute r = ∏(i ∈ {1, …, j}) g(i) (line 1.2.16.4)
 
-                  1.2.16.18. r·h(j + 1) = r·p
-                             substitute h(j + 1) = p (line 1.2.16.15)
+                  1.2.16.16. r·h(j + 1) = r·p
+                             substitute h(j + 1) = p (line 1.2.16.13)
 
-                  1.2.16.19. r·p = m
+                  1.2.16.17. r·p = m
                              algebra, from 1.2.6
 
-                  1.2.16.20. m = ∏(i ∈ {1, …, j + 1}) h(i)
+                  1.2.16.18. m = ∏(i ∈ {1, …, j + 1}) h(i)
                              calculation
-                               m = r·p                                                 1.2.16.19
-                                 = r·h(j + 1)                                          1.2.16.18
-                                 = (∏(i ∈ {1, …, j}) g(i))·h(j + 1)                    1.2.16.17
-                                 = (∏(i ∈ {1, …, j}) h(i))·h(j + 1)                    1.2.16.16
-                                 = ∏(i ∈ {1, …, j + 1}) h(i)                           1.2.16.11
+                               m = r·p                                                 1.2.16.17
+                                 = r·h(j + 1)                                          1.2.16.16
+                                 = (∏(i ∈ {1, …, j}) g(i))·h(j + 1)                    1.2.16.15
+                                 = (∏(i ∈ {1, …, j}) h(i))·h(j + 1)                    1.2.16.14
+                                 = ∏(i ∈ {1, …, j + 1}) h(i)                           1.2.16.9
 
-                  1.2.16.21. There is k ∈ ℕ with there is f : {1, …, k} → ℕ with m = ∏(i ∈ {1, …, k}) f(i) and for all i ∈ {1, …, k}, f(i) is prime.
-                             exhibit, from 1.2.16.6, 1.2.16.8, 1.2.16.20
+                  1.2.16.19. There is k ∈ ℕ with there is f : {1, …, k} → ℕ with m = ∏(i ∈ {1, …, k}) f(i) and for all i ∈ {1, …, k}, f(i) is prime.
+                             exhibit, from 1.2.16.6, 1.2.16.8, 1.2.16.18
 
                   case
                   note m is the prime p, a product of one prime
@@ -278,41 +264,41 @@ theorem prime-factorisation
                   let e(i) = p, for i ∈ {1, …, 1}                     (D3)
                       reads the list holding p alone
 
-                  1.2.16.22. For all i ∈ {1, …, 1}, e(i) is prime.
+                  1.2.16.20. For all i ∈ {1, …, 1}, e(i) is prime.
                              proof
                              let i ∈ {1, …, 1}                        (K7)
 
-                             1.2.16.22.1. e(i) = p
+                             1.2.16.20.1. e(i) = p
                                           D3, from K7
 
-                             1.2.16.22.2. e(i) is prime
-                                          substitute e(i) = p (line 1.2.16.22.1) into line 1.2.4
+                             1.2.16.20.2. e(i) is prime
+                                          substitute e(i) = p (line 1.2.16.20.1) into line 1.2.4
 
-                  1.2.16.23. For all i ∈ {1, …, 1}, e(i) ∈ ℕ.
+                  1.2.16.21. For all i ∈ {1, …, 1}, e(i) ∈ ℕ.
                              membership, from D3
 
-                  1.2.16.24. e : {1, …, 1} → ℕ
-                             mun:function-into, from 1.2.16.23
+                  1.2.16.22. e : {1, …, 1} → ℕ
+                             mun:function-into, from 1.2.16.21
                              requires e is a function on {1, …, 1}: from D3
 
-                  1.2.16.25. ∏(i ∈ {1, …, 1}) e(i) = e(1)
+                  1.2.16.23. ∏(i ∈ {1, …, 1}) e(i) = e(1)
                              mun:product-single a := 1, t := e
 
-                  1.2.16.26. e(1) = p
+                  1.2.16.24. e(1) = p
                              D3
                              requires 1 ∈ {1, …, 1}: inspection
 
-                  1.2.16.27. m = p
+                  1.2.16.25. m = p
                              substitute r = 1 (C2) into line 1.2.6
 
-                  1.2.16.28. m = ∏(i ∈ {1, …, 1}) e(i)
+                  1.2.16.26. m = ∏(i ∈ {1, …, 1}) e(i)
                              calculation
-                               m = p                               1.2.16.27
-                                 = e(1)                            1.2.16.26
-                                 = ∏(i ∈ {1, …, 1}) e(i)           1.2.16.25
+                               m = p                               1.2.16.25
+                                 = e(1)                            1.2.16.24
+                                 = ∏(i ∈ {1, …, 1}) e(i)           1.2.16.23
 
-                  1.2.16.29. There is k ∈ ℕ with there is f : {1, …, k} → ℕ with m = ∏(i ∈ {1, …, k}) f(i) and for all i ∈ {1, …, k}, f(i) is prime.
-                             exhibit, from 1.2.16.22, 1.2.16.24, 1.2.16.28
+                  1.2.16.27. There is k ∈ ℕ with there is f : {1, …, k} → ℕ with m = ∏(i ∈ {1, …, k}) f(i) and for all i ∈ {1, …, k}, f(i) is prime.
+                             exhibit, from 1.2.16.20, 1.2.16.22, 1.2.16.26
 
 2.  For all m ∈ {2, …, n}, there is k ∈ ℕ with there is f : {1, …, k} → ℕ with m = ∏(i ∈ {1, …, k}) f(i) and for all i ∈ {1, …, k}, f(i) is prime.
     instantiate N := n in line 1
