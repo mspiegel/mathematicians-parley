@@ -1,0 +1,12 @@
+theorem a-point-said-back-over-the-plane
+  note        A letter bound over 𝔼² is a point. The kernel's set is ℂ
+              for the plane and for the complex numbers alike, and a claim
+              naming the letter where only a point may stand is said back
+              over the plane, the domain under which it reads.
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  assume |PQ| = 1                                                     (H3)
+  then there is H ∈ 𝔼² with |HQ| = 1
+
+1.  there is H ∈ 𝔼² with |HQ| = 1
+    exhibit, from H3

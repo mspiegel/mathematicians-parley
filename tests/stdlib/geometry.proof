@@ -47,6 +47,11 @@ import mundane definition stdlib/geometry/area as geometry-area
 import theorem            stdlib/geometry/area-by-sine as geometry-area-by-sine
 import mundane theorem    stdlib/geometry/area-positive as geometry-area-positive
 import theorem            stdlib/geometry/heron as geometry-heron
+import theorem            stdlib/geometry/perpendicular-foot as geometry-perpendicular-foot
+import mundane theorem    stdlib/geometry/on-line-cases as geometry-on-line-cases
+import mundane theorem    stdlib/geometry/between-ends-apart as geometry-between-ends-apart
+import mundane theorem    stdlib/geometry/right-angle-triangle as geometry-right-angle-triangle
+import mundane theorem    stdlib/geometry/cosine-right-triangle as geometry-cosine-right-triangle
 import mundane definition stdlib/sets/set-builder
 
 theorem point
@@ -603,3 +608,61 @@ theorem angle-turned
 
 1.  ∠PQR = ∠RQP
     mun:geometry-angle-turned, from H4, H5
+
+theorem perpendicular-foot
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P, Q, R form a triangle                                      (H4)
+  then there is H ∈ 𝔼² with H is on line QR, P ≠ H,
+       (if H ≠ Q then ∠PHQ = 90°), and (if H ≠ R then ∠PHR = 90°)
+
+1.  there is H ∈ 𝔼² with H is on line QR, P ≠ H,
+    (if H ≠ Q then ∠PHQ = 90°), and (if H ≠ R then ∠PHR = 90°)
+    thm:geometry-perpendicular-foot, from H4
+
+theorem on-line-cases
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume Q ≠ R                                                        (H4)
+  assume P is on line QR                                              (H5)
+  then P = Q or P is between Q and R or P = R or R is between Q and P or Q is between P and R
+
+1.  P = Q or P is between Q and R or P = R or R is between Q and P or
+    Q is between P and R
+    mun:geometry-on-line-cases, from H4, H5
+
+theorem between-ends-apart
+  let R be a point                                                    (H1)
+  let S be a point                                                    (H2)
+  let T be a point                                                    (H3)
+  assume R is between S and T                                         (H4)
+  then S ≠ T
+
+1.  S ≠ T
+    mun:geometry-between-ends-apart, from H4
+
+theorem right-angle-triangle
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P ≠ Q                                                        (H4)
+  assume R ≠ Q                                                        (H5)
+  assume ∠PQR = 90°                                                   (H6)
+  then P, Q, R form a triangle
+
+1.  P, Q, R form a triangle
+    mun:geometry-right-angle-triangle, from H4, H5, H6
+
+theorem cosine-right-triangle
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P ≠ R                                                        (H4)
+  assume Q ≠ R                                                        (H5)
+  assume ∠PRQ = 90°                                                   (H6)
+  then |QR| = |QP|·cos(∠RQP)
+
+1.  |QR| = |QP|·cos(∠RQP)
+    mun:geometry-cosine-right-triangle, from H4, H5, H6

@@ -77,6 +77,52 @@ fn bound_sort(n: &Notation) -> Sort {
         .unwrap_or_else(Sort::none)
 }
 
+/// How many of a term's readings a caller asks for.
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Asked {
+    /// The first the page reads back as itself.
+    First,
+    /// Every one, in the order they are tried.
+    Every,
+}
+
+/// A term matched against one reading's target, and what the parts of it a
+/// binder's domain fills are read as.
+struct Parts<'a> {
+    reading: &'a Reading,
+    /// The category the reading's pattern is given only where a hole wants
+    /// it, if it is one such.
+    wanted: Option<&'a str>,
+    /// What fills each hole of the target, in hole order.
+    holes: &'a [Term],
+    /// What each hole's place wants, from the notation's holes.
+    hole_wants: &'a [Option<&'a str>],
+    /// The holes holding a letter the reading binds.
+    binding_at: &'a [usize],
+    /// The holes holding a domain of a bound letter.
+    domain_at: &'a [usize],
+    /// What each of `domain_at` is read as, in its order.
+    domains: &'a [Node],
+}
+
+/// Every way of taking one node from each list, the first list's earliest
+/// first; one empty choice where there are no lists.
+fn combinations(choices: &[Vec<Node>]) -> Vec<Vec<Node>> {
+    let mut out: Vec<Vec<Node>> = vec![Vec::new()];
+    for options in choices {
+        let mut next: Vec<Vec<Node>> = Vec::new();
+        for taken in &out {
+            for option in options {
+                let mut one = taken.clone();
+                one.push(option.clone());
+                next.push(one);
+            }
+        }
+        out = next;
+    }
+    out
+}
+
 /// The digits of a numeral as set.mm writes it: a digit's label, or
 /// decimals `; A B` with A the digits before the last.
 fn numeral(term: &Term) -> Option<String> {
@@ -353,6 +399,23 @@ impl Elaborator<'_> {
         bound: &IndexMap<String, BoundAs>,
         want: Option<&str>,
     ) -> Option<Node> {
+        self.page_nodes_under(term, bound, want, Asked::First)
+            .into_iter()
+            .next()
+    }
+
+    /// The readings of a term `page_node_under` tries, as many as `asked`
+    /// says, in the order they are tried. A binder's domain is read every
+    /// way it reads, since one kernel set may be two on the page: `cc` is ℂ
+    /// and 𝔼², and only the plane makes the H of "there is H ∈ 𝔼² with H
+    /// is on line QR" a point.
+    fn page_nodes_under(
+        &self,
+        term: &Term,
+        bound: &IndexMap<String, BoundAs>,
+        want: Option<&str>,
+        asked: Asked,
+    ) -> Vec<Node> {
         let rpn = self.rpn(term);
         // A name the proof gave this term; a part of a structure is held
         // under a name no page writes (`@op`), and is read by its notation.
@@ -365,24 +428,26 @@ impl Elaborator<'_> {
             .iter()
             .find(|(page, kernel)| **kernel == rpn && !is_context(page))
         {
-            return Some(named(page));
+            return vec![named(page)];
         }
         // A letter a binder introduced, by the name the page bound it under.
         if let Some(letter) = term.variable() {
-            return Some(named(
+            return vec![named(
                 rpn.alone()
                     .and_then(|float| self.written_as.get(float))
                     .map_or(letter, String::as_str),
-            ));
+            )];
         }
-        let label = term.label()?;
+        let Some(label) = term.label() else {
+            return Vec::new();
+        };
         let kids = term.children();
         // A letter a binder introduced, used as a class.
         if label == "cv" && kids.len() == 1 {
-            return self.page_node_under(&kids[0], bound, want);
+            return self.page_nodes_under(&kids[0], bound, want, asked);
         }
         if let Some(digits) = numeral(term) {
-            return Some(Node::numeral(&digits));
+            return vec![Node::numeral(&digits)];
         }
         // Every pattern that builds a term of this shape, the one saying most
         // of it first: ∠PQR is an absolute value too, and reads as an angle.
@@ -423,6 +488,7 @@ impl Elaborator<'_> {
             all.sort_by_key(|(order, _)| *order);
             all.into_iter().map(|(_, r)| r).collect()
         };
+        let mut read: Vec<Node> = Vec::new();
         for r in readings {
             let written = r.pattern(self.g);
             let wanted = written.and_then(|n| n.wanted.as_deref());
@@ -451,98 +517,47 @@ impl Elaborator<'_> {
                 .flatten()
                 .copied()
                 .collect();
-            // Over a set two holes join, the letter is a member of it. A
-            // domain written as more than a name, 𝒫{1, …, n} or U(k), holds
-            // what the page reads it as holding, as the page's own reading of
-            // the binder gives its letter (`grammar::set_written`).
-            let domains: Vec<Node> = if binding_at.is_empty() {
+            // A binder's domain is read every way it reads, and each reading
+            // is tried in turn as what the letter is a member of. The domain
+            // is every hole that is neither a letter it binds nor where the
+            // letter is its own.
+            let body: &[usize] = written
+                .and_then(|n| n.binds.as_ref())
+                .map_or(&[], |b| b.body.as_slice());
+            let domain_at: Vec<usize> = if binding_at.is_empty() {
                 Vec::new()
             } else {
-                holes
-                    .iter()
-                    .enumerate()
-                    .filter(|(at, _)| !binding_at.contains(at))
-                    .filter_map(|(_, h)| self.page_node_under(h, bound, None))
+                (0..holes.len())
+                    .filter(|at| !binding_at.contains(at) && !body.contains(at))
                     .collect()
             };
-            let domain_holds = match &r.joined {
-                Some(j) => j.member.clone(),
-                None => domains
-                    .iter()
-                    .filter(|n| n.is_name())
-                    .find_map(|n| {
-                        self.sorts_now.get(n.text.as_str()).and_then(Sort::held)
-                    })
-                    .or_else(|| {
-                        domains
-                            .iter()
-                            .filter(|n| !n.is_name())
-                            .find_map(|n| self.read_set_holds(n, bound))
-                    })
-                    .unwrap_or_else(Sort::none),
-            };
-            let real_name = |name: &str| match bound.get(name) {
-                Some(said) => said.real,
-                None => self.sorts_now.reals.contains(name),
-            };
-            let real = domains.iter().any(|d| needs_not_be_whole(d, &real_name));
-            let mut inner = bound.clone();
-            for at in &binding_at {
-                if let Some(letter) = holes
-                    .get(*at)
-                    .and_then(|h| self.page_node_under(h, bound, None))
-                {
-                    if letter.is_name() {
-                        inner.insert(
-                            letter.text.to_string(),
-                            BoundAs {
-                                sort: domain_holds.clone(),
-                                real,
-                            },
-                        );
+            let mut choices: Vec<Vec<Node>> = Vec::new();
+            for &at in &domain_at {
+                let want = hole_wants[at];
+                let every =
+                    self.page_nodes_under(&holes[at], bound, want, Asked::Every);
+                choices.push(every);
+            }
+            for domains in combinations(&choices) {
+                let parts = Parts {
+                    reading: r,
+                    wanted,
+                    holes: &holes,
+                    hole_wants: &hole_wants,
+                    binding_at: &binding_at,
+                    domain_at: &domain_at,
+                    domains: &domains,
+                };
+                if let Some(node) = self.read_parts(&parts, bound) {
+                    read.push(node);
+                    if asked == Asked::First {
+                        return read;
                     }
                 }
             }
-            let Some(mut children) = holes
-                .iter()
-                .zip(&hole_wants)
-                .map(|(h, w)| self.page_node_under(h, &inner, *w))
-                .collect::<Option<Vec<Node>>>()
-            else {
-                continue;
-            };
-            if let Some(name) = &r.applies {
-                children.insert(0, Node::name(Sort::none(), name));
-            }
-            // Two holes the pattern joins are one set in the node, where the
-            // first of them stood, as the page reads them.
-            if let Some(j) = &r.joined {
-                let parts: Vec<Node> = children.drain(j.first..j.first + 2).collect();
-                children.insert(j.first, Node::of(j.by, Sort::none(), parts));
-            }
-            let node = Node::of(r.node_spelling(), Sort::none(), children);
-            // A reading is the page's only where the page reads it back as
-            // itself: |xc| is a distance between points, and of two numbers
-            // the page reads nothing, so |x − c| is the reading.
-            let mut sorts = self.sorts_now.clone();
-            for (letter, said) in bound {
-                if said.sort.name().is_some() {
-                    sorts.insert(letter.clone(), said.sort.clone());
-                } else if !sorts.introduces(letter) {
-                    sorts.unsettled.insert(letter.clone());
-                }
-                said_real(&mut sorts, letter, said);
-            }
-            let back = read_back(self.g, &node, &sorts);
-            // A reading the page gives only where a hole wants it, the open
-            // interval of `(a, b)`, is read back as that hole reads it.
-            let back = back.map(|b| match wanted {
-                Some(want) => wanted_reading(self.g, &b, want).unwrap_or(b),
-                None => b,
-            });
-            if back.is_ok_and(|b| b.same_shape(&node)) {
-                return Some(node);
-            }
+        }
+        if !read.is_empty() {
+            return read;
         }
         // A term no notation reads, said as the standard form puts it
         // (`rules::STANDARD`): set.mm's a =/= b is the page's not (a = b),
@@ -551,15 +566,106 @@ impl Elaborator<'_> {
         for rule in plain {
             if let Some(found) = fit(&rule.given, term, &Binding::new(), &rule.names) {
                 if rule.gives.names().iter().all(|n| found.contains_key(&**n)) {
-                    return self.page_node_under(
+                    return self.page_nodes_under(
                         &rule.gives.substitute(&found),
                         bound,
                         want,
+                        asked,
                     );
                 }
             }
         }
-        None
+        Vec::new()
+    }
+
+    /// The node one reading builds of a term, with a binder's domains read
+    /// as `parts` says; None where a part does not read, or the page does
+    /// not read the node back as itself.
+    fn read_parts(
+        &self,
+        parts: &Parts,
+        bound: &IndexMap<String, BoundAs>,
+    ) -> Option<Node> {
+        let r = parts.reading;
+        let domains = parts.domains;
+        // Over a set two holes join, the letter is a member of it. A
+        // domain written as more than a name, 𝒫{1, …, n} or U(k), holds
+        // what the page reads it as holding, as the page's own reading of
+        // the binder gives its letter (`grammar::set_written`).
+        let domain_holds = match &r.joined {
+            Some(j) => j.member.clone(),
+            None => domains
+                .iter()
+                .filter(|n| n.is_name())
+                .find_map(|n| self.sorts_now.get(n.text.as_str()).and_then(Sort::held))
+                .or_else(|| {
+                    domains
+                        .iter()
+                        .filter(|n| !n.is_name())
+                        .find_map(|n| self.read_set_holds(n, bound))
+                })
+                .unwrap_or_else(Sort::none),
+        };
+        let real_name = |name: &str| match bound.get(name) {
+            Some(said) => said.real,
+            None => self.sorts_now.reals.contains(name),
+        };
+        let real = domains.iter().any(|d| needs_not_be_whole(d, &real_name));
+        let mut inner = bound.clone();
+        for at in parts.binding_at {
+            if let Some(letter) = parts
+                .holes
+                .get(*at)
+                .and_then(|h| self.page_node_under(h, bound, None))
+            {
+                if letter.is_name() {
+                    inner.insert(
+                        letter.text.to_string(),
+                        BoundAs {
+                            sort: domain_holds.clone(),
+                            real,
+                        },
+                    );
+                }
+            }
+        }
+        let mut children: Vec<Node> = Vec::new();
+        for (at, (h, w)) in parts.holes.iter().zip(parts.hole_wants).enumerate() {
+            match parts.domain_at.iter().position(|d| *d == at) {
+                Some(i) => children.push(domains[i].clone()),
+                None => children.push(self.page_node_under(h, &inner, *w)?),
+            }
+        }
+        if let Some(name) = &r.applies {
+            children.insert(0, Node::name(Sort::none(), name));
+        }
+        // Two holes the pattern joins are one set in the node, where the
+        // first of them stood, as the page reads them.
+        if let Some(j) = &r.joined {
+            let joined: Vec<Node> = children.drain(j.first..j.first + 2).collect();
+            children.insert(j.first, Node::of(j.by, Sort::none(), joined));
+        }
+        let node = Node::of(r.node_spelling(), Sort::none(), children);
+        // A reading is the page's only where the page reads it back as
+        // itself: |xc| is a distance between points, and of two numbers
+        // the page reads nothing, so |x − c| is the reading.
+        let mut sorts = self.sorts_now.clone();
+        for (letter, said) in bound {
+            if said.sort.name().is_some() {
+                sorts.insert(letter.clone(), said.sort.clone());
+            } else if !sorts.introduces(letter) {
+                sorts.unsettled.insert(letter.clone());
+            }
+            said_real(&mut sorts, letter, said);
+        }
+        let back = read_back(self.g, &node, &sorts);
+        // A reading the page gives only where a hole wants it, the open
+        // interval of `(a, b)`, is read back as that hole reads it.
+        let back = back.map(|b| match parts.wanted {
+            Some(want) => wanted_reading(self.g, &b, want).unwrap_or(b),
+            None => b,
+        });
+        back.is_ok_and(|b| b.same_shape(&node)).then_some(node)
     }
 
     /// What fills each hole of `target` where the term is what it builds,

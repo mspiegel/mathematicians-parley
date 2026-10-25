@@ -269,6 +269,22 @@ mundane definition on-line
   metamath    biid, since both notations' targets are the one quotient
   target      biid
 
+mundane theorem on-line-cases
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume Q ≠ R                                                        (H4)
+  assume P is on line QR                                              (H5)
+  then        P = Q or P is between Q and R or P = R or R is between Q and P
+              or Q is between P and R
+  metamath    gonline, which this corpus proves in
+              elaboration/stdlib/proved.mm: P is Q + t(R − Q) with t real,
+              and t is 0, between 0 and 1, 1, above 1 or below 0
+  target      gonline
+  note        A point of a line through two points is one of them, between
+              them, or beyond one of them, which a figure shows and a proof
+              takes as the cases there are.
+
 mundane definition perpendicular
   open        In the plane line AB ⊥ line CD says A ≠ B, C ≠ D and
               (D − C)/(B − A) has real part 0: the two directions are at a
@@ -623,6 +639,18 @@ mundane theorem between-apart
   note        A point between two others is apart from both, so the
               angles and triangles at it are defined.
 
+mundane theorem between-ends-apart
+  let R be a point                                                    (H1)
+  let S be a point                                                    (H2)
+  let T be a point                                                    (H3)
+  assume R is between S and T                                         (H4)
+  then        S ≠ T
+  metamath    gbetends, which this corpus proves in
+              elaboration/stdlib/proved.mm: S = T would make the quotient
+              1, which is not negative
+  target      gbetends
+  note        A segment with a point strictly between its ends has two ends.
+
 mundane theorem between-collinear
   let R be a point                                                    (H1)
   let S be a point                                                    (H2)
@@ -809,6 +837,37 @@ mundane theorem right-angle-by-cosine
   metamath    gright3, from coseq00topi
   target      gright3
 
+mundane theorem right-angle-triangle
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P ≠ Q                                                        (H4)
+  assume R ≠ Q                                                        (H5)
+  assume ∠PQR = 90°                                                   (H6)
+  then        P, Q, R form a triangle
+  metamath    grttri, which this corpus proves in
+              elaboration/stdlib/proved.mm from gperp90: the quotient of the
+              two arms has real part 0, so it is real only where it is 0
+  target      grttri
+  note        The arms of a right angle are not on one line.
+
+mundane theorem cosine-right-triangle
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P ≠ R                                                        (H4)
+  assume Q ≠ R                                                        (H5)
+  assume ∠PRQ = 90°                                                   (H6)
+  then        |QR| = |QP|·cos(∠RQP)
+  metamath    gcosrt, which this corpus proves in
+              elaboration/stdlib/proved.mm from glawcos, at Q and at the
+              right angle
+  target      gcosrt
+  note        In a triangle with a right angle at R, the side QR next to
+              the angle at Q is the hypotenuse times that angle's cosine:
+              the cosine is the adjacent side over the hypotenuse, which is
+              how a school reader meets it.
+
 mundane theorem angle-at-most-straight
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)
@@ -852,6 +911,22 @@ theorem altitude-foot
   note        The perpendicular from the right angle meets the hypotenuse
               between its ends, and splits the triangle into two right
               triangles.
+
+theorem perpendicular-foot
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P, Q, R form a triangle                                      (H4)
+  then        there is H ∈ 𝔼² with H is on line QR, P ≠ H,
+              (if H ≠ Q then ∠PHQ = 90°), and (if H ≠ R then ∠PHR = 90°)
+  metamath    gfoot, which this corpus proves in elaboration/stdlib/proved.mm:
+              H is Q + t(R − Q), with t the real part of (P − Q)/(R − Q)
+  target      gfoot
+  note        The perpendicular from P to the line QR, Euclid I.12. Its foot
+              H is on the line and P is not, and the line PH meets it at a
+              right angle, which is an angle at H wherever H is apart from
+              the point the angle is measured to. Where H falls on the line,
+              between Q and R or beyond one of them, is on-line-cases.
 
 axiom side-angle-side
   let P be a point                                                    (H1)
