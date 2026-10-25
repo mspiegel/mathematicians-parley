@@ -478,6 +478,8 @@ Besides what it writes, a cited line says:
 - **every wider function type**: `h : X → ℕ` says `h : X → ℝ`.
 - **a "for all" of every smaller set**: "for all k ∈ ℕ, P(k)" says it for
   all k ∈ {1, …, n}.
+- **a subset as its members**: `A ⊆ B` says "for all x ∈ A, x ∈ B", with
+  any letter the line does not use for x.
 - **a "for all" at a block's letter**: inside a block that opened with
   `let x ∈ X`, a line written above it saying "for all a ∈ X, P(a)" says
   P(x).

@@ -124,7 +124,54 @@ impl<'a> Elaborator<'a> {
         self.know(&out, line.term.clone(), whole.clone());
         self.unpack_all(&line.term, &whole, scope, &out);
         self.know_chains(&line.sentences, &line.term, &whole, scope, &out);
+        for (claim, proof) in out.entries() {
+            if let Some(members) = self.subset_members(&claim, &proof, scope) {
+                if !self.holds(&out, &members.claim) {
+                    self.know(&out, members.claim, members.proof);
+                }
+            }
+        }
         out
+    }
+
+    /// What a subset says of its members (`SYNTAX.md`, What a cited line
+    /// says): `A ⊆ B`, or `A ∈ 𝒫B` as a `let A ⊆ B` is read, says "for all
+    /// x ∈ A, x ∈ B", over a letter nothing in `scope` or the claim holds.
+    /// None for any other claim, or where no letter is left.
+    fn subset_members(
+        &mut self,
+        claim: &Rpn,
+        proof: &Proof,
+        scope: &Rpn,
+    ) -> Option<ProvedClaim> {
+        let node = self.to_term(claim);
+        let [part, whole] = node.children() else {
+            return None;
+        };
+        let (part, whole) = (self.rpn(part), self.rpn(whole));
+        let (whole, inside) = match node.label() {
+            Some("wss") => (whole, proof.clone()),
+            Some("wcel") => {
+                let set = self.to_term(&whole);
+                let ([within], Some("cpw")) = (set.children(), set.label()) else {
+                    return None;
+                };
+                let within = self.rpn(within);
+                let inside = pf!(self.b; scope, part, within, proof, "elpwid");
+                (within, inside)
+            }
+            _ => return None,
+        };
+        let letter = self.unheld(&[&self.to_term(scope), &node])?;
+        let spare = self.rpn(&letter);
+        let x = t!(spare, "cv");
+        let member = t!(x, whole, "wcel");
+        let at_one = pf!(self.b; scope, part, whole, x, inside, "sselda");
+        let every = pf!(self.b; scope, member, spare, part, at_one, "ralrimiva");
+        Some(ProvedClaim {
+            claim: t!(member, spare, part, "wral"),
+            proof: every,
+        })
     }
 
     /// Everything the cited line `cite` says (`SYNTAX.md`, What a cited line

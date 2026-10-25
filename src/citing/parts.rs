@@ -257,6 +257,34 @@ fn template(said: &'static str, env: Env, sorts: &Sorts) -> Node {
     })
 }
 
+/// What a subset says of its members (`SYNTAX.md`, What a cited line says):
+/// `A ⊆ B`, or `A ∈ 𝒫B` as a `let A ⊆ B` is read (`rules::PARTS`), says
+/// "for all x ∈ A, x ∈ B", its letter kept apart from the names A and B
+/// hold. None for any other fact.
+pub fn subset_members(fact: &Node, env: Env, sorts: &Sorts) -> Option<Node> {
+    let subset = if fact.spelling() == SUBSET_OF {
+        fact.clone()
+    } else {
+        part_said_otherwise(fact, env, sorts).filter(|s| s.spelling() == SUBSET_OF)?
+    };
+    let [part, whole] = subset.children.as_slice() else {
+        return None;
+    };
+    let mut local = sorts.clone();
+    local.insert("x".into(), Sort::of("number"));
+    local.insert("A".into(), part.sort.clone());
+    local.insert("B".into(), whole.sort.clone());
+    let put = Binding::from([
+        (Symbol::of("A"), part.clone()),
+        (Symbol::of("B"), whole.clone()),
+    ]);
+    Some(substitute_apart_by(
+        &template("for all x ∈ A, x ∈ B", env, &local),
+        &put,
+        &env.g.binders(),
+    ))
+}
+
 /// What a function's type and a membership of its domain say together: the
 /// value there is in the codomain. `let a : {1, …, n} → ℝ` and `let k ∈ {1,
 /// …, n}`, cited together, say a(k) ∈ ℝ (`READERS.md`, a function's type

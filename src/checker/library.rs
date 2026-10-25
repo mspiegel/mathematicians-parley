@@ -10,7 +10,7 @@ use super::record::{CheckedTheorem, PageReading, PartKey};
 use super::structure::{labels_in_scope, Declared};
 use crate::citing::{
     self, at_a_member, conjuncts_in, finished, implied_facts, introduction, said_once,
-    Introduced, Library, Parts, Taken,
+    subset_members, Introduced, Library, Parts, Taken,
 };
 use crate::corpus::{Intro, Kinded, Method, Step, StepNo, Theorem, Values};
 use crate::formula::page::{chain_pairs, conjoined, filled, Sentence, Written};
@@ -81,6 +81,8 @@ pub enum SaidFrom {
     /// What a membership, a range or a function's type the sentence says
     /// implies.
     Implied(usize),
+    /// A subset the sentence says, as "for all" of its members.
+    Members(usize),
 }
 
 impl SaidFrom {
@@ -591,6 +593,11 @@ impl<'a> Known<'a> {
             .flatten()
             .collect();
         here.extend(pairs.into_iter().map(|p| (p, SaidFrom::Pair(i))));
+        let members: Vec<Node> = here
+            .iter()
+            .filter_map(|(n, _)| subset_members(n, self.env, &self.sorts))
+            .collect();
+        here.extend(members.into_iter().map(|m| (m, SaidFrom::Members(i))));
         let implied: Vec<Node> = here
             .iter()
             .flat_map(|(n, _)| implied_facts(n, self.env, &self.sorts))
@@ -613,6 +620,27 @@ impl<'a> Known<'a> {
     /// block's letter, which is the line as the block reads it. Neither what
     /// it implies nor a chain's other equations.
     pub fn writes(&self, stated: &Stated, defined: &Definitions) -> Vec<Node> {
+        self.says(stated, defined)
+            .into_iter()
+            .filter(|s| {
+                !matches!(
+                    s.from,
+                    SaidFrom::Pair(_) | SaidFrom::Implied(_) | SaidFrom::Members(_)
+                )
+            })
+            .map(|s| s.written)
+            .collect()
+    }
+
+    /// What a line writes (`writes`) and a subset it writes as "for all" of
+    /// its members, as the page has it: what an item's search may be handed
+    /// by the line beyond what the search reads of it itself, a function's
+    /// type or a term at every point (`citations::does_other_work`).
+    pub fn writes_with_members(
+        &self,
+        stated: &Stated,
+        defined: &Definitions,
+    ) -> Vec<Node> {
         self.says(stated, defined)
             .into_iter()
             .filter(|s| !matches!(s.from, SaidFrom::Pair(_) | SaidFrom::Implied(_)))

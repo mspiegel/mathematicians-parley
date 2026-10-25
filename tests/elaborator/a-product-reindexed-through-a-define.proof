@@ -39,11 +39,8 @@ let g(x) = f(x), for x ∈ L                                            (D1)
 5.  U ⊆ ℤ
     mun:subset-transitive, from H1, H5
 
-6.  For all x ∈ U, x ∈ ℤ.
-    mun:in-subset, from 5
-
-7.  ∏(x ∈ U) x = ∏(x ∈ L) f(x)
-    mun:product-reindex, from D1, H4, 4, 6
+6.  ∏(x ∈ U) x = ∏(x ∈ L) f(x)
+    mun:product-reindex, from D1, H4, 4, 5
 
 theorem a-value-through-a-define
   note        g : L → U, with g f on L, says f(x) ∈ U at a point of L, to

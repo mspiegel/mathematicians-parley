@@ -5020,7 +5020,7 @@ pub fn check_surplus(
                 }
                 let stated: Vec<Node> = scope
                     .get(r)
-                    .map(|s| known.writes(s, &known.citing_step(step)))
+                    .map(|s| known.writes_with_members(s, &known.citing_step(step)))
                     .unwrap_or_default();
                 if does_other_work(&stated, &asks, &in_domain, known, library) {
                     continue;
@@ -5077,7 +5077,7 @@ pub fn check_surplus(
             }
             let stated: Vec<Node> = scope
                 .get(r)
-                .map(|s| known.writes(s, &known.citing_step(step)))
+                .map(|s| known.writes_with_members(s, &known.citing_step(step)))
                 .unwrap_or_default();
             if does_other_work(&stated, &asks, &in_domain, known, library) {
                 continue;

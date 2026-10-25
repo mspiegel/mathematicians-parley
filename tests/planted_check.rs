@@ -911,6 +911,15 @@ fn cases() -> Vec<Case> {
             )],
             "step 1 joins H1 and claims k ≥ 1, which no line it joins says",
         ),
+        case(
+            "join the members a subset line says without writing them",
+            vec![edit(
+                "tests/elaborator/reading-memberships.proof",
+                Some("theorem a-range-bound-in-a-requires-line\n".to_string()),
+                "theorem a-subset-joined-as-its-members\n  let X ⊆ ℤ    (H1)\n  then for all x ∈ X, x ∈ ℤ\n\n1.  For all x ∈ X, x ∈ ℤ.\n    join H1\n\ntheorem a-range-bound-in-a-requires-line\n".to_string(),
+            )],
+            "step 1 joins H1 and claims",
+        ),
         // A calculation claims its first term by the chain's relation to
         // its last: a chain with a `>` link claims `>`.
         case(
@@ -4755,9 +4764,9 @@ fn cases() -> Vec<Case> {
         case(
             "split a product over a set of integers without a line saying its members are numbers",
             vec![
-                edit("proofs/wiedijk/wilson.proof", Some("mun:product-split, from H2, 1, 2, 8".to_string()), "mun:product-split, from H2, 1, 2".to_string()),
+                edit("proofs/wiedijk/wilson.proof", Some("mun:product-split, from H1, H2, 1, 2".to_string()), "mun:product-split, from H2, 1, 2".to_string()),
             ],
-            "step 9 cites mun:product-split, which asks that every term x is in ℝ, and it is no number by what the page says once",
+            "step 8 cites mun:product-split, which asks that every term x is in ℝ, and it is no number by what the page says once",
         ),
         // A function declared on X says nothing of its values on a part of
         // X written as no range or number system: they are said by a line.
