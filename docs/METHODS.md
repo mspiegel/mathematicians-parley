@@ -162,7 +162,9 @@ with the justification `inequalities` and no `from`:
 The first row is a line the step cites, written out, with the line's label
 as its reason; of a line saying several things, `0 < x and x < 1`, it is
 one of them, a cited line being read as `SYNTAX.md`, What a cited line
-says, reads it: `k ≤ n   K1` where K1 lets k ∈ {1, …, n}. Each row after it is the row above with the manipulation its
+says, reads it: `k ≤ n   K1` where K1 lets k ∈ {1, …, n}. A fact the line
+says without writing it has no written orientation, and the row may write
+it either way round: `1 ≤ k` or `k ≥ 1` from `k ∈ ℕ`. Each row after it is the row above with the manipulation its
 reason names, and the last row is the claim:
 
 | reason | the row is the row above with |
@@ -405,7 +407,10 @@ refuse each false one as not following.
 `<`: from `a ≤ b` and `b < c`, `a < c`. The cited lines, in the order they
 are cited, make a chain. Each gives one relation between two terms: the
 line's, or of a line saying several things, the one of them that meets the
-chain, which is to be one only. A cited line is read as `SYNTAX.md`, What a
+chain. Where a line says several that meet it, the claim decides: the one
+taken is the one making a chain from the claim's first term to its last, as
+`0 < k` from `k ∈ ℕ` in `0 < n` from `k ∈ ℕ` and `k < n`; where two choices
+both reach the claim, the step is refused. A cited line is read as `SYNTAX.md`, What a
 cited line says, reads it: `a = b = c` gives `a = c`, and `k ∈ {1, …, n}`
 gives `k ≤ n`. A define of a name is cited as its
 equation, as a calculation's link citing it is (`SYNTAX.md`, a step may
