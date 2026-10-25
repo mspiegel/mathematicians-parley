@@ -1,6 +1,6 @@
 import theorem            proofs/euclid/apollonius/apollonius
 import mundane definition stdlib/geometry/midpoint
-import theorem            stdlib/geometry/segment-addition
+import mundane theorem    stdlib/geometry/segment-addition
 import mundane theorem    stdlib/geometry/distance-nonneg
 import mundane theorem    stdlib/geometry/distance-symmetric
 import mundane theorem    stdlib/numbers/square-equal
@@ -25,7 +25,7 @@ theorem midline
     mun:midpoint M := N, B := C, from H7
 
 3.  |AM| + |MB| = |AB|
-    thm:segment-addition P := A, Q := B, S := M, from 1
+    mun:segment-addition P := A, Q := B, S := M, from 1
 
 4.  |AM| = |AB|/2
     algebra, from 1, 3

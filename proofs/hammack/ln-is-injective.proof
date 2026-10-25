@@ -1,6 +1,6 @@
 import mundane definition stdlib/logarithms/ln
 import mundane definition stdlib/logarithms/exp
-import theorem            stdlib/logarithms/exp-ln
+import mundane theorem    stdlib/logarithms/exp-ln
 
 theorem ln-is-injective
   note        Book of Proof 12.2.2. If ln(x) = ln(y), then applying exp to
@@ -13,10 +13,10 @@ theorem ln-is-injective
   then x = y
 
 1.  exp(ln(x)) = x
-    thm:exp-ln, from H3
+    mun:exp-ln, from H3
 
 2.  exp(ln(y)) = y
-    thm:exp-ln x := y, from H4
+    mun:exp-ln x := y, from H4
 
 3.  exp(ln(x)) = exp(ln(y))
     substitute ln(x) = ln(y) (H5)

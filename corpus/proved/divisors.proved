@@ -20,7 +20,7 @@
 # And a sum of some of the divisors of N is at most σ(N): `fsumless`, over
 # the divisors, a finite set by `dvdsfi`, whose members are in ℕ and so at
 # least 0, and σ(N) their sum by `g1sgmval`, for
-# `thm:stdlib/divisibility/sigma-part`.
+# `mun:stdlib/divisibility/sigma-part`.
 
 $( Divisors: the sum of the divisors of a number, and of a prime's powers,
    coprime factors of a square, and a sum of some divisors. $)

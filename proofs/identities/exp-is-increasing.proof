@@ -1,7 +1,7 @@
 import mundane definition stdlib/logarithms/ln
 import mundane definition stdlib/logarithms/exp
-import theorem            stdlib/logarithms/ln-order
-import theorem            stdlib/logarithms/ln-exp
+import mundane theorem    stdlib/logarithms/ln-order
+import mundane theorem    stdlib/logarithms/ln-exp
 import mundane theorem    stdlib/logarithms/exp-positive
 import mundane theorem    stdlib/logarithms/exp-real
 
@@ -20,10 +20,10 @@ theorem exp-is-increasing
     mun:exp-positive x := b
 
 3.  ln(exp(a)) = a
-    thm:ln-exp x := a
+    mun:ln-exp x := a
 
 4.  ln(exp(b)) = b
-    thm:ln-exp x := b
+    mun:ln-exp x := b
 
 5.  ln(exp(a)) < ln(exp(b))
     calculation
@@ -32,6 +32,6 @@ theorem exp-is-increasing
                  = ln(exp(b))    4
 
 6.  exp(a) < exp(b)
-    thm:ln-order x := exp(a), y := exp(b), from 1, 2, 5
+    mun:ln-order x := exp(a), y := exp(b), from 1, 2, 5
     requires exp(a) ∈ ℝ: mun:exp-real x := a
     requires exp(b) ∈ ℝ: mun:exp-real x := b

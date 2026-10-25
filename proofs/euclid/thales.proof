@@ -1,6 +1,6 @@
 import theorem            proofs/euclid/apollonius/apollonius
 import mundane definition stdlib/geometry/triangle
-import theorem            stdlib/geometry/segment-addition
+import mundane theorem    stdlib/geometry/segment-addition
 import theorem            stdlib/geometry/law-of-cosines
 import mundane theorem    stdlib/geometry/right-angle-by-cosine
 import mundane theorem    stdlib/geometry/angle-real
@@ -49,7 +49,7 @@ theorem thales
     substitute |CM| = |AM| (line 5) into line 3
 
 7.  |AM| + |MB| = |AB|
-    thm:segment-addition P := A, Q := B, S := M, from H6
+    mun:segment-addition P := A, Q := B, S := M, from H6
 
 8.  |AB| = 2·|AM|
     algebra, from 2, 7

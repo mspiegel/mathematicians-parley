@@ -1,12 +1,12 @@
 import mundane definition stdlib/logarithms/ln
 import mundane definition stdlib/logarithms/exp
-import theorem            stdlib/logarithms/ln-product as logarithms-ln-product
-import theorem            stdlib/logarithms/ln-quotient as logarithms-ln-quotient
-import theorem            stdlib/logarithms/ln-power as logarithms-ln-power
-import theorem            stdlib/logarithms/exp-ln as logarithms-exp-ln
-import theorem            stdlib/logarithms/ln-exp as logarithms-ln-exp
-import theorem            stdlib/logarithms/exp-sum as logarithms-exp-sum
-import theorem            stdlib/logarithms/ln-order as logarithms-ln-order
+import mundane theorem    stdlib/logarithms/ln-product as logarithms-ln-product
+import mundane theorem    stdlib/logarithms/ln-quotient as logarithms-ln-quotient
+import mundane theorem    stdlib/logarithms/ln-power as logarithms-ln-power
+import mundane theorem    stdlib/logarithms/exp-ln as logarithms-exp-ln
+import mundane theorem    stdlib/logarithms/ln-exp as logarithms-ln-exp
+import mundane theorem    stdlib/logarithms/exp-sum as logarithms-exp-sum
+import mundane theorem    stdlib/logarithms/ln-order as logarithms-ln-order
 import mundane theorem    stdlib/logarithms/ln-real as logarithms-ln-real
 import mundane theorem    stdlib/logarithms/ln-nonzero as logarithms-ln-nonzero
 import mundane theorem    stdlib/logarithms/exp-real as logarithms-exp-real
@@ -20,7 +20,7 @@ theorem ln-product
   then ln(x·y) = ln(x) + ln(y)
 
 1.  ln(x·y) = ln(x) + ln(y)
-    thm:logarithms-ln-product, from H3, H4
+    mun:logarithms-ln-product, from H3, H4
 
 theorem ln-quotient
   let x ∈ ℝ                                                           (H1)
@@ -30,7 +30,7 @@ theorem ln-quotient
   then ln(x/y) = ln(x) − ln(y)
 
 1.  ln(x/y) = ln(x) − ln(y)
-    thm:logarithms-ln-quotient, from H3, H4
+    mun:logarithms-ln-quotient, from H3, H4
 
 theorem ln-power
   let x ∈ ℝ                                                           (H1)
@@ -39,7 +39,7 @@ theorem ln-power
   then ln(x^n) = n·ln(x)
 
 1.  ln(x^n) = n·ln(x)
-    thm:logarithms-ln-power, from H3
+    mun:logarithms-ln-power, from H3
 
 theorem exp-ln
   let x ∈ ℝ                                                           (H1)
@@ -47,14 +47,14 @@ theorem exp-ln
   then exp(ln(x)) = x
 
 1.  exp(ln(x)) = x
-    thm:logarithms-exp-ln, from H2
+    mun:logarithms-exp-ln, from H2
 
 theorem ln-exp
   let x ∈ ℝ                                                           (H1)
   then ln(exp(x)) = x
 
 1.  ln(exp(x)) = x
-    thm:logarithms-ln-exp
+    mun:logarithms-ln-exp
 
 theorem exp-sum
   let a ∈ ℂ                                                           (H1)
@@ -62,7 +62,7 @@ theorem exp-sum
   then exp(a + b) = exp(a)·exp(b)
 
 1.  exp(a + b) = exp(a)·exp(b)
-    thm:logarithms-exp-sum
+    mun:logarithms-exp-sum
 
 theorem ln-order
   let x ∈ ℝ                                                           (H1)
@@ -72,7 +72,7 @@ theorem ln-order
   then x < y ↔ ln(x) < ln(y)
 
 1.  x < y ↔ ln(x) < ln(y)
-    thm:logarithms-ln-order, from H3, H4
+    mun:logarithms-ln-order, from H3, H4
 
 theorem ln-real
   let x ∈ ℝ                                                           (H1)

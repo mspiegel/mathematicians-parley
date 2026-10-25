@@ -1,7 +1,7 @@
 import theorem            proofs/wiedijk/angle-sum/angle-sum
 import theorem            stdlib/geometry/law-of-sines
 import theorem            stdlib/geometry/altitude-foot
-import theorem            stdlib/geometry/segment-addition
+import mundane theorem    stdlib/geometry/segment-addition
 import mundane theorem    stdlib/geometry/angle-along-segment
 import mundane theorem    stdlib/geometry/angle-symmetric
 import mundane theorem    stdlib/geometry/between-symmetric
@@ -162,7 +162,7 @@ theorem pythagoras
       from H4, 1, 10, 12
 
 14. |AD| + |DB| = |AB|
-    thm:segment-addition P := A, Q := B, S := D, from 1
+    mun:segment-addition P := A, Q := B, S := D, from 1
 
 15. |BD| = |DB|
     mun:distance-symmetric P := B, Q := D

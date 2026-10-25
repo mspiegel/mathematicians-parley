@@ -13,7 +13,7 @@ import mundane theorem    stdlib/geometry/right-angle-by-cosine as geometry-righ
 import mundane definition stdlib/trigonometry/cos
 import mundane definition stdlib/trigonometry/sin
 import mundane definition stdlib/geometry/midpoint as geometry-midpoint
-import theorem            stdlib/geometry/segment-addition as geometry-segment-addition
+import mundane theorem    stdlib/geometry/segment-addition as geometry-segment-addition
 import mundane theorem    stdlib/geometry/distance-nonneg as geometry-distance-nonneg
 import mundane theorem    stdlib/geometry/distance-positive as geometry-distance-positive
 import mundane theorem    stdlib/geometry/distance-zero as geometry-distance-zero
@@ -28,19 +28,19 @@ import theorem            stdlib/geometry/supplementary-angles as geometry-suppl
 import theorem            stdlib/geometry/triangle-inequality-points as geometry-triangle-inequality-points
 import theorem            stdlib/geometry/triangle-equality-between as geometry-triangle-equality-between
 import theorem            stdlib/geometry/triangle-inequality-strict as geometry-triangle-inequality-strict
-import theorem            stdlib/geometry/angle-addition as geometry-angle-addition
+import mundane theorem    stdlib/geometry/angle-addition as geometry-angle-addition
 import mundane theorem    stdlib/geometry/between-apart as geometry-between-apart
 import mundane theorem    stdlib/geometry/between-collinear as geometry-between-collinear
 import mundane theorem    stdlib/geometry/midpoint-unique as geometry-midpoint-unique
 import mundane theorem    stdlib/geometry/midpoint-determines-end as geometry-midpoint-determines-end
 import mundane theorem    stdlib/geometry/angle-turned as geometry-angle-turned
 import mundane definition stdlib/geometry/on-line as geometry-on-line
-import theorem            stdlib/geometry/perpendicular-by-right-angle as geometry-perpendicular-by-right-angle
+import mundane theorem    stdlib/geometry/perpendicular-by-right-angle as geometry-perpendicular-by-right-angle
 import theorem            stdlib/geometry/intersecting-chords as geometry-intersecting-chords
 import theorem            stdlib/geometry/chord-midpoint-right-angle as geometry-chord-midpoint-right-angle
 import mundane theorem    stdlib/geometry/signed-angle-size as geometry-signed-angle-size
 import mundane theorem    stdlib/geometry/signed-angle-real as geometry-signed-angle-real
-import theorem            stdlib/geometry/signed-angle-reverse as geometry-signed-angle-reverse
+import mundane theorem    stdlib/geometry/signed-angle-reverse as geometry-signed-angle-reverse
 import theorem            stdlib/geometry/signed-angle-sum as geometry-signed-angle-sum
 import mundane definition stdlib/geometry/area as geometry-area
 import theorem            stdlib/geometry/area-by-sine as geometry-area-by-sine
@@ -198,7 +198,7 @@ theorem midpoint-halves
     mun:geometry-midpoint, from H4
 
 2.  |AM| + |MB| = |AB|
-    thm:geometry-segment-addition, from 1
+    mun:geometry-segment-addition, from 1
 
 3.  |AM| = |AB|/2
     algebra, from 1, 2
@@ -223,7 +223,7 @@ theorem perpendicular-by-right-angle
   then line QP ⊥ line QR
 
 1.  line QP ⊥ line QR
-    thm:geometry-perpendicular-by-right-angle, from H4, H5, H6
+    mun:geometry-perpendicular-by-right-angle, from H4, H5, H6
 
 theorem intersecting-chords
   note        The circle is named once, as the points at distance r from O,
@@ -312,7 +312,7 @@ theorem signed-angle-reverse
   then ∡RQP = −∡PQR
 
 1.  ∡RQP = −∡PQR
-    thm:geometry-signed-angle-reverse, from H4, H5, H6
+    mun:geometry-signed-angle-reverse, from H4, H5, H6
 
 theorem signed-angle-sum
   let P be a point                                                    (H1)
@@ -534,7 +534,7 @@ theorem angle-addition
   then ∠ACM + ∠MCB = ∠ACB
 
 1.  ∠ACM + ∠MCB = ∠ACB
-    thm:geometry-angle-addition, from H5, H6
+    mun:geometry-angle-addition, from H5, H6
 
 theorem between-apart
   let R be a point                                                    (H1)

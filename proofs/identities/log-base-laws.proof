@@ -1,7 +1,7 @@
 import mundane definition stdlib/logarithms/ln
-import theorem            stdlib/logarithms/ln-product
-import theorem            stdlib/logarithms/ln-quotient
-import theorem            stdlib/logarithms/ln-power
+import mundane theorem    stdlib/logarithms/ln-product
+import mundane theorem    stdlib/logarithms/ln-quotient
+import mundane theorem    stdlib/logarithms/ln-power
 import mundane theorem    stdlib/logarithms/ln-nonzero
 import mundane theorem    stdlib/logarithms/ln-real
 
@@ -11,7 +11,7 @@ theorem log-two-of-a-power-of-two
   then ln(2^n)/ln(2) = n
 
 1.  ln(2^n) = n·ln(2)
-    thm:ln-power x := 2
+    mun:ln-power x := 2
     requires 2 > 0: arithmetic
 
 2.  ln(2^n)/ln(2) = n·ln(2)/ln(2)
@@ -40,7 +40,7 @@ theorem log-of-a-product
   then ln(x·y)/ln(b) = ln(x)/ln(b) + ln(y)/ln(b)
 
 1.  ln(x·y) = ln(x) + ln(y)
-    thm:ln-product, from H4, H5
+    mun:ln-product, from H4, H5
 
 2.  ln(b) ≠ 0
     mun:ln-nonzero x := b, from H6, H7
@@ -71,7 +71,7 @@ theorem log-of-a-reciprocal
   then ln(1/x)/ln(b) = −(ln(x)/ln(b))
 
 1.  ln(1/x) = ln(1) − ln(x)
-    thm:ln-quotient x := 1, y := x, from H3
+    mun:ln-quotient x := 1, y := x, from H3
     requires 1 > 0: arithmetic
 
 2.  ln(1/x) = 0 − ln(x)

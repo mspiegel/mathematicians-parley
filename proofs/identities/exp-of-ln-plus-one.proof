@@ -1,7 +1,7 @@
 import mundane definition stdlib/logarithms/ln
 import mundane definition stdlib/logarithms/exp
-import theorem            stdlib/logarithms/exp-sum
-import theorem            stdlib/logarithms/exp-ln
+import mundane theorem    stdlib/logarithms/exp-sum
+import mundane theorem    stdlib/logarithms/exp-ln
 import mundane theorem    stdlib/logarithms/ln-real
 
 theorem exp-of-ln-plus-one
@@ -11,11 +11,11 @@ theorem exp-of-ln-plus-one
   then exp(ln(x) + 1) = e·x
 
 1.  exp(ln(x) + 1) = exp(ln(x))·exp(1)
-    thm:exp-sum a := ln(x), b := 1
+    mun:exp-sum a := ln(x), b := 1
     requires ln(x) ∈ ℝ: mun:ln-real, from H2
 
 2.  exp(ln(x)) = x
-    thm:exp-ln, from H2
+    mun:exp-ln, from H2
 
 3.  exp(ln(x) + 1) = x·exp(1)
     substitute exp(ln(x)) = x (line 2) into line 1

@@ -1,7 +1,7 @@
 import theorem            stdlib/divisibility/sigma-multiplicative
 import theorem            stdlib/divisibility/sigma-prime
 import theorem            stdlib/divisibility/sigma-prime-power
-import theorem            stdlib/divisibility/sigma-part
+import mundane theorem    stdlib/divisibility/sigma-part
 import theorem            proofs/wiedijk/geometric-series/geometric-sum
 import theorem            stdlib/divisibility/coprime-divides
 import mundane theorem    stdlib/divisibility/coprime-power
@@ -333,7 +333,7 @@ theorem three-divisors
     mun:triple-subset, from 3, 4, 5
 
 7.  Σ(d ∈ {1, e, m}) d ≤ σ(m)
-    thm:sigma-part n := m, Y := {1, e, m}, from 6
+    mun:sigma-part n := m, Y := {1, e, m}, from 6
 
 8.  1 < m
     transitivity, from H4, H5

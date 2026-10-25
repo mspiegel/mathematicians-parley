@@ -1,6 +1,6 @@
 import mundane definition stdlib/logarithms/ln
-import theorem            stdlib/logarithms/ln-power
-import theorem            stdlib/logarithms/exp-ln
+import mundane theorem    stdlib/logarithms/ln-power
+import mundane theorem    stdlib/logarithms/exp-ln
 import mundane definition stdlib/logarithms/exp
 import mundane definition stdlib/divisibility/even
 import mundane definition stdlib/divisibility/odd
@@ -129,11 +129,11 @@ theorem log-three-over-two-irrational
           requires ln(2) ≠ 0: real arithmetic
 
     2.7.  ln(3^q) = q·ln(3)
-          thm:ln-power x := 3, n := q
+          mun:ln-power x := 3, n := q
           requires 3 > 0: arithmetic
 
     2.8.  ln(2^p) = p·ln(2)
-          thm:ln-power x := 2, n := p
+          mun:ln-power x := 2, n := p
           requires 2 > 0: arithmetic
 
     2.9.  ln(3^q) = ln(2^p)
@@ -151,10 +151,10 @@ theorem log-three-over-two-irrational
           requires 2 > 0: arithmetic
 
     2.12. exp(ln(3^q)) = 3^q
-          thm:exp-ln x := 3^q, from 2.10
+          mun:exp-ln x := 3^q, from 2.10
 
     2.13. exp(ln(2^p)) = 2^p
-          thm:exp-ln x := 2^p, from 2.5, 2.11
+          mun:exp-ln x := 2^p, from 2.5, 2.11
 
     2.14. exp(ln(3^q)) = exp(ln(2^p))
           substitute ln(3^q) = ln(2^p) (line 2.9)

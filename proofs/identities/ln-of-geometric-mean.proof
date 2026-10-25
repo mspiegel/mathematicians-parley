@@ -2,8 +2,8 @@ import mundane definition stdlib/logarithms/ln
 import mundane definition stdlib/numbers/sqrt
 import mundane theorem    stdlib/numbers/product-positive
 import mundane theorem    stdlib/numbers/factor-positive
-import theorem            stdlib/logarithms/ln-product
-import theorem            stdlib/logarithms/ln-power
+import mundane theorem    stdlib/logarithms/ln-product
+import mundane theorem    stdlib/logarithms/ln-power
 import mundane theorem    stdlib/logarithms/ln-real
 
 theorem ln-of-geometric-mean
@@ -35,13 +35,13 @@ theorem ln-of-geometric-mean
     algebra, from 2
 
 7.  ln((√(x·y))^2) = 2·ln(√(x·y))
-    thm:ln-power x := √(x·y), n := 2, from 2, 5
+    mun:ln-power x := √(x·y), n := 2, from 2, 5
 
 8.  ln((√(x·y))^2) = ln(x·y)
     substitute (√(x·y))^2 = x·y (line 6)
 
 9.  ln(x·y) = ln(x) + ln(y)
-    thm:ln-product, from H3, H4
+    mun:ln-product, from H3, H4
 
 10. 2·ln(√(x·y)) = ln(x) + ln(y)
     calculation

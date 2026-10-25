@@ -1,6 +1,6 @@
 import theorem            proofs/euclid/apollonius/apollonius
 import mundane definition stdlib/geometry/midpoint
-import theorem            stdlib/geometry/segment-addition
+import mundane theorem    stdlib/geometry/segment-addition
 import mundane theorem    stdlib/geometry/distance-symmetric
 
 theorem parallelogram-law
@@ -32,10 +32,10 @@ theorem parallelogram-law
     substitute |BA| = |AB| (line 4) into line 3
 
 6.  |AM| + |MC| = |AC|
-    thm:segment-addition P := A, Q := C, S := M, from 1
+    mun:segment-addition P := A, Q := C, S := M, from 1
 
 7.  |BM| + |MD| = |BD|
-    thm:segment-addition P := B, Q := D, S := M, from 2
+    mun:segment-addition P := B, Q := D, S := M, from 2
 
 8.  |AC| = 2·|AM|
     algebra, from 1, 6

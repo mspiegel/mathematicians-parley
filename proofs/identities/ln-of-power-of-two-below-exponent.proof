@@ -1,5 +1,5 @@
 import mundane definition stdlib/logarithms/ln
-import theorem            stdlib/logarithms/ln-power
+import mundane theorem    stdlib/logarithms/ln-power
 import mundane theorem    stdlib/numbers/less-scaled
 
 theorem ln-of-power-of-two-below-exponent
@@ -8,7 +8,7 @@ theorem ln-of-power-of-two-below-exponent
   then ln(2^n) < n
 
 1.  ln(2^n) = n·ln(2)
-    thm:ln-power x := 2
+    mun:ln-power x := 2
     requires 2 > 0: arithmetic
 
 2.  ln(2) < 1

@@ -42,7 +42,7 @@ mundane definition exp
               exp(1) (df-e). Real arithmetic takes it of a whole number of at
               least 0 plus whole multiples of logarithms of primes.
 
-theorem ln-product
+mundane theorem ln-product
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)
   assume x > 0                                                        (H3)
@@ -51,7 +51,7 @@ theorem ln-product
   metamath    relogmul
   target      relogmul
 
-theorem ln-quotient
+mundane theorem ln-quotient
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)
   assume x > 0                                                        (H3)
@@ -60,7 +60,7 @@ theorem ln-quotient
   metamath    relogdiv
   target      relogdiv
 
-theorem ln-power
+mundane theorem ln-power
   let x ∈ ℝ                                                           (H1)
   let n ∈ ℤ                                                           (H2)
   assume x > 0                                                        (H3)
@@ -68,7 +68,7 @@ theorem ln-power
   metamath    relogexp
   target      relogexp
 
-theorem exp-ln
+mundane theorem exp-ln
   let x ∈ ℝ                                                           (H1)
   assume x > 0                                                        (H2)
   then        exp(ln(x)) = x
@@ -77,20 +77,20 @@ theorem exp-ln
   note        With ln-exp, the logarithm and the exponential undo each other:
               each is one-to-one where the other is defined.
 
-theorem ln-exp
+mundane theorem ln-exp
   let x ∈ ℝ                                                           (H1)
   then        ln(exp(x)) = x
   metamath    relogef
   target      relogef
 
-theorem exp-sum
+mundane theorem exp-sum
   let a ∈ ℂ                                                           (H1)
   let b ∈ ℂ                                                           (H2)
   then        exp(a + b) = exp(a)·exp(b)
   metamath    efadd
   target      efadd
 
-theorem ln-order
+mundane theorem ln-order
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)
   assume x > 0                                                        (H3)

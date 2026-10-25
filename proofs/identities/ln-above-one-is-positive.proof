@@ -1,5 +1,5 @@
 import mundane definition stdlib/logarithms/ln
-import theorem            stdlib/logarithms/ln-order
+import mundane theorem    stdlib/logarithms/ln-order
 
 theorem ln-above-one-is-positive
   note        ln is increasing and ln(1) = 0.
@@ -11,7 +11,7 @@ theorem ln-above-one-is-positive
     inequalities, from H2
 
 2.  ln(1) < ln(x)
-    thm:ln-order x := 1, y := x, from H2, 1
+    mun:ln-order x := 1, y := x, from H2, 1
     requires 1 > 0: arithmetic
 
 3.  ln(1) = 0

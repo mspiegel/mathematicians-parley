@@ -1,5 +1,5 @@
 import mundane definition stdlib/logarithms/exp
-import theorem            stdlib/logarithms/exp-sum
+import mundane theorem    stdlib/logarithms/exp-sum
 
 theorem exp-times-exp-negative
   note        exp(x)·exp(−x) = exp(x + (−x)) = exp(0) = 1.
@@ -7,7 +7,7 @@ theorem exp-times-exp-negative
   then exp(x)·exp(−x) = 1
 
 1.  exp(x + −x) = exp(x)·exp(−x)
-    thm:exp-sum a := x, b := −x
+    mun:exp-sum a := x, b := −x
 
 2.  x + −x = 0
     algebra

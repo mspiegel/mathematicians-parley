@@ -77,7 +77,7 @@ mundane theorem signed-angle-real
   metamath    gsangcl, from angcld
   target      gsangcl
 
-theorem signed-angle-reverse
+mundane theorem signed-angle-reverse
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)
   let R be a point                                                    (H3)
@@ -277,7 +277,7 @@ mundane definition perpendicular
               mun:stdlib/geometry/perpendicular-by-right-angle reads it as
               an angle.
 
-theorem perpendicular-by-right-angle
+mundane theorem perpendicular-by-right-angle
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)
   let R be a point                                                    (H3)
@@ -479,7 +479,7 @@ theorem triangle-inequality-strict
   note        Euclid I.20: equality would put Q between P and R, and the
               three would be collinear.
 
-theorem angle-addition
+mundane theorem angle-addition
   let A be a point                                                    (H1)
   let B be a point                                                    (H2)
   let C be a point                                                    (H3)
@@ -648,7 +648,7 @@ mundane theorem angle-along-segment
               so the angle that ray makes with PR is the same measured to S
               as to Q.
 
-theorem segment-addition
+mundane theorem segment-addition
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)
   let S be a point                                                    (H3)

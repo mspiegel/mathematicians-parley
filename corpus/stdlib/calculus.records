@@ -252,7 +252,7 @@ theorem continuous-square
               elaboration/stdlib/proved.mm from mulcncf, x² being x·x
   target      gcncfsqres
 
-theorem continuous-on-part
+mundane theorem continuous-on-part
   let D ⊆ ℝ                                                           (H1)
   let f : D → ℝ                                                       (H2)
   let S ⊆ D                                                           (H3)

@@ -1,5 +1,5 @@
 import mundane definition stdlib/logarithms/ln
-import theorem            stdlib/logarithms/ln-power
+import mundane theorem    stdlib/logarithms/ln-power
 import mundane theorem    stdlib/numbers/power-of-product
 import mundane theorem    stdlib/reasoning/modus-ponens
 
@@ -11,7 +11,7 @@ theorem a-logarithm-of-a-square
   then ln(s²) = 2·ln(s)
 
 1.  ln(s²) = 2·ln(s)
-    thm:ln-power x := s, n := 2, from H2
+    mun:ln-power x := s, n := 2, from H2
 
 theorem a-square-of-a-product
   let a ∈ ℝ                                                           (H1)

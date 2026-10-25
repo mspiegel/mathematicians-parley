@@ -586,7 +586,7 @@ mundane theorem sigma-nat
   metamath    sgmnncl
   target      sgmnncl with A := 1
 
-theorem sigma-part
+mundane theorem sigma-part
   let n ∈ ℕ                                                           (H1)
   let Y ⊆ {d ∈ ℕ : d divides n}                                       (H2)
   then        Σ(d ∈ Y) d ≤ σ(n)
