@@ -161,7 +161,8 @@ with the justification `inequalities` and no `from`:
 
 The first row is a line the step cites, written out, with the line's label
 as its reason; of a line saying several things, `0 < x and x < 1`, it is
-one of them. Each row after it is the row above with the manipulation its
+one of them, a cited line being read as `SYNTAX.md`, What a cited line
+says, reads it: `k ≤ n   K1` where K1 lets k ∈ {1, …, n}. Each row after it is the row above with the manipulation its
 reason names, and the last row is the claim:
 
 | reason | the row is the row above with |
@@ -404,7 +405,9 @@ refuse each false one as not following.
 `<`: from `a ≤ b` and `b < c`, `a < c`. The cited lines, in the order they
 are cited, make a chain. Each gives one relation between two terms: the
 line's, or of a line saying several things, the one of them that meets the
-chain, which is to be one only. A define of a name is cited as its
+chain, which is to be one only. A cited line is read as `SYNTAX.md`, What a
+cited line says, reads it: `a = b = c` gives `a = c`, and `k ∈ {1, …, n}`
+gives `k ≤ n`. A define of a name is cited as its
 equation, as a calculation's link citing it is (`SYNTAX.md`, a step may
 cite a define): `let e = ⌊A + 1/2⌋ − A (D1)` gives `e = ⌊A + 1/2⌋ − A`, and
 a define that also says what kind of number its name is gives the
