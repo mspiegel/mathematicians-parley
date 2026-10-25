@@ -69,12 +69,12 @@ has, and a subject is one file:
 | file | holds | items |
 |---|---|---|
 | `corpus/stdlib/reasoning.records` | the laws of logic a proof cites by name | 14 |
-| `corpus/stdlib/numbers.records` | the number systems, closure, order, powers and real powers, roots, absolute value | 113 |
-| `corpus/stdlib/divisibility.records` | even and odd, divisors, primes, gcd, division, congruence, Euler's φ, the sum of divisors σ | 76 |
-| `corpus/stdlib/sums.records` | sums over a range, and the ranges; products over a finite set | 49 |
+| `corpus/stdlib/numbers.records` | the number systems, closure, order, powers and real powers, roots, absolute value, Bernoulli's inequality | 118 |
+| `corpus/stdlib/divisibility.records` | even and odd, divisors, primes, gcd, division, congruence, Euler's φ, the sum of divisors σ | 80 |
+| `corpus/stdlib/sums.records` | sums over a range, and the ranges; products over a finite set | 56 |
 | `corpus/stdlib/sets.records` | subsets, set-builder, union, intersection, difference, power set, listed sets | 80 |
 | `corpus/stdlib/functions.records` | functions, their values, images, and inverses | 23 |
-| `corpus/stdlib/counting.records` | the size of a set, factorials, binomial coefficients, counting by parts, the pigeonhole principle | 50 |
+| `corpus/stdlib/counting.records` | the size of a set, factorials, binomial coefficients, counting by parts, the pigeonhole principle | 51 |
 | `corpus/stdlib/calculus.records` | intervals, bounds and completeness, continuity, derivatives, bounded sequences | 30 |
 | `corpus/stdlib/geometry.records` | points, distance, angles and signed angles, triangles and their kinds (isosceles, equilateral, right-angled), congruence, parallels and sides of a line, lines and perpendiculars, midpoints, chords of a circle, area, the laws of sines and cosines, coordinates, supplementary angles, the triangle inequality, the addition of angles | 65 |
 | `corpus/stdlib/groups.records` | groups, their laws, subgroups, cosets | 12 |
@@ -125,7 +125,7 @@ Every item in the standard library carries a field saying where it comes from:
 
 | field | meaning | count |
 |---|---|---|
-| `metamath` | a set.mm label or labels supply it | 543 |
+| `metamath` | a set.mm label or labels supply it | 575 |
 | `open` | it is cited but unproved and unbridged | 5 |
 
 A theorem this corpus proves has no
@@ -140,7 +140,7 @@ the record; every other proof cites the record. The two are one fact in two
 roles, each checked on its own: the record against its set.mm lemma, the
 theorem by its proof. What a record would say beside the statement,
 the set.mm theorem it answers to and a note, the proof says in `metamath` and
-`note` lines under its `theorem` line; 79 of the 653 name a set.mm
+`note` lines under its `theorem` line; 81 of the 659 name a set.mm
 counterpart.
 
 A definition may also carry a `target`, which says which set.mm theorem
@@ -494,8 +494,8 @@ mundane definition difference
 |---|---|
 | `axiom` | 4 |
 | `mundane axiom` | 8 |
-| `theorem` | 71 |
-| `mundane theorem` | 390 |
+| `theorem` | 61 |
+| `mundane theorem` | 432 |
 | `definition` | 12 |
 | `mundane definition` | 63 |
 
@@ -610,6 +610,7 @@ this table is mundane.
 | completeness | `axiom` | "by the completeness of ℝ", intermediate-value step 8 |
 | well-ordering | `axiom` | "by the well-ordering principle", bezout step 4 |
 | side-angle-side | `axiom` | "by SAS", isosceles step 5 |
+| parallel-through | `axiom` | "draw the line through R parallel to PQ", angle-sum step 1 |
 | pascal, division-algorithm, prime-factor, gcd-mod, divides-gcd, group-cancel, archimedean, sum-telescopes | `theorem` | "by Pascal's rule", "by the division algorithm" |
 | sigma-multiplicative, sigma-prime, sigma-prime-power | `theorem` | "σ is multiplicative", "the divisor sum of a prime", perfect-numbers steps 8, 9 and 12 |
 | cos-add, sin-add | `theorem` | "by the angle-addition formulas", de-moivre steps 2.13 and 2.14 |
@@ -620,6 +621,24 @@ this table is mundane.
 | pigeonhole | `theorem` | "by the pigeonhole principle", erdos-szekeres step 1.13 |
 | continuous-sum, continuous-linear, derivative-sum, derivative-linear | `theorem` | "a sum of continuous functions is continuous", "the derivative of a sum is the sum of the derivatives", mean-value steps 10 to 15 |
 | congruent-cancel, product-reorder, product-congruent, product-factor, product-coprime, coprime-divides | `theorem` | "cancel a, which is coprime to n", "the same remainders in another order", "congruences multiply", "a comes out once per factor", "a product of numbers coprime to n is coprime to n", "n divides the product and is coprime to one factor", euler steps 7.7, 10, 12, 13, 19 and 23 |
+| triangle-inequality | `theorem` | "by the triangle inequality", distance-triangle step 2; `proofs/wiedijk/triangle-inequality.proof` proves it as its own theorem |
+| alternate-angles, angles-on-a-line | `theorem` | "alternate angles are equal", "the angles on a line make 180°", angle-sum steps 2 and 4 |
+| altitude-foot, law-of-sines | `theorem` | "drop the altitude from the right angle to the hypotenuse", "by the law of sines", pythagoras step 1, similar-triangles step 5 |
+| coprime-square | `theorem` | "coprime numbers whose product is a square are squares", primitive-triple step 54 |
+| area-function, continuous-difference, derivative-difference | `theorem` | "by the fundamental theorem of calculus, part one", "a difference of continuous functions is continuous", "and of differentiable ones differentiable", fundamental-calculus steps 11, 14 and 15 |
+| count-functions, count-one-to-one | `theorem` | "there are \|Y\|^\|X\| functions from X to Y", "and \|Y\|(\|Y\| − 1)⋯ of them are one-to-one", birthday steps 5 and 10 |
+| area-by-sine, law-of-cosines | `theorem` | "the area is half the product of two sides and the sine of the angle between them", "by the law of cosines", heron steps 4 and 5 |
+| bernoulli-difference, sum-telescopes-up | `theorem` | "B(n, x + 1) − B(n, x) = n·x^(n − 1)", "the sum telescopes", sum-of-powers steps 1.1 and 3 |
+| absorption | `theorem` | "by the absorption identity", ballot-recurrence step 24 |
+| bernoulli-inequality | `theorem` | "by Bernoulli's inequality", am-gm-power step 1.2.16.3 |
+| phi-prime, product-congruent-termwise, prime-divides-product | `theorem` | "φ(p) = p − 1 for a prime p", "multiply the congruences factor by factor", "by Euclid's lemma", wilson step 5.4, paired-product step 21, wilson step 5.15.1.5 |
+| heron | `theorem` | "by Heron's formula", heron-formula step 3; `proofs/wiedijk/heron.proof` proves it as its own theorem |
+| chord-midpoint-right-angle, intersecting-chords | `theorem` | "the line from the centre to the midpoint of a chord is perpendicular to it", "by the intersecting chords theorem", chord-bisector step 10, chords-through-circle step 8 |
+| supplementary-angles | `theorem` | "angles on a line add up to 180°", altitude-mean-proportional step 6 |
+| triangle-inequality-points, triangle-inequality-strict, triangle-equality-between | `theorem` | "by the triangle inequality", "strictly, unless Q lies between P and R", "equality puts Q between them", difference-of-sides step 1, greater-side-greater-angle step 18, triangle-equality-case step 1 |
+| continuous-square, derivative-square, convergent-abs-bounded | `theorem` | "x² is continuous", "and differentiable", "a convergent sequence is bounded in size": not cited by a proof, only by the tests (`tests/notations/integrals.proof`, `tests/notations/calculus.proof`, `tests/stdlib/calculus.proof`) |
+| signed-angle-sum | `theorem` | "the angles of a triangle add up to π", in signed form: not cited by a proof |
+| prime-divides-power | `theorem` | "by Euclid's lemma, for a power": not cited by a proof; `proofs/setmm/prime-divides-power.proof` proves it as its own theorem |
 | continuous-on | `definition` | "by the continuity of f at c", intermediate-value step 15 |
 | tends-to | `definition` | the partial sums shown to tend to 2 from the ε–N definition, triangular-reciprocals step 4 |
 | congruent | `definition` | "corresponding angles of congruent triangles are equal", isosceles step 6 |
@@ -627,6 +646,9 @@ this table is mundane.
 | σ | `definition` | a word Reader A has not met, the sum of the divisors |
 | φ | `definition` | Euler's φ, how many remainders are coprime to n, euler step 14 |
 | perfect | `definition` | "so it is perfect, by definition", perfect-numbers step 21 |
+| limit-at | `definition` | "by the definition of a limit", the ε–δ definition, four-x-plus-six-limit step 2 |
+| traversable, euler-path, walk | `definition` | "traversable", "an Euler path", odd-vertices steps 1 and 2; "a walk", not cited by a proof |
+| B | `definition` | the n-th Bernoulli polynomial, a word Reader A has not met, applied in sum-of-powers |
 
 Some mundane items are worth a word, since a reader might expect otherwise:
 

@@ -14,7 +14,7 @@ the binomial bound, which needs no "least n":
 ## Theorems
 
 The proof is `proofs/wiedijk/ramsey.proof`, five theorems of 59 numbered
-steps, 156 with those inside blocks. All five elaborate to
+steps, 155 with those inside blocks. All five elaborate to
 `corpus/elaboration/proofs/wiedijk/ramsey/`, assume nothing, and verify.
 
 - `one-point-part`: a finite set with a point has a part of one point, all

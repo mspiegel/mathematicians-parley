@@ -79,5 +79,5 @@ which the ballot pilot added.
 7. **The negated "there is no X ⊆ A with …" has no pattern**; the page
    writes not (there is S ⊆ … with …).
 
-Numbers, for the record: 187 numbered steps and 23 requires lines over
+Numbers, for the record: 182 numbered steps and 23 requires lines over
 the two theorems.
