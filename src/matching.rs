@@ -95,6 +95,13 @@ pub type FxIndexMap<K, V> = IndexMap<K, V, rustc_hash::FxBuildHasher>;
 pub type FxIndexSet<K> = IndexSet<K, rustc_hash::FxBuildHasher>;
 
 /// The notations of these names, as ids.
+/// The notations whose holes stand in no order (`commutes any order`), by
+/// id: a triangle's three points, a listed set's elements, a distance's two
+/// points.
+pub fn unordered_notations(records: &[Record]) -> FxIndexSet<NotationId> {
+    ids_of(unordered(records))
+}
+
 fn ids_of(names: IndexSet<String>) -> FxIndexSet<NotationId> {
     names.iter().map(|n| NotationId::of(n)).collect()
 }

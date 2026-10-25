@@ -1,7 +1,6 @@
 import theorem            stdlib/geometry/law-of-cosines
 import mundane theorem    stdlib/geometry/right-angle-by-cosine
 import mundane theorem    stdlib/geometry/distance-positive
-import mundane theorem    stdlib/geometry/distance-symmetric
 import mundane theorem    stdlib/geometry/triangle-angle-real
 import mundane definition stdlib/geometry/triangle
 import mundane definition stdlib/trigonometry/cos
@@ -27,40 +26,28 @@ theorem converse-of-pythagoras
 2.  |BA|² = |AC|² + |CB|² − 2·(|AC|·|CB|·cos(∠ACB))
     thm:law-of-cosines P := A, Q := C, R := B, from 1
 
-3.  |BA| = |AB|
-    mun:distance-symmetric P := B, Q := A
+3.  |AC|² + |BC|² = |AC|² + |BC|² − 2·(|AC|·|BC|·cos(∠ACB))
+    substitute |AB|² = |AC|² + |BC|² (H5) into line 2
 
-4.  |CB| = |BC|
-    mun:distance-symmetric P := C, Q := B
-
-5.  |AB|² = |AC|² + |CB|² − 2·(|AC|·|CB|·cos(∠ACB))
-    substitute |BA| = |AB| (line 3) into line 2
-
-6.  |AB|² = |AC|² + |BC|² − 2·(|AC|·|BC|·cos(∠ACB))
-    substitute |CB| = |BC| (line 4) into line 5
-
-7.  |AC|² + |BC|² = |AC|² + |BC|² − 2·(|AC|·|BC|·cos(∠ACB))
-    substitute |AB|² = |AC|² + |BC|² (H5) into line 6
-
-8.  cos(∠ACB)·(|AC|·|BC|) = 0·(|AC|·|BC|)
-    algebra, from 7
+4.  cos(∠ACB)·(|AC|·|BC|) = 0·(|AC|·|BC|)
+    algebra, from 3
     requires ∠ACB ∈ ℝ: mun:triangle-angle-real P := A, Q := C, R := B, from H4
     requires cos(∠ACB) ∈ ℝ: mun:cos-real a := ∠ACB
 
-9.  |AC| > 0
+5.  |AC| > 0
     mun:distance-positive P := A, Q := C, from 1
 
-10. |BC| > 0
+6.  |BC| > 0
     mun:distance-positive P := B, Q := C, from 1
 
-11. |AC|·|BC| > 0
-    mun:product-positive x := |AC|, y := |BC|, from 9, 10
+7.  |AC|·|BC| > 0
+    mun:product-positive x := |AC|, y := |BC|, from 5, 6
 
-12. cos(∠ACB) = 0
-    mun:multiply-cancel a := cos(∠ACB), b := 0, c := |AC|·|BC|, from 8
+8.  cos(∠ACB) = 0
+    mun:multiply-cancel a := cos(∠ACB), b := 0, c := |AC|·|BC|, from 4
     requires ∠ACB ∈ ℝ: mun:triangle-angle-real P := A, Q := C, R := B, from H4
     requires cos(∠ACB) ∈ ℝ: mun:cos-real a := ∠ACB
-    requires |AC|·|BC| ≠ 0: weakening, from 11
+    requires |AC|·|BC| ≠ 0: weakening, from 7
 
-13. ∠ACB = 90°
-    mun:right-angle-by-cosine P := A, Q := C, R := B, from 1, 12
+9.  ∠ACB = 90°
+    mun:right-angle-by-cosine P := A, Q := C, R := B, from 1, 8

@@ -3,7 +3,6 @@ import mundane theorem    stdlib/geometry/collinear-by-coordinates
 import mundane theorem    stdlib/geometry/distance-of-points-by-coordinates
 import mundane theorem    stdlib/reasoning/iff-not-from-right
 import mundane definition stdlib/geometry/triangle
-import mundane theorem    stdlib/geometry/distance-symmetric
 import theorem            stdlib/geometry/law-of-cosines
 import mundane theorem    stdlib/geometry/triangle-angle-real
 import mundane theorem    stdlib/geometry/right-angle-by-cosine
@@ -92,28 +91,22 @@ theorem right-triangle-three-four-five
 20. |CB|² = |BA|² + |AC|² − 2·(|BA|·|AC|·cos(∠BAC))
     thm:law-of-cosines, from 2, 4
 
-21. |CB| = |BC|
-    mun:distance-symmetric
+21. 5² = |BA|² + |AC|² − 2·(|BA|·|AC|·cos(∠BAC))
+    substitute |BC| = 5 (line 19) into line 20
 
-22. |BC|² = |BA|² + |AC|² − 2·(|BA|·|AC|·cos(∠BAC))
-    substitute |CB| = |BC| (line 21) into line 20
+22. 5² = 3² + |AC|² − 2·(3·|AC|·cos(∠BAC))
+    substitute |BA| = 3 (line 15) into line 21
 
-23. 5² = |BA|² + |AC|² − 2·(|BA|·|AC|·cos(∠BAC))
-    substitute |BC| = 5 (line 19) into line 22
+23. 5² = 3² + 4² − 2·(3·4·cos(∠BAC))
+    substitute |AC| = 4 (line 17) into line 22
 
-24. 5² = 3² + |AC|² − 2·(3·|AC|·cos(∠BAC))
-    substitute |BA| = 3 (line 15) into line 23
-
-25. 5² = 3² + 4² − 2·(3·4·cos(∠BAC))
-    substitute |AC| = 4 (line 17) into line 24
-
-26. cos(∠BAC) = 0
-    algebra, from 25
+24. cos(∠BAC) = 0
+    algebra, from 23
     requires ∠BAC ∈ ℝ: mun:triangle-angle-real, from 13
     requires cos(∠BAC) ∈ ℝ: mun:cos-real a := ∠BAC
 
-27. ∠BAC = 90°
-    mun:right-angle-by-cosine, from 2, 4, 26
+25. ∠BAC = 90°
+    mun:right-angle-by-cosine, from 2, 4, 24
 
-28. A, B, C form a triangle. ∠BAC = 90°. |BC| = 5.
-    join 13, 27, 19
+26. A, B, C form a triangle. ∠BAC = 90°. |BC| = 5.
+    join 13, 25, 19

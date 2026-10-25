@@ -1,5 +1,4 @@
 import theorem            stdlib/geometry/law-of-sines
-import mundane theorem    stdlib/geometry/distance-symmetric
 import mundane definition stdlib/trigonometry/sin
 
 theorem thirty-sixty-ninety
@@ -29,11 +28,5 @@ theorem thirty-sixty-ninety
 5.  |BA|·(1/2) = |BC|·1
     substitute sin(90°) = 1 (real arithmetic) into line 4
 
-6.  |BA| = |AB|
-    mun:distance-symmetric P := B, Q := A
-
-7.  |AB|·(1/2) = |BC|·1
-    substitute |BA| = |AB| (line 6) into line 5
-
-8.  |BC| = |AB|/2
-    algebra, from 7
+6.  |BC| = |AB|/2
+    algebra, from 5

@@ -5,7 +5,6 @@ import mundane theorem    stdlib/geometry/segment-addition
 import mundane theorem    stdlib/geometry/angle-along-segment
 import mundane theorem    stdlib/geometry/angle-symmetric
 import mundane theorem    stdlib/geometry/between-symmetric
-import mundane theorem    stdlib/geometry/distance-symmetric
 import mundane theorem    stdlib/geometry/sine-positive
 import mundane definition stdlib/geometry/triangle
 import mundane theorem    stdlib/geometry/triangle-angle-real
@@ -164,17 +163,5 @@ theorem pythagoras
 14. |AD| + |DB| = |AB|
     mun:segment-addition P := A, Q := B, S := D, from 1
 
-15. |BD| = |DB|
-    mun:distance-symmetric P := B, Q := D
-
-16. |BA| = |AB|
-    mun:distance-symmetric P := B, Q := A
-
-17. |DB|·|BA| = |BC|·|BC|
-    substitute |BD| = |DB| (line 15) into line 13
-
-18. |DB|·|AB| = |BC|·|BC|
-    substitute |BA| = |AB| (line 16) into line 17
-
-19. |AB|² = |AC|² + |BC|²
-    algebra, from 6, 14, 18
+15. |AB|² = |AC|² + |BC|²
+    algebra, from 6, 13, 14

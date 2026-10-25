@@ -3897,54 +3897,30 @@ impl<'a> Elaborator<'a> {
             facts: facts.clone(),
             lines: lines.clone(),
         };
-        let Some(letter) = self.unheld(&refs).map(|v| self.rpn(&v).to_string()) else {
-            return Ok(Built(as_written));
-        };
-        // Only a step that writes both a defined name and what it names
-        // reads its names written out; any other reads them as written.
-        let mut written: BTreeSet<Rpn> = BTreeSet::new();
-        let mut named: BTreeSet<Rpn> = BTreeSet::new();
-        let mut rest: Vec<Term> = vec![self.sums_over(&claim, &letter)];
-        rest.extend(
-            cited
-                .iter()
-                .map(|l| self.sums_over(&self.to_term(&l.claim), &letter)),
-        );
-        while let Some(node) = rest.pop() {
-            if node.variable().is_some() {
-                continue;
-            }
-            let kids = node.children();
-            if node.label() == Some("cv") && kids.len() == 1 {
-                if let Some(body) = self.named_body(&node, &Vars::new()) {
-                    let out = self.defined_names_out(&body);
-                    named.insert(self.rpn(&self.sums_over(&out, &letter)));
-                }
-            }
-            // A defined function applied names its rule at the argument:
-            // t(k) with t(j) = j + 1 names k + 1.
-            if node.label() == Some("cfv") && kids.len() == 2 {
-                let out = self.read_out(&node);
-                if self.rpn(&out) != self.rpn(&node) {
-                    named.insert(self.rpn(&self.sums_over(&out, &letter)));
-                }
-            }
-            written.insert(self.rpn(&node));
-            rest.extend(kids.iter().cloned());
+        let letter = self.unheld(&refs).map(|v| self.rpn(&v).to_string());
+        // A distance's two points stand in no order, and the methods read a
+        // term's atoms as they are spelt: every such pair is put in order.
+        let mut said = vec![term.clone()];
+        said.extend(cited.iter().map(|l| l.claim.clone()));
+        let mut out_of_order = false;
+        for s in &said {
+            let ordered = self.pairs_in_order(&self.to_term(s));
+            out_of_order = out_of_order || self.rpn(&ordered) != *s;
         }
-        if !named.iter().any(|body| written.contains(body)) {
+        let names = match &letter {
+            Some(letter) => self.writes_name_and_body(&claim, &cited, letter),
+            None => false,
+        };
+        if !names && !out_of_order {
             return Ok(Built(as_written));
         }
-        let written_out = |me: &mut Self, t: &Term| {
-            let out = me.read_out(t);
-            me.sums_over(&out, &letter)
-        };
-        let out = written_out(self, &claim);
+        let letter = letter.filter(|_| names);
+        let out = self.written_out(&claim, letter.as_deref());
         let term_out = self.rpn(&out);
         let (facts_out, lines_out) = (facts.copy(), lines.copy());
         for (r, line) in labels.into_iter().zip(&cited) {
             let said = self.to_term(&line.claim);
-            let written = written_out(self, &said);
+            let written = self.written_out(&said, letter.as_deref());
             let out_rpn = self.rpn(&written);
             if out_rpn == line.claim {
                 continue;
@@ -3965,6 +3941,62 @@ impl<'a> Elaborator<'a> {
             facts: facts_out,
             lines: lines_out,
         }))
+    }
+
+    /// A term as `names_written_out` reads it: with its defined names
+    /// written out and its sums over `letter`, where a letter is given, and
+    /// its pairs in no order put in order.
+    fn written_out(&mut self, term: &Term, letter: Option<&str>) -> Term {
+        let read = match letter {
+            Some(letter) => {
+                let out = self.read_out(term);
+                self.sums_over(&out, letter)
+            }
+            None => term.clone(),
+        };
+        self.pairs_in_order(&read)
+    }
+
+    /// Whether the claim or a cited line writes both a defined name and
+    /// what it names, each sum read over `letter`. Only such a step reads
+    /// its names written out; any other reads them as written.
+    fn writes_name_and_body(
+        &mut self,
+        claim: &Term,
+        cited: &[ProvedClaim],
+        letter: &str,
+    ) -> bool {
+        let mut written: BTreeSet<Rpn> = BTreeSet::new();
+        let mut named: BTreeSet<Rpn> = BTreeSet::new();
+        let mut rest: Vec<Term> = vec![self.sums_over(claim, letter)];
+        rest.extend(
+            cited
+                .iter()
+                .map(|l| self.sums_over(&self.to_term(&l.claim), letter)),
+        );
+        while let Some(node) = rest.pop() {
+            if node.variable().is_some() {
+                continue;
+            }
+            let kids = node.children();
+            if node.label() == Some("cv") && kids.len() == 1 {
+                if let Some(body) = self.named_body(&node, &Vars::new()) {
+                    let out = self.defined_names_out(&body);
+                    named.insert(self.rpn(&self.sums_over(&out, letter)));
+                }
+            }
+            // A defined function applied names its rule at the argument:
+            // t(k) with t(j) = j + 1 names k + 1.
+            if node.label() == Some("cfv") && kids.len() == 2 {
+                let out = self.read_out(&node);
+                if self.rpn(&out) != self.rpn(&node) {
+                    named.insert(self.rpn(&self.sums_over(&out, letter)));
+                }
+            }
+            written.insert(self.rpn(&node));
+            rest.extend(kids.iter().cloned());
+        }
+        named.iter().any(|body| written.contains(body))
     }
 
     /// The parts of the cited lines a plain step leaves out: those outside

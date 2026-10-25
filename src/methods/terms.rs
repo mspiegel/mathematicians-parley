@@ -12,7 +12,7 @@ use num_bigint::BigUint;
 
 use crate::formula::notation_id::{NotationId, Spelling};
 use crate::formula::{Grammar, Node};
-use crate::matching::FxIndexMap;
+use crate::matching::{FxIndexMap, FxIndexSet};
 use crate::mm::kernel::Term;
 use crate::targets;
 
@@ -95,6 +95,9 @@ pub struct Targets {
     /// how many holes the pattern writes, and what each further one adds,
     /// `_ csn cun` for a list of four elements or more (`Repeat`).
     repeats: FxIndexMap<Spelling, Repeats>,
+    /// The notations whose holes stand in no order, so that an atom built of
+    /// one is the same atom in any order of them: |AB| is |BA|.
+    unordered: FxIndexSet<NotationId>,
 }
 
 /// How a node holds more children than its pattern's holes: the holes the
@@ -145,6 +148,7 @@ impl Targets {
             literals,
             builds,
             repeats,
+            unordered: crate::matching::unordered_notations(records),
         }
     }
 
@@ -254,17 +258,17 @@ fn term_under(
         }
     }
     if node.is_name() || node.rpn.is_some() {
-        return atom(node, indices);
+        return atom(node, indices, targets);
     }
     if let Some(builds) = library_builds(node, targets, library) {
         let args: Vec<Term> = node.children[1..]
             .iter()
             .map(|c| term_under(c, targets, indices, library))
             .collect();
-        return built(builds, &args).unwrap_or_else(|| atom(node, indices));
+        return built(builds, &args).unwrap_or_else(|| atom(node, indices, targets));
     }
     let Some(pattern) = targets.pattern(node) else {
-        return atom(node, indices);
+        return atom(node, indices, targets);
     };
     // A sum's first hole is its index, which the rest are read inside.
     let mut inside: Vec<&Node> = indices.to_vec();
@@ -292,7 +296,7 @@ fn term_under(
         }),
         None => built(pattern, &holes),
     };
-    made.unwrap_or_else(|| atom(node, indices))
+    made.unwrap_or_else(|| atom(node, indices, targets))
 }
 
 /// What a library function's application builds, where `library` says its
@@ -348,8 +352,8 @@ fn built_onto(
 
 /// The atom a part of the page the deciders do not look inside stands as,
 /// followed by the atom of each index in `indices` it holds and is not.
-fn atom(node: &Node, indices: &[&Node]) -> Term {
-    let mut name = format!("{ATOM}{}", node.shape());
+fn atom(node: &Node, indices: &[&Node], targets: &Targets) -> Term {
+    let mut name = format!("{ATOM}{}", in_no_order(node, &targets.unordered).shape());
     let names = node.names();
     for index in indices {
         let itself = node.is_name() && node.text == index.text;
@@ -359,6 +363,21 @@ fn atom(node: &Node, indices: &[&Node]) -> Term {
         }
     }
     Term::apply(&name, Vec::new())
+}
+
+/// `node` with the holes of each notation `unordered` names put in one
+/// order, by their shapes, at every depth: |BA| is written |AB|, so the two
+/// are one atom.
+fn in_no_order(node: &Node, unordered: &FxIndexSet<NotationId>) -> Node {
+    let mut children: Vec<Node> = node
+        .children
+        .iter()
+        .map(|c| in_no_order(c, unordered))
+        .collect();
+    if unordered.contains(&node.notation()) {
+        children.sort_by_cached_key(|c| c.shape().to_string());
+    }
+    node.with_children(children)
 }
 
 /// The term `pattern` builds with `holes` in it, where every label it uses

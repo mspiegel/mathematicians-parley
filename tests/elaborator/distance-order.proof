@@ -1,0 +1,64 @@
+theorem a-distance-the-other-way-in-algebra
+  note        Rule: a distance's two points stand in no order. Route:
+              algebra, from L. Line H4 says |AB| = 3; the claim writes |BA|.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let x ∈ ℝ                                                           (H3)
+  assume |AB| = 3                                                     (H4)
+  then |BA| + x = 3 + x
+
+1.  |BA| + x = 3 + x
+    algebra, from H4
+
+theorem a-distance-the-other-way-substituted-into
+  note        Rule: a distance's two points stand in no order. Route:
+              substitute e (L1) into L2. The equation writes |AB|, the line
+              put into writes |BA|.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let x ∈ ℝ                                                           (H3)
+  assume |AB| = 3                                                     (H4)
+  assume |BA| + x = 5                                                 (H5)
+  then 3 + x = 5
+
+1.  3 + x = 5
+    substitute |AB| = 3 (H4) into H5
+
+theorem a-distance-the-substitution-leaves-written-the-other-way
+  note        Rule: a distance's two points stand in no order. Route:
+              substitute e (L1) into L2. The line put into writes |AB|,
+              which the equation does not touch, and the claim writes |BA|.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let x ∈ ℝ                                                           (H3)
+  assume x = 3                                                        (H4)
+  assume |AB| + x = 5                                                 (H5)
+  then |BA| + 3 = 5
+
+1.  |BA| + 3 = 5
+    substitute x = 3 (H4) into H5
+
+theorem a-distance-the-other-way-restated
+  note        Rule: a distance's two points stand in no order. Route:
+              restate L. Line H3 says |AB| = 3; the claim writes |BA|.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  assume |AB| = 3                                                     (H3)
+  then |BA| = 3
+
+1.  |BA| = 3
+    restate H3
+
+theorem a-distance-the-other-way-in-an-inequalities-row
+  note        Rule: a distance's two points stand in no order. Route: an
+              inequalities block's first row. Line H3 says |AB| < 3; the row
+              writes |BA|.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  assume |AB| < 3                                                     (H3)
+  then |BA| ≤ 3
+
+1.  |BA| ≤ 3
+    inequalities
+      |BA| < 3            H3
+      |BA| ≤ 3            weakening

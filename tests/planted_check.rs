@@ -713,7 +713,7 @@ fn cases() -> Vec<Case> {
                 Some("    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR\n\n14.".to_string()),
                 "    requires sin(∠PQR) ∈ ℝ: algebra\n\n14.".to_string(),
             )],
-            "proofs/wiedijk/pythagoras.proof:89  the requires line sin(∠PQR) ∈ ℝ of step 13 names algebra, which does not decide what it says",
+            "proofs/wiedijk/pythagoras.proof:88  the requires line sin(∠PQR) ∈ ℝ of step 13 names algebra, which does not decide what it says",
         ),
         // A letter of a range not starting at 1 or 0 is said once to be an
         // integer, and its being no zero is not: a divisor's `≠ 0` is written
@@ -1533,10 +1533,10 @@ fn cases() -> Vec<Case> {
             "write a distance's membership",
             vec![edit(
                 "proofs/wiedijk/pythagoras.proof",
-                Some("    algebra, from 6, 14, 18\n".to_string()),
-                "    algebra, from 6, 14, 18\n    requires |AC| ∈ ℝ: membership\n".to_string(),
+                Some("    algebra, from 6, 13, 14\n".to_string()),
+                "    algebra, from 6, 13, 14\n    requires |AC| ∈ ℝ: membership\n".to_string(),
             )],
-            "the requires line of step 19 says |AC| ∈ ℝ, which the page says once",
+            "the requires line of step 15 says |AC| ∈ ℝ, which the page says once",
         ),
         // A chain of equations is a whole sentence (`SYNTAX.md`), never a
         // part of another formula.
@@ -1959,11 +1959,11 @@ fn cases() -> Vec<Case> {
         case(
             "cite an equation that says the link neither way round",
             vec![edit(
-                "proofs/euclid/thales.proof",
-                Some("           = |MB|      H7\n".to_string()),
-                "           = |MB|      1\n".to_string(),
+                "proofs/wiedijk/pythagoras.proof",
+                Some("           = ∠CAB       3\n".to_string()),
+                "           = ∠CAB       2\n".to_string(),
             )],
-            "a link of step 2 cites 1, which does not say |MA| = |MB|; a link cites the line that states it, and a substitution is a step of its own",
+            "a link of step 4 cites 2, which does not say ∠BAC = ∠CAB; a link cites the line that states it, and a substitution is a step of its own",
         ),
         // A claim of u = a where the item says u ≠ a is not what it says.
         case(
@@ -3396,7 +3396,7 @@ fn cases() -> Vec<Case> {
         case(
             "two names run together into a declared word",
             vec![
-                edit("proofs/euclid/thales.proof", Some("1.  |AM| = |MA|".to_string()), "1.  |an| = |MA|".to_string()),
+                edit("proofs/wiedijk/pythagoras.proof", Some("14. |AD| + |DB| = |AB|".to_string()), "14. |an| + |DB| = |AB|".to_string()),
             ],
             "run together",
         ),
@@ -4187,9 +4187,9 @@ fn cases() -> Vec<Case> {
         case(
             "cite the line that says what sort of thing a name is",
             vec![
-                edit("proofs/euclid/thales.proof", Some("    mun:distance-symmetric P := A, Q := M\n".to_string()), "    mun:distance-symmetric P := A, Q := M, from H1\n".to_string()),
+                edit("proofs/wiedijk/heron.proof", Some("    mun:sin-cos-squares a := ∠BCA\n".to_string()), "    mun:sin-cos-squares a := ∠BCA, from H1\n".to_string()),
             ],
-            "step 1 cites H1, and mun:distance-symmetric asks for nothing it says",
+            "step 7 cites H1, and mun:sin-cos-squares asks for nothing it says",
         ),
         // A count step's claim fixes the property it is applied to, and so
         // supplies its hypotheses with no search for them; a line named

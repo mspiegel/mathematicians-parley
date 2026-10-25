@@ -1,7 +1,6 @@
 import theorem            proofs/euclid/apollonius/apollonius
 import mundane definition stdlib/geometry/midpoint
 import mundane theorem    stdlib/geometry/segment-addition
-import mundane theorem    stdlib/geometry/distance-symmetric
 
 theorem parallelogram-law
   note        M is the midpoint of both diagonals. Apollonius applied to the
@@ -25,29 +24,23 @@ theorem parallelogram-law
 3.  |BA|² + |BC|² = 2·|BM|² + 2·|AM|²
     thm:apollonius A := B, B := A, from 1
 
-4.  |BA| = |AB|
-    mun:distance-symmetric P := B, Q := A
-
-5.  |AB|² + |BC|² = 2·|BM|² + 2·|AM|²
-    substitute |BA| = |AB| (line 4) into line 3
-
-6.  |AM| + |MC| = |AC|
+4.  |AM| + |MC| = |AC|
     mun:segment-addition P := A, Q := C, S := M, from 1
 
-7.  |BM| + |MD| = |BD|
+5.  |BM| + |MD| = |BD|
     mun:segment-addition P := B, Q := D, S := M, from 2
 
-8.  |AC| = 2·|AM|
-    algebra, from 1, 6
+6.  |AC| = 2·|AM|
+    algebra, from 1, 4
 
-9.  |BD| = 2·|BM|
-    algebra, from 2, 7
+7.  |BD| = 2·|BM|
+    algebra, from 2, 5
 
-10. |AC|² = (2·|AM|)²
-    substitute |AC| = 2·|AM| (line 8)
+8.  |AC|² = (2·|AM|)²
+    substitute |AC| = 2·|AM| (line 6)
 
-11. |BD|² = (2·|BM|)²
-    substitute |BD| = 2·|BM| (line 9)
+9.  |BD|² = (2·|BM|)²
+    substitute |BD| = 2·|BM| (line 7)
 
-12. |AC|² + |BD|² = 2·|AB|² + 2·|BC|²
-    algebra, from 5, 10, 11
+10. |AC|² + |BD|² = 2·|AB|² + 2·|BC|²
+    algebra, from 3, 8, 9

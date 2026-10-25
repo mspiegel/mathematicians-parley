@@ -2143,6 +2143,9 @@ impl<'a> Elaborator<'a> {
                             self.closed_identity(one, other, where_, held)?
                         }
                         Row::Bare => self.closed_bare(one, other, where_, held)?,
+                        Row::InNoOrder => {
+                            self.closed_in_no_order(one, other, where_, held)?
+                        }
                     };
                     if found.is_some() {
                         return Ok(found);
@@ -2163,6 +2166,26 @@ impl<'a> Elaborator<'a> {
                 self.closed_fact(&claim, where_, held, what, Some(step))
                     .map(|p| Some(Built(p)))
             }
+        }
+    }
+
+    /// Two terms that are one but for the order of a pair in no order, |AB|
+    /// and |BA|, carried by the lemma exchanging it (`same`). None where they
+    /// differ otherwise, and the walk goes a level in.
+    fn closed_in_no_order(
+        &mut self,
+        one: &Term,
+        other: &Term,
+        where_: &Rpn,
+        held: &Facts,
+    ) -> Checked<Option<Route<Proof>>> {
+        let (a, b) = (self.pairs_in_order(one), self.pairs_in_order(other));
+        if self.rpn(one) == self.rpn(other) || self.rpn(&a) != self.rpn(&b) {
+            return Ok(None);
+        }
+        match self.same(one, other, where_, held, None)? {
+            Built(p) => Ok(Some(Built(p))),
+            Declined(_) => Ok(None),
         }
     }
 
@@ -2631,6 +2654,37 @@ impl<'a> Elaborator<'a> {
     /// where no such notation built it.
     pub(crate) fn pair_turned(&self, term: &Term) -> Option<Term> {
         self.pair_exchanged(term).map(|e| e.term)
+    }
+
+    /// `term` with every two holes a notation puts in no order standing in
+    /// the standard order, parts first, and nothing else changed: |AB| for
+    /// |BA|. A method that reads a term's atoms by how they are spelt reads
+    /// a distance written either way round as one atom so. The letters the
+    /// term binds are read as blanks, as `same` reads them, so that the order
+    /// is the one `same` carries the term to.
+    pub(crate) fn pairs_in_order(&mut self, term: &Term) -> Term {
+        let letters = self.letters_bound(term);
+        let kept = std::mem::replace(&mut self.binding, letters);
+        let out = self.pairs_put_in_order(term);
+        self.binding = kept;
+        out
+    }
+
+    /// `pairs_in_order` under the binding already set.
+    fn pairs_put_in_order(&self, term: &Term) -> Term {
+        if term.variable().is_some() || term.children().is_empty() {
+            return term.clone();
+        }
+        let kids: Vec<Term> = term
+            .children()
+            .iter()
+            .map(|c| self.pairs_put_in_order(c))
+            .collect();
+        let parts = Term::apply(term.label().unwrap_or(""), kids);
+        match self.pair_step(&parts) {
+            Some((_, turned)) => turned,
+            None => parts,
+        }
     }
 
     /// `term` with its two holes no order is put on exchanged, the lemma
@@ -6233,7 +6287,48 @@ impl<'a> Elaborator<'a> {
     ) -> Option<Binding> {
         let p = self.read_through(pattern, false, None);
         let t = self.respelt_as(&p, read, variables);
-        fit_either_way(&p, &t, seed, variables)
+        let fitting = Fitting {
+            variables,
+            turned: &|term| self.pair_turned(term),
+            pairs_only: false,
+        };
+        fit_either_way(&p, &t, seed, &fitting)
+    }
+
+    /// `fit_respelt`, where a notation's two holes in no order meet the
+    /// line's either way round, as `same` carries the one order to the
+    /// other: what a lemma asks, |AO| = |BO|, fitted to a line saying
+    /// |QA| = |QB| binds O to Q. Everything else is fitted as written.
+    pub(crate) fn fit_respelt_in_no_order(
+        &self,
+        pattern: &Term,
+        ground: &Term,
+        binding: &Binding,
+        variables: &Vars,
+        fresh: &Binding,
+    ) -> Option<Binding> {
+        // A fit as written is the fit in no order wherever there is one,
+        // since each pair is tried as written first; it is the cheaper.
+        if let Some(found) = fit_respelt(pattern, ground, binding, variables, fresh) {
+            return Some(found);
+        }
+        let mut open = binding.clone();
+        for k in fresh.keys() {
+            open.shift_remove(k);
+        }
+        let fitting = Fitting {
+            variables,
+            turned: &|term| self.pair_turned(term),
+            pairs_only: true,
+        };
+        let filled = fit_either_way(pattern, ground, &open, &fitting)?;
+        let mut out = binding.clone();
+        for (k, v) in filled {
+            if !fresh.contains_key(&k) {
+                out.entry(k).or_insert(v);
+            }
+        }
+        Some(out)
     }
 
     /// `term` with its bound letters respelt so that each letter `pattern`
@@ -6460,7 +6555,13 @@ impl<'a> Elaborator<'a> {
         variables: &Vars,
         fresh: &Binding,
     ) -> Option<Binding> {
-        let filled = fit_respelt(pattern, held, &Binding::new(), variables, fresh)?;
+        let filled = self.fit_respelt_in_no_order(
+            pattern,
+            held,
+            &Binding::new(),
+            variables,
+            fresh,
+        )?;
         let agrees = filled.iter().all(|(k, v)| match binding.get(k) {
             Some(had) => {
                 let (had, v) = (self.rpn(had), self.rpn(v));
@@ -6968,7 +7069,7 @@ impl<'a> Elaborator<'a> {
                 }
                 let mut filled_any = false;
                 for held in &known_keys {
-                    if let Some(filled) = fit_respelt(
+                    if let Some(filled) = self.fit_respelt_in_no_order(
                         piece,
                         &self.to_term(held),
                         &binding,
@@ -7688,19 +7789,33 @@ fn subterms(term: &Term) -> Vec<Term> {
 /// `fit` where an equation of the pattern may meet one of the term either
 /// way round: what the lemma says in other words is the instance fitted,
 /// and its caller carries that to the claim by `Matcher::same`, which reads
-/// an equation either way round as the page does. Every other fit is the
+/// an equation either way round as the page does. A notation's two holes in
+/// no order meet the term's either way round too, as `same` exchanges them
+/// (`pair_exchanged`): |AO| meets |QA| at O := Q. Every other fit is the
 /// kernel's, which a proof takes symbol for symbol.
 fn fit_either_way(
     pattern: &Term,
     ground: &Term,
     seed: &Binding,
-    variables: &Vars,
+    fitting: &Fitting,
 ) -> Option<Binding> {
     let first = ToFit {
         pattern: pattern.clone(),
         ground: ground.clone(),
     };
-    either_way(vec![first], seed.clone(), variables)
+    either_way(vec![first], seed.clone(), fitting)
+}
+
+/// What `either_way` fits by: the lemma's variables a fit may bind, and the
+/// term with its two holes in no order exchanged, where a notation puts
+/// two in no order at its head (`Elaborator::pair_turned`).
+struct Fitting<'f> {
+    variables: &'f Vars,
+    turned: &'f dyn Fn(&Term) -> Option<Term>,
+    /// Whether only those two holes meet either way round, and an equation
+    /// and a listing are fitted as written: a fit of what a lemma asks to
+    /// what a line says as the page writes it (`fit_respelt_in_no_order`).
+    pairs_only: bool,
 }
 
 /// A part of a pattern and the part of the term it is fitted to.
@@ -7712,17 +7827,21 @@ struct ToFit {
 
 /// The parts still to fit, the last fitted now: a variable bound or
 /// checked against what it is bound to, an equation tried with its sides
-/// as written and then turned, any other node part by part. A choice that
-/// a later part does not fit is undone.
+/// as written and then turned, a node whose notation puts two holes in no
+/// order tried as written and then with the two exchanged, any other node
+/// part by part. A choice that a later part does not fit is undone.
 fn either_way(
     mut left: Vec<ToFit>,
     mut binding: Binding,
-    variables: &Vars,
+    fitting: &Fitting,
 ) -> Option<Binding> {
     let Some(ToFit { pattern, ground }) = left.pop() else {
         return Some(binding);
     };
-    if let Some(v) = pattern.variable().filter(|v| variables.contains(*v)) {
+    if let Some(v) = pattern
+        .variable()
+        .filter(|v| fitting.variables.contains(*v))
+    {
         match binding.get(v) {
             Some(seen) if !crate::mm::kernel::same(seen, &ground) => return None,
             Some(_) => {}
@@ -7730,46 +7849,66 @@ fn either_way(
                 binding.insert(Symbol::of(v), ground.clone());
             }
         }
-        return either_way(left, binding, variables);
+        return either_way(left, binding, fitting);
     }
     if pattern.variable().is_some() || ground.variable().is_some() {
         if pattern.variable() != ground.variable() {
             return None;
         }
-        return either_way(left, binding, variables);
+        return either_way(left, binding, fitting);
     }
     if pattern.label() != ground.label()
         || pattern.children().len() != ground.children().len()
     {
         return None;
     }
-    if let (Some(ours), Some(theirs)) = (listed(&pattern), listed(&ground)) {
-        return listed_either_way(&left, &ours, &theirs, &binding, variables);
+    if !fitting.pairs_only {
+        if let (Some(ours), Some(theirs)) = (listed(&pattern), listed(&ground)) {
+            return listed_either_way(&left, &ours, &theirs, &binding, fitting);
+        }
     }
-    let paired = |turn: bool| {
-        let mut more = left.clone();
-        let theirs: Vec<Term> = if turn {
-            ground.children().iter().rev().cloned().collect()
-        } else {
-            ground.children().to_vec()
-        };
-        more.extend(
-            pattern
-                .children()
-                .iter()
-                .cloned()
-                .zip(theirs)
-                .map(|(pattern, ground)| ToFit { pattern, ground })
-                .rev(),
-        );
-        more
-    };
+    let exchanged = (fitting.turned)(&ground);
+    for one in std::iter::once(&ground).chain(exchanged.as_ref()) {
+        let more = parts_paired(&left, &pattern, one, false);
+        if let Some(done) = either_way(more, binding.clone(), fitting) {
+            return Some(done);
+        }
+    }
     let equation = pattern.label() == Some("wceq") && pattern.children().len() == 2;
-    either_way(paired(false), binding.clone(), variables).or_else(|| {
-        equation
-            .then(|| either_way(paired(true), binding, variables))
-            .flatten()
-    })
+    if !equation || fitting.pairs_only {
+        return None;
+    }
+    either_way(
+        parts_paired(&left, &pattern, &ground, true),
+        binding,
+        fitting,
+    )
+}
+
+/// `left` with the pattern's parts each to be fitted to the term's at the
+/// same place, or, where `turn`, to the term's in the reverse order.
+fn parts_paired(
+    left: &[ToFit],
+    pattern: &Term,
+    ground: &Term,
+    turn: bool,
+) -> Vec<ToFit> {
+    let mut more = left.to_vec();
+    let theirs: Vec<Term> = if turn {
+        ground.children().iter().rev().cloned().collect()
+    } else {
+        ground.children().to_vec()
+    };
+    more.extend(
+        pattern
+            .children()
+            .iter()
+            .cloned()
+            .zip(theirs)
+            .map(|(pattern, ground)| ToFit { pattern, ground })
+            .rev(),
+    );
+    more
 }
 
 /// `either_way` at a listed set of the pattern's and one of the term's: the
@@ -7782,25 +7921,25 @@ fn listed_either_way(
     ours: &[Term],
     theirs: &[Term],
     binding: &Binding,
-    variables: &Vars,
+    fitting: &Fitting,
 ) -> Option<Binding> {
     if ours.len() != theirs.len() {
         return None;
     }
     let Some((first, rest)) = ours.split_first() else {
-        return either_way(left.to_vec(), binding.clone(), variables);
+        return either_way(left.to_vec(), binding.clone(), fitting);
     };
     for (at, ground) in theirs.iter().enumerate() {
         let one = ToFit {
             pattern: first.clone(),
             ground: ground.clone(),
         };
-        let Some(fitted) = either_way(vec![one], binding.clone(), variables) else {
+        let Some(fitted) = either_way(vec![one], binding.clone(), fitting) else {
             continue;
         };
         let mut others = theirs.to_vec();
         others.remove(at);
-        if let Some(done) = listed_either_way(left, rest, &others, &fitted, variables) {
+        if let Some(done) = listed_either_way(left, rest, &others, &fitted, fitting) {
             return Some(done);
         }
     }

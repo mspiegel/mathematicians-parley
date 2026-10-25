@@ -5,7 +5,6 @@ import theorem            stdlib/geometry/law-of-cosines
 import mundane theorem    stdlib/geometry/right-angle-by-cosine
 import mundane theorem    stdlib/geometry/angle-real
 import mundane theorem    stdlib/geometry/distance-positive
-import mundane theorem    stdlib/geometry/distance-symmetric
 import mundane theorem    stdlib/numbers/product-positive
 import mundane theorem    stdlib/numbers/multiply-cancel
 import mundane theorem    stdlib/trigonometry/cos-real
@@ -25,81 +24,60 @@ theorem thales
   assume |MA| = |MC| = |MB|                                           (H7)
   then ∠ACB = 90°
 
-1.  |AM| = |MA|
-    mun:distance-symmetric P := A, Q := M
-
-2.  |AM| = |MB|
+1.  |AM| = |MB|
     calculation
-      |AM| = |MA|      1
+      |AM| = |MC|      H7
            = |MB|      H7
 
-3.  |CA|² + |CB|² = 2·|CM|² + 2·|AM|²
-    thm:apollonius A := C, B := A, C := B, from H6, 2
+2.  |CA|² + |CB|² = 2·|CM|² + 2·|AM|²
+    thm:apollonius A := C, B := A, C := B, from H6, 1
 
-4.  |CM| = |MC|
-    mun:distance-symmetric P := C, Q := M
+3.  |CM| = |AM|
+    restate H7
 
-5.  |CM| = |AM|
-    calculation
-      |CM| = |MC|      4
-           = |MA|      H7
-           = |AM|      1
+4.  |CA|² + |CB|² = 2·|AM|² + 2·|AM|²
+    substitute |CM| = |AM| (line 3) into line 2
 
-6.  |CA|² + |CB|² = 2·|AM|² + 2·|AM|²
-    substitute |CM| = |AM| (line 5) into line 3
-
-7.  |AM| + |MB| = |AB|
+5.  |AM| + |MB| = |AB|
     mun:segment-addition P := A, Q := B, S := M, from H6
 
-8.  |AB| = 2·|AM|
-    algebra, from 2, 7
+6.  |AB| = 2·|AM|
+    algebra, from 1, 5
 
-9.  |AB|² = (2·|AM|)²
-    substitute |AB| = 2·|AM| (line 8)
+7.  |AB|² = (2·|AM|)²
+    substitute |AB| = 2·|AM| (line 6)
 
-10. |AB|² = |CA|² + |CB|²
-    algebra, from 6, 9
+8.  |AB|² = |CA|² + |CB|²
+    algebra, from 4, 7
 
-11. A ≠ C. B ≠ C.
+9.  A ≠ C. B ≠ C.
     mun:triangle P := A, Q := B, R := C, from H5
 
-12. |BA|² = |AC|² + |CB|² − 2·(|AC|·|CB|·cos(∠ACB))
-    thm:law-of-cosines P := A, Q := C, R := B, from 11
+10. |BA|² = |AC|² + |CB|² − 2·(|AC|·|CB|·cos(∠ACB))
+    thm:law-of-cosines P := A, Q := C, R := B, from 9
 
-13. |BA| = |AB|
-    mun:distance-symmetric P := B, Q := A
+11. ∠ACB ∈ ℝ
+    mun:angle-real P := A, Q := C, R := B, from 9
 
-14. |AC| = |CA|
-    mun:distance-symmetric P := A, Q := C
-
-15. |AB|² = |AC|² + |CB|² − 2·(|AC|·|CB|·cos(∠ACB))
-    substitute |BA| = |AB| (line 13) into line 12
-
-16. |AB|² = |CA|² + |CB|² − 2·(|CA|·|CB|·cos(∠ACB))
-    substitute |AC| = |CA| (line 14) into line 15
-
-17. ∠ACB ∈ ℝ
-    mun:angle-real P := A, Q := C, R := B, from 11
-
-18. cos(∠ACB)·(|CA|·|CB|) = 0·(|CA|·|CB|)
-    algebra, from 10, 16
-    requires ∠ACB ∈ ℝ: from 17
+12. cos(∠ACB)·(|CA|·|CB|) = 0·(|CA|·|CB|)
+    algebra, from 8, 10
+    requires ∠ACB ∈ ℝ: from 11
     requires cos(∠ACB) ∈ ℝ: mun:cos-real a := ∠ACB
 
-19. |CA| > 0
-    mun:distance-positive P := C, Q := A, from 11
+13. |CA| > 0
+    mun:distance-positive P := C, Q := A, from 9
 
-20. |CB| > 0
-    mun:distance-positive P := C, Q := B, from 11
+14. |CB| > 0
+    mun:distance-positive P := C, Q := B, from 9
 
-21. |CA|·|CB| > 0
-    mun:product-positive x := |CA|, y := |CB|, from 19, 20
+15. |CA|·|CB| > 0
+    mun:product-positive x := |CA|, y := |CB|, from 13, 14
 
-22. cos(∠ACB) = 0
-    mun:multiply-cancel a := cos(∠ACB), b := 0, c := |CA|·|CB|, from 18
-    requires |CA|·|CB| ≠ 0: weakening, from 21
-    requires ∠ACB ∈ ℝ: from 17
+16. cos(∠ACB) = 0
+    mun:multiply-cancel a := cos(∠ACB), b := 0, c := |CA|·|CB|, from 12
+    requires |CA|·|CB| ≠ 0: weakening, from 15
+    requires ∠ACB ∈ ℝ: from 11
     requires cos(∠ACB) ∈ ℝ: mun:cos-real a := ∠ACB
 
-23. ∠ACB = 90°
-    mun:right-angle-by-cosine P := A, Q := C, R := B, from 11, 22
+17. ∠ACB = 90°
+    mun:right-angle-by-cosine P := A, Q := C, R := B, from 9, 16

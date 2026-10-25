@@ -3,7 +3,6 @@ import theorem            proofs/wiedijk/pythagoras/pythagoras
 import mundane definition stdlib/geometry/midpoint
 import mundane theorem    stdlib/geometry/segment-addition
 import mundane theorem    stdlib/geometry/distance-nonneg
-import mundane theorem    stdlib/geometry/distance-symmetric
 import mundane theorem    stdlib/numbers/square-equal
 
 theorem thales-converse
@@ -38,26 +37,14 @@ theorem thales-converse
 6.  |AB|² = |AC|² + |BC|²
     thm:pythagoras, from H5, H6
 
-7.  |AC| = |CA|
-    mun:distance-symmetric P := A, Q := C
+7.  |CM|² = |AM|²
+    algebra, from 2, 5, 6
 
-8.  |BC| = |CB|
-    mun:distance-symmetric P := B, Q := C
-
-9.  |AB|² = |CA|² + |BC|²
-    substitute |AC| = |CA| (line 7) into line 6
-
-10. |AB|² = |CA|² + |CB|²
-    substitute |BC| = |CB| (line 8) into line 9
-
-11. |CM|² = |AM|²
-    algebra, from 2, 5, 10
-
-12. |CM| ≥ 0
+8.  |CM| ≥ 0
     mun:distance-nonneg P := C, Q := M
 
-13. |AM| ≥ 0
+9.  |AM| ≥ 0
     mun:distance-nonneg P := A, Q := M
 
-14. |CM| = |AM|
-    mun:square-equal x := |CM|, y := |AM|, from 11, 12, 13
+10. |CM| = |AM|
+    mun:square-equal x := |CM|, y := |AM|, from 7, 8, 9

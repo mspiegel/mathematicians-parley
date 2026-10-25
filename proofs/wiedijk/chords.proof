@@ -3,7 +3,6 @@ import theorem            stdlib/geometry/supplementary-angles
 import mundane theorem    stdlib/geometry/angle-real
 import mundane theorem    stdlib/geometry/between-apart
 import mundane theorem    stdlib/geometry/distance-positive
-import mundane theorem    stdlib/geometry/distance-symmetric
 import mundane theorem    stdlib/geometry/distance-zero
 import mundane theorem    stdlib/numbers/multiply-cancel
 import mundane definition stdlib/trigonometry/cos
@@ -41,119 +40,89 @@ theorem power-of-a-point
     2.2.  |PA|·|PB| = |OA|·|OB|
           substitute P = O (C1)
 
-    2.3.  |OA| = |AO|
-          mun:distance-symmetric P := O, Q := A
+    2.3.  |PA|·|PB| = |AO|·|AO|
+          substitute |BO| = |AO| (H6) into line 2.2
 
-    2.4.  |OB| = |BO|
-          mun:distance-symmetric P := O, Q := B
-
-    2.5.  |PA|·|PB| = |AO|·|OB|
-          substitute |OA| = |AO| (line 2.3) into line 2.2
-
-    2.6.  |PA|·|PB| = |AO|·|BO|
-          substitute |OB| = |BO| (line 2.4) into line 2.5
-
-    2.7.  |PA|·|PB| = |AO|·|AO|
-          substitute |BO| = |AO| (H6) into line 2.6
-
-    2.8.  |PA|·|PB| = |AO|² − |PO|²
-          algebra, from 2.1, 2.7
+    2.4.  |PA|·|PB| = |AO|² − |PO|²
+          algebra, from 2.1, 2.3
 
     case
     assume O ≠ P                                                      (C2)
 
-    2.9.  A ≠ P. B ≠ P.
+    2.5.  A ≠ P. B ≠ P.
           mun:between-apart R := P, S := A, T := B, from H5
 
-    2.10. |OA|² = |AP|² + |PO|² − 2·(|AP|·|PO|·cos(∠APO))
-          thm:law-of-cosines P := A, Q := P, R := O, from C2, 2.9
+    2.6.  |OA|² = |AP|² + |PO|² − 2·(|AP|·|PO|·cos(∠APO))
+          thm:law-of-cosines P := A, Q := P, R := O, from C2, 2.5
 
-    2.11. |BO|² = |OP|² + |PB|² − 2·(|OP|·|PB|·cos(∠OPB))
-          thm:law-of-cosines P := O, Q := P, R := B, from C2, 2.9
+    2.7.  |BO|² = |OP|² + |PB|² − 2·(|OP|·|PB|·cos(∠OPB))
+          thm:law-of-cosines P := O, Q := P, R := B, from C2, 2.5
 
-    2.12. ∠APO + ∠OPB = 180°
+    2.8.  ∠APO + ∠OPB = 180°
           thm:supplementary-angles A := A, B := P, C := B, D := O, from C2, H5
 
-    2.13. ∠APO ∈ ℝ
-          mun:angle-real P := A, Q := P, R := O, from C2, 2.9
+    2.9.  ∠APO ∈ ℝ
+          mun:angle-real P := A, Q := P, R := O, from C2, 2.5
 
-    2.14. ∠OPB ∈ ℝ
-          mun:angle-real P := O, Q := P, R := B, from C2, 2.9
+    2.10. ∠OPB ∈ ℝ
+          mun:angle-real P := O, Q := P, R := B, from C2, 2.5
 
-    2.15. ∠OPB = 180° − ∠APO
-          algebra, from 2.12
-          requires ∠APO ∈ ℝ: from 2.13
-          requires ∠OPB ∈ ℝ: from 2.14
+    2.11. ∠OPB = 180° − ∠APO
+          algebra, from 2.8
+          requires ∠APO ∈ ℝ: from 2.9
+          requires ∠OPB ∈ ℝ: from 2.10
 
-    2.16. cos(∠OPB) = cos(180° − ∠APO)
-          substitute ∠OPB = 180° − ∠APO (line 2.15)
+    2.12. cos(∠OPB) = cos(180° − ∠APO)
+          substitute ∠OPB = 180° − ∠APO (line 2.11)
 
-    2.17. cos(180° − ∠APO) = −cos(∠APO)
+    2.13. cos(180° − ∠APO) = −cos(∠APO)
           mun:cos-supplement x := ∠APO
-          requires ∠APO ∈ ℝ: from 2.13
+          requires ∠APO ∈ ℝ: from 2.9
 
-    2.18. cos(∠OPB) = −cos(∠APO)
+    2.14. cos(∠OPB) = −cos(∠APO)
           calculation
-            cos(∠OPB) = cos(180° − ∠APO)      2.16
-                      = −cos(∠APO)            2.17
+            cos(∠OPB) = cos(180° − ∠APO)      2.12
+                      = −cos(∠APO)            2.13
 
-    2.19. |OA| = |AO|
-          mun:distance-symmetric P := O, Q := A
+    2.15. |AO|² = |PO|² + |PB|² − 2·(|PO|·|PB|·cos(∠OPB))
+          substitute |BO| = |AO| (H6) into line 2.7
 
-    2.20. |AP| = |PA|
-          mun:distance-symmetric P := A, Q := P
+    2.16. |AO|² = |PO|² + |PB|² − 2·(|PO|·|PB|·−cos(∠APO))
+          substitute cos(∠OPB) = −cos(∠APO) (line 2.14) into line 2.15
 
-    2.21. |OP| = |PO|
-          mun:distance-symmetric P := O, Q := P
+    2.17. |PA| > 0
+          mun:distance-positive P := P, Q := A, from 2.5
 
-    2.22. |AO|² = |AP|² + |PO|² − 2·(|AP|·|PO|·cos(∠APO))
-          substitute |OA| = |AO| (line 2.19) into line 2.10
+    2.18. |PB| > 0
+          mun:distance-positive P := P, Q := B, from 2.5
 
-    2.23. |AO|² = |PA|² + |PO|² − 2·(|PA|·|PO|·cos(∠APO))
-          substitute |AP| = |PA| (line 2.20) into line 2.22
+    2.19. 2·(|PO|·cos(∠APO)) = (|PA|² + |PO|² − |AO|²)/|PA|
+          algebra, from 2.6
+          requires cos(∠APO) ∈ ℝ: mun:cos-real a := ∠APO, from 2.9
+          requires |PA| ≠ 0: weakening, from 2.17
 
-    2.24. |BO|² = |PO|² + |PB|² − 2·(|PO|·|PB|·cos(∠OPB))
-          substitute |OP| = |PO| (line 2.21) into line 2.11
+    2.20. 2·(|PO|·cos(∠APO)) = (|AO|² − |PO|² − |PB|²)/|PB|
+          algebra, from 2.16
+          requires cos(∠APO) ∈ ℝ: mun:cos-real a := ∠APO, from 2.9
+          requires |PB| ≠ 0: weakening, from 2.18
 
-    2.25. |AO|² = |PO|² + |PB|² − 2·(|PO|·|PB|·cos(∠OPB))
-          substitute |BO| = |AO| (H6) into line 2.24
-
-    2.26. |AO|² = |PO|² + |PB|² − 2·(|PO|·|PB|·−cos(∠APO))
-          substitute cos(∠OPB) = −cos(∠APO) (line 2.18) into line 2.25
-
-    2.27. |PA| > 0
-          mun:distance-positive P := P, Q := A, from 2.9
-
-    2.28. |PB| > 0
-          mun:distance-positive P := P, Q := B, from 2.9
-
-    2.29. 2·(|PO|·cos(∠APO)) = (|PA|² + |PO|² − |AO|²)/|PA|
-          algebra, from 2.23
-          requires cos(∠APO) ∈ ℝ: mun:cos-real a := ∠APO, from 2.13
-          requires |PA| ≠ 0: weakening, from 2.27
-
-    2.30. 2·(|PO|·cos(∠APO)) = (|AO|² − |PO|² − |PB|²)/|PB|
-          algebra, from 2.26
-          requires cos(∠APO) ∈ ℝ: mun:cos-real a := ∠APO, from 2.13
-          requires |PB| ≠ 0: weakening, from 2.28
-
-    2.31. (|PA|² + |PO|² − |AO|²)/|PA| = (|AO|² − |PO|² − |PB|²)/|PB|
+    2.21. (|PA|² + |PO|² − |AO|²)/|PA| = (|AO|² − |PO|² − |PB|²)/|PB|
           calculation
-            (|PA|² + |PO|² − |AO|²)/|PA| = 2·(|PO|·cos(∠APO))              2.29
-                                         = (|AO|² − |PO|² − |PB|²)/|PB|    2.30
+            (|PA|² + |PO|² − |AO|²)/|PA| = 2·(|PO|·cos(∠APO))              2.19
+                                         = (|AO|² − |PO|² − |PB|²)/|PB|    2.20
 
-    2.32. |PA|·|PB|·(|PA| + |PB|) = (|AO|² − |PO|²)·(|PA| + |PB|)
-          algebra, from 2.31
-          requires |PA| ≠ 0: weakening, from 2.27
-          requires |PB| ≠ 0: weakening, from 2.28
+    2.22. |PA|·|PB|·(|PA| + |PB|) = (|AO|² − |PO|²)·(|PA| + |PB|)
+          algebra, from 2.21
+          requires |PA| ≠ 0: weakening, from 2.17
+          requires |PB| ≠ 0: weakening, from 2.18
 
-    2.33. |PA| + |PB| > 0
-          inequalities, from 2.27, 2.28
+    2.23. |PA| + |PB| > 0
+          inequalities, from 2.17, 2.18
 
-    2.34. |PA|·|PB| = |AO|² − |PO|²
+    2.24. |PA|·|PB| = |AO|² − |PO|²
           mun:multiply-cancel a := |PA|·|PB|, b := |AO|² − |PO|², c := |PA| + |PB|,
-            from 2.32
-          requires |PA| + |PB| ≠ 0: weakening, from 2.33
+            from 2.22
+          requires |PA| + |PB| ≠ 0: weakening, from 2.23
 
 theorem intersecting-chords
   metamath    chordthm

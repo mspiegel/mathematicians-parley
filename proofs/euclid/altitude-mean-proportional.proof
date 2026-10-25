@@ -6,7 +6,6 @@ import theorem            stdlib/geometry/law-of-cosines
 import theorem            stdlib/geometry/supplementary-angles
 import mundane theorem    stdlib/geometry/segment-addition
 import mundane theorem    stdlib/geometry/angle-real
-import mundane theorem    stdlib/geometry/distance-symmetric
 import mundane definition stdlib/trigonometry/cos
 
 theorem altitude-mean-proportional
@@ -59,29 +58,17 @@ theorem altitude-mean-proportional
 9.  |AD| + |DB| = |AB|
     mun:segment-addition P := A, Q := B, S := D, from H7
 
-10. |CA| = |AC|
-    mun:distance-symmetric P := C, Q := A
-
-11. |DC| = |CD|
-    mun:distance-symmetric P := D, Q := C
-
-12. |CA|² = |AD|² + |DC|² − 2·(|AD|·|DC|·cos(90°))
+10. |CA|² = |AD|² + |DC|² − 2·(|AD|·|DC|·cos(90°))
     substitute ∠ADC = 90° (H8) into line 5
 
-13. |CA|² = |AD|² + |DC|² − 2·(|AD|·|DC|·0)
-    substitute cos(90°) = 0 (real arithmetic) into line 12
+11. |CA|² = |AD|² + |DC|² − 2·(|AD|·|DC|·0)
+    substitute cos(90°) = 0 (real arithmetic) into line 10
 
-14. |AC|² = |AD|² + |DC|² − 2·(|AD|·|DC|·0)
-    substitute |CA| = |AC| (line 10) into line 13
-
-15. |AC|² = |AD|² + |CD|² − 2·(|AD|·|CD|·0)
-    substitute |DC| = |CD| (line 11) into line 14
-
-16. |BC|² = |CD|² + |DB|² − 2·(|CD|·|DB|·cos(90°))
+12. |BC|² = |CD|² + |DB|² − 2·(|CD|·|DB|·cos(90°))
     substitute ∠CDB = 90° (line 7) into line 8
 
-17. |BC|² = |CD|² + |DB|² − 2·(|CD|·|DB|·0)
-    substitute cos(90°) = 0 (real arithmetic) into line 16
+13. |BC|² = |CD|² + |DB|² − 2·(|CD|·|DB|·0)
+    substitute cos(90°) = 0 (real arithmetic) into line 12
 
-18. |CD|² = |AD|·|DB|
-    algebra, from 4, 9, 15, 17
+14. |CD|² = |AD|·|DB|
+    algebra, from 4, 9, 11, 13

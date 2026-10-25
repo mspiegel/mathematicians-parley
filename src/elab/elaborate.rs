@@ -2072,7 +2072,12 @@ impl<'a> Elaborator<'a> {
         let back = pf!(self.b; scope, old, new, facing, "eqcomd");
         self.know(&equation, t!(old, new, "wceq"), facing);
         self.know(&equation, t!(new, old, "wceq"), back);
-        let leaf = Leaf::Rows(vec![super::tables::Row::Held]);
+        // Where the line and the claim differ: by the equation, or by the
+        // order of a distance's points, which is no difference on the page.
+        let leaf = Leaf::Rows(vec![
+            super::tables::Row::Held,
+            super::tables::Row::InNoOrder,
+        ]);
         let into = step.just.into.as_ref().map(|p| p.named().to_string());
         let Some(where_) = into else {
             let (start, other) =

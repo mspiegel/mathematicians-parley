@@ -65,6 +65,10 @@ pub enum Row {
     /// A term and the same term with its identity elements dropped, the
     /// parts of one carried to the other's (`Elaborator::bared`).
     Bare,
+    /// The two are one term but for the order of holes a notation puts in
+    /// no order, |AB| and |BA| (`Elaborator::pairs_in_order`). Nothing else
+    /// is reordered.
+    InNoOrder,
 }
 
 /// What the walk asks where two terms differ.
@@ -2161,8 +2165,16 @@ impl<'a> Elaborator<'a> {
     }
 
     /// The letter whose kernel term is `said`, and the number system the
-    /// line introducing it put it in; None for anything else.
+    /// line introducing it put it in; None for anything else. A point is a
+    /// complex number in set.mm, which its `let` line says (`note_introduced`
+    /// keeps it so), as a lemma's side condition asks of a distance's ends.
     fn introduced_in(&self, said: &Rpn) -> Option<(String, Rpn)> {
+        let point = self.names.iter().find(|(name, kernel)| {
+            *kernel == said && self.sorts_now.get(*name).is_some_and(|s| s.is("point"))
+        });
+        if let Some((letter, _)) = point {
+            return Some((letter.clone(), t!("cc")));
+        }
         self.sets.iter().find_map(|(letter, set)| {
             let ours = self.names.get(letter).is_some_and(|k| k == said);
             let counted = set
