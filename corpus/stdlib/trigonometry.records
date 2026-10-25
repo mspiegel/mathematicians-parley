@@ -184,3 +184,12 @@ mundane theorem cos-supplement
   metamath    gcossupp, which this corpus proves in
               elaboration/stdlib/proved.mm from cospim
   target      gcossupp
+
+mundane theorem sin-supplement
+  let x ∈ ℝ                                                           (H1)
+  then        sin(180° − x) = sin(x)
+  metamath    gsinsupp, which this corpus proves in
+              elaboration/stdlib/proved.mm from sinpim
+  target      gsinsupp
+  note        Supplementary angles have one sine, as the two angles at a
+              point of a line do.

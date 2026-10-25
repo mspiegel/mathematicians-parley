@@ -634,6 +634,21 @@ mundane theorem between-collinear
   target      gbetcol
   note        A point between two others is on their line.
 
+mundane theorem triangle-on-side
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let S be a point                                                    (H4)
+  assume P, Q, R form a triangle                                      (H5)
+  assume S is between Q and R                                         (H6)
+  then        P, Q, S form a triangle
+  metamath    gtriside, which this corpus proves in
+              elaboration/stdlib/proved.mm: set.mm has no triangles over ℂ
+  target      gtriside
+  note        A point of the side QR, apart from its ends, makes a smaller
+              triangle with the vertex opposite and either end: S lies on
+              line QR, which P does not.
+
 mundane theorem angle-along-segment
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)

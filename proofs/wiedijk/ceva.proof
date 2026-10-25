@@ -1,0 +1,333 @@
+import theorem            stdlib/geometry/law-of-sines
+import theorem            stdlib/geometry/supplementary-angles
+import mundane theorem    stdlib/geometry/between-symmetric
+import mundane theorem    stdlib/geometry/distance-positive
+import mundane theorem    stdlib/geometry/sine-positive
+import mundane theorem    stdlib/geometry/triangle-angle-real
+import mundane theorem    stdlib/geometry/triangle-on-side
+import mundane definition stdlib/geometry/triangle
+import mundane definition stdlib/trigonometry/sin
+import mundane theorem    stdlib/trigonometry/sin-real
+import mundane theorem    stdlib/trigonometry/sin-supplement
+
+theorem cevian-ratio
+  note        A line from A through O meets BC at D, and D divides BC as the
+              sines of the angles at O do. The law of sines in OBD and in ODC
+              gives |BD| and |DC| against |OB| and |OC|; the two angles at D
+              are supplementary, and so are the angles at O on either side of
+              line AD, so each sine there is the sine of an angle at O that
+              looks back at A.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  let O be a point                                                    (H5)
+  assume A, B, C form a triangle                                      (H6)
+  assume D is between B and C                                         (H7)
+  assume O is between A and D                                         (H8)
+  then |DC| = |BD|·|OC|·sin(∠AOC)/(|OB|·sin(∠BOA))
+
+1.  A, B, D form a triangle
+    mun:triangle-on-side P := A, Q := B, R := C, S := D, from H6, H7
+
+2.  D is between C and B
+    mun:between-symmetric R := D, S := B, T := C, from H7
+
+3.  A, C, D form a triangle
+    mun:triangle-on-side P := A, Q := C, R := B, S := D, from H6, 2
+
+4.  O is between D and A
+    mun:between-symmetric R := O, S := A, T := D, from H8
+
+5.  B, D, O form a triangle
+    mun:triangle-on-side P := B, Q := D, R := A, S := O, from 1, 4
+
+6.  C, D, O form a triangle
+    mun:triangle-on-side P := C, Q := D, R := A, S := O, from 3, 4
+
+7.  B, A, O form a triangle
+    mun:triangle-on-side P := B, Q := A, R := D, S := O, from H8, 1
+
+8.  C, A, O form a triangle
+    mun:triangle-on-side P := C, Q := A, R := D, S := O, from H8, 3
+
+9.  |BD|·sin(∠BDO) = |BO|·sin(∠DOB)
+    thm:law-of-sines P := B, Q := D, R := O, from 5
+
+10. |CO|·sin(∠COD) = |CD|·sin(∠ODC)
+    thm:law-of-sines P := C, Q := O, R := D, from 6
+
+11. ∠BDO + ∠ODC = 180°
+    thm:supplementary-angles A := B, B := D, C := C, D := O, from H7
+    requires O ≠ D: mun:triangle, from 5
+
+12. ∠DOB + ∠BOA = 180°
+    thm:supplementary-angles A := D, B := O, C := A, D := B, from 4
+    requires B ≠ O: mun:triangle, from 5
+
+13. ∠AOC + ∠COD = 180°
+    thm:supplementary-angles A := A, B := O, C := D, D := C, from H8
+    requires C ≠ O: mun:triangle, from 6
+
+14. ∠ODC = 180° − ∠BDO
+    algebra, from 11
+    requires ∠BDO ∈ ℝ: mun:triangle-angle-real P := B, Q := D, R := O, from 5
+    requires ∠ODC ∈ ℝ: mun:triangle-angle-real P := O, Q := D, R := C, from 6
+
+15. sin(∠ODC) = sin(180° − ∠BDO)
+    substitute ∠ODC = 180° − ∠BDO (line 14)
+
+16. sin(180° − ∠BDO) = sin(∠BDO)
+    mun:sin-supplement x := ∠BDO
+    requires ∠BDO ∈ ℝ: mun:triangle-angle-real P := B, Q := D, R := O, from 5
+
+17. sin(∠ODC) = sin(∠BDO)
+    calculation
+      sin(∠ODC) = sin(180° − ∠BDO)      15
+                = sin(∠BDO)            16
+
+18. ∠DOB = 180° − ∠BOA
+    algebra, from 12
+    requires ∠DOB ∈ ℝ: mun:triangle-angle-real P := D, Q := O, R := B, from 5
+    requires ∠BOA ∈ ℝ: mun:triangle-angle-real P := B, Q := O, R := A, from 7
+
+19. sin(∠DOB) = sin(180° − ∠BOA)
+    substitute ∠DOB = 180° − ∠BOA (line 18)
+
+20. sin(180° − ∠BOA) = sin(∠BOA)
+    mun:sin-supplement x := ∠BOA
+    requires ∠BOA ∈ ℝ: mun:triangle-angle-real P := B, Q := O, R := A, from 7
+
+21. sin(∠DOB) = sin(∠BOA)
+    calculation
+      sin(∠DOB) = sin(180° − ∠BOA)      19
+                = sin(∠BOA)            20
+
+22. ∠COD = 180° − ∠AOC
+    algebra, from 13
+    requires ∠AOC ∈ ℝ: mun:triangle-angle-real P := A, Q := O, R := C, from 8
+    requires ∠COD ∈ ℝ: mun:triangle-angle-real P := C, Q := O, R := D, from 6
+
+23. sin(∠COD) = sin(180° − ∠AOC)
+    substitute ∠COD = 180° − ∠AOC (line 22)
+
+24. sin(180° − ∠AOC) = sin(∠AOC)
+    mun:sin-supplement x := ∠AOC
+    requires ∠AOC ∈ ℝ: mun:triangle-angle-real P := A, Q := O, R := C, from 8
+
+25. sin(∠COD) = sin(∠AOC)
+    calculation
+      sin(∠COD) = sin(180° − ∠AOC)      23
+                = sin(∠AOC)            24
+
+26. |BD|·sin(∠BDO) = |BO|·sin(∠BOA)
+    substitute sin(∠DOB) = sin(∠BOA) (line 21) into line 9
+
+27. |CO|·sin(∠AOC) = |CD|·sin(∠ODC)
+    substitute sin(∠COD) = sin(∠AOC) (line 25) into line 10
+
+28. |CO|·sin(∠AOC) = |CD|·sin(∠BDO)
+    substitute sin(∠ODC) = sin(∠BDO) (line 17) into line 27
+
+29. |OB| > 0
+    mun:distance-positive P := O, Q := B
+    requires O ≠ B: mun:triangle, from 5
+
+30. sin(∠BOA) > 0
+    mun:sine-positive P := B, Q := O, R := A, from 7
+
+31. |BD|·|OC|·sin(∠AOC)/(|OB|·sin(∠BOA)) = |BD|·|DC|·sin(∠BDO)/(|OB|·sin(∠BOA))
+    algebra, from 28
+    requires ∠AOC ∈ ℝ: mun:triangle-angle-real P := A, Q := O, R := C, from 8
+    requires sin(∠AOC) ∈ ℝ: mun:sin-real a := ∠AOC
+    requires ∠BDO ∈ ℝ: mun:triangle-angle-real P := B, Q := D, R := O, from 5
+    requires sin(∠BDO) ∈ ℝ: mun:sin-real a := ∠BDO
+    requires ∠BOA ∈ ℝ: mun:triangle-angle-real P := B, Q := O, R := A, from 7
+    requires sin(∠BOA) ∈ ℝ: mun:sin-real a := ∠BOA
+    requires |OB| ≠ 0: weakening, from 29
+    requires sin(∠BOA) ≠ 0: weakening, from 30
+
+32. |BD|·|DC|·sin(∠BDO)/(|OB|·sin(∠BOA)) = |DC|
+    algebra, from 26
+    requires ∠BDO ∈ ℝ: mun:triangle-angle-real P := B, Q := D, R := O, from 5
+    requires sin(∠BDO) ∈ ℝ: mun:sin-real a := ∠BDO
+    requires ∠BOA ∈ ℝ: mun:triangle-angle-real P := B, Q := O, R := A, from 7
+    requires sin(∠BOA) ∈ ℝ: mun:sin-real a := ∠BOA
+    requires |OB| ≠ 0: weakening, from 29
+    requires sin(∠BOA) ≠ 0: weakening, from 30
+
+33. |DC| = |BD|·|OC|·sin(∠AOC)/(|OB|·sin(∠BOA))
+    calculation
+      |DC| = |BD|·|DC|·sin(∠BDO)/(|OB|·sin(∠BOA))     32
+           = |BD|·|OC|·sin(∠AOC)/(|OB|·sin(∠BOA))     31
+
+theorem ceva
+  metamath    cevath, which states it of the differences rather than their
+              lengths and says the cevians meet by signed areas
+  note        Ceva's theorem. Each cevian through O divides its side as the
+              sines of the angles at O do (cevian-ratio), times the ratio of
+              the distances from O to the two ends. Multiplied round the
+              triangle, the distances and the sines cancel.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  let E be a point                                                    (H5)
+  let F be a point                                                    (H6)
+  let O be a point                                                    (H7)
+  assume A, B, C form a triangle                                      (H8)
+  assume D is between B and C                                         (H9)
+  assume E is between C and A                                         (H10)
+  assume F is between A and B                                         (H11)
+  assume O is between A and D                                         (H12)
+  assume O is between B and E                                         (H13)
+  assume O is between C and F                                         (H14)
+  then |AF|·|BD|·|CE| = |FB|·|DC|·|EA|
+
+let x = |OC|·sin(∠AOC)/(|OB|·sin(∠BOA))                               (D1)
+       reads the ratio of |DC| to |BD| that the angles at O give
+
+let y = |OA|·sin(∠BOA)/(|OC|·sin(∠COB))                               (D2)
+       reads the ratio of |EA| to |CE| that the angles at O give
+
+let z = |OB|·sin(∠COB)/(|OA|·sin(∠AOC))                               (D3)
+       reads the ratio of |FB| to |AF| that the angles at O give
+
+1.  |DC| = |BD|·|OC|·sin(∠AOC)/(|OB|·sin(∠BOA))
+    thm:cevian-ratio, from H8, H9, H12
+
+2.  |EA| = |CE|·|OA|·sin(∠BOA)/(|OC|·sin(∠COB))
+    thm:cevian-ratio A := B, B := C, C := A, D := E, from H8, H10, H13
+
+3.  |FB| = |AF|·|OB|·sin(∠COB)/(|OA|·sin(∠AOC))
+    thm:cevian-ratio A := C, B := A, C := B, D := F, from H8, H11, H14
+
+4.  A, B, D form a triangle
+    mun:triangle-on-side P := A, Q := B, R := C, S := D, from H8, H9
+
+5.  B, A, O form a triangle
+    mun:triangle-on-side P := B, Q := A, R := D, S := O, from H12, 4
+
+6.  B, C, E form a triangle
+    mun:triangle-on-side P := B, Q := C, R := A, S := E, from H8, H10
+
+7.  C, B, O form a triangle
+    mun:triangle-on-side P := C, Q := B, R := E, S := O, from H13, 6
+
+8.  C, A, F form a triangle
+    mun:triangle-on-side P := C, Q := A, R := B, S := F, from H8, H11
+
+9.  A, C, O form a triangle
+    mun:triangle-on-side P := A, Q := C, R := F, S := O, from H14, 8
+
+10. sin(∠BOA) > 0
+    mun:sine-positive P := B, Q := O, R := A, from 5
+
+11. sin(∠COB) > 0
+    mun:sine-positive P := C, Q := O, R := B, from 7
+
+12. sin(∠AOC) > 0
+    mun:sine-positive P := A, Q := O, R := C, from 9
+
+13. |OA| > 0
+    mun:distance-positive P := O, Q := A
+    requires O ≠ A: mun:triangle, from 5
+
+14. |OB| > 0
+    mun:distance-positive P := O, Q := B
+    requires O ≠ B: mun:triangle, from 5
+
+15. |OC| > 0
+    mun:distance-positive P := O, Q := C
+    requires O ≠ C: mun:triangle, from 7
+
+16. ∠AOC ∈ ℝ
+    mun:triangle-angle-real P := A, Q := O, R := C, from 9
+
+17. ∠BOA ∈ ℝ
+    mun:triangle-angle-real P := B, Q := O, R := A, from 5
+
+18. ∠COB ∈ ℝ
+    mun:triangle-angle-real P := C, Q := O, R := B, from 7
+
+19. sin(∠AOC) ∈ ℝ
+    mun:sin-real a := ∠AOC, from 16
+
+20. sin(∠BOA) ∈ ℝ
+    mun:sin-real a := ∠BOA, from 17
+
+21. sin(∠COB) ∈ ℝ
+    mun:sin-real a := ∠COB, from 18
+
+22. x ∈ ℝ
+    membership, from D1, 19
+    requires sin(∠BOA) ∈ ℝ: from 20
+    requires |OB| ≠ 0: weakening, from 14
+    requires sin(∠BOA) ≠ 0: weakening, from 10
+
+23. y ∈ ℝ
+    membership, from D2, 20
+    requires sin(∠COB) ∈ ℝ: from 21
+    requires |OC| ≠ 0: weakening, from 15
+    requires sin(∠COB) ≠ 0: weakening, from 11
+
+24. z ∈ ℝ
+    membership, from D3, 21
+    requires sin(∠AOC) ∈ ℝ: from 19
+    requires |OA| ≠ 0: weakening, from 13
+    requires sin(∠AOC) ≠ 0: weakening, from 12
+
+25. |DC| = |BD|·x
+    algebra, from D1, 1
+    requires sin(∠AOC) ∈ ℝ: from 19
+    requires sin(∠BOA) ∈ ℝ: from 20
+    requires |OB| ≠ 0: weakening, from 14
+    requires sin(∠BOA) ≠ 0: weakening, from 10
+
+26. |EA| = |CE|·y
+    algebra, from D2, 2
+    requires sin(∠BOA) ∈ ℝ: from 20
+    requires sin(∠COB) ∈ ℝ: from 21
+    requires |OC| ≠ 0: weakening, from 15
+    requires sin(∠COB) ≠ 0: weakening, from 11
+
+27. |FB| = |AF|·z
+    algebra, from D3, 3
+    requires sin(∠COB) ∈ ℝ: from 21
+    requires sin(∠AOC) ∈ ℝ: from 19
+    requires |OA| ≠ 0: weakening, from 13
+    requires sin(∠AOC) ≠ 0: weakening, from 12
+
+28. x·y·z = 1
+    algebra, from D1, D2, D3
+    requires sin(∠AOC) ∈ ℝ: from 19
+    requires sin(∠BOA) ∈ ℝ: from 20
+    requires sin(∠COB) ∈ ℝ: from 21
+    requires |OA| ≠ 0: weakening, from 13
+    requires |OB| ≠ 0: weakening, from 14
+    requires |OC| ≠ 0: weakening, from 15
+    requires sin(∠BOA) ≠ 0: weakening, from 10
+    requires sin(∠COB) ≠ 0: weakening, from 11
+    requires sin(∠AOC) ≠ 0: weakening, from 12
+
+29. |FB|·|DC|·|EA| = |AF|·z·|DC|·|EA|
+    substitute |FB| = |AF|·z (line 27)
+
+30. |AF|·z·|DC|·|EA| = |AF|·z·(|BD|·x)·|EA|
+    substitute |DC| = |BD|·x (line 25)
+
+31. |AF|·z·(|BD|·x)·|EA| = |AF|·z·(|BD|·x)·(|CE|·y)
+    substitute |EA| = |CE|·y (line 26)
+
+32. |AF|·z·(|BD|·x)·(|CE|·y) = |AF|·|BD|·|CE|
+    algebra, from 28
+    requires x ∈ ℝ: from 22
+    requires y ∈ ℝ: from 23
+    requires z ∈ ℝ: from 24
+
+33. |AF|·|BD|·|CE| = |FB|·|DC|·|EA|
+    calculation
+      |AF|·|BD|·|CE| = |AF|·z·(|BD|·x)·(|CE|·y)      32
+                     = |AF|·z·(|BD|·x)·|EA|          31
+                     = |AF|·z·|DC|·|EA|              30
+                     = |FB|·|DC|·|EA|                29

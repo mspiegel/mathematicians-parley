@@ -1048,6 +1048,18 @@ lemma gcossupp
   6 syl 4 5 |- ( X e. RR -> ( cos ` ( _pi - X ) ) = -u ( cos ` X ) )
   7 eqtrid 3 6 |- ( X e. RR -> ( cos ` ( ( ( ; ; 1 8 0 x. _pi ) / ; ; 1 8 0 ) - X ) ) = -u ( cos ` X ) )
 
+# The sine of a supplement is the sine itself: 180° is π, and `sinpim`
+# gives sin(π − x) = sin x.
+lemma gsinsupp
+  |- ( X e. RR -> ( sin ` ( ( ( ; ; 1 8 0 x. _pi ) / ; ; 1 8 0 ) - X ) ) = ( sin ` X ) )
+  1 g180 |- ( ( ; ; 1 8 0 x. _pi ) / ; ; 1 8 0 ) = _pi
+  2 oveq1i 1 |- ( ( ( ; ; 1 8 0 x. _pi ) / ; ; 1 8 0 ) - X ) = ( _pi - X )
+  3 fveq2i 2 |- ( sin ` ( ( ( ; ; 1 8 0 x. _pi ) / ; ; 1 8 0 ) - X ) ) = ( sin ` ( _pi - X ) )
+  4 recn |- ( X e. RR -> X e. CC )
+  5 sinpim |- ( X e. CC -> ( sin ` ( _pi - X ) ) = ( sin ` X ) )
+  6 syl 4 5 |- ( X e. RR -> ( sin ` ( _pi - X ) ) = ( sin ` X ) )
+  7 eqtrid 3 6 |- ( X e. RR -> ( sin ` ( ( ( ; ; 1 8 0 x. _pi ) / ; ; 1 8 0 ) - X ) ) = ( sin ` X ) )
+
 # The equality case of the triangle inequality. Where |x| + |y| = |y - x|,
 # squaring gives |x| |y| = -Re(y conj(x)) (`galgsq`); the absolute value of
 # y conj(x) is |x| |y|, so -(y conj(x)) has real part equal to its absolute

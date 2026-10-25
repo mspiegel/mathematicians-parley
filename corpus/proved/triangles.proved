@@ -353,6 +353,275 @@ lemma gangseg
       S ) ) e. RR /\ ( ( Q - S ) / ( P - S ) ) < 0 ) -> ( -. R = P -> ( abs ` ( ( S - P ) ang ( R -
       P ) ) ) = ( abs ` ( ( Q - P ) ang ( R - P ) ) ) ) ) ) ) ) )
 
+# A point S strictly between Q and R makes a triangle with P and Q where
+# P, Q, R make one.
+#
+# With k = (R − S)/(Q − S) and x = (S − P)/(Q − P), (R − P)/(Q − P) is
+# ((Q − S)/(Q − P))·k + x, and (Q − S)/(Q − P) is 1 − x; so x real would
+# make (R − P)/(Q − P) real, which the triangle denies. S = P would make
+# x = 0, real, so S is apart from P; it is apart from Q by being between.
+lemma gtriside
+  |- ( P e. CC -> ( Q e. CC -> ( R e. CC -> ( S e. CC -> ( ( ( ( -. P = Q /\ -. Q = R ) /\ -. P = R
+      ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) -> ( ( Q =/= S /\ ( ( R - S ) / ( Q - S ) ) e. RR /\
+      ( ( R - S ) / ( Q - S ) ) < 0 ) -> ( ( ( -. P = Q /\ -. Q = S ) /\ -. P = S ) /\ -. ( ( S - P
+      ) / ( Q - P ) ) e. RR ) ) ) ) ) ) )
+  1 simpll |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\ -. Q =
+      R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S ) / ( Q
+      - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC )
+      /\ S e. CC ) )
+  2 simplr |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\ -. Q =
+      R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S ) / ( Q
+      - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> ( ( ( -. P = Q /\ -. Q = R ) /\ -. P = R
+      ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) )
+  3 simpr |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\ -. Q =
+      R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S ) / ( Q
+      - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> ( Q =/= S /\ ( ( R - S ) / ( Q - S ) )
+      e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) )
+  4 simplll |- ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) -> P e. CC )
+  5 syl 1 4 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\ -. Q
+      = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S ) / (
+      Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> P e. CC )
+  6 simpllr |- ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) -> Q e. CC )
+  7 syl 1 6 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\ -. Q
+      = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S ) / (
+      Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> Q e. CC )
+  8 simplr |- ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) -> R e. CC )
+  9 syl 1 8 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\ -. Q
+      = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S ) / (
+      Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> R e. CC )
+  10 simpr |- ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) -> S e. CC )
+  11 syl 1 10 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\ -.
+      Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S ) /
+      ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> S e. CC )
+  12 simpld 2 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\ -.
+      Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S ) /
+      ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> ( ( -. P = Q /\ -. Q = R ) /\ -. P =
+      R ) )
+  13 simplld 12 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\
+      -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S )
+      / ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> -. P = Q )
+  14 simprd 2 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\ -.
+      Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S ) /
+      ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> -. ( ( R - P ) / ( Q - P ) ) e. RR )
+  15 simp1d 3 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\ -.
+      Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S ) /
+      ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> Q =/= S )
+  16 neneqd 15 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\ -.
+      Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S ) /
+      ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> -. Q = S )
+  17 simp2d 3 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\ -.
+      Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S ) /
+      ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> ( ( R - S ) / ( Q - S ) ) e. RR )
+  18 neqned 13 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\ -.
+      Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S ) /
+      ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> P =/= Q )
+  19 necomd 18 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\ -.
+      Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S ) /
+      ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> Q =/= P )
+  20 subcld 7 5 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\
+      -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S )
+      / ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> ( Q - P ) e. CC )
+  21 subne0d 7 5 19 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q
+      /\ -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R -
+      S ) / ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> ( Q - P ) =/= 0 )
+  22 subcld 7 11 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\
+      -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S )
+      / ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> ( Q - S ) e. CC )
+  23 subne0d 7 11 15 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q
+      /\ -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R -
+      S ) / ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> ( Q - S ) =/= 0 )
+  24 subcld 9 11 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\
+      -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S )
+      / ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> ( R - S ) e. CC )
+  25 subcld 11 5 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\
+      -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S )
+      / ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> ( S - P ) e. CC )
+  26 npncand 9 11 5 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q
+      /\ -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R -
+      S ) / ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> ( ( R - S ) + ( S - P ) ) = (
+      R - P ) )
+  27 eqcomd 26 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\ -.
+      Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S ) /
+      ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> ( R - P ) = ( ( R - S ) + ( S - P )
+      ) )
+  28 oveq1d 27 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\ -.
+      Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S ) /
+      ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> ( ( R - P ) / ( Q - P ) ) = ( ( ( R
+      - S ) + ( S - P ) ) / ( Q - P ) ) )
+  29 divdird 24 25 20 21 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P
+      = Q /\ -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( (
+      R - S ) / ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> ( ( ( R - S ) + ( S - P )
+      ) / ( Q - P ) ) = ( ( ( R - S ) / ( Q - P ) ) + ( ( S - P ) / ( Q - P ) ) ) )
+  30 dmdcand 24 22 20 23 21 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( (
+      -. P = Q /\ -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\
+      ( ( R - S ) / ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> ( ( ( Q - S ) / ( Q -
+      P ) ) x. ( ( R - S ) / ( Q - S ) ) ) = ( ( R - S ) / ( Q - P ) ) )
+  31 eqcomd 30 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\ -.
+      Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S ) /
+      ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> ( ( R - S ) / ( Q - P ) ) = ( ( ( Q
+      - S ) / ( Q - P ) ) x. ( ( R - S ) / ( Q - S ) ) ) )
+  32 oveq1d 31 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\ -.
+      Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S ) /
+      ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> ( ( ( R - S ) / ( Q - P ) ) + ( ( S
+      - P ) / ( Q - P ) ) ) = ( ( ( ( Q - S ) / ( Q - P ) ) x. ( ( R - S ) / ( Q - S ) ) ) + ( ( S -
+      P ) / ( Q - P ) ) ) )
+  33 eqtrd 28 29 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\
+      -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S )
+      / ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> ( ( R - P ) / ( Q - P ) ) = ( ( (
+      R - S ) / ( Q - P ) ) + ( ( S - P ) / ( Q - P ) ) ) )
+  34 eqtrd 33 32 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\
+      -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S )
+      / ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> ( ( R - P ) / ( Q - P ) ) = ( ( (
+      ( Q - S ) / ( Q - P ) ) x. ( ( R - S ) / ( Q - S ) ) ) + ( ( S - P ) / ( Q - P ) ) ) )
+  35 nnncan2d 7 11 5 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q
+      /\ -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R -
+      S ) / ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> ( ( Q - P ) - ( S - P ) ) = (
+      Q - S ) )
+  36 eqcomd 35 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\ -.
+      Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S ) /
+      ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> ( Q - S ) = ( ( Q - P ) - ( S - P )
+      ) )
+  37 oveq1d 36 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\ -.
+      Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S ) /
+      ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> ( ( Q - S ) / ( Q - P ) ) = ( ( ( Q
+      - P ) - ( S - P ) ) / ( Q - P ) ) )
+  38 divsubdird 20 25 20 21 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( (
+      -. P = Q /\ -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\
+      ( ( R - S ) / ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> ( ( ( Q - P ) - ( S -
+      P ) ) / ( Q - P ) ) = ( ( ( Q - P ) / ( Q - P ) ) - ( ( S - P ) / ( Q - P ) ) ) )
+  39 dividd 20 21 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\
+      -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S )
+      / ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> ( ( Q - P ) / ( Q - P ) ) = 1 )
+  40 oveq1d 39 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\ -.
+      Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S ) /
+      ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> ( ( ( Q - P ) / ( Q - P ) ) - ( ( S
+      - P ) / ( Q - P ) ) ) = ( 1 - ( ( S - P ) / ( Q - P ) ) ) )
+  41 eqtrd 37 38 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\
+      -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S )
+      / ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> ( ( Q - S ) / ( Q - P ) ) = ( ( (
+      Q - P ) / ( Q - P ) ) - ( ( S - P ) / ( Q - P ) ) ) )
+  42 eqtrd 41 40 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\
+      -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S )
+      / ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> ( ( Q - S ) / ( Q - P ) ) = ( 1 -
+      ( ( S - P ) / ( Q - P ) ) ) )
+  43 simpr |- ( ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\ -. Q
+      = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S ) / (
+      Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) /\ ( ( S - P ) / ( Q - P ) ) e. RR ) -> (
+      ( S - P ) / ( Q - P ) ) e. RR )
+  44 1red |- ( ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\ -. Q
+      = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S ) / (
+      Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) /\ ( ( S - P ) / ( Q - P ) ) e. RR ) -> 1
+      e. RR )
+  45 resubcld 44 43 |- ( ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P =
+      Q /\ -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R
+      - S ) / ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) /\ ( ( S - P ) / ( Q - P ) ) e.
+      RR ) -> ( 1 - ( ( S - P ) / ( Q - P ) ) ) e. RR )
+  46 adantr 42 |- ( ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\
+      -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S )
+      / ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) /\ ( ( S - P ) / ( Q - P ) ) e. RR )
+      -> ( ( Q - S ) / ( Q - P ) ) = ( 1 - ( ( S - P ) / ( Q - P ) ) ) )
+  47 eqeltrd 46 45 |- ( ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q
+      /\ -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R -
+      S ) / ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) /\ ( ( S - P ) / ( Q - P ) ) e.
+      RR ) -> ( ( Q - S ) / ( Q - P ) ) e. RR )
+  48 adantr 17 |- ( ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\
+      -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S )
+      / ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) /\ ( ( S - P ) / ( Q - P ) ) e. RR )
+      -> ( ( R - S ) / ( Q - S ) ) e. RR )
+  49 remulcld 47 48 |- ( ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P =
+      Q /\ -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R
+      - S ) / ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) /\ ( ( S - P ) / ( Q - P ) ) e.
+      RR ) -> ( ( ( Q - S ) / ( Q - P ) ) x. ( ( R - S ) / ( Q - S ) ) ) e. RR )
+  50 readdcld 49 43 |- ( ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P =
+      Q /\ -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R
+      - S ) / ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) /\ ( ( S - P ) / ( Q - P ) ) e.
+      RR ) -> ( ( ( ( Q - S ) / ( Q - P ) ) x. ( ( R - S ) / ( Q - S ) ) ) + ( ( S - P ) / ( Q - P )
+      ) ) e. RR )
+  51 adantr 34 |- ( ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\
+      -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S )
+      / ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) /\ ( ( S - P ) / ( Q - P ) ) e. RR )
+      -> ( ( R - P ) / ( Q - P ) ) = ( ( ( ( Q - S ) / ( Q - P ) ) x. ( ( R - S ) / ( Q - S ) ) ) +
+      ( ( S - P ) / ( Q - P ) ) ) )
+  52 eqeltrd 51 50 |- ( ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q
+      /\ -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R -
+      S ) / ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) /\ ( ( S - P ) / ( Q - P ) ) e.
+      RR ) -> ( ( R - P ) / ( Q - P ) ) e. RR )
+  53 mtand 14 52 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\
+      -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S )
+      / ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> -. ( ( S - P ) / ( Q - P ) ) e. RR
+      )
+  54 simpr |- ( ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\ -. Q
+      = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S ) / (
+      Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) /\ P = S ) -> P = S )
+  55 eqcomd 54 |- ( ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\
+      -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S )
+      / ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) /\ P = S ) -> S = P )
+  56 adantr 11 |- ( ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\
+      -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S )
+      / ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) /\ P = S ) -> S e. CC )
+  57 subeq0bd 56 55 |- ( ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P =
+      Q /\ -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R
+      - S ) / ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) /\ P = S ) -> ( S - P ) = 0 )
+  58 oveq1d 57 |- ( ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\
+      -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S )
+      / ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) /\ P = S ) -> ( ( S - P ) / ( Q - P )
+      ) = ( 0 / ( Q - P ) ) )
+  59 adantr 20 |- ( ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\
+      -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S )
+      / ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) /\ P = S ) -> ( Q - P ) e. CC )
+  60 adantr 21 |- ( ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\
+      -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S )
+      / ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) /\ P = S ) -> ( Q - P ) =/= 0 )
+  61 div0d 59 60 |- ( ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q
+      /\ -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R -
+      S ) / ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) /\ P = S ) -> ( 0 / ( Q - P ) ) =
+      0 )
+  62 eqtrd 58 61 |- ( ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q
+      /\ -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R -
+      S ) / ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) /\ P = S ) -> ( ( S - P ) / ( Q -
+      P ) ) = 0 )
+  63 0red |- ( ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\ -. Q
+      = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S ) / (
+      Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) /\ P = S ) -> 0 e. RR )
+  64 eqeltrd 62 63 |- ( ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q
+      /\ -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R -
+      S ) / ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) /\ P = S ) -> ( ( S - P ) / ( Q -
+      P ) ) e. RR )
+  65 mtand 53 64 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\
+      -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S )
+      / ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> -. P = S )
+  66 jca 13 16 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\ -.
+      Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S ) /
+      ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> ( -. P = Q /\ -. Q = S ) )
+  67 jca 66 65 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\ -.
+      Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S ) /
+      ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> ( ( -. P = Q /\ -. Q = S ) /\ -. P =
+      S ) )
+  68 jca 67 53 |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\ -.
+      Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= S /\ ( ( R - S ) /
+      ( Q - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) ) -> ( ( ( -. P = Q /\ -. Q = S ) /\ -. P
+      = S ) /\ -. ( ( S - P ) / ( Q - P ) ) e. RR ) )
+  69 ex 68 |- ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\ -. Q = R
+      ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) -> ( ( Q =/= S /\ ( ( R - S ) / ( Q
+      - S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) -> ( ( ( -. P = Q /\ -. Q = S ) /\ -. P = S )
+      /\ -. ( ( S - P ) / ( Q - P ) ) e. RR ) ) )
+  70 ex 69 |- ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) -> ( ( ( ( -. P = Q /\ -. Q = R
+      ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) -> ( ( Q =/= S /\ ( ( R - S ) / ( Q -
+      S ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) -> ( ( ( -. P = Q /\ -. Q = S ) /\ -. P = S )
+      /\ -. ( ( S - P ) / ( Q - P ) ) e. RR ) ) ) )
+  71 ex 70 |- ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) -> ( S e. CC -> ( ( ( ( -. P = Q /\ -. Q = R )
+      /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) -> ( ( Q =/= S /\ ( ( R - S ) / ( Q - S
+      ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) -> ( ( ( -. P = Q /\ -. Q = S ) /\ -. P = S ) /\
+      -. ( ( S - P ) / ( Q - P ) ) e. RR ) ) ) ) )
+  72 ex 71 |- ( ( P e. CC /\ Q e. CC ) -> ( R e. CC -> ( S e. CC -> ( ( ( ( -. P = Q /\ -. Q = R )
+      /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) -> ( ( Q =/= S /\ ( ( R - S ) / ( Q - S
+      ) ) e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) -> ( ( ( -. P = Q /\ -. Q = S ) /\ -. P = S ) /\
+      -. ( ( S - P ) / ( Q - P ) ) e. RR ) ) ) ) ) )
+  73 ex 72 |- ( P e. CC -> ( Q e. CC -> ( R e. CC -> ( S e. CC -> ( ( ( ( -. P = Q /\ -. Q = R ) /\
+      -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) -> ( ( Q =/= S /\ ( ( R - S ) / ( Q - S ) )
+      e. RR /\ ( ( R - S ) / ( Q - S ) ) < 0 ) -> ( ( ( -. P = Q /\ -. Q = S ) /\ -. P = S ) /\ -. (
+      ( S - P ) / ( Q - P ) ) e. RR ) ) ) ) ) ) )
+
 lemma gsegadd
   |- ( P e. CC -> ( Q e. CC -> ( S e. CC -> ( ( P =/= S /\ ( ( Q - S ) / ( P - S ) ) e. RR /\ ( ( Q
       - S ) / ( P - S ) ) < 0 ) -> ( ( abs ` ( P - S ) ) + ( abs ` ( S - Q ) ) ) = ( abs ` ( P - Q )

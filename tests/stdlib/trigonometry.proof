@@ -14,6 +14,7 @@ import mundane theorem    stdlib/trigonometry/cos-bounded as trigonometry-cos-bo
 import mundane theorem    stdlib/trigonometry/cos-decreasing as trigonometry-cos-decreasing
 import mundane theorem    stdlib/trigonometry/special-angles as trigonometry-special-angles
 import mundane theorem    stdlib/trigonometry/cos-supplement as trigonometry-cos-supplement
+import mundane theorem    stdlib/trigonometry/sin-supplement as trigonometry-sin-supplement
 
 theorem cos-complex
   let a ∈ ℂ                                                           (H1)
@@ -112,3 +113,10 @@ theorem cos-supplement
 
 1.  cos(180° − x) = −cos(x)
     mun:trigonometry-cos-supplement
+
+theorem sin-supplement
+  let x ∈ ℝ                                                           (H1)
+  then sin(180° − x) = sin(x)
+
+1.  sin(180° − x) = sin(x)
+    mun:trigonometry-sin-supplement

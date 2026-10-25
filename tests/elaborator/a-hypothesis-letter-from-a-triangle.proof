@@ -1,0 +1,32 @@
+import mundane theorem    stdlib/geometry/triangle-on-side
+
+theorem a-hypothesis-letter-from-the-whole-triangle
+  note        triangle-on-side names R only in what it assumes, so R is read
+              off the lines the step cites. The triangle H5 fixes it whole;
+              its conjunct Q ≠ R alone would take R from whichever line
+              first says Q is apart from a point.
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let S be a point                                                    (H4)
+  assume P, Q, R form a triangle                                      (H5)
+  assume S is between Q and R                                         (H6)
+  then P, Q, S form a triangle
+
+1.  P, Q, S form a triangle
+    mun:triangle-on-side, from H5, H6
+
+theorem a-hypothesis-letter-from-a-triangle-in-another-order
+  note        As above, with the triangle written in another order: the
+              line is read in each order of its three points, and the one
+              that fits fixes R.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let D be a point                                                    (H3)
+  let O be a point                                                    (H4)
+  assume A, B, D form a triangle                                      (H5)
+  assume O is between D and A                                         (H6)
+  then B, D, O form a triangle
+
+1.  B, D, O form a triangle
+    mun:triangle-on-side P := B, Q := D, R := A, S := O, from H5, H6

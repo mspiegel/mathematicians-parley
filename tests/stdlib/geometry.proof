@@ -31,6 +31,7 @@ import theorem            stdlib/geometry/triangle-inequality-strict as geometry
 import mundane theorem    stdlib/geometry/angle-addition as geometry-angle-addition
 import mundane theorem    stdlib/geometry/between-apart as geometry-between-apart
 import mundane theorem    stdlib/geometry/between-collinear as geometry-between-collinear
+import mundane theorem    stdlib/geometry/triangle-on-side as geometry-triangle-on-side
 import mundane theorem    stdlib/geometry/midpoint-unique as geometry-midpoint-unique
 import mundane theorem    stdlib/geometry/midpoint-determines-end as geometry-midpoint-determines-end
 import mundane theorem    stdlib/geometry/angle-turned as geometry-angle-turned
@@ -555,6 +556,18 @@ theorem between-collinear
 
 1.  T, R, S are collinear
     mun:geometry-between-collinear, from H4
+
+theorem triangle-on-side
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let S be a point                                                    (H4)
+  assume P, Q, R form a triangle                                      (H5)
+  assume S is between Q and R                                         (H6)
+  then P, Q, S form a triangle
+
+1.  P, Q, S form a triangle
+    mun:geometry-triangle-on-side, from H5, H6
 
 theorem midpoint-unique
   let A be a point                                                    (H1)

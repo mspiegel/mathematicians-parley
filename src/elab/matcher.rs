@@ -6295,6 +6295,56 @@ impl<'a> Elaborator<'a> {
         fit_either_way(&p, &t, seed, &fitting)
     }
 
+    /// An antecedent fitted whole to one of the lines `known` holds, as
+    /// `fit_respelt_in_no_order` fits it: to the line as written, or to a
+    /// triangle or a collinearity it says with its three points in another
+    /// order (`REORDERS`), which `settle` then carries to the order asked.
+    /// None where no line fits.
+    fn fit_whole(
+        &mut self,
+        slot: &Term,
+        known: &[Rpn],
+        binding: &Binding,
+        variables: &Vars,
+        fresh: &Binding,
+    ) -> Option<Binding> {
+        for held in known {
+            let held = self.to_term(held);
+            for said in self.in_every_order(&held) {
+                if let Some(filled) =
+                    self.fit_respelt_in_no_order(slot, &said, binding, variables, fresh)
+                {
+                    return Some(filled);
+                }
+            }
+        }
+        None
+    }
+
+    /// `term`, and where it is a claim about three points in no order
+    /// (`REORDERS`), the same claim with its points in each other order.
+    fn in_every_order(&mut self, term: &Term) -> Vec<Term> {
+        let mut out = vec![term.clone()];
+        for by in &REORDERS {
+            let Some(ThreePoints {
+                shape,
+                letters,
+                points,
+            }) = self.three_points(by, term)
+            else {
+                continue;
+            };
+            for order in [[0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0]] {
+                let mut put = Binding::new();
+                for (&letter, &i) in letters.iter().zip(&order) {
+                    put.insert(letter, points[i].clone());
+                }
+                out.push(shape.substitute(&put));
+            }
+        }
+        out
+    }
+
     /// `fit_respelt`, where a notation's two holes in no order meet the
     /// line's either way round, as `same` carries the one order to the
     /// other: what a lemma asks, |AO| = |BO|, fitted to a line saying
@@ -7055,10 +7105,22 @@ impl<'a> Elaborator<'a> {
                     binding.insert(s.variable_symbol().unwrap(), self.to_term(&where_));
                     continue;
                 }
-                Some(s) => conjuncts_of(s)
-                    .into_iter()
-                    .filter(|p| !loose.iter().any(|one| one.same_object(p)))
-                    .collect(),
+                // An antecedent a line the step has says whole is answered by
+                // that line, which fixes its open letters together. Matched a
+                // conjunct at a time, a triangle's `-. Q = R` takes R from
+                // whichever disequality of Q comes first.
+                Some(s) => {
+                    match self.fit_whole(s, &known_keys, &binding, &variables, &fresh) {
+                        Some(filled) => {
+                            binding = filled;
+                            Vec::new()
+                        }
+                        None => conjuncts_of(s)
+                            .into_iter()
+                            .filter(|p| !loose.iter().any(|one| one.same_object(p)))
+                            .collect(),
+                    }
+                }
             };
             // What the lemma concludes need not fix everything it asks, so an
             // antecedent that is still open is matched against something the
