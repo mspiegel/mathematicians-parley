@@ -1532,14 +1532,14 @@ impl<'a> Elaborator<'a> {
         let lines = self.lines.clone();
         let mut said_here: Vec<(Rpn, Proof)> = Vec::new();
         for r in &step.just.refs {
-            let Some(line) = lines.get(r) else {
+            let Some(line) = self.line_written(r, &lines) else {
                 continue;
             };
             let carried = self.carried(r, facts, &lines);
             for (said, proof) in self.stated_by(r, scope, facts, &lines)? {
                 let proof = match proof {
                     Some(p) => p,
-                    None if said == line.term => carried.clone(),
+                    None if said == line.claim => carried.clone(),
                     None => continue,
                 };
                 said_here.push((said, proof));
@@ -2667,8 +2667,7 @@ impl<'a> Elaborator<'a> {
     /// where it obtained names, their memberships, which the scope holds
     /// with the line as their origin.
     pub fn stated_claims(&self, r: &str, facts: &Facts, lines: &Lines) -> Vec<Rpn> {
-        let term = lines.get(r).map(|l| l.term).unwrap_or_default();
-        let mut out = self.parts(&term);
+        let mut out = self.line_writes(r, lines);
         for (said, proof) in facts.entries() {
             if rests_on_only(&proof, r) && !out.contains(&said) {
                 out.push(said);

@@ -709,7 +709,8 @@ impl<'a> Elaborator<'a> {
             }
         }
         for r in refs {
-            let Some(line) = self.lines.get(r) else {
+            let lines = self.lines.clone();
+            let Some(line) = self.line_written(r, &lines) else {
                 continue;
             };
             // The line states the fact where one of its sentences, as the
@@ -718,7 +719,7 @@ impl<'a> Elaborator<'a> {
             // the page writes it, but for a let, which keeps the formula it
             // is read as, and `let X ⊆ A` is read as X ∈ 𝒫A.
             let mut says_it = false;
-            for s in &line.sentences {
+            for s in &self.line_sentences(r, &lines) {
                 let said = self.term(s)?;
                 if self.as_written(&said) == *term {
                     says_it = true;
@@ -731,11 +732,8 @@ impl<'a> Elaborator<'a> {
                 .iter()
                 .any(|x| self.thm.defines.iter().any(|d| &d.label == x));
             let says_it = says_it || read_through;
-            let held = Facts::new();
-            let lines = self.lines.clone();
             let whole = self.carried(r, facts, &lines);
-            self.know(&held, line.term.clone(), whole.clone());
-            self.unpack_line(&line, &whole, scope, &held);
+            let held = self.line_supplies(r, scope, facts, &lines);
             if let Some(p) = self.held(&held, term, scope)? {
                 return Ok(Built(p));
             }
@@ -763,20 +761,20 @@ impl<'a> Elaborator<'a> {
                 }
             }
             // The line with its own letters bound: one claim, spelt apart.
-            let label = self.to_term(&line.term).label().unwrap_or("").to_string();
+            let label = self.to_term(&line.claim).label().unwrap_or("").to_string();
             if lookup(rules::BOUND, &label).is_some() {
-                if let Some(spelt) = self.respelt(&whole, &line.term, term, scope)? {
+                if let Some(spelt) = self.respelt(&whole, &line.claim, term, scope)? {
                     return Ok(Built(spelt));
                 }
             }
             if label == "wral" {
                 if let Some(p) =
-                    self.part_at_a_member(&line.term, &whole, term, scope, facts)?
+                    self.part_at_a_member(&line.claim, &whole, term, scope, facts)?
                 {
                     return Ok(Built(p));
                 }
                 if let Built(p) =
-                    self.narrowed(&line.term, &whole, term, scope, facts)?
+                    self.narrowed(&line.claim, &whole, term, scope, facts)?
                 {
                     return Ok(Built(p));
                 }

@@ -20,7 +20,7 @@ use super::state::{
     number_of, Binding, Block, BlockLetter, Closer, Contradicted, DefineCloser,
     Elaborator, Frame, ObtainCloser, PartEnd, ProvedClaim,
 };
-use super::{Facts, Line, Lines};
+use super::{Facts, Line};
 use crate::binds;
 use crate::checker::record::CheckedTheorem;
 use crate::corpus::{
@@ -510,71 +510,6 @@ impl<'a> Elaborator<'a> {
         self.unpack(term, proof, scope, facts, depth);
     }
 
-    /// What a line says, each part a fact of its own (`unpack_all`), and the
-    /// equation between any two terms of each chain of equations it writes
-    /// (`know_chains`): what a step citing the line may take from it.
-    pub fn unpack_line(
-        &mut self,
-        line: &Line,
-        proof: &Proof,
-        scope: &Rpn,
-        facts: &Facts,
-    ) {
-        self.unpack_all(&line.term, proof, scope, facts);
-        self.know_chains(&line.sentences, &line.term, proof, scope, facts);
-    }
-
-    /// Each line written above a block's `let x ∈ X` read as the checker
-    /// reads it inside the block (`SYNTAX.md`): a line with a part "for all
-    /// a ∈ X, P(a)" says P(x) as well, so inside the block it is the line
-    /// and P(x) together, whatever method a step citing it runs. Closing the
-    /// block gives the lines back as they were (`Block::lines`).
-    fn know_in_scope_at_letters(&mut self, scope: &Rpn, facts: &Facts) -> Checked<()> {
-        for (label, line) in self.lines.entries() {
-            let Some(whole) = facts.line_proof(&label, &line.term) else {
-                continue;
-            };
-            let parts = Facts::new();
-            self.know(&parts, line.term.clone(), whole.clone());
-            self.unpack_all(&line.term, &whole, scope, &parts);
-            let mut term = line.term.clone();
-            let mut proof = whole.clone();
-            let mut instances = Vec::new();
-            for part in self.parts(&line.term) {
-                let Some(held) = self.held(&parts, &part, scope)? else {
-                    continue;
-                };
-                let Some(at) = self.know_at_letters(&part, &held, scope, &parts)?
-                else {
-                    continue;
-                };
-                let given = self
-                    .held(&parts, &at, scope)?
-                    .expect("the instance just known");
-                proof = pf!(self.b; scope, term, at, proof, given, "jca");
-                term = t!(term, at, "wa");
-                instances.push(at);
-            }
-            if instances.is_empty() {
-                continue;
-            }
-            self.at_letters_of.insert(term.clone(), instances);
-            let proof = Proof {
-                items: proof.items,
-                origin: whole.origin.clone(),
-            };
-            self.know(facts, term.clone(), proof.clone());
-            self.unpack_all(&term, &proof, scope, facts);
-            let read = Line {
-                term,
-                proof,
-                sentences: line.sentences.clone(),
-            };
-            self.lines.set(label, read);
-        }
-        Ok(())
-    }
-
     /// Record a block's `let x ∈ X` as a letter the lines cited inside the
     /// block are read at (`know_at_letters`). A `let` saying no membership
     /// records none.
@@ -675,65 +610,6 @@ impl<'a> Elaborator<'a> {
         };
         self.know(facts, instance.clone(), made);
         Ok(Some(instance))
-    }
-
-    /// Everything the cited line `cite` says (`SYNTAX.md`, What a cited line
-    /// says), each with its proof under `scope`: the line, each part of it
-    /// and a chain's equations (`unpack_line`), and what each of those
-    /// implies (`implied`), a membership's and a range's bounds among it.
-    /// Inside a block the line already says its reading at the block's
-    /// letter (`know_in_scope_at_letters`). The line is read from `lines`,
-    /// which a route reading the theorem's hypotheses over the names it
-    /// defines has rewritten (`hypotheses_by_their_names`). Empty where
-    /// `cite` names no line.
-    pub fn line_says(
-        &mut self,
-        cite: &str,
-        scope: &Rpn,
-        facts: &Facts,
-        lines: &Lines,
-    ) -> Checked<Facts> {
-        let out = Facts::new();
-        let Some(line) = lines.get(cite) else {
-            return Ok(out);
-        };
-        let whole = self.carried(cite, facts, lines);
-        self.know(&out, line.term.clone(), whole.clone());
-        self.unpack_line(&line, &whole, scope, &out);
-        for (claim, proof) in out.entries() {
-            let implied = self.implied(&claim, &proof, scope, facts)?;
-            for (said, given) in implied.entries() {
-                if !self.holds(&out, &said) {
-                    self.know(&out, said, given);
-                }
-            }
-            // A congruence says itself with its sides the other way round,
-            // the lemma exchanging them asking that each is a number.
-            // Held by its standard form already, the turned one is known by
-            // its own spelling, which a route matching terms as written asks.
-            let read = self.to_term(&claim);
-            if let Some(turned) = self.pair_turned(&read) {
-                let other = self.rpn(&turned);
-                // Each side's being a number is the letter's membership said
-                // once, which a step rests on unnamed (`rests_on_named`), not
-                // the line introducing it.
-                let said_once = facts.filtered(|_, p| {
-                    p.origin
-                        .iter()
-                        .all(|o| o.starts_with(super::provenance::MEMBERSHIP))
-                });
-                if !out.keys().contains(&other) {
-                    if let Built(alike) =
-                        self.same(&read, &turned, scope, &said_once, None)?
-                    {
-                        let given =
-                            pf!(self.b; scope, claim, other, proof, alike, "mpbid");
-                        self.know(&out, other, given);
-                    }
-                }
-            }
-        }
-        Ok(out)
     }
 
     /// Record each conjunct of a fact as a fact of its own.
@@ -845,11 +721,7 @@ impl<'a> Elaborator<'a> {
                         .expect("the supposition just laid down");
                     self.lines.set(
                         o.label.clone(),
-                        Line {
-                            term: supposed.clone(),
-                            proof,
-                            sentences: vec![node],
-                        },
+                        Line::new(supposed.clone(), proof, vec![node]),
                     );
                 }
                 block.supposed = Some(supposed);
@@ -946,14 +818,8 @@ impl<'a> Elaborator<'a> {
                         )?;
                     }
                     if !o.label.is_empty() {
-                        self.lines.set(
-                            o.label.clone(),
-                            Line {
-                                term: written,
-                                proof: held,
-                                sentences: vec![node],
-                            },
-                        );
+                        self.lines
+                            .set(o.label.clone(), Line::new(written, held, vec![node]));
                     }
                 }
                 self.note_introduced(&block.scope.clone(), &block.facts.clone())?;
@@ -1036,14 +902,7 @@ impl<'a> Elaborator<'a> {
             let proof = self
                 .held(&block.facts.clone(), &assumed, &block.scope.clone())?
                 .expect("the case just laid down");
-            self.lines.set(
-                label,
-                Line {
-                    term: assumed,
-                    proof,
-                    sentences: vec![node],
-                },
-            );
+            self.lines.set(label, Line::new(assumed, proof, vec![node]));
         }
         Ok((block.scope.clone(), block.facts.clone()))
     }
@@ -1128,14 +987,8 @@ impl<'a> Elaborator<'a> {
                 self.add_block_letter(&added, &proof, &block.scope.clone());
                 self.know_in_scope_at_letters(&block.scope.clone(), &block.facts)?;
             }
-            self.lines.set(
-                o.label.clone(),
-                Line {
-                    term: added,
-                    proof,
-                    sentences: vec![node],
-                },
-            );
+            self.lines
+                .set(o.label.clone(), Line::new(added, proof, vec![node]));
         }
         self.note_introduced(&block.scope.clone(), &block.facts.clone())?;
         Ok((block.scope.clone(), block.facts.clone()))
@@ -1272,20 +1125,16 @@ impl<'a> Elaborator<'a> {
             return Ok(());
         }
         let lines = self.lines.clone();
-        let Some(line) = lines.get(other) else {
+        let Some(line) = self.line_written(other, &lines) else {
             return Ok(());
         };
         let proof = self.carried(other, facts, &lines);
-        let mine = lines.get(&number_of(step));
-        let reordered = match &mine {
-            Some(mine) => {
+        let mine = self.line_written(&number_of(step), &lines);
+        let reordered = match mine {
+            Some(own) => {
                 let theirs = ProvedClaim {
-                    claim: line.term.clone(),
+                    claim: line.claim.clone(),
                     proof: proof.clone(),
-                };
-                let own = ProvedClaim {
-                    claim: mine.term.clone(),
-                    proof: mine.proof.clone(),
                 };
                 match self.reordered_against(&theirs, &own, scope, facts)? {
                     Some(found) => Some(found),
@@ -1298,11 +1147,11 @@ impl<'a> Elaborator<'a> {
             .line_says(other, scope, facts, &lines)?
             .entries()
             .into_iter()
-            .filter(|(claim, _)| *claim != line.term)
+            .filter(|(claim, _)| *claim != line.claim)
             .map(|(claim, proof)| ProvedClaim { claim, proof })
             .collect();
         self.contradicted = Some(Contradicted {
-            claim: line.term,
+            claim: line.claim,
             proof,
             reordered,
             says,
@@ -1373,7 +1222,9 @@ impl<'a> Elaborator<'a> {
             }
             Some(Method::Proof) => {
                 let last = self.last.clone().expect("a block's last step");
-                let held = self.lines.get(&last).expect("the block's last line");
+                let held = self
+                    .line_written(&last, &self.lines)
+                    .expect("the block's last line");
                 let owed = owed.expect("a proof block's goal");
                 let made = self.close_proof_block(block, &held, &inside, &owed)?;
                 closers.truncate(block.opened_at);
@@ -1403,14 +1254,8 @@ impl<'a> Elaborator<'a> {
         // block's own lines end with it.
         let said = self.said(&step)?;
         self.lines.restore(&block.lines);
-        self.lines.set(
-            number.clone(),
-            Line {
-                term: claim,
-                proof,
-                sentences: said,
-            },
-        );
+        self.lines
+            .set(number.clone(), Line::new(claim, proof, said));
         self.last = Some(number);
         Ok((block.outer.clone(), outer, closers))
     }
@@ -1434,13 +1279,16 @@ impl<'a> Elaborator<'a> {
                 self.unreached(step.line, "the block's last step contradicts no line")
             );
         };
-        let held = self.last.as_ref().and_then(|l| self.lines.get(l));
+        let held = self
+            .last
+            .as_ref()
+            .and_then(|l| self.line_written(l, &self.lines));
         // The line named is known by its own proof.
         let facts = facts.copy();
         self.know(&facts, other.claim.clone(), other.proof);
         let mut offered = vec![other.claim];
         if let Some(h) = &held {
-            offered.push(h.term.clone());
+            offered.push(h.claim.clone());
         }
         // One of the two carried to the order of points its denial names,
         // while the block's scope held (`contradicted_at`).
@@ -1761,7 +1609,7 @@ impl<'a> Elaborator<'a> {
     fn close_proof_block(
         &mut self,
         block: &Block,
-        held: &Line,
+        held: &ProvedClaim,
         inside: &[Closer],
         owed: &Rpn,
     ) -> Checked<(Rpn, Proof)> {
@@ -1798,7 +1646,7 @@ impl<'a> Elaborator<'a> {
         // An `obtain` inside the block widened the scope past what the
         // openers widened it to, and discharges where the block does.
         let mut proof = held.proof.clone();
-        let said = held.term.clone();
+        let said = held.claim.clone();
         for close in inside.iter().rev() {
             proof = self.close(close, proof, &said)?;
         }
@@ -1985,7 +1833,10 @@ impl<'a> Elaborator<'a> {
             .unwrap_or(&step.just.refs[0])
             .clone();
         let mut disjunction = self.carried(&cited, &block.outside, &self.lines.clone());
-        let cited_term = self.lines.get(&cited).map(|l| l.term).unwrap_or_default();
+        let cited_term = self
+            .line_written(&cited, &self.lines)
+            .map(|l| l.claim)
+            .unwrap_or_default();
         let wanted = t!(which, assumed[last], "wo");
         // Inside a block, a "for all" line is the disjunction read at the
         // block's letter (`line_says`), as the checker takes it.
@@ -2279,14 +2130,16 @@ impl<'a> Elaborator<'a> {
                 // The line already claims the existence, so there is no item
                 // to instantiate and nothing of its own to rename.
                 let where_ = step.just.refs.first().cloned();
-                let held = where_.as_ref().and_then(|w| self.lines.get(w));
+                let held = where_
+                    .as_ref()
+                    .and_then(|w| self.line_written(w, &self.lines));
                 let (Some(where_), Some(held)) = (where_, held) else {
                     return Err(self.unreached(
                         step.line,
                         "an obtain that names neither an item nor a line claiming the existence",
                     ));
                 };
-                ex = held.term.clone();
+                ex = held.claim.clone();
                 p_ex = self.carried(&where_, facts, &self.lines.clone());
                 // A line says each of its sentences and their parts apart, and
                 // a "for all" of it read at a block's letter (`line_says`), so
@@ -2702,14 +2555,8 @@ impl<'a> Elaborator<'a> {
             }
             _ => (body.clone(), proof),
         };
-        self.lines.set(
-            number,
-            Line {
-                term: line_term,
-                proof: line_proof,
-                sentences,
-            },
-        );
+        self.lines
+            .set(number, Line::new(line_term, line_proof, sentences));
         let discharge = if layers.len() == 1 {
             "rexlimdva"
         } else {
@@ -3104,26 +2951,23 @@ impl<'a> Elaborator<'a> {
         // The let's line says both, as a hypothesis line of two sentences
         // does, so a step citing it reads the membership as it reads the
         // equation, written out where it writes the name out.
-        let said = self
+        let line = self
             .lines
             .get(&kinded.label)
             .expect("the line the let laid down");
+        let said = self
+            .line_written(&kinded.label, &self.lines)
+            .expect("the line the let laid down");
         let both = self.b.ap(
             "jca",
-            &binds! {"ph" => scope, "ps" => &said.term, "ch" => &membership},
+            &binds! {"ph" => scope, "ps" => &said.claim, "ch" => &membership},
             &[&said.proof, &proof],
         );
-        let term = t!(said.term, membership, "wa");
+        let term = t!(said.claim, membership, "wa");
         // Held as a fact too, so it is carried into each scope opened below.
         self.know(facts, term.clone(), both.clone());
-        self.lines.set(
-            kinded.label.clone(),
-            Line {
-                term,
-                proof: both,
-                sentences: said.sentences,
-            },
-        );
+        self.lines
+            .set(kinded.label.clone(), line.restated(term, both));
         self.sets.insert(kinded.name.clone(), set);
         self.note_introduced(scope, facts)
     }
@@ -3184,14 +3028,8 @@ impl<'a> Elaborator<'a> {
         let proof = self
             .held(&held, &said, &outer)?
             .expect("the equation just laid down");
-        self.lines.set(
-            label,
-            Line {
-                term: said.clone(),
-                proof,
-                sentences: Vec::new(),
-            },
-        );
+        self.lines
+            .set(label, Line::new(said.clone(), proof, Vec::new()));
         let mut closers = closers;
         closers.push(Closer::Define(Rc::new(DefineCloser {
             scope: scope.clone(),
@@ -3317,21 +3155,6 @@ impl<'a> Elaborator<'a> {
         Ok(self.rpn(&whole.substitute(&binding)))
     }
 
-    /// A cited line's proof, said where the citing step sits: a line proved
-    /// before a block opened holds inside it too, and the scope carries a
-    /// copy that says so.
-    ///
-    /// The copy is the line's own claim, carried in as it is spelt when the
-    /// scope opened, so it is the fact with the line's key spelt as the line.
-    pub fn carried(&mut self, cite: &str, facts: &Facts, lines: &Lines) -> Proof {
-        let held = lines
-            .get(cite)
-            .unwrap_or_else(|| panic!("no line {cite} to carry"));
-        // The scope's copy of this line's own proof: another line saying the
-        // same is another line, which a step naming this one does not rest on.
-        facts.line_proof(cite, &held.term).unwrap_or(held.proof)
-    }
-
     /// The variables an existential's own binders introduce, outermost first.
     pub fn bound_in(&self, term: &Term) -> Vec<Symbol> {
         let mut out = Vec::new();
@@ -3403,53 +3226,6 @@ impl<'a> Elaborator<'a> {
         proof
     }
 
-    /// The facts a lemma is answered from, what the step cites first: its
-    /// justification's lines, or `refs` where a `requires` line names its
-    /// own. Each line the step cites is taken apart on its own and laid over
-    /// the scope's copies of the same claims, and first in order as well,
-    /// because a lemma's open antecedent takes the first fact that fits.
-    ///
-    /// A lemma proved in an outer scope (`allowed`) is offered only what that
-    /// scope holds.
-    pub fn with_cited(
-        &mut self,
-        step: Option<&Step>,
-        scope: &Rpn,
-        known: &Facts,
-        refs: Option<&[String]>,
-    ) -> Facts {
-        let outer = !self.frames.is_empty()
-            && *scope != self.frames[self.frames.len() - 1].scope;
-        let cited = Facts::new();
-        let refs: Vec<String> = match refs {
-            Some(r) => r.to_vec(),
-            None => step.map(|s| s.just.refs.clone()).unwrap_or_default(),
-        };
-        let lines = self.lines.clone();
-        for r in &refs {
-            let Some(line) = lines.get(r) else {
-                continue;
-            };
-            if outer && !self.holds(known, &line.term) {
-                continue;
-            }
-            let parts = Facts::new();
-            let whole = self.carried(r, known, &lines);
-            self.know(&parts, line.term.clone(), whole.clone());
-            self.unpack_line(&line, &whole, scope, &parts);
-            for (k, v) in parts.entries() {
-                self.know(&cited, k, v);
-            }
-        }
-        let out = cited.copy();
-        for (k, v) in known.entries() {
-            if !self.holds(&cited, &k) {
-                self.know(&out, k, v);
-            }
-        }
-        out
-    }
-
     /// Two lines paired, `jca`, the lines paired by what they claim.
     pub fn join(
         &mut self,
@@ -3463,10 +3239,10 @@ impl<'a> Elaborator<'a> {
         // A line joined supplies each of its sentences, and each group of
         // them it nests together, so that the claim may group them otherwise.
         for r in &step.just.refs {
-            let line = lines.get(r).expect("a line joined");
+            let line = self.line_written(r, &lines).expect("a line joined");
             let proof = self.carried(r, facts, &lines);
-            self.know_conjuncts(&held, &line.term, &proof, scope);
-            self.know(&held, line.term.clone(), proof);
+            self.know_conjuncts(&held, &line.claim, &proof, scope);
+            self.know(&held, line.claim, proof);
         }
         // A line joined is the claim, or a part of it, as it stands or over
         // other bound letters; and where the step cites a define, with the
@@ -3482,13 +3258,13 @@ impl<'a> Elaborator<'a> {
         let joined_terms: Vec<(Rpn, Proof)> = if defines.is_empty() {
             Vec::new()
         } else {
-            step.just
-                .refs
-                .iter()
-                .filter(|r| !defines.contains(r))
-                .filter_map(|r| lines.get(r).map(|l| (r, l.term.clone())))
-                .map(|(r, t)| (t, self.carried(r, facts, &lines)))
-                .collect()
+            let mut out = Vec::new();
+            for r in step.just.refs.iter().filter(|r| !defines.contains(r)) {
+                if let Some(l) = self.line_written(r, &lines) {
+                    out.push((l.claim, self.carried(r, facts, &lines)));
+                }
+            }
+            out
         };
         let found = |me: &mut Elaborator,
                      held: &Facts,

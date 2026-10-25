@@ -24,7 +24,7 @@ use super::field::{self, numeral as n, q, Poly, Value, Verdict, DIV, Q, SUB};
 use super::linear::{self, Certificate, How};
 use super::normal::{Emitter, Oracle, Quotiented, Run};
 use super::numerals;
-use super::state::{Elaborator, Vars};
+use super::state::{Elaborator, ProvedClaim, Vars};
 use super::{Facts, Line, Lines};
 use crate::binds;
 use crate::corpus::proof::{rows, RowReason};
@@ -521,7 +521,7 @@ impl<'a> Elaborator<'a> {
             .just
             .refs
             .iter()
-            .filter_map(|r| lines.get(r).map(|held| self.to_term(&held.term)))
+            .filter_map(|r| self.line_written(r, lines).map(|l| self.to_term(&l.claim)))
             .collect();
         let labels = self.b.flabel.clone();
         let Some(at) = crate::methods::algebra::apart_at(pairs, &cited, &labels) else {
@@ -581,8 +581,8 @@ impl<'a> Elaborator<'a> {
         let mut said = vec![self.to_term(term)];
         if let Some(step) = step {
             for r in &step.just.refs {
-                if let Some(line) = lines.get(r) {
-                    said.push(self.to_term(&line.term));
+                if let Some(line) = self.line_written(r, lines) {
+                    said.push(self.to_term(&line.claim));
                 }
             }
         }
@@ -606,8 +606,8 @@ impl<'a> Elaborator<'a> {
             let mut seen: Vec<Term> = vec![self.to_term(term), self.to_term(scope)];
             if let Some(step) = step {
                 for r in &step.just.refs {
-                    if let Some(line) = lines.get(r) {
-                        seen.push(self.to_term(&line.term));
+                    if let Some(line) = self.line_written(r, lines) {
+                        seen.push(self.to_term(&line.claim));
                     }
                 }
             }
@@ -722,10 +722,7 @@ impl<'a> Elaborator<'a> {
         );
         let whole = t!(lhs, rhs, "cmin", "co");
         for r in &step.just.refs {
-            let Some(held) = lines.get(r) else {
-                continue;
-            };
-            for said in self.parts(&held.term) {
+            for said in self.line_writes(r, lines) {
                 let node = self.to_term(&said);
                 let cited = field::denied(&node, &labels);
                 let Some(numerators) = rescales(cited.as_ref(), claim.as_ref()) else {
@@ -837,12 +834,9 @@ impl<'a> Elaborator<'a> {
         let labels = self.b.flabel.clone();
         let want = field::equation(&self.to_term(&t!(left, right, "wceq")), &labels);
         for r in &step.just.refs {
-            let Some(held) = lines.get(r) else {
-                continue;
-            };
             // A line saying several things is read a sentence at a time, as
             // any line a step cites is.
-            for part in self.parts(&held.term) {
+            for part in self.line_writes(r, lines) {
                 let cited = self.to_term(&part);
                 if cited.variable().is_some()
                     || cited.label() != Some("wceq")
@@ -1517,10 +1511,7 @@ impl<'a> Elaborator<'a> {
         // What each cited equation had divided out of it.
         let mut taken_out: Vec<Poly> = Vec::new();
         for r in &step.just.refs {
-            let Some(held) = lines.get(r) else {
-                continue;
-            };
-            for said in self.parts(&held.term) {
+            for said in self.line_writes(r, lines) {
                 let node = self.to_term(&said);
                 if let Some(one) = field::equation(&node, &labels) {
                     let read = claim_says(&node, one, &labels);
@@ -1901,10 +1892,10 @@ impl<'a> Elaborator<'a> {
         let labels = self.b.flabel.clone();
         let want = field::equation(&self.to_term(&t!(left, right, "wceq")), &labels);
         for r in &step.just.refs {
-            let Some(held) = lines.get(r) else {
+            let Some(held) = self.line_written(r, lines) else {
                 continue;
             };
-            let cited = self.to_term(&held.term);
+            let cited = self.to_term(&held.claim);
             if cited.variable().is_some() || cited.label() != Some("wceq") {
                 continue;
             }
@@ -3670,11 +3661,7 @@ impl<'a> Elaborator<'a> {
         let mut refs = step.just.refs.clone();
         if let Some(member) = self.member.clone() {
             if let Some(proof) = self.held(facts, &member, scope)? {
-                let line = Line {
-                    term: member,
-                    proof,
-                    sentences: Vec::new(),
-                };
+                let line = Line::new(member, proof, Vec::new());
                 let own = fmt(&step.number);
                 lines_out.set(own.clone(), line);
                 refs.push(own);
@@ -3754,10 +3741,7 @@ impl<'a> Elaborator<'a> {
         let (a, b) = (self.rpn(&kids[0]), self.rpn(&kids[1]));
         let strict = t!(&a, &b, "clt", "wbr");
         for r in &step.just.refs {
-            let Some(held) = lines.get(r) else {
-                continue;
-            };
-            if !self.parts(&held.term).contains(&strict) {
+            if !self.line_writes(r, lines).contains(&strict) {
                 continue;
             }
             let node = self.to_term(&strict);
@@ -3818,11 +3802,7 @@ impl<'a> Elaborator<'a> {
                             let label = format!("row {} side {side}", row.line);
                             here.set(
                                 label.clone(),
-                                Line {
-                                    term: equation,
-                                    proof,
-                                    sentences: Vec::new(),
-                                },
+                                Line::new(equation, proof, Vec::new()),
                             );
                             refs.push(label);
                         }
@@ -3899,14 +3879,18 @@ impl<'a> Elaborator<'a> {
         lines: &Lines,
     ) -> Checked<Route<WrittenOut>> {
         let claim = self.to_term(term);
-        let cited: Vec<(String, Line)> = refs
+        let cited: Vec<ProvedClaim> = refs
             .iter()
-            .filter_map(|r| lines.get(r).map(|l| (r.clone(), l)))
+            .filter_map(|r| self.line_written(r, lines))
+            .collect();
+        let labels: Vec<&String> = refs
+            .iter()
+            .filter(|r| self.line_written(r, lines).is_some())
             .collect();
         // Every sum is written over one letter nothing holds, so that a sum
         // a define names and the same sum a line writes are one term.
         let mut seen: Vec<Term> = vec![claim.clone(), self.to_term(scope)];
-        seen.extend(cited.iter().map(|(_, l)| self.to_term(&l.term)));
+        seen.extend(cited.iter().map(|l| self.to_term(&l.claim)));
         let refs: Vec<&Term> = seen.iter().collect();
         let as_written = WrittenOut {
             term: term.clone(),
@@ -3924,7 +3908,7 @@ impl<'a> Elaborator<'a> {
         rest.extend(
             cited
                 .iter()
-                .map(|(_, l)| self.sums_over(&self.to_term(&l.term), &letter)),
+                .map(|l| self.sums_over(&self.to_term(&l.claim), &letter)),
         );
         while let Some(node) = rest.pop() {
             if node.variable().is_some() {
@@ -3958,11 +3942,11 @@ impl<'a> Elaborator<'a> {
         let out = written_out(self, &claim);
         let term_out = self.rpn(&out);
         let (facts_out, lines_out) = (facts.copy(), lines.copy());
-        for (r, line) in &cited {
-            let said = self.to_term(&line.term);
+        for (r, line) in labels.into_iter().zip(&cited) {
+            let said = self.to_term(&line.claim);
             let written = written_out(self, &said);
             let out_rpn = self.rpn(&written);
-            if out_rpn == line.term {
+            if out_rpn == line.claim {
                 continue;
             }
             let held = self.carried(r, facts, lines);
@@ -3971,16 +3955,10 @@ impl<'a> Elaborator<'a> {
                     "a cited line is not carried to its names written out",
                 ));
             };
-            let proof = pf!(self.b; scope, line.term, out_rpn, held, alike, "mpbid");
+            let proof = pf!(self.b; scope, line.claim, out_rpn, held, alike, "mpbid");
             self.know(&facts_out, out_rpn.clone(), proof.clone());
-            lines_out.set(
-                r.clone(),
-                Line {
-                    term: out_rpn,
-                    proof,
-                    sentences: line.sentences.clone(),
-                },
-            );
+            let kept = lines.get(r).expect("a line cited");
+            lines_out.set(r.clone(), kept.restated(out_rpn, proof));
         }
         Ok(Built(WrittenOut {
             term: term_out,
@@ -4008,10 +3986,7 @@ impl<'a> Elaborator<'a> {
         let mut line_of: Vec<usize> = Vec::new();
         let mut implied: Vec<Term> = Vec::new();
         for (at, r) in refs.iter().enumerate() {
-            let Some(held) = lines.get(r) else {
-                continue;
-            };
-            for said in self.parts(&held.term) {
+            for said in self.line_writes(r, lines) {
                 let one = self.to_term(&said);
                 if linear::fact(&one, &labels).is_some() {
                     parts.push(said);
@@ -4063,10 +4038,7 @@ impl<'a> Elaborator<'a> {
         let mut implied_given = Vec::new();
         let mut implied_where: Vec<(String, Term)> = Vec::new();
         for r in refs {
-            let Some(held) = lines.get(r) else {
-                continue;
-            };
-            for said in self.parts(&held.term) {
+            for said in self.line_writes(r, lines) {
                 if skip.contains(&said) {
                     continue;
                 }
@@ -5562,14 +5534,7 @@ impl<'a> Elaborator<'a> {
                 // The bound stands as a line named by its own text.
                 let name = bound.to_string();
                 let held = lines.copy();
-                held.set(
-                    name.clone(),
-                    Line {
-                        term: bound.clone(),
-                        proof,
-                        sentences: Vec::new(),
-                    },
-                );
+                held.set(name.clone(), Line::new(bound.clone(), proof, Vec::new()));
                 let mut more = refs.to_vec();
                 more.push(name);
                 let mut skipped = skip.to_vec();
@@ -5917,7 +5882,10 @@ impl<'a> Elaborator<'a> {
     ) -> Checked<Route<Proof>> {
         let want = self.rpn(said);
         let held = self.carried(r, facts, lines);
-        let term = lines.get(r).map(|l| l.term).unwrap_or_default();
+        let term = self
+            .line_written(r, lines)
+            .map(|l| l.claim)
+            .unwrap_or_default();
         if term == want {
             return Ok(Built(held));
         }

@@ -138,7 +138,7 @@ impl Elaborator<'_> {
             .just
             .refs
             .iter()
-            .filter_map(|r| self.lines.get(r).map(|l| l.term.clone()))
+            .filter_map(|r| self.line_written(r, &self.lines).map(|l| l.claim))
             .collect();
         let made = self.inspected(&claim, scope, &known, &lines)?;
         match made {

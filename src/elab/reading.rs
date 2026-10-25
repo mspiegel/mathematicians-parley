@@ -721,11 +721,9 @@ impl<'a> Elaborator<'a> {
     /// by its define's label. A sequence by recursion is written out another
     /// way (`recursion_terms`), and is not among them.
     pub fn hypothesis_defines(&self, label: &str) -> Vec<String> {
-        let Some(line) = self.lines.get(label) else {
-            return Vec::new();
-        };
+        let sentences = self.line_sentences(label, &self.lines);
         let stated = &self.checked.statement_definitions;
-        line.sentences
+        sentences
             .iter()
             .flat_map(Node::names)
             .filter(|name| stated.contains_key(name))

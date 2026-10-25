@@ -18,7 +18,6 @@ use std::rc::Rc;
 
 use indexmap::IndexMap;
 
-use crate::formula::Node;
 use crate::mm::spell::{Part, Proof};
 use crate::mm::Rpn;
 
@@ -26,6 +25,7 @@ pub(crate) mod calculators;
 pub(crate) mod definitions;
 pub mod elaborate;
 pub(crate) use crate::methods::field;
+mod cited;
 mod inspection;
 pub(crate) use crate::methods::linear;
 pub(crate) mod matcher;
@@ -434,17 +434,7 @@ impl Written {
     }
 }
 
-/// A claim, a proof of it at one scope, and the sentences it was read from.
-///
-/// A line may say several things, and a substitution may land in one of
-/// them, so what is kept is every sentence rather than the claim as one
-/// tree. A line read from no text at all keeps none.
-#[derive(Clone)]
-pub struct Line {
-    pub term: Rpn,
-    pub proof: Proof,
-    pub sentences: Vec<Node>,
-}
+pub use cited::Line;
 
 /// Each proved line of the theorem, by its label or number.
 pub type Lines = Table<String, Line>;

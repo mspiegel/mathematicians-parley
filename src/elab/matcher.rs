@@ -4298,12 +4298,15 @@ impl<'a> Elaborator<'a> {
         lines: &Lines,
     ) -> Checked<Vec<(Rpn, Proof)>> {
         let mut sources: Vec<(Rpn, Proof)> = Vec::new();
-        for cited in step.just.refs.iter().filter_map(|r| lines.get(r)) {
-            let proof = match self.held(facts, &cited.term, scope)? {
-                Some(p) => p,
-                None => cited.proof.clone(),
+        for r in &step.just.refs {
+            let Some(cited) = self.line_written(r, lines) else {
+                continue;
             };
-            sources.push((cited.term, proof));
+            let proof = match self.held(facts, &cited.claim, scope)? {
+                Some(p) => p,
+                None => cited.proof,
+            };
+            sources.push((cited.claim, proof));
         }
         for r in &step.requires {
             let said = self.claim_of(&r.fact)?;
@@ -6797,8 +6800,8 @@ impl<'a> Elaborator<'a> {
                 .just
                 .refs
                 .iter()
-                .filter_map(|r| self.lines.get(r))
-                .flat_map(|l| conjuncts_of(&self.to_term(&l.term)))
+                .filter_map(|r| self.line_written(r, &self.lines))
+                .flat_map(|l| conjuncts_of(&self.to_term(&l.claim)))
                 .collect(),
             None => Vec::new(),
         };
