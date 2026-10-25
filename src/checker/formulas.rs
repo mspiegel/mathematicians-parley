@@ -3371,6 +3371,94 @@ pub fn check_transitivity(
     }
 }
 
+/// A calculation claims its chain's first term related to its last by the
+/// chain's relation: `=` where every link is `=`, the way the chain goes
+/// where a link is an order, strict where one is, and `≡ (mod n)` where a
+/// link is a congruence (`SYNTAX.md`, calculation). A chain of `=` and `>`
+/// claims `>`, not `≥`.
+pub fn check_calculation_claims(report: &mut Report, thm: &Theorem, known: &Known) {
+    for step in &thm.steps {
+        let links = chain_links(&step.just, &thm.path);
+        let Some(chained) = chain_claim(&links, known) else {
+            continue;
+        };
+        let chained = match chained {
+            ChainClaim::Ends(node) => node,
+            ChainClaim::BothWays => {
+                report.say(
+                    &thm.path,
+                    step.just.line,
+                    format!(
+                        "step {} chains orders going up and going down, which say nothing of its ends",
+                        step.number
+                    ),
+                );
+                continue;
+            }
+        };
+        let Some(claim) = known.whole_as_written(&step.claim) else {
+            continue; // `check_formulas` says it does not read
+        };
+        if !known.alike(&claim, &chained) {
+            report.say(
+                &thm.path,
+                step.just.line,
+                format!(
+                    "step {} claims {}, and its chain gives {}",
+                    step.number,
+                    step.claim_text(),
+                    known.print(&chained)
+                ),
+            );
+        }
+    }
+}
+
+/// What a calculation's chain gives of its ends.
+enum ChainClaim {
+    /// The first term related to the last by the chain's relation.
+    Ends(Node),
+    /// Orders going up and going down, which give nothing.
+    BothWays,
+}
+
+/// What `links` give, as `check_calculation_claims` reads it; None for no
+/// chain, a link that does not read (`check_formulas`' to report), or a
+/// congruence joined with an order (`check_chain_congruences`').
+fn chain_claim(links: &[Link], known: &Known) -> Option<ChainClaim> {
+    let read = |w: &Written| known.read_as_written(&w.formula().ok()?);
+    let first = read(&links.first()?.from)?;
+    let last_line = &links.last()?.line;
+    let last = read(&last_line.term)?;
+    let congruence = links.iter().find(|l| l.line.relation == "≡");
+    let (relation, modulus) = match congruence {
+        Some(link) => {
+            let ordered = links
+                .iter()
+                .any(|l| !["=", "≡"].contains(&l.line.relation.as_str()));
+            if ordered {
+                return None;
+            }
+            ("≡", Some(read(link.line.modulus.as_ref()?)?))
+        }
+        None => {
+            let related: Option<Vec<Related>> = links
+                .iter()
+                .map(|l| l.claim(known).as_ref().and_then(Related::of))
+                .collect();
+            match chain_rel(&related?) {
+                Some(rel) => (sign(rel), None),
+                None => return Some(ChainClaim::BothWays),
+            }
+        }
+    };
+    let at = (last_line.term.path(), last_line.line);
+    let (g, sorts) = (known.env.g, &known.sorts);
+    related(g, sorts, relation, &first, &last, modulus.as_ref(), at)
+        .ok()
+        .map(ChainClaim::Ends)
+}
+
 /// An `antisymmetry` step (`METHODS.md`, antisymmetry): it cites two lines,
 /// an order `a ≤ b` and its converse `b ≤ a`, and claims `a = b`, either way
 /// round, every atom of the two sides real.

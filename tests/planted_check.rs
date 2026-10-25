@@ -901,6 +901,35 @@ fn cases() -> Vec<Case> {
             )],
             "step 1 joins H1 and claims k ≥ 1, which no line it joins says",
         ),
+        // A calculation claims its first term by the chain's relation to
+        // its last: a chain with a `>` link claims `>`.
+        case(
+            "a calculation claiming a weaker relation than its chain gives",
+            vec![edit(
+                "tests/elaborator/reading-equations.proof",
+                Some("theorem a-chain-pair-in-a-calculation-link\n".to_string()),
+                "theorem a-weaker-calculation-claim\n  let a ∈ ℝ    (H1)\n  let b ∈ ℝ    (H2)\n  let c ∈ ℝ    (H3)\n  assume a = b    (H4)\n  assume b > c    (H5)\n  then a ≥ c\n\n1.  a ≥ c\n    calculation\n      a = b    H4\n        > c    H5\n\ntheorem a-chain-pair-in-a-calculation-link\n".to_string(),
+            )],
+            "step 1 claims a ≥ c, and its chain gives a > c",
+        ),
+        case(
+            "a calculation claiming other than its chain's ends",
+            vec![edit(
+                "tests/elaborator/reading-equations.proof",
+                Some("theorem a-chain-pair-in-a-calculation-link\n".to_string()),
+                "theorem a-calculation-claiming-other-ends\n  let a ∈ ℝ    (H1)\n  let b ∈ ℝ    (H2)\n  let c ∈ ℝ    (H3)\n  assume a = b    (H4)\n  assume b > c    (H5)\n  then a > b\n\n1.  a > b\n    calculation\n      a = b    H4\n        > c    H5\n\ntheorem a-chain-pair-in-a-calculation-link\n".to_string(),
+            )],
+            "step 1 claims a > b, and its chain gives a > c",
+        ),
+        case(
+            "a calculation claiming a congruence modulo another number",
+            vec![edit(
+                "tests/elaborator/reading-equations.proof",
+                Some("theorem a-chain-pair-in-a-calculation-link\n".to_string()),
+                "theorem a-congruence-claimed-modulo-another\n  let a ∈ ℤ    (H1)\n  let b ∈ ℤ    (H2)\n  let c ∈ ℤ    (H3)\n  assume a = b    (H4)\n  assume b ≡ c (mod 3)    (H5)\n  then a ≡ c (mod 6)\n\n1.  a ≡ c (mod 6)\n    calculation\n      a = b    H4\n        ≡ c (mod 3)    H5\n\ntheorem a-chain-pair-in-a-calculation-link\n".to_string(),
+            )],
+            "step 1 claims a ≡ c (mod 6), and its chain gives a ≡ c (mod 3)",
+        ),
         case(
             "join a line with a name read as what its define names",
             vec![edit(

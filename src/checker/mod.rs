@@ -1193,6 +1193,7 @@ fn check_passes(
     citations::check_stated_domains(report, thm, library, k, scopes);
     formulas::check_method_cites_used(report, thm, library, k, scopes);
     formulas::check_chain_links(report, thm, library, k, scopes);
+    formulas::check_calculation_claims(report, thm, k);
     structure::check_last_step(report, thm, k);
     structure::check_steps_used(report, thm);
     structure::check_readings(report, thm);
