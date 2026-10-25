@@ -901,6 +901,15 @@ fn cases() -> Vec<Case> {
             )],
             "step 1 joins H1 and claims k ≥ 1, which no line it joins says",
         ),
+        case(
+            "join a line with a name read as what its define names",
+            vec![edit(
+                "tests/elaborator/reading-defines.proof",
+                Some("theorem a-define-applied-in-a-calculation-link\n".to_string()),
+                "theorem a-define-read-in-a-join\n  let a ∈ ℝ    (H1)\n  assume a + 1 > 0    (H2)\n  then a + 1 > 0\n\nlet e = a + 1, a real number    (D1)\n    membership\n    reads one more than a\n\n1.  e > 0\n    substitute e = a + 1 (D1) into H2\n\n2.  a + 1 > 0\n    join D1, 1\n\ntheorem a-define-applied-in-a-calculation-link\n".to_string(),
+            )],
+            "step 2 joins D1, 1 and claims a + 1 > 0, which no line it joins says",
+        ),
         // A line saying several relations gives a chain the one that makes
         // a chain to the claim, and one saying two that both do gives the
         // chain nothing.
