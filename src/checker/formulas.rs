@@ -1921,7 +1921,15 @@ pub fn check_cases_cited(report: &mut Report, thm: &Theorem, known: &Known) {
         if !owner.just.head.is(Method::Cases) {
             continue;
         }
-        let Some(cited) = owner.just.refs.first() else {
+        // The line split is the first the step cites that is not a define;
+        // a define cited beside it reads its name (What a cited line says).
+        let cited = owner
+            .just
+            .refs
+            .iter()
+            .find(|r| !names_define(thm, r))
+            .or(owner.just.refs.first());
+        let Some(cited) = cited else {
             continue;
         };
         // A reference to nothing is `check_references`'s to report.
@@ -1964,7 +1972,9 @@ pub fn check_cases_cited(report: &mut Report, thm: &Theorem, known: &Known) {
             }
             _ => false,
         });
-        if !whole.any(|s| known.alike(&want, &s.written)) {
+        if !whole
+            .any(|s| known.alike(&want, &s.written) || known.alike(&want, &s.cited))
+        {
             report.say(
                 &thm.path,
                 owner.just.line,
@@ -1975,6 +1985,11 @@ pub fn check_cases_cited(report: &mut Report, thm: &Theorem, known: &Known) {
             );
         }
     }
+}
+
+/// Whether `label` names a define of `thm`.
+fn names_define(thm: &Theorem, label: &str) -> bool {
+    thm.defines.iter().any(|d| d.label == label)
 }
 
 /// One link of a calculation: the line, with the term it continues from.

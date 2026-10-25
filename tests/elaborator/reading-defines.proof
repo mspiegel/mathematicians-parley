@@ -105,6 +105,41 @@ let e = a + 1, a real number                                          (D1)
     2.1.  a + 1 = 0
           algebra, from D1, S, contradicting 1
 
+theorem a-define-read-in-a-case-split
+  note        Rule: define, a step citing a define reads its name as what
+              it names. Route: cases, from L. Line 1 says e < 0 or e > 0;
+              the cases assume a + 1 < 0 and a + 1 > 0, its disjuncts with
+              e read as a + 1.
+  let a ∈ ℝ                                                           (H1)
+  assume a + 1 < 0 or a + 1 > 0                                       (H2)
+  then a + 1 ≠ 0
+
+let e = a + 1, a real number                                          (D1)
+    membership
+    reads one more than a
+
+1.  e < 0 or e > 0
+    substitute e = a + 1 (D1) into H2
+
+2.  a + 1 ≠ 0
+    cases, from D1, 1
+
+    case
+    assume a + 1 < 0                                                  (C1)
+
+    2.1.  a + 1 ≠ 0
+          inequalities
+            a + 1 < 0       C1
+            a + 1 ≠ 0       weakening
+
+    case
+    assume a + 1 > 0                                                  (C2)
+
+    2.2.  a + 1 ≠ 0
+          inequalities
+            a + 1 > 0       C2
+            a + 1 ≠ 0       weakening
+
 theorem a-define-applied-in-a-transitivity-chain
   note        Rule: define, a defined function applied is its rule at the
               argument. Route: transitivity, from L. The chain's middle

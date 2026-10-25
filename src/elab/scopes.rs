@@ -1975,7 +1975,15 @@ impl<'a> Elaborator<'a> {
             );
             which = t!(which, one, "wo");
         }
-        let cited = step.just.refs[0].clone();
+        // The line split is the first the step cites that is not a define;
+        // a define cited beside it reads its name, as the checker takes it.
+        let cited = step
+            .just
+            .refs
+            .iter()
+            .find(|r| !self.thm.defines.iter().any(|d| d.label == **r))
+            .unwrap_or(&step.just.refs[0])
+            .clone();
         let mut disjunction = self.carried(&cited, &block.outside, &self.lines.clone());
         let cited_term = self.lines.get(&cited).map(|l| l.term).unwrap_or_default();
         let wanted = t!(which, assumed[last], "wo");
