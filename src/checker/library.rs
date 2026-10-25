@@ -538,6 +538,16 @@ impl<'a> Known<'a> {
                 };
                 self.say_of(&at, i, from, &mut written);
             }
+            // A subset's members said as a "for all" are read at a block's
+            // letter as a written one is.
+            let members: Vec<Node> = written
+                .iter()
+                .filter(|(_, from)| *from == SaidFrom::Members(i))
+                .map(|(n, _)| n.clone())
+                .collect();
+            for at in self.at_block_letters(stated, &members, None) {
+                written.push((at, SaidFrom::Members(i)));
+            }
         }
         if sentences.len() > 1 && read.len() == sentences.len() {
             let all: Vec<Node> = read.into_iter().cloned().collect();

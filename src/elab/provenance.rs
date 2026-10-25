@@ -733,7 +733,7 @@ impl<'a> Elaborator<'a> {
                 .any(|x| self.thm.defines.iter().any(|d| &d.label == x));
             let says_it = says_it || read_through;
             let whole = self.carried(r, facts, &lines);
-            let held = self.line_supplies(r, scope, facts, &lines);
+            let held = self.line_supplies(r, scope, facts, &lines)?;
             if let Some(p) = self.held(&held, term, scope)? {
                 return Ok(Built(p));
             }

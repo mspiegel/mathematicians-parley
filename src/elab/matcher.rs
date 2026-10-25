@@ -5964,7 +5964,7 @@ impl<'a> Elaborator<'a> {
                     None => facts.clone(),
                     Some(step) => {
                         let supplied = self.supplied(Some(step), scope, facts)?;
-                        self.with_cited(Some(step), scope, &supplied, None)
+                        self.with_cited(Some(step), scope, &supplied, None)?
                     }
                 };
                 let across =

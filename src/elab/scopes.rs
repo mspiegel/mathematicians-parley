@@ -2323,7 +2323,7 @@ impl<'a> Elaborator<'a> {
                         }
                     };
                     let supplied = self.supplied(Some(step), scope, facts)?;
-                    let known = self.with_cited(Some(step), scope, &supplied, None);
+                    let known = self.with_cited(Some(step), scope, &supplied, None)?;
                     let p_given = match self.settle(
                         &self.to_term(&given),
                         scope,

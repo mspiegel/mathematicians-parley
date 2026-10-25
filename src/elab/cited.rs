@@ -115,10 +115,10 @@ impl<'a> Elaborator<'a> {
         scope: &Rpn,
         facts: &Facts,
         lines: &Lines,
-    ) -> Facts {
+    ) -> Checked<Facts> {
         let out = Facts::new();
         let Some(line) = lines.get(cite) else {
-            return out;
+            return Ok(out);
         };
         let whole = self.carried(cite, facts, lines);
         self.know(&out, line.term.clone(), whole.clone());
@@ -127,11 +127,15 @@ impl<'a> Elaborator<'a> {
         for (claim, proof) in out.entries() {
             if let Some(members) = self.subset_members(&claim, &proof, scope) {
                 if !self.holds(&out, &members.claim) {
-                    self.know(&out, members.claim, members.proof);
+                    self.know(&out, members.claim.clone(), members.proof.clone());
                 }
+                // Read at a block's letter, as a "for all" the line writes is
+                // (`know_in_scope_at_letters`); one that does not fit gives
+                // nothing.
+                self.know_at_letters(&members.claim, &members.proof, scope, &out)?;
             }
         }
-        out
+        Ok(out)
     }
 
     /// What a subset says of its members (`SYNTAX.md`, What a cited line
@@ -188,7 +192,7 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         lines: &Lines,
     ) -> Checked<Facts> {
-        let out = self.line_supplies(cite, scope, facts, lines);
+        let out = self.line_supplies(cite, scope, facts, lines)?;
         for (claim, proof) in out.entries() {
             let implied = self.implied(&claim, &proof, scope, facts)?;
             for (said, given) in implied.entries() {
@@ -240,7 +244,7 @@ impl<'a> Elaborator<'a> {
         scope: &Rpn,
         known: &Facts,
         refs: Option<&[String]>,
-    ) -> Facts {
+    ) -> Checked<Facts> {
         let outer = !self.frames.is_empty()
             && *scope != self.frames[self.frames.len() - 1].scope;
         let cited = Facts::new();
@@ -256,7 +260,7 @@ impl<'a> Elaborator<'a> {
             if outer && !self.holds(known, &line.term) {
                 continue;
             }
-            let parts = self.line_supplies(r, scope, known, &lines);
+            let parts = self.line_supplies(r, scope, known, &lines)?;
             for (k, v) in parts.entries() {
                 self.know(&cited, k, v);
             }
@@ -267,7 +271,7 @@ impl<'a> Elaborator<'a> {
                 self.know(&out, k, v);
             }
         }
-        out
+        Ok(out)
     }
 
     /// Each line written above a block's `let x ∈ X` read as the checker
